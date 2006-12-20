@@ -1,77 +1,55 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:51821 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([66.187.233.31]:36106 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423046AbWLUVx1 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 21 Dec 2006 16:53:27 -0500
-Date: Thu, 21 Dec 2006 22:53:13 +0100
+	id S1030357AbWLTVM2 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 20 Dec 2006 16:12:28 -0500
+Date: Wed, 20 Dec 2006 22:12:24 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Bryan Henderson <bryanh@giraffe-data.com>
-Cc: ethanol@armory.com, ams@gnu.org, P@draigbrady.com, acahalan@gmail.com,
-        util-linux-ng@vger.kernel.org
-Subject: Re: splitting util-linux (was: kill)
-Message-ID: <20061221215312.GP5971@petra.dvoda.cz>
-References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com> <20061220104547.GJ5971@petra.dvoda.cz> <20061220214503.0BB4744007@Psilocybe.Update.UU.SE> <20061220235519.GN5971@petra.dvoda.cz> <20061221041033.GB13134@armory.com> <80765.bryanh@giraffe-data.com>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: List util-linux-ng <util-linux-ng@vger.kernel.org>
+Subject: Re: kill (was: Re: util-linux: orphan)
+Message-ID: <20061220211224.GL5971@petra.dvoda.cz>
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz> <787b0d920612200833h38cd9023ufb1ebba87d4b36ec@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <80765.bryanh@giraffe-data.com>
+In-Reply-To: <787b0d920612200833h38cd9023ufb1ebba87d4b36ec@mail.gmail.com>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 21, 2006 at 04:34:00PM +0000, Bryan Henderson wrote:
-> I have thought for many years that util-linux is obsolete.  When it
-> was new, it was a quite helpful distribution of components with which
-> to build a system.  Today, we have a plethora of giant Linux distros
-> sourceforge, and freshmeat.  Such things eliminate most of the
-> original value in having one big tarball.  In fact, the amalgamation
+On Wed, Dec 20, 2006 at 11:33:53AM -0500, Albert Cahalan wrote:
+> SuSE is probably dying, having made a deal with some bastards
+> who've screwed every business "partner" they've ever had.
 
- That's not 100% true. You need upstream and downstream maintainer for
- every package. You need an infrastructure (scm, mailing list, ...)
- for every package. Maybe it seems like something simple (10 clicks at
- sf.net), but my experience is completely different. Maintainig is
- really boring work and after few months nobody wants to do it... 
+ Please! ... our business is not talk about Novell's business.
+
+> > My dream is stable and useful libproc (with python and perl binding)
+> > and one or two packages based on this library. (Yes we have libproc
+> > in procps, but this library is completely useless outside procps...).
+> 
+> I started a move toward that, adding symbol versioning and such.
+
+ We're ***off-topic***... but I think the problem with libproc is not about
+ versioning. I see there (exported) global variables, functions like 
  
- Number of well maintained packages is not so big. Believe me, people
- who work on Linux distributions fight with unmaintained projects every
- day.
+ void getstat(jiff *restrict cuse, jiff *restrict cice, jiff *restrict
+         csys, jiff *restrict cide, jiff *restrict ciow, jiff *r unsigned long
+         *restrict pin, unsigned long *restrict pout, unsigned long *restrict
+         s_in, unsigned long *restrict unsigned *restrict intr, unsigned
+         *restrict ctxt, unsigned int *restrict running, unsigned int
+         *restrict blocked, unsigned int *restrict btime, unsigned int
+         *restrict processes)
+ 
+ API is not uniform ("esprit de corps") and many others things which
+ looks really ugly. 
 
-> of unrelated tools now causes more pain than convenience, because you
-> often want some parts of the package but not others (as evidenced in
-> the 'kill' discussion).  We also seem to have a maintainership
+> old interfaces gradually and drop them one by one. If you know of
+> a low-bloat high-performance way to make things work, tell me.
 
- Well, kill is nice example where is not problem remove it from
- util-linux (... because procps). 
+ I think the best docs about shared libs:
 
-> problem, since there are people who are willing to maintain some
-> pieces, but less energetic about maintaining the entire package or
-> working through a central bureaucracy.
+    http://people.redhat.com/drepper/dsohowto.pdf
 
- I don't see any problem collaborate with more people. The
- util-linux-ng really could be the area where we can together improve
- basic Linux utils.
-
- Maybe I'm blind, but why do you think that the code in look, cal, ...
- will be better if you split util-linux into more small packages?
-
- People usually fork or split projects if they have a problem with
- collaboration. Is it our actual problem? I don't think so.
-
- The util-linux exists more than 10 year without fatal problems and I
- think it can exist next 10 years.
-
-> Forking of util-linux is the ideal time to improve this.  Just don't
-> fork the whole package; fork the part you're interested in.  The
-
- No, the motivation for new util-linux upstream is that there is more
- than 100 util-linux patches in Suse, Red Hat or Debian. We're
- interested in whole package and we want to merge changes from
- distribution to this upstream and sync code in util-linux with
- kernel. This is necessary step. 
-
- BTW, it's not so long time ago when schedutils has been incorporated
- to util-linux. It seems that poeple are able to found reasons why merge
- is better than split :-)
-
-    Karel
+   Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
