@@ -1,45 +1,40 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from adsl-64-171-19-66.dsl.sntc01.pacbell.net ([64.171.19.66]:4195
+Received: from adsl-64-171-19-66.dsl.sntc01.pacbell.net ([64.171.19.66]:1723
 	"EHLO giraffe.giraffe-data.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1423218AbWLVHLs (ORCPT
+	by vger.kernel.org with ESMTP id S1422979AbWLURAB (ORCPT
 	<rfc822;util-linux-ng@vger.kernel.org>);
-	Fri, 22 Dec 2006 02:11:48 -0500
-Message-ID: <42767.bryanh@giraffe-data.com>
-Date: 22 Dec 2006 06:44:21 +0000
+	Thu, 21 Dec 2006 12:00:01 -0500
+Message-ID: <80765.bryanh@giraffe-data.com>
+Date: 21 Dec 2006 16:34:00 +0000
 From: bryanh@giraffe-data.com (Bryan Henderson)
-To: kzak@redhat.com
-CC: ethanol@armory.com, ams@gnu.org, P@draigbrady.com, acahalan@gmail.com,
+To: ethanol@armory.com
+CC: kzak@redhat.com, ams@gnu.org, P@draigbrady.com, acahalan@gmail.com,
         util-linux-ng@vger.kernel.org
-In-reply-to: <20061221215312.GP5971@petra.dvoda.cz> (kzak@redhat.com)
+In-reply-to: <20061221041033.GB13134@armory.com> (ethanol@armory.com)
 Subject: Re: splitting util-linux (was: kill)
-References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com> <20061220104547.GJ5971@petra.dvoda.cz> <20061220214503.0BB4744007@Psilocybe.Update.UU.SE> <20061220235519.GN5971@petra.dvoda.cz> <20061221041033.GB13134@armory.com> <80765.bryanh@giraffe-data.com> <20061221215312.GP5971@petra.dvoda.cz>
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com> <20061220104547.GJ5971@petra.dvoda.cz> <20061220214503.0BB4744007@Psilocybe.Update.UU.SE> <20061220235519.GN5971@petra.dvoda.cz> <20061221041033.GB13134@armory.com>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> That's not 100% true. You need upstream and downstream maintainer for
-> every package. You need an infrastructure (scm, mailing list, ...)
-> for every package. Maybe it seems like something simple (10 clicks at
-> sf.net), but my experience is completely different. Maintainig is
-> really boring work and after few months nobody wants to do it... 
-> 
-> Number of well maintained packages is not so big. Believe me, people
-> who work on Linux distributions fight with unmaintained projects every
-> day.
+I have thought for many years that util-linux is obsolete.  When it
+was new, it was a quite helpful distribution of components with which
+to build a system.  Today, we have a plethora of giant Linux distros,
+sourceforge, and freshmeat.  Such things eliminate most of the
+original value in having one big tarball.  In fact, the amalgamation
+of unrelated tools now causes more pain than convenience, because you
+often want some parts of the package but not others (as evidenced in
+the 'kill' discussion).  We also seem to have a maintainership
+problem, since there are people who are willing to maintain some
+pieces, but less energetic about maintaining the entire package or
+working through a central bureaucracy.
 
-If you're willing to do all that work for all of the components of
-util-linux, or alternatively if most of the components simply don't
-require any maintenance, then the labor-distributing advantage of
-splitting isn't there.  And you've obviously determined that you can
-distribute one big package more easily than lots of little ones
-(myself, I've found the opposite -- I split things up into independent
-parts so that I can release in smaller doses).
-
-That still leaves the flexibility hit for users, since it's extra work
-to install just what you want or upgrade just one piece without
-disturbing other pieces.
-
-But never mind.  I brought it up in case you had thoughts in the same
-vein; since you don't, I know emails from me won't change that.
+Forking of util-linux is the ideal time to improve this.  Just don't
+fork the whole package; fork the part you're interested in.  The
+discussion I've seen so far shows the interest mainly in the
+filesystem tools, so maybe we should just have a new linuxfs-util (and
+use linuxfs-devel mailing list).  (Even that would be too big a
+package for my taste.  The Minix utilities should be in a package of
+their own).
 
 -- 
 Bryan Henderson                                    Phone 408-621-2000
