@@ -1,36 +1,77 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:21905 "EHLO
-	hunin.borkware.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1945908AbWLVPTD (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Fri, 22 Dec 2006 10:19:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51821 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1423046AbWLUVx1 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 21 Dec 2006 16:53:27 -0500
+Date: Thu, 21 Dec 2006 22:53:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Bryan Henderson <bryanh@giraffe-data.com>
+Cc: ethanol@armory.com, ams@gnu.org, P@draigbrady.com, acahalan@gmail.com,
+        util-linux-ng@vger.kernel.org
 Subject: Re: splitting util-linux (was: kill)
-From: Mark Rosenstand <mark@borkware.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: Albert Cahalan <acahalan@gmail.com>, util-linux-ng@vger.kernel.org
-In-Reply-To: <20061222102404.GU5971@petra.dvoda.cz>
-References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
-	 <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com>
-	 <20061220104547.GJ5971@petra.dvoda.cz>
-	 <20061220214503.0BB4744007@Psilocybe.Update.UU.SE>
-	 <20061220235519.GN5971@petra.dvoda.cz> <20061221041033.GB13134@armory.com>
-	 <80765.bryanh@giraffe-data.com> <20061221215312.GP5971@petra.dvoda.cz>
-	 <787b0d920612212212s1ca3179jf037fc71f3f28498@mail.gmail.com>
-	 <20061222102404.GU5971@petra.dvoda.cz>
-Content-Type: text/plain
-Date: Fri, 22 Dec 2006 15:50:34 +0100
-Message-Id: <1166799034.9775.10.camel@mjollnir.borkware.net>
+Message-ID: <20061221215312.GP5971@petra.dvoda.cz>
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com> <20061220104547.GJ5971@petra.dvoda.cz> <20061220214503.0BB4744007@Psilocybe.Update.UU.SE> <20061220235519.GN5971@petra.dvoda.cz> <20061221041033.GB13134@armory.com> <80765.bryanh@giraffe-data.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <80765.bryanh@giraffe-data.com>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 2006-12-22 at 11:24 +0100, Karel Zak wrote:
-> On Fri, Dec 22, 2006 at 01:12:54AM -0500, Albert Cahalan wrote:
-> 
-> > arch -- OK, though people use uname
-> 
->  we have tried remove it from FC, but many users still use it.
+On Thu, Dec 21, 2006 at 04:34:00PM +0000, Bryan Henderson wrote:
+> I have thought for many years that util-linux is obsolete.  When it
+> was new, it was a quite helpful distribution of components with which
+> to build a system.  Today, we have a plethora of giant Linux distros
+> sourceforge, and freshmeat.  Such things eliminate most of the
+> original value in having one big tarball.  In fact, the amalgamation
 
-Perhaps it could spew a deprecation warning referring to uname so
-current users can be spotted, and lead to removal long-term.
+ That's not 100% true. You need upstream and downstream maintainer for
+ every package. You need an infrastructure (scm, mailing list, ...)
+ for every package. Maybe it seems like something simple (10 clicks at
+ sf.net), but my experience is completely different. Maintainig is
+ really boring work and after few months nobody wants to do it... 
+ 
+ Number of well maintained packages is not so big. Believe me, people
+ who work on Linux distributions fight with unmaintained projects every
+ day.
 
+> of unrelated tools now causes more pain than convenience, because you
+> often want some parts of the package but not others (as evidenced in
+> the 'kill' discussion).  We also seem to have a maintainership
+
+ Well, kill is nice example where is not problem remove it from
+ util-linux (... because procps). 
+
+> problem, since there are people who are willing to maintain some
+> pieces, but less energetic about maintaining the entire package or
+> working through a central bureaucracy.
+
+ I don't see any problem collaborate with more people. The
+ util-linux-ng really could be the area where we can together improve
+ basic Linux utils.
+
+ Maybe I'm blind, but why do you think that the code in look, cal, ...
+ will be better if you split util-linux into more small packages?
+
+ People usually fork or split projects if they have a problem with
+ collaboration. Is it our actual problem? I don't think so.
+
+ The util-linux exists more than 10 year without fatal problems and I
+ think it can exist next 10 years.
+
+> Forking of util-linux is the ideal time to improve this.  Just don't
+> fork the whole package; fork the part you're interested in.  The
+
+ No, the motivation for new util-linux upstream is that there is more
+ than 100 util-linux patches in Suse, Red Hat or Debian. We're
+ interested in whole package and we want to merge changes from
+ distribution to this upstream and sync code in util-linux with
+ kernel. This is necessary step. 
+
+ BTW, it's not so long time ago when schedutils has been incorporated
+ to util-linux. It seems that poeple are able to found reasons why merge
+ is better than split :-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
