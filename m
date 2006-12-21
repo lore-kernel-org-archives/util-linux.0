@@ -1,71 +1,74 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from mail.station1.mxsweep.com ([212.147.136.149]:3079 "EHLO
-	blue.mxsweep.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964977AbWLTKG3 (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.181]:18295 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422994AbWLURjC (ORCPT
 	<rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 20 Dec 2006 05:06:29 -0500
-Received: from blue.mxsweep.com (127.0.0.1) by blue.mxsweep.com (MlfMTA v3.2r1b3) id hh45ni0171sv for <util-linux-ng@vger.kernel.org>; Wed, 20 Dec 2006 10:07:48 +0000 (envelope-from <P@draigBrady.com>)
-Message-ID: <45890A78.1030105@draigBrady.com>
-Date: Wed, 20 Dec 2006 10:03:36 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Albert Cahalan <acahalan@gmail.com>,
-        List util-linux-ng <util-linux-ng@vger.kernel.org>,
-        "Alfred M. Szmidt" <ams@gnu.org>, Evan Hunt <ethanol@armory.com>
+	Thu, 21 Dec 2006 12:39:02 -0500
+Received: by py-out-1112.google.com with SMTP id a29so1442426pyi
+        for <util-linux-ng@vger.kernel.org>; Thu, 21 Dec 2006 09:39:02 -0800 (PST)
+Message-ID: <787b0d920612210938n4ce5742lec393417c993ca84@mail.gmail.com>
+Date: Thu, 21 Dec 2006 12:38:56 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: ams@gnu.org
 Subject: Re: kill
-References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com> <20061220085706.GH5971@petra.dvoda.cz>
-In-Reply-To: <20061220085706.GH5971@petra.dvoda.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: "Martin Mares" <mj@ucw.cz>, kzak@redhat.com, P@draigbrady.com,
+        util-linux-ng@vger.kernel.org, ethanol@armory.com
+In-Reply-To: <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
+	 <20061220085706.GH5971@petra.dvoda.cz>
+	 <45890A78.1030105@draigBrady.com>
+	 <20061220104547.GJ5971@petra.dvoda.cz>
+	 <20061220214503.0BB4744007@Psilocybe.Update.UU.SE>
+	 <20061220235519.GN5971@petra.dvoda.cz>
+	 <20061221105142.5DD9C4401E@Psilocybe.Update.UU.SE>
+	 <mj+md-20061221.113626.23750.camellia@ucw.cz>
+	 <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Wed, Dec 20, 2006 at 01:42:13AM -0500, Albert Cahalan wrote:
->> Karel Zak writes:
->>
->>> I've originally thought about util-linux upstream fork,
->>> but as usually an fork is bad step. So.. I'd like to start
->>> some discussion before this step.
->> ...
->>> after few weeks I'm pleased to announce a new "util-linux-ng"
->>> project. This project is a fork of the original util-linux (2.13-pre7).
->> Well, how about giving me a chunk of it? I'd like /bin/kill please.
+On 12/21/06, Alfred M. Szmidt <ams@gnu.org> wrote:
+>    > When you speak of the operating system that is basically the GNU
+>    > system with Linux added, would you please call it "GNU/Linux"?
+>    > If you call it just "Linux", you're giving the principal
+>    > developers none of the credit.
+>
+>    Eh, please stop that. We are here to do real work, not to chatter
+>    about somebody's political or philosophical agenda.
+>
+> This has nothing to do with politics or philosophy.  It is simply
+> about giving credit where credit is due.
 
-We definitely need less version of kill:
+In that case, CREDIT IS NOT DUE. The OS name is also
+definitely not WHERE credit is due, even if it were due, and
+even if it were at all appropriate to demand credit.
 
-ubuntu: $ dpkg -S `which kill`
-procps: /bin/kill
+I guess you can't admit that, not with an ams@gnu.org email
+address at least.
 
-fedora: $ rpm -qf `which kill`
-util-linux-2.12p-9.3
+The principal developers are not building a GNU system.
+Sometimes "GNU" is a flag of convenience, being a safe
+party to assign copyright to. The real work is all done by
+Linux users and Linux distributors and the occasional
+BSD or Cygwin user. (Cygwin being full of Linux features,
+not HURD features)
 
-fedora: $ type kill
-kill is a shell builtin
+I see you don't give credit for the HURD, despite the fact
+that you swiped TCP/IP and numerous drivers from Linux.
+HURD is using Linux for life support, yet no credit???
+The hypocrisy is showing. You also don't credit X.org,
+BSD, or anything else. Where is the credit???
 
-$ tar tzf coreutils-6.2.tar.gz | grep kill
-coreutils-6.2/src/kill.c
-coreutils-6.2/man/kill.1
-coreutils-6.2/man/kill.x
+On top of all that, "GNU" is just a crappy name. As a
+word, it's obviously not nice-sounding, even supposing
+you do figure out a way to pronounce it. Let's look at
+the meaning though: GNU's (recursive nonsense),
+Not (negative!) UNIX (referring to the competitor). Eeew.
+There's nothing positive about that. It sounds like some
+kind of grudge... probably because RMS was pissed off
+at UNIX when he invented the term.
 
-
->  We can think about it. I'm not sure with this kind of changes in the
->  next 2.13 release. That release should be more about bug fixes and
->  code stabilisation. 
-
-agreed.
-
->  
->  I'd like to do some consolidation in 2.14. I also need explore why
->  RHEL/FC uses the kill command from util-linux rather that from
->  procps. And Suse and Debian?
-
-On a similar note, there are utils in util-linux[-ng] that are
-not specific to linux (like look, cal etc.)
-There has been the proposal for a new miscutils project
-on the coreutils list: http://lists.gnu.org/archive/html/bug-coreutils/2006-11/msg00086.html
-for which I am the proposed maintainer of.
-Possibly some of these non specific linux utils could be moved there?
-
-cheers,
-Pádraig.
+So we have inappropriateness, hypocrisy, and an
+ugly-sounding (if pronouncable) nonsense name
+with serious negative connotations.
