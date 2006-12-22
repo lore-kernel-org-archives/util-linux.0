@@ -1,44 +1,44 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:34258 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1945912AbWLVBhj (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 21 Dec 2006 20:37:39 -0500
-Subject: Re: kill
-From: Ian Kent <ikent@redhat.com>
-To: ams@gnu.org
-Cc: Martin Mares <mj@ucw.cz>, kzak@redhat.com, P@draigBrady.com,
-        acahalan@gmail.com, util-linux-ng@vger.kernel.org, ethanol@armory.com
-In-Reply-To: <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
+Received: from ug-out-1314.google.com ([66.249.92.172]:8347 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751520AbWLVRiq (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 22 Dec 2006 12:38:46 -0500
+Received: by ug-out-1314.google.com with SMTP id 44so3035608uga
+        for <util-linux-ng@vger.kernel.org>; Fri, 22 Dec 2006 09:38:45 -0800 (PST)
+Message-ID: <787b0d920612220938q2011bfdfrf62a693f2f1d4685@mail.gmail.com>
+Date: Fri, 22 Dec 2006 12:38:44 -0500
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Karel Zak" <kzak@redhat.com>
+Subject: Re: splitting util-linux (was: kill)
+Cc: "Bryan Henderson" <bryanh@giraffe-data.com>, ethanol@armory.com,
+        ams@gnu.org, P@draigbrady.com, util-linux-ng@vger.kernel.org
+In-Reply-To: <20061222102404.GU5971@petra.dvoda.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
-	 <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com>
+	 <45890A78.1030105@draigBrady.com>
 	 <20061220104547.GJ5971@petra.dvoda.cz>
 	 <20061220214503.0BB4744007@Psilocybe.Update.UU.SE>
 	 <20061220235519.GN5971@petra.dvoda.cz>
-	 <20061221105142.5DD9C4401E@Psilocybe.Update.UU.SE>
-	 <mj+md-20061221.113626.23750.camellia@ucw.cz>
-	 <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
-Content-Type: text/plain
-Date: Fri, 22 Dec 2006 10:37:27 +0900
-Message-Id: <1166751447.3498.23.camel@raven.themaw.net>
-Mime-Version: 1.0
+	 <20061221041033.GB13134@armory.com> <80765.bryanh@giraffe-data.com>
+	 <20061221215312.GP5971@petra.dvoda.cz>
+	 <787b0d920612212212s1ca3179jf037fc71f3f28498@mail.gmail.com>
+	 <20061222102404.GU5971@petra.dvoda.cz>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 2006-12-21 at 17:50 +0100, Alfred M. Szmidt wrote:
->    > When you speak of the operating system that is basically the GNU
->    > system with Linux added, would you please call it "GNU/Linux"?
->    > If you call it just "Linux", you're giving the principal
->    > developers none of the credit.
-> 
->    Eh, please stop that. We are here to do real work, not to chatter
->    about somebody's political or philosophical agenda.
-> 
-> This has nothing to do with politics or philosophy.  It is simply
-> about giving credit where credit is due.
+On 12/22/06, Karel Zak <kzak@redhat.com> wrote:
 
-If the people on a list like this don't know where the credit for the
-products in this package lie then they probably shouldn't be present.
+>  I think we can mark many of these utils as deprecated in 2.13 release
+>  and remove it in a future release (2.14). Maybe we can do
+>  something like
+>
+>      ./configure --deprecated="list of wanted deprecated utils"
+>
+>  it means default installation will be without these tools and
+>  nostalgic uses will be compile with the --deprecated option.
 
-Ian
-
-
+Can you get all the obsolete stuff into a separate RPM package?
+Somebody might actually want tunelp or fdformat, but the vast
+majority of us are totally uninterested.
