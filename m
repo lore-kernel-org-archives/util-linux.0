@@ -1,39 +1,44 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from adsl-64-171-19-66.dsl.sntc01.pacbell.net ([64.171.19.66]:4246
-	"EHLO giraffe.giraffe-data.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1945955AbWLVH1x (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Fri, 22 Dec 2006 02:27:53 -0500
-Message-ID: <44790.bryanh@giraffe-data.com>
-Date: 22 Dec 2006 07:23:44 +0000
-From: bryanh@giraffe-data.com (Bryan Henderson)
-To: acahalan@gmail.com
-CC: kzak@redhat.com, ethanol@armory.com, ams@gnu.org, P@draigbrady.com,
-        util-linux-ng@vger.kernel.org
-In-reply-to: <787b0d920612212212s1ca3179jf037fc71f3f28498@mail.gmail.com>
-	(acahalan@gmail.com)
-Subject: Re: splitting util-linux (was: kill)
+Received: from mx1.redhat.com ([66.187.233.31]:34258 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1945912AbWLVBhj (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 21 Dec 2006 20:37:39 -0500
+Subject: Re: kill
+From: Ian Kent <ikent@redhat.com>
+To: ams@gnu.org
+Cc: Martin Mares <mj@ucw.cz>, kzak@redhat.com, P@draigBrady.com,
+        acahalan@gmail.com, util-linux-ng@vger.kernel.org, ethanol@armory.com
+In-Reply-To: <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
 References: <787b0d920612192242x3788f4bfh3be846d4188e3767@mail.gmail.com>
-	 <20061220085706.GH5971@petra.dvoda.cz>
-	 <45890A78.1030105@draigBrady.com>
+	 <20061220085706.GH5971@petra.dvoda.cz> <45890A78.1030105@draigBrady.com>
 	 <20061220104547.GJ5971@petra.dvoda.cz>
 	 <20061220214503.0BB4744007@Psilocybe.Update.UU.SE>
 	 <20061220235519.GN5971@petra.dvoda.cz>
-	 <20061221041033.GB13134@armory.com> <80765.bryanh@giraffe-data.com>
-	 <20061221215312.GP5971@petra.dvoda.cz> <787b0d920612212212s1ca3179jf037fc71f3f28498@mail.gmail.com>
+	 <20061221105142.5DD9C4401E@Psilocybe.Update.UU.SE>
+	 <mj+md-20061221.113626.23750.camellia@ucw.cz>
+	 <20061221165003.EA7944400C@Psilocybe.Update.UU.SE>
+Content-Type: text/plain
+Date: Fri, 22 Dec 2006 10:37:27 +0900
+Message-Id: <1166751447.3498.23.camel@raven.themaw.net>
+Mime-Version: 1.0
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->Aw, let's just go down the list. Going by what Debian ships:
+On Thu, 2006-12-21 at 17:50 +0100, Alfred M. Szmidt wrote:
+>    > When you speak of the operating system that is basically the GNU
+>    > system with Linux added, would you please call it "GNU/Linux"?
+>    > If you call it just "Linux", you're giving the principal
+>    > developers none of the credit.
+> 
+>    Eh, please stop that. We are here to do real work, not to chatter
+>    about somebody's political or philosophical agenda.
+> 
+> This has nothing to do with politics or philosophy.  It is simply
+> about giving credit where credit is due.
 
->[39 programs]
+If the people on a list like this don't know where the credit for the
+products in this package lie then they probably shouldn't be present.
 
-My system has a more or less complete installation of util-linux, (but
-with many programs renamed to yield to other packages and it's a
-hybrid of various releases of util-linux because I tend to upgrade
-only the parts that need upgrading) and it's got 61 programs in it,
-including 4 symbolic links.  So it looks like Debian already
-eliminated the more crufty pieces for you.
+Ian
 
--- 
-Bryan Henderson                                   San Jose, California
+
