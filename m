@@ -1,59 +1,59 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:34474 "HELO
-	smtp102.sbc.mail.re2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S2992540AbXCGUPK (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 7 Mar 2007 15:15:10 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: what happend with hwclock patches?
-Date: Wed, 7 Mar 2007 12:08:24 -0800
+Received: from mx1.redhat.com ([66.187.233.31]:32968 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965026AbXCGKnH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 7 Mar 2007 05:43:07 -0500
+Date: Wed, 7 Mar 2007 11:42:57 +0100
+From: Karel Zak <kzak@redhat.com>
+To: David Brownell <david-b@pacbell.net>
 Cc: List util-linux-ng <util-linux-ng@vger.kernel.org>
-References: <200703062006.27793.david-b@pacbell.net> <200703070942.49785.david-b@pacbell.net> <20070307190137.GA26835@petra.dvoda.cz>
-In-Reply-To: <20070307190137.GA26835@petra.dvoda.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200703071208.25365.david-b@pacbell.net>
+Subject: Re: what happend with hwclock patches?
+Message-ID: <20070307104257.GC25806@petra.dvoda.cz>
+References: <200703062006.27793.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200703062006.27793.david-b@pacbell.net>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 07 March 2007 11:01 am, Karel Zak wrote:
-> On Wed, Mar 07, 2007 at 09:42:49AM -0800, David Brownell wrote:
-> > >  There is active development, see "log" in the devel branch:
-> > > 
-> > >    http://git.kernel.org/?p=utils/util-linux-ng/util-linux-ng.git;a=log;h=devel
-> > 
-> > Well, by active development I included "merging patches submitted" e.g. hwclock,
-> 
-> Sure, but the util-linux-ng is still not in the condition when I'll
-> merging patches ASAP. There are tons of others and more important
-> patches, there wasn't any tests, there was broken build system ...
-> Don't forget that the code has been unmaintained for almost 2 years.
+On Tue, Mar 06, 2007 at 08:06:27PM -0800, David Brownell wrote:
+> See
+>   http://bugzilla.kernel.org/show_bug.cgi?id=8138
 
-I'd call some of that "catching up with the backlog", which is
-of course one kind of development.  OK, so I'm picky; shoot me!
+ Thanks for this link. The patch is not applied yet. Maybe I should
+ release a snapshot (at least) with urgent things like hwclock or some
+ mount patches.
 
-I was pleased to see tests getting added.  It's as if this were
-becoming a real software project ... ;)
+ But I think you should ask downstream (your distribution) maitainer
+ to apply these kind of patches. They have pretty stable util-linux
+ packages now. I'll need few weeks to prepare useful util-linux-ng release.
 
+ (I'm going to add the patch to Fedora tree.)
 
-> Please, be patient at least for next 1-2 months.
-> 
-> BTW, "active" also means that someone answers your mails. I hope you
-> see the change :-)))
+> I see there's a GIT archive but you don't seem to have merged the patch I sent
+> you back in November ... and the GIT tree doesn't show any active development,
+> no commits except syncing to old releases.
 
-Yes indeedy!!
+ Please, don't use broken gitweb at kernel.org or use it very carefully.
 
+ There is active development, see "log" in the devel branch:
 
-> 
-> Also see:
->     http://userweb.kernel.org/~kzak/util-linux-ng/
-> 
-> 
-> I believe there is more light now :-)
+   http://git.kernel.org/?p=utils/util-linux-ng/util-linux-ng.git;a=log;h=devel
 
-Yes.  Worth posting a status update to LKML?
+ Number of applied patches:
 
-- Dave
+    $ git rev-list --pretty=oneline  devel ^master | wc -l
+    52
 
+ Number of patches in queue:
+
+    $ ls util-* | wc -l
+    49
+
+ The good news is that I have more time and I work on that full time
+ now.
+
+        Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
