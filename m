@@ -1,59 +1,56 @@
 Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:32968 "EHLO mx1.redhat.com"
+Received: from mmjgroup.com ([192.34.35.33]:37549 "EHLO mmjgroup.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965026AbXCGKnH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 7 Mar 2007 05:43:07 -0500
-Date: Wed, 7 Mar 2007 11:42:57 +0100
-From: Karel Zak <kzak@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: List util-linux-ng <util-linux-ng@vger.kernel.org>
-Subject: Re: what happend with hwclock patches?
-Message-ID: <20070307104257.GC25806@petra.dvoda.cz>
-References: <200703062006.27793.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200703062006.27793.david-b@pacbell.net>
+	id S1755575AbXH2NIy (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 29 Aug 2007 09:08:54 -0400
+Date: Wed, 29 Aug 2007 07:08:52 -0600
+From: LaMont Jones <lamont@mmjgroup.com>
+To: util-linux-ng@vger.kernel.org
+Subject: [PATCH] flock.1: typo in man page
+Message-ID: <20070829130852.GA21944@mix.mmjgroup.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 06, 2007 at 08:06:27PM -0800, David Brownell wrote:
-> See
->   http://bugzilla.kernel.org/show_bug.cgi?id=8138
 
- Thanks for this link. The patch is not applied yet. Maybe I should
- release a snapshot (at least) with urgent things like hwclock or some
- mount patches.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- But I think you should ask downstream (your distribution) maitainer
- to apply these kind of patches. They have pretty stable util-linux
- packages now. I'll need few weeks to prepare useful util-linux-ng release.
+This is from a user report.
 
- (I'm going to add the patch to Fedora tree.)
+lamont
 
-> I see there's a GIT archive but you don't seem to have merged the patch I sent
-> you back in November ... and the GIT tree doesn't show any active development,
-> no commits except syncing to old releases.
+--opJtzjQTFsWo+cga
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-flock.1-typo-in-man-page.patch"
 
- Please, don't use broken gitweb at kernel.org or use it very carefully.
+>From d55e373cf5d4c9e6e39ce847f1563e0c8c5cc193 Mon Sep 17 00:00:00 2001
+From: A. Costa <agcosta@gis.net>
+Date: Wed, 29 Aug 2007 07:07:10 -0600
+Subject: [PATCH] flock.1: typo in man page
 
- There is active development, see "log" in the devel branch:
+Signed-off-by: LaMont Jones <lamont@debian.org>
+---
+ sys-utils/flock.1 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-   http://git.kernel.org/?p=utils/util-linux-ng/util-linux-ng.git;a=log;h=devel
-
- Number of applied patches:
-
-    $ git rev-list --pretty=oneline  devel ^master | wc -l
-    52
-
- Number of patches in queue:
-
-    $ ls util-* | wc -l
-    49
-
- The good news is that I have more time and I work on that full time
- now.
-
-        Karel
-
+diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
+index 3b13efb..237e44c 100644
+--- a/sys-utils/flock.1
++++ b/sys-utils/flock.1
+@@ -45,7 +45,7 @@ or
+ It locks a specified file, which is created (assuming appropriate
+ permissions), if it does not already exist.
+ .PP
+-The second form is conveninent inside shell scripts, and is usually
++The second form is convenient inside shell scripts, and is usually
+ used the following manner:
+ .PP
+ \fC(
 -- 
- Karel Zak  <kzak@redhat.com>
+1.5.2.3
+
+
+--opJtzjQTFsWo+cga--
