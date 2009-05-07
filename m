@@ -1,56 +1,45 @@
-Return-Path: <util-linux-ng-owner@vger.kernel.org>
-Received: from mmjgroup.com ([192.34.35.33]:37549 "EHLO mmjgroup.com"
+Return-Path: util-linux-ng-owner@vger.kernel.org
+Received: from cantor.suse.de ([195.135.220.2]:58851 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755575AbXH2NIy (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 29 Aug 2007 09:08:54 -0400
-Date: Wed, 29 Aug 2007 07:08:52 -0600
-From: LaMont Jones <lamont@mmjgroup.com>
+	id S1751227AbZEGOn7 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 7 May 2009 10:43:59 -0400
+Received: from relay2.suse.de (relay-ext.suse.de [195.135.221.8])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx1.suse.de (Postfix) with ESMTP id 6BD60749C2
+	for <util-linux-ng@vger.kernel.org>; Thu,  7 May 2009 16:43:59 +0200 (CEST)
+Date: Thu, 7 May 2009 16:43:58 +0200
+From: Michal Hocko <mhocko@suse.cz>
 To: util-linux-ng@vger.kernel.org
-Subject: [PATCH] flock.1: typo in man page
-Message-ID: <20070829130852.GA21944@mix.mmjgroup.com>
+Subject: *fdisk doesn't check 2TB boundary
+Message-ID: <20090507144358.GE4661@tiehlicka.suse.cz>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
-Sender: util-linux-ng-owner@vger.kernel.org
-List-ID: <util-linux.vger.kernel.org>
-
-
---opJtzjQTFsWo+cga
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sender: util-linux-ng-owner@vger.kernel.org
+List-ID: <util-linux-ng.vger.kernel.org>
 
-This is from a user report.
+[Please CC me as I am not subscribed to the list]
 
-lamont
+Hi,
 
---opJtzjQTFsWo+cga
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-flock.1-typo-in-man-page.patch"
+we have received report from one of our customers that they have a
+problem with sfdisk which doesn't check and shout loudly when 2TB
+boundary is crossed when partition is created. This results in silent
+ignoring of the new partition.
 
->From d55e373cf5d4c9e6e39ce847f1563e0c8c5cc193 Mon Sep 17 00:00:00 2001
-From: A. Costa <agcosta@gis.net>
-Date: Wed, 29 Aug 2007 07:07:10 -0600
-Subject: [PATCH] flock.1: typo in man page
+I have noticed a similar bug report in Debian bugzilla[1] but this one
+is silent for more than 4 years.
 
-Signed-off-by: LaMont Jones <lamont@debian.org>
+I do understand that user should know what he is doing when creating a
+partion and that msdos partitions are limited to 2TB, but is there any
+special reason why this limit is not checked?
+
 ---
- sys-utils/flock.1 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
-index 3b13efb..237e44c 100644
---- a/sys-utils/flock.1
-+++ b/sys-utils/flock.1
-@@ -45,7 +45,7 @@ or
- It locks a specified file, which is created (assuming appropriate
- permissions), if it does not already exist.
- .PP
--The second form is conveninent inside shell scripts, and is usually
-+The second form is convenient inside shell scripts, and is usually
- used the following manner:
- .PP
- \fC(
+[1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=324525
 -- 
-1.5.2.3
-
-
---opJtzjQTFsWo+cga--
+Michal Hocko
+L3 team 
+SUSE LINUX s.r.o.
+Lihovarska 1060/12
+190 00 Praha 9    
+Czech Republic
