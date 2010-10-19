@@ -1,48 +1,49 @@
 Return-Path: util-linux-ng-owner@vger.kernel.org
-Received: from mail.seebyte.com ([80.193.213.29]:47821 "EHLO mail.seebyte.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754425Ab0BIRJu (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 9 Feb 2010 12:09:50 -0500
-Date: Tue, 9 Feb 2010 17:09:41 +0000
-From: Stephane Chazelas <stephane.chazelas@seebyte.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: [mount] --bind -o suid/exec/...
-Message-ID: <chaz20100209170941.GA18491@seebyte.com>
-References: <chaz20100209152559.GA3693@seebyte.com> <20100209162305.GG6375@nb.net.home>
-MIME-Version: 1.0
+Received: from rcsinet10.oracle.com ([148.87.113.121]:45230 "EHLO
+	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751086Ab0JSRcT convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 19 Oct 2010 13:32:19 -0400
+Received: from rcsinet15.oracle.com (rcsinet15.oracle.com [148.87.113.117])
+	by rcsinet10.oracle.com (Switch-3.4.2/Switch-3.4.2) with ESMTP id o9JHWHqw026395
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux-ng@vger.kernel.org>; Tue, 19 Oct 2010 17:32:19 GMT
+Received: from acsmt355.oracle.com (acsmt355.oracle.com [141.146.40.155])
+	by rcsinet15.oracle.com (Switch-3.4.2/Switch-3.4.1) with ESMTP id o9JDBZYA002628
+	for <util-linux-ng@vger.kernel.org>; Tue, 19 Oct 2010 17:32:16 GMT
+From: Chuck Lever <Chuck.Lever@oracle.com>
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20100209162305.GG6375@nb.net.home>
+Subject: NFS remount bug
+Date: Tue, 19 Oct 2010 13:32:11 -0400
+Message-Id: <6BEE826D-5AC3-4CA7-A954-6255A6BD7AED@oracle.com>
+To: util-linux-ng@vger.kernel.org
+Mime-Version: 1.0 (Apple Message framework v1081)
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux-ng.vger.kernel.org>
 
-2010-02-09 17:23:05 +0100, Karel Zak:
-[...]
-> > mount --bind /here /there
-> > mount -o remount,noexec /there
-[...]
-> >, or better, "mount" could
-> > be changed so that one can do it in a single step with:
-> > 
-> > mount --bind -o noexec /here /there
-> 
->  this is unsupported by kernel, the "remount" and "bind" are two
->  different operations.
-[...]
+Hi-
 
-Thanks Karel,
+I'm working on the NFS submount commands.  These are found in the nfs-utils package, but they inherited a bunch of code from utils-linux to read fstab and manage mtab.
 
-but what about changing mount(8) so that it does two mount(2)s
-upon --bind -o?
+We've got a little problem with "-o remount".
 
-One thing I've not mentionned is that it makes it quite awkward
-to add it in /etc/fstab.
+At mount time, mount.nfs can negotiate with the target NFS server to determine how to contact it to send the MNT request and set up the communication parameters for the NFS protocol.  If the mount process succeeds, mount.nfs puts the command line options in /etc/mtab.
 
-/here /there none bind 0 0
-there-remount /there none remount,noexec 0 0
+At umount time, umount.nfs reads these options back from /etc/mtab so that it can figure out how to send a UMNT request.  There are some problem cases, though.
 
-works with mount -a but not with Ubuntu's mountall(8) for
-instance.
+If /etc/mtab is a link to /proc/mounts, the final fixed negotiated options appear there, not necessarily what was on the command line.  If the server reboots, some of those options might become stale.
 
-Cheers,
-Stephane
+If a remount is done, the options in /etc/mtab are wiped, so umount.nfs has no way to know how to contact the server.
+
+We also know that everyone wants to toss /etc/mtab.
+
+So: what future-proof mechanism do we use to preserve the mount command line so umount.nfs has a chance of working reliably?
+
+In the meantime, is there a straightforward way to merge the old and new mount options during a remount?
+
+-- 
+chuck[dot]lever[at]oracle[dot]com
+
+
+
+
