@@ -1,49 +1,79 @@
 Return-Path: util-linux-ng-owner@vger.kernel.org
-Received: from rcsinet10.oracle.com ([148.87.113.121]:45230 "EHLO
-	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751086Ab0JSRcT convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 19 Oct 2010 13:32:19 -0400
-Received: from rcsinet15.oracle.com (rcsinet15.oracle.com [148.87.113.117])
-	by rcsinet10.oracle.com (Switch-3.4.2/Switch-3.4.2) with ESMTP id o9JHWHqw026395
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux-ng@vger.kernel.org>; Tue, 19 Oct 2010 17:32:19 GMT
-Received: from acsmt355.oracle.com (acsmt355.oracle.com [141.146.40.155])
-	by rcsinet15.oracle.com (Switch-3.4.2/Switch-3.4.1) with ESMTP id o9JDBZYA002628
-	for <util-linux-ng@vger.kernel.org>; Tue, 19 Oct 2010 17:32:16 GMT
-From: Chuck Lever <Chuck.Lever@oracle.com>
+Received: from mx1.redhat.com ([209.132.183.28]:32536 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753947Ab0JVU5d (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 22 Oct 2010 16:57:33 -0400
+Date: Fri, 22 Oct 2010 22:57:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Chuck Lever <chuck.lever@oracle.com>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: NFS remount bug
+Message-ID: <20101022205726.GE1730@nb.net.home>
+References: <6BEE826D-5AC3-4CA7-A954-6255A6BD7AED@oracle.com> <9706D446-5B62-42FC-A3D7-23046AB96822@oracle.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Subject: NFS remount bug
-Date: Tue, 19 Oct 2010 13:32:11 -0400
-Message-Id: <6BEE826D-5AC3-4CA7-A954-6255A6BD7AED@oracle.com>
-To: util-linux-ng@vger.kernel.org
-Mime-Version: 1.0 (Apple Message framework v1081)
+In-Reply-To: <9706D446-5B62-42FC-A3D7-23046AB96822@oracle.com>
 Sender: util-linux-ng-owner@vger.kernel.org
 List-ID: <util-linux-ng.vger.kernel.org>
 
-Hi-
+On Fri, Oct 22, 2010 at 04:14:53PM -0400, Chuck Lever wrote:
+ 
+> This is documented in
+> 
+>   https://bugzilla.linux-nfs.org/show_bug.cgi?id=188
+> 
+> There are some interesting test results posted there.
+> 
+> This looks like behavior that is totally controlled by mount(8),
+> since mount(8) passes the correct options to mount.nfs in some
+> cases, and sometimes it doesn't.
 
-I'm working on the NFS submount commands.  These are found in the nfs-utils package, but they inherited a bunch of code from utils-linux to read fstab and manage mtab.
+ Yes (but it does not mean that you cannot read the original options
+ from mtab in mount.nfs).
 
-We've got a little problem with "-o remount".
+> If the mount point is not already in /etc/fstab, and the remount
+> command line does not include the "device" (it looks like "mount -o
+> remount,foo /mntdir") then it gets it right (that is, it adds the
+> correct set of mount options back to /etc/mtab).  Other combinations
+> don't get it right.
+> 
+> Is there a reason why the set of mount options that appear in
+> /etc/mtab should be different depending on how the remount command
+> is specified and whether the mount point appears in /etc/fstab?  Any
+> chance this can be made to work consistently in each of these cases?
+> 
+> Thanks for any advice, or history lessons.
 
-At mount time, mount.nfs can negotiate with the target NFS server to determine how to contact it to send the MNT request and set up the communication parameters for the NFS protocol.  If the mount process succeeds, mount.nfs puts the command line options in /etc/mtab.
+This is old and documented behaviour. There is not a difference
+between remount and normal mount.
 
-At umount time, umount.nfs reads these options back from /etc/mtab so that it can figure out how to send a UMNT request.  There are some problem cases, though.
+    # mount <source> <target>
 
-If /etc/mtab is a link to /proc/mounts, the final fixed negotiated options appear there, not necessarily what was on the command line.  If the server reboots, some of those options might become stale.
+means that you want to bypass fstab (mount(8) has all necessary
+information on command line), but
 
-If a remount is done, the options in /etc/mtab are wiped, so umount.nfs has no way to know how to contact the server.
+    # mount <source> | <target>
 
-We also know that everyone wants to toss /etc/mtab.
+means that you have to use fstab (command line does not contain all
+information). 
 
-So: what future-proof mechanism do we use to preserve the mount command line so umount.nfs has a chance of working reliably?
+If fstab does not contain <source> or <target> then it lookups mtab,
+it's was probably added because
 
-In the meantime, is there a straightforward way to merge the old and new mount options during a remount?
+    # mount /dev/sda1 /mnt 
+    # mount -o remount,ro /mnt
+
+is expected to work independently on fstab.
+
+I see only one problem -- many many years ago there probably wasn't
+difference between mount options in fstab and mtab, so it was correct
+to lookup fstab before mtab on remount. This is problem now.
+
+IMHO mount(8) should be fixed to read mount options only from mtab
+on remount. The fstab file should be ignore at all.
+
+    Karel
 
 -- 
-chuck[dot]lever[at]oracle[dot]com
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
