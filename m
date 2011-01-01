@@ -1,51 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:64622 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932771Ab1ANPpr convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 10:45:47 -0500
-Received: by bwz15 with SMTP id 15so2635846bwz.19
-        for <util-linux@vger.kernel.org>; Fri, 14 Jan 2011 07:45:46 -0800 (PST)
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:64789 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751322Ab1AAVFi (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Sat, 1 Jan 2011 16:05:38 -0500
+Received: by vws16 with SMTP id 16so5256278vws.19
+        for <util-linux-ng@vger.kernel.org>; Sat, 01 Jan 2011 13:05:38 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20110114142012.GA26786@alittletooquiet.net>
-References: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com> <20110114142012.GA26786@alittletooquiet.net>
-From: =?UTF-8?B?UHJ6ZW15c8WCYXcgJ1ByemVtb2MnIFBhd2XFgmN6eWs=?=
-	<przemoc@gmail.com>
-Date: Fri, 14 Jan 2011 16:45:22 +0100
-Message-ID: <AANLkTikuZY9D6R4BQxDmM68Be=sAmC8FtEUdFrbEptXj@mail.gmail.com>
-Subject: Re: sfdisk enhancement proposal - offset/shift support
-To: Forest Bond <forest@alittletooquiet.net>
-Cc: util-linux@vger.kernel.org
+Date: Sat, 1 Jan 2011 21:05:36 +0000
+Message-ID: <AANLkTikYjykxGoLh6vmqA1ZD3UMtq=0tZNJ_ub9JK0Xy@mail.gmail.com>
+Subject: Re: fdisk change proposal - fdisk (util-linux-ng 2.14)
+From: Jon Grant <jg@jguk.org>
+To: util-linux-ng@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-2011/1/14 Forest Bond <forest@alittletooquiet.net>:
-> On Fri, Jan 14, 2011 at 02:31:55PM +0100, Przemysław 'Przemoc' Pawełczyk wrote:
->> I have following suggestion for sfdisk:
->> - adding offset/shift support for cumbersome raw disk images (like
->> fixed-size VDI), that don't start at the beginning of the file.
->>
->> Required changes?
->> IMO straightforward way is just adding another option (below is an
->> example), global variable (e.g. shift) and fixing sseek() code and
->> R.total_size in get_geometry() to take it into account.
->>
->>     -t# [or --offset #]  ignore the number of bytes at the beginning
->
-> Isn't this something you can just use a loopback device for?
->
->  losetup -f -o $offset $image
+Just replying about his proposed change I suggested back in 2009:
 
-To some degree -- yes. It requires BLK_DEV_LOOP (Loopback device
-support) built-in in the kernel or compiled as a module though. This
-is IMHO unneeded kernel dependency that can be avoided.
+I could not find the email, but it is archived online:
+http://marc.info/?l=util-linux-ng&m=123815185328131&w=2
 
-Regards.
 
-P.S. mount() and umount() should have their own capability, because
-requiring CAP_SYS_ADMIN is pretty insane. But it's not the scope of
-this ML.
+I will create a patch to eliminate the warning when a new disklabel
+has been created.  Caused by use of the "o" command, or also a new
+bank disc which is filled with zeros (no disklabel present)
 
--- 
-Przemysław 'Przemoc' Pawełczyk
-http://przemoc.net/
+Current version has -h and -v, but not --help and --version. So I will
+have a look at adding those two additional options.
+
+I will endeavour to submit a patch soon. Please let me know if there
+are any changes I should make to my plan for this patch!
+
+Please include my email address in any replies.
+
+Best regards, Jon
