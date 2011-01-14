@@ -1,74 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ew0-f45.google.com ([209.85.215.45]:64343 "EHLO
-	mail-ew0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753084Ab0LDLWH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 4 Dec 2010 06:22:07 -0500
-Received: by ewy10 with SMTP id 10so6192181ewy.4
-        for <util-linux@vger.kernel.org>; Sat, 04 Dec 2010 03:22:04 -0800 (PST)
-Message-ID: <4CFA245A.3020900@gmail.com>
-Date: Sat, 04 Dec 2010 14:22:02 +0300
-From: Andrew Nayenko <resver@gmail.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:64622 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932771Ab1ANPpr convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 10:45:47 -0500
+Received: by bwz15 with SMTP id 15so2635846bwz.19
+        for <util-linux@vger.kernel.org>; Fri, 14 Jan 2011 07:45:46 -0800 (PST)
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: NTFS volume label not found due to endian conversion bug in libblkid
-References: <CDF89843-21BA-4549-842C-5C82861514D9@hugheaves.com> <20101203143031.GJ3077@nb.net.home>
-In-Reply-To: <20101203143031.GJ3077@nb.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <20110114142012.GA26786@alittletooquiet.net>
+References: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com> <20110114142012.GA26786@alittletooquiet.net>
+From: =?UTF-8?B?UHJ6ZW15c8WCYXcgJ1ByemVtb2MnIFBhd2XFgmN6eWs=?=
+	<przemoc@gmail.com>
+Date: Fri, 14 Jan 2011 16:45:22 +0100
+Message-ID: <AANLkTikuZY9D6R4BQxDmM68Be=sAmC8FtEUdFrbEptXj@mail.gmail.com>
+Subject: Re: sfdisk enhancement proposal - offset/shift support
+To: Forest Bond <forest@alittletooquiet.net>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->> I've been having a problem with blkid not finding the volume label
->> on NTFS volumes on my big-endian (PowerPC) system. I tracked the
->> issue down to a bug in the endian conversion code for parsing the
->> MFT $Volume attributes in ntfs.c.
-> 
->  Fixed. Thanks!
+2011/1/14 Forest Bond <forest@alittletooquiet.net>:
+> On Fri, Jan 14, 2011 at 02:31:55PM +0100, Przemysław 'Przemoc' Pawełczyk wrote:
+>> I have following suggestion for sfdisk:
+>> - adding offset/shift support for cumbersome raw disk images (like
+>> fixed-size VDI), that don't start at the beginning of the file.
+>>
+>> Required changes?
+>> IMO straightforward way is just adding another option (below is an
+>> example), global variable (e.g. shift) and fixing sseek() code and
+>> R.total_size in get_geometry() to take it into account.
+>>
+>>     -t# [or --offset #]  ignore the number of bytes at the beginning
+>
+> Isn't this something you can just use a loopback device for?
+>
+>  losetup -f -o $offset $image
 
-Another similar typo:
+To some degree -- yes. It requires BLK_DEV_LOOP (Loopback device
+support) built-in in the kernel or compiled as a module though. This
+is IMHO unneeded kernel dependency that can be avoided.
 
-diff --git a/shlibs/blkid/src/superblocks/nilfs.c b/shlibs/blkid/src/superblocks/nilfs.c
-index bf16918..1f8f3a6 100644
---- a/shlibs/blkid/src/superblocks/nilfs.c
-+++ b/shlibs/blkid/src/superblocks/nilfs.c
-@@ -84,7 +84,7 @@ static int probe_nilfs2(blkid_probe pr, const struct blkid_idmag *mag)
-    if (!sb)
-        return -1;
+Regards.
 
--   bytes = le32_to_cpu(sb->s_bytes);
-+   bytes = le16_to_cpu(sb->s_bytes);
-    crc = crc32(le32_to_cpu(sb->s_crc_seed), (unsigned char *)sb, sumoff);
-    crc = crc32(crc, sum, 4);
-    crc = crc32(crc, (unsigned char *)sb + sumoff + 4, bytes - sumoff - 4);
---
-
-I believe there is a better approach to endianness handling. And compiler is our best
-helper here. We just need to make it generate an error when we try to use a field with
-wrong (or without any) endianness conversion. To achieve this, fields in structures
-should be explicitly declared as little or big endian, e.g.:
-	struct sb {
-		.....
-		xle16_t s_bytes;
-		.....
-	};
-The xle16_t type should be a complex one, not an integral:
-	typedef struct { uint16_t __leu16; } xle16_t;
-Only appropriate conversion functions should know how to convert those types to
-integral ones:
-	uint16_t xle16_to_cpu(xle16_t v) { return le16_to_cpu(v.__leu16); }
-	xle16_t xcpu_to_le16(uint16_t v) { xle16_t t = {cpu_to_le16(v)}; return t; }
-That's it. Now compiler will enforce us to use the right conversion anytime we
-access a field, i.e. the following statements will fail to compile:
-	uint16_t bytes = sb->s_bytes; /* no conversion */
-	uint32_t bytes = xle32_to_cpu(sb->s_bytes); /* wrong conversion */
-I use this approach in a real life project (FS driver) and it proved to be a good
-"bugkeeper".
-
-I had a look at shlibs/blkid/src/superblocks/*.c and I think that most probers can
-adopt this approach. But in some cases it can be problematic:
-1) sometimes fields endianness can vary (e.g. befs, linux_raid) and we do not know
-   it at compile time;
-2) some probers (zfs) prefer to convert fields to native endianness first and then
-   just use instead of in-place conversion at any access to the field.
+P.S. mount() and umount() should have their own capability, because
+requiring CAP_SYS_ADMIN is pretty insane. But it's not the scope of
+this ML.
 
 -- 
- Andrew Nayenko <resver@gmail.com>
+Przemysław 'Przemoc' Pawełczyk
+http://przemoc.net/
