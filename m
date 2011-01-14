@@ -1,66 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from storm.alittletooquiet.net ([67.23.28.199]:47332 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752245Ab1ANO2q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 09:28:46 -0500
-Date: Fri, 14 Jan 2011 09:20:12 -0500
-From: Forest Bond <forest@alittletooquiet.net>
-To: "=?utf-8?Q?Przemys=C5=82aw_'Przemoc'_Pawe=C5=82czyk?="
-	<przemoc@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: sfdisk enhancement proposal - offset/shift support
-Message-ID: <20110114142012.GA26786@alittletooquiet.net>
-References: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:44189 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757481Ab1ANNcS convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 08:32:18 -0500
+Received: by bwz15 with SMTP id 15so2513132bwz.19
+        for <util-linux@vger.kernel.org>; Fri, 14 Jan 2011 05:32:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-In-Reply-To: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
+From: =?UTF-8?B?UHJ6ZW15c8WCYXcgJ1ByemVtb2MnIFBhd2XFgmN6eWs=?=
+	<przemoc@gmail.com>
+Date: Fri, 14 Jan 2011 14:31:55 +0100
+Message-ID: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
+Subject: sfdisk enhancement proposal - offset/shift support
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have following suggestion for sfdisk:
+- adding offset/shift support for cumbersome raw disk images (like
+fixed-size VDI), that don't start at the beginning of the file.
 
-Hi,
+Required changes?
+IMO straightforward way is just adding another option (below is an
+example), global variable (e.g. shift) and fixing sseek() code and
+R.total_size in get_geometry() to take it into account.
 
-On Fri, Jan 14, 2011 at 02:31:55PM +0100, Przemys=C5=82aw 'Przemoc' Pawe=C5=
-=82czyk wrote:
-> I have following suggestion for sfdisk:
-> - adding offset/shift support for cumbersome raw disk images (like
-> fixed-size VDI), that don't start at the beginning of the file.
->=20
-> Required changes?
-> IMO straightforward way is just adding another option (below is an
-> example), global variable (e.g. shift) and fixing sseek() code and
-> R.total_size in get_geometry() to take it into account.
->=20
->     -t# [or --offset #]  ignore the number of bytes at the beginning
+    -t# [or --offset #]  ignore the number of bytes at the beginning
 
-Isn't this something you can just use a loopback device for?
+FWIW such option is rather useless for working on many files at the
+same time, unless offsets are really the same. In case of fixed-size
+VDI, offset depends on the image size.
 
-  losetup -f -o $offset $image
+Alternatives?
+Some time ago I wrote a simple workaround for fixed-size VDIs (doing a
+bit more than is needed here, i.e. finding also an offset of the raw
+disk image) using LD_PRELOAD technique. It can be found here:
+https://gist.github.com/571086. Now I think that having plain offset
+option in sfdisk would be still useful. I even regret that I did not
+mail about it back then in 2009, because maybe it would be available
+in sfdisk for a long time already...
 
-Thanks,
-Forest
---=20
-Forest Bond
-http://www.alittletooquiet.net
-http://www.pytagsfs.org
+Anyway I'd like to know your opinions before making any patches. After
+all I am not sure whether such functionality is acceptable in sfdisk
+according to your rules.
 
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Regards.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+P.S. Please CC me (I am not on the list).
 
-iEYEARECAAYFAk0wW5wACgkQRO4fQQdv5Ax4zACfT7Qy6VXJ4iIm+uM3k9K+Hlop
-QRcAoMKMpRjM71sOIPFLoBJ/w23KrgTp
-=j9Ha
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+-- 
+Przemysław 'Przemoc' Pawełczyk
+http://przemoc.net/
