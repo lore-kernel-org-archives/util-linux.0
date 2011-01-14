@@ -1,37 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:64789 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751322Ab1AAVFi (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Sat, 1 Jan 2011 16:05:38 -0500
-Received: by vws16 with SMTP id 16so5256278vws.19
-        for <util-linux-ng@vger.kernel.org>; Sat, 01 Jan 2011 13:05:38 -0800 (PST)
+Received: from storm.alittletooquiet.net ([67.23.28.199]:47332 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752245Ab1ANO2q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 09:28:46 -0500
+Date: Fri, 14 Jan 2011 09:20:12 -0500
+From: Forest Bond <forest@alittletooquiet.net>
+To: "=?utf-8?Q?Przemys=C5=82aw_'Przemoc'_Pawe=C5=82czyk?="
+	<przemoc@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: sfdisk enhancement proposal - offset/shift support
+Message-ID: <20110114142012.GA26786@alittletooquiet.net>
+References: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
 MIME-Version: 1.0
-Date: Sat, 1 Jan 2011 21:05:36 +0000
-Message-ID: <AANLkTikYjykxGoLh6vmqA1ZD3UMtq=0tZNJ_ub9JK0Xy@mail.gmail.com>
-Subject: Re: fdisk change proposal - fdisk (util-linux-ng 2.14)
-From: Jon Grant <jg@jguk.org>
-To: util-linux-ng@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+In-Reply-To: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Just replying about his proposed change I suggested back in 2009:
 
-I could not find the email, but it is archived online:
-http://marc.info/?l=util-linux-ng&m=123815185328131&w=2
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
-I will create a patch to eliminate the warning when a new disklabel
-has been created.  Caused by use of the "o" command, or also a new
-bank disc which is filled with zeros (no disklabel present)
+On Fri, Jan 14, 2011 at 02:31:55PM +0100, Przemys=C5=82aw 'Przemoc' Pawe=C5=
+=82czyk wrote:
+> I have following suggestion for sfdisk:
+> - adding offset/shift support for cumbersome raw disk images (like
+> fixed-size VDI), that don't start at the beginning of the file.
+>=20
+> Required changes?
+> IMO straightforward way is just adding another option (below is an
+> example), global variable (e.g. shift) and fixing sseek() code and
+> R.total_size in get_geometry() to take it into account.
+>=20
+>     -t# [or --offset #]  ignore the number of bytes at the beginning
 
-Current version has -h and -v, but not --help and --version. So I will
-have a look at adding those two additional options.
+Isn't this something you can just use a loopback device for?
 
-I will endeavour to submit a patch soon. Please let me know if there
-are any changes I should make to my plan for this patch!
+  losetup -f -o $offset $image
 
-Please include my email address in any replies.
+Thanks,
+Forest
+--=20
+Forest Bond
+http://www.alittletooquiet.net
+http://www.pytagsfs.org
 
-Best regards, Jon
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk0wW5wACgkQRO4fQQdv5Ax4zACfT7Qy6VXJ4iIm+uM3k9K+Hlop
+QRcAoMKMpRjM71sOIPFLoBJ/w23KrgTp
+=j9Ha
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
