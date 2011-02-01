@@ -1,55 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:44189 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757481Ab1ANNcS convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Jan 2011 08:32:18 -0500
-Received: by bwz15 with SMTP id 15so2513132bwz.19
-        for <util-linux@vger.kernel.org>; Fri, 14 Jan 2011 05:32:17 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:35794 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753227Ab1BANFS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 1 Feb 2011 08:05:18 -0500
+Date: Tue, 1 Feb 2011 14:05:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Marek Otahal <markotahal@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] configure.ac : remove enable_foo checks for non-linux
+	OSs
+Message-ID: <20110201130514.GO1787@nb.net.home>
+References: <201102011213.23641.markotahal@gmail.com>
 MIME-Version: 1.0
-From: =?UTF-8?B?UHJ6ZW15c8WCYXcgJ1ByemVtb2MnIFBhd2XFgmN6eWs=?=
-	<przemoc@gmail.com>
-Date: Fri, 14 Jan 2011 14:31:55 +0100
-Message-ID: <AANLkTimJJDm-9vu_xcMjh0uQSghZE44Miz1XaHcx=p7j@mail.gmail.com>
-Subject: sfdisk enhancement proposal - offset/shift support
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201102011213.23641.markotahal@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Tue, Feb 01, 2011 at 12:12:45PM +0100, Marek Otahal wrote:
+> PS: The TODO list is a good thing, if you write the task more detailed (like 
+> this one), more people can easily implement it. 
 
-I have following suggestion for sfdisk:
-- adding offset/shift support for cumbersome raw disk images (like
-fixed-size VDI), that don't start at the beginning of the file.
+ OK :-)
 
-Required changes?
-IMO straightforward way is just adding another option (below is an
-example), global variable (e.g. shift) and fixing sseek() code and
-R.total_size in get_geometry() to take it into account.
+> +# we do not build these for non-linux os
+> +if test "x$linux_os" = xno
+>      AC_MSG_WARN([non-linux system; do not build mount utilities])
+>      build_mount=no
+> +  AC_MSG_WARN([non-linux system; do not build libmount])
+> +  build_libmount=no
+> +  AC_MSG_WARN([non-linux system; do not build switch_root])
+> +  build_switch_root=no
+> +  AC_MSG_WARN([non-linux system; do not build pivot_root])
+> +  build_pivot_root=no
+> +  AC_MSG_WARN([non-linux system; do not build fallocate])
+> +  build_fallocate=no
+> +  AC_MSG_WARN([non-linux system; do not build unshare])
+> +  build_unshare=no
+>    fi
 
-    -t# [or --offset #]  ignore the number of bytes at the beginning
+ This is not exactly what I mean. In your implementation are
+ Linux-only things disable at all, so if you explicitly
 
-FWIW such option is rather useless for working on many files at the
-same time, unless offsets are really the same. In case of fixed-size
-VDI, offset depends on the image size.
+    ./configure --enable-unshare
 
-Alternatives?
-Some time ago I wrote a simple workaround for fixed-size VDIs (doing a
-bit more than is needed here, i.e. finding also an offset of the raw
-disk image) using LD_PRELOAD technique. It can be found here:
-https://gist.github.com/571086. Now I think that having plain offset
-option in sfdisk would be still useful. I even regret that I did not
-mail about it back then in 2009, because maybe it would be available
-in sfdisk for a long time already...
+ then the configure script will ignore this request and unshare(1)
+ will be disabled. That's wrong (and for some utils is the current
+ implementation wrong too).
+ 
+ The configure script should not be more smart than user. We need to
+ care about default settings (if --disable/enable is not specified)
+ only. Currently the default is "check", I'd like to modify the
+ default according to $linux_os.
 
-Anyway I'd like to know your opinions before making any patches. After
-all I am not sure whether such functionality is acceptable in sfdisk
-according to your rules.
+ Something like:
 
-Regards.
+    linuxonly_default=check
 
-P.S. Please CC me (I am not on the list).
+    if test "x$linux_os" = xno
+        AC_MSG_WARN([non-linux system; unshare(1), libmount, ... 
+                     are disabled by default. Use --enable-<name>
+                     to enable required util(s)])
+        linuxonly_default=no
+    fi
+
+
+    AC_ARG_ENABLE([unshare],
+        AS_HELP_STRING([--disable-unshare], [do not build unshare]),
+        [], enable_unshare=$linuxonly_default)
+
+    AM_CONDITIONAL(BUILD_UNSHARE, test "x$enable_unshare" != xno)
+
+
+ maybe that for some utils it will be necessary to do some extra
+ checks before AM_CONDITIONAL() -- for example to detect that systems
+ has proper syscall (e.g. switch_root depends on openat()).
+
+ Note that this is nothing urgent, it's too late for v2.19 release.
+
+    Karel
 
 -- 
-Przemysław 'Przemoc' Pawełczyk
-http://przemoc.net/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
