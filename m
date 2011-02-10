@@ -1,85 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35794 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753227Ab1BANFS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 1 Feb 2011 08:05:18 -0500
-Date: Tue, 1 Feb 2011 14:05:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Marek Otahal <markotahal@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] configure.ac : remove enable_foo checks for non-linux
-	OSs
-Message-ID: <20110201130514.GO1787@nb.net.home>
-References: <201102011213.23641.markotahal@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201102011213.23641.markotahal@gmail.com>
+Received: from mail2.student.tuwien.ac.at ([193.170.74.22]:54081 "EHLO
+	mail2.student.tuwien.ac.at" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755240Ab1BJTDU convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 10 Feb 2011 14:03:20 -0500
+Message-Id: <201102101802.p1AI2Dp0009456@mail2.student.tuwien.ac.at>
+Date: Thu, 10 Feb 2011 19:02:05 +0100
+From: Stefan Tauner <stefan.tauner@student.tuwien.ac.at>
+To: util-linux@vger.kernel.org
+Cc: Stefan Tauner <stefan.tauner@student.tuwien.ac.at>
+Subject: [PATCH] try to 'remount,ro' once if the kernel ignores the ro
+ request for bind mounts
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 01, 2011 at 12:12:45PM +0100, Marek Otahal wrote:
-> PS: The TODO list is a good thing, if you write the task more detailed (like 
-> this one), more people can easily implement it. 
+Hello,
 
- OK :-)
+the linux kernel ignores (some?) options when they are used in bind
+mounts. Because of this 'mount' issues a warning if bind mounting with
+the ro option results in a writable mount (since 2009).
+>From my point of view this is an error in the kernel because it does
+not report that and should be fixed. Nevertheless since mount already
+checks for this failure it is not a big change to just retry with the
+MS_REMOUNT flag added, which normally should succeed. If not we can
+still warn as before. This would allow using "bind,ro" in /etc/fstab.
+The patch below implements that.
 
-> +# we do not build these for non-linux os
-> +if test "x$linux_os" = xno
->      AC_MSG_WARN([non-linux system; do not build mount utilities])
->      build_mount=no
-> +  AC_MSG_WARN([non-linux system; do not build libmount])
-> +  build_libmount=no
-> +  AC_MSG_WARN([non-linux system; do not build switch_root])
-> +  build_switch_root=no
-> +  AC_MSG_WARN([non-linux system; do not build pivot_root])
-> +  build_pivot_root=no
-> +  AC_MSG_WARN([non-linux system; do not build fallocate])
-> +  build_fallocate=no
-> +  AC_MSG_WARN([non-linux system; do not build unshare])
-> +  build_unshare=no
->    fi
+(please cc me)
 
- This is not exactly what I mean. In your implementation are
- Linux-only things disable at all, so if you explicitly
+Signed-off-by: Stefan Tauner <stefan.tauner@student.tuwien.ac.at>
+---
+ mount/mount.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
-    ./configure --enable-unshare
-
- then the configure script will ignore this request and unshare(1)
- will be disabled. That's wrong (and for some utils is the current
- implementation wrong too).
+diff --git a/mount/mount.c b/mount/mount.c
+index f5b3521..28a05f9 100644
+--- a/mount/mount.c
++++ b/mount/mount.c
+@@ -1655,14 +1655,18 @@ try_mount_one (const char *spec0, const char *node0, const char *types0,
+   }
  
- The configure script should not be more smart than user. We need to
- care about default settings (if --disable/enable is not specified)
- only. Currently the default is "check", I'd like to modify the
- default according to $linux_os.
-
- Something like:
-
-    linuxonly_default=check
-
-    if test "x$linux_os" = xno
-        AC_MSG_WARN([non-linux system; unshare(1), libmount, ... 
-                     are disabled by default. Use --enable-<name>
-                     to enable required util(s)])
-        linuxonly_default=no
-    fi
-
-
-    AC_ARG_ENABLE([unshare],
-        AS_HELP_STRING([--disable-unshare], [do not build unshare]),
-        [], enable_unshare=$linuxonly_default)
-
-    AM_CONDITIONAL(BUILD_UNSHARE, test "x$enable_unshare" != xno)
-
-
- maybe that for some utils it will be necessary to do some extra
- checks before AM_CONDITIONAL() -- for example to detect that systems
- has proper syscall (e.g. switch_root depends on openat()).
-
- Note that this is nothing urgent, it's too late for v2.19 release.
-
-    Karel
-
+   /* Kernel allows to use MS_RDONLY for bind mounts, but the read-only request
+-   * could be silently ignored. Check it to avoid 'ro' in mtab and 'rw' in
+-   * /proc/mounts.
++   * could be silently ignored. Check that and retry with MS_REMOUNT once. If it
++   * is still rw honor it to avoid 'ro' in mtab and 'rw' in /proc/mounts.
+    */
+   if (!fake && mnt5_res == 0 &&
+       (flags & MS_BIND) && (flags & MS_RDONLY) && !is_readonly(node)) {
+-
+-      printf(_("mount: warning: %s seems to be mounted read-write.\n"), node);
+-      flags &= ~MS_RDONLY;
++      if (!(flags & MS_REMOUNT)) {
++        flags |= MS_REMOUNT;
++        goto mount_retry;
++      } else {
++        printf(_("mount: warning: %s seems to be mounted read-write.\n"), node);
++        flags &= ~MS_RDONLY;
++      }
+   }
+ 
+   /* Kernel can silently add MS_RDONLY flag when mounting file system that
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Kind regards/Mit freundlichen Grüßen, Stefan Tauner
