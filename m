@@ -1,53 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55661 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753517Ab1C1WDp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Mar 2011 18:03:45 -0400
-Date: Tue, 29 Mar 2011 00:03:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>, Miklos Szeredi <mszeredi@suse.cz>
-Subject: Re: [PATCH] umount: allow non-root umount of FUSE even if not in
-	fstab
-Message-ID: <20110328220344.GQ21093@nb.net.home>
-References: <20110328140454.GA4790@foxbat.suse.cz>
+Received: from mail.redfish-solutions.com ([66.232.79.143]:59426 "EHLO
+	mail.redfish-solutions.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751158Ab1CJWfE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 10 Mar 2011 17:35:04 -0500
+Message-ID: <4D794E28.4050001@redfish-solutions.com>
+Date: Thu, 10 Mar 2011 14:18:16 -0800
+From: Philip Prindeville <philipp@redfish-solutions.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110328140454.GA4790@foxbat.suse.cz>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: Adding --color option to script?
+References: <4D13CC3E.9000000@redfish-solutions.com> <20101231000329.GB17311@nb.net.home>
+In-Reply-To: <20101231000329.GB17311@nb.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 28, 2011 at 04:04:56PM +0200, Petr Uzel wrote:
-> I have to admit that I don't like it very much, because:
+On 12/30/10 4:03 PM, Karel Zak wrote:
+> On Thu, Dec 23, 2010 at 02:25:02PM -0800, Philip Prindeville wrote:
+>> I would love to see an option like --color which used terminal
+>> colors to highlight STDERR output (or, in a pinch, maybe bold it on
+>> terminals that don't support color... if they still exist).
+>   The script(1) command does not work on this level. It reads data
+>   directly from master side of the terminal. It means that we are not
+>   able to distinguish between stdout and stderr.
+>
+>> Sound reasonable?
+>   Yes, but I don't see a way how to implement it.
+>
+>      Karel
+>
 
-I don't like it too :-)
+I just realized...  it can be done by having two ptys, one for stdin/stdout, and another just for stderr.
 
-> - it complicates umount
-> - duplicates code from fusermount
-> - should (???) be implemented using umount helpers
+-Philip
 
-[...]
-
-> +		/* If this is fuse-based filesystem, allow user unmount even
-> +		 * if the FS is not in fstab.
-> +		 *
-> +		 * Based on fusermount code. */
-> +		if (strcmp(mc->m.mnt_type, "fuse") == 0 ||
-> +		    strcmp(mc->m.mnt_type, "fuseblk") == 0 ||
-> +		    strncmp(mc->m.mnt_type, "fuse.", 5) == 0 ||
-> +		    strncmp(mc->m.mnt_type, "fuseblk.", 8) == 0) {
-
-Wouldn't be better to always call /sbin/umount.fuse for non-roots (except
-umount -i)? 
-
-I believe more and more that we need something like
-
-    /etc/mount.d/{fuse,foo,...}.conf
-
-where we can define such behavior for some filesystems.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
