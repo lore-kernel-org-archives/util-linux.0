@@ -1,69 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hapkido.dreamhost.com ([66.33.216.122]:38806 "EHLO
-	hapkido.dreamhost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758027Ab1CaPAS (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 31 Mar 2011 11:00:18 -0400
-Received: from homiemail-a10.g.dreamhost.com (caiajhbdcahe.dreamhost.com [208.97.132.74])
-	by hapkido.dreamhost.com (Postfix) with ESMTP id 970CB17A429
-	for <util-linux-ng@vger.kernel.org>; Thu, 31 Mar 2011 08:00:17 -0700 (PDT)
-Subject: [PATCH 1/3] mkfs.minix: add support for mkfs3
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux-ng <util-linux-ng@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 31 Mar 2011 11:59:29 -0300
-Message-ID: <1301583569.2159.15.camel@offworld>
-Mime-Version: 1.0
+Received: from cantor.suse.de ([195.135.220.2]:38043 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751928Ab1C2I4D (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Mar 2011 04:56:03 -0400
+Date: Tue, 29 Mar 2011 10:56:01 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: Miklos Szeredi <mszeredi@suse.cz>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] umount: allow non-root umount of FUSE even if not in
+ fstab
+Message-ID: <20110329085601.GD26819@foxbat.suse.cz>
+References: <20110328140454.GA4790@foxbat.suse.cz>
+ <20110328220344.GQ21093@nb.net.home>
+ <20110329084623.GC26819@foxbat.suse.cz>
+ <1301388690.22846.88.camel@tucsk.pomaz.szeredi.hu>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LKTjZJSUETSlgu2t"
+In-Reply-To: <1301388690.22846.88.camel@tucsk.pomaz.szeredi.hu>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add superblock layout for minix3 filesystem support.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/minix.h |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+--LKTjZJSUETSlgu2t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/disk-utils/minix.h b/disk-utils/minix.h
-index 638565e..8952792 100644
---- a/disk-utils/minix.h
-+++ b/disk-utils/minix.h
-@@ -44,6 +44,24 @@ struct minix_super_block {
-         u32 s_zones;
- };
- 
-+/* V3 minix super-block data on disk */
-+struct minix3_super_block {
-+	u32 s_ninodes;
-+	u16 s_pad0;
-+	u16 s_imap_blocks;
-+	u16 s_zmap_blocks;
-+	u16 s_firstdatazone;
-+	u16 s_log_zone_size;
-+	u16 s_pad1;
-+	u32 s_max_size;
-+	u32 s_zones;
-+	u16 s_magic;
-+	u16 s_pad2;
-+	u16 s_blocksize;
-+	u8  s_disk_version;
-+        u16 s_state;
-+};
-+
- #define BLOCK_SIZE_BITS 10
- #define BLOCK_SIZE (1<<BLOCK_SIZE_BITS)
- 
-@@ -59,5 +77,6 @@ struct minix_super_block {
- #define MINIX_SUPER_MAGIC2   0x138F          /* minix fs, 30 char names */
- #define MINIX2_SUPER_MAGIC   0x2468	     /* minix V2 fs */
- #define MINIX2_SUPER_MAGIC2  0x2478	     /* minix V2 fs, 30 char names */
-+#define MINIX3_SUPER_MAGIC   0x4d5a	     /* minix V3 fs (60 char names) */
- 
- #endif /* KERNEL_INCLUDES_ARE_CLEAN */
--- 
-1.7.1
+On Tue, Mar 29, 2011 at 10:51:30AM +0200, Miklos Szeredi wrote:
+> On Tue, 2011-03-29 at 10:46 +0200, Petr Uzel wrote:
+> > > Wouldn't be better to always call /sbin/umount.fuse for non-roots (ex=
+cept
+> > > umount -i)?=20
+> >=20
+> > Yes, that's what I meant by umount helpers. The problem is that AFAICS
+> > fuse does not provide this helper.
+> >=20
+> > @Miklos: what do you think? Would it make sense to have umount.fuse
+> > (most likely as symlink to /sbin/mount.fuse)? I could look into it.
+>=20
+> Could umount.fuse allow umount of fuse filesystem even if not in fstab?
 
+Yes, as far as I understand.
 
+> If so, then I don't see any problem with providing /sbin/umount.fuse.
 
+OK, I'll try to look into it.
 
+>=20
+> Thanks,
+> Miklos
+
+Thanks,
+
+        Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--LKTjZJSUETSlgu2t
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iEYEARECAAYFAk2RnqEACgkQnZxG0T6qDD1DcQCffRz3eeeRRp80sSqr2CPNHj1a
+7oMAoIABAWE3xyCqqgTDADYq9ooS2i7Q
+=Qth3
+-----END PGP SIGNATURE-----
+
+--LKTjZJSUETSlgu2t--
