@@ -1,77 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hapkido.dreamhost.com ([66.33.216.122]:38827 "EHLO
-	hapkido.dreamhost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758027Ab1CaPA1 (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 31 Mar 2011 11:00:27 -0400
-Received: from homiemail-a6.g.dreamhost.com (caiajhbdccah.dreamhost.com [208.97.132.207])
-	by hapkido.dreamhost.com (Postfix) with ESMTP id 46C7F17A5A8
-	for <util-linux-ng@vger.kernel.org>; Thu, 31 Mar 2011 08:00:27 -0700 (PDT)
-Subject: [PATCH 2/3] mkfs.minix: document mfs3 changes
-From: Davidlohr Bueso <dave@gnu.org>
+Received: from cantor2.suse.de ([195.135.220.15]:57957 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751516Ab1C2Isr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Mar 2011 04:48:47 -0400
+Subject: Re: [PATCH] umount: allow non-root umount of FUSE even if not in
+ fstab
+From: Miklos Szeredi <mszeredi@suse.cz>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux-ng <util-linux-ng@vger.kernel.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <20110329082850.GR21093@nb.net.home>
+References: <20110328140454.GA4790@foxbat.suse.cz>
+	 <1301322200.22846.68.camel@tucsk.pomaz.szeredi.hu>
+	 <20110329082850.GR21093@nb.net.home>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 31 Mar 2011 11:59:33 -0300
-Message-ID: <1301583573.2159.16.camel@offworld>
+Date: Tue, 29 Mar 2011 10:48:44 +0200
+Message-ID: <1301388524.22846.86.camel@tucsk.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Update the mkfs.minix manpage for new options and amount of characters for a filename.
+On Tue, 2011-03-29 at 10:28 +0200, Karel Zak wrote:
+> On Mon, Mar 28, 2011 at 04:23:20PM +0200, Miklos Szeredi wrote:
+> > On Mon, 2011-03-28 at 16:04 +0200, Petr Uzel wrote:
+> > > Hi all,
+> > > 
+> > > I hacked the following patch with which it is possible to use 
+> > > "umount $dir" instead of "fusermount -u $dir", which IMHO is an
+> > > improvement in usability. It seems to work (at least for me), however,
+> > > I have to admit that I don't like it very much, because:
+> > > - it complicates umount
+> > > - duplicates code from fusermount
+> > 
+> > And this is not the only one that would have to be duplicated.  The
+> > mount and umount races that were fixed in fusermount in recently and not
+> > so recently would also have to be added to util-linux, which would
+> > actually be a good thing, since in theory they could affect fstab based
+> > user mounts as well (though that is much more unlikely than with fuse,
+> > where the user chooses the mountpoint).
+> 
+>  Maybe we need to call umount2() with UMOUNT_NOFOLLOW flag for
+>  non-root users in umount(8). I think it should be enough for
+>  umount(8) (where almost all is controlled by system admin in fstab). 
+>  
+>  See below. Comments?
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/mkfs.minix.8 |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+UMOUNT_NOFOLLOW is a good idea but not enough, it will only deal with
+last path component changing to a symlink.  If previous path component
+is changed then UMOUNT_NOFOLLOW will not have any effect.
 
-diff --git a/disk-utils/mkfs.minix.8 b/disk-utils/mkfs.minix.8
-index 9359106..da503e0 100644
---- a/disk-utils/mkfs.minix.8
-+++ b/disk-utils/mkfs.minix.8
-@@ -1,4 +1,4 @@
--.\" Copyright 1992, 1993, 1994 Rickard E. Faith (faith@cs.unc.edu)
-+.\" Copyright 1992, 1993, 1994 Rickard E. Faith (faith@cs.unc.edu) - updated by Davidlohr Bueso <dave@gnu.og> 2011.
- .\" May be freely distributed.
- .TH MKFS.MINIX 8 "2 July 1996" "Util-linux 2.6" "Linux System Administrator's Manual"
- .SH NAME
-@@ -46,12 +46,12 @@ are found, the count is printed.
- .TP
- .BI \-n " namelength"
- Specify the maximum length of filenames.
--Currently, the only allowable values are 14 and 30.
-+Currently, the only allowable values are 14, 30 and 60 (v3 specific).
- The default is 30. Note that kernels older than 0.99p7
- only accept namelength 14.
- .TP
- .BI \-i " inodecount"
--Specify the number of inodes for the filesystem.
-+	Specify the number of inodes for the filesystem.
- .TP
- .BI \-l " filename"
- Read the bad blocks list from
-@@ -59,8 +59,17 @@ Read the bad blocks list from
- The file has one bad block number per line.  The count of bad blocks read
- is printed.
- .TP
--.B \-v
-+.B \-1
-+Make a Minix version 1 filesystem.
-+.TP
-+.B \-2, \-v
- Make a Minix version 2 filesystem.
-+.TP
-+.B \-3
-+Make a Minix version 3 filesystem.
-+.TP
-+.BI \-B " blocksize"
-+Specify the block size to use (only for v3)
- .SH "EXIT CODES"
- The exit code returned by
- .B mkfs.minix
--- 
-1.7.1
+What fusermount does is change cwd to the parent directory, check if cwd
+matches that of the intended path, and then umount with UMOUNT_NOFOLLOW.
 
-
+Thanks,
+Miklos
 
 
