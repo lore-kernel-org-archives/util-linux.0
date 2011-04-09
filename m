@@ -1,39 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:63553 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754510Ab1DZLMX (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 26 Apr 2011 07:12:23 -0400
-Date: Tue, 26 Apr 2011 13:12:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jan Engelhardt <jengelh@medozas.de>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: Mangle functions
-Message-ID: <20110426111228.GF29492@nb.net.home>
-References: <alpine.LNX.2.01.1104231718050.16111@obet.zrqbmnf.qr>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:44930 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753799Ab1DIISS convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 9 Apr 2011 04:18:18 -0400
+Received: by gyd10 with SMTP id 10so1688126gyd.19
+        for <util-linux@vger.kernel.org>; Sat, 09 Apr 2011 01:18:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.01.1104231718050.16111@obet.zrqbmnf.qr>
+In-Reply-To: <1301355571.2073.1.camel@offworld>
+References: <1301243396-26240-1-git-send-email-dolmen@cpan.org>
+ <1301243396-26240-2-git-send-email-dolmen@cpan.org> <1301355571.2073.1.camel@offworld>
+From: =?ISO-8859-1?Q?Olivier_Mengu=E9?= <dolmen@cpan.org>
+Date: Sat, 9 Apr 2011 10:17:58 +0200
+Message-ID: <BANLkTikG9pi0ER0jPvZDGWRxWu9Kg1+jAQ@mail.gmail.com>
+Subject: Re: [PATCH] getopt: [getopt.c] add static qualifiers
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Apr 23, 2011 at 05:20:01PM +0200, Jan Engelhardt wrote:
-> I see a mnt_mangle function provided by libmount, but it seems to be 
-> meant for *tab columns only. Is there also a function that mangles the 
-> passed string such that it can be used as an option value, i.e. encodes 
-> the set " ,\t\n\\"?
+I've noticed my patch has been committed in
+0a626987e244b6fa30c18cfa86d12cd80b3977e8.
+Thanks.
 
- Not sure if I good understand. Do you have any example?
+Le 29 mars 2011 01:39, Davidlohr Bueso <dave@gnu.org> a écrit :
+>
+> On Sun, 2011-03-27 at 18:29 +0200, Olivier Mengué wrote:
+> > -void *our_malloc(size_t size);
+> > -void *our_realloc(void *ptr, size_t size);
+>
+> It would be nice to use our xalloc lib for stuff like this.
 
- Do you mean mount options? The library uses the mnt_mangle functions
- for all strings that are read/write to/from the *tab files. You don't
- have to care about " \t\n\\".
- 
- The problem is comma (','), it should not be used in the strings --
- exception are SELinux mount options where comma is acceptable if the
- option uses quotes (e.g. context="aaa,bbb,ccc").
+Working on a patch for that.
+However, note that xalloc error messages are not localized contrary to
+the current implementation.
 
-    Karel
+> > -void print_help(void)
+> > +static void print_help(void)
+>
+> Lately we've been standardizing this kind of things too.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+A real cleanup of this function would require to also merge the
+multiple fputs() calls. This would have impact on localization.
+What is the policy on changes having impact on localization? (Please,
+add the answer to README.devel too).
+
+Olivier.
