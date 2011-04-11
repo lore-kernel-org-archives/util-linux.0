@@ -1,46 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hapkido.dreamhost.com ([66.33.216.122]:49974 "EHLO
-	hapkido.dreamhost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755986Ab1DFOXf (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 6 Apr 2011 10:23:35 -0400
-Received: from homiemail-a37.g.dreamhost.com (mailbigip.dreamhost.com [208.97.132.5])
-	by hapkido.dreamhost.com (Postfix) with ESMTP id 611A417A3E4
-	for <util-linux-ng@vger.kernel.org>; Wed,  6 Apr 2011 07:23:35 -0700 (PDT)
-Subject: Re: [PATCH 3/3] mkfs.minix: add support for minix3 fs
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux-ng <util-linux-ng@vger.kernel.org>
-In-Reply-To: <20110406083627.GA6491@nb.net.home>
-References: <1301583579.2159.17.camel@offworld>
-	 <20110406083627.GA6491@nb.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 06 Apr 2011 11:22:40 -0300
-Message-ID: <1302099760.2142.3.camel@offworld>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:31399 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752927Ab1DKKhw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Apr 2011 06:37:52 -0400
+Date: Mon, 11 Apr 2011 12:37:42 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Olivier =?utf-8?Q?Mengu=C3=A9?= <dolmen@cpan.org>
+Cc: Davidlohr Bueso <dave@gnu.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] getopt: [getopt.c] add static qualifiers
+Message-ID: <20110411103742.GA1719@nb.net.home>
+References: <1301243396-26240-1-git-send-email-dolmen@cpan.org> <1301243396-26240-2-git-send-email-dolmen@cpan.org> <1301355571.2073.1.camel@offworld> <BANLkTikG9pi0ER0jPvZDGWRxWu9Kg1+jAQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <BANLkTikG9pi0ER0jPvZDGWRxWu9Kg1+jAQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2011-04-06 at 10:36 +0200, Karel Zak wrote:
-> On Thu, Mar 31, 2011 at 11:59:38AM -0300, Davidlohr Bueso wrote:
-> >  #define INODE_SIZE (sizeof(struct minix_inode))
-...
+On Sat, Apr 09, 2011 at 10:17:58AM +0200, Olivier Mengué wrote:
+> I've noticed my patch has been committed in
+> 0a626987e244b6fa30c18cfa86d12cd80b3977e8.
+> Thanks.
 > 
->  Oh.. Davidlohr, you forgot regression test ;-) What about to add
->     
->         mkfs.minix -{1,2,3}
+> Le 29 mars 2011 01:39, Davidlohr Bueso <dave@gnu.org> a écrit :
+> >
+> > On Sun, 2011-03-27 at 18:29 +0200, Olivier Mengué wrote:
+> > > -void *our_malloc(size_t size);
+> > > -void *our_realloc(void *ptr, size_t size);
+> >
+> > It would be nice to use our xalloc lib for stuff like this.
 > 
->  to tests/ts/minix/mkfs{1,2,3} ?
+> Working on a patch for that.
+> However, note that xalloc error messages are not localized contrary to
+> the current implementation.
+
+Hmm.. it should be probably fixed.
+
+> > > -void print_help(void)
+> > > +static void print_help(void)
+> >
+> > Lately we've been standardizing this kind of things too.
 > 
->  It would be also nice to add MINIX3_SUPER_MAGIC to fsck.minix and
->  print a warning that v3 is unsupported (yet?).
+> A real cleanup of this function would require to also merge the
+> multiple fputs() calls. This would have impact on localization.
+> What is the policy on changes having impact on localization? (Please,
+> add the answer to README.devel too).
 
-I had a feeling you would dislike the sloppy code (which was already a
-part of mkfs.minix), so heck, let's invade it massively, like partx.
-Like you mention, we need to go through several patches, which I will be
-sending you over the next few days, this way it might be a bit easier to
-merge.
+Don't care about localization, the strings will be translated before
+release.
 
-Thanks,
-Davidlohr
+    Karel
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
