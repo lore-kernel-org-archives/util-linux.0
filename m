@@ -1,16 +1,18 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:64138 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:36657 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753007Ab1ECOPD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 3 May 2011 10:15:03 -0400
-Received: by fxm17 with SMTP id 17so116158fxm.19
-        for <util-linux@vger.kernel.org>; Tue, 03 May 2011 07:15:01 -0700 (PDT)
+	with ESMTP id S932916Ab1ETOUv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 20 May 2011 10:20:51 -0400
+Received: by fxm17 with SMTP id 17so2710078fxm.19
+        for <util-linux@vger.kernel.org>; Fri, 20 May 2011 07:20:50 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20110503125322.GK29492@nb.net.home>
-References: <BANLkTin=y5oaEU0913dOnjWhosiyXe3Zwg@mail.gmail.com> <20110503125322.GK29492@nb.net.home>
+In-Reply-To: <20110504122449.GA27184@nb.net.home>
+References: <BANLkTin=y5oaEU0913dOnjWhosiyXe3Zwg@mail.gmail.com>
+ <20110503125322.GK29492@nb.net.home> <BANLkTikGoXaYdwvY3fZPGVmvBkGzT23xtw@mail.gmail.com>
+ <20110504122449.GA27184@nb.net.home>
 From: Austen Dicken <cvpcsm@gmail.com>
-Date: Tue, 3 May 2011 09:14:41 -0500
-Message-ID: <BANLkTikGoXaYdwvY3fZPGVmvBkGzT23xtw@mail.gmail.com>
+Date: Fri, 20 May 2011 09:20:30 -0500
+Message-ID: <BANLkTi=FtmVsu5g36ierWHyeEK3yxBkSxw@mail.gmail.com>
 Subject: Re: [PATCH 1/1] dmesg: adds the ability to "follow" the klog ring buffer
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
@@ -18,278 +20,163 @@ Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 3, 2011 at 07:53, Karel Zak <kzak@redhat.com> wrote:
-> On Fri, Apr 29, 2011 at 11:42:00AM -0500, Austen Dicken wrote:
->> adds the "-f" option to dmesg, which allows an underpriviledged
->> user to "follow" the kernel ring buffer, outputting new messages as they
->
-> I like the "follow the kernel ring buffer" idea, but ...
->
->> appear.  this is done non-destructively so that the current buffer remains
->> after execution.
->>
->> this also changes the log output to be by-line instead of by-character,
->> and saves the last line printed on each read of the buffer.  if looping,
->> it will then read the buffer again, but not output until it finds the last
->> line that it printed.
->
-> ... this seems like a problem to me.
->
->  [...]
->
->> -     for (i = 0; i < n; i++) {
->> -             if (!raw && (i == 0 || buf[i - 1] == '\n') && buf[i] == '<') {
->> -                     i++;
->> -                     while (isdigit(buf[i]))
->> -                             i++;
->> -                     if (buf[i] == '>')
->> +             this_line = xmalloc(n * sizeof(char));
->> +             for (i = 0, j = 0; i < n; i++) {
->> +                     if (!raw && (i == 0 || buf[i - 1] == '\n') && buf[i] == '<') {
->>                               i++;
->> +                             while (isdigit(buf[i]))
->> +                                     i++;
->> +                             if (buf[i] == '>')
->> +                                     i++;
->> +                     }
->> +                     this_line[j] = buf[i];
->> +
->> +                     if (this_line[j] == '\n') {
->> +                             this_line[j] = '\0';
->> +                             if (last_line) {
->> +                                     if (!strcmp(last_line, this_line)) {
->> +                                             free(last_line);
->> +                                             last_line = NULL;
->> +                                     }
->> +                             } else
->> +                                     printf("%s\n", this_line);
->
-> It expects that the kernel log does not contain duplicate messages.
-> Is it correct? I don't think so, I see:
->
->   ata1.00: configured for UDMA/100
->   ata1.00: configured for UDMA/100
->
-> You have to compile kernel with CONFIG_PRINTK_TIME, otherwise your
-> heuristic will not work properly.
-
-I see what you mean.  Yes my heuristic would not be able to function properly
-in that way, so there's no reason to complicate things by going to line-by-line
-output.
-
->
->> +             usleep(200);
->> +
->> +     } while (follow_loop);
->
-> Hmm... sleep() in code usually means a poor design or API.
-
-I was using sleep at the time since klogctl(3,...) doesn't block so
-when no new data
-was available the code was essentially busy-looping, but I agree it is
-quite messy.
-
->
-> What about to support -f (follow) for privileged users only?
->
-> Then you can use klogctl(2, ...). It waits until the kernel log buffer
-> is non-empty, so the last_line and usleep() will be unnecessary, and
-> the implementation will be pretty simple.
-
-Agreed.  I have decided to change the patch to function this way,
-which simplifies things
-immensely.
-
->
->> +             if (prev_sighandler)
->> +                     signal(SIGINT, prev_sighandler);
->> +             else
->> +                     signal(SIGINT, SIG_DFL);
->
-> Why do you need to restore the handler before return (exit)? It seems
-> unnecessary.
-
-I was restoring the old signal handler just for completeness, in the
-same way that someone
-might free() memory even though they are about to exit.  The main
-reason for that is mostly
-so that in the future if more were to be added to this program then
-there wouldn't be bugs
-caused by incomplete closure of such things.
-
-Regardless, the use of signal handlers is obsolete in my latest patch,
-shown below.
-
->
->    Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
-
-So I have changed the implementation to use klogctl(2, ...) and remove
-the signal handlers,
-so one simply interrupts the program for the sake of interrupting the
-program, no cleanup should
-be required, so the signal handling is just extra.
-
-"dmesg -f" now essentially would do the same as "cat /proc/kmsg" but
-with the addition of
-some of the nice formatting options that dmesg already provides
-(removal of log levels for instance).
-
-I was playing with the idea of having follow run klogctl(3, ...) first
-to dump the current buffer, then
-call klogctl(2, ...) after that to append new information (essentially
-producing the originally intended
-output), but decided against it as if an underprivileged user attempts
-to use the option that would result
-in the log dumping and then failing when switching to klogctl(2, ...),
-which seemed confusing and messy.
-It could have been modified to run a privileged command first, but
-that seemed messy as well, so I'll leave
-it at this for now.
-
-~ Austen
-
---
- sys-utils/dmesg.1 |    4 +++
- sys-utils/dmesg.c |   73 +++++++++++++++++++++++++++++------------------------
- 2 files changed, 44 insertions(+), 33 deletions(-)
-
-diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
-index d7af1da..bbdd462 100644
---- a/sys-utils/dmesg.1
-+++ b/sys-utils/dmesg.1
-@@ -6,6 +6,7 @@ dmesg \- print or control the kernel ring buffer
- .SH SYNOPSIS
- .B dmesg
- .RB [ \-c ]
-+.RB [ \-f ]
- .RB [ \-r ]
- .RB [ \-n
- .IR level ]
-@@ -28,6 +29,9 @@ file to whoever can debug their problem.
- .B \-c
- Clear the ring buffer contents after printing.
- .TP
-+.B \-f
-+Output ring buffer contents as they are added.
-+.TP
- .B \-r
- Print the raw message buffer, i.e., don't strip the log level prefixes.
- .TP
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index c3e5659..e2f5933 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -44,7 +44,7 @@
- static void __attribute__ ((noreturn)) usage(void)
- {
- 	fprintf(stderr,
--		_("Usage: %s [-c] [-n level] [-r] [-s bufsize]\n"),
-+		_("Usage: %s [-c] [-f] [-n level] [-r] [-s bufsize]\n"),
- 		program_invocation_short_name);
- 	exit(EXIT_FAILURE);
-
-@@ -62,16 +62,21 @@ int main(int argc, char *argv[])
- 	int  lastc;
- 	int  cmd = 3;		/* Read all messages in the ring buffer */
- 	int  raw = 0;
-+	int  follow = 0;
-
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
-
--	while ((c = getopt(argc, argv, "crn:s:")) != -1) {
-+	while ((c = getopt(argc, argv, "cfrn:s:")) != -1) {
- 		switch (c) {
- 		case 'c':
- 			cmd = 4;	/* Read and clear all messages */
- 			break;
-+		case 'f':
-+			cmd = 2;
-+			follow = 1;
-+			break;
- 		case 'n':
- 			cmd = 8;	/* Set level of messages */
- 			level = strtol_or_err(optarg, _("failed to parse level"));
-@@ -109,43 +114,45 @@ int main(int argc, char *argv[])
- 			bufsize = n;
- 	}
-
--	if (bufsize) {
--		sz = bufsize + 8;
--		buf = xmalloc(sz * sizeof(char));
--		n = klogctl(cmd, buf, sz);
--	} else {
--		sz = 16392;
--		while (1) {
-+	do {
-+		if (bufsize) {
-+			sz = bufsize + 8;
- 			buf = xmalloc(sz * sizeof(char));
--			n = klogctl(3, buf, sz);	/* read only */
--			if (n != sz || sz > (1 << 28))
--				break;
--			free(buf);
--			sz *= 4;
-+			n = klogctl(cmd, buf, sz);
-+		} else {
-+			sz = 16392;
-+			while (1) {
-+				buf = xmalloc(sz * sizeof(char));
-+				n = klogctl(3, buf, sz);	/* read only */
-+				if (n != sz || sz > (1 << 28))
-+					break;
-+				free(buf);
-+				sz *= 4;
-+			}
-+
-+			if (n > 0 && cmd == 4)
-+				n = klogctl(cmd, buf, sz);	/* read and clear */
- 		}
-
--		if (n > 0 && cmd == 4)
--			n = klogctl(cmd, buf, sz);	/* read and clear */
--	}
--
--	if (n < 0)
--		err(EXIT_FAILURE, _("klogctl failed"));
-+		if (n < 0)
-+			err(EXIT_FAILURE, _("klogctl failed"));
-
--	lastc = '\n';
--	for (i = 0; i < n; i++) {
--		if (!raw && (i == 0 || buf[i - 1] == '\n') && buf[i] == '<') {
--			i++;
--			while (isdigit(buf[i]))
--				i++;
--			if (buf[i] == '>')
-+		lastc = '\n';
-+		for (i = 0; i < n; i++) {
-+			if (!raw && (i == 0 || buf[i - 1] == '\n') && buf[i] == '<') {
- 				i++;
-+				while (isdigit(buf[i]))
-+					i++;
-+				if (buf[i] == '>')
-+					i++;
-+			}
-+			lastc = buf[i];
-+			putchar(lastc);
- 		}
--		lastc = buf[i];
--		putchar(lastc);
--	}
--	if (lastc != '\n')
--		putchar('\n');
--	free(buf);
-+		if (lastc != '\n')
-+			putchar('\n');
-+		free(buf);
-+	} while (follow);
-
- 	return EXIT_SUCCESS;
- }
+VGhlIG1vZGlmaWVkIHBhdGNoIGxvb2tzIGdvb2QgdG8gbWUuICBJJ20gbm90IHN1cmUgaG93IHRv
+IGdldCBhcm91bmQKdGhlIHdob2xlIGtsb2djdGwoMiwgKSBpbmNvbXBsZXRlIG91dHB1dCBpc3N1
+ZS4gIEknbSBub3QgdG9vIGZhbWlsaWFyCndpdGggdGhlIG92ZXJoZWFkIHF1ZXN0aW9uIGFib3V0
+IGtsb2djdGwgdnMgb3BlbigvcHJvYy9rbG9nKSArIHJlYWQoKS4KIEFyZSB5b3UgcmVmZXJyaW5n
+IHRvIHRoYXQgb3BlbigpIGNhdXNlcyB0aGUga2VybmVsIHRvIGNhbGwga2xvZ2N0bAppbnN0ZWFk
+IG9mIGhhdmluZyB0byByb3V0ZSB0aGUgc3lzY2FsbCB0aG9ydWdoIGdsaWJjPyAgSSBrbm93IHRo
+YXQKdGhleSBib3RoIGFyZSBsb2dpY2FsbHkgZXF1aXZhbGVudCwgc28gSSBndWVzcyBJJ2xsIGxl
+YXZlIHRoYXQgY2FsbCB1cAp0byB5b3Ugc2luY2UgeW91IHNlZW0gdG8gYmUgbW9yZSBrbm93bGVk
+Z2VhYmxlIGFib3V0IGl0LgoKfkF1c3RlbgoKT24gV2VkLCBNYXkgNCwgMjAxMSBhdCAwNzo0Mywg
+S2FyZWwgWmFrIDxremFrQHJlZGhhdC5jb20+IHdyb3RlOgo+IE9uIFR1ZSwgTWF5IDAzLCAyMDEx
+IGF0IDA5OjE0OjQxQU0gLTA1MDAsIEF1c3RlbiBEaWNrZW4gd3JvdGU6Cj4+ID4gVGhlbiB5b3Ug
+Y2FuIHVzZSBrbG9nY3RsKDIsIC4uLikuIEl0IHdhaXRzIHVudGlsIHRoZSBrZXJuZWwgbG9nIGJ1
+ZmZlcgo+PiA+IGlzIG5vbi1lbXB0eSwgc28gdGhlIGxhc3RfbGluZSBhbmQgdXNsZWVwKCkgd2ls
+bCBiZSB1bm5lY2Vzc2FyeSwgYW5kCj4+ID4gdGhlIGltcGxlbWVudGF0aW9uIHdpbGwgYmUgcHJl
+dHR5IHNpbXBsZS4KPj4KPj4gQWdyZWVkLiDCoEkgaGF2ZSBkZWNpZGVkIHRvIGNoYW5nZSB0aGUg
+cGF0Y2ggdG8gZnVuY3Rpb24gdGhpcyB3YXksCj4+IHdoaWNoIHNpbXBsaWZpZXMgdGhpbmdzCj4+
+IGltbWVuc2VseS4KPgo+IFVuZm9ydHVuYXRlbHksIGl0IHNlZW1zIHRoYXQgU1lTTE9HX0FDVElP
+Tl9SRUFEIChha2Ega2xvZ2N0bCgyLCAuLi4pKQo+IGlzIG5vdCBpZGVhbCBzb2x1dGlvbiB0b28u
+IFNvcnJ5Lgo+Cj4gVGhlIG91dHB1dCBpcyBpbmNvbXBsZXRlIGlmIGFub3RoZXIgcHJvY2Vzcyhl
+LmcuIHN5c2xvZyBkYWVtb24pIGlzCj4gcmVhZGluZyB0aGUgYnVmZmVyLiBUaGUgYnVmZmVyIChh
+bmQgaW5kZXggaW50byB0aGUgYnVmZmVyKSBpcyBzaGFyZWQKPiBmb3IgYWxsIHByb2Nlc3Nlcywg
+c28gaXQncyBwb3NzaWJsZSB0byByZWFkIHRoZSBpbmZvcm1hdGlvbiBvbmx5IG9uY2UuCj4gRm9y
+IG1vcmUgZGV0YWlscyBzZWUga2VybmVsL3ByaW50ay5jIChsb2dfc3RhcnQgaW5kZXgpIGluIGtl
+cm5lbAo+IHNvdXJjZXMuCj4KPiBBbnl3YXkgZm9yIGRlYnVnZ2luZyBvciBvbiBzb21lIG5vbi1z
+dGFuZGFyZCBib3hlcyB0aGUgJy1mJyBvcHRpb24KPiBjb3VsZCBiZSBzdGlsbCB1c2FibGUuIEkn
+ZCBsaWtlIHRvIGFkZCAtLWxldmVsPSBhbmQgLS1mYWNpbGl0eT0KPiBvcHRpb25zLCBzbyBkbWVz
+ZygxKSBzaG91bGQgYmUgZGVmaW5pdGVseSBiZXR0ZXIgdGhhbiB0aGUgImNhdAo+IC9wcm9jL2tt
+c2ciIGNvbW1hbmQuCj4KPiBJIGRpZCBzb21lIGNoYW5nZXMgdG8gdGhlIHBhdGNoIHRvIG1pbmlt
+aXplIG92ZXJoZWFkLCBzZWUgYmVsb3cuIE1heWJlCj4gaXQgd291bGQgYmUgYmV0dGVyIHRvIHVz
+ZSBvcGVuKC9wcm9jL2ttc2cpICsgcmVhZCgpIGluc3RlYWQgb2YKPiBrbG9nY3RsKDIsIC4uLikg
+Zm9yIHRoZSAtZiBvcHRpb24gdG8gbWluaW1pemUgb3ZlcmhlYWQgaW4gZ2xpYmMuCj4KPiBDb21t
+ZW50cz8KPgo+IMKgIMKgS2FyZWwKPgo+Cj4gRnJvbSA4ZTJhZTUxMzBjOGYwM2U4YWI2ZTI4ZjE5
+NGU0MDlmOGMzMjJkYWY4IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQo+IEZyb206IEF1c3RlbiBE
+aWNrZW4gPGN2cGNzbUBnbWFpbC5jb20+Cj4gRGF0ZTogVHVlLCAzIE1heSAyMDExIDA5OjE0OjQx
+IC0wNTAwCj4gU3ViamVjdDogW1BBVENIXSBkbWVzZzogYWRkcyB0aGUgYWJpbGl0eSB0byAiZm9s
+bG93IiAoLWYpIHRoZSBrbG9nIHJpbmcgYnVmZmVyCj4KPiBDby1BdXRob3I6IEthcmVsIFphayA8
+a3pha0ByZWRoYXQuY29tPgo+IFNpZ25lZC1vZmYtYnk6IEF1c3RlbiBEaWNrZW4gPGN2cGNzbUBn
+bWFpbC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogS2FyZWwgWmFrIDxremFrQHJlZGhhdC5jb20+Cj4g
+LS0tCj4gwqBzeXMtdXRpbHMvZG1lc2cuMSB8IMKgIMKgNSArKysKPiDCoHN5cy11dGlscy9kbWVz
+Zy5jIHwgwqAgODggKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0KPiDCoDIgZmlsZXMgY2hhbmdlZCwgNTUgaW5zZXJ0aW9ucygrKSwgMzggZGVsZXRp
+b25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL2RtZXNnLjEgYi9zeXMtdXRpbHMvZG1l
+c2cuMQo+IGluZGV4IGQ3YWYxZGEuLjliNDQ3MWQgMTAwNjQ0Cj4gLS0tIGEvc3lzLXV0aWxzL2Rt
+ZXNnLjEKPiArKysgYi9zeXMtdXRpbHMvZG1lc2cuMQo+IEBAIC02LDYgKzYsNyBAQCBkbWVzZyBc
+LSBwcmludCBvciBjb250cm9sIHRoZSBrZXJuZWwgcmluZyBidWZmZXIKPiDCoC5TSCBTWU5PUFNJ
+Uwo+IMKgLkIgZG1lc2cKPiDCoC5SQiBbIFwtYyBdCj4gKy5SQiBbIFwtZiBdCj4gwqAuUkIgWyBc
+LXIgXQo+IMKgLlJCIFsgXC1uCj4gwqAuSVIgbGV2ZWwgXQo+IEBAIC0yOCw2ICsyOSwxMCBAQCBm
+aWxlIHRvIHdob2V2ZXIgY2FuIGRlYnVnIHRoZWlyIHByb2JsZW0uCj4gwqAuQiBcLWMKPiDCoENs
+ZWFyIHRoZSByaW5nIGJ1ZmZlciBjb250ZW50cyBhZnRlciBwcmludGluZy4KPiDCoC5UUAo+ICsu
+QiBcLWYKPiArT3V0cHV0IHJpbmcgYnVmZmVyIGNvbnRlbnRzIGFzIHRoZXkgYXJlIGFkZGVkLiBU
+aGUgb3V0cHV0IGNvdWxkIGJlIGluY29tcGxldGUKPiAraWYgYW5vdGhlciBwcm9jZXNzIChlLmcu
+IHN5c2xvZyBkYWVtb24pIGlzIHJlYWRpbmcgdGhlIGtlcm5lbCBsb2cgYnVmZmVyLgo+ICsuVFAK
+PiDCoC5CIFwtcgo+IMKgUHJpbnQgdGhlIHJhdyBtZXNzYWdlIGJ1ZmZlciwgaS5lLiwgZG9uJ3Qg
+c3RyaXAgdGhlIGxvZyBsZXZlbCBwcmVmaXhlcy4KPiDCoC5UUAo+IGRpZmYgLS1naXQgYS9zeXMt
+dXRpbHMvZG1lc2cuYyBiL3N5cy11dGlscy9kbWVzZy5jCj4gaW5kZXggYzNlNTY1OS4uMmY2YjMw
+ZSAxMDA2NDQKPiAtLS0gYS9zeXMtdXRpbHMvZG1lc2cuYwo+ICsrKyBiL3N5cy11dGlscy9kbWVz
+Zy5jCj4gQEAgLTQwLDM4ICs0MCw0MSBAQAo+IMKgI2luY2x1ZGUgIm5scy5oIgo+IMKgI2luY2x1
+ZGUgInN0cnV0aWxzLmgiCj4gwqAjaW5jbHVkZSAieGFsbG9jLmgiCj4gKyNpbmNsdWRlICJ3cml0
+ZWFsbC5oIgo+Cj4gwqBzdGF0aWMgdm9pZCBfX2F0dHJpYnV0ZV9fICgobm9yZXR1cm4pKSB1c2Fn
+ZSh2b2lkKQo+IMKgewo+IMKgIMKgIMKgIMKgZnByaW50ZihzdGRlcnIsCj4gLSDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBfKCJVc2FnZTogJXMgWy1jXSBbLW4gbGV2ZWxdIFstcl0gWy1zIGJ1ZnNpemVd
+XG4iKSwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIF8oIlVzYWdlOiAlcyBbLWNdIFstZl0gWy1u
+IGxldmVsXSBbLXJdIFstcyBidWZzaXplXVxuIiksCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBw
+cm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFtZSk7Cj4gwqAgwqAgwqAgwqBleGl0KEVYSVRfRkFJ
+TFVSRSk7Cj4gLQo+IMKgfQo+Cj4gwqBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQo+
+IMKgewo+IMKgIMKgIMKgIMKgY2hhciAqYnVmID0gTlVMTDsKPiAtIMKgIMKgIMKgIGludCDCoHN6
+Owo+ICsgwqAgwqAgwqAgaW50IMKgc3ogPSAwOwo+IMKgIMKgIMKgIMKgaW50IMKgYnVmc2l6ZSA9
+IDA7Cj4gLSDCoCDCoCDCoCBpbnQgwqBpOwo+IMKgIMKgIMKgIMKgaW50IMKgbjsKPiDCoCDCoCDC
+oCDCoGludCDCoGM7Cj4gwqAgwqAgwqAgwqBpbnQgwqBsZXZlbCA9IDA7Cj4gLSDCoCDCoCDCoCBp
+bnQgwqBsYXN0YzsKPiDCoCDCoCDCoCDCoGludCDCoGNtZCA9IDM7IMKgIMKgIMKgIMKgIMKgIC8q
+IFJlYWQgYWxsIG1lc3NhZ2VzIGluIHRoZSByaW5nIGJ1ZmZlciAqLwo+IMKgIMKgIMKgIMKgaW50
+IMKgcmF3ID0gMDsKPiArIMKgIMKgIMKgIGludCDCoGZvbGxvdyA9IDA7Cj4KPiDCoCDCoCDCoCDC
+oHNldGxvY2FsZShMQ19BTEwsICIiKTsKPiDCoCDCoCDCoCDCoGJpbmR0ZXh0ZG9tYWluKFBBQ0tB
+R0UsIExPQ0FMRURJUik7Cj4gwqAgwqAgwqAgwqB0ZXh0ZG9tYWluKFBBQ0tBR0UpOwo+Cj4gLSDC
+oCDCoCDCoCB3aGlsZSAoKGMgPSBnZXRvcHQoYXJnYywgYXJndiwgImNybjpzOiIpKSAhPSAtMSkg
+ewo+ICsgwqAgwqAgwqAgd2hpbGUgKChjID0gZ2V0b3B0KGFyZ2MsIGFyZ3YsICJjZnJuOnM6Iikp
+ICE9IC0xKSB7Cj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBzd2l0Y2ggKGMpIHsKPiDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoGNhc2UgJ2MnOgo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgY21kID0gNDsgwqAgwqAgwqAgwqAvKiBSZWFkIGFuZCBjbGVhciBhbGwgbWVzc2FnZXMg
+Ki8KPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGJyZWFrOwo+ICsgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgY2FzZSAnZic6Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCBjbWQgPSAyOwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9sbG93
+ID0gMTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFrOwo+IMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgY2FzZSAnbic6Cj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqBjbWQgPSA4OyDCoCDCoCDCoCDCoC8qIFNldCBsZXZlbCBvZiBtZXNzYWdlcyAqLwo+
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgbGV2ZWwgPSBzdHJ0b2xfb3JfZXJy
+KG9wdGFyZywgXygiZmFpbGVkIHRvIHBhcnNlIGxldmVsIikpOwo+IEBAIC0xMDUsNDYgKzEwOCw1
+NSBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQo+Cj4gwqAgwqAgwqAgwqBpZiAo
+IWJ1ZnNpemUpIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoG4gPSBrbG9nY3RsKDEwLCBOVUxM
+LCAwKTsgwqAgwqAgwqAgLyogcmVhZCByaW5nYnVmZmVyIHNpemUgKi8KPiAtIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGlmIChuID4gMCkKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChuID4gMCkg
+ewo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgYnVmc2l6ZSA9IG47Cj4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzeiA9IGJ1ZnNpemUgKyA4Owo+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgYnVmID0geG1hbGxvYyhzeiAqIHNpemVvZihj
+aGFyKSk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4gwqAgwqAgwqAgwqB9Cj4KPiAtIMKg
+IMKgIMKgIGlmIChidWZzaXplKSB7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzeiA9IGJ1ZnNp
+emUgKyA4Owo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgYnVmID0geG1hbGxvYyhzeiAqIHNpemVv
+ZihjaGFyKSk7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBuID0ga2xvZ2N0bChjbWQsIGJ1Ziwg
+c3opOwo+IC0gwqAgwqAgwqAgfSBlbHNlIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHN6ID0g
+MTYzOTI7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCB3aGlsZSAoMSkgewo+IC0gwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgYnVmID0geG1hbGxvYyhzeiAqIHNpemVvZihjaGFyKSk7
+Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBuID0ga2xvZ2N0bCgzLCBidWYs
+IHN6KTsgwqAgwqAgwqAgwqAvKiByZWFkIG9ubHkgKi8KPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIGlmIChuICE9IHN6IHx8IHN6ID4gKDEgPDwgMjgpKQo+IC0gwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgYnJlYWs7Cj4gKyDCoCDCoCDCoCBk
+byB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoYnVmc2l6ZSAmJiBzeikKPiArIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIG4gPSBrbG9nY3RsKGNtZCwgYnVmLCBzeik7Cj4g
+KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbHNlIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoGZyZWUoYnVmKTsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IHN6ICo9IDQ7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzeiA9IDE2Mzky
+Owo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgd2hpbGUgKDEpIHsKPiArIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJ1ZiA9IHhtYWxsb2Mo
+c3ogKiBzaXplb2YoY2hhcikpOwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgbiA9IGtsb2djdGwoMywgYnVmLCBzeik7IMKgIMKgIMKgIMKgLyogcmVhZCBv
+bmx5ICovCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBp
+ZiAobiAhPSBzeiB8fCBzeiA+ICgxIDw8IDI4KSkKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFrOwo+ICsgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZnJlZShidWYpOwo+ICsgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgc3ogKj0gNDsKPiArIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIGlmIChuID4gMCAmJiBjbWQgPT0gNCkKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIG4gPSBrbG9nY3RsKGNtZCwgYnVmLCBzeik7IMKgIMKgIMKg
+LyogcmVhZCBhbmQgY2xlYXIgKi8KPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoH0KPgo+IC0gwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgaWYgKG4gPiAwICYmIGNtZCA9PSA0KQo+IC0gwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgbiA9IGtsb2djdGwoY21kLCBidWYsIHN6KTsgwqAgwqAgwqAv
+KiByZWFkIGFuZCBjbGVhciAqLwo+IC0gwqAgwqAgwqAgfQo+IC0KPiAtIMKgIMKgIMKgIGlmIChu
+IDwgMCkKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVycihFWElUX0ZBSUxVUkUsIF8oImtsb2dj
+dGwgZmFpbGVkIikpOwo+IC0KPiAtIMKgIMKgIMKgIGxhc3RjID0gJ1xuJzsKPiAtIMKgIMKgIMKg
+IGZvciAoaSA9IDA7IGkgPCBuOyBpKyspIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmICgh
+cmF3ICYmIChpID09IDAgfHwgYnVmW2kgLSAxXSA9PSAnXG4nKSAmJiBidWZbaV0gPT0gJzwnKSB7
+Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpKys7Cj4gLSDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB3aGlsZSAoaXNkaWdpdChidWZbaV0pKQo+IC0gwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaSsrOwo+IC0gwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKGJ1ZltpXSA9PSAnPicpCj4gLSDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpKys7Cj4gKyDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCBpZiAobiA8IDApCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBl
+cnIoRVhJVF9GQUlMVVJFLCBfKCJrbG9nY3RsIGZhaWxlZCIpKTsKPiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIGlmIChyYXcpCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB3cml0
+ZV9hbGwoU1RESU5fRklMRU5PLCBidWYsIG4pOwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZWxz
+ZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpbnQgaTsKPiArCj4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3IgKGkgPSAwOyBpIDwgbjsgaSsrKSB7
+Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoKGkg
+PT0gMCB8fCBidWZbaSAtIDFdID09ICdcbicpICYmCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBidWZbaV0gPT0gJzwnKSB7Cj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpKys7Cj4g
+KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCB3aGlsZSAoaXNkaWdpdChidWZbaV0pKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaSsrOwo+ICsgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKGJ1
+ZltpXSA9PSAnPicpCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpKys7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBwdXRjaGFyKGJ1ZltpXSk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCB9Cj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4gLSDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBsYXN0YyA9IGJ1ZltpXTsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHB1
+dGNoYXIobGFzdGMpOwo+IC0gwqAgwqAgwqAgfQo+IC0gwqAgwqAgwqAgaWYgKGxhc3RjICE9ICdc
+bicpCj4gKyDCoCDCoCDCoCB9IHdoaWxlIChmb2xsb3cpOwo+ICsKPiArIMKgIMKgIMKgIGlmIChz
+eiAmJiBuID4gMCAmJiBidWYgJiYgYnVmW24gLSAxXSAhPSAnXG4nKQo+IMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgcHV0Y2hhcignXG4nKTsKPiArCj4gwqAgwqAgwqAgwqBmcmVlKGJ1Zik7Cj4KPiDC
+oCDCoCDCoCDCoHJldHVybiBFWElUX1NVQ0NFU1M7Cj4gLS0KPiAxLjcuMy40Cj4KPgo=
