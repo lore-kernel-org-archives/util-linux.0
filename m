@@ -1,80 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail1.slb.deg.dub.stisp.net ([84.203.253.98]:1284 "HELO
-	mail1.slb.deg.dub.stisp.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751251Ab1EaJdx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 31 May 2011 05:33:53 -0400
-Message-ID: <4DE4B565.6040504@draigBrady.com>
-Date: Tue, 31 May 2011 10:31:17 +0100
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: James Youngman <jay@gnu.org>
-CC: Philipp Thomas <pth@suse.de>, bug-gnulib@gnu.org,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: Using /proc/mounts in mountlist.c for linux
-References: <20110405123650.GW22289@paradies.suse.de> <BANLkTin=pcsJ-b2y=GN3BpXsx8p+zgnJWA@mail.gmail.com>
-In-Reply-To: <BANLkTin=pcsJ-b2y=GN3BpXsx8p+zgnJWA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:51722 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757087Ab1EXU5K (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 May 2011 16:57:10 -0400
+Received: by mail-ew0-f46.google.com with SMTP id 4so2169065ewy.19
+        for <util-linux@vger.kernel.org>; Tue, 24 May 2011 13:57:10 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 10/13] docs: colrm manual update
+Date: Tue, 24 May 2011 22:56:41 +0200
+Message-Id: <1306270604-6154-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1306270604-6154-1-git-send-email-kerolasa@iki.fi>
+References: <1306270604-6154-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 31/05/11 01:14, James Youngman wrote:
-> On Tue, Apr 5, 2011 at 1:36 PM, Philipp Thomas <pth@suse.de> wrote:
->> GNU find will not recognize file systems of type autofs on newer Linux
->> kernels as autofs entries are only listed in /proc/mounts and mountlist.c
->> includes glibc mntent.h which takes the _PATH_MOUNTED from paths.h and that
->> is /etc/mtab.
->>
->> After a longer discussion, we (SUSE) chose to patch mountlist.c in findutils
->> to use proc/mounts instead of /etc/mtab which fixed ou problem.
->>
->> Would gnulib accept the attached patch to mountlist.c?
-> 
-> I don't know if this patch was accepted, but it shouldn't be.   The
-> problem is that /proc/mounts has incomplete data for /.   This will
-> break gnulib's mountlist, at least with the current form of the patch,
-> because mountlist will have an incorrect idea of the type of the root
-> filesystem.   Here's an example showing the problem:
-> 
-> ~$ cat tryit.sh
-> #! /bin/sh
-> f() {
->     echo "$1"
->     ( ls -l /etc/mtab; find / -maxdepth 0 -printf '%p %F\n' ) |
->     sed -e 's_^_    _'
-> }
-> 
-> set -e
-> cd /etc
-> f "regular /etc/mtab"
-> 
-> mv mtab mtab.old; ln -s ../proc/mounts mtab
-> f "with /proc/mounts"
-> rm mtab; mv mtab.old mtab
-> ~$ sudo sh tryit.sh
-> regular /etc/mtab
->     -rw-r--r-- 1 root root 1869 May 30 23:53 /etc/mtab
->     / ext3
-> with /proc/mounts
->     lrwxrwxrwx 1 root root 14 May 31 01:12 /etc/mtab -> ../proc/mounts
->     / rootfs
+Inform about long, help & version and options.
 
-Well I didn't merge it, but for more generic reasons.
-It seemed like a bit of a layering violation to me,
-and I was unsure that other users of gnulib may need
-access to /etc/mtab specific stuff (on older systems).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/colrm.1 |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-Here is related output on my Fedora 15 system
-which does link /etc/mtab -> /proc/mounts
+diff --git a/text-utils/colrm.1 b/text-utils/colrm.1
+index 1f3d4b0..04a41b1 100644
+--- a/text-utils/colrm.1
++++ b/text-utils/colrm.1
+@@ -51,6 +51,14 @@ If called with two parameters the columns from the first column
+ to the last column will be removed.
+ .Pp
+ Column numbering starts with column 1.
++.Pp
++The options are as follows:
++.Bl -tag -width "-lnum"
++.It Fl V, Fl Fl version
++Output version information and exit.
++.It Fl H, Fl Fl help
++Output help and exit.
++.El
+ .Sh SEE ALSO
+ .Xr awk 1 ,
+ .Xr column 1 ,
+-- 
+1.7.5.2
 
-$ df /
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/sdb2             13102208   3210896   9758244  25% /
-$ df -t rootfs
-Filesystem           1K-blocks      Used Available Use% Mounted on
-rootfs                13102208   3210896   9758244  25% /
-$ find / -maxdepth 0 -printf "%p %F\n"
-/ rootfs
-
-cheers,
-Pádraig.
