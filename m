@@ -1,130 +1,122 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:38197 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753920Ab1F2IYL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Jun 2011 04:24:11 -0400
-Date: Wed, 29 Jun 2011 10:24:09 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Konstantin Khlebnikov <khlebnikov@openvz.org>
-Subject: [PATCH] umount: do not hang with disconnected NFS mounts
-Message-ID: <20110629082408.GA27888@foxbat.suse.cz>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:57199 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932937Ab1EaX2s convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 31 May 2011 19:28:48 -0400
+Received: by vxi39 with SMTP id 39so3695182vxi.19
+        for <util-linux@vger.kernel.org>; Tue, 31 May 2011 16:28:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+In-Reply-To: <20110531111003.GB25562@nb.net.home>
+References: <20110405123650.GW22289@paradies.suse.de>
+	<BANLkTin=pcsJ-b2y=GN3BpXsx8p+zgnJWA@mail.gmail.com>
+	<4DE4B565.6040504@draigBrady.com>
+	<20110531111003.GB25562@nb.net.home>
+Date: Wed, 1 Jun 2011 00:28:46 +0100
+Message-ID: <BANLkTimyv2MLLb7iJbxa9U+=jFAgg3mSrA@mail.gmail.com>
+Subject: Re: Using /proc/mounts in mountlist.c for linux
+From: James Youngman <jay@gnu.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>,
+        Philipp Thomas <pth@suse.de>, bug-gnulib@gnu.org,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+2011/5/31 Karel Zak <kzak@redhat.com>:
+> On Tue, May 31, 2011 at 10:31:17AM +0100, Pádraig Brady wrote:
+>> On 31/05/11 01:14, James Youngman wrote:
+>> > On Tue, Apr 5, 2011 at 1:36 PM, Philipp Thomas <pth@suse.de> wrote:
+>> >> GNU find will not recognize file systems of type autofs on newer Linux
+>> >> kernels as autofs entries are only listed in /proc/mounts and mountlist.c
+>> >> includes glibc mntent.h which takes the _PATH_MOUNTED from paths.h and that
+>> >> is /etc/mtab.
+>> >>
+>> >> After a longer discussion, we (SUSE) chose to patch mountlist.c in findutils
+>> >> to use proc/mounts instead of /etc/mtab which fixed ou problem.
+>> >>
+>> >> Would gnulib accept the attached patch to mountlist.c?
+>> >
+>> > I don't know if this patch was accepted, but it shouldn't be.   The
+>> > problem is that /proc/mounts has incomplete data for /.   This will
+>> > break gnulib's mountlist, at least with the current form of the patch,
+>> > because mountlist will have an incorrect idea of the type of the root
+>> > filesystem.   Here's an example showing the problem:
+>> >
+>> > ~$ cat tryit.sh
+>> > #! /bin/sh
+>> > f() {
+>> >     echo "$1"
+>> >     ( ls -l /etc/mtab; find / -maxdepth 0 -printf '%p %F\n' ) |
+>> >     sed -e 's_^_    _'
+>> > }
+>> >
+>> > set -e
+>> > cd /etc
+>> > f "regular /etc/mtab"
+>> >
+>> > mv mtab mtab.old; ln -s ../proc/mounts mtab
+>> > f "with /proc/mounts"
+>> > rm mtab; mv mtab.old mtab
+>> > ~$ sudo sh tryit.sh
+>> > regular /etc/mtab
+>> >     -rw-r--r-- 1 root root 1869 May 30 23:53 /etc/mtab
+>> >     / ext3
+>> > with /proc/mounts
+>> >     lrwxrwxrwx 1 root root 14 May 31 01:12 /etc/mtab -> ../proc/mounts
+>> >     / rootfs
+>
+>
+>  That's strange, why for "/" it does not search in the file (mtab) in reverse
+>  order?
+>
+> example A)
+>
+>         # mount -t ext3 /dev/sda6 /mnt/test
+>         # mount -t ext4 /dev/mapper/kzak-home /mnt/test
+>
+>  ... so I have two entries for the same mountpoint:
+>
+>         # grep /mnt/test /proc/mounts
+>         /dev/sda6 /mnt/test ext3  rw,relatime,errors=continue,barrier=0,data=ordered 0 0
+>         /dev/mapper/kzak-home /mnt/test ext4 rw,relatime,barrier=1,data=ordered 0 0
+>
+>
+>  this is correct (ext4 is the second entry):
+>
+>         # find /mnt/test -maxdepth 0 -printf '%p %F\n'
+>         /mnt/test ext4
+>
+>
+> example B)
+>
+>  the same thing with root FS:
+>
+>         # grep -E '(/dev/sda4|rootfs)' /proc/mounts
+>         rootfs / rootfs rw 0 0
+>         /dev/sda4 / ext3  rw,noatime,errors=continue,user_xattr,acl,barrier=0,data=ordered 0 0
+>
+>  ... so I have two entries for the same mountpoint:
+>
+>
+>         # find / -maxdepth 0 -printf '%p %F\n'
+>         / rootfs
+>
+>  why does it return the first entry? It seems like obvious bug. You
+>  have to read entries in the mtab file in reverse order.
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I find this claim most surprising, since getmntent is intended for use
+on both /etc/mtab and /etc/fstab and it reads them forwards.   As a
+system administrator, I would consider it a bug for there to be a
+duplicate entry in /etc/mtab, and if as a sysadmin I had actually
+somehow put two similar entries into /etc/fstab, I'd expect mount(8)
+to use the first match (and mount -a to use all matches).
 
-Since util-linux commit f4612577c942a3683b97632ad0b49671897c2070,
-umount stat(2)s its argument to check whether it can be associated
-with some loop device. This could hang with broken NFS mounts.
-
-Fix by first checking mtab if umount's argument is mounted and only if
-we fail, check if there is a loop device associated.
-
-http://marc.info/?l=3Dutil-linux-ng&m=3D130924963804836&w=3D2
-
-Reported-by: Konstantin Khlebnikov <khlebnikov@openvz.org>
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- mount/umount.c |   42 ++++++++++++++++++++++--------------------
- 1 files changed, 22 insertions(+), 20 deletions(-)
-
-diff --git a/mount/umount.c b/mount/umount.c
-index 0349cb3..96c940e 100644
---- a/mount/umount.c
-+++ b/mount/umount.c
-@@ -600,6 +600,7 @@ umount_file (char *arg) {
- 	int fstab_has_user, fstab_has_users, fstab_has_owner, fstab_has_group;
- 	int ok, status =3D 0;
- 	struct stat statbuf;
-+	char *loopdev =3D NULL;
-=20
- 	if (!*arg) {		/* "" would be expanded to `pwd` */
- 		die(2, _("Cannot unmount \"\"\n"));
-@@ -608,26 +609,7 @@ umount_file (char *arg) {
-=20
- 	file =3D canonicalize(arg); /* mtab paths are canonicalized */
-=20
--	/* if file is a regular file, check if it is associated
--	 * with some loop device
--	 */
--	if (!stat(file, &statbuf) && S_ISREG(statbuf.st_mode)) {
--		char *loopdev =3D NULL;
--		switch (find_loopdev_by_backing_file(file, &loopdev)) {
--		case 0:
--			if (verbose)
--				printf(_("%s is associated with %s, trying to unmount it\n"),
--				       arg, loopdev);
--			file =3D loopdev;
--			break;
--		case 2:
--			if (verbose)
--				printf(_("%s is associated with more than one loop device: not unmount=
-ing\n"),
--				       arg);
--			break;
--		}
--	}
--
-+try_loopdev:
- 	if (verbose > 1)
- 		printf(_("Trying to unmount %s\n"), file);
-=20
-@@ -659,6 +641,26 @@ umount_file (char *arg) {
- 	if (!mc && verbose)
- 		printf(_("Could not find %s in mtab\n"), file);
-=20
-+	/* not found in mtab - check if it is associated with some loop device
-+	 * (only if it is a regular file)
-+	 */
-+	if (!mc && !loopdev && !stat(file, &statbuf) && S_ISREG(statbuf.st_mode))=
- {
-+		switch (find_loopdev_by_backing_file(file, &loopdev)) {
-+		case 0:
-+			if (verbose)
-+				printf(_("%s is associated with %s\n"),
-+				       arg, loopdev);
-+			file =3D loopdev;
-+			goto try_loopdev;
-+			break;
-+		case 2:
-+			if (verbose)
-+				printf(_("%s is associated with more than one loop device: not unmount=
-ing\n"),
-+				       arg);
-+			break;
-+		}
-+	}
-+
- 	if (mc) {
- 		/*
- 		 * helper - umount helper (e.g. pam_mount)
---=20
-1.7.3.4
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk4K4SgACgkQnZxG0T6qDD0rEgCeJyLmlk9ZyoQednjMDgh82DZy
-Q58An2c49RXOFMBimfRXLMffXtt9LrPZ
-=Q360
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+>  Anyway, /proc/self/mountinfo is definitely more sexy... :-)
+>
+>    Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
