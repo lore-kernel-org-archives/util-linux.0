@@ -1,73 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:51289 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754185Ab1EXU5G (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 May 2011 16:57:06 -0400
-Received: by mail-ey0-f174.google.com with SMTP id 24so2400784eyx.19
-        for <util-linux@vger.kernel.org>; Tue, 24 May 2011 13:57:06 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 08/13] col: check with strtol_or_err option argument
-Date: Tue, 24 May 2011 22:56:39 +0200
-Message-Id: <1306270604-6154-9-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1306270604-6154-1-git-send-email-kerolasa@iki.fi>
-References: <1306270604-6154-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:46470 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751282Ab1EaJmt convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 31 May 2011 05:42:49 -0400
+Received: by vxi39 with SMTP id 39so3129007vxi.19
+        for <util-linux@vger.kernel.org>; Tue, 31 May 2011 02:42:48 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <4DE4B565.6040504@draigBrady.com>
+References: <20110405123650.GW22289@paradies.suse.de>
+	<BANLkTin=pcsJ-b2y=GN3BpXsx8p+zgnJWA@mail.gmail.com>
+	<4DE4B565.6040504@draigBrady.com>
+Date: Tue, 31 May 2011 10:42:47 +0100
+Message-ID: <BANLkTi=-a2_kZ77iysCnxyk_A4MPjL+Zfw@mail.gmail.com>
+Subject: Re: Using /proc/mounts in mountlist.c for linux
+From: James Youngman <jay@gnu.org>
+To: =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>
+Cc: Philipp Thomas <pth@suse.de>, bug-gnulib@gnu.org,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/Makefile.am |    2 ++
- text-utils/col.c       |    8 ++++++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
+2011/5/31 Pádraig Brady <P@draigbrady.com>:
+> On 31/05/11 01:14, James Youngman wrote:
+>> On Tue, Apr 5, 2011 at 1:36 PM, Philipp Thomas <pth@suse.de> wrote:
+>>> GNU find will not recognize file systems of type autofs on newer Linux
+>>> kernels as autofs entries are only listed in /proc/mounts and mountlist.c
+>>> includes glibc mntent.h which takes the _PATH_MOUNTED from paths.h and that
+>>> is /etc/mtab.
+>>>
+>>> After a longer discussion, we (SUSE) chose to patch mountlist.c in findutils
+>>> to use proc/mounts instead of /etc/mtab which fixed ou problem.
+>>>
+>>> Would gnulib accept the attached patch to mountlist.c?
+>>
+>> I don't know if this patch was accepted, but it shouldn't be.   The
+>> problem is that /proc/mounts has incomplete data for /.   This will
+>> break gnulib's mountlist, at least with the current form of the patch,
+>> because mountlist will have an incorrect idea of the type of the root
+>> filesystem.   Here's an example showing the problem:
+>>
+>> ~$ cat tryit.sh
+>> #! /bin/sh
+>> f() {
+>>     echo "$1"
+>>     ( ls -l /etc/mtab; find / -maxdepth 0 -printf '%p %F\n' ) |
+>>     sed -e 's_^_    _'
+>> }
+>>
+>> set -e
+>> cd /etc
+>> f "regular /etc/mtab"
+>>
+>> mv mtab mtab.old; ln -s ../proc/mounts mtab
+>> f "with /proc/mounts"
+>> rm mtab; mv mtab.old mtab
+>> ~$ sudo sh tryit.sh
+>> regular /etc/mtab
+>>     -rw-r--r-- 1 root root 1869 May 30 23:53 /etc/mtab
+>>     / ext3
+>> with /proc/mounts
+>>     lrwxrwxrwx 1 root root 14 May 31 01:12 /etc/mtab -> ../proc/mounts
+>>     / rootfs
+>
+> Well I didn't merge it, but for more generic reasons.
+> It seemed like a bit of a layering violation to me,
+> and I was unsure that other users of gnulib may need
+> access to /etc/mtab specific stuff (on older systems).
+>
+> Here is related output on my Fedora 15 system
+> which does link /etc/mtab -> /proc/mounts
+>
+> $ df /
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/sdb2             13102208   3210896   9758244  25% /
+> $ df -t rootfs
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> rootfs                13102208   3210896   9758244  25% /
+> $ find / -maxdepth 0 -printf "%p %F\n"
+> / rootfs
 
-diff --git a/text-utils/Makefile.am b/text-utils/Makefile.am
-index 513f1c3..8700889 100644
---- a/text-utils/Makefile.am
-+++ b/text-utils/Makefile.am
-@@ -4,6 +4,8 @@ EXTRA_DIST = README.clear README.col
- 
- usrbin_exec_PROGRAMS = col colcrt colrm column hexdump rev line tailf
- 
-+col_SOURCES = col.c $(top_srcdir)/lib/strutils.c
-+
- hexdump_SOURCES = hexdump.c conv.c display.c hexsyntax.c parse.c \
- 		  hexdump.h $(top_srcdir)/lib/strutils.c
- 
-diff --git a/text-utils/col.c b/text-utils/col.c
-index 0740687..cdf0036 100644
---- a/text-utils/col.c
-+++ b/text-utils/col.c
-@@ -55,6 +55,7 @@
- #include "nls.h"
- #include "xalloc.h"
- #include "widechar.h"
-+#include "strutils.h"
- 
- #define	BS	'\b'		/* backspace */
- #define	TAB	'\t'		/* tab */
-@@ -155,6 +156,7 @@ int main(int argc, char **argv)
- 	int this_line;			/* line l points to */
- 	int nflushd_lines;		/* number of lines that were flushed */
- 	int adjust, opt, warned;
-+	unsigned long tmplong;
- 	int ret = EXIT_SUCCESS;
- 
- 	static const struct option longopts[] = {
-@@ -189,8 +191,10 @@ int main(int argc, char **argv)
- 			compress_spaces = 1;
- 			break;
- 		case 'l':		/* buffered line count */
--			if ((max_bufd_lines = atoi(optarg)) <= 0)
--				errx(EXIT_FAILURE, _("bad -l argument %s."), optarg);
-+			tmplong = strtoul_or_err(optarg, _("bad -l argument"));
-+			if ((INT_MAX / 2) < tmplong)
-+				errx(EXIT_FAILURE, _("argument %lu is too large"), tmplong);
-+			max_bufd_lines = (int) tmplong;
- 			break;
- 		case 'p':
- 			pass_unknown_seqs = 1;
--- 
-1.7.5.2
+Thanks for the additional info.   I think that would be a bug in
+Fedora 15, then.
 
+James.
