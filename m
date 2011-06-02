@@ -1,159 +1,421 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:35638 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753712Ab1FFTHc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2011 15:07:32 -0400
-Received: by mail-ey0-f174.google.com with SMTP id 24so1468665eyx.19
-        for <util-linux@vger.kernel.org>; Mon, 06 Jun 2011 12:07:31 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:57206 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753605Ab1FBTPg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 2 Jun 2011 15:15:36 -0400
+Received: by ewy4 with SMTP id 4so420634ewy.19
+        for <util-linux@vger.kernel.org>; Thu, 02 Jun 2011 12:15:35 -0700 (PDT)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/6] sfdisk: previously undocumented options to usage
-Date: Mon,  6 Jun 2011 21:07:16 +0200
-Message-Id: <1307387239-9022-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
-References: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] simpleinit: remove NLS support
+Date: Thu,  2 Jun 2011 21:15:26 +0200
+Message-Id: <1307042126-7242-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- fdisk/sfdisk.c |   71 +++++++++++++++++++++++++++++++++++++++----------------
- 1 files changed, 50 insertions(+), 21 deletions(-)
+About 50 messages to translate less.
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 1b35f66..d4dbcca 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -2319,26 +2319,43 @@ static void usage(FILE * out)
- 	fprintf(out, _("\nOptions:\n"
- 		       "  -s, --show-size         list size of a partition\n"
- 		       "  -c, --id                change or print partition Id\n"
-+		       "      --change-id         change Id\n"
-+		       "      --print-id          print Id\n"
- 		       "  -l, --list              list partitions of each device\n"
- 		       "  -d, --dump              idem, but in a format suitable for later input\n"
- 		       "  -i, --increment         number cylinders etc. from 1 instead of from 0\n"
- 		       "  -u, --unit=[SBCM]       units in sectors, blocks, cylinders or MB\n"
-+		       "  -1, --one-only          reserved option that does nothing currently\n"
- 		       "  -T, --list-types        list the known partition types\n"
- 		       "  -D, --DOS               for DOS-compatibility: waste a little space\n"
-+		       "  -E, --DOS-extended      DOS extended partition compatibility\n"
- 		       "  -R, --re-read           make kernel reread partition table\n"
- 		       "  -N=NUM                  change only the partition with number NUM\n"
- 		       "  -n                      do not actually write to disk\n"
- 		       "  -O FILE                 save the sectors that will be overwritten to file\n"
- 		       "  -I FILE                 restore sectors from file\n"
-+		       "  -V, --verify            check that listed partition is reasonable\n"
- 		       "  -v, --version           print version\n"
- 		       "  -h, --help              print this message\n"));
+shutdown(1) is deprecated since July 2007, simpleinit(1), initctl(1)
+are deprecated since December 2010. They are marked as deprecated why
+nobody uses these implementations.
+
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ simpleinit/shutdown.c   |   64 ++++++++++++++++++++++------------------------
+ simpleinit/simpleinit.c |   42 ++++++++++++++----------------
+ 2 files changed, 51 insertions(+), 55 deletions(-)
+
+diff --git a/simpleinit/shutdown.c b/simpleinit/shutdown.c
+index 9bb121c..6c6fe52 100644
+--- a/simpleinit/shutdown.c
++++ b/simpleinit/shutdown.c
+@@ -113,7 +113,7 @@ void
+ usage(void)
+ {
+ 	fprintf(stderr,
+-		_("Usage: shutdown [-h|-r] [-fqs] [now|hh:ss|+mins]\n"));
++		"Usage: shutdown [-h|-r] [-fqs] [now|hh:ss|+mins]\n");
+ 	exit(EXIT_FAILURE);
+ }
  
- 	fprintf(out, _("\nDangerous options:\n"
- 		       "  -f, --force             disable all consistency checking\n"
- 		       "  -g, --show-geometry     print the kernel's idea of the geometry\n"
-+		       "  -A, --activate[=device] activate bootable flag\n"
- 		       "  -G, --show-pt-geometry  print geometry guessed from the partition table\n"
-+		       "  -U, --unhide[=device]   set partition unhidden\n"
-+		       "      --no-reread         skip partition re-read at boot\n"
- 		       "  -x, --show-extended     also list extended partitions on output\n"
- 		       "                          or expect descriptors for them on input\n"
-+		       "      --leave-last        do not allocate the last cylinder\n"
-+		       "      --IBM               same as --leave-last\n"
-+		       "      --in-order          partitions are in order\n"
-+		       "      --not-in-order      partitions are not in order\n"
-+		       "      --inside-order      all logicals inside outermost extended\n"
-+		       "      --not-inside-order  not all logicals inside outermost extended\n"
-+		       "      --nested            every partition is disjoint from all others\n"
-+		       "      --chained           like nested, but extended partitions may lie outside\n"
-+		       "      --onesector         partitions are mutually disjoint\n"
- 		       "  -L, --Linux             do not complain about things irrelevant for Linux\n"
- 		       "  -q, --quiet             suppress warning messages\n"
- 		       "\n  Override the detected geometry using:\n"
-@@ -2369,6 +2386,18 @@ static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TU::V";
- #define PRINT_ID 0400
- #define CHANGE_ID 01000
+@@ -131,7 +131,7 @@ int_handler(int sig)
+ {
+ 	unlink(_PATH_NOLOGIN);
+ 	signal(SIGINT, SIG_DFL);
+-	my_puts(_("Shutdown process aborted"));
++	my_puts("Shutdown process aborted");
+ 	_exit(EXIT_FAILURE);
+ }
  
-+enum {
-+    OPT_NO_REREAD = CHAR_MAX + 1,
-+    OPT_LEAVE_LAST,
-+    OPT_IN_ORDER,
-+    OPT_NOT_IN_ORDER,
-+    OPT_INSIDE_OUTER,
-+    OPT_NOT_INSIDE_OUTER,
-+    OPT_NESTED,
-+    OPT_CHAINED,
-+    OPT_ONESECTOR
-+};
-+
- static const struct option long_opts[] = {
-     { "change-id",	  no_argument, NULL, 'c' + CHANGE_ID },
-     { "print-id",	  no_argument, NULL, 'c' + PRINT_ID },
-@@ -2396,17 +2425,17 @@ static const struct option long_opts[] = {
-     { "re-read",          no_argument, NULL, 'R' },
-     { "list-types",       no_argument, NULL, 'T' },
-     { "unhide",     optional_argument, NULL, 'U' },
--    { "no-reread",        no_argument, NULL, 160 },
--    { "IBM",              no_argument, NULL, 161 },
--    { "leave-last",       no_argument, NULL, 161 },
--/* undocumented flags - not all completely implemented */
--    { "in-order",         no_argument, NULL, 128 },
--    { "not-in-order",     no_argument, NULL, 129 },
--    { "inside-outer",     no_argument, NULL, 130 },
--    { "not-inside-outer", no_argument, NULL, 131 },
--    { "nested",           no_argument, NULL, 132 },
--    { "chained",          no_argument, NULL, 133 },
--    { "onesector",        no_argument, NULL, 134 },
-+    { "no-reread",        no_argument, NULL, OPT_NO_REREAD },
-+    { "IBM",              no_argument, NULL, OPT_LEAVE_LAST },
-+    { "leave-last",       no_argument, NULL, OPT_LEAVE_LAST },
-+/* dangerous flags - not all completely implemented */
-+    { "in-order",         no_argument, NULL, OPT_IN_ORDER },
-+    { "not-in-order",     no_argument, NULL, OPT_NOT_IN_ORDER },
-+    { "inside-outer",     no_argument, NULL, OPT_INSIDE_OUTER },
-+    { "not-inside-outer", no_argument, NULL, OPT_NOT_INSIDE_OUTER },
-+    { "nested",           no_argument, NULL, OPT_NESTED },
-+    { "chained",          no_argument, NULL, OPT_CHAINED },
-+    { "onesector",        no_argument, NULL, OPT_ONESECTOR },
-     { NULL, 0, NULL, 0 }
- };
+@@ -157,12 +157,10 @@ main(int argc, char *argv[])
+ 	for (i = 1; i < NSIG; i++) signal (i, SIG_DFL);
  
-@@ -2598,26 +2627,26 @@ main(int argc, char **argv) {
- 	  default:
- 	    usage(stderr); break;
+         setlocale(LC_ALL, "");
+-        bindtextdomain(PACKAGE, LOCALEDIR);
+-        textdomain(PACKAGE);
  
--	  /* undocumented flags */
--	  case 128:
-+	  /* dangerous flags */
-+	  case OPT_IN_ORDER:
- 	    partitions_in_order = 1; break;
--	  case 129:
-+	  case OPT_NOT_IN_ORDER:
- 	    partitions_in_order = 0; break;
--	  case 130:
-+	  case OPT_INSIDE_OUTER:
- 	    all_logicals_inside_outermost_extended = 1; break;
--	  case 131:
-+	  case OPT_NOT_INSIDE_OUTER:
- 	    all_logicals_inside_outermost_extended = 0; break;
--	  case 132:
-+	  case OPT_NESTED:
- 	    boxes = NESTED; break;
--	  case 133:
-+	  case OPT_CHAINED:
- 	    boxes = CHAINED; break;
--	  case 134:
-+	  case OPT_ONESECTOR:
- 	    boxes = ONESECTOR; break;
+ #ifndef DEBUGGING
+ 	if(setreuid (0, 0))
+-		errx(EXIT_FAILURE, _("only root can shut a system down."));
++		errx(EXIT_FAILURE, "only root can shut a system down.");
+ #endif
  
- 	  /* more flags */
--	  case 160:
-+	  case OPT_NO_REREAD:
- 	    no_reread = 1; break;
--	  case 161:
-+	  case OPT_LEAVE_LAST:
- 	    leave_last = 1; break;
+ 	if(*argv[0] == '-') argv[0]++;	/* allow shutdown as login shell */
+@@ -252,8 +250,8 @@ main(int argc, char *argv[])
+ 			then = 3600 * hour + 60 * minute;
+ 			timeout = then - now;
+ 			if(timeout < 0)
+-				errx(EXIT_FAILURE, _("that must be tomorrow, "
+-					          "can't you wait till then?"));
++				errx(EXIT_FAILURE, "that must be tomorrow, "
++					          "can't you wait till then?");
+ 		} else {
+ 			xstrncpy(message, argv[c], sizeof(message));
+ 			opt_msgset = 1;
+@@ -301,7 +299,7 @@ main(int argc, char *argv[])
+ 		}
+ 		*ptr = '\0';
+ 	} else if (!opt_msgset) {
+-		strcpy(message, _("for maintenance; bounce, bounce"));
++		strcpy(message, "for maintenance; bounce, bounce");
+ 	}
+ 
+ #ifdef DEBUGGING
+@@ -329,11 +327,11 @@ main(int argc, char *argv[])
+ 	if((fd = open(_PATH_NOLOGIN, O_WRONLY|O_CREAT, 0644)) >= 0) {
+ 		/* keep xgettext happy and leave \r\n outside strings */
+ 		WRCRLF;
+-		WR(_("The system is being shut down within 5 minutes"));
++		WR("The system is being shut down within 5 minutes");
+ 		WRCRLF;
+ 		write(fd, message, strlen(message));
+ 		WRCRLF;
+-		WR(_("Login is therefore prohibited."));
++		WR("Login is therefore prohibited.");
+ 		WRCRLF;
+ 		close(fd);
+ 	}
+@@ -355,10 +353,10 @@ main(int argc, char *argv[])
+ 	/* do syslog message... */
+ 	openlog(prog, LOG_CONS, LOG_AUTH);
+ 	if (opt_reboot)
+-		syslog(LOG_NOTICE, _("rebooted by %s: %s"), 
++		syslog(LOG_NOTICE, "rebooted by %s: %s",
+ 		       whom, message);
+ 	else
+-		syslog(LOG_NOTICE, _("halted by %s: %s"), 
++		syslog(LOG_NOTICE, "halted by %s: %s",
+ 		       whom, message);
+ 	closelog();
+ 
+@@ -422,9 +420,9 @@ main(int argc, char *argv[])
+ 
+ 	if(opt_reboot) {
+ 		my_reboot(LINUX_REBOOT_CMD_RESTART); /* RB_AUTOBOOT */
+-		my_puts(_("\nWhy am I still alive after reboot?"));
++		my_puts("\nWhy am I still alive after reboot?");
+ 	} else {
+-		my_puts(_("\nNow you can turn off the power..."));
++		my_puts("\nNow you can turn off the power...");
+ 
+ 		/* allow C-A-D now, faith@cs.unc.edu, re-fixed 8-Jul-96 */
+ 		my_reboot(LINUX_REBOOT_CMD_CAD_ON); /* RB_ENABLE_CAD */
+@@ -440,10 +438,10 @@ main(int argc, char *argv[])
+ void
+ do_halt(char *action) {
+ 	if (strcasecmp (action, "power_off") == 0) {
+-		printf(_("Calling kernel power-off facility...\n"));
++		printf("Calling kernel power-off facility...\n");
+ 		fflush(stdout);
+ 		my_reboot(LINUX_REBOOT_CMD_POWER_OFF);
+-		printf(_("Error powering off\t%s\n"), ERRSTRING);
++		printf("Error powering off\t%s\n", ERRSTRING);
+ 		fflush(stdout);
+ 		sleep (2);
+ 	} else
+@@ -451,10 +449,10 @@ do_halt(char *action) {
+ 	/* This should be improved; e.g. Mike Jagdis wants "/sbin/mdstop -a" */
+ 	/* Maybe we should also fork and wait */
+ 	if (action[0] == '/') {
+-		printf(_("Executing the program \"%s\" ...\n"), action);
++		printf("Executing the program \"%s\" ...\n", action);
+ 		fflush(stdout);
+ 		execl(action, action, NULL);
+-		printf(_("Error executing\t%s\n"), ERRSTRING);
++		printf("Error executing\t%s\n", ERRSTRING);
+ 		fflush(stdout);
+ 		sleep (2);
+ 	}
+@@ -481,29 +479,29 @@ write_user(struct utmp *ut)
+ 	        return;
+ 
+ 	msg[0] = '\007';	/* gettext crashes on \a */
+-	sprintf(msg+1, _("URGENT: broadcast message from %s:"), whom);
++	sprintf(msg+1, "URGENT: broadcast message from %s:", whom);
+ 	WRCRLF;
+ 	WR(msg);
+ 	WRCRLF;
+ 
+ 	if (hours > 1)
+-		sprintf(msg, _("System going down in %d hours %d minutes"),
++		sprintf(msg, "System going down in %d hours %d minutes",
+ 			hours, minutes);
+ 	else if (hours == 1)
+-		sprintf(msg, _("System going down in 1 hour %d minutes"),
++		sprintf(msg, "System going down in 1 hour %d minutes",
+ 			minutes);
+ 	else if (minutes > 1)
+-		sprintf(msg, _("System going down in %d minutes\n"),
++		sprintf(msg, "System going down in %d minutes\n",
+ 			minutes);
+ 	else if (minutes == 1)
+-		sprintf(msg, _("System going down in 1 minute\n"));
++		sprintf(msg, "System going down in 1 minute\n");
+ 	else
+-		sprintf(msg, _("System going down IMMEDIATELY!\n"));
++		sprintf(msg, "System going down IMMEDIATELY!\n");
+ 
+ 	WR(msg);
+ 	WRCRLF;
+ 
+-	sprintf(msg, _("\t... %s ...\n"), message);
++	sprintf(msg, "\t... %s ...\n", message);
+ 	WR(msg);
+ 	WRCRLF;
+ 
+@@ -560,7 +558,7 @@ swap_off(void)
+ 
+ 	sync();
+ 	if ((pid = fork()) < 0) {
+-		my_puts(_("Cannot fork for swapoff. Shrug!"));
++		my_puts("Cannot fork for swapoff. Shrug!");
+ 		return;
+ 	}
+ 	if (!pid) {
+@@ -568,8 +566,8 @@ swap_off(void)
+ 		execl("/etc/swapoff", SWAPOFF_ARGS, NULL);
+ 		execl("/bin/swapoff", SWAPOFF_ARGS, NULL);
+ 		execlp("swapoff", SWAPOFF_ARGS, NULL);
+-		my_puts(_("Cannot exec swapoff, "
+-			  "hoping umount will do the trick."));
++		my_puts("Cannot exec swapoff, "
++			  "hoping umount will do the trick.");
+ 		exit(EXIT_SUCCESS);
+ 	}
+ 	while ((result = wait(&status)) != -1 && result != pid)
+@@ -587,7 +585,7 @@ unmount_disks(void)
+ 
+ 	sync();
+ 	if ((pid = fork()) < 0) {
+-		my_puts(_("Cannot fork for umount, trying manually."));
++		my_puts("Cannot fork for umount, trying manually.");
+ 		unmount_disks_ourselves();
+ 		return;
+ 	}
+@@ -596,16 +594,16 @@ unmount_disks(void)
+ 
+ 		/* need my_printf instead of my_puts here */
+ 		freopen(_PATH_CONSOLE, "w", stdout);
+-		printf(_("Cannot exec %s, trying umount.\n"), _PATH_UMOUNT);
++		printf("Cannot exec %s, trying umount.\n", _PATH_UMOUNT);
+ 		fflush(stdout);
+ 
+ 		execlp("umount", UMOUNT_ARGS, NULL);
+-		my_puts(_("Cannot exec umount, giving up on umount."));
++		my_puts("Cannot exec umount, giving up on umount.");
+ 		exit(EXIT_SUCCESS);
+ 	}
+ 	while ((result = wait(&status)) != -1 && result != pid)
+ 		;
+-	my_puts(_("Unmounting any remaining filesystems..."));
++	my_puts("Unmounting any remaining filesystems...");
+ 	unmount_disks_ourselves();
+ }
+ 
+@@ -652,7 +650,7 @@ unmount_disks_ourselves(void)
+ 		printf("umount %s\n", filesys);
+ #else
+ 		if (umount(mntlist[i]) < 0)
+-			printf(_("shutdown: Couldn't umount %s: %s\n"),
++			printf("shutdown: Couldn't umount %s: %s\n",
+ 			       filesys, ERRSTRING);
+ #endif
+ 	}
+diff --git a/simpleinit/simpleinit.c b/simpleinit/simpleinit.c
+index d7f9655..8493d70 100644
+--- a/simpleinit/simpleinit.c
++++ b/simpleinit/simpleinit.c
+@@ -134,15 +134,15 @@ static void enter_single (void)
+     pid_t pid;
+     int i;
+ 
+-    err(_("Booting to single user mode.\n"));
++    err("Booting to single user mode.\n");
+     if((pid = fork()) == 0) {
+ 	/* the child */
+ 	execl(_PATH_BSHELL, _PATH_BSHELL, NULL);
+-	err(_("exec of single user shell failed\n"));
++	err("exec of single user shell failed\n");
+     } else if(pid > 0) {
+ 	while (waitpid (pid, &i, 0) != pid)  /*  Nothing  */;
+     } else if(pid < 0) {
+-	err(_("fork of single user shell failed\n"));
++	err("fork of single user shell failed\n");
+     }
+     unlink(_PATH_SINGLE);
+ }
+@@ -173,8 +173,6 @@ int main(int argc, char *argv[])
+ 	sigaction (SIGQUIT, &sa, NULL);
+ 
+ 	setlocale(LC_ALL, "");
+-	bindtextdomain(PACKAGE, LOCALEDIR);
+-	textdomain(PACKAGE);
+ 
+ 	my_reboot (LINUX_REBOOT_CMD_CAD_OFF);
+ 	/*  Find script to run. Command-line overrides config file overrides
+@@ -210,11 +208,11 @@ int main(int argc, char *argv[])
+ 	if ( ( initctl_fd = open (initctl_name, O_RDWR, 0) ) < 0 ) {
+ 		mkfifo (initctl_name, S_IRUSR | S_IWUSR);
+ 		if ( ( initctl_fd = open (initctl_name, O_RDWR, 0) ) < 0 )
+-			err ( _("error opening fifo\n") );
++			err ("error opening fifo\n");
+ 	}
+ 
+ 	if (initctl_fd >= 0 && fcntl(initctl_fd, F_SETFD, FD_CLOEXEC) != 0) {
+-		err ( _("error setting close-on-exec on /dev/initctl") );
++		err ("error setting close-on-exec on /dev/initctl");
+ 
+ 		/* Can the fcntl ever fail?  If it does, and we leave
+ 		   the descriptor open in child processes, then any
+@@ -261,11 +259,11 @@ int main(int argc, char *argv[])
+ 		{
+ 		  case 0:   /*  Child   */
+ 		    execl (final_prog, final_prog, "start", NULL);
+-		    err ( _("error running finalprog\n") );
++		    err ("error running finalprog\n");
+ 		    _exit (EXIT_FAILURE);
+ 		    break;
+ 		  case -1:  /*  Error   */
+-		    err ( _("error forking finalprog\n") );
++		    err ("error forking finalprog\n");
+ 		    break;
+ 		  default:  /*  Parent  */
+ 		    break;
+@@ -342,12 +340,12 @@ static int check_single_ok (void)
+ 
+     for (i = 0; i < MAXTRIES; i++)
+     {
+-	pass = getpass (_("Password: "));
++	pass = getpass ("Password: ");
+ 	if (pass == NULL) continue;
+ 
+ 	if ( !strcmp (crypt (pass, rootpass), rootpass) ) return 1;
+ 
+-	puts (_("\nWrong password.\n"));
++	puts ("\nWrong password.\n");
+     }
+     return 0;
+ }
+@@ -420,7 +418,7 @@ static int process_path (const char *path, int (*func) (const char *path),
+ 
+     if (lstat (path, &statbuf) != 0)
+     {
+-	err (_("lstat of path failed\n") );
++	err ("lstat of path failed\n");
+ 	return 1;
+     }
+     if ( S_ISLNK (statbuf.st_mode) )
+@@ -428,7 +426,7 @@ static int process_path (const char *path, int (*func) (const char *path),
+ 	if (stat (path, &statbuf) != 0)
+ 	{
+ 	    if ( (errno == ENOENT) && ignore_dangling_symlink ) return 0;
+-	    err (_("stat of path failed\n") );
++	    err ("stat of path failed\n");
+ 	    return 1;
  	}
      }
+@@ -436,7 +434,7 @@ static int process_path (const char *path, int (*func) (const char *path),
+     if ( !S_ISDIR (statbuf.st_mode) ) return (*func) (path);
+     if ( ( dp = opendir (path) ) == NULL )
+     {
+-	err (_("open of directory failed\n") );
++	err ("open of directory failed\n");
+ 	return 1;
+     }
+     while ( ( de = readdir (dp) ) != NULL )
+@@ -503,7 +501,7 @@ static void spawn (int i)
+ 		inittab[i].pid = -1;
+ 		inittab[i].rate = 0;
+ 		snprintf (txt, sizeof(txt),
+-			_("respawning: \"%s\" too fast: quenching entry\n"),
++			"respawning: \"%s\" too fast: quenching entry\n",
+ 			 inittab[i].tty);
+ 		err (txt);
+ 		return;
+@@ -511,7 +509,7 @@ static void spawn (int i)
+ 
+ 	if((pid = fork()) < 0) {
+ 		inittab[i].pid = -1;
+-		err(_("fork failed\n"));
++		err("fork failed\n");
+ 		return;
+ 	}
+ 	if(pid) {
+@@ -542,7 +540,7 @@ static void spawn (int i)
+ 		env[2] = (char *)0;
+ 
+ 		execve(inittab[i].toks[0], inittab[i].toks, env);
+-		err(_("exec failed\n"));
++		err("exec failed\n");
+ 		sleep(5);
+ 		_exit(EXIT_FAILURE);
+ 	}
+@@ -566,7 +564,7 @@ static void read_inittab (void)
+ 	/* termenv = "vt100"; */
+ 			
+ 	if(!(f = fopen(_PATH_INITTAB, "r"))) {
+-		err(_("cannot open inittab\n"));
++		err("cannot open inittab\n");
+ 		return;
+ 	}
+ 
+@@ -633,7 +631,7 @@ static void read_inittab (void)
+ 		/* special-case termcap for the console ttys */
+ 		snprintf(tty, sizeof(tty), "/dev/%s", inittab[i].tty);
+ 		if(!termenv || stat(tty, &stb) < 0) {
+-			err(_("no TERM or cannot stat tty\n"));
++			err("no TERM or cannot stat tty\n");
+ 		} else {
+ 			/* is it a console tty? */
+ 			if(major(stb.st_rdev) == 4 && minor(stb.st_rdev) < 64)
+@@ -940,7 +938,7 @@ static void process_command (const struct command_struct *command)
+ 		execlp (get_path (victim->first_service->name),
+ 			victim->first_service->name, "stop", NULL);
+ 		snprintf (txt, sizeof(txt),
+-			_("error at stopping service \"%s\"\n"),
++			"error at stopping service \"%s\"\n",
+ 			 victim->first_service->name);
+ 		err (txt);
+ 		_exit (SIG_NOT_STOPPED);
+@@ -952,7 +950,7 @@ static void process_command (const struct command_struct *command)
+ 		if ( WIFEXITED (ival) && (WEXITSTATUS (ival) == 0) )
+ 		{
+ 		    snprintf (txt, sizeof(txt),
+-			     _("Stopped service: %s\n"),
++			     "Stopped service: %s\n",
+ 			     victim->first_service->name);
+ 		    remove_entry (&available_list, victim);
+ 		    free (victim);
+@@ -1072,7 +1070,7 @@ static int run_command (const char *file, const char *name, pid_t pid)
+ 	    for (i = 1; i < NSIG; i++) signal (i, SIG_DFL);
+ 	    execlp (get_path (file), service->name, "start", NULL);
+ 	    snprintf (txt, sizeof(txt),
+-		_("error at starting service \"%s\"\n"), service->name);
++		"error at starting service \"%s\"\n", service->name);
+ 	    err (txt);
+ 	    _exit (SIG_FAILED);
+ 	    break;
 -- 
-1.7.5.2
+1.7.3.4
 
