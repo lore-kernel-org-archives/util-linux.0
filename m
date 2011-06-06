@@ -1,67 +1,74 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 2/2] mkfs.minix: add fs version options
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 09 Jun 2011 12:48:41 -0400
-Message-ID: <1307638121.2155.3.camel@offworld>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:63725 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753716Ab1FFTH1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2011 15:07:27 -0400
+Received: by ewy4 with SMTP id 4so1471009ewy.19
+        for <util-linux@vger.kernel.org>; Mon, 06 Jun 2011 12:07:26 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/6] sfdisk: declare unused function attributes
+Date: Mon,  6 Jun 2011 21:07:14 +0200
+Message-Id: <1307387239-9022-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
+References: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Thu, 9 Jun 2011 12:41:12 -0400
+Add `__attribute__ ((__unused__))' where needed.
 
-Like the original minix mkfs, add the -1 and -2 argument options to specify the version of the filesystem to create.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/mkfs.minix.8           |    5 ++++-
- disk-utils/mkfs.minix.c           |    8 ++++++--
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ fdisk/sfdisk.c |   20 ++++++++++++++++----
+ 1 files changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/disk-utils/mkfs.minix.8 b/disk-utils/mkfs.minix.8
-index 9359106..2c180e5 100644
---- a/disk-utils/mkfs.minix.8
-+++ b/disk-utils/mkfs.minix.8
-@@ -59,7 +59,10 @@ Read the bad blocks list from
- The file has one bad block number per line.  The count of bad blocks read
- is printed.
- .TP
--.B \-v
-+.B \-1
-+Make a Minix version 1 filesystem.
-+.TP
-+.B  \-2,\-v 
- Make a Minix version 2 filesystem.
- .SH "EXIT CODES"
- The exit code returned by
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 1cebcda..bd773b2 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -586,7 +586,7 @@ int main(int argc, char ** argv) {
- 		errx(MKFS_ERROR, _("%s: bad inode size"), device_name);
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index c38128a..8d8ccea 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -1590,17 +1590,29 @@ msdos_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
+ }
  
- 	opterr = 0;
--	while ((i = getopt(argc, argv, "ci:l:n:v")) != -1)
-+	while ((i = getopt(argc, argv, "ci:l:n:v12")) != -1)
- 		switch (i) {
- 		case 'c':
- 			check=1; break;
-@@ -608,7 +608,11 @@ int main(int argc, char ** argv) {
- 			namelen = i;
- 			dirsize = i+2;
- 			break;
--		case 'v':
-+		case '1':
-+			fs_version = 1;
-+			break;
-+		case '2':
-+		case 'v': /* kept for backwards compatiblitly */
- 			fs_version = 2;
- 			version2 = 1;
- 			break;
-
+ static int
+-osf_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
++osf_partition(char *dev __attribute__ ((__unused__)),
++	      int fd __attribute__ ((__unused__)),
++	      unsigned long start __attribute__ ((__unused__)),
++	      struct disk_desc *z __attribute__ ((__unused__)))
++{
+ 	return 0;
+ }
+ 
+ static int
+-sun_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
++sun_partition(char *dev __attribute__ ((__unused__)),
++	      int fd __attribute__ ((__unused__)),
++	      unsigned long start __attribute__ ((__unused__)),
++	      struct disk_desc *z __attribute__ ((__unused__)))
++{
+ 	return 0;
+ }
+ 
+ static int
+-amiga_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
++amiga_partition(char *dev __attribute__ ((__unused__)),
++		int fd __attribute__ ((__unused__)),
++		unsigned long start __attribute__ ((__unused__)),
++		struct disk_desc *z __attribute__ ((__unused__)))
++{
+ 	return 0;
+ }
+ 
+@@ -2348,7 +2360,7 @@ activate_usage(char *progn) {
+ }
+ 
+ static void
+-unhide_usage(char *progn) {
++unhide_usage(char *progn __attribute__ ((__unused__))) {
+     exit(1);
+ }
+ 
 -- 
-1.7.4.1
+1.7.5.2
+
