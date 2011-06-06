@@ -1,55 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13943 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753907Ab1F2PAD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Jun 2011 11:00:03 -0400
-Date: Wed, 29 Jun 2011 16:59:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "corentin.labbe" <corentin.labbe@geomatys.fr>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] dmesg.c: print human readable timestamp
-Message-ID: <20110629145957.GM6418@nb.net.home>
-References: <4DD6593D.2090202@geomatys.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4DD6593D.2090202@geomatys.fr>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:35638 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753716Ab1FFTHZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2011 15:07:25 -0400
+Received: by eyx24 with SMTP id 24so1468665eyx.19
+        for <util-linux@vger.kernel.org>; Mon, 06 Jun 2011 12:07:24 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 0/6] sfdisk: few maintenance patches
+Date: Mon,  6 Jun 2011 21:07:13 +0200
+Message-Id: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 20, 2011 at 02:06:21PM +0200, corentin.labbe wrote:
-> 
-> This patch add the -H option to dmesg which allow to print human
-> readable time instead of the number of seconds since boot.
+I almost forgot these, mostly uninteresting, sfdisk patches. The
+fifth patch is the only one which I'm interested to hear wherther
+I got it right, or did I made a mess again. Priority / urgency of
+the other patches is in somewhere between trivial and
+unnecessary.
 
- Nice idea, but it's not so simple :-(
-
- The time stamp used for printk() is not based on normal system time
- (as you know from gettimeofday()). It uses cpu_clock() (IMHO to
- keep printk() robust and without xtime_lock).
-
- The problem is that the cpu_clock is not updated after system resume,
- so if you suspend (e.g. pm-suspend(8)) and resume than the dmesg -H
- command prints nonsenses...
-
- For example (copy & past from /var/log/messages):
-
-  Jun 27 23:39:53 nb kernel: [50065.238635] PM: Syncing filesystems  ... done.
-  Jun 28 20:23:29 nb kernel: [50065.284226] Freezing user space  processes ... (elapsed 0.09 seconds) done.
-                              ^^^^^
- The first line is before suspend and second is after resume. The time
- stamp [50065.xxxxxx] is still the same although the system was
- suspended for almost whole day.
- 
- The same system, the latest kernel message:
-
-    # date
-    Wed Jun 29 16:29:28 CEST 2011
-
-    # mount /dev/sdb1 /mnt/test
-
-    # ./sys-utils/dmesg -H | tail -1 
-    [Tue Jun 28 11:10:41 2011] EXT4-fs (sdb1): mounted filesystem with ordered data mode. Opts: (null)
-
-
-  Karel
+Also available from:
+'sfdisk' of git://github.com/kerolasa/lelux-utiliteetit.git
 
