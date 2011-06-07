@@ -1,38 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51711 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753037Ab1F2Ku2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Jun 2011 06:50:28 -0400
-Date: Wed, 29 Jun 2011 12:50:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 6/6] sfdisk: fix for data type mismatches
-Message-ID: <20110629105024.GL6418@nb.net.home>
-References: <1307387239-9022-1-git-send-email-kerolasa@iki.fi> <1307387239-9022-7-git-send-email-kerolasa@iki.fi> <20110614112919.GE14293@nb.net.home> <BANLkTik2HR3BCHFta13hg_QK6nXEZm19Pw@mail.gmail.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:45038 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753350Ab1FGNrW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Jun 2011 09:47:22 -0400
+Received: by bwz15 with SMTP id 15so4190205bwz.19
+        for <util-linux@vger.kernel.org>; Tue, 07 Jun 2011 06:47:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <BANLkTik2HR3BCHFta13hg_QK6nXEZm19Pw@mail.gmail.com>
+From: "KESHAV P.R." <skodabenz@gmail.com>
+Date: Tue, 7 Jun 2011 19:17:01 +0530
+Message-ID: <BANLkTikcxGrwfoTDbphnW16s52dqKcgSBg@mail.gmail.com>
+Subject: support for PARTUUID in blkid
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 14, 2011 at 10:00:56PM +0200, Sami Kerola wrote:
-> Yes are right, that was silly. I reviewed the patch and changed data
-> types to size_t. The fix is pushed with force to my git.
+Hi,
+     Is it possible to add support for PARTUUID to device name
+conversion in blkid similar to FS UUID. The PARTUUID mentioned here is
+the ID_PART_ENTRY_UUID output of 'blkid -p -i -o udev /dev/sda1' (for
+example). What I want is the support for PARTUUID in 'blkid -U
+<PARTUUID>' (not exactly -U , a similar command). Is it possible to
+implement? Sorry I am not a programmer. This request is mainly to
+support https://github.com/falconindy/geninit/commit/72272da8a855d9551c04de9ba502f3befb2a91d5
+. Thanks in advance.
 
- Merged.
+Regards.
 
-> p.s. The style in the file is really horrible. How about doing the
-> following, which will unify the style within the file without changing
-> everything.
-> 
-> indent -linux -i4 -psl -brf sfdisk.c
-
- Hmm.. I don't like such patches, but you're right that the file is
- horrible. Fixed....
-
-    Karel
- 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Keshav
