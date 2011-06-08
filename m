@@ -1,74 +1,41 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 1/2] mkfs.minix: standardize superblock attribute settings
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 09 Jun 2011 12:48:35 -0400
-Message-ID: <1307638115.2155.2.camel@offworld>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor.suse.de ([195.135.220.2]:35812 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753786Ab1FHNfE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Jun 2011 09:35:04 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx1.suse.de (Postfix) with ESMTP id EA6ED74609
+	for <util-linux@vger.kernel.org>; Wed,  8 Jun 2011 15:35:02 +0200 (CEST)
+From: Ludwig Nussel <ludwig.nussel@suse.de>
+To: util-linux@vger.kernel.org
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: [PATCH] uuidgen: print warning if uuidd isn't running
+Date: Wed,  8 Jun 2011 15:35:01 +0200
+Message-Id: <1307540101-6376-1-git-send-email-ludwig.nussel@suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Thu, 9 Jun 2011 12:01:09 -0400
-
-Because of the dependence of fs_version, some superblock attributes will vary, so simplify the logic of assigning values to maxsize and the amount of zones related to each filesystem, thus making setup_tables() more readable.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- disk-utils/mkfs.minix.c |   32 +++++++++++++++++++++++++++-----
- 1 files changed, 27 insertions(+), 5 deletions(-)
+ misc-utils/uuidgen.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index d2d800f..1cebcda 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -370,6 +370,29 @@ static void make_root_inode(void)
- 	return make_root_inode_v2();
- }
+diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
+index 3cf6ec9..47f8e8f 100644
+--- a/misc-utils/uuidgen.c
++++ b/misc-utils/uuidgen.c
+@@ -59,7 +59,9 @@ main (int argc, char *argv[])
  
-+static void super_set_nzones(void)
-+{
-+	switch (fs_version) {
-+	case 2:
-+		Super.s_zones = BLOCKS;
-+		break;
-+	default: /* v1 */
-+		Super.s_nzones = BLOCKS;
-+		break;
-+	}
-+}
-+
-+static void super_init_maxsize(void)
-+{
-+	switch (fs_version) {
-+	case 2:
-+		Super.s_max_size =  0x7fffffff;
-+	default: /* v1 */
-+		Super.s_max_size = (7+512+512*512)*1024;
-+		break;
-+	}
-+}
-+
- static void setup_tables(void) {
- 	int i;
- 	unsigned long inodes, zmaps, imaps, zones;
-@@ -382,12 +405,11 @@ static void setup_tables(void) {
- 	memset(boot_block_buffer,0,512);
- 	Super.s_magic = magic;
- 	Super.s_log_zone_size = 0;
--	Super.s_max_size = version2 ? 0x7fffffff : (7+512+512*512)*1024;
--	if (fs_version == 2)
--		zones = Super.s_zones = BLOCKS;
--	else
--		zones = Super.s_nzones = BLOCKS;
- 
-+	super_init_maxsize();	
-+	super_set_nzones();
-+	zones = get_nzones();
-+	
- /* some magic nrs: 1 inode / 3 blocks */
- 	if ( req_nr_inodes == 0 ) 
- 		inodes = BLOCKS/3;
+ 	switch (do_type) {
+ 	case DO_TYPE_TIME:
+-		uuid_generate_time(uu);
++		if (uuid_generate_time_safe(uu)) {
++			fprintf(stderr, _("Warning: uuidd not running or not operational. Time based uuid may not be unique.\n"));
++		}
+ 		break;
+ 	case DO_TYPE_RANDOM:
+ 		uuid_generate_random(uu);
 -- 
-1.7.4.1
+1.7.3.4
+
