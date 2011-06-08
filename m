@@ -1,124 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor.suse.de ([195.135.220.2]:54842 "EHLO mx1.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:29656 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751502Ab1FPN7m (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 16 Jun 2011 09:59:42 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx1.suse.de (Postfix) with ESMTP id D803B94393
-	for <util-linux@vger.kernel.org>; Thu, 16 Jun 2011 15:59:40 +0200 (CEST)
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-To: util-linux@vger.kernel.org
-Cc: Ludwig Nussel <ludwig.nussel@suse.de>
-Subject: [PATCH 1/4] uuidgen: fail if uuidd isn't running
-Date: Thu, 16 Jun 2011 15:59:36 +0200
-Message-Id: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
+	id S1751213Ab1FHMJ1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Jun 2011 08:09:27 -0400
+Date: Wed, 8 Jun 2011 14:09:24 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "KESHAV P.R." <skodabenz@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: support for PARTUUID in blkid
+Message-ID: <20110608120924.GD2150@nb.net.home>
+References: <BANLkTikcxGrwfoTDbphnW16s52dqKcgSBg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <BANLkTikcxGrwfoTDbphnW16s52dqKcgSBg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-time bases uuids are not safe if uuidd is not running.
-Add option --force to generate a uuid in this case nevertheless.
----
- misc-utils/uuidgen.c |   51 ++++++++++++++++++++++++++++++++++---------------
- 1 files changed, 35 insertions(+), 16 deletions(-)
+On Tue, Jun 07, 2011 at 07:17:01PM +0530, KESHAV P.R. wrote:
+> Hi,
+>      Is it possible to add support for PARTUUID to device name
+> conversion in blkid similar to FS UUID. The PARTUUID mentioned here is
+> the ID_PART_ENTRY_UUID output of 'blkid -p -i -o udev /dev/sda1' (for
+> example). What I want is the support for PARTUUID in 'blkid -U
+> <PARTUUID>' (not exactly -U , a similar command). Is it possible to
+> implement? Sorry I am not a programmer. This request is mainly to
+> support https://github.com/falconindy/geninit/commit/72272da8a855d9551c04de9ba502f3befb2a91d5
 
-diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
-index 3cf6ec9..b83b124 100644
---- a/misc-utils/uuidgen.c
-+++ b/misc-utils/uuidgen.c
-@@ -10,34 +10,43 @@
-  */
- 
- #include <stdio.h>
--#ifdef HAVE_STDLIB_H
- #include <stdlib.h>
--#endif
--#ifdef HAVE_GETOPT_H
- #include <getopt.h>
--#else
--extern int getopt(int argc, char * const argv[], const char *optstring);
--extern char *optarg;
--extern int optind;
--#endif
- 
- #include "uuid.h"
- #include "nls.h"
-+#include "c.h"
- 
- #define DO_TYPE_TIME	1
- #define DO_TYPE_RANDOM	2
- 
--static void usage(const char *progname)
-+static const struct option long_options[] = {
-+	{ "time",      0, NULL, 't' },
-+	{ "random",    0, NULL, 'r' },
-+	{ "force",     0, NULL, 128 },
-+	{ "help",      0, NULL, 'h' },
-+	{ 0, 0, 0, 0 }
-+};
-+
-+static void usage(int ex)
- {
--	fprintf(stderr, _("Usage: %s [-r] [-t]\n"), progname);
--	exit(1);
-+	printf(_("Usage: %s [options]\n"
-+		"  -r, --random     Generate a random-based UUID\n"
-+		"  -t, --time       Generate a time-based UUID\n"
-+		"      --force      print uuid even if it's potentially weak\n"
-+		"  -h, --help       Display this text\n"),
-+		program_invocation_short_name);
-+	exit(ex);
- }
- 
-+
-+
- int
- main (int argc, char *argv[])
- {
- 	int    c;
- 	int    do_type = 0;
-+	int    force = 0;
- 	char   str[37];
- 	uuid_t uu;
- 
-@@ -45,21 +54,31 @@ main (int argc, char *argv[])
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 
--	while ((c = getopt (argc, argv, "tr")) != EOF)
-+	while ((c = getopt_long(argc, argv, "rth", long_options, NULL)) != EOF ) {
- 		switch (c) {
--		case 't':
--			do_type = DO_TYPE_TIME;
-+		case 'h':
-+			usage(0);
- 			break;
- 		case 'r':
- 			do_type = DO_TYPE_RANDOM;
- 			break;
-+		case 't':
-+			do_type = DO_TYPE_TIME;
-+			break;
-+		case 128:
-+			force = 1;
-+			break;
- 		default:
--			usage(argv[0]);
-+			usage(1);
- 		}
-+	}
- 
- 	switch (do_type) {
- 	case DO_TYPE_TIME:
--		uuid_generate_time(uu);
-+		if (uuid_generate_time_safe(uu) && !force) {
-+			fprintf(stderr, _("uuidd not running or not operational.\n"));
-+			exit(1);
-+		}
- 		break;
- 	case DO_TYPE_RANDOM:
- 		uuid_generate_random(uu);
+This is on my TODO list for long time :-) Maybe Iill have time to
+implement it for 2.21 (the end of this year).
+
+It would be nice to support the UUIDs in mount and fsck. Then we can
+use it in projects like dracut or in /etc/fstab, etc.
+
+    Karel
+
 -- 
-1.7.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
