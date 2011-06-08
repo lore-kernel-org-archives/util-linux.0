@@ -1,40 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33949 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750758Ab1FTKpy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Jun 2011 06:45:54 -0400
-Date: Mon, 20 Jun 2011 12:45:48 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Ted Ts'o" <tytso@mit.edu>
-Cc: Ludwig Nussel <ludwig.nussel@suse.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] uuidgen: fail if uuidd isn't running
-Message-ID: <20110620104548.GC17967@nb.net.home>
-References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <20110617020756.GB29725@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110617020756.GB29725@thunk.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:37449 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755246Ab1FHWxt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 8 Jun 2011 18:53:49 -0400
+Received: by mail-iy0-f174.google.com with SMTP id 14so837342iyb.19
+        for <util-linux@vger.kernel.org>; Wed, 08 Jun 2011 15:53:48 -0700 (PDT)
+From: Josiah Worcester <josiahw@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Josiah Worcester <josiahw@gmail.com>
+Subject: [PATCH 6/6] hwclock: Don't use asm/io.h if sys/io.h can't be found
+Date: Wed,  8 Jun 2011 16:52:48 -0600
+Message-Id: <1307573568-23643-7-git-send-email-josiahw@gmail.com>
+In-Reply-To: <1307573568-23643-1-git-send-email-josiahw@gmail.com>
+References: <1307573568-23643-1-git-send-email-josiahw@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 16, 2011 at 10:07:56PM -0400, Ted Ts'o wrote:
-> On Thu, Jun 16, 2011 at 03:59:36PM +0200, Ludwig Nussel wrote:
-> > time bases uuids are not safe if uuidd is not running.
-> > Add option --force to generate a uuid in this case nevertheless.
->
-> I really wouldn't worry about time-based uuid if you're grabbing them
-> from uuidgen.  Yes, if you're generating thousands of uuid's in
-> parallel via the C interface, it's possible that you potentially force
-> a collision.  But via the command-line interface of uuidgen?
+Signed-off-by: Josiah Worcester <josiahw@gmail.com>
+---
+ hwclock/cmos.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
- I agree with Ted. 
-
- Let's go one step back (sorry Ludwig). It would be really better to
- add --safe rather than --force. We can use the --safe option to test
- the new *_safe functions or for really paranoid environments, but we
- should not force people use the new functionality.
-
-    Karel
-
+diff --git a/hwclock/cmos.c b/hwclock/cmos.c
+index 947b21b..b5169a1 100644
+--- a/hwclock/cmos.c
++++ b/hwclock/cmos.c
+@@ -53,7 +53,12 @@
+ #ifdef HAVE_SYS_IO_H
+ #include <sys/io.h>
+ #else
+-#include <asm/io.h>		/* for inb, outb */
++/* Disable cmos access; we can no longer use asm/io.h, since
++ * the kernel does not export that header.
++ */
++#undef __i386__
++void outb(int a, int b){}
++int inb(int c){ return 0; }
+ #endif
+ #elif defined(__alpha__)
+ /* <asm/io.h> fails to compile, probably because of u8 etc */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.3
+
