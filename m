@@ -1,36 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13175 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:16803 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751898Ab1F0OXo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Jun 2011 10:23:44 -0400
-Date: Mon, 27 Jun 2011 16:23:41 +0200
+	id S1750774Ab1FIUcq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 Jun 2011 16:32:46 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p59KWkXW024758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Thu, 9 Jun 2011 16:32:46 -0400
+Received: from nb (ovpn-113-80.phx2.redhat.com [10.3.113.80])
+	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p59KWjwt029650
+	for <util-linux@vger.kernel.org>; Thu, 9 Jun 2011 16:32:46 -0400
+Date: Thu, 9 Jun 2011 22:32:44 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] mkfs.minix: check for misalignment
-Message-ID: <20110627142341.GB14747@nb.net.home>
-References: <1308625906.3690.2.camel@offworld>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: heads up - move shlibs/*
+Message-ID: <20110609203244.GA28907@nb.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1308625906.3690.2.camel@offworld>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 20, 2011 at 11:11:46PM -0400, Davidlohr Bueso wrote:
->  disk-utils/mkfs.minix.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
 
- Applied with a small change, thanks.
+ Hi,
 
-> @@ -653,6 +653,11 @@ int main(int argc, char ** argv) {
->  		DEV = open(device_name,O_RDWR | O_EXCL);
->  	else
->  		DEV = open(device_name,O_RDWR);
-> +
-> +	if (blkdev_is_misaligned(DEV))
-> +		warnx(_("warning: %s is misaligned"), device_name);
+I have moved
+    
+  $(top_srcdir)/shlibs/{blkid,mount,uuid}
+  
+directories to the top-level directory, so we have 
 
- It makes sense for block devices only.
+  $(top_srcdir)/libblkid
+  $(top_srcdir)/libmount
+  $(top_srcdir)/libuuid
+
+directories now. The "shlibs" directory does not exists anymore.
+
+  git pull
+  git clean -xfd
+
+is probably a good choice...
 
     Karel
 
