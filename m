@@ -1,75 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24989 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:60136 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751768Ab1FTMqR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Jun 2011 08:46:17 -0400
-Date: Mon, 20 Jun 2011 14:46:12 +0200
-From: Karel Zak <kzak@redhat.com>
-To: John Lindgren <john.lindgren@tds.net>
-Cc: util-linux@vger.kernel.org, Andreas Dilger <adilger@sun.com>
-Subject: Re: blkid: excessive random reads probing for ZFS on NTFS
-	filesystem
-Message-ID: <20110620124612.GF17967@nb.net.home>
-References: <4DF50D58.9020800@tds.net> <20110620111640.GE17967@nb.net.home> <4DFF3613.9050705@tds.net>
+	id S1751215Ab1FIA60 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Jun 2011 20:58:26 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Josiah Worcester <josiahw@gmail.com>
+Subject: Re: [PATCH 6/6] hwclock: Don't use asm/io.h if sys/io.h can't be found
+Date: Wed, 8 Jun 2011 20:58:25 -0400
+Cc: util-linux@vger.kernel.org
+References: <1307573568-23643-1-git-send-email-josiahw@gmail.com> <1307573568-23643-7-git-send-email-josiahw@gmail.com>
+In-Reply-To: <1307573568-23643-7-git-send-email-josiahw@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4DFF3613.9050705@tds.net>
+Content-Type: multipart/signed;
+  boundary="nextPart1357012.YAB5QHuKUF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201106082058.26670.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 20, 2011 at 07:59:15AM -0400, John Lindgren wrote:
-> On 06/20/2011 07:16 AM, Karel Zak wrote:
-> > On Sun, Jun 12, 2011 at 03:02:48PM -0400, John Lindgren wrote:
-> >> I noticed blkid causing a noticeable amount of disk hits while
-> >> identifying an NTFS (Win7) partition, and did an strace to find out why
-> >> this was.  It seems that the probe_zfs() function does a
-> >> seek-and-read-41-bytes pattern 64 times in the 130 to 520 KB region of
-> >> the partition.
-> > Is it really so big problem on traditional HDDs?
-> Many traditional HD's are rated with a seek time of ~10 ms (though I
-> work with older hardware mostly; newer ones may be better).  So by a
-> naive calculation that would make probe_zfs take 0.64 seconds.  Now, in
-> the case of probe_zfs, the seeks have good locality, so in practice it
-> will not take that long -- provided blkid is the only program accessing
-> the disk at that time.  If the system has some sort of read-ahead
-> process running during boot (as I do), then locality is lost for both
-> blkid and the read-ahead process, and you get thrashing.
->
-> Also take into consideration that while 64 seeks may not seem excessive
-> in itself, that is for only one filesystem, and blkid checks something
-> on the order of 40 different filesystems.  (Fortunately none of the
-> others take anywhere near the number of seeks that zfs_probe does.)
+--nextPart1357012.YAB5QHuKUF
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
- Unfortunately, the old less expensive version of the ZFS detection
- code was insufficient.  See Andreas' patches:
+On Wednesday, June 08, 2011 18:52:48 Josiah Worcester wrote:
+> -#include <asm/io.h>		/* for inb, outb */
+> +/* Disable cmos access; we can no longer use asm/io.h, since
+> + * the kernel does not export that header.
+> + */
+> +#undef __i386__
+> +void outb(int a, int b){}
+> +int inb(int c){ return 0; }
 
- commit e54a76ca076625b1883ddf0595162eb8de81d5d1
- Author: Andreas Dilger <adilger@sun.com>
- Date:   Wed Feb 17 10:21:27 2010 +0100
+probably should be turned into a header check in configure
+-mike
 
- commit a1fbeb3df35d1441c4ef64ea7e04c2b1fda38ba2
- Author: Andreas Dilger <adilger@sun.com>
- Date:   Thu Mar 11 15:16:46 2010 +0100
+--nextPart1357012.YAB5QHuKUF
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
 
-> Andreas: As far as implementation, I think the ZFS code could be
-> improved by parsing the name-value pair list *before* searching for a
-> valid uberblock, rather than after.
+iQIcBAABAgAGBQJN8BqyAAoJEEFjO5/oN/WB7eMP/jYVOA7y2ygaBCKJFSQOgjlp
+ZJFN3YCIPvJDMqZteeynwzFMXzwD52LimPGhxWTkK1PDQKyQkPNjqJw5smfp7Ft8
+3IkdEa42L+cN+Rkg/Jdx1j7vxuUe/Zqwpn2nMCQOFhBcb8knK7QR3YrIo8Gt5C2O
+3S0+hwuir+ensH3s6Pfr6mjVqtRkWW0Afg40qrh6ugAcfr2LyPkEmgXRCmGUwCa3
+ypG/c+k85CvbC2Sli+KNr+S/k4I7ip3/y1Px6hsUJdSEnqFKj21A6UUYJS46bHrC
+N8qoYj7JjpqTK7c7Hn+W6zBwc2nAtyoOHVk0EhbaNJeTjqXIZznX0qkWbOb5WsWm
+u07MpVDxqYQqe60jJuWH6HUzXfvH7IymDxe2bA275NnxCsgK2jmAiymbfJ3NvYOu
+iyM7lG51hIKpKOE1ZYgRtpDWevOkyd6Ay//LrRzyvhr8FOgLvuGIA3yDWrmXV7KG
+eBYEgu5ysjlv1UKwg/iaq3/hvCuGQpaSFN37dWGVA4xksp5Z/2X/VAn8pjmeY7CG
+Zzr7n02r/2sDpRDE/TA2Qhd2+32GX4aqwFIpraDnLWRmdvlZHNA4MkqA+Vj+XYpV
+X8qMJozvoUXiPTpDKemZxdgLvVwt/3C9eh3XvFwnm4rpwqoti2x2MmtHBZzTHv13
+L50lOT/0mDA9Ktas6TES
+=9ARB
+-----END PGP SIGNATURE-----
 
- Doesn't depend the position of the list on the position of the valid
- uberblock?
-
-> I don't have any ZFS filesystems
-> around to test with, or I would try to do this myself.
-
- There is a test image, see tests/ts/blkid/images-fs/zfs.img.bz2
-
- Maybe you can try to move zfs to the end of the probed filesystems 
- in libblkid/src/superblocks/superblocks.c. It would be better to
- probe for exotic and "expensive" filesytems later.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--nextPart1357012.YAB5QHuKUF--
