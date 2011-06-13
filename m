@@ -1,48 +1,97 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29004 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755302Ab1FNLpj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Jun 2011 07:45:39 -0400
-Date: Tue, 14 Jun 2011 13:45:34 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] uuidgen: print warning if uuidd isn't running
-Message-ID: <20110614114534.GF14293@nb.net.home>
-References: <1307540101-6376-1-git-send-email-ludwig.nussel@suse.de>
+Return-Path: rjones@redhat.com
+Date: Mon, 13 Jun 2011 18:05:42 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: kzak@redhat.com, util-linux@vger.kernel.org
+Subject: [PATCH] blkid: Don't ignore swap UUID if only first byte is zero.
+Message-ID: <20110613170541.GY28762@amd.home.annexia.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1307540101-6376-1-git-send-email-ludwig.nussel@suse.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="YiEDa0DAkWCtVeE4"
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 08, 2011 at 03:35:01PM +0200, Ludwig Nussel wrote:
-> ---
->  misc-utils/uuidgen.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
-> index 3cf6ec9..47f8e8f 100644
-> --- a/misc-utils/uuidgen.c
-> +++ b/misc-utils/uuidgen.c
-> @@ -59,7 +59,9 @@ main (int argc, char *argv[])
->  
->  	switch (do_type) {
->  	case DO_TYPE_TIME:
-> -		uuid_generate_time(uu);
-> +		if (uuid_generate_time_safe(uu)) {
-> +			fprintf(stderr, _("Warning: uuidd not running or not operational. Time based uuid may not be unique.\n"));
 
-IMHO this is overkill -- the uuidd is used very rarely (usually on
-large systems with SAP) and it's disabled by default in many
-distributions, but the uuidgen(1) util is available everywhere and
-used probably often used by admins/scripts.
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It would be better to add some WARNING section to the uuidgen(1) man
-page to inform users about the disadvantage.
 
-    Karel
+We found that if you use 'mkswap -U' option with a UUID with the first
+byte zero (ie. any UUID starting 00....) then blkid was not able to
+"see" the UUID.
+
+For example:
+
+  # mkswap -f -U 00c1bbe9-cd0f-17a6-bb14-b21cdf0a458b /dev/vda1
+  Setting up swapspace version 1, size = 1047548 KiB
+  no label, UUID=00c1bbe9-cd0f-17a6-bb14-b21cdf0a458b
+  # blkid -o value -s UUID /dev/vda1
+
+[no output from blkid command above, but ...]
+
+  # mkswap -f -U 11c1bbe9-cd0f-17a6-bb14-b21cdf0a458b /dev/vda1
+  Setting up swapspace version 1, size = 1047548 KiB
+  no label, UUID=11c1bbe9-cd0f-17a6-bb14-b21cdf0a458b
+  # blkid -o value -s UUID /dev/vda1
+  11c1bbe9-cd0f-17a6-bb14-b21cdf0a458b
+
+Even worse, mkswap without -U option will sometimes randomly choose a
+UUID starting with 00... which blkid fails to read.  You can test this
+by running a loop with mkswap / blkid.  After an expected ~100 runs,
+you will see a UUID written by mkswap that blkid cannot read.
+
+I verified that UUIDs starting with 00... are in fact written to the
+swap device itself.  However I'm still not exactly clear if such UUIDs
+are valid.  Nevertheless, the attached patch makes it so that blkid
+can see such UUIDs, assuming that they are valid.
+
+I tested this by patching Fedora 15 libblkid and running the test
+above.  With this patch, the blkid command was able to see the UUID
+written by mkswap -U.
+
+Rich.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+virt-p2v converts physical machines to virtual machines.  Boot with a
+live CD or over the network (PXE) and turn machines into Xen guests.
+http://et.redhat.com/~rjones/virt-p2v
+
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="0001-blkid-Don-t-ignore-swap-UUID-if-only-first-byte-is-z.patch"
+
+>From cee5d4660b3425cfba366353102785a35265c7c4 Mon Sep 17 00:00:00 2001
+From: "Richard W.M. Jones" <rjones@redhat.com>
+Date: Mon, 13 Jun 2011 17:43:11 +0100
+Subject: [PATCH] blkid: Don't ignore swap UUID if only first byte is zero.
+
+---
+ libblkid/src/superblocks/swap.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/libblkid/src/superblocks/swap.c b/libblkid/src/superblocks/swap.c
+index 325a8fa..129eafa 100644
+--- a/libblkid/src/superblocks/swap.c
++++ b/libblkid/src/superblocks/swap.c
+@@ -39,6 +39,7 @@ struct swap_header_v1_2 {
+ static int swap_set_info(blkid_probe pr, const char *version)
+ {
+ 	struct swap_header_v1_2 *hdr;
++	static const unsigned char zero_uuid[16];
+ 
+ 	/* Swap header always located at offset of 1024 bytes */
+ 	hdr = (struct swap_header_v1_2 *) blkid_probe_get_buffer(pr, 1024,
+@@ -56,7 +57,8 @@ static int swap_set_info(blkid_probe pr, const char *version)
+ 		if (hdr->volume[0] && blkid_probe_set_label(pr, hdr->volume,
+ 				sizeof(hdr->volume)) < 0)
+ 			return -1;
+-		if (hdr->uuid[0] && blkid_probe_set_uuid(pr, hdr->uuid) < 0)
++		if (memcmp (hdr->uuid, zero_uuid, sizeof zero_uuid) != 0
++		    && blkid_probe_set_uuid(pr, hdr->uuid) < 0)
+ 			return -1;
+ 	}
+ 
+-- 
+1.7.5.2
+
+
+--YiEDa0DAkWCtVeE4--
