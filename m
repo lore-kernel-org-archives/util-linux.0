@@ -1,58 +1,94 @@
-Return-Path: vapier@gentoo.org
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: fdisk
-Date: Mon, 27 Jun 2011 15:27:11 -0400
-Cc: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
-References: <4E04D6A3.4060105@gmail.com> <20110627142119.GB6418@nb.net.home>
-In-Reply-To: <20110627142119.GB6418@nb.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1602658.uZQNW1Kexe";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201106271527.11853.vapier@gentoo.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:45672 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751502Ab1FPN7n (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jun 2011 09:59:43 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	by mx2.suse.de (Postfix) with ESMTP id D290A8AC33
+	for <util-linux@vger.kernel.org>; Thu, 16 Jun 2011 15:59:41 +0200 (CEST)
+From: Ludwig Nussel <ludwig.nussel@suse.de>
+To: util-linux@vger.kernel.org
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: [PATCH 3/4] uuid: use new functions by default
+Date: Thu, 16 Jun 2011 15:59:38 +0200
+Message-Id: <1308232779-21018-3-git-send-email-ludwig.nussel@suse.de>
+In-Reply-To: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
+References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1602658.uZQNW1Kexe
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+---
+ libuuid/src/gen_uuid.c |    2 ++
+ libuuid/src/uuid.h     |   12 +++++++++---
+ misc-utils/uuidgen.c   |    6 +++---
+ 3 files changed, 14 insertions(+), 6 deletions(-)
 
-On Monday, June 27, 2011 10:21:19 Karel Zak wrote:
-> On Fri, Jun 24, 2011 at 01:25:39PM -0500, Bruce Dubbs wrote:
-> > On my system, a block appears to be 2-512 byte sectors, but is it
-> > always so?
->=20
->  Yes. It's stupid legacy (the same thing you can found in
->  /proc/partitions).
->=20
->  I hope that one day we will have better and nicer fdisk with
->  human readable sizes ;-)
+diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+index 0c81a5c..e6f8b74 100644
+--- a/libuuid/src/gen_uuid.c
++++ b/libuuid/src/gen_uuid.c
+@@ -38,6 +38,8 @@
+  */
+ #define _SVID_SOURCE
+ 
++#define LIBUUID_UNSAFE_LEGACY_PROTOTYPES
++
+ #ifdef _WIN32
+ #define _WIN32_WINNT 0x0500
+ #include <windows.h>
+diff --git a/libuuid/src/uuid.h b/libuuid/src/uuid.h
+index 2771255..fec4f8c 100644
+--- a/libuuid/src/uuid.h
++++ b/libuuid/src/uuid.h
+@@ -76,12 +76,18 @@ int uuid_compare(const uuid_t uu1, const uuid_t uu2);
+ void uuid_copy(uuid_t dst, const uuid_t src);
+ 
+ /* gen_uuid.c */
+-void uuid_generate(uuid_t out);
+-void uuid_generate_random(uuid_t out);
+-void uuid_generate_time(uuid_t out);
+ int uuid_generate_time_safe(uuid_t out) __attribute__((warn_unused_result));
+ int uuid_generate_random_safe(uuid_t out) __attribute__((warn_unused_result));
+ int uuid_generate_safe(uuid_t out) __attribute__((warn_unused_result));
++#ifdef LIBUUID_UNSAFE_LEGACY_PROTOTYPES
++void uuid_generate(uuid_t out) __attribute__((deprecated));
++void uuid_generate_random(uuid_t out) __attribute__((deprecated));
++void uuid_generate_time(uuid_t out) __attribute__((deprecated));
++#else
++static inline int uuid_generate_time(uuid_t out) { return uuid_generate_time_safe(out); }
++static inline int uuid_generate_random(uuid_t out) { return uuid_generate_random_safe(out); }
++static inline int uuid_generate(uuid_t out) { return uuid_generate_safe(out); }
++#endif
+ 
+ /* isnull.c */
+ int uuid_is_null(const uuid_t uu);
+diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
+index e81e065..094f953 100644
+--- a/misc-utils/uuidgen.c
++++ b/misc-utils/uuidgen.c
+@@ -75,19 +75,19 @@ main (int argc, char *argv[])
+ 
+ 	switch (do_type) {
+ 	case DO_TYPE_TIME:
+-		if (uuid_generate_time_safe(uu) && !force) {
++		if (uuid_generate_time(uu) && !force) {
+ 			fprintf(stderr, _("uuidd not running or not operational.\n"));
+ 			exit(1);
+ 		}
+ 		break;
+ 	case DO_TYPE_RANDOM:
+-		if (uuid_generate_random_safe(uu) && !force) {
++		if (uuid_generate_random(uu) && !force) {
+ 			fprintf(stderr, _("/dev/[u]random unavailable.\n"));
+ 			exit(1);
+ 		}
+ 		break;
+ 	default:
+-		if (uuid_generate_safe(uu) && !force) {
++		if (uuid_generate(uu) && !force) {
+ 			fprintf(stderr, _("/dev/[u]random unavailable and uuidd not running.\n"));
+ 			exit(1);
+ 		}
+-- 
+1.7.3.4
 
-and merge duplicated code with cfdisk ;)
-=2Dmike
-
---nextPart1602658.uZQNW1Kexe
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJOCNmPAAoJEEFjO5/oN/WBZvkQALst9nDGk8fcDG5cAIq+vuH+
-bSWOSA6r9inNROYDcuNHt7ruBSy7ZwVeF2P5kkYHXmQ+afrzlePMOTfC1bzqhHfs
-kIpi/gvFVchuLTc2zF8J5nvZDPtd7j7a4aBH8vxGTyXE5Kl67qunSC6AhuIfudO/
-lG4JKixZuO46NhMc3epS40C8pTfkLRtPHXISk3fOYiLDzZfN7/rUc/Fsy7queHDT
-+Act+4VG727dLvlZJ+E5ZLadkL9JFbrf0rSX3nMZtUBUWKP49DShuWSX07tqhxjd
-SEFcPQAvVjWbmv0JoDzVIIU+zbH2ZX75p7d/uQARrxbEXDVKkC1lQWB0oyg7vx1y
-04kGUFh2PEBxsjCi5lH9UtMzmcbQVBx0Y8V2QvuZ/W5YK5PTLNM1jm14aOZvr/O+
-BAmeWroTKOUdTPUj2f2s0Qz3fmpPUqcyrA4o/WrsIf5jfGvdKFpg/hFX8QQSsO7r
-T/1lWZWlIW+Dbq36qGfCDL7Emz3d2vOS8zZ67qEpwB88aR5c3PY40FofQCoeGkqi
-anJoSh+HhrZFUiOI10xohkHbJbx1uMaxdkFo9chT2mDL4LV3kThbLeHN4WX9q8Ke
-sCK6zMNi0/ZVQHIzsEbTQ4NYnzp3GYl0csNnhEy59CBNGQSz/x4PpXXS27EVIy1r
-kOqwR9v/kL2UXORVHIel
-=c/bY
------END PGP SIGNATURE-----
-
---nextPart1602658.uZQNW1Kexe--
