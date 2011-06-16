@@ -1,46 +1,32 @@
-Return-Path: ludwig.nussel@suse.de
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-To: util-linux@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:58827 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751335Ab1FPPia (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jun 2011 11:38:30 -0400
+Date: Thu, 16 Jun 2011 17:38:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
+Cc: util-linux@vger.kernel.org
 Subject: Re: [PATCH 1/4] uuidgen: fail if uuidd isn't running
-Date: Mon, 20 Jun 2011 14:18:36 +0200
-Cc: Karel Zak <kzak@redhat.com>, "Ted Ts'o" <tytso@mit.edu>
-References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <20110617020756.GB29725@thunk.org> <20110620104548.GC17967@nb.net.home>
-In-Reply-To: <20110620104548.GC17967@nb.net.home>
+Message-ID: <20110616153826.GA5352@nb.redhat.com>
+References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201106201418.36364.ludwig.nussel@suse.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Thu, Jun 16, 2011 at 10:07:56PM -0400, Ted Ts'o wrote:
-> > On Thu, Jun 16, 2011 at 03:59:36PM +0200, Ludwig Nussel wrote:
-> > > time bases uuids are not safe if uuidd is not running.
-> > > Add option --force to generate a uuid in this case nevertheless.
-> >
-> > I really wouldn't worry about time-based uuid if you're grabbing them
-> > from uuidgen.  Yes, if you're generating thousands of uuid's in
-> > parallel via the C interface, it's possible that you potentially force
-> > a collision.  But via the command-line interface of uuidgen?
->=20
->  I agree with Ted.=20
->=20
->  Let's go one step back (sorry Ludwig). It would be really better to
->  add --safe rather than --force. We can use the --safe option to test
->  the new *_safe functions or for really paranoid environments, but we
->  should not force people use the new functionality.
+On Thu, Jun 16, 2011 at 03:59:36PM +0200, Ludwig Nussel wrote: 
+> -static void usage(const char *progname)
+> +static const struct option long_options[] = {
+> +	{ "time",      0, NULL, 't' },
+> +	{ "random",    0, NULL, 'r' },
+> +	{ "force",     0, NULL, 128 },
+                            ^^^^
+              Why not 'f' (as short option)?
 
-Actually never mind, forget about the patches. I'm perfectly fine
-with a 'no'. This discussion now finally documents in public the
-background and reasons why things are the way they are. Thanks a lot
-for your patience and Ted for the detailed explanation!
+  Karel
 
-cu
-Ludwig
-
-=2D-=20
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6rffe=
-r, HRB 16746 (AG N=FCrnberg)=20
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
