@@ -1,61 +1,82 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] blkdev: add blkdev_get_physector_size()
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 20 Jun 2011 22:58:24 -0400
-Message-ID: <1308625104.3690.1.camel@offworld>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:19755 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757428Ab1FPPyF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jun 2011 11:54:05 -0400
+Date: Thu, 16 Jun 2011 17:54:00 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/4] uuid: implement uuid_generate_random_safe
+Message-ID: <20110616155400.GB5352@nb.redhat.com>
+References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <1308232779-21018-2-git-send-email-ludwig.nussel@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1308232779-21018-2-git-send-email-ludwig.nussel@suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Mon, 20 Jun 2011 22:51:47 -0400
+On Thu, Jun 16, 2011 at 03:59:37PM +0200, Ludwig Nussel wrote:
+> uuid_generate_random_safe() cannot really fail but it may use a weak
+> random number generator as fallback.
+> ---
+>  libuuid/src/gen_uuid.c |   32 +++++++++++++++++++++++++++++---
+>  libuuid/src/uuid.h     |    4 +++-
+>  libuuid/src/uuid.sym   |    2 ++
+>  misc-utils/uuidgen.c   |   10 ++++++++--
+>  4 files changed, 42 insertions(+), 6 deletions(-)
+> 
+> diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+> index f4c8997..0c81a5c 100644
+> --- a/libuuid/src/gen_uuid.c
+> +++ b/libuuid/src/gen_uuid.c
+> @@ -693,6 +693,18 @@ void uuid_generate_random(uuid_t out)
+>  	__uuid_generate_random(out, &num);
+>  }
+>  
+> +int uuid_generate_random_safe(uuid_t out)
+> +{
+> +	int	num = 1;
+> +	/* No real reason to use the daemon for random uuid's -- yet */
+> +
+> +	if (get_random_fd() < 0)
+> +		return -1;
+> +
+> +	__uuid_generate_random(out, &num);
+> +	return 0;
+> +}
+> +
 
-This function uses the BLKPBSZGET ioctl to get the physical block size of the device.
+ It would be nice to use the same concept for the *_random functions as
+ we already use for the *_time functions. It means to rename
+ __uuid_generate_random() to uuid_generate_random_generic().
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- include/blkdev.h |    3 +++
- lib/blkdev.c     |   14 ++++++++++++++
- 2 files changed, 17 insertions(+), 0 deletions(-)
+>  /*
+>   * This is the generic front-end to uuid_generate_random and
+> @@ -700,10 +712,24 @@ void uuid_generate_random(uuid_t out)
+>   * /dev/urandom is available, since otherwise we won't have
+>   * high-quality randomness.
+>   */
+> -void uuid_generate(uuid_t out)
+> +static int _uuid_generate(uuid_t out)
 
-diff --git a/include/blkdev.h b/include/blkdev.h
-index 6a64172..0024897 100644
---- a/include/blkdev.h
-+++ b/include/blkdev.h
-@@ -95,4 +95,7 @@ int blkdev_get_sector_size(int fd, int *sector_size);
- /* specifies whether or not the device is misaligned */
- int blkdev_is_misaligned(int fd);
- 
-+/* get physical block device size */
-+int blkdev_get_physector_size(int fd);
-+
- #endif /* BLKDEV_H */
-diff --git a/lib/blkdev.c b/lib/blkdev.c
-index 5cb6554..94df803 100644
---- a/lib/blkdev.c
-+++ b/lib/blkdev.c
-@@ -221,6 +221,20 @@ int blkdev_is_misaligned(int fd)
- #endif
- }
- 
-+/* get physical block device size */
-+int blkdev_get_physector_size(int fd)
-+{
-+#ifdef BLKPBSZGET
-+	int bsz;
-+
-+	if (ioctl(fd, BLKPBSZGET, &bsz) < 0)
-+		return 0;
-+	return bsz;
-+#else
-+	return 0;
-+#endif
-+}
-+
- #ifdef TEST_PROGRAM
- #include <stdio.h>
- #include <stdlib.h>
+ rename to: static int uuid_generate_genetic()
+
+> +void uuid_generate(uuid_t out)
+> +{
+> +	(void)_uuid_generate(out);
+
+ Don't use "(void)" in the code :-) It's unnecessary.
+
+> +int uuid_generate_time_safe(uuid_t out) __attribute__((warn_unused_result));
+> +int uuid_generate_random_safe(uuid_t out) __attribute__((warn_unused_result));
+> +int uuid_generate_safe(uuid_t out) __attribute__((warn_unused_result));
+
+ Good idea, but is warn_unused_result supported in old gcc versions?
+ See include/c.h where we have __GNUC_PREREQ stuff.
+
+    Karel
+
 -- 
-1.7.5.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
