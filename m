@@ -1,41 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:63464 "EHLO mx1.redhat.com"
+Received: from mail.vyatta.com ([76.74.103.46]:57461 "EHLO mail.vyatta.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752134Ab1F2JMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Jun 2011 05:12:53 -0400
-Date: Wed, 29 Jun 2011 11:12:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>,
-        Konstantin Khlebnikov <khlebnikov@openvz.org>
-Subject: Re: [PATCH] umount: do not hang with disconnected NFS mounts
-Message-ID: <20110629091250.GG6418@nb.net.home>
-References: <20110629082408.GA27888@foxbat.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110629082408.GA27888@foxbat.suse.cz>
+	id S1758080Ab1FPUyD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jun 2011 16:54:03 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.vyatta.com (Postfix) with ESMTP id 4FADB182970D
+	for <util-linux@vger.kernel.org>; Thu, 16 Jun 2011 13:54:02 -0700 (PDT)
+Received: from mail.vyatta.com ([127.0.0.1])
+	by localhost (mail.vyatta.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AJbUq-xViyhF for <util-linux@vger.kernel.org>;
+	Thu, 16 Jun 2011 13:54:01 -0700 (PDT)
+Received: from s6510.ftrdhcpuser.net (static-50-53-80-93.bvtn.or.frontiernet.net [50.53.80.93])
+	by mail.vyatta.com (Postfix) with ESMTPSA id 85CDE1829118
+	for <util-linux@vger.kernel.org>; Thu, 16 Jun 2011 13:54:01 -0700 (PDT)
+Date: Thu, 16 Jun 2011 16:54:07 -0400
+From: Stephen Hemminger <shemminger@vyatta.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] lscpu: detect VMware hypervisor
+Message-ID: <20110616165407.00c4d7ab@s6510.ftrdhcpuser.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 29, 2011 at 10:24:09AM +0200, Petr Uzel wrote:
-> Since util-linux commit f4612577c942a3683b97632ad0b49671897c2070,
-> umount stat(2)s its argument to check whether it can be associated
-> with some loop device. This could hang with broken NFS mounts.
-> 
-> Fix by first checking mtab if umount's argument is mounted and only if
-> we fail, check if there is a loop device associated.
-> 
-> http://marc.info/?l=util-linux-ng&m=130924963804836&w=2
-> 
-> Reported-by: Konstantin Khlebnikov <khlebnikov@openvz.org>
-> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
-> ---
->  mount/umount.c |   42 ++++++++++++++++++++++--------------------
->  1 files changed, 22 insertions(+), 20 deletions(-)
+Add detection of VMware.
+Tested on VMware Workstation 7.1.4
+---
+ sys-utils/lscpu.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
- Applied, thanks (also to Konstantin)!
-
-    Karel
-
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 0d94883..8edf997 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -66,13 +66,15 @@ enum {
+ 	HYPER_NONE	= 0,
+ 	HYPER_XEN,
+ 	HYPER_KVM,
+-	HYPER_MSHV
++	HYPER_MSHV,
++	HYPER_VMWARE
+ };
+ const char *hv_vendors[] = {
+ 	[HYPER_NONE]	= NULL,
+ 	[HYPER_XEN]	= "Xen",
+ 	[HYPER_KVM]	= "KVM",
+-	[HYPER_MSHV]	= "Microsoft"
++	[HYPER_MSHV]	= "Microsoft",
++	[HYPER_VMWARE]  = "VMware"
+ };
+ 
+ /* CPU modes */
+@@ -511,6 +513,8 @@ read_hypervisor_cpuid(struct lscpu_desc *desc)
+ 		desc->hyper = HYPER_KVM;
+ 	else if (!strncmp("Microsoft Hv", hyper_vendor_id, 12))
+ 		desc->hyper = HYPER_MSHV;
++	else if (!strncmp("VMwareVMware", hyper_vendor_id, 12))
++		desc->hyper = HYPER_VMWARE;
+ }
+ 
+ #else	/* ! __x86_64__ */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.2.5
+
+
