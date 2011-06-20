@@ -1,18 +1,28 @@
-Return-Path: john.lindgren@tds.net
-Message-ID: <4DFF36F2.4050509@tds.net>
-Date: Mon, 20 Jun 2011 08:02:58 -0400
-From: John Lindgren <john.lindgren@tds.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:29012 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751736Ab1FTKwR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Jun 2011 06:52:17 -0400
+Date: Mon, 20 Jun 2011 12:52:03 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH,HURD] Fix Hurd build
+Message-ID: <20110620105203.GD17967@nb.net.home>
+References: <20110619153435.GA28888@const.famille.thibault.fr>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: blkid: excessive random reads probing for ZFS on NTFS filesystem
-References: <4DF50D58.9020800@tds.net> <20110620111640.GE17967@nb.net.home>
-In-Reply-To: <20110620111640.GE17967@nb.net.home>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110619153435.GA28888@const.famille.thibault.fr>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/20/2011 07:16 AM, Karel Zak wrote:
-> CC: Andreas who is the code (co)author.
-His sun.com address is not active any more (as you have probably noticed).
+On Sun, Jun 19, 2011 at 05:34:35PM +0200, Samuel Thibault wrote:
+> There are a lot of build failures due to BLKALIGNOFF not being available
+> on the Hurd, as well as a few other glitches, see log below. I've also
+> attached a proposed patch.
 
--- John
+ Applied, thanks.
+
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
