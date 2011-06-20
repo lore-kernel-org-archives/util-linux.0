@@ -1,38 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mo-p00-ob.rzone.de ([81.169.146.161]:20270 "EHLO
-	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751897Ab1F3Ixa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jun 2011 04:53:30 -0400
-Date: Thu, 30 Jun 2011 10:53:27 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+Received: from mx1.redhat.com ([209.132.183.28]:40307 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753692Ab1FTKfx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Jun 2011 06:35:53 -0400
+Date: Mon, 20 Jun 2011 12:35:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Don't try to chgrp write or wall if they are not built
-Message-ID: <20110630085327.GA8274@aepfle.de>
-References: <BANLkTikpHa-0aVp7G7cpRw_ePOQQiuXSEYnrV-AgssjhFEf2zg@mail.gmail.com>
+Subject: Re: [PATCH 3/4] uuid: use new functions by default
+Message-ID: <20110620103548.GB17967@nb.net.home>
+References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <1308232779-21018-3-git-send-email-ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <BANLkTikpHa-0aVp7G7cpRw_ePOQQiuXSEYnrV-AgssjhFEf2zg@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1308232779-21018-3-git-send-email-ludwig.nussel@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 30, Marc-Antoine Perennou wrote:
+On Thu, Jun 16, 2011 at 03:59:38PM +0200, Ludwig Nussel wrote:
+> -void uuid_generate(uuid_t out);
+> -void uuid_generate_random(uuid_t out);
+> -void uuid_generate_time(uuid_t out);
+>  int uuid_generate_time_safe(uuid_t out) __attribute__((warn_unused_result));
+>  int uuid_generate_random_safe(uuid_t out) __attribute__((warn_unused_result));
+>  int uuid_generate_safe(uuid_t out) __attribute__((warn_unused_result));
+> +#ifdef LIBUUID_UNSAFE_LEGACY_PROTOTYPES
+> +void uuid_generate(uuid_t out) __attribute__((deprecated));
+> +void uuid_generate_random(uuid_t out) __attribute__((deprecated));
+> +void uuid_generate_time(uuid_t out) __attribute__((deprecated));
+> +#else
+> +static inline int uuid_generate_time(uuid_t out) { return uuid_generate_time_safe(out); }
+> +static inline int uuid_generate_random(uuid_t out) { return uuid_generate_random_safe(out); }
+> +static inline int uuid_generate(uuid_t out) { return uuid_generate_safe(out); }
+> +#endif
 
-> Fix regression from commit 4aa9d65bfa76afd0d886ca410ae83428a490d4ea
-> 
-> Signed-off-by: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
-> ---
->  term-utils/Makefile.am |   10 ++++++++--
+ Oh, <censored> ... :-)
 
-> -       chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
-> $(DESTDIR)$(usrbin_execdir)/write
-> -       chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
-> $(DESTDIR)$(usrbin_execdir)/write
-> +if BUILD_WALL
-> +       chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
+ Please, move this change to your (SAP) applications. I really don't
+ want to mess up the library API for a reason which is completely
+ irrelevant for 99% of all users.
 
-This is wrong and should part of the packaging system, not part of make
-install. The userid building util-linux is not neccessary part of the
-tty group.
+ I don't think that overwrite any exported symbols with in-line
+ functions is a good way how maintain any API. 
+ 
+ I don't see a problem to support the *_safe functions for you, but
+ don't force us to use it.
 
-Olaf
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
