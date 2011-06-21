@@ -1,27 +1,61 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32284 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752149Ab1FNO7C (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Jun 2011 10:59:02 -0400
-Date: Tue, 14 Jun 2011 16:58:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
+Return-Path: dave@gnu.org
+Subject: [PATCH] blkdev: add blkdev_get_physector_size()
+From: Davidlohr Bueso <dave@gnu.org>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/2] mkfs.minix: standardize superblock attribute
-	settings
-Message-ID: <20110614145859.GK14293@nb.net.home>
-References: <1307638115.2155.2.camel@offworld>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1307638115.2155.2.camel@offworld>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 20 Jun 2011 22:58:24 -0400
+Message-ID: <1308625104.3690.1.camel@offworld>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 09, 2011 at 12:48:35PM -0400, Davidlohr Bueso wrote:
->  disk-utils/mkfs.minix.c |   32 +++++++++++++++++++++++++++-----
->  1 files changed, 27 insertions(+), 5 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 20 Jun 2011 22:51:47 -0400
 
- Applied, thanks.
+This function uses the BLKPBSZGET ioctl to get the physical block size of the device.
+
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ include/blkdev.h |    3 +++
+ lib/blkdev.c     |   14 ++++++++++++++
+ 2 files changed, 17 insertions(+), 0 deletions(-)
+
+diff --git a/include/blkdev.h b/include/blkdev.h
+index 6a64172..0024897 100644
+--- a/include/blkdev.h
++++ b/include/blkdev.h
+@@ -95,4 +95,7 @@ int blkdev_get_sector_size(int fd, int *sector_size);
+ /* specifies whether or not the device is misaligned */
+ int blkdev_is_misaligned(int fd);
+ 
++/* get physical block device size */
++int blkdev_get_physector_size(int fd);
++
+ #endif /* BLKDEV_H */
+diff --git a/lib/blkdev.c b/lib/blkdev.c
+index 5cb6554..94df803 100644
+--- a/lib/blkdev.c
++++ b/lib/blkdev.c
+@@ -221,6 +221,20 @@ int blkdev_is_misaligned(int fd)
+ #endif
+ }
+ 
++/* get physical block device size */
++int blkdev_get_physector_size(int fd)
++{
++#ifdef BLKPBSZGET
++	int bsz;
++
++	if (ioctl(fd, BLKPBSZGET, &bsz) < 0)
++		return 0;
++	return bsz;
++#else
++	return 0;
++#endif
++}
++
+ #ifdef TEST_PROGRAM
+ #include <stdio.h>
+ #include <stdlib.h>
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.4
