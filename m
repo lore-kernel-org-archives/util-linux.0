@@ -1,35 +1,39 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54764 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751831Ab1FNMYb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Jun 2011 08:24:31 -0400
-Date: Tue, 14 Jun 2011 14:24:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Josiah Worcester <josiahw@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] Build with musl libc
-Message-ID: <20110614122427.GH14293@nb.net.home>
-References: <1307573568-23643-1-git-send-email-josiahw@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1307573568-23643-1-git-send-email-josiahw@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH] mkfs.minix: check for misalignment
+From: Davidlohr Bueso <dave@gnu.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 20 Jun 2011 23:11:46 -0400
+Message-ID: <1308625906.3690.2.camel@offworld>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 08, 2011 at 04:52:42PM -0600, Josiah Worcester wrote:
->  fdisk/fdiskbsdlabel.c        |   34 +++++++++++++++++-----------------
->  fsck/fsck.c                  |    2 +-
->  hwclock/cmos.c               |    7 ++++++-
->  lib/tt.c                     |    2 +-
->  login-utils/checktty.c       |    7 +++++--
->  sys-utils/flock.c            |    2 ++
->  tests/helpers/test_sysinfo.c |    2 +-
->  text-utils/display.c         |   32 ++++++++++++++++----------------
->  text-utils/hexdump.h         |    4 ++--
->  9 files changed, 51 insertions(+), 41 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 20 Jun 2011 23:10:13 -0400
 
- Applied, thanks.
+Produce a warning if the device is misaligned.
 
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ disk-utils/mkfs.minix.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
+index 405e241..bc7d941 100644
+--- a/disk-utils/mkfs.minix.c
++++ b/disk-utils/mkfs.minix.c
+@@ -653,6 +653,11 @@ int main(int argc, char ** argv) {
+ 		DEV = open(device_name,O_RDWR | O_EXCL);
+ 	else
+ 		DEV = open(device_name,O_RDWR);
++
++	if (blkdev_is_misaligned(DEV))
++		warnx(_("warning: %s is misaligned"), device_name);
++
++
+ 	if (DEV<0)
+ 		err(MKFS_ERROR, _("%s: open failed"), device_name);
+ 	if (S_ISBLK(statbuf.st_mode)) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.4
