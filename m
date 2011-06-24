@@ -1,82 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:19755 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757428Ab1FPPyF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 16 Jun 2011 11:54:05 -0400
-Date: Thu, 16 Jun 2011 17:54:00 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] uuid: implement uuid_generate_random_safe
-Message-ID: <20110616155400.GB5352@nb.redhat.com>
-References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <1308232779-21018-2-git-send-email-ludwig.nussel@suse.de>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:58335 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752293Ab1FXSZm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Jun 2011 14:25:42 -0400
+Received: by gwaa18 with SMTP id a18so1187538gwa.19
+        for <util-linux@vger.kernel.org>; Fri, 24 Jun 2011 11:25:41 -0700 (PDT)
+Message-ID: <4E04D6A3.4060105@gmail.com>
+Date: Fri, 24 Jun 2011 13:25:39 -0500
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1308232779-21018-2-git-send-email-ludwig.nussel@suse.de>
+To: util-linux@vger.kernel.org
+Subject: fdisk
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 16, 2011 at 03:59:37PM +0200, Ludwig Nussel wrote:
-> uuid_generate_random_safe() cannot really fail but it may use a weak
-> random number generator as fallback.
-> ---
->  libuuid/src/gen_uuid.c |   32 +++++++++++++++++++++++++++++---
->  libuuid/src/uuid.h     |    4 +++-
->  libuuid/src/uuid.sym   |    2 ++
->  misc-utils/uuidgen.c   |   10 ++++++++--
->  4 files changed, 42 insertions(+), 6 deletions(-)
-> 
-> diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-> index f4c8997..0c81a5c 100644
-> --- a/libuuid/src/gen_uuid.c
-> +++ b/libuuid/src/gen_uuid.c
-> @@ -693,6 +693,18 @@ void uuid_generate_random(uuid_t out)
->  	__uuid_generate_random(out, &num);
->  }
->  
-> +int uuid_generate_random_safe(uuid_t out)
-> +{
-> +	int	num = 1;
-> +	/* No real reason to use the daemon for random uuid's -- yet */
-> +
-> +	if (get_random_fd() < 0)
-> +		return -1;
-> +
-> +	__uuid_generate_random(out, &num);
-> +	return 0;
-> +}
-> +
+In fdisk, printing a partition table gives the headers:
 
- It would be nice to use the same concept for the *_random functions as
- we already use for the *_time functions. It means to rename
- __uuid_generate_random() to uuid_generate_random_generic().
+Device Boot      Start         End      Blocks   Id  System
 
->  /*
->   * This is the generic front-end to uuid_generate_random and
-> @@ -700,10 +712,24 @@ void uuid_generate_random(uuid_t out)
->   * /dev/urandom is available, since otherwise we won't have
->   * high-quality randomness.
->   */
-> -void uuid_generate(uuid_t out)
-> +static int _uuid_generate(uuid_t out)
+What's a block?  It does not seem to be defined anywhere.  Perhaps an 
+update to the man page would be appropriate.  A line in the explanation 
+above the partition listing would be even better.
 
- rename to: static int uuid_generate_genetic()
+On my system, a block appears to be 2-512 byte sectors, but is it always so?
 
-> +void uuid_generate(uuid_t out)
-> +{
-> +	(void)_uuid_generate(out);
-
- Don't use "(void)" in the code :-) It's unnecessary.
-
-> +int uuid_generate_time_safe(uuid_t out) __attribute__((warn_unused_result));
-> +int uuid_generate_random_safe(uuid_t out) __attribute__((warn_unused_result));
-> +int uuid_generate_safe(uuid_t out) __attribute__((warn_unused_result));
-
- Good idea, but is warn_unused_result supported in old gcc versions?
- See include/c.h where we have __GNUC_PREREQ stuff.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   -- Bruce
