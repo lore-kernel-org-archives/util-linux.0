@@ -1,37 +1,30 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55397 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750895Ab1F0OWt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jun 2011 10:22:49 -0400
+Date: Mon, 27 Jun 2011 16:22:45 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] blkdev: add blkdev_get_physector_size()
+Message-ID: <20110627142245.GA14747@nb.net.home>
+References: <1308625104.3690.1.camel@offworld>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20110614112919.GE14293@nb.net.home>
-References: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
-	<1307387239-9022-7-git-send-email-kerolasa@iki.fi>
-	<20110614112919.GE14293@nb.net.home>
-Date: Tue, 14 Jun 2011 22:00:56 +0200
-Message-ID: <BANLkTik2HR3BCHFta13hg_QK6nXEZm19Pw@mail.gmail.com>
-Subject: Re: [PATCH 6/6] sfdisk: fix for data type mismatches
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1308625104.3690.1.camel@offworld>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 14, 2011 at 13:29, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Jun 06, 2011 at 09:07:19PM +0200, Sami Kerola wrote:
->> + =A0 =A0 if ((unsigned long) pno+4 >=3D ARRAY_SIZE(z->partitions)) {
->
-> =A0Why 'unsigned long'? I guess that ARRAY_SIZE returns size_t. Maybe it
-> =A0would be better to use size_t for partno numbers rather than add the
-> =A0cast.
+On Mon, Jun 20, 2011 at 10:58:24PM -0400, Davidlohr Bueso wrote:
+>  include/blkdev.h |    3 +++
+>  lib/blkdev.c     |   14 ++++++++++++++
+>  2 files changed, 17 insertions(+), 0 deletions(-)
 
-Yes are right, that was silly. I reviewed the patch and changed data
-types to size_t. The fix is pushed with force to my git.
+ Applied with minor changes, thanks.
 
-p.s. The style in the file is really horrible. How about doing the
-following, which will unify the style within the file without changing
-everything.
+    Karel
 
-indent -linux -i4 -psl -brf sfdisk.c
-
---=20
-=A0=A0 Sami Kerola
-=A0=A0 http://www.iki.fi/kerolasa/
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
