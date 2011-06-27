@@ -1,74 +1,58 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:63725 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753716Ab1FFTH1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2011 15:07:27 -0400
-Received: by ewy4 with SMTP id 4so1471009ewy.19
-        for <util-linux@vger.kernel.org>; Mon, 06 Jun 2011 12:07:26 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/6] sfdisk: declare unused function attributes
-Date: Mon,  6 Jun 2011 21:07:14 +0200
-Message-Id: <1307387239-9022-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
-References: <1307387239-9022-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: vapier@gentoo.org
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: fdisk
+Date: Mon, 27 Jun 2011 15:27:11 -0400
+Cc: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
+References: <4E04D6A3.4060105@gmail.com> <20110627142119.GB6418@nb.net.home>
+In-Reply-To: <20110627142119.GB6418@nb.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1602658.uZQNW1Kexe";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201106271527.11853.vapier@gentoo.org>
 List-ID: <util-linux.vger.kernel.org>
 
-Add `__attribute__ ((__unused__))' where needed.
+--nextPart1602658.uZQNW1Kexe
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- fdisk/sfdisk.c |   20 ++++++++++++++++----
- 1 files changed, 16 insertions(+), 4 deletions(-)
+On Monday, June 27, 2011 10:21:19 Karel Zak wrote:
+> On Fri, Jun 24, 2011 at 01:25:39PM -0500, Bruce Dubbs wrote:
+> > On my system, a block appears to be 2-512 byte sectors, but is it
+> > always so?
+>=20
+>  Yes. It's stupid legacy (the same thing you can found in
+>  /proc/partitions).
+>=20
+>  I hope that one day we will have better and nicer fdisk with
+>  human readable sizes ;-)
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index c38128a..8d8ccea 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -1590,17 +1590,29 @@ msdos_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
- }
- 
- static int
--osf_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
-+osf_partition(char *dev __attribute__ ((__unused__)),
-+	      int fd __attribute__ ((__unused__)),
-+	      unsigned long start __attribute__ ((__unused__)),
-+	      struct disk_desc *z __attribute__ ((__unused__)))
-+{
- 	return 0;
- }
- 
- static int
--sun_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
-+sun_partition(char *dev __attribute__ ((__unused__)),
-+	      int fd __attribute__ ((__unused__)),
-+	      unsigned long start __attribute__ ((__unused__)),
-+	      struct disk_desc *z __attribute__ ((__unused__)))
-+{
- 	return 0;
- }
- 
- static int
--amiga_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
-+amiga_partition(char *dev __attribute__ ((__unused__)),
-+		int fd __attribute__ ((__unused__)),
-+		unsigned long start __attribute__ ((__unused__)),
-+		struct disk_desc *z __attribute__ ((__unused__)))
-+{
- 	return 0;
- }
- 
-@@ -2348,7 +2360,7 @@ activate_usage(char *progn) {
- }
- 
- static void
--unhide_usage(char *progn) {
-+unhide_usage(char *progn __attribute__ ((__unused__))) {
-     exit(1);
- }
- 
--- 
-1.7.5.2
+and merge duplicated code with cfdisk ;)
+=2Dmike
 
+--nextPart1602658.uZQNW1Kexe
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJOCNmPAAoJEEFjO5/oN/WBZvkQALst9nDGk8fcDG5cAIq+vuH+
+bSWOSA6r9inNROYDcuNHt7ruBSy7ZwVeF2P5kkYHXmQ+afrzlePMOTfC1bzqhHfs
+kIpi/gvFVchuLTc2zF8J5nvZDPtd7j7a4aBH8vxGTyXE5Kl67qunSC6AhuIfudO/
+lG4JKixZuO46NhMc3epS40C8pTfkLRtPHXISk3fOYiLDzZfN7/rUc/Fsy7queHDT
++Act+4VG727dLvlZJ+E5ZLadkL9JFbrf0rSX3nMZtUBUWKP49DShuWSX07tqhxjd
+SEFcPQAvVjWbmv0JoDzVIIU+zbH2ZX75p7d/uQARrxbEXDVKkC1lQWB0oyg7vx1y
+04kGUFh2PEBxsjCi5lH9UtMzmcbQVBx0Y8V2QvuZ/W5YK5PTLNM1jm14aOZvr/O+
+BAmeWroTKOUdTPUj2f2s0Qz3fmpPUqcyrA4o/WrsIf5jfGvdKFpg/hFX8QQSsO7r
+T/1lWZWlIW+Dbq36qGfCDL7Emz3d2vOS8zZ67qEpwB88aR5c3PY40FofQCoeGkqi
+anJoSh+HhrZFUiOI10xohkHbJbx1uMaxdkFo9chT2mDL4LV3kThbLeHN4WX9q8Ke
+sCK6zMNi0/ZVQHIzsEbTQ4NYnzp3GYl0csNnhEy59CBNGQSz/x4PpXXS27EVIy1r
+kOqwR9v/kL2UXORVHIel
+=c/bY
+-----END PGP SIGNATURE-----
+
+--nextPart1602658.uZQNW1Kexe--
