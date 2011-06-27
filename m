@@ -1,70 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor.suse.de ([195.135.220.2]:44141 "EHLO mx1.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:13851 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755948Ab1FNMGM convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jun 2011 08:06:12 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx1.suse.de (Postfix) with ESMTP id 14DD98E8CC
-	for <util-linux@vger.kernel.org>; Tue, 14 Jun 2011 14:06:11 +0200 (CEST)
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] uuidgen: print warning if uuidd isn't running
-Date: Tue, 14 Jun 2011 14:06:10 +0200
-References: <1307540101-6376-1-git-send-email-ludwig.nussel@suse.de> <20110614114534.GF14293@nb.net.home> <20110614115125.GG14293@nb.net.home>
-In-Reply-To: <20110614115125.GG14293@nb.net.home>
+	id S1750895Ab1F0OVW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jun 2011 10:21:22 -0400
+Date: Mon, 27 Jun 2011 16:21:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk
+Message-ID: <20110627142119.GB6418@nb.net.home>
+References: <4E04D6A3.4060105@gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201106141406.10364.ludwig.nussel@suse.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4E04D6A3.4060105@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Tue, Jun 14, 2011 at 01:45:34PM +0200, Karel Zak wrote:
-> > On Wed, Jun 08, 2011 at 03:35:01PM +0200, Ludwig Nussel wrote:
-> > > ---
-> > >  misc-utils/uuidgen.c |    4 +++-
-> > >  1 files changed, 3 insertions(+), 1 deletions(-)
-> > > 
-> > > diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
-> > > index 3cf6ec9..47f8e8f 100644
-> > > --- a/misc-utils/uuidgen.c
-> > > +++ b/misc-utils/uuidgen.c
-> > > @@ -59,7 +59,9 @@ main (int argc, char *argv[])
-> > >  
-> > >  	switch (do_type) {
-> > >  	case DO_TYPE_TIME:
-> > > -		uuid_generate_time(uu);
-> > > +		if (uuid_generate_time_safe(uu)) {
-> > > +			fprintf(stderr, _("Warning: uuidd not running or not operational. Time based uuid may not be unique.\n"));
-> > 
-> > IMHO this is overkill -- the uuidd is used very rarely (usually on
-> > large systems with SAP) and it's disabled by default in many
-> > distributions, but the uuidgen(1) util is available everywhere and
-> > used probably often used by admins/scripts.
+On Fri, Jun 24, 2011 at 01:25:39PM -0500, Bruce Dubbs wrote:
+> On my system, a block appears to be 2-512 byte sectors, but is it
+> always so?
 
-That's the problem exactly. uuidgen seems to work for them at first
-until lots of uuids within a short time are required. It's a mean
-trap.
+ Yes. It's stupid legacy (the same thing you can found in
+ /proc/partitions).
 
-> > It would be better to add some WARNING section to the uuidgen(1) man
-> > page to inform users about the disadvantage.
+ I hope that one day we will have better and nicer fdisk with 
+ human readable sizes ;-)
 
-Well, who reads docu if uuidgen -t appears to work?
-
->  ... we can also add a new option (e.g. --safe) to use 
->  uuid_generate_time_safe().
-
-... or make -t fail if it's not safe and add a --unsafe option. That
-would be the fail-safe approach :-)
-
-cu
-Ludwig
+    Karel
 
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
