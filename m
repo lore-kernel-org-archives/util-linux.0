@@ -1,130 +1,171 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45673 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755781Ab1FPN7n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 16 Jun 2011 09:59:43 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	by mx2.suse.de (Postfix) with ESMTP id 227018AD27
-	for <util-linux@vger.kernel.org>; Thu, 16 Jun 2011 15:59:42 +0200 (CEST)
-From: Ludwig Nussel <ludwig.nussel@suse.de>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:61159 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756251Ab1F1Kne (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Jun 2011 06:43:34 -0400
+Received: by eyx24 with SMTP id 24so13123eyx.19
+        for <util-linux@vger.kernel.org>; Tue, 28 Jun 2011 03:43:33 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Ludwig Nussel <ludwig.nussel@suse.de>
-Subject: [PATCH 4/4] update manpage
-Date: Thu, 16 Jun 2011 15:59:39 +0200
-Message-Id: <1308232779-21018-4-git-send-email-ludwig.nussel@suse.de>
-In-Reply-To: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
-References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/4] script: remove unnecessary void casting
+Date: Tue, 28 Jun 2011 12:43:24 +0200
+Message-Id: <1309257806-1418-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1309257806-1418-1-git-send-email-kerolasa@iki.fi>
+References: <1309257806-1418-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libuuid/man/Makefile.am     |    2 +-
- libuuid/man/uuid_generate.3 |   28 ++++++++++------------------
- misc-utils/uuidgen.1        |   11 ++++++++---
- 3 files changed, 19 insertions(+), 22 deletions(-)
+ term-utils/script.c |   56 +++++++++++++++++++++++++-------------------------
+ 1 files changed, 28 insertions(+), 28 deletions(-)
 
-diff --git a/libuuid/man/Makefile.am b/libuuid/man/Makefile.am
-index 8e9ed6d..3880952 100644
---- a/libuuid/man/Makefile.am
-+++ b/libuuid/man/Makefile.am
-@@ -3,7 +3,7 @@ include $(top_srcdir)/config/include-Makefile.am
- dist_man_MANS = uuid.3 uuid_clear.3 uuid_compare.3 uuid_copy.3 uuid_generate.3 \
- 		uuid_is_null.3 uuid_parse.3 uuid_time.3 uuid_unparse.3
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 1753849..601a91d 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -289,7 +289,7 @@ doinput() {
+ 	register int cc;
+ 	char ibuf[BUFSIZ];
  
--UUID_GENERATE_LINKS = uuid_generate_random.3 uuid_generate_time.3 uuid_generate_time_safe.3
-+UUID_GENERATE_LINKS = uuid_generate_random.3 uuid_generate_time.3
+-	(void) fclose(fscript);
++	fclose(fscript);
  
- man_MANS = $(UUID_GENERATE_LINKS)
- CLEANFILES = $(man_MANS)
-diff --git a/libuuid/man/uuid_generate.3 b/libuuid/man/uuid_generate.3
-index 8185056..2b799ee 100644
---- a/libuuid/man/uuid_generate.3
-+++ b/libuuid/man/uuid_generate.3
-@@ -31,16 +31,15 @@
- .\" Created  Wed Mar 10 17:42:12 1999, Andreas Dilger
- .TH UUID_GENERATE 3 "May 2009" "util-linux" "Libuuid API"
- .SH NAME
--uuid_generate, uuid_generate_random, uuid_generate_time,
--uuid_generate_time_safe \- create a new unique UUID value
-+uuid_generate, uuid_generate_random, uuid_generate_time
-+\- create a new unique UUID value
- .SH SYNOPSIS
- .nf
- .B #include <uuid/uuid.h>
- .sp
--.BI "void uuid_generate(uuid_t " out );
--.BI "void uuid_generate_random(uuid_t " out );
--.BI "void uuid_generate_time(uuid_t " out );
--.BI "int uuid_generate_time_safe(uuid_t " out );
-+.BI "int uuid_generate(uuid_t " out );
-+.BI "int uuid_generate_random(uuid_t " out );
-+.BI "int uuid_generate_time(uuid_t " out );
- .fi
- .SH DESCRIPTION
- The
-@@ -82,16 +81,7 @@ to this file) and/or the
- daemon, if it is running already or can be be spawned by the process (if
- installed and the process has enough permissions to run it).  If neither of
- these two synchronization mechanisms can be used, it is theoretically possible
--that two concurrently running processes obtain the same UUID(s).  To tell
--whether the UUID has been generated in a safe manner, use
--.BR uuid_generate_time_safe .
--.sp
--The
--.B uuid_generate_time_safe
--is similar to
--.BR uuid_generate_time ,
--except that it returns a value which denotes whether any of the synchronization
--mechanisms (see above) has been used.
-+that two concurrently running processes obtain the same UUID(s).
- .sp
- The UUID is 16 bytes (128 bits) long, which gives approximately 3.4x10^38
- unique values (there are approximately 10^80 elementary particles in
-@@ -101,12 +91,14 @@ The new UUID can reasonably be considered unique among all UUIDs created
- on the local system, and among UUIDs created on other systems in the past
- and in the future.
- .SH RETURN VALUE
-+The functions return zero if the UUID has been generated in a safe manner and -1
-+if the UUID is potentially weak.
- The newly created UUID is returned in the memory location pointed to by
- .IR out .
--.B uuid_generate_time_safe
--returns zero if the UUID has been generated in a safe manner, -1 otherwise.
- .SH "CONFORMING TO"
- OSF DCE 1.1
-+.sp
-+In the original implementation the functions did not have a return value.
- .SH AUTHOR
- Theodore Y. Ts'o
- .SH AVAILABILITY
-diff --git a/misc-utils/uuidgen.1 b/misc-utils/uuidgen.1
-index 453a7f5..efb6d9b 100644
---- a/misc-utils/uuidgen.1
-+++ b/misc-utils/uuidgen.1
-@@ -37,15 +37,20 @@ or
- options.
- .SH OPTIONS
- .TP
--.B \-r
-+.B \-r, \-\-random
- Generate a random-based UUID.  This method creates a UUID consisting mostly
- of random bits.  It requires that the operating system have a high
- quality random number generator, such as
- .IR /dev/random .
- .TP
--.B \-t
-+.B \-t, \-\-time
- Generate a time-based UUID.  This method creates a UUID based on the system
--clock plus the system's ethernet hardware address, if present.
-+clock plus the system's ethernet hardware address, if present. uuidd must be
-+running to make sure no duplicate uuids are generated. 
-+.TP
-+.B \-\-force
-+Force generating a UUID even if it's potentially weak, ie
-+/dev/[u]random not available or uuidd not running.
- .SH "CONFORMING TO"
- OSF DCE 1.1
- .SH AUTHOR
+ 	while (die == 0) {
+ 		if ((cc = read(0, ibuf, BUFSIZ)) > 0) {
+@@ -326,8 +326,8 @@ void
+ resize(int dummy __attribute__ ((__unused__))) {
+ 	resized = 1;
+ 	/* transmit window change information to the child */
+-	(void) ioctl(0, TIOCGWINSZ, (char *)&win);
+-	(void) ioctl(slave, TIOCSWINSZ, (char *)&win);
++	ioctl(0, TIOCGWINSZ, (char *)&win);
++	ioctl(slave, TIOCSWINSZ, (char *)&win);
+ }
+ 
+ /*
+@@ -350,9 +350,9 @@ dooutput(FILE *timingfd) {
+ 	ssize_t wrt;
+ 	ssize_t fwrt;
+ 
+-	(void) close(0);
++	close(0);
+ #ifdef HAVE_LIBUTIL
+-	(void) close(slave);
++	close(slave);
+ #endif
+ 	tvec = time((time_t *)NULL);
+ 	my_strftime(obuf, sizeof obuf, "%c\n", localtime(&tvec));
+@@ -396,7 +396,7 @@ dooutput(FILE *timingfd) {
+ 			fail();
+ 		}
+ 		if (fflg)
+-			(void) fflush(fscript);
++			fflush(fscript);
+ 	} while(1);
+ 
+ 	if (flgs)
+@@ -413,18 +413,18 @@ doshell() {
+ 
+ 	t = open(_PATH_DEV_TTY, O_RDWR);
+ 	if (t >= 0) {
+-		(void) ioctl(t, TIOCNOTTY, (char *)0);
+-		(void) close(t);
++		ioctl(t, TIOCNOTTY, (char *)0);
++		close(t);
+ 	}
+ #endif
+ 
+ 	getslave();
+-	(void) close(master);
+-	(void) fclose(fscript);
+-	(void) dup2(slave, 0);
+-	(void) dup2(slave, 1);
+-	(void) dup2(slave, 2);
+-	(void) close(slave);
++	close(master);
++	fclose(fscript);
++	dup2(slave, 0);
++	dup2(slave, 1);
++	dup2(slave, 2);
++	close(slave);
+ 
+ 	master = -1;
+ 
+@@ -450,13 +450,13 @@ fixtty() {
+ 	rtt = tt;
+ 	cfmakeraw(&rtt);
+ 	rtt.c_lflag &= ~ECHO;
+-	(void) tcsetattr(0, TCSANOW, &rtt);
++	tcsetattr(0, TCSANOW, &rtt);
+ }
+ 
+ void
+ fail() {
+ 
+-	(void) kill(0, SIGTERM);
++	kill(0, SIGTERM);
+ 	done();
+ }
+ 
+@@ -471,12 +471,12 @@ done() {
+ 			my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
+ 			fprintf(fscript, _("\nScript done on %s"), buf);
+ 		}
+-		(void) fclose(fscript);
+-		(void) close(master);
++		fclose(fscript);
++		close(master);
+ 
+ 		master = -1;
+ 	} else {
+-		(void) tcsetattr(0, TCSADRAIN, &tt);
++		tcsetattr(0, TCSADRAIN, &tt);
+ 		if (!qflg)
+ 			printf(_("Script done, file is %s\n"), fname);
+ #ifdef HAVE_LIBUTEMPTER
+@@ -497,8 +497,8 @@ done() {
+ void
+ getmaster() {
+ #if HAVE_LIBUTIL && HAVE_PTY_H
+-	(void) tcgetattr(0, &tt);
+-	(void) ioctl(0, TIOCGWINSZ, (char *)&win);
++	tcgetattr(0, &tt);
++	ioctl(0, TIOCGWINSZ, (char *)&win);
+ 	if (openpty(&master, &slave, NULL, &tt, &win) < 0) {
+ 		warn(_("openpty failed"));
+ 		fail();
+@@ -525,12 +525,12 @@ getmaster() {
+ 				ok = access(line, R_OK|W_OK) == 0;
+ 				*tp = 'p';
+ 				if (ok) {
+-					(void) tcgetattr(0, &tt);
+-				    	(void) ioctl(0, TIOCGWINSZ, 
++					tcgetattr(0, &tt);
++					ioctl(0, TIOCGWINSZ,
+ 						(char *)&win);
+ 					return;
+ 				}
+-				(void) close(master);
++				close(master);
+ 				master = -1;
+ 			}
+ 		}
+@@ -550,9 +550,9 @@ getslave() {
+ 		warn(_("open failed: %s"), line);
+ 		fail();
+ 	}
+-	(void) tcsetattr(slave, TCSANOW, &tt);
+-	(void) ioctl(slave, TIOCSWINSZ, (char *)&win);
++	tcsetattr(slave, TCSANOW, &tt);
++	ioctl(slave, TIOCSWINSZ, (char *)&win);
+ #endif
+-	(void) setsid();
+-	(void) ioctl(slave, TIOCSCTTY, 0);
++	setsid();
++	ioctl(slave, TIOCSCTTY, 0);
+ }
 -- 
-1.7.3.4
+1.7.5.2
 
