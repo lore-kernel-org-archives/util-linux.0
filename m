@@ -1,81 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from DMZ-MAILSEC-SCANNER-7.MIT.EDU ([18.7.68.36]:49343 "EHLO
-	dmz-mailsec-scanner-7.mit.edu" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751139Ab1FTLu2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Jun 2011 07:50:28 -0400
-Subject: Re: [PATCH 2/4] uuid: implement uuid_generate_random_safe
-Mime-Version: 1.0 (Apple Message framework v1084)
+Received: from mx1.redhat.com ([209.132.183.28]:47811 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751323Ab1F2GkQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 29 Jun 2011 02:40:16 -0400
+Date: Wed, 29 Jun 2011 08:40:12 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux <util-linux@vger.kernel.org>, khlebnikov@openvz.org
+Subject: Re: [BUG] umount does not work for disconected nfs mounts
+Message-ID: <20110629064012.GF6418@nb.net.home>
+References: <4E098E3B.5060707@openvz.org> <20110628085724.GE22770@foxbat.suse.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-From: Theodore Tso <tytso@MIT.EDU>
-In-Reply-To: <201106170937.36082.ludwig.nussel@suse.de>
-Date: Mon, 20 Jun 2011 07:45:23 -0400
-Cc: util-linux@vger.kernel.org
-Message-Id: <68468199-43CD-4A67-80A2-4074C8870734@mit.edu>
-References: <1308232779-21018-1-git-send-email-ludwig.nussel@suse.de> <1308232779-21018-2-git-send-email-ludwig.nussel@suse.de> <20110617021517.GC29725@thunk.org> <201106170937.36082.ludwig.nussel@suse.de>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
+In-Reply-To: <20110628085724.GE22770@foxbat.suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Jun 17, 2011, at 3:37 AM, Ludwig Nussel wrote:
-
->> 
->> Also please note that there's only *one* user of the uuid library, the
->> proprietary SAP R/3 system, that generates enough uuids, and with a
->> high enough frequency, where "safety" has ever been an issue.  Most of
->> the time, people simply aren't generating uuid's at the rate of
->> thousands a second.
+On Tue, Jun 28, 2011 at 10:57:24AM +0200, Petr Uzel wrote:
+> > so mount /mnt/nfs get stuck, umounting by device is still possible.
 > 
-> I can't judge. We got quite some pressure to set the setuid bit on
-> uuidd by default because 'several customers' demand it. Making the
-> interface more explicitly require uuidd would defeat arguments that
-> an application and the admin can't even notice there's a problem. 
+> We might first scan through mtab to check if umount arg is known
+> mountpoint and only if we fail, we would look for associated loopfile.
 
-Look, a time-based UUID is composed of a ethernet MAC address
-(for uniqueness in space, assuming NIC's are assigned unique
-MAC addresses0, a 100ns granularity timestamp (for uniqueness
-in time), and a 13-bit counter. 
+ Yes, go ahead.
 
-We are using gettimeofday(), which has microsecond granularity,
-so if you have multiple calls to generate UUID's within the same
-microsecond, called from different CPU's, now the only thing
-protecting you is the 13-bit counter, which is initialized to a
-random value w/o uuidd.   To make matters worse, the proprietary
-SAP system abuses UUID's by folding, spindling, and mutilating
-UUID's so the timestamp appears in the most significant bits,
-so that its btree lookups (it's using the UUID's as a object id) in
-the database can be as efficient as possible.  Which is why they
-can't use /dev/random generated UUID's --- well, that and this
-is being used in their database initialization program, where
-they are generating literally millions of uuid's, and /dev/random
-or some kind of scheme where you throttle time-based UUID
-generation would slow down the SAP R/3 database load
-process unacceptably.   (I worked with your predecessor at
-SuSE/Novell, and wrote uuidd specifically because to help
-out SAP, mainly because (a) I was at IBM at the time, and figured
-customers of IBM hardware would care, and (b) I have one
-or two friends who work at SAP, and wanted to help them out.
-But I never intended for uuidd to become mandatory, and I 
-got complaints from some distro's about adding yet another
-daemon.)
+    Karel
 
-This is why I'm pretty confident *no* *one* other than SAP is
-going to be running into this problem, because I don't know of
-anyone else which is generating UUID's at this insane rate ---
-and would be quite, quite surprised if they were.
-
-These days, we have a higher resolution clock interface, so at
-least in theory we could use clock_gettime(), which would give
-us a nanosecond interface.  This would give us another factor 
-of 10 improvement on the granularity of time-based UUID's.
-This might be worth doing, if someone really cared.  If they do,
-though, I'd request that it be autoconf'ed, so that this library 
-remains portable to non-Linux environments --- there are folks
-who are using this library to build GNOME and other OSS
-packages on *BSD's and Solaris systems, for example --- 
-although I suspect many of them are still using the uuid library
-from e2fsprogs.
-
--- Ted
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
