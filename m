@@ -1,178 +1,343 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:59463 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752524Ab1FMPNx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 13 Jun 2011 11:13:53 -0400
-Received: by ewy4 with SMTP id 4so1634503ewy.19
-        for <util-linux@vger.kernel.org>; Mon, 13 Jun 2011 08:13:52 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: =?UTF-8?q?Pentecost=20weekend=20pull=20request?=
-Date: Mon, 13 Jun 2011 17:13:50 +0200
-Message-Id: <1307978030-13006-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:51301 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754645Ab1F2MD3 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Jun 2011 08:03:29 -0400
+Received: by qwk3 with SMTP id 3so572530qwk.19
+        for <util-linux@vger.kernel.org>; Wed, 29 Jun 2011 05:03:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Reply-To: kerolasa@gmail.com
+Date: Wed, 29 Jun 2011 14:03:28 +0200
+Message-ID: <BANLkTikVaACBzs+Y7kKjn-L=RefF=xehgw@mail.gmail.com>
+Subject: [git pull] mkfs fixes
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel et.al.
+The following changes since commit 37b94458bd0f4a178233ad0366a727bf5bde879f:
 
-I feel a bit embarrassed to see how many patches I wrote. My
-excuse is long, mostly rainy, weekend. Here comes a pull request;
-
-[01/33] mount: take xalloc.h in use
-        Basiclly code reuse.
-
-[02/33] checktty: NGROUP -> sysconf
-        This patch was sent earlier, see details bellow.
-
-        date    Thu, Jun 9, 2011 at 21:31
-        subject Re: [PATCH 3/6] checktty: Use NGROUPS_MAX instead of NGROUPS
-
-[03/33] checktty: fix unused parameters
-        Ditto.
-
-[04/33] login-utils: include fix
-        Inspired what Pádraig Brady did with coreutils I thought
-        to give a shot to include-what-you-use as well.
-        http://lists.gnu.org/archive/html/coreutils/2011-06/msg00004.html
-
-        The utility clearly works. So it is a good time to think
-        if checking headers in all files should be TODO item?
-
-[05/33] namei: add --version option
-[06/33] namei: use xalloc.h
-[07/33] namei: fix to argument handling
-        The namei patches are trivial.
-
-[08/33] mcookie: use warnx, long options and help screen
-[09/33] docs: inform about mcookie long options
-[10/33] mcookie: change coding style
-        The mcookie patches are trivial, with exception of docs
-        change. Updating manual pages with help2man seems to be
-        quite good idea. Using the output as is is pretty brain
-        dead idea, but copy pasting bits of syntax etc seems to
-        work great. Is this an approach you would like to see in
-        future?
-
-[11/33] whereis: maintenance fixes
-[12/33] cal: maintenance fixes
-[13/33] docs: inform about cal long options
-        Trivial changes.
-
-[14/33] rename: verbose option & maintenance fixes
-[15/33] docs: rename.1 verbose, long options and warning
-        Looking the code this utility seems to be in wrong
-        package. Rewriting the command to rely heavily on gnulib
-        copy.h and backupfile.h would make this to be good
-        addition to coreutils, assuming they accept the command.
-        Or it could time to deprecate the whole command, and
-        recommend users to multimove by using scripts.
-
-[16/33] misc-utils: remove misleading README files
-[17/33] build-sys: move write to term-utils directory
-        Maintainer style activities.
-
-[18/33] write: maintenance fixes
-[19/33] wipefs: add version printing & compiler warning
-[20/33] uuidgen: add long options
-[21/33] docs: uuidgen.1 mention long options
-[22/33] uuid: define UUID_STR_LEN in uuid.h
-[23/33] uuidd: maintenance fixes
-[24/33] docs: mention long options in uuidd.8 manual page
-[25/33] look: add long options
-[26/33] docs: look.1 manual rewrote
-        Trivial changes.
-
-[27/33] getopt: use xalloc.h
-        Resubmission of getopts maintenance, see 
-        http://permalink.gmane.org/gmane.linux.utilities.util-linux-ng/3822
-
-[28/33] getopt: remove unnecessary free()
-        Trivial change.
-
-[29/33] getopt: make user getopt_long parsing to use function pointer
-        Without this the 33/33 would look unreadable at the point
-        where the function pointer is used.
-
-[30/33] build-sys: remove unnecessary files from getopt
-[31/33] getopt: options struct, usage and version outputs
-[32/33] getopt: inform where to send bug reports
-        I wonder should the config.h PACKAGE_BUGREPORT be
-        util-linux mail list...
-
-[33/33] getopt: fix coding style
-        Trivial change.
-
----
-
-The following changes since commit 42fe2b2b2d19d09241bd7c3dd811463e0095d4aa:
-
-  Merge branch 'master', remote-tracking branch 'upstream/master' (2011-06-11 10:10:01 +0200)
+  sfdisk: fix coding style. (2011-06-29 12:47:38 +0200)
 
 are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git wknd23
+  https://github.com/kerolasa/lelux-utiliteetit mkfs
 
- disk-utils/mkswap.c                |    2 +-
- getopt/Makefile.am                 |    3 +-
- getopt/getopt-1.1.3.lsm            |   16 --
- getopt/getopt-test.bash            |    6 -
- getopt/getopt-test.tcsh            |    7 -
- getopt/getopt.c                    |  514 ++++++++++++++++++------------------
- include/xalloc.h                   |   23 ++
- libuuid/src/tst_uuid.c             |    2 +-
- libuuid/src/uuid.h                 |    3 +
- login-utils/checktty.c             |   32 ++-
- login-utils/islocal.c              |    2 +-
- misc-utils/.gitignore              |    1 -
- misc-utils/Makefile.am             |   21 +--
- misc-utils/README.flushb           |    5 -
- misc-utils/README.namei2           |   14 -
- misc-utils/README.reset            |   20 --
- misc-utils/cal.1                   |   94 ++++----
- misc-utils/cal.c                   |  166 +++++++-----
- misc-utils/look.1                  |  121 ++++-----
- misc-utils/look.c                  |   51 +++-
- misc-utils/mcookie.1               |   27 ++-
- misc-utils/mcookie.c               |  267 +++++++++++--------
- misc-utils/namei.1                 |    4 +
- misc-utils/namei.c                 |   47 ++--
- misc-utils/rename.1                |   36 ++-
- misc-utils/rename.c                |   93 +++++---
- misc-utils/uuidd.8                 |   88 +++----
- misc-utils/uuidd.c                 |  114 +++++---
- misc-utils/uuidgen.1               |   14 +-
- misc-utils/uuidgen.c               |   38 +++-
- misc-utils/whereis.c               |  141 +++++++----
- misc-utils/wipefs.c                |   13 +-
- mount/Makefile.am                  |    2 +-
- mount/devname.c                    |    3 +-
- mount/fstab.c                      |    4 +-
- mount/lomount.c                    |    4 +-
- mount/mount.c                      |    4 +-
- mount/mount_mntent.c               |    3 +-
- mount/sundries.c                   |   18 +--
- mount/sundries.h                   |    7 +-
- mount/umount.c                     |    3 +-
- mount/xmalloc.c                    |   48 ----
- mount/xmalloc.h                    |   14 -
- term-utils/.gitignore              |    1 +
- term-utils/Makefile.am             |   14 +-
- {misc-utils => term-utils}/write.1 |    0
- {misc-utils => term-utils}/write.c |  215 ++++++++-------
- 47 files changed, 1236 insertions(+), 1089 deletions(-)
- delete mode 100644 getopt/getopt-1.1.3.lsm
- delete mode 100755 getopt/getopt-test.bash
- delete mode 100755 getopt/getopt-test.tcsh
- delete mode 100644 misc-utils/README.flushb
- delete mode 100644 misc-utils/README.namei2
- delete mode 100644 misc-utils/README.reset
- delete mode 100644 mount/xmalloc.c
- delete mode 100644 mount/xmalloc.h
- rename {misc-utils => term-utils}/write.1 (100%)
- rename {misc-utils => term-utils}/write.c (67%)
+Sami Kerola (4):
+      mkfs: add long options
+      docs: add long options to mkfs.8
+      mkfs: include-what-you-use header check
+      mkfs: coding style fixes
+
+ disk-utils/mkfs.8 |   44 ++++++-------
+ disk-utils/mkfs.c |  189 +++++++++++++++++++++++++++++++---------------------
+ 2 files changed, 133 insertions(+), 100 deletions(-)
+
+diff --git a/disk-utils/mkfs.8 b/disk-utils/mkfs.8
+index 6a39633..88699c1 100644
+--- a/disk-utils/mkfs.8
++++ b/disk-utils/mkfs.8
+@@ -1,15 +1,12 @@
+ .\" -*- nroff -*-
+ .TH MKFS 8 "Jun 1995" "Version 1.9"
++.TH MKFS "8" "June 2011" "util-linux" "System Administration Utilities"
+ .SH NAME
+ mkfs \- build a Linux file system
+ .SH SYNOPSIS
++.SH SYNOPSIS
+ .B mkfs
+-.RB [ \-V ]
+-.RB [ \-t
+-.IR fstype ]
+-.RI [ fs-options ]
+-.I filesys
+-.RI [ blocks ]
++[\fIoptions\fR] [\fI-t type fs-options\fR] \fIdevice \fR[\fIsize\fR]
+ .SH DESCRIPTION
+ .B mkfs
+ is used to build a Linux file system on a device, usually
+@@ -19,8 +16,9 @@ is either the device name (e.g.
+ .IR /dev/hda1 ,
+ .IR /dev/sdb2 ),
+ or a regular file that shall contain the file system.
+-.I blocks
+-is the number of blocks to be used for the file system.
++The
++.I size
++argument is the number of blocks to be used for the file system.
+ .PP
+ The exit code returned by
+ .B mkfs
+@@ -49,14 +47,7 @@ Please see the file system-specific builder manual pages for
+ further details.
+ .SH OPTIONS
+ .TP
+-.B -V
+-Produce verbose output, including all file system-specific commands
+-that are executed.
+-Specifying this option more than once inhibits execution of any
+-file system-specific commands.
+-This is really only useful for testing.
+-.TP
+-.BI -t \ fstype
++\fB\-t\fR, \fB\-\-type\fR=\fITYPE\fR
+ Specifies the type of file system to be built.
+ If not specified, the default file system type
+ (currently ext2) is used.
+@@ -67,20 +58,25 @@ system builder.
+ Although not guaranteed, the following options are supported
+ by most file system builders.
+ .TP
+-.B -c
+-Check the device for bad blocks before building the file system.
++\fB\-V\fR, \fB\-\-verbose\fR
++Produce verbose output, including all file system-specific commands
++that are executed.
++Specifying this option more than once inhibits execution of any
++file system-specific commands.
++This is really only useful for testing.
+ .TP
+-.BI -l \ filename
+-Read the bad blocks list from
+-.I filename
++\fB\-V\fR, \fB\-\-version\fR
++output version information and exit
++\fB\-V\fR will output version information only when it is the
++only parameter.
+ .TP
+-.B -v
+-Produce verbose output.
++\fB\-h\fR, \fB\-\-help\fR
++Display help and exit.
+ .SH BUGS
+ All generic options must precede and not be combined with
+ file system-specific options.
+ Some file system-specific programs do not support the
+-.I -v
++.I -V
+ (verbose) option, nor return meaningful exit codes.
+ Also, some file system-specific programs do not automatically
+ detect the device size and require the
+diff --git a/disk-utils/mkfs.c b/disk-utils/mkfs.c
+index e22c512..ce845a5 100644
+--- a/disk-utils/mkfs.c
++++ b/disk-utils/mkfs.c
+@@ -2,8 +2,6 @@
+  * mkfs		A simple generic frontend for the for the mkfs program
+  *		under Linux.  See the manual page for details.
+  *
+- * Usage:	mkfs [-V] [-t fstype] [fs-options] device [size]
+- *
+  * Authors:	David Engel, <david@ods.com>
+  *		Fred N. van Kempen, <waltje@uWalt.NL.Mugnet.ORG>
+  *		Ron Sommeling, <sommel@sci.kun.nl>
+@@ -15,91 +13,130 @@
+  *	
+  */
+
+-
++#include <getopt.h>
++#include <limits.h>
+ #include <stdio.h>
+-#include <unistd.h>
++#include <stdlib.h>
+ #include <string.h>
+-#include <nls.h>
++#include <unistd.h>
+
++#include "c.h"
++#include "nls.h"
+ #include "xalloc.h"
+
+ #ifndef DEFAULT_FSTYPE
+-# define DEFAULT_FSTYPE		"ext2"
++#define DEFAULT_FSTYPE	"ext2"
+ #endif
+
+ #define SEARCH_PATH	"PATH=" FS_SEARCH_PATH
+ #define PROGNAME	"mkfs.%s"
+
+
+-int main(int argc, char *argv[])
++static void __attribute__ ((__noreturn__)) usage(FILE * out)
++{
++	fprintf(out,
++		_("Usage: %s [options] [-t type fs-options] device [size]\n"),
++		program_invocation_short_name);
++
++	fprintf(out, _("\nOptions:\n"
++		       " -t, --type=TYPE  file system type, when undefined ext2 is used\n"
++		       "     fs-options   parameters to real file system builder\n"
++		       "     device       path to a device\n"
++		       "     size         number of blocks on the device\n"
++		       " -V, --verbose    explain what is done\n"
++		       "                  defining -V more than once will cause a dry-run\n"
++		       " -V, --version    output version information and exit\n"
++		       "                  -V as version must be only option\n"
++		       " -h, --help       display this help and exit\n"));
++
++	fprintf(out, _("\nFor more information see mkfs(8).\n"));
++
++	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
++}
++
++static void __attribute__ ((__noreturn__)) print_version(void)
++{
++	printf(_("%s (%s)\n"),
++	       program_invocation_short_name, PACKAGE_STRING);
++	exit(EXIT_SUCCESS);
++}
++
++int main(int argc, char **argv)
+ {
+-  char *progname;	/* name of executable to be called */
+-  char *fstype = NULL;
+-  int i, more = 0, verbose = 0;
+-  char *oldpath, *newpath;
+-  char *program_name, *p;
+-
+-  program_name = argv[0];
+-  if ((p = strrchr(program_name, '/')) != NULL)
+-	  program_name = p+1;
+-
+-  setlocale(LC_ALL, "");
+-  bindtextdomain(PACKAGE, LOCALEDIR);
+-  textdomain(PACKAGE);
+-
+-  if (argc == 2 &&
+-      (!strcmp(argv[1], "-V") || !strcmp(argv[1], "--version"))) {
+-	  printf(_("%s (%s)\n"), program_name, PACKAGE_STRING);
+-	  exit(EXIT_SUCCESS);
+-  }
+-
+-  /* Check commandline options. */
+-  opterr = 0;
+-  while ((more == 0) && ((i = getopt(argc, argv, "Vt:")) != -1))
+-    switch (i) {
+-    case 'V':
+-      verbose++;
+-      break;
+-    case 't':
+-      fstype = optarg;
+-      break;
+-    default:
+-      optind--;
+-      more = 1;
+-      break;		/* start of specific arguments */
+-    }
+-  if (optind == argc)
+-	  errx(EXIT_FAILURE, _("Usage: mkfs [-V] [-t fstype] [fs-options]
+device [size]"));
+-
+-  /* If -t wasn't specified, use the default */
+-  if (fstype == NULL)
+-    fstype = DEFAULT_FSTYPE;
+-
+-  /* Set PATH and program name */
+-  oldpath = getenv("PATH");
+-  if (!oldpath)
+-	  oldpath = "/bin";
+-
+-  newpath = xmalloc(strlen(oldpath) + sizeof(SEARCH_PATH) + 3);
+-  sprintf(newpath, "%s:%s\n", SEARCH_PATH, oldpath);
+-  putenv(newpath);
+-
+-  progname = xmalloc(sizeof(PROGNAME) + strlen(fstype) + 1);
+-  sprintf(progname, PROGNAME, fstype);
+-  argv[--optind] = progname;
+-
+-  if (verbose) {
+-    printf(_("mkfs (%s)\n"), PACKAGE_STRING);
+-    i = optind;
+-    while (argv[i])
+-      printf("%s ", argv[i++]);
+-    printf("\n");
+-    if (verbose > 1)
+-      return 0;
+-  }
+-
+-  /* Execute the program */
+-  execvp(progname, argv+optind);
+-  perror(progname);
+-  return 1;
++	char *progname;		/* name of executable to be called */
++	char *fstype = NULL;
++	int i, more = 0, verbose = 0;
++	char *oldpath, *newpath;
++
++	enum { VERSION_OPTION = CHAR_MAX + 1 };
++
++	static const struct option longopts[] = {
++		{"type", required_argument, NULL, 't'},
++		{"version", no_argument, NULL, VERSION_OPTION},
++		{"help", no_argument, NULL, 'h'},
++		{NULL, 0, NULL, 0}
++	};
++
++	setlocale(LC_ALL, "");
++	bindtextdomain(PACKAGE, LOCALEDIR);
++	textdomain(PACKAGE);
++
++	if (argc == 2 && !strcmp(argv[1], "-V"))
++		print_version();
++
++	/* Check commandline options. */
++	opterr = 0;
++	while ((more == 0)
++	       && ((i = getopt_long(argc, argv, "Vt:h", longopts, NULL))
++		   != -1))
++		switch (i) {
++		case 'V':
++			verbose++;
++			break;
++		case 't':
++			fstype = optarg;
++			break;
++		case 'h':
++			usage(stdout);
++		case VERSION_OPTION:
++			print_version();
++		default:
++			optind--;
++			more = 1;
++			break;	/* start of specific arguments */
++		}
++	if (optind == argc)
++		usage(stderr);
++
++	/* If -t wasn't specified, use the default */
++	if (fstype == NULL)
++		fstype = DEFAULT_FSTYPE;
++
++	/* Set PATH and program name */
++	oldpath = getenv("PATH");
++	if (!oldpath)
++		oldpath = "/bin";
++
++	newpath = xmalloc(strlen(oldpath) + sizeof(SEARCH_PATH) + 3);
++	sprintf(newpath, "%s:%s\n", SEARCH_PATH, oldpath);
++	putenv(newpath);
++
++	progname = xmalloc(sizeof(PROGNAME) + strlen(fstype) + 1);
++	sprintf(progname, PROGNAME, fstype);
++	argv[--optind] = progname;
++
++	if (verbose) {
++		printf(_("mkfs (%s)\n"), PACKAGE_STRING);
++		i = optind;
++		while (argv[i])
++			printf("%s ", argv[i++]);
++		printf("\n");
++		if (verbose > 1)
++			return EXIT_SUCCESS;
++	}
++
++	/* Execute the program */
++	execvp(progname, argv + optind);
++	perror(progname);
++	return EXIT_FAILURE;
+ }
 
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
