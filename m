@@ -1,47 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:35689 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751118Ab1F2Gos (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Jun 2011 02:44:48 -0400
-Received: by bwd5 with SMTP id 5so762068bwd.19
-        for <util-linux@vger.kernel.org>; Tue, 28 Jun 2011 23:44:47 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:13943 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753907Ab1F2PAD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 29 Jun 2011 11:00:03 -0400
+Date: Wed, 29 Jun 2011 16:59:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "corentin.labbe" <corentin.labbe@geomatys.fr>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg.c: print human readable timestamp
+Message-ID: <20110629145957.GM6418@nb.net.home>
+References: <4DD6593D.2090202@geomatys.fr>
 MIME-Version: 1.0
-In-Reply-To: <4E099B86.1030802@parallels.com>
-References: <4E098E3B.5060707@openvz.org> <20110628085724.GE22770@foxbat.suse.cz>
- <4E099B86.1030802@parallels.com>
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Wed, 29 Jun 2011 02:44:27 -0400
-Message-ID: <BANLkTik2i5pYy=ssmKKaUrqLdxymvDrq-A@mail.gmail.com>
-Subject: Re: [BUG] umount does not work for disconected nfs mounts
-To: Konstantin Khlebnikov <khlebnikov@parallels.com>
-Cc: util-linux <util-linux@vger.kernel.org>, khlebnikov@openvz.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4DD6593D.2090202@geomatys.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 28, 2011 at 05:14, Konstantin Khlebnikov wrote:
-> Petr Uzel wrote:
->> On Tue, Jun 28, 2011 at 12:18:03PM +0400, Konstantin Khlebnikov wrote:
->>> commit 33cee6675edecbd27c0628f8b7c74c7d88fc02b2
->>>
->>> http://git.kernel.org/?p=utils/util-linux/util-linux-ng.git;a=commitdiff;h=33cee6675edecbd27c0628f8b7c74c7d88fc02b2;hp=fde25e6be6e00a0998eb58b4b9d0d0b9ad65dbfd
->>> "umount: allow unmounting loopdev specified by associated file"
->>> broke umounting (by mountpoint) for broken nfs mounts,
->>> because now umount always call stat() for target argument and umount hang
->>> inside nfs-rpc:
->>
->> Shouldn't this be handled in the kernel? Or is stat() really
->> supposed to fail in such way with broken nfs?
->
-> It depends on used mount options, IIRR in "soft" mode it by default fail
-> with EIO after 3-6 minutes timeout,
-> in "hard" mode syscalls never returns EIO.
+On Fri, May 20, 2011 at 02:06:21PM +0200, corentin.labbe wrote:
+> 
+> This patch add the -H option to dmesg which allow to print human
+> readable time instead of the number of seconds since boot.
 
-i noticed this recently.  one of the reasons i love `umount -lf` with
-broken nfs mounts is that it works immediately.  any attempt to access
-said broken mount in this situation is wrong as it inherently implies
-it has to wait for a timeout (if one ever comes as Konstantin noted).
+ Nice idea, but it's not so simple :-(
 
-other than my personal usage on the command line, it makes shutdown
-scripts obnoxiously slow to the point of being useless.
--mike
+ The time stamp used for printk() is not based on normal system time
+ (as you know from gettimeofday()). It uses cpu_clock() (IMHO to
+ keep printk() robust and without xtime_lock).
+
+ The problem is that the cpu_clock is not updated after system resume,
+ so if you suspend (e.g. pm-suspend(8)) and resume than the dmesg -H
+ command prints nonsenses...
+
+ For example (copy & past from /var/log/messages):
+
+  Jun 27 23:39:53 nb kernel: [50065.238635] PM: Syncing filesystems  ... done.
+  Jun 28 20:23:29 nb kernel: [50065.284226] Freezing user space  processes ... (elapsed 0.09 seconds) done.
+                              ^^^^^
+ The first line is before suspend and second is after resume. The time
+ stamp [50065.xxxxxx] is still the same although the system was
+ suspended for almost whole day.
+ 
+ The same system, the latest kernel message:
+
+    # date
+    Wed Jun 29 16:29:28 CEST 2011
+
+    # mount /dev/sdb1 /mnt/test
+
+    # ./sys-utils/dmesg -H | tail -1 
+    [Tue Jun 28 11:10:41 2011] EXT4-fs (sdb1): mounted filesystem with ordered data mode. Opts: (null)
+
+
+  Karel
+
