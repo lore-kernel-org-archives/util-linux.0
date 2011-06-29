@@ -1,51 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60335 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43378 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756280Ab1FNLva (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Jun 2011 07:51:30 -0400
-Date: Tue, 14 Jun 2011 13:51:25 +0200
+	id S1754265Ab1F2Jfk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 29 Jun 2011 05:35:40 -0400
+Date: Wed, 29 Jun 2011 11:35:30 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] uuidgen: print warning if uuidd isn't running
-Message-ID: <20110614115125.GG14293@nb.net.home>
-References: <1307540101-6376-1-git-send-email-ludwig.nussel@suse.de> <20110614114534.GF14293@nb.net.home>
+Subject: Re: [PATCH 3/4] script: include-what-you-use header check
+Message-ID: <20110629093530.GJ6418@nb.net.home>
+References: <1309257806-1418-1-git-send-email-kerolasa@iki.fi> <1309257806-1418-3-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110614114534.GF14293@nb.net.home>
+In-Reply-To: <1309257806-1418-3-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 14, 2011 at 01:45:34PM +0200, Karel Zak wrote:
-> On Wed, Jun 08, 2011 at 03:35:01PM +0200, Ludwig Nussel wrote:
-> > ---
-> >  misc-utils/uuidgen.c |    4 +++-
-> >  1 files changed, 3 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
-> > index 3cf6ec9..47f8e8f 100644
-> > --- a/misc-utils/uuidgen.c
-> > +++ b/misc-utils/uuidgen.c
-> > @@ -59,7 +59,9 @@ main (int argc, char *argv[])
-> >  
-> >  	switch (do_type) {
-> >  	case DO_TYPE_TIME:
-> > -		uuid_generate_time(uu);
-> > +		if (uuid_generate_time_safe(uu)) {
-> > +			fprintf(stderr, _("Warning: uuidd not running or not operational. Time based uuid may not be unique.\n"));
-> 
-> IMHO this is overkill -- the uuidd is used very rarely (usually on
-> large systems with SAP) and it's disabled by default in many
-> distributions, but the uuidgen(1) util is available everywhere and
-> used probably often used by admins/scripts.
-> 
-> It would be better to add some WARNING section to the uuidgen(1) man
-> page to inform users about the disadvantage.
+On Tue, Jun 28, 2011 at 12:43:25PM +0200, Sami Kerola wrote:
+>  term-utils/script.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
 
- ... we can also add a new option (e.g. --safe) to use 
- uuid_generate_time_safe().
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
