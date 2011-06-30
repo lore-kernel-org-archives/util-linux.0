@@ -1,179 +1,354 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:62089 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752943Ab1F3Jic convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jun 2011 05:38:32 -0400
+Received: by qwk3 with SMTP id 3so1014422qwk.19
+        for <util-linux@vger.kernel.org>; Thu, 30 Jun 2011 02:38:32 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20110620101947.GA17967@nb.net.home>
-References: <1307978030-13006-1-git-send-email-kerolasa@iki.fi>
-	<20110620101947.GA17967@nb.net.home>
-Date: Sat, 25 Jun 2011 17:26:35 +0200
-Message-ID: <BANLkTimNPg6VVNS+MQ-9cMgs_ppCQYVE=A@mail.gmail.com>
-Subject: Re: Pentecost weekend pull request
+Date: Thu, 30 Jun 2011 11:38:31 +0200
+Message-ID: <BANLkTikQsgSXBs4kybTvF0QvDDvbMub5hg@mail.gmail.com>
+Subject: [git pull] blockdev fixes
 From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
+To: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 20, 2011 at 12:19, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Jun 13, 2011 at 05:13:50PM +0200, Sami Kerola wrote:
->
->> [01/33] mount: take xalloc.h in use
->
->  It would be better to keep my_free() in mount/ sources only. I don't
->  think that we will use this crap outside the mount code.
->
->  Note that the final solution will be libmount/mount.c as the mount(8)
->  command implementation. So, let's keep the current mount/* code in
->  maintenance mode and don't try to rewrite it :-)
+The following changes since commit 37b94458bd0f4a178233ad0366a727bf5bde879f:
 
-The original patch is replaced with a above note added to README.
+  sfdisk: fix coding style. (2011-06-29 12:47:38 +0200)
 
->> [02/33] checktty: NGROUP -> sysconf
->>         This patch was sent earlier, see details bellow.
->>
->>         date    Thu, Jun 9, 2011 at 21:31
->>         subject Re: [PATCH 3/6] checktty: Use NGROUPS_MAX instead of NGROUPS
->
->  You cannot use xalloc() (and friends) in login(1). The login has to
->  call pam_end and report to syslog before exit.
->
->  I'd like to clean up login(1), it means:
->
->    - code refactoring
->    - support PAM or /etc/{passwd,shadow} *only*
->       - remove checktty support
->       - remove cryptocard support
->       - remove kerberos support
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit blockdev
 
-This patch is gone. IMHO the above should be in TODO file.
+Sami Kerola (8):
+      blockdev: set options read only
+      blockdev: remove progname
+      blockdev: add --help option
+      blockdev: use libc error facilities
+      blockdev: use pathnames.h to find partitions
+      blockdev: broken compiler warning circumvention removed
+      blockdev: type mismatch fix
+      blockdev: coding style fix
 
->> [04/33] login-utils: include fix
->>         Inspired what P?draig Brady did with coreutils I thought
->>         to give a shot to include-what-you-use as well.
->>         http://lists.gnu.org/archive/html/coreutils/2011-06/msg00004.html
->>
->>         The utility clearly works. So it is a good time to think
->>         if checking headers in all files should be TODO item?
->
->  Nice!
->
->  What about to add any wrapper to the tools/ directory and call it
->  from our top-level Makefile?
->
->  We already have some stuff there, and I use it before release.
+ disk-utils/blockdev.c |  158 +++++++++++++++++++++---------------------------
+ 1 files changed, 69 insertions(+), 89 deletions(-)
 
-Funny enough in the coreutils list same question was asked pretty
-much immediately. I agree it would be awesome to get automatic
-header checking, but for now that is not easy to achieve.
+diff --git a/disk-utils/blockdev.c b/disk-utils/blockdev.c
+index 27b1a0a..cb9a296 100644
+--- a/disk-utils/blockdev.c
++++ b/disk-utils/blockdev.c
+@@ -14,9 +14,7 @@
+ #include "c.h"
+ #include "nls.h"
+ #include "blkdev.h"
+-
+-const char *progname;
+-
++#include "pathnames.h"
 
-The utility relies on llvm source tree, and it gives lots of
-false positive indications. For instance iwyu proposes nls.h
-should be removed and replaced with libintl.h. Same happens with
-c.h and err.h.
+ struct bdc {
+ 	long		ioc;		/* ioctl code */
+@@ -52,7 +50,7 @@ enum {
 
-For now I recommend to use this utility when one is working with
-some particular file. Something like `if you are going to touch
-the file check the headers as well'.
+ #define IOCTL_ENTRY( io )	.ioc = io, .iocname = # io
 
->> [10/33] mcookie: change coding style
->>         The mcookie patches are trivial, with exception of docs
->>         change. Updating manual pages with help2man seems to be
->>         quite good idea. Using the output as is is pretty brain
->>         dead idea, but copy pasting bits of syntax etc seems to
->>         work great. Is this an approach you would like to see in
->>         future?
->
->  It depends, the --help output is usually very brief and space-saving.
->
->  Don't forget that GNU guys hate man pages and all their documentation
->  is in the horrible info files, so help2man makes sense for them ;-)
->  We don't have info files, but we have real man pages.
+-struct bdc bdcms[] =
++static const struct bdc bdcms[] =
+ {
+ 	{
+ 		IOCTL_ENTRY(BLKROSET),
+@@ -178,35 +176,32 @@ struct bdc bdcms[] =
+ 	}
+ };
 
-I did not mean help2man output should be used as is. Taking for
-instance .TH line or option \fB\-h\fR, \fB\-\-help\fR lines
-sounds reasonable for me. I let the patch be what it was.
+-static void
+-usage(void) {
+-	int i;
+-	fputc('\n', stderr);
+-	fprintf(stderr, _("Usage:\n"));
+-	fprintf(stderr, _("  %s -V\n"), progname);
+-	fprintf(stderr, _("  %s --report [devices]\n"), progname);
+-	fprintf(stderr, _("  %s [-v|-q] commands devices\n"), progname);
+-	fputc('\n', stderr);
+-
+-	fprintf(stderr, _("Available commands:\n"));
+-	fprintf(stderr, "  %-25s %s\n", "--getsz",
+-			_("get size in 512-byte sectors"));
++static void __attribute__ ((__noreturn__)) usage(FILE * out)
++{
++	size_t i;
++	fprintf(out, _("\nUsage:\n"
++		       "  %1$s -V\n"
++		       "  %1$s --report [devices]\n"
++		       "  %1$s [-v|-q] commands devices\n\n"
++		       "Available commands:\n"), program_invocation_short_name);
++
++	fprintf(out, _("  %-25s get size in 512-byte sectors\n"), "--getsz");
+ 	for (i = 0; i < ARRAY_SIZE(bdcms); i++) {
+ 		if (bdcms[i].argname)
+-			fprintf(stderr, "  %s %-*s %s\n", bdcms[i].name,
+-					(int) (24 - strlen(bdcms[i].name)),
+-					bdcms[i].argname, _(bdcms[i].help));
++			fprintf(out, "  %s %-*s %s\n", bdcms[i].name,
++				(int)(24 - strlen(bdcms[i].name)),
++				bdcms[i].argname, _(bdcms[i].help));
+ 		else
+-			fprintf(stderr, "  %-25s %s\n", bdcms[i].name,
+-					_(bdcms[i].help));
++			fprintf(out, "  %-25s %s\n", bdcms[i].name,
++				_(bdcms[i].help));
+ 	}
+-	fputc('\n', stderr);
+-	exit(1);
++	fputc('\n', out);
++	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
 
->> [11/33] whereis: maintenance fixes
->
->  I can imagine more than one patch for these changes.
+-static int
+-find_cmd(char *s) {
+-	int j;
++static int find_cmd(char *s)
++{
++	size_t j;
 
-Split to 4 patches.
+ 	for (j = 0; j < ARRAY_SIZE(bdcms); j++)
+ 		if (!strcmp(s, bdcms[j].name))
+@@ -219,31 +214,25 @@ void report_header(void);
+ void report_device(char *device, int quiet);
+ void report_all_devices(void);
 
->> [12/33] cal: maintenance fixes
->
->  I'll use this patch, but next time don't mix any real changes in the
->  code with indentation changes. Please!
+-int
+-main(int argc, char **argv) {
++int main(int argc, char **argv)
++{
+ 	int fd, d, j, k;
+-	char *p;
+-
+-	/* egcs-2.91.66 is buggy and says:
+-	   blockdev.c:93: warning: `d' might be used uninitialized */
+-	d = 0;
+-
+-	progname = argv[0];
+-	if ((p = strrchr(progname, '/')) != NULL)
+-		progname = p+1;
 
-Sorry. Split to 3 patches.
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
 
->> [15/33] docs: rename.1 verbose, long options and warning
->>         Looking the code this utility seems to be in wrong
->>         package. Rewriting the command to rely heavily on gnulib
->>         copy.h and backupfile.h would make this to be good
->>         addition to coreutils, assuming they accept the command.
->
->  Yep, go ahead and ask at coreutils mailing list.
+ 	if (argc < 2)
+-		usage();
++		usage(stderr);
 
-Eventually yes.
+ 	/* -V not together with commands */
+ 	if (!strcmp(argv[1], "-V") || !strcmp(argv[1], "--version")) {
+-		printf(_("%s (%s)\n"), progname, PACKAGE_STRING);
+-		exit(0);
++		printf(_("%s (%s)\n"), program_invocation_short_name,
++		       PACKAGE_STRING);
++		return EXIT_SUCCESS;
+ 	}
++	if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
++		usage(stdout);
 
->>         Or it could time to deprecate the whole command, and
->>         recommend users to multimove by using scripts.
->
->  The command is used by many users. I don't think that deprecation is
->  a good idea. And I also don't think that change the default behavior
->  is a good idea. Maybe we can add --dry-run.
+ 	/* --report not together with other commands */
+ 	if (!strcmp(argv[1], "--report")) {
+@@ -254,7 +243,7 @@ main(int argc, char **argv) {
+ 		} else {
+ 			report_all_devices();
+ 		}
+-		exit(0);
++		return EXIT_SUCCESS;
+ 	}
 
-This is exactly why merging to coreutils might work. Providing
-the same switches as there is for mv or cp is fairly easy with
-gnulib. IMHO the tool is a little too unixy in doing exactly what
-user asks how ever stupid it might be. Having --backup,
---interactive and --no-globber just sound right to me.
+ 	/* do each of the commands on each of the devices */
+@@ -277,22 +266,20 @@ main(int argc, char **argv) {
+ 	}
 
-I am not sure is --dry-run in this case good idea. There's no
-guarantees contents on file system have not changed in between
-dry and next run. For example the command is not reentant safe.
-User might simply get over confident the dry run did not report
-anything and end up loosing data.
+ 	if (d >= argc)
+-		usage();
++		usage(stderr);
 
->> [18/33] write: maintenance fixes
->
->  Don't use
->
->    return (1);
->
->  use
->    return 1;
->
->  The "return" is not a function.
+ 	for (k = d; k < argc; k++) {
+ 		fd = open(argv[k], O_RDONLY, 0);
+-		if (fd < 0) {
+-			perror(argv[k]);
+-			exit(1);
+-		}
++		if (fd < 0)
++			err(EXIT_FAILURE, _("cannot open %s"), argv[k]);
+ 		do_commands(fd, argv, d);
+ 		close(fd);
+ 	}
+-	return 0;
++	return EXIT_SUCCESS;
+ }
 
-Fixed.
+-void
+-do_commands(int fd, char **argv, int d) {
++void do_commands(int fd, char **argv, int d)
++{
+ 	int res, i, j;
+ 	int iarg;
+ 	unsigned int uarg;
+@@ -318,18 +305,18 @@ do_commands(int fd, char **argv, int d) {
+ 			if (res == 0)
+ 				printf("%lld\n", llu);
+ 			else
+-				exit(1);
++				errx(EXIT_FAILURE,
++				     _("could not get device size"));
+ 			continue;
+ 		}
 
->> [23/33] uuidd: maintenance fixes
->
->    - remove die() -- use err()
->    - remove printf() + exit() -- use err[x]()
->    - print all error messages (!= debug) to stderr
+ 		j = find_cmd(argv[i]);
+ 		if (j == -1) {
+-			fprintf(stderr, _("%s: Unknown command: %s\n"),
+-				progname, argv[i]);
+-			usage();
++			warnx(_("Unknown command: %s"), argv[i]);
++			usage(stderr);
+ 		}
 
-Done and split to multiple patches.
+-		switch(bdcms[j].argtype) {
++		switch (bdcms[j].argtype) {
+ 		default:
+ 		case ARG_NONE:
+ 			res = ioctl(fd, bdcms[j].ioc, 0);
+@@ -340,18 +327,18 @@ do_commands(int fd, char **argv, int d) {
+ 			break;
+ 		case ARG_INT:
+ 			if (bdcms[j].argname) {
+-				if (i == d-1) {
+-					fprintf(stderr, _("%s requires an argument\n"),
+-						bdcms[j].name);
+-					usage();
++				if (i == d - 1) {
++					warnx(_("%s requires an argument"),
++					      bdcms[j].name);
++					usage(stderr);
+ 				}
+ 				iarg = atoi(argv[++i]);
+ 			} else
+ 				iarg = bdcms[j].argval;
 
->> [32/33] getopt: inform where to send bug reports
->>         I wonder should the config.h PACKAGE_BUGREPORT be
->>         util-linux mail list...
->
->  Probably ;-)
->
->  We shouldn't use PACKAGE_BUGREPORT in man pages or --help output. I
->  don't think that upstream is the right place for end-users and their
->  bug reports.
->
->  The ideal solution is downstream --patch--> upstream ;-)
+ 			res = bdcms[j].flags & FL_NOPTR ?
+-					ioctl(fd, bdcms[j].ioc, iarg) :
+-					ioctl(fd, bdcms[j].ioc, &iarg);
++			    ioctl(fd, bdcms[j].ioc, iarg) :
++			    ioctl(fd, bdcms[j].ioc, &iarg);
+ 			break;
+ 		case ARG_UINT:
+ 			uarg = bdcms[j].argval;
+@@ -379,7 +366,7 @@ do_commands(int fd, char **argv, int d) {
+ 			perror(bdcms[j].iocname);
+ 			if (verbose)
+ 				printf(_("%s failed.\n"), _(bdcms[j].help));
+-			exit(1);
++			exit(EXIT_FAILURE);
+ 		}
 
-This patch is gone.
+ 		if (bdcms[j].argtype == ARG_NONE ||
+@@ -392,7 +379,7 @@ do_commands(int fd, char **argv, int d) {
+ 		if (verbose)
+ 			printf("%s: ", _(bdcms[j].help));
 
+-		switch(bdcms[j].argtype) {
++		switch (bdcms[j].argtype) {
+ 		case ARG_USHRT:
+ 			printf("%hu\n", huarg);
+ 			break;
+@@ -418,26 +405,21 @@ do_commands(int fd, char **argv, int d) {
+ 	}
+ }
 
-All the patches are available in the git repository at:
- git://github.com/kerolasa/lelux-utiliteetit.git wknd23
+-#define PROC_PARTITIONS "/proc/partitions"
+-
+-void
+-report_all_devices(void) {
++void report_all_devices(void)
++{
+ 	FILE *procpt;
+ 	char line[200];
+ 	char ptname[200];
+ 	char device[210];
+ 	int ma, mi, sz;
+
+-	procpt = fopen(PROC_PARTITIONS, "r");
+-	if (!procpt) {
+-		fprintf(stderr, _("%s: cannot open %s\n"),
+-			progname, PROC_PARTITIONS);
+-		exit(1);
+-	}
++	procpt = fopen(_PATH_PROC_PARTITIONS, "r");
++	if (!procpt)
++		err(EXIT_FAILURE, _("cannot open %s"), _PATH_PROC_PARTITIONS);
+
+ 	while (fgets(line, sizeof(line), procpt)) {
+-		if (sscanf (line, " %d %d %d %200[^\n ]",
+-			    &ma, &mi, &sz, ptname) != 4)
++		if (sscanf(line, " %d %d %d %200[^\n ]",
++			   &ma, &mi, &sz, ptname) != 4)
+ 			continue;
+
+ 		sprintf(device, "/dev/%s", ptname);
+@@ -447,8 +429,8 @@ report_all_devices(void) {
+ 	fclose(procpt);
+ }
+
+-void
+-report_device(char *device, int quiet) {
++void report_device(char *device, int quiet)
++{
+ 	int fd;
+ 	int ro, ssz, bsz;
+ 	long ra;
+@@ -458,31 +440,29 @@ report_device(char *device, int quiet) {
+ 	fd = open(device, O_RDONLY | O_NONBLOCK);
+ 	if (fd < 0) {
+ 		if (!quiet)
+-			fprintf(stderr, _("%s: cannot open %s\n"),
+-				progname, device);
++			warn(_("cannot open %s"), device);
+ 		return;
+ 	}
+
+ 	ro = ssz = bsz = 0;
+ 	g.start = ra = 0;
+-	if (ioctl (fd, BLKROGET, &ro) == 0 &&
+-	    ioctl (fd, BLKRAGET, &ra) == 0 &&
+-	    ioctl (fd, BLKSSZGET, &ssz) == 0 &&
+-	    ioctl (fd, BLKBSZGET, &bsz) == 0 &&
+-	    ioctl (fd, HDIO_GETGEO, &g) == 0 &&
+-	    blkdev_get_size (fd, &bytes) == 0) {
++	if (ioctl(fd, BLKROGET, &ro) == 0 &&
++	    ioctl(fd, BLKRAGET, &ra) == 0 &&
++	    ioctl(fd, BLKSSZGET, &ssz) == 0 &&
++	    ioctl(fd, BLKBSZGET, &bsz) == 0 &&
++	    ioctl(fd, HDIO_GETGEO, &g) == 0 &&
++	    blkdev_get_size(fd, &bytes) == 0) {
+ 		printf("%s %5ld %5d %5d %10ld %15lld   %s\n",
+ 		       ro ? "ro" : "rw", ra, ssz, bsz, g.start, bytes, device);
+ 	} else {
+ 		if (!quiet)
+-			fprintf(stderr, _("%s: ioctl error on %s\n"),
+-				progname, device);
++			warnx(_("ioctl error on %s"), device);
+ 	}
+
+ 	close(fd);
+ }
+
+-void
+-report_header() {
++void report_header()
++{
+ 	printf(_("RO    RA   SSZ   BSZ   StartSec            Size   Device\n"));
+ }
 
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
