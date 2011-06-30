@@ -1,39 +1,38 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] mkfs.minix: check for misalignment
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 20 Jun 2011 23:11:46 -0400
-Message-ID: <1308625906.3690.2.camel@offworld>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mo-p00-ob.rzone.de ([81.169.146.161]:20270 "EHLO
+	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751897Ab1F3Ixa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jun 2011 04:53:30 -0400
+Date: Thu, 30 Jun 2011 10:53:27 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Don't try to chgrp write or wall if they are not built
+Message-ID: <20110630085327.GA8274@aepfle.de>
+References: <BANLkTikpHa-0aVp7G7cpRw_ePOQQiuXSEYnrV-AgssjhFEf2zg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <BANLkTikpHa-0aVp7G7cpRw_ePOQQiuXSEYnrV-AgssjhFEf2zg@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Mon, 20 Jun 2011 23:10:13 -0400
+On Thu, Jun 30, Marc-Antoine Perennou wrote:
 
-Produce a warning if the device is misaligned.
+> Fix regression from commit 4aa9d65bfa76afd0d886ca410ae83428a490d4ea
+> 
+> Signed-off-by: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+> ---
+>  term-utils/Makefile.am |   10 ++++++++--
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/mkfs.minix.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+> -       chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
+> $(DESTDIR)$(usrbin_execdir)/write
+> -       chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
+> $(DESTDIR)$(usrbin_execdir)/write
+> +if BUILD_WALL
+> +       chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
 
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 405e241..bc7d941 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -653,6 +653,11 @@ int main(int argc, char ** argv) {
- 		DEV = open(device_name,O_RDWR | O_EXCL);
- 	else
- 		DEV = open(device_name,O_RDWR);
-+
-+	if (blkdev_is_misaligned(DEV))
-+		warnx(_("warning: %s is misaligned"), device_name);
-+
-+
- 	if (DEV<0)
- 		err(MKFS_ERROR, _("%s: open failed"), device_name);
- 	if (S_ISBLK(statbuf.st_mode)) {
--- 
-1.7.5.4
+This is wrong and should part of the packaging system, not part of make
+install. The userid building util-linux is not neccessary part of the
+tty group.
+
+Olaf
