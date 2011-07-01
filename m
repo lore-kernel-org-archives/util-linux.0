@@ -1,66 +1,48 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] swapon: use xalloc lib
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 19 Jul 2011 19:17:55 -0400
-Message-ID: <1311117475.3215.5.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:60182 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756643Ab1GANvu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jul 2011 09:51:50 -0400
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: lamont@debian.org
+Subject: [PATCH 6/6] mount.8: fix typos
+Date: Fri,  1 Jul 2011 15:51:45 +0200
+Message-Id: <1309528305-12626-7-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Mon, 18 Jul 2011 00:33:20 -0400
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=530681#15
+From: Nicolas Francois <nicolas.francois@centraliens.net>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- mount/swapon.c |   15 +++++----------
- 1 files changed, 5 insertions(+), 10 deletions(-)
+ mount/mount.8 |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mount/swapon.c b/mount/swapon.c
-index 49771f5..6dfe4b1 100644
---- a/mount/swapon.c
-+++ b/mount/swapon.c
-@@ -24,6 +24,7 @@
- #include "swapheader.h"
- #include "mangle.h"
- #include "canonicalize.h"
-+#include "xalloc.h"
- #include "c.h"
- 
- #define PATH_MKSWAP	"/sbin/mkswap"
-@@ -341,10 +342,8 @@ swap_get_header(int fd, int *sig, unsigned int *pagesize)
- 	*pagesize = 0;
- 	*sig = 0;
- 
--	buf = malloc(MAX_PAGESIZE);
--	if (!buf)
--		return NULL;
--
-+	buf = xmalloc(MAX_PAGESIZE);
-+	
- 	datasz = read(fd, buf, MAX_PAGESIZE);
- 	if (datasz == (ssize_t) -1)
- 		goto err;
-@@ -658,16 +657,12 @@ static const char **ulist = NULL;
- static int ulct = 0;
- 
- static void addl(const char *label) {
--	llist = (const char **) realloc(llist, (++llct) * sizeof(char *));
--	if (!llist)
--		exit(EXIT_FAILURE);
-+	llist = (const char **) xrealloc(llist, (++llct) * sizeof(char *));
- 	llist[llct-1] = label;
- }
- 
- static void addu(const char *uuid) {
--	ulist = (const char **) realloc(ulist, (++ulct) * sizeof(char *));
--	if (!ulist)
--		exit(EXIT_FAILURE);
-+	ulist = (const char **) xrealloc(ulist, (++ulct) * sizeof(char *));
- 	ulist[ulct-1] = uuid;
- }
- 
+diff --git a/mount/mount.8 b/mount/mount.8
+index 886e6b4..b1666cb 100644
+--- a/mount/mount.8
++++ b/mount/mount.8
+@@ -804,7 +804,7 @@ and
+ mount options.
+ .TP
+ .B noatime
+-Do not update inode access times on this filesystem (e.g, for faster
++Do not update inode access times on this filesystem (e.g., for faster
+ access on the news spool to speed up news servers).
+ .TP
+ .B auto
+@@ -2408,7 +2408,7 @@ before trying
+ .TP
+ .B utf8
+ UTF8 is the filesystem safe 8-bit encoding of Unicode that is used by the
+-console. It can be be enabled for the filesystem with this option or disabled
++console. It can be enabled for the filesystem with this option or disabled
+ with utf8=0, utf8=no or utf8=false. If `uni_xlate' gets set, UTF8 gets
+ disabled.
+ .TP
 -- 
-1.7.4.1
+1.7.3.4
+
