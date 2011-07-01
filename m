@@ -1,27 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55361 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:60172 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754229Ab1GKLFr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Jul 2011 07:05:47 -0400
-Date: Mon, 11 Jul 2011 13:05:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Kirill Elagin <kirelagin@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix double free in mount.c with SELinux enabled
-Message-ID: <20110711110543.GI5214@nb.net.home>
-References: <CABVT_gfBiyqfbmDNB9aPiMAWsFLFwn64WhuJi=EA0-oy3cnsTQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CABVT_gfBiyqfbmDNB9aPiMAWsFLFwn64WhuJi=EA0-oy3cnsTQ@mail.gmail.com>
+	id S1756606Ab1GANvt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jul 2011 09:51:49 -0400
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: lamont@debian.org
+Subject: [PATCH 4/6] mount.8: fix typo
+Date: Fri,  1 Jul 2011 15:51:43 +0200
+Message-Id: <1309528305-12626-5-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 06, 2011 at 01:50:37AM +0400, Kirill Elagin wrote:
->  mount/mount.c |   15 ++++++++-------
->  1 files changed, 8 insertions(+), 7 deletions(-)
+Reported-by: Reuben Thomas <rrt@sc3d.org>
+Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=603096
 
-Applied, thanks!
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ mount/mount.8 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/mount/mount.8 b/mount/mount.8
+index 4259824..886e6b4 100644
+--- a/mount/mount.8
++++ b/mount/mount.8
+@@ -150,7 +150,7 @@ udev symlinks in the /etc/fstab file. The tags are
+ more readable, robust and portable. The
+ .BR mount (8)
+ command internally uses udev
+-symlinks, so use the symlinks in /etc/fstab is not advantage over LABEL=/UUID=.
++symlinks, so use the symlinks in /etc/fstab has no advantage over LABEL=/UUID=.
+ For more details see
+ .BR libblkid (3).
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
