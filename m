@@ -1,57 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:46054 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754179Ab1GLTTK convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 12 Jul 2011 15:19:10 -0400
-Received: by iwn6 with SMTP id 6so4910835iwn.19
-        for <util-linux@vger.kernel.org>; Tue, 12 Jul 2011 12:19:10 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu>
-References: <201107112259.55340.vapier@gentoo.org> <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu>
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Tue, 12 Jul 2011 15:18:50 -0400
-Message-ID: <CAJaTeTpBxcZ8ofxSHd7B1aRbU3wtSH=ED6ZYKEPPs4q3fgc2nA@mail.gmail.com>
-Subject: Re: `fsck -A` and fs-specific options
-To: Theodore Tso <tytso@mit.edu>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from cantor2.suse.de ([195.135.220.15]:60160 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756475Ab1GANvr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jul 2011 09:51:47 -0400
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: lamont@debian.org
+Subject: [PATCH 1/6] mount.8: fix reference to sharedsubtree documentation
+Date: Fri,  1 Jul 2011 15:51:40 +0200
+Message-Id: <1309528305-12626-2-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 12, 2011 at 07:02, Theodore Tso wrote:
-> On Jul 11, 2011, at 10:59 PM, Mike Frysinger wrote:
->> for example, some journaling file systems allow the journal to be stored
->> separately.  reiserfs has the "jdev=" mount option and the "--journal" fsck
->> option.  ext[34] have the "journal_dev=" mount option and the "-j" fsck
->> option.
->
-> At least for ext[34] and external journals, e2fsck can find the external
-> journal using the blkid library since the UUID of the external journal
-> is in the superblock.   (In fact that's why the blkid library was originally
-> written, and why it was originally included as part of e2fsprogs.)
+From: Mike Hommey <mh+reportbug@glandium.org>
+Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=508572
+Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=572403
+Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=508412
 
-when i read the kernel source, that seemed to be the case.  but i dont
-think it's the case for reiserfs, and i think there's a very tiny edge
-case with ext[34] related to moving the journal, but probably so small
-we can ignore it :p.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ mount/mount.8 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
->> another example is with loop mounts that take an offset.  fsck cannot operate
->> on the loop source as the start of the file is not the image.  it needs to
->> first setup the loop with the offset, and then do the fsck on the loop point.
->>       /tmp/foo.img /mnt/tmp ext3 loop,offset=10000
->
-> How often are people using loopback mounts as a default, standard thing which
-> need to be mounted and checked as part of the boot sequence?   I'm just
-> curious what the use case is for this?
+diff --git a/mount/mount.8 b/mount/mount.8
+index e9a52dd..767ff51 100644
+--- a/mount/mount.8
++++ b/mount/mount.8
+@@ -439,7 +439,7 @@ of that mount such that mounts and umounts within any of the mirrors propagate
+ to the other mirror. A slave mount receives propagation from its master, but
+ any not vice-versa.  A private mount carries no propagation abilities.  A
+ unbindable mount is a private mount which cannot be cloned through a bind
+-operation. Detailed semantics is documented in Documentation/sharedsubtree.txt
++operation. Detailed semantics is documented in Documentation/filesystems/sharedsubtree.txt
+ file in the kernel source tree.
+ 
+ .RS
+-- 
+1.7.3.4
 
-common enough that i got a report on it ;).  it was a mount point to
-be checked/mounted during boot.
-
-> I suppose if this was something people really did care about, the /etc/fstab
-> format could be extended to add a new field at the end for fsck options ---
-> but it's more complexity, and could break programs try to programmatically
-> modify /etc/fstab.
-
-right, which is why i was thinking that parsing the fstab's options
-field is the lesser of two evils ...
--mike
