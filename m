@@ -1,47 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:44550 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752030Ab1GXSJt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Jul 2011 14:09:49 -0400
-Received: by fxd18 with SMTP id 18so7830691fxd.11
-        for <util-linux@vger.kernel.org>; Sun, 24 Jul 2011 11:09:47 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:52021 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753132Ab1GALLh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jul 2011 07:11:37 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id A2DD48B013
+	for <util-linux@vger.kernel.org>; Fri,  1 Jul 2011 13:11:36 +0200 (CEST)
+Date: Fri, 1 Jul 2011 13:11:36 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Cc: rangelino@novell.com
+Subject: [PATCH] sfdisk: warn if partition size exceeds 2 TiB limit
+Message-ID: <20110701111134.GA24033@foxbat.suse.cz>
 MIME-Version: 1.0
-Date: Sun, 24 Jul 2011 19:09:47 +0100
-Message-ID: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
-Subject: Can't remount loopback ext4 without /etc/mtab
-From: Daniel Drake <dsd@laptop.org>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-In Fedora 14, the test case below worked fine. In Fedora 15, it fails.
-I think this is due to the change to have /etc/mtab as a symlink to
-/proc/mounts.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-# dd if=/dev/zero of=fs.img bs=1M count=20
-# mkfs.ext4 fs.img
-# mkdir mountpt
-# mount -o loop fs.img mountpt
+=46rom: Roberto Angelino <rangelino@novell.com>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisk/sfdisk.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
-Now try to remount it read-only:
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 6cd85a2..4ed5d37 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -1293,6 +1293,17 @@ partitions_ok(struct disk_desc *z) {
+ 	    }
+     }
+=20
++    /* Are the partitions within the DOS 2TiB limit? */
++    {
++	for (p =3D partitions; p < partitions + partno; p++)
++	    if (p->size > (unsigned long) UINT32_MAX) {
++	        my_warn(_("Warning: partition %s of size %lu sectors exceeds "
++		          "msdos 2TiB limit\n"),
++		        PNO(p), p->size);
++	        return 0;
++	    }
++    }
++
+     /* At most one chain of DOS extended partitions ? */
+     /* It seems that the OS/2 fdisk has the additional requirement
+        that the extended partition must be the fourth one */
+--=20
+1.7.3.4
 
-# mount -o remount,ro mountpt
-mount: /home/dsd/tmpdisk/mountpt not mounted already, or bad option
 
-(On Fedora 14 no error was returned and the mount became read-only)
+Petr
 
-When the error occurs, dmesg says:
-[ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
-or missing value
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
 
-Here is the corresponding entry from /proc/mounts:
-/dev/loop0 /home/dsd/tmpdisk/mountpt ext4
-rw,seclabel,relatime,barrier=1,data=ordered 0 0
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature
 
-Is this a util-linux bug? Or an ext4 issue?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
 
-Thanks,
-Daniel
+iEYEARECAAYFAk4Nq2YACgkQnZxG0T6qDD25hgCfSbtydlnUZRgJi2q2PsDtXAju
+92oAmgMfCSjYgJOufL04aYI9Rwp+AMq2
+=DbSB
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
