@@ -1,53 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdccah.dreamhost.com ([208.97.132.207]:59794 "EHLO
-	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752503Ab1GXWqa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 24 Jul 2011 18:46:30 -0400
-Subject: Re: Can't remount loopback ext4 without /etc/mtab
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: "Ted Ts'o" <tytso@mit.edu>
-Cc: Daniel Drake <dsd@laptop.org>, util-linux@vger.kernel.org
-In-Reply-To: <20110724195713.GH3469@thunk.org>
-References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
-	 <20110724195713.GH3469@thunk.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 24 Jul 2011 18:46:21 -0400
-Message-ID: <1311547581.3367.1.camel@offbook>
-Mime-Version: 1.0
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:48511 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755765Ab1GEROL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Jul 2011 13:14:11 -0400
+Received: by gwaa18 with SMTP id a18so2398723gwa.19
+        for <util-linux@vger.kernel.org>; Tue, 05 Jul 2011 10:14:11 -0700 (PDT)
+MIME-Version: 1.0
+From: Kirill Elagin <kirelagin@gmail.com>
+Date: Tue, 5 Jul 2011 21:13:51 +0400
+Message-ID: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
+Subject: [PATCH] Fix install-exec-hook to check whether wall and write were built
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 2011-07-24 at 15:57 -0400, Ted Ts'o wrote:
-> On Sun, Jul 24, 2011 at 07:09:47PM +0100, Daniel Drake wrote:
-> > 
-> > When the error occurs, dmesg says:
-> > [ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
-> > or missing value
-> > 
-> > Here is the corresponding entry from /proc/mounts:
-> > /dev/loop0 /home/dsd/tmpdisk/mountpt ext4
-> > rw,seclabel,relatime,barrier=1,data=ordered 0 0
-> > 
-> > Is this a util-linux bug? Or an ext4 issue?
-> 
-> Or a selinux thing; "seclabel" seems to be SELinux's fault:
-> 
+Signed-off-by: Kirill Elagin <kirelagin@gmail.com>
+---
+ term-utils/Makefile.am |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
 
-It would seem so, I can't reproduce this issue on a "normal", non
-SELinux box.
+diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
+index 5e03560..8ab9d0b 100644
+--- a/term-utils/Makefile.am
++++ b/term-utils/Makefile.am
+@@ -66,9 +66,15 @@ endif
 
-> % git grep LABELSUPP_STR
-> security/selinux/hooks.c:       {Opt_labelsupport, LABELSUPP_STR},
-> security/selinux/hooks.c:                       seq_puts(m, LABELSUPP_STR);
-> security/selinux/hooks.c:               match_prefix(LABELSUPP_STR, sizeof(LABEL
-> security/selinux/include/security.h:#define LABELSUPP_STR "seclabel"
-> 
-> Personally, I find my life has been much happier since I gave up on
-> SELinux as being too complicated to be secure.
-
-+1!!
-
-- Davidlohr
-
+ if USE_TTY_GROUP
+ if MAKEINSTALL_DO_CHOWN
++if BUILD_WALL
+ install-exec-hook::
+-   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
+-   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
+-
++   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
++   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
++endif
++if BUILD_WRITE
++install-exec-hook::
++   chgrp tty $(DESTDIR)$(usrbin_execdir)/write
++   chmod g+s $(DESTDIR)$(usrbin_execdir)/write
++endif
+ endif
+ endif
+--
+1.7.3.4
