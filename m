@@ -1,44 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29107 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750846Ab1GRVtG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Jul 2011 17:49:06 -0400
-Date: Mon, 18 Jul 2011 23:49:01 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] isosize fixes
-Message-ID: <20110718214901.GB4354@nb.redhat.com>
-References: <CAG27Bk0MvKRCW1d_fQ3-k2s4HXTdy-S1NyVC4UFM2Boxig9usA@mail.gmail.com>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:35600 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751529Ab1GEVIU convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Jul 2011 17:08:20 -0400
+Received: by yxi11 with SMTP id 11so2054011yxi.19
+        for <util-linux@vger.kernel.org>; Tue, 05 Jul 2011 14:08:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0MvKRCW1d_fQ3-k2s4HXTdy-S1NyVC4UFM2Boxig9usA@mail.gmail.com>
+In-Reply-To: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
+References: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
+From: Kirill Elagin <kirelagin@gmail.com>
+Date: Wed, 6 Jul 2011 01:07:59 +0400
+Message-ID: <CABVT_geyUifDf5Kcn-fwHv46XPmoBa=3Cx7hB9kV9i+XeCK3xg@mail.gmail.com>
+Subject: Re: [PATCH] Fix install-exec-hook to check whether wall and write
+ were built
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 11, 2011 at 02:54:04PM +0200, Sami Kerola wrote:
-> The following changes since commit 37b94458bd0f4a178233ad0366a727bf5bde879f:
-> 
->   sfdisk: fix coding style. (2011-06-29 12:47:38 +0200)
-> 
-> are available in the git repository at:
->   https://github.com/kerolasa/lelux-utiliteetit isosize
-> 
-> Sami Kerola (6):
->       isosize: remove global variables
->       isosize: use long options
->       isosize: check user input to be numeric
->       isosize: include-what-you-use header check
->       isosize: fix coding style
->       docs: isosize.8 add long options
-> 
->  disk-utils/Makefile.am |    1 +
->  disk-utils/isosize.8   |   16 ++--
->  disk-utils/isosize.c   |  221 +++++++++++++++++++++++++-----------------------
->  3 files changed, 122 insertions(+), 116 deletions(-)
+Sorry for this, didn't notice another thread.
 
- Applied, thanks.
+--
+Кирилл Елагин
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
+2011/7/5 Kirill Elagin <kirelagin@gmail.com>:
+> Signed-off-by: Kirill Elagin <kirelagin@gmail.com>
+> ---
+>  term-utils/Makefile.am |   12 +++++++++---
+>  1 files changed, 9 insertions(+), 3 deletions(-)
+>
+> diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
+> index 5e03560..8ab9d0b 100644
+> --- a/term-utils/Makefile.am
+> +++ b/term-utils/Makefile.am
+> @@ -66,9 +66,15 @@ endif
+>
+>  if USE_TTY_GROUP
+>  if MAKEINSTALL_DO_CHOWN
+> +if BUILD_WALL
+>  install-exec-hook::
+> -   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
+> -   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
+> -
+> +   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
+> +   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
+> +endif
+> +if BUILD_WRITE
+> +install-exec-hook::
+> +   chgrp tty $(DESTDIR)$(usrbin_execdir)/write
+> +   chmod g+s $(DESTDIR)$(usrbin_execdir)/write
+> +endif
+>  endif
+>  endif
+> --
+> 1.7.3.4
+>
