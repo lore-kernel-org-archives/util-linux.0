@@ -1,27 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41282 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:3131 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751192Ab1GZKRi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 Jul 2011 06:17:38 -0400
-Date: Tue, 26 Jul 2011 12:17:35 +0200
+	id S1753072Ab1GKKEq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2011 06:04:46 -0400
+Date: Mon, 11 Jul 2011 12:04:42 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] whereis: update coding style
-Message-ID: <20110726101735.GD22568@nb.net.home>
-References: <1311548793.3367.15.camel@offbook>
+To: Kirill Elagin <kirelagin@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix install-exec-hook to check whether wall and write
+	were built
+Message-ID: <20110711100442.GG5214@nb.net.home>
+References: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1311548793.3367.15.camel@offbook>
+In-Reply-To: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 24, 2011 at 07:06:33PM -0400, Davidlohr Bueso wrote:
->  misc-utils/whereis.c |  360 ++++++++++++++++++++++++--------------------------
->  1 files changed, 170 insertions(+), 190 deletions(-)
+On Tue, Jul 05, 2011 at 09:13:51PM +0400, Kirill Elagin wrote:
+> Signed-off-by: Kirill Elagin <kirelagin@gmail.com>
+> ---
+>  term-utils/Makefile.am |   12 +++++++++---
+>  1 files changed, 9 insertions(+), 3 deletions(-)
 
- Applied, thanks.
-   
+ Thanks, but it seems already fixed by
+
+ commit 73ae0d5be6e070afe83d1a2324ac79941629201e
+ Author: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+
+    Karel
+
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
