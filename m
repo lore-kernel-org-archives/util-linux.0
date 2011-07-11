@@ -1,48 +1,54 @@
-Return-Path: dsd.olpc@gmail.com
-MIME-Version: 1.0
-Sender: dsd.olpc@gmail.com
-In-Reply-To: <CAGq3pz4smg1pJisnEpnFKKAcNMFyBjDVSSWrLA79O8JK+=AFQQ@mail.gmail.com>
-References: <20110709132046.90A119D401C@zog.reactivated.net>
-	<20110711121836.GJ5214@nb.net.home>
-	<CAGq3pz4smg1pJisnEpnFKKAcNMFyBjDVSSWrLA79O8JK+=AFQQ@mail.gmail.com>
-Date: Mon, 11 Jul 2011 14:14:09 +0100
-Message-ID: <CAGq3pz5hJrpcSdwnJwGRGtC3Ap=vDzm3r0PSbYdK=33S4t2HBg@mail.gmail.com>
-Subject: Re: [PATCH] evstate: new utility for querying evdev key/switch/event state
-From: Daniel Drake <dsd@laptop.org>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:52990 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756080Ab1GKMSl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2011 08:18:41 -0400
+Date: Mon, 11 Jul 2011 14:18:36 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Daniel Drake <dsd@laptop.org>
 Cc: util-linux@vger.kernel.org, pgf@laptop.org, dmitry.torokhov@gmail.com,
-        Kay Sievers <kay.sievers@vrfy.org>, linux-input@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+        Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH] evstate: new utility for querying evdev
+	key/switch/event state
+Message-ID: <20110711121836.GJ5214@nb.net.home>
+References: <20110709132046.90A119D401C@zog.reactivated.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110709132046.90A119D401C@zog.reactivated.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-+CC linux-input
+On Sat, Jul 09, 2011 at 02:20:46PM +0100, Daniel Drake wrote:
+> evstate is a small utility that queries evdev state of a specific
+> key, switch, button, LED or sound event. This is useful in programs
+> such as powerd (http://wiki.laptop.org/go/Powerd) which need to query
+> things like the state of the laptop lid switch from shell code.
+> 
+> Our earlier non-upstream approach to this was to add sysfs nodes that
+> would indicate button state, but Dmitry Torokhov is against seeing those
+> in the upstream kernel as it is duplicating info from the input layer:
 
-On 11 July 2011 14:12, Daniel Drake <dsd@laptop.org> wrote:
-> On 11 July 2011 13:18, Karel Zak <kzak@redhat.com> wrote:>
->>> http://article.gmane.org/gmane.linux.drivers.platform.x86.devel/1089
->>
->> Wow, so you have already implemented a patch that exports the state
->> in *human readable format* by sysfs. This patch was NACKed.
->>
->> Now it's expected that everyone in userspace will use ioctl() (with
->> root permissions?) and translate any crazy bit array to something
->> human readable. Right? Really?
->
-> Dmitry, what are your thoughts on this?
->
-> To clarify, there are 4 different switches that we need to read the state of.
->
-> 1. XO-1.5 lid switch, exposed via ACPI via normal acpi-button driver
-> 2. XO-1.5 ebook switch, exposed via drivers/platform/x86/xo15-ebook.c
-> 3. XO-1 lid switch, exposed via arch/x86/platform/olpc/olpc-xo1-sci.c
-> (linux-next)
-> 4. XO-1 ebook switch, exposed via
-> arch/x86/platform/olpc/olpc-xo1-sci.c (linux-next)
->
-> We'd like to do this from shell code, as root.
+Sounds too crazy...
 
-add 2 more to that list as well in the near future: we are currently
-writing drivers for the lid and ebook switches on the ARM-based
-XO-1.75 laptop currently in prototype stages.
+The duplication is normal (see for example block devices). There is
+many places where we have the same information accessible by ioctl()
+as well as by sysfs.
 
-Daniel
+The sysfs is usually the preferred way, because it does not require root
+permissions to read the attributes and you can use standard file/text
+utils rather than any specialized ioctl wrappers.
+
+> http://article.gmane.org/gmane.linux.drivers.platform.x86.devel/1089
+
+Wow, so you have already implemented a patch that exports the state
+in *human readable format* by sysfs. This patch was NACKed.
+
+Now it's expected that everyone in userspace will use ioctl() (with
+root permissions?) and translate any crazy bit array to something
+human readable. Right? Really?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
