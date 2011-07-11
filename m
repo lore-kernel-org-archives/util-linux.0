@@ -1,77 +1,50 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] whereis: remove find()
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:33259 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751344Ab1GKMqi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Jul 2011 08:46:38 -0400
+Received: by fxd18 with SMTP id 18so3961122fxd.11
+        for <util-linux@vger.kernel.org>; Mon, 11 Jul 2011 05:46:37 -0700 (PDT)
+Subject: [PATCH] build-sys: fix spaces versus tabs conflict
+From: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Mon, 11 Jul 2011 14:46:27 +0200
 Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 24 Jul 2011 19:05:48 -0400
-Message-ID: <1311548748.3367.14.camel@offbook>
+Message-ID: <1310388392.30860.1.camel@Lou.local>
 Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Sun, 24 Jul 2011 10:59:25 -0400
+For some reason, tabs were replaced by spaces in commit
+73ae0d5be6e070afe83d1a2324ac79941629201e
 
-Because findv() can do the same job find() does, we can simply remove it and call findv() with the size of each array.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
 ---
- misc-utils/whereis.c |   14 +++-----------
- 1 files changed, 3 insertions(+), 11 deletions(-)
+ term-utils/Makefile.am |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 4f841f9..a331f45 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -55,7 +55,6 @@ void looksrc(char *);
- void lookbin(char *);
- void lookman(char *);
- void findv(char **, int, char *);
--void find(char **, char *);
- void findin(char *, char *);
- int itsit(char *, char *);
- 
-@@ -321,7 +320,7 @@ void
- looksrc(char *cp)
- {
- 	if (Sflag == 0)
--		find(srcdirs, cp);
-+		findv(srcdirs, ARRAY_SIZE(srcdirs)-1, cp);
- 	else
- 		findv(Sflag, Scnt, cp);
- }
-@@ -330,7 +329,7 @@ void
- lookbin(char *cp)
- {
- 	if (Bflag == 0)
--		find(bindirs, cp);
-+		findv(bindirs, ARRAY_SIZE(bindirs)-1, cp);
- 	else
- 		findv(Bflag, Bcnt, cp);
- }
-@@ -339,7 +338,7 @@ void
- lookman(char *cp)
- {
- 	if (Mflag == 0)
--		find(mandirs, cp);
-+		findv(mandirs, ARRAY_SIZE(mandirs)-1, cp);
- 	else
- 		findv(Mflag, Mcnt, cp);
- }
-@@ -352,13 +351,6 @@ findv(char **dirv, int dirc, char *cp)
- }
- 
- void
--find(char **dirs, char *cp)
--{
--	while (*dirs)
--		findin(*dirs++, cp);
--}
--
--void
- findin(char *dir, char *cp)
- {
- 	DIR *dirp;
+diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
+index 5013898..7b545c3 100644
+--- a/term-utils/Makefile.am
++++ b/term-utils/Makefile.am
+@@ -68,12 +68,12 @@ if USE_TTY_GROUP
+ if MAKEINSTALL_DO_CHOWN
+ install-exec-hook::
+ if BUILD_WALL
+-       chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
+-       chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
++	chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
++	chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
+ endif
+ if BUILD_WRITE
+-       chgrp tty $(DESTDIR)$(usrbin_execdir)/write
+-       chmod g+s $(DESTDIR)$(usrbin_execdir)/write
++	chgrp tty $(DESTDIR)$(usrbin_execdir)/write
++	chmod g+s $(DESTDIR)$(usrbin_execdir)/write
+ endif
+ endif
+ endif
 -- 
-1.7.4.1
+1.7.6.134.gcf13f6.dirty
+
+
