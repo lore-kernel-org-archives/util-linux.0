@@ -1,109 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from imovil.entelpcs.cl ([200.72.211.69]:52256 "EHLO
-	localhost6.localdomain6" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750706Ab1GMEUw convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Jul 2011 00:20:52 -0400
-Subject: Re: [PATCH] minix: v3 super-block does not have s_state field
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:34398 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752138Ab1GKKko (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2011 06:40:44 -0400
+Date: Mon, 11 Jul 2011 12:40:35 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: util-linux@vger.kernel.org
-In-Reply-To: <1310485846-3685-1-git-send-email-kerolasa@iki.fi>
-References: <1310485846-3685-1-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 13 Jul 2011 00:05:31 -0400
-Message-ID: <1310529931.4444.7.camel@offbook>
-Mime-Version: 1.0
+Subject: Re: [PATCH] lscpu: add support for books
+Message-ID: <20110711104035.GH5214@nb.net.home>
+References: <20110705112909.GA3450@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110705112909.GA3450@osiris.boeblingen.de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2011-07-12 at 17:50 +0200, Sami Kerola wrote:
-> Originally attempt was to use minix definitions and file system
-> structures from linux/minix_fs.h, but that failed at first try.
-> 
-> mkfs.minix.c:164:10: error: no member named 's_state' in 'struct
->       minix3_super_block'
->                 Super3.s_state |= MINIX_VALID_FS;
->                 ~~~~~~ ^
-> mkfs.minix.c:165:10: error: no member named 's_state' in 'struct
->       minix3_super_block'
->                 Super3.s_state &= ~MINIX_ERROR_FS;
-> 
-> Primary reason seems to be that the minix3 super-block does not
-> have s_state field. And it looks to me that it has never had it.
-> Further details about s_state can be found from minix v3 file
-> system support kernel patch.
+On Tue, Jul 05, 2011 at 01:29:10PM +0200, Heiko Carstens wrote:
+> This patch adds support for books in cpu topology output. 
 
-Yes, you are right. It was dropped during time for v3, but previous
-versions still use it.
+ Thanks!
 
-> 
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=939b00df0306bc4b5cd25c3c3c78e89b91e72fc8
-> 
-> Former minix disk s_state is now in kernel memory super-block
-> info structure as a s_mount_state field, if someone wonders what
-> happen to it.
+> Please note that I assume that other programs that get fed by the
+> output of lscpu actually parse the last comment line and react in a
+> sane way if new entries appear in the cpu list.
 
-I don't think we should always rely on having the kernel headers, that's
-why the fallback is provided.
+ Never assume anything :-)
 
-> 
-> Issue appeared commit a2657ae3ffb56616ac9c921886bcca8ef242499f
-> (13 days ago), and hopefully not too many users where affected as
-> I am not sure how bad it is to have mismatch in super-block
-> structure.
+> Also the readable output is changed from
+> "CPU socket(s):" to "Socket(s) per book:" or simply "Socket(s):" in the
+> absence of books.
 
-It can be quite bad depending on the mismatch, in this case the kernel
-skips the s_state when using v3.
+ You're right, the "Socket(s)" is probably better. Unfortunately it's
+ not backwardly compatible (for people who use "lscpu | grep ..."), so
+ I'll add a note to the ReleaseNotes...
 
-I think with this patch we address the issue without removing our
-fallback.
+> @@ -732,7 +750,7 @@ print_parsable(struct lscpu_desc *desc)
+>  	"# The following is the parsable format, which can be fed to other\n"
+>  	"# programs. Each different item in every column has an unique ID\n"
+>  	"# starting from zero.\n"
+> -	"# CPU,Core,Socket,Node"));
+> +	"# CPU,Core,Socket,Book,Node"));
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Tue, 12 Jul 2011 23:55:14 -0400
-Subject: [PATCH] minix: remove fs state
+ It would be better to use
 
-For v3 minix superblocks the state flag (s_state) has been removed, so drop it from the structure in accordance with the kernel's representation.
+    # CPU,Core,Socket,Node,Book
 
-Reported-by: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/minix.h      |    1 -
- disk-utils/mkfs.minix.c |    7 ++-----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ to keep it usable for stupid scripts where the header is not parsed.
 
-diff --git a/disk-utils/minix.h b/disk-utils/minix.h
-index fc1d1c0..a13a2a4 100644
---- a/disk-utils/minix.h
-+++ b/disk-utils/minix.h
-@@ -62,7 +62,6 @@ struct minix3_super_block {
- 	u16 s_pad2;
- 	u16 s_blocksize;
- 	u8  s_disk_version;
--        u16 s_state;
- };
- 
- #define BLOCK_SIZE_BITS 10
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 916dd17..06d087e 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -160,11 +160,8 @@ static void check_mount(void) {
- static void super_set_state(void)
- {
- 	switch (fs_version) {
--	case 3:
--		Super3.s_state |= MINIX_VALID_FS;
--		Super3.s_state &= ~MINIX_ERROR_FS;
--		break;
--	default:
-+	case 1:
-+	case 2:
- 		Super.s_state |= MINIX_VALID_FS;
- 		Super.s_state &= ~MINIX_ERROR_FS;
- 		break;
+    Karel
+
 -- 
-1.7.4.1
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
