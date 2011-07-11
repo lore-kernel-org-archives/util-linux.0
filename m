@@ -1,42 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:60160 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:50923 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756475Ab1GANvr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2011 09:51:47 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: lamont@debian.org
-Subject: [PATCH 1/6] mount.8: fix reference to sharedsubtree documentation
-Date: Fri,  1 Jul 2011 15:51:40 +0200
-Message-Id: <1309528305-12626-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
-References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+	id S1752211Ab1GKJqY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2011 05:46:24 -0400
+Date: Mon, 11 Jul 2011 11:46:20 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [git pull] blockdev fixes
+Message-ID: <20110711094620.GE5214@nb.net.home>
+References: <BANLkTikQsgSXBs4kybTvF0QvDDvbMub5hg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <BANLkTikQsgSXBs4kybTvF0QvDDvbMub5hg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Mike Hommey <mh+reportbug@glandium.org>
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=508572
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=572403
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=508412
+On Thu, Jun 30, 2011 at 11:38:31AM +0200, Sami Kerola wrote:
+> The following changes since commit 37b94458bd0f4a178233ad0366a727bf5bde879f:
+> 
+>   sfdisk: fix coding style. (2011-06-29 12:47:38 +0200)
+> 
+> are available in the git repository at:
+>   https://github.com/kerolasa/lelux-utiliteetit blockdev
+> 
+> Sami Kerola (8):
+>       blockdev: set options read only
+>       blockdev: remove progname
+>       blockdev: add --help option
+>       blockdev: use libc error facilities
+>       blockdev: use pathnames.h to find partitions
+>       blockdev: broken compiler warning circumvention removed
+>       blockdev: type mismatch fix
+>       blockdev: coding style fix
+> 
+>  disk-utils/blockdev.c |  158 +++++++++++++++++++++---------------------------
+>  1 files changed, 69 insertions(+), 89 deletions(-)
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- mount/mount.8 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Merged, thanks.
 
-diff --git a/mount/mount.8 b/mount/mount.8
-index e9a52dd..767ff51 100644
---- a/mount/mount.8
-+++ b/mount/mount.8
-@@ -439,7 +439,7 @@ of that mount such that mounts and umounts within any of the mirrors propagate
- to the other mirror. A slave mount receives propagation from its master, but
- any not vice-versa.  A private mount carries no propagation abilities.  A
- unbindable mount is a private mount which cannot be cloned through a bind
--operation. Detailed semantics is documented in Documentation/sharedsubtree.txt
-+operation. Detailed semantics is documented in Documentation/filesystems/sharedsubtree.txt
- file in the kernel source tree.
- 
- .RS
+    Karel
+
 -- 
-1.7.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
