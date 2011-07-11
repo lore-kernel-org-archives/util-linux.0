@@ -1,37 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30056 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965029Ab1GMImq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Jul 2011 04:42:46 -0400
-Date: Wed, 13 Jul 2011 10:42:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Brad Goodman <brad@bradgoodman.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Error in man page for fstab
-Message-ID: <20110713084243.GB3486@nb.net.home>
-References: <CAAN0OpipdTBHfJGJG0s-YQQ0EbmrLzCkh6PWfHvVAdz78mFE6w@mail.gmail.com>
+Return-Path: dsd.olpc@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAAN0OpipdTBHfJGJG0s-YQQ0EbmrLzCkh6PWfHvVAdz78mFE6w@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Sender: dsd.olpc@gmail.com
+In-Reply-To: <20110711121836.GJ5214@nb.net.home>
+References: <20110709132046.90A119D401C@zog.reactivated.net>
+	<20110711121836.GJ5214@nb.net.home>
+Date: Mon, 11 Jul 2011 14:12:00 +0100
+Message-ID: <CAGq3pz4smg1pJisnEpnFKKAcNMFyBjDVSSWrLA79O8JK+=AFQQ@mail.gmail.com>
+Subject: Re: [PATCH] evstate: new utility for querying evdev key/switch/event state
+From: Daniel Drake <dsd@laptop.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, pgf@laptop.org, dmitry.torokhov@gmail.com,
+        Kay Sievers <kay.sievers@vrfy.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 12, 2011 at 12:21:58PM -0400, Brad Goodman wrote:
-> The fstab man page contains the following text:
-> 
-> >> The third field, (fs_vfstype) ... An entry "none" is  useful  for bind or move mounts
-> 
-> "none" is interpreted as an actual vfstype, which does not have the
-> intended consequences.
+On 11 July 2011 13:18, Karel Zak <kzak@redhat.com> wrote:>
+>> http://article.gmane.org/gmane.linux.drivers.platform.x86.devel/1089
+>
+> Wow, so you have already implemented a patch that exports the state
+> in *human readable format* by sysfs. This patch was NACKed.
+>
+> Now it's expected that everyone in userspace will use ioctl() (with
+> root permissions?) and translate any crazy bit array to something
+> human readable. Right? Really?
 
- The bind mounts are completely independent on FS type. The type does
- not make sense here. The recent version of the mount(8) always
- overwrites the FS type to "none" for all MS_BIND, MS_MOVE and
- MS_PROPAGATION operations.
+Dmitry, what are your thoughts on this?
 
-    Karel
+To clarify, there are 4 different switches that we need to read the state of.
 
+1. XO-1.5 lid switch, exposed via ACPI via normal acpi-button driver
+2. XO-1.5 ebook switch, exposed via drivers/platform/x86/xo15-ebook.c
+3. XO-1 lid switch, exposed via arch/x86/platform/olpc/olpc-xo1-sci.c
+(linux-next)
+4. XO-1 ebook switch, exposed via
+arch/x86/platform/olpc/olpc-xo1-sci.c (linux-next)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+We'd like to do this from shell code, as root.
+
+Daniel
