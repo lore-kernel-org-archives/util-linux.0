@@ -1,66 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34651 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:40110 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753917Ab1GVK5e (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Jul 2011 06:57:34 -0400
-Date: Fri, 22 Jul 2011 12:57:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: ionice: requires scheduling since
-	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
-Message-ID: <20110722105730.GT22568@nb.net.home>
-References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net> <20110722085420.GP22568@nb.net.home> <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net> <20110722094304.GQ22568@nb.net.home> <7856072A9D04C24B82DFE2B1112FE38A08FE2D3B4F@MCHP058A.global-ad.net>
+	id S1754968Ab1GLC7y (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2011 22:59:54 -0400
+Received: from vapier.localnet (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id A89392AC1CB
+	for <util-linux@vger.kernel.org>; Tue, 12 Jul 2011 02:59:53 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: `fsck -A` and fs-specific options
+Date: Mon, 11 Jul 2011 22:59:54 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3B4F@MCHP058A.global-ad.net>
+Content-Type: multipart/signed;
+  boundary="nextPart4175573.CkS2O5A6dc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201107112259.55340.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 22, 2011 at 12:21:08PM +0200, Voelker, Bernhard wrote:
-> Karel Zak wrote:
-> 
-> > Fixed.
-> > 
-> >  I've also added support for human readable class names, you can use:
-> > 
-> >    ionice -c best-effort /bin/foo
-> 
-> great, thanks!
-> 
-> One last corner case regarding -t (ignoring failure):
-> 
->   $ schedutils/ionice -c 4 -t  schedutils/ionice 
->   ionice: bad prio class 4
->   $ schedutils/ionice -n 8 -t  schedutils/ionice 
->   idle
-> 
-> With -c, a bad prio class leads to a failure, while it doesn't with -n.
-> Is this intended?
+--nextPart4175573.CkS2O5A6dc
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-OK. Copy & past from the latest commit:
+ive got some "interesting" bugs here when using the `fsck -A` helper. =20
+consider file systems that have unique mount options that sometimes the fsc=
+k=20
+program also needs to know about.  for mounting, this isnt a problem as the=
+=20
+options are stored in /etc/fstab and `mount` will extract the options field=
+=20
+and pass it along.  but what about fsck ?
 
-    ionice: make -t more tolerant
-    
-    * replace errx() with warnx() for unknown -c class
-    
-      The right place to check I/O scheduler features is in kernel. We should
-      not try to be more smart than kernel.
-    
-    * make the code ready (robust) for unknown sched.classes
-    
-    * fix -t behavior
-    
-    	old version:
-    	  $ ionice -c 4 -t bash
-    	  ionice: bad prio class 4
-    
-    	new version:
-    	  $ ionice -c 4 -t bash
-    
-    Reported-by: Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-    Signed-off-by: Karel Zak <kzak@redhat.com>
+for example, some journaling file systems allow the journal to be stored=20
+separately.  reiserfs has the "jdev=3D" mount option and the "--journal" fs=
+ck=20
+option.  ext[34] have the "journal_dev=3D" mount option and the "-j" fsck=20
+option.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+another example is with loop mounts that take an offset.  fsck cannot opera=
+te=20
+on the loop source as the start of the file is not the image.  it needs to=
+=20
+first setup the loop with the offset, and then do the fsck on the loop poin=
+t.
+	/tmp/foo.img /mnt/tmp ext3 loop,offset=3D10000
+
+i could code up some crap in the Gentoo init scripts to take care of this, =
+but=20
+if we handled it in util-linux, everyone would get this for free.  seems li=
+ke=20
+we need to add a per-filesystem-type lists that track the mount option (so =
+we=20
+can extract it from /etc/fstab) and how to translate it into the related fs=
+ck=20
+option.
+=2Dmike
+
+--nextPart4175573.CkS2O5A6dc
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJOG7irAAoJEEFjO5/oN/WB4ewP/2PrU2+bPx3tj/HQ9N9V64Rl
+2+emeeMhqxyNFZ38nKshaNiAkCCB5cXrZI2550hJiXgS3m9+nNVPPyQCdQzkShAb
+5rI/mOd3e3EBHEcDxdEQzdek6eY2eTebxv5fBvCaZLQeVaGJth7zxchqZViOIXQM
+VVL5ZHHClcgUZ01Luw0baBBjO/l0h6fq1VCIQC0/Z4uACfp+VX4e7NxFgQJRP0yR
+9AnTJ9WhWNYvVMEphZDmQTustCFBl+wyJTmmgLE+z7Vk6f+43MPsP/RY1Dw+MUv7
+Sepis2dfgi7sELyUDF0ni4Y7vHmytnaRTX6XYWfR7nQdpyIH3cfGOgnl5asajjXW
+kJIu8WTQKzQTWr1W/YavCnig1Qd4YFhPtaxRMPrUPPEbsvtNR4grwHM8kepcCWpr
+f6YrXi8wJoEl3Mfi3rgmQZxoR9HsS/DPB/55qRtugSD/N1bhv0GLkJ9naNazSVkt
+iO3bH97OVRI1ZcH5SW9a8vqYk5fPHiXlDYvR7A3RJFdICQcFAo2YPZPwbstC9N9i
+314uuF3qt2fR98urrdd3DZP1bksEngMHZRZ16HTuVO5R/xvDBHPXtf8jA2X0OVAE
+ONKfFx5lmSbKUnuVo13MiPtG/I279BPR9M8mYUzP/utMVH4bZfvPlcVnwE+m9NGn
+Ow4fluEsbPMgfksZe/r9
+=RWCo
+-----END PGP SIGNATURE-----
+
+--nextPart4175573.CkS2O5A6dc--
