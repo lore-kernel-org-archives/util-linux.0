@@ -1,29 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50855 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757414Ab1GKIrU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Jul 2011 04:47:20 -0400
-Date: Mon, 11 Jul 2011 10:47:14 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/3] minix: add version 3 layout
-Message-ID: <20110711084714.GB5214@nb.net.home>
-References: <1309368493.3162.3.camel@offbook>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:45153 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753972Ab1GLQV7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 12 Jul 2011 12:21:59 -0400
+Received: by wwe5 with SMTP id 5so5114954wwe.1
+        for <util-linux@vger.kernel.org>; Tue, 12 Jul 2011 09:21:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1309368493.3162.3.camel@offbook>
+Date: Tue, 12 Jul 2011 12:21:58 -0400
+Message-ID: <CAAN0OpipdTBHfJGJG0s-YQQ0EbmrLzCkh6PWfHvVAdz78mFE6w@mail.gmail.com>
+Subject: Error in man page for fstab
+From: Brad Goodman <brad@bradgoodman.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 29, 2011 at 01:28:13PM -0400, Davidlohr Bueso wrote:
->  disk-utils/minix.h |   83 +++++++++++++++++++++++++++++++++++++++++++++-------
->  1 files changed, 72 insertions(+), 11 deletions(-)
+The fstab man page contains the following text:
 
- Applied, thanks.
+>> The third field, (fs_vfstype) ... An entry "none" is  useful  for bind or move mounts
 
-    Karel
+"none" is interpreted as an actual vfstype, which does not have the
+intended consequences.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I believe the word "none" should be replaced with "auto", which
+automatically detects the vfstype.
+
+This was seen under Centos 6.0, which gave the following info from the man page:
+Linux 2.2          15 June 1999                         FSTAB(5)
