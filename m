@@ -1,66 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39924 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752549Ab1GUPnH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 Jul 2011 11:43:07 -0400
-Date: Thu, 21 Jul 2011 17:43:03 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] schedutils
-Message-ID: <20110721154303.GF22568@nb.net.home>
-References: <CAG27Bk0XXawQERH19+iUguDame2Pts_+bvrt8Of0+ib9KSW3NA@mail.gmail.com> <20110718221751.GD4354@nb.redhat.com> <CAG27Bk3vs54m7b6y_M_uq4RuyPBn-yhAEt2GhicsyY8F_+jJfw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAG27Bk3vs54m7b6y_M_uq4RuyPBn-yhAEt2GhicsyY8F_+jJfw@mail.gmail.com>
+Received: from DMZ-MAILSEC-SCANNER-6.MIT.EDU ([18.7.68.35]:54175 "EHLO
+	dmz-mailsec-scanner-6.mit.edu" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752958Ab1GLLCY convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Jul 2011 07:02:24 -0400
+Subject: Re: `fsck -A` and fs-specific options
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=us-ascii
+From: Theodore Tso <tytso@MIT.EDU>
+In-Reply-To: <201107112259.55340.vapier@gentoo.org>
+Date: Tue, 12 Jul 2011 07:02:20 -0400
+Cc: util-linux@vger.kernel.org
+Message-Id: <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu>
+References: <201107112259.55340.vapier@gentoo.org>
+To: Mike Frysinger <vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 20, 2011 at 10:15:13AM +0200, Sami Kerola wrote:
-> >> -                     ioprio = strtol_or_err(optarg, _("failed to parse class data"));
-> >> +                     ioprio = strtol_or_err(optarg, _("failed to parse priority"));
-> >
-> > well, the original kernel Documentation/block/ioprio.txt is talking
-> > about "class data" and I think it would be better to follow kernel
-> > here. Maybe one day the mask for the syscall will used for a different
-> > things than only for priority...
+
+On Jul 11, 2011, at 10:59 PM, Mike Frysinger wrote:
 > 
-> I read kernel documentation using priority, class data and level as
-> synonyms. To me the `class data' is most confusing because it gets
-> mixed up with `class'. As you did not like `priority' I do my last
-> attempt to change the word and used `level'. How that would sound?
+> for example, some journaling file systems allow the journal to be stored 
+> separately.  reiserfs has the "jdev=" mount option and the "--journal" fsck 
+> option.  ext[34] have the "journal_dev=" mount option and the "-j" fsck 
+> option.
 
- The 'ioprio' in the syscall:
+At least for ext[34] and external journals, e2fsck can find the external
+journal using the blkid library since the UUID of the external journal
+is in the superblock.   (In fact that's why the blkid library was originally
+written, and why it was originally included as part of e2fsprogs.)
 
-     syscall(SYS_ioprio_set, which, who, ioprio);
+> another example is with loop mounts that take an offset.  fsck cannot operate 
+> on the loop source as the start of the file is not the image.  it needs to 
+> first setup the loop with the offset, and then do the fsck on the loop point.
+> 	/tmp/foo.img /mnt/tmp ext3 loop,offset=10000
 
- encodes two information:
+How often are people using loopback mounts as a default, standard thing which
+need to be mounted and checked as part of the boot sequence?   I'm just
+curious what the use case is for this?
 
-    IOPRIO_PRIO_CLASS  - e.g. realtime, idle, ...
-    IOPRIO_PRIO_DATA   - e.g. 0-7
+I suppose if this was something people really did care about, the /etc/fstab
+format could be extended to add a new field at the end for fsck options ---
+but it's more complexity, and could break programs try to programmatically
+modify /etc/fstab.
 
- this is reason why the docs is talking about "class" and "class data".
+-- Ted
 
- Anyway, merged with some minor changes and --classdata option :-)
- 
-
- Minor notes:
-
- * .PP in man page within .IP block does not have the same meaning
-   like blank line
-
- * I think that 
-        -c, --class NUM
-   is better than 
-        -c, --class=NUM
-
-
- I have fixed this in ionice man page, but not in usage(). It would be
- nice to use in all man pages and usage() functions the same syntax.
- Maybe we can create any template or so to have it documented.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
