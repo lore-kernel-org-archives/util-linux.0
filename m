@@ -1,49 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from DMZ-MAILSEC-SCANNER-6.MIT.EDU ([18.7.68.35]:65207 "EHLO
-	dmz-mailsec-scanner-6.mit.edu" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964915Ab1GMLOE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Jul 2011 07:14:04 -0400
-Subject: Re: `fsck -A` and fs-specific options
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=us-ascii
-From: Theodore Tso <tytso@MIT.EDU>
-In-Reply-To: <20110713083214.GA3486@nb.net.home>
-Date: Wed, 13 Jul 2011 07:13:59 -0400
-Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org,
-        David Zeuthen <davidz@redhat.com>
-Message-Id: <77711669-CC94-41FB-900B-1D31AEA682F7@MIT.EDU>
-References: <201107112259.55340.vapier@gentoo.org> <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu> <20110713083214.GA3486@nb.net.home>
-To: Karel Zak <kzak@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:15979 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756580Ab1GMReg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Jul 2011 13:34:36 -0400
+Date: Wed, 13 Jul 2011 19:34:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: dave@gnu.org, util-linux@vger.kernel.org
+Subject: Re: [PATCH] minix: v3 super-block does not have s_state field
+Message-ID: <20110713173430.GD3486@nb.net.home>
+References: <1310485846-3685-1-git-send-email-kerolasa@iki.fi> <1310529931.4444.7.camel@offbook> <CAG27Bk0vW2LZySAf8B38OBbVaXpSDP81C+wVuA1vSW1rwhgwgg@mail.gmail.com> <20110713121232.GC3486@nb.net.home> <CAG27Bk2m+d=N9yVTSbByzhfkMUmP-d7heQXS643uWE3n+05+Mw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAG27Bk2m+d=N9yVTSbByzhfkMUmP-d7heQXS643uWE3n+05+Mw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Jul 13, 2011, at 4:32 AM, Karel Zak wrote:
-
-> Good point. There is demand for a generic API to assemble block
-> devices (dm-crypt, MD, LVM, loopdev, ...). This functionality has
-> been requested by desktop guys, dracut, udev and it seems also
-> attractive for mount and fsck. I'll probably start to work on this
-> task at the end of this year (I hope with DM guys).
+On Wed, Jul 13, 2011 at 04:54:22PM +0200, Sami Kerola wrote:
+> On Wed, Jul 13, 2011 at 14:12, Karel Zak <kzak@redhat.com> wrote:
+> > On Wed, Jul 13, 2011 at 01:33:03PM +0200, Sami Kerola wrote:
+> >> On Wed, Jul 13, 2011 at 06:05, Davidlohr Bueso <dave@gnu.org> wrote:
+> >> > I don't think we should always rely on having the kernel headers, that's
+> >> > why the fallback is provided.
+> >> [snip]
+> >> > I think with this patch we address the issue without removing our
+> >> > fallback.
+> >>
+> >> The preprocessor directive bellow is problematic. I don't see where,
+> >> or how, it might get satisfied so I am afraid the 'fall back' is
+> >> always in use regardless whether an user has kernel headers or not.
+> >>
+> >> #ifdef KERNEL_INCLUDES_ARE_CLEAN
+> >>
+> >> To fix that I modified the patch to use autoconf to check whether each
+> >> necessary header is present, and use them if possible. Notice that
+> >> Dave that I wrote your name to Reviewed-by patch line so it would be
+> >> nice to hear that you're OK with the change. See the attachment, or
+> >> pull from my repository.
+> >
+> >  This is wrong way... the kernel types (e.g. u32, s64) are
+> >  *unexpected* in util-linux. The new code should not use this junk. We
+> >  have <stdint.h> and <inttypes.h>.
 > 
-> My goal is to provide only library and command line interface, so the
-> library will be usable everywhere (for example also in some D-BUS
-> daemon, dracut, etc.) 
+> Fixed.
+> 
+> >  The mkfs.minix should not depend on kernel headers. It's normal that
+> >  we use our own (on kernel independent) copy of FS superbloks. See
+> >  libblkid code.
+> 
+> By depend do you mean;
+> 
+> 1. Distrust that kernel headers are present, and have alternative
+> copy, but use them when they are present.
+> 2. Use always util-linux copy of structures ignoring the possible
+> header even they might be present.
 
-For many cases it might also be useful to have some way of specfying
-that some of these block devices should be automatically specified at
-at boot time, and supply an init script that sets up certain block devices
-before the fsckall script is run?
+ Ignore kernel, 2. is right in this case.
 
-What might also be cool is some way of specifying that certain block
-devices should only be created after the user logs on, and then there
-would be a PAM module that would take care of using the user's
-login password and passing it to LUKS.
-
-Some of thise might be done in plugins, and not your core library,
-but I think these are two important use cases to keep in mind.
-
--- Ted
-
-
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
