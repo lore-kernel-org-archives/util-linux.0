@@ -1,53 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail182.messagelabs.com ([85.158.139.83]:44588 "HELO
-	mail182.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753633Ab1GRRMe convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2011 13:12:34 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Date: Mon, 18 Jul 2011 19:12:30 +0200
-Subject: RE: dmesg: fix segfqult
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A08FE26D395@MCHP058A.global-ad.net>
-References: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
-In-Reply-To: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
-Content-Type: text/plain; charset="us-ascii"
+Received: from smtp.gentoo.org ([140.211.166.183]:39222 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752168Ab1GMSbS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Jul 2011 14:31:18 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Theodore Tso <tytso@mit.edu>
+Subject: Re: `fsck -A` and fs-specific options
+Date: Wed, 13 Jul 2011 14:31:16 -0400
+Cc: util-linux@vger.kernel.org
+References: <201107112259.55340.vapier@gentoo.org> <CAJaTeTpBxcZ8ofxSHd7B1aRbU3wtSH=ED6ZYKEPPs4q3fgc2nA@mail.gmail.com> <EFBAB464-FF32-46CB-8BB9-A94CE880F730@mit.edu>
+In-Reply-To: <EFBAB464-FF32-46CB-8BB9-A94CE880F730@mit.edu>
 MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1739884.vNaltxE6Zy";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201107131431.17224.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Marc-Antoine Perennou wrote:
+--nextPart1739884.vNaltxE6Zy
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> An element declared as size_t cannot be detected as negative (len < 0
-> is always false).
-> This can lead to an infinite loop causing a segmentation fault.
-> Use an int to solve this issue
-> 
-> Signed-off-by: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
-> ---
->  sys-utils/dmesg.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-> index 867581d..91855a1 100644
-> --- a/sys-utils/dmesg.c
-> +++ b/sys-utils/dmesg.c
-> @@ -362,7 +362,7 @@ static void safe_fwrite(const char *buf, size_t
-> size, FILE *out)
-> 
->  #ifdef HAVE_WIDECHAR
->  		wchar_t wc;
-> -		size_t len = mbrtowc(&wc, p, size - i, &s);
-> +		int len = mbrtowc(&wc, p, size - i, &s);
-> 
->  		if (len == 0)				/* L'\0' */
->  			return;
-> -- 
-> 1.7.6.134.gcf13f6.dirty
-> --
+On Wednesday, July 13, 2011 07:17:27 Theodore Tso wrote:
+> On Jul 12, 2011, at 3:18 PM, Mike Frysinger wrote:
+> > when i read the kernel source, that seemed to be the case.  but i dont
+> > think it's the case for reiserfs, and i think there's a very tiny edge
+> > case with ext[34] related to moving the journal, but probably so small
+> > we can ignore it :p.
+>=20
+> What do you think the edge case is?   Yes, the external journal's
+> dev_t is cached, but that is only used by the kernel since it
+> was simpler than having callouts to a userspace daemon.
+>=20
+> E2fsck will use blkid to locate the external journal, and when it
+> finds it, it will update the cached dev_t if it is out of date, so that
+> at mount time the kernel will be able to find the external journal.
+> This way even if the external journal is on a device with an
+> unstable dev_t (e.g., a USB device), the right thing should
+> happen...
 
-Interestingly, there are other projects which fell into the same trap:
-* mc: https://bugzilla.redhat.com/show_bug.cgi?id=150569 
+that sounds like it covers all the non-pathological cases ;)
+=2Dmike
 
-Have a nice day,
-Berny
+--nextPart1739884.vNaltxE6Zy
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJOHeR1AAoJEEFjO5/oN/WBadoP/1YKDF6EldKl9P2RFdZVhJvF
+hZFLBGArI9WDPMUzdDYwpJLA00mBgJUtxaCQkh9K5d41mMlgVyqHh/SaFG3lhv+J
+2Uqdmtb5fzzB1ZdT3UN5t1LEhJl2dTyaWwthdXSaXNYXnKlW1veO3sQ3FnoRF8ue
+ZMVrh/dRnwP8v6t/6NtrTBaElv0Trk+ZvYGiOa3KHO/CkZjKv8IB+yeC1CTmg1oW
+sOwWek/zZ6KxXmDjfexn7ZWy1H2O+L2PxkkV157vAvGm79h0tlKBMbrVA6Y/dLFg
+KyXpXr8Utb0h6a599InfMhB9Tot3kowXZXmfwtCCZgP9ehMbx3Z4Vg66xbFz3NgG
+6ChhDuYMzbbpDM3RIYg4J87nGCuCZfQzbWIIFWY1F7IseJDaW5/mKM8RHiIEiQqm
+T5/bxNt4lBXTfIK6t3b1K8oC65WOvd4DseWOO5/qMPT05B+pUhPa62mDhfrVxS5L
+wEueu5AEziBxMGMkZc2WKmed7xGoqRPMIiLRV35zLEzgm3a/lNMN7wlafOG4lgGN
+CaBwGanuheIv/Uxx3bu0tjcotT0jodYlxaq/HQcA6JPYqkmA9vIaqi+zTuymtnNb
+rFGTQZoYyRWEpaukP1AAH5KleEd8XUZT/MqZZeUfobop69E5npa15ZX6FC7Zk3jA
+E64Fb/JHL5EQRD8BZwYi
+=1ftH
+-----END PGP SIGNATURE-----
+
+--nextPart1739884.vNaltxE6Zy--
