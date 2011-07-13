@@ -1,142 +1,68 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] whereis: search in path variable
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:12087 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755265Ab1GMPDh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Jul 2011 11:03:37 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p6DF3b1t013954
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Wed, 13 Jul 2011 11:03:37 -0400
+Subject: Fake block devices (Was Re: `fsck -A` and fs-specific options)
+From: David Zeuthen <davidz@redhat.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
+Cc: util-linux@vger.kernel.org
+Date: Wed, 13 Jul 2011 11:03:36 -0400
+In-Reply-To: <20110713083214.GA3486@nb.net.home>
+References: <201107112259.55340.vapier@gentoo.org>
+	 <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu>
+	 <20110713083214.GA3486@nb.net.home>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 20 Jul 2011 00:46:25 -0400
-Message-ID: <1311137185.3077.1.camel@offbook>
+Message-ID: <1310569417.22917.9.camel@lucifer>
 Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Wed, 20 Jul 2011 00:39:10 -0400
+Hey,
 
-Currently this tool only uses the hardcoded paths for looking up strings for binaries, man pages and source code,
-adding those directories found in $PATH makes a nice little enhancement.
+On Wed, 2011-07-13 at 10:32 +0200, Karel Zak wrote:
+>  Good point. There is demand for a generic API to assemble block
+>  devices (dm-crypt, MD, LVM, loopdev, ...). This functionality has
+>  been requested by desktop guys, dracut, udev and it seems also
+>  attractive for mount and fsck. I'll probably start to work on this
+>  task at the end of this year (I hope with DM guys).
+> 
+>  The idea is to have a simple library (libblkasm ?) that provide API
+>  to assemble a block device according to the configuration in
+>  /etc/fstab and /etc/blkasm.d/. The library should be modular, so
+>  subsystem specific modules (lvm.so, crypt.so, ...) will be maintained
+>  externally by subsystem developers. It seems like a good way how to
+>  keep the functionality up to date and minimize some communication
+>  problems between people :-)
+> 
+>  Note that the original idea is from David Zeuthen
+>  http://people.freedesktop.org/~david/stc-20101011/stc.conf.html, but
+>  David's goal was daemon.
 
-dave@offbook:~/projects/util-linux/misc-utils$ export PATH=$PATH:/home/dave/whereis-test
-dave@offbook:~/projects/util-linux/misc-utils$ ./whereis stdlib
-stdlib: /home/dave/whereis-test/stdlib.h /usr/include/stdlib.h
-dave@offbook:~/projects/util-linux/misc-utils$ whereis-old stdlib
-stdlib: /usr/include/stdlib.h
+FWIW, I've changed my mind about this. Basically, I don't think it's
+worth supporting fake block devices (except for dm-luks and maybe loop
+devices). Specifically, I will not support it in the next major version
+of GNOME Disk Utility (aka Palimpsest) except for showing the "friendly"
+dm name (e.g. /dev/mapper/blah) instead of /dev/dm-0. Here's a
+work-in-progress screenshot
 
-This feature was also discussed previously here (http://www.spinics.net/lists/util-linux-ng/msg03429.html)
+http://people.freedesktop.org/~david/palimpsest-with-fake-block-devices.png
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- misc-utils/whereis.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 53 insertions(+), 0 deletions(-)
+(Compare to: http://people.freedesktop.org/~david/nautilus-lvm2-b.png )
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 4f841f9..ec75057 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -45,6 +45,8 @@
- #include <stdlib.h>
- #include <string.h>
- #include <ctype.h>
-+
-+#include "xalloc.h"
- #include "nls.h"
- #include "c.h"
- 
-@@ -58,6 +60,7 @@ void findv(char **, int, char *);
- void find(char **, char *);
- void findin(char *, char *);
- int itsit(char *, char *);
-+void fillpath(void);
- 
- static char *bindirs[] = {
- 	"/bin",
-@@ -144,6 +147,7 @@ int	Bcnt;
- char	**Mflag;
- int	Mcnt;
- char	uflag;
-+char    **dirp, **pathdir = NULL;
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
-@@ -172,6 +176,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- int
- main(int argc, char **argv)
- {
-+	int i;
-+
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
-@@ -179,6 +185,9 @@ main(int argc, char **argv)
- 	argc--, argv++;
- 	if (argc == 0)
- 		usage(stderr);
-+	
-+	fillpath();
-+	dirp = pathdir;
- 
- 	do
- 		if (argv[0][0] == '-') {
-@@ -232,9 +241,51 @@ main(int argc, char **argv)
- 		} else
- 			lookup(*argv++);
- 	while (--argc > 0);
-+
-+	free(pathdir);
-+
- 	return EXIT_SUCCESS;
- }
- 
-+int inpath(const char *str)
-+{
-+	int i;
-+
-+	for (i = 0; i < sizeof(bindirs)/sizeof(char *) - 1 ; i++)
-+		if (!strcmp(bindirs[i], str))
-+			return 1;
-+	
-+	for (i = 0; i < sizeof(mandirs)/sizeof(char *) - 1; i++)
-+		if (!strcmp(mandirs[i], str))
-+			return 1;
-+		
-+	for (i = 0; i < sizeof(srcdirs)/sizeof(char *) - 1; i++)
-+		if (!strcmp(srcdirs[i], str))
-+			return 1;
-+	
-+	return 0;
-+}
-+
-+void fillpath(void)
-+{
-+	char *key=NULL, *tmp=NULL, *tok=NULL, *path = getenv("PATH");
-+	int i = 0;
-+
-+	if (!path)
-+		return;
-+
-+	for (tmp = path; ;tmp = NULL) {
-+		tok = strtok_r(tmp, ":", &key);
-+		if (!tok)
-+			break;
-+		if (inpath(tok)) /* make sure we don't repeat the search path */
-+			continue;
-+
-+		pathdir = xrealloc(pathdir, (i + 1) * sizeof(char *));
-+		pathdir[i++] = tok;
-+	}
-+}
-+
- void
- getlist(int *argcp, char ***argvp, char ***flagp, int *cntp)
- {
-@@ -356,6 +407,8 @@ find(char **dirs, char *cp)
- {
- 	while (*dirs)
- 		findin(*dirs++, cp);
-+	while(*dirp)
-+		findin(*dirp++, cp);
- }
- 
- void
--- 
-1.7.4.1
+Anyway, I think it would be better if people instead worked on e.g.
+btrfs and making we properly support multi-disk in btrfs... because
+btrfs multi-disk is subject to exactly the same problems as you have
+when activating RAID or LVM devices (except that you can't do arbitrary
+trees - which is a good thing!). For example, there's a policy decision
+when to start a device in degraded mode. And, IIRC, the kernel don't
+even properly convey what underlying devices a btrfs fs is currently
+using  (it didn't last time I checked which is ~12 months ago).
+
+    David
+
+
