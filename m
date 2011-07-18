@@ -1,197 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:39858 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964915Ab1GMLdF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Jul 2011 07:33:05 -0400
-Received: by qyk29 with SMTP id 29so238323qyk.19
-        for <util-linux@vger.kernel.org>; Wed, 13 Jul 2011 04:33:04 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1310529931.4444.7.camel@offbook>
-References: <1310485846-3685-1-git-send-email-kerolasa@iki.fi>
-	<1310529931.4444.7.camel@offbook>
-Date: Wed, 13 Jul 2011 13:33:03 +0200
-Message-ID: <CAG27Bk0vW2LZySAf8B38OBbVaXpSDP81C+wVuA1vSW1rwhgwgg@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:58048 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750946Ab1GRWTd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Jul 2011 18:19:33 -0400
+Date: Tue, 19 Jul 2011 00:19:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Davidlohr Bueso <dave@gnu.org>, util-linux@vger.kernel.org
 Subject: Re: [PATCH] minix: v3 super-block does not have s_state field
-From: Sami Kerola <kerolasa@iki.fi>
-To: dave@gnu.org
-Cc: util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary=20cf3074d83491de4804a7f1c736
+Message-ID: <20110718221926.GE4354@nb.redhat.com>
+References: <1310485846-3685-1-git-send-email-kerolasa@iki.fi> <1310529931.4444.7.camel@offbook> <CAG27Bk0vW2LZySAf8B38OBbVaXpSDP81C+wVuA1vSW1rwhgwgg@mail.gmail.com> <20110713121232.GC3486@nb.net.home> <CAG27Bk2m+d=N9yVTSbByzhfkMUmP-d7heQXS643uWE3n+05+Mw@mail.gmail.com> <20110713173430.GD3486@nb.net.home> <1310609005.3482.0.camel@offbook> <20110714091829.GE3486@nb.net.home> <CAG27Bk0DYx+jCD-iqQvt1n=VdHszceTEAQQRvCKLvPXqpagTXA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0DYx+jCD-iqQvt1n=VdHszceTEAQQRvCKLvPXqpagTXA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---20cf3074d83491de4804a7f1c736
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 13, 2011 at 06:05, Davidlohr Bueso <dave@gnu.org> wrote:
-> I don't think we should always rely on having the kernel headers, that's
-> why the fallback is provided.
-[snip]
-> I think with this patch we address the issue without removing our
-> fallback.
+ Sami, thanks for the patches, few notes:
 
-Hi Dave et.al.
+On Thu, Jul 14, 2011 at 05:47:39PM +0200, Sami Kerola wrote:
+> +++ b/include/minix.h
+> @@ -1,69 +1,65 @@
+>  #ifndef __MINIX_H__
+>  #define __MINIX_H__
 
-The preprocessor directive bellow is problematic. I don't see where,
-or how, it might get satisfied so I am afraid the 'fall back' is
-always in use regardless whether an user has kernel headers or not.
+ we usually use UTIL_LINUX prefix, so #ifndef UTIL_LINUX_MINIX_H.
 
-#ifdef KERNEL_INCLUDES_ARE_CLEAN
+>  #define BLOCK_SIZE_BITS 10
+>  #define BLOCK_SIZE (1<<BLOCK_SIZE_BITS)
 
-To fix that I modified the patch to use autoconf to check whether each
-necessary header is present, and use them if possible. Notice that
-Dave that I wrote your name to Reviewed-by patch line so it would be
-nice to hear that you're OK with the change. See the attachment, or
-pull from my repository.
+ This is too generic. Please, use MINIX_ prefix.
 
-The following changes since commit bfa8d39b5826b928deb6d84aee3a4a1d6557364c=
-:
+>  #define Inode (((struct minix_inode *) inode_buffer)-1)
+>  #define Inode2 (((struct minix2_inode *) inode_buffer)-1)
+> 
+>  #define INODE_SIZE (sizeof(struct minix_inode))
+>  #define INODE2_SIZE (sizeof(struct minix2_inode))
+> 
+> -int fs_version = 1; /* this default value needs to change in a near future */
+> -char *super_block_buffer, *inode_buffer = NULL;
+> +static int fs_version = 1; /* this default value needs to change in a
+> near future */
+> +static char *super_block_buffer, *inode_buffer = NULL;
+> 
+>  static char *inode_map;
+>  static char *zone_map;
 
-  build-sys: fix spaces versus tabs conflict (2011-07-11 15:12:06 +0200)
+ The global variables don't belong to this generic header file. The
+ stuff around inode_buffer, fs_version and the inline functions are
+ specific to the disk-utils/ utils. Please, add
+ disk-utils/minix_programs.h and use it in {mkfs,fsck}.minix.
 
-are available in the git repository at:
-  https://github.com/kerolasa/lelux-utiliteetit minix
+>  		/* sanity checks to be sure that the FS is really minix */
+> -		if (sb->s_imap_blocks * MINIX_BLOCK_SIZE * 8 < sb->s_ninodes + 1)
+> +		if (sb->s_imap_blocks * BLOCK_SIZE * 8 < sb->s_ninodes + 1)
+>  			return -1;
+> -		if (sb->s_zmap_blocks * MINIX_BLOCK_SIZE * 8 < zones -
+> sb->s_firstdatazone + 1)
+> +		if (sb->s_zmap_blocks * BLOCK_SIZE * 8 < zones - sb->s_firstdatazone + 1)
+>  			return -1;
 
-Sami Kerola (1):
-      minix: v3 super-block does not have s_state field
+ No, please...
 
- configure.ac            |    5 ++
- disk-utils/minix.h      |  129 ++++++++++++++++++++++++++++---------------=
----
- disk-utils/mkfs.minix.c |    2 -
- 3 files changed, 83 insertions(+), 53 deletions(-)
+    Karel
 
---=20
-=A0=A0 Sami Kerola
-=A0=A0 http://www.iki.fi/kerolasa/
-
---20cf3074d83491de4804a7f1c736
-Content-Type: text/plain; charset=US-ASCII;
-	name="0001-minix-v3-super-block-does-not-have-s_state-field.txt"
-Content-Disposition: attachment;
-	filename="0001-minix-v3-super-block-does-not-have-s_state-field.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gq27brv70
-
-RnJvbSAzZTYwZjg2MTdlMzQ5YWVhM2ExZDNlNzBlODk2OTVkYzdjOGFmZGE5IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBTYW1pIEtlcm9sYSA8a2Vyb2xhc2FAaWtpLmZpPgpEYXRlOiBU
-dWUsIDEyIEp1bCAyMDExIDE2OjQ1OjEwICswMjAwClN1YmplY3Q6IFtQQVRDSF0gbWluaXg6IHYz
-IHN1cGVyLWJsb2NrIGRvZXMgbm90IGhhdmUgc19zdGF0ZSBmaWVsZAoKT3JpZ2luYWxseSBhdHRl
-bXB0IHdhcyB0byB1c2UgbWluaXggZGVmaW5pdGlvbnMgYW5kIGZpbGUgc3lzdGVtCnN0cnVjdHVy
-ZXMgZnJvbSBsaW51eC9taW5peF9mcy5oLCBidXQgdGhhdCBmYWlsZWQgYXQgZmlyc3QgdHJ5LgoK
-bWtmcy5taW5peC5jOjE2NDoxMDogZXJyb3I6IG5vIG1lbWJlciBuYW1lZCAnc19zdGF0ZScgaW4g
-J3N0cnVjdAogICAgICBtaW5peDNfc3VwZXJfYmxvY2snCiAgICAgICAgICAgICAgICBTdXBlcjMu
-c19zdGF0ZSB8PSBNSU5JWF9WQUxJRF9GUzsKICAgICAgICAgICAgICAgIH5+fn5+fiBeCm1rZnMu
-bWluaXguYzoxNjU6MTA6IGVycm9yOiBubyBtZW1iZXIgbmFtZWQgJ3Nfc3RhdGUnIGluICdzdHJ1
-Y3QKICAgICAgbWluaXgzX3N1cGVyX2Jsb2NrJwogICAgICAgICAgICAgICAgU3VwZXIzLnNfc3Rh
-dGUgJj0gfk1JTklYX0VSUk9SX0ZTOwoKUHJpbWFyeSByZWFzb24gc2VlbXMgdG8gYmUgdGhhdCB0
-aGUgbWluaXgzIHN1cGVyLWJsb2NrIGRvZXMgbm90CmhhdmUgc19zdGF0ZSBmaWVsZC4gQW5kIGl0
-IGxvb2tzIHRvIG1lIHRoYXQgaXQgaGFzIG5ldmVyIGhhZCBpdC4KRnVydGhlciBkZXRhaWxzIGFi
-b3V0IHNfc3RhdGUgY2FuIGJlIGZvdW5kIGZyb20gbWluaXggdjMgZmlsZQpzeXN0ZW0gc3VwcG9y
-dCBrZXJuZWwgcGF0Y2guCgpodHRwOi8vZ2l0Lmtlcm5lbC5vcmcvP3A9bGludXgva2VybmVsL2dp
-dC90b3J2YWxkcy9saW51eC0yLjYuZ2l0O2E9Y29tbWl0ZGlmZjtoPTkzOWIwMGRmMDMwNmJjNGI1
-Y2QyNWMzYzNjNzhlODliOTFlNzJmYzgKCkZvcm1lciBtaW5peCBkaXNrIHNfc3RhdGUgaXMgbm93
-IGluIGtlcm5lbCBtZW1vcnkgc3VwZXItYmxvY2sKaW5mbyBzdHJ1Y3R1cmUgYXMgYSBzX21vdW50
-X3N0YXRlIGZpZWxkLCBpZiBzb21lb25lIHdvbmRlcnMgd2hhdApoYXBwZW4gdG8gaXQuCgpJc3N1
-ZSBhcHBlYXJlZCBjb21taXQgYTI2NTdhZTNmZmI1NjYxNmFjOWM5MjE4ODZiY2NhOGVmMjQyNDk5
-ZgoodHdvIHdlZWtzIGFnbyksIGFuZCBob3BlZnVsbHkgbm90IHRvbyBtYW55IHVzZXJzIHdoZXJl
-IGFmZmVjdGVkLgpUaGUgbWlzbWF0Y2ggaW4gdGhpcyBjYXNlIGlzIG5vdCBjb21wbGV0ZWx5IGZh
-dGFsIGJlY2F1c2UgaXQgaXMKYXQgdGhlIGVuZCBvZiB0aGUgc3RydWN0dXJlLgoKVGhlIHBhdGNo
-IGZpeGVzIGFsc28gI2lmZGVmIEtFUk5FTF9JTkNMVURFU19BUkVfQ0xFQU4KcHJlcHJvY2Vzc29y
-IGRpcmVjdGl2ZSwgd2hpY2ggbmV2ZXIgaXMgc2V0LiBBdXRvY29uZiBpcyBzZXQgdG8KaW5zcGVj
-dCB0aGF0IG5lY2Vzc2FyeSBrZXJuZWwgaGVhZGVycyBhcmUgcHJlc2VudC4gRm9yIGZhbGxiYWNr
-CnRoZXJlIGFyZSBsb2NhbCBkZWZpbml0aW9ucy4KClJldmlld2VkLWJ5OiBEYXZpZGxvaHIgQnVl
-c28gPGRhdmVAZ251Lm9yZz4KU2lnbmVkLW9mZi1ieTogU2FtaSBLZXJvbGEgPGtlcm9sYXNhQGlr
-aS5maT4KLS0tCiBjb25maWd1cmUuYWMgICAgICAgICAgICB8ICAgIDUgKysKIGRpc2stdXRpbHMv
-bWluaXguaCAgICAgIHwgIDEyOSArKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0t
-LS0tLS0tLS0tCiBkaXNrLXV0aWxzL21rZnMubWluaXguYyB8ICAgIDIgLQogMyBmaWxlcyBjaGFu
-Z2VkLCA4MyBpbnNlcnRpb25zKCspLCA1MyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9jb25m
-aWd1cmUuYWMgYi9jb25maWd1cmUuYWMKaW5kZXggYTAyYjVlMy4uYzJjNzRmNSAxMDA2NDQKLS0t
-IGEvY29uZmlndXJlLmFjCisrKyBiL2NvbmZpZ3VyZS5hYwpAQCAtMTIzLDYgKzEyMywxMSBAQCBB
-Q19DSEVDS19IRUFERVJTKAogCWxpbnV4L3ZlcnNpb24uaCBcCiAJbGludXgvZmFsbG9jLmggXAog
-CWxpbnV4L2Nkcm9tLmggXAorCWxpbnV4L2ZzLmggXAorCWxpbnV4L2xpbWl0cy5oIFwKKwlsaW51
-eC9tYWdpYy5oIFwKKwlsaW51eC9taW5peF9mcy5oIFwKKwlsaW51eC90eXBlcy5oIFwKIAlmY250
-bC5oIFwKIAlsb2NhbGUuaCBcCiAJc3RkaW50LmggXApkaWZmIC0tZ2l0IGEvZGlzay11dGlscy9t
-aW5peC5oIGIvZGlzay11dGlscy9taW5peC5oCmluZGV4IGZjMWQxYzAuLjZiMmVlMTAgMTAwNjQ0
-Ci0tLSBhL2Rpc2stdXRpbHMvbWluaXguaAorKysgYi9kaXNrLXV0aWxzL21pbml4LmgKQEAgLTEs
-NTMgKzEsOTIgQEAKICNpZm5kZWYgX19NSU5JWF9IX18KICNkZWZpbmUgX19NSU5JWF9IX18KIAot
-I2lmZGVmIEtFUk5FTF9JTkNMVURFU19BUkVfQ0xFQU4KLQotI2luY2x1ZGUgPGxpbnV4L2ZzLmg+
-Ci0jaW5jbHVkZSA8bGludXgvbWluaXhfZnMuaD4KLQorI2lmZGVmIEhBVkVfTElOVVhfVFlQRVNf
-SAorI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjZWxzZQotCiB0eXBlZGVmIHVuc2lnbmVkIGNo
-YXIgdTg7CiB0eXBlZGVmIHVuc2lnbmVkIHNob3J0IHUxNjsKIHR5cGVkZWYgdW5zaWduZWQgaW50
-IHUzMjsKKyNlbmRpZgorCisjaWZkZWYgSEFWRV9MSU5VWF9MSU1JVFNfSAorI2luY2x1ZGUgPGxp
-bnV4L2xpbWl0cy5oPgorI2Vsc2UKKyNkZWZpbmUgTkFNRV9NQVggIDI1NQkJLyogIyBjaGFycyBp
-biBhIGZpbGUgbmFtZSAqLworI2VuZGlmCisKKyNpZmRlZiBIQVZFX0xJTlVYX0ZTX0gKKyNpbmNs
-dWRlIDxsaW51eC9mcy5oPgorI2Vsc2UKKyNkZWZpbmUgQkxPQ0tfU0laRV9CSVRTIDEwCisjZGVm
-aW5lIEJMT0NLX1NJWkUgKDE8PEJMT0NLX1NJWkVfQklUUykKKyNlbmRpZgorCisjaWZkZWYgSEFW
-RV9MSU5VWF9NQUdJQ19ICisjaW5jbHVkZSA8bGludXgvbWFnaWMuaD4KKyNlbHNlCisjZGVmaW5l
-IE1JTklYX1NVUEVSX01BR0lDCTB4MTM3RgkvKiBtaW5peCB2MSBmcywgMTQgY2hhciBuYW1lcyAq
-LworI2RlZmluZSBNSU5JWF9TVVBFUl9NQUdJQzIJMHgxMzhGCS8qIG1pbml4IHYxIGZzLCAzMCBj
-aGFyIG5hbWVzICovCisjZGVmaW5lIE1JTklYMl9TVVBFUl9NQUdJQwkweDI0NjgJLyogbWluaXgg
-djIgZnMsIDE0IGNoYXIgbmFtZXMgKi8KKyNkZWZpbmUgTUlOSVgyX1NVUEVSX01BR0lDMgkweDI0
-NzgJLyogbWluaXggdjIgZnMsIDMwIGNoYXIgbmFtZXMgKi8KKyNkZWZpbmUgTUlOSVgzX1NVUEVS
-X01BR0lDCTB4NGQ1YQkvKiBtaW5peCB2MyBmcywgNjAgY2hhciBuYW1lcyAqLworI2VuZGlmCisK
-KyNpZmRlZiBIQVZFX0xJTlVYX01JTklYX0ZTX0gKKyNpbmNsdWRlIDxsaW51eC9taW5peF9mcy5o
-PgorI2Vsc2UKIAorLyoKKyAqIFRoaXMgaXMgdGhlIG9yaWdpbmFsIG1pbml4IGlub2RlIGxheW91
-dCBvbiBkaXNrLgorICogTm90ZSB0aGUgOC1iaXQgZ2lkIGFuZCBhdGltZSBhbmQgY3RpbWUuCisg
-Ki8KIHN0cnVjdCBtaW5peF9pbm9kZSB7Ci0gICAgICAgIHUxNiBpX21vZGU7Ci0gICAgICAgIHUx
-NiBpX3VpZDsKLSAgICAgICAgdTMyIGlfc2l6ZTsKLSAgICAgICAgdTMyIGlfdGltZTsKLSAgICAg
-ICAgdTggIGlfZ2lkOwotICAgICAgICB1OCAgaV9ubGlua3M7Ci0gICAgICAgIHUxNiBpX3pvbmVb
-OV07CisJdTE2IGlfbW9kZTsKKwl1MTYgaV91aWQ7CisJdTMyIGlfc2l6ZTsKKwl1MzIgaV90aW1l
-OworCXU4IGlfZ2lkOworCXU4IGlfbmxpbmtzOworCXUxNiBpX3pvbmVbOV07CiB9OwogCisvKgor
-ICogVGhlIG5ldyBtaW5peCBpbm9kZSBoYXMgYWxsIHRoZSB0aW1lIGVudHJpZXMsIGFzIHdlbGwg
-YXMKKyAqIGxvbmcgYmxvY2sgbnVtYmVycyBhbmQgYSB0aGlyZCBpbmRpcmVjdCBibG9jayAoNysx
-KzErMQorICogaW5zdGVhZCBvZiA3KzErMSkuIEFsc28sIHNvbWUgcHJldmlvdXNseSA4LWJpdCB2
-YWx1ZXMgYXJlCisgKiBub3cgMTYtYml0LiBUaGUgaW5vZGUgaXMgbm93IDY0IGJ5dGVzIGluc3Rl
-YWQgb2YgMzIuCisgKi8KIHN0cnVjdCBtaW5peDJfaW5vZGUgewotICAgICAgICB1MTYgaV9tb2Rl
-OwotICAgICAgICB1MTYgaV9ubGlua3M7Ci0gICAgICAgIHUxNiBpX3VpZDsKLSAgICAgICAgdTE2
-IGlfZ2lkOwotICAgICAgICB1MzIgaV9zaXplOwotICAgICAgICB1MzIgaV9hdGltZTsKLSAgICAg
-ICAgdTMyIGlfbXRpbWU7Ci0gICAgICAgIHUzMiBpX2N0aW1lOwotICAgICAgICB1MzIgaV96b25l
-WzEwXTsKKwl1MTYgaV9tb2RlOworCXUxNiBpX25saW5rczsKKwl1MTYgaV91aWQ7CisJdTE2IGlf
-Z2lkOworCXUzMiBpX3NpemU7CisJdTMyIGlfYXRpbWU7CisJdTMyIGlfbXRpbWU7CisJdTMyIGlf
-Y3RpbWU7CisJdTMyIGlfem9uZVsxMF07CiB9OwogCisvKgorICogbWluaXggc3VwZXItYmxvY2sg
-ZGF0YSBvbiBkaXNrCisgKi8KIHN0cnVjdCBtaW5peF9zdXBlcl9ibG9jayB7Ci0gICAgICAgIHUx
-NiBzX25pbm9kZXM7Ci0gICAgICAgIHUxNiBzX256b25lczsKLSAgICAgICAgdTE2IHNfaW1hcF9i
-bG9ja3M7Ci0gICAgICAgIHUxNiBzX3ptYXBfYmxvY2tzOwotICAgICAgICB1MTYgc19maXJzdGRh
-dGF6b25lOwotICAgICAgICB1MTYgc19sb2dfem9uZV9zaXplOwotICAgICAgICB1MzIgc19tYXhf
-c2l6ZTsKLSAgICAgICAgdTE2IHNfbWFnaWM7Ci0gICAgICAgIHUxNiBzX3N0YXRlOwotICAgICAg
-ICB1MzIgc196b25lczsKKwl1MTYgc19uaW5vZGVzOworCXUxNiBzX256b25lczsKKwl1MTYgc19p
-bWFwX2Jsb2NrczsKKwl1MTYgc196bWFwX2Jsb2NrczsKKwl1MTYgc19maXJzdGRhdGF6b25lOwor
-CXUxNiBzX2xvZ196b25lX3NpemU7CisJdTMyIHNfbWF4X3NpemU7CisJdTE2IHNfbWFnaWM7CisJ
-dTE2IHNfc3RhdGU7CisJdTMyIHNfem9uZXM7CiB9OwogCi0vKiBWMyBtaW5peCBzdXBlci1ibG9j
-ayBkYXRhIG9uIGRpc2sgKi8KKy8qCisgKiBWMyBtaW5peCBzdXBlci1ibG9jayBkYXRhIG9uIGRp
-c2sKKyAqLwogc3RydWN0IG1pbml4M19zdXBlcl9ibG9jayB7CiAJdTMyIHNfbmlub2RlczsKIAl1
-MTYgc19wYWQwOwpAQCAtNjEsMjkgKzEwMCwxNyBAQCBzdHJ1Y3QgbWluaXgzX3N1cGVyX2Jsb2Nr
-IHsKIAl1MTYgc19tYWdpYzsKIAl1MTYgc19wYWQyOwogCXUxNiBzX2Jsb2Nrc2l6ZTsKLQl1OCAg
-c19kaXNrX3ZlcnNpb247Ci0gICAgICAgIHUxNiBzX3N0YXRlOworCXU4IHNfZGlza192ZXJzaW9u
-OwogfTsKIAotI2RlZmluZSBCTE9DS19TSVpFX0JJVFMgMTAKLSNkZWZpbmUgQkxPQ0tfU0laRSAo
-MTw8QkxPQ0tfU0laRV9CSVRTKQotCi0jZGVmaW5lIE5BTUVfTUFYICAgMjU1ICAgLyogIyBjaGFy
-cyBpbiBhIGZpbGUgbmFtZSAqLwotI2RlZmluZSBNQVhfSU5PREVTIDY1NTM1Ci0KICNkZWZpbmUg
-TUlOSVhfSU5PREVTX1BFUl9CTE9DSyAoKEJMT0NLX1NJWkUpLyhzaXplb2YgKHN0cnVjdCBtaW5p
-eF9pbm9kZSkpKQotI2RlZmluZSBNSU5JWDJfSU5PREVTX1BFUl9CTE9DSyAoKEJMT0NLX1NJWkUp
-LyhzaXplb2YgKHN0cnVjdCBtaW5peDJfaW5vZGUpKSkKLQotI2RlZmluZSBNSU5JWF9WQUxJRF9G
-UyAgICAgICAgICAgICAgIDB4MDAwMSAgICAgICAgICAvKiBDbGVhbiBmcy4gKi8KLSNkZWZpbmUg
-TUlOSVhfRVJST1JfRlMgICAgICAgICAgICAgICAweDAwMDIgICAgICAgICAgLyogZnMgaGFzIGVy
-cm9ycy4gKi8KKyNkZWZpbmUgTUlOSVhfVkFMSURfRlMJCTB4MDAwMQkvKiBDbGVhbiBmcy4gKi8K
-KyNkZWZpbmUgTUlOSVhfRVJST1JfRlMJCTB4MDAwMgkvKiBmcyBoYXMgZXJyb3JzLiAqLwogCi0j
-ZGVmaW5lIE1JTklYX1NVUEVSX01BR0lDICAgIDB4MTM3RiAgICAgICAgICAvKiBvcmlnaW5hbCBt
-aW5peCBmcyAqLwotI2RlZmluZSBNSU5JWF9TVVBFUl9NQUdJQzIgICAweDEzOEYgICAgICAgICAg
-LyogbWluaXggZnMsIDMwIGNoYXIgbmFtZXMgKi8KLSNkZWZpbmUgTUlOSVgyX1NVUEVSX01BR0lD
-ICAgMHgyNDY4CSAgICAgLyogbWluaXggVjIgZnMgKi8KLSNkZWZpbmUgTUlOSVgyX1NVUEVSX01B
-R0lDMiAgMHgyNDc4CSAgICAgLyogbWluaXggVjIgZnMsIDMwIGNoYXIgbmFtZXMgKi8KLSNkZWZp
-bmUgTUlOSVgzX1NVUEVSX01BR0lDICAgMHg0ZDVhICAgICAgICAgIC8qIG1pbml4IFYzIGZzICg2
-MCBjaGFyIG5hbWVzKSAqLworI2VuZGlmCQkJCS8qIEhBVkVfTElOVVhfTUlOSVhfRlNfSCAqLwog
-Ci0jZW5kaWYgLyogS0VSTkVMX0lOQ0xVREVTX0FSRV9DTEVBTiAqLworI2RlZmluZSBNQVhfSU5P
-REVTIDY1NTM1CisjZGVmaW5lIE1JTklYMl9JTk9ERVNfUEVSX0JMT0NLICgoQkxPQ0tfU0laRSkv
-KHNpemVvZiAoc3RydWN0IG1pbml4Ml9pbm9kZSkpKQogCiAjZGVmaW5lIElub2RlICgoKHN0cnVj
-dCBtaW5peF9pbm9kZSAqKSBpbm9kZV9idWZmZXIpLTEpCiAjZGVmaW5lIElub2RlMiAoKChzdHJ1
-Y3QgbWluaXgyX2lub2RlICopIGlub2RlX2J1ZmZlciktMSkKZGlmZiAtLWdpdCBhL2Rpc2stdXRp
-bHMvbWtmcy5taW5peC5jIGIvZGlzay11dGlscy9ta2ZzLm1pbml4LmMKaW5kZXggOTE2ZGQxNy4u
-MzIyYzAyMyAxMDA2NDQKLS0tIGEvZGlzay11dGlscy9ta2ZzLm1pbml4LmMKKysrIGIvZGlzay11
-dGlscy9ta2ZzLm1pbml4LmMKQEAgLTE2MSw4ICsxNjEsNiBAQCBzdGF0aWMgdm9pZCBzdXBlcl9z
-ZXRfc3RhdGUodm9pZCkKIHsKIAlzd2l0Y2ggKGZzX3ZlcnNpb24pIHsKIAljYXNlIDM6Ci0JCVN1
-cGVyMy5zX3N0YXRlIHw9IE1JTklYX1ZBTElEX0ZTOwotCQlTdXBlcjMuc19zdGF0ZSAmPSB+TUlO
-SVhfRVJST1JfRlM7CiAJCWJyZWFrOwogCWRlZmF1bHQ6CiAJCVN1cGVyLnNfc3RhdGUgfD0gTUlO
-SVhfVkFMSURfRlM7Ci0tIAoxLjcuNgoK
---20cf3074d83491de4804a7f1c736--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
