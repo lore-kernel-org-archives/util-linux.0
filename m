@@ -1,44 +1,41 @@
-Return-Path: dmitry.torokhov@gmail.com
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Paul Fox <pgf@laptop.org>
-Subject: Re: [PATCH] evstate: new utility for querying evdev key/switch/event state
-Date: Tue, 12 Jul 2011 13:35:41 -0700
-Cc: Daniel Drake <dsd@laptop.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
-        linux-input@vger.kernel.org
-References: <20110709132046.90A119D401C@zog.reactivated.net> <CAGq3pz4ueyiTg1usRwangBJfuPwYPoOC0k83ygKs2RikfOQyGw@mail.gmail.com> <15489.1310501220@foxharp.boston.ma.us>
-In-Reply-To: <15489.1310501220@foxharp.boston.ma.us>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:30813 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750846Ab1GRW2w (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Jul 2011 18:28:52 -0400
+Date: Tue, 19 Jul 2011 00:28:47 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Thomas =?utf-8?Q?B=C3=A4chler?= <thomas@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: dmesg(1) changes
+Message-ID: <20110718222847.GG4354@nb.redhat.com>
+References: <20110714115231.GF3486@nb.net.home> <4E242E69.6090409@archlinux.org>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201107121335.41556.dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4E242E69.6090409@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday, July 12, 2011 01:07:00 PM Paul Fox wrote:
-> daniel wrote:
->  > On 11 July 2011 17:39, Dmitry Torokhov <dmitry.torokhov@gmail.com> 
-wrote:
->  > > Now I'd say that this utility probably better fit into linuxconsole
->  > > project with the rest of input-related utilities...
->  > 
->  > http://sourceforge.net/projects/linuxconsole/ ?
->  > 
->  > This must have been what you were referring to before. Yes, this
->  > looks like a more appropriate home. I'll take it in that direction.
+On Mon, Jul 18, 2011 at 03:00:25PM +0200, Thomas Bächler wrote:
+> Am 14.07.2011 13:52, schrieb Karel Zak:
+> > 
+> >  Hi,
+> > 
+> > I did some changes to dmesg(1) in last days:
 > 
-> i disagree.  the contents of that package seems to be mostly for
-> testing and legacy support.  access to the state of input switches in
-> a generic way seems far more generally useful than that.
+> Thanks for these advances.
 > 
-> i would rather not see the sysfs state variable go away in the first
-> place -- it's too convenient to use, and inexpensive to implement --
-> needing an ioctl for this seems like a step backwards.  but barring
-> that, relegating the evstate functionality to linuxconsole seems wrong.
-> (for instance, i don't think the OLPC laptop distros have a need for
-> any of the other utilities in linuxconsole.)
+> While we're making a wishlist, I always wanted a 'follow' option
+> (similar to tail -f/-F) for dmesg.
 
-You can package only what you need from it, no need to package everything.
+ It's not so simple:
+ http://www.spinics.net/lists/util-linux-ng/msg04453.html
 
+ I'll try to play with that a little more later. Now I'd like to
+ release 2.20 ASAP.
+
+    Karel
 
 -- 
-Dmitry
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
