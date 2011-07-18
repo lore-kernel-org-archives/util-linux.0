@@ -1,140 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49890 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:65266 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752460Ab1GUSKQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 Jul 2011 14:10:16 -0400
-Date: Thu, 21 Jul 2011 20:10:12 +0200
+	id S1753573Ab1GRJKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Jul 2011 05:10:22 -0400
+Date: Mon, 18 Jul 2011 11:10:17 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] cramfs fixes
-Message-ID: <20110721181012.GA6672@nb.net.home>
-References: <CAG27Bk1uKnqR62SRNgTXFPGfTseraC0AUgpAMQ5zhdcsAM-79w@mail.gmail.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: add support for books
+Message-ID: <20110718091017.GI3486@nb.net.home>
+References: <20110705112909.GA3450@osiris.boeblingen.de.ibm.com> <20110711104035.GH5214@nb.net.home> <20110713034618.GA2968@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1uKnqR62SRNgTXFPGfTseraC0AUgpAMQ5zhdcsAM-79w@mail.gmail.com>
+In-Reply-To: <20110713034618.GA2968@osiris.boeblingen.de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 20, 2011 at 10:55:16PM +0200, Sami Kerola wrote:
-> +	/*
-> +	 * NAMELEN is the length of the file name, divided by 4 and
-> +	 * rounded up.  (cramfs doesn't support hard links.)
-> +	 *
-> +	 * OFFSET: For symlinks and non-empty regular files, this
-> +	 * contains the offset (divided by 4) of the file data in
-> +	 * compressed form (starting with an array of block pointers;
-> +	 * see README).  For non-empty directories it is the offset
-> +	 * (divided by 4) of the inode of the first file in that
-> +	 * directory.  For anything else, offset is zero.
-> +	 */
->  	u32 namelen:6, offset:26;
-    ^^^
- uint32_t
+On Wed, Jul 13, 2011 at 09:16:18AM +0530, Heiko Carstens wrote:
+> thanks. I updated the patch accordingly (see below).
 
-> +/* Exit codes used by fsck-type programs */
-> +#define FSCK_OK			0	/* No errors */
-> +#define FSCK_NONDESTRUCT	1	/* File system errors corrected */
-> +#define FSCK_REBOOT		2	/* System should be rebooted */
-> +#define FSCK_UNCORRECTED	4	/* File system errors left uncorrected */
-> +#define FSCK_ERROR		8	/* Operational error */
-> +#define FSCK_USAGE		16	/* Usage or syntax error */
-> +#define FSCK_LIBRARY		128	/* Shared library error */
+ Applied, thanks.
 
- I see magic numbers also in fsck.minix ;-)
+> Just another thing: there are more per cpu informations that are present
+> on s390 that I would also like to the parseable output. However, somehow
+> it won't fit to the current approach that lscpu -p prints everything
+> with a unique id starting from zero.
+> For example the cpus on s390 can be in any of one of the states
+> horizontal,vertical:low,vertical:medium or vertical:high (that's just
+> an information of how the hypervisor schedules the cpus).
+> How is that supposed to be mapped to current approach?
+> Map these simply to numbers? E.g. horizontal would be mapped to 0,
+> vertical:low would be mapped to 1 and so on?
 
- What about to add include/exitcodes.h and move this and
- disk-utils/mkfs.h to this file?
+ Probably, the most important is keep it backwardly compatible ;-)
 
->  		if (size >= page_size) {
-> -			if (out != page_size) {
-> -				die(FSCK_UNCORRECTED, 0, _("non-block (%ld) bytes"), out);
-> -			}
-> -		} else {
-> -			if (out != size) {
-> -				die(FSCK_UNCORRECTED, 0, _("non-size (%ld vs %ld) bytes"), out, size);
-> -			}
-> -		}
-> -		size -= out;
-> -		if (opt_extract) {
-> -			if (write(fd, outbuffer, out) < 0) {
-> -				die(FSCK_ERROR, 1, _("write failed: %s"), path);
-> -			}
-> +			if (out != page_size)
-> +				errx(FSCK_UNCORRECTED,
-> +				     _("non-block (%ld) bytes"), out);
-> +			else if (out != size)
+> Also would I also need a new seperation character between caches and
+> new information?
 
-        } else if (out != size)
-       ^^^   
+ I'm not sure if the currently used extra separators (,,) for the
+ caches is a good idea. Maybe it would be better to force people to
+ parse the last comment line where is the header for the columns.
 
-> +				errx(FSCK_UNCORRECTED,
-> +				     _("non-size (%ld vs %ld) bytes"), out,
-> +				     size);
-> +			size -= out;
-> +			if (opt_extract)
-> +				if (write(fd, outbuffer, out) < 0)
-> +					err(FSCK_ERROR, _("write failed: %s"),
-> +					    path);
-> +			curr = next;
->  		}
-       ^^^
+> I'm asking because the output of caches is optional and if something
+> new would be added, it seem to get messy in the long term because of
+> all seperation characters that may or may not be there. No?
 
-the 'if (opt_extract)' block is outsize 'if (size >= page_size)'...
+ I agree. Maybe you can add the new things before the caches (as you
+ already added 'Book' column).
 
-> -		curr = next;
->  	} while (size);
->  }
-> -		if ((S_ISUID | S_ISGID) & i->mode) {
-> -			if (chmod(path, i->mode) < 0) {
-> -				die(FSCK_ERROR, 1, _("chown failed: %s"), path);
-> -			}
-> -		}
-> +		if ((S_ISUID | S_ISGID) & i->mode)
-> +			if (chmod(path, i->mode) < 0)
-> +				err(FSCK_ERROR, _("chown failed: %s"), path);
->  	}
+ The ideal solution is to extend the "-p" functionality and allow to 
+ specify expected columns at command line, something like:
 
-      if (((S_ISUID | S_ISGID) & i->mode) && chmod(path, i->mode) < 0)
-           err(FSCK_ERROR, _("chown failed: %s"), path);
+    lscpu -p -o cpu,core,book,socket
 
-[...]
-
->  	while ((c = getopt(argc, argv, "hb:Ee:i:n:N:psVvz")) != EOF) {
->  		switch (c) {
->  		case 'h':
-> -			usage(0);
-> +			usage(MKFS_OK);
->  		case 'b':
-> -			blksize = atoi(optarg);
-> +			blksize = strtoll_or_err(optarg, _("blocksize argument failed"));
-
- hmm... "failed to parse blocksize argument" ?
-
- [...]
-
->  			else if (strcmp(optarg, "host") == 0);	/* default */
-> -			else 	{
-> -				perror("invalid endianness given. Must be 'big', 'little', or 'host'");
-> -				exit(MKFS_USAGE);
-> -			}
-> +			else
-> +				errx(MKFS_USAGE, _("invalid endianness given."
-> +						   " Must be 'big', 'little', or 'host'"));
-
-   else if (strcmp(optarg, "host") == 0)
-        ; /* default */
-   else {
-        ....
-   }
-
->  		case 'V':
->  			printf(_("%s (%s)\n"),
-
- "%s from %s\n" :-)
-
-> -			       progname, PACKAGE_STRING);
-> +			       program_invocation_short_name, PACKAGE_STRING);
+ We already use the same idea for findmnt and lscpu.
 
     Karel
 
