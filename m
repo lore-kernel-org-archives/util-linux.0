@@ -1,39 +1,28 @@
-Return-Path: pgf@laptop.org
-To: Daniel Drake <dsd@laptop.org>
-Subject: Re: [PATCH] evstate: new utility for querying evdev key/switch/event state
-From: Paul Fox <pgf@laptop.org>
-cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
-        linux-input@vger.kernel.org
-In-reply-to: <CAGq3pz4ueyiTg1usRwangBJfuPwYPoOC0k83ygKs2RikfOQyGw@mail.gmail.com> (sfid-20110711_124927_157078_A3E8F7E6)
-References: <20110709132046.90A119D401C@zog.reactivated.net> <20110711121836.GJ5214@nb.net.home> <20110711163917.GA1648@core.coreip.homeip.net> <CAGq3pz4ueyiTg1usRwangBJfuPwYPoOC0k83ygKs2RikfOQyGw@mail.gmail.com> (sfid-20110711_124927_157078_A3E8F7E6)
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:61487 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754299Ab1GRSLg convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2011 14:11:36 -0400
+Received: by iyb12 with SMTP id 12so3327507iyb.19
+        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2011 11:11:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 12 Jul 2011 16:07:00 -0400
-Message-ID: <15489.1310501220@foxharp.boston.ma.us>
+In-Reply-To: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
+References: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Mon, 18 Jul 2011 14:11:15 -0400
+Message-ID: <CAJaTeTrdvGBpMf8quzORSjkcnVt=ZWeJ2DvPZDChZ+hO_W60Vw@mail.gmail.com>
+Subject: Re: dmesg: fix segfqult
+To: Marc-Antoine Perennou <Marc-Antoine@perennou.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-daniel wrote:
- > On 11 July 2011 17:39, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
- > > Now I'd say that this utility probably better fit into linuxconsole
- > > project with the rest of input-related utilities...
- > 
- > http://sourceforge.net/projects/linuxconsole/ ?
- > 
- > This must have been what you were referring to before. Yes, this looks
- > like a more appropriate home. I'll take it in that direction.
+On Mon, Jul 18, 2011 at 12:45, Marc-Antoine Perennou wrote:
+> -               size_t len = mbrtowc(&wc, p, size - i, &s);
+> +               int len = mbrtowc(&wc, p, size - i, &s);
 
-i disagree.  the contents of that package seems to be mostly for
-testing and legacy support.  access to the state of input switches in
-a generic way seems far more generally useful than that.
-
-i would rather not see the sysfs state variable go away in the first
-place -- it's too convenient to use, and inexpensive to implement --
-needing an ioctl for this seems like a step backwards.  but barring
-that, relegating the evstate functionality to linuxconsole seems wrong.
-(for instance, i don't think the OLPC laptop distros have a need for
-any of the other utilities in linuxconsole.)
-
-paul
-=---------------------
- paul fox, pgf@laptop.org
+this is wrong for systems where sizeof(size_t) != sizeof(int).  i
+think you want to fix the code like the man page indicates ... do "if
+(len < (size_t)-1) ....."
+-mike
