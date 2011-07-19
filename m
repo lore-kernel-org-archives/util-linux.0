@@ -1,57 +1,66 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37201 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751858Ab1GZJ6w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 Jul 2011 05:58:52 -0400
-Date: Tue, 26 Jul 2011 11:58:42 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] scriptreplay: fscanf portability fix
-Message-ID: <20110726095842.GX22568@nb.net.home>
-References: <1311365740-6251-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1311365740-6251-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH] swapon: use xalloc lib
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 19 Jul 2011 19:17:55 -0400
+Message-ID: <1311117475.3215.5.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 22, 2011 at 10:15:40PM +0200, Sami Kerola wrote:
-> This is a fix to an issue with llvm clang which I reported
-> earlier.
-> 
-> http://www.spinics.net/lists/util-linux-ng/msg04331.html
-> 
-> When compiling with clang fscanf format string %[\n] will not
-> work. 
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 18 Jul 2011 00:33:20 -0400
 
- Sure, read scanf man page. The %[] format expects string +
- null byte. The bug is in the scriptreplay.c code where 
- we don't have room for the null byte :-( 
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ mount/swapon.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/mount/swapon.c b/mount/swapon.c
+index 49771f5..6dfe4b1 100644
+--- a/mount/swapon.c
++++ b/mount/swapon.c
+@@ -24,6 +24,7 @@
+ #include "swapheader.h"
+ #include "mangle.h"
+ #include "canonicalize.h"
++#include "xalloc.h"
+ #include "c.h"
  
- I really don't think that this a llvm bug.
-
-> --- a/term-utils/scriptreplay.c
-> +++ b/term-utils/scriptreplay.c
-> @@ -203,7 +203,7 @@ main(int argc, char *argv[])
->  		size_t blk;
->  		char nl;
-        ^^^^^^^^
->  
-> -		if ((fscanf(tfile, "%lf %zd%[\n]\n", &delay, &blk, &nl) != 3) ||
-> +		if ((fscanf(tfile, "%lf %zd%c\n", &delay, &blk, &nl) != 3) ||
->  							(nl != '\n')) {
-
- Yep, it seems usable.
-
- Anyway, it's usually better to use fgets() + sscanf() to read and
- parse lines from files. The fscanf() could be tricky if your format
- depends on whitespaces.
-
- Applied, thanks.
-
-    Karel
-
+ #define PATH_MKSWAP	"/sbin/mkswap"
+@@ -341,10 +342,8 @@ swap_get_header(int fd, int *sig, unsigned int *pagesize)
+ 	*pagesize = 0;
+ 	*sig = 0;
+ 
+-	buf = malloc(MAX_PAGESIZE);
+-	if (!buf)
+-		return NULL;
+-
++	buf = xmalloc(MAX_PAGESIZE);
++	
+ 	datasz = read(fd, buf, MAX_PAGESIZE);
+ 	if (datasz == (ssize_t) -1)
+ 		goto err;
+@@ -658,16 +657,12 @@ static const char **ulist = NULL;
+ static int ulct = 0;
+ 
+ static void addl(const char *label) {
+-	llist = (const char **) realloc(llist, (++llct) * sizeof(char *));
+-	if (!llist)
+-		exit(EXIT_FAILURE);
++	llist = (const char **) xrealloc(llist, (++llct) * sizeof(char *));
+ 	llist[llct-1] = label;
+ }
+ 
+ static void addu(const char *uuid) {
+-	ulist = (const char **) realloc(ulist, (++ulct) * sizeof(char *));
+-	if (!ulist)
+-		exit(EXIT_FAILURE);
++	ulist = (const char **) xrealloc(ulist, (++ulct) * sizeof(char *));
+ 	ulist[ulct-1] = uuid;
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
