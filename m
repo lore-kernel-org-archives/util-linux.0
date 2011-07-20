@@ -1,78 +1,142 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:52021 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753132Ab1GALLh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2011 07:11:37 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id A2DD48B013
-	for <util-linux@vger.kernel.org>; Fri,  1 Jul 2011 13:11:36 +0200 (CEST)
-Date: Fri, 1 Jul 2011 13:11:36 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: rangelino@novell.com
-Subject: [PATCH] sfdisk: warn if partition size exceeds 2 TiB limit
-Message-ID: <20110701111134.GA24033@foxbat.suse.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH] whereis: search in path variable
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 20 Jul 2011 00:46:25 -0400
+Message-ID: <1311137185.3077.1.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Wed, 20 Jul 2011 00:39:10 -0400
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Currently this tool only uses the hardcoded paths for looking up strings for binaries, man pages and source code,
+adding those directories found in $PATH makes a nice little enhancement.
 
-=46rom: Roberto Angelino <rangelino@novell.com>
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+dave@offbook:~/projects/util-linux/misc-utils$ export PATH=$PATH:/home/dave/whereis-test
+dave@offbook:~/projects/util-linux/misc-utils$ ./whereis stdlib
+stdlib: /home/dave/whereis-test/stdlib.h /usr/include/stdlib.h
+dave@offbook:~/projects/util-linux/misc-utils$ whereis-old stdlib
+stdlib: /usr/include/stdlib.h
+
+This feature was also discussed previously here (http://www.spinics.net/lists/util-linux-ng/msg03429.html)
+
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- fdisk/sfdisk.c |   11 +++++++++++
- 1 files changed, 11 insertions(+), 0 deletions(-)
+ misc-utils/whereis.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 53 insertions(+), 0 deletions(-)
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 6cd85a2..4ed5d37 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -1293,6 +1293,17 @@ partitions_ok(struct disk_desc *z) {
- 	    }
-     }
-=20
-+    /* Are the partitions within the DOS 2TiB limit? */
-+    {
-+	for (p =3D partitions; p < partitions + partno; p++)
-+	    if (p->size > (unsigned long) UINT32_MAX) {
-+	        my_warn(_("Warning: partition %s of size %lu sectors exceeds "
-+		          "msdos 2TiB limit\n"),
-+		        PNO(p), p->size);
-+	        return 0;
-+	    }
-+    }
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 4f841f9..ec75057 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -45,6 +45,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
 +
-     /* At most one chain of DOS extended partitions ? */
-     /* It seems that the OS/2 fdisk has the additional requirement
-        that the extended partition must be the fourth one */
---=20
-1.7.3.4
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk4Nq2YACgkQnZxG0T6qDD25hgCfSbtydlnUZRgJi2q2PsDtXAju
-92oAmgMfCSjYgJOufL04aYI9Rwp+AMq2
-=DbSB
------END PGP SIGNATURE-----
-
---liOOAslEiF7prFVr--
++#include "xalloc.h"
+ #include "nls.h"
+ #include "c.h"
+ 
+@@ -58,6 +60,7 @@ void findv(char **, int, char *);
+ void find(char **, char *);
+ void findin(char *, char *);
+ int itsit(char *, char *);
++void fillpath(void);
+ 
+ static char *bindirs[] = {
+ 	"/bin",
+@@ -144,6 +147,7 @@ int	Bcnt;
+ char	**Mflag;
+ int	Mcnt;
+ char	uflag;
++char    **dirp, **pathdir = NULL;
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+@@ -172,6 +176,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ int
+ main(int argc, char **argv)
+ {
++	int i;
++
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+@@ -179,6 +185,9 @@ main(int argc, char **argv)
+ 	argc--, argv++;
+ 	if (argc == 0)
+ 		usage(stderr);
++	
++	fillpath();
++	dirp = pathdir;
+ 
+ 	do
+ 		if (argv[0][0] == '-') {
+@@ -232,9 +241,51 @@ main(int argc, char **argv)
+ 		} else
+ 			lookup(*argv++);
+ 	while (--argc > 0);
++
++	free(pathdir);
++
+ 	return EXIT_SUCCESS;
+ }
+ 
++int inpath(const char *str)
++{
++	int i;
++
++	for (i = 0; i < sizeof(bindirs)/sizeof(char *) - 1 ; i++)
++		if (!strcmp(bindirs[i], str))
++			return 1;
++	
++	for (i = 0; i < sizeof(mandirs)/sizeof(char *) - 1; i++)
++		if (!strcmp(mandirs[i], str))
++			return 1;
++		
++	for (i = 0; i < sizeof(srcdirs)/sizeof(char *) - 1; i++)
++		if (!strcmp(srcdirs[i], str))
++			return 1;
++	
++	return 0;
++}
++
++void fillpath(void)
++{
++	char *key=NULL, *tmp=NULL, *tok=NULL, *path = getenv("PATH");
++	int i = 0;
++
++	if (!path)
++		return;
++
++	for (tmp = path; ;tmp = NULL) {
++		tok = strtok_r(tmp, ":", &key);
++		if (!tok)
++			break;
++		if (inpath(tok)) /* make sure we don't repeat the search path */
++			continue;
++
++		pathdir = xrealloc(pathdir, (i + 1) * sizeof(char *));
++		pathdir[i++] = tok;
++	}
++}
++
+ void
+ getlist(int *argcp, char ***argvp, char ***flagp, int *cntp)
+ {
+@@ -356,6 +407,8 @@ find(char **dirs, char *cp)
+ {
+ 	while (*dirs)
+ 		findin(*dirs++, cp);
++	while(*dirp)
++		findin(*dirp++, cp);
+ }
+ 
+ void
+-- 
+1.7.4.1
