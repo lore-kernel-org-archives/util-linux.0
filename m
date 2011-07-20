@@ -1,59 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:35600 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751529Ab1GEVIU convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Jul 2011 17:08:20 -0400
-Received: by yxi11 with SMTP id 11so2054011yxi.19
-        for <util-linux@vger.kernel.org>; Tue, 05 Jul 2011 14:08:19 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:28714 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750979Ab1GTMsc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 20 Jul 2011 08:48:32 -0400
+Date: Wed, 20 Jul 2011 14:48:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "corentin.labbe" <corentin.labbe@geomatys.fr>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg.c: print human readable timestamp
+Message-ID: <20110720124826.GA22568@nb.net.home>
+References: <4DD6593D.2090202@geomatys.fr> <20110629145957.GM6418@nb.net.home> <4E2449B6.1070105@geomatys.fr>
 MIME-Version: 1.0
-In-Reply-To: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
-References: <CABVT_geJbR477C0OBrT1_Mn+iz0sUEE7mLuG56JytoF15uMHTg@mail.gmail.com>
-From: Kirill Elagin <kirelagin@gmail.com>
-Date: Wed, 6 Jul 2011 01:07:59 +0400
-Message-ID: <CABVT_geyUifDf5Kcn-fwHv46XPmoBa=3Cx7hB9kV9i+XeCK3xg@mail.gmail.com>
-Subject: Re: [PATCH] Fix install-exec-hook to check whether wall and write
- were built
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4E2449B6.1070105@geomatys.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sorry for this, didn't notice another thread.
+On Mon, Jul 18, 2011 at 04:56:54PM +0200, corentin.labbe wrote:
+> Perhaps we could keep my patch and add a warning about "problem with
+> suspend/resume" (both at first line when -H is used and in
+> manpages).  Like "Warning timestamp could be inaccurate if you have
+> used SUSPEND/RESUME"
 
---
-Кирилл Елагин
+ I agree.
+
+> If you are agree with that I will update my patch accordingly.
+
+ I have already added this feature to the code.
+
+ The latest dmesg(1) changes:
+
+  * -T, --ctime       : print human readable timestamps
+
+[Mon Jul 18 22:30:51 2011] Bluetooth: L2CAP ver 2.15
+[Mon Jul 18 22:30:51 2011] Bluetooth: L2CAP socket layer initialized
+[Mon Jul 18 22:30:51 2011] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
 
 
+  * -d, --show-delta  : display the time spent between messages.
+                       (based on kernel scripts/show_delat).
 
-2011/7/5 Kirill Elagin <kirelagin@gmail.com>:
-> Signed-off-by: Kirill Elagin <kirelagin@gmail.com>
-> ---
->  term-utils/Makefile.am |   12 +++++++++---
->  1 files changed, 9 insertions(+), 3 deletions(-)
->
-> diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
-> index 5e03560..8ab9d0b 100644
-> --- a/term-utils/Makefile.am
-> +++ b/term-utils/Makefile.am
-> @@ -66,9 +66,15 @@ endif
->
->  if USE_TTY_GROUP
->  if MAKEINSTALL_DO_CHOWN
-> +if BUILD_WALL
->  install-exec-hook::
-> -   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
-> -   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall $(DESTDIR)$(usrbin_execdir)/write
-> -
-> +   chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
-> +   chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
-> +endif
-> +if BUILD_WRITE
-> +install-exec-hook::
-> +   chgrp tty $(DESTDIR)$(usrbin_execdir)/write
-> +   chmod g+s $(DESTDIR)$(usrbin_execdir)/write
-> +endif
->  endif
->  endif
-> --
-> 1.7.3.4
->
+[   37.727490 <    0.157379>] Bluetooth: L2CAP ver 2.15
+[   37.729090 <    0.001600>] Bluetooth: L2CAP socket layer initialized
+[   37.964308 <    0.235218>] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+
+
+ It's possible to mix the options (dmesg -d -T):
+
+[Mon Jul 18 22:30:51 2011 <    0.157379>] Bluetooth: L2CAP ver 2.15
+[Mon Jul 18 22:30:51 2011 <    0.001600>] Bluetooth: L2CAP socket layer initialized
+[Mon Jul 18 22:30:51 2011 <    0.235218>] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
