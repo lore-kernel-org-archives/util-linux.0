@@ -1,72 +1,66 @@
-Return-Path: dmitry.torokhov@gmail.com
-Date: Mon, 11 Jul 2011 09:39:17 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Daniel Drake <dsd@laptop.org>, util-linux@vger.kernel.org, pgf@laptop.org,
-        Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [PATCH] evstate: new utility for querying evdev key/switch/event
- state
-Message-ID: <20110711163917.GA1648@core.coreip.homeip.net>
-References: <20110709132046.90A119D401C@zog.reactivated.net>
- <20110711121836.GJ5214@nb.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:34651 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753917Ab1GVK5e (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 22 Jul 2011 06:57:34 -0400
+Date: Fri, 22 Jul 2011 12:57:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: ionice: requires scheduling since
+	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
+Message-ID: <20110722105730.GT22568@nb.net.home>
+References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net> <20110722085420.GP22568@nb.net.home> <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net> <20110722094304.GQ22568@nb.net.home> <7856072A9D04C24B82DFE2B1112FE38A08FE2D3B4F@MCHP058A.global-ad.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110711121836.GJ5214@nb.net.home>
+In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3B4F@MCHP058A.global-ad.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 11, 2011 at 02:18:36PM +0200, Karel Zak wrote:
-> On Sat, Jul 09, 2011 at 02:20:46PM +0100, Daniel Drake wrote:
-> > evstate is a small utility that queries evdev state of a specific
-> > key, switch, button, LED or sound event. This is useful in programs
-> > such as powerd (http://wiki.laptop.org/go/Powerd) which need to query
-> > things like the state of the laptop lid switch from shell code.
+On Fri, Jul 22, 2011 at 12:21:08PM +0200, Voelker, Bernhard wrote:
+> Karel Zak wrote:
+> 
+> > Fixed.
 > > 
-> > Our earlier non-upstream approach to this was to add sysfs nodes that
-> > would indicate button state, but Dmitry Torokhov is against seeing those
-> > in the upstream kernel as it is duplicating info from the input layer:
+> >  I've also added support for human readable class names, you can use:
+> > 
+> >    ionice -c best-effort /bin/foo
 > 
-> Sounds too crazy...
+> great, thanks!
 > 
-> The duplication is normal (see for example block devices). There is
-> many places where we have the same information accessible by ioctl()
-> as well as by sysfs.
-
-Sometimes it makes sense to provide alternative way of accessing data;
-however block devices do not export every block as a binary sysfs
-attribute, do they? Same goes for input.
-
+> One last corner case regarding -t (ignoring failure):
 > 
-> The sysfs is usually the preferred way, because it does not require root
-> permissions to read the attributes and you can use standard file/text
-> utils rather than any specialized ioctl wrappers.
-
-Yep, that'd be great. "Look, ma, I can see what root is typing..."
-
+>   $ schedutils/ionice -c 4 -t  schedutils/ionice 
+>   ionice: bad prio class 4
+>   $ schedutils/ionice -n 8 -t  schedutils/ionice 
+>   idle
 > 
-> > http://article.gmane.org/gmane.linux.drivers.platform.x86.devel/1089
-> 
-> Wow, so you have already implemented a patch that exports the state
-> in *human readable format* by sysfs. This patch was NACKed.
+> With -c, a bad prio class leads to a failure, while it doesn't with -n.
+> Is this intended?
 
-Yes, on the ground that it is not a good idea to sprinkle
-driver-specific sysfs attributes all over the place when there is
-already a generic way of accessing this data.
+OK. Copy & past from the latest commit:
 
-> 
-> Now it's expected that everyone in userspace will use ioctl() (with
-> root permissions?)
-
-Yep, see above.
-
-> and translate any crazy bit array to something
-> human readable. Right? Really?
-
-Right. Really.
-
-Now I'd say that this utility probably better fit into linuxconsole
-project with the rest of input-related utilities...
-
-Thanks.
+    ionice: make -t more tolerant
+    
+    * replace errx() with warnx() for unknown -c class
+    
+      The right place to check I/O scheduler features is in kernel. We should
+      not try to be more smart than kernel.
+    
+    * make the code ready (robust) for unknown sched.classes
+    
+    * fix -t behavior
+    
+    	old version:
+    	  $ ionice -c 4 -t bash
+    	  ionice: bad prio class 4
+    
+    	new version:
+    	  $ ionice -c 4 -t bash
+    
+    Reported-by: Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+    Signed-off-by: Karel Zak <kzak@redhat.com>
 
 -- 
-Dmitry
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
