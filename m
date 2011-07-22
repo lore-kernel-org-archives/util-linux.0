@@ -1,27 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18134 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752766Ab1G0JQd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 27 Jul 2011 05:16:33 -0400
-Date: Wed, 27 Jul 2011 11:16:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] hwclock fixes
-Message-ID: <20110727091630.GF14764@nb.net.home>
-References: <CAG27Bk0EkOe=dbt88PFtDKwyo9+0mZPaysVh0eM9BjWu4X8+vQ@mail.gmail.com> <20110726142212.GB14764@nb.net.home> <CAG27Bk3x9Oab431BM-+AnjQHYc5cwuDeho3ufzz46PpN_uJ5=Q@mail.gmail.com>
+Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:59701 "EHLO
+	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751731Ab1GVI5k convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 22 Jul 2011 04:57:40 -0400
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Karel Zak <kzak@redhat.com>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Fri, 22 Jul 2011 10:57:28 +0200
+Subject: RE: ionice: requires scheduling since
+	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net>
+References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net>
+ <20110722085420.GP22568@nb.net.home>
+In-Reply-To: <20110722085420.GP22568@nb.net.home>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3x9Oab431BM-+AnjQHYc5cwuDeho3ufzz46PpN_uJ5=Q@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 26, 2011 at 06:38:26PM +0200, Sami Kerola wrote:
-> All is pushed to my repo with force. Let me know if there is something
-> other that needs nudging.
+Karel Zak wrote:
 
- Merged.
+> I'll improve the behavior:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+great!
+
+>  ionice                       : print the current I/O prio.
+>  ionice <COMMAND>             : exec command with default (best-effort) class
+>  ionice -p PID [...]          : return info about the PID(s)
+>  ionice -c CLASS COMMAND      : exec command with the class
+>  ionice -c CLASS -p PID [...] : modify PID(s) class
+>
+> Comments?
+
+   ionice --help                : print help
+
+is missing ;-)
+
+Berny
