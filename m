@@ -1,42 +1,108 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from li9-11.members.linode.com ([67.18.176.11]:52970 "EHLO
-	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751230Ab1GXT5Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 24 Jul 2011 15:57:16 -0400
-Date: Sun, 24 Jul 2011 15:57:13 -0400
-From: "Ted Ts'o" <tytso@mit.edu>
-To: Daniel Drake <dsd@laptop.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Can't remount loopback ext4 without /etc/mtab
-Message-ID: <20110724195713.GH3469@thunk.org>
-References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20110721181012.GA6672@nb.net.home>
+References: <CAG27Bk1uKnqR62SRNgTXFPGfTseraC0AUgpAMQ5zhdcsAM-79w@mail.gmail.com>
+	<20110721181012.GA6672@nb.net.home>
+Date: Fri, 22 Jul 2011 09:56:24 +0200
+Message-ID: <CAG27Bk2eA7gypziZ7RSD=CR_XiYvQvGEz-AGq_aYHGe++sZuhw@mail.gmail.com>
+Subject: Re: [git pull] cramfs fixes
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 24, 2011 at 07:09:47PM +0100, Daniel Drake wrote:
-> 
-> When the error occurs, dmesg says:
-> [ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
-> or missing value
-> 
-> Here is the corresponding entry from /proc/mounts:
-> /dev/loop0 /home/dsd/tmpdisk/mountpt ext4
-> rw,seclabel,relatime,barrier=1,data=ordered 0 0
-> 
-> Is this a util-linux bug? Or an ext4 issue?
+On Thu, Jul 21, 2011 at 20:10, Karel Zak <kzak@redhat.com> wrote:
+>> =A0 =A0 =A0 u32 namelen:6, offset:26;
+> =A0 =A0^^^
+> =A0uint32_t
 
-Or a selinux thing; "seclabel" seems to be SELinux's fault:
+Oops. Fixed.
 
-% git grep LABELSUPP_STR
-security/selinux/hooks.c:       {Opt_labelsupport, LABELSUPP_STR},
-security/selinux/hooks.c:                       seq_puts(m, LABELSUPP_STR);
-security/selinux/hooks.c:               match_prefix(LABELSUPP_STR, sizeof(LABEL
-security/selinux/include/security.h:#define LABELSUPP_STR "seclabel"
+>> +/* Exit codes used by fsck-type programs */
+>> +#define FSCK_OK =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00 =A0 =A0 =
+=A0 /* No errors */
+>> +#define FSCK_NONDESTRUCT =A0 =A0 1 =A0 =A0 =A0 /* File system errors co=
+rrected */
+>> +#define FSCK_REBOOT =A0 =A0 =A0 =A0 =A02 =A0 =A0 =A0 /* System should b=
+e rebooted */
+>> +#define FSCK_UNCORRECTED =A0 =A0 4 =A0 =A0 =A0 /* File system errors le=
+ft uncorrected */
+>> +#define FSCK_ERROR =A0 =A0 =A0 =A0 =A0 8 =A0 =A0 =A0 /* Operational err=
+or */
+>> +#define FSCK_USAGE =A0 =A0 =A0 =A0 =A0 16 =A0 =A0 =A0/* Usage or syntax=
+ error */
+>> +#define FSCK_LIBRARY =A0 =A0 =A0 =A0 128 =A0 =A0 /* Shared library erro=
+r */
+>
+> =A0I see magic numbers also in fsck.minix ;-)
+>
+> =A0What about to add include/exitcodes.h and move this and
+> =A0disk-utils/mkfs.h to this file?
 
-Personally, I find my life has been much happier since I gave up on
-SELinux as being too complicated to be secure.
+True. I added two patches which does exactly that.
 
-						- Ted
+      include: move disk-utils/mkfs.h -> include/exitcodes.h
+      include: move fsck return values to exitcodes.h
+
+>> [snip]
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 err(FSCK_ERROR, _("write failed: %s"),
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 path);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 curr =3D next;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> =A0 =A0 =A0 ^^^
+>
+> the 'if (opt_extract)' block is outsize 'if (size >=3D page_size)'...
+
+Correct, the mistake is fixed.
+
+>> [snip]
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if ((S_ISUID | S_ISGID) & i->mode)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (chmod(path, i->mode) < 0)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 err(FSCK_ERROR=
+, _("chown failed: %s"), path);
+>> =A0 =A0 =A0 }
+>
+> =A0 =A0 =A0if (((S_ISUID | S_ISGID) & i->mode) && chmod(path, i->mode) < =
+0)
+> =A0 =A0 =A0 =A0 =A0 err(FSCK_ERROR, _("chown failed: %s"), path);
+
+Changed to single if.
+
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 blksize =3D atoi(optarg);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 blksize =3D strtoll_or_err(opt=
+arg, _("blocksize argument failed"));
+>
+> =A0hmm... "failed to parse blocksize argument" ?
+
+Changed to "failed to parse".
+
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 else if (strcmp(optarg, "hos=
+t") =3D=3D 0); =A0/* default */
+>> [snip]
+>
+> =A0 else if (strcmp(optarg, "host") =3D=3D 0)
+> =A0 =A0 =A0 =A0; /* default */
+
+This and...
+
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 'V':
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 printf(_("%s (%s)\n"),
+>
+> =A0"%s from %s\n" :-)
+
+the version string are in new patch.
+
+      mkfs.cramfs: coding style
+
+
+The fixed & few new patches are available in the git repository at:
+ https://github.com/kerolasa/lelux-utiliteetit cramfs
+
+--=20
+=A0=A0 Sami Kerola
+=A0=A0 http://www.iki.fi/kerolasa/
