@@ -1,40 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:60176 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756475Ab1GANvt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2011 09:51:49 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: lamont@debian.org
-Subject: [PATCH 5/6] mount: make the error message clear
-Date: Fri,  1 Jul 2011 15:51:44 +0200
-Message-Id: <1309528305-12626-6-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
-References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+Received: from li9-11.members.linode.com ([67.18.176.11]:52970 "EHLO
+	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751230Ab1GXT5Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 24 Jul 2011 15:57:16 -0400
+Date: Sun, 24 Jul 2011 15:57:13 -0400
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Daniel Drake <dsd@laptop.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Can't remount loopback ext4 without /etc/mtab
+Message-ID: <20110724195713.GH3469@thunk.org>
+References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reported-by: Micah Anderson <micah@debian.org>
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=558653
+On Sun, Jul 24, 2011 at 07:09:47PM +0100, Daniel Drake wrote:
+> 
+> When the error occurs, dmesg says:
+> [ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
+> or missing value
+> 
+> Here is the corresponding entry from /proc/mounts:
+> /dev/loop0 /home/dsd/tmpdisk/mountpt ext4
+> rw,seclabel,relatime,barrier=1,data=ordered 0 0
+> 
+> Is this a util-linux bug? Or an ext4 issue?
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- mount/mount.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Or a selinux thing; "seclabel" seems to be SELinux's fault:
 
-diff --git a/mount/mount.c b/mount/mount.c
-index 00637f5..cb04d9d 100644
---- a/mount/mount.c
-+++ b/mount/mount.c
-@@ -1765,7 +1765,7 @@ try_mount_one (const char *spec0, const char *node0, const char *types0,
-       unsigned long long size = 0;
- 
-       if (flags & MS_REMOUNT) {
--	error (_("mount: %s not mounted already, or bad option"), node);
-+	error (_("mount: %s not mounted or bad option"), node);
-       } else {
- 	error (_("mount: wrong fs type, bad option, bad superblock on %s,\n"
- 	       "       missing codepage or helper program, or other error"),
--- 
-1.7.3.4
+% git grep LABELSUPP_STR
+security/selinux/hooks.c:       {Opt_labelsupport, LABELSUPP_STR},
+security/selinux/hooks.c:                       seq_puts(m, LABELSUPP_STR);
+security/selinux/hooks.c:               match_prefix(LABELSUPP_STR, sizeof(LABEL
+security/selinux/include/security.h:#define LABELSUPP_STR "seclabel"
 
+Personally, I find my life has been much happier since I gave up on
+SELinux as being too complicated to be secure.
+
+						- Ted
