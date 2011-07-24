@@ -1,92 +1,41 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62710 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750946Ab1GRWRz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Jul 2011 18:17:55 -0400
-Date: Tue, 19 Jul 2011 00:17:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
+Return-Path: dave@gnu.org
+Subject: [PATCH] partx: use sysfs_deinit
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] schedutils
-Message-ID: <20110718221751.GD4354@nb.redhat.com>
-References: <CAG27Bk0XXawQERH19+iUguDame2Pts_+bvrt8Of0+ib9KSW3NA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0XXawQERH19+iUguDame2Pts_+bvrt8Of0+ib9KSW3NA@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 24 Jul 2011 18:51:16 -0400
+Message-ID: <1311547876.3367.3.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 17, 2011 at 08:37:58PM +0200, Sami Kerola wrote:
->  	default:
-> -		printf(_("unknown\n"));
-> +		printf(_("unknown scheduling policy\n"));
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Sun, 24 Jul 2011 11:29:23 -0400
 
- what about warnx() ?
 
-> +	printf(_("policy          : min/max priority\n"
-> +		 "----------------+-----------------\n"));
+Commit a88268b8cc124b6f721ba17ab01a3f6d5800c749 (get partition number with sysfs lib) recently added the sysfs library to partx without freeing resources once finished.
 
- oh...
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ partx/partx.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
->  	for (i = 0; i < ARRAY_SIZE(policies); i++) {
->  		int max = sched_get_priority_max(policies[i]);
->  		int min = sched_get_priority_min(policies[i]);
-> 
->  		if (max >= 0 && min >= 0)
-> -			printf(_("SCHED_%s min/max priority\t: %d/%d\n"),
-> +			printf(_("SCHED_%-10s: %d/%d\n"),
->  					names[i], min, max);
-
- ...this is not backwardly compatible.
-
- If you really want to have nice output then use include/tt.c (see for
- example partx, findmnt or lsblk) and add a new option for such
- functionality.
-
->  .SH SYNOPSIS
->  .B ionice
-> -.RB [[ \-c
-> -.IR class ]
-> -.RB [ \-n
-> -.IR classdata ]
-> -.RB [ \-t ]]
-> -.BI \-p \ PID
-> -.RI [ PID  ]...
-> +[OPTION] \fB\-p\fR PID [PID...]
->  .br
->  .B ionice
-> -.RB [ \-c
-> -.IR class ]
-> -.RB [ \-n
-> -.IR classdata ]
-> -.RB [ \-t ]
-> -.IR COMMAND\  [ ARG  ]...
-> +[OPTION] COMMAND
-
-hmm.. don't forget that people love examples, IMHO the old version
-seems more readable.
-
->  	textdomain(PACKAGE);
-> 
-> -	while ((c = getopt(argc, argv, "+n:c:p:th")) != EOF) {
-> +	while ((c = getopt_long(argc, argv, "+n:c:p:tVh", longopts, NULL)) != EOF)
->  		switch (c) {
->  		case 'n':
-> -			ioprio = strtol_or_err(optarg, _("failed to parse class data"));
-> +			ioprio = strtol_or_err(optarg, _("failed to parse priority"));
-
-well, the original kernel Documentation/block/ioprio.txt is talking
-about "class data" and I think it would be better to follow kernel
-here. Maybe one day the mask for the syscall will used for a different
-things than only for priority...
-
-> +		case 'V':
-> +			printf(_("%s (%s)\n"),
-
- "%s from %s" ;-)
-
-    Karel
-
+diff --git a/partx/partx.c b/partx/partx.c
+index e29e50d..4f827a8 100644
+--- a/partx/partx.c
++++ b/partx/partx.c
+@@ -137,8 +137,10 @@ static int get_partno_from_device(char *partition, dev_t devno)
+ 		struct sysfs_cxt cxt;
+ 
+ 		sysfs_init(&cxt, devno, NULL);
+-		if (sysfs_read_int(&cxt, "partition", &partno) >= 0)
++		if (sysfs_read_int(&cxt, "partition", &partno) >= 0) {
++			sysfs_deinit(&cxt);
+ 			return partno;
++		}
+ 	}
+ 
+ 	sz = strlen(partition);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
