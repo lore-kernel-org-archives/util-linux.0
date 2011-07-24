@@ -1,53 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:61807 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752155Ab1GZAGl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 25 Jul 2011 20:06:41 -0400
-Received: by gyh3 with SMTP id 3so2568707gyh.19
-        for <util-linux@vger.kernel.org>; Mon, 25 Jul 2011 17:06:40 -0700 (PDT)
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:44550 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752030Ab1GXSJt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Jul 2011 14:09:49 -0400
+Received: by fxd18 with SMTP id 18so7830691fxd.11
+        for <util-linux@vger.kernel.org>; Sun, 24 Jul 2011 11:09:47 -0700 (PDT)
 MIME-Version: 1.0
-From: Tom Gundersen <teg@jklm.no>
-Date: Tue, 26 Jul 2011 02:06:20 +0200
-Message-ID: <CAG-2HqUu6BduqDkja7-T67CJNYRKZWBbOQA29O3HaR=092bKaA@mail.gmail.com>
-Subject: hwclock's ADJPATH
-To: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Date: Sun, 24 Jul 2011 19:09:47 +0100
+Message-ID: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+Subject: Can't remount loopback ext4 without /etc/mtab
+From: Daniel Drake <dsd@laptop.org>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi guys,
+Hi,
 
-Sami's latest hwclock patches reminded me of something I have long
-been meaning to bring up:
+In Fedora 14, the test case below worked fine. In Fedora 15, it fails.
+I think this is due to the change to have /etc/mtab as a symlink to
+/proc/mounts.
 
-I have been unable to figure out how to use hwclock in such a way that
-we (Arch Linux) can set a reasonable ADJPATH.
+# dd if=/dev/zero of=fs.img bs=1M count=20
+# mkfs.ext4 fs.img
+# mkdir mountpt
+# mount -o loop fs.img mountpt
 
-These are the constraints we have:
+Now try to remount it read-only:
 
-/etc could possibly be mounted read-only.
-/var might not be mounted at early boot.
+# mount -o remount,ro mountpt
+mount: /home/dsd/tmpdisk/mountpt not mounted already, or bad option
 
-This is the usage we have (in the cases where a machine does not use ntp):
+(On Fedora 14 no error was returned and the mount became read-only)
 
-1) At early boot we call "hwclock --systz", which require us to read
-ADJPATH to determine if RTC is in UTC/LOCAL (so ADJTIME can not be in
-/var).
-2) From time to time (typically at shutdown), we call "hwclock
---adjust", which require us to write to ADJPATH (so ADJPATH can not be
-in /etc).
-3) The administrator should manually call "hwclock --set" and make
-sure ADJPATH is writeable when this is done (for this, ADJPATH could
-be either in /etc or /var).
+When the error occurs, dmesg says:
+[ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
+or missing value
 
+Here is the corresponding entry from /proc/mounts:
+/dev/loop0 /home/dsd/tmpdisk/mountpt ext4
+rw,seclabel,relatime,barrier=1,data=ordered 0 0
 
+Is this a util-linux bug? Or an ext4 issue?
 
-Are these reasonable constraints and a reasonable usecase? If so, it
-seems to me that the only way to make this work is to split ADJPATH
-into two files, /etc/adjtime containing UTC/LOCAL and
-/var/lib/hwclock/adjtime containing everything else. Or am I missing
-something?
-
-Cheers,
-
-Tom
+Thanks,
+Daniel
