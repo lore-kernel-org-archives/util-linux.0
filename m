@@ -1,41 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30813 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750846Ab1GRW2w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Jul 2011 18:28:52 -0400
-Date: Tue, 19 Jul 2011 00:28:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas =?utf-8?Q?B=C3=A4chler?= <thomas@archlinux.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: dmesg(1) changes
-Message-ID: <20110718222847.GG4354@nb.redhat.com>
-References: <20110714115231.GF3486@nb.net.home> <4E242E69.6090409@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <4E242E69.6090409@archlinux.org>
+Received: from caiajhbdccah.dreamhost.com ([208.97.132.207]:59794 "EHLO
+	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752503Ab1GXWqa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 24 Jul 2011 18:46:30 -0400
+Subject: Re: Can't remount loopback ext4 without /etc/mtab
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: "Ted Ts'o" <tytso@mit.edu>
+Cc: Daniel Drake <dsd@laptop.org>, util-linux@vger.kernel.org
+In-Reply-To: <20110724195713.GH3469@thunk.org>
+References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+	 <20110724195713.GH3469@thunk.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 24 Jul 2011 18:46:21 -0400
+Message-ID: <1311547581.3367.1.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 18, 2011 at 03:00:25PM +0200, Thomas Bächler wrote:
-> Am 14.07.2011 13:52, schrieb Karel Zak:
+On Sun, 2011-07-24 at 15:57 -0400, Ted Ts'o wrote:
+> On Sun, Jul 24, 2011 at 07:09:47PM +0100, Daniel Drake wrote:
 > > 
-> >  Hi,
+> > When the error occurs, dmesg says:
+> > [ 5495.860391] EXT4-fs (loop0): Unrecognized mount option "seclabel"
+> > or missing value
 > > 
-> > I did some changes to dmesg(1) in last days:
+> > Here is the corresponding entry from /proc/mounts:
+> > /dev/loop0 /home/dsd/tmpdisk/mountpt ext4
+> > rw,seclabel,relatime,barrier=1,data=ordered 0 0
+> > 
+> > Is this a util-linux bug? Or an ext4 issue?
 > 
-> Thanks for these advances.
+> Or a selinux thing; "seclabel" seems to be SELinux's fault:
 > 
-> While we're making a wishlist, I always wanted a 'follow' option
-> (similar to tail -f/-F) for dmesg.
 
- It's not so simple:
- http://www.spinics.net/lists/util-linux-ng/msg04453.html
+It would seem so, I can't reproduce this issue on a "normal", non
+SELinux box.
 
- I'll try to play with that a little more later. Now I'd like to
- release 2.20 ASAP.
+> % git grep LABELSUPP_STR
+> security/selinux/hooks.c:       {Opt_labelsupport, LABELSUPP_STR},
+> security/selinux/hooks.c:                       seq_puts(m, LABELSUPP_STR);
+> security/selinux/hooks.c:               match_prefix(LABELSUPP_STR, sizeof(LABEL
+> security/selinux/include/security.h:#define LABELSUPP_STR "seclabel"
+> 
+> Personally, I find my life has been much happier since I gave up on
+> SELinux as being too complicated to be secure.
 
-    Karel
++1!!
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+- Davidlohr
+
