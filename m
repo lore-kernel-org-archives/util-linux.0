@@ -1,37 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3178 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751690Ab1GULVc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 Jul 2011 07:21:32 -0400
-Date: Thu, 21 Jul 2011 13:21:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Davidlohr Bueso <dave@gnu.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] minix: v3 super-block does not have s_state field
-Message-ID: <20110721112128.GE22568@nb.net.home>
-References: <1310529931.4444.7.camel@offbook> <CAG27Bk0vW2LZySAf8B38OBbVaXpSDP81C+wVuA1vSW1rwhgwgg@mail.gmail.com> <20110713121232.GC3486@nb.net.home> <CAG27Bk2m+d=N9yVTSbByzhfkMUmP-d7heQXS643uWE3n+05+Mw@mail.gmail.com> <20110713173430.GD3486@nb.net.home> <1310609005.3482.0.camel@offbook> <20110714091829.GE3486@nb.net.home> <CAG27Bk0DYx+jCD-iqQvt1n=VdHszceTEAQQRvCKLvPXqpagTXA@mail.gmail.com> <20110718221926.GE4354@nb.redhat.com> <CAG27Bk3pxKEUPVE92=rZwA-FDHqA81TSM71J0Ati3mFXcGvE3g@mail.gmail.com>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:53049 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751726Ab1GYWmr convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 25 Jul 2011 18:42:47 -0400
+Received: by qwk3 with SMTP id 3so2282086qwk.19
+        for <util-linux@vger.kernel.org>; Mon, 25 Jul 2011 15:42:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3pxKEUPVE92=rZwA-FDHqA81TSM71J0Ati3mFXcGvE3g@mail.gmail.com>
+Reply-To: kerolasa@gmail.com
+Date: Tue, 26 Jul 2011 00:42:46 +0200
+Message-ID: <CAG27Bk0EkOe=dbt88PFtDKwyo9+0mZPaysVh0eM9BjWu4X8+vQ@mail.gmail.com>
+Subject: [git pull] hwclock fixes
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 20, 2011 at 08:53:11PM +0200, Sami Kerola wrote:
->  disk-utils/Makefile.am           |    4 +-
->  disk-utils/fsck.minix.c          |   99 ++++++++++---------
->  disk-utils/minix.h               |  202 --------------------------------------
->  disk-utils/minix_programs.h      |  113 +++++++++++++++++++++
->  disk-utils/mkfs.minix.c          |   77 +++++++-------
->  include/Makefile.am              |    1 +
->  include/minix.h                  |   97 ++++++++++++++++++
->  libblkid/src/partitions/minix.c  |    6 +-
->  libblkid/src/superblocks/minix.c |   33 +------
+The following changes since commit 63de90d44f4f05a1f48942148edcf1740ba4a623:
 
- Merged. I have removed the "static" variables from the
- minix_programs.h file. It's better to use normal global variables.
+  libmount: cleanup docs (2011-07-23 01:27:39 +0200)
 
-    Karel
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit hwclock
+
+Sami Kerola (11):
+      hwclock: remove clock-ppc.c
+      hwclock: remove misleading information
+      hwclock: coding style clean up
+      hwclock: include-what-you-use header check
+      hwclock: move path definitions to pathnames.h
+      hwclock: remove inb & outb functions
+      hwclock: fix compiler warnings
+      hwclock: remove goto statement
+      hwclock: add variable initialization
+      hwclock: move long options away from global scope
+      hwclock: validate numeric option arguments
+
+ configure.ac           |    2 -
+ hwclock/Makefile.am    |    4 +-
+ hwclock/README.hwclock |   10 -
+ hwclock/clock-ppc.c    |  459 ---------
+ hwclock/clock.h        |   20 +-
+ hwclock/cmos.c         |  936 +++++++++---------
+ hwclock/hwclock.c      | 2654 ++++++++++++++++++++++++------------------------
+ hwclock/kd.c           |  239 +++---
+ hwclock/rtc.c          |  565 ++++++-----
+ include/pathnames.h    |    9 +
+ 10 files changed, 2223 insertions(+), 2675 deletions(-)
+ delete mode 100644 hwclock/clock-ppc.c
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
