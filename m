@@ -1,46 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50923 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752211Ab1GKJqY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Jul 2011 05:46:24 -0400
-Date: Mon, 11 Jul 2011 11:46:20 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] blockdev fixes
-Message-ID: <20110711094620.GE5214@nb.net.home>
-References: <BANLkTikQsgSXBs4kybTvF0QvDDvbMub5hg@mail.gmail.com>
+Return-Path: dsd.olpc@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <BANLkTikQsgSXBs4kybTvF0QvDDvbMub5hg@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Sender: dsd.olpc@gmail.com
+In-Reply-To: <20110725090624.GU22568@nb.net.home>
+References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+	<20110724195713.GH3469@thunk.org>
+	<20110725090624.GU22568@nb.net.home>
+Date: Mon, 25 Jul 2011 10:20:55 +0100
+Message-ID: <CAGq3pz4PH-MK5+AgBTnq03atWUxMEdVreUtoVeqrkOkcc+8DZQ@mail.gmail.com>
+Subject: Re: Can't remount loopback ext4 without /etc/mtab
+From: Daniel Drake <dsd@laptop.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Ted Ts'o" <tytso@mit.edu>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 30, 2011 at 11:38:31AM +0200, Sami Kerola wrote:
-> The following changes since commit 37b94458bd0f4a178233ad0366a727bf5bde879f:
-> 
->   sfdisk: fix coding style. (2011-06-29 12:47:38 +0200)
-> 
-> are available in the git repository at:
->   https://github.com/kerolasa/lelux-utiliteetit blockdev
-> 
-> Sami Kerola (8):
->       blockdev: set options read only
->       blockdev: remove progname
->       blockdev: add --help option
->       blockdev: use libc error facilities
->       blockdev: use pathnames.h to find partitions
->       blockdev: broken compiler warning circumvention removed
->       blockdev: type mismatch fix
->       blockdev: coding style fix
-> 
->  disk-utils/blockdev.c |  158 +++++++++++++++++++++---------------------------
->  1 files changed, 69 insertions(+), 89 deletions(-)
+On 25 July 2011 10:06, Karel Zak <kzak@redhat.com> wrote:
+> =A0mount(8) "bug"
+>
+> =A0The kernel does not accept any SELinux specific mount options for
+> =A0MS_REMOUNT. We already have exception for this in mount(8) ... and I
+> =A0hate it, but our SELunux kernel guys are happy with this strange
+> =A0behavior:
+>
+> =A0https://bugzilla.redhat.com/show_bug.cgi?id=3D563267#c9
 
- Merged, thanks.
+That view might have changed, I found these commits:
+http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3Dcomm=
+itdiff;h=3Dff36fe2c845cab2102e4826c1ffa0a6ebf487c65
+http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3Dcomm=
+itdiff;h=3D026eb167ae77244458fa4b4b9fc171209c079ba7
+(from https://bugzilla.redhat.com/show_bug.cgi?id=3D676630 )
 
-    Karel
+I'm going to test them against F15 kernel later today.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks,
+Daniel
