@@ -1,28 +1,27 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:61487 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754299Ab1GRSLg convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2011 14:11:36 -0400
-Received: by iyb12 with SMTP id 12so3327507iyb.19
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2011 11:11:35 -0700 (PDT)
+Return-Path: dsd.olpc@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
-References: <CACpTwpGZHf4dY72T6-nNLWCEU9CM2h58OQvCVgDZiKxsOorxVw@mail.gmail.com>
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Mon, 18 Jul 2011 14:11:15 -0400
-Message-ID: <CAJaTeTrdvGBpMf8quzORSjkcnVt=ZWeJ2DvPZDChZ+hO_W60Vw@mail.gmail.com>
-Subject: Re: dmesg: fix segfqult
-To: Marc-Antoine Perennou <Marc-Antoine@perennou.com>
-Cc: util-linux@vger.kernel.org
+Sender: dsd.olpc@gmail.com
+In-Reply-To: <20110725094638.GV22568@nb.net.home>
+References: <CAGq3pz7FctJcUsO-1FmFmV=EW0N=n_ZYBCHGcyXQMr1CJ24zRA@mail.gmail.com>
+	<20110724195713.GH3469@thunk.org>
+	<20110725090624.GU22568@nb.net.home>
+	<CAGq3pz4PH-MK5+AgBTnq03atWUxMEdVreUtoVeqrkOkcc+8DZQ@mail.gmail.com>
+	<20110725094638.GV22568@nb.net.home>
+Date: Tue, 26 Jul 2011 20:29:09 +0100
+Message-ID: <CAGq3pz75wajCdjp9K56Km7ZiHEYSgJPaZXwVztaTuz6Z1nDx3w@mail.gmail.com>
+Subject: Re: Can't remount loopback ext4 without /etc/mtab
+From: Daniel Drake <dsd@laptop.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Ted Ts'o" <tytso@mit.edu>, util-linux@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 18, 2011 at 12:45, Marc-Antoine Perennou wrote:
-> -               size_t len = mbrtowc(&wc, p, size - i, &s);
-> +               int len = mbrtowc(&wc, p, size - i, &s);
+On 25 July 2011 10:46, Karel Zak <kzak@redhat.com> wrote:
+> =A0F-15 uses 2.6.38, the patches are in kernel >=3D v2.6.39-rc7
+> =A0(according to git describe --contains).
 
-this is wrong for systems where sizeof(size_t) != sizeof(int).  i
-think you want to fix the code like the man page indicates ... do "if
-(len < (size_t)-1) ....."
--mike
+Indeed. I'm hoping they will include the patches in 2.6.38 for the
+next F15 kernel update.
+https://bugzilla.redhat.com/show_bug.cgi?id=3D725867
+
+Daniel
