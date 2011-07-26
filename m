@@ -1,83 +1,69 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:59618 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755554Ab1GANdM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2011 09:33:12 -0400
-Date: Fri, 1 Jul 2011 15:33:10 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20110726142212.GB14764@nb.net.home>
+References: <CAG27Bk0EkOe=dbt88PFtDKwyo9+0mZPaysVh0eM9BjWu4X8+vQ@mail.gmail.com>
+	<20110726142212.GB14764@nb.net.home>
+Date: Tue, 26 Jul 2011 18:38:26 +0200
+Message-ID: <CAG27Bk3x9Oab431BM-+AnjQHYc5cwuDeho3ufzz46PpN_uJ5=Q@mail.gmail.com>
+Subject: Re: [git pull] hwclock fixes
+From: Sami Kerola <kerolasa@iki.fi>
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] sfdisk: warn if partition starts above 2 TiB limit
-Message-ID: <20110701133310.GB23585@foxbat.suse.cz>
-References: <20110701111154.GA24105@foxbat.suse.cz>
- <20110701131140.GQ6418@nb.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
-In-Reply-To: <20110701131140.GQ6418@nb.net.home>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jul 26, 2011 at 16:22, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Jul 26, 2011 at 12:42:46AM +0200, Sami Kerola wrote:
+>> are available in the git repository at:
+>> =A0 https://github.com/kerolasa/lelux-utiliteetit hwclock
+>> =A0 =A0 =A0 hwclock: include-what-you-use header check
+>
+> =A0Hmm.. I see something completely different in the patch:
+>
+> =A0 =A0Showing 5 changed files with 171 additions and 216 deletions.
+>
+> =A0it seems like "use libc error facilities".
 
---zx4FCpZtqtKETZ7O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Do'h. One of my rebase fix something etc had lead to accidental
+squash. The commit is split to two as it was meant to be.
 
-On Fri, Jul 01, 2011 at 03:11:40PM +0200, Karel Zak wrote:
-> On Fri, Jul 01, 2011 at 01:11:56PM +0200, Petr Uzel wrote:
-> >=20
-> > Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
-> > ---
-> >  fdisk/sfdisk.c |   11 +++++++++++
-> >  1 files changed, 11 insertions(+), 0 deletions(-)
-> >=20
-> > diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-> > index 4ed5d37..d498371 100644
-> > --- a/fdisk/sfdisk.c
-> > +++ b/fdisk/sfdisk.c
-> > @@ -1304,6 +1304,17 @@ partitions_ok(struct disk_desc *z) {
-> >  	    }
-> >      }
-> > =20
-> > +    /* Do the partitions start below the DOS 2TiB limit? */
-> > +    {
-> > +	for (p =3D partitions; p < partitions + partno; p++)
-> > +	    if (p->size && p->start > (unsigned long) UINT32_MAX) {
->=20
->  ULONG_MAX is not greater than UINT32_MAX on 32-bit archs ;-)
->=20
->  IMHO you have to use 64-bit number for the p->size or you have=20
->  move the check to the place where (before) p->start is incremented.
->=20
-> > +	        my_warn(_("Warning: partition %s has starting sector %lu, "
-> > +		          "which is above the DOS 2 TiB limit\n"),
->=20
->  The warning is incorrect. The limit is not 2 TiB, but UINT32_MAX
->  *sectors*. It's 2TiB for 512-byte sectors, but for 4K sectors is it
->  more...
->=20
->  See fdisk.fdisk.c: warn_limits().
->=20
->     Karel
+>> =A0 =A0 =A0 hwclock: remove inb & outb functions
+>
+> Are you really sure? I think it depends on the header files, for
+> example it seems GNU Hurd reads information from cmos
+>
+> http://www.spinics.net/lists/util-linux-ng/msg04179.html
+>
+> and we already talked about it:
+>
+> http://www.spinics.net/lists/util-linux-ng/index.html#04673
 
-Thanks for the review! I'll rework the patch and resubmit.
+I did not study history well enough before proposing this. The commit
+is thrown away.
 
-Petr
+>> =A0 =A0 =A0 hwclock: fix compiler warnings
+>
+> This is wrong for __alpha__ code where the variables are used.
+>
+> Move the comment before the function and the begin of the function to
+> the #ifndef __alpha_ block, then you can use __unused__ for non-aplha
+> only.
 
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
+I changed the commit to have complete functions in precompiler if
+statements. To me it looks most readable way of doing what you seem to
+mean.
 
---zx4FCpZtqtKETZ7O
-Content-Type: application/pgp-signature
+>> =A0 =A0 =A0 hwclock: move long options away from global scope
+>
+> But the enum {} does not have to be in the main().
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
+Moved to the beginning of the file.
 
-iEYEARECAAYFAk4NzJYACgkQnZxG0T6qDD25JwCfdZEb5TKMio9HyzpZTgVzmTPg
-QicAnj1XbgUF/9dRGvmZVBPAOzUmseby
-=xIUb
------END PGP SIGNATURE-----
+All is pushed to my repo with force. Let me know if there is something
+other that needs nudging.
 
---zx4FCpZtqtKETZ7O--
+--=20
+=A0=A0 Sami Kerola
+=A0=A0 http://www.iki.fi/kerolasa/
