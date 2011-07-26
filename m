@@ -1,40 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:59701 "EHLO
-	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751731Ab1GVI5k convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Jul 2011 04:57:40 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Karel Zak <kzak@redhat.com>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Date: Fri, 22 Jul 2011 10:57:28 +0200
-Subject: RE: ionice: requires scheduling since
-	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net>
-References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net>
- <20110722085420.GP22568@nb.net.home>
-In-Reply-To: <20110722085420.GP22568@nb.net.home>
-Content-Type: text/plain; charset="us-ascii"
+Received: from mx1.redhat.com ([209.132.183.28]:3167 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752213Ab1GZO0A (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jul 2011 10:26:00 -0400
+Date: Tue, 26 Jul 2011 16:25:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [git pull] cramfs fixes
+Message-ID: <20110726142558.GC14764@nb.net.home>
+References: <CAG27Bk1uKnqR62SRNgTXFPGfTseraC0AUgpAMQ5zhdcsAM-79w@mail.gmail.com> <20110721181012.GA6672@nb.net.home> <CAG27Bk2eA7gypziZ7RSD=CR_XiYvQvGEz-AGq_aYHGe++sZuhw@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk2eA7gypziZ7RSD=CR_XiYvQvGEz-AGq_aYHGe++sZuhw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+On Fri, Jul 22, 2011 at 09:56:24AM +0200, Sami Kerola wrote:
+> The fixed & few new patches are available in the git repository at:
+>  https://github.com/kerolasa/lelux-utiliteetit cramfs
 
-> I'll improve the behavior:
+ Merged. Thanks.
 
-great!
+ Note that I'll freeze the code this week, then nothing invasive will be
+ accepted until the stable release.
 
->  ionice                       : print the current I/O prio.
->  ionice <COMMAND>             : exec command with default (best-effort) class
->  ionice -p PID [...]          : return info about the PID(s)
->  ionice -c CLASS COMMAND      : exec command with the class
->  ionice -c CLASS -p PID [...] : modify PID(s) class
->
-> Comments?
+    Karel
 
-   ionice --help                : print help
-
-is missing ;-)
-
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
