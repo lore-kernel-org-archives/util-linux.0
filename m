@@ -1,40 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:60162 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:57227 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756475Ab1GANvr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2011 09:51:47 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: lamont@debian.org
-Subject: [PATCH 2/6] mount.8: remove accidental extra word in ext4 documentation
-Date: Fri,  1 Jul 2011 15:51:41 +0200
-Message-Id: <1309528305-12626-3-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
-References: <1309528305-12626-1-git-send-email-petr.uzel@suse.cz>
+	id S1751087Ab1GZKNy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jul 2011 06:13:54 -0400
+Date: Tue, 26 Jul 2011 12:13:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] [LIB] sysfs: free used resources
+Message-ID: <20110726101351.GZ22568@nb.net.home>
+References: <1311547838.3367.2.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1311547838.3367.2.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reported-by: Francis Russell <francis+dbts@unchartedbackwaters.co.uk>
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=599550
+On Sun, Jul 24, 2011 at 06:50:38PM -0400, Davidlohr Bueso wrote:
+>  lib/sysfs.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- mount/mount.8 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Applied, thanks.
 
-diff --git a/mount/mount.8 b/mount/mount.8
-index 767ff51..598280c 100644
---- a/mount/mount.8
-+++ b/mount/mount.8
-@@ -1487,7 +1487,7 @@ debugging purposes.  This is normally used while
- remounting a filesystem which is already mounted.
- .TP
- .BR auto_da_alloc | noauto_da_alloc
--Many broken applications don't use fsync() when noauto_da_alloc
-+Many broken applications don't use fsync() when
- replacing existing files via patterns such as
- 
- fd = open("foo.new")/write(fd,..)/close(fd)/ rename("foo.new", "foo")
 -- 
-1.7.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
