@@ -1,44 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:34821 "EHLO
-	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753848Ab1GVKVL convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Jul 2011 06:21:11 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Karel Zak <kzak@redhat.com>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Date: Fri, 22 Jul 2011 12:21:08 +0200
-Subject: RE: ionice: requires scheduling since
-	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3B4F@MCHP058A.global-ad.net>
-References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net>
- <20110722085420.GP22568@nb.net.home>
- <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net>
- <20110722094304.GQ22568@nb.net.home>
-In-Reply-To: <20110722094304.GQ22568@nb.net.home>
-Content-Type: text/plain; charset="us-ascii"
+Received: from mx1.redhat.com ([209.132.183.28]:64203 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751087Ab1GZKPZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jul 2011 06:15:25 -0400
+Date: Tue, 26 Jul 2011 12:15:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] lscpu: use xalloc
+Message-ID: <20110726101523.GB22568@nb.net.home>
+References: <1311547951.3367.5.camel@offbook>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1311547951.3367.5.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+On Sun, Jul 24, 2011 at 06:52:31PM -0400, Davidlohr Bueso wrote:
+>  sys-utils/lscpu.c |   34 ++++++++++------------------------
+>  1 files changed, 10 insertions(+), 24 deletions(-)
 
-> Fixed.
-> 
->  I've also added support for human readable class names, you can use:
-> 
->    ionice -c best-effort /bin/foo
+ Applied, thanks.
 
-great, thanks!
-
-One last corner case regarding -t (ignoring failure):
-
-  $ schedutils/ionice -c 4 -t  schedutils/ionice 
-  ionice: bad prio class 4
-  $ schedutils/ionice -n 8 -t  schedutils/ionice 
-  idle
-
-With -c, a bad prio class leads to a failure, while it doesn't with -n.
-Is this intended?
-
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
