@@ -1,48 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from DMZ-MAILSEC-SCANNER-6.MIT.EDU ([18.7.68.35]:54175 "EHLO
-	dmz-mailsec-scanner-6.mit.edu" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752958Ab1GLLCY convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Jul 2011 07:02:24 -0400
-Subject: Re: `fsck -A` and fs-specific options
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=us-ascii
-From: Theodore Tso <tytso@MIT.EDU>
-In-Reply-To: <201107112259.55340.vapier@gentoo.org>
-Date: Tue, 12 Jul 2011 07:02:20 -0400
-Cc: util-linux@vger.kernel.org
-Message-Id: <9CD6ADB9-F3AD-47EE-BF7E-251D86B7B305@mit.edu>
-References: <201107112259.55340.vapier@gentoo.org>
-To: Mike Frysinger <vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20110729084638.GC24754@nb.net.home>
+References: <CAG27Bk1-X+eqrVwP7cfZp-9-aCBwPtnYYBRJGi7wBt2-zaOMjA@mail.gmail.com>
+	<20110728224430.GB24754@nb.net.home>
+	<20110729084638.GC24754@nb.net.home>
+Date: Fri, 29 Jul 2011 11:03:04 +0200
+Message-ID: <CAG27Bk2aOxVvj3gpeEnFEP=MSBaH38WuLaDK+F9ggrwen+hhkQ@mail.gmail.com>
+Subject: Re: [git pull] miscellaneous compiler warning fixes etc
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, Jul 29, 2011 at 10:46, Karel Zak <kzak@redhat.com> wrote:
+> On Fri, Jul 29, 2011 at 12:44:30AM +0200, Karel Zak wrote:
+>> On Thu, Jul 28, 2011 at 11:33:42PM +0200, Sami Kerola wrote:
+>> > - =A0 iter->done =3D 1;
+>> > + =A0 iter->done |=3D 1;
+>>
+>> =A0Why we need this change? IMHO it's unnecessary.
+>
+> =A0The bit-fields should probably "unsigned int" for better portability,
+> =A0(otherwise it's implementation-defined). I'll fix it.
 
-On Jul 11, 2011, at 10:59 PM, Mike Frysinger wrote:
-> 
-> for example, some journaling file systems allow the journal to be stored 
-> separately.  reiserfs has the "jdev=" mount option and the "--journal" fsck 
-> option.  ext[34] have the "journal_dev=" mount option and the "-j" fsck 
-> option.
+My thinking with implicit overflow fixes where that the warning may
+mean there is a weird behaving bug. Making sure that the whole source
+compiles without implicit overflow warnings makes tracing of these
+easier. I used same rationality to the only `is always true/false'
+warnings.
 
-At least for ext[34] and external journals, e2fsck can find the external
-journal using the blkid library since the UUID of the external journal
-is in the superblock.   (In fact that's why the blkid library was originally
-written, and why it was originally included as part of e2fsprogs.)
+Getting the chrt usage & options right clearly has to wait
+instructions in Documentation directory.
 
-> another example is with loop mounts that take an offset.  fsck cannot operate 
-> on the loop source as the start of the file is not the image.  it needs to 
-> first setup the loop with the offset, and then do the fsck on the loop point.
-> 	/tmp/foo.img /mnt/tmp ext3 loop,offset=10000
-
-How often are people using loopback mounts as a default, standard thing which
-need to be mounted and checked as part of the boot sequence?   I'm just
-curious what the use case is for this?
-
-I suppose if this was something people really did care about, the /etc/fstab
-format could be extended to add a new field at the end for fsck options ---
-but it's more complexity, and could break programs try to programmatically
-modify /etc/fstab.
-
--- Ted
-
+--=20
+=A0=A0 Sami Kerola
+=A0=A0 http://www.iki.fi/kerolasa/
