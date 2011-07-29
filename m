@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28199 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:5492 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753161Ab1GVJnH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Jul 2011 05:43:07 -0400
-Date: Fri, 22 Jul 2011 11:43:04 +0200
+	id S1755944Ab1G2JHT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 29 Jul 2011 05:07:19 -0400
+Date: Fri, 29 Jul 2011 11:07:17 +0200
 From: Karel Zak <kzak@redhat.com>
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: ionice: requires scheduling since
-	7ab08ba3e5e6f161b93ff2b3b7d5b18dc7b44510
-Message-ID: <20110722094304.GQ22568@nb.net.home>
-References: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3A66@MCHP058A.global-ad.net> <20110722085420.GP22568@nb.net.home> <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [git pull] miscellaneous compiler warning fixes etc
+Message-ID: <20110729090717.GE24754@nb.net.home>
+References: <CAG27Bk1-X+eqrVwP7cfZp-9-aCBwPtnYYBRJGi7wBt2-zaOMjA@mail.gmail.com> <20110728224430.GB24754@nb.net.home> <20110729084638.GC24754@nb.net.home> <CAG27Bk2aOxVvj3gpeEnFEP=MSBaH38WuLaDK+F9ggrwen+hhkQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A08FE2D3AC2@MCHP058A.global-ad.net>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAG27Bk2aOxVvj3gpeEnFEP=MSBaH38WuLaDK+F9ggrwen+hhkQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 22, 2011 at 10:57:28AM +0200, Voelker, Bernhard wrote:
-> Karel Zak wrote:
-> 
-> > I'll improve the behavior:
-> 
-> great!
-> 
-> >  ionice                       : print the current I/O prio.
-> >  ionice <COMMAND>             : exec command with default (best-effort) class
-> >  ionice -p PID [...]          : return info about the PID(s)
-> >  ionice -c CLASS COMMAND      : exec command with the class
-> >  ionice -c CLASS -p PID [...] : modify PID(s) class
+On Fri, Jul 29, 2011 at 11:03:04AM +0200, Sami Kerola wrote:
+> On Fri, Jul 29, 2011 at 10:46, Karel Zak <kzak@redhat.com> wrote:
+> > On Fri, Jul 29, 2011 at 12:44:30AM +0200, Karel Zak wrote:
+> >> On Thu, Jul 28, 2011 at 11:33:42PM +0200, Sami Kerola wrote:
+> >> > -   iter->done = 1;
+> >> > +   iter->done |= 1;
+> >>
+> >>  Why we need this change? IMHO it's unnecessary.
 > >
-> > Comments?
+> >  The bit-fields should probably "unsigned int" for better portability,
+> >  (otherwise it's implementation-defined). I'll fix it.
+> 
+> My thinking with implicit overflow fixes where that the warning may
+> mean there is a weird behaving bug. Making sure that the whole source
+> compiles without implicit overflow warnings makes tracing of these
+> easier. I used same rationality to the only `is always true/false'
+> warnings.
 
- Fixed.
+ Please, copy & past compiler command line and the warnings. I don't
+ see any warnings with gcc 4.6.0.
 
- I've also added support for human readable class names, you can use:
-
-   ionice -c best-effort /bin/foo
-
-
-    Karel 
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
