@@ -1,44 +1,119 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44674 "EHLO mx1.redhat.com"
+Received: from vostochny.stro.at ([78.47.22.85]:37129 "EHLO vostochny.stro.at"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751236Ab1HPMdR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Aug 2011 08:33:17 -0400
-Date: Tue, 16 Aug 2011 14:33:13 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] small fixes to some help texts and man pages
-Message-ID: <20110816123313.GB14535@nb.net.home>
-References: <1313434832.3403.140258129904445@webmail.messagingengine.com>
+	id S1751494Ab1GaKqj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 31 Jul 2011 06:46:39 -0400
+From: maximilian attems <max@stro.at>
+To: util-linux@vger.kernel.org
+Cc: maximilian attems <max@stro.at>
+Subject: [PATCH 1/3] c.h: move up declaration of program_invocation_short_name before usage
+Date: Sun, 31 Jul 2011 12:47:19 +0200
+Message-Id: <1312109241-13590-1-git-send-email-max@stro.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1313434832.3403.140258129904445@webmail.messagingengine.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 15, 2011 at 09:00:32PM +0200, Benno Schulenberg wrote:
-> Attached bunch of patches correct some small mistakes in some
-> help texts and man pages, and additionally make several small
-> improvements in wording and formatting.  They also slice up some
-> help texts into small chunks, to make things easier to handle for
-> translators.
+fixes:
+../include/c.h: In function ‘errmsg’:
+../include/c.h:111:26: error: ‘program_invocation_short_name’ undeclared
+(first use in this function)
+../include/c.h:111:26: note: each undeclared identifier is reported only
+once for each function it appears in
 
- Good idea. Thanks.
+Signed-off-by: maximilian attems <max@stro.at>
+---
+ include/c.h |   70 +++++++++++++++++++++++++++++-----------------------------
+ 1 files changed, 35 insertions(+), 35 deletions(-)
 
-> In the source tree there are two mount.c files: mount/mount.c
-> and libmount/samples/mount.c.  Is the latter a future replacement
-> of the first?  Or is it a version that can already be used instead of
-> the former one?  If both are valid versions, then the sixth patch
-> should not be applied and the seventh yes.  If the mount.c in
-> libmount/ is just sample code or a future replacement, then
-> please apply the sixth patch (although you may want to change
-> the actual mechanism of the exclusion).
-
- All applied :-) The libmount/sample/mount.c is a future replacement.
- It's good idea to ignore */samples/* directories.
-
-    Karel
-
+diff --git a/include/c.h b/include/c.h
+index 70f403c..79581ae 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -103,6 +103,41 @@
+ 	_max1 > _max2 ? _max1 : _max2; })
+ #endif
+ 
++#ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
++# ifdef HAVE___PROGNAME
++extern char *__progname;
++#  define program_invocation_short_name __progname
++# else
++#  ifdef HAVE_GETEXECNAME
++#   include <stdlib.h>
++#   define program_invocation_short_name \
++		prog_inv_sh_nm_from_file(getexecname(), 0)
++#  else
++#   define program_invocation_short_name \
++		prog_inv_sh_nm_from_file(__FILE__, 1)
++#  endif
++static char prog_inv_sh_nm_buf[256];
++static inline char *
++prog_inv_sh_nm_from_file(char *f, char stripext)
++{
++	char *t;
++
++	if ((t = strrchr(f, '/')) != NULL)
++		t++;
++	else
++		t = f;
++
++	strncpy(prog_inv_sh_nm_buf, t, sizeof(prog_inv_sh_nm_buf) - 1);
++	prog_inv_sh_nm_buf[sizeof(prog_inv_sh_nm_buf) - 1] = '\0';
++
++	if (stripext && (t = strrchr(prog_inv_sh_nm_buf, '.')) != NULL)
++		*t = '\0';
++
++	return prog_inv_sh_nm_buf;
++}
++# endif
++#endif
++
+ 
+ #ifndef HAVE_ERR_H
+ static inline void
+@@ -160,41 +195,6 @@ static inline int dirfd(DIR *d)
+ }
+ #endif
+ 
+-#ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
+-# ifdef HAVE___PROGNAME
+-extern char *__progname;
+-#  define program_invocation_short_name __progname
+-# else
+-#  ifdef HAVE_GETEXECNAME
+-#   include <stdlib.h>
+-#   define program_invocation_short_name \
+-		prog_inv_sh_nm_from_file(getexecname(), 0)
+-#  else
+-#   define program_invocation_short_name \
+-		prog_inv_sh_nm_from_file(__FILE__, 1)
+-#  endif
+-static char prog_inv_sh_nm_buf[256];
+-static inline char *
+-prog_inv_sh_nm_from_file(char *f, char stripext)
+-{
+-	char *t;
+-
+-	if ((t = strrchr(f, '/')) != NULL)
+-		t++;
+-	else
+-		t = f;
+-
+-	strncpy(prog_inv_sh_nm_buf, t, sizeof(prog_inv_sh_nm_buf) - 1);
+-	prog_inv_sh_nm_buf[sizeof(prog_inv_sh_nm_buf) - 1] = '\0';
+-
+-	if (stripext && (t = strrchr(prog_inv_sh_nm_buf, '.')) != NULL)
+-		*t = '\0';
+-
+-	return prog_inv_sh_nm_buf;
+-}
+-# endif
+-#endif
+-
+ /*
+  * Fallback defines for old versions of glibc
+  */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.4
+
