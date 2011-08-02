@@ -1,58 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:9307 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:48019 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752007Ab1HOL66 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Aug 2011 07:58:58 -0400
-Date: Mon, 15 Aug 2011 13:58:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] partx: support loop devices
-Message-ID: <20110815115855.GE1843@nb.net.home>
-References: <1313381477.2509.1.camel@offbook>
+	id S1754433Ab1HBMz4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Aug 2011 08:55:56 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id CAE668B45E
+	for <util-linux@vger.kernel.org>; Tue,  2 Aug 2011 14:55:55 +0200 (CEST)
+Date: Tue, 2 Aug 2011 14:55:55 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] cal: fix manpage formatting
+Message-ID: <20110802125553.GA12229@foxbat.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1313381477.2509.1.camel@offbook>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 15, 2011 at 12:11:17AM -0400, Davidlohr Bueso wrote:
-> @@ -800,14 +857,23 @@ int main(int argc, char **argv)
->  	if (what == ACT_ADD || what == ACT_DELETE) {
->  		struct stat x;
->  
-> -		if (stat(wholedisk, &x) || !S_ISBLK(x.st_mode))
-> -			errx(EXIT_FAILURE, _("%s: not a block device"), wholedisk);
-> +		if (stat(wholedisk, &x) || !S_ISBLK(x.st_mode)) {
 
-  && S_ISREG() :-)
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +			/* not a blkdev, try to associate it to a loop device */
 
-            if (what == ACT_DELETE)
-                errx(EXIT_FAILURE, _("%s: cannot delete partitions"), wholedisk);
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/cal.1 |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-> +			if (!loopmod_supports_parts())
-> +				errx(EXIT_FAILURE, _("%s: does not support loop device partitions"), 
-> +				     wholedisk);
-> +			assoc_loopdev(wholedisk);
-> +			wholedisk = xstrdup(lc.device);
-> +		}
->  	}
->  	if ((fd = open(wholedisk, O_RDONLY)) == -1)
->  		err(EXIT_FAILURE, _("%s: open failed"), wholedisk);
->  
-> -	if (what == ACT_DELETE)
-> +	if (what == ACT_DELETE) {
-> +		if (loopdev)
-> +			errx(EXIT_FAILURE, _("%s: cannot delete partitions"), wholedisk);
->  		rc = del_parts(fd, wholedisk, disk_devno, lower, upper);
-> +	}
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index d13c900..953e82a 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -35,9 +35,8 @@
+ .\"     @(#)cal.1	8.1 (Berkeley) 6/6/93
+ .\"
+ .TH CAL "1" "June 2011" "util-linux" "User Commands"
+-.Sh NAME
+-.Nm cal
+-.Nd displays a calendar
++.SH NAME
++cal \- displays a calendar
+ .SH SYNOPSIS
+ .B cal
+ [\fIoptions\fR] [[[\fIday\fR] \fImonth\fR] \fIyear\fR]
+--=20
+1.7.3.4
 
- Does it make sense to initialize loop device if ACT_DELETE is requested?
 
-    Karel
+Petr
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+
+iEYEARECAAYFAk4389kACgkQnZxG0T6qDD2jJwCffBJYtLd3mR6UUX64FgHI/rqZ
+Vf4AnA1KJoYYA57B2vKCC4pQvxvPoHD4
+=T7iC
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--
