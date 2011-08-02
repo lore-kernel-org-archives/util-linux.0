@@ -1,79 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:9844 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:48030 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753280Ab1HOOUA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Aug 2011 10:20:00 -0400
-Date: Mon, 15 Aug 2011 16:19:48 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>, Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: man-pages and usage() howto
-Message-ID: <20110815141948.GH2038@nb.net.home>
+	id S1754433Ab1HBM4I (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Aug 2011 08:56:08 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 3737D8B45E
+	for <util-linux@vger.kernel.org>; Tue,  2 Aug 2011 14:56:07 +0200 (CEST)
+Date: Tue, 2 Aug 2011 14:56:06 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] look: fix manpage formatting
+Message-ID: <20110802125605.GA12297@foxbat.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
- Hi,
-
-Sami is already working on some howtos, what we need is some
-consensus about a way how describe options.
-
-My suggestion:
-
- * argument required:
-
-   -o, --option FILE    # usage()
-   -o, --option file    # man page
-
- * optional argument:
-
-   -o, --option[=FILE]  # usage()
-   -o, --option[=file]  # man page
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
- * synopsis
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/look.1 |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-   - without individual options, bad example:
-   
-        command [-o offset] [--sizelimit size] [-p pfd] [-r] file
-
-   - [options] is better:
-
-        command [options] file
-
-   - use more synopsis lines if the command supports more separated modes.
-
-       command --add file
-       command --del file
-
-     (use common sense! ... if there is too many modes, then use [options])
-
-     The options specific to the mode are allowed in the synopsis or
-     in the man page should be per-mode section with description about
-     the options.
-
-
- * common options:
-
-   -V, --version
-   -h, --help
-
- * suggestions:
-
-   -a, --all
-   -o, --output <list>
-   -r, --raw
-   -f, --force
-   -b, --bytes   (don't print SIZE in human readable format)
+diff --git a/misc-utils/look.1 b/misc-utils/look.1
+index ea3b59e..a6ab568 100644
+--- a/misc-utils/look.1
++++ b/misc-utils/look.1
+@@ -54,9 +54,9 @@ that
+ is invoked with).
+ .PP
+ If
+-.Ar file
++.I file
+ is not specified, the file
+-.Pa /usr/share/dict/words
++.I /usr/share/dict/words
+ is used, only alphanumeric characters are compared and the case of
+ alphabetic characters is ignored.
+ .SH OPTIONS
+--=20
+1.7.3.4
 
 
- * We also need any consensus about groff formatting, the ideal
-   solution would be add any Documentation/example.man
+Petr
 
-    Karel
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+
+iEYEARECAAYFAk438+UACgkQnZxG0T6qDD3M6gCdFeUCZuq2wpt2Vqr0JDNEGWVE
+g2UAn1TQxQDzapllouWzGa5Y6KmEgPhM
+=PPDF
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--
