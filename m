@@ -1,362 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:50946 "EHLO
-	out2.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750703Ab1GaTac (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 31 Jul 2011 15:30:32 -0400
-Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
-	by gateway1.messagingengine.com (Postfix) with ESMTP id 132C620957
-	for <util-linux@vger.kernel.org>; Sun, 31 Jul 2011 15:30:32 -0400 (EDT)
-Message-Id: <1312140631.21317.2157888669@webmail.messagingengine.com>
-From: "Benno Schulenberg" <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1312140631213170"
-Subject: [patches] pluralization and tiny adjustments of some messages
-Date: Sun, 31 Jul 2011 21:30:31 +0200
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:44494 "EHLO
+	homiemail-a10.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753459Ab1HGAKh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 6 Aug 2011 20:10:37 -0400
+Subject: [PATCH] libmnt: fix undefined sources
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sat, 06 Aug 2011 20:10:26 -0400
+Message-ID: <1312675826.3408.1.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+From: Davidlohr Bueso <dave@gnu.org>
 
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-X-Mailer: MessagingEngine.com Webmail Interface
+The path resolving function breaks when handling undefined sources ("none") used by pseudo-filesystems. The assertion is causing the samples/mount program
+to abort:
 
+dave@offbook:~/projects/util-linux-good/libmount/samples$ ./mount
+/dev/sda3 on / type ext4 (rw,errors=remount-ro,commit=0)
+proc on /proc type proc (rw,noexec,nosuid,nodev)
+lt-mount: cache.c:464: mnt_resolve_path: Assertion `path' failed.
+Aborted
 
-Hi,
+/etc/mtab:
 
-Attached bunch of nine patches correct some mistaken words in
-some of the messages, and adds pluralization to three messages
-of the uuidd deamon.  Most of these things were first noticed by
-the Czech translator Petr Pisar.
+/dev/sda3 / ext4 rw,errors=remount-ro,commit=0 0 0
+proc /proc proc rw,noexec,nosuid,nodev 0 0
+none /sys sysfs rw,noexec,nosuid,nodev 0 0
+fusectl /sys/fs/fuse/connections fusectl rw 0 0
+none /sys/kernel/debug debugfs rw 0 0
+...
 
-Regards,
+Instead of this assert on NULL we can simply return NULL and let mnt_pretty_path do the work.
 
-Benno
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ libmount/src/cache.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-
-
+diff --git a/libmount/src/cache.c b/libmount/src/cache.c
+index 802d072..41aa4fe 100644
+--- a/libmount/src/cache.c
++++ b/libmount/src/cache.c
+@@ -461,8 +461,6 @@ char *mnt_resolve_path(const char *path, struct libmnt_cache *cache)
+ 	char *key = NULL;
+ 	char *value = NULL;
+ 
+-	assert(path);
+-
+ 	/*DBG(CACHE, mnt_debug_h(cache, "resolving path %s", path));*/
+ 
+ 	if (!path)
 -- 
-http://www.fastmail.fm - A fast, anti-spam email service.
+1.7.4.1
 
 
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0001-partx.c-switch-on-localization-noted-by-Petr-Pisar.patch"
-Content-Id: <6c5db0d61e612a470673ba397d8b26c8a9144834@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-partx.c-switch-on-localization-noted-by-Petr-Pisar.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSAyNzVmZmVkNzVmN2MyZTJlMjkwN2Q1M2I3YjRlNDc3NjBhZGIwYTdh
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxNTozNToxNiArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMS85XSBw
-YXJ0eC5jOiBzd2l0Y2ggb24gbG9jYWxpemF0aW9uIChub3RlZCBieSBQZXRy
-IFBpc2FyKQoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJl
-bnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogcGFydHgvcGFydHguYyB8ICAg
-IDQgKysrKwogMSBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDAg
-ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvcGFydHgvcGFydHguYyBiL3Bh
-cnR4L3BhcnR4LmMKaW5kZXggYTQyYzE4OS4uYjJhNzJlZCAxMDA2NDQKLS0t
-IGEvcGFydHgvcGFydHguYworKysgYi9wYXJ0eC9wYXJ0eC5jCkBAIC02NDAs
-NiArNjQwLDEwIEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikK
-IAkJeyBOVUxMLCAwLCBOVUxMLCAwIH0KIAl9OwogCisJc2V0bG9jYWxlKExD
-X0FMTCwgIiIpOworCWJpbmR0ZXh0ZG9tYWluKFBBQ0tBR0UsIExPQ0FMRURJ
-Uik7CisJdGV4dGRvbWFpbihQQUNLQUdFKTsKKwogCXdoaWxlICgoYyA9IGdl
-dG9wdF9sb25nKGFyZ2MsIGFyZ3YsCiAJCQkJImFiZGdscnN2bjp0Om86UGgi
-LCBsb25nX29wdHMsIE5VTEwpKSAhPSAtMSkgewogCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0002-lsblk.c-correct-mistaken-word-noted-by-Petr-Pisar.patch"
-Content-Id: <a09501253f0f31e6fdb4a6bb79dc701c2196df4e@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0002-lsblk.c-correct-mistaken-word-noted-by-Petr-Pisar.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSA1N2YzMzY2M2FkMmI5N2EyMTZmNjIyNzNjZjM0NzQ0YTFkMjA3MWZl
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxNzoxMzoyNyArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMi85XSBs
-c2Jsay5jOiBjb3JyZWN0IG1pc3Rha2VuIHdvcmQgKG5vdGVkIGJ5IFBldHIg
-UGlzYXIpCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVu
-c2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBtaXNjLXV0aWxzL2xzYmxrLmMg
-fCAgICAyICstCiAxIGZpbGVzIGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwg
-MSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL2xzYmxr
-LmMgYi9taXNjLXV0aWxzL2xzYmxrLmMKaW5kZXggNTBiM2JjYy4uOTJkNGEw
-MCAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay5jCisrKyBiL21pc2Mt
-dXRpbHMvbHNibGsuYwpAQCAtNzg5LDcgKzc4OSw3IEBAIHN0YXRpYyBpbnQg
-cHJvY2Vzc19vbmVfZGV2aWNlKGNoYXIgKmRldm5hbWUpCiAJCXJldHVybiBF
-WElUX0ZBSUxVUkU7CiAJfQogCWlmIChibGtpZF9kZXZub190b193aG9sZWRp
-c2soc3Quc3RfcmRldiwgYnVmLCBzaXplb2YoYnVmKSwgJmRpc2spKSB7Ci0J
-CXdhcm4oXygiJXM6IGZhaWxlZCB0byBnZXQgd2hvbGUtbGlzdCBkZXZubyIp
-LCBkZXZuYW1lKTsKKwkJd2FybihfKCIlczogZmFpbGVkIHRvIGdldCB3aG9s
-ZS1kaXNrIGRldmljZSBudW1iZXIiKSwgZGV2bmFtZSk7CiAJCXJldHVybiBF
-WElUX0ZBSUxVUkU7CiAJfQogCWlmIChzdC5zdF9yZGV2ID09IGRpc2spIHsK
-LS0gCjEuNy4wLjQKCg==
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0003-fstrim.c-correct-mistaken-grammar-in-one-message.patch"
-Content-Id: <189013c73e586cd36c7bd50d860706e8b1981f18@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0003-fstrim.c-correct-mistaken-grammar-in-one-message.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSAwMWFmMzRkMWZkMDJhZTNmZjBhYjEyYTNmZDkyMWJjMjllZDU2MzU1
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxNzoxNjowOSArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMy85XSBm
-c3RyaW0uYzogY29ycmVjdCBtaXN0YWtlbiBncmFtbWFyIGluIG9uZSBtZXNz
-YWdlCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2Jl
-cmdAanVzdGVtYWlsLm5ldD4KLS0tCiBzeXMtdXRpbHMvZnN0cmltLmMgfCAg
-ICAyICstCiAxIGZpbGVzIGNoYW5nZWQsIDEgaW5zZXJ0aW9ucygrKSwgMSBk
-ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvZnN0cmltLmMg
-Yi9zeXMtdXRpbHMvZnN0cmltLmMKaW5kZXggNTMzYTI3NC4uNTk3Zjc4MSAx
-MDA2NDQKLS0tIGEvc3lzLXV0aWxzL2ZzdHJpbS5jCisrKyBiL3N5cy11dGls
-cy9mc3RyaW0uYwpAQCAtMTQzLDcgKzE0Myw3IEBAIGludCBtYWluKGludCBh
-cmdjLCBjaGFyICoqYXJndikKIAkJZXJyKEVYSVRfRkFJTFVSRSwgXygiJXM6
-IEZJVFJJTSBpb2N0bCBmYWlsZWQiKSwgcGF0aCk7CiAKIAlpZiAodmVyYm9z
-ZSkKLQkJcHJpbnRmKF8oIiVzOiAlIiBQUkl1NjQgIiBieXRlcyB3YXMgdHJp
-bW1lZFxuIiksCisJCXByaW50ZihfKCIlczogJSIgUFJJdTY0ICIgYnl0ZXMg
-d2VyZSB0cmltbWVkXG4iKSwKIAkJCQkJCXBhdGgsICh1aW50NjRfdCkgcmFu
-Z2UubGVuKTsKIAljbG9zZShmZCk7CiAJcmV0dXJuIEVYSVRfU1VDQ0VTUzsK
-LS0gCjEuNy4wLjQKCg==
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0004-wipefs.c-gettextize-one-sentence-as-a-whole.patch"
-Content-Id: <79c7d5b72173621af124a862780e9197cf852c28@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0004-wipefs.c-gettextize-one-sentence-as-a-whole.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSA5MzYzZTUzNzQwNTdlNTk4MzJlZjk4MzVmN2ZhZWQ5MTI4M2IwMzA0
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxNzoxNzoyNiArMDIwMApTdWJqZWN0OiBbUEFUQ0ggNC85XSB3
-aXBlZnMuYzogZ2V0dGV4dGl6ZSBvbmUgc2VudGVuY2UgYXMgYSB3aG9sZQoK
-U2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJlbnNiZXJnQGp1
-c3RlbWFpbC5uZXQ+Ci0tLQogbWlzYy11dGlscy93aXBlZnMuYyB8ICAgIDUg
-KysrLS0KIDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAyIGRl
-bGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvd2lwZWZzLmMg
-Yi9taXNjLXV0aWxzL3dpcGVmcy5jCmluZGV4IDUxYjZmYWQuLjA5YzYwNzAg
-MTAwNjQ0Ci0tLSBhL21pc2MtdXRpbHMvd2lwZWZzLmMKKysrIGIvbWlzYy11
-dGlscy93aXBlZnMuYwpAQCAtMjM3LDcgKzIzNyw4IEBAIGRvX3dpcGVfb2Zm
-c2V0KGludCBmZCwgc3RydWN0IHdpcGVfZGVzYyAqd3AsIGNvbnN0IGNoYXIg
-KmZuYW1lLCBpbnQgbm9hY3QpCiAJaWYgKG5vYWN0ID09IDAgJiYgd3JpdGVf
-YWxsKGZkLCBidWYsIGxlbikpCiAJCWVycihFWElUX0ZBSUxVUkUsIF8oIiVz
-OiB3cml0ZSBmYWlsZWQiKSwgZm5hbWUpOwogCi0JcHJpbnRmKF8oIiV6ZCBi
-eXRlcyBbIiksIHdwLT5sZW4pOworCXByaW50ZihfKCIlemQgYnl0ZXMgd2Vy
-ZSBlcmFzZWQgYXQgb2Zmc2V0IDB4JWp4ICglcylcbnRoZXkgd2VyZTogIiks
-CisJICAgICAgIHdwLT5sZW4sIHdwLT5vZmZzZXQsIHdwLT50eXBlKTsKIAog
-CWZvciAoaSA9IDA7IGkgPCBsZW47IGkrKykgewogCQlwcmludGYoIiUwMngi
-LCB3cC0+bWFnaWNbaV0pOwpAQCAtMjQ1LDcgKzI0Niw3IEBAIGRvX3dpcGVf
-b2Zmc2V0KGludCBmZCwgc3RydWN0IHdpcGVfZGVzYyAqd3AsIGNvbnN0IGNo
-YXIgKmZuYW1lLCBpbnQgbm9hY3QpCiAJCQlmcHV0YygnICcsIHN0ZG91dCk7
-CiAJfQogCi0JcHJpbnRmKF8oIl0gZXJhc2VkIGF0IG9mZnNldCAweCVqeCAo
-JXMpXG4iKSwgd3AtPm9mZnNldCwgd3AtPnR5cGUpOworCXByaW50ZigiXG4i
-KTsKIAlyZXR1cm4gMDsKIH0KIAotLSAKMS43LjAuNAoK
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0005-nls.h-define-a-macro-for-handling-plurals-with-ngett.patch"
-Content-Id: <f4a969796e7acc1f10ee063789911f26e980830f@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0005-nls.h-define-a-macro-for-handling-plurals-with-ngett.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSBiYzhiN2RiMGU1MzU3MTdjNzJiZGM0NjI5YzA3NjkwMDJmNzM2OWVm
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxOToyMDo1OCArMDIwMApTdWJqZWN0OiBbUEFUQ0ggNS85XSBu
-bHMuaDogZGVmaW5lIGEgbWFjcm8gZm9yIGhhbmRsaW5nIHBsdXJhbHMgd2l0
-aCBuZ2V0dGV4dCgpCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVy
-ZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBpbmNsdWRlL25scy5o
-IHwgICAgMiArKwogMSBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
-IDAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9ubHMuaCBi
-L2luY2x1ZGUvbmxzLmgKaW5kZXggMDBmMmUzNy4uOWE5MzExYiAxMDA2NDQK
-LS0tIGEvaW5jbHVkZS9ubHMuaAorKysgYi9pbmNsdWRlL25scy5oCkBAIC0y
-Miw2ICsyMiw3IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10p
-OwogIyBlbHNlCiAjICBkZWZpbmUgTl8oU3RyaW5nKSAoU3RyaW5nKQogIyBl
-bmRpZgorIyBkZWZpbmUgUF8oU2luZ3VsYXIsIFBsdXJhbCwgbikgbmdldHRl
-eHQgKFNpbmd1bGFyLCBQbHVyYWwsIG4pCiAjZWxzZQogIyB1bmRlZiBiaW5k
-dGV4dGRvbWFpbgogIyBkZWZpbmUgYmluZHRleHRkb21haW4oRG9tYWluLCBE
-aXJlY3RvcnkpIC8qIGVtcHR5ICovCkBAIC0yOSw2ICszMCw3IEBAIGludCBt
-YWluKGludCBhcmdjLCBjaGFyICphcmd2W10pOwogIyBkZWZpbmUgdGV4dGRv
-bWFpbihEb21haW4pIC8qIGVtcHR5ICovCiAjIGRlZmluZSBfKFRleHQpIChU
-ZXh0KQogIyBkZWZpbmUgTl8oVGV4dCkgKFRleHQpCisjIGRlZmluZSBQXyhT
-aW5ndWxhciwgUGx1cmFsLCBuKSAoKG4pID09IDEgPyAoU2luZ3VsYXIpIDog
-KFBsdXJhbCkpCiAjZW5kaWYKIAogI2lmZGVmIEhBVkVfTEFOR0lORk9fSAot
-LSAKMS43LjAuNAoK
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0006-uuidd.c-distinguish-between-singular-and-plural-in-t.patch"
-Content-Id: <fb01217cd328372e0ea0e91f5e99993606abd6a3@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0006-uuidd.c-distinguish-between-singular-and-plural-in-t.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSA0YTM4MzE2ZjIxMDBlYmZjN2Y5NDIzZDMzOTA4MmU1YTkzOTlhYmJk
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAxOToyMTo1MiArMDIwMApTdWJqZWN0OiBbUEFUQ0ggNi85XSB1
-dWlkZC5jOiBkaXN0aW5ndWlzaCBiZXR3ZWVuIHNpbmd1bGFyIGFuZCBwbHVy
-YWwgaW4gdGhyZWUgbWVzc2FnZXMKClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNj
-aHVsZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIG1pc2Mt
-dXRpbHMvdXVpZGQuYyB8ICAgMTQgKysrKysrKysrKy0tLS0KIDEgZmlsZXMg
-Y2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRp
-ZmYgLS1naXQgYS9taXNjLXV0aWxzL3V1aWRkLmMgYi9taXNjLXV0aWxzL3V1
-aWRkLmMKaW5kZXggM2QxMzBhZi4uNmFhZjE3ZiAxMDA2NDQKLS0tIGEvbWlz
-Yy11dGlscy91dWlkZC5jCisrKyBiL21pc2MtdXRpbHMvdXVpZGQuYwpAQCAt
-Mzc2LDggKzM3NiwxMSBAQCBzdGF0aWMgdm9pZCBzZXJ2ZXJfbG9vcChjb25z
-dCBjaGFyICpzb2NrZXRfcGF0aCwgY29uc3QgY2hhciAqcGlkZmlsZV9wYXRo
-LAogCQkJX191dWlkX2dlbmVyYXRlX3RpbWUodXUsICZudW0pOwogCQkJaWYg
-KGRlYnVnKSB7CiAJCQkJdXVpZF91bnBhcnNlKHV1LCBzdHIpOwotCQkJCXBy
-aW50ZihfKCJHZW5lcmF0ZWQgdGltZSBVVUlEICVzIGFuZCAlZCAiCi0JCQkJ
-CSAiZm9sbG93aW5nXG4iKSwgc3RyLCBudW0gLSAxKTsKKwkJCQlwcmludGYo
-UF8oIkdlbmVyYXRlZCB0aW1lIFVVSUQgJXMgIgorCQkJCQkgICJhbmQgJWQg
-Zm9sbG93aW5nXG4iLAorCQkJCQkgICJHZW5lcmF0ZWQgdGltZSBVVUlEICVz
-ICIKKwkJCQkJICAiYW5kICVkIGZvbGxvd2luZ1xuIiwgbnVtIC0gMSksCisJ
-CQkJICAgICAgIHN0ciwgbnVtIC0gMSk7CiAJCQl9CiAJCQltZW1jcHkocmVw
-bHlfYnVmLCB1dSwgc2l6ZW9mKHV1KSk7CiAJCQlyZXBseV9sZW4gPSBzaXpl
-b2YodXUpOwpAQCAtMzk0LDcgKzM5Nyw4IEBAIHN0YXRpYyB2b2lkIHNlcnZl
-cl9sb29wKGNvbnN0IGNoYXIgKnNvY2tldF9wYXRoLCBjb25zdCBjaGFyICpw
-aWRmaWxlX3BhdGgsCiAJCQlfX3V1aWRfZ2VuZXJhdGVfcmFuZG9tKCh1bnNp
-Z25lZCBjaGFyICopIHJlcGx5X2J1ZiArCiAJCQkJCSAgICAgIHNpemVvZihu
-dW0pLCAmbnVtKTsKIAkJCWlmIChkZWJ1ZykgewotCQkJCXByaW50ZihfKCJH
-ZW5lcmF0ZWQgJWQgVVVJRHM6XG4iKSwgbnVtKTsKKwkJCQlwcmludGYoUF8o
-IkdlbmVyYXRlZCAlZCBVVUlEOlxuIiwKKwkJCQkJICAiR2VuZXJhdGVkICVk
-IFVVSURzOlxuIiwgbnVtKSwgbnVtKTsKIAkJCQlmb3IgKGkgPSAwLCBjcCA9
-IHJlcGx5X2J1ZiArIHNpemVvZihudW0pOwogCQkJCSAgICAgaSA8IG51bTsK
-IAkJCQkgICAgIGkrKywgY3AgKz0gVVVJRF9MRU4pIHsKQEAgLTU0Myw3ICs1
-NDcsOSBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpCiAKIAkJ
-CXV1aWRfdW5wYXJzZSgodW5zaWduZWQgY2hhciAqKSBidWYsIHN0cik7CiAK
-LQkJCXByaW50ZihfKCIlcyBhbmQgc3Vic2VxdWVudCAlZCBVVUlEc1xuIiks
-IHN0ciwgbnVtIC0gMSk7CisJCQlwcmludGYoUF8oIiVzIGFuZCAlZCBzdWJz
-ZXF1ZW50IFVVSURcbiIsCisJCQkJICAiJXMgYW5kICVkIHN1YnNlcXVlbnQg
-VVVJRHNcbiIsIG51bSAtIDEpLAorCQkJICAgICAgIHN0ciwgbnVtIC0gMSk7
-CiAJCX0gZWxzZSB7CiAJCQlwcmludGYoXygiTGlzdCBvZiBVVUlEczpcbiIp
-KTsKIAkJCWNwID0gYnVmICsgNDsKLS0gCjEuNy4wLjQKCg==
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0007-po-also-extract-plural-messages-from-the-C-files.patch"
-Content-Id: <4e18c54590c580f8d5c78db7aae41e2838f27914@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0007-po-also-extract-plural-messages-from-the-C-files.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSBkMTA1NWJiY2Y1YWE0NjAxZjU1ZDU1ZGEwZWM4ODY3MjAzNGZhZDA1
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAyMToyNzoxNiArMDIwMApTdWJqZWN0OiBbUEFUQ0ggNy85XSBw
-bzogYWxzbyBleHRyYWN0IHBsdXJhbCBtZXNzYWdlcyBmcm9tIHRoZSBDIGZp
-bGVzCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2Jl
-cmdAanVzdGVtYWlsLm5ldD4KLS0tCiBwby9NYWtldmFycyB8ICAgIDIgKy0K
-IDEgZmlsZXMgY2hhbmdlZCwgMSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9u
-cygtKQoKZGlmZiAtLWdpdCBhL3BvL01ha2V2YXJzIGIvcG8vTWFrZXZhcnMK
-aW5kZXggZjZlMzIwYy4uMDRmMWIyMSAxMDA2NDQKLS0tIGEvcG8vTWFrZXZh
-cnMKKysrIGIvcG8vTWFrZXZhcnMKQEAgLTgsNyArOCw3IEBAIHN1YmRpciA9
-IHBvCiB0b3BfYnVpbGRkaXIgPSAuLgogCiAjIFRoZXNlIG9wdGlvbnMgZ2V0
-IHBhc3NlZCB0byB4Z2V0dGV4dC4KLVhHRVRURVhUX09QVElPTlMgPSAtLWtl
-eXdvcmQ9XyAtLWtleXdvcmQ9Tl8KK1hHRVRURVhUX09QVElPTlMgPSAtLWtl
-eXdvcmQ9XyAtLWtleXdvcmQ9Tl8gLS1rZXl3b3JkPVBfOjEsMgogCiAjIFRo
-aXMgaXMgdGhlIGNvcHlyaWdodCBob2xkZXIgdGhhdCBnZXRzIGluc2VydGVk
-IGludG8gdGhlIGhlYWRlciBvZiB0aGUKICMgJChET01BSU4pLnBvdCBmaWxl
-LiAgU2V0IHRoaXMgdG8gdGhlIGNvcHlyaWdodCBob2xkZXIgb2YgdGhlIHN1
-cnJvdW5kaW5nCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0008-textual-add-some-guiding-comments-for-translators.patch"
-Content-Id: <8d1594d996678bcc49e780f7af11e7e2132df68e@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0008-textual-add-some-guiding-comments-for-translators.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSBhNTI0Y2FlNDYxMTMxYzAzYTEwOTY2MmNmOGY2ZTkyMjllZjI4ZjZi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAzMCBK
-dWwgMjAxMSAyMToyODowNyArMDIwMApTdWJqZWN0OiBbUEFUQ0ggOC85XSB0
-ZXh0dWFsOiBhZGQgc29tZSBndWlkaW5nIGNvbW1lbnRzIGZvciB0cmFuc2xh
-dG9ycwoKVGhlc2UgYXJlIHBpY2tlZCB1cCBieSB4Z2V0dGV4dCBhbmQgcHV0
-IGluIHRoZSBQT1QgZmlsZS4KClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVs
-ZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIGxvZ2luLXV0
-aWxzL2xvZ2luLmMgfCAgICAxICsKIG1pc2MtdXRpbHMvbHNibGsuYyAgfCAg
-ICAxICsKIHN5cy11dGlscy9mc3RyaW0uYyAgfCAgICAxICsKIDMgZmlsZXMg
-Y2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlm
-ZiAtLWdpdCBhL2xvZ2luLXV0aWxzL2xvZ2luLmMgYi9sb2dpbi11dGlscy9s
-b2dpbi5jCmluZGV4IDc0ZTBjZGQuLjU1NWE1NjcgMTAwNjQ0Ci0tLSBhL2xv
-Z2luLXV0aWxzL2xvZ2luLmMKKysrIGIvbG9naW4tdXRpbHMvbG9naW4uYwpA
-QCAtMTM1Niw2ICsxMzU2LDcgQEAgc3RhdGljIHZvaWQKIHRpbWVkb3V0KGlu
-dCBzaWcpIHsKIAlzaWduYWwoU0lHQUxSTSwgdGltZWRvdXQyKTsKIAlhbGFy
-bSgxMCk7CisJLyogVFJBTlNMQVRPUlM6IFRoZSBzdGFuZGFyZCB2YWx1ZSBm
-b3IgJWQgaXMgNjAuICovCiAJd2FybngoXygidGltZWQgb3V0IGFmdGVyICVk
-IHNlY29uZHMiKSwgdGltZW91dCk7CiAJc2lnbmFsKFNJR0FMUk0sIFNJR19J
-R04pOwogCWFsYXJtKDApOwpkaWZmIC0tZ2l0IGEvbWlzYy11dGlscy9sc2Js
-ay5jIGIvbWlzYy11dGlscy9sc2Jsay5jCmluZGV4IDkyZDRhMDAuLjY3OTg5
-ZTEgMTAwNjQ0Ci0tLSBhL21pc2MtdXRpbHMvbHNibGsuYworKysgYi9taXNj
-LXV0aWxzL2xzYmxrLmMKQEAgLTg1Niw2ICs4NTYsNyBAQCBzdGF0aWMgdm9p
-ZCBwYXJzZV9leGNsdWRlcyhjb25zdCBjaGFyICpzdHIpCiAJCWV4Y2x1ZGVz
-W25leGNsdWRlcysrXSA9IG47CiAKIAkJaWYgKG5leGNsdWRlcyA9PSBBUlJB
-WV9TSVpFKGV4Y2x1ZGVzKSkKKwkJCS8qIFRSQU5TTEFUT1JTOiBUaGUgc3Rh
-bmRhcmQgdmFsdWUgZm9yICVkIGlzIDI1Ni4gKi8KIAkJCWVycngoRVhJVF9G
-QUlMVVJFLCBfKCJ0aGUgbGlzdCBvZiBleGNsdWRlZCBkZXZpY2VzIGlzICIK
-IAkJCQkJInRvbyBsYXJnZSAobGltaXQgaXMgJWQgZGV2aWNlcykiKSwKIAkJ
-CQkJKGludClBUlJBWV9TSVpFKGV4Y2x1ZGVzKSk7CmRpZmYgLS1naXQgYS9z
-eXMtdXRpbHMvZnN0cmltLmMgYi9zeXMtdXRpbHMvZnN0cmltLmMKaW5kZXgg
-NTk3Zjc4MS4uMDAwNjA5MSAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL2ZzdHJp
-bS5jCisrKyBiL3N5cy11dGlscy9mc3RyaW0uYwpAQCAtMTQzLDYgKzE0Myw3
-IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJZXJyKEVY
-SVRfRkFJTFVSRSwgXygiJXM6IEZJVFJJTSBpb2N0bCBmYWlsZWQiKSwgcGF0
-aCk7CiAKIAlpZiAodmVyYm9zZSkKKwkJLyogVFJBTlNMQVRPUlM6IFRoZSBz
-dGFuZGFyZCB2YWx1ZSBoZXJlIGlzIGEgdmVyeSBsYXJnZSBudW1iZXIuICov
-CiAJCXByaW50ZihfKCIlczogJSIgUFJJdTY0ICIgYnl0ZXMgd2VyZSB0cmlt
-bWVkXG4iKSwKIAkJCQkJCXBhdGgsICh1aW50NjRfdCkgcmFuZ2UubGVuKTsK
-IAljbG9zZShmZCk7Ci0tIAoxLjcuMC40Cgo=
-
---_----------=_1312140631213170
-MIME-Version: 1.0
-Content-Disposition: attachment; filename="0009-fsck.c-use-same-word-category-in-message-and-add-tra.patch"
-Content-Id: <f32bbe87f32cb35bf653627826267beba03abe34@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0009-fsck.c-use-same-word-category-in-message-and-add-tra.patch"
-X-Mailer: MIME::Lite 3.027 (F2.77; A2.06; B3.08; Q3.08)
-Date: Sun, 31 Jul 2011 15:30:31 -0400
-
-RnJvbSBkZGIxY2VmOWNjZjcxM2JlZGYxOWUzYzFkZjUxYTAyN2NiODU3MjJh
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCAzMSBK
-dWwgMjAxMSAyMToyNzo1OCArMDIwMApTdWJqZWN0OiBbUEFUQ0ggOS85XSBm
-c2NrLmM6IHVzZSBzYW1lIHdvcmQgY2F0ZWdvcnkgaW4gbWVzc2FnZSwgYW5k
-IGFkZCB0cmFuc2xhdG9ycyBjb21tZW50CgpTaWduZWQtb2ZmLWJ5OiBCZW5u
-byBTY2h1bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBm
-c2NrL2ZzY2suYyB8ICAgIDMgKystCiAxIGZpbGVzIGNoYW5nZWQsIDIgaW5z
-ZXJ0aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9mc2Nr
-L2ZzY2suYyBiL2ZzY2svZnNjay5jCmluZGV4IDUyYjlkOWQuLjg4YTY3Yzgg
-MTAwNjQ0Ci0tLSBhL2ZzY2svZnNjay5jCisrKyBiL2ZzY2svZnNjay5jCkBA
-IC0yOTEsNyArMjkxLDggQEAgc3RhdGljIHZvaWQgbG9ja19kaXNrKHN0cnVj
-dCBmc2NrX2luc3RhbmNlICppbnN0KQogCX0KIAogCWlmICh2ZXJib3NlKQot
-CQlwcmludGYoIiVzLlxuIiwgaW5zdC0+bG9jayA+PSAwID8gXygic3VjY2Vz
-cyIpIDogXygiZmFpbGVkIikpOworCQkvKiBUUkFOU0xBVE9SUzogVGhlc2Ug
-YXJlIGZvbGxvd3VwcyB0byAiTG9ja2luZyBkaXNrLi4uIi4gKi8KKwkJcHJp
-bnRmKCIlcy5cbiIsIGluc3QtPmxvY2sgPj0gMCA/IF8oInN1Y2NlZWRlZCIp
-IDogXygiZmFpbGVkIikpOwogCiAJZnJlZShkaXNrbmFtZSk7CiAJcmV0dXJu
-OwotLSAKMS43LjAuNAoK
-
---_----------=_1312140631213170--
 
