@@ -1,45 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:40211 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751550Ab1HYMd5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 25 Aug 2011 08:33:57 -0400
-Received: by gya6 with SMTP id 6so1696858gya.19
-        for <util-linux@vger.kernel.org>; Thu, 25 Aug 2011 05:33:57 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:44089 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751763Ab1HHLqU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Aug 2011 07:46:20 -0400
+Date: Mon, 8 Aug 2011 13:46:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [git pull] documentation directory
+Message-ID: <20110808114617.GL2204@nb.net.home>
+References: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
 MIME-Version: 1.0
-From: Pierre Gaston <pierre.gaston@gmail.com>
-Date: Thu, 25 Aug 2011 15:26:14 +0300
-Message-ID: <CAPSX3sTRT7zOZALF2CHUdgRuz3Gz4PyXtxmDB6nhVa7VwK7RDQ@mail.gmail.com>
-Subject: example in flock manpage still not useful.
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I can see why the following change has been made but, as it is, it
-doesn't work at all
+On Sat, Aug 06, 2011 at 07:57:53PM +0200, Sami Kerola wrote:
+> are available in the git repository at:
+>   https://github.com/kerolasa/lelux-utiliteetit docs-dir
+> 
+> discussion, and few rejects, before the Documentation/ is done to
+> upstream. For instance you might disagree with contents of
+> 00-about-docs.txt, and perhaps example.files/ should be deleted.
 
-http://git.kernel.org/?p=utils/util-linux/util-linux.git;a=commitdiff;h=c348d9346ae60b78a03d6dcd964e23fb40a625df
+ The 'Warning about content' in 00-about-docs.txt is too crazy :-)
+ Let's:
+ 
+  - cleanup the files
+  - remove obsolete information
+  - move valid information to the man pages
+  - add info about authors to the AUTHORS file
+ 
+ I have updated the example.files/ in the master branch.
 
-(
-   flock -n 9
-   # ... commands executed under lock ...
+>  README.devel => Documentation/README.devel         |    0
 
-) 9>/var/lock/mylockfile\fP
+ see below
 
-flock -n 9 does nothing here besides testing the lock.
+>  .../ReleaseNotes}/v2.13-ReleaseNotes               |    0
 
-I suggest to revert to flock -s 9...or rather to just flock 9, since a
-shared lock doesn't indeed seems very useful either here.
+ What about to rename the directory to releases/ ? The NEWS file should
+ be updated too.
 
-The example can be fixed using {   ;} instead of a subshell and adding
-flock -n 9 || exit 1, but I think it doesn't match
-the intention of the committer which was to show a way to avoid 2
-concurrent executions of a script.
+>  README.licensing => Documentation/licensing.txt    |    0
 
-If  you want an example exiting the script, I suggest adding an example like:
+ It would be nice to keep this file in the top-level directory.
 
-exec 9>/var/lock/mylockfile  # open the file descriptor for the
-duration of the script
-flock -n 9 || exit 1                 # exit if the lock can't be acquire.
+>  tests/README => Documentation/tests.txt            |    0
 
-Pierre
+ howto-tests.txt
+
+>  Documentation/usage-howto.txt                      |   73 ++++++++++++++++++++
+
+ howto-usage-function.txt
+
+   and s/output/display/ in the file
+
+ we also need howto-man-page.txt :-)
+
+
+ I think we can split the README file:
+
+    README  (basic info about project)
+
+    Documentation/howto-compilation.txt 
+
+ In the howto-compilation.txt file should be also a note about
+ autogen.sh, static linking, klib and uClib and maybe some preferred
+ compiler options, I use:
+ 
+   -Wmissing-parameter-type -Wsign-compare -Wtype-limits -Wuninitialized \
+   -Wunused-parameter -Wunused-but-set-parameter -fno-common
+
+ We can also split README.devel to:
+
+    Documentation/howto-compilation.txt (add extra section for
+    developers (or SCM users) about about autotools).
+
+    Documentation/howto-contribute.txt with info about "ideal
+    patches", coding style.
+
+    Documentation/source-code-management.txt
+
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
