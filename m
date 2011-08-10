@@ -1,32 +1,49 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:39988 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751766Ab1H2OAo convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Aug 2011 10:00:44 -0400
-Date: Mon, 29 Aug 2011 14:59:32 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: richard -rw- weinberger <richard.weinberger@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.20
-Message-ID: <20110829145932.5f63d9ee@lxorguk.ukuu.org.uk>
-In-Reply-To: <CAFLxGvwXreixiYoj+SVoJuH+dLx8THw9cJJ2prEFpUxYTTUbAw@mail.gmail.com>
-References: <20110829122344.GI1855@nb.net.home>
-	<CAFLxGvwXreixiYoj+SVoJuH+dLx8THw9cJJ2prEFpUxYTTUbAw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110810083823.094548131@de.ibm.com>
+Date: Wed, 10 Aug 2011 10:36:47 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [patch 2/8] [PATCH] lscpu: fix cpu map array sizes
+References: <20110810083645.135814950@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 29 Aug 2011 15:35:44 +0200
-richard -rw- weinberger <richard.weinberger@gmail.com> wrote:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-> On Mon, Aug 29, 2011 at 2:23 PM, Karel Zak <kzak@redhat.com> wrote:
-> > Util-linux 2.20 Release Notes
-> > =============================
-> >
-> >  The ddate(1) command is not built by default (see --enable-ddate).
-> >
-> 
-> This change will make the discordians very unhappy. ;-)
+Completely virtualized architectures like s390 may have multiple
+virtual sockets and/or cores where each of them has a different
+number of cores and cpus.
+So the general assumption within the allocation scheme that e.g.
+each socket contains the same number of cores is not necessarily
+true. To make sure the arrays are always large enough we simply
+allocate enough memory so that each array could hold cpu masks
+for all present cpus.
 
-Yes it should be --disable-ddate to enable it....
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ sys-utils/lscpu.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -660,11 +660,16 @@ read_topology(struct lscpu_desc *desc, i
+ 		 */
+ 		if (!desc->nthreads)
+ 			desc->nthreads = nsockets * ncores * nthreads;
++		/* For each map we make sure that it can have up to ncpus
++		 * entries. This is because we cannot reliably calculate the
++		 * number of cores, sockets and books on all architectures.
++		 * E.g. completely virtualized architectures like s390 may
++		 * have multiple sockets of different sizes.
++		 */
++		desc->coremaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
++		desc->socketmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
+ 		if (book_siblings)
+-			desc->bookmaps = xcalloc(nbooks, sizeof(cpu_set_t *));
+-
+-		desc->socketmaps = xcalloc(nsockets, sizeof(cpu_set_t *));
+-		desc->coremaps = xcalloc(ncores * nsockets, sizeof(cpu_set_t *));
++			desc->bookmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
+ 	}
+ 
+ 	add_cpuset_to_array(desc->socketmaps, &desc->nsockets, core_siblings);
