@@ -1,75 +1,101 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1314045499.25233.140258132498281@webmail.messagingengine.com>
-From: "Benno Schulenberg" <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Karel Zak" <kzak@redhat.com>, "util-linux"
- <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-In-Reply-To: <CAG27Bk0m45JFtP2MNz27tgJ=-f5XZDHUtd1C9O4X0ALO52-BVA@mail.gmail.com>
-References: <20110815141948.GH2038@nb.net.home><CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com><1313485424.19019.140258130122469@webmail.messagingengine.com><20110816104652.GA14535@nb.net.home><CAG27Bk3Kvzy+cLCaGh885XLo-MsYY3i5q6_380b_DE8KxXmaNA@mail.gmail.com><1313831405.14363.140258131741205@webmail.messagingengine.com>
- <CAG27Bk0m45JFtP2MNz27tgJ=-f5XZDHUtd1C9O4X0ALO52-BVA@mail.gmail.com>
-Subject: Re: man-pages and usage() howto
-Date: Mon, 22 Aug 2011 22:38:19 +0200
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110810083825.105988796@de.ibm.com>
+Date: Wed, 10 Aug 2011 10:36:53 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [patch 8/8] [PATCH] lscpu: add physical cpu address to parseable output
+References: <20110810083645.135814950@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-On Sat, 20 Aug 2011 21:08 +0200, "Sami Kerola" <kerolasa@iki.fi> wrote:
-> On Sat, Aug 20, 2011 at 11:10, Benno Schulenberg <bensberg@justemail.net> wrote:
-> > On Wed, 17 Aug 2011 15:07 +0200, "Sami Kerola" <kerolasa@iki.fi> wrote:
-> >> Having also definition for OPTION_HELP && OPTION_VERSION would be
-> >> good.
-> >
-> > That won't work -- the amount of indentation for the option description
-> > is not the same for all utilities.  And to make it the same for all would
-> > create ugly and unneeded wide open text spaces for some tools.
-> 
-> To me it does not sound a big deal if --help and --version
-> description begins from different indent than rest of lines. I
-> wrote example output that way, so that you can judge how that
-> will look.
+Print also the physical cpu address for each logical cpu in parsable
+output if selected and present via sysfs.
 
-When --help and --version are always the last two options of the
-usage help text, a differing indentation is acceptable.  But if --help
-is ordered alphabetically, it will look broken.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ sys-utils/lscpu.1 |    5 +++--
+ sys-utils/lscpu.c |   22 ++++++++++++++++++++--
+ 2 files changed, 23 insertions(+), 4 deletions(-)
 
-> \fB\-o\fR, \fB\-\-optional\fR[=<\fIarg\fR>]
-> This option uses optional argument.
-
-As Karel said, the majority convention now is to not use pointy brackets
-for arguments in man pages.  The italics/underlining is enough to make
-them stand out.
-
-I would also suggest to not use "arg" but the full word "argument", so as
-to encourage writers to not unnecessarily abbreviate the argument name,
-to use for example "seconds" and not "secs", use "number" and not "num".
-
-A thing about the formatting: why us \fB and \fR and \fB and \fR?
-Why not use the macro .BR at the start of the line instead?
-(I do not understand your comment about some macros not being
-visually different from plain .B or .I.)
-
-Another thing: the man page formatter itself puts a double space after a
-period when in the man page source the next sentence begins on a new
-line.  So when in the source a new sentence begins somewhere midline,
-it should use a double space before its initial letter.
-
->From your usage howto:
->  -n, --no-argument option requires no_argument
->  -o, --optional[=<arg>] option has optional_argument
->  -r, --required <arg> option requires required_argument
-
-Why the underscores?  I would suggest the following:
-
-  -n, --no-argument       option takes no argument
-  -o, --optional[=<arg>]  option takes optional argument
-  -r, --required <arg>    option requires an argument
-
-(As in a usage text space is limited, abbreviations are okay.)
-
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - Access your email from home and the web
+--- a/sys-utils/lscpu.1
++++ b/sys-utils/lscpu.1
+@@ -32,8 +32,9 @@ separate CPU cache columns. If no CPU ca
+ columns are not printed at all.
+ 
+ The \fIlist\fP argument is comma delimited list of the columns. Currently
+-supported are CPU, Core, Node, Socket, Book, Cache and Polarization columns. If the
+-\fIlist\fP argument is given then always all requested columns are printed in
++supported are CPU, Core, Node, Socket, Book, Cache, Polarization and Address
++columns.
++If the \fIlist\fP argument is given then always all requested columns are printed in
+ the defined order. The Cache columns are separated by ':'.
+ 
+ Note that the optional \fIlist\fP argument cannot be separated from the
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -168,6 +168,7 @@ struct lscpu_desc {
+ 	struct cpu_cache *caches;
+ 
+ 	int		*polarization;	/* cpu polarization */
++	int		*addresses;	/* physical cpu addresses */
+ };
+ 
+ static size_t sysrootlen;
+@@ -199,7 +200,8 @@ enum {
+ 	COL_NODE,
+ 	COL_BOOK,
+ 	COL_CACHE,
+-	COL_POLARIZATION
++	COL_POLARIZATION,
++	COL_ADDRESS
+ };
+ 
+ static const char *colnames[] =
+@@ -210,7 +212,8 @@ static const char *colnames[] =
+ 	[COL_NODE] = "Node",
+ 	[COL_BOOK] = "Book",
+ 	[COL_CACHE] = "Cache",
+-	[COL_POLARIZATION] = "Polarization"
++	[COL_POLARIZATION] = "Polarization",
++	[COL_ADDRESS] = "Address"
+ };
+ 
+ 
+@@ -762,6 +765,16 @@ read_polarization(struct lscpu_desc *des
+ 		desc->polarization[num] = POLAR_UNKNOWN;
+ }
+ 
++static void
++read_address(struct lscpu_desc *desc, int num)
++{
++	if (!path_exist(_PATH_SYS_CPU "/cpu%d/address", num))
++		return;
++	if (!desc->addresses)
++		desc->addresses = xcalloc(desc->ncpus, sizeof(int));
++	desc->addresses[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/address", num);
++}
++
+ static int
+ cachecmp(const void *a, const void *b)
+ {
+@@ -916,6 +929,10 @@ print_parsable_cell(struct lscpu_desc *d
+ 		if (desc->polarization)
+ 			printf("%s", polar_modes[desc->polarization[i]]);
+ 		break;
++	case COL_ADDRESS:
++		if (desc->addresses)
++			printf("%d", desc->addresses[i]);
++		break;
+ 	}
+ }
+ 
+@@ -1230,6 +1247,7 @@ int main(int argc, char *argv[])
+ 		read_topology(desc, i);
+ 		read_cache(desc, i);
+ 		read_polarization(desc, i);
++		read_address(desc, i);
+ 	}
+ 
+ 	qsort(desc->caches, desc->ncaches, sizeof(struct cpu_cache), cachecmp);
