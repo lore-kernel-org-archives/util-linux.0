@@ -1,39 +1,72 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49916 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752826Ab1HPV5r (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Aug 2011 17:57:47 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7GLvlRa026563
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 16 Aug 2011 17:57:47 -0400
-Received: from nb (ovpn-116-29.ams2.redhat.com [10.36.116.29])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id p7GLvkQ2014715
-	for <util-linux@vger.kernel.org>; Tue, 16 Aug 2011 17:57:47 -0400
-Date: Tue, 16 Aug 2011 23:57:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] tweaks of sfdisk's man page and help text
-Message-ID: <20110816215746.GG14535@nb.net.home>
-References: <1313521068.4590.140258130338973@webmail.messagingengine.com> <20110816205018.GD1054@pc21.mareichelt.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110816205018.GD1054@pc21.mareichelt.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110810083824.427282451@de.ibm.com>
+Date: Wed, 10 Aug 2011 10:36:51 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [patch 6/8] [PATCH] lscpu: show dispatching mode
+References: <20110810083645.135814950@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 16, 2011 at 10:50:18PM +0200, markus reichelt wrote:
-> * Benno Schulenberg <bensberg@justemail.net> wrote:
-> 
-> > -Then, if you discover that you did something stupid before anything
-> > +Then, if you discover that you did something stupid b efore anything
-> 
-> Typo alert.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
- Fixed. Thanks for review.
+A virtual guest my run in either "horiziontal" or "vertical" mode
+which is the mode in which the underlying hypervisor schedules the
+guest cpu.
+Since this is of interest print this in the readable output.
 
-    Karel
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ sys-utils/lscpu.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -97,6 +97,17 @@ struct cpu_cache {
+ 	cpu_set_t	**sharedmaps;
+ };
+ 
++/* dispatching modes */
++enum {
++	DISP_HORIZONTAL = 0,
++	DISP_VERTICAL	= 1
++};
++
++const char *disp_modes[] = {
++	[DISP_HORIZONTAL]	= N_("horizontal"),
++	[DISP_VERTICAL]		= N_("vertical")
++};
++
+ /* global description */
+ struct lscpu_desc {
+ 	char	*arch;
+@@ -110,6 +121,7 @@ struct lscpu_desc {
+ 	char	*stepping;
+ 	char    *bogomips;
+ 	char	*flags;
++	int	dispatching;	/* none, horizontal or vertical */
+ 	int	mode;		/* rm, lm or/and tm */
+ 
+ 	int		ncpus;		/* number of CPUs */
+@@ -478,6 +490,12 @@ read_basicinfo(struct lscpu_desc *desc)
+ 		desc->online = path_cpulist(_PATH_SYS_SYSTEM "/cpu/online");
+ 		desc->nthreads = CPU_COUNT_S(setsize, desc->online);
+ 	}
++
++	/* get dispatching mode */
++	if (path_exist(_PATH_SYS_SYSTEM "/cpu/dispatching"))
++		desc->dispatching = path_getnum(_PATH_SYS_SYSTEM "/cpu/dispatching");
++	else
++		desc->dispatching = -1;
+ }
+ 
+ static int
+@@ -1065,6 +1083,8 @@ print_readable(struct lscpu_desc *desc,
+ 		print_s(_("Hypervisor vendor:"), hv_vendors[desc->hyper]);
+ 		print_s(_("Virtualization type:"), virt_types[desc->virtype]);
+ 	}
++	if (desc->dispatching >= 0)
++		print_s(_("Dispatching mode:"), disp_modes[desc->dispatching]);
+ 	if (desc->ncaches) {
+ 		char buf[512];
+ 		int i;
