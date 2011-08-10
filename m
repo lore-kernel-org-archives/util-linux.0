@@ -1,287 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcaib.dreamhost.com ([208.97.132.81]:42998 "EHLO
-	homiemail-a6.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753459Ab1HGAd7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 6 Aug 2011 20:33:59 -0400
-Subject: [PATCH] Add a new documentation directory and move the
- README.devel file there.
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sat, 06 Aug 2011 20:33:49 -0400
-Message-ID: <1312677229.3408.2.camel@offbook>
-Mime-Version: 1.0
+Received: from cantor2.suse.de ([195.135.220.15]:54108 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753255Ab1HJJqV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Aug 2011 05:46:21 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id E5B8A8A95F
+	for <util-linux@vger.kernel.org>; Wed, 10 Aug 2011 11:46:19 +0200 (CEST)
+Date: Wed, 10 Aug 2011 13:46:06 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] logger.1: use simple apostrophe instead of multibyte char
+Message-ID: <20110810114604.GA31717@foxbat.suse.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- Documentation/README.devel |  121 ++++++++++++++++++++++++++++++++++++++++++++
- README.devel               |  121 --------------------------------------------
- 2 files changed, 121 insertions(+), 121 deletions(-)
- create mode 100644 Documentation/README.devel
- delete mode 100644 README.devel
+ misc-utils/logger.1 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/Documentation/README.devel b/Documentation/README.devel
-new file mode 100644
-index 0000000..d76baaf
---- /dev/null
-+++ b/Documentation/README.devel
-@@ -0,0 +1,121 @@
-+
-+ Notes for util-linux developers
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+AUTOTOOLS:
-+
-+     * "./autogen.sh" generates all files needed to compile and install the code
-+       (run it after checkout from git)
-+
-+     * "make distclean" removes all unnecessary files, but the code can still be
-+       recompiled with "./configure; make"
-+
-+     * "make dist-gzip" (or -bzip2) creates a tarball that can be configured and
-+       compiled without running "./autogen.sh"
-+
-+
-+PATCHES:
-+
-+     * send your patches to the mailing list or to the upstream maintainer
-+       (see the AUTHORS and README files)
-+
-+     * diff -u
-+
-+     * don't include generated (autotools) stuff to your patches
-+       (hint: use git-clean [-X])
-+
-+     * patches are delivered via email only.  Downloading them from internet
-+       servers is a pain.
-+
-+     * one patch per email, with the changelog in the body of the email.
-+
-+     * many small patches are favoured over one big. Break down is done on
-+       basis of logical functionality; for example #endif mark ups, compiler
-+       warning and exit codes fixes all should be individual small patches.
-+
-+     * Subject: [PATCH] subsystem: description
-+
-+     * if someone else wrote the patch, they should be credited (and blamed)
-+       for it. To communicate this, add a line:
-+
-+          From: John Doe <jdoe@wherever.com>
-+
-+     * add a Signed-off-by line (hint: use "git commit -s")
-+
-+       The sign-off is a simple line at the end of the explanation for the
-+       patch, which certifies that you wrote it or otherwise have the right to
-+       pass it on as a open-source patch.  The rules are pretty simple: if you
-+       can certify the below:
-+
-+           By making a contribution to this project, I certify that:
-+
-+           (a) The contribution was created in whole or in part by me and I
-+               have the right to submit it under the open source license
-+               indicated in the file; or
-+
-+           (b) The contribution is based upon previous work that, to the best
-+               of my knowledge, is covered under an appropriate open source
-+               license and I have the right under that license to submit that
-+               work with modifications, whether created in whole or in part
-+               by me, under the same open source license (unless I am
-+               permitted to submit under a different license), as indicated
-+               in the file; or
-+
-+           (c) The contribution was provided directly to me by some other
-+               person who certified (a), (b) or (c) and I have not modified it.
-+
-+           (d) I understand and agree that this project and the contribution
-+               are public and that a record of the contribution (including all
-+               personal information I submit with it, including my sign-off) is
-+               maintained indefinitely and may be redistributed consistent with
-+               this project or the open source license(s) involved.
-+
-+       then you just add a line saying
-+
-+               Signed-off-by: Random J Developer <random@developer.example.org>
-+
-+       using your real name (sorry, no pseudonyms or anonymous contributions.)
-+
-+
-+     * for more details see:
-+
-+       The perfect patch
-+                http://userweb.kernel.org/~akpm/stuff/tpp.txt
-+
-+CODING STYLE:
-+
-+     * the preferred coding style is based on the linux kernel Documentation/CodingStyle.
-+       For more details see:
-+
-+       http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plain;f=Documentation/CodingStyle
-+
-+
-+SCM (source code management):
-+
-+     git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git util-linux
-+
-+
-+    * maintenance (stable) branch
-+        - created for every <major>.<minor> release
-+        - branch name: stable/v<major>.<minor>
-+
-+    * bugfix branch
-+        - created for <major>.<minor>.<maint> release for critical/security bugs only
-+        - this branch is optional
-+        - branch name: stable/v<major>.<minor>.<maint>
-+
-+    * master branch
-+        - the status of this branch is: "it works for me". It means useful
-+          but not well tested patches.
-+        - it's source for occasional snapshots
-+        - for long-term development or invasive changes should be an active
-+          development forked into a separate branch (topic branches) from the
-+          tip of "master".
-+
-+    * A new tag object is created for:
-+        - every release, tag name: v<version>
-+
-+
-+    * KNOWN BUGS:
-+        - tag v2.13.1 is typo. Please, ignore this tag.
-+
-diff --git a/README.devel b/README.devel
-deleted file mode 100644
-index d76baaf..0000000
---- a/README.devel
-+++ /dev/null
-@@ -1,121 +0,0 @@
--
-- Notes for util-linux developers
-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--
--AUTOTOOLS:
--
--     * "./autogen.sh" generates all files needed to compile and install the code
--       (run it after checkout from git)
--
--     * "make distclean" removes all unnecessary files, but the code can still be
--       recompiled with "./configure; make"
--
--     * "make dist-gzip" (or -bzip2) creates a tarball that can be configured and
--       compiled without running "./autogen.sh"
--
--
--PATCHES:
--
--     * send your patches to the mailing list or to the upstream maintainer
--       (see the AUTHORS and README files)
--
--     * diff -u
--
--     * don't include generated (autotools) stuff to your patches
--       (hint: use git-clean [-X])
--
--     * patches are delivered via email only.  Downloading them from internet
--       servers is a pain.
--
--     * one patch per email, with the changelog in the body of the email.
--
--     * many small patches are favoured over one big. Break down is done on
--       basis of logical functionality; for example #endif mark ups, compiler
--       warning and exit codes fixes all should be individual small patches.
--
--     * Subject: [PATCH] subsystem: description
--
--     * if someone else wrote the patch, they should be credited (and blamed)
--       for it. To communicate this, add a line:
--
--          From: John Doe <jdoe@wherever.com>
--
--     * add a Signed-off-by line (hint: use "git commit -s")
--
--       The sign-off is a simple line at the end of the explanation for the
--       patch, which certifies that you wrote it or otherwise have the right to
--       pass it on as a open-source patch.  The rules are pretty simple: if you
--       can certify the below:
--
--           By making a contribution to this project, I certify that:
--
--           (a) The contribution was created in whole or in part by me and I
--               have the right to submit it under the open source license
--               indicated in the file; or
--
--           (b) The contribution is based upon previous work that, to the best
--               of my knowledge, is covered under an appropriate open source
--               license and I have the right under that license to submit that
--               work with modifications, whether created in whole or in part
--               by me, under the same open source license (unless I am
--               permitted to submit under a different license), as indicated
--               in the file; or
--
--           (c) The contribution was provided directly to me by some other
--               person who certified (a), (b) or (c) and I have not modified it.
--
--           (d) I understand and agree that this project and the contribution
--               are public and that a record of the contribution (including all
--               personal information I submit with it, including my sign-off) is
--               maintained indefinitely and may be redistributed consistent with
--               this project or the open source license(s) involved.
--
--       then you just add a line saying
--
--               Signed-off-by: Random J Developer <random@developer.example.org>
--
--       using your real name (sorry, no pseudonyms or anonymous contributions.)
--
--
--     * for more details see:
--
--       The perfect patch
--                http://userweb.kernel.org/~akpm/stuff/tpp.txt
--
--CODING STYLE:
--
--     * the preferred coding style is based on the linux kernel Documentation/CodingStyle.
--       For more details see:
--
--       http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plain;f=Documentation/CodingStyle
--
--
--SCM (source code management):
--
--     git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git util-linux
--
--
--    * maintenance (stable) branch
--        - created for every <major>.<minor> release
--        - branch name: stable/v<major>.<minor>
--
--    * bugfix branch
--        - created for <major>.<minor>.<maint> release for critical/security bugs only
--        - this branch is optional
--        - branch name: stable/v<major>.<minor>.<maint>
--
--    * master branch
--        - the status of this branch is: "it works for me". It means useful
--          but not well tested patches.
--        - it's source for occasional snapshots
--        - for long-term development or invasive changes should be an active
--          development forked into a separate branch (topic branches) from the
--          tip of "master".
--
--    * A new tag object is created for:
--        - every release, tag name: v<version>
--
--
--    * KNOWN BUGS:
--        - tag v2.13.1 is typo. Please, ignore this tag.
--
--- 
-1.7.4.1
+diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+index 4312551..c5f8424 100644
+--- a/misc-utils/logger.1
++++ b/misc-utils/logger.1
+@@ -110,7 +110,7 @@ The
+ utility exits 0 on success, and >0 if an error occurs.
+ .Pp
+ Valid facility names are: auth, authpriv (for security information of a
+-sensitive nature), cron, daemon, ftp, kern (can=E2=80=99t be generated fro=
+m user
++sensitive nature), cron, daemon, ftp, kern (can't be generated from user
+ process), lpr, mail, news, security (deprecated synonym for auth), syslog,
+ user, uucp, and local0 to local7, inclusive.
+ .Pp
+--=20
+1.7.3.4
 
 
+Petr
 
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+
+iEYEARECAAYFAk5Cb3wACgkQnZxG0T6qDD1qugCfX6onA/JxjsJ4LJCUiZlWZJYa
+gcgAn3zkqy5EQxViyegFAkvdEx/IwL5p
+=YPAx
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--
