@@ -1,32 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.187]:65263 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753077Ab1HQPBZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Aug 2011 11:01:25 -0400
-Message-ID: <4E4BD7C0.2040205@bernhard-voelker.de>
-Date: Wed, 17 Aug 2011 17:01:20 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:33915 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751041Ab1HKSO5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 11 Aug 2011 14:14:57 -0400
+Date: Thu, 11 Aug 2011 20:14:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Florian Pritz <bluewind@xinu.at>
+Cc: util-linux@vger.kernel.org
+Subject: Re: mkswap fails to use more than 2GiB and doesn't recognize LVM
+Message-ID: <20110811181454.GD32051@nb.net.home>
+References: <4E43F629.6040408@xinu.at>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: losetup --all --verbose results in usage
-References: <4E4BCC65.2060100@bernhard-voelker.de> <20110817144433.GD699@nb.net.home>
-In-Reply-To: <20110817144433.GD699@nb.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4E43F629.6040408@xinu.at>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/17/2011 04:44 PM, Karel Zak wrote:
-> On Wed, Aug 17, 2011 at 04:12:53PM +0200, Bernhard Voelker wrote:
->> I was surprised that running
->> 	mount/losetup --all --verbose
->> results in usage().
->
->   Fixed. losetup -a -v works now.
->
->      Karel
+On Thu, Aug 11, 2011 at 05:32:57PM +0200, Florian Pritz wrote:
+> mkswap displays the following output when trying to create swap on a
+> 8GiB logical volume.
+> > # mkswap /dev/mapper/vg_brynhild-swap
+> > mkswap: warning: truncating swap area to 2097144 KiB
 
-uh, that was fast.
-Thanks.
+ It seems correct. The swap header does not allow to address more than
+ UINT_MAX pages. You have to create more swap areas or use system with
+ bigger pages.
 
-Berny
+> > mkswap: /dev/mapper/vg_brynhild-swap: warning: don't erase bootbits sectors
+> >         on whole disk. Use -f to force.
+> > Setting up swapspace version 1, size = 2097140 KiB
+> > no label, UUID=5eae2d8b-f664-46f5-983c-bdcd4301fa66
+> 
+> I tried adding -p 8589934592 to force 8GiB, but that doesn't change
+> anything.
+
+ :-)
+
+> busybox mkswap crates the expected 8GiB swap, so I think this is a bug.
+
+ Do you see see 8GiB swap area in /proc/swaps after swapon? I don't
+ think so...
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
