@@ -1,27 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14224 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:16745 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751216Ab1HWKVy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 23 Aug 2011 06:21:54 -0400
-Date: Tue, 23 Aug 2011 12:21:50 +0200
+	id S1751845Ab1HKVq1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 11 Aug 2011 17:46:27 -0400
+Date: Thu, 11 Aug 2011 23:46:24 +0200
 From: Karel Zak <kzak@redhat.com>
-To: giulioo@pobox.com
+To: Florian Pritz <bluewind@xinu.at>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: make some tests conditional to !Linux
-Message-ID: <20110823102150.GB21266@nb.net.home>
-References: <20110818073019.B70AFF815@i3.golden.dom>
+Subject: Re: mkswap fails to use more than 2GiB and doesn't recognize LVM
+Message-ID: <20110811214624.GE32051@nb.net.home>
+References: <4E43F629.6040408@xinu.at> <20110811181454.GD32051@nb.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110818073019.B70AFF815@i3.golden.dom>
+In-Reply-To: <20110811181454.GD32051@nb.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 18, 2011 at 09:30:30AM +0200, Giulio wrote:
-> --- a/fdisk/sfdisk.c	2011-08-17 17:17:43.000000000 +0200
-> +++ b/fdisk/sfdisk.c	2011-08-17 22:48:52.000000000 +0200
+On Thu, Aug 11, 2011 at 08:14:54PM +0200, Karel Zak wrote:
+> On Thu, Aug 11, 2011 at 05:32:57PM +0200, Florian Pritz wrote:
+> > mkswap displays the following output when trying to create swap on a
+> > 8GiB logical volume.
+> > > # mkswap /dev/mapper/vg_brynhild-swap
+> > > mkswap: warning: truncating swap area to 2097144 KiB
+> 
+>  It seems correct.
 
- Applied, thanks.
- 
+ Ah... sorry, I didn't read your e-mail too carefully.
+
+>  The swap header does not allow to address more than
+>  UINT_MAX pages. You have to create more swap areas or use system with
+>  bigger pages.
+
+ Right, so if you have 4096 page size, then 4096 * 4294967295 is the
+ max size...
+
+ I think the problem is kernel version string -- "3.0". The mkswap
+ code uses the version string to set the limit.
+
+ The problem should be fixed in 2.20-rc1, commit
+ fa7e0d6d442de9f5940f99fd93f4522602439131.
+
+    Karel
+
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
