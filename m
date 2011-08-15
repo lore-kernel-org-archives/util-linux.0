@@ -1,49 +1,111 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.date.uni-paderborn.de ([131.234.158.22]:39990 "EHLO
-	mail.date.uni-paderborn.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752774Ab1HQSm3 convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Aug 2011 14:42:29 -0400
-Received: from mail.date.uni-paderborn.de (localhost [127.0.0.1])
-	by mail.date.uni-paderborn.de (Postfix) with ESMTP id 1C6664182
-	for <util-linux@vger.kernel.org>; Wed, 17 Aug 2011 20:40:52 +0200 (CEST)
-Received: from arch.localnet (p5486AB3B.dip.t-dialin.net [84.134.171.59])
-	by mail.date.uni-paderborn.de (Postfix) with ESMTPSA id 87DC74182
-	for <util-linux@vger.kernel.org>; Wed, 17 Aug 2011 20:40:51 +0200 (CEST)
-From: Nick Erdmann <erdmann@date.upb.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] ddate: St. Tib's Day in other languages
-Date: Wed, 17 Aug 2011 20:35:02 +0200
-Message-ID: <1976757.PW98uZrV7g@arch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110815152453.052584040@de.ibm.com>
+Date: Mon, 15 Aug 2011 17:24:53 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: [PATCH/RFC 0/2] new chcpu tool
 List-ID: <util-linux.vger.kernel.org>
 
-In other languages than english, the translation of "St. Tib's Day" may not
-be 13 bytes long. Example of what happens in german:
-$ ddate 29 2 2008
-St. Tib’s D, 3174 YOLD
+This patch set introduces a new chcpu tool to util-linux. chcpu lets a user
+configure CPUs. In this first version all that is possible is to enable or
+disable CPUs (set them online of offline).
+This is quite useful if you work a lot with virtual servers, since
+enabling and disabling cpus manually via sysfs becomes tiring.
 
-Signed-off-by: Nick Erdmann <erdmann@date.upb.de>
---- a/misc-utils/ddate.c	2011-07-20 21:55:23.000000000 +0200
-+++ b/misc-utils/ddate.c	2011-08-17 18:11:12.437504258 +0200
-@@ -223,6 +223,7 @@
-     int tib_start=-1, tib_end=0;
-     int i, fmtlen=strlen(fmt);
-     char *bufptr=buf;
-+    char *foo;
- 
- /*    fprintf(stderr, "format(%p, \"%s\", dt)\n", buf, fmt);*/
- 
-@@ -249,7 +250,9 @@
-     for(i=0; i<fmtlen; i++) {
- 	if((i==tib_start) && (dt.day==-1)) {
- 	    /* handle St. Tib's Day */
--	    strcpy(bufptr, _("St. Tib's Day")); bufptr += 13;
-+	    foo = _("St. Tib's Day");
-+	    while((*bufptr++=*foo++));
-+	    --bufptr;
- 	    i=tib_end;
- 	} else {
- 	    if(fmt[i]=='%') {
+This first version is kept very simple so that I can easily change things
+based on feedback/criticism before I add more functionality.
+More features that I would like to add are
+
+- rescan cpus: trigger the kernel to trigger a rescan of cpus. Necessary
+  because not all hypervisors on s390 generate a guest event if a new
+  cpu becomes visible to a guest.
+
+- configure/deconfigure cpus: if cpus are offline the resources taken by
+  the hypervisor can be freed if the cpus are deconfigured. Makes sense
+  if a cpus are given dedicated to a logical partition. Deconfigured cpus
+  can be given to other logical partitions.
+
+- set dispatch mode: if the underlying hypervisor is PR/SM (LPAR hypervisor)
+  it is possible to configure it's scheduling algorithm for the virtual cpus
+  of the own logical partition.
+
+Other architectures might add own features...
+
+Any feedback and/or criticism would be welcome.
+
+A usage example with a logical partition with 20 virtual cpus:
+
+[root@r35lp37]# chcpu --help
+
+Usage:
+ chcpu [options] [cpu-list]
+
+Options:
+  -h, --help         print this help
+  -e, --enable       enable cpus
+  -d, --disable      disable cpus
+  -v, --verbose      explain what is being done
+  -V, --version      output version information and exit
+
+[root@r35lp37]# cat /proc/cpuinfo
+vendor_id       : IBM/S390
+# processors    : 4
+bogomips per cpu: 14367.00
+features        : esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs 
+processor 1: version = 00,  identification = 279F25,  machine = 2817
+processor 10: version = 00,  identification = 279F25,  machine = 2817
+processor 11: version = 00,  identification = 279F25,  machine = 2817
+processor 12: version = 00,  identification = 279F25,  machine = 2817
+
+[root@r35lp37]# ./chcpu -v -e 0-20
+CPU 0 enabled
+CPU 1 already enabled
+CPU 2 enabled
+CPU 3 enabled
+CPU 4 enabled
+CPU 5 enabled
+CPU 6 enabled
+CPU 7 enabled
+CPU 8 enabled
+CPU 9 enabled
+CPU 10 already enabled
+CPU 11 already enabled
+CPU 12 already enabled
+CPU 13 enabled
+CPU 14 enabled
+CPU 15 enabled
+CPU 16 enabled
+CPU 17 enabled
+CPU 18 enabled
+CPU 19 enabled
+CPU 20 does not exist
+
+[root@r35lp37]# cat /proc/cpuinfo 
+vendor_id       : IBM/S390
+# processors    : 20
+bogomips per cpu: 14367.00
+features        : esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs 
+processor 0: version = 00,  identification = 279F25,  machine = 2817
+processor 1: version = 00,  identification = 279F25,  machine = 2817
+processor 2: version = 00,  identification = 279F25,  machine = 2817
+processor 3: version = 00,  identification = 279F25,  machine = 2817
+processor 4: version = 00,  identification = 279F25,  machine = 2817
+processor 5: version = 00,  identification = 279F25,  machine = 2817
+processor 6: version = 00,  identification = 279F25,  machine = 2817
+processor 7: version = 00,  identification = 279F25,  machine = 2817
+processor 8: version = 00,  identification = 279F25,  machine = 2817
+processor 9: version = 00,  identification = 279F25,  machine = 2817
+processor 10: version = 00,  identification = 279F25,  machine = 2817
+processor 11: version = 00,  identification = 279F25,  machine = 2817
+processor 12: version = 00,  identification = 279F25,  machine = 2817
+processor 13: version = 00,  identification = 279F25,  machine = 2817
+processor 14: version = 00,  identification = 279F25,  machine = 2817
+processor 15: version = 00,  identification = 279F25,  machine = 2817
+processor 16: version = 00,  identification = 279F25,  machine = 2817
+processor 17: version = 00,  identification = 279F25,  machine = 2817
+processor 18: version = 00,  identification = 279F25,  machine = 2817
+processor 19: version = 00,  identification = 279F25,  machine = 2817
+
+Thanks,
+Heiko
