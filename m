@@ -1,33 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25205 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:9844 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752832Ab1HOMfD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Aug 2011 08:35:03 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7FCZ3rq029125
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 15 Aug 2011 08:35:03 -0400
-Received: from nb (ovpn-116-29.ams2.redhat.com [10.36.116.29])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p7FCZ2a7023798
-	for <util-linux@vger.kernel.org>; Mon, 15 Aug 2011 08:35:02 -0400
-Date: Mon, 15 Aug 2011 14:35:01 +0200
+	id S1753280Ab1HOOUA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 15 Aug 2011 10:20:00 -0400
+Date: Mon, 15 Aug 2011 16:19:48 +0200
 From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] logger.1: use simple apostrophe instead of multibyte
-	char
-Message-ID: <20110815123501.GB2038@nb.net.home>
-References: <20110810114604.GA31717@foxbat.suse.cz>
+To: Benno Schulenberg <bensberg@justemail.net>, Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: man-pages and usage() howto
+Message-ID: <20110815141948.GH2038@nb.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110810114604.GA31717@foxbat.suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 10, 2011 at 01:46:06PM +0200, Petr Uzel wrote:
->  misc-utils/logger.1 |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
 
- Applied, thanks.
+ Hi,
+
+Sami is already working on some howtos, what we need is some
+consensus about a way how describe options.
+
+My suggestion:
+
+ * argument required:
+
+   -o, --option FILE    # usage()
+   -o, --option file    # man page
+
+ * optional argument:
+
+   -o, --option[=FILE]  # usage()
+   -o, --option[=file]  # man page
+
+
+ * synopsis
+
+   - without individual options, bad example:
+   
+        command [-o offset] [--sizelimit size] [-p pfd] [-r] file
+
+   - [options] is better:
+
+        command [options] file
+
+   - use more synopsis lines if the command supports more separated modes.
+
+       command --add file
+       command --del file
+
+     (use common sense! ... if there is too many modes, then use [options])
+
+     The options specific to the mode are allowed in the synopsis or
+     in the man page should be per-mode section with description about
+     the options.
+
+
+ * common options:
+
+   -V, --version
+   -h, --help
+
+ * suggestions:
+
+   -a, --all
+   -o, --output <list>
+   -r, --raw
+   -f, --force
+   -b, --bytes   (don't print SIZE in human readable format)
+
+
+ * We also need any consensus about groff formatting, the ideal
+   solution would be add any Documentation/example.man
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
