@@ -1,144 +1,72 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: bensberg@justemail.net
+Message-Id: <1313485424.19019.140258130122469@webmail.messagingengine.com>
+From: "Benno Schulenberg" <bensberg@justemail.net>
+To: kerolasa@gmail.com
+Cc: "Karel Zak" <kzak@redhat.com>, "util-linux"
+ <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20110808114617.GL2204@nb.net.home>
-References: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
-	<20110808114617.GL2204@nb.net.home>
-Date: Fri, 12 Aug 2011 22:58:09 +0200
-Message-ID: <CAG27Bk3uvpMC=Hx0cn25mAOGHxwFVNNXOWW3fyfvAEYrBA5+BA@mail.gmail.com>
-Subject: Re: [git pull] documentation directory
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com>
+References: <20110815141948.GH2038@nb.net.home>
+ <CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com>
+Subject: Re: man-pages and usage() howto
+Date: Tue, 16 Aug 2011 11:03:44 +0200
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 8, 2011 at 13:46, Karel Zak <kzak@redhat.com> wrote:
-> On Sat, Aug 06, 2011 at 07:57:53PM +0200, Sami Kerola wrote:
->> are available in the git repository at:
->> =A0 https://github.com/kerolasa/lelux-utiliteetit docs-dir
->>
->> discussion, and few rejects, before the Documentation/ is done to
->> upstream. For instance you might disagree with contents of
->> 00-about-docs.txt, and perhaps example.files/ should be deleted.
->
-> =A0The 'Warning about content' in 00-about-docs.txt is too crazy :-)
-> =A0Let's:
 
-I thought you might say something like that.
+On Mon, 15 Aug 2011 21:12 +0200, "Sami Kerola" <kerolasa@iki.fi> wrote:
+> On Mon, Aug 15, 2011 at 16:19, Karel Zak <kzak@redhat.com> wrote:
+> > =C2=A0* argument required:
+> >
+> > =C2=A0 -o, --option FILE =C2=A0 =C2=A0# usage()
+> > =C2=A0 -o, --option file =C2=A0 =C2=A0# man page
+>=20
+> I used GNU notation which has 'unnecessary' equals sign.
+>=20
+> -o, --option=3DFILE
 
-> =A0- cleanup the files
->  - remove obsolete information
+The full GNU style seems to be this (for example in 'man grep'):
 
-Done in new patch `docs: clean up old readme files'. The clean up
-could be more aggressive. For instance the fdisk.txt sounds very 90's
-and has only a limited amount of usable information. Perhaps the file
-be simply removed, or should someone be asked to volunteer to clean up
-all {c,s,}fdisk documentation & manual pages? By glance that looks
-quite large task.
+  -o FILE, --option=3DFILE
 
-> =A0- move valid information to the man pages
+Since the util-linux man pages don't put the argument after the short
+version of the option, the '  -o, --option FILE' variant would be for me
+the logical condensed intersection.  Also, why give the impression
+that the equals sign is needed when it is not?
+=20
+> The only reason I can think of why the equal sign is there is visual
+> similarity with optional argument... [...]
+>=20
+> I also acknowledge the fact that no-one will ever use equals sign when
+> giving required argument. The practise of dropping it is a rational
+> reason not to specify it to usage() or man. I would say this is a
+> question of choosing a convention in between visual symmetry or actual
+> habits of people. IMHO the visual unity is better.
 
-Perhaps I lacked imagination what could be moved coz I found so
-little. See hwclock change for details.
-
-> =A0- add info about authors to the AUTHORS file
-
-I went through everything in Documentation/* and notice there's more
-in NEWS file. Should that be migrated as well?
-
-> =A0I have updated the example.files/ in the master branch.
-
-Noted.
-
->> =A0README.devel =3D> Documentation/README.devel =A0 =A0 =A0 =A0 | =A0 =
-=A00
->
-> =A0see below
->
->> =A0.../ReleaseNotes}/v2.13-ReleaseNotes =A0 =A0 =A0 =A0 =A0 =A0 =A0 | =
-=A0 =A00
->
-> =A0What about to rename the directory to releases/ ? The NEWS file should
-> =A0be updated too.
-
-Done.
-
->> =A0README.licensing =3D> Documentation/licensing.txt =A0 =A0| =A0 =A00
->
-> =A0It would be nice to keep this file in the top-level directory.
-
-Put back to root.
-
->> =A0tests/README =3D> Documentation/tests.txt =A0 =A0 =A0 =A0 =A0 =A0| =
-=A0 =A00
->
-> =A0howto-tests.txt
-
-Renamed.
-
->> =A0Documentation/usage-howto.txt =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0| =A0 73 ++++++++++++++++++++
->
-> =A0howto-usage-function.txt
->
-> =A0 and s/output/display/ in the file
-
-Renamed & the wording is checked.
-
-> =A0we also need howto-man-page.txt :-)
-
-Something done, comments are welcome.
-
-> =A0I think we can split the README file:
->
-> =A0 =A0README =A0(basic info about project)
->
-> =A0 =A0Documentation/howto-compilation.txt
->
-> =A0In the howto-compilation.txt file should be also a note about
-> =A0autogen.sh, static linking, klib and uClib and maybe some preferred
-> =A0compiler options, I use:
->
-> =A0 -Wmissing-parameter-type -Wsign-compare -Wtype-limits -Wuninitialized=
- \
-> =A0 -Wunused-parameter -Wunused-but-set-parameter -fno-common
->
-> =A0We can also split README.devel to:
->
-> =A0 =A0Documentation/howto-compilation.txt (add extra section for
-> =A0 =A0developers (or SCM users) about about autotools).
->
-> =A0 =A0Documentation/howto-contribute.txt with info about "ideal
-> =A0 =A0patches", coding style.
->
-> =A0 =A0Documentation/source-code-management.txt
-
-This README.devel split was done as well.
+IMHO visual contrast is better.  When my fleeting glance sees an equals
+sign OR square brackets, I know the argument is optional; when it does
+not see an equals sign OR does not see square brackets, the argument is
+required.  Redundancy is good.
 
 
-The following changes since commit 344f73442d3a45db5927c049eef1ed8cf5d13934=
-:
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0command [options] file
 
-  ipcs: use unsigned type for uid/gid (2011-08-09 15:30:19 +0200)
+If in the usage() help text the arguments of options are written in
+uppercase, wouldn't it be more consistent to then also write the
+arguments of the command itself in uppercase (as for example
+'man -h' and 'grep --help' do)?
 
-are available in the git repository at:
-  https://github.com/kerolasa/lelux-utiliteetit docs-dir
+        command [OPTIONS] FILE
 
-Sami Kerola (11):
-      docs: remove README.clear
-      docs: Documentation directory added
-      docs: add usage() howto for contributors
-      docs: tell what the Documentation/ is about
-      docs: new file Documentation/howto-compilation.txt
-      docs: new file Documentation/howto-contribute.txt
-      docs: new file Documentation/source-code-management.txt
-      docs: new file Documentation/howto-man-page.txt
-      docs: copy contributors from legacy files to AUTHORS
-      docs: clean up old readme files
-      docs: move setuid information from reame to hwclock.8
+(Also, to be fully correct, it would have to say "[OPTION...]" instead,
+but I will let that go.)
+
+About the other things I have not yet an opinion.
+
+Regards,
+
+Benno
 
 --=20
-=A0=A0 Sami Kerola
-=A0=A0 http://www.iki.fi/kerolasa/
+http://www.fastmail.fm - Access all of your messages and folders
+                          wherever you are
