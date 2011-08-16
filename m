@@ -1,35 +1,70 @@
-Return-Path: heiko.carstens@de.ibm.com
-Date: Tue, 30 Aug 2011 13:18:38 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [patch 0/8] various lscpu patches
-Message-ID: <20110830111838.GA2443@osiris.boeblingen.de.ibm.com>
-References: <20110810083645.135814950@de.ibm.com>
- <20110815084530.GA2400@osiris.boeblingen.de.ibm.com>
- <20110830101242.GS1855@nb.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110830101242.GS1855@nb.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:50296 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751500Ab1HPWTL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Aug 2011 18:19:11 -0400
+Received: by wyg24 with SMTP id 24so281588wyg.19
+        for <util-linux@vger.kernel.org>; Tue, 16 Aug 2011 15:19:10 -0700 (PDT)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 2/5] fdisk: print partition deleted message
+Date: Wed, 17 Aug 2011 00:19:03 +0200
+Message-Id: <1313533146-2806-2-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1313533146-2806-1-git-send-email-cosoleto@gmail.com>
+References: <1313533146-2806-1-git-send-email-cosoleto@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 30, 2011 at 12:12:42PM +0200, Karel Zak wrote:
-> On Mon, Aug 15, 2011 at 10:45:30AM +0200, Heiko Carstens wrote:
-> > FWIW, I set up a git branch with the lscpu changes:
-> > 
-> >  git://git.kernel.org/pub/scm/linux/kernel/git/heiko/util-linux.git lscpu
-> 
->  Merged, thanks.
-> 
->  Heiko, it would be nice to have a regression tests for various s390
->  boxes. See tests/ts/lscpu/, there is mk-input.sh which is able to
->  gather all necessary files and create a tarball from /sys and /proc.
->  For s390 it will be probably necessary to extend the list of the files
->  (e.g add /proc/sysinfo).
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/fdisk.c |   18 +++++-------------
+ 1 files changed, 5 insertions(+), 13 deletions(-)
 
-Ok, I add that on my todo list. I have a couple of more patches for lscpu
-and chcpu that I'd like to send to you this week. Afterwards I'll create
-the regression test(s).
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index a08a4d4..d3fc200 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -1676,27 +1676,18 @@ delete_partition(int i) {
+ 		return;		/* C/H/S not set */
+ 	pe->changed = 1;
+ 
+-	if (disklabel == SUN_LABEL) {
++	if (disklabel == SUN_LABEL)
+ 		sun_delete_partition(i);
+-		return;
+-	}
+-
+-	if (disklabel == SGI_LABEL) {
++	else if (disklabel == SGI_LABEL)
+ 		sgi_delete_partition(i);
+-		return;
+-	}
+-
+-	if (i < 4) {
++	else if (i < 4) {
+ 		if (IS_EXTENDED (p->sys_ind) && i == ext_index) {
+ 			partitions = 4;
+ 			ptes[ext_index].ext_pointer = NULL;
+ 			extended_offset = 0;
+ 		}
+ 		clear_partition(p);
+-		return;
+-	}
+-
+-	if (!q->sys_ind && i > 4) {
++	} else if (!q->sys_ind && i > 4) {
+ 		/* the last one in the chain - just delete */
+ 		--partitions;
+ 		--i;
+@@ -1733,6 +1724,7 @@ delete_partition(int i) {
+ 			/* the only logical: clear only */
+ 			clear_partition(ptes[i].part_table);
+ 	}
++	printf(_("Partition %d is deleted\n"), i + 1);
+ }
+ 
+ static void
+-- 
+1.7.3.4
 
-Thanks,
-Heiko
