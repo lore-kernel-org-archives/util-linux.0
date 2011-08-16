@@ -1,74 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from karif.server-speed.net ([188.40.51.140]:39230 "EHLO
-	karif.server-speed.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752248Ab1HKSwg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 11 Aug 2011 14:52:36 -0400
-Received: from karif.server-speed.net (karif.server-speed.net [127.0.0.1])
-	by karif.server-speed.net (Postfix) with ESMTP id 275CE90009
-	for <util-linux@vger.kernel.org>; Thu, 11 Aug 2011 20:52:35 +0200 (CEST)
-Received: from [192.168.4.247] (h081217049118.dyn.cm.kabsi.at [81.217.49.118])
-	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: flo)
-	by karif.server-speed.net (Postfix) with ESMTPSA
-	for <util-linux@vger.kernel.org>; Thu, 11 Aug 2011 20:52:35 +0200 (CEST)
-Message-ID: <4E4424F2.3070007@xinu.at>
-Date: Thu, 11 Aug 2011 20:52:34 +0200
-From: Florian Pritz <bluewind@xinu.at>
+Received: from mx1.redhat.com ([209.132.183.28]:17606 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751098Ab1HPKq5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Aug 2011 06:46:57 -0400
+Date: Tue, 16 Aug 2011 12:46:52 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: man-pages and usage() howto
+Message-ID: <20110816104652.GA14535@nb.net.home>
+References: <20110815141948.GH2038@nb.net.home> <CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com> <1313485424.19019.140258130122469@webmail.messagingengine.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: mkswap fails to use more than 2GiB and doesn't recognize LVM
-References: <4E43F629.6040408@xinu.at> <20110811181454.GD32051@nb.net.home>
-In-Reply-To: <20110811181454.GD32051@nb.net.home>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig31A58BA39D5032D700CBFC06"
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1313485424.19019.140258130122469@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig31A58BA39D5032D700CBFC06
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, Aug 16, 2011 at 11:03:44AM +0200, Benno Schulenberg wrote:
+> > >        command [options] file
+> 
+> If in the usage() help text the arguments of options are written in
+> uppercase, wouldn't it be more consistent to then also write the
 
-On 11.08.2011 20:14, Karel Zak wrote:
->> busybox mkswap crates the expected 8GiB swap, so I think this is a bug=
-=2E
->=20
->  Do you see see 8GiB swap area in /proc/swaps after swapon? I don't
->  think so...
+ It depends, Semi's version is uppercase, but my (findmnt, blkid,
+ lsblk, ...) is <lowercase> :-) 
 
-> cat /proc/swaps
-Filename                                Type            Size    Used
-Priority
-/dev/dm-4                               partition       8388604 0       -=
-1
+> About the other things I have not yet an opinion.
 
---=20
-Florian Pritz
+ I made the decision, --option <argument>. We can play with it little
+ bit more in the next release. Now I'd like to release it...
 
+ It would be also nice to sync man pages with usage() format. Note
+ that man pages changes are acceptable for -rc2.
 
---------------enig31A58BA39D5032D700CBFC06
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+    Karel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iQIcBAEBAgAGBQJORCTyAAoJEG0WVcFM4cE+n6gQAItb/Vqq7ntHvLPIByBLleIk
-5iyh7vQ3x8ajlg05r6wvN9oO+C7PkDaEcTQsL9F3YqpEdC8yANxwGhUSonEP7aWM
-tQbTOLZx+qCtWwQT0PXISOy8B1bPKoHQV6WGykV15iYnn2lAqDxe7rJtr2suTb0i
-nh8UmpvVh3/pDJRwkAqwVs5qKJlyljEF5QSzORsCGVzoGgelCXEcqqMlWvPDAQxm
-50gfdQG/DWEwTqAICyUetQi7RbxixOPXGoW9Xg6uhmg4J6w1j5tfjDavEtdOPNag
-QxmnXoupdyEQCG28Ax1leyhanjQHlGu++jZPgX3tZVshp49p+ajLIpqe9GibKuc+
-p1UVDTUpQ9TKshgD7DE4OU2qvbSne8qp/vPWSdbVuda7+lhu5mmS82ZDDkY1SxpV
-ViHkJIdBuxSJbTMdsLBZ7hqGpFMvGmbYgV7JNp3cgKURwU50QTokH6cz8L+D1AFH
-ZQYyXbFgEMVGKPpfI+V32suJkUUE9GUisc1YwaO1mGPrmKj/f/7Tqb2AHWr5RRA+
-MlT/dc7oNrDse2hDgnNkwwnB8oOa0pMbzVBNyycWw5mSdbKajkuedwkKSSNynoe3
-CwGtSREyhv1hx16gq77heXoh9LD49fDHnZRXwVbfxHGF/ZyYFzSb0NbSE1U8jUTk
-p7aO3n+DyTQOJX4xncd9
-=/9CY
------END PGP SIGNATURE-----
-
---------------enig31A58BA39D5032D700CBFC06--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
