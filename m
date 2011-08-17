@@ -1,47 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:56169 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:55950 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750920Ab1HVLTp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Aug 2011 07:19:45 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 2E9158E857
-	for <util-linux@vger.kernel.org>; Mon, 22 Aug 2011 13:19:45 +0200 (CEST)
-Message-ID: <4E523B50.8080204@suse.de>
-Date: Mon, 22 Aug 2011 13:19:44 +0200
-From: Ludwig Nussel <ludwig.nussel@suse.de>
+	id S1753939Ab1HQQIw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 17 Aug 2011 12:08:52 -0400
+Date: Wed, 17 Aug 2011 18:08:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] tests: grammar fixes
+Message-ID: <20110817160848.GE699@nb.net.home>
+References: <1313596375.2653.2.camel@offbook>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Cc: Thorsten Kukuk <kukuk@suse.de>
-Subject: Re: PAM-only login(1)
-References: <20110812115758.GC1843@nb.net.home>
-In-Reply-To: <20110812115758.GC1843@nb.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1313596375.2653.2.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
->   I'd like to clean up login(1) code for v2.21. The current code is
->   mess with many #ifdef and support for some unused (and badly tested) 
->   features (e.g. non-PAM support for /etc/securetty and /etc/usertty).
-> 
->   What about to finally create nice and readable PAM-only login(1) for
->   Linux?
+On Wed, Aug 17, 2011 at 11:52:55AM -0400, Davidlohr Bueso wrote:
+>  tests/ts/blkid/md-raid1-part          |    2 +-
+>  tests/ts/cramfs/mkfs                  |    4 ++--
+>  tests/ts/fdisk/align-512-4K           |    2 +-
+>  tests/ts/fdisk/align-512-4K-63        |    2 +-
+>  tests/ts/fdisk/align-512-4K-md        |    2 +-
+>  tests/ts/fdisk/align-512-512-topology |    2 +-
+>  tests/ts/fsck/ismounted               |    2 +-
+>  tests/ts/libmount/tabfiles-tags       |    4 ++--
+>  tests/ts/minix/mkfs                   |    2 +-
+>  tests/ts/mount/fstab-broken           |    4 ++--
+>  tests/ts/mount/fstab-devname          |    6 +++---
+>  tests/ts/mount/fstab-devname2label    |    4 ++--
+>  tests/ts/mount/fstab-devname2uuid     |    4 ++--
+>  tests/ts/mount/fstab-label            |    8 ++++----
+>  tests/ts/mount/fstab-label2devname    |    6 +++---
+>  tests/ts/mount/fstab-label2uuid       |    8 ++++----
+>  tests/ts/mount/fstab-symlink          |    6 +++---
+>  tests/ts/mount/fstab-uuid             |    8 ++++----
+>  tests/ts/mount/fstab-uuid2devname     |    6 +++---
+>  tests/ts/mount/fstab-uuid2label       |    8 ++++----
+>  tests/ts/mount/label                  |    6 +++---
+>  tests/ts/mount/move                   |    4 ++--
+>  tests/ts/mount/regfile                |    2 +-
+>  tests/ts/mount/remount                |    4 ++--
+>  tests/ts/mount/uuid                   |    6 +++---
+>  tests/ts/swapon/devname               |    4 ++--
+>  tests/ts/swapon/label                 |    4 ++--
+>  tests/ts/swapon/uuid                  |    4 ++--
+>  28 files changed, 62 insertions(+), 62 deletions(-)
 
-+1
-
-On openSUSE we already use a pam-only login program¹. It was forked
-from util-linux > ten years ago AFAICT. It also includes features
-from shadow-utils, like reading settings from /etc/login.defs.
-
-cu
-Ludwig
-
-[1] https://build.opensuse.org/package/files?package=login&project=Base%3ASystem
+ Applied, thanks.
 
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
