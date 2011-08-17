@@ -1,50 +1,44 @@
-Return-Path: heiko.carstens@de.ibm.com
-Message-Id: <20110810083823.429610834@de.ibm.com>
-Date: Wed, 10 Aug 2011 10:36:48 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from thot02.seeweb.it ([85.94.213.58]:49610 "EHLO thot02.seeweb.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752130Ab1HQJd2 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Aug 2011 05:33:28 -0400
+From: Giulio <giulioo@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [patch 3/8] [PATCH] lscpu: fix fallback nthreads calculation
-References: <20110810083645.135814950@de.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: sfdisk: trying to create aligned partitions: fail
+Date: Wed, 17 Aug 2011 11:31:56 +0200
+Reply-To: giulioo@pobox.com
+References: <20110817061256.BB29DF815@i3.golden.dom> <20110817075613.GB28856@nb.net.home>
+In-Reply-To: <20110817075613.GB28856@nb.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Message-Id: <20110817093146.860D9F815@i3.golden.dom>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Wed, 17 Aug 2011 09:56:13 +0200, Karel Zak <kzak@redhat.com> wrote:
 
-The fallback calculation of nthreads did not consider books.
-In order to avoid division/multiply by/with zero make sure each number
-used is at least "1".
+>On Wed, Aug 17, 2011 at 08:13:06AM +0200, Giulio wrote:
+>> Linux 2.6.18-238.12.1.el5
+>> sfdisk from util-linux 2.20-rc1
+>> fdisk (util-linux 2.20-rc1)
+>> 200GB VMware SCSI disk
+>> 
+>> It seems it's not immediately possible to create aligned partitions (ie:
+>> starting at 1MB/2048 sectors) with sfdisk.
+>
+> This is unsupported by sfdisk and cfdisk. You have to use fdisk or
+> parted.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- sys-utils/lscpu.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+What is unsupported?
 
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -649,17 +649,21 @@ read_topology(struct lscpu_desc *desc, i
- 		nthreads = CPU_COUNT_S(setsize, thread_siblings);
- 		/* cores within one socket */
- 		ncores = CPU_COUNT_S(setsize, core_siblings) / nthreads;
--		/* number of sockets within one book */
--		nsockets = desc->ncpus / nthreads / ncores;
-+		/* number of sockets within one book.
-+		 * Because of odd / non-present cpu maps and to keep
-+		 * calculation easy we make sure that nsockets and
-+		 * nbooks is at least 1.
-+		 */
-+		nsockets = desc->ncpus / nthreads / ncores ?: 1;
- 		/* number of books */
--		nbooks = desc->ncpus / nthreads / ncores / nsockets;
-+		nbooks = desc->ncpus / nthreads / ncores / nsockets ?: 1;
- 
- 		/* all threads, see also read_basicinfo()
--		 * -- this is fallback for kernels where is not
-+		 * -- fallback for kernels without
- 		 *    /sys/devices/system/cpu/online.
- 		 */
- 		if (!desc->nthreads)
--			desc->nthreads = nsockets * ncores * nthreads;
-+			desc->nthreads = nbooks * nsockets * ncores * nthreads;
- 		/* For each map we make sure that it can have up to ncpus
- 		 * entries. This is because we cannot reliably calculate the
- 		 * number of cores, sockets and books on all architectures.
+I know sfdisk won't automatically align partitions and didn't expect it to
+do it, my email was about sfdisk behaving in an unexpected way:
+- not respecting 1MB as start of partition when I ask for it
+- creating partitions out of order when using sectors
+
+Maybe I chose the wrong subject, I was trying to align partition manually
+and sfidk won't let me do it.
+
+Thanks.
