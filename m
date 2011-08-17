@@ -1,68 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50233 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752096Ab1HBN1d (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Aug 2011 09:27:33 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id AA1668B013
-	for <util-linux@vger.kernel.org>; Tue,  2 Aug 2011 15:27:32 +0200 (CEST)
-Date: Tue, 2 Aug 2011 15:27:32 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] wall: build with SUID_{C,LD}FLAGS
-Message-ID: <20110802132730.GA2195@foxbat.suse.cz>
+Received: from mail.date.uni-paderborn.de ([131.234.158.22]:39990 "EHLO
+	mail.date.uni-paderborn.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752774Ab1HQSm3 convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 17 Aug 2011 14:42:29 -0400
+Received: from mail.date.uni-paderborn.de (localhost [127.0.0.1])
+	by mail.date.uni-paderborn.de (Postfix) with ESMTP id 1C6664182
+	for <util-linux@vger.kernel.org>; Wed, 17 Aug 2011 20:40:52 +0200 (CEST)
+Received: from arch.localnet (p5486AB3B.dip.t-dialin.net [84.134.171.59])
+	by mail.date.uni-paderborn.de (Postfix) with ESMTPSA id 87DC74182
+	for <util-linux@vger.kernel.org>; Wed, 17 Aug 2011 20:40:51 +0200 (CEST)
+From: Nick Erdmann <erdmann@date.upb.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] ddate: St. Tib's Day in other languages
+Date: Wed, 17 Aug 2011 20:35:02 +0200
+Message-ID: <1976757.PW98uZrV7g@arch>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset="utf-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+In other languages than english, the translation of "St. Tib's Day" may not
+be 13 bytes long. Example of what happens in german:
+$ ddate 29 2 2008
+St. Tib’s D, 3174 YOLD
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- term-utils/Makefile.am |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
-index 7b545c3..b423bbd 100644
---- a/term-utils/Makefile.am
-+++ b/term-utils/Makefile.am
-@@ -55,6 +55,8 @@ if BUILD_WALL
- usrbin_exec_PROGRAMS +=3D wall
- wall_SOURCES =3D wall.c ttymsg.c ttymsg.h $(top_srcdir)/lib/strutils.c
- dist_man_MANS +=3D wall.1
-+wall_CFLAGS =3D $(SUID_CFLAGS) $(AM_CFLAGS)
-+wall_LDFLAGS =3D $(SUID_LDFLAGS) $(AM_LDFLAGS)
- endif
-=20
- if BUILD_WRITE
---=20
-1.7.3.4
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk43+0IACgkQnZxG0T6qDD2StgCeLkWjRQqP1zzsgGcAbACOoyru
-exAAnjYEnQWLUCbb1XTYdOqOMIfXMXWz
-=VthI
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+Signed-off-by: Nick Erdmann <erdmann@date.upb.de>
+--- a/misc-utils/ddate.c	2011-07-20 21:55:23.000000000 +0200
++++ b/misc-utils/ddate.c	2011-08-17 18:11:12.437504258 +0200
+@@ -223,6 +223,7 @@
+     int tib_start=-1, tib_end=0;
+     int i, fmtlen=strlen(fmt);
+     char *bufptr=buf;
++    char *foo;
+ 
+ /*    fprintf(stderr, "format(%p, \"%s\", dt)\n", buf, fmt);*/
+ 
+@@ -249,7 +250,9 @@
+     for(i=0; i<fmtlen; i++) {
+ 	if((i==tib_start) && (dt.day==-1)) {
+ 	    /* handle St. Tib's Day */
+-	    strcpy(bufptr, _("St. Tib's Day")); bufptr += 13;
++	    foo = _("St. Tib's Day");
++	    while((*bufptr++=*foo++));
++	    --bufptr;
+ 	    i=tib_end;
+ 	} else {
+ 	    if(fmt[i]=='%') {
