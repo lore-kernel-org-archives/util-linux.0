@@ -1,89 +1,149 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1313831405.14363.140258131741205@webmail.messagingengine.com>
-From: "Benno Schulenberg" <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Karel Zak" <kzak@redhat.com>, "util-linux"
- <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-In-Reply-To: <CAG27Bk3Kvzy+cLCaGh885XLo-MsYY3i5q6_380b_DE8KxXmaNA@mail.gmail.com>
-References: <20110815141948.GH2038@nb.net.home><CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com><1313485424.19019.140258130122469@webmail.messagingengine.com><20110816104652.GA14535@nb.net.home>
- <CAG27Bk3Kvzy+cLCaGh885XLo-MsYY3i5q6_380b_DE8KxXmaNA@mail.gmail.com>
-Subject: Re: man-pages and usage() howto
-Date: Sat, 20 Aug 2011 11:10:05 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:58592 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751491Ab1HQLVS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Aug 2011 07:21:18 -0400
+Received: by wwf5 with SMTP id 5so885402wwf.1
+        for <util-linux@vger.kernel.org>; Wed, 17 Aug 2011 04:21:16 -0700 (PDT)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] fdisk: print a message with size and type of created partition
+Date: Wed, 17 Aug 2011 13:21:12 +0200
+Message-Id: <1313580072-27979-1-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1313533146-2806-1-git-send-email-cosoleto@gmail.com>
+References: <1313533146-2806-1-git-send-email-cosoleto@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 17 Aug 2011 15:07 +0200, "Sami Kerola" <kerolasa@iki.fi> wrote:
-> On Tue, Aug 16, 2011 at 12:39, Karel Zak <kzak@redhat.com> wrote:
-> >
-> >    --date <time>
-> >
-> >  the important is visual difference between static option name
-> >  and variable option argument.
-> 
-> Diamond brackets make visual difference to look quite nice. I do
-> like this.
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/Makefile.am     |    2 +-
+ fdisk/fdisk.c         |   13 +++++++++++++
+ fdisk/fdisk.h         |    1 +
+ fdisk/fdisksgilabel.c |    9 ++++++++-
+ fdisk/fdisksunlabel.c |    4 ++++
+ 5 files changed, 27 insertions(+), 2 deletions(-)
 
-Yes, it does look better than all uppercase, so I'll accept.
-(That I stuck to uppercase is because it wastes less space,
-and with just 80 characters width this sometimes matters,
-plus it seemed widespread tradition.)
-
->  -n, --no-argument     this option requires no_argument
->  -o, --optional[=arg]  this option has optional_argument
->  -r, --required <arg>  this option requires required_argument
-
-The middle one would need the pointy brackets, too, no?
-
- -o, --optional[=<arg>]  this option has optional_argument
-
-> >  I'm just working on Benno's patches and I found that we need
-> >  some explicitly defined rules for usage():
-> >
-> >    - "Usage:" and "Options:" use separate lines and strings, before
-> >       the sections has to be empty line:
-> >
-> >       fputs(_("\nUsage:\n"), out);
-> >       ...
-> >       fputs(_("\nOptions:\n"), out);
-> >
-> >     (so this two string will be translated only once)
-
-As a translator I do not quite like the separation of the 
-"\nUsage:\n" string from the actual synopsis -- it is good
-to have some context in the string.  But I'll accept.  The
-initial space of the actual synopsis strings will eventually
-let translators understand what they are.
-
-> How putting to c.h the following?
-> 
-> #define USAGE_HEADER _("\nUsage:\n")
-> #define USAGE_OPTIONS _("\nOptions:\n")
-> #define USAGE_SHORT_TAIL _("\n")
-> #define USAGE_MAN_TAIL _("For more details see %s.")
-
-Especially the latter would be nice: at the moment there are
-many such lines with just a differing final word.
-
-> Having also definition for OPTION_HELP && OPTION_VERSION would be
-> good.
-
-That won't work -- the amount of indentation for the option description
-is not the same for all utilities.  And to make it the same for all would
-create ugly and unneeded wide open text spaces for some tools.
-
-
-> >  I made the decision, --option <argument>.  [...]
-> >
-> >  It would be also nice to sync man pages with usage() format.
-
-Do you mean that you want to use "--option <argument>" also in the
-man pages, Karel?  Or do we stick there to italics for arguments?
-(Which translates to underlining on terminals.)
-
-Regards,
-
-Benno
-
+diff --git a/fdisk/Makefile.am b/fdisk/Makefile.am
+index 7cad805..4409db5 100644
+--- a/fdisk/Makefile.am
++++ b/fdisk/Makefile.am
+@@ -4,7 +4,7 @@ EXTRA_DIST = README.fdisk README.cfdisk sfdisk.examples partitiontype.c
+ 
+ fdisk_common = i386_sys_types.c common.h gpt.c gpt.h \
+ 	$(top_srcdir)/lib/blkdev.c $(top_srcdir)/lib/wholedisk.c \
+-	$(top_srcdir)/lib/mbsalign.c
++	$(top_srcdir)/lib/mbsalign.c $(top_srcdir)/lib/strutils.c
+ 
+ if LINUX
+ fdisk_common += $(top_srcdir)/lib/linux_version.c
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 038536d..a08a4d4 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -32,6 +32,7 @@
+ #include "wholedisk.h"
+ #include "pathnames.h"
+ #include "canonicalize.h"
++#include "strutils.h"
+ 
+ #include "fdisksunlabel.h"
+ #include "fdisksgilabel.h"
+@@ -614,6 +615,10 @@ set_partition(int i, int doext, unsigned long long start,
+ 	p->sys_ind = sysid;
+ 	set_start_sect(p, start - offset);
+ 	set_nr_sects(p, stop - start + 1);
++
++	if (!doext)
++		print_partition_size(i + 1, start, stop, sysid);
++
+ 	if (dos_compatible_flag && (start/(sectors*heads) > 1023))
+ 		start = heads*sectors*1024 - 1;
+ 	set_hsc(p->head, p->sector, p->cyl, start);
+@@ -2319,6 +2324,14 @@ get_unused_start(int part_n,
+ 	return start;
+ }
+ 
++void print_partition_size(int num, unsigned long long start, unsigned long long stop, int sysid)
++{
++	char *str = size_to_human_string(SIZE_SUFFIX_3LETTER | SIZE_SUFFIX_SPACE,
++				     (stop - start + 1) * sector_size);
++	printf(_("Partition %d of type %s and of size %s is set\n"), num, partition_type(sysid), str);
++	free(str);
++}
++
+ static void
+ add_partition(int n, int sys) {
+ 	char mesg[256];		/* 48 does not suffice in Japanese */
+diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
+index 9b7f4c7..e289043 100644
+--- a/fdisk/fdisk.h
++++ b/fdisk/fdisk.h
+@@ -75,6 +75,7 @@ extern struct partition *get_part_table(int);
+ extern int valid_part_table_flag(unsigned char *b);
+ extern unsigned int read_int(unsigned int low, unsigned int dflt,
+ 			     unsigned int high, unsigned int base, char *mesg);
++extern void print_partition_size(int num, unsigned long long start, unsigned long long stop, int sysid);
+ 
+ extern unsigned char *MBRbuffer;
+ extern void zeroize_mbr_buffer(void);
+diff --git a/fdisk/fdisksgilabel.c b/fdisk/fdisksgilabel.c
+index 8179bc1..3595909 100644
+--- a/fdisk/fdisksgilabel.c
++++ b/fdisk/fdisksgilabel.c
+@@ -570,6 +570,8 @@ sgi_set_partition(int i, unsigned int start, unsigned int length, int sys) {
+ 	set_changed(i);
+ 	if (sgi_gaps() < 0)	/* rebuild freelist */
+ 		printf(_("Do You know, You got a partition overlap on the disk?\n"));
++	if (length)
++		print_partition_size(i + 1, start, start + length, sys);
+ }
+ 
+ static void
+@@ -733,7 +735,6 @@ create_sgilabel(void)
+ 				old[i].sysid = get_part_table(i)->sys_ind;
+ 				old[i].start = get_start_sect(get_part_table(i));
+ 				old[i].nsect = get_nr_sects(get_part_table(i));
+-				printf(_("Trying to keep parameters of partition %d.\n"), i);
+ 				if (debug)
+ 					printf(_("ID=%02x\tSTART=%d\tLENGTH=%d\n"),
+ 					       old[i].sysid, old[i].start, old[i].nsect);
+@@ -741,6 +742,12 @@ create_sgilabel(void)
+ 		}
+ 	}
+ 
++	for (i = 0; i < 4; i++)
++		if (old[i].sysid) {
++			printf(_("Trying to keep parameters of partitions already set.\n"));
++			break;
++		}
++
+ 	zeroize_mbr_buffer();
+ 	sgilabel->magic = SSWAP32(SGI_LABEL_MAGIC);
+ 	sgilabel->boot_part = SSWAP16(0);
+diff --git a/fdisk/fdisksunlabel.c b/fdisk/fdisksunlabel.c
+index 9335e75..7d3aa09 100644
+--- a/fdisk/fdisksunlabel.c
++++ b/fdisk/fdisksunlabel.c
+@@ -106,6 +106,7 @@ static void set_sun_partition(int i, uint32_t start, uint32_t stop, uint16_t sys
+ 	sunlabel->partitions[i].num_sectors =
+ 		SSWAP32(stop - start);
+ 	set_changed(i);
++	print_partition_size(i + 1, start, stop, sysid);
+ }
+ 
+ void sun_nolabel(void)
+@@ -250,6 +251,9 @@ void create_sunlabel(void)
+ 	} else
+ 	        ndiv = cylinders * 2 / 3;
+ 
++	/* Make sure print_partition_size() uses correct sysid names */
++	disklabel = SUN_LABEL;
++
+ 	set_sun_partition(0, 0, ndiv * heads * sectors,
+ 			  SUN_TAG_LINUX_NATIVE);
+ 	set_sun_partition(1, ndiv * heads * sectors,
 -- 
-http://www.fastmail.fm - Email service worth paying for. Try it for free
+1.7.3.4
+
