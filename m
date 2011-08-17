@@ -1,91 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44089 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751763Ab1HHLqU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Aug 2011 07:46:20 -0400
-Date: Mon, 8 Aug 2011 13:46:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [git pull] documentation directory
-Message-ID: <20110808114617.GL2204@nb.net.home>
-References: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
+Received: from moutng.kundenserver.de ([212.227.17.8]:59256 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752843Ab1HQOM4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Aug 2011 10:12:56 -0400
+Message-ID: <4E4BCC65.2060100@bernhard-voelker.de>
+Date: Wed, 17 Aug 2011 16:12:53 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
+To: util-linux@vger.kernel.org
+Subject: losetup --all --verbose results in usage
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Aug 06, 2011 at 07:57:53PM +0200, Sami Kerola wrote:
-> are available in the git repository at:
->   https://github.com/kerolasa/lelux-utiliteetit docs-dir
-> 
-> discussion, and few rejects, before the Documentation/ is done to
-> upstream. For instance you might disagree with contents of
-> 00-about-docs.txt, and perhaps example.files/ should be deleted.
+I was surprised that running
+	mount/losetup --all --verbose
+results in usage().
 
- The 'Warning about content' in 00-about-docs.txt is too crazy :-)
- Let's:
- 
-  - cleanup the files
-  - remove obsolete information
-  - move valid information to the man pages
-  - add info about authors to the AUTHORS file
- 
- I have updated the example.files/ in the master branch.
+As -a is the option to list all used loop devices,
+one might think that -v adds some more info to the output.
 
->  README.devel => Documentation/README.devel         |    0
+Neither --help nor the man pages nor the info page tells
+that -a doesn't accept other options:
 
- see below
+mount/lomount.c (line 1133):
 
->  .../ReleaseNotes}/v2.13-ReleaseNotes               |    0
+         } else if (all) {
+                 if (argc > 2)
+                         usage(stderr);
 
- What about to rename the directory to releases/ ? The NEWS file should
- be updated too.
+Should we work on this?
+If it's not possible to output more information with
+-v, then it would maybe make sense to ignore it, right?
 
->  README.licensing => Documentation/licensing.txt    |    0
-
- It would be nice to keep this file in the top-level directory.
-
->  tests/README => Documentation/tests.txt            |    0
-
- howto-tests.txt
-
->  Documentation/usage-howto.txt                      |   73 ++++++++++++++++++++
-
- howto-usage-function.txt
-
-   and s/output/display/ in the file
-
- we also need howto-man-page.txt :-)
-
-
- I think we can split the README file:
-
-    README  (basic info about project)
-
-    Documentation/howto-compilation.txt 
-
- In the howto-compilation.txt file should be also a note about
- autogen.sh, static linking, klib and uClib and maybe some preferred
- compiler options, I use:
- 
-   -Wmissing-parameter-type -Wsign-compare -Wtype-limits -Wuninitialized \
-   -Wunused-parameter -Wunused-but-set-parameter -fno-common
-
- We can also split README.devel to:
-
-    Documentation/howto-compilation.txt (add extra section for
-    developers (or SCM users) about about autotools).
-
-    Documentation/howto-contribute.txt with info about "ideal
-    patches", coding style.
-
-    Documentation/source-code-management.txt
-
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Have a nice day,
+Berny
