@@ -1,58 +1,47 @@
-Return-Path: heiko.carstens@de.ibm.com
-Date: Tue, 23 Aug 2011 10:45:40 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:36184 "EHLO
+	homiemail-a7.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753893Ab1HQOWr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 17 Aug 2011 10:22:47 -0400
+Subject: Re: losetup --all --verbose results in usage
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Bernhard Voelker <mail@bernhard-voelker.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] new chcpu tool
-Message-ID: <20110823084540.GA2540@osiris.boeblingen.de.ibm.com>
-References: <20110815152453.052584040@de.ibm.com>
- <20110822120641.GA7549@osiris.boeblingen.de.ibm.com>
- <20110822132817.GD20457@nb.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110822132817.GD20457@nb.net.home>
+In-Reply-To: <4E4BCC65.2060100@bernhard-voelker.de>
+References: <4E4BCC65.2060100@bernhard-voelker.de>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 17 Aug 2011 10:22:21 -0400
+Message-ID: <1313590941.2653.1.camel@offbook>
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 22, 2011 at 03:28:17PM +0200, Karel Zak wrote:
-> On Mon, Aug 22, 2011 at 02:06:41PM +0200, Heiko Carstens wrote:
-> > Do you think it would be ok to have it in util-linux? Or should it live
-> > somewhere else?
+On Wed, 2011-08-17 at 16:12 +0200, Bernhard Voelker wrote:
+> I was surprised that running
+> 	mount/losetup --all --verbose
+> results in usage().
 > 
-> It makes sense to have it in util-linux. I'm going to merge it after
-> v2.20 release.
-
-Ok, great!
-
-I set up a chcpu git branch where you could pull the chcpu stuff easily:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/heiko/util-linux.git chcpu
-
-It contains just the two patches posted here and doesn't interfer with the
-lscpu branch that is also there.
-
-Heiko Carstens (2):
-      cpuset: add option to allow cpulist_parse() to fail
-      chcpu: new tool
-
- include/cpuset.h      |    2 +-
- lib/cpuset.c          |    7 +-
- schedutils/taskset.c  |    2 +-
- sys-utils/.gitignore  |    1 +
- sys-utils/Makefile.am |    3 +
- sys-utils/chcpu.1     |   94 ++++++++++++++
- sys-utils/chcpu.c     |  337 +++++++++++++++++++++++++++++++++++++++++++++++++
- sys-utils/lscpu.1     |    2 +
- sys-utils/lscpu.c     |    2 +-
- 9 files changed, 445 insertions(+), 5 deletions(-)
- create mode 100644 sys-utils/chcpu.1
- create mode 100644 sys-utils/chcpu.c
-
-> > +static int path_exist(const char *path, ...)
+> As -a is the option to list all used loop devices,
+> one might think that -v adds some more info to the output.
 > 
->  It seems that we need to move the path_*() functions from lscpu(1) to
->  lib/ and hare the stuff.
 
-Yes, I thought so as well. But laziness won ;)
+The verbose option is quite broken, yes.
 
-Thanks,
-Heiko
+> Neither --help nor the man pages nor the info page tells
+> that -a doesn't accept other options:
+> 
+> mount/lomount.c (line 1133):
+> 
+>          } else if (all) {
+>                  if (argc > 2)
+>                          usage(stderr);
+> 
+> Should we work on this?
+
+I'm actually rewriting this tool to make use of our new loop library.
+I'll address this issue here as well, thanks for the heads up.
+
+- Davidlohr
+
