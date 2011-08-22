@@ -1,28 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45923 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:23392 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753607Ab1HON4x (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Aug 2011 09:56:53 -0400
-Date: Mon, 15 Aug 2011 15:56:49 +0200
+	id S1752339Ab1HVIcJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Aug 2011 04:32:09 -0400
+Date: Mon, 22 Aug 2011 10:32:06 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] small fixes to some messages and man pages, and some
-	questions
-Message-ID: <20110815135649.GG2038@nb.net.home>
-References: <1313094127.6807.140258128661629@webmail.messagingengine.com>
+To: giulioo@pobox.com
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] sfdisk: make some tests conditional to !Linux
+Message-ID: <20110822083206.GA20457@nb.net.home>
+References: <20110818073019.B70AFF815@i3.golden.dom>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1313094127.6807.140258128661629@webmail.messagingengine.com>
+In-Reply-To: <20110818073019.B70AFF815@i3.golden.dom>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 11, 2011 at 10:22:07PM +0200, Benno Schulenberg wrote:
-> Attached bunch of patches improve or correct several error messages
-> or usage synopses.
+On Thu, Aug 18, 2011 at 09:30:30AM +0200, Giulio wrote:
+> +	    if (!chs_ok(b, PNO(p), _("start")) && !Linux)
+[...]
+> +	    if (!chs_ok(b, PNO(p), _("end")) && !Linux)
 
- All applied, but except patches 0015,0016 (the scriptreplay changes)
- -- I'll wait for your feedback about this issue.
+would be better to use
+
+    if (!Linux && chs_ok(b, PNO(p), ....)
+
+so the chs_ok() will not called on Linux at all?
 
     Karel
 
