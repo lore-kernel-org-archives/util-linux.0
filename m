@@ -1,56 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50481 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:6292 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752799Ab1HVIRA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Aug 2011 04:17:00 -0400
-Date: Mon, 22 Aug 2011 10:16:54 +0200
+	id S1751592Ab1HVMBb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Aug 2011 08:01:31 -0400
+Date: Mon, 22 Aug 2011 14:01:23 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: man-pages and usage() howto
-Message-ID: <20110822081654.GH699@nb.net.home>
-References: <20110815141948.GH2038@nb.net.home> <CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com> <1313485424.19019.140258130122469@webmail.messagingengine.com> <20110816104652.GA14535@nb.net.home> <CAG27Bk3Kvzy+cLCaGh885XLo-MsYY3i5q6_380b_DE8KxXmaNA@mail.gmail.com> <1313831405.14363.140258131741205@webmail.messagingengine.com> <CAG27Bk0m45JFtP2MNz27tgJ=-f5XZDHUtd1C9O4X0ALO52-BVA@mail.gmail.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
+Cc: util-linux@vger.kernel.org, Thorsten Kukuk <kukuk@suse.de>
+Subject: Re: PAM-only login(1)
+Message-ID: <20110822120123.GC20457@nb.net.home>
+References: <20110812115758.GC1843@nb.net.home> <4E523B50.8080204@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0m45JFtP2MNz27tgJ=-f5XZDHUtd1C9O4X0ALO52-BVA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4E523B50.8080204@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Aug 20, 2011 at 09:08:08PM +0200, Sami Kerola wrote:
-> On Sat, Aug 20, 2011 at 11:10, Benno Schulenberg <bensberg@justemail.net> wrote:
-> > On Wed, 17 Aug 2011 15:07 +0200, "Sami Kerola" <kerolasa@iki.fi> wrote:
-> >> On Tue, Aug 16, 2011 at 12:39, Karel Zak <kzak@redhat.com> wrote:
-> >>>  It would be also nice to sync man pages with usage() format.
-> >
-> > Do you mean that you want to use "--option <argument>" also in the
-> > man pages, Karel?  Or do we stick there to italics for arguments?
-> > (Which translates to underlining on terminals.)
-
- I mean that we need to use the lowercase for the arguments in usage()
- as well as in man pages.
-
-> IMHO the following looks quite ok, and not too different to
-> usage().
+On Mon, Aug 22, 2011 at 01:19:44PM +0200, Ludwig Nussel wrote:
+> Karel Zak wrote:
+> >   I'd like to clean up login(1) code for v2.21. The current code is
+> >   mess with many #ifdef and support for some unused (and badly tested) 
+> >   features (e.g. non-PAM support for /etc/securetty and /etc/usertty).
+> > 
+> >   What about to finally create nice and readable PAM-only login(1) for
+> >   Linux?
 > 
-> .TP
-> \fB\-n\fR, \fB\-\-no\-argument\fR
-> This option does not use argument.
-> .TP
-> \fB\-o\fR, \fB\-\-optional\fR[=<\fIarg\fR>]
-> This option uses optional argument.
-> .TP
-> \fB\-r\fR, \fB\-\-required\fR <\fIarg\fR>
-> This option requires an argument.
+> +1
 > 
-> Comments?
+> On openSUSE we already use a pam-only login program¹. It was forked
 
- I have no strong opinion about it. Benno is probably right that
- italics for the arguments is enough. 
+It would be nice to merge all back to util-linux and share the code
+rather than maintain forks.
 
- We already use option arguments without diamond brackets in our man
- pages, so let's continue with this convention to minimize number of
- changes in the man pages ;-)
+> from util-linux > ten years ago AFAICT. It also includes features
+> from shadow-utils, like reading settings from /etc/login.defs.
+
+Does make anything other than MAIL_DIR sense for login(1)?
+
+(IMHO the MAIL_DIR could be also defined by pam_env.)
 
     Karel
 
