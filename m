@@ -1,37 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:17606 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35434 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751098Ab1HPKq5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Aug 2011 06:46:57 -0400
-Date: Tue, 16 Aug 2011 12:46:52 +0200
+	id S1752702Ab1HVIlb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Aug 2011 04:41:31 -0400
+Date: Mon, 22 Aug 2011 10:41:27 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Benno Schulenberg <bensberg@justemail.net>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: man-pages and usage() howto
-Message-ID: <20110816104652.GA14535@nb.net.home>
-References: <20110815141948.GH2038@nb.net.home> <CAG27Bk0LpsVdCJhvOAstC_OpckzfBB05kcZcN_ByF_i_JQU6SQ@mail.gmail.com> <1313485424.19019.140258130122469@webmail.messagingengine.com>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patches] uniformizing the man page headers and footers
+Message-ID: <20110822084127.GB20457@nb.net.home>
+References: <1313833851.22309.140258131751361@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1313485424.19019.140258130122469@webmail.messagingengine.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1313833851.22309.140258131751361@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 16, 2011 at 11:03:44AM +0200, Benno Schulenberg wrote:
-> > >        command [options] file
-> 
-> If in the usage() help text the arguments of options are written in
-> uppercase, wouldn't it be more consistent to then also write the
+On Sat, Aug 20, 2011 at 11:50:51AM +0200, Benno Schulenberg wrote:
+>  91 files changed, 143 insertions(+), 142 deletions(-)
 
- It depends, Semi's version is uppercase, but my (findmnt, blkid,
- lsblk, ...) is <lowercase> :-) 
-
-> About the other things I have not yet an opinion.
-
- I made the decision, --option <argument>. We can play with it little
- bit more in the next release. Now I'd like to release it...
-
- It would be also nice to sync man pages with usage() format. Note
- that man pages changes are acceptable for -rc2.
+ Applied, thanks!
 
     Karel
 
