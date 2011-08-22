@@ -1,41 +1,82 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32242 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752489Ab1HaJrt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 31 Aug 2011 05:47:49 -0400
-Date: Wed, 31 Aug 2011 11:47:45 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: giulioo@gmail.com
+From: Giulio Orsero <giulioo@gmail.com>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH/RFC 2/2] chcpu: new tool
-Message-ID: <20110831094745.GF23423@nb.net.home>
-References: <20110815152453.052584040@de.ibm.com> <20110815153925.969554416@de.ibm.com> <20110831094433.GE23423@nb.net.home>
+Subject: Re: [PATCH] sfdisk: make some tests conditional to !Linux
+Date: Mon, 22 Aug 2011 20:46:39 +0200
+Reply-To: giulioo@pobox.com
+References: <20110818073019.B70AFF815@i3.golden.dom> <20110822083206.GA20457@nb.net.home>
+In-Reply-To: <20110822083206.GA20457@nb.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110831094433.GE23423@nb.net.home>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="--=_f09557lp0o5av37ppuoqfe80f3u9ao6kde.MFSBCHJLHS"
+Message-Id: <20110822184638.BBD88F816@i3.golden.dom>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 31, 2011 at 11:44:33AM +0200, Karel Zak wrote:
-> On Mon, Aug 15, 2011 at 05:24:55PM +0200, Heiko Carstens wrote:
-> > +	if ((argc == 1) || (argc != optind))
-> > +		usage(stderr);
-> > +
-> > +	switch (cmd) {
-> > +	case CMD_CPU_ENABLE:
-> > +		return cpu_enable(cpu_set, ncpus, 1);
-> > +	case CMD_CPU_DISABLE:
-> > +		return cpu_enable(cpu_set, ncpus, 0);
-> > +	}
-> 
->  What about to add CMD_CPU_SHOW and use it as a default if --enable/disable
->  is not specified? 
 
- Ah... I see your updated version now. Sorry. Ignore my note about
- CMD_CPU_SHOW :-) It will be better to use lscpu. 
+----=_f09557lp0o5av37ppuoqfe80f3u9ao6kde.MFSBCHJLHS
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-    Karel
+This patch makes the following tests/actions conditional to "!Linux":
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+- Force cylinders as format instead of MB, even if user asked for MB.
+This solves a bug where if you use "-L -uM", set 1 as starting MB and the
+disk is larger than a certain size (about 1GB) the partition would start =
+at
+sector 1 instead of 1MB due to cyl rounding.
+
+- Warn about partitions not starting/ending on cyl boundaries.
+
+- Check if CHS is ok.
+
+I used the "!Linux" notation since it was already used elsewhere in the
+code.
+
+Sorry, I don't use git, hope this is ok.
+
+Signed-off-by: Giulio Orsero <giulioo@pobox.com>
+--=20
+giulioo@pobox.com
+
+----=_f09557lp0o5av37ppuoqfe80f3u9ao6kde.MFSBCHJLHS
+Content-Type: application/octet-stream; name=sfdisk.linux-compat2.diff
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=sfdisk.linux-compat2.diff
+
+LS0tIGEvZmRpc2svc2ZkaXNrLmMJMjAxMS0wOC0xNyAxNzoxNzo0My4wMDAwMDAwMDAgKzAyMDAK
+KysrIGIvZmRpc2svc2ZkaXNrLmMJMjAxMS0wOC0yMiAxNDo1OToyNi4wMDAwMDAwMDAgKzAyMDAK
+QEAgLTEzMTUsNyArMTMxNSw3IEBAIHBhcnRpdGlvbnNfb2soc3RydWN0IGRpc2tfZGVzYyAqeikg
+ewogICAgICAqIFRoZSBmaXJzdCBwYXJ0aXRpb24gc3RhcnRzIGFmdGVyIE1CUi4KICAgICAgKiBM
+b2dpY2FsIHBhcnRpdGlvbnMgc3RhcnQgc2xpZ2h0bHkgYWZ0ZXIgdGhlIGNvbnRhaW5pbmcgZXh0
+ZW5kZWQgcGFydG4uCiAgICAgICovCi0gICAgaWYgKEIuY3lsaW5kZXJzaXplKSB7CisgICAgaWYg
+KEIuY3lsaW5kZXJzaXplICYmICFMaW51eCkgewogCWZvciAocCA9IHBhcnRpdGlvbnM7IHAgPCBw
+YXJ0aXRpb25zICsgcGFydG5vOyBwKyspCiAJICAgIGlmIChwLT5zaXplKSB7CiAJCWlmIChwLT5z
+dGFydCAlIEIuY3lsaW5kZXJzaXplICE9IDAKQEAgLTEzMjUsMTQgKzEzMjUsMTIgQEAgcGFydGl0
+aW9uc19vayhzdHJ1Y3QgZGlza19kZXNjICp6KSB7CiAJCSAgICAmJiAocC0+cC5zdGFydF9zZWN0
+ID49IEIuY3lsaW5kZXJzaXplKSkgewogCQkgICAgbXlfd2FybihfKCJXYXJuaW5nOiBwYXJ0aXRp
+b24gJXMgZG9lcyBub3Qgc3RhcnQgIgogCQkJICAgICAgImF0IGEgY3lsaW5kZXIgYm91bmRhcnlc
+biIpLCBQTk8ocCkpOwotCQkgICAgaWYgKCFMaW51eCkKLQkJCXJldHVybiAwOworCQkgICAgcmV0
+dXJuIDA7CiAJCX0KIAkJaWYgKChwLT5zdGFydCArIHAtPnNpemUpICUgQi5jeWxpbmRlcnNpemUp
+IHsKIAkJICAgIG15X3dhcm4oXygiV2FybmluZzogcGFydGl0aW9uICVzIGRvZXMgbm90IGVuZCAi
+CiAJCQkgICAgICAiYXQgYSBjeWxpbmRlciBib3VuZGFyeVxuIiksIFBOTyhwKSk7Ci0JCSAgICBp
+ZiAoIUxpbnV4KQotCQkJcmV0dXJuIDA7CisJCSAgICByZXR1cm4gMDsKIAkJfQogCSAgICB9CiAg
+ICAgfQpAQCAtMTM3OCw3ICsxMzc2LDcgQEAgcGFydGl0aW9uc19vayhzdHJ1Y3QgZGlza19kZXNj
+ICp6KSB7CiAJICAgIGIgPSBwLT5wLmJlZ2luX2NoczsKIAkgICAgYWEgPSBjaHNfdG9fbG9uZ2No
+cyhhKTsKIAkgICAgYmIgPSBjaHNfdG9fbG9uZ2NocyhiKTsKLQkgICAgaWYgKCFjaHNfb2soYiwg
+UE5PKHApLCBfKCJzdGFydCIpKSkKKwkgICAgaWYgKCFMaW51eCAmJiAhY2hzX29rKGIsIFBOTyhw
+KSwgXygic3RhcnQiKSkpCiAJCXJldHVybiAwOwogCSAgICBpZiAoYS5zICYmICFpc19lcXVhbF9j
+aHMoYSwgYikpCiAJCW15X3dhcm4oXwpAQCAtMTM4OCw3ICsxMzg2LDcgQEAgcGFydGl0aW9uc19v
+ayhzdHJ1Y3QgZGlza19kZXNjICp6KSB7CiAJICAgIGIgPSBwLT5wLmVuZF9jaHM7CiAJICAgIGFh
+ID0gY2hzX3RvX2xvbmdjaHMoYSk7CiAJICAgIGJiID0gY2hzX3RvX2xvbmdjaHMoYik7Ci0JICAg
+IGlmICghY2hzX29rKGIsIFBOTyhwKSwgXygiZW5kIikpKQorCSAgICBpZiAoIUxpbnV4ICYmICFj
+aHNfb2soYiwgUE5PKHApLCBfKCJlbmQiKSkpCiAJCXJldHVybiAwOwogCSAgICBpZiAoYS5zICYm
+ICFpc19lcXVhbF9jaHMoYSwgYikpCiAJCW15X3dhcm4oXwpAQCAtMjA4Nyw3ICsyMDg1LDcgQEAg
+cmVhZF9saW5lKGludCBwbm8sIHN0cnVjdCBwYXJ0X2Rlc2MgKmVwLAogCiAgICAgLyogdXNlIHNw
+ZWNpZmllZCBmb3JtYXQsIGJ1dCByb3VuZCB0byBjeWxpbmRlcnMgaWYgRl9NRUdBQllURSBzcGVj
+aWZpZWQgKi8KICAgICBmb3JtYXQgPSAwOwotICAgIGlmIChCLmN5bGluZGVyc2l6ZSAmJiBzcGVj
+aWZpZWRfZm9ybWF0ID09IEZfTUVHQUJZVEUpCisgICAgaWYgKEIuY3lsaW5kZXJzaXplICYmIHNw
+ZWNpZmllZF9mb3JtYXQgPT0gRl9NRUdBQllURSAmJiAhTGludXgpCiAJZm9ybWF0ID0gRl9DWUxJ
+TkRFUjsKIAogICAgIG9yaWcgPSAob25lX29ubHkgPyAmKG9sZHAucGFydGl0aW9uc1twbm9dKSA6
+IDApOwo=
+
+----=_f09557lp0o5av37ppuoqfe80f3u9ao6kde.MFSBCHJLHS--
