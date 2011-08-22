@@ -1,37 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.8]:59256 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752843Ab1HQOM4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Aug 2011 10:12:56 -0400
-Message-ID: <4E4BCC65.2060100@bernhard-voelker.de>
-Date: Wed, 17 Aug 2011 16:12:53 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:12329 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752702Ab1HVIh6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Aug 2011 04:37:58 -0400
+Date: Mon, 22 Aug 2011 10:37:52 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Subject: [PATCH] docs: update ReleaseNotes: fix typo in
+	v2.20-ReleaseNotes
+Message-ID: <20110822083752.GA20945@nb.net.home>
+References: <4E4D2FB6.7060001@bernhard-voelker.de>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: losetup --all --verbose results in usage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4E4D2FB6.7060001@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I was surprised that running
-	mount/losetup --all --verbose
-results in usage().
+On Thu, Aug 18, 2011 at 05:28:54PM +0200, Bernhard Voelker wrote:
+>  docs/v2.20-ReleaseNotes |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-As -a is the option to list all used loop devices,
-one might think that -v adds some more info to the output.
+ Applied, thanks.
 
-Neither --help nor the man pages nor the info page tells
-that -a doesn't accept other options:
-
-mount/lomount.c (line 1133):
-
-         } else if (all) {
-                 if (argc > 2)
-                         usage(stderr);
-
-Should we work on this?
-If it's not possible to output more information with
--v, then it would maybe make sense to ignore it, right?
-
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
