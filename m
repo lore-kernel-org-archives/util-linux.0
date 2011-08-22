@@ -1,69 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:54108 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:56169 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753255Ab1HJJqV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 10 Aug 2011 05:46:21 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	id S1750920Ab1HVLTp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Aug 2011 07:19:45 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id E5B8A8A95F
-	for <util-linux@vger.kernel.org>; Wed, 10 Aug 2011 11:46:19 +0200 (CEST)
-Date: Wed, 10 Aug 2011 13:46:06 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] logger.1: use simple apostrophe instead of multibyte char
-Message-ID: <20110810114604.GA31717@foxbat.suse.cz>
+	by mx2.suse.de (Postfix) with ESMTP id 2E9158E857
+	for <util-linux@vger.kernel.org>; Mon, 22 Aug 2011 13:19:45 +0200 (CEST)
+Message-ID: <4E523B50.8080204@suse.de>
+Date: Mon, 22 Aug 2011 13:19:44 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+To: util-linux@vger.kernel.org
+Cc: Thorsten Kukuk <kukuk@suse.de>
+Subject: Re: PAM-only login(1)
+References: <20110812115758.GC1843@nb.net.home>
+In-Reply-To: <20110812115758.GC1843@nb.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Karel Zak wrote:
+>   I'd like to clean up login(1) code for v2.21. The current code is
+>   mess with many #ifdef and support for some unused (and badly tested) 
+>   features (e.g. non-PAM support for /etc/securetty and /etc/usertty).
+> 
+>   What about to finally create nice and readable PAM-only login(1) for
+>   Linux?
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
++1
 
+On openSUSE we already use a pam-only login program¹. It was forked
+from util-linux > ten years ago AFAICT. It also includes features
+from shadow-utils, like reading settings from /etc/login.defs.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- misc-utils/logger.1 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+cu
+Ludwig
 
-diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
-index 4312551..c5f8424 100644
---- a/misc-utils/logger.1
-+++ b/misc-utils/logger.1
-@@ -110,7 +110,7 @@ The
- utility exits 0 on success, and >0 if an error occurs.
- .Pp
- Valid facility names are: auth, authpriv (for security information of a
--sensitive nature), cron, daemon, ftp, kern (can=E2=80=99t be generated fro=
-m user
-+sensitive nature), cron, daemon, ftp, kern (can't be generated from user
- process), lpr, mail, news, security (deprecated synonym for auth), syslog,
- user, uucp, and local0 to local7, inclusive.
- .Pp
---=20
-1.7.3.4
+[1] https://build.opensuse.org/package/files?package=login&project=Base%3ASystem
 
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk5Cb3wACgkQnZxG0T6qDD1qugCfX6onA/JxjsJ4LJCUiZlWZJYa
-gcgAn3zkqy5EQxViyegFAkvdEx/IwL5p
-=YPAx
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--
+-- 
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
