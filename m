@@ -1,46 +1,28 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:37130 "EHLO vostochny.stro.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752883Ab1GaKqk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 31 Jul 2011 06:46:40 -0400
-From: maximilian attems <max@stro.at>
-To: util-linux@vger.kernel.org
-Cc: maximilian attems <max@stro.at>
-Subject: [PATCH 3/3] mkswap: Use c.h
-Date: Sun, 31 Jul 2011 12:47:21 +0200
-Message-Id: <1312109241-13590-3-git-send-email-max@stro.at>
-In-Reply-To: <1312109241-13590-1-git-send-email-max@stro.at>
-References: <1312109241-13590-1-git-send-email-max@stro.at>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: Re: [PATCH] Documentation: add debugging doc
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: kerolasa@gmail.com
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <CAG27Bk16rT3vJYy0N=fYaBFd6RX1HvoD5_TbO5uLhby+=bnBWg@mail.gmail.com>
+References: <1312678772.3408.3.camel@offbook>
+	 <20110823104732.GE20457@nb.net.home>
+	 <CAG27Bk16rT3vJYy0N=fYaBFd6RX1HvoD5_TbO5uLhby+=bnBWg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 23 Aug 2011 18:46:27 -0300
+Message-ID: <1314135987.3235.0.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-Fixes mkswap compilation against klibc.
+On Tue, 2011-08-23 at 21:41 +0200, Sami Kerola wrote:
+> On Tue, Aug 23, 2011 at 12:47, Karel Zak <kzak@redhat.com> wrote:
+> >  Semi, could you add howto-debug to your docs branch?
+> 
+> I could. I also modestly edit the patch; see addition in commit
+> message what I did & how the file looks in general.
 
-Signed-off-by: maximilian attems <max@stro.at>
----
- disk-utils/mkswap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Changes look good, thanks. BTW I had no idea I had a github account :)
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index a621641..ab16d13 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -41,7 +41,6 @@
- #include <sys/utsname.h>
- #include <sys/stat.h>
- #include <errno.h>
--#include <err.h>
- #include <getopt.h>
- #ifdef HAVE_LIBSELINUX
- #include <selinux/selinux.h>
-@@ -57,6 +56,7 @@
- #include "wholedisk.h"
- #include "writeall.h"
- #include "xalloc.h"
-+#include "c.h"
- 
- #ifdef HAVE_LIBUUID
- # include <uuid.h>
--- 
-1.7.5.4
-
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/1b1ea43afb0c0d6c3bf386e85e03c03b975194a5
+> 
