@@ -1,56 +1,27 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:14224 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751216Ab1HWKVy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 23 Aug 2011 06:21:54 -0400
+Date: Tue, 23 Aug 2011 12:21:50 +0200
+From: Karel Zak <kzak@redhat.com>
+To: giulioo@pobox.com
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] sfdisk: make some tests conditional to !Linux
+Message-ID: <20110823102150.GB21266@nb.net.home>
+References: <20110818073019.B70AFF815@i3.golden.dom>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20110830084346.GO1855@nb.net.home>
-References: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
-	<20110830084346.GO1855@nb.net.home>
-Date: Tue, 30 Aug 2011 20:18:01 +0200
-Message-ID: <CAG27Bk08kBQAY7xRZ8VoV4bj6ef6z9dtDBee585Xr6LXbB0kJA@mail.gmail.com>
-Subject: Re: [git pull] documentation directory
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110818073019.B70AFF815@i3.golden.dom>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 30, 2011 at 10:43, Karel Zak <kzak@redhat.com> wrote:
-> On Sat, Aug 06, 2011 at 07:57:53PM +0200, Sami Kerola wrote:
->> are available in the git repository at:
->> =A0 https://github.com/kerolasa/lelux-utiliteetit docs-dir
->
-> =A0I found a small problem... IMHO there should be some COPYING
-> =A0file in the libmount/ libblkid/ and libuuid/ directories.
->
-> =A0It's probably overkill to duplicate the text on all places (or in
-> =A0Documentation/licenses directory), so what about to add lib*/COPYING
-> =A0with:
->
-> =A0 =A0 =A0 =A0This library is free software; you can redistribute it and=
-/or
-> =A0 =A0 =A0 =A0modify it under the terms of the GNU Lesser General Public
-> =A0 =A0 =A0 =A0License as published by the Free Software Foundation; eith=
-er
-> =A0 =A0 =A0 =A0version 2.1 of the License, or (at your option) any later =
-version.
->
-> =A0 =A0 =A0 =A0The complete text of the license is available at the
-> =A0 =A0 =A0 =A0Documentation/licenses/COPYING.LGPL file.
->
-> =A0and add one Documentation/licenses/COPYING.LGPL file for all libraries=
-.
+On Thu, Aug 18, 2011 at 09:30:30AM +0200, Giulio wrote:
+> --- a/fdisk/sfdisk.c	2011-08-17 17:17:43.000000000 +0200
+> +++ b/fdisk/sfdisk.c	2011-08-17 22:48:52.000000000 +0200
 
-Done nearly that way. If I did not see wrong the libuuid uses Modified
-BSD License. Secondly instead of writing LGPL I prefer to using v2.1
-in file name.
-
-> =A0I'm not sure if we need the LICENSE.pg file, the same text is at the
-> =A0begin of the pg.c.
-
-Yup, that seems unnecessary. The file is removed.
-
-Is there anything else which should be changed?
-
---=20
-=A0=A0 Sami Kerola
-=A0=A0 http://www.iki.fi/kerolasa/
+ Applied, thanks.
+ 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
