@@ -1,33 +1,58 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31056 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751255Ab1HHJvR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Aug 2011 05:51:17 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p789pHgP028059
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 8 Aug 2011 05:51:17 -0400
-Received: from nb (ovpn-116-29.ams2.redhat.com [10.36.116.29])
-	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p789pFSm010986
-	for <util-linux@vger.kernel.org>; Mon, 8 Aug 2011 05:51:16 -0400
-Date: Mon, 8 Aug 2011 11:51:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] cal: fix manpage formatting
-Message-ID: <20110808095115.GA25933@nb.net.home>
-References: <20110802125553.GA12229@foxbat.suse.cz>
+Return-Path: heiko.carstens@de.ibm.com
+Date: Tue, 23 Aug 2011 10:45:40 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] new chcpu tool
+Message-ID: <20110823084540.GA2540@osiris.boeblingen.de.ibm.com>
+References: <20110815152453.052584040@de.ibm.com>
+ <20110822120641.GA7549@osiris.boeblingen.de.ibm.com>
+ <20110822132817.GD20457@nb.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20110802125553.GA12229@foxbat.suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20110822132817.GD20457@nb.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 02, 2011 at 02:55:55PM +0200, Petr Uzel wrote:
->  misc-utils/cal.1 |    5 ++---
->  1 files changed, 2 insertions(+), 3 deletions(-)
+On Mon, Aug 22, 2011 at 03:28:17PM +0200, Karel Zak wrote:
+> On Mon, Aug 22, 2011 at 02:06:41PM +0200, Heiko Carstens wrote:
+> > Do you think it would be ok to have it in util-linux? Or should it live
+> > somewhere else?
+> 
+> It makes sense to have it in util-linux. I'm going to merge it after
+> v2.20 release.
 
-Applied, thanks.
+Ok, great!
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I set up a chcpu git branch where you could pull the chcpu stuff easily:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/heiko/util-linux.git chcpu
+
+It contains just the two patches posted here and doesn't interfer with the
+lscpu branch that is also there.
+
+Heiko Carstens (2):
+      cpuset: add option to allow cpulist_parse() to fail
+      chcpu: new tool
+
+ include/cpuset.h      |    2 +-
+ lib/cpuset.c          |    7 +-
+ schedutils/taskset.c  |    2 +-
+ sys-utils/.gitignore  |    1 +
+ sys-utils/Makefile.am |    3 +
+ sys-utils/chcpu.1     |   94 ++++++++++++++
+ sys-utils/chcpu.c     |  337 +++++++++++++++++++++++++++++++++++++++++++++++++
+ sys-utils/lscpu.1     |    2 +
+ sys-utils/lscpu.c     |    2 +-
+ 9 files changed, 445 insertions(+), 5 deletions(-)
+ create mode 100644 sys-utils/chcpu.1
+ create mode 100644 sys-utils/chcpu.c
+
+> > +static int path_exist(const char *path, ...)
+> 
+>  It seems that we need to move the path_*() functions from lscpu(1) to
+>  lib/ and hare the stuff.
+
+Yes, I thought so as well. But laziness won ;)
+
+Thanks,
+Heiko
