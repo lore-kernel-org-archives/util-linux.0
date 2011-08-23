@@ -1,25 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64383 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58884 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753423Ab1H2JSH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 29 Aug 2011 05:18:07 -0400
-Date: Mon, 29 Aug 2011 11:18:04 +0200
+	id S1751216Ab1HWKXA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 23 Aug 2011 06:23:00 -0400
+Date: Tue, 23 Aug 2011 12:22:55 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Pierre Gaston <pierre.gaston@gmail.com>
+To: Andreas Schwab <schwab@linux-m68k.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: example in flock manpage still not useful.
-Message-ID: <20110829091804.GG1855@nb.net.home>
-References: <CAPSX3sTRT7zOZALF2CHUdgRuz3Gz4PyXtxmDB6nhVa7VwK7RDQ@mail.gmail.com>
+Subject: Re: [PATCH] lomount: correct qsort compare function
+Message-ID: <20110823102255.GC21266@nb.net.home>
+References: <m2obzhywq0.fsf@igel.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAPSX3sTRT7zOZALF2CHUdgRuz3Gz4PyXtxmDB6nhVa7VwK7RDQ@mail.gmail.com>
+In-Reply-To: <m2obzhywq0.fsf@igel.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 25, 2011 at 03:26:14PM +0300, Pierre Gaston wrote:
-> flock -n 9 || exit 1                 # exit if the lock can't be acquire.
+On Mon, Aug 22, 2011 at 11:15:03PM +0200, Andreas Schwab wrote:
+> ---
+>  mount/lomount.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
- Fixed. Thanks!
+ Very good catch! Applied, thanks.
 
     Karel
 
