@@ -1,38 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp-68.nebula.fi ([83.145.220.68]:45024 "EHLO
-	smtp-68.nebula.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753041Ab1HAQ0F (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Aug 2011 12:26:05 -0400
-Received: from [127.0.0.1] (dyn-xdsl-83-150-113-243.nebulazone.fi [83.150.113.243])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by smtp-68.nebula.fi (Postfix) with ESMTP id 477E643F0879
-	for <util-linux@vger.kernel.org>; Mon,  1 Aug 2011 19:26:02 +0300 (EEST)
-Message-ID: <4E36D394.5040509@iki.fi>
-Date: Mon, 01 Aug 2011 19:25:56 +0300
-From: Lauri Nurmi <lanurmi@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:42338 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752225Ab1HWKro (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 23 Aug 2011 06:47:44 -0400
+Date: Tue, 23 Aug 2011 12:47:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>, Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] Documentation: add debugging doc
+Message-ID: <20110823104732.GE20457@nb.net.home>
+References: <1312678772.3408.3.camel@offbook>
 MIME-Version: 1.0
-To: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] pluralization and tiny adjustments of some messages
-References: <1312140631.21317.2157888669@webmail.messagingengine.com>
-In-Reply-To: <1312140631.21317.2157888669@webmail.messagingengine.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1312678772.3408.3.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-31.7.2011 22:30, Benno Schulenberg kirjoitti:
-> --- a/sys-utils/fstrim.c
-> +++ b/sys-utils/fstrim.c
->   	if (verbose)
-> -		printf(_("%s: %" PRIu64 " bytes was trimmed\n"),
-> +		printf(_("%s: %" PRIu64 " bytes were trimmed\n"),
->   						path, (uint64_t) range.len);
 
-Hi,
+ Semi, could you add howto-debug to your docs branch?
 
-shouldn't this one be pluralized also?
+    Karel
 
+On Sat, Aug 06, 2011 at 08:59:32PM -0400, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+> 
+> Layout the base for tips on debugging util-linux programs/wrappers.
+> 
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> ---
+>  Documentation/README.debug |   30 ++++++++++++++++++++++++++++++
+>  1 files changed, 30 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/README.debug
+> 
+> diff --git a/Documentation/README.debug b/Documentation/README.debug
+> new file mode 100644
+> index 0000000..7ead12f
+> --- /dev/null
+> +++ b/Documentation/README.debug
+> @@ -0,0 +1,30 @@
+> +Debugging util-linux programs
+> +-----------------------------
+> +
+> +There are considerations to be made when profiling or debugging some programs found
+> +in the util-linux package. Because wrapper scripts are used for the binaries to make
+> +sure all library dependencies are met, you cannot use tools such as gdb or valgrind
+> +directly with them.
+> +
+> +Let's take for example the mount command:
+> +
+> +$> file /path/util-linux/mount/mount
+> +mount: Bourne-Again shell script text executable
+> +
+> +The binary itself is located in the .libs/ dir:
+> +
+> +$> file /path/util-linux/mount/.libs/mount
+> +mount: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.15, not stripped
+> +
+> +When this command is run, there's a library dependency error:
+> +./mount: /lib/x86_64-linux-gnu/libblkid.so.1: version `BLKID_2.20' not found (required by ./mount)
+> +
+> +To overcome this we need set the LD_LIBRARY_PATH variable to read the path of the shared lib found in
+> +the sources, and not system-wide:
+> +
+> +$> export LD_LIBRARY_PATH=/path/util-linux/libblkid/src/.libs/:$LD_LIBRARY_PATH
+> +
+> +Now external debugging tools can be run on the binary.
+> +
+> +Happy hacking!
+> +Davidlohr Bueso, August 2011
+> -- 
+> 1.7.4.1
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Regards,
-LN
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
