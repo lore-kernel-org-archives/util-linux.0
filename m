@@ -1,57 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vpn.antaris-organics.com ([77.74.199.76]:39175 "EHLO
-	vpn.antaris-organics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752399Ab1HPU7r (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Aug 2011 16:59:47 -0400
-Date: Tue, 16 Aug 2011 22:50:18 +0200
-From: markus reichelt <ml@mareichelt.com>
-To: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] tweaks of sfdisk's man page and help text
-Message-ID: <20110816205018.GD1054@pc21.mareichelt.com>
-References: <1313521068.4590.140258130338973@webmail.messagingengine.com>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:40211 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751550Ab1HYMd5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 25 Aug 2011 08:33:57 -0400
+Received: by gya6 with SMTP id 6so1696858gya.19
+        for <util-linux@vger.kernel.org>; Thu, 25 Aug 2011 05:33:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-In-Reply-To: <1313521068.4590.140258130338973@webmail.messagingengine.com>
+From: Pierre Gaston <pierre.gaston@gmail.com>
+Date: Thu, 25 Aug 2011 15:26:14 +0300
+Message-ID: <CAPSX3sTRT7zOZALF2CHUdgRuz3Gz4PyXtxmDB6nhVa7VwK7RDQ@mail.gmail.com>
+Subject: example in flock manpage still not useful.
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+I can see why the following change has been made but, as it is, it
+doesn't work at all
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://git.kernel.org/?p=utils/util-linux/util-linux.git;a=commitdiff;h=c348d9346ae60b78a03d6dcd964e23fb40a625df
 
-* Benno Schulenberg <bensberg@justemail.net> wrote:
+(
+   flock -n 9
+   # ... commands executed under lock ...
 
-> -Then, if you discover that you did something stupid before anything
-> +Then, if you discover that you did something stupid b efore anything
+) 9>/var/lock/mylockfile\fP
 
-Typo alert.
+flock -n 9 does nothing here besides testing the lock.
 
---=20
-left blank, right bald
+I suggest to revert to flock -s 9...or rather to just flock 9, since a
+shared lock doesn't indeed seems very useful either here.
 
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The example can be fixed using {   ;} instead of a subshell and adding
+flock -n 9 || exit 1, but I think it doesn't match
+the intention of the committer which was to show a way to avoid 2
+concurrent executions of a script.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+If  you want an example exiting the script, I suggest adding an example like:
 
-iQIcBAEBAgAGBQJOStgJAAoJEMImmhyPL9kTlCYP/j9SjhGlKObdJvVtSKwirrTk
-/4gmfoUZqc48DR9A+Htr1Epfz5Bt0+oJj8uVUOAc5m4a+++H1dJQoC3mFC6fp09x
-j5oN+5Ogzw4JF860nHqOwdxCPGqarCbkF3bWlObQURmaFfhredjhE3riCr1pJxN6
-jdIvnl5wy7a+WPi7FIk45lx+fjaIJOx/eIgsV0YHhnMcANquiV9//46TIG890YbF
-udArlt+ej9w9zvKYHBHVYjhPOODlPOnHfw2pOgXu3EC7oV3+Zxqvqt0aRNpW0FAt
-90igACEI46xw1buIbHUjRgEp78O69wW8RRDI1yhRu10Az0pbUwxjCtggRFO1HrNQ
-GNJvat6yLldLYMhceDQtU8qH4VrkdiuBSif/V11j0PNA7U3lAXPW9fOdjkcj3O4L
-1xFtlLbGdhXmaYn7FNxTqvkpiuTSlJAmy7z8SOkHAP/zIB3qb8RzRjVVkJQ1CWQ8
-TqnpbQORUdcnlSlse1+K3WUH9QrjDkZf22s0ossOmYy4Nn+ioyu5mVgXRTIaEKOG
-tjNEdme1cV7VYrD3SPRGqe+78nbM896q63IkSMSogxaD9/8BQfLdbVZtCj3DsMIA
-Uiy2k+PcmVVGmJ9c3sRvs0RX2Tj5KZ3LsG1PS9AASaairt4OlfKzjQIAYvEv/0lM
-oPbx/P/sB5XKj9ZTpTQk
-=TfP5
------END PGP SIGNATURE-----
+exec 9>/var/lock/mylockfile  # open the file descriptor for the
+duration of the script
+flock -n 9 || exit 1                 # exit if the lock can't be acquire.
 
---yrj/dFKFPuw6o+aM--
+Pierre
