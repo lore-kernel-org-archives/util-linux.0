@@ -1,119 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:37129 "EHLO vostochny.stro.at"
+Received: from vostochny.stro.at ([78.47.22.85]:33753 "EHLO vostochny.stro.at"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751494Ab1GaKqj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 31 Jul 2011 06:46:39 -0400
+	id S1754322Ab1H2RCk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Aug 2011 13:02:40 -0400
 From: maximilian attems <max@stro.at>
 To: util-linux@vger.kernel.org
 Cc: maximilian attems <max@stro.at>
-Subject: [PATCH 1/3] c.h: move up declaration of program_invocation_short_name before usage
-Date: Sun, 31 Jul 2011 12:47:19 +0200
-Message-Id: <1312109241-13590-1-git-send-email-max@stro.at>
+Subject: [PATCH] raw: fix shadowing of minor function
+Date: Mon, 29 Aug 2011 18:59:35 +0200
+Message-Id: <1314637175-30646-1-git-send-email-max@stro.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-fixes:
-../include/c.h: In function ‘errmsg’:
-../include/c.h:111:26: error: ‘program_invocation_short_name’ undeclared
-(first use in this function)
-../include/c.h:111:26: note: each undeclared identifier is reported only
-once for each function it appears in
+Noticed while compiling against klibc:
+raw.c: In function ‘query’:
+raw.c:219:16: error: called object ‘minor’ is not a function
+
+Rename variable from minor to minor_raw.
+While at it mark the functions as static and small whitespace fixes
+as asked by checkpatch.
 
 Signed-off-by: maximilian attems <max@stro.at>
 ---
- include/c.h |   70 +++++++++++++++++++++++++++++-----------------------------
- 1 files changed, 35 insertions(+), 35 deletions(-)
+ disk-utils/raw.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/c.h b/include/c.h
-index 70f403c..79581ae 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -103,6 +103,41 @@
- 	_max1 > _max2 ? _max1 : _max2; })
- #endif
+diff --git a/disk-utils/raw.c b/disk-utils/raw.c
+index c2c1a3e..88f2211 100644
+--- a/disk-utils/raw.c
++++ b/disk-utils/raw.c
+@@ -40,8 +40,8 @@ int	master_fd;
+ int	raw_minor;
  
-+#ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
-+# ifdef HAVE___PROGNAME
-+extern char *__progname;
-+#  define program_invocation_short_name __progname
-+# else
-+#  ifdef HAVE_GETEXECNAME
-+#   include <stdlib.h>
-+#   define program_invocation_short_name \
-+		prog_inv_sh_nm_from_file(getexecname(), 0)
-+#  else
-+#   define program_invocation_short_name \
-+		prog_inv_sh_nm_from_file(__FILE__, 1)
-+#  endif
-+static char prog_inv_sh_nm_buf[256];
-+static inline char *
-+prog_inv_sh_nm_from_file(char *f, char stripext)
-+{
-+	char *t;
-+
-+	if ((t = strrchr(f, '/')) != NULL)
-+		t++;
-+	else
-+		t = f;
-+
-+	strncpy(prog_inv_sh_nm_buf, t, sizeof(prog_inv_sh_nm_buf) - 1);
-+	prog_inv_sh_nm_buf[sizeof(prog_inv_sh_nm_buf) - 1] = '\0';
-+
-+	if (stripext && (t = strrchr(prog_inv_sh_nm_buf, '.')) != NULL)
-+		*t = '\0';
-+
-+	return prog_inv_sh_nm_buf;
-+}
-+# endif
-+#endif
-+
+ void open_raw_ctl(void);
+-int  query(int minor, const char *raw_name, int quiet);
+-int  bind (int minor, int block_major, int block_minor);
++static int query(int minor_raw, const char *raw_name, int quiet);
++static int bind(int minor_raw, int block_major, int block_minor);
  
- #ifndef HAVE_ERR_H
- static inline void
-@@ -160,41 +195,6 @@ static inline int dirfd(DIR *d)
+ 
+ static void usage(int err)
+@@ -190,7 +190,7 @@ void open_raw_ctl(void)
+ 	}
  }
- #endif
  
--#ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
--# ifdef HAVE___PROGNAME
--extern char *__progname;
--#  define program_invocation_short_name __progname
--# else
--#  ifdef HAVE_GETEXECNAME
--#   include <stdlib.h>
--#   define program_invocation_short_name \
--		prog_inv_sh_nm_from_file(getexecname(), 0)
--#  else
--#   define program_invocation_short_name \
--		prog_inv_sh_nm_from_file(__FILE__, 1)
--#  endif
--static char prog_inv_sh_nm_buf[256];
--static inline char *
--prog_inv_sh_nm_from_file(char *f, char stripext)
--{
--	char *t;
--
--	if ((t = strrchr(f, '/')) != NULL)
--		t++;
--	else
--		t = f;
--
--	strncpy(prog_inv_sh_nm_buf, t, sizeof(prog_inv_sh_nm_buf) - 1);
--	prog_inv_sh_nm_buf[sizeof(prog_inv_sh_nm_buf) - 1] = '\0';
--
--	if (stripext && (t = strrchr(prog_inv_sh_nm_buf, '.')) != NULL)
--		*t = '\0';
--
--	return prog_inv_sh_nm_buf;
--}
--# endif
--#endif
--
- /*
-  * Fallback defines for old versions of glibc
-  */
+-int query(int minor, const char *raw_name, int quiet)
++static int query(int minor_raw, const char *raw_name, int quiet)
+ {
+ 	struct raw_config_request rq;
+ 	static int has_worked = 0;
+@@ -216,10 +216,10 @@ int query(int minor, const char *raw_name, int quiet)
+ 				 raw_name);
+ 			exit(2);
+ 		}
+-		minor = minor(statbuf.st_rdev);
++		minor_raw = minor(statbuf.st_rdev);
+ 	}
+ 
+-	rq.raw_minor = minor;
++	rq.raw_minor = minor_raw;
+ 	err = ioctl(master_fd, RAW_GETBIND, &rq);
+ 	if (err < 0) {
+ 		if (quiet && errno == ENODEV)
+@@ -242,12 +242,12 @@ int query(int minor, const char *raw_name, int quiet)
+ 	return 0;
+ }
+ 
+-int bind(int minor, int block_major, int block_minor)
++static int bind(int minor_raw, int block_major, int block_minor)
+ {
+ 	struct raw_config_request rq;
+ 	int err;
+ 
+-	rq.raw_minor   = minor;
++	rq.raw_minor   = minor_raw;
+ 	rq.block_major = block_major;
+ 	rq.block_minor = block_minor;
+ 	err = ioctl(master_fd, RAW_SETBIND, &rq);
 -- 
 1.7.5.4
 
