@@ -1,27 +1,32 @@
-Return-Path: giulioo@gmail.com
-From: Giulio Orsero <giulioo@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: make some tests conditional to !Linux
-Date: Mon, 22 Aug 2011 20:45:47 +0200
-Reply-To: giulioo@pobox.com
-References: <20110818073019.B70AFF815@i3.golden.dom> <20110822083206.GA20457@nb.net.home>
-In-Reply-To: <20110822083206.GA20457@nb.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-Id: <20110822184546.8D6F9F815@i3.golden.dom>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:39988 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751766Ab1H2OAo convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Aug 2011 10:00:44 -0400
+Date: Mon, 29 Aug 2011 14:59:32 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: richard -rw- weinberger <richard.weinberger@gmail.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.20
+Message-ID: <20110829145932.5f63d9ee@lxorguk.ukuu.org.uk>
+In-Reply-To: <CAFLxGvwXreixiYoj+SVoJuH+dLx8THw9cJJ2prEFpUxYTTUbAw@mail.gmail.com>
+References: <20110829122344.GI1855@nb.net.home>
+	<CAFLxGvwXreixiYoj+SVoJuH+dLx8THw9cJJ2prEFpUxYTTUbAw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 22 Aug 2011 10:32:06 +0200, Karel Zak <kzak@redhat.com> wrote:
+On Mon, 29 Aug 2011 15:35:44 +0200
+richard -rw- weinberger <richard.weinberger@gmail.com> wrote:
 
->On Thu, Aug 18, 2011 at 09:30:30AM +0200, Giulio wrote:
->> +	    if (!chs_ok(b, PNO(p), _("start")) && !Linux)
->[...]
->> +	    if (!chs_ok(b, PNO(p), _("end")) && !Linux)
->would be better to use
->    if (!Linux && chs_ok(b, PNO(p), ....)
->so the chs_ok() will not called on Linux at all?
+> On Mon, Aug 29, 2011 at 2:23 PM, Karel Zak <kzak@redhat.com> wrote:
+> > Util-linux 2.20 Release Notes
+> > =============================
+> >
+> >  The ddate(1) command is not built by default (see --enable-ddate).
+> >
+> 
+> This change will make the discordians very unhappy. ;-)
 
-Maybe the compiler reordered it since it didn't print those messages =
-anymore
-anyway; for clarity I redordered the tests.
+Yes it should be --disable-ddate to enable it....
