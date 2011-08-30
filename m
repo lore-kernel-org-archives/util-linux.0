@@ -1,84 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31375 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54785 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752416Ab1HPM5n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Aug 2011 08:57:43 -0400
-Date: Tue, 16 Aug 2011 14:57:38 +0200
+	id S1751105Ab1H3JrG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 30 Aug 2011 05:47:06 -0400
+Date: Tue, 30 Aug 2011 11:47:02 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] small fixes to some messages and man pages, and some
-	questions
-Message-ID: <20110816125738.GC14535@nb.net.home>
-References: <1313094127.6807.140258128661629@webmail.messagingengine.com> <20110815133430.GG1843@nb.net.home> <1313433269.27812.140258129893485@webmail.messagingengine.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH v2] whereis: search in path
+Message-ID: <20110830094702.GP1855@nb.net.home>
+References: <1313171742.3305.3.camel@offbook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1313433269.27812.140258129893485@webmail.messagingengine.com>
+In-Reply-To: <1313171742.3305.3.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 15, 2011 at 08:34:29PM +0200, Benno Schulenberg wrote:
-> 
-> > > Also I do not understand the descriptions of the new options --nested,
-> > > --chained, and --onesector.  [...]
-> > 
-> > The original comment from code: 
-> > 
-> > /* [...]
-> > NESTED: every partition is contained in the surrounding partitions
-> >    and is disjoint from all others.
-> 
-> I still fail to understand. 
+On Fri, Aug 12, 2011 at 01:55:42PM -0400, Davidlohr Bueso wrote:
+>  misc-utils/whereis.c |   69 +++++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 68 insertions(+), 1 deletions(-)
 
- The each logical partition is defined by extended partition table
- (EBR) http://en.wikipedia.org/wiki/Extended_boot_record
+Applied, thanks. ...but:
 
- EBR contains usually two partitions:
-    1/ data partition (used as a logical partition)
-    2/ extended partition (used as a pointer to the next EBR)
+     $ whereis -m git-rm-commit
+     git-rm-commit: /home/kzak/bin/git-rm-commit
 
- so if you have 5 logical partitions then there is usually 5 small
- partition tables and 5 extended partitions :-) The partitions are
- usually NESTED. 
- 
- The top-level (outermost) extended partition is the partition 
- visible for end-users in fdisk output.
+the -m means "man pages only", but the result is executable file.
 
-> If "contained in the surrounding partitions"
-> means "contained in the containing partitions", it says nothing.  If it
-> means "contained in the partitions that come before and after", this
-> seems impossible to me.  The only way I can make sense of the
-> above comment is to read it as follows:
-> 
-> NESTED: every extended partition is contained within a surrounding
-> extended partition [except of course the outermost one] and is disjoint
-> from all other extended partitions at the same nesting level.
-> 
-> (Here I take "disjoint" to mean "does not overlap", but then I still fail
-> to understand how "mutually disjoint" is different.)
-
- NESTED: every extended partition is contained within a parental 
-         extended partition. 
-
- IMHO nothing other is usable in Linux.
-
-> 
-> > CHAINED: every data partition is contained in the surrounding partitions
-> >    and disjoint from all others, but extended partitions may lie outside
-> 
-> Is a data partition the same as a logical partition?
-
-Yes. 
-
-IMHO the comment is mess as well as the implementation :-) Don't think
-about it too much. We need to rewrite sfdisk and cfdisk....
-
-> >    scriptreplay [options] [-t] timingfile [typescript [divisor]]
-
- Fixed in the usage().
+I have fixed this problem, the $PATH is used for binaries only and
+ignored if -B is specified. See below.
 
     Karel
 
+>From 4ff826f68a7d9bd1239644ab53be9b81fc8b7a37 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Tue, 30 Aug 2011 11:44:15 +0200
+Subject: [PATCH] whereis: search in path for binaries only
+
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ misc-utils/whereis.c |   15 ++++++++-------
+ 1 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 90f7b90..03ea95e 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -299,8 +299,6 @@ findv(char **dirv, int dirc, char *cp)
+ 
+ 	while (dirc > 0)
+ 		findin(*dirv++, cp), dirc--;
+-	while (*dirp)
+-		findin(*dirp++, cp);
+ }
+ 
+ static void
+@@ -315,9 +313,11 @@ looksrc(char *cp)
+ static void
+ lookbin(char *cp)
+ {
+-	if (Bflag == 0)
++	if (Bflag == 0) {
+ 		findv(bindirs, ARRAY_SIZE(bindirs)-1, cp);
+-	else
++		while (*dirp)
++			findin(*dirp++, cp);		/* look $PATH */
++	 } else
+ 		findv(Bflag, Bcnt, cp);
+ }
+ 
+@@ -424,8 +424,6 @@ main(int argc, char **argv)
+ 	if (argc == 0)
+ 		usage(stderr);
+ 
+-	fillpath();
+-
+ 	do
+ 		if (argv[0][0] == '-') {
+ 			register char *cp = argv[0] + 1;
+@@ -475,8 +473,11 @@ main(int argc, char **argv)
+ 				usage(stderr);
+ 			}
+ 			argv++;
+-		} else
++		} else {
++			if (Bcnt == 0 && pathdir == NULL)
++				fillpath();
+ 			lookup(*argv++);
++		}
+ 	while (--argc > 0);
+ 
+ 	freepath();
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6
+
