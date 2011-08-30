@@ -1,34 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24068 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:8503 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752045Ab1H3JyR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 30 Aug 2011 05:54:17 -0400
-Date: Tue, 30 Aug 2011 11:54:12 +0200
+	id S1751740Ab1H3Jyl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 30 Aug 2011 05:54:41 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7U9seMu023211
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 30 Aug 2011 05:54:40 -0400
+Received: from nb (ovpn-116-29.ams2.redhat.com [10.36.116.29])
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id p7U9sd9P029719
+	for <util-linux@vger.kernel.org>; Tue, 30 Aug 2011 05:54:40 -0400
+Date: Tue, 30 Aug 2011 11:54:39 +0200
 From: Karel Zak <kzak@redhat.com>
-To: maximilian attems <max@stro.at>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] raw: fix shadowing of minor function
-Message-ID: <20110830095412.GQ1855@nb.net.home>
-References: <1314637175-30646-1-git-send-email-max@stro.at>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] sfdisk.8: fix formatting
+Message-ID: <20110830095439.GR1855@nb.net.home>
+References: <20110830081722.GA20499@foxbat.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1314637175-30646-1-git-send-email-max@stro.at>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110830081722.GA20499@foxbat.suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 29, 2011 at 06:59:35PM +0200, maximilian attems wrote:
-> Noticed while compiling against klibc:
-> raw.c: In function ‘query’:
-> raw.c:219:16: error: called object ‘minor’ is not a function
-> 
-> Rename variable from minor to minor_raw.
+On Tue, Aug 30, 2011 at 10:17:24AM +0200, Petr Uzel wrote:
+>  fdisk/sfdisk.8 |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-raw.c: In function ‘query’:
-raw.c:241:16: error: ‘minor’ undeclared (first use in this function)
+ Applied, thanks.
 
-Fixed, applied, thanks.
-
-    Karel
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
