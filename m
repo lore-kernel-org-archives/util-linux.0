@@ -1,31 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51597 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751967Ab1HOMgf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Aug 2011 08:36:35 -0400
-Date: Mon, 15 Aug 2011 14:36:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] grammar fixes
-Message-ID: <20110815123632.GE2038@nb.net.home>
-References: <1313172465.3305.4.camel@offbook>
+Return-Path: heiko.carstens@de.ibm.com
+Date: Tue, 30 Aug 2011 13:18:38 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [patch 0/8] various lscpu patches
+Message-ID: <20110830111838.GA2443@osiris.boeblingen.de.ibm.com>
+References: <20110810083645.135814950@de.ibm.com>
+ <20110815084530.GA2400@osiris.boeblingen.de.ibm.com>
+ <20110830101242.GS1855@nb.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1313172465.3305.4.camel@offbook>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20110830101242.GS1855@nb.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Aug 12, 2011 at 02:07:45PM -0400, Davidlohr Bueso wrote:
->  libmount/src/context_umount.c  |    4 ++--
->  tests/ts/hwclock/systohc       |    2 +-
->  tests/ts/libmount/context      |   10 +++++-----
->  tests/ts/libmount/context-utab |    8 ++++----
->  tests/ts/mount/devname         |    6 +++---
->  5 files changed, 15 insertions(+), 15 deletions(-)
+On Tue, Aug 30, 2011 at 12:12:42PM +0200, Karel Zak wrote:
+> On Mon, Aug 15, 2011 at 10:45:30AM +0200, Heiko Carstens wrote:
+> > FWIW, I set up a git branch with the lscpu changes:
+> > 
+> >  git://git.kernel.org/pub/scm/linux/kernel/git/heiko/util-linux.git lscpu
+> 
+>  Merged, thanks.
+> 
+>  Heiko, it would be nice to have a regression tests for various s390
+>  boxes. See tests/ts/lscpu/, there is mk-input.sh which is able to
+>  gather all necessary files and create a tarball from /sys and /proc.
+>  For s390 it will be probably necessary to extend the list of the files
+>  (e.g add /proc/sysinfo).
 
- Applied, thanks.
+Ok, I add that on my todo list. I have a couple of more patches for lscpu
+and chcpu that I'd like to send to you this week. Afterwards I'll create
+the regression test(s).
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks,
+Heiko
