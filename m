@@ -1,83 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:37359 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:20646 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753881Ab1HJMQm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 10 Aug 2011 08:16:42 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id D98228AD27
-	for <util-linux@vger.kernel.org>; Wed, 10 Aug 2011 14:16:41 +0200 (CEST)
-Date: Wed, 10 Aug 2011 14:16:40 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] dmesg: avoid mess at the end of dmesg output
-Message-ID: <20110810121639.GA19672@foxbat.suse.cz>
+	id S1752546Ab1H3Jl4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 30 Aug 2011 05:41:56 -0400
+Date: Tue, 30 Aug 2011 11:00:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fdisk: print a message with size and type of created
+	partition
+Message-ID: <20110830090017.GA16159@nb.net.home>
+References: <1313533146-2806-1-git-send-email-cosoleto@gmail.com> <1313580072-27979-1-git-send-email-cosoleto@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1313580072-27979-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Aug 17, 2011 at 01:21:12PM +0200, Francesco Cosoleto wrote:
+>  fdisk/Makefile.am     |    2 +-
+>  fdisk/fdisk.c         |   13 +++++++++++++
+>  fdisk/fdisk.h         |    1 +
+>  fdisk/fdisksgilabel.c |    9 ++++++++-
+>  fdisk/fdisksunlabel.c |    4 ++++
+>  5 files changed, 27 insertions(+), 2 deletions(-)
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Applied (all 5 patches), thanks.
 
-Since util-linux commit a7ee94f2204011f26232ed3133514bf6e0d4a62c,
-dmesg incorrectly calculates number of bytes that are remaining in the
-buffer in get_next_record(). This could, under specific circumstances,
-cause printing mess at the end of dmesg output:
-
-> dmesg | tail
-[ 1191.478725] Adding 285488k swap on /root/swapfile.  Priority:-2 extents:=
-15 across:1186612k
-[ 1205.588331] Adding 285488k swap on /root/swapfile.  Priority:-2 extents:=
-15 across:1186612k
-\xffffffba\xffffffba
-
-Reported-by: Glenn Doig <doiggl@velocitynet.com.au>
-Addresses: https://bugzilla.novell.com/show_bug.cgi?id=3D710417
-
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- sys-utils/dmesg.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 94f8c11..705269d 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -494,6 +494,8 @@ static int get_next_record(struct dmesg_control *ctl, s=
-truct dmesg_record *rec)
-=20
- 		rec->next_size -=3D end - rec->next;
- 		rec->next =3D rec->next_size > 0 ? end + 1 : NULL;
-+		if (rec->next_size > 0)
-+			rec->next_size--;
-=20
- 		return 0;
- 	}
---=20
-1.7.3.4
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk5CdqcACgkQnZxG0T6qDD0spgCfVvDF0DOEJow+oFsgv0jE65WA
-MmkAn1qJNmtgbuQ+V/bg/05JttkEmS/A
-=IFjA
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
