@@ -1,33 +1,56 @@
-Return-Path: maks@vostochny.stro.at
-Date: Wed, 31 Aug 2011 15:17:15 +0000
-From: maximilian attems <max@stro.at>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] raw: fix shadowing of minor function
-Message-ID: <20110831151715.GI1781@vostochny.stro.at>
-References: <1314637175-30646-1-git-send-email-max@stro.at>
- <20110830095412.GQ1855@nb.net.home>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20110830095412.GQ1855@nb.net.home>
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20110830084346.GO1855@nb.net.home>
+References: <CAG27Bk0wyFiELxMA2Rj9DyqqMkP9dGm4J1Y=yU4S7gZFo00QFw@mail.gmail.com>
+	<20110830084346.GO1855@nb.net.home>
+Date: Tue, 30 Aug 2011 20:18:01 +0200
+Message-ID: <CAG27Bk08kBQAY7xRZ8VoV4bj6ef6z9dtDBee585Xr6LXbB0kJA@mail.gmail.com>
+Subject: Re: [git pull] documentation directory
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 30, 2011 at 11:54:12AM +0200, Karel Zak wrote:
-> On Mon, Aug 29, 2011 at 06:59:35PM +0200, maximilian attems wrote:
-> > Noticed while compiling against klibc:
-> > raw.c: In function ‘query’:
-> > raw.c:219:16: error: called object ‘minor’ is not a function
-> > 
-> > Rename variable from minor to minor_raw.
-> 
-> raw.c: In function ‘query’:
-> raw.c:241:16: error: ‘minor’ undeclared (first use in this function)
-> 
-> Fixed, applied, thanks.
-> 
+On Tue, Aug 30, 2011 at 10:43, Karel Zak <kzak@redhat.com> wrote:
+> On Sat, Aug 06, 2011 at 07:57:53PM +0200, Sami Kerola wrote:
+>> are available in the git repository at:
+>> =A0 https://github.com/kerolasa/lelux-utiliteetit docs-dir
+>
+> =A0I found a small problem... IMHO there should be some COPYING
+> =A0file in the libmount/ libblkid/ and libuuid/ directories.
+>
+> =A0It's probably overkill to duplicate the text on all places (or in
+> =A0Documentation/licenses directory), so what about to add lib*/COPYING
+> =A0with:
+>
+> =A0 =A0 =A0 =A0This library is free software; you can redistribute it and=
+/or
+> =A0 =A0 =A0 =A0modify it under the terms of the GNU Lesser General Public
+> =A0 =A0 =A0 =A0License as published by the Free Software Foundation; eith=
+er
+> =A0 =A0 =A0 =A0version 2.1 of the License, or (at your option) any later =
+version.
+>
+> =A0 =A0 =A0 =A0The complete text of the license is available at the
+> =A0 =A0 =A0 =A0Documentation/licenses/COPYING.LGPL file.
+>
+> =A0and add one Documentation/licenses/COPYING.LGPL file for all libraries=
+.
 
-uups.
-thanks for fixing up!
+Done nearly that way. If I did not see wrong the libuuid uses Modified
+BSD License. Secondly instead of writing LGPL I prefer to using v2.1
+in file name.
 
--- 
-maks
+> =A0I'm not sure if we need the LICENSE.pg file, the same text is at the
+> =A0begin of the pg.c.
+
+Yup, that seems unnecessary. The file is removed.
+
+Is there anything else which should be changed?
+
+--=20
+=A0=A0 Sami Kerola
+=A0=A0 http://www.iki.fi/kerolasa/
