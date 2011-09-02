@@ -1,43 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:38529 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55352 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752625Ab1IVKMJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 22 Sep 2011 06:12:09 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id AB12A8F903
-	for <util-linux@vger.kernel.org>; Thu, 22 Sep 2011 12:12:08 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] docs: update TODO
-Date: Thu, 22 Sep 2011 12:12:08 +0200
-Message-Id: <1316686328-19799-1-git-send-email-petr.uzel@suse.cz>
+	id S933351Ab1IBKnZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Sep 2011 06:43:25 -0400
+Date: Fri, 2 Sep 2011 12:43:18 +0200
+From: "Dr. Werner Fink" <werner@suse.de>
+To: "Gabor Z. Papp" <gzp@papp.hu>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [util-linux] agetty 2.20 --noclear
+Message-ID: <20110902104318.GA28133@boole.suse.de>
+References: <x662lbqvn1@gzp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <x662lbqvn1@gzp>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-TODO items already done by Sami Kerola
+On Fri, Sep 02, 2011 at 08:57:22AM +0200, Gabor Z. Papp wrote:
+> lo lo,
+> 
+> util-linux's agetty never cleared the terminal before 2.20.
+> 
+> I don't think its good idea to set clear screen to default, since
+> after upgrading from <2.20 versions, everywhere have to modify the
+> inittab with the --no-clear option.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- Documentation/TODO |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+Hmmm .. I've backported this from our mingetty due to several
+bug reports from data protection officers of our customers.
 
-diff --git a/Documentation/TODO b/Documentation/TODO
-index cab1ff7..555f80d 100644
---- a/Documentation/TODO
-+++ b/Documentation/TODO
-@@ -99,10 +99,6 @@ docs
- 
-  - (!) add API documentation to libuuid
- 
-- - add Documentation/ directory with:
--	   - man page template 
--	   - usage() HOW-TO
--	   - move README.devel to the Documentation/
- 
- build-sys
- --------
+> Also this Num/Caps/Scroll Lock on/off printf hint in the code looks
+> quite funny... Can't be set this optional and not printed by default?
+
+That was backported due several bug reports from our own supporters
+as it seems to be a problem for many newbies.  Btw: AFAIK also kdm/gdm
+do such reports, don't they?
+
+     Werner
+
 -- 
-1.7.3.4
-
+  "Having a smoking section in a restaurant is like having
+          a peeing section in a swimming pool." -- Edward Burr
