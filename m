@@ -1,51 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate1.uk.ibm.com ([194.196.100.161]:42745 "EHLO
-	mtagate1.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933164Ab1IIJT6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:19:58 -0400
-Received: from d06nrmr1806.portsmouth.uk.ibm.com (d06nrmr1806.portsmouth.uk.ibm.com [9.149.39.193])
-	by mtagate1.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jsm4002354
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:55 GMT
-Received: from d06av08.portsmouth.uk.ibm.com (d06av08.portsmouth.uk.ibm.com [9.149.37.249])
-	by d06nrmr1806.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899Js282314450
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:54 +0100
-Received: from d06av08.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av08.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899JrGx015286
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:54 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 3/5] lib,cpuset: fix stride handling in cpulist_parse()
-Date: Fri,  9 Sep 2011 11:19:32 +0200
-Message-Id: <1315559974-26863-4-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:31468 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751806Ab1IBNPT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Sep 2011 09:15:19 -0400
+Date: Fri, 2 Sep 2011 15:15:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Gabor Z. Papp" <gzp@papp.hu>, util-linux@vger.kernel.org
+Subject: Re: [util-linux] agetty 2.20 --noclear
+Message-ID: <20110902131508.GB4117@nb.redhat.com>
+References: <x662lbqvn1@gzp> <20110902104318.GA28133@boole.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110902104318.GA28133@boole.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If cpulist_parse() gets passed a cpu list with a stride value of 0
-it will be stuck in an endless loop.
-E.g. the following cpu list will cause an endless loop: "0-2:0".
-Fix this by causing a parse error if the stride value is 0.
+On Fri, Sep 02, 2011 at 12:43:18PM +0200, Dr. Werner Fink wrote:
+> On Fri, Sep 02, 2011 at 08:57:22AM +0200, Gabor Z. Papp wrote:
+> > lo lo,
+> > 
+> > util-linux's agetty never cleared the terminal before 2.20.
+> > 
+> > I don't think its good idea to set clear screen to default, since
+> > after upgrading from <2.20 versions, everywhere have to modify the
+> > inittab with the --no-clear option.
+> 
+> Hmmm .. I've backported this from our mingetty due to several
+> bug reports from data protection officers of our customers.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- lib/cpuset.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ I think the new default is better :-) The mingetty was better than
+ agetty on terminals.
 
-diff --git a/lib/cpuset.c b/lib/cpuset.c
-index cf22aa7..8592755 100644
---- a/lib/cpuset.c
-+++ b/lib/cpuset.c
-@@ -292,6 +292,8 @@ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
- 			if (c1 != NULL && (c2 == NULL || c1 < c2)) {
- 				if (sscanf(c1, "%u", &s) < 1)
- 					return 1;
-+				if (s == 0)
-+					return 1;
- 			}
- 		}
- 
+> > Also this Num/Caps/Scroll Lock on/off printf hint in the code looks
+> > quite funny... Can't be set this optional and not printed by default?
+> 
+> That was backported due several bug reports from our own supporters
+> as it seems to be a problem for many newbies.  Btw: AFAIK also kdm/gdm
+> do such reports, don't they?
+
+ Maybe we can add --nohints for people who prefect more acetic
+ interface....
+
+    Karel
+
 -- 
-1.7.5.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
