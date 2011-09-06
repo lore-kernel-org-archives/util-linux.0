@@ -1,93 +1,119 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:46289 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751162Ab1IOITT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 15 Sep 2011 04:19:19 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 613788C061
-	for <util-linux@vger.kernel.org>; Thu, 15 Sep 2011 10:19:18 +0200 (CEST)
-Date: Thu, 15 Sep 2011 10:19:17 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Michal Kubecek <mkubecek@suse.cz>
-Subject: [PATCH] flock: make flock(3) work on NFSv4
-Message-ID: <20110915081916.GA11152@foxbat.suse.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110906010159.243405331@de.ibm.com>
+Date: Tue, 06 Sep 2011 02:52:58 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 07/11] [PATCH] lscpu: add configured state to output
+References: <20110906005251.497675140@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
+CPUs may be in a configured or deconfigured state depending if the
+CPU resource may be used by the guest.
+If a CPU is in configured state the guest may use it (i.e. set it
+online). It it is in deconfigured state it cannot use it before
+changing its state to configured.
+Display this CPU attribute as well.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-To pleace an exclusive lock on a file, NFSv4 requires
-the file to be opened RW because of the emulation of flock()
-by fcntl():
-
-http://www.spinics.net/lists/linux-nfs/msg18502.html
-
-So instead of O_RDONLY, open the file in O_RDWR if access()
-indicates it is possible (unless shared lock is requested).
-
-=46rom: Michal Kubecek <mkubecek@suse.cz>
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- sys-utils/flock.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ sys-utils/lscpu.1 |    2 +-
+ sys-utils/lscpu.c |   28 ++++++++++++++++++++++++++--
+ 2 files changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/sys-utils/flock.c b/sys-utils/flock.c
-index 7d321de..a500319 100644
---- a/sys-utils/flock.c
-+++ b/sys-utils/flock.c
-@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
-   int have_timeout =3D 0;
-   int type =3D LOCK_EX;
-   int block =3D 0;
-+  int open_accmode;
-   int fd =3D -1;
-   int opt, ix;
-   int do_close =3D 0;
-@@ -211,9 +212,11 @@ int main(int argc, char *argv[])
-     }
-=20
-     filename =3D argv[optind];
--    fd =3D open(filename, O_RDONLY|O_NOCTTY|O_CREAT, 0666);
-+    open_accmode =3D ((type =3D=3D LOCK_SH || access(filename, R_OK|W_OK) =
-< 0) ?
-+                    O_RDONLY : O_RDWR);
-+    fd =3D open(filename, open_accmode|O_NOCTTY|O_CREAT, 0666);
-     /* Linux doesn't like O_CREAT on a directory, even though it should be=
- a
--       no-op */
-+       no-op; POSIX doesn't allow O_RDWR or O_WRONLY */
-     if (fd < 0 && errno =3D=3D EISDIR)
-         fd =3D open(filename, O_RDONLY|O_NOCTTY);
-=20
---=20
-1.7.3.4
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-
-iEYEARECAAYFAk5xtQQACgkQnZxG0T6qDD1fwgCggOErqTnc6CCez+bsLifPXIdQ
-m2kAoIW+C3Xx1mHAXoZWKyiluElKa6nM
-=8Ic0
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
+index db7fe72..6c18e2f 100644
+--- a/sys-utils/lscpu.1
++++ b/sys-utils/lscpu.1
+@@ -21,7 +21,7 @@ which can be fed to other programs.
+ 
+ Some options have a \fIlist\fP argument. The \fIlist\fP argument is a comma
+ delimited list of the columns. Currently supported are CPU, Core, Node, Socket,
+-Book, Cache, Polarization and Address columns.
++Book, Cache, Polarization, Address and Configured columns.
+ If the \fIlist\fP argument is given then all requested columns are printed in
+ the defined order.
+ 
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index bb0201b..efa5b84 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -175,6 +175,7 @@ struct lscpu_desc {
+ 
+ 	int		*polarization;	/* cpu polarization */
+ 	int		*addresses;	/* physical cpu addresses */
++	int		*configured;	/* cpu configured */
+ };
+ 
+ struct lscpu_modifier {
+@@ -213,7 +214,8 @@ enum {
+ 	COL_BOOK,
+ 	COL_CACHE,
+ 	COL_POLARIZATION,
+-	COL_ADDRESS
++	COL_ADDRESS,
++	COL_CONFIGURED,
+ };
+ 
+ static const char *colnames[] =
+@@ -225,7 +227,8 @@ static const char *colnames[] =
+ 	[COL_BOOK] = "Book",
+ 	[COL_CACHE] = "Cache",
+ 	[COL_POLARIZATION] = "Polarization",
+-	[COL_ADDRESS] = "Address"
++	[COL_ADDRESS] = "Address",
++	[COL_CONFIGURED] = "Configured",
+ };
+ 
+ 
+@@ -787,6 +790,16 @@ read_address(struct lscpu_desc *desc, int num)
+ 	desc->addresses[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/address", num);
+ }
+ 
++static void
++read_configured(struct lscpu_desc *desc, int num)
++{
++	if (!path_exist(_PATH_SYS_CPU "/cpu%d/configure", num))
++		return;
++	if (!desc->configured)
++		desc->configured = xcalloc(desc->ncpus, sizeof(int));
++	desc->configured[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/configure", num);
++}
++
+ static int
+ cachecmp(const void *a, const void *b)
+ {
+@@ -977,6 +990,14 @@ print_cell(struct lscpu_desc *desc, int i, int col, int c,
+ 		if (desc->addresses)
+ 			asprintfc(&buffer, "%d", desc->addresses[i]);
+ 		break;
++	case COL_CONFIGURED:
++		if (!desc->configured)
++			break;
++		if (mod->formatted)
++			asprintfc(&buffer, desc->configured[i] ? "yes" : "no");
++		else
++			asprintfc(&buffer, "%d", desc->configured[i]);
++		break;
+ 	}
+ 	if (mod->formatted) {
+ 		if (strlen(buffer) == 0)
+@@ -1358,6 +1379,7 @@ int main(int argc, char *argv[])
+ 		read_cache(desc, i);
+ 		read_polarization(desc, i);
+ 		read_address(desc, i);
++		read_configured(desc, i);
+ 	}
+ 
+ 	qsort(desc->caches, desc->ncaches, sizeof(struct cpu_cache), cachecmp);
+@@ -1380,6 +1402,8 @@ int main(int argc, char *argv[])
+ 			columns[ncolumns++] = COL_CORE;
+ 		if (desc->caches)
+ 			columns[ncolumns++] = COL_CACHE;
++		if (desc->configured)
++			columns[ncolumns++] = COL_CONFIGURED;
+ 		if (desc->polarization)
+ 			columns[ncolumns++] = COL_POLARIZATION;
+ 		if (desc->addresses)
+-- 
+1.7.5.4
