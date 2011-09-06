@@ -1,19 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:53780 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751078Ab1IFCOD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Sep 2011 22:14:03 -0400
-Received: by eyx24 with SMTP id 24so3737525eyx.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Sep 2011 19:14:01 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 6 Sep 2011 10:14:01 +0800
-Message-ID: <CAHQM782Za7utLPG63q4OKLrRi6U=KSZWgjWoEbxTRJwt4Apx2Q@mail.gmail.com>
-Subject: "agetty" of util-linux-2.20 do not show the typed username(like input
- password) on serial term
-From: xinglp <xinglp@gmail.com>
-To: util-linux@vger.kernel.org, lfs-dev@linuxfromscratch.org
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110906010155.806769708@de.ibm.com>
+Date: Tue, 06 Sep 2011 02:52:52 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 01/11] [PATCH] lscpu: remove comma operator
+References: <20110906005251.497675140@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
-util-linux-2.19.1 works well
+Fix typo where the comma operator has been introduced.
+Use a semicolon instead so we end up with simple assignment expressions.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ sys-utils/lscpu.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index fb65d8e..3733cab 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1218,8 +1218,8 @@ int main(int argc, char *argv[])
+ 			} else {
+ 				columns[ncolumns++] = COL_CPU;
+ 				columns[ncolumns++] = COL_CORE;
+-				columns[ncolumns++] = COL_SOCKET,
+-				columns[ncolumns++] = COL_NODE,
++				columns[ncolumns++] = COL_SOCKET;
++				columns[ncolumns++] = COL_NODE;
+ 				columns[ncolumns++] = COL_CACHE;
+ 				compatible = 1;
+ 			}
+-- 
+1.7.5.4
