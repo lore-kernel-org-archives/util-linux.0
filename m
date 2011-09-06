@@ -1,42 +1,85 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:34161 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753934Ab1ISN3Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 Sep 2011 09:29:16 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id C5FF98F0A5
-	for <util-linux@vger.kernel.org>; Mon, 19 Sep 2011 15:29:15 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/7] sfdisk: file descriptor is of int type
-Date: Mon, 19 Sep 2011 15:29:09 +0200
-Message-Id: <1316438955-20790-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
-References: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110906010158.126216533@de.ibm.com>
+Date: Tue, 06 Sep 2011 02:52:56 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 05/11] [PATCH] lscpu: add --version option
+References: <20110906005251.497675140@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
+Add a --version option like most other tools have it.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- fdisk/sfdisk.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ sys-utils/lscpu.1 |    5 ++++-
+ sys-utils/lscpu.c |   10 ++++++++--
+ 2 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 46245d3..81a50ee 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -156,7 +156,7 @@ fatal(char *s, ...) {
-  */
+diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
+index 6840590..2dc31b7 100644
+--- a/sys-utils/lscpu.1
++++ b/sys-utils/lscpu.1
+@@ -6,7 +6,7 @@
+ lscpu \- CPU architecture information helper
+ .SH SYNOPSIS
+ .B lscpu
+-.RB [ \-hpx ]
++.RB [ \-hpxV ]
+ .RB [ \-s
+ .IR directory ]
+ .SH DESCRIPTION
+@@ -47,6 +47,9 @@ a snapshot from a different system.
+ .BR \-x , " \-\-hex"
+ Use hexadecimal masks for CPU sets (e.g. 0x3).  The default is to print the sets
+ in list format (e.g. 0,1).
++.TP
++.BR \-V , " \-\-version"
++Output version information and exit.
+ .SH BUGS
+ The basic overview about CPU family, model, etc. is always based on the first
+ CPU only.
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index d7c7028..841beae 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1178,7 +1178,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		"  -h, --help         print this help\n"
+ 		"  -p, --parse[=LIST] print out a parsable instead of a readable format\n"
+ 		"  -s, --sysroot DIR  use directory DIR as system root\n"
+-		"  -x, --hex          print hexadecimal masks rather than lists of CPUs\n"));
++		"  -x, --hex          print hexadecimal masks rather than lists of CPUs\n"
++		"  -V, --version      output version information and exit\n"));
  
- static int
--sseek(char *dev, unsigned int fd, unsigned long s) {
-+sseek(char *dev, int fd, unsigned long s) {
-     off_t in, out;
-     in = ((off_t) s << 9);
-     out = 1;
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+@@ -1195,6 +1196,7 @@ int main(int argc, char *argv[])
+ 		{ "parse",	optional_argument, 0, 'p' },
+ 		{ "sysroot",	required_argument, 0, 's' },
+ 		{ "hex",	no_argument,	   0, 'x' },
++		{ "version",	no_argument,	   0, 'V' },
+ 		{ NULL,		0, 0, 0 }
+ 	};
+ 
+@@ -1202,7 +1204,7 @@ int main(int argc, char *argv[])
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 
+-	while ((c = getopt_long(argc, argv, "hp::s:x", longopts, NULL)) != -1) {
++	while ((c = getopt_long(argc, argv, "hp::s:xV", longopts, NULL)) != -1) {
+ 		switch (c) {
+ 		case 'h':
+ 			usage(stdout);
+@@ -1233,6 +1235,10 @@ int main(int argc, char *argv[])
+ 		case 'x':
+ 			hex = 1;
+ 			break;
++		case 'V':
++			printf(_("%s from %s\n"), program_invocation_short_name,
++			       PACKAGE_STRING);
++			return EXIT_SUCCESS;
+ 		default:
+ 			usage(stderr);
+ 		}
 -- 
-1.7.3.4
-
+1.7.5.4
