@@ -1,47 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:36184 "EHLO
-	homiemail-a7.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753893Ab1HQOWr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Aug 2011 10:22:47 -0400
-Subject: Re: losetup --all --verbose results in usage
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux@vger.kernel.org
-In-Reply-To: <4E4BCC65.2060100@bernhard-voelker.de>
-References: <4E4BCC65.2060100@bernhard-voelker.de>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 17 Aug 2011 10:22:21 -0400
-Message-ID: <1313590941.2653.1.camel@offbook>
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+Message-Id: <20110906010157.588946438@de.ibm.com>
+Date: Tue, 06 Sep 2011 02:52:55 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 04/11] [PATCH] lscpu: allow read_cache() to be called for offline cpus
+References: <20110906005251.497675140@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2011-08-17 at 16:12 +0200, Bernhard Voelker wrote:
-> I was surprised that running
-> 	mount/losetup --all --verbose
-> results in usage().
-> 
-> As -a is the option to list all used loop devices,
-> one might think that -v adds some more info to the output.
-> 
+First check path before accessing files to be sure they actually
+exist. This is necessary when also informations for offline CPUs
+will be printed.
+Since we do not necessarily know if "cpu is offline" means the same
+as "path does not exist" just check for it.
 
-The verbose option is quite broken, yes.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ sys-utils/lscpu.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-> Neither --help nor the man pages nor the info page tells
-> that -a doesn't accept other options:
-> 
-> mount/lomount.c (line 1133):
-> 
->          } else if (all) {
->                  if (argc > 2)
->                          usage(stderr);
-> 
-> Should we work on this?
-
-I'm actually rewriting this tool to make use of our new loop library.
-I'll address this issue here as well, thanks for the heads up.
-
-- Davidlohr
-
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 49b6f2b..d7c7028 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -804,6 +804,9 @@ read_cache(struct lscpu_desc *desc, int num)
+ 		struct cpu_cache *ca = &desc->caches[i];
+ 		cpu_set_t *map;
+ 
++		if (!path_exist(_PATH_SYS_SYSTEM "/cpu/cpu%d/cache/index%d",
++				num, i))
++			continue;
+ 		if (!ca->name) {
+ 			int type, level;
+ 
+-- 
+1.7.5.4
