@@ -1,197 +1,117 @@
-Return-Path: dave@gnu.org
-Subject: Re: [pull] some sys-utils improvements
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mtagate2.uk.ibm.com ([194.196.100.162]:59037 "EHLO
+	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933191Ab1IIJUC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:20:02 -0400
+Received: from d06nrmr1507.portsmouth.uk.ibm.com (d06nrmr1507.portsmouth.uk.ibm.com [9.149.38.233])
+	by mtagate2.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jt70013552
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:56 GMT
+Received: from d06av12.portsmouth.uk.ibm.com (d06av12.portsmouth.uk.ibm.com [9.149.37.247])
+	by d06nrmr1507.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899Jt982220044
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:55 +0100
+Received: from d06av12.portsmouth.uk.ibm.com (loopback [127.0.0.1])
+	by d06av12.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899JsjY029711
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 03:19:55 -0600
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <20110914163506.GC1829@nb.net.home>
-References: 
-	 <CAG27Bk342RY_dMN5BFW9G+9z-KmmasX0XOA4UVSrn+tSsvmVRA@mail.gmail.com>
-	 <1316006513.2467.2.camel@offbook>  <20110914163506.GC1829@nb.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 14 Sep 2011 14:04:45 -0300
-Message-ID: <1316019885.2605.1.camel@offbook>
-Mime-Version: 1.0
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 5/5] chcpu,cpuset: reduce code duplication for cpu list parsing
+Date: Fri,  9 Sep 2011 11:19:34 +0200
+Message-Id: <1315559974-26863-6-git-send-email-heiko.carstens@de.ibm.com>
+In-Reply-To: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+References: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2011-09-14 at 18:35 +0200, Karel Zak wrote:
-> On Wed, Sep 14, 2011 at 10:21:53AM -0300, Davidlohr Bueso wrote:
-> > On Tue, 2011-09-13 at 23:13 +0200, Sami Kerola wrote:
-> > Please try the following patch, it fixed it for me. In the case when the
-> > errors were shown, the msgctl(2) was returning 0 (success), so errno
-> > shouldn't be checked. Remember, this isn't reseted afterwards, so we are
-> > running into bogus messages (the msgid's are being correctly deleted).
-> > 
-> > Thanks,
-> > Davidlohr
-> > 
-> > From 952d6100c28505005c0a335e3e64f384bd941859 Mon Sep 17 00:00:00 2001
-> > From: Davidlohr Bueso <dave@gnu.org>
-> > Date: Wed, 14 Sep 2011 10:17:15 -0300
-> > Subject: [PATCH] ipcrm: check IPC syscalls
-> > 
-> > It's not enough to check errno for errors as the variable is not reset, we also need to check the last syscall return value to verify a problem.
-> > This addresses bogus msgqueue errors when deleting keys.
-> > 
-> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> > ---
-> >  sys-utils/ipcrm.c |    9 +++++----
-> >  1 files changed, 5 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
-> > index a8d6623..c794cbe 100644
-> > --- a/sys-utils/ipcrm.c
-> > +++ b/sys-utils/ipcrm.c
-> > @@ -65,6 +65,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
-> >  
-> >  int remove_id(int type, int iskey, int id)
-> >  {
-> > +	int ret;
-> >  	char *errmsg;
-> >  	/* needed to delete semaphores */
-> >  	union semun arg;
-> > @@ -75,24 +76,24 @@ int remove_id(int type, int iskey, int id)
-> >  	case SHM:
-> >  		if (verbose)
-> >  			printf(_("removing shared memory segment id `%d'\n"), id);
-> > -		shmctl(id, IPC_RMID, NULL);
-> > +		ret = shmctl(id, IPC_RMID, NULL);
-> >  		break;
-> >  	case MSG:
-> >  		if (verbose)
-> >  			printf(_("removing message queue id `%d'\n"), id);
-> > -		msgctl(id, IPC_RMID, NULL);
-> > +		ret = msgctl(id, IPC_RMID, NULL);
-> >  		break;
-> >  	case SEM:
-> >  		if (verbose)
-> >  			printf(_("removing semaphore id `%d'\n"), id);
-> > -		semctl(id, 0, IPC_RMID, arg);
-> > +		ret = semctl(id, 0, IPC_RMID, arg);
-> >  		break;
-> >  	default:
-> >  		errx(EXIT_FAILURE, "impossible occurred");
-> >  	}
-> >  
-> >  	/* how did the removal go? */
-> > -	switch (errno) {
-> > +	switch (errno && ret) {
-> 
->  so true/false only ... why we need the "case EACCES" (etc.)?
-> 
-> >  	case 0:
-> >  		return 0;
-> >  	case EACCES:
-> 
->  why we cannot use:
-> 
->   if (ret < 0) 
->     switch(errno) {
->       case EACCES:
->          ...
->          break;
-> 
->       ....
->   }
+Reduce code duplication and print better error message if an
+unsupported cpu number was passed.
 
-Well, yes, the case 0 didn't make much sense, otherwise I don't really
-care how we evaluate ret/errno. Is the below patch ok with you?
-
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Wed, 14 Sep 2011 14:02:15 -0300
-Subject: [PATCH] ipcrm: check IPC syscalls
-
-It's not enough to check errno for errors as the variable is not reset, we also need to check the last syscall return value to verify a problem.
-This addresses bogus msgqueue errors when deleting keys.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- sys-utils/ipcrm.c |   51 ++++++++++++++++++++++++++-------------------------
- 1 files changed, 26 insertions(+), 25 deletions(-)
+ lib/cpuset.c      |    7 ++++++-
+ sys-utils/chcpu.c |   28 ++++++++++++++++------------
+ 2 files changed, 22 insertions(+), 13 deletions(-)
 
-diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
-index a8d6623..a176fc7 100644
---- a/sys-utils/ipcrm.c
-+++ b/sys-utils/ipcrm.c
-@@ -65,6 +65,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+diff --git a/lib/cpuset.c b/lib/cpuset.c
+index ebaffcc..c3b67a7 100644
+--- a/lib/cpuset.c
++++ b/lib/cpuset.c
+@@ -263,6 +263,11 @@ int cpumask_parse(const char *str, cpu_set_t *set, size_t setsize)
  
- int remove_id(int type, int iskey, int id)
+ /*
+  * Parses string with list of CPU ranges.
++ * Returns 0 on success.
++ * Returns 1 on error.
++ * Returns 2 if fail is set and a cpu number passed in the list doesn't fit
++ * into the cpu_set. If fail is not set cpu numbers that do not fit are
++ * ignored and 0 is returned instead.
+  */
+ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
  {
-+	int ret;
- 	char *errmsg;
- 	/* needed to delete semaphores */
- 	union semun arg;
-@@ -75,46 +76,46 @@ int remove_id(int type, int iskey, int id)
- 	case SHM:
- 		if (verbose)
- 			printf(_("removing shared memory segment id `%d'\n"), id);
--		shmctl(id, IPC_RMID, NULL);
-+		ret = shmctl(id, IPC_RMID, NULL);
- 		break;
- 	case MSG:
- 		if (verbose)
- 			printf(_("removing message queue id `%d'\n"), id);
--		msgctl(id, IPC_RMID, NULL);
-+		ret = msgctl(id, IPC_RMID, NULL);
- 		break;
- 	case SEM:
- 		if (verbose)
- 			printf(_("removing semaphore id `%d'\n"), id);
--		semctl(id, 0, IPC_RMID, arg);
-+		ret = semctl(id, 0, IPC_RMID, arg);
- 		break;
- 	default:
- 		errx(EXIT_FAILURE, "impossible occurred");
- 	}
- 
- 	/* how did the removal go? */
--	switch (errno) {
--	case 0:
--		return 0;
--	case EACCES:
--	case EPERM:
--		errmsg = iskey ? _("permission denied for key")
--		    : _("permission denied for id");
--		break;
--	case EINVAL:
--		errmsg = iskey ? _("invalid key")
--		    : _("invalid id");
--		break;
--	case EIDRM:
--		errmsg = iskey ? _("already removed key")
--		    : _("already removed id");
--		break;
--	default:
--		if (iskey)
--			err(EXIT_FAILURE, _("key failed"));
--		else
--			err(EXIT_FAILURE, _("id failed"));
-+	if (ret < 0) {
-+		switch (errno) {
-+		case EACCES:
-+		case EPERM:
-+			errmsg = iskey ? _("permission denied for key")
-+				: _("permission denied for id");
-+			break;
-+		case EINVAL:
-+			errmsg = iskey ? _("invalid key")
-+				: _("invalid id");
-+			break;
-+		case EIDRM:
-+			errmsg = iskey ? _("already removed key")
-+				: _("already removed id");
-+			break;
-+		default:
-+			if (iskey)
-+				err(EXIT_FAILURE, _("key failed"));
-+			else
-+				err(EXIT_FAILURE, _("id failed"));
-+		}
-+		warnx("%s (%d)", errmsg, id);
- 	}
--	warnx("%s (%d)", errmsg, id);
- 	return 1;
+@@ -303,7 +308,7 @@ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
+ 			return 1;
+ 		while (a <= b) {
+ 			if (fail && (a >= max))
+-				return 1;
++				return 2;
+ 			CPU_SET_S(a, setsize, set);
+ 			a += s;
+ 		}
+diff --git a/sys-utils/chcpu.c b/sys-utils/chcpu.c
+index 2d5725f..a5d12c7 100644
+--- a/sys-utils/chcpu.c
++++ b/sys-utils/chcpu.c
+@@ -210,6 +210,18 @@ static int cpu_configure(cpu_set_t *cpu_set, size_t setsize, int configure)
+ 	return EXIT_SUCCESS;
  }
  
++static void cpu_parse(char *cpu_string, cpu_set_t *cpu_set, size_t setsize)
++{
++	int rc;
++
++	rc = cpulist_parse(cpu_string, cpu_set, setsize, 1);
++	if (rc == 0)
++		return;
++	if (rc == 2)
++		errx(EXIT_FAILURE, _("invalid CPU number in CPU list: %s"), cpu_string);
++	errx(EXIT_FAILURE, _("failed to parse CPU list: %s"), cpu_string);
++}
++
+ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fprintf(out, _(
+@@ -269,27 +281,19 @@ int main(int argc, char *argv[])
+ 		switch (c) {
+ 		case 'c':
+ 			cmd = CMD_CPU_CONFIGURE;
+-			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
+-				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
+-				     argv[optind -1 ]);
++			cpu_parse(argv[optind - 1], cpu_set, setsize);
+ 			break;
+ 		case 'd':
+ 			cmd = CMD_CPU_DISABLE;
+-			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
+-				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
+-				     argv[optind -1 ]);
++			cpu_parse(argv[optind - 1], cpu_set, setsize);
+ 			break;
+ 		case 'e':
+ 			cmd = CMD_CPU_ENABLE;
+-			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
+-				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
+-				     argv[optind -1 ]);
++			cpu_parse(argv[optind - 1], cpu_set, setsize);
+ 			break;
+ 		case 'g':
+ 			cmd = CMD_CPU_DECONFIGURE;
+-			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
+-				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
+-				     argv[optind -1 ]);
++			cpu_parse(argv[optind - 1], cpu_set, setsize);
+ 			break;
+ 		case 'h':
+ 			usage(stdout);
 -- 
-1.7.4.1
+1.7.5.4
+
