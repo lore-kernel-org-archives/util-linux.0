@@ -1,71 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59637 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751726Ab1IBNJk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Sep 2011 09:09:40 -0400
-Date: Fri, 2 Sep 2011 15:09:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Gabor Z. Papp" <gzp@papp.hu>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: dmesg(1) bug
-Message-ID: <20110902130931.GA4117@nb.redhat.com>
-References: <20110831104859.GB1547@nb.net.home> <x6zkiopqua@gzp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <x6zkiopqua@gzp>
+Received: from mtagate1.uk.ibm.com ([194.196.100.161]:42746 "EHLO
+	mtagate1.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933185Ab1IIJT6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:19:58 -0400
+Received: from d06nrmr1806.portsmouth.uk.ibm.com (d06nrmr1806.portsmouth.uk.ibm.com [9.149.39.193])
+	by mtagate1.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jr5v002340
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:53 GMT
+Received: from d06av04.portsmouth.uk.ibm.com (d06av04.portsmouth.uk.ibm.com [9.149.37.216])
+	by d06nrmr1806.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899Jqhv2596942
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:52 +0100
+Received: from d06av04.portsmouth.uk.ibm.com (loopback [127.0.0.1])
+	by d06av04.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899Jq49031960
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 03:19:52 -0600
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 1/5] lib,cpuset: fix comments for cpu mask/list functions
+Date: Fri,  9 Sep 2011 11:19:30 +0200
+Message-Id: <1315559974-26863-2-git-send-email-heiko.carstens@de.ibm.com>
+In-Reply-To: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+References: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 01, 2011 at 11:14:05AM +0200, Gabor Z. Papp wrote:
-> After patching dmesg, there is still difference between the old 2.19.x
-> and the new 2.20 output.
-> -  Intel GenuineIntel
-> + Intel GenuineIntel
+The comments for cpumask_parse() and cpulist_parse() each describe
+the wrong function. Just exchange the comments.
 
-This is small bug, kernel uses extra space after [...] time stamp.
-The new dmesg(1) removes this space at the begin of the message, but
-always and everywhere. The patch below fixes this issue
-(unfortunately, kernel.org is still down, so I can't push it..).
-
-> -generic-usb 0003:045E:001E.0001: input: USB HID v1.00 Mouse [Microsoft Microsoft IntelliMouse® Explorer] on usb-0000:00:1d.0-1/input0
-> +input: Microsoft Microsoft IntelliMouse\xffffffc2\xffffffae Explorer as /devices/pci0000:00/0000:00:1d.0/usb1/1-1/1-1:1.0/input/input1
-
-Do you have enabled widechar support? (See HAVE_WIDECHAR in config.h).
-
-The new dmesg(1) does not blindly print all unprintable chars
-(iswprint(), isprint()).
-
-  Karel
-
-
->From 31c9099a81d3a9c70fdceb198eebed678173d954 Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Fri, 2 Sep 2011 14:42:04 +0200
-Subject: [PATCH] dmesg: remove extra space only after time stamp
-
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- sys-utils/dmesg.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ lib/cpuset.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 8e7bb4b..b3713a0 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -480,11 +480,10 @@ static int get_next_record(struct dmesg_control *ctl, struct dmesg_record *rec)
- 						break;
- 				}
- 			}
-+			if (begin < end && *begin == ' ')
-+				begin++;
- 		}
+diff --git a/lib/cpuset.c b/lib/cpuset.c
+index dd31f52..842e8c8 100644
+--- a/lib/cpuset.c
++++ b/lib/cpuset.c
+@@ -221,7 +221,7 @@ char *cpumask_create(char *str, size_t len,
+ }
  
--		if (begin < end && *begin == ' ')
--			begin++;
--
- 		rec->mesg = begin;
- 		rec->mesg_size = end - begin;
+ /*
+- * Parses string with list of CPU ranges.
++ * Parses string with CPUs mask.
+  */
+ int cpumask_parse(const char *str, cpu_set_t *set, size_t setsize)
+ {
+@@ -262,7 +262,7 @@ int cpumask_parse(const char *str, cpu_set_t *set, size_t setsize)
+ }
  
+ /*
+- * Parses string with CPUs mask.
++ * Parses string with list of CPU ranges.
+  */
+ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
+ {
 -- 
-1.7.6
+1.7.5.4
 
