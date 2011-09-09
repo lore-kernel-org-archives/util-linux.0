@@ -1,29 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54755 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751609Ab1I0NHe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Sep 2011 09:07:34 -0400
-Date: Tue, 27 Sep 2011 15:07:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Francesco Cosoleto <cosoleto@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] libmount: fix use of logical '&&' with constant
-	operand
-Message-ID: <20110927130731.GD19994@nb.net.home>
-References: <1316096266-14692-1-git-send-email-cosoleto@gmail.com> <1316096266-14692-2-git-send-email-cosoleto@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316096266-14692-2-git-send-email-cosoleto@gmail.com>
+Received: from mtagate1.uk.ibm.com ([194.196.100.161]:42745 "EHLO
+	mtagate1.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933164Ab1IIJT6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:19:58 -0400
+Received: from d06nrmr1806.portsmouth.uk.ibm.com (d06nrmr1806.portsmouth.uk.ibm.com [9.149.39.193])
+	by mtagate1.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jsm4002354
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:55 GMT
+Received: from d06av08.portsmouth.uk.ibm.com (d06av08.portsmouth.uk.ibm.com [9.149.37.249])
+	by d06nrmr1806.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899Js282314450
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:54 +0100
+Received: from d06av08.portsmouth.uk.ibm.com (loopback [127.0.0.1])
+	by d06av08.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899JrGx015286
+	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:54 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 3/5] lib,cpuset: fix stride handling in cpulist_parse()
+Date: Fri,  9 Sep 2011 11:19:32 +0200
+Message-Id: <1315559974-26863-4-git-send-email-heiko.carstens@de.ibm.com>
+In-Reply-To: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+References: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 15, 2011 at 04:17:46PM +0200, Francesco Cosoleto wrote:
->  libmount/src/context_loopdev.c |    2 +-
->  libmount/src/context_mount.c   |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+If cpulist_parse() gets passed a cpu list with a stride value of 0
+it will be stuck in an endless loop.
+E.g. the following cpu list will cause an endless loop: "0-2:0".
+Fix this by causing a parse error if the stride value is 0.
 
- Applied, thanks.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ lib/cpuset.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
+diff --git a/lib/cpuset.c b/lib/cpuset.c
+index cf22aa7..8592755 100644
+--- a/lib/cpuset.c
++++ b/lib/cpuset.c
+@@ -292,6 +292,8 @@ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
+ 			if (c1 != NULL && (c2 == NULL || c1 < c2)) {
+ 				if (sscanf(c1, "%u", &s) < 1)
+ 					return 1;
++				if (s == 0)
++					return 1;
+ 			}
+ 		}
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.4
+
