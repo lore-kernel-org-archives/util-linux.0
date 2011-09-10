@@ -1,37 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:38532 "EHLO vostochny.stro.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753229Ab1IFWk3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Sep 2011 18:40:29 -0400
-From: maximilian attems <max@stro.at>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:47772 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759517Ab1IJRGN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 10 Sep 2011 13:06:13 -0400
+Received: by fxd22 with SMTP id 22so1651907fxd.19
+        for <util-linux@vger.kernel.org>; Sat, 10 Sep 2011 10:06:12 -0700 (PDT)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: maximilian attems <max@stro.at>
-Subject: [PATCH] libuuid: add limits.h include for OPEN_MAX
-Date: Wed,  7 Sep 2011 00:41:25 +0200
-Message-Id: <1315348885-31997-1-git-send-email-max@stro.at>
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: fdformat: fix uninitialized variable
+Date: Sat, 10 Sep 2011 19:06:09 +0200
+Message-Id: <1315674369-31253-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Needed as definition for usage in close_all_fds().
-Noticed on klibc build.
+Spotted by EKOPath compiler.
 
-Signed-off-by: maximilian attems <max@stro.at>
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
 ---
- libuuid/src/gen_uuid.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ disk-utils/fdformat.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index f4c8997..492bb75 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -53,6 +53,7 @@
- #include <string.h>
- #include <fcntl.h>
- #include <errno.h>
-+#include <limits.h>
- #include <sys/types.h>
- #ifdef HAVE_SYS_TIME_H
- #include <sys/time.h>
+diff --git a/disk-utils/fdformat.c b/disk-utils/fdformat.c
+index 670242f..29782ec 100644
+--- a/disk-utils/fdformat.c
++++ b/disk-utils/fdformat.c
+@@ -106,7 +106,7 @@ int main(int argc, char **argv)
+ {
+ 	int ch;
+ 	int ctrl;
+-	int verify;
++	int verify = 1;
+ 	struct stat st;
+ 
+ 	static const struct option longopts[] = {
 -- 
-1.7.5.4
+1.7.3.4
 
