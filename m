@@ -1,161 +1,164 @@
-Return-Path: heiko.carstens@de.ibm.com
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 5/6] lscpu: add --offline option
-Date: Thu, 15 Sep 2011 08:52:33 +0200
-Message-Id: <1316069554-20977-6-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:60722 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933322Ab1IJPHC convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 10 Sep 2011 11:07:02 -0400
+Received: by qyk30 with SMTP id 30so829324qyk.19
+        for <util-linux@vger.kernel.org>; Sat, 10 Sep 2011 08:07:01 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Date: Sat, 10 Sep 2011 17:07:00 +0200
+Message-ID: <CAG27Bk1tGhRf5yJaZfn7bR7ZQASmpomisUt-oATvBt223Hgn7A@mail.gmail.com>
+Subject: [pull] build all and check with smatch
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Implement "--offline" option which only prints offline cpus. As a side effect
-we can get rid of the internal "allcpus" flag, since if we want to print
-informations for online and offline cpus we simply set both flags.
+Hi,
 
-When reading sysfs attributes of cpus this is now done for all cpus, since
-e.g. the topology informations of the online cpus may influence the
-topology informations of the offline cpus. This mainly because online cpus
-may contain masks which include offline cpus while offline cpus have a
-missing topology directory.
+The first patch is about me being tired to write lots of --enable-* if
+I want to try to compile all programs. The smatch(1) seems to give
+valuable output where there might be problems in code. I went though
+every warning and came to conclusion few of them are important enough
+to fix. Would it make sense to add this tool to
+Documentation/howto-compilation.txt which possibly should have
+separated debugging section.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- sys-utils/lscpu.1 |    9 ++++++---
- sys-utils/lscpu.c |   34 ++++++++++++++++++++++------------
- 2 files changed, 28 insertions(+), 15 deletions(-)
+(1) http://smatch.sourceforge.net/
 
-diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-index b073a22..47c4c31 100644
---- a/sys-utils/lscpu.1
-+++ b/sys-utils/lscpu.1
-@@ -6,7 +6,7 @@
- lscpu \- display information on CPU architecture
- .SH SYNOPSIS
- .B lscpu
--.RB [ \-aehpxV ]
-+.RB [ \-abcehpxV ]
- .RB [ \-s
- .IR directory ]
- .SH DESCRIPTION
-@@ -28,10 +28,13 @@ the defined order.
- .SH OPTIONS
- .TP
- .BR \-a , " \-\-all"
--Include online and offline CPUs in output (default for -e)
-+Include online and offline CPUs in output (default for -e).
- .TP
- .BR \-b , " \-\-online"
--Include only online CPUs in output (default for -p)
-+Include only online CPUs in output (default for -p).
-+.TP
-+.BR \-c , " \-\-offline"
-+Include only offline CPUs in output.
- .TP
- .BR \-e , " \-\-extended " \fI[=list]\fP
- Print CPU list out in human-readable format.
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 63377d1..31c8fa8 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -195,8 +195,8 @@ struct lscpu_modifier {
- 	int		system;		/* SYSTEM_* */
- 	unsigned int	hex:1,		/* print CPU masks rather than CPU lists */
- 			compat:1,	/* use backwardly compatible format */
--			allcpus:1,	/* print all CPUs */
--			online:1;	/* print online CPUs only */
-+			online:1,	/* print online CPUs */
-+			offline:1;	/* print offline CPUs */
- };
- 
- static int maxcpus;		/* size in bits of kernel cpu mask */
-@@ -957,7 +957,9 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
- 	for (i = 0; i < desc->ncpus; i++) {
- 		int c;
- 
--		if (!mod->allcpus && desc->online && !is_cpu_online(desc, i))
-+		if (!mod->offline && desc->online && !is_cpu_online(desc, i))
-+			continue;
-+		if (!mod->online && desc->online && is_cpu_online(desc, i))
- 			continue;
- 		for (c = 0; c < ncols; c++) {
- 			if (mod->compat && cols[c] == COL_CACHE) {
-@@ -1003,7 +1005,9 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
- 		int c;
- 		struct tt_line *line;
- 
--		if (!mod->allcpus && desc->online && !is_cpu_online(desc, i))
-+		if (!mod->offline && desc->online && !is_cpu_online(desc, i))
-+			continue;
-+		if (!mod->online && desc->online && is_cpu_online(desc, i))
- 			continue;
- 
- 		line = tt_add_line(tt, NULL);
-@@ -1187,6 +1191,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_("\nOptions:\n"), out);
- 	fputs(_(" -a, --all               print online and offline CPUs (default for -e)\n"
- 		" -b, --online            print online CPUs only (default for -p)\n"
-+		" -c, --offline           print offline CPUs only\n"
- 		" -e, --extended[=<list>] print out a extended readable format\n"
- 		" -h, --help              print this help\n"
- 		" -p, --parse[=<list>]    print out a parsable format\n"
-@@ -1207,6 +1212,7 @@ int main(int argc, char *argv[])
- 	static const struct option longopts[] = {
- 		{ "all",        no_argument,       0, 'a' },
- 		{ "online",     no_argument,       0, 'b' },
-+		{ "offline",    no_argument,       0, 'c' },
- 		{ "help",	no_argument,       0, 'h' },
- 		{ "extended",	optional_argument, 0, 'e' },
- 		{ "parse",	optional_argument, 0, 'p' },
-@@ -1220,22 +1226,25 @@ int main(int argc, char *argv[])
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 
--	while ((c = getopt_long(argc, argv, "abe::hp::s:xV", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "abce::hp::s:xV", longopts, NULL)) != -1) {
- 
- 		if (mod->mode != OUTPUT_SUMMARY && strchr("ep", c))
- 			errx(EXIT_FAILURE,
- 			     _("extended and parsable formats are mutually exclusive"));
--		if ((mod->allcpus || mod->online) && strchr("ab", c))
-+		if ((mod->online || mod->offline) && strchr("abc", c))
- 			errx(EXIT_FAILURE,
--			     _("--all and --online options are mutually exclusive"));
-+			     _("--all, --online and --offline options are mutually exclusive"));
- 
- 		switch (c) {
- 		case 'a':
--			mod->allcpus = 1;
-+			mod->online = mod->offline = 1;
- 			break;
- 		case 'b':
- 			mod->online = 1;
- 			break;
-+		case 'c':
-+			mod->offline = 1;
-+			break;
- 		case 'h':
- 			usage(stdout);
- 		case 'p':
-@@ -1266,14 +1275,15 @@ int main(int argc, char *argv[])
- 			usage(stderr);
- 		}
+The following changes since commit 4e9b3bfda20ebbaf5d925dedad6ce8e2b678b563:
+
+  lib,cpuset: fix compiler warning [-Wuninitialized] (2011-09-10 00:02:00 +0200)
+
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit smatch
+
+Sami Kerola (6):
+      build-sys: add --enable-most-builds
+      build-sys: ddate typo fixed
+      column: fix error reported by smatch
+      libblkid: fix smatch warning
+      last: fix smatch warning
+      kill: fix issue warned by smatch
+
+ configure.ac         |   21 ++++++++++++++++++++-
+ libblkid/src/probe.c |    2 +-
+ login-utils/last.c   |    2 +-
+ misc-utils/procs.c   |    3 ++-
+ text-utils/column.c  |    3 ++-
+ 5 files changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 94cced3..fb0b0eb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -347,6 +347,25 @@ AC_DEFUN([UTIL_RESTORE_FLAGS], [
+
+ AX_CHECK_TLS
+
++AC_ARG_ENABLE([most-builds],
++  AS_HELP_STRING([--enable-most-builds], [build everthing other than
+experimental code]),
++  [], enable_most_builds=no
++)
++if test "x$enable_most_builds" = xyes; then
++  enable_arch=yes
++  enable_ddate=yes
++  enable_elvtune=yes
++  enable_kill=yes
++  enable_last=yes
++  enable_line=yes
++  enable_mesg=yes
++  enable_raw=yes
++  enable_rename=yes
++  enable_reset=yes
++  enable_login_utils=yes
++  enable_write=yes
++fi
++
+ AC_ARG_ENABLE([mount],
+   AS_HELP_STRING([--disable-mount], [do not build mount utilities]),
+   [], enable_mount=check
+@@ -849,7 +868,7 @@ AM_CONDITIONAL(BUILD_ARCH, test "x$enable_arch" = xyes)
+
+ AC_ARG_ENABLE([ddate],
+   AS_HELP_STRING([--enable-ddate], [do build ddate]),
+-  [], enable_date=no
++  [], enable_ddate=no
+ )
+ AM_CONDITIONAL(BUILD_DDATE, test "x$enable_ddate" = xyes)
+
+diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+index 7d0c9f9..2902de9 100644
+--- a/libblkid/src/probe.c
++++ b/libblkid/src/probe.c
+@@ -795,7 +795,7 @@ int blkid_probe_get_idmag(blkid_probe pr, const
+struct blkid_idinfo *id,
+ 		mag++;
  	}
--	if (mod->mode == OUTPUT_READABLE && !mod->online)
--		mod->allcpus = 1;
-+	/* set default cpu display mode if none was specified */
-+	if (!mod->online && !mod->offline) {
-+		mod->online = 1;
-+		mod->offline = mod->mode == OUTPUT_READABLE ? 1 : 0;
-+	}
- 
- 	read_basicinfo(desc, mod);
- 
- 	for (i = 0; i < desc->ncpus; i++) {
--		if (desc->online && !is_cpu_online(desc, i) && !mod->allcpus)
--			continue;
- 		read_topology(desc, i);
- 		read_cache(desc, i);
- 		read_polarization(desc, i);
+
+-	if (id->magics && id->magics[0].magic)
++	if (id && id->magics && id->magics[0].magic)
+ 		/* magic string(s) defined, but not found */
+ 		return 1;
+
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 23a2d28..5980780 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -448,7 +448,7 @@ ttyconv(char *arg) {
+ 			(void)strcpy(mval, "console");
+ 		else {
+ 			(void)strcpy(mval, "tty");
+-			(void)strcpy(mval + 3, arg);
++			(void)strncpy(mval + 3, arg, 4);
+ 		}
+ 		return mval;
+ 	}
+diff --git a/misc-utils/procs.c b/misc-utils/procs.c
+index 3f52387..7bbe02f 100644
+--- a/misc-utils/procs.c
++++ b/misc-utils/procs.c
+@@ -23,6 +23,7 @@
+ #include <ctype.h>
+ #include <unistd.h>
+ #include "kill.h"
++#include "xalloc.h"
+
+ extern char *mybasename (char *);
+ static char *parse_parens (char *buf);
+@@ -77,7 +78,7 @@ get_pids (char *process_name, int get_all) {
+ 	if (strcmp (process_name, mybasename (cp))) continue;
+ 	while (pids_size < num_pids + 2) {
+ 	    pids_size += 5;
+-	    pids = (int *) realloc (pids, sizeof (int) * pids_size);
++	    pids = (int *) xrealloc (pids, sizeof (int) * pids_size);
+ 	}
+ 	pids[num_pids++] = pid;
+ 	pids[num_pids] = -1;
+diff --git a/text-utils/column.c b/text-utils/column.c
+index 1e7a577..f8fd350 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -106,6 +106,7 @@ int main(int argc, char **argv)
+ {
+ 	struct winsize win;
+ 	int ch, tflag = 0, xflag = 0;
++	int i;
+ 	long termwidth = 80;
+ 	int entries = 0;		/* number of records */
+ 	unsigned int eval = 0;		/* exit value */
+@@ -198,7 +199,7 @@ int main(int argc, char **argv)
+ 	else
+ 		r_columnate(maxlength, termwidth, list, entries);
+
+-	for (int i = 0; i < entries; i++)
++	for (i = 0; i < entries; i++)
+ 		free(list[i]);
+ 	free(list);
+
 -- 
-1.7.5.4
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
