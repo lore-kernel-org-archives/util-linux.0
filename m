@@ -1,117 +1,255 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate2.uk.ibm.com ([194.196.100.162]:59037 "EHLO
-	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933191Ab1IIJUC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:20:02 -0400
-Received: from d06nrmr1507.portsmouth.uk.ibm.com (d06nrmr1507.portsmouth.uk.ibm.com [9.149.38.233])
-	by mtagate2.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jt70013552
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:56 GMT
-Received: from d06av12.portsmouth.uk.ibm.com (d06av12.portsmouth.uk.ibm.com [9.149.37.247])
-	by d06nrmr1507.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899Jt982220044
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:55 +0100
-Received: from d06av12.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av12.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899JsjY029711
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 03:19:55 -0600
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20110914174600.GD1829@nb.net.home>
+References: <CAG27Bk342RY_dMN5BFW9G+9z-KmmasX0XOA4UVSrn+tSsvmVRA@mail.gmail.com>
+	<20110914174600.GD1829@nb.net.home>
+Date: Sat, 17 Sep 2011 15:10:39 +0200
+Message-ID: <CAG27Bk3FNu-ofpfCZAZ3Ln34wggcJ6Djbx9jkK4dn-__gvAM5A@mail.gmail.com>
+Subject: Re: [pull] some sys-utils improvements
+From: Sami Kerola <kerolasa@iki.fi>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 5/5] chcpu,cpuset: reduce code duplication for cpu list parsing
-Date: Fri,  9 Sep 2011 11:19:34 +0200
-Message-Id: <1315559974-26863-6-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Reduce code duplication and print better error message if an
-unsupported cpu number was passed.
+On Wed, Sep 14, 2011 at 19:04, Davidlohr Bueso <dave@gnu.org> wrote:
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- lib/cpuset.c      |    7 ++++++-
- sys-utils/chcpu.c |   28 ++++++++++++++++------------
- 2 files changed, 22 insertions(+), 13 deletions(-)
+Thanks Dave. Now when I look the fix it's obvious. The patch is
+added to my branch, with tiny modifications
 
-diff --git a/lib/cpuset.c b/lib/cpuset.c
-index ebaffcc..c3b67a7 100644
---- a/lib/cpuset.c
-+++ b/lib/cpuset.c
-@@ -263,6 +263,11 @@ int cpumask_parse(const char *str, cpu_set_t *set, size_t setsize)
- 
- /*
-  * Parses string with list of CPU ranges.
-+ * Returns 0 on success.
-+ * Returns 1 on error.
-+ * Returns 2 if fail is set and a cpu number passed in the list doesn't fit
-+ * into the cpu_set. If fail is not set cpu numbers that do not fit are
-+ * ignored and 0 is returned instead.
-  */
- int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
- {
-@@ -303,7 +308,7 @@ int cpulist_parse(const char *str, cpu_set_t *set, size_t setsize, int fail)
- 			return 1;
- 		while (a <= b) {
- 			if (fail && (a >= max))
--				return 1;
-+				return 2;
- 			CPU_SET_S(a, setsize, set);
- 			a += s;
- 		}
-diff --git a/sys-utils/chcpu.c b/sys-utils/chcpu.c
-index 2d5725f..a5d12c7 100644
---- a/sys-utils/chcpu.c
-+++ b/sys-utils/chcpu.c
-@@ -210,6 +210,18 @@ static int cpu_configure(cpu_set_t *cpu_set, size_t setsize, int configure)
- 	return EXIT_SUCCESS;
- }
- 
-+static void cpu_parse(char *cpu_string, cpu_set_t *cpu_set, size_t setsize)
-+{
-+	int rc;
-+
-+	rc = cpulist_parse(cpu_string, cpu_set, setsize, 1);
-+	if (rc == 0)
-+		return;
-+	if (rc == 2)
-+		errx(EXIT_FAILURE, _("invalid CPU number in CPU list: %s"), cpu_string);
-+	errx(EXIT_FAILURE, _("failed to parse CPU list: %s"), cpu_string);
-+}
-+
- static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fprintf(out, _(
-@@ -269,27 +281,19 @@ int main(int argc, char *argv[])
- 		switch (c) {
- 		case 'c':
- 			cmd = CMD_CPU_CONFIGURE;
--			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
--				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
--				     argv[optind -1 ]);
-+			cpu_parse(argv[optind - 1], cpu_set, setsize);
- 			break;
- 		case 'd':
- 			cmd = CMD_CPU_DISABLE;
--			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
--				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
--				     argv[optind -1 ]);
-+			cpu_parse(argv[optind - 1], cpu_set, setsize);
- 			break;
- 		case 'e':
- 			cmd = CMD_CPU_ENABLE;
--			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
--				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
--				     argv[optind -1 ]);
-+			cpu_parse(argv[optind - 1], cpu_set, setsize);
- 			break;
- 		case 'g':
- 			cmd = CMD_CPU_DECONFIGURE;
--			if (cpulist_parse(argv[optind - 1], cpu_set, setsize, 1))
--				errx(EXIT_FAILURE, _("failed to parse CPU list: %s"),
--				     argv[optind -1 ]);
-+			cpu_parse(argv[optind - 1], cpu_set, setsize);
- 			break;
- 		case 'h':
- 			usage(stdout);
+* The if shorthands are put to one line.
+* After the patch function always returned as it would have failed, which now
+  is fixed.
+
+On Wed, Sep 14, 2011 at 19:46, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Sep 13, 2011 at 11:13:57PM +0200, Sami Kerola wrote:
+>> I started to look sys-utils directory, and got obsessed by getting ipc
+>> stuff to behave like a tool from this millennium. The whole directory
+>> is not done, but I feel this is already big enough patch set.
+>
+>  Some notes about USAGE_*:
+>
+> * USAGE_BEGIN_TAIL is unnecessary if we know that USAGE_MAN_TAIL is
+>  always on new line, we can use \n at the begin of the
+>  USAGE_MAN_TAIL:
+>
+>      "\nFor more details see %s.\n"
+
+When writing that to usage howto I thought there could be an executable which
+does not have manual page. That was a misconception; everything has manual page,
+and if something does not it will be created. I'll scrap the
+USAGE_BEGIN_TAIL.
+
+> * I don't like the current
+>
+>     #define USAGE_MAN_TAIL   _("For more details see %s.\n")
+>
+>  macro. It's bad manner to use hidden argument(s) for macros, it would
+>  be better to have:
+>
+>     #define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s.\n"), _man
+
+Corrected.
+
+> * how we want to use USAGE_HELP and USAGE_VERSION macros? The strings
+>  in the macros are the same for all programs, it means that there is
+>  the same space between "-h, --help" and "display this help and exit"
+>  in all programs. For example:
+>
+>   printf(_("-x, --extra-mega-cool <file>    enable the best feature for <file>\n");
+>   printf(USAGE_HELP);
+>   printf(USAGE_USAGE);
+>
+>   -x, --extra-mega-cool <file>    enable the best feature for <file>
+>   -h, --help     display this help and exit
+>   -V, --version  output version information and exit
+>
+>  mess, maybe we need an extra line between program specific options
+>  and the common options:
+>
+>   printf(_("-x, --extra-mega-cool <file>    enable the best feature for <file>\n");
+>   printf(USAGE_SEPARATOR);
+>   printf(USAGE_HELP);
+>   printf(USAGE_USAGE);
+>   printf(USAGE_MAN_TAIL("foo(1)");
+>
+>  output:
+>
+>   -x, --extra-mega-cool <file>    enable the best feature for <file>
+>
+>   -h, --help     display this help and exit
+>   -V, --version  output version information and exit
+>
+>   For more details see foo(1).
+>
+>  it also means that --help and --version should be at the end of the
+>  options list.
+
+The usage howto is already telling --help and --version are expected to be
+last in list, so that should be OK. The separator in between specific and
+'common' options is added to howto and code. Obvious good thing about the
+separator is that if we end up not liking it it's trivial to make
+ineffective.
+
+>>       setarch: move options struct to function scope
+>>       setarch: use program_invocation_short_name
+>>       setarch: add version printing
+>>       ipcmk: add long options & fix usage()
+>>       ipcmk: remove useless code
+>>       ipcmk: validate numeric option arguments
+>>       ipcmk: remove camel casing
+>>       ipcmk: include-what-you-use header check
+>
+>  Note that in the 2.20 release we have introduced a new bug by
+>  include-what-you-use patch. It's necessary to test it with
+>  (at least) --disable-nls.
+>
+>  The ideal solution would be to add something like tools/checkbuilds
+>  to test different ./configure scenarios (enable/disable NLS,
+>  slang/ncurses/ncursesw, ...). Now it's possible that not all
+>  scenarios are tested now. We have to test it, because people are too
+>  lazy to test -rc releases...
+
+Problem being is that the include-what-you-use gives very good hints and
+false positives, so a tiny slip with copy and paste will result to a such
+regressions what happen earlier.
+
+Maybe the best way to deal the headers is to catch whether a file has
+includes which are dealt some smart way in util-linux/include files. AFAIK
+the list such includes at least following.
+
+err.h
+langinfo.h
+libintl.h
+linux/version.h
+locale.h
+paths.h
+stdint.h
+sys/ioccom.h
+sys/mkdev.h
+wchar.h
+wctype.h
+
+My suggestion is to expand utility we alrady have
+
+tools/checkincludes.pl
+
+If no-one else will pickup making the utility more useful I will do that at
+some day. BTW I'll stop doing the header clean ups until the check is done.
+
+>>       ipcrm: add long options
+>>       ipcrm: exit if unknown error occurs
+>
+>  Please, don't use "else" after non-return functions. For example:
+>
+>  if (x)
+>     non_return_func()
+>  else
+>     ...
+
+Corrected & the principle is added to howto-contribute.
+
+>  Heee.. smatch should be improved to detect this code :-)
+>
+>>       ipcrm: refactor new and old main to share code
+>
+>  Please:
+>
+>    - check strtoul() result. See strutils.c
+
+Corrected.
+
+>    - if possible, then use only one line for  var = E ? x : y;  it's
+>      unnecessary to move ": y" to another line.
+
+Corrected & the principle is added to howto-contribute.
+
+>    - don't use "error" as variable name, glibc provides such function.
+
+Corrected.
+
+>    - btw, do we have regression test for ipcrm? :-)
+
+We don't yet. I added this to my list of things to do. Initial thought about
+the test is that is should not rely on ipcs to validate anything, because it
+should test that utility. Separate similar utility is needed. Secondly the
+iprm testing should not be destructive, which rules out remove all testing
+unless 'I know what I am doing' switch is used.
+
+>>       ipcrm: include-what-you-use header check
+>>       ipcs: add long options
+>>       ipcs: include-what-you-use header check
+>>       ipcs: comment & white space clean up
+>>       pivot_root: add version & help option
+>>       docs: mention long options in pivot_root.8
+>
+>  Hmm... there should be also switch_root(8) in SEE ALSO section.
+
+Added.
+
+The request-pull bellow updates the previous I sent.
+
+The following changes since commit 4e9b3bfda20ebbaf5d925dedad6ce8e2b678b563:
+
+  lib,cpuset: fix compiler warning [-Wuninitialized] (2011-09-10 00:02:00 +0200)
+
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit sys-utils
+
+Davidlohr Bueso (1):
+      ipcrm: check IPC syscalls
+
+Sami Kerola (28):
+      setarch: move options struct to function scope
+      setarch: use program_invocation_short_name
+      setarch: add version printing
+      ipcmk: add long options & fix usage()
+      ipcmk: remove useless code
+      ipcmk: validate numeric option arguments
+      ipcmk: remove camel casing
+      ipcmk: include-what-you-use header check
+      ipcrm: add long options
+      ipcrm: exit if unknown error occurs
+      ipcrm: refactor new and old main to share code
+      ipcrm: include-what-you-use header check
+      ipcs: add long options
+      ipcs: include-what-you-use header check
+      ipcs: comment & white space clean up
+      pivot_root: add version & help option
+      docs: mention long options in pivot_root.8
+      ctrlaltdel: add version & help options
+      docs: mention long options in ctrlaltdel.8
+      docs: add --version to setarch.8
+      docs: add long options to ipcmk.1 man page
+      docs: add long options to ipcrm.1 man page
+      docs: add long options to ipcs.1 man page
+      ipcrm: add --all option
+      ipcmk: allow high speed ipc creation
+      ipcrm: add --verbose option
+      build-sys: fixes to USAGE_* macros
+      docs: add non-return function and if shorthand tips
+
+ Documentation/howto-contribute.txt     |   18 ++
+ Documentation/howto-usage-function.txt |    6 +-
+ include/c.h                            |    4 +-
+ sys-utils/Makefile.am                  |    2 +
+ sys-utils/arch.c                       |    5 +-
+ sys-utils/ctrlaltdel.8                 |   20 +-
+ sys-utils/ctrlaltdel.c                 |   39 +++-
+ sys-utils/ipcmk.1                      |   52 ++--
+ sys-utils/ipcmk.c                      |  144 ++++-----
+ sys-utils/ipcrm.1                      |   65 ++---
+ sys-utils/ipcrm.c                      |  515 ++++++++++++++++++++------------
+ sys-utils/ipcs.1                       |  101 ++++---
+ sys-utils/ipcs.c                       |  278 +++++++++---------
+ sys-utils/pivot_root.8                 |   10 +-
+ sys-utils/pivot_root.c                 |   60 +++-
+ sys-utils/setarch.8                    |   21 +-
+ sys-utils/setarch.c                    |   74 +++---
+ 17 files changed, 841 insertions(+), 573 deletions(-)
+
 -- 
-1.7.5.4
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
