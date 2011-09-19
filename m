@@ -1,42 +1,53 @@
-Return-Path: heiko.carstens@de.ibm.com
-Message-Id: <20110906010157.024880300@de.ibm.com>
-Date: Tue, 06 Sep 2011 02:52:54 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 03/11] [PATCH] lscpu: simplify cache column output function
-References: <20110906005251.497675140@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:34162 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753172Ab1ISN3Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 19 Sep 2011 09:29:16 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 315A48F29D
+	for <util-linux@vger.kernel.org>; Mon, 19 Sep 2011 15:29:16 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/7] sfdisk: fix weird indentation in msdos_partition()
+Date: Mon, 19 Sep 2011 15:29:10 +0200
+Message-Id: <1316438955-20790-3-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
+References: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Simplify the logic to "always print a ',' for each cache except if
-it is the last one.
-This is also a preparation patch for printing the cache column for
-offline CPUs where it would print one colon too much because of the
-current logic.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- sys-utils/lscpu.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ fdisk/sfdisk.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 45b644b..49b6f2b 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -915,13 +915,11 @@ print_parsable_cell(struct lscpu_desc *desc, int i, int col, int compatible)
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 81a50ee..2c9de8f 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -1550,14 +1550,13 @@ msdos_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
+ 	do_warn(_("detected Disk Manager - unable to handle that\n"));
+ 	return 0;
+     }
+-    {
+-	unsigned int sig = *(unsigned short *)(s->data + 2);
+-	if (sig <= 0x1ae
+-	    && *(unsigned short *)(s->data + sig) == 0x55aa
+-	    && (1 & *(unsigned char *)(s->data + sig + 2))) {
++
++    unsigned int sig = *(unsigned short *)(s->data + 2);
++    if (sig <= 0x1ae
++	&& *(unsigned short *)(s->data + sig) == 0x55aa
++	&& (1 & *(unsigned char *)(s->data + sig + 2))) {
+ 	    do_warn(_("DM6 signature found - giving up\n"));
+ 	    return 0;
+-	}
+     }
  
- 			for (x = 0; x < ca->nsharedmaps; x++) {
- 				if (CPU_ISSET_S(i, setsize, ca->sharedmaps[x])) {
--					if (j != desc->ncaches - 1)
--						putchar(compatible ? ',' : ':');
- 					printf("%d", x);
- 					break;
- 				}
- 			}
--			if (x == ca->nsharedmaps)
-+			if (j != 0)
- 				putchar(compatible ? ',' : ':');
- 		}
- 		break;
+     for (pno = 0; pno < 4; pno++, cp += sizeof(struct partition)) {
 -- 
-1.7.5.4
+1.7.3.4
+
