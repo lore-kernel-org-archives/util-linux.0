@@ -1,27 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30440 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:34164 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754433Ab1I2Xmi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Sep 2011 19:42:38 -0400
-Date: Fri, 30 Sep 2011 01:42:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
-Subject: Re: [PATCH 2/2] xalloc: fix whitespace to be consistent
-Message-ID: <20110929234235.GB13001@nb.net.home>
-References: <1317322602-24884-1-git-send-email-dreisner@archlinux.org> <1317322602-24884-2-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1317322602-24884-2-git-send-email-dreisner@archlinux.org>
+	id S1753934Ab1ISN3R (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 19 Sep 2011 09:29:17 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 906788EE5B
+	for <util-linux@vger.kernel.org>; Mon, 19 Sep 2011 15:29:16 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/7] sfdisk: make the cylinder boundary check less fatal
+Date: Mon, 19 Sep 2011 15:29:11 +0200
+Message-Id: <1316438955-20790-4-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
+References: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 29, 2011 at 02:56:42PM -0400, Dave Reisner wrote:
->  include/xalloc.h |   14 +++++++-------
->  1 files changed, 7 insertions(+), 7 deletions(-)
+If the specified format is not cylinders, make the cylinder boundary
+check only print a warning and proceed anyways.
 
- Applied, thanks.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisk/sfdisk.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 2c9de8f..820e23e 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -1313,12 +1313,14 @@ partitions_ok(struct disk_desc *z) {
+ 		    && (p->p.start_sect >= B.cylindersize)) {
+ 		    my_warn(_("Warning: partition %s does not start "
+ 			      "at a cylinder boundary\n"), PNO(p));
+-		    return 0;
++		    if (specified_format == F_CYLINDER)
++			return 0;
+ 		}
+ 		if ((p->start + p->size) % B.cylindersize) {
+ 		    my_warn(_("Warning: partition %s does not end "
+ 			      "at a cylinder boundary\n"), PNO(p));
+-		    return 0;
++		    if (specified_format == F_CYLINDER)
++			return 0;
+ 		}
+ 	    }
+     }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
