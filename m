@@ -1,31 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate7.uk.ibm.com ([194.196.100.167]:34678 "EHLO
-	mtagate7.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933107Ab1IIJTy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Sep 2011 05:19:54 -0400
-Received: from d06nrmr1507.portsmouth.uk.ibm.com (d06nrmr1507.portsmouth.uk.ibm.com [9.149.38.233])
-	by mtagate7.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p899Jq2B025873
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 09:19:52 GMT
-Received: from d06av07.portsmouth.uk.ibm.com (d06av07.portsmouth.uk.ibm.com [9.149.37.248])
-	by d06nrmr1507.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p899JpPA1327160
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 10:19:51 +0100
-Received: from d06av07.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av07.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p899Jprn017588
-	for <util-linux@vger.kernel.org>; Fri, 9 Sep 2011 03:19:51 -0600
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 0/5] various small fixes and changes
-Date: Fri,  9 Sep 2011 11:19:29 +0200
-Message-Id: <1315559974-26863-1-git-send-email-heiko.carstens@de.ibm.com>
+Received: from li9-11.members.linode.com ([67.18.176.11]:56274 "EHLO
+	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750964Ab1IUWYO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 21 Sep 2011 18:24:14 -0400
+Date: Wed, 21 Sep 2011 18:24:12 -0400
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Tim Pepper <tpepper@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libuuid clock.txt fd leaks
+Message-ID: <20110921222412.GA6654@thunk.org>
+References: <CAHuv5K=UXH=vMZoCgYYvucACru5D8dLa91ufVeY2GJFFSv1ckw@mail.gmail.com>
+ <20110921202620.GD4056@thunk.org>
+ <CAHuv5Kn4eOjsm9JORpjWJjD15vUEmrOx5K_xzU+wie8f4Cx8AA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHuv5Kn4eOjsm9JORpjWJjD15vUEmrOx5K_xzU+wie8f4Cx8AA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+On Wed, Sep 21, 2011 at 03:02:48PM -0700, Tim Pepper wrote:
+> Is the original optimization really needed?  If not you avoid the whole
+> problem...no static, no TLS, no fd left open.
 
-just another bunch of small patches which are supposed to improve or
-fix some small things.
+> I wonder who would whinge on performance if the open/close simply
+> happened everytime?  Ie: remove initial state_fd=-2 and its associated
+> special casing.
 
-Thanks,
-Heiko
+There are programs out there that generate literally tens of thousands
+of UUID's per second.  One example of such a program filed high
+priority bugs with both RHEL and SLES because it wasn't fast enough
+and the uuid library was slowing down the setup time of an
+commercially important Enterprise Resource Planning product by hours.
 
+The reason why I implemented uuidd was specifically to help out this
+product and this company.  Partially because it was economically
+important to Red Hat, SLES, and IBM (who was my employer at the time),
+and partially because I had a soft spot for this company, to which I had
+helped add Kerberos authentication and was very supportive of Linux in
+the mid 1990's, before Linux had been discovered by big business.
+
+But yeah, there are people and companies who really care about
+libuuid's performance.
+
+    	  	    	       	      	   - Ted
