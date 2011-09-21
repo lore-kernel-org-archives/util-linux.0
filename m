@@ -1,30 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from odpn1.odpn.net ([212.40.96.53]:55253 "EHLO odpn1.odpn.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751418Ab1IBG5X (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Sep 2011 02:57:23 -0400
-Received: from odpn1.odpn.net [212.40.96.53]
-	by odpn1.odpn.net for util-linux@vger.kernel.org
-	id 1QzNgo-0006Ko-AV; Fri, 02 Sep 2011 08:57:22 +0200
-From: "Gabor Z. Papp" <gzp@papp.hu>
-To: util-linux@vger.kernel.org
-Subject: agetty 2.20 --noclear
-Date: Fri, 02 Sep 2011 08:57:22 +0200
-Message-ID: <x662lbqvn1@gzp>
+Received: from li9-11.members.linode.com ([67.18.176.11]:53695 "EHLO
+	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750777Ab1IUVPg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 21 Sep 2011 17:15:36 -0400
+Date: Wed, 21 Sep 2011 17:15:33 -0400
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Tim Pepper <tpepper@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libuuid clock.txt fd leaks
+Message-ID: <20110921211533.GA3032@thunk.org>
+References: <CAHuv5K=UXH=vMZoCgYYvucACru5D8dLa91ufVeY2GJFFSv1ckw@mail.gmail.com>
+ <20110921202620.GD4056@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20110921202620.GD4056@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lo lo,
+On Wed, Sep 21, 2011 at 04:26:20PM -0400, Ted Ts'o wrote:
+> Part of the problem is that the uuid library was originally designed
+> non-thread-using libraries, and I originally was trying to force all
 
-util-linux's agetty never cleared the terminal before 2.20.
+Sigh, s/to force/to avoid forcing/
 
-I don't think its good idea to set clear screen to default, since
-after upgrading from <2.20 versions, everywhere have to modify the
-inittab with the --no-clear option.
+> programs to link against -lpthread.  (Remember, libuuid as found in
+> e2fsprogs predates Linux having a standardized threads support, or any
+> threads support at all.)
 
-Also this Num/Caps/Scroll Lock on/off printf hint in the code looks
-quite funny... Can't be set this optional and not printed by default?
-
-Earlier versions weren't so noisy.
+						- Ted
