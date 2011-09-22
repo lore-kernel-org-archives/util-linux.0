@@ -1,27 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:22083 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:38529 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751175Ab1I0NKu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Sep 2011 09:10:50 -0400
-Date: Tue, 27 Sep 2011 15:10:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
-Subject: Re: [PATCH] blkid.8: fix unfinished sentence for -l option.
-Message-ID: <20110927131043.GF19994@nb.net.home>
-References: <1316294447-26330-1-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316294447-26330-1-git-send-email-dreisner@archlinux.org>
+	id S1752625Ab1IVKMJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 22 Sep 2011 06:12:09 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id AB12A8F903
+	for <util-linux@vger.kernel.org>; Thu, 22 Sep 2011 12:12:08 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] docs: update TODO
+Date: Thu, 22 Sep 2011 12:12:08 +0200
+Message-Id: <1316686328-19799-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 17, 2011 at 05:20:47PM -0400, Dave Reisner wrote:
->  misc-utils/blkid.8 |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+TODO items already done by Sami Kerola
 
- Applied, thanks.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ Documentation/TODO |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
+diff --git a/Documentation/TODO b/Documentation/TODO
+index cab1ff7..555f80d 100644
+--- a/Documentation/TODO
++++ b/Documentation/TODO
+@@ -99,10 +99,6 @@ docs
+ 
+  - (!) add API documentation to libuuid
+ 
+- - add Documentation/ directory with:
+-	   - man page template 
+-	   - usage() HOW-TO
+-	   - move README.devel to the Documentation/
+ 
+ build-sys
+ --------
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
