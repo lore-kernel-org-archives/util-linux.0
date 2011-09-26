@@ -1,85 +1,58 @@
-Return-Path: heiko.carstens@de.ibm.com
-Message-Id: <20110906010158.126216533@de.ibm.com>
-Date: Tue, 06 Sep 2011 02:52:56 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: dave@gnu.org
+Subject: [PATCH 1/5] lomount: accomodate building with loopdev
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 05/11] [PATCH] lscpu: add --version option
-References: <20110906005251.497675140@de.ibm.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <1317066156.3401.1.camel@offbook>
+References: <1317066156.3401.1.camel@offbook>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 26 Sep 2011 16:49:55 -0300
+Message-ID: <1317066595.2896.1.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-Add a --version option like most other tools have it.
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 26 Sep 2011 14:56:45 -0300
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- sys-utils/lscpu.1 |    5 ++++-
- sys-utils/lscpu.c |   10 ++++++++--
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ mount/Makefile.am |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-index 6840590..2dc31b7 100644
---- a/sys-utils/lscpu.1
-+++ b/sys-utils/lscpu.1
-@@ -6,7 +6,7 @@
- lscpu \- CPU architecture information helper
- .SH SYNOPSIS
- .B lscpu
--.RB [ \-hpx ]
-+.RB [ \-hpxV ]
- .RB [ \-s
- .IR directory ]
- .SH DESCRIPTION
-@@ -47,6 +47,9 @@ a snapshot from a different system.
- .BR \-x , " \-\-hex"
- Use hexadecimal masks for CPU sets (e.g. 0x3).  The default is to print the sets
- in list format (e.g. 0,1).
-+.TP
-+.BR \-V , " \-\-version"
-+Output version information and exit.
- .SH BUGS
- The basic overview about CPU family, model, etc. is always based on the first
- CPU only.
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index d7c7028..841beae 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -1178,7 +1178,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 		"  -h, --help         print this help\n"
- 		"  -p, --parse[=LIST] print out a parsable instead of a readable format\n"
- 		"  -s, --sysroot DIR  use directory DIR as system root\n"
--		"  -x, --hex          print hexadecimal masks rather than lists of CPUs\n"));
-+		"  -x, --hex          print hexadecimal masks rather than lists of CPUs\n"
-+		"  -V, --version      output version information and exit\n"));
+diff --git a/mount/Makefile.am b/mount/Makefile.am
+index e9237b7..f0e16d5 100644
+--- a/mount/Makefile.am
++++ b/mount/Makefile.am
+@@ -5,7 +5,9 @@ sbin_PROGRAMS = losetup swapon
+ dist_man_MANS = fstab.5 mount.8 swapoff.8 swapon.8 umount.8 losetup.8
  
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
-@@ -1195,6 +1196,7 @@ int main(int argc, char *argv[])
- 		{ "parse",	optional_argument, 0, 'p' },
- 		{ "sysroot",	required_argument, 0, 's' },
- 		{ "hex",	no_argument,	   0, 'x' },
-+		{ "version",	no_argument,	   0, 'V' },
- 		{ NULL,		0, 0, 0 }
- 	};
+ # generic sources for all programs (mount, umount, losetup)
+-srcs_common = sundries.c $(top_srcdir)/lib/canonicalize.c sundries.h
++srcs_common = sundries.c $(top_srcdir)/lib/canonicalize.c \
++	$(top_srcdir)/lib/linux_version.c $(top_srcdir)/lib/at.c \
++	$(top_srcdir)/lib/sysfs.c $(top_srcdir)/lib/loopdev.c sundries.h
  
-@@ -1202,7 +1204,7 @@ int main(int argc, char *argv[])
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
+ # generic header for mount and umount
+ hdrs_mount = fstab.h mount_mntent.h mount_constants.h \
+@@ -14,7 +16,7 @@ hdrs_mount = fstab.h mount_mntent.h mount_constants.h \
+ # generic sources for mount and umount
+ srcs_mount = fstab.c mount_mntent.c getusername.c lomount.c devname.c devname.h \
+ 	$(srcs_common) $(hdrs_mount) $(top_srcdir)/lib/env.c \
+-	$(top_srcdir)/lib/linux_version.c $(top_srcdir)/lib/blkdev.c \
++	$(top_srcdir)/lib/blkdev.c \
+ 	$(top_srcdir)/lib/fsprobe.c $(top_srcdir)/lib/mangle.c
  
--	while ((c = getopt_long(argc, argv, "hp::s:x", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "hp::s:xV", longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'h':
- 			usage(stdout);
-@@ -1233,6 +1235,10 @@ int main(int argc, char *argv[])
- 		case 'x':
- 			hex = 1;
- 			break;
-+		case 'V':
-+			printf(_("%s from %s\n"), program_invocation_short_name,
-+			       PACKAGE_STRING);
-+			return EXIT_SUCCESS;
- 		default:
- 			usage(stderr);
- 		}
+ # generic flags for all programs (except losetup)
+@@ -42,8 +44,7 @@ swapon_SOURCES = swapon.c swap_constants.h $(top_srcdir)/lib/linux_version.c \
+ swapon_CFLAGS = $(cflags_common)
+ swapon_LDADD = $(ldadd_common)
+ 
+-losetup_SOURCES = lomount.c $(srcs_common) loop.h lomount.h \
+-		$(top_srcdir)/lib/strutils.c
++losetup_SOURCES = lomount.c $(srcs_common) loop.h lomount.h $(top_srcdir)/lib/strutils.c 
+ losetup_CPPFLAGS = -DMAIN $(AM_CPPFLAGS)
+ 
+ mount_static_LDADD =
 -- 
-1.7.5.4
+1.7.4.1
