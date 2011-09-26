@@ -1,34 +1,85 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64668 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752649Ab1I0NAo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Sep 2011 09:00:44 -0400
-Date: Tue, 27 Sep 2011 15:00:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] more lscpu and chcpu changes
-Message-ID: <20110927130039.GC1982@nb.net.home>
-References: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH 3/5] lomount: rewrite find_unused_loop_devices()
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <1317066156.3401.1.camel@offbook>
+References: <1317066156.3401.1.camel@offbook>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 26 Sep 2011 16:50:05 -0300
+Message-ID: <1317066605.2896.3.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 15, 2011 at 08:52:28AM +0200, Heiko Carstens wrote:
->  include/path.h        |   17 ++++
->  lib/path.c            |  217 ++++++++++++++++++++++++++++++++++++++++++++
->  sys-utils/Makefile.am |    6 +-
->  sys-utils/chcpu.c     |  122 +++++++++++--------------
->  sys-utils/lscpu.1     |    9 ++-
->  sys-utils/lscpu.c     |  237 ++++++++++---------------------------------------
->  6 files changed, 348 insertions(+), 260 deletions(-)
->  create mode 100644 include/path.h
->  create mode 100644 lib/path.c
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 26 Sep 2011 14:57:58 -0300
 
- Applied, thanks.
+Use lib/loopdev instead.
 
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ mount/lomount.c |   38 ++++++++++++--------------------------
+ 1 files changed, 12 insertions(+), 26 deletions(-)
+
+diff --git a/mount/lomount.c b/mount/lomount.c
+index 74a8749..781cdd1 100644
+--- a/mount/lomount.c
++++ b/mount/lomount.c
+@@ -18,6 +18,7 @@
+ 
+ #include "loop.h"
+ #include "lomount.h"
++#include "loopdev.h"
+ #include "strutils.h"
+ #include "nls.h"
+ #include "sundries.h"
+@@ -699,35 +700,20 @@ loopfile_used_with(char *devname, const char *filename, unsigned long long offse
+ 
+ char *
+ find_unused_loop_device (void) {
+-	struct looplist ll;
+-	char *devname = NULL;
+-	int fd;
++	struct loopdev_cxt lc;
++	char *dev;
++	int rc;
+ 
+-	if (looplist_open(&ll, LLFLG_FREEONLY) == -1) {
+-		error(_("%s: /dev directory does not exist."), progname);
+-		return NULL;
+-	}
++	loopcxt_init(&lc, 0);
+ 
+-	if ((fd = looplist_next(&ll)) != -1) {
+-		close(fd);
+-		devname = xstrdup(ll.name);
+-	}
+-	looplist_close(&ll);
+-	if (devname)
+-		return devname;
++	rc = loopcxt_find_unused(&lc);
++	if (rc)
++		err(EXIT_FAILURE, "loopdevs scanning failed");
++	
++	dev = xstrdup(loopcxt_get_device(&lc));
++	loopcxt_deinit(&lc);
+ 
+-	if (!ll.ct_succ && ll.ct_perm)
+-		error(_("%s: no permission to look at /dev/loop%s<N>"), progname,
+-				(ll.flag & LLFLG_SUBDIR) ? "/" : "");
+-	else if (ll.ct_succ)
+-		error(_("%s: could not find any free loop device"), progname);
+-	else
+-		error(_(
+-		    "%s: Could not find any loop device. Maybe this kernel "
+-		    "does not know\n"
+-		    "       about the loop device? (If so, recompile or "
+-		    "`modprobe loop'.)"), progname);
+-	return NULL;
++	return dev;
+ }
+ 
+ /*
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
