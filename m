@@ -1,34 +1,21 @@
-Return-Path: heiko.carstens@de.ibm.com
-Message-Id: <20110906010156.418074369@de.ibm.com>
-Date: Tue, 06 Sep 2011 02:52:53 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 02/11] [PATCH] lscpu: fix cache output for extended parsable output
-References: <20110906005251.497675140@de.ibm.com>
+Return-Path: dave@gnu.org
+Subject: [PATCH 0/5] losetup: rewrite
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 26 Sep 2011 16:49:49 -0300
+Message-ID: <1317066589.2896.0.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-The extended parsable output prints a colon instead of comma between each
-item. The case where a CPU doesn't belong to any cache was not converted.
-Just fix this.
+This is the first in a number of patchset series to come to rewrite this
+tool using the loopdev library. We also aim to add it to the sys-utils/
+directory in the attempt to start cleaning up mount/.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- sys-utils/lscpu.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Instead of a complete rewrite from scratch, like it was initially
+planned, its better to do it incrementally, which makes it easier to
+regression test.
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 3733cab..45b644b 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -922,7 +922,7 @@ print_parsable_cell(struct lscpu_desc *desc, int i, int col, int compatible)
- 				}
- 			}
- 			if (x == ca->nsharedmaps)
--				putchar(',');
-+				putchar(compatible ? ',' : ':');
- 		}
- 		break;
- 	case COL_POLARIZATION:
--- 
-1.7.5.4
+Thanks,
+Davidlohr 
