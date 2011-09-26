@@ -1,66 +1,65 @@
-Return-Path: heiko.carstens@de.ibm.com
-Date: Fri, 16 Sep 2011 10:28:43 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: dave@gnu.org
+Subject: [PATCH 2/5] lomount: avoid data duplication
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/6] chcpu: convert to use lib/path.c
-Message-ID: <20110916082843.GA12600@osiris.boeblingen.de.ibm.com>
-References: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
- <1316069554-20977-3-git-send-email-heiko.carstens@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316069554-20977-3-git-send-email-heiko.carstens@de.ibm.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <1317066156.3401.1.camel@offbook>
+References: <1317066156.3401.1.camel@offbook>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 26 Sep 2011 16:50:00 -0300
+Message-ID: <1317066600.2896.2.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
->  int
-> +path_writestr(const char *str, const char *path, ...)
-> +{
-> +	int fd, result;
-> +	va_list ap;
-> +
-> +	va_start(ap, path);
-> +	fd = path_vopen(O_WRONLY, path, ap);
-> +	va_end(ap);
-> +	result = write(fd, str, strlen(str));
-> +	close(fd);
-> +	return result;
-> +}
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Mon, 26 Sep 2011 14:57:13 -0300
 
-Hmm, this is not ok. The patch below is needed on top. Sorry...
+In lib/loopdev.c we already define struct loop_info64 and the LO_FLAGS_* macros, so get rid of the local ones in loop.h
 
-
-Subject: [PATCH] lib,path: use write_all()
-
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-Since write() doesn't necessarily write the complete buffer with
-one call we better use write_all() which takes care of this.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- lib/path.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ mount/loop.h |   23 -----------------------
+ 1 files changed, 0 insertions(+), 23 deletions(-)
 
-diff --git a/lib/path.c b/lib/path.c
-index e2bb398..54b8942 100644
---- a/lib/path.c
-+++ b/lib/path.c
-@@ -27,6 +27,7 @@
- #include <stdio.h>
- #include <errno.h>
+diff --git a/mount/loop.h b/mount/loop.h
+index 64df339..1700983 100644
+--- a/mount/loop.h
++++ b/mount/loop.h
+@@ -25,13 +25,6 @@
+ /* #define LOOP_CHANGE_FD	0x4C06 */
+ #define LOOP_SET_CAPACITY	0x4C07
  
-+#include "writeall.h"
- #include "cpuset.h"
- #include "path.h"
- #include "nls.h"
-@@ -132,7 +133,7 @@ path_writestr(const char *str, const char *path, ...)
- 	va_start(ap, path);
- 	fd = path_vopen(O_WRONLY, path, ap);
- 	va_end(ap);
--	result = write(fd, str, strlen(str));
-+	result = write_all(fd, str, strlen(str));
- 	close(fd);
- 	return result;
- }
+-/* Flags for loop_into{64,}->lo_flags */
+-enum {
+-	LO_FLAGS_READ_ONLY  = 1,
+-	LO_FLAGS_USE_AOPS   = 2,
+-	LO_FLAGS_AUTOCLEAR  = 4, /* New in 2.6.25 */
+-};
+-
+ #define LO_NAME_SIZE	64
+ #define LO_KEY_SIZE	32
+ 
+@@ -50,20 +43,4 @@ struct loop_info {
+ 	char		reserved[4];
+ };
+ 
+-struct loop_info64 {
+-	uint64_t	lo_device;
+-	uint64_t	lo_inode;
+-	uint64_t	lo_rdevice;
+-	uint64_t	lo_offset;
+-	uint64_t	lo_sizelimit; /* bytes, 0 == max available */
+-	uint32_t	lo_number;
+-	uint32_t	lo_encrypt_type;
+-	uint32_t	lo_encrypt_key_size;
+-	uint32_t	lo_flags;
+-	uint8_t		lo_file_name[LO_NAME_SIZE];
+-	uint8_t		lo_crypt_name[LO_NAME_SIZE];
+-	uint8_t		lo_encrypt_key[LO_KEY_SIZE];
+-	uint64_t	lo_init[2];
+-};
+-
+ #endif /* MNT_LOOP_H */
 -- 
-1.7.5.4
+1.7.4.1
