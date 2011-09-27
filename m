@@ -1,49 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14809 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54755 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755082Ab1ILMEZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Sep 2011 08:04:25 -0400
-Date: Mon, 12 Sep 2011 14:04:22 +0200
+	id S1751609Ab1I0NHe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 27 Sep 2011 09:07:34 -0400
+Date: Tue, 27 Sep 2011 15:07:31 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] build all and check with smatch
-Message-ID: <20110912120422.GB16902@nb.net.home>
-References: <CAG27Bk1tGhRf5yJaZfn7bR7ZQASmpomisUt-oATvBt223Hgn7A@mail.gmail.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] libmount: fix use of logical '&&' with constant
+	operand
+Message-ID: <20110927130731.GD19994@nb.net.home>
+References: <1316096266-14692-1-git-send-email-cosoleto@gmail.com> <1316096266-14692-2-git-send-email-cosoleto@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1tGhRf5yJaZfn7bR7ZQASmpomisUt-oATvBt223Hgn7A@mail.gmail.com>
+In-Reply-To: <1316096266-14692-2-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 10, 2011 at 05:07:00PM +0200, Sami Kerola wrote:
-> The first patch is about me being tired to write lots of --enable-* if
-> I want to try to compile all programs. The smatch(1) seems to give
-> valuable output where there might be problems in code. I went though
+On Thu, Sep 15, 2011 at 04:17:46PM +0200, Francesco Cosoleto wrote:
+>  libmount/src/context_loopdev.c |    2 +-
+>  libmount/src/context_mount.c   |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
- Cool! More static analyzes, more regression tests, more reviews --
- that's what we need.
-
- I have added 'checksmatch' target, so if you have smatch and cgcc in
- your $PATH then you can use
-
-    make checksmatch
-
- or
-
-    make -C dir/ checksmatch
-
-> Documentation/howto-compilation.txt which possibly should have
-> separated debugging section.
-
- We have Documentation/howto-debug.txt
-
-> are available in the git repository at:
->   https://github.com/kerolasa/lelux-utiliteetit smatch
-
- Merged, thanks!
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
