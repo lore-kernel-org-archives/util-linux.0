@@ -1,51 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60429 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752738Ab1I0NuF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Sep 2011 09:50:05 -0400
-Date: Tue, 27 Sep 2011 15:49:41 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] misc: use %m in format string instead of %s and
-	strerror(errno)
-Message-ID: <20110927134941.GH19994@nb.net.home>
-References: <1316686357-19893-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316686357-19893-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:48104 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753297Ab1I1O0U (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 28 Sep 2011 10:26:20 -0400
+Received: by eya28 with SMTP id 28so5673896eya.19
+        for <util-linux@vger.kernel.org>; Wed, 28 Sep 2011 07:26:19 -0700 (PDT)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 2/3] ipcrm: use ternary operator in "(key|id) failed" message
+Date: Wed, 28 Sep 2011 16:25:30 +0200
+Message-Id: <1317219931-20496-2-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1317219931-20496-1-git-send-email-cosoleto@gmail.com>
+References: <1317219931-20496-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 22, 2011 at 12:12:37PM +0200, Petr Uzel wrote:
->  Documentation/TODO      |    3 ---
->  disk-utils/fsck.minix.c |    2 +-
->  disk-utils/raw.c        |   14 ++++++--------
->  fdisk/fdisk.c           |    4 ++--
->  fdisk/gpt.c             |    3 +--
->  hwclock/cmos.c          |   16 ++++++++--------
->  include/c.h             |    2 +-
->  libblkid/src/devname.c  |    3 +--
->  libblkid/src/verify.c   |    8 ++++----
->  libmount/src/context.c  |    2 +-
->  login-utils/login.c     |    3 +--
->  login-utils/vipw.c      |    3 +--
->  misc-utils/blkid.c      |    2 +-
->  misc-utils/uuidd.c      |   25 +++++++++----------------
->  mount/fstab.c           |    2 +-
->  mount/lomount.c         |    3 +--
->  mount/mount.c           |    7 +++----
->  mount/umount.c          |   10 ++++------
->  sys-utils/chcpu.c       |   12 ++++--------
->  sys-utils/ipcrm.c       |    3 +--
->  sys-utils/readprofile.c |    8 ++++----
->  term-utils/ttymsg.c     |    2 +-
->  22 files changed, 56 insertions(+), 81 deletions(-)
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ sys-utils/ipcrm.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
- Applied (and small conflict in chcpu.c resolved), thanks.
-
-    Karel
-
+diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
+index dc47f90..f6482ab 100644
+--- a/sys-utils/ipcrm.c
++++ b/sys-utils/ipcrm.c
+@@ -107,9 +107,7 @@ static int remove_id(int type, int iskey, int id)
+ 			errmsg = iskey ? _("already removed key") : _("already removed id");
+ 			break;
+ 		default:
+-			if (iskey)
+-				err(EXIT_FAILURE, _("key failed"));
+-			err(EXIT_FAILURE, _("id failed"));
++			err(EXIT_FAILURE, iskey ? _("key failed") : _("id failed"));
+ 		}
+ 		warnx("%s (%d)", errmsg, id);
+ 		return 1;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
