@@ -1,44 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29526 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751894Ab1I0NgU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Sep 2011 09:36:20 -0400
-Date: Tue, 27 Sep 2011 15:35:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/7] sfdisk improvements
-Message-ID: <20110927133552.GD1982@nb.net.home>
-References: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:56200 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754104Ab1I2S6i (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 29 Sep 2011 14:58:38 -0400
+Received: by vcbfk10 with SMTP id fk10so729636vcb.19
+        for <util-linux@vger.kernel.org>; Thu, 29 Sep 2011 11:58:37 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 1/2] xalloc: check for NULL before calling strdup
+Date: Thu, 29 Sep 2011 14:56:41 -0400
+Message-Id: <1317322602-24884-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 19, 2011 at 03:29:08PM +0200, Petr Uzel wrote:
-> Third one makes sfdisk not to issue a fatal warning (overridable, though),
-> if the partition does not start/end on the cylinder boundary and
-> the unit specified is other than cylinders. These days,
-> we shouldn't care about the CHS that much IMO...
+This fixes a segfault in mount (and possibly elsewhere) when invoked
+without a -t parameter.
 
- Right, see also cc393e381def1540db7b1273dde9410bea616b22. Giulio has
- added some improvements for -L (Linux) option to disable some silly
- tests.
+Broken in 7ef9fd7 when the common xalloc.h libs were introduced.
 
-> I decided to use unsigned long long to represent the 64-bit integers,
-> which might not be the best choice (maybe we should use off_t or uint64_t
-> instead??). Comments are welcomed.
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ include/xalloc.h |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
- Well, "unsigned long long" is horribly long, but probably good enough
- for now (as we already using this type in fdisk.c).
-
- The real solution is to start to work on a new fdisks...
-
- Applied, thanks.
-
-    Karel
-
+diff --git a/include/xalloc.h b/include/xalloc.h
+index 8c505be..bea7e31 100644
+--- a/include/xalloc.h
++++ b/include/xalloc.h
+@@ -51,9 +51,14 @@ void *xcalloc(const size_t nelems, const size_t size)
+ 
+ static inline char *xstrdup(const char *str)
+ {
+-	char *ret = strdup(str);
++	char *ret;
+ 
+-	if (!ret && str)
++	if (!str)
++		return NULL;
++
++	ret = strdup(str);
++
++	if (!ret)
+ 		err(XALLOC_EXIT_CODE, "cannot duplicate string");
+ 	return ret;
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6.4
+
