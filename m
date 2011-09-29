@@ -1,62 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:34168 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753172Ab1ISN3R (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 Sep 2011 09:29:17 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id F05E98F3B5
-	for <util-linux@vger.kernel.org>; Mon, 19 Sep 2011 15:29:16 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/7] sfdisk: get_disksize() returns long long
-Date: Mon, 19 Sep 2011 15:29:12 +0200
-Message-Id: <1316438955-20790-5-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
-References: <1316438955-20790-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:45533 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755729Ab1I2VAv convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 29 Sep 2011 17:00:51 -0400
+Received: by vws1 with SMTP id 1so850848vws.19
+        for <util-linux@vger.kernel.org>; Thu, 29 Sep 2011 14:00:50 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Date: Thu, 29 Sep 2011 23:00:50 +0200
+Message-ID: <CAG27Bk1tpBCE4+15YnKFR6vkOsxj_mUm0v4b9gV8nFsKEM2S1w@mail.gmail.com>
+Subject: [pull] more sys-utils improvements
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-unsigned long is 4 bytes long on i586, which is not enough for big
-HDD's with 512B sectors. Use unsigned long long, which is 8 bytes.
+The following changes since commit faa9d6431f831bcf6b6f3d962da7451a4d3e9e7f:
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- fdisk/sfdisk.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+  tests: add loopdev libmount test (2011-09-29 20:50:27 +0200)
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 820e23e..9c94185 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -928,7 +928,7 @@ unitsize(int format) {
-     }
- }
- 
--static unsigned long
-+static unsigned long long
- get_disksize(int format) {
-     if (B.total_size && leave_last)
- 	/* don't use last cylinder (--leave-last option) */
-@@ -1266,7 +1266,7 @@ partitions_ok(struct disk_desc *z) {
- 
-     /* Do they start past zero and end before end-of-disk? */
-     {
--	unsigned long ds = get_disksize(F_SECTOR);
-+	unsigned long long ds = get_disksize(F_SECTOR);
- 	for (p = partitions; p < partitions + partno; p++)
- 	    if (p->size) {
- 		if (p->start == 0) {
-@@ -1925,7 +1925,7 @@ first_free(int pno, int is_extended, struct part_desc *ep, int format,
- static unsigned long
- max_length(int pno, int is_extended, struct part_desc *ep, int format,
- 	   unsigned long start, struct disk_desc *z) {
--    unsigned long fu;
-+    unsigned long long fu;
-     unsigned long unit = unitsize(format);
-     struct part_desc *partitions = &(z->partitions[0]), *pp = 0;
- 
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit sys-utils-again
+
+Sami Kerola (18):
+      docs: align fallocate.1 with howto-man-page.txt
+      flock: fix coding style
+      flock: move long_options struct to function scope
+      flock: use libc error printing facilities
+      flock: align with howto-usage-function.txt
+      flock: use function attributes
+      flock: use sysexit.h for all exit values
+      flock: use strutils.h to check numeric user input
+      lib: [strutils] add strtod_or_err() function
+      flock: simplify strtotimeval()
+      docs: restructure flock.1 manual page
+      cytune: add long options and usage()
+      cytune: check numeric user inputs
+      cytune: use libc error printing facilities
+      cytune: refactor main(), new function query_tty_stats()
+      cytune: coding style fixes
+      docs: mention long options in cytune.8
+      cytune: fix printf type warning
+
+ include/strutils.h    |    1 +
+ lib/strutils.c        |   24 ++
+ sys-utils/Makefile.am |    3 +-
+ sys-utils/cytune.8    |  111 ++++----
+ sys-utils/cytune.c    |  733 +++++++++++++++++++++++++------------------------
+ sys-utils/fallocate.1 |   26 +-
+ sys-utils/flock.1     |  124 ++++++---
+ sys-utils/flock.c     |  538 +++++++++++++++++-------------------
+ 8 files changed, 807 insertions(+), 753 deletions(-)
+
 -- 
-1.7.3.4
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
