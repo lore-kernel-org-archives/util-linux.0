@@ -1,51 +1,57 @@
-Return-Path: heiko.carstens@de.ibm.com
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 4/6] lscpu: fix -e output
-Date: Thu, 15 Sep 2011 08:52:32 +0200
-Message-Id: <1316069554-20977-5-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1316069554-20977-1-git-send-email-heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:56200 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754104Ab1I2S6j (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 29 Sep 2011 14:58:39 -0400
+Received: by mail-vx0-f174.google.com with SMTP id fk10so729636vcb.19
+        for <util-linux@vger.kernel.org>; Thu, 29 Sep 2011 11:58:39 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 2/2] xalloc: fix whitespace to be consistent
+Date: Thu, 29 Sep 2011 14:56:42 -0400
+Message-Id: <1317322602-24884-2-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1317322602-24884-1-git-send-email-dreisner@archlinux.org>
+References: <1317322602-24884-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The modifier mod->allcpus must be set earlier and also must be used
-earlier. The current code only reads sysfs attributes from online
-cpus but skips offline cpus.
-So initialize mod->allcpus earlier.
+We use spaces for the rest of this file, so the random tabs within
+xstrdup stand out.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
- sys-utils/lscpu.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ include/xalloc.h |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 78d936f..63377d1 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -1266,11 +1266,13 @@ int main(int argc, char *argv[])
- 			usage(stderr);
- 		}
- 	}
-+	if (mod->mode == OUTPUT_READABLE && !mod->online)
-+		mod->allcpus = 1;
+diff --git a/include/xalloc.h b/include/xalloc.h
+index bea7e31..feeb114 100644
+--- a/include/xalloc.h
++++ b/include/xalloc.h
+@@ -51,16 +51,16 @@ void *xcalloc(const size_t nelems, const size_t size)
  
- 	read_basicinfo(desc, mod);
+ static inline char *xstrdup(const char *str)
+ {
+-	char *ret;
++        char *ret;
  
- 	for (i = 0; i < desc->ncpus; i++) {
--		if (desc->online && !is_cpu_online(desc, i))
-+		if (desc->online && !is_cpu_online(desc, i) && !mod->allcpus)
- 			continue;
- 		read_topology(desc, i);
- 		read_cache(desc, i);
-@@ -1300,8 +1302,6 @@ int main(int argc, char *argv[])
- 		print_parsable(desc, columns, ncolumns, mod);
- 		break;
- 	case OUTPUT_READABLE:
--		if (!mod->online)
--			mod->allcpus = 1;
- 		if (!ncolumns) {
- 			/* No list was given. Just print whatever is there. */
- 			columns[ncolumns++] = COL_CPU;
+-	if (!str)
+-		return NULL;
++        if (!str)
++                return NULL;
+ 
+-	ret = strdup(str);
++        ret = strdup(str);
+ 
+-	if (!ret)
+-		err(XALLOC_EXIT_CODE, "cannot duplicate string");
+-	return ret;
++        if (!ret)
++                err(XALLOC_EXIT_CODE, "cannot duplicate string");
++        return ret;
+ }
+ 
+ #endif
 -- 
-1.7.5.4
+1.7.6.4
+
