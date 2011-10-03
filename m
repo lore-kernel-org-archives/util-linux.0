@@ -1,79 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:41176 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751487Ab1JIPLx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Oct 2011 11:11:53 -0400
-Received: by vcbgb30 with SMTP id gb30so184255vcb.19
-        for <util-linux@vger.kernel.org>; Sun, 09 Oct 2011 08:11:52 -0700 (PDT)
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 1/2] mountpoint: refactor exit path
-Date: Sun,  9 Oct 2011 11:12:04 -0400
-Message-Id: <1318173125-16156-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55739 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752062Ab1JCNpa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 3 Oct 2011 09:45:30 -0400
+Date: Mon, 3 Oct 2011 15:45:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] more sys-utils improvements
+Message-ID: <20111003134526.GG1982@nb.net.home>
+References: <CAG27Bk1tpBCE4+15YnKFR6vkOsxj_mUm0v4b9gV8nFsKEM2S1w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk1tpBCE4+15YnKFR6vkOsxj_mUm0v4b9gV8nFsKEM2S1w@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There's only one condition for which we declare success, but many for
-failure. Initialize rc as failure and set to success on this single
-condition. In all cases, jump to a label to exit instead of exiting
-immediately. This will be used later on to ease cleanup of any heap
-allocations.
+On Thu, Sep 29, 2011 at 11:00:50PM +0200, Sami Kerola wrote:
+> are available in the git repository at:
+>   https://github.com/kerolasa/lelux-utiliteetit sys-utils-again
+> 
+> Sami Kerola (18):
+>       docs: align fallocate.1 with howto-man-page.txt
+>       flock: fix coding style
+>       flock: move long_options struct to function scope
+>       flock: use libc error printing facilities
+>       flock: align with howto-usage-function.txt
+>       flock: use function attributes
+>       flock: use sysexit.h for all exit values
+>       flock: use strutils.h to check numeric user input
+>       lib: [strutils] add strtod_or_err() function
+>       flock: simplify strtotimeval()
+>       docs: restructure flock.1 manual page
+>       cytune: add long options and usage()
+>       cytune: check numeric user inputs
+>       cytune: use libc error printing facilities
+>       cytune: refactor main(), new function query_tty_stats()
+>       cytune: coding style fixes
+>       docs: mention long options in cytune.8
+>       cytune: fix printf type warning
+> 
+>  include/strutils.h    |    1 +
+>  lib/strutils.c        |   24 ++
+>  sys-utils/Makefile.am |    3 +-
+>  sys-utils/cytune.8    |  111 ++++----
+>  sys-utils/cytune.c    |  733 +++++++++++++++++++++++++------------------------
+>  sys-utils/fallocate.1 |   26 +-
+>  sys-utils/flock.1     |  124 ++++++---
+>  sys-utils/flock.c     |  538 +++++++++++++++++-------------------
+>  8 files changed, 807 insertions(+), 753 deletions(-)
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- sys-utils/mountpoint.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ Applied, thanks.
 
-diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
-index 1297d82..e021c70 100644
---- a/sys-utils/mountpoint.c
-+++ b/sys-utils/mountpoint.c
-@@ -105,7 +105,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 
- int main(int argc, char **argv)
- {
--	int c, fs_devno = 0, dev_devno = 0, rc = 0;
-+	int c, fs_devno = 0, dev_devno = 0, rc = EXIT_FAILURE;
- 	char *spec;
- 	struct stat st;
- 
-@@ -152,7 +152,7 @@ int main(int argc, char **argv)
- 	if (stat(spec, &st)) {
- 		if (!quiet)
- 			err(EXIT_FAILURE, "%s", spec);
--		return EXIT_FAILURE;
-+		goto finish;
- 	}
- 	if (dev_devno)
- 		rc = print_devno(spec, &st);
-@@ -162,19 +162,22 @@ int main(int argc, char **argv)
- 		if (!S_ISDIR(st.st_mode)) {
- 			if (!quiet)
- 				errx(EXIT_FAILURE, _("%s: not a directory"), spec);
--			return EXIT_FAILURE;
-+			goto finish;
- 		}
- 		src = dir_to_device(spec);
- 		if (src == (dev_t)-1) {
- 			if (!quiet)
- 				printf(_("%s is not a mountpoint\n"), spec);
--			return EXIT_FAILURE;
-+			goto finish;
- 		}
- 		if (fs_devno)
- 			printf("%u:%u\n", major(src), minor(src));
--		else if (!quiet)
-+		else if (!quiet) {
- 			printf(_("%s is a mountpoint\n"), spec);
-+			rc = EXIT_SUCCESS;
-+		}
- 	}
- 
--	return rc ? EXIT_FAILURE : EXIT_SUCCESS;
-+finish:
-+	return rc;
- }
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
