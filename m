@@ -1,212 +1,245 @@
-Return-Path: dave@gnu.org
-Date: Wed, 19 Oct 2011 16:04:11 -0400
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 3/3] prlimit: add manpage documentation
-In-reply-to: <20111017151837.GB9767@nb.net.home>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1319054651.2170.5.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
-References: <1318893793.5289.11.camel@offworld>
- <20111017151837.GB9767@nb.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:50748 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754674Ab1JEUmj convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Oct 2011 16:42:39 -0400
+Received: by vcbfk10 with SMTP id fk10so1679666vcb.19
+        for <util-linux@vger.kernel.org>; Wed, 05 Oct 2011 13:42:38 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Date: Wed, 5 Oct 2011 22:42:38 +0200
+Message-ID: <CAG27Bk0ACb_sAmTiBaEpGRxgeVDJ7-tWhx9N9Ok47ZE3bTD4Zg@mail.gmail.com>
+Subject: [pull] build-sys and lsblk enhancements
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2011-10-17 at 17:18 +0200, Karel Zak wrote:
-> On Mon, Oct 17, 2011 at 07:23:13PM -0400, Davidlohr Bueso wrote:
-> > From: Davidlohr Bueso <dave@gnu.org>
-> > 
-> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> > ---
-> >  sys-utils/prlimit.1 |   83 +++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  1 files changed, 83 insertions(+), 0 deletions(-)
-> >  create mode 100644 sys-utils/prlimit.1
-> > 
-> > diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
-> > new file mode 100644
-> > index 0000000..2f1e666
-> > --- /dev/null
-> > +++ b/sys-utils/prlimit.1
-> > @@ -0,0 +1,83 @@
-> > +.\" prlimit.1 --
-> > +.\" Copyright 2011 Davidlohr Bueso <dave@gnu.org>
-> > +.\" May be distributed under the GNU General Public License
-> > +
-> > +.TH PRLIMIT 1 "October 2011" "util-linux" "User Commands"
-> > +.SH NAME
-> > +prlimit \-
-> > +get and set a process resource limits.
-> > +.SH SYNOPSIS
-> > +.B prlimit
-> > +.RB [ \--{resource_name}
-> > +.IR soft:hard ]
-> 
-> This synopsis is incorrect. Should be:
-> 
->    prlimit [options] [--{resource_name}[=limits]]
-> 
-> and in the DESCRIPTION should be documented <limits> format. It means
-> 
->     <soft>:<hard>
->     <soft>
->     :<hard>
-> 
-> .. etc.
-> 
-> > +.SH DESCRIPTION
-> > +Given a process id and one or more resources, \fBprlimit\fP tries to retrieve and/or modify it's limits. Below is a complete list of resources.
-> > +
-> > +.SH GENERAL OPTIONS
-> > +.IP "\fB\-p, \-\-pid\fP"
-> > +Specify the process id, if none is given, it will use the running process.
-> > +.IP "\fB\-o, \-\-output \fIlist\fP"
-> > +Define the output columns to use. If no output arrangement is specified, then a default set is used.
-> > +Use \fB\-\-help\fP to  get list of all supported columns.
-> > +.IP "\fB\-V, \-\-version\fP"
-> > +Output version information and exit.
-> > +.IP "\fB\-h, \-\-help\fP"
-> > +Print a help text and exit.
-> > +
-> > +.SH RESOURCE OPTIONS
-> > +.IP "\fB\-a, \-\-as\fP"
-> 
->   .IP "\fB\-a, \-\-as\fP"[=limits]
-> 
-> [...]
-> 
-> > +Note that all of these options allow a parameter soft:high to set
-> > the soft and high values for the resource's limits. If nothing is
-> > passed, then prlimit will only display them. The soft value must be
-> > lower or equal to the high value, as this is the maximum value the
-> > limit can go to. If one of the values is not passed, then the
-> > already existing one will be used. See the examples below.
-> 
->  It would be better to have this test in DESCRIPTION.
-> 
->  Thanks!
-> 
->     Karel
+Hi,
 
-Like with patch 2/3, below is the new patch with corrections. Not
-resending the build patch, unless you want me to.
+The libtoolize thing does not really require any explanation. The
+definition change is align with this package being independent from
+kernel headers, alternative would be to trust the definition in kernel
+header to be suitable and define only if that would exist. Last two
+patches where outcome of me knowing that this package has nice block
+device utilities, and a try to make a oracle storage migration on
+quite old system at work easier. Obviously that did not work, but as a
+outcome I thought that for others understanding what is wrong, how,
+where and what to do about it could be made easier.
 
-- Davidlohr
+The following changes since commit fd96508a27d60abbe2574ce852cc1526d6529029:
 
->From 55c929758695afea52c4ddf8816b4d76a66fd914 Mon Sep 17 00:00:00 2001
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Wed, 19 Oct 2011 15:59:10 -0400
-Subject: [PATCH 2/2] prlimit: add manpage documentation
+  docs: add prlimit to the TODO file (2011-09-30 12:40:44 +0200)
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- sys-utils/prlimit.1 |   99 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 99 insertions(+), 0 deletions(-)
- create mode 100644 sys-utils/prlimit.1
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit build-sys
 
-diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
-new file mode 100644
-index 0000000..cc48e88
---- /dev/null
-+++ b/sys-utils/prlimit.1
-@@ -0,0 +1,99 @@
-+.\" prlimit.1 --
-+.\" Copyright 2011 Davidlohr Bueso <dave@gnu.org>
-+.\" May be distributed under the GNU General Public License
+Sami Kerola (4):
+      build-sys: enhance error message for missing libtoolize
+      build-sys: rename BUILD_BUG_ON_ZERO definition
+      build-sys: check scanf %ms modifier
+      lsblk: inform about depencency to /sys/dev/block
+
+ autogen.sh               |    1 +
+ configure.ac             |   34 ++++++++++++++++++++++++++++++++++
+ include/c.h              |    4 ++--
+ libmount/src/tab_parse.c |   20 +++++++++++++++++++-
+ misc-utils/lsblk.8       |    9 +++++++++
+ misc-utils/lsblk.c       |   12 ++++++++++++
+ 6 files changed, 77 insertions(+), 3 deletions(-)
+
+diff --git a/autogen.sh b/autogen.sh
+index c07984b..14a795f 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -55,6 +55,7 @@ test -f mount/mount.c || {
+ }
+
+ ltver=$(libtoolize --version | awk '/^libtoolize/ { print $4 }')
++ltver=${ltver:-"none"}
+ test ${ltver##2.} = "$ltver" && {
+ 	echo "You must have libtool version >= 2.x.x, but you have $ltver."
+ 	DIE=1
+diff --git a/configure.ac b/configure.ac
+index fb0b0eb..62664b9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -477,6 +477,40 @@ elif test "x$enable_libmount" = xno; then
+     build_libmount=no
+ fi
+
++AC_DEFUN([UTIL_SCANF_TYPE_MODIFIER], [dnl
++# include <stdio.h>
++int main()
++{
++	int i;
++	char *s;
++	i = sscanf("x", $1, &s);
++	if (i == 1)
++		return 0;
++	return 1;
++}])
++AC_MSG_CHECKING([needed scanf type modifiers])
++AC_CACHE_VAL([scanf_cv_type_modifier],
++  AC_RUN_IFELSE([AC_LANG_SOURCE([UTIL_SCANF_TYPE_MODIFIER(["%ms"])])],
++    [scanf_cv_type_modifier=ms],
++    AC_RUN_IFELSE([AC_LANG_SOURCE([UTIL_SCANF_TYPE_MODIFIER(["%as"])])],
++      [scanf_cv_type_modifier=as],
++      [scanf_cv_type_modifier=no]
++    )
++  )
++)
++if test "x$scanf_cv_type_modifier" = "xms"; then
++  AC_MSG_RESULT([yes])
++  AC_DEFINE([HAVE_SCANF_MS_MODIFIER], [1], [scanf %ms modifier])
++else
++  if test "x$scanf_cv_type_modifier" = "xas"; then
++    AC_MSG_RESULT([yes])
++    AC_DEFINE([HAVE_SCANF_AS_MODIFIER], [1], [scanf %as modifier])
++  else
++    build_libmount=no
++    AC_MSG_RESULT([no])
++  fi
++fi
 +
-+.TH PRLIMIT 1 "October 2011" "util-linux" "User Commands"
-+.SH NAME
-+prlimit \-
-+get and set a process resource limits.
-+.SH SYNOPSIS
-+.B prlimit
-+.RB [options]  [ \--{resource_name}[=limits]]
+ case "$enable_libblkid:$build_libmount" in
+ no:yes)
+   AC_MSG_ERROR([cannot enable libmount when libblkid is disabled]) ;;
+diff --git a/include/c.h b/include/c.h
+index f5b4bcd..259e6b6 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -33,7 +33,7 @@
+
+ /* &a[0] degrades to a pointer: a different type from an array */
+ # define __must_be_array(a) \
+-	BUILD_BUG_ON_ZERO(__builtin_types_compatible_p(__typeof__(a),
+__typeof__(&a[0])))
++	UL_BUILD_BUG_ON_ZERO(__builtin_types_compatible_p(__typeof__(a),
+__typeof__(&a[0])))
+
+ # define ignore_result(x) ({ \
+ 	__typeof__(x) __dummy __attribute__((__unused__)) = (x); (void) __dummy; \
+@@ -69,7 +69,7 @@
+  * e.g. in a structure initializer (or where-ever else comma expressions
+  * aren't permitted).
+  */
+-#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
++#define UL_BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+ #define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:-!!(e); }))
+
+ #ifndef ARRAY_SIZE
+diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+index dba6002..7859e36 100644
+--- a/libmount/src/tab_parse.c
++++ b/libmount/src/tab_parse.c
+@@ -54,10 +54,17 @@ static int mnt_parse_table_line(struct libmnt_fs
+*fs, char *s)
+ 	int rc, n = 0;
+ 	char *src, *fstype, *optstr;
+
++#ifdef HAVE_SCANF_MS_MODIFIER
+ 	rc = sscanf(s,	"%ms "	/* (1) source */
+ 			"%ms "	/* (2) target */
+ 			"%ms "	/* (3) FS type */
+ 			"%ms "  /* (4) options */
++#elif defined(HAVE_SCANF_AS_MODIFIER)
++	rc = sscanf(s,	"%as "	/* (1) source */
++			"%as "	/* (2) target */
++			"%as "	/* (3) FS type */
++			"%as "  /* (4) options */
++#endif
+ 			"%n",	/* byte count */
+ 			&src,
+ 			&fs->target,
+@@ -114,9 +121,15 @@ static int mnt_parse_mountinfo_line(struct
+libmnt_fs *fs, char *s)
+ 	rc = sscanf(s,	"%u "		/* (1) id */
+ 			"%u "		/* (2) parent */
+ 			"%u:%u "	/* (3) maj:min */
++#ifdef HAVE_SCANF_MS_MODIFIER
+ 			"%ms "		/* (4) mountroot */
+ 			"%ms "		/* (5) target */
+ 			"%ms"		/* (6) vfs options (fs-independent) */
++#elif defined(HAVE_SCANF_AS_MODIFIER)
++			"%as "		/* (4) mountroot */
++			"%as "		/* (5) target */
++			"%as"		/* (6) vfs options (fs-independent) */
++#endif
+ 			"%n",		/* number of read bytes */
+
+ 			&fs->id,
+@@ -138,10 +151,15 @@ static int mnt_parse_mountinfo_line(struct
+libmnt_fs *fs, char *s)
+ 	}
+ 	s = p + 3;
+
++#ifdef HAVE_SCANF_MS_MODIFIER
+ 	rc += sscanf(s,	"%ms "		/* (8) FS type */
+ 			"%ms "		/* (9) source */
+ 			"%ms",		/* (10) fs options (fs specific) */
+-
++#elif defined(HAVE_SCANF_AS_MODIFIER)
++	rc += sscanf(s,	"%as "		/* (8) FS type */
++			"%as "		/* (9) source */
++			"%as",		/* (10) fs options (fs specific) */
++#endif
+ 			&fstype,
+ 			&src,
+ 			&fs->fs_optstr);
+diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
+index 72085ac..028b19f 100644
+--- a/misc-utils/lsblk.8
++++ b/misc-utils/lsblk.8
+@@ -63,6 +63,15 @@ This option is equivalent to "-o
+NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,RO
+ .SH NOTES
+ For the partitions are some information (e.g. queue attributes) inherited from
+ parental device.
++.PP
++The
++.B lsblk
++needs to be able to lookup sysfs path by major:minor, which is done
++done by using
++.BR /sys/dev/block .
++The block sysfs appeared in kernel 2.6.27 (October 2008).  In case of
++problem with new enough kernel check that CONFIG_SYSFS was enabled at
++the time of kernel build.
+ .SH AUTHORS
+ .nf
+ Milan Broz <mbroz@redhat.com>
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 3c4555d..48b0b25 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -906,6 +906,16 @@ errx_mutually_exclusive(const char *opts)
+ 	errx(EXIT_FAILURE, "%s %s", opts, _("options are mutually exclusive"));
+ }
+
++static void check_sysdevblock(void)
++{
++	DIR *dir;
++	if (!(dir = opendir(_PATH_SYS_DEVBLOCK)))
++		err(EXIT_FAILURE, _("failed to open sysfs directory: %s"),
++		    _PATH_SYS_DEVBLOCK);
++	closedir(dir);
++	return;
++}
 +
+ int main(int argc, char *argv[])
+ {
+ 	struct lsblk _ls;
+@@ -1018,6 +1028,8 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+
++	check_sysdevblock();
 +
-+.SH DESCRIPTION
-+Given a process id and one or more resources, \fBprlimit\fP tries to retrieve and/or modify the limits.
-+
-+The limits format is composed by a soft and a hard (ceiling) value, separated by a semicolon (:), in order to modify the existing value(s). If no limits are used, \fBprlimit\fP will only display the current values. If one of the values is not used, then the existing one will be used. To specify the unlimited or infinity limit (RLIM_INFINITY), the -1 or 'unlimited' string can be passed.
-+
-+Because of the nature of limits, the soft value must be lower or equal to the high limit. To see all the available resource limits, refer to the RESOURCE OPTIONS section. 
-+
-+
-+.IP "\fB<soft>:<hard>\fP  Specify both limits"
-+.IP "\fB<soft>:\fP        Specify only the soft limit"
-+.IP "\fB:<hard>\fP        Specify only the hard limit"
-+.IP "\fB<value>\fP        Specify both soft and hard limits to the same value"
-+
-+.SH GENERAL OPTIONS
-+.IP "\fB\-p, \-\-pid\fP"
-+Specify the process id, if none is given, it will use the running process.
-+.IP "\fB\-o, \-\-output \fIlist\fP"
-+Define the output columns to use. If no output arrangement is specified, then a default set is used.
-+Use \fB\-\-help\fP to  get list of all supported columns.
-+.IP "\fB\-V, \-\-version\fP"
-+Output version information and exit.
-+.IP "\fB\-h, \-\-help\fP"
-+Print a help text and exit.
-+
-+.SH RESOURCE OPTIONS
-+.IP "\fB\-a, \-\-as\fP[=limits]"
-+Address space limit.
-+.IP "\fB\-c, \-\-core\fP[=limits]"
-+Maximum size of a core file.
-+.IP "\fB\-C, \-\-cpu\fP[=limits]"
-+CPU time, in seconds.
-+.IP "\fB\-d, \-\-data\fP[=limits]"
-+Maximum data size.
-+.IP "\fB\-f, \-\-fsize\fP[=limits]"
-+Maximum file size.
-+.IP "\fB\-l, \-\-locks\fP[=limits]"
-+Maximum amount of file locks held.
-+.IP "\fB\-m, \-\-memlock\fP[=limits]"
-+Maximum locked-in-memory address space.
-+.IP "\fB\-M, \-\-msgqueue\fP[=limits]"
-+Maximum amount of bytes in POSIX message queues.
-+.IP "\fB\-n, \-\-nice\fP[=limits]"
-+Maximum nice priority allowed to raise.
-+.IP "\fB\-N, \-\-nofile\fP[=limits]"
-+Maximum amount of open files.
-+.IP "\fB\-P, \-\-nproc\fP[=limits]"
-+Maximum amount of processes.
-+.IP "\fB\-r, \-\-rss\fP[=limits]"
-+Maximum Resident Set Size (RSS).
-+.IP "\fB\-R, \-\-rtprio\fP[=limits]"
-+Maximum real-time priority.
-+.IP "\fB\-t, \-\-rttime\fP[=limits]"
-+Timeout for real-time tasks.
-+.IP "\fB\-s, \-\-sigpending\fP[=limits]"
-+Maximum amount of pending signals.
-+.IP "\fB\-S, \-\-stack\fP[=limits]"
-+Maximum size of the stack.
-+
-+
-+.RE
-+.SH EXAMPLES
-+.IP "\fBprlimit \-\-pid 13134\fP"
-+Display limit values for all current resources.
-+.IP "\fBprlimit \-\-pid 13134 \--rss --nofile=1024:4095\fP"
-+Display the limits of the RSS and set the soft and hard limits for the amount of open files to 1024 and 4095, respectively.
-+.IP "\fBprlimit \-\-pid 13134 --nproc=512:\fP"
-+Modify only the soft limit for the amount of processes.
-+.IP "\fBprlimit \-\-pid $$ --nproc=unlimited\fP"
-+Set the amount of processes for both soft and ceiling values to unlimited.
-+
-+.SH "SEE ALSO"
-+.BR prlimit (2),
-+.BR ulimit (1)
-+
-+.SH NOTES
-+.nf
-+The prlimit system call is supported since Linux 2.6.36, previous kernels will break this program.
-+.fi
-+
-+.SH AUTHORS
-+.nf
-+Davidlohr Bueso <dave@gnu.org> - In memory of Dennis M. Ritchie.
-+.fi
-+.SH AVAILABILITY
-+The prlimit command is part of the util-linux package and is available from
-+ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+ 	if (!ncolumns) {
+ 		columns[ncolumns++] = COL_NAME;
+ 		columns[ncolumns++] = COL_MAJMIN;
+
 -- 
-1.7.7
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
