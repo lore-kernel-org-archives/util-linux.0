@@ -1,210 +1,79 @@
-Return-Path: kzak@redhat.com
-From: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:41176 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751487Ab1JIPLx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Oct 2011 11:11:53 -0400
+Received: by vcbgb30 with SMTP id gb30so184255vcb.19
+        for <util-linux@vger.kernel.org>; Sun, 09 Oct 2011 08:11:52 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 24/49] login: PAM auth refactoring
-Date: Mon, 17 Oct 2011 13:15:03 +0200
-Message-Id: <1318850128-23458-25-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 1/2] mountpoint: refactor exit path
+Date: Sun,  9 Oct 2011 11:12:04 -0400
+Message-Id: <1318173125-16156-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.c |  140 ++++++++++++++++++++++++++------------------------
- 1 files changed, 73 insertions(+), 67 deletions(-)
+There's only one condition for which we declare success, but many for
+failure. Initialize rc as failure and set to success on this single
+condition. In all cases, jump to a label to exit instead of exiting
+immediately. This will be used later on to ease cleanup of any heap
+allocations.
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 1e69afd..03335c4 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -109,7 +109,8 @@ struct login_context {
- 	pid_t		pid;
- 	int		quiet;		/* 1 is hush file exists */
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ sys-utils/mountpoint.c |   15 +++++++++------
+ 1 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+index 1297d82..e021c70 100644
+--- a/sys-utils/mountpoint.c
++++ b/sys-utils/mountpoint.c
+@@ -105,7 +105,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
  
--	unsigned int	remote:1;	/* login -h */
-+	unsigned int	remote:1,	/* login -h */
-+			noauth:1;	/* login -f */
- };
- 
- /*
-@@ -292,7 +293,7 @@ static int is_consoletty(int fd)
-  * Must be called only with username the name of an actual user.
-  * The most common login failure is to give password instead of username.
-  */
--static void logbtmp(struct login_context *cxt)
-+static void log_btmp(struct login_context *cxt)
+ int main(int argc, char **argv)
  {
- 	struct utmp ut;
- 	struct timeval tv;
-@@ -611,6 +612,69 @@ static pam_handle_t *init_loginpam(struct login_context *cxt)
- 	return pamh;
+-	int c, fs_devno = 0, dev_devno = 0, rc = 0;
++	int c, fs_devno = 0, dev_devno = 0, rc = EXIT_FAILURE;
+ 	char *spec;
+ 	struct stat st;
+ 
+@@ -152,7 +152,7 @@ int main(int argc, char **argv)
+ 	if (stat(spec, &st)) {
+ 		if (!quiet)
+ 			err(EXIT_FAILURE, "%s", spec);
+-		return EXIT_FAILURE;
++		goto finish;
+ 	}
+ 	if (dev_devno)
+ 		rc = print_devno(spec, &st);
+@@ -162,19 +162,22 @@ int main(int argc, char **argv)
+ 		if (!S_ISDIR(st.st_mode)) {
+ 			if (!quiet)
+ 				errx(EXIT_FAILURE, _("%s: not a directory"), spec);
+-			return EXIT_FAILURE;
++			goto finish;
+ 		}
+ 		src = dir_to_device(spec);
+ 		if (src == (dev_t)-1) {
+ 			if (!quiet)
+ 				printf(_("%s is not a mountpoint\n"), spec);
+-			return EXIT_FAILURE;
++			goto finish;
+ 		}
+ 		if (fs_devno)
+ 			printf("%u:%u\n", major(src), minor(src));
+-		else if (!quiet)
++		else if (!quiet) {
+ 			printf(_("%s is a mountpoint\n"), spec);
++			rc = EXIT_SUCCESS;
++		}
+ 	}
+ 
+-	return rc ? EXIT_FAILURE : EXIT_SUCCESS;
++finish:
++	return rc;
  }
- 
-+static void loginpam_auth(struct login_context *cxt)
-+{
-+	int rc, failcount = 0;
-+	pam_handle_t *pamh = cxt->pamh;
-+
-+	/* if we didn't get a user on the command line, set it to NULL */
-+	loginpam_get_username(pamh, &cxt->username);
-+
-+	/*
-+	 * There may be better ways to deal with some of these conditions, but
-+	 * at least this way I don't think we'll be giving away information...
-+	 *
-+	 * Perhaps someday we can trust that all PAM modules will pay attention
-+	 * to failure count and get rid of MAX_LOGIN_TRIES?
-+	 */
-+	rc = pam_authenticate(pamh, 0);
-+
-+	while ((failcount++ < LOGIN_MAX_TRIES) &&
-+	       ((rc == PAM_AUTH_ERR) ||
-+		(rc == PAM_USER_UNKNOWN) ||
-+		(rc == PAM_CRED_INSUFFICIENT) ||
-+		(rc == PAM_AUTHINFO_UNAVAIL))) {
-+
-+		loginpam_get_username(pamh, &cxt->username);
-+
-+		syslog(LOG_NOTICE,
-+		       _("FAILED LOGIN %d FROM %s FOR %s, %s"),
-+		       failcount, cxt->hostname, cxt->username,
-+		       pam_strerror(pamh, rc));
-+
-+		log_btmp(cxt);
-+		log_audit(cxt, 0);
-+
-+		fprintf(stderr, _("Login incorrect\n\n"));
-+
-+		pam_set_item(pamh, PAM_USER, NULL);
-+		rc = pam_authenticate(pamh, 0);
-+	}
-+
-+	if (is_pam_failure(rc)) {
-+
-+		loginpam_get_username(pamh, &cxt->username);
-+
-+		if (rc == PAM_MAXTRIES)
-+			syslog(LOG_NOTICE,
-+			       _("TOO MANY LOGIN TRIES (%d) FROM %s FOR %s, %s"),
-+			       failcount, cxt->hostname, cxt->username,
-+			       pam_strerror(pamh, rc));
-+		else
-+			syslog(LOG_NOTICE,
-+			       _("FAILED LOGIN SESSION FROM %s FOR %s, %s"),
-+			       cxt->hostname, cxt->username,
-+			       pam_strerror(pamh, rc));
-+
-+		log_btmp(cxt);
-+		log_audit(cxt, 0);
-+
-+		fprintf(stderr, _("\nLogin incorrect\n"));
-+		pam_end(pamh, rc);
-+		exit(EXIT_SUCCESS);
-+	}
-+}
-+
- /*
-  * We need to check effective UID/GID. For example $HOME could be on root
-  * squashed NFS or on NFS with UID mapping and access(2) uses real UID/GID.
-@@ -718,8 +782,7 @@ int main(int argc, char **argv)
- 	extern char *optarg, **environ;
- 	register int ch;
- 	register char *p;
--	int fflag, pflag, cnt;
--	int passwd_req;
-+	int pflag, cnt;
- 	char *domain;
- 	char tbuf[PATH_MAX + 2];
- 	char *termenv;
-@@ -760,13 +823,12 @@ int main(int argc, char **argv)
- 	gethostname(tbuf, sizeof(tbuf));
- 	domain = strchr(tbuf, '.');
- 
--	fflag = pflag = 0;
--	passwd_req = 1;
-+	pflag = 0;
- 
- 	while ((ch = getopt(argc, argv, "fh:p")) != -1)
- 		switch (ch) {
- 		case 'f':
--			fflag = 1;
-+			cxt.noauth = 1;
- 			break;
- 
- 		case 'h':
-@@ -844,67 +906,11 @@ int main(int argc, char **argv)
- 
- 	pamh = init_loginpam(&cxt);
- 
--	/* if fflag == 1, then the user has already been authenticated */
--	if (fflag && (getuid() == 0))
--		passwd_req = 0;
--	else
--		passwd_req = 1;
--
--	if (passwd_req == 1) {
--		int failcount = 0;
--
--		/* if we didn't get a user on the command line, set it to NULL */
--		loginpam_get_username(pamh, &cxt.username);
-+	/* login -f, then the user has already been authenticated */
-+	cxt.noauth = cxt.noauth && getuid() == 0 ? 1 : 0;
- 
--		/* there may be better ways to deal with some of these
--		   conditions, but at least this way I don't think we'll
--		   be giving away information... */
--		/* Perhaps someday we can trust that all PAM modules will
--		   pay attention to failure count and get rid of MAX_LOGIN_TRIES? */
--
--		retcode = pam_authenticate(pamh, 0);
--		while ((failcount++ < LOGIN_MAX_TRIES) &&
--		       ((retcode == PAM_AUTH_ERR) ||
--			(retcode == PAM_USER_UNKNOWN) ||
--			(retcode == PAM_CRED_INSUFFICIENT) ||
--			(retcode == PAM_AUTHINFO_UNAVAIL))) {
--			loginpam_get_username(pamh, &cxt.username);
--
--			syslog(LOG_NOTICE,
--			       _("FAILED LOGIN %d FROM %s FOR %s, %s"),
--			       failcount, cxt.hostname, cxt.username, pam_strerror(pamh,
--									   retcode));
--			logbtmp(&cxt);
--			log_audit(&cxt, 0);
--
--			fprintf(stderr, _("Login incorrect\n\n"));
--			pam_set_item(pamh, PAM_USER, NULL);
--			retcode = pam_authenticate(pamh, 0);
--		}
--
--		if (is_pam_failure(retcode)) {
--			loginpam_get_username(pamh, &cxt.username);
--
--			if (retcode == PAM_MAXTRIES)
--				syslog(LOG_NOTICE,
--				       _
--				       ("TOO MANY LOGIN TRIES (%d) FROM %s FOR "
--					"%s, %s"), failcount, cxt.hostname,
--				       cxt.username, pam_strerror(pamh, retcode));
--			else
--				syslog(LOG_NOTICE,
--				       _
--				       ("FAILED LOGIN SESSION FROM %s FOR %s, %s"),
--				       cxt.hostname, cxt.username, pam_strerror(pamh,
--									retcode));
--			logbtmp(&cxt);
--			log_audit(&cxt, 0);
--
--			fprintf(stderr, _("\nLogin incorrect\n"));
--			pam_end(pamh, retcode);
--			exit(EXIT_SUCCESS);
--		}
--	}
-+	if (!cxt.noauth)
-+		loginpam_auth(&cxt);
- 
- 	/*
- 	 * Authentication may be skipped (for example, during krlogin, rlogin, etc...),
 -- 
-1.7.6.4
+1.7.7
+
