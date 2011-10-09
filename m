@@ -1,99 +1,66 @@
-Return-Path: kzak@redhat.com
-From: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:63508 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751715Ab1JIDbl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Oct 2011 23:31:41 -0400
+Received: by mail-vw0-f46.google.com with SMTP id 1so3945851vws.19
+        for <util-linux@vger.kernel.org>; Sat, 08 Oct 2011 20:31:41 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 25/49] login: PAM account checks refactoring
-Date: Mon, 17 Oct 2011 13:15:04 +0200
-Message-Id: <1318850128-23458-26-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 2/2] mountpoint: fallback on stat when /proc isn't mounted
+Date: Sat,  8 Oct 2011 23:31:51 -0400
+Message-Id: <1318131111-30395-2-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1318131111-30395-1-git-send-email-dreisner@archlinux.org>
+References: <1318131111-30395-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.c |   61 +++++++++++++++++++++++++++++---------------------
- 1 files changed, 35 insertions(+), 26 deletions(-)
+mountpoint will fail when /proc isn't available, which lessens its
+usefulness as a tool to detect mountpoints. In this case, mimic what
+sysvinit's mountpoint tool does and compare the device and inode values
+of root and specified target.
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 03335c4..0c53d5f 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -675,6 +675,36 @@ static void loginpam_auth(struct login_context *cxt)
- 	}
- }
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+Rationale: I think this patch is especially important for folks who are still
+using sysvinit. Particularly in the case of a user not having an initramfs, the
+userspace initscripts need to be able to detect, without fail, the presence of
+/proc, /sys, and /dev being mounted (and mount them when they aren't). While
+checking for /proc first and mounting it when mountpoint returns failure will
+result in the correct action, it's reliant on broken behavior -- that is,
+mountpoint returned false because /proc isn't mounted, not because /proc isn't
+a mountpoint.
+
+ sys-utils/mountpoint.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+index 065d96b..1297d82 100644
+--- a/sys-utils/mountpoint.c
++++ b/sys-utils/mountpoint.c
+@@ -46,8 +46,19 @@ static dev_t dir_to_device(const char *spec)
+ 	struct libmnt_fs *fs;
+ 	dev_t res = (dev_t)-1;
  
-+static void loginpam_acct(struct login_context *cxt)
-+{
-+	int rc;
-+	pam_handle_t *pamh = cxt->pamh;
+-	if (!tb)
+-		return (dev_t)-1;
++	if (!tb) {
++		struct stat root_st, spec_st;
 +
-+	rc = pam_acct_mgmt(pamh, 0);
++		/* fallback on using stat when /proc isn't available. return success when
++		 * we're examining different devices or encounter an exact match for the
++		 * root device */
++		if (stat(spec, &spec_st) == 0 && stat("/", &root_st) == 0 &&
++				root_st.st_dev != spec_st.st_dev ||
++				(root_st.st_dev == spec_st.st_dev && root_st.st_ino == spec_st.st_ino))
++			res = spec_st.st_dev;
 +
-+	if (rc == PAM_NEW_AUTHTOK_REQD)
-+		rc = pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
-+
-+	if (is_pam_failure(rc))
-+		loginpam_err(pamh, rc);
-+
-+	/*
-+	 * Grab the user information out of the password file for future usage
-+	 * First get the username that we are actually using, though.
-+	 */
-+	rc = loginpam_get_username(pamh, &cxt->username);
-+	if (is_pam_failure(rc))
-+		loginpam_err(pamh, rc);
-+
-+	if (!cxt->username || !*cxt->username) {
-+		warnx(_("\nSession setup problem, abort."));
-+		syslog(LOG_ERR, _("NULL user name in %s:%d. Abort."),
-+		       __FUNCTION__, __LINE__);
-+		pam_end(pamh, PAM_SYSTEM_ERR);
-+		exit(EXIT_FAILURE);
++		return res;
 +	}
-+}
-+
- /*
-  * We need to check effective UID/GID. For example $HOME could be on root
-  * squashed NFS or on NFS with UID mapping and access(2) uses real UID/GID.
-@@ -913,33 +943,12 @@ int main(int argc, char **argv)
- 		loginpam_auth(&cxt);
  
- 	/*
--	 * Authentication may be skipped (for example, during krlogin, rlogin, etc...),
--	 * but it doesn't mean that we can skip other account checks. The account
--	 * could be disabled or password expired (althought kerberos ticket is valid).
--	 * -- kzak@redhat.com (22-Feb-2006)
--	 */
--	retcode = pam_acct_mgmt(pamh, 0);
--
--	if (retcode == PAM_NEW_AUTHTOK_REQD)
--		retcode = pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
--	if (is_pam_failure(retcode))
--		loginpam_err(pamh, retcode);
--
--	/*
--	 * Grab the user information out of the password file for future usage
--	 * First get the username that we are actually using, though.
-+	 * Authentication may be skipped (for example, during krlogin, rlogin,
-+	 * etc...), but it doesn't mean that we can skip other account checks.
-+	 * The account could be disabled or password expired (althought
-+	 * kerberos ticket is valid).         -- kzak@redhat.com (22-Feb-2006)
- 	 */
--	retcode = loginpam_get_username(pamh, &cxt.username);
--	if (is_pam_failure(retcode))
--		loginpam_err(pamh, retcode);
--
--	if (!cxt.username || !*cxt.username) {
--		warnx(_("\nSession setup problem, abort."));
--		syslog(LOG_ERR, _("NULL user name in %s:%d. Abort."),
--		       __FUNCTION__, __LINE__);
--		pam_end(pamh, PAM_SYSTEM_ERR);
--		exit(EXIT_FAILURE);
--	}
-+	loginpam_acct(&cxt);
- 
- 	if (!(cxt.pwd = get_passwd_entry(cxt.username, &pwdbuf, &_pwd))) {
- 		warnx(_("\nSession setup problem, abort."));
+ 	fs = mnt_table_find_target(tb, spec, MNT_ITER_BACKWARD);
+ 	if (fs && mnt_fs_get_target(fs))
 -- 
-1.7.6.4
+1.7.7
+
