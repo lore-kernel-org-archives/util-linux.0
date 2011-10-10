@@ -1,51 +1,124 @@
-Return-Path: kzak@redhat.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:13384 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753485Ab1JJK7s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Oct 2011 06:59:48 -0400
+Date: Mon, 10 Oct 2011 12:59:45 +0200
 From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 41/49] login: use FAIL_DELAY from login.defs
-Date: Mon, 17 Oct 2011 13:15:20 +0200
-Message-Id: <1318850128-23458-42-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/6] lscpu: change column names back to mixed case
+Message-ID: <20111010105945.GA17242@nb.net.home>
+References: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com> <1318237184-6616-4-git-send-email-heiko.carstens@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1318237184-6616-4-git-send-email-heiko.carstens@de.ibm.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.1 |    7 ++++++-
- login-utils/login.c |    2 +-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+On Mon, Oct 10, 2011 at 10:59:41AM +0200, Heiko Carstens wrote:
+> Commit b9d18bc3 "lscpu: add column names to --help" changed all column names
+> to upper case only and printed the column names for the parsable output in
+> lower case.
 
-diff --git a/login-utils/login.1 b/login-utils/login.1
-index ef71539..8cb2450 100644
---- a/login-utils/login.1
-+++ b/login-utils/login.1
-@@ -138,7 +138,12 @@ PAM module.
- .RS 4
- Max time in seconds for login. The default value is 60.
- .RE
--
-+.PP
-+\fBFAIL_DELAY\fR (number)
-+.RS 4
-+Delay in seconds before being allowed another attempt after a login failure.
-+The default value is 5.
-+.RE
- .SH FILES
- .nf
- .I /var/run/utmp
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 9822d9a..a70ce56 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -176,7 +176,7 @@ static void sig_handler(int signal)
- /* Should not be called from PAM code... */
- static void sleepexit(int eval)
- {
--	sleep(LOGIN_EXIT_TIMEOUT);
-+	sleep(getlogindefs_num("FAIL_DELAY", LOGIN_EXIT_TIMEOUT));
- 	exit(eval);
- }
- 
+This is bug. Sorry.
+
+> However current behaviour was that for the parsable output the column names
+> were printed in mixed case. The change might break existing other tools and
+> breaks also the util-linux internal lscpu tests.
+> So revert part of the above commit and restore the old behaviour.
+
+It would be better to fix the code (upper case for the first letter)
+than revert the patch.
+
+I think that we want to use the same concept for column names in all
+utils (findmnt, lsblk, ...) where we use upper case in help, man pages
+and all outputs. 
+
+The old parsable output is exception, the new -e output should be
+compatible with the rest of util-linux.
+
+I will fix it. Thanks.
+
+    Karel
+
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+>  sys-utils/lscpu.c |   31 ++++++++++++++-----------------
+>  1 files changed, 14 insertions(+), 17 deletions(-)
+> 
+> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+> index 7c8cb13..63facc3 100644
+> --- a/sys-utils/lscpu.c
+> +++ b/sys-utils/lscpu.c
+> @@ -224,15 +224,15 @@ enum {
+>  static const char *colnames[] =
+>  {
+>  	[COL_CPU] = "CPU",
+> -	[COL_CORE] = "CORE",
+> -	[COL_SOCKET] = "SOCKET",
+> -	[COL_NODE] = "NODE",
+> -	[COL_BOOK] = "BOOK",
+> -	[COL_CACHE] = "CACHE",
+> -	[COL_POLARIZATION] = "POLARIZATION",
+> -	[COL_ADDRESS] = "ADDRESS",
+> -	[COL_CONFIGURED] = "CONFIGURED",
+> -	[COL_ONLINE] = "ONLINE",
+> +	[COL_CORE] = "Core",
+> +	[COL_SOCKET] = "Socket",
+> +	[COL_NODE] = "Node",
+> +	[COL_BOOK] = "Book",
+> +	[COL_CACHE] = "Cache",
+> +	[COL_POLARIZATION] = "Polarization",
+> +	[COL_ADDRESS] = "Address",
+> +	[COL_CONFIGURED] = "Configured",
+> +	[COL_ONLINE] = "Online",
+>  };
+>  
+>  
+> @@ -937,8 +937,6 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
+>  
+>  	fputs("# ", stdout);
+>  	for (i = 0; i < ncols; i++) {
+> -		char *p;
+> -
+>  		if (cols[i] == COL_CACHE) {
+>  			if (mod->compat && !desc->ncaches)
+>  				continue;
+> @@ -948,11 +946,7 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
+>  		if (i > 0)
+>  			putchar(',');
+>  
+> -		p = data = get_cell_header(desc, cols[i],
+> -					   mod, buf, sizeof(buf));
+> -		while (p && *p != '\0')
+> -			*p++ = tolower((unsigned int) *p);
+> -
+> +		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
+>  		fputs(data && *data ? data : "", stdout);
+>  	}
+>  	putchar('\n');
+> @@ -1000,7 +994,10 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
+>  		 err(EXIT_FAILURE, _("failed to initialize output table"));
+>  
+>  	for (i = 0; i < ncols; i++) {
+> -		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
+> +		char *p = data = get_cell_header(desc, cols[i],
+> +						 mod, buf, sizeof(buf));
+> +		while (p && *p != '\0')
+> +			*p++ = toupper((unsigned int) *p);
+>  		tt_define_column(tt, xstrdup(data), 0, 0);
+>  	}
+>  
+> -- 
+> 1.7.6.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
 -- 
-1.7.6.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
