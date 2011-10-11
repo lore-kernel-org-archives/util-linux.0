@@ -1,97 +1,42 @@
-Return-Path: kzak@redhat.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:32624 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751368Ab1JKIVm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 11 Oct 2011 04:21:42 -0400
+Date: Tue, 11 Oct 2011 10:21:38 +0200
 From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 31/49] login: log good logins refactoring
-Date: Mon, 17 Oct 2011 13:15:10 +0200
-Message-Id: <1318850128-23458-32-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] mountpoint: return dev_t from dir_to_device
+Message-ID: <20111011082138.GB20392@nb.net.home>
+References: <1318131111-30395-1-git-send-email-dreisner@archlinux.org> <20111009212326.GP782@rampage>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111009212326.GP782@rampage>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.c |   50 ++++++++++++++++++++++++++------------------------
- 1 files changed, 26 insertions(+), 24 deletions(-)
+On Sun, Oct 09, 2011 at 05:23:26PM -0400, Dave Reisner wrote:
+> On Sat, Oct 08, 2011 at 11:31:50PM -0400, Dave Reisner wrote:
+> > The string returned from this function was never of much use other than
+> > to stat the path when the user requested a major:minor pair beyond the
+> > true/false exit. Save some processing and directly returning the dev_t
+> > on success, and an impossible value on failure.
+> > 
+> > Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> > ---
+> >  sys-utils/mountpoint.c |   15 +++++++--------
+> >  1 files changed, 7 insertions(+), 8 deletions(-)
+> > 
+> 
+> I'll also mention that this fixes an issue with mountpoint that causes
+> it to throw a false negative when /proc is mounted with a source of
+> "none". This value is treated specially in libmount and sets the source
+> to NULL, which makes dir_to_device() incorrectly claim that the directory
+> is not in fact a mountpoint.
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index d87a632..52598f4 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -509,6 +509,30 @@ static void log_utmp(struct login_context *cxt)
- 	updwtmp(_PATH_WTMP, &ut);
- }
- 
-+static void log_syslog(struct login_context *cxt)
-+{
-+	struct passwd *pwd = cxt->pwd;
-+
-+	if (!strncmp(cxt->tty_name, "ttyS", 4))
-+		syslog(LOG_INFO, _("DIALUP AT %s BY %s"),
-+		       cxt->tty_name, pwd->pw_name);
-+
-+	if (!pwd->pw_uid) {
-+		if (cxt->hostname)
-+			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s"),
-+			       cxt->tty_name, cxt->hostname);
-+		else
-+			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s"), cxt->tty_name);
-+	} else {
-+		if (cxt->hostname)
-+			syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s"),
-+			       cxt->tty_name, pwd->pw_name, cxt->hostname);
-+		else
-+			syslog(LOG_INFO, _("LOGIN ON %s BY %s"), cxt->tty_name,
-+			       pwd->pw_name);
-+	}
-+}
-+
- static struct passwd *get_passwd_entry(const char *username,
- 					 char **pwdbuf,
- 					 struct passwd *pwd)
-@@ -1140,7 +1164,6 @@ int main(int argc, char **argv)
- 
- 	chown_tty(&cxt);
- 
--
- 	if (setgid(pwd->pw_gid) < 0 && pwd->pw_gid) {
- 		syslog(LOG_ALERT, _("setgid() failed"));
- 		exit(EXIT_FAILURE);
-@@ -1149,32 +1172,11 @@ int main(int argc, char **argv)
- 	if (*pwd->pw_shell == '\0')
- 		pwd->pw_shell = _PATH_BSHELL;
- 
--	init_environ(&cxt);
--
-+	init_environ(&cxt);		/* init $HOME, $TERM ... */
- 
- 	setproctitle("login", cxt.username);
- 
--	if (!strncmp(cxt.tty_name, "ttyS", 4))
--		syslog(LOG_INFO, _("DIALUP AT %s BY %s"), cxt.tty_name,
--		       pwd->pw_name);
--
--	/* allow tracking of good logins.
--	   -steve philp (sphilp@mail.alliance.net) */
--
--	if (pwd->pw_uid == 0) {
--		if (cxt.hostname)
--			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s"),
--			       cxt.tty_name, cxt.hostname);
--		else
--			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s"), cxt.tty_name);
--	} else {
--		if (cxt.hostname)
--			syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s"),
--			       cxt.tty_name, pwd->pw_name, cxt.hostname);
--		else
--			syslog(LOG_INFO, _("LOGIN ON %s BY %s"), cxt.tty_name,
--			       pwd->pw_name);
--	}
-+	log_syslog(&cxt);
- 
- 	if (!cxt.quiet) {
- 		motd();
+ Applied with some minor changes, thanks.
+
 -- 
-1.7.6.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
