@@ -1,23 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:60857 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751382Ab1JJDxf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Oct 2011 23:53:35 -0400
-Received: by ywb5 with SMTP id 5so4998050ywb.19
-        for <util-linux@vger.kernel.org>; Sun, 09 Oct 2011 20:53:34 -0700 (PDT)
-Message-ID: <4E926C3B.8090003@gmail.com>
-Date: Sun, 09 Oct 2011 22:53:31 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:23282 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753076Ab1JKJe5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 11 Oct 2011 05:34:57 -0400
+Date: Tue, 11 Oct 2011 11:34:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH 2/2] mountpoint: support symbolic and relative paths
+Message-ID: <20111011093453.GK11730@nb.net.home>
+References: <1318288456-22940-1-git-send-email-dreisner@archlinux.org> <1318288456-22940-2-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: util-linux release tarballs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1318288456-22940-2-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Are the released util-linux tarballs on a new server or will they be 
-restored to kernel.org?  If they are going to be back on kernel.org, is 
-there a time frame for that?
+On Mon, Oct 10, 2011 at 07:14:16PM -0400, Dave Reisner wrote:
+> Use our own canonicalize library to resolve a provided path before
+> checking if its a mountpoint.
 
-   -- Bruce Dubbs
-      LFS
+ Good idea. Thanks.
+
+ I have applied a more robust solution based on libmount.
+
+    Karel
+
+
+==27191== Command:
+/home/projects/util-linux/util-linux/sys-utils/.libs/mountpoint home
+==27191== 
+home is a mountpoint
+==27191== 
+==27191== HEAP SUMMARY:
+==27191==     in use at exit: 0 bytes in 0 blocks
+==27191==   total heap usage: 535 allocs, 535 frees, 44,094 bytes
+allocated
+==27191== 
+==27191== All heap blocks were freed -- no leaks are possible
+==27191== 
+==27191== For counts of detected and suppressed errors, rerun with: -v
+==27191== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 6 from 6)
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
