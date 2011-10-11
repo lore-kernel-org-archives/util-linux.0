@@ -1,41 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32948 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751001Ab1JLI0Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Oct 2011 04:26:16 -0400
-Date: Wed, 12 Oct 2011 10:25:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/2] fdisk: don't shorten long path to disk device
-Message-ID: <20111012082550.GA9667@nb.net.home>
-References: <1318252338-11200-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1318252338-11200-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:41758 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755544Ab1JKS1b (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Oct 2011 14:27:31 -0400
+Received: by vws1 with SMTP id 1so5844993vws.19
+        for <util-linux@vger.kernel.org>; Tue, 11 Oct 2011 11:27:30 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] include/loopdev.h: add missing function prototype
+Date: Tue, 11 Oct 2011 14:27:47 -0400
+Message-Id: <1318357667-30286-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 10, 2011 at 03:12:17PM +0200, Petr Uzel wrote:
-> fdisk/partname.c:partname() uses fixed 80 char static buffer for partition
-> name. This might be not enough if the used path to the disk device is long
-> enough, e.g.
-[...]
-> -	static char bufp[80];
-> +	char *bufp;
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+This is only used internally by lib/loopdev.c, but based on the name/purpose,
+it seems like this function was meant to be exposed in the header rather than
+declared static.
 
-Hmm, after review... your idea to increase the static buffer
-size to PATH_MAX seems less invasive ;-)
+ include/loopdev.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
- -       static char bufp[80];
- +       static char bufp[PATH_MAX];
-
-
-Fixed :-)
-
-    Karel
-
-
+diff --git a/include/loopdev.h b/include/loopdev.h
+index e25aa96..2c8db17 100644
+--- a/include/loopdev.h
++++ b/include/loopdev.h
+@@ -132,6 +132,7 @@ extern int loopcxt_set_device(struct loopdev_cxt *lc, const char *device);
+ extern char *loopcxt_strdup_device(struct loopdev_cxt *lc);
+ extern const char *loopcxt_get_device(struct loopdev_cxt *lc);
+ extern struct sysfs_cxt *loopcxt_get_sysfs(struct loopdev_cxt *lc);
++extern struct loop_info64 *loopcxt_get_info(struct loopdev_cxt *lc);
+ 
+ extern int loopcxt_get_fd(struct loopdev_cxt *lc);
+ extern int loopcxt_set_fd(struct loopdev_cxt *lc, int fd, int mode);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
