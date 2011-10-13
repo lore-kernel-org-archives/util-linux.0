@@ -1,78 +1,42 @@
-Return-Path: kzak@redhat.com
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 30/49] login: use xalloc.h
-Date: Mon, 17 Oct 2011 13:15:09 +0200
-Message-Id: <1318850128-23458-31-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:52321 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752929Ab1JMNKt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 13 Oct 2011 09:10:49 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 116488D40D
+	for <util-linux@vger.kernel.org>; Thu, 13 Oct 2011 15:10:49 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] fstrim: fix section number in referral to manpage
+Date: Thu, 13 Oct 2011 15:10:45 +0200
+Message-Id: <1318511445-12863-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.c |   17 +++++------------
- 1 files changed, 5 insertions(+), 12 deletions(-)
+Reported-by: Roeland Jansen <roeland@linux-it.nl>
+Addresses: https://bugzilla.novell.com/show_bug.cgi?id=723877
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index c875181..d87a632 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -515,7 +515,6 @@ static struct passwd *get_passwd_entry(const char *username,
- {
- 	struct passwd *res = NULL;
- 	size_t sz;
--	char *tmp;
- 	int x;
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ sys-utils/fstrim.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+index 29c6561..cc50674 100644
+--- a/sys-utils/fstrim.c
++++ b/sys-utils/fstrim.c
+@@ -63,7 +63,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		" -m, --minimum <num> minimum extent length to discard\n"
+ 		" -v, --verbose       print number of discarded bytes\n"), out);
  
- 	if (!pwdbuf || !username)
-@@ -527,13 +526,7 @@ static struct passwd *get_passwd_entry(const char *username,
- #endif
- 		sz = 16384;
+-	fputs(_("\nFor more information see fstrim(1).\n"), out);
++	fputs(_("\nFor more information see fstrim(8).\n"), out);
  
--	tmp = realloc(*pwdbuf, sz);
--	if (!tmp) {
--		free(*pwdbuf);
--		*pwdbuf = NULL;
--		return NULL;
--	}
--	*pwdbuf = tmp;
-+	*pwdbuf = xrealloc(*pwdbuf, sz);
- 
- 	x = getpwnam_r(username, pwd, *pwdbuf, sz, &res);
- 	if (!res) {
-@@ -933,11 +926,11 @@ static void init_environ(struct login_context *cxt)
- 	int len, i;
- 
- 	termenv = getenv("TERM");
--	termenv = termenv ? strdup(termenv) : "dumb";
-+	termenv = termenv ? xstrdup(termenv) : "dumb";
- 
- 	/* destroy environment unless user has requested preservation (-p) */
- 	if (!cxt->keep_env) {
--		environ = (char **) malloc(sizeof(char *));
-+		environ = (char **) xmalloc(sizeof(char *));
- 		memset(environ, 0, sizeof(char *));
- 	}
- 
-@@ -1022,7 +1015,7 @@ int main(int argc, char **argv)
- 			    strcasecmp(p, domain) == 0)
- 				*p = 0;
- 
--			cxt.hostname = strdup(optarg);
-+			cxt.hostname = xstrdup(optarg);
- 			{
- 				struct addrinfo hints, *info = NULL;
- 
-@@ -1067,7 +1060,7 @@ int main(int argc, char **argv)
- 
- 	if (*argv) {
- 		char *p = *argv;
--		cxt.username = strdup(p);
-+		cxt.username = xstrdup(p);
- 
- 		/* wipe name - some people mistype their password here */
- 		/* (of course we are too late, but perhaps this helps a little ..) */
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
 -- 
-1.7.6.4
+1.7.3.4
+
