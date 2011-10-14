@@ -1,40 +1,78 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:41758 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755544Ab1JKS1b (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Oct 2011 14:27:31 -0400
-Received: by vws1 with SMTP id 1so5844993vws.19
-        for <util-linux@vger.kernel.org>; Tue, 11 Oct 2011 11:27:30 -0700 (PDT)
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] include/loopdev.h: add missing function prototype
-Date: Tue, 11 Oct 2011 14:27:47 -0400
-Message-Id: <1318357667-30286-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Date: Fri, 14 Oct 2011 16:32:15 -0400
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH] lib/strutils: add default value to parse_range()
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-id: <1318624335.1923.14.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+From: Davidlohr Bueso <dave@gnu.org>
+
+This function currently sets the low or high values to 0 when the string doesn't
+contain a value, like '123:' or ':123'. In order to make it more flexible, we allow it
+to be passed an arbitrary value.
+
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
-This is only used internally by lib/loopdev.c, but based on the name/purpose,
-it seems like this function was meant to be exposed in the header rather than
-declared static.
+ include/strutils.h |    2 +-
+ lib/strutils.c     |    7 ++++---
+ partx/partx.c      |    2 +-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
- include/loopdev.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/include/loopdev.h b/include/loopdev.h
-index e25aa96..2c8db17 100644
---- a/include/loopdev.h
-+++ b/include/loopdev.h
-@@ -132,6 +132,7 @@ extern int loopcxt_set_device(struct loopdev_cxt *lc, const char *device);
- extern char *loopcxt_strdup_device(struct loopdev_cxt *lc);
- extern const char *loopcxt_get_device(struct loopdev_cxt *lc);
- extern struct sysfs_cxt *loopcxt_get_sysfs(struct loopdev_cxt *lc);
-+extern struct loop_info64 *loopcxt_get_info(struct loopdev_cxt *lc);
+diff --git a/include/strutils.h b/include/strutils.h
+index 28af8b5..9765a77 100644
+--- a/include/strutils.h
++++ b/include/strutils.h
+@@ -45,6 +45,6 @@ extern int string_to_idarray(const char *list, int ary[], size_t arysz,
+ extern int string_to_bitarray(const char *list, char *ary,
+ 			    int (*name2bit)(const char *, size_t));
  
- extern int loopcxt_get_fd(struct loopdev_cxt *lc);
- extern int loopcxt_set_fd(struct loopdev_cxt *lc, int fd, int mode);
+-extern int parse_range(const char *str, int *lower, int *upper);
++extern int parse_range(const char *str, int *lower, int *upper, int def);
+ 
+ #endif
+diff --git a/lib/strutils.c b/lib/strutils.c
+index fb18229..6b2ec79 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -464,18 +464,19 @@ int string_to_bitarray(const char *list,
+ /*
+  * Parse the lower and higher values in a string containing
+  * "lower:higher" or "lower-higher" format. Note that either
+- * the lower or the higher values may be missing.
++ * the lower or the higher values may be missing, and the def
++ * value will be assigned to it by default.
+  *
+  * Returns: 0 on success, <0 on error.
+  */
+-int parse_range(const char *str, int *lower, int *upper)
++int parse_range(const char *str, int *lower, int *upper, int def)
+ {
+ 	char *end = NULL;
+ 
+ 	if (!str)
+ 		return 0;
+ 
+-	*upper = *lower = 0;
++	*upper = *lower = def;
+ 	errno = 0;
+ 
+ 	if (*str == ':') {				/* <:N> */
+diff --git a/partx/partx.c b/partx/partx.c
+index 2631d1f..bf18a4e 100644
+--- a/partx/partx.c
++++ b/partx/partx.c
+@@ -699,7 +699,7 @@ int main(int argc, char **argv)
+ 			what = ACT_LIST;
+ 			break;
+ 		case 'n':
+-			if (parse_range(optarg, &lower, &upper))
++			if (parse_range(optarg, &lower, &upper, 0))
+ 				errx(EXIT_FAILURE, _("failed to parse --nr <M-N> range"));
+ 			break;
+ 		case 'o':
 -- 
 1.7.7
-
