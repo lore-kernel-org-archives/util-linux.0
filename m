@@ -1,146 +1,75 @@
-Return-Path: dbueso@aomail.uab.es
-Date: Tue, 11 Oct 2011 23:18:12 -0400
-From: Davidlohr Bueso <dbueso@aomail.uab.es>
-Subject: [PATCH] lib/strutils: share parse_range()
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>, dave@gnu.org
-Message-id: <1318389492.1923.7.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 43/49] login:  use TTYGROUP from login.defs
+Date: Mon, 17 Oct 2011 13:15:22 +0200
+Message-Id: <1318850128-23458-44-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+Note that Suse login(1) does not use any default for TTYGROUP, it
+means that TTYGROUP has to be explicitly defined otherwise user\'s
+primary group is used.
 
-This function is currently only being used by partx(8), but it's handy and generic enough that we can use it elsewhere as well.
+The util-linux login(1) uses 'tty' group name as a default value.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
-If you have received this email already, sorry for the noise.
+ login-utils/login.1 |    9 +++++++++
+ login-utils/login.c |   15 +++++++++++----
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
- include/strutils.h |    2 ++
- lib/strutils.c     |   45 ++++++++++++++++++++++++++++++++++++++++++++-
- partx/partx.c      |   35 -----------------------------------
- 3 files changed, 46 insertions(+), 36 deletions(-)
-
-diff --git a/include/strutils.h b/include/strutils.h
-index dbcc3d9..28af8b5 100644
---- a/include/strutils.h
-+++ b/include/strutils.h
-@@ -45,4 +45,6 @@ extern int string_to_idarray(const char *list, int ary[], size_t arysz,
- extern int string_to_bitarray(const char *list, char *ary,
- 			    int (*name2bit)(const char *, size_t));
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index 1d3ae1a..cce4672 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -149,6 +149,15 @@ The default value is 5.
+ .RS 4
+ The terminal permissions. The default value is 0600.
+ .RE
++.PP
++\fBTTYGROUP\fR (string)
++.RS 4
++The login tty will be owned by the
++\fBTTYGROUP\fR. The default value is 'tty'. If the \fBTTYGROUP\fR does not exist
++then the ownership of the terminal is set to the user\'s primary group.
++.SP
++The \fBTTYGROUP\fR can be either the name of a group or a numeric group identifier.
++.RE
  
-+extern int parse_range(const char *str, int *lower, int *upper);
-+
- #endif
-diff --git a/lib/strutils.c b/lib/strutils.c
-index aad9f77..fc9ec68 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -424,7 +424,7 @@ int string_to_idarray(const char *list, int ary[], size_t arysz,
-  * as a possition in the 'ary' bit array. It means that the 'id' has to be in
-  * range <0..N> where N < sizeof(ary) * NBBY.
-  *
-- * Returns: 0 on sucess, <0 on error.
-+ * Returns: 0 on success, <0 on error.
-  */
- int string_to_bitarray(const char *list,
- 		     char *ary,
-@@ -461,6 +461,49 @@ int string_to_bitarray(const char *list,
- 	return 0;
- }
+ .SH FILES
+ .nf
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 857240d..3d6d73a 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -264,13 +264,20 @@ static void open_tty(const char *tty)
  
-+/*
-+ * Parse the lower and higher values in a string containing 
-+ * "lower:higher" or "lower-higher" format. Note that either
-+ * the lower or the higher values may be missing.
-+ *
-+ * Returns: 0 on success, <0 on error.
-+ */
-+int parse_range(const char *str, int *lower, int *upper)
-+{
-+	char *end = NULL;
-+
-+	if (!str)
-+		return 0;
-+
-+	*upper = *lower = 0;
-+	errno = 0;
-+
-+	if (*str == ':') {				/* <:N> */
-+		str++;
-+		*upper = strtol(str, &end, 10);
-+		if (errno || !end || *end || end == str)
-+			return -1;
-+	} else {
-+		*upper = *lower = strtol(str, &end, 10);
-+		if (errno || !end || end == str)
-+			return -1;
-+
-+		if (*end == ':' && !*(end + 1))		/* <M:> */
-+			*upper = 0;
-+		else if (*end == '-' || *end == ':') {	/* <M:N> <M-N> */
-+			str = end + 1;
-+			end = NULL;
-+			errno = 0;
-+			*upper = strtol(str, &end, 10);
-+
-+			if (errno || !end || *end || end == str)
-+				return -1;
+ static void chown_tty(struct login_context *cxt)
+ {
+-	struct group *gr;
++	const char *grname;
+ 	uid_t uid = cxt->pwd->pw_uid;
+ 	gid_t gid = cxt->pwd->pw_gid;
+ 
+-	gr = getgrnam(TTYGRPNAME);
+-	if (gr)
+-		gid = gr->gr_gid;
++	grname = getlogindefs_str("TTYGROUP", TTYGRPNAME);
++	if (grname && *grname) {
++		if (*grname >= 0 && *grname <= 9)		/* group by ID */
++			gid = getlogindefs_num("TTYGROUP", gid);
++		else {						/* group by name */
++			struct group *gr = getgrnam(grname);
++			if (gr)
++				gid = gr->gr_gid;
 +		}
 +	}
-+	return 0;
-+}
-+
-+
- #ifdef TEST_PROGRAM
  
- int main(int argc, char *argv[])
-diff --git a/partx/partx.c b/partx/partx.c
-index 3a9da9e..2631d1f 100644
---- a/partx/partx.c
-+++ b/partx/partx.c
-@@ -558,41 +558,6 @@ done:
- 	return rc;
- }
- 
--static int parse_range(const char *str, int *lower, int *upper)
--{
--	char *end = NULL;
--
--	if (!str)
--		return 0;
--
--	*upper = *lower = 0;
--	errno = 0;
--
--	if (*str == ':') {				/* <:N> */
--		str++;
--		*upper = strtol(str, &end, 10);
--		if (errno || !end || *end || end == str)
--			return -1;
--	} else {
--		*upper = *lower = strtol(str, &end, 10);
--		if (errno || !end || end == str)
--			return -1;
--
--		if (*end == ':' && !*(end + 1))		/* <M:> */
--			*upper = 0;
--		else if (*end == '-' || *end == ':') {	/* <M:N> <M-N> */
--			str = end + 1;
--			end = NULL;
--			errno = 0;
--			*upper = strtol(str, &end, 10);
--
--			if (errno || !end || *end || end == str)
--				return -1;
--		}
--	}
--	return 0;
--}
--
- static blkid_partlist get_partlist(blkid_probe pr,
- 			const char *device, char *type)
- {
+ 	if (fchown(0, uid, gid))				/* tty */
+ 		chown_err(cxt->tty_name, uid, gid);
 -- 
-1.7.7
+1.7.6.4
