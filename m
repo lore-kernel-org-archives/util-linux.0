@@ -1,71 +1,49 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:52371 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750804Ab1JJXOD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Oct 2011 19:14:03 -0400
-Received: by vws1 with SMTP id 1so5050930vws.19
-        for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 16:14:02 -0700 (PDT)
-From: Dave Reisner <d@falconindy.com>
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/2] mountpoint: support symbolic and relative paths
-Date: Mon, 10 Oct 2011 19:14:16 -0400
-Message-Id: <1318288456-22940-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1318288456-22940-1-git-send-email-dreisner@archlinux.org>
-References: <1318288456-22940-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 40/49] login: use LOGIN_TIMEOUT from login.defs
+Date: Mon, 17 Oct 2011 13:15:19 +0200
+Message-Id: <1318850128-23458-41-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Use our own canonicalize library to resolve a provided path before
-checking if its a mountpoint.
-
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- sys-utils/Makefile.am  |    1 +
- sys-utils/mountpoint.c |    5 ++++-
- 2 files changed, 5 insertions(+), 1 deletions(-)
+ login-utils/login.1 |    5 +++++
+ login-utils/login.c |    2 ++
+ 2 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/sys-utils/Makefile.am b/sys-utils/Makefile.am
-index cfaf053..49141fb 100644
---- a/sys-utils/Makefile.am
-+++ b/sys-utils/Makefile.am
-@@ -44,6 +44,7 @@ flock_SOURCES = flock.c $(top_srcdir)/lib/strutils.c
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index 8aba16f..ef71539 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -133,6 +133,11 @@ Note that the same functionality is also provided by
+ .BR pam_motd (8)
+ PAM module.
+ .RE
++.PP
++\fBLOGIN_TIMEOUT\fR (number)
++.RS 4
++Max time in seconds for login. The default value is 60.
++.RE
  
- if BUILD_MOUNTPOINT
- bin_PROGRAMS += mountpoint
-+mountpoint_SOURCES = mountpoint.c $(top_srcdir)/lib/canonicalize.c
- mountpoint_LDADD = $(ul_libmount_la)
- mountpoint_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
- dist_man_MANS += mountpoint.1
-diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
-index e075b83..2565107 100644
---- a/sys-utils/mountpoint.c
-+++ b/sys-utils/mountpoint.c
-@@ -37,6 +37,7 @@
- #include "nls.h"
- #include "xalloc.h"
- #include "c.h"
-+#include "canonicalize.h"
+ .SH FILES
+ .nf
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 8431af8..9822d9a 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1105,6 +1105,8 @@ int main(int argc, char **argv)
+ 		.conv = { misc_conv, NULL }	/* PAM conversation function */
+ 	};
  
- static int quiet;
- 
-@@ -147,7 +148,8 @@ int main(int argc, char **argv)
- 	if (optind + 1 != argc)
- 		usage(stderr);
- 
--	spec = argv[optind++];
-+	/* resolve relative paths to absolute */
-+	spec = canonicalize_path(argv[optind++]);
- 
- 	if (stat(spec, &st)) {
- 		if (!quiet)
-@@ -179,5 +181,6 @@ int main(int argc, char **argv)
- 	}
- 
- finish:
-+	free(spec);
- 	return rc;
- }
++	timeout = getlogindefs_num("LOGIN_TIMEOUT", LOGIN_TIMEOUT);
++
+ 	signal(SIGALRM, timedout);
+ 	siginterrupt(SIGALRM, 1);	/* we have to interrupt syscalls like ioclt() */
+ 	alarm((unsigned int)timeout);
 -- 
-1.7.7
-
+1.7.6.4
