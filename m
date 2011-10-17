@@ -1,74 +1,357 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:45841 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751487Ab1JIPLz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Oct 2011 11:11:55 -0400
-Received: by vws1 with SMTP id 1so4091412vws.19
-        for <util-linux@vger.kernel.org>; Sun, 09 Oct 2011 08:11:54 -0700 (PDT)
-From: Dave Reisner <d@falconindy.com>
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/2] mountpoint: support symbolic and relative paths
-Date: Sun,  9 Oct 2011 11:12:05 -0400
-Message-Id: <1318173125-16156-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1318173125-16156-1-git-send-email-dreisner@archlinux.org>
-References: <1318173125-16156-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 38/49] login: remove obsolete info from man page
+Date: Mon, 17 Oct 2011 13:15:17 +0200
+Message-Id: <1318850128-23458-39-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Use our own canonicalize library to resolve a provided path before
-checking if its a mountpoint.
-
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
-Unless I've missed something, this should bring u-l's mountpoint to feature
-parity with sysvinit's.
+ login-utils/login.1 |  301 ++++++++++-----------------------------------------
+ 1 files changed, 60 insertions(+), 241 deletions(-)
 
- sys-utils/Makefile.am  |    1 +
- sys-utils/mountpoint.c |    5 ++++-
- 2 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/sys-utils/Makefile.am b/sys-utils/Makefile.am
-index 8059ee6..34108da 100644
---- a/sys-utils/Makefile.am
-+++ b/sys-utils/Makefile.am
-@@ -44,6 +44,7 @@ flock_SOURCES = flock.c $(top_srcdir)/lib/strutils.c
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index 80fb3b3..50575cc 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -2,76 +2,67 @@
+ .\" May be distributed under the GNU General Public License
+ .TH LOGIN 1 "March 2009" "util-linux" "User Commands"
+ .SH NAME
+-login \- sign on
++login \- begin session on the system
+ .SH SYNOPSIS
+-.BR "login [ " name " ]"
+-.br
+-.B "login \-p"
+-.br
+-.BR "login \-h " hostname
+-.br
+-.BR "login \-f " name
++.B login
++[
++.BR \-p
++] [
++.BR \-h
++.IR host
++] [
++.BR \-f
++.IR username
++|
++.IR username
++]
+ .SH DESCRIPTION
+ .B login
+ is used when signing onto a system.
+-
+-If an argument is not given,
++If no argument is given,
+ .B login
+ prompts for the username.
  
- if BUILD_MOUNTPOINT
- bin_PROGRAMS += mountpoint
-+mountpoint_SOURCES = mountpoint.c $(top_srcdir)/lib/canonicalize.c
- mountpoint_LDADD = $(ul_libmount_la)
- mountpoint_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
- dist_man_MANS += mountpoint.1
-diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
-index e021c70..204f061 100644
---- a/sys-utils/mountpoint.c
-+++ b/sys-utils/mountpoint.c
-@@ -37,6 +37,7 @@
- #include "nls.h"
- #include "xalloc.h"
- #include "c.h"
-+#include "canonicalize.h"
+-If the user is
+-.I not
+-root, and if
+-.I /etc/nologin
+-exists, the contents of this file are printed to the screen, and the
+-login is terminated.  This is typically used to prevent logins when the
+-system is being taken down.
+-
+-If special access restrictions are specified for the user in
+-.IR /etc/usertty ,
+-these must be met, or the log in attempt will be denied and a 
+-.B syslog
+-message will be generated. See the section on "Special Access Restrictions".
+-
+-If the user is root, then the login must be occurring on a tty listed in
+-.IR /etc/securetty .
+-Failures will be logged with the
+-.B syslog
+-facility.
+-
+-After these conditions have been checked, the password will be requested and
+-checked (if a password is required for this username).  Ten attempts
+-are allowed before
++The user is then prompted for a password, where approprate.  Echoing is
++disabled to prevent revealing the password. Only a small number of password
++failures are permitted before
+ .B login
+-dies, but after the first three, the response starts to get very slow.
+-Login failures are reported via the
+-.B syslog
+-facility.  This facility is also used to report any successful root logins.
++exits and the communications link is severed.
  
- static int quiet;
+-If the file
+-.I .hushlogin
+-exists, then a "quiet" login is performed (this disables the checking
+-of mail and the printing of the last login time and message of the day).
+-Otherwise, if
+-.I /var/log/lastlog
+-exists, the last login time is printed (and the current login is
+-recorded).
++If password aging has been enabled for the account, the user may be prompted
++for a new password before proceeding. He will be forced to provide his old
++password and the new password before continuing. Please refer to
++.BR passwd (1)
++for more information.
  
-@@ -147,7 +148,8 @@ int main(int argc, char **argv)
- 	if (optind + 1 != argc)
- 		usage(stderr);
+-Random administrative things, such as setting the UID and GID of the
+-tty are performed.  The TERM environment variable is preserved, if it
+-exists (other environment variables are preserved if the
+-.B \-p
+-option is used).  Then the HOME, PATH, SHELL, TERM, MAIL, and LOGNAME
+-environment variables are set.  PATH defaults to
+-.I /usr/local/bin:/bin:/usr/bin
++The user and group ID will be set according to their values in the
++.I /etc/passwd
++file. There is one exception if the user ID is zero: in this case,
++only the primary group ID of the account is set. This should prevent
++that the system adminitrator cannot login in case of network problems.
++The value for
++.BR $HOME ,
++.BR $SHELL ,
++.BR $PATH ,
++.BR $LOGNAME ,
++and
++.B $MAIL
++are set according to the appropriate fields in the password entry.
++.B $PATH
++defaults to
++.I /usr/local/bin:/bin:/usr/bin:.
+ for normal users, and to
+-.I /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+-for root.  Last, if this is not a "quiet" login, the message of the
+-day is printed and the file with the user's name in
+-.I /var/spool/mail
+-will be checked, and a message printed if it has non-zero length.
++.I /sbin:/bin:/usr/sbin:/usr/bin
++for root if not other configured.
++
++The environment variable
++.B $TERM
++will be preserved, if it exists (other environment variables are
++preserved if the
++.B \-p
++option is given) or be initialize to the terminal type on your tty
  
--	spec = argv[optind++];
-+	/* resolve relative paths to absolute */
-+	spec = canonicalize_path(argv[optind++]);
+-The user's shell is then started.  If no shell is specified for the
++Then the user's shell is started. If no shell is specified for the
+ user in
+ .BR /etc/passwd ,
+ then
+@@ -82,7 +73,17 @@ then
+ .I /
+ is used (the home directory is checked for the
+ .I .hushlogin
+-file described above).
++file described below).
++
++If the file
++.I .hushlogin
++exists, then a "quiet" login is performed (this disables the checking
++of mail and the printing of the last login time and message of the day).
++Otherwise, if
++.I /var/log/lastlog
++exists, the last login time is printed (and the current login is
++recorded).
++
+ .SH OPTIONS
+ .TP
+ .B \-p
+@@ -113,188 +114,6 @@ and
+ .I /etc/pam.d/remote
+ ).
  
- 	if (stat(spec, &st)) {
- 		if (!quiet)
-@@ -179,5 +181,6 @@ int main(int argc, char **argv)
- 	}
- 
- finish:
-+	free(spec);
- 	return rc;
- }
+-.SH "SPECIAL ACCESS RESTRICTIONS"
+-The file
+-.I /etc/securetty
+-lists the names of the ttys where root is allowed to log in. One name
+-of a tty device without the /dev/ prefix must be specified on each
+-line.  If the file does not exist, root is allowed to log in on any
+-tty.
+-.PP
+-On most modern Linux systems PAM (Pluggable Authentication Modules)
+-is used. On systems that do not use PAM, the file
+-.I /etc/usertty
+-specifies additional access restrictions for specific users.
+-If this file does not exist, no additional access restrictions are
+-imposed. The file consists of a sequence of sections. There are three
+-possible section types: CLASSES, GROUPS and USERS. A CLASSES section
+-defines classes of ttys and hostname patterns, A GROUPS section
+-defines allowed ttys and hosts on a per group basis, and a USERS
+-section defines allowed ttys and hosts on a per user basis.
+-.PP
+-Each line in this file in may be no longer than 255
+-characters. Comments start with # character and extend to the end of
+-the line.
+-.PP
+-.SS "The CLASSES Section"
+-A CLASSES section begins with the word CLASSES at the start of a line
+-in all upper case. Each following line until the start of a new
+-section or the end of the file consists of a sequence of words
+-separated by tabs or spaces. Each line defines a class of ttys and
+-host patterns.
+-.PP
+-The word at the beginning of a line becomes defined as a collective
+-name for the ttys and host patterns specified at the rest of the
+-line. This collective name can be used in any subsequent GROUPS or
+-USERS section. No such class name must occur as part of the definition
+-of a class in order to avoid problems with recursive classes.
+-.PP
+-An example CLASSES section:
+-.PP
+-.nf
+-.in +.5
+-CLASSES
+-myclass1		tty1 tty2
+-myclass2		tty3 @.foo.com
+-.in -.5
+-.fi
+-.PP
+-This defines the classes 
+-.I myclass1
+-and
+-.I myclass2
+-as the corresponding right hand sides.
+-.PP
+-
+-.SS "The GROUPS Section"
+-A GROUPS section defines allowed ttys and hosts on a per Unix group basis. If
+-a user is a member of a Unix group according to 
+-.I /etc/passwd
+-and
+-.I /etc/group
+-and such a group is mentioned in a GROUPS section in 
+-.I /etc/usertty
+-then the user is granted access if the group is.
+-.PP
+-A GROUPS section starts with the word GROUPS in all upper case at the start of
+-a line, and each following line is a sequence of words separated by spaces
+-or tabs. The first word on a line is the name of the group and the rest
+-of the words on the line specifies the ttys and hosts where members of that
+-group are allowed access. These specifications may involve the use of
+-classes defined in previous CLASSES sections.
+-.PP
+-An example GROUPS section.
+-.PP
+-.nf
+-.in +0.5
+-GROUPS
+-sys		tty1 @.bar.edu
+-stud		myclass1 tty4
+-.in -0.5
+-.fi
+-.PP
+-This example specifies that members of group 
+-.I sys
+-may log in on tty1 and from hosts in the bar.edu domain. Users in
+-group
+-.I stud
+-may log in from hosts/ttys specified in the class myclass1 or from
+-tty4.
+-.PP
+-
+-.SS "The USERS Section"
+-A USERS section starts with the word USERS in all upper case at the
+-start of a line, and each following line is a sequence of words
+-separated by spaces or tabs. The first word on a line is a username
+-and that user is allowed to log in on the ttys and from the hosts
+-mentioned on the rest of the line. These specifications may involve
+-classes defined in previous CLASSES sections.  If no section header is
+-specified at the top of the file, the first section defaults to be a
+-USERS section.
+-.PP
+-An example USERS section:
+-.PP
+-.nf
+-.in +0.5
+-USERS
+-zacho		tty1 @130.225.16.0/255.255.255.0
+-blue		tty3 myclass2
+-.in -0.5
+-.fi
+-.PP
+-This lets the user zacho login only on tty1 and from hosts with IP
+-addresses in the range 130.225.16.0 \- 130.225.16.255, and user blue is
+-allowed to log in from tty3 and whatever is specified in the class
+-myclass2.
+-.PP
+-There may be a line in a USERS section starting with a username of
+-*. This is a default rule and it will be applied to any user not
+-matching any other line.
+-.PP
+-If both a USERS line and GROUPS line match a user then the user is
+-allowed access from the union of all the ttys/hosts mentioned in these
+-specifications.
+-
+-.SS Origins
+-The tty and host pattern specifications used in the specification of
+-classes, group and user access are called origins. An origin string
+-may have one of these formats:
+-.IP o 
+-The name of a tty device without the /dev/ prefix, for example tty1 or
+-ttyS0.
+-.PP
+-.IP o
+-The string @localhost, meaning that the user is allowed to
+-telnet/rlogin from the local host to the same host. This also allows
+-the user to for example run the command: xterm -e /bin/login.
+-.PP
+-.IP o
+-A domain name suffix such as @.some.dom, meaning that the user may
+-rlogin/telnet from any host whose domain name has the suffix
+-\&.some.dom.
+-.PP
+-.IP o
+-A range of IPv4 addresses, written @x.x.x.x/y.y.y.y where x.x.x.x is
+-the IP address in the usual dotted quad decimal notation, and y.y.y.y
+-is a bitmask in the same notation specifying which bits in the address
+-to compare with the IP address of the remote host. For example
+-@130.225.16.0/255.255.254.0 means that the user may rlogin/telnet from
+-any host whose IP address is in the range 130.225.16.0 \-
+-130.225.17.255.
+-.PP
+-.IP o
+-An range of IPv6 addresses, written @[n:n:n:n:n:n:n:n]/m is interpreted as a
+-[net]/prefixlen pair. An IPv6 host address is matched if prefixlen bits of
+-net is equal to the prefixlen bits of the address.  For  example, the
+-[net]/prefixlen pattern [3ffe:505:2:1::]/64 matches every address in the
+-range 3ffe:505:2:1:: through 3ffe:505:2:1:ffff:ffff:ffff:ffff.
+-.PP
+-Any of the above origins may be prefixed by a time specification
+-according to the syntax:
+-.PP
+-.nf
+-timespec    ::= '[' <day-or-hour> [':' <day-or-hour>]* ']'
+-day         ::= 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+-hour        ::= '0' | '1' | ... | '23'
+-hourspec    ::= <hour> | <hour> '\-' <hour>
+-day-or-hour ::= <day> | <hourspec>
+-.fi
+-.PP
+-For example, the origin [mon:tue:wed:thu:fri:8\-17]tty3 means that log
+-in is allowed on Mondays through Fridays between 8:00 and 17:59 (5:59
+-pm) on tty3.  This also shows that an hour range a\-b includes all
+-moments between a:00 and b:59. A single hour specification (such as
+-10) means the time span between 10:00 and 10:59.
+-.PP
+-Not specifying any time prefix for a tty or host means log in from
+-that origin is allowed any time. If you give a time prefix be sure to
+-specify both a set of days and one or more hours or hour ranges. A
+-time specification may not include any white space.
+-.PP
+-If no default rule is given then users not matching any line
+-.I /etc/usertty
+-are allowed to log in from anywhere as is standard behavior.
+-.PP
+ .SH FILES
+ .nf
+ .I /var/run/utmp
 -- 
-1.7.7
-
+1.7.6.4
