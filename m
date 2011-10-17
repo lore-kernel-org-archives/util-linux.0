@@ -1,64 +1,87 @@
-Return-Path: kzak@redhat.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:10744 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755308Ab1JQLCP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 17 Oct 2011 07:02:15 -0400
+Date: Mon, 17 Oct 2011 13:02:11 +0200
 From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 20/49] login: use setgroups(0, NULL) for root
-Date: Mon, 17 Oct 2011 13:14:59 +0200
-Message-Id: <1318850128-23458-21-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>, Thorsten Kukuk <kukuk@suse.de>
+Subject: login: PAM-only, login.defs, -H
+Message-ID: <20111017110210.GA22648@nb.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- login-utils/login.c |   19 +++++++++++++------
- 1 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 3a74abe..1adf330 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -709,7 +709,6 @@ int main(int argc, char **argv)
- 	 * and if specified on the command line it is set.
- 	 * Therefore, we are safe not setting it to anything
- 	 */
--
- 	retcode = pam_start(hflag ? "remote" : "login", cxt.username, &conv, &pamh);
- 	if (retcode != PAM_SUCCESS) {
- 		warnx(_("PAM failure, aborting: %s"),
-@@ -834,6 +833,7 @@ int main(int argc, char **argv)
- 		pam_end(pamh, PAM_SYSTEM_ERR);
- 		exit(EXIT_FAILURE);
- 	}
-+
- 	if (!(cxt.pwd = get_passwd_entry(cxt.username, &pwdbuf, &_pwd))) {
- 		warnx(_("\nSession setup problem, abort."));
- 		syslog(LOG_ERR, _("Invalid user name \"%s\" in %s:%d. Abort."),
-@@ -846,12 +846,19 @@ int main(int argc, char **argv)
- 	cxt.username = pwd->pw_name;
- 
- 	/*
--	 * Initialize the supplementary group list.
--	 * This should be done before pam_setcred because
--	 * the PAM modules might add groups during pam_setcred.
-+	 * Initialize the supplementary group list. This should be done before
-+	 * pam_setcred because the PAM modules might add groups during
-+	 * pam_setcred.
-+	 *
-+         * For root we don't call initgroups, instead we call setgroups with
-+	 * group 0. This avoids the need to step through the whole group file,
-+	 * which can cause problems if NIS, NIS+, LDAP or something similar
-+	 * is used and the machine has network problems.
- 	 */
--	if (initgroups(cxt.username, pwd->pw_gid) < 0) {
--		syslog(LOG_ERR, "initgroups: %m");
-+	retcode = pwd->pw_uid ? initgroups(cxt.username, pwd->pw_gid) :	/* user */
-+			        setgroups(0, NULL);			/* root */
-+	if (retcode < 0) {
-+		syslog(LOG_ERR, _("groups initialization failed: %m"));
- 		warnx(_("\nSession setup problem, abort."));
- 		pam_end(pamh, PAM_SYSTEM_ERR);
- 		exit(EXIT_FAILURE);
+ I did some changes to login(1) in last weeks. The goal is to have one PAM-only
+ login(1) for all mainstream distributions. 
+
+ The code is based on the original util-linux login(1) and pam_login-4.0
+ package from Suse.
+
+ Git tree: https://karelzak@github.com/karelzak/util-linux.git branch 'login'.
+ URL: https://github.com/karelzak/util-linux/tree/login
+
+ Changes:
+
+ - remove kerberos specific code
+ - remove non-PAM code
+ - remove checktty stuff
+ - remove ugly macros (e.g. PAM_END)
+ - add syslog LOG_ERR on failed tty ch{mod,own} (based on Suse version)
+ - move all important/global variables to 'struct login_context'
+ - indent to Linux coding style
+ - use xalloc.h functions
+ - lastlog, utmp, btmp, audit and syslog code refactoring
+
+ - don't log unknown usernames to system log files (may be a security issue if
+   an user enter her password instead of her login name) -- controlled by
+   LOG_UNKFAIL_ENAB login.defs variable
+
+ - support /etc/login.defs, supported variables:
+
+     name               default
+     ------------------------------
+     DEFAULT_HOME       yes (means chdir("/") if pwd->pw_dir does not exist)  
+     ENV_PATH           "/usr/local/bin:/bin:/usr/bin"
+     ENV_{ROOT,SU}PATH  "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+     FAIL_DELAY		5s
+     HUSHLOGIN_FILE     /etc/hushlogins and ~/.hushlog
+     LOGIN_TIMEOUT      60s
+     LOG_UNKFAIL_ENAB	yes
+     MOTD_FILE          /etc/motd
+     TTYGROUP           'tty' (otherwise pwd->pw_gid is used)
+     TTYPERM            0620 (or 0600 for --disable-use-tty-group)
+    
+   Note that Suse version does not use any defaults for *_FILE and TTYGROUP.
+
+ - print hostname in the login prompt, for example:
+
+     "foo login: "
+
+   Note that Suse version uses hostname with domain (e.g. foo.example.com), our
+   goal is to be compatible with the default agetty behavior. 
+  
+ - add new -H option to suppress hostname in the login prompt (already in Suse
+   version)
+   
+ - call setgroups(0, NULL) rather than initgroups() for root user
+   (this avoids the need to step through the whole group file, which can cause
+    problems if NIS, NIS+, LDAP or something similar is used and the machine 
+    has network problems)
+
+ - improve hushed mode (moslty based on Suse version)
+   * accepts HUSHLOGIN_FILE from /etc/login.defs
+   * empty /etc/hushlogins file enables hushed mode for all accounts
+     (this new feature is necessary if you want to use PAM for motd and last 
+      login messages)
+
+ Comments?
+
+    Karel
+
 -- 
-1.7.6.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
