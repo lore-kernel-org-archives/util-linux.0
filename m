@@ -2,163 +2,187 @@ Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
 Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 07/49] lib: cleanup setproctitle.c
-Date: Mon, 17 Oct 2011 13:14:46 +0200
-Message-Id: <1318850128-23458-8-git-send-email-kzak@redhat.com>
+Subject: [PATCH 47/49] login: add -H option for compatibility with Suse
+Date: Mon, 17 Oct 2011 13:15:26 +0200
+Message-Id: <1318850128-23458-48-git-send-email-kzak@redhat.com>
 In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
 References: <20111017110210.GA22648@nb.net.home>
  <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
+Note that our login(1) uses hostname without domain, so:
+
+	"foo login: "
+
+this is compatible with the default agetty(8) behavior.
+
 Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- include/setproctitle.h |   10 +++---
- lib/setproctitle.c     |   75 +++++++++++++-----------------------------------
- 2 files changed, 25 insertions(+), 60 deletions(-)
+ login-utils/login.1 |   10 +++++++-
+ login-utils/login.c |   66 +++++++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 65 insertions(+), 11 deletions(-)
 
-diff --git a/include/setproctitle.h b/include/setproctitle.h
-index d57abda..70a9efa 100644
---- a/include/setproctitle.h
-+++ b/include/setproctitle.h
-@@ -1,7 +1,7 @@
-+#ifndef UTIL_LINUX_SETPROCTITLE_H
-+#define UTIL_LINUX_SETPROCTITLE_H
-+
-+extern void initproctitle (int argc, char **argv);
-+extern void setproctitle (const char *prog, const char *txt);
- 
--void initproctitle (int argc, char **argv);
--#if 0
--void setproctitle (const char *fmt, ...);
--#else
--void setproctitle (const char *prog, const char *txt);
- #endif
-diff --git a/lib/setproctitle.c b/lib/setproctitle.c
-index 319bc6a..4bcf8c8 100644
---- a/lib/setproctitle.c
-+++ b/lib/setproctitle.c
-@@ -1,36 +1,26 @@
--/* proctitle code - we know this to work only on linux... */
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index 948177c..1f4aa69 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -11,6 +11,8 @@ login \- begin session on the system
+ .BR \-h
+ .IR host
+ ] [
++.BR \-H
++] [
+ .BR \-f
+ .IR username
+ |
+@@ -113,7 +115,13 @@ necessary to create a proper PAM config files (e.g.
+ and 
+ .I /etc/pam.d/remote
+ ).
 -
++.TP
++.B \-H
++Used by other servers (i.e.,
++.BR telnetd (8))
++to tell
++.B login
++that printing the hostname should be suppressed in the login: prompt.
+ 
+ .SH CONFIG FILE ITEMS
+ .B login
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 74f5736..2d9a847 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -106,13 +106,16 @@ struct login_context {
+ 	char		vcsan[VCS_PATH_MAX];
+ #endif
+ 
+-	char		*hostname;
+-	char		hostaddress[16];
++	char		thishost[MAXHOSTNAMELEN + 1];	/* this machine */
++	char		*thisdomain;			/* this machine domain */
++	char		*hostname;			/* remote machine */
++	char		hostaddress[16];		/* remote address */
+ 
+ 	pid_t		pid;
+ 	int		quiet;		/* 1 is hush file exists */
+ 
+ 	unsigned int	remote:1,	/* login -h */
++			nohost:1,	/* login -H */
+ 			noauth:1,	/* login -f */
+ 			keep_env:1;	/* login -p */
+ };
+@@ -181,6 +184,25 @@ static void sleepexit(int eval)
+ 	exit(eval);
+ }
+ 
++const char *get_thishost(struct login_context *cxt, const char **domain)
++{
++	if (!*cxt->thishost) {
++		if (gethostname(cxt->thishost, sizeof(cxt->thishost))) {
++			if (domain)
++				*domain = NULL;
++			return NULL;
++		}
++		cxt->thishost[sizeof(cxt->thishost) -1] = '\0';
++		cxt->thisdomain = strchr(cxt->thishost, '.');
++		if (cxt->thisdomain)
++			*cxt->thisdomain++ = '\0';
++	}
++
++	if (domain)
++		*domain = cxt->thisdomain;
++	return cxt->thishost;
++}
++
  /*
--**  SETPROCTITLE -- set process title for ps (from sendmail)
--**
--**      Parameters:
--**              fmt -- a printf style format string.
--**
--**      Returns:
--**              none.
--**
--**      Side Effects:
--**              Clobbers argv of our main procedure so ps(1) will
--**              display the title.
--*/
--
-+ *  set process title for ps (from sendmail)
-+ *
-+ *  Clobbers argv of our main procedure so ps(1) will display the title.
+  * Output the /etc/motd file
+  *
+@@ -663,6 +685,26 @@ static int loginpam_err(pam_handle_t *pamh, int retcode)
+ 
+ }
+ 
++/*
++ * Composes "<host> login: " string; or returns "login: " is -H is given
 + */
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <stdarg.h>
-+
- #include "setproctitle.h"
- 
- #ifndef SPT_BUFSIZE
--#define SPT_BUFSIZE     2048
-+# define SPT_BUFSIZE     2048
- #endif
- 
--extern char** environ;
-+extern char **environ;
- 
--static char** argv0;
-+static char **argv0;
- static int argv_lth;
- 
--void
--initproctitle (int argc, char **argv) {
-+void initproctitle (int argc, char **argv)
++static const char *loginpam_get_prompt(struct login_context *cxt)
 +{
- 	int i;
- 	char **envp = environ;
- 
-@@ -42,9 +32,11 @@ initproctitle (int argc, char **argv) {
++	const char *host;
++	char *prompt, *dflt_prompt = _("login: ");
++	size_t sz;
++
++	if (cxt->nohost || !(host = get_thishost(cxt, NULL)))
++		return dflt_prompt;
++
++	sz = strlen(host) + 1 + strlen(dflt_prompt) + 1;
++
++	prompt = xmalloc(sz);
++	snprintf(prompt, sz, "%s %s", host, dflt_prompt);
++
++	return prompt;
++}
++
+ static pam_handle_t *init_loginpam(struct login_context *cxt)
+ {
+ 	pam_handle_t *pamh = NULL;
+@@ -697,7 +739,7 @@ static pam_handle_t *init_loginpam(struct login_context *cxt)
+ 	 * the "login: " prompt gets localized. Unfortunately, PAM doesn't have
+ 	 * an interface to specify the "Password: " string (yet).
  	 */
- 	for (i = 0; envp[i] != NULL; i++)
- 		continue;
+-	rc = pam_set_item(pamh, PAM_USER_PROMPT, _("login: "));
++	rc = pam_set_item(pamh, PAM_USER_PROMPT, loginpam_get_prompt(cxt));
+ 	if (is_pam_failure(rc))
+ 		loginpam_err(pamh, rc);
+ 
+@@ -1093,16 +1135,16 @@ static void init_environ(struct login_context *cxt)
+  */
+ static void init_remote_info(struct login_context *cxt, char *remotehost)
+ {
+-	char host[MAXHOSTNAMELEN + 1];
+-	char *domain = NULL, *p;
++	const char *domain;
++	char *p;
+ 	struct addrinfo hints, *info = NULL;
+ 
+ 	cxt->remote = 1;
+ 
+-	if (gethostname(host, sizeof(host)) == 0)
+-		domain = strchr(host, '.');
++	get_thishost(cxt, &domain);
+ 
+-	if (domain && (p = strchr(remotehost, '.')) && strcasecmp(p, domain) == 0)
++	if (domain && (p = strchr(remotehost, '.')) &&
++	    strcasecmp(p + 1, domain) == 0)
+ 		*p = '\0';
+ 
+ 	cxt->hostname = xstrdup(remotehost);
+@@ -1167,12 +1209,16 @@ int main(int argc, char **argv)
+ 	 * -h is used by other servers to pass the name of the remote
+ 	 *    host to login so that it may be placed in utmp and wtmp
+ 	 */
+-	while ((c = getopt(argc, argv, "fh:p")) != -1)
++	while ((c = getopt(argc, argv, "fHh:p")) != -1)
+ 		switch (c) {
+ 		case 'f':
+ 			cxt.noauth = 1;
+ 			break;
+ 
++		case 'H':
++			cxt.nohost = 1;
++			break;
 +
- 	environ = (char **) malloc(sizeof(char *) * (i + 1));
- 	if (environ == NULL)
- 		return;
-+
- 	for (i = 0; envp[i] != NULL; i++)
- 		if ((environ[i] = strdup(envp[i])) == NULL)
- 			return;
-@@ -55,38 +47,12 @@ initproctitle (int argc, char **argv) {
- 		argv_lth = envp[i-1] + strlen(envp[i-1]) - argv0[0];
- 	else
- 		argv_lth = argv0[argc-1] + strlen(argv0[argc-1]) - argv0[0];
--}	
--
--#if 0
--/* Nice code, but many places do not know about vsnprintf ... */
--void
--setproctitle (const char *fmt,...) {
--	int        i;
--	char       buf[SPT_BUFSIZE];
--	va_list    ap;
--
--	if (!argv0)
--		return;
--
--	va_start(ap, fmt);
--	(void) vsnprintf(buf, SPT_BUFSIZE, fmt, ap);
--	va_end(ap);
--
--	i = strlen (buf);
--	if (i > argv_lth - 2) {
--		i = argv_lth - 2;
--		buf[i] = '\0';
--	}
--	memset(argv0[0], '\0', argv_lth);       /* clear the memory area */
--	(void) strcpy (argv0[0], buf);
--
--	argv0[1] = NULL;
- }
--#else
--void
--setproctitle (const char *prog, const char *txt) {
--        int        i;
--        char       buf[SPT_BUFSIZE];
-+
-+void setproctitle (const char *prog, const char *txt)
-+{
-+        int i;
-+        char buf[SPT_BUFSIZE];
+ 		case 'h':
+ 			if (getuid()) {
+ 				fprintf(stderr,
+@@ -1188,7 +1234,7 @@ int main(int argc, char **argv)
  
-         if (!argv0)
-                 return;
-@@ -94,16 +60,15 @@ setproctitle (const char *prog, const char *txt) {
- 	if (strlen(prog) + strlen(txt) + 5 > SPT_BUFSIZE)
- 		return;
- 
--        (void) sprintf(buf, "%s -- %s", prog, txt);
-+	sprintf(buf, "%s -- %s", prog, txt);
- 
--        i = strlen (buf);
-+        i = strlen(buf);
-         if (i > argv_lth - 2) {
-                 i = argv_lth - 2;
-                 buf[i] = '\0';
-         }
- 	memset(argv0[0], '\0', argv_lth);       /* clear the memory area */
--        (void) strcpy (argv0[0], buf);
-+        strcpy(argv0[0], buf);
- 
-         argv0[1] = NULL;
- }
--#endif
+ 		case '?':
+ 		default:
+-			fprintf(stderr, _("usage: login [-fp] [username]\n"));
++			fprintf(stderr, _("usage: login [ -p ] [ -h host ] [ -H ] [ -f username | username ]\n"));
+ 			exit(EXIT_FAILURE);
+ 		}
+ 	argc -= optind;
 -- 
 1.7.6.4
