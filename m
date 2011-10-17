@@ -1,45 +1,193 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53342 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753596Ab1JJL21 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Oct 2011 07:28:27 -0400
-Date: Mon, 10 Oct 2011 13:28:24 +0200
+Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] retire mandoc groff syntax
-Message-ID: <20111010112824.GB17242@nb.net.home>
-References: <CAG27Bk1KR_OKDavZV+vLspWEFQBz71ggGcif+1ir6VG7eEQKmw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1KR_OKDavZV+vLspWEFQBz71ggGcif+1ir6VG7eEQKmw@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 16/49] login: lastlog code refactoring
+Date: Mon, 17 Oct 2011 13:14:55 +0200
+Message-Id: <1318850128-23458-17-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 29, 2011 at 11:06:09PM +0200, Sami Kerola wrote:
->  fsck/fsck.8                                |   58 ++--
->  login-utils/vipw.8                         |   76 ++--
->  misc-utils/logger.1                        |  176 +++++-----
->  sys-utils/Makefile.am                      |    2 +-
->  sys-utils/{chcpu.1 => chcpu.8}             |    2 +-
->  sys-utils/{readprofile.1 => readprofile.8} |    3 +-
->  sys-utils/renice.1                         |  180 ++++------
->  term-utils/script.1                        |  189 +++++-----
->  term-utils/scriptreplay.1                  |  192 ++---------
->  term-utils/wall.1                          |   92 +++---
->  text-utils/col.1                           |  180 +++++-----
->  text-utils/colcrt.1                        |  119 +++----
->  text-utils/colrm.1                         |   69 ++--
->  text-utils/hexdump.1                       |  525 ++++++++++++++--------------
->  text-utils/more.1                          |  285 +++++++++-------
->  text-utils/rev.1                           |   40 +--
->  text-utils/ul.1                            |  137 ++++----
->  17 files changed, 1109 insertions(+), 1216 deletions(-)
->  rename sys-utils/{chcpu.1 => chcpu.8} (98%)
->  rename sys-utils/{readprofile.1 => readprofile.8} (98%)
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ login-utils/login.c |  103 ++++++++++++++++++++++++++------------------------
+ 1 files changed, 54 insertions(+), 49 deletions(-)
 
- Merged, thanks.
-
+diff --git a/login-utils/login.c b/login-utils/login.c
+index e29fb43..91f5b81 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -67,6 +67,7 @@
+ #include "strutils.h"
+ #include "nls.h"
+ #include "xalloc.h"
++#include "writeall.h"
+ 
+ #define is_pam_failure(_rc)	((_rc) != PAM_SUCCESS)
+ 
+@@ -102,6 +103,7 @@ struct login_context {
+ 	char		hostaddress[16];
+ 
+ 	pid_t		pid;
++	int		quiet;		/* 1 is hush file exists */
+ };
+ 
+ /*
+@@ -117,7 +119,6 @@ static struct passwd pwdcopy;
+ static void timedout(int);
+ static void sigint(int);
+ static void motd(void);
+-static void dolastlog(struct login_context *cxt, int quiet);
+ 
+ /*
+  * Nice and simple code provided by Linus Torvalds 16-Feb-93
+@@ -342,6 +343,53 @@ static void log_audit(struct login_context *cxt, struct passwd *pwd, int status)
+ #define log_audit(cxt, pwd, status)
+ #endif				/* HAVE_LIBAUDIT */
+ 
++static void log_lastlog(struct login_context *cxt)
++{
++	struct lastlog ll;
++	time_t t;
++	int fd;
++
++	fd = open(_PATH_LASTLOG, O_RDWR, 0);
++	if (fd < 0)
++		return;
++
++	lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
++
++	/*
++	 * Print last log message
++	 */
++	if (!cxt->quiet) {
++		if (read(fd, (char *)&ll, sizeof(ll)) == sizeof(ll) &&
++							ll.ll_time != 0) {
++			time_t ll_time = (time_t) ll.ll_time;
++
++			printf(_("Last login: %.*s "), 24 - 5, ctime(&ll_time));
++			if (*ll.ll_host != '\0')
++				printf(_("from %.*s\n"),
++				       (int)sizeof(ll.ll_host), ll.ll_host);
++			else
++				printf(_("on %.*s\n"),
++				       (int)sizeof(ll.ll_line), ll.ll_line);
++		}
++		lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
++	}
++
++	memset((char *)&ll, 0, sizeof(ll));
++
++	time(&t);
++	ll.ll_time = t;		/* ll_time is always 32bit */
++
++	if (cxt->tty_name)
++		xstrncpy(ll.ll_line, cxt->tty_name, sizeof(ll.ll_line));
++	if (cxt->hostname)
++		xstrncpy(ll.ll_host, cxt->hostname, sizeof(ll.ll_host));
++
++	if (write_all(fd, (char *)&ll, sizeof(ll)))
++		warn(_("write lastlog failed"));
++
++	close(fd);
++}
++
+ /* encapsulate stupid "void **" pam_get_item() API */
+ static int loginpam_get_username(pam_handle_t * pamh, char **name)
+ {
+@@ -387,7 +435,7 @@ int main(int argc, char **argv)
+ 	register int ch;
+ 	register char *p;
+ 	int fflag, hflag, pflag, cnt;
+-	int quietlog, passwd_req;
++	int passwd_req;
+ 	char *domain;
+ 	char tbuf[PATH_MAX + 2];
+ 	char *termenv;
+@@ -712,12 +760,12 @@ int main(int argc, char **argv)
+ 		   have a libc in which snprintf is the same as sprintf */
+ 		if (strlen(pwd->pw_dir) + sizeof(_PATH_HUSHLOGIN) + 2 >
+ 		    PATH_MAX)
+-			quietlog = 0;
++			cxt.quiet = 0;
+ 		else {
+ 			sprintf(tmpstr, "%s/%s", pwd->pw_dir, _PATH_HUSHLOGIN);
+ 			setregid(-1, pwd->pw_gid);
+ 			setreuid(0, pwd->pw_uid);
+-			quietlog = (effective_access(tmpstr, O_RDONLY) == 0);
++			cxt.quiet = (effective_access(tmpstr, O_RDONLY) == 0);
+ 			setuid(0);	/* setreuid doesn't do it alone! */
+ 			setreuid(ruid, 0);
+ 			setregid(-1, egid);
+@@ -816,7 +864,7 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	log_audit(&cxt, pwd, 1);
+-	dolastlog(&cxt, quietlog);
++	log_lastlog(&cxt);
+ 
+ 	if (fchown(0, pwd->pw_uid,
+ 		   (gr = getgrnam(TTYGRPNAME)) ? gr->gr_gid : pwd->pw_gid))
+@@ -921,7 +969,7 @@ int main(int argc, char **argv)
+ 			       pwd->pw_name);
+ 	}
+ 
+-	if (!quietlog) {
++	if (!cxt.quiet) {
+ 		motd();
+ 
+ #ifdef LOGIN_STAT_MAIL
+@@ -1136,49 +1184,6 @@ void sigint(int sig __attribute__ ((__unused__)))
+ 	longjmp(motdinterrupt, 1);
+ }
+ 
+-void dolastlog(struct login_context *cxt, int quiet)
+-{
+-	struct lastlog ll;
+-	int fd;
+-
+-	if ((fd = open(_PATH_LASTLOG, O_RDWR, 0)) >= 0) {
+-		lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
+-		if (!quiet) {
+-			if (read(fd, (char *)&ll, sizeof(ll)) == sizeof(ll) &&
+-			    ll.ll_time != 0) {
+-				time_t ll_time = (time_t) ll.ll_time;
+-
+-				printf(_("Last login: %.*s "),
+-				       24 - 5, ctime(&ll_time));
+-
+-				if (*ll.ll_host != '\0')
+-					printf(_("from %.*s\n"),
+-					       (int)sizeof(ll.ll_host),
+-					       ll.ll_host);
+-				else
+-					printf(_("on %.*s\n"),
+-					       (int)sizeof(ll.ll_line),
+-					       ll.ll_line);
+-			}
+-			lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
+-		}
+-		memset((char *)&ll, 0, sizeof(ll));
+-
+-		{
+-			time_t t;
+-			time(&t);
+-			ll.ll_time = t;	/* ll_time is always 32bit */
+-		}
+-
+-		xstrncpy(ll.ll_line, cxt->tty_name, sizeof(ll.ll_line));
+-		if (cxt->hostname)
+-			xstrncpy(ll.ll_host, cxt->hostname, sizeof(ll.ll_host));
+-
+-		if (write(fd, (char *)&ll, sizeof(ll)) < 0)
+-			warn(_("write lastlog failed"));
+-		close(fd);
+-	}
+-}
+ 
+ /* Should not be called from PAM code... */
+ void sleepexit(int eval)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6.4
