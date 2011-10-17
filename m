@@ -1,48 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate3.uk.ibm.com ([194.196.100.163]:43902 "EHLO
-	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617Ab1JJJHu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Oct 2011 05:07:50 -0400
-Received: from d06nrmr1507.portsmouth.uk.ibm.com (d06nrmr1507.portsmouth.uk.ibm.com [9.149.38.233])
-	by mtagate3.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p9A97n8a003424
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 09:07:49 GMT
-Received: from d06av06.portsmouth.uk.ibm.com (d06av06.portsmouth.uk.ibm.com [9.149.37.217])
-	by d06nrmr1507.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p9A97CsC2342914
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 10:07:48 +0100
-Received: from d06av06.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av06.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p9AG0QAb027414
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 10:00:27 -0600
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 2/6] lscpu: fix typo in help text
-Date: Mon, 10 Oct 2011 10:59:40 +0200
-Message-Id: <1318237184-6616-3-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 01/49] login: remove kerberos specific code
+Date: Mon, 17 Oct 2011 13:14:40 +0200
+Message-Id: <1318850128-23458-2-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Add missing 'n' in help text for extended output line.
+The code has not been used ever. If you want to use kerberos then us
+PAM...
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- sys-utils/lscpu.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ login-utils/login.c |   24 ------------------------
+ 1 files changed, 0 insertions(+), 24 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 66fa971..7c8cb13 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -1197,7 +1197,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -a, --all               print online and offline CPUs (default for -e)\n"
- 		" -b, --online            print online CPUs only (default for -p)\n"
- 		" -c, --offline           print offline CPUs only\n"
--		" -e, --extended[=<list>] print out a extended readable format\n"
-+		" -e, --extended[=<list>] print out an extended readable format\n"
- 		" -h, --help              print this help\n"
- 		" -p, --parse[=<list>]    print out a parsable format\n"
- 		" -s, --sysroot <dir>     use directory DIR as system root\n"
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 9662336..c02ce3b 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -842,30 +842,6 @@ main(int argc, char **argv)
+ 	p = crypt(pp, salt);
+ 	setpriority(PRIO_PROCESS, 0, 0);
+ 
+-#  ifdef KERBEROS
+-	/*
+-	 * If not present in pw file, act as we normally would.
+-	 * If we aren't Kerberos-authenticated, try the normal
+-	 * pw file for a password.  If that's ok, log the user
+-	 * in without issueing any tickets.
+-	 */
+-
+-	if (pwd && !krb_get_lrealm(realm,1)) {
+-	    /*
+-	     * get TGT for local realm; be careful about uid's
+-	     * here for ticket file ownership
+-	     */
+-	    setreuid(geteuid(),pwd->pw_uid);
+-	    kerror = krb_get_pw_in_tkt(pwd->pw_name, "", realm,
+-				       "krbtgt", realm, DEFAULT_TKT_LIFE, pp);
+-	    setuid(0);
+-	    if (kerror == INTK_OK) {
+-		memset(pp, 0, strlen(pp));
+-		notickets = 0;	/* user got ticket */
+-		break;
+-	    }
+-	}
+-#  endif /* KERBEROS */
+ 	memset(pp, 0, strlen(pp));
+ 
+ 	if (pwd && !strcmp(p, pwd->pw_passwd))
 -- 
-1.7.6.3
-
+1.7.6.4
