@@ -1,124 +1,97 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13384 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753485Ab1JJK7s (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Oct 2011 06:59:48 -0400
-Date: Mon, 10 Oct 2011 12:59:45 +0200
+Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/6] lscpu: change column names back to mixed case
-Message-ID: <20111010105945.GA17242@nb.net.home>
-References: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com> <1318237184-6616-4-git-send-email-heiko.carstens@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1318237184-6616-4-git-send-email-heiko.carstens@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 00/49] login refactoring
+Date: Mon, 17 Oct 2011 13:14:39 +0200
+Message-Id: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+In-Reply-To: <20111017110210.GA22648@nb.net.home>
+References: <20111017110210.GA22648@nb.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 10, 2011 at 10:59:41AM +0200, Heiko Carstens wrote:
-> Commit b9d18bc3 "lscpu: add column names to --help" changed all column names
-> to upper case only and printed the column names for the parsable output in
-> lower case.
+git://github.com/karelzak/util-linux.git login
 
-This is bug. Sorry.
+Karel Zak (49):
+  login: remove kerberos specific code
+  login: remove dead code and comments
+  login: move _PATH_BTMP to pathnames.h
+  login: remove non-PAM code
+  build-sys: require PAM for login-utils
+  login: remove PAM_FAIL_CHECK and PAM_END macros
+  lib: cleanup setproctitle.c
+  login: cleanup begin of the login.c file
+  login: remove obsolete code, clean up macros names
+  login: indent -linux
+  login: add struct login_context, consolidate tty code
+  login: add hostname to login_context struct
+  login: add pid to login_context struct
+  login: add username to login_context struct
+  login: use login_context struct in audit stuff
+  login: lastlog code refactoring
+  login: utmp code refactoring
+  login: use getpwnam_r() rather than manually copy passwd struct
+  login: tty chown.chmod refactoring
+  login: use setgroups(0, NULL) for root
+  login: improve hushed mode (merge suse changes)
+  login: remove unused code and tests
+  login: PAM initialization refactoring
+  login: PAM auth refactoring
+  login: PAM account checks refactoring
+  login: PAM session initialization refactoring
+  login: remove pam_handle_t from main()
+  login: fork & session initialization refactoring
+  login: env initialization refactoring
+  login: use xalloc.h
+  login: log good logins refactoring
+  login: move signal stuff to the one place
+  login: remove unnecessary variables
+  login: host{name,address} initialization refactoring
+  tests: cleanup islocal test
+  login: add login.defs code and tests
+  tests: remove obsolete checktty test
+  login: remove obsolete info from man page
+  login: rewrite motd(), use MOTD_FILE from login.defs
+  login: use LOGIN_TIMEOUT from login.defs
+  login: use FAIL_DELAY from login.defs
+  login: use TTYPERM from login.defs
+  login:  use TTYGROUP from login.defs
+  login:  use HUSHLOGIN_FILE from login.defs
+  login: use DEFAULT_HOME from login.defs
+  login: use LOG_UNKFAIL_ENAB from login.defs, improve logging
+  login: add -H option for compatibility with Suse
+  login: use ENV_PATH and ENV_{ROOT,SU}PATH from login.defs
+  login: cosmetic changes in docs
 
-> However current behaviour was that for the parsable output the column names
-> were printed in mixed case. The change might break existing other tools and
-> breaks also the util-linux internal lscpu tests.
-> So revert part of the above commit and restore the old behaviour.
-
-It would be better to fix the code (upper case for the first letter)
-than revert the patch.
-
-I think that we want to use the same concept for column names in all
-utils (findmnt, lsblk, ...) where we use upper case in help, man pages
-and all outputs. 
-
-The old parsable output is exception, the new -e output should be
-compatible with the rest of util-linux.
-
-I will fix it. Thanks.
-
-    Karel
-
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  sys-utils/lscpu.c |   31 ++++++++++++++-----------------
->  1 files changed, 14 insertions(+), 17 deletions(-)
-> 
-> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-> index 7c8cb13..63facc3 100644
-> --- a/sys-utils/lscpu.c
-> +++ b/sys-utils/lscpu.c
-> @@ -224,15 +224,15 @@ enum {
->  static const char *colnames[] =
->  {
->  	[COL_CPU] = "CPU",
-> -	[COL_CORE] = "CORE",
-> -	[COL_SOCKET] = "SOCKET",
-> -	[COL_NODE] = "NODE",
-> -	[COL_BOOK] = "BOOK",
-> -	[COL_CACHE] = "CACHE",
-> -	[COL_POLARIZATION] = "POLARIZATION",
-> -	[COL_ADDRESS] = "ADDRESS",
-> -	[COL_CONFIGURED] = "CONFIGURED",
-> -	[COL_ONLINE] = "ONLINE",
-> +	[COL_CORE] = "Core",
-> +	[COL_SOCKET] = "Socket",
-> +	[COL_NODE] = "Node",
-> +	[COL_BOOK] = "Book",
-> +	[COL_CACHE] = "Cache",
-> +	[COL_POLARIZATION] = "Polarization",
-> +	[COL_ADDRESS] = "Address",
-> +	[COL_CONFIGURED] = "Configured",
-> +	[COL_ONLINE] = "Online",
->  };
->  
->  
-> @@ -937,8 +937,6 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
->  
->  	fputs("# ", stdout);
->  	for (i = 0; i < ncols; i++) {
-> -		char *p;
-> -
->  		if (cols[i] == COL_CACHE) {
->  			if (mod->compat && !desc->ncaches)
->  				continue;
-> @@ -948,11 +946,7 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
->  		if (i > 0)
->  			putchar(',');
->  
-> -		p = data = get_cell_header(desc, cols[i],
-> -					   mod, buf, sizeof(buf));
-> -		while (p && *p != '\0')
-> -			*p++ = tolower((unsigned int) *p);
-> -
-> +		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
->  		fputs(data && *data ? data : "", stdout);
->  	}
->  	putchar('\n');
-> @@ -1000,7 +994,10 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
->  		 err(EXIT_FAILURE, _("failed to initialize output table"));
->  
->  	for (i = 0; i < ncols; i++) {
-> -		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
-> +		char *p = data = get_cell_header(desc, cols[i],
-> +						 mod, buf, sizeof(buf));
-> +		while (p && *p != '\0')
-> +			*p++ = toupper((unsigned int) *p);
->  		tt_define_column(tt, xstrdup(data), 0, 0);
->  	}
->  
-> -- 
-> 1.7.6.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+ configure.ac                   |   16 +-
+ include/pathnames.h            |    7 +
+ include/setproctitle.h         |   10 +-
+ lib/setproctitle.c             |   75 +-
+ login-utils/.gitignore         |    4 +-
+ login-utils/Makefile.am        |   20 +-
+ login-utils/checktty.c         |  585 ----------
+ login-utils/islocal.c          |    6 +-
+ login-utils/login.1            |  375 +++----
+ login-utils/login.c            | 2413 +++++++++++++++++++---------------------
+ login-utils/login.h            |    9 -
+ login-utils/logindefs.c        |  246 ++++
+ login-utils/logindefs.h        |    9 +
+ tests/commands.sh.in           |    5 +-
+ tests/expected/login/checktty  |    8 -
+ tests/expected/login/logindefs |   14 +
+ tests/ts/login/checktty        |   26 -
+ tests/ts/login/islocal         |    2 +-
+ tests/ts/login/logindefs       |   24 +
+ tests/ts/login/logindefs.data  |   16 +
+ 20 files changed, 1676 insertions(+), 2194 deletions(-)
+ delete mode 100644 login-utils/checktty.c
+ delete mode 100644 login-utils/login.h
+ create mode 100644 login-utils/logindefs.c
+ create mode 100644 login-utils/logindefs.h
+ delete mode 100644 tests/expected/login/checktty
+ create mode 100644 tests/expected/login/logindefs
+ delete mode 100755 tests/ts/login/checktty
+ create mode 100755 tests/ts/login/logindefs
+ create mode 100644 tests/ts/login/logindefs.data
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6.4
