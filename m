@@ -2,9 +2,9 @@ Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
 Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 13/49] login: add pid to login_context struct
-Date: Mon, 17 Oct 2011 13:14:52 +0200
-Message-Id: <1318850128-23458-14-git-send-email-kzak@redhat.com>
+Subject: [PATCH 29/49] login: env initialization refactoring
+Date: Mon, 17 Oct 2011 13:15:08 +0200
+Message-Id: <1318850128-23458-30-git-send-email-kzak@redhat.com>
 In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
 References: <20111017110210.GA22648@nb.net.home>
  <1318850128-23458-1-git-send-email-kzak@redhat.com>
@@ -12,70 +12,154 @@ List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- login-utils/login.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ login-utils/login.c |   98 +++++++++++++++++++++++----------------------------
+ 1 files changed, 44 insertions(+), 54 deletions(-)
 
 diff --git a/login-utils/login.c b/login-utils/login.c
-index c4ef30a..9299e5c 100644
+index 1011206..c875181 100644
 --- a/login-utils/login.c
 +++ b/login-utils/login.c
-@@ -98,6 +98,8 @@ struct login_context {
+@@ -110,7 +110,8 @@ struct login_context {
+ 	int		quiet;		/* 1 is hush file exists */
  
- 	char		*hostname;
- 	char		hostaddress[16];
-+
-+	pid_t		pid;
+ 	unsigned int	remote:1,	/* login -h */
+-			noauth:1;	/* login -f */
++			noauth:1,	/* login -f */
++			keep_env:1;	/* login -p */
  };
  
  /*
-@@ -110,7 +112,6 @@ struct passwd *pwd;
+@@ -921,16 +922,54 @@ static void fork_session(struct login_context *cxt)
+ 	signal(SIGINT, SIG_DFL);
+ }
  
- static struct passwd pwdcopy;
- static char *username;
--static pid_t pid;
++/*
++ * Initialize $TERM, $HOME, ...
++ */
++static void init_environ(struct login_context *cxt)
++{
++	struct passwd *pwd = cxt->pwd;
++	char *termenv = NULL, **env;
++	char tmp[PATH_MAX];
++	int len, i;
++
++	termenv = getenv("TERM");
++	termenv = termenv ? strdup(termenv) : "dumb";
++
++	/* destroy environment unless user has requested preservation (-p) */
++	if (!cxt->keep_env) {
++		environ = (char **) malloc(sizeof(char *));
++		memset(environ, 0, sizeof(char *));
++	}
++
++	setenv("HOME", pwd->pw_dir, 0);	/* legal to override */
++	setenv("PATH", pwd->pw_uid ? _PATH_DEFPATH : _PATH_DEFPATH_ROOT, 1);
++	setenv("SHELL", pwd->pw_shell, 1);
++	setenv("TERM", termenv, 1);
++
++	/* mailx will give a funny error msg if you forget this one */
++	len = snprintf(tmp, sizeof(tmp), "%s/%s", _PATH_MAILDIR, pwd->pw_name);
++	if (len > 0 && (size_t) len + 1 <= sizeof(tmp))
++		setenv("MAIL", tmp, 0);
++
++	/* LOGNAME is not documented in login(1) but HP-UX 6.5 does it. We'll
++	 * not allow modifying it.
++	 */
++	setenv("LOGNAME", pwd->pw_name, 1);
++
++	env = pam_getenvlist(cxt->pamh);
++	for (i = 0; env && env[i]; i++)
++		putenv(env[i]);
++}
++
+ int main(int argc, char **argv)
+ {
+ 	extern int optind;
+ 	extern char *optarg, **environ;
+ 	register int ch;
+ 	register char *p;
+-	int pflag, cnt;
++	int cnt;
+ 	char *domain;
+ 	char tbuf[PATH_MAX + 2];
+-	char *termenv;
+ 	char *childArgv[10];
+ 	char *buff;
+ 	int childArgc = 0;
+@@ -966,8 +1005,6 @@ int main(int argc, char **argv)
+ 	gethostname(tbuf, sizeof(tbuf));
+ 	domain = strchr(tbuf, '.');
  
- static void timedout(int);
- static void sigint(int);
-@@ -278,7 +279,7 @@ logbtmp(struct login_context *cxt, const char *username)
- #endif
+-	pflag = 0;
+-
+ 	while ((ch = getopt(argc, argv, "fh:p")) != -1)
+ 		switch (ch) {
+ 		case 'f':
+@@ -1017,7 +1054,7 @@ int main(int argc, char **argv)
+ 			break;
  
- 	ut.ut_type = LOGIN_PROCESS;	/* XXX doesn't matter */
--	ut.ut_pid = pid;
-+	ut.ut_pid = cxt->pid;
- 	if (cxt->hostname) {
- 		xstrncpy(ut.ut_host, cxt->hostname, sizeof(ut.ut_host));
- 		if (cxt->hostaddress && *cxt->hostaddress)
-@@ -391,10 +392,10 @@ int main(int argc, char **argv)
- 	pam_handle_t *pamh = NULL;
- 	struct pam_conv conv = { misc_conv, NULL };
- 	struct sigaction sa, oldsa_hup, oldsa_term;
--	struct login_context cxt;
+ 		case 'p':
+-			pflag = 1;
++			cxt.keep_env = 1;
+ 			break;
  
--	memset(&cxt, 0, sizeof(cxt));
--	pid = getpid();
-+	struct login_context cxt = {
-+		.pid = getpid()
-+	};
+ 		case '?':
+@@ -1119,55 +1156,8 @@ int main(int argc, char **argv)
+ 	if (*pwd->pw_shell == '\0')
+ 		pwd->pw_shell = _PATH_BSHELL;
  
- 	signal(SIGALRM, timedout);
- 	siginterrupt(SIGALRM, 1);	/* we have to interrupt syscalls like ioclt() */
-@@ -737,7 +738,7 @@ int main(int argc, char **argv)
- 		   Michael Riepe <michael@stud.uni-hannover.de>
- 		 */
- 		while ((utp = getutent()))
--			if (utp->ut_pid == pid
-+			if (utp->ut_pid == cxt.pid
- 			    && utp->ut_type >= INIT_PROCESS
- 			    && utp->ut_type <= DEAD_PROCESS)
- 				break;
-@@ -776,7 +777,7 @@ int main(int argc, char **argv)
- 		}
- #endif
- 		ut.ut_type = USER_PROCESS;
--		ut.ut_pid = pid;
-+		ut.ut_pid = cxt.pid;
- 		if (cxt.hostname) {
- 			xstrncpy(ut.ut_host, cxt.hostname, sizeof(ut.ut_host));
- 			if (cxt.hostaddress[0])
+-	/* preserve TERM even without -p flag */
+-	{
+-		char *ep;
+-
+-		if (!((ep = getenv("TERM")) && (termenv = strdup(ep))))
+-			termenv = "dumb";
+-	}
+-
+-	/* destroy environment unless user has requested preservation */
+-	if (!pflag) {
+-		environ = (char **)malloc(sizeof(char *));
+-		memset(environ, 0, sizeof(char *));
+-	}
+-
+-	setenv("HOME", pwd->pw_dir, 0);	/* legal to override */
+-	if (pwd->pw_uid)
+-		setenv("PATH", _PATH_DEFPATH, 1);
+-	else
+-		setenv("PATH", _PATH_DEFPATH_ROOT, 1);
+-
+-	setenv("SHELL", pwd->pw_shell, 1);
+-	setenv("TERM", termenv, 1);
++	init_environ(&cxt);
+ 
+-	/* mailx will give a funny error msg if you forget this one */
+-	{
+-		char tmp[PATH_MAX];
+-		/* avoid snprintf */
+-		if (sizeof(_PATH_MAILDIR) + strlen(pwd->pw_name) + 1 < PATH_MAX) {
+-			sprintf(tmp, "%s/%s", _PATH_MAILDIR, pwd->pw_name);
+-			setenv("MAIL", tmp, 0);
+-		}
+-	}
+-
+-	/* LOGNAME is not documented in login(1) but
+-	   HP-UX 6.5 does it. We'll not allow modifying it.
+-	 */
+-	setenv("LOGNAME", pwd->pw_name, 1);
+-
+-	{
+-		int i;
+-		char **env = pam_getenvlist(cxt.pamh);
+-
+-		if (env != NULL) {
+-			for (i = 0; env[i]; i++) {
+-				putenv(env[i]);
+-				/* D(("env[%d] = %s", i,env[i])); */
+-			}
+-		}
+-	}
+ 
+ 	setproctitle("login", cxt.username);
+ 
 -- 
 1.7.6.4
