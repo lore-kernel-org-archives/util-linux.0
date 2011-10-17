@@ -2,9 +2,9 @@ Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
 Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 05/49] build-sys: require PAM for login-utils
-Date: Mon, 17 Oct 2011 13:14:44 +0200
-Message-Id: <1318850128-23458-6-git-send-email-kzak@redhat.com>
+Subject: [PATCH 45/49] login: use DEFAULT_HOME from login.defs
+Date: Mon, 17 Oct 2011 13:15:24 +0200
+Message-Id: <1318850128-23458-46-git-send-email-kzak@redhat.com>
 In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
 References: <20111017110210.GA22648@nb.net.home>
  <1318850128-23458-1-git-send-email-kzak@redhat.com>
@@ -12,36 +12,42 @@ List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- configure.ac |   15 ++++-----------
- 1 files changed, 4 insertions(+), 11 deletions(-)
+ login-utils/login.1 |    8 ++++++++
+ login-utils/login.c |    3 +++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 88aced9..66d0794 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1099,19 +1099,12 @@ AC_ARG_ENABLE([login-utils],
- )
- AM_CONDITIONAL(BUILD_LOGIN_UTILS, test "x$enable_login_utils" = xyes)
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index c72fcfa..ca7c4b3 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -175,6 +175,14 @@ The default is to check "/etc/hushlogins" and if does not exist then
  
--AC_ARG_WITH([pam],
--  [AS_HELP_STRING([--without-pam], [compile login-utils without PAM support])])
--
--AM_CONDITIONAL(HAVE_PAM, false)
--if test "x$enable_login_utils" = xyes && test "x$with_pam" != xno; then
--  AC_CHECK_HEADERS([security/pam_misc.h],
--    [AM_CONDITIONAL(HAVE_PAM, true)],
--    [if test "x$with_pam" = xyes; then
--	AC_MSG_ERROR([PAM selected but security/pam_misc.h not found])
--     fi
--    ])
-+if test "x$enable_login_utils" = xyes; then
-+  AC_CHECK_HEADERS([security/pam_misc.h], [],
-+    [AC_MSG_ERROR([login-utils enabled, but security/pam_misc.h not found])])
- fi
- 
+ If the \fBHUSHLOGIN_FILE\fR item is empty then all checks are disabled.
+ .RE
++.PP
++\fBDEFAULT_HOME\fR (boolean)
++.RS 4
++Indicate if login is allowed if we can\'t cd to the home directory. If set to
++\fIyes\fR, the user will login in the root (/) directory if it is not possible
++to cd to her home directory. The default value is 'yes'.
++.RE
 +
- AC_ARG_WITH([selinux],
-   AS_HELP_STRING([--with-selinux], [compile with SELinux support]),
-   [], with_selinux=no
+ .SH FILES
+ .nf
+ .I /var/run/utmp
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 0464a17..0c8cc26 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1313,6 +1313,9 @@ int main(int argc, char **argv)
+ 	/* wait until here to change directory! */
+ 	if (chdir(pwd->pw_dir) < 0) {
+ 		warn(_("%s: change directory failed"), pwd->pw_dir);
++
++		if (!getlogindefs_bool("DEFAULT_HOME", 1))
++			exit(0);
+ 		if (chdir("/"))
+ 			exit(EXIT_FAILURE);
+ 		pwd->pw_dir = "/";
 -- 
 1.7.6.4
