@@ -1,145 +1,176 @@
-Return-Path: dave@gnu.org
-Date: Tue, 11 Oct 2011 22:39:45 -0400
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: [PATCH] lib/strutils: share parse_range()
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1318387185.1923.1.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: =?UTF-8?q?=5BPATCH=2002/49=5D=20login=3A=20remove=20dead=20code=20and=20comments?=
+Date: Mon, 17 Oct 2011 13:14:41 +0200
+Message-Id: <1318850128-23458-3-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Tue, 11 Oct 2011 22:32:35 -0400
-
-This function is currently only being used by partx(8), but it's handy and generic enough that we can use it elsewhere as well.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- include/strutils.h |    2 ++
- lib/strutils.c     |   45 ++++++++++++++++++++++++++++++++++++++++++++-
- partx/partx.c      |   35 -----------------------------------
- 3 files changed, 46 insertions(+), 36 deletions(-)
+ login-utils/login.c |  103 ++++----------------------------------------------
+ 1 files changed, 9 insertions(+), 94 deletions(-)
 
-diff --git a/include/strutils.h b/include/strutils.h
-index dbcc3d9..28af8b5 100644
---- a/include/strutils.h
-+++ b/include/strutils.h
-@@ -45,4 +45,6 @@ extern int string_to_idarray(const char *list, int ary[], size_t arysz,
- extern int string_to_bitarray(const char *list, char *ary,
- 			    int (*name2bit)(const char *, size_t));
- 
-+extern int parse_range(const char *str, int *lower, int *upper);
-+
- #endif
-diff --git a/lib/strutils.c b/lib/strutils.c
-index aad9f77..fc9ec68 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -424,7 +424,7 @@ int string_to_idarray(const char *list, int ary[], size_t arysz,
-  * as a possition in the 'ary' bit array. It means that the 'id' has to be in
-  * range <0..N> where N < sizeof(ary) * NBBY.
-  *
-- * Returns: 0 on sucess, <0 on error.
-+ * Returns: 0 on success, <0 on error.
-  */
- int string_to_bitarray(const char *list,
- 		     char *ary,
-@@ -461,6 +461,49 @@ int string_to_bitarray(const char *list,
- 	return 0;
- }
- 
-+/*
-+ * Parse the lower and higher values in a string containing 
-+ * "lower:higher" or "lower-higher" format. Note that either
-+ * the lower or the higher values may be missing.
+diff --git a/login-utils/login.c b/login-utils/login.c
+index c02ce3b..118bda9 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1,60 +1,13 @@
+-/* This program is derived from 4.3 BSD software and is
+-   subject to the copyright notice below.
+-
+-   The port to HP-UX has been motivated by the incapability
+-   of 'rlogin'/'rlogind' as per HP-UX 6.5 (and 7.0) to transfer window sizes.
+-
+-   Changes:
+-
+-   - General HP-UX portation. Use of facilities not available
+-     in HP-UX (e.g. setpriority) has been eliminated.
+-     Utmp/wtmp handling has been ported.
+-
+-   - The program uses BSD command line options to be used
+-     in connection with e.g. 'rlogind' i.e. 'new login'.
+-
+-   - HP features left out:	    password expiry
+-				    '*' as login shell, add it if you need it
+-
+-   - BSD features left out:         quota checks
+-   	                            password expiry
+-				    analysis of terminal type (tset feature)
+-
+-   - BSD features thrown in:        Security logging to syslogd.
+-                                    This requires you to have a (ported) syslog
+-				    system -- 7.0 comes with syslog
+-
+-				    'Lastlog' feature.
+-
+-   - A lot of nitty gritty details have been adjusted in favour of
+-     HP-UX, e.g. /etc/securetty, default paths and the environment
+-     variables assigned by 'login'.
+-
+-   - We do *nothing* to setup/alter tty state, under HP-UX this is
+-     to be done by getty/rlogind/telnetd/some one else.
+-
+-   Michael Glad (glad@daimi.dk)
+-   Computer Science Department
+-   Aarhus University
+-   Denmark
+-
+-   1990-07-04
+-
+-   1991-09-24 glad@daimi.aau.dk: HP-UX 8.0 port:
+-   - now explictly sets non-blocking mode on descriptors
+-   - strcasecmp is now part of HP-UX
+-
+-   1992-02-05 poe@daimi.aau.dk: Ported the stuff to Linux 0.12
+-   From 1992 till now (1997) this code for Linux has been maintained at
+-   ftp.daimi.aau.dk:/pub/linux/poe/
+-
+-   1999-02-22 Arkadiusz Mi¶kiewicz <misiek@pld.ORG.PL>
+-    - added Native Language Support
+-   Sun Mar 21 1999 - Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+-    - fixed strerr(errno) in gettext calls
+- */
+-
+ /*
++ * login(1)
 + *
-+ * Returns: 0 on success, <0 on error.
-+ */
-+int parse_range(const char *str, int *lower, int *upper)
-+{
-+	char *end = NULL;
-+
-+	if (!str)
-+		return 0;
-+
-+	*upper = *lower = 0;
-+	errno = 0;
-+
-+	if (*str == ':') {				/* <:N> */
-+		str++;
-+		*upper = strtol(str, &end, 10);
-+		if (errno || !end || *end || end == str)
-+			return -1;
-+	} else {
-+		*upper = *lower = strtol(str, &end, 10);
-+		if (errno || !end || end == str)
-+			return -1;
-+
-+		if (*end == ':' && !*(end + 1))		/* <M:> */
-+			*upper = 0;
-+		else if (*end == '-' || *end == ':') {	/* <M:N> <M-N> */
-+			str = end + 1;
-+			end = NULL;
-+			errno = 0;
-+			*upper = strtol(str, &end, 10);
-+
-+			if (errno || !end || *end || end == str)
-+				return -1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+
- #ifdef TEST_PROGRAM
++ * This program is derived from 4.3 BSD software and is subject to the
++ * copyright notice below.
++ *
++ * Michael Glad (glad@daimi.dk)
++ * Computer Science Department, Aarhus University, Denmark
++ * 1990-07-04
++ *
+  * Copyright (c) 1980, 1987, 1988 The Regents of the University of California.
+  * All rights reserved.
+  *
+@@ -70,15 +23,7 @@
+  * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  */
+-
+-/*
+- * login [ name ]
+- * login -h hostname	(for telnetd, etc.)
+- * login -f name	(for pre-authenticated login: datakit, xterm, etc.)
+- */
+-
+ #include <sys/param.h>
+-
+ #include <stdio.h>
+ #include <ctype.h>
+ #include <unistd.h>
+@@ -91,8 +36,6 @@
+ #include <sys/file.h>
+ #include <termios.h>
+ #include <string.h>
+-#define index strchr
+-#define rindex strrchr
+ #include <sys/ioctl.h>
+ #include <sys/wait.h>
+ #include <signal.h>
+@@ -567,12 +510,6 @@ main(int argc, char **argv)
  
- int main(int argc, char *argv[])
-diff --git a/partx/partx.c b/partx/partx.c
-index 3a9da9e..2631d1f 100644
---- a/partx/partx.c
-+++ b/partx/partx.c
-@@ -558,41 +558,6 @@ done:
- 	return rc;
- }
+     openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
  
--static int parse_range(const char *str, int *lower, int *upper)
--{
--	char *end = NULL;
+-#if 0
+-    /* other than iso-8859-1 */
+-    printf("\033(K");
+-    fprintf(stderr,"\033(K");
+-#endif
 -
--	if (!str)
--		return 0;
+ #ifdef HAVE_SECURITY_PAM_MISC_H
+     /*
+      * username is initialized to NULL
+@@ -603,15 +540,6 @@ main(int argc, char **argv)
+     retcode = pam_set_item(pamh, PAM_USER_PROMPT, _("login: "));
+     PAM_FAIL_CHECK;
+ 
+-#if 0
+-    /*
+-     * other than iso-8859-1
+-     * one more time due to reset tty by PAM
+-     */
+-    printf("\033(K");
+-    fprintf(stderr,"\033(K");
+-#endif
 -
--	*upper = *lower = 0;
--	errno = 0;
+     if (username) {
+ 	/* we need't the original username. We have to follow PAM. */
+ 	free(username);
+@@ -963,18 +891,6 @@ Michael Riepe <michael@stud.uni-hannover.de>
+ #if HAVE_UPDWTMP
+ 	updwtmp(_PATH_WTMP, &ut);
+ #else
+-#if 0
+-	/* The O_APPEND open() flag should be enough to guarantee
+-	   atomic writes at end of file. */
+-	{
+-	    int wtmp;
 -
--	if (*str == ':') {				/* <:N> */
--		str++;
--		*upper = strtol(str, &end, 10);
--		if (errno || !end || *end || end == str)
--			return -1;
--	} else {
--		*upper = *lower = strtol(str, &end, 10);
--		if (errno || !end || end == str)
--			return -1;
--
--		if (*end == ':' && !*(end + 1))		/* <M:> */
--			*upper = 0;
--		else if (*end == '-' || *end == ':') {	/* <M:N> <M-N> */
--			str = end + 1;
--			end = NULL;
--			errno = 0;
--			*upper = strtol(str, &end, 10);
--
--			if (errno || !end || *end || end == str)
--				return -1;
--		}
+-	    if((wtmp = open(_PATH_WTMP, O_APPEND|O_WRONLY)) >= 0) {
+-		write(wtmp, (char *)&ut, sizeof(ut));
+-		close(wtmp);
+-	    }
 -	}
--	return 0;
--}
--
- static blkid_partlist get_partlist(blkid_probe pr,
- 			const char *device, char *type)
- {
+-#else
+ 	/* Probably all this locking below is just nonsense,
+ 	   and the short version is OK as well. */
+ 	{
+@@ -990,7 +906,6 @@ Michael Riepe <michael@stud.uni-hannover.de>
+ 	    }
+ 	}
+ #endif
+-#endif
+     }
+ 
+     logaudit(tty_name, username, hostname, pwd, 1);
 -- 
-1.7.7
+1.7.6.4
