@@ -1,66 +1,111 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18223 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754411Ab1JCNOQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 3 Oct 2011 09:14:16 -0400
-Date: Mon, 3 Oct 2011 15:14:09 +0200
+Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] retire mandoc syntax
-Message-ID: <20111003131409.GF1982@nb.net.home>
-References: <CAG27Bk2O5ynXup+P_toB4aALK+fumY61tkeEAiLZXKvwrDifTQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk2O5ynXup+P_toB4aALK+fumY61tkeEAiLZXKvwrDifTQ@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 15/49] login: use login_context struct in audit stuff
+Date: Mon, 17 Oct 2011 13:14:54 +0200
+Message-Id: <1318850128-23458-16-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 18, 2011 at 09:38:17PM +0200, Sami Kerola wrote:
-> Hi,
-> 
-> This is mostly about retiring mandoc syntax. The util-linux uses groff
-> man macros instead.
-> 
-> The following changes since commit 277a6dd53569a409e05316a7bdaed0e78e326762:
-> 
->   mount: check for target before source on remount (2011-09-13 22:59:39 +0200)
-> 
-> are available in the git repository at:
->   https://github.com/kerolasa/lelux-utiliteetit manuals
-> 
-> Sami Kerola (15):
->       docs: chcpu and readprofile are sysadmin utils
->       docs: fix return value table in fsck.8
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ login-utils/login.c |   36 ++++++++++++++++++++----------------
+ 1 files changed, 20 insertions(+), 16 deletions(-)
 
- bug (typo) ...  s/36/32/  Fsck canceled by user request
-
->       docs: align vipw.8 with howto-man-page.txt
->       docs: align logger.1  with howto-man-page.txt
->       docs: align renice.1 with howto-man-page.txt
-
- Note, be careful with schetutils and renice, it does not use
- traditional getopt() concept, for example you cannot use
-
-    renice -p <pid> -n <priority>
-
- The order of the options is very strict and "[-n] <priority>" has to
- be the first argument on the command line. Maybe this rule should be
- mentioned in the -n/--priority description in the man page.
-
->       docs: align script.1 with howto-man-page.txt
->       docs: align scriptreplay.1 with howto-man-page.txt
-
- the example scriptreplay.1 uses hidden (hardcoded) typescript file
- and redirection of stderr, it sucks. What about:
-
-   $ script --timing=file.tm file
-   ...
-   $ scriptreplay --timing file.tm --typescript file
-
-
- Karel
-
+diff --git a/login-utils/login.c b/login-utils/login.c
+index a794d18..e29fb43 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -251,8 +251,7 @@ static int is_consoletty(int fd)
+  * Must be called only with username the name of an actual user.
+  * The most common login failure is to give password instead of username.
+  */
+-static void
+-logbtmp(struct login_context *cxt)
++static void logbtmp(struct login_context *cxt)
+ {
+ 	struct utmp ut;
+ 	struct timeval tv;
+@@ -282,6 +281,7 @@ logbtmp(struct login_context *cxt)
+ 
+ 	ut.ut_type = LOGIN_PROCESS;	/* XXX doesn't matter */
+ 	ut.ut_pid = cxt->pid;
++
+ 	if (cxt->hostname) {
+ 		xstrncpy(ut.ut_host, cxt->hostname, sizeof(ut.ut_host));
+ 		if (cxt->hostaddress && *cxt->hostaddress)
+@@ -315,27 +315,31 @@ static void sig_handler(int signal)
+ }
+ 
+ #ifdef HAVE_LIBAUDIT
+-static void
+-logaudit(const char *tty, const char *username, const char *hostname,
+-	 struct passwd *pwd, int status)
++static void log_audit(struct login_context *cxt, struct passwd *pwd, int status)
+ {
+ 	int audit_fd;
+ 
+ 	audit_fd = audit_open();
+ 	if (audit_fd == -1)
+ 		return;
+-	if (!pwd && username)
+-		pwd = getpwnam(username);
+-
+-	audit_log_acct_message(audit_fd, AUDIT_USER_LOGIN,
+-			       NULL, "login", username ? username : "(unknown)",
+-			       pwd ? pwd->pw_uid : (unsigned int)-1, hostname,
+-			       NULL, tty, status);
++	if (!pwd && cxt->username)
++		pwd = getpwnam(cxt->username);
++
++	audit_log_acct_message(audit_fd,
++			       AUDIT_USER_LOGIN,
++			       NULL,
++			       "login",
++			       cxt->username ? cxt->username : "(unknown)",
++			       pwd ? pwd->pw_uid : (unsigned int) -1,
++			       cxt->hostname,
++			       NULL,
++			       cxt->tty_name,
++			       status);
+ 
+ 	close(audit_fd);
+ }
+ #else				/* ! HAVE_LIBAUDIT */
+-#define logaudit(tty, username, hostname, pwd, status)
++#define log_audit(cxt, pwd, status)
+ #endif				/* HAVE_LIBAUDIT */
+ 
+ /* encapsulate stupid "void **" pam_get_item() API */
+@@ -574,7 +578,7 @@ int main(int argc, char **argv)
+ 			       failcount, cxt.hostname, cxt.username, pam_strerror(pamh,
+ 									   retcode));
+ 			logbtmp(&cxt);
+-			logaudit(cxt.tty_name, cxt.username, cxt.hostname, NULL, 0);
++			log_audit(&cxt, NULL, 0);
+ 
+ 			fprintf(stderr, _("Login incorrect\n\n"));
+ 			pam_set_item(pamh, PAM_USER, NULL);
+@@ -597,7 +601,7 @@ int main(int argc, char **argv)
+ 				       cxt.hostname, cxt.username, pam_strerror(pamh,
+ 									retcode));
+ 			logbtmp(&cxt);
+-			logaudit(cxt.tty_name, cxt.username, cxt.hostname, NULL, 0);
++			log_audit(&cxt, NULL, 0);
+ 
+ 			fprintf(stderr, _("\nLogin incorrect\n"));
+ 			pam_end(pamh, retcode);
+@@ -811,7 +815,7 @@ int main(int argc, char **argv)
+ #endif
+ 	}
+ 
+-	logaudit(cxt.tty_name, cxt.username, cxt.hostname, pwd, 1);
++	log_audit(&cxt, pwd, 1);
+ 	dolastlog(&cxt, quietlog);
+ 
+ 	if (fchown(0, pwd->pw_uid,
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6.4
