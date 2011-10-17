@@ -1,104 +1,225 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate3.uk.ibm.com ([194.196.100.163]:40356 "EHLO
-	mtagate3.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752991Ab1JJJAj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Oct 2011 05:00:39 -0400
-Received: from d06nrmr1707.portsmouth.uk.ibm.com (d06nrmr1707.portsmouth.uk.ibm.com [9.149.39.225])
-	by mtagate3.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p9A90cWa030468
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 09:00:38 GMT
-Received: from d06av04.portsmouth.uk.ibm.com (d06av04.portsmouth.uk.ibm.com [9.149.37.216])
-	by d06nrmr1707.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p9A90br52449412
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 10:00:37 +0100
-Received: from d06av04.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av04.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p9A90QFP012663
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 03:00:26 -0600
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 3/6] lscpu: change column names back to mixed case
-Date: Mon, 10 Oct 2011 10:59:41 +0200
-Message-Id: <1318237184-6616-4-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kzak@redhat.com
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 14/49] login: add username to login_context struct
+Date: Mon, 17 Oct 2011 13:14:53 +0200
+Message-Id: <1318850128-23458-15-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Commit b9d18bc3 "lscpu: add column names to --help" changed all column names
-to upper case only and printed the column names for the parsable output in
-lower case.
-However current behaviour was that for the parsable output the column names
-were printed in mixed case. The change might break existing other tools and
-breaks also the util-linux internal lscpu tests.
-So revert part of the above commit and restore the old behaviour.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- sys-utils/lscpu.c |   31 ++++++++++++++-----------------
- 1 files changed, 14 insertions(+), 17 deletions(-)
+ login-utils/login.c |   59 +++++++++++++++++++++++++--------------------------
+ 1 files changed, 29 insertions(+), 30 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 7c8cb13..63facc3 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -224,15 +224,15 @@ enum {
- static const char *colnames[] =
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 9299e5c..a794d18 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -91,6 +91,8 @@ struct login_context {
+ 	const char	*tty_name;	/* tty_path without /dev prefix */
+ 	const char	*tty_number;	/* end of the tty_path */
+ 
++	char		*username;	/* from command line or PAM */
++
+ #ifdef LOGIN_CHOWN_VCS
+ 	char		vcsn[VCS_PATH_MAX];	/* virtual console name */
+ 	char		vcsan[VCS_PATH_MAX];
+@@ -111,7 +113,6 @@ int timeout = LOGIN_TIMEOUT;
+ struct passwd *pwd;
+ 
+ static struct passwd pwdcopy;
+-static char *username;
+ 
+ static void timedout(int);
+ static void sigint(int);
+@@ -251,14 +252,15 @@ static int is_consoletty(int fd)
+  * The most common login failure is to give password instead of username.
+  */
+ static void
+-logbtmp(struct login_context *cxt, const char *username)
++logbtmp(struct login_context *cxt)
  {
- 	[COL_CPU] = "CPU",
--	[COL_CORE] = "CORE",
--	[COL_SOCKET] = "SOCKET",
--	[COL_NODE] = "NODE",
--	[COL_BOOK] = "BOOK",
--	[COL_CACHE] = "CACHE",
--	[COL_POLARIZATION] = "POLARIZATION",
--	[COL_ADDRESS] = "ADDRESS",
--	[COL_CONFIGURED] = "CONFIGURED",
--	[COL_ONLINE] = "ONLINE",
-+	[COL_CORE] = "Core",
-+	[COL_SOCKET] = "Socket",
-+	[COL_NODE] = "Node",
-+	[COL_BOOK] = "Book",
-+	[COL_CACHE] = "Cache",
-+	[COL_POLARIZATION] = "Polarization",
-+	[COL_ADDRESS] = "Address",
-+	[COL_CONFIGURED] = "Configured",
-+	[COL_ONLINE] = "Online",
- };
+ 	struct utmp ut;
+ 	struct timeval tv;
  
+ 	memset(&ut, 0, sizeof(ut));
  
-@@ -937,8 +937,6 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
+-	strncpy(ut.ut_user, username ? username : "(unknown)",
++	strncpy(ut.ut_user,
++		cxt->username ? cxt->username : "(unknown)",
+ 		sizeof(ut.ut_user));
  
- 	fputs("# ", stdout);
- 	for (i = 0; i < ncols; i++) {
--		char *p;
--
- 		if (cols[i] == COL_CACHE) {
- 			if (mod->compat && !desc->ncaches)
- 				continue;
-@@ -948,11 +946,7 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
- 		if (i > 0)
- 			putchar(',');
+ 	if (cxt->tty_number)
+@@ -419,7 +421,6 @@ int main(int argc, char **argv)
+ 	gethostname(tbuf, sizeof(tbuf));
+ 	domain = strchr(tbuf, '.');
  
--		p = data = get_cell_header(desc, cols[i],
--					   mod, buf, sizeof(buf));
--		while (p && *p != '\0')
--			*p++ = tolower((unsigned int) *p);
--
-+		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
- 		fputs(data && *data ? data : "", stdout);
+-	username = NULL;
+ 	fflag = hflag = pflag = 0;
+ 	passwd_req = 1;
+ 
+@@ -485,7 +486,7 @@ int main(int argc, char **argv)
+ 
+ 	if (*argv) {
+ 		char *p = *argv;
+-		username = strdup(p);
++		cxt.username = strdup(p);
+ 
+ 		/* wipe name - some people mistype their password here */
+ 		/* (of course we are too late, but perhaps this helps a little ..) */
+@@ -508,7 +509,7 @@ int main(int argc, char **argv)
+ 	 * Therefore, we are safe not setting it to anything
+ 	 */
+ 
+-	retcode = pam_start(hflag ? "remote" : "login", username, &conv, &pamh);
++	retcode = pam_start(hflag ? "remote" : "login", cxt.username, &conv, &pamh);
+ 	if (retcode != PAM_SUCCESS) {
+ 		warnx(_("PAM failure, aborting: %s"),
+ 		      pam_strerror(pamh, retcode));
+@@ -538,11 +539,9 @@ int main(int argc, char **argv)
+ 	if (is_pam_failure(retcode))
+ 		loginpam_err(pamh, retcode);
+ 
+-	if (username) {
+-		/* we need't the original username. We have to follow PAM. */
+-		free(username);
+-		username = NULL;
+-	}
++	/* we need't the original username. We have to follow PAM. */
++	free(cxt.username);
++	cxt.username = NULL;
+ 
+ 	/* if fflag == 1, then the user has already been authenticated */
+ 	if (fflag && (getuid() == 0))
+@@ -554,7 +553,7 @@ int main(int argc, char **argv)
+ 		int failcount = 0;
+ 
+ 		/* if we didn't get a user on the command line, set it to NULL */
+-		loginpam_get_username(pamh, &username);
++		loginpam_get_username(pamh, &cxt.username);
+ 
+ 		/* there may be better ways to deal with some of these
+ 		   conditions, but at least this way I don't think we'll
+@@ -568,14 +567,14 @@ int main(int argc, char **argv)
+ 			(retcode == PAM_USER_UNKNOWN) ||
+ 			(retcode == PAM_CRED_INSUFFICIENT) ||
+ 			(retcode == PAM_AUTHINFO_UNAVAIL))) {
+-			loginpam_get_username(pamh, &username);
++			loginpam_get_username(pamh, &cxt.username);
+ 
+ 			syslog(LOG_NOTICE,
+ 			       _("FAILED LOGIN %d FROM %s FOR %s, %s"),
+-			       failcount, cxt.hostname, username, pam_strerror(pamh,
++			       failcount, cxt.hostname, cxt.username, pam_strerror(pamh,
+ 									   retcode));
+-			logbtmp(&cxt, username);
+-			logaudit(cxt.tty_name, username, cxt.hostname, NULL, 0);
++			logbtmp(&cxt);
++			logaudit(cxt.tty_name, cxt.username, cxt.hostname, NULL, 0);
+ 
+ 			fprintf(stderr, _("Login incorrect\n\n"));
+ 			pam_set_item(pamh, PAM_USER, NULL);
+@@ -583,22 +582,22 @@ int main(int argc, char **argv)
+ 		}
+ 
+ 		if (is_pam_failure(retcode)) {
+-			loginpam_get_username(pamh, &username);
++			loginpam_get_username(pamh, &cxt.username);
+ 
+ 			if (retcode == PAM_MAXTRIES)
+ 				syslog(LOG_NOTICE,
+ 				       _
+ 				       ("TOO MANY LOGIN TRIES (%d) FROM %s FOR "
+ 					"%s, %s"), failcount, cxt.hostname,
+-				       username, pam_strerror(pamh, retcode));
++				       cxt.username, pam_strerror(pamh, retcode));
+ 			else
+ 				syslog(LOG_NOTICE,
+ 				       _
+ 				       ("FAILED LOGIN SESSION FROM %s FOR %s, %s"),
+-				       cxt.hostname, username, pam_strerror(pamh,
++				       cxt.hostname, cxt.username, pam_strerror(pamh,
+ 									retcode));
+-			logbtmp(&cxt, username);
+-			logaudit(cxt.tty_name, username, cxt.hostname, NULL, 0);
++			logbtmp(&cxt);
++			logaudit(cxt.tty_name, cxt.username, cxt.hostname, NULL, 0);
+ 
+ 			fprintf(stderr, _("\nLogin incorrect\n"));
+ 			pam_end(pamh, retcode);
+@@ -623,21 +622,21 @@ int main(int argc, char **argv)
+ 	 * Grab the user information out of the password file for future usage
+ 	 * First get the username that we are actually using, though.
+ 	 */
+-	retcode = loginpam_get_username(pamh, &username);
++	retcode = loginpam_get_username(pamh, &cxt.username);
+ 	if (is_pam_failure(retcode))
+ 		loginpam_err(pamh, retcode);
+ 
+-	if (!username || !*username) {
++	if (!cxt.username || !*cxt.username) {
+ 		warnx(_("\nSession setup problem, abort."));
+ 		syslog(LOG_ERR, _("NULL user name in %s:%d. Abort."),
+ 		       __FUNCTION__, __LINE__);
+ 		pam_end(pamh, PAM_SYSTEM_ERR);
+ 		exit(EXIT_FAILURE);
  	}
- 	putchar('\n');
-@@ -1000,7 +994,10 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
- 		 err(EXIT_FAILURE, _("failed to initialize output table"));
+-	if (!(pwd = getpwnam(username))) {
++	if (!(pwd = getpwnam(cxt.username))) {
+ 		warnx(_("\nSession setup problem, abort."));
+ 		syslog(LOG_ERR, _("Invalid user name \"%s\" in %s:%d. Abort."),
+-		       username, __FUNCTION__, __LINE__);
++		       cxt.username, __FUNCTION__, __LINE__);
+ 		pam_end(pamh, PAM_SYSTEM_ERR);
+ 		exit(EXIT_FAILURE);
+ 	}
+@@ -660,14 +659,14 @@ int main(int argc, char **argv)
+ 		pam_end(pamh, PAM_SYSTEM_ERR);
+ 		exit(EXIT_FAILURE);
+ 	}
+-	username = pwd->pw_name;
++	cxt.username = pwd->pw_name;
  
- 	for (i = 0; i < ncols; i++) {
--		data = get_cell_header(desc, cols[i], mod, buf, sizeof(buf));
-+		char *p = data = get_cell_header(desc, cols[i],
-+						 mod, buf, sizeof(buf));
-+		while (p && *p != '\0')
-+			*p++ = toupper((unsigned int) *p);
- 		tt_define_column(tt, xstrdup(data), 0, 0);
+ 	/*
+ 	 * Initialize the supplementary group list.
+ 	 * This should be done before pam_setcred because
+ 	 * the PAM modules might add groups during pam_setcred.
+ 	 */
+-	if (initgroups(username, pwd->pw_gid) < 0) {
++	if (initgroups(cxt.username, pwd->pw_gid) < 0) {
+ 		syslog(LOG_ERR, "initgroups: %m");
+ 		warnx(_("\nSession setup problem, abort."));
+ 		pam_end(pamh, PAM_SYSTEM_ERR);
+@@ -762,7 +761,7 @@ int main(int argc, char **argv)
+ 		if (ut.ut_id[0] == 0)
+ 			strncpy(ut.ut_id, cxt.tty_number, sizeof(ut.ut_id));
+ 
+-		strncpy(ut.ut_user, username, sizeof(ut.ut_user));
++		strncpy(ut.ut_user, cxt.username, sizeof(ut.ut_user));
+ 		xstrncpy(ut.ut_line, cxt.tty_name, sizeof(ut.ut_line));
+ #ifdef _HAVE_UT_TV		/* in <utmpbits.h> included by <utmp.h> */
+ 		gettimeofday(&tv, NULL);
+@@ -812,7 +811,7 @@ int main(int argc, char **argv)
+ #endif
  	}
  
+-	logaudit(cxt.tty_name, username, cxt.hostname, pwd, 1);
++	logaudit(cxt.tty_name, cxt.username, cxt.hostname, pwd, 1);
+ 	dolastlog(&cxt, quietlog);
+ 
+ 	if (fchown(0, pwd->pw_uid,
+@@ -894,7 +893,7 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	setproctitle("login", username);
++	setproctitle("login", cxt.username);
+ 
+ 	if (!strncmp(cxt.tty_name, "ttyS", 4))
+ 		syslog(LOG_INFO, _("DIALUP AT %s BY %s"), cxt.tty_name,
 -- 
-1.7.6.3
-
+1.7.6.4
