@@ -1,27 +1,78 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13831 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751786Ab1JQJQY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 17 Oct 2011 05:16:24 -0400
-Date: Mon, 17 Oct 2011 11:16:00 +0200
+Return-Path: kzak@redhat.com
 From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] fstrim: fix section number in referral to manpage
-Message-ID: <20111017091600.GL9667@nb.net.home>
-References: <1318511445-12863-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1318511445-12863-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 30/49] login: use xalloc.h
+Date: Mon, 17 Oct 2011 13:15:09 +0200
+Message-Id: <1318850128-23458-31-git-send-email-kzak@redhat.com>
+In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
+References: <20111017110210.GA22648@nb.net.home>
+ <1318850128-23458-1-git-send-email-kzak@redhat.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 13, 2011 at 03:10:45PM +0200, Petr Uzel wrote:
->  sys-utils/fstrim.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ login-utils/login.c |   17 +++++------------
+ 1 files changed, 5 insertions(+), 12 deletions(-)
 
- Applied, thanks.
-
+diff --git a/login-utils/login.c b/login-utils/login.c
+index c875181..d87a632 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -515,7 +515,6 @@ static struct passwd *get_passwd_entry(const char *username,
+ {
+ 	struct passwd *res = NULL;
+ 	size_t sz;
+-	char *tmp;
+ 	int x;
+ 
+ 	if (!pwdbuf || !username)
+@@ -527,13 +526,7 @@ static struct passwd *get_passwd_entry(const char *username,
+ #endif
+ 		sz = 16384;
+ 
+-	tmp = realloc(*pwdbuf, sz);
+-	if (!tmp) {
+-		free(*pwdbuf);
+-		*pwdbuf = NULL;
+-		return NULL;
+-	}
+-	*pwdbuf = tmp;
++	*pwdbuf = xrealloc(*pwdbuf, sz);
+ 
+ 	x = getpwnam_r(username, pwd, *pwdbuf, sz, &res);
+ 	if (!res) {
+@@ -933,11 +926,11 @@ static void init_environ(struct login_context *cxt)
+ 	int len, i;
+ 
+ 	termenv = getenv("TERM");
+-	termenv = termenv ? strdup(termenv) : "dumb";
++	termenv = termenv ? xstrdup(termenv) : "dumb";
+ 
+ 	/* destroy environment unless user has requested preservation (-p) */
+ 	if (!cxt->keep_env) {
+-		environ = (char **) malloc(sizeof(char *));
++		environ = (char **) xmalloc(sizeof(char *));
+ 		memset(environ, 0, sizeof(char *));
+ 	}
+ 
+@@ -1022,7 +1015,7 @@ int main(int argc, char **argv)
+ 			    strcasecmp(p, domain) == 0)
+ 				*p = 0;
+ 
+-			cxt.hostname = strdup(optarg);
++			cxt.hostname = xstrdup(optarg);
+ 			{
+ 				struct addrinfo hints, *info = NULL;
+ 
+@@ -1067,7 +1060,7 @@ int main(int argc, char **argv)
+ 
+ 	if (*argv) {
+ 		char *p = *argv;
+-		cxt.username = strdup(p);
++		cxt.username = xstrdup(p);
+ 
+ 		/* wipe name - some people mistype their password here */
+ 		/* (of course we are too late, but perhaps this helps a little ..) */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.6.4
