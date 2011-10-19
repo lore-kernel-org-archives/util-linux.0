@@ -1,1844 +1,922 @@
-Return-Path: kzak@redhat.com
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 10/49] login: indent -linux
-Date: Mon, 17 Oct 2011 13:14:49 +0200
-Message-Id: <1318850128-23458-11-git-send-email-kzak@redhat.com>
-In-Reply-To: <1318850128-23458-1-git-send-email-kzak@redhat.com>
-References: <20111017110210.GA22648@nb.net.home>
- <1318850128-23458-1-git-send-email-kzak@redhat.com>
+Return-Path: dave@gnu.org
+Date: Wed, 19 Oct 2011 16:02:35 -0400
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 2/3] prlimit: new program
+In-reply-to: <20111017150804.GA9767@nb.net.home>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-id: <1319054555.2170.3.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+References: <1318893789.5289.10.camel@offworld>
+ <20111017150804.GA9767@nb.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-Yeah, this patch is horrible, but necessary before a real changes to
-the code...
+On Mon, 2011-10-17 at 17:08 +0200, Karel Zak wrote:
+> On Mon, Oct 17, 2011 at 07:23:09PM -0400, Davidlohr Bueso wrote:
+> > +struct prlimit {
+> > +	char *name;
+> > +	char *help;
+> > +	int modify;          /* are we changing the limit? */
+> > +	int resource;        /* RLIMIT_* id */
+> > +	struct rlimit rlim;  /* soft,hard limits */
+> > +} default_lims[] = { /* when no --{resource_name} is passed */
+> > +	{"AS", "address space limit", 0, RLIMIT_AS, {0, 0}},
+> 
+>  N_("address space limit")
+> 
+> > +	{"CORE", "max core file size", 0, RLIMIT_CORE, {0, 0}},
+> > +	{"CPU", "CPU time in secs", 0, RLIMIT_CPU, {0, 0}},
+> > +	{"DATA", "max data size", 0, RLIMIT_DATA, {0, 0}},
+> > +	{"FSIZE", "max file size", 0, RLIMIT_FSIZE, {0, 0}},
+> > +	{"LOCKS", "max amount of file locks held", 0, RLIMIT_LOCKS, {0, 0}},
+> > +	{"MEMLOCK", "max locked-in-memory address space", 0, RLIMIT_MEMLOCK, {0, 0}},
+> > +	{"MSGQUEUE", "max bytes in POSIX mqueues", 0, RLIMIT_MSGQUEUE, {0, 0}},
+> > +	{"NICE", "max nice prio allowed to raise", 0, RLIMIT_NICE, {0, 0}},
+> > +	{"NOFILE", "max amount of open files", 0, RLIMIT_NOFILE, {0, 0}},
+> > +	{"NPROC", "max number of processes", 0, RLIMIT_NPROC, {0, 0}},
+> > +	{"RSS", "max resident set size", 0, RLIMIT_RSS, {0, 0}},
+> > +	{"RTPRIO", "max real-time priority", 0, RLIMIT_RTPRIO, {0, 0}},
+> > +	{"RTTIME", "timeout for real-time tasks", 0, RLIMIT_RTTIME, {0, 0}},
+> > +	{"SIGPENDING", "max amount of pending signals", 0, RLIMIT_SIGPENDING, {0, 0}},
+> > +	{"STACK", "max stack size", 0, RLIMIT_STACK, {0, 0}}
+> > +};
+> > +
+> > +#define MAX_RESOURCES ARRAY_SIZE(default_lims)
+> > +
+> > +/* to reuse data, maintain the same order used in default_lims[] */
+> 
+>  Please, define this enum before default_lims[] and use
+> 
+>    { 
+>      [enum] = { },
+>    }
+> 
+>  convention for the default_lims array. Anyway, see my note about
+>  default_lims below.
+> 
+> > +enum {
+> > +	AS,
+> > +	CORE,
+> > +	CPU,
+> > +	DATA,
+> > +	FSIZE,
+> > +	LOCKS,
+> > +	MEMLOCK,
+> > +	MSGQUEUE,
+> > +	NICE,
+> > +	NOFILE,
+> > +	NPROC,
+> > +	RSS,
+> > +	RTPRIO,
+> > +	RTTIME,
+> > +	SIGPENDING,
+> > +	STACK
+> > +};
+> > +
+> > +enum {
+> > +	COL_HELP,
+> > +	COL_RES,
+> > +	COL_SOFT,
+> > +	COL_HARD,
+> > +	__NCOLUMNS
+> > +};
+> 
+>  It would be better to use ARRAY_SIZE everywhere than __NCOLUMNS (yes,
+>  patch for lsblk is wanted :-)
 
-Signed-off-by: Karel Zak <kzak@redhat.com>
+And partx too.
+
+> > +/* column names */
+> > +struct colinfo {
+> > +	const char	*name;	/* header */
+> > +	double		whint;	/* width hint (N < 1 is in percent of termwidth) */
+> > +	int		flags;	/* TT_FL_* */
+> > +	const char      *help;
+> > +};
+> > +
+> > +/* columns descriptions */
+> > +struct colinfo infos[__NCOLUMNS] = {
+> 
+>   struct colinfo infos[] =
+> 
+> is enough.
+> 
+> > +	[COL_RES]     = { "RESOURCE",    0.25, TT_FL_RIGHT, N_("resource name") },
+> > +	[COL_HELP]    = { "DESCRIPTION", 0.1,  TT_FL_TRUNC, N_("resource description")},
+> > +	[COL_SOFT]    = { "SOFT",        0.1,  TT_FL_TRUNC, N_("soft limit")},
+> 
+>  Please, always use TT_FL_RIGHT for numbers.
+> 
+
+Yes, much nicer output.
+
+> > +	[COL_HARD]    = { "HARD",        1,    TT_FL_RIGHT, N_("hard limit (ceiling)")},
+> > +};
+> > +
+> > +/* array with IDs of enabled columns */
+> > +static int columns[__NCOLUMNS], ncolumns;
+> > +
+> > +static void __attribute__ ((__noreturn__)) usage(FILE * out)
+> > +{
+> > +	size_t i;
+> > +
+> > +	fputs(_("\nUsage:\n"), out);
+> 
+>  fputs(HELP_USAGE, out);  See c.h for HELP_* macros.
+> 
+> > +	fprintf(out,
+> > +		_(" %s [options]\n"), program_invocation_short_name);
+> > +
+> > +	fputs(_("\nGeneral Options:\n"), out);
+> > +	fputs(_(" -p, --pid <pid>        process id\n"
+> > +		" -o, --output <type>    define which output columns to use\n"
+> > +		" -h, --help             display this help and exit\n"
+> > +		" -V, --version          output version information and exit\n"), out);
+> > +
+> > +	fputs(_("\nResources Options:\n"), out);
+> > +	fputs(_(" -a, --as               address space limit\n"
+> > +		" -c, --core             max core file size\n"
+> > +		" -C, --cpu              CPU time in secs\n"
+> > +		" -d, --data             max data size\n"
+> > +		" -f, --fsize            max file size\n"
+> > +		" -l, --locks            max amount of file locks held\n"
+> > +		" -m, --memlock          max locked-in-memory address space\n"
+> > +		" -M, --msgqueue         max bytes in POSIX mqueues\n"
+> > +		" -n, --nice             max nice priority allowed to raise\n"
+> > +		" -N, --nofile           max amount of open files\n"
+> > +		" -P, --nproc            max number of processes\n"
+> > +		" -r, --rss              max resident set size\n"
+> > +		" -R, --rtprio           max real-time priority\n"
+> > +		" -t, --rttime           timeout for real-time teasks\n"
+> > +		" -s, --sigpending       max amount of pending signals\n"
+> > +		" -S, --stack            max stack size\n"), out);
+> > +
+> > +	fputs(_("\nAvailable columns (for --output):\n"), out);
+> > +
+> > +	for (i = 0; i < __NCOLUMNS; i++)
+> > +		fprintf(out, " %11s  %s\n", infos[i].name, _(infos[i].help));
+> > +
+> > +
+> > +	fprintf(out, _("\nFor more information see prlimit(1).\n\n"));
+> 
+>   fprintf(out, USAGE_MAN_TAIL("prlimit(1)");
+> 
+>  [...]
+> 
+> > +/*
+> > + * Obtain the soft and hard limits, from arguments in the form <soft>:<hard>
+> > + */
+> > +static int parse_prlim(pid_t pid, struct rlimit *lim, int res, const char *ops, const char *errmsg)
+> > +{
+> > +	int soft, hard;
+> > +
+> > +	if (parse_range(ops, &soft, &hard, -3))
+> 
+> please, don't use magic constants, use:
+> 
+>     if (parse_range(ops, &soft, &hard, PRLIMIT_UNKNOWN))
+> 
+> or so...
+> 
+> > +		errx(EXIT_FAILURE, "%s", errmsg);
+> 
+> It would be nice to support RLIM_INFINITY, something like:
+> 
+>    --core=unlimited or --core=10000:unlimited
+> 
+> btw it would be better to use RLIM_INFINITY macro rather than -1 in the code.
+> 
+> > +static void do_prlimit(pid_t pid, struct prlimit lims[], const int n)
+> > +{
+> > +	int i;
+> > +	struct rlimit *new;
+> 
+> int nshows = 0;
+> 
+> > +	for (i = 0; i < n; i++) {
+> > +		new = lims[i].modify ? &lims[i].rlim : NULL;
+> 
+>         struct rlimit *new = NULL;
+> 
+>         if (lims[i].modify)
+>             new = &lims[i].rlim;
+>         else
+>             nshows++;
+> 
+> > +		if (prlimit(pid, lims[i].resource, new, &lims[i].rlim) == -1)
+> > +			err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
+> > +	}
+> > +
+> > +	show_limits(lims, 0, n);
+> 
+>  if (nshows)
+>     show_limits(lims, 0, n);
+> 
+>  .. so don't waste time with show_limits() for commands like
+> 
+>     prlimit --pid $$ --core=10000
+> 
+>  where nothing is expected on stdout ;-)
+> 
+> > +}
+> > +
+> > +/*
+> > + * Add a resource limit to the limits array
+> > + */
+> > +static int add_prlimit(pid_t pid, struct prlimit lims[], const char *ops,
+> > +		       int n, int id, const char *errmsg)
+> > +{
+> > +	/* setup basic data */
+> > +	lims[n].name = default_lims[id].name;
+> > +	lims[n].help = default_lims[id].help;
+> > +	lims[n].resource = default_lims[id].resource;
+> 
+>  Hmmm... this is poor design, the data structs are core of the well
+>  designed programs.
+>  
+>  What about:
+> 
+>  struct prlimit_desc {
+>     const char *name,
+>                *help;
+>     int        resource;
+>  };
+> 
+>  struct prlimit {
+>    struct prlimit_desc *desc;
+> 
+>    int           modify;
+>    struct rlimit rlim;
+>  };
+> 
+> I think it would be better to split resources description and the
+> limits.
+> 
+> > +	if (ops) { /* planning on modifying a limit? */
+> > +		lims[n].modify = 1;
+> > +		parse_prlim(pid, &lims[n].rlim, lims[n].resource, ops, errmsg);
+> > +	} else
+> > +		lims[n].modify = 0;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +int main(int argc, char **argv)
+> > +{
+> > +	int opt, n = 0;
+> > +	pid_t pid = 0; /* calling process (default) */
+> > +	struct prlimit lims[MAX_RESOURCES];
+> > +	static const struct option longopts[] = {
+> > +		{"pid", required_argument, NULL, 'p'},
+> > +		{"output", required_argument, NULL, 'o'},
+> > +		{"as", optional_argument, NULL, 'a'},
+> > +		{"core", optional_argument, NULL, 'c'},
+> > +		{"cpu", optional_argument, NULL, 'C'},
+> > +		{"data", optional_argument, NULL, 'd'},
+> > +		{"fsize", optional_argument, NULL, 'f'},
+> > +		{"locks", optional_argument, NULL, 'l'},
+> > +		{"memlock", optional_argument, NULL, 'm'},
+> > +		{"msgqueue", optional_argument, NULL, 'M'},
+> > +		{"nice", optional_argument, NULL, 'n'},
+> > +		{"nofile", optional_argument, NULL, 'N'},
+> > +		{"nproc", optional_argument, NULL, 'P'},
+> > +		{"rss", optional_argument, NULL, 'r'},
+> > +		{"rtprio", optional_argument, NULL, 'R'},
+> > +		{"rttime", optional_argument, NULL, 't'},
+> > +		{"sigpending", optional_argument, NULL, 's'},
+> > +		{"stack", optional_argument, NULL, 'S'},
+> > +		{"version", no_argument, NULL, 'V'},
+> > +		{"help", no_argument, NULL, 'h'},
+> > +		{NULL, 0, NULL, 0}
+> > +	};
+> > +
+> > +	setlocale(LC_ALL, "");
+> > +	bindtextdomain(PACKAGE, LOCALEDIR);
+> > +	textdomain(PACKAGE);
+> > +
+> > +	memset(lims, 0, sizeof(lims));
+> > +
+> > +	/*
+> > +	 * Something is very wrong if this doesn't succeed,
+> > +	 * assuming STACK is the last resource, of course.
+> > +	 */
+> > +	assert(MAX_RESOURCES == STACK + 1);
+> > +
+> > +	while((opt = getopt_long(argc, argv,
+> > +				 "a::c::C::d::f::l::m::M::n::N::P::r::R::t::s::S::p:o:vVh",
+> > +				 longopts, NULL)) != -1) {
+> > +		switch(opt) {
+> > +		case 'p':
+> > +			pid = strtol_or_err(optarg, _("cannot parse PID"));
+> > +			break;
+> 
+>  What will happen if:
+> 
+>     prlimit --pid 123 --code=10000 --pid 456 --cpu=1
+
+I set a restriction in the getopt loop to just allow 1 use of --pid, I
+don't want prlimit to be used for several pids at once.
+
+>     
+> > +		case 'a':
+> > +			add_prlimit(pid, lims, optarg, n++, AS, "failed to parse AS limit");
+> 
+>  The error message is unnecessary here. You can compose the message in
+>  the parse_prlim() function from resource ID. 
+> 
+>  It would be also better to use pointer to the prlimit struct in your
+>  parse_* function that use two options 'struct rlimit *lim' and 'int res'.
+> 
+>  So:
+> 
+>        case 'a':
+>            add_prlimit(pid, optarg, &lims[n++], AS);
+> 
+>  and in add_prlimit() you can initialize the pointer to desc:
+> 
+>     lims->desc = prlimit_desc[id];
+> 
+>  [...]
+> 
+> > +	n == 0 ? do_prlimit(pid, default_lims, MAX_RESOURCES) :
+> > +		 do_prlimit(pid, lims, n);
+> 
+>  or if you replace default_lims with prlimit_desc:
+> 
+>   if (!n) {
+>     for (n = 0; n < MAX_RESOURCES; n++)
+>         add_prlimit(pid, NULL, &lims[n], n);
+>   }
+> 
+>   do_prlimit(pid, lims, n);
+> 
+>  ;-)
+> 
+>     Karel
+> 
+
+
+Below is a v2 version with the requested corrections, thanks for
+reviewing.
+
+- Davidlohr
+
+>From 87b6c242fdf12a261aa86ccc7eb022bd2780290c Mon Sep 17 00:00:00 2001
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Wed, 19 Oct 2011 15:58:42 -0400
+Subject: [PATCH 1/2] prlimit: new command
+
+This program uses the prlimit() system call to get and/or set resource limits for a given process.
+
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- login-utils/login.c | 1591 ++++++++++++++++++++++++++-------------------------
- 1 files changed, 806 insertions(+), 785 deletions(-)
+ sys-utils/prlimit.c |  537 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 537 insertions(+), 0 deletions(-)
+ create mode 100644 sys-utils/prlimit.c
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 4ed1da3..9528908 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -52,11 +52,12 @@
- #include <lastlog.h>
- #include <security/pam_appl.h>
- #include <security/pam_misc.h>
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+new file mode 100644
+index 0000000..4d4fd91
+--- /dev/null
++++ b/sys-utils/prlimit.c
+@@ -0,0 +1,537 @@
++/*
++ *  prlimit - get/set process resource limits.
++ *
++ *  Copyright (C) 2011 Davidlohr Bueso <dave@gnu.org>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
 +
- #ifdef HAVE_LIBAUDIT
- # include <libaudit.h>
- #endif
- #ifdef HAVE_CRYPT_H
--#include <crypt.h>
-+# include <crypt.h>
- #endif
- 
- #include "c.h"
-@@ -74,12 +75,12 @@
- #define LOGIN_TIMEOUT          60
- 
- #ifdef USE_TTY_GROUP
--#  define TTY_MODE 0620
-+# define TTY_MODE 0620
- #else
--#  define TTY_MODE 0600
-+# define TTY_MODE 0600
- #endif
- 
--#define	TTYGRPNAME	"tty"		/* name of group to own ttys */
-+#define	TTYGRPNAME	"tty"	/* name of group to own ttys */
- 
- /*
-  * This bounds the time given to login.  Not a define so it can
-@@ -90,15 +91,15 @@ int timeout = LOGIN_TIMEOUT;
- struct passwd *pwd;
- 
- static struct passwd pwdcopy;
--char hostaddress[16];	/* used in checktty.c */
--char	*hostname;		/* idem */
--static char	*username, *tty_name, *tty_number;
--static pid_t	pid;
-+char hostaddress[16];		/* used in checktty.c */
-+char *hostname;			/* idem */
-+static char *username, *tty_name, *tty_number;
-+static pid_t pid;
- 
--static void timedout (int);
--static void sigint (int);
--static void motd (void);
--static void dolastlog (int quiet);
-+static void timedout(int);
-+static void sigint(int);
-+static void motd(void);
-+static void dolastlog(int quiet);
- 
- /* Nice and simple code provided by Linus Torvalds 16-Feb-93 */
- /* Nonblocking stuff by Maciej W. Rozycki, macro@ds2.pg.gda.pl, 1999.
-@@ -108,8 +109,8 @@ static void dolastlog (int quiet);
-    connection. I believe login should open the line in the non-blocking mode
-    leaving the decision to make a connection to getty (where it actually
-    belongs). */
--static void
--opentty(const char * tty) {
-+static void opentty(const char *tty)
-+{
- 	int i, fd, flags;
- 
- 	fd = open(tty, O_RDWR | O_NONBLOCK);
-@@ -142,8 +143,8 @@ opentty(const char * tty) {
- /* More precisely, the problem is  ttyn := ttyname(0); ...; chown(ttyn);
-    here ttyname() might return "/tmp/x", a hardlink to a pseudotty. */
- /* All of this is a problem only when login is suid, which it isnt. */
--static void
--check_ttyname(char *ttyn) {
-+static void check_ttyname(char *ttyn)
-+{
- 	struct stat statbuf;
- 
- 	if (ttyn == NULL
-@@ -160,16 +161,16 @@ check_ttyname(char *ttyn) {
- 
- #ifdef LOGIN_CHOWN_VCS
- /* true if the filedescriptor fd is a console tty, very Linux specific */
--static int
--consoletty(int fd) {
--    struct stat stb;
--
--    if ((fstat(fd, &stb) >= 0)
--	&& (major(stb.st_rdev) == TTY_MAJOR)
--	&& (minor(stb.st_rdev) < 64)) {
--	return 1;
--    }
--    return 0;
-+static int consoletty(int fd)
-+{
-+	struct stat stb;
++#include <errno.h>
++#include <getopt.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <ctype.h>
++#include <assert.h>
++#include <unistd.h>
++#include <sys/resource.h>
 +
-+	if ((fstat(fd, &stb) >= 0)
-+	    && (major(stb.st_rdev) == TTY_MAJOR)
-+	    && (minor(stb.st_rdev) < 64)) {
-+		return 1;
++#include "c.h"
++#include "nls.h"
++#include "tt.h"
++#include "xalloc.h"
++#include "strutils.h"
++
++enum {
++	AS,
++	CORE,
++	CPU,
++	DATA,
++	FSIZE,
++	LOCKS,
++	MEMLOCK,
++	MSGQUEUE,
++	NICE,
++	NOFILE,
++	NPROC,
++	RSS,
++	RTPRIO,
++	RTTIME,
++	SIGPENDING,
++	STACK
++};
++
++struct prlimit_desc {
++	const char *name;
++	const char *help;
++	const int resource;
++};
++
++static struct prlimit_desc prlimit_desc[] =
++{
++	[AS]         = { "AS",         N_("address space limit"),                RLIMIT_AS },
++	[CORE]       = { "CORE",       N_("max core file size"),                 RLIMIT_CORE },
++	[CPU]        = { "CPU",        N_("CPU time in secs"),                   RLIMIT_CPU },
++	[DATA]       = { "DATA",       N_("max data size"),                      RLIMIT_DATA },
++	[FSIZE]      = { "FSIZE",      N_("max file size"),                      RLIMIT_FSIZE },
++	[LOCKS]      = { "LOCKS",      N_("max amount of file locks held"),      RLIMIT_LOCKS },
++	[MEMLOCK]    = { "MEMLOCK",    N_("max locked-in-memory address space"), RLIMIT_MEMLOCK },
++	[MSGQUEUE]   = { "MSGQUEUE",   N_("max bytes in POSIX mqueues"),         RLIMIT_MSGQUEUE },
++	[NICE]       = { "NICE",       N_("max nice prio allowed to raise"),     RLIMIT_NICE },
++	[NOFILE]     = { "NOFILE",     N_("max amount of open files"),           RLIMIT_NOFILE },
++	[NPROC]      = { "NPROC",      N_("max number of processes"),            RLIMIT_NPROC },
++	[RSS]        = { "RSS",        N_("max resident set size"),              RLIMIT_RSS },
++	[RTPRIO]     = { "RTPRIO",     N_("max real-time priority"),             RLIMIT_RTPRIO },
++	[RTTIME]     = { "RTTIME",     N_("timeout for real-time tasks"),        RLIMIT_RTTIME },
++	[SIGPENDING] = { "SIGPENDING", N_("max amount of pending signals"),      RLIMIT_SIGPENDING },
++	[STACK]      = { "STACK",      N_("max stack size"),                     RLIMIT_STACK }
++
++
++};
++
++struct prlimit {
++	struct rlimit rlim;
++	struct prlimit_desc *desc;
++	int modify;
++};
++
++enum {
++	COL_HELP,
++	COL_RES,
++	COL_SOFT,
++	COL_HARD,
++};
++
++/* column names */
++struct colinfo {
++	const char	*name;	/* header */
++	double		whint;	/* width hint (N < 1 is in percent of termwidth) */
++	int		flags;	/* TT_FL_* */
++	const char      *help;
++};
++
++/* columns descriptions */
++struct colinfo infos[] = {
++	[COL_RES]     = { "RESOURCE",    0.25, TT_FL_TRUNC, N_("resource name") },
++	[COL_HELP]    = { "DESCRIPTION", 0.1,  TT_FL_TRUNC, N_("resource description")},
++	[COL_SOFT]    = { "SOFT",        0.1,  TT_FL_RIGHT, N_("soft limit")},
++	[COL_HARD]    = { "HARD",        1,    TT_FL_RIGHT, N_("hard limit (ceiling)")},
++};
++
++#define NCOLS ARRAY_SIZE(infos)
++
++#define MAX_RESOURCES ARRAY_SIZE(prlimit_desc)
++
++/* when soft or hard limits isn't specified */
++#define PRLIMIT_UNKNOWN    -3
++
++/* array with IDs of enabled columns */
++static int columns[NCOLS], ncolumns = 0;
++static pid_t pid = 0; /* calling process (default) */
++
++static void __attribute__ ((__noreturn__)) usage(FILE * out)
++{
++	size_t i;
++
++	fputs(USAGE_HEADER, out);
++
++	fprintf(out,
++		_(" %s [options]\n"), program_invocation_short_name);
++
++	fputs(_("\nGeneral Options:\n"), out);
++	fputs(_(" -p, --pid <pid>        process id\n"
++		" -o, --output <type>    define which output columns to use\n"
++		" -h, --help             display this help and exit\n"
++		" -V, --version          output version information and exit\n"), out);
++
++	fputs(_("\nResources Options:\n"), out);
++	fputs(_(" -a, --as               address space limit\n"
++		" -c, --core             max core file size\n"
++		" -C, --cpu              CPU time in secs\n"
++		" -d, --data             max data size\n"
++		" -f, --fsize            max file size\n"
++		" -l, --locks            max amount of file locks held\n"
++		" -m, --memlock          max locked-in-memory address space\n"
++		" -M, --msgqueue         max bytes in POSIX mqueues\n"
++		" -n, --nice             max nice priority allowed to raise\n"
++		" -N, --nofile           max amount of open files\n"
++		" -P, --nproc            max number of processes\n"
++		" -r, --rss              max resident set size\n"
++		" -R, --rtprio           max real-time priority\n"
++		" -t, --rttime           timeout for real-time teasks\n"
++		" -s, --sigpending       max amount of pending signals\n"
++		" -S, --stack            max stack size\n"), out);
++
++	fputs(_("\nAvailable columns (for --output):\n"), out);
++
++	for (i = 0; i < NCOLS; i++)
++		fprintf(out, " %11s  %s\n", infos[i].name, _(infos[i].help));
++
++	fprintf(out, USAGE_MAN_TAIL("prlimit(1)"));
++
++	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
++}
++
++static inline int get_column_id(int num)
++{
++	assert(ARRAY_SIZE(columns) == NCOLS);
++	assert(num < ncolumns);
++	assert(columns[num] < NCOLS);
++
++	return columns[num];
++}
++
++static inline struct colinfo *get_column_info(int num)
++{
++	return &infos[ get_column_id(num) ];
++}
++
++static void add_tt_line(struct tt *tt, struct prlimit l)
++{
++	int i;
++	struct tt_line *line;
++
++	assert(tt);
++	assert(&l);
++
++	line = tt_add_line(tt, NULL);
++	if (!line) {
++		warn(_("failed to add line to output"));
++		return;
 +	}
-+	return 0;
- }
- #endif
- 
-@@ -179,7 +180,8 @@ consoletty(int fd) {
-  * The most common login failure is to give password instead of username.
-  */
- static void
--logbtmp(const char *line, const char *username, const char *hostname) {
-+logbtmp(const char *line, const char *username, const char *hostname)
-+{
- 	struct utmp ut;
- 	struct timeval tv;
- 
-@@ -191,7 +193,7 @@ logbtmp(const char *line, const char *username, const char *hostname) {
- 	strncpy(ut.ut_id, line + 3, sizeof(ut.ut_id));
- 	xstrncpy(ut.ut_line, line, sizeof(ut.ut_line));
- 
--#if defined(_HAVE_UT_TV)	    /* in <utmpbits.h> included by <utmp.h> */
-+#if defined(_HAVE_UT_TV)	/* in <utmpbits.h> included by <utmp.h> */
- 	gettimeofday(&tv, NULL);
- 	ut.ut_tv.tv_sec = tv.tv_sec;
- 	ut.ut_tv.tv_usec = tv.tv_usec;
-@@ -199,23 +201,23 @@ logbtmp(const char *line, const char *username, const char *hostname) {
- 	{
- 		time_t t;
- 		time(&t);
--		ut.ut_time = t;	    /* ut_time is not always a time_t */
-+		ut.ut_time = t;	/* ut_time is not always a time_t */
- 	}
- #endif
- 
--	ut.ut_type = LOGIN_PROCESS; /* XXX doesn't matter */
-+	ut.ut_type = LOGIN_PROCESS;	/* XXX doesn't matter */
- 	ut.ut_pid = pid;
- 	if (hostname) {
- 		xstrncpy(ut.ut_host, hostname, sizeof(ut.ut_host));
- 		if (hostaddress[0])
--			memcpy(&ut.ut_addr_v6, hostaddress, sizeof(ut.ut_addr_v6));
-+			memcpy(&ut.ut_addr_v6, hostaddress,
-+			       sizeof(ut.ut_addr_v6));
- 	}
- #if HAVE_UPDWTMP		/* bad luck for ancient systems */
- 	updwtmp(_PATH_BTMP, &ut);
- #endif
- }
- 
--
- static int child_pid = 0;
- static volatile int got_sig = 0;
- 
-@@ -227,21 +229,20 @@ static volatile int got_sig = 0;
-  * Also, parent who is session leader is able (before setsid() in child) to
-  * inform child when controlling tty goes away (e.g. modem hangup, SIGHUP).
-  */
--static void
--sig_handler(int signal)
-+static void sig_handler(int signal)
- {
--	if(child_pid)
-+	if (child_pid)
- 		kill(-child_pid, signal);
- 	else
- 		got_sig = 1;
--	if(signal == SIGTERM)
--		kill(-child_pid, SIGHUP); /* because the shell often ignores SIGTERM */
-+	if (signal == SIGTERM)
-+		kill(-child_pid, SIGHUP);	/* because the shell often ignores SIGTERM */
- }
- 
- #ifdef HAVE_LIBAUDIT
- static void
- logaudit(const char *tty, const char *username, const char *hostname,
--					struct passwd *pwd, int status)
-+	 struct passwd *pwd, int status)
- {
- 	int audit_fd;
- 
-@@ -252,26 +253,27 @@ logaudit(const char *tty, const char *username, const char *hostname,
- 		pwd = getpwnam(username);
- 
- 	audit_log_acct_message(audit_fd, AUDIT_USER_LOGIN,
--		NULL, "login", username ? username : "(unknown)",
--		pwd ? pwd->pw_uid : (unsigned int) -1, hostname, NULL, tty, status);
-+			       NULL, "login", username ? username : "(unknown)",
-+			       pwd ? pwd->pw_uid : (unsigned int)-1, hostname,
-+			       NULL, tty, status);
- 
- 	close(audit_fd);
- }
--#else /* ! HAVE_LIBAUDIT */
--# define logaudit(tty, username, hostname, pwd, status)
--#endif /* HAVE_LIBAUDIT */
-+#else				/* ! HAVE_LIBAUDIT */
-+#define logaudit(tty, username, hostname, pwd, status)
-+#endif				/* HAVE_LIBAUDIT */
- 
- /* encapsulate stupid "void **" pam_get_item() API */
--static int loginpam_get_username(pam_handle_t *pamh, char **name)
-+static int loginpam_get_username(pam_handle_t * pamh, char **name)
- {
--	const void *item = (void *) *name;
-+	const void *item = (void *)*name;
- 	int rc;
- 	rc = pam_get_item(pamh, PAM_USER, &item);
--	*name = (char *) item;
-+	*name = (char *)item;
- 	return rc;
- }
- 
--static int loginpam_err(pam_handle_t *pamh, int retcode)
-+static int loginpam_err(pam_handle_t * pamh, int retcode)
- {
- 	const char *msg = pam_strerror(pamh, retcode);
- 
-@@ -290,8 +292,7 @@ static int loginpam_err(pam_handle_t *pamh, int retcode)
-  * The open(2) seems as the surest solution.
-  * -- kzak@redhat.com (10-Apr-2009)
-  */
--int
--effective_access(const char *path, int mode)
-+int effective_access(const char *path, int mode)
- {
- 	int fd = open(path, mode);
- 	if (fd != -1)
-@@ -299,741 +300,759 @@ effective_access(const char *path, int mode)
- 	return fd == -1 ? -1 : 0;
- }
- 
--int
--main(int argc, char **argv)
-+int main(int argc, char **argv)
- {
--    extern int optind;
--    extern char *optarg, **environ;
--    struct group *gr;
--    register int ch;
--    register char *p;
--    int fflag, hflag, pflag, cnt;
--    int quietlog, passwd_req;
--    char *domain, *ttyn;
--    char tbuf[PATH_MAX + 2];
--    char *termenv;
--    char *childArgv[10];
--    char *buff;
--    int childArgc = 0;
--    int retcode;
--    pam_handle_t *pamh = NULL;
--    struct pam_conv conv = { misc_conv, NULL };
--    struct sigaction sa, oldsa_hup, oldsa_term;
-+	extern int optind;
-+	extern char *optarg, **environ;
-+	struct group *gr;
-+	register int ch;
-+	register char *p;
-+	int fflag, hflag, pflag, cnt;
-+	int quietlog, passwd_req;
-+	char *domain, *ttyn;
-+	char tbuf[PATH_MAX + 2];
-+	char *termenv;
-+	char *childArgv[10];
-+	char *buff;
-+	int childArgc = 0;
-+	int retcode;
-+	pam_handle_t *pamh = NULL;
-+	struct pam_conv conv = { misc_conv, NULL };
-+	struct sigaction sa, oldsa_hup, oldsa_term;
- #ifdef LOGIN_CHOWN_VCS
--    char vcsn[20], vcsan[20];
-+	char vcsn[20], vcsan[20];
- #endif
- 
--    pid = getpid();
--
--    signal(SIGALRM, timedout);
--    siginterrupt(SIGALRM,1);           /* we have to interrupt syscalls like ioclt() */
--    alarm((unsigned int)timeout);
--    signal(SIGQUIT, SIG_IGN);
--    signal(SIGINT, SIG_IGN);
--
--    setlocale(LC_ALL, "");
--    bindtextdomain(PACKAGE, LOCALEDIR);
--    textdomain(PACKAGE);
--
--    setpriority(PRIO_PROCESS, 0, 0);
--    initproctitle(argc, argv);
--
--    /*
--     * -p is used by getty to tell login not to destroy the environment
--     * -f is used to skip a second login authentication
--     * -h is used by other servers to pass the name of the remote
--     *    host to login so that it may be placed in utmp and wtmp
--     */
--    gethostname(tbuf, sizeof(tbuf));
--    domain = strchr(tbuf, '.');
--
--    username = tty_name = hostname = NULL;
--    fflag = hflag = pflag = 0;
--    passwd_req = 1;
--
--    while ((ch = getopt(argc, argv, "fh:p")) != -1)
--      switch (ch) {
--	case 'f':
--	  fflag = 1;
--	  break;
--
--	case 'h':
--	  if (getuid()) {
--	      fprintf(stderr,
--		      _("login: -h for super-user only.\n"));
--	      exit(EXIT_FAILURE);
--	  }
--	  hflag = 1;
--	  if (domain && (p = strchr(optarg, '.')) &&
--	      strcasecmp(p, domain) == 0)
--	    *p = 0;
--
--	  hostname = strdup(optarg); 	/* strdup: Ambrose C. Li */
--	  {
--		struct addrinfo hints, *info = NULL;
--
--		memset(&hints, 0, sizeof(hints));
--		hints.ai_flags = AI_ADDRCONFIG;
--
--		hostaddress[0] = 0;
--
--		if (getaddrinfo(hostname, NULL, &hints, &info)==0 && info) {
--			if (info->ai_family == AF_INET) {
--			    struct sockaddr_in *sa =
--					(struct sockaddr_in *) info->ai_addr;
--			    memcpy(hostaddress, &(sa->sin_addr),
--					sizeof(sa->sin_addr));
-+	pid = getpid();
 +
-+	signal(SIGALRM, timedout);
-+	siginterrupt(SIGALRM, 1);	/* we have to interrupt syscalls like ioclt() */
-+	alarm((unsigned int)timeout);
-+	signal(SIGQUIT, SIG_IGN);
-+	signal(SIGINT, SIG_IGN);
++	for (i = 0; i < ncolumns; i++) {
++		char *str = NULL;
++		int rc = 0;
++
++		switch (get_column_id(i)) {
++		case COL_RES:
++			rc = asprintf(&str, "%s", l.desc->name);
++			break;
++		case COL_HELP:
++			rc = asprintf(&str, "%s", l.desc->help);
++			break;
++		case COL_SOFT:
++			rc = l.rlim.rlim_cur == -1 ? asprintf(&str, "%s", "unlimited") :
++						     asprintf(&str, "%lld", l.rlim.rlim_cur);
++			break;
++		case COL_HARD:
++			rc = l.rlim.rlim_max == -1 ? asprintf(&str, "%s", "unlimited") :
++						     asprintf(&str, "%lld", l.rlim.rlim_max);
++			break;
++		default:
++			break;
++		}
++
++		if (rc || str)
++			tt_line_set_data(line, i, str);
++	}
++}
++
++static int column_name_to_id(const char *name, size_t namesz)
++{
++	int i;
++
++	assert(name);
++
++	for (i = 0; i < NCOLS; i++) {
++		const char *cn = infos[i].name;
++
++		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
++			return i;
++	}
++	warnx(_("unknown column: %s"), name);
++	return -1;
++}
++
++static int show_limits(struct prlimit lims[], int tt_flags, int n)
++{
++	int i;
++	struct tt *tt;
++
++	tt = tt_new_table(tt_flags);
++	if (!tt) {
++		warn(_("failed to initialize output table"));
++		return -1;
++	}
++
++	for (i = 0; i < ncolumns; i++) {
++		struct colinfo *col = get_column_info(i);
++
++		if (!tt_define_column(tt, col->name, col->whint, col->flags)) {
++			warnx(_("failed to initialize output column"));
++			goto done;
++		}
++	}
++
++	for (i = 0; i < n; i++)
++		if (!lims[i].modify) /* only display old limits */
++			add_tt_line(tt, lims[i]);
++
++	tt_print_table(tt);
++done:
++	tt_free_table(tt);
++	return 0;
++}
++
++
++static void do_prlimit(struct prlimit lims[], const int n)
++{
++	int i, nshows = 0;
++
++	for (i = 0; i < n; i++) {
++		struct rlimit *new = NULL;
++
++		if (lims[i].modify)
++			new = &lims[i].rlim;
++		else
++			nshows++;
++
++		if (prlimit(pid, lims[i].desc->resource, new, &lims[i].rlim) == -1)
++			err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
++	}
++
++	if (nshows)
++		show_limits(lims, 0, n);
++}
++
++static int get_range(char *str, rlim_t *lower, rlim_t *upper)
++{
++	char *end = NULL;
++	const char *ulimit = "unlimited";
++	const size_t len = strlen(ulimit);
++
++	if (!str)
++		return 0;
++
++	*upper = *lower = PRLIMIT_UNKNOWN;
++	errno = 0;
++
++	if (!strcmp(str, ulimit)) {
++		*upper = *lower = RLIM_INFINITY;
++		goto out;
++	}
++
++	else if (*str == ':') {				/* <:N> */
++		str++;
++
++		if (!strcmp(str, ulimit)) {
++			*upper =  RLIM_INFINITY;
++			goto out;
++		}
++		else {
++			*upper = strtol(str, &end, 10);
++
++			if (errno || !end || *end || end == str)
++				goto err;
++		}
++
++	} else {
++		if (!strncmp(str, ulimit, len)) {
++			*lower =  RLIM_INFINITY;
++			/* we can be sure this won't overflow */
++			end = str + len;
++		}
++		else {
++			*upper = *lower = strtol(str, &end, 10);
++			if (errno || !end || end == str)
++				goto err;
++		}
++
++		if (*end == ':' && !*(end + 1)) 	/* <M:> */
++			*upper = PRLIMIT_UNKNOWN;
++		
++		else if (*end == ':') {	/* <M:N> */
++			str = end + 1;
++			
++			if (!strcmp(str, ulimit))
++				*upper =  RLIM_INFINITY;
++			else {
++				end = NULL;
++				errno = 0;
++				*upper = strtol(str, &end, 10);
++
++				if (errno || !end || *end || end == str)
++					goto err;
++			}
++		}
++	}
++
++out:
++	return 0;
++err:
++	return -1;
++}
++
++
++static int parse_prlim(struct rlimit *lim, char *ops, const int id)
++{
++	rlim_t soft = 0, hard = 0;
++
++	if (get_range(ops, &soft, &hard))
++ 		errx(EXIT_FAILURE, _("failed to parse %s limit"), prlimit_desc[id].name);
++
++	/*
++	 * If one of the limits is unknown (default value for not being passed), we need
++	 * to get the current limit and use it.
++	 * I see no other way other than using prlimit(2).
++	 */
++	if (soft == PRLIMIT_UNKNOWN || hard == PRLIMIT_UNKNOWN) {
++		struct rlimit old;
++
++		if (prlimit(pid, prlimit_desc[id].resource, NULL, &old) == -1)
++			errx(EXIT_FAILURE, _("failed to get old %s limit"),
++			     prlimit_desc[id].name);
++
++		if (soft == PRLIMIT_UNKNOWN)
++			soft = old.rlim_cur;
++		else if (hard == PRLIMIT_UNKNOWN)
++			hard = old.rlim_max;
++	}
++
++	if (soft > hard && (soft != RLIM_INFINITY || hard != RLIM_INFINITY))
++		errx(EXIT_FAILURE, _("the soft limit cannot exceed the ceiling value"));
++
++	lim->rlim_cur = soft;
++	lim->rlim_max = hard;
++
++	return 0;
++}
++
++/*
++ * Add a resource limit to the limits array
++ */
++static int add_prlim(char *ops, struct prlimit *lim, const int id)
++{
++	lim->desc = &prlimit_desc[id];
++
++	if (ops) { /* planning on modifying a limit? */
++		lim->modify = 1;
++		parse_prlim(&lim->rlim, ops, id);
++	}
++
++	return 0;
++}
++
++int main(int argc, char **argv)
++{
++	int opt, n = 0;
++	struct prlimit lims[MAX_RESOURCES] = {0};
++
++	static const struct option longopts[] = {
++		{"pid", required_argument, NULL, 'p'},
++		{"output", required_argument, NULL, 'o'},
++		{"as", optional_argument, NULL, 'a'},
++		{"core", optional_argument, NULL, 'c'},
++		{"cpu", optional_argument, NULL, 'C'},
++		{"data", optional_argument, NULL, 'd'},
++		{"fsize", optional_argument, NULL, 'f'},
++		{"locks", optional_argument, NULL, 'l'},
++		{"memlock", optional_argument, NULL, 'm'},
++		{"msgqueue", optional_argument, NULL, 'M'},
++		{"nice", optional_argument, NULL, 'n'},
++		{"nofile", optional_argument, NULL, 'N'},
++		{"nproc", optional_argument, NULL, 'P'},
++		{"rss", optional_argument, NULL, 'r'},
++		{"rtprio", optional_argument, NULL, 'R'},
++		{"rttime", optional_argument, NULL, 't'},
++		{"sigpending", optional_argument, NULL, 's'},
++		{"stack", optional_argument, NULL, 'S'},
++		{"version", no_argument, NULL, 'V'},
++		{"help", no_argument, NULL, 'h'},
++		{NULL, 0, NULL, 0}
++	};
 +
 +	setlocale(LC_ALL, "");
 +	bindtextdomain(PACKAGE, LOCALEDIR);
 +	textdomain(PACKAGE);
 +
-+	setpriority(PRIO_PROCESS, 0, 0);
-+	initproctitle(argc, argv);
-+
 +	/*
-+	 * -p is used by getty to tell login not to destroy the environment
-+	 * -f is used to skip a second login authentication
-+	 * -h is used by other servers to pass the name of the remote
-+	 *    host to login so that it may be placed in utmp and wtmp
++	 * Something is very wrong if this doesn't succeed,
++	 * assuming STACK is the last resource, of course.
 +	 */
-+	gethostname(tbuf, sizeof(tbuf));
-+	domain = strchr(tbuf, '.');
++	assert(MAX_RESOURCES == STACK + 1);
 +
-+	username = tty_name = hostname = NULL;
-+	fflag = hflag = pflag = 0;
-+	passwd_req = 1;
-+
-+	while ((ch = getopt(argc, argv, "fh:p")) != -1)
-+		switch (ch) {
-+		case 'f':
-+			fflag = 1;
-+			break;
-+
-+		case 'h':
-+			if (getuid()) {
-+				fprintf(stderr,
-+					_("login: -h for super-user only.\n"));
-+				exit(EXIT_FAILURE);
- 			}
--			else if (info->ai_family == AF_INET6) {
--			    struct sockaddr_in6 *sa =
--					(struct sockaddr_in6 *) info->ai_addr;
--			    memcpy(hostaddress, &(sa->sin6_addr),
--					sizeof(sa->sin6_addr));
-+			hflag = 1;
-+			if (domain && (p = strchr(optarg, '.')) &&
-+			    strcasecmp(p, domain) == 0)
-+				*p = 0;
-+
-+			hostname = strdup(optarg);	/* strdup: Ambrose C. Li */
-+			{
-+				struct addrinfo hints, *info = NULL;
-+
-+				memset(&hints, 0, sizeof(hints));
-+				hints.ai_flags = AI_ADDRCONFIG;
-+
-+				hostaddress[0] = 0;
-+
-+				if (getaddrinfo(hostname, NULL, &hints, &info)
-+				    == 0 && info) {
-+					if (info->ai_family == AF_INET) {
-+						struct sockaddr_in *sa =
-+						    (struct sockaddr_in *)info->
-+						    ai_addr;
-+						memcpy(hostaddress,
-+						       &(sa->sin_addr),
-+						       sizeof(sa->sin_addr));
-+					} else if (info->ai_family == AF_INET6) {
-+						struct sockaddr_in6 *sa =
-+						    (struct sockaddr_in6 *)
-+						    info->ai_addr;
-+						memcpy(hostaddress,
-+						       &(sa->sin6_addr),
-+						       sizeof(sa->sin6_addr));
-+					}
-+					freeaddrinfo(info);
-+				}
- 			}
--			freeaddrinfo(info);
-+			break;
-+
++	while((opt = getopt_long(argc, argv,
++				 "a::c::C::d::f::l::m::M::n::N::P::r::R::t::s::S::p:o:vVh",
++				 longopts, NULL)) != -1) {
++		switch(opt) {
 +		case 'p':
-+			pflag = 1;
++			if (pid) /* we only work one pid at a time */
++				errx(EXIT_FAILURE, _("only use one PID at a time"));
++			
++			pid = strtol_or_err(optarg, _("cannot parse PID"));
 +			break;
-+
-+		case '?':
++		case 'a':
++			add_prlim(optarg, &lims[n++], AS);
++			break;
++		case 'c':
++			add_prlim(optarg, &lims[n++], CORE);
++			break;
++		case 'C':
++			add_prlim(optarg, &lims[n++], CPU);
++			break;
++		case 'd':
++			add_prlim(optarg, &lims[n++], DATA);
++			break;
++		case 'f':
++			add_prlim(optarg, &lims[n++], FSIZE);
++			break;
++		case 'l':
++			add_prlim(optarg, &lims[n++], LOCKS);
++			break;
++		case 'm':
++			add_prlim(optarg, &lims[n++], MEMLOCK);
++			break;
++		case 'M':
++			add_prlim(optarg, &lims[n++], MSGQUEUE);
++			break;
++		case 'n':
++			add_prlim(optarg, &lims[n++], NICE);
++			break;
++		case 'N':
++			add_prlim(optarg, &lims[n++], NOFILE);
++			break;
++		case 'P':
++			add_prlim(optarg, &lims[n++], NPROC);
++			break;
++		case 'r':
++			add_prlim(optarg, &lims[n++], RSS);
++			break;
++		case 't':
++			add_prlim(optarg, &lims[n++], NOFILE);
++			break;
++		case 's':
++			add_prlim(optarg, &lims[n++], SIGPENDING);
++			break;
++		case 'S':
++			add_prlim(optarg, &lims[n++], STACK);
++			break;
++		case 'h':
++			usage(stdout);
++			break;
++		case 'o':
++			ncolumns = string_to_idarray(optarg,
++						     columns, ARRAY_SIZE(columns),
++						     column_name_to_id);
++			if (ncolumns < 0)
++				return EXIT_FAILURE;
++			break;
++		case 'V':
++			printf(UTIL_LINUX_VERSION);
++			return EXIT_SUCCESS;
 +		default:
-+			fprintf(stderr, _("usage: login [-fp] [username]\n"));
-+			exit(EXIT_FAILURE);
- 		}
--	  }
--	  break;
--
--	case 'p':
--	  pflag = 1;
--	  break;
--
--	case '?':
--	default:
--	  fprintf(stderr,
--		  _("usage: login [-fp] [username]\n"));
--	  exit(EXIT_FAILURE);
--      }
--    argc -= optind;
--    argv += optind;
--
--    if (*argv) {
--	char *p = *argv;
--	username = strdup(p);
--
--	/* wipe name - some people mistype their password here */
--	/* (of course we are too late, but perhaps this helps a little ..) */
--	while(*p)
--	    *p++ = ' ';
--    }
--
--    for (cnt = getdtablesize(); cnt > 2; cnt--)
--      close(cnt);
--
--    /* note that libc checks that the file descriptor is a terminal, so we don't
--     * have to call isatty() here */
--    ttyn = ttyname(0);
--    check_ttyname(ttyn);
--
--    if (strncmp(ttyn, "/dev/", 5) == 0)
--	tty_name = ttyn+5;
--    else
--	tty_name = ttyn;
--
--    if (strncmp(ttyn, "/dev/tty", 8) == 0)
--	tty_number = ttyn+8;
--    else {
--	char *p = ttyn;
--	while (*p && !isdigit(*p)) p++;
--	tty_number = p;
--    }
-+	argc -= optind;
-+	argv += optind;
-+
-+	if (*argv) {
-+		char *p = *argv;
-+		username = strdup(p);
-+
-+		/* wipe name - some people mistype their password here */
-+		/* (of course we are too late, but perhaps this helps a little ..) */
-+		while (*p)
-+			*p++ = ' ';
-+	}
-+
-+	for (cnt = getdtablesize(); cnt > 2; cnt--)
-+		close(cnt);
-+
-+	/* note that libc checks that the file descriptor is a terminal, so we don't
-+	 * have to call isatty() here */
-+	ttyn = ttyname(0);
-+	check_ttyname(ttyn);
-+
-+	if (strncmp(ttyn, "/dev/", 5) == 0)
-+		tty_name = ttyn + 5;
-+	else
-+		tty_name = ttyn;
-+
-+	if (strncmp(ttyn, "/dev/tty", 8) == 0)
-+		tty_number = ttyn + 8;
-+	else {
-+		char *p = ttyn;
-+		while (*p && !isdigit(*p))
-+			p++;
-+		tty_number = p;
-+	}
- 
- #ifdef LOGIN_CHOWN_VCS
--    /* find names of Virtual Console devices, for later mode change */
--    snprintf(vcsn, sizeof(vcsn), "/dev/vcs%s", tty_number);
--    snprintf(vcsan, sizeof(vcsan), "/dev/vcsa%s", tty_number);
-+	/* find names of Virtual Console devices, for later mode change */
-+	snprintf(vcsn, sizeof(vcsn), "/dev/vcs%s", tty_number);
-+	snprintf(vcsan, sizeof(vcsan), "/dev/vcsa%s", tty_number);
- #endif
- 
--    /* set pgid to pid */
--    setpgrp();
--    /* this means that setsid() will fail */
-+	/* set pgid to pid */
-+	setpgrp();
-+	/* this means that setsid() will fail */
- 
--    {
--	struct termios tt, ttt;
-+	{
-+		struct termios tt, ttt;
- 
--	tcgetattr(0, &tt);
--	ttt = tt;
--	ttt.c_cflag &= ~HUPCL;
-+		tcgetattr(0, &tt);
-+		ttt = tt;
-+		ttt.c_cflag &= ~HUPCL;
- 
--	/* These can fail, e.g. with ttyn on a read-only filesystem */
--	if (fchown(0, 0, 0)) {
--		; /* glibc warn_unused_result */
-+		/* These can fail, e.g. with ttyn on a read-only filesystem */
-+		if (fchown(0, 0, 0)) {
-+			;	/* glibc warn_unused_result */
-+		}
-+
-+		fchmod(0, TTY_MODE);
-+
-+		/* Kill processes left on this tty */
-+		tcsetattr(0, TCSAFLUSH, &ttt);
-+		signal(SIGHUP, SIG_IGN);	/* so vhangup() wont kill us */
-+		vhangup();
-+		signal(SIGHUP, SIG_DFL);
-+
-+		/* open stdin,stdout,stderr to the tty */
-+		opentty(ttyn);
-+
-+		/* restore tty modes */
-+		tcsetattr(0, TCSAFLUSH, &tt);
- 	}
- 
--	fchmod(0, TTY_MODE);
-+	openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
- 
--	/* Kill processes left on this tty */
--	tcsetattr(0,TCSAFLUSH,&ttt);
--	signal(SIGHUP, SIG_IGN); /* so vhangup() wont kill us */
--	vhangup();
--	signal(SIGHUP, SIG_DFL);
-+	/*
-+	 * username is initialized to NULL
-+	 * and if specified on the command line it is set.
-+	 * Therefore, we are safe not setting it to anything
-+	 */
- 
--	/* open stdin,stdout,stderr to the tty */
--	opentty(ttyn);
-+	retcode = pam_start(hflag ? "remote" : "login", username, &conv, &pamh);
-+	if (retcode != PAM_SUCCESS) {
-+		warnx(_("PAM failure, aborting: %s"),
-+		      pam_strerror(pamh, retcode));
-+		syslog(LOG_ERR, _("Couldn't initialize PAM: %s"),
-+		       pam_strerror(pamh, retcode));
-+		exit(EXIT_FAILURE);
-+	}
- 
--	/* restore tty modes */
--	tcsetattr(0,TCSAFLUSH,&tt);
--    }
-+	/* hostname & tty are either set to NULL or their correct values,
-+	 * depending on how much we know
-+	 */
-+	retcode = pam_set_item(pamh, PAM_RHOST, hostname);
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
- 
--    openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
-+	retcode = pam_set_item(pamh, PAM_TTY, tty_name);
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
- 
--    /*
--     * username is initialized to NULL
--     * and if specified on the command line it is set.
--     * Therefore, we are safe not setting it to anything
--     */
-+	/*
-+	 * Andrew.Taylor@cal.montage.ca: Provide a user prompt to PAM
-+	 * so that the "login: " prompt gets localized. Unfortunately,
-+	 * PAM doesn't have an interface to specify the "Password: " string
-+	 * (yet).
-+	 */
-+	retcode = pam_set_item(pamh, PAM_USER_PROMPT, _("login: "));
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
-+
-+	if (username) {
-+		/* we need't the original username. We have to follow PAM. */
-+		free(username);
-+		username = NULL;
-+	}
- 
--    retcode = pam_start(hflag?"remote":"login",username, &conv, &pamh);
--    if(retcode != PAM_SUCCESS) {
--	warnx(_("PAM failure, aborting: %s"), pam_strerror(pamh, retcode));
--	syslog(LOG_ERR, _("Couldn't initialize PAM: %s"),
--	       pam_strerror(pamh, retcode));
--	exit(EXIT_FAILURE);
--    }
--
--    /* hostname & tty are either set to NULL or their correct values,
--     * depending on how much we know
--     */
--    retcode = pam_set_item(pamh, PAM_RHOST, hostname);
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    retcode = pam_set_item(pamh, PAM_TTY, tty_name);
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    /*
--     * Andrew.Taylor@cal.montage.ca: Provide a user prompt to PAM
--     * so that the "login: " prompt gets localized. Unfortunately,
--     * PAM doesn't have an interface to specify the "Password: " string
--     * (yet).
--     */
--    retcode = pam_set_item(pamh, PAM_USER_PROMPT, _("login: "));
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    if (username) {
--	/* we need't the original username. We have to follow PAM. */
--	free(username);
--	username = NULL;
--    }
--
--    /* if fflag == 1, then the user has already been authenticated */
--    if (fflag && (getuid() == 0))
--	passwd_req = 0;
--    else
--	passwd_req = 1;
-+	/* if fflag == 1, then the user has already been authenticated */
-+	if (fflag && (getuid() == 0))
-+		passwd_req = 0;
-+	else
-+		passwd_req = 1;
-+
-+	if (passwd_req == 1) {
-+		int failcount = 0;
-+
-+		/* if we didn't get a user on the command line, set it to NULL */
-+		loginpam_get_username(pamh, &username);
-+
-+		/* there may be better ways to deal with some of these
-+		   conditions, but at least this way I don't think we'll
-+		   be giving away information... */
-+		/* Perhaps someday we can trust that all PAM modules will
-+		   pay attention to failure count and get rid of MAX_LOGIN_TRIES? */
-+
-+		retcode = pam_authenticate(pamh, 0);
-+		while ((failcount++ < LOGIN_MAX_TRIES) &&
-+		       ((retcode == PAM_AUTH_ERR) ||
-+			(retcode == PAM_USER_UNKNOWN) ||
-+			(retcode == PAM_CRED_INSUFFICIENT) ||
-+			(retcode == PAM_AUTHINFO_UNAVAIL))) {
-+			loginpam_get_username(pamh, &username);
-+
-+			syslog(LOG_NOTICE,
-+			       _("FAILED LOGIN %d FROM %s FOR %s, %s"),
-+			       failcount, hostname, username, pam_strerror(pamh,
-+									   retcode));
-+			logbtmp(tty_name, username, hostname);
-+			logaudit(tty_name, username, hostname, NULL, 0);
-+
-+			fprintf(stderr, _("Login incorrect\n\n"));
-+			pam_set_item(pamh, PAM_USER, NULL);
-+			retcode = pam_authenticate(pamh, 0);
-+		}
- 
--    if(passwd_req == 1) {
--	int failcount=0;
--
--	/* if we didn't get a user on the command line, set it to NULL */
--	loginpam_get_username(pamh, &username);
--
--	/* there may be better ways to deal with some of these
--	   conditions, but at least this way I don't think we'll
--	   be giving away information... */
--	/* Perhaps someday we can trust that all PAM modules will
--	   pay attention to failure count and get rid of MAX_LOGIN_TRIES? */
--
--	retcode = pam_authenticate(pamh, 0);
--	while((failcount++ < LOGIN_MAX_TRIES) &&
--	      ((retcode == PAM_AUTH_ERR) ||
--	       (retcode == PAM_USER_UNKNOWN) ||
--	       (retcode == PAM_CRED_INSUFFICIENT) ||
--	       (retcode == PAM_AUTHINFO_UNAVAIL))) {
--	    loginpam_get_username(pamh, &username);
--
--	    syslog(LOG_NOTICE,_("FAILED LOGIN %d FROM %s FOR %s, %s"),
--		   failcount, hostname, username, pam_strerror(pamh, retcode));
--	    logbtmp(tty_name, username, hostname);
--	    logaudit(tty_name, username, hostname, NULL, 0);
--
--	    fprintf(stderr,_("Login incorrect\n\n"));
--	    pam_set_item(pamh,PAM_USER,NULL);
--	    retcode = pam_authenticate(pamh, 0);
-+		if (is_pam_failure(retcode)) {
-+			loginpam_get_username(pamh, &username);
-+
-+			if (retcode == PAM_MAXTRIES)
-+				syslog(LOG_NOTICE,
-+				       _
-+				       ("TOO MANY LOGIN TRIES (%d) FROM %s FOR "
-+					"%s, %s"), failcount, hostname,
-+				       username, pam_strerror(pamh, retcode));
-+			else
-+				syslog(LOG_NOTICE,
-+				       _
-+				       ("FAILED LOGIN SESSION FROM %s FOR %s, %s"),
-+				       hostname, username, pam_strerror(pamh,
-+									retcode));
-+			logbtmp(tty_name, username, hostname);
-+			logaudit(tty_name, username, hostname, NULL, 0);
-+
-+			fprintf(stderr, _("\nLogin incorrect\n"));
-+			pam_end(pamh, retcode);
-+			exit(EXIT_SUCCESS);
-+		}
- 	}
- 
--	if (is_pam_failure(retcode)) {
--	    loginpam_get_username(pamh, &username);
--
--	    if (retcode == PAM_MAXTRIES)
--		syslog(LOG_NOTICE,_("TOO MANY LOGIN TRIES (%d) FROM %s FOR "
--			"%s, %s"), failcount, hostname, username,
--			 pam_strerror(pamh, retcode));
--	    else
--		syslog(LOG_NOTICE,_("FAILED LOGIN SESSION FROM %s FOR %s, %s"),
--			hostname, username, pam_strerror(pamh, retcode));
--	    logbtmp(tty_name, username, hostname);
--	    logaudit(tty_name, username, hostname, NULL, 0);
--
--	    fprintf(stderr,_("\nLogin incorrect\n"));
--	    pam_end(pamh, retcode);
--	    exit(EXIT_SUCCESS);
-+	/*
-+	 * Authentication may be skipped (for example, during krlogin, rlogin, etc...),
-+	 * but it doesn't mean that we can skip other account checks. The account
-+	 * could be disabled or password expired (althought kerberos ticket is valid).
-+	 * -- kzak@redhat.com (22-Feb-2006)
-+	 */
-+	retcode = pam_acct_mgmt(pamh, 0);
-+
-+	if (retcode == PAM_NEW_AUTHTOK_REQD)
-+		retcode = pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
-+
-+	/*
-+	 * Grab the user information out of the password file for future usage
-+	 * First get the username that we are actually using, though.
-+	 */
-+	retcode = loginpam_get_username(pamh, &username);
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
-+
-+	if (!username || !*username) {
-+		warnx(_("\nSession setup problem, abort."));
-+		syslog(LOG_ERR, _("NULL user name in %s:%d. Abort."),
-+		       __FUNCTION__, __LINE__);
-+		pam_end(pamh, PAM_SYSTEM_ERR);
-+		exit(EXIT_FAILURE);
- 	}
--    }
--
--    /*
--     * Authentication may be skipped (for example, during krlogin, rlogin, etc...),
--     * but it doesn't mean that we can skip other account checks. The account
--     * could be disabled or password expired (althought kerberos ticket is valid).
--     * -- kzak@redhat.com (22-Feb-2006)
--     */
--    retcode = pam_acct_mgmt(pamh, 0);
--
--    if (retcode == PAM_NEW_AUTHTOK_REQD)
--        retcode = pam_chauthtok(pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    /*
--     * Grab the user information out of the password file for future usage
--     * First get the username that we are actually using, though.
--     */
--    retcode = loginpam_get_username(pamh, &username);
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    if (!username || !*username) {
--	    warnx(_("\nSession setup problem, abort."));
--	    syslog(LOG_ERR, _("NULL user name in %s:%d. Abort."),
--		   __FUNCTION__, __LINE__);
--	    pam_end(pamh, PAM_SYSTEM_ERR);
--	    exit(EXIT_FAILURE);
--    }
--    if (!(pwd = getpwnam(username))) {
--	    warnx(_("\nSession setup problem, abort."));
--	    syslog(LOG_ERR, _("Invalid user name \"%s\" in %s:%d. Abort."),
--		   username, __FUNCTION__, __LINE__);
--	    pam_end(pamh, PAM_SYSTEM_ERR);
--	    exit(EXIT_FAILURE);
--    }
--
--    /*
--     * Create a copy of the pwd struct - otherwise it may get
--     * clobbered by PAM
--     */
--    memcpy(&pwdcopy, pwd, sizeof(*pwd));
--    pwd = &pwdcopy;
--    pwd->pw_name   = strdup(pwd->pw_name);
--    pwd->pw_passwd = strdup(pwd->pw_passwd);
--    pwd->pw_gecos  = strdup(pwd->pw_gecos);
--    pwd->pw_dir    = strdup(pwd->pw_dir);
--    pwd->pw_shell  = strdup(pwd->pw_shell);
--    if (!pwd->pw_name || !pwd->pw_passwd || !pwd->pw_gecos ||
--	!pwd->pw_dir || !pwd->pw_shell) {
--	    warnx(_("out of memory"));
--	    syslog(LOG_ERR, "Out of memory");
--	    pam_end(pamh, PAM_SYSTEM_ERR);
--	    exit(EXIT_FAILURE);
--    }
--    username = pwd->pw_name;
--
--    /*
--     * Initialize the supplementary group list.
--     * This should be done before pam_setcred because
--     * the PAM modules might add groups during pam_setcred.
--     */
--    if (initgroups(username, pwd->pw_gid) < 0) {
--	    syslog(LOG_ERR, "initgroups: %m");
--	    warnx(_("\nSession setup problem, abort."));
--	    pam_end(pamh, PAM_SYSTEM_ERR);
--	    exit(EXIT_FAILURE);
--    }
--
--    retcode = pam_open_session(pamh, 0);
--    if (is_pam_failure(retcode))
--	loginpam_err(pamh, retcode);
--
--    retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED);
--    if (is_pam_failure(retcode)) {
--	    pam_close_session(pamh, 0);
--	    loginpam_err(pamh, retcode);
--    }
--
--    /* committed to login -- turn off timeout */
--    alarm((unsigned int)0);
--
--    endpwent();
--
--    /* This requires some explanation: As root we may not be able to
--       read the directory of the user if it is on an NFS mounted
--       filesystem. We temporarily set our effective uid to the user-uid
--       making sure that we keep root privs. in the real uid.
--
--       A portable solution would require a fork(), but we rely on Linux
--       having the BSD setreuid() */
--    {
--	char tmpstr[PATH_MAX];
--	uid_t ruid = getuid();
--	gid_t egid = getegid();
--
--	/* avoid snprintf - old systems do not have it, or worse,
--	   have a libc in which snprintf is the same as sprintf */
--	if (strlen(pwd->pw_dir) + sizeof(_PATH_HUSHLOGIN) + 2 > PATH_MAX)
--		quietlog = 0;
--	else {
--		sprintf(tmpstr, "%s/%s", pwd->pw_dir, _PATH_HUSHLOGIN);
--		setregid(-1, pwd->pw_gid);
--		setreuid(0, pwd->pw_uid);
--		quietlog = (effective_access(tmpstr, O_RDONLY) == 0);
--		setuid(0); /* setreuid doesn't do it alone! */
--		setreuid(ruid, 0);
--		setregid(-1, egid);
-+	if (!(pwd = getpwnam(username))) {
-+		warnx(_("\nSession setup problem, abort."));
-+		syslog(LOG_ERR, _("Invalid user name \"%s\" in %s:%d. Abort."),
-+		       username, __FUNCTION__, __LINE__);
-+		pam_end(pamh, PAM_SYSTEM_ERR);
-+		exit(EXIT_FAILURE);
- 	}
--    }
- 
--    /* for linux, write entries in utmp and wtmp */
--    {
--	struct utmp ut;
--	struct utmp *utp;
--	struct timeval tv;
-+	/*
-+	 * Create a copy of the pwd struct - otherwise it may get
-+	 * clobbered by PAM
-+	 */
-+	memcpy(&pwdcopy, pwd, sizeof(*pwd));
-+	pwd = &pwdcopy;
-+	pwd->pw_name = strdup(pwd->pw_name);
-+	pwd->pw_passwd = strdup(pwd->pw_passwd);
-+	pwd->pw_gecos = strdup(pwd->pw_gecos);
-+	pwd->pw_dir = strdup(pwd->pw_dir);
-+	pwd->pw_shell = strdup(pwd->pw_shell);
-+	if (!pwd->pw_name || !pwd->pw_passwd || !pwd->pw_gecos ||
-+	    !pwd->pw_dir || !pwd->pw_shell) {
-+		warnx(_("out of memory"));
-+		syslog(LOG_ERR, "Out of memory");
-+		pam_end(pamh, PAM_SYSTEM_ERR);
-+		exit(EXIT_FAILURE);
-+	}
-+	username = pwd->pw_name;
- 
--	utmpname(_PATH_UTMP);
--	setutent();
--
--	/* Find pid in utmp.
--login sometimes overwrites the runlevel entry in /var/run/utmp,
--confusing sysvinit. I added a test for the entry type, and the problem
--was gone. (In a runlevel entry, st_pid is not really a pid but some number
--calculated from the previous and current runlevel).
--Michael Riepe <michael@stud.uni-hannover.de>
--	*/
--	while ((utp = getutent()))
--		if (utp->ut_pid == pid
--		    && utp->ut_type >= INIT_PROCESS
--		    && utp->ut_type <= DEAD_PROCESS)
--			break;
-+	/*
-+	 * Initialize the supplementary group list.
-+	 * This should be done before pam_setcred because
-+	 * the PAM modules might add groups during pam_setcred.
-+	 */
-+	if (initgroups(username, pwd->pw_gid) < 0) {
-+		syslog(LOG_ERR, "initgroups: %m");
-+		warnx(_("\nSession setup problem, abort."));
-+		pam_end(pamh, PAM_SYSTEM_ERR);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	retcode = pam_open_session(pamh, 0);
-+	if (is_pam_failure(retcode))
-+		loginpam_err(pamh, retcode);
- 
--	/* If we can't find a pre-existing entry by pid, try by line.
--	   BSD network daemons may rely on this. (anonymous) */
--	if (utp == NULL) {
--	     setutent();
--	     ut.ut_type = LOGIN_PROCESS;
--	     strncpy(ut.ut_line, tty_name, sizeof(ut.ut_line));
--	     utp = getutline(&ut);
-+	retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED);
-+	if (is_pam_failure(retcode)) {
-+		pam_close_session(pamh, 0);
-+		loginpam_err(pamh, retcode);
- 	}
- 
--	if (utp) {
--	    memcpy(&ut, utp, sizeof(ut));
--	} else {
--	    /* some gettys/telnetds don't initialize utmp... */
--	    memset(&ut, 0, sizeof(ut));
-+	/* committed to login -- turn off timeout */
-+	alarm((unsigned int)0);
-+
-+	endpwent();
-+
-+	{
-+		/*
-+		 * Check per accout setting.
-+		 *
-+		 * This requires some explanation: As root we may not be able to
-+		 * read the directory of the user if it is on an NFS mounted
-+		 * filesystem. We temporarily set our effective uid to the user-uid
-+		 * making sure that we keep root privs. in the real uid.
-+		 *
-+		 * A portable solution would require a fork(), but we rely on Linux
-+		 * having the BSD setreuid()
-+		 */
-+		char tmpstr[PATH_MAX];
-+		uid_t ruid = getuid();
-+		gid_t egid = getegid();
-+
-+		/* avoid snprintf - old systems do not have it, or worse,
-+		   have a libc in which snprintf is the same as sprintf */
-+		if (strlen(pwd->pw_dir) + sizeof(_PATH_HUSHLOGIN) + 2 >
-+		    PATH_MAX)
-+			quietlog = 0;
-+		else {
-+			sprintf(tmpstr, "%s/%s", pwd->pw_dir, _PATH_HUSHLOGIN);
-+			setregid(-1, pwd->pw_gid);
-+			setreuid(0, pwd->pw_uid);
-+			quietlog = (effective_access(tmpstr, O_RDONLY) == 0);
-+			setuid(0);	/* setreuid doesn't do it alone! */
-+			setreuid(ruid, 0);
-+			setregid(-1, egid);
-+		}
- 	}
- 
--	if (ut.ut_id[0] == 0)
--	  strncpy(ut.ut_id, tty_number, sizeof(ut.ut_id));
-+	/* for linux, write entries in utmp and wtmp */
-+	{
-+		struct utmp ut;
-+		struct utmp *utp;
-+		struct timeval tv;
-+
-+		utmpname(_PATH_UTMP);
-+		setutent();
-+
-+		/* Find pid in utmp.
-+		   login sometimes overwrites the runlevel entry in /var/run/utmp,
-+		   confusing sysvinit. I added a test for the entry type, and the problem
-+		   was gone. (In a runlevel entry, st_pid is not really a pid but some number
-+		   calculated from the previous and current runlevel).
-+		   Michael Riepe <michael@stud.uni-hannover.de>
-+		 */
-+		while ((utp = getutent()))
-+			if (utp->ut_pid == pid
-+			    && utp->ut_type >= INIT_PROCESS
-+			    && utp->ut_type <= DEAD_PROCESS)
-+				break;
-+
-+		/* If we can't find a pre-existing entry by pid, try by line.
-+		   BSD network daemons may rely on this. (anonymous) */
-+		if (utp == NULL) {
-+			setutent();
-+			ut.ut_type = LOGIN_PROCESS;
-+			strncpy(ut.ut_line, tty_name, sizeof(ut.ut_line));
-+			utp = getutline(&ut);
-+		}
- 
--	strncpy(ut.ut_user, username, sizeof(ut.ut_user));
--	xstrncpy(ut.ut_line, tty_name, sizeof(ut.ut_line));
-+		if (utp) {
-+			memcpy(&ut, utp, sizeof(ut));
-+		} else {
-+			/* some gettys/telnetds don't initialize utmp... */
-+			memset(&ut, 0, sizeof(ut));
-+		}
-+
-+		if (ut.ut_id[0] == 0)
-+			strncpy(ut.ut_id, tty_number, sizeof(ut.ut_id));
-+
-+		strncpy(ut.ut_user, username, sizeof(ut.ut_user));
-+		xstrncpy(ut.ut_line, tty_name, sizeof(ut.ut_line));
- #ifdef _HAVE_UT_TV		/* in <utmpbits.h> included by <utmp.h> */
--	gettimeofday(&tv, NULL);
--	ut.ut_tv.tv_sec = tv.tv_sec;
--	ut.ut_tv.tv_usec = tv.tv_usec;
-+		gettimeofday(&tv, NULL);
-+		ut.ut_tv.tv_sec = tv.tv_sec;
-+		ut.ut_tv.tv_usec = tv.tv_usec;
- #else
--	{
--	    time_t t;
--	    time(&t);
--	    ut.ut_time = t;	/* ut_time is not always a time_t */
--				/* glibc2 #defines it as ut_tv.tv_sec */
--	}
-+		{
-+			time_t t;
-+			time(&t);
-+			ut.ut_time = t;	/* ut_time is not always a time_t */
-+			/* glibc2 #defines it as ut_tv.tv_sec */
-+		}
- #endif
--	ut.ut_type = USER_PROCESS;
--	ut.ut_pid = pid;
--	if (hostname) {
--		xstrncpy(ut.ut_host, hostname, sizeof(ut.ut_host));
--		if (hostaddress[0])
--			memcpy(&ut.ut_addr_v6, hostaddress, sizeof(ut.ut_addr_v6));
--	}
-+		ut.ut_type = USER_PROCESS;
-+		ut.ut_pid = pid;
-+		if (hostname) {
-+			xstrncpy(ut.ut_host, hostname, sizeof(ut.ut_host));
-+			if (hostaddress[0])
-+				memcpy(&ut.ut_addr_v6, hostaddress,
-+				       sizeof(ut.ut_addr_v6));
-+		}
- 
--	pututline(&ut);
--	endutent();
-+		pututline(&ut);
-+		endutent();
- 
- #if HAVE_UPDWTMP
--	updwtmp(_PATH_WTMP, &ut);
-+		updwtmp(_PATH_WTMP, &ut);
- #else
--	/* Probably all this locking below is just nonsense,
--	   and the short version is OK as well. */
--	{
--	    int lf, wtmp;
--	    if ((lf = open(_PATH_WTMPLOCK, O_CREAT|O_WRONLY, 0660)) >= 0) {
--		flock(lf, LOCK_EX);
--		if ((wtmp = open(_PATH_WTMP, O_APPEND|O_WRONLY)) >= 0) {
--		    write(wtmp, (char *)&ut, sizeof(ut));
--		    close(wtmp);
-+		/* Probably all this locking below is just nonsense,
-+		   and the short version is OK as well. */
-+		{
-+			int lf, wtmp;
-+			if ((lf =
-+			     open(_PATH_WTMPLOCK, O_CREAT | O_WRONLY,
-+				  0660)) >= 0) {
-+				flock(lf, LOCK_EX);
-+				if ((wtmp =
-+				     open(_PATH_WTMP,
-+					  O_APPEND | O_WRONLY)) >= 0) {
-+					write(wtmp, (char *)&ut, sizeof(ut));
-+					close(wtmp);
-+				}
-+				flock(lf, LOCK_UN);
-+				close(lf);
-+			}
- 		}
--		flock(lf, LOCK_UN);
--		close(lf);
--	    }
--	}
- #endif
--    }
-+	}
- 
--    logaudit(tty_name, username, hostname, pwd, 1);
--    dolastlog(quietlog);
-+	logaudit(tty_name, username, hostname, pwd, 1);
-+	dolastlog(quietlog);
- 
--    if (fchown(0, pwd->pw_uid,
--	  (gr = getgrnam(TTYGRPNAME)) ? gr->gr_gid : pwd->pw_gid))
--        warn(_("change terminal owner failed"));
-+	if (fchown(0, pwd->pw_uid,
-+		   (gr = getgrnam(TTYGRPNAME)) ? gr->gr_gid : pwd->pw_gid))
-+		warn(_("change terminal owner failed"));
- 
--    fchmod(0, TTY_MODE);
-+	fchmod(0, TTY_MODE);
- 
- #ifdef LOGIN_CHOWN_VCS
--    /* if tty is one of the VC's then change owner and mode of the
--       special /dev/vcs devices as well */
--    if (consoletty(0)) {
--
--	if (chown(vcsn, pwd->pw_uid, (gr ? gr->gr_gid : pwd->pw_gid)))
--	    warn(_("change terminal owner failed"));
--	if (chown(vcsan, pwd->pw_uid, (gr ? gr->gr_gid : pwd->pw_gid)))
--	    warn(_("change terminal owner failed"));
--
--	chmod(vcsn, TTY_MODE);
--	chmod(vcsan, TTY_MODE);
--    }
-+	/* if tty is one of the VC's then change owner and mode of the
-+	   special /dev/vcs devices as well */
-+	if (consoletty(0)) {
-+
-+		if (chown(vcsn, pwd->pw_uid, (gr ? gr->gr_gid : pwd->pw_gid)))
-+			warn(_("change terminal owner failed"));
-+		if (chown(vcsan, pwd->pw_uid, (gr ? gr->gr_gid : pwd->pw_gid)))
-+			warn(_("change terminal owner failed"));
-+
-+		chmod(vcsn, TTY_MODE);
-+		chmod(vcsan, TTY_MODE);
-+	}
- #endif
- 
--    if (setgid(pwd->pw_gid) < 0 && pwd->pw_gid) {
--	syslog(LOG_ALERT, _("setgid() failed"));
--	exit(EXIT_FAILURE);
--    }
--
--
--    if (*pwd->pw_shell == '\0')
--      pwd->pw_shell = _PATH_BSHELL;
--
--    /* preserve TERM even without -p flag */
--    {
--	char *ep;
--
--	if(!((ep = getenv("TERM")) && (termenv = strdup(ep))))
--	  termenv = "dumb";
--    }
--
--    /* destroy environment unless user has requested preservation */
--    if (!pflag)
--      {
--          environ = (char**)malloc(sizeof(char*));
--	  memset(environ, 0, sizeof(char*));
--      }
--
--    setenv("HOME", pwd->pw_dir, 0);      /* legal to override */
--    if(pwd->pw_uid)
--      setenv("PATH", _PATH_DEFPATH, 1);
--    else
--      setenv("PATH", _PATH_DEFPATH_ROOT, 1);
--
--    setenv("SHELL", pwd->pw_shell, 1);
--    setenv("TERM", termenv, 1);
--
--    /* mailx will give a funny error msg if you forget this one */
--    {
--      char tmp[PATH_MAX];
--      /* avoid snprintf */
--      if (sizeof(_PATH_MAILDIR) + strlen(pwd->pw_name) + 1 < PATH_MAX) {
--	      sprintf(tmp, "%s/%s", _PATH_MAILDIR, pwd->pw_name);
--	      setenv("MAIL",tmp,0);
--      }
--    }
--
--    /* LOGNAME is not documented in login(1) but
--       HP-UX 6.5 does it. We'll not allow modifying it.
--       */
--    setenv("LOGNAME", pwd->pw_name, 1);
--
--    {
--	int i;
--	char ** env = pam_getenvlist(pamh);
--
--	if (env != NULL) {
--	    for (i=0; env[i]; i++) {
--		putenv(env[i]);
--		/* D(("env[%d] = %s", i,env[i])); */
--	    }
-+	if (setgid(pwd->pw_gid) < 0 && pwd->pw_gid) {
-+		syslog(LOG_ALERT, _("setgid() failed"));
-+		exit(EXIT_FAILURE);
- 	}
--    }
- 
--    setproctitle("login", username);
-+	if (*pwd->pw_shell == '\0')
-+		pwd->pw_shell = _PATH_BSHELL;
- 
--    if (!strncmp(tty_name, "ttyS", 4))
--      syslog(LOG_INFO, _("DIALUP AT %s BY %s"), tty_name, pwd->pw_name);
-+	/* preserve TERM even without -p flag */
-+	{
-+		char *ep;
- 
--    /* allow tracking of good logins.
--       -steve philp (sphilp@mail.alliance.net) */
-+		if (!((ep = getenv("TERM")) && (termenv = strdup(ep))))
-+			termenv = "dumb";
-+	}
- 
--    if (pwd->pw_uid == 0) {
--	if (hostname)
--	  syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s"),
--		 tty_name, hostname);
--	else
--	  syslog(LOG_NOTICE, _("ROOT LOGIN ON %s"), tty_name);
--    } else {
--	if (hostname)
--	  syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s"), tty_name,
--		 pwd->pw_name, hostname);
-+	/* destroy environment unless user has requested preservation */
-+	if (!pflag) {
-+		environ = (char **)malloc(sizeof(char *));
-+		memset(environ, 0, sizeof(char *));
-+	}
-+
-+	setenv("HOME", pwd->pw_dir, 0);	/* legal to override */
-+	if (pwd->pw_uid)
-+		setenv("PATH", _PATH_DEFPATH, 1);
- 	else
--	  syslog(LOG_INFO, _("LOGIN ON %s BY %s"), tty_name,
--		 pwd->pw_name);
--    }
-+		setenv("PATH", _PATH_DEFPATH_ROOT, 1);
- 
--    if (!quietlog) {
--	motd();
-+	setenv("SHELL", pwd->pw_shell, 1);
-+	setenv("TERM", termenv, 1);
- 
--#ifdef LOGIN_STAT_MAIL
--	/*
--	 * This turns out to be a bad idea: when the mail spool
--	 * is NFS mounted, and the NFS connection hangs, the
--	 * login hangs, even root cannot login.
--	 * Checking for mail should be done from the shell.
-+	/* mailx will give a funny error msg if you forget this one */
-+	{
-+		char tmp[PATH_MAX];
-+		/* avoid snprintf */
-+		if (sizeof(_PATH_MAILDIR) + strlen(pwd->pw_name) + 1 < PATH_MAX) {
-+			sprintf(tmp, "%s/%s", _PATH_MAILDIR, pwd->pw_name);
-+			setenv("MAIL", tmp, 0);
++			usage(stderr);
++			break;
 +		}
 +	}
 +
-+	/* LOGNAME is not documented in login(1) but
-+	   HP-UX 6.5 does it. We'll not allow modifying it.
- 	 */
-+	setenv("LOGNAME", pwd->pw_name, 1);
++	if (argc == 1)
++		usage(stderr);
 +
- 	{
--	    struct stat st;
--	    char *mail;
-+		int i;
-+		char **env = pam_getenvlist(pamh);
-+
-+		if (env != NULL) {
-+			for (i = 0; env[i]; i++) {
-+				putenv(env[i]);
-+				/* D(("env[%d] = %s", i,env[i])); */
-+			}
-+		}
++	if (!ncolumns) {
++		columns[ncolumns++] = COL_RES;
++		columns[ncolumns++] = COL_HELP;
++		columns[ncolumns++] = COL_SOFT;
++		columns[ncolumns++] = COL_HARD;
 +	}
 +
-+	setproctitle("login", username);
++	if (!n)
++		for (; n < MAX_RESOURCES; n++)
++			add_prlim(NULL, &lims[n], n);
 +
-+	if (!strncmp(tty_name, "ttyS", 4))
-+		syslog(LOG_INFO, _("DIALUP AT %s BY %s"), tty_name,
-+		       pwd->pw_name);
++	do_prlimit(lims, n);
 +
-+	/* allow tracking of good logins.
-+	   -steve philp (sphilp@mail.alliance.net) */
- 
--	    mail = getenv("MAIL");
--	    if (mail && stat(mail, &st) == 0 && st.st_size != 0) {
--		if (st.st_mtime > st.st_atime)
--			printf(_("You have new mail.\n"));
-+	if (pwd->pw_uid == 0) {
-+		if (hostname)
-+			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s"),
-+			       tty_name, hostname);
- 		else
--			printf(_("You have mail.\n"));
--	    }
-+			syslog(LOG_NOTICE, _("ROOT LOGIN ON %s"), tty_name);
-+	} else {
-+		if (hostname)
-+			syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s"),
-+			       tty_name, pwd->pw_name, hostname);
-+		else
-+			syslog(LOG_INFO, _("LOGIN ON %s BY %s"), tty_name,
-+			       pwd->pw_name);
- 	}
-+
-+	if (!quietlog) {
-+		motd();
-+
-+#ifdef LOGIN_STAT_MAIL
-+		/*
-+		 * This turns out to be a bad idea: when the mail spool
-+		 * is NFS mounted, and the NFS connection hangs, the
-+		 * login hangs, even root cannot login.
-+		 * Checking for mail should be done from the shell.
-+		 */
-+		{
-+			struct stat st;
-+			char *mail;
-+
-+			mail = getenv("MAIL");
-+			if (mail && stat(mail, &st) == 0 && st.st_size != 0) {
-+				if (st.st_mtime > st.st_atime)
-+					printf(_("You have new mail.\n"));
-+				else
-+					printf(_("You have mail.\n"));
-+			}
-+		}
- #endif
--    }
--
--    signal(SIGALRM, SIG_DFL);
--    signal(SIGQUIT, SIG_DFL);
--    signal(SIGTSTP, SIG_IGN);
--
--    memset(&sa, 0, sizeof(sa));
--    sa.sa_handler = SIG_IGN;
--    sigaction(SIGINT, &sa, NULL);
--
--    sigaction(SIGHUP, &sa, &oldsa_hup); /* ignore when TIOCNOTTY */
--
--    /*
--     * detach the controlling tty
--     * -- we needn't the tty in parent who waits for child only.
--     *    The child calls setsid() that detach from the tty as well.
--     */
--    ioctl(0, TIOCNOTTY, NULL);
--
--    /*
--     * We have care about SIGTERM, because leave PAM session without
--     * pam_close_session() is pretty bad thing.
--     */
--    sa.sa_handler = sig_handler;
--    sigaction(SIGHUP, &sa, NULL);
--    sigaction(SIGTERM, &sa, &oldsa_term);
--
--    closelog();
--
--    /*
--     * We must fork before setuid() because we need to call
--     * pam_close_session() as root.
--     */
--
--    child_pid = fork();
--    if (child_pid < 0) {
--       /* error in fork() */
--       warn(_("failure forking"));
--       pam_setcred(pamh, PAM_DELETE_CRED);
--       pam_end(pamh, pam_close_session(pamh, 0));
--       exit(EXIT_FAILURE);
--    }
--
--    if (child_pid) {
--       /* parent - wait for child to finish, then cleanup session */
--       close(0);
--       close(1);
--       close(2);
--       sa.sa_handler = SIG_IGN;
--       sigaction(SIGQUIT, &sa, NULL);
--       sigaction(SIGINT, &sa, NULL);
--
--       /* wait as long as any child is there */
--       while(wait(NULL) == -1 && errno == EINTR)
--	       ;
--       openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
--       pam_setcred(pamh, PAM_DELETE_CRED);
--       pam_end(pamh, pam_close_session(pamh, 0));
--       exit(EXIT_SUCCESS);
--    }
--
--    /* child */
--
--    /* restore to old state */
--    sigaction(SIGHUP, &oldsa_hup, NULL);
--    sigaction(SIGTERM, &oldsa_term, NULL);
--    if(got_sig)
--	    exit(EXIT_FAILURE);
--
--    /*
--     * Problem: if the user's shell is a shell like ash that doesnt do
--     * setsid() or setpgrp(), then a ctrl-\, sending SIGQUIT to every
--     * process in the pgrp, will kill us.
--     */
--
--    /* start new session */
--    setsid();
--
--    /* make sure we have a controlling tty */
--    opentty(ttyn);
--    openlog("login", LOG_ODELAY, LOG_AUTHPRIV);	/* reopen */
--
--    /*
--     * TIOCSCTTY: steal tty from other process group.
--     */
--    if (ioctl(0, TIOCSCTTY, 1))
--	    syslog(LOG_ERR, _("TIOCSCTTY failed: %m"));
--    signal(SIGINT, SIG_DFL);
--
--    /* discard permissions last so can't get killed and drop core */
--    if(setuid(pwd->pw_uid) < 0 && pwd->pw_uid) {
--	syslog(LOG_ALERT, _("setuid() failed"));
--	exit(EXIT_FAILURE);
--    }
--
--    /* wait until here to change directory! */
--    if (chdir(pwd->pw_dir) < 0) {
--	warn(_("%s: change directory failed"), pwd->pw_dir);
--	if (chdir("/"))
--	  exit(EXIT_FAILURE);
--	pwd->pw_dir = "/";
--	printf(_("Logging in with home = \"/\".\n"));
--    }
--
--    /* if the shell field has a space: treat it like a shell script */
--    if (strchr(pwd->pw_shell, ' ')) {
--	buff = xmalloc(strlen(pwd->pw_shell) + 6);
--
--	strcpy(buff, "exec ");
--	strcat(buff, pwd->pw_shell);
--	childArgv[childArgc++] = "/bin/sh";
--	childArgv[childArgc++] = "-sh";
--	childArgv[childArgc++] = "-c";
--	childArgv[childArgc++] = buff;
--    } else {
--	tbuf[0] = '-';
--	xstrncpy(tbuf + 1, ((p = strrchr(pwd->pw_shell, '/')) ?
--			   p + 1 : pwd->pw_shell),
--		sizeof(tbuf)-1);
--
--	childArgv[childArgc++] = pwd->pw_shell;
--	childArgv[childArgc++] = tbuf;
--    }
--
--    childArgv[childArgc++] = NULL;
--
--    execvp(childArgv[0], childArgv + 1);
--
--    if (!strcmp(childArgv[0], "/bin/sh"))
--	warn(_("couldn't exec shell script"));
--    else
--	warn(_("no shell"));
--
--    exit(EXIT_SUCCESS);
-+	}
-+
-+	signal(SIGALRM, SIG_DFL);
-+	signal(SIGQUIT, SIG_DFL);
-+	signal(SIGTSTP, SIG_IGN);
-+
-+	memset(&sa, 0, sizeof(sa));
-+	sa.sa_handler = SIG_IGN;
-+	sigaction(SIGINT, &sa, NULL);
-+
-+	sigaction(SIGHUP, &sa, &oldsa_hup);	/* ignore when TIOCNOTTY */
-+
-+	/*
-+	 * detach the controlling tty
-+	 * -- we needn't the tty in parent who waits for child only.
-+	 *    The child calls setsid() that detach from the tty as well.
-+	 */
-+	ioctl(0, TIOCNOTTY, NULL);
-+
-+	/*
-+	 * We have care about SIGTERM, because leave PAM session without
-+	 * pam_close_session() is pretty bad thing.
-+	 */
-+	sa.sa_handler = sig_handler;
-+	sigaction(SIGHUP, &sa, NULL);
-+	sigaction(SIGTERM, &sa, &oldsa_term);
-+
-+	closelog();
-+
-+	/*
-+	 * We must fork before setuid() because we need to call
-+	 * pam_close_session() as root.
-+	 */
-+
-+	child_pid = fork();
-+	if (child_pid < 0) {
-+		/* error in fork() */
-+		warn(_("failure forking"));
-+		pam_setcred(pamh, PAM_DELETE_CRED);
-+		pam_end(pamh, pam_close_session(pamh, 0));
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (child_pid) {
-+		/* parent - wait for child to finish, then cleanup session */
-+		close(0);
-+		close(1);
-+		close(2);
-+		sa.sa_handler = SIG_IGN;
-+		sigaction(SIGQUIT, &sa, NULL);
-+		sigaction(SIGINT, &sa, NULL);
-+
-+		/* wait as long as any child is there */
-+		while (wait(NULL) == -1 && errno == EINTR) ;
-+		openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
-+		pam_setcred(pamh, PAM_DELETE_CRED);
-+		pam_end(pamh, pam_close_session(pamh, 0));
-+		exit(EXIT_SUCCESS);
-+	}
-+
-+	/* child */
-+
-+	/* restore to old state */
-+	sigaction(SIGHUP, &oldsa_hup, NULL);
-+	sigaction(SIGTERM, &oldsa_term, NULL);
-+	if (got_sig)
-+		exit(EXIT_FAILURE);
-+
-+	/*
-+	 * Problem: if the user's shell is a shell like ash that doesnt do
-+	 * setsid() or setpgrp(), then a ctrl-\, sending SIGQUIT to every
-+	 * process in the pgrp, will kill us.
-+	 */
-+
-+	/* start new session */
-+	setsid();
-+
-+	/* make sure we have a controlling tty */
-+	opentty(ttyn);
-+	openlog("login", LOG_ODELAY, LOG_AUTHPRIV);	/* reopen */
-+
-+	/*
-+	 * TIOCSCTTY: steal tty from other process group.
-+	 */
-+	if (ioctl(0, TIOCSCTTY, 1))
-+		syslog(LOG_ERR, _("TIOCSCTTY failed: %m"));
-+	signal(SIGINT, SIG_DFL);
-+
-+	/* discard permissions last so can't get killed and drop core */
-+	if (setuid(pwd->pw_uid) < 0 && pwd->pw_uid) {
-+		syslog(LOG_ALERT, _("setuid() failed"));
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* wait until here to change directory! */
-+	if (chdir(pwd->pw_dir) < 0) {
-+		warn(_("%s: change directory failed"), pwd->pw_dir);
-+		if (chdir("/"))
-+			exit(EXIT_FAILURE);
-+		pwd->pw_dir = "/";
-+		printf(_("Logging in with home = \"/\".\n"));
-+	}
-+
-+	/* if the shell field has a space: treat it like a shell script */
-+	if (strchr(pwd->pw_shell, ' ')) {
-+		buff = xmalloc(strlen(pwd->pw_shell) + 6);
-+
-+		strcpy(buff, "exec ");
-+		strcat(buff, pwd->pw_shell);
-+		childArgv[childArgc++] = "/bin/sh";
-+		childArgv[childArgc++] = "-sh";
-+		childArgv[childArgc++] = "-c";
-+		childArgv[childArgc++] = buff;
-+	} else {
-+		tbuf[0] = '-';
-+		xstrncpy(tbuf + 1, ((p = strrchr(pwd->pw_shell, '/')) ?
-+				    p + 1 : pwd->pw_shell), sizeof(tbuf) - 1);
-+
-+		childArgv[childArgc++] = pwd->pw_shell;
-+		childArgv[childArgc++] = tbuf;
-+	}
-+
-+	childArgv[childArgc++] = NULL;
-+
-+	execvp(childArgv[0], childArgv + 1);
-+
-+	if (!strcmp(childArgv[0], "/bin/sh"))
-+		warn(_("couldn't exec shell script"));
-+	else
-+		warn(_("no shell"));
-+
-+	exit(EXIT_SUCCESS);
- }
- 
- /*
-@@ -1046,19 +1065,19 @@ Michael Riepe <michael@stud.uni-hannover.de>
-  * the process just exits if the second timeout expires.
-  */
- 
--static void
--timedout2(int sig __attribute__((__unused__))) {
-+static void timedout2(int sig __attribute__ ((__unused__)))
-+{
- 	struct termios ti;
- 
- 	/* reset echo */
- 	tcgetattr(0, &ti);
- 	ti.c_lflag |= ECHO;
- 	tcsetattr(0, TCSANOW, &ti);
--	exit(EXIT_SUCCESS);			/* %% */
-+	exit(EXIT_SUCCESS);	/* %% */
- }
- 
--static void
--timedout(int sig __attribute__((__unused__))) {
-+static void timedout(int sig __attribute__ ((__unused__)))
-+{
- 	signal(SIGALRM, timedout2);
- 	alarm(10);
- 	/* TRANSLATORS: The standard value for %d is 60. */
-@@ -1070,75 +1089,77 @@ timedout(int sig __attribute__((__unused__))) {
- 
- jmp_buf motdinterrupt;
- 
--void
--motd(void) {
--    int fd, nchars;
--    void (*oldint)(int);
--    char tbuf[8192];
--
--    if ((fd = open(_PATH_MOTDFILE, O_RDONLY, 0)) < 0)
--      return;
--    oldint = signal(SIGINT, sigint);
--    if (setjmp(motdinterrupt) == 0)
--      while ((nchars = read(fd, tbuf, sizeof(tbuf))) > 0) {
--	if (write(fileno(stdout), tbuf, nchars)) {
--		;	/* glibc warn_unused_result */
--	}
--      }
--    signal(SIGINT, oldint);
--    close(fd);
-+void motd(void)
-+{
-+	int fd, nchars;
-+	void (*oldint) (int);
-+	char tbuf[8192];
-+
-+	if ((fd = open(_PATH_MOTDFILE, O_RDONLY, 0)) < 0)
-+		return;
-+	oldint = signal(SIGINT, sigint);
-+	if (setjmp(motdinterrupt) == 0)
-+		while ((nchars = read(fd, tbuf, sizeof(tbuf))) > 0) {
-+			if (write(fileno(stdout), tbuf, nchars)) {
-+				;	/* glibc warn_unused_result */
-+			}
-+		}
-+	signal(SIGINT, oldint);
-+	close(fd);
- }
- 
--void
--sigint(int sig  __attribute__((__unused__))) {
--    longjmp(motdinterrupt, 1);
-+void sigint(int sig __attribute__ ((__unused__)))
-+{
-+	longjmp(motdinterrupt, 1);
- }
- 
--void
--dolastlog(int quiet) {
--    struct lastlog ll;
--    int fd;
--
--    if ((fd = open(_PATH_LASTLOG, O_RDWR, 0)) >= 0) {
--	lseek(fd, (off_t)pwd->pw_uid * sizeof(ll), SEEK_SET);
--	if (!quiet) {
--	    if (read(fd, (char *)&ll, sizeof(ll)) == sizeof(ll) &&
--		ll.ll_time != 0) {
--		    time_t ll_time = (time_t) ll.ll_time;
--
--		    printf(_("Last login: %.*s "),
--			   24-5, ctime(&ll_time));
--
--		    if (*ll.ll_host != '\0')
--			    printf(_("from %.*s\n"),
--				   (int)sizeof(ll.ll_host), ll.ll_host);
--		    else
--			    printf(_("on %.*s\n"),
--				   (int)sizeof(ll.ll_line), ll.ll_line);
--	    }
--	    lseek(fd, (off_t)pwd->pw_uid * sizeof(ll), SEEK_SET);
--	}
--	memset((char *)&ll, 0, sizeof(ll));
-+void dolastlog(int quiet)
-+{
-+	struct lastlog ll;
-+	int fd;
-+
-+	if ((fd = open(_PATH_LASTLOG, O_RDWR, 0)) >= 0) {
-+		lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
-+		if (!quiet) {
-+			if (read(fd, (char *)&ll, sizeof(ll)) == sizeof(ll) &&
-+			    ll.ll_time != 0) {
-+				time_t ll_time = (time_t) ll.ll_time;
-+
-+				printf(_("Last login: %.*s "),
-+				       24 - 5, ctime(&ll_time));
-+
-+				if (*ll.ll_host != '\0')
-+					printf(_("from %.*s\n"),
-+					       (int)sizeof(ll.ll_host),
-+					       ll.ll_host);
-+				else
-+					printf(_("on %.*s\n"),
-+					       (int)sizeof(ll.ll_line),
-+					       ll.ll_line);
-+			}
-+			lseek(fd, (off_t) pwd->pw_uid * sizeof(ll), SEEK_SET);
-+		}
-+		memset((char *)&ll, 0, sizeof(ll));
- 
--	{
--		time_t t;
--		time(&t);
--		ll.ll_time = t; /* ll_time is always 32bit */
--	}
-+		{
-+			time_t t;
-+			time(&t);
-+			ll.ll_time = t;	/* ll_time is always 32bit */
-+		}
- 
--	xstrncpy(ll.ll_line, tty_name, sizeof(ll.ll_line));
--	if (hostname)
--	    xstrncpy(ll.ll_host, hostname, sizeof(ll.ll_host));
-+		xstrncpy(ll.ll_line, tty_name, sizeof(ll.ll_line));
-+		if (hostname)
-+			xstrncpy(ll.ll_host, hostname, sizeof(ll.ll_host));
- 
--	if (write(fd, (char *)&ll, sizeof(ll)) < 0)
--	    warn(_("write lastlog failed"));
--	close(fd);
--    }
-+		if (write(fd, (char *)&ll, sizeof(ll)) < 0)
-+			warn(_("write lastlog failed"));
-+		close(fd);
-+	}
- }
- 
- /* Should not be called from PAM code... */
--void
--sleepexit(int eval) {
--    sleep(LOGIN_EXIT_TIMEOUT);
--    exit(eval);
-+void sleepexit(int eval)
-+{
-+	sleep(LOGIN_EXIT_TIMEOUT);
-+	exit(eval);
- }
++	return EXIT_SUCCESS;
++}
 -- 
-1.7.6.4
+1.7.7
