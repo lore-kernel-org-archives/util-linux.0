@@ -1,93 +1,102 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:33445 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753030Ab1I1O0V (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 28 Sep 2011 10:26:21 -0400
-Received: by mail-ey0-f174.google.com with SMTP id 28so5673890eya.19
-        for <util-linux@vger.kernel.org>; Wed, 28 Sep 2011 07:26:20 -0700 (PDT)
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH 3/3] ipcrm: fix wrong subject in error messages for -m, -q, -s id options
-Date: Wed, 28 Sep 2011 16:25:31 +0200
-Message-Id: <1317219931-20496-3-git-send-email-cosoleto@gmail.com>
-In-Reply-To: <1317219931-20496-1-git-send-email-cosoleto@gmail.com>
-References: <1317219931-20496-1-git-send-email-cosoleto@gmail.com>
+Received: from damascus.uab.es ([158.109.168.135]:15458 "EHLO damascus.uab.es"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932751Ab1JZLzO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Oct 2011 07:55:14 -0400
+Received: from damascus.uab.es ([127.0.0.1])
+ by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
+ Jan  6 2005)) with ESMTP id <0LTO001TB93CSVA0@damascus.uab.es> for
+ util-linux@vger.kernel.org; Wed, 26 Oct 2011 13:54:49 +0200 (CEST)
+Received: from aomail.uab.es ([158.109.65.1])
+ by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
+ 6 2005)) with ESMTP id	<0LTO008HD93CDL40@damascus.uab.es>
+ forutil-linux@vger.kernel.org; Wed, 26 Oct 2011 13:54:48 +0200 (CEST)
+Date: Wed, 26 Oct 2011 15:57:38 +0200
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH 1/2] partx: remove __NCOLUMNS
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-id: <1319637458.3771.11.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This makes error messages print 'id' instead of 'key' using id options.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+We use ARRAY_SIZE() instead to define the amount of available columns.
+
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- sys-utils/ipcrm.c |   23 ++++++++---------------
- 1 files changed, 8 insertions(+), 15 deletions(-)
+ partx/partx.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
-index f6482ab..6f74107 100644
---- a/sys-utils/ipcrm.c
-+++ b/sys-utils/ipcrm.c
-@@ -323,52 +323,45 @@ int main(int argc, char **argv)
- 		return EXIT_SUCCESS;
+diff --git a/partx/partx.c b/partx/partx.c
+index bf18a4e..b12eebc 100644
+--- a/partx/partx.c
++++ b/partx/partx.c
+@@ -49,7 +49,6 @@ enum {
+ 	COL_TYPE,
+ 	COL_FLAGS,
+ 	COL_SCHEME,
+-	__NCOLUMNS
+ };
  
- 	/* process new syntax to conform with SYSV ipcrm */
--	for (id = -1;
--	    (c = getopt_long(argc, argv, "q:m:s:Q:M:S:a::vhV", longopts, NULL)) != -1;
--	    id = -1) {
-+	while((c = getopt_long(argc, argv, "q:m:s:Q:M:S:a::vhV", longopts, NULL)) != -1) {
-+		iskey = 0;
- 		switch (c) {
- 		case 'M':
--			iskey = 0;
-+			iskey = 1;
- 			id = key_to_id(SHM, optarg);
- 			if (id < 0) {
- 				ret++;
- 				break;
- 			}
- 		case 'm':
--			if (id < 0) {
--				iskey = 1;
-+			if (!iskey)
- 				id = strtoll_or_err(optarg, _("failed to parse argument"));
--			}
- 			if (remove_id(SHM, iskey, id))
- 				ret++;
- 			break;
- 		case 'Q':
--			iskey = 0;
-+			iskey = 1;
- 			id = key_to_id(MSG, optarg);
- 			if (id < 0) {
- 				ret++;
- 				break;
- 			}
- 		case 'q':
--			if (id < 0) {
--				iskey = 1;
-+			if (!iskey)
- 				id = strtoll_or_err(optarg, _("failed to parse argument"));
--			}
- 			if (remove_id(MSG, iskey, id))
- 				ret++;
- 			break;
- 		case 'S':
--			iskey = 0;
-+			iskey = 1;
- 			id = key_to_id(SEM, optarg);
- 			if (id < 0) {
- 				ret++;
- 				break;
- 			}
- 		case 's':
--			if (id < 0) {
--				iskey = 1;
-+			if (!iskey)
- 				id = strtoll_or_err(optarg, _("failed to parse argument"));
--			}
- 			if (remove_id(SEM, iskey, id))
- 				ret++;
- 			break;
+ enum {
+@@ -72,7 +71,7 @@ struct colinfo {
+ };
+ 
+ /* columns descriptions */
+-struct colinfo infos[__NCOLUMNS] = {
++struct colinfo infos[] = {
+ 	[COL_PARTNO]   = { "NR",    0.25, TT_FL_RIGHT, N_("partition number") },
+ 	[COL_START]    = { "START",   0.30, TT_FL_RIGHT, N_("start of the partition in sectors") },
+ 	[COL_END]      = { "END",     0.30, TT_FL_RIGHT, N_("end of the partition in sectors") },
+@@ -84,8 +83,11 @@ struct colinfo infos[__NCOLUMNS] = {
+ 	[COL_FLAGS]    = { "FLAGS",   0.1, TT_FL_TRUNC, N_("partition flags")},
+ 	[COL_TYPE]     = { "TYPE",    1, TT_FL_RIGHT, N_("partition type hex or uuid")},
+ };
++
++#define NCOLS ARRAY_SIZE(infos)
++
+ /* array with IDs of enabled columns */
+-static int columns[__NCOLUMNS], ncolumns;
++static int columns[NCOLS], ncolumns;
+ 
+ static int verbose;
+ static int partx_flags;
+@@ -137,9 +139,9 @@ static void assoc_loopdev(const char *fname)
+ 
+ static inline int get_column_id(int num)
+ {
+-	assert(ARRAY_SIZE(columns) == __NCOLUMNS);
++	assert(ARRAY_SIZE(columns) == NCOLS);
+ 	assert(num < ncolumns);
+-	assert(columns[num] < __NCOLUMNS);
++	assert(columns[num] < NCOLS);
+ 	return columns[num];
+ }
+ 
+@@ -154,7 +156,7 @@ static int column_name_to_id(const char *name, size_t namesz)
+ 
+ 	assert(name);
+ 
+-	for (i = 0; i < __NCOLUMNS; i++) {
++	for (i = 0; i < NCOLS; i++) {
+ 		const char *cn = infos[i].name;
+ 
+ 		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
+@@ -624,7 +626,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 
+ 	fputs(_("\nAvailable columns (for --show, --raw or --pairs):\n"), out);
+ 
+-	for (i = 0; i < __NCOLUMNS; i++)
++	for (i = 0; i < NCOLS; i++)
+ 		fprintf(out, " %10s  %s\n", infos[i].name, _(infos[i].help));
+ 
+ 	fprintf(out, _("\nFor more information see partx(8).\n"));
 -- 
-1.7.3.4
+1.7.7
+
+
 
