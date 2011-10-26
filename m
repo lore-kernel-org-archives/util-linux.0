@@ -1,60 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mtagate2.uk.ibm.com ([194.196.100.162]:37255 "EHLO
-	mtagate2.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752991Ab1JJJAc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Oct 2011 05:00:32 -0400
-Received: from d06nrmr1307.portsmouth.uk.ibm.com (d06nrmr1307.portsmouth.uk.ibm.com [9.149.38.129])
-	by mtagate2.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p9A90VIm030078
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 09:00:31 GMT
-Received: from d06av02.portsmouth.uk.ibm.com (d06av02.portsmouth.uk.ibm.com [9.149.37.228])
-	by d06nrmr1307.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p9A90UM72351296
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 10:00:30 +0100
-Received: from d06av02.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av02.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p9A90Qrv004850
-	for <util-linux@vger.kernel.org>; Mon, 10 Oct 2011 03:00:26 -0600
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Received: from damascus.uab.es ([158.109.168.135]:16733 "EHLO damascus.uab.es"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932751Ab1JZL7u (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Oct 2011 07:59:50 -0400
+Received: from damascus.uab.es ([127.0.0.1])
+ by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
+ Jan  6 2005)) with ESMTP id <0LTO001MZ9B1SAA0@damascus.uab.es> for
+ util-linux@vger.kernel.org; Wed, 26 Oct 2011 13:59:26 +0200 (CEST)
+Received: from aomail.uab.es ([158.109.65.1])
+ by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
+ 6 2005)) with ESMTP id	<0LTO008MX9B1DL40@damascus.uab.es>
+ forutil-linux@vger.kernel.org; Wed, 26 Oct 2011 13:59:25 +0200 (CEST)
+Date: Wed, 26 Oct 2011 16:02:15 +0200
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH] partx: use USAGE_ macros
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 1/6] lscpu: switch Yes/No output to lower case
-Date: Mon, 10 Oct 2011 10:59:39 +0200
-Message-Id: <1318237184-6616-2-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1318237184-6616-1-git-send-email-heiko.carstens@de.ibm.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-id: <1319637735.3771.13.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Some people complained about the first letter of Yes/No as seen in the
-online and configured column in the human readabe output being a capital
-letter instead of the expected lower case letter.
-So let's try to make everbody happy and convert them to lower case.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- sys-utils/lscpu.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ partx/partx.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 8637ef1..66fa971 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -850,7 +850,7 @@ get_cell_data(struct lscpu_desc *desc, int cpu, int col,
- 				 desc->configured[cpu] ? _("Y") : _("N"));
- 		else
- 			snprintf(buf, bufsz,
--				 desc->configured[cpu] ? _("Yes") : _("No"));
-+				 desc->configured[cpu] ? _("yes") : _("no"));
- 		break;
- 	case COL_ONLINE:
- 		if (!desc->online)
-@@ -860,7 +860,7 @@ get_cell_data(struct lscpu_desc *desc, int cpu, int col,
- 				 is_cpu_online(desc, cpu) ? _("Y") : _("N"));
- 		else
- 			snprintf(buf, bufsz,
--				 is_cpu_online(desc, cpu) ? _("Yes") : _("No"));
-+				 is_cpu_online(desc, cpu) ? _("yes") : _("no"));
- 		break;
- 	}
- 	return buf;
+diff --git a/partx/partx.c b/partx/partx.c
+index b12eebc..c730e37 100644
+--- a/partx/partx.c
++++ b/partx/partx.c
+@@ -604,7 +604,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	int i;
+ 
+-	fputs(_("\nUsage:\n"), out);
++	fputs(USAGE_HEADER, out);
++
+ 	fprintf(out,
+ 	      _(" %s [-a|-d|-s] [--nr <n:m> | <partition>] <disk>\n"),
+ 		program_invocation_short_name);
+@@ -629,7 +630,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	for (i = 0; i < NCOLS; i++)
+ 		fprintf(out, " %10s  %s\n", infos[i].name, _(infos[i].help));
+ 
+-	fprintf(out, _("\nFor more information see partx(8).\n"));
++	fprintf(out, USAGE_MAN_TAIL("partx(8)"));
+ 
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
 -- 
-1.7.6.3
+1.7.7
+
+
 
