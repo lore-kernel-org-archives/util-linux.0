@@ -1,52 +1,101 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55222 "EHLO mx1.redhat.com"
+Received: from damascus.uab.es ([158.109.168.135]:15650 "EHLO damascus.uab.es"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751951Ab1JZVZm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Oct 2011 17:25:42 -0400
-Date: Wed, 26 Oct 2011 23:25:38 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
+	id S932751Ab1JZLzx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Oct 2011 07:55:53 -0400
+Received: from damascus.uab.es ([127.0.0.1])
+ by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
+ Jan  6 2005)) with ESMTP id <0LTO001KH94GSAA0@damascus.uab.es> for
+ util-linux@vger.kernel.org; Wed, 26 Oct 2011 13:55:28 +0200 (CEST)
+Received: from aomail.uab.es ([158.109.65.1])
+ by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
+ 6 2005)) with ESMTP id	<0LTO008IT94GDL40@damascus.uab.es>
+ forutil-linux@vger.kernel.org; Wed, 26 Oct 2011 13:55:28 +0200 (CEST)
+Date: Wed, 26 Oct 2011 15:58:18 +0200
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH 2/2] lsblk: remove __NCOLUMNS
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] prlimit: add a units column
-Message-ID: <20111026212538.GA24870@nb.redhat.com>
-References: <1319452258.2170.7.camel@offworld>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1319452258.2170.7.camel@offworld>
+Message-id: <1319637498.3771.12.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 24, 2011 at 12:30:58PM +0200, Davidlohr Bueso wrote:
-> +	[AS]         = { "AS",         N_("address space limit"),                "bytes",     RLIMIT_AS },
-> +	[CORE]       = { "CORE",       N_("max core file size"),                 "blocks",    RLIMIT_CORE },
-> +	[CPU]        = { "CPU",        N_("CPU time"),                           "seconds",   RLIMIT_CPU },
-> +	[DATA]       = { "DATA",       N_("max data size"),                      "bytes",     RLIMIT_DATA },
-> +	[FSIZE]      = { "FSIZE",      N_("max file size"),                      "blocks",    RLIMIT_FSIZE },
-> +	[LOCKS]      = { "LOCKS",      N_("max amount of file locks held"),      NULL,        RLIMIT_LOCKS },
-> +	[MEMLOCK]    = { "MEMLOCK",    N_("max locked-in-memory address space"), "kbytes",    RLIMIT_MEMLOCK },
-> +	[MSGQUEUE]   = { "MSGQUEUE",   N_("max bytes in POSIX mqueues"),         "bytes",     RLIMIT_MSGQUEUE },
-> +	[NICE]       = { "NICE",       N_("max nice prio allowed to raise"),     NULL,        RLIMIT_NICE },
-> +	[NOFILE]     = { "NOFILE",     N_("max amount of open files"),           NULL,        RLIMIT_NOFILE },
-> +	[NPROC]      = { "NPROC",      N_("max number of processes"),            NULL,        RLIMIT_NPROC },
-> +	[RSS]        = { "RSS",        N_("max resident set size"),              "pages",     RLIMIT_RSS },
-> +	[RTPRIO]     = { "RTPRIO",     N_("max real-time priority"),             NULL,        RLIMIT_RTPRIO },
-> +	[RTTIME]     = { "RTTIME",     N_("timeout for real-time tasks"),        "microsecs", RLIMIT_RTTIME },
-> +	[SIGPENDING] = { "SIGPENDING", N_("max amount of pending signals"),      NULL,        RLIMIT_SIGPENDING },
-> +	[STACK]      = { "STACK",      N_("max stack size"),                     "kbytes",    RLIMIT_STACK }
+From: Davidlohr Bueso <dave@gnu.org>
 
- Why without N_() ?
+We use ARRAY_SIZE() instead to define the amount of available columns.
 
-> +		case COL_UNITS:
-> +			rc =  l->desc->unit ? asprintf(&str, "%s", l->desc->unit) :
-> +			                      asprintf(&str, "------");
-> +			break;
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ misc-utils/lsblk.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-  str = l->desc->unit ? xstrdup(_(l->desc->unit)) : NULL;
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 74a1850..24e0d05 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -88,8 +88,6 @@ enum {
+ 	COL_DGRAN,
+ 	COL_DMAX,
+ 	COL_DZERO,
+-
+-	__NCOLUMNS
+ };
  
- NULL should not be a problem for tt_* functions.
-
-    Karel
-
+ /* column names */
+@@ -101,7 +99,7 @@ struct colinfo {
+ };
+ 
+ /* columns descriptions */
+-static struct colinfo infos[__NCOLUMNS] = {
++static struct colinfo infos[] = {
+ 	[COL_NAME]   = { "NAME",    0.25, TT_FL_TREE, N_("device name") },
+ 	[COL_KNAME]  = { "KNAME",   0.3, 0, N_("internal kernel device name") },
+ 	[COL_MAJMIN] = { "MAJ:MIN", 6, 0, N_("major:minor device number") },
+@@ -140,7 +138,9 @@ struct lsblk {
+ };
+ 
+ struct lsblk *lsblk;	/* global handler */
+-int columns[__NCOLUMNS];/* enabled columns */
++
++#define NCOLS ARRAY_SIZE(infos)
++int columns[NCOLS];/* enabled columns */
+ int ncolumns;		/* number of enabled columns */
+ 
+ int excludes[256];
+@@ -190,9 +190,9 @@ static int is_maj_excluded(int maj)
+ /* array with IDs of enabled columns */
+ static int get_column_id(int num)
+ {
+-	assert(ARRAY_SIZE(columns) == __NCOLUMNS);
++	assert(ARRAY_SIZE(columns) == NCOLS);
+ 	assert(num < ncolumns);
+-	assert(columns[num] < __NCOLUMNS);
++	assert(columns[num] < NCOLS);
+ 	return columns[num];
+ }
+ 
+@@ -205,7 +205,7 @@ static int column_name_to_id(const char *name, size_t namesz)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < __NCOLUMNS; i++) {
++	for (i = 0; i < NCOLS; i++) {
+ 		const char *cn = infos[i].name;
+ 
+ 		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
+@@ -933,7 +933,7 @@ static void __attribute__((__noreturn__)) help(FILE *out)
+ 
+ 	fprintf(out, _("\nAvailable columns:\n"));
+ 
+-	for (i = 0; i < __NCOLUMNS; i++)
++	for (i = 0; i < NCOLS; i++)
+ 		fprintf(out, " %10s  %s\n", infos[i].name, _(infos[i].help));
+ 
+ 	fprintf(out, _("\nFor more information see lsblk(8).\n"));
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
+
+
