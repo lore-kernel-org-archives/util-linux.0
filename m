@@ -1,52 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:56259 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755190Ab1K0AfA convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Nov 2011 19:35:00 -0500
-Received: by bke11 with SMTP id 11so6303447bke.19
-        for <util-linux@vger.kernel.org>; Sat, 26 Nov 2011 16:34:59 -0800 (PST)
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:43744 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753726Ab1KBT2p convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Nov 2011 15:28:45 -0400
+Received: by eye27 with SMTP id 27so462509eye.19
+        for <util-linux@vger.kernel.org>; Wed, 02 Nov 2011 12:28:44 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <201111231358.16493.vapier@gentoo.org>
-References: <CA+zVqtWW+CknuW7NKyd2AZVsrDwj=J7gg+U2UYEBgbp++vaZgA@mail.gmail.com>
- <201111231358.16493.vapier@gentoo.org>
-From: Paul Stone <Paul@Stone.org>
-Date: Sat, 26 Nov 2011 16:34:38 -0800
-Message-ID: <CA+zVqtWCj=zRaOeesLfaOABHiuBcQMqTZRfJwE84s_G=Z8qAAA@mail.gmail.com>
-Subject: Re: how can I compile mount and umount as shared object files?
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Date: Wed, 2 Nov 2011 20:28:43 +0100
+Message-ID: <CAG27Bk1acCRkXM=6wf5BRZ_Q6niOheappANqBKHiObZv86GL2g@mail.gmail.com>
+Subject: [pull] third sys-utils patch set
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thanks Mike,
+Hello,
 
-The compiled regular executables do seem to work fine.
+Here's remaining usage(), howto alignment, code style fix patches
+about utilities in sys-utils directory. Many of the patches are
+trivial, but there are couple which I want to mention.
 
-Any idea why they are compiled as PIEs for CentOS (and presumably Red Hat)?
+The switch_root did not use translations. I wonder was that
+intentional, and it should not have them? If so the patch has to be
+knocked out.
 
-Best Regards,
-Paul Stone
+The ldattach usage output 'Known ... names' output tables are now
+wider and shorter. IMHO that is better, since the usage is a lot
+longer than it used to be. My only question is that should the output
+tables be more smart,  and use tt_print_table() combined with terminal
+width detection to make table as wide as possible?
+
+Rest is ready for review.
 
 
-On Wed, Nov 23, 2011 at 10:58 AM, Mike Frysinger <vapier@gentoo.org> wrote:
-> On Tuesday 22 November 2011 19:02:26 Paul Stone wrote:
->> [root@xxxx .libs]# file *
->> mount:  setuid ELF 64-bit LSB executable, x86-64, version 1 (SYSV),
->> dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
->> umount: setuid ELF 64-bit LSB executable, x86-64, version 1 (SYSV),
->> dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
->>
->> [root@xxxx .libs]# file /bin/mount /bin/umount
->> /bin/mount:  setuid ELF 64-bit LSB shared object, x86-64, version 1
->> (GNU/Linux), dynamically linked (uses shared libs), for GNU/Linux
->> 2.6.18, stripped
->> /bin/umount: setuid ELF 64-bit LSB shared object, x86-64, version 1
->> (GNU/Linux), dynamically linked (uses shared libs), for GNU/Linux
->> 2.6.18, stripped
->
-> looks like your objects in /bin/ are PIEs.  it's not required for these to be
-> PIEs, so you can install the locally compiled ones if you want and they should
-> work fine.
-> -mike
->
+The following changes since commit 6bac2825af7216c5471148e219dbcf62ec5ede84:
+
+  prlimit: new command (2011-10-21 23:19:51 +0200)
+
+are available in the git repository at:
+  https://github.com/kerolasa/lelux-utiliteetit sys-utils-3rd
+
+Sami Kerola (20):
+      setsid: add long options and fix coding style
+      rtcwake: align with howto-usage-function.txt
+      unshare: align with howto-usage-function.txt
+      switch_root: align with howto-usage-function.txt
+      switch_root: add nls support
+      tunelp: fix coding style
+      tunelp: use symbolic exit values
+      tunelp: use libc error printing facilities
+      tunelp: add long options and align with howto-usage-function.txt
+      docs: add long options to tunelp.8
+      docs: align tunelp.8 with howto-man-page.txt
+      readprofile: add long options
+      readprofile: use libc error printing facilities
+      readprofile: fix coding style
+      docs: add long options to readprofile.8
+      ldattach: fix coding style
+      ldattach: align with howto-usage-function.txt
+      ldattach: check numeric user inputs with strtol_or_err
+      ldattach: convert debug macro to function
+      ldattach: add default case to switches
+
+ sys-utils/Makefile.am   |    1 +
+ sys-utils/ldattach.c    |  477 +++++++++++++++++++++++++----------------------
+ sys-utils/readprofile.8 |  148 +++++++--------
+ sys-utils/readprofile.c |  292 +++++++++++++++---------------
+ sys-utils/rtcwake.c     |   16 +-
+ sys-utils/setsid.c      |   73 +++++--
+ sys-utils/switch_root.c |   55 +++---
+ sys-utils/tunelp.8      |  227 +++++++++-------------
+ sys-utils/tunelp.c      |  456 ++++++++++++++++++++++++--------------------
+ sys-utils/unshare.c     |   19 ++-
+ 10 files changed, 913 insertions(+), 851 deletions(-)
+
+-- 
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
