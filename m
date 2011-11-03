@@ -1,36 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nagini.codelibre.net ([80.68.93.164]:59483 "EHLO
-	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752522Ab1K0W2Z (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Nov 2011 17:28:25 -0500
-Date: Sun, 27 Nov 2011 22:19:56 +0000
-From: Roger Leigh <rleigh@codelibre.net>
-To: util-linux@vger.kernel.org
-Subject: Using /etc/fstab.d
-Message-ID: <20111127221956.GF17458@codelibre.net>
+Received: from mx1.redhat.com ([209.132.183.28]:28617 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752145Ab1KCKlQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 3 Nov 2011 06:41:16 -0400
+Date: Thu, 3 Nov 2011 11:41:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: swapon feature additions
+Message-ID: <20111103104113.GA10539@nb.net.home>
+References: <20111027194056.GN691@rampage>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111027194056.GN691@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi folks,
+On Thu, Oct 27, 2011 at 03:40:56PM -0400, Dave Reisner wrote:
+> 1) Introduce optional libmount support. This involves first refactoring
+> reading of /etc/fstab to remove the duplicated code and use callbacks
+> instead. Breaking out the functionality into libmount-powered and
+> non-libmount-powered code is then much cleaner.
 
-I noticed that support had recently been added for /etc/fstab.d.
-In Debian, we're configuring with --enable-libmount-mount, but
-I'm not seeing it being used; strace shows no opendir/stat calls
-for it.  Is anything else necessary to enable it, or is it not
-yet actually used by mount?
+ I'd like to move all swapon(8) functionality to libmount and replace
+ the whole swapon(8) by a small libmount based util. Unfortunately,
+ swapon/swapoff support in libmount is not implemented yet.
 
-I've just created a file /etc/fstab.d/test.fstab, and then
-tried "mount /foo", where /foo would be the entry in test.fstab,
-but don't see anything happening.
+> 2) Teach swapon/swapoff to only look at files or partitions. The use
+> case in mind is specifically for unswapping only files at shutdown, as
+> partitions can remain mounted without harm.
 
+ This is probably more important, it would be nice to have 
+ 
+    swapoff --all --files-only
 
-Thanks,
-Roger
+> Does this seem reasonable? Is this functionality wanted? Anything else I
+> should be aware of?
+
+ Yes, my suggestion is to start with 2) :-)
+
+    Karel
 
 -- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
