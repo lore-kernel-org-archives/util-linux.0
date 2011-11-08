@@ -1,39 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:33495 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751537Ab1JIVXN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Oct 2011 17:23:13 -0400
-Received: by vcbgb30 with SMTP id gb30so284487vcb.19
-        for <util-linux@vger.kernel.org>; Sun, 09 Oct 2011 14:23:12 -0700 (PDT)
-Date: Sun, 9 Oct 2011 17:23:26 -0400
-From: Dave Reisner <d@falconindy.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:63175 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932137Ab1KHWPT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Nov 2011 17:15:19 -0500
+Received: by bke11 with SMTP id 11so873205bke.19
+        for <util-linux@vger.kernel.org>; Tue, 08 Nov 2011 14:15:18 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] mountpoint: return dev_t from dir_to_device
-Message-ID: <20111009212326.GP782@rampage>
-References: <1318131111-30395-1-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1318131111-30395-1-git-send-email-dreisner@archlinux.org>
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] fsck.minix: remove unnecessary memset calls
+Date: Tue,  8 Nov 2011 23:14:52 +0100
+Message-Id: <1320790495-29290-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Oct 08, 2011 at 11:31:50PM -0400, Dave Reisner wrote:
-> The string returned from this function was never of much use other than
-> to stat the path when the user requested a major:minor pair beyond the
-> true/false exit. Save some processing and directly returning the dev_t
-> on success, and an impossible value on failure.
-> 
-> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> ---
->  sys-utils/mountpoint.c |   15 +++++++--------
->  1 files changed, 7 insertions(+), 8 deletions(-)
-> 
+The program aborts without using this unintialized allocated memory,
+setting to zero doesn't look needed.
 
-I'll also mention that this fixes an issue with mountpoint that causes
-it to throw a false negative when /proc is mounted with a source of
-"none". This value is treated specially in libmount and sets the source
-to NULL, which makes dir_to_device() incorrectly claim that the directory
-is not in fact a mountpoint.
+memset calls with sizeof() of pointer as argument (reported by clang).
 
-Regards,
-dave
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ disk-utils/fsck.minix.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index eb02f9e..90c9200 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -611,8 +611,6 @@ read_tables(void) {
+ 	zone_map = malloc(zmaps * MINIX_BLOCK_SIZE);
+ 	if (!inode_map)
+ 		die(_("Unable to allocate buffer for zone map"));
+-	memset(inode_map,0,sizeof(inode_map));
+-	memset(zone_map,0,sizeof(zone_map));
+ 	inode_buffer = malloc(buffsz);
+ 	if (!inode_buffer)
+ 		die(_("Unable to allocate buffer for inodes"));
+-- 
+1.7.3.4
+
