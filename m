@@ -1,39 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:41616 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932137Ab1KHWP2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Nov 2011 17:15:28 -0500
-Received: by bke11 with SMTP id 11so873318bke.19
-        for <util-linux@vger.kernel.org>; Tue, 08 Nov 2011 14:15:27 -0800 (PST)
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH] whereis: remove unused value warning
-Date: Tue,  8 Nov 2011 23:14:54 +0100
-Message-Id: <1320790495-29290-3-git-send-email-cosoleto@gmail.com>
-In-Reply-To: <1320790495-29290-1-git-send-email-cosoleto@gmail.com>
-References: <1320790495-29290-1-git-send-email-cosoleto@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:14746 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751422Ab1KIJZH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 9 Nov 2011 04:25:07 -0500
+Date: Wed, 9 Nov 2011 10:24:32 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] libmount: fix trivial typos in debugging output
+Message-ID: <20111109092432.GJ16397@nb.net.home>
+References: <1320829852-31250-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1320829852-31250-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
----
- misc-utils/whereis.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Wed, Nov 09, 2011 at 10:10:52AM +0100, Petr Uzel wrote:
+> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> ---
+>  libmount/src/cache.c          |    2 +-
+>  libmount/src/context.c        |    2 +-
+>  libmount/src/context_mount.c  |    4 ++--
+>  libmount/src/context_umount.c |    2 +-
+>  libmount/src/optstr.c         |    2 +-
+>  libmount/src/tab_update.c     |    2 +-
+>  6 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 9f74963..925cc93 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -268,7 +268,7 @@ static void fillpath(void)
- 		return;
- 	pathcp = xstrdup(path);
- 
--	for (tmp = pathcp; ;tmp = NULL, tok) {
-+	for (tmp = pathcp; ; tmp = NULL) {
- 		tok = strtok_r(tmp, ":", &key);
- 		if (!tok)
- 			break;
+ Applied, thanks.
+
 -- 
-1.7.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
