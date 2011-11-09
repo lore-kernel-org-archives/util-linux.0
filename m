@@ -1,111 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:60785 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752859Ab1KNBsG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:06 -0500
-Message-ID: <4EC07354.8000803@bernhard-voelker.de>
-Date: Mon, 14 Nov 2011 02:48:04 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:56127 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750783Ab1KIP6A (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Nov 2011 10:58:00 -0500
+Received: by wwf22 with SMTP id 22so7982657wwf.1
+        for <util-linux@vger.kernel.org>; Wed, 09 Nov 2011 07:57:58 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 02/15] prlimit: add opt_id array to match short options to
- limit ids
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] fsck.minix: fix zone_map memory allocation failure check
+Date: Wed,  9 Nov 2011 16:57:28 +0100
+Message-Id: <1320854248-14207-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[PATCH 02/15] prlimit: add opt_id array to match short options to limit ids
-
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
 ---
-  sys-utils/prlimit.c |   54 
-++++++++++++++++++++------------------------------
-  1 files changed, 22 insertions(+), 32 deletions(-)
+ disk-utils/fsck.minix.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index fed4f38..525351a 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -482,6 +482,26 @@ int main(int argc, char **argv)
-  		{ "verbose",    no_argument, NULL, VERBOSE_OPTION },
-  		{ NULL, 0, NULL, 0 }
-  	};
-+	
-+	static const size_t opt_id[] = {
-+		['c'] = CORE,
-+		['d'] = DATA,
-+		['e'] = NICE,
-+		['f'] = FSIZE,
-+		['i'] = SIGPENDING,
-+		['l'] = MEMLOCK,
-+		['m'] = RSS,
-+		['n'] = NOFILE,
-+		['q'] = MSGQUEUE,
-+		['r'] = RTPRIO,
-+		['s'] = STACK,
-+		['t'] = CPU,
-+		['u'] = NPROC,
-+		['v'] = AS,
-+		['x'] = LOCKS,
-+		['y'] = RTTIME
-+		/* h = help, o = output columns, p = pid, V = version */
-+	};
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index ccbb7a9..95e3ecf 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -609,7 +609,7 @@ read_tables(void) {
+ 	if (!inode_map)
+ 		die(_("Unable to allocate buffer for inode map"));
+ 	zone_map = malloc(zmaps * MINIX_BLOCK_SIZE);
+-	if (!inode_map)
++	if (!zone_map)
+ 		die(_("Unable to allocate buffer for zone map"));
+ 	inode_buffer = malloc(buffsz);
+ 	if (!inode_buffer)
+-- 
+1.7.3.4
 
-  	setlocale(LC_ALL, "");
-  	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -498,53 +518,23 @@ int main(int argc, char **argv)
-  				 longopts, NULL)) != -1) {
-  		switch(opt) {
-  		case 'c':
--			add_prlim(optarg, &lims[n++], CORE);
--			break;
-  		case 'd':
--			add_prlim(optarg, &lims[n++], DATA);
--			break;
-  		case 'e':
--			add_prlim(optarg, &lims[n++], NICE);
--			break;
-  		case 'f':
--			add_prlim(optarg, &lims[n++], FSIZE);
--			break;
-  		case 'i':
--			add_prlim(optarg, &lims[n++], SIGPENDING);
--			break;
-  		case 'l':
--			add_prlim(optarg, &lims[n++], MEMLOCK);
--			break;
-  		case 'm':
--			add_prlim(optarg, &lims[n++], RSS);
--			break;
-  		case 'n':
--			add_prlim(optarg, &lims[n++], NOFILE);
--			break;
-  		case 'q':
--			add_prlim(optarg, &lims[n++], MSGQUEUE);
--			break;
-  		case 'r':
--			add_prlim(optarg, &lims[n++], RTPRIO);
--			break;
-  		case 's':
--			add_prlim(optarg, &lims[n++], STACK);
--			break;
-  		case 't':
--			add_prlim(optarg, &lims[n++], CPU);
--			break;
-  		case 'u':
--			add_prlim(optarg, &lims[n++], NPROC);
--			break;
-  		case 'v':
--			add_prlim(optarg, &lims[n++], AS);
--			break;
-  		case 'x':
--			add_prlim(optarg, &lims[n++], LOCKS);
--			break;
-  		case 'y':
--			add_prlim(optarg, &lims[n++], RTTIME);
--			break;
-+				add_prlim(optarg, &lims[n++], opt_id[opt]);
-+				break;
-
-  		case 'p':
-  			if (pid) /* we only work one pid at a time */
