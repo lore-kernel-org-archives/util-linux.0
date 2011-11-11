@@ -1,70 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:55724 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755090Ab1KNBs6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:58 -0500
-Message-ID: <4EC07388.6030400@bernhard-voelker.de>
-Date: Mon, 14 Nov 2011 02:48:56 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:64935 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750945Ab1KKKMn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Nov 2011 05:12:43 -0500
+Received: by wwe5 with SMTP id 5so1085409wwe.1
+        for <util-linux@vger.kernel.org>; Fri, 11 Nov 2011 02:12:42 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 15/15] prlimit: fix displaying of modified limits
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 1/5] fdisk: print the welcome message when OSF/1 disklabel is detected
+Date: Fri, 11 Nov 2011 11:12:07 +0100
+Message-Id: <1321006331-7633-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[PATCH 15/15] prlimit: fix displaying of modified limits
-
-When a limit is to be modified and shown, e.g. in
-   $ prlimit -p$$  -n1000 -n
-then the prlimit syscall has overwritten lims[i].rlim with the old value.
-For such cases, copy the new values afterwards again.
-
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
 ---
-  sys-utils/prlimit.c |   14 +++++++++++++-
-  1 files changed, 13 insertions(+), 1 deletions(-)
+ fdisk/fdisk.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index 69440a5..bfe8005 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -333,6 +333,7 @@ static void do_prlimit(struct prlimit lims[], int 
-tt_flags)
-
-  	for (i = 0; i < MAX_RESOURCES; i++) {
-  		struct rlimit *new = NULL;
-+		struct rlimit new_rlim;
-
-  		if (lims[i].modify) {
-  			if (!pid)
-@@ -348,7 +349,9 @@ static void do_prlimit(struct prlimit lims[], int 
-tt_flags)
-  				 lims[i].rlim.rlim_max != RLIM_INFINITY))
-  				errx(EXIT_FAILURE, _("the soft limit cannot exceed the ceiling 
-value"));
-
--			new = &lims[i].rlim;
-+			new_rlim.rlim_cur = lims[i].rlim.rlim_cur;
-+			new_rlim.rlim_max = lims[i].rlim.rlim_max;
-+			new = &new_rlim;
-  		} else if (!(lims[i].show)) {
-  			continue;
-  		}
-@@ -383,6 +386,15 @@ static void do_prlimit(struct prlimit lims[], int 
-tt_flags)
-  						lims[i].desc->name);
-  			}
-  		}
-+		if (lims[i].modify && new) {
-+			/*
-+			 * prlimit has overwritten lims[i].rlim with the old value.
-+			 * In the case we have to display the new value, we have to
-+			 * copy it from new_rlim again.
-+			 */
-+			 lims[i].rlim.rlim_cur = new_rlim.rlim_cur;
-+			 lims[i].rlim.rlim_max = new_rlim.rlim_max;
-+		}			
-  	}
-  }
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 249de71..135d118 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -3079,7 +3079,12 @@ main(int argc, char **argv) {
+ 	gpt_warning(disk_device);
+ 	get_boot(fdisk);
+ 
++	fprintf(stderr, _("Welcome to fdisk (%s).\n\n"
++		"Changes will remain in memory only, until you decide to write them.\n"
++		"Be careful before using the write command.\n"), PACKAGE_STRING);
++
+ 	if (disklabel == OSF_LABEL) {
++		putchar('\n');
+ 		/* OSF label, and no DOS label */
+ 		printf(_("Detected an OSF/1 disklabel on %s, entering "
+ 			 "disklabel mode.\n"),
+@@ -3089,10 +3094,6 @@ main(int argc, char **argv) {
+ 		disklabel = DOS_LABEL;
+ 	}
+ 
+-	fprintf(stderr, _("Welcome to fdisk (%s).\n\n"
+-		"Changes will remain in memory only, until you decide to write them.\n"
+-		"Be careful before using the write command.\n"), PACKAGE_STRING);
+-
+ 	while (1) {
+ 		putchar('\n');
+ 		c = tolower(read_char(_("Command (m for help): ")));
+-- 
+1.7.3.4
 
