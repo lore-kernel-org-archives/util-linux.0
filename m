@@ -1,39 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:63175 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932411Ab1KHWP2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Nov 2011 17:15:28 -0500
-Received: by mail-bw0-f46.google.com with SMTP id 11so873205bke.19
-        for <util-linux@vger.kernel.org>; Tue, 08 Nov 2011 14:15:27 -0800 (PST)
-From: Francesco Cosoleto <cosoleto@gmail.com>
+Received: from moutng.kundenserver.de ([212.227.17.9]:64371 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755061Ab1KNBsq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:46 -0500
+Message-ID: <4EC0737D.3090404@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:48:45 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH] whereis: silence comparison between signed/unsigned warning
-Date: Tue,  8 Nov 2011 23:14:55 +0100
-Message-Id: <1320790495-29290-4-git-send-email-cosoleto@gmail.com>
-In-Reply-To: <1320790495-29290-1-git-send-email-cosoleto@gmail.com>
-References: <1320790495-29290-1-git-send-email-cosoleto@gmail.com>
+Subject: [PATCH 12/15] prlimit: add note to man page that setting limits without
+ --pid is pointless.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+[PATCH 12/15] prlimit: add note to man page that setting limits without 
+--pid is pointless.
+
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
 ---
- misc-utils/whereis.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+  sys-utils/prlimit.1 |    3 +++
+  1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 03ea95e..d776b32 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -241,7 +241,7 @@ findin(char *dir, char *cp)
- 
- static int inpath(const char *str)
- {
--	int i;
-+	size_t i;
- 
- 	for (i = 0; i < ARRAY_SIZE(bindirs) - 1 ; i++)
- 		if (!strcmp(bindirs[i], str))
--- 
-1.7.3.4
-
+diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
+index cc40ac4..fa45aca 100644
+--- a/sys-utils/prlimit.1
++++ b/sys-utils/prlimit.1
+@@ -33,6 +33,9 @@ OPTIONS section.
+  .SH GENERAL OPTIONS
+  .IP "\fB\-p, \-\-pid\fP"
+  Specify the process id, if none is given, it will use the running process.
++Please note that changing limits without specifying a PID is pointless,
++because then it will change the limit of the prlimit process which will
++shortly exit afterwards.
+  .IP "\fB\-o, \-\-output \fIlist\fP"
+  Define the output columns to use. If no output arrangement is 
+specified, then a default set is used.
+  Use \fB\-\-help\fP to  get list of all supported columns.
