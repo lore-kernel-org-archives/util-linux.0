@@ -1,94 +1,144 @@
-Return-Path: vapier@gentoo.org
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: flock in 2.20.1 can no longer lock the file it will execute
-Date: Wed, 16 Nov 2011 10:25:46 -0500
-Cc: util-linux@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
-        Petr Uzel <petr.uzel@suse.cz>
-References: <201111140123.39789.vapier@gentoo.org> <20111116131321.GN7916@nb.net.home>
-In-Reply-To: <20111116131321.GN7916@nb.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from moutng.kundenserver.de ([212.227.17.9]:65201 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755059Ab1KNBsn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:43 -0500
+Message-ID: <4EC07379.8090102@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:48:41 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3538490.9dlZimUAUM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201111161025.47605.vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 11/15] prlimit: avoid segfault due to array-out-of-bounds
+ error
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart3538490.9dlZimUAUM
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+[PATCH 11/15] prlimit: avoid segfault due to array-out-of-bounds error
 
-On Wednesday 16 November 2011 08:13:21 Karel Zak wrote:
-> On Mon, Nov 14, 2011 at 01:23:38AM -0500, Mike Frysinger wrote:
-> > i've been using a trick with flock to add locking to all of my shell
-> > scripts.
-> >=20
-> > basically, i take a lock on the shell script itself:
-> > 	flock -eon ./test.sh ./test.sh
-> >=20
-> > with <=3Dutil-linux-2.20, this has worked fine.  but starting with 2.20=
-=2E1,
-> > i now
-> >=20
-> > get -ETXTBSY (on ext4, but i doubt that matters):
-> > 	$ echo '#!/bin/sh' > test.sh
-> > 	$ chmod a+rx test.sh
-> > 	$ ./flock -eon ./test.sh ./test.sh
-> > 	./flock: ./test.sh: Text file busy
-> >=20
-> > the only commit made to flock.c between 2.20 and 2.20.1 is this:
-> > 	commit 75aaee08f06b92d119ed827c53d1af5474eb16ff
-> > 	flock: make flock(1) work on NFSv4
-> >=20
-> > and indeed, reverting that made my life happy again.  reading the small
-> > patch shows the obvious flaw: you can't open a file for O_RDWR and
-> > attempt to execute it at the same time.
->=20
->  Hmm... maybe we can add a new --read-write command line option for
->  NFS guys rather than be smart with access(). The regression is
->  unacceptable.
+prlimit used 1 element of the lims array per limit given on the command
+line argument, not being aware that a user would pass the value of the
+soft and the hard limit in different options - leading to a segfault
+when the user passes more than MAX_RESOURCES limit options.
+As a side effect, a limit was retrieved and printed several times if
+the corresponding option appeared multiple times.
 
-i wonder what happens if you attempt to take a read-only lock on nfs.  do y=
-ou=20
-get back an error ?  or does it fail silently at runtime in the nfs layers ?
+Example:
+$ prlimit -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l
+RESOURCE DESCRIPTION                         SOFT   HARD UNITS
+MEMLOCK  max locked-in-memory address space 65536 262144 bytes
+MEMLOCK  max locked-in-memory address space 65536 262144 bytes
+...
+Segmentation fault
 
-if the former, one solution might be to open the file, attempt to grab the=
-=20
-lock, and if the flock() fails, retry the whole thing but with O_RDWR inste=
-ad.
+Use the lims array in a more direct way, i.e. the index is limit id.
+Initialize lims array and adapt option parsing in main() accordingly.
+do_prlimits() and show_limits(): loop over all MAX_RESOURCES in the
+lims array.
+Fix limit parsing in parse_prlim() and add_prlim() to be aware of
+soft and hard limits in separate program arguments.
 
-int rw_flags =3D O_RDONLY;
-=2E..
-retry:
-	... current open logic which uses new rw_flags var ...
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  sys-utils/prlimit.c |   32 ++++++++++++++++++++++----------
+  1 files changed, 22 insertions(+), 10 deletions(-)
 
-	... if flock fails, and rw_flags =3D=3D O_RDONLY, then set rw_flags to O_R=
-DWR=20
-and jump back to retry ...
-=2Dmike
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index fc11a94..1d6dd92 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -265,7 +265,7 @@ static int column_name_to_id(const char *name, 
+size_t namesz)
+  	return -1;
+  }
 
---nextPart3538490.9dlZimUAUM
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+-static int show_limits(struct prlimit lims[], size_t n, int tt_flags)
++static int show_limits(struct prlimit lims[], int tt_flags)
+  {
+  	int i;
+  	struct tt *tt;
+@@ -285,7 +285,7 @@ static int show_limits(struct prlimit lims[], size_t 
+n, int tt_flags)
+  		}
+  	}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+-	for (i = 0; (size_t) i < n; i++)
++	for (i = 0; (size_t) i < MAX_RESOURCES; i++)
+  		if (lims[i].show)
+  			add_tt_line(tt, &lims[i]);
 
-iQIcBAABAgAGBQJOw9X7AAoJEEFjO5/oN/WBXGcQAJVnz0/B31J+GdqBhxfPYA5x
-4FdHs45IhYMywTptU+oMpUGk1c1otRIBoakWOu/Cr52LwOaZNhyASUd2SJP+WbHY
-K6Rlfkgy6cIJ7mZYkGFEHRoixYTaWdo7uJltvUMyrpHJDs8oxNEq8bpGLhSTzM7F
-QuI5FUsEsVHKwChPwZnLjt5KY+ejc5NwWlfV4DSoXHzgATp5s6lWkz0UO8TIhuHJ
-2daPHyFdmMz/TWKyv4LjUFVTKXTd88nkR0yoETir51LcZAhVboxj057T8t0puipk
-utcoQ41m1F+Td2qVvyenUDtWj5+E/+8UcRjVdVVlG4P7B495TUsBe6NyqX8qN0D0
-M4N8u0dSlrr9rgoniYXeIsu0AgVnDClMynw0d+fY/2ZYz1xNjp36kN7c5wZQ+Mo6
-v6RBn72joQ2Zqb7hMorraymOD/OXqvIRnYWzQi4P7z6S9EHHNMe2dSL9bKEe2Kle
-5oPks/TWoO1CA8kVQAS/vuQGNd75q05M+TEfsPDkdqSrIA3q/KwVmGJNVEMg5ghZ
-pJVvUgTQgfroY59c4AghIHJSxxV2w1ZCwvpgOsZrddJU58YrxanAanxQ2A7L+Oka
-8ZALW8vCCa7gA0XthHI08u01nexhw/aToyhamYoXFjE71gF0pkgfjjsHCoQ6S1hD
-ySWhEaDlHtoMZzXJUvtv
-=NYDf
------END PGP SIGNATURE-----
+@@ -327,11 +327,11 @@ static void get_unknown_hardsoft(struct prlimit *lim)
+  	}
+  }
 
---nextPart3538490.9dlZimUAUM--
+-static void do_prlimit(struct prlimit lims[], size_t n, int tt_flags)
++static void do_prlimit(struct prlimit lims[], int tt_flags)
+  {
+  	size_t i;
+
+-	for (i = 0; i < n; i++) {
++	for (i = 0; i < MAX_RESOURCES; i++) {
+  		struct rlimit *new = NULL;
+
+  		if (lims[i].modify) {
+@@ -458,8 +458,10 @@ static int parse_prlim(struct rlimit *lim, char 
+*ops, size_t id)
+  		errx(EXIT_FAILURE, _("failed to parse %s limit"),
+  		     prlimit_desc[id].name);
+
+-	lim->rlim_cur = soft;
+-	lim->rlim_max = hard;
++	if (modify & PRLIMIT_SOFT)
++		lim->rlim_cur = soft;
++	if (modify & PRLIMIT_HARD)
++		lim->rlim_max = hard;
+
+  	return modify;
+  }
+@@ -474,7 +476,7 @@ static int add_prlim(char *ops, struct prlimit *lim, 
+size_t id)
+  	if (ops) { /* planning on modifying a limit? */
+  		int modify = parse_prlim(&lim->rlim, ops, id);
+  		if (modify)
+-			lim->modify = 1;
++			lim->modify |= modify;
+  		else
+  			lim->show = 1;
+  	} else {
+@@ -553,6 +555,15 @@ int main(int argc, char **argv)
+  	 */
+  	assert(MAX_RESOURCES == STACK + 1);
+
++	/*
++	 * initialize limits array */
++	for (n = 0; n < MAX_RESOURCES; n++) {
++		lims[n].desc = &prlimit_desc[n];
++		lims[n].rlim.rlim_cur = lims[n].rlim.rlim_max = 0;
++		lims[n].modify = lims[n].show = 0;
++	}
++	n = 0;
++
+  	while((opt = getopt_long(argc, argv,
+  				 "c::d::e::f::i::l::m::n::q::r::s::t::u::v::x::y::p:o:vVh",
+  				 longopts, NULL)) != -1) {
+@@ -573,7 +584,8 @@ int main(int argc, char **argv)
+  		case 'v':
+  		case 'x':
+  		case 'y':
+-				add_prlim(optarg, &lims[n++], opt_id[opt]);
++				add_prlim(optarg, &lims[opt_id[opt]], opt_id[opt]);
++				n++;
+  				break;
+
+  		case 'p':
+@@ -629,8 +641,8 @@ int main(int argc, char **argv)
+  			add_prlim(NULL, &lims[n], n);
+  	}
+
+-	do_prlimit(lims, n, tt_flags);
+-	show_limits(lims, n, tt_flags);
++	do_prlimit(lims, tt_flags);
++	show_limits(lims, tt_flags);
+
+  	return EXIT_SUCCESS;
+  }
