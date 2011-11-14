@@ -1,40 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:64951 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932165Ab1KIMd7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Nov 2011 07:33:59 -0500
-Message-ID: <4EBA7332.9060108@bernhard-voelker.de>
-Date: Wed, 09 Nov 2011 13:33:54 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:1533 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751846Ab1KNOIE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 09:08:04 -0500
+Date: Mon, 14 Nov 2011 15:08:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/3] fdisk: use ngettext() in str_units() for plural
+	forms
+Message-ID: <20111114140800.GB23020@nb.net.home>
+References: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] prlimit: fix noheadings option in man page
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
- From caf9bac1607faa0fc3d7fbb47e9b63652c98fa4f Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Wed, 9 Nov 2011 12:08:52 +0100
-Subject: [PATCH] prlimit: fix noheadings option in man page
+On Mon, Nov 14, 2011 at 02:47:17PM +0100, Francesco Cosoleto wrote:
+>  fdisk/fdisk.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
-  sys-utils/prlimit.1 |    2 +-
-  1 files changed, 1 insertions(+), 1 deletions(-)
+ Applied, thanks.
 
-diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
-index da50987..a42efd9 100644
---- a/sys-utils/prlimit.1
-+++ b/sys-utils/prlimit.1
-@@ -42,7 +42,7 @@ Output version information and exit.
-  Vebose mode.
-  .IP "\fB\-\-raw\fP"
-  Use the raw output format.
--.IP "\fB\-\-nohindings\fP"
-+.IP "\fB\-\-noheadings\fP"
-  Do not print a header line.
-  .IP "\fB\-h, \-\-help\fP"
-  Print a help text and exit.
 -- 
-1.7.3.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
