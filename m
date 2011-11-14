@@ -1,55 +1,46 @@
-Return-Path: kukuk@suse.de
-Date: Thu, 17 Nov 2011 11:31:47 +0100
-From: Thorsten Kukuk <kukuk@suse.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Ludwig Nussel <ludwig.nussel@suse.de>
-Subject: Re: login: PAM-only, login.defs, -H
-Message-ID: <20111117103147.GA6195@suse.de>
-References: <20111017110210.GA22648@nb.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:6883 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752863Ab1KNMpb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 07:45:31 -0500
+Date: Mon, 14 Nov 2011 13:45:28 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>, Harald Hoyer <harald@redhat.com>
+Subject: Re: [pull] third sys-utils patch set
+Message-ID: <20111114124528.GA20881@nb.net.home>
+References: <CAG27Bk1acCRkXM=6wf5BRZ_Q6niOheappANqBKHiObZv86GL2g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20111017110210.GA22648@nb.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk1acCRkXM=6wf5BRZ_Q6niOheappANqBKHiObZv86GL2g@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 17, Karel Zak wrote:
+On Wed, Nov 02, 2011 at 08:28:43PM +0100, Sami Kerola wrote:
+> The switch_root did not use translations. I wonder was that
+> intentional, and it should not have them? If so the patch has to be
+> knocked out.
 
->  Git tree: https://karelzak@github.com/karelzak/util-linux.git branch 'login'.
->  URL: https://github.com/karelzak/util-linux/tree/login
+ It was probably intentional (I don't remember:-) to ignore NLS in
+ switch_root(8), but I think that all utils should be able follow
+ locales setting if you ask for --help or --version. I don't see a
+ technical reason to disable NLS in switch_root(8).
 
-Ok, I found one bug: pam_setcred() is only called after pam_open_session(),
-but has to be called before:
+> The ldattach usage output 'Known ... names' output tables are now
+> wider and shorter. IMHO that is better, since the usage is a lot
+> longer than it used to be. My only question is that should the output
+> tables be more smart,  and use tt_print_table() combined with terminal
+> width detection to make table as wide as possible?
 
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -868,15 +868,15 @@ static void loginpam_session(struct login_context *cxt)
-        int rc;
-        pam_handle_t *pamh = cxt->pamh;
- 
--       rc = pam_open_session(pamh, 0);
--       if (is_pam_failure(rc))
--               loginpam_err(pamh, rc);
--
-        rc = pam_setcred(pamh, PAM_ESTABLISH_CRED);
-        if (is_pam_failure(rc)) {
-                pam_close_session(pamh, 0);
-                loginpam_err(pamh, rc);
-        }
-+
-+       rc = pam_open_session(pamh, 0);
-+       if (is_pam_failure(rc))
-+               loginpam_err(pamh, rc);
- }
- 
+ No, please, don't use tt in usage(), it's horrible overkill.
 
+> are available in the git repository at:
+>   https://github.com/kerolasa/lelux-utiliteetit sys-utils-3rd
 
-Another problem with current git is:
-prlimit.c: In function ‘prlimit’:
-prlimit.c:142:17: error: ‘SYS_prlimit64’ undeclared (first use in this function)
-prlimit.c:142:17: note: each undeclared identifier is reported only once for each function it appears in
+ Merged. Thanks.
 
-  Thorsten
+    Karel
 
 -- 
-Thorsten Kukuk, Project Manager/Release Manager SLES
-SUSE LINUX Products GmbH, Maxfeldstr. 5, D-90409 Nuernberg
-GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg)
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
