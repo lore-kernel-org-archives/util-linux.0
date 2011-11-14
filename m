@@ -1,28 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51637 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751434Ab1K1Jfw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Nov 2011 04:35:52 -0500
-Date: Mon, 28 Nov 2011 10:35:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dennis Jensen <dennis.h.jensen@siemens.com>
-Cc: Werner Fink <werner@suse.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: map NL to CR-NL on output in initial
-	termiossettings
-Message-ID: <20111128093546.GD29168@nb.net.home>
-References: <1321437290.29540.75.camel@djensen-laptop> <20111123110851.GA516@nb.net.home> <1322157357.6169.541.camel@djensen-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1322157357.6169.541.camel@djensen-laptop>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:39779 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751065Ab1KNNsF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Nov 2011 08:48:05 -0500
+Received: by eye27 with SMTP id 27so5003936eye.19
+        for <util-linux@vger.kernel.org>; Mon, 14 Nov 2011 05:48:03 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 3/3] fdisk: split delete_partition() off from dos_delete_partition()
+Date: Mon, 14 Nov 2011 14:47:19 +0100
+Message-Id: <1321278439-9392-3-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
+References: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 24, 2011 at 06:55:57PM +0100, Dennis Jensen wrote:
->  term-utils/agetty.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
+This accidentally fixes a mistake printing the "Partition n is deleted"
+message as the 'i' variable get decremented or incremented in case of
+logical partitions.
 
- Applied, thanks.
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/fdisk.c |   36 ++++++++++++++++++++++--------------
+ 1 files changed, 22 insertions(+), 14 deletions(-)
 
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 5b8e24a..d299c4c 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -1584,25 +1584,16 @@ toggle_dos_compatibility_flag(void) {
+ 	update_sector_offset();
+ }
+ 
+-static void
+-delete_partition(int i) {
++static void dos_delete_partition(int i)
++{
+ 	struct pte *pe = &ptes[i];
+ 	struct partition *p = pe->part_table;
+ 	struct partition *q = pe->ext_pointer;
+ 
+-/* Note that for the fifth partition (i == 4) we don't actually
+- * decrement partitions.
+- */
+-
+-	if (warn_geometry())
+-		return;		/* C/H/S not set */
+-	pe->changed = 1;
++	/* Note that for the fifth partition (i == 4) we don't actually
++	   decrement partitions. */
+ 
+-	if (disklabel == SUN_LABEL)
+-		sun_delete_partition(i);
+-	else if (disklabel == SGI_LABEL)
+-		sgi_delete_partition(i);
+-	else if (i < 4) {
++	if (i < 4) {
+ 		if (IS_EXTENDED (p->sys_ind) && i == ext_index) {
+ 			partitions = 4;
+ 			ptes[ext_index].ext_pointer = NULL;
+@@ -1646,6 +1637,23 @@ delete_partition(int i) {
+ 			/* the only logical: clear only */
+ 			clear_partition(ptes[i].part_table);
+ 	}
++}
++
++static void
++delete_partition(int i)
++{
++	if (warn_geometry())
++		return;		/* C/H/S not set */
++
++	ptes[i].changed = 1;
++
++	if (disklabel == DOS_LABEL)
++		dos_delete_partition(i);
++	else if (disklabel == SUN_LABEL)
++		sun_delete_partition(i);
++	else if (disklabel == SGI_LABEL)
++		sgi_delete_partition(i);
++
+ 	printf(_("Partition %d is deleted\n"), i + 1);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
