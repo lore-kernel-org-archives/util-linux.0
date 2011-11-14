@@ -1,44 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59181 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751647Ab1K1JCG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Nov 2011 04:02:06 -0500
-Date: Mon, 28 Nov 2011 10:01:57 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: Paul Stone <Paul@stone.org>, util-linux@vger.kernel.org
-Subject: Re: how can I compile mount and umount as shared object files?
-Message-ID: <20111128090157.GA29168@nb.net.home>
-References: <CA+zVqtWW+CknuW7NKyd2AZVsrDwj=J7gg+U2UYEBgbp++vaZgA@mail.gmail.com> <201111231358.16493.vapier@gentoo.org> <CA+zVqtWCj=zRaOeesLfaOABHiuBcQMqTZRfJwE84s_G=Z8qAAA@mail.gmail.com> <201111262010.03052.vapier@gentoo.org>
+Received: from moutng.kundenserver.de ([212.227.17.8]:62441 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755077Ab1KNBsv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:51 -0500
+Message-ID: <4EC07381.6050608@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:48:49 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201111262010.03052.vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 13/15] prlimit: enhance examples section of the man page
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Nov 26, 2011 at 08:10:02PM -0500, Mike Frysinger wrote:
-> On Saturday 26 November 2011 19:34:38 Paul Stone wrote:
-> > Thanks Mike,
-> 
-> please don't top post
-> 
-> > Any idea why they are compiled as PIEs for CentOS (and presumably Red Hat)?
-> 
-> i vaguely recall that RedHat's policy is to build all set*id and network 
-> daemons as PIEs as security precautions.  Karel would probably know more.
+[PATCH 13/15] prlimit: enhance examples section of the man page
 
- Yes, copy & past from util-linux.spec:
+Add various examples to the man page, e.g. demonstrating setting
+limits using short options, showing that the --pid option can be
+used in random positions, how to use the "-1" notation for the
+"unlimited" value, and that prlimit takes the values from the arguments
+last set.
 
-    export SUID_CFLAGS="-fpie"
-    export SUID_LDFLAGS="-pie"
-    %configure \
-      ....
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  sys-utils/prlimit.1 |   13 ++++++++++---
+  1 files changed, 10 insertions(+), 3 deletions(-)
 
- the SUID_* variable are supported by upstream, see
- Documentation/howto-compilation.txt
+diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
+index fa45aca..ece6c05 100644
+--- a/sys-utils/prlimit.1
++++ b/sys-utils/prlimit.1
+@@ -88,13 +88,20 @@ Timeout for real-time tasks.
+  .SH EXAMPLES
+  .IP "\fBprlimit \-\-pid 13134\fP"
+  Display limit values for all current resources.
+-.IP "\fBprlimit \-\-pid 13134 \--rss --nofile=1024:4095\fP"
++.IP "\fBprlimit \--rss \-\-pid 13134 --nofile=1024:4095\fP"
+  Display the limits of the RSS and set the soft and hard limits for the 
+amount
+  of open files to 1024 and 4095, respectively.
+-.IP "\fBprlimit \-\-pid 13134 --nproc=512:\fP"
++.IP "\fBprlimit \-\-pid 13134 -n512:\fP"
+  Modify only the soft limit for the amount of processes.
+-.IP "\fBprlimit \-\-pid $$ --nproc=unlimited\fP"
++.IP "\fBprlimit \-\-pid=$$ --nproc=unlimited\fP"
+  Set the amount of processes for both soft and ceiling values to unlimited.
++.IP "\fBprlimit \-p$$ -n-1:\fP"
++Likewise, but only for the soft limit and using the "-1" notation.
++.IP "\fBprlimit \-p$$ -n:1000 -n\fP"
++Set the hard NPROC limit to 1000 and display its value.
++.IP "\fBprlimit \-p$$ -n100:200 -n300 -n400: -n:500\fP"
++Example to demonstrate that prlimit uses the values of the options last 
+set.
++Here it will set the soft NPROC limit to 400 and the hard limit to 500.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  .SH "SEE ALSO"
+  .BR prlimit (2),
