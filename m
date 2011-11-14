@@ -1,31 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4428 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754326Ab1KKLkZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Nov 2011 06:40:25 -0500
-Date: Fri, 11 Nov 2011 12:40:22 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Francesco Cosoleto <cosoleto@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/5] fdisk: rewrite print menu system
-Message-ID: <20111111114022.GQ16397@nb.net.home>
-References: <1321006331-7633-1-git-send-email-cosoleto@gmail.com> <1321006331-7633-4-git-send-email-cosoleto@gmail.com>
+Received: from moutng.kundenserver.de ([212.227.126.186]:53820 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752859Ab1KNBsR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:17 -0500
+Message-ID: <4EC0735F.1000602@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:48:15 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1321006331-7633-4-git-send-email-cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 05/15] prlimit: fix diagnostic when setting a limit fails
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 11, 2011 at 11:12:10AM +0100, Francesco Cosoleto wrote:
-> +	for (i = 0; i < ARRAY_SIZE(menulist); i++)
-> +		if ((menu != BSD_MENU && menulist[i].label[menu] & disklabel)
-> +		    || (menu == BSD_MENU && menulist[i].label[MAIN_MENU] & OSF_LABEL))
+[PATCH 05/15] prlimit: fix diagnostic when setting a limit fails
 
- Why we need BSD_MENU and this if()? Why we cannot use
- print_menu(MAIN_MENU) in BSD code?
+As the prlimit() combines setting and getting the limit of a process,
+prlimit must care about issueing the correct error message. This
+fixes this wrong diagnostic:
+$./prlimit --nofile=10000000
+prlimit: failed to get resource limits of the current process: Operation 
+not permitted
 
-    Karel
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  sys-utils/prlimit.c |   15 +++++++++++----
+  1 files changed, 11 insertions(+), 4 deletions(-)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index 9a52b81..d668fba 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -324,10 +324,17 @@ static void do_prlimit(struct prlimit lims[], 
+size_t n, int tt_flags)
+  		}
+
+  		if (prlimit(pid, lims[i].desc->resource, new, &lims[i].rlim) == -1) {
+-			if (pid)
+-				err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
+-			else
+-				err(EXIT_FAILURE, _("failed to get resource limits of the current 
+process"));
++			if (pid) {
++				if (lims[i].modify)
++					err(EXIT_FAILURE, _("failed to set resource limits for PID %d"), pid);
++				else
++					err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
++			} else {
++				if (lims[i].modify)
++					err(EXIT_FAILURE, _("failed to set resource limits of the current 
+process"));
++				else
++					err(EXIT_FAILURE, _("failed to get resource limits of the current 
+process"));
++			}
+  		}
+  	}
+
