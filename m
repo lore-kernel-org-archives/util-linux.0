@@ -1,36 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2231 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756550Ab1KPMvv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Nov 2011 07:51:51 -0500
-Date: Wed, 16 Nov 2011 13:51:47 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 10/15] prlimit: refactor code: separate modify and show
-	clearly
-Message-ID: <20111116125147.GH7916@nb.net.home>
-References: <4EC07375.20005@bernhard-voelker.de>
+Received: from moutng.kundenserver.de ([212.227.126.187]:51341 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752859Ab1KNBsN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:13 -0500
+Message-ID: <4EC0735B.2010504@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:48:11 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4EC07375.20005@bernhard-voelker.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 04/15] prlimit: add warning diagnostic when attempting to
+ change prlimit's limits
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 02:48:37AM +0100, Bernhard Voelker wrote:
->  struct prlimit {
->  	struct rlimit rlim;
-> -	int found;
->  	struct prlimit_desc *desc;
->  	int modify;
-> +	int show;
->  };
+[PATCH 04/15] prlimit: add warning diagnostic when attempting to change 
+prlimit's limits
 
- I think that 'modify == 0' means 'show'. It's strange to add two
- variables to differentiate between two states.
+Setting the limits of the prlimit process is useless because it will
+exit shortly anyway. To help the user not to fall into this trap,
+prlimit now displays a warning.
 
-    Karel
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  sys-utils/prlimit.c |    7 +++++--
+  1 files changed, 5 insertions(+), 2 deletions(-)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index 6943d11..9a52b81 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -302,10 +302,13 @@ static void do_prlimit(struct prlimit lims[], 
+size_t n, int tt_flags)
+  	for (i = 0; i < n; i++) {
+  		struct rlimit *new = NULL;
+
+-		if (lims[i].modify)
++		if (lims[i].modify) {
++			if (!pid)
++				warnx(_("setting limits of the prlimit process is pointless"));
+  			new = &lims[i].rlim;
+-		else
++		} else {
+  			nshows++;
++		}
+
+  		if (verbose && new) {
+  			printf(_("New %s limit: "), lims[i].desc->name);
