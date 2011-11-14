@@ -1,46 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28617 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752145Ab1KCKlQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 Nov 2011 06:41:16 -0400
-Date: Thu, 3 Nov 2011 11:41:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: swapon feature additions
-Message-ID: <20111103104113.GA10539@nb.net.home>
-References: <20111027194056.GN691@rampage>
+Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:60523 "EHLO
+	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752723Ab1KNJIU convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 04:08:20 -0500
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Davidlohr Bueso <dave@gnu.org>,
+        Bernhard Voelker <mail@bernhard-voelker.de>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Mon, 14 Nov 2011 10:08:17 +0100
+Subject: RE: [PATCH 10/15] prlimit: refactor code: separate modify and
+	showclearly
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0D86D86A9B@MCHP058A.global-ad.net>
+References: <4EC07375.20005@bernhard-voelker.de>
+ <1321268061.8015.3.camel@offworld>
+In-Reply-To: <1321268061.8015.3.camel@offworld>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111027194056.GN691@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 27, 2011 at 03:40:56PM -0400, Dave Reisner wrote:
-> 1) Introduce optional libmount support. This involves first refactoring
-> reading of /etc/fstab to remove the duplicated code and use callbacks
-> instead. Breaking out the functionality into libmount-powered and
-> non-libmount-powered code is then much cleaner.
+Davidlohr Bueso wrote:
 
- I'd like to move all swapon(8) functionality to libmount and replace
- the whole swapon(8) by a small libmount based util. Unfortunately,
- swapon/swapoff support in libmount is not implemented yet.
+> On Mon, 2011-11-14 at 02:48 +0100, Bernhard Voelker wrote:
+> > [PATCH 10/15] prlimit: refactor code: separate modify and show clearly
+> > 
+> > Struct prlimit now has a flag whether a limit has to be modified,
+> > and a flag whether the limit has to be shown; names "modify" and
+> > "show". Furthermore, move show_limits() to main().
+> > 
+> > Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+> > ---
+> >   sys-utils/prlimit.c |   37 +++++++++++++++++++------------------
+> >   1 files changed, 19 insertions(+), 18 deletions(-)
+> > 
+> > diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+> > index 4124faa..fc11a94 100644
+> > --- a/sys-utils/prlimit.c
+> > +++ b/sys-utils/prlimit.c
+> > @@ -85,12 +85,12 @@ static struct prlimit_desc prlimit_desc[] =
+> > 
+> >   struct prlimit {
+> >   	struct rlimit rlim;
+> > -	int found;
+> 
+> Wait, doesn't patch 07 add this variable?
 
-> 2) Teach swapon/swapoff to only look at files or partitions. The use
-> case in mind is specifically for unswapping only files at shutdown, as
-> partitions can remain mounted without harm.
+well, actually yes ... but effectively (to not break the order
+in PRLIMIT_EMPTY_LIMIT), I decided to rename-and-move that
+variable:
 
- This is probably more important, it would be nice to have 
- 
-    swapoff --all --files-only
+> >   	struct prlimit_desc *desc;
+> >   	int modify;
+> > +	int show;
+> >   };
+> > 
+> > -#define PRLIMIT_EMPTY_LIMIT	{{ 0, 0, }, NULL, 0 }
+> > +#define PRLIMIT_EMPTY_LIMIT	{{ 0, 0, }, NULL, 0, 0 }
 
-> Does this seem reasonable? Is this functionality wanted? Anything else I
-> should be aware of?
-
- Yes, my suggestion is to start with 2) :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Bye,
+Berny
