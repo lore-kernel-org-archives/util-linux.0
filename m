@@ -1,49 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:38932 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:58111 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754045Ab1KXJ3O (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 Nov 2011 04:29:14 -0500
-Message-ID: <4ECE0E68.4000104@suse.de>
-Date: Thu, 24 Nov 2011 10:29:12 +0100
-From: Ludwig Nussel <ludwig.nussel@suse.de>
+	id S1750836Ab1KNNnC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 08:43:02 -0500
+Date: Mon, 14 Nov 2011 14:42:59 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/5] fdisk: print the welcome message when OSF/1
+	disklabel is detected
+Message-ID: <20111114134259.GB20881@nb.net.home>
+References: <1321006331-7633-1-git-send-email-cosoleto@gmail.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-Cc: Thorsten Kukuk <kukuk@suse.de>, util-linux@vger.kernel.org
-Subject: Re: login: PAM-only, login.defs, -H
-References: <20111017110210.GA22648@nb.net.home> <20111117103147.GA6195@suse.de> <20111118121420.GQ7916@nb.net.home>
-In-Reply-To: <20111118121420.GQ7916@nb.net.home>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1321006331-7633-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Thu, Nov 17, 2011 at 11:31:47AM +0100, Thorsten Kukuk wrote:
->> On Mon, Oct 17, Karel Zak wrote:
->>
->>>  Git tree: https://karelzak@github.com/karelzak/util-linux.git branch 'login'.
->>>  URL: https://github.com/karelzak/util-linux/tree/login
->>
->> Ok, I found one bug: pam_setcred() is only called after pam_open_session(),
->> but has to be called before:
-> 
->  Well, this is discussable... login(1) for years called pam_setcred()
->  after pam_open_session(), but I agree it's not optional.
+On Fri, Nov 11, 2011 at 11:12:07AM +0100, Francesco Cosoleto wrote:
+>  fdisk/fdisk.c |    9 +++++----
+>  1 files changed, 5 insertions(+), 4 deletions(-)
+
+Applied (all patches), thanks.
+
+>  	gpt_warning(disk_device);
+>  	get_boot(fdisk);
 >  
->  After discussion with our PAM maintainer we decided that the best is
->  probably to use PAM_ESTABLISH_CRED before and PAM_REINITIALIZE_CRED
->  after pam_open_session(). This solution should be probably the most
->  robust (it's probably used by openssh). 
+> +	fprintf(stderr, _("Welcome to fdisk (%s).\n\n"
+> +		"Changes will remain in memory only, until you decide to write them.\n"
+> +		"Be careful before using the write command.\n"), PACKAGE_STRING);
+> +
 
-Modules must work with one call before pam_open_session() as that's the
-only documented and correct way. So that's what other applications such
-as login managers, su etc do. IOW a module that would break due to login
-using pam calls in the correct order is quite unlikely to exist at all.
+ I have moved this message before gpt_warning() and get_boot(). The
+ get_boot() produces very often warnings (for example on disk with no
+ PT) and I think that the welcome message should be printed as very
+ first message in the interactive mode.
 
-cu
-Ludwig
+    Karel
 
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
