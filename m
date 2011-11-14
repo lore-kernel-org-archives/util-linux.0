@@ -1,145 +1,43 @@
-Return-Path: dave@gnu.org
-Date: Wed, 02 Nov 2011 18:40:19 +0100
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH] prlimit: add a units column
-In-reply-to: <20111026212538.GA24870@nb.redhat.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1320255619.29506.1.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
-References: <1319452258.2170.7.camel@offworld>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55076 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754565Ab1KNNLH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 08:11:07 -0500
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pAEDB7v6007192
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Mon, 14 Nov 2011 08:11:07 -0500
+From: harald@redhat.com
+To: util-linux@vger.kernel.org
+Cc: Harald Hoyer <harald@redhat.com>
+Subject: [PATCH] switch_root.c: umount mount points we cannot move with MNT_DETACH
+Date: Mon, 14 Nov 2011 14:11:01 +0100
+Message-Id: <1321276261-9165-1-git-send-email-harald@redhat.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2011-10-26 at 23:25 +0200, Karel Zak wrote:
-> On Mon, Oct 24, 2011 at 12:30:58PM +0200, Davidlohr Bueso wrote:
-> > +	[AS]         = { "AS",         N_("address space limit"),                "bytes",     RLIMIT_AS },
-> > +	[CORE]       = { "CORE",       N_("max core file size"),                 "blocks",    RLIMIT_CORE },
-> > +	[CPU]        = { "CPU",        N_("CPU time"),                           "seconds",   RLIMIT_CPU },
-> > +	[DATA]       = { "DATA",       N_("max data size"),                      "bytes",     RLIMIT_DATA },
-> > +	[FSIZE]      = { "FSIZE",      N_("max file size"),                      "blocks",    RLIMIT_FSIZE },
-> > +	[LOCKS]      = { "LOCKS",      N_("max amount of file locks held"),      NULL,        RLIMIT_LOCKS },
-> > +	[MEMLOCK]    = { "MEMLOCK",    N_("max locked-in-memory address space"), "kbytes",    RLIMIT_MEMLOCK },
-> > +	[MSGQUEUE]   = { "MSGQUEUE",   N_("max bytes in POSIX mqueues"),         "bytes",     RLIMIT_MSGQUEUE },
-> > +	[NICE]       = { "NICE",       N_("max nice prio allowed to raise"),     NULL,        RLIMIT_NICE },
-> > +	[NOFILE]     = { "NOFILE",     N_("max amount of open files"),           NULL,        RLIMIT_NOFILE },
-> > +	[NPROC]      = { "NPROC",      N_("max number of processes"),            NULL,        RLIMIT_NPROC },
-> > +	[RSS]        = { "RSS",        N_("max resident set size"),              "pages",     RLIMIT_RSS },
-> > +	[RTPRIO]     = { "RTPRIO",     N_("max real-time priority"),             NULL,        RLIMIT_RTPRIO },
-> > +	[RTTIME]     = { "RTTIME",     N_("timeout for real-time tasks"),        "microsecs", RLIMIT_RTTIME },
-> > +	[SIGPENDING] = { "SIGPENDING", N_("max amount of pending signals"),      NULL,        RLIMIT_SIGPENDING },
-> > +	[STACK]      = { "STACK",      N_("max stack size"),                     "kbytes",    RLIMIT_STACK }
-> 
->  Why without N_() ?
+From: Harald Hoyer <harald@redhat.com>
 
-I don't know why I always avoid N(), sorry.
-
-> 
-> > +		case COL_UNITS:
-> > +			rc =  l->desc->unit ? asprintf(&str, "%s", l->desc->unit) :
-> > +			                      asprintf(&str, "------");
-> > +			break;
-> 
->   str = l->desc->unit ? xstrdup(_(l->desc->unit)) : NULL;
->  
->  NULL should not be a problem for tt_* functions.
-
-Sorry for the delay, below is the corrected version.
-
-Thanks,
-Davidlohr
-
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Wed, 2 Nov 2011 18:38:12 +0100
-Subject: [PATCH] prlimit: add units column
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+If a mount point cannot be moved to the new root, umount it with
+MNT_DETACH, so that it is lazy umounted and does not show up in
+/proc/mounts anymore.
 ---
- sys-utils/prlimit.c |   39 +++++++++++++++++++++++----------------
- 1 files changed, 23 insertions(+), 16 deletions(-)
+ sys-utils/switch_root.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index 74c7fc9..1574b29 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -55,27 +55,28 @@ enum {
- struct prlimit_desc {
- 	const char *name;
- 	const char *help;
-+	const char *unit;
- 	int resource;
- };
+diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
+index e50f310..a49a1f7 100644
+--- a/sys-utils/switch_root.c
++++ b/sys-utils/switch_root.c
+@@ -131,7 +131,7 @@ static int switchroot(const char *newroot)
  
- static struct prlimit_desc prlimit_desc[] =
- {
--	[AS]         = { "AS",         N_("address space limit"),                RLIMIT_AS },
--	[CORE]       = { "CORE",       N_("max core file size"),                 RLIMIT_CORE },
--	[CPU]        = { "CPU",        N_("CPU time in secs"),                   RLIMIT_CPU },
--	[DATA]       = { "DATA",       N_("max data size"),                      RLIMIT_DATA },
--	[FSIZE]      = { "FSIZE",      N_("max file size"),                      RLIMIT_FSIZE },
--	[LOCKS]      = { "LOCKS",      N_("max amount of file locks held"),      RLIMIT_LOCKS },
--	[MEMLOCK]    = { "MEMLOCK",    N_("max locked-in-memory address space"), RLIMIT_MEMLOCK },
--	[MSGQUEUE]   = { "MSGQUEUE",   N_("max bytes in POSIX mqueues"),         RLIMIT_MSGQUEUE },
--	[NICE]       = { "NICE",       N_("max nice prio allowed to raise"),     RLIMIT_NICE },
--	[NOFILE]     = { "NOFILE",     N_("max amount of open files"),           RLIMIT_NOFILE },
--	[NPROC]      = { "NPROC",      N_("max number of processes"),            RLIMIT_NPROC },
--	[RSS]        = { "RSS",        N_("max resident set size"),              RLIMIT_RSS },
--	[RTPRIO]     = { "RTPRIO",     N_("max real-time priority"),             RLIMIT_RTPRIO },
--	[RTTIME]     = { "RTTIME",     N_("timeout for real-time tasks"),        RLIMIT_RTTIME },
--	[SIGPENDING] = { "SIGPENDING", N_("max amount of pending signals"),      RLIMIT_SIGPENDING },
--	[STACK]      = { "STACK",      N_("max stack size"),                     RLIMIT_STACK }
-+	[AS]         = { "AS",         N_("address space limit"),                N_("bytes"),     RLIMIT_AS },
-+	[CORE]       = { "CORE",       N_("max core file size"),                 N_("blocks"),    RLIMIT_CORE },
-+	[CPU]        = { "CPU",        N_("CPU time"),                           N_("seconds"),   RLIMIT_CPU },
-+	[DATA]       = { "DATA",       N_("max data size"),                      N_("bytes"),     RLIMIT_DATA },
-+	[FSIZE]      = { "FSIZE",      N_("max file size"),                      N_("blocks"),    RLIMIT_FSIZE },
-+	[LOCKS]      = { "LOCKS",      N_("max amount of file locks held"),      NULL,            RLIMIT_LOCKS },
-+	[MEMLOCK]    = { "MEMLOCK",    N_("max locked-in-memory address space"), N_("kbytes"),    RLIMIT_MEMLOCK },
-+	[MSGQUEUE]   = { "MSGQUEUE",   N_("max bytes in POSIX mqueues"),         N_("bytes"),     RLIMIT_MSGQUEUE },
-+	[NICE]       = { "NICE",       N_("max nice prio allowed to raise"),     NULL,            RLIMIT_NICE },
-+	[NOFILE]     = { "NOFILE",     N_("max amount of open files"),           NULL,            RLIMIT_NOFILE },
-+	[NPROC]      = { "NPROC",      N_("max number of processes"),            NULL,            RLIMIT_NPROC },
-+	[RSS]        = { "RSS",        N_("max resident set size"),              N_("pages"),     RLIMIT_RSS },
-+	[RTPRIO]     = { "RTPRIO",     N_("max real-time priority"),             NULL,            RLIMIT_RTPRIO },
-+	[RTTIME]     = { "RTTIME",     N_("timeout for real-time tasks"),        N_("microsecs"), RLIMIT_RTTIME },
-+	[SIGPENDING] = { "SIGPENDING", N_("max amount of pending signals"),      NULL,            RLIMIT_SIGPENDING },
-+	[STACK]      = { "STACK",      N_("max stack size"),                     N_("kbytes"),    RLIMIT_STACK }
- };
- 
- struct prlimit {
-@@ -91,6 +92,7 @@ enum {
- 	COL_RES,
- 	COL_SOFT,
- 	COL_HARD,
-+	COL_UNITS,
- };
- 
- /* column names */
-@@ -107,6 +109,7 @@ struct colinfo infos[] = {
- 	[COL_HELP]    = { "DESCRIPTION", 0.1,  TT_FL_TRUNC, N_("resource description")},
- 	[COL_SOFT]    = { "SOFT",        0.1,  TT_FL_RIGHT, N_("soft limit")},
- 	[COL_HARD]    = { "HARD",        1,    TT_FL_RIGHT, N_("hard limit (ceiling)")},
-+	[COL_UNITS]   = { "UNITS",       0.1,  TT_FL_TRUNC, N_("units")},
- };
- 
- #define NCOLS ARRAY_SIZE(infos)
-@@ -217,6 +220,9 @@ static void add_tt_line(struct tt *tt, struct prlimit *l)
- 				asprintf(&str, "%s", "unlimited") :
- 				asprintf(&str, "%llu", (unsigned long long) l->rlim.rlim_max);
- 			break;
-+		case COL_UNITS:
-+			str = l->desc->unit ? xstrdup(_(l->desc->unit)) : NULL;
-+			break;
- 		default:
- 			break;
+ 		if ((stat(newmount, &sb) != 0) || (sb.st_dev != newroot_stat.st_dev)) {
+ 			/* mount point seems to be mounted already or stat failed */
+-			umount(umounts[i]);
++			umount2(umounts[i], MNT_DETACH);
+ 			continue;
  		}
-@@ -557,6 +563,7 @@ int main(int argc, char **argv)
- 		columns[ncolumns++] = COL_HELP;
- 		columns[ncolumns++] = COL_SOFT;
- 		columns[ncolumns++] = COL_HARD;
-+		columns[ncolumns++] = COL_UNITS;
- 	}
  
- 	if (!n) {
 -- 
 1.7.7
+
