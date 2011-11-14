@@ -1,37 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37797 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756172Ab1KVOr5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 Nov 2011 09:47:57 -0500
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pAMElviD014716
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 22 Nov 2011 09:47:57 -0500
-Date: Tue, 22 Nov 2011 15:47:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [patch] Enable fstab.d in mount -a
-Message-ID: <20111122144755.GY7916@nb.net.home>
-References: <20111114.224753.785892012923334635.yamato@redhat.com>
+Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:45134 "EHLO
+	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753818Ab1KNJYR convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Nov 2011 04:24:17 -0500
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Davidlohr Bueso <dave@gnu.org>,
+        Bernhard Voelker <mail@bernhard-voelker.de>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Mon, 14 Nov 2011 10:24:14 +0100
+Subject: RE: [PATCH 13/15] prlimit: enhance examples section of the man page
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0D86D86AB2@MCHP058A.global-ad.net>
+References: <4EC07381.6050608@bernhard-voelker.de>
+ <1321267854.8015.2.camel@offworld>
+In-Reply-To: <1321267854.8015.2.camel@offworld>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111114.224753.785892012923334635.yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 10:47:53PM +0900, Masatake YAMATO wrote:
-> This patch makes mount command read fstab.d/*.fstab if the command
-> is built with --enable-libmount-mount.  
+Davidlohr Bueso wrote:
+> On Mon, 2011-11-14 at 02:48 +0100, Bernhard Voelker wrote:
+> > [PATCH 13/15] prlimit: enhance examples section of the man page
+> > 
+> > Add various examples to the man page, e.g. demonstrating setting
+> > limits using short options, showing that the --pid option can be
+> > used in random positions, how to use the "-1" notation for the
+> > "unlimited" value, and that prlimit takes the values from the arguments
+> > last set.
 
- Applied (with minor changes). Thanks! It was in my TODO for the next
- release.
- 
- I have also updated fstab.5 and mount.8 man pages.
+> Just a few examples are more than enough to illustrate the point;
+> manpages have always been this way. I think this is unnecessary and
+> clogs the document.
 
-    Karel
+admitted.
 
+Somehow I felt that the existing examples where to homogeneous.
+Well, prlimit didn't e.g. support passing the PID after other
+modifying arguments, so I thought that enhancing the examples
+with the new, "wilder" usage would be nice. ;-)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+But in these 2 I missed an error: there's a "=" missing between
+"--pid" and the PID:
+
+> > -.IP "\fBprlimit \-\-pid 13134 \--rss --nofile=1024:4095\fP"
+> > +.IP "\fBprlimit \--rss \-\-pid 13134 --nofile=1024:4095\fP"
+
+> > -.IP "\fBprlimit \-\-pid 13134 --nproc=512:\fP"
+> > +.IP "\fBprlimit \-\-pid 13134 -n512:\fP"
+
+I only spotted the missing "=" here, but failed to mention it
+in the commit log:
+
+> > -.IP "\fBprlimit \-\-pid $$ --nproc=unlimited\fP"
+> > +.IP "\fBprlimit \-\-pid=$$ --nproc=unlimited\fP"
+
+What's your recommendation?
+
+Have a nice day,
+Berny
