@@ -1,33 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38974 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932374Ab1KBPah (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Nov 2011 11:30:37 -0400
-Date: Wed, 2 Nov 2011 16:30:10 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] dmesg: fix printing of multibyte characters
-Message-ID: <20111102153010.GA3606@nb.net.home>
-References: <1320161382-12677-1-git-send-email-petr.uzel@suse.cz>
+Received: from moutng.kundenserver.de ([212.227.17.10]:60359 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752859Ab1KNBr7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:47:59 -0500
+Message-ID: <4EC0734D.5000503@bernhard-voelker.de>
+Date: Mon, 14 Nov 2011 02:47:57 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1320161382-12677-1-git-send-email-petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 01/15] prlimit: show all limits if called without options
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 01, 2011 at 04:29:42PM +0100, Petr Uzel wrote:
->  sys-utils/dmesg.c |   16 ++++++++--------
->  1 files changed, 8 insertions(+), 8 deletions(-)
+[PATCH 01/15] prlimit: show all limits if called without options
 
-[...]
+Fix option parsing: prlimit ran into usage() if called
+without arguments which should only be done for surplus
+arguments. Instead, it should display all limits.
 
-> +		i += len - 1;
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  sys-utils/prlimit.c |    3 +--
+  1 files changed, 1 insertions(+), 2 deletions(-)
 
- Oh... so stupid bug. Thanks! Applied.
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index d3f3503..fed4f38 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -581,8 +581,7 @@ int main(int argc, char **argv)
+  			break;
+  		}
+  	}
+-
+-	if (argc == 1)
++	if (argc > optind)
+  		usage(stderr);
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  	if (!ncolumns) {
