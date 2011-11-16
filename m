@@ -1,81 +1,94 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from damascus.uab.es ([158.109.168.135]:8226 "EHLO damascus.uab.es"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752415Ab1KNIsm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Nov 2011 03:48:42 -0500
-Received: from damascus.uab.es ([127.0.0.1])
- by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
- Jan  6 2005)) with ESMTP id <0LUN00ASD74ECU40@damascus.uab.es> for
- util-linux@vger.kernel.org; Mon, 14 Nov 2011 09:48:14 +0100 (CET)
-Received: from aomail.uab.es ([158.109.65.1])
- by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
- 6 2005)) with ESMTP id	<0LUN006L274E3870@damascus.uab.es>
- forutil-linux@vger.kernel.org; Mon, 14 Nov 2011 09:48:14 +0100 (CET)
-Date: Mon, 14 Nov 2011 11:50:54 +0100
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 13/15] prlimit: enhance examples section of the man page
-In-reply-to: <4EC07381.6050608@bernhard-voelker.de>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux@vger.kernel.org
-Message-id: <1321267854.8015.2.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
-References: <4EC07381.6050608@bernhard-voelker.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: vapier@gentoo.org
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: flock in 2.20.1 can no longer lock the file it will execute
+Date: Wed, 16 Nov 2011 10:25:46 -0500
+Cc: util-linux@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Petr Uzel <petr.uzel@suse.cz>
+References: <201111140123.39789.vapier@gentoo.org> <20111116131321.GN7916@nb.net.home>
+In-Reply-To: <20111116131321.GN7916@nb.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3538490.9dlZimUAUM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201111161025.47605.vapier@gentoo.org>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2011-11-14 at 02:48 +0100, Bernhard Voelker wrote:
-> [PATCH 13/15] prlimit: enhance examples section of the man page
-> 
-> Add various examples to the man page, e.g. demonstrating setting
-> limits using short options, showing that the --pid option can be
-> used in random positions, how to use the "-1" notation for the
-> "unlimited" value, and that prlimit takes the values from the arguments
-> last set.
+--nextPart3538490.9dlZimUAUM
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Just a few examples are more than enough to illustrate the point;
-manpages have always been this way. I think this is unnecessary and
-clogs the document.
+On Wednesday 16 November 2011 08:13:21 Karel Zak wrote:
+> On Mon, Nov 14, 2011 at 01:23:38AM -0500, Mike Frysinger wrote:
+> > i've been using a trick with flock to add locking to all of my shell
+> > scripts.
+> >=20
+> > basically, i take a lock on the shell script itself:
+> > 	flock -eon ./test.sh ./test.sh
+> >=20
+> > with <=3Dutil-linux-2.20, this has worked fine.  but starting with 2.20=
+=2E1,
+> > i now
+> >=20
+> > get -ETXTBSY (on ext4, but i doubt that matters):
+> > 	$ echo '#!/bin/sh' > test.sh
+> > 	$ chmod a+rx test.sh
+> > 	$ ./flock -eon ./test.sh ./test.sh
+> > 	./flock: ./test.sh: Text file busy
+> >=20
+> > the only commit made to flock.c between 2.20 and 2.20.1 is this:
+> > 	commit 75aaee08f06b92d119ed827c53d1af5474eb16ff
+> > 	flock: make flock(1) work on NFSv4
+> >=20
+> > and indeed, reverting that made my life happy again.  reading the small
+> > patch shows the obvious flaw: you can't open a file for O_RDWR and
+> > attempt to execute it at the same time.
+>=20
+>  Hmm... maybe we can add a new --read-write command line option for
+>  NFS guys rather than be smart with access(). The regression is
+>  unacceptable.
 
-> Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
-> ---
->   sys-utils/prlimit.1 |   13 ++++++++++---
->   1 files changed, 10 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
-> index fa45aca..ece6c05 100644
-> --- a/sys-utils/prlimit.1
-> +++ b/sys-utils/prlimit.1
-> @@ -88,13 +88,20 @@ Timeout for real-time tasks.
->   .SH EXAMPLES
->   .IP "\fBprlimit \-\-pid 13134\fP"
->   Display limit values for all current resources.
-> -.IP "\fBprlimit \-\-pid 13134 \--rss --nofile=1024:4095\fP"
-> +.IP "\fBprlimit \--rss \-\-pid 13134 --nofile=1024:4095\fP"
->   Display the limits of the RSS and set the soft and hard limits for the 
-> amount
->   of open files to 1024 and 4095, respectively.
-> -.IP "\fBprlimit \-\-pid 13134 --nproc=512:\fP"
-> +.IP "\fBprlimit \-\-pid 13134 -n512:\fP"
->   Modify only the soft limit for the amount of processes.
-> -.IP "\fBprlimit \-\-pid $$ --nproc=unlimited\fP"
-> +.IP "\fBprlimit \-\-pid=$$ --nproc=unlimited\fP"
->   Set the amount of processes for both soft and ceiling values to unlimited.
-> +.IP "\fBprlimit \-p$$ -n-1:\fP"
-> +Likewise, but only for the soft limit and using the "-1" notation.
-> +.IP "\fBprlimit \-p$$ -n:1000 -n\fP"
-> +Set the hard NPROC limit to 1000 and display its value.
-> +.IP "\fBprlimit \-p$$ -n100:200 -n300 -n400: -n:500\fP"
-> +Example to demonstrate that prlimit uses the values of the options last 
-> set.
-> +Here it will set the soft NPROC limit to 400 and the hard limit to 500.
-> 
->   .SH "SEE ALSO"
->   .BR prlimit (2),
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+i wonder what happens if you attempt to take a read-only lock on nfs.  do y=
+ou=20
+get back an error ?  or does it fail silently at runtime in the nfs layers ?
 
+if the former, one solution might be to open the file, attempt to grab the=
+=20
+lock, and if the flock() fails, retry the whole thing but with O_RDWR inste=
+ad.
 
+int rw_flags =3D O_RDONLY;
+=2E..
+retry:
+	... current open logic which uses new rw_flags var ...
+
+	... if flock fails, and rw_flags =3D=3D O_RDONLY, then set rw_flags to O_R=
+DWR=20
+and jump back to retry ...
+=2Dmike
+
+--nextPart3538490.9dlZimUAUM
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJOw9X7AAoJEEFjO5/oN/WBXGcQAJVnz0/B31J+GdqBhxfPYA5x
+4FdHs45IhYMywTptU+oMpUGk1c1otRIBoakWOu/Cr52LwOaZNhyASUd2SJP+WbHY
+K6Rlfkgy6cIJ7mZYkGFEHRoixYTaWdo7uJltvUMyrpHJDs8oxNEq8bpGLhSTzM7F
+QuI5FUsEsVHKwChPwZnLjt5KY+ejc5NwWlfV4DSoXHzgATp5s6lWkz0UO8TIhuHJ
+2daPHyFdmMz/TWKyv4LjUFVTKXTd88nkR0yoETir51LcZAhVboxj057T8t0puipk
+utcoQ41m1F+Td2qVvyenUDtWj5+E/+8UcRjVdVVlG4P7B495TUsBe6NyqX8qN0D0
+M4N8u0dSlrr9rgoniYXeIsu0AgVnDClMynw0d+fY/2ZYz1xNjp36kN7c5wZQ+Mo6
+v6RBn72joQ2Zqb7hMorraymOD/OXqvIRnYWzQi4P7z6S9EHHNMe2dSL9bKEe2Kle
+5oPks/TWoO1CA8kVQAS/vuQGNd75q05M+TEfsPDkdqSrIA3q/KwVmGJNVEMg5ghZ
+pJVvUgTQgfroY59c4AghIHJSxxV2w1ZCwvpgOsZrddJU58YrxanAanxQ2A7L+Oka
+8ZALW8vCCa7gA0XthHI08u01nexhw/aToyhamYoXFjE71gF0pkgfjjsHCoQ6S1hD
+ySWhEaDlHtoMZzXJUvtv
+=NYDf
+-----END PGP SIGNATURE-----
+
+--nextPart3538490.9dlZimUAUM--
