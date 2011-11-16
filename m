@@ -1,34 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14746 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751422Ab1KIJZH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Nov 2011 04:25:07 -0500
-Date: Wed, 9 Nov 2011 10:24:32 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] libmount: fix trivial typos in debugging output
-Message-ID: <20111109092432.GJ16397@nb.net.home>
-References: <1320829852-31250-1-git-send-email-petr.uzel@suse.cz>
+Received: from moutng.kundenserver.de ([212.227.126.171]:54998 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757838Ab1KPOPP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Nov 2011 09:15:15 -0500
+Message-ID: <4EC3C56B.8000507@bernhard-voelker.de>
+Date: Wed, 16 Nov 2011 15:15:07 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1320829852-31250-1-git-send-email-petr.uzel@suse.cz>
+To: Karel Zak <kzak@redhat.com>
+CC: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>,
+        Davidlohr Bueso <dave@gnu.org>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 13/15] prlimit: enhance examples section of the man page
+References: <4EC07381.6050608@bernhard-voelker.de> <1321267854.8015.2.camel@offworld> <7856072A9D04C24B82DFE2B1112FE38A0D86D86AB2@MCHP058A.global-ad.net> <20111116130551.GK7916@nb.net.home>
+In-Reply-To: <20111116130551.GK7916@nb.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 09, 2011 at 10:10:52AM +0100, Petr Uzel wrote:
-> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
-> ---
->  libmount/src/cache.c          |    2 +-
->  libmount/src/context.c        |    2 +-
->  libmount/src/context_mount.c  |    4 ++--
->  libmount/src/context_umount.c |    2 +-
->  libmount/src/optstr.c         |    2 +-
->  libmount/src/tab_update.c     |    2 +-
->  6 files changed, 7 insertions(+), 7 deletions(-)
+On 11/16/2011 02:05 PM, Karel Zak wrote:
 
- Applied, thanks.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>   Bernhard, small note: many of your patches are malformed by your
+>   e-mail client. Please, reconfigure the mail client (to not modify
+>   long lines) or use git-send-email.
+
+sorry for that. I thought I have already taught my Thunderbird to not
+touch the text ...
+BTW: would you have preferred attachments?
+
+>   Thanks, your found many issues!
+
+Thanks for taking your time. I'd have made your life easier if
+I had asked before whether the solution with the array is what you
+like. Sorry.
+
+Bye,
+Berny
+
+
