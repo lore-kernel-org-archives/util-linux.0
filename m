@@ -1,49 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12291 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752653Ab1KPMlU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Nov 2011 07:41:20 -0500
-Date: Wed, 16 Nov 2011 13:41:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/15] prlimit: fix diagnostic when setting current
-	PIDs resources fails
-Message-ID: <20111116124115.GC7916@nb.net.home>
-References: <4EC07357.1030002@bernhard-voelker.de>
+Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:37353 "EHLO
+	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752376Ab1KPM7s convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Nov 2011 07:59:48 -0500
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Wed, 16 Nov 2011 13:59:45 +0100
+Subject: RE: [PATCH 10/15] prlimit: refactor code: separate modify and show
+	clearly
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0D86E24B57@MCHP058A.global-ad.net>
+References: <4EC07375.20005@bernhard-voelker.de>
+ <20111116125147.GH7916@nb.net.home>
+In-Reply-To: <20111116125147.GH7916@nb.net.home>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4EC07357.1030002@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 02:48:07AM +0100, Bernhard Voelker wrote:
-> [PATCH 03/15] prlimit: fix diagnostic when setting current PIDs  
-> resources fails
+Karel Zak wrote:
 
- Not applied, but I have improved the error messages according to your
- 5-8 patches.
+> On Mon, Nov 14, 2011 at 02:48:37AM +0100, Bernhard Voelker wrote:
+> >  struct prlimit {
+> >  	struct rlimit rlim;
+> > -	int found;
+> >  	struct prlimit_desc *desc;
+> >  	int modify;
+> > +	int show;
+> >  };
+> 
+>  I think that 'modify == 0' means 'show'. It's strange to add two
+>  variables to differentiate between two states.
 
-> -			err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
-> +		if (prlimit(pid, lims[i].desc->resource, new, &lims[i].rlim) == -1) {
-> +			if (pid)
-> +				err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
-> +			else
-> +				err(EXIT_FAILURE, _("failed to get resource limits of the current  
-> process"));
+As modifying and showing a limit was done in the same place, and
+as the two actions are now separated (at least) more, 'modify == 1'
+means the the limit is changed while 'show == 1' means the limit
+has to be displayed. (In the previous code, the array item was only
+processed if it was on the command line via the "n" loop.
 
- I think we don't have to care about the PID in the error message at
- all. The util works always with one PID only.
-
-    "failed to set the %s resource limit"
- or
-    "failed to get the %s resource limit"
-
- seems enough :-)
-
-   Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Berny
