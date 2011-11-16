@@ -1,33 +1,38 @@
-Return-Path: cosoleto@gmail.com
-MIME-Version: 1.0
-In-Reply-To: <20111114134259.GB20881@nb.net.home>
-References: <1321006331-7633-1-git-send-email-cosoleto@gmail.com>
-	<20111114134259.GB20881@nb.net.home>
-Date: Mon, 14 Nov 2011 17:03:37 +0100
-Message-ID: <CAMFXF53manF_9xPi4Sr=mFx6eg+izR84uhtVUjBAMaXSd_Z1gQ@mail.gmail.com>
-Subject: Re: [PATCH 1/5] fdisk: print the welcome message when OSF/1 disklabel
- is detected
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:18084 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753245Ab1KPPzN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Nov 2011 10:55:13 -0500
+Date: Wed, 16 Nov 2011 16:55:08 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 04/15] prlimit: add warning diagnostic when attempting
+	to change prlimit's limits
+Message-ID: <20111116155508.GO7916@nb.net.home>
+References: <4EC0735B.2010504@bernhard-voelker.de> <20111116124537.GD7916@nb.net.home> <4EC3D126.4050101@bernhard-voelker.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4EC3D126.4050101@bernhard-voelker.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-2011/11/14 Karel Zak <kzak@redhat.com>:
->> + =A0 =A0 fprintf(stderr, _("Welcome to fdisk (%s).\n\n"
->> + =A0 =A0 =A0 =A0 =A0 =A0 "Changes will remain in memory only, until you=
- decide to write them.\n"
->> + =A0 =A0 =A0 =A0 =A0 =A0 "Be careful before using the write command.\n"=
-), PACKAGE_STRING);
->> +
+On Wed, Nov 16, 2011 at 04:05:10PM +0100, Bernhard Voelker wrote:
+> On 11/16/2011 01:45 PM, Karel Zak wrote:
 >
-> =A0I have moved this message before gpt_warning() and get_boot(). The
-> =A0get_boot() produces very often warnings (for example on disk with no
-> =A0PT) and I think that the welcome message should be printed as very
-> =A0first message in the interactive mode.
+>>   Anyway, it would be nice to have something like:
+>>
+>>      prlimit --nofile=1000 /bin/program
+>>
+>>   so somewhere after show_limits() should be exec().
+>
+> Great idea. ;-)
+> Would you like me to give it a try?
 
-There are some side effects. The third part of the message needs more
-visibility, and there is a variable number of newlines. It's possible
-split the string up to fix this.
+ Sure, go ahead!
 
-Francesco
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
