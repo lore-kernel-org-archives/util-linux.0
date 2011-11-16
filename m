@@ -1,77 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:50022 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751331Ab1KNNsE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Nov 2011 08:48:04 -0500
-Received: by wyh15 with SMTP id 15so5874662wyh.19
-        for <util-linux@vger.kernel.org>; Mon, 14 Nov 2011 05:48:02 -0800 (PST)
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH 2/3] fdisk: avoid segfault validating a sgi label (boot/swap not set)
-Date: Mon, 14 Nov 2011 14:47:18 +0100
-Message-Id: <1321278439-9392-2-git-send-email-cosoleto@gmail.com>
-In-Reply-To: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
-References: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:57819 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753154Ab1KPWyE (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 16 Nov 2011 17:54:04 -0500
+Date: Wed, 16 Nov 2011 23:54:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Jim Meyering <jim@meyering.net>
+Cc: List util-linux-ng <util-linux-ng@vger.kernel.org>
+Subject: Re: [PATCH] column: avoid memory overrun and/or use of
+	uninitialized buffer
+Message-ID: <20111116225400.GP7916@nb.net.home>
+References: <87fwhn6fyo.fsf@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87fwhn6fyo.fsf@rho.meyering.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-swap_part or boot_part can be set to -1 when they don't exist.
+On Wed, Nov 16, 2011 at 08:10:39PM +0100, Jim Meyering wrote:
+>  text-utils/column.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/text-utils/column.c b/text-utils/column.c
+> index f8fd350..79d2842 100644
+> --- a/text-utils/column.c
+> +++ b/text-utils/column.c
+> @@ -305,8 +305,8 @@ static void maketbl(wchar_t **list, int entries, wchar_t *separator)
+>  				cols = xrealloc(cols, maxcols * sizeof(wchar_t *));
+>  				lens = xrealloc(lens, maxcols * sizeof(ssize_t));
+>  				/* zero fill only new memory */
+> -				memset(lens + ((maxcols - DEFCOLS) * sizeof(ssize_t)), 0,
+> -				       DEFCOLS * sizeof(int));
+> +				memset(lens + (maxcols - DEFCOLS), 0,
+> +				       DEFCOLS * sizeof(*lens));
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
----
- fdisk/fdisksgilabel.c |    8 ++++----
- fdisk/fdisksgilabel.h |    4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ Ah, this is my bug... (in the original code was cast to char *).
 
-diff --git a/fdisk/fdisksgilabel.c b/fdisk/fdisksgilabel.c
-index 091902a..002688a 100644
---- a/fdisk/fdisksgilabel.c
-+++ b/fdisk/fdisksgilabel.c
-@@ -262,13 +262,13 @@ sgi_get_sysid(int i)
- int
- sgi_get_bootpartition(void)
- {
--	return SSWAP16(sgilabel->boot_part);
-+	return (short) SSWAP16(sgilabel->boot_part);
- }
- 
- int
- sgi_get_swappartition(void)
- {
--	return SSWAP16(sgilabel->swap_part);
-+	return (short) SSWAP16(sgilabel->swap_part);
- }
- 
- void
-@@ -513,10 +513,10 @@ verify_sgi(int verbose)
- 	 * Go for details now
- 	 */
- 	if (verbose) {
--		if (!sgi_get_num_sectors(sgi_get_bootpartition())) {
-+		if (sgi_get_bootpartition() < 0 || !sgi_get_num_sectors(sgi_get_bootpartition())) {
- 			printf(_("\nThe boot partition does not exist.\n"));
- 		}
--		if (!sgi_get_num_sectors(sgi_get_swappartition())) {
-+		if (sgi_get_swappartition() < 0 || !sgi_get_num_sectors(sgi_get_swappartition())) {
- 			printf(_("\nThe swap partition does not exist.\n"));
- 		} else {
- 			if ((sgi_get_sysid(sgi_get_swappartition()) != SGI_SWAP)
-diff --git a/fdisk/fdisksgilabel.h b/fdisk/fdisksgilabel.h
-index 1445fa9..1c47bb4 100644
---- a/fdisk/fdisksgilabel.h
-+++ b/fdisk/fdisksgilabel.h
-@@ -63,8 +63,8 @@ struct device_parameter { /* 48 bytes */
- 
- typedef struct {
- 	unsigned int   magic;		 /* expect SGI_LABEL_MAGIC */
--	unsigned short boot_part;        /* active boot partition */
--	unsigned short swap_part;        /* active swap partition */
-+	short boot_part;		/* active boot partition */
-+	short swap_part;		/* active swap partition */
- 	unsigned char  boot_file[16];    /* name of the bootfile */
- 	struct device_parameter devparam;	/*  1 * 48 bytes */
- 	struct volume_directory {		/* 15 * 16 bytes */
+ Applied, thanks.
+
+    Karel
+
 -- 
-1.7.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
