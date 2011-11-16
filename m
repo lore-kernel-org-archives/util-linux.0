@@ -1,36 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.9]:63779 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751915Ab1KPPFT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Nov 2011 10:05:19 -0500
-Message-ID: <4EC3D12D.8090708@bernhard-voelker.de>
-Date: Wed, 16 Nov 2011 16:05:17 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 04/15] prlimit: add warning diagnostic when attempting
- to change prlimit's limits
-References: <4EC0735B.2010504@bernhard-voelker.de> <20111116124537.GD7916@nb.net.home>
-In-Reply-To: <20111116124537.GD7916@nb.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from lizzard.sbs.de ([194.138.37.39]:19122 "EHLO lizzard.sbs.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755564Ab1KPKLm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Nov 2011 05:11:42 -0500
+Received: from mail2.sbs.de (localhost [127.0.0.1])
+	by lizzard.sbs.de (8.13.6/8.13.6) with ESMTP id pAG9t507017267
+	for <util-linux@vger.kernel.org>; Wed, 16 Nov 2011 10:55:06 +0100
+Received: from [149.212.26.78] ([149.212.26.78])
+	by mail2.sbs.de (8.13.6/8.13.6) with ESMTP id pAG9t5GO026282
+	for <util-linux@vger.kernel.org>; Wed, 16 Nov 2011 10:55:05 +0100
+Subject: [PATCH] agetty: map NL to CR-NL on output in initial termios
+ settings
+From: Dennis Jensen <dennis.h.jensen@siemens.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 16 Nov 2011 10:54:50 +0100
+Message-ID: <1321437290.29540.75.camel@djensen-laptop>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11/16/2011 01:45 PM, Karel Zak wrote:
-> On Mon, Nov 14, 2011 at 02:48:11AM +0100, Bernhard Voelker wrote:
->> >  +		if (lims[i].modify) {
->> >  +			if (!pid)
->> >  +				warnx(_("setting limits of the prlimit process is pointless"));
->
->   Well, I don't think that we want such warnings in our utils:-)  Let's
->   inform users about errors, the rest should be described in man pages.
+This fixes situations where messages "scroll horizontally", making
+them unreadable, because agetty has opened and initialized the
+terminal.
 
-hmm, then I tend to make it an error: prlimit acts too similar to
-ulimit, but the *big* difference - and therefore the *big* trap for
-the user - is that ulimit is a shell builtin which affects the current
-shell process whereas prlimit runs in it's own process and, as a result,
-will just do not have an effect without a PID.
+From: Jacoby Hickerson <hickersonjl@gmail.com>
+Signed-off-by: Dennis Jensen <dennis.h.jensen@siemens.com>
+---
+ term-utils/agetty.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Have a nice day,
-Berny
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 041e1f7..27edac5 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1091,7 +1091,8 @@ static void termio_init(struct options *op, struct termios *tp)
+ #else
+ 	tp->c_iflag = 0;
+ #endif
+-	tp->c_lflag = tp->c_oflag = 0;
++	tp->c_lflag = 0;
++	tp->c_oflag = OPOST | ONLCR;
+ 
+ 	if ((op->flags & F_KEEPCFLAGS) == 0)
+ 		tp->c_cflag = CS8 | HUPCL | CREAD | (tp->c_cflag & CLOCAL);
+-- 
+1.7.0.4
+
+
+
