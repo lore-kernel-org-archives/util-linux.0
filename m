@@ -1,28 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1533 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751846Ab1KNOIE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Nov 2011 09:08:04 -0500
-Date: Mon, 14 Nov 2011 15:08:01 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Francesco Cosoleto <cosoleto@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] fdisk: use ngettext() in str_units() for plural
-	forms
-Message-ID: <20111114140800.GB23020@nb.net.home>
-References: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
+Return-Path: kukuk@suse.de
+Date: Thu, 17 Nov 2011 11:31:47 +0100
+From: Thorsten Kukuk <kukuk@suse.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: Re: login: PAM-only, login.defs, -H
+Message-ID: <20111117103147.GA6195@suse.de>
+References: <20111017110210.GA22648@nb.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1321278439-9392-1-git-send-email-cosoleto@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20111017110210.GA22648@nb.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 02:47:17PM +0100, Francesco Cosoleto wrote:
->  fdisk/fdisk.c |   10 +++++-----
->  1 files changed, 5 insertions(+), 5 deletions(-)
+On Mon, Oct 17, Karel Zak wrote:
 
- Applied, thanks.
+>  Git tree: https://karelzak@github.com/karelzak/util-linux.git branch 'login'.
+>  URL: https://github.com/karelzak/util-linux/tree/login
+
+Ok, I found one bug: pam_setcred() is only called after pam_open_session(),
+but has to be called before:
+
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -868,15 +868,15 @@ static void loginpam_session(struct login_context *cxt)
+        int rc;
+        pam_handle_t *pamh = cxt->pamh;
+ 
+-       rc = pam_open_session(pamh, 0);
+-       if (is_pam_failure(rc))
+-               loginpam_err(pamh, rc);
+-
+        rc = pam_setcred(pamh, PAM_ESTABLISH_CRED);
+        if (is_pam_failure(rc)) {
+                pam_close_session(pamh, 0);
+                loginpam_err(pamh, rc);
+        }
++
++       rc = pam_open_session(pamh, 0);
++       if (is_pam_failure(rc))
++               loginpam_err(pamh, rc);
+ }
+ 
+
+
+Another problem with current git is:
+prlimit.c: In function ‘prlimit’:
+prlimit.c:142:17: error: ‘SYS_prlimit64’ undeclared (first use in this function)
+prlimit.c:142:17: note: each undeclared identifier is reported only once for each function it appears in
+
+  Thorsten
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thorsten Kukuk, Project Manager/Release Manager SLES
+SUSE LINUX Products GmbH, Maxfeldstr. 5, D-90409 Nuernberg
+GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg)
