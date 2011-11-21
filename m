@@ -1,73 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31385 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751670Ab1KUQgM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 Nov 2011 11:36:12 -0500
-Date: Mon, 21 Nov 2011 17:35:43 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
-        Petr Uzel <petr.uzel@suse.cz>
-Subject: Re: flock in 2.20.1 can no longer lock the file it will execute
-Message-ID: <20111121163543.GU7916@nb.net.home>
-References: <201111140123.39789.vapier@gentoo.org> <20111116131321.GN7916@nb.net.home> <201111161025.47605.vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201111161025.47605.vapier@gentoo.org>
+Received: from caiajhbdcagg.dreamhost.com ([208.97.132.66]:37926 "EHLO
+	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754281Ab1KUWGU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Nov 2011 17:06:20 -0500
+Subject: Re: mkfs.minix V3 is broken
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Maurizio Lombardi <m.lombardi85@gmail.com>
+Cc: util-linux@vger.kernel.org
+In-Reply-To: <CAMtsiiDWF3xCiFtENTaYS36zKOJjRHML0x2nk1P0d0zeU3qi0A@mail.gmail.com>
+References: <CAMtsiiDWF3xCiFtENTaYS36zKOJjRHML0x2nk1P0d0zeU3qi0A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 21 Nov 2011 23:06:15 +0100
+Message-ID: <1321913175.3253.8.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 16, 2011 at 10:25:46AM -0500, Mike Frysinger wrote:
-> On Wednesday 16 November 2011 08:13:21 Karel Zak wrote:
-> > On Mon, Nov 14, 2011 at 01:23:38AM -0500, Mike Frysinger wrote:
-> > > i've been using a trick with flock to add locking to all of my shell
-> > > scripts.
-> > > 
-> > > basically, i take a lock on the shell script itself:
-> > > 	flock -eon ./test.sh ./test.sh
-> > > 
-> > > with <=util-linux-2.20, this has worked fine.  but starting with 2.20.1,
-> > > i now
-> > > 
-> > > get -ETXTBSY (on ext4, but i doubt that matters):
-> > > 	$ echo '#!/bin/sh' > test.sh
-> > > 	$ chmod a+rx test.sh
-> > > 	$ ./flock -eon ./test.sh ./test.sh
-> > > 	./flock: ./test.sh: Text file busy
-> > > 
-> > > the only commit made to flock.c between 2.20 and 2.20.1 is this:
-> > > 	commit 75aaee08f06b92d119ed827c53d1af5474eb16ff
-> > > 	flock: make flock(1) work on NFSv4
-> > > 
-> > > and indeed, reverting that made my life happy again.  reading the small
-> > > patch shows the obvious flaw: you can't open a file for O_RDWR and
-> > > attempt to execute it at the same time.
-> > 
-> >  Hmm... maybe we can add a new --read-write command line option for
-> >  NFS guys rather than be smart with access(). The regression is
-> >  unacceptable.
+On Mon, 2011-11-21 at 20:40 +0100, Maurizio Lombardi wrote:
+> Hi all,
 > 
-> i wonder what happens if you attempt to take a read-only lock on nfs.  do you 
-> get back an error ?
-
- yes, EIO 
-
-> if the former, one solution might be to open the file, attempt to grab the 
-> lock, and if the flock() fails, retry the whole thing but with O_RDWR instead.
+> I noticed a lot of bugs in the mkfs.minix program when dealing with V3
+> filesystems.
+> I did a lot of fixes in the source code and then I decided to set up a
+> github repository to make the review easier:
 > 
-> int rw_flags = O_RDONLY;
-> ...
-> retry:
-> 	... current open logic which uses new rw_flags var ...
+> git@github.com:maurizio-lombardi/util-linux.git
 > 
-> 	... if flock fails, and rw_flags == O_RDONLY, then set rw_flags to O_RDWR 
-> and jump back to retry ...
+> Can the mkfs.minix mantainer review the patches please?
 
- Good idea, implemented and tested (git pull to get the change). It
- seems it works with your example as well as with NFSv4.
- 
-    Karel
+Most of the work I did on supporting v3 was based on the kernel's
+implementation and the mkfs shipped with minix (by ast), so a lot of
+what you say makes sense. I've taken a quick look at the changes and
+most are bugs are pretty straightforward, except:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+- mkfs.minix: The total number of zones is limited to 65536 only on V1
+filesystems
+
+Unless I'm missing something, this doesn't really change any logic.
+
+
+I'll give the changes a proper test over the weekend.
+
+Thanks,
+Davidlohr
+
+> 
+> Please cc me because I'm not subscribed to the list.
+> 
+> Regards,
+
+
