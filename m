@@ -1,49 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:64108 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752859Ab1KNBsJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Nov 2011 20:48:09 -0500
-Message-ID: <4EC07357.1030002@bernhard-voelker.de>
-Date: Mon, 14 Nov 2011 02:48:07 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:51481 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757693Ab1KVKyy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 Nov 2011 05:54:54 -0500
+Date: Tue, 22 Nov 2011 11:54:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Maurizio Lombardi <m.lombardi85@gmail.com>
+Cc: dave@gnu.org, util-linux@vger.kernel.org
+Subject: Re: mkfs.minix V3 is broken
+Message-ID: <20111122105449.GX7916@nb.net.home>
+References: <CAMtsiiDWF3xCiFtENTaYS36zKOJjRHML0x2nk1P0d0zeU3qi0A@mail.gmail.com> <1321913175.3253.8.camel@offbook> <CAMtsiiDrWGKthY52+HT5r19g9EFRG2NHKMD3vni-SeaMNfuGDg@mail.gmail.com> <CAMtsiiDNPk4+m7JoWRp0JQWdL229OMCMYjZZsg-E2Ej0Rkv4OA@mail.gmail.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH 03/15] prlimit: fix diagnostic when setting current PIDs resources
- fails
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAMtsiiDNPk4+m7JoWRp0JQWdL229OMCMYjZZsg-E2Ej0Rkv4OA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[PATCH 03/15] prlimit: fix diagnostic when setting current PIDs 
-resources fails
+On Tue, Nov 22, 2011 at 11:05:04AM +0100, Maurizio Lombardi wrote:
+> >    if (BLOCKS > MINIX_MAX_INODES)
+> >       BLOCKS = MINIX_MAX_INODES;
+> 
+> Please note that this piece of code is horrible too, comparing the
+> number of blocks to the max number of inodes is like comparing apples
+> and oranges, no? :)
+> 
+> In general I think that the mkfs.minix is full of weird things and
+> needs a serious cleanup.
 
-Avoids wrong message:
-$ prlimit --nofile=16000
-prlimit: failed to get resource limits for PID 0: Operation not permitted
+ Go ahead! :-)
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
-  sys-utils/prlimit.c |    8 ++++++--
-  1 files changed, 6 insertions(+), 2 deletions(-)
+    Karel
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index 525351a..6943d11 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -320,8 +320,12 @@ static void do_prlimit(struct prlimit lims[], 
-size_t n, int tt_flags)
-  				printf(":%ju>\n", new->rlim_max);
-  		}
-
--		if (prlimit(pid, lims[i].desc->resource, new, &lims[i].rlim) == -1)
--			err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
-+		if (prlimit(pid, lims[i].desc->resource, new, &lims[i].rlim) == -1) {
-+			if (pid)
-+				err(EXIT_FAILURE, _("failed to get resource limits for PID %d"), pid);
-+			else
-+				err(EXIT_FAILURE, _("failed to get resource limits of the current 
-process"));
-+		}
-  	}
-
-  	if (nshows)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
