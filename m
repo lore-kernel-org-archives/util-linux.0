@@ -1,106 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40187 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750836Ab1KNNrz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Nov 2011 08:47:55 -0500
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pAEDltkY004752
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 14 Nov 2011 08:47:55 -0500
-Received: from localhost (beach.nrt.redhat.com [10.64.200.71])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id pAEDlror026385
-	for <util-linux@vger.kernel.org>; Mon, 14 Nov 2011 08:47:54 -0500
-Date: Mon, 14 Nov 2011 22:47:53 +0900 (JST)
-Message-Id: <20111114.224753.785892012923334635.yamato@redhat.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:60303 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750898Ab1KWACs convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Nov 2011 19:02:48 -0500
+Received: by bke11 with SMTP id 11so884163bke.19
+        for <util-linux@vger.kernel.org>; Tue, 22 Nov 2011 16:02:47 -0800 (PST)
+MIME-Version: 1.0
+From: Paul Stone <Paul@Stone.org>
+Date: Tue, 22 Nov 2011 16:02:26 -0800
+Message-ID: <CA+zVqtWW+CknuW7NKyd2AZVsrDwj=J7gg+U2UYEBgbp++vaZgA@mail.gmail.com>
+Subject: how can I compile mount and umount as shared object files?
 To: util-linux@vger.kernel.org
-Subject: [patch] Enable fstab.d in mount -a
-From: Masatake YAMATO <yamato@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch makes mount command read fstab.d/*.fstab if the command
-is built with --enable-libmount-mount.  
+Hi all,
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+I'm trying to build util-linux-ng-2.19.1, specifically to get the
+updated mount and umount in order to work around a bug which
+interferes with FUSE.  But, building from source with 'make
+install-strip' produces executables, as opposed to shared object files
+like the ones which are in the /bin directory of my CentOS 6
+distribution.  Can anyone enlighten me on how to produce shared object
+files for these two utilities?  I also don't know what the distinction
+is between SYSV and GNU/Linux in terms of the identification of the
+file type.
 
-diff --git a/mount/fstab.c b/mount/fstab.c
-index a1bae90..3621d3a 100644
---- a/mount/fstab.c
-+++ b/mount/fstab.c
-@@ -153,20 +153,23 @@ read_mntentchn(mntFILE *mfp, const char *fnam, struct mntentchn *mc0) {
- 
- #define USE_UNSTABLE_LIBMOUNT_API
- #include <libmount.h>			/* libmount */
--
--static void read_mounttable()
-+static void read_tab_common(struct mntentchn *mc0,
-+			    int    *got_p,
-+			    int (* reader)(struct libmnt_table *tb, 
-+					   const char *filename),
-+	                    const char *name_in_errmsg)
- {
--	struct mntentchn *mc0 = &mounttable, *mc = mc0;
-+  	struct mntentchn *mc = mc0;
- 	struct libmnt_table *tb = mnt_new_table();
- 	struct libmnt_iter *itr = mnt_new_iter(MNT_ITER_FORWARD);
- 	struct libmnt_fs *fs;
- 
--	got_mtab = 1;
-+	*got_p = 1;
- 	mc->nxt = mc->prev = NULL;
- 
- 	if (!tb || !itr)
- 		goto err;
--	if (mnt_table_parse_mtab(tb, NULL))
-+	if (reader(tb, NULL))
- 		goto err;
- 
- 	while(mnt_table_next_fs(tb, itr, &fs) == 0) {
-@@ -187,12 +190,28 @@ static void read_mounttable()
- 	mc0->prev = mc;
- 	return;
- err:
--	error(_("warning: failed to read mtab"));
-+	error(_("warning: failed to %s"),
-+		name_in_errmsg);
- 	mnt_free_table(tb);
- 	mnt_free_iter(itr);
- 	mc->nxt = mc->prev = NULL;
- }
- 
-+static void read_mounttable()
-+{
-+	read_tab_common(&mounttable,
-+			&got_mtab,
-+			mnt_table_parse_mtab,
-+			"mtab");
-+}
-+
-+static void read_fstab() 
-+{
-+	read_tab_common(&fstab,
-+			&got_fstab,
-+			mnt_table_parse_fstab,
-+			"fstab/fstab.d");
-+}
- #else /* !HAVE_LIBMOUNT_MOUNT */
- 
- /*
-@@ -226,7 +245,6 @@ read_mounttable() {
- 	}
- 	read_mntentchn(mfp, fnam, mc);
- }
--#endif /* HAVE_LIBMOUNT_MOUNT */
- 
- static void
- read_fstab() {
-@@ -247,6 +265,7 @@ read_fstab() {
- 	}
- 	read_mntentchn(mfp, fnam, mc);
- }
-+#endif /* HAVE_LIBMOUNT_MOUNT */
- 
- 
- /* Given the name NAME, try to find it in mtab.  */
+[root@xxxx .libs]# file *
+mount:  setuid ELF 64-bit LSB executable, x86-64, version 1 (SYSV),
+dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+umount: setuid ELF 64-bit LSB executable, x86-64, version 1 (SYSV),
+dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+
+[root@xxxx .libs]# file /bin/mount /bin/umount
+/bin/mount:  setuid ELF 64-bit LSB shared object, x86-64, version 1
+(GNU/Linux), dynamically linked (uses shared libs), for GNU/Linux
+2.6.18, stripped
+/bin/umount: setuid ELF 64-bit LSB shared object, x86-64, version 1
+(GNU/Linux), dynamically linked (uses shared libs), for GNU/Linux
+2.6.18, stripped
+
+Thanks and best regards,
+Paul Stone
