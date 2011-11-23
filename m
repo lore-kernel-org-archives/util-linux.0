@@ -1,33 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:63730 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752821Ab1KPPFM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Nov 2011 10:05:12 -0500
-Message-ID: <4EC3D126.4050101@bernhard-voelker.de>
-Date: Wed, 16 Nov 2011 16:05:10 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:30116 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752592Ab1KWQxC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 Nov 2011 11:53:02 -0500
+Date: Wed, 23 Nov 2011 17:52:59 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] login-utils maintenance fixes
+Message-ID: <20111123165259.GC3092@nb.net.home>
+References: <CAG27Bk2uza2TVvZguXRcWbg58NJ=Fpo3608c9rRyBhynNM2h-w@mail.gmail.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 04/15] prlimit: add warning diagnostic when attempting
- to change prlimit's limits
-References: <4EC0735B.2010504@bernhard-voelker.de> <20111116124537.GD7916@nb.net.home>
-In-Reply-To: <20111116124537.GD7916@nb.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk2uza2TVvZguXRcWbg58NJ=Fpo3608c9rRyBhynNM2h-w@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11/16/2011 01:45 PM, Karel Zak wrote:
+On Sat, Nov 19, 2011 at 10:43:35PM +0100, Sami Kerola wrote:
+>       chfn: use libc error printing facilities
 
->   Anyway, it would be nice to have something like:
->
->      prlimit --nofile=1000 /bin/program
->
->   so somewhere after show_limits() should be exec().
+ Please, see how the original code uses "msg" in check_gecos_string().
+ I think that proper fix is:
 
-Great idea. ;-)
-Would you like me to give it a try?
+ if (msg)
+    warnx (_("%s: '%c' is not allowed"), msg, c);
+ else
+    warnx (_("'%c' is not allowed"), c);
 
-Have a nice day,
-Berny
+ and so on...
 
+ It also seems that check_gecos_string() in main() should be called
+ with static strings, so you can remove the strcats, the strings
+ (e.g. "full name") should be also translated
+
+    status = check_gecos_string(_("full name"), optarg);
+
+ see also ask_info() where are the strings too. It would be better to
+ use the same strings :-)
+
+>       chfn, chsh, setpwnam: use stdbool.h
+
+ hmm... what about to use old good 'int'?
+
+>       chfn, chsh: share require password error print definition
+
+ The macros are horrible. Please, see is_pam_failure() and
+ loginpam_err() in login.c. I think it would be better to create
+ pamfail.h with inline functions / macros. 
+ 
+ Note that we cannot share this code with login.c where is also
+ necessary to call syslog() and sleep()).
+
+>       build-sys: trust autotools setting *_SOURCES definitions
+
+ This commit subject is odd... do you mean "fix coding style"? :-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
