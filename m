@@ -1,47 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64425 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53140 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756547Ab1KPNNw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Nov 2011 08:13:52 -0500
-Date: Wed, 16 Nov 2011 14:13:21 +0100
+	id S1753661Ab1KWLyQ (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 23 Nov 2011 06:54:16 -0500
+Date: Wed, 23 Nov 2011 12:54:12 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
-        Petr Uzel <petr.uzel@suse.cz>
-Subject: Re: flock in 2.20.1 can no longer lock the file it will execute
-Message-ID: <20111116131321.GN7916@nb.net.home>
-References: <201111140123.39789.vapier@gentoo.org>
+To: Jim Meyering <jim@meyering.net>
+Cc: List util-linux-ng <util-linux-ng@vger.kernel.org>
+Subject: Re: [PATCH] doc: prlimit.c, prlimit.1: s/amount/number/
+Message-ID: <20111123115412.GA9509@nb.net.home>
+References: <87aa7v42hb.fsf@rho.meyering.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201111140123.39789.vapier@gentoo.org>
+In-Reply-To: <87aa7v42hb.fsf@rho.meyering.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 01:23:38AM -0500, Mike Frysinger wrote:
-> i've been using a trick with flock to add locking to all of my shell scripts.  
-> basically, i take a lock on the shell script itself:
-> 	flock -eon ./test.sh ./test.sh
-> 
-> with <=util-linux-2.20, this has worked fine.  but starting with 2.20.1, i now 
-> get -ETXTBSY (on ext4, but i doubt that matters):
-> 	$ echo '#!/bin/sh' > test.sh
-> 	$ chmod a+rx test.sh 
-> 	$ ./flock -eon ./test.sh ./test.sh 
-> 	./flock: ./test.sh: Text file busy
-> 
-> the only commit made to flock.c between 2.20 and 2.20.1 is this:
-> 	commit 75aaee08f06b92d119ed827c53d1af5474eb16ff
-> 	flock: make flock(1) work on NFSv4
-> 
-> and indeed, reverting that made my life happy again.  reading the small patch 
-> shows the obvious flaw: you can't open a file for O_RDWR and attempt to execute 
-> it at the same time.
+On Thu, Nov 17, 2011 at 08:44:48AM +0100, Jim Meyering wrote:
+>  sys-utils/prlimit.1 |   18 +++++++++---------
+>  sys-utils/prlimit.c |   10 +++++-----
+>  2 files changed, 14 insertions(+), 14 deletions(-)
 
- Hmm... maybe we can add a new --read-write command line option for
- NFS guys rather than be smart with access(). The regression is
- unacceptable.
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
