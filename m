@@ -1,67 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24514 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752839Ab1KPM47 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Nov 2011 07:56:59 -0500
-Date: Wed, 16 Nov 2011 13:56:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:39478 "EHLO
+	homiemail-a2.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755723Ab1K0WDn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 27 Nov 2011 17:03:43 -0500
+Subject: Re: mkfs.minix V3 is broken
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Maurizio Lombardi <m.lombardi85@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 11/15] prlimit: avoid segfault due to
-	array-out-of-bounds error
-Message-ID: <20111116125655.GI7916@nb.net.home>
-References: <4EC07379.8090102@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4EC07379.8090102@bernhard-voelker.de>
+In-Reply-To: <CAMtsiiDrWGKthY52+HT5r19g9EFRG2NHKMD3vni-SeaMNfuGDg@mail.gmail.com>
+References: <CAMtsiiDWF3xCiFtENTaYS36zKOJjRHML0x2nk1P0d0zeU3qi0A@mail.gmail.com>
+	 <1321913175.3253.8.camel@offbook>
+	 <CAMtsiiDrWGKthY52+HT5r19g9EFRG2NHKMD3vni-SeaMNfuGDg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 27 Nov 2011 23:03:38 +0100
+Message-ID: <1322431418.3213.7.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 14, 2011 at 02:48:41AM +0100, Bernhard Voelker wrote:
-> [PATCH 11/15] prlimit: avoid segfault due to array-out-of-bounds error
->
-> prlimit used 1 element of the lims array per limit given on the command
-> line argument, not being aware that a user would pass the value of the
-> soft and the hard limit in different options - leading to a segfault
-> when the user passes more than MAX_RESOURCES limit options.
-> As a side effect, a limit was retrieved and printed several times if
-> the corresponding option appeared multiple times.
->
-> Example:
-> $ prlimit -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l -l
-> RESOURCE DESCRIPTION                         SOFT   HARD UNITS
-> MEMLOCK  max locked-in-memory address space 65536 262144 bytes
-> MEMLOCK  max locked-in-memory address space 65536 262144 bytes
-> ...
-> Segmentation fault
+On Tue, 2011-11-22 at 10:03 +0100, Maurizio Lombardi wrote:
+> On Mon, Nov 21, 2011 at 11:06 PM, Davidlohr Bueso <dave@gnu.org> wrote:
+> >
+> > Most of the work I did on supporting v3 was based on the kernel's
+> > implementation and the mkfs shipped with minix (by ast), so a lot of
+> > what you say makes sense. I've taken a quick look at the changes and
+> > most are bugs are pretty straightforward, except:
+> >
+> > - mkfs.minix: The total number of zones is limited to 65536 only on V1
+> > filesystems
+> >
+> > Unless I'm missing something, this doesn't really change any logic.
+> 
+> Sorry, probably the commit message is not very well written... However
+> this commit fixes a very nasty bug, let me explain why....
+> Look at what the code did *before* my patch:
+> 
+> if (fs_version == 3)
+>      magic = MINIX3_SUPER_MAGIC;
+> if (fs_version == 2) {
+>      if (namelen == 14)
+>        magic = MINIX2_SUPER_MAGIC;
+>      else
+>        magic = MINIX2_SUPER_MAGIC2;
+> } else {
+>     if (BLOCKS > MINIX_MAX_INODES)
+>        BLOCKS = MINIX_MAX_INODES;
+> }
+> 
+> Can you see what happens if fs_version is == 3 ?
+> The total number of blocks is restricted to a maximum of 65536 both
+> with V1 and V3 filesystems, this is wrong because the total number of
+> blocks in V3 is a 32 bit number (the same of V2). With this
+> realization, it is really simple to fix the bug, and this is exactly
+> what I did:
 
- Ah.. stupid bug.
+Oh, yes, my bad, we should definitely have more blocks with v3. 
 
-> Use the lims array in a more direct way, i.e. the index is limit id.
-> Initialize lims array and adapt option parsing in main() accordingly.
-> do_prlimits() and show_limits(): loop over all MAX_RESOURCES in the
-> lims array.
+I made a couple of filesystems with your changes and things look good,
+specially incrementing the amount of inodes. The 60 character filename
+was already featured but it's good to specify it explicitly as well.
 
- It means that users cannot control order of the printed and modified
- resources. We prefer in all our new utils that output is fully
- controlled by users -- only this is a way how you can create stable
- and robust scripts.
+Karel, unless you have any objections please pull these changes in.
 
- I have replaced the array with list (see include/list.h). This
- solution makes the code more readable and robust.
+Thanks,
+Davidlohr
 
- # ./prlimit --data --nofile
- RESOURCE DESCRIPTION                   SOFT      HARD UNITS
- DATA     max data size            unlimited unlimited bytes
- NOFILE   max amount of open files      1001      3000 
+> 
+> if (fs_version == 3)
+>      magic = MINIX3_SUPER_MAGIC;
+> - if (fs_version == 2) {
+> +else if (fs_version == 2) {
+>      if (namelen == 14)
+>        magic = MINIX2_SUPER_MAGIC;
+>      else
+>        magic = MINIX2_SUPER_MAGIC2;
+> } else {
+>     if (BLOCKS > MINIX_MAX_INODES)
+>        BLOCKS = MINIX_MAX_INODES;
+> }
+> 
+> >
+> > I'll give the changes a proper test over the weekend.
+> 
+> Ok, thanks.
+> In case you accept the changes I did, this is the github repository
+> link with read-only access from where you can pull the changes from:
+> 
+> git://github.com/maurizio-lombardi/util-linux.git
+> 
+> Regards,
 
- # ./prlimit --nofile --data
- RESOURCE DESCRIPTION                   SOFT      HARD UNITS
- NOFILE   max amount of open files      1001      3000 
- DATA     max data size            unlimited unlimited bytes
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
