@@ -1,201 +1,280 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:59374 "EHLO
-	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756355Ab1LEUMq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Dec 2011 15:12:46 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:60176 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754555Ab1LAWK3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 1 Dec 2011 17:10:29 -0500
+Received: by eaak14 with SMTP id k14so2703091eaa.19
+        for <util-linux@vger.kernel.org>; Thu, 01 Dec 2011 14:10:28 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/4] partx: add update command
-Date: Mon,  5 Dec 2011 15:02:49 -0500
-Message-Id: <1323115372-3983-1-git-send-email-psusi@cfl.rr.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/2] build-sys: check HAVE_ definitions with #ifdef [smatch scan]
+Date: Thu,  1 Dec 2011 23:10:21 +0100
+Message-Id: <1322777421-11541-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1322777421-11541-1-git-send-email-kerolasa@iki.fi>
+References: <1322777421-11541-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Update the kernel partition table to match what is on disk.  Remove any
-extra partitions and add any missing ones.
+Fix to `warning: undefined preprocessor identifier' messages.
 
-Signed-off-by: Phillip Susi <psusi@cfl.rr.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- partx/partx.8 |    6 ++-
- partx/partx.c |   99 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 102 insertions(+), 3 deletions(-)
+ include/blkdev.h       |    2 +-
+ include/md5.h          |    2 +-
+ lib/env.c              |    2 +-
+ lib/ismounted.c        |    2 +-
+ libblkid/src/cache.c   |    2 +-
+ libblkid/src/devname.c |    8 ++++----
+ libblkid/src/devno.c   |   10 +++++-----
+ libblkid/src/llseek.c  |    6 +++---
+ libblkid/src/read.c    |    4 ++--
+ libblkid/src/resolve.c |    2 +-
+ libblkid/src/version.c |    2 +-
+ misc-utils/cal.c       |    2 +-
+ term-utils/script.c    |   10 +++++++---
+ 13 files changed, 29 insertions(+), 25 deletions(-)
 
-diff --git a/partx/partx.8 b/partx/partx.8
-index 4129d78..e67737a 100644
---- a/partx/partx.8
-+++ b/partx/partx.8
-@@ -9,7 +9,7 @@ partx \-
- tell the Linux kernel about the presence and numbering of on-disk partitions
- .SH SYNOPSIS
- .B partx
--.RB [ \-a | \-d | \-s ]
-+.RB [ \-a | \-d | \-s | \-u ]
- .RB [ \-t
- .IR TYPE ]
- .RB [ \-n
-@@ -18,7 +18,7 @@ tell the Linux kernel about the presence and numbering of on-disk partitions
- .I disk
+diff --git a/include/blkdev.h b/include/blkdev.h
+index 3ce8111..1e7409d 100644
+--- a/include/blkdev.h
++++ b/include/blkdev.h
+@@ -9,7 +9,7 @@
+ #include <fcntl.h>
+ #include <unistd.h>
  
- .B partx
--.RB [ \-a | \-d | \-s ]
-+.RB [ \-a | \-d | \-s | \-u ]
- .RB [ \-t
- .IR TYPE ]
- .I partition
-@@ -72,6 +72,8 @@ columns can be rearranged with the \fB\-\-output\fP option.
- .IP "\fB\-t, \-\-type \fItype\fP"
- Specify the partition table type -- aix, bsd, dos, gpt, mac, minix, sgi, solaris_x86,
- sun, ultrix or unixware.
-+.IP "\fB\-u, \-\-update\fP"
-+Update the specified partitions, or read the disk and update all partitions.
- .IP "\fB\-n, \-\-nr \fIM:N\fP"
- Specify the range of partitions.  For backward compatibility also the format
- <M-N> is supported.  The range may contain negative
-diff --git a/partx/partx.c b/partx/partx.c
-index d2fde3f..87443c4 100644
---- a/partx/partx.c
-+++ b/partx/partx.c
-@@ -55,6 +55,7 @@ enum {
- 	ACT_LIST = 1,
- 	ACT_SHOW,
- 	ACT_ADD,
-+	ACT_UPD,
- 	ACT_DELETE
- };
+-#if HAVE_SYS_MKDEV_H
++#ifdef HAVE_SYS_MKDEV_H
+ # include <sys/mkdev.h>		/* major and minor on Solaris */
+ #endif
  
-@@ -402,6 +403,96 @@ static int add_parts(int fd, const char *device,
- 	return rc;
- }
+diff --git a/include/md5.h b/include/md5.h
+index 1222cf0..d997e37 100644
+--- a/include/md5.h
++++ b/include/md5.h
+@@ -1,7 +1,7 @@
+ #ifndef MD5_H
+ #define MD5_H
  
-+static void upd_parts_warnx(const char *device, int first, int last)
-+{
-+	if (first == last)
-+		warnx(_("%s: error updating partition %d"), device, first);
-+	else
-+		warnx(_("%s: error updating partitions %d-%d"),
-+				device, first, last);
-+}
-+
-+static int upd_parts(int fd, const char *device, dev_t devno,
-+		     blkid_partlist ls, int lower, int upper)
-+{
-+	int i, n, an, nparts, rc = 0, errfirst = 0, errlast = 0, err;
-+	blkid_partition par;
-+	uintmax_t start, size;
-+
-+	assert(fd >= 0);
-+	assert(device);
-+	assert(ls);
-+
-+	nparts = blkid_partlist_numof_partitions(ls);
-+	if (!lower)
-+		lower = 1;
-+	if (!upper || lower < 0 || upper < 0) {
-+		n = get_max_partno(device, devno);
-+		if (!upper)
-+			upper = n > nparts ? n : nparts;
-+		else if (upper < 0)
-+			upper = n + upper + 1;
-+		if (lower < 0)
-+			lower = n + lower + 1;
-+	}
-+	if (lower > upper) {
-+		warnx(_("specified range <%d:%d> "
-+			"does not make sense"), lower, upper);
-+		return -1;
-+	}
-+
-+	for (i = 0, n = lower; n <= upper; n++) {
-+		par = blkid_partlist_get_partition(ls, i);
-+		an = blkid_partition_get_partno(par);
-+
-+		if (lower && n < lower)
-+			continue;
-+		if (upper && n > upper)
-+			continue;
-+
-+		start = blkid_partition_get_start(par);
-+		size =  blkid_partition_get_size(par);
-+
-+		if (blkid_partition_is_extended(par))
-+			/*
-+			 * Let's follow the Linux kernel and reduce
-+			 * DOS extended partition to 1 or 2 sectors.
-+			 */
-+			size = min(size, (uintmax_t) 2);
-+
-+		err = partx_del_partition(fd, n);
-+		if (err == -1 && errno == ENXIO)
-+			err = 0; /* good, it already doesn't exist */
-+		if (an == n)
-+		{
-+			if (i < nparts)
-+				i++;
-+			if (err == 0 && partx_add_partition(fd, n, start, size) == 0) {
-+				if (verbose)
-+					printf(_("%s: partition #%d added\n"), device, n);
-+				continue;
-+			}
-+		}
-+		if (err == 0)
-+			continue;
-+		rc = -1;
-+		if (verbose)
-+			warn(_("%s: updating partition #%d failed"), device, n);
-+		if (!errfirst)
-+			errlast = errfirst = n;
-+		else if (errlast + 1 == n)
-+			errlast++;
-+		else {
-+			upd_parts_warnx(device, errfirst, errlast);
-+			errlast = errfirst = n;
-+		}
-+	}
-+
-+	if (errfirst)
-+		upd_parts_warnx(device, errfirst, errlast);
-+	return rc;
-+}
-+
- static int list_parts(blkid_partlist ls, int lower, int upper)
- {
- 	int i, nparts;
-@@ -657,6 +748,7 @@ int main(int argc, char **argv)
- 		{ "show",	no_argument,       NULL, 's' },
- 		{ "add",	no_argument,       NULL, 'a' },
- 		{ "delete",	no_argument,	   NULL, 'd' },
-+		{ "update",     no_argument,       NULL, 'u' },
- 		{ "type",	required_argument, NULL, 't' },
- 		{ "nr",		required_argument, NULL, 'n' },
- 		{ "output",	required_argument, NULL, 'o' },
-@@ -670,7 +762,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
+-#if HAVE_STDINT_H
++#ifdef HAVE_STDINT_H
+ #include <stdint.h>
+ #else
+ typedef unsigned int uint32_t;
+diff --git a/lib/env.c b/lib/env.c
+index 770cadf..e6d119f 100644
+--- a/lib/env.c
++++ b/lib/env.c
+@@ -89,7 +89,7 @@ char *safe_getenv(const char *arg)
  
- 	while ((c = getopt_long(argc, argv,
--				"abdglrsvn:t:o:Ph", long_opts, NULL)) != -1) {
-+				"abdglrsuvn:t:o:Ph", long_opts, NULL)) != -1) {
+ 	if (ruid != 0 || (ruid != geteuid()) || (getgid() != getegid()))
+ 		return NULL;
+-#if HAVE_PRCTL
++#ifdef HAVE_PRCTL
+ 	if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0) == 0)
+ 		return NULL;
+ #else
+diff --git a/lib/ismounted.c b/lib/ismounted.c
+index f19d67b..273a7d9 100644
+--- a/lib/ismounted.c
++++ b/lib/ismounted.c
+@@ -11,7 +11,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <fcntl.h>
+-#if HAVE_MNTENT_H
++#ifdef HAVE_MNTENT_H
+ #include <mntent.h>
+ #endif
+ #include <string.h>
+diff --git a/libblkid/src/cache.c b/libblkid/src/cache.c
+index 6ef22a1..c100cfa 100644
+--- a/libblkid/src/cache.c
++++ b/libblkid/src/cache.c
+@@ -10,7 +10,7 @@
+  * %End-Header%
+  */
  
- 		switch(c) {
- 		case 'a':
-@@ -725,6 +817,9 @@ int main(int argc, char **argv)
- 		case 't':
- 			type = optarg;
- 			break;
-+		case 'u':
-+			what = ACT_UPD;
-+			break;
- 		case 'v':
- 			verbose = 1;
- 			break;
-@@ -879,6 +974,8 @@ int main(int argc, char **argv)
- 			case ACT_ADD:
- 				rc = add_parts(fd, wholedisk, ls, lower, upper);
- 				break;
-+			case ACT_UPD:
-+				rc = upd_parts(fd, wholedisk, disk_devno, ls, lower, upper);
- 			}
- 		}
- 		blkid_free_probe(pr);
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #ifdef HAVE_ERRNO_H
+diff --git a/libblkid/src/devname.c b/libblkid/src/devname.c
+index 42a8c19..12cd93a 100644
+--- a/libblkid/src/devname.c
++++ b/libblkid/src/devname.c
+@@ -16,20 +16,20 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <limits.h>
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #include <stdlib.h>
+ #include <ctype.h>
+ #include <fcntl.h>
+-#if HAVE_SYS_TYPES_H
++#ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
+ #include <dirent.h>
+-#if HAVE_SYS_STAT_H
++#ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
+ #endif
+-#if HAVE_ERRNO_H
++#ifdef HAVE_ERRNO_H
+ #include <errno.h>
+ #endif
+ #include <time.h>
+diff --git a/libblkid/src/devno.c b/libblkid/src/devno.c
+index 92ed7c0..b2a8be5 100644
+--- a/libblkid/src/devno.c
++++ b/libblkid/src/devno.c
+@@ -12,21 +12,21 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #include <stdlib.h>
+-#if HAVE_SYS_TYPES_H
++#ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
+-#if HAVE_SYS_STAT_H
++#ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
+ #endif
+ #include <dirent.h>
+-#if HAVE_ERRNO_H
++#ifdef HAVE_ERRNO_H
+ #include <errno.h>
+ #endif
+-#if HAVE_SYS_MKDEV_H
++#ifdef HAVE_SYS_MKDEV_H
+ #include <sys/mkdev.h>
+ #endif
+ #include <fcntl.h>
+diff --git a/libblkid/src/llseek.c b/libblkid/src/llseek.c
+index 5bd0e51..7fb44c4 100644
+--- a/libblkid/src/llseek.c
++++ b/libblkid/src/llseek.c
+@@ -12,14 +12,14 @@
+ #define _LARGEFILE_SOURCE
+ #define _LARGEFILE64_SOURCE
+ 
+-#if HAVE_SYS_TYPES_H
++#ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
+ 
+-#if HAVE_ERRNO_H
++#ifdef HAVE_ERRNO_H
+ #include <errno.h>
+ #endif
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #ifdef __MSDOS__
+diff --git a/libblkid/src/read.c b/libblkid/src/read.c
+index c404bb0..b9fda3a 100644
+--- a/libblkid/src/read.c
++++ b/libblkid/src/read.c
+@@ -19,13 +19,13 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+-#if HAVE_ERRNO_H
++#ifdef HAVE_ERRNO_H
+ #include <errno.h>
+ #endif
+ 
+ #include "blkidP.h"
+ 
+-#if HAVE_STDLIB_H
++#ifdef HAVE_STDLIB_H
+ # ifndef _XOPEN_SOURCE
+ #  define _XOPEN_SOURCE 600	/* for inclusion of strtoull */
+ # endif
+diff --git a/libblkid/src/resolve.c b/libblkid/src/resolve.c
+index bf13b86..bf5041d 100644
+--- a/libblkid/src/resolve.c
++++ b/libblkid/src/resolve.c
+@@ -11,7 +11,7 @@
+  */
+ 
+ #include <stdio.h>
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #include <stdlib.h>
+diff --git a/libblkid/src/version.c b/libblkid/src/version.c
+index 4c7fa06..63f02f6 100644
+--- a/libblkid/src/version.c
++++ b/libblkid/src/version.c
+@@ -9,7 +9,7 @@
+  * %End-Header%
+  */
+ 
+-#if HAVE_UNISTD_H
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+ #include <string.h>
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 1c810ca..c9efdf0 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -297,7 +297,7 @@ main(int argc, char **argv) {
+  * the locale database, which can be overridden with the
+  * -s (Sunday) or -m (Monday) options.
+  */
+-#if HAVE_DECL__NL_TIME_WEEK_1STDAY
++#ifdef HAVE_DECL__NL_TIME_WEEK_1STDAY
+ 	/*
+ 	 * You need to use 2 locale variables to get the first day of the week.
+ 	 * This is needed to support first_weekday=2 and first_workday=1 for
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 3891bf9..9e08ff6 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -62,8 +62,10 @@
+ #include "nls.h"
+ #include "c.h"
+ 
+-#if HAVE_LIBUTIL && HAVE_PTY_H
+-#include <pty.h>
++#ifdef HAVE_LIBUTIL
++# ifdef HAVE_PTY_H
++#  include <pty.h>
++# endif
+ #endif
+ 
+ #ifdef HAVE_LIBUTEMPTER
+@@ -499,13 +501,15 @@ done(void) {
+ 
+ void
+ getmaster(void) {
+-#if HAVE_LIBUTIL && HAVE_PTY_H
++#ifdef HAVE_LIBUTIL
++# ifdef HAVE_PTY_H
+ 	tcgetattr(STDIN_FILENO, &tt);
+ 	ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&win);
+ 	if (openpty(&master, &slave, NULL, &tt, &win) < 0) {
+ 		warn(_("openpty failed"));
+ 		fail();
+ 	}
++# endif
+ #else
+ 	char *pty, *bank, *cp;
+ 	struct stat stb;
 -- 
-1.7.5.4
+1.7.7.4
 
