@@ -1,26 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57779 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757109Ab1LBRWg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Dec 2011 12:22:36 -0500
-Date: Fri, 2 Dec 2011 18:22:25 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] build-sys: add missing headers to dist
-Message-ID: <20111202172225.GA28962@nb.net.home>
-References: <1322777421-11541-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1322777421-11541-1-git-send-email-kerolasa@iki.fi>
+Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:59372 "EHLO
+	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756295Ab1LEUMq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Dec 2011 15:12:46 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/4] partx: don't print error when partition already doesn't exist
+Date: Mon,  5 Dec 2011 15:02:51 -0500
+Message-Id: <1323115372-3983-3-git-send-email-psusi@cfl.rr.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 01, 2011 at 11:10:20PM +0100, Sami Kerola wrote:
->  include/Makefile.am |    2 ++
+If you run partx -d to delete partitions, and there are gaps
+in the sequence ( partition 2 exists, but 1 doesn't ), then it
+would complain that it had errors trying to remove the partitions
+that already don't exist. Changed to ignore the error when
+errno == ENXIO.
 
- Applied, thanks.
+Signed-off-by: Phillip Susi <psusi@cfl.rr.com>
+---
+ partx/partx.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
+diff --git a/partx/partx.c b/partx/partx.c
+index 2510ffb..50b0c20 100644
+--- a/partx/partx.c
++++ b/partx/partx.c
+@@ -303,10 +303,15 @@ static int del_parts(int fd, const char *device, dev_t devno,
+ 	}
+ 
+ 	for (i = lower; i <= upper; i++) {
+-		if (partx_del_partition(fd, i) == 0) {
++		rc = partx_del_partition(fd, i);
++		if (rc == 0) {
+ 			if (verbose)
+ 				printf(_("%s: partition #%d removed\n"), device, i);
+ 			continue;
++		} else if (errno == ENXIO) {
++			if (verbose)
++				printf(_("%s: partition #%d already doesn't exist\n"), device, i);
++			continue;
+ 		}
+ 		rc = -1;
+ 		if (verbose)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.5.4
+
