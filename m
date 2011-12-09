@@ -1,58 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:39861 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752214Ab1LZXr2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 26 Dec 2011 18:47:28 -0500
-Received: by qadc12 with SMTP id c12so6432047qad.19
-        for <util-linux@vger.kernel.org>; Mon, 26 Dec 2011 15:47:27 -0800 (PST)
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] mount: don't canonicalize the source of a pseudofs
-Date: Mon, 26 Dec 2011 18:47:24 -0500
-Message-Id: <1324943244-27332-1-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1324937423-15766-1-git-send-email-dreisner@archlinux.org>
-References: <1324937423-15766-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: walrond.andrew@gimli.pitney-fabs.co.uk
+Date: Fri, 9 Dec 2011 12:55:37 +0000
+From: Andrew Walrond <andrew@walrond.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Mount -a and bind mounts. Bug?
+Message-ID: <20111209125537.GC3173@golden.localdomain>
+References: <20111209123357.GA3173@golden.localdomain>
+ <20111209124837.GA7960@nb.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111209124837.GA7960@nb.net.home>
+Sender: walrond.andrew@gimli.pitney-fabs.co.uk
 List-ID: <util-linux.vger.kernel.org>
 
-In line with previous patches, the source of a pseudofs is strictly
-semantic; do not attempt to resolve it to a filesystem path.
+On Fri, Dec 09, 2011 at 01:48:37PM +0100, Karel Zak wrote:
+> On Fri, Dec 09, 2011 at 12:33:58PM +0000, Andrew Walrond wrote:
+> >
+> > I'm using v2.20.1.
+> 
+>  - distro?
 
-As a side effect of this, nspec needs to be initialized to NULL since
-it may not be assigned null by spec_to_devname when the FS is deemed
-a pseudofs.
+A custom job of my own
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
-This wasn't as evil as I thought, after all...
+>  - linked with libmount?
 
- mount/mount.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+Don't think so.
 
-diff --git a/mount/mount.c b/mount/mount.c
-index 9b444c4..49d49f6 100644
---- a/mount/mount.c
-+++ b/mount/mount.c
-@@ -2016,7 +2016,7 @@ is_existing_file (const char *s) {
- static int
- mount_one (const char *spec, const char *node, const char *types,
- 	   const char *fstabopts, char *cmdlineopts, int freq, int pass) {
--	const char *nspec;
-+	const char *nspec = NULL;
- 	char *opts;
- 
- 	/* Substitute values in opts, if required */
-@@ -2046,7 +2046,8 @@ mount_one (const char *spec, const char *node, const char *types,
- 			      strncmp(types, "nfs", 3) &&
- 			      strncmp(types, "cifs", 4) &&
- 			      strncmp(types, "smbfs", 5))) {
--		nspec = spec_to_devname(spec);
-+		if (!is_pseudo_fs(types))
-+			nspec = spec_to_devname(spec);
- 		if (nspec)
- 			spec = nspec;
- 	}
--- 
-1.7.8.1
+$ ldd /bin/mount
+        linux-vdso.so.1 =>  (0x00007fff093af000)
+        libblkid.so.1 => //lib/libblkid.so.1 (0x00007f087b755000)
+        libuuid.so.1 => //lib/libuuid.so.1 (0x00007f087b551000)
+        libc.so.6 => //lib/libc.so.6 (0x00007f087b1ca000)
+        /lib64/ld-linux-x86-64.so.2 => //lib64/ld-linux-x86-64.so.2 (0x00007f087b97b000)
 
+Saw some mention of libmount somewhere when I upgraded and built 2.20.1 but didn't have time to read further.
+What's the current recommendation? Should I link against it?
+
+>  - do you have regular mtab or symlink to /proc/mounts
+
+symlink to /proc/mounts
+
+
+Andrew Walrond
