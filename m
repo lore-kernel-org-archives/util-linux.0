@@ -1,49 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:48264 "EHLO
-	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751724Ab1LTNmP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 Dec 2011 08:42:15 -0500
-Subject: [PATCH 4/5] fdisk: remove packed definitions
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 20 Dec 2011 14:42:07 +0100
-Message-ID: <1324388527.3316.10.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:3994 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751441Ab1LINDH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Dec 2011 08:03:07 -0500
+Date: Fri, 9 Dec 2011 14:03:05 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Mount -a and bind mounts. Bug?
+Message-ID: <20111209130305.GD7960@nb.net.home>
+References: <20111209123357.GA3173@golden.localdomain> <20111209124837.GA7960@nb.net.home> <20111209125537.GC3173@golden.localdomain> <20111209130128.GC7960@nb.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111209130128.GC7960@nb.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Fri, Dec 09, 2011 at 02:01:28PM +0100, Karel Zak wrote:
+> On Fri, Dec 09, 2011 at 12:55:37PM +0000, Andrew Walrond wrote:
+> > On Fri, Dec 09, 2011 at 01:48:37PM +0100, Karel Zak wrote:
+> > >  - distro?
+> > 
+> > A custom job of my own
+> > 
+> > >  - linked with libmount?
+> > 
+> > Don't think so.
+> > 
+> > $ ldd /bin/mount
+> >         linux-vdso.so.1 =>  (0x00007fff093af000)
+> >         libblkid.so.1 => //lib/libblkid.so.1 (0x00007f087b755000)
+> >         libuuid.so.1 => //lib/libuuid.so.1 (0x00007f087b551000)
+> >         libc.so.6 => //lib/libc.so.6 (0x00007f087b1ca000)
+> >         /lib64/ld-linux-x86-64.so.2 => //lib64/ld-linux-x86-64.so.2 (0x00007f087b97b000)
+> > 
+> > Saw some mention of libmount somewhere when I upgraded and built 2.20.1 but didn't have time to read further.
+> > What's the current recommendation? Should I link against it?
+> > 
+> > >  - do you have regular mtab or symlink to /proc/mounts
+> > 
+> > symlink to /proc/mounts
+> 
+>  ... okay then it's expected behavior. The file /proc/mounts does not
+>  provide enough information about bind mounts. You need regular mtab
+>  or link with libmount (the library reads /proc/self/mountinfo and
+>  does some horrible voodoo to detect already mounted bind mounts).
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.h |    6 ------
- 1 files changed, 0 insertions(+), 6 deletions(-)
+ see also:
 
-diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
-index 84be09c..d8832e9 100644
---- a/fdisk/fdisk.h
-+++ b/fdisk/fdisk.h
-@@ -26,12 +26,6 @@
- #define cround(n)	(display_in_cyl_units ? ((n)/units_per_sector)+1 : (n))
- #define scround(x)	(((x)+units_per_sector-1)/units_per_sector)
- 
--#if defined(__GNUC__) && (defined(__arm__) || defined(__alpha__))
--# define PACKED __attribute__ ((packed))
--#else
--# define PACKED
--#endif
--
- struct partition {
- 	unsigned char boot_ind;         /* 0x80 - active */
- 	unsigned char head;             /* starting head */
+ http://karelzak.blogspot.com/2011/04/bind-mounts-mtab-and-read-only.html
+
+    Karel
+
 -- 
-1.7.4.1
-
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
