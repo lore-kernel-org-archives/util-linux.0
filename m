@@ -1,29 +1,34 @@
-Return-Path: dave@gnu.org
-Subject: Re: [PATCH] lists: add list sorting routine
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <20111213092607.GA22851@nb.net.home>
-References: <1323730346.2536.3.camel@offbook>
-	 <1323730557.2536.5.camel@offbook>  <20111213092607.GA22851@nb.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Dec 2011 11:56:26 +0100
-Message-ID: <1323773786.3256.1.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:35371 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752189Ab1LIMsj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Dec 2011 07:48:39 -0500
+Date: Fri, 9 Dec 2011 13:48:37 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Mount -a and bind mounts. Bug?
+Message-ID: <20111209124837.GA7960@nb.net.home>
+References: <20111209123357.GA3173@golden.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111209123357.GA3173@golden.localdomain>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2011-12-13 at 10:26 +0100, Karel Zak wrote:
-> On Mon, Dec 12, 2011 at 11:55:57PM +0100, Davidlohr Bueso wrote:
-> > One note: the code is added to the header file instead of its own C file
-> > so we don't have to update all the build rules of the list.h users.
+On Fri, Dec 09, 2011 at 12:33:58PM +0000, Andrew Walrond wrote:
+> When using bind mounts, particularly when they are specified in
+> /etc/fstab, 'mount -a' does not recognise that a mount is already
+> mounted and will rebind another copy over the top with each mount
+> -a.
 > 
-> [...]
-> 
-> > > +static struct list_head *merge(int (*cmp)(struct list_head *a,
-> > > +					  struct list_head *b),
-> > > +			       struct list_head *a, struct list_head *b)
-> 
->  shouldn't be the function "static inline" (or _INLINE_ ) ?
+> Is this the expected behaviour? I'm not sure so I thought I'd ask.
+> I'm using v2.20.1.
 
-Hmm yes, do you want me to send another patch with the correction?
+ - distro?
+ - linked with libmount?
+ - do you have regular mtab or symlink to /proc/mounts
+ 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
