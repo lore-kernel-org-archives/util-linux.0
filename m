@@ -1,79 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nagini.codelibre.net ([80.68.93.164]:54245 "EHLO
-	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752332Ab1LPXPk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 16 Dec 2011 18:15:40 -0500
-Date: Fri, 16 Dec 2011 23:15:38 +0000
-From: Roger Leigh <rleigh@codelibre.net>
+Received: from gimli.pitney-fabs.co.uk ([87.106.140.52]:50974 "EHLO
+	gimli.pitney-fabs.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753268Ab1LIMeC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Dec 2011 07:34:02 -0500
+Received: from host81-139-106-247.in-addr.btopenworld.com ([81.139.106.247] helo=golden.localdomain)
+	by gimli.pitney-fabs.co.uk with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.72)
+	(envelope-from <walrond.andrew@gimli.pitney-fabs.co.uk>)
+	id 1RYzeJ-0001CD-RA
+	for util-linux@vger.kernel.org; Fri, 09 Dec 2011 12:34:00 +0000
+Date: Fri, 9 Dec 2011 12:33:58 +0000
+From: Andrew Walrond <andrew@walrond.org>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] Add mount option for initramfs
-Message-ID: <20111216231538.GR17458@codelibre.net>
+Subject: Mount -a and bind mounts. Bug?
+Message-ID: <20111209123357.GA3173@golden.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="fd5uyaI9j6xoeUBo"
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+When using bind mounts, particularly when they are specified in /etc/fstab, 'mount -a' does not recognise that a mount is already mounted and will rebind another copy over the top with each mount -a.
 
---fd5uyaI9j6xoeUBo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Is this the expected behaviour? I'm not sure so I thought I'd ask.
+I'm using v2.20.1.
 
-Hi,
+Example:
 
-I've attached a trivial patch for an "initramfs" mount option.  The
-purpose of this patch is that selected mounts in /etc/fstab can be
-identified for mounting in the generated initramfs.  This will
-permit e.g. mounting of a separate /etc and /usr and any other
-admin-configured filesystems prior to init starting.
+user@localhost ~ $ cat /etc/fstab 
+#FILESYSTEM          MOUNTPOINT  TYPE     OPTIONS      BACKUP FSCK-PASS
+/root/etc            /etc        none     bind         0      0
+/root/home           /home       none     bind         0      0
+/root/local          /local      none     bind         0      0
+/root/mnt            /mnt        none     bind         0      0
+/root/tmp            /tmp        none     bind         0      0
+/root/var            /var        none     bind         0      0
+/root/swap            none       swap     sw           0      0
 
-Uses: encrypted /etc and unencrypted / and /usr
-      separate /usr mounted with rootfs
-      - this means libraries and binaries on /usr are available
-        from the initramfs onward, solving a whole host of
-        problems with e.g. nss and pam modules having dependent
-        libs in /usr, etc., which aren't available during boot.
+user@localhost ~ $ mount
+rootfs on / type rootfs (rw,size=0k,nr_inodes=0)
+none on /dev type devtmpfs (rw,relatime,size=7202028k,nr_inodes=1800507,mode=755)
+none on /proc type proc (rw,relatime)
+none on /sys type sysfs (rw,relatime)
+none on /dev/pts type devpts (rw,relatime,gid=3,mode=620)
+none on /dev/shm type tmpfs (rw,relatime)
+/dev/vda on /root type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /etc type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /home type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /local type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /mnt type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /tmp type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /var type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
 
-Feel free to change the name to something more generic; this is
-intended for use with Debian's initramfs-tools initramfs
-generator, but may have potential for cross-distribution use.
+user@localhost ~ $ sudo mount  -a
 
-
-Regards,
-Roger
-
--- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
-
---fd5uyaI9j6xoeUBo
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-mount-Allow-initramfs-dummy-mount-option.patch"
-
->From e588ddb89eb3d8b63291dd7cdad5c134fd221a2d Mon Sep 17 00:00:00 2001
-From: Roger Leigh <rleigh@debian.org>
-Date: Fri, 16 Dec 2011 23:07:35 +0000
-Subject: [PATCH] mount: Allow initramfs dummy mount option
-
----
- mount/mount.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/mount/mount.c b/mount/mount.c
-index 9b444c4..05e82fa 100644
---- a/mount/mount.c
-+++ b/mount/mount.c
-@@ -202,6 +202,7 @@ static const struct opt_map opt_map[] = {
-   { "nostrictatime", 0, 1, MS_STRICTATIME }, /* kernel default atime */
- #endif
-   { "nofail",	0, 0, MS_COMMENT},	/* Do not fail if ENOENT on dev */
-+  { "initramfs", 0, 0, MS_COMMENT},     /* Mount filesystem in initramfs */
-   { NULL,	0, 0, 0		}
- };
- 
--- 
-1.7.7.3
-
-
---fd5uyaI9j6xoeUBo--
+user@localhost ~ $ mount
+rootfs on / type rootfs (rw,size=0k,nr_inodes=0)
+none on /dev type devtmpfs (rw,relatime,size=7202028k,nr_inodes=1800507,mode=755)
+none on /proc type proc (rw,relatime)
+none on /sys type sysfs (rw,relatime)
+none on /dev/pts type devpts (rw,relatime,gid=3,mode=620)
+none on /dev/shm type tmpfs (rw,relatime)
+/dev/vda on /root type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /etc type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /home type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /local type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /mnt type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /tmp type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /var type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /etc type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /home type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /local type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /mnt type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /tmp type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
+/dev/vda on /var type ext4 (rw,relatime,user_xattr,acl,barrier=1,data=ordered)
