@@ -1,57 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3994 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751441Ab1LINDH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 9 Dec 2011 08:03:07 -0500
-Date: Fri, 9 Dec 2011 14:03:05 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Mount -a and bind mounts. Bug?
-Message-ID: <20111209130305.GD7960@nb.net.home>
-References: <20111209123357.GA3173@golden.localdomain> <20111209124837.GA7960@nb.net.home> <20111209125537.GC3173@golden.localdomain> <20111209130128.GC7960@nb.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111209130128.GC7960@nb.net.home>
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:49208 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751945Ab1LKS6I (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 11 Dec 2011 13:58:08 -0500
+Received: by qcqz2 with SMTP id z2so3142322qcq.19
+        for <util-linux@vger.kernel.org>; Sun, 11 Dec 2011 10:58:08 -0800 (PST)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 0/2] Add user-defined fstab location for findmnt
+Date: Sun, 11 Dec 2011 13:58:03 -0500
+Message-Id: <1323629885-17940-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 09, 2011 at 02:01:28PM +0100, Karel Zak wrote:
-> On Fri, Dec 09, 2011 at 12:55:37PM +0000, Andrew Walrond wrote:
-> > On Fri, Dec 09, 2011 at 01:48:37PM +0100, Karel Zak wrote:
-> > >  - distro?
-> > 
-> > A custom job of my own
-> > 
-> > >  - linked with libmount?
-> > 
-> > Don't think so.
-> > 
-> > $ ldd /bin/mount
-> >         linux-vdso.so.1 =>  (0x00007fff093af000)
-> >         libblkid.so.1 => //lib/libblkid.so.1 (0x00007f087b755000)
-> >         libuuid.so.1 => //lib/libuuid.so.1 (0x00007f087b551000)
-> >         libc.so.6 => //lib/libc.so.6 (0x00007f087b1ca000)
-> >         /lib64/ld-linux-x86-64.so.2 => //lib64/ld-linux-x86-64.so.2 (0x00007f087b97b000)
-> > 
-> > Saw some mention of libmount somewhere when I upgraded and built 2.20.1 but didn't have time to read further.
-> > What's the current recommendation? Should I link against it?
-> > 
-> > >  - do you have regular mtab or symlink to /proc/mounts
-> > 
-> > symlink to /proc/mounts
-> 
->  ... okay then it's expected behavior. The file /proc/mounts does not
->  provide enough information about bind mounts. You need regular mtab
->  or link with libmount (the library reads /proc/self/mountinfo and
->  does some horrible voodoo to detect already mounted bind mounts).
+This adds an optional argument to the --fstab parameter of findmnt to allow for
+a custom location of /etc/fstab. The first patch is a minor fixup for a bug I
+discovered while testing.
 
- see also:
+Dave Reisner (2):
+  findmnt: use warnx for libmnt error callback
+  findmnt: support alternative location of fstab
 
- http://karelzak.blogspot.com/2011/04/bind-mounts-mtab-and-read-only.html
-
-    Karel
+ misc-utils/findmnt.8 |    6 ++++--
+ misc-utils/findmnt.c |    8 ++++----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.8
+
