@@ -1,332 +1,205 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from nagini.codelibre.net ([80.68.93.164]:42596 "EHLO
-	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753301Ab1LMUaF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Dec 2011 15:30:05 -0500
-Date: Tue, 13 Dec 2011 20:30:01 +0000
-From: Roger Leigh <rleigh@codelibre.net>
-To: util-linux@vger.kernel.org
-Subject: sysvinit-2.88dsf-14
-Message-ID: <20111213203001.GJ17458@codelibre.net>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="a+b56+3nqLzpiR9O"
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: Re: [PATCH] lists: add list sorting routine
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <1323730346.2536.3.camel@offbook>
+References: <1323730346.2536.3.camel@offbook>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 12 Dec 2011 23:55:57 +0100
+Message-ID: <1323730557.2536.5.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
+One note: the code is added to the header file instead of its own C file
+so we don't have to update all the build rules of the list.h users.
 
---a+b56+3nqLzpiR9O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks,
+Davidlohr
 
-Hi folks,
-
-I'd like to upload the following to experimental, but wanted to
-run it past you in case there was anything you were unhappy
-with or which you would like changing.  I've attached a patch
-for the proposed upload, and the changelog is below.  Any
-comments would be appreciated.
-
-The main two parts are the removal of /lib/init/rw and the
-conversion of /etc/mtab to a symlink.
-
-sysvinit (2.88dsf-14) experimental; urgency=low
-
-  [ Kel Modderman ]
-  * Add support for s390x, thanks to Aurelien Jarno <aurel32@debian.org>.
-    (Closes: #641107)
-
-  [ Roger Leigh ]
-  * debian/rules:
-    - Add build-arch and -indep rules. (Closes: #648472)
-    - Remove dpatch usage.
-    - Use dh and debhelper compat level 9.
-  * debian/control:
-    - Add git version control information.
-    - Upgrade to Standards-Version 3.9.2.
-    - Add myself to Uploaders.
-  * Use dpkg 3.0 (quilt) source format.  Rediffed
-    debian/patches/40_multiarch_libcrypt.patch which was not well
-    formed and failed to apply.
-  * initscripts:
-    - Make /etc/mtab a symlink to /proc/mounts. (Closes: #494001)
-      Note that this is only done when the root filesystem is writable
-      and /proc/mount is readable.
-    - Support the ceph network filesystem. (Closes: #580579).  Thanks
-      to Sage Weil.
-    - Restore boot-time cleaning of /var/run and /var/lock, used by
-      systems which currently do not use a tmpfs for /run.
-    - Remove /lib/init/rw: Add Breaks for all packages which used
-      /lib/init/rw, and which now use /run.  Unmount and remove
-      following upgrade.
-    - Don't create /run/.run-transition on upgrade, only on actually
-      setting up a transitional bind mount.
-    - Add Breaks on all packages previously using /lib/init/rw, in
-      order to permit removal of /lib/init/rw.  It is not possible to
-      remove prior to rebooting due to initscripts being required to
-      be configured by the packages transitioning to /run.  Remove in
-      wheezy+1.
-    - Remove trailing period from the initscripts init script log
-      message.  (Closes: #648881).  Thanks to Clint Byrum.
-    - /etc/network/if-up.d/mountnfs: grep: character class syntax is
-      [[:space:]], not [:space:]. (Closes: #631077, #645655).  Thanks to
-      Milan Kocian and Jan-Benedict Glaw.  Also simplify function logic
-      using a for loop rather than a while loop.  Thanks to Corey Hickey.
-  * sysv-rc:
-    - Remove splash support and use of removed /dev/.initramfs.
-      (Closes: #643558).  Thanks to Michael Biebl.
-
- -- Roger Leigh <rleigh@debian.org>  Tue, 13 Dec 2011 20:11:48 +0000
-
-
-Regards,
-Roger
-
--- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
-
---a+b56+3nqLzpiR9O
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="sysvinit-2.88dsf-14.patch.xz"
-Content-Transfer-Encoding: base64
-
-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
-
---a+b56+3nqLzpiR9O--
+On Mon, 2011-12-12 at 23:52 +0100, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+> 
+> We need a list sorting function, just to mention one example user that could benefit is the lib/tt code to sort columns.
+> 
+> This patch adds list_sort() which uses the Merge Sort algorithm, behaving nicely in O(nlog(n)), heavily based on the kernel's implementation[1].
+> The private data (void *priv) passed to the comparison function as been removed to adopt a qsort(3)-like syntax, and IMHO we don't really need it anyways.
+> 
+> [1]: http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=lib/list_sort.c;h=d7325c6b103f0be078ff3672c35c468ed35738f1;hb=HEAD
+> 
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> ---
+>  include/c.h    |    8 +++
+>  include/list.h |  132 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 140 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/c.h b/include/c.h
+> index c4a95aa..290303e 100644
+> --- a/include/c.h
+> +++ b/include/c.h
+> @@ -104,6 +104,14 @@
+>  	_max1 > _max2 ? _max1 : _max2; })
+>  #endif
+>  
+> +#ifndef offsetof
+> +#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+> +#endif
+> +
+> +#define container_of(ptr, type, member) ({                      \
+> +			const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+> +			(type *)( (char *)__mptr - offsetof(type,member) );})
+> +
+>  #ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
+>  # ifdef HAVE___PROGNAME
+>  extern char *__progname;
+> diff --git a/include/list.h b/include/list.h
+> index f7b17fe..afcfeeb 100644
+> --- a/include/list.h
+> +++ b/include/list.h
+> @@ -3,6 +3,7 @@
+>   * Copyright (C) 1999-2008 by Theodore Ts'o
+>   *
+>   * (based on list.h from e2fsprogs)
+> + * Merge sort based on kernel's implementation.
+>   */
+>  
+>  #ifndef UTIL_LINUX_LIST_H
+> @@ -192,6 +193,137 @@ _INLINE_ void list_splice(struct list_head *list, struct list_head *head)
+>  	for (pos = (head)->next, pnext = pos->next; pos != (head); \
+>  	     pos = pnext, pnext = pos->next)
+>  
+> +#define MAX_LIST_LENGTH_BITS 20
+> +
+> +/*
+> + * Returns a list organized in an intermediate format suited
+> + * to chaining of merge() calls: null-terminated, no reserved or
+> + * sentinel head node, "prev" links not maintained.
+> + */
+> +static struct list_head *merge(int (*cmp)(struct list_head *a,
+> +					  struct list_head *b),
+> +			       struct list_head *a, struct list_head *b)
+> +{
+> +	struct list_head head, *tail = &head;
+> +
+> +	while (a && b) {
+> +		/* if equal, take 'a' -- important for sort stability */
+> +		if ((*cmp)(a, b) <= 0) {
+> +			tail->next = a;
+> +			a = a->next;
+> +		} else {
+> +			tail->next = b;
+> +			b = b->next;
+> +		}
+> +		tail = tail->next;
+> +	}
+> +	tail->next = a?:b;
+> +	return head.next;
+> +}
+> +
+> +/*
+> + * Combine final list merge with restoration of standard doubly-linked
+> + * list structure.  This approach duplicates code from merge(), but
+> + * runs faster than the tidier alternatives of either a separate final
+> + * prev-link restoration pass, or maintaining the prev links
+> + * throughout.
+> + */
+> +static void merge_and_restore_back_links(int (*cmp)(struct list_head *a,
+> +						    struct list_head *b),
+> +					 struct list_head *head,
+> +					 struct list_head *a, struct list_head *b)
+> +{
+> +	struct list_head *tail = head;
+> +
+> +	while (a && b) {
+> +		/* if equal, take 'a' -- important for sort stability */
+> +		if ((*cmp)(a, b) <= 0) {
+> +			tail->next = a;
+> +			a->prev = tail;
+> +			a = a->next;
+> +		} else {
+> +			tail->next = b;
+> +			b->prev = tail;
+> +			b = b->next;
+> +		}
+> +		tail = tail->next;
+> +	}
+> +	tail->next = a ? : b;
+> +
+> +	do {
+> +		/*
+> +		 * In worst cases this loop may run many iterations.
+> +		 * Continue callbacks to the client even though no
+> +		 * element comparison is needed, so the client's cmp()
+> +		 * routine can invoke cond_resched() periodically.
+> +		 */
+> +		(*cmp)(tail->next, tail->next);
+> +
+> +		tail->next->prev = tail;
+> +		tail = tail->next;
+> +	} while (tail->next);
+> +
+> +	tail->next = head;
+> +	head->prev = tail;
+> +}
+> +
+> +
+> +/**
+> + * list_sort - sort a list
+> + * @head: the list to sort
+> + * @cmp: the elements comparison function
+> + *
+> + * This function implements "merge sort", which has O(nlog(n))
+> + * complexity.
+> + *
+> + * The comparison function @cmp must return a negative value if @a
+> + * should sort before @b, and a positive value if @a should sort after
+> + * @b. If @a and @b are equivalent, and their original relative
+> + * ordering is to be preserved, @cmp must return 0.
+> + */
+> +_INLINE_ void list_sort(struct list_head *head,
+> +			int (*cmp)(struct list_head *a,
+> +				   struct list_head *b))
+> +{
+> +	struct list_head *part[MAX_LIST_LENGTH_BITS+1]; /* sorted partial lists
+> +							   -- last slot is a sentinel */
+> +	int lev;  /* index into part[] */
+> +	int max_lev = 0;
+> +	struct list_head *list;
+> +
+> +	if (list_empty(head))
+> +		return;
+> +
+> +	memset(part, 0, sizeof(part));
+> +
+> +	head->prev->next = NULL;
+> +	list = head->next;
+> +
+> +	while (list) {
+> +		struct list_head *cur = list;
+> +		list = list->next;
+> +		cur->next = NULL;
+> +
+> +		for (lev = 0; part[lev]; lev++) {
+> +			cur = merge(cmp, part[lev], cur);
+> +			part[lev] = NULL;
+> +		}
+> +		if (lev > max_lev) {
+> +			/* list passed to list_sort() too long for efficiency */
+> +			if (lev >= ARRAY_SIZE(part)-1)
+> +				lev--;
+> +			max_lev = lev;
+> +		}
+> +		part[lev] = cur;
+> +	}
+> +
+> +	for (lev = 0; lev < max_lev; lev++)
+> +		if (part[lev])
+> +			list = merge(cmp, part[lev], list);
+> +
+> +	merge_and_restore_back_links(cmp, head, part[max_lev], list);
+> +}
+> +
+>  #undef _INLINE_
+>  
+>  #endif /* UTIL_LINUX_LIST_H */
