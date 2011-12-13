@@ -1,40 +1,29 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47165 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750755Ab1LPKn7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 16 Dec 2011 05:43:59 -0500
-Date: Fri, 16 Dec 2011 11:43:53 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
-Subject: Re: [PATCH 1/2] findmnt: use warnx for libmnt error callback
-Message-ID: <20111216104353.GD25486@nb.net.home>
-References: <1323629885-17940-1-git-send-email-dreisner@archlinux.org> <1323629885-17940-2-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1323629885-17940-2-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: Re: [PATCH] lists: add list sorting routine
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <20111213092607.GA22851@nb.net.home>
+References: <1323730346.2536.3.camel@offbook>
+	 <1323730557.2536.5.camel@offbook>  <20111213092607.GA22851@nb.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 13 Dec 2011 11:56:26 +0100
+Message-ID: <1323773786.3256.1.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 11, 2011 at 01:58:04PM -0500, Dave Reisner wrote:
->  misc-utils/findmnt.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+On Tue, 2011-12-13 at 10:26 +0100, Karel Zak wrote:
+> On Mon, Dec 12, 2011 at 11:55:57PM +0100, Davidlohr Bueso wrote:
+> > One note: the code is added to the header file instead of its own C file
+> > so we don't have to update all the build rules of the list.h users.
 > 
-> diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-> index 9c2b9fc..4577dc6 100644
-> --- a/misc-utils/findmnt.c
-> +++ b/misc-utils/findmnt.c
-> @@ -484,7 +484,7 @@ leave:
->  static int parser_errcb(struct libmnt_table *tb __attribute__ ((__unused__)),
->  			const char *filename, int line)
->  {
-> -	warn(_("%s: parse error at line %d"), filename, line);
-> +	warnx(_("%s: parse error at line %d"), filename, line);
+> [...]
+> 
+> > > +static struct list_head *merge(int (*cmp)(struct list_head *a,
+> > > +					  struct list_head *b),
+> > > +			       struct list_head *a, struct list_head *b)
+> 
+>  shouldn't be the function "static inline" (or _INLINE_ ) ?
 
-Oh.. yes, errno does not make sense here. Applied, thanks.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Hmm yes, do you want me to send another patch with the correction?
