@@ -1,34 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1025 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:29511 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752407Ab1LSNOp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 Dec 2011 08:14:45 -0500
-Date: Tue, 20 Dec 2011 14:14:40 +0100
+	id S1751883Ab1LMLqq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 13 Dec 2011 06:46:46 -0500
+Date: Tue, 13 Dec 2011 12:46:42 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Roger Leigh <rleigh@codelibre.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add mount option for initramfs
-Message-ID: <20111220131440.GE22739@n.net.home>
-References: <20111216231538.GR17458@codelibre.net>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] lists: add list sorting routine
+Message-ID: <20111213114642.GB22851@nb.net.home>
+References: <1323730346.2536.3.camel@offbook> <1323730557.2536.5.camel@offbook> <20111213092607.GA22851@nb.net.home> <1323773786.3256.1.camel@offbook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111216231538.GR17458@codelibre.net>
+In-Reply-To: <1323773786.3256.1.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 16, 2011 at 11:15:38PM +0000, Roger Leigh wrote:
->    { "nofail",	0, 0, MS_COMMENT},	/* Do not fail if ENOENT on dev */
-> +  { "initramfs", 0, 0, MS_COMMENT},     /* Mount filesystem in initramfs */
+On Tue, Dec 13, 2011 at 11:56:26AM +0100, Davidlohr Bueso wrote:
+> On Tue, 2011-12-13 at 10:26 +0100, Karel Zak wrote:
+> > On Mon, Dec 12, 2011 at 11:55:57PM +0100, Davidlohr Bueso wrote:
+> > > One note: the code is added to the header file instead of its own C file
+> > > so we don't have to update all the build rules of the list.h users.
+> > 
+> > [...]
+> > 
+> > > > +static struct list_head *merge(int (*cmp)(struct list_head *a,
+> > > > +					  struct list_head *b),
+> > > > +			       struct list_head *a, struct list_head *b)
+> > 
+> >  shouldn't be the function "static inline" (or _INLINE_ ) ?
+> 
+> Hmm yes, do you want me to send another patch with the correction?
 
- I don't think this is the right way. We have to be very conservative
- with new mount options, especially with options specific for any
- use case.
-
- You can use comment=initramfs and in new mount(8) will be also
- supported x-* options, then you can use x-initrd or so.
+No, I'll fix it.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
