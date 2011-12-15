@@ -1,105 +1,114 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:19406 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750773Ab1LHMEl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 8 Dec 2011 07:04:41 -0500
-Date: Thu, 8 Dec 2011 13:04:38 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: agetty problem after upgrading v2.19.1 -> v2.20.1
-Message-ID: <20111208120438.GB8278@nb.redhat.com>
-References: <20111203171658.GA9780@golden.localdomain> <20111204120548.GA23245@golden.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111204120548.GA23245@golden.localdomain>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:52330 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756315Ab1LOTBr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:01:47 -0500
+Received: by eekc4 with SMTP id c4so2430546eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:01:46 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] libblkid: minor docs changes
+Date: Thu, 15 Dec 2011 20:01:40 +0100
+Message-Id: <1323975700-21696-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 04, 2011 at 12:05:49PM +0000, Andrew Walrond wrote:
-> After reading the following from Andries Brouwer's excellent "The Linux Kernel",
->      http://www.win.tue.nl/~aeb/linux/lk/lk-10.html#ss10.3
-> 
-> >
-> > How does one get a controlling terminal? Nobody knows, this is a great mystery.
-> >
-> > The System V approach is that the first tty opened by the process becomes its controlling tty.
-> >
-> > The BSD approach is that one has to explicitly call
-> >
-> >    ioctl(fd, TIOCSCTTY, ...);
-> >
-> > to get a controlling tty.
-> >
-> > Linux tries to be compatible with both, as always, and this results in a very obscure complex of conditions. Roughly:
-> >
-> > The TIOCSCTTY ioctl will give us a controlling tty, provided that (i) the current process is a session leader, and (ii) it does not yet have a controlling tty, and (iii) maybe the tty should not already control some other session; if it does it is an error if we aren't root, or we steal the tty if we are all-powerful.
-> >
-> > Opening some terminal will give us a controlling tty, provided that (i) the current process is a session leader, and (ii) it does not yet have a controlling tty, and (iii) the tty does not already control some other session, and (iv) the open did not have the O_NOCTTY flag, and (v) the tty is not the foreground VT, and (vi) the tty is not the console, and (vii) maybe the tty should not be master or slave pty." 
-> >
-> 
-> it seems obvious that agetty is always going to fail unless it has
-> already been made a session leader by the caller. Indeed, modifying
-> init to call setsid() before exec'ing agetty makes everything work
-
- BTW, what initd are using?
-
-> again.  What's not so obvious to me is whether agetty should always
-> expect this, or become a session leader of it's own accord.
-
- I think this (session initialization) belongs to login(1) rather than
- to getty -- so it's should be optional and not strictly required.
- Note that agetty before v2.20 was without TIOCSCTTY at all.
-
- I have committed the patch below. Try it.
-
- Thanks for your report!
-
-    Karel
-
-
-
->From 1593b134ebf596ae7a2b1e73f2dcc8c4e7febddd Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Thu, 8 Dec 2011 11:39:05 +0100
-Subject: [PATCH] agetty: don't use log_err() for non-fatal errors
-
-The TIOCSCTTY ioctl requires that caller is session leader -- so it
-depends on initd (or we have to add setsid() to aggety). It seems that the
-traditional way is to setup tty in agetty and session in login(1).
-
-It means that all session related things (TIOCSCTTY, vhangup, ...) in the
-command agetty should be optional. (Note that vhangup() is called when
---hangup is explicitly specified on command line, so log_err() makes
-sense there.)
-
-Reported-by: Andrew Walrond <andrew@walrond.org>
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
 ---
- term-utils/agetty.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ libblkid/src/partitions/partitions.c |    4 ++--
+ libblkid/src/probe.c                 |   14 +++++++-------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 079a737..3500a8e 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -925,7 +925,7 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
+diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
+index aa8ca7c..6d8e86f 100644
+--- a/libblkid/src/partitions/partitions.c
++++ b/libblkid/src/partitions/partitions.c
+@@ -361,7 +361,7 @@ static void reset_partlist(blkid_partlist ls)
+ 	ls->next_partno = 1;
+ 	INIT_LIST_HEAD(&ls->l_tabs);
  
- 		if (((tid = tcgetsid(fd)) < 0) || (pid != tid)) {
- 			if (ioctl(fd, TIOCSCTTY, 1) == -1)
--				log_err("/dev/%s: cannot get controlling tty: %m", tty);
-+				log_warn("/dev/%s: cannot get controlling tty: %m", tty);
- 		}
+-	DBG(DEBUG_LOWPROBE, printf("partlist reseted\n"));
++	DBG(DEBUG_LOWPROBE, printf("partlist reset\n"));
+ }
  
- 		if (op->flags & F_HANGUP) {
-@@ -950,7 +950,7 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
- 			log_err(_("/dev/%s: cannot open as standard input: %m"), tty);
- 		if (((tid = tcgetsid(STDIN_FILENO)) < 0) || (pid != tid)) {
- 			if (ioctl(STDIN_FILENO, TIOCSCTTY, 1) == -1)
--				log_err("/dev/%s: cannot get controlling tty: %m", tty);
-+				log_warn("/dev/%s: cannot get controlling tty: %m", tty);
- 		}
+ static blkid_partlist partitions_init_data(struct blkid_chain *chn)
+@@ -673,7 +673,7 @@ int blkid_partitions_do_subprobe(blkid_probe pr, blkid_partition parent,
  
- 	} else {
+ 	blkid_probe_set_dimension(prc, off, sz);
+ 
+-	/* clone is always with reseted chain, fix it */
++	/* clone is always with reset chain, fix it */
+ 	prc->cur_chain = blkid_probe_get_chain(pr);
+ 
+ 	/*
+diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+index ee01a65..27d9b27 100644
+--- a/libblkid/src/probe.c
++++ b/libblkid/src/probe.c
+@@ -21,7 +21,7 @@
+  * The probing routines is possible to filter (enable/disable) by type (e.g.
+  * fstype "vfat" or partype "gpt") or by usage flags (e.g. BLKID_USAGE_RAID).
+  * These filters are per-chain. Note that always when you touch the chain
+- * filter the current probing position is reseted and probing starts from
++ * filter the current probing position is reset and probing starts from
+  * scratch.  It means that the chain filter should not be modified during
+  * probing, for example in loop where you call blkid_do_probe().
+  *
+@@ -36,7 +36,7 @@
+  *      The interface is always specific to the probing chain.
+  *
+  *  Note that the previous probing result (binary or NAME=value) is always
+- *  zeroized when a chain probing function is called. For example
++ *  zeroized when a chain probing function is called. For example:
+  *
+  * <informalexample>
+  *   <programlisting>
+@@ -131,7 +131,7 @@ static void blkid_probe_reset_buffer(blkid_probe pr);
+ /**
+  * blkid_new_probe:
+  *
+- * Returns: a pointer to the newly allocated probe struct.
++ * Returns: a pointer to the newly allocated probe struct or NULL in case of error.
+  */
+ blkid_probe blkid_new_probe(void)
+ {
+@@ -434,7 +434,7 @@ unsigned long *blkid_probe_get_filter(blkid_probe pr, int chain, int create)
+ 
+ 	chn = &pr->chains[chain];
+ 
+-	/* always when you touch the chain filter all indexes are reseted and
++	/* always when you touch the chain filter all indexes are reset and
+ 	 * probing starts from scratch
+ 	 */
+ 	blkid_probe_chain_reset_position(chn);
+@@ -831,7 +831,7 @@ static inline void blkid_probe_end(blkid_probe pr)
+  * Calls probing functions in all enabled chains. The superblocks chain is
+  * enabled by default. The blkid_do_probe() stores result from only one
+  * probing function. It's necessary to call this routine in a loop to get
+- * results from all probing functions in all chains. The probing is reseted
++ * results from all probing functions in all chains. The probing is reset
+  * by blkid_reset_probe() or by filter functions.
+  *
+  * This is string-based NAME=value interface only.
+@@ -1263,7 +1263,7 @@ int blkid_probe_set_magic(blkid_probe pr, blkid_loff_t offset,
+  * blkid_probe_get_devno:
+  * @pr: probe
+  *
+- * Returns: block device number, or 0 for regilar files.
++ * Returns: block device number, or 0 for regular files.
+  */
+ dev_t blkid_probe_get_devno(blkid_probe pr)
+ {
+@@ -1274,7 +1274,7 @@ dev_t blkid_probe_get_devno(blkid_probe pr)
+  * blkid_probe_get_wholedisk_devno:
+  * @pr: probe
+  *
+- * Returns: device number of the wholedisk, or 0 for regilar files.
++ * Returns: device number of the wholedisk, or 0 for regular files.
+  */
+ dev_t blkid_probe_get_wholedisk_devno(blkid_probe pr)
+ {
 -- 
-1.7.6.4
+1.7.3.4
+
