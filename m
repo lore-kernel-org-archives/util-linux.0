@@ -1,16 +1,16 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:47344 "EHLO
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:48629 "EHLO
 	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759322Ab1LOTDF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:03:05 -0500
-Received: by mail-ee0-f46.google.com with SMTP id c4so2431824eek.19
-        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:03:04 -0800 (PST)
+	with ESMTP id S1759351Ab1LOTDH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:03:07 -0500
+Received: by mail-ee0-f46.google.com with SMTP id c4so2431841eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:03:06 -0800 (PST)
 From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
 Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH 09/13] fdisk: don't use get_existing_partition() if disk label isn't dos
-Date: Thu, 15 Dec 2011 20:02:45 +0100
-Message-Id: <1323975769-21929-9-git-send-email-cosoleto@gmail.com>
+Subject: [PATCH 10/13] fdisk: avoid an intermediate variable in command_prompt()
+Date: Thu, 15 Dec 2011 20:02:46 +0100
+Message-Id: <1323975769-21929-10-git-send-email-cosoleto@gmail.com>
 In-Reply-To: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
 References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
@@ -18,73 +18,43 @@ List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
 ---
- fdisk/fdisk.c |   27 +++++++++------------------
- 1 files changed, 9 insertions(+), 18 deletions(-)
+ fdisk/fdisk.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 8f5869d..53eed25 100644
+index 53eed25..acf0e67 100644
 --- a/fdisk/fdisk.c
 +++ b/fdisk/fdisk.c
-@@ -1472,11 +1472,16 @@ get_partition(int warn, int max) {
- 	return get_partition_dflt(warn, max, 0);
- }
- 
-+/* User partition selection unless one partition only is available */
+@@ -1635,6 +1635,9 @@ static void dos_delete_partition(int i)
+ static void
+ delete_partition(int i)
+ {
++	if (i < 0)
++		return;
 +
- static int
- get_existing_partition(int warn, int max) {
- 	int pno = -1;
- 	int i;
+ 	if (warn_geometry())
+ 		return;		/* C/H/S not set */
  
-+	if (disklabel != DOS_LABEL)
-+		goto not_implemented;
-+
- 	for (i = 0; i < max; i++) {
- 		struct pte *pe = &ptes[i];
- 		struct partition *p = pe->part_table;
-@@ -1495,7 +1500,8 @@ get_existing_partition(int warn, int max) {
- 	printf(_("No partition is defined yet!\n"));
- 	return -1;
+@@ -2869,7 +2872,7 @@ unknown_command(int c) {
  
-- not_unique:
-+not_implemented:
-+not_unique:
- 	return get_partition(warn, max);
- }
+ static void command_prompt(void)
+ {
+-	int c, j;
++	int c;
  
-@@ -1650,14 +1656,7 @@ change_sysid(void) {
- 	int i, sys, origsys;
- 	struct partition *p;
- 
--	/* If sgi_label then don't use get_existing_partition,
--	   let the user select a partition, since get_existing_partition()
--	   only works for Linux like partition tables. */
--	if (disklabel != SGI_LABEL) {
--		i = get_existing_partition(0, partitions);
--	} else {
--		i = get_partition(0, partitions);
--	}
-+	i = get_existing_partition(0, partitions);
- 
- 	if (i == -1)
- 		return;
-@@ -2922,15 +2921,7 @@ static void command_prompt(void)
+ 	if (disklabel == OSF_LABEL) {
+ 		putchar('\n');
+@@ -2921,9 +2924,7 @@ static void command_prompt(void)
  				unknown_command(c);
  			break;
  		case 'd':
--			/* If sgi_label then don't use get_existing_partition,
--			   let the user select a partition, since
--			   get_existing_partition() only works for Linux-like
--			   partition tables */
--			if (disklabel != SGI_LABEL) {
--				j = get_existing_partition(1, partitions);
--			} else {
--				j = get_partition(1, partitions);
--			}
-+			j = get_existing_partition(1, partitions);
- 			if (j >= 0)
- 				delete_partition(j);
+-			j = get_existing_partition(1, partitions);
+-			if (j >= 0)
+-				delete_partition(j);
++			delete_partition(get_existing_partition(1, partitions));
  			break;
+ 		case 'i':
+ 			if (disklabel == SGI_LABEL)
 -- 
 1.7.7
 
