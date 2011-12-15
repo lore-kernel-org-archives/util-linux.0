@@ -1,72 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:15660 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752822Ab1L0L3V (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Dec 2011 06:29:21 -0500
-Date: Tue, 27 Dec 2011 12:29:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
-Subject: Re: [PATCH] mount: don't canonicalize the source of a pseudofs
-Message-ID: <20111227112916.GC2010@x2.net.home>
-References: <1324937423-15766-1-git-send-email-dreisner@archlinux.org> <1324943244-27332-1-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1324943244-27332-1-git-send-email-dreisner@archlinux.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:52330 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756375Ab1LOTCN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:02:13 -0500
+Received: by mail-ee0-f46.google.com with SMTP id c4so2430546eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:02:12 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH] agetty: add static and const qualifiers
+Date: Thu, 15 Dec 2011 20:02:06 +0100
+Message-Id: <1323975726-21812-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 26, 2011 at 06:47:24PM -0500, Dave Reisner wrote:
-> In line with previous patches, the source of a pseudofs is strictly
-> semantic; do not attempt to resolve it to a filesystem path.
-> 
-> As a side effect of this, nspec needs to be initialized to NULL since
-> it may not be assigned null by spec_to_devname when the FS is deemed
-> a pseudofs.
-> 
-> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> ---
-> This wasn't as evil as I thought, after all...
-> 
->  mount/mount.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mount/mount.c b/mount/mount.c
-> index 9b444c4..49d49f6 100644
-> --- a/mount/mount.c
-> +++ b/mount/mount.c
-> @@ -2016,7 +2016,7 @@ is_existing_file (const char *s) {
->  static int
->  mount_one (const char *spec, const char *node, const char *types,
->  	   const char *fstabopts, char *cmdlineopts, int freq, int pass) {
-> -	const char *nspec;
-> +	const char *nspec = NULL;
->  	char *opts;
->  
->  	/* Substitute values in opts, if required */
-> @@ -2046,7 +2046,8 @@ mount_one (const char *spec, const char *node, const char *types,
->  			      strncmp(types, "nfs", 3) &&
->  			      strncmp(types, "cifs", 4) &&
->  			      strncmp(types, "smbfs", 5))) {
-> -		nspec = spec_to_devname(spec);
-> +		if (!is_pseudo_fs(types))
-> +			nspec = spec_to_devname(spec);
+Remove also a static qualifier in main() function.
 
- Exactly this is implemented in spec_to_devname(), it does not
- canonicalize pseudo filesystems.
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ term-utils/agetty.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
->  		if (nspec)
->  			spec = nspec;
->  	}
-> -- 
-> 1.7.8.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 041e1f7..86902a1 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -190,7 +190,7 @@ struct chardata {
+ };
+ 
+ /* Initial values for the above. */
+-struct chardata init_chardata = {
++static const struct chardata init_chardata = {
+ 	DEF_ERASE,		/* default erase character */
+ 	DEF_KILL,		/* default kill character */
+ 	13,			/* default eol char */
+@@ -203,7 +203,7 @@ struct Speedtab {
+ 	speed_t code;
+ };
+ 
+-static struct Speedtab speedtab[] = {
++static const struct Speedtab speedtab[] = {
+ 	{50, B50},
+ 	{75, B75},
+ 	{110, B110},
+@@ -282,7 +282,7 @@ int main(int argc, char **argv)
+ 	char *username = NULL;			/* login name, given to /bin/login */
+ 	struct chardata chardata;		/* will be set by get_logname() */
+ 	struct termios termios;			/* terminal mode bits */
+-	static struct options options = {
++	struct options options = {
+ 		.flags  =  F_ISSUE,		/* show /etc/issue (SYSV_STYLE) */
+ 		.login  =  _PATH_LOGIN,		/* default login program */
+ 		.tty    = "tty1",		/* default tty line */
+@@ -1636,7 +1636,7 @@ static int caps_lock(char *s)
+ /* Convert speed string to speed code; return 0 on failure. */
+ static speed_t bcode(char *s)
+ {
+-	struct Speedtab *sp;
++	const struct Speedtab *sp;
+ 	long speed = atol(s);
+ 
+ 	for (sp = speedtab; sp->speed; sp++)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.3.4
+
