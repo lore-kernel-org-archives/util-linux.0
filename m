@@ -1,35 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:26358 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751145Ab1L3HIK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 30 Dec 2011 02:08:10 -0500
-Received: from cdptpa-omtalb.mail.rr.com ([10.127.143.54])
-          by cdptpa-qmta01.mail.rr.com with ESMTP
-          id <20111229185607144.KHV5351@cdptpa-qmta01.mail.rr.com>
-          for <util-linux@vger.kernel.org>; Thu, 29 Dec 2011 18:56:07 +0000
-Message-ID: <4EFCB784.3080904@cfl.rr.com>
-Date: Thu, 29 Dec 2011 13:55:00 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-MIME-Version: 1.0
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:47344 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756260Ab1LOTC4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:02:56 -0500
+Received: by eekc4 with SMTP id c4so2431824eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:02:55 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: cfdisk fails to zap mac partition table
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 01/13] fdisk: remove unused 'require' member in enum action
+Date: Thu, 15 Dec 2011 20:02:37 +0100
+Message-Id: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When a disk has a mac partition table and you run cfdisk on it, it 
-creates a new msdos partition table, but preserves the mac partition 
-table's signature, probably because it is in the area where the mbr boot 
-code is.  When initializing a new MBR, cfdisk should not preserve any 
-existing data.  fdisk does not exhibit this behavior.
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/fdisk.c |    2 --
+ fdisk/fdisk.h |    2 +-
+ 2 files changed, 1 insertions(+), 3 deletions(-)
 
-To reproduce with a clean loop device:
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 00dd706..a6de6e2 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -1179,8 +1179,6 @@ got_dos_table:
+ 			create_doslabel();
+ #endif
+ 			return 0;
+-		case require:
+-			return -1;
+ 		case try_only:
+ 		        return -1;
+ 		case create_empty_dos:
+diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
+index 81ff5a2..67642cd 100644
+--- a/fdisk/fdisk.h
++++ b/fdisk/fdisk.h
+@@ -54,7 +54,7 @@ enum failure {ioctl_error,
+ 	unable_to_open, unable_to_read, unable_to_seek,
+ 	unable_to_write};
+ 
+-enum action {fdisk, require, try_only, create_empty_dos, create_empty_sun};
++enum action {fdisk, try_only, create_empty_dos, create_empty_sun};
+ 
+ struct geom {
+ 	unsigned int heads;
+-- 
+1.7.7
 
-parted /dev/loop0 mklabel mac
-cfdisk /dev/loop0
-parted /dev/loop0 print
-
-Parted still recognizes the mac partition table.
-
-The original bug report can be seen here: 
-https://bugs.launchpad.net/bugs/909424
