@@ -1,71 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:58492 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751693Ab1KNGXi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Nov 2011 01:23:38 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
-        Petr Uzel <petr.uzel@suse.cz>
-Subject: flock in 2.20.1 can no longer lock the file it will execute
-Date: Mon, 14 Nov 2011 01:23:38 -0500
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2757790.O9vR7ahjq3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201111140123.39789.vapier@gentoo.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:48629 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756375Ab1LOTC7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:02:59 -0500
+Received: by mail-ee0-f46.google.com with SMTP id c4so2431841eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:02:58 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 04/13] fdisk: drop one parameter from try() function
+Date: Thu, 15 Dec 2011 20:02:40 +0100
+Message-Id: <1323975769-21929-4-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2757790.O9vR7ahjq3
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/fdisk.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
 
-i've been using a trick with flock to add locking to all of my shell script=
-s. =20
-basically, i take a lock on the shell script itself:
-	flock -eon ./test.sh ./test.sh
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 1a4c823..1ecab17 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -2800,15 +2800,13 @@ gpt_warning(char *dev)
+ }
+ 
+ static void
+-try(char *device, int user_specified) {
++try(char *device)
++{
+ 	int gb;
+ 
+ 	disk_device = device;
+ 	if (setjmp(listingbuf))
+ 		return;
+-	if (!user_specified)
+-		if (is_ide_cdrom_or_tape(device))
+-			return;
+ 	gpt_warning(device);
+ 	if ((fd = open(disk_device, type_open)) >= 0) {
+ 		gb = get_boot(try_only);
+@@ -2859,7 +2857,7 @@ tryprocpt(void) {
+ 		if (is_whole_disk(devname)) {
+ 			char *cn = canonicalize_path(devname);
+ 			if (cn) {
+-				try(cn, 0);
++				try(cn);
+ 				free(cn);
+ 			}
+ 		}
+@@ -3079,7 +3077,8 @@ main(int argc, char **argv) {
+ 			dummy(&k);
+ 			listing = 1;
+ 			for (k = optind; k < argc; k++)
+-				try(argv[k], 1);
++				if (!is_ide_cdrom_or_tape(argv[k]))
++					try(argv[k]);
+ 		} else {
+ 			/* we no longer have default device names */
+ 			/* but we can use /proc/partitions instead */
+-- 
+1.7.7
 
-with <=3Dutil-linux-2.20, this has worked fine.  but starting with 2.20.1, =
-i now=20
-get -ETXTBSY (on ext4, but i doubt that matters):
-	$ echo '#!/bin/sh' > test.sh
-	$ chmod a+rx test.sh=20
-	$ ./flock -eon ./test.sh ./test.sh=20
-	./flock: ./test.sh: Text file busy
-
-the only commit made to flock.c between 2.20 and 2.20.1 is this:
-	commit 75aaee08f06b92d119ed827c53d1af5474eb16ff
-	flock: make flock(1) work on NFSv4
-
-and indeed, reverting that made my life happy again.  reading the small pat=
-ch=20
-shows the obvious flaw: you can't open a file for O_RDWR and attempt to exe=
-cute=20
-it at the same time.
-=2Dmike
-
---nextPart2757790.O9vR7ahjq3
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJOwLPrAAoJEEFjO5/oN/WB8k4P/i5/iT/ldKJKAQjrVja9fFoz
-3qREgGhjMTSJnaY3nmTtFWCTslmJrS+wWHu4+RKUUNBZqDBKI1VPKK5QqNYS2hQJ
-haPszVY8ynnH/qyalfQjWv8bpDEkbpbyx6xytX9DqP/qHU0A8tTZxdPSpYQRiFgZ
-BibnoH59Xy9MQ03UJt9Pj8/Up4XO25YWIndPVmCzRfoeN/KJblAkW1mGoy2xmtv7
-zn+e912px9WVV8SnoP5buHOzhRJ8+j/HWH/ldWBbI0GfB90Qzgc0Tr8aB3opvi89
-RGpYZvB5NISBr7AhYG1dgQaV+Fnr43hDgK8q/YladPX9bs9e1R7BZMYnTITYcnqu
-4Sc1NscezdzRPwLfE9imTBdMvN2Y/3VY5k4CarCepEjQMa2A4yu/fRBG3dqwewj2
-6ga3+ZdhDOMG5FQTUurDvVPOFYqzjkRCBytb/4ulgtFpDZZXuv6z33StIutZoFwH
-cwvAU18kKgKx0Eq1yzyCwSM/yjjc+sxvzC/om4IS2lrusNCk2dw7QGA4MmKoTCeQ
-+7Igm1KYE7tIVI9VO05sK3bFIU85jWHWGeEarosE9nZRyCuT6ZYNXpuXVAEBf3OI
-76JGhu9ihZ77W7GH3g5SOmCGGJItUkO3d99Y7VZRUycHIkwI9UeLH6WBWbyMgAfy
-EXKYtP07McFfgvpRdG1G
-=x/Xl
------END PGP SIGNATURE-----
-
---nextPart2757790.O9vR7ahjq3--
