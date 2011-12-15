@@ -1,28 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.121]:33552 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752289Ab1LFTEj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Dec 2011 14:04:39 -0500
-Message-ID: <4EDE6745.6070307@cfl.rr.com>
-Date: Tue, 06 Dec 2011 14:04:37 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-MIME-Version: 1.0
-To: dave@gnu.org
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] partx: add BLKPG_RES_PARTITION support
-References: <1323115372-3983-2-git-send-email-psusi@cfl.rr.com> <1323197706.3283.1.camel@offbook>
-In-Reply-To: <1323197706.3283.1.camel@offbook>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:48629 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759351Ab1LOTDJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:03:09 -0500
+Received: by mail-ee0-f46.google.com with SMTP id c4so2431841eek.19
+        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:03:08 -0800 (PST)
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Francesco Cosoleto <cosoleto@gmail.com>
+Subject: [PATCH 12/13] fdisk: improve some messages
+Date: Thu, 15 Dec 2011 20:02:48 +0100
+Message-Id: <1323975769-21929-12-git-send-email-cosoleto@gmail.com>
+In-Reply-To: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 12/6/2011 1:55 PM, Davidlohr Bueso wrote:
-> I like the idea, but we should wait until your BLKPG resize patches are
-> accepted in mainline before applying here. Also, assuming they make it
-> into the kernel, this patch would break partx compilation on older
-> kernels.
+Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
+---
+ fdisk/fdisk.c         |    2 +-
+ fdisk/fdisksgilabel.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Indeed.  I thought that util-linux was closely enough tied to the kernel 
-that it didn't care about building on older kernels?  I put #ifdefs 
-around the code using it in parted, but didn't think it was needed for 
-util-linux.  Easy enough to add them back if you think it's necessary.
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 800ed02..c41da7a 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -1193,7 +1193,7 @@ get_boot(enum action what) {
+ 			return -1;
+ 
+ 		fprintf(stderr,
+-			_("Device contains neither a valid DOS partition table, nor Sun, SGI or OSF disklabel\n"));
++			_("Device does not contain a recognized partition table\n"));
+ #ifdef __sparc__
+ 		create_sunlabel();
+ #else
+diff --git a/fdisk/fdisksgilabel.c b/fdisk/fdisksgilabel.c
+index b432b13..dd3efd0 100644
+--- a/fdisk/fdisksgilabel.c
++++ b/fdisk/fdisksgilabel.c
+@@ -452,7 +452,7 @@ verify_sgi(int verbose)
+ 		lastblock = sgi_get_num_sectors(Index[0]);
+ 	} else {
+ 		if (verbose)
+-			printf(_("One Partition (#11) should cover the entire disk.\n"));
++			printf(_("Partition 11 should cover the entire disk.\n"));
+ 		if (debug>2)
+ 			printf("sysid=%d\tpartition=%d\n",
+ 			       sgi_get_sysid(Index[0]), Index[0]+1);
+@@ -570,7 +570,7 @@ sgi_set_partition(int i, unsigned int start, unsigned int length, int sys) {
+ 	sgilabel->partitions[i].start_sector = SSWAP32(start);
+ 	set_changed(i);
+ 	if (sgi_gaps() < 0)	/* rebuild freelist */
+-		printf(_("Do You know, You got a partition overlap on the disk?\n"));
++		printf(_("Partition overlap on the disk.\n"));
+ 	if (length)
+ 		print_partition_size(i + 1, start, start + length, sys);
+ }
+-- 
+1.7.7
+
