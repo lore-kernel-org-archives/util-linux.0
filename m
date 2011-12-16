@@ -1,38 +1,27 @@
-Return-Path: rleigh@codelibre.net
-Date: Mon, 19 Dec 2011 13:40:48 +0000
-From: Roger Leigh <rleigh@codelibre.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add mount option for initramfs
-Message-ID: <20111219134047.GG325@codelibre.net>
-References: <20111216231538.GR17458@codelibre.net>
- <20111220131440.GE22739@n.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50431 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751499Ab1LPLrV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 16 Dec 2011 06:47:21 -0500
+Date: Fri, 16 Dec 2011 12:47:18 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] wipefs: use xalloc lib
+Message-ID: <20111216114718.GF25486@nb.net.home>
+References: <1323885506.1255.1.camel@offworld>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20111220131440.GE22739@n.net.home>
+In-Reply-To: <1323885506.1255.1.camel@offworld>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 20, 2011 at 02:14:40PM +0100, Karel Zak wrote:
-> On Fri, Dec 16, 2011 at 11:15:38PM +0000, Roger Leigh wrote:
-> >    { "nofail",	0, 0, MS_COMMENT},	/* Do not fail if ENOENT on dev */
-> > +  { "initramfs", 0, 0, MS_COMMENT},     /* Mount filesystem in initramfs */
-> 
->  I don't think this is the right way. We have to be very conservative
->  with new mount options, especially with options specific for any
->  use case.
-> 
->  You can use comment=initramfs and in new mount(8) will be also
->  supported x-* options, then you can use x-initrd or so.
+On Wed, Dec 14, 2011 at 06:58:26PM +0100, Davidlohr Bueso wrote:
+>  misc-utils/wipefs.c |    5 +----
+>  1 files changed, 1 insertions(+), 4 deletions(-)
 
-OK, no worries.  I didn't realise you could use the comment syntax
-in this way, so either that or x-initramfs/x-initrd will do nicely.
-
-
-Thanks,
-Roger
+ Applied, thanks.
 
 -- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
