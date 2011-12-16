@@ -1,37 +1,79 @@
-Return-Path: dave@gnu.org
-Date: Wed, 14 Dec 2011 18:58:26 +0100
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: [PATCH] wipefs: use xalloc lib
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1323885506.1255.1.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from nagini.codelibre.net ([80.68.93.164]:54245 "EHLO
+	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752332Ab1LPXPk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 16 Dec 2011 18:15:40 -0500
+Date: Fri, 16 Dec 2011 23:15:38 +0000
+From: Roger Leigh <rleigh@codelibre.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Add mount option for initramfs
+Message-ID: <20111216231538.GR17458@codelibre.net>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="fd5uyaI9j6xoeUBo"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Wed, 14 Dec 2011 18:56:57 +0100
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+--fd5uyaI9j6xoeUBo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+
+I've attached a trivial patch for an "initramfs" mount option.  The
+purpose of this patch is that selected mounts in /etc/fstab can be
+identified for mounting in the generated initramfs.  This will
+permit e.g. mounting of a separate /etc and /usr and any other
+admin-configured filesystems prior to init starting.
+
+Uses: encrypted /etc and unencrypted / and /usr
+      separate /usr mounted with rootfs
+      - this means libraries and binaries on /usr are available
+        from the initramfs onward, solving a whole host of
+        problems with e.g. nss and pam modules having dependent
+        libs in /usr, etc., which aren't available during boot.
+
+Feel free to change the name to something more generic; this is
+intended for use with Debian's initramfs-tools initramfs
+generator, but may have potential for cross-distribution use.
+
+
+Regards,
+Roger
+
+-- 
+  .''`.  Roger Leigh
+ : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
+ `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
+   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
+
+--fd5uyaI9j6xoeUBo
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-mount-Allow-initramfs-dummy-mount-option.patch"
+
+>From e588ddb89eb3d8b63291dd7cdad5c134fd221a2d Mon Sep 17 00:00:00 2001
+From: Roger Leigh <rleigh@debian.org>
+Date: Fri, 16 Dec 2011 23:07:35 +0000
+Subject: [PATCH] mount: Allow initramfs dummy mount option
+
 ---
- misc-utils/wipefs.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
+ mount/mount.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
-index f79fa3c..92f4101 100644
---- a/misc-utils/wipefs.c
-+++ b/misc-utils/wipefs.c
-@@ -132,10 +132,7 @@ add_offset(struct wipe_desc *wp0, loff_t offset, int zap)
- 		wp = wp->next;
- 	}
+diff --git a/mount/mount.c b/mount/mount.c
+index 9b444c4..05e82fa 100644
+--- a/mount/mount.c
++++ b/mount/mount.c
+@@ -202,6 +202,7 @@ static const struct opt_map opt_map[] = {
+   { "nostrictatime", 0, 1, MS_STRICTATIME }, /* kernel default atime */
+ #endif
+   { "nofail",	0, 0, MS_COMMENT},	/* Do not fail if ENOENT on dev */
++  { "initramfs", 0, 0, MS_COMMENT},     /* Mount filesystem in initramfs */
+   { NULL,	0, 0, 0		}
+ };
  
--	wp = calloc(1, sizeof(struct wipe_desc));
--	if (!wp)
--		err(EXIT_FAILURE, _("calloc failed"));
--
-+	wp = xcalloc(1, sizeof(struct wipe_desc));
- 	wp->offset = offset;
- 	wp->next = wp0;
- 	wp->zap = zap;
 -- 
 1.7.7.3
+
+
+--fd5uyaI9j6xoeUBo--
