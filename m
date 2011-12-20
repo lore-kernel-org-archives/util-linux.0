@@ -1,27 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4709 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751161Ab1LPKbE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 16 Dec 2011 05:31:04 -0500
-Date: Fri, 16 Dec 2011 11:31:00 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] prlimit: return proper type
-Message-ID: <20111216103100.GB25486@nb.net.home>
-References: <1323375559.2562.2.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1323375559.2562.2.camel@offbook>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:57181 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751264Ab1LTNgK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 20 Dec 2011 08:36:10 -0500
+Received: by mail-qw0-f46.google.com with SMTP id c12so2981786qad.19
+        for <util-linux@vger.kernel.org>; Tue, 20 Dec 2011 05:36:10 -0800 (PST)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 2/3] lscpu: use xalloc libs
+Date: Tue, 20 Dec 2011 08:36:03 -0500
+Message-Id: <1324388164-2112-2-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1324388164-2112-1-git-send-email-dreisner@archlinux.org>
+References: <1324388164-2112-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 08, 2011 at 09:19:19PM +0100, Davidlohr Bueso wrote:
->  sys-utils/prlimit.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ sys-utils/lscpu.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- Applied, thanks.
-
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 72b56d2..0a7841d 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -363,9 +363,9 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 	if (desc->flags) {
+ 		snprintf(buf, sizeof(buf), " %s ", desc->flags);
+ 		if (strstr(buf, " svm "))
+-			desc->virtflag = strdup("svm");
++			desc->virtflag = xstrdup("svm");
+ 		else if (strstr(buf, " vmx "))
+-			desc->virtflag = strdup("vmx");
++			desc->virtflag = xstrdup("vmx");
+ 		if (strstr(buf, " lm "))
+ 			desc->mode |= MODE_32BIT | MODE_64BIT;		/* x86_64 */
+ 		if (strstr(buf, " zarch "))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.8
+
