@@ -1,55 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:48629 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756375Ab1LOTC5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:02:57 -0500
-Received: by eekc4 with SMTP id c4so2431841eek.19
-        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:02:56 -0800 (PST)
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH 02/13] fdisk: remove possibly_osf_label variable that is only assigned
-Date: Thu, 15 Dec 2011 20:02:38 +0100
-Message-Id: <1323975769-21929-2-git-send-email-cosoleto@gmail.com>
-In-Reply-To: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
-References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:39849 "EHLO
+	homiemail-a38.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751724Ab1LTNmM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 20 Dec 2011 08:42:12 -0500
+Subject: [PATCH 3/5] sfdisk: do not depend on arch for packed attribute
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 20 Dec 2011 14:42:05 +0100
+Message-ID: <1324388525.3316.9.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
----
- fdisk/fdisk.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index a6de6e2..a23f45e 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -292,8 +292,6 @@ int has_topology;
+The packed gcc function attribute is moved to c.h and the arch-specific checks are removed
+since there is no harm in other platforms having the attribute, it will just make no difference.
+---
+ fdisk/sfdisk.c |    9 ---------
+ include/c.h    |    3 +++
+ 2 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 979eadc..fdc63d6 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -115,15 +115,6 @@ error(char *s, ...) {
+ }
  
- enum labeltype disklabel = DOS_LABEL;	/* Current disklabel */
- 
--int	possibly_osf_label = 0;
+ /*
+- * arm needs PACKED - use it everywhere?
+- */
+-#if defined(__GNUC__) && (defined(__arm__) || defined(__alpha__))
+-#define PACKED __attribute__ ((packed))
+-#else
+-#define PACKED
+-#endif
 -
- jmp_buf listingbuf;
+-/*
+  *  A. About seeking
+  */
  
- static void __attribute__ ((__noreturn__)) usage(FILE *out)
-@@ -862,7 +860,6 @@ create_doslabel(void) {
- 	sun_nolabel();  /* otherwise always recognised as sun */
- 	sgi_nolabel();  /* otherwise always recognised as sgi */
- 	disklabel = DOS_LABEL;
--	possibly_osf_label = 0;
- 	partitions = 4;
+diff --git a/include/c.h b/include/c.h
+index 073615e..26582e4 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -39,10 +39,13 @@
+ 	__typeof__(x) __dummy __attribute__((__unused__)) = (x); (void) __dummy; \
+ })
  
- 	/* Zero out the MBR buffer */
-@@ -1155,7 +1152,6 @@ get_boot(enum action what) {
- 		return 0;
++# define PACKED __attribute__ ((packed))
++
+ #else /* !__GNUC__ */
+ # define __must_be_array(a)	0
+ # define __attribute__(_arg_)
+ # define ignore_result(x) ((void) (x))
++# define PACKED
+ #endif /* !__GNUC__ */
  
- 	if (check_osf_label()) {
--		possibly_osf_label = 1;
- 		if (!valid_part_table_flag(MBRbuffer)) {
- 			disklabel = OSF_LABEL;
- 			return 0;
+ /*
 -- 
-1.7.7
+1.7.4.1
+
+
+
 
