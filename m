@@ -1,51 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1063 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757086Ab1LBR31 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Dec 2011 12:29:27 -0500
-Date: Fri, 2 Dec 2011 18:29:17 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] build-sys: check HAVE_ definitions with #ifdef
-	[smatch scan]
-Message-ID: <20111202172917.GB28962@nb.net.home>
-References: <1322777421-11541-1-git-send-email-kerolasa@iki.fi> <1322777421-11541-2-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1322777421-11541-2-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH] prlimit: use xalloc libs
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 20 Dec 2011 12:58:16 +0100
+Message-ID: <1324382296.3316.0.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 01, 2011 at 11:10:21PM +0100, Sami Kerola wrote:
->  include/blkdev.h       |    2 +-
->  include/md5.h          |    2 +-
->  lib/env.c              |    2 +-
->  lib/ismounted.c        |    2 +-
->  libblkid/src/cache.c   |    2 +-
->  libblkid/src/devname.c |    8 ++++----
->  libblkid/src/devno.c   |   10 +++++-----
->  libblkid/src/llseek.c  |    6 +++---
->  libblkid/src/read.c    |    4 ++--
->  libblkid/src/resolve.c |    2 +-
->  libblkid/src/version.c |    2 +-
->  misc-utils/cal.c       |    2 +-
->  term-utils/script.c    |   10 +++++++---
->  13 files changed, 29 insertions(+), 25 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
 
- Applied, thanks.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ sys-utils/prlimit.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
->> -#if HAVE_LIBUTIL && HAVE_PTY_H
-> +#ifdef HAVE_LIBUTIL
-> +# ifdef HAVE_PTY_H
-
-here we can use:
-
-    #if defined(HAVE_LIBUTIL) && defined(HAVE_PTY_H)
-
-
- Karel
-
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index c785909..8235eb1 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -452,7 +452,7 @@ static int parse_prlim(struct rlimit *lim, char *ops, size_t id)
+ 
+ static int add_prlim(char *ops, struct list_head *lims, size_t id)
+ {
+-	struct prlimit *lim = calloc(1, sizeof(*lim));
++	struct prlimit *lim = xcalloc(1, sizeof(*lim));
+ 
+ 	INIT_LIST_HEAD(&lim->lims);
+ 	lim->desc = &prlimit_desc[id];
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
