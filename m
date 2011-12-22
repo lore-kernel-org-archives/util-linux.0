@@ -1,51 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:47344 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756260Ab1LOTC4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 15 Dec 2011 14:02:56 -0500
-Received: by eekc4 with SMTP id c4so2431824eek.19
-        for <util-linux@vger.kernel.org>; Thu, 15 Dec 2011 11:02:55 -0800 (PST)
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:49739 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753020Ab1LVP0v (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 22 Dec 2011 10:26:51 -0500
+Received: by eaad14 with SMTP id d14so2064761eaa.19
+        for <util-linux@vger.kernel.org>; Thu, 22 Dec 2011 07:26:50 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20111222022443.GA31045@gaara.hadrons.org>
+References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+	<1323975769-21929-4-git-send-email-cosoleto@gmail.com>
+	<20111222022443.GA31045@gaara.hadrons.org>
+Date: Thu, 22 Dec 2011 16:26:49 +0100
+Message-ID: <CAMFXF505q=M2T8jJbsQT6Ljz1K6O1fRCixih4maKwO4sJb1d=Q@mail.gmail.com>
+Subject: Re: [PATCH 04/13] fdisk: drop one parameter from try() function
 From: Francesco Cosoleto <cosoleto@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: Francesco Cosoleto <cosoleto@gmail.com>
-Subject: [PATCH 01/13] fdisk: remove unused 'require' member in enum action
-Date: Thu, 15 Dec 2011 20:02:37 +0100
-Message-Id: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+Content-Type: multipart/mixed; boundary=001517592c12dead3504b4afed28
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Francesco Cosoleto <cosoleto@gmail.com>
----
- fdisk/fdisk.c |    2 --
- fdisk/fdisk.h |    2 +-
- 2 files changed, 1 insertions(+), 3 deletions(-)
+--001517592c12dead3504b4afed28
+Content-Type: text/plain; charset=ISO-8859-1
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 00dd706..a6de6e2 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -1179,8 +1179,6 @@ got_dos_table:
- 			create_doslabel();
- #endif
- 			return 0;
--		case require:
--			return -1;
- 		case try_only:
- 		        return -1;
- 		case create_empty_dos:
-diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
-index 81ff5a2..67642cd 100644
---- a/fdisk/fdisk.h
-+++ b/fdisk/fdisk.h
-@@ -54,7 +54,7 @@ enum failure {ioctl_error,
- 	unable_to_open, unable_to_read, unable_to_seek,
- 	unable_to_write};
- 
--enum action {fdisk, require, try_only, create_empty_dos, create_empty_sun};
-+enum action {fdisk, try_only, create_empty_dos, create_empty_sun};
- 
- struct geom {
- 	unsigned int heads;
--- 
-1.7.7
+2011/12/22 Guillem Jover <guillem@hadrons.org>:
+> The logic on user_specified is inverted so it seems the checks on the
+> call sites would need to be swapped?
 
+Correct. Thank you for pointing out this.
+
+Attached a patch to fix this regression.
+
+Francesco
+
+--001517592c12dead3504b4afed28
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-fdisk-fix-incorrect-position-of-is_ide_cdrom_or_tape.patch"
+Content-Disposition: attachment;
+	filename="0001-fdisk-fix-incorrect-position-of-is_ide_cdrom_or_tape.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_gwhxbexq0
+
+RnJvbSAyY2Y1NzhjZDRhYmZiZTA2MDllMWRlOTdkZTc1NGNmY2MxOWE1NThjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBGcmFuY2VzY28gQ29zb2xldG8gPGNvc29sZXRvQGdtYWlsLmNv
+bT4KRGF0ZTogVGh1LCAyMiBEZWMgMjAxMSAxNTo1MzoyNSArMDEwMApTdWJqZWN0OiBbUEFUQ0hd
+IGZkaXNrOiBmaXggaW5jb3JyZWN0IHBvc2l0aW9uIG9mIGlzX2lkZV9jZHJvbV9vcl90YXBlKCkg
+Y2FsbAoKUmVwb3J0ZWQtYnk6IEd1aWxsZW0gSm92ZXIgPGd1aWxsZW1AaGFkcm9ucy5vcmc+ClNp
+Z25lZC1vZmYtYnk6IEZyYW5jZXNjbyBDb3NvbGV0byA8Y29zb2xldG9AZ21haWwuY29tPgotLS0K
+IGZkaXNrL2ZkaXNrLmMgfCAgICA2ICsrKy0tLQogMSBmaWxlcyBjaGFuZ2VkLCAzIGluc2VydGlv
+bnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZmRpc2svZmRpc2suYyBiL2ZkaXNr
+L2ZkaXNrLmMKaW5kZXggYzQxZGE3YS4uYmRlNjBhOSAxMDA2NDQKLS0tIGEvZmRpc2svZmRpc2su
+YworKysgYi9mZGlzay9mZGlzay5jCkBAIC0yODQ4LDcgKzI4NDgsOCBAQCBwcmludF9hbGxfcGFy
+dGl0aW9uX3RhYmxlX2Zyb21fb3B0aW9uKHZvaWQpCiAJCWlmIChpc193aG9sZV9kaXNrKGRldm5h
+bWUpKSB7CiAJCQljaGFyICpjbiA9IGNhbm9uaWNhbGl6ZV9wYXRoKGRldm5hbWUpOwogCQkJaWYg
+KGNuKSB7Ci0JCQkJcHJpbnRfcGFydGl0aW9uX3RhYmxlX2Zyb21fb3B0aW9uKGNuKTsKKwkJCQlp
+ZiAoIWlzX2lkZV9jZHJvbV9vcl90YXBlKGNuKSkKKwkJCQkJcHJpbnRfcGFydGl0aW9uX3RhYmxl
+X2Zyb21fb3B0aW9uKGNuKTsKIAkJCQlmcmVlKGNuKTsKIAkJCX0KIAkJfQpAQCAtMzA1Nyw4ICsz
+MDU4LDcgQEAgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpIHsKIAkJCWR1bW15KCZrKTsKIAkJ
+CWxpc3RpbmcgPSAxOwogCQkJZm9yIChrID0gb3B0aW5kOyBrIDwgYXJnYzsgaysrKQotCQkJCWlm
+ICghaXNfaWRlX2Nkcm9tX29yX3RhcGUoYXJndltrXSkpCi0JCQkJCXByaW50X3BhcnRpdGlvbl90
+YWJsZV9mcm9tX29wdGlvbihhcmd2W2tdKTsKKwkJCQlwcmludF9wYXJ0aXRpb25fdGFibGVfZnJv
+bV9vcHRpb24oYXJndltrXSk7CiAJCX0gZWxzZQogCQkJcHJpbnRfYWxsX3BhcnRpdGlvbl90YWJs
+ZV9mcm9tX29wdGlvbigpOwogCQlleGl0KDApOwotLSAKMS43LjcKCg==
+--001517592c12dead3504b4afed28--
