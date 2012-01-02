@@ -1,41 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32428 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33951 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751570Ab2ATOEq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Jan 2012 09:04:46 -0500
-Date: Fri, 20 Jan 2012 15:04:44 +0100
+	id S1751089Ab2ABOBy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Jan 2012 09:01:54 -0500
+Date: Mon, 2 Jan 2012 15:01:48 +0100
 From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: /etc/fstab.d yes or not
-Message-ID: <20120120140444.GC13157@x2.net.home>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH 1/2] libmount/tab: always trust the source of a pseudofs
+Message-ID: <20120102140148.GB32748@x2.net.home>
+References: <1324937423-15766-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1324937423-15766-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Dec 26, 2011 at 05:10:22PM -0500, Dave Reisner wrote:
+>  libmount/src/tab.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
 
- I'd like to add support for /etc/fstab.d to libmount. The library is
- currently used by mount, umount and mount.nfs. The goal is to use it
- on more places.
-
- The /etc/fstab.d directory has been requested by people who maintains
- large number of mountpoints etc.
-
- The directory is not replacement for /etc/fstab, it's additional place
- where you can describe your filesystems.
-
- The disadvantage is that the stuff in the directory will be invisible
- for some tools (udisks, systemd, ...), so I have very vocal
- disagreement from some people who don't want to see /etc/fstab.d at all.
-
- BTW, systemd allows to define addition mountpoints in
- systemd.mount(5) unit file(s), so we already have additional place
- for fstab stuff...
-
- Commands? Objections?
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
