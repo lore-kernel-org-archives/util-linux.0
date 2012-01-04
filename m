@@ -1,42 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:35938 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751565Ab2ANWrp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Jan 2012 17:47:45 -0500
-Received: by obcva7 with SMTP id va7so3442398obc.19
-        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 14:47:44 -0800 (PST)
-Message-ID: <4F12060D.10100@gmail.com>
-Date: Sat, 14 Jan 2012 16:47:41 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:8526 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755459Ab2ADNgK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 4 Jan 2012 08:36:10 -0500
+Date: Wed, 4 Jan 2012 14:36:06 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 04/13] fdisk: drop one parameter from try() function
+Message-ID: <20120104133606.GA24350@x2.net.home>
+References: <1323975769-21929-1-git-send-email-cosoleto@gmail.com>
+ <1323975769-21929-4-git-send-email-cosoleto@gmail.com>
+ <20111222022443.GA31045@gaara.hadrons.org>
+ <CAMFXF505q=M2T8jJbsQT6Ljz1K6O1fRCixih4maKwO4sJb1d=Q@mail.gmail.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: getting a modern `more`
-References: <201201130128.49700.vapier@gentoo.org> <201201141626.04499.vapier@gentoo.org> <4F11FF55.2030701@gmail.com> <201201141735.33620.vapier@gentoo.org>
-In-Reply-To: <201201141735.33620.vapier@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAMFXF505q=M2T8jJbsQT6Ljz1K6O1fRCixih4maKwO4sJb1d=Q@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> On Saturday 14 January 2012 17:19:01 Bruce Dubbs wrote:
->> Mike Frysinger wrote:
->>> On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
->>>> Before 'Glass TTYs' there were paper terminals and I suspect 'more'
->>>> was designed with those paper terminals in mind. 'Less' appears to
->>>> have been designed with terminals such as the VT100 in mind.
->>>> Sometimes it's beneficial to redesign a program when something new
->>>> comes along rather than patch an old design.
->>> which is what Eric has done with his more
+On Thu, Dec 22, 2011 at 04:26:49PM +0100, Francesco Cosoleto wrote:
+>  fdisk/fdisk.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
 
->> What capabilities/advantages are added that are not in 'less'?
+ Applied, thanks. (Please, don't use attachment next time.)
 
-> i don't know, but i don't think it matters.  Eric likes maintaining the code 
-> regardless and he plans on doing it anyways.
-
-OK, I understand 'scratch the itch'.  I was just stating that I didn't 
-think the benefit was worth the effort.  Press on.
-
-   -- Bruce
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
