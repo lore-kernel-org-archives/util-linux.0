@@ -1,50 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47244 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:21678 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751181Ab2A3MYG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Jan 2012 07:24:06 -0500
-Date: Mon, 30 Jan 2012 13:24:01 +0100
+	id S1755349Ab2ADNj4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 4 Jan 2012 08:39:56 -0500
+Date: Wed, 4 Jan 2012 14:39:53 +0100
 From: Karel Zak <kzak@redhat.com>
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: "dave@gnu.org" <dave@gnu.org>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] whereis: move token assignment into loop syntax
-Message-ID: <20120130122401.GB22107@x2.net.home>
-References: <1327847124.3305.1.camel@offbook>
- <7856072A9D04C24B82DFE2B1112FE38A0D8BBA2C2D@MCHP058A.global-ad.net>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH 3/3] tools/checkxalloc.sh: add new code checking script
+Message-ID: <20120104133953.GE24350@x2.net.home>
+References: <1324388164-2112-1-git-send-email-dreisner@archlinux.org>
+ <1324388164-2112-3-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0D8BBA2C2D@MCHP058A.global-ad.net>
+In-Reply-To: <1324388164-2112-3-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 30, 2012 at 10:08:41AM +0100, Voelker, Bernhard wrote:
-> Davidlohr Bueso wrote:
-> 
-> > ... use for() naturally instead.
-> 
-> > -	for (tmp = pathcp; ; tmp = NULL) {
-> > -		tok = strtok_r(tmp, ":", &key);
-> > -		if (!tok)
-> > -			break;
-> > -
-> > +	for (tmp = pathcp; tok = strtok_r(tmp, ":", &key); tmp = NULL) {
-> >  		/* make sure we don't repeat the search path */
-> >  		if (inpath(tok))
-> >  			continue;
-> 
-> hmm, a repetitive assignment like "tmp = NULL" as the increment
-> expression of the for-loop doesn't read too natural for me either.
-> ;-)
+On Tue, Dec 20, 2011 at 08:36:04AM -0500, Dave Reisner wrote:
+> Ask and you shall receive ;)
 
- Yes,
+ Thanks :-)
 
-    for (tok = strtok_r(pathcp, ":", &key); tok;
-         tok = strtok_r(NULL, ":", &key)) {
+>  tools/checkxalloc.sh |   14 ++++++++++++++
+>  1 files changed, 14 insertions(+), 0 deletions(-)
+>  create mode 100755 tools/checkxalloc.sh
+> 
+> diff --git a/tools/checkxalloc.sh b/tools/checkxalloc.sh
+> new file mode 100755
+> index 0000000..f8f8c8c
+> --- /dev/null
+> +++ b/tools/checkxalloc.sh
+> @@ -0,0 +1,14 @@
+> +#!/bin/sh
+> +#
+> +# Find files which include the xalloc.h header, but which still call
+> +# the unwrapped calloc and malloc.
+> +#
+> +
+> +cd "$(git rev-parse --show-toplevel)" || {
+> +  echo "error: failed to chdir to git root"
+> +  exit 1
+> +}
+> +
+> +git grep -zl '#include "xalloc.h"' |
+> +  xargs -0 grep -nwE '[^x](([cm]|re)alloc|strdup)\('
 
- is more readable solution, 'tmp' is unnecessary. Fixed.
+ Applied, with small improvement -- we need a proper return value
+ (xargs returns too funny numbers) to make it usable from top-level
+ Makefile.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
