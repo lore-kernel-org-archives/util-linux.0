@@ -1,37 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:45837 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752025Ab2A1Kxy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Jan 2012 05:53:54 -0500
-Received: by eekc14 with SMTP id c14so838854eek.19
-        for <util-linux@vger.kernel.org>; Sat, 28 Jan 2012 02:53:53 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] docs: use correct translation project url
-Date: Sat, 28 Jan 2012 11:53:47 +0100
-Message-Id: <1327748027-851-1-git-send-email-kerolasa@iki.fi>
+Received: from caiajhbdccac.dreamhost.com ([208.97.132.202]:48364 "EHLO
+	homiemail-a2.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757163Ab2ADXCQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 Jan 2012 18:02:16 -0500
+Subject: [PATCH 2/2] sfdisk: use is_blkdev
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 05 Jan 2012 00:02:11 +0100
+Message-ID: <1325718131.7056.6.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- README |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
 
-diff --git a/README b/README
-index 2bfd818..9cb9416 100644
---- a/README
-+++ b/README
-@@ -32,7 +32,7 @@ SOURCE CODE:
- NLS (PO TRANSLATIONS):
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/sfdisk.c |    9 +--------
+ 1 files changed, 1 insertions(+), 8 deletions(-)
+
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 469e87f..70a5e2a 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -794,13 +794,6 @@ reread_ioctl(int fd) {
+     return 0;
+ }
  
-       PO files are maintained by:
--          http://translationproject.org/domain/util-linux-ng.html
-+          http://translationproject.org/domain/util-linux.html
+-static int
+-is_blockdev(int fd) {
+-    struct stat statbuf;
+-
+-    return (fstat(fd, &statbuf) == 0 && S_ISBLK(statbuf.st_mode));
+-}
+-
+ /* reread after writing */
+ static int
+ reread_disk_partition(char *dev, int fd) {
+@@ -808,7 +801,7 @@ reread_disk_partition(char *dev, int fd) {
+     fflush(stdout);
+     sync();
  
- 
- VERSION SCHEMA:
+-    if (reread_ioctl(fd) && is_blockdev(fd)) {
++    if (reread_ioctl(fd) && is_blkdev(fd)) {
+ 	do_warn(_("The command to re-read the partition table failed.\n"
+ 		  "Run partprobe(8), kpartx(8) or reboot your system now,\n"
+ 		  "before using mkfs\n"));
 -- 
-1.7.5.4
+1.7.4.1
+
+
+
 
