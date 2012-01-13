@@ -1,50 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:62737 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752638Ab2ANABM convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 13 Jan 2012 19:01:12 -0500
-Received: by obcva7 with SMTP id va7so2874825obc.19
-        for <util-linux@vger.kernel.org>; Fri, 13 Jan 2012 16:01:12 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <4F10BA5A.6020001@gmail.com>
-References: <201201130128.49700.vapier@gentoo.org>
-	<4F10BA5A.6020001@gmail.com>
-Date: Sat, 14 Jan 2012 01:01:11 +0100
-Message-ID: <CAG27Bk0Z8Aij+Tj42pA447FN9+zTu94YEmNhe2eDPo=KW2oYeg@mail.gmail.com>
-Subject: Re: getting a modern `more`
-From: Sami Kerola <kerolasa@iki.fi>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:48646 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752506Ab2AMRF7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Jan 2012 12:05:59 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: moving git hosting back to kernel.org
+Date: Fri, 13 Jan 2012 12:05:58 -0500
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+References: <201201130130.24237.vapier@gentoo.org> <20120113101854.GB21470@x2.net.home>
+In-Reply-To: <20120113101854.GB21470@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart9414954.LPAJMuJrW7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201201131205.59032.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 14, 2012 at 00:12, Bruce Dubbs <bruce.dubbs@gmail.com> wrote:
-> Does anyone still use 'more'?  The only thing needed is a symlink to 'less':
-> http://www.greenwoodsoftware.com/less/
+--nextPart9414954.LPAJMuJrW7
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I do.
+On Friday 13 January 2012 05:18:54 Karel Zak wrote:
+> On Fri, Jan 13, 2012 at 01:30:23AM -0500, Mike Frysinger wrote:
+> > any word on when the git repo will be moving back ?  and the tarballs
+> > reuploaded ?
+>=20
+>  Git repo is back:
+>     http://www.spinics.net/lists/util-linux-ng/msg05357.html
+>  see:
+>     http://git.kernel.org/?p=3Dutils/util-linux/util-linux.git
 
-> Are there any distros that don't provide 'less' by default?
->
-> What value added does 'more' provide?
+ah right ... i was using the URL that existed before github, but missed=20
+updating to the new one after migrating back.
+=2Dmike
 
-It does not clear screen when 'q' is pressed, which is the main reason
-I sometime choose to use more.
+--nextPart9414954.LPAJMuJrW7
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-> I'd think development time would be
-> better used elsewhere.  To me, 'more' was developed in the era of paper
-> terminals (e.g. Teletype) and it is time to retire it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
 
-I appreciate highly when someone volunteers to maintain & develop
-something superficially old and obsolete. Earlier one might have said
-that why bother to make vi better now when emacs is so great, which
-lead eventually to vim. Who knows how much better more might be in
-future in comparison to less if people who like it have change of
-making it such.
+iQIcBAABAgAGBQJPEGR2AAoJEEFjO5/oN/WBrZAQAKbtvOEkXmocmeUhOFHR3eh1
+dYkk1n2kdwOytF+N+Nt+xwedqSzVaW5YIcaK0W/yBW1a0cHVWbSHPfEt935awek1
+BcNF5Low01Z/7tZVfiKRdTXzUcbvOaHtuniBLMZLqQ8o+jGaZ18Nkh0cBPgFBs9J
+aRtDHtvg9E6du0oxLTTAll7FPBCtbVYOyTaPFja+ykkGPQzwLNlB2z0vxj1rvjFK
+x2+MUON705Zo7giDxpwfYxJiU9PkiZwgzDm4jGlEpXiI08P/atMd73IkaypKuFYH
+HISi07F/grsIShL88oyfL1TiaDbANA69uPKqgGfcUs/R2IlUGAs643SBoG/KD6AC
+yWsXIvzOLYqwhW4jtO8MEfmfj0R/gby6xewFVyUymPLcfOpC7DmOD+dqj3402PS7
+HUiJlR0qzEKECyrPwAHhduH8t3/rlLlaV3yDu4QHSTkOxSibXBwyTYezlWh1zIJg
+L2AN2hp45VTZzQIbWDzZgopJK74n7i3pZdRI6ee5HwF53TiK0DLIK0wQ1aV1fnno
+TYe2dxY2cZjiWUXcdehcasQQ0d79yfkM7rHmgYyCZWtaIB3qzjAb2YKoBqPa5pmW
+LgcEGBqvbxAx1bc4k5dNALIh64IxiZFVBB++s7QLpv8s7ecR3ggJrRRmzf2Ooeib
+FbBdi9MDWux9Q71iUXpR
+=JOTD
+-----END PGP SIGNATURE-----
 
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+--nextPart9414954.LPAJMuJrW7--
