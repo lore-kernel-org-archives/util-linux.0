@@ -1,41 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nm25.bullet.mail.sp2.yahoo.com ([98.139.91.95]:31007 "HELO
-	nm25.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750848Ab2AVBhW (ORCPT
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:37874 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752493Ab2ANDRo (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 21 Jan 2012 20:37:22 -0500
-Message-ID: <4F1B684E.9030501@yahoo.com.ar>
-Date: Sat, 21 Jan 2012 22:37:18 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+	Fri, 13 Jan 2012 22:17:44 -0500
+Received: by obcva7 with SMTP id va7so2964102obc.19
+        for <util-linux@vger.kernel.org>; Fri, 13 Jan 2012 19:17:44 -0800 (PST)
+Message-ID: <4F10F3D5.9080706@gmail.com>
+Date: Fri, 13 Jan 2012 21:17:41 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: fdisk: off-by-one issue in (n)new command
-References: <4F0E167A.9090205@yahoo.com.ar> <CAMFXF50uHCU4yhwe3byAsTKvPpi8F63mR9O4TfKhuANiEL_v0Q@mail.gmail.com> <4F149CA0.6040100@yahoo.com.ar> <4F14A512.2030904@yahoo.com.ar> <20120117100756.GA12310@x2.net.home> <4F158BD6.1020006@yahoo.com.ar> <CAMFXF52Crx7NSWWNSxgw-4FAyhQp7P5y50n7YBmRB+8PCvQwpg@mail.gmail.com>
-In-Reply-To: <CAMFXF52Crx7NSWWNSxgw-4FAyhQp7P5y50n7YBmRB+8PCvQwpg@mail.gmail.com>
+To: util-linux@vger.kernel.org
+Subject: Re: getting a modern `more`
+References: <201201130128.49700.vapier@gentoo.org> <CAG27Bk0Z8Aij+Tj42pA447FN9+zTu94YEmNhe2eDPo=KW2oYeg@mail.gmail.com> <4F10CAB7.6060808@gmail.com> <201201132008.20863.vapier@gentoo.org>
+In-Reply-To: <201201132008.20863.vapier@gentoo.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 01/20/2012 11:21 AM, Francesco Cosoleto wrote:
-> I wonder whether this is a preferred behavior:
->
-> Partition number (1-4, default 1): 5
-> Value 5 out of range, used 4.
-> First sector (2048-16383, default 2048): 1024
-> Value 1024 out of range, used 2048.
-> Last sector, +sectors or +size{K,M,G} (2048-16383, default 16383): +8M
-> Value 18432 out of range, used 16383.
-> Partition 4 of type Linux and of size 7 MiB is set
->
-> Francesco
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-Sounds good for me.
+Mike Frysinger wrote:
+> On Friday 13 January 2012 19:22:15 Bruce Dubbs wrote:
+>> "COMPATIBILITY WITH MORE
+>>    If  the  environment  variable LESS_IS_MORE is set to 1, or if the
+>>    program is invoked via a file link named "more", less behaves
+>>    (mostly) in  conformance  with  the  POSIX "more" command
+>>    specification."
+> 
+> you've indirectly quoted one reason for needing "more" -- POSIX wants it.
+> http://pubs.opengroup.org/onlinepubs/9699919799/utilities/more.html
 
--- 
-Gerardo Exequiel Pozzi
-\cos^2\alpha + \sin^2\alpha = 1
+I guess my intent wasn't clear.  I wasn't advocating removing "more" 
+from distros, I was saying that it's implementation via "less" is much 
+more flexible and wasn't really required in util-linux.
 
+I suppose the case can be made that 'more' at about 27K is much smaller 
+and more efficient than 'less' at about 327K, but in the era of TB 
+drives, I wouldn't think that would make a significant difference.  Both 
+programs are generally used by users at the command line - rarely in a 
+script.
+
+That said, if you want to spend the effort to update and maintain a 
+program that duplicates functionality, than that's up to you.  I just 
+think you may want to be careful of NIH thinking.
+
+   -- Bruce
