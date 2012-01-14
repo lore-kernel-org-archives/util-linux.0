@@ -1,152 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52400 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754463Ab2ASE2m (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 Jan 2012 23:28:42 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q0J4SgJq026607
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 18 Jan 2012 23:28:42 -0500
-Received: from localhost (beach.nrt.redhat.com [10.64.200.71])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q0J4Sfq9006285
-	for <util-linux@vger.kernel.org>; Wed, 18 Jan 2012 23:28:42 -0500
-Date: Thu, 19 Jan 2012 13:28:41 +0900 (JST)
-Message-Id: <20120119.132841.785556956001804188.yamato@redhat.com>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:48242 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755855Ab2ANRab (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Jan 2012 12:30:31 -0500
+Received: by obcva7 with SMTP id va7so3307964obc.19
+        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 09:30:31 -0800 (PST)
+Message-ID: <4F11BBB4.4030602@gmail.com>
+Date: Sat, 14 Jan 2012 11:30:28 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] Use filter arg of scandir* to pickup
- /etc/fstab.d/*.fstab files
-From: Masatake YAMATO <yamato@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Subject: Re: getting a modern `more`
+References: <201201130128.49700.vapier@gentoo.org> <201201132008.20863.vapier@gentoo.org> <4F10F3D5.9080706@gmail.com> <201201140039.17340.vapier@gentoo.org>
+In-Reply-To: <201201140039.17340.vapier@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch is based on my last patch:
+Mike Frysinger wrote:
+> On Friday 13 January 2012 22:17:41 Bruce Dubbs wrote:
+>> That said, if you want to spend the effort to update and maintain a
+>> program that duplicates functionality, than that's up to you.  I just
+>> think you may want to be careful of NIH thinking.
+> 
+> the work was already been done, and technically speaking, one could say that 
+> everything other than "more" is NIH thinking ;).  can you name a pager that is 
+> older than "more" ?
 
-     [PATCH 1/2] scandirat based mnt_table_parse_dir implementation
+No, of course not.  Please understand that I have no connection with the 
+'less' project.   I don't know why it forked, but it too has been around 
+  since at least 1995 and appears to pre-date Linux (and Util-Linux). 
+The website goes back to 'Version 290' in 1995.
 
-scandir* used in `mnt_table_parse_dir in libmount/src/tab_parse.c
-can take filter function as an argument.
+I've been working with computers since before Unix (and Linux) and know 
+a little computing history.  Before 'Glass TTYs' there were paper 
+terminals and I suspect 'more' was designed with those paper terminals 
+in mind.  'Less' appears to have been designed with terminals such as 
+the VT100 in mind.  Sometimes it's beneficial to redesign a program when 
+something new comes along rather than patch an old design.
 
-`mnt_table_parse_dir' picks up fstab files from namelist returned from
-scandir* for itself. However, some parts of picking-up job can be done 
-in the filter function.
-
-This patch introduces a new function `mnt_table_parse_dir_filter' to
-share the code for picking-up job between two implementations of
-`mnt_table_parse_dir_filter', scandir based and scandirat based.
-
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- libmount/src/tab_parse.c |   63 +++++++++++++++++++--------------------------
- 1 files changed, 27 insertions(+), 36 deletions(-)
-
-diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
-index dbedb27..b7462a0 100644
---- a/libmount/src/tab_parse.c
-+++ b/libmount/src/tab_parse.c
-@@ -435,6 +435,30 @@ int mnt_table_parse_file(struct libmnt_table *tb, const char *filename)
- 	return rc;
- }
- 
-+static int mnt_table_parse_dir_filter(const struct dirent *d)
-+{
-+	size_t namesz;
-+
-+#ifdef _DIRENT_HAVE_D_TYPE
-+	if (d->d_type != DT_UNKNOWN && d->d_type != DT_REG &&
-+	    d->d_type != DT_LNK)
-+		return 0;
-+#endif
-+	if (*d->d_name == '.')
-+		return 0;
-+
-+#define MNT_MNTTABDIR_EXTSIZ	(sizeof(MNT_MNTTABDIR_EXT) - 1)
-+	
-+	namesz = strlen(d->d_name);
-+	if (!namesz || namesz < MNT_MNTTABDIR_EXTSIZ + 1 ||
-+	    strcmp(d->d_name + (namesz - MNT_MNTTABDIR_EXTSIZ),
-+		   MNT_MNTTABDIR_EXT))
-+		return 0;
-+
-+	/* Accept this */
-+	return 1;
-+}
-+
- #ifdef HAVE_SCANDIRAT
- static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- {
-@@ -445,7 +469,8 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 	dd = open(dirname, O_RDONLY|O_CLOEXEC|O_DIRECTORY);
- 	if (dd < 0)
- 	        return -errno;
--	n = scandirat(dd, ".", &namelist, NULL, versionsort);
-+
-+	n = scandirat(dd, ".", &namelist, mnt_table_parse_dir_filter, versionsort);
- 	if (n <= 0) {
- 	        close(dd);
- 	        return 0;
-@@ -454,25 +479,8 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 	for (i = 0; i < n; i++) {
- 		struct dirent *d = namelist[i];
- 		struct stat st;
--		size_t namesz;
- 		FILE *f;
- 
--#ifdef _DIRENT_HAVE_D_TYPE
--		if (d->d_type != DT_UNKNOWN && d->d_type != DT_REG &&
--		    d->d_type != DT_LNK)
--			continue;
--#endif
--		if (*d->d_name == '.')
--			continue;
--
--#define MNT_MNTTABDIR_EXTSIZ	(sizeof(MNT_MNTTABDIR_EXT) - 1)
--
--		namesz = strlen(d->d_name);
--		if (!namesz || namesz < MNT_MNTTABDIR_EXTSIZ + 1 ||
--		    strcmp(d->d_name + (namesz - MNT_MNTTABDIR_EXTSIZ),
--			    MNT_MNTTABDIR_EXT))
--				continue;
--
- 		if (fstat_at(dd, ".", d->d_name, &st, 0) ||
- 		    !S_ISREG(st.st_mode))
- 			continue;
-@@ -497,7 +505,7 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 	DIR *dir = NULL;
- 	struct dirent **namelist = NULL;
- 
--	n = scandir(dirname, &namelist, NULL, versionsort);
-+	n = scandir(dirname, &namelist, mnt_table_parse_dir_filter, versionsort);
- 	if (n <= 0)
- 		return 0;
- 
-@@ -509,25 +517,8 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 	for (i = 0; i < n; i++) {
- 		struct dirent *d = namelist[i];
- 		struct stat st;
--		size_t namesz;
- 		FILE *f;
- 
--#ifdef _DIRENT_HAVE_D_TYPE
--		if (d->d_type != DT_UNKNOWN && d->d_type != DT_REG &&
--		    d->d_type != DT_LNK)
--			continue;
--#endif
--		if (*d->d_name == '.')
--			continue;
--
--#define MNT_MNTTABDIR_EXTSIZ	(sizeof(MNT_MNTTABDIR_EXT) - 1)
--
--		namesz = strlen(d->d_name);
--		if (!namesz || namesz < MNT_MNTTABDIR_EXTSIZ + 1 ||
--		    strcmp(d->d_name + (namesz - MNT_MNTTABDIR_EXTSIZ),
--			    MNT_MNTTABDIR_EXT))
--				continue;
--
- 		if (fstat_at(dirfd(dir), _PATH_MNTTAB_DIR, d->d_name, &st, 0) ||
- 		    !S_ISREG(st.st_mode))
- 			continue;
--- 
-1.7.7.5
-
+   -- Bruce
