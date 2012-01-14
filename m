@@ -1,20 +1,42 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Subject: Re: /etc/fstab.d yes or not
-Mime-Version: 1.0 (Apple Message framework v1251.1)
-Content-Type: text/plain; charset=us-ascii
-From: Theodore Tso <tytso@MIT.EDU>
-In-Reply-To: <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
-Date: Mon, 23 Jan 2012 08:55:21 -0500
-Cc: Theodore Tso <tytso@MIT.EDU>, Roger Leigh <rleigh@codelibre.net>,
-        Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Message-Id: <ACD4236E-A309-465F-8789-DA3A5B648313@mit.edu>
-References: <20120120140444.GC13157@x2.net.home> <20120120154912.GK8797@codelibre.net> <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com> <20120120162220.GN8797@codelibre.net> <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Sender: linux-fsdevel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:35938 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751565Ab2ANWrp (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Jan 2012 17:47:45 -0500
+Received: by obcva7 with SMTP id va7so3442398obc.19
+        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 14:47:44 -0800 (PST)
+Message-ID: <4F12060D.10100@gmail.com>
+Date: Sat, 14 Jan 2012 16:47:41 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+MIME-Version: 1.0
+To: util-linux@vger.kernel.org
+Subject: Re: getting a modern `more`
+References: <201201130128.49700.vapier@gentoo.org> <201201141626.04499.vapier@gentoo.org> <4F11FF55.2030701@gmail.com> <201201141735.33620.vapier@gentoo.org>
+In-Reply-To: <201201141735.33620.vapier@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I am extremely dubious about systemd, and would much rather it not be on any system that *I* run (and using UUID's to identify kernel notification is just whacko) , but I have to agree with Kay in that /etc/fstab.d is Just Wrong.   The /etc/fstab file is parsed by many programs, shell scripts, and not just the ones in util-linux.   We should consider it an ABI, and not mess with it.
+Mike Frysinger wrote:
+> On Saturday 14 January 2012 17:19:01 Bruce Dubbs wrote:
+>> Mike Frysinger wrote:
+>>> On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
+>>>> Before 'Glass TTYs' there were paper terminals and I suspect 'more'
+>>>> was designed with those paper terminals in mind. 'Less' appears to
+>>>> have been designed with terminals such as the VT100 in mind.
+>>>> Sometimes it's beneficial to redesign a program when something new
+>>>> comes along rather than patch an old design.
+>>> which is what Eric has done with his more
 
--- Ted
+>> What capabilities/advantages are added that are not in 'less'?
+
+> i don't know, but i don't think it matters.  Eric likes maintaining the code 
+> regardless and he plans on doing it anyways.
+
+OK, I understand 'scratch the itch'.  I was just stating that I didn't 
+think the benefit was worth the effort.  Press on.
+
+   -- Bruce
+
 
