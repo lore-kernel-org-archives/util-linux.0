@@ -1,54 +1,61 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from smtp.gentoo.org ([140.211.166.183]:55270 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751094Ab2ANFjO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Jan 2012 00:39:14 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Re: getting a modern `more`
+Date: Sat, 14 Jan 2012 00:39:16 -0500
+Cc: util-linux@vger.kernel.org
+References: <201201130128.49700.vapier@gentoo.org> <201201132008.20863.vapier@gentoo.org> <4F10F3D5.9080706@gmail.com>
+In-Reply-To: <4F10F3D5.9080706@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20120120154912.GK8797@codelibre.net>
-References: <20120120140444.GC13157@x2.net.home> <20120120154912.GK8797@codelibre.net>
-From: Kay Sievers <kay.sievers@vrfy.org>
-Date: Fri, 20 Jan 2012 17:13:12 +0100
-Message-ID: <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
-Subject: Re: /etc/fstab.d yes or not
-To: Roger Leigh <rleigh@codelibre.net>
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-fsdevel-owner@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart31591133.cSTmzbeYES";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201201140039.17340.vapier@gentoo.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 16:49, Roger Leigh <rleigh@codelibre.net> wrote:
-> On Fri, Jan 20, 2012 at 03:04:44PM +0100, Karel Zak wrote:
->>  I'd like to add support for /etc/fstab.d to libmount. The library is
->>  currently used by mount, umount and mount.nfs. The goal is to use it
->>  on more places.
->>
->>  The /etc/fstab.d directory has been requested by people who maintains
->>  large number of mountpoints etc.
->>
->>  The directory is not replacement for /etc/fstab, it's additional place
->>  where you can describe your filesystems.
->
-> As a general comment, I would like to use fstab.d for replacing
-> the initscripts which mount kernel filesystems in Debian initscripts
-> (sysvinit).  We currently hardcode the logic to mount each filesystem
-> and additionally hardcode the defaults, and permit the defaults to
-> be overridden by the user via /etc/default/* or via entries in
-> /etc/fstab.  This could be done much more straightforwardly using
-> entries such as /etc/fstab.d/kernfs and /etc/fstab.d/tmpfs etc.
+--nextPart31591133.cSTmzbeYES
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-It is just very wrong to expose kernel filesystems to system mounts.
-Please invent your own config if you want that for packaging. The
-kernel filesystems do not belong in fstab, and for the same reason not
-in fstab.d/.
+On Friday 13 January 2012 22:17:41 Bruce Dubbs wrote:
+> That said, if you want to spend the effort to update and maintain a
+> program that duplicates functionality, than that's up to you.  I just
+> think you may want to be careful of NIH thinking.
 
-> From the distributor's POV, this can then take advantage of the
-> package manager's conffile handling, meaning it's much simpler
-> for the user to customise.
->
-> From the initscripts POV, were systemd to also use the same
-> approach, we could then share the configuration between the different
-> init systems.
+the work was already been done, and technically speaking, one could say tha=
+t=20
+everything other than "more" is NIH thinking ;).  can you name a pager that=
+ is=20
+older than "more" ?
+=2Dmike
 
-The init systems need to handle the mounts, but unlikely by sharing
-additional config files. For systemd it is a solved problem, we don't
-need fstab.d/ for that, and sysv should not start to try to solve it
-at that level, because it will conflict with systemd.
+--nextPart31591133.cSTmzbeYES
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-Kay
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJPERUFAAoJEEFjO5/oN/WBI+gQAMwsQGWQarMn0LnU/peYMHQZ
+CbswPbr17M67OuCaEEhahsPZc1NYq9rEP1piCb4lTDx/qbp97qck48j0I5jYaKwH
+RmKXONVXv3rIeCUN4o3YRP/bxnD3KVtTx+5taipIMikusLrNRtiKjJZ5aURO1G33
+cy6l5R8bNNIVkdABxEMHu4nuRhrEtSObAR2MZtZz7DeNj5xuUPZ2rIggUaSwuK+6
+rMERzeuylNzI85YAoRQC025kgZU7vemySHATs4I7gnt/sjBoWIS6KD8o5WS4ujPN
+RpFQ6vdkBgaoAIpZldoZZooTxrEXSAPWqggoTAJhn7pUtRqewK7WaTn23x59TZDG
+SnNvAc12rLo2BjHkzkBtQIqY4jOONKpsaGex1nikAfbmSaUHOQSyOAFJd4Vm9NIx
+JhZClhL74iBAAF2HS0DOrteq8yl9W6JQgLCfZf3tSzT+AW/e1idDVwX/+M4o7Hu1
+j6J+XJj+eHeVYW85+ZvqtOgAFvQCjVUIp6dautjwSb2mkQ3Dgwm5NHEKkJnMRaYA
+5iT7/hwuwXCkiHfXwrY6Wxga9Fm8GUc3rKBckaL7EXhlskxPd5IVsuCcttNC1ezQ
+fHuTgj4S+SuP4QNoka58hBPUneZqMm1KaiVuXQ6cC7iAyObQk7hccrYCjDrcEkmC
+Njh+qq97KmOYg0nPRMJA
+=zuif
+-----END PGP SIGNATURE-----
+
+--nextPart31591133.cSTmzbeYES--
