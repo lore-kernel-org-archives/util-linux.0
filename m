@@ -1,36 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:51231 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759442Ab2AMXMa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 13 Jan 2012 18:12:30 -0500
-Received: by ghbg16 with SMTP id g16so1155913ghb.19
-        for <util-linux@vger.kernel.org>; Fri, 13 Jan 2012 15:12:30 -0800 (PST)
-Message-ID: <4F10BA5A.6020001@gmail.com>
-Date: Fri, 13 Jan 2012 17:12:26 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-MIME-Version: 1.0
+Received: from smtp.gentoo.org ([140.211.166.183]:44443 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755836Ab2ANWfe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Jan 2012 17:35:34 -0500
+Received: from vapier.localnet (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id DBA731B4033
+	for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 22:35:33 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
 To: util-linux@vger.kernel.org
 Subject: Re: getting a modern `more`
-References: <201201130128.49700.vapier@gentoo.org>
-In-Reply-To: <201201130128.49700.vapier@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Sat, 14 Jan 2012 17:35:33 -0500
+References: <201201130128.49700.vapier@gentoo.org> <201201141626.04499.vapier@gentoo.org> <4F11FF55.2030701@gmail.com>
+In-Reply-To: <4F11FF55.2030701@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1560707.ub52yBAnSL";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201201141735.33620.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> in a random conversation, Eric mentioned that he still maintains his own 
-> version of more (which at this point, has been rewritten a time or two).  i 
-> mentioned that the `more` found in util-linux dates back to his original 
-> version.  i'm hoping there can be a melding of minds here so we can all benefit 
-> from his work :).
+--nextPart1560707.ub52yBAnSL
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Does anyone still use 'more'?  The only thing needed is a symlink to 
-'less': http://www.greenwoodsoftware.com/less/
+On Saturday 14 January 2012 17:19:01 Bruce Dubbs wrote:
+> Mike Frysinger wrote:
+> > On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
+> >> Before 'Glass TTYs' there were paper terminals and I suspect 'more'
+> >> was designed with those paper terminals in mind. 'Less' appears to
+> >> have been designed with terminals such as the VT100 in mind.
+> >> Sometimes it's beneficial to redesign a program when something new
+> >> comes along rather than patch an old design.
+> >=20
+> > which is what Eric has done with his more
+>=20
+> What capabilities/advantages are added that are not in 'less'?
 
-Are there any distros that don't provide 'less' by default?
+i don't know, but i don't think it matters.  Eric likes maintaining the cod=
+e=20
+regardless and he plans on doing it anyways.
+=2Dmike
 
-What value added does 'more' provide?  I'd think development time would 
-be better used elsewhere.  To me, 'more' was developed in the era of 
-paper terminals (e.g. Teletype) and it is time to retire it.
+--nextPart1560707.ub52yBAnSL
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-   -- Bruce
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJPEgM1AAoJEEFjO5/oN/WBKX0P/2QqeSl3KRAnvjKYkgw8eOl5
+bJaOJv6UxBVD6bssJ1BPs0iY8vwVJOwUkQZ8g9wbindsk/jhZZo1K3WZMg8Od4wN
+lU3Jbr2IWqCzL6cTD4Hq5UO1uKwbKPglRLJ/1UmCSPiI/zJB9ep4gH3bd4iA0AEy
+n36F+hvzhwqCjOo0nAbx0wn2IUWIUQGG1xw8tng2sYwzXylRRiJd3l2s18XTKS8U
+gZiE1qA1vditEgmkW/Nu0pR1O1FvBITWMS0447SB0p3WfIL1Otal8NAv3A3EdvGL
+pLL19Rl40i+18H21h3ItuTmbrrJV+i48LcvxU8sJ6kzU2h8PrD6k8ESgXw4VgGOd
+dhq6/dLU9mc81nVpYIdc0HLhKu+aGSnvp5yIphxBbJ0cs3cGq75BC2LonaVvf/xz
+P0cSU4nOiq5mlnwpAqSzFy/qgXjj4a0Fgzx60VFFV9P7GiQ9TKx3cIMk+TcZ31c8
+6Dxr5okuoVHrKM+NkLnZEfTUa3esz6mfTOYyRnC+eGvl+nLwFdNitZSKEydYPwNl
+616T+v43IMqCD6qtNYxMxYUrILf2Cccron/x6SNKMaXcgssuu/7fQJyy/nQKssS2
+/F1aanowyBzRLWU6pTo4u+jiIxS2NHzg1uJxZbTd4R5Zmed4+K5SO+eW4omWpwN0
+N5I0G2IEMY9/YrjYXypD
+=XC/q
+-----END PGP SIGNATURE-----
+
+--nextPart1560707.ub52yBAnSL--
