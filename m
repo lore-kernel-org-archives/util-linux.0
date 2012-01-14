@@ -1,63 +1,36 @@
-Return-Path: kay.sievers@vrfy.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:61669 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755739Ab2ANWTF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Jan 2012 17:19:05 -0500
+Received: by obcva7 with SMTP id va7so3431487obc.19
+        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 14:19:04 -0800 (PST)
+Message-ID: <4F11FF55.2030701@gmail.com>
+Date: Sat, 14 Jan 2012 16:19:01 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20120120155701.GL8797@codelibre.net>
-References: <20120120140444.GC13157@x2.net.home> <20120120.232002.849876084731555262.yamato@redhat.com>
- <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com> <20120120155701.GL8797@codelibre.net>
-From: Kay Sievers <kay.sievers@vrfy.org>
-Date: Fri, 20 Jan 2012 17:08:02 +0100
-Message-ID: <CAPXgP10_c+JkeGkvHG7O=6-Y=1nQEeBzCwEARSS1us9NJ6hktw@mail.gmail.com>
-Subject: Re: /etc/fstab.d yes or not
-To: Roger Leigh <rleigh@codelibre.net>
-Cc: Masatake YAMATO <yamato@redhat.com>, kzak@redhat.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+To: util-linux@vger.kernel.org
+Subject: Re: getting a modern `more`
+References: <201201130128.49700.vapier@gentoo.org> <201201140039.17340.vapier@gentoo.org> <4F11BBB4.4030602@gmail.com> <201201141626.04499.vapier@gentoo.org>
+In-Reply-To: <201201141626.04499.vapier@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 16:57, Roger Leigh <rleigh@codelibre.net> wrote:
-> On Fri, Jan 20, 2012 at 03:56:43PM +0100, Kay Sievers wrote:
->> On Fri, Jan 20, 2012 at 15:20, Masatake YAMATO <yamato@redhat.com> wrote=
-:
->> >>
->> >> =C2=A0I'd like to add support for /etc/fstab.d to libmount. The libra=
-ry is
->> >> =C2=A0currently used by mount, umount and mount.nfs. The goal is to u=
-se it
->> >> =C2=A0on more places.
->> >
->> > I'm working on systemd to support /etc/fstab.d.
->>
->> It's an old glibc API, and /etc/fstab is ABI, not a service config
->> file, which now can read more than one file. It's a very different
->> problem. It an ABI change, not a config extension.
->
-> I think that's putting the problem a little too strongly. =C2=A0The
-> glibc API is generic: it can (and is) used to parse any file using
-> the fstab(5) file format; it's not restricted to only /etc/mtab
-> and /etc/fstab. =C2=A0setmntent(3) accepts any filename.
+Mike Frysinger wrote:
+> On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
 
-That's right, but it's just not the way it's used. None of the old
-tools is prepared to just wrap that in a readdir() loop.
+>> Before 'Glass TTYs' there were paper terminals and I suspect 'more'
+>> was designed with those paper terminals in mind. 'Less' appears to
+>> have been designed with terminals such as the VT100 in mind.
+>> Sometimes it's beneficial to redesign a program when something new
+>> comes along rather than patch an old design.
 
-> You are entirely correct that it may break the assumptions made by
-> some software, but it's certainly not "ABI" or even "API" breakage.
+> which is what Eric has done with his more
 
-It is surely the de-facto Linux/UNIX ABI for system mounts.
+What capabilities/advantages are added that are not in 'less'?
 
->> Tools rightfully expect that they find all system mounts in that file,
->> and not in some new split-up directory. In some cases, fstab is used
->> to 'check if the device is not a system volume', and that will just
->> break now,
->
-> The number of tools which do this is tiny, and could (if we wished)
-> be patched trivially to also look at the files in fstab.d.
->
-> Alternatively, glibc itself could be updated so that if e.g.
-> setmntent(3) is called with "/etc/fstab" as its filename argument,
-> it will additionally process and include the contents of
-> /etc/fstab.d as well. =C2=A0This would have the advantage of transparency
-> for all users of the glibc interface.
+   -- Bruce
 
-That's true, but good luck with glibc changes. :)
 
-Kay
