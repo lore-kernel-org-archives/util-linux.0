@@ -1,50 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:57570 "EHLO
-	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752110Ab2A2OZ2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 29 Jan 2012 09:25:28 -0500
-Subject: [PATCH] whereis: move token assignment into loop syntax
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 29 Jan 2012 15:25:24 +0100
-Message-ID: <1327847124.3305.1.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:65037 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754889Ab2APVLk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Jan 2012 16:11:40 -0500
+Date: Mon, 16 Jan 2012 22:11:37 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Francesco Cosoleto <cosoleto@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] fdisk: rename read_int_sx() and some related
+ variables
+Message-ID: <20120116211137.GA29810@x2.net.home>
+References: <1326692173-11791-1-git-send-email-cosoleto@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1326692173-11791-1-git-send-email-cosoleto@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Sun, 29 Jan 2012 15:22:41 +0100
+On Mon, Jan 16, 2012 at 06:36:12AM +0100, Francesco Cosoleto wrote:
+>  fdisk/fdisk.c |   42 +++++++++++++++++++++---------------------
+>  1 files changed, 21 insertions(+), 21 deletions(-)
 
-We can save a few lines and use for() naturally instead.
+ Applied, thanks!
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- misc-utils/whereis.c |    6 +-----
- 1 files changed, 1 insertions(+), 5 deletions(-)
+    Karel
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 925cc93..eee4bf6 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -268,11 +268,7 @@ static void fillpath(void)
- 		return;
- 	pathcp = xstrdup(path);
- 
--	for (tmp = pathcp; ; tmp = NULL) {
--		tok = strtok_r(tmp, ":", &key);
--		if (!tok)
--			break;
--
-+	for (tmp = pathcp; tok = strtok_r(tmp, ":", &key); tmp = NULL) {
- 		/* make sure we don't repeat the search path */
- 		if (inpath(tok))
- 			continue;
 -- 
-1.7.4.1
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
