@@ -1,39 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24676 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751475Ab2A3Jnh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Jan 2012 04:43:37 -0500
-Date: Mon, 30 Jan 2012 10:43:33 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: fs locks: export informational name
-Message-ID: <20120130094333.GA14284@x2.net.home>
-References: <1327765053.3336.7.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1327765053.3336.7.camel@offbook>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:42327 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750758Ab2AQBR5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 16 Jan 2012 20:17:57 -0500
+Received: by qadc10 with SMTP id c10so497305qad.19
+        for <util-linux@vger.kernel.org>; Mon, 16 Jan 2012 17:17:57 -0800 (PST)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] mount: avoid canonicalizing pseudofs paths
+Date: Mon, 16 Jan 2012 20:17:55 -0500
+Message-Id: <1326763075-11690-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This fixes a display bug in the new mount wherein a psuedofs existing in
+$PWD by name will be resolved and shown as a real mount point.
 
-On Sat, Jan 28, 2012 at 04:37:33PM +0100, Davidlohr Bueso wrote:
-> I'm currently rewritting lslk(8) from scratch so we can integrate it in
-> util-linux, and continue maintaining it.
-> 
-> In order to not break userspace, the kernel is currently exporting the
-> major:minor numbers of the device where the locked file resides.  Could
-> we agree on defining WE_CAN_BREAK_LSLK_NOW and start exporting the
-> informational name instead?
+  $ cd /tmp; mkdir nfsd; mount | grep nfsd
+  /tmp/nfsd on /proc/fs/nfsd type nfsd (rw,relatime)
 
- --disable-lslk should be enough :-)
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ sys-utils/mount.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
- We can support DEV column (with maj:min), but not use it on the
- default output please. We have ReleaseNotes and man page where we can
- describe possible differences between original and u-l version.
-
-    Karel
-
+diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+index 81ccb41..0964828 100644
+--- a/sys-utils/mount.c
++++ b/sys-utils/mount.c
+@@ -146,13 +146,14 @@ static void print_all(struct libmnt_context *cxt, char *pattern, int show_label)
+ 		const char *type = mnt_fs_get_fstype(fs);
+ 		const char *src = mnt_fs_get_source(fs);
+ 		const char *optstr = mnt_fs_get_options(fs);
+-		char *xsrc;
++		char *xsrc = NULL;
+ 
+ 		if (type && pattern && !mnt_match_fstype(type, pattern))
+ 			continue;
+ 
+-		xsrc = mnt_pretty_path(src, cache);
+-		printf ("%s on %s", xsrc, mnt_fs_get_target(fs));
++		if (!mnt_fs_is_pseudofs(fs))
++			xsrc = mnt_pretty_path(src, cache);
++		printf ("%s on %s", xsrc ? xsrc : src, mnt_fs_get_target(fs));
+ 		if (type)
+ 			printf (" type %s", type);
+ 		if (optstr)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.8.3
+
