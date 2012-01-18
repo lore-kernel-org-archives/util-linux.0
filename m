@@ -1,62 +1,36 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Date: Fri, 20 Jan 2012 15:57:01 +0000
-From: Roger Leigh <rleigh@codelibre.net>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Masatake YAMATO <yamato@redhat.com>, kzak@redhat.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: /etc/fstab.d yes or not
-Message-ID: <20120120155701.GL8797@codelibre.net>
-References: <20120120140444.GC13157@x2.net.home>
- <20120120.232002.849876084731555262.yamato@redhat.com>
- <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from nm1-vm0.bullet.mail.sp2.yahoo.com ([98.139.91.202]:25744 "HELO
+	nm1-vm0.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756587Ab2ARCAB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Jan 2012 21:00:01 -0500
+Message-ID: <4F16279F.3040100@yahoo.com.ar>
+Date: Tue, 17 Jan 2012 22:59:59 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com>
-Sender: linux-fsdevel-owner@vger.kernel.org
+To: util-linux <util-linux@vger.kernel.org>
+Subject: Buffer I/O error, with latest losetup on first run
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 03:56:43PM +0100, Kay Sievers wrote:
-> On Fri, Jan 20, 2012 at 15:20, Masatake YAMATO <yamato@redhat.com> wrote:
-> >>
-> >>  I'd like to add support for /etc/fstab.d to libmount. The library is
-> >>  currently used by mount, umount and mount.nfs. The goal is to use it
-> >>  on more places.
-> >
-> > I'm working on systemd to support /etc/fstab.d.
-> 
-> It's an old glibc API, and /etc/fstab is ABI, not a service config
-> file, which now can read more than one file. It's a very different
-> problem. It an ABI change, not a config extension.
+Hello
 
-I think that's putting the problem a little too strongly.  The
-glibc API is generic: it can (and is) used to parse any file using
-the fstab(5) file format; it's not restricted to only /etc/mtab
-and /etc/fstab.  setmntent(3) accepts any filename.
+Using (losetup from util-linux 2.20.620-4360-dirty) and Linux-3.2.1.
 
-You are entirely correct that it may break the assumptions made by
-some software, but it's certainly not "ABI" or even "API" breakage.
+Using losetup as first time, if loop module is not loaded, losetup -f 
+file-equal-or-below-1MiB I get: "Buffer I/O error on device loop0, 
+logical block 0" (sometimes get one message, or two or three, ...)
 
-> Tools rightfully expect that they find all system mounts in that file,
-> and not in some new split-up directory. In some cases, fstab is used
-> to 'check if the device is not a system volume', and that will just
-> break now,
+Can be reproducible again if loop module is unloaded then execute losetup.
+Does not happen if module is loaded previously to losetup.
+Happens independently if /dev/loop0 exists or not.
 
-The number of tools which do this is tiny, and could (if we wished)
-be patched trivially to also look at the files in fstab.d.
+Does not happen with losetup from 2.20 under the same conditions.
 
-Alternatively, glibc itself could be updated so that if e.g.
-setmntent(3) is called with "/etc/fstab" as its filename argument,
-it will additionally process and include the contents of
-/etc/fstab.d as well.  This would have the advantage of transparency
-for all users of the glibc interface.
-
-
-Regards,
-Roger
+Maybe a race-condition?
 
 -- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
+Gerardo Exequiel Pozzi
+\cos^2\alpha + \sin^2\alpha = 1
+
