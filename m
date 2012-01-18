@@ -1,70 +1,41 @@
-Return-Path: yamato@redhat.com
-Date: Mon, 23 Jan 2012 23:14:43 +0900 (JST)
-Message-Id: <20120123.231443.486973746541575934.yamato@redhat.com>
-To: kay.sievers@vrfy.org
-Cc: kzak@redhat.com, rleigh@codelibre.net, util-linux@vger.kernel.org,
-        ssato@redhat.com
-Subject: Re: /etc/fstab.d yes or not
-From: Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <CAPXgP10LHyDJt_v5w1JyY4q0ouunVxJHr3QLgdL5VBPG28qOBQ@mail.gmail.com>
-References: <CAPXgP11WMG1Q53scWXqQnktOyUZbY5K09KRfRaT3ct-Y78yULA@mail.gmail.com>
-	<20120123.222636.550210626606480400.yamato@redhat.com>
-	<CAPXgP10LHyDJt_v5w1JyY4q0ouunVxJHr3QLgdL5VBPG28qOBQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: kay.sievers@vrfy.org
+MIME-Version: 1.0
+In-Reply-To: <20120118121301.GA2371@x2.net.home>
+References: <4F16279F.3040100@yahoo.com.ar> <20120118121301.GA2371@x2.net.home>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Wed, 18 Jan 2012 13:51:57 +0100
+Message-ID: <CAPXgP12ex2UyeCgQYX65v893N28CTr6d=hF8822mPiEZ-+wEZA@mail.gmail.com>
+Subject: Re: Buffer I/O error, with latest losetup on first run
+To: Karel Zak <kzak@redhat.com>
+Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 23 Jan 2012 14:37:22 +0100, Kay Sievers <kay.sievers@vrfy.org> wrote
->> What I want is packaging the system mounts.
->> Consider setting up multiple hosts which mount the same nfs filesystem
->> to the same mount point. It the mount point is in a rpm package, it
->> can be used both in kickstart file and from yum command line. In
->> addition yum update can be used when the name or ip of nfs server is
->> changed; Just create the new release of the rpm package which holds
->> new mount point deification. In stead of nfs, you can consider smb or
->> iso images as examples.
-> 
-> That sounds very wrong to do. This is admin territory and not package
-> management. 
+On Wed, Jan 18, 2012 at 13:13, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Jan 17, 2012 at 10:59:59PM -0300, Gerardo Exequiel Pozzi wrote:
+>> Using (losetup from util-linux 2.20.620-4360-dirty) and Linux-3.2.1.
+>>
+>> Using losetup as first time, if loop module is not loaded, losetup -f
+>> file-equal-or-below-1MiB I get: "Buffer I/O error on device loop0, logical
+>> block 0" (sometimes get one message, or two or three, ...)
+>
+> It does not sound like userspace problem, I guess that the message comes
+> from kernel (dmesg). It would be also nice to have strace output.
+>
+>>
+>> Can be reproducible again if loop module is unloaded then execute losetup.
+>> Does not happen if module is loaded previously to losetup.
+>> Happens independently if /dev/loop0 exists or not.
+>>
+>> Does not happen with losetup from 2.20 under the same conditions.
+>
+> The new losetup uses /dev/loop-control to get the new free loop device.
+>
+> Kay, any idea?
 
-I'm thiking about the admin manages packages which are installed to 
-the host.
+No really. Accessing /dev/loop-control should block losetup, and
+synchronously load the look.ko module, before doing any further
+operation in losetup.
 
-> There are tools sync and deploy /etc setting per-machine
-> across big networks, and RPM is surely not the right thing to use
-> here.
-
-(RPM works fine daily "yum update" done by users on the world.)
-Of course I'm thinking about the admin runs her/his own yum repository.
-
-> RPM is for the operating system, not for host configuration. Most
-> stuff in /etc is marked as config for that exact reason. First, static
-> system-config does not belong in /etc, second non-admin editable files
-> just do not belong in /etc. It's all wrong, just as the misguided
-> entire fstab.d/ feature to start with.
-
-It is not so simple.
-
-$ rpm -qf /etc/yum.repos.d/fedora.repo 
-fedora-release-14-1.noarch
-
-Admin can edit fedora.repo, but generally it is assumed as static
-file. 
-
-$ rpm -q --queryformat "%{NAME}: %{FILEFLAGS:fflags}\n" -f /etc/udev/rules.d/*.rules
-hplip-common: 
-hplip-common: 
-libfprint: 
-qemu-system-x86: 
-alsa-utils: 
-hal: c
-libdrm: c
-vbetool: 
-bluez: 
-fuse: 
-gpsd: cn
-
-Some are marked as config as you said. The other are not. I think the packages
-may think their rules files as static data.
-
-Masatake YAMATO
+Kay
