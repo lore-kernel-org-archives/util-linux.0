@@ -1,49 +1,39 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-From: bastien ROUCARIES <roucaries.bastien@gmail.com>
-To: Boaz Harrosh <bharrosh@panasas.com>
-Subject: Re: /etc/fstab.d yes or not
-Date: Tue, 24 Jan 2012 10:47:41 +0100
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Masatake YAMATO <yamato@redhat.com>,
-        kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-References: <20120120140444.GC13157@x2.net.home> <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com> <4F1DF90C.5070108@panasas.com>
-In-Reply-To: <4F1DF90C.5070108@panasas.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from nm7.bullet.mail.sp2.yahoo.com ([98.139.91.77]:48112 "HELO
+	nm7.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S932818Ab2ASU63 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 19 Jan 2012 15:58:29 -0500
+Message-ID: <4F188277.7090100@yahoo.com.ar>
+Date: Thu, 19 Jan 2012 17:52:07 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201201241047.42303.roucaries.bastien@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+To: util-linux <util-linux@vger.kernel.org>
+Subject: mount (new): Using -a, exits with 64.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Le Tuesday 24 January 2012 01:19:24, Boaz Harrosh a écrit :
-> On 01/20/2012 04:56 PM, Kay Sievers wrote:
-> > It's an old glibc API, and /etc/fstab is ABI, not a service config
-> > file, which now can read more than one file. It's a very different
-> > problem. It an ABI change, not a config extension.
-> 
-> Can't we have our cake and eat it too?
-> 
-> I mean why not have both?
-> 
-> The subsystem that you currently plan to parse the /etc/fstab.d/ will
-> intelligently  add the /etc/fstab.d/ entries to /etc/fstab before
-> actually processing and mounting /etc/fstab.
-> 
-> So the rpm guys have their /etc/fstab.d/ convenience and the rest
-> of the  ABI is kept intact. (If you can't bit them join them)
-> 
-> Since /etc/fstab is hand edited as well. There are lots of smart
-> things that can be done like a remark (#) marker at the end of the
-> file that all /etc/fstab.d/ entries get to be added after. (And
-> a comment for the user) and some smart duplicate removal of, and
-> so on ... Even a marker per line added.
+Hello
 
-I agree. And moreover extensible if they want to use xml for  /etc/fstab.d/. 
-> 
-> Just my $0,017
-> Boaz
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Using new mount, when run with -a and some mounting is performed, mount 
+retuns 64 instead of 0.
+
+Example:
+
+# mkdir /mnt/coco
+# echo "coco /mnt/coco tmpfs defaults 0 0" >> /etc/fstab
+# mount -a ; echo $?
+64
+# mount | tail -1
+coco on /mnt/coco type tmpfs (rw,relatime)
+# umount  /mnt/coco
+# mount /mnt/coco ; echo $?
+0
+# mount --version
+mount from util-linux 2.21-rc1 (libmount 2.21.0)
+
+-- 
+Gerardo Exequiel Pozzi
+\cos^2\alpha + \sin^2\alpha = 1
+
