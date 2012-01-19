@@ -1,36 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nm1-vm0.bullet.mail.sp2.yahoo.com ([98.139.91.202]:25744 "HELO
-	nm1-vm0.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756587Ab2ARCAB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Jan 2012 21:00:01 -0500
-Message-ID: <4F16279F.3040100@yahoo.com.ar>
-Date: Tue, 17 Jan 2012 22:59:59 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+Received: from mx1.redhat.com ([209.132.183.28]:42552 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751897Ab2ASXRX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 19 Jan 2012 18:17:23 -0500
+Date: Fri, 20 Jan 2012 00:17:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: mount (new): Using -a, exits with 64.
+Message-ID: <20120119231721.GC6482@x2.net.home>
+References: <4F188277.7090100@yahoo.com.ar>
 MIME-Version: 1.0
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Buffer I/O error, with latest losetup on first run
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4F188277.7090100@yahoo.com.ar>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello
+On Thu, Jan 19, 2012 at 05:52:07PM -0300, Gerardo Exequiel Pozzi wrote:
+> Using new mount, when run with -a and some mounting is performed, mount
+> retuns 64 instead of 0.
 
-Using (losetup from util-linux 2.20.620-4360-dirty) and Linux-3.2.1.
+Ah.. I know that umount exit codes and error messages are not ready,
+but I forgot to check mount -a, so thanks. I will add this to my TODO
+list for -rc2.
 
-Using losetup as first time, if loop module is not loaded, losetup -f 
-file-equal-or-below-1MiB I get: "Buffer I/O error on device loop0, 
-logical block 0" (sometimes get one message, or two or three, ...)
+> # mkdir /mnt/coco
+> # echo "coco /mnt/coco tmpfs defaults 0 0" >> /etc/fstab
+> # mount -a ; echo $?
+> 64
 
-Can be reproducible again if loop module is unloaded then execute losetup.
-Does not happen if module is loaded previously to losetup.
-Happens independently if /dev/loop0 exists or not.
+Anyway, this seems correct, man mount:
 
-Does not happen with losetup from 2.20 under the same conditions.
+    64     some mount succeeded
 
-Maybe a race-condition?
+this used by mount -a.
+
+    Karel
 
 -- 
-Gerardo Exequiel Pozzi
-\cos^2\alpha + \sin^2\alpha = 1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
