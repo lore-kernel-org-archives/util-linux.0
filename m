@@ -1,41 +1,37 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-MIME-Version: 1.0
-In-Reply-To: <20120120145907.GA20377@x2.net.home>
-References: <20120120140444.GC13157@x2.net.home> <20120120154309.3ae5f9e4a8f55c477dc423ab@kinali.ch>
- <20120120145907.GA20377@x2.net.home>
-From: Kay Sievers <kay.sievers@vrfy.org>
-Date: Fri, 20 Jan 2012 16:20:56 +0100
-Message-ID: <CAPXgP11f_SicmxSZ1Bb5JmM4krPyNL-rXNJ6rJ2BHrNvA8LzRQ@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:29460 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751570Ab2ATOUF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 20 Jan 2012 09:20:05 -0500
+Date: Fri, 20 Jan 2012 23:20:02 +0900 (JST)
+Message-Id: <20120120.232002.849876084731555262.yamato@redhat.com>
+To: kzak@redhat.com
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
 Subject: Re: /etc/fstab.d yes or not
-To: Karel Zak <kzak@redhat.com>
-Cc: Attila Kinali <attila@kinali.ch>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
+From: Masatake YAMATO <yamato@redhat.com>
+In-Reply-To: <20120120140444.GC13157@x2.net.home>
+References: <20120120140444.GC13157@x2.net.home>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 15:59, Karel Zak <kzak@redhat.com> wrote:
-> On Fri, Jan 20, 2012 at 03:43:09PM +0100, Attila Kinali wrote:
->> Hence, i would like to ask you to consider not adding /etc/fstab.d
->> unless there is a very good reason to do it. And "to make it simpler
->> for people who have a lot of mountpoints" is IMHO not a good reason.
->> How many mountpoints must one use that a single file becomes a problem?
->
->  Let's imagine that you have a network and you use the same configuration
->  on all machines, then "*.d/" directories are very useful for you -- for
->  example you can create a company.rpm with important configuration and
->  distribute it to all machines.
+> 
+>  I'd like to add support for /etc/fstab.d to libmount. The library is
+>  currently used by mount, umount and mount.nfs. The goal is to use it
+>  on more places.
+> 
+>  The /etc/fstab.d directory has been requested by people who maintains
+>  large number of mountpoints etc.
+> 
+>  The directory is not replacement for /etc/fstab, it's additional place
+>  where you can describe your filesystems.
+> 
+>  The disadvantage is that the stuff in the directory will be invisible
+>  for some tools (udisks, systemd, ...), so I have very vocal
+>  disagreement from some people who don't want to see /etc/fstab.d at all.
 
-Yeah, and all tools which read /etc/fstab with the glibc interface, to
-find out the properties for the mount point, are just broken now. And
-for what gain. Put a script in you RPM that merges your snippets into
-the one fstab, and you get the same behaviour without any breakage.
+I'm working on systemd to support /etc/fstab.d.
 
-Always remember, /etc/fstab is ABI, not a private config file, you
-need a _very_ good reason to break it.
-
-And you usually have not much problems convincing me that breakage is
-justified. I just totally fail to see the benefit vs. gain in this
-case.
-
-Kay
+Masatake YAMATO
