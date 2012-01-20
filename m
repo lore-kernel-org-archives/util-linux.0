@@ -1,19 +1,25 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Fri, 20 Jan 2012 15:49:12 +0000
-From: Roger Leigh <rleigh@codelibre.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail.opencsw.org ([82.220.5.51]:56770 "EHLO mail.opencsw.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752646Ab2ATOyH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 20 Jan 2012 09:54:07 -0500
+Date: Fri, 20 Jan 2012 15:43:09 +0100
+From: Attila Kinali <attila@kinali.ch>
 To: Karel Zak <kzak@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         util-linux@vger.kernel.org
 Subject: Re: /etc/fstab.d yes or not
-Message-ID: <20120120154912.GK8797@codelibre.net>
-References: <20120120140444.GC13157@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20120120154309.3ae5f9e4a8f55c477dc423ab@kinali.ch>
 In-Reply-To: <20120120140444.GC13157@x2.net.home>
-Sender: linux-kernel-owner@vger.kernel.org
+References: <20120120140444.GC13157@x2.net.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 03:04:44PM +0100, Karel Zak wrote:
+On Fri, 20 Jan 2012 15:04:44 +0100
+Karel Zak <kzak@redhat.com> wrote:
+
 >  I'd like to add support for /etc/fstab.d to libmount. The library is
 >  currently used by mount, umount and mount.nfs. The goal is to use it
 >  on more places.
@@ -24,32 +30,35 @@ On Fri, Jan 20, 2012 at 03:04:44PM +0100, Karel Zak wrote:
 >  The directory is not replacement for /etc/fstab, it's additional place
 >  where you can describe your filesystems.
 
-As a general comment, I would like to use fstab.d for replacing
-the initscripts which mount kernel filesystems in Debian initscripts
-(sysvinit).  We currently hardcode the logic to mount each filesystem
-and additionally hardcode the defaults, and permit the defaults to
-be overridden by the user via /etc/default/* or via entries in
-/etc/fstab.  This could be done much more straightforwardly using
-entries such as /etc/fstab.d/kernfs and /etc/fstab.d/tmpfs etc.
+It might not be my place to say anthing about this, as I am just
+a mere mortal .... 
 
->From the distributor's POV, this can then take advantage of the
-package manager's conffile handling, meaning it's much simpler
-for the user to customise.
+But I'd like to express my concerns on this. In the years i've been
+using Linux, the system has become a very complex beast. While in the 
+beginning I could just dig trough a couple of scripts to figure out
+how a certain system worked, or more likely why it didn't work...
+nowadays i have to have knowledge of a dozen of complex interacting
+daemons to figure out why gedit refuses to edit a simple text file.
 
->From the initscripts POV, were systemd to also use the same
-approach, we could then share the configuration between the different
-init systems.
+Complexity is added everywhere, to make a few corner cases a little
+bit more simple. Making it more difficult for the 99% who do
+not care about these corner cases. This in turn makes Linux this
+opaque system that only a handfull of selected can understand, who
+invest their whole life to the understanding of its many subsystems.
+If this continues like this, in a decade or two, Linux will become
+like windows. A system nobody clearly understands, which somehow works,
+but sometimes not.. and nobody knows why.
 
-Note that I've not actually taken any of these steps yet; I'm
-about to test it with the upcoming util-linux release and the
-current prerelease, but it is something under consideration.
+Hence, i would like to ask you to consider not adding /etc/fstab.d
+unless there is a very good reason to do it. And "to make it simpler
+for people who have a lot of mountpoints" is IMHO not a good reason.
+How many mountpoints must one use that a single file becomes a problem?
 
 
-Regards,
-Roger
+			Attila Kinali
 
 -- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
- `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
-   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
+The trouble with you, Shev, is you don't say anything until you've saved
+up a whole truckload of damned heavy brick arguments and then you dump
+them all out and never look at the bleeding body mangled beneath the heap
+		-- Tirin, The Dispossessed, U. Le Guin
