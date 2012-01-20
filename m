@@ -1,67 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:41684 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751918Ab2ANV0F (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Jan 2012 16:26:05 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Re: getting a modern `more`
-Date: Sat, 14 Jan 2012 16:26:03 -0500
-Cc: util-linux@vger.kernel.org
-References: <201201130128.49700.vapier@gentoo.org> <201201140039.17340.vapier@gentoo.org> <4F11BBB4.4030602@gmail.com>
-In-Reply-To: <4F11BBB4.4030602@gmail.com>
+Return-Path: linux-fsdevel-owner@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2573246.QX8iP6UqQr";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201201141626.04499.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20120120154912.GK8797@codelibre.net>
+References: <20120120140444.GC13157@x2.net.home> <20120120154912.GK8797@codelibre.net>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Fri, 20 Jan 2012 17:13:12 +0100
+Message-ID: <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
+Subject: Re: /etc/fstab.d yes or not
+To: Roger Leigh <rleigh@codelibre.net>
+Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2573246.QX8iP6UqQr
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On Fri, Jan 20, 2012 at 16:49, Roger Leigh <rleigh@codelibre.net> wrote:
+> On Fri, Jan 20, 2012 at 03:04:44PM +0100, Karel Zak wrote:
+>>  I'd like to add support for /etc/fstab.d to libmount. The library is
+>>  currently used by mount, umount and mount.nfs. The goal is to use it
+>>  on more places.
+>>
+>>  The /etc/fstab.d directory has been requested by people who maintains
+>>  large number of mountpoints etc.
+>>
+>>  The directory is not replacement for /etc/fstab, it's additional place
+>>  where you can describe your filesystems.
+>
+> As a general comment, I would like to use fstab.d for replacing
+> the initscripts which mount kernel filesystems in Debian initscripts
+> (sysvinit).  We currently hardcode the logic to mount each filesystem
+> and additionally hardcode the defaults, and permit the defaults to
+> be overridden by the user via /etc/default/* or via entries in
+> /etc/fstab.  This could be done much more straightforwardly using
+> entries such as /etc/fstab.d/kernfs and /etc/fstab.d/tmpfs etc.
 
-On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
-> No, of course not.  Please understand that I have no connection with the
-> 'less' project.   I don't know why it forked, but it too has been around
->   since at least 1995 and appears to pre-date Linux (and Util-Linux).
-> The website goes back to 'Version 290' in 1995.
+It is just very wrong to expose kernel filesystems to system mounts.
+Please invent your own config if you want that for packaging. The
+kernel filesystems do not belong in fstab, and for the same reason not
+in fstab.d/.
 
-yes, but the util-linux projected picked up `more` which predates both
+> From the distributor's POV, this can then take advantage of the
+> package manager's conffile handling, meaning it's much simpler
+> for the user to customise.
+>
+> From the initscripts POV, were systemd to also use the same
+> approach, we could then share the configuration between the different
+> init systems.
 
-> I've been working with computers since before Unix (and Linux) and know
-> a little computing history.  Before 'Glass TTYs' there were paper
-> terminals and I suspect 'more' was designed with those paper terminals
-> in mind.  'Less' appears to have been designed with terminals such as
-> the VT100 in mind.  Sometimes it's beneficial to redesign a program when
-> something new comes along rather than patch an old design.
+The init systems need to handle the mounts, but unlikely by sharing
+additional config files. For systemd it is a solved problem, we don't
+need fstab.d/ for that, and sysv should not start to try to solve it
+at that level, because it will conflict with systemd.
 
-which is what Eric has done with his more
--mike
-
---nextPart2573246.QX8iP6UqQr
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJPEfLsAAoJEEFjO5/oN/WB6fUP/0CURgzV2ZfUzfFnmYnoRc1J
-5/sx0w/T0vY0xVGdaKPR6KvsAQOLXXpSxNg2XW/n4mutYzwBq3o+Ke+eNRU6YA+X
-CPzxJvd1TAuKEBm1MhlU5uPLAsREJsQBTgll12WxdAdcZW6QUntZ2njaPIQYI8BZ
-iZ+DiX5UNPieQtthQGE3E8GLd2/cha/AJnQz6I+lDVqo8iFaA8TUAOSe9QXUKeQT
-z6Chz5CiL5wDLtUl+8d8QI5F0text6D19MVnirrJqliyejXIZyRWuZ5wIgs106y3
-dLZVmR3vD0Ri8qvV1ZgIRjJf33ONn12xvWtngmSlSIhUca5aTGzpekSMMug7kCQ6
-2PiC336hOhS59jrOnypBMN/mDo71ktdd/kcXuRQZMHaMUKPL1iSgXSEggACTlGxN
-q4FvzaI/a1NZEHHpJyXQV3JJFbOyJJYZmvykvgm6RZcWhV5raZ9Q2Wwm7JYJXYhh
-eao9DLL2dU4YufK/enRvI6/WqaCHZMMKO/9EmahfbWft+88P2Nca6hcKH3lJoODS
-PlBjDRRaQkyqBQ6/DL/U32bMpGVTUb4tLTj5CGfFLyGZkuXIGQYThTt5bbGZogil
-9eP+gOdI7rFAQbltjwF3wp5I0Em1b+mi7yzsjv5IhMSeHU6CDAjXVUQzHg4fdBUg
-gRxVWXH+u02L/U5Lq0Uo
-=dcdv
------END PGP SIGNATURE-----
-
---nextPart2573246.QX8iP6UqQr--
+Kay
