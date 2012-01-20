@@ -1,69 +1,60 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:44443 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755836Ab2ANWfe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Jan 2012 17:35:34 -0500
-Received: from vapier.localnet (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id DBA731B4033
-	for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 22:35:33 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
-Subject: Re: getting a modern `more`
-Date: Sat, 14 Jan 2012 17:35:33 -0500
-References: <201201130128.49700.vapier@gentoo.org> <201201141626.04499.vapier@gentoo.org> <4F11FF55.2030701@gmail.com>
-In-Reply-To: <4F11FF55.2030701@gmail.com>
+Return-Path: kay.sievers@vrfy.org
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1560707.ub52yBAnSL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201201141735.33620.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20120120.232002.849876084731555262.yamato@redhat.com>
+References: <20120120140444.GC13157@x2.net.home> <20120120.232002.849876084731555262.yamato@redhat.com>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Fri, 20 Jan 2012 15:56:43 +0100
+Message-ID: <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com>
+Subject: Re: /etc/fstab.d yes or not
+To: Masatake YAMATO <yamato@redhat.com>
+Cc: kzak@redhat.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1560707.ub52yBAnSL
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jan 20, 2012 at 15:20, Masatake YAMATO <yamato@redhat.com> wrote:
+>>
+>> =C2=A0I'd like to add support for /etc/fstab.d to libmount. The library =
+is
+>> =C2=A0currently used by mount, umount and mount.nfs. The goal is to use =
+it
+>> =C2=A0on more places.
+>>
+>> =C2=A0The /etc/fstab.d directory has been requested by people who mainta=
+ins
+>> =C2=A0large number of mountpoints etc.
+>>
+>> =C2=A0The directory is not replacement for /etc/fstab, it's additional p=
+lace
+>> =C2=A0where you can describe your filesystems.
+>>
+>> =C2=A0The disadvantage is that the stuff in the directory will be invisi=
+ble
+>> =C2=A0for some tools (udisks, systemd, ...), so I have very vocal
+>> =C2=A0disagreement from some people who don't want to see /etc/fstab.d a=
+t all.
+>
+> I'm working on systemd to support /etc/fstab.d.
 
-On Saturday 14 January 2012 17:19:01 Bruce Dubbs wrote:
-> Mike Frysinger wrote:
-> > On Saturday 14 January 2012 12:30:28 Bruce Dubbs wrote:
-> >> Before 'Glass TTYs' there were paper terminals and I suspect 'more'
-> >> was designed with those paper terminals in mind. 'Less' appears to
-> >> have been designed with terminals such as the VT100 in mind.
-> >> Sometimes it's beneficial to redesign a program when something new
-> >> comes along rather than patch an old design.
-> >=20
-> > which is what Eric has done with his more
->=20
-> What capabilities/advantages are added that are not in 'less'?
+And we don't want to support that in systemd.
 
-i don't know, but i don't think it matters.  Eric likes maintaining the cod=
-e=20
-regardless and he plans on doing it anyways.
-=2Dmike
+It's an old glibc API, and /etc/fstab is ABI, not a service config
+file, which now can read more than one file. It's a very different
+problem. It an ABI change, not a config extension.
 
---nextPart1560707.ub52yBAnSL
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Tools rightfully expect that they find all system mounts in that file,
+and not in some new split-up directory. In some cases, fstab is used
+to 'check if the device is not a system volume', and that will just
+break now,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+The gain of features from fstab.d/ vs. the amount of breakage it
+causes is not worth the trouble.
 
-iQIcBAABAgAGBQJPEgM1AAoJEEFjO5/oN/WBKX0P/2QqeSl3KRAnvjKYkgw8eOl5
-bJaOJv6UxBVD6bssJ1BPs0iY8vwVJOwUkQZ8g9wbindsk/jhZZo1K3WZMg8Od4wN
-lU3Jbr2IWqCzL6cTD4Hq5UO1uKwbKPglRLJ/1UmCSPiI/zJB9ep4gH3bd4iA0AEy
-n36F+hvzhwqCjOo0nAbx0wn2IUWIUQGG1xw8tng2sYwzXylRRiJd3l2s18XTKS8U
-gZiE1qA1vditEgmkW/Nu0pR1O1FvBITWMS0447SB0p3WfIL1Otal8NAv3A3EdvGL
-pLL19Rl40i+18H21h3ItuTmbrrJV+i48LcvxU8sJ6kzU2h8PrD6k8ESgXw4VgGOd
-dhq6/dLU9mc81nVpYIdc0HLhKu+aGSnvp5yIphxBbJ0cs3cGq75BC2LonaVvf/xz
-P0cSU4nOiq5mlnwpAqSzFy/qgXjj4a0Fgzx60VFFV9P7GiQ9TKx3cIMk+TcZ31c8
-6Dxr5okuoVHrKM+NkLnZEfTUa3esz6mfTOYyRnC+eGvl+nLwFdNitZSKEydYPwNl
-616T+v43IMqCD6qtNYxMxYUrILf2Cccron/x6SNKMaXcgssuu/7fQJyy/nQKssS2
-/F1aanowyBzRLWU6pTo4u+jiIxS2NHzg1uJxZbTd4R5Zmed4+K5SO+eW4omWpwN0
-N5I0G2IEMY9/YrjYXypD
-=XC/q
------END PGP SIGNATURE-----
+And yes, there are systemd units, but we don't recommend anybody
+working with a general purpose system to mount system volumes with
+them. They are primarily used for virtual filessytems, which do not
+belong in fstab. In special purpose setups, like embedded, which do
+not care about POSIX-like APIs, the systemd units can replace fstab,
+but it's an entirely different story than breaking fstab expectations.
 
---nextPart1560707.ub52yBAnSL--
+Kay
