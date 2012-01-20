@@ -1,27 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47512 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932759Ab2AEQ0v (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 5 Jan 2012 11:26:51 -0500
-Date: Thu, 5 Jan 2012 17:26:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/5] sfdisk: remove do_warn
-Message-ID: <20120105162648.GB11073@x2.net.home>
-References: <1324388523.3316.8.camel@offbook>
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Karel Zak <kzak@redhat.com>, Attila Kinali <attila@kinali.ch>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Fri, 20 Jan 2012 16:03:42 +0100
+Subject: RE: /etc/fstab.d yes or not
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0D8BB2F438@MCHP058A.global-ad.net>
+References: <20120120140444.GC13157@x2.net.home>
+ <20120120154309.3ae5f9e4a8f55c477dc423ab@kinali.ch>
+ <20120120145907.GA20377@x2.net.home>
+In-Reply-To: <20120120145907.GA20377@x2.net.home>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1324388523.3316.8.camel@offbook>
-Sender: util-linux-owner@vger.kernel.org
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 20, 2011 at 02:42:03PM +0100, Davidlohr Bueso wrote:
->  fdisk/sfdisk.c |   83 ++++++++++++++++++++++++-------------------------------
->  1 files changed, 36 insertions(+), 47 deletions(-)
+Karel Zak wrote:
 
- Applied, thanks.
+> On Fri, Jan 20, 2012 at 03:43:09PM +0100, Attila Kinali wrote:
+> > Hence, i would like to ask you to consider not adding /etc/fstab.d
+> > unless there is a very good reason to do it. And "to make it simpler
+> > for people who have a lot of mountpoints" is IMHO not a good reason.
+> > How many mountpoints must one use that a single file becomes a problem?
+> 
+>  Let's imagine that you have a network and you use the same configuration
+>  on all machines, then "*.d/" directories are very useful for you -- for
+>  example you can create a company.rpm with important configuration and
+>  distribute it to all machines.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Isn't this what the automounter does for decades?
+
+Berny
