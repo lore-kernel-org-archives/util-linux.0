@@ -1,36 +1,63 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37822 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752333Ab2AMKS7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 13 Jan 2012 05:18:59 -0500
-Date: Fri, 13 Jan 2012 11:18:54 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: moving git hosting back to kernel.org
-Message-ID: <20120113101854.GB21470@x2.net.home>
-References: <201201130130.24237.vapier@gentoo.org>
+Return-Path: kay.sievers@vrfy.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201201130130.24237.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20120120155701.GL8797@codelibre.net>
+References: <20120120140444.GC13157@x2.net.home> <20120120.232002.849876084731555262.yamato@redhat.com>
+ <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com> <20120120155701.GL8797@codelibre.net>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Fri, 20 Jan 2012 17:08:02 +0100
+Message-ID: <CAPXgP10_c+JkeGkvHG7O=6-Y=1nQEeBzCwEARSS1us9NJ6hktw@mail.gmail.com>
+Subject: Re: /etc/fstab.d yes or not
+To: Roger Leigh <rleigh@codelibre.net>
+Cc: Masatake YAMATO <yamato@redhat.com>, kzak@redhat.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 13, 2012 at 01:30:23AM -0500, Mike Frysinger wrote:
-> any word on when the git repo will be moving back ?  and the tarballs 
-> reuploaded ?
+On Fri, Jan 20, 2012 at 16:57, Roger Leigh <rleigh@codelibre.net> wrote:
+> On Fri, Jan 20, 2012 at 03:56:43PM +0100, Kay Sievers wrote:
+>> On Fri, Jan 20, 2012 at 15:20, Masatake YAMATO <yamato@redhat.com> wrote=
+:
+>> >>
+>> >> =C2=A0I'd like to add support for /etc/fstab.d to libmount. The libra=
+ry is
+>> >> =C2=A0currently used by mount, umount and mount.nfs. The goal is to u=
+se it
+>> >> =C2=A0on more places.
+>> >
+>> > I'm working on systemd to support /etc/fstab.d.
+>>
+>> It's an old glibc API, and /etc/fstab is ABI, not a service config
+>> file, which now can read more than one file. It's a very different
+>> problem. It an ABI change, not a config extension.
+>
+> I think that's putting the problem a little too strongly. =C2=A0The
+> glibc API is generic: it can (and is) used to parse any file using
+> the fstab(5) file format; it's not restricted to only /etc/mtab
+> and /etc/fstab. =C2=A0setmntent(3) accepts any filename.
 
- Git repo is back:
-    http://www.spinics.net/lists/util-linux-ng/msg05357.html
- see:
-    http://git.kernel.org/?p=utils/util-linux/util-linux.git
+That's right, but it's just not the way it's used. None of the old
+tools is prepared to just wrap that in a readdir() loop.
 
+> You are entirely correct that it may break the assumptions made by
+> some software, but it's certainly not "ABI" or even "API" breakage.
 
- The tarballs are not back yet, my plan is to upload all with 2.21-rc1
- (maybe this weekend?).
+It is surely the de-facto Linux/UNIX ABI for system mounts.
 
-    Karel
+>> Tools rightfully expect that they find all system mounts in that file,
+>> and not in some new split-up directory. In some cases, fstab is used
+>> to 'check if the device is not a system volume', and that will just
+>> break now,
+>
+> The number of tools which do this is tiny, and could (if we wished)
+> be patched trivially to also look at the files in fstab.d.
+>
+> Alternatively, glibc itself could be updated so that if e.g.
+> setmntent(3) is called with "/etc/fstab" as its filename argument,
+> it will additionally process and include the contents of
+> /etc/fstab.d as well. =C2=A0This would have the advantage of transparency
+> for all users of the glibc interface.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+That's true, but good luck with glibc changes. :)
+
+Kay
