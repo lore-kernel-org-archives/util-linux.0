@@ -1,46 +1,62 @@
-Return-Path: vapier@gentoo.org
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: moving git hosting back to kernel.org
-Date: Fri, 13 Jan 2012 01:30:23 -0500
-Cc: util-linux@vger.kernel.org
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Date: Fri, 20 Jan 2012 15:57:01 +0000
+From: Roger Leigh <rleigh@codelibre.net>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Masatake YAMATO <yamato@redhat.com>, kzak@redhat.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: /etc/fstab.d yes or not
+Message-ID: <20120120155701.GL8797@codelibre.net>
+References: <20120120140444.GC13157@x2.net.home>
+ <20120120.232002.849876084731555262.yamato@redhat.com>
+ <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2322232.Ei0J3QX7FQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201201130130.24237.vapier@gentoo.org>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com>
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2322232.Ei0J3QX7FQ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jan 20, 2012 at 03:56:43PM +0100, Kay Sievers wrote:
+> On Fri, Jan 20, 2012 at 15:20, Masatake YAMATO <yamato@redhat.com> wrote:
+> >>
+> >>  I'd like to add support for /etc/fstab.d to libmount. The library is
+> >>  currently used by mount, umount and mount.nfs. The goal is to use it
+> >>  on more places.
+> >
+> > I'm working on systemd to support /etc/fstab.d.
+> 
+> It's an old glibc API, and /etc/fstab is ABI, not a service config
+> file, which now can read more than one file. It's a very different
+> problem. It an ABI change, not a config extension.
 
-any word on when the git repo will be moving back ?  and the tarballs=20
-reuploaded ?
-=2Dmike
+I think that's putting the problem a little too strongly.  The
+glibc API is generic: it can (and is) used to parse any file using
+the fstab(5) file format; it's not restricted to only /etc/mtab
+and /etc/fstab.  setmntent(3) accepts any filename.
 
---nextPart2322232.Ei0J3QX7FQ
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+You are entirely correct that it may break the assumptions made by
+some software, but it's certainly not "ABI" or even "API" breakage.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+> Tools rightfully expect that they find all system mounts in that file,
+> and not in some new split-up directory. In some cases, fstab is used
+> to 'check if the device is not a system volume', and that will just
+> break now,
 
-iQIcBAABAgAGBQJPD8+AAAoJEEFjO5/oN/WB0f4P/1aekt/g5xjS3M5O28j6683q
-2RgKg/oqiGSXOCvGc6w0fPGIpefqbzZr36vM/U5Zayw0YILTdrSzd8m+bSY/LXfD
-iGTWQ3iZkuSiWPMmTeeWljfUVbcmQprE+Djw+he+/yporc/RCYYUA+UG7mLxZ8Lk
-hpPA6dCf2iHBMOslgK5RiUXLig1F3/tu6kzgxjUerWZleGGbfqz0sIFiJAGlqHGY
-RcxxK//qBdf0Ygl4ZnlaAvu1hZZfyd1gqWiqr2AMhIWwHDdobuLxbIBWH+1PANrk
-CD/APbRpgy9DhwevVYpAsMKAzM5/hYcBdTu42k7OgyzhRvSmuJaGQk90+arVd24m
-fozRoFSQKBOCrQywHG4DH4T/lULGpfKdzt+fTxFz6zaXtmUPvwH+qwxmcaSZAC1u
-Kbo/Yoa4VOERrnqZlOWmMAkIX7+FEBfvzWywiiK4AZbvA0FemePt8R3JcL1l03xm
-NexmDu2S0Fchj4tzlRkahLZjI9k8egsaXIEAx7PPSwWlDjAwpRwCaiAXmMOQox2Q
-hqZ1s6TIM6d4FnGpJ6SCzQ6Q046z+UJSTk9LYi/cXd9p0HWdyShJXRTzUsCVcd1o
-PAIDvYZ20z8C3M725YKgWFi/Evb3AvPg0h4uI/0MDLnfjVXeeLcNVeeRJHYzT0pq
-m1BqZOFOkBZ/Aod/EEjY
-=7tv/
------END PGP SIGNATURE-----
+The number of tools which do this is tiny, and could (if we wished)
+be patched trivially to also look at the files in fstab.d.
 
---nextPart2322232.Ei0J3QX7FQ--
+Alternatively, glibc itself could be updated so that if e.g.
+setmntent(3) is called with "/etc/fstab" as its filename argument,
+it will additionally process and include the contents of
+/etc/fstab.d as well.  This would have the advantage of transparency
+for all users of the glibc interface.
+
+
+Regards,
+Roger
+
+-- 
+  .''`.  Roger Leigh
+ : :' :  Debian GNU/Linux             http://people.debian.org/~rleigh/
+ `. `'   Printing on GNU/Linux?       http://gutenprint.sourceforge.net/
+   `-    GPG Public Key: 0x25BFB848   Please GPG sign your mail.
