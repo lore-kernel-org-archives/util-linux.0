@@ -1,37 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from zeniv.linux.org.uk ([195.92.253.2]:53843 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753419Ab2ATSrV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 20 Jan 2012 13:47:21 -0500
-Date: Fri, 20 Jan 2012 18:47:17 +0000
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:25037 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751154Ab2AWMVU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Jan 2012 07:21:20 -0500
+Date: Mon, 23 Jan 2012 13:21:15 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Roger Leigh <rleigh@codelibre.net>, util-linux@vger.kernel.org
 Subject: Re: /etc/fstab.d yes or not
-Message-ID: <20120120184716.GB23916@ZenIV.linux.org.uk>
+Message-ID: <20120123122115.GA29250@x2.net.home>
 References: <20120120140444.GC13157@x2.net.home>
- <CAK1hOcNget=-MjeejiYGo5Vkigq9ey1o7sD2peO+tDGdk3TU9g@mail.gmail.com>
+ <20120120154912.GK8797@codelibre.net>
+ <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
+ <20120120162220.GN8797@codelibre.net>
+ <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAK1hOcNget=-MjeejiYGo5Vkigq9ey1o7sD2peO+tDGdk3TU9g@mail.gmail.com>
+In-Reply-To: <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 07:20:33PM +0100, Denys Vlasenko wrote:
-> On Fri, Jan 20, 2012 at 3:04 PM, Karel Zak <kzak@redhat.com> wrote:
-> > ?BTW, systemd allows to define addition mountpoints in
-> > ?systemd.mount(5) unit file(s), so we already have additional place
-> > ?for fstab stuff...
+On Fri, Jan 20, 2012 at 06:59:47PM +0100, Kay Sievers wrote:
+> > Inventing custom file formats for these (as is the current situation)
+> > is both opaque to the admin and less amenable to preservation/upgrading
+> > of the admins customisations and the defaults.
 > 
-> systemd needs a large blunt object be stuck into its eye.
-> 
-> systemd was supposed to be an init replacement.
-> Its continuing attempts to infiltrate entire system
-> are very worrying.
+> I'm not talking about custom file formats, better just add a mount -c,
+> and do mount -c /etc/kernelfs.d/*.conf, or whatever will fit systemv
+> needs.
 
-I'm not saying I like /etc/foo.d/* (hell, sed in post-install is not
-a big deal; not for fstab, not for inetd.conf, etc.), but yes,
-complaints about changes that make life somewhat more difficult for
-systemd are rather hypocritical, what with the embrace-and-extend
-games they are playing.
+ This is planned (I talked about it on dracut list few months ago). It
+ means:
+
+    mount --fstab=<path> /mountpoint
+
+ to override the default /etc/fstab path. The <path> could be also a
+ directory. So you can maintain our mountpoints in multiple files and
+ mount(8) will be able to search in the files if --fstab=<path> is
+ explicitly specified. I think this should be enough for initramfs
+ scripts.
+
+ The problem is that the configuration won't be visible if
+ --fstab is not specified -- this is possible to resolve probably
+ by regular /etc/fstab.d only ;-)
+
+> This is nothing really to share between systemd and systemv here. This
+> problem just does not exist for systemd.
+
+ Well, Masatake has RHEL customers who want to deploy systems with
+ rpm/yum, %post scripts are poor solution because it's not too
+ reliable and verification with rpm -V doesn't work. Do we have any
+ answer for this use case?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
