@@ -1,60 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:47541 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753059Ab2ANBIS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 13 Jan 2012 20:08:18 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Re: getting a modern `more`
-Date: Fri, 13 Jan 2012 20:08:20 -0500
-Cc: util-linux@vger.kernel.org
-References: <201201130128.49700.vapier@gentoo.org> <CAG27Bk0Z8Aij+Tj42pA447FN9+zTu94YEmNhe2eDPo=KW2oYeg@mail.gmail.com> <4F10CAB7.6060808@gmail.com>
-In-Reply-To: <4F10CAB7.6060808@gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:42806 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751498Ab2AWNEC convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 23 Jan 2012 08:04:02 -0500
+Received: by iacb35 with SMTP id b35so3720217iac.19
+        for <util-linux@vger.kernel.org>; Mon, 23 Jan 2012 05:04:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6574183.WdQeixBq3R";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201201132008.20863.vapier@gentoo.org>
+In-Reply-To: <20120123122115.GA29250@x2.net.home>
+References: <20120120140444.GC13157@x2.net.home> <20120120154912.GK8797@codelibre.net>
+ <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
+ <20120120162220.GN8797@codelibre.net> <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
+ <20120123122115.GA29250@x2.net.home>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Mon, 23 Jan 2012 14:03:41 +0100
+Message-ID: <CAPXgP11WMG1Q53scWXqQnktOyUZbY5K09KRfRaT3ct-Y78yULA@mail.gmail.com>
+Subject: Re: /etc/fstab.d yes or not
+To: Karel Zak <kzak@redhat.com>
+Cc: Roger Leigh <rleigh@codelibre.net>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart6574183.WdQeixBq3R
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On Mon, Jan 23, 2012 at 13:21, Karel Zak <kzak@redhat.com> wrote:
+> On Fri, Jan 20, 2012 at 06:59:47PM +0100, Kay Sievers wrote:
+>> > Inventing custom file formats for these (as is the current situation)
+>> > is both opaque to the admin and less amenable to preservation/upgrading
+>> > of the admins customisations and the defaults.
+>>
+>> I'm not talking about custom file formats, better just add a mount -c,
+>> and do mount -c /etc/kernelfs.d/*.conf, or whatever will fit systemv
+>> needs.
+>
+>  This is planned (I talked about it on dracut list few months ago). It
+>  means:
+>
+>    mount --fstab=<path> /mountpoint
+>
+>  to override the default /etc/fstab path. The <path> could be also a
+>  directory. So you can maintain our mountpoints in multiple files and
+>  mount(8) will be able to search in the files if --fstab=<path> is
+>  explicitly specified. I think this should be enough for initramfs
+>  scripts.
+>
+>  The problem is that the configuration won't be visible if
+>  --fstab is not specified -- this is possible to resolve probably
+>  by regular /etc/fstab.d only ;-)
 
-On Friday 13 January 2012 19:22:15 Bruce Dubbs wrote:
-> "COMPATIBILITY WITH MORE
->    If  the  environment  variable LESS_IS_MORE is set to 1, or if the
->    program is invoked via a file link named "more", less behaves
->    (mostly) in  conformance  with  the  POSIX "more" command
->    specification."
+It creates many times more problems that anybody has today.
 
-you've indirectly quoted one reason for needing "more" -- POSIX wants it.
-http://pubs.opengroup.org/onlinepubs/9699919799/utilities/more.html
--mike
+>> This is nothing really to share between systemd and systemv here. This
+>> problem just does not exist for systemd.
+>
+>  Well, Masatake has RHEL customers who want to deploy systems with
+>  rpm/yum, %post scripts are poor solution because it's not too
+>  reliable and verification with rpm -V doesn't work. Do we have any
+>  answer for this use case?
 
---nextPart6574183.WdQeixBq3R
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+We don't need one. System mounts just do not belong into packages,
+they are mandatory and hard-coded, or set by the admin and
+host-specific configured, and never to be dropped by RPM. RPM is not
+to be used for host-only system config.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJPENWEAAoJEEFjO5/oN/WBa2UQAKis4L+Xi3dNosUdshau8zMk
-Jyk98jiiFIQlPAzzv7Qmz8V6v1KDSb0scpQk/xl2Jos6BiXLwpGBFk6azitqdM5O
-Ma3Sud4vuDA2xyZCCLYExRCIo/Crp7tk1RgQtt7GP16Rq8Olj9tcsOgtPJBsSkwW
-IzBLyfG4L+RqTrNOrzZ29tMr87RFGZ6+KFo8meLVkTKMke5BN3jrPgRAmidaYQwj
-WgzIhk0YhvDFELa7e2xTHOW6YREzc4C4QUbA8OMOmokX5feYYx3ec3jTVeNbSWRf
-gss5zlTzVKEul+CF5nUZYwQbMKO1HpSjrvY4AZjomsqZmW4LFz/zdtyVnlpwM1+g
-fB/Sn5nYyT+gym54yzWdpjz0hFN8VO6wK+QiT2DuzTroIX+xPJwzD86Ay0jBKe4e
-qiNiMiXuy3n1+z2IVzDav1Fs5Bu1pEmSCpRtIYhdmlOv1lVEmYLIUueRWnn57cz7
-EfxFTiaRy/4xs89pckECPlPOkHVs+dgMMKKXfnwo5IRJ5uPc9X/fTcT/na0V4xUm
-xWvkZ5YrZgvyI0+kgu3qRe952kju+3aVV7VwaGaNl8CcMjaj868satXEhjd99WDN
-QnLZV3eCLp+s93IRjge5cc3RiMmGbnEFEm1EXLkzDDk7j+FxjbmKoKBIAbJBHzvZ
-Qn3+OJWYoaAAmakyz2lQ
-=2EHT
------END PGP SIGNATURE-----
-
---nextPart6574183.WdQeixBq3R--
+Kay
