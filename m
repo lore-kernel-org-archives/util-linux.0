@@ -1,32 +1,46 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Fri, 20 Jan 2012 15:59:07 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Attila Kinali <attila@kinali.ch>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: /etc/fstab.d yes or not
-Message-ID: <20120120145907.GA20377@x2.net.home>
-References: <20120120140444.GC13157@x2.net.home>
- <20120120154309.3ae5f9e4a8f55c477dc423ab@kinali.ch>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:47486 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750852Ab2AWNho (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 23 Jan 2012 08:37:44 -0500
+Received: by iacb35 with SMTP id b35so3758629iac.19
+        for <util-linux@vger.kernel.org>; Mon, 23 Jan 2012 05:37:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120120154309.3ae5f9e4a8f55c477dc423ab@kinali.ch>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20120123.222636.550210626606480400.yamato@redhat.com>
+References: <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
+ <20120123122115.GA29250@x2.net.home> <CAPXgP11WMG1Q53scWXqQnktOyUZbY5K09KRfRaT3ct-Y78yULA@mail.gmail.com>
+ <20120123.222636.550210626606480400.yamato@redhat.com>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Mon, 23 Jan 2012 14:37:22 +0100
+Message-ID: <CAPXgP10LHyDJt_v5w1JyY4q0ouunVxJHr3QLgdL5VBPG28qOBQ@mail.gmail.com>
+Subject: Re: /etc/fstab.d yes or not
+To: Masatake YAMATO <yamato@redhat.com>
+Cc: kzak@redhat.com, rleigh@codelibre.net, util-linux@vger.kernel.org,
+        ssato@redhat.com
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 03:43:09PM +0100, Attila Kinali wrote:
-> Hence, i would like to ask you to consider not adding /etc/fstab.d
-> unless there is a very good reason to do it. And "to make it simpler
-> for people who have a lot of mountpoints" is IMHO not a good reason.
-> How many mountpoints must one use that a single file becomes a problem?
+On Mon, Jan 23, 2012 at 14:26, Masatake YAMATO <yamato@redhat.com> wrote:
 
- Let's imagine that you have a network and you use the same configuration
- on all machines, then "*.d/" directories are very useful for you -- for
- example you can create a company.rpm with important configuration and
- distribute it to all machines.
+> What I want is packaging the system mounts.
+> Consider setting up multiple hosts which mount the same nfs filesystem
+> to the same mount point. It the mount point is in a rpm package, it
+> can be used both in kickstart file and from yum command line. In
+> addition yum update can be used when the name or ip of nfs server is
+> changed; Just create the new release of the rpm package which holds
+> new mount point deification. In stead of nfs, you can consider smb or
+> iso images as examples.
 
-    Karel
+That sounds very wrong to do. This is admin territory and not package
+management. There are tools sync and deploy /etc setting per-machine
+across big networks, and RPM is surely not the right thing to use
+here.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+RPM is for the operating system, not for host configuration. Most
+stuff in /etc is marked as config for that exact reason. First, static
+system-config does not belong in /etc, second non-admin editable files
+just do not belong in /etc. It's all wrong, just as the misguided
+entire fstab.d/ feature to start with.
+
+Kay
