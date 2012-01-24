@@ -1,42 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48135 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752463Ab2AQKH6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Jan 2012 05:07:58 -0500
-Date: Tue, 17 Jan 2012 11:07:56 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: fdisk: off-by-one issue in (n)new command
-Message-ID: <20120117100756.GA12310@x2.net.home>
-References: <4F0E167A.9090205@yahoo.com.ar>
- <CAMFXF50uHCU4yhwe3byAsTKvPpi8F63mR9O4TfKhuANiEL_v0Q@mail.gmail.com>
- <4F149CA0.6040100@yahoo.com.ar>
- <4F14A512.2030904@yahoo.com.ar>
+Return-Path: tytso@thunk.org
+Date: Mon, 23 Jan 2012 20:06:02 -0500
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Roger Leigh <rleigh@codelibre.net>,
+        Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: /etc/fstab.d yes or not
+Message-ID: <20120124010602.GA27017@thunk.org>
+References: <20120120140444.GC13157@x2.net.home>
+ <20120120154912.GK8797@codelibre.net>
+ <CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
+ <20120120162220.GN8797@codelibre.net>
+ <CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
+ <ACD4236E-A309-465F-8789-DA3A5B648313@mit.edu>
+ <20120123220720.1b2e9663@pyramind.ukuu.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4F14A512.2030904@yahoo.com.ar>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20120123220720.1b2e9663@pyramind.ukuu.org.uk>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 16, 2012 at 07:30:42PM -0300, Gerardo Exequiel Pozzi wrote:
-> Last sector, +sectors or +size{K,M,G} (2048-524287, default 524287): +255M
-> Value out of range.
+On Mon, Jan 23, 2012 at 10:07:20PM +0000, Alan Cox wrote:
+> 
+> So with a good coding hat on - please don't consider fstab API, it's got
+> a programming interface 8). Otherwise I agree fstab.d is wrong.
+> 
 
- The size of the device is 268435456 bytes,
+It has a programming interface for reading, but other programs can do
+modify (and read) the file directly.  If some joker decided to change
+the formatting of /etc/fstab from tab-delimeted to some crazy XML
+encoding, I am certain things would break.
 
- +255M is relative to the begin of the partition, it means
-
-    (2048 * 512) + (255 * 1024 * 1024) = 268435456 bytes
-
- but the begin of the last sector (in bytes) is
-
-    268435456 - 512 = 268434944 bytes (LBA sector 524287)
-
- Right?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+					- Ted
