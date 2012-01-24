@@ -1,64 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcaid.dreamhost.com ([208.97.132.83]:60603 "EHLO
-	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757163Ab2ADXCK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 4 Jan 2012 18:02:10 -0500
-Subject: [PATCH 1/2] blkdev: add is_blkdev function
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 05 Jan 2012 00:02:06 +0100
-Message-ID: <1325718126.7056.5.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:25421 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755734Ab2AXLCX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jan 2012 06:02:23 -0500
+Date: Tue, 24 Jan 2012 12:02:18 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Cc: Masatake YAMATO <yamato@redhat.com>, Roger Leigh <rleigh@codelibre.net>
+Subject: Re: /etc/fstab.d yes or not (resolved)
+Message-ID: <20120124110218.GA28644@x2.net.home>
+References: <20120120140444.GC13157@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120120140444.GC13157@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
 
-We should have the most basic of checks in this library to see whether or not a block device is being used.
+ I have reverted the fstab.d support. The libmount will NOT read
+ /etc/fstab.d by default.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- include/blkdev.h |    3 +++
- lib/blkdev.c     |    6 ++++++
- 2 files changed, 9 insertions(+), 0 deletions(-)
+ If you really need an additional configuration outside /etc/fstab
+ then you have to explicitly add the option --fstab <path> to mount(8)
+ command line. This option may be specified more than once and the
+ <path> may be a directory. This solution should be enough for
+ initramfs scripts.
 
-diff --git a/include/blkdev.h b/include/blkdev.h
-index 1a9119d..6b18879 100644
---- a/include/blkdev.h
-+++ b/include/blkdev.h
-@@ -86,6 +86,9 @@ struct hd_geometry {
- };
- #endif
- 
-+/* are we working with block device? */
-+int is_blkdev(int fd);
-+
- /* Determine size in bytes */
- off_t blkdev_find_size (int fd);
- 
-diff --git a/lib/blkdev.c b/lib/blkdev.c
-index 9138b0d..c59386d 100644
---- a/lib/blkdev.c
-+++ b/lib/blkdev.c
-@@ -35,6 +35,12 @@ blkdev_valid_offset (int fd, off_t offset) {
- 	return 1;
- }
- 
-+int is_blkdev(int fd)
-+{
-+	struct stat st;
-+	return (fstat(fd, &st) == 0 && S_ISBLK(st.st_mode));
-+}
-+
- off_t
- blkdev_find_size (int fd) {
- 	uintmax_t high, low = 0;
+ Thanks for feedback.
+
+    Karel
+
 -- 
-1.7.4.1
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
