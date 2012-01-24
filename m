@@ -1,36 +1,28 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:39720 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751570Ab2ATOVk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 20 Jan 2012 09:21:40 -0500
-Received: by bkas6 with SMTP id s6so474215bka.19
-        for <util-linux@vger.kernel.org>; Fri, 20 Jan 2012 06:21:39 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <4F158BD6.1020006@yahoo.com.ar>
-References: <4F0E167A.9090205@yahoo.com.ar>
-	<CAMFXF50uHCU4yhwe3byAsTKvPpi8F63mR9O4TfKhuANiEL_v0Q@mail.gmail.com>
-	<4F149CA0.6040100@yahoo.com.ar>
-	<4F14A512.2030904@yahoo.com.ar>
-	<20120117100756.GA12310@x2.net.home>
-	<4F158BD6.1020006@yahoo.com.ar>
-Date: Fri, 20 Jan 2012 15:21:39 +0100
-Message-ID: <CAMFXF52Crx7NSWWNSxgw-4FAyhQp7P5y50n7YBmRB+8PCvQwpg@mail.gmail.com>
-Subject: Re: fdisk: off-by-one issue in (n)new command
-From: Francesco Cosoleto <cosoleto@gmail.com>
-To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+Return-Path: dave@gnu.org
+Subject: adopting lslk
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Vic Abell <abe@purdue.edu>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 24 Jan 2012 23:54:45 +0100
+Message-ID: <1327445685.3650.4.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-I wonder whether this is a preferred behavior:
+Hi,
 
-Partition number (1-4, default 1): 5
-Value 5 out of range, used 4.
-First sector (2048-16383, default 2048): 1024
-Value 1024 out of range, used 2048.
-Last sector, +sectors or +size{K,M,G} (2048-16383, default 16383): +8M
-Value 18432 out of range, used 16383.
-Partition 4 of type Linux and of size 7 MiB is set
+I just noticed this big fat message from the lslk(8) manpage:
 
-Francesco
+ Revision 1.29 represents the end of life for lslk.  I don't have time
+ to support it.  Please don't report bugs to me.  I will politely  
+ decline to work on them.                                         
+
+I was thinking util-linux might be a good place to continue maintaining
+this program, it seems worthwhile. I couldn't find the _official_ source
+tarball but I got it through apt. 
+
+I could integrate it and send a patch. Any thoughts?
+
+Thanks,
+Davidlohr
