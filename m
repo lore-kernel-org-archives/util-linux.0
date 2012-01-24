@@ -1,42 +1,49 @@
 Return-Path: linux-kernel-owner@vger.kernel.org
-MIME-Version: 1.0
-In-Reply-To: <CAK1hOcNget=-MjeejiYGo5Vkigq9ey1o7sD2peO+tDGdk3TU9g@mail.gmail.com>
-References: <20120120140444.GC13157@x2.net.home> <CAK1hOcNget=-MjeejiYGo5Vkigq9ey1o7sD2peO+tDGdk3TU9g@mail.gmail.com>
-From: Kay Sievers <kay.sievers@vrfy.org>
-Date: Fri, 20 Jan 2012 19:29:21 +0100
-Message-ID: <CAPXgP13GOehS3rKM2oYs18aGTpt0KPyG5RRkJL803kUxA3xb=A@mail.gmail.com>
+From: bastien ROUCARIES <roucaries.bastien@gmail.com>
+To: Boaz Harrosh <bharrosh@panasas.com>
 Subject: Re: /etc/fstab.d yes or not
-To: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+Date: Tue, 24 Jan 2012 10:47:41 +0100
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Masatake YAMATO <yamato@redhat.com>,
+        kzak@redhat.com, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+References: <20120120140444.GC13157@x2.net.home> <CAPXgP10uUpSQzX0RzYY24uDBkNkRXM7NbR0H6P=dZ=+LxdX3Fw@mail.gmail.com> <4F1DF90C.5070108@panasas.com>
+In-Reply-To: <4F1DF90C.5070108@panasas.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201201241047.42303.roucaries.bastien@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 20, 2012 at 19:20, Denys Vlasenko <vda.linux@googlemail.com> wrote:
-> On Fri, Jan 20, 2012 at 3:04 PM, Karel Zak <kzak@redhat.com> wrote:
->>  BTW, systemd allows to define addition mountpoints in
->>  systemd.mount(5) unit file(s), so we already have additional place
->>  for fstab stuff...
->
-> systemd needs a large blunt object be stuck into its eye.
->
-> systemd was supposed to be an init replacement.
+Le Tuesday 24 January 2012 01:19:24, Boaz Harrosh a écrit :
+> On 01/20/2012 04:56 PM, Kay Sievers wrote:
+> > It's an old glibc API, and /etc/fstab is ABI, not a service config
+> > file, which now can read more than one file. It's a very different
+> > problem. It an ABI change, not a config extension.
+> 
+> Can't we have our cake and eat it too?
+> 
+> I mean why not have both?
+> 
+> The subsystem that you currently plan to parse the /etc/fstab.d/ will
+> intelligently  add the /etc/fstab.d/ entries to /etc/fstab before
+> actually processing and mounting /etc/fstab.
+> 
+> So the rpm guys have their /etc/fstab.d/ convenience and the rest
+> of the  ABI is kept intact. (If you can't bit them join them)
+> 
+> Since /etc/fstab is hand edited as well. There are lots of smart
+> things that can be done like a remark (#) marker at the end of the
+> file that all /etc/fstab.d/ entries get to be added after. (And
+> a comment for the user) and some smart duplicate removal of, and
+> so on ... Even a marker per line added.
 
-It's much more, and I don't think you have been involved in defining
-the focus of it, and the systemd people do not necessary come to the
-same conclusion as you.
-
-> Its continuing attempts to infiltrate entire system
-> are very worrying.
-
-You are free to express your worries somewhere else. Don't hijack
-treads with completely unrelated stuff. That's not welcome in this
-thread and not in general.
-
-> What a *heck* is this?
-
-A platform.
-
-Thanks,
-Kay
+I agree. And moreover extensible if they want to use xml for  /etc/fstab.d/. 
+> 
+> Just my $0,017
+> Boaz
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
