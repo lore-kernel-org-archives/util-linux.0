@@ -1,43 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:48242 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755855Ab2ANRab (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Jan 2012 12:30:31 -0500
-Received: by obcva7 with SMTP id va7so3307964obc.19
-        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2012 09:30:31 -0800 (PST)
-Message-ID: <4F11BBB4.4030602@gmail.com>
-Date: Sat, 14 Jan 2012 11:30:28 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51788 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752791Ab2AYJhL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Jan 2012 04:37:11 -0500
+Date: Wed, 25 Jan 2012 10:37:04 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Vic Abell <abe@purdue.edu>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: adopting lslk
+Message-ID: <20120125093704.GC28644@x2.net.home>
+References: <1327445685.3650.4.camel@offbook>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: getting a modern `more`
-References: <201201130128.49700.vapier@gentoo.org> <201201132008.20863.vapier@gentoo.org> <4F10F3D5.9080706@gmail.com> <201201140039.17340.vapier@gentoo.org>
-In-Reply-To: <201201140039.17340.vapier@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1327445685.3650.4.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> On Friday 13 January 2012 22:17:41 Bruce Dubbs wrote:
->> That said, if you want to spend the effort to update and maintain a
->> program that duplicates functionality, than that's up to you.  I just
->> think you may want to be careful of NIH thinking.
+On Tue, Jan 24, 2012 at 11:54:45PM +0100, Davidlohr Bueso wrote:
+> I just noticed this big fat message from the lslk(8) manpage:
 > 
-> the work was already been done, and technically speaking, one could say that 
-> everything other than "more" is NIH thinking ;).  can you name a pager that is 
-> older than "more" ?
+>  Revision 1.29 represents the end of life for lslk.  I don't have time
+>  to support it.  Please don't report bugs to me.  I will politely  
+>  decline to work on them.                                         
 
-No, of course not.  Please understand that I have no connection with the 
-'less' project.   I don't know why it forked, but it too has been around 
-  since at least 1995 and appears to pre-date Linux (and Util-Linux). 
-The website goes back to 'Version 290' in 1995.
+ Yes, I know, I'm maintainer of the package in Red Hat :-)
 
-I've been working with computers since before Unix (and Linux) and know 
-a little computing history.  Before 'Glass TTYs' there were paper 
-terminals and I suspect 'more' was designed with those paper terminals 
-in mind.  'Less' appears to have been designed with terminals such as 
-the VT100 in mind.  Sometimes it's beneficial to redesign a program when 
-something new comes along rather than patch an old design.
+> I was thinking util-linux might be a good place to continue maintaining
 
-   -- Bruce
+ I agree.
+
+> this program, it seems worthwhile. I couldn't find the _official_ source
+> tarball but I got it through apt. I could integrate it and send a patch.
+> Any thoughts?
+
+ Yes, but please clean up the code, add xalloc, err.h, long options,
+ etc... you know ;-) May be it would be also nice to use lib/tt.c for
+ output to make it compatible with our new utils.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
