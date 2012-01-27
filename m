@@ -1,28 +1,30 @@
-Return-Path: dave@gnu.org
-Subject: adopting lslk
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Vic Abell <abe@purdue.edu>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 24 Jan 2012 23:54:45 +0100
-Message-ID: <1327445685.3650.4.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:45817 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751059Ab2A0RS2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jan 2012 12:18:28 -0500
+Received: by eekc14 with SMTP id c14so638631eek.19
+        for <util-linux@vger.kernel.org>; Fri, 27 Jan 2012 09:18:27 -0800 (PST)
+From: Rogier Goossens <goossens.rogier@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: libblkid fails to detect not-so-big OCFS2 filesystems
+Date: Fri, 27 Jan 2012 18:18:18 +0100
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201201271818.19325.goossens.rogier@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Hi,
 
-I just noticed this big fat message from the lslk(8) manpage:
+While testing KDE partitionmanager, I discovered that blkid did not 
+detect the test OCFS2 filesystem I created. After some investigation, 
+it appeared that it will assume the filesystem cannot be OCFS2 if 
+smaller than 108M. However, mkfs.ocfs2 from ocfs2-tools (1.6.3) will 
+happily create filesystems that are much smaller, only failing below 
+approx. 15000 1k blocks, and below approx. 6000 4k blocks.
 
- Revision 1.29 represents the end of life for lslk.  I don't have time
- to support it.  Please don't report bugs to me.  I will politely  
- decline to work on them.                                         
+Kind regards,
 
-I was thinking util-linux might be a good place to continue maintaining
-this program, it seems worthwhile. I couldn't find the _official_ source
-tarball but I got it through apt. 
-
-I could integrate it and send a patch. Any thoughts?
-
-Thanks,
-Davidlohr
+Rogier.
