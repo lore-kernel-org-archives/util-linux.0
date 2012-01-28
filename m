@@ -1,41 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from wp221.webpack.hosteurope.de ([80.237.132.228]:51321 "EHLO
-	wp221.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752031Ab2ATJRp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Jan 2012 04:17:45 -0500
-Received: by jue.netz (masqmail 0.3.4, from userid 500)
-	id 1RoAIm-2uK-00
-	for <util-linux@vger.kernel.org>; Fri, 20 Jan 2012 09:58:28 +0100
-Date: Fri, 20 Jan 2012 09:58:28 +0100
-From: Juergen Daubert <jue@jue.li>
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:59083 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753750Ab2A1QKH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Jan 2012 11:10:07 -0500
+Received: by qcsg15 with SMTP id g15so1493562qcs.19
+        for <util-linux@vger.kernel.org>; Sat, 28 Jan 2012 08:10:06 -0800 (PST)
+Date: Sat, 28 Jan 2012 11:10:03 -0500
+From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.21-rc1
-Message-ID: <20120120085828.GA11139@jue.netz>
-References: <20120119092858.GC2371@x2.net.home>
+Subject: Re: [PATCH] mount: define fallback selinux_warning macro with 2
+ params
+Message-ID: <20120128161003.GH567@rampage>
+References: <1327329084-4273-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120119092858.GC2371@x2.net.home>
+In-Reply-To: <1327329084-4273-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 19, 2012 at 10:28:58AM +0100, Karel Zak wrote:
+On Mon, Jan 23, 2012 at 09:31:24AM -0500, Dave Reisner wrote:
+> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> ---
+>  sys-utils/mount.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> The first util-linux 2.21 release candidate is available at
+> diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+> index 280bab0..7c11811 100644
+> --- a/sys-utils/mount.c
+> +++ b/sys-utils/mount.c
+> @@ -286,7 +286,7 @@ static void selinux_warning(struct libmnt_context *cxt, const char *tgt)
+>  	}
+>  }
+>  #else
+> -# define selinux_warning(_x)
+> +# define selinux_warning(_x, _y)
+>  #endif
+>  
+>  
+> -- 
+> 1.7.8.4
 > 
 
-[...]
-
-> findmnt(8):
->    - supports alternative location of the fstab file
->
-
-This is a incompatible change that might break existing scripts.
-Currently it's possible to combine the -s option with other options
-like -snr, which leads to an error now. IMO it's not a good idea to 
-change existing program options in such a way.
-
-
-Greetings
-Juergen
-
+Pinging this in case it was overlooked. It fixes the build for those of
+us not using selinux.
