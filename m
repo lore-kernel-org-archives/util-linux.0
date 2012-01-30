@@ -1,36 +1,39 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Date: Mon, 23 Jan 2012 22:07:20 +0000
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Theodore Tso <tytso@MIT.EDU>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Roger Leigh <rleigh@codelibre.net>,
-        Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: /etc/fstab.d yes or not
-Message-ID: <20120123220720.1b2e9663@pyramind.ukuu.org.uk>
-In-Reply-To: <ACD4236E-A309-465F-8789-DA3A5B648313@mit.edu>
-References: <20120120140444.GC13157@x2.net.home>
-	<20120120154912.GK8797@codelibre.net>
-	<CAPXgP13a9v+f1uNdpe-c+aApLfLpgn15b1-gZxRPd0wMvU=B-Q@mail.gmail.com>
-	<20120120162220.GN8797@codelibre.net>
-	<CAPXgP11pvch92n1=mMfDsMLoGZMG8xq0e1juXyUO6mxFR6_GYg@mail.gmail.com>
-	<ACD4236E-A309-465F-8789-DA3A5B648313@mit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-fsdevel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:64344 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752135Ab2A3M0x (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Jan 2012 07:26:53 -0500
+Date: Mon, 30 Jan 2012 13:26:51 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Rogier Goossens <goossens.rogier@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libblkid fails to detect not-so-big OCFS2 filesystems
+Message-ID: <20120130122651.GD22107@x2.net.home>
+References: <201201271818.19325.goossens.rogier@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201201271818.19325.goossens.rogier@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 23 Jan 2012 08:55:21 -0500
-Theodore Tso <tytso@MIT.EDU> wrote:
+On Fri, Jan 27, 2012 at 06:18:18PM +0100, Rogier Goossens wrote:
+> While testing KDE partitionmanager, I discovered that blkid did not 
+> detect the test OCFS2 filesystem I created. After some investigation, 
+> it appeared that it will assume the filesystem cannot be OCFS2 if 
 
-> I am extremely dubious about systemd, and would much rather it not be on any system that *I* run (and using UUID's to identify kernel notification is just whacko) , but I have to agree with Kay in that /etc/fstab.d is Just Wrong.   The /etc/fstab file is parsed by many programs, shell scripts, and not just the ones in util-linux.   We should consider it an ABI, and not mess with it.
+ yes, we don't want to probe for some filesystems on very small
+ devices.
 
-Pedantically speaking /etc/fstab is not API, getmntent is API.
+> smaller than 108M. However, mkfs.ocfs2 from ocfs2-tools (1.6.3) will 
+> happily create filesystems that are much smaller, only failing below 
+> approx. 15000 1k blocks, and below approx. 6000 4k blocks.
 
-In practical terms though it would be very 'interesting' to implement
-getmentent with an fstab.d, if not down right impossible because the
-argument is a FILE *.
+ OK, fixed ... the new limit is 14000 * 1024.
 
-So with a good coding hat on - please don't consider fstab API, it's got
-a programming interface 8). Otherwise I agree fstab.d is wrong.
+ Thanks!
 
-Alan
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
