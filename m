@@ -1,38 +1,54 @@
 Return-Path: linux-fsdevel-owner@vger.kernel.org
+Message-ID: <4F2BFBAF.5020703@redhat.com>
+Date: Fri, 03 Feb 2012 16:22:23 +0100
+From: Jerome Marchand <jmarchan@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20120224122755.GA2106@x2.net.home>
-References: <20120224122755.GA2106@x2.net.home>
-From: Yegor Yefremov <yegorslists@googlemail.com>
-Date: Fri, 24 Feb 2012 14:31:37 +0100
-Message-ID: <CAGm1_ktDhLd=YCT+zfAjQPwTKH+NLGTwew4Wc42wnwLm00RVTw@mail.gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.21
-To: Karel Zak <kzak@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+To: linux-fsdevel@vger.kernel.org
+CC: util-linux@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC] fs: filesystem specific options and remount
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
 
-On Fri, Feb 24, 2012 at 1:27 PM, Karel Zak <kzak@redhat.com> wrote:
->
-> The util-linux release v2.21 is available at
->
->  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21
->
-> Feedback and bug reports, as always, are welcomed.
+When remounted without option specified, some filesystems keep the
+options that are already set (e.g. procfs, fat) and some reset them to
+default (e.g. devpts).
+Regarding options that are specified at remount, behavior of
+filesystems also differ: some apply them (procfs, devpts), some
+silently disregard them (e.g. fat) and some have a more elaborate
+behavior (e.g. xfs apparently allows a subset of options to be changed
+and issues warning if someone tries to change any other option).
 
-You asked for it :-)
+Is there any policy regarding what the correct behavior should be?
+This variety of behaviors tends to confuse mount utility which often
+does not show the correct option actually set after a remount and
+most certainly confuses the users as well.
 
-I tried to cross-compile the package under Buildroot and got following error:
+Here is a example of discrepancy between mount (/etc/mtab) and
+/proc/mounts:
 
-checking whether __progname is defined... yes
-checking whether the target supports thread-local storage... yes
-configure: error: in `buildroot/output/build/util-linux-2.21':
-configure: error: cannot run test program while cross compiling
+$ grep proc /proc/mounts
+/proc /proc proc rw,relatime 0 0
+$ mount | grep proc
+proc on /proc type proc (rw)
 
-Could you disable tests for cross-compilation case?
+$ mount -o remount,hidepid=2 /proc/
+$ grep proc /proc/mounts
+/proc /proc proc rw,relatime,hidepid=2 0 0
+$ mount | grep proc
+proc on /proc type proc (rw,hidepid=2)
+
+$ mount -o remount /proc/
+$ grep proc /proc/mounts
+/proc /proc proc rw,relatime,hidepid=2 0 0
+$ mount | grep proc
+proc on /proc type proc (rw)
+
+And here is the discrepancy: mount does not show "hidepid=2" option
+that is actually still set and enforced. Note that mount also missed
+the relatime option to begin with.
 
 Regards,
-Yegor
+Jerome
