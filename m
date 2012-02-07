@@ -1,72 +1,30 @@
-Return-Path: the.ridikulus.rat@gmail.com
-MIME-Version: 1.0
-In-Reply-To: <20120229154420.GD8471@x2.net.home>
-References: <20120229154420.GD8471@x2.net.home>
-From: Keshav P R <the.ridikulus.rat@gmail.com>
-Date: Wed, 29 Feb 2012 21:32:23 +0530
-Message-ID: <CAMPnHXx7V3nu73DN8QXzxJotbNsGDETyrOWNz+5jv1Mcp8gShw@mail.gmail.com>
-Subject: Re: v2.22 wish list
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:41514 "EHLO
+	homiemail-a3.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755661Ab2BGWlz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Feb 2012 17:41:55 -0500
+Subject: [RFC PATH 0/4] new lslocks command
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 07 Feb 2012 23:41:50 +0100
+Message-ID: <1328654510.3500.9.camel@offbook>
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 29, 2012 at 21:14, Karel Zak <kzak@redhat.com> wrote:
->
-> This is my v2.22 wish list. The list contains large/invasive tasks only.
-> Comments, volunteers, .... ? ;-)
->
-> =C2=A0* release in May/Jun 2012
->
-> =C2=A0* add PARTUUID=3D and PARTLABEL=3D support to mount/fsck by partiti=
-on UUID/LABEL
-> =C2=A0 - add to libblkid blkid_evaluate_* API
-> =C2=A0 - support in libmount
-> =C2=A0 - add regression tests
->
+Hi,
 
-Waiting for a long time for this.
+This is a first iteration for the lslocks command to replace the old
+lslks. It's a very simplified version as its a very simple command and
+Unix legacy stuff has been removed. One thing I have not decided upon is
+dealing with processes on a network host (-i, -n).
 
-> =C2=A0* make uuidd (uuid daemon) compatible with systemd
-> =C2=A0 - add --no-fork
-> =C2=A0 - add --no-pid (pid file)
-> =C2=A0 - add systemd unit file
-> =C2=A0 - add #ifdef LIBUUID_EXEC_UUIDD to disable uuidd exec from library
->
-> =C2=A0* fdisk
-> =C2=A0 - move mbr (dos) stuff to fdiskmbrlabel.c
-> =C2=A0 - add GPT support
->
+Like always, please take a look, let me know any bugs/suggestions and
+see if it can go in .22.
 
-You can maybe merge gptfdisk with fdisk
-http://gptfdisk.git.sourceforge.net/git/gitweb.cgi?p=3Dgptfdisk/gptfdisk;a=
-=3Dsummary
-.
+Thanks,
+Davidlohr 
 
-> =C2=A0* clean up DBG() macro in libblkid
-> =C2=A0 - see libmount version
->
-> =C2=A0* add dasd support to libblkid
->
-> =C2=A0* non-recursive build-system (now many files from lib/ are compilet=
-ed
-> =C2=A0 more than once), see:
-> =C2=A0 http://thread.gmane.org/gmane.linux.utilities.util-linux-ng/3297
->
-> =C2=A0* merge reject
-
-reject or eject - typo?
-
-> =C2=A0 Michal L. is working on this task
-> =C2=A0 https://github.com/mluscon/util-linux/tree/eject
->
-> =C2=A0* ???
->
->
-> --
-> =C2=A0Karel Zak =C2=A0<kzak@redhat.com>
-> =C2=A0http://karelzak.blogspot.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.html
