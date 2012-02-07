@@ -1,589 +1,226 @@
-Return-Path: dave@gnu.org
-Subject: RE: [PATCH v3 3/4] lslocks: new command
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
-References: <1330357315.2540.5.camel@offbook>
-	 <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:56464 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756928Ab2BGVK6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Feb 2012 16:10:58 -0500
+Received: by mail-yx0-f174.google.com with SMTP id m8so3273055yen.19
+        for <util-linux@vger.kernel.org>; Tue, 07 Feb 2012 13:10:58 -0800 (PST)
+Subject: [PATCH 4/4] fsck: Add support for "completion" scripts.
+From: Frank Mayhar <fmayhar@google.com>
+To: util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 27 Feb 2012 18:29:00 +0100
-Message-ID: <1330363740.2540.8.camel@offbook>
+Date: Tue, 07 Feb 2012 13:10:55 -0800
+Message-ID: <1328649055.11787.31.camel@peace.lax.corp.google.com>
 Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Mon, 27 Feb 2012 18:26:40 +0100
-Subject: [PATCH] lslocks: new command
+Add support for scripts that are run when each individual fsck
+completes.  This allows certain general or file- or device-specific
+actions to be taken when each fsck finishes.
 
-The new lslocks(8) program is meant to replace the deprecated lslk(8). It is designed for simplicity
-and removes unnecessary Unix legacy outputs and options:
+Signed-off-by: Frank Mayhar <fmayhar@google.com>
 
-- Don't output inode number, whence and maj:min device numbers.
-- Don't provide nonblocking syscall options stat(2) and readlink(2)
-- Remove lslk's alternate default kernel name list file path (-k)
+ fsck/fsck.8 |   60
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fsck/fsck.c |   62
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fsck/fsck.h |    4 ++-
+ 3 files changed, 125 insertions(+), 1 deletions(-)
 
-The option to use nonblocking calls was previously intended for NFS partitions; however this should
-be transparent to utility programs considering that timeouts can occur generically (fuse - sshfs, NFS, netdevs, etc).
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- misc-utils/lslocks.c |  546 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 546 insertions(+), 0 deletions(-)
- create mode 100644 misc-utils/lslocks.c
-
-diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
-new file mode 100644
-index 0000000..3f631b8
---- /dev/null
-+++ b/misc-utils/lslocks.c
-@@ -0,0 +1,546 @@
+diff --git a/fsck/fsck.8 b/fsck/fsck.8
+index d56b0d7..7e5b55b 100644
+--- a/fsck/fsck.8
++++ b/fsck/fsck.8
+@@ -413,6 +413,60 @@ and
+ do not support the
+ .B -y
+ option as of this writing.
++.SH COMPLETION SCRIPTS
++.B fsck
++has a mechanism available by which to run a script when each check
+completes.
++If when
++.B fsck
++starts the directory
++.IR /etc/fsck.d
++(or see FSCK_COMPLETION_PATH below) exists and is readable,
++.B fsck
++will use it to find such scripts.  Scripts there must be named one of
++.IR /etc/fsck.d/device/name ", " /etc/fsck.d/fstype/name ,
++or
++.IR /etc/fsck.d/completion ,
++where
++.I name
++is either the last component of the device path (e.g.
++.IR /etc/fsck.d/device/hda1 )
++or a file system type (e.g.
++.IR /etc/fsck.d/fstype/ext4 ).
++.PP
++When a file system check completes,
++.B fsck
++looks for a script that corresponds to the device that was checked; if
+such
++a script is not found it looks for a script that corresponds to the
++type of that file system.  If neither of those is found it looks for a
++script named
++.IR /etc/fsck.d/completion .
++When
++.B fsck
++finds such a script and if the script is executable (and the
++.B \-N
++option was not specified), it runs the script via the
++.I system(3)
++function, passing the following set of parameters on the command line:
++.br
++\	device\	\-\ Device path of the device checked
++.br
++\	type\	\	\-\ File system type
++.br
++\	status\	\-\ Exit status
++.br
++\	elapsed\	\-\ Elapsed wall-clock time
++.br
++\	utime\	\-\ User CPU time
++.br
++\	stime\	\-\ System CPU time
++.br
++\	maxrss\	\-\ Maximum run-set-size
++.br
++\	logpath\	\-\ Path to logfile if the \-L option was specified
++.PP
++For example:
++.br
++  /etc/fsck.d/device/hdc1 /dev/hdc1 ext4 0 1.60470 0.41193 0.76588 9828
+ .SH AUTHOR
+ .UR tytso\@mit.edu
+ Theodore Ts'o
+@@ -429,6 +483,12 @@ The
+ .B fsck
+ program's behavior is affected by the following environment variables:
+ .TP
++.B FSCK_COMPLETION_PATH
++If this environment variable is set,
++.B fsck
++will look for completion scripts in the indicated directory rather than
+in
++.IR /etc/fsck.d .
++.TP
+ .B FSCK_FORCE_ALL_PARALLEL
+ If this environment variable is set,
+ .B fsck
+diff --git a/fsck/fsck.c b/fsck/fsck.c
+index 28b7016..58c7183 100644
+--- a/fsck/fsck.c
++++ b/fsck/fsck.c
+@@ -135,6 +135,8 @@ struct fsck_instance *instance_list;
+ const char fsck_prefix_path[] = FS_SEARCH_PATH;
+ char *fsck_path = 0;
+ 
++char *completion_path = COMPLETION_PATH;
++
+ int force_timeout = 0;
+ int timeout_secs = 0;
+ int timeout_active = 0;
+@@ -567,6 +569,59 @@ static int timeval_diff(struct timeval *result,
+ 		(x->tv_sec == y->tv_sec && x->tv_usec < y->tv_usec);
+ }
+ 
 +/*
-+ * lslocks(8) - list local system locks
-+ *
-+ * Copyright (C) 2012 Davidlohr Bueso <dave@gnu.org>
-+ *
-+ * Very generally based on lslk(8) by Victor A. Abell <abe@purdue.edu>
-+ * Since it stopped being maingained over a decade ago, this
-+ * program should be considered its replacement.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it would be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software Foundation,
-+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ * Choose and run a completion script for the completed fsck instance
++ * Prefer device match, then file system type, then generic script.
 + */
-+
-+#include <stdio.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <stdlib.h>
-+#include <assert.h>
-+#include <dirent.h>
-+#include <unistd.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
-+
-+#include "pathnames.h"
-+#include "canonicalize.h"
-+#include "nls.h"
-+#include "tt.h"
-+#include "xalloc.h"
-+#include "at.h"
-+#include "strutils.h"
-+#include "c.h"
-+
-+/* column IDs */
-+enum {
-+	COL_SRC = 0,
-+	COL_PID,
-+	COL_SIZE,
-+	COL_ACCESS,
-+	COL_M,
-+	COL_START,
-+	COL_END,
-+	COL_PATH,
-+};
-+
-+/* column names */
-+struct colinfo {
-+	const char *name; /* header */
-+	double	   whint; /* width hint (N < 1 is in percent of termwidth) */
-+	int	   flags; /* TT_FL_* */
-+	const char *help;
-+};
-+
-+/* columns descriptions */
-+struct colinfo infos[] = {
-+	[COL_SRC]     = { "COMMAND", 0.30, TT_FL_TRUNC, N_("command of the process holding the lock") },
-+	[COL_PID]     = { "PID",     0.30, TT_FL_TRUNC, N_("PID of the process holding the lock") },
-+	[COL_SIZE]    = { "SIZE",    0.30, TT_FL_TRUNC, N_("size of the lock") },
-+	[COL_ACCESS]  = { "ACCESS",  0.30, TT_FL_TRUNC, N_("lock access type") },
-+	[COL_M]       = { "M",       0.30, TT_FL_TRUNC, N_("mandatory state of the lock: 0 (none), 1 (set)")},
-+	[COL_START]   = { "START",   0.30, TT_FL_TRUNC, N_("relative byte offset of the lock")},
-+	[COL_END]     = { "END",     0.30, TT_FL_TRUNC, N_("ending offset of the lock")},
-+	[COL_PATH]    = { "PATH",    0.30, TT_FL_TRUNC, N_("path of the locked file")},
-+};
-+#define NCOLS ARRAY_SIZE(infos)
-+static int columns[NCOLS], ncolumns;
-+static pid_t pid = 0;
-+/* array with IDs of enabled columns */
-+static int columns[NCOLS], ncolumns;
-+
-+struct lock {
-+	struct list_head locks;
-+
-+	char *cmdname;
-+	pid_t pid;
-+	char *path;
-+	char *type;
-+	off_t start;
-+	off_t end;
-+	int mandatory;
-+	char *size;
-+};
-+
-+/*
-+ * Return a PID's command name
-+ */
-+static char *get_cmdname(pid_t pid)
++static void run_completion(struct fsck_instance *inst)
 +{
-+	FILE *fp;
-+	char path[PATH_MAX], *ret = NULL;
-+
-+	sprintf(path, "/proc/%d/comm", pid);
-+	if (!(fp = fopen(path, "r")))
-+		return NULL;
-+
-+	if (!fgets(path, sizeof(path), fp))
-+		goto out;
-+
-+	path[strlen(path) - 1] = '\0';
-+	ret = xstrdup(path);
-+out:
-+	fclose(fp);
-+	return ret;
-+}
-+
-+/*
-+ * Associate the device's mountpoint for a filename
-+ */
-+static char *get_fallback_filename(dev_t dev)
-+{
-+	char buf[PATH_MAX], root[PATH_MAX], target[PATH_MAX], *ret = NULL;
-+	int maj, min, id, parent;
-+	struct stat sb;
-+	FILE *fp;
-+
-+	if (!(fp = fopen(_PATH_PROC_MOUNTINFO, "r")))
-+		return NULL;
-+
-+	while (fgets(buf, sizeof(buf), fp)) {
-+		sscanf(buf, "%u %u %u:%u %s %s",
-+			    &id, &parent, &maj, &min, root, target);
-+
-+		if (dev == makedev(maj, min)) {
-+			ret = xstrdup(target);
-+			goto out;
-+
-+		}
-+	}
-+out:
-+	fclose(fp);
-+	return ret;
-+}
-+
-+/*
-+ * Return the absolute path of a file from
-+ * a given inode number (and its size)
-+ */
-+static char *get_filename_sz(long inode, pid_t pid, size_t *size)
-+{
-+	struct stat sb;
-+	struct dirent *dp;
-+	DIR *dirp;
-+	size_t len;
-+	int fd;
-+	char path[PATH_MAX], sym[PATH_MAX], *ret = NULL;
-+
-+	*size = 0;
-+	memset(path, 0, sizeof(path));
-+	memset(sym, 0, sizeof(sym));
++	char *cmd, *cp, *devc;
++	struct timeval time_diff;
 +
 +	/*
-+	 * We know the pid so we don't have to
-+	 * iterate the *entire* filesystem searching
-+	 * for the damn file.
++	 * If we're not actually doing fsck or we don't have a completion
++	 * path, don't run completions.
 +	 */
-+	sprintf(path, "/proc/%d/fd/", pid);
-+	if (!(dirp = opendir(path)))
-+		return NULL;
-+
-+	if ((len = strlen(path)) >= (sizeof(path) - 2))
-+		goto out;
-+
-+	if ((fd = dirfd(dirp)) < 0 )
-+		goto out;
-+
-+	while ((dp = readdir(dirp))) {
-+		if (!strcmp(dp->d_name, ".") ||
-+		    !strcmp(dp->d_name, ".."))
-+			continue;
-+
-+		/* care only for numerical descriptors */
-+		if (!strtol(dp->d_name, (char **) NULL, 10))
-+			continue;
-+
-+		if (!fstat_at(fd, path, dp->d_name, &sb, 0)
-+		    && inode != sb.st_ino)
-+			continue;
-+
-+		if ((len = readlink_at(fd, path, dp->d_name,
-+				       sym, sizeof(path))) < 1)
-+			goto out;
-+
-+		*size = sb.st_size;
-+		sym[len] = '\0';
-+
-+		ret = xstrdup(sym);
-+		break;
-+}
-+out:
-+	closedir(dirp);
-+	return ret;
-+}
-+
-+/*
-+ * Return the inode number from a string
-+ */
-+static long get_dev_inode(char *str, dev_t *dev)
-+{
-+	int maj = 0, min = 0;
-+	long inum = 0;
-+
-+	sscanf(str, "%02x:%02x:%lu", &maj, &min, &inum);
-+
-+	*dev = (dev_t) makedev(maj, min);
-+	return inum;
-+}
-+
-+static int get_local_locks(struct list_head *locks)
-+{
-+	int i;
-+	long inode = 0;
-+	FILE *fp;
-+	char buf[PATH_MAX], *szstr = NULL, *tok = NULL;
-+	size_t sz;
-+	struct lock *l;
-+	dev_t dev = 0;
-+
-+	if (!(fp = fopen(_PATH_PROC_LOCKS, "r")))
-+		return -1;
-+
-+	while (fgets(buf, sizeof(buf), fp)) {
-+		l = xcalloc(1, sizeof(*l));
-+		INIT_LIST_HEAD(&l->locks);
-+
-+		for (i = 1, tok = strtok(buf, " ");
-+		     tok = strtok(NULL, " "); i++) {
-+
-+			/*
-+			 * /proc/locks as *exactly* 8 "blocks" of text
-+			 * separated by ' ' - check <kernel>/fs/locks.c
-+			 */
-+			switch (i) {
-+			case 1: /* not intereted! */
-+				break;
-+
-+			case 2: /* is this a mandatory lock? other values are advisory or noinode */
-+				l->mandatory = *tok == 'M' ? TRUE : FALSE;
-+				break;
-+			case 3: /* lock type */
-+				l->type = xstrdup(tok);
-+				break;
-+
-+			case 4: /* PID */
-+				/*
-+				 * If user passed a pid we filter it later when adding
-+				 * to the list, no need to worry now.
-+				 */
-+				l->pid = strtol_or_err(tok, _("failed to parse pid"));
-+				l->cmdname = get_cmdname(l->pid);
-+				break;
-+
-+			case 5: /* device major:minor and inode number */
-+				inode = get_dev_inode(tok, &dev);
-+				break;
-+
-+			case 6: /* start */
-+				l->start = !strcmp(tok, "EOF") ? 0 :
-+					   strtol_or_err(tok, _("failed to parse start"));
-+				break;
-+
-+			case 7: /* end */
-+				/* replace '\n' character */
-+				tok[strlen(tok)-1] = '\0';
-+				l->end = !strcmp(tok, "EOF") ? 0 :
-+					 strtol_or_err(tok, _("failed to parse end"));
-+				break;
-+			default:
-+				break;
++	if (noexecute || !completion_path)
++		return;
++	if ((devc = strrchr(inst->fs->device, '/')) == NULL)
++		devc = inst->fs->device;
++	else
++		devc++;
++	if ((cmd = malloc(1024)) == NULL)
++		return;
++	cp = cmd;
++	cp += sprintf(cmd, "%s/device/%s", completion_path, devc);
++	if (access(cmd, R_OK|X_OK) < 0) {
++		cp = cmd;
++		cp += sprintf(cmd, "%s/fstype/%s", completion_path, inst->fs->type);
++		if (access(cmd, R_OK|X_OK) < 0) {
++			cp = cmd;
++			cp += sprintf(cmd, "%s/completion", completion_path);
++			if (access(cmd, R_OK|X_OK) < 0) {
++				free(cmd);
++				return;
 +			}
-+
-+			l->path = get_filename_sz(inode, l->pid, &sz);
-+			/* probably no permission to peek into l->pid's path */
-+			if (!l->path)
-+				l->path = get_fallback_filename(dev);
-+
-+			/* avoid leaking */
-+			szstr = size_to_human_string(SIZE_SUFFIX_1LETTER, sz);
-+			l->size = xstrdup(szstr);
-+			free(szstr);
-+		}
-+
-+		if (pid && pid != l->pid) {
-+			/*
-+			 * It's easier to just parse the file then decide if
-+			 * it should be added to the list - otherwise just
-+			 * get rid of stored data
-+			 */
-+			free(l->path);
-+			free(l->size);
-+			free(l->type);
-+			free(l->cmdname);
-+			free(l);
-+
-+			continue;
-+		}
-+
-+		list_add(&l->locks, locks);
-+	}
-+
-+	fclose(fp);
-+	return 0;
-+}
-+
-+static int column_name_to_id(const char *name, size_t namesz)
-+{
-+	size_t i;
-+
-+	assert(name);
-+
-+	for (i = 0; i < NCOLS; i++) {
-+		const char *cn = infos[i].name;
-+
-+		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
-+			return i;
-+	}
-+	warnx(_("unknown column: %s"), name);
-+	return -1;
-+}
-+
-+static inline int get_column_id(int num)
-+{
-+	assert(ARRAY_SIZE(columns) == NCOLS);
-+	assert(num < ncolumns);
-+	assert(columns[num] < (int) NCOLS);
-+
-+	return columns[num];
-+}
-+
-+
-+static inline struct colinfo *get_column_info(unsigned num)
-+{
-+	return &infos[ get_column_id(num) ];
-+}
-+
-+static void rem_lock(struct lock *lock)
-+{
-+	if (!lock)
-+		return;
-+
-+	free(lock->path);
-+	free(lock->size);
-+	free(lock->type);
-+	free(lock->cmdname);
-+	list_del(&lock->locks);
-+	free(lock);
-+}
-+
-+static void add_tt_line(struct tt *tt, struct lock *l)
-+{
-+	int i;
-+	struct tt_line *line;
-+	/*
-+	 * Whenever cmdname or filename is NULL it is most
-+	 * likely  because there's no read permissions
-+	 * for the specified process.
-+	 */
-+	const char *notfnd = "";
-+
-+	assert(l);
-+	assert(tt);
-+
-+	line = tt_add_line(tt, NULL);
-+	if (!line) {
-+		warn(_("failed to add line to output"));
-+		return;
-+	}
-+
-+	for (i = 0; i < ncolumns; i++) {
-+		char *str = NULL;
-+		int rc = 0;
-+
-+		switch (get_column_id(i)) {
-+		case COL_SRC:
-+			rc = asprintf(&str, "%s", l->cmdname ? l->cmdname : notfnd);
-+			break;
-+		case COL_PID:
-+			rc = asprintf(&str, "%d", l->pid);
-+			break;
-+		case COL_SIZE:
-+			rc = asprintf(&str, "%s", l->size);
-+			break;
-+		case COL_ACCESS:
-+			rc = asprintf(&str, "%s", l->type);
-+			break;
-+		case COL_M:
-+			rc = asprintf(&str, "%d", l->mandatory);
-+			break;
-+		case COL_START:
-+			rc = asprintf(&str, "%ld", l->start);
-+			break;
-+		case COL_END:
-+			rc = asprintf(&str, "%ld", l->end);
-+			break;
-+		case COL_PATH:
-+			rc = asprintf(&str, "%s", l->path ? l->path : notfnd);
-+			break;
-+		default:
-+			break;
-+		}
-+
-+		if (rc || str)
-+			tt_line_set_data(line, i, str);
-+	}
-+}
-+
-+static int show_locks(struct list_head *locks, int tt_flags)
-+{
-+	int i, rc = 0;
-+	struct list_head *p, *pnext;
-+	struct tt *tt;
-+
-+	tt = tt_new_table(tt_flags);
-+	if (!tt) {
-+		warn(_("failed to initialize output table"));
-+		return -1;
-+	}
-+
-+	for (i = 0; i < ncolumns; i++) {
-+		struct colinfo *col = get_column_info(i);
-+
-+		if (!tt_define_column(tt, col->name, col->whint, col->flags)) {
-+			warnx(_("failed to initialize output column"));
-+			rc = -1;
-+			goto done;
 +		}
 +	}
-+
-+	list_for_each_safe(p, pnext, locks) {
-+		struct lock *lock = list_entry(p, struct lock, locks);
-+		add_tt_line(tt, lock);
-+		rem_lock(lock);
-+	}
-+
-+	tt_print_table(tt);
-+done:
-+	tt_free_table(tt);
-+	return rc;
++	cp += sprintf(cp, " %s", inst->fs->device);
++	cp += sprintf(cp, " %s", inst->fs->type);
++	cp += sprintf(cp, " %d", inst->exit_status);
++	timeval_diff(&time_diff, &inst->end_time, &inst->start_time);
++	cp += sprintf(cp, " %d.%06d", (int)time_diff.tv_sec,
++			(int)time_diff.tv_usec);
++	cp += sprintf(cp, " %d.%06d", (int)inst->rusage.ru_utime.tv_sec,
++			(int)inst->rusage.ru_utime.tv_usec);
++	cp += sprintf(cp, " %d.%06d", (int)inst->rusage.ru_stime.tv_sec,
++			(int)inst->rusage.ru_stime.tv_usec);
++	cp += sprintf(cp, " %ld", inst->rusage.ru_maxrss);
++	if (log_output)
++		cp += sprintf(cp, " %s", inst->log_file);
++	if (system(cmd) < 0)
++		perror(cmd);
++	free(cmd);
 +}
 +
+ /* Forward reference. */
+ static void restart_earliest_timeout(NOARGS);
+ 
+@@ -962,6 +1017,7 @@ ret_inst:
+ 		prev->next = inst->next;
+ 	else
+ 		instance_list = inst->next;
++	run_completion(inst);
+ 	report_fsck_stats(inst);
+ 	if (inst->log_fd)
+ 		close(inst->log_fd);
+@@ -1694,6 +1750,12 @@ int main(int argc, char *argv[])
+ 		fstab = _PATH_MNTTAB;
+ 	load_fs_info(fstab);
+ 
++	completion_path = getenv("FSCK_COMPLETION_PATH");
++	if (!completion_path)
++		completion_path = COMPLETION_PATH;
++	if (access(completion_path, R_OK|X_OK) < 0)
++		completion_path = NULL;
 +
-+static void __attribute__ ((__noreturn__)) usage(FILE * out)
-+{
-+	size_t i;
+ 	/* Update our search path to include uncommon directories. */
+ 	if (oldpath) {
+ 		fsck_path = xmalloc (strlen (fsck_prefix_path) + 1 +
+diff --git a/fsck/fsck.h b/fsck/fsck.h
+index 6e41f40..93356bc 100644
+--- a/fsck/fsck.h
++++ b/fsck/fsck.h
+@@ -33,8 +33,10 @@
+ #define EXIT_TIMEOUT     64
+ #define EXIT_LIBRARY     128
+ 
++#define COMPLETION_PATH	"/etc/fsck.d/"
 +
-+	fputs(USAGE_HEADER, out);
-+
-+	fprintf(out,
-+		_(" %s [options]\n"), program_invocation_short_name);
-+
-+	fputs(_("\nGeneral Options:\n"), out);
-+	fputs(_(" -p, --pid <pid>        process id\n"
-+		" -o, --output <list>    define which output columns to use\n"
-+		" -n, --noheadings       don't print headings\n"
-+		" -r  --raw              use the raw output format\n"
-+		" -h, --help             display this help and exit\n"
-+		" -V, --version          output version information and exit\n"), out);
-+
-+	fputs(_("\nAvailable columns (for --output):\n"), out);
-+
-+	for (i = 0; i < NCOLS; i++)
-+		fprintf(out, " %11s  %s\n", infos[i].name, _(infos[i].help));
-+
-+	fprintf(out, USAGE_MAN_TAIL("lslocks(8)"));
-+
-+	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int c, tt_flags = 0, rc = 0;
-+	struct list_head locks;
-+	static const struct option long_opts[] = {
-+		{ "pid",	required_argument, NULL, 'p' },
-+		{ "help",	no_argument,       NULL, 'h' },
-+		{ "version",    no_argument,       NULL, 'V' },
-+		{ "noheadings", no_argument,       NULL, 'n' },
-+		{ "raw",        no_argument,       NULL, 'r' },
-+		{ NULL, 0, NULL, 0 }
-+	};
-+
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+
-+	while ((c = getopt_long(argc, argv,
-+				"p:o:nrhV", long_opts, NULL)) != -1) {
-+
-+		switch(c) {
-+		case 'p':
-+			pid = strtol_or_err(optarg, _("cannot parse PID"));
-+			break;
-+		case 'o':
-+			ncolumns = string_to_idarray(optarg,
-+						     columns, ARRAY_SIZE(columns),
-+						     column_name_to_id);
-+			if (ncolumns < 0)
-+				return EXIT_FAILURE;
-+			break;
-+		case 'V':
-+			printf(UTIL_LINUX_VERSION);
-+			return EXIT_SUCCESS;
-+		case 'h':
-+			usage(stdout);
-+		case 'n':
-+			tt_flags |= TT_FL_NOHEADINGS;
-+			break;
-+		case 'r':
-+			tt_flags |= TT_FL_RAW;
-+			break;
-+		case '?':
-+		default:
-+			usage(stderr);
-+		}
-+	}
-+
-+	INIT_LIST_HEAD(&locks);
-+
-+	if (!ncolumns) {
-+		/* default columns */
-+		columns[ncolumns++] = COL_SRC;
-+		columns[ncolumns++] = COL_PID;
-+		columns[ncolumns++] = COL_SIZE;
-+		columns[ncolumns++] = COL_ACCESS;
-+		columns[ncolumns++] = COL_M;
-+		columns[ncolumns++] = COL_START;
-+		columns[ncolumns++] = COL_END;
-+		columns[ncolumns++] = COL_PATH;
-+	}
-+
-+	rc = get_local_locks(&locks);
-+
-+	if (!rc && !list_empty(&locks))
-+		rc = show_locks(&locks, tt_flags);
-+
-+	return rc;
-+}
+ /*
+- * Internal structure for mount tabel entries.
++ * Internal structure for mount table entries.
+  */
+ 
+ struct fs_info {
+
 -- 
-1.7.4.1
+Frank Mayhar
+fmayhar@google.com
+
