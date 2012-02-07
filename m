@@ -1,29 +1,102 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52249 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757468Ab2B2OPH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 29 Feb 2012 09:15:07 -0500
-Date: Wed, 29 Feb 2012 15:15:02 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Zhi Li <lizhi1215@gmail.com>
-Cc: util-linux-ng@vger.kernel.org, Zhi Li <xiaoxiang.fu@163.com>
-Subject: Re: [PATCH 1/1] To fix a minor bug in mountpoint.c, see:
-Message-ID: <20120229141502.GC8471@x2.net.home>
-References: <1330504129-5545-1-git-send-email-lizhi1215@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1330504129-5545-1-git-send-email-lizhi1215@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH 4/4] lslocks: add manpage
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 07 Feb 2012 23:42:02 +0100
+Message-ID: <1328654522.3500.13.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 29, 2012 at 04:28:49PM +0800, Zhi Li wrote:
->  sys-utils/mountpoint.c |   27 ++++++++++++++-------------
->  1 files changed, 14 insertions(+), 13 deletions(-)
+From: Davidlohr Bueso <dave@gnu.org>
 
- Applied, thanks.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ misc-utils/lslocks.8 |   74 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 74 insertions(+), 0 deletions(-)
+ create mode 100644 misc-utils/lslocks.8
 
-    Karel
-
+diff --git a/misc-utils/lslocks.8 b/misc-utils/lslocks.8
+new file mode 100644
+index 0000000..120e097
+--- /dev/null
++++ b/misc-utils/lslocks.8
+@@ -0,0 +1,74 @@
++.\" lslocks.8 --
++.\" Copyright 2012 Davidlohr Bueso <dave@gnu.org>
++.\" May be distributed under the GNU General Public License
++
++.TH LSLOCKS 8 "February 2012" "util-linux" "System Administration"
++.SH NAME
++lslocks \-
++list local system locks
++.SH SYNOPSIS
++.B lslocks
++.RB [options]
++
++.SH DESCRIPTION
++.B lslocks
++lists information about all the file held locks in a Linux system.
++
++.SH OPTIONS
++.IP "\fB\-p, \-\-pid\fP"
++Specify the process id, if none is given, it will display all locks
++.IP "\fB\-h, \-\-help\fP"
++Print a help text and exit.
++.IP "\fB\-o, \-\-output \fIlist\fP"
++Specify which output columns to print. Use
++.B "--help"
++to get a list of all supported columns.
++.IP "\fB\-\-noheadings\fP"
++Do not print a header line.
++
++.IP "\fB\-\-raw\fP"
++Use the raw output format.
++
++.SH OUTPUT
++.IP "COMMAND"
++The command name of the process holding the lock.
++
++.IP "PID"
++Process ID which holds the lock.
++
++.IP "SIZE"
++Size of the locked file.
++
++.IP "ACCESS"
++Lock access permissions (read, write).
++
++.IP "M"
++Mandatory state of the lock: 0 if none; 1 if set.  (See chmod(1)).
++
++.IP "START"
++Relative byte offset of the lock.
++
++.IP "END"
++Ending offset of the lock.
++
++.IP "PATH"
++Full path of the lock - if none is found it will fallback to the device's mountpoint.
++
++.SH NOTES
++.nf
++The lslocks command is meant to replace the lslk(8) command, originally written by
++Victor A. Abell <abe@purdue.edu> and unmaintained since 2001.
++.fi
++
++.SH AUTHORS
++.nf
++Davidlohr Bueso <dave@gnu.org>
++.fi
++
++.SH "SEE ALSO"
++.BR lslk (8),
++.BR flock (1)
++
++.SH AVAILABILITY
++The lslocks command is part of the util-linux package and is available from
++ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
