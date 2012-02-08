@@ -1,48 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcaid.dreamhost.com ([208.97.132.83]:48377 "EHLO
-	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1759682Ab2BNLN1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Feb 2012 06:13:27 -0500
-Subject: [PATCH 4/4] mkfs.bfs: add setlocale
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 14 Feb 2012 12:13:19 +0100
-Message-ID: <1329217999.3269.8.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:22462 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756130Ab2BHKw6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Feb 2012 05:52:58 -0500
+Date: Wed, 8 Feb 2012 11:52:45 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Paul Menzel <paulepanter@users.sourceforge.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] flock.1: Add =?iso-8859-1?Q?mi?=
+ =?iso-8859-1?Q?ssing_word_=BBbe=AB?=
+Message-ID: <20120208105245.GB18733@x2.net.home>
+References: <1328293518.4220.23.camel@mattotaupa>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1328293518.4220.23.camel@mattotaupa>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Fri, Feb 03, 2012 at 07:25:18PM +0100, Paul Menzel wrote:
+>  sys-utils/flock.1 |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/mkfs.bfs.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ Applied, thanks.
 
-diff --git a/disk-utils/mkfs.bfs.c b/disk-utils/mkfs.bfs.c
-index cbb09e0..6e5f012 100644
---- a/disk-utils/mkfs.bfs.c
-+++ b/disk-utils/mkfs.bfs.c
-@@ -115,6 +115,10 @@ int main(int argc, char **argv)
- 		{NULL, 0, NULL, 0}
- 	};
- 
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+
- 	if (argc < 2)
- 		usage(stderr);
- 
 -- 
-1.7.4.1
-
-
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
