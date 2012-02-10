@@ -1,62 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10665 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755293Ab2B2PoW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Feb 2012 10:44:22 -0500
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q1TFiM1h021941
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 29 Feb 2012 10:44:22 -0500
-Received: from x2 (ovpn-116-18.ams2.redhat.com [10.36.116.18])
-	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q1TFiLud027371
-	for <util-linux@vger.kernel.org>; Wed, 29 Feb 2012 10:44:21 -0500
-Date: Wed, 29 Feb 2012 16:44:20 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: v2.22 wish list
-Message-ID: <20120229154420.GD8471@x2.net.home>
+Return-Path: linux-kernel-owner@vger.kernel.org
+Message-ID: <4F354EFE.2080208@ubuntu.com>
+Date: Fri, 10 Feb 2012 12:08:14 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: Jan Kara <jack@suse.cz>, Jerome Marchand <jmarchan@redhat.com>,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] fs: filesystem specific options and remount
+References: <4F2BFBAF.5020703@redhat.com> <20120206224116.GE24840@quack.suse.cz> <20120206230849.GA20767@x2.net.home>
+In-Reply-To: <20120206230849.GA20767@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is my v2.22 wish list. The list contains large/invasive tasks only. 
-Comments, volunteers, .... ? ;-)
+On 2/6/2012 6:08 PM, Karel Zak wrote:
+> On Mon, Feb 06, 2012 at 11:41:16PM +0100, Jan Kara wrote:
+>> On Fri 03-02-12 16:22:23, Jerome Marchand wrote:
+>>> $ mount -o remount,hidepid=2 /proc/ $ grep proc /proc/mounts 
+>>> /proc /proc proc rw,relatime,hidepid=2 0 0 $ mount | grep proc 
+>>> proc on /proc type proc (rw,hidepid=2)
+>>> 
+>>> $ mount -o remount /proc/ $ grep proc /proc/mounts /proc /proc
+>>> proc rw,relatime,hidepid=2 0 0 $ mount | grep proc proc on
+>>> /proc type proc (rw)
+> man mount:
+> 
+> The  remount  functionality follows the standard way how the mount 
+> command works with options from fstab. It means the mount command 
+> doesn't read fstab (or mtab) only when  a  device  and dir are
+> fully specified.
+> 
+> mount -o remount,rw /dev/foo /dir
+> 
+> After this call all old mount options are replaced and arbitrary
+> stuff from fstab is ignored, except the loop= option which is
+> internally generated and maintained by the mount command.
+> 
+> mount -o remount,rw  /dir
+> 
+> After this call mount reads fstab (or mtab) and merges these
+> options with options  from command line ( -o ).
 
- * release in May/Jun 2012
+Based on what you say there, I would guess this means that Jan has
+proc listed in fstab, so mount tried to reset the mount options to
+those specified in fstab, and the kernel proc fs left the options
+unchanged.
 
- * add PARTUUID= and PARTLABEL= support to mount/fsck by partition UUID/LABEL
-   - add to libblkid blkid_evaluate_* API
-   - support in libmount 
-   - add regression tests
+It seems to me that the buggy behavior is in the proc fs not clearing
+the unspecified options.  With the classic bitmask mount flags, any
+that are not set are cleared by the remount, not left at their current
+status.  This is why mount merges the existing flags specified in
+fstab or mtab with those given on the command line.  The behavior
+should be the same for the string passed mount flags.  In other words,
+mount does its merging and whatever options are passed to the kernel
+should be enabled, and any that are not should be disabled.
 
- * make uuidd (uuid daemon) compatible with systemd
-   - add --no-fork
-   - add --no-pid (pid file)
-   - add systemd unit file
-   - add #ifdef LIBUUID_EXEC_UUIDD to disable uuidd exec from library
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
- * fdisk
-   - move mbr (dos) stuff to fdiskmbrlabel.c
-   - add GPT support
-
- * clean up DBG() macro in libblkid
-   - see libmount version
-
- * add dasd support to libblkid
-
- * non-recursive build-system (now many files from lib/ are compileted 
-   more than once), see:
-   http://thread.gmane.org/gmane.linux.utilities.util-linux-ng/3297
-
- * merge reject
-   Michal L. is working on this task
-   https://github.com/mluscon/util-linux/tree/eject
-
- * ???
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJPNU7+AAoJEJrBOlT6nu75uyoH/3TxQOhOFGm2SlC0zwdh4Rld
+/yotuzWpe27bjPHN9sychVEKeklhV+3kTHhK8DsiYwAHiJfwF2jyRFz9PTFYTmyj
+7zLOi+7e7OFkLWxTADb4ihfqXZjEiI8TIK3RmsqAYLglRLPXw5VNgqGjoJx+7gfR
+YKu9gzRUhjRKFvXoKGskdeGsB+em/PeAgy0qFYI2Et7rHekrX5PZvsjKsw8jqu/O
+T9zDtbb0HBCub1PouB5leRc6HKuwdipmDrZFS1SV2ymbclMYh6WTkOJA4ngWGQm7
+ZCwAqifcTHNvKr/CoAlFZ+m/9b85aAa9gb8vPUWNpZwEv5xpldhvWazGlR8gMkc=
+=FTgE
+-----END PGP SIGNATURE-----
