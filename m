@@ -1,125 +1,28 @@
-Return-Path: bigeasy@linutronix.de
-Date: Wed, 29 Feb 2012 22:31:28 +0100
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for
- scanf_cv_alloc_modifier
-Message-ID: <20120229213128.GA11628@linutronix.de>
-References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de>
- <20120228141226.GC22034@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:34099 "EHLO
+	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756536Ab2BNLQO convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Feb 2012 06:16:14 -0500
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: "dave@gnu.org" <dave@gnu.org>, Karel Zak <kzak@redhat.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Date: Tue, 14 Feb 2012 12:16:11 +0100
+Subject: RE: [PATCH 2/4] sys-utils: fix typos
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0D8E334D5D@MCHP058A.global-ad.net>
+References: <1329217994.3269.6.camel@offbook>
+In-Reply-To: <1329217994.3269.6.camel@offbook>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <20120228141226.GC22034@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* Karel Zak | 2012-02-28 15:12:26 [+0100]:
+Davidlohr Bueso wrote:
 
->> @@ -387,6 +387,8 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
->>        [scanf_cv_alloc_modifier=as],
->>        [scanf_cv_alloc_modifier=no]
->>      )
->> +    ,
->> +    [scanf_cv_alloc_modifier=no]
->>    )
->>  )
->
-> Applied, thanks.
->
-> ...but it means that you will compile the package without libmount.
-> Is it expected? In the next release fsck will depend on the library,
-> we have new mount and umount, ....
->
-> Is it really true that your glibc is without %as / %ms ?
+> diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
+> -		warnx(_("File %s, For threshold value %lu and timrout value %lu, Maximum characters in fifo were %d,\n"
+> +		warnx(_("File %s, For threshold value %lu and timeout value %lu, Maximum characters in fifo were %d,\n"
 
-So I've been greping for have_scanf_alloc_modifier and did not find a
-user. Well now that you mentioned, I see a user in configure.... So now
-we need something like a proper fix hmm.... What about this:
-- you don't want %as as it is non-standard evil
-- %m is good enough an available since glibc 2.7. Why should someone
-  take old glibc (2.7 was released Thu Oct 18 00:09:32 2007 +0000) and
-  new util-linux?
-- uClibc seems not to support it. The code seems to be behind an ifdef
-  and the define itseld is hidden in a comment
+why "Maximum" upper-case?
 
-If this is okay then what about:
-
->From 921475f1b5f11699bc311c0f1c94d5da830edfd6 Mon Sep 17 00:00:00 2001
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Wed, 29 Feb 2012 22:26:19 +0100
-Subject: [PATCH] build-sys: make the crosscompile path for
- scanf_cv_alloc_modifier clever
-
-My earlier assumption was that scanf_cv_alloc_modifier is unused. This
-is not true as pointed out by Karel since it used befoe checking for
-libmount. Argh. So instead saying no I add a test to check for glibc
->= 2.7 which provides %m. As of uClibc v0.9.32-rc3 the situation looks
-the following:
-| git grep _M_SPEC__
-|libc/stdio/_vfprintf.c:/* #define __UCLIBC_HAS_PRINTF_M_SPEC__ */
-|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/_vfprintf.c:# ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/_vfprintf.c:# endif /* __UCLIBC_HAS_PRINTF_M_SPEC__ */
-|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/old_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-|libc/stdio/perror.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
-
-And other libc user have to bring their own stuff.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- configure.ac |   18 +++++++++++++++++-
- 1 files changed, 17 insertions(+), 1 deletions(-)
-
-diff --git a/configure.ac b/configure.ac
-index b40a636..0a3016b 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -384,7 +384,23 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
-       [scanf_cv_alloc_modifier=no]
-     )
-     ,
--    [scanf_cv_alloc_modifier=no]
-+
-+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-+     #include <stdio.h>
-+
-+     #ifdef __GLIBC__
-+
-+     #if !(__GLIBC_PREREQ(2, 7))
-+     #error %m is not available
-+     #endif
-+
-+     #else
-+
-+     #error Your C-library is not supported.
-+     #endif
-+     ])],
-+    [scanf_cv_alloc_modifier=ms],
-+    [scanf_cv_alloc_modifier=no])]
-   )
- )
- 
--- 
-1.7.9
-
-Which results in:
-| grep -E "%m|mount" log
-|checking scanf string alloc modifiers... (%ms) yes
-|config.status: creating libmount/Makefile
-|config.status: creating libmount/docs/Makefile
-|config.status: creating libmount/docs/version.xml
-|config.status: creating libmount/mount.pc
-|config.status: creating libmount/src/Makefile
-|config.status: creating libmount/src/libmount.h
-|config.status: creating mount/Makefile
-
-
->
->    Karel
->
-
-Sebastian
+Berny
