@@ -1,44 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:44990 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750851Ab2BUPVW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 21 Feb 2012 10:21:22 -0500
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id A61288FA97
-	for <util-linux@vger.kernel.org>; Tue, 21 Feb 2012 16:21:21 +0100 (CET)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] cytune.8: fix formatting
-Date: Tue, 21 Feb 2012 16:21:21 +0100
-Message-Id: <1329837681-16901-1-git-send-email-petr.uzel@suse.cz>
+Received: from caiajhbdcaid.dreamhost.com ([208.97.132.83]:48377 "EHLO
+	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1759682Ab2BNLN1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Feb 2012 06:13:27 -0500
+Subject: [PATCH 4/4] mkfs.bfs: add setlocale
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 14 Feb 2012 12:13:19 +0100
+Message-ID: <1329217999.3269.8.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-W: manual-page-warning /usr/share/man/man8/cytune.8.gz 178: warning:
-macro `chars',' not defined (possibly missing space after `ch')
+From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- sys-utils/cytune.8 |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ disk-utils/mkfs.bfs.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/sys-utils/cytune.8 b/sys-utils/cytune.8
-index 1c4de3e..fd82391 100644
---- a/sys-utils/cytune.8
-+++ b/sys-utils/cytune.8
-@@ -174,8 +174,8 @@ seconds.
- .SH BUGS
- If you run two copies of
- .B cytune
--at the same time to report statistics about the same port, the 'ints',
--'chars', and 'max' value will be reset and not reported correctly.
-+at the same time to report statistics about the same port, the 'ints', 'chars',
-+and 'max' value will be reset and not reported correctly.
- .B cytune
- should prevent this, but does not.
- .\" .SH AUTHOR
+diff --git a/disk-utils/mkfs.bfs.c b/disk-utils/mkfs.bfs.c
+index cbb09e0..6e5f012 100644
+--- a/disk-utils/mkfs.bfs.c
++++ b/disk-utils/mkfs.bfs.c
+@@ -115,6 +115,10 @@ int main(int argc, char **argv)
+ 		{NULL, 0, NULL, 0}
+ 	};
+ 
++	setlocale(LC_ALL, "");
++	bindtextdomain(PACKAGE, LOCALEDIR);
++	textdomain(PACKAGE);
++
+ 	if (argc < 2)
+ 		usage(stderr);
+ 
 -- 
-1.7.7
+1.7.4.1
+
+
+
+
+
 
