@@ -1,71 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:45662 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758036Ab2BXSSx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Feb 2012 13:18:53 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Yegor Yefremov <yegorslists@googlemail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.21
-Date: Fri, 24 Feb 2012 13:18:51 -0500
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-References: <20120224122755.GA2106@x2.net.home> <CAGm1_ktDhLd=YCT+zfAjQPwTKH+NLGTwew4Wc42wnwLm00RVTw@mail.gmail.com>
-In-Reply-To: <CAGm1_ktDhLd=YCT+zfAjQPwTKH+NLGTwew4Wc42wnwLm00RVTw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart25128220.bMNuJJtDXm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201202241318.53493.vapier@gentoo.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:55007 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753514Ab2BPURJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 16 Feb 2012 15:17:09 -0500
+Received: by daed14 with SMTP id d14so2388494dae.19
+        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2012 12:17:08 -0800 (PST)
+Subject: Re: [PATCH 0/4] Add functions to the fsck wrapper to improve
+ standalone operation.
+From: Frank Mayhar <fmayhar@google.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: =?ISO-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+In-Reply-To: <20120215174258.GC15572@x2.net.home>
+References: <1328648733.11787.13.camel@peace.lax.corp.google.com>
+	 <4F3BBA72.90902@draigBrady.com>
+	 <CAKp+pw1irqkv7JBRWLHYWsLzCzRb6GN44C-6r3x4ZnUbUL8nuQ@mail.gmail.com>
+	 <4F3BD80B.7090409@draigBrady.com>  <20120215174258.GC15572@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 16 Feb 2012 12:17:06 -0800
+Message-ID: <1329423426.4310.16.camel@peace.lax.corp.google.com>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart25128220.bMNuJJtDXm
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2012-02-15 at 18:42 +0100, Karel Zak wrote:
+> On Wed, Feb 15, 2012 at 04:06:35PM +0000, Pádraig Brady wrote:
+> > On 02/15/2012 03:09 PM, Frank Mayhar wrote:
+> > > 2012/2/15 Pádraig Brady <P@draigbrady.com>:
+> > >> On 02/07/2012 09:05 PM, Frank Mayhar wrote:
+> > >>> This set of patches adds functions that help improve fsck operation in
+> > >>> large installations and when running in unattended or headless mode.  It
+> > >>> adds support for reporting rusage statistics for the individual fsck
+> > >>> runs, for capturing fsck output, for killing fsck runs that take too
+> > >>> long and for running scripts when each fsck completes.
+> > >>>
+> > >>> We're currently using these functions to improve our fsck monitoring
+> > >>> capability and to replace some unwieldy and hard-to-maintain shell
+> > >>> scripts.
+> > >>
+> > >> Couldn't you do this with separate fsck command runs,
+> > >> and use standard system utils?
+> > > 
+> > > Yes, of course.  That's where the "unwieldy and hard-to-maintain shell
+> > > scripts" came in.  Putting the functions in the wrapper itself, on the
+> > > other hand, means the scripts don't have to reimplement functions that
+> > > already exist there (like parallelizing the fsck runs or tracking exit
+> 
+>  BTW, the latest fsck supports new -l option (lock disk) for parallel
+>  fsck processes. So you can start arbitrary number of
+> 
+>     fsck -l /dev/xxx
+> 
+>  without care about performance. We use it for systems with systemd
+>  where fsck is executed per device (fstab entry).
+> 
+>  If you want to use the same thing for the classic init scripts then 
+>  you can use something like
+> 
+>     for x in $(findmnt --fstab -n -o SOURCE); do
+>         fsck -l $x &< /var/log/fsck-$x &
+>     done
+> 
+>  rather tan fsck -A. Add some extra checks (completion scripts) to this
+>  for() should be pretty simple.
 
-On Friday 24 February 2012 08:31:37 Yegor Yefremov wrote:
-> Hi Karel,
->=20
-> On Fri, Feb 24, 2012 at 1:27 PM, Karel Zak <kzak@redhat.com> wrote:
-> > The util-linux release v2.21 is available at
-> >=20
-> >  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21
-> >=20
-> > Feedback and bug reports, as always, are welcomed.
->=20
-> I tried to cross-compile the package under Buildroot and got following
-> error:
->=20
-> checking whether __progname is defined... yes
-> checking whether the target supports thread-local storage... yes
-> configure: error: in `buildroot/output/build/util-linux-2.21':
-> configure: error: cannot run test program while cross compiling
+I have to disagree with Pádraig's assertion that the functions are
+supported by "quite simple" shell scripting.  As it turned out, doing
+everything we needed involved a script that was pretty long and
+involved.  (I wish I could share the script with you; it's pretty
+impressive, actually, in a grim and painful kind of way, and a real pain
+to maintain.)  In particular, the short loop you show here and that
+Pádraig used was just not even close to being sufficient.
 
-scanf_cv_alloc_modifier=3Das ./configure ...
-=2Dmike
+Further, those of us that are stuck using somewhat older distributions
+don't have some of the newer tools such as findmnt and timeout.
 
---nextPart25128220.bMNuJJtDXm
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+> > > status), eliminates some external dependencies and makes the process
+> > > quite a bit less fragile.
+> > 
+> > OK, thanks for the clarification.
+> > 
+> > It seems to me that these functions are supported
+> > by quite simple shell scripting as I demonstrated.
+> 
+>  I have no problem with proposed -r option (to report memory and
+>  runtime statistics) and -O option to force-kill fscks that run too
+>  long.
+> 
+>  ... but I'm still not sure if we really need the completion script.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+We have to do special stuff if an fsck fails for a particular file
+system.  Without running each fsck individually (something I want to
+avoid for a number of reasons), how do you propose we do that "special
+stuff" without some command or script that is run by fsck when an
+individual check fails?  In other words, what do you propose I use
+instead of a completion script if I want to use the existing functions
+of fsck for everything else?
 
-iQIcBAABAgAGBQJPR9SNAAoJEEFjO5/oN/WBnsEP/2H8/Mjkm8ryNNA1AE/KzqDt
-iWcQlyiks2S5FcklN8Qtn5TFXc/O+XgJtcP+SIwBbTEMpH1x9hSvyN6u/++Pr5K/
-iZ4S2GAowJDcGOAj6YYJfG3G0A7JXn/JPTTSRhtVpDnKsczEvp0cffYl1pSAO0u0
-qozXNhk2nxcopUCl79kDjPlxrS/ID8XEbOx8MznPK1z4/YKACz2UY4ic1ElMnBKB
-WqMgfDJkRheyAtDA6KI1cmU5sJmAmvEJ9RfnqFxt1/YmldsV6zfCyu7lsA8SbSwy
-DFQ4BVckyH2xn1BnOewiEd7fd4oWkXoQWGJbdU+RedygtCAidwRItUMNQ2IlOBVm
-EI/3r03k7HRI8pv01MMwRQ52iDIlJHFAUEs59gG+yBIVTYwMBIIgUvZ/UVrtL/EI
-frbo3c02jMvD7RLc+CrfNQ1v/zKC/GntsblLq/T+zmAmAWB18PDaBfPJHWn5kL+f
-wmcjaVxh2eW2z0+UXseLmMhB31WDNaL9KboowhdbPkgFwY/SQoXd5B/CaXyC46z0
-J6sPGovYf0ShaFXGre3VlGv6VFqY6/Hd1Vstn2HNHzy06FlAOpAmNAo7AxZuM+kL
-dHCnwFIA3TRvbXh3NQXtL9OHrAz+B8ShdUJMU2EJnHbyBDXN6qzJZvL2xHwzSR9S
-pT5s0XFZ82GjpXJX9Ffj
-=bl33
------END PGP SIGNATURE-----
+I'm not trying to be rude, by the way (just in case this is coming off
+that way), I'm just trying to point out that in our case we really need
+the completion script and I would bet that there are others out there
+that would find it very useful as well.
+-- 
+Frank Mayhar
+fmayhar@google.com
 
---nextPart25128220.bMNuJJtDXm--
