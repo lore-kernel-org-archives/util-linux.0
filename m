@@ -1,60 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:42959 "EHLO
-	homiemail-a60.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753601Ab2B0RT6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Feb 2012 12:19:58 -0500
-Subject: RE: [PATCH v3 3/4] lslocks: new command
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
-References: <1330357315.2540.5.camel@offbook>
-	 <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 27 Feb 2012 18:19:55 +0100
-Message-ID: <1330363195.2540.6.camel@offbook>
-Mime-Version: 1.0
+Received: from smtp.gentoo.org ([140.211.166.183]:41926 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754175Ab2BPT70 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 16 Feb 2012 14:59:26 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id F26CA654CD
+	for <util-linux-ng@vger.kernel.org>; Thu, 16 Feb 2012 19:59:25 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux-ng@vger.kernel.org
+Subject: [PATCH] umount: respect fs search path
+Date: Thu, 16 Feb 2012 14:59:26 -0500
+Message-Id: <1329422366-576-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2012-02-27 at 18:16 +0100, Voelker, Bernhard wrote:
-> Davidlohr Bueso wrote:
-> 
-> 
-> > +static char *get_cmdname(pid_t pid)
-> > +{
-> > +	FILE *fp;
-> > +	char path[PATH_MAX];
-> > +
-> > +	sprintf(path, "/proc/%d/comm", pid);
-> > +	if (!(fp = fopen(path, "r")))
-> > +		return NULL;
-> > +
-> > +	/* just need the first line */
-> > +	if (!fgets(path, sizeof(path), fp))
-> > +		goto out;
-> > +out:
-> 
-> this looks strange to me:
-> if fgets fails, then we want to ...
-> 
-> > +	fclose(fp);
-> 
-> ... but certainly not this:
+This brings search path support to umount to match existing behavior
+in fsck and mount.
 
-yep, that's bogus. Will send a v4.
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ mount/umount.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-Thanks.
-
-> 
-> > +	path[strlen(path) - 1] = '\0';
-> > +	return xstrdup(path);
-> > +}
-> 
-> Have a nice day,
-> Berny
-> 
-
+diff --git a/mount/umount.c b/mount/umount.c
+index ad93e75..a6fcd33 100644
+--- a/mount/umount.c
++++ b/mount/umount.c
+@@ -100,7 +100,8 @@ static int fake = 0;
+ static int
+ check_special_umountprog(const char *node,
+ 			 const char *type, int *status) {
+-	char umountprog[120];
++	char search_path[] = FS_SEARCH_PATH;
++	char *path, umountprog[150];
+ 	struct stat statbuf;
+ 	int res;
+ 
+@@ -110,10 +111,16 @@ check_special_umountprog(const char *node,
+ 	if (type == NULL || strcmp(type, "none") == 0)
+ 		return 0;
+ 
+-	if (strlen(type) < 100) {
++	path = strtok(search_path, ":");
++	while (path) {
+ 		int type_opt = 0;
+ 
+-		sprintf(umountprog, "/sbin/umount.%s", type);
++		res = snprintf(umountprog, sizeof(umountprog), "%s/umount.%s",
++			       path, type);
++		path = strtok(NULL, ":");
++		if (res < 0 || (size_t) res >= sizeof(umountprog))
++			continue;
++
+ 		res = stat(umountprog, &statbuf);
+ 		if (res == -1 && errno == ENOENT && strchr(type, '.')) {
+ 			/* If type ends with ".subtype" try without it */
+-- 
+1.7.8.4
 
