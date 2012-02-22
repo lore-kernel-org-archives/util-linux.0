@@ -1,53 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43598 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932338Ab2B1NkE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Feb 2012 08:40:04 -0500
-Date: Tue, 28 Feb 2012 14:40:01 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: autotools readability fixes
-Message-ID: <20120228134001.GA22034@x2.net.home>
-References: <CAG27Bk1RXEBfo6KX4_HrAuY7AGPCCKGbFBiXdd6M5rrGU5waBw@mail.gmail.com>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:60933 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752726Ab2BVOYJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 22 Feb 2012 09:24:09 -0500
+Received: by vbjk17 with SMTP id k17so54905vbj.19
+        for <util-linux@vger.kernel.org>; Wed, 22 Feb 2012 06:24:08 -0800 (PST)
+Date: Wed, 22 Feb 2012 09:24:06 -0500
+From: Dave Reisner <d@falconindy.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH] libmount: remove teaser proto for mnt_table_get_name
+Message-ID: <20120222142406.GK545@rampage>
+References: <1329884194-7269-1-git-send-email-dreisner@archlinux.org>
+ <20120222110125.GC29970@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1RXEBfo6KX4_HrAuY7AGPCCKGbFBiXdd6M5rrGU5waBw@mail.gmail.com>
+In-Reply-To: <20120222110125.GC29970@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 08, 2012 at 10:16:53AM +0100, Sami Kerola wrote:
->  Makefile.am                          |   22 ++--
->  config/include-Makefile.am           |    4 +-
->  configure.ac                         |  196 +++++++++++++++++-----------------
->  disk-utils/Makefile.am               |   54 +++++++--
->  fdisk/Makefile.am                    |   37 +++++--
->  hwclock/Makefile.am                  |    7 +-
->  include/Makefile.am                  |    4 +-
->  lib/Makefile.am                      |   24 +++--
->  libblkid/Makefile.am                 |    1 -
->  libblkid/samples/Makefile.am         |    7 +-
->  libblkid/src/Makefile.am             |   86 ++++++++++-----
->  libblkid/src/partitions/Makefile.am  |   33 +++---
->  libblkid/src/superblocks/Makefile.am |   92 ++++++++--------
->  libblkid/src/topology/Makefile.am    |   18 ++--
->  libmount/src/Makefile.am             |   78 +++++++++-----
->  libuuid/Makefile.am                  |    1 -
->  libuuid/man/Makefile.am              |   17 +++-
->  libuuid/src/Makefile.am              |   22 +++-
->  login-utils/Makefile.am              |   41 ++++++--
->  misc-utils/Makefile.am               |   68 ++++++++----
->  mount/Makefile.am                    |   48 +++++---
->  partx/Makefile.am                    |   23 ++--
->  schedutils/Makefile.am               |    5 +-
->  sys-utils/Makefile.am                |  102 ++++++++++++------
->  tests/Makefile.am                    |    9 +-
->  tests/helpers/Makefile.am            |    8 +-
->  text-utils/Makefile.am               |   28 ++++-
->  27 files changed, 649 insertions(+), 386 deletions(-)
+On Wed, Feb 22, 2012 at 12:01:25PM +0100, Karel Zak wrote:
+> On Tue, Feb 21, 2012 at 11:16:34PM -0500, Dave Reisner wrote:
+> > I want my money back! I really wanted to use this function in an error
+> > callback. =P
+> 
+>  there is parser error callback and it provides the filename
+> 
 
- Applied, thanks.
+Why yes it does! Late night coding fail.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+thanks,
+d
