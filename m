@@ -1,27 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45315 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:39831 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753177Ab2BXNP0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Feb 2012 08:15:26 -0500
-Date: Fri, 24 Feb 2012 14:14:58 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] losetup.8: add --detach-all to the list of options
-Message-ID: <20120224131458.GC2106@x2.net.home>
-References: <1330080713-14987-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1330080713-14987-1-git-send-email-petr.uzel@suse.cz>
+	id S1754226Ab2BWPnh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 23 Feb 2012 10:43:37 -0500
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id DEFAF932D7
+	for <util-linux@vger.kernel.org>; Thu, 23 Feb 2012 16:43:35 +0100 (CET)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] fdisk.8: update information about GNU Parted
+Date: Thu, 23 Feb 2012 16:43:35 +0100
+Message-Id: <1330011815-18517-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 24, 2012 at 11:51:53AM +0100, Petr Uzel wrote:
->  sys-utils/losetup.8 |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+The support for resizing partitions and filesystems has been
+removed from parted since version 3.0.
 
-Applied, thanks.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisk/fdisk.8 |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
+diff --git a/fdisk/fdisk.8 b/fdisk/fdisk.8
+index 2b12f34..fdaa050 100644
+--- a/fdisk/fdisk.8
++++ b/fdisk/fdisk.8
+@@ -256,10 +256,9 @@ is for hackers only -- the user interface is terrible, but it is
+ more correct than fdisk and more powerful than both fdisk and cfdisk.
+ Moreover, it can be used noninteractively.)
+ .PP
+-These days there also is
+-.BR parted .
+-The cfdisk interface is nicer, but parted does much more: it not only
+-resizes partitions, but also the filesystems that live in them.
++There also is
++.BR parted
++which supports many types of different partition table formats.
+ .PP
+ The IRIX/SGI-type disklabel is currently not supported by the kernel.
+ Moreover, IRIX/SGI header directories are not fully supported yet.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
