@@ -1,67 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:47512 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750749Ab2BHJQy convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 8 Feb 2012 04:16:54 -0500
-Received: by obcva7 with SMTP id va7so530626obc.19
-        for <util-linux@vger.kernel.org>; Wed, 08 Feb 2012 01:16:54 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Date: Wed, 8 Feb 2012 10:16:53 +0100
-Message-ID: <CAG27Bk1RXEBfo6KX4_HrAuY7AGPCCKGbFBiXdd6M5rrGU5waBw@mail.gmail.com>
-Subject: autotools readability fixes
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:41391 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756409Ab2BWSEh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Feb 2012 13:04:37 -0500
+Received: by daed14 with SMTP id d14so1525430dae.19
+        for <util-linux@vger.kernel.org>; Thu, 23 Feb 2012 10:04:37 -0800 (PST)
+Subject: Re: [PATCH 0/4] Add functions to the fsck wrapper to improve
+ standalone operation.
+From: Frank Mayhar <fmayhar@google.com>
+To: =?ISO-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+In-Reply-To: <4F3DC11E.9040205@draigBrady.com>
+References: <1328648733.11787.13.camel@peace.lax.corp.google.com>
+	 <4F3BBA72.90902@draigBrady.com>
+	 <CAKp+pw1irqkv7JBRWLHYWsLzCzRb6GN44C-6r3x4ZnUbUL8nuQ@mail.gmail.com>
+	 <4F3BD80B.7090409@draigBrady.com>  <20120215174258.GC15572@x2.net.home>
+	 <1329423426.4310.16.camel@peace.lax.corp.google.com>
+	 <4F3DC11E.9040205@draigBrady.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 23 Feb 2012 10:04:34 -0800
+Message-ID: <1330020274.29515.30.camel@peace.lax.corp.google.com>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+Sorry for the belated reply, I got bad news from the oncologist recently
+and have been a bit distracted.
 
-Just as yesterdays fix this pull request is best to leave to post
-release merge queue. Meanwhile comments are welcome.
+On Fri, 2012-02-17 at 02:53 +0000, PÃ¡draig Brady wrote:
+> On 02/16/2012 08:17 PM, Frank Mayhar wrote:
+> > We have to do special stuff if an fsck fails for a particular file
+> > system.  Without running each fsck individually (something I want to
+> > avoid for a number of reasons),
+> 
+> please give a couple as this is a crucial point
 
-The following changes since commit 0892d88d1a3c155b2791a5137182ab98a22a7bac:
+One, memory use.  Running each fsck individually means we use more
+memory than allowing fsck itself to do the parallelization.  Not a _lot_
+more memory, certainly, but under certain conditions it can become
+significant (e.g. when running in a cgroup, among other things).
 
-  tools: use gpg-aggent in ko-release-gen (2012-02-07 11:30:56 +0100)
+Two, tracking multiple parallel instances of fsck from a shell script is
+a lot less straightforward than allowing the fsck wrapper itself to do
+so.  The fsck wrapper already has the code to do the tracking, the
+functions I added simply build on that code.  Writing a shell script to
+do the same thing (particularly when one has to handle fsck errors
+specially, as we do) is redundant, potentially error-prone and (the real
+kicker as far as I'm concerned) hard to maintain.  It also (three) adds
+complexity to the start-up scripts which are already plenty complex
+_and_ it adds a dependency on that script which would not exist
+otherwise.  (That is, to do a "proper" fsck by hand one would either
+have to set up the environment properly so that the script doesn't fall
+over, or provide _another_ script that can be run independently.  It's a
+_lot_ easier to be able to just type "fsck".)
 
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git autotools
-
-Sami Kerola (2):
-      build-sys: remove unused function and header checks
-      build-sys: enhance readability of the autotools files
-
- Makefile.am                          |   22 ++--
- config/include-Makefile.am           |    4 +-
- configure.ac                         |  196 +++++++++++++++++-----------------
- disk-utils/Makefile.am               |   54 +++++++--
- fdisk/Makefile.am                    |   37 +++++--
- hwclock/Makefile.am                  |    7 +-
- include/Makefile.am                  |    4 +-
- lib/Makefile.am                      |   24 +++--
- libblkid/Makefile.am                 |    1 -
- libblkid/samples/Makefile.am         |    7 +-
- libblkid/src/Makefile.am             |   86 ++++++++++-----
- libblkid/src/partitions/Makefile.am  |   33 +++---
- libblkid/src/superblocks/Makefile.am |   92 ++++++++--------
- libblkid/src/topology/Makefile.am    |   18 ++--
- libmount/src/Makefile.am             |   78 +++++++++-----
- libuuid/Makefile.am                  |    1 -
- libuuid/man/Makefile.am              |   17 +++-
- libuuid/src/Makefile.am              |   22 +++-
- login-utils/Makefile.am              |   41 ++++++--
- misc-utils/Makefile.am               |   68 ++++++++----
- mount/Makefile.am                    |   48 +++++---
- partx/Makefile.am                    |   23 ++--
- schedutils/Makefile.am               |    5 +-
- sys-utils/Makefile.am                |  102 ++++++++++++------
- tests/Makefile.am                    |    9 +-
- tests/helpers/Makefile.am            |    8 +-
- text-utils/Makefile.am               |   28 ++++-
- 27 files changed, 649 insertions(+), 386 deletions(-)
-
+Adding a way to allow special handling to fsck itself is easy (the code
+is really straightforward), reduces the fsck footprint and reduces
+complexity, making things easier to maintain.
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+Frank Mayhar
+fmayhar@google.com
+
