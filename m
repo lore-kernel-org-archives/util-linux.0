@@ -1,31 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:57190 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756902Ab2BGVFf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Feb 2012 16:05:35 -0500
-Received: by iacb35 with SMTP id b35so10620907iac.19
-        for <util-linux@vger.kernel.org>; Tue, 07 Feb 2012 13:05:35 -0800 (PST)
-Subject: [PATCH 0/4] Add functions to the fsck wrapper to improve
- standalone operation.
-From: Frank Mayhar <fmayhar@google.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Feb 2012 13:05:33 -0800
-Message-ID: <1328648733.11787.13.camel@peace.lax.corp.google.com>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:51902 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755113Ab2BWJ5K (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 23 Feb 2012 04:57:10 -0500
+Date: Thu, 23 Feb 2012 10:57:03 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: util-linux@vger.kernel.org, Chandan B Rajenda <chandan@linux.vnet.ibm.com>
+Subject: Re: [PATCH] lib/strutils.c: Move array bounds check in
+ string_to_idarray() to appropriate place.
+Message-ID: <20120223095703.GA23237@x2.net.home>
+References: <1329988648-21830-1-git-send-email-heiko.carstens@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1329988648-21830-1-git-send-email-heiko.carstens@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This set of patches adds functions that help improve fsck operation in
-large installations and when running in unattended or headless mode.  It
-adds support for reporting rusage statistics for the individual fsck
-runs, for capturing fsck output, for killing fsck runs that take too
-long and for running scripts when each fsck completes.
+On Thu, Feb 23, 2012 at 10:17:28AM +0100, Heiko Carstens wrote:
+>  lib/strutils.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 
-We're currently using these functions to improve our fsck monitoring
-capability and to replace some unwieldy and hard-to-maintain shell
-scripts.
+ Applied, thanks.
+
 -- 
-Frank Mayhar
-fmayhar@google.com
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
