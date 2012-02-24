@@ -1,113 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:33189 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964951Ab2B1Qpo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Feb 2012 11:45:44 -0500
-Received: by mail-vw0-f46.google.com with SMTP id ff1so1997660vbb.19
-        for <util-linux@vger.kernel.org>; Tue, 28 Feb 2012 08:45:44 -0800 (PST)
+Received: from smtp.gentoo.org ([140.211.166.183]:45662 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758036Ab2BXSSx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Feb 2012 13:18:53 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Yegor Yefremov <yegorslists@googlemail.com>
+Subject: Re: [ANNOUNCE] util-linux v2.21
+Date: Fri, 24 Feb 2012 13:18:51 -0500
+Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+References: <20120224122755.GA2106@x2.net.home> <CAGm1_ktDhLd=YCT+zfAjQPwTKH+NLGTwew4Wc42wnwLm00RVTw@mail.gmail.com>
+In-Reply-To: <CAGm1_ktDhLd=YCT+zfAjQPwTKH+NLGTwew4Wc42wnwLm00RVTw@mail.gmail.com>
 MIME-Version: 1.0
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 10/13] sulogin: use pathnames.h for file locations
-Date: Tue, 28 Feb 2012 11:45:18 -0500
-Message-Id: <1330447521-886-11-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
-References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+Content-Type: multipart/signed;
+  boundary="nextPart25128220.bMNuJJtDXm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201202241318.53493.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This covers /etc/shadow and /etc/passwd. We don't have a define for
-/bin/sh -- just replace the macro with the hardcoded string as done
-elsewhere.
+--nextPart25128220.bMNuJJtDXm
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- login-utils/sulogin.c |   26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+On Friday 24 February 2012 08:31:37 Yegor Yefremov wrote:
+> Hi Karel,
+>=20
+> On Fri, Feb 24, 2012 at 1:27 PM, Karel Zak <kzak@redhat.com> wrote:
+> > The util-linux release v2.21 is available at
+> >=20
+> >  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21
+> >=20
+> > Feedback and bug reports, as always, are welcomed.
+>=20
+> I tried to cross-compile the package under Buildroot and got following
+> error:
+>=20
+> checking whether __progname is defined... yes
+> checking whether the target supports thread-local storage... yes
+> configure: error: in `buildroot/output/build/util-linux-2.21':
+> configure: error: cannot run test program while cross compiling
 
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 451bca4..17ad044 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -51,9 +51,7 @@
- #  include <selinux/get_context_list.h>
- #endif
- 
--#define F_PASSWD	"/etc/passwd"
--#define F_SHADOW	"/etc/shadow"
--#define BINSH		"/bin/sh"
-+#include "pathnames.h"
- 
- static int timeout;
- static int profile;
-@@ -214,8 +212,8 @@ static struct passwd *getrootpwent(int try_manually)
- 	pwd.pw_uid = 0;
- 	pwd.pw_gid = 0;
- 
--	if ((fp = fopen(F_PASSWD, "r")) == NULL) {
--		perror(F_PASSWD);
-+	if ((fp = fopen(_PATH_PASSWD, "r")) == NULL) {
-+		perror(_PATH_PASSWD);
- 		return &pwd;
- 	}
- 
-@@ -242,7 +240,7 @@ static struct passwd *getrootpwent(int try_manually)
- 	 *	or not found, return.
- 	 */
- 	if (p == NULL) {
--		fprintf(stderr, "%s: no entry for root\n", F_PASSWD);
-+		fprintf(stderr, "%s: no entry for root\n", _PATH_PASSWD);
- 		return &pwd;
- 	}
- 	if (valid(pwd.pw_passwd))
-@@ -253,8 +251,8 @@ static struct passwd *getrootpwent(int try_manually)
- 	 *	shadow password, try it.
- 	 */
- 	strcpy(pwd.pw_passwd, "");
--	if ((fp = fopen(F_SHADOW, "r")) == NULL) {
--		fprintf(stderr, "%s: root password garbled\n", F_PASSWD);
-+	if ((fp = fopen(_PATH_SHADOW_PASSWD, "r")) == NULL) {
-+		fprintf(stderr, "%s: root password garbled\n", _PATH_PASSWD);
- 		return &pwd;
- 	}
- 	while ((p = fgets(sline, 256, fp)) != NULL) {
-@@ -271,11 +269,11 @@ static struct passwd *getrootpwent(int try_manually)
- 	 *	NULL it, and return.
- 	 */
- 	if (p == NULL) {
--		fprintf(stderr, "%s: no entry for root\n", F_SHADOW);
-+		fprintf(stderr, "%s: no entry for root\n", _PATH_SHADOW_PASSWD);
- 		strcpy(pwd.pw_passwd, "");
- 	}
- 	if (!valid(pwd.pw_passwd)) {
--		fprintf(stderr, "%s: root password garbled\n", F_SHADOW);
-+		fprintf(stderr, "%s: root password garbled\n", _PATH_SHADOW_PASSWD);
- 		strcpy(pwd.pw_passwd, "");
- 	}
- 	return &pwd;
-@@ -352,7 +350,7 @@ static void sushell(struct passwd *pwd)
- 		if (pwd->pw_shell[0])
- 			sushell = pwd->pw_shell;
- 		else
--			sushell = BINSH;
-+			sushell = "/bin/sh";
- 	}
- 	if ((p = strrchr(sushell, '/')) == NULL)
- 		p = sushell;
-@@ -396,9 +394,9 @@ static void sushell(struct passwd *pwd)
- 	execl(sushell, shell, NULL);
- 	perror(sushell);
- 
--	setenv("SHELL", BINSH, 1);
--	execl(BINSH, profile ? "-sh" : "sh", NULL);
--	perror(BINSH);
-+	setenv("SHELL", "/bin/sh", 1);
-+	execl("/bin/sh", profile ? "-sh" : "sh", NULL);
-+	perror("/bin/sh");
- }
- 
- static void usage(void)
--- 
-1.7.9.2
+scanf_cv_alloc_modifier=3Das ./configure ...
+=2Dmike
 
+--nextPart25128220.bMNuJJtDXm
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJPR9SNAAoJEEFjO5/oN/WBnsEP/2H8/Mjkm8ryNNA1AE/KzqDt
+iWcQlyiks2S5FcklN8Qtn5TFXc/O+XgJtcP+SIwBbTEMpH1x9hSvyN6u/++Pr5K/
+iZ4S2GAowJDcGOAj6YYJfG3G0A7JXn/JPTTSRhtVpDnKsczEvp0cffYl1pSAO0u0
+qozXNhk2nxcopUCl79kDjPlxrS/ID8XEbOx8MznPK1z4/YKACz2UY4ic1ElMnBKB
+WqMgfDJkRheyAtDA6KI1cmU5sJmAmvEJ9RfnqFxt1/YmldsV6zfCyu7lsA8SbSwy
+DFQ4BVckyH2xn1BnOewiEd7fd4oWkXoQWGJbdU+RedygtCAidwRItUMNQ2IlOBVm
+EI/3r03k7HRI8pv01MMwRQ52iDIlJHFAUEs59gG+yBIVTYwMBIIgUvZ/UVrtL/EI
+frbo3c02jMvD7RLc+CrfNQ1v/zKC/GntsblLq/T+zmAmAWB18PDaBfPJHWn5kL+f
+wmcjaVxh2eW2z0+UXseLmMhB31WDNaL9KboowhdbPkgFwY/SQoXd5B/CaXyC46z0
+J6sPGovYf0ShaFXGre3VlGv6VFqY6/Hd1Vstn2HNHzy06FlAOpAmNAo7AxZuM+kL
+dHCnwFIA3TRvbXh3NQXtL9OHrAz+B8ShdUJMU2EJnHbyBDXN6qzJZvL2xHwzSR9S
+pT5s0XFZ82GjpXJX9Ffj
+=bl33
+-----END PGP SIGNATURE-----
+
+--nextPart25128220.bMNuJJtDXm--
