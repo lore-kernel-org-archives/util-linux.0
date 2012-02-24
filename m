@@ -1,58 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailbigip.dreamhost.com ([208.97.132.5]:47932 "EHLO
-	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755805Ab2BNLNP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Feb 2012 06:13:15 -0500
-Subject: [PATCH 1/4] misc-utils: fix typos
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 14 Feb 2012 12:13:12 +0100
-Message-ID: <1329217992.3269.5.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:44796 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755272Ab2BXNOo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Feb 2012 08:14:44 -0500
+Date: Fri, 24 Feb 2012 14:14:33 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] docs: corrections to FSF license files, and postal
+ address
+Message-ID: <20120224131433.GB2106@x2.net.home>
+References: <1329946128-6899-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1329946128-6899-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Wed, Feb 22, 2012 at 10:28:48PM +0100, Sami Kerola wrote:
+> The COPYING and Documentation/licenses/COPYING* files are being
+> replaced by files from GNU web site.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- misc-utils/findmnt.c |    2 +-
- misc-utils/whereis.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ Applied, thanks.
 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index 9acc6e2..9a5ed3a 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -1067,7 +1067,7 @@ int main(int argc, char *argv[])
- 		if (tabtype != TABTYPE_KERNEL)
- 			errx_mutually_exclusive("--{poll,fstab,mtab}");
- 		if (ntabfiles > 1)
--			errx(EXIT_FAILURE, _("--poll accepts only one file, but mure specified by --tab-file"));
-+			errx(EXIT_FAILURE, _("--poll accepts only one file, but more specified by --tab-file"));
- 	}
- 
- 	if (optind < argc && (get_match(COL_SOURCE) || get_match(COL_TARGET)))
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 17bb2d4..4a123f1 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -147,7 +147,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 		" -M <dirs>  define man lookup path\n"
- 		" -s         search only sources path\n"
- 		" -S <dirs>  define sources lookup path\n"
--		" -u         search from unusual enties\n"
-+		" -u         search from unusual entities\n"
- 		" -V         output version information and exit\n"
- 		" -h         display this help and exit\n\n"), out);
- 
 -- 
-1.7.4.1
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
