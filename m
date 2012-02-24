@@ -1,44 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:51948 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752752Ab2BZLGx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Feb 2012 06:06:53 -0500
-Received: by pbcup15 with SMTP id up15so1069957pbc.19
-        for <util-linux@vger.kernel.org>; Sun, 26 Feb 2012 03:06:53 -0800 (PST)
-From: raghu.prabhu13@gmail.com
-To: util-linux@vger.kernel.org
-Cc: raghu.prabhu13@gmail.com, Raghavendra D Prabhu <rprabhu@wnohang.net>
-Subject: [PATCH] [PATCH] Add 'internal-only(i)' to non-root allowed option
-Date: Sun, 26 Feb 2012 16:36:42 +0530
-Message-Id: <af8e3d24976a99c6f478f4db27a59d7abb8842ee.1330254236.git.rprabhu@wnohang.net>
+Received: from mx1.redhat.com ([209.132.183.28]:10829 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752184Ab2BXKgK (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 24 Feb 2012 05:36:10 -0500
+Date: Fri, 24 Feb 2012 11:36:04 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH] umount: respect fs search path
+Message-ID: <20120224103604.GB21476@x2.net.home>
+References: <1329422366-576-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1329422366-576-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Raghavendra D Prabhu <rprabhu@wnohang.net>
+On Thu, Feb 16, 2012 at 02:59:26PM -0500, Mike Frysinger wrote:
+>  mount/umount.c |   13 ++++++++++---
+>  1 files changed, 10 insertions(+), 3 deletions(-)
 
-Commit ce433404 introduced the change, which causes something like mount -i
-<user-mount-path> to break which worked well before util-linux-2.21, now it
-gives message 'mount: only root can use "--internal-only" option' when that
-shouldn't be the case when it is already in fstab.
+ Applied, thanks.
 
-Signed-off-by: Raghavendra D Prabhu <rprabhu@wnohang.net>
----
- sys-utils/mount.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sys-utils/mount.c b/sys-utils/mount.c
-index 3fbac04..d2ed296 100644
---- a/sys-utils/mount.c
-+++ b/sys-utils/mount.c
-@@ -708,7 +708,7 @@ int main(int argc, char **argv)
- 					longopts, NULL)) != -1) {
- 
- 		/* only few options are allowed for non-root users */
--		if (mnt_context_is_restricted(cxt) && !strchr("hlLUVvpr", c))
-+		if (mnt_context_is_restricted(cxt) && !strchr("hlLUVvpri", c))
- 			exit_non_root(option_to_longopt(c, longopts));
- 
- 		switch(c) {
 -- 
-1.7.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
