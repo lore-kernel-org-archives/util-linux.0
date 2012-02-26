@@ -1,47 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:33189 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964951Ab2B1Qpq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Feb 2012 11:45:46 -0500
-Received: by mail-vw0-f46.google.com with SMTP id ff1so1997660vbb.19
-        for <util-linux@vger.kernel.org>; Tue, 28 Feb 2012 08:45:45 -0800 (PST)
-MIME-Version: 1.0
-From: Dave Reisner <d@falconindy.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:48341 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752430Ab2BZVpn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Feb 2012 16:45:43 -0500
+Received: by eaah12 with SMTP id h12so1948179eaa.19
+        for <util-linux@vger.kernel.org>; Sun, 26 Feb 2012 13:45:42 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 11/13] sulogin: header/include cleanup
-Date: Tue, 28 Feb 2012 11:45:19 -0500
-Message-Id: <1330447521-886-12-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
-References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+Cc: kerolasa@iki.fi
+Subject: [PATCH] docs: do not overwrite ddate.1 manual
+Date: Sun, 26 Feb 2012 22:45:40 +0100
+Message-Id: <1330292740-7737-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-- use our own crypt.h compile time check
-- remove ttydefaults.h include -- get this via termios.h, the same as
-  agetty
+The following warning meant either english manual page overwrote ru
+version, or otherway around.  Neither way that not intented.  This
+patch will change ru version of the manual page to be installed to
+<prefix><mandir>/ru/man1 directory.
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+man/ru/Makefile.am:4: warning: mandir was already defined in condition TRUE, which includes condition BUILD_DDATE ...
+configure.ac:1: ... `mandir' previously defined here
+
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/sulogin.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ configure.ac       |    2 ++
+ man/ru/Makefile.am |    5 ++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 17ad044..f276a3e 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -39,10 +39,9 @@
- #include <pwd.h>
- #include <shadow.h>
- #include <termios.h>
--#include <sys/ttydefaults.h>
- #include <errno.h>
- #include <sys/ioctl.h>
--#if defined(__GLIBC__)
-+#ifdef HAVE_CRYPT_H
- #  include <crypt.h>
- #endif
+diff --git a/configure.ac b/configure.ac
+index d3b298c..be9da27 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -833,6 +833,8 @@ AC_ARG_ENABLE([ddate],
+ )
+ UL_BUILD_INIT([ddate])
+ AM_CONDITIONAL(BUILD_DDATE, test "x$build_ddate" = xyes)
++rumandir='${mandir}/ru/man1'
++AC_SUBST([rumandir])
  
+ 
+ AC_ARG_ENABLE([agetty],
+diff --git a/man/ru/Makefile.am b/man/ru/Makefile.am
+index 31fafb9..64e88fd 100644
+--- a/man/ru/Makefile.am
++++ b/man/ru/Makefile.am
+@@ -1,7 +1,6 @@
+ include $(top_srcdir)/config/include-Makefile.am
+ 
+ if BUILD_DDATE
+-mandir = @mandir@/ru
+-dist_man_MANS =
+-dist_man_MANS += ddate.1
++ruman_DATA = ddate.1
++EXTRA_DIST = $(ruman_DATA)
+ endif
 -- 
 1.7.9.2
 
