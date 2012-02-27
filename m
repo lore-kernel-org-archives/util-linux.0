@@ -1,65 +1,72 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 6 Feb 2012 23:41:16 +0100
-From: Jan Kara <jack@suse.cz>
-To: Jerome Marchand <jmarchan@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fs: filesystem specific options and remount
-Message-ID: <20120206224116.GE24840@quack.suse.cz>
-References: <4F2BFBAF.5020703@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4F2BFBAF.5020703@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:45449 "EHLO
+	homiemail-a37.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752382Ab2B0Pbc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Feb 2012 10:31:32 -0500
+Subject: [PATCH  v2 2/4] lslocks: add build rules
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 27 Feb 2012 16:31:29 +0100
+Message-ID: <1330356689.2540.1.camel@offbook>
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri 03-02-12 16:22:23, Jerome Marchand wrote:
-> 
-> When remounted without option specified, some filesystems keep the
-> options that are already set (e.g. procfs, fat) and some reset them to
-> default (e.g. devpts).
-> Regarding options that are specified at remount, behavior of
-> filesystems also differ: some apply them (procfs, devpts), some
-> silently disregard them (e.g. fat) and some have a more elaborate
-> behavior (e.g. xfs apparently allows a subset of options to be changed
-> and issues warning if someone tries to change any other option).
-> 
-> Is there any policy regarding what the correct behavior should be?
-> This variety of behaviors tends to confuse mount utility which often
-> does not show the correct option actually set after a remount and
-> most certainly confuses the users as well.
-> 
-> Here is a example of discrepancy between mount (/etc/mtab) and
-> /proc/mounts:
-> 
-> $ grep proc /proc/mounts
-> /proc /proc proc rw,relatime 0 0
-> $ mount | grep proc
-> proc on /proc type proc (rw)
-> 
-> $ mount -o remount,hidepid=2 /proc/
-> $ grep proc /proc/mounts
-> /proc /proc proc rw,relatime,hidepid=2 0 0
-> $ mount | grep proc
-> proc on /proc type proc (rw,hidepid=2)
-> 
-> $ mount -o remount /proc/
-> $ grep proc /proc/mounts
-> /proc /proc proc rw,relatime,hidepid=2 0 0
-> $ mount | grep proc
-> proc on /proc type proc (rw)
-> 
-> And here is the discrepancy: mount does not show "hidepid=2" option
-> that is actually still set and enforced. Note that mount also missed
-> the relatime option to begin with.
-  I don't mind the discrepancy between /etc/mtab and /proc/mounts that much
-(/proc/mounts is a fine replacement of /etc/mtab for me) but I agree that
-handling of mount options on remount is a mess and IMHO it's made even
-worse by mount(8) adding options from /etc/mtab to mount(2) syscall when
--o remount is specified. But realistically I can hardly imagine how to fix
-all this mess because I'd almost bet userspace depends on the behavior.
+From: Davidlohr Bueso <dave@gnu.org>
 
-								Honza
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ misc-utils/.gitignore  |    2 ++
+ misc-utils/Makefile.am |   10 ++++++++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/misc-utils/.gitignore b/misc-utils/.gitignore
+index 897e6d1..bde3ab8 100644
+--- a/misc-utils/.gitignore
++++ b/misc-utils/.gitignore
+@@ -17,3 +17,5 @@ blkid
+ wipefs
+ findmnt
+ lsblk
++lslocks
++
+diff --git a/misc-utils/Makefile.am b/misc-utils/Makefile.am
+index 540416e..dabd393 100644
+--- a/misc-utils/Makefile.am
++++ b/misc-utils/Makefile.am
+@@ -6,7 +6,7 @@ bin_PROGRAMS =
+ sbin_PROGRAMS =
+ usrsbin_exec_PROGRAMS =
+ 
+-usrbin_exec_PROGRAMS = cal logger look mcookie namei whereis
++usrbin_exec_PROGRAMS = cal logger look mcookie namei whereis lslocks
+ 
+ logger_SOURCES = logger.c $(top_srcdir)/lib/strutils.c
+ mcookie_SOURCES = mcookie.c $(top_srcdir)/lib/md5.c
+@@ -16,10 +16,16 @@ usrbin_exec_SCRIPTS = chkdupexe
+ CLEANFILES = chkdupexe
+ 
+ dist_man_MANS = cal.1 chkdupexe.1 logger.1 look.1 mcookie.1 \
+-		namei.1 whereis.1
++		namei.1 whereis.1 lslocks.8
+ 
+ namei_SOURCES = namei.c $(top_srcdir)/lib/strutils.c
+ 
++lslocks_SOURCES = lslocks.c \
++		$(top_srcdir)/lib/at.c \
++		$(top_srcdir)/lib/strutils.c \
++		$(top_srcdir)/lib/tt.c \
++		$(top_srcdir)/lib/mbsalign.c
++
+ if BUILD_DDATE
+ usrbin_exec_PROGRAMS += ddate
+ dist_man_MANS += ddate.1
 -- 
-Jan Kara <jack@suse.cz>
-SUSE Labs, CR
+1.7.4.1
+
+
+
