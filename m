@@ -1,102 +1,60 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 4/4] lslocks: add manpage
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:42959 "EHLO
+	homiemail-a60.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753601Ab2B0RT6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Feb 2012 12:19:58 -0500
+Subject: RE: [PATCH v3 3/4] lslocks: new command
 From: Davidlohr Bueso <dave@gnu.org>
 Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
+To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
+References: <1330357315.2540.5.camel@offbook>
+	 <7856072A9D04C24B82DFE2B1112FE38A0F0AFAD64D@MCHP058A.global-ad.net>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Feb 2012 23:42:02 +0100
-Message-ID: <1328654522.3500.13.camel@offbook>
+Date: Mon, 27 Feb 2012 18:19:55 +0100
+Message-ID: <1330363195.2540.6.camel@offbook>
 Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Mon, 2012-02-27 at 18:16 +0100, Voelker, Bernhard wrote:
+> Davidlohr Bueso wrote:
+> 
+> 
+> > +static char *get_cmdname(pid_t pid)
+> > +{
+> > +	FILE *fp;
+> > +	char path[PATH_MAX];
+> > +
+> > +	sprintf(path, "/proc/%d/comm", pid);
+> > +	if (!(fp = fopen(path, "r")))
+> > +		return NULL;
+> > +
+> > +	/* just need the first line */
+> > +	if (!fgets(path, sizeof(path), fp))
+> > +		goto out;
+> > +out:
+> 
+> this looks strange to me:
+> if fgets fails, then we want to ...
+> 
+> > +	fclose(fp);
+> 
+> ... but certainly not this:
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- misc-utils/lslocks.8 |   74 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 74 insertions(+), 0 deletions(-)
- create mode 100644 misc-utils/lslocks.8
+yep, that's bogus. Will send a v4.
 
-diff --git a/misc-utils/lslocks.8 b/misc-utils/lslocks.8
-new file mode 100644
-index 0000000..120e097
---- /dev/null
-+++ b/misc-utils/lslocks.8
-@@ -0,0 +1,74 @@
-+.\" lslocks.8 --
-+.\" Copyright 2012 Davidlohr Bueso <dave@gnu.org>
-+.\" May be distributed under the GNU General Public License
-+
-+.TH LSLOCKS 8 "February 2012" "util-linux" "System Administration"
-+.SH NAME
-+lslocks \-
-+list local system locks
-+.SH SYNOPSIS
-+.B lslocks
-+.RB [options]
-+
-+.SH DESCRIPTION
-+.B lslocks
-+lists information about all the file held locks in a Linux system.
-+
-+.SH OPTIONS
-+.IP "\fB\-p, \-\-pid\fP"
-+Specify the process id, if none is given, it will display all locks
-+.IP "\fB\-h, \-\-help\fP"
-+Print a help text and exit.
-+.IP "\fB\-o, \-\-output \fIlist\fP"
-+Specify which output columns to print. Use
-+.B "--help"
-+to get a list of all supported columns.
-+.IP "\fB\-\-noheadings\fP"
-+Do not print a header line.
-+
-+.IP "\fB\-\-raw\fP"
-+Use the raw output format.
-+
-+.SH OUTPUT
-+.IP "COMMAND"
-+The command name of the process holding the lock.
-+
-+.IP "PID"
-+Process ID which holds the lock.
-+
-+.IP "SIZE"
-+Size of the locked file.
-+
-+.IP "ACCESS"
-+Lock access permissions (read, write).
-+
-+.IP "M"
-+Mandatory state of the lock: 0 if none; 1 if set.  (See chmod(1)).
-+
-+.IP "START"
-+Relative byte offset of the lock.
-+
-+.IP "END"
-+Ending offset of the lock.
-+
-+.IP "PATH"
-+Full path of the lock - if none is found it will fallback to the device's mountpoint.
-+
-+.SH NOTES
-+.nf
-+The lslocks command is meant to replace the lslk(8) command, originally written by
-+Victor A. Abell <abe@purdue.edu> and unmaintained since 2001.
-+.fi
-+
-+.SH AUTHORS
-+.nf
-+Davidlohr Bueso <dave@gnu.org>
-+.fi
-+
-+.SH "SEE ALSO"
-+.BR lslk (8),
-+.BR flock (1)
-+
-+.SH AVAILABILITY
-+The lslocks command is part of the util-linux package and is available from
-+ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
--- 
-1.7.4.1
+Thanks.
+
+> 
+> > +	path[strlen(path) - 1] = '\0';
+> > +	return xstrdup(path);
+> > +}
+> 
+> Have a nice day,
+> Berny
+> 
+
+
