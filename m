@@ -1,72 +1,124 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qw0-f53.google.com ([209.85.216.53]:37647 "EHLO
-	mail-qw0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932125Ab2BVEQj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 21 Feb 2012 23:16:39 -0500
-Received: by qafk1 with SMTP id k1so7883328qaf.19
-        for <util-linux@vger.kernel.org>; Tue, 21 Feb 2012 20:16:39 -0800 (PST)
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:48599 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753524Ab2B1Qpt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Feb 2012 11:45:49 -0500
+Received: by mail-vx0-f174.google.com with SMTP id p1so2644946vcq.19
+        for <util-linux@vger.kernel.org>; Tue, 28 Feb 2012 08:45:49 -0800 (PST)
 MIME-Version: 1.0
 From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
 Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] libmount: remove teaser proto for mnt_table_get_name
-Date: Tue, 21 Feb 2012 23:16:34 -0500
-Message-Id: <1329884194-7269-1-git-send-email-dreisner@archlinux.org>
+Subject: [PATCH 13/13] sulogin: add i18n strings
+Date: Tue, 28 Feb 2012 11:45:21 -0500
+Message-Id: <1330447521-886-14-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This function was never implemented, but the proto has existed since the
-inception of the library. As the libmnt_table struct doesn't include a
-member necessary to carry the name of the table, simply discard this
-prototype. If ever a need to break ABI comes up, perhaps this could be
-revisited.
-
 Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
-I want my money back! I really wanted to use this function in an error
-callback. =P
+ login-utils/sulogin.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
- libmount/docs/libmount-sections.txt |    1 -
- libmount/src/libmount.h.in          |    1 -
- libmount/src/libmount.sym           |    1 -
- 3 files changed, 0 insertions(+), 3 deletions(-)
-
-diff --git a/libmount/docs/libmount-sections.txt b/libmount/docs/libmount-sections.txt
-index 99b81c2..65f2859 100644
---- a/libmount/docs/libmount-sections.txt
-+++ b/libmount/docs/libmount-sections.txt
-@@ -246,7 +246,6 @@ mnt_table_find_srcpath
- mnt_table_find_tag
- mnt_table_find_target
- mnt_table_get_cache
--mnt_table_get_name
- mnt_table_get_nents
- mnt_table_get_root_fs
- mnt_table_is_fs_mounted
-diff --git a/libmount/src/libmount.h.in b/libmount/src/libmount.h.in
-index c407b98..ae8b99e 100644
---- a/libmount/src/libmount.h.in
-+++ b/libmount/src/libmount.h.in
-@@ -292,7 +292,6 @@ extern int mnt_reset_table(struct libmnt_table *tb);
- extern int mnt_table_get_nents(struct libmnt_table *tb);
- extern int mnt_table_set_cache(struct libmnt_table *tb, struct libmnt_cache *mpc);
- extern struct libmnt_cache *mnt_table_get_cache(struct libmnt_table *tb);
--extern const char *mnt_table_get_name(struct libmnt_table *tb);
- extern int mnt_table_add_fs(struct libmnt_table *tb, struct libmnt_fs *fs);
- extern int mnt_table_remove_fs(struct libmnt_table *tb, struct libmnt_fs *fs);
- extern int mnt_table_next_fs(struct libmnt_table *tb, struct libmnt_iter *itr,
-diff --git a/libmount/src/libmount.sym b/libmount/src/libmount.sym
-index d4e0056..6889d9d 100644
---- a/libmount/src/libmount.sym
-+++ b/libmount/src/libmount.sym
-@@ -163,7 +163,6 @@ global:
- 	mnt_table_find_tag;
- 	mnt_table_find_target;
- 	mnt_table_get_cache;
--	mnt_table_get_name;
- 	mnt_table_get_nents;
- 	mnt_table_get_root_fs;
- 	mnt_table_next_child_fs;
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index 6cb075c..bed1fd3 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -241,7 +241,7 @@ static struct passwd *getrootpwent(int try_manually)
+ 	 *	or not found, return.
+ 	 */
+ 	if (p == NULL) {
+-		fprintf(stderr, "%s: no entry for root\n", _PATH_PASSWD);
++		fprintf(stderr, _("%s: no entry for root\n"), _PATH_PASSWD);
+ 		return &pwd;
+ 	}
+ 	if (valid(pwd.pw_passwd))
+@@ -253,7 +253,7 @@ static struct passwd *getrootpwent(int try_manually)
+ 	 */
+ 	strcpy(pwd.pw_passwd, "");
+ 	if ((fp = fopen(_PATH_SHADOW_PASSWD, "r")) == NULL) {
+-		fprintf(stderr, "%s: root password garbled\n", _PATH_PASSWD);
++		fprintf(stderr, _("%s: root password garbled\n"), _PATH_PASSWD);
+ 		return &pwd;
+ 	}
+ 	while ((p = fgets(sline, 256, fp)) != NULL) {
+@@ -270,11 +270,11 @@ static struct passwd *getrootpwent(int try_manually)
+ 	 *	NULL it, and return.
+ 	 */
+ 	if (p == NULL) {
+-		fprintf(stderr, "%s: no entry for root\n", _PATH_SHADOW_PASSWD);
++		fprintf(stderr, _("%s: no entry for root\n"), _PATH_SHADOW_PASSWD);
+ 		strcpy(pwd.pw_passwd, "");
+ 	}
+ 	if (!valid(pwd.pw_passwd)) {
+-		fprintf(stderr, "%s: root password garbled\n", _PATH_SHADOW_PASSWD);
++		fprintf(stderr, _("%s: root password garbled\n"), _PATH_SHADOW_PASSWD);
+ 		strcpy(pwd.pw_passwd, "");
+ 	}
+ 	return &pwd;
+@@ -293,10 +293,10 @@ static char *getpasswd(char *crypted)
+ 	size_t i;
+ 
+ 	if (crypted[0])
+-		printf("Give root password for maintenance\n");
++		printf(_("Give root password for maintenance\n"));
+ 	else
+-		printf("Press enter for maintenance");
+-	printf("(or type Control-D to continue): ");
++		printf(_("Press enter for maintenance"));
++	printf(_("(or type Control-D to continue): "));
+ 	fflush(stdout);
+ 
+ 	tcgetattr(0, &old);
+@@ -384,7 +384,7 @@ static void sushell(struct passwd *pwd)
+ 		if (getseuserbyname("root", &seuser, &level) == 0) {
+ 			if (get_default_context_with_level(seuser, level, 0, &scon) == 0) {
+ 				if (setexeccon(scon) != 0)
+-					fprintf(stderr, "setexeccon failed\n");
++					fprintf(stderr, _("setexeccon failed\n"));
+ 				freecon(scon);
+ 			}
+ 		}
+@@ -409,7 +409,7 @@ static void usage(FILE *out)
+ 	fprintf(out, USAGE_OPTIONS);
+ 	fprintf(out, _(
+ 			" -p        start a login shell\n"
+-			" -t SEC    set max time to wait for a password (default: no limit)\n"
++			" -t SEC    max time to wait for a password (default: no limit)\n"
+ 			" -e        examine shadow files directly if getpwnam(3) fails\n"
+ 			" -h        display this help message\n"));
+ 
+@@ -452,7 +452,8 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	if (geteuid() != 0) {
+-		fprintf(stderr, "sulogin: only root can run sulogin.\n");
++		fprintf(stderr, _("%s: only root can run this program.\n"),
++				program_invocation_short_name);
+ 		exit(1);
+ 	}
+ 
+@@ -528,7 +529,8 @@ int main(int argc, char **argv)
+ 	 *	Get the root password.
+ 	 */
+ 	if ((pwd = getrootpwent(opt_e)) == NULL) {
+-		fprintf(stderr, "sulogin: cannot open password database!\n");
++		fprintf(stderr, _("%s: cannot open password database.\n"),
++				program_invocation_short_name);
+ 		sleep(2);
+ 	}
+ 
+@@ -544,7 +546,7 @@ int main(int argc, char **argv)
+ 		mask_signal(SIGQUIT, SIG_IGN, &saved_sigquit);
+ 		mask_signal(SIGTSTP, SIG_IGN, &saved_sigtstp);
+ 		mask_signal(SIGINT,  SIG_IGN, &saved_sigint);
+-		printf("Login incorrect.\n");
++		printf(_("Login incorrect\n"));
+ 	}
+ 
+ 	/*
 -- 
-1.7.9.1
+1.7.9.2
 
