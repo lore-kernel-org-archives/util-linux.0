@@ -1,48 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:48599 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754730Ab2B1Qp0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Feb 2012 11:45:26 -0500
-Received: by vcqp1 with SMTP id p1so2644946vcq.19
-        for <util-linux@vger.kernel.org>; Tue, 28 Feb 2012 08:45:25 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:45319 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750831Ab2B1N7X (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Feb 2012 08:59:23 -0500
+Date: Tue, 28 Feb 2012 14:59:18 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: What about a premount/postumount option for mount?
+Message-ID: <20120228135918.GB22034@x2.net.home>
+References: <20120211123016.GA15097@citd.de>
 MIME-Version: 1.0
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 00/13] Initial import of sulogin
-Date: Tue, 28 Feb 2012 11:45:08 -0500
-Message-Id: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120211123016.GA15097@citd.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an initial stab at importing sulogin from sysvinit and making it a bit
-more universal. I've removed the distro specific code and brought the rest of
-it more in line with the style of the remainder of the repo. I've also added
-internationalization and cleaned up the manpage.
+On Sat, Feb 11, 2012 at 01:30:16PM +0100, Matthias Schniedermeyer wrote:
+> For the umount thing, i think i could use inotify and wait for the 
+> "umount"-event as inotify fortunately doesn't prevent umount, but that 
 
-Dave Reisner (13):
-  fstab.5: fix misspelling of deprecated
-  sulogin: initial import from sysvinit
-  sulogin.8: refactor manpage
-  sulogin: whitespace fixes
-  sulogin: replace older signal() with sigaction()
-  sulogin: remove CHECK_{DES,MD5} defines
-  sulogin: remove USE_ONELINE and SANE_TIO defines
-  sulogin: use size_t for iterator to avoid cast
-  sulogin: get rid of calls to /bin/sash
-  sulogin: use pathnames.h for file locations
-  sulogin: header/include cleanup
-  sulogin: use a more standard usage output
-  sulogin: add i18n strings
+ See:
+ http://karelzak.blogspot.com/2011/12/monitor-list-of-currently-mounted.html
 
- login-utils/Makefile.am |    6 +-
- login-utils/sulogin.8   |   60 +++++
- login-utils/sulogin.c   |  556 +++++++++++++++++++++++++++++++++++++++++++++++
- mount/fstab.5           |    2 +-
- 4 files changed, 622 insertions(+), 2 deletions(-)
- create mode 100644 login-utils/sulogin.8
- create mode 100644 login-utils/sulogin.c
+> works a little against the spirit of autofs, as it only would work once 
+> (at least in the case of setup by udev).
+> 
+> All "solutions" taste a little strange for me, the udev-solution mainly 
+> because i would have a dm-crypt "laying" around which may or may not be
+
+ It's usually bad idea to call mount (or so) from udev rules (and it's
+ often topic in udev mailing list).
+
+> used and the automatic tear-down after umount because what if it just 
+> timed out and i want it to use again would only work with an exec-type 
+> map where i could to the setup. Only doing the teardown of the dm-crypt 
+> after the device is unplugged does not sound right to me either, because 
+> i don't know if that is safe. My question if unplugging a device, with a 
+> dm-crypt device in existence, is safe was met with silence.
+> 
+> All crutches would not be needed if there was a "premount" and "postumount" 
+> option/command in mount that could do something "just before mount" and 
+> "just after umount". Either "per mount" or "always".
+> 
+> I guess the easiest solution would be if mount would check for 
+> /sbin/mount.premount and execute that before the mount took place, with 
+> all the commandline parameters passed to the program and the same after 
+> umount with /sbin/mount.postumount or something like that.
+
+ I hope that next week we (I and dm-crypt maintainer) will publish our
+ libblkasm (block device assemble library) draft. The goal is to have
+ a shared library that will on demand assemble requested block device
+ (dm-raid, mdraid, iscsi, loopdev, ...). The subsystem specific stuff
+ will be in plug-ins (e.g. blkasm-crypt.so).
+
+ The plan is to use the library from fsck or mount (or so..).
+
+> This solution would also make for e.g. "loop-aes" more easily usable, 
+> currently one has to use a patched version of mount/losetup. With a 
+
+ Do you know that the latest cryptsetup is able to map loop-aes images
+ by dm-crypt?
+
+> premount/postumount-command/option it would be possible to use an unpatched 
+> mount-binary and do the loop-aes setup/teardown "somewhere else", which 
+> would at least alleviate the need for a patched mount command for the 
+> usecases where there is no interactivity (e.g. with a "cleartextkey" or 
+> a gpg-key when a usable gpg-agent is running).
+
+    Karel
 
 -- 
-1.7.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
