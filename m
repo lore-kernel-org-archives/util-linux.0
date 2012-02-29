@@ -1,75 +1,125 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35382 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750864Ab2ATEAg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 19 Jan 2012 23:00:36 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q0K40atn018549
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Thu, 19 Jan 2012 23:00:36 -0500
-Received: from localhost (beach.nrt.redhat.com [10.64.200.71])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q0K40Zqq026852
-	for <util-linux@vger.kernel.org>; Thu, 19 Jan 2012 23:00:35 -0500
-Date: Fri, 20 Jan 2012 13:00:34 +0900 (JST)
-Message-Id: <20120120.130034.1018682633157048125.yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix a potential memory leak at mnt_table_parse_dir
-From: Masatake YAMATO <yamato@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: bigeasy@linutronix.de
+Date: Wed, 29 Feb 2012 22:31:28 +0100
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for
+ scanf_cv_alloc_modifier
+Message-ID: <20120229213128.GA11628@linutronix.de>
+References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de>
+ <20120228141226.GC22034@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+In-Reply-To: <20120228141226.GC22034@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-mnt_table_parse_dir in libmount/src/tab_parse.c calls
-scandir, and then opendir. When the latter one, opendir is failed, 
-buffers allocated in scandir are not released.
+* Karel Zak | 2012-02-28 15:12:26 [+0100]:
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+>> @@ -387,6 +387,8 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+>>        [scanf_cv_alloc_modifier=as],
+>>        [scanf_cv_alloc_modifier=no]
+>>      )
+>> +    ,
+>> +    [scanf_cv_alloc_modifier=no]
+>>    )
+>>  )
+>
+> Applied, thanks.
+>
+> ...but it means that you will compile the package without libmount.
+> Is it expected? In the next release fsck will depend on the library,
+> we have new mount and umount, ....
+>
+> Is it really true that your glibc is without %as / %ms ?
+
+So I've been greping for have_scanf_alloc_modifier and did not find a
+user. Well now that you mentioned, I see a user in configure.... So now
+we need something like a proper fix hmm.... What about this:
+- you don't want %as as it is non-standard evil
+- %m is good enough an available since glibc 2.7. Why should someone
+  take old glibc (2.7 was released Thu Oct 18 00:09:32 2007 +0000) and
+  new util-linux?
+- uClibc seems not to support it. The code seems to be behind an ifdef
+  and the define itseld is hidden in a comment
+
+If this is okay then what about:
+
+>From 921475f1b5f11699bc311c0f1c94d5da830edfd6 Mon Sep 17 00:00:00 2001
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Wed, 29 Feb 2012 22:26:19 +0100
+Subject: [PATCH] build-sys: make the crosscompile path for
+ scanf_cv_alloc_modifier clever
+
+My earlier assumption was that scanf_cv_alloc_modifier is unused. This
+is not true as pointed out by Karel since it used befoe checking for
+libmount. Argh. So instead saying no I add a test to check for glibc
+>= 2.7 which provides %m. As of uClibc v0.9.32-rc3 the situation looks
+the following:
+| git grep _M_SPEC__
+|libc/stdio/_vfprintf.c:/* #define __UCLIBC_HAS_PRINTF_M_SPEC__ */
+|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/_vfprintf.c:# ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/_vfprintf.c:# endif /* __UCLIBC_HAS_PRINTF_M_SPEC__ */
+|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/old_vfprintf.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+|libc/stdio/perror.c:#ifdef __UCLIBC_HAS_PRINTF_M_SPEC__
+
+And other libc user have to bring their own stuff.
+
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- libmount/src/tab_parse.c |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
+ configure.ac |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
 
-diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
-index 6cd66af..33aa7ef 100644
---- a/libmount/src/tab_parse.c
-+++ b/libmount/src/tab_parse.c
-@@ -431,7 +431,7 @@ int mnt_table_parse_file(struct libmnt_table *tb, const char *filename)
+diff --git a/configure.ac b/configure.ac
+index b40a636..0a3016b 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -384,7 +384,23 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+       [scanf_cv_alloc_modifier=no]
+     )
+     ,
+-    [scanf_cv_alloc_modifier=no]
++
++    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([
++     #include <stdio.h>
++
++     #ifdef __GLIBC__
++
++     #if !(__GLIBC_PREREQ(2, 7))
++     #error %m is not available
++     #endif
++
++     #else
++
++     #error Your C-library is not supported.
++     #endif
++     ])],
++    [scanf_cv_alloc_modifier=ms],
++    [scanf_cv_alloc_modifier=no])]
+   )
+ )
  
- static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- {
--	int n = 0, i;
-+	int n = 0, i, r = 0;
- 	DIR *dir = NULL;
- 	struct dirent **namelist = NULL;
- 
-@@ -443,8 +443,10 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 
- 	/* let use "at" functions rather than play crazy games with paths... */
- 	dir = opendir(dirname);
--	if (!dir)
--		return -errno;
-+	if (!dir) {
-+		r = -errno;
-+		goto out;
-+	}
- 
- 	for (i = 0; i < n; i++) {
- 		struct dirent *d = namelist[i];
-@@ -480,12 +482,13 @@ static int mnt_table_parse_dir(struct libmnt_table *tb, const char *dirname)
- 		}
- 	}
- 
-+out:
- 	for (i = 0; i < n; i++)
- 		free(namelist[i]);
- 	free(namelist);
- 	if (dir)
- 		closedir(dir);
--	return 0;
-+	return r;
- }
- 
- struct libmnt_table *__mnt_new_table_from_file(const char *filename, int fmt)
 -- 
-1.7.7.5
+1.7.9
 
+Which results in:
+| grep -E "%m|mount" log
+|checking scanf string alloc modifiers... (%ms) yes
+|config.status: creating libmount/Makefile
+|config.status: creating libmount/docs/Makefile
+|config.status: creating libmount/docs/version.xml
+|config.status: creating libmount/mount.pc
+|config.status: creating libmount/src/Makefile
+|config.status: creating libmount/src/libmount.h
+|config.status: creating mount/Makefile
+
+
+>
+>    Karel
+>
+
+Sebastian
