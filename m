@@ -1,107 +1,72 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:55007 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753514Ab2BPURJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 16 Feb 2012 15:17:09 -0500
-Received: by daed14 with SMTP id d14so2388494dae.19
-        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2012 12:17:08 -0800 (PST)
-Subject: Re: [PATCH 0/4] Add functions to the fsck wrapper to improve
- standalone operation.
-From: Frank Mayhar <fmayhar@google.com>
+Return-Path: the.ridikulus.rat@gmail.com
+MIME-Version: 1.0
+In-Reply-To: <20120229154420.GD8471@x2.net.home>
+References: <20120229154420.GD8471@x2.net.home>
+From: Keshav P R <the.ridikulus.rat@gmail.com>
+Date: Wed, 29 Feb 2012 21:32:23 +0530
+Message-ID: <CAMPnHXx7V3nu73DN8QXzxJotbNsGDETyrOWNz+5jv1Mcp8gShw@mail.gmail.com>
+Subject: Re: v2.22 wish list
 To: Karel Zak <kzak@redhat.com>
-Cc: =?ISO-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-        util-linux@vger.kernel.org
-In-Reply-To: <20120215174258.GC15572@x2.net.home>
-References: <1328648733.11787.13.camel@peace.lax.corp.google.com>
-	 <4F3BBA72.90902@draigBrady.com>
-	 <CAKp+pw1irqkv7JBRWLHYWsLzCzRb6GN44C-6r3x4ZnUbUL8nuQ@mail.gmail.com>
-	 <4F3BD80B.7090409@draigBrady.com>  <20120215174258.GC15572@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 16 Feb 2012 12:17:06 -0800
-Message-ID: <1329423426.4310.16.camel@peace.lax.corp.google.com>
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2012-02-15 at 18:42 +0100, Karel Zak wrote:
-> On Wed, Feb 15, 2012 at 04:06:35PM +0000, Pádraig Brady wrote:
-> > On 02/15/2012 03:09 PM, Frank Mayhar wrote:
-> > > 2012/2/15 Pádraig Brady <P@draigbrady.com>:
-> > >> On 02/07/2012 09:05 PM, Frank Mayhar wrote:
-> > >>> This set of patches adds functions that help improve fsck operation in
-> > >>> large installations and when running in unattended or headless mode.  It
-> > >>> adds support for reporting rusage statistics for the individual fsck
-> > >>> runs, for capturing fsck output, for killing fsck runs that take too
-> > >>> long and for running scripts when each fsck completes.
-> > >>>
-> > >>> We're currently using these functions to improve our fsck monitoring
-> > >>> capability and to replace some unwieldy and hard-to-maintain shell
-> > >>> scripts.
-> > >>
-> > >> Couldn't you do this with separate fsck command runs,
-> > >> and use standard system utils?
-> > > 
-> > > Yes, of course.  That's where the "unwieldy and hard-to-maintain shell
-> > > scripts" came in.  Putting the functions in the wrapper itself, on the
-> > > other hand, means the scripts don't have to reimplement functions that
-> > > already exist there (like parallelizing the fsck runs or tracking exit
-> 
->  BTW, the latest fsck supports new -l option (lock disk) for parallel
->  fsck processes. So you can start arbitrary number of
-> 
->     fsck -l /dev/xxx
-> 
->  without care about performance. We use it for systems with systemd
->  where fsck is executed per device (fstab entry).
-> 
->  If you want to use the same thing for the classic init scripts then 
->  you can use something like
-> 
->     for x in $(findmnt --fstab -n -o SOURCE); do
->         fsck -l $x &< /var/log/fsck-$x &
->     done
-> 
->  rather tan fsck -A. Add some extra checks (completion scripts) to this
->  for() should be pretty simple.
+On Wed, Feb 29, 2012 at 21:14, Karel Zak <kzak@redhat.com> wrote:
+>
+> This is my v2.22 wish list. The list contains large/invasive tasks only.
+> Comments, volunteers, .... ? ;-)
+>
+> =C2=A0* release in May/Jun 2012
+>
+> =C2=A0* add PARTUUID=3D and PARTLABEL=3D support to mount/fsck by partiti=
+on UUID/LABEL
+> =C2=A0 - add to libblkid blkid_evaluate_* API
+> =C2=A0 - support in libmount
+> =C2=A0 - add regression tests
+>
 
-I have to disagree with Pádraig's assertion that the functions are
-supported by "quite simple" shell scripting.  As it turned out, doing
-everything we needed involved a script that was pretty long and
-involved.  (I wish I could share the script with you; it's pretty
-impressive, actually, in a grim and painful kind of way, and a real pain
-to maintain.)  In particular, the short loop you show here and that
-Pádraig used was just not even close to being sufficient.
+Waiting for a long time for this.
 
-Further, those of us that are stuck using somewhat older distributions
-don't have some of the newer tools such as findmnt and timeout.
+> =C2=A0* make uuidd (uuid daemon) compatible with systemd
+> =C2=A0 - add --no-fork
+> =C2=A0 - add --no-pid (pid file)
+> =C2=A0 - add systemd unit file
+> =C2=A0 - add #ifdef LIBUUID_EXEC_UUIDD to disable uuidd exec from library
+>
+> =C2=A0* fdisk
+> =C2=A0 - move mbr (dos) stuff to fdiskmbrlabel.c
+> =C2=A0 - add GPT support
+>
 
-> > > status), eliminates some external dependencies and makes the process
-> > > quite a bit less fragile.
-> > 
-> > OK, thanks for the clarification.
-> > 
-> > It seems to me that these functions are supported
-> > by quite simple shell scripting as I demonstrated.
-> 
->  I have no problem with proposed -r option (to report memory and
->  runtime statistics) and -O option to force-kill fscks that run too
->  long.
-> 
->  ... but I'm still not sure if we really need the completion script.
+You can maybe merge gptfdisk with fdisk
+http://gptfdisk.git.sourceforge.net/git/gitweb.cgi?p=3Dgptfdisk/gptfdisk;a=
+=3Dsummary
+.
 
-We have to do special stuff if an fsck fails for a particular file
-system.  Without running each fsck individually (something I want to
-avoid for a number of reasons), how do you propose we do that "special
-stuff" without some command or script that is run by fsck when an
-individual check fails?  In other words, what do you propose I use
-instead of a completion script if I want to use the existing functions
-of fsck for everything else?
+> =C2=A0* clean up DBG() macro in libblkid
+> =C2=A0 - see libmount version
+>
+> =C2=A0* add dasd support to libblkid
+>
+> =C2=A0* non-recursive build-system (now many files from lib/ are compilet=
+ed
+> =C2=A0 more than once), see:
+> =C2=A0 http://thread.gmane.org/gmane.linux.utilities.util-linux-ng/3297
+>
+> =C2=A0* merge reject
 
-I'm not trying to be rude, by the way (just in case this is coming off
-that way), I'm just trying to point out that in our case we really need
-the completion script and I would bet that there are others out there
-that would find it very useful as well.
--- 
-Frank Mayhar
-fmayhar@google.com
+reject or eject - typo?
 
+> =C2=A0 Michal L. is working on this task
+> =C2=A0 https://github.com/mluscon/util-linux/tree/eject
+>
+> =C2=A0* ???
+>
+>
+> --
+> =C2=A0Karel Zak =C2=A0<kzak@redhat.com>
+> =C2=A0http://karelzak.blogspot.com
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.html
