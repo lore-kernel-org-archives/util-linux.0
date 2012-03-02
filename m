@@ -1,45 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:63436 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757696Ab2CEUr2 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 15:47:28 -0500
-Received: by yhmm54 with SMTP id m54so1913263yhm.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 12:47:28 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:2110 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965301Ab2CBMji (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Mar 2012 07:39:38 -0500
+Date: Fri, 2 Mar 2012 13:39:33 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH 2/2] libmount: don't treat "none" differently
+Message-ID: <20120302123933.GF18642@x2.net.home>
+References: <1330660020-32542-1-git-send-email-dreisner@archlinux.org>
+ <1330660020-32542-2-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20120305195228.GD838@rampage>
-References: <20120305123847.GD486@x2.net.home>
-	<1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-	<1330976334-10751-16-git-send-email-kerolasa@iki.fi>
-	<20120305195228.GD838@rampage>
-Date: Mon, 5 Mar 2012 21:47:27 +0100
-Message-ID: <CAG27Bk3eTjR_gpN6N3TVeV9sonj6FOMxa8jR4aGRH-gUjfrDRA@mail.gmail.com>
-Subject: Re: [PATCH 15/17] include: add asprintf wrapper
-From: Sami Kerola <kerolasa@iki.fi>
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1330660020-32542-2-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 5, 2012 at 20:52, Dave Reisner <d@falconindy.com> wrote:
-> On Mon, Mar 05, 2012 at 08:38:52PM +0100, Sami Kerola wrote:
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  include/xalloc.h |   11 +++++++++++
->>  1 file changed, 11 insertions(+)
->
-> maybe add xasprintf to tools/checkxalloc.sh as well?
+On Thu, Mar 01, 2012 at 10:47:00PM -0500, Dave Reisner wrote:
+> This causes more problems than it solves. In the latest edition:
 
-Hi Dave,
+ Yes, I agree. You're right that exceptions suck.
 
-Great idea.
+> Simply treat "none" like any other source when passed in.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/7a63067e36c67f70a6b4cc4394295d72e22c0b5b
+ Yes,
 
-And immediately useful.
+> We still keep conventions to allow NULL as a valid source and
+> replace it with "none".
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/a516dbf53363865f27589bf72e85c91ca0e24094
+ but I don't agree with this idea. The old code converted "none" to
+ NULL, you want to convert NULL to "none". I think both is wrong.
+
+ It would be better to keep the difference between "none" and NULL. 
+ The NULL means that the source is not set, "none" means that the source
+ is unnecessary. As you said 'treat "none" like any other source'.
+
+> @@ -341,11 +337,9 @@ int mnt_fs_set_source(struct libmnt_fs *fs, const char *source)
+>  
+>  	if (!fs)
+>  		return -EINVAL;
+> -	if (source) {
+> -		p = strdup(source);
+> -		if (!p)
+> -			return -ENOMEM;
+> -	}
+> +	p = strdup(source ? source : "none");
+> +	if (!p)
+> +		return -ENOMEM;
+
+ IMHO better is:
+
+    if (source) {
+        p = strdup(source);
+        if (!p)
+            return -ENOMEM;
+    }
+
+ Dave, we have some regression test for libmount, try
+
+   $ make -C libmount/src tests
+   
+   # cd tests
+   # ./run.sh libmount
+   # ./run.sh mount
+
+ maybe we need more tests for the "none" stuff.
+
+     Karel
 
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
