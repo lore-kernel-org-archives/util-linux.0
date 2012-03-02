@@ -1,42 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50624 "EHLO mx2.suse.de"
+Received: from plane.gmane.org ([80.91.229.3]:38850 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759115Ab2C2Qpq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:45:46 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id CBB9390B1D
-	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:45 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
+	id S1754281Ab2CBMUF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Mar 2012 07:20:05 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1S3RSu-0006RF-6z
+	for util-linux@vger.kernel.org; Fri, 02 Mar 2012 13:20:04 +0100
+Received: from 72-014.eduroam.rwth-aachen.de ([134.61.72.14])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 02 Mar 2012 13:20:03 +0100
+Received: from thomas by 72-014.eduroam.rwth-aachen.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 02 Mar 2012 13:20:03 +0100
 To: util-linux@vger.kernel.org
-Subject: [PATCH 14/20] libuuid: use EXIT_FAILURE
-Date: Thu, 29 Mar 2012 18:45:22 +0200
-Message-Id: <1333039528-24784-15-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
+Subject: Re: unclear udev format output of blkid
+Date: Fri, 02 Mar 2012 13:16:15 +0100
+Message-ID: <jiqdmf$cbi$1@dough.gmane.org>
+References: <5f2c4b72-cda0-4618-ae7c-b89333c1d2b9@zmail01.collab.prod.int.phx2.redhat.com> <249be96a-803a-4d00-b5b1-ff3f18722a36@zmail01.collab.prod.int.phx2.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+In-Reply-To: <249be96a-803a-4d00-b5b1-ff3f18722a36@zmail01.collab.prod.int.phx2.redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Am 02.03.2012 12:18, schrieb Balamurugan Arumugam:
+> We are trying to parse blkid output in python for all devices and their attributes.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- libuuid/src/gen_uuid.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+This sounds like a bad idea. Instead, you should write a python
+extension using the Python C API that uses libblkid directly (unless you
+plan to support other implementations than CPython).
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index 492bb75..29211b9 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -517,7 +517,7 @@ static int get_uuid_via_daemon(int op, uuid_t out, int *num)
- 				close_all_fds();
- 				execl(uuidd_path, "uuidd", "-qT", "300",
- 				      (char *) NULL);
--				exit(1);
-+				exit(EXIT_FAILURE);
- 			}
- 			(void) waitpid(pid, 0, 0);
- 			if (connect(s, (const struct sockaddr *) &srv_addr,
--- 
-1.7.7
+> I found two strange things.
+> 1. udev format output is grouped by empty newline, but I see an extra newline in between.
+
+'udev' output format is deprecated and will be removed in a future
+version of util-linux. Starting to support it now is a clear waste of time.
+
+> 2. In udev format output for all devices, there is no devname displayed.  Without devname, its unclear grouping.  Is there a plan to add devname in udev format output?
+
+For above reasons, unlikely.
 
