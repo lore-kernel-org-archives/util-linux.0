@@ -1,44 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from li9-11.members.linode.com ([67.18.176.11]:55877 "EHLO
-	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759465Ab2C2V3P (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 17:29:15 -0400
-Date: Thu, 29 Mar 2012 14:29:11 -0700
-From: "Ted Ts'o" <tytso@mit.edu>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 10/20] uuidd: make drop_privs true by default in main()
-Message-ID: <20120329212911.GB13970@thunk.org>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
- <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
+Received: from mx1.redhat.com ([209.132.183.28]:11492 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758438Ab2CBPKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Mar 2012 10:10:22 -0500
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q22FAM5A003698
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 2 Mar 2012 10:10:22 -0500
+Received: from x2 (ovpn-116-18.ams2.redhat.com [10.36.116.18])
+	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q22FAKPT004194
+	for <util-linux@vger.kernel.org>; Fri, 2 Mar 2012 10:10:21 -0500
+Date: Fri, 2 Mar 2012 16:10:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: Re: v2.22 wish list
+Message-ID: <20120302151019.GH18642@x2.net.home>
+References: <20120229154420.GD8471@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <20120229154420.GD8471@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 29, 2012 at 06:45:18PM +0200, Petr Uzel wrote:
-> The drop_privs variable in main() was used to determine whether the
-> daemon will attempt to drop privileges (provided it has been installed
-> suid). As of now, it makes sense to drop the privileges each time it is
-> started. Therefore, this patch inverts the default value of drop_privs
-> to true, so that it does not need to be set in the getopt loop at
-> multiple places.
+On Wed, Feb 29, 2012 at 04:44:20PM +0100, Karel Zak wrote:
 > 
-> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> This is my v2.22 wish list. The list contains large/invasive tasks only. 
+> Comments, volunteers, .... ? ;-)
 
-This breaks the configuration where libuuid starts uuidd if it's not
-available, since there the user process probably doesn't have access
-to write to /var/lib/libuuid/clock.txt, and so dropping the setgid
-privileges of uuid will cause it not to work.
+ I forgot one important item:
 
-Also, if you're going to have a -K option to keep the privileges,
-there isn't much of a security benefit, since if there's a bug in
-uuidd, the attacker can always call uuidd with -K and and then attempt
-to exploint any problem that might be there.
+   * add device-mapper support to partx to make it compatible with
+     kpartx (then we can remove kpartx from distros...)
 
-So it's not clear adding the ability to drop privileges is really all
-that functional; if uuidd is setuid/setgid, it's probably because it
-**needs** those privileges.
+    Karel
 
-						- Ted
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
