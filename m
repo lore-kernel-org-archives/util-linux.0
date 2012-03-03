@@ -1,64 +1,59 @@
-Return-Path: vapier@gentoo.org
-From: Mike Frysinger <vapier@gentoo.org>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for scanf_cv_alloc_modifier
-Date: Fri, 30 Mar 2012 15:49:37 -0400
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de> <20120228141226.GC22034@x2.net.home> <20120229213128.GA11628@linutronix.de>
-In-Reply-To: <20120229213128.GA11628@linutronix.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:37748 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752255Ab2CCOpd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 3 Mar 2012 09:45:33 -0500
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 2177490182
+	for <util-linux@vger.kernel.org>; Sat,  3 Mar 2012 15:45:32 +0100 (CET)
+Date: Sat, 3 Mar 2012 15:45:25 +0100
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: Re: v2.22 wish list
+Message-ID: <20120303144525.GE5683@skipper.site>
+References: <20120229154420.GD8471@x2.net.home>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3287922.nbqaulRsmD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201203301549.39151.vapier@gentoo.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
+In-Reply-To: <20120229154420.GD8471@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart3287922.nbqaulRsmD
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
 
-On Wednesday 29 February 2012 16:31:28 Sebastian Andrzej Siewior wrote:
-> My earlier assumption was that scanf_cv_alloc_modifier is unused. This
-> is not true as pointed out by Karel since it used befoe checking for
-> libmount. Argh. So instead saying no I add a test to check for glibc
-> >=3D 2.7 which provides %m. As of uClibc v0.9.32-rc3 the situation looks
-> the following:
+--Dzs2zDY0zgkG72+7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-the uClibc code you grepped for is printf("%m"), not scanf("%ms")
+On Wed, Feb 29, 2012 at 04:44:20PM +0100, Karel Zak wrote:
+>  * make uuidd (uuid daemon) compatible with systemd
+>    - add --no-fork
+>    - add --no-pid (pid file)
+>    - add systemd unit file
+>    - add #ifdef LIBUUID_EXEC_UUIDD to disable uuidd exec from library
 
-uClibc itself has a place holder for %as, but has never implemented it sinc=
-e=20
-it conflicts with C99.  and it hasn't gotten around to implementing the new=
- %ms=20
-which is specified by the latest POSIX spec.
+Hi, JFYI (and to avoid duplicate work), I started on this:
 
-be nice if this patch was in 2.21.1, but i guess that ship has sailed, and=
-=20
-there prob won't be a 2.21.2 ...
-=2Dmike
+https://github.com/knot/util-linux/tree/uuidd
 
---nextPart3287922.nbqaulRsmD
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Regards,
+
+Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--Dzs2zDY0zgkG72+7
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQIcBAABAgAGBQJPdg5TAAoJEEFjO5/oN/WBQ0AP/jHFbRQlvESMdS9oWvksQNIq
-2D+xprJEAux79M9RASAzVhTiqPtISFoZ7jXV+Q4ygaeHh5ENpwO7R+bEIq9sQ2JD
-k+DgNq8vSWQxzvO3juS93+Tfk2l/83BTX1dq3XVPa+yDWORc2Yp0tTcTqeUxMv2w
-hGJ08NILm1n2yhiPwIRB/rBjtIIKY+nsSoHF15b6JQv7edupL8PSHXQ54hYwYxax
-TNEyqagfYQekSzoGrnjtTL7ZStWxsKXrPoxS/bERyFMkkjCPZX8pNiZ5q8zsKfmr
-bLW8WsMje+m9ygmKKDKpEoI+dCPY3sbdOs8wk5+DGjN0yJSGCyhd1ZuWy0XDQ5Q+
-iSTk0hbncM4tO0xOFWsI8kW7l6iPcdXsXNF/CySqM6bQbxu2P/V0EH4HX7/FypbC
-d1Uy7uhQ9YS6XVLh8IW4CfQnCyFdxwhEU+4X2vA4iaXyTyS07N5fx6GyOiDaGwB5
-U2AagVWqDLaDo3wHlaohGESNO1XNkXpQE1p3ebbxQmw6rMbFfp3+R7/xDU/VdxsO
-1C5XXgeheBGTKts1Lg8PvIPtkgnGEg3ar2B8zZaH4PfkFc9cxJK4EKKGQK49nXO2
-rSYrXvouyyF8/L0iED20gEA5V6+HPH+ftlKJmd3N9ibYufRI0ptnwkN5koFIujLI
-NNz2kB6+Pxw98o1ieqqG
-=kRDj
+iEYEARECAAYFAk9SLoUACgkQnZxG0T6qDD0kwACgh1ewdxemYp9VUYDjNOPRLNio
+PAIAn0dPdYraLjtUQjG46+xgIoYa2SIA
+=GPjo
 -----END PGP SIGNATURE-----
 
---nextPart3287922.nbqaulRsmD--
+--Dzs2zDY0zgkG72+7--
