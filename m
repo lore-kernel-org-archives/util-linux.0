@@ -1,87 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50613 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759115Ab2C2Qpo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:45:44 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 2BBCD906EB
-	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:43 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 11/20] uuidd: introduce --keep-privs option
-Date: Thu, 29 Mar 2012 18:45:19 +0200
-Message-Id: <1333039528-24784-12-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: barumuga@redhat.com
+Date: Fri, 02 Mar 2012 22:28:04 -0500 (EST)
+From: Balamurugan Arumugam <barumuga@redhat.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: unclear udev format output of blkid
+Message-ID: <aab02f03-78b0-4931-bcf8-bd691f2915a0@zmail01.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <20120302132453.GG18642@x2.net.home>
+Content-Type: text/plain; charset=utf-8
+MIME-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-This option makes uuidd _not_ to drop its privileges if installed suid
-and exectued by root.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- misc-utils/uuidd.8 |    5 +++++
- misc-utils/uuidd.c |    7 ++++++-
- 2 files changed, 11 insertions(+), 1 deletions(-)
+Hi Karel,
 
-diff --git a/misc-utils/uuidd.8 b/misc-utils/uuidd.8
-index f5fb5f0..892f236 100644
---- a/misc-utils/uuidd.8
-+++ b/misc-utils/uuidd.8
-@@ -48,6 +48,11 @@ process.  Implies --no-fork and --no-pid.  As of this writing, this option is
- supposed to be used only with systemd. It needs to enabled with configure
- option --enable--uuid-socket-activation.
- .TP
-+.BR \-K , " \-\-keep-privs "
-+If uuidd is installed set-uid and executed by root, it by default drops its
-+privileges to match the owner and group of the binary.  This option makes uuidd
-+keep its privileges.
-+.TP
- .B \-q
- Suppress some failure messages.
- .TP
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index 4b04390..54978aa 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -70,6 +70,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 		" -P, --no-pid            do not create pid file\n"
- 		" -F, --no-fork           do not daemonize using double-fork\n"
- 		" -S, --socket-activation do not create listening socket\n"
-+		" -K, --keep-privs 	  do not drop privileges\n"
- 		" -d, --debug             run in debugging mode\n"
- 		" -q, --quiet             turn on quiet mode\n"
- 		" -V, --version           output version information and exit\n"
-@@ -546,6 +547,7 @@ int main(int argc, char **argv)
- 		{"no-pid", no_argument, NULL, 'P'},
- 		{"no-fork", no_argument, NULL, 'F'},
- 		{"socket-activation", no_argument, NULL, 'S'},
-+		{"keep-privs", no_argument, NULL, 'K'},
- 		{"debug", no_argument, NULL, 'd'},
- 		{"quiet", no_argument, NULL, 'q'},
- 		{"version", no_argument, NULL, 'V'},
-@@ -558,7 +560,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 
- 	while ((c =
--		getopt_long(argc, argv, "p:s:T:krtn:PFSdqVh", longopts,
-+		getopt_long(argc, argv, "p:s:T:krtn:PFSKdqVh", longopts,
- 			    NULL)) != -1) {
- 		switch (c) {
- 		case 'd':
-@@ -595,6 +597,9 @@ int main(int argc, char **argv)
- 			return EXIT_FAILURE;
- #endif
- 			break;
-+		case 'K':
-+			drop_privs = 0;
-+			break;
- 		case 'q':
- 			quiet++;
- 			break;
--- 
-1.7.7
+> 
+> On Fri, Mar 02, 2012 at 06:18:13AM -0500, Balamurugan Arumugam wrote:
+> > We are trying to parse blkid output in python for all devices and
+> > their attributes.
+> 
+>  Why? Maybe we can help you...
+> 
+>  Do you know that udev db already contains all the attributes? Try:
+> 
+>     udevadm info --export-db
+> 
+>  See also lsblk --help, it returns many information about block
+>  devices.
+> 
 
+I found lsblk is useful and replacing our usage of blkid.  Thanks for your help.
+
+
+> > I found two strange things.
+> > 1. udev format output is grouped by empty newline, but I see an
+> > extra newline in between.
+> > Below is the example,
+> 
+>  See Thomas's response, this output format is deprecated. Use "-o
+>  export".
+> 
+>  Unfortunately, the "export" format does not contain devname too.
+>  This
+>  problem should be fixed in git tree now. (Thanks for bug report.)
+> 
+> > [root@fedora-16-test ~]# blkid -c /dev/null -o udev
+> 
+>  The command blkid without '-p' returns only small subset of all
+>  available attributes. The command blkid was originally designed
+>  for LABEL/UUID conversion to devname. The cache (high-level API of
+>  the library) does not contain more information.
+> 
+>  I'd like to remove the cache from blkid command and use the
+>  low-level
+>  (-p) by default one day. The cache is confusing for many people...
+> 
+> 
+>  My suggestion is to read the information from udev db (you can use
+>  libudev too) or use something like:
+> 
+>   for x in $(lsblk --output KNAME); do
+>     blkid -p -o export /dev/$x
+>     echo
+>   done
+>  
+>  I hope that one day the for() will be unnecessary and blkid without
+>  -p will return all information.
+> 
+
+libudev python binding is the way to go than 'ugly' parsing of command output.
+
+Cheers,
+Bala
