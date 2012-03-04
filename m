@@ -1,39 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:61168 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758549Ab2CISct (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Mar 2012 13:32:49 -0500
-Received: by mail-vw0-f46.google.com with SMTP id ff1so1649153vbb.19
-        for <util-linux@vger.kernel.org>; Fri, 09 Mar 2012 10:32:49 -0800 (PST)
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:42931 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755470Ab2CDVIm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 Mar 2012 16:08:42 -0500
+Received: by vcqp1 with SMTP id p1so2861260vcq.19
+        for <util-linux@vger.kernel.org>; Sun, 04 Mar 2012 13:08:42 -0800 (PST)
+MIME-Version: 1.0
 From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
 Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/2] fstab.5: fix misspelling of deprecated
-Date: Fri,  9 Mar 2012 13:32:44 -0500
-Message-Id: <1331317964-29267-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
-References: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
+Subject: [PATCH] libmount: avoid infinite loop in child fs iteration
+Date: Sun,  4 Mar 2012 16:08:39 -0500
+Message-Id: <1330895319-1818-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+In early userspace, the rootfs is mounted with itself as its parent.
+Example /proc/self/mountinfo:
+
+1 1 0:1 / / rw - rootfs rootfs rw
+14 1 0:3 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
+15 1 0:13 / /sys rw,nosuid,nodev,noexec,relatime - sysfs sys rw
+16 1 0:5 / /dev rw,nosuid,relatime - devtmpfs dev rw,size=506956k
+17 1 0:14 / /run rw,nosuid,nodev,relatime - tmpfs run rw,mode=755
+
+This causes an infinite loop in mnt_table_next_child_fs, and is
+evidenced by a crash via infinite recursion in findmnt. Simply catch the
+condition where the ID of the parent is the ID of the current fs we're
+examining and skip over it to the next mount in the table.
+
 Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
- mount/fstab.5 |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libmount/src/tab.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/mount/fstab.5 b/mount/fstab.5
-index b0cd763..c618947 100644
---- a/mount/fstab.5
-+++ b/mount/fstab.5
-@@ -167,7 +167,7 @@ support filesystem
- The subtype is defined by '.subtype' suffix.  For
- example 'fuse.sshfs'. It's recommended to use subtype notation rather than add
- any prefix to the first fstab field (for example 'sshfs#example.com' is
--depreacated). 
-+deprecated).
- .RE
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 9992c9c..54d58c8 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -286,6 +286,11 @@ int mnt_table_next_child_fs(struct libmnt_table *tb, struct libmnt_iter *itr,
  
- .B The fourth field
+ 		id = mnt_fs_get_id(fs);
+ 
++		/* avoid infinite loop. This only happens in rare cases
++		 * such as in early userspace when the rootfs is its own parent */
++		if (id == parent_id)
++			continue;
++
+ 		if ((!lastchld_id || id > lastchld_id) &&
+ 		    (!*chld || id < chld_id)) {
+ 			*chld = fs;
 -- 
-1.7.9.3
+1.7.9.2
 
