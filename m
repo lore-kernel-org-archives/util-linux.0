@@ -1,16 +1,16 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:62060 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757518Ab2CETje (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:34 -0500
-Received: by mail-ey0-f174.google.com with SMTP id q12so1565217eaa.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:33 -0800 (PST)
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:41695 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757512Ab2CETj1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:27 -0500
+Received: by mail-ee0-f46.google.com with SMTP id c41so1625459eek.19
+        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:26 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 13/17] pathnames: clean up various user database paths
-Date: Mon,  5 Mar 2012 20:38:50 +0100
-Message-Id: <1330976334-10751-14-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 10/17] wall: use xmkstemp for temporary file
+Date: Mon,  5 Mar 2012 20:38:47 +0100
+Message-Id: <1330976334-10751-11-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
 References: <20120305123847.GD486@x2.net.home>
  <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
@@ -19,101 +19,80 @@ List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- include/pathnames.h            |   17 ++++-------------
- login-utils/setpwnam.h         |    2 +-
- tests/expected/paths/built-in  |    8 --------
- tests/helpers/test_pathnames.c |    8 --------
- 4 files changed, 5 insertions(+), 30 deletions(-)
+ term-utils/Makefile.am |    2 +-
+ term-utils/wall.c      |   19 +++++--------------
+ 2 files changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/include/pathnames.h b/include/pathnames.h
-index 6c00d9f..70c6ecf 100644
---- a/include/pathnames.h
-+++ b/include/pathnames.h
-@@ -51,23 +51,14 @@
- /* used in login-utils/shutdown.c */
+diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
+index 49ad5ff..378676f 100644
+--- a/term-utils/Makefile.am
++++ b/term-utils/Makefile.am
+@@ -51,7 +51,7 @@ endif
  
- /* used in login-utils/setpwnam.h and login-utils/islocal.c */
--#define _PATH_PASSWD            "/etc/passwd"
-+#define _PATH_PASSWD		"/etc/passwd"
+ if BUILD_WALL
+ usrbin_exec_PROGRAMS += wall
+-wall_SOURCES = wall.c ttymsg.c ttymsg.h $(top_srcdir)/lib/strutils.c
++wall_SOURCES = wall.c ttymsg.c ttymsg.h $(top_srcdir)/lib/strutils.c $(top_srcdir)/lib/fileutils.c
+ dist_man_MANS += wall.1
+ wall_CFLAGS = $(SUID_CFLAGS) $(AM_CFLAGS)
+ wall_LDFLAGS = $(SUID_LDFLAGS) $(AM_LDFLAGS)
+diff --git a/term-utils/wall.c b/term-utils/wall.c
+index 7089826..b9f5321 100644
+--- a/term-utils/wall.c
++++ b/term-utils/wall.c
+@@ -66,6 +66,7 @@
+ #include "pathnames.h"
+ #include "carefulputc.h"
+ #include "c.h"
++#include "fileutils.h"
  
--/* used in login-utils/newgrp */
-+/* used in login-utils/newgrp and login-utils/setpwnam.h*/
- #define _PATH_GSHADOW		"/etc/gshadow"
+ #define	IGNOREUSER	"sleeper"
+ #define WRITE_TIME_OUT	300		/* in seconds */
+@@ -188,24 +189,15 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	struct stat sbuf;
+ 	time_t now;
+ 	FILE *fp;
+-	int fd;
+-	char *p, *whom, *where, *hostname, *lbuf, *tmpname, *tmpenv, *mbuf;
++	char *p, *whom, *where, *hostname, *lbuf, *tmpname, *mbuf;
+ 	long line_max;
  
- /* used in login-utils/setpwnam.h */
--#define _PATH_PTMP              "/etc/ptmp"
--#define _PATH_PTMPTMP           "/etc/ptmptmp"
--#define _PATH_GROUP             "/etc/group"
--#define _PATH_GTMP              "/etc/gtmp"
--#define _PATH_GTMPTMP           "/etc/gtmptmp"
--#define _PATH_SHADOW_PASSWD     "/etc/shadow"
--#define _PATH_SHADOW_PTMP       "/etc/sptmp"
--#define _PATH_SHADOW_PTMPTMP    "/etc/sptmptmp"
--#define _PATH_SHADOW_GROUP      "/etc/gshadow"
--#define _PATH_SHADOW_GTMP       "/etc/sgtmp"
--#define _PATH_SHADOW_GTMPTMP    "/etc/sgtmptmp"
-+#define _PATH_GROUP		"/etc/group"
-+#define _PATH_SHADOW_PASSWD	"/etc/shadow"
- #define _PATH_SHELLS		"/etc/shells"
+ 	hostname = xmalloc(sysconf(_SC_HOST_NAME_MAX) + 1);
+ 	line_max = sysconf(_SC_LINE_MAX);
+ 	lbuf = xmalloc(line_max);
  
- /* used in term-utils/agetty.c */
-diff --git a/login-utils/setpwnam.h b/login-utils/setpwnam.h
-index 6a4dbb7..7d69445 100644
---- a/login-utils/setpwnam.h
-+++ b/login-utils/setpwnam.h
-@@ -18,7 +18,7 @@
- # define PASSWD_FILE	_PATH_PASSWD
- # define GROUP_FILE	_PATH_GROUP
- # define SHADOW_FILE	_PATH_SHADOW_PASSWD
--# define SGROUP_FILE	_PATH_SHADOW_GROUP
-+# define SGROUP_FILE	_PATH_GSHADOW
- #else
- # define PASSWD_FILE	"/tmp/passwd"
- # define GROUP_FILE	"/tmp/group"
-diff --git a/tests/expected/paths/built-in b/tests/expected/paths/built-in
-index 51372de..836eff5 100644
---- a/tests/expected/paths/built-in
-+++ b/tests/expected/paths/built-in
-@@ -19,17 +19,9 @@
-         _PATH_UMOUNT /bin/umount
-         _PATH_PASSWD /etc/passwd
-        _PATH_GSHADOW /etc/gshadow
--          _PATH_PTMP /etc/ptmp
--       _PATH_PTMPTMP /etc/ptmptmp
-          _PATH_GROUP /etc/group
--          _PATH_GTMP /etc/gtmp
--       _PATH_GTMPTMP /etc/gtmptmp
-  _PATH_SHADOW_PASSWD /etc/shadow
--   _PATH_SHADOW_PTMP /etc/sptmp
--_PATH_SHADOW_PTMPTMP /etc/sptmptmp
-   _PATH_SHADOW_GROUP /etc/gshadow
--   _PATH_SHADOW_GTMP /etc/sgtmp
--_PATH_SHADOW_GTMPTMP /etc/sgtmptmp
-          _PATH_WORDS /usr/share/dict/words
-      _PATH_WORDS_ALT /usr/share/dict/web2
-         _PATH_UMOUNT /bin/umount
-diff --git a/tests/helpers/test_pathnames.c b/tests/helpers/test_pathnames.c
-index 0270938..962fe5a 100644
---- a/tests/helpers/test_pathnames.c
-+++ b/tests/helpers/test_pathnames.c
-@@ -52,17 +52,9 @@ struct hlpPath paths[] =
- 	DEF_HLPPATH(_PATH_UMOUNT),
- 	DEF_HLPPATH(_PATH_PASSWD),
- 	DEF_HLPPATH(_PATH_GSHADOW),
--	DEF_HLPPATH(_PATH_PTMP),
--	DEF_HLPPATH(_PATH_PTMPTMP),
- 	DEF_HLPPATH(_PATH_GROUP),
--	DEF_HLPPATH(_PATH_GTMP),
--	DEF_HLPPATH(_PATH_GTMPTMP),
- 	DEF_HLPPATH(_PATH_SHADOW_PASSWD),
--	DEF_HLPPATH(_PATH_SHADOW_PTMP),
--	DEF_HLPPATH(_PATH_SHADOW_PTMPTMP),
- 	DEF_HLPPATH(_PATH_SHADOW_GROUP),
--	DEF_HLPPATH(_PATH_SHADOW_GTMP),
--	DEF_HLPPATH(_PATH_SHADOW_GTMPTMP),
- 	DEF_HLPPATH(_PATH_WORDS),
- 	DEF_HLPPATH(_PATH_WORDS_ALT),
- 	DEF_HLPPATH(_PATH_UMOUNT),
+-	tmpname = xmalloc(PATH_MAX);
+-	tmpenv = getenv("TMPDIR");
+-	if ((tmpenv))
+-		snprintf(tmpname, PATH_MAX, "%s/%s.XXXXXX", tmpenv,
+-			program_invocation_short_name);
+-	else
+-		snprintf(tmpname, PATH_MAX, "%s/%s.XXXXXX", _PATH_TMP,
+-			program_invocation_short_name);
+-	if (!(fd = mkstemp(tmpname)) || !(fp = fdopen(fd, "r+")))
+-		err(EXIT_FAILURE, _("can't open temporary file %s"), tmpname);
++	if ((fp = xmkstemp(&tmpname)) == NULL)
++		err(EXIT_FAILURE, _("can't open temporary file"));
+ 	unlink(tmpname);
+ 	free(tmpname);
+ 
+@@ -280,7 +272,7 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	free(lbuf);
+ 	rewind(fp);
+ 
+-	if (fstat(fd, &sbuf))
++	if (fstat(fileno(fp), &sbuf))
+ 		err(EXIT_FAILURE, _("fstat failed"));
+ 
+ 	*mbufsize = (size_t) sbuf.st_size;
+@@ -289,7 +281,6 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	if (fread(mbuf, 1, *mbufsize, fp) != *mbufsize)
+ 		err(EXIT_FAILURE, _("fread failed"));
+ 
+-	close(fd);
+ 	fclose(fp);
+ 	return mbuf;
+ }
 -- 
 1.7.9.2
 
