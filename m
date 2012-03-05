@@ -1,61 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:61793 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752404Ab2CKEyS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 10 Mar 2012 23:54:18 -0500
-Received: by yhmm54 with SMTP id m54so1748318yhm.19
-        for <util-linux@vger.kernel.org>; Sat, 10 Mar 2012 20:54:18 -0800 (PST)
-From: Dave Reisner <d@falconindy.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:62060 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757522Ab2CETjm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:42 -0500
+Received: by mail-ey0-f174.google.com with SMTP id q12so1565217eaa.19
+        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:42 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] login: add USER to initial environment
-Date: Sat, 10 Mar 2012 23:54:14 -0500
-Message-Id: <1331441654-27958-1-git-send-email-dreisner@archlinux.org>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 17/17] build-sys: fix chkdupexe regression
+Date: Mon,  5 Mar 2012 20:38:54 +0100
+Message-Id: <1330976334-10751-18-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+References: <20120305123847.GD486@x2.net.home>
+ <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add this value from the passwd struct to the environment, as it is
-expected by shells, and generally useful to users.
+Commit 2897f50a6a6d1aab653c7017f7542d26ac2a8a0b resulted breaking
+shebang substitution for chkdupexe.
 
-This also clarifies a poorly worded sentence in the vicinity of the
-manpage change.
-
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/login.1 |    5 +++--
- login-utils/login.c |    1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ configure.ac |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/login-utils/login.1 b/login-utils/login.1
-index 26cd951..cb80241 100644
---- a/login-utils/login.1
-+++ b/login-utils/login.1
-@@ -40,10 +40,11 @@ for more information.
- The user and group ID will be set according to their values in the
- .I /etc/passwd
- file. There is one exception if the user ID is zero: in this case,
--only the primary group ID of the account is set. This should prevent
--that the system adminitrator cannot login in case of network problems.
-+only the primary group ID of the account is set. This should allow
-+the system adminitrator to login even in case of network problems.
- The value for
- .BR $HOME ,
-+.BR $USER ,
- .BR $SHELL ,
- .BR $PATH ,
- .BR $LOGNAME ,
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 4f448f8..6c3b6f7 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -1142,6 +1142,7 @@ static void init_environ(struct login_context *cxt)
- 	}
+diff --git a/configure.ac b/configure.ac
+index b40a636..63be8da 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -114,6 +114,9 @@ UL_SET_ARCH(M68K, m68*)
+ UL_SET_ARCH(MIPS, mips*)
+ UL_SET_ARCH(HPPA, hppa*)
  
- 	setenv("HOME", pwd->pw_dir, 0);	/* legal to override */
-+	setenv("USER", pwd->pw_name, 1);
- 	setenv("SHELL", pwd->pw_shell, 1);
- 	setenv("TERM", termenv, 1);
++dnl script chkdupexe requires perl
++AC_PATH_PROG(PERL, perl)
++
+ AC_SYS_LARGEFILE
  
+ AM_GNU_GETTEXT_VERSION([0.14.1])
 -- 
-1.7.9.3
+1.7.9.2
 
