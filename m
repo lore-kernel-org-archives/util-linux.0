@@ -1,58 +1,160 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp09.in.ibm.com ([122.248.162.9]:51185 "EHLO
-	e28smtp09.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964794Ab2CUJUx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 21 Mar 2012 05:20:53 -0400
-Received: from /spool/local
-	by e28smtp09.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <haodong@linux.vnet.ibm.com>;
-	Wed, 21 Mar 2012 14:50:50 +0530
-Received: from d28av05.in.ibm.com (d28av05.in.ibm.com [9.184.220.67])
-	by d28relay01.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q2L9FpO04432004
-	for <util-linux@vger.kernel.org>; Wed, 21 Mar 2012 14:45:52 +0530
-Received: from d28av05.in.ibm.com (loopback [127.0.0.1])
-	by d28av05.in.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q2LEkJJV025711
-	for <util-linux@vger.kernel.org>; Thu, 22 Mar 2012 01:46:19 +1100
-Received: from [9.115.120.111] (don-thinkpad-t61.cn.ibm.com [9.115.120.111] (may be forged))
-	by d28av05.in.ibm.com (8.14.4/8.13.1/NCO v10.0 AVin) with ESMTP id q2LEkHLq025613
-	for <util-linux@vger.kernel.org>; Thu, 22 Mar 2012 01:46:18 +1100
-Message-ID: <4F699C44.70700@linux.vnet.ibm.com>
-Date: Wed, 21 Mar 2012 17:15:48 +0800
-From: don <haodong@linux.vnet.ibm.com>
-MIME-Version: 1.0
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:58484 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757512Ab2CETj3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:29 -0500
+Received: by mail-ey0-f174.google.com with SMTP id q12so1565228eaa.19
+        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:29 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] Mount: fix recursively propagation mounting
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 11/17] setpwnam: use xmkstemp() and lckpwdf()
+Date: Mon,  5 Mar 2012 20:38:48 +0100
+Message-Id: <1330976334-10751-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+References: <20120305123847.GD486@x2.net.home>
+ <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Dong Hao <haodong@linux.vnet.ibm.com>
-Date: Wed, 21 Mar 2012 13:50:14 +0800
-Subject: [PATCH] Mount: fix recursively propagation mounting
+Get rid private locking schema and use libc instead.
 
-Provide the recursive flag of propagation mounting. Recursive flag could 
-be used together with propagation flag.
-
-Signed-off-by: Dong Hao <haodong@linux.vnet.ibm.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
-  mount/mount.c |    2 +-
-  1 files changed, 1 insertions(+), 1 deletions(-)
+ login-utils/Makefile.am |    3 ++-
+ login-utils/setpwnam.c  |   52 ++++++++++++++++-------------------------------
+ 2 files changed, 20 insertions(+), 35 deletions(-)
 
-diff --git a/mount/mount.c b/mount/mount.c
-index 2ce4829..f10659c 100644
---- a/mount/mount.c
-+++ b/mount/mount.c
-@@ -603,7 +603,7 @@ parse_opts (const char *options, int *flags, char 
-**extra_opts) {
-
-      /* The propagation flags should not be used together with any 
-other flags */
-      if (*flags & MS_PROPAGATION)
--        *flags &= MS_PROPAGATION;
-+        *flags &= (MS_PROPAGATION|MS_REC);
-  }
-
-  /* Try to build a canonical options string.  */
+diff --git a/login-utils/Makefile.am b/login-utils/Makefile.am
+index 47274bf..7bd2ddb 100644
+--- a/login-utils/Makefile.am
++++ b/login-utils/Makefile.am
+@@ -42,7 +42,8 @@ chfn_chsh_common = \
+ 	islocal.h \
+ 	setpwnam.c \
+ 	setpwnam.h \
+-	$(top_srcdir)/lib/env.c
++	$(top_srcdir)/lib/env.c \
++	$(top_srcdir)/lib/fileutils.c
+ login_SOURCES = \
+ 	login.c \
+ 	logindefs.c \
+diff --git a/login-utils/setpwnam.c b/login-utils/setpwnam.c
+index 0e0c047..97fd822 100644
+--- a/login-utils/setpwnam.c
++++ b/login-utils/setpwnam.c
+@@ -47,6 +47,7 @@
+ #include <fcntl.h>
+ #include <paths.h>
+ #include <pwd.h>
++#include <shadow.h>
+ #include <signal.h>
+ #include <stdbool.h>
+ #include <stdio.h>
+@@ -58,6 +59,7 @@
+ #include <unistd.h>
+ 
+ #include "c.h"
++#include "fileutils.h"
+ #include "setpwnam.h"
+ 
+ static void pw_init(void);
+@@ -71,47 +73,26 @@ static void pw_init(void);
+ int setpwnam(struct passwd *pwd)
+ {
+ 	FILE *fp = NULL, *pwf = NULL;
+-	int x, save_errno, fd, ret;
++	int save_errno;
+ 	int found;
+-	int oldumask;
+ 	int namelen;
+ 	int buflen = 256;
+ 	int contlen, rc;
+ 	char *linebuf = NULL;
+-
+-	oldumask = umask(0);	/* Create with exact permissions */
++	char *tmpname = NULL;
+ 
+ 	pw_init();
+ 
+-	/* sanity check */
+-	for (x = 0; x < 3; x++) {
+-		if (x > 0)
+-			sleep(1);
+-		fd = open(PTMPTMP_FILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
+-		if (fd == -1) {
+-			umask(oldumask);
+-			return -1;
+-		}
+-		ret = link(PTMPTMP_FILE, PTMP_FILE);
+-		unlink(PTMPTMP_FILE);
+-		if (ret == -1)
+-			close(fd);
+-		else
+-			break;
+-	}
+-	umask(oldumask);
+-	if (ret == -1)
++	if ((fp = xmkstemp(&tmpname)) == NULL)
+ 		return -1;
+ 
+ 	/* ptmp should be owned by root.root or root.wheel */
+-	if (chown(PTMP_FILE, (uid_t) 0, (gid_t) 0) < 0)
+-		return -1;
+-
+-	/* open ptmp for writing and passwd for reading */
+-	fp = fdopen(fd, "w");
+-	if (!fp)
++	if (fchown(fileno(fp), (uid_t) 0, (gid_t) 0) < 0)
+ 		goto fail;
+ 
++	/* acquire exclusive lock */
++	if (lckpwdf() < 0)
++		goto fail;
+ 	pwf = fopen(PASSWD_FILE, "r");
+ 	if (!pwf)
+ 		goto fail;
+@@ -164,8 +145,6 @@ int setpwnam(struct passwd *pwd)
+ 	if (rc < 0)
+ 		goto fail;
+ 
+-	close(fd);
+-	fd = -1;
+ 	fclose(pwf);	/* I don't think I want to know if this failed */
+ 	pwf = NULL;
+ 
+@@ -178,22 +157,27 @@ int setpwnam(struct passwd *pwd)
+ 	unlink(PASSWD_FILE ".OLD");
+ 	/* we don't care if we can't create the backup file */
+ 	ignore_result(link(PASSWD_FILE, PASSWD_FILE ".OLD"));
++	/* xmkstemp is too restrictive by default for passwd file */
++	if (fchmod(fileno(fp), 0644) < 0)
++		goto fail;
+ 	/* we DO care if we can't rename to the passwd file */
+-	if (rename(PTMP_FILE, PASSWD_FILE) < 0)
++	if (rename(tmpname, PASSWD_FILE) < 0)
+ 		goto fail;
+ 	/* finally:  success */
++	ulckpwdf();
+ 	return 0;
+ 
+  fail:
+ 	save_errno = errno;
++	ulckpwdf();
+ 	if (fp != NULL)
+ 		fclose(fp);
++	if (tmpname != NULL)
++		unlink(tmpname);
++	free(tmpname);
+ 	if (pwf != NULL)
+ 		fclose(pwf);
+-	if (fd >= 0)
+-		close(fd);
+ 	free(linebuf);
+-	unlink(PTMP_FILE);
+ 	errno = save_errno;
+ 	return -1;
+ }
 -- 
-1.7.2.5
+1.7.9.2
 
