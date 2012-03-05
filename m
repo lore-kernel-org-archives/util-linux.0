@@ -1,41 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50589 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759008Ab2C2Qpa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:45:30 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 3DEE08FB75
-	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:29 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:62060 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757434Ab2CETjG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:06 -0500
+Received: by eaaq12 with SMTP id q12so1565217eaa.19
+        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:04 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 02/20] uuidd: remove useless initialization of cleanup_socket
-Date: Thu, 29 Mar 2012 18:45:10 +0200
-Message-Id: <1333039528-24784-3-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+Cc: kerolasa@iki.fi
+Subject: Re: [pull] fixes to todo items etc
+Date: Mon,  5 Mar 2012 20:38:37 +0100
+Message-Id: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <20120305123847.GD486@x2.net.home>
+References: <20120305123847.GD486@x2.net.home>
+References: <CAG27Bk1Lm57u2wX0LQFWhvo8kanpOF6YSt_UgsSuuOcfB1LxPg@mail.gmail.com> <20120305123847.GD486@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Mar 5, 2012 at 13:38, Karel Zak <kzak@redhat.com> wrote:
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- misc-utils/uuidd.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+Hi Karel et.al.
 
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index ffb7319..28648ad 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -228,7 +228,6 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
- 		exit(EXIT_FAILURE);
- 	}
- 	cleanup_pidfile = pidfile_path;
--	cleanup_socket = 0;
- 	signal(SIGALRM, terminate_intr);
- 	alarm(30);
- 	fl.l_type = F_WRLCK;
+>  if you already have file descriptor then use the descriptor for
+>  fchmod/fchown rather than chmod by filenames.
+
+Fixed to patched following this mail && in my git repository.
+
+>  Please, send all security sensitive changes (and xmkstemp() code)
+>  to our mailing list for review.
+
+Good point.  I'll send the whole change set, just in case someone wants to comment other, mostly boring, changes.
+
 -- 
-1.7.7
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
 
