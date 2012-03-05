@@ -1,35 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40442 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39388 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751125Ab2CUSoY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 21 Mar 2012 14:44:24 -0400
-Date: Wed, 21 Mar 2012 19:44:19 +0100
+	id S1756980Ab2CEMiu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 Mar 2012 07:38:50 -0500
+Date: Mon, 5 Mar 2012 13:38:47 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Simon de Vlieger <simon@ikanobori.jp>
-Cc: util-linux@vger.kernel.org
-Subject: Re: hexsyntax.c using strtol on the offset parameter
-Message-ID: <20120321184419.GE2040@x2.net.home>
-References: <CANXSoSB_JTjcwfCPu6vJLdtLtR5e1M4VHJiDu2NpGo=hp6SMrA@mail.gmail.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] fixes to todo items etc
+Message-ID: <20120305123847.GD486@x2.net.home>
+References: <CAG27Bk1Lm57u2wX0LQFWhvo8kanpOF6YSt_UgsSuuOcfB1LxPg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CANXSoSB_JTjcwfCPu6vJLdtLtR5e1M4VHJiDu2NpGo=hp6SMrA@mail.gmail.com>
+In-Reply-To: <CAG27Bk1Lm57u2wX0LQFWhvo8kanpOF6YSt_UgsSuuOcfB1LxPg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 21, 2012 at 03:53:55PM +0100, Simon de Vlieger wrote:
-> The line I think I have it narrowed down to is line 92 of
-> util-linux/hexsyntax.c where the -s parameter is converted to a long.
 
- Fixed. The code (as well as -n) was stupid. Now it supports all
- possible suffixes (K,M,G,T,P,E,Y,Z) and the number is parsed as
- uintmax_t.
+ Sami,
 
-> Sadly the size of a 1 TB disk overflows the size of a long. Can the
-> off_t maybe be changed to use off64_t (if this is relevant) and use
+On Sun, Mar 04, 2012 at 02:35:05PM +0100, Sami Kerola wrote:
+> Sami Kerola (17):
+>       docs: add deprecation comments
+>       docs: TODO removal, login-utils error printing
+>       sfdisk: use rpmatch to yes/no question
+>       mesg: use rpmatch to yes/no question
+>       vipw: use rpmatch to yes/no question
+>       docs: TODO removal, rpmatch task is done
+>       chfn: use pathnames.h for paths
+>       chsh: use pathnames.h for paths
 
- The problem is not off_t, but strtol().
+ if you already have file descriptor then use the descriptor for
+ fchmod/fchown rather than chmod by filenames.
 
- Thanks!
+>       lib: add fileutils function collection
+>       wall: use xmkstemp for temporary file
+>       setpwnam: use xmkstemp() and lckpwdf()
+>       vipw: use xmkstemp() and lckpwdf()
+
+ Please, send all security sensitive changes (and xmkstemp() code)
+ to our mailing list for review.
 
     Karel
 
