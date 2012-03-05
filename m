@@ -1,110 +1,163 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44570 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755250Ab2CHJRH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 8 Mar 2012 04:17:07 -0500
-Date: Thu, 8 Mar 2012 10:17:02 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: Dealing with overly verbose fsck output
-Message-ID: <20120308091702.GB28628@x2.net.home>
-References: <E1S5Nyx-0003tY-M1@tytso-glaptop.cam.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <E1S5Nyx-0003tY-M1@tytso-glaptop.cam.corp.google.com>
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:37674 "EHLO
+	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754065Ab2CEVvt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 16:51:49 -0500
+Subject: Re: [PATCH 09/17] lib: add fileutils function collection
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+In-Reply-To: <1330976334-10751-10-git-send-email-kerolasa@iki.fi>
+References: <20120305123847.GD486@x2.net.home>
+	 <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+	 <1330976334-10751-10-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 05 Mar 2012 22:51:45 +0100
+Message-ID: <1330984305.2953.25.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
- Hi Ted,
-
-On Wed, Mar 07, 2012 at 04:01:11PM -0500, Theodore Ts'o wrote:
-> I've recently come accross an interesting problem which is caused by a
-> file system corruption which causes e2fsck to emit a huge amount of
-> detail.  The verobosity is useful in some cases for debugging things, so
-> I don't want to eliminate the output.  However, I'd like to squelch the
-> output being sent to the console if it exceeds some limit, because if
-> the system has a serial console attached, this can slow down the boot
-> sequence such that a watchdog timer that detects if the system hasn't
-> completed its boot sequence in a reasonable amount of time can kick in
-> and kill off the machine.  I'd still like the e2fsck log output to get
-> saved to a file, however.
+On Mon, 2012-03-05 at 20:38 +0100, Sami Kerola wrote:
+> The fileutils contains xmkstemp function will create temporary file
+> safe and reusable manner.
 > 
-> Would patches that extended Frank Mayhar's work so that we can set some
-> threshold after which the console gets a "output squelched; see log file
-> XXXX for the rest" be something you'd be receptive to?   I think this is
-> a situation that is generally applicable to more than just at Google ---
-> lots of enterprise customers use serial consoles, and will run into the
-> same annoyance --- but if you think this is adding too much complexity
-> into fsck, I'll understand...
+> Reference: http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO.html#TEMPORARY-FILES
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  include/Makefile.am |    5 +++--
+>  include/fileutils.h |    6 ++++++
+>  lib/Makefile.am     |    2 ++
+>  lib/fileutils.c     |   55 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 66 insertions(+), 2 deletions(-)
+>  create mode 100644 include/fileutils.h
+>  create mode 100644 lib/fileutils.c
 
-I'm just working on Frank's patches, my temporary branch for this task
-is at:
+Doesn't really make much sense creating two files for just one function.
+Couldn't xmkstemp() so somewhere else? You might argue that xgetpass
+also does that, I just think it's an overkill...
 
-  https://github.com/karelzak/util-linux/commits/fsck
+> 
+> diff --git a/include/Makefile.am b/include/Makefile.am
+> index 4f5453f..5e4e54e 100644
+> --- a/include/Makefile.am
+> +++ b/include/Makefile.am
+> @@ -11,6 +11,7 @@ dist_noinst_HEADERS = \
+>  	crc32.h \
+>  	env.h \
+>  	exitcodes.h \
+> +	fileutils.h \
+>  	fsprobe.h \
+>  	ismounted.h \
+>  	linux_reboot.h \
+> @@ -38,5 +39,5 @@ dist_noinst_HEADERS = \
+>  	wholedisk.h \
+>  	widechar.h \
+>  	writeall.h \
+> -	xgetpass.h \
+> -	xalloc.h
+> +	xalloc.h \
+> +	xgetpass.h
+> diff --git a/include/fileutils.h b/include/fileutils.h
+> new file mode 100644
+> index 0000000..27b5661
+> --- /dev/null
+> +++ b/include/fileutils.h
+> @@ -0,0 +1,6 @@
+> +#ifndef UTIL_LINUX_FILEUTILS
+> +#define UTIL_LINUX_FILEUTILS
+> +
+> +extern FILE * xmkstemp(char **tmpname);
+> +
+> +#endif
+> diff --git a/lib/Makefile.am b/lib/Makefile.am
+> index 19a00f5..c34481d 100644
+> --- a/lib/Makefile.am
+> +++ b/lib/Makefile.am
+> @@ -6,6 +6,7 @@ noinst_PROGRAMS = \
+>  	test_at \
+>  	test_blkdev \
+>  	test_canonicalize \
+> +	test_fileutils \
+>  	test_ismounted \
+>  	test_mangle \
+>  	test_procutils \
+> @@ -45,6 +46,7 @@ test_loopdev_SOURCES = \
+>  test_loopdev_CFLAGS = -DTEST_PROGRAM_LOOPDEV
+>  endif
+>  
+> +test_fileutils_SOURCES = fileutils.c
+>  test_tt_SOURCES = tt.c $(top_srcdir)/lib/mbsalign.c
+>  
+>  test_canonicalize_SOURCES = canonicalize.c
+> diff --git a/lib/fileutils.c b/lib/fileutils.c
+> new file mode 100644
+> index 0000000..b3b7438
+> --- /dev/null
+> +++ b/lib/fileutils.c
+> @@ -0,0 +1,55 @@
+> +/*
+> + * Copyright (C) 2012 Sami Kerola <kerolasa@iki.fi>
+> + */
+> +
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <sys/stat.h>
+> +#include <unistd.h>
+> +
+> +#include "c.h"
+> +#include "pathnames.h"
+> +
+> +/* Create open temporary file in safe way.  Please notice that the
+> + * file permissions are -rw------- by default. */
+> +FILE *xmkstemp(char **tmpname)
 
-I have merged the first patch 
+Returning the file descriptor seems a more flexible interface instead of
+the FILE's representation; the user can always use fdopen on his own.
 
-  fsck: Add a -r option to report memory and runtime statistics
+> +{
+> +	char *localtmp;
+> +	char *tmpenv;
+> +	mode_t old_mode;
+> +	int fd;
+> +	FILE *ret;
+> +
+> +	tmpenv = getenv("TMPDIR");
+> +	if (tmpenv)
+> +		asprintf(&localtmp, "%s/%s.XXXXXX", tmpenv,
+> +			 program_invocation_short_name);
+> +	else
+> +		asprintf(&localtmp, "%s/%s.XXXXXX", _PATH_TMP,
+> +			 program_invocation_short_name);
+> +	old_mode = umask(077);
+> +	fd = mkstemp(localtmp);
+> +	umask(old_mode);
+> +	if (fd == -1)
+> +		goto err;
 
-with some minor changes:
+the file isn't open on failure, just return NULL.
 
-  - report all on one line
-  - use "real" rather than "elapsed"
-
-so the stats output looks like:
-
-/dev/sda1: status 0, rss 92828, real 4.002804, user 2.677592, sys 0.86186
-
-
-The next Frank's patches are more controversial due to complexity :-)
-Anyway, I believe that we can find a compromise. I'd like to avoid
-hardcoded paths and paths management (search for "completion"
-scripts) in fsck. My suggestion is to move all to command line. For
-example:
-
-  fsck -A -L '/var/log/fsck-%device%'
-
-where fsck will use the -L argument as a template for the log paths.
-
-The "completion" scripts seems unnecessary if we will have usable
-(parsable) logs with exactly defined format, then you can write a
-simple logs parser and analyze the logs. The logs analyzer could be
-executed from init scripts after fsck:
-
-  TIMESTAMP=$(date '+%s')
-  fsck -A -r -L /var/log/fsck-$(TIMESTAMP)-%device%
-
-  for x in /var/log/fsck-$(TIMESTAMP)-*; do
-    /bin/fsck-log-analyzer "$x"
-  done
-
-The log will contain all fsck output and some extra section with
-parsable information, something like:
-
-### fsck-summary
-FSCK_DEVICE : <devname>
-FSCK_FSTYPE : ext4
-FSCK_STATUS : <return code>
-...
-###
-
-
- Comments? If you agree the I'll implement it.
+> +	if (!(ret = fdopen(fd, "w+")))
+> +		goto err;
+> +	*tmpname = localtmp;
+> +	return ret;
+> + err:
+> +	close(fd);
+> +	return NULL;
+> +}
+> +
+> +#ifdef TEST_PROGRAM
+> +int main(void)
+> +{
+> +	FILE *f;
+> +	char *tmpname;
+> +	f = xmkstemp(&tmpname);
+> +	unlink(tmpname);
+> +	free(tmpname);
+> +	fclose(f);
+> +	return EXIT_FAILURE;
+> +}
+> +#endif
 
 
-> P.S.  Most unfortunately, Frank has had to go on medical leave, so he
-
- I know, Frank sent me email yesterday :-(
-
-> asked me to take over getting his patches upstreamed.  If there are any
-> changes you'd like me to make to the patches which he submitted, please
-> let me know.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
