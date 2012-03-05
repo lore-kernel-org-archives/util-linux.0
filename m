@@ -1,70 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42174 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750952Ab2CBNYz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Mar 2012 08:24:55 -0500
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q22DOt70006464
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Fri, 2 Mar 2012 08:24:55 -0500
-Date: Fri, 2 Mar 2012 14:24:53 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Balamurugan Arumugam <barumuga@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: unclear udev format output of blkid
-Message-ID: <20120302132453.GG18642@x2.net.home>
-References: <5f2c4b72-cda0-4618-ae7c-b89333c1d2b9@zmail01.collab.prod.int.phx2.redhat.com>
- <249be96a-803a-4d00-b5b1-ff3f18722a36@zmail01.collab.prod.int.phx2.redhat.com>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:51485 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757455Ab2CEUol convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 Mar 2012 15:44:41 -0500
+Received: by obbuo6 with SMTP id uo6so4549464obb.19
+        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 12:44:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <249be96a-803a-4d00-b5b1-ff3f18722a36@zmail01.collab.prod.int.phx2.redhat.com>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1330976334-10751-14-git-send-email-kerolasa@iki.fi>
+References: <20120305123847.GD486@x2.net.home>
+	<1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+	<1330976334-10751-14-git-send-email-kerolasa@iki.fi>
+Date: Mon, 5 Mar 2012 21:44:40 +0100
+Message-ID: <CAG27Bk0=y3o8naGbDJ_1UgJc8eotMfgLHATvoqjc0Zs+Cn6Q+A@mail.gmail.com>
+Subject: Re: [PATCH 13/17] pathnames: clean up various user database paths
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 02, 2012 at 06:18:13AM -0500, Balamurugan Arumugam wrote:
-> We are trying to parse blkid output in python for all devices and their attributes.
+On Mon, Mar 5, 2012 at 20:38, Sami Kerola <kerolasa@iki.fi> wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  include/pathnames.h            |   17 ++++-------------
+>  login-utils/setpwnam.h         |    2 +-
+>  tests/expected/paths/built-in  |    8 --------
+>  tests/helpers/test_pathnames.c |    8 --------
+>  4 files changed, 5 insertions(+), 30 deletions(-)
 
- Why? Maybe we can help you...
+The original patch is incomplete. I missed a line removal below. Patch
+is fixed in my git.
 
- Do you know that udev db already contains all the attributes? Try:
-
-    udevadm info --export-db
-
- See also lsblk --help, it returns many information about block devices.
-
-> I found two strange things.
-> 1. udev format output is grouped by empty newline, but I see an extra newline in between.
-> Below is the example,
-
- See Thomas's response, this output format is deprecated. Use "-o export".
-
- Unfortunately, the "export" format does not contain devname too. This
- problem should be fixed in git tree now. (Thanks for bug report.)
-
-> [root@fedora-16-test ~]# blkid -c /dev/null -o udev
-
- The command blkid without '-p' returns only small subset of all
- available attributes. The command blkid was originally designed 
- for LABEL/UUID conversion to devname. The cache (high-level API of
- the library) does not contain more information.
-
- I'd like to remove the cache from blkid command and use the low-level
- (-p) by default one day. The cache is confusing for many people...
-
-
- My suggestion is to read the information from udev db (you can use
- libudev too) or use something like:
-
-  for x in $(lsblk --output KNAME); do
-    blkid -p -o export /dev/$x
-    echo
-  done
- 
- I hope that one day the for() will be unnecessary and blkid without
- -p will return all information.
-
-    Karel
+diff --git a/tests/helpers/test_pathnames.c b/tests/helpers/test_pathnames.c
+index 962fe5a..ebd5249 100644
+--- a/tests/helpers/test_pathnames.c
++++ b/tests/helpers/test_pathnames.c
+@@ -54,7 +54,6 @@ struct hlpPath paths[] =
+ 	DEF_HLPPATH(_PATH_GSHADOW),
+ 	DEF_HLPPATH(_PATH_GROUP),
+ 	DEF_HLPPATH(_PATH_SHADOW_PASSWD),
+-	DEF_HLPPATH(_PATH_SHADOW_GROUP),
+ 	DEF_HLPPATH(_PATH_WORDS),
+ 	DEF_HLPPATH(_PATH_WORDS_ALT),
+ 	DEF_HLPPATH(_PATH_UMOUNT),
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
