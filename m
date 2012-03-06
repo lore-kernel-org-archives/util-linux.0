@@ -1,56 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:43773 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:15903 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755518Ab2C3UwU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Mar 2012 16:52:20 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for scanf_cv_alloc_modifier
-Date: Fri, 30 Mar 2012 16:52:27 -0400
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de> <20120229213128.GA11628@linutronix.de> <201203301549.39151.vapier@gentoo.org>
-In-Reply-To: <201203301549.39151.vapier@gentoo.org>
+	id S1751873Ab2CFQQT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 Mar 2012 11:16:19 -0500
+Date: Tue, 6 Mar 2012 17:16:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dbueso@aomail.uab.es>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] lslocks: add personality column
+Message-ID: <20120306161613.GC8389@x2.net.home>
+References: <1330693206.23371.0.camel@offworld>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1900693.oJUNVqLJNf";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201203301652.29297.vapier@gentoo.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1330693206.23371.0.camel@offworld>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1900693.oJUNVqLJNf
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+On Fri, Mar 02, 2012 at 02:00:06PM +0100, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+> 
+> By knowing the lock's personality (flock or posix), the user can have more information
+> about the lock and how it was created.
+> 
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> ---
+>  misc-utils/lslocks.8 |    5 +++++
+>  misc-utils/lslocks.c |   30 ++++++++++++++++++++----------
+>  2 files changed, 25 insertions(+), 10 deletions(-)
 
-On Friday 30 March 2012 15:49:37 Mike Frysinger wrote:
-> be nice if this patch was in 2.21.1, but i guess that ship has sailed, and
-> there prob won't be a 2.21.2 ...
+ Applied with some changes:
 
-blah nm.  i was reading the wrong code base.  2.21.1 includes said fix.
--mike
+    - rename ACCESS to MODE
+    - rename PERSONALITY to TYPE (the column name was too long)
+    - fix the typos and missing break
+    - rename struct lock members to match with column names
 
---nextPart1900693.oJUNVqLJNf
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+ See below. Thanks!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+    Karel
 
-iQIcBAABAgAGBQJPdh0NAAoJEEFjO5/oN/WBCOgQAJHBTeytshdLp0vyjwqFm6Ma
-91iguTs2tS0PCrQ/HUNYyDSaLaE5AUNxoST/Mb8rB1YfombqkFynwWvK/iYXpw1V
-3nllR3VbiohNzlQYietayQw8ChJUi/PQElDS419M9htTl4F6NINggXTvEbssPRGk
-noVcqor6cksyNkVqlHVaFN19Grf29LgWnW3u2GRR9WJDQ98bTttrV/sCMh9a/jC0
-Gvf/Q92sSDjCP/31XgSpgjSd1o/rYCvSzEga1F1BWsWR9sQb9JLkqbkzKn8I3dwK
-mr4wGEHqvmEeE14ctsmPKgwgBNcW8bPXjt6bsA2okE24HsC5TCUobeQfD0mcBoEK
-Pvlkaw7+sxZR+wmKh5nQnyR+a2txyO92xDIWWftGkXJ2tJ+A+sYmxarqi3NEGmDk
-2IT/0EGK61h8QzBZPnB/f0Koz86+vg+ZgMAqnEGBwQ2Pq9PYbf+v1LWLs7vY0FEK
-lKm2nBK60oEBn533M8pGQ83cMWoYvii1xliCuAqTw+Z5xeoPh/DtLvzLFEMqtjRY
-O2+0F0uVm7zqtf2q+vRVUQ2xl7x0SuH//dX94+TE88qjkHY60wHMXfFtHc/wcQwx
-xujt2bUzKlIsYw3mV1Rjze39JeQGeqKB6O7XHYwaBy0kXF/VRK3w26h/0rpmN7dm
-DZ0nlA3WbRIt63MSkfm0
-=72Xn
------END PGP SIGNATURE-----
+$ lslocks 
+COMMAND           PID  TYPE SIZE MODE  M      START                 END PATH
+libvirtd         1243 POSIX   0B WRITE 0          0                   0 /run
+(unknown)        1283 FLOCK   0B WRITE 0          0                   0 /run
+tracker-store    1974 POSIX 5.3M READ  0 1073741826          1073742335 /home/kz
+tracker-store    1974 POSIX  32K READ  0        128                 128 /home/kz
+tracker-miner-f  1975 POSIX 5.3M READ  0 1073741826          1073742335 /home/kz
+tracker-miner-f  1975 POSIX  32K READ  0        128                 128 /home/kz
+java            11500 POSIX   0B WRITE 0          0 9223372036854775806 /home/kz
+firefox          8976 POSIX   0B WRITE 0          0                   0 /home/kz
+firefox          8976 POSIX 384K WRITE 0 1073741824          1073742335 /home/kz
+firefox          8976 POSIX 1.5M READ  0 1073741826          1073742335 /home/kz
+firefox          8976 POSIX  32K READ  0        128                 128 /home/kz
+firefox          8976 POSIX 416K WRITE 0 1073741824          1073742335 /home/kz
+firefox          8976 POSIX  20M READ  0 1073741826          1073742335 /home/kz
+firefox          8976 POSIX  32K READ  0        128                 128 /home/kz
+crond           17793 POSIX   0B WRITE 0          0                   0 /run
+atd             24371 POSIX   0B WRITE 0          0                   0 /run
 
---nextPart1900693.oJUNVqLJNf--
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
