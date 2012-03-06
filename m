@@ -1,51 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42096 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755458Ab2CIM33 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 9 Mar 2012 07:29:29 -0500
-Date: Fri, 9 Mar 2012 13:29:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Matthew Burgess <matthew@linuxfromscratch.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: mount -f regression in v2.21's new-mount
-Message-ID: <20120309122926.GH17711@x2.net.home>
-References: <20120309105304.GF17711@x2.net.home>
- <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org>
+Received: from nm22-vm7.bullet.mail.ird.yahoo.com ([212.82.109.226]:46122 "HELO
+	nm22-vm7.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S964989Ab2CFWu2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Mar 2012 17:50:28 -0500
+Message-ID: <1331073821.1882.16.camel@kyoto.localdomain>
+Subject: mount -f regression in v2.21's new-mount
+From: Matt Burgess <matthew@linuxfromscratch.org>
+To: util-linux <util-linux@vger.kernel.org>
+Date: Tue, 06 Mar 2012 22:43:41 +0000
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 09, 2012 at 04:30:02AM -0700, Matthew Burgess wrote:
-> On Fri, 9 Mar 2012 11:53:04 +0100, Karel Zak <kzak@redhat.com> wrote:
-> > On Thu, Mar 08, 2012 at 08:25:00PM +0000, Matt Burgess wrote:
-> >> I've attached LIBMOUNT_DEBUG output from the 'mount -a' call that our
-> >> bootscript does.  Note how mount correctly detects that /proc, /sys
-> > 
-> >  No, it calls mount(2) syscall for /proc. The problem is that the
-> >  detection code expects /proc/self/mountinfo (used on systems with
-> >  mtab -> /proc/mounts symlink), but your system uses regular mtab.
-> > 
-> >  I'll fix it. Thanks.
+Hi,
 
- Fixed, try git pull.
+First off, apologies in advance for the probably useless bug report that
+follows!  I'm only reporting it here because it *appears* to be a
+regression but I can't reproduce it under a minimised test-case.
 
-> Thanks!  Is there a consensus opinion on whether users should be
-> using a regular mtab or a symlink to /proc/self/mountinfo?
+Linux From Scratch's bootscripts mount a tmpfs at /run using the rather
+trivial 'mount -n /run'.  The corresponding fstab entry is:
 
- - disadvantage is that some userspace utils (e.g. df(1) are not able
-   to de-duplicate list of mounted filesystem (bind mounts))
+# file system  mount-point  type   options   dump  fsck order
+tmpfs          /run         tmpfs  defaults  0     0
 
- + advantage is that there is only one list of mounted filesystems
-   with always valid mount options (on systems with mtab is not problem
-   to have 'rw' in mtab for read-only NFS, etc.), no problems with
-   namespaces, not writable files in /etc, no mtab lock, etc.
+A little later on in the boot sequence, it then does a 'mount -f /run'
+in order to do update /etc/mtab.
 
- The symlink is required for systemd.
+Now, when I build 2.21 with a plain './configure' run, everything works
+as expected.  However, when I build 2.21 with './configure
+--enable-new-mount', the 2nd call to 'mount' appears to actually perform
+the mount, as opposed to simply updating /etc/mtab, thereby meaning that
+files/directories we expect to be there are no longer visible.
 
-    Karel
+As mentioned above, I tried to reproduce this with a minimal test-case
+executed after boot, but the following *always* works correctly with
+both old and new (libmount-based) mount:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+mkdir /tmp/run
+mount -n /tmp/run
+touch /tmp/run/test
+ls -l /tmp/run/test
+mount -f /tmp/run
+ls -l /tmp/run/test
+
+If the test case was successful at reproducing the fault, I'd expect the
+1st 'ls' command to show 1 file, and the 2nd to show 0 files.
+
+Any ideas on either where this bug may be, or how I may go about trying
+to reproduce/debug it further would be gratefully received.
+
+Thanks,
+
+Matt.
+
