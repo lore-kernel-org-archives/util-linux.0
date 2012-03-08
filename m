@@ -1,86 +1,110 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from colo.foxharp.net ([166.84.7.52]:56196 "EHLO colo.foxharp.net"
+Received: from mx1.redhat.com ([209.132.183.28]:44570 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760011Ab2C3M4P (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Mar 2012 08:56:15 -0400
-To: util-linux@vger.kernel.org
-Subject: [PATCH]  rtcwake:  only invoke RTC_AIE_ON/OFF ioctls in pairs
-From: Paul Fox <pgf@laptop.org>
-Cc: Karel Zak <kzak@redhat.com>
+	id S1755250Ab2CHJRH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 8 Mar 2012 04:17:07 -0500
+Date: Thu, 8 Mar 2012 10:17:02 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: Dealing with overly verbose fsck output
+Message-ID: <20120308091702.GB28628@x2.net.home>
+References: <E1S5Nyx-0003tY-M1@tytso-glaptop.cam.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 30 Mar 2012 08:48:43 -0400
-Message-ID: <11482.1333111723@foxharp.boston.ma.us>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <E1S5Nyx-0003tY-M1@tytso-glaptop.cam.corp.google.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-on a system using the rtc-mmp.c driver (and presumably others),
-rtcwake always gives a warning message when it completes:
-    disable rtc alarm interupt: Invalid argument
 
-the EINVAL is because the rtc-mmp driver doesn't implement the
-rtc->ops->alarm_irq_enable() member function, so ioctl(RTC_AIE_OFF)
-will always fail.  note that since ioctl(RTC_WKALM_SET) is preferred
-over RTC_ALM_SET/RTC_AIE_ON, no corresponding call to RTC_AIE_ON was
-ever made in the first place.
+ Hi Ted,
 
-the patch below is probably the correct way to avoid this warning, and
-to eliminate the mismatched AIE_ON/AIE_OFF pair.
+On Wed, Mar 07, 2012 at 04:01:11PM -0500, Theodore Ts'o wrote:
+> I've recently come accross an interesting problem which is caused by a
+> file system corruption which causes e2fsck to emit a huge amount of
+> detail.  The verobosity is useful in some cases for debugging things, so
+> I don't want to eliminate the output.  However, I'd like to squelch the
+> output being sent to the console if it exceeds some limit, because if
+> the system has a serial console attached, this can slow down the boot
+> sequence such that a watchdog timer that detects if the system hasn't
+> completed its boot sequence in a reasonable amount of time can kick in
+> and kill off the machine.  I'd still like the e2fsck log output to get
+> saved to a file, however.
+> 
+> Would patches that extended Frank Mayhar's work so that we can set some
+> threshold after which the console gets a "output squelched; see log file
+> XXXX for the rest" be something you'd be receptive to?   I think this is
+> a situation that is generally applicable to more than just at Google ---
+> lots of enterprise customers use serial consoles, and will run into the
+> same annoyance --- but if you think this is adding too much complexity
+> into fsck, I'll understand...
 
-a less disruptive patch would simply ignore an EINVAL error return
-from that ioctl.
+I'm just working on Frank's patches, my temporary branch for this task
+is at:
 
-paul
+  https://github.com/karelzak/util-linux/commits/fsck
+
+I have merged the first patch 
+
+  fsck: Add a -r option to report memory and runtime statistics
+
+with some minor changes:
+
+  - report all on one line
+  - use "real" rather than "elapsed"
+
+so the stats output looks like:
+
+/dev/sda1: status 0, rss 92828, real 4.002804, user 2.677592, sys 0.86186
 
 
->From 915d629a3a396ac9581c25ca7e8960782d8e7ff9 Mon Sep 17 00:00:00 2001
-From: Paul Fox <pgf@laptop.org>
-Date: Fri, 30 Mar 2012 08:16:50 -0400
-Subject: [PATCH] rtcwake:  only invoke RTC_AIE_ON/OFF ioctls in pairs
+The next Frank's patches are more controversial due to complexity :-)
+Anyway, I believe that we can find a compromise. I'd like to avoid
+hardcoded paths and paths management (search for "completion"
+scripts) in fsck. My suggestion is to move all to command line. For
+example:
 
-many rtc drivers don't implement the RTC_AIE_ON/OFF ioctls at all --
-so if we never tried to enable the alarm interrupt, don't try to
-disable it later.
+  fsck -A -L '/var/log/fsck-%device%'
 
-Signed-off-by: Paul Fox <pgf@laptop.org>
----
- sys-utils/rtcwake.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+where fsck will use the -L argument as a template for the log paths.
 
-diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
-index 4aa5057..4ac0964 100644
---- a/sys-utils/rtcwake.c
-+++ b/sys-utils/rtcwake.c
-@@ -63,6 +63,7 @@ enum ClockMode {
- 
- static unsigned		verbose;
- static unsigned		dryrun;
-+static unsigned		ioctl_aie_on;  // ioctl(AIE_ON) succeeded
- enum ClockMode		clock_mode = CM_AUTO;
- 
- static struct option long_options[] = {
-@@ -241,6 +242,7 @@ static int setup_alarm(int fd, time_t *wakeup)
- 				warn(_("enable rtc alarm failed"));
- 				return -1;
- 			}
-+			ioctl_aie_on = 1;
- 		} else {
- 			warn(_("set rtc wake alarm failed"));
- 			return -1;
-@@ -613,7 +615,8 @@ int main(int argc, char **argv)
- 		suspend_system(suspend);
- 	}
- 
--	if (!dryrun && ioctl(fd, RTC_AIE_OFF, 0) < 0)
-+	if (!dryrun && ioctl_aie_on && ioctl(fd, RTC_AIE_OFF, 0) < 0)
-+			
- 		warn(_("disable rtc alarm interrupt failed"));
- 
- 	close(fd);
+The "completion" scripts seems unnecessary if we will have usable
+(parsable) logs with exactly defined format, then you can write a
+simple logs parser and analyze the logs. The logs analyzer could be
+executed from init scripts after fsck:
+
+  TIMESTAMP=$(date '+%s')
+  fsck -A -r -L /var/log/fsck-$(TIMESTAMP)-%device%
+
+  for x in /var/log/fsck-$(TIMESTAMP)-*; do
+    /bin/fsck-log-analyzer "$x"
+  done
+
+The log will contain all fsck output and some extra section with
+parsable information, something like:
+
+### fsck-summary
+FSCK_DEVICE : <devname>
+FSCK_FSTYPE : ext4
+FSCK_STATUS : <return code>
+...
+###
+
+
+ Comments? If you agree the I'll implement it.
+
+
+> P.S.  Most unfortunately, Frank has had to go on medical leave, so he
+
+ I know, Frank sent me email yesterday :-(
+
+> asked me to take over getting his patches upstreamed.  If there are any
+> changes you'd like me to make to the patches which he submitted, please
+> let me know.
+
+    Karel
+
+
 -- 
-1.7.5.4
-
-
-
-=---------------------
- paul fox, pgf@laptop.org
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
