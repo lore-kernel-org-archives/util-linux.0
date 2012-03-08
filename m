@@ -1,160 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:58484 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757512Ab2CETj3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:29 -0500
-Received: by mail-ey0-f174.google.com with SMTP id q12so1565228eaa.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:29 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 11/17] setpwnam: use xmkstemp() and lckpwdf()
-Date: Mon,  5 Mar 2012 20:38:48 +0100
-Message-Id: <1330976334-10751-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-References: <20120305123847.GD486@x2.net.home>
- <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:52164 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752132Ab2CHLLO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 8 Mar 2012 06:11:14 -0500
+Date: Thu, 8 Mar 2012 12:11:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Michael Kerrisk <mtk.manpages@googlemail.com>
+Subject: Re: online man pages
+Message-ID: <20120308111110.GA17711@x2.net.home>
+References: <4F42FC23.1020602@draigBrady.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <4F42FC23.1020602@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Get rid private locking schema and use libc instead.
+On Tue, Feb 21, 2012 at 02:06:27AM +0000, Pádraig Brady wrote:
+> I was looking to reference online util-linux man pages,
+> and found the options spammy or out of date.
+> I was wondering could they be hosted something like:
+> http://www.kernel.org/doc/man-pages/online_pages.html
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/Makefile.am |    3 ++-
- login-utils/setpwnam.c  |   52 ++++++++++++++++-------------------------------
- 2 files changed, 20 insertions(+), 35 deletions(-)
+We can create
 
-diff --git a/login-utils/Makefile.am b/login-utils/Makefile.am
-index 47274bf..7bd2ddb 100644
---- a/login-utils/Makefile.am
-+++ b/login-utils/Makefile.am
-@@ -42,7 +42,8 @@ chfn_chsh_common = \
- 	islocal.h \
- 	setpwnam.c \
- 	setpwnam.h \
--	$(top_srcdir)/lib/env.c
-+	$(top_srcdir)/lib/env.c \
-+	$(top_srcdir)/lib/fileutils.c
- login_SOURCES = \
- 	login.c \
- 	logindefs.c \
-diff --git a/login-utils/setpwnam.c b/login-utils/setpwnam.c
-index 0e0c047..97fd822 100644
---- a/login-utils/setpwnam.c
-+++ b/login-utils/setpwnam.c
-@@ -47,6 +47,7 @@
- #include <fcntl.h>
- #include <paths.h>
- #include <pwd.h>
-+#include <shadow.h>
- #include <signal.h>
- #include <stdbool.h>
- #include <stdio.h>
-@@ -58,6 +59,7 @@
- #include <unistd.h>
- 
- #include "c.h"
-+#include "fileutils.h"
- #include "setpwnam.h"
- 
- static void pw_init(void);
-@@ -71,47 +73,26 @@ static void pw_init(void);
- int setpwnam(struct passwd *pwd)
- {
- 	FILE *fp = NULL, *pwf = NULL;
--	int x, save_errno, fd, ret;
-+	int save_errno;
- 	int found;
--	int oldumask;
- 	int namelen;
- 	int buflen = 256;
- 	int contlen, rc;
- 	char *linebuf = NULL;
--
--	oldumask = umask(0);	/* Create with exact permissions */
-+	char *tmpname = NULL;
- 
- 	pw_init();
- 
--	/* sanity check */
--	for (x = 0; x < 3; x++) {
--		if (x > 0)
--			sleep(1);
--		fd = open(PTMPTMP_FILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
--		if (fd == -1) {
--			umask(oldumask);
--			return -1;
--		}
--		ret = link(PTMPTMP_FILE, PTMP_FILE);
--		unlink(PTMPTMP_FILE);
--		if (ret == -1)
--			close(fd);
--		else
--			break;
--	}
--	umask(oldumask);
--	if (ret == -1)
-+	if ((fp = xmkstemp(&tmpname)) == NULL)
- 		return -1;
- 
- 	/* ptmp should be owned by root.root or root.wheel */
--	if (chown(PTMP_FILE, (uid_t) 0, (gid_t) 0) < 0)
--		return -1;
--
--	/* open ptmp for writing and passwd for reading */
--	fp = fdopen(fd, "w");
--	if (!fp)
-+	if (fchown(fileno(fp), (uid_t) 0, (gid_t) 0) < 0)
- 		goto fail;
- 
-+	/* acquire exclusive lock */
-+	if (lckpwdf() < 0)
-+		goto fail;
- 	pwf = fopen(PASSWD_FILE, "r");
- 	if (!pwf)
- 		goto fail;
-@@ -164,8 +145,6 @@ int setpwnam(struct passwd *pwd)
- 	if (rc < 0)
- 		goto fail;
- 
--	close(fd);
--	fd = -1;
- 	fclose(pwf);	/* I don't think I want to know if this failed */
- 	pwf = NULL;
- 
-@@ -178,22 +157,27 @@ int setpwnam(struct passwd *pwd)
- 	unlink(PASSWD_FILE ".OLD");
- 	/* we don't care if we can't create the backup file */
- 	ignore_result(link(PASSWD_FILE, PASSWD_FILE ".OLD"));
-+	/* xmkstemp is too restrictive by default for passwd file */
-+	if (fchmod(fileno(fp), 0644) < 0)
-+		goto fail;
- 	/* we DO care if we can't rename to the passwd file */
--	if (rename(PTMP_FILE, PASSWD_FILE) < 0)
-+	if (rename(tmpname, PASSWD_FILE) < 0)
- 		goto fail;
- 	/* finally:  success */
-+	ulckpwdf();
- 	return 0;
- 
-  fail:
- 	save_errno = errno;
-+	ulckpwdf();
- 	if (fp != NULL)
- 		fclose(fp);
-+	if (tmpname != NULL)
-+		unlink(tmpname);
-+	free(tmpname);
- 	if (pwf != NULL)
- 		fclose(pwf);
--	if (fd >= 0)
--		close(fd);
- 	free(linebuf);
--	unlink(PTMP_FILE);
- 	errno = save_errno;
- 	return -1;
- }
+ http://ftp.kernel.org/pub/linux/utils/util-linux/man-pages/
+
+it would be nice to have a script in tools/ (e.g. tools/ko-manpages-gen)
+to generate a directory with the html man pages, then I can upload it
+easily to kernel.org.
+
+    Karel
+
 -- 
-1.7.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
