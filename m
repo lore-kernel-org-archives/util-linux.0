@@ -1,37 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:61168 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758549Ab2CIScr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Mar 2012 13:32:47 -0500
-Received: by vbbff1 with SMTP id ff1so1649153vbb.19
-        for <util-linux@vger.kernel.org>; Fri, 09 Mar 2012 10:32:47 -0800 (PST)
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 1/2] lsblk.8: RQ-SIZE is part of the --topology output
-Date: Fri,  9 Mar 2012 13:32:43 -0500
-Message-Id: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
+Received: from quantum.linuxfromscratch.org ([216.171.237.234]:34502 "EHLO
+	quantum.linuxfromscratch.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752541Ab2CILiM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Mar 2012 06:38:12 -0500
+MIME-Version: 1.0
+Date: Fri, 9 Mar 2012 4:30:02 -0700
+From: Matthew Burgess <matthew@linuxfromscratch.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: mount -f regression in v2.21's new-mount
+In-Reply-To: <20120309105304.GF17711@x2.net.home>
+References: <20120309105304.GF17711@x2.net.home>
+Message-ID: <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/lsblk.8 |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, 9 Mar 2012 11:53:04 +0100, Karel Zak <kzak@redhat.com> wrote:
+> On Thu, Mar 08, 2012 at 08:25:00PM +0000, Matt Burgess wrote:
+>> I've attached LIBMOUNT_DEBUG output from the 'mount -a' call that our
+>> bootscript does.  Note how mount correctly detects that /proc, /sys
+> 
+>  No, it calls mount(2) syscall for /proc. The problem is that the
+>  detection code expects /proc/self/mountinfo (used on systems with
+>  mtab -> /proc/mounts symlink), but your system uses regular mtab.
+> 
+>  I'll fix it. Thanks.
 
-diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
-index 64cf4a9..a5146e4 100644
---- a/misc-utils/lsblk.8
-+++ b/misc-utils/lsblk.8
-@@ -59,7 +59,7 @@ Use key="value" output format. All potentially unsafe characters are hex-escaped
- Use the raw output format. All potentially unsafe characters are hex-escaped (\\x<code>).
- .IP "\fB\-t, \-\-topology\fP"
- Output info about block device topology.
--This option is equivalent to "-o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED".
-+This option is equivalent to "-o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE".
- .IP "\fB\-V, \-\-version\fP"
- Output version information and exit.
- .SH NOTES
--- 
-1.7.9.3
+Thanks!  Is there a consensus opinion on whether users should be
+using a regular mtab or a symlink to /proc/self/mountinfo?
+
+Regards,
+
+Matt.
 
