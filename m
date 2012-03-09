@@ -1,76 +1,37 @@
-Return-Path: P@draigBrady.com
-Message-ID: <4F5E2FBA.2020709@draigBrady.com>
-Date: Mon, 12 Mar 2012 17:17:46 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Matt Burgess <matthew@linuxfromscratch.org>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: mount -f regression in v2.21's new-mount
-References: <20120309105304.GF17711@x2.net.home> <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org> <20120309122926.GH17711@x2.net.home> <1331492786.1816.2.camel@kyoto.localdomain> <20120312143259.GB27749@x2.net.home>
-In-Reply-To: <20120312143259.GB27749@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:61168 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758549Ab2CIScr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Mar 2012 13:32:47 -0500
+Received: by vbbff1 with SMTP id ff1so1649153vbb.19
+        for <util-linux@vger.kernel.org>; Fri, 09 Mar 2012 10:32:47 -0800 (PST)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 1/2] lsblk.8: RQ-SIZE is part of the --topology output
+Date: Fri,  9 Mar 2012 13:32:43 -0500
+Message-Id: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/12/2012 02:32 PM, Karel Zak wrote:
-> On Sun, Mar 11, 2012 at 07:06:26PM +0000, Matt Burgess wrote:
->> On Fri, 2012-03-09 at 13:29 +0100, Karel Zak wrote:
->>> On Fri, Mar 09, 2012 at 04:30:02AM -0700, Matthew Burgess wrote:
->>>> On Fri, 9 Mar 2012 11:53:04 +0100, Karel Zak <kzak@redhat.com> wrote:
->>>>> On Thu, Mar 08, 2012 at 08:25:00PM +0000, Matt Burgess wrote:
->>>>>> I've attached LIBMOUNT_DEBUG output from the 'mount -a' call that our
->>>>>> bootscript does.  Note how mount correctly detects that /proc, /sys
->>>>>
->>>>>  No, it calls mount(2) syscall for /proc. The problem is that the
->>>>>  detection code expects /proc/self/mountinfo (used on systems with
->>>>>  mtab -> /proc/mounts symlink), but your system uses regular mtab.
->>>>>
->>>>>  I'll fix it. Thanks.
->>>
->>>  Fixed, try git pull.
->>
->> Thanks, that's sorted it!
->>>
->>>> Thanks!  Is there a consensus opinion on whether users should be
->>>> using a regular mtab or a symlink to /proc/self/mountinfo?
->>>
->>>  - disadvantage is that some userspace utils (e.g. df(1) are not able
->>>    to de-duplicate list of mounted filesystem (bind mounts))
->>>
->>>  + advantage is that there is only one list of mounted filesystems
->>>    with always valid mount options (on systems with mtab is not problem
->>>    to have 'rw' in mtab for read-only NFS, etc.), no problems with
->>>    namespaces, not writable files in /etc, no mtab lock, etc.
->>>
->>>  The symlink is required for systemd.
->>
->> Thanks for the info.  Looks like there are more advantages than
->> disadvantages.  Without wishing to stray too far off-topic, do you know
->> if the Coreutils folks are aware of/looking at the 'df' issue?
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ misc-utils/lsblk.8 |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Well we know about it.
-I've not looked at it as I was holding out hope
-that those that changed the interface might know
-how to handle it, and propose a fix.
+diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
+index 64cf4a9..a5146e4 100644
+--- a/misc-utils/lsblk.8
++++ b/misc-utils/lsblk.8
+@@ -59,7 +59,7 @@ Use key="value" output format. All potentially unsafe characters are hex-escaped
+ Use the raw output format. All potentially unsafe characters are hex-escaped (\\x<code>).
+ .IP "\fB\-t, \-\-topology\fP"
+ Output info about block device topology.
+-This option is equivalent to "-o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED".
++This option is equivalent to "-o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE".
+ .IP "\fB\-V, \-\-version\fP"
+ Output version information and exit.
+ .SH NOTES
+-- 
+1.7.9.3
 
->  My wish:
-> 
->     - add FS de-duplicate function to libmount 
->     - add SIZE, USE, AVAILABLE, USE% columns to findmnt
->     - add --df to findmnt
->     - try to implement df(1) compatible output if findmnt argv[0] is
->       df ;-)))
-
-That sounds like a bit of an extreme solution,
-which doesn't help any other processes that want
-to query file systems like df does.
-For example is `stat %m` handled OK these days?
-
-Is there really no way to know if something is a bind mount?
-For example they were handled fine with some heuristics
-before this symlink was introduced:
-http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commit;h=0380e4c9
-Could we perhaps depend on the order of returned entries.
-
-cheers,
-Pádraig.
