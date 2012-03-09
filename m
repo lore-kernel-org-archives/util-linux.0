@@ -1,101 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50612 "EHLO mx2.suse.de"
+Received: from damascus.uab.es ([158.109.168.135]:38374 "EHLO damascus.uab.es"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759570Ab2C2Qpn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:45:43 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 3F7EC90B1D
-	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:42 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 10/20] uuidd: make drop_privs true by default in main()
-Date: Thu, 29 Mar 2012 18:45:18 +0200
-Message-Id: <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+	id S1752541Ab2CIL2Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Mar 2012 06:28:16 -0500
+Received: from damascus.uab.es ([127.0.0.1])
+ by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
+ Jan  6 2005)) with ESMTP id <0M0M00BF35ZIJRD0@damascus.uab.es> for
+ util-linux@vger.kernel.org; Fri, 09 Mar 2012 11:47:43 +0100 (CET)
+Received: from aomail.uab.es ([158.109.65.1])
+ by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
+ 6 2005)) with ESMTP id	<0M0M002XB5ZIHDD0@damascus.uab.es>
+ forutil-linux@vger.kernel.org; Fri, 09 Mar 2012 11:47:42 +0100 (CET)
+Date: Fri, 09 Mar 2012 12:48:55 +0100
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 09/17] lib: add fileutils function collection
+In-reply-to: <CAG27Bk2LYb6h8djj0yom17oKtAy6Vvfh85Fu2k8+M9kPQGhPZg@mail.gmail.com>
+To: kerolasa@gmail.com
+Cc: util-linux@vger.kernel.org
+Message-id: <1331293735.4092.3.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+References: <20120305123847.GD486@x2.net.home>
+ <"1330976334-10751-1-git-send-e mail-kerolasa"@iki.fi>
+ <1330976334-10751-10-git-send-email-kerolasa@iki.fi>
+ <"1 330984305.2953.25.camel"@offbook>
+ <"CAG27Bk2LYb6h8djj0yom17oKtAy6Vvfh85Fu2k8+M 9kPQGhPZg"@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The drop_privs variable in main() was used to determine whether the
-daemon will attempt to drop privileges (provided it has been installed
-suid). As of now, it makes sense to drop the privileges each time it is
-started. Therefore, this patch inverts the default value of drop_privs
-to true, so that it does not need to be set in the getopt loop at
-multiple places.
+On Fri, 2012-03-09 at 08:56 +0100, Sami Kerola wrote:
+> On Mon, Mar 5, 2012 at 22:51, Davidlohr Bueso <dave@gnu.org> wrote:
+> > On Mon, 2012-03-05 at 20:38 +0100, Sami Kerola wrote:
+> >>  create mode 100644 include/fileutils.h
+> >>  create mode 100644 lib/fileutils.c
+> >
+> > Doesn't really make much sense creating two files for just one
+> > function.  Couldn't xmkstemp() so somewhere else?  You might argue
+> > that xgetpass also does that, I just think it's an overkill...
+> 
+> Hi Davidlohr,
+> 
+> You are right, at least partially.  The reason why I added the files
+> is simply that non of the existing files felt correct to add this
+> function.  IMHO xgetpass.c would be more strange file to have
+> xmkstemp() than fileutils.c to contain xgetpass().
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- misc-utils/uuidd.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+I'm just saying that xgetpass also just contains one function and that
+it's an overkill, no big deal in any case.
 
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index 10c3019..4b04390 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -530,9 +530,10 @@ int main(int argc, char **argv)
- 	uid_t		uid;
- 	int		i, c, ret;
- 	int		debug = 0, do_type = 0, do_kill = 0, num = 0;
--	int		timeout = 0, quiet = 0, drop_privs = 0;
-+	int		timeout = 0, quiet = 0;
- 	int		no_pid = 0, no_fork = 0;
- 	int		no_sock = 0, s_flag = 0;
-+	int 		drop_privs = 1;
- 
- 	static const struct option longopts[] = {
- 		{"pid", required_argument, NULL, 'p'},
-@@ -562,11 +563,9 @@ int main(int argc, char **argv)
- 		switch (c) {
- 		case 'd':
- 			debug++;
--			drop_privs = 1;
- 			break;
- 		case 'k':
- 			do_kill++;
--			drop_privs = 1;
- 			break;
- 		case 'n':
- 			num = strtol(optarg, &tmp, 0);
-@@ -577,20 +576,16 @@ int main(int argc, char **argv)
- 			break;
- 		case 'p':
- 			pidfile_path_param = optarg;
--			drop_privs = 1;
- 			break;
- 		case 'P':
- 			no_pid = 1;
--			drop_privs = 1;
- 			break;
- 		case 'F':
- 			no_fork = 1;
--			drop_privs = 1;
- 			break;
- 		case 'S':
- #ifdef UUIDD_SOCKET_ACTIVATION
- 			no_sock = 1;
--			drop_privs = 1;
- 			no_fork = 1;
- 			no_pid = 1;
- #else
-@@ -605,16 +600,13 @@ int main(int argc, char **argv)
- 			break;
- 		case 'r':
- 			do_type = UUIDD_OP_RANDOM_UUID;
--			drop_privs = 1;
- 			break;
- 		case 's':
- 			socket_path = optarg;
- 			s_flag = 1;
--			drop_privs = 1;
- 			break;
- 		case 't':
- 			do_type = UUIDD_OP_TIME_UUID;
--			drop_privs = 1;
- 			break;
- 		case 'T':
- 			timeout = strtol(optarg, &tmp, 0);
--- 
-1.7.7
+> 
+> >> +/* Create open temporary file in safe way.  Please notice that the
+> >> + * file permissions are -rw------- by default. */
+> >> +FILE *xmkstemp(char **tmpname)
+> >
+> > Returning the file descriptor seems a more flexible interface
+> > instead of the FILE's representation; the user can always use
+> > fdopen on his own.
+> 
+> If I need temporary file I rather have stream than file descriptor.
+> Could you give example why flexibility is better than completeness.
+> With completeness I mean service that the function provides.  If
+> after every single occurrence of xmkstemp() there would be fdopen() I
+> would argue adding flexibility did not do anything good.
+
+I don't see how streams are more complete than descriptors - and no,
+every call to mkstemp *does not* require a call to fdopen, that's
+completely up to the user's use case.
+
+Cheers,
+Davidlohr
 
