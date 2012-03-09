@@ -1,66 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6369 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752673Ab2CLO4h (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Mar 2012 10:56:37 -0400
-Date: Mon, 12 Mar 2012 15:20:43 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>,
-        "Dr. Werner Fink" <werner@suse.de>, sysvinit-devel@nongnu.org
-Subject: sulogin merged into util-linux (Re: [PATCH 00/13] Initial import of
- sulogin)
-Message-ID: <20120312142043.GA27749@x2.net.home>
-References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:53672 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751825Ab2CIH4G convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Mar 2012 02:56:06 -0500
+Received: by lahj13 with SMTP id j13so1381043lah.19
+        for <util-linux@vger.kernel.org>; Thu, 08 Mar 2012 23:56:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1330984305.2953.25.camel@offbook>
+References: <20120305123847.GD486@x2.net.home>
+	<1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+	<1330976334-10751-10-git-send-email-kerolasa@iki.fi>
+	<1330984305.2953.25.camel@offbook>
+Date: Fri, 9 Mar 2012 08:56:04 +0100
+Message-ID: <CAG27Bk2LYb6h8djj0yom17oKtAy6Vvfh85Fu2k8+M9kPQGhPZg@mail.gmail.com>
+Subject: Re: [PATCH 09/17] lib: add fileutils function collection
+From: Sami Kerola <kerolasa@iki.fi>
+To: dave@gnu.org
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Mar 5, 2012 at 22:51, Davidlohr Bueso <dave@gnu.org> wrote:
+> On Mon, 2012-03-05 at 20:38 +0100, Sami Kerola wrote:
+>>  create mode 100644 include/fileutils.h
+>>  create mode 100644 lib/fileutils.c
+>
+> Doesn't really make much sense creating two files for just one
+> function.  Couldn't xmkstemp() so somewhere else?  You might argue
+> that xgetpass also does that, I just think it's an overkill...
 
- CC: to sysvinit upstream and Werner -- guys, sulogin has been merged
- into util-linux, because we believe that sulogin(8) is init independent
- util and it also seems that we can share some virtual console
- initialization code with agetty.
+Hi Davidlohr,
 
- It would be nice to mark sulogin in sysvinit as deprecated in favour of
- the util-linux version :-)
+You are right, at least partially.  The reason why I added the files
+is simply that non of the existing files felt correct to add this
+function.  IMHO xgetpass.c would be more strange file to have
+xmkstemp() than fileutils.c to contain xgetpass().
 
-On Tue, Feb 28, 2012 at 11:45:08AM -0500, Dave Reisner wrote:
-> This is an initial stab at importing sulogin from sysvinit and making it a bit
-> more universal. I've removed the distro specific code and brought the rest of
-> it more in line with the style of the remainder of the repo. I've also added
-> internationalization and cleaned up the manpage.
+>> +/* Create open temporary file in safe way.  Please notice that the
+>> + * file permissions are -rw------- by default. */
+>> +FILE *xmkstemp(char **tmpname)
+>
+> Returning the file descriptor seems a more flexible interface
+> instead of the FILE's representation; the user can always use
+> fdopen on his own.
 
-Merged with some changes:
+If I need temporary file I rather have stream than file descriptor.
+Could you give example why flexibility is better than completeness.
+With completeness I mean service that the function provides.  If
+after every single occurrence of xmkstemp() there would be fdopen() I
+would argue adding flexibility did not do anything good.
 
- - use err.h stuff
- - add long options
- - initialize NLS
- - add --disable-sulogin (enabled by default)
- - use virtual console initialization code from agetty (that's the
-   same code used by Suse in the original sulogin in sysvinit).
+>> +     fd = mkstemp(localtmp);
+>> +     umask(old_mode);
+>> +     if (fd == -1)
+>> +             goto err;
+>
+> the file isn't open on failure, just return NULL.
 
-Thanks!
+You are right. Fixed in my git.
 
-    Karel
-
-> Dave Reisner (13):
->   fstab.5: fix misspelling of deprecated
->   sulogin: initial import from sysvinit
->   sulogin.8: refactor manpage
->   sulogin: whitespace fixes
->   sulogin: replace older signal() with sigaction()
->   sulogin: remove CHECK_{DES,MD5} defines
->   sulogin: remove USE_ONELINE and SANE_TIO defines
->   sulogin: use size_t for iterator to avoid cast
->   sulogin: get rid of calls to /bin/sash
->   sulogin: use pathnames.h for file locations
->   sulogin: header/include cleanup
->   sulogin: use a more standard usage output
->   sulogin: add i18n strings
+Thank you for feedback.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
