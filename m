@@ -1,45 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:41695 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757518Ab2CETjg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:36 -0500
-Received: by mail-ee0-f46.google.com with SMTP id c41so1625459eek.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:35 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 14/17] docs: TODO removal, ldattach usage is done
-Date: Mon,  5 Mar 2012 20:38:51 +0100
-Message-Id: <1330976334-10751-15-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:46754 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752484Ab2CJLtY convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 10 Mar 2012 06:49:24 -0500
+Received: by lahj13 with SMTP id j13so2456728lah.19
+        for <util-linux@vger.kernel.org>; Sat, 10 Mar 2012 03:49:21 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20120309122050.GG17711@x2.net.home>
 References: <20120305123847.GD486@x2.net.home>
- <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+	<1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+	<1330976334-10751-10-git-send-email-kerolasa@iki.fi>
+	<1330984305.2953.25.camel@offbook>
+	<CAG27Bk2LYb6h8djj0yom17oKtAy6Vvfh85Fu2k8+M9kPQGhPZg@mail.gmail.com>
+	<1331293735.4092.3.camel@offworld>
+	<20120309122050.GG17711@x2.net.home>
+Date: Sat, 10 Mar 2012 12:49:20 +0100
+Message-ID: <CAG27Bk22FpeAO93hGo7o-AaPZGrH6Wj3idL=WRst1isRX8Yrhg@mail.gmail.com>
+Subject: Re: [PATCH 09/17] lib: add fileutils function collection
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Davidlohr Bueso <dave@gnu.org>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Done at Nov 2011.
+On Fri, Mar 9, 2012 at 13:20, Karel Zak <kzak@redhat.com> wrote:
+> On Fri, Mar 09, 2012 at 12:48:55PM +0100, Davidlohr Bueso wrote:
+>> I don't see how streams are more complete than descriptors - and no,
+>> every call to mkstemp *does not* require a call to fdopen, that's
+>> completely up to the user's use case.
+>
+>  Add two functions :-)
+>
+>    int xmkstemp()
+>    FILE *xfmkstemp()
+>
+>  the second function might be an inline function...
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/TODO |    5 -----
- 1 file changed, 5 deletions(-)
+Hi Karel & Davidlohr,
 
-diff --git a/Documentation/TODO b/Documentation/TODO
-index d922d7e..ed7a0c4 100644
---- a/Documentation/TODO
-+++ b/Documentation/TODO
-@@ -41,11 +41,6 @@ hwclock
- 	ticks)\n\", x * 1e6, x * 1e4}" < /dev/null
- 	done
- 
--ldattach
----------
--
--  - write usage()
--
- minix (fsck, mkfs)
- ------------------
- 
+Done the suggested way.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/1d2594dde3de6bf4e23a284c08dc4c8cb7c86a6f
+
+BTW I noticed mistake in earlier change, which made file descriptors
+to be preferred way of changing permissions etc. The issue was that fd
+was referred after closure. That is now fixed in commit below.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/58681bfe79ed03d2b3c39f81b14cdb4723a51b63
+
+Assuming no more comments arrive the week 9 patches might be ready for
+final maintainer review hopefully resulting to merge.
+
 -- 
-1.7.9.2
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
