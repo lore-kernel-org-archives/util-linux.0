@@ -1,56 +1,76 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:59321 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751591Ab2CLRuk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Mar 2012 13:50:40 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: v2.22 wish list
-Date: Mon, 12 Mar 2012 13:50:43 -0400
-Cc: util-linux@vger.kernel.org
-References: <20120229154420.GD8471@x2.net.home>
-In-Reply-To: <20120229154420.GD8471@x2.net.home>
+Return-Path: P@draigBrady.com
+Message-ID: <4F5E2FBA.2020709@draigBrady.com>
+Date: Mon, 12 Mar 2012 17:17:46 +0000
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2215536.LMknRDgD3s";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201203121350.44028.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: Matt Burgess <matthew@linuxfromscratch.org>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: mount -f regression in v2.21's new-mount
+References: <20120309105304.GF17711@x2.net.home> <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org> <20120309122926.GH17711@x2.net.home> <1331492786.1816.2.camel@kyoto.localdomain> <20120312143259.GB27749@x2.net.home>
+In-Reply-To: <20120312143259.GB27749@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2215536.LMknRDgD3s
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On 03/12/2012 02:32 PM, Karel Zak wrote:
+> On Sun, Mar 11, 2012 at 07:06:26PM +0000, Matt Burgess wrote:
+>> On Fri, 2012-03-09 at 13:29 +0100, Karel Zak wrote:
+>>> On Fri, Mar 09, 2012 at 04:30:02AM -0700, Matthew Burgess wrote:
+>>>> On Fri, 9 Mar 2012 11:53:04 +0100, Karel Zak <kzak@redhat.com> wrote:
+>>>>> On Thu, Mar 08, 2012 at 08:25:00PM +0000, Matt Burgess wrote:
+>>>>>> I've attached LIBMOUNT_DEBUG output from the 'mount -a' call that our
+>>>>>> bootscript does.  Note how mount correctly detects that /proc, /sys
+>>>>>
+>>>>>  No, it calls mount(2) syscall for /proc. The problem is that the
+>>>>>  detection code expects /proc/self/mountinfo (used on systems with
+>>>>>  mtab -> /proc/mounts symlink), but your system uses regular mtab.
+>>>>>
+>>>>>  I'll fix it. Thanks.
+>>>
+>>>  Fixed, try git pull.
+>>
+>> Thanks, that's sorted it!
+>>>
+>>>> Thanks!  Is there a consensus opinion on whether users should be
+>>>> using a regular mtab or a symlink to /proc/self/mountinfo?
+>>>
+>>>  - disadvantage is that some userspace utils (e.g. df(1) are not able
+>>>    to de-duplicate list of mounted filesystem (bind mounts))
+>>>
+>>>  + advantage is that there is only one list of mounted filesystems
+>>>    with always valid mount options (on systems with mtab is not problem
+>>>    to have 'rw' in mtab for read-only NFS, etc.), no problems with
+>>>    namespaces, not writable files in /etc, no mtab lock, etc.
+>>>
+>>>  The symlink is required for systemd.
+>>
+>> Thanks for the info.  Looks like there are more advantages than
+>> disadvantages.  Without wishing to stray too far off-topic, do you know
+>> if the Coreutils folks are aware of/looking at the 'df' issue?
 
-On Wednesday 29 February 2012 10:44:20 Karel Zak wrote:
-> This is my v2.22 wish list. The list contains large/invasive tasks only.
-> Comments, volunteers, .... ? ;-)
+Well we know about it.
+I've not looked at it as I was holding out hope
+that those that changed the interface might know
+how to handle it, and propose a fix.
 
-how about merging killall5/pidof from sysvinit ?
--mike
+>  My wish:
+> 
+>     - add FS de-duplicate function to libmount 
+>     - add SIZE, USE, AVAILABLE, USE% columns to findmnt
+>     - add --df to findmnt
+>     - try to implement df(1) compatible output if findmnt argv[0] is
+>       df ;-)))
 
---nextPart2215536.LMknRDgD3s
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+That sounds like a bit of an extreme solution,
+which doesn't help any other processes that want
+to query file systems like df does.
+For example is `stat %m` handled OK these days?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+Is there really no way to know if something is a bind mount?
+For example they were handled fine with some heuristics
+before this symlink was introduced:
+http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commit;h=0380e4c9
+Could we perhaps depend on the order of returned entries.
 
-iQIcBAABAgAGBQJPXjdzAAoJEEFjO5/oN/WB2qQP/3PasjSd3GlDTPJPNYjIJd5F
-eRvbdoFddcxBb8Sl6T11wzQhTIe2Vw45Xn4WhHm0sANtv2n6i/jTOxDWAPuwRe86
-mW0SVGj645A8R8+ftoLyYoskGmh5BnAidFAafFE2oJis7DVw8wuJs+JjnsNbEv3n
-wDIpXBncBbpU3BqFO7qU8suduWXrfvFYcJ3KWzD+66u5SWcwxOraqupDd4oHXdin
-Ltjny8zfbO37EObNselcCtg4A7FCzRo7jlbR0OlAfTJiLl2ST76WFbRK+FFS2lkA
-T6OYXcKXqm9ATUjfWZwTrUHgAuTmyERZaNhAgZvJOyavQygdQqgZQchoZgHFXtXE
-U28ngOH7Uh1/5Pk3C6666t+IOxMj0MONmv2l0DrrSxPZ112uxbkY1AIpYsdS3dCk
-jmYXlqj5TXoNN/E/aHrHGVoH/sig6iUBPVCIb7mToBcXqw5O8U+z0FGJBQa2t44s
-iG31yneK1YaMnCWYyxBARm+8qqAZpO3jLrWMhteCvoEP/ZuE2/VkssgJGfgfsv6r
-AZCLoP42MLh9cs2RhaHtlD+bczFFmITRJhB/TJy80KfGg0JsuN2CUd4a0YpK0D7v
-uNF7ScbEPzPImLT/YGLWsjzV1UrGLWYNDt7Bgk7+ejqtM+c/VpeWxUsNC+viWkz1
-nok/FSgFrLSanMcRaLTl
-=Bj73
------END PGP SIGNATURE-----
-
---nextPart2215536.LMknRDgD3s--
+cheers,
+Pádraig.
