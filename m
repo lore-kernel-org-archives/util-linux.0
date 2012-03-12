@@ -1,44 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:53689 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751173Ab2CXJJb convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 24 Mar 2012 05:09:31 -0400
-Received: by obbeh20 with SMTP id eh20so3148409obb.19
-        for <util-linux@vger.kernel.org>; Sat, 24 Mar 2012 02:09:30 -0700 (PDT)
+Return-Path: bernhard.voelker@siemens-enterprise.com
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Matt Burgess <matthew@linuxfromscratch.org>, Karel Zak <kzak@redhat.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Date: Mon, 12 Mar 2012 15:09:37 +0100
+Subject: RE: mount -f regression in v2.21's new-mount
+Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F0D366C09@MCHP058A.global-ad.net>
+References: <20120309105304.GF17711@x2.net.home>
+	 <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org>
+	 <20120309122926.GH17711@x2.net.home>
+ <1331492786.1816.2.camel@kyoto.localdomain>
+In-Reply-To: <1331492786.1816.2.camel@kyoto.localdomain>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Date: Sat, 24 Mar 2012 09:09:30 +0000
-Message-ID: <CA+eR4cHKY8uVHbARbsJpUQ_gHgMm7qpU_0Dt-E0pmZ16PND8nA@mail.gmail.com>
-Subject: Removing trailing slash breaks SSHFS
-From: Martin Panter <vadmium+floss@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi
+Matt Burgess wrote:
+> Karel Zak wrote:
+> > Matt Burgess wrote:
+> > > Thanks!  Is there a consensus opinion on whether users should be
+> > > using a regular mtab or a symlink to /proc/self/mountinfo?
+> >=20
+> >  - disadvantage is that some userspace utils (e.g. df(1) are not able
+> >    to de-duplicate list of mounted filesystem (bind mounts))
+> >=20
+> >  + advantage is that there is only one list of mounted filesystems
+> >    with always valid mount options (on systems with mtab is not problem
+> >    to have 'rw' in mtab for read-only NFS, etc.), no problems with
+> >    namespaces, not writable files in /etc, no mtab lock, etc.
+> >=20
+> >  The symlink is required for systemd.
+>=20
+> Thanks for the info.  Looks like there are more advantages than
+> disadvantages.  Without wishing to stray too far off-topic, do you know
+> if the Coreutils folks are aware of/looking at the 'df' issue?
 
-I am using the util-linux version 2.21 on Arch Linux:
+It is:
+http://lists.gnu.org/archive/html/bug-coreutils/2011-12/msg00153.html=20
+(along with the point that the long uuid names of the devices
+are annoying).
 
-https://www.archlinux.org/packages/core/x86_64/util-linux
-
-They have patched the 2.21-6 package to include the following commit
-“lib/canonicalize: always remove tailing slash”:
-
-https://git.kernel.org/?p=utils/util-linux/util-linux.git;a=commitdiff;h=28074a0
-
-The result of this is that my SSHFS entry in my “fstab” file no longer
-works properly. To demonstrate, this “mount” command
-
-sudo mount -t fuse 'sshfs#marty@thee:/' /media/thee
-
-strips the trailing slash and calls
-
-/sbin/mount.fuse sshfs#marty@thee: /media/thee -o rw
-
-which mounts the home directory rather than the entire remote file
-system. A workaround seems to be to specify a double slash (e.g.
-“thee://”), but it doesn’t seem healthy and I was wondering if either
-this recent slash-removal could be avoided in the “mount” command, or
-if my magic SSHFS usage was abusing how “mount” is meant to work.
-
--Martin
+Have a nice day,
+Berny=
