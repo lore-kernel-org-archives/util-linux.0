@@ -1,42 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qa0-f46.google.com ([209.85.216.46]:43383 "EHLO
-	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752806Ab2CRDgk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Mar 2012 23:36:40 -0400
-Received: by mail-qa0-f46.google.com with SMTP id b19so306297qae.19
-        for <util-linux@vger.kernel.org>; Sat, 17 Mar 2012 20:36:40 -0700 (PDT)
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 3/5] include/ttyutils.h: add include guards
-Date: Sat, 17 Mar 2012 23:36:31 -0400
-Message-Id: <1332041793-7919-3-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
-References: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:15314 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757938Ab2CML2B (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 13 Mar 2012 07:28:01 -0400
+Date: Tue, 13 Mar 2012 12:27:48 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Daniel Drake <dsd@laptop.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] losetup: Fix setting of sizelimit on new loop devices
+Message-ID: <20120313112748.GB4912@x2.net.home>
+References: <20120309175650.E88509D401E@zog.reactivated.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120309175650.E88509D401E@zog.reactivated.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- include/ttyutils.h |    4 ++++
- 1 file changed, 4 insertions(+)
+On Fri, Mar 09, 2012 at 05:56:50PM +0000, Daniel Drake wrote:
+>  sys-utils/losetup.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/include/ttyutils.h b/include/ttyutils.h
-index 949b72a..f638aa0 100644
---- a/include/ttyutils.h
-+++ b/include/ttyutils.h
-@@ -1,3 +1,5 @@
-+#ifndef UTIL_LINUX_TTYUTILS_H
-+#define UTIL_LINUX_TTYUTILS_H
- 
- #include <termios.h>
- 
-@@ -71,3 +73,5 @@ static inline void reset_virtual_console(struct termios *tp, int flags)
- 	tp->c_cc[VLNEXT]   = CLNEXT;
- 	tp->c_cc[VEOL2]    = _POSIX_VDISABLE;
- }
-+
-+#endif /* UTIL_LINUX_TTYUTILS_H */
+ Applied, thanks.
+
+    Karel
+
 -- 
-1.7.9.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
