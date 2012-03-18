@@ -1,43 +1,82 @@
-Return-Path: bernhard.voelker@siemens-enterprise.com
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Matt Burgess <matthew@linuxfromscratch.org>, Karel Zak <kzak@redhat.com>
-CC: util-linux <util-linux@vger.kernel.org>
-Date: Mon, 12 Mar 2012 15:09:37 +0100
-Subject: RE: mount -f regression in v2.21's new-mount
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F0D366C09@MCHP058A.global-ad.net>
-References: <20120309105304.GF17711@x2.net.home>
-	 <5fde29ffbccb41cf5eb3a286c2f7e954@quantum.linuxfromscratch.org>
-	 <20120309122926.GH17711@x2.net.home>
- <1331492786.1816.2.camel@kyoto.localdomain>
-In-Reply-To: <1331492786.1816.2.camel@kyoto.localdomain>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:43383 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752372Ab2CRDgh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Mar 2012 23:36:37 -0400
+Received: by qaeb19 with SMTP id b19so306297qae.19
+        for <util-linux@vger.kernel.org>; Sat, 17 Mar 2012 20:36:37 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 1/5] checkxalloc: nudge regex, fix newfound instances
+Date: Sat, 17 Mar 2012 23:36:29 -0400
+Message-Id: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Matt Burgess wrote:
-> Karel Zak wrote:
-> > Matt Burgess wrote:
-> > > Thanks!  Is there a consensus opinion on whether users should be
-> > > using a regular mtab or a symlink to /proc/self/mountinfo?
-> >=20
-> >  - disadvantage is that some userspace utils (e.g. df(1) are not able
-> >    to de-duplicate list of mounted filesystem (bind mounts))
-> >=20
-> >  + advantage is that there is only one list of mounted filesystems
-> >    with always valid mount options (on systems with mtab is not problem
-> >    to have 'rw' in mtab for read-only NFS, etc.), no problems with
-> >    namespaces, not writable files in /etc, no mtab lock, etc.
-> >=20
-> >  The symlink is required for systemd.
->=20
-> Thanks for the info.  Looks like there are more advantages than
-> disadvantages.  Without wishing to stray too far off-topic, do you know
-> if the Coreutils folks are aware of/looking at the 'df' issue?
+Using the -w flag with grep actually fought against us here, and hid
+some instances where xalloc functions weren't used. Discard it in favor
+of an explicit word boundary as a prefix to the function name, and
+extend our requirements on the trailing side of the pattern.
 
-It is:
-http://lists.gnu.org/archive/html/bug-coreutils/2011-12/msg00153.html=20
-(along with the point that the long uuid names of the devices
-are annoying).
+This also fixes the few new instances that were overlooked because of
+the regex's deficiency.
 
-Have a nice day,
-Berny=
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ fdisk/sfdisk.c       |    2 +-
+ sys-utils/swapon.c   |    4 ++--
+ tools/checkxalloc.sh |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 6267652..e766b04 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -304,7 +304,7 @@ restore_sectors(char *dev) {
+ 	error(_("partition restore file has wrong size - not restoring\n"));
+ 	goto err;
+     }
+-    if (!(ss0 = (char *)malloc(statbuf.st_size))) {
++    if (!(ss0 = xmalloc(statbuf.st_size))) {
+ 	error(_("out of memory?\n"));
+ 	goto err;
+     }
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index f17fad6..fe16169 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -197,7 +197,7 @@ read_proc_swaps(void) {
+ 			       *p = '\0';
+ 		}
+ 
+-		q = realloc(swapFiles, (numSwaps+1) * sizeof(*swapFiles));
++		q = xrealloc(swapFiles, (numSwaps+1) * sizeof(*swapFiles));
+ 		if (q == NULL)
+ 			break;
+ 		swapFiles = q;
+@@ -640,7 +640,7 @@ swapon_all(void) {
+ 		if (!streq(fstab->mnt_type, MNTTYPE_SWAP))
+ 			continue;
+ 
+-		opts = strdup(fstab->mnt_opts);
++		opts = xstrdup(fstab->mnt_opts);
+ 
+ 		for (opt = strtok(opts, ","); opt != NULL;
+ 		     opt = strtok(NULL, ",")) {
+diff --git a/tools/checkxalloc.sh b/tools/checkxalloc.sh
+index 578340e..6634c82 100755
+--- a/tools/checkxalloc.sh
++++ b/tools/checkxalloc.sh
+@@ -10,7 +10,7 @@ cd "$(git rev-parse --show-toplevel)" || {
+ }
+ 
+ git grep -zl '#include "xalloc.h"' |
+-  xargs -0 grep -nwE '[^x](([cm]|re)alloc|strdup)\('
++  xargs -0 grep -nE '\b(([cm]|re)alloc|strdup)[[:space:]]*\([^)]'
+ 
+ result=$?
+ 
+-- 
+1.7.9.4
+
