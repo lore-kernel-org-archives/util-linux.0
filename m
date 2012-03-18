@@ -1,39 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:11492 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758438Ab2CBPKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Mar 2012 10:10:22 -0500
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q22FAM5A003698
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Fri, 2 Mar 2012 10:10:22 -0500
-Received: from x2 (ovpn-116-18.ams2.redhat.com [10.36.116.18])
-	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q22FAKPT004194
-	for <util-linux@vger.kernel.org>; Fri, 2 Mar 2012 10:10:21 -0500
-Date: Fri, 2 Mar 2012 16:10:19 +0100
-From: Karel Zak <kzak@redhat.com>
+Received: from mail-qa0-f53.google.com ([209.85.216.53]:54360 "EHLO
+	mail-qa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753403Ab2CRDgo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Mar 2012 23:36:44 -0400
+Received: by qadc11 with SMTP id c11so304555qad.19
+        for <util-linux@vger.kernel.org>; Sat, 17 Mar 2012 20:36:43 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
 To: util-linux@vger.kernel.org
-Subject: Re: v2.22 wish list
-Message-ID: <20120302151019.GH18642@x2.net.home>
-References: <20120229154420.GD8471@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120229154420.GD8471@x2.net.home>
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 5/5] findmnt: add -D, --df option to imitate df(1)
+Date: Sat, 17 Mar 2012 23:36:33 -0400
+Message-Id: <1332041793-7919-5-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+References: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 29, 2012 at 04:44:20PM +0100, Karel Zak wrote:
-> 
-> This is my v2.22 wish list. The list contains large/invasive tasks only. 
-> Comments, volunteers, .... ? ;-)
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ misc-utils/findmnt.8 |    3 +++
+ misc-utils/findmnt.c |   20 ++++++++++++++++++--
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
- I forgot one important item:
-
-   * add device-mapper support to partx to make it compatible with
-     kpartx (then we can remove kpartx from distros...)
-
-    Karel
-
+diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
+index c1734ca..8ad4432 100644
+--- a/misc-utils/findmnt.8
++++ b/misc-utils/findmnt.8
+@@ -49,6 +49,9 @@ Search in
+ The output is in the tree-like format.  This is the default.
+ .IP "\fB\-c, \-\-canonicalize\fP"
+ Canonicalize all printed paths.
++.IP "\fB\-D, \-\-df\fP"
++Imitate the output of df(1). This option is equivalent to
++"-o SOURCE,FSTYPE,SIZE,USED,AVAIL,USE%,TARGET".
+ .IP "\fB\-d, \-\-direction \fIword\fP"
+ The search direction -
+ .IR forward
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index 547be66..84092d2 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -890,6 +890,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out, _(
+ 	" -a, --ascii            use ASCII chars for tree formatting\n"
+ 	" -c, --canonicalize     canonicalize printed paths\n"
++	" -D, --df               imitate the output of df(1)\n"
+ 	" -d, --direction <word> direction of search, 'forward' or 'backward'\n"
+ 	" -e, --evaluate         convert tags (LABEL/UUID) to device names\n"
+ 	" -F, --tab-file <path>  alternative file for --fstab, --mtab or --kernel options\n"
+@@ -936,7 +937,7 @@ int main(int argc, char *argv[])
+ 	struct libmnt_table *tb = NULL;
+ 	char **tabfiles = NULL;
+ 	int direction = MNT_ITER_FORWARD;
+-	int i, c, rc = -1, timeout = -1;
++	int i, c, rc = -1, timeout = -1, df_output = 0;
+ 	int ntabfiles = 0, tabtype = 0;
+ 
+ 	/* table.h */
+@@ -946,6 +947,7 @@ int main(int argc, char *argv[])
+ 	    { "ascii",        0, 0, 'a' },
+ 	    { "canonicalize", 0, 0, 'c' },
+ 	    { "direction",    1, 0, 'd' },
++	    { "df",           0, 0, 'D' },
+ 	    { "evaluate",     0, 0, 'e' },
+ 	    { "first-only",   0, 0, 'f' },
+ 	    { "fstab",        0, 0, 's' },
+@@ -982,7 +984,7 @@ int main(int argc, char *argv[])
+ 	tt_flags |= TT_FL_TREE;
+ 
+ 	while ((c = getopt_long(argc, argv,
+-				"acd:ehifF:o:O:p::Pklmnrst:uvRS:T:w:",
++				"acDd:ehifF:o:O:p::Pklmnrst:uvRS:T:w:",
+ 				longopts, NULL)) != -1) {
+ 		switch(c) {
+ 		case 'a':
+@@ -991,6 +993,10 @@ int main(int argc, char *argv[])
+ 		case 'c':
+ 			flags |= FL_CANONICALIZE;
+ 			break;
++		case 'D':
++			tt_flags &= ~TT_FL_TREE;
++			df_output = 1;
++			break;
+ 		case 'd':
+ 			if (!strcmp(optarg, "forward"))
+ 				direction = MNT_ITER_FORWARD;
+@@ -1100,6 +1106,16 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 
++	if (df_output) {
++		columns[ncolumns++] = COL_SOURCE;
++		columns[ncolumns++] = COL_FSTYPE;
++		columns[ncolumns++] = COL_SIZE;
++		columns[ncolumns++] = COL_USED;
++		columns[ncolumns++] = COL_AVAIL;
++		columns[ncolumns++] = COL_USEPERC;
++		columns[ncolumns++] = COL_TARGET;
++	}
++
+ 	/* default columns */
+ 	if (!ncolumns) {
+ 		if (flags & FL_POLL)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9.4
+
