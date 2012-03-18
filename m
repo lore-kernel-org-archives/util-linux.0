@@ -1,69 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:53672 "EHLO
-	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751825Ab2CIH4G convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 9 Mar 2012 02:56:06 -0500
-Received: by lahj13 with SMTP id j13so1381043lah.19
-        for <util-linux@vger.kernel.org>; Thu, 08 Mar 2012 23:56:04 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1330984305.2953.25.camel@offbook>
-References: <20120305123847.GD486@x2.net.home>
-	<1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-	<1330976334-10751-10-git-send-email-kerolasa@iki.fi>
-	<1330984305.2953.25.camel@offbook>
-Date: Fri, 9 Mar 2012 08:56:04 +0100
-Message-ID: <CAG27Bk2LYb6h8djj0yom17oKtAy6Vvfh85Fu2k8+M9kPQGhPZg@mail.gmail.com>
-Subject: Re: [PATCH 09/17] lib: add fileutils function collection
-From: Sami Kerola <kerolasa@iki.fi>
-To: dave@gnu.org
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:40283 "EHLO
+	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754082Ab2CROxl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 18 Mar 2012 10:53:41 -0400
+Subject: Re: [PATCH 1/5] checkxalloc: nudge regex, fix newfound instances
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
+In-Reply-To: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+References: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 18 Mar 2012 15:53:37 +0100
+Message-ID: <1332082417.2792.1.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 5, 2012 at 22:51, Davidlohr Bueso <dave@gnu.org> wrote:
-> On Mon, 2012-03-05 at 20:38 +0100, Sami Kerola wrote:
->>  create mode 100644 include/fileutils.h
->>  create mode 100644 lib/fileutils.c
->
-> Doesn't really make much sense creating two files for just one
-> function.  Couldn't xmkstemp() so somewhere else?  You might argue
-> that xgetpass also does that, I just think it's an overkill...
+On Sat, 2012-03-17 at 23:36 -0400, Dave Reisner wrote:
+> Using the -w flag with grep actually fought against us here, and hid
+> some instances where xalloc functions weren't used. Discard it in favor
+> of an explicit word boundary as a prefix to the function name, and
+> extend our requirements on the trailing side of the pattern.
+> 
+> This also fixes the few new instances that were overlooked because of
+> the regex's deficiency.
+> 
+> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> ---
+>  fdisk/sfdisk.c       |    2 +-
+>  sys-utils/swapon.c   |    4 ++--
+>  tools/checkxalloc.sh |    2 +-
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+> index 6267652..e766b04 100644
+> --- a/fdisk/sfdisk.c
+> +++ b/fdisk/sfdisk.c
+> @@ -304,7 +304,7 @@ restore_sectors(char *dev) {
+>  	error(_("partition restore file has wrong size - not restoring\n"));
+>  	goto err;
+>      }
+> -    if (!(ss0 = (char *)malloc(statbuf.st_size))) {
+> +    if (!(ss0 = xmalloc(statbuf.st_size))) {
+>  	error(_("out of memory?\n"));
+>  	goto err;
+>      }
 
-Hi Davidlohr,
+xmalloc and friends abort the program when allocation fail.
 
-You are right, at least partially.  The reason why I added the files
-is simply that non of the existing files felt correct to add this
-function.  IMHO xgetpass.c would be more strange file to have
-xmkstemp() than fileutils.c to contain xgetpass().
+> diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+> index f17fad6..fe16169 100644
+> --- a/sys-utils/swapon.c
+> +++ b/sys-utils/swapon.c
+> @@ -197,7 +197,7 @@ read_proc_swaps(void) {
+>  			       *p = '\0';
+>  		}
+>  
+> -		q = realloc(swapFiles, (numSwaps+1) * sizeof(*swapFiles));
+> +		q = xrealloc(swapFiles, (numSwaps+1) * sizeof(*swapFiles));
+>  		if (q == NULL)
+>  			break;
 
->> +/* Create open temporary file in safe way.  Please notice that the
->> + * file permissions are -rw------- by default. */
->> +FILE *xmkstemp(char **tmpname)
->
-> Returning the file descriptor seems a more flexible interface
-> instead of the FILE's representation; the user can always use
-> fdopen on his own.
+same here. This would actually break functionality.
 
-If I need temporary file I rather have stream than file descriptor.
-Could you give example why flexibility is better than completeness.
-With completeness I mean service that the function provides.  If
-after every single occurrence of xmkstemp() there would be fdopen() I
-would argue adding flexibility did not do anything good.
+>  		swapFiles = q;
+> @@ -640,7 +640,7 @@ swapon_all(void) {
+>  		if (!streq(fstab->mnt_type, MNTTYPE_SWAP))
+>  			continue;
+>  
+> -		opts = strdup(fstab->mnt_opts);
+> +		opts = xstrdup(fstab->mnt_opts);
+>  
+>  		for (opt = strtok(opts, ","); opt != NULL;
+>  		     opt = strtok(NULL, ",")) {
+> diff --git a/tools/checkxalloc.sh b/tools/checkxalloc.sh
+> index 578340e..6634c82 100755
+> --- a/tools/checkxalloc.sh
+> +++ b/tools/checkxalloc.sh
+> @@ -10,7 +10,7 @@ cd "$(git rev-parse --show-toplevel)" || {
+>  }
+>  
+>  git grep -zl '#include "xalloc.h"' |
+> -  xargs -0 grep -nwE '[^x](([cm]|re)alloc|strdup)\('
+> +  xargs -0 grep -nE '\b(([cm]|re)alloc|strdup)[[:space:]]*\([^)]'
+>  
+>  result=$?
+>  
 
->> +     fd = mkstemp(localtmp);
->> +     umask(old_mode);
->> +     if (fd == -1)
->> +             goto err;
->
-> the file isn't open on failure, just return NULL.
 
-You are right. Fixed in my git.
-
-Thank you for feedback.
-
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
