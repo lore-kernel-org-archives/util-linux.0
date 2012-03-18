@@ -1,56 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:39881 "EHLO
-	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932135Ab2CUKHF convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 21 Mar 2012 06:07:05 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: don <haodong@linux.vnet.ibm.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Date: Wed, 21 Mar 2012 11:07:03 +0100
-Subject: RE: [PATCH] Mount: fix recursively propagation mounting
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F0D63597A@MCHP058A.global-ad.net>
-References: <4F699C44.70700@linux.vnet.ibm.com>
-In-Reply-To: <4F699C44.70700@linux.vnet.ibm.com>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:43383 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752806Ab2CRDgk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Mar 2012 23:36:40 -0400
+Received: by mail-qa0-f46.google.com with SMTP id b19so306297qae.19
+        for <util-linux@vger.kernel.org>; Sat, 17 Mar 2012 20:36:40 -0700 (PDT)
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 3/5] include/ttyutils.h: add include guards
+Date: Sat, 17 Mar 2012 23:36:31 -0400
+Message-Id: <1332041793-7919-3-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
+References: <1332041793-7919-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-don wrote:
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ include/ttyutils.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-> From: Dong Hao <haodong@linux.vnet.ibm.com>
-> Date: Wed, 21 Mar 2012 13:50:14 +0800
-> Subject: [PATCH] Mount: fix recursively propagation mounting
-> 
-> Provide the recursive flag of propagation mounting. Recursive flag could 
-> be used together with propagation flag.
-> 
-> Signed-off-by: Dong Hao <haodong@linux.vnet.ibm.com>
-> ---
->   mount/mount.c |    2 +-
->   1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/mount/mount.c b/mount/mount.c
-> index 2ce4829..f10659c 100644
-> --- a/mount/mount.c
-> +++ b/mount/mount.c
-> @@ -603,7 +603,7 @@ parse_opts (const char *options, int *flags, char 
-> **extra_opts) {
-> 
->       /* The propagation flags should not be used together with any 
-> other flags */
->       if (*flags & MS_PROPAGATION)
-> -        *flags &= MS_PROPAGATION;
-> +        *flags &= (MS_PROPAGATION|MS_REC);
->   }
-> 
->   /* Try to build a canonical options string.  */
-> -- 
-> 1.7.2.5
+diff --git a/include/ttyutils.h b/include/ttyutils.h
+index 949b72a..f638aa0 100644
+--- a/include/ttyutils.h
++++ b/include/ttyutils.h
+@@ -1,3 +1,5 @@
++#ifndef UTIL_LINUX_TTYUTILS_H
++#define UTIL_LINUX_TTYUTILS_H
+ 
+ #include <termios.h>
+ 
+@@ -71,3 +73,5 @@ static inline void reset_virtual_console(struct termios *tp, int flags)
+ 	tp->c_cc[VLNEXT]   = CLNEXT;
+ 	tp->c_cc[VEOL2]    = _POSIX_VDISABLE;
+ }
++
++#endif /* UTIL_LINUX_TTYUTILS_H */
+-- 
+1.7.9.4
 
-The comment above conflicts with the change.
-Shouldn't it be also adapted?
-
-Have a nice day,
-Berny
