@@ -1,26 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6849 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:13658 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757987Ab2CML2O (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 13 Mar 2012 07:28:14 -0400
-Date: Tue, 13 Mar 2012 12:28:11 +0100
+	id S1751246Ab2CULiw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 21 Mar 2012 07:38:52 -0400
+Date: Wed, 21 Mar 2012 12:38:49 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <dreisner@archlinux.org>
-Subject: Re: [PATCH 1/2] lsblk.8: RQ-SIZE is part of the --topology output
-Message-ID: <20120313112811.GC4912@x2.net.home>
-References: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
+To: don <haodong@linux.vnet.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Mount: fix recursively propagation mounting
+Message-ID: <20120321113849.GA30693@x2.net.home>
+References: <4F699C44.70700@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1331317964-29267-1-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <4F699C44.70700@linux.vnet.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 09, 2012 at 01:32:43PM -0500, Dave Reisner wrote:
->  misc-utils/lsblk.8 |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Mar 21, 2012 at 05:15:48PM +0800, don wrote:
+>  mount/mount.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
  Applied, thanks.
+
+ I have also added MS_SILENT to the acceptable flags and fixed the new
+ mount code in libmount.
 
     Karel
 
