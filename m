@@ -1,34 +1,42 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36148 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758098Ab2CTI3W (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 Mar 2012 04:29:22 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2K8TLxs031781
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 20 Mar 2012 04:29:21 -0400
-Date: Tue, 20 Mar 2012 09:29:19 +0100
-From: Karel Zak <kzak@redhat.com>
-To: harald@redhat.com
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] setsid: add option "-c" to set the controlling
- terminal
-Message-ID: <20120320082919.GC3956@x2.net.home>
-References: <1331716038-8808-1-git-send-email-harald@redhat.com>
+Return-Path: ikanobori87@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1331716038-8808-1-git-send-email-harald@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Sender: ikanobori87@gmail.com
+In-Reply-To: <20120321184419.GE2040@x2.net.home>
+References: <CANXSoSB_JTjcwfCPu6vJLdtLtR5e1M4VHJiDu2NpGo=hp6SMrA@mail.gmail.com>
+	<20120321184419.GE2040@x2.net.home>
+Date: Wed, 21 Mar 2012 22:47:52 +0100
+Message-ID: <CANXSoSCA5j95J2fAjUXPfPj9oue2xWNrK5AmVTQd+KNSi=VvBg@mail.gmail.com>
+Subject: Re: hexsyntax.c using strtol on the offset parameter
+From: Simon de Vlieger <simon@ikanobori.jp>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 14, 2012 at 10:07:18AM +0100, harald@redhat.com wrote:
->  sys-utils/setsid.1 |    4 ++++
->  sys-utils/setsid.c |   18 ++++++++++++++++--
->  2 files changed, 20 insertions(+), 2 deletions(-)
+Karel,
 
- Applied, thanks.
+thank you for your swift response and fix.
 
+Simon
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On 21 March 2012 19:44, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Mar 21, 2012 at 03:53:55PM +0100, Simon de Vlieger wrote:
+>> The line I think I have it narrowed down to is line 92 of
+>> util-linux/hexsyntax.c where the -s parameter is converted to a long.
+>
+> =C2=A0Fixed. The code (as well as -n) was stupid. Now it supports all
+> =C2=A0possible suffixes (K,M,G,T,P,E,Y,Z) and the number is parsed as
+> =C2=A0uintmax_t.
+>
+>> Sadly the size of a 1 TB disk overflows the size of a long. Can the
+>> off_t maybe be changed to use off64_t (if this is relevant) and use
+>
+> =C2=A0The problem is not off_t, but strtol().
+>
+> =C2=A0Thanks!
+>
+> =C2=A0 =C2=A0Karel
+>
+> --
+> =C2=A0Karel Zak =C2=A0<kzak@redhat.com>
+> =C2=A0http://karelzak.blogspot.com
