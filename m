@@ -1,104 +1,129 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25055 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932382Ab2CNJHq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 Mar 2012 05:07:46 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2E97kSG022790
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 14 Mar 2012 05:07:46 -0400
-From: harald@redhat.com
-To: util-linux@vger.kernel.org
-Cc: Harald Hoyer <harald@redhat.com>
-Subject: [PATCH v2] setsid: add option "-c" to set the controlling terminal
-Date: Wed, 14 Mar 2012 10:07:18 +0100
-Message-Id: <1331716038-8808-1-git-send-email-harald@redhat.com>
+Received: from moutng.kundenserver.de ([212.227.126.171]:53730 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753217Ab2CVL6z (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 22 Mar 2012 07:58:55 -0400
+Message-ID: <4F6B13F9.4020108@bernhard-voelker.de>
+Date: Thu, 22 Mar 2012 12:58:49 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: "Karel Zak" <kzak@redhat.com>, "Simon de Vlieger" <simon@ikanobori.jp>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [PATCH] hexdump: adjust -s and -n option in the man page [was: hexsyntax.c
+ using strtol on the offset parameter]
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Harald Hoyer <harald@redhat.com>
+Karel Zak wrote:
 
+> Fixed. The code (as well as -n) was stupid. Now it supports all
+> possible suffixes (K,M,G,T,P,E,Y,Z) and the number is parsed as
+> uintmax_t.
+
+btw: it should read "...P,E,Z,Y", as Y>Z.
+
+The man page is outdated now:
+
+       -n length
+              Interpret only length bytes of input.
+       ...
+       -s offset
+              Skip  offset bytes from the beginning of the input.  By default,
+              offset is interpreted as a decimal number.  With a leading 0x or
+              0X,  offset  is  interpreted as a hexadecimal number, otherwise,
+              with a leading 0, offset is  interpreted  as  an  octal  number.
+              Appending  the  character  b,  k, or m to offset causes it to be
+              interpreted as a multiple of  512,  1024,  or  1048576,  respec-
+              tively.
+
+The variant with 0x or 0X doesn't seem to work anyway:
+
+$ echo 123456789abcdefghijk > /tmp/x
+$ text-utils/hexdump -s 0x1 -n 1 -c /tmp/x
+0000001   2
+0000002
+
+Below follows a proposal for a man page patch.
+
+Have a nice day,
+Berny
+
+>From f546c9d7bdd52b2e57761c2c97a701e662d89bc1 Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Thu, 22 Mar 2012 12:53:06 +0100
+Subject: [PATCH] hexdump: adjust -s and -n option in the man page
+
+Remove note about hexadecimal and octal interpretation of -s value.
+Mention the optional suffix notation for -n and -s  like <x>B or <x>iB
+with <x> in K,M,G,T,P,E,Z,Y.
+
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
 ---
- sys-utils/setsid.1 |    4 ++++
- sys-utils/setsid.c |   18 ++++++++++++++++--
- 2 files changed, 20 insertions(+), 2 deletions(-)
+ text-utils/hexdump.1 |   33 +++++++++------------------------
+ 1 files changed, 9 insertions(+), 24 deletions(-)
 
-diff --git a/sys-utils/setsid.1 b/sys-utils/setsid.1
-index 0d9580e..eff7948 100644
---- a/sys-utils/setsid.1
-+++ b/sys-utils/setsid.1
-@@ -11,6 +11,10 @@ setsid \- run a program in a new session
- .SH DESCRIPTION
- .B setsid
- runs a program in a new session.
-+.SH OPTIONS
-+.TP
-+\fB\-c\fP, \fB\-\-ctty\fP
-+Set the controlling terminal to the current one.
- .SH "SEE ALSO"
- .BR setsid (2)
- .SH AUTHOR
-diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
-index efd20e6..bcbba6e 100644
---- a/sys-utils/setsid.c
-+++ b/sys-utils/setsid.c
-@@ -15,6 +15,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <unistd.h>
-+#include <termio.h>
- 
- #include "c.h"
- #include "nls.h"
-@@ -25,6 +26,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	fprintf(out, _(" %s [options] <program> [arguments ...]\n"),
- 		program_invocation_short_name);
- 	fprintf(out, USAGE_OPTIONS);
-+	fprintf(out, _(
-+		" -c, --ctty \tset the controlling terminal to the current one\n"
-+		));
- 	fprintf(out, USAGE_HELP);
- 	fprintf(out, USAGE_VERSION);
- 	fprintf(out, USAGE_MAN_TAIL("setsid(1)"));
-@@ -34,7 +38,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- int main(int argc, char **argv)
- {
- 	int ch;
-+	int ctty = 0;
-+
- 	static const struct option longopts[] = {
-+		{"ctty", no_argument, NULL, 'c'},
- 		{"version", no_argument, NULL, 'V'},
- 		{"help", no_argument, NULL, 'h'},
- 		{NULL, 0, NULL, 0}
-@@ -44,11 +51,14 @@ int main(int argc, char **argv)
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 
--	while ((ch = getopt_long(argc, argv, "+Vh", longopts, NULL)) != -1)
-+	while ((ch = getopt_long(argc, argv, "+Vhc", longopts, NULL)) != -1)
- 		switch (ch) {
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-+		case 'c':
-+			ctty=1;
-+			break;
- 		case 'h':
- 			usage(stdout);
- 		default:
-@@ -74,6 +84,10 @@ int main(int argc, char **argv)
- 		/* cannot happen */
- 		err(EXIT_FAILURE, _("setsid failed"));
- 
--	execvp(argv[1], argv + 1);
-+	if (ctty) {
-+		if (ioctl (0, TIOCSCTTY, 1))
-+			warn(_("failed to set the controlling terminal"));
-+	}
-+	execvp(argv[optind], argv + optind + 1);
- 	err(EXIT_FAILURE, _("execvp failed"));
- }
+diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
+index cbb14fb..4a373de 100644
+--- a/text-utils/hexdump.1
++++ b/text-utils/hexdump.1
+@@ -80,7 +80,8 @@ are ignored.
+ .BI \-n \ length
+ Interpret only
+ .I length
+-bytes of input.
++.B BYTES
++of input.
+ .TP
+ .B \-o
+ \fITwo-byte octal display\fR.  Display the input offset in hexadecimal,
+@@ -90,29 +91,8 @@ quantities of input data, in octal, per line.
+ .BI \-s \ offset
+ Skip
+ .I offset
+-bytes from the beginning of the input.  By default,
+-.I offset
+-is interpreted as a decimal number.  With a leading
+-.B 0x
+-or
+-.BR 0X ,
+-.I offset
+-is interpreted as a hexadecimal number, otherwise, with a leading
+-.BR 0 ,
+-.I offset
+-is interpreted as an octal number.  Appending the character
+-.BR b ,
+-.BR k ,
+-or
+-.B m
+-to
+-.I offset
+-causes it to be interpreted as a multiple of
+-.IR 512 ,
+-.IR 1024 ,
+-or
+-.IR 1048576 ,
+-respectively.
++.B BYTES
++from the beginning of the input.
+ .TP
+ .B \-v
+ The
+@@ -138,6 +118,11 @@ according to the format strings specified by the
+ and
+ .B \-f
+ options, in the order that they were specified.
++.PP
++.B BYTES
++is a decimal number and may be followed by the following multiplicative
++suffixes: KB =1000, KiB =1024, MB =1000*1000, MiB =1024*1024,
++GB =1000*1000*1000, GiB =1024*1024*1024, and so on for T, P, E, Z, Y.
+ .SH FORMATS
+ A format string contains any number of format units, separated by whitespace.
+ A format unit contains up to three items: an iteration count, a byte count,
 -- 
-1.7.9.3
+1.7.7
+
+
+
 
