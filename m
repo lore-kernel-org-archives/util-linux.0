@@ -1,172 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50593 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759394Ab2C2Qpc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:45:32 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 1C2F290B1D
-	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:31 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:53689 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751173Ab2CXJJb convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 24 Mar 2012 05:09:31 -0400
+Received: by obbeh20 with SMTP id eh20so3148409obb.19
+        for <util-linux@vger.kernel.org>; Sat, 24 Mar 2012 02:09:30 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 24 Mar 2012 09:09:30 +0000
+Message-ID: <CA+eR4cHKY8uVHbARbsJpUQ_gHgMm7qpU_0Dt-E0pmZ16PND8nA@mail.gmail.com>
+Subject: Removing trailing slash breaks SSHFS
+From: Martin Panter <vadmium+floss@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 04/20] uuidd: implement --no-pid option
-Date: Thu, 29 Mar 2012 18:45:12 +0200
-Message-Id: <1333039528-24784-5-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-With this option, uuidd does not create the PID file.
+Hi
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- misc-utils/uuidd.8 |    3 +++
- misc-utils/uuidd.c |   48 ++++++++++++++++++++++++++++++++++++------------
- 2 files changed, 39 insertions(+), 12 deletions(-)
+I am using the util-linux version 2.21 on Arch Linux:
 
-diff --git a/misc-utils/uuidd.8 b/misc-utils/uuidd.8
-index 8e82b10..07e533b 100644
---- a/misc-utils/uuidd.8
-+++ b/misc-utils/uuidd.8
-@@ -36,6 +36,9 @@ UUIDs.
- Specify the pathname where the pid file should be written.  By default,
- the pid file is written to /var/run/uuidd/uuidd.pid.
- .TP
-+.BR \-P , " \-\-no-pid "
-+Do not create pid file.
-+.TP
- .B \-q
- Suppress some failure messages.
- .TP
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index 0288a03..79da894 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -63,6 +63,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 		" -r, --random        test random-based generation\n"
- 		" -t, --time          test time-based generation\n"
- 		" -n, --uuids <num>   request number of uuids\n"
-+		" -P, --no-pid        do not create pid file\n"
- 		" -d, --debug         run in debugging mode\n"
- 		" -q, --quiet         turn on quiet mode\n"
- 		" -V, --version       output version information and exit\n"
-@@ -111,7 +112,8 @@ static const char *cleanup_pidfile, *cleanup_socket;
- 
- static void terminate_intr(int signo CODE_ATTR((unused)))
- {
--	unlink(cleanup_pidfile);
-+	if (cleanup_pidfile)
-+		unlink(cleanup_pidfile);
- 	if (cleanup_socket)
- 		unlink(cleanup_socket);
- 	exit(EXIT_SUCCESS);
-@@ -255,12 +257,14 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
- 	char			reply_buf[1024], *cp;
- 	char			op, str[UUID_STR_LEN];
- 	int			i, s, ns, len, num;
--	int			fd_pidfile, ret;
-+	int			fd_pidfile = -1;
-+	int			ret;
- 
- 	signal(SIGALRM, terminate_intr);
- 	alarm(30);
- 
--	fd_pidfile = create_pidfile(pidfile_path, quiet);
-+	if (pidfile_path)
-+		fd_pidfile = create_pidfile(pidfile_path, quiet);
- 
- 	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
- 	if (ret > 0) {
-@@ -320,13 +324,15 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
- 	signal(SIGALRM, terminate_intr);
- 	signal(SIGPIPE, SIG_IGN);
- 
--	sprintf(reply_buf, "%8d\n", getpid());
--	if (ftruncate(fd_pidfile, 0)) {
--		/* Silence warn_unused_result */
-+	if (pidfile_path) {
-+		sprintf(reply_buf, "%8d\n", getpid());
-+		if (ftruncate(fd_pidfile, 0)) {
-+			/* Silence warn_unused_result */
-+		}
-+		write_all(fd_pidfile, reply_buf, strlen(reply_buf));
-+		if (fd_pidfile > 1)
-+			close(fd_pidfile); /* Unlock the pid file */
- 	}
--	write_all(fd_pidfile, reply_buf, strlen(reply_buf));
--	if (fd_pidfile > 1)
--		close(fd_pidfile); /* Unlock the pid file */
- 
- 	while (1) {
- 		fromlen = sizeof(from_addr);
-@@ -445,7 +451,8 @@ static void __attribute__ ((__noreturn__)) unexpected_size(int size)
- int main(int argc, char **argv)
- {
- 	const char	*socket_path = UUIDD_SOCKET_PATH;
--	const char	*pidfile_path = UUIDD_PIDFILE_PATH;
-+	const char	*pidfile_path = NULL;
-+	const char	*pidfile_path_param = NULL;
- 	const char	*err_context;
- 	char		buf[1024], *cp;
- 	char		str[UUID_STR_LEN], *tmp;
-@@ -455,6 +462,7 @@ int main(int argc, char **argv)
- 	int		i, c, ret;
- 	int		debug = 0, do_type = 0, do_kill = 0, num = 0;
- 	int		timeout = 0, quiet = 0, drop_privs = 0;
-+	int		no_pid = 0;
- 
- 	static const struct option longopts[] = {
- 		{"pid", required_argument, NULL, 'p'},
-@@ -464,6 +472,7 @@ int main(int argc, char **argv)
- 		{"random", no_argument, NULL, 'r'},
- 		{"time", no_argument, NULL, 't'},
- 		{"uuids", required_argument, NULL, 'n'},
-+		{"no-pid", no_argument, NULL, 'P'},
- 		{"debug", no_argument, NULL, 'd'},
- 		{"quiet", no_argument, NULL, 'q'},
- 		{"version", no_argument, NULL, 'V'},
-@@ -476,7 +485,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 
- 	while ((c =
--		getopt_long(argc, argv, "p:s:T:krtn:dqVh", longopts,
-+		getopt_long(argc, argv, "p:s:T:krtn:PdqVh", longopts,
- 			    NULL)) != -1) {
- 		switch (c) {
- 		case 'd':
-@@ -495,7 +504,11 @@ int main(int argc, char **argv)
- 			}
- 			break;
- 		case 'p':
--			pidfile_path = optarg;
-+			pidfile_path_param = optarg;
-+			drop_privs = 1;
-+			break;
-+		case 'P':
-+			no_pid = 1;
- 			drop_privs = 1;
- 			break;
- 		case 'q':
-@@ -531,6 +544,17 @@ int main(int argc, char **argv)
- 			usage(stderr);
- 		}
- 	}
-+
-+	if (no_pid && pidfile_path_param && !quiet)
-+		fprintf(stderr, _("Both --pid and --no-pid specified. "
-+				  "Ignoring --no-pid.\n"));
-+
-+	if (!no_pid && !pidfile_path_param)
-+		pidfile_path = UUIDD_PIDFILE_PATH;
-+	else if (pidfile_path_param)
-+		pidfile_path = pidfile_path_param;
-+
-+
- 	uid = getuid();
- 	if (uid && drop_privs) {
- 		gid = getgid();
--- 
-1.7.7
+https://www.archlinux.org/packages/core/x86_64/util-linux
 
+They have patched the 2.21-6 package to include the following commit
+“lib/canonicalize: always remove tailing slash”:
+
+https://git.kernel.org/?p=utils/util-linux/util-linux.git;a=commitdiff;h=28074a0
+
+The result of this is that my SSHFS entry in my “fstab” file no longer
+works properly. To demonstrate, this “mount” command
+
+sudo mount -t fuse 'sshfs#marty@thee:/' /media/thee
+
+strips the trailing slash and calls
+
+/sbin/mount.fuse sshfs#marty@thee: /media/thee -o rw
+
+which mounts the home directory rather than the entire remote file
+system. A workaround seems to be to specify a double slash (e.g.
+“thee://”), but it doesn’t seem healthy and I was wondering if either
+this recent slash-removal could be avoided in the “mount” command, or
+if my magic SSHFS usage was abusing how “mount” is meant to work.
+
+-Martin
