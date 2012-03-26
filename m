@@ -1,57 +1,64 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from nm22-vm7.bullet.mail.ird.yahoo.com ([212.82.109.226]:46122 "HELO
-	nm22-vm7.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S964989Ab2CFWu2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Mar 2012 17:50:28 -0500
-Message-ID: <1331073821.1882.16.camel@kyoto.localdomain>
-Subject: mount -f regression in v2.21's new-mount
-From: Matt Burgess <matthew@linuxfromscratch.org>
-To: util-linux <util-linux@vger.kernel.org>
-Date: Tue, 06 Mar 2012 22:43:41 +0000
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: mail@bernhard-voelker.de
+Date: Mon, 26 Mar 2012 11:50:06 +0200 (CEST)
+From: "mail@bernhard-voelker.de" <mail@bernhard-voelker.de>
+Reply-To: "mail@bernhard-voelker.de" <mail@bernhard-voelker.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: Simon de Vlieger <simon@ikanobori.jp>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Message-ID: <1832206888.202754.1332755406928.JavaMail.open-xchange@email.1und1.de>
+In-Reply-To: <1961842217.201279.1332754786305.JavaMail.open-xchange@email.1und1.de>
+References: <4F6B13F9.4020108@bernhard-voelker.de> <20120323171936.GH2040@x2.net.home> <1961842217.201279.1332754786305.JavaMail.open-xchange@email.1und1.de>
+Subject: Re: [PATCH] hexdump: adjust -s and -n option in the man page [was:
+ hexsyntax.c using strtol on the offset parameter]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-First off, apologies in advance for the probably useless bug report that
-follows!  I'm only reporting it here because it *appears* to be a
-regression but I can't reproduce it under a minimised test-case.
+On March 26, 2012 at 11:39 AM "mail@bernhard-voelker.de"
+<mail@bernhard-voelker.de> wrote:
 
-Linux From Scratch's bootscripts mount a tmpfs at /run using the rather
-trivial 'mount -n /run'.  The corresponding fstab entry is:
+> * [PATCH 1/2] wipefs: use strtosize() for -o
 
-# file system  mount-point  type   options   dump  fsck order
-tmpfs          /run         tmpfs  defaults  0     0
 
-A little later on in the boot sequence, it then does a 'mount -f /run'
-in order to do update /etc/mtab.
+oops, sorry, there is an error in that patch.
+It was obviously not so trivial as at seemed to be.
 
-Now, when I build 2.21 with a plain './configure' run, everything works
-as expected.  However, when I build 2.21 with './configure
---enable-new-mount', the 2nd call to 'mount' appears to actually perform
-the mount, as opposed to simply updating /etc/mtab, thereby meaning that
-files/directories we expect to be there are no longer visible.
+Here's the correction.
 
-As mentioned above, I tried to reproduce this with a minimal test-case
-executed after boot, but the following *always* works correctly with
-both old and new (libmount-based) mount:
+Berny
 
-mkdir /tmp/run
-mount -n /tmp/run
-touch /tmp/run/test
-ls -l /tmp/run/test
-mount -f /tmp/run
-ls -l /tmp/run/test
+>From 531cb1ec623fc5c3ac0e95f897b712517b5b1167 Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Mon, 26 Mar 2012 11:48:57 +0200
+Subject: [PATCH] wipefs: use strtosize() for -o
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+misc-utils/wipefs.c | 6 +++++-
+1 files changed, 5 insertions(+), 1 deletions(-)
+diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
+index 74de3a3..5059c7c 100644
+--- a/misc-utils/wipefs.c
++++ b/misc-utils/wipefs.c
+@@ -385,6 +385,7 @@ main(int argc, char **argv)
+{
+struct wipe_desc *wp0 = NULL, *wp;
+int c, all = 0, has_offset = 0, noact = 0, mode = 0, quiet = 0;
++ uintmax_t offset;
 
-If the test case was successful at reproducing the fault, I'd expect the
-1st 'ls' command to show 1 file, and the 2nd to show 0 files.
-
-Any ideas on either where this bug may be, or how I may go about trying
-to reproduce/debug it further would be gratefully received.
-
-Thanks,
-
-Matt.
-
+static const struct option longopts[] = {
+{ "all", 0, 0, 'a' },
+@@ -414,7 +415,10 @@ main(int argc, char **argv)
+noact++;
+break;
+case 'o':
+- wp0 = add_offset(wp0, strtoll_offset(optarg), 1);
++ if (strtosize(optarg, &offset))
++ errx(EXIT_FAILURE,
++ _("invalid offset '%s' specified"), optarg);
++ wp0 = add_offset(wp0, offset, 1);
+has_offset++;
+break;
+case 'p':
+--
+1.7.9
