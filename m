@@ -1,53 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38360 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751815Ab2CFMyr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Mar 2012 07:54:47 -0500
-Date: Tue, 6 Mar 2012 13:54:44 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Frank Mayhar <fmayhar@google.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] fsck: Add a -r option to report memory and runtime
- statistics.
-Message-ID: <20120306125444.GA8389@x2.net.home>
-References: <1328649050.11787.28.camel@peace.lax.corp.google.com>
+Received: from hrndva-omtalb.mail.rr.com ([71.74.56.122]:27958 "EHLO
+	hrndva-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750796Ab2C0R0R (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Mar 2012 13:26:17 -0400
+Received: from [127.0.0.1] (AlThor.int.intellitree.com [172.20.0.44])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(Client did not present a certificate)
+	by orion.intree.net (Postfix) with ESMTPSA id 6588144D003B
+	for <util-linux@vger.kernel.org>; Tue, 27 Mar 2012 13:26:15 -0400 (EDT)
+Message-ID: <4F71F836.4000103@intellitree.com>
+Date: Tue, 27 Mar 2012 13:26:14 -0400
+From: Michael Conrad <mconrad@intellitree.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1328649050.11787.28.camel@peace.lax.corp.google.com>
+To: util-linux@vger.kernel.org
+Subject: blkid -o value
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 07, 2012 at 01:10:50PM -0800, Frank Mayhar wrote:
->  fsck/fsck.8 |   12 +++++++++++-
->  fsck/fsck.c |   38 +++++++++++++++++++++++++++++++++++++-
->  fsck/fsck.h |    2 ++
->  3 files changed, 50 insertions(+), 2 deletions(-)
+Hi, I've just had a semi-serious problem related to blkid's "-o value" 
+format.
 
- Finally I have time to work on fsck. I have created temporary branch
- at github for this task:
+When I first discovered that output format, I assumed that it would be a 
+stable script-friendly output format intended for people who don't want 
+to parse the name/value pairs.  The fields appeared to be
+   LABEL
+   UUID
+   TYPE
+and I wrote a script assuming the third one was TYPE.
 
-    https://github.com/karelzak/util-linux/commits/fsck
+However, suddenly the output has changed to be
+   LABEL
+   UUID
+   SEC_TYPE <-- "ext2"
+   TYPE <-- "ext3"
 
- changes:
+which caused my script to mount a ext3 partition as ext2, killing the 
+journal.
 
-  - fsck is only one fsck.c file, moved to disk-utils
-  - use libmount to parse fstab and for is_mounted() function
-  - does not use obsolete lib/fsprobe.c
+Looking at the code, it appears that it iterates over some list coming 
+from libblkid and prints a line with the value only if the value 
+exists.  So it appears that there was never any intention of it being a 
+stable output.
 
-> +\	/dev/hdc1 status 0 maxrss 92828
-> +.br
-> +\	/dev/hdc1 user 2.677592 system 0.861868 elapsed 4
+I would request that either the order of fields become stable by 
+printing empty lines for missing fields (and documented), or the "-o 
+value" be done away with, since I can't see any reason anyone would want 
+random output in a script-friendly format, and the fact that it exists 
+is likely to lead people astray.
 
- I have merged all to one line, final format is:
+Thoughts?  Comments?
 
-/dev/sda1: status 0, rss 92828, real 4.002804, user 2.677592, sys 0.86186
-
- The real/user/sys should be more compatible with time(1) now (so the
- 'real' is based on gettimeofday() although it's not so important for
- fsck).
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-Mike Conrad
