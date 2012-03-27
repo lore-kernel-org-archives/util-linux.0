@@ -1,59 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:37748 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752255Ab2CCOpd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 3 Mar 2012 09:45:33 -0500
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 2177490182
-	for <util-linux@vger.kernel.org>; Sat,  3 Mar 2012 15:45:32 +0100 (CET)
-Date: Sat, 3 Mar 2012 15:45:25 +0100
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: Re: v2.22 wish list
-Message-ID: <20120303144525.GE5683@skipper.site>
-References: <20120229154420.GD8471@x2.net.home>
+Received: from li9-11.members.linode.com ([67.18.176.11]:38575 "EHLO
+	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754880Ab2C0Snt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 27 Mar 2012 14:43:49 -0400
+Date: Tue, 27 Mar 2012 11:43:45 -0700
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Michael Conrad <mconrad@intellitree.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: blkid -o value
+Message-ID: <20120327184345.GA11236@thunk.org>
+References: <4F71F836.4000103@intellitree.com>
+ <20120327173149.GC10142@thunk.org>
+ <4F71FE73.9010208@intellitree.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
-In-Reply-To: <20120229154420.GD8471@x2.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4F71FE73.9010208@intellitree.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Mar 27, 2012 at 01:52:51PM -0400, Michael Conrad wrote:
+> 
+> I see how that could be useful if and only if you use exactly one
+> "-s", but if you requested more than one "-s" they still come out in
+> non-stable order.  It's like running a SQL query and having all the
+> columns shifted because the first one was a NULL.  
 
---Dzs2zDY0zgkG72+7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Actually, it's more like running an SQL query without a SORTED BY and
+assuming the order of the rows was stable.
 
-On Wed, Feb 29, 2012 at 04:44:20PM +0100, Karel Zak wrote:
->  * make uuidd (uuid daemon) compatible with systemd
->    - add --no-fork
->    - add --no-pid (pid file)
->    - add systemd unit file
->    - add #ifdef LIBUUID_EXEC_UUIDD to disable uuidd exec from library
+> At the very least, I would appreciate it if the man page mentioned
+> that "-o value" should only ever be used with exactly one "-s".
 
-Hi, JFYI (and to avoid duplicate work), I started on this:
+What I would suggest is that blkid explicitly state that the order of
+fields or file systems (if more than one file system is selected) is
+not defined, since that's something which is true in general, and not
+just for "-o value".
 
-https://github.com/knot/util-linux/tree/uuidd
+It might also be useful to have an EXAMPLES section which gives some
+sample ways that blkid can be used.
 
 Regards,
 
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---Dzs2zDY0zgkG72+7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk9SLoUACgkQnZxG0T6qDD0kwACgh1ewdxemYp9VUYDjNOPRLNio
-PAIAn0dPdYraLjtUQjG46+xgIoYa2SIA
-=GPjo
------END PGP SIGNATURE-----
-
---Dzs2zDY0zgkG72+7--
+						- Ted
