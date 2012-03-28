@@ -1,155 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:58484 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757507Ab2CETjH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:07 -0500
-Received: by eaaq12 with SMTP id q12so1565228eaa.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:06 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 01/17] docs: add deprecation comments
-Date: Mon,  5 Mar 2012 20:38:38 +0100
-Message-Id: <1330976334-10751-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-References: <20120305123847.GD486@x2.net.home>
- <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:34369 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757369Ab2C1JAo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 28 Mar 2012 05:00:44 -0400
+Date: Wed, 28 Mar 2012 11:00:38 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Ted Ts'o" <tytso@mit.edu>
+Cc: Michael Conrad <mconrad@intellitree.com>, util-linux@vger.kernel.org
+Subject: Re: blkid -o value
+Message-ID: <20120328090038.GB2045@x2.net.home>
+References: <4F71F836.4000103@intellitree.com>
+ <20120327173149.GC10142@thunk.org>
+ <4F71FE73.9010208@intellitree.com>
+ <20120327184345.GA11236@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120327184345.GA11236@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Markup deprecation to command header to avoid people wasting time in
-fixing these utilities.
+On Tue, Mar 27, 2012 at 11:43:45AM -0700, Ted Ts'o wrote:
+> On Tue, Mar 27, 2012 at 01:52:51PM -0400, Michael Conrad wrote:
+> > 
+> > I see how that could be useful if and only if you use exactly one
+> > "-s", but if you requested more than one "-s" they still come out in
+> > non-stable order.  It's like running a SQL query and having all the
+> > columns shifted because the first one was a NULL.  
+> 
+> Actually, it's more like running an SQL query without a SORTED BY and
+> assuming the order of the rows was stable.
+> 
+> > At the very least, I would appreciate it if the man page mentioned
+> > that "-o value" should only ever be used with exactly one "-s".
+> 
+> What I would suggest is that blkid explicitly state that the order of
+> fields or file systems (if more than one file system is selected) is
+> not defined, since that's something which is true in general, and not
+> just for "-o value".
+> 
+> It might also be useful to have an EXAMPLES section which gives some
+> sample ways that blkid can be used.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/elvtune.c |    9 +++++++++
- login-utils/last.c   |    9 +++++++++
- login-utils/newgrp.c |    9 +++++++++
- login-utils/vipw.c   |    9 +++++++++
- sys-utils/arch.c     |    9 +++++++++
- text-utils/line.c    |    9 +++++++++
- 6 files changed, 54 insertions(+)
+ Good idea. I'll update the man page.
 
-diff --git a/disk-utils/elvtune.c b/disk-utils/elvtune.c
-index 7c3caed..7c074ff 100644
---- a/disk-utils/elvtune.c
-+++ b/disk-utils/elvtune.c
-@@ -18,6 +18,15 @@
-  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  */
- 
-+/*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
- #include <fcntl.h>
- #include <errno.h>
- #include <stdio.h>
-diff --git a/login-utils/last.c b/login-utils/last.c
-index 734730b..417314e 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -27,6 +27,15 @@
-   */
- 
- /*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
-+/*
-  * last
-  */
- #include <sys/param.h>
-diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
-index 9839934..707c589 100644
---- a/login-utils/newgrp.c
-+++ b/login-utils/newgrp.c
-@@ -6,6 +6,15 @@
-  * - added Native Language Support
-  */
- 
-+/*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
- #include <errno.h>
- #include <getopt.h>
- #include <grp.h>
-diff --git a/login-utils/vipw.c b/login-utils/vipw.c
-index 92b4231..c0ed0b3 100644
---- a/login-utils/vipw.c
-+++ b/login-utils/vipw.c
-@@ -44,6 +44,15 @@
-  * - fixed strerr(errno) in gettext calls
-  */
- 
-+/*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
- #include <errno.h>
- #include <fcntl.h>
- #include <paths.h>
-diff --git a/sys-utils/arch.c b/sys-utils/arch.c
-index 0c29c3e..470b12b 100644
---- a/sys-utils/arch.c
-+++ b/sys-utils/arch.c
-@@ -18,6 +18,15 @@
-  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  */
- 
-+/*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
- #include <err.h>
- #include <errno.h>
- #include <getopt.h>
-diff --git a/text-utils/line.c b/text-utils/line.c
-index 826e5a2..636122e 100644
---- a/text-utils/line.c
-+++ b/text-utils/line.c
-@@ -6,6 +6,15 @@
-  * Public Domain.
-  */
- 
-+/*
-+ * This command is deprecated.  The utility is in maintenance mode,
-+ * meaning we keep them in source tree for backward compatibility
-+ * only.  Do not waste time making this command better, unless the
-+ * fix is about security or other very critical issue.
-+ *
-+ * See Documentation/deprecated.txt for more information.
-+ */
-+
- #include	<stdio.h>
- #include	<unistd.h>
- 
+    Karel
+
 -- 
-1.7.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
