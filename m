@@ -1,185 +1,118 @@
-Return-Path: mail@bernhard-voelker.de
-Date: Mon, 26 Mar 2012 11:39:46 +0200 (CEST)
-From: "mail@bernhard-voelker.de" <mail@bernhard-voelker.de>
-Reply-To: "mail@bernhard-voelker.de" <mail@bernhard-voelker.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: Simon de Vlieger <simon@ikanobori.jp>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Message-ID: <1961842217.201279.1332754786305.JavaMail.open-xchange@email.1und1.de>
-In-Reply-To: <20120323171936.GH2040@x2.net.home>
-References: <4F6B13F9.4020108@bernhard-voelker.de> <20120323171936.GH2040@x2.net.home>
-Subject: Re: [PATCH] hexdump: adjust -s and -n option in the man page [was:
- hexsyntax.c using strtol on the offset parameter]
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from hrndva-omtalb.mail.rr.com ([71.74.56.122]:9489 "EHLO
+	hrndva-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758036Ab2C1VD2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 28 Mar 2012 17:03:28 -0400
+Message-ID: <4F737C99.6050500@intellitree.com>
+Date: Wed, 28 Mar 2012 17:03:21 -0400
+From: Michael Conrad <mconrad@intellitree.com>
 MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: "Ted Ts'o" <tytso@mit.edu>, util-linux@vger.kernel.org
+Subject: Re: blkid -o value
+References: <4F71F836.4000103@intellitree.com> <20120327173149.GC10142@thunk.org> <4F71FE73.9010208@intellitree.com> <20120327184345.GA11236@thunk.org> <20120328090038.GB2045@x2.net.home>
+In-Reply-To: <20120328090038.GB2045@x2.net.home>
 Content-Type: multipart/mixed;
-	boundary="----=_Part_201278_102155215.1332754786025"
+ boundary="------------010808030802000207010800"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-------=_Part_201278_102155215.1332754786025
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+This is a multi-part message in MIME format.
+--------------010808030802000207010800
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
- On March 26, 2012 at 10:42 AM Karel Zak <kzak@redhat.com> wrote:
+On 03/28/2012 05:00 AM, Karel Zak wrote:
+> On Tue, Mar 27, 2012 at 11:43:45AM -0700, Ted Ts'o wrote:
+>> On Tue, Mar 27, 2012 at 01:52:51PM -0400, Michael Conrad wrote:
+>>> I see how that could be useful if and only if you use exactly one
+>>> "-s", but if you requested more than one "-s" they still come out in
+>>> non-stable order.  It's like running a SQL query and having all the
+>>> columns shifted because the first one was a NULL.  
+>> Actually, it's more like running an SQL query without a SORTED BY and
+>> assuming the order of the rows was stable.
+Only if the data weren't in any normal form.  I say it's like columns
+getting shifted because if you ask for 2 values you expect the field
+offset to imply the type of the data.  If one field is NULL, the rows
+shift upward, resulting in a value interpreted as the wrong type.
 
-> Hi Berny,
-> 
-> > On Mon, Mar 26, 2012 at 09:20:26AM +0200, mail@bernhard-voelker.de
-wrote:
-> > I have derived my patch proposal from the info pages of coreutils, as
-there
-> > has recently been a discussion about the clearest wording.
-> > I don't think all users are aware what's the difference between
-> > "binary (2^N) suffixes KiB" and "decimal (10^N) suffixes KB".
-> 
-> hmm, good point, send patch that fix the problem in all the man pages.
-> 
-> > BTW: why omitting the Z and the Y suffix in the man page?
-> Send patch ;-)
+This is why I'm saying the "-o values" is only usable if you use exactly
+one "-s", because any other scenario means every value returned has an
+indeterminate type, which is garbage data.  IMO a tool should never
+output garbage.  It should prevent or warn about illegitimate usage. 
+Since the tool has been out there and in use for quite a while, I would
+suggest a warning.
 
-Attached:
+(patch attached)
 
-* [PATCH 1/2] wipefs: use strtosize() for -o
-* [PATCH 2/2] docs: clarify KiB vs. KB in man pages
+>>> At the very least, I would appreciate it if the man page mentioned
+>>> that "-o value" should only ever be used with exactly one "-s".
+>> What I would suggest is that blkid explicitly state that the order of
+>> fields or file systems (if more than one file system is selected) is
+>> not defined, since that's something which is true in general, and not
+>> just for "-o value".
+>>
+>> It might also be useful to have an EXAMPLES section which gives some
+>> sample ways that blkid can be used.
+>  Good idea. I'll update the man page.
+>
+>     Karel
 
-Have fun,
-Berny
-------=_Part_201278_102155215.1332754786025
-Content-Type: application/octet-stream; name=strtosize-man.patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=strtosize-man.patch
+Thanks!
 
-RnJvbSBmNjExMTBhZGNjZWFlY2VlNzhjNzhmNDBmMDI1MDRiNWMyYWFjYjU2IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBCZXJuaGFyZCBWb2Vsa2VyIDxtYWlsQGJlcm5oYXJkLXZvZWxr
-ZXIuZGU+CkRhdGU6IE1vbiwgMjYgTWFyIDIwMTIgMTE6MjM6MTIgKzAyMDAKU3ViamVjdDogW1BB
-VENIIDEvMl0gd2lwZWZzOiB1c2Ugc3RydG9zaXplKCkgZm9yIC1vCgpTaWduZWQtb2ZmLWJ5OiBC
-ZXJuaGFyZCBWb2Vsa2VyIDxtYWlsQGJlcm5oYXJkLXZvZWxrZXIuZGU+Ci0tLQogbWlzYy11dGls
-cy93aXBlZnMuYyB8ICAgIDggKysrKysrLS0KIDEgZmlsZXMgY2hhbmdlZCwgNiBpbnNlcnRpb25z
-KCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvd2lwZWZzLmMgYi9t
-aXNjLXV0aWxzL3dpcGVmcy5jCmluZGV4IDc0ZGUzYTMuLjM2ODFmZWUgMTAwNjQ0Ci0tLSBhL21p
-c2MtdXRpbHMvd2lwZWZzLmMKKysrIGIvbWlzYy11dGlscy93aXBlZnMuYwpAQCAtMzg1LDYgKzM4
-NSw3IEBAIG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogewogCXN0cnVjdCB3aXBlX2Rlc2Mg
-KndwMCA9IE5VTEwsICp3cDsKIAlpbnQgYywgYWxsID0gMCwgaGFzX29mZnNldCA9IDAsIG5vYWN0
-ID0gMCwgbW9kZSA9IDAsIHF1aWV0ID0gMDsKKwl1aW50bWF4X3Qgb2Zmc2V0OwogCiAJc3RhdGlj
-IGNvbnN0IHN0cnVjdCBvcHRpb24gbG9uZ29wdHNbXSA9IHsKIAkgICAgeyAiYWxsIiwgICAgICAg
-MCwgMCwgJ2EnIH0sCkBAIC00MTMsOCArNDE0LDExIEBAIG1haW4oaW50IGFyZ2MsIGNoYXIgKiph
-cmd2KQogCQljYXNlICduJzoKIAkJCW5vYWN0Kys7CiAJCQlicmVhazsKLQkJY2FzZSAnbyc6Ci0J
-CQl3cDAgPSBhZGRfb2Zmc2V0KHdwMCwgc3RydG9sbF9vZmZzZXQob3B0YXJnKSwgMSk7CisJCWNh
-c2UgJ28nOiB7CisJCQlpZiAoc3RydG9zaXplKG9wdGFyZywgJm9mZnNldCkKKwkJCQllcnJ4KEVY
-SVRfRkFJTFVSRSwKKwkJCQkgICAgIF8oImludmFsaWQgb2Zmc2V0ICclcycgc3BlY2lmaWVkIiks
-IG9wdGFyZyk7CisJCQl3cDAgPSBhZGRfb2Zmc2V0KHdwMCwgb2Zmc2V0LCAxKTsKIAkJCWhhc19v
-ZmZzZXQrKzsKIAkJCWJyZWFrOwogCQljYXNlICdwJzoKLS0gCjEuNy45CgoKRnJvbSBmNTk1NmNl
-ZTRjN2U2ZDU3YTBmZTAwYWYyOTM3NjE3ZDY5OGFkYmQ5IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAw
-MQpGcm9tOiBCZXJuaGFyZCBWb2Vsa2VyIDxtYWlsQGJlcm5oYXJkLXZvZWxrZXIuZGU+CkRhdGU6
-IE1vbiwgMjYgTWFyIDIwMTIgMTE6MzA6MTYgKzAyMDAKU3ViamVjdDogW1BBVENIIDIvMl0gZG9j
-czogY2xhcmlmeSBLaUIgdnMuIEtCIGluIG1hbiBwYWdlcwoKVXBkYXRlIHRoZSBtYW4gcGFnZXMg
-b2YgYmxraWQsIHdpcGVmcywgZmFsbG9jYXRlLCBmc3RyaW0sIGxvc2V0dXAKYW5kIGhleGR1bXAg
-dG8gY2xhcmlmeSB0aGUgc3VmZml4ZXMgZm9yIHRoZSBudW1lcmljYWwgdmFsdWVzIG9mIHRoZQpv
-ZmZzZXQgYW5kIHNpemUvbGVuZ3RoIGFyZ3VtZW50cyByZWdhcmRpbmcgS2lCPTEwMjQgdnMgS0I9
-MTAwMC4KQWxzbyBtZW50aW9uIHRoZSBaaUIvWWlCIGFuZCBaQi9ZQiBzdWZmaXhlcyBzdXBwb3J0
-ZWQgYnkgc3RydG9zaXplKCkuCgpTaWduZWQtb2ZmLWJ5OiBCZXJuaGFyZCBWb2Vsa2VyIDxtYWls
-QGJlcm5oYXJkLXZvZWxrZXIuZGU+Ci0tLQogbWlzYy11dGlscy9ibGtpZC44ICAgIHwgICAgNyAr
-KysrLS0tCiBtaXNjLXV0aWxzL3dpcGVmcy44ICAgfCAgICA3ICsrKystLS0KIHN5cy11dGlscy9m
-YWxsb2NhdGUuMSB8ICAgIDcgKysrKy0tLQogc3lzLXV0aWxzL2ZzdHJpbS44ICAgIHwgICAgNyAr
-KysrLS0tCiBzeXMtdXRpbHMvbG9zZXR1cC44ICAgfCAgICA3ICsrKystLS0KIHRleHQtdXRpbHMv
-aGV4ZHVtcC4xICB8ICAgIDcgKysrKy0tLQogNiBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25z
-KCspLCAxOCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL2Jsa2lkLjggYi9t
-aXNjLXV0aWxzL2Jsa2lkLjgKaW5kZXggYzhhMzEyMS4uODAzNjNhYyAxMDA2NDQKLS0tIGEvbWlz
-Yy11dGlscy9ibGtpZC44CisrKyBiL21pc2MtdXRpbHMvYmxraWQuOApAQCAtNjksOSArNjksMTAg
-QEAgaGFzIHR3byBtYWluIGZvcm1zIG9mIG9wZXJhdGlvbjogZWl0aGVyIHNlYXJjaGluZyBmb3Ig
-YSBkZXZpY2Ugd2l0aCBhCiBzcGVjaWZpYyBOQU1FPXZhbHVlIHBhaXIsIG9yIGRpc3BsYXlpbmcg
-TkFNRT12YWx1ZSBwYWlycyBmb3Igb25lIG9yCiBtb3JlIHNwZWNpZmllZCBkZXZpY2VzLgogLlNI
-IE9QVElPTlMKLVRoZSBcZklzaXplXGZSIGFuZCBcZklvZmZzZXRcZlIgYXJndW1lbnRzIG1heSBi
-ZSBmb2xsb3dlZCBieSBiaW5hcnkgKDJeTikgCi1zdWZmaXhlcyBLaUIsIE1pQiwgR2lCLCBUaUIs
-IFBpQiBhbmQgRWlCICh0aGUgImlCIiBpcyBvcHRpb25hbCwgZS5nLiAiSyIgaGFzIHRoZQotc2Ft
-ZSBtZWFuaW5nIGFzICJLaUIiKSBvciBkZWNpbWFsICgxMF5OKSBzdWZmaXhlcyBLQiwgTUIsIEdC
-LCBQQiBhbmQgRUIuCitUaGUgXGZJc2l6ZVxmUiBhbmQgXGZJb2Zmc2V0XGZSIGFyZ3VtZW50cyBt
-YXkgYmUgZm9sbG93ZWQgYnkgdGhlIG11bHRpcGxpY2F0aXZlCitzdWZmaXhlcyBLaUI9MTAyNCwg
-TWlCPTEwMjQqMTAyNCwgYW5kIHNvIG9uIGZvciBHaUIsIFRpQiwgUGlCLCBFaUIsIFppQiBhbmQg
-WWlCCisodGhlICJpQiIgaXMgb3B0aW9uYWwsIGUuZy4gIksiIGhhcyB0aGUgc2FtZSBtZWFuaW5n
-IGFzICJLaUIiKSBvciB0aGUgc3VmZml4ZXMgCitLQj0xMDAwLCBNQj0xMDAwKjEwMDAsIGFuZCBz
-byBvbiBmb3IgR0IsIFBCLCBFQiwgWkIgYW5kIFlCLgogLlRQCiAuQkkgXC1jICIgY2FjaGVmaWxl
-IgogUmVhZCBmcm9tCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL3dpcGVmcy44IGIvbWlzYy11dGls
-cy93aXBlZnMuOAppbmRleCBjZWU4ZWY3Li44NWQ5NTc2IDEwMDY0NAotLS0gYS9taXNjLXV0aWxz
-L3dpcGVmcy44CisrKyBiL21pc2MtdXRpbHMvd2lwZWZzLjgKQEAgLTQ3LDkgKzQ3LDEwIEBAIFNw
-ZWNpZnkgdGhlIGxvY2F0aW9uIChpbiBieXRlcykgb2YgdGhlIHNpZ25hdHVyZSB3aGljaCBzaG91
-bGQgYmUgZXJhc2VkIGZyb20gdGhlCiBkZXZpY2UuICBUaGUgXGZJb2Zmc2V0XGZSIG51bWJlciBt
-YXkgaW5jbHVkZSBhICIweCIgcHJlZml4OyB0aGVuIHRoZSBudW1iZXIgd2lsbCBiZQogaW50ZXJw
-cmV0ZWQgYXMgYSBoZXggdmFsdWUuICBJdCBpcyBwb3NzaWJsZSB0byBzcGVjaWZ5IG11bHRpcGxl
-IFxmQi1vXGZSIG9wdGlvbnMuCiAKLVRoZSBcZklvZmZzZXRcZlIgYXJndW1lbnQgbWF5IGJlIGZv
-bGxvd2VkIGJ5IGJpbmFyeSAoMl5OKSBzdWZmaXhlcyBLaUIsIE1pQiwKLUdpQiwgVGlCLCBQaUIg
-YW5kIEVpQiAodGhlICJpQiIgaXMgb3B0aW9uYWwsIGUuZy4gIksiIGhhcyB0aGUgc2FtZSBtZWFu
-aW5nIGFzCi0iS2lCIikgb3IgZGVjaW1hbCAoMTBeTikgc3VmZml4ZXMgS0IsIE1CLCBHQiwgUEIg
-YW5kIEVCLgorVGhlIFxmSW9mZnNldFxmUiBhcmd1bWVudCBtYXkgYmUgZm9sbG93ZWQgYnkgdGhl
-IG11bHRpcGxpY2F0aXZlCitzdWZmaXhlcyBLaUI9MTAyNCwgTWlCPTEwMjQqMTAyNCwgYW5kIHNv
-IG9uIGZvciBHaUIsIFRpQiwgUGlCLCBFaUIsIFppQiBhbmQgWWlCCisodGhlICJpQiIgaXMgb3B0
-aW9uYWwsIGUuZy4gIksiIGhhcyB0aGUgc2FtZSBtZWFuaW5nIGFzICJLaUIiKSBvciB0aGUgc3Vm
-Zml4ZXMgCitLQj0xMDAwLCBNQj0xMDAwKjEwMDAsIGFuZCBzbyBvbiBmb3IgR0IsIFBCLCBFQiwg
-WkIgYW5kIFlCLgogLklQICJcZkJcLXAsIFwtXC1wYXJzYWJsZVxmUCIKIFByaW50IG91dCBpbiBw
-YXJzYWJsZSBpbnN0ZWFkIG9mIHByaW50YWJsZSBmb3JtYXQuICBFbmNvZGUgYWxsIHBvdGVudGlh
-bGx5IHVuc2FmZQogY2hhcmFjdGVycyBvZiBhIHN0cmluZyB0byB0aGUgY29ycmVzcG9uZGluZyBo
-ZXggdmFsdWUgcHJlZml4ZWQgYnkgJ1xceCcuCmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvZmFsbG9j
-YXRlLjEgYi9zeXMtdXRpbHMvZmFsbG9jYXRlLjEKaW5kZXggNjUzZWJmYi4uYTZlYWU4ZiAxMDA2
-NDQKLS0tIGEvc3lzLXV0aWxzL2ZhbGxvY2F0ZS4xCisrKyBiL3N5cy11dGlscy9mYWxsb2NhdGUu
-MQpAQCAtMjYsOSArMjYsMTAgQEAgVGhlIGV4aXQgY29kZSByZXR1cm5lZCBieQogaXMgMCBvbiBz
-dWNjZXNzIGFuZCAxIG9uIGZhaWx1cmUuCiAuUFAKIC5TSCBPUFRJT05TCi1UaGUgXGZJbGVuZ3Ro
-XGZSIGFuZCBcZklvZmZzZXRcZlIgYXJndW1lbnRzIG1heSBiZSBmb2xsb3dlZCBieSBiaW5hcnkg
-KDJeTikKLXN1ZmZpeGVzIEtpQiwgTWlCLCBHaUIsIFRpQiwgUGlCIGFuZCBFaUIgKHRoZSAiaUIi
-IGlzIG9wdGlvbmFsLCBlLmcuICJLIiBoYXMgdGhlCi1zYW1lIG1lYW5pbmcgYXMgIktpQiIpIG9y
-IGRlY2ltYWwgKDEwXk4pIHN1ZmZpeGVzIEtCLCBNQiwgR0IsIFBCIGFuZCBFQi4KK1RoZSBcZkls
-ZW5ndGhcZlIgYW5kIFxmSW9mZnNldFxmUiBhcmd1bWVudHMgbWF5IGJlIGZvbGxvd2VkIGJ5IHRo
-ZSBtdWx0aXBsaWNhdGl2ZQorc3VmZml4ZXMgS2lCPTEwMjQsIE1pQj0xMDI0KjEwMjQsIGFuZCBz
-byBvbiBmb3IgR2lCLCBUaUIsIFBpQiwgRWlCLCBaaUIgYW5kIFlpQgorKHRoZSAiaUIiIGlzIG9w
-dGlvbmFsLCBlLmcuICJLIiBoYXMgdGhlIHNhbWUgbWVhbmluZyBhcyAiS2lCIikgb3IgdGhlIHN1
-ZmZpeGVzIAorS0I9MTAwMCwgTUI9MTAwMCoxMDAwLCBhbmQgc28gb24gZm9yIEdCLCBQQiwgRUIs
-IFpCIGFuZCBZQi4KIC5JUCAiXGZCXC1uLCBcLVwta2VlcC1zaXplXGZQIgogRG8gbm90IG1vZGlm
-eSB0aGUgYXBwYXJlbnQgbGVuZ3RoIG9mIHRoZSBmaWxlLiAgVGhpcyBtYXkgZWZmZWN0aXZlbHkg
-YWxsb2NhdGUKIGJsb2NrcyBwYXN0IEVPRiwgd2hpY2ggY2FuIGJlIHJlbW92ZWQgd2l0aCBhIHRy
-dW5jYXRlLgpkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL2ZzdHJpbS44IGIvc3lzLXV0aWxzL2ZzdHJp
-bS44CmluZGV4IDE4YjVlYWYuLmEyMzU3MDMgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9mc3RyaW0u
-OAorKysgYi9zeXMtdXRpbHMvZnN0cmltLjgKQEAgLTMxLDkgKzMxLDEwIEBAIGlzIG1vdW50ZWQu
-CiAKIC5TSCBPUFRJT05TCiBUaGUgXGZJb2Zmc2V0XGZSLCBcZklsZW5ndGhcZlIsIGFuZCBcZklt
-aW5pbXVtLWZyZWUtZXh0ZW50XGZSIGFyZ3VtZW50cyBtYXkgYmUKLWZvbGxvd2VkIGJ5IGJpbmFy
-eSAoMl5OKSBzdWZmaXhlcyBLaUIsIE1pQiwgR2lCLCBUaUIsIFBpQiBhbmQgRWlCICh0aGUgImlC
-IiBpcwotb3B0aW9uYWwsIGUuZy4gIksiIGhhcyB0aGUgc2FtZSBtZWFuaW5nIGFzICJLaUIiKSBv
-ciBkZWNpbWFsICgxMF5OKSBzdWZmaXhlcwotS0IsIE1CLCBHQiwgUEIgYW5kIEVCLgorZm9sbG93
-ZWQgYnkgdGhlIG11bHRpcGxpY2F0aXZlIHN1ZmZpeGVzIEtpQj0xMDI0LCBNaUI9MTAyNCoxMDI0
-LCBhbmQgc28gb24gZm9yCitHaUIsIFRpQiwgUGlCLCBFaUIsIFppQiBhbmQgWWlCICh0aGUgImlC
-IiBpcyBvcHRpb25hbCwgZS5nLiAiSyIgaGFzIHRoZSBzYW1lCittZWFuaW5nIGFzICJLaUIiKSBv
-ciB0aGUgc3VmZml4ZXMgS0I9MTAwMCwgTUI9MTAwMCoxMDAwLCBhbmQgc28gb24gZm9yIEdCLCBQ
-QiwKK0VCLCBaQiBhbmQgWUIuCiAuSVAgIlxmQlwtaCwgXC1cLWhlbHBcZlAiCiBQcmludCBoZWxw
-IGFuZCBleGl0LgogLklQICJcZkJcLW8sIFwtXC1vZmZzZXRcZlAgXGZJb2Zmc2V0XGZQIgpkaWZm
-IC0tZ2l0IGEvc3lzLXV0aWxzL2xvc2V0dXAuOCBiL3N5cy11dGlscy9sb3NldHVwLjgKaW5kZXgg
-ZjUwYjA3Mi4uZmQxNmNmZiAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL2xvc2V0dXAuOAorKysgYi9z
-eXMtdXRpbHMvbG9zZXR1cC44CkBAIC02OSw5ICs2OSwxMCBAQCB0byBkZXRhY2ggbG9vcCBkZXZp
-Y2VzIGFuZCB0byBxdWVyeSB0aGUgc3RhdHVzIG9mIGEgbG9vcCBkZXZpY2UuIElmIG9ubHkgdGhl
-CiBkZXZpY2UgaXMgc2hvd24uCiAKIC5TSCBPUFRJT05TCi1UaGUgXGZJc2l6ZVxmUiBhbmQgXGZJ
-b2Zmc2V0XGZSIGFyZ3VtZW50cyBtYXkgYmUgZm9sbG93ZWQgYnkgYmluYXJ5ICgyXk4pCi1zdWZm
-aXhlcyBLaUIsIE1pQiwgR2lCLCBUaUIsIFBpQiBhbmQgRWlCICh0aGUgImlCIiBpcyBvcHRpb25h
-bCwgZS5nLiAiSyIgaGFzIHRoZQotc2FtZSBtZWFuaW5nIGFzICJLaUIiKSBvciBkZWNpbWFsICgx
-MF5OKSBzdWZmaXhlcyBLQiwgTUIsIEdCLCBQQiBhbmQgRUIuCisrVGhlIFxmSXNpemVcZlIgYW5k
-IFxmSW9mZnNldFxmUiBhcmd1bWVudHMgbWF5IGJlIGZvbGxvd2VkIGJ5IHRoZSBtdWx0aXBsaWNh
-dGl2ZQorK3N1ZmZpeGVzIEtpQj0xMDI0LCBNaUI9MTAyNCoxMDI0LCBhbmQgc28gb24gZm9yIEdp
-QiwgVGlCLCBQaUIsIEVpQiwgWmlCIGFuZCBZaUIKKysodGhlICJpQiIgaXMgb3B0aW9uYWwsIGUu
-Zy4gIksiIGhhcyB0aGUgc2FtZSBtZWFuaW5nIGFzICJLaUIiKSBvciB0aGUgc3VmZml4ZXMgCisr
-S0I9MTAwMCwgTUI9MTAwMCoxMDAwLCBhbmQgc28gb24gZm9yIEdCLCBQQiwgRUIsIFpCIGFuZCBZ
-Qi4KIAogLklQICJcZkJcLWEsIFwtXC1hbGxcZlAiCiBzaG93IHN0YXR1cyBvZiBhbGwgbG9vcCBk
-ZXZpY2VzLiBOb3RlIHRoYXQgbm90IGFsbCBpbmZvcm1hdGlvbiBhcmUgYWNjZXNzaWJsZQpkaWZm
-IC0tZ2l0IGEvdGV4dC11dGlscy9oZXhkdW1wLjEgYi90ZXh0LXV0aWxzL2hleGR1bXAuMQppbmRl
-eCAwYjNhNTI1Li44NGVjYWY0IDEwMDY0NAotLS0gYS90ZXh0LXV0aWxzL2hleGR1bXAuMQorKysg
-Yi90ZXh0LXV0aWxzL2hleGR1bXAuMQpAQCAtNDQsOSArNDQsMTAgQEAgdXRpbGl0eSBpcyBhIGZp
-bHRlciB3aGljaCBkaXNwbGF5cyB0aGUgc3BlY2lmaWVkIGZpbGVzLCBvcgogc3RhbmRhcmQgaW5w
-dXQgaWYgbm8gZmlsZXMgYXJlIHNwZWNpZmllZCwgaW4gYSB1c2VyLXNwZWNpZmllZAogZm9ybWF0
-LgogLlNIIE9QVElPTlMKLVRoZSBcZklsZW5ndGhcZlIgYW5kIFxmSW9mZnNldFxmUiBhcmd1bWVu
-dHMgbWF5IGJlIGZvbGxvd2VkIGJ5IGJpbmFyeSAoMl5OKQotc3VmZml4ZXMgS2lCLCBNaUIsIEdp
-QiwgVGlCLCBQaUIgYW5kIEVpQiAodGhlICJpQiIgaXMgb3B0aW9uYWwsIGUuZy4gIksiIGhhcyB0
-aGUKLXNhbWUgbWVhbmluZyBhcyAiS2lCIikgb3IgZGVjaW1hbCAoMTBeTikgc3VmZml4ZXMgS0Is
-IE1CLCBHQiwgUEIgYW5kIEVCLgorVGhlIFxmSWxlbmd0aFxmUiBhbmQgXGZJb2Zmc2V0XGZSIGFy
-Z3VtZW50cyBtYXkgYmUgZm9sbG93ZWQgYnkgdGhlIG11bHRpcGxpY2F0aXZlCitzdWZmaXhlcyBL
-aUI9MTAyNCwgTWlCPTEwMjQqMTAyNCwgYW5kIHNvIG9uIGZvciBHaUIsIFRpQiwgUGlCLCBFaUIs
-IFppQiBhbmQgWWlCCisodGhlICJpQiIgaXMgb3B0aW9uYWwsIGUuZy4gIksiIGhhcyB0aGUgc2Ft
-ZSBtZWFuaW5nIGFzICJLaUIiKSBvciB0aGUgc3VmZml4ZXMKK0tCPTEwMDAsIE1CPTEwMDAqMTAw
-MCwgYW5kIHNvIG9uIGZvciBHQiwgUEIsIEVCLCBaQiBhbmQgWUIuCiAuVFAKIC5CIFwtYgogXGZJ
-T25lLWJ5dGUgb2N0YWwgZGlzcGxheVxmUi4gIERpc3BsYXkgdGhlIGlucHV0IG9mZnNldCBpbiBo
-ZXhhZGVjaW1hbCwKLS0gCjEuNy45Cgo=
-------=_Part_201278_102155215.1332754786025--
+
+
+--------------010808030802000207010800
+Content-Type: text/plain;
+ name="blkid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="blkid.patch"
+
+>From 0415f6dcb3c5636a69499b0accdd0e2fae9ac0c3 Mon Sep 17 00:00:00 2001
+From: Michael Conrad <mconrad@intellitree.com>
+Date: Wed, 28 Mar 2012 16:51:12 -0400
+Subject: [PATCH] blkid: added warning about unstable output for '-o values'
+
+ * A warning is now emitted when using 'values' without requesting
+   a single tag.
+
+ * Updated man page to describe the reason behind it.
+---
+ misc-utils/blkid.8 |    3 ++-
+ misc-utils/blkid.c |    3 +++
+ 2 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/misc-utils/blkid.8 b/misc-utils/blkid.8
+index 6bde6bc..f6175b2 100644
+--- a/misc-utils/blkid.8
++++ b/misc-utils/blkid.8
+@@ -152,7 +152,8 @@ parameter may be:
+ print all tags (the default)
+ .TP
+ .B value
+-print the value of the tags
++print the value of the tags.  The tag order is variable, so you should only
++use this format when selecting a single tag for a single device. (see '-s')
+ .TP
+ .B list
+ print the devices in a user-friendly format; this output format is unsupported
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index 1e8073e..4e5b338 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -829,6 +829,9 @@ int main(int argc, char **argv)
+ 		print_version(stdout);
+ 		goto exit;
+ 	}
++	
++	if (output_format == OUTPUT_VALUE_ONLY && numtag != 1)
++		fprintf(stderr, "Warning: '-o value' should only be used when requesting a single tag ('-s')\n");
+ 
+ 	/* convert LABEL/UUID lookup to evaluate request */
+ 	if (lookup && output_format == OUTPUT_DEVICE_ONLY && search_type &&
+-- 
+1.7.1
+
+
+--------------010808030802000207010800--
