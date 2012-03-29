@@ -1,47 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hrndva-omtalb.mail.rr.com ([71.74.56.122]:6368 "EHLO
-	hrndva-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754149Ab2C0Rwy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Mar 2012 13:52:54 -0400
-Message-ID: <4F71FE73.9010208@intellitree.com>
-Date: Tue, 27 Mar 2012 13:52:51 -0400
-From: Michael Conrad <mconrad@intellitree.com>
+Received: from li9-11.members.linode.com ([67.18.176.11]:55877 "EHLO
+	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759465Ab2C2V3P (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Mar 2012 17:29:15 -0400
+Date: Thu, 29 Mar 2012 14:29:11 -0700
+From: "Ted Ts'o" <tytso@mit.edu>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 10/20] uuidd: make drop_privs true by default in main()
+Message-ID: <20120329212911.GB13970@thunk.org>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+ <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-To: "Ted Ts'o" <tytso@mit.edu>
-CC: util-linux@vger.kernel.org
-Subject: Re: blkid -o value
-References: <4F71F836.4000103@intellitree.com> <20120327173149.GC10142@thunk.org>
-In-Reply-To: <20120327173149.GC10142@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 3/27/2012 1:31 PM, Ted Ts'o wrote:
-> On Tue, Mar 27, 2012 at 01:26:14PM -0400, Michael Conrad wrote:
->> I would request that either the order of fields become stable by
->> printing empty lines for missing fields (and documented), or the "-o
->> value" be done away with, since I can't see any reason anyone would
->> want random output in a script-friendly format, and the fact that it
->> exists is likely to lead people astray.
-> Try using this way, which was its intended usage:
->
-> blkid -o value -s TYPE -t UUID=a3dc6f56-da22-4079-bf75-1fa2ce1aa4b0
->
-> (replace part following -t with the search criteria you want; for
-> example, "-t LABEL=backup").
->
-> It was intended to be used a script-friendly way, and I believe there
-> are shell scripts using in this fashion.  So please don't change blkid
-> -o value.
+On Thu, Mar 29, 2012 at 06:45:18PM +0200, Petr Uzel wrote:
+> The drop_privs variable in main() was used to determine whether the
+> daemon will attempt to drop privileges (provided it has been installed
+> suid). As of now, it makes sense to drop the privileges each time it is
+> started. Therefore, this patch inverts the default value of drop_privs
+> to true, so that it does not need to be set in the getopt loop at
+> multiple places.
+> 
+> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 
-I see how that could be useful if and only if you use exactly one "-s", 
-but if you requested more than one "-s" they still come out in 
-non-stable order.  It's like running a SQL query and having all the 
-columns shifted because the first one was a NULL.  If you're on a system 
-where all the volumes have labels, types, and uuids (and nothing else) 
-it's very misleading.
+This breaks the configuration where libuuid starts uuidd if it's not
+available, since there the user process probably doesn't have access
+to write to /var/lib/libuuid/clock.txt, and so dropping the setgid
+privileges of uuid will cause it not to work.
 
-At the very least, I would appreciate it if the man page mentioned that 
-"-o value" should only ever be used with exactly one "-s".
+Also, if you're going to have a -K option to keep the privileges,
+there isn't much of a security benefit, since if there's a bug in
+uuidd, the attacker can always call uuidd with -K and and then attempt
+to exploint any problem that might be there.
 
--Mike
+So it's not clear adding the ability to drop privileges is really all
+that functional; if uuidd is setuid/setgid, it's probably because it
+**needs** those privileges.
+
+						- Ted
