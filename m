@@ -1,98 +1,138 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:41695 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757512Ab2CETj1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 14:39:27 -0500
-Received: by mail-ee0-f46.google.com with SMTP id c41so1625459eek.19
-        for <util-linux@vger.kernel.org>; Mon, 05 Mar 2012 11:39:26 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:50606 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759093Ab2C2Qpf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Mar 2012 12:45:35 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 50AE78FB75
+	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:34 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/17] wall: use xmkstemp for temporary file
-Date: Mon,  5 Mar 2012 20:38:47 +0100
-Message-Id: <1330976334-10751-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-References: <20120305123847.GD486@x2.net.home>
- <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 06/20] uuidd: factor out socket creation into separate function
+Date: Thu, 29 Mar 2012 18:45:14 +0200
+Message-Id: <1333039528-24784-7-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/Makefile.am |    2 +-
- term-utils/wall.c      |   19 +++++--------------
- 2 files changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/term-utils/Makefile.am b/term-utils/Makefile.am
-index 49ad5ff..378676f 100644
---- a/term-utils/Makefile.am
-+++ b/term-utils/Makefile.am
-@@ -51,7 +51,7 @@ endif
- 
- if BUILD_WALL
- usrbin_exec_PROGRAMS += wall
--wall_SOURCES = wall.c ttymsg.c ttymsg.h $(top_srcdir)/lib/strutils.c
-+wall_SOURCES = wall.c ttymsg.c ttymsg.h $(top_srcdir)/lib/strutils.c $(top_srcdir)/lib/fileutils.c
- dist_man_MANS += wall.1
- wall_CFLAGS = $(SUID_CFLAGS) $(AM_CFLAGS)
- wall_LDFLAGS = $(SUID_LDFLAGS) $(AM_LDFLAGS)
-diff --git a/term-utils/wall.c b/term-utils/wall.c
-index 7089826..b9f5321 100644
---- a/term-utils/wall.c
-+++ b/term-utils/wall.c
-@@ -66,6 +66,7 @@
- #include "pathnames.h"
- #include "carefulputc.h"
- #include "c.h"
-+#include "fileutils.h"
- 
- #define	IGNOREUSER	"sleeper"
- #define WRITE_TIME_OUT	300		/* in seconds */
-@@ -188,24 +189,15 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
- 	struct stat sbuf;
- 	time_t now;
- 	FILE *fp;
--	int fd;
--	char *p, *whom, *where, *hostname, *lbuf, *tmpname, *tmpenv, *mbuf;
-+	char *p, *whom, *where, *hostname, *lbuf, *tmpname, *mbuf;
- 	long line_max;
- 
- 	hostname = xmalloc(sysconf(_SC_HOST_NAME_MAX) + 1);
- 	line_max = sysconf(_SC_LINE_MAX);
- 	lbuf = xmalloc(line_max);
- 
--	tmpname = xmalloc(PATH_MAX);
--	tmpenv = getenv("TMPDIR");
--	if ((tmpenv))
--		snprintf(tmpname, PATH_MAX, "%s/%s.XXXXXX", tmpenv,
--			program_invocation_short_name);
--	else
--		snprintf(tmpname, PATH_MAX, "%s/%s.XXXXXX", _PATH_TMP,
--			program_invocation_short_name);
--	if (!(fd = mkstemp(tmpname)) || !(fp = fdopen(fd, "r+")))
--		err(EXIT_FAILURE, _("can't open temporary file %s"), tmpname);
-+	if ((fp = xmkstemp(&tmpname)) == NULL)
-+		err(EXIT_FAILURE, _("can't open temporary file"));
- 	unlink(tmpname);
- 	free(tmpname);
- 
-@@ -280,7 +272,7 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
- 	free(lbuf);
- 	rewind(fp);
- 
--	if (fstat(fd, &sbuf))
-+	if (fstat(fileno(fp), &sbuf))
- 		err(EXIT_FAILURE, _("fstat failed"));
- 
- 	*mbufsize = (size_t) sbuf.st_size;
-@@ -289,7 +281,6 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
- 	if (fread(mbuf, 1, *mbufsize, fp) != *mbufsize)
- 		err(EXIT_FAILURE, _("fread failed"));
- 
--	close(fd);
- 	fclose(fp);
- 	return mbuf;
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/uuidd.c |   74 ++++++++++++++++++++++++++++++++-------------------
+ 1 files changed, 46 insertions(+), 28 deletions(-)
+
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index c5886fd..a135816 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -247,34 +247,20 @@ static int create_pidfile(const char *pidfile_path, int quiet)
+ 	return fd_pidfile;
  }
+ 
+-static void server_loop(const char *socket_path, const char *pidfile_path,
+-			int debug, int timeout, int quiet, int no_fork)
++/*
++ * Create AF_UNIX, SOCK_STREAM socket and bind to @socket_path
++ *
++ * If @will_fork is true, then make sure the descriptor
++ * of the socket is >2, so that it wont be later closed
++ * during create_daemon().
++ *
++ * Return file descriptor corresponding to created socket.
++ */
++static int create_socket(const char *socket_path, int will_fork, int quiet)
+ {
+-	struct sockaddr_un	my_addr, from_addr;
+-	socklen_t		fromlen;
+-	int32_t			reply_len = 0;
+-	uuid_t			uu;
++	struct sockaddr_un	my_addr;
+ 	mode_t			save_umask;
+-	char			reply_buf[1024], *cp;
+-	char			op, str[UUID_STR_LEN];
+-	int			i, s, ns, len, num;
+-	int			fd_pidfile = -1;
+-	int			ret;
+-
+-	signal(SIGALRM, terminate_intr);
+-	alarm(30);
+-
+-	if (pidfile_path)
+-		fd_pidfile = create_pidfile(pidfile_path, quiet);
+-
+-	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
+-	if (ret > 0) {
+-		if (!quiet)
+-			printf(_("uuidd daemon already running at pid %s\n"),
+-			       reply_buf);
+-		exit(EXIT_FAILURE);
+-	}
+-	alarm(0);
++	int 			s;
+ 
+ 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+ 		if (!quiet)
+@@ -286,7 +272,7 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 	 * Make sure the socket isn't using fd numbers 0-2 to avoid it
+ 	 * getting closed by create_daemon()
+ 	 */
+-	while ((!debug || no_fork) && s <= 2) {
++	while (will_fork && s <= 2) {
+ 		s = dup(s);
+ 		if (s < 0)
+ 			err(EXIT_FAILURE, "dup");
+@@ -308,7 +294,40 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 		exit(EXIT_FAILURE);
+ 	}
+ 	umask(save_umask);
++	cleanup_socket = socket_path;
+ 
++	return s;
++}
++
++static void server_loop(const char *socket_path, const char *pidfile_path,
++			int debug, int timeout, int quiet, int no_fork)
++{
++	struct sockaddr_un	from_addr;
++	socklen_t		fromlen;
++	int32_t			reply_len = 0;
++	uuid_t			uu;
++	char			reply_buf[1024], *cp;
++	char			op, str[UUID_STR_LEN];
++	int			i, s, ns, len, num;
++	int			fd_pidfile = -1;
++	int			ret;
++
++	signal(SIGALRM, terminate_intr);
++	alarm(30);
++
++	if (pidfile_path)
++		fd_pidfile = create_pidfile(pidfile_path, quiet);
++
++	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
++	if (ret > 0) {
++		if (!quiet)
++			printf(_("uuidd daemon already running at pid %s\n"),
++			       reply_buf);
++		exit(EXIT_FAILURE);
++	}
++	alarm(0);
++
++	s = create_socket(socket_path, (!debug || !no_fork), quiet);
+ 	if (listen(s, SOMAXCONN) < 0) {
+ 		if (!quiet)
+ 			fprintf(stderr, _("Couldn't listen on unix "
+@@ -316,7 +335,6 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
+-	cleanup_socket = socket_path;
+ 	if (!debug && !no_fork)
+ 		create_daemon();
+ 	signal(SIGHUP, terminate_intr);
 -- 
-1.7.9.2
+1.7.7
 
