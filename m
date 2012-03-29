@@ -1,65 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:15903 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:50644 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751873Ab2CFQQT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Mar 2012 11:16:19 -0500
-Date: Tue, 6 Mar 2012 17:16:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dbueso@aomail.uab.es>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] lslocks: add personality column
-Message-ID: <20120306161613.GC8389@x2.net.home>
-References: <1330693206.23371.0.camel@offworld>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1330693206.23371.0.camel@offworld>
+	id S1759596Ab2C2Qpw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Mar 2012 12:45:52 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 02B8F8FB75
+	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:52 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 19/20] build-sys: add fsprobe.h to dist
+Date: Thu, 29 Mar 2012 18:45:27 +0200
+Message-Id: <1333039528-24784-20-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 02, 2012 at 02:00:06PM +0100, Davidlohr Bueso wrote:
-> From: Davidlohr Bueso <dave@gnu.org>
-> 
-> By knowing the lock's personality (flock or posix), the user can have more information
-> about the lock and how it was created.
-> 
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> ---
->  misc-utils/lslocks.8 |    5 +++++
->  misc-utils/lslocks.c |   30 ++++++++++++++++++++----------
->  2 files changed, 25 insertions(+), 10 deletions(-)
 
- Applied with some changes:
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ mount/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-    - rename ACCESS to MODE
-    - rename PERSONALITY to TYPE (the column name was too long)
-    - fix the typos and missing break
-    - rename struct lock members to match with column names
-
- See below. Thanks!
-
-    Karel
-
-$ lslocks 
-COMMAND           PID  TYPE SIZE MODE  M      START                 END PATH
-libvirtd         1243 POSIX   0B WRITE 0          0                   0 /run
-(unknown)        1283 FLOCK   0B WRITE 0          0                   0 /run
-tracker-store    1974 POSIX 5.3M READ  0 1073741826          1073742335 /home/kz
-tracker-store    1974 POSIX  32K READ  0        128                 128 /home/kz
-tracker-miner-f  1975 POSIX 5.3M READ  0 1073741826          1073742335 /home/kz
-tracker-miner-f  1975 POSIX  32K READ  0        128                 128 /home/kz
-java            11500 POSIX   0B WRITE 0          0 9223372036854775806 /home/kz
-firefox          8976 POSIX   0B WRITE 0          0                   0 /home/kz
-firefox          8976 POSIX 384K WRITE 0 1073741824          1073742335 /home/kz
-firefox          8976 POSIX 1.5M READ  0 1073741826          1073742335 /home/kz
-firefox          8976 POSIX  32K READ  0        128                 128 /home/kz
-firefox          8976 POSIX 416K WRITE 0 1073741824          1073742335 /home/kz
-firefox          8976 POSIX  20M READ  0 1073741826          1073742335 /home/kz
-firefox          8976 POSIX  32K READ  0        128                 128 /home/kz
-crond           17793 POSIX   0B WRITE 0          0                   0 /run
-atd             24371 POSIX   0B WRITE 0          0                   0 /run
-
-
-
+diff --git a/mount/Makefile.am b/mount/Makefile.am
+index 3bd6da4..2591f23 100644
+--- a/mount/Makefile.am
++++ b/mount/Makefile.am
+@@ -10,7 +10,7 @@ srcs_common = \
+ 	sundries.h
+ 
+ # generic header for mount and umount
+-hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h
++hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h fsprobe.h
+ 
+ # generic sources for mount and umount
+ srcs_mount = \
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
