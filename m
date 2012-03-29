@@ -1,54 +1,172 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hrndva-omtalb.mail.rr.com ([71.74.56.122]:27958 "EHLO
-	hrndva-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750796Ab2C0R0R (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Mar 2012 13:26:17 -0400
-Received: from [127.0.0.1] (AlThor.int.intellitree.com [172.20.0.44])
+Received: from cantor2.suse.de ([195.135.220.15]:50593 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759394Ab2C2Qpc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Mar 2012 12:45:32 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(Client did not present a certificate)
-	by orion.intree.net (Postfix) with ESMTPSA id 6588144D003B
-	for <util-linux@vger.kernel.org>; Tue, 27 Mar 2012 13:26:15 -0400 (EDT)
-Message-ID: <4F71F836.4000103@intellitree.com>
-Date: Tue, 27 Mar 2012 13:26:14 -0400
-From: Michael Conrad <mconrad@intellitree.com>
-MIME-Version: 1.0
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 1C2F290B1D
+	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:31 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
 To: util-linux@vger.kernel.org
-Subject: blkid -o value
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH 04/20] uuidd: implement --no-pid option
+Date: Thu, 29 Mar 2012 18:45:12 +0200
+Message-Id: <1333039528-24784-5-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi, I've just had a semi-serious problem related to blkid's "-o value" 
-format.
+With this option, uuidd does not create the PID file.
 
-When I first discovered that output format, I assumed that it would be a 
-stable script-friendly output format intended for people who don't want 
-to parse the name/value pairs.  The fields appeared to be
-   LABEL
-   UUID
-   TYPE
-and I wrote a script assuming the third one was TYPE.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/uuidd.8 |    3 +++
+ misc-utils/uuidd.c |   48 ++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 39 insertions(+), 12 deletions(-)
 
-However, suddenly the output has changed to be
-   LABEL
-   UUID
-   SEC_TYPE <-- "ext2"
-   TYPE <-- "ext3"
+diff --git a/misc-utils/uuidd.8 b/misc-utils/uuidd.8
+index 8e82b10..07e533b 100644
+--- a/misc-utils/uuidd.8
++++ b/misc-utils/uuidd.8
+@@ -36,6 +36,9 @@ UUIDs.
+ Specify the pathname where the pid file should be written.  By default,
+ the pid file is written to /var/run/uuidd/uuidd.pid.
+ .TP
++.BR \-P , " \-\-no-pid "
++Do not create pid file.
++.TP
+ .B \-q
+ Suppress some failure messages.
+ .TP
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 0288a03..79da894 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -63,6 +63,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 		" -r, --random        test random-based generation\n"
+ 		" -t, --time          test time-based generation\n"
+ 		" -n, --uuids <num>   request number of uuids\n"
++		" -P, --no-pid        do not create pid file\n"
+ 		" -d, --debug         run in debugging mode\n"
+ 		" -q, --quiet         turn on quiet mode\n"
+ 		" -V, --version       output version information and exit\n"
+@@ -111,7 +112,8 @@ static const char *cleanup_pidfile, *cleanup_socket;
+ 
+ static void terminate_intr(int signo CODE_ATTR((unused)))
+ {
+-	unlink(cleanup_pidfile);
++	if (cleanup_pidfile)
++		unlink(cleanup_pidfile);
+ 	if (cleanup_socket)
+ 		unlink(cleanup_socket);
+ 	exit(EXIT_SUCCESS);
+@@ -255,12 +257,14 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 	char			reply_buf[1024], *cp;
+ 	char			op, str[UUID_STR_LEN];
+ 	int			i, s, ns, len, num;
+-	int			fd_pidfile, ret;
++	int			fd_pidfile = -1;
++	int			ret;
+ 
+ 	signal(SIGALRM, terminate_intr);
+ 	alarm(30);
+ 
+-	fd_pidfile = create_pidfile(pidfile_path, quiet);
++	if (pidfile_path)
++		fd_pidfile = create_pidfile(pidfile_path, quiet);
+ 
+ 	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
+ 	if (ret > 0) {
+@@ -320,13 +324,15 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 	signal(SIGALRM, terminate_intr);
+ 	signal(SIGPIPE, SIG_IGN);
+ 
+-	sprintf(reply_buf, "%8d\n", getpid());
+-	if (ftruncate(fd_pidfile, 0)) {
+-		/* Silence warn_unused_result */
++	if (pidfile_path) {
++		sprintf(reply_buf, "%8d\n", getpid());
++		if (ftruncate(fd_pidfile, 0)) {
++			/* Silence warn_unused_result */
++		}
++		write_all(fd_pidfile, reply_buf, strlen(reply_buf));
++		if (fd_pidfile > 1)
++			close(fd_pidfile); /* Unlock the pid file */
+ 	}
+-	write_all(fd_pidfile, reply_buf, strlen(reply_buf));
+-	if (fd_pidfile > 1)
+-		close(fd_pidfile); /* Unlock the pid file */
+ 
+ 	while (1) {
+ 		fromlen = sizeof(from_addr);
+@@ -445,7 +451,8 @@ static void __attribute__ ((__noreturn__)) unexpected_size(int size)
+ int main(int argc, char **argv)
+ {
+ 	const char	*socket_path = UUIDD_SOCKET_PATH;
+-	const char	*pidfile_path = UUIDD_PIDFILE_PATH;
++	const char	*pidfile_path = NULL;
++	const char	*pidfile_path_param = NULL;
+ 	const char	*err_context;
+ 	char		buf[1024], *cp;
+ 	char		str[UUID_STR_LEN], *tmp;
+@@ -455,6 +462,7 @@ int main(int argc, char **argv)
+ 	int		i, c, ret;
+ 	int		debug = 0, do_type = 0, do_kill = 0, num = 0;
+ 	int		timeout = 0, quiet = 0, drop_privs = 0;
++	int		no_pid = 0;
+ 
+ 	static const struct option longopts[] = {
+ 		{"pid", required_argument, NULL, 'p'},
+@@ -464,6 +472,7 @@ int main(int argc, char **argv)
+ 		{"random", no_argument, NULL, 'r'},
+ 		{"time", no_argument, NULL, 't'},
+ 		{"uuids", required_argument, NULL, 'n'},
++		{"no-pid", no_argument, NULL, 'P'},
+ 		{"debug", no_argument, NULL, 'd'},
+ 		{"quiet", no_argument, NULL, 'q'},
+ 		{"version", no_argument, NULL, 'V'},
+@@ -476,7 +485,7 @@ int main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 
+ 	while ((c =
+-		getopt_long(argc, argv, "p:s:T:krtn:dqVh", longopts,
++		getopt_long(argc, argv, "p:s:T:krtn:PdqVh", longopts,
+ 			    NULL)) != -1) {
+ 		switch (c) {
+ 		case 'd':
+@@ -495,7 +504,11 @@ int main(int argc, char **argv)
+ 			}
+ 			break;
+ 		case 'p':
+-			pidfile_path = optarg;
++			pidfile_path_param = optarg;
++			drop_privs = 1;
++			break;
++		case 'P':
++			no_pid = 1;
+ 			drop_privs = 1;
+ 			break;
+ 		case 'q':
+@@ -531,6 +544,17 @@ int main(int argc, char **argv)
+ 			usage(stderr);
+ 		}
+ 	}
++
++	if (no_pid && pidfile_path_param && !quiet)
++		fprintf(stderr, _("Both --pid and --no-pid specified. "
++				  "Ignoring --no-pid.\n"));
++
++	if (!no_pid && !pidfile_path_param)
++		pidfile_path = UUIDD_PIDFILE_PATH;
++	else if (pidfile_path_param)
++		pidfile_path = pidfile_path_param;
++
++
+ 	uid = getuid();
+ 	if (uid && drop_privs) {
+ 		gid = getgid();
+-- 
+1.7.7
 
-which caused my script to mount a ext3 partition as ext2, killing the 
-journal.
-
-Looking at the code, it appears that it iterates over some list coming 
-from libblkid and prints a line with the value only if the value 
-exists.  So it appears that there was never any intention of it being a 
-stable output.
-
-I would request that either the order of fields become stable by 
-printing empty lines for missing fields (and documented), or the "-o 
-value" be done away with, since I can't see any reason anyone would want 
-random output in a script-friendly format, and the fact that it exists 
-is likely to lead people astray.
-
-Thoughts?  Comments?
-
--Mike Conrad
