@@ -1,95 +1,55 @@
-Return-Path: fmayhar@google.com
-MIME-Version: 1.0
-Date: Wed, 7 Mar 2012 09:26:01 -0800
-Message-ID: <CAKp+pw25HZ4siP69WH6OQ_r=XgTGzk0n9BYTg-h4gXsJLs0y2A@mail.gmail.com>
-Subject: Re: [PATCH 1/4] fsck: Add a -r option to report memory and runtime statistics.
-From: Frank Mayhar <fmayhar@google.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: multipart/alternative; boundary=14dae9340c9f14b7d004baaa744d
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:50588 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759008Ab2C2Qp3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Mar 2012 12:45:29 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 5F4788FE2D
+	for <util-linux@vger.kernel.org>; Thu, 29 Mar 2012 18:45:28 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 01/20] uuidd: use UUIDD_OP_GETPID instead of magic number
+Date: Thu, 29 Mar 2012 18:45:09 +0200
+Message-Id: <1333039528-24784-2-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---14dae9340c9f14b7d004baaa744d
-Content-Type: text/plain; charset=ISO-8859-1
+Make parameters passed to call_daemon() more descriptive:
+- use UUIDD_OP_GETPID instead of magic number 0
+- call_daemon() takes pointer as a last argument, so pass NULL instead
+  of 0
 
-On Mar 6, 2012 4:54 AM, "Karel Zak" <kzak@redhat.com> wrote:
->
-> On Tue, Feb 07, 2012 at 01:10:50PM -0800, Frank Mayhar wrote:
-> >  fsck/fsck.8 |   12 +++++++++++-
-> >  fsck/fsck.c |   38 +++++++++++++++++++++++++++++++++++++-
-> >  fsck/fsck.h |    2 ++
-> >  3 files changed, 50 insertions(+), 2 deletions(-)
->
->  Finally I have time to work on fsck. I have created temporary branch
->  at github for this task:
->
->    https://github.com/karelzak/util-linux/commits/fsck
->
->  changes:
->
->  - fsck is only one fsck.c file, moved to disk-utils
->  - use libmount to parse fstab and for is_mounted() function
->  - does not use obsolete lib/fsprobe.c
->
-> > +\    /dev/hdc1 status 0 maxrss 92828
-> > +.br
-> > +\    /dev/hdc1 user 2.677592 system 0.861868 elapsed 4
->
->  I have merged all to one line, final format is:
->
-> /dev/sda1: status 0, rss 92828, real 4.002804, user 2.677592, sys 0.86186
->
->  The real/user/sys should be more compatible with time(1) now (so the
->  'real' is based on gettimeofday() although it's not so important for
->  fsck).
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/uuidd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-I'm out on disability (again, sigh) and won't be following this, but I just
-wanted to say thanks for the work. Ted T'so will be following up on the
-rest, btw.
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 492ae4d..ffb7319 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -243,7 +243,7 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 			fprintf(stderr, _("Failed to lock %s: %m\n"), pidfile_path);
+ 		exit(EXIT_FAILURE);
+ 	}
+-	ret = call_daemon(socket_path, 0, reply_buf, sizeof(reply_buf), 0, 0);
++	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
+ 	if (ret > 0) {
+ 		if (!quiet)
+ 			printf(_("uuidd daemon already running at pid %s\n"),
+@@ -576,7 +576,7 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	if (do_kill) {
+-		ret = call_daemon(socket_path, 0, buf, sizeof(buf), 0, 0);
++		ret = call_daemon(socket_path, UUIDD_OP_GETPID, buf, sizeof(buf), 0, NULL);
+ 		if ((ret > 0) && ((do_kill = atoi((char *) buf)) > 0)) {
+ 			ret = kill(do_kill, SIGTERM);
+ 			if (ret < 0) {
+-- 
+1.7.7
 
---14dae9340c9f14b7d004baaa744d
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<p>On Mar 6, 2012 4:54 AM, &quot;Karel Zak&quot; &lt;<a href=3D"mailto:kzak=
-@redhat.com">kzak@redhat.com</a>&gt; wrote:<br>
-&gt;<br>
-&gt; On Tue, Feb 07, 2012 at 01:10:50PM -0800, Frank Mayhar wrote:<br>
-&gt; &gt; =A0fsck/fsck.8 | =A0 12 +++++++++++-<br>
-&gt; &gt; =A0fsck/fsck.c | =A0 38 +++++++++++++++++++++++++++++++++++++-<br=
->
-&gt; &gt; =A0fsck/fsck.h | =A0 =A02 ++<br>
-&gt; &gt; =A03 files changed, 50 insertions(+), 2 deletions(-)<br>
-&gt;<br>
-&gt; =A0Finally I have time to work on fsck. I have created temporary branc=
-h<br>
-&gt; =A0at github for this task:<br>
-&gt;<br>
-&gt; =A0 =A0<a href=3D"https://github.com/karelzak/util-linux/commits/fsck"=
->https://github.com/karelzak/util-linux/commits/fsck</a><br>
-&gt;<br>
-&gt; =A0changes:<br>
-&gt;<br>
-&gt; =A0- fsck is only one fsck.c file, moved to disk-utils<br>
-&gt; =A0- use libmount to parse fstab and for is_mounted() function<br>
-&gt; =A0- does not use obsolete lib/fsprobe.c<br>
-&gt;<br>
-&gt; &gt; +\ =A0 =A0/dev/hdc1 status 0 maxrss 92828<br>
-&gt; &gt; +.br<br>
-&gt; &gt; +\ =A0 =A0/dev/hdc1 user 2.677592 system 0.861868 elapsed 4<br>
-&gt;<br>
-&gt; =A0I have merged all to one line, final format is:<br>
-&gt;<br>
-&gt; /dev/sda1: status 0, rss 92828, real 4.002804, user 2.677592, sys 0.86=
-186<br>
-&gt;<br>
-&gt; =A0The real/user/sys should be more compatible with time(1) now (so th=
-e<br>
-&gt; =A0&#39;real&#39; is based on gettimeofday() although it&#39;s not so =
-important for<br>
-&gt; =A0fsck).</p>
-<p>I&#39;m out on disability (again, sigh) and won&#39;t be following this,=
- but I just wanted to say thanks for the work. Ted T&#39;so will be followi=
-ng up on the rest, btw.</p>
-
---14dae9340c9f14b7d004baaa744d--
