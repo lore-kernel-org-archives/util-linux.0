@@ -1,129 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:60445 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754748Ab2CBDrG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 1 Mar 2012 22:47:06 -0500
-Received: by mail-vw0-f46.google.com with SMTP id ff1so1153773vbb.19
-        for <util-linux@vger.kernel.org>; Thu, 01 Mar 2012 19:47:06 -0800 (PST)
+Received: from smtp.gentoo.org ([140.211.166.183]:43773 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755518Ab2C3UwU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Mar 2012 16:52:20 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for scanf_cv_alloc_modifier
+Date: Fri, 30 Mar 2012 16:52:27 -0400
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de> <20120229213128.GA11628@linutronix.de> <201203301549.39151.vapier@gentoo.org>
+In-Reply-To: <201203301549.39151.vapier@gentoo.org>
 MIME-Version: 1.0
-From: Dave Reisner <d@falconindy.com>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/2] libmount: don't treat "none" differently
-Date: Thu,  1 Mar 2012 22:47:00 -0500
-Message-Id: <1330660020-32542-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1330660020-32542-1-git-send-email-dreisner@archlinux.org>
-References: <1330660020-32542-1-git-send-email-dreisner@archlinux.org>
+Content-Type: multipart/signed;
+  boundary="nextPart1900693.oJUNVqLJNf";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201203301652.29297.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This causes more problems than it solves. In the latest edition:
+--nextPart1900693.oJUNVqLJNf
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-  # mount -t proc none foo
-  mount: foo: mount failed: Invalid argument
+On Friday 30 March 2012 15:49:37 Mike Frysinger wrote:
+> be nice if this patch was in 2.21.1, but i guess that ship has sailed, and
+> there prob won't be a 2.21.2 ...
 
-A check for source and target fails in mnt_context_apply_fstab()
-because, even though they were indeed specified on the cmdline,
-__mnt_fs_set_source_ptr() altered this and NULL'd out the source.
+blah nm.  i was reading the wrong code base.  2.21.1 includes said fix.
+-mike
 
-If you're able to mount this device via other means, other tools start
-reporting oddities, such as mount's output:
+--nextPart1900693.oJUNVqLJNf
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-  (null) on /foo type proc (rw,relatime)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
 
-or findmnt:
+iQIcBAABAgAGBQJPdh0NAAoJEEFjO5/oN/WBCOgQAJHBTeytshdLp0vyjwqFm6Ma
+91iguTs2tS0PCrQ/HUNYyDSaLaE5AUNxoST/Mb8rB1YfombqkFynwWvK/iYXpw1V
+3nllR3VbiohNzlQYietayQw8ChJUi/PQElDS419M9htTl4F6NINggXTvEbssPRGk
+noVcqor6cksyNkVqlHVaFN19Grf29LgWnW3u2GRR9WJDQ98bTttrV/sCMh9a/jC0
+Gvf/Q92sSDjCP/31XgSpgjSd1o/rYCvSzEga1F1BWsWR9sQb9JLkqbkzKn8I3dwK
+mr4wGEHqvmEeE14ctsmPKgwgBNcW8bPXjt6bsA2okE24HsC5TCUobeQfD0mcBoEK
+Pvlkaw7+sxZR+wmKh5nQnyR+a2txyO92xDIWWftGkXJ2tJ+A+sYmxarqi3NEGmDk
+2IT/0EGK61h8QzBZPnB/f0Koz86+vg+ZgMAqnEGBwQ2Pq9PYbf+v1LWLs7vY0FEK
+lKm2nBK60oEBn533M8pGQ83cMWoYvii1xliCuAqTw+Z5xeoPh/DtLvzLFEMqtjRY
+O2+0F0uVm7zqtf2q+vRVUQ2xl7x0SuH//dX94+TE88qjkHY60wHMXfFtHc/wcQwx
+xujt2bUzKlIsYw3mV1Rjze39JeQGeqKB6O7XHYwaBy0kXF/VRK3w26h/0rpmN7dm
+DZ0nlA3WbRIt63MSkfm0
+=72Xn
+-----END PGP SIGNATURE-----
 
-  TARGET      SOURCE FSTYPE OPTIONS
-  /foo               proc   rw,relatime
-
-Simply treat "none" like any other source when passed in. We still keep
-conventions to allow NULL as a valid source and replace it with "none".
-
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
-There may be some history here I'm not aware of that makes this all a silly
-idea...
-
- libmount/src/fs.c        |   14 ++++----------
- libmount/src/tab.c       |    7 +++----
- libmount/src/tab_parse.c |    7 +------
- 3 files changed, 8 insertions(+), 20 deletions(-)
-
-diff --git a/libmount/src/fs.c b/libmount/src/fs.c
-index a28e66c..048f0e2 100644
---- a/libmount/src/fs.c
-+++ b/libmount/src/fs.c
-@@ -304,11 +304,7 @@ int __mnt_fs_set_source_ptr(struct libmnt_fs *fs, char *source)
- 
- 	assert(fs);
- 
--	if (source && !strcmp(source, "none")) {
--		free(source);
--		source = NULL;
--
--	} else if (source && strchr(source, '=')) {
-+	if (source && strchr(source, '=')) {
- 		if (blkid_parse_tag_string(source, &t, &v) != 0)
- 			return -1;
- 	}
-@@ -341,11 +337,9 @@ int mnt_fs_set_source(struct libmnt_fs *fs, const char *source)
- 
- 	if (!fs)
- 		return -EINVAL;
--	if (source) {
--		p = strdup(source);
--		if (!p)
--			return -ENOMEM;
--	}
-+	p = strdup(source ? source : "none");
-+	if (!p)
-+		return -ENOMEM;
- 
- 	rc = __mnt_fs_set_source_ptr(fs, p);
- 	if (rc)
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 21b05c7..7dd9654 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -480,9 +480,8 @@ struct libmnt_fs *mnt_table_find_target(struct libmnt_table *tb, const char *pat
-  * The 2nd, 3rd and 4th iterations are not performed when @tb cache is not
-  * set (see mnt_table_set_cache()).
-  *
-- * Note that valid source path is NULL; the libmount uses NULL instead of
-- * "none".  The "none" is used in /proc/{mounts,self/mountninfo} for pseudo
-- * filesystems.
-+ * Note that NULL is a valid source path; it will be replaced with "none". The
-+ * "none" is used in /proc/{mounts,self/mountinfo} for pseudo filesystems.
-  *
-  * Returns: a tab entry or NULL.
-  */
-@@ -505,7 +504,7 @@ struct libmnt_fs *mnt_table_find_srcpath(struct libmnt_table *tb, const char *pa
- 
- 		p = mnt_fs_get_srcpath(fs);
- 
--		if (path == NULL && src == NULL)
-+		if (path == NULL && (src == NULL || !strcmp(src, "none")))
- 			return fs;			/* source is "none" */
- 		if (path && p && streq_except_trailing_slash(p, path))
- 			return fs;
-diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
-index 0f618bb..5bc55ae 100644
---- a/libmount/src/tab_parse.c
-+++ b/libmount/src/tab_parse.c
-@@ -180,12 +180,7 @@ static int mnt_parse_mountinfo_line(struct libmnt_fs *fs, char *s)
- 		unmangle_string(fs->vfs_optstr);
- 		unmangle_string(fstype);
- 		unmangle_string(src);
--
--		if (!strcmp(fs->fs_optstr, "none")) {
--			free(fs->fs_optstr);
--			fs->fs_optstr = NULL;
--		} else
--			unmangle_string(fs->fs_optstr);
-+		unmangle_string(fs->fs_optstr);
- 
- 		rc = __mnt_fs_set_fstype_ptr(fs, fstype);
- 		if (!rc) {
--- 
-1.7.9.2
-
+--nextPart1900693.oJUNVqLJNf--
