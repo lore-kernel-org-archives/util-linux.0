@@ -1,55 +1,115 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:42931 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755470Ab2CDVIm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 4 Mar 2012 16:08:42 -0500
-Received: by vcqp1 with SMTP id p1so2861260vcq.19
-        for <util-linux@vger.kernel.org>; Sun, 04 Mar 2012 13:08:42 -0800 (PST)
-MIME-Version: 1.0
-From: Dave Reisner <d@falconindy.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51209 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934709Ab2C3UGg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Mar 2012 16:06:36 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2UK6ae7022642
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 30 Mar 2012 16:06:36 -0400
+Received: from x2 (ovpn-116-49.ams2.redhat.com [10.36.116.49])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q2UK6ZYx021185
+	for <util-linux@vger.kernel.org>; Fri, 30 Mar 2012 16:06:35 -0400
+Date: Fri, 30 Mar 2012 22:06:34 +0200
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] libmount: avoid infinite loop in child fs iteration
-Date: Sun,  4 Mar 2012 16:08:39 -0500
-Message-Id: <1330895319-1818-1-git-send-email-dreisner@archlinux.org>
+Subject: Re: [ANNOUNCE] util-linux v2.21.1
+Message-ID: <20120330200634.GF23437@x2.net.home>
+References: <20120330114251.GA23437@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20120330114251.GA23437@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In early userspace, the rootfs is mounted with itself as its parent.
-Example /proc/self/mountinfo:
+On Fri, Mar 30, 2012 at 01:42:51PM +0200, Karel Zak wrote:
+> 
+> The util-linux bugfix release v2.21.1 is available at
+> 
+>   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21/
+> 
+> Feedback and bug reports, as always, are welcomed.
 
-1 1 0:1 / / rw - rootfs rootfs rw
-14 1 0:3 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
-15 1 0:13 / /sys rw,nosuid,nodev,noexec,relatime - sysfs sys rw
-16 1 0:5 / /dev rw,nosuid,relatime - devtmpfs dev rw,size=506956k
-17 1 0:14 / /run rw,nosuid,nodev,relatime - tmpfs run rw,mode=755
+ Ah, I forgot release notes...
 
-This causes an infinite loop in mnt_table_next_child_fs, and is
-evidenced by a crash via infinite recursion in findmnt. Simply catch the
-condition where the ID of the parent is the ID of the current fs we're
-examining and skip over it to the next mount in the table.
+    Karel
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- libmount/src/tab.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 9992c9c..54d58c8 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -286,6 +286,11 @@ int mnt_table_next_child_fs(struct libmnt_table *tb, struct libmnt_iter *itr,
- 
- 		id = mnt_fs_get_id(fs);
- 
-+		/* avoid infinite loop. This only happens in rare cases
-+		 * such as in early userspace when the rootfs is its own parent */
-+		if (id == parent_id)
-+			continue;
-+
- 		if ((!lastchld_id || id > lastchld_id) &&
- 		    (!*chld || id < chld_id)) {
- 			*chld = fs;
+
+util-linux 2.21.1 Release Notes
+===============================
+
+Changes since v2.21
+-------------------
+
+ For more details see ChangeLog files at:
+ ftp://ftp.infradead.org/pub/util-linux/v2.21/
+
+
+blkid:
+   - add note about variable tags and devices order.  [Karel Zak]
+build-sys:
+   - add a crosscompile path for scanf_cv_alloc_modifier  [Sebastian Andrzej Siewior]
+   - don't create empty man/ru directory  [Karel Zak]
+   - make the crosscompile path for scanf_cv_alloc_modifier clever  [Sebastian Andrzej Siewior]
+docs:
+   - update AUTHORS file  [Karel Zak]
+fdisk:
+   - don't print confusing warning on non-partitioned disks  [Karel Zak]
+   - fix to build for IA32  [Christian Wiese]
+findmnt:
+   - add -P, --pairs to the man page  [Bill Pemberton]
+fstab:
+   - fstab.5 fix misspelling of deprecated  [Dave Reisner]
+libblkid:
+   - properly reset chain in probe_do_wipe()  [Karel Zak]
+libmount:
+   - add configfs to pseudofs list  [Karel Zak]
+   - add mnt_fs_streq_srcpath()  [Karel Zak]
+   - add mnt_fs_streq_target()  [Karel Zak]
+   - add nfsd to mnt_fstype_is_pseudofs()  [Karel Zak]
+   - allow empty source for mount(2) syscall  [Karel Zak]
+   - avoid infinite loop in child fs iteration  [Dave Reisner]
+   - canonicalize all paths from (fs)tab  [Karel Zak]
+   - canonicalize targets from fstab on mount -a  [Karel Zak]
+   - cosmetic changes around "none"  [Karel Zak]
+   - don't treat "none" differently  [Dave Reisner]
+   - fix "already mounted" detection on systems with mtab  [Karel Zak]
+   - optimize for paths with tailing slash  [Karel Zak]
+   - use mount.<type> -s for NFS only  [Karel Zak]
+login:
+   - correction in sig_handler()  [Karel Zak]
+   - fix LOGIN_CHOWN_VCS code  [Karel Zak]
+   - support crazy shadow-utils syntax in login.defs  [Karel Zak]
+losetup:
+   - Fix setting of sizelimit on new loop devices  [Daniel Drake]
+   - add --detach-all to the list of options  [Petr Uzel]
+lsblk:
+   - RQ-SIZE is part of the --topology output (man page bugfix)  [Dave Reisner]
+   - remove (dm-N) from NAME for raw/pair output format  [Karel Zak]
+mount:
+   - (new) add 'internal-only(i)' to non-root allowed options  [Raghavendra D Prabhu]
+   - (new) add missing xalloc.h  [Karel Zak]
+   - (new) cleanup mount -a return codes  [Karel Zak]
+   - fix recursively propagation mounting  [Dong Hao]
+mountpoint:
+   - account for error from in mnt_fs_get_target  [Dave Reisner]
+   - fix a minor bug with 0 0 devno  [Zhi Li]
+po:
+   - merge changes  [Karel Zak]
+   - update vi.po (from translationproject.org)  [Trần Ngọc Quân]
+script:
+   - play well with csh when invoked from within /etc/csh.login  [Karel Zak]
+tests:
+   - test 'none' source for mount(8)  [Karel Zak]
+   - add tests for mount --make-* stuff  [Karel Zak]
+   - make output and diff dirs usage more robust  [Karel Zak]
+   - search for "none" by findmnt  [Karel Zak]
+   - test non-canonical paths in fstab  [Karel Zak]
+   - update fdisk test  [Karel Zak]
+   - update libmount tests  [Karel Zak]
+   - wait a moment between mount and umount  [Karel Zak]
+
 -- 
-1.7.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
