@@ -1,40 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from li9-11.members.linode.com ([67.18.176.11]:59935 "EHLO
-	test.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751862Ab2C0Rbw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 Mar 2012 13:31:52 -0400
-Date: Tue, 27 Mar 2012 10:31:49 -0700
-From: "Ted Ts'o" <tytso@mit.edu>
-To: Michael Conrad <mconrad@intellitree.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: blkid -o value
-Message-ID: <20120327173149.GC10142@thunk.org>
-References: <4F71F836.4000103@intellitree.com>
+Received: from mx1.redhat.com ([209.132.183.28]:2174 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751083Ab2C3PFB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Mar 2012 11:05:01 -0400
+Date: Fri, 30 Mar 2012 17:04:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] chkdupexe, a bug, version numbers and bashisms
+Message-ID: <20120330150457.GE23437@x2.net.home>
+References: <CAG27Bk3Jrh_22adczBYq77u4p7GqmtUw2ELbABU77j3_4SySvA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4F71F836.4000103@intellitree.com>
+In-Reply-To: <CAG27Bk3Jrh_22adczBYq77u4p7GqmtUw2ELbABU77j3_4SySvA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 27, 2012 at 01:26:14PM -0400, Michael Conrad wrote:
-> 
-> I would request that either the order of fields become stable by
-> printing empty lines for missing fields (and documented), or the "-o
-> value" be done away with, since I can't see any reason anyone would
-> want random output in a script-friendly format, and the fact that it
-> exists is likely to lead people astray.
 
-Try using this way, which was its intended usage:
+ Merged, but
 
-blkid -o value -s TYPE -t UUID=a3dc6f56-da22-4079-bf75-1fa2ce1aa4b0
+On Tue, Mar 20, 2012 at 08:27:01PM +0100, Sami Kerola wrote:
+> Sami Kerola (31):
+>       chkdupexe: reimplement command in C
 
-(replace part following -t with the search criteria you want; for
-example, "-t LABEL=backup").
+please, send the new chkdupexe to mailing list for review.
 
-It was intended to be used a script-friendly way, and I believe there
-are shell scripts using in this fashion.  So please don't change blkid
--o value.
+>       addpart: align with util-linux coding standards
+>       delpart: align with util-linux coding standards
 
-Best regards,
+Fixed...
 
-						- Ted
+         if ((fd = open(argv[1], O_RDONLY)) < 0)
+                err(EXIT_FAILURE, "%s", argv[1]);
+         ...
+         err(EXIT_FAILURE, "BLKPG");
+
+"%s", "BLKPG" are not usable error messages.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
