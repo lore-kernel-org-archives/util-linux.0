@@ -1,39 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:43556 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755527Ab2CUOx4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 21 Mar 2012 10:53:56 -0400
-Received: by dajr28 with SMTP id r28so1700180daj.19
-        for <util-linux@vger.kernel.org>; Wed, 21 Mar 2012 07:53:55 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:42022 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760799Ab2C3N01 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Mar 2012 09:26:27 -0400
+Date: Fri, 30 Mar 2012 15:26:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "mail@bernhard-voelker.de" <mail@bernhard-voelker.de>
+Cc: Simon de Vlieger <simon@ikanobori.jp>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] hexdump: adjust -s and -n option in the man page [was:
+ hexsyntax.c using strtol on the offset parameter]
+Message-ID: <20120330132619.GC23437@x2.net.home>
+References: <4F6B13F9.4020108@bernhard-voelker.de>
+ <20120323171936.GH2040@x2.net.home>
+ <1961842217.201279.1332754786305.JavaMail.open-xchange@email.1und1.de>
 MIME-Version: 1.0
-Date: Wed, 21 Mar 2012 15:53:55 +0100
-Message-ID: <CANXSoSB_JTjcwfCPu6vJLdtLtR5e1M4VHJiDu2NpGo=hp6SMrA@mail.gmail.com>
-Subject: hexsyntax.c using strtol on the offset parameter
-From: Simon de Vlieger <simon@ikanobori.jp>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1961842217.201279.1332754786305.JavaMail.open-xchange@email.1und1.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Mon, Mar 26, 2012 at 11:39:46AM +0200, mail@bernhard-voelker.de wrote:
 
-I'd like to start out that I'm not a huge C buff but now a tad here
-and there. Now a friend of mine called David Trail noticed while
-trying to hexdump the last sector of his 1 TB drive that he got what
-seems to be an overflow on hexdump:
+> * [PATCH 2/2] docs: clarify KiB vs. KB in man pages
 
-david@tiamat:~ $ sudo hexdump -s3364995079 -n64 /dev/sda > tmp1
-david@tiamat:~ $ sudo hexdump -s10002048860167 -n64 /dev/sda > tmp2
-david@tiamat:~ $ diff tmp1 tmp2
-david@tiamat:~ $
+ Applied, thanks.
 
-The line I think I have it narrowed down to is line 92 of
-util-linux/hexsyntax.c where the -s parameter is converted to a long.
-Sadly the size of a 1 TB disk overflows the size of a long. Can the
-off_t maybe be changed to use off64_t (if this is relevant) and use
-strtoull instead of strtol? I think it might give some space in the
-near future.
+    Karel
 
-Thanks in advance,
 
-Simon de Vlieger
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
