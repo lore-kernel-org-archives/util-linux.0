@@ -1,163 +1,64 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:37674 "EHLO
-	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754065Ab2CEVvt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Mar 2012 16:51:49 -0500
-Subject: Re: [PATCH 09/17] lib: add fileutils function collection
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-In-Reply-To: <1330976334-10751-10-git-send-email-kerolasa@iki.fi>
-References: <20120305123847.GD486@x2.net.home>
-	 <1330976334-10751-1-git-send-email-kerolasa@iki.fi>
-	 <1330976334-10751-10-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 05 Mar 2012 22:51:45 +0100
-Message-ID: <1330984305.2953.25.camel@offbook>
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: vapier@gentoo.org
+From: Mike Frysinger <vapier@gentoo.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 1/2] conifigure: add a crosscompile path for scanf_cv_alloc_modifier
+Date: Fri, 30 Mar 2012 15:49:37 -0400
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1330103768-32139-1-git-send-email-bigeasy@linutronix.de> <20120228141226.GC22034@x2.net.home> <20120229213128.GA11628@linutronix.de>
+In-Reply-To: <20120229213128.GA11628@linutronix.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3287922.nbqaulRsmD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201203301549.39151.vapier@gentoo.org>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2012-03-05 at 20:38 +0100, Sami Kerola wrote:
-> The fileutils contains xmkstemp function will create temporary file
-> safe and reusable manner.
-> 
-> Reference: http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO.html#TEMPORARY-FILES
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  include/Makefile.am |    5 +++--
->  include/fileutils.h |    6 ++++++
->  lib/Makefile.am     |    2 ++
->  lib/fileutils.c     |   55 +++++++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 66 insertions(+), 2 deletions(-)
->  create mode 100644 include/fileutils.h
->  create mode 100644 lib/fileutils.c
+--nextPart3287922.nbqaulRsmD
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 
-Doesn't really make much sense creating two files for just one function.
-Couldn't xmkstemp() so somewhere else? You might argue that xgetpass
-also does that, I just think it's an overkill...
+On Wednesday 29 February 2012 16:31:28 Sebastian Andrzej Siewior wrote:
+> My earlier assumption was that scanf_cv_alloc_modifier is unused. This
+> is not true as pointed out by Karel since it used befoe checking for
+> libmount. Argh. So instead saying no I add a test to check for glibc
+> >=3D 2.7 which provides %m. As of uClibc v0.9.32-rc3 the situation looks
+> the following:
 
-> 
-> diff --git a/include/Makefile.am b/include/Makefile.am
-> index 4f5453f..5e4e54e 100644
-> --- a/include/Makefile.am
-> +++ b/include/Makefile.am
-> @@ -11,6 +11,7 @@ dist_noinst_HEADERS = \
->  	crc32.h \
->  	env.h \
->  	exitcodes.h \
-> +	fileutils.h \
->  	fsprobe.h \
->  	ismounted.h \
->  	linux_reboot.h \
-> @@ -38,5 +39,5 @@ dist_noinst_HEADERS = \
->  	wholedisk.h \
->  	widechar.h \
->  	writeall.h \
-> -	xgetpass.h \
-> -	xalloc.h
-> +	xalloc.h \
-> +	xgetpass.h
-> diff --git a/include/fileutils.h b/include/fileutils.h
-> new file mode 100644
-> index 0000000..27b5661
-> --- /dev/null
-> +++ b/include/fileutils.h
-> @@ -0,0 +1,6 @@
-> +#ifndef UTIL_LINUX_FILEUTILS
-> +#define UTIL_LINUX_FILEUTILS
-> +
-> +extern FILE * xmkstemp(char **tmpname);
-> +
-> +#endif
-> diff --git a/lib/Makefile.am b/lib/Makefile.am
-> index 19a00f5..c34481d 100644
-> --- a/lib/Makefile.am
-> +++ b/lib/Makefile.am
-> @@ -6,6 +6,7 @@ noinst_PROGRAMS = \
->  	test_at \
->  	test_blkdev \
->  	test_canonicalize \
-> +	test_fileutils \
->  	test_ismounted \
->  	test_mangle \
->  	test_procutils \
-> @@ -45,6 +46,7 @@ test_loopdev_SOURCES = \
->  test_loopdev_CFLAGS = -DTEST_PROGRAM_LOOPDEV
->  endif
->  
-> +test_fileutils_SOURCES = fileutils.c
->  test_tt_SOURCES = tt.c $(top_srcdir)/lib/mbsalign.c
->  
->  test_canonicalize_SOURCES = canonicalize.c
-> diff --git a/lib/fileutils.c b/lib/fileutils.c
-> new file mode 100644
-> index 0000000..b3b7438
-> --- /dev/null
-> +++ b/lib/fileutils.c
-> @@ -0,0 +1,55 @@
-> +/*
-> + * Copyright (C) 2012 Sami Kerola <kerolasa@iki.fi>
-> + */
-> +
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include <sys/stat.h>
-> +#include <unistd.h>
-> +
-> +#include "c.h"
-> +#include "pathnames.h"
-> +
-> +/* Create open temporary file in safe way.  Please notice that the
-> + * file permissions are -rw------- by default. */
-> +FILE *xmkstemp(char **tmpname)
+the uClibc code you grepped for is printf("%m"), not scanf("%ms")
 
-Returning the file descriptor seems a more flexible interface instead of
-the FILE's representation; the user can always use fdopen on his own.
+uClibc itself has a place holder for %as, but has never implemented it sinc=
+e=20
+it conflicts with C99.  and it hasn't gotten around to implementing the new=
+ %ms=20
+which is specified by the latest POSIX spec.
 
-> +{
-> +	char *localtmp;
-> +	char *tmpenv;
-> +	mode_t old_mode;
-> +	int fd;
-> +	FILE *ret;
-> +
-> +	tmpenv = getenv("TMPDIR");
-> +	if (tmpenv)
-> +		asprintf(&localtmp, "%s/%s.XXXXXX", tmpenv,
-> +			 program_invocation_short_name);
-> +	else
-> +		asprintf(&localtmp, "%s/%s.XXXXXX", _PATH_TMP,
-> +			 program_invocation_short_name);
-> +	old_mode = umask(077);
-> +	fd = mkstemp(localtmp);
-> +	umask(old_mode);
-> +	if (fd == -1)
-> +		goto err;
+be nice if this patch was in 2.21.1, but i guess that ship has sailed, and=
+=20
+there prob won't be a 2.21.2 ...
+=2Dmike
 
-the file isn't open on failure, just return NULL.
+--nextPart3287922.nbqaulRsmD
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-> +	if (!(ret = fdopen(fd, "w+")))
-> +		goto err;
-> +	*tmpname = localtmp;
-> +	return ret;
-> + err:
-> +	close(fd);
-> +	return NULL;
-> +}
-> +
-> +#ifdef TEST_PROGRAM
-> +int main(void)
-> +{
-> +	FILE *f;
-> +	char *tmpname;
-> +	f = xmkstemp(&tmpname);
-> +	unlink(tmpname);
-> +	free(tmpname);
-> +	fclose(f);
-> +	return EXIT_FAILURE;
-> +}
-> +#endif
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
 
+iQIcBAABAgAGBQJPdg5TAAoJEEFjO5/oN/WBQ0AP/jHFbRQlvESMdS9oWvksQNIq
+2D+xprJEAux79M9RASAzVhTiqPtISFoZ7jXV+Q4ygaeHh5ENpwO7R+bEIq9sQ2JD
+k+DgNq8vSWQxzvO3juS93+Tfk2l/83BTX1dq3XVPa+yDWORc2Yp0tTcTqeUxMv2w
+hGJ08NILm1n2yhiPwIRB/rBjtIIKY+nsSoHF15b6JQv7edupL8PSHXQ54hYwYxax
+TNEyqagfYQekSzoGrnjtTL7ZStWxsKXrPoxS/bERyFMkkjCPZX8pNiZ5q8zsKfmr
+bLW8WsMje+m9ygmKKDKpEoI+dCPY3sbdOs8wk5+DGjN0yJSGCyhd1ZuWy0XDQ5Q+
+iSTk0hbncM4tO0xOFWsI8kW7l6iPcdXsXNF/CySqM6bQbxu2P/V0EH4HX7/FypbC
+d1Uy7uhQ9YS6XVLh8IW4CfQnCyFdxwhEU+4X2vA4iaXyTyS07N5fx6GyOiDaGwB5
+U2AagVWqDLaDo3wHlaohGESNO1XNkXpQE1p3ebbxQmw6rMbFfp3+R7/xDU/VdxsO
+1C5XXgeheBGTKts1Lg8PvIPtkgnGEg3ar2B8zZaH4PfkFc9cxJK4EKKGQK49nXO2
+rSYrXvouyyF8/L0iED20gEA5V6+HPH+ftlKJmd3N9ibYufRI0ptnwkN5koFIujLI
+NNz2kB6+Pxw98o1ieqqG
+=kRDj
+-----END PGP SIGNATURE-----
 
+--nextPart3287922.nbqaulRsmD--
