@@ -1,46 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:39124 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:29395 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755992Ab2DXIVF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Apr 2012 04:21:05 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 18F9B912E4
-	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:04 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 7/9] fsck.minix.c: fix compiler warnings [-Wunused-result]
-Date: Tue, 24 Apr 2012 10:20:59 +0200
-Message-Id: <1335255661-10611-7-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
-References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+	id S1751669Ab2DBMMg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Apr 2012 08:12:36 -0400
+Date: Mon, 2 Apr 2012 14:12:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux@vger.kernel.org,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>
+Subject: Re: [PATCH 3/3] chkdupexe: reimplement command in C
+Message-ID: <20120402121231.GE1084@x2.net.home>
+References: <20120330150457.GE23437@x2.net.home>
+ <1333304372-25944-1-git-send-email-kerolasa@iki.fi>
+ <1333304372-25944-4-git-send-email-kerolasa@iki.fi>
+ <20120402111029.GA1084@x2.net.home>
+ <CAG27Bk2oU12RWj=HWqE7hbx0c1f_ib=d6NCn8uQ1H1C3HGoLuA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk2oU12RWj=HWqE7hbx0c1f_ib=d6NCn8uQ1H1C3HGoLuA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-fsck.minix.c: In function ‘ask’:
-fsck.minix.c:263:7: error: ignoring return value of ‘fgets’, declared with attribute warn_unused_result [-Werror=unused-result]
+On Mon, Apr 02, 2012 at 01:53:23PM +0200, Sami Kerola wrote:
+> I am in favour of removal. As you said few, if anyone, is using this
+> command and to be honest I do not know why I would use it. Duplicated
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- disk-utils/fsck.minix.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I agree ... so, we need --enable-chkdupexe (disabled by default)
+and Documentation/deprecated.txt entry ;-)
 
-diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
-index 8b3ce62..139ab7a 100644
---- a/disk-utils/fsck.minix.c
-+++ b/disk-utils/fsck.minix.c
-@@ -260,7 +260,7 @@ ask(const char *string, int def) {
- 	 * translated.  */
- 	printf(def ? _("%s (y/n)? ") : _("%s (n/y)? "), string);
- 	fflush(stdout);
--	fgets(input, YESNO_LENGTH, stdin);
-+	ignore_result( fgets(input, YESNO_LENGTH, stdin) );
- 	resp = rpmatch(input);
- 	switch (resp) {
- 	case -1:
+    Karel
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
