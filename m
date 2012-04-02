@@ -1,59 +1,282 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16183 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750908Ab2DZHqh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Apr 2012 03:46:37 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q3Q7kb1I006073
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Thu, 26 Apr 2012 03:46:37 -0400
-Received: from x2 (ovpn-116-57.ams2.redhat.com [10.36.116.57])
-	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q3Q7kaEO025270
-	for <util-linux@vger.kernel.org>; Thu, 26 Apr 2012 03:46:36 -0400
-Date: Thu, 26 Apr 2012 09:46:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] findmnt: add match_by_file to do within-device
- matching
-Message-ID: <20120426074635.GB28346@x2.net.home>
-References: <1335400252-17929-1-git-send-email-dreisner@archlinux.org>
- <1335400252-17929-2-git-send-email-dreisner@archlinux.org>
- <20120426021651.GH938@rampage>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120426021651.GH938@rampage>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH 1/3] lib: add pager functionality
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 02 Apr 2012 16:35:47 +0200
+Message-ID: <1333377347.2552.19.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 25, 2012 at 10:16:51PM -0400, Dave Reisner wrote:
-> On Wed, Apr 25, 2012 at 08:30:52PM -0400, Dave Reisner wrote:
-> > Use the newly exported mnt_get_mountpoint to determine the device that a
-> > given file resides on, in case the supplied source or target is not
-> > explicitly a mount point.
-> > 
-> > http://www.spinics.net/lists/util-linux-ng/msg06081.html
-> > 
-> > Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> > ---
-> 
-> On second thought, this isn't good -- it'll return results even when
-> you're searching with --fstab (which is completely undesirable, imo).
+From: Davidlohr Bueso <dave@gnu.org>
 
- I'll fix it, that's easy. Thanks.
+When some program' output exceeds the terminal's dimensions, it is a nice
+feature to call a pager that acts as calling 'less' to allow better user
+navigation. This patch adds this functionality, based on what perf and git
+have (ie: git log).
 
-> >  	m = get_match(COL_TARGET);
-> > -	if (m && !mnt_fs_match_target(fs, m, cache))
-> > +	if (m && !match_by_file(m, fs, mnt_fs_match_target))
-> >  		return rc;
-> >  
-> >  	m = get_match(COL_SOURCE);
-> > -	if (m && !mnt_fs_match_source(fs, m, cache))
-> > +	if (m && !match_by_file(m, fs, mnt_fs_match_source))
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ include/pager.h |    6 ++
+ lib/Makefile.am |    2 +
+ lib/pager.c     |  214 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 222 insertions(+), 0 deletions(-)
+ create mode 100644 include/pager.h
+ create mode 100644 lib/pager.c
 
- why we need this functionality for SOURCE too?
-
-    Karel
-
+diff --git a/include/pager.h b/include/pager.h
+new file mode 100644
+index 0000000..9ca42eb
+--- /dev/null
++++ b/include/pager.h
+@@ -0,0 +1,6 @@
++#ifndef UTIL_LINUX_PAGER
++#define UTIL_LINUX_PAGER
++
++void setup_pager(void);
++
++#endif
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index c34481d..d27f323 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -9,6 +9,7 @@ noinst_PROGRAMS = \
+ 	test_fileutils \
+ 	test_ismounted \
+ 	test_mangle \
++	test_pager \
+ 	test_procutils \
+ 	test_strutils \
+ 	test_tt \
+@@ -35,6 +36,7 @@ test_procutils_SOURCES = procutils.c
+ if LINUX
+ test_cpuset_SOURCES = cpuset.c
+ test_sysfs_SOURCES = sysfs.c at.c
++test_pager_SOURCES = pager.c
+ test_sysfs_CFLAGS = -DTEST_PROGRAM_SYSFS
+ 
+ test_loopdev_SOURCES = \
+diff --git a/lib/pager.c b/lib/pager.c
+new file mode 100644
+index 0000000..fabd112
+--- /dev/null
++++ b/lib/pager.c
+@@ -0,0 +1,214 @@
++/*
++ * Based on linux-perf/git scm
++ *
++ * Some modifications and simplifications for util-linux
++ * by Davidlohr Bueso <dave@gnu.org> - March 2012.
++ */
++
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++#include <err.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/wait.h>
++
++#include "c.h"
++#include "xalloc.h"
++#include "nls.h"
++
++static struct child_process pager_process;
++static const char *pager_argv[] = { "sh", "-c", NULL, NULL };
++
++struct child_process {
++	const char **argv;
++	pid_t pid;
++	int in;
++	int out;
++	int err;
++	unsigned no_stdin:1;
++	void (*preexec_cb)(void);
++};
++
++static inline void close_pair(int fd[2])
++{
++	close(fd[0]);
++	close(fd[1]);
++}
++
++static inline void dup_devnull(int to)
++{
++	int fd = open("/dev/null", O_RDWR);
++	dup2(fd, to);
++	close(fd);
++}
++
++static int start_command(struct child_process *cmd)
++{
++	int need_in, need_out, need_err;
++	int fdin[2], fdout[2], fderr[2];
++
++	/*
++	 * In case of errors we must keep the promise to close FDs
++	 * that have been passed in via ->in and ->out.
++	 */
++	need_in = !cmd->no_stdin && cmd->in < 0;
++	if (need_in) {
++		if (pipe(fdin) < 0) {
++			if (cmd->out > 0)
++				close(cmd->out);
++			return -1;
++		}
++		cmd->in = fdin[1];
++	}
++
++	fflush(NULL);
++	cmd->pid = fork();
++	if (!cmd->pid) {
++		if (need_in) {
++			dup2(fdin[0], 0);
++			close_pair(fdin);
++		} else if (cmd->in) {
++			dup2(cmd->in, 0);
++			close(cmd->in);
++		}
++
++		cmd->preexec_cb();
++		execvp(cmd->argv[0], (char *const*) cmd->argv);
++		exit(127); /* cmd not found */
++	}
++
++	if (cmd->pid < 0) {
++		int err = errno;
++		if (need_in)
++			close_pair(fdin);
++		else if (cmd->in)
++			close(cmd->in);
++
++		return -1;
++	}
++
++	if (need_in)
++		close(fdin[0]);
++	else if (cmd->in)
++		close(cmd->in);
++	return 0;
++}
++
++static int wait_or_whine(pid_t pid)
++{
++	for (;;) {
++		int status, code;
++		pid_t waiting = waitpid(pid, &status, 0);
++
++		if (waiting < 0) {
++			if (errno == EINTR)
++				continue;
++			err(EXIT_FAILURE, _("waitpid failed (%s)"), strerror(errno));
++		}
++		if (waiting != pid)
++			return -1;
++		if (WIFSIGNALED(status))
++			return -1;
++
++		if (!WIFEXITED(status))
++			return -1;
++		code = WEXITSTATUS(status);
++		switch (code) {
++		case 127:
++			return -1;
++		case 0:
++			return 0;
++		default:
++			return -1;
++		}
++	}
++}
++
++static int finish_command(struct child_process *cmd)
++{
++	return wait_or_whine(cmd->pid);
++}
++
++static void pager_preexec(void)
++{
++	/*
++	 * Work around bug in "less" by not starting it until we
++	 * have real input
++	 */
++	fd_set in;
++
++	FD_ZERO(&in);
++	FD_SET(0, &in);
++	select(1, &in, NULL, &in, NULL);
++
++	setenv("LESS", "FRSX", 0);
++}
++
++static void wait_for_pager(void)
++{
++	fflush(stdout);
++	fflush(stderr);
++	/* signal EOF to pager */
++	close(1);
++	close(2);
++	finish_command(&pager_process);
++}
++
++static void wait_for_pager_signal(int signo)
++{
++	wait_for_pager();
++	raise(signo);
++}
++
++void setup_pager(void)
++{
++	const char *pager = getenv("PAGER");
++
++	if (!isatty(1))
++		return;
++
++	if (!pager)
++		pager = "less";
++	else if (!*pager || !strcmp(pager, "cat"))
++		return;
++
++	/* spawn the pager */
++	pager_argv[2] = pager;
++	pager_process.argv = pager_argv;
++	pager_process.in = -1;
++	pager_process.preexec_cb = pager_preexec;
++
++	if (start_command(&pager_process))
++		return;
++
++	/* original process continues, but writes to the pipe */
++	dup2(pager_process.in, 1);
++	if (isatty(2))
++		dup2(pager_process.in, 2);
++	close(pager_process.in);
++
++	/* this makes sure that the parent terminates after the pager */
++	signal(SIGINT, wait_for_pager_signal);
++	signal(SIGHUP, wait_for_pager_signal);
++	signal(SIGTERM, wait_for_pager_signal);
++	signal(SIGQUIT, wait_for_pager_signal);
++	signal(SIGPIPE, wait_for_pager_signal);
++
++	atexit(wait_for_pager);
++}
++
++#ifdef TEST_PROGRAM
++
++#define MAX 255
++
++int main(int argc, char *argv[])
++{
++	int i;
++
++	setup_pager();
++	for (i = 0; i < MAX; i++)
++		printf("%d\n", i);
++	return EXIT_SUCCESS;
++}
++#endif /* TEST_PROGRAM */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
