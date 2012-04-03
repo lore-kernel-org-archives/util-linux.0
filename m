@@ -1,28 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12416 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38208 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755363Ab2DJKdk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Apr 2012 06:33:40 -0400
-Date: Tue, 10 Apr 2012 12:33:31 +0200
+	id S1751559Ab2DCNcy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 3 Apr 2012 09:32:54 -0400
+Date: Tue, 3 Apr 2012 15:32:26 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] docs: eject.1: align with
- Documentation/howto-man-page.txt
-Message-ID: <20120410103331.GI19784@x2.net.home>
-References: <1333658449-20112-1-git-send-email-kerolasa@iki.fi>
- <1333658449-20112-3-git-send-email-kerolasa@iki.fi>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux@vger.kernel.org, "Ted Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH 11/20] uuidd: introduce --keep-privs option
+Message-ID: <20120403133226.GI1084@x2.net.home>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+ <1333039528-24784-12-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1333658449-20112-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1333039528-24784-12-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 05, 2012 at 10:40:49PM +0200, Sami Kerola wrote:
->  sys-utils/eject.1 |   96 ++++++++++++++++++++++++++++-------------------------
->  1 file changed, 51 insertions(+), 45 deletions(-)
+On Thu, Mar 29, 2012 at 06:45:19PM +0200, Petr Uzel wrote:
+> This option makes uuidd _not_ to drop its privileges if installed suid
+> and exectued by root.
+> 
+> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> ---
+>  misc-utils/uuidd.8 |    5 +++++
+>  misc-utils/uuidd.c |    7 ++++++-
+>  2 files changed, 11 insertions(+), 1 deletions(-)
 
- Applied, thanks.
+ Please, drop this patch.
+
+ For socket activation we can use the "drop_privs = 0" internally, it's
+ unnecessary to export this functionality to command line.
+
+
+ Anyway, do we really need to support suid uuidd? What about to drop
+ all this stuff and require that uuidd has to be started by init
+ scripts only? What about to drop exec-from-library at all?
+
+ RHEL/Fedora/Suse starts uuidd by init, and for another distros is
+ whole uuidd almost unnecessary thing... It seems that Debian uses
+ suid uuidd, but I think that they can add an init script too.
+
+ IMHO the current exec-from-library and suid is not elegant solution.
+
+ Ted?
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
