@@ -1,39 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mta02.ornl.gov ([128.219.14.62]:7492 "EHLO mta02.ornl.gov"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753640Ab2DETq4 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 5 Apr 2012 15:46:56 -0400
-From: "Males, Jess L." <malesjl@ornl.gov>
-To: "util-linux-ng@vger.kernel.org" <util-linux-ng@vger.kernel.org>
-Date: Thu, 5 Apr 2012 15:37:22 -0400
-Subject: mount bind options
-Message-ID: <CBA36CB2.C75%malesjl@ornl.gov>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from moutng.kundenserver.de ([212.227.17.8]:61031 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751659Ab2DDHKt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 Apr 2012 03:10:49 -0400
+Message-ID: <4F7BF3F6.5020205@bernhard-voelker.de>
+Date: Wed, 04 Apr 2012 09:10:46 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Typo in commit message v2.21-200-g72bec4d
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I'm trying:
-Mount -o bind,gid=10101 /path/to/some/dir /new/mnt/
+> commit 72bec4d0dd5c94f15ed7c17d3452ba87ed737209
+> Author: Karel Zak <kzak@redhat.com>
+> Date:   Mon Apr 2 17:34:07 2012 +0200
+> 
+>     mount: (old) check for LD_FLAGS_AUTOCLEAR more carefully
 
-Where:
-drwxr-xr-x. 2 user1 user1  4096 Apr  5 14:34 /path/to/some/dir
+s/LD_FLAGS_AUTOCLEAR/LO_FLAGS_AUTOCLEAR/
 
-I wanted:
-drwxr-xr-x. 2 user1 user2  4096 Apr  5 14:34 /new/mnt
-
-But I don't get it.
-
-Is this purposefully not implemented because it would be BAD (Å)?  Or has
-it just not been implemented.
-
-Thanks,
-
-
-
--- Jess
-
-
-
-
+Have a nice day,
+Berny
