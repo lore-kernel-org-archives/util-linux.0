@@ -1,93 +1,131 @@
-Return-Path: P@draigBrady.com
-Message-ID: <4F8E9B95.5010303@draigBrady.com>
-Date: Wed, 18 Apr 2012 11:46:45 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: Karel Zak <kzak@redhat.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
-References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de> <4F8D7EEF.8060601@draigBrady.com> <20120417144801.GA2391@x2.net.home> <4F8D8562.2020805@bernhard-voelker.de> <4F8E6429.2030408@bernhard-voelker.de>
-In-Reply-To: <4F8E6429.2030408@bernhard-voelker.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from smtp.gentoo.org ([140.211.166.183]:44088 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753327Ab2DEPuV (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 5 Apr 2012 11:50:21 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 79F231B4013
+	for <util-linux-ng@vger.kernel.org>; Thu,  5 Apr 2012 15:50:20 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux-ng@vger.kernel.org
+Subject: [PATCH 3/3] eject: use CDROM_DRIVE_STATUS if available for tray toggling
+Date: Thu,  5 Apr 2012 11:50:46 -0400
+Message-Id: <1333641046-13125-3-git-send-email-vapier@gentoo.org>
+In-Reply-To: <1333641046-13125-1-git-send-email-vapier@gentoo.org>
+References: <1333641046-13125-1-git-send-email-vapier@gentoo.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/18/2012 07:50 AM, Bernhard Voelker wrote:
-> 
-> 
-> On 04/17/2012 04:59 PM, Bernhard Voelker wrote:
->>
->>
->> On 04/17/2012 04:48 PM, Karel Zak wrote:
->>>  yep, my +1 was about s/mebibytes/MiB/, I have overlooked the
->>>  1024*1024 math in the patch. Pádraig is right, (s)fdisk uses 1024
->>>  byte blocks in output 
->>
->> so KiB would be right?
->>
->>>  (probably too keep things more confusing ;-)
->>
->> mission accomplished ...
->>
->> Bye,
->> Berny
->>
-> 
-> ah, that part refers to the "#blocks" column!
-> 
-> The problem starts with the "=" after "Units". A colon would
-> maybe be more appropriate: then we could use the equal sign
-> like in the following.
-> 
-> What do you think?
-> 
-> Have a nice day,
-> Berny
-> 
-> 
->>From 1c59d9ca4d18d795de354003d0059dc593c6a99b Mon Sep 17 00:00:00 2001
-> From: Bernhard Voelker <mail@bernhard-voelker.de>
-> Date: Wed, 18 Apr 2012 08:47:29 +0200
-> Subject: [PATCH] sfdisk (out_partition_header): improve F_MEGABYTE header
-> 
-> Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
-> ---
->  fdisk/sfdisk.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-> index 95e5828..c14d127 100644
-> --- a/fdisk/sfdisk.c
-> +++ b/fdisk/sfdisk.c
-> @@ -912,24 +912,24 @@ out_partition_header(char *dev, int format, struct geometry G) {
->  		G.cylindersize ? _("cylinders") : _("sectors"));
->      case F_CYLINDER:
->  	if (G.cylindersize) {
-> -	    printf(_("Units = cylinders of %lu bytes, blocks of 1024 bytes"
-> +	    printf(_("Units: cylinders of %lu bytes, blocks of 1024 bytes"
->  		     ", counting from %d\n\n"), G.cylindersize << 9, increment);
->  	    printf(_("   Device Boot Start     End   #cyls    #blocks   Id  System\n"));
->  	    break;
->  	}
->  	/* fall through */
->      case F_SECTOR:
-> -	printf(_("Units = sectors of 512 bytes, counting from %d\n\n"),
-> +	printf(_("Units: sectors of 512 bytes, counting from %d\n\n"),
->  	       increment);
->  	printf(_("   Device Boot    Start       End   #sectors  Id  System\n"));
->  	break;
->      case F_BLOCK:
-> -	printf(_("Units = blocks of 1024 bytes, counting from %d\n\n"),
-> +	printf(_("Units: blocks of 1024 bytes, counting from %d\n\n"),
->  	       increment);
->  	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"));
->  	break;
->      case F_MEGABYTE:
-> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
-> +	printf(_("Units: 1MiB = 1024*1024 bytes, blocks of 1024 bytes"
->  		 ", counting from %d\n\n"), increment);
->  	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n"));
->  	break;
+One some platforms, the -T option can be unreliable (see reference bug
+report for some examples).  Instead, if the kernel supports the cdrom
+status ioctl, use that to ask explicitly for the current tray status
+and then open/close accordingly.
 
-+1
+The eject_cdrom() func was reworked slightly, but none of the existing
+callers care about the explicit normalization to [0,1] values, so have
+it return the raw value so we can convert toggle_tray() over to using
+that.
+
+Finally, now that toggle_tray() uses a lot of helper functions, drop
+the check on CDROMCLOSETRAY.  The sub-functions take care of that.
+
+Reference: https://bugs.gentoo.org/261880
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ sys-utils/eject.c |   52 ++++++++++++++++++++++++++++++++--------------------
+ 1 files changed, 32 insertions(+), 20 deletions(-)
+
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index 68d5e9c..245c028 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -386,6 +386,22 @@ static void close_tray(int fd)
+ }
+ 
+ /*
++ * Eject using CDROMEJECT ioctl.
++ */
++static int eject_cdrom(int fd)
++{
++#if defined(CDROMEJECT)
++	return ioctl(fd, CDROMEJECT);
++#elif defined(CDIOCEJECT)
++	return ioctl(fd, CDIOCEJECT);
++#else
++	warnx(_("CD-ROM eject unsupported"));
++	errno = ENOSYS;
++	return -1;
++#endif
++}
++
++/*
+  * Toggle tray.
+  *
+  * Written by Benjamin Schwenk <benjaminschwenk@yahoo.de> and
+@@ -400,7 +416,21 @@ static void toggle_tray(int fd)
+ 	struct timeval time_start, time_stop;
+ 	int time_elapsed;
+ 
+-#ifdef CDROMCLOSETRAY
++#ifdef CDROM_DRIVE_STATUS
++	/* First ask the CDROM for info, otherwise fall back to manual.  */
++	switch (ioctl(fd, CDROM_DRIVE_STATUS)) {
++	case CDS_TRAY_OPEN:
++		close_tray(fd);
++		return;
++
++	case CDS_NO_DISC:
++	case CDS_DISC_OK:
++		if (eject_cdrom(fd))
++			err(EXIT_FAILURE, _("CD-ROM eject command failed"));
++		return;
++	}
++#endif
++
+ 	/* Try to open the CDROM tray and measure the time therefor
+ 	 * needed.  In my experience the function needs less than 0.05
+ 	 * seconds if the tray was already open, and at least 1.5 seconds
+@@ -408,7 +438,7 @@ static void toggle_tray(int fd)
+ 	gettimeofday(&time_start, NULL);
+ 
+ 	/* Send the CDROMEJECT command to the device. */
+-	if (ioctl(fd, CDROMEJECT, 0) < 0)
++	if (eject_cdrom(fd) < 0)
+ 		err(EXIT_FAILURE, _("CD-ROM eject command failed"));
+ 
+ 	/* Get the second timestamp, to measure the time needed to open
+@@ -423,10 +453,6 @@ static void toggle_tray(int fd)
+ 	 * closed before. This would mean that we are done.  */
+ 	if (time_elapsed < TRAY_WAS_ALREADY_OPEN_USECS)
+ 		close_tray(fd);
+-#else
+-	warnx(_("CD-ROM tray toggle command not supported by this kernel"));
+-#endif
+-
+ }
+ 
+ /*
+@@ -531,20 +557,6 @@ static void list_speeds(const char *name, int fd)
+ }
+ 
+ /*
+- * Eject using CDROMEJECT ioctl. Return 1 if successful, 0 otherwise.
+- */
+-static int eject_cdrom(int fd)
+-{
+-#if defined(CDROMEJECT)
+-	return ioctl(fd, CDROMEJECT) == 0;
+-#elif defined(CDIOCEJECT)
+-	return ioctl(fd, CDIOCEJECT) == 0;
+-#else
+-	warnx(_("CD-ROM eject unsupported"));
+-#endif
+-}
+-
+-/*
+  * Eject using SCSI SG_IO commands. Return 1 if successful, 0 otherwise.
+  */
+ static int eject_scsi(int fd)
+-- 
+1.7.8.5
+
