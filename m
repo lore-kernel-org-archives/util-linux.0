@@ -1,49 +1,63 @@
-Return-Path: bernhard.voelker@siemens-enterprise.com
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: "dave@gnu.org" <dave@gnu.org>, Karel Zak <kzak@redhat.com>
-CC: util-linux <util-linux@vger.kernel.org>
-Date: Mon, 16 Apr 2012 11:53:19 +0200
-Subject: RE: [PATCH 5/8] sfdisk: fix silly mbyte typo
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F0FCE9C0D@MCHP058A.global-ad.net>
-References: <1334569484.2552.14.camel@offbook>
-In-Reply-To: <1334569484.2552.14.camel@offbook>
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:34565 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756607Ab2DEHgg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 Apr 2012 03:36:36 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 48D539290E
+	for <util-linux@vger.kernel.org>; Thu,  5 Apr 2012 09:36:35 +0200 (CEST)
+Date: Thu, 5 Apr 2012 09:36:34 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 04/20] uuidd: implement --no-pid option
+Message-ID: <20120405073634.GA22664@foxbat.suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+ <1333039528-24784-5-git-send-email-petr.uzel@suse.cz>
+ <20120403125146.GG1084@x2.net.home>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+In-Reply-To: <20120403125146.GG1084@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Davidlohr Bueso wrote:
 
-> Subject: [PATCH 5/8] sfdisk: fix silly mbyte typo
->=20
-> From: Davidlohr Bueso <dave@gnu.org>
->=20
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
->=20
-> ---
->  fdisk/sfdisk.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->=20
-> diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-> index 8bd27da..f81a7fa 100644
-> --- a/fdisk/sfdisk.c
-> +++ b/fdisk/sfdisk.c
-> @@ -930,7 +930,7 @@ out_partition_header(char *dev, int format, struct ge=
-ometry G) {
->  	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"))=
-;
->  	break;
->      case F_MEGABYTE:
-> -	printf(_("Units =3D mebibytes of 1048576 bytes, blocks of 1024 bytes"
-> +	printf(_("Units =3D megabytes of 1048576 bytes, blocks of 1024 bytes"
->  		 ", counting from %d\n\n"), increment);
->  	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n")=
-);
->  	break;
-> --=20
-> 1.7.4.1
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-not silly:
-http://en.wikipedia.org/wiki/Mebibyte
+On Tue, Apr 03, 2012 at 02:51:46PM +0200, Karel Zak wrote:
+> On Thu, Mar 29, 2012 at 06:45:12PM +0200, Petr Uzel wrote:
+> > +	if (pidfile_path) {
+> > +		sprintf(reply_buf, "%8d\n", getpid());
+> > +		if (ftruncate(fd_pidfile, 0)) {
+> > +			/* Silence warn_unused_result */
+> > +		}
+>=20
+>  #include "c.h"
+>=20
+>  ignore_result( ftruncate(fd_pidfile, 0) );
 
-Have a nice day,
-Berny
+I'll change this in v2. Thanks
+
+Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk99S4IACgkQnZxG0T6qDD0fxgCeIa3ck/l4bM1FlzwyFy5v0R//
+kJUAnR/so5izxBT7wpiu7RI2YCVcZIb8
+=O57p
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--
