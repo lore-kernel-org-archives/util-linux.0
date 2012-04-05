@@ -1,34 +1,48 @@
-Return-Path: jrnieder@gmail.com
-Date: Wed, 25 Apr 2012 10:16:03 -0500
-From: Jonathan Nieder <jrnieder@gmail.com>
+Return-Path: dave@gnu.org
+Subject: Re: eject merged into util-linux
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
 To: Karel Zak <kzak@redhat.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: fix calculation due to type mismatch (ix86)
-Message-ID: <20120425151603.GA31410@burratino>
-References: <1333723993-11424-1-git-send-email-petr.uzel@suse.cz>
- <20120410103422.GJ19784@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120410103422.GJ19784@x2.net.home>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        David Zeuthen
+ <davidz@redhat.com>, Michal Luscon <mluscon@redhat.com>
+In-Reply-To: <20120405143032.GC20515@x2.net.home>
+References: <20120405143032.GC20515@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 05 Apr 2012 17:00:07 +0200
+Message-ID: <1333638007.2628.1.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+On Thu, 2012-04-05 at 16:30 +0200, Karel Zak wrote:
+> The original eject project (at sourceforge.net) is inactive for more
+>  than 4 year. Unfortunately, the command is still used in mainstream
+>  Linux distributions (for example udisks depends on the eject
+>  functionality). 
 
-Karel Zak wrote:
-> On Fri, Apr 06, 2012 at 04:53:13PM +0200, Petr Uzel wrote:
+Great news! This was one of my favorite tools when I first began using
+Linux, nice to have it in u-l now.
 
->> Addresses: https://bugzilla.novell.com/show_bug.cgi?id=754789
->> Reported-by: Dan Mares <dan.mares@norcrossgroup.com>
->> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
->
->  Ah.. pretty dirty bug. Applied, thanks.
-
-(This is 9c45d49fe01c "sfdisk: fix calculation due to type mismatch
-(ix86)".)  Thanks.  Do you think this fix might belong in currently
-maintained stable/ branches, too, and if so, how can I help make that
-happen?
-
-Context: http://bugs.debian.org/670127
-
-Sincerely,
-Jonathan
+> Changes:
+> 
+>   * complete refactoring (the original code was real mess...)
+> 
+>   * merged patches from Fedora (auto-eject, manual-eject, close-tray
+>     list-speed and removable/hotpluggable-check patches)
+> 
+>   * removed support for incomplete paths (for example "eject foo" was
+>     interpreted as "eject /media/foo" or "eject /mnt/foo". The
+>     incomplete paths are supported for devices only (e.g. "eject sda").
+> 
+>     FOR MOUNTPOINT YOU HAVE TO SPECIFY COMPLETE PATH!
+> 
+>   * enabled by default (and added --disable-eject)
+> 
+>   * if a partition is specified, whole-disk device is used for eject
+>     ioctl(s), for example "eject /dev/sda1" is the same as "eject /dev/sda"
+> 
+> 
+>  Thanks to Michal Luscon for help.
+> 
+>     Karel
+> 
