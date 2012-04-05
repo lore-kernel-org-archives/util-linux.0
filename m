@@ -1,96 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from damascus.uab.es ([158.109.168.135]:19429 "EHLO damascus.uab.es"
+Received: from cantor2.suse.de ([195.135.220.15]:35337 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759923Ab2D0LXd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Apr 2012 07:23:33 -0400
-Received: from damascus.uab.es ([127.0.0.1])
- by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
- Jan  6 2005)) with ESMTP id <0M340086TYB8R600@damascus.uab.es> for
- util-linux@vger.kernel.org; Fri, 27 Apr 2012 13:23:32 +0200 (CEST)
-Received: from aomail.uab.es ([158.109.65.1])
- by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
- 6 2005)) with ESMTP id	<0M3400FGTYB7NG40@damascus.uab.es>
- forutil-linux@vger.kernel.org; Fri, 27 Apr 2012 13:23:32 +0200 (CEST)
-Date: Fri, 27 Apr 2012 13:23:42 +0200
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: [PATCH 1/4] fdisk: remove stack jumping
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1335525822.11068.4.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+	id S1751254Ab2DEHtj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 Apr 2012 03:49:39 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id DBF01935A1
+	for <util-linux@vger.kernel.org>; Thu,  5 Apr 2012 09:49:38 +0200 (CEST)
+Date: Thu, 5 Apr 2012 09:49:38 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 12/20] uuidd: --socket-activation implies --keep-privs
+Message-ID: <20120405074938.GD22664@foxbat.suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+ <1333039528-24784-13-git-send-email-petr.uzel@suse.cz>
+ <20120403133828.GJ1084@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
+In-Reply-To: <20120403133828.GJ1084@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
 
-This patch eliminates the long/setjmp code. The current logic does not do anything with stack jumps as it only exits from
-print_partition_table_from_option() when a fatal error occurs.
+--yudcn1FV7Hsu/q59
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |   17 ++---------------
- 1 files changed, 2 insertions(+), 15 deletions(-)
+On Tue, Apr 03, 2012 at 03:38:28PM +0200, Karel Zak wrote:
+> On Thu, Mar 29, 2012 at 06:45:20PM +0200, Petr Uzel wrote:
+> > +process.  Implies --no-fork, --no-pid and --keep-privs.  As of this wr=
+iting,
+> > +this option is supposed to be used only with systemd. It needs to enab=
+led with
+> > +configure option --enable--uuid-socket-activation.
+>=20
+>  It would be better to add a NOTES section to the man page and add there
+>  a note about socket activation.
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 4054b4d..886f011 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -14,7 +14,6 @@
- #include <string.h>
- #include <fcntl.h>
- #include <ctype.h>
--#include <setjmp.h>
- #include <errno.h>
- #include <getopt.h>
- #include <sys/stat.h>
-@@ -245,8 +244,6 @@ int has_topology;
- 
- enum labeltype disklabel;	/* Current disklabel */
- 
--jmp_buf listingbuf;
--
- static void __attribute__ ((__noreturn__)) usage(FILE *out)
- {
- 	fprintf(out, _("Usage:\n"
-@@ -266,13 +263,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
--void fatal(enum failure why) {
--
--	if (listing) {
--		close(fd);
--		longjmp(listingbuf, 1);
--	}
--
-+void fatal(enum failure why)
-+{
- 	switch (why) {
- 		case unable_to_open:
- 			err(EXIT_FAILURE, _("unable to open %s"), disk_device);
-@@ -2708,8 +2700,6 @@ print_partition_table_from_option(char *device)
- 	int gb;
- 
- 	disk_device = device;
--	if (setjmp(listingbuf))
--		return;
- 	gpt_warning(device);
- 	gb = get_boot(1);
- 	if (gb < 0) { /* no DOS signature */
-@@ -2950,9 +2940,6 @@ main(int argc, char **argv) {
- 		nowarn = 1;
- 		if (argc > optind) {
- 			int k;
--			/* avoid gcc warning:
--			   variable `k' might be clobbered by `longjmp' */
--			dummy(&k);
- 			listing = 1;
- 			for (k = optind; k < argc; k++)
- 				print_partition_table_from_option(argv[k]);
--- 
-1.7.4.1
+Yes, that'd be better. I'll do in v2.
 
+Thanks,
 
+Petr
 
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
 
+--yudcn1FV7Hsu/q59
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk99TpIACgkQnZxG0T6qDD2ijQCgh/cmka6YO7Q07TiNeEkK3wwR
+n6oAn3BJFjTlmmS8YyT1xFDQZvzkbMEj
+=aVP8
+-----END PGP SIGNATURE-----
+
+--yudcn1FV7Hsu/q59--
