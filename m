@@ -1,47 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.187]:49755 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756058Ab2DQOOR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Apr 2012 10:14:17 -0400
-Message-ID: <4F8D7AB3.1010406@bernhard-voelker.de>
-Date: Tue, 17 Apr 2012 16:14:11 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from cantor2.suse.de ([195.135.220.15]:35298 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751254Ab2DEHs5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 Apr 2012 03:48:57 -0400
+Date: Thu, 5 Apr 2012 09:48:56 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: "Ted Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH 11/20] uuidd: introduce --keep-privs option
+Message-ID: <20120405074856.GC22664@foxbat.suse.cz>
+References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
+ <1333039528-24784-12-git-send-email-petr.uzel@suse.cz>
+ <20120403133226.GI1084@x2.net.home>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Karel Zak <kzak@redhat.com>, Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
-References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com>
-In-Reply-To: <4F8D76AB.2090806@draigBrady.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
+In-Reply-To: <20120403133226.GI1084@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/17/2012 03:56 PM, Pádraig Brady wrote:
-> On 04/17/2012 09:42 AM, Bernhard Voelker wrote:
->> Karel Zak wrote:
->>
->>> On Mon, Apr 16, 2012 at 12:22:12PM +0200, Voelker, Bernhard wrote:
->>>> Maybe this is better?
->>>>
->>>> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
->>>> +	printf(_("Units = 1MiB, blocks of 1024*1024 bytes"
-> 
-> Blocks are 1024 bytes in this mode, as confirmed with:
-> sfdisk -uM -l /dev/sda
 
-I don't understand. What's wrong?
+--Sr1nOIr3CvdE5hEN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-$ wc -c </dev/sda1
-12582912000
+On Tue, Apr 03, 2012 at 03:32:26PM +0200, Karel Zak wrote:
+> On Thu, Mar 29, 2012 at 06:45:19PM +0200, Petr Uzel wrote:
+> > This option makes uuidd _not_ to drop its privileges if installed suid
+> > and exectued by root.
+> >=20
+> > Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> > ---
+> >  misc-utils/uuidd.8 |    5 +++++
+> >  misc-utils/uuidd.c |    7 ++++++-
+> >  2 files changed, 11 insertions(+), 1 deletions(-)
+>=20
+>  Please, drop this patch.
+>=20
+>  For socket activation we can use the "drop_privs =3D 0" internally, it's
+>  unnecessary to export this functionality to command line.
 
-$ echo '12582912000 / (1024*1024)' | bc
-12000
+Agreed. Exporting this via cli argument was a stupid idea.
 
-$ ./sfdisk -uM -l /dev/sda | egrep 'sda1|MiB'
-Units = 1MiB, blocks of 1024*1024 bytes, counting from 0
-   Device Boot Start   End    MiB    #blocks   Id  System
-/dev/sda1   *     1  12000  12000   12288000   83  Linux
+>  Anyway, do we really need to support suid uuidd? What about to drop
+>  all this stuff and require that uuidd has to be started by init
+>  scripts only? What about to drop exec-from-library at all?
+>=20
+>  RHEL/Fedora/Suse starts uuidd by init, and for another distros is
+>  whole uuidd almost unnecessary thing... It seems that Debian uses
+>  suid uuidd, but I think that they can add an init script too.
+>=20
+>  IMHO the current exec-from-library and suid is not elegant solution.
 
-Have a nice day,
-Berny
+FWIW, I'm all for dropping spawning uuidd from libuuid.
+
+
+Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--Sr1nOIr3CvdE5hEN
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk99TmgACgkQnZxG0T6qDD1NqACePsm+0B0v3y/+884JdPAMELA+
+ElMAoIKRSaWJSNqDyusMCLOPbDZhK9Y6
+=ikcf
+-----END PGP SIGNATURE-----
+
+--Sr1nOIr3CvdE5hEN--
