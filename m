@@ -1,59 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from basal.nesselzelle.de ([88.198.40.36]:49446 "EHLO
-	basal.nesselzelle.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751318Ab2DQVCE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Apr 2012 17:02:04 -0400
-Received: from localhost ([127.0.0.1]:47192)
-	by localhost with [XMail 1.27 ESMTP Server]
-	id <S340CE> for <util-linux@vger.kernel.org> from <thomas-forum@orgis.org>;
-	Tue, 17 Apr 2012 23:02:01 +0200
-Date: Tue, 17 Apr 2012 23:02:07 +0200
-From: Thomas Orgis <thomas-forum@orgis.org>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: losetup -d --force for zombie loop devices?
-Message-ID: <20120417230207.352c4ca5@orgis.org>
-In-Reply-To: <201204171058.23776.vapier@gentoo.org>
-References: <20120417100346.2a0b8301@orgis.org>
-	<201204171058.23776.vapier@gentoo.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/YRdXBWHZ2aCaMnkRZiQMs0G"; protocol="application/pgp-signature"
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:44555 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754858Ab2DIOM3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 Apr 2012 10:12:29 -0400
+Received: by dake40 with SMTP id e40so5325538dak.11
+        for <util-linux@vger.kernel.org>; Mon, 09 Apr 2012 07:12:28 -0700 (PDT)
+Date: Mon, 9 Apr 2012 10:12:26 -0400
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fsck: don't free fstab table on parse failure
+Message-ID: <20120409141226.GA843@rampage>
+References: <1332852838-6188-1-git-send-email-dreisner@archlinux.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1332852838-6188-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---Sig_/YRdXBWHZ2aCaMnkRZiQMs0G
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Tue, Mar 27, 2012 at 08:53:58AM -0400, Dave Reisner wrote:
+> Even if we fail parsing, fstab gets referenced later in the code (and
+> will subsequently crash via heap corruption). Take the easy way out and
+> simply avoid deallocating this table, as it will be freed for us on
+> program exit regardless.
+> 
+> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> ---
 
-Am Tue, 17 Apr 2012 10:58:22 -0400
-schrieb Mike Frysinger <vapier@gentoo.org>:=20
+Pinging this, as it doesn't seem it was merged...
 
-> that's LOOP_CLR_FD returning EBUSY.  so there isn't much (afaik) that=20
-> userspace can do here.  you'd have to start a thread on lkml first to add=
-=20
-> support for lazy/force loop device detaching.
+d
 
-Hm, I feared such ... now the question is if folks would support that
-move. Well, one will not find out without asking. Perhaps I should try
-to reproduce the scheme with another machine first. Not that this
-situation is something that "just does not happen", except in my case.
-
-
-Alrighty then,
-
-Thomas
-
---Sig_/YRdXBWHZ2aCaMnkRZiQMs0G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAk+N2k8ACgkQm0xSvNRG1SQKegCeITr64ENkukICBsr1P2dJmbL8
-mQYAnRc5P/VvLyPXVeJKdXfjZlGHvsIS
-=cjLC
------END PGP SIGNATURE-----
-
---Sig_/YRdXBWHZ2aCaMnkRZiQMs0G--
+> Crash reproducible with 'FSTAB_FILE=/dev/null fsck <any-blockdev>'
+> 
+>  disk-utils/fsck.c |    1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+> index a019a69..44200d0 100644
+> --- a/disk-utils/fsck.c
+> +++ b/disk-utils/fsck.c
+> @@ -430,7 +430,6 @@ static void load_fs_info(void)
+>  	path = getenv("FSTAB_FILE");
+>  
+>  	if (mnt_table_parse_fstab(fstab, path)) {
+> -		mnt_free_table(fstab);
+>  		if (!path)
+>  			path = mnt_get_fstab_path();
+>  		if (errno)
+> -- 
+> 1.7.9.4
+> 
