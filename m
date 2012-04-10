@@ -1,42 +1,29 @@
-Return-Path: dave@gnu.org
-Date: Fri, 27 Apr 2012 13:23:47 +0200
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: [PATCH 2/4] fdisk: remove listing variable
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:45072 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753103Ab2DJKXf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Apr 2012 06:23:35 -0400
+Date: Tue, 10 Apr 2012 12:23:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
 Cc: util-linux <util-linux@vger.kernel.org>
-Message-id: <1335525827.11068.5.camel@offworld>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] fdisk: move kernel geometry into blkdev
+Message-ID: <20120410102331.GA19784@x2.net.home>
+References: <1333558884.2573.4.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1333558884.2573.4.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Wed, Apr 04, 2012 at 07:01:24PM +0200, Davidlohr Bueso wrote:
+>  fdisk/fdisk.c    |   15 +--------------
+>  include/blkdev.h |    3 +++
+>  lib/blkdev.c     |   23 +++++++++++++++++++++++
+>  3 files changed, 27 insertions(+), 14 deletions(-)
 
-useless global variable.
+ Applied, thanks.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 886f011..f49efd0 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -216,7 +216,6 @@ char	*disk_device,			/* must be specified */
- 
- int	fd,				/* the disk */
- 	ext_index,			/* the prime extended partition */
--	listing = 0,			/* no aborts for fdisk -l */
- 	nowarn = 0,			/* no warnings for fdisk -l/-s */
- 	dos_compatible_flag = 0,	/* disabled by default */
- 	dos_changed = 0,
-@@ -2940,7 +2939,6 @@ main(int argc, char **argv) {
- 		nowarn = 1;
- 		if (argc > optind) {
- 			int k;
--			listing = 1;
- 			for (k = optind; k < argc; k++)
- 				print_partition_table_from_option(argv[k]);
- 		} else
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
