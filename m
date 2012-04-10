@@ -1,61 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:60585 "EHLO
-	homiemail-a37.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752042Ab2DPKOB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Apr 2012 06:14:01 -0400
-Subject: RE: [PATCH 5/8] sfdisk: fix silly mbyte typo
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F0FCE9C0D@MCHP058A.global-ad.net>
-References: <1334569484.2552.14.camel@offbook>
-	 <7856072A9D04C24B82DFE2B1112FE38A0F0FCE9C0D@MCHP058A.global-ad.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 16 Apr 2012 12:13:57 +0200
-Message-ID: <1334571237.2552.18.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:26805 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750885Ab2DJLXn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Apr 2012 07:23:43 -0400
+Date: Tue, 10 Apr 2012 13:23:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/3] lib: random utilities
+Message-ID: <20120410112339.GL19784@x2.net.home>
+References: <1333662724.2696.4.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1333662724.2696.4.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2012-04-16 at 11:53 +0200, Voelker, Bernhard wrote:
-> Davidlohr Bueso wrote:
-> 
-> > Subject: [PATCH 5/8] sfdisk: fix silly mbyte typo
-> > 
-> > From: Davidlohr Bueso <dave@gnu.org>
-> > 
-> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> > 
-> > ---
-> >  fdisk/sfdisk.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-> > index 8bd27da..f81a7fa 100644
-> > --- a/fdisk/sfdisk.c
-> > +++ b/fdisk/sfdisk.c
-> > @@ -930,7 +930,7 @@ out_partition_header(char *dev, int format, struct geometry G) {
-> >  	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"));
-> >  	break;
-> >      case F_MEGABYTE:
-> > -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
-> > +	printf(_("Units = megabytes of 1048576 bytes, blocks of 1024 bytes"
-> >  		 ", counting from %d\n\n"), increment);
-> >  	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n"));
-> >  	break;
-> > -- 
-> > 1.7.4.1
-> 
-> not silly:
-> http://en.wikipedia.org/wiki/Mebibyte
+On Thu, Apr 05, 2012 at 11:52:04PM +0200, Davidlohr Bueso wrote:
+>  include/randutils.h |   19 +++++++++
+>  lib/Makefile.am     |    2 +
+>  lib/randutils.c     |  104 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 125 insertions(+), 0 deletions(-)
+>  create mode 100644 include/randutils.h
+>  create mode 100644 lib/randutils.c
 
-hehe, silly me then.
+ Applied with some changes, thanks.
 
-> 
-> Have a nice day,
-> Berny
-> 
+> +++ b/include/randutils.h
+> +#if defined(__linux__) && defined(__NR_gettid) && defined(HAVE_JRAND48)
+> +#define DO_JRAND_MIX
+> +static unsigned short jrand_seed[3];
+> +#endif
 
+ - add static buffer to header file does not make sense
 
+ - TLS (thread local storage) is necessary there if you want to use
+   the code in a shared library (libuuid).
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
