@@ -1,53 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:34280 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:8220 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751817Ab2DBOff (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Apr 2012 10:35:35 -0400
-Date: Mon, 2 Apr 2012 16:35:34 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: Francesco Cosoleto <cosoleto@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] unmount: fix typo in command name
-Message-ID: <20120402143534.GH15893@foxbat.suse.cz>
-References: <1333270711-28071-1-git-send-email-petr.uzel@suse.cz>
- <CAMFXF53b5VycY+N2AjNXmwd=BtVdDayNkeJb3+1uk_TmvEvMcA@mail.gmail.com>
+	id S1753886Ab2DJKYS (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 10 Apr 2012 06:24:18 -0400
+Date: Tue, 10 Apr 2012 12:24:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH 1/3] eject: constify array
+Message-ID: <20120410102413.GB19784@x2.net.home>
+References: <1333641046-13125-1-git-send-email-vapier@gentoo.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X+8siUETKMkW99st"
-In-Reply-To: <CAMFXF53b5VycY+N2AjNXmwd=BtVdDayNkeJb3+1uk_TmvEvMcA@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1333641046-13125-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Apr 05, 2012 at 11:50:44AM -0400, Mike Frysinger wrote:
+>  sys-utils/eject.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
---X+8siUETKMkW99st
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied, thanks.
 
-On Mon, Apr 02, 2012 at 04:33:50PM +0200, Francesco Cosoleto wrote:
-> 2012/4/1 Petr Uzel <petr.uzel@suse.cz>:
-> > I noticed a rather annoying typo in one of the command names: umount.
-> > The patch below renames the command to the correct spelling "unmount".
->=20
-> April Fools'? :-)
-
-What do you think? :)
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---X+8siUETKMkW99st
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk95uTYACgkQnZxG0T6qDD1A/wCeNMc0iTOntlmn7tTHQzb+j5SB
-bY4Ani26KtTRGJ7+wIcO9czbmPnygj9C
-=VIm3
------END PGP SIGNATURE-----
-
---X+8siUETKMkW99st--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
