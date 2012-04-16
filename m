@@ -1,49 +1,46 @@
-Return-Path: P@draigBrady.com
-Message-ID: <4F8D7EEF.8060601@draigBrady.com>
-Date: Tue, 17 Apr 2012 15:32:15 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Karel Zak <kzak@redhat.com>, Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
-References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de>
-In-Reply-To: <4F8D7AB3.1010406@bernhard-voelker.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:47172 "EHLO
+	homiemail-a10.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752011Ab2DPJol (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Apr 2012 05:44:41 -0400
+Subject: [PATCH 2/8] fdisk: standarize version output
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 16 Apr 2012 11:44:36 +0200
+Message-ID: <1334569476.2552.11.camel@offbook>
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/17/2012 03:14 PM, Bernhard Voelker wrote:
-> On 04/17/2012 03:56 PM, Pádraig Brady wrote:
->> On 04/17/2012 09:42 AM, Bernhard Voelker wrote:
->>> Karel Zak wrote:
->>>
->>>> On Mon, Apr 16, 2012 at 12:22:12PM +0200, Voelker, Bernhard wrote:
->>>>> Maybe this is better?
->>>>>
->>>>> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
->>>>> +	printf(_("Units = 1MiB, blocks of 1024*1024 bytes"
->>
->> Blocks are 1024 bytes in this mode, as confirmed with:
->> sfdisk -uM -l /dev/sda
-> 
-> I don't understand. What's wrong?
-> 
-> $ wc -c </dev/sda1
-> 12582912000
-> 
-> $ echo '12582912000 / (1024*1024)' | bc
-> 12000
-> 
-> $ ./sfdisk -uM -l /dev/sda | egrep 'sda1|MiB'
-> Units = 1MiB, blocks of 1024*1024 bytes, counting from 0
->    Device Boot Start   End    MiB    #blocks   Id  System
-> /dev/sda1   *     1  12000  12000   12288000   83  Linux
+From: Davidlohr Bueso <dave@gnu.org>
 
-Well I thought the "blocks of" was referring to the blocks column,
-rather than the units?
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-$ echo $((12582912000 / 1024))
-12288000
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 0ccabb7..0954028 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -2960,8 +2960,8 @@ main(int argc, char **argv) {
+ 			break;
+ 		case 'V':
+ 		case 'v':
+-			printf("fdisk (%s)\n", PACKAGE_STRING);
+-			exit(0);
++			printf(UTIL_LINUX_VERSION);
++			return EXIT_SUCCESS;
+ 		default:
+ 			usage(stderr);
+ 		}
+-- 
+1.7.4.1
 
-cheers,
-Pádraig.
+
+
+
