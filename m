@@ -1,46 +1,38 @@
 Return-Path: dave@gnu.org
-Subject: RE: eject on Cygwin?
+Subject: [PATCH 6/8] fdisk: do not call sgi and sun code when creating a
+ new dos label
 From: Davidlohr Bueso <dave@gnu.org>
 Reply-To: dave@gnu.org
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F0FD7A0B9@MCHP058A.global-ad.net>
-References: 
-	 <7856072A9D04C24B82DFE2B1112FE38A0F0FD7A097@MCHP058A.global-ad.net>
-	 <20120423094420.GA8144@x2.net.home>
-	 <7856072A9D04C24B82DFE2B1112FE38A0F0FD7A0B9@MCHP058A.global-ad.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 23 Apr 2012 12:25:00 +0200
-Message-ID: <1335176700.2556.12.camel@offbook>
+Date: Mon, 16 Apr 2012 11:44:46 +0200
+Message-ID: <1334569487.2552.15.camel@offbook>
 Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2012-04-23 at 11:49 +0200, Voelker, Bernhard wrote:
-> Karel Zak wrote:
-> 
-> > On Mon, Apr 23, 2012 at 11:31:11AM +0200, Voelker, Bernhard wrote:
-> > > Is there a specific reason for this line in configure.ac?
-> > >   UL_REQUIRES_LINUX([eject])
-> > > 
-> > > Can't Cygwin handle /dev/scd0 correctly? 
-> > 
-> >  I don't know, the code also depends on /sys to detect if the device
-> >  is removable, it calls umount(2) syscall, etc.
-> 
-> okay, thanks.
-> Anyway, porting u-l to cygwin is not much fun anymore,
-> e.g. due to new close_stdout() which needs __fpending, and
-> lib/randutils.c needs sys/syscall.h to check if __NR_gettid
-> is defined etc.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Plus, like eject, most tools use a lot of sysfs and procfs files, which
-are pretty Linux-specific.
+When creating a new DOS label, SGI and SUN pt logic have no business being there. Remove sun/sgi_nolabel(), since
+the default amount of partitions are previously set to 4 and the sun/sgi magic nums are not used in this context.
 
-> 
-> Have a nice day,
-> Berny
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index f4b33d2..15fb56c 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -838,8 +838,6 @@ create_doslabel(void) {
+ 	random_get_bytes(&id, sizeof(id));
+ 
+ 	fprintf(stderr, _("Building a new DOS disklabel with disk identifier 0x%08x.\n"), id);
+-	sun_nolabel();  /* otherwise always recognised as sun */
+-	sgi_nolabel();  /* otherwise always recognised as sgi */
+ 
+ 	dos_init();
+ 	zeroize_mbr_buffer();
+-- 
+1.7.4.1
