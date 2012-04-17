@@ -1,40 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:39119 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755795Ab2DXIVE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Apr 2012 04:21:04 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 27A3490182
-	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:02 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 2/9] build-sys: add randutils.h to dist
-Date: Tue, 24 Apr 2012 10:20:54 +0200
-Message-Id: <1335255661-10611-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
-References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+Received: from basal.nesselzelle.de ([88.198.40.36]:49446 "EHLO
+	basal.nesselzelle.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751318Ab2DQVCE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Apr 2012 17:02:04 -0400
+Received: from localhost ([127.0.0.1]:47192)
+	by localhost with [XMail 1.27 ESMTP Server]
+	id <S340CE> for <util-linux@vger.kernel.org> from <thomas-forum@orgis.org>;
+	Tue, 17 Apr 2012 23:02:01 +0200
+Date: Tue, 17 Apr 2012 23:02:07 +0200
+From: Thomas Orgis <thomas-forum@orgis.org>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: losetup -d --force for zombie loop devices?
+Message-ID: <20120417230207.352c4ca5@orgis.org>
+In-Reply-To: <201204171058.23776.vapier@gentoo.org>
+References: <20120417100346.2a0b8301@orgis.org>
+	<201204171058.23776.vapier@gentoo.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+ boundary="Sig_/YRdXBWHZ2aCaMnkRZiQMs0G"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- include/Makefile.am |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+--Sig_/YRdXBWHZ2aCaMnkRZiQMs0G
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/Makefile.am b/include/Makefile.am
-index f6934ec..3f50970 100644
---- a/include/Makefile.am
-+++ b/include/Makefile.am
-@@ -29,6 +29,7 @@ dist_noinst_HEADERS = \
- 	path.h \
- 	pathnames.h \
- 	procutils.h \
-+	randutils.h \
- 	rpmatch.h \
- 	setproctitle.h \
- 	strutils.h \
--- 
-1.7.7
+Am Tue, 17 Apr 2012 10:58:22 -0400
+schrieb Mike Frysinger <vapier@gentoo.org>:=20
 
+> that's LOOP_CLR_FD returning EBUSY.  so there isn't much (afaik) that=20
+> userspace can do here.  you'd have to start a thread on lkml first to add=
+=20
+> support for lazy/force loop device detaching.
+
+Hm, I feared such ... now the question is if folks would support that
+move. Well, one will not find out without asking. Perhaps I should try
+to reproduce the scheme with another machine first. Not that this
+situation is something that "just does not happen", except in my case.
+
+
+Alrighty then,
+
+Thomas
+
+--Sig_/YRdXBWHZ2aCaMnkRZiQMs0G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAk+N2k8ACgkQm0xSvNRG1SQKegCeITr64ENkukICBsr1P2dJmbL8
+mQYAnRc5P/VvLyPXVeJKdXfjZlGHvsIS
+=cjLC
+-----END PGP SIGNATURE-----
+
+--Sig_/YRdXBWHZ2aCaMnkRZiQMs0G--
