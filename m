@@ -1,40 +1,49 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:39120 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755913Ab2DXIVE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Apr 2012 04:21:04 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 8639C90983
-	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:02 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 3/9] build-sys: add ttyutils.h to dist
-Date: Tue, 24 Apr 2012 10:20:55 +0200
-Message-Id: <1335255661-10611-3-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
-References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: P@draigBrady.com
+Message-ID: <4F8D7EEF.8060601@draigBrady.com>
+Date: Tue, 17 Apr 2012 15:32:15 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        Karel Zak <kzak@redhat.com>, Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
+References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de>
+In-Reply-To: <4F8D7AB3.1010406@bernhard-voelker.de>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- include/Makefile.am |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+On 04/17/2012 03:14 PM, Bernhard Voelker wrote:
+> On 04/17/2012 03:56 PM, Pádraig Brady wrote:
+>> On 04/17/2012 09:42 AM, Bernhard Voelker wrote:
+>>> Karel Zak wrote:
+>>>
+>>>> On Mon, Apr 16, 2012 at 12:22:12PM +0200, Voelker, Bernhard wrote:
+>>>>> Maybe this is better?
+>>>>>
+>>>>> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
+>>>>> +	printf(_("Units = 1MiB, blocks of 1024*1024 bytes"
+>>
+>> Blocks are 1024 bytes in this mode, as confirmed with:
+>> sfdisk -uM -l /dev/sda
+> 
+> I don't understand. What's wrong?
+> 
+> $ wc -c </dev/sda1
+> 12582912000
+> 
+> $ echo '12582912000 / (1024*1024)' | bc
+> 12000
+> 
+> $ ./sfdisk -uM -l /dev/sda | egrep 'sda1|MiB'
+> Units = 1MiB, blocks of 1024*1024 bytes, counting from 0
+>    Device Boot Start   End    MiB    #blocks   Id  System
+> /dev/sda1   *     1  12000  12000   12288000   83  Linux
 
-diff --git a/include/Makefile.am b/include/Makefile.am
-index 3f50970..f61cb04 100644
---- a/include/Makefile.am
-+++ b/include/Makefile.am
-@@ -36,6 +36,7 @@ dist_noinst_HEADERS = \
- 	swapheader.h \
- 	sysfs.h \
- 	tt.h \
-+	ttyutils.h \
- 	usleep.h \
- 	wholedisk.h \
- 	widechar.h \
--- 
-1.7.7
+Well I thought the "blocks of" was referring to the blocks column,
+rather than the units?
 
+$ echo $((12582912000 / 1024))
+12288000
+
+cheers,
+Pádraig.
