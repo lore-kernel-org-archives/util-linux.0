@@ -1,89 +1,93 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:51536 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751251Ab2CaQix (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 31 Mar 2012 12:38:53 -0400
-Date: Sat, 31 Mar 2012 18:38:44 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: "Ted Ts'o" <tytso@mit.edu>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 10/20] uuidd: make drop_privs true by default in main()
-Message-ID: <20120331163844.GA29416@skipper.site>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
- <1333039528-24784-11-git-send-email-petr.uzel@suse.cz>
- <20120329212911.GB13970@thunk.org>
+Return-Path: P@draigBrady.com
+Message-ID: <4F8E9B95.5010303@draigBrady.com>
+Date: Wed, 18 Apr 2012 11:46:45 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-In-Reply-To: <20120329212911.GB13970@thunk.org>
-Sender: util-linux-owner@vger.kernel.org
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+CC: Karel Zak <kzak@redhat.com>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
+References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de> <4F8D7EEF.8060601@draigBrady.com> <20120417144801.GA2391@x2.net.home> <4F8D8562.2020805@bernhard-voelker.de> <4F8E6429.2030408@bernhard-voelker.de>
+In-Reply-To: <4F8E6429.2030408@bernhard-voelker.de>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
+On 04/18/2012 07:50 AM, Bernhard Voelker wrote:
+> 
+> 
+> On 04/17/2012 04:59 PM, Bernhard Voelker wrote:
+>>
+>>
+>> On 04/17/2012 04:48 PM, Karel Zak wrote:
+>>>  yep, my +1 was about s/mebibytes/MiB/, I have overlooked the
+>>>  1024*1024 math in the patch. Pádraig is right, (s)fdisk uses 1024
+>>>  byte blocks in output 
+>>
+>> so KiB would be right?
+>>
+>>>  (probably too keep things more confusing ;-)
+>>
+>> mission accomplished ...
+>>
+>> Bye,
+>> Berny
+>>
+> 
+> ah, that part refers to the "#blocks" column!
+> 
+> The problem starts with the "=" after "Units". A colon would
+> maybe be more appropriate: then we could use the equal sign
+> like in the following.
+> 
+> What do you think?
+> 
+> Have a nice day,
+> Berny
+> 
+> 
+>>From 1c59d9ca4d18d795de354003d0059dc593c6a99b Mon Sep 17 00:00:00 2001
+> From: Bernhard Voelker <mail@bernhard-voelker.de>
+> Date: Wed, 18 Apr 2012 08:47:29 +0200
+> Subject: [PATCH] sfdisk (out_partition_header): improve F_MEGABYTE header
+> 
+> Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+> ---
+>  fdisk/sfdisk.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+> index 95e5828..c14d127 100644
+> --- a/fdisk/sfdisk.c
+> +++ b/fdisk/sfdisk.c
+> @@ -912,24 +912,24 @@ out_partition_header(char *dev, int format, struct geometry G) {
+>  		G.cylindersize ? _("cylinders") : _("sectors"));
+>      case F_CYLINDER:
+>  	if (G.cylindersize) {
+> -	    printf(_("Units = cylinders of %lu bytes, blocks of 1024 bytes"
+> +	    printf(_("Units: cylinders of %lu bytes, blocks of 1024 bytes"
+>  		     ", counting from %d\n\n"), G.cylindersize << 9, increment);
+>  	    printf(_("   Device Boot Start     End   #cyls    #blocks   Id  System\n"));
+>  	    break;
+>  	}
+>  	/* fall through */
+>      case F_SECTOR:
+> -	printf(_("Units = sectors of 512 bytes, counting from %d\n\n"),
+> +	printf(_("Units: sectors of 512 bytes, counting from %d\n\n"),
+>  	       increment);
+>  	printf(_("   Device Boot    Start       End   #sectors  Id  System\n"));
+>  	break;
+>      case F_BLOCK:
+> -	printf(_("Units = blocks of 1024 bytes, counting from %d\n\n"),
+> +	printf(_("Units: blocks of 1024 bytes, counting from %d\n\n"),
+>  	       increment);
+>  	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"));
+>  	break;
+>      case F_MEGABYTE:
+> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
+> +	printf(_("Units: 1MiB = 1024*1024 bytes, blocks of 1024 bytes"
+>  		 ", counting from %d\n\n"), increment);
+>  	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n"));
+>  	break;
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Mar 29, 2012 at 02:29:11PM -0700, Ted Ts'o wrote:
-> On Thu, Mar 29, 2012 at 06:45:18PM +0200, Petr Uzel wrote:
-> > The drop_privs variable in main() was used to determine whether the
-> > daemon will attempt to drop privileges (provided it has been installed
-> > suid). As of now, it makes sense to drop the privileges each time it is
-> > started. Therefore, this patch inverts the default value of drop_privs
-> > to true, so that it does not need to be set in the getopt loop at
-> > multiple places.
-> >=20
-> > Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
->=20
-> This breaks the configuration where libuuid starts uuidd if it's not
-> available, since there the user process probably doesn't have access
-> to write to /var/lib/libuuid/clock.txt, and so dropping the setgid
-> privileges of uuid will cause it not to work.
-
-I don't think the commit you are referring to changes uuidd behavior
-in any way and if it does, then I overlooked something and it is a
-bug. The change is meant to be a cleanup - instead of initializing the
-drop_privs to 0 and changing it to 1 in the getopt loop, it is initialized
-to 1. IOW, I don't see a use case where it should be left 0, except
-with later introduced --keep-privs (but see below). Or do I miss
-something?
-
-> Also, if you're going to have a -K option to keep the privileges,
-> there isn't much of a security benefit, since if there's a bug in
-> uuidd, the attacker can always call uuidd with -K and and then attempt
-> to exploint any problem that might be there.
->=20
-> So it's not clear adding the ability to drop privileges is really all
-> that functional; if uuidd is setuid/setgid, it's probably because it
-> **needs** those privileges.
-
-If I get it right, the setuid/setgid bit for uuidd is "only" useful
-for the case when uuidd is spawned from the libuuid library running
-with normal user privileges, right? Since this is useless with the
-socket activated uuidd, the solution might be to conditionally drop
-the code for dropping privileges if uuidd is configured=20
---with-uuidd-socket-activation. Also the --keep-privs would
-go away. Does that sound good?
-
-
-Thanks,
-
-        Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk93MxQACgkQnZxG0T6qDD17GgCeNJAQEV3gBcrBYOYC9vXbfgxU
-IAkAoIWvgyn1Ge7CYWjtxaqjtON+qj8F
-=t996
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
++1
