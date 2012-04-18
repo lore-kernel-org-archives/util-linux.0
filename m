@@ -1,33 +1,97 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] strutils: return success on test program
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from moutng.kundenserver.de ([212.227.17.8]:61305 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750787Ab2DRGub (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Apr 2012 02:50:31 -0400
+Message-ID: <4F8E6429.2030408@bernhard-voelker.de>
+Date: Wed, 18 Apr 2012 08:50:17 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 05 Apr 2012 22:35:19 +0200
-Message-ID: <1333658119.2696.0.camel@offbook>
-Mime-Version: 1.0
+CC: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
+References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de> <4F8D7EEF.8060601@draigBrady.com> <20120417144801.GA2391@x2.net.home> <4F8D8562.2020805@bernhard-voelker.de>
+In-Reply-To: <4F8D8562.2020805@bernhard-voelker.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+
+On 04/17/2012 04:59 PM, Bernhard Voelker wrote:
+> 
+> 
+> On 04/17/2012 04:48 PM, Karel Zak wrote:
+>>  yep, my +1 was about s/mebibytes/MiB/, I have overlooked the
+>>  1024*1024 math in the patch. Pádraig is right, (s)fdisk uses 1024
+>>  byte blocks in output 
+> 
+> so KiB would be right?
+> 
+>>  (probably too keep things more confusing ;-)
+> 
+> mission accomplished ...
+> 
+> Bye,
+> Berny
+> 
+
+ah, that part refers to the "#blocks" column!
+
+The problem starts with the "=" after "Units". A colon would
+maybe be more appropriate: then we could use the equal sign
+like in the following.
+
+What do you think?
+
+Have a nice day,
+Berny
+
+
+>From 1c59d9ca4d18d795de354003d0059dc593c6a99b Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Wed, 18 Apr 2012 08:47:29 +0200
+Subject: [PATCH] sfdisk (out_partition_header): improve F_MEGABYTE header
+
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
 ---
- lib/strutils.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ fdisk/sfdisk.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/lib/strutils.c b/lib/strutils.c
-index db15110..4774614 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -568,6 +568,6 @@ int main(int argc, char *argv[])
- 	free(hum);
- 	free(hum2);
- 
--	return EXIT_FAILURE;
-+	return EXIT_SUCCESS;
- }
- #endif /* TEST_PROGRAM */
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 95e5828..c14d127 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -912,24 +912,24 @@ out_partition_header(char *dev, int format, struct geometry G) {
+ 		G.cylindersize ? _("cylinders") : _("sectors"));
+     case F_CYLINDER:
+ 	if (G.cylindersize) {
+-	    printf(_("Units = cylinders of %lu bytes, blocks of 1024 bytes"
++	    printf(_("Units: cylinders of %lu bytes, blocks of 1024 bytes"
+ 		     ", counting from %d\n\n"), G.cylindersize << 9, increment);
+ 	    printf(_("   Device Boot Start     End   #cyls    #blocks   Id  System\n"));
+ 	    break;
+ 	}
+ 	/* fall through */
+     case F_SECTOR:
+-	printf(_("Units = sectors of 512 bytes, counting from %d\n\n"),
++	printf(_("Units: sectors of 512 bytes, counting from %d\n\n"),
+ 	       increment);
+ 	printf(_("   Device Boot    Start       End   #sectors  Id  System\n"));
+ 	break;
+     case F_BLOCK:
+-	printf(_("Units = blocks of 1024 bytes, counting from %d\n\n"),
++	printf(_("Units: blocks of 1024 bytes, counting from %d\n\n"),
+ 	       increment);
+ 	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"));
+ 	break;
+     case F_MEGABYTE:
+-	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
++	printf(_("Units: 1MiB = 1024*1024 bytes, blocks of 1024 bytes"
+ 		 ", counting from %d\n\n"), increment);
+ 	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n"));
+ 	break;
 -- 
-1.7.4.1
+1.7.7
