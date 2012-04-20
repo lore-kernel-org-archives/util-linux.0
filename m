@@ -1,79 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:40835 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932684Ab2DZAaz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Apr 2012 20:30:55 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/2] findmnt: add match_by_file to do within-device matching
-Date: Wed, 25 Apr 2012 20:30:52 -0400
-Message-Id: <1335400252-17929-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1335400252-17929-1-git-send-email-dreisner@archlinux.org>
-References: <1335400252-17929-1-git-send-email-dreisner@archlinux.org>
+Received: from hedwig.cmf.nrl.navy.mil ([134.207.12.162]:49118 "EHLO
+	hedwig.cmf.nrl.navy.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754895Ab2DTPEt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 20 Apr 2012 11:04:49 -0400
+Received: from thirdoffive.cmf.nrl.navy.mil (thirdoffive.cmf.nrl.navy.mil [134.207.12.180])
+	by hedwig.cmf.nrl.navy.mil (8.14.2/8.14.2) with ESMTP id q3KEwTtR002381
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <util-linux@vger.kernel.org>; Fri, 20 Apr 2012 10:58:30 -0400
+Received: from cmf.nrl.navy.mil (localhost [127.0.0.1])
+	by thirdoffive.cmf.nrl.navy.mil (8.14.4/8.14.4) with ESMTP id q3KEwSRd004262
+	for <util-linux@vger.kernel.org>; Fri, 20 Apr 2012 10:58:28 -0400
+Date: Fri, 20 Apr 2012 10:58:28 -0400
+From: chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [PATCH] login-utils: use getdtablesize() correctly in login.c
+Message-ID: <20120420105828.554ce55a@thirdoffive.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Use the newly exported mnt_get_mountpoint to determine the device that a
-given file resides on, in case the supplied source or target is not
-explicitly a mount point.
+while it might seem harmless to close a non-existent descriptor, we have
+a local configuration that protects a certain descriptor by lowering
+rlim_cur to prevent child processes from closing said descriptor. this
+descriptor points to a ticket cache which we need later for the user.
 
-http://www.spinics.net/lists/util-linux-ng/msg06081.html
+Author: chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>
+Date:   Fri Apr 20 10:49:51 2012 -0400
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/findmnt.c |   28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+    login-utils: use getdtablesize() correctly in login.c
+    
+    getdtablesize() is the number of descriptors and since decriptors start
+    at 0, its value isnt the largest descriptors possible.  One should use
+    getdtablesize() - 1 instead.
+    
+    Signed-off-by: Chas Williams - CONTRACTOR <chas@cmf.nrl.navy.mil>
 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index cc71a60..9db167f 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -661,6 +661,30 @@ static int tab_is_tree(struct libmnt_table *tb)
- 	return rc;
- }
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 6c3b6f7..026c72b 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1290,7 +1290,7 @@ int main(int argc, char **argv)
+ 			*p++ = ' ';
+ 	}
  
-+static int match_by_file(const char *name, struct libmnt_fs *fs,
-+		int (*match_fn)(struct libmnt_fs*, const char*, struct libmnt_cache*))
-+{
-+	char *resolved, *mountpoint;
-+	int match;
-+
-+	/* match exactly by name */
-+	if (match_fn(fs, name, cache))
-+		return 1;
-+
-+	/* maybe its a file within a mountpoint */
-+	resolved = mnt_resolve_path(name, cache);
-+	if (resolved) {
-+		mountpoint = mnt_get_mountpoint(resolved);
-+		if (mountpoint) {
-+			match = match_fn(fs, mountpoint, cache);
-+			free(mountpoint);
-+			return match;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /* filter function for libmount (mnt_table_find_next_fs()) */
- static int match_func(struct libmnt_fs *fs,
- 		      void *data __attribute__ ((__unused__)))
-@@ -670,11 +694,11 @@ static int match_func(struct libmnt_fs *fs,
- 	void *md;
+-	for (cnt = getdtablesize(); cnt > 2; cnt--)
++	for (cnt = (getdtablesize() - 1); cnt > 2; cnt--)
+ 		close(cnt);
  
- 	m = get_match(COL_TARGET);
--	if (m && !mnt_fs_match_target(fs, m, cache))
-+	if (m && !match_by_file(m, fs, mnt_fs_match_target))
- 		return rc;
- 
- 	m = get_match(COL_SOURCE);
--	if (m && !mnt_fs_match_source(fs, m, cache))
-+	if (m && !match_by_file(m, fs, mnt_fs_match_source))
- 		return rc;
- 
- 	m = get_match(COL_FSTYPE);
--- 
-1.7.10
-
+ 	setpgrp();	 /* set pgid to pid this means that setsid() will fail */
