@@ -1,136 +1,105 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 1/8] fdisk: make CHS user values more robust
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 16 Apr 2012 11:44:33 +0200
-Message-ID: <1334569473.2552.10.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:46676 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751082Ab2DVOQl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Apr 2012 10:16:41 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id E473A99B23
+	for <util-linux@vger.kernel.org>; Sun, 22 Apr 2012 16:16:39 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] libblkid: befs: declare functions static
+Date: Sun, 22 Apr 2012 16:16:39 +0200
+Message-Id: <1335104199-6612-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+Since commit 0b0c231f64d02e682
+(swapon: move generic code to swapon-common.c), if util-linux is
+configured with --enable-static --disable-shared --enable-libmount-mount
+options, the build fails with the following error:
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+  ...
+  libtool: link: gcc -std=gnu99 -fsigned-char -ggdb -O1 -Wall -D_FORTIFY_SOURCE=2 -o switch_root switch_root.o
+  /home/petr/upstream/util-linux/libblkid/src/.libs/libblkid.a(befs.o): In function `get_uuid':
+  /home/petr/upstream/util-linux/libblkid/src/superblocks/befs.c:333: multiple definition of `get_uuid'
+  swapon-swapon-common.o:/home/petr/upstream/util-linux/sys-utils/swapon-common.c:99: first defined here
+  collect2: ld returned 1 exit status
+  /bin/sh ../libtool  --tag=CC   --mode=link gcc -std=gnu99 -fsigned-char -ggdb -O1 -Wall -D_FORTIFY_SOURCE=2   -o flock flock.o strutils.o
+  libtool: link: gcc -std=gnu99 -fsigned-char -ggdb -O1 -Wall -D_FORTIFY_SOURCE=2 -o pivot_root pivot_root.o
+  make[2]: *** [swapon] Error 1
+  make[2]: *** Waiting for unfinished jobs....
+  /home/petr/upstream/util-linux/libblkid/src/.libs/libblkid.a(befs.o): In function `get_uuid':
+  /home/petr/upstream/util-linux/libblkid/src/superblocks/befs.c:333: multiple definition of `get_uuid'
+  swapoff-swapon-common.o:/home/petr/upstream/util-linux/sys-utils/swapon-common.c:99: first defined here
+
+Fix by declaring befs funcitons static.
+
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- fdisk/cfdisk.c |    6 +++---
- fdisk/fdisk.c  |    8 ++++----
- fdisk/sfdisk.c |    9 +++++----
- 3 files changed, 12 insertions(+), 11 deletions(-)
+ libblkid/src/superblocks/befs.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fdisk/cfdisk.c b/fdisk/cfdisk.c
-index a6cf01e..33624bb 100644
---- a/fdisk/cfdisk.c
-+++ b/fdisk/cfdisk.c
-@@ -2776,7 +2776,7 @@ main(int argc, char **argv)
- 	    arrow_cursor = TRUE;
- 	    break;
- 	case 'c':
--	    user_cylinders = cylinders = atoll(optarg);
-+		user_cylinders = cylinders = strtoll_or_err(optarg, _("cannot parse amount of cylinders"));
- 	    if (cylinders <= 0) {
- 		fprintf(stderr, "%s: %s\n", argv[0], _("Illegal cylinders value"));
- 		exit(1);
-@@ -2786,14 +2786,14 @@ main(int argc, char **argv)
- 	    use_partition_table_geometry = TRUE;
- 	    break;
- 	case 'h':
--	    user_heads = heads = atoi(optarg);
-+	    user_heads = heads = strtol_or_err(optarg, _("cannot parse amount of heads"));
- 	    if (heads <= 0 || heads > MAX_HEADS) {
- 		fprintf(stderr, "%s: %s\n", argv[0], _("Illegal heads value"));
- 		exit(1);
- 	    }
- 	    break;
- 	case 's':
--	    user_sectors = sectors = atoi(optarg);
-+	    user_sectors = sectors = strtol_or_err(optarg, _("cannot parse amount of sectors"));
- 	    if (sectors <= 0 || sectors > MAX_SECTORS) {
- 		fprintf(stderr, "%s: %s\n", argv[0], _("Illegal sectors value"));
- 		exit(1);
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index cf64fa7..0ccabb7 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -2914,7 +2914,7 @@ main(int argc, char **argv) {
- 			   so cannot be combined with multiple disks,
- 			   and te same goes for the C/H/S options.
- 			*/
--			sector_size = atoi(optarg);
-+			sector_size = strtol_or_err(optarg, _("cannot parse sector size"));
- 			if (sector_size != 512 && sector_size != 1024 &&
- 			    sector_size != 2048 && sector_size != 4096)
- 				usage(stderr);
-@@ -2922,7 +2922,7 @@ main(int argc, char **argv) {
- 			user_set_sector_size = 1;
- 			break;
- 		case 'C':
--			user_cylinders = atoi(optarg);
-+			user_cylinders =  strtol_or_err(optarg, _("cannot parse amount of cylinders"));
- 			break;
- 		case 'c':
- 			dos_compatible_flag = 0;	/* default */
-@@ -2936,12 +2936,12 @@ main(int argc, char **argv) {
- 			usage(stdout);
- 			break;
- 		case 'H':
--			user_heads = atoi(optarg);
-+			user_heads =  strtol_or_err(optarg, _("cannot parse amount of heads"));
- 			if (user_heads <= 0 || user_heads > 256)
- 				user_heads = 0;
- 			break;
- 		case 'S':
--			user_sectors = atoi(optarg);
-+			user_sectors =  strtol_or_err(optarg, _("cannot parse amount of sectors"));
- 			if (user_sectors <= 0 || user_sectors >= 64)
- 				user_sectors = 0;
- 			break;
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 95e5828..8bd27da 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -55,6 +55,7 @@
- #include "canonicalize.h"
- #include "rpmatch.h"
- #include "closestream.h"
-+#include "strutils.h"
+diff --git a/libblkid/src/superblocks/befs.c b/libblkid/src/superblocks/befs.c
+index 930429a..a7f4317 100644
+--- a/libblkid/src/superblocks/befs.c
++++ b/libblkid/src/superblocks/befs.c
+@@ -122,7 +122,7 @@ struct bplustree_node {
+ 	char		name[0];
+ } __attribute__((packed));
  
- /*
-  * Table of contents:
-@@ -2643,7 +2644,7 @@ main(int argc, char **argv) {
- 	    activate = 1;
- 	    break;
- 	case 'C':
--	    U.cylinders = atoi(optarg);
-+	    U.cylinders = strtoll_or_err(optarg, _("cannot parse amount of cylinders"));
- 	    break;
- 	case 'D':
- 	    DOS = 1;
-@@ -2652,13 +2653,13 @@ main(int argc, char **argv) {
- 	    DOS_extended = 1;
- 	    break;
- 	case 'H':
--	    U.heads = atoi(optarg);
-+	    U.heads = strtol_or_err(optarg, _("cannot parse amount of heads"));
- 	    break;
- 	case 'L':
- 	    Linux = 1;
- 	    break;
- 	case 'N':
--	    one_only = atoi(optarg);
-+	    one_only = strtol_or_err(optarg, _("cannot parse amount of partitions"));
- 	    break;
- 	case 'I':
- 	    restore_sector_file = optarg;
-@@ -2670,7 +2671,7 @@ main(int argc, char **argv) {
- 	    opt_reread = 1;
- 	    break;
- 	case 'S':
--	    U.sectors = atoi(optarg);
-+	    U.sectors = strtol_or_err(optarg, _("cannot parse amount of sectors"));
- 	    break;
- 	case 'T':
- 	    list_types();
+-unsigned char *get_block_run(blkid_probe pr, const struct befs_super_block *bs,
++static unsigned char *get_block_run(blkid_probe pr, const struct befs_super_block *bs,
+ 					const struct block_run *br, int fs_le)
+ {
+ 	return blkid_probe_get_buffer(pr,
+@@ -135,7 +135,7 @@ unsigned char *get_block_run(blkid_probe pr, const struct befs_super_block *bs,
+ 					<< FS32_TO_CPU(bs->block_shift, fs_le));
+ }
+ 
+-unsigned char *get_custom_block_run(blkid_probe pr,
++static unsigned char *get_custom_block_run(blkid_probe pr,
+ 				const struct befs_super_block *bs,
+ 				const struct block_run *br,
+ 				int64_t offset, uint32_t length, int fs_le)
+@@ -154,7 +154,7 @@ unsigned char *get_custom_block_run(blkid_probe pr,
+ 			length);
+ }
+ 
+-unsigned char *get_tree_node(blkid_probe pr, const struct befs_super_block *bs,
++static unsigned char *get_tree_node(blkid_probe pr, const struct befs_super_block *bs,
+ 				const struct data_stream *ds,
+ 				int64_t start, uint32_t length, int fs_le)
+ {
+@@ -230,7 +230,7 @@ unsigned char *get_tree_node(blkid_probe pr, const struct befs_super_block *bs,
+ 	return NULL;
+ }
+ 
+-int32_t compare_keys(const char keys1[], uint16_t keylengths1[], int32_t index,
++static int32_t compare_keys(const char keys1[], uint16_t keylengths1[], int32_t index,
+ 			const char *key2, uint16_t keylength2, int fs_le)
+ {
+ 	const char *key1;
+@@ -251,7 +251,7 @@ int32_t compare_keys(const char keys1[], uint16_t keylengths1[], int32_t index,
+ 	return result;
+ }
+ 
+-int64_t get_key_value(blkid_probe pr, const struct befs_super_block *bs,
++static int64_t get_key_value(blkid_probe pr, const struct befs_super_block *bs,
+ 			const struct befs_inode *bi, const char *key, int fs_le)
+ {
+ 	struct bplustree_header *bh;
+@@ -328,7 +328,7 @@ int64_t get_key_value(blkid_probe pr, const struct befs_super_block *bs,
+ 	return 0;
+ }
+ 
+-int get_uuid(blkid_probe pr, const struct befs_super_block *bs,
++static int get_uuid(blkid_probe pr, const struct befs_super_block *bs,
+ 					uint64_t * const uuid, int fs_le)
+ {
+ 	struct befs_inode *bi;
 -- 
-1.7.4.1
+1.7.7
+
