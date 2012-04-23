@@ -1,28 +1,27 @@
-Return-Path: P@draigBrady.com
-Message-ID: <4F8D76AB.2090806@draigBrady.com>
-Date: Tue, 17 Apr 2012 14:56:59 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:58773 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754731Ab2DWKQd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Apr 2012 06:16:33 -0400
+Date: Mon, 23 Apr 2012 12:16:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/8] fdisk: standarize version output
+Message-ID: <20120423101630.GF8144@x2.net.home>
+References: <1334569476.2552.11.camel@offbook>
 MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Karel Zak <kzak@redhat.com>, Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
-References: <4F8D2D12.8070206@bernhard-voelker.de>
-In-Reply-To: <4F8D2D12.8070206@bernhard-voelker.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1334569476.2552.11.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/17/2012 09:42 AM, Bernhard Voelker wrote:
-> Karel Zak wrote:
-> 
->> On Mon, Apr 16, 2012 at 12:22:12PM +0200, Voelker, Bernhard wrote:
->>> Maybe this is better?
->>>
->>> -	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
->>> +	printf(_("Units = 1MiB, blocks of 1024*1024 bytes"
+On Mon, Apr 16, 2012 at 11:44:36AM +0200, Davidlohr Bueso wrote:
+> fdisk/fdisk.c |    4 ++--
+> 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Blocks are 1024 bytes in this mode, as confirmed with:
-sfdisk -uM -l /dev/sda
+ Applied, thanks.
 
-cheers,
-Pádraig.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
