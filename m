@@ -1,38 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:39680 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752434Ab2DVBxQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 21 Apr 2012 21:53:16 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] sys-utils: avoid duplicate reference to fstab.5
-Date: Sat, 21 Apr 2012 21:44:32 -0400
-Message-Id: <1335059072-15126-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:26694 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753536Ab2DWMGn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Apr 2012 08:06:43 -0400
+Date: Mon, 23 Apr 2012 14:06:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] libblkid: befs: declare functions static
+Message-ID: <20120423120618.GK11847@x2.net.home>
+References: <1335104199-6612-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1335104199-6612-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is no longer in sys-utils/ anyways, and its unconditionally
-distributed by an earlier dist_man_MANS declare in the Makefile.
+On Sun, Apr 22, 2012 at 04:16:39PM +0200, Petr Uzel wrote:
+>  libblkid/src/superblocks/befs.c |   12 ++++++------
+>  1 files changed, 6 insertions(+), 6 deletions(-)
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- sys-utils/Makefile.am |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Applied, thanks.
 
-diff --git a/sys-utils/Makefile.am b/sys-utils/Makefile.am
-index 9849429..9c27de6 100644
---- a/sys-utils/Makefile.am
-+++ b/sys-utils/Makefile.am
-@@ -96,7 +96,7 @@ if BUILD_NEW_MOUNT
- # -- temporary we share some man pages
- #
- bin_PROGRAMS += mount umount
--dist_man_MANS += mount.8 ../mount/fstab.5 ../mount/umount.8
-+dist_man_MANS += mount.8 ../mount/umount.8
- 
- mount_SOURCES = \
- 	mount.c \
 -- 
-1.7.10
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
