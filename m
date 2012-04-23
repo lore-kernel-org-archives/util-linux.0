@@ -1,43 +1,27 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH] prlimit: remove bogus instructions
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:9254 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753456Ab2DWKk7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Apr 2012 06:40:59 -0400
+Date: Mon, 23 Apr 2012 12:40:56 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sat, 14 Apr 2012 12:01:03 +0200
-Message-ID: <1334397663.2564.0.camel@offbook>
-Mime-Version: 1.0
+Subject: Re: [PATCH 4/8] fdisk: remove dead code
+Message-ID: <20120423104056.GC11847@x2.net.home>
+References: <1334569481.2552.13.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1334569481.2552.13.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Mon, Apr 16, 2012 at 11:44:41AM +0200, Davidlohr Bueso wrote:
+> fdisk/fdisk.c |   20 --------------------
+> 1 files changed, 0 insertions(+), 20 deletions(-)
 
-usage() is noreturn!
+ Applied, thanks.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- sys-utils/prlimit.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index 12271a0..7e52a2d 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -585,7 +585,6 @@ int main(int argc, char **argv)
- 			break;
- 		case 'h':
- 			usage(stdout);
--			break;
- 		case 'o':
- 			ncolumns = string_to_idarray(optarg,
- 						     columns, ARRAY_SIZE(columns),
-@@ -609,7 +608,6 @@ int main(int argc, char **argv)
- 
- 		default:
- 			usage(stderr);
--			break;
- 		}
- 	}
- 	if (argc > optind && pid)
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
