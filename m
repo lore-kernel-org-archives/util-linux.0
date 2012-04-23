@@ -1,76 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:35298 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:36861 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751254Ab2DEHs5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 5 Apr 2012 03:48:57 -0400
-Date: Thu, 5 Apr 2012 09:48:56 +0200
+	id S1752082Ab2DWInk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Apr 2012 04:43:40 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 5642AA0DFD
+	for <util-linux@vger.kernel.org>; Mon, 23 Apr 2012 10:43:39 +0200 (CEST)
 From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: "Ted Ts'o" <tytso@mit.edu>
-Subject: Re: [PATCH 11/20] uuidd: introduce --keep-privs option
-Message-ID: <20120405074856.GC22664@foxbat.suse.cz>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
- <1333039528-24784-12-git-send-email-petr.uzel@suse.cz>
- <20120403133226.GI1084@x2.net.home>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] lscpu: fix possibly undefined operation
+Date: Mon, 23 Apr 2012 10:43:38 +0200
+Message-Id: <1335170618-10133-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
-In-Reply-To: <20120403133226.GI1084@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+With -Wall -Werror, compilation of lscpu.c fails with:
 
---Sr1nOIr3CvdE5hEN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Making all in sys-utils
+  make[2]: Entering directory `/home/petr/upstream/util-linux/sys-utils'
+  gcc -std=gnu99 -DHAVE_CONFIG_H -I. -I..  -include ../config.h -I../include -DLOCALEDIR=\"/usr/share/locale\"  -fsigned-char -Wall -Werror -MT lscpu.o -MD -MP -MF .deps/lscpu.Tpo -c -o lscpu.o lscpu.c
+  lscpu.c: In function ‘print_parsable’:
+  lscpu.c:971:7: error: operation on ‘p’ may be undefined [-Werror=sequence-point]
+  cc1: all warnings being treated as errors
 
-On Tue, Apr 03, 2012 at 03:32:26PM +0200, Karel Zak wrote:
-> On Thu, Mar 29, 2012 at 06:45:19PM +0200, Petr Uzel wrote:
-> > This option makes uuidd _not_ to drop its privileges if installed suid
-> > and exectued by root.
-> >=20
-> > Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
-> > ---
-> >  misc-utils/uuidd.8 |    5 +++++
-> >  misc-utils/uuidd.c |    7 ++++++-
-> >  2 files changed, 11 insertions(+), 1 deletions(-)
->=20
->  Please, drop this patch.
->=20
->  For socket activation we can use the "drop_privs =3D 0" internally, it's
->  unnecessary to export this functionality to command line.
+Fix by splitting the pointer increment to separate statement.
 
-Agreed. Exporting this via cli argument was a stupid idea.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ sys-utils/lscpu.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
->  Anyway, do we really need to support suid uuidd? What about to drop
->  all this stuff and require that uuidd has to be started by init
->  scripts only? What about to drop exec-from-library at all?
->=20
->  RHEL/Fedora/Suse starts uuidd by init, and for another distros is
->  whole uuidd almost unnecessary thing... It seems that Debian uses
->  suid uuidd, but I think that they can add an init script too.
->=20
->  IMHO the current exec-from-library and suid is not elegant solution.
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 1c2d9b6..f4a06e6 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -967,8 +967,10 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
+ 			 */
+ 			char *p = data + 1;
+ 
+-			while (p && *p != '\0')
+-				*p++ = tolower((unsigned int) *p);
++			while (p && *p != '\0') {
++				*p = tolower((unsigned int) *p);
++				p++;
++			}
+ 		}
+ 		fputs(data && *data ? data : "", stdout);
+ 	}
+-- 
+1.7.7
 
-FWIW, I'm all for dropping spawning uuidd from libuuid.
-
-
-Petr
-
---
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---Sr1nOIr3CvdE5hEN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk99TmgACgkQnZxG0T6qDD1NqACePsm+0B0v3y/+884JdPAMELA+
-ElMAoIKRSaWJSNqDyusMCLOPbDZhK9Y6
-=ikcf
------END PGP SIGNATURE-----
-
---Sr1nOIr3CvdE5hEN--
