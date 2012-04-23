@@ -1,119 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:45401 "EHLO
-	homiemail-a4.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755318Ab2DEVwN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 5 Apr 2012 17:52:13 -0400
-Subject: [PATCH 2/3] fdisk: use randutils for mbr signature creation
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 05 Apr 2012 23:52:07 +0200
-Message-ID: <1333662727.2696.5.camel@offbook>
-Mime-Version: 1.0
+Received: from n26.netmark.pl ([94.124.9.61]:50927 "EHLO n26.netmark.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752090Ab2DWQCH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Apr 2012 12:02:07 -0400
+Received: from jyb26.internetdsl.tpnet.pl ([95.50.1.26]:53241 helo=magazyn-ziarno)
+	by n26.netmark.pl with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.77)
+	(envelope-from <Marcin.Szewczyk@wodny.org>)
+	id 1SMLNz-000O2Q-1X
+	for util-linux@vger.kernel.org; Mon, 23 Apr 2012 17:41:07 +0200
+Date: Mon, 23 Apr 2012 17:41:06 +0200
+From: Marcin Szewczyk <Marcin.Szewczyk@wodny.org>
+To: util-linux@vger.kernel.org
+Subject: Duplicate UUIDs, findmnt, /dev/disk/by-uuid
+Message-ID: <20120423154106.GD2437@magazyn-ziarno.zbozowa>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+Hi,
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/Makefile.am |    1 +
- fdisk/fdisk.c     |   51 +++++----------------------------------------------
- 2 files changed, 6 insertions(+), 46 deletions(-)
+I have a system with most of the files on one disk. Sometimes an
+additional storage is added by inserting another disk. There is an
+application included in this system to setup a disk for that additional
+storage. It lets a user choose any disk from the pool of not mounted
+drives.
 
-diff --git a/fdisk/Makefile.am b/fdisk/Makefile.am
-index 9fbfc79..f6e9a4b 100644
---- a/fdisk/Makefile.am
-+++ b/fdisk/Makefile.am
-@@ -10,6 +10,7 @@ fdisk_common = \
- 	$(top_srcdir)/lib/blkdev.c \
- 	$(top_srcdir)/lib/mbsalign.c \
- 	$(top_srcdir)/lib/strutils.c \
-+	$(top_srcdir)/lib/randutils.c \
- 	$(top_srcdir)/lib/wholedisk.c
- 
- if LINUX
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 126efb3..7c14861 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -33,6 +33,7 @@
- #include "pathnames.h"
- #include "canonicalize.h"
- #include "strutils.h"
-+#include "randutils.h"
- 
- #include "fdisksunlabel.h"
- #include "fdisksgilabel.h"
-@@ -186,51 +187,6 @@ get_nr_sects(struct partition *p) {
- 	return read4_little_endian(p->size4);
- }
- 
--static ssize_t
--xread(int fd, void *buf, size_t count) {
--        char *p = buf;
--        ssize_t out = 0;
--        ssize_t rv;
--
--        while (count) {
--                rv = read(fd, p, count);
--                if (rv == -1) {
--                        if (errno == EINTR || errno == EAGAIN)
--                                continue;
--                        return out ? out : -1; /* Error */
--                } else if (rv == 0) {
--                        return out; /* EOF */
--                }
--
--                p += rv;
--                out += rv;
--                count -= rv;
--        }
--
--        return out;
--}
--
--static unsigned int
--get_random_id(void) {
--	int fd;
--	unsigned int v;
--	ssize_t rv = -1;
--	struct timeval tv;
--
--	fd = open("/dev/urandom", O_RDONLY);
--	if (fd >= 0) {
--	        rv = xread(fd, &v, sizeof v);
--		close(fd);
--	}
--
--	if (rv == sizeof v)
--		return v;
--
--	/* Fallback: sucks, but better than nothing */
--	gettimeofday(&tv, NULL);
--	return (unsigned int)(tv.tv_sec + (tv.tv_usec << 12) + getpid());
--}
--
- /*
-  * Raw disk label. For DOS-type partition tables the MBR,
-  * with descriptions of the primary partitions.
-@@ -876,7 +832,10 @@ static void dos_init(void)
- 
- static void
- create_doslabel(void) {
--	unsigned int id = get_random_id();
-+	unsigned int id;
-+
-+	/* random disk signature */
-+	random_get_bytes(&id, sizeof(id));
- 
- 	fprintf(stderr, _("Building a new DOS disklabel with disk identifier 0x%08x.\n"), id);
- 	sun_nolabel();  /* otherwise always recognised as sun */
+The system has been cloned (with dd) to many disks inserted to many
+machines. From time to time someone inserts an additional disk which has
+been previously used as the system disk. Then there are two filesystems
+with same UUIDs inserted to one machine.
+
+The mentioned application uses findmnt to blacklist drives with any
+partitions mounted.
+
+Findmnt seems to use links from /dev/disk/by-uuid. There is only one
+link for every UUID and it leads to the last detected disk with that
+UUID. It causes my application to let the user choose the mounted root
+filesystem.
+
+As a workaround I use /proc/self/mountinfo as it gives me major and
+minor numbers.
+
+My question is: is there a way to force findmnt to use major and minor
+numbers from /proc/self/mountinfo to identify disks/partitions?
+
+
+Example (using only one disk):
+# findmnt -cnko SOURCE /media/sdd
+/dev/sdd2
+# cat /proc/self/mountinfo | grep sdd
+31 19 8:49 / /media/sdd rw,relatime - ext4 /dev/disk/by-uuid/a1d15a89-470a-4a1e-a763-20d4b404d507 rw,user_xattr,barrier=1,data=ordered
+# blkid | grep sdd
+/dev/sdd1: UUID="a1d15a89-470a-4a1e-a763-20d4b404d507" TYPE="ext4" 
+/dev/sdd2: UUID="a1d15a89-470a-4a1e-a763-20d4b404d507" TYPE="ext4"
+# ls -la /dev/sdd*
+brw-rw---T 1 root floppy 8, 48 Apr 23 16:13 /dev/sdd
+brw-rw---T 1 root floppy 8, 49 Apr 23 16:13 /dev/sdd1
+brw-rw---T 1 root floppy 8, 50 Apr 23 16:20 /dev/sdd2
+
+
 -- 
-1.7.4.1
-
-
-
-
+Marcin Szewczyk                       http://wodny.org
+mailto:Marcin.Szewczyk@wodny.borg  <- remove b / usuń b
+xmpp:wodny@ubuntu.pl                  xmpp:wodny@jabster.pl
