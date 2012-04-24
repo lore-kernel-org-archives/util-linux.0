@@ -1,27 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16561 "EHLO mx1.redhat.com"
+Received: from n26.netmark.pl ([94.124.9.61]:41237 "EHLO n26.netmark.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754463Ab2DWKDQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 23 Apr 2012 06:03:16 -0400
-Date: Mon, 23 Apr 2012 12:03:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] eject: verify writing to streams was successful
-Message-ID: <20120423100306.GC8144@x2.net.home>
-References: <1334169716-2552-1-git-send-email-kerolasa@iki.fi>
+	id S1754759Ab2DXOk6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Apr 2012 10:40:58 -0400
+Received: from afmt137.neoplus.adsl.tpnet.pl ([178.42.71.137]:51768 helo=magazyn-ziarno)
+	by n26.netmark.pl with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.77)
+	(envelope-from <Marcin.Szewczyk@wodny.org>)
+	id 1SMgvI-001Ls7-0k
+	for util-linux@vger.kernel.org; Tue, 24 Apr 2012 16:40:56 +0200
+Date: Tue, 24 Apr 2012 16:40:55 +0200
+From: Marcin Szewczyk <Marcin.Szewczyk@wodny.org>
+To: util-linux@vger.kernel.org
+Subject: findmnt: parsing mountpoints with spaces
+Message-ID: <20120424144055.GB3813@magazyn-ziarno.zbozowa>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1334169716-2552-1-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 11, 2012 at 08:41:56PM +0200, Sami Kerola wrote:
->  sys-utils/eject.c |    2 ++
->  1 file changed, 2 insertions(+)
+Hi,
 
- Applied, thanks.
+is there a way to make findmnt print unambiguous output in case of block
+devices/directories/mountpoints whose names contain spaces? I can see
+that --raw makes findmnt print undecorated output, but spaces remain not
+escaped.
+
+May I request a feature of escaping spaces and possibly other
+non-printable characters in a fstab manner (\040 for space)?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Marcin Szewczyk                       http://wodny.org
+mailto:Marcin.Szewczyk@wodny.borg  <- remove b / usuń b
+xmpp:wodny@ubuntu.pl                  xmpp:wodny@jabster.pl
