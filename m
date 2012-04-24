@@ -1,31 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58693 "EHLO mx1.redhat.com"
+Received: from n26.netmark.pl ([94.124.9.61]:56930 "EHLO n26.netmark.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753774Ab2DPMXm (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 16 Apr 2012 08:23:42 -0400
-Date: Mon, 16 Apr 2012 14:23:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Males, Jess L." <malesjl@ornl.gov>
-Cc: "util-linux-ng@vger.kernel.org" <util-linux-ng@vger.kernel.org>
-Subject: Re: mount bind options
-Message-ID: <20120416122339.GB6935@x2.net.home>
-References: <CBA36CB2.C75%malesjl@ornl.gov>
+	id S1756805Ab2DXRzO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Apr 2012 13:55:14 -0400
+Received: from 031011234045.warszawa.vectranet.pl ([31.11.234.45]:60022 helo=magazyn-ziarno)
+	by n26.netmark.pl with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.77)
+	(envelope-from <Marcin.Szewczyk@wodny.org>)
+	id 1SMjxJ-001ULL-07
+	for util-linux@vger.kernel.org; Tue, 24 Apr 2012 19:55:13 +0200
+Date: Tue, 24 Apr 2012 19:55:07 +0200
+From: Marcin Szewczyk <Marcin.Szewczyk@wodny.org>
+To: util-linux@vger.kernel.org
+Subject: Re: findmnt: parsing mountpoints with spaces
+Message-ID: <20120424175505.GA5219@magazyn-ziarno.zbozowa>
+References: <20120424144055.GB3813@magazyn-ziarno.zbozowa>
+ <20120424175250.GC17370@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CBA36CB2.C75%malesjl@ornl.gov>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20120424175250.GC17370@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 05, 2012 at 03:37:22PM -0400, Males, Jess L. wrote:
-> I'm trying:
-> Mount -o bind,gid=10101 /path/to/some/dir /new/mnt/
+On Tue, Apr 24, 2012 at 07:52:50PM +0200, Karel Zak wrote:
+> On Tue, Apr 24, 2012 at 04:40:55PM +0200, Marcin Szewczyk wrote:
+> > May I request a feature of escaping spaces and possibly other
+> > non-printable characters in a fstab manner (\040 for space)?
+> 
+>  Added to my TODO. Thanks.
 
-The bind operation cannot be mixed with another flag/option. This is
-not supported by Linux kernel.
-
-    Karel
-
+Great. Thank You again.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Marcin Szewczyk                       http://wodny.org
+mailto:Marcin.Szewczyk@wodny.borg  <- remove b / usuń b
+xmpp:wodny@ubuntu.pl                  xmpp:wodny@jabster.pl
