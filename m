@@ -1,33 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43753 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:39122 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755939Ab2DDKY7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 4 Apr 2012 06:24:59 -0400
-Date: Wed, 4 Apr 2012 12:24:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com, =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH 3/3] chkdupexe: reimplement command in C
-Message-ID: <20120404102447.GM1084@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <4F7999F7.7030808@draigBrady.com>
- <CAG27Bk2oU12RWj=HWqE7hbx0c1f_ib=d6NCn8uQ1H1C3HGoLuA@mail.gmail.com>
+	id S1755958Ab2DXIVE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Apr 2012 04:21:04 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 50B75910A1
+	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:03 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 5/9] build-sys: add fsprobe.h to dist
+Date: Tue, 24 Apr 2012 10:20:57 +0200
+Message-Id: <1335255661-10611-5-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 02, 2012 at 01:53:23PM +0200, Sami Kerola wrote:
-> I am in favour of removal. As you said few, if anyone, is using this
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ mount/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-On Mon, Apr 02, 2012 at 01:22:15PM +0100, Pádraig Brady wrote:
-> >  1) mark chkdupexe as deprecated and remove it from distros
-> 
-> I'd vote for 1.
-
-  Done.
-
-    Karel
-
+diff --git a/mount/Makefile.am b/mount/Makefile.am
+index d250fcd..40f30f0 100644
+--- a/mount/Makefile.am
++++ b/mount/Makefile.am
+@@ -10,7 +10,7 @@ srcs_common = \
+ 	sundries.h
+ 
+ # generic header for mount and umount
+-hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h
++hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h fsprobe.h
+ 
+ # generic sources for mount and umount
+ srcs_mount = \
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
