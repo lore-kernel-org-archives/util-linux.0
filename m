@@ -1,37 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from n26.netmark.pl ([94.124.9.61]:60031 "EHLO n26.netmark.pl"
+Received: from cantor2.suse.de ([195.135.220.15]:39124 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756878Ab2DXRxs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Apr 2012 13:53:48 -0400
-Received: from 031011234045.warszawa.vectranet.pl ([31.11.234.45]:60019 helo=magazyn-ziarno)
-	by n26.netmark.pl with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.77)
-	(envelope-from <Marcin.Szewczyk@wodny.org>)
-	id 1SMjvv-001UJ8-VA
-	for util-linux@vger.kernel.org; Tue, 24 Apr 2012 19:53:47 +0200
-Date: Tue, 24 Apr 2012 19:53:47 +0200
-From: Marcin Szewczyk <Marcin.Szewczyk@wodny.org>
-To: util-linux@vger.kernel.org
-Subject: Re: findmnt: determine mount by pointing to a subdirectory
-Message-ID: <20120424175347.GA2813@magazyn-ziarno.zbozowa>
-References: <20120424152658.GC3813@magazyn-ziarno.zbozowa>
- <20120424175053.GB17370@x2.net.home>
+	id S1755992Ab2DXIVF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Apr 2012 04:21:05 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 18F9B912E4
+	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:04 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 7/9] fsck.minix.c: fix compiler warnings [-Wunused-result]
+Date: Tue, 24 Apr 2012 10:20:59 +0200
+Message-Id: <1335255661-10611-7-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20120424175053.GB17370@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 24, 2012 at 07:50:53PM +0200, Karel Zak wrote:
-> On Tue, Apr 24, 2012 at 05:26:58PM +0200, Marcin Szewczyk wrote:
->> Or is there a possibility of having this kind of functionality in the
->> future?
-> 
->  Yes, I'll implement it.
+fsck.minix.c: In function ‘ask’:
+fsck.minix.c:263:7: error: ignoring return value of ‘fgets’, declared with attribute warn_unused_result [-Werror=unused-result]
 
-Thank You!
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ disk-utils/fsck.minix.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index 8b3ce62..139ab7a 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -260,7 +260,7 @@ ask(const char *string, int def) {
+ 	 * translated.  */
+ 	printf(def ? _("%s (y/n)? ") : _("%s (n/y)? "), string);
+ 	fflush(stdout);
+-	fgets(input, YESNO_LENGTH, stdin);
++	ignore_result( fgets(input, YESNO_LENGTH, stdin) );
+ 	resp = rpmatch(input);
+ 	switch (resp) {
+ 	case -1:
 -- 
-Marcin Szewczyk                       http://wodny.org
-mailto:Marcin.Szewczyk@wodny.borg  <- remove b / usuń b
-xmpp:wodny@ubuntu.pl                  xmpp:wodny@jabster.pl
+1.7.7
+
