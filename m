@@ -1,90 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:41872 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751416Ab2DZCQx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Apr 2012 22:16:53 -0400
-Received: from localhost (ool-4a5aad93.dyn.optonline.net [74.90.173.147])
-	by gerolde.archlinux.org (Postfix) with ESMTPSA id 3FE1F90049
-	for <util-linux@vger.kernel.org>; Wed, 25 Apr 2012 22:16:28 -0400 (EDT)
-Date: Wed, 25 Apr 2012 22:16:51 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] findmnt: add match_by_file to do within-device
- matching
-Message-ID: <20120426021651.GH938@rampage>
-References: <1335400252-17929-1-git-send-email-dreisner@archlinux.org>
- <1335400252-17929-2-git-send-email-dreisner@archlinux.org>
+Received: from cantor2.suse.de ([195.135.220.15]:39125 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755996Ab2DXIVF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Apr 2012 04:21:05 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 786629141C
+	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:04 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 8/9] sfdisk: fix compiler warning [-Wunused-result]
+Date: Tue, 24 Apr 2012 10:21:00 +0200
+Message-Id: <1335255661-10611-8-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1335400252-17929-2-git-send-email-dreisner@archlinux.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 25, 2012 at 08:30:52PM -0400, Dave Reisner wrote:
-> Use the newly exported mnt_get_mountpoint to determine the device that a
-> given file resides on, in case the supplied source or target is not
-> explicitly a mount point.
-> 
-> http://www.spinics.net/lists/util-linux-ng/msg06081.html
-> 
-> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> ---
+sfdisk.c: In function ‘do_fdisk’:
+sfdisk.c:3212:11: error: ignoring return value of ‘fgets’, declared with attribute warn_unused_result [-Werror=unused-result]
 
-On second thought, this isn't good -- it'll return results even when
-you're searching with --fstab (which is completely undesirable, imo).
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisk/sfdisk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
->  misc-utils/findmnt.c |   28 ++++++++++++++++++++++++++--
->  1 file changed, 26 insertions(+), 2 deletions(-)
-> 
-> diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-> index cc71a60..9db167f 100644
-> --- a/misc-utils/findmnt.c
-> +++ b/misc-utils/findmnt.c
-> @@ -661,6 +661,30 @@ static int tab_is_tree(struct libmnt_table *tb)
->  	return rc;
->  }
->  
-> +static int match_by_file(const char *name, struct libmnt_fs *fs,
-> +		int (*match_fn)(struct libmnt_fs*, const char*, struct libmnt_cache*))
-> +{
-> +	char *resolved, *mountpoint;
-> +	int match;
-> +
-> +	/* match exactly by name */
-> +	if (match_fn(fs, name, cache))
-> +		return 1;
-> +
-> +	/* maybe its a file within a mountpoint */
-> +	resolved = mnt_resolve_path(name, cache);
-> +	if (resolved) {
-> +		mountpoint = mnt_get_mountpoint(resolved);
-> +		if (mountpoint) {
-> +			match = match_fn(fs, mountpoint, cache);
-> +			free(mountpoint);
-> +			return match;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /* filter function for libmount (mnt_table_find_next_fs()) */
->  static int match_func(struct libmnt_fs *fs,
->  		      void *data __attribute__ ((__unused__)))
-> @@ -670,11 +694,11 @@ static int match_func(struct libmnt_fs *fs,
->  	void *md;
->  
->  	m = get_match(COL_TARGET);
-> -	if (m && !mnt_fs_match_target(fs, m, cache))
-> +	if (m && !match_by_file(m, fs, mnt_fs_match_target))
->  		return rc;
->  
->  	m = get_match(COL_SOURCE);
-> -	if (m && !mnt_fs_match_source(fs, m, cache))
-> +	if (m && !match_by_file(m, fs, mnt_fs_match_source))
->  		return rc;
->  
->  	m = get_match(COL_FSTYPE);
-> -- 
-> 1.7.10
-> 
+diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
+index 95e5828..0d36c3f 100644
+--- a/fdisk/sfdisk.c
++++ b/fdisk/sfdisk.c
+@@ -3208,7 +3208,7 @@ do_fdisk(char *dev) {
+ 		printf(_("Are you satisfied with this? [ynq] "));
+ 	    else
+ 		printf(_("Do you want to write this to disk? [ynq] "));
+-	    fgets(answer, sizeof(answer), stdin);
++	    ignore_result( fgets(answer, sizeof(answer), stdin) );
+ 	    if (answer[0] == 'q' || answer[0] == 'Q') {
+ 		errx(EXIT_FAILURE, _("Quitting - nothing changed"));
+ 	    } else if (rpmatch(answer) == 1) {
+-- 
+1.7.7
+
