@@ -1,29 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3541 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35868 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752538Ab2DCNi4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 3 Apr 2012 09:38:56 -0400
-Date: Tue, 3 Apr 2012 15:38:28 +0200
+	id S1752394Ab2DYH4b (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Apr 2012 03:56:31 -0400
+Date: Wed, 25 Apr 2012 09:56:28 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
+To: Marcin Szewczyk <Marcin.Szewczyk@wodny.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 12/20] uuidd: --socket-activation implies --keep-privs
-Message-ID: <20120403133828.GJ1084@x2.net.home>
-References: <1333039528-24784-1-git-send-email-petr.uzel@suse.cz>
- <1333039528-24784-13-git-send-email-petr.uzel@suse.cz>
+Subject: Re: Duplicate UUIDs, findmnt, /dev/disk/by-uuid
+Message-ID: <20120425075628.GD17370@x2.net.home>
+References: <20120423154106.GD2437@magazyn-ziarno.zbozowa>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1333039528-24784-13-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <20120423154106.GD2437@magazyn-ziarno.zbozowa>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 29, 2012 at 06:45:20PM +0200, Petr Uzel wrote:
-> +process.  Implies --no-fork, --no-pid and --keep-privs.  As of this writing,
-> +this option is supposed to be used only with systemd. It needs to enabled with
-> +configure option --enable--uuid-socket-activation.
+On Mon, Apr 23, 2012 at 05:41:06PM +0200, Marcin Szewczyk wrote:
+> As a workaround I use /proc/self/mountinfo as it gives me major and
+> minor numbers.
+> 
+> My question is: is there a way to force findmnt to use major and minor
+> numbers from /proc/self/mountinfo to identify disks/partitions?
 
- It would be better to add a NOTES section to the man page and add there
- a note about socket activation.
+ Implemented (in upstream tree).
+
+ $ findmnt 8:1
+ TARGET    SOURCE    FSTYPE OPTIONS
+ /boot/efi /dev/sda1 vfat   rw,relatime,fmask=0077,dmask=0077,codepage=cp437,ioch
+
+
+ (or with "--source 8:1" option to make it more explicit)
 
     Karel
 
