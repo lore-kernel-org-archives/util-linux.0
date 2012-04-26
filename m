@@ -1,75 +1,125 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50123 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753669Ab2DFOxP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 6 Apr 2012 10:53:15 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 3B45094703
-	for <util-linux@vger.kernel.org>; Fri,  6 Apr 2012 16:53:14 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] sfdisk: fix calculation due to type mismatch (ix86)
-Date: Fri,  6 Apr 2012 16:53:13 +0200
-Message-Id: <1333723993-11424-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: d@falconindy.com
+MIME-Version: 1.0
+In-Reply-To: <20120426074635.GB28346@x2.net.home>
+References: <1335400252-17929-1-git-send-email-dreisner@archlinux.org>
+	<1335400252-17929-2-git-send-email-dreisner@archlinux.org>
+	<20120426021651.GH938@rampage>
+	<20120426074635.GB28346@x2.net.home>
+Date: Thu, 26 Apr 2012 06:45:27 -0400
+Message-ID: <CA+mSPTgjGzNw0XGSvWt_AbwZ_RRuOrD49cCxzkmq0GV4_T1Vsw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] findmnt: add match_by_file to do within-device matching
+From: Dave Reisner <d@falconindy.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: multipart/alternative; boundary=e89a8ff1c3a69f192504be92afef
 List-ID: <util-linux.vger.kernel.org>
 
-Instructing sfdisk to create one partition spanning
-across entire disk (",,") on 32bit system, if the disk
-is sufficiently large (~2TB) leads to wrong calculation
-in compute_start_sect() due to type mismatch.
+--e89a8ff1c3a69f192504be92afef
+Content-Type: text/plain; charset=ISO-8859-1
 
-Can be reproduced as:
+On Apr 26, 2012 3:47 AM, "Karel Zak" <kzak@redhat.com> wrote:
+>
+> On Wed, Apr 25, 2012 at 10:16:51PM -0400, Dave Reisner wrote:
+> > On Wed, Apr 25, 2012 at 08:30:52PM -0400, Dave Reisner wrote:
+> > > Use the newly exported mnt_get_mountpoint to determine the device
+that a
+> > > given file resides on, in case the supplied source or target is not
+> > > explicitly a mount point.
+> > >
+> > > http://www.spinics.net/lists/util-linux-ng/msg06081.html
+> > >
+> > > Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> > > ---
+> >
+> > On second thought, this isn't good -- it'll return results even when
+> > you're searching with --fstab (which is completely undesirable, imo).
+>
+>  I'll fix it, that's easy. Thanks.
+>
+> > >     m = get_match(COL_TARGET);
+> > > -   if (m && !mnt_fs_match_target(fs, m, cache))
+> > > +   if (m && !match_by_file(m, fs, mnt_fs_match_target))
+> > >             return rc;
+> > >
+> > >     m = get_match(COL_SOURCE);
+> > > -   if (m && !mnt_fs_match_source(fs, m, cache))
+> > > +   if (m && !match_by_file(m, fs, mnt_fs_match_source))
+>
+>  why we need this functionality for SOURCE too?
 
---------------------------
-linux-3ln5:~ # modprobe scsi_debug virtual_gb=2000
-linux-3ln5:~ # sfdisk /dev/sda <<< ',,'
-Checking that no-one is using this disk right now ...
-OK
+Ah. Silly of me. We definitely don't need this.
 
-Disk /dev/sda: 261083 cylinders, 255 heads, 63 sectors/track
+>
+>    Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-sfdisk: ERROR: sector 0 does not have an msdos signature
-sfdisk:  /dev/sda: unrecognized partition table type
+--e89a8ff1c3a69f192504be92afef
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Old situation:
-sfdisk: No partitions found
+<p><br>
+On Apr 26, 2012 3:47 AM, &quot;Karel Zak&quot; &lt;<a href=3D"mailto:kzak@r=
+edhat.com">kzak@redhat.com</a>&gt; wrote:<br>
+&gt;<br>
+&gt; On Wed, Apr 25, 2012 at 10:16:51PM -0400, Dave Reisner wrote:<br>
+&gt; &gt; On Wed, Apr 25, 2012 at 08:30:52PM -0400, Dave Reisner wrote:<br>
+&gt; &gt; &gt; Use the newly exported mnt_get_mountpoint to determine the d=
+evice that a<br>
+&gt; &gt; &gt; given file resides on, in case the supplied source or target=
+ is not<br>
+&gt; &gt; &gt; explicitly a mount point.<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; <a href=3D"http://www.spinics.net/lists/util-linux-ng/msg060=
+81.html">http://www.spinics.net/lists/util-linux-ng/msg06081.html</a><br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; Signed-off-by: Dave Reisner &lt;<a href=3D"mailto:dreisner@a=
+rchlinux.org">dreisner@archlinux.org</a>&gt;<br>
+&gt; &gt; &gt; ---<br>
+&gt; &gt;<br>
+&gt; &gt; On second thought, this isn&#39;t good -- it&#39;ll return result=
+s even when<br>
+&gt; &gt; you&#39;re searching with --fstab (which is completely undesirabl=
+e, imo).<br>
+&gt;<br>
+&gt; =A0I&#39;ll fix it, that&#39;s easy. Thanks.<br>
+&gt;<br>
+&gt; &gt; &gt; =A0 =A0 m =3D get_match(COL_TARGET);<br>
+&gt; &gt; &gt; - =A0 if (m &amp;&amp; !mnt_fs_match_target(fs, m, cache))<b=
+r>
+&gt; &gt; &gt; + =A0 if (m &amp;&amp; !match_by_file(m, fs, mnt_fs_match_ta=
+rget))<br>
+&gt; &gt; &gt; =A0 =A0 =A0 =A0 =A0 =A0 return rc;<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; =A0 =A0 m =3D get_match(COL_SOURCE);<br>
+&gt; &gt; &gt; - =A0 if (m &amp;&amp; !mnt_fs_match_source(fs, m, cache))<b=
+r>
+&gt; &gt; &gt; + =A0 if (m &amp;&amp; !match_by_file(m, fs, mnt_fs_match_so=
+urce))<br>
+&gt;<br>
+&gt; =A0why we need this functionality for SOURCE too?</p>
+<p>Ah. Silly of me. We definitely don&#39;t need this.</p>
+<p>&gt;<br>
+&gt; =A0 =A0Karel<br>
+&gt;<br>
+&gt; --<br>
+&gt; =A0Karel Zak =A0&lt;<a href=3D"mailto:kzak@redhat.com">kzak@redhat.com=
+</a>&gt;<br>
+&gt; =A0<a href=3D"http://karelzak.blogspot.com">http://karelzak.blogspot.c=
+om</a><br>
+&gt; --<br>
+&gt; To unsubscribe from this list: send the line &quot;unsubscribe util-li=
+nux&quot; in<br>
+&gt; the body of a message to <a href=3D"mailto:majordomo@vger.kernel.org">=
+majordomo@vger.kernel.org</a><br>
+&gt; More majordomo info at =A0<a href=3D"http://vger.kernel.org/majordomo-=
+info.html">http://vger.kernel.org/majordomo-info.html</a><br>
+</p>
 
-no room for partition descriptor
-sfdisk: bad input
---------------------------
-
-Addresses: https://bugzilla.novell.com/show_bug.cgi?id=754789
-Reported-by: Dan Mares <dan.mares@norcrossgroup.com>
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- fdisk/sfdisk.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 87929d3..350bf1d 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -1991,7 +1991,7 @@ static int
- compute_start_sect(struct part_desc *p, struct part_desc *ep) {
-     unsigned long long base;
-     int inc = (DOS && B.sectors) ? B.sectors : 1;
--    int delta;
-+    long long delta;
- 
-     if (ep && p->start + p->size >= ep->start + 1)
- 	delta = p->start - ep->start - inc;
-@@ -2006,7 +2006,7 @@ compute_start_sect(struct part_desc *p, struct part_desc *ep) {
- 	p->size += delta;
- 	if (is_extended(p->p.sys_type) && boxes == ONESECTOR)
- 	    p->size = inc;
--	else if ((ssize_t) old_size <= (ssize_t) - delta) {
-+	else if ((long long) old_size <= -delta) {
- 	    my_warn(_("no room for partition descriptor\n"));
- 	    return 0;
- 	}
--- 
-1.7.7
-
+--e89a8ff1c3a69f192504be92afef--
