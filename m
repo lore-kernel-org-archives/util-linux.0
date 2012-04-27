@@ -1,41 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:39122 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:31313 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755958Ab2DXIVE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Apr 2012 04:21:04 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 50B75910A1
-	for <util-linux@vger.kernel.org>; Tue, 24 Apr 2012 10:21:03 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 5/9] build-sys: add fsprobe.h to dist
-Date: Tue, 24 Apr 2012 10:20:57 +0200
-Message-Id: <1335255661-10611-5-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+	id S1758512Ab2D0KrD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Apr 2012 06:47:03 -0400
+Date: Fri, 27 Apr 2012 12:46:38 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/9] build-sys: run distcheck with verbose make rules
+Message-ID: <20120427104638.GB8985@x2.net.home>
 References: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1335255661-10611-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- mount/Makefile.am |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Tue, Apr 24, 2012 at 10:20:53AM +0200, Petr Uzel wrote:
+>  Makefile.am |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/mount/Makefile.am b/mount/Makefile.am
-index d250fcd..40f30f0 100644
---- a/mount/Makefile.am
-+++ b/mount/Makefile.am
-@@ -10,7 +10,7 @@ srcs_common = \
- 	sundries.h
- 
- # generic header for mount and umount
--hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h
-+hdrs_mount = fstab.h mount_mntent.h mount_constants.h getusername.h fsprobe.h
- 
- # generic sources for mount and umount
- srcs_mount = \
+ All nine patches applied, thanks.
+
+    Karel
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
