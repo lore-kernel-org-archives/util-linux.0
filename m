@@ -1,97 +1,130 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.8]:61305 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787Ab2DRGub (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Apr 2012 02:50:31 -0400
-Message-ID: <4F8E6429.2030408@bernhard-voelker.de>
-Date: Wed, 18 Apr 2012 08:50:17 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from cantor2.suse.de ([195.135.220.15]:58086 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750945Ab2D1QTG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 28 Apr 2012 12:19:06 -0400
+Date: Sat, 28 Apr 2012 18:15:02 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/4] fdisk: remove stack jumping
+Message-ID: <20120428161502.GA8714@skipper.site>
+References: <1335525822.11068.4.camel@offworld>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 5/8] sfdisk: fix silly mbyte typo
-References: <4F8D2D12.8070206@bernhard-voelker.de> <4F8D76AB.2090806@draigBrady.com> <4F8D7AB3.1010406@bernhard-voelker.de> <4F8D7EEF.8060601@draigBrady.com> <20120417144801.GA2391@x2.net.home> <4F8D8562.2020805@bernhard-voelker.de>
-In-Reply-To: <4F8D8562.2020805@bernhard-voelker.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+In-Reply-To: <1335525822.11068.4.camel@offworld>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 04/17/2012 04:59 PM, Bernhard Voelker wrote:
-> 
-> 
-> On 04/17/2012 04:48 PM, Karel Zak wrote:
->>  yep, my +1 was about s/mebibytes/MiB/, I have overlooked the
->>  1024*1024 math in the patch. Pádraig is right, (s)fdisk uses 1024
->>  byte blocks in output 
-> 
-> so KiB would be right?
-> 
->>  (probably too keep things more confusing ;-)
-> 
-> mission accomplished ...
-> 
-> Bye,
-> Berny
-> 
+On Fri, Apr 27, 2012 at 01:23:42PM +0200, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+>=20
+> This patch eliminates the long/setjmp code. The current logic
+> does not do anything with stack jumps as it only exits from
+> print_partition_table_from_option() when a fatal error occurs.
 
-ah, that part refers to the "#blocks" column!
+The stack jumping makes fdisk remain silent and return success (!)
+if the listing fails on any of the devices. Not that I think this
+is useful behavior, but IMHO this change in behavior is worth
+mentioning in the release notes.
 
-The problem starts with the "=" after "Units". A colon would
-maybe be more appropriate: then we could use the equal sign
-like in the following.
+Reviewed-by: Petr Uzel <petr.uzel@suse.cz>
 
-What do you think?
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> ---
+>  fdisk/fdisk.c |   17 ++---------------
+>  1 files changed, 2 insertions(+), 15 deletions(-)
+>=20
+> diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+> index 4054b4d..886f011 100644
+> --- a/fdisk/fdisk.c
+> +++ b/fdisk/fdisk.c
+> @@ -14,7 +14,6 @@
+>  #include <string.h>
+>  #include <fcntl.h>
+>  #include <ctype.h>
+> -#include <setjmp.h>
+>  #include <errno.h>
+>  #include <getopt.h>
+>  #include <sys/stat.h>
+> @@ -245,8 +244,6 @@ int has_topology;
+> =20
+>  enum labeltype disklabel;	/* Current disklabel */
+> =20
+> -jmp_buf listingbuf;
+> -
+>  static void __attribute__ ((__noreturn__)) usage(FILE *out)
+>  {
+>  	fprintf(out, _("Usage:\n"
+> @@ -266,13 +263,8 @@ static void __attribute__ ((__noreturn__)) usage(FIL=
+E *out)
+>  	exit(out =3D=3D stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+>  }
+> =20
+> -void fatal(enum failure why) {
+> -
+> -	if (listing) {
+> -		close(fd);
+> -		longjmp(listingbuf, 1);
+> -	}
+> -
+> +void fatal(enum failure why)
+> +{
+>  	switch (why) {
+>  		case unable_to_open:
+>  			err(EXIT_FAILURE, _("unable to open %s"), disk_device);
+> @@ -2708,8 +2700,6 @@ print_partition_table_from_option(char *device)
+>  	int gb;
+> =20
+>  	disk_device =3D device;
+> -	if (setjmp(listingbuf))
+> -		return;
+>  	gpt_warning(device);
+>  	gb =3D get_boot(1);
+>  	if (gb < 0) { /* no DOS signature */
+> @@ -2950,9 +2940,6 @@ main(int argc, char **argv) {
+>  		nowarn =3D 1;
+>  		if (argc > optind) {
+>  			int k;
+> -			/* avoid gcc warning:
+> -			   variable `k' might be clobbered by `longjmp' */
+> -			dummy(&k);
+>  			listing =3D 1;
+>  			for (k =3D optind; k < argc; k++)
+>  				print_partition_table_from_option(argv[k]);
+> --=20
+> 1.7.4.1
+>=20
+>=20
+>=20
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Have a nice day,
-Berny
+Petr
 
+--=20
+Petr Uzel
+IRC: ptr_uzl @ freenode
 
->From 1c59d9ca4d18d795de354003d0059dc593c6a99b Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Wed, 18 Apr 2012 08:47:29 +0200
-Subject: [PATCH] sfdisk (out_partition_header): improve F_MEGABYTE header
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- fdisk/sfdisk.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
 
-diff --git a/fdisk/sfdisk.c b/fdisk/sfdisk.c
-index 95e5828..c14d127 100644
---- a/fdisk/sfdisk.c
-+++ b/fdisk/sfdisk.c
-@@ -912,24 +912,24 @@ out_partition_header(char *dev, int format, struct geometry G) {
- 		G.cylindersize ? _("cylinders") : _("sectors"));
-     case F_CYLINDER:
- 	if (G.cylindersize) {
--	    printf(_("Units = cylinders of %lu bytes, blocks of 1024 bytes"
-+	    printf(_("Units: cylinders of %lu bytes, blocks of 1024 bytes"
- 		     ", counting from %d\n\n"), G.cylindersize << 9, increment);
- 	    printf(_("   Device Boot Start     End   #cyls    #blocks   Id  System\n"));
- 	    break;
- 	}
- 	/* fall through */
-     case F_SECTOR:
--	printf(_("Units = sectors of 512 bytes, counting from %d\n\n"),
-+	printf(_("Units: sectors of 512 bytes, counting from %d\n\n"),
- 	       increment);
- 	printf(_("   Device Boot    Start       End   #sectors  Id  System\n"));
- 	break;
-     case F_BLOCK:
--	printf(_("Units = blocks of 1024 bytes, counting from %d\n\n"),
-+	printf(_("Units: blocks of 1024 bytes, counting from %d\n\n"),
- 	       increment);
- 	printf(_("   Device Boot   Start       End    #blocks   Id  System\n"));
- 	break;
-     case F_MEGABYTE:
--	printf(_("Units = mebibytes of 1048576 bytes, blocks of 1024 bytes"
-+	printf(_("Units: 1MiB = 1024*1024 bytes, blocks of 1024 bytes"
- 		 ", counting from %d\n\n"), increment);
- 	printf(_("   Device Boot Start   End    MiB    #blocks   Id  System\n"));
- 	break;
--- 
-1.7.7
+iEUEARECAAYFAk+cF4YACgkQnZxG0T6qDD1sFQCXXpL4zqpYYMkLAr4xPhcwYY/w
+WACfWkSNf8tpAAjydB+jaUgjrAlXiHI=
+=QO6m
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
