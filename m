@@ -1,62 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:56544 "EHLO vostochny.stro.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753040Ab2EVOd0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 May 2012 10:33:26 -0400
-From: maximilian attems <max@stro.at>
-To: util-linux@vger.kernel.org
-Cc: maximilian attems <max@stro.at>
-Subject: [PATCH] misc-utils: cleanup unused strings.h includes
-Date: Tue, 22 May 2012 16:33:23 +0200
-Message-Id: <1337697203-4812-1-git-send-email-max@stro.at>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:13588 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756283Ab2D3UDl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 30 Apr 2012 16:03:41 -0400
+Message-ID: <4F9EF01B.9040003@ubuntu.com>
+Date: Mon, 30 Apr 2012 16:03:39 -0400
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: Thomas Orgis <thomas-forum@orgis.org>
+CC: util-linux@vger.kernel.org
+Subject: Re: losetup -d --force for zombie loop devices?
+References: <20120417100346.2a0b8301@orgis.org>
+In-Reply-To: <20120417100346.2a0b8301@orgis.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Noticed on klibc building.
+On 4/17/2012 4:03 AM, Thomas Orgis wrote:
+> Hi,
+>
+> I am having an issue with a loop device that used to be connected to a file on NFS.
+> Not sure if this is actually a kernel bug, but I assume (perhaps ignorantly so)
+> that losetup could resolve the situation anyways.
+>
+> 0. have NFS share on /mnt/nfs  (rw,users,noexec,nosuid,nodev,hard,intr)
+> 1. losetup --show -f /mnt/nfs/file.img
+>     /dev/loop0
+> # actually, it was using cryptsetup luksOpen/Close
+> 2. mount /dev/loop0&&  do_work&&  umount /dev/loop0
+> 3. loose connection to NFS server (it went offline, client machine (laptop) switched networks ...)
+> 4. umount -l /mnt/nfs
 
-Signed-off-by: maximilian attems <max@stro.at>
----
- misc-utils/kill.c   |    1 -
- misc-utils/logger.c |    1 -
- misc-utils/namei.c  |    1 -
- 3 files changed, 3 deletions(-)
+This is the problem with umount -l: all it does is remove the path from 
+the namespace, leaving the device still mounted.  Unfortunately umount 
+-f is not properly supported.  The proper fix for this is to have the 
+kernel support umount -f, and do away with the brain damaged umount -l.
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index da7c8ab..c592f52 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -45,7 +45,6 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
--#include <strings.h>
- #include <ctype.h>		/* for isdigit() */
- #include <unistd.h>
- #include <signal.h>
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index db3469c..9805a7d 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -43,7 +43,6 @@
- #include <stdio.h>
- #include <ctype.h>
- #include <string.h>
--#include <strings.h>
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <sys/un.h>
-diff --git a/misc-utils/namei.c b/misc-utils/namei.c
-index b15d4f7..fc1689d 100644
---- a/misc-utils/namei.c
-+++ b/misc-utils/namei.c
-@@ -24,7 +24,6 @@
- #include <unistd.h>
- #include <getopt.h>
- #include <string.h>
--#include <strings.h>
- #include <stdlib.h>
- #include <errno.h>
- #include <sys/types.h>
--- 
-1.7.10
 
