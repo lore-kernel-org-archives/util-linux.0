@@ -1,106 +1,122 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:38996 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752959Ab2ECMQN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 May 2012 08:16:13 -0400
-Received: by wgbds11 with SMTP id ds11so281228wgb.1
-        for <util-linux@vger.kernel.org>; Thu, 03 May 2012 05:16:12 -0700 (PDT)
-Message-ID: <4FA27707.4090608@gmail.com>
-Date: Thu, 03 May 2012 14:16:07 +0200
-From: =?UTF-8?B?VmxhZGltaXIgJ8+GLWNvZGVyL3BoY29kZXInIFNlcmJpbmVua28=?=
-	<phcoder@gmail.com>
-MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Accept small blocks for NTFS and Reiserfs in blkid
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="------------enig5E789FD6A12B858EABEA58AC"
+Received: from cantor2.suse.de ([195.135.220.15]:53076 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754456Ab2ECTCE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 3 May 2012 15:02:04 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id AE69E9664A
+	for <util-linux@vger.kernel.org>; Thu,  3 May 2012 21:02:02 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 00/15] uuidd: refactoring & systemd support (take 2)
+Date: Thu,  3 May 2012 21:01:46 +0200
+Message-Id: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5E789FD6A12B858EABEA58AC
-Content-Type: multipart/mixed;
- boundary="------------090605040804050405020701"
+Hi all.
 
-This is a multi-part message in MIME format.
---------------090605040804050405020701
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+This is the second version of uuidd refactoring and systemd support. First
+version was posted at [1]
 
-libblkid is restrictive as to what it accepts as valid reiserfs or valid
-NTFS.
-One can mkfs an NTFS with 256B sectors and it's supported by ntfs-3g
-Reiserfs can have 512B blocks and it works both with mkfs.ntfs and Linux.=
+The primary goal of the patch series below was to implement systemd support in
+for uuidd as it was one of the items on Karel's wish list for util-linux-2.22 [2].
 
-Patch attached.
+First two patches are just minor cleanups I came across while working on the code.
 
---=20
-Regards
-Vladimir '=CF=86-coder/phcoder' Serbinenko
+Then I added --no-pid, --no-fork and --socket-activation options
+to make uuidd play nicely with systemd (or any compatible init system should
+there be any).  Note that --socket-activation automatically implies all other
+mentioned options. With the socket activation mode [3], uuidd is started on
+demand when the first request comes to its request socket and quits after 60
+seconds of inactivity (can be overridden in the provided unit files).
+
+To make socket-activation work, the uuidd has to be compiled with the
+sd-daemon.c files.  This is controlled via the --enable-socket-activation
+configure option. The second alternative would be to link with libsystemd
+shared library, but after discussion with Karel I decided not to do it to avoid
+some build dependency cycles between systemd and util-linux (to make life
+easier for distributions).
+
+This series also removes the ability of libuuid to execute uuidd daemon
+on-demand if it is not running as we believe that it is not an elegant solution
+and it should be rather required that the daemon is started by an initscript or
+activated via the socket.
+
+Regarding the last patch in the series, it addresses issue described in
+http://marc.info/?l=util-linux-ng&m=133405763330121&w=2 in the way recomended
+by Karel. However, after implementing it, I'm wondering: wouldn't it be cleaner
+to just test if /dev/u?random exists and is readable in uuid_generate() instead
+of calling random_get_fd() and passing the fd down the stack?
 
 
---------------090605040804050405020701
-Content-Type: text/x-diff;
- name="block.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="block.diff"
+For reference, these are the important changes since first version of the series:
 
-diff -ur util-linux-2.20.1/libblkid/src/superblocks/ntfs.c util-linux-2.2=
-0.1-mod/libblkid/src/superblocks/ntfs.c
---- util-linux-2.20.1/libblkid/src/superblocks/ntfs.c	2011-09-26 11:50:23=
-=2E000000000 +0200
-+++ util-linux-2.20.1-mod/libblkid/src/superblocks/ntfs.c	2012-05-03 14:0=
-7:35.193438515 +0200
-@@ -81,7 +81,7 @@
- 		(ns->bios_parameter_block[1]  << 8);
- 	sectors_per_cluster =3D ns->bios_parameter_block[2];
-=20
--	if ((bytes_per_sector < 512) || (sectors_per_cluster =3D=3D 0))
-+	if ((bytes_per_sector < 256) || (sectors_per_cluster =3D=3D 0))
- 		return 1;
-=20
- 	if (ns->cluster_per_mft_record < 0)
-diff -ur util-linux-2.20.1/libblkid/src/superblocks/reiserfs.c util-linux=
--2.20.1-mod/libblkid/src/superblocks/reiserfs.c
---- util-linux-2.20.1/libblkid/src/superblocks/reiserfs.c	2011-09-26 11:5=
-0:23.000000000 +0200
-+++ util-linux-2.20.1-mod/libblkid/src/superblocks/reiserfs.c	2012-05-03 =
-14:08:29.636647756 +0200
-@@ -49,12 +49,12 @@
-=20
- 	blocksize =3D le16_to_cpu(rs->rs_blocksize);
-=20
--	/* The blocksize must be at least 1k */
--	if ((blocksize >> 10) =3D=3D 0)
-+	/* The blocksize must be at least 512B */
-+	if ((blocksize >> 9) =3D=3D 0)
- 		return -BLKID_ERR_PARAM;
-=20
- 	/* If the superblock is inside the journal, we have the wrong one */
--	if (mag->kboff / (blocksize >> 10) > le32_to_cpu(rs->rs_journal_block))=
+- do not implement --keep-privs and instead remove the privilege-dropping
+  functionality completely
+- removed ability to execute uuidd from libuuid
+- server_loop() has been refactored not to use confusing goto statement
+- long list of arguments of server_loop() has been avoided by
+  encapsulating them in uuidd_ctx structure
+- s/--enable-uuidd-socket-activation/--enable-socket-activation
+- s/UUIDD_SOCKET_ACTIVATION/USE_SOCKET_ACTIVATION
+- no longer mention configure option names in the uuidd manpage
+- this series no longer include build-sys fixes (posted as separate series)
 
-+	if (mag->kboff / (blocksize >> 9) > le32_to_cpu(rs->rs_journal_block) /=
- 2)
- 		return -BLKID_ERR_BIG;
-=20
- 	/* LABEL/UUID are only valid for later versions of Reiserfs v3.6. */
 
---------------090605040804050405020701--
+Thank you in advance for any feedback and comments.
 
---------------enig5E789FD6A12B858EABEA58AC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+	Petr
 
-iF4EAREKAAYFAk+idwgACgkQNak7dOguQgmKdgD/VTsnEKdlrKMJEKZ3ye25pyfM
-i/2wSDOvchTsBM5rs6MA/iDYQ1Z5bItDd/aNPltDohbwiPy6O6fad5mTS1iZXK8Q
-=reBf
------END PGP SIGNATURE-----
+[1] http://marc.info/?l=util-linux-ng&m=133303960414089&w=2
+[2] http://www.spinics.net/lists/util-linux-ng/msg05793.html
+[3] http://0pointer.de/blog/projects/socket-activation.html
 
---------------enig5E789FD6A12B858EABEA58AC--
+
+
+Petr Uzel (15):
+  uuidd: use UUIDD_OP_GETPID instead of magic number
+  uuidd: remove useless initialization of cleanup_socket
+  uuidd: factor out pidfile creation into separate function
+  uuidd: implement --no-pid option
+  uuidd: use ignore_result helper
+  uuidd: implement --no-fork option
+  uuidd: factor out socket creation into separate function
+  uuidd: implement --socket-activation option
+  uuidd: print all debugging information to stderr
+  uuidd: do not drop privileges
+  libuuid: use EXIT_FAILURE
+  uuidd: add systemd unit files
+  libuuid: don't exec uuidd
+  uuidd: introduce uuidd_cxt to pass arguments to server loop
+  libuuid: avoid double open and leaking descriptor
+
+ Makefile.am                 |    3 +-
+ configure.ac                |   23 ++
+ fdisk/fdiskdoslabel.c       |    2 +-
+ include/randutils.h         |    2 +-
+ lib/randutils.c             |    8 +-
+ libuuid/src/Makefile.am     |    1 -
+ libuuid/src/gen_uuid.c      |   65 +-----
+ libuuid/src/uuidd.h         |    2 +-
+ misc-utils/.gitignore       |    1 +
+ misc-utils/Makefile.am      |   17 ++-
+ misc-utils/sd-daemon.c      |  530 +++++++++++++++++++++++++++++++++++++++++++
+ misc-utils/sd-daemon.h      |  282 +++++++++++++++++++++++
+ misc-utils/uuidd.8          |   12 +
+ misc-utils/uuidd.c          |  313 +++++++++++++++++---------
+ misc-utils/uuidd.service.in |    9 +
+ misc-utils/uuidd.socket     |    8 +
+ 16 files changed, 1109 insertions(+), 169 deletions(-)
+ create mode 100644 misc-utils/sd-daemon.c
+ create mode 100644 misc-utils/sd-daemon.h
+ create mode 100644 misc-utils/uuidd.service.in
+ create mode 100644 misc-utils/uuidd.socket
+
+-- 
+1.7.7
+
