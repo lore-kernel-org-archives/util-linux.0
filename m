@@ -1,37 +1,104 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10341 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:53079 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750872Ab2E2IKa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 May 2012 04:10:30 -0400
-Date: Tue, 29 May 2012 10:10:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas Schwinge <thomas@codesourcery.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/7] last, login, write: Provide a fallback for
- MAXHOSTNAMELEN, as elsewhere.
-Message-ID: <20120529081025.GJ3757@x2.net.home>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-3-git-send-email-thomas@codesourcery.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337969778-3154-3-git-send-email-thomas@codesourcery.com>
+	id S1758173Ab2ECTCF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 3 May 2012 15:02:05 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 96A8E979ED
+	for <util-linux@vger.kernel.org>; Thu,  3 May 2012 21:02:04 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 03/15] uuidd: factor out pidfile creation into separate function
+Date: Thu,  3 May 2012 21:01:49 +0200
+Message-Id: <1336071721-32492-4-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
+References: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 25, 2012 at 08:16:14PM +0200, Thomas Schwinge wrote:
-> Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
-> ---
->  login-utils/last.c  |    8 ++++++++
->  login-utils/login.c |    8 ++++++++
->  term-utils/write.c  |    8 ++++++++
->  3 files changed, 24 insertions(+), 0 deletions(-)
+Introduce create_pidfile() function.
 
- I have moved the fallback for MAXHOSTNAMELEN to c.h, it seems better
- than duplicate the code.  Thanks.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ misc-utils/uuidd.c |   48 ++++++++++++++++++++++++++++++++++--------------
+ 1 files changed, 34 insertions(+), 14 deletions(-)
 
-    Karel
-
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 0d844fb..704c9e9 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -207,19 +207,18 @@ static int call_daemon(const char *socket_path, int op, char *buf,
+ 	return ret;
+ }
+ 
+-static void server_loop(const char *socket_path, const char *pidfile_path,
+-			int debug, int timeout, int quiet)
++/*
++ * Exclusively create and open a pid file with path @pidfile_path
++ *
++ * Set cleanup_pidfile global variable for the cleanup
++ * handler. @pidfile_path must not be NULL.
++ *
++ * Return file descriptor of the created pid_file.
++ */
++static int create_pidfile(const char *pidfile_path, int quiet)
+ {
+-	struct sockaddr_un	my_addr, from_addr;
+-	struct flock		fl;
+-	socklen_t		fromlen;
+-	int32_t			reply_len = 0;
+-	uuid_t			uu;
+-	mode_t			save_umask;
+-	char			reply_buf[1024], *cp;
+-	char			op, str[UUID_STR_LEN];
+-	int			i, s, ns, len, num;
+-	int			fd_pidfile, ret;
++	int		fd_pidfile;
++	struct flock	fl;
+ 
+ 	fd_pidfile = open(pidfile_path, O_CREAT | O_RDWR, 0664);
+ 	if (fd_pidfile < 0) {
+@@ -229,8 +228,7 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 		exit(EXIT_FAILURE);
+ 	}
+ 	cleanup_pidfile = pidfile_path;
+-	signal(SIGALRM, terminate_intr);
+-	alarm(30);
++
+ 	fl.l_type = F_WRLCK;
+ 	fl.l_whence = SEEK_SET;
+ 	fl.l_start = 0;
+@@ -243,6 +241,28 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 			fprintf(stderr, _("Failed to lock %s: %m\n"), pidfile_path);
+ 		exit(EXIT_FAILURE);
+ 	}
++
++	return fd_pidfile;
++}
++
++static void server_loop(const char *socket_path, const char *pidfile_path,
++			int debug, int timeout, int quiet)
++{
++	struct sockaddr_un	my_addr, from_addr;
++	socklen_t		fromlen;
++	int32_t			reply_len = 0;
++	uuid_t			uu;
++	mode_t			save_umask;
++	char			reply_buf[1024], *cp;
++	char			op, str[UUID_STR_LEN];
++	int			i, s, ns, len, num;
++	int			fd_pidfile, ret;
++
++	signal(SIGALRM, terminate_intr);
++	alarm(30);
++
++	fd_pidfile = create_pidfile(pidfile_path, quiet);
++
+ 	ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf, sizeof(reply_buf), 0, NULL);
+ 	if (ret > 0) {
+ 		if (!quiet)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
