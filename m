@@ -1,35 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:60810 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750832Ab2ETAjY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 19 May 2012 20:39:24 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 1/3] findmnt: reference correct manual section
-Date: Sat, 19 May 2012 20:39:19 -0400
-Message-Id: <1337474361-22429-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: cosoleto@gmail.com
+MIME-Version: 1.0
+In-Reply-To: <1336131332.17719.1.camel@offworld>
+References: <1336131332.17719.1.camel@offworld>
+Date: Fri, 4 May 2012 15:53:20 +0200
+Message-ID: <CAMFXF531o-SWQb3-Hcw02jwVBeYnoN8HLcbPfTPTuPxOHj8QEg@mail.gmail.com>
+Subject: Re: [PATCH] fdisk: fix segfault on bsd label
+From: Francesco Cosoleto <cosoleto@gmail.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/findmnt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+2012/5/4 Davidlohr Bueso <dave@gnu.org>:
+> From: Davidlohr Bueso <dave@gnu.org>
+>
+> Commit 8db8295d824cd0c8cba9385e4635d6e311d69d3f added a regression that causes the program to crash when
+> touching the partition structure (pte) for BSD/OSF labels. Since DOS has its own initialization function,
+> allow BSD labels to use it as well.
+>
+> Steps to reproduce:
+>
+> $> fdisk bsd.img (obtained from blkid regression test files)
+> Command (m for help): p
+> ...
+> I/O size (minimum/optimal): 512 bytes / 512 bytes
+> Disk identifier: 0x00000000
+>
+> Segmentation fault
 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index 1d34696..9005483 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -1005,7 +1005,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	for (i = 0; i < FINDMNT_NCOLUMNS; i++)
- 		fprintf(out, " %11s  %s\n", infos[i].name, _(infos[i].help));
- 
--	fprintf(out, USAGE_MAN_TAIL("findmnt(1)"));
-+	fprintf(out, USAGE_MAN_TAIL("findmnt(8)"));
- 
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
--- 
-1.7.10.2
+Thanks Davidlohr for pointing out that regression. Does it occurs with
+the command to print the partition table when the drive has a BSD
+label and hasn't a valid DOS label, and it has no partition? Fdisk
+switches from BSD label to DOS label without initializing DOS
+structures, right?
 
+fdisk.c:
+    bsd_command_prompt();
+    /* If we return we may want to make an empty DOS label? */
+    disklabel = DOS_LABEL;
