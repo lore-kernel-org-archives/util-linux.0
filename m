@@ -1,37 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:15919 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756870Ab2EAPXo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 1 May 2012 11:23:44 -0400
-Message-ID: <4F9FFFFE.5070404@ubuntu.com>
-Date: Tue, 01 May 2012 11:23:42 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:45191 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807Ab2EDF4E (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 4 May 2012 01:56:04 -0400
+Received: by pbbrp8 with SMTP id rp8so3406242pbb.19
+        for <util-linux@vger.kernel.org>; Thu, 03 May 2012 22:56:04 -0700 (PDT)
+From: Justin Bogner <mail@justinbogner.com>
+To: util-linux@vger.kernel.org
+Subject: sfdisk: Problem with -N and resizing extended partitions
+Date: Thu, 03 May 2012 23:54:53 -0600
+Message-ID: <874nrwh4nm.fsf@glimpse.justinbogner.com>
 MIME-Version: 1.0
-To: Mike Frysinger <vapier@gentoo.org>
-CC: Thomas Orgis <thomas-forum@orgis.org>, util-linux@vger.kernel.org
-Subject: Re: losetup -d --force for zombie loop devices?
-References: <20120417100346.2a0b8301@orgis.org> <4F9EF01B.9040003@ubuntu.com> <201204301607.22712.vapier@gentoo.org>
-In-Reply-To: <201204301607.22712.vapier@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4/30/2012 4:07 PM, Mike Frysinger wrote:
-> `umount -l` has its place -- there are cases where you want those semantics.
-> granted, most people actually want a `umount -f`, but the two aren't mutually
-> exclusive.
-> -mike
+Hi,
 
-If you want to prevent processes from opening new files on the mount 
-point, it would be much more sane to mount --move it somewhere hidden. 
-When you detach it entirely from the namespace, you can't even be aware 
-that the mount still exists, let alone change your mind and reattach it. 
-  Having a device that is still mounted, but appears not to be to all 
-tools that normally check for such things ( partitioning tools, auto 
-mounters, etc ) is broken.
+I've run into a problem with sfdisk where resizing an extended partition
+doesn't do the right thing. I have an extended partition at /dev/sda4
+that has four partitions, so the last partition is /dev/sda8, and I want
+to extend /dev/sda8 to the maximum possible size. So I issue these two
+commands:
 
-It is very confusing when you later try to change the cd in the drive 
-and can't mount it because the old one is still mounted, yet lsof, 
-mount, etc offer no evidence that this is the case, and you can't track 
-down the process that is still holding an open fd and kill it.
+    echo ,+, | sfdisk -N4 /dev/sda
+    echo ,+, | sfdisk -N8 /dev/sda
 
+This grows /dev/sda4 to the maximum size, but /dev/sda8 is unchanged.
+This also occurs if I calculate the sizes by hand instead of using `+`.
+
+The problem happens during the first command. The size of /dev/sda4 is
+updated in the MBR, but none of the EBRs are changed, so the lengths of
+each of the extended partitions in the EBRs are wrong.
+
+You can work around this problem by issuing the following after resizing
+the extended partition:
+
+    sfdisk -d /dev/sda | sfdisk /dev/sda
+
+This will rebuild the EBRs so that they're consistent with the length of
+the extended partition in the MBR.
+
+Let me know if you need any more info or if my explanation of the
+problem isn't clear.
+
+-- 
+Justin Bogner
