@@ -1,90 +1,148 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:38664 "EHLO
-	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965076Ab2EPIwn convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 May 2012 04:52:43 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Date: Wed, 16 May 2012 10:52:40 +0200
-Subject: RE: [PATCH 2/2] blkid: introduce symbolic names for different blkid
- exit codes
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F1E5D2336@MCHP058A.global-ad.net>
-References: <1337157512-31920-1-git-send-email-petr.uzel@suse.cz>
- <1337157512-31920-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1337157512-31920-2-git-send-email-petr.uzel@suse.cz>
-Content-Type: text/plain; charset="us-ascii"
+Received: from cantor2.suse.de ([195.135.220.15]:33433 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754616Ab2EFSLu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 6 May 2012 14:11:50 -0400
+Date: Sun, 6 May 2012 20:11:44 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/5] fdisk: create DOS specific write table function
+Message-ID: <20120506181144.GB6429@skipper.site>
+References: <1336306221.2685.12.camel@offbook>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="U+BazGySraz5kW0T"
+In-Reply-To: <1336306221.2685.12.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Petr Uzel wrote:
 
-> Subject: [PATCH 2/2] blkid: introduce symbolic names for different blkid exit codes
-> 
-> 
-> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+--U+BazGySraz5kW0T
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, May 06, 2012 at 02:10:21PM +0200, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+>=20
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 > ---
->  misc-utils/blkid.c |   32 ++++++++++++++++++--------------
->  1 files changed, 18 insertions(+), 14 deletions(-)
-> 
-> diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-> index 4f7050f..52b2a4b 100644
-> --- a/misc-utils/blkid.c
-> +++ b/misc-utils/blkid.c
-> @@ -34,11 +34,15 @@ extern int optind;
->  #define LOWPROBE_TOPOLOGY	(1 << 1)
->  #define LOWPROBE_SUPERBLOCKS	(1 << 2)
->  
-> +#define BLKID_EXIT_NOTFOUND	2	/* token or device not found */
-> +#define BLKID_EXIT_OTHER	4	/* bad usage or other error */
-> +#define BLKID_EXIT_AMBIVAL	8	/* ambivalent low-level probing detected */
-> +
->  #include <blkid.h>
->  
->  #include "ismounted.h"
->  
-> -#define STRTOXX_EXIT_CODE	4		/* strtoxx_or_err() */
-> +#define STRTOXX_EXIT_CODE	BLKID_EXIT_OTHER	/* strtoxx_or_err() */
-
-STRTOXX_EXIT_CODE is not used in blkid.c. Remove it?
-... or if it used in strutils.h, then this is not a nice interface.
-
->  #include "strutils.h"
->  #include "closestream.h"
->  #include "ttyutils.h"
-> @@ -484,7 +488,7 @@ static int lowprobe_device(blkid_probe pr, const char *devname,
->  	fd = open(devname, O_RDONLY);
->  	if (fd < 0) {
->  		fprintf(stderr, "error: %s: %m\n", devname);
-> -		return 2;
-> +		return BLKID_EXIT_NOTFOUND;
+>  fdisk/fdisk.c         |   27 ++++-----------------------
+>  fdisk/fdiskdoslabel.c |   27 +++++++++++++++++++++++++++
+>  fdisk/fdiskdoslabel.h |    1 +
+>  3 files changed, 32 insertions(+), 23 deletions(-)
+>=20
+> diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+> index 8c2a162..3044879 100644
+> --- a/fdisk/fdisk.c
+> +++ b/fdisk/fdisk.c
+> @@ -1672,31 +1672,12 @@ static void
+>  write_table(void) {
+>  	int i;
+> =20
+> -	if (disklabel =3D=3D DOS_LABEL) {
+> -		/* MBR (primary partitions) */
+> -		if (!MBRbuffer_changed) {
+> -			for (i =3D 0; i < 4; i++)
+> -				if (ptes[i].changed)
+> -					MBRbuffer_changed =3D 1;
+> -		}
+> -		if (MBRbuffer_changed) {
+> -			write_part_table_flag(MBRbuffer);
+> -			write_sector(fd, 0, MBRbuffer);
+> -		}
+> -		/* EBR (logical partitions) */
+> -		for (i =3D 4; i < partitions; i++) {
+> -			struct pte *pe =3D &ptes[i];
+> -
+> -			if (pe->changed) {
+> -				write_part_table_flag(pe->sectorbuffer);
+> -				write_sector(fd, pe->offset, pe->sectorbuffer);
+> -			}
+> -		}
+> -	}
+> -	else if (disklabel =3D=3D SGI_LABEL) {
+> +	if (disklabel =3D=3D DOS_LABEL)
+> +		dos_write_table();
+> +	else if (disklabel =3D=3D SGI_LABEL)
+>  		/* no test on change? the printf below might be mistaken */
+>  		sgi_write_table();
+> -	} else if (disklabel =3D=3D SUN_LABEL) {
+> +	else if (disklabel =3D=3D SUN_LABEL) {
+>  		int needw =3D 0;
+> =20
+>  		for (i=3D0; i<8; i++)
+> diff --git a/fdisk/fdiskdoslabel.c b/fdisk/fdiskdoslabel.c
+> index 3f820db..a13a83a 100644
+> --- a/fdisk/fdiskdoslabel.c
+> +++ b/fdisk/fdiskdoslabel.c
+> @@ -657,3 +657,30 @@ void dos_new_partition(void)
+>  			printf(_("Invalid partition type `%c'\n"), c);
 >  	}
->  	if (blkid_probe_set_device(pr, fd, offset, size))
->  		goto done;
-> @@ -551,9 +555,9 @@ done:
->  	close(fd);
->  
->  	if (rc == -2)
-> -		return 8;	/* ambivalent probing result */
-> +		return BLKID_EXIT_AMBIVAL;	/* ambivalent probing result */
->  	if (!nvals)
-> -		return 2;	/* nothing detected */
-> +		return BLKID_EXIT_NOTFOUND;	/* nothing detected */
->  
->  	return 0;		/* success */
 >  }
+> +
+> +void dos_write_table(void)
+> +{
+> +	int i;
+> +
+> +	if (disklabel =3D=3D DOS_LABEL) {
 
-These are not exit() codes, but return codes. That value doesn't seem
-to be of much interest anyway, because it's used only here in main()
-in a for-loop, forgetting the return value of the previous iteration:
+This if is unnecessary - the caller should make sure that
+disklabel =3D=3D DOS_LABEL as write_table() does. What about
 
-               for (i = 0; i < numdev; i++)
-                        err = lowprobe_device(pr, devices[i], lowprobe, show,
-                                        output_format,
-                                        (blkid_loff_t) offset,
-                                        (blkid_loff_t) size);
+assert(disklabel =3D=3D DOS_LABEL) instead?
 
-Have a nice day,
-Berny
+> +		/* MBR (primary partitions) */
+> +		if (!MBRbuffer_changed) {
+> +			for (i =3D 0; i < 4; i++)
+> +				if (ptes[i].changed)
+> +					MBRbuffer_changed =3D 1;
+> +		}
+> +		if (MBRbuffer_changed) {
+> +			write_part_table_flag(MBRbuffer);
+> +			write_sector(fd, 0, MBRbuffer);
+> +		}
+> +		/* EBR (logical partitions) */
+> +		for (i =3D 4; i < partitions; i++) {
+> +			struct pte *pe =3D &ptes[i];
+> +
+> +			if (pe->changed) {
+> +				write_part_table_flag(pe->sectorbuffer);
+> +				write_sector(fd, pe->offset, pe->sectorbuffer);
+> +			}
+> +		}
+> +	}
+> +}
+> diff --git a/fdisk/fdiskdoslabel.h b/fdisk/fdiskdoslabel.h
+> index e45a026..8c116f7 100644
+> --- a/fdisk/fdiskdoslabel.h
+> +++ b/fdisk/fdiskdoslabel.h
+> @@ -52,5 +52,6 @@ extern int is_dos_partition(int t);
+>  extern void dos_init(void);
+>  extern void dos_add_partition(int n, int sys);
+>  extern void dos_new_partition(void);
+> +extern void dos_write_table(void);
+> =20
+>  #endif
+> --=20
+> 1.7.4.1
 
+Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--U+BazGySraz5kW0T
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk+mvuAACgkQnZxG0T6qDD3r6wCdEnyVt81Fi5Fgl9ix5X/e3wBt
+QQoAn2DAl6KXuRQfCm2KJjzZSY5W8MeD
+=6X+9
+-----END PGP SIGNATURE-----
+
+--U+BazGySraz5kW0T--
