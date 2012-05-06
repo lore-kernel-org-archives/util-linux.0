@@ -1,39 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:13588 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756283Ab2D3UDl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 30 Apr 2012 16:03:41 -0400
-Message-ID: <4F9EF01B.9040003@ubuntu.com>
-Date: Mon, 30 Apr 2012 16:03:39 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from cantor2.suse.de ([195.135.220.15]:32892 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754347Ab2EFSAC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 6 May 2012 14:00:02 -0400
+Date: Sun, 6 May 2012 19:58:46 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/5] fdisk: move DOS new/add partition code
+Message-ID: <20120506175846.GA6429@skipper.site>
+References: <1336306218.2685.11.camel@offbook>
 MIME-Version: 1.0
-To: Thomas Orgis <thomas-forum@orgis.org>
-CC: util-linux@vger.kernel.org
-Subject: Re: losetup -d --force for zombie loop devices?
-References: <20120417100346.2a0b8301@orgis.org>
-In-Reply-To: <20120417100346.2a0b8301@orgis.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+In-Reply-To: <1336306218.2685.11.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4/17/2012 4:03 AM, Thomas Orgis wrote:
-> Hi,
->
-> I am having an issue with a loop device that used to be connected to a file on NFS.
-> Not sure if this is actually a kernel bug, but I assume (perhaps ignorantly so)
-> that losetup could resolve the situation anyways.
->
-> 0. have NFS share on /mnt/nfs  (rw,users,noexec,nosuid,nodev,hard,intr)
-> 1. losetup --show -f /mnt/nfs/file.img
->     /dev/loop0
-> # actually, it was using cryptsetup luksOpen/Close
-> 2. mount /dev/loop0&&  do_work&&  umount /dev/loop0
-> 3. loose connection to NFS server (it went offline, client machine (laptop) switched networks ...)
-> 4. umount -l /mnt/nfs
 
-This is the problem with umount -l: all it does is remove the path from 
-the namespace, leaving the device still mounted.  Unfortunately umount 
--f is not properly supported.  The proper fix for this is to have the 
-kernel support umount -f, and do away with the brain damaged umount -l.
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, May 06, 2012 at 02:10:18PM +0200, Davidlohr Bueso wrote:
+> From: Davidlohr Bueso <dave@gnu.org>
+> =20
+> Since this is DOS specific logic, it belongs in its own label file. Addit=
+ionally, a dos_new_partition() function is created
+> that asks the user for partition type and then calls the actual dos_add_p=
+artition().
+>=20
+> This patch passed fdisk regression tests, builds without problems and it =
+was locally tested against adding and removing DOS partitions.
+>=20
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 
+Reviewed-and-acked-by: Petr Uzel <petr.uzel@suse.cz>
+
+> ---
+>  fdisk/fdisk.c         |  354 ++-----------------------------------------=
+------
+>  fdisk/fdisk.h         |   22 +++-
+>  fdisk/fdiskdoslabel.c |  332 +++++++++++++++++++++++++++++++++++++++++++=
++++
+>  fdisk/fdiskdoslabel.h |    5 +-
+>  4 files changed, 365 insertions(+), 348 deletions(-)
+[SNIP]
+
+Petr
+
+--
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk+mu9YACgkQnZxG0T6qDD0dXACfaTSbqMMnhQLlHzKwElx1vstV
+u/kAn3RhDrxuDxL/hWWYs3G57BTJg4Ed
+=hMgP
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--
