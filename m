@@ -1,39 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5307 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754135Ab2EBHXT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 May 2012 03:23:19 -0400
-Date: Wed, 2 May 2012 09:22:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: fix calculation due to type mismatch (ix86)
-Message-ID: <20120502072252.GA18519@x2.net.home>
-References: <1333723993-11424-1-git-send-email-petr.uzel@suse.cz>
- <20120410103422.GJ19784@x2.net.home>
- <20120425151603.GA31410@burratino>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120425151603.GA31410@burratino>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH] lslocks: fix bracket indentation
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 06 May 2012 21:06:01 +0200
+Message-ID: <1336331161.2685.23.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 25, 2012 at 10:16:03AM -0500, Jonathan Nieder wrote:
-> >> Addresses: https://bugzilla.novell.com/show_bug.cgi?id=754789
-> >> Reported-by: Dan Mares <dan.mares@norcrossgroup.com>
-> >> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
-> >
-> >  Ah.. pretty dirty bug. Applied, thanks.
-> 
-> (This is 9c45d49fe01c "sfdisk: fix calculation due to type mismatch
-> (ix86)".)  Thanks.  Do you think this fix might belong in currently
-> maintained stable/ branches, too, and if so, how can I help make that
-> happen?
+From: Davidlohr Bueso <dave@gnu.org>
 
- I'm going to release 2.21.2 next week.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ misc-utils/lslocks.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-    Karel
-
+diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
+index 2f9093d..13eaaf3 100644
+--- a/misc-utils/lslocks.c
++++ b/misc-utils/lslocks.c
+@@ -204,7 +204,7 @@ static char *get_filename_sz(ino_t inode, pid_t pid, size_t *size)
+ 
+ 		ret = xstrdup(sym);
+ 		break;
+-}
++	}
+ out:
+ 	closedir(dirp);
+ 	return ret;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
