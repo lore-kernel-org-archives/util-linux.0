@@ -1,57 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:47653 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754520Ab2EXM6G (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 May 2012 08:58:06 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id DF0929A3F6
-	for <util-linux@vger.kernel.org>; Thu, 24 May 2012 14:58:04 +0200 (CEST)
-Message-ID: <4FBE3059.3030806@suse.de>
-Date: Thu, 24 May 2012 14:58:01 +0200
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PULL] su
-Content-Type: text/plain; charset=UTF-8
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:38456 "EHLO
+	homiemail-a2.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754079Ab2EFSxQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 6 May 2012 14:53:16 -0400
+Subject: Re: [PATCH 1/5] fdisk: remove unused hsc2sector macro
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <20120506173408.GA14007@skipper.site>
+References: <1336306216.2685.10.camel@offbook>
+	 <20120506173408.GA14007@skipper.site>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 06 May 2012 20:53:14 +0200
+Message-ID: <1336330394.2685.16.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Sun, 2012-05-06 at 19:34 +0200, Petr Uzel wrote:
+> On Sun, May 06, 2012 at 02:10:16PM +0200, Davidlohr Bueso wrote:
+> > From: Davidlohr Bueso <dave@gnu.org>
+> > 
+> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> > ---
+> > fdisk/fdisk.c |    2 --
+> > 1 files changed, 0 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+> > index dccaf27..3543745 100644
+> > --- a/fdisk/fdisk.c
+> > +++ b/fdisk/fdisk.c
+> > @@ -68,8 +68,6 @@ int MBRbuffer_changed;
+> > #define sector(s) ((s) & 0x3f)
+> > #define cylinder(s, c) ((c) | (((s) & 0xc0) << 2))
+> > 
+> > -#define hsc2sector(h,s,c) (sector(s) - 1 + sectors * \
+> > - ((h) + heads * cylinder(s,c)))
+> > #define set_hsc(h,s,c,sector) { \
+> > s = sector % sectors + 1; \
+> > sector /= sectors; \
+> 
+> This patch seems to be malformed. Could you please check what's wrong?
 
-coreutils isn't really interested in maintaining su anymore.
-Distributions have to add custom patches to fix bugs and add
-features. The worst offender is probably the pam patch. Fortunately
-we managed to sync the patch between openSUSE and Fedora meanwhile.
-Over time the risk that the patches divert again increases though.
-Since util-linux now contains a common login program it looks like a
-good new home for su too.
+Hmm perhaps my mail client did something stupid (or me :)
 
-To integrate su into util-linux I've extracted the history of the su
-program until the last GPLv2 version (they've changed to GPLv3
-meanwhile) from coreutils' git and merged it with util-linux.
-Then I've added the patches used in Fedora and openSUSE and fixed the
-files to actually build.
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Sun, 6 May 2012 20:51:37 +0200
+Subject: [PATCH] fdisk: remove unused hsc2sector-macor
 
-You can find the result in branch su-v1 (ff6b15d) at
-git@github.com:lnussel/util-linux.git
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-I've also filed a pull request on github:
-https://github.com/karelzak/util-linux/pull/10
-
-Originally I had planned to implement separate tty allocation for
-the child program on top of that to get rid of the evil setsid
-patch. It turned out to be more complicated than I thought though. The
-change would be too massive to backport anyways I guess. So the next
-step would be to rip out the non-pam legacy stuff and clean up the code
-to make it readable again.
-
-cu
-Ludwig
-
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index dccaf27..3543745 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -68,8 +68,6 @@ int MBRbuffer_changed;
+ #define sector(s)	((s) & 0x3f)
+ #define cylinder(s, c)	((c) | (((s) & 0xc0) << 2))
+ 
+-#define hsc2sector(h,s,c) (sector(s) - 1 + sectors * \
+-				((h) + heads * cylinder(s,c)))
+ #define set_hsc(h,s,c,sector) { \
+ 				s = sector % sectors + 1;	\
+ 				sector /= sectors;	\
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+1.7.4.1
+
+
+
