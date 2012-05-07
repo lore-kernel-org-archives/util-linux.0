@@ -1,29 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25476 "EHLO mx1.redhat.com"
+Received: from minas.ics.muni.cz ([147.251.4.40]:34917 "EHLO minas.ics.muni.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751504Ab2E2IBK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 May 2012 04:01:10 -0400
-Date: Tue, 29 May 2012 10:01:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas Schwinge <thomas@codesourcery.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] kill, raw, rename: Don't explicitly enable for
- --enable-most-builds.
-Message-ID: <20120529080106.GH3757@x2.net.home>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+	id S1756147Ab2EGNwG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 May 2012 09:52:06 -0400
+Received: from album.ics.muni.cz (album.ics.muni.cz [147.251.23.20])
+	by minas.ics.muni.cz (8.13.8/8.13.8/SuSE Linux 0.8) with SMTP id q47DYGxF005677
+	for <util-linux@vger.kernel.org>; Mon, 7 May 2012 15:34:17 +0200
+Date: Mon, 7 May 2012 15:34:15 +0200
+From: Petr Pisar <petr.pisar@atlas.cz>
+To: util-linux@vger.kernel.org
+Subject: addpart and delpart tools are not internationalized
+Message-ID: <20120507133415.GA7097@album.bayer.uni.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 25, 2012 at 08:16:12PM +0200, Thomas Schwinge wrote:
->  configure.ac |    3 ---
->  1 files changed, 0 insertions(+), 3 deletions(-)
 
- Applied, thanks.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Hello,
+
+I've just found addpart and delpart does not put any message into most recent
+(2.21-rc2) gettext translation catalog template. Thus the output of these two
+tools cannot be translated.
+
+-- Petr
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iF4EABEIAAYFAk+nz1cACgkQEsnFx2fG+qJ0GgD+Kdo/2MmS+epCU2eJR02CmSQE
+xjwT+DjaIt1uZHDgdE8A+wWFaAc40lvg+i5aQ7HUqnhe2oXPv/CmegR7QFCWoW+z
+=rsAp
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
