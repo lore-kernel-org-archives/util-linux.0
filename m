@@ -1,39 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:60248 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756359Ab2EWUgD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 23 May 2012 16:36:03 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 2/3] logger: use memcpy instead of bcopy
-Date: Wed, 23 May 2012 16:35:59 -0400
-Message-Id: <1337805360-16469-2-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1337805360-16469-1-git-send-email-dreisner@archlinux.org>
-References: <1337805360-16469-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:3636 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757551Ab2EJJrD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 10 May 2012 05:47:03 -0400
+Date: Thu, 10 May 2012 11:46:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/5] fdisk: remove unused hsc2sector macro
+Message-ID: <20120510094634.GB25706@x2.net.home>
+References: <1336306216.2685.10.camel@offbook>
+ <20120506173408.GA14007@skipper.site>
+ <1336330394.2685.16.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1336330394.2685.16.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-bcopy is marked legacy in POSIX.1-2001 and should not be used.
+On Sun, May 06, 2012 at 08:53:14PM +0200, Davidlohr Bueso wrote:
+>  fdisk/fdisk.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/logger.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Applied, thanks.
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 19b4c47..a187227 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -96,7 +96,7 @@ udpopenlog(const char *servername, uint16_t port) {
- 	if ((fd = socket(AF_INET, SOCK_DGRAM , 0)) == -1)
- 		err(EXIT_FAILURE, _("socket"));
- 
--	bcopy(serverhost->h_addr,&s_addr.sin_addr,serverhost->h_length);
-+	memcpy(serverhost->h_addr,&s_addr.sin_addr,serverhost->h_length);
-         s_addr.sin_family=AF_INET;
-         s_addr.sin_port=htons(port);
- 
 -- 
-1.7.10.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
