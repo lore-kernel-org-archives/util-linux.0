@@ -1,27 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18485 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751913Ab2EBHmw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 May 2012 03:42:52 -0400
-Date: Wed, 2 May 2012 09:42:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/4] fdisk: remove stack jumping
-Message-ID: <20120502074247.GA21726@x2.net.home>
-References: <1335525822.11068.4.camel@offworld>
+Received: from 220-245-31-42.static.tpgi.com.au ([220.245.31.42]:36339 "EHLO
+	smtp.sws.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751573Ab2EMNta (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 May 2012 09:49:30 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Petr Uzel <petr.uzel@suse.cz>
+Subject: Re: [PATCH 2/3] mkswap: allow creating swap on /dev/hd[ab]
+Date: Sun, 13 May 2012 23:38:51 +1000
+Cc: "util-linux" <util-linux@vger.kernel.org>, 491021@bugs.debian.org
+References: <1336909472-12277-1-git-send-email-petr.uzel@suse.cz> <1336909472-12277-2-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1336909472-12277-2-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1335525822.11068.4.camel@offworld>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201205132338.51614.russell@coker.com.au>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Apr 27, 2012 at 01:23:42PM +0200, Davidlohr Bueso wrote:
->  fdisk/fdisk.c |   17 ++---------------
->  1 files changed, 2 insertions(+), 15 deletions(-)
+The patch looks good.  Although as /dev/hda seems to be unused it probably 
+won't affect anyone.  It would be nice to get this Debian bug closed before it 
+turns 4.
 
- Applied, thanks.
+On Sun, 13 May 2012, Petr Uzel <petr.uzel@suse.cz> wrote:
+> Currently, mkswap does not allow swap to be created on /dev/hda and
+> /dev/hdb. There is no reason why /dev/hda and /dev/hdb should be treated
+> differently.
+> 
+> Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=491021
+> Cc: Russell Coker <russell@coker.com.au>
+> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> ---
+>  disk-utils/mkswap.c |    5 -----
+>  1 files changed, 0 insertions(+), 5 deletions(-)
+> 
+> diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+> index c7dedd7..dec34e1 100644
+> --- a/disk-utils/mkswap.c
+> +++ b/disk-utils/mkswap.c
+> @@ -596,13 +596,8 @@ main(int argc, char **argv) {
+>  		exit(EXIT_FAILURE);
+>  	}
+> 
+> -	/* Want a block device. Probably not /dev/hda or /dev/hdb. */
+>  	if (!S_ISBLK(statbuf.st_mode))
+>  		check=0;
+> -	else if (statbuf.st_rdev == 0x0300 || statbuf.st_rdev == 0x0340)
+> -		errx(EXIT_FAILURE, _("error: "
+> -			"will not try to make swapdevice on '%s'"),
+> -			device_name);
+>  	else if (is_mounted(device_name))
+>  		errx(EXIT_FAILURE, _("error: "
+>  			"%s is mounted; will not make swapspace."),
+
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
