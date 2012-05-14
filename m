@@ -1,110 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:47505 "EHLO
-	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753290Ab2EUTXg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 May 2012 15:23:36 -0400
-Subject: Re: [PATCH 3/6] fdisk: refactor -s option
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
+Return-Path: petr.uzel@suse.cz
+Date: Mon, 14 May 2012 11:53:15 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
 To: Karel Zak <kzak@redhat.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <20120521092705.GA14390@x2.net.home>
-References: <1337530289.2677.14.camel@offbook>
-	 <20120521092705.GA14390@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 21 May 2012 21:23:27 +0200
-Message-ID: <1337628207.2596.0.camel@offbook>
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libuuid,uuidd: move read_all to include/readall.h
+Message-ID: <20120514095315.GB4335@foxbat.suse.cz>
+References: <1336894676-25586-1-git-send-email-petr.uzel@suse.cz>
+ <20120514094601.GC16926@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MfFXiAuoTsnnDAfZ"
+In-Reply-To: <20120514094601.GC16926@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2012-05-21 at 11:27 +0200, Karel Zak wrote:
-> On Sun, May 20, 2012 at 06:11:29PM +0200, Davidlohr Bueso wrote:
-> > +static unsigned long long get_dev_sz(char *dev)
-> 
-> It's number of blocks (1024-bytes) rather than size, what about
-> 
->     get_dev_blocks()
-> 
-> or so...
 
-From: Davidlohr Bueso <dave@gnu.org>
-Date: Mon, 21 May 2012 21:22:37 +0200
-Subject: [PATCH] fdisk: refactor -s option
+--MfFXiAuoTsnnDAfZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |   41 ++++++++++++++++++++++-------------------
- 1 files changed, 22 insertions(+), 19 deletions(-)
+On Mon, May 14, 2012 at 11:46:01AM +0200, Karel Zak wrote:
+> On Sun, May 13, 2012 at 09:37:56AM +0200, Petr Uzel wrote:
+> >  include/Makefile.am    |    1 +
+> >  include/readall.h      |   33 +++++++++++++++++++++++++++++++++
+> >  libuuid/src/gen_uuid.c |   26 +-------------------------
+> >  misc-utils/uuidd.c     |   25 +------------------------
+> >  4 files changed, 36 insertions(+), 49 deletions(-)
+> >  create mode 100644 include/readall.h
+>=20
+>  Good idea, but do we really need writeall.h and readall.h ? ;-) What
+>  about to merge both files? (all-io.h ?)
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 9387795..9788e5c 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -2095,10 +2095,22 @@ static void command_prompt(void)
- 	}
- }
- 
-+static unsigned long long get_dev_blocks(char *dev)
-+{
-+	int fd;
-+	unsigned long long size;
-+	
-+	if ((fd = open(dev, O_RDONLY)) < 0)
-+		err(EXIT_FAILURE, _("unable to open %s"), dev);
-+	if (blkdev_get_sectors(fd, &size) == -1)
-+		fatal(ioctl_error);
-+	close(fd);
-+	return size/2;
-+}
-+
- int main(int argc, char **argv)
- {
--	int j, c;
--	int optl = 0, opts = 0;
-+	int c, optl = 0, opts = 0;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -2182,27 +2194,18 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (opts) {
--		unsigned long long size;
--
--		nowarn = 1;
--
--		opts = argc - optind;
--		if (opts <= 0)
-+		/* print partition size for one or more devices */
-+		int i, ndevs = argc - optind;
-+		if (ndevs <= 0)
- 			usage(stderr);
- 
--		for (j = optind; j < argc; j++) {
--			disk_device = argv[j];
--			if ((fd = open(disk_device, O_RDONLY)) < 0)
--				err(EXIT_FAILURE, _("unable to open %s"), disk_device);
--			if (blkdev_get_sectors(fd, &size) == -1)
--				fatal(ioctl_error);
--			close(fd);
--			if (opts == 1)
--				printf("%llu\n", size/2);
-+		for (i = optind; i < argc; i++) {
-+			if (ndevs == 1)
-+				printf("%llu\n", get_dev_blocks(argv[i]));
- 			else
--				printf("%s: %llu\n", argv[j], size/2);
-+				printf("%s: %llu\n", argv[i], get_dev_blocks(argv[i]));
- 		}
--		exit(0);
-+		exit(EXIT_SUCCESS);
- 	}
- 
- 	if (argc-optind == 1)
--- 
-1.7.4.1
+Sounds good, I'll merge them.
 
+Thanks,
 
+Petr
 
+--=20
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--MfFXiAuoTsnnDAfZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAk+w1gsACgkQnZxG0T6qDD3FuwCeKGlAp3dU0HsTWCmXG6T6lEOK
+QmoAnjQm86F1O6WpTj0fMdXPRuEHA2Hz
+=GH1v
+-----END PGP SIGNATURE-----
+
+--MfFXiAuoTsnnDAfZ--
