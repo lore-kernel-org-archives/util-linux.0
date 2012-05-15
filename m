@@ -1,38 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:60247 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755290Ab2EWUgD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 23 May 2012 16:36:03 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH 1/3] logger: avoid explicit fclose(stdout)
-Date: Wed, 23 May 2012 16:35:58 -0400
-Message-Id: <1337805360-16469-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:62298 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752211Ab2EOJYi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:24:38 -0400
+Date: Tue, 15 May 2012 11:24:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        "James R. Van Zandt\"" <jrv@debian.org>
+Subject: Re: [PATCH] rev.1: mention tac(1) in 'SEE ALSO' section
+Message-ID: <20120515092407.GG8268@x2.net.home>
+References: <1336910266-13854-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1336910266-13854-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is done for us via an atexit hook since c05a80ca6385b8. Avoids a
-useless 'Write error' on exit whenever invoking the tool.
+On Sun, May 13, 2012 at 01:57:46PM +0200, Petr Uzel wrote:
+>  text-utils/rev.1 |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/logger.c |    2 --
- 1 file changed, 2 deletions(-)
+ Applied, thanks.
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 067272a..19b4c47 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -248,8 +248,6 @@ main(int argc, char **argv) {
- 	else
- 		LogSock = myopenlog(usock);
- 
--	(void) fclose(stdout);
--
- 	/* log input line if appropriate */
- 	if (argc > 0) {
- 		register char *p, *endp;
 -- 
-1.7.10.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
