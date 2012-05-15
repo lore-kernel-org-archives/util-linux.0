@@ -1,40 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:35224 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:54798 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757987Ab2EaIGV (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 31 May 2012 04:06:21 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id D60909B119
-	for <util-linux-ng@vger.kernel.org>; Thu, 31 May 2012 10:06:20 +0200 (CEST)
-Message-ID: <4FC72679.7050307@suse.de>
-Date: Thu, 31 May 2012 10:06:17 +0200
-From: Ludwig Nussel <ludwig.nussel@suse.de>
+	id S1752913Ab2EOJft (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:35:49 -0400
+Date: Tue, 15 May 2012 11:35:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/4] lib,include: move get_terminal_width() to ttyutils.h
+Message-ID: <20120515093525.GK8268@x2.net.home>
+References: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
+ <1337071744-7056-3-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-To: util-linux-ng@vger.kernel.org
-Subject: Re: [pull] su.1 manual page
-References: <CAG27Bk3YrUc4cwpUou5o005S165LOc4C8bPHp-EnkwAz2WsFng@mail.gmail.com>
-In-Reply-To: <CAG27Bk3YrUc4cwpUou5o005S165LOc4C8bPHp-EnkwAz2WsFng@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337071744-7056-3-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sami Kerola wrote:
-> Please find from my git a su(1) manual page candidate.  The text is
-> almost one to one copy with GNU Coreutils 'su invocation' info page,
-> so it is questionable if I "wrote" the man page.  To feel a little
+On Tue, May 15, 2012 at 10:49:03AM +0200, Petr Uzel wrote:
+>  include/ttyutils.h |   29 +++++++++++++++++++++++++++++
+>  lib/tt.c           |   28 +---------------------------
+>  2 files changed, 30 insertions(+), 27 deletions(-)
 
-Hmm, I was about to write a man page from scratch. Should I continue or
-do we use the coreutils man page?
-
-cu
-Ludwig
-
-PS: the section about the wheel group can be removed :)
+ Applied, thanks.
 
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
