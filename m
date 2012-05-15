@@ -1,33 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31556 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:5625 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754541Ab2EGPlO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 May 2012 11:41:14 -0400
-Date: Mon, 7 May 2012 17:41:03 +0200
+	id S1751576Ab2EOJW5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:22:57 -0400
+Date: Tue, 15 May 2012 11:22:33 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Petr Pisar <petr.pisar@atlas.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: addpart and delpart tools are not internationalized
-Message-ID: <20120507154103.GB23825@x2.net.home>
-References: <20120507133415.GA7097@album.bayer.uni.cx>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/3] mkswap: use is_mounted() instead of check_mount()
+Message-ID: <20120515092233.GD8268@x2.net.home>
+References: <1336909472-12277-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120507133415.GA7097@album.bayer.uni.cx>
+In-Reply-To: <1336909472-12277-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 07, 2012 at 03:34:15PM +0200, Petr Pisar wrote:
-> I've just found addpart and delpart does not put any message into most recent
-> (2.21-rc2) gettext translation catalog template. Thus the output of these two
-> tools cannot be translated.
+On Sun, May 13, 2012 at 01:44:30PM +0200, Petr Uzel wrote:
+>  disk-utils/Makefile.am |    1 +
+>  disk-utils/mkswap.c    |   26 ++------------------------
+>  2 files changed, 3 insertions(+), 24 deletions(-)
 
- Already fixed by:
-
- commit 791130208506f50be63672fa733a70db871900da
- Author: Sami Kerola <kerolasa@iki.fi>
- Date:   Sat Mar 17 18:04:37 2012 +0100
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
