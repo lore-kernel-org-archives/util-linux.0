@@ -1,38 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay1.mentorg.com ([192.94.38.131]:55104 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752948Ab2EYSl1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:41:27 -0400
-From: Thomas Schwinge <thomas@codesourcery.com>
-To: util-linux@vger.kernel.org, ludwig.nussel@suse.de
-Cc: Thomas Schwinge <thomas@codesourcery.com>
-Subject: [PATCH 3/3] su: Mention SUID_* feature.
-Date: Fri, 25 May 2012 20:41:01 +0200
-Message-Id: <1337971261-20684-4-git-send-email-thomas@codesourcery.com>
-In-Reply-To: <1337971261-20684-1-git-send-email-thomas@codesourcery.com>
-References: <87zk8wboif.fsf@schwinge.name>
- <1337971261-20684-1-git-send-email-thomas@codesourcery.com>
+Received: from mx1.redhat.com ([209.132.183.28]:1635 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755663Ab2EOJVd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:21:33 -0400
+Date: Tue, 15 May 2012 11:21:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>, Regid Ichira <regid23@yahoo.com>
+Subject: Re: [PATCH] lsblk.8: improve wording
+Message-ID: <20120515092108.GB8268@x2.net.home>
+References: <1336900100-9406-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1336900100-9406-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
----
- Documentation/howto-compilation.txt |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Sun, May 13, 2012 at 11:08:20AM +0200, Petr Uzel wrote:
+>  misc-utils/lsblk.8 |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/howto-compilation.txt b/Documentation/howto-compilation.txt
-index 3617b34..bebe0d2 100644
---- a/Documentation/howto-compilation.txt
-+++ b/Documentation/howto-compilation.txt
-@@ -25,7 +25,7 @@ Compiling
- 	./configure SUID_CFLAGS="-fpie" SUID_LDFLAGS="-pie"
- 
- 	The SUID_* feature is currently supported for chfn, chsh,
--	newgrp, write, mount, and umount.
-+	newgrp, su, write, mount, and umount.
- 
- 	Preferred compilation options for developers, when
- 	using gcc, are:
+ Applied, thanks.
+
 -- 
-1.7.9
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
