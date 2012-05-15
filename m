@@ -1,51 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:38550 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:39035 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759952Ab2EQHl1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 May 2012 03:41:27 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 05A698FFDD
-	for <util-linux@vger.kernel.org>; Thu, 17 May 2012 09:41:27 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 4/4] libuuid: use max() from c.h
-Date: Thu, 17 May 2012 09:41:09 +0200
-Message-Id: <1337240469-24539-4-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
-References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+	id S1752437Ab2EOJfP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:35:15 -0400
+Date: Tue, 15 May 2012 11:34:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/4] libuuid,uuidd: move read_all to include/all-io.h
+Message-ID: <20120515093449.GJ8268@x2.net.home>
+References: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
+ <1337071744-7056-2-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337071744-7056-2-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, May 15, 2012 at 10:49:02AM +0200, Petr Uzel wrote:
+>  include/all-io.h       |   25 +++++++++++++++++++++++++
+>  libuuid/src/gen_uuid.c |   26 +-------------------------
+>  misc-utils/uuidd.c     |   24 ------------------------
+>  3 files changed, 26 insertions(+), 49 deletions(-)
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- libuuid/src/gen_uuid.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ Applied, thanks.
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index 9d5575b..613da02 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -91,6 +91,7 @@
- #include "uuidP.h"
- #include "uuidd.h"
- #include "randutils.h"
-+#include "c.h"
- 
- #ifdef HAVE_TLS
- #define THREAD_LOCAL static __thread
-@@ -150,9 +151,6 @@ static int get_node_id(unsigned char *node_id)
-  * just sizeof(struct ifreq)
-  */
- #ifdef HAVE_SA_LEN
--#ifndef max
--#define max(a,b) ((a) > (b) ? (a) : (b))
--#endif
- #define ifreq_size(i) max(sizeof(struct ifreq),\
-      sizeof((i).ifr_name)+(i).ifr_addr.sa_len)
- #else
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
