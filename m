@@ -1,49 +1,144 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28396 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:55387 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754532Ab2E3Npt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 30 May 2012 09:45:49 -0400
-Date: Wed, 30 May 2012 15:42:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: su(1) wish list
-Message-ID: <20120530134219.GE374@x2.net.home>
-References: <4FBE3059.3030806@suse.de>
- <20120529090609.GO3757@x2.net.home>
- <20120529113418.GB374@x2.net.home>
- <4FC4BDE1.7000303@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4FC4BDE1.7000303@suse.de>
+	id S1758338Ab2EOItO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 04:49:14 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 0D7DB8FD0F
+	for <util-linux@vger.kernel.org>; Tue, 15 May 2012 10:49:14 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 2/4] libuuid,uuidd: move read_all to include/all-io.h
+Date: Tue, 15 May 2012 10:49:02 +0200
+Message-Id: <1337071744-7056-2-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
+References: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 29, 2012 at 02:15:29PM +0200, Ludwig Nussel wrote:
-> Karel Zak wrote:
-> > On Tue, May 29, 2012 at 11:06:09AM +0200, Karel Zak wrote:
-> >> On Thu, May 24, 2012 at 02:58:01PM +0200, Ludwig Nussel wrote:
-> >>> I've also filed a pull request on github:
-> >>> https://github.com/karelzak/util-linux/pull/10
-> >>
-> >>  Merged, but you forgot man page ;-) I don't think we need whole
-> >>  history for the man page, so just copy and edit any existing su.1
-> >>  man page and send it as a patch.
-> 
-> The su man page from coreutils is pretty brief. More docu is in the
-> info page. The license is the FDL, would that be ok or would a new
-> man page from scratch be better? Or maybe the one from shadow-utils?
 
- It should be pretty simple to write a new man page from scratch --
- as an example see some new man pages in util-linux (e.g. lsblk, lslocks, ...)
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ include/all-io.h       |   25 +++++++++++++++++++++++++
+ libuuid/src/gen_uuid.c |   26 +-------------------------
+ misc-utils/uuidd.c     |   24 ------------------------
+ 3 files changed, 26 insertions(+), 49 deletions(-)
 
-> No idea why it is different. Probably legacy stuff. I see no reason
-> why to use different values than login though.
-
- OK, I'll (or Sami in his cleanup) will change it. Thanks.
-
-    Karel
-
+diff --git a/include/all-io.h b/include/all-io.h
+index 4d1ae1e..b79d702 100644
+--- a/include/all-io.h
++++ b/include/all-io.h
+@@ -44,4 +44,29 @@ static inline int fwrite_all(const void *ptr, size_t size,
+ 	return 0;
+ }
+ 
++static inline ssize_t read_all(int fd, char *buf, size_t count)
++{
++	ssize_t ret;
++	ssize_t c = 0;
++	int tries = 0;
++
++	memset(buf, 0, count);
++	while (count > 0) {
++		ret = read(fd, buf, count);
++		if (ret <= 0) {
++			if ((errno == EAGAIN || errno == EINTR || ret == 0) &&
++			    (tries++ < 5))
++				continue;
++			return c ? c : -1;
++		}
++		if (ret > 0)
++			tries = 0;
++		count -= ret;
++		buf += ret;
++		c += ret;
++	}
++	return c;
++}
++
++
+ #endif /* UTIL_LINUX_ALL_IO_H */
+diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+index 93d292a..9d5575b 100644
+--- a/libuuid/src/gen_uuid.c
++++ b/libuuid/src/gen_uuid.c
+@@ -87,6 +87,7 @@
+ #include <sys/syscall.h>
+ #endif
+ 
++#include "all-io.h"
+ #include "uuidP.h"
+ #include "uuidd.h"
+ #include "randutils.h"
+@@ -334,31 +335,6 @@ try_again:
+ }
+ 
+ #if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
+-/* used in get_uuid_via_daemon() only */
+-static ssize_t read_all(int fd, char *buf, size_t count)
+-{
+-	ssize_t ret;
+-	ssize_t c = 0;
+-	int tries = 0;
+-
+-	memset(buf, 0, count);
+-	while (count > 0) {
+-		ret = read(fd, buf, count);
+-		if (ret <= 0) {
+-			if ((errno == EAGAIN || errno == EINTR || ret == 0) &&
+-			    (tries++ < 5))
+-				continue;
+-			return c ? c : -1;
+-		}
+-		if (ret > 0)
+-			tries = 0;
+-		count -= ret;
+-		buf += ret;
+-		c += ret;
+-	}
+-	return c;
+-}
+-
+ /*
+  * Try using the uuidd daemon to generate the UUID
+  *
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 65ee55a..3dde49e 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -101,30 +101,6 @@ static void create_daemon(void)
+ 		err(EXIT_FAILURE, "setreuid");
+ }
+ 
+-static ssize_t read_all(int fd, char *buf, size_t count)
+-{
+-	ssize_t ret;
+-	ssize_t c = 0;
+-	int tries = 0;
+-
+-	memset(buf, 0, count);
+-	while (count > 0) {
+-		ret = read(fd, buf, count);
+-		if (ret <= 0) {
+-			if ((errno == EAGAIN || errno == EINTR || ret == 0) &&
+-			    (tries++ < 5))
+-				continue;
+-			return c ? c : -1;
+-		}
+-		if (ret > 0)
+-			tries = 0;
+-		count -= ret;
+-		buf += ret;
+-		c += ret;
+-	}
+-	return c;
+-}
+-
+ static const char *cleanup_pidfile, *cleanup_socket;
+ 
+ static void terminate_intr(int signo CODE_ATTR((unused)))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
