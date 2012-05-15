@@ -1,44 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:45481 "EHLO vostochny.stro.at"
+Received: from mx1.redhat.com ([209.132.183.28]:37552 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756683Ab2EVOUr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 May 2012 10:20:47 -0400
-From: maximilian attems <max@stro.at>
-To: util-linux@vger.kernel.org
-Cc: maximilian attems <max@stro.at>
-Subject: [PATCH] include: [c.h] protect container_of
-Date: Tue, 22 May 2012 16:20:42 +0200
-Message-Id: <1337696442-3344-1-git-send-email-max@stro.at>
+	id S932120Ab2EOJFF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 May 2012 05:05:05 -0400
+Date: Tue, 15 May 2012 11:05:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Vladimir =?utf-8?Q?'=CF=86-coder=2Fphcoder'?= Serbinenko"
+	<phcoder@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] allow to create a minix3fs with a blocksize != 1K
+Message-ID: <20120515090501.GA8268@x2.net.home>
+References: <4FAAE6EA.3080308@gmail.com>
+ <4FAAE7FB.2060808@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4FAAE7FB.2060808@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-fixes lots of warning noise:
-../../../include/c.h:112:0: warning: "container_of" redefined [enabled
-by default]
-/usr/lib/klibc/include/stddef.h:52:0: note: this is the location of the
-previous definition
+On Wed, May 09, 2012 at 11:56:11PM +0200, Vladimir 'φ-coder/phcoder' Serbinenko wrote:
+> Have used it to test minixfs support with various block sizes.
 
-Signed-off-by: maximilian attems <max@stro.at>
----
- include/c.h |    2 ++
- 1 file changed, 2 insertions(+)
+ Looks good, but
 
-diff --git a/include/c.h b/include/c.h
-index b6d8ced..8c8db73 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -109,9 +109,11 @@
- #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
- #endif
- 
-+#ifndef container_of
- #define container_of(ptr, type, member) ({                       \
- 	const __typeof__( ((type *)0)->member ) *__mptr = (ptr); \
- 	(type *)( (char *)__mptr - offsetof(type,member) );})
-+#endif
- 
- #ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
- # ifdef HAVE___PROGNAME
+> +int MINIX_BLOCK_SIZE = 0;
+
+ is dirty, what about
+
+   int block_size = 0;
+
+
+ Vladimir, use also 'Signed-off-by:' in commit message for your patches, please.
+
+ Thanks!
+
+    Karel
+
 -- 
-1.7.10
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
