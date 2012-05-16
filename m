@@ -1,116 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:52946 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753132Ab2ETQ5f (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 20 May 2012 12:57:35 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] libmount/utils: Use binary search to compare pseudofs
-Date: Sun, 20 May 2012 12:57:27 -0400
-Message-Id: <1337533047-19151-1-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <1337532472.2677.19.camel@offbook>
-References: <1337532472.2677.19.camel@offbook>
+Received: from cantor2.suse.de ([195.135.220.15]:44075 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965868Ab2EPIii (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 May 2012 04:38:38 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id BE22791EDB
+	for <util-linux@vger.kernel.org>; Wed, 16 May 2012 10:38:37 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 1/2] blkid: use symbolic exit code
+Date: Wed, 16 May 2012 10:38:31 +0200
+Message-Id: <1337157512-31920-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-It's the responsibility of anyone adding to this list in the future to
-ensure that the list remains sorted.
 
-While we're at it, expand this list of known pseudofs types.
-
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- libmount/src/utils.c |   69 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 44 insertions(+), 25 deletions(-)
+ misc-utils/blkid.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index b824edc..336fe8d 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -72,6 +72,15 @@ int mnt_parse_offset(const char *str, size_t len, uintmax_t *res)
- 	return rc;
- }
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index 8007840..4f7050f 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -720,7 +720,7 @@ int main(int argc, char **argv)
  
-+/* used as a callback by bsearch in mnt_fstype_is_pseudofs() */
-+static int fstype_cmp(const void *v1, const void *v2)
-+{
-+	const char *s1 = *(const char **)v1;
-+	const char *s2 = *(const char **)v2;
-+
-+	return strcmp(s1, s2);
-+}
-+
- /* returns basename and keeps dirname in the @path, if @path is "/" (root)
-  * then returns empty string */
- static char *stripoff_last_component(char *path)
-@@ -214,31 +223,41 @@ char *mnt_unmangle(const char *str)
-  */
- int mnt_fstype_is_pseudofs(const char *type)
- {
--	if (!type)
--		return 0;
--	if (strcmp(type, "none")  == 0 ||
--	    strcmp(type, "proc")  == 0 ||
--	    strcmp(type, "tmpfs") == 0 ||
--	    strcmp(type, "sysfs") == 0 ||
--	    strcmp(type, "autofs") == 0 ||
--	    strcmp(type, "devpts") == 0||
--	    strcmp(type, "cgroup") == 0 ||
--	    strcmp(type, "devtmpfs") == 0 ||
--	    strcmp(type, "devfs") == 0 ||
--	    strcmp(type, "dlmfs") == 0 ||
--	    strcmp(type, "cpuset") == 0 ||
--	    strcmp(type, "configfs") == 0 ||
--	    strcmp(type, "securityfs") == 0 ||
--	    strcmp(type, "hugetlbfs") == 0 ||
--	    strcmp(type, "rpc_pipefs") == 0 ||
--	    strcmp(type, "fusectl") == 0 ||
--	    strcmp(type, "mqueue") == 0 ||
--	    strcmp(type, "binfmt_misc") == 0 ||
--	    strcmp(type, "fuse.gvfs-fuse-daemon") == 0 ||
--	    strcmp(type, "debugfs") == 0 ||
--	    strcmp(type, "spufs") == 0)
--		return 1;
--	return 0;
-+	/* This array must remain sorted when adding new fstypes */
-+	static const char *pseudofs[] = {
-+		"anon_inodefs",
-+		"autofs",
-+		"bdev",
-+		"binfmt_misc",
-+		"cgroup",
-+		"configfs",
-+		"cpuset",
-+		"debugfs",
-+		"devfs",
-+		"devpts",
-+		"devtmpfs",
-+		"dlmfs",
-+		"fuse.gvfs-fuse-daemon",
-+		"fusectl",
-+		"hugetlbfs",
-+		"mqueue",
-+		"nfsd",
-+		"none",
-+		"pipefs",
-+		"proc",
-+		"pstore",
-+		"ramfs",
-+		"rootfs",
-+		"rpc_pipefs",
-+		"securityfs",
-+		"sockfs",
-+		"spufs",
-+		"sysfs",
-+		"tmpfs"
-+	};
-+
-+	return !(bsearch(&type, pseudofs, ARRAY_SIZE(pseudofs),
-+				sizeof(char*), fstype_cmp) == NULL);
- }
- 
- /**
+ 			while (blkid_superblocks_get_name(idx++, &name, NULL) == 0)
+ 				printf("%s\n", name);
+-			exit(0);
++			exit(EXIT_SUCCESS);
+ 		}
+ 		case 'o':
+ 			if (!strcmp(optarg, "value"))
 -- 
-1.7.10.2
+1.7.7
 
