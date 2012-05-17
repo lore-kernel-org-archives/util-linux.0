@@ -1,130 +1,54 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 6/6] fdisk: add debug support
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 20 May 2012 18:11:39 +0200
-Message-ID: <1337530299.2677.17.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:38499 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753105Ab2EQHhc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 May 2012 03:37:32 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 401428FA98
+	for <util-linux@vger.kernel.org>; Thu, 17 May 2012 09:37:31 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] blkid: stop device probing if error is detected
+Date: Thu, 17 May 2012 09:37:25 +0200
+Message-Id: <1337240245-24300-1-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <20120516101346.GR8268@x2.net.home>
+References: <20120516101346.GR8268@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+blkid -p dev1 dev2 [...] now stops upon first error detected and
+returns correct value. Previously, if error was detected with dev1,
+it continued with dev2 anyways and so the return value corresponded
+to the last device only.
 
-Based on libmnt, this patch adds basic debugging support for fdisk. Currently only CONTEXT is debugged, yet keeps exact functionality
-as libmnt/libblkid.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Reported-by: Bernhard Voelker <bernhard.voelker@siemens-enterprise.com>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- fdisk/fdisk.c |    2 ++
- fdisk/fdisk.h |   27 +++++++++++++++++++++++++++
- fdisk/utils.c |   33 ++++++++++++++++++++++++++++++++-
- 3 files changed, 61 insertions(+), 1 deletions(-)
+ misc-utils/blkid.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 400e682..9b91fa0 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -2168,6 +2168,8 @@ int main(int argc, char **argv)
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index 52b2a4b..25e6c00 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -868,11 +868,14 @@ int main(int argc, char **argv)
+ 				goto exit;
  		}
- 	}
  
-+	fdisk_init_debug(0);
-+
- 	if (user_set_sector_size && argc-optind != 1)
- 		printf(_("Warning: the -b (set sector size) option should"
- 			 " be used with one specified device\n"));
-diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
-index c43517c..2471541 100644
---- a/fdisk/fdisk.h
-+++ b/fdisk/fdisk.h
-@@ -32,6 +32,33 @@
- #define cround(n)	(display_in_cyl_units ? ((n)/units_per_sector)+1 : (n))
- #define scround(x)	(((x)+units_per_sector-1)/units_per_sector)
- 
-+/* fdisk debugging flags/options */
-+#define FDISK_DEBUG_INIT	(1 << 1)
-+#define FDISK_DEBUG_CONTEXT	(1 << 2)
-+#define FDISK_DEBUG_ALL		0xFFFF
-+
-+# define ON_DBG(m, x)	do { \
-+				if ((FDISK_DEBUG_ ## m) & fdisk_debug_mask) { \
-+					x; \
-+				}	   \
-+			} while (0)
-+
-+# define DBG(m, x)	do { \
-+				if ((FDISK_DEBUG_ ## m) & fdisk_debug_mask) { \
-+					fprintf(stderr, "%d: fdisk: %8s: ", getpid(), # m); \
-+					x;				\
-+				} \
-+			} while (0)
-+
-+# define DBG_FLUSH	do { \
-+				if (fdisk_debug_mask && \
-+				    fdisk_debug_mask != FDISK_DEBUG_INIT) \
-+					fflush(stderr);			\
-+			} while(0)
-+
-+extern int fdisk_debug_mask;
-+extern void fdisk_init_debug(int mask);
-+
- struct partition {
- 	unsigned char boot_ind;         /* 0x80 - active */
- 	unsigned char head;             /* starting head */
-diff --git a/fdisk/utils.c b/fdisk/utils.c
-index ad83d7f..9f071a6 100644
---- a/fdisk/utils.c
-+++ b/fdisk/utils.c
-@@ -23,6 +23,35 @@
- #include "common.h"
- #include "fdisk.h"
- 
-+int fdisk_debug_mask;
-+
-+/**
-+ * fdisk_init_debug:
-+ * @mask: debug mask (0xffff to enable full debuging)
-+ *
-+ * If the @mask is not specified then this function reads
-+ * FDISK_DEBUG environment variable to get the mask.
-+ *
-+ * Already initialized debugging stuff cannot be changed. It does not
-+ * have effect to call this function twice.
-+ */
-+void fdisk_init_debug(int mask)
-+{
-+	if (fdisk_debug_mask & FDISK_DEBUG_INIT)
-+		return;
-+	if (!mask) {
-+		char *str = getenv("FDISK_DEBUG");
-+		if (str)
-+			fdisk_debug_mask = strtoul(str, 0, 0);
-+	} else
-+		fdisk_debug_mask = mask;
-+
-+	if (fdisk_debug_mask)
-+		printf("fdisk: debug mask set to 0x%04x.\n",
-+		       fdisk_debug_mask);
-+	fdisk_debug_mask |= FDISK_DEBUG_INIT;
-+}
-+
- /**
-  * fdisk_new_context:
-  *
-@@ -37,9 +66,11 @@ struct fdisk_context *fdisk_new_context_from_filename(const char *fname)
- 	 * Attempt to open the device with r-w permissions
- 	 * by default, otherwise try read-only.
- 	 */
--	if ((fd = open(fname, O_RDWR)) < 0)
-+	if ((fd = open(fname, O_RDWR)) < 0) {
- 		if ((fd = open(fname, O_RDONLY)) < 0)
- 			goto ret;
-+		DBG(CONTEXT, printf("opened %s as read-only\n", fname));
-+	}
- 
- 	cxt = calloc(1, sizeof(*cxt));
- 	if (!cxt)
+-		for (i = 0; i < numdev; i++)
++		for (i = 0; i < numdev; i++) {
+ 			err = lowprobe_device(pr, devices[i], lowprobe, show,
+ 					output_format,
+ 					(blkid_loff_t) offset,
+ 					(blkid_loff_t) size);
++			if (err)
++				break;
++		}
+ 		blkid_free_probe(pr);
+ 	} else if (eval) {
+ 		/*
 -- 
-1.7.4.1
+1.7.7
+
