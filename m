@@ -1,122 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:48134 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757233Ab2EPJYO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 May 2012 05:24:14 -0400
-Date: Wed, 16 May 2012 11:24:09 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+Received: from caiajhbdccac.dreamhost.com ([208.97.132.202]:34626 "EHLO
+	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753777Ab2ETQLg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 20 May 2012 12:11:36 -0400
+Subject: [PATCH 4/6] fdisk: use BSD label header
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/2] blkid: introduce symbolic names for different blkid
- exit codes
-Message-ID: <20120516092408.GA3670@foxbat.suse.cz>
-References: <1337157512-31920-1-git-send-email-petr.uzel@suse.cz>
- <1337157512-31920-2-git-send-email-petr.uzel@suse.cz>
- <7856072A9D04C24B82DFE2B1112FE38A0F1E5D2336@MCHP058A.global-ad.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
-In-Reply-To: <7856072A9D04C24B82DFE2B1112FE38A0F1E5D2336@MCHP058A.global-ad.net>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 20 May 2012 18:11:33 +0200
+Message-ID: <1337530293.2677.15.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Davidlohr Bueso <dave@gnu.org>
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Move bsd specific function definitions into its own header file and include it in fdisk code.
 
-On Wed, May 16, 2012 at 10:52:40AM +0200, Voelker, Bernhard wrote:
-> Petr Uzel wrote:
->=20
-> >  #include "ismounted.h"
-> > =20
-> > -#define STRTOXX_EXIT_CODE	4		/* strtoxx_or_err() */
-> > +#define STRTOXX_EXIT_CODE	BLKID_EXIT_OTHER	/* strtoxx_or_err() */
->=20
-> STRTOXX_EXIT_CODE is not used in blkid.c. Remove it?
-> ... or if it used in strutils.h, then this is not a nice interface.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c         |    1 +
+ fdisk/fdisk.h         |    6 ------
+ fdisk/fdiskbsdlabel.h |    5 +++++
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Yep, it is used in strutils.h.
-
->=20
-> >  #include "strutils.h"
-> >  #include "closestream.h"
-> >  #include "ttyutils.h"
-> > @@ -484,7 +488,7 @@ static int lowprobe_device(blkid_probe pr, const ch=
-ar *devname,
-> >  	fd =3D open(devname, O_RDONLY);
-> >  	if (fd < 0) {
-> >  		fprintf(stderr, "error: %s: %m\n", devname);
-> > -		return 2;
-> > +		return BLKID_EXIT_NOTFOUND;
-> >  	}
-> >  	if (blkid_probe_set_device(pr, fd, offset, size))
-> >  		goto done;
-> > @@ -551,9 +555,9 @@ done:
-> >  	close(fd);
-> > =20
-> >  	if (rc =3D=3D -2)
-> > -		return 8;	/* ambivalent probing result */
-> > +		return BLKID_EXIT_AMBIVAL;	/* ambivalent probing result */
-> >  	if (!nvals)
-> > -		return 2;	/* nothing detected */
-> > +		return BLKID_EXIT_NOTFOUND;	/* nothing detected */
-> > =20
-> >  	return 0;		/* success */
-> >  }
->=20
-> These are not exit() codes, but return codes.=20
-
-Strictly speaking, yes. But the idea is that those codes are (or
-rather should be) propagated as exit value anyways...
-
-> That value doesn't seem
-> to be of much interest anyway, because it's used only here in main()
-> in a for-loop, forgetting the return value of the previous iteration:
->=20
->                for (i =3D 0; i < numdev; i++)
->                         err =3D lowprobe_device(pr, devices[i], lowprobe,=
- show,
->                                         output_format,
->                                         (blkid_loff_t) offset,
->                                         (blkid_loff_t) size);
-
-Hmm, the return value depends only on the last argument (device). I
-don't think this is intentional. Karel?
-
-        # blkid -p /dev/sda /dev/sdb ; echo $?
-        /dev/sda: PTTYPE=3D"gpt"=20
-        error: /dev/sdb: No such file or directory
-        2
-       =20
-        # blkid -p /dev/sdb /dev/sda ; echo $?
-        error: /dev/sdb: No such file or directory
-        /dev/sda: PTTYPE=3D"gpt"=20
-        0
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 08afb45..b6c5758 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -39,6 +39,7 @@
+ #include "fdiskaixlabel.h"
+ #include "fdiskmaclabel.h"
+ #include "fdiskdoslabel.h"
++#include "fdiskbsdlabel.h"
+ 
+ #ifdef HAVE_LINUX_COMPILER_H
+ #include <linux/compiler.h>
+diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
+index 0dafbf8..82888dc 100644
+--- a/fdisk/fdisk.h
++++ b/fdisk/fdisk.h
+@@ -185,9 +185,3 @@ static inline int is_cleared_partition(struct partition *p)
+ 		 p->sys_ind || p->end_head || p->end_sector || p->end_cyl ||
+ 		 get_start_sect(p) || get_nr_sects(p));
+ }
+-
+-/* prototypes for fdiskbsdlabel.c */
+-extern void bsd_command_prompt(void);
+-extern int check_osf_label(void);
+-extern int btrydev(char * dev);
+-extern void xbsd_print_disklabel(int);
+diff --git a/fdisk/fdiskbsdlabel.h b/fdisk/fdiskbsdlabel.h
+index e58e2ff..9bea7cf 100644
+--- a/fdisk/fdiskbsdlabel.h
++++ b/fdisk/fdiskbsdlabel.h
+@@ -238,4 +238,9 @@ static struct systypes xbsd_fstypes[] = {
+ #define	BSD_D_CHAIN    	0x10		/* can do back-back transfers */
+ #define	BSD_D_DOSPART	0x20		/* within MSDOS partition */
+ 
++extern void bsd_command_prompt(void);
++extern int check_osf_label(void);
++extern int btrydev(char * dev);
++extern void xbsd_print_disklabel(int);
++
+ #endif /* FDISK_BSD_LABEL_H */
+-- 
+1.7.4.1
 
 
->=20
-> Have a nice day,
-> Berny
-=20
-Thanks,=20
 
-Petr
 
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk+zcjgACgkQnZxG0T6qDD1WvwCfVIJmOn95VXFN2yWK9CTpekYC
-Y5YAn1qR1tAvcltsU+ZSPBZ8DizO7mxv
-=PNUg
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
