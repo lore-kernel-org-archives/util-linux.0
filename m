@@ -1,61 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from damascus.uab.es ([158.109.168.135]:17704 "EHLO damascus.uab.es"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751859Ab2EDRIY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 May 2012 13:08:24 -0400
-Received: from damascus.uab.es ([127.0.0.1])
- by damascus.uab.es (Sun Java System Messaging Server 6.1 HotFix 0.10 (built
- Jan  6 2005)) with ESMTP id <0M3I00G19CXZRF30@damascus.uab.es> for
- util-linux@vger.kernel.org; Fri, 04 May 2012 19:08:23 +0200 (CEST)
-Received: from aomail.uab.es ([158.109.65.1])
- by damascus.uab.es (Sun Java	System Messaging Server 6.1 HotFix 0.10 (builtJan
- 6 2005)) with ESMTP id	<0M3I005POCXZMTY2@damascus.uab.es>
- forutil-linux@vger.kernel.org; Fri, 04 May 2012 19:08:23 +0200 (CEST)
-Date: Fri, 04 May 2012 19:08:30 +0200
+Return-Path: dave@gnu.org
+Date: Mon, 21 May 2012 12:44:45 +0200
 From: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH] fdisk: fix segfault on bsd label
-In-reply-to: <CAMFXF531o-SWQb3-Hcw02jwVBeYnoN8HLcbPfTPTuPxOHj8QEg@mail.gmail.com>
-To: Francesco Cosoleto <cosoleto@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Message-id: <1336151310.13569.0.camel@offworld>
+Subject: Re: [PATCH 5/6] fdisk: introduce fdisk context
+In-reply-to: <20120521094054.GA14560@x2.net.home>
+To: Karel Zak <kzak@redhat.com>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Message-id: <1337597085.4538.8.camel@offworld>
 MIME-version: 1.0
 Content-type: text/plain; charset=UTF-8
-References: <1336131332.17719.1.camel@offworld>
- <"CAMFXF531o-SWQb3-Hcw02jwVBeY noN8HLcbPfTPTuPxOHj8QEg"@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+References: <1337530296.2677.16.camel@offbook>
+ <20120521094054.GA14560@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 2012-05-04 at 15:53 +0200, Francesco Cosoleto wrote:
-> 2012/5/4 Davidlohr Bueso <dave@gnu.org>:
-> > From: Davidlohr Bueso <dave@gnu.org>
-> >
-> > Commit 8db8295d824cd0c8cba9385e4635d6e311d69d3f added a regression that causes the program to crash when
-> > touching the partition structure (pte) for BSD/OSF labels. Since DOS has its own initialization function,
-> > allow BSD labels to use it as well.
-> >
-> > Steps to reproduce:
-> >
-> > $> fdisk bsd.img (obtained from blkid regression test files)
-> > Command (m for help): p
-> > ...
-> > I/O size (minimum/optimal): 512 bytes / 512 bytes
-> > Disk identifier: 0x00000000
-> >
-> > Segmentation fault
+On Mon, 2012-05-21 at 11:40 +0200, Karel Zak wrote:
+> On Sun, May 20, 2012 at 06:11:36PM +0200, Davidlohr Bueso wrote:
+> > +struct fdisk_context *fdisk_new_context_from_filename(const char *fname)
+> > +{
+> > +	int fd;
+> > +	struct fdisk_context *cxt = NULL;
+> > +
+> > +	/*
+> > +	 * Attempt to open the device with r-w permissions
+> > +	 * by default, otherwise try read-only.
+> > +	 */
+> > +	if ((fd = open(fname, O_RDWR)) < 0)
+> > +		if ((fd = open(fname, O_RDONLY)) < 0)
+> > +			goto ret;
 > 
-> Thanks Davidlohr for pointing out that regression. Does it occurs with
-> the command to print the partition table when the drive has a BSD
-> label and hasn't a valid DOS label, and it has no partition? Fdisk
-> switches from BSD label to DOS label without initializing DOS
-> structures, right?
-
->From my analysis, yes.
-
+>             return NULL;
 > 
-> fdisk.c:
->     bsd_command_prompt();
->     /* If we return we may want to make an empty DOS label? */
->     disklabel = DOS_LABEL;
+> > +	cxt = calloc(1, sizeof(*cxt));
+> > +	if (!cxt)
+> > +		goto ret;
+> > +
+> > +	cxt->dev_fd = fd;
+> > +	cxt->dev_path = strdup(fname);
+> > +	if (!cxt->dev_path)
+> > +		return NULL;
 > 
+>         goto fail;
+> 
+>  Please, think about it as about library, it meas without memory and
+>  fd leaks :-)
+> 
+> > +ret:
+> > +	return cxt;
+> > +}
+> > +
+> 
+>    return cxt;
+> 
+> fail:
+>    errsv = errno;
+Hmm I hadn't considered saving errno stuff...
 
+>    fdisk_free_context(cxt);
 
+Yes, we need to plug that descriptor leak! fdisk_free_context() also
+frees cxt->dev_path, so we should really just call close(fd).
+
+Thanks,
+Davidlohr
+
+>    errno = errsv;
+>    return NULL;
+> 
+> 
+>     Karel
+> 
