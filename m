@@ -1,67 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:37745 "EHLO
-	homiemail-a62.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752606Ab2ETQL2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 20 May 2012 12:11:28 -0400
-Subject: [PATCH 2/6] fdisk: remove bogus statement
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 20 May 2012 18:11:26 +0200
-Message-ID: <1337530286.2677.13.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:6085 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932141Ab2EUJ1d (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 May 2012 05:27:33 -0400
+Date: Mon, 21 May 2012 11:27:05 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/6] fdisk: refactor -s option
+Message-ID: <20120521092705.GA14390@x2.net.home>
+References: <1337530289.2677.14.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337530289.2677.14.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Sun, May 20, 2012 at 06:11:29PM +0200, Davidlohr Bueso wrote:
+> +static unsigned long long get_dev_sz(char *dev)
 
-usage() does not return, also move the help option handling to the bottom of the switch.
+It's number of blocks (1024-bytes) rather than size, what about
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+    get_dev_blocks()
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 2f3c119..9387795 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -2095,8 +2095,8 @@ static void command_prompt(void)
- 	}
- }
- 
--int
--main(int argc, char **argv) {
-+int main(int argc, char **argv)
-+{
- 	int j, c;
- 	int optl = 0, opts = 0;
- 
-@@ -2130,9 +2130,6 @@ main(int argc, char **argv) {
- 			else if (optarg && strcmp(optarg, "=nondos"))
- 				usage(stderr);
- 			break;
--		case 'h':
--			usage(stdout);
--			break;
- 		case 'H':
- 			user_heads = strtou32_or_err(optarg, _("invalid heads argument"));
- 			if (user_heads > 256)
-@@ -2160,6 +2157,8 @@ main(int argc, char **argv) {
- 		case 'v':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-+		case 'h':
-+			usage(stdout);
- 		default:
- 			usage(stderr);
- 		}
+or so...
+
+    Karel
+
 -- 
-1.7.4.1
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
