@@ -1,44 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from minas.ics.muni.cz ([147.251.4.40]:34917 "EHLO minas.ics.muni.cz"
+Received: from vostochny.stro.at ([78.47.22.85]:45481 "EHLO vostochny.stro.at"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756147Ab2EGNwG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 May 2012 09:52:06 -0400
-Received: from album.ics.muni.cz (album.ics.muni.cz [147.251.23.20])
-	by minas.ics.muni.cz (8.13.8/8.13.8/SuSE Linux 0.8) with SMTP id q47DYGxF005677
-	for <util-linux@vger.kernel.org>; Mon, 7 May 2012 15:34:17 +0200
-Date: Mon, 7 May 2012 15:34:15 +0200
-From: Petr Pisar <petr.pisar@atlas.cz>
+	id S1756683Ab2EVOUr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 May 2012 10:20:47 -0400
+From: maximilian attems <max@stro.at>
 To: util-linux@vger.kernel.org
-Subject: addpart and delpart tools are not internationalized
-Message-ID: <20120507133415.GA7097@album.bayer.uni.cx>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Cc: maximilian attems <max@stro.at>
+Subject: [PATCH] include: [c.h] protect container_of
+Date: Tue, 22 May 2012 16:20:42 +0200
+Message-Id: <1337696442-3344-1-git-send-email-max@stro.at>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+fixes lots of warning noise:
+../../../include/c.h:112:0: warning: "container_of" redefined [enabled
+by default]
+/usr/lib/klibc/include/stddef.h:52:0: note: this is the location of the
+previous definition
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: maximilian attems <max@stro.at>
+---
+ include/c.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Hello,
+diff --git a/include/c.h b/include/c.h
+index b6d8ced..8c8db73 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -109,9 +109,11 @@
+ #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+ #endif
+ 
++#ifndef container_of
+ #define container_of(ptr, type, member) ({                       \
+ 	const __typeof__( ((type *)0)->member ) *__mptr = (ptr); \
+ 	(type *)( (char *)__mptr - offsetof(type,member) );})
++#endif
+ 
+ #ifndef HAVE_PROGRAM_INVOCATION_SHORT_NAME
+ # ifdef HAVE___PROGNAME
+-- 
+1.7.10
 
-I've just found addpart and delpart does not put any message into most recent
-(2.21-rc2) gettext translation catalog template. Thus the output of these two
-tools cannot be translated.
-
--- Petr
-
---sm4nu43k4a2Rpi4c
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iF4EABEIAAYFAk+nz1cACgkQEsnFx2fG+qJ0GgD+Kdo/2MmS+epCU2eJR02CmSQE
-xjwT+DjaIt1uZHDgdE8A+wWFaAc40lvg+i5aQ7HUqnhe2oXPv/CmegR7QFCWoW+z
-=rsAp
------END PGP SIGNATURE-----
-
---sm4nu43k4a2Rpi4c--
