@@ -1,54 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay1.mentorg.com ([192.94.38.131]:51961 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757950Ab2EYSQ2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:16:28 -0400
-Received: from nat-ies.mentorg.com ([192.94.31.2] helo=EU1-MAIL.mgc.mentorg.com)
-	by relay1.mentorg.com with esmtp
-	id 1SXz3r-0007ms-P4 from Thomas_Schwinge@mentor.com
-	for util-linux@vger.kernel.org; Fri, 25 May 2012 11:16:27 -0700
-From: Thomas Schwinge <thomas@codesourcery.com>
-To: util-linux@vger.kernel.org
-Cc: Thomas Schwinge <thomas@codesourcery.com>
-Subject: [PATCH 2/7] arch, eject, elvtune: Gracefully disable on non-Linux platforms.
-Date: Fri, 25 May 2012 20:16:13 +0200
-Message-Id: <1337969778-3154-2-git-send-email-thomas@codesourcery.com>
-In-Reply-To: <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:49590 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751150Ab2EWWmh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 May 2012 18:42:37 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Dave Reisner <dreisner@archlinux.org>
+Subject: Re: [PATCH 2/3] logger: use memcpy instead of bcopy
+Date: Wed, 23 May 2012 18:43:50 -0400
+Cc: util-linux@vger.kernel.org
+References: <1337805360-16469-1-git-send-email-dreisner@archlinux.org> <1337805360-16469-2-git-send-email-dreisner@archlinux.org>
+In-Reply-To: <1337805360-16469-2-git-send-email-dreisner@archlinux.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8319880.8azZlc0QNh";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201205231843.51118.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
----
- configure.ac |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+--nextPart8319880.8azZlc0QNh
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/configure.ac b/configure.ac
-index 76f73a1..cd8fa4e 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -628,9 +628,9 @@ AC_ARG_ENABLE([most-builds],
-   [], enable_most_builds=no
- )
- if test "x$enable_most_builds" = xyes; then
--  enable_arch=yes
-+  enable_arch=check
-   enable_ddate=yes
--  enable_elvtune=yes
-+  enable_elvtune=check
-   enable_last=yes
-   enable_line=yes
-   enable_mesg=yes
-@@ -862,7 +862,7 @@ AC_SUBST([ruman1dir])
- 
- AC_ARG_ENABLE([eject],
-   AS_HELP_STRING([--disable-eject], [do not build eject]),
--  [], enable_eject=yes
-+  [], enable_eject=check
- )
- UL_BUILD_INIT([eject])
- UL_REQUIRES_LINUX([eject])
--- 
-1.7.9
+On Wednesday 23 May 2012 16:35:59 Dave Reisner wrote:
+> bcopy is marked legacy in POSIX.1-2001 and should not be used.
 
+wonder if it'd be useful to add local defines for bcopy() & friends that re=
+sult=20
+in an error if people try to use them ...
+=2Dmike
+
+--nextPart8319880.8azZlc0QNh
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJPvWgnAAoJEEFjO5/oN/WBbzkP/3SljHNn6iEa1OGGWcZqpDjP
+LJWBcNEaqXENk39qvKicCnAC2j3Pr4nHYj5uwWmfEqqmzulG4nj27lQLt9QKcUC+
+7VvPnvuFAJ6mGqqzT7MIBSwzn+CSVD2keoCc/0G50wn1dOlgqp/adW6IPE8Ax0eW
+V9Yq8BQSXnHyjXxFDkl/V1cXULhFlORlYV/jv7SRz5SdB+F5SwMga4z2mvkgmy0z
+/3OwhDDyKbnqc2j6WnVfHVt5Hjxwu5t5pv2dQQaj6FgqBMc++yPk7Q4zcsyBQhed
+7ZSXOQE9iMm4Zd9/Ri59XLUfp1fHxnPyPl2QaUI7EHjd1K9SP5YUEcgqxK8Ykc6y
+DQsS7qG3+ftcOdgy//5QVkRL14NgZuodnisDqkQC+mMNFfNETf1XgFxbZa5mMMf4
+7yly3mMaOb8fib2bP9+8ObeqaB+2F+lRQKsvD6MFcK34M6nLJBAgC3ycW4IEJiQp
+/oP+C6LTMpbyDU5jRU/ke8+okL8uqi1k9aXIcG+moI4ECK+SWsM4ENCpxHsTPTUG
+Pgqb6kKNsa1RP7vl/XsNQNNsAt/K0SBFnmIv114v1cKf4rNxEazvdECJptI0KxwE
+h+C8tLtE2kQbUt+lRNG51KGCeWDWFNGtS0EnefosAqmGsfdfmJSaNMOpW0jRYkoK
+Qvtl0A5fOVWOTBGhmlj1
+=XUW6
+-----END PGP SIGNATURE-----
+
+--nextPart8319880.8azZlc0QNh--
