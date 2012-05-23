@@ -1,78 +1,74 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:33573 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755439Ab2D3UGx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Apr 2012 16:06:53 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Phillip Susi <psusi@ubuntu.com>
-Subject: Re: losetup -d --force for zombie loop devices?
-Date: Mon, 30 Apr 2012 16:07:21 -0400
-Cc: Thomas Orgis <thomas-forum@orgis.org>, util-linux@vger.kernel.org
-References: <20120417100346.2a0b8301@orgis.org> <4F9EF01B.9040003@ubuntu.com>
-In-Reply-To: <4F9EF01B.9040003@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2662136.ux9Ql8Htd0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201204301607.22712.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Date: Wed, 23 May 2012 11:51:16 +0200
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [PATCH 5/6] fdisk: introduce fdisk context
+In-reply-to: <20120523094250.GA1297@x2.net.home>
+To: Karel Zak <kzak@redhat.com>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Message-id: <1337766676.24092.3.camel@offworld>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+References: <1337530296.2677.16.camel@offbook>
+ <20120521094054.GA14560@x2.net.home> <1337631275.2596.1.camel@offbook>
+ <1337632083.2596.5.camel@offbook> <20120523094250.GA1297@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2662136.ux9Ql8Htd0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2012-05-23 at 11:42 +0200, Karel Zak wrote:
+> On Mon, May 21, 2012 at 10:28:03PM +0200, Davidlohr Bueso wrote:
+> > This is the first patch that adds the initial parts of the new fdisk
+> > internal API. Two functions are created to both init and deinit the
+> > fdisk context. Only the device's descriptor and path are added as a
+> > start and these are replaced throughout fdisk.c and label specific
+> > code.
+> 
+> Applied (and the rest of the patches too), thanks.
 
-On Monday 30 April 2012 16:03:39 Phillip Susi wrote:
-> On 4/17/2012 4:03 AM, Thomas Orgis wrote:
-> > I am having an issue with a loop device that used to be connected to a
-> > file on NFS. Not sure if this is actually a kernel bug, but I assume
-> > (perhaps ignorantly so) that losetup could resolve the situation
-> > anyways.
-> >=20
-> > 0. have NFS share on /mnt/nfs  (rw,users,noexec,nosuid,nodev,hard,intr)
-> > 1. losetup --show -f /mnt/nfs/file.img
-> >=20
-> >     /dev/loop0
-> >=20
-> > # actually, it was using cryptsetup luksOpen/Close
-> > 2. mount /dev/loop0&&  do_work&&  umount /dev/loop0
-> > 3. loose connection to NFS server (it went offline, client machine
-> > (laptop) switched networks ...) 4. umount -l /mnt/nfs
->=20
-> This is the problem with umount -l: all it does is remove the path from
-> the namespace, leaving the device still mounted.  Unfortunately umount
-> -f is not properly supported.  The proper fix for this is to have the
-> kernel support umount -f, and do away with the brain damaged umount -l.
+thanks.
 
-`umount -l` has its place -- there are cases where you want those semantics=
-=2E =20
-granted, most people actually want a `umount -f`, but the two aren't mutual=
-ly=20
-exclusive.
-=2Dmike
+> 
+> > All logic that opens the file does it with
+> > fdisk_new_context_from_filename(), and this enforces always opening
+> > the device with rw
+> 
+> I have added 'readonly' option to the fdisk_new_context_from_filename().
 
---nextPart2662136.ux9Ql8Htd0
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Well I wanted to leave it open for new features like when no device is
+passed (-l option IIRC) and read from /proc/partitions.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+> 
+> It would be better to minimize number of situation where we somewhere
+> open devices read-write. For example udevd, udisks, ... are pretty
+> sensitive to write operations (to detect new PT or new filesystem
+> etc.).
+> 
+> Notes:
+> 
+> 1/ What about to rename fdisk_new_context_from_filename() to
+>    fdisk_new_context()? I guess that the device name is mandatory option.
+> 
+> 2/ Please, don't use global 'cxt' if possible. See for example
+> 
 
-iQIcBAABAgAGBQJPnvD6AAoJEEFjO5/oN/WBUmcP/0CNB5kn89UWX9S1aS53BwxS
-n6PuV8OkdWOiUx8kWI5sIDefGKsryYwTF8iYfNRigov0qqSVfe9SUvfACXdj8ZBW
-5DdFrpiUiVnjjHkS+NOrkxCdD2VHYkMGUEw9fYlhTtzLimGpA1Idr9rwicwETBqT
-jQDvF2acRtOp6ygm+eD3KJG9WqYcoY7exaBgkbJfn4M5Tc5dePLcIq8z+g8sPty5
-JP+r5yxf7A47PmndlQB1157v6wIHvrIP++99P3FFi456PxH4GnSzCd0W9stfialF
-zOny/nAp5helv9qt8AgRCQgZSwV3cyf2ZNvDgpI/j1rMKXANlJKEuxN32pGcFIsC
-LMUiXmfTGxzv6U4eeFnzyyJgvyw4DsFnoj7tRjeSrA1UVfez55z+hMylvUT5xduB
-XNCP846VNyX/37doZYe8x5TaZavsQ+B9U22QlX92NThmbP5HlYOxaB3VVVZ0DYgk
-EMPWUkBWOOrm/4cy6ZufZHGxCCZKqQ09nWICBYLlAdWmdY5dhmxOAiQ1vmEy5ZQO
-HssAcI/L9wzVr5QjZm6YHhHr0qadrz9rdPz6chpDJhxEot4hpsJ9ErZ+iCgKBY0T
-0D8Y9MiF25larfy36C1YSyFvP0S+cceyXmkcjr7GXlZGqDVqIKMiqb7pJO3TrHxV
-oyZ6GzC3IbPHVk5om3lt
-=aeEv
------END PGP SIGNATURE-----
+Totally agree. I plan to gradually modify current functions to pass cxt
+as an argument instead of doing it globally - but it was kind of
+invasive for this pachset.
 
---nextPart2662136.ux9Ql8Htd0--
+>    get_geometry() -> get_topology()
+> 
+>    disk.c: In function ‘get_topology’:
+>    fdisk.c:456:18: warning: unused parameter ‘fd’ [-Wunused-parameter]
+> 
+>   there is get_geometry(cxt->fd, ...), but get_topology() ignores the
+>   parameter 'fd' and the function uses the global cxt->fd. This is
+>   nasty :-)
+> 
+>   It would be better to rename global 'cxt' to something less generic
+>   and everywhere in functions use 'cxt' parameter, for example:
+> 
+>      get_geometry(struct fdisk_context *cxt, struct geom *g);
+
+Yep, that's my plan.
+
+> 
+>     Karel
+> 
