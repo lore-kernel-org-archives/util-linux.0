@@ -1,86 +1,64 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 3/6] fdisk: refactor -s option
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:5170 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757332Ab2EWIWc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 May 2012 04:22:32 -0400
+Date: Wed, 23 May 2012 10:22:03 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 20 May 2012 18:11:29 +0200
-Message-ID: <1337530289.2677.14.camel@offbook>
-Mime-Version: 1.0
+Subject: Re: [PATCH 3/4] text-utils: use min() from c.h
+Message-ID: <20120523082203.GK14560@x2.net.home>
+References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+ <1337240469-24539-3-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1337240469-24539-3-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Thu, May 17, 2012 at 09:41:08AM +0200, Petr Uzel wrote:
+>  text-utils/display.c |    7 ++-----
+>  1 files changed, 2 insertions(+), 5 deletions(-)
+> 
+> diff --git a/text-utils/display.c b/text-utils/display.c
+> index ad638e7..84ec5d8 100644
+> --- a/text-utils/display.c
+> +++ b/text-utils/display.c
+> @@ -41,14 +41,11 @@
+>  #include <string.h>
+>  #include "hexdump.h"
+>  #include "xalloc.h"
+> +#include "c.h"
+>  
+>  static void doskip(const char *, int);
+>  static u_char *get(void);
+>  
+> -#ifndef MIN
+> -#define MIN(a,b) ((a)<(b)?(a):(b))
+> -#endif
+> -
+>  enum _vflag vflag = FIRST;
+>  
+>  static off_t address;			/* address/offset in stream */
+> @@ -262,7 +259,7 @@ get(void)
+>  			return(curp);
+>  		}
+>  		n = fread((char *)curp + nread, sizeof(unsigned char),
+> -		    length == -1 ? need : MIN(length, need), stdin);
+> +		    length == -1 ? need : min(length, need), stdin);
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |   41 ++++++++++++++++++++++-------------------
- 1 files changed, 22 insertions(+), 19 deletions(-)
+ It seems that the macro works as expected and detects some
+ disadvantages :-)
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 9387795..08afb45 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -2095,10 +2095,22 @@ static void command_prompt(void)
- 	}
- }
- 
-+static unsigned long long get_dev_sz(char *dev)
-+{
-+	int fd;
-+	unsigned long long size;
-+	
-+	if ((fd = open(dev, O_RDONLY)) < 0)
-+		err(EXIT_FAILURE, _("unable to open %s"), dev);
-+	if (blkdev_get_sectors(fd, &size) == -1)
-+		fatal(ioctl_error);
-+	close(fd);
-+	return size/2;
-+}
-+
- int main(int argc, char **argv)
- {
--	int j, c;
--	int optl = 0, opts = 0;
-+	int c, optl = 0, opts = 0;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -2182,27 +2194,18 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (opts) {
--		unsigned long long size;
--
--		nowarn = 1;
--
--		opts = argc - optind;
--		if (opts <= 0)
-+		/* print partition size for one or more devices */
-+		int i, ndevs = argc - optind;
-+		if (ndevs <= 0)
- 			usage(stderr);
- 
--		for (j = optind; j < argc; j++) {
--			disk_device = argv[j];
--			if ((fd = open(disk_device, O_RDONLY)) < 0)
--				err(EXIT_FAILURE, _("unable to open %s"), disk_device);
--			if (blkdev_get_sectors(fd, &size) == -1)
--				fatal(ioctl_error);
--			close(fd);
--			if (opts == 1)
--				printf("%llu\n", size/2);
-+		for (i = optind; i < argc; i++) {
-+			if (ndevs == 1)
-+				printf("%llu\n", get_dev_sz(argv[i]));
- 			else
--				printf("%s: %llu\n", argv[j], size/2);
-+				printf("%s: %llu\n", argv[i], get_dev_sz(argv[i]));
- 		}
--		exit(0);
-+		exit(EXIT_SUCCESS);
- 	}
- 
- 	if (argc-optind == 1)
+ display.c: In function ‘get’:
+ display.c:262:117: warning: comparison of distinct pointer types
+ lacks a cast [enabled by default]
+
+ Fixed and applied, thanks.
+
+    Karel
+
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
