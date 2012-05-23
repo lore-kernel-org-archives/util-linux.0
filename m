@@ -1,72 +1,130 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53130 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755430Ab2ECTEm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 May 2012 15:04:42 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id D82D69664A
-	for <util-linux@vger.kernel.org>; Thu,  3 May 2012 21:04:41 +0200 (CEST)
-Date: Thu, 3 May 2012 21:04:34 +0200
+Return-Path: petr.uzel@suse.cz
+Date: Wed, 23 May 2012 10:23:53 +0200
 From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/3] libuuid: use randutils
-Message-ID: <20120503190434.GA32558@skipper.site>
-References: <1333662730.2696.6.camel@offbook>
- <20120410113150.GN19784@x2.net.home>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/4] last: use min() from c.h
+Message-ID: <20120523082353.GD3705@foxbat.suse.cz>
+References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+ <20120523081302.GJ14560@x2.net.home>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-In-Reply-To: <20120410113150.GN19784@x2.net.home>
-Sender: util-linux-owner@vger.kernel.org
+	protocol="application/pgp-signature"; boundary="4jXrM3lyYWu4nBt5"
+In-Reply-To: <20120523081302.GJ14560@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
 
---Qxx1br4bt0+wmkIi
+--4jXrM3lyYWu4nBt5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 10, 2012 at 01:31:50PM +0200, Karel Zak wrote:
-> On Thu, Apr 05, 2012 at 11:52:10PM +0200, Davidlohr Bueso wrote:
-> >  libuuid/src/Makefile.am |    3 +-
-> >  libuuid/src/gen_uuid.c  |   99 ++-------------------------------------=
--------
-> >  2 files changed, 7 insertions(+), 95 deletions(-)
+On Wed, May 23, 2012 at 10:13:02AM +0200, Karel Zak wrote:
+> On Thu, May 17, 2012 at 09:41:06AM +0200, Petr Uzel wrote:
+> >  login-utils/last.c |   10 +++-------
+> >  1 files changed, 3 insertions(+), 7 deletions(-)
+> >=20
+> > diff --git a/login-utils/last.c b/login-utils/last.c
+> > index 34558bb..62fc55c 100644
+> > --- a/login-utils/last.c
+> > +++ b/login-utils/last.c
+> > @@ -72,15 +72,11 @@ static struct utmp	utmpbuf;
+> >  #define	LMAX	(int)sizeof(utmpbuf.ut_line)	/* size of utmp tty field */
+> >  #define	NMAX	(int)sizeof(utmpbuf.ut_name)	/* size of utmp name field */
+> > =20
+> > -#ifndef MIN
+> > -#define MIN(a,b)	(((a) < (b)) ? (a) : (b))
+> > -#endif
+> > -
+> >  /* maximum sizes used for printing */
+> >  /* probably we want a two-pass version that computes the right length =
+*/
+> > -int hmax =3D MIN(HMAX, 16);
+> > -int lmax =3D MIN(LMAX, 8);
+> > -int nmax =3D MIN(NMAX, 16);
+> > +int hmax =3D min(HMAX, 16);
+> > +int lmax =3D min(LMAX, 8);
+> > +int nmax =3D min(NMAX, 16);
 >=20
->  Applied, thanks.
->=20
-> > @@ -703,7 +614,7 @@ void uuid_generate_random(uuid_t out)
-> >   */
-> >  void uuid_generate(uuid_t out)
-> >  {
-> > -	if (get_random_fd() >=3D 0)
-> > +	if (random_get_fd() >=3D 0)
-> >  		uuid_generate_random(out);
->=20
-> This sucks:
->=20
->  - because we call random_get_fd() in __uuid_generate_random again:
->=20
->    $ strace -e open ./misc-utils/uuidgen
->    open("/dev/urandom", O_RDONLY)          =3D 3
->    open("/dev/urandom", O_RDONLY)          =3D 4
->=20
->    it would be better to add 'fd' argument to __uuid_generate_random(),
->    use it in uuid_generate() and reuse the file descriptor if >=3D 0.=20
->=20
->    We use __uuid_generate_random in the library and in uuidd, so we
->    don't have to care about API there.
->=20
->  - it's file descriptor leak in shared library...
->=20
->  Volunteers? ;-)
+>  Please, test your patches... you cannot use min() (as defined in c.h)
+>  outside functions.
 
-Patch addressing this is included in the uuidd series I sent shortly
-before. But please check the note about it in the series cover letter.
+Oops, I normally do, but this one seemed so trivial that I did not
+test it :( Lesson learned. Sorry.
+
+>  It seems that {h,l,n}max are not modified in the code so we can use
+>  macros there. Applied the patch below.
 
 Thanks,
+
+        Petr
+
+>=20
+>     Karel
+>=20
+>=20
+>=20
+> From 69c9e8387b90025d1f75356f5e2369d0262ee603 Mon Sep 17 00:00:00 2001
+> From: Karel Zak <kzak@redhat.com>
+> Date: Wed, 23 May 2012 10:07:57 +0200
+> Subject: [PATCH] last: use min() from c.h
+>=20
+> Signed-off-by: Karel Zak <kzak@redhat.com>
+> ---
+>  login-utils/last.c |   20 ++++++++------------
+>  1 files changed, 8 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/login-utils/last.c b/login-utils/last.c
+> index 34558bb..1b1bee1 100644
+> --- a/login-utils/last.c
+> +++ b/login-utils/last.c
+> @@ -72,15 +72,11 @@ static struct utmp	utmpbuf;
+>  #define	LMAX	(int)sizeof(utmpbuf.ut_line)	/* size of utmp tty field */
+>  #define	NMAX	(int)sizeof(utmpbuf.ut_name)	/* size of utmp name field */
+> =20
+> -#ifndef MIN
+> -#define MIN(a,b)	(((a) < (b)) ? (a) : (b))
+> -#endif
+> -
+>  /* maximum sizes used for printing */
+>  /* probably we want a two-pass version that computes the right length */
+> -int hmax =3D MIN(HMAX, 16);
+> -int lmax =3D MIN(LMAX, 8);
+> -int nmax =3D MIN(NMAX, 16);
+> +#define P_HMAX	min(HMAX, 16)
+> +#define P_LMAX	min(LMAX, 8)
+> +#define P_NMAX	min(NMAX, 16)
+> =20
+>  typedef struct arg {
+>  	char	*name;				/* argument */
+> @@ -187,19 +183,19 @@ print_partial_line(struct utmp *bp) {
+>      char *ct;
+> =20
+>      ct =3D utmp_ctime(bp);
+> -    printf("%-*.*s  %-*.*s ", nmax, nmax, bp->ut_name,=20
+> -	   lmax, lmax, bp->ut_line);
+> +    printf("%-*.*s  %-*.*s ", P_NMAX, P_NMAX, bp->ut_name,
+> +	   P_LMAX, P_LMAX, bp->ut_line);
+> =20
+>      if (dolong) {
+>  	if (bp->ut_addr) {
+>  	    struct in_addr foo;
+>  	    foo.s_addr =3D bp->ut_addr;
+> -	    printf("%-*.*s ", hmax, hmax, inet_ntoa(foo));
+> +	    printf("%-*.*s ", P_HMAX, P_HMAX, inet_ntoa(foo));
+>  	} else {
+> -	    printf("%-*.*s ", hmax, hmax, "");
+> +	    printf("%-*.*s ", P_HMAX, P_HMAX, "");
+>  	}
+>      } else {
+> -	printf("%-*.*s ", hmax, hmax, bp->ut_host);
+> +	printf("%-*.*s ", P_HMAX, P_HMAX, bp->ut_host);
+>      }
+> =20
+>      if (doyear) {
+> --=20
+> 1.7.7.6
+>=20
 
 Petr
 
@@ -74,15 +132,15 @@ Petr
 Petr Uzel
 IRC: ptr_uzl @ freenode
 
---Qxx1br4bt0+wmkIi
+--4jXrM3lyYWu4nBt5
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.18 (GNU/Linux)
 
-iEYEARECAAYFAk+i1sIACgkQnZxG0T6qDD0krgCfenUWrU3TJGC/nWqEIWIIxtan
-Qu8An36sP4rqPK08D3PczLrfEn356RPE
-=+FrM
+iEYEARECAAYFAk+8npkACgkQnZxG0T6qDD1u5QCfSIiR8Vl6olIkwJlHm/yz2v0y
+YI4An2h+q9jrorEIKJLZl8sdqCkP4hb0
+=wqno
 -----END PGP SIGNATURE-----
 
---Qxx1br4bt0+wmkIi--
+--4jXrM3lyYWu4nBt5--
