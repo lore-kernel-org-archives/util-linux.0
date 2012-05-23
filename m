@@ -1,40 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37552 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41453 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932120Ab2EOJFF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 May 2012 05:05:05 -0400
-Date: Tue, 15 May 2012 11:05:01 +0200
+	id S1757137Ab2EWIYz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 May 2012 04:24:55 -0400
+Date: Wed, 23 May 2012 10:24:30 +0200
 From: Karel Zak <kzak@redhat.com>
-To: "Vladimir =?utf-8?Q?'=CF=86-coder=2Fphcoder'?= Serbinenko"
-	<phcoder@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] allow to create a minix3fs with a blocksize != 1K
-Message-ID: <20120515090501.GA8268@x2.net.home>
-References: <4FAAE6EA.3080308@gmail.com>
- <4FAAE7FB.2060808@gmail.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 4/4] libuuid: use max() from c.h
+Message-ID: <20120523082430.GM14560@x2.net.home>
+References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+ <1337240469-24539-4-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <4FAAE7FB.2060808@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337240469-24539-4-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 09, 2012 at 11:56:11PM +0200, Vladimir 'φ-coder/phcoder' Serbinenko wrote:
-> Have used it to test minixfs support with various block sizes.
+On Thu, May 17, 2012 at 09:41:09AM +0200, Petr Uzel wrote:
+>  libuuid/src/gen_uuid.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
 
- Looks good, but
-
-> +int MINIX_BLOCK_SIZE = 0;
-
- is dirty, what about
-
-   int block_size = 0;
-
-
- Vladimir, use also 'Signed-off-by:' in commit message for your patches, please.
-
- Thanks!
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
