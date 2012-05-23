@@ -1,41 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:44628 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751326Ab2EMJIZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 May 2012 05:08:25 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Regid Ichira <regid23@yahoo.com>
-Subject: [PATCH] lsblk.8: improve wording
-Date: Sun, 13 May 2012 11:08:20 +0200
-Message-Id: <1336900100-9406-1-git-send-email-petr.uzel@suse.cz>
+Received: from gerolde.archlinux.org ([66.211.214.132]:60247 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755290Ab2EWUgD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 23 May 2012 16:36:03 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH 1/3] logger: avoid explicit fclose(stdout)
+Date: Wed, 23 May 2012 16:35:58 -0400
+Message-Id: <1337805360-16469-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Cc: Regid Ichira <regid23@yahoo.com>
-From: Regid Ichira <regid23@yahoo.com>
-Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=672702
+This is done for us via an atexit hook since c05a80ca6385b8. Avoids a
+useless 'Write error' on exit whenever invoking the tool.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
- misc-utils/lsblk.8 |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ misc-utils/logger.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
-index 21d5838..79173da 100644
---- a/misc-utils/lsblk.8
-+++ b/misc-utils/lsblk.8
-@@ -66,8 +66,8 @@ This option is equivalent to "-o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,RO
- .IP "\fB\-V, \-\-version\fP"
- Output version information and exit.
- .SH NOTES
--For the partitions are some information (e.g. queue attributes) inherited from
--parental device.
-+For partitions, some information (e.g. queue attributes) is inherited from the
-+parent device.
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 067272a..19b4c47 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -248,8 +248,6 @@ main(int argc, char **argv) {
+ 	else
+ 		LogSock = myopenlog(usock);
  
- The
- .B lsblk
+-	(void) fclose(stdout);
+-
+ 	/* log input line if appropriate */
+ 	if (argc > 0) {
+ 		register char *p, *endp;
 -- 
-1.7.7
+1.7.10.2
 
