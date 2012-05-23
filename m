@@ -1,48 +1,114 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay1.mentorg.com ([192.94.38.131]:51627 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758201Ab2EYSOC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:14:02 -0400
-Received: from nat-ies.mentorg.com ([192.94.31.2] helo=EU1-MAIL.mgc.mentorg.com)
-	by relay1.mentorg.com with esmtp
-	id 1SXz1V-0007ZU-FM from Thomas_Schwinge@mentor.com
-	for util-linux@vger.kernel.org; Fri, 25 May 2012 11:14:01 -0700
-From: Thomas Schwinge <thomas@codesourcery.com>
-To: util-linux@vger.kernel.org
-Cc: Thomas Schwinge <thomas@codesourcery.com>
-Subject: [PATCH] test_pager: Repair build for non-Linux.
-Date: Fri, 25 May 2012 20:13:41 +0200
-Message-Id: <1337969621-3052-2-git-send-email-thomas@codesourcery.com>
-In-Reply-To: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+Received: from mx1.redhat.com ([209.132.183.28]:13372 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751892Ab2EWIN2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 May 2012 04:13:28 -0400
+Date: Wed, 23 May 2012 10:13:02 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/4] last: use min() from c.h
+Message-ID: <20120523081302.GJ14560@x2.net.home>
+References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
----
- lib/Makefile.am |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Thu, May 17, 2012 at 09:41:06AM +0200, Petr Uzel wrote:
+>  login-utils/last.c |   10 +++-------
+>  1 files changed, 3 insertions(+), 7 deletions(-)
+> 
+> diff --git a/login-utils/last.c b/login-utils/last.c
+> index 34558bb..62fc55c 100644
+> --- a/login-utils/last.c
+> +++ b/login-utils/last.c
+> @@ -72,15 +72,11 @@ static struct utmp	utmpbuf;
+>  #define	LMAX	(int)sizeof(utmpbuf.ut_line)	/* size of utmp tty field */
+>  #define	NMAX	(int)sizeof(utmpbuf.ut_name)	/* size of utmp name field */
+>  
+> -#ifndef MIN
+> -#define MIN(a,b)	(((a) < (b)) ? (a) : (b))
+> -#endif
+> -
+>  /* maximum sizes used for printing */
+>  /* probably we want a two-pass version that computes the right length */
+> -int hmax = MIN(HMAX, 16);
+> -int lmax = MIN(LMAX, 8);
+> -int nmax = MIN(NMAX, 16);
+> +int hmax = min(HMAX, 16);
+> +int lmax = min(LMAX, 8);
+> +int nmax = min(NMAX, 16);
 
-diff --git a/lib/Makefile.am b/lib/Makefile.am
-index aed0ecd..01b59dc 100644
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -27,6 +27,7 @@ test_blkdev_SOURCES = blkdev.c
- test_ismounted_SOURCES = ismounted.c
- test_wholedisk_SOURCES = wholedisk.c
- test_mangle_SOURCES = mangle.c
-+test_pager_SOURCES = pager.c
+ Please, test your patches... you cannot use min() (as defined in c.h)
+ outside functions.
+
+ It seems that {h,l,n}max are not modified in the code so we can use
+ macros there. Applied the patch below.
+
+    Karel
+
+
+
+>From 69c9e8387b90025d1f75356f5e2369d0262ee603 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Wed, 23 May 2012 10:07:57 +0200
+Subject: [PATCH] last: use min() from c.h
+
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ login-utils/last.c |   20 ++++++++------------
+ 1 files changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 34558bb..1b1bee1 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -72,15 +72,11 @@ static struct utmp	utmpbuf;
+ #define	LMAX	(int)sizeof(utmpbuf.ut_line)	/* size of utmp tty field */
+ #define	NMAX	(int)sizeof(utmpbuf.ut_name)	/* size of utmp name field */
  
- test_at_SOURCES = at.c
- test_at_CFLAGS = -DTEST_PROGRAM_AT
-@@ -38,7 +39,6 @@ test_procutils_SOURCES = procutils.c
- if LINUX
- test_cpuset_SOURCES = cpuset.c
- test_sysfs_SOURCES = sysfs.c at.c
--test_pager_SOURCES = pager.c
- test_sysfs_CFLAGS = -DTEST_PROGRAM_SYSFS
+-#ifndef MIN
+-#define MIN(a,b)	(((a) < (b)) ? (a) : (b))
+-#endif
+-
+ /* maximum sizes used for printing */
+ /* probably we want a two-pass version that computes the right length */
+-int hmax = MIN(HMAX, 16);
+-int lmax = MIN(LMAX, 8);
+-int nmax = MIN(NMAX, 16);
++#define P_HMAX	min(HMAX, 16)
++#define P_LMAX	min(LMAX, 8)
++#define P_NMAX	min(NMAX, 16)
  
- test_loopdev_SOURCES = \
+ typedef struct arg {
+ 	char	*name;				/* argument */
+@@ -187,19 +183,19 @@ print_partial_line(struct utmp *bp) {
+     char *ct;
+ 
+     ct = utmp_ctime(bp);
+-    printf("%-*.*s  %-*.*s ", nmax, nmax, bp->ut_name, 
+-	   lmax, lmax, bp->ut_line);
++    printf("%-*.*s  %-*.*s ", P_NMAX, P_NMAX, bp->ut_name,
++	   P_LMAX, P_LMAX, bp->ut_line);
+ 
+     if (dolong) {
+ 	if (bp->ut_addr) {
+ 	    struct in_addr foo;
+ 	    foo.s_addr = bp->ut_addr;
+-	    printf("%-*.*s ", hmax, hmax, inet_ntoa(foo));
++	    printf("%-*.*s ", P_HMAX, P_HMAX, inet_ntoa(foo));
+ 	} else {
+-	    printf("%-*.*s ", hmax, hmax, "");
++	    printf("%-*.*s ", P_HMAX, P_HMAX, "");
+ 	}
+     } else {
+-	printf("%-*.*s ", hmax, hmax, bp->ut_host);
++	printf("%-*.*s ", P_HMAX, P_HMAX, bp->ut_host);
+     }
+ 
+     if (doyear) {
 -- 
-1.7.9
+1.7.7.6
 
