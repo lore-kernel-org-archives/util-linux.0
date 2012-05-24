@@ -1,29 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30901 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:47653 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751497Ab2E2IO1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 May 2012 04:14:27 -0400
-Date: Tue, 29 May 2012 10:14:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas Schwinge <thomas@codesourcery.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 6/7] write: Don't explicitly include <asm/param.h>.
-Message-ID: <20120529081423.GM3757@x2.net.home>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
- <1337969778-3154-6-git-send-email-thomas@codesourcery.com>
+	id S1754520Ab2EXM6G (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 May 2012 08:58:06 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id DF0929A3F6
+	for <util-linux@vger.kernel.org>; Thu, 24 May 2012 14:58:04 +0200 (CEST)
+Message-ID: <4FBE3059.3030806@suse.de>
+Date: Thu, 24 May 2012 14:58:01 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337969778-3154-6-git-send-email-thomas@codesourcery.com>
+To: util-linux@vger.kernel.org
+Subject: [PULL] su
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 25, 2012 at 08:16:17PM +0200, Thomas Schwinge wrote:
->  term-utils/write.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
+Hi,
 
- Applied, thanks.
+coreutils isn't really interested in maintaining su anymore.
+Distributions have to add custom patches to fix bugs and add
+features. The worst offender is probably the pam patch. Fortunately
+we managed to sync the patch between openSUSE and Fedora meanwhile.
+Over time the risk that the patches divert again increases though.
+Since util-linux now contains a common login program it looks like a
+good new home for su too.
+
+To integrate su into util-linux I've extracted the history of the su
+program until the last GPLv2 version (they've changed to GPLv3
+meanwhile) from coreutils' git and merged it with util-linux.
+Then I've added the patches used in Fedora and openSUSE and fixed the
+files to actually build.
+
+You can find the result in branch su-v1 (ff6b15d) at
+git@github.com:lnussel/util-linux.git
+
+I've also filed a pull request on github:
+https://github.com/karelzak/util-linux/pull/10
+
+Originally I had planned to implement separate tty allocation for
+the child program on top of that to get rid of the evil setsid
+patch. It turned out to be more complicated than I thought though. The
+change would be too massive to backport anyways I guess. So the next
+step would be to rip out the non-pam legacy stuff and clean up the code
+to make it readable again.
+
+cu
+Ludwig
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
