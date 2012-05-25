@@ -1,29 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54798 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752913Ab2EOJft (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 May 2012 05:35:49 -0400
-Date: Tue, 15 May 2012 11:35:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/4] lib,include: move get_terminal_width() to ttyutils.h
-Message-ID: <20120515093525.GK8268@x2.net.home>
-References: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
- <1337071744-7056-3-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337071744-7056-3-git-send-email-petr.uzel@suse.cz>
+Received: from relay1.mentorg.com ([192.94.38.131]:51961 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757950Ab2EYSQ2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:16:28 -0400
+Received: from nat-ies.mentorg.com ([192.94.31.2] helo=EU1-MAIL.mgc.mentorg.com)
+	by relay1.mentorg.com with esmtp
+	id 1SXz3r-0007ms-P4 from Thomas_Schwinge@mentor.com
+	for util-linux@vger.kernel.org; Fri, 25 May 2012 11:16:27 -0700
+From: Thomas Schwinge <thomas@codesourcery.com>
+To: util-linux@vger.kernel.org
+Cc: Thomas Schwinge <thomas@codesourcery.com>
+Subject: [PATCH 2/7] arch, eject, elvtune: Gracefully disable on non-Linux platforms.
+Date: Fri, 25 May 2012 20:16:13 +0200
+Message-Id: <1337969778-3154-2-git-send-email-thomas@codesourcery.com>
+In-Reply-To: <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 15, 2012 at 10:49:03AM +0200, Petr Uzel wrote:
->  include/ttyutils.h |   29 +++++++++++++++++++++++++++++
->  lib/tt.c           |   28 +---------------------------
->  2 files changed, 30 insertions(+), 27 deletions(-)
+Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
+---
+ configure.ac |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
- Applied, thanks.
-
+diff --git a/configure.ac b/configure.ac
+index 76f73a1..cd8fa4e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -628,9 +628,9 @@ AC_ARG_ENABLE([most-builds],
+   [], enable_most_builds=no
+ )
+ if test "x$enable_most_builds" = xyes; then
+-  enable_arch=yes
++  enable_arch=check
+   enable_ddate=yes
+-  enable_elvtune=yes
++  enable_elvtune=check
+   enable_last=yes
+   enable_line=yes
+   enable_mesg=yes
+@@ -862,7 +862,7 @@ AC_SUBST([ruman1dir])
+ 
+ AC_ARG_ENABLE([eject],
+   AS_HELP_STRING([--disable-eject], [do not build eject]),
+-  [], enable_eject=yes
++  [], enable_eject=check
+ )
+ UL_BUILD_INIT([eject])
+ UL_REQUIRES_LINUX([eject])
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9
+
