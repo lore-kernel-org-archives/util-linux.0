@@ -1,109 +1,45 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 3/5] fdisk: create DOS specific write table function
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 06 May 2012 14:10:21 +0200
-Message-ID: <1336306221.2685.12.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:36781 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757065Ab2EYJzo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 May 2012 05:55:44 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 8FF5E9AC4B
+	for <util-linux@vger.kernel.org>; Fri, 25 May 2012 11:55:43 +0200 (CEST)
+Message-ID: <4FBF571B.9080905@suse.de>
+Date: Fri, 25 May 2012 11:55:39 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
+MIME-Version: 1.0
+To: util-linux@vger.kernel.org
+Subject: Re: [PULL] su
+References: <4FBE3059.3030806@suse.de> <20120525074111.GB1177@x2.net.home>
+In-Reply-To: <20120525074111.GB1177@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+Karel Zak wrote:
+> On Thu, May 24, 2012 at 02:58:01PM +0200, Ludwig Nussel wrote:
+>> coreutils isn't really interested in maintaining su anymore.
+>> Distributions have to add custom patches to fix bugs and add
+>> features. The worst offender is probably the pam patch. Fortunately
+>> we managed to sync the patch between openSUSE and Fedora meanwhile.
+>> Over time the risk that the patches divert again increases though.
+>> Since util-linux now contains a common login program it looks like a
+>> good new home for su too.
+> [...]
+>  It would be nice to cleanup the code (remove non-PAM stuff) before
+>  merge. Can you do this in your su branch? Please.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c         |   27 ++++-----------------------
- fdisk/fdiskdoslabel.c |   27 +++++++++++++++++++++++++++
- fdisk/fdiskdoslabel.h |    1 +
- 3 files changed, 32 insertions(+), 23 deletions(-)
+Done.
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 8c2a162..3044879 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -1672,31 +1672,12 @@ static void
- write_table(void) {
- 	int i;
- 
--	if (disklabel == DOS_LABEL) {
--		/* MBR (primary partitions) */
--		if (!MBRbuffer_changed) {
--			for (i = 0; i < 4; i++)
--				if (ptes[i].changed)
--					MBRbuffer_changed = 1;
--		}
--		if (MBRbuffer_changed) {
--			write_part_table_flag(MBRbuffer);
--			write_sector(fd, 0, MBRbuffer);
--		}
--		/* EBR (logical partitions) */
--		for (i = 4; i < partitions; i++) {
--			struct pte *pe = &ptes[i];
--
--			if (pe->changed) {
--				write_part_table_flag(pe->sectorbuffer);
--				write_sector(fd, pe->offset, pe->sectorbuffer);
--			}
--		}
--	}
--	else if (disklabel == SGI_LABEL) {
-+	if (disklabel == DOS_LABEL)
-+		dos_write_table();
-+	else if (disklabel == SGI_LABEL)
- 		/* no test on change? the printf below might be mistaken */
- 		sgi_write_table();
--	} else if (disklabel == SUN_LABEL) {
-+	else if (disklabel == SUN_LABEL) {
- 		int needw = 0;
- 
- 		for (i=0; i<8; i++)
-diff --git a/fdisk/fdiskdoslabel.c b/fdisk/fdiskdoslabel.c
-index 3f820db..a13a83a 100644
---- a/fdisk/fdiskdoslabel.c
-+++ b/fdisk/fdiskdoslabel.c
-@@ -657,3 +657,30 @@ void dos_new_partition(void)
- 			printf(_("Invalid partition type `%c'\n"), c);
- 	}
- }
-+
-+void dos_write_table(void)
-+{
-+	int i;
-+
-+	if (disklabel == DOS_LABEL) {
-+		/* MBR (primary partitions) */
-+		if (!MBRbuffer_changed) {
-+			for (i = 0; i < 4; i++)
-+				if (ptes[i].changed)
-+					MBRbuffer_changed = 1;
-+		}
-+		if (MBRbuffer_changed) {
-+			write_part_table_flag(MBRbuffer);
-+			write_sector(fd, 0, MBRbuffer);
-+		}
-+		/* EBR (logical partitions) */
-+		for (i = 4; i < partitions; i++) {
-+			struct pte *pe = &ptes[i];
-+
-+			if (pe->changed) {
-+				write_part_table_flag(pe->sectorbuffer);
-+				write_sector(fd, pe->offset, pe->sectorbuffer);
-+			}
-+		}
-+	}
-+}
-diff --git a/fdisk/fdiskdoslabel.h b/fdisk/fdiskdoslabel.h
-index e45a026..8c116f7 100644
---- a/fdisk/fdiskdoslabel.h
-+++ b/fdisk/fdiskdoslabel.h
-@@ -52,5 +52,6 @@ extern int is_dos_partition(int t);
- extern void dos_init(void);
- extern void dos_add_partition(int n, int sys);
- extern void dos_new_partition(void);
-+extern void dos_write_table(void);
- 
- #endif
+cu
+Ludwig
+
 -- 
-1.7.4.1
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
