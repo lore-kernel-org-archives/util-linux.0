@@ -1,30 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39035 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752437Ab2EOJfP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 May 2012 05:35:15 -0400
-Date: Tue, 15 May 2012 11:34:49 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/4] libuuid,uuidd: move read_all to include/all-io.h
-Message-ID: <20120515093449.GJ8268@x2.net.home>
-References: <1337071744-7056-1-git-send-email-petr.uzel@suse.cz>
- <1337071744-7056-2-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337071744-7056-2-git-send-email-petr.uzel@suse.cz>
+Received: from relay1.mentorg.com ([192.94.38.131]:51989 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932083Ab2EYSQg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:16:36 -0400
+Received: from nat-ies.mentorg.com ([192.94.31.2] helo=EU1-MAIL.mgc.mentorg.com)
+	by relay1.mentorg.com with esmtp
+	id 1SXz3z-000008-TJ from Thomas_Schwinge@mentor.com
+	for util-linux@vger.kernel.org; Fri, 25 May 2012 11:16:36 -0700
+From: Thomas Schwinge <thomas@codesourcery.com>
+To: util-linux@vger.kernel.org
+Cc: Thomas Schwinge <thomas@codesourcery.com>
+Subject: [PATCH 7/7] setsid: Include <sys/ioctl.h> instead of <termio.h>.
+Date: Fri, 25 May 2012 20:16:18 +0200
+Message-Id: <1337969778-3154-7-git-send-email-thomas@codesourcery.com>
+In-Reply-To: <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 15, 2012 at 10:49:02AM +0200, Petr Uzel wrote:
->  include/all-io.h       |   25 +++++++++++++++++++++++++
->  libuuid/src/gen_uuid.c |   26 +-------------------------
->  misc-utils/uuidd.c     |   24 ------------------------
->  3 files changed, 26 insertions(+), 49 deletions(-)
+Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
+---
+ sys-utils/setsid.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- Applied, thanks.
-
+diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
+index 6d1eeda..52ad38f 100644
+--- a/sys-utils/setsid.c
++++ b/sys-utils/setsid.c
+@@ -15,7 +15,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <termio.h>
++#include <sys/ioctl.h>
+ 
+ #include "c.h"
+ #include "nls.h"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9
+
