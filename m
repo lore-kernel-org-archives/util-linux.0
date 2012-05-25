@@ -1,59 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from vostochny.stro.at ([78.47.22.85]:56370 "EHLO vostochny.stro.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751522Ab2EaRk5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 31 May 2012 13:40:57 -0400
-From: maximilian attems <max@stro.at>
-To: util-linux@vger.kernel.org
-Cc: maximilian attems <max@stro.at>
-Subject: [PATCH] lib/strutils: circumvent missing localeconv()
-Date: Thu, 31 May 2012 19:40:49 +0200
-Message-Id: <1338486050-7490-1-git-send-email-max@stro.at>
+Received: from relay1.mentorg.com ([192.94.38.131]:55104 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752948Ab2EYSl1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:41:27 -0400
+From: Thomas Schwinge <thomas@codesourcery.com>
+To: util-linux@vger.kernel.org, ludwig.nussel@suse.de
+Cc: Thomas Schwinge <thomas@codesourcery.com>
+Subject: [PATCH 3/3] su: Mention SUID_* feature.
+Date: Fri, 25 May 2012 20:41:01 +0200
+Message-Id: <1337971261-20684-4-git-send-email-thomas@codesourcery.com>
+In-Reply-To: <1337971261-20684-1-git-send-email-thomas@codesourcery.com>
+References: <87zk8wboif.fsf@schwinge.name>
+ <1337971261-20684-1-git-send-email-thomas@codesourcery.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add stub too nls.h, include it instead of locale.h.
-Code in strutils handles already returned NULL.
-
-Signed-off-by: maximilian attems <max@stro.at>
+Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
 ---
- include/nls.h  |    6 ++++++
- lib/strutils.c |    2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ Documentation/howto-compilation.txt |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/include/nls.h b/include/nls.h
-index 9a9311b..3eabfe6 100644
---- a/include/nls.h
-+++ b/include/nls.h
-@@ -12,6 +12,12 @@ int main(int argc, char *argv[]);
- #else
- # undef setlocale
- # define setlocale(Category, Locale) /* empty */
-+struct lconv
-+{
-+	char *decimal_point;
-+};
-+# undef localeconv
-+# define localeconv() NULL
- #endif
+diff --git a/Documentation/howto-compilation.txt b/Documentation/howto-compilation.txt
+index 3617b34..bebe0d2 100644
+--- a/Documentation/howto-compilation.txt
++++ b/Documentation/howto-compilation.txt
+@@ -25,7 +25,7 @@ Compiling
+ 	./configure SUID_CFLAGS="-fpie" SUID_LDFLAGS="-pie"
  
- #ifdef ENABLE_NLS
-diff --git a/lib/strutils.c b/lib/strutils.c
-index 6bdc01d..036ae06 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -9,10 +9,10 @@
- #include <ctype.h>
- #include <errno.h>
- #include <sys/stat.h>
--#include <locale.h>
- #include <string.h>
+ 	The SUID_* feature is currently supported for chfn, chsh,
+-	newgrp, write, mount, and umount.
++	newgrp, su, write, mount, and umount.
  
- #include "c.h"
-+#include "nls.h"
- #include "strutils.h"
- #include "bitops.h"
- 
+ 	Preferred compilation options for developers, when
+ 	using gcc, are:
 -- 
-1.7.10
+1.7.9
 
