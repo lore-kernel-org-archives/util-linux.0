@@ -1,38 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10919 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758344Ab2EJJzD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 May 2012 05:55:03 -0400
-Date: Thu, 10 May 2012 11:54:38 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] libuuid: avoid double open and leaking fd (reworked)
-Message-ID: <20120510095438.GD30118@x2.net.home>
-References: <1336334153-32532-1-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1336334153-32532-1-git-send-email-petr.uzel@suse.cz>
+Received: from relay1.mentorg.com ([192.94.38.131]:51960 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757818Ab2EYSQ0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 25 May 2012 14:16:26 -0400
+Received: from nat-ies.mentorg.com ([192.94.31.2] helo=EU1-MAIL.mgc.mentorg.com)
+	by relay1.mentorg.com with esmtp
+	id 1SXz3p-0007mj-V0 from Thomas_Schwinge@mentor.com
+	for util-linux@vger.kernel.org; Fri, 25 May 2012 11:16:26 -0700
+From: Thomas Schwinge <thomas@codesourcery.com>
+To: util-linux@vger.kernel.org
+Cc: Thomas Schwinge <thomas@codesourcery.com>
+Subject: [PATCH 1/7] kill, raw, rename: Don't explicitly enable for --enable-most-builds.
+Date: Fri, 25 May 2012 20:16:12 +0200
+Message-Id: <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+In-Reply-To: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 06, 2012 at 09:55:53PM +0200, Petr Uzel wrote:
-> This is better than calling random_get_fd() twice, passing the file
-> descriptor down the stack and reusing it in next call to
-> random_get_fd().
+They're already dealt with in the default configuration.
 
- Yep, nice :-)
+Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
+---
+ configure.ac |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
->  fdisk/fdiskdoslabel.c  |    2 +-
->  include/randutils.h    |    2 +-
->  lib/randutils.c        |    8 +++-----
->  libuuid/src/gen_uuid.c |   28 ++++++++++++++++++----------
->  libuuid/src/uuidd.h    |    2 +-
->  misc-utils/uuidd.c     |    4 ++--
->  6 files changed, 26 insertions(+), 20 deletions(-)
-
- Applied, thanks.
-
+diff --git a/configure.ac b/configure.ac
+index eb67ada..76f73a1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -631,12 +631,9 @@ if test "x$enable_most_builds" = xyes; then
+   enable_arch=yes
+   enable_ddate=yes
+   enable_elvtune=yes
+-  enable_kill=yes
+   enable_last=yes
+   enable_line=yes
+   enable_mesg=yes
+-  enable_raw=yes
+-  enable_rename=yes
+   enable_reset=yes
+   enable_login_utils=yes
+   enable_write=yes
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9
+
