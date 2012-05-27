@@ -1,42 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp13.ono.com ([62.42.230.16]:43363 "EHLO resmaa13.ono.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751208Ab2E0X25 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 27 May 2012 19:28:57 -0400
-Date: Mon, 28 May 2012 01:23:00 +0200
-From: Guillem Jover <guillem@hadrons.org>
-To: Dave Reisner <dreisner@archlinux.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/3] logger: use memcpy instead of bcopy
-Message-ID: <20120527232300.GA15566@gaara.hadrons.org>
-References: <1337805360-16469-1-git-send-email-dreisner@archlinux.org>
- <1337805360-16469-2-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1337805360-16469-2-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH 7/7] fdisk: sun: use sector_t
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 27 May 2012 21:44:24 +0200
+Message-ID: <1338147864.22474.6.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2012-05-23 at 16:35:59 -0400, Dave Reisner wrote:
-> bcopy is marked legacy in POSIX.1-2001 and should not be used.
-> 
-> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> ---
->  misc-utils/logger.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-> index 19b4c47..a187227 100644
-> --- a/misc-utils/logger.c
-> +++ b/misc-utils/logger.c
-> @@ -96,7 +96,7 @@ udpopenlog(const char *servername, uint16_t port) {
->  	if ((fd = socket(AF_INET, SOCK_DGRAM , 0)) == -1)
->  		err(EXIT_FAILURE, _("socket"));
->  
-> -	bcopy(serverhost->h_addr,&s_addr.sin_addr,serverhost->h_length);
-> +	memcpy(serverhost->h_addr,&s_addr.sin_addr,serverhost->h_length);
+From: Davidlohr Bueso <dave@gnu.org>
 
-The src/dst arguments to memcpy() should get swapped.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisksunlabel.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-thanks,
-guillem
+diff --git a/fdisk/fdisksunlabel.c b/fdisk/fdisksunlabel.c
+index e94b652..9d5b3e8 100644
+--- a/fdisk/fdisksunlabel.c
++++ b/fdisk/fdisksunlabel.c
+@@ -152,7 +152,7 @@ int check_sun_label(void)
+ void create_sunlabel(struct fdisk_context *cxt)
+ {
+ 	struct hd_geometry geometry;
+-	unsigned long long llsectors, llcyls;
++	sector_t llsectors, llcyls;
+ 	unsigned int ndiv, sec_fac;
+ 	int res;
+ 
+-- 
+1.7.4.1
