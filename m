@@ -1,130 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53092 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755703Ab2ECTCK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 May 2012 15:02:10 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 1B313979ED
-	for <util-linux@vger.kernel.org>; Thu,  3 May 2012 21:02:10 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 10/15] uuidd: do not drop privileges
-Date: Thu,  3 May 2012 21:01:56 +0200
-Message-Id: <1336071721-32492-11-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
-References: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
+Received: from caiajhbdcagg.dreamhost.com ([208.97.132.66]:38567 "EHLO
+	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751950Ab2E0ToC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 27 May 2012 15:44:02 -0400
+Subject: [PATCH 1/7] fdisk: stop buffering welcome message
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 27 May 2012 21:43:56 +0200
+Message-ID: <1338147836.22474.0.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-libuuid can (for now) spawn uuidd on-demand. To support this scenario,
-uuidd should be installed setuid/setgid to have access to
-/var/lib/libuuid/clock.txt. Therefore, dropping the privileges is
-not functional, so removing this ability.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Moreover, the ability to spawn uuidd on-demand will be removed anyway.
+Recently, commit 0a86755fe8af1da510d2eca43bdfcd70af098c19 directed the welcome message output from stderr to stdout breaking regression tests.
+Correct this by flushing stdout and stop buffering the output - a trivial function is created as well.
 
-References: http://www.spinics.net/lists/util-linux-ng/msg05934.html
-
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- misc-utils/uuidd.c |   32 +-------------------------------
- 1 files changed, 1 insertions(+), 31 deletions(-)
+ fdisk/fdisk.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index fafc8d1..684e494 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -503,11 +503,9 @@ int main(int argc, char **argv)
- 	char		buf[1024], *cp;
- 	char		str[UUID_STR_LEN], *tmp;
- 	uuid_t		uu;
--	uid_t		uid;
--	gid_t		gid;
- 	int		i, c, ret;
- 	int		debug = 0, do_type = 0, do_kill = 0, num = 0;
--	int		timeout = 0, quiet = 0, drop_privs = 0;
-+	int		timeout = 0, quiet = 0;
- 	int		no_pid = 0, no_fork = 0;
- 	int		no_sock = 0, s_flag = 0;
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 12706c2..084253d 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -1984,6 +1984,15 @@ unknown_command(int c) {
+ 	printf(_("%c: unknown command\n"), c);
+ }
  
-@@ -540,11 +538,9 @@ int main(int argc, char **argv)
- 		switch (c) {
- 		case 'd':
- 			debug++;
--			drop_privs = 1;
- 			break;
- 		case 'k':
- 			do_kill++;
--			drop_privs = 1;
- 			break;
- 		case 'n':
- 			num = strtol(optarg, &tmp, 0);
-@@ -555,20 +551,16 @@ int main(int argc, char **argv)
- 			break;
- 		case 'p':
- 			pidfile_path_param = optarg;
--			drop_privs = 1;
- 			break;
- 		case 'P':
- 			no_pid = 1;
--			drop_privs = 1;
- 			break;
- 		case 'F':
- 			no_fork = 1;
--			drop_privs = 1;
- 			break;
- 		case 'S':
- #ifdef USE_SOCKET_ACTIVATION
- 			no_sock = 1;
--			drop_privs = 1;
- 			no_fork = 1;
- 			no_pid = 1;
- #else
-@@ -582,16 +574,13 @@ int main(int argc, char **argv)
- 			break;
- 		case 'r':
- 			do_type = UUIDD_OP_RANDOM_UUID;
--			drop_privs = 1;
- 			break;
- 		case 's':
- 			socket_path = optarg;
- 			s_flag = 1;
--			drop_privs = 1;
- 			break;
- 		case 't':
- 			do_type = UUIDD_OP_TIME_UUID;
--			drop_privs = 1;
- 			break;
- 		case 'T':
- 			timeout = strtol(optarg, &tmp, 0);
-@@ -626,25 +615,6 @@ int main(int argc, char **argv)
- 		fprintf(stderr, _("Both --socket-activation and --socket specified. "
- 				  "Ignoring --socket\n"));
++static void print_welcome(void)
++{
++	printf(_("Welcome to fdisk (%s).\n\n"
++		 "Changes will remain in memory only, until you decide to write them.\n"
++		 "Be careful before using the write command.\n\n"), PACKAGE_STRING);
++
++	fflush(stdout);
++}
++
+ static void command_prompt(void)
+ {
+ 	int c;
+@@ -2211,9 +2220,7 @@ int main(int argc, char **argv)
+ 	else
+ 		usage(stderr);
  
--	uid = getuid();
--	if (uid && drop_privs) {
--		gid = getgid();
--#ifdef HAVE_SETRESGID
--		if (setresgid(gid, gid, gid) < 0)
--			err(EXIT_FAILURE, "setresgid");
--#else
--		if (setregid(gid, gid) < 0)
--			err(EXIT_FAILURE, "setregid");
--#endif
--
--#ifdef HAVE_SETRESUID
--		if (setresuid(uid, uid, uid) < 0)
--			err(EXIT_FAILURE, "setresuid");
--#else
--		if (setreuid(uid, uid) < 0)
--			err(EXIT_FAILURE, "setreuid");
--#endif
--	}
- 	if (num && do_type) {
- 		ret = call_daemon(socket_path, do_type + 2, buf,
- 				  sizeof(buf), &num, &err_context);
+-	printf(_("Welcome to fdisk (%s).\n\n"
+-		"Changes will remain in memory only, until you decide to write them.\n"
+-		"Be careful before using the write command.\n\n"), PACKAGE_STRING);
++	print_welcome();
+ 
+ 	gpt_warning(cxt->dev_path);
+ 	get_boot(0);
 -- 
-1.7.7
+1.7.4.1
+
+
+
 
