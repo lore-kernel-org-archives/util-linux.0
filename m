@@ -1,45 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx11-mx.siemens-enterprise.com ([62.134.46.9]:60474 "EHLO
-	senmx11-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030254Ab2EPLS5 convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 May 2012 07:18:57 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Date: Wed, 16 May 2012 13:18:54 +0200
-Subject: RE: [PATCH 2/2] blkid: introduce symbolic names for different blkid
- exit codes
-Message-ID: <7856072A9D04C24B82DFE2B1112FE38A0F1E5D23A6@MCHP058A.global-ad.net>
-References: <1337157512-31920-1-git-send-email-petr.uzel@suse.cz>
- <1337157512-31920-2-git-send-email-petr.uzel@suse.cz>
- <7856072A9D04C24B82DFE2B1112FE38A0F1E5D2336@MCHP058A.global-ad.net>
- <20120516092408.GA3670@foxbat.suse.cz> <20120516101346.GR8268@x2.net.home>
-In-Reply-To: <20120516101346.GR8268@x2.net.home>
-Content-Type: text/plain; charset="us-ascii"
+Received: from minas.ics.muni.cz ([147.251.4.40]:55813 "EHLO minas.ics.muni.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751344Ab2E2LwU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 07:52:20 -0400
+Received: from anxur.fi.muni.cz (anxur.fi.muni.cz [147.251.48.3])
+	by minas.ics.muni.cz (8.13.8/8.13.8/SuSE Linux 0.8) with ESMTP id q4TBjINn024690
+	for <util-linux@vger.kernel.org>; Tue, 29 May 2012 13:45:19 +0200
+Date: Tue, 29 May 2012 13:45:18 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: util-linux@vger.kernel.org
+Subject: flock(1) exit code (enhancement request)
+Message-ID: <20120529114518.GI1744@fi.muni.cz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+        Hello, util-linux developers!
 
-> On Wed, May 16, 2012 at 11:24:09AM +0200, Petr Uzel wrote:
-> > Hmm, the return value depends only on the last argument (device). I
-> > don't think this is intentional. Karel?
-> > 
-> >         # blkid -p /dev/sda /dev/sdb ; echo $?
-> >         /dev/sda: PTTYPE="gpt" 
-> >         error: /dev/sdb: No such file or directory
-> >         2
-> >         
-> >         # blkid -p /dev/sdb /dev/sda ; echo $?
-> >         error: /dev/sdb: No such file or directory
-> >         /dev/sda: PTTYPE="gpt" 
-> >         0
-> 
->  It would be better to break the loop and exit after first error.
+I use flock(1) from util-linux in my scripts, and with --wait or --nonblock
+I would like to be able to distinguish between the "conflicting lock exists"
+and "-c <command> exited with code 1" states.
 
-Then we can already exit() from lowprobe_device(),
-and thus BLKID_EXIT_* will have become pure "exit codes" ... ;-)
+        Of course, I can always wrap the -c argument with something like
+bash -c "<original_cmd_and_args> || exit 2" with yet another level of
+quoting, but I think it is really ugly.
 
-Have a nice day,
-Berny
+        This problem can be solved for example by mapping the exit code 1
+of the -c command to something else. I.e. to add something like
+
+        -m <number>
+        --map-exit-code-1-to <number>
+
+where the exit code of flock(1) would be <number>, iff the -c <command> exits
+with code 1.
+
+	The alternative would be to have user-settable exit code for
+the "conflicting lock exists" failure.
+
+	What do you think about it? If you agree with the above syntax,
+I can of course post a patch to flock(1).
+
+        Thanks,
+
+-Yenya
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+Please don't top post and in particular don't attach entire digests to your
+mail or we'll all soon be using bittorrent to read the list.     --Alan Cox
