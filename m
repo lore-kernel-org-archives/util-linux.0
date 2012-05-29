@@ -1,65 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcagg.dreamhost.com ([208.97.132.66]:38567 "EHLO
-	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751950Ab2E0ToC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 27 May 2012 15:44:02 -0400
-Subject: [PATCH 1/7] fdisk: stop buffering welcome message
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 27 May 2012 21:43:56 +0200
-Message-ID: <1338147836.22474.0.camel@offbook>
-Mime-Version: 1.0
+Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:33929 "EHLO
+	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751134Ab2E2MaP convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 08:30:15 -0400
+From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: RE: su(1) wish list
+Date: Tue, 29 May 2012 12:30:12 +0000
+Message-ID: <A75C39900FCF0B42A2CE8B26F837D2C3A854@MCHP02MSX.global-ad.net>
+References: <4FBE3059.3030806@suse.de> <20120529090609.GO3757@x2.net.home>
+ <20120529113418.GB374@x2.net.home> <4FC4BDE1.7000303@suse.de>
+In-Reply-To: <4FC4BDE1.7000303@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+Ludwig Nussel wrote:
 
-Recently, commit 0a86755fe8af1da510d2eca43bdfcd70af098c19 directed the welcome message output from stderr to stdout breaking regression tests.
-Correct this by flushing stdout and stop buffering the output - a trivial function is created as well.
+> The su man page from coreutils is pretty brief. More docu is in the
+> info page.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+Coreutil's manpages are generated from --help output. It's intension
+is just to have a brief overview over the behavior and the options.
+Therefore it's almost always better to look into the info pages.
+AFAIR that's GNU-ish.
 
-diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
-index 12706c2..084253d 100644
---- a/fdisk/fdisk.c
-+++ b/fdisk/fdisk.c
-@@ -1984,6 +1984,15 @@ unknown_command(int c) {
- 	printf(_("%c: unknown command\n"), c);
- }
- 
-+static void print_welcome(void)
-+{
-+	printf(_("Welcome to fdisk (%s).\n\n"
-+		 "Changes will remain in memory only, until you decide to write them.\n"
-+		 "Be careful before using the write command.\n\n"), PACKAGE_STRING);
-+
-+	fflush(stdout);
-+}
-+
- static void command_prompt(void)
- {
- 	int c;
-@@ -2211,9 +2220,7 @@ int main(int argc, char **argv)
- 	else
- 		usage(stderr);
- 
--	printf(_("Welcome to fdisk (%s).\n\n"
--		"Changes will remain in memory only, until you decide to write them.\n"
--		"Be careful before using the write command.\n\n"), PACKAGE_STRING);
-+	print_welcome();
- 
- 	gpt_warning(cxt->dev_path);
- 	get_boot(0);
--- 
-1.7.4.1
-
-
-
-
+Have a nice day,
+Berny
