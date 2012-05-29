@@ -1,58 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:38546 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:30901 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759952Ab2EQHlX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 May 2012 03:41:23 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 979098FA98
-	for <util-linux@vger.kernel.org>; Thu, 17 May 2012 09:41:22 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 3/4] text-utils: use min() from c.h
-Date: Thu, 17 May 2012 09:41:08 +0200
-Message-Id: <1337240469-24539-3-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
-References: <1337240469-24539-1-git-send-email-petr.uzel@suse.cz>
+	id S1751497Ab2E2IO1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 04:14:27 -0400
+Date: Tue, 29 May 2012 10:14:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Thomas Schwinge <thomas@codesourcery.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 6/7] write: Don't explicitly include <asm/param.h>.
+Message-ID: <20120529081423.GM3757@x2.net.home>
+References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-6-git-send-email-thomas@codesourcery.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337969778-3154-6-git-send-email-thomas@codesourcery.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, May 25, 2012 at 08:16:17PM +0200, Thomas Schwinge wrote:
+>  term-utils/write.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- text-utils/display.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ Applied, thanks.
 
-diff --git a/text-utils/display.c b/text-utils/display.c
-index ad638e7..84ec5d8 100644
---- a/text-utils/display.c
-+++ b/text-utils/display.c
-@@ -41,14 +41,11 @@
- #include <string.h>
- #include "hexdump.h"
- #include "xalloc.h"
-+#include "c.h"
- 
- static void doskip(const char *, int);
- static u_char *get(void);
- 
--#ifndef MIN
--#define MIN(a,b) ((a)<(b)?(a):(b))
--#endif
--
- enum _vflag vflag = FIRST;
- 
- static off_t address;			/* address/offset in stream */
-@@ -262,7 +259,7 @@ get(void)
- 			return(curp);
- 		}
- 		n = fread((char *)curp + nread, sizeof(unsigned char),
--		    length == -1 ? need : MIN(length, need), stdin);
-+		    length == -1 ? need : min(length, need), stdin);
- 		if (!n) {
- 			if (ferror(stdin))
- 				warn("%s", _argv[-1]);
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
