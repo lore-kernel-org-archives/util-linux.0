@@ -1,34 +1,30 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 7/7] fdisk: sun: use sector_t
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 27 May 2012 21:44:24 +0200
-Message-ID: <1338147864.22474.6.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:17690 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752253Ab2E2IBq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 04:01:46 -0400
+Date: Tue, 29 May 2012 10:01:41 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Thomas Schwinge <thomas@codesourcery.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/7] arch, eject, elvtune: Gracefully disable on
+ non-Linux platforms.
+Message-ID: <20120529080141.GI3757@x2.net.home>
+References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-1-git-send-email-thomas@codesourcery.com>
+ <1337969778-3154-2-git-send-email-thomas@codesourcery.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1337969778-3154-2-git-send-email-thomas@codesourcery.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Fri, May 25, 2012 at 08:16:13PM +0200, Thomas Schwinge wrote:
+>  configure.ac |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisksunlabel.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Applied, thanks.
 
-diff --git a/fdisk/fdisksunlabel.c b/fdisk/fdisksunlabel.c
-index e94b652..9d5b3e8 100644
---- a/fdisk/fdisksunlabel.c
-+++ b/fdisk/fdisksunlabel.c
-@@ -152,7 +152,7 @@ int check_sun_label(void)
- void create_sunlabel(struct fdisk_context *cxt)
- {
- 	struct hd_geometry geometry;
--	unsigned long long llsectors, llcyls;
-+	sector_t llsectors, llcyls;
- 	unsigned int ndiv, sec_fac;
- 	int res;
- 
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
