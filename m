@@ -1,59 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay1.mentorg.com ([192.94.38.131]:50978 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751592Ab2E2Iku (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 29 May 2012 04:40:50 -0400
-From: Thomas Schwinge <thomas@codesourcery.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/7] last, login, write: Provide a fallback for MAXHOSTNAMELEN, as elsewhere.
-In-Reply-To: <20120529081025.GJ3757@x2.net.home>
-References: <1337969621-3052-1-git-send-email-thomas@codesourcery.com> <1337969778-3154-1-git-send-email-thomas@codesourcery.com> <1337969778-3154-3-git-send-email-thomas@codesourcery.com> <20120529081025.GJ3757@x2.net.home>
-Date: Tue, 29 May 2012 10:40:26 +0200
-Message-ID: <8762bfbcsl.fsf@schwinge.name>
+Received: from cantor2.suse.de ([195.135.220.15]:58686 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751989Ab2E2MPg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 08:15:36 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id D165896DF4
+	for <util-linux@vger.kernel.org>; Tue, 29 May 2012 14:15:35 +0200 (CEST)
+Message-ID: <4FC4BDE1.7000303@suse.de>
+Date: Tue, 29 May 2012 14:15:29 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+To: util-linux@vger.kernel.org
+Subject: Re: su(1) wish list
+References: <4FBE3059.3030806@suse.de> <20120529090609.GO3757@x2.net.home> <20120529113418.GB374@x2.net.home>
+In-Reply-To: <20120529113418.GB374@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Karel Zak wrote:
+> On Tue, May 29, 2012 at 11:06:09AM +0200, Karel Zak wrote:
+>> On Thu, May 24, 2012 at 02:58:01PM +0200, Ludwig Nussel wrote:
+>>> I've also filed a pull request on github:
+>>> https://github.com/karelzak/util-linux/pull/10
+>>
+>>  Merged, but you forgot man page ;-) I don't think we need whole
+>>  history for the man page, so just copy and edit any existing su.1
+>>  man page and send it as a patch.
 
-Hi!
+The su man page from coreutils is pretty brief. More docu is in the
+info page. The license is the FDL, would that be ok or would a new
+man page from scratch be better? Or maybe the one from shadow-utils?
 
-On Tue, 29 May 2012 10:10:25 +0200, Karel Zak <kzak@redhat.com> wrote:
-> On Fri, May 25, 2012 at 08:16:14PM +0200, Thomas Schwinge wrote:
-> > Signed-off-by: Thomas Schwinge <thomas@codesourcery.com>
-> > ---
-> >  login-utils/last.c  |    8 ++++++++
-> >  login-utils/login.c |    8 ++++++++
-> >  term-utils/write.c  |    8 ++++++++
-> >  3 files changed, 24 insertions(+), 0 deletions(-)
->=20
->  I have moved the fallback for MAXHOSTNAMELEN to c.h, it seems better
->  than duplicate the code.  Thanks.
+> another issue:
+> 
+>   - why su.c expects "PATH" and "SUPATH" login default variables, but
+>     login.c expects "ENV_PATH" and "ENV_SUPATH"?
+> 
+>     See also login.def man page from shadow-utils where ENV_* is
+>     documented (for login as well as for su).
+> 
+>     IMHO we need to share the configuration between login and su.
 
-Yes, of course that makes even more sense.  Thanks also for applying the
-others.
+No idea why it is different. Probably legacy stuff. I see no reason
+why to use different values than login though.
 
+> and wish list:
 
-Gr=C3=BC=C3=9Fe,
- Thomas
+ACK
 
---=-=-=
-Content-Type: application/pgp-signature
+cu
+Ludwig
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJPxIt7AAoJENuKOtuXzphJbqgIALObF5AnFh2OOSuuDM8f62MW
-Z6Nes9y96mroNPjDBLcRQVmFC66MHWGC4J7v2Ypk8gdT5tq6+Srs2N4Y0+/rhZqq
-y85dB8ESNzh3nHjyRUFoN0B+t3wzdinWJJVbrtdi388PhIrhCWly2EEQjHJt/6DA
-Y3yeTajSysZg7R3qCKOf/lTXsmpMnU+Tmn3PoJXbWIzPujBQBlXH/OP7lJkCpYr6
-lzxe0yYYS9bndrxa93MjP9Ro0b4vkC1zrC0kMvTl3XB05dLjUCPJOAMzcLSgCVPt
-04X1H8pP6CmxhSe1t6m3Cfjr1AKt44XhHtX0i90P+hoYrZsZoQZlTalAv+2fnN4=
-=aPuv
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
