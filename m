@@ -1,51 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailbigip.dreamhost.com ([208.97.132.5]:54870 "EHLO
-	homiemail-a37.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753090Ab2EBOwz convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 May 2012 10:52:55 -0400
-Subject: Re: mkfs.minix -3 creates incorrect and limited filesystem
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Vladimir =?UTF-8?Q?=27=CF=86-coder/phcoder=27?= Serbinenko
-	<phcoder@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:28272 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751641Ab2E2JGN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 05:06:13 -0400
+Date: Tue, 29 May 2012 11:06:09 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
 Cc: util-linux@vger.kernel.org
-In-Reply-To: <4FA1417D.8010704@gmail.com>
-References: <4FA1417D.8010704@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 02 May 2012 16:52:49 +0200
-Message-ID: <1335970369.2734.17.camel@offbook>
-Mime-Version: 1.0
+Subject: Re: [PULL] su
+Message-ID: <20120529090609.GO3757@x2.net.home>
+References: <4FBE3059.3030806@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4FBE3059.3030806@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2012-05-02 at 16:15 +0200, Vladimir 'φ-coder/phcoder' Serbinenko
-wrote:
-> --- util-linux-2.20.1/disk-utils/mkfs.minix.c	2011-10-11 15:23:46.000000000 +0200
-> +++ util-linux-2.20.1-mod/disk-utils/mkfs.minix.c	2012-05-02 13:56:09.993347189 +0200
-> @@ -487,7 +487,7 @@ static void setup_tables(void) {
->  
->  	if (fs_version == 3) {
->  		Super3.s_log_zone_size = 0;
-> -		Super3.s_blocksize = BLOCKS;
-> +		Super3.s_blocksize = MINIX_BLOCK_SIZE;
->  	}
->  	else {
->  		Super.s_log_zone_size = 0;
-> @@ -773,7 +773,7 @@ int main(int argc, char ** argv) {
->  	if (fs_version == 3)
->  		magic = MINIX3_SUPER_MAGIC;
->  
-> -	if (fs_version == 2) {
-> +	else if (fs_version == 2) {
->  		if (namelen == 14)
->  			magic = MINIX2_SUPER_MAGIC;
->  		else
-> 
+On Thu, May 24, 2012 at 02:58:01PM +0200, Ludwig Nussel wrote:
+> I've also filed a pull request on github:
+> https://github.com/karelzak/util-linux/pull/10
 
-Correct, however this is already fixed in new versions.
+ Merged, but you forgot man page ;-) I don't think we need whole
+ history for the man page, so just copy and edit any existing su.1
+ man page and send it as a patch.
 
-Thanks,
-Davidlohr
+ Thanks.
 
+    Karel
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
