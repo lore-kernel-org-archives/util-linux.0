@@ -1,42 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53095 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:21635 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758214Ab2ECTCL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 May 2012 15:02:11 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id B2C2F97BB4
-	for <util-linux@vger.kernel.org>; Thu,  3 May 2012 21:02:10 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 11/15] libuuid: use EXIT_FAILURE
-Date: Thu,  3 May 2012 21:01:57 +0200
-Message-Id: <1336071721-32492-12-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
-References: <1336071721-32492-1-git-send-email-petr.uzel@suse.cz>
+	id S1750887Ab2E2Nbp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 May 2012 09:31:45 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q4TDVjum008309
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 29 May 2012 09:31:45 -0400
+Received: from x2 (ovpn-116-57.ams2.redhat.com [10.36.116.57])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q4TDVi8l022295
+	for <util-linux@vger.kernel.org>; Tue, 29 May 2012 09:31:44 -0400
+Date: Tue, 29 May 2012 15:31:43 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: no more --enable-login-utils
+Message-ID: <20120529133143.GC374@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- libuuid/src/gen_uuid.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+  I have replaced --enable-login-utils with:
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index caa240e..8c102b1 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -416,7 +416,7 @@ static int get_uuid_via_daemon(int op, uuid_t out, int *num)
- 				close_all_fds();
- 				execl(uuidd_path, "uuidd", "-qT", "300",
- 				      (char *) NULL);
--				exit(1);
-+				exit(EXIT_FAILURE);
- 			}
- 			(void) waitpid(pid, 0, 0);
- 			if (connect(s, (const struct sockaddr *) &srv_addr,
+          --enable-vipw 
+          --enable-newgrp 
+          --enable-chfn-chsh
+          --disable-login  
+          --disable-sulogin
+          --disable-su    
+
+ so now we have fine-grained control on login utils. The login(1),
+ sulogin(8) and su(1) are enabled by default.
+
+    Karel
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
