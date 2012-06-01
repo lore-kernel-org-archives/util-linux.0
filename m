@@ -1,59 +1,94 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:40610 "EHLO
-	homiemail-a62.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757505Ab2FQQKD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 17 Jun 2012 12:10:03 -0400
-Subject: [PATCH 1/9] fdisk: extend comments for fdisk_new_context()
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 17 Jun 2012 18:09:59 +0200
-Message-ID: <1339949399.2668.13.camel@offbook>
-Mime-Version: 1.0
+Received: from cantor2.suse.de ([195.135.220.15]:60305 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759630Ab2FAMv1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jun 2012 08:51:27 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id A08BE95D4D
+	for <util-linux@vger.kernel.org>; Fri,  1 Jun 2012 14:51:26 +0200 (CEST)
+From: Ludwig Nussel <ludwig.nussel@suse.de>
+To: util-linux@vger.kernel.org
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: [PATCH 2/7] use EXIT_FAILURE consistently
+Date: Fri,  1 Jun 2012 14:51:16 +0200
+Message-Id: <1338555081-2061-2-git-send-email-ludwig.nussel@suse.de>
+In-Reply-To: <1338555081-2061-1-git-send-email-ludwig.nussel@suse.de>
+References: <1338555081-2061-1-git-send-email-ludwig.nussel@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Ludwig Nussel <ludwig.nussel@suse.de>
 ---
- fdisk/utils.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+ login-utils/su.c |   15 ++++++---------
+ 1 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/fdisk/utils.c b/fdisk/utils.c
-index 352a934..5bb4984 100644
---- a/fdisk/utils.c
-+++ b/fdisk/utils.c
-@@ -147,6 +147,12 @@ void fdisk_init_debug(int mask)
+diff --git a/login-utils/su.c b/login-utils/su.c
+index 77722c4..b1fca5f 100644
+--- a/login-utils/su.c
++++ b/login-utils/su.c
+@@ -37,11 +37,8 @@
  
- /**
-  * fdisk_new_context:
-+ * @filename: path to the device to be handled
-+ * @readonly: how to open the device
-+ *
-+ * If the @readonly flag is set to false, fdisk will attempt to open
-+ * the device with read-write mode and will fallback to read-only if
-+ * unsuccessful.
-  *
-  * Returns: newly allocated fdisk context
-  */
-@@ -155,10 +161,6 @@ struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int rea
- 	int fd, errsv = 0;
- 	struct fdisk_context *cxt = NULL;
+    Based on an implemenation by David MacKenzie <djm@gnu.ai.mit.edu>.  */
  
--	/*
--	 * Attempt to open the device with r-w permissions
--	 * by default, otherwise try read-only.
--	 */
- 	if (readonly == 1 || (fd = open(fname, O_RDWR)) < 0) {
- 		if ((fd = open(fname, O_RDONLY)) < 0)
- 			return NULL;
+-/* Exit statuses for programs like 'env' that exec other programs.
+-   EXIT_FAILURE might not be 1, so use EXIT_FAIL in such programs.  */
+ enum
+ {
+-  EXIT_FAIL = 1,
+   EXIT_CANNOT_INVOKE = 126,
+   EXIT_ENOENT = 127
+ };
+@@ -555,7 +552,7 @@ init_groups (const struct passwd *pw)
+   if (initgroups (pw->pw_name, pw->pw_gid) == -1)
+     {
+       cleanup_pam (PAM_ABORT);
+-      error (EXIT_FAIL, errno, _("cannot set groups"));
++      error (EXIT_FAILURE, errno, _("cannot set groups"));
+     }
+   endgrent ();
+ 
+@@ -570,9 +567,9 @@ static void
+ change_identity (const struct passwd *pw)
+ {
+   if (setgid (pw->pw_gid))
+-    error (EXIT_FAIL, errno, _("cannot set group id"));
++    error (EXIT_FAILURE, errno, _("cannot set group id"));
+   if (setuid (pw->pw_uid))
+-    error (EXIT_FAIL, errno, _("cannot set user id"));
++    error (EXIT_FAILURE, errno, _("cannot set user id"));
+ }
+ 
+ /* Run SHELL, or DEFAULT_SHELL if SHELL is empty.
+@@ -734,7 +731,7 @@ main (int argc, char **argv)
+ 	  exit(EXIT_SUCCESS);
+ 
+ 	default:
+-	  usage (EXIT_FAIL);
++	  usage (EXIT_FAILURE);
+ 	}
+     }
+ 
+@@ -751,7 +748,7 @@ main (int argc, char **argv)
+   pw = getpwnam (new_user);
+   if (! (pw && pw->pw_name && pw->pw_name[0] && pw->pw_dir && pw->pw_dir[0]
+ 	 && pw->pw_passwd))
+-    error (EXIT_FAIL, 0, _("user %s does not exist"), new_user);
++    error (EXIT_FAILURE, 0, _("user %s does not exist"), new_user);
+ 
+   /* Make a copy of the password information and point pw at the local
+      copy instead.  Otherwise, some systems (e.g. Linux) would clobber
+@@ -773,7 +770,7 @@ main (int argc, char **argv)
+     {
+       log_su (pw, false);
+       sleep (getlogindefs_num ("FAIL_DELAY", 1));
+-      error (EXIT_FAIL, 0, _("incorrect password"));
++      error (EXIT_FAILURE, 0, _("incorrect password"));
+     }
+   else
+     {
 -- 
-1.7.4.1
-
-
-
+1.7.7
 
