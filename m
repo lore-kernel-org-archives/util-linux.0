@@ -1,53 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:49694 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754542Ab2FDH2M (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 4 Jun 2012 03:28:12 -0400
-Message-ID: <4FCC6386.3080505@suse.de>
-Date: Mon, 04 Jun 2012 09:28:06 +0200
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-MIME-Version: 1.0
-To: kerolasa@gmail.com
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: [pull] su.1 manual page
-References: <CAG27Bk3YrUc4cwpUou5o005S165LOc4C8bPHp-EnkwAz2WsFng@mail.gmail.com> <4FC72679.7050307@suse.de> <CAG27Bk0E79L9Tb7zi0M6ditsxr46LKJcy6Rn1KqFi5wrxTB4pw@mail.gmail.com> <4FC88A00.90004@suse.de> <CAG27Bk1s96ztd-k4C9vqJqdj=_Mc7oz-VUhzYkDyWMyL2x-irw@mail.gmail.com>
-In-Reply-To: <CAG27Bk1s96ztd-k4C9vqJqdj=_Mc7oz-VUhzYkDyWMyL2x-irw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from caiajhbdccac.dreamhost.com ([208.97.132.202]:37084 "EHLO
+	homiemail-a3.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753992Ab2FCSPi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Jun 2012 14:15:38 -0400
+Subject: [PATCH 5/5] fdisk: add fdisk_dev_sectsz_is_default helper
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 03 Jun 2012 20:15:34 +0200
+Message-ID: <1338747334.2864.14.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sami Kerola wrote:
-> On Fri, Jun 1, 2012 at 11:23 AM, Ludwig Nussel <ludwig.nussel@suse.de> wrote:
->> Sami Kerola wrote:
->>> On Thu, May 31, 2012 at 10:06 AM, Ludwig Nussel <ludwig.nussel@suse.de> wrote:
->>>> Hmm, I was about to write a man page from scratch. Should I continue or
->>>> do we use the coreutils man page?
->>>
->>> 1. Continue writing from scratch, and propose your own man page candidate.
->>
->> I've attached my suggestion
-> 
-> Hi Ludwig,
-> 
-> Your manual is better, so I took liberty to add it to my branch and
-> make few groff changes.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/2ab15cb0c3b6fe81697713ce6dc56b85e44a00fe#login-utils/su.1
-> 
-> Have also a look of how the pager will show the end result.
-> 
-> https://raw.github.com/kerolasa/lelux-utiliteetit/su.1/login-utils/su.1
-> 
-> I would like to hear you are OK with that. Without other comments I
-> reckon the su.1 is ready to be merged.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Fine with me, thanks!
+Instead of printing this warning from the API, add a helper and call it from fdisk logic.
 
-cu
-Ludwig
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c |    4 ++++
+ fdisk/fdisk.h |    1 +
+ fdisk/utils.c |   14 +++++++++++---
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index baa5bad..df0d29b 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -2152,6 +2152,10 @@ int main(int argc, char **argv)
+ 
+ 	print_welcome();
+ 
++	if (!fdisk_dev_sectsz_is_default(cxt))
++		printf(_("Note: sector size is %ld (not %d)\n"),
++		       cxt->sector_size, DEFAULT_SECTOR_SIZE);
++
+ 	gpt_warning(cxt->dev_path);
+ 	get_boot(cxt, 0);
+ 
+diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
+index a74f25e..6aacc05 100644
+--- a/fdisk/fdisk.h
++++ b/fdisk/fdisk.h
+@@ -119,6 +119,7 @@ struct fdisk_context {
+ 
+ extern struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int readonly);
+ extern int fdisk_dev_has_topology(struct fdisk_context *cxt);
++extern int fdisk_dev_sectsz_is_default(struct fdisk_context *cxt);
+ extern void fdisk_free_context(struct fdisk_context *cxt);
+ 
+ /* prototypes for fdisk.c */
+diff --git a/fdisk/utils.c b/fdisk/utils.c
+index 6fabd82..d57abe9 100644
+--- a/fdisk/utils.c
++++ b/fdisk/utils.c
+@@ -80,14 +80,22 @@ static int __discover_topology(struct fdisk_context *cxt)
+ 	cxt->sector_size = __get_sector_size(cxt->dev_fd);
+ 	if (!cxt->phy_sector_size) /* could not discover physical size */
+ 		cxt->phy_sector_size = cxt->sector_size;
+-	if (cxt->sector_size != DEFAULT_SECTOR_SIZE)
+-		printf(_("Note: sector size is %ld (not %d)\n"),
+-		       cxt->sector_size, DEFAULT_SECTOR_SIZE);
+ 
+ 	return 0;
+ }
+ 
+ /**
++ * fdisk_dev_sectsz_is_default:
++ * @cxt: fdisk context
++ *
++ * Returns 1 if the device's sector size is the default value, otherwise 0.
++ */
++int fdisk_dev_sectsz_is_default(struct fdisk_context *cxt)
++{
++	return cxt->sector_size == DEFAULT_SECTOR_SIZE;
++}
++
++/**
+  * fdisk_dev_has_topology:
+  * @cxt: fdisk context
+  *
 -- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+1.7.4.1
+
+
+
+
