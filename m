@@ -1,198 +1,72 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Tue, 19 Jun 2012 18:27:06 +0800
-From: Zheng Liu <gnehzuil.liu@gmail.com>
-To: Sami Kerola <kerolasa@gmail.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, Jens Axboe <axboe@kernel.dk>,
-        Rob Landley <rob@landley.net>,
-        Bernhard Voelker <mail@bernhard-voelker.de>,
-        Zheng Liu <wenqing.lz@taobao.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [PATCH] docs: block: update ioprio.txt
-Message-ID: <20120619102706.GA9273@gmail.com>
-References: <1340095897-9014-1-git-send-email-wenqing.lz@taobao.com>
- <CAG27Bk2tXprRfMfYOVdWtwSbjw5Rw9Kxs6Wns+Gm65m3hoJawg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk2tXprRfMfYOVdWtwSbjw5Rw9Kxs6Wns+Gm65m3hoJawg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdcaid.dreamhost.com ([208.97.132.83]:33873 "EHLO
+	homiemail-a37.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753992Ab2FCSPa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Jun 2012 14:15:30 -0400
+Subject: [PATCH 3/5] fdisk: remove user specified sector size global
+ variable
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 03 Jun 2012 20:15:27 +0200
+Message-ID: <1338747327.2864.12.camel@offbook>
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Sami,
+>From cbd1e6486580b86aaca9345adaf6da69aeb0b1b4 Mon Sep 17 00:00:00 2001
+From: Davidlohr Bueso <dave@gnu.org>
+Date: Sun, 3 Jun 2012 19:47:44 +0200
+Subject: 
 
-[You forgot to CC'd other developers and mailing list]
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisk.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
-On Tue, Jun 19, 2012 at 10:54:41AM +0200, Sami Kerola wrote:
-> Hi Zheng,
-> 
-> Wouldn't a patch such as below be better?
+diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
+index 654d8f3..d8ef14f 100644
+--- a/fdisk/fdisk.c
++++ b/fdisk/fdisk.c
+@@ -141,7 +141,6 @@ sector_t sector_offset = 1, sectors;
+ 
+ unsigned int	heads,
+ 	cylinders,
+-	user_set_sector_size = 0,
+ 	units_per_sector = 1,
+ 	display_in_cyl_units = 0;
+ 
+@@ -2061,7 +2060,6 @@ int main(int argc, char **argv)
+ 			    sector_size != 2048 && sector_size != 4096)
+ 				usage(stderr);
+ 			sector_offset = 2;
+-			user_set_sector_size = 1;
+ 			break;
+ 		case 'C':
+ 			user_cylinders =  strtou32_or_err(optarg, _("invalid cylinders argument"));
+@@ -2110,7 +2108,7 @@ int main(int argc, char **argv)
+ 
+ 	fdisk_init_debug(0);
+ 
+-	if (user_set_sector_size && argc-optind != 1)
++	if (sector_size && argc-optind != 1)
+ 		printf(_("Warning: the -b (set sector size) option should"
+ 			 " be used with one specified device\n"));
+ 
+@@ -2146,7 +2144,7 @@ int main(int argc, char **argv)
+ 		cxt = fdisk_new_context_from_filename(argv[optind], 0);
+ 		if (!cxt)
+ 			err(EXIT_FAILURE, _("unable to open %s"), argv[optind]);
+-		if (user_set_sector_size) /* passed -b option, override autodiscovery */
++		if (sector_size) /* passed -b option, override autodiscovery */
+ 			cxt->phy_sector_size = cxt->sector_size = sector_size;
+ 	}
+ 	else
+-- 
+1.7.4.1
 
-Looks good to me.  But, IMHO, if reader cannot access Internet, my patch
-maybe is better for them.  The original writer is not me.  So I don't
-understand the original idea that puts ionice source code in here.  I
-think that Jens can do the final decision.
 
-Hi Jens,
 
-What's your opintion about Sami's and my patch?
 
-Regards,
-Zheng
-
-> 
-> From 800d7d46f8c1945d9c2e43912376c9b7d00a15ba Mon Sep 17 00:00:00 2001
-> From: Sami Kerola <kerolasa@iki.fi>
-> Date: Tue, 19 Jun 2012 10:52:06 +0200
-> Subject: [PATCH] docs: block: update ioprio.txt
-> 
-> Inform the ionice.c in ioprio.txt document is moved to util-linux
-> package.
-> 
-> CC: Jens Axboe <axboe@kernel.dk>
-> CC: Rob Landley <rob@landley.net>
-> CC: Bernhard Voelker <mail@bernhard-voelker.de>
-> CC: Zheng Liu <wenqing.lz@taobao.com>
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  Documentation/block/ioprio.txt |  126 ++--------------------------------------
->  1 file changed, 5 insertions(+), 121 deletions(-)
-> 
-> diff --git a/Documentation/block/ioprio.txt b/Documentation/block/ioprio.txt
-> index 8ed8c59..9ccd3f0 100644
-> --- a/Documentation/block/ioprio.txt
-> +++ b/Documentation/block/ioprio.txt
-> @@ -57,127 +57,11 @@ For a running process, you can give the pid instead:
-> 
->  will change pid 100 to run at the realtime scheduling class, at priority 2.
-> 
-> ----> snip ionice.c tool <---
-> -
-> -#include <stdio.h>
-> -#include <stdlib.h>
-> -#include <errno.h>
-> -#include <getopt.h>
-> -#include <unistd.h>
-> -#include <sys/ptrace.h>
-> -#include <asm/unistd.h>
-> -
-> -extern int sys_ioprio_set(int, int, int);
-> -extern int sys_ioprio_get(int, int);
-> -
-> -#if defined(__i386__)
-> -#define __NR_ioprio_set		289
-> -#define __NR_ioprio_get		290
-> -#elif defined(__ppc__)
-> -#define __NR_ioprio_set		273
-> -#define __NR_ioprio_get		274
-> -#elif defined(__x86_64__)
-> -#define __NR_ioprio_set		251
-> -#define __NR_ioprio_get		252
-> -#elif defined(__ia64__)
-> -#define __NR_ioprio_set		1274
-> -#define __NR_ioprio_get		1275
-> -#else
-> -#error "Unsupported arch"
-> -#endif
-> -
-> -static inline int ioprio_set(int which, int who, int ioprio)
-> -{
-> -	return syscall(__NR_ioprio_set, which, who, ioprio);
-> -}
-> -
-> -static inline int ioprio_get(int which, int who)
-> -{
-> -	return syscall(__NR_ioprio_get, which, who);
-> -}
-> -
-> -enum {
-> -	IOPRIO_CLASS_NONE,
-> -	IOPRIO_CLASS_RT,
-> -	IOPRIO_CLASS_BE,
-> -	IOPRIO_CLASS_IDLE,
-> -};
-> -
-> -enum {
-> -	IOPRIO_WHO_PROCESS = 1,
-> -	IOPRIO_WHO_PGRP,
-> -	IOPRIO_WHO_USER,
-> -};
-> -
-> -#define IOPRIO_CLASS_SHIFT	13
-> -
-> -const char *to_prio[] = { "none", "realtime", "best-effort", "idle", };
-> -
-> -int main(int argc, char *argv[])
-> -{
-> -	int ioprio = 4, set = 0, ioprio_class = IOPRIO_CLASS_BE;
-> -	int c, pid = 0;
-> -
-> -	while ((c = getopt(argc, argv, "+n:c:p:")) != EOF) {
-> -		switch (c) {
-> -		case 'n':
-> -			ioprio = strtol(optarg, NULL, 10);
-> -			set = 1;
-> -			break;
-> -		case 'c':
-> -			ioprio_class = strtol(optarg, NULL, 10);
-> -			set = 1;
-> -			break;
-> -		case 'p':
-> -			pid = strtol(optarg, NULL, 10);
-> -			break;
-> -		}
-> -	}
-> -
-> -	switch (ioprio_class) {
-> -		case IOPRIO_CLASS_NONE:
-> -			ioprio_class = IOPRIO_CLASS_BE;
-> -			break;
-> -		case IOPRIO_CLASS_RT:
-> -		case IOPRIO_CLASS_BE:
-> -			break;
-> -		case IOPRIO_CLASS_IDLE:
-> -			ioprio = 7;
-> -			break;
-> -		default:
-> -			printf("bad prio class %d\n", ioprio_class);
-> -			return 1;
-> -	}
-> -
-> -	if (!set) {
-> -		if (!pid && argv[optind])
-> -			pid = strtol(argv[optind], NULL, 10);
-> -
-> -		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
-> -
-> -		printf("pid=%d, %d\n", pid, ioprio);
-> -
-> -		if (ioprio == -1)
-> -			perror("ioprio_get");
-> -		else {
-> -			ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
-> -			ioprio = ioprio & 0xff;
-> -			printf("%s: prio %d\n", to_prio[ioprio_class], ioprio);
-> -		}
-> -	} else {
-> -		if (ioprio_set(IOPRIO_WHO_PROCESS, pid, ioprio | ioprio_class <<
-> IOPRIO_CLASS_SHIFT) == -1) {
-> -			perror("ioprio_set");
-> -			return 1;
-> -		}
-> -
-> -		if (argv[optind])
-> -			execvp(argv[optind], &argv[optind]);
-> -	}
-> -
-> -	return 0;
-> -}
-> -
-> ----> snip ionice.c tool <---
-> +Tool source code
-> +----------------
-> 
-> +Moved to util-linux package schedutils/ionice.c
-> +
-> +http://git.kernel.org/?p=utils/util-linux/util-linux.git;a=blob;f=schedutils/ionice.c
-> 
->  March 11 2005, Jens Axboe <jens.axboe@oracle.com>
-> -- 
-> 1.7.9.5
