@@ -1,38 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33470 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751498Ab2FOLTm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jun 2012 07:19:42 -0400
-Date: Fri, 15 Jun 2012 13:19:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] require C99, add robustness and small fixes
-Message-ID: <20120615111939.GB23464@x2.net.home>
-References: <CAG27Bk1p9gqdiZSjmHcsWvTTs9WKU=vx0dYvtZVLCGJ1iuAnyg@mail.gmail.com>
- <20120611094851.GA21893@x2.net.home>
- <CAG27Bk0AK4rA9TGczXzSnUABd29p0krr-vdPH=Eyp8LO8GpVFw@mail.gmail.com>
- <20120615104635.GA23464@x2.net.home>
+Received: from moutng.kundenserver.de ([212.227.126.186]:64936 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751677Ab2FDLBO convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Jun 2012 07:01:14 -0400
+From: =?UTF-8?q?Andreas=20Bie=C3=9Fmann?= <biessmann@corscience.de>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Andreas=20Bie=C3=9Fmann?= <biessmann@corscience.de>
+Subject: [PATCH v2] text-utils/hexsyntax.c: fix for missing program_invocation_short_name
+Date: Mon,  4 Jun 2012 13:01:09 +0200
+Message-Id: <1338807669-32204-1-git-send-email-biessmann@corscience.de>
+In-Reply-To: <1338277884-29779-1-git-send-email-biessmann@corscience.de>
+References: <1338277884-29779-1-git-send-email-biessmann@corscience.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120615104635.GA23464@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 15, 2012 at 12:46:35PM +0200, Karel Zak wrote:
-> On Mon, Jun 11, 2012 at 10:19:02PM +0200, Sami Kerola wrote:
-> >       blkdev: add blkdev_scsi_type_to_name()
-> >       lsblk: use blkdev_scsi_type_to_name()
+Some libc do not expose program_invocation_short_name. Therefore util-linux
+comes with helpers in 'c.h'. Use the 'c.h' in hexsyntax.c where it was missed.
 
- I have modified this code. It seems better to return static strings
- from blkdev_scsi_type_to_name() (Please, don't use xalloc.h stuff in
- lib/ as we use the functions from lib/ in shared libraries.)
+This patch fixes following error for me:
+---8<---
+hexsyntax.c: In function 'newsyntax':
+hexsyntax.c:115: error: 'program_invocation_short_name' undeclared (first use in this function)
+hexsyntax.c:115: error: (Each undeclared identifier is reported only once
+hexsyntax.c:115: error: for each function it appears in.)
+--->8---
 
- It seems better to have fallbacks for unknown SCSI types in
- applications (for example lsblk uses "part" or "disk").
+Signed-off-by: Andreas Bießmann <biessmann@corscience.de>
+---
+since v1:
+ clearify commit message
 
-    Karel
+ text-utils/hexsyntax.c |    1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/text-utils/hexsyntax.c b/text-utils/hexsyntax.c
+index 5f3b733..21cc55e 100644
+--- a/text-utils/hexsyntax.c
++++ b/text-utils/hexsyntax.c
+@@ -45,6 +45,7 @@
+ #include "hexdump.h"
+ #include "nls.h"
+ #include "strutils.h"
++#include "c.h"
+ 
+ off_t skip;				/* bytes to skip */
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.10
+
