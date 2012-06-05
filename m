@@ -1,34 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:65232 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56085 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752264Ab2FOL0t (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jun 2012 07:26:49 -0400
-Date: Fri, 15 Jun 2012 13:26:45 +0200
+	id S934105Ab2FEN1T (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Jun 2012 09:27:19 -0400
+Date: Tue, 5 Jun 2012 15:27:13 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] partx: use -s option for default output
-Message-ID: <20120615112645.GA9266@x2.net.home>
-References: <1339505406.17574.1.camel@offworld>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/7] introduce xsetenv globally
+Message-ID: <20120605132713.GJ14536@x2.net.home>
+References: <1338555081-2061-1-git-send-email-ludwig.nussel@suse.de>
+ <1338555081-2061-4-git-send-email-ludwig.nussel@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1339505406.17574.1.camel@offworld>
+In-Reply-To: <1338555081-2061-4-git-send-email-ludwig.nussel@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 12, 2012 at 02:50:06PM +0200, Davidlohr Bueso wrote:
-> It's been around a year and a half now that partx was rewritten, 
-> and the legacy output should no longer be default.
-> 
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> ---
->  partx/partx.c |    3 +--
->  1 files changed, 1 insertions(+), 2 deletions(-)
+On Fri, Jun 01, 2012 at 02:51:18PM +0200, Ludwig Nussel wrote:
+> +++ b/include/env.h
+> @@ -4,5 +4,12 @@
+>  extern void sanitize_env (void);
+>  extern char *safe_getenv(const char *arg);
+>  
+> +static inline void
+> +xsetenv (char const *name, char const *val, int overwrite)
+> +{
+> +  if (setenv (name, val, overwrite) != 0)
+> +    err (EXIT_FAILURE,  _("failed to set the %s environment variable"), name);
+> +}
+> +
 
- Applied, all hate from users will be redirected to mailbox :-)
+ It would be nice to use it also in login.c :-)
 
     Karel
-
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
