@@ -1,45 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55385 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45620 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754990Ab2F0Jac (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 27 Jun 2012 05:30:32 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q5R9UWsb001938
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 27 Jun 2012 05:30:32 -0400
-Received: from x2 (ovpn-113-129.phx2.redhat.com [10.3.113.129])
-	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q5R9UVvh001276
-	for <util-linux@vger.kernel.org>; Wed, 27 Jun 2012 05:30:32 -0400
-Date: Wed, 27 Jun 2012 11:30:30 +0200
+	id S1757259Ab2FENBX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Jun 2012 09:01:23 -0400
+Date: Tue, 5 Jun 2012 15:01:14 +0200
 From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: non-recursive build system
-Message-ID: <20120627093030.GA21972@x2.net.home>
-References: <20120612100340.GB23991@x2.net.home>
+To: maximilian attems <max@stro.at>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lib/strutils: circumvent missing localeconv()
+Message-ID: <20120605130114.GH14536@x2.net.home>
+References: <1338486050-7490-1-git-send-email-max@stro.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20120612100340.GB23991@x2.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1338486050-7490-1-git-send-email-max@stro.at>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 12, 2012 at 12:03:40PM +0200, Karel Zak wrote:
-> 
-> 
->  The original version was implemented by Diego Elio 'Flameeyes' Pettenò
->  two years ago:
->      http://thread.gmane.org/gmane.linux.utilities.util-linux-ng/3297
-> 
->  See also:
->      http://www.flameeyes.eu/autotools-mythbuster/automake/nonrecursive.html
-> 
->  My current version is available at github, 'non-recursive' branch:
->      https://github.com/karelzak/util-linux/commits/non-recursive
-> 
+On Thu, May 31, 2012 at 07:40:49PM +0200, maximilian attems wrote:
+>  include/nls.h  |    6 ++++++
+>  lib/strutils.c |    2 +-
+>  2 files changed, 7 insertions(+), 1 deletion(-)
 
- Merged into master branch, "git clean -xdf" after git pull is your
- good friend. Good luck ;-)
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
