@@ -1,41 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:9881 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48128 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752975Ab2FNTnN (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 14 Jun 2012 15:43:13 -0400
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q5EJhCoC015203
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux-ng@vger.kernel.org>; Thu, 14 Jun 2012 15:43:13 -0400
-Received: from [10.36.4.198] (vpn1-4-198.ams2.redhat.com [10.36.4.198])
-	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q5EJhBk9007344
-	for <util-linux-ng@vger.kernel.org>; Thu, 14 Jun 2012 15:43:12 -0400
-Message-ID: <4FDA3ECF.9060607@redhat.com>
-Date: Thu, 14 Jun 2012 21:43:11 +0200
-From: Milan Broz <mbroz@redhat.com>
+	id S934008Ab2FENuK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Jun 2012 09:50:10 -0400
+Date: Tue, 5 Jun 2012 15:50:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount/optstr: trim leading commas from each opt
+Message-ID: <20120605135008.GM14536@x2.net.home>
+References: <1338740747-1809-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-To: util-linux-ng <util-linux-ng@vger.kernel.org>
-Subject: Re: remove encryption options from mount and losetup?
-References: <4FD8A950.5000906@suse.de> <20120613150144.GE10561@x2.net.home> <4FD9CF44.8090800@suse.de>
-In-Reply-To: <4FD9CF44.8090800@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1338740747-1809-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/14/2012 01:47 PM, Ludwig Nussel wrote:
-> Karel Zak wrote:
+On Sun, Jun 03, 2012 at 12:25:47PM -0400, Dave Reisner wrote:
+>  libmount/src/optstr.c |    5 +++++
+>  1 file changed, 5 insertions(+)
 
-> Well, someone could come up with another tool to support cryptoloop, or
-> rather 'transfer functions'.
+ Applied, thanks.
 
-cryptsetup can map all compatible mappings with cryptoloop using dmcrypt
-(and it can automatically alloc loop device as well) so providing something
-compatible is just question of simple wrapper.
-
-IMHO cryptoloop should be removed from kernel... The only usable (and secure)
-solution using this interface is out-of-mainline-tree loop-aes extension.
-
-Milan
-
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
