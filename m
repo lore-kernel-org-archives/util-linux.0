@@ -1,60 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdccac.dreamhost.com ([208.97.132.202]:40622 "EHLO
-	homiemail-a62.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757509Ab2FQQKJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 17 Jun 2012 12:10:09 -0400
-Subject: [PATCH 2/9] fdisk: API: add topology debug
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 17 Jun 2012 18:10:04 +0200
-Message-ID: <1339949404.2668.14.camel@offbook>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:54500 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753091Ab2FEPsF (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 5 Jun 2012 11:48:05 -0400
+Date: Tue, 5 Jun 2012 17:48:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: make install: some SUID-root programs?
+Message-ID: <20120605154801.GB3882@x2.net.home>
+References: <318289300.205241.1338909469539.JavaMail.open-xchange@email.1und1.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <318289300.205241.1338909469539.JavaMail.open-xchange@email.1und1.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Tue, Jun 05, 2012 at 05:17:49PM +0200, Bernhard Voelker wrote:
+>  Today, only write and wall seem to get SUID/SGID privileges during
+> "make install". What about others?
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisk.h |    1 +
- fdisk/utils.c |    5 +++++
- 2 files changed, 6 insertions(+), 0 deletions(-)
+ mount, umount
 
-diff --git a/fdisk/fdisk.h b/fdisk/fdisk.h
-index c645b24..9d17cdd 100644
---- a/fdisk/fdisk.h
-+++ b/fdisk/fdisk.h
-@@ -35,6 +35,7 @@
- /* fdisk debugging flags/options */
- #define FDISK_DEBUG_INIT	(1 << 1)
- #define FDISK_DEBUG_CONTEXT	(1 << 2)
-+#define FDISK_DEBUG_TOPOLOGY    (1 << 3)
- #define FDISK_DEBUG_ALL		0xFFFF
- 
- # define ON_DBG(m, x)	do { \
-diff --git a/fdisk/utils.c b/fdisk/utils.c
-index 5bb4984..d105d8e 100644
---- a/fdisk/utils.c
-+++ b/fdisk/utils.c
-@@ -85,6 +85,11 @@ static int __discover_topology(struct fdisk_context *cxt)
- 	if (!cxt->phy_sector_size) /* could not discover physical size */
- 		cxt->phy_sector_size = cxt->sector_size;
- 
-+	DBG(TOPOLOGY, dbgprint("topology discovered for %s:\n"
-+			       "\tlogical/physical sector sizes: %ld/%ld\n"
-+			       "\tfdisk/minimal/optimal io sizes: %ld/%ld/%ld\n",
-+			       cxt->dev_path, cxt->sector_size, cxt->phy_sector_size,
-+			       cxt->io_size, cxt->optimal_io_size, cxt->min_io_size));
- 	return 0;
- }
- 
+> E.g. login and su would deserve
+
+ - for login(1) is it unnecessary, it's executed by getty ant it runs
+   with root perms.
+
+ - for su(1) is it necessary, fixed. Thanks ;-)
+
+> to be `chmod u+s`-ed, right?
+> Or is this a task of the distributions?
+
+It's definitely better if distributions somehow control all the stuff
+from upstreams -- blindly use result from "make install" is a bad idea.
+For example in rpm is special %files section for this purpose.
+
+Trust, but verify :-)
+
+    Karel
+
 -- 
-1.7.4.1
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
