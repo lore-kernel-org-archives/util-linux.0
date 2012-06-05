@@ -1,51 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:42428 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751201Ab2FSIP7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Jun 2012 04:15:59 -0400
-Message-ID: <4FE03539.7060005@gmail.com>
-Date: Tue, 19 Jun 2012 16:15:53 +0800
-From: "gnehzuil.lzheng@gmail.com" <gnehzuil.lzheng@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:42145 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758022Ab2FENtc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Jun 2012 09:49:32 -0400
+Date: Tue, 5 Jun 2012 15:49:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] include correct source file for chsh
+Message-ID: <20120605134927.GL14536@x2.net.home>
+References: <1338658682-17318-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: Jens Axboe <axboe@kernel.dk>, Rob Landley <rob@landley.net>,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: Why does ionice(1) ban the user to set back to 'none' class?
-References: <20120618114841.GA4855@gmail.com> <4FDF2D10.9050008@kernel.dk> <4FDFDFCE.9010307@gmail.com> <4FE01ED8.8000903@bernhard-voelker.de>
-In-Reply-To: <4FE01ED8.8000903@bernhard-voelker.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1338658682-17318-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/19/2012 02:40 PM, Bernhard Voelker wrote:
+On Sat, Jun 02, 2012 at 01:38:02PM -0400, Dave Reisner wrote:
+>  login-utils/Makefile.am |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-> That has already been fixed by commit v2.15-45-g5dc9371 more than 2 years ago:
-> 
->   Author: Jakob Unterwurzacher <jakobunt@gmail.com>  2009-01-17 02:38:32
->   Committer: Karel Zak <kzak@redhat.com>  2009-05-27 23:43:18
-> 
-> and the change made it into 2.16.
-> 
-> The current piece of code looks like this:
-> 
-> 	switch (ioclass) {
-> 		case IOPRIO_CLASS_NONE:
-> 			if ((set & 1) && !tolerant)
-> 				warnx(_("ignoring given class data for none class"));
-> 			data = 0;
-> 			break;
-> 		case IOPRIO_CLASS_RT:
-> 		case IOPRIO_CLASS_BE:
-> 			break;
-> 
-> We'are currently at version 2.21.2.
+ Good catch. Applied, thanks.
 
-Thanks for pointing out it.  I use ionice(1) in rhel5 and its version is
-2.13. :-p
+    Karel
 
-Obviously, Documentation/block/ioprio.txt is out of date.  Later I will
-send a patch to fix it.
-
-Regards,
-Zheng
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
