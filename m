@@ -1,27 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:15468 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753015Ab2FFIOe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Jun 2012 04:14:34 -0400
-Date: Wed, 6 Jun 2012 10:14:07 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/7] fdisk: stop buffering welcome message
-Message-ID: <20120606081407.GA25242@x2.net.home>
-References: <1338147836.22474.0.camel@offbook>
+Received: from moutng.kundenserver.de ([212.227.17.10]:52206 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751945Ab2FFLuy (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Jun 2012 07:50:54 -0400
+Message-ID: <4FCF441C.1090400@bernhard-voelker.de>
+Date: Wed, 06 Jun 2012 13:50:52 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1338147836.22474.0.camel@offbook>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: su: calling setsid() for -c only if non-root user?
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 27, 2012 at 09:43:56PM +0200, Davidlohr Bueso wrote:
->  fdisk/fdisk.c |   13 ++++++++++---
->  1 files changed, 10 insertions(+), 3 deletions(-)
+I am playing around with the --command and --session-command options of su,
+and I noticed that setsid() is only called iff a non-root new_user is given:
 
- All 7 patches applied. Thanks.
+  if (request_same_session || !command || !pw->pw_uid)
+    same_session = 1;
+  ...
+  if (!same_session)
+    setsid ();
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Why is the setsid() call dependent on the user?
+
+The commit and the bug behind it don't give an answer
+(c6a1746b5f5247b2fccaf5c7f68da3852a02e4fc):
+
+    call setsid() when called with -c
+
+    Prevents command injection via TIOCSTI
+
+    https://bugzilla.redhat.com/show_bug.cgi?id=173008
+
+Have a nice day,
+Berny
