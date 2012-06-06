@@ -1,51 +1,26 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 7/9] fdisk: sun: remove unused function
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 17 Jun 2012 18:10:26 +0200
-Message-ID: <1339949426.2668.19.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:60430 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752403Ab2FFJkO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Jun 2012 05:40:14 -0400
+Date: Wed, 6 Jun 2012 11:39:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/5] fdisk: add device topology to the API
+Message-ID: <20120606093948.GB28227@x2.net.home>
+References: <1338747317.2864.10.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1338747317.2864.10.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Sun, Jun 03, 2012 at 08:15:17PM +0200, Davidlohr Bueso wrote:
+> diff --git a/fdisk/fdisk.c b/fdisk/fdisk.c
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisk/fdisksunlabel.c |    6 ------
- fdisk/fdisksunlabel.h |    1 -
- 2 files changed, 0 insertions(+), 7 deletions(-)
+ All 5 patches applied. Thanks.
 
-diff --git a/fdisk/fdisksunlabel.c b/fdisk/fdisksunlabel.c
-index 90f52f4..5dbcef4 100644
---- a/fdisk/fdisksunlabel.c
-+++ b/fdisk/fdisksunlabel.c
-@@ -78,12 +78,6 @@ static void init(void)
- 	partitions = SUN_NUM_PARTITIONS;
- }
- 
--void sun_nolabel(struct fdisk_context *cxt)
--{
--	sunlabel->magic = 0;
--	partitions = 4;
--}
--
- int check_sun_label(struct fdisk_context *cxt)
- {
- 	unsigned short *ush;
-diff --git a/fdisk/fdisksunlabel.h b/fdisk/fdisksunlabel.h
-index d3cd430..abb29c3 100644
---- a/fdisk/fdisksunlabel.h
-+++ b/fdisk/fdisksunlabel.h
-@@ -78,7 +78,6 @@ struct sun_disk_label {
- /* fdisksunlabel.c */
- extern struct systypes sun_sys_types[];
- extern int check_sun_label(struct fdisk_context *cxt);
--extern void sun_nolabel(struct fdisk_context *cxt);
- extern void create_sunlabel(struct fdisk_context *cxt);
- extern void sun_delete_partition(struct fdisk_context *cxt, int i);
- extern int sun_change_sysid(struct fdisk_context *cxt, int i, uint16_t sys);
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
