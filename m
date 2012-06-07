@@ -1,26 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46039 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753152Ab2FOLaj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jun 2012 07:30:39 -0400
-Date: Fri, 15 Jun 2012 13:30:35 +0200
+Return-Path: coreutils-bounces+kzak=redhat.com@gnu.org
+Date: Thu, 7 Jun 2012 17:01:33 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] partx: use -s option for default output
-Message-ID: <20120615113035.GB9266@x2.net.home>
-References: <1339505406.17574.1.camel@offworld>
- <20120615112645.GA9266@x2.net.home>
+To: Jim Meyering <jim@meyering.net>
+Subject: Re: su, going, going, ...
+Message-ID: <20120607150133.GD28227@x2.net.home>
+References: <8762b55w3m.fsf@rho.meyering.net> <87396818jo.fsf@rho.meyering.net>
+	<4FCFDAF8.6020508@archlinux.org> <87vcj3wize.fsf@rho.meyering.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120615112645.GA9266@x2.net.home>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <87vcj3wize.fsf@rho.meyering.net>
+Cc: Allan McRae <allan@archlinux.org>,
+        List util-linux-ng <util-linux-ng@vger.kernel.org>, coreutils@gnu.org
+List-Unsubscribe: <https://lists.gnu.org/mailman/options/coreutils>,
+	<mailto:coreutils-request@gnu.org?subject=unsubscribe>
+List-Archive: <http://lists.gnu.org/archive/html/coreutils>
+List-Post: <mailto:coreutils@gnu.org>
+List-Help: <mailto:coreutils-request@gnu.org?subject=help>
+List-Subscribe: <https://lists.gnu.org/mailman/listinfo/coreutils>,
+	<mailto:coreutils-request@gnu.org?subject=subscribe>
+Errors-To: coreutils-bounces+kzak=redhat.com@gnu.org
+Sender: coreutils-bounces+kzak=redhat.com@gnu.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 15, 2012 at 01:26:45PM +0200, Karel Zak wrote:
->  Applied, all hate from users will be redirected to mailbox :-)
+On Thu, Jun 07, 2012 at 11:48:21AM +0200, Jim Meyering wrote:
+> > Is there going to be a hold on coreutils releases until an appropriate
+> > version of util-linux is released, or could we end up with the latest
+> > release of both packages not providing su?
+> 
+> I hadn't realized that -- nor that it might cause a problem,
+> as your message implies.  I've Cc'd the util-linux list.
 
- *your* mailbox :-)
+Ah, I'm subscribed to the coreutils list where is my reply :-)
+http://thread.gmane.org/gmane.comp.gnu.coreutils.general/2757/focus=2762
 
 -- 
  Karel Zak  <kzak@redhat.com>
