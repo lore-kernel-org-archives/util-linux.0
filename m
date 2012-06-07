@@ -1,113 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:36504 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752169Ab2FJUV0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Jun 2012 16:21:26 -0400
-Received: by bkcji2 with SMTP id ji2so3005361bkc.19
-        for <util-linux@vger.kernel.org>; Sun, 10 Jun 2012 13:21:25 -0700 (PDT)
-Message-ID: <4FD501AE.2070506@gmail.com>
-Date: Sun, 10 Jun 2012 22:21:02 +0200
-From: =?UTF-8?B?VmxhZGltaXIgJ8+GLWNvZGVyL3BoY29kZXInIFNlcmJpbmVua28=?=
-	<phcoder@gmail.com>
+Received: from smtp5-g21.free.fr ([212.27.42.5]:58568 "EHLO smtp5-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754526Ab2FGJsa (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Thu, 7 Jun 2012 05:48:30 -0400
+Received: from mx.meyering.net (unknown [88.168.87.75])
+	by smtp5-g21.free.fr (Postfix) with ESMTP id A4F5DD480B3
+	for <util-linux-ng@vger.kernel.org>; Thu,  7 Jun 2012 11:48:23 +0200 (CEST)
+From: Jim Meyering <jim@meyering.net>
+To: Allan McRae <allan@archlinux.org>
+Cc: coreutils@gnu.org, List util-linux-ng <util-linux-ng@vger.kernel.org>
+Subject: Re: su, going, going, ...
+In-Reply-To: <4FCFDAF8.6020508@archlinux.org> (Allan McRae's message of "Thu,
+	07 Jun 2012 08:34:32 +1000")
+References: <8762b55w3m.fsf@rho.meyering.net>
+	<87396818jo.fsf@rho.meyering.net> <4FCFDAF8.6020508@archlinux.org>
+Date: Thu, 07 Jun 2012 11:48:21 +0200
+Message-ID: <87vcj3wize.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: dave@gnu.org
-CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] allow to create a minix3fs with a blocksize != 1K
-References: <4FAAE6EA.3080308@gmail.com>  <4FAAE7FB.2060808@gmail.com> <1339358318.3369.35.camel@offbook>
-In-Reply-To: <1339358318.3369.35.camel@offbook>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="------------enigEAD1F5AA14D87241CA6C2845"
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEAD1F5AA14D87241CA6C2845
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On 10.06.2012 21:58, Davidlohr Bueso wrote:
-
-> On Wed, 2012-05-09 at 23:56 +0200, Vladimir '=CF=86-coder/phcoder' Serb=
-inenko
-> wrote:
->> Have used it to test minixfs support with various block sizes.
+Allan McRae wrote:
+> On 07/06/12 06:37, Jim Meyering wrote:
+>> Jim Meyering wrote:
+>>> No one objected, so I'm about to remove su, with this:
+>>> (I'll wait 10-12 hours, just in case ;-)
+>>>
+>>> >From db2c12039e5b008245b33778d28e6d9ab1156844 Mon Sep 17 00:00:00 2001
+>>> From: Jim Meyering <meyering@redhat.com>
+>>> Date: Fri, 25 May 2012 18:10:25 +0200
+>>> Subject: [PATCH] su: remove program (util-linux is now the best source for
+>>>  it)
+>>>
+>>> * README: Omit "su" from list of programs.
+>>> * src/su.c: Remove file.
+>>> * src/Makefile.am: Remove su-related rules and variables.
+>>> * tests/misc/su-fail: Remove test.
+>>> * tests/Makefile.am (TESTS): Remove misc/su-fail.
+>>> * tests/misc/invalid-opt: Remove su-related code.
+>>> * src/.gitignore: Remove su.
+>>> * man/su.x: Remove file.
+>>> * man/Makefile.am (su.1): Remove rule.
+>>> * po/POTFILES.in: Remove su.c from the list.
+>>> * TODO: Remove ancient entry.
+>>> * NEWS (Changes in behavior): Mention it.
+>>> * doc/coreutils.texi: Remove su-related description.
+>>> * AUTHORS: Remove su.
+>>> * m4/lib-check.m4 (cu_LIB_CHECK): Remove file/macro.
+>>> * configure.ac: Remove su-related code and sole use of cu_LIB_CHECK.
+>>> * scripts/git-hooks/commit-msg: Remove su from this list, too.
 >>
->=20
-> Hi Vladimir,
->=20
-> A few comments:
->=20
-> +       if (MINIX_BLOCK_SIZE % 512 || MINIX_BLOCK_SIZE < 1024
-> +           || MINIX_BLOCK_SIZE >=3D 65536)
-> +               usage();
->=20
-> This check should be part of the switch statement, perhaps in its own
-> function.
-> +       if (*tmp && ...)
->=20
->=20
+>> Pushed, finally.
+>>
+>
+> Good to see, but....  It is my understanding that there is not a
+> released version of util-linux with su in it, and I do not see details
+> of a release on the horizon.
+>
+> Is there going to be a hold on coreutils releases until an appropriate
+> version of util-linux is released, or could we end up with the latest
+> release of both packages not providing su?
 
-Ok
-
-> +       if (fs_version !=3D 3 && MINIX_BLOCK_SIZE !=3D MINIX12_BLOCK_SI=
-ZE)
-> +               usage();
->=20
-> We should set -1/-2 options to be mutually exclusive with -B.
->=20
-
-Ok
-
-> +#define MAX_MINIX_BLOCK_SIZE 65536
-> Isn't the max minix block size 4096?
->=20
-
-No, Maximum for the on-disk format is 65535. Minix itself supports
-everything from 1025 to 65536-512 as long as it's divisible by 512.
-Linux driver is limited to 1024, 2048 and 4096
-
-> +#define MINIX12_BLOCK_SIZE   1024
-> This is the minimal block size, including v3. MINIX12_ doesn't describe=
-
-> it well.
->=20
-
-I use this constant specifically in places which only relate to v1 and v2=
-
-
->=20
-> Also, please send the patches in the body of the message - just as with=
-
-> the lkml.
->=20
-
-Ok
-
-> Thanks,
-> Davidlohr
->=20
->=20
-
-
-
---=20
-Regards
-Vladimir '=CF=86-coder/phcoder' Serbinenko
-
-
---------------enigEAD1F5AA14D87241CA6C2845
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iF4EAREKAAYFAk/VAbsACgkQNak7dOguQgnJfQD/YIuVvGeVaN+KLtG4DIOren6O
-1nr0hJ/B1t+IMiau57YA/0HUogFYHr8zSBmaSTwtyv+4HjzCiTpRWirV2+EbYAch
-=FIdF
------END PGP SIGNATURE-----
-
---------------enigEAD1F5AA14D87241CA6C2845--
+I hadn't realized that -- nor that it might cause a problem,
+as your message implies.  I've Cc'd the util-linux list.
+Let's see if/when the next release is planned.
