@@ -1,67 +1,158 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp5-g21.free.fr ([212.27.42.5]:58568 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754526Ab2FGJsa (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 7 Jun 2012 05:48:30 -0400
-Received: from mx.meyering.net (unknown [88.168.87.75])
-	by smtp5-g21.free.fr (Postfix) with ESMTP id A4F5DD480B3
-	for <util-linux-ng@vger.kernel.org>; Thu,  7 Jun 2012 11:48:23 +0200 (CEST)
-From: Jim Meyering <jim@meyering.net>
-To: Allan McRae <allan@archlinux.org>
-Cc: coreutils@gnu.org, List util-linux-ng <util-linux-ng@vger.kernel.org>
-Subject: Re: su, going, going, ...
-In-Reply-To: <4FCFDAF8.6020508@archlinux.org> (Allan McRae's message of "Thu,
-	07 Jun 2012 08:34:32 +1000")
-References: <8762b55w3m.fsf@rho.meyering.net>
-	<87396818jo.fsf@rho.meyering.net> <4FCFDAF8.6020508@archlinux.org>
-Date: Thu, 07 Jun 2012 11:48:21 +0200
-Message-ID: <87vcj3wize.fsf@rho.meyering.net>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20120611094851.GA21893@x2.net.home>
+References: <CAG27Bk1p9gqdiZSjmHcsWvTTs9WKU=vx0dYvtZVLCGJ1iuAnyg@mail.gmail.com>
+	<20120611094851.GA21893@x2.net.home>
+Date: Mon, 11 Jun 2012 22:19:02 +0200
+Message-ID: <CAG27Bk0AK4rA9TGczXzSnUABd29p0krr-vdPH=Eyp8LO8GpVFw@mail.gmail.com>
+Subject: Re: [pull] require C99, add robustness and small fixes
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Allan McRae wrote:
-> On 07/06/12 06:37, Jim Meyering wrote:
->> Jim Meyering wrote:
->>> No one objected, so I'm about to remove su, with this:
->>> (I'll wait 10-12 hours, just in case ;-)
->>>
->>> >From db2c12039e5b008245b33778d28e6d9ab1156844 Mon Sep 17 00:00:00 2001
->>> From: Jim Meyering <meyering@redhat.com>
->>> Date: Fri, 25 May 2012 18:10:25 +0200
->>> Subject: [PATCH] su: remove program (util-linux is now the best source for
->>>  it)
->>>
->>> * README: Omit "su" from list of programs.
->>> * src/su.c: Remove file.
->>> * src/Makefile.am: Remove su-related rules and variables.
->>> * tests/misc/su-fail: Remove test.
->>> * tests/Makefile.am (TESTS): Remove misc/su-fail.
->>> * tests/misc/invalid-opt: Remove su-related code.
->>> * src/.gitignore: Remove su.
->>> * man/su.x: Remove file.
->>> * man/Makefile.am (su.1): Remove rule.
->>> * po/POTFILES.in: Remove su.c from the list.
->>> * TODO: Remove ancient entry.
->>> * NEWS (Changes in behavior): Mention it.
->>> * doc/coreutils.texi: Remove su-related description.
->>> * AUTHORS: Remove su.
->>> * m4/lib-check.m4 (cu_LIB_CHECK): Remove file/macro.
->>> * configure.ac: Remove su-related code and sole use of cu_LIB_CHECK.
->>> * scripts/git-hooks/commit-msg: Remove su from this list, too.
->>
->> Pushed, finally.
->>
->
-> Good to see, but....  It is my understanding that there is not a
-> released version of util-linux with su in it, and I do not see details
-> of a release on the horizon.
->
-> Is there going to be a hold on coreutils releases until an appropriate
-> version of util-linux is released, or could we end up with the latest
-> release of both packages not providing su?
+On Mon, Jun 11, 2012 at 11:48 AM, Karel Zak <kzak@redhat.com> wrote:
 
-I hadn't realized that -- nor that it might cause a problem,
-as your message implies.  I've Cc'd the util-linux list.
-Let's see if/when the next release is planned.
+New try available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git 2012wk23
+
+for you to fetch changes up to 1edd8af70b4794c796d0faed0cf763ff3474b92e:
+
+  lsblk: use blkdev_scsi_type_to_name() (2012-06-11 22:06:06 +0200)
+
+----------------------------------------------------------------
+Sami Kerola (13):
+      setarch: do not use -1 as array index [cppcheck]
+      blkid: fix realloc memory leak [cppcheck]
+      uuidd: use output redirection which works [checkbashisms]
+      include: fix spurious list.h warnings
+      build: fix redundant redeclaration warnings
+      build: fix unused parameter warnings
+      sysfs: fix printf format warnings
+      include: fix void pointer arithmetics warnings
+      docs: clean up partx.8 manual
+      eject: inform if CD-ROM drive is not ready
+      wipefs: use symbolic value for markup mode
+      blkdev: add blkdev_scsi_type_to_name()
+      lsblk: use blkdev_scsi_type_to_name()
+
+> On Sun, Jun 10, 2012 at 11:11:34PM +0200, Sami Kerola wrote:
+>> diff --git a/configure.ac b/configure.ac
+>> index 2280e7e..13c9637 100644
+>> --- a/configure.ac
+>> +++ b/configure.ac
+>> @@ -80,6 +80,24 @@ AC_CANONICAL_HOST
+>> =A0AC_C_CONST
+>> =A0AC_C_VOLATILE
+>> =A0AC_C_BIGENDIAN
+>> +if test "$cross_compiling" =3D no; then
+>> + =A0if test "x$ac_cv_prog_cc_c99" =3D "xno" || test "x$ac_cv_prog_cc_c9=
+9"
+>> =3D "x"; then
+>> + =A0# We might be on RHEL5 with a git checkout and so broken
+>> + =A0# autoconf. Check if CC is gcc and if it bails when given -std=3Dgn=
+u99.
+>> + =A0# If not, use that. =A0Yuck.
+>> + =A0 =A0if test "x$ac_cv_c_compiler_gnu" =3D "xyes"; then
+>> + =A0 =A0 =A0 CC=3D"$CC -std=3Dgnu99"
+>> + =A0 =A0 =A0 AC_RUN_IFELSE(
+>> + =A0 =A0 =A0 =A0 =A0[AC_LANG_PROGRAM([],[[
+>> + =A0return 0;
+>> + =A0 =A0 =A0]])],
+>> + =A0 =A0 =A0[],
+>> + =A0 =A0 =A0[AC_MSG_ERROR([Could not find a C99 compatible compiler])])
+>> + =A0 =A0else
+>> + =A0 =A0 =A0AC_MSG_ERROR([Could not find a C99 compatible compiler])
+>> + =A0 =A0fi
+>> + =A0fi
+>> +fi
+>
+> =A0AC_PROG_CC_C99 sounds really like a better solution, although I have
+> =A0autoconf 2.68 on Fedora 16 :-(
+
+I will leave the C99 update to someone who has better insight how not
+to shoot oneself to foot. In other words dropped from the most recent
+pull request.
+
+>> --- a/misc-utils/blkid.c
+>> +++ b/misc-utils/blkid.c
+>> @@ -365,8 +365,10 @@ static int append_str(char **res, size_t *sz,
+>> const char *a, const char *b)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+>>
+>> =A0 =A0 =A0 str =3D realloc(str, len + 1);
+>> - =A0 =A0 if (!str)
+>> + =A0 =A0 if (!str) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 free(res);
+>
+> =A0 =A0 =A0 =A0free(*res);
+
+This is fixed.
+
+>> diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+>> index 9e894ef..f9e05b6 100644
+>> --- a/misc-utils/lsblk.c
+>> +++ b/misc-utils/lsblk.c
+>> @@ -527,6 +527,12 @@ static char *get_type(struct blkdev_cxt *cxt)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 type =3D "mo=
+-disk"; break;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 0x0e: /* TYPE_RBC */
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 type =3D "rb=
+c"; break;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 default:
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Perhaps inc=
+lude/scsi/scsi.h in
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* kernel gi=
+t section 'DEVICE TYPES'
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* will know=
+ what was found. =A0*/
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sprintf(type, =
+"0x%02x", x);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+>
+> =A0What about to add scsi_type_to_name() to lib/blkdev.c and add
+> =A0SCSI_TYPE_* macros (TYPE_* sounds too generic) to include/blkdev.h
+> =A0with fallbacks for too old /usr/include/scsi/scsi.h files.
+
+I like this. Have a look of the second last patch which will add
+function to blkdev. Perhaps it reassembles to some extent what you
+where thinking of.
+
+>> +static void set_exclusive(int *what, int how)
+>> +{
+>> + =A0 =A0 if (*what =3D=3D ACT_NONE) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 *what =3D how;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return;
+>> + =A0 =A0 }
+>> + =A0 =A0 if (*what =3D=3D how)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return;
+>> + =A0 =A0 errx_mutually_exclusive("--{add,delete,show,list,raw,pairs}");
+>> +}
+>
+> =A0This is good idea, I guess we have the same problem on more places
+> =A0where is the "mutually exclusive" error message.
+
+With quick search I found the following files having some sort of
+option exclusiveness going on.  I do not like to add that many changes
+to a branch which already has +10 patches, so I dropped the patch for
+now. The fix will be included to branch for the ongoing week, which
+hopefully has unified way to deal all of the exclusive options.
+
+hwclock/hwclock.c
+misc-utils/blkid.c
+misc-utils/findmnt.c
+misc-utils/lsblk.c
+partx/partx.c
+sys-utils/losetup.c
+sys-utils/lscpu.c
+sys-utils/mount.c
+sys-utils/prlimit.c
+sys-utils/wdctl.c
+
+--=20
+=A0=A0 Sami Kerola
+=A0=A0 http://www.iki.fi/kerolasa/
