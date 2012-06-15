@@ -1,76 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from fr1.as29.net ([88.190.23.70]:43628 "EHLO toothrot.meleeweb.net"
+Received: from cantor2.suse.de ([195.135.220.15]:50746 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752916Ab2FJVzD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 10 Jun 2012 17:55:03 -0400
-Date: Sun, 10 Jun 2012 23:46:42 +0200
-From: Bertrand Jacquin <beber@meleeweb.net>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] require C99, add robustness and small fixes
-Message-ID: <20120610214642.GB25482@lemonhead.scabb>
-References: <CAG27Bk1p9gqdiZSjmHcsWvTTs9WKU=vx0dYvtZVLCGJ1iuAnyg@mail.gmail.com>
+	id S1750972Ab2FOHDx (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 15 Jun 2012 03:03:53 -0400
+Message-ID: <4FDADE55.9040208@suse.de>
+Date: Fri, 15 Jun 2012 09:03:49 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
-In-Reply-To: <CAG27Bk1p9gqdiZSjmHcsWvTTs9WKU=vx0dYvtZVLCGJ1iuAnyg@mail.gmail.com>
+To: Milan Broz <mbroz@redhat.com>
+Cc: util-linux-ng <util-linux-ng@vger.kernel.org>
+Subject: Re: remove encryption options from mount and losetup?
+References: <4FD8A950.5000906@suse.de> <20120613150144.GE10561@x2.net.home> <4FD9CF44.8090800@suse.de> <4FDA3ECF.9060607@redhat.com>
+In-Reply-To: <4FDA3ECF.9060607@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Milan Broz wrote:
+> On 06/14/2012 01:47 PM, Ludwig Nussel wrote:
+>> Karel Zak wrote:
+> 
+>> Well, someone could come up with another tool to support cryptoloop, or
+>> rather 'transfer functions'.
+> 
+> cryptsetup can map all compatible mappings with cryptoloop using dmcrypt
+> (and it can automatically alloc loop device as well) so providing something
+> compatible is just question of simple wrapper.
+> 
+> IMHO cryptoloop should be removed from kernel... The only usable (and secure)
+> solution using this interface is out-of-mainline-tree loop-aes extension.
 
---z6Eq5LdranGa6ru8
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure. Who is going to send the patch?
 
-Hi,
+I don't think this needs to be the precondition to remove the incomplete
+encryption support from losetup. On the contrary, the current losetup
+support makes cryptoloop even worse as there's no support for hashing
+the passphrase nor a way to e.g. pipe a random key into losetup.
 
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -80,6 +80,24 @@ AC_CANONICAL_HOST
->  AC_C_CONST
->  AC_C_VOLATILE
->  AC_C_BIGENDIAN
-> +if test "$cross_compiling" =3D no; then
-> +  if test "x$ac_cv_prog_cc_c99" =3D "xno" || test "x$ac_cv_prog_cc_c99"
-> =3D "x"; then
-> +  # We might be on RHEL5 with a git checkout and so broken
-> +  # autoconf. Check if CC is gcc and if it bails when given -std=3Dgnu99.
-> +  # If not, use that.  Yuck.
-> +    if test "x$ac_cv_c_compiler_gnu" =3D "xyes"; then
-> +       CC=3D"$CC -std=3Dgnu99"
-> +       AC_RUN_IFELSE(
-> +          [AC_LANG_PROGRAM([],[[
-> +  return 0;
-> +      ]])],
-> +      [],
-> +      [AC_MSG_ERROR([Could not find a C99 compatible compiler])])
-> +    else
-> +      AC_MSG_ERROR([Could not find a C99 compatible compiler])
-> +    fi
-> +  fi
-> +fi
+cu
+Ludwig
 
-This break cross compiling as in this case -std=3Dgnu99 is not added to
-$CC. Why not use AC_PROG_CC_C99 (present in autoconf-2.69) that is cross
-compiling friendly and set CC to the correct value depending on which
-compiler is used (GCC, AIX, HP ...)
-
-I advise you to read autoconf/c.m4.
-
---=20
-Beber
-
---z6Eq5LdranGa6ru8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iEYEARECAAYFAk/VFcIACgkQibjJUzm7jPSXtACaA1ZZdB7cVnCiane6z+aII1i4
-Q+QAnjKSFRG8vQ4CS/o+P9NY3qs5qAWR
-=P6hI
------END PGP SIGNATURE-----
-
---z6Eq5LdranGa6ru8--
+-- 
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
