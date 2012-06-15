@@ -1,28 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:57967 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756844Ab2FONJV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 15 Jun 2012 09:09:21 -0400
-Received: by ghrr11 with SMTP id r11so2251040ghr.19
-        for <util-linux@vger.kernel.org>; Fri, 15 Jun 2012 06:09:20 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:45926 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755901Ab2FOJnh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Jun 2012 05:43:37 -0400
+Date: Fri, 15 Jun 2012 11:43:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] setsid: fix off-by-one error in execvp call
+Message-ID: <20120615094334.GD16531@x2.net.home>
+References: <4FCF6AEE.5040004@bernhard-voelker.de>
 MIME-Version: 1.0
-Date: Fri, 15 Jun 2012 10:09:16 -0300
-Message-ID: <CAJZVDJCK3Z_u_2TYrFMdjhjNXAJgW2C9rGnwv4RdEkcca92C7Q@mail.gmail.com>
-Subject: lsblk "include" option?
-From: Marcos Felipe Rasia de Mello <marcosfrm@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4FCF6AEE.5040004@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lsblk has an "exclude" (-e, --exclude) option. I wonder if would be
-possible to add an "include" option to tell it to show *only*
-specified major number devices. Like
+On Wed, Jun 06, 2012 at 04:36:30PM +0200, Bernhard Voelker wrote:
+>  sys-utils/setsid.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-lsblk -i 8
+ Applied, thanks.
 
-to only print major number 8 devices.
-
-Regards,
-
-Marcos
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
