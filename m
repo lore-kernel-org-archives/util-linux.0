@@ -1,28 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45352 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54310 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934105Ab2FEN1w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 Jun 2012 09:27:52 -0400
-Date: Tue, 5 Jun 2012 15:27:49 +0200
+	id S1756032Ab2FOJyi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Jun 2012 05:54:38 -0400
+Date: Fri, 15 Jun 2012 11:54:35 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] don't use custom MAX macro
-Message-ID: <20120605132749.GK14536@x2.net.home>
-References: <1338555081-2061-1-git-send-email-ludwig.nussel@suse.de>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/3] libmount: fix trivial typos
+Message-ID: <20120615095435.GH16531@x2.net.home>
+References: <1339683183-21804-1-git-send-email-petr.uzel@suse.cz>
+ <1339683183-21804-3-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1338555081-2061-1-git-send-email-ludwig.nussel@suse.de>
+In-Reply-To: <1339683183-21804-3-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 01, 2012 at 02:51:15PM +0200, Ludwig Nussel wrote:
->  login-utils/su.c |    6 +-----
->  1 files changed, 1 insertions(+), 5 deletions(-)
+On Thu, Jun 14, 2012 at 04:13:03PM +0200, Petr Uzel wrote:
+>  libmount/src/context_mount.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 
- All 7 patches applied, thanks!
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
