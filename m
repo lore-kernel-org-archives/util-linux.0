@@ -1,57 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:40930 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756038Ab2FNONP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jun 2012 10:13:15 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id C818493182
-	for <util-linux@vger.kernel.org>; Thu, 14 Jun 2012 16:13:14 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 2/3] libmount: fix read before allocated buffer
-Date: Thu, 14 Jun 2012 16:13:02 +0200
-Message-Id: <1339683183-21804-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1339683183-21804-1-git-send-email-petr.uzel@suse.cz>
-References: <1339683183-21804-1-git-send-email-petr.uzel@suse.cz>
+Received: from gerolde.archlinux.org ([66.211.214.132]:48791 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754254Ab2FQPgL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Jun 2012 11:36:11 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] libmount/context: ignore fstab entries with fstype "ignore"
+Date: Sun, 17 Jun 2012 11:36:09 -0400
+Message-Id: <1339947369-17539-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-valgrind --leak-check=full ./sys-utils/mount -t cifs //127.0.0.1/users /mnt/smb -o user=root,password=linux
-....
-==21359== Invalid read of size 1
-==21359==    at 0x415AC6: mnt_optstr_remove_option_at (optstr.c:310)
-==21359==    by 0x416358: mnt_optstr_apply_flags (optstr.c:716)
-==21359==    by 0x40DFBF: mnt_context_prepare_mount (context_mount.c:86)
-==21359==    by 0x40EB5A: mnt_context_mount (context_mount.c:782)
-==21359==    by 0x4058B0: main (mount.c:918)
-==21359==  Address 0x51cd5bf is 1 bytes before a block of size 10 alloc'd
-==21359==    at 0x4C297CD: malloc (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
-==21359==    by 0x4C29957: realloc (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
-==21359==    by 0x415780: __mnt_optstr_append_option (optstr.c:188)
-==21359==    by 0x412822: mnt_fs_append_options (fs.c:764)
-==21359==    by 0x409288: mnt_context_append_options (context.c:733)
-==21359==    by 0x4053F0: main (mount.c:776)
+This is documented in fstab(5) as being a valid option for fstype, and
+should be left alone when iterating via mount -a, similar to "noauto" in
+the option string.
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
- libmount/src/optstr.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ libmount/src/context_mount.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/libmount/src/optstr.c b/libmount/src/optstr.c
-index c8beada..2c9dd5e 100644
---- a/libmount/src/optstr.c
-+++ b/libmount/src/optstr.c
-@@ -307,7 +307,7 @@ int mnt_optstr_remove_option_at(char **optstr, char *begin, char *end)
- 	sz = strlen(end);
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index 36dc414..04a34c0 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -831,7 +831,7 @@ int mnt_context_next_mount(struct libmnt_context *cxt,
+ 			   int *ignored)
+ {
+ 	struct libmnt_table *fstab, *mtab;
+-	const char *o, *tgt;
++	const char *o, *tgt, *fstype;
+ 	int rc, mounted = 0;
  
- 	memmove(begin, end, sz + 1);
--	if (!*begin && *(begin - 1) == ',')
-+	if (!*begin && (begin > *optstr) && *(begin - 1) == ',')
- 		*(begin - 1) = '\0';
+ 	if (ignored)
+@@ -857,6 +857,7 @@ int mnt_context_next_mount(struct libmnt_context *cxt,
  
- 	return 0;
+ 	o = mnt_fs_get_user_options(*fs);
+ 	tgt = mnt_fs_get_target(*fs);
++	fstype = mnt_fs_get_fstype(*fs);
+ 
+ 	DBG(CXT, mnt_debug_h(cxt, "next-mount: trying %s", tgt));
+ 
+@@ -869,6 +870,9 @@ int mnt_context_next_mount(struct libmnt_context *cxt,
+ 	/* ignore noauto filesystems */
+ 	   (o && mnt_optstr_get_option(o, "noauto", NULL, NULL) == 0) ||
+ 
++	/* ignore filesystems declared with fstype "ignore" */
++	   (strcmp(fstype, "ignore") == 0) ||
++
+ 	/* ignore filesystems not match with options patterns */
+ 	   (cxt->fstype_pattern && !mnt_fs_match_fstype(*fs,
+ 					cxt->fstype_pattern)) ||
+@@ -880,7 +884,7 @@ int mnt_context_next_mount(struct libmnt_context *cxt,
+ 			*ignored = 1;
+ 		DBG(CXT, mnt_debug_h(cxt, "next-mount: not-match "
+ 				"[fstype: %s, t-pattern: %s, options: %s, O-pattern: %s]",
+-				mnt_fs_get_fstype(*fs),
++				fstype,
+ 				cxt->fstype_pattern,
+ 				mnt_fs_get_options(*fs),
+ 				cxt->optstr_pattern));
 -- 
-1.7.7
+1.7.10.4
 
