@@ -1,85 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:19085 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752608Ab2FLLSX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Jun 2012 07:18:23 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q5CBINr1001294
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 12 Jun 2012 07:18:23 -0400
-From: Milan Broz <mbroz@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: dm-devel@redhat.com, Milan Broz <mbroz@redhat.com>
-Subject: [PATCH] libblkid: update dm-verity scan
-Date: Tue, 12 Jun 2012 13:18:02 +0200
-Message-Id: <1339499882-1432-1-git-send-email-mbroz@redhat.com>
-In-Reply-To: <1338550448-13005-1-git-send-email-mbroz@redhat.com>
-References: <1338550448-13005-1-git-send-email-mbroz@redhat.com>
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:40610 "EHLO
+	homiemail-a62.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757505Ab2FQQKD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 17 Jun 2012 12:10:03 -0400
+Subject: [PATCH 1/9] fdisk: extend comments for fdisk_new_context()
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 17 Jun 2012 18:09:59 +0200
+Message-ID: <1339949399.2668.13.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-New superblock now contains UUID. Old version is not going to be used.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 ---
- libblkid/src/superblocks/lvm.c |   33 +++++++++++++++++++--------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ fdisk/utils.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/libblkid/src/superblocks/lvm.c b/libblkid/src/superblocks/lvm.c
-index 57d2b6e..0afc773 100644
---- a/libblkid/src/superblocks/lvm.c
-+++ b/libblkid/src/superblocks/lvm.c
-@@ -143,31 +143,36 @@ static int probe_lvm1(blkid_probe pr, const struct blkid_idmag *mag)
- 	return 0;
- }
+diff --git a/fdisk/utils.c b/fdisk/utils.c
+index 352a934..5bb4984 100644
+--- a/fdisk/utils.c
++++ b/fdisk/utils.c
+@@ -147,6 +147,12 @@ void fdisk_init_debug(int mask)
  
--#define MAX_SALT_SIZE 384
- struct verity_sb {
--	uint8_t signature[8];
--	uint8_t version;
--	uint8_t data_block_bits;
--	uint8_t hash_block_bits;
--	uint8_t pad1[1];
--	uint16_t salt_size;
--	uint8_t pad2[2];
--	uint32_t data_blocks_hi;
--	uint32_t data_blocks_lo;
--	uint8_t algorithm[16];
--	uint8_t salt[MAX_SALT_SIZE];
--	uint8_t pad3[88];
-+	uint8_t  signature[8];	/* "verity\0\0" */
-+	uint32_t version;	/* superblock version */
-+	uint32_t hash_type;	/* 0 - Chrome OS, 1 - normal */
-+	uint8_t  uuid[16];	/* UUID of hash device */
-+	uint8_t  algorithm[32];/* hash algorithm name */
-+	uint32_t data_block_size; /* data block in bytes */
-+	uint32_t hash_block_size; /* hash block in bytes */
-+	uint64_t data_blocks;	/* number of data blocks */
-+	uint16_t salt_size;	/* salt size */
-+	uint8_t  _pad1[6];
-+	uint8_t  salt[256];	/* salt */
-+	uint8_t  _pad2[168];
- } __attribute__((packed));
+ /**
+  * fdisk_new_context:
++ * @filename: path to the device to be handled
++ * @readonly: how to open the device
++ *
++ * If the @readonly flag is set to false, fdisk will attempt to open
++ * the device with read-write mode and will fallback to read-only if
++ * unsuccessful.
+  *
+  * Returns: newly allocated fdisk context
+  */
+@@ -155,10 +161,6 @@ struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int rea
+ 	int fd, errsv = 0;
+ 	struct fdisk_context *cxt = NULL;
  
- static int probe_verity(blkid_probe pr, const struct blkid_idmag *mag)
- {
- 	struct verity_sb *sb;
-+	unsigned int version;
- 
- 	sb = blkid_probe_get_sb(pr, mag, struct verity_sb);
- 	if (sb == NULL)
- 		return -1;
- 
--	blkid_probe_sprintf_version(pr, "%u", sb->version);
-+	version = le32_to_cpu(sb->version);
-+	if (version != 1)
-+		return 1;
-+
-+	blkid_probe_set_uuid(pr, sb->uuid);
-+	blkid_probe_sprintf_version(pr, "%u", version);
- 	return 0;
- }
- 
+-	/*
+-	 * Attempt to open the device with r-w permissions
+-	 * by default, otherwise try read-only.
+-	 */
+ 	if (readonly == 1 || (fd = open(fname, O_RDWR)) < 0) {
+ 		if ((fd = open(fname, O_RDONLY)) < 0)
+ 			return NULL;
 -- 
-1.7.10
+1.7.4.1
+
+
+
 
