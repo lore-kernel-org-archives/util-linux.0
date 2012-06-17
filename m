@@ -1,48 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58779 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751155Ab2FELq1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 Jun 2012 07:46:27 -0400
-Date: Tue, 5 Jun 2012 13:46:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: util-linux@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: flock(1) exit code (enhancement request)
-Message-ID: <20120605114616.GB14536@x2.net.home>
-References: <20120529114518.GI1744@fi.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120529114518.GI1744@fi.muni.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Subject: [PATCH 7/9] fdisk: sun: remove unused function
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 17 Jun 2012 18:10:26 +0200
+Message-ID: <1339949426.2668.19.camel@offbook>
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 29, 2012 at 01:45:18PM +0200, Jan Kasprzak wrote:
->         This problem can be solved for example by mapping the exit code 1
-> of the -c command to something else. I.e. to add something like
-> 
->         -m <number>
->         --map-exit-code-1-to <number>
-> 
-> where the exit code of flock(1) would be <number>, iff the -c <command> exits
-> with code 1.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Not sure if a generic remap for exit(1) is a good solution.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisk/fdisksunlabel.c |    6 ------
+ fdisk/fdisksunlabel.h |    1 -
+ 2 files changed, 0 insertions(+), 7 deletions(-)
 
-> 	The alternative would be to have user-settable exit code for
-> the "conflicting lock exists" failure.
-
-Yes, It would be nice to have user-settable exit codes, for:
-
-    --rc-timeout <num>
-    --rc-conflict <num>
-
-> 	What do you think about it? If you agree with the above syntax,
-> I can of course post a patch to flock(1).
-
-Send patch.
-
-    Karel
-
+diff --git a/fdisk/fdisksunlabel.c b/fdisk/fdisksunlabel.c
+index 90f52f4..5dbcef4 100644
+--- a/fdisk/fdisksunlabel.c
++++ b/fdisk/fdisksunlabel.c
+@@ -78,12 +78,6 @@ static void init(void)
+ 	partitions = SUN_NUM_PARTITIONS;
+ }
+ 
+-void sun_nolabel(struct fdisk_context *cxt)
+-{
+-	sunlabel->magic = 0;
+-	partitions = 4;
+-}
+-
+ int check_sun_label(struct fdisk_context *cxt)
+ {
+ 	unsigned short *ush;
+diff --git a/fdisk/fdisksunlabel.h b/fdisk/fdisksunlabel.h
+index d3cd430..abb29c3 100644
+--- a/fdisk/fdisksunlabel.h
++++ b/fdisk/fdisksunlabel.h
+@@ -78,7 +78,6 @@ struct sun_disk_label {
+ /* fdisksunlabel.c */
+ extern struct systypes sun_sys_types[];
+ extern int check_sun_label(struct fdisk_context *cxt);
+-extern void sun_nolabel(struct fdisk_context *cxt);
+ extern void create_sunlabel(struct fdisk_context *cxt);
+ extern void sun_delete_partition(struct fdisk_context *cxt, int i);
+ extern int sun_change_sysid(struct fdisk_context *cxt, int i, uint16_t sys);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
