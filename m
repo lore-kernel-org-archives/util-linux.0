@@ -1,53 +1,48 @@
-Return-Path: hpa@zytor.com
-References: <20120529114518.GI1744@fi.muni.cz> <20120605114616.GB14536@x2.net.home>
-In-Reply-To: <20120605114616.GB14536@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:5190 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752150Ab2FSKTp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Jun 2012 06:19:45 -0400
+Date: Tue, 19 Jun 2012 12:19:28 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Zheng Liu <gnehzuil.liu@gmail.com>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        util-linux@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Rob Landley <rob@landley.net>,
+        Bernhard Voelker <mail@bernhard-voelker.de>,
+        Zheng Liu <wenqing.lz@taobao.com>
+Subject: Re: [PATCH] docs: block: update ioprio.txt
+Message-ID: <20120619101928.GD13108@x2.net.home>
+References: <1340095897-9014-1-git-send-email-wenqing.lz@taobao.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: flock(1) exit code (enhancement request)
-From: "H. Peter Anvin" <hpa@zytor.com>
-Date: Tue, 05 Jun 2012 07:08:58 -0700
-To: Karel Zak <kzak@redhat.com>, Jan Kasprzak <kas@fi.muni.cz>
-CC: util-linux@vger.kernel.org
-Message-ID: <65e0a2a4-bbb5-444e-89c4-49d97af9df9d@email.android.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1340095897-9014-1-git-send-email-wenqing.lz@taobao.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Well, if it maps onto sysexits.h in a sensible way that would be my first choice.
+On Tue, Jun 19, 2012 at 04:51:37PM +0800, Zheng Liu wrote:
+> From: Zheng Liu <wenqing.lz@taobao.com>
+> 
+> The ionice.c in ioprio.txt document needed updating for the latest util-linux
+> version.
+> 
+> CC: Jens Axboe <axboe@kernel.dk>
+> CC: Rob Landley <rob@landley.net>
+> CC: Bernhard Voelker <mail@bernhard-voelker.de>
+> Signed-off-by: Zheng Liu <wenqing.lz@taobao.com>
+> ---
+>  Documentation/block/ioprio.txt |  174 +++++++++++++++++++++++++---------------
+>  1 files changed, 109 insertions(+), 65 deletions(-)
 
-Karel Zak <kzak@redhat.com> wrote:
+ BTW, does it make sense to maintain duplicate, untested and unused
+ code in kernel docs if we already have regular ionice(1) implementation
+ in util-linux?
 
->On Tue, May 29, 2012 at 01:45:18PM +0200, Jan Kasprzak wrote:
->>         This problem can be solved for example by mapping the exit
->code 1
->> of the -c command to something else. I.e. to add something like
->> 
->>         -m <number>
->>         --map-exit-code-1-to <number>
->> 
->> where the exit code of flock(1) would be <number>, iff the -c
-><command> exits
->> with code 1.
->
->Not sure if a generic remap for exit(1) is a good solution.
->
->> 	The alternative would be to have user-settable exit code for
->> the "conflicting lock exists" failure.
->
->Yes, It would be nice to have user-settable exit codes, for:
->
->    --rc-timeout <num>
->    --rc-conflict <num>
->
->> 	What do you think about it? If you agree with the above syntax,
->> I can of course post a patch to flock(1).
->
->Send patch.
->
->    Karel
->
->-- 
-> Karel Zak  <kzak@redhat.com>
-> http://karelzak.blogspot.com
+ Would be better to add URL to *maintained* code?
+ http://git.kernel.org/?p=utils/util-linux/util-linux.git;a=blob_plain;f=schedutils/ionice.c;hb=HEAD
+
+    Karel
 
 -- 
-Sent from my mobile phone. Please excuse brevity and lack of formatting.
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
