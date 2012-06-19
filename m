@@ -1,54 +1,51 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Message-ID: <4FE2F51C.1060106@gmail.com>
-Date: Thu, 21 Jun 2012 18:19:08 +0800
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:42428 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751201Ab2FSIP7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Jun 2012 04:15:59 -0400
+Message-ID: <4FE03539.7060005@gmail.com>
+Date: Tue, 19 Jun 2012 16:15:53 +0800
 From: "gnehzuil.lzheng@gmail.com" <gnehzuil.lzheng@gmail.com>
 MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: Sami Kerola <kerolasa@gmail.com>, Sami Kerola <kerolasa@iki.fi>,
-        Jens Axboe <axboe@kernel.dk>,
-        Bernhard Voelker <mail@bernhard-voelker.de>,
-        Zheng Liu <wenqing.lz@taobao.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [PATCH] docs: block: update ioprio.txt
-References: <1340095897-9014-1-git-send-email-wenqing.lz@taobao.com> <CAG27Bk2tXprRfMfYOVdWtwSbjw5Rw9Kxs6Wns+Gm65m3hoJawg@mail.gmail.com> <20120619102706.GA9273@gmail.com> <4FE2A825.1060103@landley.net>
-In-Reply-To: <4FE2A825.1060103@landley.net>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+CC: Jens Axboe <axboe@kernel.dk>, Rob Landley <rob@landley.net>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: Why does ionice(1) ban the user to set back to 'none' class?
+References: <20120618114841.GA4855@gmail.com> <4FDF2D10.9050008@kernel.dk> <4FDFDFCE.9010307@gmail.com> <4FE01ED8.8000903@bernhard-voelker.de>
+In-Reply-To: <4FE01ED8.8000903@bernhard-voelker.de>
 Content-Type: text/plain; charset=ISO-8859-1
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/21/2012 12:50 PM, Rob Landley wrote:
+On 06/19/2012 02:40 PM, Bernhard Voelker wrote:
 
-> On 06/19/2012 05:27 AM, Zheng Liu wrote:
->> Hi Sami,
->>
->> [You forgot to CC'd other developers and mailing list]
->>
->> On Tue, Jun 19, 2012 at 10:54:41AM +0200, Sami Kerola wrote:
->>> Hi Zheng,
->>>
->>> Wouldn't a patch such as below be better?
->>
->> Looks good to me.  But, IMHO, if reader cannot access Internet, my patch
->> maybe is better for them.  The original writer is not me.  So I don't
->> understand the original idea that puts ionice source code in here.  I
->> think that Jens can do the final decision.
->>
->> Hi Jens,
->>
->> What's your opintion about Sami's and my patch?
+> That has already been fixed by commit v2.15-45-g5dc9371 more than 2 years ago:
 > 
-> I note that it's nice to have a reference implementation for nontrivial
-> things. Also, util-linux isn't the end-all and be-all of linux
-> userspace: busybox has an ionice, and I plan to add an ionice
-> implementation to toybox as well.
+>   Author: Jakob Unterwurzacher <jakobunt@gmail.com>  2009-01-17 02:38:32
+>   Committer: Karel Zak <kzak@redhat.com>  2009-05-27 23:43:18
 > 
-> So fixing reference code is good. That said, this isn't a "fix", this is
-> a rewrite adding all sorts of unnecessary complexity
-> (internationalization? strtos32_or_error() instead of strtol()?) that
-> makes it much _less_ effective as reference code.
+> and the change made it into 2.16.
+> 
+> The current piece of code looks like this:
+> 
+> 	switch (ioclass) {
+> 		case IOPRIO_CLASS_NONE:
+> 			if ((set & 1) && !tolerant)
+> 				warnx(_("ignoring given class data for none class"));
+> 			data = 0;
+> 			break;
+> 		case IOPRIO_CLASS_RT:
+> 		case IOPRIO_CLASS_BE:
+> 			break;
+> 
+> We'are currently at version 2.21.2.
 
+Thanks for pointing out it.  I use ionice(1) in rhel5 and its version is
+2.13. :-p
 
-OK.  I will repost a second version later.
+Obviously, Documentation/block/ioprio.txt is out of date.  Later I will
+send a patch to fix it.
 
 Regards,
 Zheng
