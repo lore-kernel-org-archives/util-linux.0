@@ -1,67 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:26049 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751097Ab2FSO0a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Jun 2012 10:26:30 -0400
-Date: Tue, 19 Jun 2012 16:26:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Marcos Felipe Rasia de Mello <marcosfrm@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: lsblk "include" option?
-Message-ID: <20120619142627.GA14727@x2.net.home>
-References: <CAJZVDJCK3Z_u_2TYrFMdjhjNXAJgW2C9rGnwv4RdEkcca92C7Q@mail.gmail.com>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:64301 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762217Ab2FVOjl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 22 Jun 2012 10:39:41 -0400
+Received: by obbuo13 with SMTP id uo13so2027074obb.19
+        for <util-linux@vger.kernel.org>; Fri, 22 Jun 2012 07:39:41 -0700 (PDT)
+Message-ID: <4FE483A8.4010702@landley.net>
+Date: Fri, 22 Jun 2012 09:39:36 -0500
+From: Rob Landley <rob@landley.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAJZVDJCK3Z_u_2TYrFMdjhjNXAJgW2C9rGnwv4RdEkcca92C7Q@mail.gmail.com>
+To: Zheng Liu <gnehzuil.liu@gmail.com>
+CC: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        util-linux@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Bernhard Voelker <mail@bernhard-voelker.de>,
+        Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
+        Zheng Liu <wenqing.lz@taobao.com>
+Subject: Re: [PATCH v2] docs: block: update ioprio.txt
+References: <1340278109-18761-1-git-send-email-wenqing.lz@taobao.com>
+In-Reply-To: <1340278109-18761-1-git-send-email-wenqing.lz@taobao.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 15, 2012 at 10:09:16AM -0300, Marcos Felipe Rasia de Mello wrote:
-> lsblk has an "exclude" (-e, --exclude) option. I wonder if would be
-> possible to add an "include" option to tell it to show *only*
-> specified major number devices. Like
+On 06/21/2012 06:28 AM, Zheng Liu wrote:
+> From: Zheng Liu <wenqing.lz@taobao.com>
 > 
-> lsblk -i 8
+> The ionice.c in ioprio.txt document needed updating for the latest util-linux
+> version.
 
- Implemented (--include, -I)
+Looks good to me.
 
-> to only print major number 8 devices.
+Acked-by: Rob Landley <rob@landley.net>
 
- note that the filters (--exclude and --include) are applied to
- top-level devices only. For example:
-
- $ lsblk --include 8
- NAME   MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
- sda      8:0    0 149.1G  0 disk  
- ├─sda1   8:1    0  1000M  0 disk  /boot/efi
- ├─sda2   8:2    0     2G  0 disk  /boot
- ├─sda3   8:3    0   9.7G  0 disk  [SWAP]
- ├─sda4   8:4    0  34.2G  0 disk  /
- ├─sda5   8:5    0  63.2G  0 disk  /home
- └─sda6   8:6    0  39.1G  0 disk  
-   └─luks-10d813de-fa82-4f67-a86c-23d5d0e7c30e (dm-0)
-          253:0    0  39.1G  0 crypt /home/kzak
-
-
-I have a little changed --all option, it's not mutually exclusive to
---include and --exclude anymore. The idea is to print all devices
-including empty devices (empty devices are ignored by default), for
-example:
-
-$ lsblk --all --include 7
-NAME  MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
-loop0   7:0    0       0 loop 
-loop1   7:1    0       0 loop 
-loop2   7:2    0       0 loop 
-loop3   7:3    0       0 loop 
-loop4   7:4    0       0 loop 
-loop5   7:5    0       0 loop 
-loop6   7:6    0       0 loop 
-loop7   7:7    0       0 loop 
-
-
-    Karel
-
+And queued.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+GNU/Linux isn't: Linux=GPLv2, GNU=GPLv3+, they can't share code.
+Either it's "mere aggregation", or a license violation.  Pick one.
