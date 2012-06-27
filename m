@@ -1,117 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:51377 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752123Ab2FSNtt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Jun 2012 09:49:49 -0400
-Received: by wgbdr13 with SMTP id dr13so6829582wgb.1
-        for <util-linux@vger.kernel.org>; Tue, 19 Jun 2012 06:49:47 -0700 (PDT)
-From: Marek Otahal <markotahal@gmail.com>
+Received: from gerolde.archlinux.org ([66.211.214.132]:48078 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751602Ab2F0NrX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Jun 2012 09:47:23 -0400
+From: Dave Reisner <dreisner@archlinux.org>
 To: util-linux@vger.kernel.org
-Subject: [cont.2] Clang analysis warnings WAS: Re: dev.c : Warning - dereference of null pointer, clang --analyze
-Date: Tue, 19 Jun 2012 15:49:24 +0200
-Message-ID: <103088032.Rojk1ZUChg@beruska>
-In-Reply-To: <5021496.29gTT1mHgK@beruska>
-References: <1468557.if6BRfJlxj@beruska> <5021496.29gTT1mHgK@beruska>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] findmnt: add FSROOT column
+Date: Wed, 27 Jun 2012 09:47:20 -0400
+Message-Id: <1340804840-1666-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 19 of June 2012 14:46:53 you wrote:
-> Clang/llvm analysis on recent git master, hope some of them are relevant (not all mistakes by clang). 
-> 
-> There're memleaks, null pointers passed, uninitialized params passed, execution with unknow priviledges(!), 
-> null pointere dereference, buffer overflow, etc.
-> 
-> Sorry, the list is quite long, but please take time to skim it all, i didnt sort the warnings by importance, just as they appeared. 
-> 
-  CC       parse.o
-parse.c:144:10: warning: Size argument is greater than the length of the destination buffer
-                (void) strncpy(tfu->fmt, savep, p - savep);
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/usr/include/bits/string2.h:761:33: note: expanded from macro 'strncpy'
-#  define strncpy(dest, src, n) __builtin_strncpy (dest, src, n)
-                                ^
+Provide this separately in an unambiguous format, mainly to avoid the
+need for scripts to parse the source of a btrfs subvol or bind mount.
 
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ misc-utils/findmnt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-
-  CC       ul.o
-ul.c:481:22: warning: The left operand of '==' is a garbage value
-        for (*cp = ' '; *cp == ' '; cp--)
-                        ~~~ ^
-ul.c:447:22: warning: The left operand of '==' is a garbage value
-        for (*cp = ' '; *cp == ' '; cp--)
-                        ~~~ ^
-
-
-
-
- CC       pg.o
-pg.c:1223:7: warning: Value stored to 'sz' is never read
-                                                sz = regerror(rerror, &re,
-                                                ^    ~~~~~~~~~~~~~~~~~~~~~
-
-
-
-  CC       hwclock.o
-hwclock.c:1671:2: warning: Value stored to 'argv' is never read
-        argv += optind;
-        ^       ~~~~~~
-
-
-
-  CC       rtc.o
-rtc.c:309:4: warning: The left expression of the compound assignment is an uninitialized value. The computed
-      value will also be garbage
-                        FD_SET(rtc_fd, &rfds);
-                        ^~~~~~~~~~~~~~~~~~~~~
-/usr/include/sys/select.h:91:28: note: expanded from macro 'FD_SET'
-#define FD_SET(fd, fdsetp)      __FD_SET (fd, fdsetp)
-                                ^
-/usr/include/bits/select.h:51:43: note: expanded from macro '__FD_SET'
-  ((void) (__FDS_BITS (set)[__FD_ELT (d)] |= __FD_MASK (d)))
-                                          ^
-
-
-
-  CC       mount-mount.o
-mount.c:2768:9: warning: Dereference of null pointer
-                                    mc->m.mnt_opts, options, 0, 0);
-                                    ^~~~~~~~~~~~~~
-mount.c:2036:2: warning: Null pointer argument in call to string copy function
-        strncpy (n, s, sub-s);
-        ^~~~~~~~~~~~~~~~~~~~~
-/usr/include/bits/string2.h:761:33: note: expanded from macro 'strncpy'
-#  define strncpy(dest, src, n) __builtin_strncpy (dest, src, n)
-                                ^
-mount.c:2060:17: warning: Memory is never released; potential leak of memory pointed to by 'opts'
-        return xstrdup(opts);
-                       ^~~~
-3 warnings generated.
-
-
-
-  CC       mount-sundries.o
-sundries.c:33:6: warning: Null pointer argument in call to string copy function
-     strncpy(t,s,n);
-     ^~~~~~~~~~~~~~
-/usr/include/bits/string2.h:761:33: note: expanded from macro 'strncpy'
-#  define strncpy(dest, src, n) __builtin_strncpy (dest, src, n)
-                                ^
-
-
-
-  CC       mount-fstab.o
-fstab.c:832:6: warning: Dereference of null pointer (loaded from variable 'dest')
-        if (*dest) {
-            ^~~~~
-
-
-
-
-Now, compilation finished correctly :) 
-With regards, 
-Mark
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index c4cebf8..d7b252a 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -78,6 +78,7 @@ enum {
+ 	COL_AVAIL,
+ 	COL_USED,
+ 	COL_USEPERC,
++	COL_FSROOT,
+ 
+ 	FINDMNT_NCOLUMNS
+ };
+@@ -118,6 +119,7 @@ static struct colinfo infos[FINDMNT_NCOLUMNS] = {
+ 	[COL_AVAIL]        = { "AVAIL",           5, TT_FL_RIGHT, N_("filesystem size available") },
+ 	[COL_USED]         = { "USED",            5, TT_FL_RIGHT, N_("filesystem size used") },
+ 	[COL_USEPERC]      = { "USE%",            3, TT_FL_RIGHT, N_("filesystem use percentage") },
++	[COL_FSROOT]       = { "FSROOT",       0.25, TT_FL_NOEXTREMES, N_("filesystem root") },
+ };
+ 
+ /* global flags */
+@@ -470,6 +472,9 @@ static const char *get_data(struct libmnt_fs *fs, int num)
+ 	case COL_USEPERC:
+ 		str = get_vfs_attr(fs, col_id);
+ 		break;
++	case COL_FSROOT:
++		str = mnt_fs_get_root(fs);
++		break;
+ 	default:
+ 		break;
+ 	}
 -- 
+1.7.11.1
 
-Marek Otahal :o)
