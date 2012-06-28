@@ -1,57 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47478 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751355Ab2FOIr6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jun 2012 04:47:58 -0400
-Date: Fri, 15 Jun 2012 10:47:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: remove encryption options from mount and losetup?
-Message-ID: <20120615084753.GA2566@x2.net.home>
-References: <4FD8A950.5000906@suse.de>
- <20120613150144.GE10561@x2.net.home>
- <4FD9CF44.8090800@suse.de>
+Received: from moutng.kundenserver.de ([212.227.17.10]:49970 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751329Ab2F1O0w (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 28 Jun 2012 10:26:52 -0400
+Message-ID: <4FEC69A9.8080507@bernhard-voelker.de>
+Date: Thu, 28 Jun 2012 16:26:49 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4FD9CF44.8090800@suse.de>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [PATCH] findmnt: fix typo in manpage
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 14, 2012 at 01:47:16PM +0200, Ludwig Nussel wrote:
-> Karel Zak wrote:
-> > On Wed, Jun 13, 2012 at 04:53:04PM +0200, Ludwig Nussel wrote:
-> >> Is there any reason to still keep the encryption options in losetup and
-> >> mount around? They look entirely useless to me. Even when using passfd
-> >> and an external key generation function it's still broken as the key
-> >> size is fixed at 32 byte and the last byte is always set to '\0'.
-> >> So would a patch that removes encryption support completely be
-> >> acceptable?
-> > 
-> > Our goal is to follow kernel, so it would be better to remove this
-> > feature from kernel loopdev first.
-> 
-> Well, someone could come up with another tool to support cryptoloop, or
-> rather 'transfer functions'.
-> If losetup has the philosophy to provide the canonical implementation
-> for all loop features then losetup isn't complete anyways. It needs
+Fix new typos introduced in v2.21-781-gc7fcc83.
 
- I don't know what was original idea, but the current '--encryption'
- works somehow. Yes, it's not perfect, it's maybe almost useless,
- but it's still have some users and we cannot remove it without a
- prior warning.
+Have a nice day,
+Berny
 
- Fortunately, cryptoloop is in our deprecated.txt for years, so I think
- it's should be enough to add a fat warning to the next v2.22 release
- and remove this feature in v2.23.
 
- Anyway, I like Milan's idea with libcryptsetup, and we will try to
- prepare any solution. BTW, the current cryptsetup also support loop-aes ;-)
+>From 00c09810c82391ad9c6ff796b2f24f7c9114ebb0 Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Thu, 28 Jun 2012 16:24:56 +0200
+Subject: [PATCH] findmnt: fix typo in manpage
 
- We will see...
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+ misc-utils/findmnt.8 |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-    Karel
-
+diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
+index f92bffd..2072c52 100644
+--- a/misc-utils/findmnt.8
++++ b/misc-utils/findmnt.8
+@@ -73,7 +73,7 @@ Convert all tags (LABEL, UUID, PARTUUID or PARTLABEL) to the device names.
+ .IP "\fB\-F, \-\-tab\-file \fIpath\fP"
+ Search in an alternative file, if used with \fB\-\-fstab\fP, \fB\-\-mtab\fP
+ or \fB\-\-kernel\fP then overwrites the default paths, if specified more than
+-once than tree-like output is disabled (see the \fB\-\-list\fP option).
++once, then tree-like output is disabled (see the \fB\-\-list\fP option).
+ .IP "\fB\-f, \-\-first\-only\fP"
+ Print the first matching filesystem only.
+ .IP "\fB\-i, \-\-invert\fP"
+@@ -87,8 +87,8 @@ source file (the option \fB\-F\fP) is specified.
+ Do not print a [/dir] in the SOURCE column for bind-mounts or btrfs subvolumes.
+ .IP "\fB\-N, \-\-task \fItid\fP"
+ Use alternative namespace /proc/<tid>/mountinfo rather than the default
+-/proc/self/mountinfo. If the option is specified more than once than tree-like
+-output is disabled (see the \fB\-\-list\fP option). See also
++/proc/self/mountinfo. If the option is specified more than once, then
++tree-like output is disabled (see the \fB\-\-list\fP option). See also
+ .BR unshare (1)
+ command.
+ .IP "\fB\-n, \-\-noheadings\fP"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
+
