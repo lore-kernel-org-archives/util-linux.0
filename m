@@ -1,61 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:58904 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759108Ab2FDKBi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 4 Jun 2012 06:01:38 -0400
-Date: Mon, 4 Jun 2012 12:01:11 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/5] fdisk: add device topology to the API
-Message-ID: <20120604100111.GA9264@foxbat.suse.cz>
-References: <1338747317.2864.10.camel@offbook>
- <20120604090604.GA6290@foxbat.suse.cz>
- <1338803049.2553.5.camel@offbook>
+Received: from moutng.kundenserver.de ([212.227.17.8]:65114 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751315Ab2F1GVd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 28 Jun 2012 02:21:33 -0400
+Message-ID: <4FEBF7E4.5080606@bernhard-voelker.de>
+Date: Thu, 28 Jun 2012 08:21:24 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-In-Reply-To: <1338803049.2553.5.camel@offbook>
+To: kerolasa@gmail.com
+CC: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] /run directory and swapon
+References: <CAG27Bk3xh7nAhvktOR45drKcKBgaCTtFqduOyvWz5arTGegCBA@mail.gmail.com> <4FEBEF93.8000107@bernhard-voelker.de>
+In-Reply-To: <4FEBEF93.8000107@bernhard-voelker.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 06/28/2012 07:45 AM, Bernhard Voelker wrote:
+> On 06/27/2012 11:33 PM, Sami Kerola wrote:
+>> +		"     --inhuman          display swap size in bytes in --show output\n"
+> 
+> Isn't "--inhuman" a bit harsh? And wouldn't it be better to
+> say what it does instead of what it does not?
+> E.g. "--bytes"?
 
-On Mon, Jun 04, 2012 at 11:44:09AM +0200, Davidlohr Bueso wrote:
-> On Mon, 2012-06-04 at 11:06 +0200, Petr Uzel wrote:
-> > On Sun, Jun 03, 2012 at 08:15:17PM +0200, Davidlohr Bueso wrote:
->=20
-> Well for now this seemed like the saner way of proceeding, but yes, I'm
-> definitely up for debating as I don't like the idea of overwriting the
-> discovery. Perhaps an extra parameter in the initialization context for
-> flags.
+Ooh, my swap shrinked! ;-)
 
-Or better separate function(s) for setting and getting that flag and custom
-sector_size to/from the context structure.
+  $ ./lsblk /dev/sdb1
+  NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+  sdb1   8:17   0   2G  0 disk [SWAP]
 
-> IIRC there are other similar issues that we'll have to deal with
-> soon - like user passed CHS.
-=20
+  $ ./swapon --show
+  NAME      TYPE      SIZE  USED PRIO
+  /dev/sdb1 partition   2M 11836    0
 
-Petr
+  $ ./swapon --show --inhuman
+  NAME      TYPE         SIZE  USED PRIO
+  /dev/sdb1 partition 2104476 11836    0
 
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
+I think that's in 1k-blocks, isn't it?
 
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
+  $ ./swapon --help | grep USED
+        USED  bytes in use
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
+Isn't USED not also in blocks?
 
-iEYEARECAAYFAk/Mh2cACgkQnZxG0T6qDD0U9QCdHvWqSeJQDwLExanG6p3frkev
-zz4An3VbUuuQvb7G67NOZNQpDIWlF2wl
-=3ZzN
------END PGP SIGNATURE-----
 
---5vNYLRcllDrimb99--
+Have a nice day,
+Berny
