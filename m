@@ -1,38 +1,79 @@
-Return-Path: coreutils-bounces+kzak=redhat.com@gnu.org
-Date: Thu, 7 Jun 2012 17:01:33 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jim Meyering <jim@meyering.net>
-Subject: Re: su, going, going, ...
-Message-ID: <20120607150133.GD28227@x2.net.home>
-References: <8762b55w3m.fsf@rho.meyering.net> <87396818jo.fsf@rho.meyering.net>
-	<4FCFDAF8.6020508@archlinux.org> <87vcj3wize.fsf@rho.meyering.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from smtp.gentoo.org ([140.211.166.183]:43240 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753689Ab2F2Dij (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 28 Jun 2012 23:38:39 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: kerolasa@gmail.com
+Subject: Re: [pull] /run directory and swapon
+Date: Thu, 28 Jun 2012 23:38:40 -0400
+Cc: "util-linux" <util-linux@vger.kernel.org>
+References: <CAG27Bk3xh7nAhvktOR45drKcKBgaCTtFqduOyvWz5arTGegCBA@mail.gmail.com>
+In-Reply-To: <CAG27Bk3xh7nAhvktOR45drKcKBgaCTtFqduOyvWz5arTGegCBA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87vcj3wize.fsf@rho.meyering.net>
-Cc: Allan McRae <allan@archlinux.org>,
-        List util-linux-ng <util-linux-ng@vger.kernel.org>, coreutils@gnu.org
-List-Unsubscribe: <https://lists.gnu.org/mailman/options/coreutils>,
-	<mailto:coreutils-request@gnu.org?subject=unsubscribe>
-List-Archive: <http://lists.gnu.org/archive/html/coreutils>
-List-Post: <mailto:coreutils@gnu.org>
-List-Help: <mailto:coreutils-request@gnu.org?subject=help>
-List-Subscribe: <https://lists.gnu.org/mailman/listinfo/coreutils>,
-	<mailto:coreutils-request@gnu.org?subject=subscribe>
-Errors-To: coreutils-bounces+kzak=redhat.com@gnu.org
-Sender: coreutils-bounces+kzak=redhat.com@gnu.org
+Content-Type: multipart/signed;
+  boundary="nextPart2066467.l29fBuBx1D";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201206282338.41501.vapier@gentoo.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 07, 2012 at 11:48:21AM +0200, Jim Meyering wrote:
-> > Is there going to be a hold on coreutils releases until an appropriate
-> > version of util-linux is released, or could we end up with the latest
-> > release of both packages not providing su?
-> 
-> I hadn't realized that -- nor that it might cause a problem,
-> as your message implies.  I've Cc'd the util-linux list.
+--nextPart2066467.l29fBuBx1D
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Ah, I'm subscribed to the coreutils list where is my reply :-)
-http://thread.gmane.org/gmane.comp.gnu.coreutils.general/2757/focus=2762
+On Wednesday 27 June 2012 17:33:25 Sami Kerola wrote:
+> --- a/configure.ac
+> +++ b/configure.ac
+>=20
+> +case $prefix:$localstatedir in
+> +  NONE:'${prefix}/var')
+> +    localstatedir=3D/run
+> +    AC_MSG_NOTICE([  --localstatedir defaults to /run])
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+i'd trim the leading whitespace in the message
+
+> +    ;;
+> +  *:'${prefix}/var')
+> +    localstatedir=3D${prefix}/run
+> +    ;;
+> +  NONE:*)
+> +    ;;
+> +  *:*)
+> +    localstatedir=3D${prefix}/${localstatedir}
+> +    ;;
+> +esac
+
+is this last case just so you can AC_DEFINE the value below ?  in general,=
+=20
+this is fragile.  defines should be expanded at make time rather than confi=
+gure.
+
+CPPFLAGS=3D"$CPPFLAGS -D_PATH_LOCALSTATEDIR=3D\"\${localstatedir}\""
+=2Dmike
+
+--nextPart2066467.l29fBuBx1D
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJP7SNBAAoJEEFjO5/oN/WBwckP+wZdhwz03lPPeU7qnaULd/4d
+1QSigJCJ6/RLfgTU3BPaXBtqtZ/RQvKJ5OK8DycZLuKdnxKcTchQR1OZuqSRrWhw
+ATIPv+EhArW6eUFUNIK/Jcpe6Yr1achiyUVamR/8UJGVmYncRXhiJHkZQjdxpugr
+tdsTFE4PbDFBqSmNBCwBfS/qG8xNCkkxOTQS+tyO+89nN7/K059+cLVh0ht0i9wm
+a8iJR/8F/Gi8FPIKrUBwggy5hj6wEMeDnSXkMrEdJSDC8snOwX3RyEDWsjU1GzXj
+lZPo8KNl7SWFWiy4Tl85aPe2kmoO48nARpyKprgYUWbhpYSPsewDS681F/axz5ii
+MZzviH97guUTFxZcPT71eIw2pARQM3bfDiRA5QBACOatH9FAoQNHXcZ94jVwKDu5
+DsGqg7eSKb4JCekLy+slUQspiAvCDMdho+kLraG3RyCCvScbW8LA31mQYZZT1MfO
+d4175u0o+RGvdP+6/q0TqlGv717xtM5tvMtM7UapqPHvbEdV00ftapsyHu3HAjtv
+PGlGoPi4a7f8U/DAM9IH9/EpFZ1GPMSbrhiE9kUsPU1abBllkYiSabFySZS20qxe
+XhTo0qIK3zMOfvsbqqoR1r5xIVTHjKCgMxDbKNZLIblleU0g7lQFHWBz3twJLJcZ
+BqMECs5KWSWIIZLakTwH
+=yrVs
+-----END PGP SIGNATURE-----
+
+--nextPart2066467.l29fBuBx1D--
