@@ -1,26 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51866 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753239Ab2GXLiu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 07:38:50 -0400
-Date: Tue, 24 Jul 2012 13:38:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 07/10] fdisk: API: add verify to label operations
-Message-ID: <20120724113846.GD736@x2.net.home>
-References: <1342976732.2863.17.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1342976732.2863.17.camel@offbook>
+Received: from gerolde.archlinux.org ([66.211.214.132]:39582 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754103Ab2F3QBV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 30 Jun 2012 12:01:21 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] Ensure BUILD_CFDISK is always defined
+Date: Sat, 30 Jun 2012 12:01:18 -0400
+Message-Id: <1341072078-20095-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 22, 2012 at 07:05:32PM +0200, Davidlohr Bueso wrote:
->  11 files changed, 116 insertions(+), 95 deletions(-)
+This avoids an error when configuring without ncurses:
 
- Applied with some changes, thanks.
+configure: error: conditional "BUILD_CFDISK" was never defined.
+Usually this means the macro was only invoked conditionally.
 
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ configure.ac | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 198366a..cedeeaf 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -628,9 +628,7 @@ fi
+ AM_CONDITIONAL(HAVE_SLANG, test "x$have_slang" = xyes)
+ 
+ 
+-if test "x$have_slang" = xyes -o "x$have_ncurses" = xyes; then
+-  AM_CONDITIONAL(BUILD_CFDISK, true)
+-fi
++AM_CONDITIONAL(BUILD_CFDISK, test "x$have_slang" = xyes -o "x$have_ncurses" = xyes)
+ 
+ 
+ have_tinfo=no
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.1
+
