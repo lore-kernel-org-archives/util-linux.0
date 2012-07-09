@@ -1,56 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:36641 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751150Ab2GYTQM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:12 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1069033wgb.1
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:11 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/5] wdctl: fix conflicting types on old systems
-Date: Wed, 25 Jul 2012 21:15:43 +0200
-Message-Id: <1343243745-1172-26-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:14415 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752976Ab2GIU20 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 9 Jul 2012 16:28:26 -0400
+Date: Mon, 9 Jul 2012 22:28:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sergei Antonov <saproj@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Buffer overrun in some calls to sscanf
+Message-ID: <20120709202823.GA5281@x2.net.home>
+References: <CABikg9y0q1onOb2vzuxtOJt4QQL+gXR7FzNjHJffxQCJWsL5RQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CABikg9y0q1onOb2vzuxtOJt4QQL+gXR7FzNjHJffxQCJWsL5RQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The program wants the userland version of declaration(s), not the
-kernel one.  Problem occured with glibc-devel-2.5-34.
+On Mon, Jul 09, 2012 at 07:15:57PM +0200, Sergei Antonov wrote:
+> Take a look at these 7 places where sscanf may write 1 zero byte past
+> the end of the array.
+> To fix this either decrease the %N limit or increase array size.
 
-/usr/include/stdint.h:41: error: conflicting types for 'int64_t'
-/usr/include/linux/types.h:98: error: previous declaration of 'int64_t' was here
-/usr/include/stdint.h:56: error: conflicting types for 'uint64_t'
-/usr/include/linux/types.h:96: error: previous declaration of 'uint64_t' was here
-In file included from /usr/include/stdlib.h:438,
-                 from ./include/c.h:13,
-                 from sys-utils/wdctl.c:30:
+ Fixed, thanks!
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/wdctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    Karel
 
-diff --git a/sys-utils/wdctl.c b/sys-utils/wdctl.c
-index ebe55b4..d5ca50c 100644
---- a/sys-utils/wdctl.c
-+++ b/sys-utils/wdctl.c
-@@ -18,13 +18,13 @@
-  * with this program; if not, write to the Free Software Foundation, Inc.,
-  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  */
--#include <linux/watchdog.h>
- #include <sys/ioctl.h>
- #include <getopt.h>
- #include <stdio.h>
- #include <unistd.h>
- #include <signal.h>
- #include <assert.h>
-+#include <linux/watchdog.h>
- 
- #include "nls.h"
- #include "c.h"
 -- 
-1.7.11.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
