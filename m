@@ -1,78 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.186]:50897 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752150Ab2G0JGN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jul 2012 05:06:13 -0400
-Message-ID: <50125A02.9030004@bernhard-voelker.de>
-Date: Fri, 27 Jul 2012 11:06:10 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:57571 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752893Ab2GJJf5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Jul 2012 05:35:57 -0400
+Date: Tue, 10 Jul 2012 11:35:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] few utmpdump fixes
+Message-ID: <20120710093554.GB5281@x2.net.home>
+References: <CAG27Bk3f3moSFyOzLiTiRE-1vSVJn+PFh0-K_s65cD=h8MdJgg@mail.gmail.com>
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] tests: use ts_is_mounted in mount/regfile
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk3f3moSFyOzLiTiRE-1vSVJn+PFh0-K_s65cD=h8MdJgg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The following patch fixes a test framework failure.
+On Sun, Jul 08, 2012 at 11:38:47PM +0200, Sami Kerola wrote:
+> Sami Kerola (5):
+>       docs: clean up utmpdump.1 manual
+>       utmpdump: white space fix
+>       utmpdump: fixes based on static analysis [cppcheck]
 
-However, even with this patch applied, mount/regfile still fails
-because umount fails:
+Applied, but without field width limits for integers, IMHO it's unnecessary.
 
-  $ /home/berny/ul/umount /home/berny/ul/tests/output/mount/regfile.img
-  umount: /home/berny/ul/tests/output/mount/regfile.img: not mounted
+>       utmpdump: use inotify to when following file
+>       utmpdump: encourage users not to follow stdin
 
-  $ mount | grep regfile
-  /media/sdb5/berny/git/util-linux/tests/output/mount/regfile.img on
-/media/sdb5/berny/git/util-linux/tests/output/mount/regfile-mnt type ext3
-(rw,relatime,errors=continue,barrier=1,data=ordered)
+I thought about inotify too :-) The --follow feature is almost useless
+for utmp (where utmp records are reused), but for wtmp is inotify nice
+and more smart solution than the original sleep() + read().
 
-  $ ls -l /home/berny/ul/tests/output/mount/regfile.img $(readlink -f /home/berny/ul/tests/output/mount/regfile.img )
-  -rw-r--r-- 1 root root 5242880 Jul 27 10:51 /home/berny/ul/tests/output/mount/regfile.img
-  -rw-r--r-- 1 root root 5242880 Jul 27 10:51 /media/sdb5/berny/git/util-linux/tests/output/mount/regfile.img
+Applied with some changes, thanks.
 
-:(
+    Karel
 
-Have a nice day,
-Berny
-
-
-
->From 2bc401aed37d73665b23a17a4c6ad0f6d4572a76 Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Fri, 27 Jul 2012 11:00:17 +0200
-Subject: [PATCH] tests: use ts_is_mounted in mount/regfile
-
-If the test directory is on a symlink, then mount/regfile failed because
-it did not search for the mount point in /proc/mounts canonicalized.
-
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- tests/ts/mount/regfile |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/tests/ts/mount/regfile b/tests/ts/mount/regfile
-index c47c7d7..8d786ad 100755
---- a/tests/ts/mount/regfile
-+++ b/tests/ts/mount/regfile
-@@ -21,7 +21,7 @@ $TS_CMD_MOUNT $IMAGE $TS_MOUNTPOINT 2>&1 >> $TS_OUTPUT
-
- DEVICE=$(awk '/regfile/ { print $1 }' /proc/mounts)
-
--grep -q "$TS_MOUNTPOINT" /proc/mounts || ts_die "Cannot find $TS_MOUNTPOINT in /proc/mounts"
-+ts_is_mounted "$TS_MOUNTPOINT" || ts_die "Cannot find $TS_MOUNTPOINT in /proc/mounts"
-
- if [ -f "/sys/block/$(basename $DEVICE)/loop/backing_file" ]; then
- 	$TS_CMD_UMOUNT $IMAGE || ts_die "Cannot umount $IMAGE"
-@@ -30,7 +30,7 @@ else
- 	ts_skip "too old kernel"
- fi
-
--grep -q "$TS_MOUNTPOINT" /proc/mounts && ts_die "$TS_MOUNTPOINT still in /proc/mounts"
-+ts_is_mounted "$TS_MOUNTPOINT" && ts_die "$TS_MOUNTPOINT still in /proc/mounts"
-
- ts_log "Success"
- ts_finalize
 -- 
-1.7.7
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
