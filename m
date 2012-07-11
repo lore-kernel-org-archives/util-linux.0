@@ -1,34 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43957 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50454 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751960Ab2GZKcN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 06:32:13 -0400
-Date: Thu, 26 Jul 2012 12:32:03 +0200
+	id S932467Ab2GKQES (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Jul 2012 12:04:18 -0400
+Date: Wed, 11 Jul 2012 18:04:13 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] tests: fdisk: change expected test output
-Message-ID: <20120726103203.GE12592@x2.net.home>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
- <1343243745-1172-4-git-send-email-kerolasa@iki.fi>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: autogen.sh failing because of missing misc-utils/uuidd* files
+Message-ID: <20120711160413.GJ5281@x2.net.home>
+References: <4FFD82D8.6090301@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343243745-1172-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <4FFD82D8.6090301@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 25, 2012 at 09:15:21PM +0200, Sami Kerola wrote:
-> Align with commit 289dcc90234680063a336925a99d1ef04e97cbda.  The check
-> will work for now.  Notice that the fdisk check will probably get more
-> changes in near future, see reference for more information.
+On Wed, Jul 11, 2012 at 03:42:48PM +0200, Bernhard Voelker wrote:
+> configure.ac:9: installing `config/missing'
+> configure.ac:1320: required file `misc-utils/uuidd.8.in' not found
+> configure.ac:1320: required file `misc-utils/uuidd.rc.in' not found
+> configure.ac:1320: required file `misc-utils/uuidd.socket.in' not found
 > 
-> Reference: http://marc.info/?l=util-linux-ng&m=134251966722938&w=2
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  tests/expected/fdisk/oddinput | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> These files somed to be deleted ...
+> What's wrong?
 
-not applied, already fixed in the repository
+Fixed. I forgot 'git add' yesterday. Sorry.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
