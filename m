@@ -1,72 +1,155 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:41378 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751217Ab2GaLdQ convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 31 Jul 2012 07:33:16 -0400
-Received: by weyx8 with SMTP id x8so4257606wey.19
-        for <util-linux@vger.kernel.org>; Tue, 31 Jul 2012 04:33:15 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CAPWNY8WgsNT_kNTu4jtfBga4Ry-mWzS09qQgW01TAMSMcgtFhA@mail.gmail.com>
-References: <20120730212010.GA56766@rain.home>
-	<5017A673.2050902@bernhard-voelker.de>
-	<CAPWNY8WgsNT_kNTu4jtfBga4Ry-mWzS09qQgW01TAMSMcgtFhA@mail.gmail.com>
-Date: Tue, 31 Jul 2012 13:33:15 +0200
-Message-ID: <CAG27Bk2TU_xvT8sY8RpncqGX92UGG_uGxaM-GJk4oQ2SN2gpZA@mail.gmail.com>
-Subject: Re: vipw does not work with some editors
-From: Sami Kerola <kerolasa@iki.fi>
-To: =?UTF-8?Q?Mantas_Mikul=C4=97nas?= <grawity@gmail.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from cantor2.suse.de ([195.135.220.15]:52475 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757206Ab2GLJsK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Jul 2012 05:48:10 -0400
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Cc: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH 2/2] fdisk: rename label probing functions
+Date: Thu, 12 Jul 2012 11:47:19 +0200
+Message-Id: <1342086439-21462-2-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1342086439-21462-1-git-send-email-petr.uzel@suse.cz>
+References: <1342086439-21462-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 31, 2012 at 12:46 PM, Mantas Mikulėnas <grawity@gmail.com> wrote:
-> On Tue, Jul 31, 2012 at 12:33 PM, Bernhard Voelker
-> <mail@bernhard-voelker.de> wrote:
->>
->>
->> On 07/30/2012 11:20 PM, Mantas M. wrote:
->>> Some editors, such as Vim with 'writebackup' mode enabled, use "atomic
->>> save" in which the old file is deleted and a new one with the same name
->>> created in its place.
->>
->> Why's that "atomic"?
->> I see a race in between the unlink and the creat call.
->> I'd tend to consider such editor mode "unlucky" for use with vipw.
->
-> Perhaps I picked the wrong name for it. Some other editors actually implement it
-> atomically using rename(). Meanwhile, Vim has three settings with at least 36
-> different combinations, some of which copy and overwrite, others
-> rename and recreate, etc.
->
-> I did find this paragraph in `:help crontab`, however:
->
->                                                 *'backupcopy'* *'bkc'*
-> 'backupcopy' 'bkc'      string  (Vi default for Unix: "yes", otherwise: "auto")
->         [snip]
->                                                         *crontab*
->         One situation where "no" and "auto" will cause problems: A program
->         that opens a file, invokes Vim to edit that file, and then tests if
->         the open file was changed (through the file descriptor) will check the
->         backup file instead of the newly created file.  "crontab -e" is an
->         example.
->
-> Seems like I could :set bkc=yes and avoid this problem with `vipw`.
->
-> I don't know anymore if this is better fixed in vim or vipw...
+Rename check_$foo_label() to $foo_probe_label():
 
-Perhaps the vipw could check hard link count to open file handle. If
-hard link count is zero vipw code should stat(), and inform user a
-file with similar path, was put in place of passwd. That might make
-vim backupcopy to work, but might also cause some sort of security
-issue. At least in theory one could replace temporary file with
-malicious copy while root is editing (although that requires root
-permissions to begin with, which makes this exploit a bit dumb).
+1/ 'probe' is more appropriate verb than 'check' for these functions
+2/ making label name first part of the funciton name is IMO more
+   friendly for tags completion (e.g. vim + cscope/ctags).
 
-BTW I have some time management challenges at the moment, so I leave
-implementing that for later (or someone quicker than me).
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisks/fdiskaixlabel.c |    4 ++--
+ fdisks/fdiskbsdlabel.c |    4 ++--
+ fdisks/fdiskdoslabel.c |    4 ++--
+ fdisks/fdiskmaclabel.c |    4 ++--
+ fdisks/fdisksgilabel.c |    4 ++--
+ fdisks/fdisksunlabel.c |    4 ++--
+ 6 files changed, 12 insertions(+), 12 deletions(-)
 
+diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
+index f908abc..ebf9365 100644
+--- a/fdisks/fdiskaixlabel.c
++++ b/fdisks/fdiskaixlabel.c
+@@ -49,7 +49,7 @@ aix_nolabel(struct fdisk_context *cxt)
+     return;
+ }
+ 
+-static int check_aix_label(struct fdisk_context *cxt)
++static int aix_probe_label(struct fdisk_context *cxt)
+ {
+     if (aixlabel->magic != AIX_LABEL_MAGIC &&
+ 	aixlabel->magic != AIX_LABEL_MAGIC_SWAPPED) {
+@@ -68,5 +68,5 @@ static int check_aix_label(struct fdisk_context *cxt)
+ const struct fdisk_label aix_label =
+ {
+ 	.name = "aix",
+-	.probe = check_aix_label
++	.probe = aix_probe_label,
+ };
+diff --git a/fdisks/fdiskbsdlabel.c b/fdisks/fdiskbsdlabel.c
+index 9ede3ef..548a86d 100644
+--- a/fdisks/fdiskbsdlabel.c
++++ b/fdisks/fdiskbsdlabel.c
+@@ -110,7 +110,7 @@ static struct xbsd_disklabel xbsd_dlabel;
+  * so this does not mean that there is a BSD disk label.
+  */
+ static int
+-check_osf_label(struct fdisk_context *cxt) {
++osf_probe_label(struct fdisk_context *cxt) {
+ 	if (xbsd_readlabel (cxt, NULL, &xbsd_dlabel) == 0)
+ 		return 0;
+ 	return 1;
+@@ -849,5 +849,5 @@ alpha_bootblock_checksum (char *boot)
+ const struct fdisk_label bsd_label =
+ {
+ 	.name = "bsd",
+-	.probe = check_osf_label
++	.probe = osf_probe_label,
+ };
+diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
+index 27536da..a115e66 100644
+--- a/fdisks/fdiskdoslabel.c
++++ b/fdisks/fdiskdoslabel.c
+@@ -316,7 +316,7 @@ void dos_delete_partition(int i)
+ 	}
+ }
+ 
+-static int check_dos_label(struct fdisk_context *cxt)
++static int dos_probe_label(struct fdisk_context *cxt)
+ {
+ 	int i;
+ 
+@@ -684,5 +684,5 @@ void dos_write_table(struct fdisk_context *cxt)
+ const struct fdisk_label dos_label =
+ {
+ 	.name = "dos",
+-	.probe = check_dos_label,
++	.probe = dos_probe_label,
+ };
+diff --git a/fdisks/fdiskmaclabel.c b/fdisks/fdiskmaclabel.c
+index cbdf592..555245d 100644
+--- a/fdisks/fdiskmaclabel.c
++++ b/fdisks/fdiskmaclabel.c
+@@ -48,7 +48,7 @@ mac_nolabel(struct fdisk_context *cxt)
+ }
+ 
+ static int
+-check_mac_label(struct fdisk_context *cxt)
++mac_probe_label(struct fdisk_context *cxt)
+ {
+ 	/*
+ 	Conversion: only 16 bit should compared
+@@ -83,5 +83,5 @@ IS_MAC:
+ const struct fdisk_label mac_label =
+ {
+ 	.name = "mac",
+-	.probe = check_mac_label
++	.probe = mac_probe_label,
+ };
+diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
+index c0b346a..071a84e 100644
+--- a/fdisks/fdisksgilabel.c
++++ b/fdisks/fdisksgilabel.c
+@@ -128,7 +128,7 @@ two_s_complement_32bit_sum(unsigned int *base, int size /* in bytes */) {
+ }
+ 
+ static int
+-check_sgi_label(struct fdisk_context *cxt) {
++sgi_probe_label(struct fdisk_context *cxt) {
+ 	if (sizeof(sgilabel) > 512) {
+ 		fprintf(stderr,
+ 			_("According to MIPS Computer Systems, Inc the "
+@@ -880,5 +880,5 @@ fill_sgiinfo(void)
+ const struct fdisk_label sgi_label =
+ {
+ 	.name = "sgi",
+-	.probe = check_sgi_label
++	.probe = sgi_probe_label,
+ };
+diff --git a/fdisks/fdisksunlabel.c b/fdisks/fdisksunlabel.c
+index d1f6054..909f159 100644
+--- a/fdisks/fdisksunlabel.c
++++ b/fdisks/fdisksunlabel.c
+@@ -78,7 +78,7 @@ static void init(void)
+ 	partitions = SUN_NUM_PARTITIONS;
+ }
+ 
+-static int check_sun_label(struct fdisk_context *cxt)
++static int sun_probe_label(struct fdisk_context *cxt)
+ {
+ 	unsigned short *ush;
+ 	int csum;
+@@ -646,5 +646,5 @@ int sun_get_sysid(struct fdisk_context *cxt, int i)
+ const struct fdisk_label sun_label =
+ {
+ 	.name = "sun",
+-	.probe = check_sun_label,
++	.probe = sun_probe_label,
+ };
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+1.7.7
+
