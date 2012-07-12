@@ -1,59 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:27083 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:45142 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750843Ab2GPPwC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Jul 2012 11:52:02 -0400
-Date: Mon, 16 Jul 2012 17:51:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] static analysis, and help to translator
-Message-ID: <20120716155159.GA9087@x2.net.home>
-References: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
+	id S1758791Ab2GLIKt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Jul 2012 04:10:49 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 90A1DA3A4A
+	for <util-linux@vger.kernel.org>; Thu, 12 Jul 2012 10:10:47 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 1/2] swapon: kill unused variables in show_table()
+Date: Thu, 12 Jul 2012 10:09:58 +0200
+Message-Id: <1342080599-12346-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 15, 2012 at 10:40:30PM +0200, Sami Kerola wrote:
->       build-sys: reduce warning noise when compiling with clang
 
- .. I spent hour to improve UL_WARN_ADD and after commit and push I
- found that whole problem could be resolved by an extra -Werror in
- UL_WARN_ADD implementation.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ sys-utils/swapon.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
- so the result from CC=clang ./configure is:
-
-checking whether compiler handles -Wextra... yes
-checking whether compiler handles -Wno-missing-field-initializers... yes
-checking whether compiler handles -Wsign-compare... yes
-checking whether compiler handles -Wtype-limits... yes
-checking whether compiler handles -Wuninitialized... yes
-checking whether compiler handles -Werror=sequence-point... yes
-checking whether compiler handles -Wunused-parameter... yes
-checking whether compiler handles -fno-common... yes
-checking whether compiler handles -Wunused-result... no
-checking whether compiler handles -Wmissing-prototypes... yes
-checking whether compiler handles -Wunused-variable... yes
-checking whether compiler handles -Wmissing-parameter-type... no
-checking whether compiler handles -Wunused-but-set-parameter... no
-checking whether compiler handles -Wunused-but-set-variable... no
-checking whether compiler handles -Wredundant-decls... yes
-
-
-
->       libblkid: remove duplicate entries in symbols
->       lib/pager: minor compiler warning fixes
->       findmnt: add missing initializer
-
- Why we need this if code is compiled with -Wno-missing-field-initializers?
-
- It's pretty obvious in C standard how are missing fields are initialized
- in global and static variables.
-
-    Karel
-
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 0858894..05d025c 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -216,7 +216,6 @@ static int show_table(int tt_flags, int bytes)
+ 	struct libmnt_fs *fs;
+ 
+ 	int i, rc = 0;
+-	struct list_head *p, *pnext;
+ 	struct tt *tt;
+ 
+ 	if (!st)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
