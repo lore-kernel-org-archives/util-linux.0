@@ -1,60 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43895 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:50447 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751133Ab2GaNv3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 31 Jul 2012 09:51:29 -0400
-Date: Tue, 31 Jul 2012 15:51:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: tests: blkid/md-raid1-part fails
-Message-ID: <20120731135124.GB17896@x2.net.home>
-References: <501772B7.2040504@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <501772B7.2040504@bernhard-voelker.de>
+	id S1753544Ab2GLJTf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Jul 2012 05:19:35 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 955F9A3BA5
+	for <util-linux@vger.kernel.org>; Thu, 12 Jul 2012 11:19:34 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] utmpdump: kill unused variable in follow_by_inotify()
+Date: Thu, 12 Jul 2012 11:18:46 +0200
+Message-Id: <1342084726-32579-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 31, 2012 at 07:52:55AM +0200, Bernhard Voelker wrote:
-> The above mentioned test fails here (OpenSuSE-12.1 64-bit).
-> 
-> That's in diff/blkid/md-raid1-part:
-> 
-> --- /media/sdb5/berny/git/util-linux/tests/expected/blkid/md-raid1-part	2012-07-27 09:54:03.769967754 +0200
-> +++ /media/sdb5/berny/git/util-linux/tests/output/blkid/md-raid1-part	2012-07-31 07:18:24.057815522 +0200
-> @@ -44,7 +44,7 @@
-> 
-> 
->  ID_FS_VERSION=0.90.0
-> -ID_PART_ENTRY_DISK=8:16
-> +ID_PART_ENTRY_DISK=8:112
->  ID_PART_ENTRY_NUMBER=1
->  ID_PART_ENTRY_OFFSET=2048
->  ID_PART_ENTRY_SCHEME=dos
-> @@ -56,7 +56,7 @@
-> 
-> 
->  ID_FS_VERSION=0.90.0
-> -ID_PART_ENTRY_DISK=8:16
-> +ID_PART_ENTRY_DISK=8:112
->  ID_PART_ENTRY_NUMBER=2
->  ID_PART_ENTRY_OFFSET=53248
->  ID_PART_ENTRY_SCHEME=dos
-> 
-> What's wrong with that minor number?
 
-Nothing, it would be better to check if the line ID_PART_ENTRY_DISK=
-is in the $TS_OUTPUT and if yes then remove the line from the output
-file (e.g. by sed).
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ login-utils/utmpdump.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-The tests should not rely on device numbers and device names -- on
-another places you can found /dev/loop0 in the expected outputs...
-
-Patches wanted :-)
-
-    Karel
-
+diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
+index 8af333a..1fa274e 100644
+--- a/login-utils/utmpdump.c
++++ b/login-utils/utmpdump.c
+@@ -142,7 +142,6 @@ done:
+ static int follow_by_inotify(FILE *fp, const char *filename)
+ {
+ 	char buf[NEVENTS * sizeof(struct inotify_event)];
+-	struct utmp ut;
+ 	int fd, wd, event;
+ 	ssize_t length;
+ 	off_t size;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
