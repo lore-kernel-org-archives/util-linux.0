@@ -1,67 +1,114 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39606 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754978Ab2GXOer (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 10:34:47 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6OEYlZq021028
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 10:34:47 -0400
-From: Milan Broz <mbroz@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Milan Broz <mbroz@redhat.com>
-Subject: [PATCH] lsblk: add read-ahead column.
-Date: Tue, 24 Jul 2012 16:34:33 +0200
-Message-Id: <1343140473-15035-1-git-send-email-mbroz@redhat.com>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:45369 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750932Ab2GOUkc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Jul 2012 16:40:32 -0400
+Received: by wgbdr13 with SMTP id dr13so356468wgb.1
+        for <util-linux@vger.kernel.org>; Sun, 15 Jul 2012 13:40:30 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Date: Sun, 15 Jul 2012 22:40:30 +0200
+Message-ID: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
+Subject: [pull] static analysis, and help to translator
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
----
- misc-utils/lsblk.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+Next release is apparently just round corner.  This series of changes
+are results of running clang, smatch and cppcheck.  Last four patches
+has tons of message changes, which translators hopefully appreciate,
+but made sending a diff feel bit extensive (more than 1000 lines long).
+If you are interested to check an individual patch quickly have a look
+of the github web gui.
 
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index b459728..cb2b768 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -73,6 +73,7 @@ enum {
- 	COL_UUID,
- 	COL_PARTLABEL,
- 	COL_PARTUUID,
-+	COL_RA,
- 	COL_RO,
- 	COL_RM,
- 	COL_MODEL,
-@@ -117,6 +118,7 @@ static struct colinfo infos[] = {
- 	[COL_PARTLABEL] = { "PARTLABEL", 0.1, 0, N_("partition LABEL") },
- 	[COL_PARTUUID]  = { "PARTUUID",  36,  0, N_("partition UUID") },
- 
-+	[COL_RA]     = { "RA",      4, TT_FL_RIGHT, N_("read-ahead of the device") },
- 	[COL_RO]     = { "RO",      1, TT_FL_RIGHT, N_("read-only device") },
- 	[COL_RM]     = { "RM",      1, TT_FL_RIGHT, N_("removable device") },
- 	[COL_ROTA]   = { "ROTA",    1, TT_FL_RIGHT, N_("rotational device") },
-@@ -643,6 +645,11 @@ static void set_tt_data(struct blkdev_cxt *cxt, int col, int id, struct tt_line
- 		if (cxt->uuid)
- 			tt_line_set_data(ln, col, xstrdup(cxt->partuuid));
- 		break;
-+	case COL_RA:
-+		p = sysfs_strdup(&cxt->sysfs, "queue/read_ahead_kb");
-+		if (p)
-+			tt_line_set_data(ln, col, p);
-+		break;
- 	case COL_RO:
- 		tt_line_set_data(ln, col, is_readonly_device(cxt) ?
- 					xstrdup("1") : xstrdup("0"));
-@@ -1333,6 +1340,7 @@ int main(int argc, char *argv[])
- 			columns[ncolumns++] = COL_ROTA;
- 			columns[ncolumns++] = COL_SCHED;
- 			columns[ncolumns++] = COL_RQ_SIZE;
-+			columns[ncolumns++] = COL_RA;
- 			break;
- 		case 'V':
- 			printf(_("%s from %s\n"), program_invocation_short_name,
+https://github.com/kerolasa/lelux-utiliteetit/commits/2012wk28
+
+
+The following changes since commit 2e7035646eb85851171cc2e989bfa858a4f00cd4:
+
+  login: close tty before vhangup() (2012-07-12 16:35:01 +0200)
+
+are available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git 2012wk28
+
+for you to fetch changes up to 8b59a0c3764fa23aa66cf71bb5334cc23d736c60:
+
+  translation: unify file open error messages (2012-07-15 10:39:57 +0200)
+
+----------------------------------------------------------------
+Sami Kerola (13):
+      build-sys: reduce warning noise when compiling with clang
+      libblkid: remove duplicate entries in symbols
+      lib/pager: minor compiler warning fixes
+      findmnt: add missing initializer
+      lib/loopdev: minor bug fix: add missing semicolon
+      swapon: remove unused variables
+      utmpdump: remove unused variable
+      look: remove extra semicolon
+      fdisk: make if clause easier to read
+      su: align with howto-usage-function
+      utmpdump: use help and version output macros
+      translation: unify stat error messages
+      translation: unify file open error messages
+
+ configure.ac              | 28 +++++++++++++++++++++++---
+ disk-utils/addpart.c      |  2 +-
+ disk-utils/delpart.c      |  2 +-
+ disk-utils/fdformat.c     |  6 +++---
+ disk-utils/fsck.c         |  2 +-
+ disk-utils/fsck.cramfs.c  |  6 +++---
+ disk-utils/fsck.minix.c   |  2 +-
+ disk-utils/isosize.c      |  2 +-
+ disk-utils/mkfs.bfs.c     |  2 +-
+ disk-utils/mkfs.cramfs.c  |  6 +++---
+ disk-utils/mkfs.minix.c   |  4 ++--
+ disk-utils/partx.c        |  4 ++--
+ disk-utils/swaplabel.c    |  2 +-
+ fdisks/cfdisk.c           |  6 +++---
+ fdisks/fdisk.c            | 41 +++++++++++++++++++------------------
+ lib/at.c                  |  2 +-
+ lib/loopdev.c             |  2 +-
+ lib/pager.c               |  4 +++-
+ lib/path.c                |  4 ++--
+ libblkid/src/blkid.sym    |  2 --
+ login-utils/islocal.c     |  3 +--
+ login-utils/last.c        |  2 +-
+ login-utils/su.c          | 51 +++++++++++++++++++++++------------------------
+ login-utils/sulogin.c     |  8 ++++----
+ login-utils/utmpdump.c    | 13 ++++++------
+ login-utils/vipw.c        |  2 +-
+ misc-utils/findmnt.c      | 42 +++++++++++++++++++-------------------
+ misc-utils/look.c         |  2 +-
+ misc-utils/mcookie.c      |  4 ++--
+ misc-utils/namei.c        |  2 +-
+ sys-utils/dmesg.c         |  4 ++--
+ sys-utils/eject.c         |  4 ++--
+ sys-utils/fallocate.c     |  2 +-
+ sys-utils/fsfreeze.c      |  4 ++--
+ sys-utils/fstrim.c        |  4 ++--
+ sys-utils/hwclock-cmos.c  |  2 +-
+ sys-utils/hwclock-rtc.c   | 10 +++++-----
+ sys-utils/hwclock.c       |  2 +-
+ sys-utils/losetup.c       |  2 +-
+ sys-utils/rtcwake.c       |  6 +++---
+ sys-utils/swapon.c        |  7 +++----
+ sys-utils/switch_root.c   |  6 +++---
+ sys-utils/wdctl.c         |  2 +-
+ term-utils/mesg.c         |  2 +-
+ term-utils/script.c       |  6 +++---
+ term-utils/scriptreplay.c |  4 ++--
+ term-utils/wall.c         |  4 ++--
+ text-utils/pg.c           |  2 +-
+ text-utils/rev.c          |  2 +-
+ text-utils/tailf.c        |  8 ++++----
+ text-utils/ul.c           |  2 +-
+ 51 files changed, 180 insertions(+), 163 deletions(-)
+
 -- 
-1.7.10.4
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
