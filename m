@@ -1,34 +1,27 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 1/2] fdisk: API: fix fdisk_add_partition comment style
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50545 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751888Ab2GPQYw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Jul 2012 12:24:52 -0400
+Date: Mon, 16 Jul 2012 18:24:47 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 24 Jul 2012 14:40:03 +0200
-Message-ID: <1343133603.2686.15.camel@offbook>
-Mime-Version: 1.0
+Subject: Re: [PATCH] utmpdump: kill unused variable in follow_by_inotify()
+Message-ID: <20120716162447.GG9087@x2.net.home>
+References: <1342084726-32579-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1342084726-32579-1-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On Thu, Jul 12, 2012 at 11:18:46AM +0200, Petr Uzel wrote:
+>  login-utils/utmpdump.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisks/utils.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Applied, thanks.
 
-diff --git a/fdisks/utils.c b/fdisks/utils.c
-index bf58d5b..8de64c2 100644
---- a/fdisks/utils.c
-+++ b/fdisks/utils.c
-@@ -83,7 +83,7 @@ int fdisk_verify_disklabel(struct fdisk_context *cxt)
- 	return cxt->label->verify(cxt);
- }
- 
--/*
-+/**
-  * fdisk_add_partition:
-  * @cxt: fdisk context
-  * @partnum: partition number to create
 -- 
-1.7.4.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
