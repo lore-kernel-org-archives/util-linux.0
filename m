@@ -1,47 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:49603 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755266Ab2GaG0j (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 31 Jul 2012 02:26:39 -0400
-Message-ID: <50177A9B.8000609@bernhard-voelker.de>
-Date: Tue, 31 Jul 2012 08:26:35 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:31624 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753706Ab2GPSpF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Jul 2012 14:45:05 -0400
+Date: Mon, 16 Jul 2012 18:27:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [pull] static analysis, and help to translator
+Message-ID: <20120716162715.GJ9087@x2.net.home>
+References: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] tests: cleanup ts_is_mounted
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Jul 15, 2012 at 10:40:30PM +0200, Sami Kerola wrote:
+>       libblkid: remove duplicate entries in symbols
+>       lib/pager: minor compiler warning fixes
+>       lib/loopdev: minor bug fix: add missing semicolon
+>       swapon: remove unused variables
+>       utmpdump: remove unused variable
+>       look: remove extra semicolon
+>       fdisk: make if clause easier to read
+>       su: align with howto-usage-function
+>       utmpdump: use help and version output macros
+>       translation: unify stat error messages
+>       translation: unify file open error messages
 
->From c30efb198ea1e6e62712de7e3e3369ffa2d296ff Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Tue, 31 Jul 2012 08:24:13 +0200
-Subject: [PATCH] tests: cleanup ts_is_mounted
+ Applied,
 
-* tests/functions.sh (ts_is_mounted): Remove check for canonicalization
-failure again, because it is now done by ts_canonicalize.
+>       build-sys: reduce warning noise when compiling with clang
+>       findmnt: add missing initializer
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- tests/functions.sh |    3 ---
- 1 files changed, 0 insertions(+), 3 deletions(-)
-
-diff --git a/tests/functions.sh b/tests/functions.sh
-index 0613505..9716534 100644
---- a/tests/functions.sh
-+++ b/tests/functions.sh
-@@ -394,9 +394,6 @@ function ts_device_has_uuid {
-
- function ts_is_mounted {
- 	local DEV=$(ts_canonicalize "$1")
--	if [ ".$DEV" = '.' ]; then
--	  DEV=$1
--	fi
-
- 	grep -q $DEV /proc/mounts && return 0
+ not applied. Thanks.
 
 -- 
-1.7.7
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
