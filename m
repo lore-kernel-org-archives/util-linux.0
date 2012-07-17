@@ -1,56 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:63323 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751456Ab2GYTP7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:15:59 -0400
-Received: by mail-we0-f174.google.com with SMTP id x8so794233wey.19
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:15:58 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 09/19] setterm: fix shadow declaration
-Date: Wed, 25 Jul 2012 21:15:30 +0200
-Message-Id: <1343243745-1172-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Received: from mailbigip.dreamhost.com ([208.97.132.5]:54349 "EHLO
+	homiemail-a2.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751800Ab2GQMLK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Jul 2012 08:11:10 -0400
+Subject: Re: [pull] static analysis, and help to translator
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <CAG27Bk19L0BpV=-Tg8k1iLTqSxFkKDox-ngL6hJnC3L8=RB4Gg@mail.gmail.com>
+References: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
+	 <1342460649.2643.3.camel@offbook>
+	 <CAG27Bk0nrNH8gWAa75mqZ1sLimGgq9c1AsA4JED3z5hrUjERzw@mail.gmail.com>
+	 <1342519416.3068.1.camel@offbook>
+	 <CAG27Bk19L0BpV=-Tg8k1iLTqSxFkKDox-ngL6hJnC3L8=RB4Gg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 17 Jul 2012 14:11:05 +0200
+Message-ID: <1342527065.3068.4.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-term-utils/setterm.c:221:55: warning: declaration of 'opt_term' shadows a global declaration [-Wshadow]
-term-utils/setterm.c:181:5: warning: shadowed declaration is here [-Wshadow]
+On Tue, 2012-07-17 at 14:03 +0200, Sami Kerola wrote:
+> On Tue, Jul 17, 2012 at 12:03 PM, Davidlohr Bueso <dave@gnu.org> wrote:
+> > I'm currently working on fine grain error handling, so for now, I'd be
+> > happy just leaving the cannot open device message, and not worrying
+> > about device too small - this isn't very meaningful to the user either,
+> > IMHO.
+> 
+> Hi Dave,
+> 
+> Sounds reasonable. I changed the commit to change as little as
+> possible while making test to pass.
+> 
+> http://i.imgur.com/wGUTG.gif
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/setterm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+LOL
 
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index 3083ac8..03148f7 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -218,11 +218,11 @@ static void screendump(int vcnum, FILE *F);
-  */
- 
- static void
--parse_term(int argc, char **argv, int *option, char **opt_term, int *bad_arg) {
-+parse_term(int argc, char **argv, int *option, char **opt_trm, int *bad_arg) {
- 	/* argc: Number of arguments for this option. */
- 	/* argv: Arguments for this option. */
- 	/* option: Term flag to set. */
--	/* opt_term: Terminal name to set. */
-+	/* opt_trm: Terminal name to set. */
- 	/* bad_arg: Set to true if an error is detected. */
- 
- /* Parse a -term specification. */
-@@ -231,7 +231,7 @@ parse_term(int argc, char **argv, int *option, char **opt_term, int *bad_arg) {
- 		*bad_arg = TRUE;
- 	*option = TRUE;
- 	if (argc == 1)
--		*opt_term = argv[0];
-+		*opt_trm = argv[0];
- }
- 
- static void
--- 
-1.7.11.3
+> 
+> oops I meant
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/9522db63ffce346188d90b6cecde7c3ce6ee799c
+> 
+
+Looks good - although I will be redoing the regression tests as new
+error messages will appear. I don't know if it's worth applying the
+patch as it will be overwritten any way.
+
+Thanks,
+Davidlohr
+
 
