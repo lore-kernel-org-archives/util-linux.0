@@ -1,42 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:39582 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754103Ab2F3QBV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 30 Jun 2012 12:01:21 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] Ensure BUILD_CFDISK is always defined
-Date: Sat, 30 Jun 2012 12:01:18 -0400
-Message-Id: <1341072078-20095-1-git-send-email-dreisner@archlinux.org>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:51222 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751815Ab2GQMDd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Jul 2012 08:03:33 -0400
+Received: by wgbdr13 with SMTP id dr13so322988wgb.1
+        for <util-linux@vger.kernel.org>; Tue, 17 Jul 2012 05:03:32 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1342519416.3068.1.camel@offbook>
+References: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
+	<1342460649.2643.3.camel@offbook>
+	<CAG27Bk0nrNH8gWAa75mqZ1sLimGgq9c1AsA4JED3z5hrUjERzw@mail.gmail.com>
+	<1342519416.3068.1.camel@offbook>
+Date: Tue, 17 Jul 2012 14:03:32 +0200
+Message-ID: <CAG27Bk19L0BpV=-Tg8k1iLTqSxFkKDox-ngL6hJnC3L8=RB4Gg@mail.gmail.com>
+Subject: Re: [pull] static analysis, and help to translator
+From: Sami Kerola <kerolasa@iki.fi>
+To: dave@gnu.org
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This avoids an error when configuring without ncurses:
+On Tue, Jul 17, 2012 at 12:03 PM, Davidlohr Bueso <dave@gnu.org> wrote:
+> I'm currently working on fine grain error handling, so for now, I'd be
+> happy just leaving the cannot open device message, and not worrying
+> about device too small - this isn't very meaningful to the user either,
+> IMHO.
 
-configure: error: conditional "BUILD_CFDISK" was never defined.
-Usually this means the macro was only invoked conditionally.
+Hi Dave,
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- configure.ac | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Sounds reasonable. I changed the commit to change as little as
+possible while making test to pass.
 
-diff --git a/configure.ac b/configure.ac
-index 198366a..cedeeaf 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -628,9 +628,7 @@ fi
- AM_CONDITIONAL(HAVE_SLANG, test "x$have_slang" = xyes)
- 
- 
--if test "x$have_slang" = xyes -o "x$have_ncurses" = xyes; then
--  AM_CONDITIONAL(BUILD_CFDISK, true)
--fi
-+AM_CONDITIONAL(BUILD_CFDISK, test "x$have_slang" = xyes -o "x$have_ncurses" = xyes)
- 
- 
- have_tinfo=no
+http://i.imgur.com/wGUTG.gif
+
+oops I meant
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/9522db63ffce346188d90b6cecde7c3ce6ee799c
+
 -- 
-1.7.11.1
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
