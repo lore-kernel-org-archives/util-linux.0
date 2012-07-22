@@ -1,196 +1,179 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:64634 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751346Ab2GQGGf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Jul 2012 02:06:35 -0400
-Received: by weyx8 with SMTP id x8so27114wey.19
-        for <util-linux@vger.kernel.org>; Mon, 16 Jul 2012 23:06:34 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1342460649.2643.3.camel@offbook>
-References: <CAG27Bk0qDyt0q7vVtCeOgdWDN_r7mW+gUVnyMLUjY1CnbT+LZw@mail.gmail.com>
-	<1342460649.2643.3.camel@offbook>
-Date: Tue, 17 Jul 2012 08:06:33 +0200
-Message-ID: <CAG27Bk0nrNH8gWAa75mqZ1sLimGgq9c1AsA4JED3z5hrUjERzw@mail.gmail.com>
-Subject: Re: [pull] static analysis, and help to translator
-From: Sami Kerola <kerolasa@iki.fi>
-To: dave@gnu.org
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:52929 "EHLO
+	homiemail-a2.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752128Ab2GVRFJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Jul 2012 13:05:09 -0400
+Subject: [PATCH 02/10] fdisk: API: add to label operations to context
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 22 Jul 2012 19:05:01 +0200
+Message-ID: <1342976701.2863.12.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 16, 2012 at 7:44 PM, Davidlohr Bueso <dave@gnu.org> wrote:
->>   translation: unify file open error messages (2012-07-15 10:39:57 +0200)
->
-> Sami, this breaks regression test scripts; please be sure to always run
-> them when making general changes across all utils.
+From: Davidlohr Bueso <dave@gnu.org>
 
-Hi Dave et.al.
+The context structure is the fdisk API's main data type as it keeps all data together. Add the
+label structure to it, so that the pt-specific operations can be called from the context.
 
-Good point. I had a look of tests and found couple other things being
-broken as well, which are fixed in pull below. Could you Dave have
-look of fdisk test fix? I think I got assumption right, but I really
-would like to add reviewed-by line.
+The internal probing function is updated so that if a label is not probed, for example when a
+disk is not formated, it will default to use either sun or dos label operations. This avoids
+scenarios that could crash the program if no label is detected - ie: right after creating a device.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/f6d755739df0c48e17e0eb85a485ad1aa4d59bc7
-
-
-The following changes since commit cc924cc086cf0363f49edd6ce14947acae2dad77:
-
-  mkfs.cramfs: fix compiler warning [-Wmissing-prototypes] (2012-07-16
-18:57:30 +0200)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git test-fixes
-
-for you to fetch changes up to f6d755739df0c48e17e0eb85a485ad1aa4d59bc7:
-
-  fdisk: change expected test output (2012-07-17 07:45:36 +0200)
-
-----------------------------------------------------------------
-Sami Kerola (3):
-      tests: partx changed default output format
-      tests: look: add words file
-      fdisk: change expected test output
-
- fdisks/fdisk.c                     |  7 +++++--
- tests/expected/fdisk/oddinput      |  4 ++--
- tests/expected/partx/partx-bsd     |  5 +++--
- tests/expected/partx/partx-dos+bsd |  9 +++++----
- tests/expected/partx/partx-gpt     | 11 ++++++-----
- tests/expected/partx/partx-sgi     |  5 +++--
- tests/expected/partx/partx-sun     |  5 +++--
- tests/ts/look/separator            |  4 +---
- tests/ts/look/words                |  3 +++
- 9 files changed, 31 insertions(+), 22 deletions(-)
- create mode 100644 tests/ts/look/words
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdisk.c |    4 ++--
+ fdisks/fdisk.h |   23 +++++++++++++++--------
+ fdisks/utils.c |   35 ++++++++++++++++++++++++++++-------
+ 3 files changed, 45 insertions(+), 17 deletions(-)
 
 diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index 32b6de9..55fd751 100644
+index 3b9bd7b..46322bc 100644
 --- a/fdisks/fdisk.c
 +++ b/fdisks/fdisk.c
-@@ -1761,8 +1761,11 @@ static void
-print_partition_table_from_option(char *device, unsigned long sector
- 	int gb;
-
- 	struct fdisk_context *cxt = fdisk_new_context_from_filename(device,
-1);	/* read-only */
--	if (!cxt)
--		err(EXIT_FAILURE, _("cannot open %s"), device);
-+	if (!cxt) {
-+		if (errno)
-+			err(EXIT_FAILURE, _("cannot open %s"), device);
-+		errx(EXIT_FAILURE, _("cannot open %s: too small device"), device);
+@@ -68,7 +68,7 @@ int MBRbuffer_changed;
+ struct menulist_descr {
+ 	char command;				/* command key */
+ 	char *description;			/* command description */
+-	enum labeltype label[2];		/* disklabel types associated with main and expert menu */
++	enum fdisk_labeltype label[2];		/* disklabel types associated with main and expert menu */
+ };
+ 
+ static const struct menulist_descr menulist[] = {
+@@ -138,7 +138,7 @@ unsigned int	user_cylinders, user_heads, user_sectors;
+ sector_t sector_offset = 1;
+ unsigned int units_per_sector = 1, display_in_cyl_units = 0;
+ unsigned long grain = DEFAULT_SECTOR_SIZE;
+-enum labeltype disklabel;	/* Current disklabel */
++enum fdisk_labeltype disklabel;	/* Current disklabel */
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ {
+diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+index 8107aa8..d716824 100644
+--- a/fdisks/fdisk.h
++++ b/fdisks/fdisk.h
+@@ -132,6 +132,8 @@ struct fdisk_context {
+ 	/* geometry */
+ 	sector_t total_sectors; /* in logical sectors */
+ 	struct fdisk_geometry geom;
++
++	struct fdisk_label *label;
+ };
+ 
+ /*
+@@ -139,6 +141,8 @@ struct fdisk_context {
+  */
+ struct fdisk_label {
+ 	const char *name;
++
++	/* probe disk label */
+ 	int (*probe)(struct fdisk_context *cxt);
+ };
+ 
+@@ -206,17 +210,20 @@ extern const char * str_units(int);
+ 
+ extern sector_t get_nr_sects(struct partition *p);
+ 
+-enum labeltype {
++/*
++ * Supported partition table types (labels)
++ */
++enum fdisk_labeltype {
++	ANY_LABEL = -1,
+ 	DOS_LABEL = 1,
+-	SUN_LABEL = 2,
+-	SGI_LABEL = 4,
+-	AIX_LABEL = 8,
+-	OSF_LABEL = 16,
+-	MAC_LABEL = 32,
+-	ANY_LABEL = -1
++	SUN_LABEL,
++	SGI_LABEL,
++	AIX_LABEL,
++	OSF_LABEL,
++	MAC_LABEL,
+ };
+ 
+-extern enum labeltype disklabel;
++extern enum fdisk_labeltype disklabel;
+ extern int MBRbuffer_changed;
+ extern unsigned long grain;
+ 
+diff --git a/fdisks/utils.c b/fdisks/utils.c
+index 363f7aa..cf9484c 100644
+--- a/fdisks/utils.c
++++ b/fdisks/utils.c
+@@ -36,11 +36,11 @@ int fdisk_debug_mask;
+  */
+ static const struct fdisk_label *labels[] =
+ {
+-	&bsd_label,
+ 	&dos_label,
+-	&sgi_label,
+ 	&sun_label,
++	&sgi_label,
+ 	&aix_label,
++	&bsd_label,
+ 	&mac_label,
+ };
+ 
+@@ -51,14 +51,34 @@ static int __probe_labels(struct fdisk_context *cxt)
+ 	disklabel = ANY_LABEL;
+ 	update_units(cxt);
+ 
++	cxt->label = calloc(1, sizeof(struct fdisk_label));
++	if (!cxt->label) {
++		rc = FDISK_ERROR_MEM;
++		goto done;
 +	}
- 	if (sector_size)  /* passed -b option, override autodiscovery */
- 		cxt->phy_sector_size = cxt->sector_size = sector_size;
- 	/* passed CHS option(s), override autodiscovery */
-diff --git a/tests/expected/fdisk/oddinput b/tests/expected/fdisk/oddinput
-index d90866b..bd70066 100644
---- a/tests/expected/fdisk/oddinput
-+++ b/tests/expected/fdisk/oddinput
-@@ -9,6 +9,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
-
- Nonexistant file
--lt-fdisk: unable to open _a_file_that_does_not_exist_: No such file
-or directory
-+lt-fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
- Too small file
--lt-fdisk: unable to open oddinput.toosmall: Success
-+lt-fdisk: cannot open oddinput.toosmall: too small device
-diff --git a/tests/expected/partx/partx-bsd b/tests/expected/partx/partx-bsd
-index d4be5c5..15568c4 100644
---- a/tests/expected/partx/partx-bsd
-+++ b/tests/expected/partx/partx-bsd
-@@ -1,2 +1,3 @@
--# 1:      7936-    12799 (     4864 sectors,      2 MB)
--# 2:     12544-    16127 (     3584 sectors,      1 MB)
-+NR START   END SECTORS SIZE NAME UUID
-+ 1  7936 12799    4864 2.4M
-+ 2 12544 16127    3584 1.8M
-diff --git a/tests/expected/partx/partx-dos+bsd
-b/tests/expected/partx/partx-dos+bsd
-index 3242a6c..75cdfe8 100644
---- a/tests/expected/partx/partx-dos+bsd
-+++ b/tests/expected/partx/partx-dos+bsd
-@@ -1,4 +1,5 @@
--# 1:        32-     7679 (     7648 sectors,      3 MB)
--# 2:      7680-    16383 (     8704 sectors,      4 MB)
--# 5:      7936-    12799 (     4864 sectors,      2 MB)
--# 6:     12544-    16127 (     3584 sectors,      1 MB)
-+NR START   END SECTORS SIZE NAME UUID
-+ 1    32  7679    7648 3.8M
-+ 2  7680 16383    8704 4.3M
-+ 5  7936 12799    4864 2.4M
-+ 6 12544 16127    3584 1.8M
-diff --git a/tests/expected/partx/partx-gpt b/tests/expected/partx/partx-gpt
-index 0a1d491..c941f36 100644
---- a/tests/expected/partx/partx-gpt
-+++ b/tests/expected/partx/partx-gpt
-@@ -1,5 +1,6 @@
--# 1:        34-     2047 (     2014 sectors,      1 MB)
--# 2:      2048-     4095 (     2048 sectors,      1 MB)
--# 3:      4096-     6143 (     2048 sectors,      1 MB)
--# 4:      6144-     8191 (     2048 sectors,      1 MB)
--# 5:      8192-    10239 (     2048 sectors,      1 MB)
-+NR START   END SECTORS  SIZE NAME            UUID
-+ 1    34  2047    2014 1007K ThisIsName
-1dcf10bc-637e-4c52-8203-087ae10a820b
-+ 2  2048  4095    2048    1M ThisIsOtherName
-a1d03a96-7238-46c6-bbb3-789cbe173ec7
-+ 3  4096  6143    2048    1M primary
-a7101b6c-468c-47df-aff6-cd444d12af61
-+ 4  6144  8191    2048    1M primary
-afc4950a-f0f1-4add-802c-5957133486d1
-+ 5  8192 10239    2048    1M primary
-0db0a787-c16b-4886-af3a-fbb97299677c
-diff --git a/tests/expected/partx/partx-sgi b/tests/expected/partx/partx-sgi
-index 469d442..ba357e0 100644
---- a/tests/expected/partx/partx-sgi
-+++ b/tests/expected/partx/partx-sgi
-@@ -1,2 +1,3 @@
--# 1:        63-  1606499 (  1606437 sectors,    822 MB)
--# 2:   1606500- 32129999 ( 30523500 sectors,  15628 MB)
-+NR   START      END  SECTORS   SIZE NAME UUID
-+ 1      63  1606499  1606437 784.4M
-+ 2 1606500 32129999 30523500  14.6G
-diff --git a/tests/expected/partx/partx-sun b/tests/expected/partx/partx-sun
-index d957f58..e69fdb1 100644
---- a/tests/expected/partx/partx-sun
-+++ b/tests/expected/partx/partx-sun
-@@ -1,2 +1,3 @@
--# 1:         0-    87379 (    87380 sectors,     44 MB)
--# 2:     87380-   131069 (    43690 sectors,     22 MB)
-+NR START    END SECTORS  SIZE NAME UUID
-+ 1     0  87379   87380 42.7M
-+ 2 87380 131069   43690 21.3M
-diff --git a/tests/ts/look/separator b/tests/ts/look/separator
-index 17d68db..51e96c9 100755
---- a/tests/ts/look/separator
-+++ b/tests/ts/look/separator
-@@ -34,8 +34,6 @@ TS_DESC="separator"
- . $TS_TOPDIR/functions.sh
- ts_init "$*"
-
--[ -f "/usr/share/dict/words" ] || ts_skip "/usr/share/dict/words not such file"
--
--$TS_CMD_LOOK apple-pie >> $TS_OUTPUT
-+$TS_CMD_LOOK apple-pie $TS_TOPDIR/ts/look/words >> $TS_OUTPUT
- ts_finalize
-
-diff --git a/tests/ts/look/words b/tests/ts/look/words
-new file mode 100644
-index 0000000..b67ba9a
---- /dev/null
-+++ b/tests/ts/look/words
-@@ -0,0 +1,3 @@
-+apple
-+apple-pie
-+oranges
-
++
+ 	for (i = 0; i < ARRAY_SIZE(labels); i++) {
+ 		rc = labels[i]->probe(cxt);
+-		if (!rc) {
+-			DBG(LABEL, dbgprint("detected a %s label\n",
+-					    labels[i]->name));
+-			goto done;
+-		}
++		if (rc)
++			continue;
++		
++		/* found the label */
++		DBG(LABEL, dbgprint("detected a %s label\n", labels[i]->name));
++		goto copy;
+ 	}
++
++	/*
++	 * Did not find any label - perhaps un formated;
++	 * initialize with default partition operations.
++	 */
++#ifdef __sparc__
++	i = OSF_LABEL - 1;
++#else
++	i = DOS_LABEL - 1;
++#endif
++	DBG(LABEL, dbgprint("defaulting to a %s label\n", labels[i]->name));
++copy:
++	memcpy(cxt->label, labels[i], sizeof(struct fdisk_label));
+ done:
+ 	return rc;
+ }
+@@ -380,6 +400,7 @@ void fdisk_free_context(struct fdisk_context *cxt)
+ 	DBG(CONTEXT, dbgprint("freeing context for %s", cxt->dev_path));
+ 	close(cxt->dev_fd);
+ 	free(cxt->dev_path);
++	free(cxt->label);
+ 	free(cxt->mbr);
+ 	free(cxt);
+ }
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+1.7.4.1
+
+
+
+
