@@ -1,230 +1,433 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53772 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753343Ab2GXJlu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 05:41:50 -0400
-Date: Tue, 24 Jul 2012 11:41:31 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 02/10] fdisk: API: add to label operations to context
-Message-ID: <20120724094131.GB2086@foxbat.suse.cz>
-References: <1342976701.2863.12.camel@offbook>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
-In-Reply-To: <1342976701.2863.12.camel@offbook>
+Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:44855 "EHLO
+	homiemail-a61.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752168Ab2GVRFZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Jul 2012 13:05:25 -0400
+Subject: [PATCH 06/10] fdisk: API: add new partition to label operations
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 22 Jul 2012 19:05:12 +0200
+Message-ID: <1342976712.2863.16.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Davidlohr Bueso <dave@gnu.org>
 
---eJnRUKwClWJh1Khz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdisk.c         |   38 +++++-----------------
+ fdisks/fdisk.h         |    3 ++
+ fdisks/fdiskaixlabel.c |   10 ++++++
+ fdisks/fdiskbsdlabel.c |   81 +++++++++++++++++++++++------------------------
+ fdisks/fdiskdoslabel.c |   10 ++++--
+ fdisks/fdiskdoslabel.h |    2 -
+ fdisks/fdiskmaclabel.c |   10 ++++++
+ fdisks/fdisksgilabel.c |    4 +-
+ fdisks/fdisksgilabel.h |    1 -
+ fdisks/fdisksunlabel.c |    3 +-
+ fdisks/fdisksunlabel.h |    1 -
+ fdisks/utils.c         |   16 +++++++++
+ 12 files changed, 99 insertions(+), 80 deletions(-)
 
-On Sun, Jul 22, 2012 at 07:05:01PM +0200, Davidlohr Bueso wrote:
-> From: Davidlohr Bueso <dave@gnu.org>
->=20
-> The context structure is the fdisk API's main data type as it keeps all d=
-ata together. Add the
-> label structure to it, so that the pt-specific operations can be called f=
-rom the context.
->=20
-> The internal probing function is updated so that if a label is not probed=
-, for example when a
-> disk is not formated, it will default to use either sun or dos label oper=
-ations. This avoids
-> scenarios that could crash the program if no label is detected - ie: righ=
-t after creating a device.
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index 7212840..2af84f1 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -1423,39 +1423,19 @@ void print_partition_size(struct fdisk_context *cxt,
+ 
+ static void new_partition(struct fdisk_context *cxt)
+ {
+-	if (warn_geometry(cxt))
+-		return;
+-
+-	if (disklabel == SUN_LABEL) {
+-		add_sun_partition(cxt, get_partition(cxt, 0, partitions), LINUX_NATIVE);
+-		return;
+-	}
++	int partnum, parttype;
+ 
+-	if (disklabel == SGI_LABEL) {
+-		sgi_add_partition(cxt, get_partition(cxt, 0, partitions), LINUX_NATIVE);
+-		return;
+-	}
+-
+-	if (disklabel == AIX_LABEL) {
+-		printf(_("\tSorry - this fdisk cannot handle AIX disk labels."
+-			 "\n\tIf you want to add DOS-type partitions, create"
+-			 "\n\ta new empty DOS partition table first. (Use o.)"
+-			 "\n\tWARNING: "
+-			 "This will destroy the present disk contents.\n"));
++	if (warn_geometry(cxt))
+ 		return;
+-	}
+ 
+-	if (disklabel == MAC_LABEL) {
+-		printf(_("\tSorry - this fdisk cannot handle Mac disk labels."
+-		         "\n\tIf you want to add DOS-type partitions, create"
+-		         "\n\ta new empty DOS partition table first. (Use o.)"
+-		         "\n\tWARNING: "
+-		         "This will destroy the present disk contents.\n"));
+-		 return;
+-	}
++	if (disklabel == SUN_LABEL || disklabel == SGI_LABEL)
++		partnum = get_partition(cxt, 0, partitions);
+ 
+-	/* default to DOS/BSD */
+-	dos_new_partition(cxt);
++	/*
++	 * Use default LINUX_NATIVE partition type, DOS labels
++	 * may override this internally.
++	 */
++	fdisk_label_partition_new(cxt, partnum, LINUX_NATIVE);
+ }
+ 
+ static void write_table(struct fdisk_context *cxt)
+diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+index 577303b..26612bc 100644
+--- a/fdisks/fdisk.h
++++ b/fdisks/fdisk.h
+@@ -147,6 +147,8 @@ struct fdisk_label {
+ 	int (*probe)(struct fdisk_context *cxt);
+ 	/* write in-memory changes to disk */
+ 	int (*write)(struct fdisk_context *cxt);
++	/* new partition */
++	void (*part_new)(struct fdisk_context *cxt, int partnum, int parttype);
+ 	/* delete partition */
+ 	void (*part_delete)(struct fdisk_context *cxt, int partnum);
+ };
+@@ -170,6 +172,7 @@ extern void fdisk_geom_set_cyls(struct fdisk_context *cxt);
+ extern const char *fdisk_error_name(enum fdisk_error errcode);
+ extern void fdisk_error_fatal(struct fdisk_context *cxt, enum fdisk_error errcode);
+ extern int fdisk_label_change(struct fdisk_context *cxt, const char *name);
++extern int fdisk_label_partition_new(struct fdisk_context *cxt, int partnum, int parttype);
+ extern int fdisk_label_partition_delete(struct fdisk_context *cxt, int partnum);
+ extern int fdisk_label_write_table(struct fdisk_context *cxt);
+ 
+diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
+index d264027..7417894 100644
+--- a/fdisks/fdiskaixlabel.c
++++ b/fdisks/fdiskaixlabel.c
+@@ -65,10 +65,20 @@ static int aix_probe_label(struct fdisk_context *cxt)
+     return 0;
+ }
+ 
++static void aix_new_partition(struct fdisk_context *cxt, int partnum, int parttype)
++{
++	printf(_("\tSorry - this fdisk cannot handle AIX disk labels."
++		 "\n\tIf you want to add DOS-type partitions, create"
++		 "\n\ta new empty DOS partition table first. (Use o.)"
++		 "\n\tWARNING: "
++		 "This will destroy the present disk contents.\n"));
++}
++
+ const struct fdisk_label aix_label =
+ {
+ 	.name = "aix",
+ 	.probe = aix_probe_label,
+ 	.write = NULL,
++	.part_new = aix_new_partition,
+ 	.part_delete = NULL,
+ };
+diff --git a/fdisks/fdiskbsdlabel.c b/fdisks/fdiskbsdlabel.c
+index b827a5b..dd7bcf1 100644
+--- a/fdisks/fdiskbsdlabel.c
++++ b/fdisks/fdiskbsdlabel.c
+@@ -62,7 +62,6 @@
+ #include "fdiskbsdlabel.h"
+ 
+ static void xbsd_delete_part (struct fdisk_context *cxt, int partnum);
+-static void xbsd_new_part (struct fdisk_context *cxt);
+ static int xbsd_create_disklabel (struct fdisk_context *cxt);
+ static void xbsd_edit_disklabel (void);
+ static void xbsd_write_bootstrap (struct fdisk_context *cxt);
+@@ -154,6 +153,43 @@ static int xbsd_write_disklabel (struct fdisk_context *cxt)
+ 	return 0;
+ }
+ 
++static void xbsd_new_part (struct fdisk_context *cxt, int partnum, int parttype)
++{
++	unsigned int begin, end;
++	char mesg[256];
++	int i;
++
++	if (!xbsd_check_new_partition (&i))
++		return;
++
++#if !defined (__alpha__) && !defined (__powerpc__) && !defined (__hppa__)
++	begin = get_start_sect(xbsd_part);
++	end = begin + get_nr_sects(xbsd_part) - 1;
++#else
++	begin = 0;
++	end = xbsd_dlabel.d_secperunit - 1;
++#endif
++
++	snprintf (mesg, sizeof(mesg), _("First %s"), str_units(SINGULAR));
++	begin = read_int (cxt, bsd_cround (begin), bsd_cround (begin), bsd_cround (end),
++			  0, mesg);
++
++	if (display_in_cyl_units)
++		begin = (begin - 1) * xbsd_dlabel.d_secpercyl;
++
++	snprintf (mesg, sizeof(mesg), _("Last %s or +size or +sizeM or +sizeK"),
++		  str_units(SINGULAR));
++	end = read_int (cxt, bsd_cround (begin), bsd_cround (end), bsd_cround (end),
++			bsd_cround (begin), mesg);
++
++	if (display_in_cyl_units)
++		end = end * xbsd_dlabel.d_secpercyl - 1;
++
++	xbsd_dlabel.d_partitions[i].p_size   = end - begin + 1;
++	xbsd_dlabel.d_partitions[i].p_offset = begin;
++	xbsd_dlabel.d_partitions[i].p_fstype = BSD_FS_UNUSED;
++}
++
+ void
+ bsd_command_prompt (struct fdisk_context *cxt)
+ {
+@@ -210,8 +246,8 @@ bsd_command_prompt (struct fdisk_context *cxt)
+ 	xbsd_list_types ();
+ 	break;
+       case 'n':
+-	xbsd_new_part (cxt);
+-	break;
++	      xbsd_new_part (cxt, 0, 0);
++	      break;
+       case 'p':
+ 	      xbsd_print_disklabel (cxt, 0);
+ 	break;
+@@ -254,44 +290,6 @@ static void xbsd_delete_part(struct fdisk_context *cxt, int partnum)
+ 			xbsd_dlabel.d_npartitions--;
+ }
+ 
+-static void
+-xbsd_new_part (struct fdisk_context *cxt)
+-{
+-  unsigned int begin, end;
+-  char mesg[256];
+-  int i;
+-
+-  if (!xbsd_check_new_partition (&i))
+-    return;
+-
+-#if !defined (__alpha__) && !defined (__powerpc__) && !defined (__hppa__)
+-  begin = get_start_sect(xbsd_part);
+-  end = begin + get_nr_sects(xbsd_part) - 1;
+-#else
+-  begin = 0;
+-  end = xbsd_dlabel.d_secperunit - 1;
+-#endif
+-
+-  snprintf (mesg, sizeof(mesg), _("First %s"), str_units(SINGULAR));
+-  begin = read_int (cxt, bsd_cround (begin), bsd_cround (begin), bsd_cround (end),
+-		    0, mesg);
+-
+-  if (display_in_cyl_units)
+-    begin = (begin - 1) * xbsd_dlabel.d_secpercyl;
+-
+-  snprintf (mesg, sizeof(mesg), _("Last %s or +size or +sizeM or +sizeK"),
+-	   str_units(SINGULAR));
+-  end = read_int (cxt, bsd_cround (begin), bsd_cround (end), bsd_cround (end),
+-		  bsd_cround (begin), mesg);
+-
+-  if (display_in_cyl_units)
+-    end = end * xbsd_dlabel.d_secpercyl - 1;
+-
+-  xbsd_dlabel.d_partitions[i].p_size   = end - begin + 1;
+-  xbsd_dlabel.d_partitions[i].p_offset = begin;
+-  xbsd_dlabel.d_partitions[i].p_fstype = BSD_FS_UNUSED;
+-}
+-
+ void
+ xbsd_print_disklabel (struct fdisk_context *cxt, int show_all) {
+   struct xbsd_disklabel *lp = &xbsd_dlabel;
+@@ -848,5 +846,6 @@ const struct fdisk_label bsd_label =
+ 	.name = "bsd",
+ 	.probe = osf_probe_label,
+ 	.write = xbsd_write_disklabel,
++	.part_new = xbsd_new_part,
+ 	.part_delete = xbsd_delete_part,
+ };
+diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
+index 65609c5..67aec77 100644
+--- a/fdisks/fdiskdoslabel.c
++++ b/fdisks/fdiskdoslabel.c
+@@ -598,10 +598,13 @@ static void add_logical(struct fdisk_context *cxt)
+  * Ask the user for new partition type information (logical, extended).
+  * This function calls the actual partition adding logic - dos_add_partition.
+  */
+-void dos_new_partition(struct fdisk_context *cxt)
++static void dos_new_partition(struct fdisk_context *cxt, int partnum, int parttype)
+ {
+ 	int i, free_primary = 0;
+ 
++	/* default */
++	parttype = LINUX_NATIVE;
++
+ 	for (i = 0; i < 4; i++)
+ 		free_primary += !ptes[i].part_table->sys_ind;
+ 
+@@ -620,7 +623,7 @@ void dos_new_partition(struct fdisk_context *cxt)
+ 	} else if (partitions >= MAXIMUM_PARTS) {
+ 		printf(_("All logical partitions are in use\n"));
+ 		printf(_("Adding a primary partition\n"));
+-		dos_add_partition(cxt, get_partition(cxt, 0, 4), LINUX_NATIVE);
++		dos_add_partition(cxt, get_partition(cxt, 0, 4), parttype);
+ 	} else {
+ 		char c, dflt, line[LINE_LENGTH];
+ 
+@@ -642,7 +645,7 @@ void dos_new_partition(struct fdisk_context *cxt)
+ 		if (c == 'p') {
+ 			int i = get_nonexisting_partition(cxt, 0, 4);
+ 			if (i >= 0)
+-				dos_add_partition(cxt, i, LINUX_NATIVE);
++				dos_add_partition(cxt, i, parttype);
+ 			return;
+ 		} else if (c == 'l' && extended_offset) {
+ 			add_logical(cxt);
+@@ -702,5 +705,6 @@ const struct fdisk_label dos_label =
+ 	.name = "dos",
+ 	.probe = dos_probe_label,
+ 	.write = dos_write_table,
++	.part_new = dos_new_partition,
+ 	.part_delete = dos_delete_partition,
+ };
+diff --git a/fdisks/fdiskdoslabel.h b/fdisks/fdiskdoslabel.h
+index 8a2c6dd..964f91b 100644
+--- a/fdisks/fdiskdoslabel.h
++++ b/fdisks/fdiskdoslabel.h
+@@ -48,7 +48,5 @@ extern void dos_print_mbr_id(struct fdisk_context *cxt);
+ extern void dos_set_mbr_id(struct fdisk_context *cxt);
+ extern int is_dos_partition(int t);
+ extern void dos_init(struct fdisk_context *cxt);
+-extern void dos_add_partition(struct fdisk_context *cxt, int n, int sys);
+-extern void dos_new_partition(struct fdisk_context *cxt);
+ 
+ #endif
+diff --git a/fdisks/fdiskmaclabel.c b/fdisks/fdiskmaclabel.c
+index 19c99f6..f678417 100644
+--- a/fdisks/fdiskmaclabel.c
++++ b/fdisks/fdiskmaclabel.c
+@@ -80,10 +80,20 @@ IS_MAC:
+     return 0;
+ }
+ 
++static void mac_new_partition(struct fdisk_context *cxt, int partnum, int parttype)
++{
++	printf(_("\tSorry - this fdisk cannot handle Mac disk labels."
++		 "\n\tIf you want to add DOS-type partitions, create"
++		 "\n\ta new empty DOS partition table first. (Use o.)"
++		 "\n\tWARNING: "
++		 "This will destroy the present disk contents.\n"));
++}
++
+ const struct fdisk_label mac_label =
+ {
+ 	.name = "mac",
+ 	.probe = mac_probe_label,
+ 	.write = NULL,
++	.part_new = mac_new_partition,
+ 	.part_delete = NULL,
+ };
+diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
+index 39ba58d..e65bd63 100644
+--- a/fdisks/fdisksgilabel.c
++++ b/fdisks/fdisksgilabel.c
+@@ -644,8 +644,7 @@ static void sgi_delete_partition(struct fdisk_context *cxt, int partnum)
+ 	sgi_set_partition(cxt, partnum, 0, 0, 0);
+ }
+ 
+-void
+-sgi_add_partition(struct fdisk_context *cxt, int n, int sys)
++static void sgi_add_partition(struct fdisk_context *cxt, int n, int sys)
+ {
+ 	char mesg[256];
+ 	unsigned int first=0, last=0;
+@@ -885,5 +884,6 @@ const struct fdisk_label sgi_label =
+ 	.name = "sgi",
+ 	.probe = sgi_probe_label,
+ 	.write = sgi_write_table,
++	.part_new = sgi_add_partition,
+ 	.part_delete = sgi_delete_partition,
+ };
+diff --git a/fdisks/fdisksgilabel.h b/fdisks/fdisksgilabel.h
+index 14f488f..139e74f 100644
+--- a/fdisks/fdisksgilabel.h
++++ b/fdisks/fdisksgilabel.h
+@@ -116,7 +116,6 @@ extern int  sgi_change_sysid(struct fdisk_context *cxt, int i, int sys);
+ extern unsigned int	sgi_get_start_sector(struct fdisk_context *cxt, int i );
+ extern unsigned int	sgi_get_num_sectors(struct fdisk_context *cxt, int i );
+ extern int	sgi_get_sysid(struct fdisk_context *cxt, int i );
+-extern void	sgi_add_partition( struct fdisk_context *cxt, int n, int sys );
+ extern void	create_sgilabel( struct fdisk_context *cxt );
+ extern void	create_sgiinfo(struct fdisk_context *cxt);
+ extern int	verify_sgi(struct fdisk_context *cxt, int verbose );
+diff --git a/fdisks/fdisksunlabel.c b/fdisks/fdisksunlabel.c
+index 2cae2dd..2b543c6 100644
+--- a/fdisks/fdisksunlabel.c
++++ b/fdisks/fdisksunlabel.c
+@@ -361,7 +361,7 @@ void verify_sun(struct fdisk_context *cxt)
+         printf(_("Unused gap - sectors %d-%d\n"), start, stop);
+ }
+ 
+-void add_sun_partition(struct fdisk_context *cxt, int n, int sys)
++static void sun_add_partition(struct fdisk_context *cxt, int n, int sys)
+ {
+ 	uint32_t starts[SUN_NUM_PARTITIONS], lens[SUN_NUM_PARTITIONS];
+ 	struct sun_partition *part = &sunlabel->partitions[n];
+@@ -651,5 +651,6 @@ const struct fdisk_label sun_label =
+ 	.name = "sun",
+ 	.probe = sun_probe_label,
+ 	.write = sun_write_table,
++	.part_new = sun_add_partition,
+ 	.part_delete = sun_delete_partition,
+ };
+diff --git a/fdisks/fdisksunlabel.h b/fdisks/fdisksunlabel.h
+index 0ede6e3..571633a 100644
+--- a/fdisks/fdisksunlabel.h
++++ b/fdisks/fdisksunlabel.h
+@@ -81,7 +81,6 @@ extern void create_sunlabel(struct fdisk_context *cxt);
+ extern int sun_change_sysid(struct fdisk_context *cxt, int i, uint16_t sys);
+ extern void sun_list_table(struct fdisk_context *cxt, int xtra);
+ extern void verify_sun(struct fdisk_context *cxt);
+-extern void add_sun_partition(struct fdisk_context *cxt, int n, int sys);
+ extern void sun_set_alt_cyl(struct fdisk_context *cxt);
+ extern void sun_set_ncyl(struct fdisk_context *cxt, int cyl);
+ extern void sun_set_xcyl(struct fdisk_context *cxt);
+diff --git a/fdisks/utils.c b/fdisks/utils.c
+index 9b5092d..0a44d40 100644
+--- a/fdisks/utils.c
++++ b/fdisks/utils.c
+@@ -95,6 +95,22 @@ int fdisk_label_write_table(struct fdisk_context *cxt)
+ }	
+ 
+ /**
++ * fdisk_label_partition_new:
++ * @cxt: fdisk context
++ * @partnum: partition number to create
++ * @parttype: partition type to create
++ *
++ * Creates a new partition, with number @partnum and type @parttype.
++ *
++ * Returns 0.
++ */
++int fdisk_label_partition_new(struct fdisk_context *cxt, int partnum, int parttype)
++{
++	cxt->label->part_new(cxt, partnum, parttype);
++	return 0;
++}
++
++/**
+  * fdisk_label_partition_delete:
+  * @cxt: fdisk context
+  * @partnum: partition number to delete
+-- 
+1.7.4.1
 
-Wouldn't it be nicer to have dummy/fallback entry for unknown/nonexistent l=
-abel
-type, e.g. 'no_label'. It's operations could return something like
-NO_LABEL_PLS_CREATE_IT_FIRST. fdisk_context would be initialized to
-point to this dummy label type and later overridden by successful label
-probe.
 
 
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> ---
->  fdisks/fdisk.c |    4 ++--
->  fdisks/fdisk.h |   23 +++++++++++++++--------
->  fdisks/utils.c |   35 ++++++++++++++++++++++++++++-------
->  3 files changed, 45 insertions(+), 17 deletions(-)
->=20
-> diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-> index 3b9bd7b..46322bc 100644
-> --- a/fdisks/fdisk.c
-> +++ b/fdisks/fdisk.c
-> @@ -68,7 +68,7 @@ int MBRbuffer_changed;
->  struct menulist_descr {
->  	char command;				/* command key */
->  	char *description;			/* command description */
-> -	enum labeltype label[2];		/* disklabel types associated with main and e=
-xpert menu */
-> +	enum fdisk_labeltype label[2];		/* disklabel types associated with main=
- and expert menu */
->  };
-> =20
->  static const struct menulist_descr menulist[] =3D {
-> @@ -138,7 +138,7 @@ unsigned int	user_cylinders, user_heads, user_sectors;
->  sector_t sector_offset =3D 1;
->  unsigned int units_per_sector =3D 1, display_in_cyl_units =3D 0;
->  unsigned long grain =3D DEFAULT_SECTOR_SIZE;
-> -enum labeltype disklabel;	/* Current disklabel */
-> +enum fdisk_labeltype disklabel;	/* Current disklabel */
-> =20
->  static void __attribute__ ((__noreturn__)) usage(FILE *out)
->  {
-> diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
-> index 8107aa8..d716824 100644
-> --- a/fdisks/fdisk.h
-> +++ b/fdisks/fdisk.h
-> @@ -132,6 +132,8 @@ struct fdisk_context {
->  	/* geometry */
->  	sector_t total_sectors; /* in logical sectors */
->  	struct fdisk_geometry geom;
-> +
-> +	struct fdisk_label *label;
->  };
-> =20
->  /*
-> @@ -139,6 +141,8 @@ struct fdisk_context {
->   */
->  struct fdisk_label {
->  	const char *name;
-> +
-> +	/* probe disk label */
->  	int (*probe)(struct fdisk_context *cxt);
->  };
-> =20
-> @@ -206,17 +210,20 @@ extern const char * str_units(int);
-> =20
->  extern sector_t get_nr_sects(struct partition *p);
-> =20
-> -enum labeltype {
-> +/*
-> + * Supported partition table types (labels)
-> + */
-> +enum fdisk_labeltype {
-> +	ANY_LABEL =3D -1,
->  	DOS_LABEL =3D 1,
-> -	SUN_LABEL =3D 2,
-> -	SGI_LABEL =3D 4,
-> -	AIX_LABEL =3D 8,
-> -	OSF_LABEL =3D 16,
-> -	MAC_LABEL =3D 32,
-> -	ANY_LABEL =3D -1
-> +	SUN_LABEL,
-> +	SGI_LABEL,
-> +	AIX_LABEL,
-> +	OSF_LABEL,
-> +	MAC_LABEL,
->  };
-> =20
-> -extern enum labeltype disklabel;
-> +extern enum fdisk_labeltype disklabel;
->  extern int MBRbuffer_changed;
->  extern unsigned long grain;
-> =20
-> diff --git a/fdisks/utils.c b/fdisks/utils.c
-> index 363f7aa..cf9484c 100644
-> --- a/fdisks/utils.c
-> +++ b/fdisks/utils.c
-> @@ -36,11 +36,11 @@ int fdisk_debug_mask;
->   */
->  static const struct fdisk_label *labels[] =3D
->  {
-> -	&bsd_label,
->  	&dos_label,
-> -	&sgi_label,
->  	&sun_label,
-> +	&sgi_label,
->  	&aix_label,
-> +	&bsd_label,
->  	&mac_label,
->  };
 
-Is the ordering of labels important here? If so, it should be documented.
-
-
-> =20
-> @@ -51,14 +51,34 @@ static int __probe_labels(struct fdisk_context *cxt)
->  	disklabel =3D ANY_LABEL;
->  	update_units(cxt);
-> =20
-> +	cxt->label =3D calloc(1, sizeof(struct fdisk_label));
-> +	if (!cxt->label) {
-> +		rc =3D FDISK_ERROR_MEM;
-> +		goto done;
-> +	}
-> +
->  	for (i =3D 0; i < ARRAY_SIZE(labels); i++) {
->  		rc =3D labels[i]->probe(cxt);
-> -		if (!rc) {
-> -			DBG(LABEL, dbgprint("detected a %s label\n",
-> -					    labels[i]->name));
-> -			goto done;
-> -		}
-> +		if (rc)
-> +			continue;
-> +	=09
-> +		/* found the label */
-> +		DBG(LABEL, dbgprint("detected a %s label\n", labels[i]->name));
-> +		goto copy;
->  	}
-> +
-> +	/*
-> +	 * Did not find any label - perhaps un formated;
-> +	 * initialize with default partition operations.
-> +	 */
-> +#ifdef __sparc__
-> +	i =3D OSF_LABEL - 1;
-> +#else
-> +	i =3D DOS_LABEL - 1;
-> +#endif
-> +	DBG(LABEL, dbgprint("defaulting to a %s label\n", labels[i]->name));
-> +copy:
-> +	memcpy(cxt->label, labels[i], sizeof(struct fdisk_label));
-
-Uh, may be I'm missing something, but why not just make cxt->label
-point to corresponding entry from *labels array?
-
-
->  done:
->  	return rc;
->  }
-> @@ -380,6 +400,7 @@ void fdisk_free_context(struct fdisk_context *cxt)
->  	DBG(CONTEXT, dbgprint("freeing context for %s", cxt->dev_path));
->  	close(cxt->dev_fd);
->  	free(cxt->dev_path);
-> +	free(cxt->label);
->  	free(cxt->mbr);
->  	free(cxt);
->  }
-> --=20
-> 1.7.4.1
->=20
->=20
->=20
->=20
-
-Petr
-
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---eJnRUKwClWJh1Khz
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAlAObcsACgkQnZxG0T6qDD3s5ACfa+a1h4fk9msb5m9JIsfPN1bH
-JMsAnjEwh4agcp1AMm7HY+DrMwYLpR55
-=YBsq
------END PGP SIGNATURE-----
-
---eJnRUKwClWJh1Khz--
