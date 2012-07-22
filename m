@@ -1,28 +1,144 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29706 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753692Ab2GXMWh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 08:22:37 -0400
-Date: Tue, 24 Jul 2012 14:22:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
+Received: from caiajhbdccah.dreamhost.com ([208.97.132.207]:46232 "EHLO
+	homiemail-a60.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752158Ab2GVRFN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Jul 2012 13:05:13 -0400
+Subject: [PATCH 03/10] fdisk: API: add fdisk_label_change
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/2] fdisk: return success from sgi_create_disklabel
-Message-ID: <20120724122229.GK736@x2.net.home>
-References: <1343130752-6626-1-git-send-email-petr.uzel@suse.cz>
- <1343130752-6626-2-git-send-email-petr.uzel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343130752-6626-2-git-send-email-petr.uzel@suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sun, 22 Jul 2012 19:05:04 +0200
+Message-ID: <1342976704.2863.13.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 24, 2012 at 01:52:32PM +0200, Petr Uzel wrote:
->  fdisks/fdisksgilabel.c |    1 +
->  1 file changed, 1 insertion(+)
+From: Davidlohr Bueso <dave@gnu.org>
 
- Applied, thanks.
+A new fdisk_label_change() function is added for situations when the disk label is
+changed (ie: creating a new sun label). This function only updates the label pointer
+in the context to use the newly specified label type.
 
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdisk.h         |    2 ++
+ fdisks/fdiskdoslabel.c |    1 +
+ fdisks/fdisksgilabel.c |    2 ++
+ fdisks/fdisksunlabel.c |    1 +
+ fdisks/utils.c         |   37 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 43 insertions(+), 0 deletions(-)
+
+diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+index d716824..d7e85f5 100644
+--- a/fdisks/fdisk.h
++++ b/fdisks/fdisk.h
+@@ -104,6 +104,7 @@ enum fdisk_error {
+ 	FDISK_ERROR_WRITE,
+ 	FDISK_ERROR_IOCTL,
+ 	FDISK_ERROR_PROBE,
++	FDISK_ERROR_NOLABEL,
+ 	FDISK_ERROR_UNKNOWN
+ };
+ 
+@@ -164,6 +165,7 @@ extern void fdisk_mbr_zeroize(struct fdisk_context *cxt);
+ extern void fdisk_geom_set_cyls(struct fdisk_context *cxt);
+ extern const char *fdisk_error_name(enum fdisk_error errcode);
+ extern void fdisk_error_fatal(struct fdisk_context *cxt, enum fdisk_error errcode);
++extern int fdisk_label_change(struct fdisk_context *cxt, const char *name);
+ 
+ /* prototypes for fdisk.c */
+ extern char *disk_device, *line_ptr;
+diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
+index 535afdc..9b9b23a 100644
+--- a/fdisks/fdiskdoslabel.c
++++ b/fdisks/fdiskdoslabel.c
+@@ -230,6 +230,7 @@ void create_doslabel(struct fdisk_context *cxt)
+ 
+ 	dos_init(cxt);
+ 	fdisk_mbr_zeroize(cxt);
++	fdisk_label_change(cxt, "dos");
+ 	set_all_unchanged();
+ 	set_changed(0);
+ 
+diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
+index e38d98f..6001038 100644
+--- a/fdisks/fdisksgilabel.c
++++ b/fdisks/fdisksgilabel.c
+@@ -780,6 +780,8 @@ create_sgilabel(struct fdisk_context *cxt)
+ 		}
+ 
+ 	fdisk_mbr_zeroize(cxt);
++	fdisk_label_change(cxt, "sgi");
++
+ 	sgilabel->magic = SSWAP32(SGI_LABEL_MAGIC);
+ 	sgilabel->boot_part = SSWAP16(0);
+ 	sgilabel->swap_part = SSWAP16(1);
+diff --git a/fdisks/fdisksunlabel.c b/fdisks/fdisksunlabel.c
+index 4123806..b63335c 100644
+--- a/fdisks/fdisksunlabel.c
++++ b/fdisks/fdisksunlabel.c
+@@ -161,6 +161,7 @@ void create_sunlabel(struct fdisk_context *cxt)
+ 
+ 	init();
+ 	fdisk_mbr_zeroize(cxt);
++	fdisk_label_change(cxt, "sun");
+ 
+ 	sunlabel->magic = SSWAP16(SUN_LABEL_MAGIC);
+ 	sunlabel->sanity = SSWAP32(SUN_LABEL_SANE);
+diff --git a/fdisks/utils.c b/fdisks/utils.c
+index cf9484c..48dedfb 100644
+--- a/fdisks/utils.c
++++ b/fdisks/utils.c
+@@ -44,6 +44,43 @@ static const struct fdisk_label *labels[] =
+ 	&mac_label,
+ };
+ 
++/**
++ * fdisk_label_change:
++ * @cxt: fdisk context
++ * @name: new label name
++ *
++ * Updates the disk label type to the one specified by @name.
++ *
++ * Returns 0 on success, otherwise, a corresponding error.
++ */
++int fdisk_label_change(struct fdisk_context *cxt, const char *name)
++{
++	int i;
++
++	if (!cxt || !cxt->label || !name)
++		return FDISK_ERROR_UNKNOWN;
++
++	/* not really changing the label */
++	if (!strncmp(name, cxt->label->name, strlen(name)))
++		goto done;
++
++	for (i = 0; i < ARRAY_SIZE(labels); i++) {
++		if (strncmp(name, labels[i]->name, strlen(name)))
++			continue;
++	
++		/* found the new label */
++		memset(cxt->label, 0, sizeof(struct fdisk_label));
++		memcpy(cxt->label, labels[i], sizeof(struct fdisk_label));
++		DBG(LABEL, dbgprint("changing to a %s label\n", labels[i]->name));
++		goto done;
++	}
++
++	/* couldn't find the requested label type */
++	return FDISK_ERROR_NOLABEL;
++done:
++	return 0;
++}
++
+ static int __probe_labels(struct fdisk_context *cxt)
+ {
+ 	int i, rc = 0;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
+
+
+
+
