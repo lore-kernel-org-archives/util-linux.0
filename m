@@ -1,46 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:65137 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752949Ab2GXKrs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jul 2012 06:47:48 -0400
-Message-ID: <500E7D51.8070402@bernhard-voelker.de>
-Date: Tue, 24 Jul 2012 12:47:45 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:37040 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753239Ab2GXLh5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jul 2012 07:37:57 -0400
+Date: Tue, 24 Jul 2012 13:37:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 05/10] fdisk: API: add write to label operations
+Message-ID: <20120724113751.GB736@x2.net.home>
+References: <1342976710.2863.15.camel@offbook>
 MIME-Version: 1.0
-To: Davidlohr Bueso <dave@gnu.org>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 03/10] fdisk: API: add fdisk_label_change
-References: <1342976704.2863.13.camel@offbook> <500E6F49.60406@bernhard-voelker.de> <20120724095617.GD2086@foxbat.suse.cz> <500E79B9.9030701@bernhard-voelker.de> <1343126347.2686.4.camel@offbook> <20120724104249.GF2086@foxbat.suse.cz>
-In-Reply-To: <20120724104249.GF2086@foxbat.suse.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1342976710.2863.15.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Jul 22, 2012 at 07:05:10PM +0200, Davidlohr Bueso wrote:
+>  12 files changed, 74 insertions(+), 55 deletions(-)
 
+ Applied with some changes, thanks.
 
-On 07/24/2012 12:42 PM, Petr Uzel wrote:
-> On Tue, Jul 24, 2012 at 12:39:07PM +0200, Davidlohr Bueso wrote:
->>>>> Shouldn't we use something else than hardcoded "sun"|"dos"|"sgi"|...
->>>>> strings here? 
->>>>
->>>> What's the problem with these strings? I think these are well
->>>> recognized with clear meaning. What alternative do you propose?
->>>
->>> Sorry, I should've proposed this already in my first mail:
->>>
->>> -	fdisk_label_change(cxt, "sun");
->>> +	fdisk_label_change(cxt, sun_label.name);
->  
-> Ah, right. Deduplicating the strings makes sense, IMO.
-> 
->> I'm planning on adding the disklabel type (numeric) to the context
->> structure in a near future, so we'd then have two ways of identifying
->> labels. I really do not see much difference between numbers and strings
->> - this is not a performance critical program.
-> 
-> The concern here is not speed, but maintainability ;)
-
-Right ... and to save a bit size of the binary (well, not too much
-in this case) ;-)
-
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
