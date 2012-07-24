@@ -1,70 +1,213 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:52395 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753231Ab2GLJpw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Jul 2012 05:45:52 -0400
-Date: Thu, 12 Jul 2012 11:45:02 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH] fdisk: API: add label probing functionality
-Message-ID: <20120712094502.GK1886@foxbat.suse.cz>
-References: <1341783627.2628.10.camel@offbook>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Sw7tCqrGA+HQ0/zt"
-In-Reply-To: <1341783627.2628.10.camel@offbook>
+Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:53262 "EHLO
+	homiemail-a1.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750897Ab2GXKg2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jul 2012 06:36:28 -0400
+Subject: Re: [PATCH 02/10] fdisk: API: add to label operations to context
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+In-Reply-To: <20120724094131.GB2086@foxbat.suse.cz>
+References: <1342976701.2863.12.camel@offbook>
+	 <20120724094131.GB2086@foxbat.suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 24 Jul 2012 12:36:23 +0200
+Message-ID: <1343126183.2686.2.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, 2012-07-24 at 11:41 +0200, Petr Uzel wrote:
+> On Sun, Jul 22, 2012 at 07:05:01PM +0200, Davidlohr Bueso wrote:
+> > From: Davidlohr Bueso <dave@gnu.org>
+> > 
+> > The context structure is the fdisk API's main data type as it keeps all data together. Add the
+> > label structure to it, so that the pt-specific operations can be called from the context.
+> > 
+> > The internal probing function is updated so that if a label is not probed, for example when a
+> > disk is not formated, it will default to use either sun or dos label operations. This avoids
+> > scenarios that could crash the program if no label is detected - ie: right after creating a device.
+> 
+> Wouldn't it be nicer to have dummy/fallback entry for unknown/nonexistent label
+> type, e.g. 'no_label'. It's operations could return something like
+> NO_LABEL_PLS_CREATE_IT_FIRST. fdisk_context would be initialized to
+> point to this dummy label type and later overridden by successful label
+> probe.
 
---Sw7tCqrGA+HQ0/zt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jul 08, 2012 at 11:40:27PM +0200, Davidlohr Bueso wrote:
-> From: Davidlohr Bueso <dave@gnu.org>
->=20
-> This patch sets the initial layout for label specific operations. A new f=
-disk_label structure
-> is created that will hold all these ops, like new, delete, write and prob=
-e, among others. For
-> now only probing is implemented. Once this design is established, a copy =
-of the probed label
-> will be copied to the main context structure, where calling the specific =
-functions will save
-> 'disklabel' checks. Debugging support is added as well.
->=20
-> This patch passes regression tests and manually passes bsd, sun, dos and =
-sgi labels probes.
->=20
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-
-Looks good to me:
-
-Reviewed-by: Petr Uzel <petr.uzel@suse.cz>
-
-I have two patches for you to consider taking them into your next
-series (on top of this patch) - I'll send them separately.
+It's an option, however it would break current functionality and the
+user would be forced into creating a new disklabel - there's really no
+point in using fdisk if no label is being created.
 
 Thanks,
+Davidlohr
 
-Petr
+> 
+> 
+> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> > ---
+> >  fdisks/fdisk.c |    4 ++--
+> >  fdisks/fdisk.h |   23 +++++++++++++++--------
+> >  fdisks/utils.c |   35 ++++++++++++++++++++++++++++-------
+> >  3 files changed, 45 insertions(+), 17 deletions(-)
+> > 
+> > diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+> > index 3b9bd7b..46322bc 100644
+> > --- a/fdisks/fdisk.c
+> > +++ b/fdisks/fdisk.c
+> > @@ -68,7 +68,7 @@ int MBRbuffer_changed;
+> >  struct menulist_descr {
+> >  	char command;				/* command key */
+> >  	char *description;			/* command description */
+> > -	enum labeltype label[2];		/* disklabel types associated with main and expert menu */
+> > +	enum fdisk_labeltype label[2];		/* disklabel types associated with main and expert menu */
+> >  };
+> >  
+> >  static const struct menulist_descr menulist[] = {
+> > @@ -138,7 +138,7 @@ unsigned int	user_cylinders, user_heads, user_sectors;
+> >  sector_t sector_offset = 1;
+> >  unsigned int units_per_sector = 1, display_in_cyl_units = 0;
+> >  unsigned long grain = DEFAULT_SECTOR_SIZE;
+> > -enum labeltype disklabel;	/* Current disklabel */
+> > +enum fdisk_labeltype disklabel;	/* Current disklabel */
+> >  
+> >  static void __attribute__ ((__noreturn__)) usage(FILE *out)
+> >  {
+> > diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+> > index 8107aa8..d716824 100644
+> > --- a/fdisks/fdisk.h
+> > +++ b/fdisks/fdisk.h
+> > @@ -132,6 +132,8 @@ struct fdisk_context {
+> >  	/* geometry */
+> >  	sector_t total_sectors; /* in logical sectors */
+> >  	struct fdisk_geometry geom;
+> > +
+> > +	struct fdisk_label *label;
+> >  };
+> >  
+> >  /*
+> > @@ -139,6 +141,8 @@ struct fdisk_context {
+> >   */
+> >  struct fdisk_label {
+> >  	const char *name;
+> > +
+> > +	/* probe disk label */
+> >  	int (*probe)(struct fdisk_context *cxt);
+> >  };
+> >  
+> > @@ -206,17 +210,20 @@ extern const char * str_units(int);
+> >  
+> >  extern sector_t get_nr_sects(struct partition *p);
+> >  
+> > -enum labeltype {
+> > +/*
+> > + * Supported partition table types (labels)
+> > + */
+> > +enum fdisk_labeltype {
+> > +	ANY_LABEL = -1,
+> >  	DOS_LABEL = 1,
+> > -	SUN_LABEL = 2,
+> > -	SGI_LABEL = 4,
+> > -	AIX_LABEL = 8,
+> > -	OSF_LABEL = 16,
+> > -	MAC_LABEL = 32,
+> > -	ANY_LABEL = -1
+> > +	SUN_LABEL,
+> > +	SGI_LABEL,
+> > +	AIX_LABEL,
+> > +	OSF_LABEL,
+> > +	MAC_LABEL,
+> >  };
+> >  
+> > -extern enum labeltype disklabel;
+> > +extern enum fdisk_labeltype disklabel;
+> >  extern int MBRbuffer_changed;
+> >  extern unsigned long grain;
+> >  
+> > diff --git a/fdisks/utils.c b/fdisks/utils.c
+> > index 363f7aa..cf9484c 100644
+> > --- a/fdisks/utils.c
+> > +++ b/fdisks/utils.c
+> > @@ -36,11 +36,11 @@ int fdisk_debug_mask;
+> >   */
+> >  static const struct fdisk_label *labels[] =
+> >  {
+> > -	&bsd_label,
+> >  	&dos_label,
+> > -	&sgi_label,
+> >  	&sun_label,
+> > +	&sgi_label,
+> >  	&aix_label,
+> > +	&bsd_label,
+> >  	&mac_label,
+> >  };
+> 
+> Is the ordering of labels important here? If so, it should be documented.
+> 
+> 
+> >  
+> > @@ -51,14 +51,34 @@ static int __probe_labels(struct fdisk_context *cxt)
+> >  	disklabel = ANY_LABEL;
+> >  	update_units(cxt);
+> >  
+> > +	cxt->label = calloc(1, sizeof(struct fdisk_label));
+> > +	if (!cxt->label) {
+> > +		rc = FDISK_ERROR_MEM;
+> > +		goto done;
+> > +	}
+> > +
+> >  	for (i = 0; i < ARRAY_SIZE(labels); i++) {
+> >  		rc = labels[i]->probe(cxt);
+> > -		if (!rc) {
+> > -			DBG(LABEL, dbgprint("detected a %s label\n",
+> > -					    labels[i]->name));
+> > -			goto done;
+> > -		}
+> > +		if (rc)
+> > +			continue;
+> > +		
+> > +		/* found the label */
+> > +		DBG(LABEL, dbgprint("detected a %s label\n", labels[i]->name));
+> > +		goto copy;
+> >  	}
+> > +
+> > +	/*
+> > +	 * Did not find any label - perhaps un formated;
+> > +	 * initialize with default partition operations.
+> > +	 */
+> > +#ifdef __sparc__
+> > +	i = OSF_LABEL - 1;
+> > +#else
+> > +	i = DOS_LABEL - 1;
+> > +#endif
+> > +	DBG(LABEL, dbgprint("defaulting to a %s label\n", labels[i]->name));
+> > +copy:
+> > +	memcpy(cxt->label, labels[i], sizeof(struct fdisk_label));
+> 
+> Uh, may be I'm missing something, but why not just make cxt->label
+> point to corresponding entry from *labels array?
+> 
+> 
+> >  done:
+> >  	return rc;
+> >  }
+> > @@ -380,6 +400,7 @@ void fdisk_free_context(struct fdisk_context *cxt)
+> >  	DBG(CONTEXT, dbgprint("freeing context for %s", cxt->dev_path));
+> >  	close(cxt->dev_fd);
+> >  	free(cxt->dev_path);
+> > +	free(cxt->label);
+> >  	free(cxt->mbr);
+> >  	free(cxt);
+> >  }
+> > -- 
+> > 1.7.4.1
+> > 
+> > 
+> > 
+> > 
+> 
+> Petr
+> 
 
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
 
---Sw7tCqrGA+HQ0/zt
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAk/+nJ4ACgkQnZxG0T6qDD3b8gCfVQ4eFIRp1gtXVgDWchLCwZOy
-B0cAmwfwXcC+Eg6AmRbY/t5zTM1Ex+bg
-=/Fvr
------END PGP SIGNATURE-----
-
---Sw7tCqrGA+HQ0/zt--
