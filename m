@@ -1,47 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:9190 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:34313 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751344Ab2G0LP4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Jul 2012 07:15:56 -0400
-Date: Fri, 27 Jul 2012 13:15:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: kerolasa@gmail.com, util-linux@vger.kernel.org
-Subject: Re: v2.22-rc2 wish list
-Message-ID: <20120727111550.GA29738@x2.net.home>
-References: <20120727081033.GA14019@x2.net.home>
- <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com>
- <20120727103132.GA28708@x2.net.home>
- <501271D2.8090708@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <501271D2.8090708@bernhard-voelker.de>
+	id S1753305Ab2GXLw7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jul 2012 07:52:59 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 424D6A3F4A
+	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 13:52:58 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH 1/2] fdisk: fix compiler warning [-Werror=unused-variable]
+Date: Tue, 24 Jul 2012 13:52:31 +0200
+Message-Id: <1343130752-6626-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 27, 2012 at 12:47:46PM +0200, Bernhard Voelker wrote:
-> On 07/27/2012 12:31 PM, Karel Zak wrote:
-> >  Maybe, but many of the tests requires root permissions and it's
-> >  designed for developers only. I'd like to avoid situations when the
-> >  tests are executed with root permissions by automatic distro build
-> >  systems etc.
-> 
-> Why? The more folks run the tests, the more bugs can be reported and fixed.
-> What's wrong about the tests? And if there's something wrong: shouldn't
-> they not be made more robust?
-> 
-> E.g. coreutils also has many tests which "require_root", and I think
-> it's safe to run these tests.
 
-Does the tests modify /etc/fstab, mount another filesystems and
-initialize scsi_debug, loop and raid devices?
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisks/fdisk.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-I have experience that some distros and end-users rebuild packages
-as superuser. I don't want to be responsible for possible problems on
-the target systems.
-
-    Karel
-
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index 4731918..244f0e7 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -1604,7 +1604,6 @@ gpt_warning(char *dev)
+ /* Print disk geometry and partition table of a specified device (-l option) */
+ static void print_partition_table_from_option(char *device, unsigned long sector_size)
+ {
+-	int gb;
+ 	struct fdisk_context *cxt;
+ 
+ 	cxt = fdisk_new_context_from_filename(device, 1);	/* read-only */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.10.4
+
