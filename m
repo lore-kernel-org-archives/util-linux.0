@@ -1,467 +1,620 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:58149 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:52637 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751229Ab2GXK0w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 06:26:52 -0400
-Date: Tue, 24 Jul 2012 12:26:33 +0200
+	id S1751229Ab2GXJUp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jul 2012 05:20:45 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 91AC7A4478
+	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 11:20:44 +0200 (CEST)
+Date: Tue, 24 Jul 2012 11:20:27 +0200
 From: Petr Uzel <petr.uzel@suse.cz>
 To: util-linux <util-linux@vger.kernel.org>
-Cc: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH 04/10] fdisk: API: add delete partition to label
- operations
-Message-ID: <20120724102633.GE2086@foxbat.suse.cz>
-References: <1342976707.2863.14.camel@offbook>
+Subject: Re: [PATCH 01/10] fdisk: API: add error handling
+Message-ID: <20120724092027.GA2086@foxbat.suse.cz>
+References: <1342976698.2863.11.camel@offbook>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EXKGNeO8l0xGFBjy"
-In-Reply-To: <1342976707.2863.14.camel@offbook>
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+In-Reply-To: <1342976698.2863.11.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
---EXKGNeO8l0xGFBjy
+--opJtzjQTFsWo+cga
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 22, 2012 at 07:05:07PM +0200, Davidlohr Bueso wrote:
+On Sun, Jul 22, 2012 at 07:04:58PM +0200, Davidlohr Bueso wrote:
 > From: Davidlohr Bueso <dave@gnu.org>
 >=20
+> Although the fdisk (and family) program is exposed to multiple scenarios =
+where things can go wrong and fail,
+> the API is not capable of reporting these errors in a detailed way. This =
+patch adds generic error handling
+> to it, by defining different errors (non-zero values), and its string rep=
+resentation. Since most errors are
+> fatal, the current fatal() function has been adapted to the API, but user=
+s can, of course, still build their
+> own ones.
+>=20
+> Also note that the return value of the probing functions have also been m=
+odified: when the label is detected
+> it returns 0, otherwise FDISK_ERROR_PROBE.
+>=20
 > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> ---
->  fdisks/fdisk.c         |   21 ++-------
->  fdisks/fdisk.h         |    3 +
->  fdisks/fdiskaixlabel.c |    1 +
->  fdisks/fdiskbsdlabel.c |   25 +++++------
->  fdisks/fdiskdoslabel.c |  113 ++++++++++++++++++++++++------------------=
-------
->  fdisks/fdiskdoslabel.h |    1 -
->  fdisks/fdiskmaclabel.c |    1 +
->  fdisks/fdisksgilabel.c |    6 +-
->  fdisks/fdisksgilabel.h |    1 -
->  fdisks/fdisksunlabel.c |    9 ++--
->  fdisks/fdisksunlabel.h |    1 -
->  fdisks/utils.c         |   15 ++++++
->  12 files changed, 101 insertions(+), 96 deletions(-)
 
 Reviewed-by: Petr Uzel <petr.uzel@suse.cz>
 
-
+> ---
+>  fdisks/fdisk.c                |   35 +++-------------
+>  fdisks/fdisk.h                |   33 +++++++++-----
+>  fdisks/fdiskaixlabel.c        |    4 +-
+>  fdisks/fdiskbsdlabel.c        |   20 +++++-----
+>  fdisks/fdiskdoslabel.c        |    4 +-
+>  fdisks/fdiskmaclabel.c        |    4 +-
+>  fdisks/fdisksgilabel.c        |   12 +++---
+>  fdisks/fdisksunlabel.c        |    8 ++--
+>  fdisks/utils.c                |   90 ++++++++++++++++++++++++++++++++++-=
+------
+>  tests/expected/fdisk/oddinput |    4 +-
+>  10 files changed, 131 insertions(+), 83 deletions(-)
 >=20
 > diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-> index 46322bc..27002f6 100644
+> index 32b6de9..3b9bd7b 100644
 > --- a/fdisks/fdisk.c
 > +++ b/fdisks/fdisk.c
-> @@ -856,25 +856,14 @@ toggle_dos_compatibility_flag(struct fdisk_context =
-*cxt) {
->  	update_sector_offset(cxt);
+> @@ -159,27 +159,6 @@ static void __attribute__ ((__noreturn__)) usage(FIL=
+E *out)
+>  	exit(out =3D=3D stderr ? EXIT_FAILURE : EXIT_SUCCESS);
 >  }
 > =20
-> -static void
-> -delete_partition(struct fdisk_context *cxt, int i)
-> +static void delete_partition(struct fdisk_context *cxt, int partnum)
->  {
-> -	if (i < 0)
-> +	if (partnum < 0 || warn_geometry(cxt))
->  		return;
-> =20
-> -	if (warn_geometry(cxt))
-> -		return;		/* C/H/S not set */
-> -
-> -	ptes[i].changed =3D 1;
-> -
-> -	if (disklabel =3D=3D DOS_LABEL)
-> -		dos_delete_partition(i);
-> -	else if (disklabel =3D=3D SUN_LABEL)
-> -		sun_delete_partition(cxt, i);
-> -	else if (disklabel =3D=3D SGI_LABEL)
-> -		sgi_delete_partition(cxt, i);
-> -
-> -	printf(_("Partition %d is deleted\n"), i + 1);
-> +	ptes[partnum].changed =3D 1;
-> +	fdisk_label_partition_delete(cxt, partnum);
-> +	printf(_("Partition %d is deleted\n"), partnum + 1);
->  }
-> =20
->  static void change_sysid(struct fdisk_context *cxt)
-> diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
-> index d7e85f5..816e127 100644
-> --- a/fdisks/fdisk.h
-> +++ b/fdisks/fdisk.h
-> @@ -145,6 +145,8 @@ struct fdisk_label {
-> =20
->  	/* probe disk label */
->  	int (*probe)(struct fdisk_context *cxt);
-> +	/* delete partition */
-> +	void (*part_delete)(struct fdisk_context *cxt, int partnum);
->  };
-> =20
->  /*
-> @@ -166,6 +168,7 @@ extern void fdisk_geom_set_cyls(struct fdisk_context =
-*cxt);
->  extern const char *fdisk_error_name(enum fdisk_error errcode);
->  extern void fdisk_error_fatal(struct fdisk_context *cxt, enum fdisk_erro=
-r errcode);
->  extern int fdisk_label_change(struct fdisk_context *cxt, const char *nam=
-e);
-> +extern int fdisk_label_partition_delete(struct fdisk_context *cxt, int p=
-artnum);
-> =20
->  /* prototypes for fdisk.c */
->  extern char *disk_device, *line_ptr;
-> diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
-> index f590e3a..45f3aa9 100644
-> --- a/fdisks/fdiskaixlabel.c
-> +++ b/fdisks/fdiskaixlabel.c
-> @@ -69,4 +69,5 @@ const struct fdisk_label aix_label =3D
->  {
->  	.name =3D "aix",
->  	.probe =3D aix_probe_label,
-> +	.part_delete =3D NULL,
->  };
-> diff --git a/fdisks/fdiskbsdlabel.c b/fdisks/fdiskbsdlabel.c
-> index fe91fe8..c7f3f86 100644
-> --- a/fdisks/fdiskbsdlabel.c
-> +++ b/fdisks/fdiskbsdlabel.c
-> @@ -61,7 +61,7 @@
->  #define DKTYPENAMES
->  #include "fdiskbsdlabel.h"
-> =20
-> -static void xbsd_delete_part (void);
-> +static void xbsd_delete_part (struct fdisk_context *cxt, int partnum);
->  static void xbsd_new_part (struct fdisk_context *cxt);
->  static void xbsd_write_disklabel (struct fdisk_context *cxt);
->  static int xbsd_create_disklabel (struct fdisk_context *cxt);
-> @@ -184,8 +184,8 @@ bsd_command_prompt (struct fdisk_context *cxt)
->      putchar ('\n');
->      switch (tolower (read_char (_("BSD disklabel command (m for help): "=
-)))) {
->        case 'd':
-> -	xbsd_delete_part ();
-> -	break;
-> +	      xbsd_delete_part(cxt, xbsd_get_part_index(xbsd_dlabel.d_npartitio=
-ns));
-> +	      break;
->        case 'e':
->  	xbsd_edit_disklabel ();
->  	break;
-> @@ -230,18 +230,14 @@ bsd_command_prompt (struct fdisk_context *cxt)
->    }
->  }
-> =20
-> -static void
-> -xbsd_delete_part (void)
-> +static void xbsd_delete_part(struct fdisk_context *cxt, int partnum)
->  {
-> -  int i;
-> -
-> -  i =3D xbsd_get_part_index (xbsd_dlabel.d_npartitions);
-> -  xbsd_dlabel.d_partitions[i].p_size   =3D 0;
-> -  xbsd_dlabel.d_partitions[i].p_offset =3D 0;
-> -  xbsd_dlabel.d_partitions[i].p_fstype =3D BSD_FS_UNUSED;
-> -  if (xbsd_dlabel.d_npartitions =3D=3D i + 1)
-> -    while (xbsd_dlabel.d_partitions[xbsd_dlabel.d_npartitions-1].p_size =
-=3D=3D 0)
-> -      xbsd_dlabel.d_npartitions--;
-> +	xbsd_dlabel.d_partitions[partnum].p_size   =3D 0;
-> +	xbsd_dlabel.d_partitions[partnum].p_offset =3D 0;
-> +	xbsd_dlabel.d_partitions[partnum].p_fstype =3D BSD_FS_UNUSED;
-> +	if (xbsd_dlabel.d_npartitions =3D=3D partnum + 1)
-> +		while (!xbsd_dlabel.d_partitions[xbsd_dlabel.d_npartitions-1].p_size)
-> +			xbsd_dlabel.d_npartitions--;
->  }
-> =20
->  static void
-> @@ -850,4 +846,5 @@ const struct fdisk_label bsd_label =3D
->  {
->  	.name =3D "bsd",
->  	.probe =3D osf_probe_label,
-> +	.part_delete =3D xbsd_delete_part,
->  };
-> diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
-> index 9b9b23a..e32088e 100644
-> --- a/fdisks/fdiskdoslabel.c
-> +++ b/fdisks/fdiskdoslabel.c
-> @@ -120,6 +120,61 @@ void dos_init(struct fdisk_context *cxt)
->  	warn_alignment(cxt);
->  }
-> =20
-> +static void dos_delete_partition(struct fdisk_context *cxt, int partnum)
-> +{
-> +	struct pte *pe =3D &ptes[partnum];
-> +	struct partition *p =3D pe->part_table;
-> +	struct partition *q =3D pe->ext_pointer;
-> +
-> +	/* Note that for the fifth partition (partnum =3D=3D 4) we don't actual=
-ly
-> +	   decrement partitions. */
-> +
-> +	if (partnum < 4) {
-> +		if (IS_EXTENDED (p->sys_ind) && partnum =3D=3D ext_index) {
-> +			partitions =3D 4;
-> +			ptes[ext_index].ext_pointer =3D NULL;
-> +			extended_offset =3D 0;
-> +		}
-> +		clear_partition(p);
-> +	} else if (!q->sys_ind && partnum > 4) {
-> +		/* the last one in the chain - just delete */
-> +		--partitions;
-> +		--partnum;
-> +		clear_partition(ptes[partnum].ext_pointer);
-> +		ptes[partnum].changed =3D 1;
-> +	} else {
-> +		/* not the last one - further ones will be moved down */
-> +		if (partnum > 4) {
-> +			/* delete this link in the chain */
-> +			p =3D ptes[partnum-1].ext_pointer;
-> +			*p =3D *q;
-> +			set_start_sect(p, get_start_sect(q));
-> +			set_nr_sects(p, get_nr_sects(q));
-> +			ptes[partnum-1].changed =3D 1;
-> +		} else if (partitions > 5) {    /* 5 will be moved to 4 */
-> +			/* the first logical in a longer chain */
-> +			struct pte *pe =3D &ptes[5];
-> +
-> +			if (pe->part_table) /* prevent SEGFAULT */
-> +				set_start_sect(pe->part_table,
-> +					       get_partition_start(pe) -
-> +					       extended_offset);
-> +			pe->offset =3D extended_offset;
-> +			pe->changed =3D 1;
-> +		}
-> +
-> +		if (partitions > 5) {
-> +			partitions--;
-> +			while (partnum < partitions) {
-> +				ptes[partnum] =3D ptes[partnum+1];
-> +				partnum++;
-> +			}
-> +		} else
-> +			/* the only logical: clear only */
-> +			clear_partition(ptes[partnum].part_table);
-> +	}
-> +}
-> +
->  static void read_extended(struct fdisk_context *cxt, int ext)
->  {
->  	int i;
-> @@ -208,7 +263,7 @@ static void read_extended(struct fdisk_context *cxt, =
-int ext)
->  		if (!get_nr_sects(pe->part_table) &&
->  		    (partitions > 5 || ptes[4].part_table->sys_ind)) {
->  			printf(_("omitting empty partition (%d)\n"), i+1);
-> -			dos_delete_partition(i);
-> +			dos_delete_partition(cxt, i);
->  			goto remove; 	/* numbering changed */
->  		}
->  	}
-> @@ -262,61 +317,6 @@ void dos_set_mbr_id(struct fdisk_context *cxt)
->  	dos_print_mbr_id(cxt);
->  }
-> =20
-> -void dos_delete_partition(int i)
+> -void fatal(struct fdisk_context *cxt, enum failure why)
 > -{
-> -	struct pte *pe =3D &ptes[i];
-> -	struct partition *p =3D pe->part_table;
-> -	struct partition *q =3D pe->ext_pointer;
+> -	close(cxt->dev_fd);
+> -	switch (why) {
+> -		case unable_to_read:
+> -			err(EXIT_FAILURE, _("unable to read %s"), cxt->dev_path);
 > -
-> -	/* Note that for the fifth partition (i =3D=3D 4) we don't actually
-> -	   decrement partitions. */
+> -		case unable_to_seek:
+> -			err(EXIT_FAILURE, _("unable to seek on %s"), cxt->dev_path);
 > -
-> -	if (i < 4) {
-> -		if (IS_EXTENDED (p->sys_ind) && i =3D=3D ext_index) {
-> -			partitions =3D 4;
-> -			ptes[ext_index].ext_pointer =3D NULL;
-> -			extended_offset =3D 0;
-> -		}
-> -		clear_partition(p);
-> -	} else if (!q->sys_ind && i > 4) {
-> -		/* the last one in the chain - just delete */
-> -		--partitions;
-> -		--i;
-> -		clear_partition(ptes[i].ext_pointer);
-> -		ptes[i].changed =3D 1;
-> -	} else {
-> -		/* not the last one - further ones will be moved down */
-> -		if (i > 4) {
-> -			/* delete this link in the chain */
-> -			p =3D ptes[i-1].ext_pointer;
-> -			*p =3D *q;
-> -			set_start_sect(p, get_start_sect(q));
-> -			set_nr_sects(p, get_nr_sects(q));
-> -			ptes[i-1].changed =3D 1;
-> -		} else if (partitions > 5) {    /* 5 will be moved to 4 */
-> -			/* the first logical in a longer chain */
-> -			struct pte *pe =3D &ptes[5];
+> -		case unable_to_write:
+> -			err(EXIT_FAILURE, _("unable to write %s"), cxt->dev_path);
 > -
-> -			if (pe->part_table) /* prevent SEGFAULT */
-> -				set_start_sect(pe->part_table,
-> -					       get_partition_start(pe) -
-> -					       extended_offset);
-> -			pe->offset =3D extended_offset;
-> -			pe->changed =3D 1;
-> -		}
+> -		case ioctl_error:
+> -			err(EXIT_FAILURE, _("BLKGETSIZE ioctl failed on %s"), cxt->dev_path);
 > -
-> -		if (partitions > 5) {
-> -			partitions--;
-> -			while (i < partitions) {
-> -				ptes[i] =3D ptes[i+1];
-> -				i++;
-> -			}
-> -		} else
-> -			/* the only logical: clear only */
-> -			clear_partition(ptes[i].part_table);
+> -		default:
+> -			err(EXIT_FAILURE, _("fatal error"));
 > -	}
 > -}
 > -
->  static int dos_probe_label(struct fdisk_context *cxt)
+>  struct partition *
+>  get_part_table(int i) {
+>  	return ptes[i].part_table;
+> @@ -1758,11 +1737,10 @@ gpt_warning(char *dev)
+>  /* Print disk geometry and partition table of a specified device (-l opt=
+ion) */
+>  static void print_partition_table_from_option(char *device, unsigned lon=
+g sector_size)
 >  {
->  	int i;
-> @@ -686,4 +686,5 @@ const struct fdisk_label dos_label =3D
+> -	int gb;
+> -
+> -	struct fdisk_context *cxt =3D fdisk_new_context_from_filename(device, 1=
+);	/* read-only */
+> +	int gb, errcode;
+> +	struct fdisk_context *cxt =3D fdisk_new_context_from_filename(device, 1=
+, &errcode);=09
+>  	if (!cxt)
+> -		err(EXIT_FAILURE, _("cannot open %s"), device);
+> +		errx(EXIT_FAILURE, _("%s: %s"), fdisk_error_name(errcode), device);
+>  	if (sector_size)  /* passed -b option, override autodiscovery */
+>  		cxt->phy_sector_size =3D cxt->sector_size =3D sector_size;
+>  	/* passed CHS option(s), override autodiscovery */
+> @@ -1960,7 +1938,7 @@ static sector_t get_dev_blocks(char *dev)
+> =20
+>  int main(int argc, char **argv)
 >  {
->  	.name =3D "dos",
->  	.probe =3D dos_probe_label,
-> +	.part_delete =3D dos_delete_partition,
+> -	int c, optl =3D 0, opts =3D 0;
+> +	int errcode, c, optl =3D 0, opts =3D 0;
+>  	unsigned long sector_size =3D 0;
+>  	struct fdisk_context *cxt =3D NULL;
+> =20
+> @@ -2062,9 +2040,10 @@ int main(int argc, char **argv)
+>  	if (argc-optind !=3D 1)
+>  		usage(stderr);
+> =20
+> -	cxt =3D fdisk_new_context_from_filename(argv[optind], 0);
+> +	cxt =3D fdisk_new_context_from_filename(argv[optind], 0, &errcode);
+>  	if (!cxt)
+> -		err(EXIT_FAILURE, _("cannot open %s"), argv[optind]);
+> +		errx(EXIT_FAILURE, _("%s: %s"), fdisk_error_name(errcode),=20
+> +		    argv[optind]);
+>  	if (sector_size)	/* passed -b option, override autodiscovery */
+>  		cxt->phy_sector_size =3D cxt->sector_size =3D sector_size;
+>  	/* passed CHS option(s), override autodiscovery */
+> diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+> index 64a8147..8107aa8 100644
+> --- a/fdisks/fdisk.h
+> +++ b/fdisks/fdisk.h
+> @@ -90,16 +90,24 @@ enum menutype {
+>  	EXPERT_MENU,
 >  };
-> diff --git a/fdisks/fdiskdoslabel.h b/fdisks/fdiskdoslabel.h
-> index 608e3f7..4aa16e5 100644
-> --- a/fdisks/fdiskdoslabel.h
-> +++ b/fdisks/fdiskdoslabel.h
-> @@ -46,7 +46,6 @@ static inline sector_t get_partition_start(struct pte *=
-pe)
->  extern void create_doslabel(struct fdisk_context *cxt);
->  extern void dos_print_mbr_id(struct fdisk_context *cxt);
->  extern void dos_set_mbr_id(struct fdisk_context *cxt);
-> -extern void dos_delete_partition(int i);
->  extern int is_dos_partition(int t);
->  extern void dos_init(struct fdisk_context *cxt);
->  extern void dos_add_partition(struct fdisk_context *cxt, int n, int sys);
-> diff --git a/fdisks/fdiskmaclabel.c b/fdisks/fdiskmaclabel.c
-> index 98cff26..198a2d0 100644
-> --- a/fdisks/fdiskmaclabel.c
-> +++ b/fdisks/fdiskmaclabel.c
-> @@ -84,4 +84,5 @@ const struct fdisk_label mac_label =3D
+> =20
+> -enum failure {
+> -	ioctl_error,
+> -	unable_to_read,
+> -	unable_to_seek,
+> -	unable_to_write
+> -};
+> -
+>  typedef unsigned long long sector_t;
+> =20
+>  /*
+> + * fdisk error codes.
+> + */
+> +enum fdisk_error {
+> +	FDISK_SUCCESS,
+> +	FDISK_ERROR_OPEN,
+> +	FDISK_ERROR_MEM,
+> +	FDISK_ERROR_READ,
+> +	FDISK_ERROR_SEEK,
+> +	FDISK_ERROR_WRITE,
+> +	FDISK_ERROR_IOCTL,
+> +	FDISK_ERROR_PROBE,
+> +	FDISK_ERROR_UNKNOWN
+> +};
+> +
+> +/*
+>   * Legacy CHS based geometry
+>   */
+>  struct fdisk_geometry {
+> @@ -144,19 +152,20 @@ extern const struct fdisk_label mac_label;
+>  extern const struct fdisk_label sun_label;
+>  extern const struct fdisk_label sgi_label;
+> =20
+> -extern struct fdisk_context *fdisk_new_context_from_filename(const char =
+*fname, int readonly);
+> +extern struct fdisk_context *fdisk_new_context_from_filename(const char =
+*fname, int readonly, int *errcode);
+>  extern int fdisk_dev_has_topology(struct fdisk_context *cxt);
+>  extern int fdisk_dev_sectsz_is_default(struct fdisk_context *cxt);
+>  extern void fdisk_free_context(struct fdisk_context *cxt);
+>  extern void fdisk_mbr_zeroize(struct fdisk_context *cxt);
+>  extern void fdisk_geom_set_cyls(struct fdisk_context *cxt);
+> +extern const char *fdisk_error_name(enum fdisk_error errcode);
+> +extern void fdisk_error_fatal(struct fdisk_context *cxt, enum fdisk_erro=
+r errcode);
+> =20
+>  /* prototypes for fdisk.c */
+>  extern char *disk_device, *line_ptr;
+>  extern int fd, partitions;
+>  extern unsigned int display_in_cyl_units, units_per_sector;
+>  extern void change_units(struct fdisk_context *cxt);
+> -extern void fatal(struct fdisk_context *cxt, enum failure why);
+>  extern int  get_partition(struct fdisk_context *cxt, int warn, int max);
+>  extern void list_types(struct systypes *sys);
+>  extern int read_line (int *asked);
+> @@ -242,21 +251,21 @@ static inline void seek_sector(struct fdisk_context=
+ *cxt, sector_t secno)
 >  {
->  	.name =3D "mac",
->  	.probe =3D mac_probe_label,
-> +	.part_delete =3D NULL,
->  };
-> diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
-> index 6001038..51b0e1f 100644
-> --- a/fdisks/fdisksgilabel.c
-> +++ b/fdisks/fdisksgilabel.c
-> @@ -637,10 +637,9 @@ sgi_set_volhdr(struct fdisk_context *cxt)
->  	}
+>  	off_t offset =3D (off_t) secno * cxt->sector_size;
+>  	if (lseek(cxt->dev_fd, offset, SEEK_SET) =3D=3D (off_t) -1)
+> -		fatal(cxt, unable_to_seek);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_SEEK);
 >  }
 > =20
-> -void
-> -sgi_delete_partition(struct fdisk_context *cxt, int i)
-> +static void sgi_delete_partition(struct fdisk_context *cxt, int partnum)
+>  static inline void read_sector(struct fdisk_context *cxt, sector_t secno=
+, unsigned char *buf)
 >  {
-> -	sgi_set_partition(cxt, i, 0, 0, 0);
-> +	sgi_set_partition(cxt, partnum, 0, 0, 0);
+>  	seek_sector(cxt, secno);
+>  	if (read(cxt->dev_fd, buf, cxt->sector_size) !=3D (ssize_t) cxt->sector=
+_size)
+> -		fatal(cxt, unable_to_read);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_READ);
+>  }
+> =20
+>  static inline void write_sector(struct fdisk_context *cxt, sector_t secn=
+o, unsigned char *buf)
+>  {
+>  	seek_sector(cxt, secno);
+>  	if (write(cxt->dev_fd, buf, cxt->sector_size) !=3D (ssize_t) cxt->secto=
+r_size)
+> -		fatal(cxt, unable_to_write);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_WRITE);
+>  }
+> =20
+>  static inline sector_t get_start_sect(struct partition *p)
+> diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
+> index ebf9365..f590e3a 100644
+> --- a/fdisks/fdiskaixlabel.c
+> +++ b/fdisks/fdiskaixlabel.c
+> @@ -54,7 +54,7 @@ static int aix_probe_label(struct fdisk_context *cxt)
+>      if (aixlabel->magic !=3D AIX_LABEL_MAGIC &&
+>  	aixlabel->magic !=3D AIX_LABEL_MAGIC_SWAPPED) {
+>  	other_endian =3D 0;
+> -	return 0;
+> +	return FDISK_ERROR_PROBE;
+>      }
+>      other_endian =3D (aixlabel->magic =3D=3D AIX_LABEL_MAGIC_SWAPPED);
+>      disklabel =3D AIX_LABEL;
+> @@ -62,7 +62,7 @@ static int aix_probe_label(struct fdisk_context *cxt)
+>      volumes =3D 15;
+>      aix_info();
+>      aix_nolabel(cxt);		/* %% */
+> -    return 1;
+> +    return 0;
+>  }
+> =20
+>  const struct fdisk_label aix_label =3D
+> diff --git a/fdisks/fdiskbsdlabel.c b/fdisks/fdiskbsdlabel.c
+> index 548a86d..fe91fe8 100644
+> --- a/fdisks/fdiskbsdlabel.c
+> +++ b/fdisks/fdiskbsdlabel.c
+> @@ -112,8 +112,8 @@ static struct xbsd_disklabel xbsd_dlabel;
+>  static int
+>  osf_probe_label(struct fdisk_context *cxt) {
+>  	if (xbsd_readlabel (cxt, NULL, &xbsd_dlabel) =3D=3D 0)
+> -		return 0;
+> -	return 1;
+> +		return FDISK_ERROR_PROBE;
+> +	return 0;
+>  }
+> =20
+>  int
+> @@ -548,9 +548,9 @@ xbsd_write_bootstrap (struct fdisk_context *cxt)
+>  #endif
+> =20
+>    if (lseek (cxt->dev_fd, (off_t) sector * SECTOR_SIZE, SEEK_SET) =3D=3D=
+ -1)
+> -	  fatal (cxt, unable_to_seek);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_SEEK);
+>    if (BSD_BBSIZE !=3D write (cxt->dev_fd, disklabelbuffer, BSD_BBSIZE))
+> -	  fatal (cxt, unable_to_write);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_WRITE);
+> =20
+>  #if defined (__alpha__)
+>    printf (_("Bootstrap installed on %s.\n"), cxt->dev_path);
+> @@ -716,9 +716,9 @@ xbsd_readlabel (struct fdisk_context *cxt, struct par=
+tition *p, struct xbsd_disk
+>  #endif
+> =20
+>  	if (lseek (cxt->dev_fd, (off_t) sector * SECTOR_SIZE, SEEK_SET) =3D=3D =
+-1)
+> -		fatal (cxt, unable_to_seek);
+> +		fdisk_error_fatal (cxt, FDISK_ERROR_SEEK);
+>  	if (BSD_BBSIZE !=3D read (cxt->dev_fd, disklabelbuffer, BSD_BBSIZE))
+> -		fatal (cxt, unable_to_read);
+> +		fdisk_error_fatal (cxt, FDISK_ERROR_READ);
+> =20
+>  	memmove (d,
+>  	         &disklabelbuffer[BSD_LABELSECTOR * SECTOR_SIZE + BSD_LABELOFFS=
+ET],
+> @@ -763,15 +763,15 @@ xbsd_writelabel (struct fdisk_context *cxt, struct =
+partition *p, struct xbsd_dis
+>  #if defined (__alpha__) && BSD_LABELSECTOR =3D=3D 0
+>    alpha_bootblock_checksum (disklabelbuffer);
+>    if (lseek (cxt->dev_fd, (off_t) 0, SEEK_SET) =3D=3D -1)
+> -	  fatal (cxt, unable_to_seek);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_SEEK);
+>    if (BSD_BBSIZE !=3D write (cxt->dev_fd, disklabelbuffer, BSD_BBSIZE))
+> -	  fatal (cxt, unable_to_write);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_WRITE);
+>  #else
+>    if (lseek (cxt->dev_fd, (off_t) sector * SECTOR_SIZE + BSD_LABELOFFSET,
+>  		   SEEK_SET) =3D=3D -1)
+> -	  fatal (cxt, unable_to_seek);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_SEEK);
+>    if (sizeof (struct xbsd_disklabel) !=3D write (cxt->dev_fd, d, sizeof =
+(struct xbsd_disklabel)))
+> -	  fatal (cxt, unable_to_write);
+> +	  fdisk_error_fatal (cxt, FDISK_ERROR_WRITE);
+>  #endif
+> =20
+>    sync_disks ();
+> diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
+> index a115e66..535afdc 100644
+> --- a/fdisks/fdiskdoslabel.c
+> +++ b/fdisks/fdiskdoslabel.c
+> @@ -321,7 +321,7 @@ static int dos_probe_label(struct fdisk_context *cxt)
+>  	int i;
+> =20
+>  	if (!valid_part_table_flag(cxt->mbr))
+> -		return 0;
+> +		return FDISK_ERROR_PROBE;
+> =20
+>  	dos_init(cxt);
+> =20
+> @@ -349,7 +349,7 @@ static int dos_probe_label(struct fdisk_context *cxt)
+>  		}
+>  	}
+> =20
+> -	return 1;
+> +	return 0;
+>  }
+> =20
+>  /*
+> diff --git a/fdisks/fdiskmaclabel.c b/fdisks/fdiskmaclabel.c
+> index 555245d..98cff26 100644
+> --- a/fdisks/fdiskmaclabel.c
+> +++ b/fdisks/fdiskmaclabel.c
+> @@ -65,7 +65,7 @@ mac_probe_label(struct fdisk_context *cxt)
+>  			break;
+>  		default:
+>  			other_endian =3D 0;
+> -			return 0;
+> +			return FDISK_ERROR_PROBE;
+> =20
+>=20
+>  	}
+> @@ -77,7 +77,7 @@ IS_MAC:
+>      volumes =3D 15;	// =3D?
+>      mac_info();
+>      mac_nolabel(cxt);		/* %% */
+> -    return 1;
+> +    return 0;
+>  }
+> =20
+>  const struct fdisk_label mac_label =3D
+> diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
+> index 071a84e..e38d98f 100644
+> --- a/fdisks/fdisksgilabel.c
+> +++ b/fdisks/fdisksgilabel.c
+> @@ -139,7 +139,7 @@ sgi_probe_label(struct fdisk_context *cxt) {
+>  	if (sgilabel->magic !=3D SGI_LABEL_MAGIC &&
+>  	    sgilabel->magic !=3D SGI_LABEL_MAGIC_SWAPPED) {
+>  		other_endian =3D 0;
+> -		return 0;
+> +		return FDISK_ERROR_PROBE;
+>  	}
+> =20
+>  	other_endian =3D (sgilabel->magic =3D=3D SGI_LABEL_MAGIC_SWAPPED);
+> @@ -154,7 +154,7 @@ sgi_probe_label(struct fdisk_context *cxt) {
+>  	disklabel =3D SGI_LABEL;
+>  	partitions=3D 16;
+>  	volumes =3D 15;
+> -	return 1;
+> +	return 0;
 >  }
 > =20
 >  void
-> @@ -883,4 +882,5 @@ const struct fdisk_label sgi_label =3D
->  {
->  	.name =3D "sgi",
->  	.probe =3D sgi_probe_label,
-> +	.part_delete =3D sgi_delete_partition,
->  };
-> diff --git a/fdisks/fdisksgilabel.h b/fdisks/fdisksgilabel.h
-> index f6b88e8..98cf093 100644
-> --- a/fdisks/fdisksgilabel.h
-> +++ b/fdisks/fdisksgilabel.h
-> @@ -116,7 +116,6 @@ extern int  sgi_change_sysid(struct fdisk_context *cx=
-t, int i, int sys);
->  extern unsigned int	sgi_get_start_sector(struct fdisk_context *cxt, int =
-i );
->  extern unsigned int	sgi_get_num_sectors(struct fdisk_context *cxt, int i=
- );
->  extern int	sgi_get_sysid(struct fdisk_context *cxt, int i );
-> -extern void	sgi_delete_partition( struct fdisk_context *cxt, int i );
->  extern void	sgi_add_partition( struct fdisk_context *cxt, int n, int sys=
- );
->  extern void	create_sgilabel( struct fdisk_context *cxt );
->  extern void	create_sgiinfo(struct fdisk_context *cxt);
+> @@ -338,9 +338,9 @@ sgi_write_table(struct fdisk_context *cxt) {
+>  	assert(two_s_complement_32bit_sum(
+>  		(unsigned int*)sgilabel, sizeof(*sgilabel)) =3D=3D 0);
+>  	if (lseek(cxt->dev_fd, 0, SEEK_SET) < 0)
+> -		fatal(cxt, unable_to_seek);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_SEEK);
+>  	if (write(cxt->dev_fd, sgilabel, SECTOR_SIZE) !=3D SECTOR_SIZE)
+> -		fatal(cxt, unable_to_write);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_WRITE);
+>  	if (! strncmp((char *) sgilabel->directory[0].vol_file_name, "sgilabel"=
+, 8)) {
+>  		/*
+>  		 * keep this habit of first writing the "sgilabel".
+> @@ -350,9 +350,9 @@ sgi_write_table(struct fdisk_context *cxt) {
+>  		int infostartblock =3D SSWAP32(sgilabel->directory[0].vol_file_start);
+>  		if (lseek(cxt->dev_fd, (off_t) infostartblock*
+>  				SECTOR_SIZE, SEEK_SET) < 0)
+> -			fatal(cxt, unable_to_seek);
+> +			fdisk_error_fatal(cxt, FDISK_ERROR_SEEK);
+>  		if (write(cxt->dev_fd, info, SECTOR_SIZE) !=3D SECTOR_SIZE)
+> -			fatal(cxt, unable_to_write);
+> +			fdisk_error_fatal(cxt, FDISK_ERROR_WRITE);
+>  		free(info);
+>  	}
+>  }
 > diff --git a/fdisks/fdisksunlabel.c b/fdisks/fdisksunlabel.c
-> index b63335c..c74ffbb 100644
+> index 909f159..4123806 100644
 > --- a/fdisks/fdisksunlabel.c
 > +++ b/fdisks/fdisksunlabel.c
-> @@ -482,13 +482,13 @@ and is of type `Whole disk'\n"));
->  	set_sun_partition(cxt, n, first, last, sys);
+> @@ -86,7 +86,7 @@ static int sun_probe_label(struct fdisk_context *cxt)
+>  	if (sunlabel->magic !=3D SUN_LABEL_MAGIC &&
+>  	    sunlabel->magic !=3D SUN_LABEL_MAGIC_SWAPPED) {
+>  		other_endian =3D 0;
+> -		return 0;
+> +		return FDISK_ERROR_PROBE;
+>  	}
+> =20
+>  	init();
+> @@ -141,7 +141,7 @@ static int sun_probe_label(struct fdisk_context *cxt)
+>  		}
+>  	}
+>  	update_units(cxt);
+> -	return 1;
+> +	return 0;
 >  }
 > =20
-> -void sun_delete_partition(struct fdisk_context *cxt, int i)
-> +static void sun_delete_partition(struct fdisk_context *cxt, int partnum)
->  {
-> -	struct sun_partition *part =3D &sunlabel->partitions[i];
-> -	struct sun_tag_flag *tag =3D &sunlabel->part_tags[i];
-> +	struct sun_partition *part =3D &sunlabel->partitions[partnum];
-> +	struct sun_tag_flag *tag =3D &sunlabel->part_tags[partnum];
->  	unsigned int nsec;
+>  void create_sunlabel(struct fdisk_context *cxt)
+> @@ -633,9 +633,9 @@ void sun_write_table(struct fdisk_context *cxt)
+>  		csum ^=3D *ush++;
+>  	sunlabel->cksum =3D csum;
+>  	if (lseek(cxt->dev_fd, 0, SEEK_SET) < 0)
+> -		fatal(cxt, unable_to_seek);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_SEEK);
+>  	if (write(cxt->dev_fd, sunlabel, SECTOR_SIZE) !=3D SECTOR_SIZE)
+> -		fatal(cxt, unable_to_write);
+> +		fdisk_error_fatal(cxt, FDISK_ERROR_WRITE);
+>  }
 > =20
-> -	if (i =3D=3D 2 &&
-> +	if (partnum =3D=3D 2 &&
->  	    tag->tag =3D=3D SSWAP16(SUN_TAG_BACKUP) &&
->  	    !part->start_cylinder &&
->  	    (nsec =3D SSWAP32(part->num_sectors))
-> @@ -648,4 +648,5 @@ const struct fdisk_label sun_label =3D
->  {
->  	.name =3D "sun",
->  	.probe =3D sun_probe_label,
-> +	.part_delete =3D sun_delete_partition,
->  };
-> diff --git a/fdisks/fdisksunlabel.h b/fdisks/fdisksunlabel.h
-> index 9779e22..47aa30a 100644
-> --- a/fdisks/fdisksunlabel.h
-> +++ b/fdisks/fdisksunlabel.h
-> @@ -78,7 +78,6 @@ struct sun_disk_label {
->  /* fdisksunlabel.c */
->  extern struct systypes sun_sys_types[];
->  extern void create_sunlabel(struct fdisk_context *cxt);
-> -extern void sun_delete_partition(struct fdisk_context *cxt, int i);
->  extern int sun_change_sysid(struct fdisk_context *cxt, int i, uint16_t s=
-ys);
->  extern void sun_list_table(struct fdisk_context *cxt, int xtra);
->  extern void verify_sun(struct fdisk_context *cxt);
+>  int sun_get_sysid(struct fdisk_context *cxt, int i)
 > diff --git a/fdisks/utils.c b/fdisks/utils.c
-> index 48dedfb..c8b8f7e 100644
+> index 94a080f..363f7aa 100644
 > --- a/fdisks/utils.c
 > +++ b/fdisks/utils.c
-> @@ -81,6 +81,21 @@ done:
->  	return 0;
+> @@ -53,32 +53,37 @@ static int __probe_labels(struct fdisk_context *cxt)
+> =20
+>  	for (i =3D 0; i < ARRAY_SIZE(labels); i++) {
+>  		rc =3D labels[i]->probe(cxt);
+> -		if (rc) {
+> +		if (!rc) {
+>  			DBG(LABEL, dbgprint("detected a %s label\n",
+>  					    labels[i]->name));
+>  			goto done;
+>  		}
+>  	}
+> -
+>  done:
+>  	return rc;
 >  }
 > =20
-> +/**
-> + * fdisk_label_partition_delete:
-> + * @cxt: fdisk context
-> + * @partnum: partition number to delete
-> + *
-> + * Deletes a @partnum partition.
-> + *
-> + * Returns 0 on success, otherwise, a corresponding error.
-> + */
-> +int fdisk_label_partition_delete(struct fdisk_context *cxt, int partnum)
-> +{
-> +	cxt->label->part_delete(cxt, partnum);
-> +	return 0;
-> +}=09
-> +
->  static int __probe_labels(struct fdisk_context *cxt)
+>  static int __init_mbr_buffer(struct fdisk_context *cxt)
 >  {
->  	int i, rc =3D 0;
+> +	int errcode =3D 0;
+> +
+>  	DBG(TOPOLOGY, dbgprint("initialize MBR buffer"));
+> =20
+>  	cxt->mbr =3D calloc(1, MAX_SECTOR_SIZE);
+> -	if (!cxt->mbr)
+> -		goto fail;
+> +	if (!cxt->mbr) {
+> +		errcode =3D FDISK_ERROR_MEM;
+> +		goto done;
+> +	}
+> =20
+>  	/* read MBR */
+>  	if (512 !=3D read(cxt->dev_fd, cxt->mbr, 512))
+> -		goto fail;
+> -
+> -	return 0;
+> -fail:
+> -	return -1;
+> +		/*
+> +		 * this error is either a legitimate read failure,
+> +		 * or the device is too small for reading 512 bytes.
+> +		 */
+> +		errcode =3D FDISK_ERROR_READ;
+> +done:
+> +	return errcode;
+>  }
+> =20
+>  static unsigned long __get_sector_size(int fd)
+> @@ -254,17 +259,65 @@ void fdisk_init_debug(int mask)
+>  }
+> =20
+>  /**
+> + * fdisk_error_name:
+> + * @errcode: fdisk specific error code
+> + *
+> + * Returns: Corresponding error message.
+> + */
+> +const char *fdisk_error_name(enum fdisk_error errcode)
+> +{
+> +	switch (errcode) {
+> +	case FDISK_ERROR_OPEN:
+> +		return "error: cannot open";
+> +	case FDISK_ERROR_MEM:
+> +		return "error: no memory";
+> +	case FDISK_ERROR_READ:
+> +		return "error: cannot read";
+> +	case FDISK_ERROR_SEEK:
+> +		return "error: cannot seek";
+> +	case FDISK_ERROR_WRITE:
+> +		return "error: cannot write";
+> +	case FDISK_ERROR_IOCTL:
+> +		return "error: ioctl";
+> +	case FDISK_ERROR_PROBE:
+> +		return "error: cannot probe";
+> +	default:
+> +		return "error: unknown";
+> +	}
+> +}
+> +
+> +/**
+> + * fdisk_error_fatal:
+> + * @cxt: fdisk context
+> + * @errcode: fdisk specific error code
+> + *
+> + * Deinitializes the fdisk context and exits, printing an appropiate
+> + * error message to standard error. Use only for unrecoverable failures.
+> + */
+> +void __attribute__((__noreturn__))
+> +fdisk_error_fatal(struct fdisk_context *cxt, enum fdisk_error errcode)
+> +{
+> +	fprintf(stderr, _("%s: %s\n"), fdisk_error_name(errcode),
+> +		                       cxt->dev_path);
+> +	fdisk_free_context(cxt);
+> +	exit(EXIT_FAILURE);
+> +}
+> +
+> +/**
+>   * fdisk_new_context:
+>   * @filename: path to the device to be handled
+>   * @readonly: how to open the device
+> + * @errcode: specific fdisk error code (returned value)
+>   *
+>   * If the @readonly flag is set to false, fdisk will attempt to open
+>   * the device with read-write mode and will fallback to read-only if
+>   * unsuccessful.
+>   *
+> - * Returns: newly allocated fdisk context
+> + * Returns: newly allocated fdisk context. If failure, returns NULL
+> + *          and @errcode is set.
+>   */
+> -struct fdisk_context *fdisk_new_context_from_filename(const char *fname,=
+ int readonly)
+> +struct fdisk_context *fdisk_new_context_from_filename(const char *fname,=
+ int readonly,
+> +						      int *errcode)
+>  {
+>  	int fd, errsv =3D 0;
+>  	struct fdisk_context *cxt =3D NULL;
+> @@ -272,21 +325,28 @@ struct fdisk_context *fdisk_new_context_from_filena=
+me(const char *fname, int rea
+>  	DBG(CONTEXT, dbgprint("initializing context for %s", fname));
+> =20
+>  	if (readonly =3D=3D 1 || (fd =3D open(fname, O_RDWR)) < 0) {
+> -		if ((fd =3D open(fname, O_RDONLY)) < 0)
+> +		if ((fd =3D open(fname, O_RDONLY)) < 0) {
+> +			*errcode =3D FDISK_ERROR_OPEN;
+>  			return NULL;
+> +		}
+>  		readonly =3D 1;
+>  	}
+> =20
+>  	cxt =3D calloc(1, sizeof(*cxt));
+> -	if (!cxt)
+> +	if (!cxt) {
+> +		*errcode =3D FDISK_ERROR_MEM;
+>  		goto fail;
+> +	}
+> =20
+>  	cxt->dev_fd =3D fd;
+>  	cxt->dev_path =3D strdup(fname);
+> -	if (!cxt->dev_path)
+> +	if (!cxt->dev_path) {
+> +		*errcode =3D FDISK_ERROR_MEM;
+>  		goto fail;
+> +	}
+> =20
+> -	if (__init_mbr_buffer(cxt) < 0)
+> +	*errcode =3D __init_mbr_buffer(cxt);
+> +	if(*errcode)
+>  		goto fail;
+> =20
+>  	__discover_topology(cxt);
+> diff --git a/tests/expected/fdisk/oddinput b/tests/expected/fdisk/oddinput
+> index d90866b..2c89e31 100644
+> --- a/tests/expected/fdisk/oddinput
+> +++ b/tests/expected/fdisk/oddinput
+> @@ -9,6 +9,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
+>  I/O size (minimum/optimal): 512 bytes / 512 bytes
+> =20
+>  Nonexistant file
+> -lt-fdisk: unable to open _a_file_that_does_not_exist_: No such file or d=
+irectory
+> +lt-fdisk: error: cannot open: _a_file_that_does_not_exist_
+>  Too small file
+> -lt-fdisk: unable to open oddinput.toosmall: Success
+> +lt-fdisk: error: cannot read: oddinput.toosmall
 > --=20
 > 1.7.4.1
 >=20
 >=20
 >=20
 >=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 Petr
 
@@ -469,15 +622,15 @@ Petr
 Petr Uzel
 IRC: ptr_uzl @ freenode
 
---EXKGNeO8l0xGFBjy
+--opJtzjQTFsWo+cga
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.18 (GNU/Linux)
 
-iEYEARECAAYFAlAOeFkACgkQnZxG0T6qDD02SACffX6lZ2zAAxnMoq395DExzik+
-qckAnAxE7wKzC9JjTu5IYczvxtN+efkB
-=S9Jl
+iEUEARECAAYFAlAOaNsACgkQnZxG0T6qDD1i5wCeM6jJyDri1M2tcVgv6U/puYcU
+GFsAmL0Ucfb4bp4hiY6tXEUGpO6b5II=
+=eiwP
 -----END PGP SIGNATURE-----
 
---EXKGNeO8l0xGFBjy--
+--opJtzjQTFsWo+cga--
