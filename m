@@ -1,39 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45142 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:31031 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758791Ab2GLIKt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Jul 2012 04:10:49 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 90A1DA3A4A
-	for <util-linux@vger.kernel.org>; Thu, 12 Jul 2012 10:10:47 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH 1/2] swapon: kill unused variables in show_table()
-Date: Thu, 12 Jul 2012 10:09:58 +0200
-Message-Id: <1342080599-12346-1-git-send-email-petr.uzel@suse.cz>
+	id S1753305Ab2GXLmO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Jul 2012 07:42:14 -0400
+Date: Tue, 24 Jul 2012 13:42:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 10/10] fdisk: API: add FDISK_ERROR_NOLABEL error string
+Message-ID: <20120724114211.GG736@x2.net.home>
+References: <1342976748.2863.20.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1342976748.2863.20.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Jul 22, 2012 at 07:05:48PM +0200, Davidlohr Bueso wrote:
+>  		return "error: unknown";
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- sys-utils/swapon.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ Not applied, see the previous discussion about the 1/10 patch.
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 0858894..05d025c 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -216,7 +216,6 @@ static int show_table(int tt_flags, int bytes)
- 	struct libmnt_fs *fs;
- 
- 	int i, rc = 0;
--	struct list_head *p, *pnext;
- 	struct tt *tt;
- 
- 	if (!st)
+    karel
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
