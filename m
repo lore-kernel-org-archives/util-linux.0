@@ -1,46 +1,45 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 09/10] fdisk: API: fix fdisk_label_create
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 22 Jul 2012 19:05:45 +0200
-Message-ID: <1342976745.2863.19.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-we0-f174.google.com ([74.125.82.174]:63323 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751765Ab2GYTQN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:13 -0400
+Received: by mail-we0-f174.google.com with SMTP id x8so794233wey.19
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:13 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 5/5] docs: tell about irc channel
+Date: Wed, 25 Jul 2012 21:15:45 +0200
+Message-Id: <1343243745-1172-28-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
-
-It wasn't actually calling create_label(), silly me!
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Reference: http://comments.gmane.org/gmane.linux.utilities.util-linux-ng/3550
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/utils.c |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+ Documentation/howto-contribute.txt | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fdisks/utils.c b/fdisks/utils.c
-index 62cd6aa..510d641 100644
---- a/fdisks/utils.c
-+++ b/fdisks/utils.c
-@@ -143,11 +143,13 @@ int fdisk_label_create(struct fdisk_context *cxt, const char *name)
- #else
- 		errcode = fdisk_label_change(cxt, "dos");
- #endif
--		if (errcode)
--			goto done;
--	}
--	
--	errcode = fdisk_label_change(cxt, name);
-+	} else
-+		errcode = fdisk_label_change(cxt, name);
+diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
+index 098f456..5df6389 100644
+--- a/Documentation/howto-contribute.txt
++++ b/Documentation/howto-contribute.txt
+@@ -116,3 +116,13 @@ Various notes
+ 	* When you use if shortshort hand make sure it is not wrapped to
+ 	  multiple lines. In case the shorthand does not look good on one
+ 	  line use normal "if () else" syntax.
 +
-+	if (errcode)
-+		goto done;
++IRC channel
 +
-+	errcode = cxt->label->create_label(cxt);
- done:
- 	return errcode;
- }
++	* We have a new #util-linux IRC channel at freenode.net.
++
++	  irc://chat.freenode.net/util-linux
++
++	  the channel is for developers or upstream maintainers.  User
++	  support is recommended to go to distribution channels or
++	  forums.
 -- 
-1.7.4.1
+1.7.11.3
+
