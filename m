@@ -1,36 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:19425 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753305Ab2GXLlC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 07:41:02 -0400
-Date: Tue, 24 Jul 2012 13:40:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 09/10] fdisk: API: fix fdisk_label_create
-Message-ID: <20120724114057.GF736@x2.net.home>
-References: <1342976745.2863.19.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1342976745.2863.19.camel@offbook>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:34399 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751314Ab2GYTQG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:06 -0400
+Received: by mail-wi0-f170.google.com with SMTP id hq12so4797543wib.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:05 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 16/19] libmount: add noreturn function attribute
+Date: Wed, 25 Jul 2012 21:15:37 +0200
+Message-Id: <1343243745-1172-20-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 22, 2012 at 07:05:45PM +0200, Davidlohr Bueso wrote:
-> +	} else
-> +		errcode = fdisk_label_change(cxt, name);
-> +
-> +	if (errcode)
-> +		goto done;
-> +
-> +	errcode = cxt->label->create_label(cxt);
->  done:
->  	return errcode;
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libmount/src/lock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Unnecessary for the current code.
-
-    karel
-
+diff --git a/libmount/src/lock.c b/libmount/src/lock.c
+index 80ccdee..9f04725 100644
+--- a/libmount/src/lock.c
++++ b/libmount/src/lock.c
+@@ -589,7 +589,7 @@ void clean_lock(void)
+ 	mnt_free_lock(lock);
+ }
+ 
+-void sig_handler(int sig)
++void __attribute__((__noreturn__)) sig_handler(int sig)
+ {
+ 	errx(EXIT_FAILURE, "\n%d: catch signal: %s\n", getpid(), strsignal(sig));
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.3
+
