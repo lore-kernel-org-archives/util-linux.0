@@ -1,52 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56534 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751735Ab2G0ITt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Jul 2012 04:19:49 -0400
-Date: Fri, 27 Jul 2012 10:19:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] tests: update oddinput test
-Message-ID: <20120727081943.GC14019@x2.net.home>
-References: <50124D10.4080906@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50124D10.4080906@bernhard-voelker.de>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:54496 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751314Ab2GYTQE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:04 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1068839wgb.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:03 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 14/19] fdisk: add noreturn function attribute
+Date: Wed, 25 Jul 2012 21:15:35 +0200
+Message-Id: <1343243745-1172-18-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 27, 2012 at 10:10:56AM +0200, Bernhard Voelker wrote:
-> 
-> From ca423116354d7ea1fb7604d838078a41840af19e Mon Sep 17 00:00:00 2001
-> From: Bernhard Voelker <mail@bernhard-voelker.de>
-> Date: Fri, 27 Jul 2012 10:10:10 +0200
-> Subject: [PATCH] tests: update oddinput test
-> 
-> Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
-> ---
->  tests/expected/fdisk/oddinput |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tests/expected/fdisk/oddinput b/tests/expected/fdisk/oddinput
-> index 14f2528..a681d0d 100644
-> --- a/tests/expected/fdisk/oddinput
-> +++ b/tests/expected/fdisk/oddinput
-> @@ -9,6 +9,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
->  I/O size (minimum/optimal): 512 bytes / 512 bytes
-> 
->  Nonexistant file
-> -lt-fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
-> +fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
->  Too small file
-> -lt-fdisk: cannot open oddinput.toosmall: Invalid argument
-> +fdisk: cannot open oddinput.toosmall: Invalid argument
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ fdisks/fdisk.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-No, this is about libtool... it would be better to fix the tests to
-always remove the lt- prefix from $TS_OUTPUT files.
-
-    Karel
-
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index 32b6de9..7fca5b6 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -159,7 +159,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+-void fatal(struct fdisk_context *cxt, enum failure why)
++void __attribute__((__noreturn__))
++fatal(struct fdisk_context *cxt, enum failure why)
+ {
+ 	close(cxt->dev_fd);
+ 	switch (why) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.3
+
