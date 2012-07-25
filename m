@@ -1,40 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:57645 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751011Ab2G0KJG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Jul 2012 06:09:06 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 01395912E4
-	for <util-linux@vger.kernel.org>; Fri, 27 Jul 2012 12:09:05 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] build-sys: fix description of utmpdump configure option
-Date: Fri, 27 Jul 2012 12:09:01 +0200
-Message-Id: <1343383741-29096-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:54496 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751123Ab2GYTPw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:15:52 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1068839wgb.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:15:51 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 01/19] mkswap: fix shadow declaration
+Date: Wed, 25 Jul 2012 21:15:22 +0200
+Message-Id: <1343243745-1172-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+disk-utils/mkswap.c:366:57: warning: declaration of 'is_blkdev' shadows a global declaration [-Wshadow]
+./include/blkdev.h:92:5: warning: shadowed declaration is here [-Wshadow]
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- configure.ac |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ disk-utils/mkswap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index e32a1c1..99f1df0 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1020,7 +1020,7 @@ AM_CONDITIONAL(BUILD_LAST, test "x$build_last" = xyes)
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index ca49d0e..34fe687 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -363,7 +363,7 @@ new_prober(int fd)
+ #endif
  
+ static void
+-wipe_device(int fd, const char *devname, int force, int is_blkdev)
++wipe_device(int fd, const char *devname, int force, int is_blkdevice)
+ {
+ 	char *type = NULL;
+ 	int whole = 0;
+@@ -375,7 +375,7 @@ wipe_device(int fd, const char *devname, int force, int is_blkdev)
+ 		if (lseek(fd, 0, SEEK_SET) != 0)
+ 			errx(EXIT_FAILURE, _("unable to rewind swap-device"));
  
- AC_ARG_ENABLE([utmpdump],
--  AS_HELP_STRING([--disable-utmpdump], [build utmpdump]),
-+  AS_HELP_STRING([--disable-utmpdump], [do not build utmpdump]),
-   [], enable_utmpdump=yes
- )
- UL_BUILD_INIT([utmpdump])
+-		if (is_blkdev && is_whole_disk_fd(fd, devname)) {
++		if (is_blkdevice && is_whole_disk_fd(fd, devname)) {
+ 			/* don't zap bootbits on whole disk -- we know nothing
+ 			 * about bootloaders on the device */
+ 			whole = 1;
 -- 
-1.7.7
+1.7.11.3
 
