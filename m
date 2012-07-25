@@ -1,43 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45667 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751767Ab2GZOEg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 10:04:36 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: dave@gnu.org
-Subject: [PATCH 4/5] fdisk: don't print CHS geometry unless DOS compatible mode is set
-Date: Thu, 26 Jul 2012 16:04:27 +0200
-Message-Id: <1343311468-20206-4-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
-References: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:63323 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750872Ab2GYTPz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:15:55 -0400
+Received: by mail-we0-f174.google.com with SMTP id x8so794233wey.19
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:15:54 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 05/19] lslocks: fix shadow declaration
+Date: Wed, 25 Jul 2012 21:15:26 +0200
+Message-Id: <1343243745-1172-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-References: http://marc.info/?l=util-linux-ng&m=134329693623430&w=2
+misc-utils/lslocks.c:157:49: warning: declaration of 'pid' shadows a global declaration [-Wshadow]
+misc-utils/lslocks.c:80:14: warning: shadowed declaration is here [-Wshadow]
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/fdisk.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ misc-utils/lslocks.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index fb897d8..fa20218 100644
---- a/fdisks/fdisk.c
-+++ b/fdisks/fdisk.c
-@@ -1005,9 +1005,9 @@ list_disk_geometry(struct fdisk_context *cxt) {
- 		       cxt->dev_path, hectomega / 10, hectomega % 10, bytes);
- 	}
- 	printf(_(", %llu sectors\n"), cxt->total_sectors);
--	printf(_("%d heads, %llu sectors/track, %llu cylinders"),
--	       cxt->geom.heads, cxt->geom.sectors, cxt->geom.cylinders);
--	printf("\n");
-+	if (dos_compatible_flag)
-+		printf(_("%d heads, %llu sectors/track, %llu cylinders\n"),
-+		       cxt->geom.heads, cxt->geom.sectors, cxt->geom.cylinders);
- 	printf(_("Units = %s of %d * %ld = %ld bytes\n"),
- 	       str_units(PLURAL),
- 	       units_per_sector, cxt->sector_size, units_per_sector * cxt->sector_size);
+diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
+index 094224d..56855f4 100644
+--- a/misc-utils/lslocks.c
++++ b/misc-utils/lslocks.c
+@@ -104,12 +104,12 @@ static void disable_columns_truncate(void)
+ /*
+  * Return a PID's command name
+  */
+-static char *get_cmdname(pid_t pid)
++static char *get_cmdname(pid_t qpid)
+ {
+ 	FILE *fp;
+ 	char path[PATH_MAX], *ret = NULL;
+ 
+-	sprintf(path, "/proc/%d/comm", pid);
++	sprintf(path, "/proc/%d/comm", qpid);
+ 	if (!(fp = fopen(path, "r")))
+ 		return NULL;
+ 
 -- 
-1.7.7
+1.7.11.3
 
