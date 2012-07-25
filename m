@@ -1,34 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6431 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751965Ab2GZOrc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 10:47:32 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6QElV3j016812
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Thu, 26 Jul 2012 10:47:32 -0400
-Date: Thu, 26 Jul 2012 16:47:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Milan Broz <mbroz@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/5] partx: support -o +<attr> for adding attribute to
- output fields.
-Message-ID: <20120726144730.GC21901@x2.net.home>
-References: <1343304884-14297-1-git-send-email-mbroz@redhat.com>
- <1343310728-16624-1-git-send-email-mbroz@redhat.com>
- <1343310728-16624-3-git-send-email-mbroz@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343310728-16624-3-git-send-email-mbroz@redhat.com>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:38021 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751314Ab2GYTQC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:02 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr14so1133220wib.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:02 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 12/19] hexdump: fix shadow declaration
+Date: Wed, 25 Jul 2012 21:15:33 +0200
+Message-Id: <1343243745-1172-16-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 26, 2012 at 03:52:06PM +0200, Milan Broz wrote:
->  disk-utils/partx.c |   12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
+text-utils/hexdump.h:84:5: warning: shadowed declaration is here [-Wshadow]
+./include/xalloc.h:23:28: warning: declaration of 'size' shadows a global declaration [-Wshadow]
+./include/xalloc.h:33:40: warning: declaration of 'size' shadows a global declaration [-Wshadow]
+./include/xalloc.h:43:49: warning: declaration of 'size' shadows a global declaration [-Wshadow]
 
- Applied, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/hexdump.c | 2 +-
+ text-utils/hexdump.h | 2 +-
+ text-utils/parse.c   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
+index 90c2d77..a4a61cf 100644
+--- a/text-utils/hexdump.c
++++ b/text-utils/hexdump.c
+@@ -68,7 +68,7 @@ int main(int argc, char **argv)
+ 
+ 	/* figure out the data block size */
+ 	for (blocksize = 0, tfs = fshead; tfs; tfs = tfs->nextfs) {
+-		tfs->bcnt = size(tfs);
++		tfs->bcnt = block_size(tfs);
+ 		if (blocksize < tfs->bcnt)
+ 			blocksize = tfs->bcnt;
+ 	}
+diff --git a/text-utils/hexdump.h b/text-utils/hexdump.h
+index 2222585..b9e67a1 100644
+--- a/text-utils/hexdump.h
++++ b/text-utils/hexdump.h
+@@ -81,7 +81,7 @@ extern off_t skip;                      /* bytes to skip */
+ enum _vflag { ALL, DUP, FIRST, WAIT };	/* -v values */
+ extern enum _vflag vflag;
+ 
+-int size(FS *);
++int block_size(FS *);
+ void add(const char *);
+ void rewrite(FS *);
+ void addfile(char *);
+diff --git a/text-utils/parse.c b/text-utils/parse.c
+index 481db6d..5f1e2bd 100644
+--- a/text-utils/parse.c
++++ b/text-utils/parse.c
+@@ -150,7 +150,7 @@ void add(const char *fmt)
+ 
+ static const char *spec = ".#-+ 0123456789";
+ 
+-int size(FS *fs)
++int block_size(FS *fs)
+ {
+ 	FU *fu;
+ 	int bcnt, cursize;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.3
+
