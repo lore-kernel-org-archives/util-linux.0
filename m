@@ -1,27 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25261 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753239Ab2GXLhQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 07:37:16 -0400
-Date: Tue, 24 Jul 2012 13:37:12 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 04/10] fdisk: API: add delete partition to label
- operations
-Message-ID: <20120724113712.GA736@x2.net.home>
-References: <1342976707.2863.14.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1342976707.2863.14.camel@offbook>
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:57227 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750872Ab2GYTP4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:15:56 -0400
+Received: by wgbfm10 with SMTP id fm10so4793723wgb.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:15:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/19] whereis: fix shadow declaration
+Date: Wed, 25 Jul 2012 21:15:27 +0200
+Message-Id: <1343243745-1172-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 22, 2012 at 07:05:07PM +0200, Davidlohr Bueso wrote:
->  12 files changed, 101 insertions(+), 96 deletions(-)
+misc-utils/whereis.c:191:7: warning: declaration of 'dirp' shadows a global declaration [-Wshadow]
+misc-utils/whereis.c:134:42: warning: shadowed declaration is here [-Wshadow]
 
- Applied with some changes, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/whereis.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 6807b8a..6faf262 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -188,7 +188,7 @@ itsit(char *cp, char *dp)
+ static void
+ findin(char *dir, char *cp)
+ {
+-	DIR *dirp;
++	DIR *derp;
+ 	struct dirent *dp;
+ 	char *d, *dd;
+ 	size_t l;
+@@ -197,17 +197,17 @@ findin(char *dir, char *cp)
+ 
+ 	dd = strchr(dir, '*');
+ 	if (!dd) {
+-		dirp = opendir(dir);
+-		if (dirp == NULL)
++		derp = opendir(dir);
++		if (derp == NULL)
+ 			return;
+-		while ((dp = readdir(dirp)) != NULL) {
++		while ((dp = readdir(derp)) != NULL) {
+ 			if (itsit(cp, dp->d_name)) {
+ 				count++;
+ 				if (print)
+ 					printf(" %s/%s", dir, dp->d_name);
+ 			}
+ 		}
+-		closedir(dirp);
++		closedir(derp);
+ 		return;
+ 	}
+ 
+@@ -217,10 +217,10 @@ findin(char *dir, char *cp)
+ 		strcpy(dirbuf, dir);
+ 		d = strchr(dirbuf, '*');
+ 		*d = 0;
+-		dirp = opendir(dirbuf);
+-		if (dirp == NULL)
++		derp = opendir(dirbuf);
++		if (derp == NULL)
+ 			return;
+-		while ((dp = readdir(dirp)) != NULL) {
++		while ((dp = readdir(derp)) != NULL) {
+ 			if (!strcmp(dp->d_name, ".") ||
+ 			    !strcmp(dp->d_name, ".."))
+ 				continue;
+@@ -234,7 +234,7 @@ findin(char *dir, char *cp)
+ 			strcat(d, dd + 1);
+ 			findin(dirbuf, cp);
+ 		}
+-		closedir(dirp);
++		closedir(derp);
+ 	}
+ 	return;
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.3
+
