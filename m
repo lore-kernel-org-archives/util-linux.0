@@ -1,62 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.187]:64708 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753105Ab2GXL0N (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jul 2012 07:26:13 -0400
-Message-ID: <500E8653.8050604@bernhard-voelker.de>
-Date: Tue, 24 Jul 2012 13:26:11 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] fdisk: de-duplicate disk label strings
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:36641 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751150Ab2GYTQM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:12 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1069033wgb.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:11 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/5] wdctl: fix conflicting types on old systems
+Date: Wed, 25 Jul 2012 21:15:43 +0200
+Message-Id: <1343243745-1172-26-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The program wants the userland version of declaration(s), not the
+kernel one.  Problem occured with glibc-devel-2.5-34.
 
+/usr/include/stdint.h:41: error: conflicting types for 'int64_t'
+/usr/include/linux/types.h:98: error: previous declaration of 'int64_t' was here
+/usr/include/stdint.h:56: error: conflicting types for 'uint64_t'
+/usr/include/linux/types.h:96: error: previous declaration of 'uint64_t' was here
+In file included from /usr/include/stdlib.h:438,
+                 from ./include/c.h:13,
+                 from sys-utils/wdctl.c:30:
 
->From 91b486e98aaa72083ffec491b931dbab368e8a19 Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Tue, 24 Jul 2012 13:18:16 +0200
-Subject: [PATCH] fdisk: de-duplicate disk label strings
-
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/fdisk.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ sys-utils/wdctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index 4731918..9f06901 100644
---- a/fdisks/fdisk.c
-+++ b/fdisks/fdisk.c
-@@ -1528,7 +1528,7 @@ expert_command_prompt(struct fdisk_context *cxt)
- 				fix_partition_table_order();
- 			break;
- 		case 'g':
--			fdisk_create_disklabel(cxt, "sgi");
-+			fdisk_create_disklabel(cxt, sgi_label.name);
- 			break;
- 		case 'h':
- 			user_heads = cxt->geom.heads = read_int(cxt, 1, cxt->geom.heads, 256, 0,
-@@ -1755,7 +1755,7 @@ static void command_prompt(struct fdisk_context *cxt)
- 			new_partition(cxt);
- 			break;
- 		case 'o':
--			fdisk_create_disklabel(cxt, "dos");
-+			fdisk_create_disklabel(cxt, dos_label.name);
- 			break;
- 		case 'p':
- 			list_table(cxt, 0);
-@@ -1763,7 +1763,7 @@ static void command_prompt(struct fdisk_context *cxt)
- 		case 'q':
- 			handle_quit(cxt);
- 		case 's':
--			fdisk_create_disklabel(cxt, "sun");
-+			fdisk_create_disklabel(cxt, sun_label.name);
- 			break;
- 		case 't':
- 			change_sysid(cxt);
+diff --git a/sys-utils/wdctl.c b/sys-utils/wdctl.c
+index ebe55b4..d5ca50c 100644
+--- a/sys-utils/wdctl.c
++++ b/sys-utils/wdctl.c
+@@ -18,13 +18,13 @@
+  * with this program; if not, write to the Free Software Foundation, Inc.,
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+-#include <linux/watchdog.h>
+ #include <sys/ioctl.h>
+ #include <getopt.h>
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <signal.h>
+ #include <assert.h>
++#include <linux/watchdog.h>
+ 
+ #include "nls.h"
+ #include "c.h"
 -- 
-1.7.7
-
+1.7.11.3
 
