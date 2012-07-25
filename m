@@ -1,64 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from avasout04.plus.net ([212.159.14.19]:34839 "EHLO
-	avasout04.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751562Ab2GZAjT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 20:39:19 -0400
-Message-ID: <50109E8D.2000702@jelmail.com>
-Date: Thu, 26 Jul 2012 02:34:05 +0100
-From: John Lane <util-linux@jelmail.com>
-MIME-Version: 1.0
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:38021 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751741Ab2GYTQK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:10 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr14so1133220wib.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:09 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: fdisk geometry
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/5] ddate: russian manual missing from package
+Date: Wed, 25 Jul 2012 21:15:41 +0200
+Message-Id: <1343243745-1172-24-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello, I'm in the middle of studying disk organisation to enhance my 
-understanding in this area. I have a few questions about fdisk (trying 
-to fill a gap in my knowledge if that's ok)...
+This manpage causes more trouble than its worth.
 
-In the below output of fdisk it shows (correctly) a geometry of 224 
-heads, 56 sectors/track. I'm unclear about where this information comes 
-from. Normally a disk's geometry would be reported as 255 heads and 63 
-sectors. I explicitly partitioned this disk using a 224/56 geometry, so 
-the report is correct. I'd just like to understand:
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ Makefile.am              | 2 +-
+ misc-utils/Makemodule.am | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-(a) where fdisk gets the information about the geometry from in  this 
-specific case?
-(b) when fdisk defaults to 255/63 is that because it's hard coded that 
-way or is there another reason?
-
-I understand why it's 255/63 by default but haven't been able to 
-understand how the geometry is determined. I do know that it's all kind 
-of moot these days anyway because of sector based addressing but that 
-leads to one other question: given sector based addressing why does 
-fdisk even bother displaying a geometry any more ? Doesn't it just serve 
-to confuse?
-
-# fdisk /dev/sda
-Welcome to fdisk (util-linux 2.21.2).
-
-Changes will remain in memory only, until you decide to write them.
-Be careful before using the write command.
-
-
-Command (m for help): p
-
-Disk /dev/sda: 80.0 GB, 80026361856 bytes
-224 heads, 56 sectors/track, 12460 cylinders, total 156301488 sectors
-Units = sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disk identifier: 0xc4c4122e
-
-    Device Boot      Start         End      Blocks   Id  System
-/dev/sda1   *          56      501759      250852   83  Linux
-/dev/sda2          501760   156298239    77898240   8e  Linux LVM
-
-Command (m for help): q
-
-Many thanks for your time,
-John Lane.
-
-
+diff --git a/Makefile.am b/Makefile.am
+index 63ff205..112a4fb 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -46,7 +46,7 @@ UNINSTALL_HOOKS =
+ INSTALL_DATA_HOOKS =
+ CLEAN_LOCALS =
+ 
+-EXTRA_DIST =
++EXTRA_DIST = man/ru/ddate.1
+ CLEANFILES =
+ 
+ SUBDIRS = po
+diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
+index 75b2e90..e2faea6 100644
+--- a/misc-utils/Makemodule.am
++++ b/misc-utils/Makemodule.am
+@@ -57,7 +57,6 @@ usrbin_exec_PROGRAMS += ddate
+ dist_man_MANS += misc-utils/ddate.1
+ ddate_SOURCES = misc-utils/ddate.c
+ ruman1_DATA += man/ru/ddate.1
+-EXTRA_DIST += $(ruman1_DATA)
+ endif
+ 
+ if BUILD_LSLOCKS
+-- 
+1.7.11.3
 
