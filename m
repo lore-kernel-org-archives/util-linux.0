@@ -1,58 +1,34 @@
-Return-Path: dave@gnu.org
-Subject: Re: [PATCH 2/2] fdisk: API: comment labels array
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <20120724124945.GM736@x2.net.home>
-References: <1343133630.2686.16.camel@offbook>
-	 <20120724124945.GM736@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 24 Jul 2012 14:57:17 +0200
-Message-ID: <1343134637.2686.19.camel@offbook>
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:26131 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752262Ab2GZPVm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 11:21:42 -0400
+Date: Thu, 26 Jul 2012 17:21:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>, dave@gnu.org
+Subject: Re: [PATCH 5/5] tests: update fdisk test (default output format
+ changed)
+Message-ID: <20120726152139.GD2386@x2.net.home>
+References: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+ <1343311468-20206-5-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1343311468-20206-5-git-send-email-petr.uzel@suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2012-07-24 at 14:49 +0200, Karel Zak wrote:
-> On Tue, Jul 24, 2012 at 02:40:30PM +0200, Davidlohr Bueso wrote:
-> > From: Davidlohr Bueso <dave@gnu.org>
-> > 
-> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
-> > ---
-> >  fdisks/utils.c |    4 +++-
-> >  1 files changed, 3 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/fdisks/utils.c b/fdisks/utils.c
-> > index 8de64c2..c4ffe04 100644
-> > --- a/fdisks/utils.c
-> > +++ b/fdisks/utils.c
-> > @@ -35,7 +35,9 @@
-> >  int fdisk_debug_mask;
-> >  
-> >  /*
-> > - * label probing functions
-> > + * Label probing functions.
-> > + * Must have the same order as fdisk_labeltype as the index
-> > + * depends on it.
-> 
-> This (rely on comment) is bad way.
-> 
-> >   */
-> >  static const struct fdisk_label *labels[] =
-> >  {
-> 
-> Use:
-> 
->  static const struct fdisk_label[] =
->  {
->     [XXX_LABEL] = &xxx_label,
->     [YYY_LABEL] = &yyy_label
->  }
-> 
+On Thu, Jul 26, 2012 at 04:04:28PM +0200, Petr Uzel wrote:
+>  tests/expected/fdisk/align-512-4K           |    3 +--
+>  tests/expected/fdisk/align-512-4K-63        |    3 +--
+>  tests/expected/fdisk/align-512-4K-md        |    6 ++----
+>  tests/expected/fdisk/align-512-512          |    3 +--
+>  tests/expected/fdisk/align-512-512-topology |    3 +--
+>  tests/expected/fdisk/oddinput               |    2 +-
+>  6 files changed, 7 insertions(+), 13 deletions(-)
 
-Yes, this is how we normally do it, but since we have an offset of 1 to
-the index, it looks weired. I guess we need to straighten out
-fdisk_labeltype and fix the menu along with it.
+ Applied, thanks.
 
->     Karel
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
