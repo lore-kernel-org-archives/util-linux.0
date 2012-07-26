@@ -1,46 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1513 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:1706 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751249Ab2G0U17 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Jul 2012 16:27:59 -0400
-Date: Fri, 27 Jul 2012 22:27:52 +0200
+	id S1750834Ab2GZJ55 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 05:57:57 -0400
+Date: Thu, 26 Jul 2012 11:57:52 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Davidlohr Bueso <dave@gnu.org>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, kerolasa@gmail.com,
-        util-linux@vger.kernel.org
-Subject: Re: v2.22-rc2 wish list
-Message-ID: <20120727202752.GC29738@x2.net.home>
-References: <20120727081033.GA14019@x2.net.home>
- <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com>
- <20120727103132.GA28708@x2.net.home>
- <501271D2.8090708@bernhard-voelker.de>
- <20120727111550.GA29738@x2.net.home>
- <50127F34.70406@bernhard-voelker.de>
- <1343394804.2752.5.camel@offbook>
+Cc: John Lane <util-linux@jelmail.com>, util-linux@vger.kernel.org
+Subject: Re: fdisk geometry
+Message-ID: <20120726095752.GD17589@x2.net.home>
+References: <50109E8D.2000702@jelmail.com>
+ <1343294980.2609.4.camel@offbook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343394804.2752.5.camel@offbook>
+In-Reply-To: <1343294980.2609.4.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 27, 2012 at 03:13:24PM +0200, Davidlohr Bueso wrote:
-> > With a proper test suite, we give him/her a basic test to check whether
-> > the software is running as expected in his/her environment. Otherwise,
-> > he doesn't have much chance other than waiting for productive problems.
-> > 
-> I partially agree with this. However our test scripts are strictly
-> regression testing and, of course, that is part of the development
-> cycle, so end-users have no business dealing with this. For example, we
-> cannot ask users to rebuild their kernel just to run theses tests (like
-> scsi_debug module).
+On Thu, Jul 26, 2012 at 11:29:40AM +0200, Davidlohr Bueso wrote:
+> > (a) where fdisk gets the information about the geometry from in  this 
+> > specific case?
+> 
+> fdisk gets the information from (i) user input, (ii) what the
+> kernel/bios thinks the geometry is, with the HDIO_GETGEO ioctl and (iii)
+> by inferring it from the partition table geometry.
 
- Exactly, reports from end users like "test XY failed" are completely
- useless if the user is not able to debug the problem.
+ BTW, does it make any sense to read the geometry from partition table
+ if the partition table has been aligned according to the device topology
+ (for example 1MiB offset and grain)?
 
- Anyway, more tests, and the tests improvements are wanted.
+> > fdisk even bother displaying a geometry any more ? Doesn't it just serve 
+> > to confuse?
+
+ IMHO for non-DOS compatible mode it would be better to ignore PT
+ geometry (read only info from kernel to have "some" values) and
+ don't display geometry in the default output, because it's completely
+ irrelevant.
+
+ The same we can do with -S -C -H options -- it would be better to
+ print a warning if the options are specified for non-DOS mode.
+
+ I still see on many places suggestions like "use -S -H to align your
+ flash disk" or so... all this is legacy.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
