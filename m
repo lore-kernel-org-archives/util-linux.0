@@ -1,51 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45661 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:25234 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751767Ab2GZOEf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 10:04:35 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: dave@gnu.org
-Subject: [PATCH 3/5] fdisk: always print total number of sectors
-Date: Thu, 26 Jul 2012 16:04:26 +0200
-Message-Id: <1343311468-20206-3-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
-References: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+	id S1751762Ab2GZJpo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 05:45:44 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6Q9jika019203
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Thu, 26 Jul 2012 05:45:44 -0400
+Date: Thu, 26 Jul 2012 11:45:42 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Milan Broz <mbroz@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lsblk: add read-ahead column.
+Message-ID: <20120726094542.GC17589@x2.net.home>
+References: <1343140473-15035-1-git-send-email-mbroz@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1343140473-15035-1-git-send-email-mbroz@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Print it no regardless on units_per_sector.
+On Tue, Jul 24, 2012 at 04:34:33PM +0200, Milan Broz wrote:
+>  misc-utils/lsblk.c |    8 ++++++++
+>  1 file changed, 8 insertions(+)
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- fdisks/fdisk.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+Applied, thanks.
 
-diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index 3eddfa1..fb897d8 100644
---- a/fdisks/fdisk.c
-+++ b/fdisks/fdisk.c
-@@ -997,17 +997,16 @@ list_disk_geometry(struct fdisk_context *cxt) {
- 	long megabytes = bytes/1000000;
- 
- 	if (megabytes < 10000)
--		printf(_("\nDisk %s: %ld MB, %lld bytes\n"),
-+		printf(_("\nDisk %s: %ld MB, %lld bytes"),
- 		       cxt->dev_path, megabytes, bytes);
- 	else {
- 		long hectomega = (megabytes + 50) / 100;
--		printf(_("\nDisk %s: %ld.%ld GB, %llu bytes\n"),
-+		printf(_("\nDisk %s: %ld.%ld GB, %llu bytes"),
- 		       cxt->dev_path, hectomega / 10, hectomega % 10, bytes);
- 	}
-+	printf(_(", %llu sectors\n"), cxt->total_sectors);
- 	printf(_("%d heads, %llu sectors/track, %llu cylinders"),
- 	       cxt->geom.heads, cxt->geom.sectors, cxt->geom.cylinders);
--	if (units_per_sector == 1)
--		printf(_(", total %llu sectors"), cxt->total_sectors);
- 	printf("\n");
- 	printf(_("Units = %s of %d * %ld = %ld bytes\n"),
- 	       str_units(PLURAL),
+> @@ -1333,6 +1340,7 @@ int main(int argc, char *argv[])
+>  			columns[ncolumns++] = COL_ROTA;
+>  			columns[ncolumns++] = COL_SCHED;
+>  			columns[ncolumns++] = COL_RQ_SIZE;
+> +			columns[ncolumns++] = COL_RA;
+>  			break;
+
+So -t output has been changed... I have added to the man page:
+
+  The default output as well as default output from options like
+  --topology and --fs is subject to change, so whenever possible you
+  should  avoid using  default  outputs  in  your scripts.  Always
+  explicitly  define  expected columns by '--output columns' in
+  environment where a stable output is required.
+
+it seems that we need this in all our new utils (findmnt, lslocks,
+partx, ...) where is --output option. I think it's good idea to force
+users to write robust scripts :-)
+
+Comments?
+
+    Karel
+
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
