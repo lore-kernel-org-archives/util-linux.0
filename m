@@ -1,39 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50447 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753544Ab2GLJTf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Jul 2012 05:19:35 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 955F9A3BA5
-	for <util-linux@vger.kernel.org>; Thu, 12 Jul 2012 11:19:34 +0200 (CEST)
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH] utmpdump: kill unused variable in follow_by_inotify()
-Date: Thu, 12 Jul 2012 11:18:46 +0200
-Message-Id: <1342084726-32579-1-git-send-email-petr.uzel@suse.cz>
+Received: from caiajhbdcagg.dreamhost.com ([208.97.132.66]:35492 "EHLO
+	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751773Ab2GZK3p (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 06:29:45 -0400
+Subject: Re: fdisk geometry
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: John Lane <util-linux@jelmail.com>, util-linux@vger.kernel.org
+In-Reply-To: <20120726095752.GD17589@x2.net.home>
+References: <50109E8D.2000702@jelmail.com> <1343294980.2609.4.camel@offbook>
+	 <20120726095752.GD17589@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 26 Jul 2012 12:29:41 +0200
+Message-ID: <1343298581.2609.8.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, 2012-07-26 at 11:57 +0200, Karel Zak wrote:
+> On Thu, Jul 26, 2012 at 11:29:40AM +0200, Davidlohr Bueso wrote:
+> > > (a) where fdisk gets the information about the geometry from in  this 
+> > > specific case?
+> > 
+> > fdisk gets the information from (i) user input, (ii) what the
+> > kernel/bios thinks the geometry is, with the HDIO_GETGEO ioctl and (iii)
+> > by inferring it from the partition table geometry.
+> 
+>  BTW, does it make any sense to read the geometry from partition table
+>  if the partition table has been aligned according to the device topology
+>  (for example 1MiB offset and grain)?
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- login-utils/utmpdump.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+Hmm not really, no. In any case we got rid of the pt geometry,
+__discover_system_geometry() only gets the info from the kernel.
 
-diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
-index 8af333a..1fa274e 100644
---- a/login-utils/utmpdump.c
-+++ b/login-utils/utmpdump.c
-@@ -142,7 +142,6 @@ done:
- static int follow_by_inotify(FILE *fp, const char *filename)
- {
- 	char buf[NEVENTS * sizeof(struct inotify_event)];
--	struct utmp ut;
- 	int fd, wd, event;
- 	ssize_t length;
- 	off_t size;
--- 
-1.7.7
+> > > fdisk even bother displaying a geometry any more ? Doesn't it just serve 
+> > > to confuse?
+> 
+>  IMHO for non-DOS compatible mode it would be better to ignore PT
+>  geometry (read only info from kernel to have "some" values) and
+>  don't display geometry in the default output, because it's completely
+>  irrelevant.
+> 
+>  The same we can do with -S -C -H options -- it would be better to
+>  print a warning if the options are specified for non-DOS mode.
+> 
+
+I agree.
+
+>  I still see on many places suggestions like "use -S -H to align your
+>  flash disk" or so... all this is legacy.
+> 
+>     Karel
+> 
+
 
