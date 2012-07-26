@@ -1,33 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49421 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:45667 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752447Ab2GZKcn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 06:32:43 -0400
-Date: Thu, 26 Jul 2012 12:32:33 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 01/19] mkswap: fix shadow declaration
-Message-ID: <20120726103233.GF12592@x2.net.home>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
- <1343243745-1172-5-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343243745-1172-5-git-send-email-kerolasa@iki.fi>
+	id S1751767Ab2GZOEg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 10:04:36 -0400
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Cc: dave@gnu.org
+Subject: [PATCH 4/5] fdisk: don't print CHS geometry unless DOS compatible mode is set
+Date: Thu, 26 Jul 2012 16:04:27 +0200
+Message-Id: <1343311468-20206-4-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+References: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 25, 2012 at 09:15:22PM +0200, Sami Kerola wrote:
-> disk-utils/mkswap.c:366:57: warning: declaration of 'is_blkdev' shadows a global declaration [-Wshadow]
-> ./include/blkdev.h:92:5: warning: shadowed declaration is here [-Wshadow]
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  disk-utils/mkswap.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+References: http://marc.info/?l=util-linux-ng&m=134329693623430&w=2
 
- Applied, thanks.
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+---
+ fdisks/fdisk.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index fb897d8..fa20218 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -1005,9 +1005,9 @@ list_disk_geometry(struct fdisk_context *cxt) {
+ 		       cxt->dev_path, hectomega / 10, hectomega % 10, bytes);
+ 	}
+ 	printf(_(", %llu sectors\n"), cxt->total_sectors);
+-	printf(_("%d heads, %llu sectors/track, %llu cylinders"),
+-	       cxt->geom.heads, cxt->geom.sectors, cxt->geom.cylinders);
+-	printf("\n");
++	if (dos_compatible_flag)
++		printf(_("%d heads, %llu sectors/track, %llu cylinders\n"),
++		       cxt->geom.heads, cxt->geom.sectors, cxt->geom.cylinders);
+ 	printf(_("Units = %s of %d * %ld = %ld bytes\n"),
+ 	       str_units(PLURAL),
+ 	       units_per_sector, cxt->sector_size, units_per_sector * cxt->sector_size);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
