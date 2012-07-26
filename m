@@ -1,46 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:8408 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:32548 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751251Ab2GZPHd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 11:07:33 -0400
-Date: Thu, 26 Jul 2012 17:07:28 +0200
+	id S1752146Ab2GZKHL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 06:07:11 -0400
+Date: Thu, 26 Jul 2012 12:07:00 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>, dave@gnu.org
-Subject: Re: [PATCH 1/5] fdisk: make grain global variable part of
- fdisk_context()
-Message-ID: <20120726150728.GF21901@x2.net.home>
-References: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/27] preparation to release some time soon
+Message-ID: <20120726100700.GB12592@x2.net.home>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1343311468-20206-1-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 26, 2012 at 04:04:24PM +0200, Petr Uzel wrote:
-> There is no reason for this to be global variable - it belongs
-> to the context.
+On Wed, Jul 25, 2012 at 09:15:18PM +0200, Sami Kerola wrote:
+> I think in future I will send the pull requests format 'git send-email 
+> --compose' cover letter.  Without doubt doing this is noisier than  
+> sending only pull request, but hopefully makes review more transparent.
+> Lets try for few times, and if this works the method should probably be
+> documented in Documentation/howto-contribute.txt as preferred way to
+> send pull request.  What do you think, does this make sense, help
+> review, etc, comments?
 
- Yes. Applied, thanks.
+ For me it's more usable to have patches in mailing list, because
+ it's more easy to control which patches I'll apply by git-am.
 
-> diff --git a/fdisks/utils.c b/fdisks/utils.c
-> index 19aed87..9b69de3 100644
-> --- a/fdisks/utils.c
-> +++ b/fdisks/utils.c
-> @@ -488,6 +488,8 @@ struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int rea
->  	__discover_topology(cxt);
->  	__discover_system_geometry(cxt);
->  
-> +	cxt->grain = DEFAULT_SECTOR_SIZE;
-> +
-
- This is unnecessary now, we call update_sector_offset() here. IMHO this
- function should be modified to contains non-DOS stuff only and
- renamed to update_alignment_info().
-
- But it would be nice to add label specific update_alignment() to
- fdisk_label struct. For DOS compatible mode we can set sector_offset
- and grain there.
+ The git-pull is excellent if you merge something complete without
+ extra changes, otherwise you need to pull to non-master branch and
+ cherry-pick only wanted patches.
 
     Karel
 
