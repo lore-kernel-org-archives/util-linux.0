@@ -1,69 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:11147 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:24503 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754863Ab2GJLKZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Jul 2012 07:10:25 -0400
-Date: Tue, 10 Jul 2012 13:10:21 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Mike Frysinger <vapier@gentoo.org>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] /run directory and swapon
-Message-ID: <20120710111021.GE5281@x2.net.home>
-References: <CAG27Bk3xh7nAhvktOR45drKcKBgaCTtFqduOyvWz5arTGegCBA@mail.gmail.com>
- <201206282338.41501.vapier@gentoo.org>
- <CAG27Bk1ejSJ+N0XWO1u09M1Xojd6Q+NTvHkb6-bTV-yG22H_XA@mail.gmail.com>
- <20120710100825.GD5281@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20120710100825.GD5281@x2.net.home>
+	id S1752328Ab2GZNwc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 09:52:32 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6QDqWOm030580
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Thu, 26 Jul 2012 09:52:32 -0400
+From: Milan Broz <mbroz@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Milan Broz <mbroz@redhat.com>
+Subject: [PATCH 5/5] wdctl: support -o +<attr> for adding attribute to output fields.
+Date: Thu, 26 Jul 2012 15:52:08 +0200
+Message-Id: <1343310728-16624-5-git-send-email-mbroz@redhat.com>
+In-Reply-To: <1343310728-16624-1-git-send-email-mbroz@redhat.com>
+References: <1343304884-14297-1-git-send-email-mbroz@redhat.com>
+ <1343310728-16624-1-git-send-email-mbroz@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 10, 2012 at 12:08:25PM +0200, Karel Zak wrote:
-> On Sat, Jun 30, 2012 at 10:59:11PM +0200, Sami Kerola wrote:
-> > > is this last case just so you can AC_DEFINE the value below ?  in general,
-> > > this is fragile.  defines should be expanded at make time rather than configure.
-> > >
-> > > CPPFLAGS="$CPPFLAGS -D_PATH_LOCALSTATEDIR=\"\${localstatedir}\""
-> 
->  Good point.
-> 
-> > The comment was a bit mysterious to me, so I tried to find what you
-> > meant by fragility. The
-> > 
-> > http://www.opensource.apple.com/source/xar/xar-28/xar/configure.ac
-> > 
-> > has following
-> > 
-> > dnl Define cpp macros in CPPFLAGS, rather than doing AC_DEFINE(macro), since the
-> > dnl definitions need to be seen before and headers are included, which is a pain
-> > dnl to make happen otherwise.
-> > 
-> > which seem to match what you meant. I changed the line to be C
-> > preprocessor definition, and added you as patch CC. Benno, I added you
-> > to swapon patches CC as well. The changes are in my git.
-> 
->  Please, don't use #include "config.h" at all. It's unnecessary,
->  because -D_PATH_LOCALSTATEDIR and it's also necessary because we use
->  -include "config.h" on compiler command line -- both is evaluated
->  before regular "#include".
-> 
-> 
->  I'm also not sure about
-> 
->     /var/lib/libuuid/clock.txt --> /run/libuuid/clock.txt
-> 
->  rename, the /var/lib is persistent...
 
- Oh.. you have moved the file to /run/uuidd, that's really bad place.
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+---
+ sys-utils/wdctl.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
- The file is used by libbuid library. (In Fedora we have bug in
- util-linux.spec file, the file should be owned by libuuid rather than
- by uuidd.)
-
-    Karel
-
+diff --git a/sys-utils/wdctl.c b/sys-utils/wdctl.c
+index ebe55b4..6367130 100644
+--- a/sys-utils/wdctl.c
++++ b/sys-utils/wdctl.c
+@@ -381,6 +381,7 @@ int main(int argc, char *argv[])
+ 	int c, tt_flags = 0, res = EXIT_SUCCESS, count = 0;
+ 	char noflags = 0, noident = 0, notimeouts = 0, oneline = 0;
+ 	uint32_t wanted = 0;
++	char *outarg = NULL;
+ 
+ 	enum {
+ 		EXCL_NONE,
+@@ -413,11 +414,7 @@ int main(int argc, char *argv[])
+ 				"d:f:hFnITo:OrVx", long_opts, NULL)) != -1) {
+ 		switch(c) {
+ 		case 'o':
+-			ncolumns = string_to_idarray(optarg,
+-						     columns, ARRAY_SIZE(columns),
+-						     column2id);
+-			if (ncolumns < 0)
+-				return EXIT_FAILURE;
++			outarg = optarg;
+ 			break;
+ 		case 'f':
+ 			exclusive_option(&excl_flag, EXCL_FLAGS, "--{flags,noflags}");
+@@ -467,6 +464,10 @@ int main(int argc, char *argv[])
+ 		columns[ncolumns++] = COL_BSTATUS;
+ 	}
+ 
++	if (outarg && string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
++					 &ncolumns, column2id) < 0)
++		return EXIT_FAILURE;
++
+ 	do {
+ 		int rc;
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.10.4
+
