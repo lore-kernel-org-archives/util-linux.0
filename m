@@ -1,51 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.9]:51435 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751771Ab2GXKc3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jul 2012 06:32:29 -0400
-Message-ID: <500E79B9.9030701@bernhard-voelker.de>
-Date: Tue, 24 Jul 2012 12:32:25 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:10028 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750766Ab2GZMQm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jul 2012 08:16:42 -0400
+Date: Thu, 26 Jul 2012 14:16:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/27] preparation to release some time soon
+Message-ID: <20120726121631.GK12592@x2.net.home>
+References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: dave@gnu.org, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 03/10] fdisk: API: add fdisk_label_change
-References: <1342976704.2863.13.camel@offbook> <500E6F49.60406@bernhard-voelker.de> <20120724095617.GD2086@foxbat.suse.cz>
-In-Reply-To: <20120724095617.GD2086@foxbat.suse.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Jul 25, 2012 at 09:15:18PM +0200, Sami Kerola wrote:
+> Everything else is in 'would be nice to have' category.
 
+All applied (some with small changes). Thanks.
 
-On 07/24/2012 11:56 AM, Petr Uzel wrote:
-> On Tue, Jul 24, 2012 at 11:47:53AM +0200, Bernhard Voelker wrote:
->>
->>
->> On 07/22/2012 07:05 PM, Davidlohr Bueso wrote:
->>> --- a/fdisks/fdisksunlabel.c
->>> +++ b/fdisks/fdisksunlabel.c
->>> @@ -161,6 +161,7 @@ void create_sunlabel(struct fdisk_context *cxt)
->>>  
->>>  	init();
->>>  	fdisk_mbr_zeroize(cxt);
->>> +	fdisk_label_change(cxt, "sun");
->>>  
->>
+    Karel
 
->>
->> Shouldn't we use something else than hardcoded "sun"|"dos"|"sgi"|...
->> strings here? 
-> 
-> What's the problem with these strings? I think these are well
-> recognized with clear meaning. What alternative do you propose?
-
-Sorry, I should've proposed this already in my first mail:
-
--	fdisk_label_change(cxt, "sun");
-+	fdisk_label_change(cxt, sun_label.name);
-
-It's already defined ;-)
-
-Have a nice day,
-Berny
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
