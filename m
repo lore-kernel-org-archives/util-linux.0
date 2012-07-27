@@ -1,43 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.186]:59860 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751877Ab2G0IK6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jul 2012 04:10:58 -0400
-Message-ID: <50124D10.4080906@bernhard-voelker.de>
-Date: Fri, 27 Jul 2012 10:10:56 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:58873 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751877Ab2G0IKf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 04:10:35 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6R8AZob020508
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 27 Jul 2012 04:10:35 -0400
+Received: from x2 ([10.3.113.2])
+	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q6R8AYBO028206
+	for <util-linux@vger.kernel.org>; Fri, 27 Jul 2012 04:10:35 -0400
+Date: Fri, 27 Jul 2012 10:10:33 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: v2.22-rc2 wish list
+Message-ID: <20120727081033.GA14019@x2.net.home>
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] tests: update oddinput test
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
->From ca423116354d7ea1fb7604d838078a41840af19e Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Fri, 27 Jul 2012 10:10:10 +0200
-Subject: [PATCH] tests: update oddinput test
+ It would be nice to have:
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- tests/expected/fdisk/oddinput |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+  - fixed typos in docs, man pages, Release Notes, strings, ...
+    (misspell-check)
 
-diff --git a/tests/expected/fdisk/oddinput b/tests/expected/fdisk/oddinput
-index 14f2528..a681d0d 100644
---- a/tests/expected/fdisk/oddinput
-+++ b/tests/expected/fdisk/oddinput
-@@ -9,6 +9,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
+  - regression tests for fdisk (see for example tests/ts/fdisk/sunlabel),
+    it would be really nice to have tests for all labels with all
+    basic operations (add, move, remove partitions, ...)
 
- Nonexistant file
--lt-fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
-+fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
- Too small file
--lt-fdisk: cannot open oddinput.toosmall: Invalid argument
-+fdisk: cannot open oddinput.toosmall: Invalid argument
+  - try to re-build tarball in your distro
+
+  - test uuidd with systemd
+
+    Karel
+
 -- 
-1.7.7
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
