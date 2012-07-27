@@ -1,28 +1,52 @@
-Return-Path: mail@bernhard-voelker.de
-Message-ID: <501271D2.8090708@bernhard-voelker.de>
-Date: Fri, 27 Jul 2012 12:47:46 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:56534 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751735Ab2G0ITt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 04:19:49 -0400
+Date: Fri, 27 Jul 2012 10:19:43 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] tests: update oddinput test
+Message-ID: <20120727081943.GC14019@x2.net.home>
+References: <50124D10.4080906@bernhard-voelker.de>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: kerolasa@gmail.com, util-linux@vger.kernel.org
-Subject: Re: v2.22-rc2 wish list
-References: <20120727081033.GA14019@x2.net.home> <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com> <20120727103132.GA28708@x2.net.home>
-In-Reply-To: <20120727103132.GA28708@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50124D10.4080906@bernhard-voelker.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/27/2012 12:31 PM, Karel Zak wrote:
->  Maybe, but many of the tests requires root permissions and it's
->  designed for developers only. I'd like to avoid situations when the
->  tests are executed with root permissions by automatic distro build
->  systems etc.
+On Fri, Jul 27, 2012 at 10:10:56AM +0200, Bernhard Voelker wrote:
+> 
+> From ca423116354d7ea1fb7604d838078a41840af19e Mon Sep 17 00:00:00 2001
+> From: Bernhard Voelker <mail@bernhard-voelker.de>
+> Date: Fri, 27 Jul 2012 10:10:10 +0200
+> Subject: [PATCH] tests: update oddinput test
+> 
+> Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+> ---
+>  tests/expected/fdisk/oddinput |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tests/expected/fdisk/oddinput b/tests/expected/fdisk/oddinput
+> index 14f2528..a681d0d 100644
+> --- a/tests/expected/fdisk/oddinput
+> +++ b/tests/expected/fdisk/oddinput
+> @@ -9,6 +9,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
+>  I/O size (minimum/optimal): 512 bytes / 512 bytes
+> 
+>  Nonexistant file
+> -lt-fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
+> +fdisk: cannot open _a_file_that_does_not_exist_: No such file or directory
+>  Too small file
+> -lt-fdisk: cannot open oddinput.toosmall: Invalid argument
+> +fdisk: cannot open oddinput.toosmall: Invalid argument
 
-Why? The more folks run the tests, the more bugs can be reported and fixed.
-What's wrong about the tests? And if there's something wrong: shouldn't
-they not be made more robust?
+No, this is about libtool... it would be better to fix the tests to
+always remove the lt- prefix from $TS_OUTPUT files.
 
-E.g. coreutils also has many tests which "require_root", and I think
-it's safe to run these tests.
+    Karel
 
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
