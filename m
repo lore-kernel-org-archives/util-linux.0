@@ -1,26 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60044 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753239Ab2GXLiX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 07:38:23 -0400
-Date: Tue, 24 Jul 2012 13:38:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 06/10] fdisk: API: add new partition to label operations
-Message-ID: <20120724113819.GC736@x2.net.home>
-References: <1342976712.2863.16.camel@offbook>
+Received: from moutng.kundenserver.de ([212.227.126.186]:50897 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752150Ab2G0JGN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jul 2012 05:06:13 -0400
+Message-ID: <50125A02.9030004@bernhard-voelker.de>
+Date: Fri, 27 Jul 2012 11:06:10 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1342976712.2863.16.camel@offbook>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [PATCH] tests: use ts_is_mounted in mount/regfile
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 22, 2012 at 07:05:12PM +0200, Davidlohr Bueso wrote:
->  12 files changed, 99 insertions(+), 80 deletions(-)
+The following patch fixes a test framework failure.
 
- Applied with some changes, thanks.
+However, even with this patch applied, mount/regfile still fails
+because umount fails:
 
+  $ /home/berny/ul/umount /home/berny/ul/tests/output/mount/regfile.img
+  umount: /home/berny/ul/tests/output/mount/regfile.img: not mounted
+
+  $ mount | grep regfile
+  /media/sdb5/berny/git/util-linux/tests/output/mount/regfile.img on
+/media/sdb5/berny/git/util-linux/tests/output/mount/regfile-mnt type ext3
+(rw,relatime,errors=continue,barrier=1,data=ordered)
+
+  $ ls -l /home/berny/ul/tests/output/mount/regfile.img $(readlink -f /home/berny/ul/tests/output/mount/regfile.img )
+  -rw-r--r-- 1 root root 5242880 Jul 27 10:51 /home/berny/ul/tests/output/mount/regfile.img
+  -rw-r--r-- 1 root root 5242880 Jul 27 10:51 /media/sdb5/berny/git/util-linux/tests/output/mount/regfile.img
+
+:(
+
+Have a nice day,
+Berny
+
+
+
+>From 2bc401aed37d73665b23a17a4c6ad0f6d4572a76 Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Fri, 27 Jul 2012 11:00:17 +0200
+Subject: [PATCH] tests: use ts_is_mounted in mount/regfile
+
+If the test directory is on a symlink, then mount/regfile failed because
+it did not search for the mount point in /proc/mounts canonicalized.
+
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+ tests/ts/mount/regfile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/ts/mount/regfile b/tests/ts/mount/regfile
+index c47c7d7..8d786ad 100755
+--- a/tests/ts/mount/regfile
++++ b/tests/ts/mount/regfile
+@@ -21,7 +21,7 @@ $TS_CMD_MOUNT $IMAGE $TS_MOUNTPOINT 2>&1 >> $TS_OUTPUT
+
+ DEVICE=$(awk '/regfile/ { print $1 }' /proc/mounts)
+
+-grep -q "$TS_MOUNTPOINT" /proc/mounts || ts_die "Cannot find $TS_MOUNTPOINT in /proc/mounts"
++ts_is_mounted "$TS_MOUNTPOINT" || ts_die "Cannot find $TS_MOUNTPOINT in /proc/mounts"
+
+ if [ -f "/sys/block/$(basename $DEVICE)/loop/backing_file" ]; then
+ 	$TS_CMD_UMOUNT $IMAGE || ts_die "Cannot umount $IMAGE"
+@@ -30,7 +30,7 @@ else
+ 	ts_skip "too old kernel"
+ fi
+
+-grep -q "$TS_MOUNTPOINT" /proc/mounts && ts_die "$TS_MOUNTPOINT still in /proc/mounts"
++ts_is_mounted "$TS_MOUNTPOINT" && ts_die "$TS_MOUNTPOINT still in /proc/mounts"
+
+ ts_log "Success"
+ ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
+
