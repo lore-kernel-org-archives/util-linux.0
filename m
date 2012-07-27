@@ -1,76 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16550 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:57645 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750766Ab2GZMOr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Jul 2012 08:14:47 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6QCEls5023379
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Thu, 26 Jul 2012 08:14:47 -0400
-From: Milan Broz <mbroz@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Milan Broz <mbroz@redhat.com>
-Subject: [PATCH] lsblk: support -o +<attr> for adding attribute to output fields.
-Date: Thu, 26 Jul 2012 14:14:44 +0200
-Message-Id: <1343304884-14297-1-git-send-email-mbroz@redhat.com>
+	id S1751011Ab2G0KJG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 06:09:06 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 01395912E4
+	for <util-linux@vger.kernel.org>; Fri, 27 Jul 2012 12:09:05 +0200 (CEST)
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH] build-sys: fix description of utmpdump configure option
+Date: Fri, 27 Jul 2012 12:09:01 +0200
+Message-Id: <1343383741-29096-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-E.g. lsblk -o +model
-(Maybe it would be nice to add this to other tools as well?)
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
 ---
- misc-utils/lsblk.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ configure.ac |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index cb2b768..471f2d5 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -1213,6 +1213,7 @@ int main(int argc, char *argv[])
- 	struct lsblk _ls;
- 	int tt_flags = TT_FL_TREE;
- 	int i, c, status = EXIT_FAILURE;
-+	char *outarg = NULL;
+diff --git a/configure.ac b/configure.ac
+index e32a1c1..99f1df0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1020,7 +1020,7 @@ AM_CONDITIONAL(BUILD_LAST, test "x$build_last" = xyes)
  
- 	enum {
- 		EXCL_NONE,
-@@ -1290,11 +1291,7 @@ int main(int argc, char *argv[])
- 			tt_flags |= TT_FL_NOHEADINGS;
- 			break;
- 		case 'o':
--			ncolumns = string_to_idarray(optarg,
--						columns, ARRAY_SIZE(columns),
--						column_name_to_id);
--			if (ncolumns < 0)
--				return EXIT_FAILURE;
-+			outarg = optarg;
- 			break;
- 		case 'P':
- 			exclusive_option(&excl_rlP, EXCL_PAIRS, "--{raw,list,pairs}");
-@@ -1363,6 +1360,21 @@ int main(int argc, char *argv[])
- 		columns[ncolumns++] = COL_TARGET;
- 	}
  
-+	if (outarg) {
-+		if (outarg[0] == '+')
-+			outarg++;
-+		else
-+			ncolumns = 0;
-+
-+		c = string_to_idarray(outarg, &columns[ncolumns],
-+					ARRAY_SIZE(columns) - ncolumns,
-+					column_name_to_id);
-+		if (c < 0)
-+			return EXIT_FAILURE;
-+
-+		ncolumns += c;
-+	}
-+
- 	if (nexcludes == 0 && nincludes == 0)
- 		excludes[nexcludes++] = 1;	/* default: ignore RAM disks */
- 
+ AC_ARG_ENABLE([utmpdump],
+-  AS_HELP_STRING([--disable-utmpdump], [build utmpdump]),
++  AS_HELP_STRING([--disable-utmpdump], [do not build utmpdump]),
+   [], enable_utmpdump=yes
+ )
+ UL_BUILD_INIT([utmpdump])
 -- 
-1.7.10.4
+1.7.7
 
