@@ -1,45 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:63323 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751765Ab2GYTQN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:13 -0400
-Received: by mail-we0-f174.google.com with SMTP id x8so794233wey.19
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:13 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 5/5] docs: tell about irc channel
-Date: Wed, 25 Jul 2012 21:15:45 +0200
-Message-Id: <1343243745-1172-28-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:1513 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751249Ab2G0U17 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 16:27:59 -0400
+Date: Fri, 27 Jul 2012 22:27:52 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, kerolasa@gmail.com,
+        util-linux@vger.kernel.org
+Subject: Re: v2.22-rc2 wish list
+Message-ID: <20120727202752.GC29738@x2.net.home>
+References: <20120727081033.GA14019@x2.net.home>
+ <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com>
+ <20120727103132.GA28708@x2.net.home>
+ <501271D2.8090708@bernhard-voelker.de>
+ <20120727111550.GA29738@x2.net.home>
+ <50127F34.70406@bernhard-voelker.de>
+ <1343394804.2752.5.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1343394804.2752.5.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reference: http://comments.gmane.org/gmane.linux.utilities.util-linux-ng/3550
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/howto-contribute.txt | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+On Fri, Jul 27, 2012 at 03:13:24PM +0200, Davidlohr Bueso wrote:
+> > With a proper test suite, we give him/her a basic test to check whether
+> > the software is running as expected in his/her environment. Otherwise,
+> > he doesn't have much chance other than waiting for productive problems.
+> > 
+> I partially agree with this. However our test scripts are strictly
+> regression testing and, of course, that is part of the development
+> cycle, so end-users have no business dealing with this. For example, we
+> cannot ask users to rebuild their kernel just to run theses tests (like
+> scsi_debug module).
 
-diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
-index 098f456..5df6389 100644
---- a/Documentation/howto-contribute.txt
-+++ b/Documentation/howto-contribute.txt
-@@ -116,3 +116,13 @@ Various notes
- 	* When you use if shortshort hand make sure it is not wrapped to
- 	  multiple lines. In case the shorthand does not look good on one
- 	  line use normal "if () else" syntax.
-+
-+IRC channel
-+
-+	* We have a new #util-linux IRC channel at freenode.net.
-+
-+	  irc://chat.freenode.net/util-linux
-+
-+	  the channel is for developers or upstream maintainers.  User
-+	  support is recommended to go to distribution channels or
-+	  forums.
+ Exactly, reports from end users like "test XY failed" are completely
+ useless if the user is not able to debug the problem.
+
+ Anyway, more tests, and the tests improvements are wanted.
+
+    Karel
+
+
 -- 
-1.7.11.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
