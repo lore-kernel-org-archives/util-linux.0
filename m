@@ -1,27 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62120 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752746Ab2GPQYM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Jul 2012 12:24:12 -0400
-Date: Mon, 16 Jul 2012 18:24:08 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/2] swapon: kill unused variables in show_table()
-Message-ID: <20120716162408.GE9087@x2.net.home>
-References: <1342080599-12346-1-git-send-email-petr.uzel@suse.cz>
+Received: from moutng.kundenserver.de ([212.227.17.8]:49234 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751303Ab2G0Ig1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jul 2012 04:36:27 -0400
+Message-ID: <50125308.2070003@bernhard-voelker.de>
+Date: Fri, 27 Jul 2012 10:36:24 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1342080599-12346-1-git-send-email-petr.uzel@suse.cz>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [PATCH] tests: search mount point in canonicalized form in /proc/mounts
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 12, 2012 at 10:09:58AM +0200, Petr Uzel wrote:
->  sys-utils/swapon.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
 
- Applied, thanks.
+>From 9fe90eaa1c1d425437eab705a29e7c7800ffa7fe Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Fri, 27 Jul 2012 10:35:01 +0200
+Subject: [PATCH] tests: search mount point in canonicalized form in
+ /proc/mounts
+
+* tests/functions.sh (ts_is_mounted): Enhance to resolve symlinks in
+given mount point before grep'ing in /proc/mount.
+
+If the test directory is on a symlink, then e.g. tests/ts/cramfs/doubles
+failed because the kernel keeps the mount entry in a canonicalized form
+in /proc/mounts while this function searched for it with the original
+path name.
+
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+ tests/functions.sh |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/tests/functions.sh b/tests/functions.sh
+index 74cde97..a3bb482 100644
+--- a/tests/functions.sh
++++ b/tests/functions.sh
+@@ -377,7 +377,10 @@ function ts_device_has_uuid {
+ }
+
+ function ts_is_mounted {
+-	local DEV=$1
++	local DEV=$( readlink -f $1 )
++	if [ ".$DEV" = '.' ]; then
++	  DEV=$1
++	fi
+
+ 	grep -q $DEV /proc/mounts && return 0
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.7
+
+
