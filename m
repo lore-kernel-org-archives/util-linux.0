@@ -1,87 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:57227 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750872Ab2GYTP4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:15:56 -0400
-Received: by wgbfm10 with SMTP id fm10so4793723wgb.1
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:15:55 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 06/19] whereis: fix shadow declaration
-Date: Wed, 25 Jul 2012 21:15:27 +0200
-Message-Id: <1343243745-1172-10-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:9190 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751344Ab2G0LP4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 07:15:56 -0400
+Date: Fri, 27 Jul 2012 13:15:50 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: kerolasa@gmail.com, util-linux@vger.kernel.org
+Subject: Re: v2.22-rc2 wish list
+Message-ID: <20120727111550.GA29738@x2.net.home>
+References: <20120727081033.GA14019@x2.net.home>
+ <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com>
+ <20120727103132.GA28708@x2.net.home>
+ <501271D2.8090708@bernhard-voelker.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <501271D2.8090708@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-misc-utils/whereis.c:191:7: warning: declaration of 'dirp' shadows a global declaration [-Wshadow]
-misc-utils/whereis.c:134:42: warning: shadowed declaration is here [-Wshadow]
+On Fri, Jul 27, 2012 at 12:47:46PM +0200, Bernhard Voelker wrote:
+> On 07/27/2012 12:31 PM, Karel Zak wrote:
+> >  Maybe, but many of the tests requires root permissions and it's
+> >  designed for developers only. I'd like to avoid situations when the
+> >  tests are executed with root permissions by automatic distro build
+> >  systems etc.
+> 
+> Why? The more folks run the tests, the more bugs can be reported and fixed.
+> What's wrong about the tests? And if there's something wrong: shouldn't
+> they not be made more robust?
+> 
+> E.g. coreutils also has many tests which "require_root", and I think
+> it's safe to run these tests.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/whereis.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+Does the tests modify /etc/fstab, mount another filesystems and
+initialize scsi_debug, loop and raid devices?
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 6807b8a..6faf262 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -188,7 +188,7 @@ itsit(char *cp, char *dp)
- static void
- findin(char *dir, char *cp)
- {
--	DIR *dirp;
-+	DIR *derp;
- 	struct dirent *dp;
- 	char *d, *dd;
- 	size_t l;
-@@ -197,17 +197,17 @@ findin(char *dir, char *cp)
- 
- 	dd = strchr(dir, '*');
- 	if (!dd) {
--		dirp = opendir(dir);
--		if (dirp == NULL)
-+		derp = opendir(dir);
-+		if (derp == NULL)
- 			return;
--		while ((dp = readdir(dirp)) != NULL) {
-+		while ((dp = readdir(derp)) != NULL) {
- 			if (itsit(cp, dp->d_name)) {
- 				count++;
- 				if (print)
- 					printf(" %s/%s", dir, dp->d_name);
- 			}
- 		}
--		closedir(dirp);
-+		closedir(derp);
- 		return;
- 	}
- 
-@@ -217,10 +217,10 @@ findin(char *dir, char *cp)
- 		strcpy(dirbuf, dir);
- 		d = strchr(dirbuf, '*');
- 		*d = 0;
--		dirp = opendir(dirbuf);
--		if (dirp == NULL)
-+		derp = opendir(dirbuf);
-+		if (derp == NULL)
- 			return;
--		while ((dp = readdir(dirp)) != NULL) {
-+		while ((dp = readdir(derp)) != NULL) {
- 			if (!strcmp(dp->d_name, ".") ||
- 			    !strcmp(dp->d_name, ".."))
- 				continue;
-@@ -234,7 +234,7 @@ findin(char *dir, char *cp)
- 			strcat(d, dd + 1);
- 			findin(dirbuf, cp);
- 		}
--		closedir(dirp);
-+		closedir(derp);
- 	}
- 	return;
- 
+I have experience that some distros and end-users rebuild packages
+as superuser. I don't want to be responsible for possible problems on
+the target systems.
+
+    Karel
+
 -- 
-1.7.11.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
