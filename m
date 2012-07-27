@@ -1,72 +1,108 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcahe.dreamhost.com ([208.97.132.74]:41435 "EHLO
-	homiemail-a3.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751847Ab2GXKjL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 06:39:11 -0400
-Subject: Re: [PATCH 03/10] fdisk: API: add fdisk_label_change
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-In-Reply-To: <500E79B9.9030701@bernhard-voelker.de>
-References: <1342976704.2863.13.camel@offbook>
-	 <500E6F49.60406@bernhard-voelker.de> <20120724095617.GD2086@foxbat.suse.cz>
-	 <500E79B9.9030701@bernhard-voelker.de>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 24 Jul 2012 12:39:07 +0200
-Message-ID: <1343126347.2686.4.camel@offbook>
-Mime-Version: 1.0
+Received: from cantor2.suse.de ([195.135.220.15]:34714 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750872Ab2G0Lz2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Jul 2012 07:55:28 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 6AB70A0FF6
+	for <util-linux@vger.kernel.org>; Fri, 27 Jul 2012 13:55:27 +0200 (CEST)
+Date: Fri, 27 Jul 2012 13:55:23 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: 2.22-rc1 build fails if configured with --disable-static
+Message-ID: <20120727115523.GA22051@foxbat.suse.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2012-07-24 at 12:32 +0200, Bernhard Voelker wrote:
-> 
-> On 07/24/2012 11:56 AM, Petr Uzel wrote:
-> > On Tue, Jul 24, 2012 at 11:47:53AM +0200, Bernhard Voelker wrote:
-> >>
-> >>
-> >> On 07/22/2012 07:05 PM, Davidlohr Bueso wrote:
-> >>> --- a/fdisks/fdisksunlabel.c
-> >>> +++ b/fdisks/fdisksunlabel.c
-> >>> @@ -161,6 +161,7 @@ void create_sunlabel(struct fdisk_context *cxt)
-> >>>  
-> >>>  	init();
-> >>>  	fdisk_mbr_zeroize(cxt);
-> >>> +	fdisk_label_change(cxt, "sun");
-> >>>  
-> >>
-> 
-> >>
-> >> Shouldn't we use something else than hardcoded "sun"|"dos"|"sgi"|...
-> >> strings here? 
-> > 
-> > What's the problem with these strings? I think these are well
-> > recognized with clear meaning. What alternative do you propose?
-> 
-> Sorry, I should've proposed this already in my first mail:
-> 
-> -	fdisk_label_change(cxt, "sun");
-> +	fdisk_label_change(cxt, sun_label.name);
-> 
 
-I'm planning on adding the disklabel type (numeric) to the context
-structure in a near future, so we'd then have two ways of identifying
-labels. I really do not see much difference between numbers and strings
-- this is not a performance critical program.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Davidlohr
+Hi list,
 
-> It's already defined ;-)
-> 
-> Have a nice day,
-> Berny
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+I just encountered that 2.22-rc1 build fails if
 
+=2E/configure --disable-static
+make
 
+The error I'm getting is:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2E..
+/bin/sh ./libtool  --tag=3DCC   --mode=3Dlink gcc -std=3Dgnu99 -DTEST_PROGR=
+AM -I./libblkid/src -I./libblkid/src -I./libuuid/src -fmessage-length=3D0 -=
+O2 -Wall -D_FORTIFY_SOURCE=3D2 -fstack-protector -funwind-tables -fasynchro=
+nous-unwind-tables -g -D_GNU_SOURCE  libuuid.la -static  -o test_blkid_cach=
+e libblkid/src/test_blkid_cache-cache.o libblkid.la =20
+libtool: link: gcc -std=3Dgnu99 -DTEST_PROGRAM -I./libblkid/src -I./libblki=
+d/src -I./libuuid/src -fmessage-length=3D0 -O2 -Wall -D_FORTIFY_SOURCE=3D2 =
+-fstack-protector -funwind-tables -fasynchronous-unwind-tables -g -D_GNU_SO=
+URCE -o test_blkid_cache libblkid/src/test_blkid_cache-cache.o  ./.libs/lib=
+uuid.so ./.libs/libblkid.so /home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1=
+/.libs/libuuid.so -Wl,-rpath -Wl,/home/abuild/rpmbuild/BUILD/util-linux-2.2=
+2-rc1/.libs -Wl,-rpath -Wl,/usr/lib64
+libblkid/src/test_blkid_cache-cache.o: In function `blkid_get_cache_filenam=
+e':
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:113: u=
+ndefined reference to `safe_getenv'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:115: u=
+ndefined reference to `blkid_strdup'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:117: u=
+ndefined reference to `blkid_strdup'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:119: u=
+ndefined reference to `blkid_read_config'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:125: u=
+ndefined reference to `blkid_free_config'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:121: u=
+ndefined reference to `blkid_strdup'
+libblkid/src/test_blkid_cache-cache.o: In function `blkid_get_cache':
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:162: u=
+ndefined reference to `blkid_read_cache'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:158: u=
+ndefined reference to `blkid_strdup'
+libblkid/src/test_blkid_cache-cache.o: In function `blkid_put_cache':
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:178: u=
+ndefined reference to `blkid_flush_cache'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:188: u=
+ndefined reference to `blkid_free_dev'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:203: u=
+ndefined reference to `blkid_free_tag'
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:205: u=
+ndefined reference to `blkid_free_tag'
+libblkid/src/test_blkid_cache-cache.o: In function `blkid_gc_cache':
+/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1/libblkid/src/cache.c:233: u=
+ndefined reference to `blkid_free_dev'
+collect2: error: ld returned 1 exit status
+make[2]: *** [test_blkid_cache] Error 1
+make[2]: Leaving directory `/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/home/abuild/rpmbuild/BUILD/util-linux-2.22-rc1'
+make: *** [all] Error 2
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+Anyone else getting this?
+
+Petr
+
+--=20
+Petr Uzel
+IRC: ptr_uzl @ freenode
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAlASgasACgkQnZxG0T6qDD0l6QCfa/H9cOrJFEO9LperT45pCXOQ
+DEAAn0WljDvHnJC//jwumOxPnenb9neU
+=4NYn
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
