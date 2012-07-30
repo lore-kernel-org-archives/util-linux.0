@@ -1,76 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:48404 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751741Ab2GYTQN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:13 -0400
-Received: by wibhm11 with SMTP id hm11so5657356wib.1
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail.digidescorp.com ([50.73.98.161]:10989 "EHLO
+	mail.digidescorp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752736Ab2G3MYd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 30 Jul 2012 08:24:33 -0400
+Received: from iscandar.digidescorp.com by digidescorp.com (Cipher TLSv1:RC4-MD5:128) (MDaemon PRO v12.5.5)
+	with ESMTP id md50002200029.msg
+	for <util-linux@vger.kernel.org>; Mon, 30 Jul 2012 07:24:31 -0500
+From: "Steven J. Magnani" <steve@digidescorp.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/5] dmesg: inform user when klogctl() or read_buffer() fails
-Date: Wed, 25 Jul 2012 21:15:44 +0200
-Message-Id: <1343243745-1172-27-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Cc: Namjae Jeon <linkinjeon@gmail.com>, hirofumi@mail.parknet.co.jp,
+        Karel Zak <kzak@redhat.com>,
+        "Steven J. Magnani" <steve@digidescorp.com>
+Subject: [PATCH] util-linux: Document new FAT options
+Date: Mon, 30 Jul 2012 07:24:07 -0500
+Message-Id: <1343651047-3061-1-git-send-email-steve@digidescorp.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fix to small regression which made 'dmesg --clear' not to error
-when running without root privileges.  Same happen with '-D' and
-few other options as well.
+Add man-page documentation for the new 'discard' and 'nfs' options
+available for vfat/msdos filesystems.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Steven J. Magnani <steve@digidescorp.com>
 ---
- sys-utils/dmesg.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 1819c7c..15b9fae 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -985,7 +985,7 @@ static int read_kmsg(struct dmesg_control *ctl)
- int main(int argc, char *argv[])
- {
- 	char *buf = NULL;
--	ssize_t  n;
-+	ssize_t  n, r;
- 	int  c;
- 	int  console_level = 0;
- 	static struct dmesg_control ctl = {
-@@ -1138,6 +1138,7 @@ int main(int argc, char *argv[])
- 	argc -= optind;
- 	argv += optind;
- 	n = 0;
-+	r = 0;
- 
- 	if (argc > 1)
- 		usage(stderr);
-@@ -1158,9 +1159,9 @@ int main(int argc, char *argv[])
- 		if (ctl.method == DMESG_METHOD_KMSG && init_kmsg(&ctl) != 0)
- 			ctl.method = DMESG_METHOD_SYSLOG;
- 
--		n = read_buffer(&ctl, &buf);
--		if (n > 0)
--			print_buffer(&ctl, buf, n);
-+		r = read_buffer(&ctl, &buf);
-+		if (r > 0)
-+			print_buffer(&ctl, buf, r);
- 		if (!ctl.mmap_buff)
- 			free(buf);
- 		break;
-@@ -1180,8 +1181,10 @@ int main(int argc, char *argv[])
- 	if (ctl.kmsg >= 0)
- 		close(ctl.kmsg);
- 
--	if (n < 0 && ctl.method == DMESG_METHOD_SYSLOG)
-+	if (n < 0)
- 		err(EXIT_FAILURE, _("klogctl failed"));
-+	if (r < 0)
-+		err(EXIT_FAILURE, _("read_buffer failed"));
- 
- 	return EXIT_SUCCESS;
- }
--- 
-1.7.11.3
+--- a/sys-utils/mount.8	2012-07-30 07:16:34.224450761 -0500
++++ b/sys-utils/mount.8	2012-07-30 07:14:07.693240720 -0500
+@@ -1744,6 +1744,11 @@ flag.  A version string and a list of fi
+ printed (these data are also printed if the parameters appear to be
+ inconsistent).
+ .TP
++.B discard
++If set, causes discard/TRIM commands to be issued to the block device
++when blocks are freed. This is useful for SSD devices and 
++sparse/thinly-provisoned LUNs.
++.TP
+ .BR fat= {12 | 16 | 32 }
+ Specify a 12, 16 or 32 bit fat.  This overrides
+ the automatic FAT type detection routine.  Use with caution!
+@@ -1753,6 +1758,11 @@ Character set to use for converting betw
+ and 16 bit Unicode characters. The default is iso8859-1.
+ Long filenames are stored on disk in Unicode format.
+ .TP
++.B nfs
++If set, enables in-memory indexing of directory inodes to reduce the
++frequency of ESTALE errors in NFS client operations. Useful only when
++the filesystem is exported via NFS.
++.TP
+ .BI tz=UTC
+ This option disables the conversion of timestamps
+ between local time (as used by Windows on FAT) and UTC
 
