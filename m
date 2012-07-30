@@ -1,61 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:23552 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752071Ab2GJKId (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Jul 2012 06:08:33 -0400
-Date: Tue, 10 Jul 2012 12:08:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Mike Frysinger <vapier@gentoo.org>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [pull] /run directory and swapon
-Message-ID: <20120710100825.GD5281@x2.net.home>
-References: <CAG27Bk3xh7nAhvktOR45drKcKBgaCTtFqduOyvWz5arTGegCBA@mail.gmail.com>
- <201206282338.41501.vapier@gentoo.org>
- <CAG27Bk1ejSJ+N0XWO1u09M1Xojd6Q+NTvHkb6-bTV-yG22H_XA@mail.gmail.com>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:60723 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752524Ab2G3VUP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 30 Jul 2012 17:20:15 -0400
+Received: by bkwj10 with SMTP id j10so3017061bkw.19
+        for <util-linux@vger.kernel.org>; Mon, 30 Jul 2012 14:20:14 -0700 (PDT)
+Date: Tue, 31 Jul 2012 00:20:10 +0300
+From: "Mantas M." <grawity@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: vipw does not work with some editors
+Message-ID: <20120730212010.GA56766@rain.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAG27Bk1ejSJ+N0XWO1u09M1Xojd6Q+NTvHkb6-bTV-yG22H_XA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jun 30, 2012 at 10:59:11PM +0200, Sami Kerola wrote:
-> > is this last case just so you can AC_DEFINE the value below ?  in general,
-> > this is fragile.  defines should be expanded at make time rather than configure.
-> >
-> > CPPFLAGS="$CPPFLAGS -D_PATH_LOCALSTATEDIR=\"\${localstatedir}\""
+Some editors, such as Vim with 'writebackup' mode enabled, use "atomic
+save" in which the old file is deleted and a new one with the same name
+created in its place. When `vipw` is used with such an editor, it never
+detects changes, because it compares fstat() on a file descriptor
+pointing to the old file.
 
- Good point.
-
-> The comment was a bit mysterious to me, so I tried to find what you
-> meant by fragility. The
-> 
-> http://www.opensource.apple.com/source/xar/xar-28/xar/configure.ac
-> 
-> has following
-> 
-> dnl Define cpp macros in CPPFLAGS, rather than doing AC_DEFINE(macro), since the
-> dnl definitions need to be seen before and headers are included, which is a pain
-> dnl to make happen otherwise.
-> 
-> which seem to match what you meant. I changed the line to be C
-> preprocessor definition, and added you as patch CC. Benno, I added you
-> to swapon patches CC as well. The changes are in my git.
-
- Please, don't use #include "config.h" at all. It's unnecessary,
- because -D_PATH_LOCALSTATEDIR and it's also necessary because we use
- -include "config.h" on compiler command line -- both is evaluated
- before regular "#include".
-
-
- I'm also not sure about
-
-    /var/lib/libuuid/clock.txt --> /run/libuuid/clock.txt
-
- rename, the /var/lib is persistent...
-
-    Karel
+Can this be fixed in `vipw`, or should I just start configuring Vim to
+stop making backups for vipw's temporary files?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Mantas MikulÄ—nas <grawity@gmail.com>
