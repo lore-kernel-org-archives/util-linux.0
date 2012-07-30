@@ -1,40 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:38021 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751628Ab2GYTQH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Jul 2012 15:16:07 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hr14so1133220wib.1
-        for <util-linux@vger.kernel.org>; Wed, 25 Jul 2012 12:16:06 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 17/19] vipw: add noreturn function attribute
-Date: Wed, 25 Jul 2012 21:15:38 +0200
-Message-Id: <1343243745-1172-21-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
-References: <1343243745-1172-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:60565 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753532Ab2G3POf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Jul 2012 11:14:35 -0400
+Date: Mon, 30 Jul 2012 17:14:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] tests: use ts_is_mounted in mount/regfile
+Message-ID: <20120730151431.GF5845@x2.net.home>
+References: <50125A02.9030004@bernhard-voelker.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50125A02.9030004@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/vipw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On Fri, Jul 27, 2012 at 11:06:10AM +0200, Bernhard Voelker wrote:
+>  tests/ts/mount/regfile |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/login-utils/vipw.c b/login-utils/vipw.c
-index 3377112..ed3f43b 100644
---- a/login-utils/vipw.c
-+++ b/login-utils/vipw.c
-@@ -236,7 +236,8 @@ static void pw_edit(int notsetuid)
- 	free(editor);
- }
- 
--void pw_error(char *name, int err, int eval)
-+void __attribute__((__noreturn__))
-+pw_error(char *name, int err, int eval)
- {
- 	if (err) {
- 		if (name)
+ Applied, thanks.
+
 -- 
-1.7.11.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
