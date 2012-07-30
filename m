@@ -1,56 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx01.sz.bfs.de ([194.94.69.103]:30766 "EHLO mx01.sz.bfs.de"
+Received: from mx1.redhat.com ([209.132.183.28]:60979 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754743Ab2GXO3y (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Jul 2012 10:29:54 -0400
-Received: from localhost (localhost [127.0.0.1])
-	by mx01.sz.bfs.de (Postfix) with ESMTP id D313D4AF9B
-	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 16:29:53 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by mx01.sz.bfs.de (Postfix) with ESMTP id C51A34AFAC
-	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 16:29:53 +0200 (CEST)
-Received: from mx01.sz.bfs.de ([127.0.0.1])
-	by localhost (dc-slave-mx01.bfs.de [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DK+HjmGJePbN for <util-linux@vger.kernel.org>;
-	Tue, 24 Jul 2012 16:29:53 +0200 (CEST)
-Received: from dc-slave2-fr.fr.bfs.de (dc-slave2-fr.fr.bfs.de [10.177.18.200])
-	by mx01.sz.bfs.de (Postfix) with ESMTP id 860EB4AF9B
-	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 16:29:53 +0200 (CEST)
-Received: from [134.92.181.33] (unknown [134.92.181.33])
-	by dc-slave2-fr.fr.bfs.de (Postfix) with ESMTPSA id A7D5271CDC4
-	for <util-linux@vger.kernel.org>; Tue, 24 Jul 2012 16:29:52 +0200 (CEST)
-Message-ID: <500EB160.2020504@bfs.de>
-Date: Tue, 24 Jul 2012 16:29:52 +0200
-From: walter harms <wharms@bfs.de>
-Reply-To: wharms@bfs.de
+	id S1753532Ab2G3PWg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Jul 2012 11:22:36 -0400
+Date: Mon, 30 Jul 2012 17:22:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] build-sys: fix description of utmpdump configure option
+Message-ID: <20120730152232.GH5845@x2.net.home>
+References: <1343383741-29096-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: bug: util-linux-2.21.2 col
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1343383741-29096-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-hi list,
-i run into a problem while processing a latin1 file:
-col: Invalid or incomplete multibyte or wide character
+On Fri, Jul 27, 2012 at 12:09:01PM +0200, Petr Uzel wrote:
+>  configure.ac |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-./col -p -b -l0 <out.asc
+ Applied, thanks.
 
-out.asc:
-^H^H^H^H|DATUM  :    2008-05-07
-^H^H^H^H| Schlüssel
-
-the problem occurs at ü (note: clipping may have changed latin1->utf8).
-
-i guess the error occurs here:
-               if ((ch = getwchar()) == WEOF) {
-                        if (errno == EILSEQ) {
-                                warn(NULL);
-                                ret = EXIT_FAILURE;
-                        }
-                        break;
-
-re,
- wh
-
-note: i am not member of the ml
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
