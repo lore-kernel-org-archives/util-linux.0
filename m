@@ -1,41 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12734 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43895 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754656Ab2G3PVB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Jul 2012 11:21:01 -0400
-Date: Mon, 30 Jul 2012 17:20:56 +0200
+	id S1751133Ab2GaNv3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 31 Jul 2012 09:51:29 -0400
+Date: Tue, 31 Jul 2012 15:51:24 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Bernhard Voelker <mail@bernhard-voelker.de>
 Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] tests: use ts_is_mounted in mount/regfile
-Message-ID: <20120730152056.GG5845@x2.net.home>
-References: <50125A02.9030004@bernhard-voelker.de>
- <50125C24.6090708@bernhard-voelker.de>
+Subject: Re: tests: blkid/md-raid1-part fails
+Message-ID: <20120731135124.GB17896@x2.net.home>
+References: <501772B7.2040504@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50125C24.6090708@bernhard-voelker.de>
+In-Reply-To: <501772B7.2040504@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 27, 2012 at 11:15:16AM +0200, Bernhard Voelker wrote:
-> >   $ /home/berny/ul/umount /home/berny/ul/tests/output/mount/regfile.img
-> >   umount: /home/berny/ul/tests/output/mount/regfile.img: not mounted
+On Tue, Jul 31, 2012 at 07:52:55AM +0200, Bernhard Voelker wrote:
+> The above mentioned test fails here (OpenSuSE-12.1 64-bit).
 > 
-> hmm, also other tests like mount/remount are failing.
+> That's in diff/blkid/md-raid1-part:
 > 
-> Somehow, I have the impression that TS_MOUNTPOINT should be canonicalized
+> --- /media/sdb5/berny/git/util-linux/tests/expected/blkid/md-raid1-part	2012-07-27 09:54:03.769967754 +0200
+> +++ /media/sdb5/berny/git/util-linux/tests/output/blkid/md-raid1-part	2012-07-31 07:18:24.057815522 +0200
+> @@ -44,7 +44,7 @@
+> 
+> 
+>  ID_FS_VERSION=0.90.0
+> -ID_PART_ENTRY_DISK=8:16
+> +ID_PART_ENTRY_DISK=8:112
+>  ID_PART_ENTRY_NUMBER=1
+>  ID_PART_ENTRY_OFFSET=2048
+>  ID_PART_ENTRY_SCHEME=dos
+> @@ -56,7 +56,7 @@
+> 
+> 
+>  ID_FS_VERSION=0.90.0
+> -ID_PART_ENTRY_DISK=8:16
+> +ID_PART_ENTRY_DISK=8:112
+>  ID_PART_ENTRY_NUMBER=2
+>  ID_PART_ENTRY_OFFSET=53248
+>  ID_PART_ENTRY_SCHEME=dos
+> 
+> What's wrong with that minor number?
 
- Good point.
+Nothing, it would be better to check if the line ID_PART_ENTRY_DISK=
+is in the $TS_OUTPUT and if yes then remove the line from the output
+file (e.g. by sed).
 
- I have added ts_canonicalize() and improved ts_init() to use it for
- all basic paths. It's probably more robust to use realpaths everywhere.
+The tests should not rely on device numbers and device names -- on
+another places you can found /dev/loop0 in the expected outputs...
 
-> in function.sh in ts_init_core_env and ts_init_core_subtest_env, but on the
-> other side, this would eclipse errors like the above. WDYT?
-
- Well, important is to detect if the filesystem is mounted. We have
- special tests for mounting by symlinks where ts_canonicalize() is not
- called for the mountpoint.
+Patches wanted :-)
 
     Karel
 
