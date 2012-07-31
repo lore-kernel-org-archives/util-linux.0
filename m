@@ -1,155 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:52475 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757206Ab2GLJsK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Jul 2012 05:48:10 -0400
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Davidlohr Bueso <dave@gnu.org>
-Subject: [PATCH 2/2] fdisk: rename label probing functions
-Date: Thu, 12 Jul 2012 11:47:19 +0200
-Message-Id: <1342086439-21462-2-git-send-email-petr.uzel@suse.cz>
-In-Reply-To: <1342086439-21462-1-git-send-email-petr.uzel@suse.cz>
-References: <1342086439-21462-1-git-send-email-petr.uzel@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: mail@bernhard-voelker.de
+Message-ID: <50176B4D.2060501@bernhard-voelker.de>
+Date: Tue, 31 Jul 2012 07:21:17 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: kerolasa@gmail.com, util-linux@vger.kernel.org
+Subject: Re: v2.22-rc2 wish list
+References: <20120727081033.GA14019@x2.net.home> <CAG27Bk1mk08N=0Zbo-Bbd_v93C6cfEcO1chYyiDAtRf1sQOEpw@mail.gmail.com> <20120727103132.GA28708@x2.net.home> <501271D2.8090708@bernhard-voelker.de> <20120727111550.GA29738@x2.net.home> <50127F34.70406@bernhard-voelker.de> <20120730163720.GM5845@x2.net.home>
+In-Reply-To: <20120730163720.GM5845@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Rename check_$foo_label() to $foo_probe_label():
 
-1/ 'probe' is more appropriate verb than 'check' for these functions
-2/ making label name first part of the funciton name is IMO more
-   friendly for tags completion (e.g. vim + cscope/ctags).
 
-Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
----
- fdisks/fdiskaixlabel.c |    4 ++--
- fdisks/fdiskbsdlabel.c |    4 ++--
- fdisks/fdiskdoslabel.c |    4 ++--
- fdisks/fdiskmaclabel.c |    4 ++--
- fdisks/fdisksgilabel.c |    4 ++--
- fdisks/fdisksunlabel.c |    4 ++--
- 6 files changed, 12 insertions(+), 12 deletions(-)
+On 07/30/2012 06:37 PM, Karel Zak wrote:
+> On Fri, Jul 27, 2012 at 01:44:52PM +0200, Bernhard Voelker wrote:
+>> Building as root is certainly not okay, but prior to packaging UL into a
+>> distro or applying it on a few servers, I expect every admin and
+>> distro maintainer to run 'make check'.
+> 
+> I have added tests/run.sh to 'make check' for non-root users. It should
+> be enough for smart people who do not rebuild their packages as root.
+> 
+> If you want to run all utils-linux tests then you have to
+> 
+>     cd tests && ./run.sh
+> 
+> *manually* as root user.
 
-diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
-index f908abc..ebf9365 100644
---- a/fdisks/fdiskaixlabel.c
-+++ b/fdisks/fdiskaixlabel.c
-@@ -49,7 +49,7 @@ aix_nolabel(struct fdisk_context *cxt)
-     return;
- }
- 
--static int check_aix_label(struct fdisk_context *cxt)
-+static int aix_probe_label(struct fdisk_context *cxt)
- {
-     if (aixlabel->magic != AIX_LABEL_MAGIC &&
- 	aixlabel->magic != AIX_LABEL_MAGIC_SWAPPED) {
-@@ -68,5 +68,5 @@ static int check_aix_label(struct fdisk_context *cxt)
- const struct fdisk_label aix_label =
- {
- 	.name = "aix",
--	.probe = check_aix_label
-+	.probe = aix_probe_label,
- };
-diff --git a/fdisks/fdiskbsdlabel.c b/fdisks/fdiskbsdlabel.c
-index 9ede3ef..548a86d 100644
---- a/fdisks/fdiskbsdlabel.c
-+++ b/fdisks/fdiskbsdlabel.c
-@@ -110,7 +110,7 @@ static struct xbsd_disklabel xbsd_dlabel;
-  * so this does not mean that there is a BSD disk label.
-  */
- static int
--check_osf_label(struct fdisk_context *cxt) {
-+osf_probe_label(struct fdisk_context *cxt) {
- 	if (xbsd_readlabel (cxt, NULL, &xbsd_dlabel) == 0)
- 		return 0;
- 	return 1;
-@@ -849,5 +849,5 @@ alpha_bootblock_checksum (char *boot)
- const struct fdisk_label bsd_label =
- {
- 	.name = "bsd",
--	.probe = check_osf_label
-+	.probe = osf_probe_label,
- };
-diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
-index 27536da..a115e66 100644
---- a/fdisks/fdiskdoslabel.c
-+++ b/fdisks/fdiskdoslabel.c
-@@ -316,7 +316,7 @@ void dos_delete_partition(int i)
- 	}
- }
- 
--static int check_dos_label(struct fdisk_context *cxt)
-+static int dos_probe_label(struct fdisk_context *cxt)
- {
- 	int i;
- 
-@@ -684,5 +684,5 @@ void dos_write_table(struct fdisk_context *cxt)
- const struct fdisk_label dos_label =
- {
- 	.name = "dos",
--	.probe = check_dos_label,
-+	.probe = dos_probe_label,
- };
-diff --git a/fdisks/fdiskmaclabel.c b/fdisks/fdiskmaclabel.c
-index cbdf592..555245d 100644
---- a/fdisks/fdiskmaclabel.c
-+++ b/fdisks/fdiskmaclabel.c
-@@ -48,7 +48,7 @@ mac_nolabel(struct fdisk_context *cxt)
- }
- 
- static int
--check_mac_label(struct fdisk_context *cxt)
-+mac_probe_label(struct fdisk_context *cxt)
- {
- 	/*
- 	Conversion: only 16 bit should compared
-@@ -83,5 +83,5 @@ IS_MAC:
- const struct fdisk_label mac_label =
- {
- 	.name = "mac",
--	.probe = check_mac_label
-+	.probe = mac_probe_label,
- };
-diff --git a/fdisks/fdisksgilabel.c b/fdisks/fdisksgilabel.c
-index c0b346a..071a84e 100644
---- a/fdisks/fdisksgilabel.c
-+++ b/fdisks/fdisksgilabel.c
-@@ -128,7 +128,7 @@ two_s_complement_32bit_sum(unsigned int *base, int size /* in bytes */) {
- }
- 
- static int
--check_sgi_label(struct fdisk_context *cxt) {
-+sgi_probe_label(struct fdisk_context *cxt) {
- 	if (sizeof(sgilabel) > 512) {
- 		fprintf(stderr,
- 			_("According to MIPS Computer Systems, Inc the "
-@@ -880,5 +880,5 @@ fill_sgiinfo(void)
- const struct fdisk_label sgi_label =
- {
- 	.name = "sgi",
--	.probe = check_sgi_label
-+	.probe = sgi_probe_label,
- };
-diff --git a/fdisks/fdisksunlabel.c b/fdisks/fdisksunlabel.c
-index d1f6054..909f159 100644
---- a/fdisks/fdisksunlabel.c
-+++ b/fdisks/fdisksunlabel.c
-@@ -78,7 +78,7 @@ static void init(void)
- 	partitions = SUN_NUM_PARTITIONS;
- }
- 
--static int check_sun_label(struct fdisk_context *cxt)
-+static int sun_probe_label(struct fdisk_context *cxt)
- {
- 	unsigned short *ush;
- 	int csum;
-@@ -646,5 +646,5 @@ int sun_get_sysid(struct fdisk_context *cxt, int i)
- const struct fdisk_label sun_label =
- {
- 	.name = "sun",
--	.probe = check_sun_label,
-+	.probe = sun_probe_label,
- };
--- 
-1.7.7
+Great, thanks!
 
+Have a nice day,
+Berny
