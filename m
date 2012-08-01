@@ -1,82 +1,45 @@
-Return-Path: heiko.carstens@de.ibm.com
-Date: Thu, 9 Aug 2012 08:57:59 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: faizan husain <faizanh@linux.vnet.ibm.com>
-Cc: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: limit options --all, --online, --offline to
- parsable and extended output
-Message-ID: <20120809065759.GA3930@osiris.de.ibm.com>
-References: <20120808085911.GA3441@osiris.de.ibm.com>
- <50235651.6030409@linux.vnet.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:38009 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751139Ab2HAKDS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Aug 2012 06:03:18 -0400
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q71A3I2t020093
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Wed, 1 Aug 2012 06:03:18 -0400
+Date: Wed, 1 Aug 2012 12:03:16 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Niels de Vos <ndevos@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [RFC] mount: overwrite options from /etc/fstab when given on the
+ commandline
+Message-ID: <20120801100316.GD1019@x2.net.home>
+References: <1343812301-24896-1-git-send-email-ndevos@redhat.com>
+ <20120801094833.GC1019@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50235651.6030409@linux.vnet.ibm.com>
+In-Reply-To: <20120801094833.GC1019@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 09, 2012 at 11:48:57AM +0530, faizan husain wrote:
-> On Wednesday 08 August 2012 02:29 PM, Heiko Carstens wrote:
-> >So, how about the patch below in order to fix the issue Faisan
-> >brought up for lspcu?
-> >
-> > From 0f0f80b71e90b6ab58d9f6009b8356bb42235916 Mon Sep 17 00:00:00 2001
-> >From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> >Date: Wed, 8 Aug 2012 10:52:47 +0200
-> >Subject: [PATCH] lscpu: limit options --all, --online, --offline to parsable
-> >  and extended output
-> >
-> >Passing the --all, --online or --offline options for the output summary
-> >doesn't make much sense. It should be limited to the two list output options.
-
-[...]
-
-> >
-> >+	if (cpu_modifier_specified && mod->mode == OUTPUT_SUMMARY) {
-> >+		fprintf(stderr,
-> >+			_("%s: options --all, --online and --offline may only "
-> >+			  "be used with options --extended or --parsable.\n"),
-> >+			program_invocation_short_name);
-> >+		return EXIT_FAILURE;
-> >+	}
-> >+
-> >  	if (argc != optind)
-> >  		usage(stderr);
-> >
-> but...
+On Wed, Aug 01, 2012 at 11:48:33AM +0200, Karel Zak wrote:
+> > Some options are not allowed to be
+> > passed multiple times (like the SElinux context options) and mounting will fail
+> > if options are present in both /etc/fstab and on the commandline.
 > 
-> don't you think we are missing on other column information
-> 
->  [root@mx3650m2 ~]# lscpu -a
+> This is stupid SELinux disadvantage and SELinux should be fixed.
 
-That wouldn't work with the patch above applied (and without the patch
-applied there wouldn't be any difference in the output, regardless if you
-would specify "-a" or not).
+Note that mount(8) and libmount removes all selinux context options on
+remount for kernels < 2.6.39 because SELinux context remount was
+unsupported, so this SELinux disadvantage should be hidden for usual
+use case.
 
-So.. I don't understand what your concern is.
+Maybe we can also add another exception for SELinux to de-duplicate
+the SELinux context options in the options string. It's not perfect,
+but probably acceptable for SELinux -- I can do this for 2.22-rc2.
 
-Besides that personally I would prefer to _only_ update the man page and
-don't change the code at all.
+    Karel
 
-> Architecture:          x86_64
-> CPU op-mode(s):        32-bit, 64-bit
-> Byte Order:            Little Endian
-> CPU(s):                16
-> On-line CPU(s) list:   0-5,7-13,15
-> Off-line CPU(s) list:  6,14
-> Thread(s) per core:    2
-> Core(s) per socket:    3
-> Socket(s):             2
-> NUMA node(s):          2
-> Vendor ID:             GenuineIntel
-> CPU family:            6
-> Model:                 26
-> Stepping:              5
-> CPU MHz:               1596.000
-> BogoMIPS:              5865.80
-> Virtualization:        VT-x
-> L1d cache:             32K
-> L1i cache:             32K
-> L2 cache:              256K
-> L3 cache:              8192K
-> NUMA node0 CPU(s):     0-3,8-11
-> NUMA node1 CPU(s):     4,5,7,12,13,15
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
