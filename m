@@ -1,32 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16244 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751456Ab2HMOmK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Aug 2012 10:42:10 -0400
-Date: Mon, 13 Aug 2012 16:42:04 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Naja Melan <najamelan@autistici.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: umount failing on paths which end in a backslash
-Message-ID: <20120813144204.GF21956@x2.net.home>
-References: <20120810234435.6af1f6d1@localhost>
+Return-Path: ndevos@redhat.com
+Message-ID: <5019017E.4050704@redhat.com>
+Date: Wed, 01 Aug 2012 12:14:22 +0200
+From: Niels de Vos <ndevos@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120810234435.6af1f6d1@localhost>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [RFC] mount: overwrite options from /etc/fstab when given on
+ the commandline
+References: <1343812301-24896-1-git-send-email-ndevos@redhat.com> <20120801094833.GC1019@x2.net.home> <20120801100316.GD1019@x2.net.home>
+In-Reply-To: <20120801100316.GD1019@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Aug 10, 2012 at 11:44:35PM +0200, Naja Melan wrote:
-> I tried to report this bug months ago to the debian maintainers of
-> mount, but debian bug reporting is a minefield and by email all I
-> got was a lousy answer from someone who didn't understand escaping
-> in bash strings and who obviously never ran the script demonstrating
-> the issue.
+On 08/01/2012 12:03 PM, Karel Zak wrote:
+ > On Wed, Aug 01, 2012 at 11:48:33AM +0200, Karel Zak wrote:
+ >>> Some options are not allowed to be
+ >>> passed multiple times (like the SElinux context options) and mounting will fail
+ >>> if options are present in both /etc/fstab and on the commandline.
+ >>
+ >> This is stupid SELinux disadvantage and SELinux should be fixed.
+ >
+ > Note that mount(8) and libmount removes all selinux context options on
+ > remount for kernels<  2.6.39 because SELinux context remount was
+ > unsupported, so this SELinux disadvantage should be hidden for usual
+ > use case.
+ >
+ > Maybe we can also add another exception for SELinux to de-duplicate
+ > the SELinux context options in the options string. It's not perfect,
+ > but probably acceptable for SELinux -- I can do this for 2.22-rc2.
 
- Fixed. It seems like a pretty old bug (v2.19 or so...). Thanks!
+That would be great. What is your opinion on getting the SElinux options
+handled differently in the kernel instead or in addition? If the kernel
+would allow multiple SElinux options (and only the last gets applied) would
+you still be interested in adding this SElinux exception?
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks again,
+Niels
