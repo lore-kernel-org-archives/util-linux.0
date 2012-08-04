@@ -1,113 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:45782 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751817Ab2HMOoR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 13 Aug 2012 10:44:17 -0400
-Received: by qcro28 with SMTP id o28so2276919qcr.19
-        for <util-linux@vger.kernel.org>; Mon, 13 Aug 2012 07:44:16 -0700 (PDT)
-Date: Mon, 13 Aug 2012 10:44:14 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Dave Reisner <dreisner@archlinux.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] eject: return proper 0/1 from eject_cdrom()
-Message-ID: <20120813144414.GB530@rampage>
-References: <1344266172-8818-1-git-send-email-dreisner@archlinux.org>
- <20120813134858.GC21956@x2.net.home>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:38126 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753577Ab2HDHdj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 4 Aug 2012 03:33:39 -0400
+Received: by wibhm11 with SMTP id hm11so199123wib.1
+        for <util-linux@vger.kernel.org>; Sat, 04 Aug 2012 00:33:38 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 5/5] vipw: make vim writebackup mode work
+Date: Sat,  4 Aug 2012 09:33:40 +0200
+Message-Id: <1344065620-17480-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1344065620-17480-1-git-send-email-kerolasa@iki.fi>
+References: <1344065620-17480-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120813134858.GC21956@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 13, 2012 at 03:48:58PM +0200, Karel Zak wrote:
-> On Mon, Aug 06, 2012 at 11:16:12AM -0400, Dave Reisner wrote:
-> > main() expects this method to return 0 for failure and 1 for success, as
-> > the other eject_*() methods do. Add the missing comparison of ioctl() >= 0
-> > 
-> > Signed-off-by: Dave Reisner <dreisner@archlinux.org>
-> > ---
-> >  sys-utils/eject.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-> > index 08af08e..84bd342 100644
-> > --- a/sys-utils/eject.c
-> > +++ b/sys-utils/eject.c
-> > @@ -398,9 +398,9 @@ static void close_tray(int fd)
-> >  static int eject_cdrom(int fd)
-> >  {
-> >  #if defined(CDROMEJECT)
-> > -	return ioctl(fd, CDROMEJECT);
-> > +	return ioctl(fd, CDROMEJECT) >= 0;
-> >  #elif defined(CDIOCEJECT)
-> > -	return ioctl(fd, CDIOCEJECT);
-> > +	return ioctl(fd, CDIOCEJECT) >= 0;
-> >  #else
-> >  	warnx(_("CD-ROM eject unsupported"));
-> >  	errno = ENOSYS;
-> 
->  Good idea, but did you read the code where eject_cdrom() is called
->  (e.g. toggle_tray()) ?  I have applied the patch below.
-> 
->     Karel
-> 
+Some editors, such as Vim with 'writebackup' mode enabled, use "atomic
+save" in which the old file is deleted and a new one with the same name
+created in its place.  The vipw tries to detect if such happen by
+looking hard temporary file link count, when it is zero reopen
+temporary file by using it's path.
 
-Ahh, good catch. Thanks!
+Reported-by: Mantas Mikulėnas <grawity@gmail.com>
+References: http://www.spinics.net/lists/util-linux-ng/msg06666.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/vipw.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-> commit 3514cc3a8f14cc39589fee3edefaa161ac1bd0a6
-> Author: Dave Reisner <dreisner@archlinux.org>
-> Date:   Mon Aug 6 11:16:12 2012 -0400
-> 
->     eject: return proper 0/1 from eject_cdrom()
->     
->     main() expects this method to return 0 for failure and 1 for success, as
->     the other eject_*() methods do. Add the missing comparison of ioctl() >= 0
->     
->     Signed-off-by: Dave Reisner <dreisner@archlinux.org>
->     Signed-off-by: Karel Zak <kzak@redhat.com>
-> 
-> diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-> index 08af08e..2097961 100644
-> --- a/sys-utils/eject.c
-> +++ b/sys-utils/eject.c
-> @@ -398,13 +398,13 @@ static void close_tray(int fd)
->  static int eject_cdrom(int fd)
->  {
->  #if defined(CDROMEJECT)
-> -	return ioctl(fd, CDROMEJECT);
-> +	return ioctl(fd, CDROMEJECT) >= 0;
->  #elif defined(CDIOCEJECT)
-> -	return ioctl(fd, CDIOCEJECT);
-> +	return ioctl(fd, CDIOCEJECT) >= 0;
->  #else
->  	warnx(_("CD-ROM eject unsupported"));
->  	errno = ENOSYS;
-> -	return -1;
-> +	return 0;
->  #endif
->  }
->  
-> @@ -432,7 +432,7 @@ static void toggle_tray(int fd)
->  
->  	case CDS_NO_DISC:
->  	case CDS_DISC_OK:
-> -		if (eject_cdrom(fd))
-> +		if (!eject_cdrom(fd))
->  			err(EXIT_FAILURE, _("CD-ROM eject command failed"));
->  		return;
->  	case CDS_NO_INFO:
-> @@ -453,7 +453,7 @@ static void toggle_tray(int fd)
->  	gettimeofday(&time_start, NULL);
->  
->  	/* Send the CDROMEJECT command to the device. */
-> -	if (eject_cdrom(fd) < 0)
-> +	if (!eject_cdrom(fd))
->  		err(EXIT_FAILURE, _("CD-ROM eject command failed"));
->  
->  	/* Get the second timestamp, to measure the time needed to open
-> 
-> 
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+diff --git a/login-utils/vipw.c b/login-utils/vipw.c
+index ed3f43b..1eeeb0d 100644
+--- a/login-utils/vipw.c
++++ b/login-utils/vipw.c
+@@ -275,6 +275,18 @@ static void edit_file(int is_shadow)
+ 
+ 	if (fstat(fileno(tmp_fd), &end))
+ 		pw_error(tmp_file, 1, 1);
++	/* Some editors, such as Vim with 'writebackup' mode enabled,
++	 * use "atomic save" in which the old file is deleted and a new
++	 * one with the same name created in its place.  */
++	if (end.st_nlink == 0) {
++		if (close_stream(tmp_fd) != 0)
++			err(EXIT_FAILURE, _("write error"));
++		tmp_fd = fopen(tmp_file, "r");
++		if (!tmp_file)
++			err(EXIT_FAILURE, _("cannot open %s"), tmp_file);
++		if (fstat(fileno(tmp_fd), &end))
++			pw_error(tmp_file, 1, 1);
++	}
+ 	if (begin.st_mtime == end.st_mtime) {
+ 		warnx(_("no changes made"));
+ 		pw_error((char *)NULL, 0, 0);
+-- 
+1.7.11.4
+
