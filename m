@@ -1,133 +1,228 @@
-Return-Path: faizanh@linux.vnet.ibm.com
-Message-ID: <50235651.6030409@linux.vnet.ibm.com>
-Date: Thu, 09 Aug 2012 11:48:57 +0530
-From: faizan husain <faizanh@linux.vnet.ibm.com>
-MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: limit options --all, --online, --offline to parsable
- and extended output
-References: <20120808085911.GA3441@osiris.de.ibm.com>
-In-Reply-To: <20120808085911.GA3441@osiris.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:47478 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049Ab2HDHdh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 4 Aug 2012 03:33:37 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1285887wgb.1
+        for <util-linux@vger.kernel.org>; Sat, 04 Aug 2012 00:33:36 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/5] docs: add sys-utils/umount.8 manual page
+Date: Sat,  4 Aug 2012 09:33:38 +0200
+Message-Id: <1344065620-17480-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1344065620-17480-1-git-send-email-kerolasa@iki.fi>
+References: <1344065620-17480-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 08 August 2012 02:29 PM, Heiko Carstens wrote:
-> So, how about the patch below in order to fix the issue Faisan
-> brought up for lspcu?
->
->  From 0f0f80b71e90b6ab58d9f6009b8356bb42235916 Mon Sep 17 00:00:00 2001
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Date: Wed, 8 Aug 2012 10:52:47 +0200
-> Subject: [PATCH] lscpu: limit options --all, --online, --offline to parsable
->   and extended output
->
-> Passing the --all, --online or --offline options for the output summary
-> doesn't make much sense. It should be limited to the two list output options.
->
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->   sys-utils/lscpu.1 |    9 ++++++---
->   sys-utils/lscpu.c |   12 ++++++++++++
->   2 files changed, 18 insertions(+), 3 deletions(-)
->
-> diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-> index 41dae83..f7e34b9 100644
-> --- a/sys-utils/lscpu.1
-> +++ b/sys-utils/lscpu.1
-> @@ -81,13 +81,16 @@ and hypervisor support CPU polarization.
->   .SH OPTIONS
->   .TP
->   .BR \-a , " \-\-all"
-> -Include online and offline CPUs in the output (default for -e).
-> +Include lines for online and offline CPUs in the output (default for -e). This
-> +option may only specified together with option -e or -p.
->   .TP
->   .BR \-b , " \-\-online"
-> -Limit the output to online CPUs (default for -p).
-> +Limit the output to online CPUs (default for -p). This option may only
-> +be specified together with option -e or -p.
->   .TP
->   .BR \-c , " \-\-offline"
-> -Limit the output to offline CPUs.
-> +Limit the output to offline CPUs. This option may only be specified together
-> +with option -e or -p.
->   .TP
->   .BR \-e , " \-\-extended " \fI[=list]\fP
->   Display the CPU information in human readable format.
-> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-> index b93998a..25a0273 100644
-> --- a/sys-utils/lscpu.c
-> +++ b/sys-utils/lscpu.c
-> @@ -1243,6 +1243,7 @@ int main(int argc, char *argv[])
->   	struct lscpu_desc _desc = { .flags = 0 }, *desc = &_desc;
->   	int c, i;
->   	int columns[ARRAY_SIZE(coldescs)], ncolumns = 0;
-> +	int cpu_modifier_specified = 0;
->
->   	static const struct option longopts[] = {
->   		{ "all",        no_argument,       0, 'a' },
-> @@ -1276,12 +1277,15 @@ int main(int argc, char *argv[])
->   		switch (c) {
->   		case 'a':
->   			mod->online = mod->offline = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'b':
->   			mod->online = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'c':
->   			mod->offline = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'h':
->   			usage(stdout);
-> @@ -1316,6 +1320,14 @@ int main(int argc, char *argv[])
->   		}
->   	}
->
-> +	if (cpu_modifier_specified && mod->mode == OUTPUT_SUMMARY) {
-> +		fprintf(stderr,
-> +			_("%s: options --all, --online and --offline may only "
-> +			  "be used with options --extended or --parsable.\n"),
-> +			program_invocation_short_name);
-> +		return EXIT_FAILURE;
-> +	}
-> +
->   	if (argc != optind)
->   		usage(stderr);
->
-but...
+The man page is almost exact copy of mount-deprecated/umount.8.  This
+version mentions long options, and has the options in same order as
+they are mentioned in usage() output.  Rest of the minor changes make
+groff slightly nicer e.g. use .PP instead of empty line for paragraph
+marker.
 
-don't you think we are missing on other column information
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/Makemodule.am |   2 +-
+ sys-utils/umount.8      | 175 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 176 insertions(+), 1 deletion(-)
+ create mode 100644 sys-utils/umount.8
 
-  [root@mx3650m2 ~]# lscpu -a
-Architecture:          x86_64
-CPU op-mode(s):        32-bit, 64-bit
-Byte Order:            Little Endian
-CPU(s):                16
-On-line CPU(s) list:   0-5,7-13,15
-Off-line CPU(s) list:  6,14
-Thread(s) per core:    2
-Core(s) per socket:    3
-Socket(s):             2
-NUMA node(s):          2
-Vendor ID:             GenuineIntel
-CPU family:            6
-Model:                 26
-Stepping:              5
-CPU MHz:               1596.000
-BogoMIPS:              5865.80
-Virtualization:        VT-x
-L1d cache:             32K
-L1i cache:             32K
-L2 cache:              256K
-L3 cache:              8192K
-NUMA node0 CPU(s):     0-3,8-11
-NUMA node1 CPU(s):     4,5,7,12,13,15
+diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+index 4f8dbc1..d376f04 100644
+--- a/sys-utils/Makemodule.am
++++ b/sys-utils/Makemodule.am
+@@ -168,7 +168,7 @@ bin_PROGRAMS += mount umount
+ dist_man_MANS += \
+ 	sys-utils/mount.8 \
+ 	sys-utils/fstab.5 \
+-	mount-deprecated/umount.8
++	sys-utils/umount.8
+ mount_SOURCES = sys-utils/mount.c
+ mount_LDADD = $(LDADD) libcommon.la libmount.la $(SELINUX_LIBS)
+ mount_CFLAGS = $(SUID_CFLAGS) $(AM_CFLAGS) -I$(ul_libmount_incdir)
+diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
+new file mode 100644
+index 0000000..d073c55
+--- /dev/null
++++ b/sys-utils/umount.8
+@@ -0,0 +1,175 @@
++.\" Copyright (c) 1996 Andries Brouwer
++.\" This page is somewhat derived from a page that was
++.\" (c) 1980, 1989, 1991 The Regents of the University of California
++.\" and had been heavily modified by Rik Faith and myself.
++.\"
++.\" This is free documentation; you can redistribute it and/or
++.\" modify it under the terms of the GNU General Public License as
++.\" published by the Free Software Foundation; either version 2 of
++.\" the License, or (at your option) any later version.
++.\"
++.\" The GNU General Public License's references to "object code"
++.\" and "executables" are to be interpreted as the output of any
++.\" document formatting or typesetting system, including
++.\" intermediate and printed output.
++.\"
++.\" This manual is distributed in the hope that it will be useful,
++.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
++.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++.\" GNU General Public License for more details.
++.\"
++.\" You should have received a copy of the GNU General Public License along
++.\" with this program; if not, write to the Free Software Foundation, Inc.,
++.\" 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++.\"
++.TH UMOUNT 8 "August 2012" "util-linux" "System Administration"
++.SH NAME
++umount \- unmount file systems
++.SH SYNOPSIS
++.B umount
++.RB [ \-hV ]
++.LP
++.B umount \-a
++.RB [ \-dflnrv ]
++.RB [ \-t
++.IR vfstype ]
++.RB [ \-O
++.IR options ]
++.br
++.B umount
++.RB [ \-dflnrv ]
++.RI { dir | device }...
++.SH DESCRIPTION
++The
++.B umount
++command detaches the file system(s) mentioned from the file hierarchy.  A
++file system is specified by giving the directory where it has been
++mounted.  Giving the special device on which the file system lives may
++also work, but is obsolete, mainly because it will fail in case this
++device was mounted on more than one directory.
++.PP
++Note that a file system cannot be unmounted when it is 'busy' - for
++example, when there are open files on it, or when some process has its
++working directory there, or when a swap file on it is in use.  The
++offending process could even be
++.B umount
++itself - it opens libc, and libc in its turn may open for example locale
++files.  A lazy unmount avoids this problem.
++.SH OPTIONS
++.TP
++\fB\-a\fR, \fB\-\-all\fR
++All of the file systems described in
++.I /etc/mtab
++are unmounted.  (With
++.B umount
++version 2.7 and later: the
++.I proc
++filesystem is not unmounted.)
++.TP
++\fB\-c\fR, \fB\-\-no\-canonicalize\fR
++Do not canonicalize paths.  For more details about this option see the
++.B mount(8)
++man page.
++.TP
++\fB\-d\fR, \fB\-\-detach\-loop\fR
++In case the unmounted device was a loop device, also free this loop
++device.
++.TP
++\fB\-\-fake\fP
++Causes everything to be done except for the actual system call; this
++'fakes' unmounting the filesystem.  It can be used to remove entries from
++.I /etc/mtab
++that were unmounted earlier with the
++.B \-n
++option.
++.TP
++\fB\-f\fR, \fB\-\-force\fR
++Force unmount (in case of an unreachable NFS system).  (Requires kernel
++2.1.116 or later.)
++.TP
++\fB\-i\fR, \fB\-\-internal\-only\fR
++Do not call the /sbin/umount.<filesystem> helper even if it exists.  By
++default /sbin/umount.<filesystem> helper is called if one exists.
++.TP
++\fB\-n\fR, \fB\-\-no\-mtab\fR
++Unmount without writing in
++.IR /etc/mtab .
++.TP
++\fB\-l\fR, \fB\-\-lazy\fR
++Lazy unmount.  Detach the filesystem from the filesystem hierarchy now,
++and cleanup all references to the filesystem as soon as it is not busy
++anymore.  (Requires kernel 2.4.11 or later.)
++.TP
++\fB\-O\fR, \fB\-\-test\-opts\fR \fIoptions,list\fR
++Indicate that the actions should only be taken on file systems with the
++specified options in
++.IR /etc/fstab .
++More than one option type may be specified in a comma separated list.
++Each option can be prefixed with
++.B no
++to specify options for which no action should be taken.
++.TP
++\fB\-r\fR, \fB\-\-read\-only\fR
++In case unmounting fails, try to remount read-only.
++.TP
++\fB\-t\fR, \fB\-\-types\fR \fIvfstype,ext2,ext3\fR
++Indicate that the actions should only be taken on file systems of the
++specified
++.IR type .
++More than one type may be specified in a comma separated list.  The list
++of file system types can be prefixed with
++.B no
++to specify the file system types on which no action should be taken.
++.TP
++\fB\-v\fR, \fB\-\-verbose\fR
++Verbose mode.
++.TP
++\fB\-h\fR, \fB\-\-help\fR
++Print help message and exit.
++.TP
++\fB\-V\fR, \fB\-\-version\fR
++Print version and exit.
++.SH "THE LOOP DEVICE"
++The
++.B umount
++command will free the loop device (if any) associated with the mount, in
++case it finds the option 'loop=...' in
++.IR /etc/mtab ,
++or when the \-d option was given.  Any pending loop devices can be freed
++using 'losetup -d', see
++.BR losetup (8).
++.SH NOTES
++The syntax of external umount helpers is:
++.PP
++.BI /sbin/umount. <suffix>
++.RI { dir | device }
++.RB [ \-nlfvr ]
++.RB [ \-t
++.IR type.subtype ]
++.PP
++where the <suffix> is filesystem type or a value from "uhelper=" or
++"helper=" mtab option.  The \-t option is used for filesystems with
++subtypes support (for example /sbin/mount.fuse -t fuse.sshfs).
++.PP
++The uhelper= (unprivileged umount helper) is possible to use when
++non-root user wants to umount a mountpoint which is not defined in the
++/etc/fstab file (e.g. devices mounted by udisk).
++.PP
++The helper= mount option redirects all umount requests to the
++/sbin/umount.<helper> independently on UID.
++.SH FILES
++.I /etc/mtab
++table of mounted file systems
++.SH "SEE ALSO"
++.BR umount (2),
++.BR mount (8),
++.BR losetup (8)
++.SH HISTORY
++A
++.B umount
++command appeared in Version 6 AT&T UNIX.
++.SH AVAILABILITY
++The umount command is part of the util-linux package and is available from
++.UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
++Linux Kernel Archive
++.UE .
+-- 
+1.7.11.4
 
-
-Thanks
-Faizan
