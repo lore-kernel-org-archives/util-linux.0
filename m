@@ -1,70 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:45375 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752924Ab2HNJ5D (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Aug 2012 05:57:03 -0400
-Received: by obbuo13 with SMTP id uo13so304896obb.19
-        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2012 02:57:02 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 14 Aug 2012 05:57:01 -0400
-Message-ID: <CAN1hMuBe9PcKvdNr=A3uTgu0JDNT0mVkeDS3T4MNtfjoa40ZsQ@mail.gmail.com>
-Subject: column --separator segfaults (patch attached)
-From: B Watson <yalhcru@gmail.com>
+Received: from e28smtp02.in.ibm.com ([122.248.162.2]:49555 "EHLO
+	e28smtp02.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753441Ab2HEKiI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 5 Aug 2012 06:38:08 -0400
+Received: from /spool/local
+	by e28smtp02.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <faizanh@linux.vnet.ibm.com>;
+	Sun, 5 Aug 2012 16:08:06 +0530
+Received: from d28av01.in.ibm.com (d28av01.in.ibm.com [9.184.220.63])
+	by d28relay01.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q75AbnKn27525126
+	for <util-linux@vger.kernel.org>; Sun, 5 Aug 2012 16:07:49 +0530
+Received: from d28av01.in.ibm.com (loopback [127.0.0.1])
+	by d28av01.in.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q75G7OpT008202
+	for <util-linux@vger.kernel.org>; Sun, 5 Aug 2012 21:37:24 +0530
+From: Faizan husain <faizanh@linux.vnet.ibm.com>
 To: util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary=e89a8f643690f712a304c736d499
+Cc: faizan husain <faizanh@linux.vnet.ibm.com>
+Subject: [PATCH] lscpu : -b and -c option does not give expected output.
+Date: Sun,  5 Aug 2012 03:37:08 -0700
+Message-Id: <1344163028-30238-1-git-send-email-faizanh@linux.vnet.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---e89a8f643690f712a304c736d499
-Content-Type: text/plain; charset=ISO-8859-1
+From: faizan husain <faizanh@linux.vnet.ibm.com>
 
-Apologies to list moderator, I attempted to subscribe to the list but
-vger's majordomo doesn't seem to like gmail. Anyway:
+Options for lscpu command are giving incorrect output.
+As per the man page or help, '-b' option should limit the output to online CPUs
+and '-c' option should limit the output to offline CPUs.
+But we could see the output is same for '-a','-b' and '-c' options.
 
-The --separator and --columns long options in util-linux-2.21.2 and in
-a git clone from 5 minutes ago, don't work:
+Signed-off-by: faizan husain <faizanh@linux.vnet.ibm.com>
+---
+ sys-utils/lscpu.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-# Short options OK:
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index b93998a..648f51e 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1101,12 +1101,12 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ #endif
+ 	print_n(_("CPU(s):"), desc->ncpus);
+ 
+-	if (desc->online)
++	if (desc->online && mod->online)
+ 		print_cpuset(mod->hex ? _("On-line CPU(s) mask:") :
+ 					_("On-line CPU(s) list:"),
+ 				desc->online, mod->hex);
+ 
+-	if (desc->online && CPU_COUNT_S(setsize, desc->online) != desc->ncpus) {
++	if (desc->online && mod->online && CPU_COUNT_S(setsize, desc->online) != desc->ncpus) {
+ 		cpu_set_t *set;
+ 
+ 		/* Linux kernel provides cpuset of off-line CPUs that contains
+-- 
+1.7.4.1
 
-$ echo foobar | column -s x
-foobar
-
-$ echo foobar | column -c 10
-foobar
-
-# Long options bad:
-
-$ echo foobar | column --separator=x
-column: option '--separator' doesn't allow an argument
-
-$ echo foobar | column --separator x
-Segmentation fault
-
-$ echo foobar | column --columns 10
-column: bad columns width value: '(null)': Invalid argument
-
-$ echo foobar | column --columns=10
-column: option '--columns' doesn't allow an argument
-
-Looks like a simple case of missing has_arg flag in the "struct option"
-initialization for these two options. The patch just adds the flag. I
-haven't done thorough testing of the patched code, but it seems to work
-OK and it no longer segfaults or tries to dereference a null pointer.
-
---e89a8f643690f712a304c736d499
-Content-Type: application/octet-stream; name="column-fix_long_opts.diff"
-Content-Disposition: attachment; filename="column-fix_long_opts.diff"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: file0
-
-ZGlmZiAtTmF1ciB1dGlsLWxpbnV4LTIuMjEuMi90ZXh0LXV0aWxzL2NvbHVtbi5jIHV0aWwtbGlu
-dXgtMi4yMS4yLnBhdGNoZWQvL3RleHQtdXRpbHMvY29sdW1uLmMKLS0tIHV0aWwtbGludXgtMi4y
-MS4yL3RleHQtdXRpbHMvY29sdW1uLmMJMjAxMi0wNS0yNSAwNTo0NDo1OS4wMDAwMDAwMDAgLTA0
-MDAKKysrIHV0aWwtbGludXgtMi4yMS4yLnBhdGNoZWQvL3RleHQtdXRpbHMvY29sdW1uLmMJMjAx
-Mi0wOC0xNCAwNToyMjoxNy4wMDAwMDAwMDAgLTA0MDAKQEAgLTEyMSw5ICsxMjEsOSBAQAogCXsK
-IAkJeyAiaGVscCIsCTAsIDAsICdoJyB9LAogCQl7ICJ2ZXJzaW9uIiwgICAgMCwgMCwgJ1YnIH0s
-Ci0JCXsgImNvbHVtbnMiLAkwLCAwLCAnYycgfSwKKwkJeyAiY29sdW1ucyIsCTEsIDAsICdjJyB9
-LAogCQl7ICJ0YWJsZSIsCTAsIDAsICd0JyB9LAotCQl7ICJzZXBhcmF0b3IiLAkwLCAwLCAncycg
-fSwKKwkJeyAic2VwYXJhdG9yIiwJMSwgMCwgJ3MnIH0sCiAJCXsgImZpbGxyb3dzIiwJMCwgMCwg
-J3gnIH0sCiAJCXsgTlVMTCwJCTAsIDAsIDAgfSwKIAl9Owo=
---e89a8f643690f712a304c736d499--
