@@ -1,45 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38009 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:6816 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751139Ab2HAKDS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 1 Aug 2012 06:03:18 -0400
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q71A3I2t020093
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 1 Aug 2012 06:03:18 -0400
-Date: Wed, 1 Aug 2012 12:03:16 +0200
+	id S1755801Ab2HFLLC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 6 Aug 2012 07:11:02 -0400
+Date: Mon, 6 Aug 2012 13:10:59 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Niels de Vos <ndevos@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [RFC] mount: overwrite options from /etc/fstab when given on the
- commandline
-Message-ID: <20120801100316.GD1019@x2.net.home>
-References: <1343812301-24896-1-git-send-email-ndevos@redhat.com>
- <20120801094833.GC1019@x2.net.home>
+Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
+Message-ID: <20120806111059.GB24621@x2.net.home>
+References: <501D42D2.6050904@draigBrady.com>
+ <20120806081533.GA24621@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120801094833.GC1019@x2.net.home>
+In-Reply-To: <20120806081533.GA24621@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 01, 2012 at 11:48:33AM +0200, Karel Zak wrote:
-> > Some options are not allowed to be
-> > passed multiple times (like the SElinux context options) and mounting will fail
-> > if options are present in both /etc/fstab and on the commandline.
-> 
-> This is stupid SELinux disadvantage and SELinux should be fixed.
+On Mon, Aug 06, 2012 at 10:15:33AM +0200, Karel Zak wrote:
+> I'll fix it to use iscntrl() and \x?? hex (to be consistent our
+> another outputs).
 
-Note that mount(8) and libmount removes all selinux context options on
-remount for kernels < 2.6.39 because SELinux context remount was
-unsupported, so this SELinux disadvantage should be hidden for usual
-use case.
+Fixed:
 
-Maybe we can also add another exception for SELinux to de-duplicate
-the SELinux context options in the options string. It's not perfect,
-but probably acceptable for SELinux -- I can do this for 2.22-rc2.
+ - mount(8) uses '?' like coreutils for control chars (note that
+   listing mode in mount(8) is in maintenance mode, use findmnt(8) if
+   you want something better)
+
+ - \x<code> is used in findmnt, lsblk, partx, ... for control and non-printable
+   chars
+
+ - in the raw and export (NAME=data) output are also replaced already existing
+   \x<code> sequences (aaa\x20bbb --> aaa\x5cx20bbb).
+
+   This is not used in the default output to keep it human readable (\x?? is
+   pretty common in /dev/disk/by-*).
+
+
+I have also fixed the way how lib/tt.c counts cells, it's possible
+that old findmnt, lsblk, ... versions have a problem with some languages
+(e.g JP) where more than one cell is necessary to print one multibyte.
+
 
     Karel
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
