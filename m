@@ -1,60 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:47056 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081Ab2HOJKV convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Aug 2012 05:10:21 -0400
-Received: by bkwj10 with SMTP id j10so432598bkw.19
-        for <util-linux@vger.kernel.org>; Wed, 15 Aug 2012 02:10:20 -0700 (PDT)
-From: Andrea Bonomi <a.bonomi@endian.com>
-Content-Type: text/plain; charset=us-ascii
-Subject: [PATCH 2/2] agetty: display network address in issue
-Date: Wed, 15 Aug 2012 11:10:19 +0200
-Message-Id: <E7E42693-8D57-4A82-AF6A-F781234E6D66@endian.com>
+Received: from e23smtp03.au.ibm.com ([202.81.31.145]:41379 "EHLO
+	e23smtp03.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751690Ab2HFFLC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2012 01:11:02 -0400
+Received: from /spool/local
+	by e23smtp03.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <faizanh@linux.vnet.ibm.com>;
+	Mon, 6 Aug 2012 15:10:28 +1000
+Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
+	by d23relay03.au.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q765Av0314352444
+	for <util-linux@vger.kernel.org>; Mon, 6 Aug 2012 15:10:57 +1000
+Received: from d23av02.au.ibm.com (loopback [127.0.0.1])
+	by d23av02.au.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q765AvEV025187
+	for <util-linux@vger.kernel.org>; Mon, 6 Aug 2012 15:10:57 +1000
+From: Faizan husain <faizanh@linux.vnet.ibm.com>
 To: util-linux@vger.kernel.org
-Mime-Version: 1.0 (Apple Message framework v1278)
+Cc: faizan husain <faizanh@linux.vnet.ibm.com>
+Subject: [PATCH] lscpu : -b and -c option does not give expected output.
+Date: Sun,  5 Aug 2012 22:10:52 -0700
+Message-Id: <1344229852-4737-1-git-send-email-faizanh@linux.vnet.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Andrea Bonomi <a.bonomi@endian.com>
+From: faizan husain <faizanh@linux.vnet.ibm.com>
 
-diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
-index ebfdb96..2d8f7db 100644
---- a/term-utils/agetty.8
-+++ b/term-utils/agetty.8
-@@ -3,7 +3,7 @@
- agetty \- alternative Linux getty
+Options for lscpu command are giving incorrect output.
+As per the man page or help, '-b' option should limit the output to online CPUs
+and '-c' option should limit the output to offline CPUs.
+But we could see the output is same for '-a','-b' and '-c' options.
+
+Signed-off-by: faizan husain <faizanh@linux.vnet.ibm.com>
+---
+ sys-utils/lscpu.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index b93998a..7c28a56 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1101,12 +1101,12 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ #endif
+ 	print_n(_("CPU(s):"), desc->ncpus);
  
- .SH SYNOPSIS
--.BR "agetty " [\-8chiLmnsUw]
-+.BR "agetty " [\-8chiLmnsUwx]
- .RI "[\-a " user ]
- .RI "[\-f " issue_file ]
- .RI "[\-H " login_host ]
-@@ -198,6 +198,10 @@ Wait for the user or the modem to send a carriage-return or a
- linefeed character before sending the \fI/etc/issue\fP (or other) file
- and the login prompt. Very useful in connection with the \-I option.
- .TP
-+\-x, \-\-interface \fIinterface_name\fP
-+The IPv4 and IPv6 addresses of a network interface can be displayed in
-+the issue. The name of the network is configured by this option.
-+.TP
- \-\-noclear
- Do not clear the screen before prompting for the login name
- (the screen is normally cleared).
-@@ -269,6 +273,15 @@ time etc. All escape codes consist of a backslash (\\) immediately
- followed by one of the letters explained below.
+-	if (desc->online)
++	if (desc->online && mod->online)
+ 		print_cpuset(mod->hex ? _("On-line CPU(s) mask:") :
+ 					_("On-line CPU(s) list:"),
+ 				desc->online, mod->hex);
  
- .TP
-+4
-+Insert the IPv4 address of the configured network interface.
-+.TP
-+6
-+Insert the IPv6 address of the configured network interface.
-+.TP
-+x
-+Name of the configured network interface (configured by the -x option).
-+.TP
- b
- Insert the baudrate of the current line.
- .TP
+-	if (desc->online && CPU_COUNT_S(setsize, desc->online) != desc->ncpus) {
++	if (desc->online && mod->offline && CPU_COUNT_S(setsize, desc->online) != desc->ncpus) {
+ 		cpu_set_t *set;
+ 
+ 		/* Linux kernel provides cpuset of off-line CPUs that contains
+-- 
+1.7.4.1
 
