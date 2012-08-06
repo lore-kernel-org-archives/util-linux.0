@@ -1,56 +1,85 @@
-Return-Path: dave@gnu.org
-Subject: [PATCH 3/3] fdisk: gpt: update manpage
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 21 Aug 2012 14:03:26 +0200
-Message-ID: <1345550606.2664.7.camel@offbook>
-Mime-Version: 1.0
+Return-Path: P@draigBrady.com
+Message-ID: <501FD845.50001@draigBrady.com>
+Date: Mon, 06 Aug 2012 15:44:21 +0100
+From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
+References: <501D42D2.6050904@draigBrady.com> <20120806081533.GA24621@x2.net.home> <20120806111059.GB24621@x2.net.home>
+In-Reply-To: <20120806111059.GB24621@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-From: Davidlohr Bueso <dave@gnu.org>
+On 08/06/2012 12:10 PM, Karel Zak wrote:
+> On Mon, Aug 06, 2012 at 10:15:33AM +0200, Karel Zak wrote:
+>> I'll fix it to use iscntrl() and \x?? hex (to be consistent our
+>> another outputs).
+> 
+> Fixed:
+> 
+>  - mount(8) uses '?' like coreutils for control chars (note that
+>    listing mode in mount(8) is in maintenance mode, use findmnt(8) if
+>    you want something better)
+> 
+>  - \x<code> is used in findmnt, lsblk, partx, ... for control and non-printable
+>    chars
+> 
+>  - in the raw and export (NAME=data) output are also replaced already existing
+>    \x<code> sequences (aaa\x20bbb --> aaa\x5cx20bbb).
+> 
+>    This is not used in the default output to keep it human readable (\x?? is
+>    pretty common in /dev/disk/by-*).
+> 
+> 
+> I have also fixed the way how lib/tt.c counts cells, it's possible
+> that old findmnt, lsblk, ... versions have a problem with some languages
+> (e.g JP) where more than one cell is necessary to print one multibyte.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisks/fdisk.8 |   17 ++++++++++++-----
- 1 files changed, 12 insertions(+), 5 deletions(-)
+Cool.
 
-diff --git a/fdisks/fdisk.8 b/fdisks/fdisk.8
-index 5233f0f..93280c1 100644
---- a/fdisks/fdisk.8
-+++ b/fdisks/fdisk.8
-@@ -36,11 +36,6 @@ partition tables.
- It understands DOS-type partition tables and BSD- or SUN-type disklabels.
- 
- .B fdisk
--does not understand GUID partition tables (GPTs) and it is not designed
--for large partitions.  In these cases, use the more advanced GNU
--.BR parted (8).
--
--.B fdisk
- does not use DOS-compatible mode and cylinders as display units by default.
- The old deprecated DOS behavior can be enabled with
- the '-c=dos -u=cylinders' command-line options.
-@@ -82,6 +77,18 @@ is the first partition on the first hard disk in the system.
- See also Linux kernel documentation (the Documentation/devices.txt file).
- 
- .SH DISK LABELS
-+A GPT-type disklabel can describe 128 partitions, eliminating the need for
-+extended or logical partitions. These partitions are 64bit sector type and
-+thus exceeds the standard 2TiB limit with 32bit types. These partition entries
-+are located between LBA 2-33 (inclusively), noting that GPT is not aware of CHS
-+addressing. Regarding the on-disk's master boot record format, fdisk can detect
-+both protective and hybrid ones. For hybrid MBRs, the write operation will not
-+be useful since doing so would create a valid protective MBR and therefore destroy
-+current functionality, like booting.
-+
-+Note that GPT support is currently a new feature in fdisk, and 
-+therefore in an experimental phase, use at your own risk.
-+
- A BSD/SUN-type disklabel can describe 8 partitions,
- the third of which should be a `whole disk' partition.
- Do not start a partition that actually uses its first sector
--- 
-1.7.4.1
+I did a quick test...
+
+$ echo $LANG
+en_US.utf8
+$ mkdir tst && cd tst
+$ truncate -s10M img
+$ mkfs.ext2 -F img
+$ mkdir ascii "$(printf 'co\ntrol')" 'back\slash' 'es\x63aped' "$(printf 'nonútf8' | iconv -t iso-8859-15)" '日一二三四五六'
+$ for mnt in ascii "$(printf 'co\ntrol')" 'back\slash' 'es\x63aped' "$(printf 'nonútf8' | iconv -t iso-8859-15)" '日一二三四五六'; do
+>   sudo mount img "$mnt"
+>   ~/git/util-linux/findmnt -l /dev/loop1
+>   ~/git/util-linux/findmnt -rn /dev/loop1 | cut -d' ' -f1
+>   sleep 1
+>   sudo umount /dev/loop1
+> done
+
+TARGET                 SOURCE     FSTYPE OPTIONS
+/home/padraig/tst/ascii /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/ascii
+TARGET                       SOURCE     FSTYPE OPTIONS
+/home/padraig/tst/co\x0atrol /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/co\x0atrol
+TARGET                       SOURCE     FSTYPE OPTIONS
+/home/padraig/tst/back\slash /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/back\slash
+TARGET                       SOURCE     FSTYPE OPTIONS
+/home/padraig/tst/es\x63aped /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/es\x5cx63aped
+TARGET SOURCE     FSTYPE OPTIONS
+
+       /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/non\xfffffffatf8
+TARGET                         SOURCE     FSTYPE OPTIONS
+/home/padraig/tst/日一二三四五六 /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+/home/padraig/tst/\xffffffe6\xffffff97...
+
+So two questions.
+
+1. Should the back\slash case be back\x5cslash in both cases?
+
+2. The nonútf8 one produces an errant new line.
+Also in this case could you fall back to using \x escapes for the whole string?
+
+cheers,
+Pádraig.
