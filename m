@@ -1,74 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14796 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751274Ab2HGIJn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Aug 2012 04:09:43 -0400
-Date: Tue, 7 Aug 2012 10:09:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
-Message-ID: <20120807080939.GF24621@x2.net.home>
-References: <501D42D2.6050904@draigBrady.com>
- <20120806081533.GA24621@x2.net.home>
- <20120806111059.GB24621@x2.net.home>
- <501FD845.50001@draigBrady.com>
+Received: from moutng.kundenserver.de ([212.227.126.187]:52370 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752652Ab2HFGON convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2012 02:14:13 -0400
+Date: Mon, 6 Aug 2012 08:14:12 +0200 (CEST)
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
+To: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Message-ID: <1407718255.1271532.1344233652072.JavaMail.open-xchange@email.1und1.de>
+In-Reply-To: <1344065620-17480-6-git-send-email-kerolasa@iki.fi>
+References: <1344065620-17480-1-git-send-email-kerolasa@iki.fi> <1344065620-17480-6-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 5/5] vipw: make vim writebackup mode work
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <501FD845.50001@draigBrady.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 06, 2012 at 03:44:21PM +0100, Pádraig Brady wrote:
-> I did a quick test...
+On August 4, 2012 at 9:33 AM Sami Kerola <kerolasa@iki.fi> wrote:
 
- Thanks, I'll use it in regression tests ;-) (I was busy yesterday to
- write any reg.tests.)
-
-> TARGET                 SOURCE     FSTYPE OPTIONS
-> /home/padraig/tst/ascii /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/ascii
-> TARGET                       SOURCE     FSTYPE OPTIONS
-> /home/padraig/tst/co\x0atrol /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/co\x0atrol
-> TARGET                       SOURCE     FSTYPE OPTIONS
-> /home/padraig/tst/back\slash /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/back\slash
-> TARGET                       SOURCE     FSTYPE OPTIONS
-> /home/padraig/tst/es\x63aped /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/es\x5cx63aped
-> TARGET SOURCE     FSTYPE OPTIONS
+> Some editors, such as Vim with 'writebackup' mode enabled, use "atomic
+> save" in which the old file is deleted and a new one with the same name
+> created in its place.  The vipw tries to detect if such happen by
+> looking hard temporary file link count, when it is zero reopen
+> temporary file by using it's path.
+>
+> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
+> References: http://www.spinics.net/lists/util-linux-ng/msg06666.html
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  login-utils/vipw.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>
+> diff --git a/login-utils/vipw.c b/login-utils/vipw.c
+> index ed3f43b..1eeeb0d 100644
+> --- a/login-utils/vipw.c
+> +++ b/login-utils/vipw.c
+> @@ -275,6 +275,18 @@ static void edit_file(int is_shadow)
 > 
->        /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/non\xfffffffatf8
-> TARGET                         SOURCE     FSTYPE OPTIONS
-> /home/padraig/tst/日一二三四五六 /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> /home/padraig/tst/\xffffffe6\xffffff97...
-> 
-> So two questions.
-> 
-> 1. Should the back\slash case be back\x5cslash in both cases?
+>          if (fstat(fileno(tmp_fd), &end))
+>                  pw_error(tmp_file, 1, 1);
+> +        /* Some editors, such as Vim with 'writebackup' mode enabled,
+> +         * use "atomic save" in which the old file is deleted and a new
+> +         * one with the same name created in its place.  */
+> +        if (end.st_nlink == 0) {
+> +                if (close_stream(tmp_fd) != 0)
+> +                        err(EXIT_FAILURE, _("write error"));
+> +                tmp_fd = fopen(tmp_file, "r");
+> +                if (!tmp_file)
+> +                        err(EXIT_FAILURE, _("cannot open %s"), tmp_file);
+> +                if (fstat(fileno(tmp_fd), &end))
+> +                        pw_error(tmp_file, 1, 1);
+> +        }
+>          if (begin.st_mtime == end.st_mtime) {
+>                  warnx(_("no changes made"));
+>                  pw_error((char *)NULL, 0, 0);
+> --
+> 1.7.11.4
 
- back\slash is not \x<xdigit> sequence, so escape is unnecessary
+Hi Sami,
 
- Note that \\server\path is pretty common for cifs and use \x5c
- for all '\' will make the findmnt output unreadable in many cases.
- IMHO is better to be "smart" and use escape sequences only when it's
- really necessary.
+wasn't the discussion about additionally prompting the user that
+"the file vanished and a a new file with the same name has
+been created" for security reasons?
 
-> 2. The nonútf8 one produces an errant new line.
-> Also in this case could you fall back to using \x escapes for the whole string?
+We're talking about the intermediate file (in /tmp), but as it's
+name is visible e.g. in ps listings, I'd recommend to be cautious
+about it.
 
- Yeah, nonútf8 output seems strange, I'll fix it.
+Have a nice day,
+Berny
 
-
- I'll also update findmnt (and others) man pages to explain when and
- how we use \x escapes. Is there any elegant way how to convert \x
- sequences back to the native strings in shell? Maybe we can add some
- hint to the man pages too.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
