@@ -1,65 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30862 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751736Ab2HMN0A (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Aug 2012 09:26:00 -0400
-Date: Mon, 13 Aug 2012 15:25:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix non-Linux build
-Message-ID: <20120813132546.GB21956@x2.net.home>
-References: <20120808151943.GR10080@type.famille.thibault.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120808151943.GR10080@type.famille.thibault.fr>
+Received: from gerolde.archlinux.org ([66.211.214.132]:41128 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932163Ab2HFPW1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2012 11:22:27 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] eject: return proper 0/1 from eject_cdrom()
+Date: Mon,  6 Aug 2012 11:16:12 -0400
+Message-Id: <1344266172-8818-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 08, 2012 at 05:19:43PM +0200, Samuel Thibault wrote:
-> --- a/lib/cpuset.c
-> +++ b/lib/cpuset.c
-> @@ -54,6 +54,7 @@ static const char *nexttoken(const char *q,  int sep)
->  	return q;
->  }
->  
-> +#ifdef __linux__
->  /*
->   * Number of bits in a CPU bitmask on current system
->   */
-> @@ -85,6 +86,7 @@ int get_max_number_of_cpus(void)
->  	}
->  	return -1;
->  }
-> +#endif
+main() expects this method to return 0 for failure and 1 for success, as
+the other eject_*() methods do. Add the missing comparison of ioctl() >= 0
 
- Hmm... this not too elegant for the internal API. I have modified the
- patch:
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ sys-utils/eject.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/lib/cpuset.c
-+++ b/lib/cpuset.c
-@@ -59,6 +59,7 @@ static const char *nexttoken(const char *q,  int sep)
-  */
- int get_max_number_of_cpus(void)
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index 08af08e..84bd342 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -398,9 +398,9 @@ static void close_tray(int fd)
+ static int eject_cdrom(int fd)
  {
-+#ifdef SYS_sched_getaffinity
-        int n, cpus = 2048;
-        size_t setsize;
-        cpu_set_t *set = cpuset_alloc(cpus, &setsize, NULL);
-@@ -83,6 +84,7 @@ int get_max_number_of_cpus(void)
-                cpuset_free(set);
-                return n * 8;
-        }
-+#endif
-        return -1;
- }
-
-
-... so the function always exist. I guess the syscall is Linux
-specific.
-
-    Karel
-
-
+ #if defined(CDROMEJECT)
+-	return ioctl(fd, CDROMEJECT);
++	return ioctl(fd, CDROMEJECT) >= 0;
+ #elif defined(CDIOCEJECT)
+-	return ioctl(fd, CDIOCEJECT);
++	return ioctl(fd, CDIOCEJECT) >= 0;
+ #else
+ 	warnx(_("CD-ROM eject unsupported"));
+ 	errno = ENOSYS;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.11.4
+
