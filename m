@@ -1,45 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24257 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751616Ab2HTAbz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 19 Aug 2012 20:31:55 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q7K0Vtio024974
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Sun, 19 Aug 2012 20:31:55 -0400
-Message-ID: <50318578.70402@draigBrady.com>
-Date: Mon, 20 Aug 2012 01:31:52 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from e28smtp09.in.ibm.com ([122.248.162.9]:45558 "EHLO
+	e28smtp09.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751246Ab2HGFan (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Aug 2012 01:30:43 -0400
+Received: from /spool/local
+	by e28smtp09.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <faizanh@linux.vnet.ibm.com>;
+	Tue, 7 Aug 2012 11:00:39 +0530
+Received: from d28av01.in.ibm.com (d28av01.in.ibm.com [9.184.220.63])
+	by d28relay03.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q775UZL313566152
+	for <util-linux@vger.kernel.org>; Tue, 7 Aug 2012 11:00:36 +0530
+Received: from d28av01.in.ibm.com (loopback [127.0.0.1])
+	by d28av01.in.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q77B09lE028763
+	for <util-linux@vger.kernel.org>; Tue, 7 Aug 2012 16:30:09 +0530
+Message-ID: <5020A7F8.9070402@linux.vnet.ibm.com>
+Date: Tue, 07 Aug 2012 11:00:32 +0530
+From: faizan husain <faizanh@linux.vnet.ibm.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
 CC: util-linux@vger.kernel.org
-Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
-References: <501D42D2.6050904@draigBrady.com> <20120806081533.GA24621@x2.net.home> <20120806111059.GB24621@x2.net.home> <501FD845.50001@draigBrady.com> <20120807080939.GF24621@x2.net.home> <5021A665.9060305@draigBrady.com> <20120813123921.GB3533@x2.net.home>
-In-Reply-To: <20120813123921.GB3533@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] lscpu : -b and -c option does not give expected output.
+References: <1344229852-4737-1-git-send-email-faizanh@linux.vnet.ibm.com> <20120806114906.GA3432@osiris.de.ibm.com>
+In-Reply-To: <20120806114906.GA3432@osiris.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/13/2012 01:39 PM, Karel Zak wrote:
-> On Wed, Aug 08, 2012 at 12:36:05AM +0100, Pádraig Brady wrote:
->> ck\slash is not \x<xdigit> sequence, so escape is unnecessary
->>>
->>>  Note that \\server\path is pretty common for cifs and use \x5c
->>>  for all '\' will make the findmnt output unreadable in many cases.
->>>  IMHO is better to be "smart" and use escape sequences only when it's
->>>  really necessary.
+On Monday 06 August 2012 05:20 PM, Heiko Carstens wrote:
+> On Sun, Aug 05, 2012 at 10:10:52PM -0700, Faizan husain wrote:
+>> From: faizan husain <faizanh@linux.vnet.ibm.com>
 >>
->> Better for humans, but awkward for scripts to parse.
->> What I was thinking was perhaps --raw or -P would
->> do unconditional escaping of '\' so unescaping can be
->> done with just `printf %b`?
-> 
->  Good point. Fixed, all '\' will be replaced with \x5c.
+>> Options for lscpu command are giving incorrect output.
+>> As per the man page or help, '-b' option should limit the output to online CPUs
+>> and '-c' option should limit the output to offline CPUs.
+>> But we could see the output is same for '-a','-b' and '-c' options.
+>>
+>> Signed-off-by: faizan husain <faizanh@linux.vnet.ibm.com>
+> The -a, -b and -c options were meant to influence the output for the
+> extended (-e) and parsable (-p) output options.
+> I'm not sure it makes sense to change the default output with these
+> options. I'd prefer an update of the man page.
+>
+> Hm?
+This fix is not going to influence the default output with these options 
+(-e and -p),
+and it does not make any sense if -a, -b and -c option print same output.
 
-Excellent.
-I've tested using the previous test case,
-and output is as expected (including the
-invalid UTF8 case).
+Thanks
+Faizan
 
-cheers,
-Pádraig.
