@@ -1,95 +1,91 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:56138 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753042Ab2HFHaE convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2012 03:30:04 -0400
-Received: by wgbdr13 with SMTP id dr13so2457357wgb.1
-        for <util-linux@vger.kernel.org>; Mon, 06 Aug 2012 00:30:03 -0700 (PDT)
+Return-Path: d@falconindy.com
+Date: Tue, 7 Aug 2012 07:35:21 -0400
+From: Dave Reisner <d@falconindy.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
+Message-ID: <20120807113521.GC564@rampage>
+References: <501D42D2.6050904@draigBrady.com>
+ <20120806081533.GA24621@x2.net.home>
+ <20120806111059.GB24621@x2.net.home>
+ <501FD845.50001@draigBrady.com>
+ <20120807080939.GF24621@x2.net.home>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1407718255.1271532.1344233652072.JavaMail.open-xchange@email.1und1.de>
-References: <1344065620-17480-1-git-send-email-kerolasa@iki.fi>
-	<1344065620-17480-6-git-send-email-kerolasa@iki.fi>
-	<1407718255.1271532.1344233652072.JavaMail.open-xchange@email.1und1.de>
-Date: Mon, 6 Aug 2012 09:30:03 +0200
-Message-ID: <CAG27Bk157so8J93EfTCQ1YBjXBUtYVVLcgpKg4eJdN6o77cN3A@mail.gmail.com>
-Subject: Re: [PATCH 5/5] vipw: make vim writebackup mode work
-From: Sami Kerola <kerolasa@iki.fi>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20120807080939.GF24621@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 6, 2012 at 8:14 AM, Bernhard Voelker
-<mail@bernhard-voelker.de> wrote:
-> On August 4, 2012 at 9:33 AM Sami Kerola <kerolasa@iki.fi> wrote:
->
->> Some editors, such as Vim with 'writebackup' mode enabled, use "atomic
->> save" in which the old file is deleted and a new one with the same name
->> created in its place.  The vipw tries to detect if such happen by
->> looking hard temporary file link count, when it is zero reopen
->> temporary file by using it's path.
->>
->> Reported-by: Mantas Mikulėnas <grawity@gmail.com>
->> References: http://www.spinics.net/lists/util-linux-ng/msg06666.html
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  login-utils/vipw.c | 12 ++++++++++++
->>  1 file changed, 12 insertions(+)
->>
->> diff --git a/login-utils/vipw.c b/login-utils/vipw.c
->> index ed3f43b..1eeeb0d 100644
->> --- a/login-utils/vipw.c
->> +++ b/login-utils/vipw.c
->> @@ -275,6 +275,18 @@ static void edit_file(int is_shadow)
->>
->>          if (fstat(fileno(tmp_fd), &end))
->>                  pw_error(tmp_file, 1, 1);
->> +        /* Some editors, such as Vim with 'writebackup' mode enabled,
->> +         * use "atomic save" in which the old file is deleted and a new
->> +         * one with the same name created in its place.  */
->> +        if (end.st_nlink == 0) {
->> +                if (close_stream(tmp_fd) != 0)
->> +                        err(EXIT_FAILURE, _("write error"));
->> +                tmp_fd = fopen(tmp_file, "r");
->> +                if (!tmp_file)
->> +                        err(EXIT_FAILURE, _("cannot open %s"), tmp_file);
->> +                if (fstat(fileno(tmp_fd), &end))
->> +                        pw_error(tmp_file, 1, 1);
->> +        }
->>          if (begin.st_mtime == end.st_mtime) {
->>                  warnx(_("no changes made"));
->>                  pw_error((char *)NULL, 0, 0);
->> --
->> 1.7.11.4
+On Tue, Aug 07, 2012 at 10:09:39AM +0200, Karel Zak wrote:
+> On Mon, Aug 06, 2012 at 03:44:21PM +0100, Pádraig Brady wrote:
+> > I did a quick test...
+> 
+>  Thanks, I'll use it in regression tests ;-) (I was busy yesterday to
+>  write any reg.tests.)
+> 
+> > TARGET                 SOURCE     FSTYPE OPTIONS
+> > /home/padraig/tst/ascii /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/ascii
+> > TARGET                       SOURCE     FSTYPE OPTIONS
+> > /home/padraig/tst/co\x0atrol /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/co\x0atrol
+> > TARGET                       SOURCE     FSTYPE OPTIONS
+> > /home/padraig/tst/back\slash /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/back\slash
+> > TARGET                       SOURCE     FSTYPE OPTIONS
+> > /home/padraig/tst/es\x63aped /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/es\x5cx63aped
+> > TARGET SOURCE     FSTYPE OPTIONS
+> > 
+> >        /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/non\xfffffffatf8
+> > TARGET                         SOURCE     FSTYPE OPTIONS
+> > /home/padraig/tst/日一二三四五六 /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> > /home/padraig/tst/\xffffffe6\xffffff97...
+> > 
+> > So two questions.
+> > 
+> > 1. Should the back\slash case be back\x5cslash in both cases?
+> 
+>  back\slash is not \x<xdigit> sequence, so escape is unnecessary
+> 
+>  Note that \\server\path is pretty common for cifs and use \x5c
+>  for all '\' will make the findmnt output unreadable in many cases.
+>  IMHO is better to be "smart" and use escape sequences only when it's
+>  really necessary.
+> 
+> > 2. The nonútf8 one produces an errant new line.
+> > Also in this case could you fall back to using \x escapes for the whole string?
+> 
+>  Yeah, nonútf8 output seems strange, I'll fix it.
+> 
+> 
+>  I'll also update findmnt (and others) man pages to explain when and
+>  how we use \x escapes. Is there any elegant way how to convert \x
+>  sequences back to the native strings in shell? Maybe we can add some
+>  hint to the man pages too.
+> 
 
-Hi Berny,
+You can do something as simple as:
 
-Yes, I did mention file exchange should probably warn.  When I
-added the warning it looked like noise, and I could not get
-message right.
+  printf '%b' "$mangled_content"
 
-> We're talking about the intermediate file (in /tmp), but as it's
-> name is visible e.g. in ps listings, I'd recommend to be cautious
-> about it.
+And it works even in POSIX shell. However, the %b formatter unescapes
+simple control character sequences as well, so "foo\bar" will end up as
+"foar" because the '\b' is consumed as a backspace. I ended up writing
+my own unmangle routine to properly, and only, handle octal and hex
+escapes:
 
-The temporary file in vipw case is created to /etc/ and moved in
-place within directory.  Earlier /tmp/ was used, but it resulted
-to non-atomic move and rename(2) complaining about device
-boundary.  See following commit for details.
+https://github.com/falconindy/arch-install-scripts/blob/master/common#L70
 
-commit 3c4fed097ddb65dbe3d88f60caee78fb60756f3e
+Dave
 
-I am assuming /etc/ is not normally writable for users, so the
-security problem should be mostly theoretical.  That said perhaps
-a message such as
-
-vipw: intermediate /etc/vipw.XXXXX file change
-
-might be appropriate, if it is explained in vipw(8).  Or is it
-simply noise no-one cares?
-
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+>     Karel
+> 
+> -- 
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
