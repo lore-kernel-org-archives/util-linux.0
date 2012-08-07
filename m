@@ -1,106 +1,74 @@
-Return-Path: faizanh@linux.vnet.ibm.com
-Message-ID: <502354AD.3090307@linux.vnet.ibm.com>
-Date: Thu, 09 Aug 2012 11:41:57 +0530
-From: faizan husain <faizanh@linux.vnet.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:14796 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751274Ab2HGIJn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 7 Aug 2012 04:09:43 -0400
+Date: Tue, 7 Aug 2012 10:09:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
+Message-ID: <20120807080939.GF24621@x2.net.home>
+References: <501D42D2.6050904@draigBrady.com>
+ <20120806081533.GA24621@x2.net.home>
+ <20120806111059.GB24621@x2.net.home>
+ <501FD845.50001@draigBrady.com>
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: limit options --all, --online, --offline to parsable
- and extended output
-References: <20120808085911.GA3441@osiris.de.ibm.com>
-In-Reply-To: <20120808085911.GA3441@osiris.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <501FD845.50001@draigBrady.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 08 August 2012 02:29 PM, Heiko Carstens wrote:
-> So, how about the patch below in order to fix the issue Faisan
-> brought up for lspcu?
->
->  From 0f0f80b71e90b6ab58d9f6009b8356bb42235916 Mon Sep 17 00:00:00 2001
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Date: Wed, 8 Aug 2012 10:52:47 +0200
-> Subject: [PATCH] lscpu: limit options --all, --online, --offline to parsable
->   and extended output
->
-> Passing the --all, --online or --offline options for the output summary
-> doesn't make much sense. It should be limited to the two list output options.
->
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->   sys-utils/lscpu.1 |    9 ++++++---
->   sys-utils/lscpu.c |   12 ++++++++++++
->   2 files changed, 18 insertions(+), 3 deletions(-)
->
-> diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-> index 41dae83..f7e34b9 100644
-> --- a/sys-utils/lscpu.1
-> +++ b/sys-utils/lscpu.1
-> @@ -81,13 +81,16 @@ and hypervisor support CPU polarization.
->   .SH OPTIONS
->   .TP
->   .BR \-a , " \-\-all"
-> -Include online and offline CPUs in the output (default for -e).
-> +Include lines for online and offline CPUs in the output (default for -e). This
-> +option may only specified together with option -e or -p.
->   .TP
->   .BR \-b , " \-\-online"
-> -Limit the output to online CPUs (default for -p).
-> +Limit the output to online CPUs (default for -p). This option may only
-> +be specified together with option -e or -p.
->   .TP
->   .BR \-c , " \-\-offline"
-> -Limit the output to offline CPUs.
-> +Limit the output to offline CPUs. This option may only be specified together
-> +with option -e or -p.
->   .TP
->   .BR \-e , " \-\-extended " \fI[=list]\fP
->   Display the CPU information in human readable format.
-> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-> index b93998a..25a0273 100644
-> --- a/sys-utils/lscpu.c
-> +++ b/sys-utils/lscpu.c
-> @@ -1243,6 +1243,7 @@ int main(int argc, char *argv[])
->   	struct lscpu_desc _desc = { .flags = 0 }, *desc = &_desc;
->   	int c, i;
->   	int columns[ARRAY_SIZE(coldescs)], ncolumns = 0;
-> +	int cpu_modifier_specified = 0;
->
->   	static const struct option longopts[] = {
->   		{ "all",        no_argument,       0, 'a' },
-> @@ -1276,12 +1277,15 @@ int main(int argc, char *argv[])
->   		switch (c) {
->   		case 'a':
->   			mod->online = mod->offline = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'b':
->   			mod->online = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'c':
->   			mod->offline = 1;
-> +			cpu_modifier_specified = 1;
->   			break;
->   		case 'h':
->   			usage(stdout);
-> @@ -1316,6 +1320,14 @@ int main(int argc, char *argv[])
->   		}
->   	}
->
-> +	if (cpu_modifier_specified && mod->mode == OUTPUT_SUMMARY) {
-> +		fprintf(stderr,
-> +			_("%s: options --all, --online and --offline may only "
-> +			  "be used with options --extended or --parsable.\n"),
-> +			program_invocation_short_name);
-> +		return EXIT_FAILURE;
-> +	}
-> +
->   	if (argc != optind)
->   		usage(stderr);
->
-Looks good to me.
+On Mon, Aug 06, 2012 at 03:44:21PM +0100, Pádraig Brady wrote:
+> I did a quick test...
+
+ Thanks, I'll use it in regression tests ;-) (I was busy yesterday to
+ write any reg.tests.)
+
+> TARGET                 SOURCE     FSTYPE OPTIONS
+> /home/padraig/tst/ascii /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/ascii
+> TARGET                       SOURCE     FSTYPE OPTIONS
+> /home/padraig/tst/co\x0atrol /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/co\x0atrol
+> TARGET                       SOURCE     FSTYPE OPTIONS
+> /home/padraig/tst/back\slash /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/back\slash
+> TARGET                       SOURCE     FSTYPE OPTIONS
+> /home/padraig/tst/es\x63aped /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/es\x5cx63aped
+> TARGET SOURCE     FSTYPE OPTIONS
+> 
+>        /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/non\xfffffffatf8
+> TARGET                         SOURCE     FSTYPE OPTIONS
+> /home/padraig/tst/日一二三四五六 /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
+> /home/padraig/tst/\xffffffe6\xffffff97...
+> 
+> So two questions.
+> 
+> 1. Should the back\slash case be back\x5cslash in both cases?
+
+ back\slash is not \x<xdigit> sequence, so escape is unnecessary
+
+ Note that \\server\path is pretty common for cifs and use \x5c
+ for all '\' will make the findmnt output unreadable in many cases.
+ IMHO is better to be "smart" and use escape sequences only when it's
+ really necessary.
+
+> 2. The nonútf8 one produces an errant new line.
+> Also in this case could you fall back to using \x escapes for the whole string?
+
+ Yeah, nonútf8 output seems strange, I'll fix it.
 
 
-Thanks
-Faizan
+ I'll also update findmnt (and others) man pages to explain when and
+ how we use \x escapes. Is there any elegant way how to convert \x
+ sequences back to the native strings in shell? Maybe we can add some
+ hint to the man pages too.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
