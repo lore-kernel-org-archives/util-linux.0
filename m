@@ -1,66 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from investici.nine.ch ([217.150.252.179]:60201 "EHLO
-	confino.investici.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758605Ab2HJVpf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 10 Aug 2012 17:45:35 -0400
-Received: from [217.150.252.179] (confino [217.150.252.179]) (Authenticated sender: oijjjio@autistici.org) by localhost (Postfix) with ESMTPSA id 7EC00C865B
-	for <util-linux@vger.kernel.org>; Fri, 10 Aug 2012 21:45:30 +0000 (UTC)
-Date: Fri, 10 Aug 2012 23:44:35 +0200
-From: Naja Melan <najamelan@autistici.org>
-To: util-linux@vger.kernel.org
-Subject: umount failing on paths which end in a backslash
-Message-ID: <20120810234435.6af1f6d1@localhost>
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:51343 "EHLO
+	homiemail-a6.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754825Ab2HHLsx convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Aug 2012 07:48:53 -0400
+Subject: [PATCH] fdisk: aix: fix warning
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 08 Aug 2012 13:48:28 +0200
+Message-ID: <1344426508.2623.0.camel@offbook>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I tried to report this bug months ago to the debian maintainers of mount, but debian bug reporting is a minefield and by email all I got was a lousy answer from someone who didn't understand escaping in bash strings and who obviously never ran the script demonstrating the issue. 
+From: Davidlohr Bueso <dave@gnu.org>
 
-Given that this is rather fundamental flaw I decided to post it here. I never tested on anything but debian testing and I don't know if this bug still exists in the latest build.
+Fixes:
+ warning: no previous prototype for ‘aix_nolabel’
 
-My version:
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdiskaixlabel.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-mount from util-linux 2.20.1 (with libblkid and selinux support)
-
-
-The problem is that on ext path names ending in backslash are valid. Mount manages to mount something on them but umount chokes. It looks like somewhere on the way there is an escaping issue.
-
-The following script demonstrates the problem. Obviously you should change cdrom1 to something that exists and that you want to mount.
-
-
-#!/bin/bash
-
-mkdir 'te\st\'
-sudo mount -r /dev/cdrom1 'te\st\'
-ls 'te\st\'
-
-echo -e "\n\nmount:"
-mount
-echo -e "\n\n/proc/mounts:"
-cat /proc/mounts
-echo -e "\n\numount:"
-
-sudo umount /dev/cdrom1
-
-
-Abbreviated Output:
-
-...
-mount:
-...
-/dev/sr0 on /media/../te\st\134 type udf (ro,relatime,utf8)
-...
-cat /proc/mounts:
-...
-/dev/sr0 /media/.../te\134st\134 udf ro,relatime,utf8 0 0
-...
-umount: /media/.../te\st\134: not found
-
-Somehow this shows a difference in unescaping between the backslash in the middle and the backslash in the end, which does not get converted back from \134. Note that paths with backslashes in the middle do not suffer from this problem.
-
-Greetings
-Naja Melan
+diff --git a/fdisks/fdiskaixlabel.c b/fdisks/fdiskaixlabel.c
+index 0f249a4..6fe7b59 100644
+--- a/fdisks/fdiskaixlabel.c
++++ b/fdisks/fdiskaixlabel.c
+@@ -38,8 +38,7 @@ aix_info( void ) {
+     );
+ }
+ 
+-void
+-aix_nolabel(struct fdisk_context *cxt)
++static void aix_nolabel(struct fdisk_context *cxt)
+ {
+     struct aix_partition *aixlabel = (struct aix_partition *) cxt->firstsector;
+ 
+-- 
+1.7.4.1
 
 
 
