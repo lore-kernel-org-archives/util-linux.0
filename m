@@ -1,68 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:11601 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754009Ab2HECCT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 4 Aug 2012 22:02:19 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q7522ImN027293
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Sat, 4 Aug 2012 22:02:18 -0400
-Received: from [10.36.116.17] (ovpn-116-17.ams2.redhat.com [10.36.116.17])
-	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q7522G5u029576
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-CAMELLIA256-SHA bits=256 verify=NO)
-	for <util-linux@vger.kernel.org>; Sat, 4 Aug 2012 22:02:17 -0400
-Message-ID: <501DD427.5070004@draigBrady.com>
-Date: Sun, 05 Aug 2012 03:02:15 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from e06smtp13.uk.ibm.com ([195.75.94.109]:38308 "EHLO
+	e06smtp13.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755696Ab2HIH7K (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 Aug 2012 03:59:10 -0400
+Received: from /spool/local
+	by e06smtp13.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+	Thu, 9 Aug 2012 08:59:08 +0100
+Received: from d06av04.portsmouth.uk.ibm.com (d06av04.portsmouth.uk.ibm.com [9.149.37.216])
+	by d06nrmr1806.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q797wxol2113690
+	for <util-linux@vger.kernel.org>; Thu, 9 Aug 2012 08:58:59 +0100
+Received: from d06av04.portsmouth.uk.ibm.com (loopback [127.0.0.1])
+	by d06av04.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q797wxQf031902
+	for <util-linux@vger.kernel.org>; Thu, 9 Aug 2012 01:58:59 -0600
+Date: Thu, 9 Aug 2012 09:58:59 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: faizan husain <faizanh@linux.vnet.ibm.com>
+Cc: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: limit options --all, --online, --offline to
+ parsable and extended output
+Message-ID: <20120809075859.GA6814@osiris.de.ibm.com>
+References: <20120808085911.GA3441@osiris.de.ibm.com>
+ <50235651.6030409@linux.vnet.ibm.com>
+ <20120809065759.GA3930@osiris.de.ibm.com>
+ <50236466.2030906@linux.vnet.ibm.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
-References: <501D42D2.6050904@draigBrady.com> <20120804155755.GJ529@rampage>
-In-Reply-To: <20120804155755.GJ529@rampage>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50236466.2030906@linux.vnet.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/04/2012 04:57 PM, Dave Reisner wrote:
-> On Sat, Aug 04, 2012 at 04:42:10PM +0100, Pádraig Brady wrote:
->> There was a recent change in df in coreutils to sanitize output of paths:
->>
->> http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=3ed70fd
->>
->> The essential issue fixed there is that control chars in a path will be
->> converted to '?' (this works in all locales), and doing so will mean
->> '\n' for example is not output. You could even consider this a potential
->> security improvement so that arbitrary users couldn't influence the
->> output of these commands for all users.
->>
->> I suggest using the simple inplace replacement function from above.
+On Thu, Aug 09, 2012 at 12:49:02PM +0530, faizan husain wrote:
+> On Thursday 09 August 2012 12:27 PM, Heiko Carstens wrote:
+> >>  [root@mx3650m2 ~]# lscpu -a
+> >That wouldn't work with the patch above applied (and without the patch
+> >applied there wouldn't be any difference in the output, regardless if you
+> >would specify "-a" or not).
+> >
+> >So.. I don't understand what your concern is.
 > 
-> Why replace with a bogus character when you could instead use an octal
-> or hex escape? Wouldn't this still address the underlying problem?
-> Munging the content of a string could break a script consuming the
-> output with no way for the script to recover.
+> My concern here is, earlier we used to print all the column information with
+> -a, -b(limit online and other column info), -c(limit offline and other column info.
+> 
+> but with your patch we are certainly going to miss other information?
+> 
+> here is output from you patch:
+> 
+> [root@mx3650m2 ~]# lscpu -a
+> lscpu: options --all, --online and --offline may only be used with options --extended or --parsable.
+> 
+> [root@mx3650m2 util-linux-2.21.1]# lscpu -ae
+> 
+> CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE
+> 0   0    0      0    0:0:0:0       yes
+> 1   0    0      1    1:1:1:0       yes
 
-Yes true.
-I suppose you could use octal escapes, so 0x00 -> 0x1F are
-mapped to \000 -> \037 and '\' is mapped to \134
+[...]
 
-That's more invasive though.
-For df for now at least it was thought that
-requiring unambiguous output for these names was overkill.
-The names were adjusted just so as to avoid processing issues
-for other sanely named items.
+> so only CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE are printed with your patch.
+> other column like Architecture, CPU op-mode(s), Byte Order, Thread(s) per core,
+> vendors ID, CPU family etc... user are going to miss.
 
-Also related is the issue of non printable characters.
-For example if you view the unicode line separator char
-(\u2028) in certain places (like a pango editor like gedit for example)
-it will appear as a normal new line.
-It might be appropriate to replace or escape all non printable chars.
-That's complicated though (mbsalign in util-linux already does
-this to some extent).
+lscpu never printed columns for architecture, threads per core etc. for the
+extended and parsable output. My patch doesn't make any difference here.
+Also it doesn't make any sense to print such static and identical information
+for each and every cpu line.
 
-So you could have complex mappings, but I was
-thinking at least for these utils a simple method
-is appropriate to avoid the immediate issue.
+The purpose of the extended and parsable output is to give the user an overview
+of the cpu topology and per cpu attributes.
+It's purpose is certainly not to give an overview of the whole system.
 
-cheers,
-Pádraig.
