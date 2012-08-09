@@ -1,58 +1,61 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:62985 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752218Ab2HNHCv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Aug 2012 03:02:51 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] lib/sysfs: make sysfs_partno_to_devno better readable
-Date: Tue, 14 Aug 2012 09:01:45 +0200
-Message-Id: <1344927705-5866-1-git-send-email-mail@bernhard-voelker.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: faizanh@linux.vnet.ibm.com
+Message-ID: <50237463.4040401@linux.vnet.ibm.com>
+Date: Thu, 09 Aug 2012 13:57:15 +0530
+From: faizan husain <faizanh@linux.vnet.ibm.com>
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: limit options --all, --online, --offline to parsable
+ and extended output
+References: <20120808085911.GA3441@osiris.de.ibm.com> <50235651.6030409@linux.vnet.ibm.com> <20120809065759.GA3930@osiris.de.ibm.com> <50236466.2030906@linux.vnet.ibm.com> <20120809075859.GA6814@osiris.de.ibm.com>
+In-Reply-To: <20120809075859.GA6814@osiris.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- lib/sysfs.c |   16 +++++++++-------
- 1 files changed, 9 insertions(+), 7 deletions(-)
+On Thursday 09 August 2012 01:28 PM, Heiko Carstens wrote:
+> On Thu, Aug 09, 2012 at 12:49:02PM +0530, faizan husain wrote:
+>> On Thursday 09 August 2012 12:27 PM, Heiko Carstens wrote:
+>>>>   [root@mx3650m2 ~]# lscpu -a
+>>> That wouldn't work with the patch above applied (and without the patch
+>>> applied there wouldn't be any difference in the output, regardless if you
+>>> would specify "-a" or not).
+>>>
+>>> So.. I don't understand what your concern is.
+>> My concern here is, earlier we used to print all the column information with
+>> -a, -b(limit online and other column info), -c(limit offline and other column info.
+>>
+>> but with your patch we are certainly going to miss other information?
+>>
+>> here is output from you patch:
+>>
+>> [root@mx3650m2 ~]# lscpu -a
+>> lscpu: options --all, --online and --offline may only be used with options --extended or --parsable.
+>>
+>> [root@mx3650m2 util-linux-2.21.1]# lscpu -ae
+>>
+>> CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE
+>> 0   0    0      0    0:0:0:0       yes
+>> 1   0    0      1    1:1:1:0       yes
+> [...]
+>
+>> so only CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE are printed with your patch.
+>> other column like Architecture, CPU op-mode(s), Byte Order, Thread(s) per core,
+>> vendors ID, CPU family etc... user are going to miss.
+> lscpu never printed columns for architecture, threads per core etc. for the
+> extended and parsable output. My patch doesn't make any difference here.
+> Also it doesn't make any sense to print such static and identical information
+> for each and every cpu line.
+>
+> The purpose of the extended and parsable output is to give the user an overview
+> of the cpu topology and per cpu attributes.
+> It's purpose is certainly not to give an overview of the whole system.
 
-diff --git a/lib/sysfs.c b/lib/sysfs.c
-index b468e88..7b2c5f7 100644
---- a/lib/sysfs.c
-+++ b/lib/sysfs.c
-@@ -321,8 +321,8 @@ int sysfs_is_partition_dirent(DIR *dir, struct dirent *d, const char *parent_nam
- }
- 
- /*
-- * Copnverts @partno (partition number) to devno of the partition. The @cxt
-- * handles wholedisk device.
-+ * Converts @partno (partition number) to devno of the partition.
-+ * The @cxt handles wholedisk device.
-  *
-  * Note that this code does not expect any special format of the
-  * partitions devnames.
-@@ -345,13 +345,15 @@ dev_t sysfs_partno_to_devno(struct sysfs_cxt *cxt, int partno)
- 			continue;
- 
- 		snprintf(path, sizeof(path), "%s/partition", d->d_name);
--		if (sysfs_read_int(cxt, path, &n) || n != partno)
-+		if (sysfs_read_int(cxt, path, &n))
- 			continue;
- 
--		snprintf(path, sizeof(path), "%s/dev", d->d_name);
--		if (sysfs_scanf(cxt, path, "%d:%d", &maj, &min) == 2)
--			devno = makedev(maj, min);
--		break;
-+		if (n == partno) {
-+			snprintf(path, sizeof(path), "%s/dev", d->d_name);
-+			if (sysfs_scanf(cxt, path, "%d:%d", &maj, &min) == 2)
-+				devno = makedev(maj, min);
-+			break;
-+		}
- 	}
- 
- 	closedir(dir);
--- 
-1.7.7
+Sorry for creating confusion here,that is correct, lscpu never printed columns for architecture, threads per core etc. for the
+extended and parsable output.
+what i feel is earlier we used to have lot of other CPU Architecture specific information printed (see man page DESCRIPTION) with -a, -b ,-c option
+but with your patch as -a, -b and -c are used only with -e and -p option those column information are suppressed.
 
+Thanks
+
+Faizan
