@@ -1,91 +1,107 @@
-Return-Path: d@falconindy.com
-Date: Tue, 7 Aug 2012 07:35:21 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-        util-linux@vger.kernel.org
-Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
-Message-ID: <20120807113521.GC564@rampage>
-References: <501D42D2.6050904@draigBrady.com>
- <20120806081533.GA24621@x2.net.home>
- <20120806111059.GB24621@x2.net.home>
- <501FD845.50001@draigBrady.com>
- <20120807080939.GF24621@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:30288 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751669Ab2HMNtF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Aug 2012 09:49:05 -0400
+Date: Mon, 13 Aug 2012 15:48:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] eject: return proper 0/1 from eject_cdrom()
+Message-ID: <20120813134858.GC21956@x2.net.home>
+References: <1344266172-8818-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20120807080939.GF24621@x2.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1344266172-8818-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 07, 2012 at 10:09:39AM +0200, Karel Zak wrote:
-> On Mon, Aug 06, 2012 at 03:44:21PM +0100, Pádraig Brady wrote:
-> > I did a quick test...
+On Mon, Aug 06, 2012 at 11:16:12AM -0400, Dave Reisner wrote:
+> main() expects this method to return 0 for failure and 1 for success, as
+> the other eject_*() methods do. Add the missing comparison of ioctl() >= 0
 > 
->  Thanks, I'll use it in regression tests ;-) (I was busy yesterday to
->  write any reg.tests.)
+> Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+> ---
+>  sys-utils/eject.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> > TARGET                 SOURCE     FSTYPE OPTIONS
-> > /home/padraig/tst/ascii /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/ascii
-> > TARGET                       SOURCE     FSTYPE OPTIONS
-> > /home/padraig/tst/co\x0atrol /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/co\x0atrol
-> > TARGET                       SOURCE     FSTYPE OPTIONS
-> > /home/padraig/tst/back\slash /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/back\slash
-> > TARGET                       SOURCE     FSTYPE OPTIONS
-> > /home/padraig/tst/es\x63aped /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/es\x5cx63aped
-> > TARGET SOURCE     FSTYPE OPTIONS
-> > 
-> >        /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/non\xfffffffatf8
-> > TARGET                         SOURCE     FSTYPE OPTIONS
-> > /home/padraig/tst/日一二三四五六 /dev/loop1 ext2   rw,relatime,seclabel,errors=continue
-> > /home/padraig/tst/\xffffffe6\xffffff97...
-> > 
-> > So two questions.
-> > 
-> > 1. Should the back\slash case be back\x5cslash in both cases?
-> 
->  back\slash is not \x<xdigit> sequence, so escape is unnecessary
-> 
->  Note that \\server\path is pretty common for cifs and use \x5c
->  for all '\' will make the findmnt output unreadable in many cases.
->  IMHO is better to be "smart" and use escape sequences only when it's
->  really necessary.
-> 
-> > 2. The nonútf8 one produces an errant new line.
-> > Also in this case could you fall back to using \x escapes for the whole string?
-> 
->  Yeah, nonútf8 output seems strange, I'll fix it.
-> 
-> 
->  I'll also update findmnt (and others) man pages to explain when and
->  how we use \x escapes. Is there any elegant way how to convert \x
->  sequences back to the native strings in shell? Maybe we can add some
->  hint to the man pages too.
-> 
+> diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+> index 08af08e..84bd342 100644
+> --- a/sys-utils/eject.c
+> +++ b/sys-utils/eject.c
+> @@ -398,9 +398,9 @@ static void close_tray(int fd)
+>  static int eject_cdrom(int fd)
+>  {
+>  #if defined(CDROMEJECT)
+> -	return ioctl(fd, CDROMEJECT);
+> +	return ioctl(fd, CDROMEJECT) >= 0;
+>  #elif defined(CDIOCEJECT)
+> -	return ioctl(fd, CDIOCEJECT);
+> +	return ioctl(fd, CDIOCEJECT) >= 0;
+>  #else
+>  	warnx(_("CD-ROM eject unsupported"));
+>  	errno = ENOSYS;
 
-You can do something as simple as:
+ Good idea, but did you read the code where eject_cdrom() is called
+ (e.g. toggle_tray()) ?  I have applied the patch below.
 
-  printf '%b' "$mangled_content"
+    Karel
 
-And it works even in POSIX shell. However, the %b formatter unescapes
-simple control character sequences as well, so "foo\bar" will end up as
-"foar" because the '\b' is consumed as a backspace. I ended up writing
-my own unmangle routine to properly, and only, handle octal and hex
-escapes:
 
-https://github.com/falconindy/arch-install-scripts/blob/master/common#L70
+commit 3514cc3a8f14cc39589fee3edefaa161ac1bd0a6
+Author: Dave Reisner <dreisner@archlinux.org>
+Date:   Mon Aug 6 11:16:12 2012 -0400
 
-Dave
+    eject: return proper 0/1 from eject_cdrom()
+    
+    main() expects this method to return 0 for failure and 1 for success, as
+    the other eject_*() methods do. Add the missing comparison of ioctl() >= 0
+    
+    Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+    Signed-off-by: Karel Zak <kzak@redhat.com>
 
->     Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index 08af08e..2097961 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -398,13 +398,13 @@ static void close_tray(int fd)
+ static int eject_cdrom(int fd)
+ {
+ #if defined(CDROMEJECT)
+-	return ioctl(fd, CDROMEJECT);
++	return ioctl(fd, CDROMEJECT) >= 0;
+ #elif defined(CDIOCEJECT)
+-	return ioctl(fd, CDIOCEJECT);
++	return ioctl(fd, CDIOCEJECT) >= 0;
+ #else
+ 	warnx(_("CD-ROM eject unsupported"));
+ 	errno = ENOSYS;
+-	return -1;
++	return 0;
+ #endif
+ }
+ 
+@@ -432,7 +432,7 @@ static void toggle_tray(int fd)
+ 
+ 	case CDS_NO_DISC:
+ 	case CDS_DISC_OK:
+-		if (eject_cdrom(fd))
++		if (!eject_cdrom(fd))
+ 			err(EXIT_FAILURE, _("CD-ROM eject command failed"));
+ 		return;
+ 	case CDS_NO_INFO:
+@@ -453,7 +453,7 @@ static void toggle_tray(int fd)
+ 	gettimeofday(&time_start, NULL);
+ 
+ 	/* Send the CDROMEJECT command to the device. */
+-	if (eject_cdrom(fd) < 0)
++	if (!eject_cdrom(fd))
+ 		err(EXIT_FAILURE, _("CD-ROM eject command failed"));
+ 
+ 	/* Get the second timestamp, to measure the time needed to open
+
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
