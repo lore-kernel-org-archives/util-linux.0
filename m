@@ -1,37 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:60640 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754934Ab2HUP10 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 21 Aug 2012 11:27:26 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] fdisk: fix typo in comment
-Date: Tue, 21 Aug 2012 17:26:33 +0200
-Message-Id: <1345562793-25246-1-git-send-email-mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:16244 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751456Ab2HMOmK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Aug 2012 10:42:10 -0400
+Date: Mon, 13 Aug 2012 16:42:04 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Naja Melan <najamelan@autistici.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: umount failing on paths which end in a backslash
+Message-ID: <20120813144204.GF21956@x2.net.home>
+References: <20120810234435.6af1f6d1@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120810234435.6af1f6d1@localhost>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* fdisks/utils.c: s/firts/first/. Found by misspellings.
+On Fri, Aug 10, 2012 at 11:44:35PM +0200, Naja Melan wrote:
+> I tried to report this bug months ago to the debian maintainers of
+> mount, but debian bug reporting is a minefield and by email all I
+> got was a lousy answer from someone who didn't understand escaping
+> in bash strings and who obviously never ran the script demonstrating
+> the issue.
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- fdisks/utils.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Fixed. It seems like a pretty old bug (v2.19 or so...). Thanks!
 
-diff --git a/fdisks/utils.c b/fdisks/utils.c
-index 84cdd4d..77b0be6 100644
---- a/fdisks/utils.c
-+++ b/fdisks/utils.c
-@@ -317,7 +317,7 @@ static int __discover_topology(struct fdisk_context *cxt)
-  * fdisk_zeroize_firstsector:
-  * @cxt: fdisk context
-  *
-- * Zero's in-memory firts sector buffer
-+ * Zero's in-memory first sector buffer
-  */
- void fdisk_zeroize_firstsector(struct fdisk_context *cxt)
- {
+    Karel
+
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
