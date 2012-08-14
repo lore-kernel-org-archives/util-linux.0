@@ -1,284 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.8]:56292 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754592Ab2HAHhr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 1 Aug 2012 03:37:47 -0400
-Message-ID: <5018DCC8.1050803@bernhard-voelker.de>
-Date: Wed, 01 Aug 2012 09:37:44 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:45375 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752924Ab2HNJ5D (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Aug 2012 05:57:03 -0400
+Received: by obbuo13 with SMTP id uo13so304896obb.19
+        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2012 02:57:02 -0700 (PDT)
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] tests: fix layout info in dos and non-dos mode fdisk test
-Content-Type: multipart/mixed;
- boundary="------------090909020600070900060703"
+Date: Tue, 14 Aug 2012 05:57:01 -0400
+Message-ID: <CAN1hMuBe9PcKvdNr=A3uTgu0JDNT0mVkeDS3T4MNtfjoa40ZsQ@mail.gmail.com>
+Subject: column --separator segfaults (patch attached)
+From: B Watson <yalhcru@gmail.com>
+To: util-linux@vger.kernel.org
+Content-Type: multipart/mixed; boundary=e89a8f643690f712a304c736d499
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------090909020600070900060703
+--e89a8f643690f712a304c736d499
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-Hi Karel,
+Apologies to list moderator, I attempted to subscribe to the list but
+vger's majordomo doesn't seem to like gmail. Anyway:
 
-since you added the layout info to ts/fdisk/mbr-dos-mode, that test fails.
-It seems you inserted too many blanks in the header line (... or that test
-behaves differently on my machine).
-Likewise with the new mbr-nondos-mode test.
+The --separator and --columns long options in util-linux-2.21.2 and in
+a git clone from 5 minutes ago, don't work:
 
-Given the result is not hosed on my machine, I've attached a patch
-to adapt the expected output of both tests.
+# Short options OK:
 
-Example:
--                                                                   Device Boot      Start         End      Blocks   Id
- System
-+                                                               Device Boot      Start         End      Blocks   Id  System
+$ echo foobar | column -s x
+foobar
 
-(I attached it because the lines are rather long and I don't want
-any mail software in between to break the lines).
+$ echo foobar | column -c 10
+foobar
 
-Have a nice day,
-Berny
+# Long options bad:
 
+$ echo foobar | column --separator=x
+column: option '--separator' doesn't allow an argument
 
---------------090909020600070900060703
-Content-Type: text/x-patch;
- name="tests-fdisk-mbr-layout.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="tests-fdisk-mbr-layout.diff"
+$ echo foobar | column --separator x
+Segmentation fault
 
->From 7bfad48f215fcd963d13d76b23c542892e3ecf06 Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Wed, 1 Aug 2012 09:30:57 +0200
-Subject: [PATCH] tests: fix layout info in dos and non-dos mode fdisk test
+$ echo foobar | column --columns 10
+column: bad columns width value: '(null)': Invalid argument
 
-* tests/expected/fdisk/mbr-dos-mode: Change identation of layout info
-header to match actual number of leading blanks.
-* tests/expected/fdisk/mbr-nondos-mode: Likewise.
-Bug introduced in v2.22-rc1-17-g2650cac and v2.22-rc1-20-g675c1ff.
+$ echo foobar | column --columns=10
+column: option '--columns' doesn't allow an argument
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- tests/expected/fdisk/mbr-dos-mode    |   22 +++++++++++-----------
- tests/expected/fdisk/mbr-nondos-mode |   24 ++++++++++++------------
- 2 files changed, 23 insertions(+), 23 deletions(-)
+Looks like a simple case of missing has_arg flag in the "struct option"
+initialization for these two options. The patch just adds the flag. I
+haven't done thorough testing of the patched code, but it seems to work
+OK and it no longer segfaults or tries to dereference a null pointer.
 
-diff --git a/tests/expected/fdisk/mbr-dos-mode b/tests/expected/fdisk/mbr-dos-mode
-index 16de4d5..ebf7265 100644
---- a/tests/expected/fdisk/mbr-dos-mode
-+++ b/tests/expected/fdisk/mbr-dos-mode
-@@ -11,7 +11,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- -------------------
- 
- Create primary partition
-@@ -25,7 +25,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- -------------------
- 
-@@ -40,7 +40,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   bf  Solaris
- -------------------
- 
-@@ -55,7 +55,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1   *           1           1        8001   bf  Solaris
- -------------------
- 
-@@ -70,7 +70,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- -------------------
- 
-@@ -85,7 +85,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- __ts_dev__2               2          12       88357+   5  Extended
- -------------------
-@@ -101,7 +101,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- __ts_dev__2               2          12       88357+   5  Extended
- __ts_dev__5               2           3       16033+  83  Linux
-@@ -121,7 +121,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- __ts_dev__2               2          12       88357+   5  Extended
- __ts_dev__5               6           7       16033+  83  Linux
-@@ -138,7 +138,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1               1           1        8001   83  Linux
- __ts_dev__2               2          12       88357+   5  Extended
- __ts_dev__5               6           7       16033+  83  Linux
-@@ -158,7 +158,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- __ts_dev__2               2          12       88357+   5  Extended
- __ts_dev__5               6           7       16033+  83  Linux
- __ts_dev__6               2           3       16033+  83  Linux
-@@ -177,6 +177,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                   Device Boot      Start         End      Blocks   Id  System
-+                                                               Device Boot      Start         End      Blocks   Id  System
- -------------------
- 
-diff --git a/tests/expected/fdisk/mbr-nondos-mode b/tests/expected/fdisk/mbr-nondos-mode
-index 088ce67..058ba3c 100644
---- a/tests/expected/fdisk/mbr-nondos-mode
-+++ b/tests/expected/fdisk/mbr-nondos-mode
-@@ -10,7 +10,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- -------------------
- 
- Create 1st primary partition
-@@ -23,7 +23,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- -------------------
- 
-@@ -37,7 +37,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1   *        2048        8191        3072   83  Linux
- -------------------
- 
-@@ -51,7 +51,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- -------------------
- 
-@@ -65,7 +65,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- __ts_dev__2            8192       12287        2048   83  Linux
- -------------------
-@@ -80,7 +80,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- __ts_dev__2            8192       12287        2048   83  Linux
- __ts_dev__3           12288       40959       14336    5  Extended
-@@ -96,7 +96,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- __ts_dev__2            8192       12287        2048   83  Linux
- __ts_dev__3           12288       40959       14336    5  Extended
-@@ -116,7 +116,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- __ts_dev__2            8192       12287        2048   83  Linux
- __ts_dev__3           12288       40959       14336    5  Extended
-@@ -133,7 +133,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__1            2048        8191        3072   83  Linux
- __ts_dev__2            8192       12287        2048   83  Linux
- __ts_dev__3           12288       40959       14336    5  Extended
-@@ -153,7 +153,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__2            8192       12287        2048   83  Linux
- __ts_dev__3           12288       40959       14336    5  Extended
- __ts_dev__5           26624       30719        2048   83  Linux
-@@ -172,7 +172,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- __ts_dev__3           12288       40959       14336    5  Extended
- __ts_dev__5           26624       30719        2048   83  Linux
- __ts_dev__6           14336       18431        2048   83  Linux
-@@ -190,6 +190,6 @@ Sector size (logical/physical): 512 bytes / 512 bytes
- I/O size (minimum/optimal): 512 bytes / 512 bytes
- Disk identifier: 0x00000001
- 
--                                                                      Device Boot      Start         End      Blocks   Id  System
-+                                                                  Device Boot      Start         End      Blocks   Id  System
- -------------------
- 
--- 
-1.7.7
+--e89a8f643690f712a304c736d499
+Content-Type: application/octet-stream; name="column-fix_long_opts.diff"
+Content-Disposition: attachment; filename="column-fix_long_opts.diff"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: file0
 
-
---------------090909020600070900060703--
+ZGlmZiAtTmF1ciB1dGlsLWxpbnV4LTIuMjEuMi90ZXh0LXV0aWxzL2NvbHVtbi5jIHV0aWwtbGlu
+dXgtMi4yMS4yLnBhdGNoZWQvL3RleHQtdXRpbHMvY29sdW1uLmMKLS0tIHV0aWwtbGludXgtMi4y
+MS4yL3RleHQtdXRpbHMvY29sdW1uLmMJMjAxMi0wNS0yNSAwNTo0NDo1OS4wMDAwMDAwMDAgLTA0
+MDAKKysrIHV0aWwtbGludXgtMi4yMS4yLnBhdGNoZWQvL3RleHQtdXRpbHMvY29sdW1uLmMJMjAx
+Mi0wOC0xNCAwNToyMjoxNy4wMDAwMDAwMDAgLTA0MDAKQEAgLTEyMSw5ICsxMjEsOSBAQAogCXsK
+IAkJeyAiaGVscCIsCTAsIDAsICdoJyB9LAogCQl7ICJ2ZXJzaW9uIiwgICAgMCwgMCwgJ1YnIH0s
+Ci0JCXsgImNvbHVtbnMiLAkwLCAwLCAnYycgfSwKKwkJeyAiY29sdW1ucyIsCTEsIDAsICdjJyB9
+LAogCQl7ICJ0YWJsZSIsCTAsIDAsICd0JyB9LAotCQl7ICJzZXBhcmF0b3IiLAkwLCAwLCAncycg
+fSwKKwkJeyAic2VwYXJhdG9yIiwJMSwgMCwgJ3MnIH0sCiAJCXsgImZpbGxyb3dzIiwJMCwgMCwg
+J3gnIH0sCiAJCXsgTlVMTCwJCTAsIDAsIDAgfSwKIAl9Owo=
+--e89a8f643690f712a304c736d499--
