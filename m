@@ -1,46 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6816 "EHLO mx1.redhat.com"
+Received: from solo.fdn.fr ([80.67.169.19]:34739 "EHLO solo.fdn.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755801Ab2HFLLC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 Aug 2012 07:11:02 -0400
-Date: Mon, 6 Aug 2012 13:10:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+	id S1754169Ab2HOMXz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 15 Aug 2012 08:23:55 -0400
+Date: Wed, 15 Aug 2012 14:23:51 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: suggestion to avoid erroneous lines in findmnt/lslocks/...
-Message-ID: <20120806111059.GB24621@x2.net.home>
-References: <501D42D2.6050904@draigBrady.com>
- <20120806081533.GA24621@x2.net.home>
+Subject: Re: [PATCH] Fix non-Linux build
+Message-ID: <20120815122351.GA15151@type.famille.thibault.fr>
+References: <20120808151943.GR10080@type.famille.thibault.fr>
+ <20120813132546.GB21956@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120806081533.GA24621@x2.net.home>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20120813132546.GB21956@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 06, 2012 at 10:15:33AM +0200, Karel Zak wrote:
-> I'll fix it to use iscntrl() and \x?? hex (to be consistent our
-> another outputs).
+Karel Zak, le Mon 13 Aug 2012 15:25:46 +0200, a écrit :
+> I guess the syscall is Linux specific.
 
-Fixed:
+It is.
 
- - mount(8) uses '?' like coreutils for control chars (note that
-   listing mode in mount(8) is in maintenance mode, use findmnt(8) if
-   you want something better)
-
- - \x<code> is used in findmnt, lsblk, partx, ... for control and non-printable
-   chars
-
- - in the raw and export (NAME=data) output are also replaced already existing
-   \x<code> sequences (aaa\x20bbb --> aaa\x5cx20bbb).
-
-   This is not used in the default output to keep it human readable (\x?? is
-   pretty common in /dev/disk/by-*).
-
-
-I have also fixed the way how lib/tt.c counts cells, it's possible
-that old findmnt, lsblk, ... versions have a problem with some languages
-(e.g JP) where more than one cell is necessary to print one multibyte.
-
-
-    Karel
-
+Samuel
