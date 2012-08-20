@@ -1,25 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from solo.fdn.fr ([80.67.169.19]:34739 "EHLO solo.fdn.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754169Ab2HOMXz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 15 Aug 2012 08:23:55 -0400
-Date: Wed, 15 Aug 2012 14:23:51 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix non-Linux build
-Message-ID: <20120815122351.GA15151@type.famille.thibault.fr>
-References: <20120808151943.GR10080@type.famille.thibault.fr>
- <20120813132546.GB21956@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20120813132546.GB21956@x2.net.home>
+Received: from gerolde.archlinux.org ([66.211.214.132]:46847 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752388Ab2HTKGW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Aug 2012 06:06:22 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] findmnt: use st.st_bavail for available column
+Date: Mon, 20 Aug 2012 06:06:17 -0400
+Message-Id: <1345457177-4072-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak, le Mon 13 Aug 2012 15:25:46 +0200, a écrit :
-> I guess the syscall is Linux specific.
+This matches more closely with what 'df -h' reports as space available.
+Any remaining discrepancy between these 2 tools is a result of precision
+and choices in rounding.
 
-It is.
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ misc-utils/findmnt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Samuel
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index db40323..853fae0 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -374,7 +374,7 @@ static const char *get_vfs_attr(struct libmnt_fs *fs, int sizetype)
+ 		vfs_attr = buf.f_frsize * buf.f_blocks;
+ 		break;
+ 	case COL_AVAIL:
+-		vfs_attr = buf.f_frsize * buf.f_bfree;
++		vfs_attr = buf.f_frsize * buf.f_bavail;
+ 		break;
+ 	case COL_USED:
+ 		vfs_attr = buf.f_frsize * (buf.f_blocks - buf.f_bfree);
+-- 
+1.7.11.5
+
