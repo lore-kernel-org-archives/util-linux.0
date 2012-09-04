@@ -1,42 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28772 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44097 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751835Ab2IKHgX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Sep 2012 03:36:23 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8B7aNKG023740
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 11 Sep 2012 03:36:23 -0400
-Date: Tue, 11 Sep 2012 09:36:21 +0200
+	id S1751102Ab2IDPpH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 4 Sep 2012 11:45:07 -0400
+Date: Tue, 4 Sep 2012 17:45:04 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ondrej Oprala <ooprala@redhat.com>
+To: Iain Paton <selsinork@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [RFE] hwclock: new --compare option
-Message-ID: <20120911073621.GD4576@x2.net.home>
-References: <503E45E3.8010001@redhat.com>
+Subject: Re: problem with script -e
+Message-ID: <20120904154504.GE21432@x2.net.home>
+References: <4FEF26A0.3010901@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <503E45E3.8010001@redhat.com>
+In-Reply-To: <4FEF26A0.3010901@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 29, 2012 at 06:40:03PM +0200, Ondrej Oprala wrote:
-> From 3a5494a1c32e2698de0508cec70149bed8149032 Mon Sep 17 00:00:00 2001
-> From: Ondrej Oprala <ooprala@redhat.com>
-> Date: Wed, 29 Aug 2012 18:11:15 +0200
-> Subject: [PATCH] hwclock: add a new --compare option
-> 
-> The new option imitates adjtimex -c functionality and outputs
-> the drift in 10 second intervals.
-> ---
->  sys-utils/hwclock.c | 75 ++++++++++++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 71 insertions(+), 4 deletions(-)
+On Sat, Jun 30, 2012 at 05:17:36PM +0100, Iain Paton wrote:
+> Came across an unexpected feature with script today. Can't make my mind up if 
+> it's a bug or not, but it certainly makes some things difficult.
 
- Applied with some changes (I have added hw-time and system-time
- columns to the output), thanks.
+ Sorry for delay...
+
+> Seems that there's an implicit assumption that stdin will always be a tty for 
+> the script process - strace shows all sorts of -ENOTTY stuff when it's not.
+
+ Yes, "script - make typescript of terminal sessions". It initializes
+ a new pseudoterminal and makes connection between the current session
+ and the new terminal.
+
+> I came up with the following that works for my use case, but maybe there's a 
+> better way ?
+> 
+> --- script.c.org	2011-08-29 09:31:19.000000000 +0100
+> +++ script.c	2012-06-30 16:24:42.896997422 +0100
+> @@ -295,18 +295,29 @@
+>  
+>  	fclose(fscript);
+>  
+> -	while (die == 0) {
+> -		if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
+> -			ssize_t wrt = write(master, ibuf, cc);
+> -			if (wrt < 0) {
+> -				warn (_("write failed"));
+> -				fail();
+> +	if(isatty(STDIN_FILENO)) {
+> +
+> +		while (die == 0) {
+> +			if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
+> +				ssize_t wrt = write(master, ibuf, cc);
+> +				if (wrt < 0) {
+> +					warn (_("write failed"));
+> +					fail();
+> +				}
+>  			}
+> +			else if (cc < 0 && errno == EINTR && resized)
+> +				resized = 0;
+> +			else
+> +				break;
+> +		}
+> +	} else {
+> +	
+> +		while(die == 0) {
+> +			
+> +			fd_set fs;
+> +			FD_ZERO(&fs);
+> +			select(1, &fs, &fs, &fs, NULL);
+
+
+ Hmm... what the others things like tcsetattr(), etc. Anyway, I'll try
+ to play with the patch. It seems like interesting idea.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
