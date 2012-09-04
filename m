@@ -1,42 +1,31 @@
-Return-Path: glebfm@altlinux.org
-Date: Thu, 27 Sep 2012 20:18:16 +0400
-From: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: [PATCH] libmount: fix support of comma-separated fs types lists
-Message-ID: <20120927161807.GA19450@c227.office.altlinux.ru>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:56153 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752761Ab2IDKu6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 4 Sep 2012 06:50:58 -0400
+Date: Tue, 4 Sep 2012 12:50:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] fdisk: document FDISK_DEBUG
+Message-ID: <20120904105054.GA28558@x2.net.home>
+References: <1345625829.2623.0.camel@offbook>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1345625829.2623.0.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-	# grep cdrom /etc/fstab
-	/dev/sr0 /media/cdrom udf,iso9660 ro,noauto,user,utf8 0 0
-	# mount /media/cdrom
-	mount: unknown filesystem type 'udf,iso9660'
+On Wed, Aug 22, 2012 at 10:57:09AM +0200, Davidlohr Bueso wrote:
+>  fdisks/fdisk.8 |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
 
-	# mount -t udf,iso9660 /dev/sr0 /media/cdrom
-	mount: /dev/sr0 is write-protected, mounting read-only
+ Applied, thanks. It would be nice to have this info also in findmnt,
+ mount, umount, wipefs, partx, ... man pages. (LIBBLKID_DEBUG= and
+ LIBMOUNT_DEBUG=)
 
-Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
----
- libmount/src/context_mount.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  Karel
 
-diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index f3d8ff1..efd7e7b 100644
---- a/libmount/src/context_mount.c
-+++ b/libmount/src/context_mount.c
-@@ -691,7 +691,7 @@ int mnt_context_do_mount(struct libmnt_context *cxt)
- 		cxt->mountdata =3D (char *) mnt_fs_get_fs_options(cxt->fs);
-=20
- 	type =3D mnt_fs_get_fstype(cxt->fs);
--	if (type)
-+	if (type && !strchr(type, ','))
- 		res =3D do_mount(cxt, NULL);
- 	else
- 		res =3D do_mount_by_pattern(cxt, cxt->fstype_pattern);
-
---=20
-	glebfm
-	=E7=CC=C5=C2 =E6=CF=D4=C5=CE=C7=C1=D5=DC=D2-=ED=C1=CC=C9=CE=CF=D7=D3=CB=C9=
-=CA
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
