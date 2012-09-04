@@ -1,68 +1,135 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64556 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752175Ab2IZINF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Sep 2012 04:13:05 -0400
-Date: Wed, 26 Sep 2012 10:12:58 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Kay Sievers <kay@vrfy.org>
-Cc: Francesco Turco <fturco@fastmail.fm>, util-linux@vger.kernel.org
-Subject: Re: Why fdisk wants the first partition to start at 1 MiB?
-Message-ID: <20120926081258.GF22639@x2.net.home>
-References: <1348605188.19630.140661132636721.0CD0D5D4@webmail.messagingengine.com>
- <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
+Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:54694 "EHLO
+	homiemail-a4.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753192Ab2IDN6L (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 4 Sep 2012 09:58:11 -0400
+Subject: [PATCH 1/2] blkid: document LIBBLKID_DEBUG users
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 04 Sep 2012 15:58:02 +0200
+Message-ID: <1346767082.2668.3.camel@offbook>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 25, 2012 at 10:50:44PM +0200, Kay Sievers wrote:
-> On Tue, Sep 25, 2012 at 10:33 PM, Francesco Turco <fturco@fastmail.fm> wrote:
-> > I'm trying to use fdisk (from util-linux 2.19.1) for creating a
-> > partition on a drive. I noticed that the start sector of the first
-> > partition must be at least 2048, that is 1 MiB from the beginning of the
-> > drive. This can be changed by entering the "expert mode" and using the
-> > "move beginning of data in a partition" option. But I'm still wondering
-> > why fdisk reserves so much space by default.
-> >
-> > As far as I know the only sector that should not be used for partitions
-> > is the first one, that is, sector 0. It is reserved for the MBR. So the
-> > first partition can start at sector 1. I read that the 1 MiB thing is
-> > Windows related: http://en.wikipedia.org/wiki/Logical_Disk_Manager. Or
-> > it's something that Linux users should also care about? I can't find a
-> > convincing explanation anywhere.
-> >
-> > This 1 MiB thing seems to affect parted, too, as it wants partition
-> > boundaries to be multiples of 1 MiB. I don't know if it's related to the
-> > problem I have with fdisk, though.
-> 
-> It's a de-facto standard, which Windows does too. The first megabyte
-> is reserved here for a boot loader or any other management data that
-> could be needed for a disk or box to boot from.
+Update the manpages of programs that use this environment variable for
+extra debugging information.
 
- The real reason is that 1MiB is ideal offset to keep partitions
- aligned on almost all random hardware. This offset is compatible with
- 512-byte, 4096-byte sector devices, many raid devices as well as old
- broken WD disks where physical sector size has been incorrectly
- reported. You can use dd(1) to move your PT + data to another device
- without care about physical device topology (I/O limits), etc.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ disk-utils/fsck.8      |    3 +++
+ disk-utils/mkswap.8    |    3 +++
+ disk-utils/partx.8     |    3 +++
+ disk-utils/swaplabel.8 |    3 +++
+ misc-utils/blkid.8     |    3 +++
+ misc-utils/findfs.8    |    3 +++
+ misc-utils/wipefs.8    |    3 +++
+ 7 files changed, 21 insertions(+), 0 deletions(-)
 
- It's also important to keep your partition sizes aligned to MiB --
- this is for example default in fdisk if you specify the size in
- +<size>{M,G} convention.
-
-> Boot loader issues are probably not that interesting on EFI boxes and
-> other non-BIOS hardware, but on usually big sized disks it's still a
-> safe default.
-
- Yes.
-
- Probably the most complete docs with many references:
- https://ata.wiki.kernel.org/index.php/ATA_4_KiB_sector_issues
-
-    Karel
-
+diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
+index 4cfeb1f..1c89cfe 100644
+--- a/disk-utils/fsck.8
++++ b/disk-utils/fsck.8
+@@ -442,6 +442,9 @@ to override the standard location of the
+ .B /etc/fstab
+ file.  It is also useful for developers who are testing
+ .BR fsck .
++.TP
++.B LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH SEE ALSO
+ .BR fstab (5),
+ .BR mkfs (8),
+diff --git a/disk-utils/mkswap.8 b/disk-utils/mkswap.8
+index c653171..ad9b4b9 100644
+--- a/disk-utils/mkswap.8
++++ b/disk-utils/mkswap.8
+@@ -139,6 +139,9 @@ Note that a swap file must not contain any holes (so, using
+ .BR cp (1)
+ to create the file is not acceptable).
+ 
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ 
+ .SH "SEE ALSO"
+ .BR fdisk (8),
+diff --git a/disk-utils/partx.8 b/disk-utils/partx.8
+index be1608d..6142bd0 100644
+--- a/disk-utils/partx.8
++++ b/disk-utils/partx.8
+@@ -166,6 +166,9 @@ The original version was written by
+ .MT aeb@cwi.nl
+ Andries E. Brouwer
+ .ME .
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH AVAILABILITY
+ The partx command is part of the util-linux package and is available from
+ .UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
+diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
+index 0d47456..4e655ef 100644
+--- a/disk-utils/swaplabel.8
++++ b/disk-utils/swaplabel.8
+@@ -58,6 +58,9 @@ must be in the standard 8-4-4-4-12 character format, such as is output by
+ .SH AUTHOR
+ .B swaplabel
+ was written by Jason Borden <jborden@bluehost.com> and Karel Zak <kzak@redhat.com>.
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH AVAILABILITY
+ The swaplabel command is part of the util-linux package and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+diff --git a/misc-utils/blkid.8 b/misc-utils/blkid.8
+index dc1e68f..93f0367 100644
+--- a/misc-utils/blkid.8
++++ b/misc-utils/blkid.8
+@@ -290,6 +290,9 @@ file.
+ .B blkid
+ was written by Andreas Dilger for libblkid and improved by Theodore Ts'o
+ and Karel Zak.
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH AVAILABILITY
+ The blkid command is part of the util-linux package and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
+index b754903..8b6b395 100644
+--- a/misc-utils/findfs.8
++++ b/misc-utils/findfs.8
+@@ -25,6 +25,9 @@ be printed on stdout.
+ .B findfs
+ was originally written by Theodore Ts'o (tytso@mit.edu) and re-written for
+ the util-linux package by Karel Zak (kzak@redhat.com).
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH AVAILABILITY
+ The findfs command is part of the util-linux package and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
+index cecdc44..05a5496 100644
+--- a/misc-utils/wipefs.8
++++ b/misc-utils/wipefs.8
+@@ -65,6 +65,9 @@ taken. For more details see mount(8).
+ Output version information and exit.
+ .SH AUTHOR
+ Karel Zak <kzak@redhat.com>.
++.SH ENVIRONMENT
++.IP LIBBLKID_DEBUG=0xffff
++enables debug output.
+ .SH AVAILABILITY
+ The wipefs command is part of the util-linux package and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.4.1
+
+
+
+
