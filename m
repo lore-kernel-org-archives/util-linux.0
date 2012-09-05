@@ -1,39 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from senmx12-mx.siemens-enterprise.com ([62.134.46.10]:40261 "EHLO
-	senmx12-mx.siemens-enterprise.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753695Ab2IKQb5 convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Sep 2012 12:31:57 -0400
-From: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-To: Ondrej Oprala <ooprala@redhat.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: RE: segfault message supressed with su -c
-Date: Tue, 11 Sep 2012 16:19:04 +0000
-Message-ID: <A75C39900FCF0B42A2CE8B26F837D2C305BB3C@MCHP02MSX.global-ad.net>
-References: <504F5246.4030304@redhat.com>
-In-Reply-To: <504F5246.4030304@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
+Received: from mailout-de.gmx.net ([213.165.64.22]:58461 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751999Ab2IEPWW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Sep 2012 11:22:22 -0400
+Date: Wed, 5 Sep 2012 17:22:13 +0200
+From: Moritz Barsnick <barsnick@gmx.net>
+To: util-linux list <util-linux@vger.kernel.org>
+Subject: Re: util-linux-2.22: backward compatibility of wdctl
+Message-ID: <20120905152213.GA19281@sunshine.barsnick.net>
+References: <20120905112717.GA14130@sunshine.barsnick.net>
+ <504755AC.9080008@bernhard-voelker.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <504755AC.9080008@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ondrej Oprala wrote: 
-> Hi,
-> I've written a tiny patch that should fix this issue with su:
-> https://bugzilla.redhat.com/show_bug.cgi?id=747592.
-> None of the shells' output propagates back
-> to the shell where su was called (except TCSH, which reports segfault
-> to stdout; I've tested this with sh,ksh,zsh,bash).
-> So, with this patch, su should print a warning if
-> WIFSIGNALED(status) && WCOREDUMP(status) is true.
+Hi Bernhard,
+[thanks for CC'ing me, as I'm not subscribed]
 
-Good catch!
+On Wed, Sep 05, 2012 at 15:37:48 +0200, Bernhard Voelker wrote:
+> You can use a crude hack to work around building wdctl:
+>   $ touch sys-utils/wdctl.o wdctl ; make
 
-> +	      fprintf (stderr, _("Segmentation fault (core dumped)\n"));
+Fine for me for the time being. I just wanted to point this out because
+it will break people's (and distributions') builds.
 
-Maybe the error message should point out that it
-was not su which dumped core ... ;-)
+> but this won't make you happy. You'll most propably hit other
+> problems. This is from my SLES 10.4 system:
 
-Have a nice day,
-Berny
+I see the same thing as you in partx, of course.
 
+> Temporarily defining __user to nothing seems to work:
+>   $ make CFLAGS='-D__user='
+
+Good point. I figured out that this is supposed to be happening in
+<linux/compiler.h>, but even including that didn't help. At least partx
+build can be disabled (--disable-partx).
+
+> ... although this is another bad workaround. ;-(
+
+Looking forward to 2.22.1. :-)
+
+Thanks,
+Moritz
