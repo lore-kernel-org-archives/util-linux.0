@@ -1,82 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:11185 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756604Ab2IKPB3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Sep 2012 11:01:29 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8BF1TR9005916
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 11 Sep 2012 11:01:29 -0400
-Received: from [10.34.4.237] (unused-4-237.brq.redhat.com [10.34.4.237])
-	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q8BF1Qbf029587
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-CAMELLIA256-SHA bits=256 verify=NO)
-	for <util-linux@vger.kernel.org>; Tue, 11 Sep 2012 11:01:28 -0400
-Message-ID: <504F5246.4030304@redhat.com>
-Date: Tue, 11 Sep 2012 17:01:26 +0200
-From: Ondrej Oprala <ooprala@redhat.com>
+Received: from moutng.kundenserver.de ([212.227.17.10]:49911 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751298Ab2IEKOl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Sep 2012 06:14:41 -0400
+Message-ID: <5047260E.9070607@bernhard-voelker.de>
+Date: Wed, 05 Sep 2012 12:14:38 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: segfault message supressed with su -c
-Content-Type: multipart/mixed;
- boundary="------------080505010008070901030500"
+To: Karel Zak <kzak@redhat.com>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: su: (why not?) merged from latest coreutils
+References: <504624F3.2020601@bernhard-voelker.de> <20120905093907.GC32623@x2.net.home>
+In-Reply-To: <20120905093907.GC32623@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------080505010008070901030500
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
-I've written a tiny patch that should fix this issue with su:
-https://bugzilla.redhat.com/show_bug.cgi?id=747592.
-None of the shells' output propagates back
-to the shell where su was called (except TCSH, which reports segfault
-to stdout; I've tested this with sh,ksh,zsh,bash).
-So, with this patch, su should print a warning if
-WIFSIGNALED(status) && WCOREDUMP(status) is true.
+On 09/05/2012 11:39 AM, Karel Zak wrote:
+>> code fixes, copyright year number changes etc. but at least the following
+>> seem to be worth including:
+>>  
+>>   71b7ddc port to GNU hosts, where getuid and friends can fail
+>>   1c59bb3 nice, nohup, su: detect write failure to stderr
+>
+>  Fixed.
 
-Cheers,
-  Ondrej
+Thanks.
 
---------------080505010008070901030500
-Content-Type: text/plain; charset=UTF-8;
- name="DIFF"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="DIFF"
+> [PATCH 1/2] su: more robust getpwuid() for GNU Hurt [coreutils 71b7ddc]
 
->From d4776f487e283649d65be3f3865141a0171a80e7 Mon Sep 17 00:00:00 2001
-From: Ondrej Oprala <ooprala@redhat.com>
-Date: Tue, 11 Sep 2012 16:39:17 +0200
-Subject: [PATCH] su: add segmentation fault reporting of the child process
+Hopefully, the Hurd folk don't feel 'hurt' when reading the commit :-)
 
-Child processes that ended with segmentation fault previously
-indicated this with return status only. The report is now more
-verbose if core dump is allowed.
----
- login-utils/su-common.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+> [PATCH 2/2] su: verify writing to streams was successful
+> [...]
+> +  atexit(close_stdout);
 
-diff --git a/login-utils/su-common.c b/login-utils/su-common.c
-index 23ad57d..b0dbed2 100644
---- a/login-utils/su-common.c
-+++ b/login-utils/su-common.c
-@@ -300,7 +300,11 @@ create_watching_parent (void)
- 	}
-       if (pid != (pid_t)-1)
- 	if (WIFSIGNALED (status))
--	  status = WTERMSIG (status) + 128;
-+	  {
-+	    status = WTERMSIG (status) + 128;
-+	    if (WCOREDUMP (status))
-+	      fprintf (stderr, _("Segmentation fault (core dumped)\n"));
-+	  }
- 	else
- 	  status = WEXITSTATUS (status);
-       else
--- 
-1.7.11.4
+I'm not sure this was meant by 1c59bb3. As su calls execvp(),
+close_stdout won't have a chance to run.
+See the comment in the original patch:
+
++  /* error() flushes stderr, but does not check for write failure.
++     Normally, we would catch this via our atexit() hook of
++     close_stdout, but execvp() gets in the way.  If stderr
++     encountered a write failure, there is no need to try calling
++     error() again, particularly since we may have just changed the
++     underlying fd out from under stderr.  */
++  if (ferror (stderr))
++    exit (exit_internal_failure);
 
 
---------------080505010008070901030500--
+>> and these would be nice:
+>> 
+>>   a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
+>
+>  It seems that `foo' quotes is a generic problem in our code. Not sure
+>  why this is so important.
+
+I personally have always wondered about that asymetric quoting was chosen.
+GNU standards now say that 'foo' is to be used, so I propose to also
+change UL programs. Something like this would be a good start (untested):
+
+  $ git grep -l "\`[^']*'" |xargs perl -pi -e "s/\`(.*?')/'\$1/g"
+
+WDYT?
+
+Have a nice day,
+Berny
