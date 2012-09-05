@@ -1,68 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46954 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:22562 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751327Ab2IGQU6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Sep 2012 12:20:58 -0400
-Date: Fri, 7 Sep 2012 18:20:44 +0200
+	id S1751398Ab2IEJjL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 5 Sep 2012 05:39:11 -0400
+Date: Wed, 5 Sep 2012 11:39:07 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Moritz Barsnick <barsnick@gmx.net>
-Cc: util-linux list <util-linux@vger.kernel.org>
-Subject: Re: util-linux-2.22: backward compatibility of wdctl
-Message-ID: <20120907162044.GE23242@x2.net.home>
-References: <20120905112717.GA14130@sunshine.barsnick.net>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: su: (why not?) merged from latest coreutils
+Message-ID: <20120905093907.GC32623@x2.net.home>
+References: <504624F3.2020601@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120905112717.GA14130@sunshine.barsnick.net>
+In-Reply-To: <504624F3.2020601@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 05, 2012 at 01:27:17PM +0200, Moritz Barsnick wrote:
-> congratulations on util-linux 2.22. BTW, I recently took the liberty of
-> refreshing the freshmeat aka freecode entry, and submitted an update
-> for 2.22 today. I hope that's okay.
+On Tue, Sep 04, 2012 at 05:57:39PM +0200, Bernhard Voelker wrote:
+> Hi Karel,
+> 
+> su has not been "merged from latest coreutils".
 
- ..arbitrary advertising is okay.
+hmmm... it seems that Ludwig has used code from suse rather than the
+latest upstream.
 
-> Anyway, just for the fun of it, I was trying to compile util-linux on
-> an SLES10 (SUSE Linux Enterprise) machine. That's one of those
+> If you look at su.c's history in the coreutils tree, then there are
+> 25 changes before it has been removed from the project:
+> 
+>   $ git log --oneline v6.1-64-gd8049d7..v8.17-16-g928dd73 -- src/su.c
+>   928dd73 su: remove program (util-linux is now the best source for it)
+>   d787845 maint: use single copyright year range
+>   a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
+>   101d120 maint: use new emit_try_help in place of equivalent fprintf
+>   5111aa4 maint: update all copyright year number ranges
+>   71b7ddc port to GNU hosts, where getuid and friends can fail
+>   9d6231e maint: update all copyright year number ranges
+>   1aa17dc maint: update all FSF copyright year lists to include 2010
+>   1c59bb3 nice, nohup, su: detect write failure to stderr
+>   c690047 maint: let gnulib provide environ
+>   b6540b9 chroot, env, nice, su: use EXIT_CANCELED for internal failure
+>   32f987a build: avoid compiler warnings on cygwin 1.5
+>   5d4f09d doc: mention the texinfo documentation in --help
+>   5e778f7 global: convert indentation-TABs to spaces
+>   2232b4d maint: update all Copyright year lists to include 2009
+>   9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
+>   22a2a43 build: add configure-time --enable-gcc-warnings option; avoid warnings
+>   45e6718 remove redundant const directives
+>   1463824 add "const" attribute, where possible
+>   896b672 use gnulib's progname module
+>   434258c declare program_name consistently
+>   581b2e3 adjust copyright dates
+>   b69b4cc convert single-author programs to use proper_name
+>   3575545 Use EXIT_FAILURE, not EXIT_FAIL, now that EXIT_FAILURE is always 1.
+>   71aa3ea Update all copyright notices to use the newer form.
+>   33342c1 Change "version 2" to "version 3" in all copyright notices.
+>   a0faff1 Help translators include translation team's web or email address.
+> 
+> 
+> Many of the changes are minor ones regarding identation, internal error
 
- Do you know that we had -rc1 and -rc2 release? :-)
+ yep
 
-> enterprise distributions with somewhat ancient environments. ;-) But
-> nothing out of the ordinary nowadays, I think.
-
- Well, it seems that you have kernel header < 2.6.18 (the macros has
- been added in Apr and May 2006).
-
->     CC     sys-utils/wdctl.o
->   sys-utils/wdctl.c:53:4: error: 'WDIOF_PRETIMEOUT' undeclared here (not in a function)
->   sys-utils/wdctl.c: In function 'read_watchdog':
->   sys-utils/wdctl.c:352:17: error: 'WDIOC_GETPRETIMEOUT' undeclared (first use in this function)
->   sys-utils/wdctl.c:352:17: note: each undeclared identifier is reported only once for each function it appears in
->   sys-utils/wdctl.c:352:3: warning: passing argument 2 of 'ioctl' makes integer from pointer without a cast [enabled by default]
->   In file included from sys-utils/wdctl.c:21:0:
->   /usr/include/sys/ioctl.h:42:12: note: expected 'long unsigned int' but argument is of type 'const struct wdflag *'
->   sys-utils/wdctl.c:354:17: error: 'WDIOC_GETTIMELEFT' undeclared (first use in this function)
->   sys-utils/wdctl.c:354:3: warning: passing argument 2 of 'ioctl' makes integer from pointer without a cast [enabled by default]
->   In file included from sys-utils/wdctl.c:21:0:
->   /usr/include/sys/ioctl.h:42:12: note: expected 'long unsigned int' but argument is of type 'const struct wdflag *'
->   make[2]: *** [sys-utils/wdctl.o] Error 1
+> code fixes, copyright year number changes etc. but at least the following
+> seem to be worth including:
+> 
+>   71b7ddc port to GNU hosts, where getuid and friends can fail
+>   1c59bb3 nice, nohup, su: detect write failure to stderr
 
  Fixed.
 
-> This system's/kernel's watchdog.h doesn't have those #defines:
+> and these would be nice:
+> 
+>   a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
 
- Sure, it's always bad/expensive idea to mix old OS and new system
- packages.
+ It seems that `foo' quotes is a generic problem in our code. Not sure
+ why this is so important.
 
-> To add to the misery, it isn't possible to disable the build of wdctl
-> AFAICT.
+>   9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
 
- Fixed, I have added --disable-wdctl.
-
-> 2.6.16.60-0.58.1.3835.0.PTF.638363-smp
-
- yep...
+ no comment ;-)
 
     Karel
 
