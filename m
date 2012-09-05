@@ -1,51 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from filtteri2.pp.htv.fi ([213.243.153.185]:34554 "EHLO
-	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807Ab2IOG3x (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 15 Sep 2012 02:29:53 -0400
-Received: from localhost (localhost [127.0.0.1])
-	by filtteri2.pp.htv.fi (Postfix) with ESMTP id 9A85C19B80C
-	for <util-linux@vger.kernel.org>; Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
-Received: from smtp5.welho.com ([213.243.153.39])
-	by localhost (filtteri2.pp.htv.fi [213.243.153.185]) (amavisd-new, port 10024)
-	with ESMTP id ikwpFCb1J-XL for <util-linux@vger.kernel.org>;
-	Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
-Received: from michael.steam.fi.bobcat.mine.nu (cs78200229.pp.htv.fi [62.78.200.229])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by smtp5.welho.com (Postfix) with ESMTPS id 43ACC5BC002
-	for <util-linux@vger.kernel.org>; Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
-From: =?UTF-8?q?Ville=20Skytt=C3=A4?= <ville.skytta@iki.fi>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] docs: umount.8 syntax fix.
-Date: Sat, 15 Sep 2012 09:29:49 +0300
-Message-Id: <1347690590-29482-1-git-send-email-ville.skytta@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:57490 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752758Ab2IEIpD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 5 Sep 2012 04:45:03 -0400
+Date: Wed, 5 Sep 2012 10:44:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: Re: runuser(1) and su(1) -g/-G
+Message-ID: <20120905084457.GA32623@x2.net.home>
+References: <20120904151843.GA6389@x2.net.home>
+ <50465BEE.7070005@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <50465BEE.7070005@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Sep 04, 2012 at 08:52:14PM +0100, P·draig Brady wrote:
+> Thanks for doing all that Karel.
+> I've not time to look now,
+> but will note that many were looking for
+> a lightweight option that didn't need PAM.
 
-Signed-off-by: Ville Skytt√§ <ville.skytta@iki.fi>
----
- sys-utils/umount.8 | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I know, it should be the second step.
 
-diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
-index f0fcd99..b949aeb 100644
---- a/sys-utils/umount.8
-+++ b/sys-utils/umount.8
-@@ -76,8 +76,8 @@ In case the unmounted device was a loop device, also free this loop
- device.
- .TP
- \fB\-\-fake\fP
--Causes everything to be done except for the actual system call; this
--'fakes' unmounting the filesystem.  It can be used to remove entries from
-+Causes everything to be done except for the actual system call; this 'fakes'
-+unmounting the filesystem.  It can be used to remove entries from
- .I /etc/mtab
- that were unmounted earlier with the
- .B \-n
+> Perhaps PAM support could be easily compiled out?
+
+Not yet. The patch will be pretty simple, all we need is to add
+something like #ifdef BUILD_LIGHTWEIGHT_RUNUSER to
+create_watching_parent() and authenticate(). 
+
+Volunteers? (I'm going to spend this week with coverity scanner...)
+
+
+Note that we will support PAM-only su(1), maintain alternative
+authentication code in utils like su(1), login(1), ... is nonsense.
+
+If you don't like modular PAM then you can rebuild libpam with
+statically linked modules (result is still shared library, but without
+dlopen()).
+
+The command runuser(1) is different as there is no authentication at
+all -- it's just wrapper around setuid/gid, and it uses PAM for
+session setup only.
+
+    Karel
+
 -- 
-1.7.11.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
