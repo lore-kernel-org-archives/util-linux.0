@@ -1,62 +1,36 @@
-Return-Path: g.esp@free.fr
-Date: Tue, 18 Sep 2012 23:31:43 +0200 (CEST)
-From: g.esp@free.fr
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Message-ID: <992520660.214095430.1348003903474.JavaMail.root@zimbra33-e6.priv.proxad.net>
-In-Reply-To: <20120918092926.GA20576@x2.net.home>
-Subject: Re: util-linux-2.22 regression on umount with loop and /etc/mtab
- real file
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from gerolde.archlinux.org ([66.211.214.132]:52173 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751434Ab2IECbH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 4 Sep 2012 22:31:07 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] login-utils/Makemodule: install su.1 if building su
+Date: Tue,  4 Sep 2012 22:31:03 -0400
+Message-Id: <1346812263-9512-1-git-send-email-dreisner@archlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+This also unfortunately means that su.1 isn't included in the dist tarball.
 
+ login-utils/Makemodule.am | 1 +
+ 1 file changed, 1 insertion(+)
 
------ Mail original -----
-> De: "Karel Zak" <kzak@redhat.com>
-> =C3=80: "g esp" <g.esp@free.fr>
-> Cc: util-linux@vger.kernel.org
-> Envoy=C3=A9: Mardi 18 Septembre 2012 11:29:26
-> Objet: Re: util-linux-2.22 regression on umount with loop and /etc/mtab r=
-eal file
->=20
-> On Tue, Sep 18, 2012 at 07:50:29AM +0200, g.esp@free.fr wrote:
-> > The loop is cleaned on umount with 2.21.2
-> > With 2.22, unmounting /tmp/foo_fs no more remove the loop
-> >=20
-> > [chroot-i486] root:/$ mount --version
-> > mount from util-linux 2.22 (libmount 2.22.0: debug)
-> > [chroot-i486] root:/$ losetup -a
-> > [chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
-> > [chroot-i486] root:/$ umount /tmp/foo_fs
-> > [chroot-i486] root:/$ losetup -a
-> > /dev/loop0: [2051]:387175 (/tmp/foo_fs)
-> >=20
-> > The loop remain.
->=20
-> Kernel version? I guess something old... :-)
->=20
-> Since kernel 2.6.37 we use autoclear flag:
->=20
->   $ cat /sys/block/loop0/loop/autoclear
->   1
->=20
-The kernel running on the machine is debian v6 (squeeze) 2.6.32, so this is=
- not something brand new.
+diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
+index 755a361..e26d9a7 100644
+--- a/login-utils/Makemodule.am
++++ b/login-utils/Makemodule.am
+@@ -80,6 +80,7 @@ endif # BUILD_CHFN_CHSH
+ 
+ if BUILD_SU
+ bin_PROGRAMS += su
++dist_man_MANS += login-utils/su.1
+ su_SOURCES = \
+ 	login-utils/su.c \
+ 	login-utils/su-common.c \
+-- 
+1.7.12
 
-> if the flags is enabled (should be always by mount(8)) then the loop
-> device is automatically detached by kernel after successful
-> umount(2).
-> It means that we don't have to store any extra information in
-> userspace or do any magic around loopdevs in umount(8) command.
->=20
->=20
-> I found a bug in libmount umount code, it does not check for the
-> option "loop" in mtab -- this bug is invisible on systems where
-> autoclear flags is usable. Fixed. Try the code from upstream tree:
->=20
-
-Thank, git tree fixed the issue.
-
-Gilles
