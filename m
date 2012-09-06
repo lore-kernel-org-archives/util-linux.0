@@ -1,38 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:59364 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751614Ab2IPUth (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Sep 2012 16:49:37 -0400
-Received: by ieje11 with SMTP id e11so8638555iej.19
-        for <util-linux@vger.kernel.org>; Sun, 16 Sep 2012 13:49:36 -0700 (PDT)
+Return-Path: ludwig.nussel@suse.de
+Message-ID: <5048465B.2070207@suse.de>
+Date: Thu, 06 Sep 2012 08:44:43 +0200
+From: Ludwig Nussel <ludwig.nussel@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <201209161644.36467.vapier@gentoo.org>
-References: <k2amjt$fh0$1@ger.gmane.org> <201209161644.36467.vapier@gentoo.org>
-From: Christer Solskogen <christer.solskogen@gmail.com>
-Date: Sun, 16 Sep 2012 22:49:16 +0200
-Message-ID: <CAMVU60ZL66er3xZejjBNSSvLsQ1w2sbxor=QTdgWcFmGaP31+w@mail.gmail.com>
-Subject: Re: cross compiling util-linux
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: su: (why not?) merged from latest coreutils
+References: <504624F3.2020601@bernhard-voelker.de> <20120905093907.GC32623@x2.net.home>
+In-Reply-To: <20120905093907.GC32623@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 16, 2012 at 10:44 PM, Mike Frysinger <vapier@gentoo.org> wrote:
-> On Thursday 06 September 2012 13:30:36 Christer Solskogen wrote:
->> libtool: link: cannot find the library `/lib64/libpam.la' or unhandled
->> argument `/lib64/libpam.la'
->
-> not a bug in util-linux.  libtool linker scripts do not play well with cross-
-> compiling.  you can remove them, hack them, or hack up the local libtool.
->
+Karel Zak wrote:
+> On Tue, Sep 04, 2012 at 05:57:39PM +0200, Bernhard Voelker wrote:
+>> su has not been "merged from latest coreutils".
+> 
+> hmmm... it seems that Ludwig has used code from suse rather than the
+> latest upstream.
 
-I disagree. GMP, MPFR, MPC, ISL and CLooG also deal with that kind of
-problems with libtool. But --with-sysroot solves it.
-CLooG did had a problem, but when I recreated the configure script
-with a new versions of libtool, automake and autoconf the problem was
-solved.
+I rebased the patches on top of the last GPLv2 version. coreutils
+changed to GPLv3 at some point ...
 
+cu
+Ludwig
 
 -- 
-chs,
+ (o_   Ludwig Nussel
+ //\
+ V_/_  http://www.suse.de/
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
