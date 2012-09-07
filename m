@@ -1,194 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:40028 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752965Ab2HaMpG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 31 Aug 2012 08:45:06 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1T7Qat-0001nW-L1
-	for util-linux@vger.kernel.org; Fri, 31 Aug 2012 14:45:03 +0200
-Received: from smaragd.ifi.uio.no ([129.240.65.58])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 31 Aug 2012 14:45:03 +0200
-Received: from hgb by smaragd.ifi.uio.no with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 31 Aug 2012 14:45:03 +0200
-To: util-linux@vger.kernel.org
-From: Henrik Grindal Bakken <hgb@ifi.uio.no>
-Subject: Problem with telnet after upgrade of util-linux
-Date: 31 Aug 2012 13:44:03 +0200
-Message-ID: <x2eharj9th8.fsf@smaragd.ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Received: from anakin.london.02.net ([87.194.255.134]:45931 "EHLO
+	anakin.london.02.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752201Ab2IGNSv convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Sep 2012 09:18:51 -0400
+From: Adam Sampson <ats@offog.org>
+To: =?utf-8?Q?P=C3=A1draig?= Brady <P@draigBrady.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
+        Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: Re: runuser(1) and su(1) -g/-G
+References: <20120904151843.GA6389@x2.net.home>
+	<20120905123822.GZ1899@rampage> <20120905212804.GD1899@rampage>
+	<20120907120716.GD23242@x2.net.home> <5049EB15.3080309@draigBrady.com>
+Date: Fri, 07 Sep 2012 14:09:47 +0100
+In-Reply-To: <5049EB15.3080309@draigBrady.com> (=?utf-8?Q?=22P=C3=A1draig?=
+ Brady"'s message of
+	"Fri, 07 Sep 2012 13:39:49 +0100")
+Message-ID: <y2a4nnahtd0.fsf@cartman.at.offog.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
+Pádraig Brady <P@draigBrady.com> writes:
 
+> setuidgid
+>   coreutils internal only
 
-Hi.  I have a custom Linux distro running where we (unfortunately...)
-support telnet, using netkit-telnet-0.17.
+The name setuidgid for this tool was introduced by daemontools, and
+various other projects have have their own versions of it:
 
-A while ago, I upgraded util-linux from 2.20.1 to 2.22-rc2 (to get
-sulogin, since I switched to systemd).  One side-effect of this, which
-I didn't catch for some time (not frequently using telnet), was that
-telnet started chopping some characters off its output.  The changes
-appear to be related to login(1).
+  http://cr.yp.to/daemontools/setuidgid.html
+  http://www.skarnet.org/software/s6/s6-setuidgid.html
+  http://b0llix.net/perp/site.cgi?page=runuid.8
+  http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/setuidgid.c
+  http://offog.org/darcs/freedt/setuidgid.c
 
-========================================================
-[13:35:17][hgb@prentice:~]12 telnet hgbsaturn
-Trying 10.47.37.161...
-Connected to hgbsaturn.
-Escape character is '^]'.
+(It would often be helpful for the tool to do a bit more than just
+setting the uid and gids -- e.g. setting $HOME...)
 
-Linux 3.0.38-199 (hgbsaturn.rd.tandberg.com) (1)
+perp has a suite of "runtools" like this that do some sort of
+environment setup before execing another program:
 
-gbsaturn login: 
-                ast login: Fri Aug 31 11:35:27 from prentice.rd.tandberg.com
-                                                                            hgbsaturn:~] $ 
-           elnet.pcap
-                     hgbsaturn:~] $ ogout
-Connection closed by foreign host.
-========================================================
+  http://b0llix.net/perp/site.cgi?page=manual
 
-(The hostname was supposed to be 'hgbsaturn'.)
+The most useful ones (for me!) have equivalents in util-linux already:
 
-The tcpdump capture of the session is attached.
+- runsession is setsid;
 
-Has anyone seen anything like this?  I tried to look at the changes in
-login between the two versions, but they were too many.  We did use
-PAM before too, btw.
+- runlimit is prlimit;
 
+- runlock is flock -- but flock only has an su-style -c argument, so it
+  would probably be worth fixing that at the same time as runuser?
 
---=-=-=
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=telnet.pcap
-Content-Transfer-Encoding: base64
-
-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
-Ci67BjMDeyQVUEChfgANogAAAABDAAAAQwBQYALfYwAkjD9tYQgARRAANbdMQABABiPZCi8ljwov
-JaGolAAX9ulJq7Jn7ZiAGABzwXUAAAEBCAouuwaxA3skFW9QQKF+AA2jhAAAAEMAAABDACSMP21h
-AFBgAt9jCABFEAA18LdAAEAG6m0KLyWhCi8ljwAXqJSyZ+2Y9ulJrIA4AeYvYAABAQEICgN7JJUu
-uwax/1BAoX4ADaP2AAAASQAAAEkAJIw/bWEAUGAC32MIAEUQADvwuEAAQAbqZgovJaEKLyWPABeo
-lLJn7Zn26UmsgBgB5k9ZAAABAQgKA3sklS67BrHy//ohAf/wUEChfgANpCcAAABCAAAAQgBQYALf
-YwAkjD9tYQgARRAANLdNQABABiPZCi8ljwovJaGolAAX9ulJrLJn7ZmAEABzL/sAAAEBCAouuwaz
-A3sklVBAoX4ADaRXAAAAQgAAAEIAUGAC32MAJIw/bWEIAEUQADS3TkAAQAYj2AovJY8KLyWhqJQA
-F/bpSayyZ+2ggBAAcy/0AAABAQgKLrsGswN7JJVQQKF/AAAVWAAAAEMAAABDAFBgAt9jACSMP21h
-CABFEAA1t09AAEAGI9YKLyWPCi8loaiUABf26UmssmftoIAYAHO7fAAAAQEICi67ByEDeySVdFBA
-oX8AABbOAAAASAAAAEgAJIw/bWEAUGAC32MIAEUQADrwuUAAQAbqZgovJaEKLyWPABeolLJn7aD2
-6UmtgBgB5gynAAABAQgKA3slBS67ByH/+iEB//BQQKF/AAAanQAAAEIAAABCAFBgAt9jACSMP21h
-CABFEAA0t1BAAEAGI9YKLyWPCi8loaiUABf26UmtsmftpoAQAHMvDQAAAQEICi67ByMDeyUFUECh
-fwACxMcAAABEAAAARABQYALfYwAkjD9tYQgARRAANrdRQABABiPTCi8ljwovJaGolAAX9ulJrbJn
-7aaAGABzIVUAAAEBCAouuwfRA3slBQ0AUEChfwACzV8AAABDAAAAQwAkjD9tYQBQYALfYwgARRAA
-NfC6QABABupqCi8loQovJY8AF6iUsmftpvbpSa+AGAHmIjAAAAEBCAoDeyW2LrsH0QpQQKF/AALR
-GwAAAEIAAABCAFBgAt9jACSMP21hCABFEAA0t1JAAEAGI9QKLyWPCi8loaiUABf26Umvsmftp4AQ
-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
---=-=-=
-
-
+Thanks,
 
 -- 
-Henrik Grindal Bakken <hgb@ifi.uio.no>
-PGP ID: 8D436E52
-Fingerprint: 131D 9590 F0CF 47EF 7963  02AF 9236 D25A 8D43 6E52
-
---=-=-=--
-
+Adam Sampson <ats@offog.org>                         <http://offog.org/>
