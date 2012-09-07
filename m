@@ -1,117 +1,140 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:54703 "EHLO
-	homiemail-a4.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757086Ab2IDN6P (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 4 Sep 2012 09:58:15 -0400
-Subject: [PATCH 2/2] libmount: document LIBMOUNT_DEBUG users
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
+Received: from mx1.redhat.com ([209.132.183.28]:15238 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752864Ab2IGMkA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Sep 2012 08:40:00 -0400
+Message-ID: <5049EB15.3080309@draigBrady.com>
+Date: Fri, 07 Sep 2012 13:39:49 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 04 Sep 2012 15:58:06 +0200
-Message-ID: <1346767086.2668.4.camel@offbook>
-Mime-Version: 1.0
+CC: util-linux <util-linux@vger.kernel.org>,
+        Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: Re: runuser(1) and su(1) -g/-G
+References: <20120904151843.GA6389@x2.net.home> <20120905123822.GZ1899@rampage> <20120905212804.GD1899@rampage> <20120907120716.GD23242@x2.net.home>
+In-Reply-To: <20120907120716.GD23242@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Update the manpages of programs that use this environment variable for
-extra debugging information.
+On 09/07/2012 01:07 PM, Karel Zak wrote:
+> On Wed, Sep 05, 2012 at 05:28:04PM -0400, Dave Reisner wrote:
+>>> I think we're missing out on an opportunity with runuser. su insists on
+>>> starting a shell which, among other subtle problems, leads to the
+>>> largeer problem of quoting and escaping the command passed to the -c
+>>> flag. I think we should do something like this:
+>
+>   good point
+>
+>>> - separate out argument parsing to runuser and su
+>>> - remove most of the flags from runuser (-f, -c, -l, -, -s), add a -u
+>>>    flag (optional, for user)
+>>> - create a single common entry point for creating a session
+>>> - separate out the run command logic
+>
+>   well, we still need to initialize the session and it would be also
+>   to have independent PAM setting for "login-like-session" (-l - options).
+>
+>>> With a name like runuser, I would expect that its purpose would be to
+>>> simply run commands (and not necessarily get a shell for a user, as is
+>>> done with su). runuser could take non-option arguments as argv for the
+>>> new command so that we'd have examples like this:
+>>>
+>>>    runuser -u notroot vi /etc/fstab
+>>>    runuser notroot foocmd embedded '"quotes"'
+>>>    runuser -u notroot foocmd has args "with spaces" sometimes
+>>>
+>>> If you still desperately want to abuse the command to create a shell for
+>>> a user, then you just do that:
+>>>
+>>>    runuser -u notroot -- /bin/sh -
+>
+>   well, but it will NOT use /etc/pam.d/runuser-l
+>
+>   I agree that -f -s -c are unnecessary (and -c is wrong at all...). It
+>   would be probably better to support:
+>
+>      runuser [-u] notroot [<command>  [arg]]
+>
+>   and if<command>  is not specified then start a shell, and if -l is
+>   specified create a login-like session.
+>
+>> Hrmm... I had no idea that runuser was an existing command in the RedHat
+>> world, which makes my idea of a "mulligan" less feasible. Boo.
+>
+>   Well, that's question if we (upstream) have to care about one crazy
+>   distro specific command. Maybe we can introduce a new command (with a
+>   different name) and ignore the original runuser. For good reason the
+>   command has not been accepted by coreutils upstream.
+>
+>   Any suggestion for the new name?
+>
+>      runuid
+>      runid
+>      execuser
+>
+>   I have no problem to revert the runuser patch, really ;-) It was
+>   probably too hasty decision to merge whole my su branch.
+>
+>      Karel
+>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- disk-utils/fsck.8      |    3 +++
- misc-utils/lsblk.8     |    3 +++
- sys-utils/mountpoint.1 |    4 ++++
- sys-utils/swapon.8     |    4 ++++
- sys-utils/umount.8     |    7 +++++++
- 5 files changed, 21 insertions(+), 0 deletions(-)
+I'd not really studied the runuser interface to be honest,
+and yes I agree that it's quite crufty.
+Maybe we could keep the runuser name and say
+the prefered form is to specify -u $USER, which
+will _not_ start a shell. The old interface without
+-u being retained for backwards compat?
 
-diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
-index 1c89cfe..7779fe9 100644
---- a/disk-utils/fsck.8
-+++ b/disk-utils/fsck.8
-@@ -445,6 +445,9 @@ file.  It is also useful for developers who are testing
- .TP
- .B LIBBLKID_DEBUG=0xffff
- enables debug output.
-+.TP
-+.B LIBMOUNT_DEBUG=0xffff
-+enables debug output.
- .SH SEE ALSO
- .BR fstab (5),
- .BR mkfs (8),
-diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
-index 4ed024f..ced0a13 100644
---- a/misc-utils/lsblk.8
-+++ b/misc-utils/lsblk.8
-@@ -95,6 +95,9 @@ the time of kernel build.
- Milan Broz <mbroz@redhat.com>
- Karel Zak <kzak@redhat.com>
- .fi
-+.SH ENVIRONMENT
-+.IP LIBMOUNT_DEBUG=0xffff
-+enables debug output.
- .SH SEE ALSO
- .BR findmnt (8),
- .BR blkid (8),
-diff --git a/sys-utils/mountpoint.1 b/sys-utils/mountpoint.1
-index 3c7d084..5eb4156 100644
---- a/sys-utils/mountpoint.1
-+++ b/sys-utils/mountpoint.1
-@@ -29,12 +29,16 @@ Zero if the directory is a mountpoint, non-zero if not.
- .SH AUTHOR
- .PP
- Karel Zak <kzak@redhat.com>
-+.SH ENVIRONMENT
-+.IP LIBMOUNT_DEBUG=0xffff
-+enables debug output.
- .SH NOTES
- .PP
- The util-linux
- .B mountpoint
- implementation was written from scratch for libmount. The original version
- for sysvinit suite was written by Miquel van Smoorenburg.
-+
- .SH SEE ALSO
- .BR mount (8)
- .SH AVAILABILITY
-diff --git a/sys-utils/swapon.8 b/sys-utils/swapon.8
-index ed4df55..e471d07 100644
---- a/sys-utils/swapon.8
-+++ b/sys-utils/swapon.8
-@@ -217,6 +217,10 @@ log as "swapon: swapfile has holes." One possible workaround is to map the
- file to a loopback device. This will allow the file system to determine the
- mapping properly but may come with a performance impact.
- 
-+.SH ENVIRONMENT
-+.IP LIBMOUNT_DEBUG=0xffff
-+enables debug output.
-+
- .SH SEE ALSO
- .BR swapon (2),
- .BR swapoff (2),
-diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
-index d073c55..f0fcd99 100644
---- a/sys-utils/umount.8
-+++ b/sys-utils/umount.8
-@@ -160,6 +160,13 @@ The helper= mount option redirects all umount requests to the
- .SH FILES
- .I /etc/mtab
- table of mounted file systems
-+.SH ENVIRONMENT
-+.IP LIBMOUNT_FSTAB=<path>
-+overrides the default location of the fstab file
-+.IP LIBMOUNT_MTAB=<path>
-+overrides the default location of the mtab file
-+.IP LIBMOUNT_DEBUG=0xffff
-+enables debug output
- .SH "SEE ALSO"
- .BR umount (2),
- .BR mount (8),
--- 
-1.7.4.1
+For reference, I'm copying in below some info from the coreutils list
+from when we were discussing the transition of su to util-linux,
+which references other utils in this space.
+
+==== info from coreutils ===
+
+Note Fedora and Suse use su from coreutils
+while debian use their own:
+http://pkg-shadow.alioth.debian.org/
+
+Note also Fedora has `runuser` which is based on su:
+http://pkgs.fedoraproject.org/gitweb/?p=coreutils.git;a=blob;f=coreutils-8.7-runuser.patch;hb=HEAD
+
+There was also a very related request for
+`runuser` like functionality to be generally available:
+http://bugs.gnu.org/8700
+
+It's probably worth bringing runuser with su,
+no matter where they end up. So with su being removed in favor
+of the util-linux implementation, `runuser` is being implemented there too.
+I.E. it will be available outside of redhat/fedora/centos/...
+in util-linux >= 2.23, and so should address http://bugs.gnu.org/8700
+[well maybe not given the above discussion]
+
+Note from previous comments in this thread,
+it seems like allowing runser to be built (as an option?)
+without requiring PAM, would be useful.
+
+For reference, here are utils with similar functionality:
+
+chid,really
+   Mentioned in feature request from debian
+     http://bugs.gnu.org/8700
+
+chroot --userspec=U:G --groups=G1,G2,G3 /
+   since coreutils v7.4-16-gc45c51f
+   beware of CVE-2005-4890
+
+setuidgid
+   coreutils internal only
+   http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/setuidgid.c;hb=HEAD
+
+sg from pwdutils
+   http://pubs.opengroup.org/onlinepubs/9699919799/utilities/newgrp.html
+
+sudo -u -g
+
+runas from titantools
 
 
-
-
+cheers,
+Pádraig.
