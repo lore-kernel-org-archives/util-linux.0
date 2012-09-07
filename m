@@ -1,38 +1,71 @@
-Return-Path: martin.petersen@oracle.com
-To: =?utf-8?B?THVrw6HFoQ==?= Czerner <lczerner@redhat.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkdiscard: add new command
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <1347486555-24330-1-git-send-email-lczerner@redhat.com>
-	<alpine.LFD.2.00.1209261546390.31136@dhcp-187-45.bos.redhat.com>
-	<20120927094256.GA18644@x2.net.home>
-	<alpine.LFD.2.00.1209271113040.31136@dhcp-187-45.bos.redhat.com>
-Date: Thu, 27 Sep 2012 11:49:22 -0400
-In-Reply-To: <alpine.LFD.2.00.1209271113040.31136@dhcp-187-45.bos.redhat.com>
-	(=?utf-8?B?Ikx1a8OhxaE=?= Czerner"'s message of "Thu, 27 Sep 2012 11:21:18
- -0400 (EDT)")
-Message-ID: <yq14nmja2kd.fsf@sermon.lab.mkp.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:46954 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751327Ab2IGQU6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Sep 2012 12:20:58 -0400
+Date: Fri, 7 Sep 2012 18:20:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Moritz Barsnick <barsnick@gmx.net>
+Cc: util-linux list <util-linux@vger.kernel.org>
+Subject: Re: util-linux-2.22: backward compatibility of wdctl
+Message-ID: <20120907162044.GE23242@x2.net.home>
+References: <20120905112717.GA14130@sunshine.barsnick.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120905112717.GA14130@sunshine.barsnick.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->>>>> "Luk=C3=A1=C5=A1" =3D=3D Luk=C3=A1=C5=A1 Czerner <lczerner@redhat.com=
-> writes:
+On Wed, Sep 05, 2012 at 01:27:17PM +0200, Moritz Barsnick wrote:
+> congratulations on util-linux 2.22. BTW, I recently took the liberty of
+> refreshing the freshmeat aka freecode entry, and submitted an update
+> for 2.22 today. I hope that's okay.
 
-Luk=C3=A1=C5=A1> TBH this is fugly :). Also what actually is the advantage =
-of
-Luk=C3=A1=C5=A1> doing this ? So we saved 50 lines of code for this uglines=
-s and
-Luk=C3=A1=C5=A1> instead of two separate binaries we have this one hybrid a=
-nd
-Luk=C3=A1=C5=A1> symlink. I am not sure it's worth it. Can't we just have t=
-wo
-Luk=C3=A1=C5=A1> separate binaries ? What is the problem with that ?
+ ..arbitrary advertising is okay.
 
-It's not just discard. We should also consider the zeroout and write
-same use cases. They have nothing to do with fstrim.
+> Anyway, just for the fun of it, I was trying to compile util-linux on
+> an SLES10 (SUSE Linux Enterprise) machine. That's one of those
 
-Time to incorporate and extend Garzik's blktool, perhaps?
+ Do you know that we had -rc1 and -rc2 release? :-)
 
---=20
-Martin K. Petersen	Oracle Linux Engineering
+> enterprise distributions with somewhat ancient environments. ;-) But
+> nothing out of the ordinary nowadays, I think.
+
+ Well, it seems that you have kernel header < 2.6.18 (the macros has
+ been added in Apr and May 2006).
+
+>     CC     sys-utils/wdctl.o
+>   sys-utils/wdctl.c:53:4: error: 'WDIOF_PRETIMEOUT' undeclared here (not in a function)
+>   sys-utils/wdctl.c: In function 'read_watchdog':
+>   sys-utils/wdctl.c:352:17: error: 'WDIOC_GETPRETIMEOUT' undeclared (first use in this function)
+>   sys-utils/wdctl.c:352:17: note: each undeclared identifier is reported only once for each function it appears in
+>   sys-utils/wdctl.c:352:3: warning: passing argument 2 of 'ioctl' makes integer from pointer without a cast [enabled by default]
+>   In file included from sys-utils/wdctl.c:21:0:
+>   /usr/include/sys/ioctl.h:42:12: note: expected 'long unsigned int' but argument is of type 'const struct wdflag *'
+>   sys-utils/wdctl.c:354:17: error: 'WDIOC_GETTIMELEFT' undeclared (first use in this function)
+>   sys-utils/wdctl.c:354:3: warning: passing argument 2 of 'ioctl' makes integer from pointer without a cast [enabled by default]
+>   In file included from sys-utils/wdctl.c:21:0:
+>   /usr/include/sys/ioctl.h:42:12: note: expected 'long unsigned int' but argument is of type 'const struct wdflag *'
+>   make[2]: *** [sys-utils/wdctl.o] Error 1
+
+ Fixed.
+
+> This system's/kernel's watchdog.h doesn't have those #defines:
+
+ Sure, it's always bad/expensive idea to mix old OS and new system
+ packages.
+
+> To add to the misery, it isn't possible to disable the build of wdctl
+> AFAICT.
+
+ Fixed, I have added --disable-wdctl.
+
+> 2.6.16.60-0.58.1.3835.0.PTF.638363-smp
+
+ yep...
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
