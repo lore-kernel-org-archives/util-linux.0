@@ -1,140 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45954 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751679Ab2HaLGL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 31 Aug 2012 07:06:11 -0400
-Received: from compute2.internal (compute2.nyi.mail.srv.osa [10.202.2.42])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 8062421688
-	for <util-linux@vger.kernel.org>; Fri, 31 Aug 2012 07:06:10 -0400 (EDT)
-Message-Id: <1346411170.12296.140661121939105.74151BC9@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1346411170122963";
- charset="utf-8"
-Subject: [patches] two tiny textual fixes
-Date: Fri, 31 Aug 2012 13:06:10 +0200
+Received: from plane.gmane.org ([80.91.229.3]:45650 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753264Ab2IHUT6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 8 Sep 2012 16:19:58 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1TARVT-0006El-HX
+	for util-linux@vger.kernel.org; Sat, 08 Sep 2012 22:19:55 +0200
+Received: from cpe-76-171-221-18.socal.res.rr.com ([76.171.221.18])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 08 Sep 2012 22:19:55 +0200
+Received: from amit.uttam by cpe-76-171-221-18.socal.res.rr.com with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 08 Sep 2012 22:19:55 +0200
+To: util-linux@vger.kernel.org
+From: Amit <amit.uttam@gmail.com>
+Subject: Re: Can't figure out how to use =?utf-8?b?bW50X3RhYmxlX2dldF9yb290X2Zz?= from libmount
+Date: Sat, 8 Sep 2012 20:19:40 +0000 (UTC)
+Message-ID: <loom.20120908T221718-348@post.gmane.org>
+References: <loom.20120908T195804-890@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+Amit <amit.uttam@...> writes:
 
---_----------=_1346411170122963
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+> 
+> Hello,
+> 
+> I have a simple program using libmount that simply gets the path of the
+> root filesystem. I can't seem to get it to work. I always get a
+> segmentation fault. There is probably something basic that I am missing
+> but can't figure it out.
 
+[snip]
 
-Hi,
+Using the following function works better.
 
-Attached three patches fix two tiny issues found during
-translation.  The first fixes a missing comma and colon,
-the second an untranslated word, and the third makes
-the "Device:" and "Identity:" strings be treated in the
-same manner.
+fs = mnt_table_find_target(tab, "/", MNT_ITER_BACKWARD);
 
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - A fast, anti-spam email service.
-
-
---_----------=_1346411170122963
-Content-Disposition: attachment; filename="0001-textual-add-missing-comma-and-colon-in-some-help-tex.patch"
-Content-Id: <1346411069.11690.33a2cbcddc447f1408bdb0327103899ca99b1538@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-textual-add-missing-comma-and-colon-in-some-help-tex.patch"
-
-RnJvbSBiNjVmYzM3YTdhMTkyYjk3MTMzOWFkZDFjZDM2YjY2NTg3YTk0NTdh
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAyOSBB
-dWcgMjAxMiAyMTozMjoyMiArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMS8zXSB0
-ZXh0dWFsOiBhZGQgbWlzc2luZyBjb21tYSBhbmQgY29sb24gaW4gc29tZSBo
-ZWxwIHRleHRzCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8
-YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBtaXNjLXV0aWxzL2xzbG9j
-a3MuYyB8ICAgIDIgKy0KIHN5cy11dGlscy9sb3NldHVwLmMgIHwgICAgMiAr
-LQogMiBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRp
-b25zKC0pCgpkaWZmIC0tZ2l0IGEvbWlzYy11dGlscy9sc2xvY2tzLmMgYi9t
-aXNjLXV0aWxzL2xzbG9ja3MuYwppbmRleCA0NWZiNmRlLi44MjBmNWRjIDEw
-MDY0NAotLS0gYS9taXNjLXV0aWxzL2xzbG9ja3MuYworKysgYi9taXNjLXV0
-aWxzL2xzbG9ja3MuYwpAQCAtNDgxLDcgKzQ4MSw3IEBAIHN0YXRpYyB2b2lk
-IF9fYXR0cmlidXRlX18gKChfX25vcmV0dXJuX18pKSB1c2FnZShGSUxFICog
-b3V0KQogCWZwdXRzKF8oIiAtcCwgLS1waWQgPHBpZD4gICAgICAgIHByb2Nl
-c3MgaWRcbiIKIAkJIiAtbywgLS1vdXRwdXQgPGxpc3Q+ICAgIGRlZmluZSB3
-aGljaCBvdXRwdXQgY29sdW1ucyB0byB1c2VcbiIKIAkJIiAtbiwgLS1ub2hl
-YWRpbmdzICAgICAgIGRvbid0IHByaW50IGhlYWRpbmdzXG4iCi0JCSIgLXIg
-IC0tcmF3ICAgICAgICAgICAgICB1c2UgdGhlIHJhdyBvdXRwdXQgZm9ybWF0
-XG4iCisJCSIgLXIsIC0tcmF3ICAgICAgICAgICAgICB1c2UgdGhlIHJhdyBv
-dXRwdXQgZm9ybWF0XG4iCiAJCSIgLXUsIC0tbm90cnVuY2F0ZSAgICAgICBk
-b24ndCB0cnVuY2F0ZSB0ZXh0IGluIGNvbHVtbnNcbiIKIAkJIiAtaCwgLS1o
-ZWxwICAgICAgICAgICAgIGRpc3BsYXkgdGhpcyBoZWxwIGFuZCBleGl0XG4i
-CiAJCSIgLVYsIC0tdmVyc2lvbiAgICAgICAgICBvdXRwdXQgdmVyc2lvbiBp
-bmZvcm1hdGlvbiBhbmQgZXhpdFxuIiksIG91dCk7CmRpZmYgLS1naXQgYS9z
-eXMtdXRpbHMvbG9zZXR1cC5jIGIvc3lzLXV0aWxzL2xvc2V0dXAuYwppbmRl
-eCBmZGNjMGJlLi45YWViOWVjIDEwMDY0NAotLS0gYS9zeXMtdXRpbHMvbG9z
-ZXR1cC5jCisrKyBiL3N5cy11dGlscy9sb3NldHVwLmMKQEAgLTM1MSw3ICsz
-NTEsNyBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpCiAJCWlm
-IChvcHRpbmQgPj0gYXJnYykKIAkJCWVycngoRVhJVF9GQUlMVVJFLCBfKCJu
-byBsb29wIGRldmljZSBzcGVjaWZpZWQiKSk7CiAJCWlmIChsb29wY3h0X3Nl
-dF9kZXZpY2UoJmxjLCBhcmd2W29wdGluZF0pKQotCQkJZXJyKEVYSVRfRkFJ
-TFVSRSwgXygiJXMgZmFpbGVkIHRvIHVzZSBkZXZpY2UiKSwKKwkJCWVycihF
-WElUX0ZBSUxVUkUsIF8oIiVzOiBmYWlsZWQgdG8gdXNlIGRldmljZSIpLAog
-CQkJCQlhcmd2W29wdGluZF0pOwogCQlvcHRpbmQrKzsKIAotLSAKMS43LjAu
-NAoK
-
---_----------=_1346411170122963
-Content-Disposition: attachment; filename="0002-wdctl-gettextize-one-forgotten-word.patch"
-Content-Id: <1346411139.12225.061c4446b9bd8549f7d14cbc34429553da54cc74@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0002-wdctl-gettextize-one-forgotten-word.patch"
-
-RnJvbSBkYzJlYmE4MzY2NmFmZGNlZGZkNDZlMjY4MTZiNmU4M2FiN2M3NjMw
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzMCBB
-dWcgMjAxMiAyMTowODo0NyArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMi8zXSB3
-ZGN0bDogZ2V0dGV4dGl6ZSBvbmUgZm9yZ290dGVuIHdvcmQKClNpZ25lZC1v
-ZmYtYnk6IEJlbm5vIFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwu
-bmV0PgotLS0KIHN5cy11dGlscy93ZGN0bC5jIHwgICAgMiArLQogMSBmaWxl
-cyBjaGFuZ2VkLCAxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0pCgpk
-aWZmIC0tZ2l0IGEvc3lzLXV0aWxzL3dkY3RsLmMgYi9zeXMtdXRpbHMvd2Rj
-dGwuYwppbmRleCA2YmU2ZmQ0Li44MTEzZGE5IDEwMDY0NAotLS0gYS9zeXMt
-dXRpbHMvd2RjdGwuYworKysgYi9zeXMtdXRpbHMvd2RjdGwuYwpAQCAtNTYz
-LDcgKzU2Myw3IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10p
-CiAJCWlmICghbm9pZGVudCkgewogCQkJcHJpbnRmKCIlLTE1cyVzXG4iLCBf
-KCJEZXZpY2U6IiksIHdkLmRldmljZSk7CiAJCQlwcmludGYoXygiJS0xNXMl
-cyBbdmVyc2lvbiAleF1cbiIpLAotCQkJCQkoIklkZW50aXR5OiIpLAorCQkJ
-CQlfKCJJZGVudGl0eToiKSwKIAkJCQkJd2QuaWRlbnQuaWRlbnRpdHksCiAJ
-CQkJCXdkLmlkZW50LmZpcm13YXJlX3ZlcnNpb24pOwogCQl9Ci0tIAoxLjcu
-MC40Cgo=
-
---_----------=_1346411170122963
-Content-Disposition: attachment; filename="0003-wdctl-treat-aligned-translatable-strings-in-a-unifor.patch"
-Content-Id: <1346411148.12216.be25b526ee6277a9e8c751468ba2413e97985d17@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0003-wdctl-treat-aligned-translatable-strings-in-a-unifor.patch"
-
-RnJvbSBmNTFjN2UyZjhmNmQ3MDAwMzYyYWIwODM1NGU2ZjZlOTNjYWQ2MzJi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogRnJpLCAzMSBB
-dWcgMjAxMiAxMjo1MTo1MCArMDIwMApTdWJqZWN0OiBbUEFUQ0ggMy8zXSB3
-ZGN0bDogdHJlYXQgYWxpZ25lZCB0cmFuc2xhdGFibGUgc3RyaW5ncyBpbiBh
-IHVuaWZvcm0gbWFubmVyCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBzeXMtdXRpbHMv
-d2RjdGwuYyB8ICAgIDMgKystCiAxIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0
-aW9ucygrKSwgMSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zeXMtdXRp
-bHMvd2RjdGwuYyBiL3N5cy11dGlscy93ZGN0bC5jCmluZGV4IDgxMTNkYTku
-Ljk0MTcxYTggMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy93ZGN0bC5jCisrKyBi
-L3N5cy11dGlscy93ZGN0bC5jCkBAIC01NjIsOSArNTYyLDEwIEBAIGludCBt
-YWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCiAJCS8qIHByZXR0eSBvdXRw
-dXQgKi8KIAkJaWYgKCFub2lkZW50KSB7CiAJCQlwcmludGYoIiUtMTVzJXNc
-biIsIF8oIkRldmljZToiKSwgd2QuZGV2aWNlKTsKLQkJCXByaW50ZihfKCIl
-LTE1cyVzIFt2ZXJzaW9uICV4XVxuIiksCisJCQlwcmludGYoIiUtMTVzJXMg
-WyVzICV4XVxuIiwKIAkJCQkJXygiSWRlbnRpdHk6IiksCiAJCQkJCXdkLmlk
-ZW50LmlkZW50aXR5LAorIAkJCQkJXygidmVyc2lvbiIpLAogCQkJCQl3ZC5p
-ZGVudC5maXJtd2FyZV92ZXJzaW9uKTsKIAkJfQogCQlpZiAoIW5vdGltZW91
-dHMpCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1346411170122963--
+This is on until-linux 2.20.1 on debian wheezy.
 
