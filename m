@@ -1,44 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28712 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757104Ab2IDPSt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 4 Sep 2012 11:18:49 -0400
-Date: Tue, 4 Sep 2012 17:18:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Ludwig Nussel <ludwig.nussel@suse.de>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: runuser(1) and su(1) -g/-G
-Message-ID: <20120904151843.GA6389@x2.net.home>
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:36946 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752084Ab2IHD4E (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Sep 2012 23:56:04 -0400
+Received: by vbbff1 with SMTP id ff1so207329vbb.19
+        for <util-linux@vger.kernel.org>; Fri, 07 Sep 2012 20:56:02 -0700 (PDT)
+Date: Fri, 7 Sep 2012 23:56:00 -0400
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Subject: hwclock fail with 2.22
+Message-ID: <20120908035600.GM1899@rampage>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+I'm trying to figure out a bug report that I received the other day with
+hwclock, and I'm curious if anyone else has seen the behavior. I'm not
+able to reproduce reliably as the user is:
 
- Hi,
+https://bugs.archlinux.org/task/31416
 
-I did some changes to the su(1):
+The bits about fsck can be ignored, they're merely a symptom. I was able
+to trace this behavior with an educated guess back to 839be2ba6.
 
-  - add --group= option to specify the primary group
-  - add --supp-group= option to specify a supplemental group
+I suppose part of the issue is that I'm fairly oblivious about how the
+hwclock works, and the interaction with the timezone, particularly when
+the clock is set to UTC. The reporter is using sysvinit with Arch
+Linux's initscripts. hwclock's involvement in his case boils down to the
+following call on bootup:
 
-the both options are based on Fedora runuser(1) patch and it's
-available for root only (non-root cannot specify any groups).
+hwclock --systz --utc --noadjfile
 
+Of course, the --systz flag in there won't work as it used to anymore,
+but the commit message I've picked out doesn't seem to match the
+behavior it changes.
 
-I have also added new command runuser(1) -- it's completely based on
-su(1) code. The difference is that runuser does not ask for password,
-has to be executed by root and it uses different PAM configuration
-(/etc/pam.d/runuser[-l]).
+Any insight would be appreciated.
 
-The changes should be available in v2.23 (or easily backported to
-2.22, I'll do that for Fedora).
-
-See master branch and "git whatchanged login-utils/".
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Cheers,
+Dave
