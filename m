@@ -1,68 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59129 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:28327 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754697Ab2ILKW5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Sep 2012 06:22:57 -0400
-Message-ID: <5050627A.2030009@redhat.com>
-Date: Wed, 12 Sep 2012 12:22:50 +0200
-From: Ondrej Oprala <ooprala@redhat.com>
+	id S1751420Ab2IJIXK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Sep 2012 04:23:10 -0400
+Date: Mon, 10 Sep 2012 10:23:06 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Amit <amit.uttam@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Can't figure out how to use mnt_table_get_root_fs from libmount
+Message-ID: <20120910082306.GA27276@x2.net.home>
+References: <loom.20120908T195804-890@post.gmane.org>
 MIME-Version: 1.0
-To: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: segfault message supressed with su -c
-References: <504F5246.4030304@redhat.com> <504F72A9.1090704@draigBrady.com>
-In-Reply-To: <504F72A9.1090704@draigBrady.com>
-Content-Type: multipart/mixed;
- boundary="------------010101020905060204060509"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <loom.20120908T195804-890@post.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------010101020905060204060509
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+On Sat, Sep 08, 2012 at 06:07:51PM +0000, Amit wrote:
+> Hello,
+> 
+> I have a simple program using libmount that simply gets the path of the
+> root filesystem. I can't seem to get it to work. I always get a
+> segmentation fault. There is probably something basic that I am missing
+> but can't figure it out.
+> 
+> #include <stdlib.h>
+> #include <string.h>
+> #include <stdio.h>
+> #include <assert.h>
+> 
+> #include <libmount.h>
+> 
+> int main(int argc, char *argv[])
+> {
+>     struct libmnt_context *cxt;
+>     struct libmnt_table *tab;
+>     struct libmnt_fs *fs;
+> 
+>     /* Enable debugging */
+>     mnt_init_debug(0xffff);
+> 
+>     /* Create new mount context */
+>     cxt = mnt_new_context();
+>     if (!cxt)
+>         printf("Error creating new mount context\n");
+> 
+>     /* A mount table */
+>     if (mnt_context_get_mtab(cxt, &tab) < 0)
+>         printf("Error getting mtab\n");
+> 
+>     /* Get the root filesystem */
+>     if (mnt_table_get_root_fs(tab, &fs) == -1)
 
-> You'll need to key on WTERMSIG (status).
-> "Segmentation fault" will not always be appropriate.
-> You'll get a core just with Ctrl-\ (SIGQUIT) too for example.
-> Something along the lines of:
->
-> "%s (core dumped)", strsignal (WTERMSIG (status))
->
-> cheers,
-> Pádraig.
-I've redone the patch to reflect your proposition :) .
-Cheers,
-   Ondrej.
+
+   if (mnt_table_get_root_fs(tab, &fs) != 0)
+
+Sorry, the docs for the function is incorrect. Almost all libmount
+functions return zero on success and less than zero on error.
 
 
---------------010101020905060204060509
-Content-Type: text/plain; charset=UTF-8;
- name="DIFF"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="DIFF"
+Note that mnt_table_get_root_fs() uses mountpoint Id and parent Id
+from /proc/self/mountinfo to found root fs.
 
-RnJvbSA2NWU3MzU5MWZjZTJmYTk2MWJmNmRlMWNiYzkzNGY2YWE3YTIyNzQ1IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBPbmRyZWogT3ByYWxhIDxvb3ByYWxhQHJlZGhhdC5j
-b20+CkRhdGU6IFR1ZSwgMTEgU2VwIDIwMTIgMTY6Mzk6MTcgKzAyMDAKU3ViamVjdDogW1BB
-VENIXSBzdTogYWRkIHNlZ21lbnRhdGlvbiBmYXVsdCByZXBvcnRpbmcgb2YgdGhlIGNoaWxk
-IHByb2Nlc3MKTUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBj
-aGFyc2V0PVVURi04CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKCkNoaWxkIHBy
-b2Nlc3NlcyB0aGF0IGVuZGVkIHdpdGggc2VnbWVudGF0aW9uIGZhdWx0IHByZXZpb3VzbHkK
-aW5kaWNhdGVkIHRoaXMgd2l0aCByZXR1cm4gc3RhdHVzIG9ubHkuIFRoZSByZXBvcnQgaXMg
-bm93IG1vcmUKdmVyYm9zZSBpZiBjb3JlIGR1bXAgaXMgYWxsb3dlZC4KCkltcHJvdmVkLWJ5
-OiBQw6FkcmFpZyBCcmFkeS4KLS0tCiBsb2dpbi11dGlscy9zdS1jb21tb24uYyB8IDcgKysr
-KysrLQogMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoK
-ZGlmZiAtLWdpdCBhL2xvZ2luLXV0aWxzL3N1LWNvbW1vbi5jIGIvbG9naW4tdXRpbHMvc3Ut
-Y29tbW9uLmMKaW5kZXggMjNhZDU3ZC4uMjc0OTMwMyAxMDA2NDQKLS0tIGEvbG9naW4tdXRp
-bHMvc3UtY29tbW9uLmMKKysrIGIvbG9naW4tdXRpbHMvc3UtY29tbW9uLmMKQEAgLTMwMCw3
-ICszMDAsMTIgQEAgY3JlYXRlX3dhdGNoaW5nX3BhcmVudCAodm9pZCkKIAl9CiAgICAgICBp
-ZiAocGlkICE9IChwaWRfdCktMSkKIAlpZiAoV0lGU0lHTkFMRUQgKHN0YXR1cykpCi0JICBz
-dGF0dXMgPSBXVEVSTVNJRyAoc3RhdHVzKSArIDEyODsKKwkgIHsKKwkgICAgc3RhdHVzID0g
-V1RFUk1TSUcgKHN0YXR1cykgKyAxMjg7CisJICAgIGlmIChXQ09SRURVTVAgKHN0YXR1cykp
-CisJICAgICAgZnByaW50ZiAoc3RkZXJyLCBfKCIlcyAoY29yZSBkdW1wZWQpXG4iKSwKKyAg
-ICAgICAgICAgICAgICAgc3Ryc2lnbmFsIChXVEVSTVNJRyAoc3RhdHVzKSkpOworCSAgfQog
-CWVsc2UKIAkgIHN0YXR1cyA9IFdFWElUU1RBVFVTIChzdGF0dXMpOwogICAgICAgZWxzZQot
-LSAKMS43LjExLjQKCg==
---------------010101020905060204060509--
+It means that you have to use the mountinfo file -- on systems with
+regular mtab file the function mnt_context_get_mtab() parses /etc/mtab
+rather than the mountinfo file.
+
+  tab = mnt_new_table_from_file("/proc/self/mountinfo");
+  if (tab && mnt_table_get_root_fs(tab, &fs) == 0)
+     ....
+
+the struct libmnt_context is unnecessary in this case.
+
+The mnt_table_get_root_fs() is mostly designed for application where
+you need to sort mountpoints to a tree. (for example findmnt(8))
+
+If you not sure than mnt_table_find_target() is probably better
+choice.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
