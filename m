@@ -1,76 +1,66 @@
-Return-Path: d@falconindy.com
-Date: Wed, 5 Sep 2012 08:38:22 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        Ludwig Nussel <ludwig.nussel@suse.de>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: runuser(1) and su(1) -g/-G
-Message-ID: <20120905123822.GZ1899@rampage>
-References: <20120904151843.GA6389@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from li9-11.members.linode.com ([67.18.176.11]:49943 "EHLO
+	imap.thunk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753298Ab2IJWA1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Sep 2012 18:00:27 -0400
+Date: Mon, 10 Sep 2012 18:00:19 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: John Calcote <john.calcote@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libblkid licensing patch
+Message-ID: <20120910220019.GA13295@thunk.org>
+References: <028201cd8f98$4e9522d0$ebbf6870$@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120904151843.GA6389@x2.net.home>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+In-Reply-To: <028201cd8f98$4e9522d0$ebbf6870$@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 04, 2012 at 05:18:43PM +0200, Karel Zak wrote:
-> 
->  Hi,
-> 
-> I did some changes to the su(1):
-> 
->   - add --group= option to specify the primary group
->   - add --supp-group= option to specify a supplemental group
-> 
-> the both options are based on Fedora runuser(1) patch and it's
-> available for root only (non-root cannot specify any groups).
-> 
-> 
-> I have also added new command runuser(1) -- it's completely based on
-> su(1) code. The difference is that runuser does not ask for password,
-> has to be executed by root and it uses different PAM configuration
-> (/etc/pam.d/runuser[-l]).
-> 
-> The changes should be available in v2.23 (or easily backported to
-> 2.22, I'll do that for Fedora).
-> 
-> See master branch and "git whatchanged login-utils/".
-> 
->     Karel
-> 
 
-Hi Karel,
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think we're missing out on an opportunity with runuser. su insists on
-starting a shell which, among other subtle problems, leads to the
-largeer problem of quoting and escaping the command passed to the -c
-flag. I think we should do something like this:
+On Mon, Sep 10, 2012 at 03:07:35PM -0600, John Calcote wrote:
+> Hello util-linux maintainers -=20
+>=20
+> We=92d like to use libblkid, but our lawyers are pedantic. Please accept =
+this
+> patch, which changes two of the comment headers in libblkid to reflect the
+> license specified in libblkid/COPYING file.=20
+>=20
+> Summary: Two files, one line each.
 
-- separate out argument parsing to runuser and su
-- remove most of the flags from runuser (-f, -c, -l, -, -s), add a -u
-  flag (optional, for user)
-- create a single common entry point for creating a session
-- separate out the run command logic
+Acked-by: "Theodore Ts'o" <tytso@mit.edu>
 
-With a name like runuser, I would expect that its purpose would be to
-simply run commands (and not necessarily get a shell for a user, as is
-done with su). runuser could take non-option arguments as argv for the
-new command so that we'd have examples like this:
+The intention was to relicense blkid under the LGPL, and this was done
+when I was the sole author of the files in question.  I just
+overlooked these two files.
 
-  runuser -u notroot vi /etc/fstab
-  runuser notroot foocmd embedded '"quotes"'
-  runuser -u notroot foocmd has args "with spaces" sometimes
+						- Ted
 
-If you still desperately want to abuse the command to create a shell for
-a user, then you just do that:
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-  runuser -u notroot -- /bin/sh -
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-I can't make any guarantees that I'll be able to offers patches for this
-myself, but I'll definitely be taking a look if I have some free time.
-Just thought I'd bring up the idea, since it's always been a pet peeve
-of mine to fix if ever there were an opportunity for a mulligan on su
-(and this is it!).
+iQIcBAEBCAAGBQJQTmLzAAoJENNvdpvBGATwHa8QAK2kG5j/TFj2ob4Dbq7OlLtE
+mPGHVGDH0A/2Ls+bR+xuTcjLEwm1qH21McfYqqNgavrjup/mlMz8FV2abU7FkN9F
+3hRC5YMhBHWvwNuWkDRuQsrM0y8ZfvlugpL2/4XpZxc2TnsLllWE1lIy9P5RrCpv
+jxc1aMMFS/cFHTpGfrRljsdCUXdjaVk+rbjjT/c121+DtNZqTJqMiqOzbR3B5HLy
+kbZPWnCFcdd9C7rCJbykY3Qbcdav3P4HDHHTaPlYEGjN+qVucdRfaMn/eOr7H0SF
+FvjfmiqnjmIiDK3xqy6ml2HiHoAQ6h1nhywcuz77E8XLxXbf2Shmk6JSiCVqnXwV
+ysBHEy/9KNwymblGtkOveJMCLRLXQMJ/r6uSubyWcitfeFxU6GkNBs/c0pmqp6YR
+QnfYKJr3fCyoIxWgX5kiMIBb0/8BrLKR6FmbEZBHHSoxSYC0hL7Es+M6rqV98MUQ
+ppg2fjlf+ZWiHznOG2mzfGB/cLGTN0zisvkiT0/1kLBZWeywMybozZ8ROHwvN05o
+OXPavdCdnIkhvumf6OYWArJxW+Wm+ogy7ZTshZfc/nx+zDRneDNJgRNxfaRJZ0+O
+YRNx89w1j0YnMiz0eG3iEeGGNory02+fj2OF6KVlzYX4w4D37cPsSHgR/wWYNTZ5
+Vq3k3SaHIKudYV0EOUDb
+=HagY
+-----END PGP SIGNATURE-----
 
-Cheers,
-Dave
+--WIyZ46R2i8wDzkSu--
