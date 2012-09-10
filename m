@@ -1,85 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from fencepost.gnu.org ([208.118.235.10]:58195 "EHLO
-	fencepost.gnu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754707Ab2IUNFo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Sep 2012 09:05:44 -0400
-Date: Fri, 21 Sep 2012 09:05:43 -0400
-From: Davidlohr Bueso <dave@gnu.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/3] fdisk: add guid
-Message-ID: <20120921130543.GA643@gnu.org>
-References: <1345550594.2664.5.camel@offbook>
- <20120921111253.GA18699@x2.net.home>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:37386 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751272Ab2IJVHj convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Sep 2012 17:07:39 -0400
+Received: by pbbrr13 with SMTP id rr13so3046168pbb.19
+        for <util-linux@vger.kernel.org>; Mon, 10 Sep 2012 14:07:39 -0700 (PDT)
+From: "John Calcote" <john.calcote@gmail.com>
+To: <util-linux@vger.kernel.org>
+Subject: libblkid licensing patch
+Date: Mon, 10 Sep 2012 15:07:35 -0600
+Message-ID: <028201cd8f98$4e9522d0$ebbf6870$@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120921111253.GA18699@x2.net.home>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Sep 21, 2012 at 01:12:53PM +0200, Karel Zak wrote:
-> On Tue, Aug 21, 2012 at 02:03:14PM +0200, Davidlohr Bueso wrote:
-> >  fdisks/cfdisk.c         |    2 +-
-> >  fdisks/common.h         |   16 ++++-
-> >  fdisks/fdiskbsdlabel.h  |   38 +++++-----
-> >  fdisks/fdisksgilabel.c  |   38 +++++-----
-> >  fdisks/fdisksunlabel.c  |   34 ++++----
-> >  fdisks/i386_sys_types.c |  198 +++++++++++++++++++++++-----------------------
-> >  6 files changed, 169 insertions(+), 157 deletions(-)
-> [....]
-> > +
-> > +/* Globally unique identifier */
-> > +struct fdisk_guid {
-> > +	uint32_t   time_low;
-> > +	uint16_t   time_mid;
-> > +	uint16_t   time_hi_and_version;
-> > +	uint8_t    clock_seq_hi;
-> > +	uint8_t    clock_seq_low;
-> > +	uint8_t    node[6];
-> > +};
-> >  
-> >  struct systypes {
-> > -	unsigned char type;
-> > -	char *name;
-> > +	uint16_t          type;
-> > +	struct fdisk_guid guid;
-> > +	const char        *name;
-> >  };
-> 
-> I don't like this hack. On all places in fdisk where we need systypes
-> is available fdisk_context struct where is ideal place to store label
-> specific stuff (ideally by any label specific function in fdisk_label).
->
+Hello util-linux maintainers - 
 
-While this patchset was still being developed this was one of the things
-Petr and I discussed. Since systypes is usable throughout all of fdisk
-I did plan to add it to the fdisk_context structure (with basically the same
-members this patch uses - type, guid and name).
+We’d like to use libblkid, but our lawyers are pedantic. Please accept this
+patch, which changes two of the comment headers in libblkid to reflect the
+license specified in libblkid/COPYING file. 
 
- 
-> >  #ifdef	DKTYPENAMES
-> >  static struct systypes xbsd_fstypes[] = {
-> > -        {BSD_FS_UNUSED, "unused"},
-> > -	{BSD_FS_SWAP,   "swap"},
-> > -	{BSD_FS_V6,     "Version 6"},
-> > -	{BSD_FS_V7,     "Version 7"},
-> > -	{BSD_FS_SYSV,   "System V"},
-> > -	{BSD_FS_V71K,   "4.1BSD"},
-> > -	{BSD_FS_V8,     "Eighth Edition"},
-> > -	{BSD_FS_BSDFFS, "4.2BSD"},
-> 
-> it's really strange to modify  BSD or DOS stuff when we need to add
-> GPT. All what we need is to move this stuff to label specific files
-> and make generic API for the structs. It's better to to this work now
-> than modify all the entries and later fix the API.
-> 
+Summary: Two files, one line each.
 
-Well ideally we could have a unique systypes than can be used by all labels,
-instead of defining it per-label, like what we currently have in DOS, BSD, GPT, SUN.
-If needed, we can also limit the scope of each label to use only the systypes it needs from
-that structure. Any thoughts?
+Thanks,
+John
 
-I honestly don't see much difference between doing it before or after GPT, since all the other
-labels need to be adapted anyway. 
+--- util-linux-2.22-original/libblkid/libblkid.3        2012-07-23
+15:21:56.304319734 -0600
++++ util-linux-2.22-modified/libblkid/libblkid.3        2012-09-10
+14:58:29.955114641 -0600
+@@ -2,7 +2,7 @@
+.\"
+.\" This man page was created for libblkid.so.1.0 from e2fsprogs-1.24.
+.\"
+-.\" This file may be copied under the terms of the GNU Public License.
++.\" This file may be copied under the terms of the GNU Lesser General
+Public License.
+.\"
+.\" Created  Wed Sep 14 12:02:12 2001, Andreas Dilger
+.TH LIBBLKID 3 "May 2009" "util-linux" "Programmer's Manual"
+diff -Naur util-linux-2.22-original/libblkid/src/version.c
+util-linux-2.22-modified/libblkid/src/version.c
+--- util-linux-2.22-original/libblkid/src/version.c     2012-06-11
+04:06:53.689196193 -0600
++++ util-linux-2.22-modified/libblkid/src/version.c     2012-09-10
+14:58:54.743114750 -0600
+@@ -4,7 +4,7 @@
+  * Copyright (C) 2004 Theodore Ts'o.
+  *
+  * %Begin-Header%
+- * This file may be redistributed under the terms of the GNU Public
++ * This file may be redistributed under the terms of the GNU Lesser General
+Public
+  * License.
+  * %End-Header%
+  */
 
-Thanks.
+
