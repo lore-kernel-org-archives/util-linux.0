@@ -1,43 +1,52 @@
-Return-Path: lczerner@redhat.com
-Date: Thu, 13 Sep 2012 09:37:30 -0400 (EDT)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: Kay Sievers <kay@vrfy.org>
-cc: Lukas Czerner <lczerner@redhat.com>, util-linux@vger.kernel.org,
-        kzak@redhat.com
-Subject: Re: [PATCH] blkdiscard: add new command
-In-Reply-To: <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com>
-Message-ID: <alpine.LFD.2.00.1209130934290.2222@new-host-2>
-References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:53727 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751257Ab2IJWPz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Sep 2012 18:15:55 -0400
+Received: by pbbrr13 with SMTP id rr13so3120782pbb.19
+        for <util-linux@vger.kernel.org>; Mon, 10 Sep 2012 15:15:55 -0700 (PDT)
+From: "John Calcote" <john.calcote@gmail.com>
+To: "'Theodore Ts'o'" <tytso@mit.edu>
+Cc: <util-linux@vger.kernel.org>
+References: <028201cd8f98$4e9522d0$ebbf6870$@gmail.com> <20120910220019.GA13295@thunk.org>
+In-Reply-To: <20120910220019.GA13295@thunk.org>
+Subject: RE: libblkid licensing patch
+Date: Mon, 10 Sep 2012 16:15:51 -0600
+Message-ID: <029701cd8fa1$d84639c0$88d2ad40$@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 13 Sep 2012, Kay Sievers wrote:
+Thanks Ted - if you're still maintaining e2fsprogs, you might want to make
+similar changes to those two files on sf.net, plus tst_types.c.
 
-> Date: Thu, 13 Sep 2012 00:43:01 +0200
-> From: Kay Sievers <kay@vrfy.org>
-> To: Lukas Czerner <lczerner@redhat.com>
-> Cc: util-linux@vger.kernel.org, kzak@redhat.com
-> Subject: Re: [PATCH] blkdiscard: add new command
-> 
-> On Wed, Sep 12, 2012 at 11:49 PM, Lukas Czerner <lczerner@redhat.com> wrote:
-> > blkdiscard is used to discard device sectors. This is useful for
-> > solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
-> > fstrim this command is used directly on the block device.
-> 
-> Should this maybe live in blockdev(8)?
-> 
-> It's kind of unfortunate to create standalone tools for every other
-> rather exotic block device feature.
+--john
 
-Discard is hardly exotic feature nowadays :). But anyway, I was not aware of
-blockdev(8) and indeed it seems like a better place to put this
-functionality. I'll look into it.
-
-Thanks!
--Lukas
-
+> -----Original Message-----
+> From: Theodore Ts'o [mailto:tytso@mit.edu]
+> Sent: Monday, September 10, 2012 4:00 PM
+> To: John Calcote
+> Cc: util-linux@vger.kernel.org
+> Subject: Re: libblkid licensing patch
 > 
-> Thanks,
-> Kay
+> On Mon, Sep 10, 2012 at 03:07:35PM -0600, John Calcote wrote:
+> > Hello util-linux maintainers -
+> >
+> > We'd like to use libblkid, but our lawyers are pedantic. Please accept
+> > this patch, which changes two of the comment headers in libblkid to
+> > reflect the license specified in libblkid/COPYING file.
+> >
+> > Summary: Two files, one line each.
 > 
+> Acked-by: "Theodore Ts'o" <tytso@mit.edu>
+> 
+> The intention was to relicense blkid under the LGPL, and this was done
+when
+> I was the sole author of the files in question.  I just overlooked these
+two
+> files.
+> 
+> 						- Ted
+
