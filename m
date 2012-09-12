@@ -1,54 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:59762 "EHLO
-	homiemail-a7.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751771Ab2IYVTS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 25 Sep 2012 17:19:18 -0400
-Message-ID: <1348607954.2531.4.camel@offbook>
-Subject: Re: Why fdisk wants the first partition to start at 1 MiB?
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Kay Sievers <kay@vrfy.org>
-Cc: Francesco Turco <fturco@fastmail.fm>, util-linux@vger.kernel.org
-Date: Tue, 25 Sep 2012 23:19:14 +0200
-In-Reply-To: <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
-References: <1348605188.19630.140661132636721.0CD0D5D4@webmail.messagingengine.com>
-	 <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:25617 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755635Ab2ILKJW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 12 Sep 2012 06:09:22 -0400
+Date: Wed, 12 Sep 2012 12:09:16 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Giacomo <giacomo.perale@gmail.com>
+Cc: util-linux@vger.kernel.org, Paul Fox <pgf@laptop.org>
+Subject: Re: rtcwake doesn't reset wakealarm
+Message-ID: <20120912100916.GB17256@x2.net.home>
+References: <loom.20120911T131040-30@post.gmane.org>
+ <loom.20120912T113440-886@post.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <loom.20120912T113440-886@post.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2012-09-25 at 22:50 +0200, Kay Sievers wrote:
-> On Tue, Sep 25, 2012 at 10:33 PM, Francesco Turco <fturco@fastmail.fm> wrote:
-> > I'm trying to use fdisk (from util-linux 2.19.1) for creating a
-> > partition on a drive. I noticed that the start sector of the first
-> > partition must be at least 2048, that is 1 MiB from the beginning of the
-> > drive. This can be changed by entering the "expert mode" and using the
-> > "move beginning of data in a partition" option. But I'm still wondering
-> > why fdisk reserves so much space by default.
-> >
-> > As far as I know the only sector that should not be used for partitions
-> > is the first one, that is, sector 0. It is reserved for the MBR. So the
-> > first partition can start at sector 1. I read that the 1 MiB thing is
-> > Windows related: http://en.wikipedia.org/wiki/Logical_Disk_Manager. Or
-> > it's something that Linux users should also care about? I can't find a
-> > convincing explanation anywhere.
-> >
-> > This 1 MiB thing seems to affect parted, too, as it wants partition
-> > boundaries to be multiples of 1 MiB. I don't know if it's related to the
-> > problem I have with fdisk, though.
+
+ Let's add Paul to CC ;-)
+
+On Wed, Sep 12, 2012 at 09:52:14AM +0000, Giacomo wrote:
+> Giacomo <giacomo.perale@...> writes:
 > 
-> It's a de-facto standard, which Windows does too. The first megabyte
-> is reserved here for a boot loader or any other management data that
-> could be needed for a disk or box to boot from.
+> > I recently upgraded to util-linux 2.22 and I noticed that powertop started
+> > reporting about 50-60 wakeups per second caused by rtc (interrupt 8). 
+> > 
+> > I quickly found out that this happened when I used rtcwake to wake up the
+> > machine, and that after the reboot /sys/class/rtc/rtc0/wakealarm was still 
+> > set to the scheduled wakeup time (now in the past). 
+> > 
+> > After a quick investigation I discovered that this is caused by commit
+> > 1707576155daf644c5df3c1776b52fd297ff9318 ("rtcwake: only invoke RTC_AIE_ON/OFF
+> > ioctls in pairs"): my system uses RTC_WKALM_SET so ioctl_aie_on stays false and
+> > RTC_AIE_OFF doesn't get called.
+> > 
 > 
-> Boot loader issues are probably not that interesting on EFI boxes and
-> other non-BIOS hardware, but on usually big sized disks it's still a
-> safe default.
+> Hi,
+> 
+> that commit also broke "disable". This is what happens on my system:
+> 
+> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
+> KazeNoTani ~ # rtcwake -m show
+> alarm: off
+> KazeNoTani ~ # rtcwake -m no -s 300
+> rtcwake: wakeup using /dev/rtc0 at Wed Sep 12 09:40:31 2012
+> KazeNoTani ~ # rtcwake -m show
+> alarm: on  Wed Sep 12 09:40:32 2012
+> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
+> 1347442831
+> KazeNoTani ~ # rtcwake -m disable
+> KazeNoTani ~ # rtcwake -m show
+> alarm: on  Wed Sep 12 09:40:32 2012
+> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
+> 1347442831
+> KazeNoTani ~ # echo 0 > /sys/class/rtc/rtc0/wakealarm
+> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
+> KazeNoTani ~ # rtcwake -m show
+> alarm: off
+> 
+> 
+> rtcwake -m disable doesn't remove the alarm. This is because as it is
+> implemented now "-m disable" does nothing but break and rely on the call to
+> RTC_AIE_OFF that was always done at the end of the execution of rtcwake, but now
+> is conditional on "ioctl_aie_on" that doesn't get set in most cases.
+> 
+> Thanks,
+> 
+> Giacomo
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Right, in fact GPT only reserves 17Kib and the first partition can start
-at sector 34, with 512 sector size.
-
-Davidlohr
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
