@@ -1,31 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56153 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752761Ab2IDKu6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 4 Sep 2012 06:50:58 -0400
-Date: Tue, 4 Sep 2012 12:50:54 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] fdisk: document FDISK_DEBUG
-Message-ID: <20120904105054.GA28558@x2.net.home>
-References: <1345625829.2623.0.camel@offbook>
+Return-Path: lczerner@redhat.com
+Date: Thu, 13 Sep 2012 09:37:30 -0400 (EDT)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+To: Kay Sievers <kay@vrfy.org>
+cc: Lukas Czerner <lczerner@redhat.com>, util-linux@vger.kernel.org,
+        kzak@redhat.com
+Subject: Re: [PATCH] blkdiscard: add new command
+In-Reply-To: <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com>
+Message-ID: <alpine.LFD.2.00.1209130934290.2222@new-host-2>
+References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1345625829.2623.0.camel@offbook>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 22, 2012 at 10:57:09AM +0200, Davidlohr Bueso wrote:
->  fdisks/fdisk.8 |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
+On Thu, 13 Sep 2012, Kay Sievers wrote:
 
- Applied, thanks. It would be nice to have this info also in findmnt,
- mount, umount, wipefs, partx, ... man pages. (LIBBLKID_DEBUG= and
- LIBMOUNT_DEBUG=)
+> Date: Thu, 13 Sep 2012 00:43:01 +0200
+> From: Kay Sievers <kay@vrfy.org>
+> To: Lukas Czerner <lczerner@redhat.com>
+> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> Subject: Re: [PATCH] blkdiscard: add new command
+> 
+> On Wed, Sep 12, 2012 at 11:49 PM, Lukas Czerner <lczerner@redhat.com> wrote:
+> > blkdiscard is used to discard device sectors. This is useful for
+> > solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
+> > fstrim this command is used directly on the block device.
+> 
+> Should this maybe live in blockdev(8)?
+> 
+> It's kind of unfortunate to create standalone tools for every other
+> rather exotic block device feature.
 
-  Karel
+Discard is hardly exotic feature nowadays :). But anyway, I was not aware of
+blockdev(8) and indeed it seems like a better place to put this
+functionality. I'll look into it.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks!
+-Lukas
+
+> 
+> Thanks,
+> Kay
+> 
