@@ -1,33 +1,50 @@
-Return-Path: amit.uttam@gmail.com
-Date: Sun, 16 Sep 2012 17:21:32 -0700
-From: Amit Uttamchandani <amit.uttam@gmail.com>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:20229 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754843Ab2IMLFn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 13 Sep 2012 07:05:43 -0400
+Date: Thu, 13 Sep 2012 13:05:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Andrea Bonomi <a.bonomi@endian.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Can't figure out how to use mnt_table_get_root_fs from libmount
-Message-ID: <20120917002132.GA12037@amit-debian.lg.local>
-References: <loom.20120908T195804-890@post.gmane.org>
- <20120910082306.GA27276@x2.net.home>
+Subject: Re: [PATCH 0/2] agetty: display network address in issue
+Message-ID: <20120913110539.GA13016@x2.net.home>
+References: <2B6CF89C-6218-4289-B116-27108562664F@endian.com>
+ <BBDB2F27-F199-4F90-B393-569763011661@endian.com>
+ <20120912093728.GA17256@x2.net.home>
+ <49CAD42E-995E-4C66-A9AD-5939968A54F7@endian.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120910082306.GA27276@x2.net.home>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <49CAD42E-995E-4C66-A9AD-5939968A54F7@endian.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 10, 2012 at 10:23:06AM +0200, Karel Zak wrote:
-
-[snip]
-
-> The mnt_table_get_root_fs() is mostly designed for application where
-> you need to sort mountpoints to a tree. (for example findmnt(8))
+On Wed, Sep 12, 2012 at 07:29:19PM +0200, Andrea Bonomi wrote:
+> Hi,
+> good idea, much better without the hardcoded interface name.
+> I think that the --interface option is useful for the machine with a dynamic IP address.
+> (in my experience, the getaddrinfo based on the hostname returns the loopback address)
 > 
-> If you not sure than mnt_table_find_target() is probably better
-> choice.
-> 
+> Another idea will be to add the interface name after the \4 or \6, something like:
+> \4eth0 (or similar…)
 
-Thanks for the reply. mnt_table_find_target works wonderfully.
+Excellent idea. It also means that --interface is unnecessary and
+more than one interface IP maybe be printed by the issue file.
 
-Also, I am currently using libmount from util-linux 2.20.1. Would you
-recommend this for production? Currently, debian wheezy uses util-linux
-2.20.1.
+> to get the IPv4 address of the interface eth0
+> So the user can specify the interface name directly in the issue file.
+> What do you think?
 
-Thanks,
-Amit
+Implemented, merged into master branch. For example:
+
+    lo = \4{lo}
+   em1 = \4{em1}  (IPv6 \6{em1})
+virbr0 = \4{virbr0}
+
+The {..} is optional argument, if not given, host IP is printed.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
