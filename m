@@ -1,59 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:46835 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755487Ab2IRXIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Sep 2012 19:08:36 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1TE6u9-0006ZL-86
-	for util-linux@vger.kernel.org; Wed, 19 Sep 2012 01:08:33 +0200
-Received: from 209.239.228.34 ([209.239.228.34])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 19 Sep 2012 01:08:33 +0200
-Received: from amit.uttam by 209.239.228.34 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 19 Sep 2012 01:08:33 +0200
-To: util-linux@vger.kernel.org
-From: Amit <amit.uttam@gmail.com>
-Subject: Return status of =?utf-8?b?bW50X2NvbnRleHRfbW91bnQ=?= when helper is used
-Date: Tue, 18 Sep 2012 23:08:16 +0000 (UTC)
-Message-ID: <loom.20120919T005618-428@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:41860 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758057Ab2IMPcc convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 13 Sep 2012 11:32:32 -0400
+Received: by bkwj10 with SMTP id j10so637899bkw.19
+        for <util-linux@vger.kernel.org>; Thu, 13 Sep 2012 08:32:31 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <alpine.LFD.2.00.1209130934290.2222@new-host-2>
+References: <1347486555-24330-1-git-send-email-lczerner@redhat.com>
+ <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com> <alpine.LFD.2.00.1209130934290.2222@new-host-2>
+From: Kay Sievers <kay@vrfy.org>
+Date: Thu, 13 Sep 2012 17:32:09 +0200
+Message-ID: <CAPXgP112ZCnvmwd5=YQdd7X1fK=OMV_h1EXcnrR8ePL8RGPrrw@mail.gmail.com>
+Subject: Re: [PATCH] blkdiscard: add new command
+To: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>
+Cc: util-linux@vger.kernel.org, kzak@redhat.com
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Thu, Sep 13, 2012 at 3:37 PM, Lukáš Czerner <lczerner@redhat.com> wrote:
+> On Thu, 13 Sep 2012, Kay Sievers wrote:
+>
+>> Date: Thu, 13 Sep 2012 00:43:01 +0200
+>> From: Kay Sievers <kay@vrfy.org>
+>> To: Lukas Czerner <lczerner@redhat.com>
+>> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+>> Subject: Re: [PATCH] blkdiscard: add new command
+>>
+>> On Wed, Sep 12, 2012 at 11:49 PM, Lukas Czerner <lczerner@redhat.com> wrote:
+>> > blkdiscard is used to discard device sectors. This is useful for
+>> > solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
+>> > fstrim this command is used directly on the block device.
+>>
+>> Should this maybe live in blockdev(8)?
+>>
+>> It's kind of unfortunate to create standalone tools for every other
+>> rather exotic block device feature.
+>
+> Discard is hardly exotic feature nowadays :)
 
-When trying to mount samba shares using *mnt_context_mount*, the
-*mount.cifs* helper is called and used. This allows for automatic
-resolving of hostnames.
+Nowadays, stuff is usually done by filesystems during runtime or
+filesysystem formatters. Or secure erase of the whole disk, which
+usually also has the benefit of resetting the garbage collector tables
+in the device.
 
-However, if the hostname is not valid and the resolve fails,
-the call *mnt_context_mount* is still successful. Using
-*mnt_init_debug*, the mount.cifs helper returns an error code but this
-is not propagated to the status of mnt_context_mount or
-mnt_context_get_status.
+Therefore, discarding areas with this new command seems pretty exotic to me. :)
 
-This has been tried with util-linux 2.20.1 and the latest util-linux
-from git (as of today).
+And also how does it overlap with hdparm's --trim-sector-ranges ?
 
-Is there a way to check the return status of the helper?
-
-START TRACE
-
-mount error: could not resolve address for pmanalo-pc2: Unknown error
-libmount:      CXT: [0x811010]: /sbin/mount.cifs executed [status=1]
-libmount:      CXT: [0x811010]: don't update: external helper
-mount_cifs: mnt_context_mount return code = 0 status = 1
-mount_cifs: error:
-libmount:      CXT: [0x811010]: <---- reset [status=1] ---->
-libmount:    CACHE: [0x811350]: free
-libmount:      CXT: [0x811010]: <---- free
-
-END TRACE
-
-Thanks,
-Amit
-
+Kay
