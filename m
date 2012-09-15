@@ -1,82 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:56935 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757290Ab2IDP5m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 4 Sep 2012 11:57:42 -0400
-Message-ID: <504624F3.2020601@bernhard-voelker.de>
-Date: Tue, 04 Sep 2012 17:57:39 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:34554 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807Ab2IOG3x (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 15 Sep 2012 02:29:53 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by filtteri2.pp.htv.fi (Postfix) with ESMTP id 9A85C19B80C
+	for <util-linux@vger.kernel.org>; Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
+Received: from smtp5.welho.com ([213.243.153.39])
+	by localhost (filtteri2.pp.htv.fi [213.243.153.185]) (amavisd-new, port 10024)
+	with ESMTP id ikwpFCb1J-XL for <util-linux@vger.kernel.org>;
+	Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
+Received: from michael.steam.fi.bobcat.mine.nu (cs78200229.pp.htv.fi [62.78.200.229])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by smtp5.welho.com (Postfix) with ESMTPS id 43ACC5BC002
+	for <util-linux@vger.kernel.org>; Sat, 15 Sep 2012 09:29:51 +0300 (EEST)
+From: =?UTF-8?q?Ville=20Skytt=C3=A4?= <ville.skytta@iki.fi>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/2] docs: umount.8 syntax fix.
+Date: Sat, 15 Sep 2012 09:29:49 +0300
+Message-Id: <1347690590-29482-1-git-send-email-ville.skytta@iki.fi>
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: su: (why not?) merged from latest coreutils
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
 
-su has not been "merged from latest coreutils".
+Signed-off-by: Ville Skyttä <ville.skytta@iki.fi>
+---
+ sys-utils/umount.8 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-If you look at su.c's history, the coreutils changes stop at March 2007,
-only followed by 5 SuSE and 1 Redhat patches before the integration in
-util-linux began:
+diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
+index f0fcd99..b949aeb 100644
+--- a/sys-utils/umount.8
++++ b/sys-utils/umount.8
+@@ -76,8 +76,8 @@ In case the unmounted device was a loop device, also free this loop
+ device.
+ .TP
+ \fB\-\-fake\fP
+-Causes everything to be done except for the actual system call; this
+-'fakes' unmounting the filesystem.  It can be used to remove entries from
++Causes everything to be done except for the actual system call; this 'fakes'
++unmounting the filesystem.  It can be used to remove entries from
+ .I /etc/mtab
+ that were unmounted earlier with the
+ .B \-n
+-- 
+1.7.11.4
 
-  $ git log --oneline 7943f79..v2.21-559-gff6b15d -- login-utils/su.c
-  ff6b15d make su build as part of util-linux
-  c6a1746 call setsid() when called with -c
-  a6fdd3f make sure /sbin resp /usr/sbin are in PATH
-  589554a honor settings in /etc/default/su resp /etc/login.defs
-  a9980c8 set sane default path
-  b14d022 log all su attempts
-  8171142 pam support for su
-  ce5f2f2 Help translators include translation team's web or email address.
-
-If you look at su.c's history in the coreutils tree, then there are
-25 changes before it has been removed from the project:
-
-  $ git log --oneline v6.1-64-gd8049d7..v8.17-16-g928dd73 -- src/su.c
-  928dd73 su: remove program (util-linux is now the best source for it)
-  d787845 maint: use single copyright year range
-  a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
-  101d120 maint: use new emit_try_help in place of equivalent fprintf
-  5111aa4 maint: update all copyright year number ranges
-  71b7ddc port to GNU hosts, where getuid and friends can fail
-  9d6231e maint: update all copyright year number ranges
-  1aa17dc maint: update all FSF copyright year lists to include 2010
-  1c59bb3 nice, nohup, su: detect write failure to stderr
-  c690047 maint: let gnulib provide environ
-  b6540b9 chroot, env, nice, su: use EXIT_CANCELED for internal failure
-  32f987a build: avoid compiler warnings on cygwin 1.5
-  5d4f09d doc: mention the texinfo documentation in --help
-  5e778f7 global: convert indentation-TABs to spaces
-  2232b4d maint: update all Copyright year lists to include 2009
-  9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
-  22a2a43 build: add configure-time --enable-gcc-warnings option; avoid warnings
-  45e6718 remove redundant const directives
-  1463824 add "const" attribute, where possible
-  896b672 use gnulib's progname module
-  434258c declare program_name consistently
-  581b2e3 adjust copyright dates
-  b69b4cc convert single-author programs to use proper_name
-  3575545 Use EXIT_FAILURE, not EXIT_FAIL, now that EXIT_FAILURE is always 1.
-  71aa3ea Update all copyright notices to use the newer form.
-  33342c1 Change "version 2" to "version 3" in all copyright notices.
-  a0faff1 Help translators include translation team's web or email address.
-
-
-Many of the changes are minor ones regarding identation, internal error
-code fixes, copyright year number changes etc. but at least the following
-seem to be worth including:
-
-  71b7ddc port to GNU hosts, where getuid and friends can fail
-  1c59bb3 nice, nohup, su: detect write failure to stderr
-
-and these would be nice:
-
-  a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
-  9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
-
-WDYT?
-
-Have a nice day,
-Berny
