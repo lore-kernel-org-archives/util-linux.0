@@ -1,57 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45451 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751349Ab2ITKNC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 20 Sep 2012 06:13:02 -0400
-Date: Thu, 20 Sep 2012 12:12:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Amit Uttamchandani <amit.uttam@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Return status of mnt_context_mount when helper is used
-Message-ID: <20120920101259.GD16499@x2.net.home>
-References: <loom.20120919T005618-428@post.gmane.org>
- <20120919100638.GC9602@x2.net.home>
- <20120919221427.GA25659@amit-debian.lg.local>
+Received: from gerolde.archlinux.org ([66.211.214.132]:47213 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751705Ab2IONRe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 15 Sep 2012 09:17:34 -0400
+Message-ID: <50547FE7.204@archlinux.org>
+Date: Sat, 15 Sep 2012 15:17:27 +0200
+From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120919221427.GA25659@amit-debian.lg.local>
+To: util-linux@vger.kernel.org
+CC: Dave Reisner <d@falconindy.com>, Tobias Powalowski <tpowa@archlinux.org>
+Subject: [su] New su utility messes with my PATH
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------enig9A0C6D8C3BB5602CF3B620BE"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 19, 2012 at 03:14:27PM -0700, Amit Uttamchandani wrote:
-> On Wed, Sep 19, 2012 at 12:06:38PM +0200, Karel Zak wrote:
-> 
-> [snip]
-> 
-> > 
-> > docs:
-> > 
-> >  * mnt_context_get_status:
-> >  * @cxt: mount context
-> >  *
-> >  * Global libmount status.
-> >  *
-> >  * The real exit code of the mount.type helper has to be tested
-> >  * by  mnt_context_get_helper_status(). The mnt_context_get_status()
-> >  * only inform that exec() has been successful.
-> > 
-> 
-> I guess this was implemented after util-linux-2.20.1 since the docs in
-> that version does not mention it. Also, it is not implemented in the
-> code.
-> 
-> What would you recommend as a work around?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9A0C6D8C3BB5602CF3B620BE
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Hmm... the status from mount.<type> is stored in cxt->helper_status,
-but this variable is nowhere exported in v2.20.
+I found what I think is absolutely unexpected behaviour in the new su
+utility. It seems to have been introduced by commit a6fdd3f8.
 
-> Should I statically link
-> libmount and bundle it with the application?
+It is about /sbin and /usr/sbin being in the path: Whenever you switch
+to a non-root user, they are removed from the path, and when you switch
+to root, they are added. I find it completely unexpected that su (when
+not running with -l) messes with my environment at all.
 
-Yes, or update to 2.21.2 or v2.22 :-)
+Commands like
+ PATH=3D... su -c "cmd" user
+do not work as expected.
 
-    Karel
+In my opinion, when you wish your path (or anything in the environment)
+to change you should a) use -l to start a login shell or b) configure
+your scripts to take care of it.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I propose to revert the mentioned patch. Opinions?
+
+
+--------------enig9A0C6D8C3BB5602CF3B620BE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+
+iQIcBAEBCAAGBQJQVH/pAAoJEChPw0yOSxolRvEQAMjc5W/kiZQo0he0lZbPqwh7
+zLPZX8p0uGxHB2WGxrXhykitBh1G+Hvc5iy/FJOLBjuX9mI9EMudiGlr8A3rXH0v
+/r7f8Q0yLGD+UzJjknkp6Tb9kmd1VlnwOitoaZxh/hTYyuBl7iQpJQ5MuXubpNKQ
+Txz+muzMIC2cqbajkNYK+Mf+pm6wHoaE+7caVAxAHGTHa/27gwWWJBMstpl1KN4E
+79xCPLUNuIihWTZXR1u0hs9QhsGMo3LKG8n/wqoi8iMRHV3cM6/rElUAZyuTeN5q
++To/VYW8/sCqT410Jfj6q7QOsoFl+K5Uh2ofNWE1jY8EI7JE1edTC1BYcXeDxYUZ
+aBpjhqgRf2jN+A/0gYBMwo7slX1zNYZMNnWEZYs9nRcJyrLEg7Me380VsmQz6uk6
+qSNtq/mJW0UIE2BFmekKWQf3ikUm1f0gSXN+J5wC5LxPqPmymQz+LREsC/14Q0TG
+eOaR95hI+OPZBKdxMM4qScmmmKxhVGuBKJU5JkFxAakZeejfVzr19ne338Y5nXwT
+JcHVLj5u6g6u8U9/TigmG9GPQ66lOsHxe8ZzsLXin4K9fCcgN7oOUG0EsxsJu+e5
+8LIhkQl0juybbQQ3eSdA5sTMsI6leX4Lx4kPYdf5K9Zgu2FrMfcDl4vkJBRTu+wB
+Nu72PZC5oaOz8BbVg/N/
+=4iwL
+-----END PGP SIGNATURE-----
+
+--------------enig9A0C6D8C3BB5602CF3B620BE--
