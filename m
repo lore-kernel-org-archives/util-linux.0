@@ -1,71 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:33030 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932075Ab2IFRfF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 6 Sep 2012 13:35:05 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1T9fyq-0001ry-0C
-	for util-linux@vger.kernel.org; Thu, 06 Sep 2012 19:35:04 +0200
-Received: from 103.85-200-56.bkkb.no ([85.200.56.103])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 06 Sep 2012 19:35:03 +0200
-Received: from christer.solskogen by 103.85-200-56.bkkb.no with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 06 Sep 2012 19:35:03 +0200
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:44413 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751497Ab2IPGML (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Sep 2012 02:12:11 -0400
+Received: by wibhr14 with SMTP id hr14so1252935wib.1
+        for <util-linux@vger.kernel.org>; Sat, 15 Sep 2012 23:12:10 -0700 (PDT)
+MIME-Version: 1.0
+From: Queen Adam <adam900710@gmail.com>
+Date: Sun, 16 Sep 2012 14:11:48 +0800
+Message-ID: <CAFy8SQX-F5r+ztpJ9ZnBNwSjcbBqBN=g6-ZiSfV2sW_dBRv+tQ@mail.gmail.com>
+Subject: Default wait time in hwclock is not long enough for some ARM devices
 To: util-linux@vger.kernel.org
-From: Christer Solskogen <christer.solskogen@gmail.com>
-Subject: cross compiling util-linux
-Date: Thu, 06 Sep 2012 19:30:36 +0200
-Message-ID: <k2amjt$fh0$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed; boundary=f46d043bd7588b402304c9cb897c
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi!
+--f46d043bd7588b402304c9cb897c
+Content-Type: text/plain; charset=ISO-8859-1
 
-I'm having a bit trouble cross compiling util-linux. Due to where is 
-thinks it finds libpam.la. For all I know that might be a problem that 
-Linux-PAM has, but if anyone could point me in the right direction I 
-would be very happy :-)
+Hi,
 
-[solskogen@cheer util-linux.x86_64-centix-linux-gnu]$ make
-make  all-recursive
-make[1]: Entering directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu'
-Making all in po
-make[2]: Entering directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu/po'
-make[2]: Nothing to be done for `all'.
-make[2]: Leaving directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu/po'
-make[2]: Entering directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu'
-   CCLD   libblkid.la
-copying selected object files to avoid basename conflicts...
-   CCLD   libmount.la
-   CCLD   login
-libtool: link: cannot find the library `/lib64/libpam.la' or unhandled 
-argument `/lib64/libpam.la'
-make[2]: *** [login] Error 1
-make[2]: Leaving directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu'
-make[1]: *** [all-recursive] Error 1
-make[1]: Leaving directory 
-`/storage/home/solskogen/obj/_build/util-linux.x86_64-centix-linux-gnu'
-make: *** [all] Error 2
+I'm using Archlinux ARM for my Melo A100 box.
+The hwclock always timeout when using select() in rtc.c.
 
-configure was run like this: -prefix=/usr 
---build=x86_64-unknown-linux-gnu --host=x86_64-centix-linux-gnu 
---with-sysroot=/home/solskogen/obj/root.x86_64-centix-linux-gnu
+After I change the timeout from 5 to 10, the problem is solved.
 
-I have succesfully compiled the linux kernel, binutils, gcc, glibc etc. 
-with the cross compiler so I'm pretty sure that nothing is wrong with my 
-toolchain.
+In fact the timeout in my ARM box seems only to be a little larger than 5s.
 
+I also attached the patch.
 
--- 
-chs
+--f46d043bd7588b402304c9cb897c
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h75qypgo0
 
+ZGlmZiAtLWdpdCBhL3N5cy11dGlscy9od2Nsb2NrLXJ0Yy5jIGIvc3lzLXV0aWxzL2h3Y2xvY2st
+cnRjLmMKaW5kZXggMzM4MDk0MS4uNjQwZjgyNiAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL2h3Y2xv
+Y2stcnRjLmMKKysrIGIvc3lzLXV0aWxzL2h3Y2xvY2stcnRjLmMKQEAgLTMwOCw3ICszMDgsNyBA
+QCBzdGF0aWMgaW50IHN5bmNocm9uaXplX3RvX2Nsb2NrX3RpY2tfcnRjKHZvaWQpCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAqLwogICAgICAgICAgICAgICAgICAgICAgICBGRF9aRVJPKCZyZmRz
+KTsKICAgICAgICAgICAgICAgICAgICAgICAgRkRfU0VUKHJ0Y19mZCwgJnJmZHMpOwotICAgICAg
+ICAgICAgICAgICAgICAgICB0di50dl9zZWMgPSA1OworICAgICAgICAgICAgICAgICAgICAgICB0
+di50dl9zZWMgPSAxMDsKICAgICAgICAgICAgICAgICAgICAgICAgdHYudHZfdXNlYyA9IDA7CiAg
+ICAgICAgICAgICAgICAgICAgICAgIHJjID0gc2VsZWN0KHJ0Y19mZCArIDEsICZyZmRzLCBOVUxM
+LCBOVUxMLCAmdHYpOwogICAgICAgICAgICAgICAgICAgICAgICByZXQgPSAxOwo=
+--f46d043bd7588b402304c9cb897c--
