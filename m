@@ -1,84 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:22562 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:25342 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751398Ab2IEJjL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 5 Sep 2012 05:39:11 -0400
-Date: Wed, 5 Sep 2012 11:39:07 +0200
+	id S1757371Ab2IRJ3a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 18 Sep 2012 05:29:30 -0400
+Date: Tue, 18 Sep 2012 11:29:26 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: su: (why not?) merged from latest coreutils
-Message-ID: <20120905093907.GC32623@x2.net.home>
-References: <504624F3.2020601@bernhard-voelker.de>
+To: g.esp@free.fr
+Cc: util-linux@vger.kernel.org
+Subject: Re: util-linux-2.22 regression on umount with loop and /etc/mtab
+ real file
+Message-ID: <20120918092926.GA20576@x2.net.home>
+References: <1621495890.210163275.1347911558877.JavaMail.root@zimbra33-e6.priv.proxad.net>
+ <2140853048.211115988.1347947429555.JavaMail.root@zimbra33-e6.priv.proxad.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <504624F3.2020601@bernhard-voelker.de>
+In-Reply-To: <2140853048.211115988.1347947429555.JavaMail.root@zimbra33-e6.priv.proxad.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 04, 2012 at 05:57:39PM +0200, Bernhard Voelker wrote:
-> Hi Karel,
+On Tue, Sep 18, 2012 at 07:50:29AM +0200, g.esp@free.fr wrote:
+> The loop is cleaned on umount with 2.21.2
+> With 2.22, unmounting /tmp/foo_fs no more remove the loop
 > 
-> su has not been "merged from latest coreutils".
-
-hmmm... it seems that Ludwig has used code from suse rather than the
-latest upstream.
-
-> If you look at su.c's history in the coreutils tree, then there are
-> 25 changes before it has been removed from the project:
+> [chroot-i486] root:/$ mount --version
+> mount from util-linux 2.22 (libmount 2.22.0: debug)
+> [chroot-i486] root:/$ losetup -a
+> [chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
+> [chroot-i486] root:/$ umount /tmp/foo_fs
+> [chroot-i486] root:/$ losetup -a
+> /dev/loop0: [2051]:387175 (/tmp/foo_fs)
 > 
->   $ git log --oneline v6.1-64-gd8049d7..v8.17-16-g928dd73 -- src/su.c
->   928dd73 su: remove program (util-linux is now the best source for it)
->   d787845 maint: use single copyright year range
->   a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
->   101d120 maint: use new emit_try_help in place of equivalent fprintf
->   5111aa4 maint: update all copyright year number ranges
->   71b7ddc port to GNU hosts, where getuid and friends can fail
->   9d6231e maint: update all copyright year number ranges
->   1aa17dc maint: update all FSF copyright year lists to include 2010
->   1c59bb3 nice, nohup, su: detect write failure to stderr
->   c690047 maint: let gnulib provide environ
->   b6540b9 chroot, env, nice, su: use EXIT_CANCELED for internal failure
->   32f987a build: avoid compiler warnings on cygwin 1.5
->   5d4f09d doc: mention the texinfo documentation in --help
->   5e778f7 global: convert indentation-TABs to spaces
->   2232b4d maint: update all Copyright year lists to include 2009
->   9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
->   22a2a43 build: add configure-time --enable-gcc-warnings option; avoid warnings
->   45e6718 remove redundant const directives
->   1463824 add "const" attribute, where possible
->   896b672 use gnulib's progname module
->   434258c declare program_name consistently
->   581b2e3 adjust copyright dates
->   b69b4cc convert single-author programs to use proper_name
->   3575545 Use EXIT_FAILURE, not EXIT_FAIL, now that EXIT_FAILURE is always 1.
->   71aa3ea Update all copyright notices to use the newer form.
->   33342c1 Change "version 2" to "version 3" in all copyright notices.
->   a0faff1 Help translators include translation team's web or email address.
-> 
-> 
-> Many of the changes are minor ones regarding identation, internal error
+> The loop remain.
 
- yep
+Kernel version? I guess something old... :-)
 
-> code fixes, copyright year number changes etc. but at least the following
-> seem to be worth including:
-> 
->   71b7ddc port to GNU hosts, where getuid and friends can fail
->   1c59bb3 nice, nohup, su: detect write failure to stderr
+Since kernel 2.6.37 we use autoclear flag:
 
- Fixed.
+  $ cat /sys/block/loop0/loop/autoclear
+  1
 
-> and these would be nice:
-> 
->   a517386 maint: src/*.c: change remaining quotes (without embedded spaces)
+if the flags is enabled (should be always by mount(8)) then the loop
+device is automatically detached by kernel after successful umount(2).
+It means that we don't have to store any extra information in
+userspace or do any magic around loopdevs in umount(8) command.
 
- It seems that `foo' quotes is a generic problem in our code. Not sure
- why this is so important.
 
->   9fdf584 maint: Clarify ambiguous refs to Linux kernels or GNU/Linux systems
+I found a bug in libmount umount code, it does not check for the
+option "loop" in mtab -- this bug is invisible on systems where
+autoclear flags is usable. Fixed. Try the code from upstream tree:
 
- no comment ;-)
+  git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
+  cd util-linux
+  ./autogen.sh
+  ./configure
+  make mount umount
+
+Note that you can use LIBMOUNT_DEBUG=0xffff env.variable to get more
+information from libmount.
 
     Karel
 
