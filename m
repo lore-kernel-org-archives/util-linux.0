@@ -1,24 +1,24 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:36419 "EHLO plane.gmane.org"
+Received: from plane.gmane.org ([80.91.229.3]:46835 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752151Ab2IHSKH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 8 Sep 2012 14:10:07 -0400
+	id S1755487Ab2IRXIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 18 Sep 2012 19:08:36 -0400
 Received: from list by plane.gmane.org with local (Exim 4.69)
 	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1TAPTn-0002f4-Ot
-	for util-linux@vger.kernel.org; Sat, 08 Sep 2012 20:10:04 +0200
-Received: from cpe-76-171-221-18.socal.res.rr.com ([76.171.221.18])
+	id 1TE6u9-0006ZL-86
+	for util-linux@vger.kernel.org; Wed, 19 Sep 2012 01:08:33 +0200
+Received: from 209.239.228.34 ([209.239.228.34])
         by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
         id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 08 Sep 2012 20:10:03 +0200
-Received: from amit.uttam by cpe-76-171-221-18.socal.res.rr.com with local (Gmexim 0.1 (Debian))
+        for <util-linux@vger.kernel.org>; Wed, 19 Sep 2012 01:08:33 +0200
+Received: from amit.uttam by 209.239.228.34 with local (Gmexim 0.1 (Debian))
         id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 08 Sep 2012 20:10:03 +0200
+        for <util-linux@vger.kernel.org>; Wed, 19 Sep 2012 01:08:33 +0200
 To: util-linux@vger.kernel.org
 From: Amit <amit.uttam@gmail.com>
-Subject: Can't figure out how to use =?utf-8?b?bW50X3RhYmxlX2dldF9yb290X2Zz?= from libmount
-Date: Sat, 8 Sep 2012 18:07:51 +0000 (UTC)
-Message-ID: <loom.20120908T195804-890@post.gmane.org>
+Subject: Return status of =?utf-8?b?bW50X2NvbnRleHRfbW91bnQ=?= when helper is used
+Date: Tue, 18 Sep 2012 23:08:16 +0000 (UTC)
+Message-ID: <loom.20120919T005618-428@post.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
@@ -26,45 +26,34 @@ List-ID: <util-linux.vger.kernel.org>
 
 Hello,
 
-I have a simple program using libmount that simply gets the path of the
-root filesystem. I can't seem to get it to work. I always get a
-segmentation fault. There is probably something basic that I am missing
-but can't figure it out.
+When trying to mount samba shares using *mnt_context_mount*, the
+*mount.cifs* helper is called and used. This allows for automatic
+resolving of hostnames.
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+However, if the hostname is not valid and the resolve fails,
+the call *mnt_context_mount* is still successful. Using
+*mnt_init_debug*, the mount.cifs helper returns an error code but this
+is not propagated to the status of mnt_context_mount or
+mnt_context_get_status.
 
-#include <libmount.h>
+This has been tried with util-linux 2.20.1 and the latest util-linux
+from git (as of today).
 
-int main(int argc, char *argv[])
-{
-    struct libmnt_context *cxt;
-    struct libmnt_table *tab;
-    struct libmnt_fs *fs;
+Is there a way to check the return status of the helper?
 
-    /* Enable debugging */
-    mnt_init_debug(0xffff);
+START TRACE
 
-    /* Create new mount context */
-    cxt = mnt_new_context();
-    if (!cxt)
-        printf("Error creating new mount context\n");
+mount error: could not resolve address for pmanalo-pc2: Unknown error
+libmount:      CXT: [0x811010]: /sbin/mount.cifs executed [status=1]
+libmount:      CXT: [0x811010]: don't update: external helper
+mount_cifs: mnt_context_mount return code = 0 status = 1
+mount_cifs: error:
+libmount:      CXT: [0x811010]: <---- reset [status=1] ---->
+libmount:    CACHE: [0x811350]: free
+libmount:      CXT: [0x811010]: <---- free
 
-    /* A mount table */
-    if (mnt_context_get_mtab(cxt, &tab) < 0)
-        printf("Error getting mtab\n");
+END TRACE
 
-    /* Get the root filesystem */
-    if (mnt_table_get_root_fs(tab, &fs) == -1)
-        printf("Error getting root fs from mount table\n");
-
-    const char *src = mnt_fs_get_source(fs);
-
-    char *root = mnt_pretty_path(src, NULL);
-    printf("root filesystem source (pretty) %s\n", root);
-
-    return 0;
-}
+Thanks,
+Amit
 
