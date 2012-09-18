@@ -1,46 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62752 "EHLO mx1.redhat.com"
+Received: from smtp4-g21.free.fr ([212.27.42.4]:50571 "EHLO smtp4-g21.free.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756814Ab2IMLZy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 13 Sep 2012 07:25:54 -0400
-Date: Thu, 13 Sep 2012 13:25:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Giacomo <giacomo.perale@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: rtcwake doesn't reset wakealarm
-Message-ID: <20120913112546.GB13016@x2.net.home>
-References: <loom.20120911T131040-30@post.gmane.org>
- <loom.20120912T113440-886@post.gmane.org>
- <20120912100916.GB17256@x2.net.home>
- <20120912103130.GC17256@x2.net.home>
- <loom.20120912T125253-285@post.gmane.org>
- <loom.20120912T191123-580@post.gmane.org>
+	id S1755273Ab2IRFui (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 18 Sep 2012 01:50:38 -0400
+Received: from zimbra33-e6.priv.proxad.net (unknown [172.20.243.183])
+	by smtp4-g21.free.fr (Postfix) with ESMTP id 13A3E4C8018
+	for <util-linux@vger.kernel.org>; Tue, 18 Sep 2012 07:50:30 +0200 (CEST)
+Date: Tue, 18 Sep 2012 07:50:29 +0200 (CEST)
+From: g.esp@free.fr
+To: util-linux@vger.kernel.org
+Message-ID: <2140853048.211115988.1347947429555.JavaMail.root@zimbra33-e6.priv.proxad.net>
+In-Reply-To: <1621495890.210163275.1347911558877.JavaMail.root@zimbra33-e6.priv.proxad.net>
+Subject: util-linux-2.22 regression on umount with loop and /etc/mtab real
+ file
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <loom.20120912T191123-580@post.gmane.org>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 12, 2012 at 05:33:39PM +0000, Giacomo wrote:
-> That was needlessly complex. The issue never was "don't call RTC_AIE_OFF if you
-> didn't call RTC_AIE_ON before," it was "don't call RTC_AIE_OFF if it is not
-> supported."
+I find that some coreutils(-8.19) tests using mount -oloop fail to remove the loop when the fs is unmounted after util-linux-2.22 upgrade.
 
-Good point.
+How to reproduce
 
-> 
-> So to disable an alarm use the same logic used to enable it: first try
-> RTC_WKALM_SET with the "enabled" flag set to false, if it fails fall back to
-> RTC_AIE_OFF.
-> 
-> This patch works for me as well and it seems to me it's cleaner than my previous
-> one.
+[chroot-i486] root:/$ mount --version
+mount from util-linux 2.21.2 (with libblkid support)
+[chroot-i486] root:/$ dd if=/dev/zero of=/tmp/foo_fs bs=8192 count=200 &>/dev/null
+[chroot-i486] root:/$ mkfs -t ext2 -F /tmp/foo_fs &>/dev/null
+[chroot-i486] root:/$ mkdir /tmp/bar_dir
 
- Applied, thanks. (You forgot 'Signed-off-by:' but I guess you agree
- with this line in the commit message... )
+[chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
+[chroot-i486] root:/$ losetup -a
+/dev/loop0: [2051]:366712 (/tmp/foo_fs)
+[chroot-i486] root:/$ umount /tmp/foo_fs
+[chroot-i486] root:/$ losetup -a
 
-    Karel
+The loop is cleaned on umount with 2.21.2
+With 2.22, unmounting /tmp/foo_fs no more remove the loop
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+[chroot-i486] root:/$ mount --version
+mount from util-linux 2.22 (libmount 2.22.0: debug)
+[chroot-i486] root:/$ losetup -a
+[chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
+[chroot-i486] root:/$ umount /tmp/foo_fs
+[chroot-i486] root:/$ losetup -a
+/dev/loop0: [2051]:387175 (/tmp/foo_fs)
+
+The loop remain.
+
+A real /etc/mtab was in use. If using /etc/mtab as a symlink to /proc/mount, the loop disappear on umount.
+I am not a strong opponent to /etc/mtab as symlink as I was there a few years back. And I know where the wind is blowing actually.
+It's just that issues happen in both cases.
+For example, a simple df command inside a chroot report error for mountpoints made outside of the chroot.
+
+Gilles
