@@ -1,65 +1,62 @@
-Return-Path: lczerner@redhat.com
-Date: Thu, 13 Sep 2012 11:52:11 -0400 (EDT)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: Kay Sievers <kay@vrfy.org>
-cc: Karel Zak <kzak@redhat.com>,
-        =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkdiscard: add new command
-In-Reply-To: <CAPXgP11u=6j6U8zjvgSr11K6WjAsP+aumBQmZ6R++tb7bxHOnw@mail.gmail.com>
-Message-ID: <alpine.LFD.2.00.1209131140060.15781@dhcp-196-88.bos.redhat.com>
-References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com> <alpine.LFD.2.00.1209130934290.2222@new-host-2> <20120913135727.GC13016@x2.net.home>
- <CAPXgP11u=6j6U8zjvgSr11K6WjAsP+aumBQmZ6R++tb7bxHOnw@mail.gmail.com>
+Return-Path: g.esp@free.fr
+Date: Tue, 18 Sep 2012 23:31:43 +0200 (CEST)
+From: g.esp@free.fr
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <992520660.214095430.1348003903474.JavaMail.root@zimbra33-e6.priv.proxad.net>
+In-Reply-To: <20120918092926.GA20576@x2.net.home>
+Subject: Re: util-linux-2.22 regression on umount with loop and /etc/mtab
+ real file
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="269113540-1240749223-1347551532=:15781"
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---269113540-1240749223-1347551532=:15781
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
 
-On Thu, 13 Sep 2012, Kay Sievers wrote:
+----- Mail original -----
+> De: "Karel Zak" <kzak@redhat.com>
+> =C3=80: "g esp" <g.esp@free.fr>
+> Cc: util-linux@vger.kernel.org
+> Envoy=C3=A9: Mardi 18 Septembre 2012 11:29:26
+> Objet: Re: util-linux-2.22 regression on umount with loop and /etc/mtab r=
+eal file
+>=20
+> On Tue, Sep 18, 2012 at 07:50:29AM +0200, g.esp@free.fr wrote:
+> > The loop is cleaned on umount with 2.21.2
+> > With 2.22, unmounting /tmp/foo_fs no more remove the loop
+> >=20
+> > [chroot-i486] root:/$ mount --version
+> > mount from util-linux 2.22 (libmount 2.22.0: debug)
+> > [chroot-i486] root:/$ losetup -a
+> > [chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
+> > [chroot-i486] root:/$ umount /tmp/foo_fs
+> > [chroot-i486] root:/$ losetup -a
+> > /dev/loop0: [2051]:387175 (/tmp/foo_fs)
+> >=20
+> > The loop remain.
+>=20
+> Kernel version? I guess something old... :-)
+>=20
+> Since kernel 2.6.37 we use autoclear flag:
+>=20
+>   $ cat /sys/block/loop0/loop/autoclear
+>   1
+>=20
+The kernel running on the machine is debian v6 (squeeze) 2.6.32, so this is=
+ not something brand new.
 
-> Date: Thu, 13 Sep 2012 17:33:49 +0200
-> From: Kay Sievers <kay@vrfy.org>
-> To: Karel Zak <kzak@redhat.com>
-> Cc: Lukáš Czerner <lczerner@redhat.com>, util-linux@vger.kernel.org
-> Subject: Re: [PATCH] blkdiscard: add new command
-> 
-> On Thu, Sep 13, 2012 at 3:57 PM, Karel Zak <kzak@redhat.com> wrote:
-> 
-> >  It's UNIX, it's not so unusual that utils do one thing and do it well ;-)
-> 
-> How about looking at the sensible part of UNIX? I can provide you an
-> endless list of crazy ideas in UNIX if you need that. And one tool per
-> ioctl is certainly in that list. :)
+> if the flags is enabled (should be always by mount(8)) then the loop
+> device is automatically detached by kernel after successful
+> umount(2).
+> It means that we don't have to store any extra information in
+> userspace or do any magic around loopdevs in umount(8) command.
+>=20
+>=20
+> I found a bug in libmount umount code, it does not check for the
+> option "loop" in mtab -- this bug is invisible on systems where
+> autoclear flags is usable. Fixed. Try the code from upstream tree:
+>=20
 
-Not necessarily. blockdev(8) is meant to provide user with a tool to
-invoke simple block device ioctl which usually does not require any
-arguments (except few with one argument). Changing its format to be
+Thank, git tree fixed the issue.
 
-blockdev <options> <command> <options>
-
-and extend it would certainly take away some of the nifty simplicity
-of that tool. That said, there is nothing wrong with having small
-and simple tool doing one thing and doing it right, in fact quite
-the opposite - it _is_ a good thing.
-
-And BTH I am not really suggesting one tool per ioctl, but
-blkdiscard is sufficiently different then those found in blockdev
-anyway (mostly -get, few -set and one -flush). In fact thinking
-about it some more, I am really in favour of separate tool for this
-functionality.
-
-BTW since when it's wrong to have such small and simple tools instead
-of multiplexing everything into one blob (Core OS anyone ?:)) ?
-
--Lukas
-
-> 
-> Kay
-> 
---269113540-1240749223-1347551532=:15781--
+Gilles
