@@ -1,76 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:48791 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752062Ab2ILJwb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Sep 2012 05:52:31 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1TBjcX-0004bK-IA
-	for util-linux@vger.kernel.org; Wed, 12 Sep 2012 11:52:33 +0200
-Received: from 94.247.8.10 ([94.247.8.10])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 12 Sep 2012 11:52:33 +0200
-Received: from giacomo.perale by 94.247.8.10 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 12 Sep 2012 11:52:33 +0200
-To: util-linux@vger.kernel.org
-From: Giacomo <giacomo.perale@gmail.com>
-Subject: Re: rtcwake doesn't reset wakealarm
-Date: Wed, 12 Sep 2012 09:52:14 +0000 (UTC)
-Message-ID: <loom.20120912T113440-886@post.gmane.org>
-References: <loom.20120911T131040-30@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from moutng.kundenserver.de ([212.227.126.186]:53326 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755606Ab2ISJsv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 19 Sep 2012 05:48:51 -0400
+From: Thierry Reding <thierry.reding@avionic-design.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: [PATCH] sfdisk: Fix format specifiers for size_t
+Date: Wed, 19 Sep 2012 11:48:46 +0200
+Message-Id: <1348048126-31365-1-git-send-email-thierry.reding@avionic-design.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Giacomo <giacomo.perale@...> writes:
+The proper specifier for size_t is %zu. %lu will work fine on 64-bit
+architectures but not on 32-bit.
 
-> I recently upgraded to util-linux 2.22 and I noticed that powertop started
-> reporting about 50-60 wakeups per second caused by rtc (interrupt 8). 
-> 
-> I quickly found out that this happened when I used rtcwake to wake up the
-> machine, and that after the reboot /sys/class/rtc/rtc0/wakealarm was still 
-> set to the scheduled wakeup time (now in the past). 
-> 
-> After a quick investigation I discovered that this is caused by commit
-> 1707576155daf644c5df3c1776b52fd297ff9318 ("rtcwake: only invoke RTC_AIE_ON/OFF
-> ioctls in pairs"): my system uses RTC_WKALM_SET so ioctl_aie_on stays false and
-> RTC_AIE_OFF doesn't get called.
-> 
+Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+---
+ fdisks/sfdisk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Hi,
-
-that commit also broke "disable". This is what happens on my system:
-
-KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-KazeNoTani ~ # rtcwake -m show
-alarm: off
-KazeNoTani ~ # rtcwake -m no -s 300
-rtcwake: wakeup using /dev/rtc0 at Wed Sep 12 09:40:31 2012
-KazeNoTani ~ # rtcwake -m show
-alarm: on  Wed Sep 12 09:40:32 2012
-KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-1347442831
-KazeNoTani ~ # rtcwake -m disable
-KazeNoTani ~ # rtcwake -m show
-alarm: on  Wed Sep 12 09:40:32 2012
-KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-1347442831
-KazeNoTani ~ # echo 0 > /sys/class/rtc/rtc0/wakealarm
-KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-KazeNoTani ~ # rtcwake -m show
-alarm: off
-
-
-rtcwake -m disable doesn't remove the alarm. This is because as it is
-implemented now "-m disable" does nothing but break and rely on the call to
-RTC_AIE_OFF that was always done at the end of the execution of rtcwake, but now
-is conditional on "ioctl_aie_on" that doesn't get set in most cases.
-
-Thanks,
-
-Giacomo
-
+diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
+index 2027202..da5c606 100644
+--- a/fdisks/sfdisk.c
++++ b/fdisks/sfdisk.c
+@@ -1426,7 +1426,7 @@ extended_partition(char *dev, int fd, struct part_desc *ep, struct disk_desc *z)
+ 	cp = s->data + 0x1be;
+ 
+ 	if (pno + 4 >= ARRAY_SIZE(z->partitions)) {
+-	    warnx(_("too many partitions - ignoring those past nr (%ld)\n"),
++	    warnx(_("too many partitions - ignoring those past nr (%zu)\n"),
+ 		    pno - 1);
+ 	    break;
+ 	}
+@@ -1504,7 +1504,7 @@ bsd_partition(char *dev, int fd, struct part_desc *ep, struct disk_desc *z) {
+     while (bp - bp0 < BSD_MAXPARTITIONS && bp - bp0 < l->d_npartitions) {
+ 	if (pno + 1 >= ARRAY_SIZE(z->partitions)) {
+ 	    warnx(_("too many partitions - ignoring those "
+-		      "past nr (%ld)\n"), pno - 1);
++		      "past nr (%zu)\n"), pno - 1);
+ 	    break;
+ 	}
+ 	if (bp->p_fstype != BSD_FS_UNUSED) {
+-- 
+1.7.12
 
