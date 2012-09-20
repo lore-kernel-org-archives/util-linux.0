@@ -1,28 +1,24 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6783 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:21162 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753204Ab2IDPYg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 4 Sep 2012 11:24:36 -0400
-Date: Tue, 4 Sep 2012 17:24:34 +0200
+	id S1751534Ab2ITJb3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 20 Sep 2012 05:31:29 -0400
+Date: Thu, 20 Sep 2012 11:31:18 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/2] libmount: document LIBMOUNT_DEBUG users
-Message-ID: <20120904152434.GB21432@x2.net.home>
-References: <1346767086.2668.4.camel@offbook>
+To: Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] docs: umount.8 syntax fix.
+Message-ID: <20120920093118.GA16499@x2.net.home>
+References: <1347690590-29482-1-git-send-email-ville.skytta@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1346767086.2668.4.camel@offbook>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1347690590-29482-1-git-send-email-ville.skytta@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 04, 2012 at 03:58:06PM +0200, Davidlohr Bueso wrote:
->  disk-utils/fsck.8      |    3 +++
->  misc-utils/lsblk.8     |    3 +++
->  sys-utils/mountpoint.1 |    4 ++++
->  sys-utils/swapon.8     |    4 ++++
->  sys-utils/umount.8     |    7 +++++++
->  5 files changed, 21 insertions(+), 0 deletions(-)
+On Sat, Sep 15, 2012 at 09:29:49AM +0300, Ville Skyttä wrote:
+>  sys-utils/umount.8 | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
  Applied, thanks.
 
