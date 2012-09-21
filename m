@@ -1,61 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cn.fujitsu.com ([222.73.24.84]:61104 "EHLO song.cn.fujitsu.com"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751677Ab2IYCDv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 24 Sep 2012 22:03:51 -0400
-Message-ID: <506110BB.2070408@cn.fujitsu.com>
-Date: Tue, 25 Sep 2012 10:02:35 +0800
-From: chenditang <chendt.fnst@cn.fujitsu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:7010 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756284Ab2IULM7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 21 Sep 2012 07:12:59 -0400
+Date: Fri, 21 Sep 2012 13:12:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/3] fdisk: add guid
+Message-ID: <20120921111253.GA18699@x2.net.home>
+References: <1345550594.2664.5.camel@offbook>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org, linux-nfs@vger.kernel.org
-Subject: [QUESTION]about libmount library performance problems
-References: <505FBE77.8030802@cn.fujitsu.com> <5061076C.2080707@cn.fujitsu.com>
-In-Reply-To: <5061076C.2080707@cn.fujitsu.com>
-Content-Type: text/plain; charset=GB2312
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1345550594.2664.5.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi util-linux@vger.kernel.org
+On Tue, Aug 21, 2012 at 02:03:14PM +0200, Davidlohr Bueso wrote:
+>  fdisks/cfdisk.c         |    2 +-
+>  fdisks/common.h         |   16 ++++-
+>  fdisks/fdiskbsdlabel.h  |   38 +++++-----
+>  fdisks/fdisksgilabel.c  |   38 +++++-----
+>  fdisks/fdisksunlabel.c  |   34 ++++----
+>  fdisks/i386_sys_types.c |  198 +++++++++++++++++++++++-----------------------
+>  6 files changed, 169 insertions(+), 157 deletions(-)
+[....]
+> +
+> +/* Globally unique identifier */
+> +struct fdisk_guid {
+> +	uint32_t   time_low;
+> +	uint16_t   time_mid;
+> +	uint16_t   time_hi_and_version;
+> +	uint8_t    clock_seq_hi;
+> +	uint8_t    clock_seq_low;
+> +	uint8_t    node[6];
+> +};
+>  
+>  struct systypes {
+> -	unsigned char type;
+> -	char *name;
+> +	uint16_t          type;
+> +	struct fdisk_guid guid;
+> +	const char        *name;
+>  };
 
-I have 1 question which need confirm.
+I don't like this hack. On all places in fdisk where we need systypes
+is available fdisk_context struct where is ideal place to store label
+specific stuff (ideally by any label specific function in fdisk_label).
 
-  in the RHEL7.0alpha version
-	nfs-utils-1.2.5-3.el7.x86_64  --> use mount_libmount.c
-	util-linux-2.20.1-2.el7.x86_64
-  when umount a NFS directory, the mnt_table_parse_mtab() function will merge user options(/run/mount/utab) 
-into mountinfo(/proc/self/mountinfo)from kernel. if the mount number is large, leading to umount a directory
-time-consuming. the complexity of the algorithm is O(n(n+1)/2).
+>  #ifdef	DKTYPENAMES
+>  static struct systypes xbsd_fstypes[] = {
+> -        {BSD_FS_UNUSED, "unused"},
+> -	{BSD_FS_SWAP,   "swap"},
+> -	{BSD_FS_V6,     "Version 6"},
+> -	{BSD_FS_V7,     "Version 7"},
+> -	{BSD_FS_SYSV,   "System V"},
+> -	{BSD_FS_V71K,   "4.1BSD"},
+> -	{BSD_FS_V8,     "Eighth Edition"},
+> -	{BSD_FS_BSDFFS, "4.2BSD"},
 
-    but in the old version(RHEL6.3GA/nfs-utils-1.2.3-26.el6.x86_64(use mount.c)), only according to the parameters of umount command, 
-find the corresponding record in the /etc/mtab file
+it's really strange to modify  BSD or DOS stuff when we need to add
+GPT. All what we need is to move this stuff to label specific files
+and make generic API for the structs. It's better to to this work now
+than modify all the entries and later fix the API.
 
-  Question)*:* merg the tow file are necessary for umount a dir?
+    Karel
 
-TEST LOG:
-#cat mount_test.sh
-#!/bin/bash
-mount=/tmp/mount
-if [ ! -d $mount ]; then
-    mkdir -p $mount
-fi
-for dir in {1..8000}; do
-    if [ ! -d $mount/$dir ]; then
-        mkdir -p $mount/$dir
-    fi
-    echo mount $dir
-    mount -t nfs 127.0.0.1:/ $mount/$dir
-done 
-
-# time umount /tmp/mount/1    --------->RHEL7.0alpha
-real    0m2.395s
-user    0m1.640s        
-sys     0m0.466s
-
-# time umount /tmp/mount/1    --------->RHEL6.3GA
-real	0m0.159s
-user	0m0.042s        
-sys	0m0.114s
-
-
-thanks.
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
