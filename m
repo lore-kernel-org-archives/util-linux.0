@@ -1,43 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:49245 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751067Ab2IENMX (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Sep 2012 09:12:23 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] sys-utils/ipcrm: avoid 'uninitialized' warning
-Date: Wed,  5 Sep 2012 15:12:01 +0200
-Message-Id: <1346850721-27107-1-git-send-email-mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:9422 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754995Ab2IUKor (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 21 Sep 2012 06:44:47 -0400
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8LAikAv024600
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 21 Sep 2012 06:44:46 -0400
+Date: Fri, 21 Sep 2012 12:44:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Milan Broz <mbroz@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mkswap: wipe old signature if there is no part table by
+ default
+Message-ID: <20120921104444.GC13710@x2.net.home>
+References: <1347274719-26869-1-git-send-email-mbroz@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1347274719-26869-1-git-send-email-mbroz@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-GCC 4.1.2 on SLES 10.4:
-sys-utils/ipcrm.c: In function ‘main’:
-sys-utils/ipcrm.c:297: warning: ‘what_all’ may be used uninitialized in this function
+On Mon, Sep 10, 2012 at 12:58:39PM +0200, Milan Broz wrote:
+>  disk-utils/mkswap.8 |    5 ++---
+>  disk-utils/mkswap.c |   47 ++++++++++++++++++++---------------------------
+>  2 files changed, 22 insertions(+), 30 deletions(-)
 
-* sys-utils/ipcrm.c: Initialize what_all to ALL.
+ Applied, thanks.
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- sys-utils/ipcrm.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
-index 7807bd4..6a1ac0d 100644
---- a/sys-utils/ipcrm.c
-+++ b/sys-utils/ipcrm.c
-@@ -294,7 +294,7 @@ int main(int argc, char **argv)
- 	int id = -1;
- 	int iskey;
- 	int rm_all = 0;
--	type_id what_all;
-+	type_id what_all = ALL;
- 
- 	static const struct option longopts[] = {
- 		{"shmem-id", required_argument, NULL, 'm'},
 -- 
-1.7.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
