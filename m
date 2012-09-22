@@ -1,38 +1,72 @@
-Return-Path: mail@bernhard-voelker.de
-Date: Tue, 11 Sep 2012 11:40:11 +0200 (CEST)
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
-To: Ludwig Nussel <ludwig.nussel@suse.de>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Message-ID: <1098712216.1298354.1347356412043.JavaMail.open-xchange@email.1und1.de>
-In-Reply-To: <20120911084908.GA30228@x2.net.home>
-References: <1339747456-30761-1-git-send-email-ludwig.nussel@suse.de> <20120911084908.GA30228@x2.net.home>
-Subject: Re: [PATCH] remove obsolete encryption support from losetup
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from smtp3-g21.free.fr ([212.27.42.3]:38964 "EHLO smtp3-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754120Ab2IVHe5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 22 Sep 2012 03:34:57 -0400
+From: Gilles Espinasse <g.esp@free.fr>
+To: util-linux@vger.kernel.org
+Cc: Gilles Espinasse <g.esp@free.fr>
+Subject: [PATCH util-linux] Typo fixes
+Date: Sat, 22 Sep 2012 09:59:19 +0200
+Message-Id: <1348300759-3614-1-git-send-email-g.esp@free.fr>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On September 11, 2012 at 10:49 AM Karel Zak <kzak@redhat.com> wrote:
+Signed-off-by: Gilles Espinasse <g.esp@free.fr>
+---
+ libmount/src/context_mount.c  |    2 +-
+ libmount/src/context_umount.c |    4 ++--
+ misc-utils/blkid.8            |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-> On Fri, Jun 15, 2012 at 10:04:16AM +0200, Ludwig Nussel wrote:
-> >  include/loopdev.h              |    3 --
-> >  lib/loopdev.c                  |   56
-> > ----------------------------------------
-> >  libmount/src/context_loopdev.c |   22 +++-------------
-> >  mount/mount.8                  |    9 +-----
-> >  mount/mount.c                  |   26 +++---------------
-> >  sys-utils/losetup.8            |   29 +-------------------
-> >  sys-utils/losetup.c            |   37 ++++++--------------------
-> >  sys-utils/mount.c              |   42 +----------------------------
-> >  8 files changed, 23 insertions(+), 201 deletions(-)
->
->  Applied, thanks.
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index c665a05..6dc8e64 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -113,7 +113,7 @@ static int fix_optstr(struct libmnt_context *cxt)
+ 		 */
+ 		se_rem = get_linux_version() < KERNEL_VERSION(2, 6, 39);
+ 	else
+-		/* For normal mount we have translate the contexts */
++		/* For normal mount, contexts are translated */
+ 		se_fix = 1;
+ 
+ 	if (!se_rem) {
+diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
+index 17ec1f0..3c54902 100644
+--- a/libmount/src/context_umount.c
++++ b/libmount/src/context_umount.c
+@@ -112,7 +112,7 @@ try_loopdev:
+ 			} else if (count > 1)
+ 				DBG(CXT, mnt_debug_h(cxt,
+ 					"umount: warning: %s is associated "
+-					"with more than one loodev", tgt));
++					"with more than one loopdev", tgt));
+ 		}
+ 	}
+ 
+@@ -497,7 +497,7 @@ static int do_umount(struct libmnt_context *cxt)
+ 
+ 	if (cxt->restricted && !mnt_context_is_fake(cxt)) {
+ 		/*
+-		 * extra paranoa for non-root users
++		 * extra paranoia for non-root users
+ 		 * -- chdir to the parent of the mountpoint and use NOFOLLOW
+ 		 *    flag to avoid races and symlink attacks.
+ 		 */
+diff --git a/misc-utils/blkid.8 b/misc-utils/blkid.8
+index 93f0367..9c45a0e 100644
+--- a/misc-utils/blkid.8
++++ b/misc-utils/blkid.8
+@@ -276,7 +276,7 @@ overridden by the environment variable BLKID_FILE. Default is
+ .I /run/blkid/blkid.tab
+ or
+ .I /etc/blkid.tab
+-on systems without /run direcotry
++on systems without /run directory
+ .TP
+ .I EVALUATE=<methods>
+ Defines LABEL and UUID evaluation method(s). Currently, the libblkid library
+-- 
+1.7.2.5
 
-I think there are still a few fragments left, aren't there?
-At least in include/loopdev.h, in lib/loopdev.c and in
-tests/ts/mount/ecrypted.
-
-See 'git grep -i cryptoloop' and 'grep -i crypt */*loop*'.
-
-Have a nice day,
-Berny
