@@ -1,65 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25342 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757371Ab2IRJ3a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Sep 2012 05:29:30 -0400
-Date: Tue, 18 Sep 2012 11:29:26 +0200
-From: Karel Zak <kzak@redhat.com>
-To: g.esp@free.fr
-Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux-2.22 regression on umount with loop and /etc/mtab
- real file
-Message-ID: <20120918092926.GA20576@x2.net.home>
-References: <1621495890.210163275.1347911558877.JavaMail.root@zimbra33-e6.priv.proxad.net>
- <2140853048.211115988.1347947429555.JavaMail.root@zimbra33-e6.priv.proxad.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2140853048.211115988.1347947429555.JavaMail.root@zimbra33-e6.priv.proxad.net>
+Received: from caiajhbdcbef.dreamhost.com ([208.97.132.145]:50557 "EHLO
+	homiemail-a37.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752312Ab2IXLOZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 24 Sep 2012 07:14:25 -0400
+Message-ID: <1348485261.2456.6.camel@offbook>
+Subject: Re: [PATCH 1/3] fdisk: add guid
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Date: Mon, 24 Sep 2012 13:14:21 +0200
+In-Reply-To: <20120924084323.GA22639@x2.net.home>
+References: <1345550594.2664.5.camel@offbook>
+	 <20120921111253.GA18699@x2.net.home> <20120921130543.GA643@gnu.org>
+	 <20120921143816.GB18699@x2.net.home> <20120921150450.GA21816@gnu.org>
+	 <20120924082058.GA22946@x2.net.home> <20120924084323.GA22639@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 18, 2012 at 07:50:29AM +0200, g.esp@free.fr wrote:
-> The loop is cleaned on umount with 2.21.2
-> With 2.22, unmounting /tmp/foo_fs no more remove the loop
+On Mon, 2012-09-24 at 10:43 +0200, Karel Zak wrote:
+> On Mon, Sep 24, 2012 at 10:20:58AM +0200, Karel Zak wrote:
+> > On Fri, Sep 21, 2012 at 11:04:51AM -0400, Davidlohr Bueso wrote:
+> > > On Fri, Sep 21, 2012 at 04:38:16PM +0200, Karel Zak wrote:
+> > > > On Fri, Sep 21, 2012 at 09:05:43AM -0400, Davidlohr Bueso wrote:
+> > > > > I honestly don't see much difference between doing it before or
+> > > > > after GPT, since all the other labels need to be adapted anyway. 
+> > > > 
+> > > >  I see a difference. Why we need struct fdisk_guid in struct where we
+> > > >  define DOS partition types? Why there is {0} everywhere?
+> > > >  Do you want to remove all these changes later?
+> > > 
+> > > My idea of having a unique systypes structure for all labels is for simplicity.
+> > > I agree, using {0} isn't the best approach, so it would obviously go out, in favor
+> > > of the same one the other labels would use. So if DOS doesn't need the GUID it just
+> > > won't use it (and just call ->type or ->name), but it would still be there for those 
+> > > that do require it, like GPT.
+> > 
+> >  Maybe we can use strings.
 > 
-> [chroot-i486] root:/$ mount --version
-> mount from util-linux 2.22 (libmount 2.22.0: debug)
-> [chroot-i486] root:/$ losetup -a
-> [chroot-i486] root:/$ mount -oloop /tmp/foo_fs /tmp/bar_dir
-> [chroot-i486] root:/$ umount /tmp/foo_fs
-> [chroot-i486] root:/$ losetup -a
-> /dev/loop0: [2051]:387175 (/tmp/foo_fs)
+> I mean strings for UUIDs, for DOS we can keep integers there.
 > 
-> The loop remain.
+> 
+> >  struct fdisk_parttype {
+> 
+>       unsigned int code;
+> 
+> >     const char *type;           /* UUID, 0xNN, ... */
+> >     const char *description;    /* help string */
+> >  };
 
-Kernel version? I guess something old... :-)
+Ok, so you mean having something like this, right?:
 
-Since kernel 2.6.37 we use autoclear flag:
+{0x8200, "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F", N_("Linux Swap")}
 
-  $ cat /sys/block/loop0/loop/autoclear
-  1
+I see no problem decomposing the UUID string into the guid struct where
+it's actually needed, in label specific functions.
 
-if the flags is enabled (should be always by mount(8)) then the loop
-device is automatically detached by kernel after successful umount(2).
-It means that we don't have to store any extra information in
-userspace or do any magic around loopdevs in umount(8) command.
+> >
+> >  The fdisk dialogs and menus are always based on strings and the final
+> >  conversion to label specific type (int or GUID) may be done in label
+> >  specific functions (like add_partition or so).
+> 
+> I'll try to prepare a patch... it's the best way how to explain any
+> idea :-)
+> 
+>     Karel
+> 
 
 
-I found a bug in libmount umount code, it does not check for the
-option "loop" in mtab -- this bug is invisible on systems where
-autoclear flags is usable. Fixed. Try the code from upstream tree:
-
-  git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-  cd util-linux
-  ./autogen.sh
-  ./configure
-  make mount umount
-
-Note that you can use LIBMOUNT_DEBUG=0xffff env.variable to get more
-information from libmount.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
