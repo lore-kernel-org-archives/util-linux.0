@@ -1,89 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:49378 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752084Ab2IUL0K (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 21 Sep 2012 07:26:10 -0400
-Received: from relay2.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id 6960699430
-	for <util-linux@vger.kernel.org>; Fri, 21 Sep 2012 13:26:09 +0200 (CEST)
-Date: Fri, 21 Sep 2012 13:25:57 +0200
-From: Petr Uzel <petr.uzel@suse.cz>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/3] fdisk: add guid
-Message-ID: <20120921112557.GM10748@foxbat.suse.cz>
-References: <1345550594.2664.5.camel@offbook>
- <20120921111253.GA18699@x2.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nb8zVy0QMK3AA1xu"
-In-Reply-To: <20120921111253.GA18699@x2.net.home>
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:59762 "EHLO
+	homiemail-a7.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751771Ab2IYVTS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 25 Sep 2012 17:19:18 -0400
+Message-ID: <1348607954.2531.4.camel@offbook>
+Subject: Re: Why fdisk wants the first partition to start at 1 MiB?
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Kay Sievers <kay@vrfy.org>
+Cc: Francesco Turco <fturco@fastmail.fm>, util-linux@vger.kernel.org
+Date: Tue, 25 Sep 2012 23:19:14 +0200
+In-Reply-To: <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
+References: <1348605188.19630.140661132636721.0CD0D5D4@webmail.messagingengine.com>
+	 <CAPXgP11cuTV5+juJR54=xheDsGD9-ZqnUFuiXv43TRDvdThx1g@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, 2012-09-25 at 22:50 +0200, Kay Sievers wrote:
+> On Tue, Sep 25, 2012 at 10:33 PM, Francesco Turco <fturco@fastmail.fm> wrote:
+> > I'm trying to use fdisk (from util-linux 2.19.1) for creating a
+> > partition on a drive. I noticed that the start sector of the first
+> > partition must be at least 2048, that is 1 MiB from the beginning of the
+> > drive. This can be changed by entering the "expert mode" and using the
+> > "move beginning of data in a partition" option. But I'm still wondering
+> > why fdisk reserves so much space by default.
+> >
+> > As far as I know the only sector that should not be used for partitions
+> > is the first one, that is, sector 0. It is reserved for the MBR. So the
+> > first partition can start at sector 1. I read that the 1 MiB thing is
+> > Windows related: http://en.wikipedia.org/wiki/Logical_Disk_Manager. Or
+> > it's something that Linux users should also care about? I can't find a
+> > convincing explanation anywhere.
+> >
+> > This 1 MiB thing seems to affect parted, too, as it wants partition
+> > boundaries to be multiples of 1 MiB. I don't know if it's related to the
+> > problem I have with fdisk, though.
+> 
+> It's a de-facto standard, which Windows does too. The first megabyte
+> is reserved here for a boot loader or any other management data that
+> could be needed for a disk or box to boot from.
+> 
+> Boot loader issues are probably not that interesting on EFI boxes and
+> other non-BIOS hardware, but on usually big sized disks it's still a
+> safe default.
 
---nb8zVy0QMK3AA1xu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Right, in fact GPT only reserves 17Kib and the first partition can start
+at sector 34, with 512 sector size.
 
-On Fri, Sep 21, 2012 at 01:12:53PM +0200, Karel Zak wrote:
-> On Tue, Aug 21, 2012 at 02:03:14PM +0200, Davidlohr Bueso wrote:
-> >  fdisks/cfdisk.c         |    2 +-
-> >  fdisks/common.h         |   16 ++++-
-> >  fdisks/fdiskbsdlabel.h  |   38 +++++-----
-> >  fdisks/fdisksgilabel.c  |   38 +++++-----
-> >  fdisks/fdisksunlabel.c  |   34 ++++----
-> >  fdisks/i386_sys_types.c |  198 +++++++++++++++++++++++----------------=
--------
-> >  6 files changed, 169 insertions(+), 157 deletions(-)
-> [....]
-> > +
-> > +/* Globally unique identifier */
-> > +struct fdisk_guid {
-> > +	uint32_t   time_low;
-> > +	uint16_t   time_mid;
-> > +	uint16_t   time_hi_and_version;
-> > +	uint8_t    clock_seq_hi;
-> > +	uint8_t    clock_seq_low;
-> > +	uint8_t    node[6];
-> > +};
-> > =20
-> >  struct systypes {
-> > -	unsigned char type;
-> > -	char *name;
-> > +	uint16_t          type;
-> > +	struct fdisk_guid guid;
-> > +	const char        *name;
-> >  };
->=20
-> I don't like this hack. On all places in fdisk where we need systypes
-> is available fdisk_context struct where is ideal place to store label
-> specific stuff (ideally by any label specific function in fdisk_label).
+Davidlohr
 
-I'd say that creating label specific info in fdisk_context and moving
-such stuff there would be the next step. Doing it the other way round
-(which I agree would be nicer) would mean quite a lot of work given
-what we have now. Would it help if we extended this patchset with
-requested label specific stuff (and related cleanup) ?
-
-
-Petr
-
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
-
---nb8zVy0QMK3AA1xu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iEYEARECAAYFAlBcTsUACgkQnZxG0T6qDD3IAwCePu5D/Yzkjp57+eAISBAAZbYp
-gGgAn3uQKwBarjg0KVELT+7VlBvscDv5
-=YbB7
------END PGP SIGNATURE-----
-
---nb8zVy0QMK3AA1xu--
