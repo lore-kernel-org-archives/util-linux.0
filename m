@@ -1,47 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:26530 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44995 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753211Ab2IKSCH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Sep 2012 14:02:07 -0400
-Message-ID: <504F7C9A.1000904@draigBrady.com>
-Date: Tue, 11 Sep 2012 19:02:02 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+	id S1755583Ab2IYO62 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 25 Sep 2012 10:58:28 -0400
+Date: Tue, 25 Sep 2012 16:58:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: chenditang <chendt.fnst@cn.fujitsu.com>
+Cc: util-linux@vger.kernel.org, linux-nfs@vger.kernel.org,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: Re: [QUESTION]about libmount library performance problems
+Message-ID: <20120925145811.GE22639@x2.net.home>
+References: <505FBE77.8030802@cn.fujitsu.com>
+ <5061076C.2080707@cn.fujitsu.com>
+ <506110BB.2070408@cn.fujitsu.com>
+ <20120925101031.GB22639@x2.net.home>
+ <20120925103142.GC22639@x2.net.home>
 MIME-Version: 1.0
-To: "Voelker, Bernhard" <bernhard.voelker@siemens-enterprise.com>
-CC: Ondrej Oprala <ooprala@redhat.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: segfault message supressed with su -c
-References: <504F5246.4030304@redhat.com> <A75C39900FCF0B42A2CE8B26F837D2C305BB3C@MCHP02MSX.global-ad.net>
-In-Reply-To: <A75C39900FCF0B42A2CE8B26F837D2C305BB3C@MCHP02MSX.global-ad.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120925103142.GC22639@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 09/11/2012 05:19 PM, Voelker, Bernhard wrote:
-> Ondrej Oprala wrote:
->> Hi,
->> I've written a tiny patch that should fix this issue with su:
->> https://bugzilla.redhat.com/show_bug.cgi?id=747592.
->> None of the shells' output propagates back
->> to the shell where su was called (except TCSH, which reports segfault
->> to stdout; I've tested this with sh,ksh,zsh,bash).
->> So, with this patch, su should print a warning if
->> WIFSIGNALED(status)&&  WCOREDUMP(status) is true.
->
-> Good catch!
->
->> +	      fprintf (stderr, _("Segmentation fault (core dumped)\n"));
->
-> Maybe the error message should point out that it
-> was not su which dumped core ... ;-)
+On Tue, Sep 25, 2012 at 12:31:42PM +0200, Karel Zak wrote:
+> > On Tue, Sep 25, 2012 at 10:02:35AM +0800, chenditang wrote:
+> > >   Question)*:* merg the tow file are necessary for umount a dir?
+> 
+>  Ah, do you mean -- why we need to merge all the entries when we want
+>  to work with only one mountpoint? That's good question ;-) I'll try
+>  to improve the code...
 
-Maybe not. Consider:
+ Improved:
 
-monitor_1 timeout 2 'su -c command'
+   old version:
+        time ./umount /tmp/mount/2255
 
-You might as well just say "core dumped",
-and leave the investigation as to what
-cored exactly to inspection of the core file.
+        real    0m1.254s
+        user    0m1.002s
+        sys     0m0.238s
 
-cheers,
-Pádraig.
+    new version:
+        time ./umount /tmp/mount/2244
+
+        real    0m0.332s
+        user    0m0.111s
+        sys     0m0.218s
+
+
+
+ Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
