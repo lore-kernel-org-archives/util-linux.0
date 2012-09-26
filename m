@@ -1,84 +1,72 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28090 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933221Ab2IGMHX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Sep 2012 08:07:23 -0400
-Date: Fri, 7 Sep 2012 14:07:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>,
-        Ludwig Nussel <ludwig.nussel@suse.de>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: runuser(1) and su(1) -g/-G
-Message-ID: <20120907120716.GD23242@x2.net.home>
-References: <20120904151843.GA6389@x2.net.home>
- <20120905123822.GZ1899@rampage>
- <20120905212804.GD1899@rampage>
+Return-Path: lczerner@redhat.com
+Date: Wed, 26 Sep 2012 16:14:25 -0400 (EDT)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+To: Kay Sievers <kay@vrfy.org>
+cc: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>,
+        util-linux@vger.kernel.org, kzak@redhat.com
+Subject: Re: [PATCH] blkdiscard: add new command
+In-Reply-To: <CAPXgP11oktXSe3yxdOZCMzNOSrfVawtL95nBuM_NYxB9KPvOdA@mail.gmail.com>
+Message-ID: <alpine.LFD.2.00.1209261612370.31136@dhcp-187-45.bos.redhat.com>
+References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <alpine.LFD.2.00.1209261546390.31136@dhcp-187-45.bos.redhat.com> <CAPXgP11oktXSe3yxdOZCMzNOSrfVawtL95nBuM_NYxB9KPvOdA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120905212804.GD1899@rampage>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: MULTIPART/MIXED; BOUNDARY="269102523-456632067-1348690466=:31136"
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 05, 2012 at 05:28:04PM -0400, Dave Reisner wrote:
-> > I think we're missing out on an opportunity with runuser. su insists on
-> > starting a shell which, among other subtle problems, leads to the
-> > largeer problem of quoting and escaping the command passed to the -c
-> > flag. I think we should do something like this:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
- good point
+--269102523-456632067-1348690466=:31136
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-> > - separate out argument parsing to runuser and su
-> > - remove most of the flags from runuser (-f, -c, -l, -, -s), add a -u
-> >   flag (optional, for user)
-> > - create a single common entry point for creating a session
-> > - separate out the run command logic
+On Wed, 26 Sep 2012, Kay Sievers wrote:
 
- well, we still need to initialize the session and it would be also
- to have independent PAM setting for "login-like-session" (-l - options).
+> Date: Wed, 26 Sep 2012 22:04:37 +0200
+> From: Kay Sievers <kay@vrfy.org>
+> To: Lukáš Czerner <lczerner@redhat.com>
+> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> Subject: Re: [PATCH] blkdiscard: add new command
+> 
+> On Wed, Sep 26, 2012 at 9:47 PM, Lukáš Czerner <lczerner@redhat.com> wrote:
+> > On Wed, 12 Sep 2012, Lukas Czerner wrote:
+> >
+> >> Date: Wed, 12 Sep 2012 17:49:15 -0400
+> >> From: Lukas Czerner <lczerner@redhat.com>
+> >> To: util-linux@vger.kernel.org, kzak@redhat.com
+> >> Cc: Lukas Czerner <lczerner@redhat.com>
+> >> Subject: [PATCH] blkdiscard: add new command
+> >>
+> >> blkdiscard is used to discard device sectors. This is useful for
+> >> solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
+> >> fstrim this command is used directly on the block device.
+> >>
+> >> blkkdiscard uses BLKDISCARD ioctl or BLKSECDISCARD ioctl for the secure
+> >> discard.
+> >>
+> >> All data in the discarded region on the device will be lost!
+> >
+> > Hi Karel,
+> >
+> > any progress here ?
+> 
+> Where is the patch for blockdev?
 
-> > With a name like runuser, I would expect that its purpose would be to
-> > simply run commands (and not necessarily get a shell for a user, as is
-> > done with su). runuser could take non-option arguments as argv for the
-> > new command so that we'd have examples like this:
-> > 
-> >   runuser -u notroot vi /etc/fstab
-> >   runuser notroot foocmd embedded '"quotes"'
-> >   runuser -u notroot foocmd has args "with spaces" sometimes
-> > 
-> > If you still desperately want to abuse the command to create a shell for
-> > a user, then you just do that:
-> > 
-> >   runuser -u notroot -- /bin/sh -
+There is not.
 
- well, but it will NOT use /etc/pam.d/runuser-l
+> 
+> I'm still convinced randomly named tools per new kernel ioctl is not
+> what we want. People should get their act together, and not add the
+> tool of the week to util-linux.
 
- I agree that -f -s -c are unnecessary (and -c is wrong at all...). It
- would be probably better to support:
+And I am still convinced that multiplexing different functionalities
+together into a single tool is not always the best way to go,
+especially when they does not have nothing in common.
 
-    runuser [-u] notroot [<command> [arg]]
+Thanks!
+-Lukas
 
- and if <command> is not specified then start a shell, and if -l is
- specified create a login-like session.
-
-> Hrmm... I had no idea that runuser was an existing command in the RedHat
-> world, which makes my idea of a "mulligan" less feasible. Boo.
-
- Well, that's question if we (upstream) have to care about one crazy
- distro specific command. Maybe we can introduce a new command (with a
- different name) and ignore the original runuser. For good reason the
- command has not been accepted by coreutils upstream.
-
- Any suggestion for the new name?
-
-    runuid
-    runid
-    execuser
-
- I have no problem to revert the runuser patch, really ;-) It was
- probably too hasty decision to merge whole my su branch.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> 
+> Thanks,
+> Kay
+> 
+--269102523-456632067-1348690466=:31136--
