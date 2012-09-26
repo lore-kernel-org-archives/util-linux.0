@@ -1,75 +1,133 @@
-Return-Path: lczerner@redhat.com
-Date: Thu, 13 Sep 2012 10:09:34 -0400 (EDT)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: Karel Zak <kzak@redhat.com>
-cc: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>,
-        Kay Sievers <kay@vrfy.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkdiscard: add new command
-In-Reply-To: <20120913135727.GC13016@x2.net.home>
-Message-ID: <alpine.LFD.2.00.1209131003291.2222@new-host-2>
-References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <CAPXgP12NSLGBJGejiE2L0bfHTRL3f9RObAse=A6b5_2OqJ+RhA@mail.gmail.com> <alpine.LFD.2.00.1209130934290.2222@new-host-2> <20120913135727.GC13016@x2.net.home>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="269113540-1317177277-1347545377=:2222"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-we0-f174.google.com ([74.125.82.174]:59381 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751033Ab2IZUpp (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Sep 2012 16:45:45 -0400
+Received: by weyt9 with SMTP id t9so231386wey.19
+        for <util-linux@vger.kernel.org>; Wed, 26 Sep 2012 13:45:44 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] column: make defined separator to be non-greedy
+Date: Wed, 26 Sep 2012 21:45:36 +0100
+Message-Id: <1348692336-21301-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This patch changes interpretation of subsequent delimeter interpretation.
+Earlier version merged columns that had null string as content together,
+which lead to output as visualized below.
 
---269113540-1317177277-1347545377=:2222
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+$ printf "a:b:c\n1::3\n" | column  -t -s ':'
+a  b  c
+1  3
 
-On Thu, 13 Sep 2012, Karel Zak wrote:
+The number 3 has wrong column, which this patch takes care of, and alters
+the output following way.
 
-> Date: Thu, 13 Sep 2012 15:57:27 +0200
-> From: Karel Zak <kzak@redhat.com>
-> To: Lukáš Czerner <lczerner@redhat.com>
-> Cc: Kay Sievers <kay@vrfy.org>, util-linux@vger.kernel.org
-> Subject: Re: [PATCH] blkdiscard: add new command
-> 
-> On Thu, Sep 13, 2012 at 09:37:30AM -0400, Lukáš Czerner wrote:
-> > On Thu, 13 Sep 2012, Kay Sievers wrote:
-> > 
-> > > Date: Thu, 13 Sep 2012 00:43:01 +0200
-> > > From: Kay Sievers <kay@vrfy.org>
-> > > To: Lukas Czerner <lczerner@redhat.com>
-> > > Cc: util-linux@vger.kernel.org, kzak@redhat.com
-> > > Subject: Re: [PATCH] blkdiscard: add new command
-> > > 
-> > > On Wed, Sep 12, 2012 at 11:49 PM, Lukas Czerner <lczerner@redhat.com> wrote:
-> > > > blkdiscard is used to discard device sectors. This is useful for
-> > > > solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
-> > > > fstrim this command is used directly on the block device.
-> > > 
-> > > Should this maybe live in blockdev(8)?
-> > > 
-> > > It's kind of unfortunate to create standalone tools for every other
-> > > rather exotic block device feature.
-> > 
-> > Discard is hardly exotic feature nowadays :). But anyway, I was not aware of
-> > blockdev(8) and indeed it seems like a better place to put this
-> > functionality. I'll look into it.
-> 
->  That's question ... we already have fstrim which is also wrapper for
->  one ioctl and it seems that your blkdiscard requires some logic
->  (devsize, sectorsize, align ranges, ...). We usually use blockdev
->  for pretty primitive ioctls, add something more complex will be hack
->  (like --getsz or --report).
-> 
->  It's UNIX, it's not so unusual that utils do one thing and do it well ;-)
-> 
->     Karel
+$ printf "a:b:c\n1::3\n" | column  -t -s ':'
+a  b  c
+1     3
 
-Righ, I've looked at the blockdev(8) and indeed it lacks the ability
-to pass more "complex" arguments to the command itself. It would
-have to be updated to support this. Most likely to something like
-this:
+This patch does not alter the default case, e.g., subsequent white spaces
+are understood as separator of the same field, and the beginning of line
+white spaces are being ignored together.
 
-blockdev <blockdev options> <command> <command options>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/column.c | 37 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 32 insertions(+), 5 deletions(-)
 
-but I am not sure it worth it. And your UNIX point is quite valid. I
-am on the fence about this (with slight inclination to separate blkdiscard),
-but you're the maintainer so you have the privilege to decide :)
+diff --git a/text-utils/column.c b/text-utils/column.c
+index 61668fd..7eea66a 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -75,7 +75,8 @@ static char *mtsafe_strtok(char *, const char *, char **);
+ static int input(FILE *fp, int *maxlength, wchar_t ***list, int *entries);
+ static void c_columnate(int maxlength, long termwidth, wchar_t **list, int entries);
+ static void r_columnate(int maxlength, long termwidth, wchar_t **list, int entries);
+-static void maketbl(wchar_t **list, int entries, wchar_t *separator);
++static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, wchar_t **wcstok_state);
++static void maketbl(wchar_t **list, int entries, wchar_t *separator, int greedy);
+ static void print(wchar_t **list, int entries);
+ 
+ typedef struct _tbl {
+@@ -112,6 +113,7 @@ int main(int argc, char **argv)
+ 	unsigned int eval = 0;		/* exit value */
+ 	int maxlength = 0;		/* longest record */
+ 	wchar_t **list = NULL;		/* array of pointers to records */
++	int greedy = 1;
+ 
+ 	/* field separator for table option */
+ 	wchar_t default_separator[] = { '\t', ' ', 0 };
+@@ -151,6 +153,7 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 's':
+ 			separator = mbs_to_wcs(optarg);
++			greedy = 0;
+ 			break;
+ 		case 't':
+ 			tflag = 1;
+@@ -183,7 +186,7 @@ int main(int argc, char **argv)
+ 		exit(eval);
+ 
+ 	if (tflag)
+-		maketbl(list, entries, separator);
++		maketbl(list, entries, separator, greedy);
+ 	else if (maxlength >= termwidth)
+ 		print(list, entries);
+ 	else if (xflag)
+@@ -270,7 +273,31 @@ static void print(wchar_t **list, int entries)
+ 	}
+ }
+ 
+-static void maketbl(wchar_t **list, int entries, wchar_t *separator)
++wchar_t *local_wcstok(wchar_t * p, const wchar_t * separator, int greedy,
++		      wchar_t ** wcstok_state)
++{
++	wchar_t *result;
++	if (greedy)
++		return wcstok(p, separator, wcstok_state);
++
++	if (p == NULL) {
++		if (*wcstok_state == NULL)
++			return NULL;
++		else
++			p = *wcstok_state;
++	}
++	result = p;
++	p = wcspbrk(result, separator);
++	if (p == NULL)
++		*wcstok_state = NULL;
++	else {
++		*p = '\0';
++		*wcstok_state = p + 1;
++	}
++	return result;
++}
++
++static void maketbl(wchar_t **list, int entries, wchar_t *separator, int greedy)
+ {
+ 	TBL *t;
+ 	int cnt, i;
+@@ -279,7 +306,7 @@ static void maketbl(wchar_t **list, int entries, wchar_t *separator)
+ 	ssize_t maxcols = DEFCOLS, coloff;
+ 	TBL *tbl;
+ 	wchar_t **cols;
+-	wchar_t *wcstok_state;
++	wchar_t *wcstok_state = NULL;
+ 
+ 	t = tbl = xcalloc(entries, sizeof(TBL));
+ 	cols = xcalloc(maxcols, sizeof(wchar_t *));
+@@ -288,7 +315,7 @@ static void maketbl(wchar_t **list, int entries, wchar_t *separator)
+ 	for (lp = list, cnt = 0; cnt < entries; ++cnt, ++lp, ++t) {
+ 		coloff = 0;
+ 		p = *lp;
+-		while ((cols[coloff] = wcstok(p, separator, &wcstok_state)) != NULL) {
++		while ((cols[coloff] = local_wcstok(p, separator, greedy, &wcstok_state)) != NULL) {
+ 			if (++coloff == maxcols) {
+ 				maxcols += DEFCOLS;
+ 				cols = xrealloc(cols, maxcols * sizeof(wchar_t *));
+-- 
+1.7.12.1
 
--Lukas
---269113540-1317177277-1347545377=:2222--
