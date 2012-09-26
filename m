@@ -1,27 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:46438 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:32756 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753702Ab2I0Oe7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 27 Sep 2012 10:34:59 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx2.suse.de (Postfix) with ESMTP id B0D74A2111
-	for <util-linux@vger.kernel.org>; Thu, 27 Sep 2012 16:34:58 +0200 (CEST)
-Date: Thu, 27 Sep 2012 16:34:58 +0200
-From: Philipp Thomas <pth@suse.de>
-To: util-linux@vger.kernel.org
-Cc: Werner Fink <werner@suse.de>
-Subject: Merge of sulogin in 2.22
-Message-ID: <20120927143458.GB31742@paradies.suse.de>
+	id S1754505Ab2IZJ1u (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Sep 2012 05:27:50 -0400
+Date: Wed, 26 Sep 2012 11:27:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: g.esp@free.fr
+Cc: util-linux@vger.kernel.org
+Subject: Re: mount remount regression with loop and real /etc/mtab
+Message-ID: <20120926092746.GG22639@x2.net.home>
+References: <1155996641.234046196.1348554681833.JavaMail.root@zimbra33-e6.priv.proxad.net>
+ <1939212649.237487662.1348640721365.JavaMail.root@zimbra33-e6.priv.proxad.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1939212649.237487662.1348640721365.JavaMail.root@zimbra33-e6.priv.proxad.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The version of sulogin in util-linux lacks the upstream patch that adds
-support for multiple consoles, which is a vital feature for us.  Would you
-accept a patch that adds this feature to util-linux's version of sulogin? 
-In that case we could drop sulogin from our sysvinit package.
+On Wed, Sep 26, 2012 at 08:25:21AM +0200, g.esp@free.fr wrote:
+> The case that fail with /etc/mtab as real file
+> [chroot-i486] root:/tmp$ rm -f /etc/mtab && echo -n >/etc/mtab
+> [chroot-i486] root:/tmp$ mount -oloop /tmp/blob /tmp/mnt
+> [chroot-i486] root:/tmp$ mount -o remount,loop,ro /tmp/mnt
+> [chroot-i486] root:/tmp$ mount
+> /dev/loop0 on /tmp/mnt type ext2 (ro,loop)
+> [chroot-i486] root:/tmp$ losetup -a
+> /dev/loop0: [2051]:306957 (/tmp/blob)
+> /dev/loop1: [0005]:2218 (/dev/loop0)
+> [chroot-i486] root:/tmp$ umount /tmp/mnt
+> umount: /tmp/mnt: filesystem umounted, but mount(8) failed: Device or resource busy
+> [chroot-i486] root:/tmp$ losetup -d /dev/loop1
+> [chroot-i486] root:/tmp$ losetup -d /dev/loop0
 
-Philipp
+ Fixed. Thanks!
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
