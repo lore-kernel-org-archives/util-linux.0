@@ -1,32 +1,42 @@
-Return-Path: ludwig.nussel@suse.de
-Message-ID: <5048465B.2070207@suse.de>
-Date: Thu, 06 Sep 2012 08:44:43 +0200
-From: Ludwig Nussel <ludwig.nussel@suse.de>
-MIME-Version: 1.0
+Return-Path: glebfm@altlinux.org
+Date: Thu, 27 Sep 2012 20:18:16 +0400
+From: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
 To: Karel Zak <kzak@redhat.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: su: (why not?) merged from latest coreutils
-References: <504624F3.2020601@bernhard-voelker.de> <20120905093907.GC32623@x2.net.home>
-In-Reply-To: <20120905093907.GC32623@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: util-linux@vger.kernel.org
+Subject: [PATCH] libmount: fix support of comma-separated fs types lists
+Message-ID: <20120927161807.GA19450@c227.office.altlinux.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Tue, Sep 04, 2012 at 05:57:39PM +0200, Bernhard Voelker wrote:
->> su has not been "merged from latest coreutils".
-> 
-> hmmm... it seems that Ludwig has used code from suse rather than the
-> latest upstream.
+	# grep cdrom /etc/fstab
+	/dev/sr0 /media/cdrom udf,iso9660 ro,noauto,user,utf8 0 0
+	# mount /media/cdrom
+	mount: unknown filesystem type 'udf,iso9660'
 
-I rebased the patches on top of the last GPLv2 version. coreutils
-changed to GPLv3 at some point ...
+	# mount -t udf,iso9660 /dev/sr0 /media/cdrom
+	mount: /dev/sr0 is write-protected, mounting read-only
 
-cu
-Ludwig
+Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+---
+ libmount/src/context_mount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--- 
- (o_   Ludwig Nussel
- //\
- V_/_  http://www.suse.de/
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer, HRB 16746 (AG Nürnberg) 
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index f3d8ff1..efd7e7b 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -691,7 +691,7 @@ int mnt_context_do_mount(struct libmnt_context *cxt)
+ 		cxt->mountdata =3D (char *) mnt_fs_get_fs_options(cxt->fs);
+=20
+ 	type =3D mnt_fs_get_fstype(cxt->fs);
+-	if (type)
++	if (type && !strchr(type, ','))
+ 		res =3D do_mount(cxt, NULL);
+ 	else
+ 		res =3D do_mount_by_pattern(cxt, cxt->fstype_pattern);
+
+--=20
+	glebfm
+	=E7=CC=C5=C2 =E6=CF=D4=C5=CE=C7=C1=D5=DC=D2-=ED=C1=CC=C9=CE=CF=D7=D3=CB=C9=
+=CA
