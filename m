@@ -1,133 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:59381 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751033Ab2IZUpp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Sep 2012 16:45:45 -0400
-Received: by weyt9 with SMTP id t9so231386wey.19
-        for <util-linux@vger.kernel.org>; Wed, 26 Sep 2012 13:45:44 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] column: make defined separator to be non-greedy
-Date: Wed, 26 Sep 2012 21:45:36 +0100
-Message-Id: <1348692336-21301-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:58759 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752089Ab2I0MDV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 27 Sep 2012 08:03:21 -0400
+Date: Thu, 27 Sep 2012 14:03:14 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/3] fdisk: add GPT support
+Message-ID: <20120927120314.GB18644@x2.net.home>
+References: <1345550602.2664.6.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1345550602.2664.6.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch changes interpretation of subsequent delimeter interpretation.
-Earlier version merged columns that had null string as content together,
-which lead to output as visualized below.
+On Tue, Aug 21, 2012 at 02:03:22PM +0200, Davidlohr Bueso wrote:
+> This patch allows fdisk to handle GUID partition tables, based on
+> the latest UEFI specifications version 2.3.1, from June 27th, 2012.
 
-$ printf "a:b:c\n1::3\n" | column  -t -s ':'
-a  b  c
-1  3
+ Applied, with some changes (add string based list of partition
+ types).
 
-The number 3 has wrong column, which this patch takes care of, and alters
-the output following way.
+ TODO:
 
-$ printf "a:b:c\n1::3\n" | column  -t -s ':'
-a  b  c
-1     3
+    - differentiate between number of allocated and used partitions in GPT,
+      for example "Partition number (1-128):" dialog is strange if you have
+      only one partition. [I'll fix it tomorrow]
 
-This patch does not alter the default case, e.g., subsequent white spaces
-are understood as separator of the same field, and the beginning of line
-white spaces are being ignored together.
+    - add 'Device' column to GPT list_table output [I'll fix it tomorrow]
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/column.c | 37 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 32 insertions(+), 5 deletions(-)
+    - add 'g' to main menu to create a new empty GPT disklabel
 
-diff --git a/text-utils/column.c b/text-utils/column.c
-index 61668fd..7eea66a 100644
---- a/text-utils/column.c
-+++ b/text-utils/column.c
-@@ -75,7 +75,8 @@ static char *mtsafe_strtok(char *, const char *, char **);
- static int input(FILE *fp, int *maxlength, wchar_t ***list, int *entries);
- static void c_columnate(int maxlength, long termwidth, wchar_t **list, int entries);
- static void r_columnate(int maxlength, long termwidth, wchar_t **list, int entries);
--static void maketbl(wchar_t **list, int entries, wchar_t *separator);
-+static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, wchar_t **wcstok_state);
-+static void maketbl(wchar_t **list, int entries, wchar_t *separator, int greedy);
- static void print(wchar_t **list, int entries);
- 
- typedef struct _tbl {
-@@ -112,6 +113,7 @@ int main(int argc, char **argv)
- 	unsigned int eval = 0;		/* exit value */
- 	int maxlength = 0;		/* longest record */
- 	wchar_t **list = NULL;		/* array of pointers to records */
-+	int greedy = 1;
- 
- 	/* field separator for table option */
- 	wchar_t default_separator[] = { '\t', ' ', 0 };
-@@ -151,6 +153,7 @@ int main(int argc, char **argv)
- 			break;
- 		case 's':
- 			separator = mbs_to_wcs(optarg);
-+			greedy = 0;
- 			break;
- 		case 't':
- 			tflag = 1;
-@@ -183,7 +186,7 @@ int main(int argc, char **argv)
- 		exit(eval);
- 
- 	if (tflag)
--		maketbl(list, entries, separator);
-+		maketbl(list, entries, separator, greedy);
- 	else if (maxlength >= termwidth)
- 		print(list, entries);
- 	else if (xflag)
-@@ -270,7 +273,31 @@ static void print(wchar_t **list, int entries)
- 	}
- }
- 
--static void maketbl(wchar_t **list, int entries, wchar_t *separator)
-+wchar_t *local_wcstok(wchar_t * p, const wchar_t * separator, int greedy,
-+		      wchar_t ** wcstok_state)
-+{
-+	wchar_t *result;
-+	if (greedy)
-+		return wcstok(p, separator, wcstok_state);
-+
-+	if (p == NULL) {
-+		if (*wcstok_state == NULL)
-+			return NULL;
-+		else
-+			p = *wcstok_state;
-+	}
-+	result = p;
-+	p = wcspbrk(result, separator);
-+	if (p == NULL)
-+		*wcstok_state = NULL;
-+	else {
-+		*p = '\0';
-+		*wcstok_state = p + 1;
-+	}
-+	return result;
-+}
-+
-+static void maketbl(wchar_t **list, int entries, wchar_t *separator, int greedy)
- {
- 	TBL *t;
- 	int cnt, i;
-@@ -279,7 +306,7 @@ static void maketbl(wchar_t **list, int entries, wchar_t *separator)
- 	ssize_t maxcols = DEFCOLS, coloff;
- 	TBL *tbl;
- 	wchar_t **cols;
--	wchar_t *wcstok_state;
-+	wchar_t *wcstok_state = NULL;
- 
- 	t = tbl = xcalloc(entries, sizeof(TBL));
- 	cols = xcalloc(maxcols, sizeof(wchar_t *));
-@@ -288,7 +315,7 @@ static void maketbl(wchar_t **list, int entries, wchar_t *separator)
- 	for (lp = list, cnt = 0; cnt < entries; ++cnt, ++lp, ++t) {
- 		coloff = 0;
- 		p = *lp;
--		while ((cols[coloff] = wcstok(p, separator, &wcstok_state)) != NULL) {
-+		while ((cols[coloff] = local_wcstok(p, separator, greedy, &wcstok_state)) != NULL) {
- 			if (++coloff == maxcols) {
- 				maxcols += DEFCOLS;
- 				cols = xrealloc(cols, maxcols * sizeof(wchar_t *));
+    - LBA alignment, it necessary to use the same things we use for MBR;
+      partitions has to be aligned according to I/O limits (sector
+      size). [Important!]
+
+    - move list_table() functions to fdisk_label drive struct
+
+    - remove 'disklabel' from fdisk.c at all and keep fdisk.c
+      independent on MBR
+
+    - remove global label-specific variables (e.g. gpt ents[])
+
+    - test GPT (specially 't' command) on big-endian machine
+      (EFI UUIDs has been designed during LSD trip...)
+
+
+less important things:
+
+    - add '<something>' to fdisk menu to print details about selected
+      partition (uuid, type uuid, type name, name, etc...)
+
+    - add '<something>' to menu to print details about the partition
+      table (header, backup header, locations, number of allocated
+      entries, used entries, offset of entry table and offset and size
+      of data area, etc.)
+
+All should be implemented by drive specific functions, without
+exceptions, fdisk.c has to be simple and readable :-)
+
+Note I did not applied the man page yet. I think we can do that
+later when the code will be stable.
+
+> Note that when adding libblkid support for probing, some of the local probing functions will go.
+
+ Yes, but this is not so important for now. We have to clean up before
+ we start to implement new things.
+
+ Thanks!
+
+    Karel
+
 -- 
-1.7.12.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
