@@ -1,81 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25617 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755635Ab2ILKJW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Sep 2012 06:09:22 -0400
-Date: Wed, 12 Sep 2012 12:09:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Giacomo <giacomo.perale@gmail.com>
-Cc: util-linux@vger.kernel.org, Paul Fox <pgf@laptop.org>
-Subject: Re: rtcwake doesn't reset wakealarm
-Message-ID: <20120912100916.GB17256@x2.net.home>
-References: <loom.20120911T131040-30@post.gmane.org>
- <loom.20120912T113440-886@post.gmane.org>
+Return-Path: martin.petersen@oracle.com
+To: =?utf-8?B?THVrw6HFoQ==?= Czerner <lczerner@redhat.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] blkdiscard: add new command
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <1347486555-24330-1-git-send-email-lczerner@redhat.com>
+	<alpine.LFD.2.00.1209261546390.31136@dhcp-187-45.bos.redhat.com>
+	<20120927094256.GA18644@x2.net.home>
+	<alpine.LFD.2.00.1209271113040.31136@dhcp-187-45.bos.redhat.com>
+Date: Thu, 27 Sep 2012 11:49:22 -0400
+In-Reply-To: <alpine.LFD.2.00.1209271113040.31136@dhcp-187-45.bos.redhat.com>
+	(=?utf-8?B?Ikx1a8OhxaE=?= Czerner"'s message of "Thu, 27 Sep 2012 11:21:18
+ -0400 (EDT)")
+Message-ID: <yq14nmja2kd.fsf@sermon.lab.mkp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <loom.20120912T113440-886@post.gmane.org>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
+>>>>> "Luk=C3=A1=C5=A1" =3D=3D Luk=C3=A1=C5=A1 Czerner <lczerner@redhat.com=
+> writes:
 
- Let's add Paul to CC ;-)
+Luk=C3=A1=C5=A1> TBH this is fugly :). Also what actually is the advantage =
+of
+Luk=C3=A1=C5=A1> doing this ? So we saved 50 lines of code for this uglines=
+s and
+Luk=C3=A1=C5=A1> instead of two separate binaries we have this one hybrid a=
+nd
+Luk=C3=A1=C5=A1> symlink. I am not sure it's worth it. Can't we just have t=
+wo
+Luk=C3=A1=C5=A1> separate binaries ? What is the problem with that ?
 
-On Wed, Sep 12, 2012 at 09:52:14AM +0000, Giacomo wrote:
-> Giacomo <giacomo.perale@...> writes:
-> 
-> > I recently upgraded to util-linux 2.22 and I noticed that powertop started
-> > reporting about 50-60 wakeups per second caused by rtc (interrupt 8). 
-> > 
-> > I quickly found out that this happened when I used rtcwake to wake up the
-> > machine, and that after the reboot /sys/class/rtc/rtc0/wakealarm was still 
-> > set to the scheduled wakeup time (now in the past). 
-> > 
-> > After a quick investigation I discovered that this is caused by commit
-> > 1707576155daf644c5df3c1776b52fd297ff9318 ("rtcwake: only invoke RTC_AIE_ON/OFF
-> > ioctls in pairs"): my system uses RTC_WKALM_SET so ioctl_aie_on stays false and
-> > RTC_AIE_OFF doesn't get called.
-> > 
-> 
-> Hi,
-> 
-> that commit also broke "disable". This is what happens on my system:
-> 
-> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-> KazeNoTani ~ # rtcwake -m show
-> alarm: off
-> KazeNoTani ~ # rtcwake -m no -s 300
-> rtcwake: wakeup using /dev/rtc0 at Wed Sep 12 09:40:31 2012
-> KazeNoTani ~ # rtcwake -m show
-> alarm: on  Wed Sep 12 09:40:32 2012
-> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-> 1347442831
-> KazeNoTani ~ # rtcwake -m disable
-> KazeNoTani ~ # rtcwake -m show
-> alarm: on  Wed Sep 12 09:40:32 2012
-> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-> 1347442831
-> KazeNoTani ~ # echo 0 > /sys/class/rtc/rtc0/wakealarm
-> KazeNoTani ~ # cat /sys/class/rtc/rtc0/wakealarm
-> KazeNoTani ~ # rtcwake -m show
-> alarm: off
-> 
-> 
-> rtcwake -m disable doesn't remove the alarm. This is because as it is
-> implemented now "-m disable" does nothing but break and rely on the call to
-> RTC_AIE_OFF that was always done at the end of the execution of rtcwake, but now
-> is conditional on "ioctl_aie_on" that doesn't get set in most cases.
-> 
-> Thanks,
-> 
-> Giacomo
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+It's not just discard. We should also consider the zeroout and write
+same use cases. They have nothing to do with fstrim.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Time to incorporate and extend Garzik's blktool, perhaps?
+
+--=20
+Martin K. Petersen	Oracle Linux Engineering
