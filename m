@@ -1,50 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:55344 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751050Ab2IZUE6 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Sep 2012 16:04:58 -0400
-Received: by bkcjk13 with SMTP id jk13so575926bkc.19
-        for <util-linux@vger.kernel.org>; Wed, 26 Sep 2012 13:04:57 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.00.1209261546390.31136@dhcp-187-45.bos.redhat.com>
-References: <1347486555-24330-1-git-send-email-lczerner@redhat.com> <alpine.LFD.2.00.1209261546390.31136@dhcp-187-45.bos.redhat.com>
-From: Kay Sievers <kay@vrfy.org>
-Date: Wed, 26 Sep 2012 22:04:37 +0200
-Message-ID: <CAPXgP11oktXSe3yxdOZCMzNOSrfVawtL95nBuM_NYxB9KPvOdA@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:55009 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754595Ab2I0XN0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 27 Sep 2012 19:13:26 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8RNDQqO015734
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Thu, 27 Sep 2012 19:13:26 -0400
+Date: Fri, 28 Sep 2012 01:13:24 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Lukas Czerner <lczerner@redhat.com>
+Cc: util-linux@vger.kernel.org
 Subject: Re: [PATCH] blkdiscard: add new command
-To: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>
-Cc: util-linux@vger.kernel.org, kzak@redhat.com
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <20120927231324.GA7822@x2.net.home>
+References: <1347486555-24330-1-git-send-email-lczerner@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1347486555-24330-1-git-send-email-lczerner@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 26, 2012 at 9:47 PM, Lukáš Czerner <lczerner@redhat.com> wrote:
-> On Wed, 12 Sep 2012, Lukas Czerner wrote:
->
->> Date: Wed, 12 Sep 2012 17:49:15 -0400
->> From: Lukas Czerner <lczerner@redhat.com>
->> To: util-linux@vger.kernel.org, kzak@redhat.com
->> Cc: Lukas Czerner <lczerner@redhat.com>
->> Subject: [PATCH] blkdiscard: add new command
->>
->> blkdiscard is used to discard device sectors. This is useful for
->> solid-state drivers (SSDs) and thinly-provisioned storage. Unlike
->> fstrim this command is used directly on the block device.
->>
->> blkkdiscard uses BLKDISCARD ioctl or BLKSECDISCARD ioctl for the secure
->> discard.
->>
->> All data in the discarded region on the device will be lost!
->
-> Hi Karel,
->
-> any progress here ?
+On Wed, Sep 12, 2012 at 05:49:15PM -0400, Lukas Czerner wrote:
+>  sys-utils/Makemodule.am |    5 ++
+>  sys-utils/blkdiscard.8  |   66 ++++++++++++++++++
+>  sys-utils/blkdiscard.c  |  173 +++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 245 insertions(+), 0 deletions(-)
+>  create mode 100644 sys-utils/blkdiscard.8
+>  create mode 100644 sys-utils/blkdiscard.c
 
-Where is the patch for blockdev?
+ Applied, thanks.
 
-I'm still convinced randomly named tools per new kernel ioctl is not
-what we want. People should get their act together, and not add the
-tool of the week to util-linux.
-
-Thanks,
-Kay
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
