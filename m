@@ -1,42 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31838 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751745Ab2JEQh5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 5 Oct 2012 12:37:57 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q95Gbv77019486
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Fri, 5 Oct 2012 12:37:57 -0400
-From: Milan Broz <mbroz@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Milan Broz <mbroz@redhat.com>
-Subject: [PATCH 1/3] tests: fix timezone for cramfs
-Date: Fri,  5 Oct 2012 18:37:38 +0200
-Message-Id: <1349455060-807-1-git-send-email-mbroz@redhat.com>
+Received: from moutng.kundenserver.de ([212.227.126.186]:57331 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751551Ab2JAHjt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Oct 2012 03:39:49 -0400
+Message-ID: <506948C3.9050704@bernhard-voelker.de>
+Date: Mon, 01 Oct 2012 09:39:47 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: fdisks/fdisk{bsd,sgi,dos}label.c: new warnings
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-cramfs test need explicitly set timezone otherwise
-ls diff fails with
-   cramfs: mkfs checksums ... FAILED (cramfs/mkfs)
+Just FYI ...
+It seems that one of the latest commits has introduced
+a bunch of new warnings:
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
----
- tests/ts/cramfs/mkfs |    1 +
- 1 file changed, 1 insertion(+)
+  CC     fdisks/fdisk-fdiskmaclabel.o
+fdisks/fdiskbsdlabel.c: In function ‘xbsd_set_parttype’:
+fdisks/fdiskbsdlabel.c:860:52: warning: unused parameter ‘cxt’ [-Wunused-parameter]
+  CC     fdisks/fdisk-fdisksgilabel.o
+fdisks/fdisksgilabel.c: In function ‘generic_swap’:
+fdisks/fdisksgilabel.c:402:13: warning: wrong type argument to increment [-Wpointer-arith]
+fdisks/fdisksgilabel.c:403:13: warning: wrong type argument to increment [-Wpointer-arith]
+fdisks/fdisksgilabel.c: In function ‘sort’:
+fdisks/fdisksgilabel.c:421:27: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:421:37: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:421:41: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:423:27: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:423:37: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:425:22: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:425:32: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:431:27: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:435:27: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:435:37: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:435:41: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:437:27: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:437:37: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:439:22: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+fdisks/fdisksgilabel.c:439:32: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+  CC     fdisks/fdisk-fdisksunlabel.o
+  CC     fdisks/fdisk-fdiskdoslabel.o
+fdisks/fdiskdoslabel.c: In function ‘dos_set_parttype’:
+fdisks/fdiskdoslabel.c:844:51: warning: unused parameter ‘cxt’ [-Wunused-parameter]
 
-diff --git a/tests/ts/cramfs/mkfs b/tests/ts/cramfs/mkfs
-index db9b08c..99d682f 100755
---- a/tests/ts/cramfs/mkfs
-+++ b/tests/ts/cramfs/mkfs
-@@ -79,6 +79,7 @@ ts_is_mounted $DEVICE || ts_die "Cannot find $DEVICE in /proc/mounts" $DEVICE
- cd $TS_MOUNTPOINT
- 
- ts_log "list the image"
-+TZ='GMT-1'
- ls -laR --time-style=long-iso . >> $TS_OUTPUT
- echo >> $TS_OUTPUT
- 
--- 
-1.7.10.4
+My HEAD is on v2.22-80-gd964b66.
 
+Have a nice day,
+Berny
