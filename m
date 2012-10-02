@@ -1,65 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:56691 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754394Ab2JNUW3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:22:29 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so3908587wgb.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:22:28 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 00/13] make ipcs to use proc
-Date: Sun, 14 Oct 2012 21:22:12 +0100
-Message-Id: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:21620 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752449Ab2JBIRv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Oct 2012 04:17:51 -0400
+Date: Tue, 2 Oct 2012 10:17:41 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        Werner Fink <werner@suse.de>, Ludwig Nussel <ludwig.nussel@suse.de>
+Cc: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>,
+        util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>,
+        Tobias Powalowski <tpowa@archlinux.org>
+Subject: Re: [su] New su utility messes with my PATH
+Message-ID: <20121002081741.GA7730@x2.net.home>
+References: <50547FE7.204@archlinux.org>
+ <50549411.9000302@draigBrady.com>
+ <20120920094330.GC16499@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120920094330.GC16499@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel and others.
+On Thu, Sep 20, 2012 at 11:47:04AM +0200, Karel Zak wrote:
+>         commit a6fdd3f8125be23930d955c2bc6b7a46cdaf8a12
+>         Author: Werner Fink <werner@suse.de>
+>         Date:   Tue Aug 17 09:09:55 2010 +0200
+> 
+>         make sure /sbin resp /usr/sbin are in PATH
+> 
+> 
+> Werner, Ludwig? What about to revert the patch?
 
-Couple weeks ago I decided to do the ipcs todo item, and today patches
-got to be ready enough so that I could make final polishing and send them
-for review.
+ Reverted.
 
-The ipcs is still pretty messy.  Partly the mess arises from my decision
-to keep various ipc info mechanisms as fallback when /proc or /sys is
-missing.  And then again there are couple values which the ipc does not
-seem to expose without calling good ol' multiplexer.
+    Karel
 
-As the change is quite large I assume there has to be few bugs.  None of
-the where intentional, so having multiple people testing is preferable. 
-
-
-The following changes since commit 71b161ea37c57dc6a8341aeec6c0c2ae7cd4cfe3:
-
-  build-sys: clean update-potfiles script (2012-10-10 14:10:30 +0200)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git ipcs
-
-for you to fetch changes up to b6700fc1b733ebe44612d52e4bd649dc8dfd85be:
-
-  docs: update TODO (2012-10-14 20:56:10 +0100)
-
-----------------------------------------------------------------
-Sami Kerola (13):
-      ipcs: add data structures to read state from /proc & /sys
-      ipcs: add /proc and /sys path definitions
-      ipcs: determine ipc limits from /proc
-      ipcs: add new permissions printing function
-      ipcs: read shared memory values from /proc
-      ipcs: read message queue values from /proc
-      ipsc: read semaphore values from /proc
-      ipcs: clean up permissions printing
-      ipcs: make individual shared memory id printing to use /proc
-      ipcs: make individual message queue id printing to use /proc
-      ipcs: make individual semaphore id printing to use /proc
-      ipcs: validate numeric user input
-      docs: update TODO
-
- Documentation/TODO      |   4 -
- include/pathnames.h     |  11 +
- sys-utils/Makemodule.am |   2 +-
- sys-utils/ipcs.c        | 913 ++++++++++++++++++++++++++++++++++++------------
- 4 files changed, 711 insertions(+), 219 deletions(-)
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
