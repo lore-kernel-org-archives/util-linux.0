@@ -1,37 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp3-g21.free.fr ([212.27.42.3]:43021 "EHLO smtp3-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751352Ab2JNNxY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Oct 2012 09:53:24 -0400
-From: Gilles Espinasse <g.esp@free.fr>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:34088 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752858Ab2JBUP3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Oct 2012 16:15:29 -0400
+Received: by mail-wi0-f170.google.com with SMTP id hm2so1273662wib.1
+        for <util-linux@vger.kernel.org>; Tue, 02 Oct 2012 13:15:27 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Gilles Espinasse <g.esp@free.fr>
-Subject: [PATCH] tests : fix ipcs basic limit when bc is not available
-Date: Sun, 14 Oct 2012 15:52:55 +0200
-Message-Id: <1350222775-9153-1-git-send-email-g.esp@free.fr>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/3] pg: check numeric user inputs
+Date: Tue,  2 Oct 2012 21:15:18 +0100
+Message-Id: <1349208918-11946-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1349208918-11946-1-git-send-email-kerolasa@iki.fi>
+References: <1349208918-11946-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Gilles Espinasse <g.esp@free.fr>
-
-Skip basic limit test if bc is not available.
-That happen to be the case when building from sources, following LFS book
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- tests/ts/ipcs/limits2 |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ text-utils/Makemodule.am | 4 ++--
+ text-utils/pg.c          | 5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tests/ts/ipcs/limits2 b/tests/ts/ipcs/limits2
-index acb1749..f99a354 100755
---- a/tests/ts/ipcs/limits2
-+++ b/tests/ts/ipcs/limits2
-@@ -21,6 +21,7 @@ TS_DESC="basic limits"
+diff --git a/text-utils/Makemodule.am b/text-utils/Makemodule.am
+index 23185eaa..f2c10eb 100644
+--- a/text-utils/Makemodule.am
++++ b/text-utils/Makemodule.am
+@@ -59,11 +59,11 @@ pg_SOURCES = text-utils/pg.c
  
- . $TS_TOPDIR/functions.sh
- ts_init "$*"
-+type bc >/dev/null 2>&1 || ts_skip "cannot find bc command"
+ if HAVE_TINFO
+ more_LDADD = $(LDADD) -ltinfo
+-pg_LDADD = $(LDADD) -ltinfo @NCURSES_LIBS@
++pg_LDADD = $(LDADD) libcommon.la -ltinfo @NCURSES_LIBS@
+ ul_LDADD = $(LDADD) -ltinfo
+ else
+ more_LDADD = $(LDADD) @NCURSES_LIBS@
+-pg_LDADD = $(LDADD) @NCURSES_LIBS@
++pg_LDADD = $(LDADD) libcommon.la @NCURSES_LIBS@
+ ul_LDADD = $(LDADD) @NCURSES_LIBS@
+ endif
  
- . $TS_SELF/functions.sh
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 9ade866..c4a86ca 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -64,6 +64,7 @@
+ #include "widechar.h"
+ #include "all-io.h"
+ #include "closestream.h"
++#include "strutils.h"
  
+ #define	READBUF		LINE_MAX	/* size of input buffer */
+ #define CMDBUF		255		/* size of command buffer */
+@@ -1623,7 +1624,7 @@ main(int argc, char **argv)
+ 				goto endargs;
+ 			case '1': case '2': case '3': case '4': case '5':
+ 			case '6': case '7': case '8': case '9': case '0':
+-				pagelen = atoi(argv[arg] + i);
++				pagelen = strtol_or_err(argv[arg] + 1, _("failed to parse argument"));
+ 				havepagelen = 1;
+ 				goto nextarg;
+ 			case 'c':
+@@ -1687,7 +1688,7 @@ endargs:
+ 			/*NOTREACHED*/
+ 		case '1': case '2': case '3': case '4': case '5':
+ 		case '6': case '7': case '8': case '9': case '0':
+-			startline = atoi(argv[arg] + 1);
++			startline = strtol_or_err(argv[arg] + 1, _("failed to parse argument"));
+ 			break;
+ 		case '/':
+ 			searchfor = argv[arg] + 2;
 -- 
-1.7.2.5
+1.7.12.2
 
