@@ -1,44 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:39673 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754381Ab2JNUVm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:42 -0400
-Received: by mail-we0-f174.google.com with SMTP id t9so2680278wey.19
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:41 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 18/19] build-sys: remove gethostbyname() check
-Date: Sun, 14 Oct 2012 21:21:09 +0100
-Message-Id: <1350246070-10544-19-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:50772 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753788Ab2JBJqV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Oct 2012 05:46:21 -0400
+Date: Tue, 2 Oct 2012 11:46:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg: fix console-level off-by-one
+Message-ID: <20121002094610.GI7730@x2.net.home>
+References: <1349135689-13948-1-git-send-email-bjorn@mork.no>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1349135689-13948-1-git-send-email-bjorn@mork.no>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Removed as unnecessary, there are no references to gethostbyname() in
-code.
+On Tue, Oct 02, 2012 at 01:54:49AM +0200, Bjørn Mork wrote:
+>  sys-utils/dmesg.c |   12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- configure.ac | 4 ----
- 1 file changed, 4 deletions(-)
+ Ah... applied, thanks!
 
-diff --git a/configure.ac b/configure.ac
-index d94f271..075bfba 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -340,10 +340,6 @@ AC_CHECK_MEMBER(struct sockaddr.sa_len,
- 	 #include <sys/socket.h>])
- 
- SOCKET_LIBS=
--AC_SEARCH_LIBS([gethostbyname], [nsl],
--	[if test x"$ac_cv_search_gethostbyname" != x"none required"; then
--		SOCKET_LIBS="$SOCKET_LIBS -lnsl";
--	 fi])
- AC_SEARCH_LIBS([socket], [socket],
- 	[if test x"$ac_cv_search_socket" != x"none required"; then
- 		SOCKET_LIBS="$SOCKET_LIBS -lsocket";
 -- 
-1.7.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
