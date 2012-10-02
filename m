@@ -1,48 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f46.google.com ([209.85.215.46]:42944 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751346Ab2JCC7C (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Oct 2012 22:59:02 -0400
-Received: by lagh6 with SMTP id h6so2736359lag.19
-        for <util-linux@vger.kernel.org>; Tue, 02 Oct 2012 19:59:00 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:47584 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751806Ab2JBMN5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Oct 2012 08:13:57 -0400
+Date: Tue, 2 Oct 2012 14:13:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Philipp Thomas <pth@suse.de>
+Cc: util-linux@vger.kernel.org, Werner Fink <werner@suse.de>
+Subject: Re: Merge of sulogin in 2.22
+Message-ID: <20121002121353.GK7730@x2.net.home>
+References: <20120927143458.GB31742@paradies.suse.de>
+ <20120927231811.GB9064@x2.net.home>
+ <20120928124732.GB12510@paradies.suse.de>
 MIME-Version: 1.0
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-Date: Tue, 2 Oct 2012 19:58:39 -0700
-Message-ID: <CA+K3q6r_QfCWmCBMEiytKCQG8j-4P92sWxO-ZNz_ALWpr=2knA@mail.gmail.com>
-Subject: Adding support to chsh for non-local shell modification
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120928124732.GB12510@paradies.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Fri, Sep 28, 2012 at 02:47:32PM +0200, Philipp Thomas wrote:
+> Hi Karel,
+> * Karel Zak (kzak@redhat.com) [20120928 01:18]:
+> 
+> >  Sure, send the patch. Thanks!
+> 
+> Alas, I tried to adapt the patch but as I'm not familiar with the code and
+> you've done quite a few changes to it, would you be able to help me with the
+> patch? Attached is the working part that adds the new files consoles.[c,h]
+> plus that part of the original patch that would add the needed feature but
+> doesn't apply.
 
-I would like to implement support for non-local shell changing in chsh
-at the very least, and possibly support for non-local user attributes
-in general for the other attribute modification tools in login-utils.
-For my purposes I need LDAP support, but it would probably be better
-to make it able to use an arbitrary storage backend.  Ideally an API
-would already exist for this, but while one for setting authentication
-tokens has evolved (pam_chauthtok) and one for reading user attributes
-(Name Service Switch NSS), but none for setting them as far as I can
-tell. As such, I think the best route would be just to make a new API
-for this.
+I'll try work on the patch later. Thanks.
 
-I thinks this could be done by adding a new configuration file and
-module api. The configuration file would contain information on what
-user ids to map to which name attribute changing module (and allow
-users to specify only some attributes to go to specific modules). The
-module api would consist of a single entry point which would take a
-string indicating what attribute to change ("shell", etc.), and the
-user id. The function could return any of a set of standard error
-codes (permission denied, success, user unknown, etc). chsh would move
-all passwd file logic outside of itself and into one of these modules,
-and use dlopen/dlsym to load the desired function out of the desired
-module.
+    Karel
 
-Should I implement this route and send patches for review, or would
-there be some other preferred route to getting the feature into
-login-utils?
-
-Thanks,
-Cody
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
