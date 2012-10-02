@@ -1,153 +1,109 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:56911 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753729Ab2JHHJG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:09:06 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so3448340wib.1
-        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:09:06 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 12/14] more: align void in functions with prototypes, and remove void casts
-Date: Mon,  8 Oct 2012 08:08:18 +0100
-Message-Id: <1349680100-18120-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
-References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:55793 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754210Ab2JBKSN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Oct 2012 06:18:13 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q92AICFS029052
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 2 Oct 2012 06:18:12 -0400
+Received: from x2 (ovpn-113-69.phx2.redhat.com [10.3.113.69])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q92AIBUH005103
+	for <util-linux@vger.kernel.org>; Tue, 2 Oct 2012 06:18:12 -0400
+Date: Tue, 2 Oct 2012 12:18:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: v2.22 stable branche
+Message-ID: <20121002101810.GJ7730@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If there is void in argument list at function prototype it is reasonable
-to expect to see it also where the function is wrote.  This change also
-removes unnecessary return value void casting.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ Hi,
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index d056393..2ecb218 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -582,7 +582,7 @@ FILE *checkf(register char *fs, int *clearfirst)
- 	int c;
- 
- 	if (stat(fs, &stbuf) == -1) {
--		(void)fflush(stdout);
-+		fflush(stdout);
- 		if (clreol)
- 			cleareol();
- 		perror(fs);
-@@ -593,7 +593,7 @@ FILE *checkf(register char *fs, int *clearfirst)
- 		return ((FILE *)NULL);
- 	}
- 	if ((f = Fopen(fs, "r")) == NULL) {
--		(void)fflush(stdout);
-+		fflush(stdout);
- 		perror(fs);
- 		return ((FILE *)NULL);
- 	}
-@@ -631,11 +631,11 @@ static int magic(FILE *f, char *fs)
- 		case 0x457f:	/* simple ELF detection */
- 			printf(_("\n******** %s: Not a text file ********\n\n"),
- 			       fs);
--			(void)fclose(f);
-+			fclose(f);
- 			return 1;
- 		}
- 	}
--	(void)fseek(f, 0L, SEEK_SET);	/* rewind() not necessary */
-+	fseek(f, 0L, SEEK_SET);	/* rewind() not necessary */
- 	return 0;
- }
- 
-@@ -749,7 +749,7 @@ void chgwinsz(int dummy __attribute__((__unused__)))
- 		if (win.ws_col != 0)
- 			Mcol = win.ws_col;
- 	}
--	(void)signal(SIGWINCH, chgwinsz);
-+	signal(SIGWINCH, chgwinsz);
- }
- #endif				/* SIGWINCH */
- 
-@@ -1056,7 +1056,7 @@ void erasep(register int col)
- }
- 
- /* Erase the current line entirely */
--void kill_line()
-+void kill_line(void)
- {
- 	erasep(0);
- 	if (!eraseln || dumb)
-@@ -1064,12 +1064,12 @@ void kill_line()
- }
- 
- /* force clear to end of line */
--void cleareol()
-+void cleareol(void)
- {
- 	my_putstring(eraseln);
- }
- 
--void clreos()
-+void clreos(void)
- {
- 	my_putstring(EodClr);
- }
-@@ -1133,7 +1133,7 @@ void prbuf(register char *s, register int n)
- }
- 
- /*  Clear the screen */
--void doclear()
-+void doclear(void)
- {
- 	if (Clear && !hard) {
- 		my_putstring(Clear);
-@@ -1145,7 +1145,7 @@ void doclear()
- }
- 
- /* Go to home position */
--void home()
-+void home(void)
- {
- 	my_putstring(Home);
- }
-@@ -1743,7 +1743,7 @@ void skipf(register int nskip)
- }
- 
- /*----------------------------- Terminal I/O -------------------------------*/
--void initterm()
-+void initterm(void)
- {
- 	int ret;
- 	char *padstr;
-@@ -1874,7 +1874,7 @@ void initterm()
- 	}
- }
- 
--int readch()
-+int readch(void)
- {
- 	unsigned char c;
- 
-@@ -2101,7 +2101,7 @@ void more_error(char *mess)
- 	siglongjmp(restore, 1);
- }
- 
--void set_tty()
-+void set_tty(void)
- {
- 	otty.c_lflag &= ~(ICANON | ECHO);
- 	otty.c_cc[VMIN] = 1;	/* read at least 1 char */
-@@ -2114,7 +2114,7 @@ static int ourputch(int c)
- 	return putc(c, stdout);
- }
- 
--void reset_tty()
-+void reset_tty(void)
- {
- 	if (no_tty)
- 		return;
+ I have created stable/v2.22 (pull from kernel.org or gitgub) for the
+ next stable release v2.22.1. See the log below -- any objections or
+ suggestions?
+
+    Karel
+
+
+Bernhard Voelker (1):
+      ipcrm: avoid 'uninitialized' warning
+
+Björn Jacke (1):
+      mount: fix man path typo in quota mount option names
+
+Bjørn Mork (1):
+      dmesg: fix console-level off-by-one
+
+Dave Reisner (1):
+      build-sys: install su.1 if building su
+
+Davidlohr Bueso (2):
+      blkid: document LIBBLKID_DEBUG users
+      libmount: document LIBMOUNT_DEBUG users
+
+Giacomo (1):
+      rtcwake: doesn't reset wakealarm
+
+Gilles Espinasse (1):
+      textual: typo fixes
+
+Karel Zak (25):
+      libblkid: improve DBG() macro
+      libblkid: check fchmod() return value [coverity scan]
+      namei: remove dead code [coverity scan]
+      tunelp: add missing break [coverity scan]
+      mark expected fallthrough for static analysers
+      lib/sysfs: more robust sysfs_opendir() [coverity scan]
+      switch_root: check open() return value [coverity scan]
+      lib/pager: robust work with file descriptors [coverity scan]
+      whereis: improve readability for analysers
+      eject: robust strings usage [coverity scan]
+      build-sys: add --disable-wdctl
+      wdctl: add fallbacks for old kernel headers
+      libmount: improve mnt_table_get_root_fs() docs
+      libblkid: fix copyright noticed to be consistent (so all are LGPL)
+      libmount: segfaults if neither /etc/filesystems nor/proc/filesystems exists
+      libmount: don't remove user= when executed by root
+      build-sys: fix --localstatedir heuristics
+      build-sys: simplify usrlib_execdir initialization
+      libmount: detach loopdev on umount if loop option in mtab
+      libmount: append loop option when automatically create loopdev
+      hwclock: wait time in hwclock is not long enough for some ARM devices
+      libmount: user-mounted loopback fs cannot be unmounted by user
+      libmount: optimize mtab and utab parsing in umount
+      libmount: don't setup new loopdev on remount with regular mtab
+      su: don't modify PATH if -l not specified
+
+Mike Frysinger (1):
+      mount: fix a few typos
+
+Milan Broz (1):
+      mkswap: wipe old signature if there is no part table by default
+
+Peter Rajnoha (3):
+      lib/sysfs: fix sysfs_devname_to_devno for dm partitions
+      lsblk: fix processing of dm partition mappings
+      lsblk: fix reporting of 'part' type
+
+Petr Uzel (1):
+      setterm: make error message more informative
+
+Thierry Reding (1):
+      sfdisk: Fix format specifiers for size_t
+
+Tom Gundersen (1):
+      hwclock: don't warp the systemtime if the RTC is in UTC
+
+Ville Skyttä (2):
+      docs: umount.8 syntax fix.
+      docs: AUTHORS, NEWS: UTF-8 fixes.
+
+
 -- 
-1.7.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
