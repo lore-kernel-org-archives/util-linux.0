@@ -1,33 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33673 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752622Ab2JWMKR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 23 Oct 2012 08:10:17 -0400
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q9NCAHM2002373
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 23 Oct 2012 08:10:17 -0400
-Date: Tue, 23 Oct 2012 14:10:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Milan Broz <mbroz@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] lsblk: add parent kernel name column
-Message-ID: <20121023121006.GH21724@x2.net.home>
-References: <1350648641-19388-1-git-send-email-mbroz@redhat.com>
+Received: from tygrysek.juszkiewicz.com.pl ([178.33.81.99]:55114 "EHLO
+	tygrysek.juszkiewicz.com.pl" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752997Ab2JCJk5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 3 Oct 2012 05:40:57 -0400
+Message-ID: <506C05E7.50400@linaro.org>
+Date: Wed, 03 Oct 2012 10:31:19 +0100
+From: Marcin Juszkiewicz <marcin.juszkiewicz@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1350648641-19388-1-git-send-email-mbroz@redhat.com>
+To: util-linux@vger.kernel.org
+CC: linaro-dev@lists.linaro.org
+Subject: Add AArch64 support into util-linux
+Content-Type: multipart/mixed;
+ boundary="------------030606090603050708060401"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 19, 2012 at 02:10:39PM +0200, Milan Broz wrote:
-> For raw output used in scripts it is sometimes necessary
-> to reconstruct tree of devices.
+This is a multi-part message in MIME format.
+--------------030606090603050708060401
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
- All three patches applied. Thanks.
+Attached patch fixed build problem when util-linux is built for AArch64
+architecture.
 
-    Karel
+--------------030606090603050708060401
+Content-Type: text/x-patch;
+ name="add-aarch64-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="add-aarch64-support.patch"
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+---
+ fdisk/fdiskbsdlabel.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- util-linux-2.21.2.orig/fdisk/fdiskbsdlabel.h
++++ util-linux-2.21.2/fdisk/fdiskbsdlabel.h
+@@ -46,10 +46,11 @@
+ 
+ #define BSD_LINUX_BOOTDIR "/usr/ucb/mdec"
+ 
+ #if defined (__i386__) || defined (__sparc__) || defined (__arm__) || \
+     defined (__mips__) || defined (__s390__) || defined (__sh__) || \
++    defined (__aarch64__) || \
+     defined(__x86_64__) || defined (__avr32__) || defined(__cris__)
+ #define BSD_LABELSECTOR   1
+ #define BSD_LABELOFFSET   0
+ #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__) || defined (__hppa__)
+ #define BSD_LABELSECTOR   0
+
+--------------030606090603050708060401--
