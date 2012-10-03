@@ -1,47 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:64919 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754244Ab2JNUVZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:25 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so1296035wib.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:24 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-la0-f46.google.com ([209.85.215.46]:42944 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751346Ab2JCC7C (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Oct 2012 22:59:02 -0400
+Received: by lagh6 with SMTP id h6so2736359lag.19
+        for <util-linux@vger.kernel.org>; Tue, 02 Oct 2012 19:59:00 -0700 (PDT)
+MIME-Version: 1.0
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+Date: Tue, 2 Oct 2012 19:58:39 -0700
+Message-ID: <CA+K3q6r_QfCWmCBMEiytKCQG8j-4P92sWxO-ZNz_ALWpr=2knA@mail.gmail.com>
+Subject: Adding support to chsh for non-local shell modification
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 06/19] docs: add line breaks to whereis.1
-Date: Sun, 14 Oct 2012 21:20:57 +0100
-Message-Id: <1350246070-10544-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fix to tools script checkmans.sh warning.
+Hi,
 
-testing: /home/src/util-linux/misc-utils/whereis.1
-:120: warning [p 1, 10.8i, div `an-div', 0.0i]: can't break line
+I would like to implement support for non-local shell changing in chsh
+at the very least, and possibly support for non-local user attributes
+in general for the other attribute modification tools in login-utils.
+For my purposes I need LDAP support, but it would probably be better
+to make it able to use an arbitrary storage backend.  Ideally an API
+would already exist for this, but while one for setting authentication
+tokens has evolved (pam_chauthtok) and one for reading user attributes
+(Name Service Switch NSS), but none for setting them as far as I can
+tell. As such, I think the best route would be just to make a new API
+for this.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/whereis.1 | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I thinks this could be done by adding a new configuration file and
+module api. The configuration file would contain information on what
+user ids to map to which name attribute changing module (and allow
+users to specify only some attributes to go to specific modules). The
+module api would consist of a single entry point which would take a
+string indicating what attribute to change ("shell", etc.), and the
+user id. The function could return any of a set of standard error
+codes (permission denied, success, user unknown, etc). chsh would move
+all passwd file logic outside of itself and into one of these modules,
+and use dlopen/dlsym to load the desired function out of the desired
+module.
 
-diff --git a/misc-utils/whereis.1 b/misc-utils/whereis.1
-index 988462f..f7f7d29 100644
---- a/misc-utils/whereis.1
-+++ b/misc-utils/whereis.1
-@@ -117,9 +117,9 @@ environment variable (since version 2.21).
- .TP 20
- /{bin,sbin,etc}
- .TP
--/usr/{lib,bin,old,new,local,games,include,etc,src,man,sbin,X386,TeX,g++-include}
-+/usr/{lib,\:bin,\:old,\:new,\:local,\:games,\:include,\:etc,\:src,\:man,\:sbin,\:X386,\:TeX,\:g++-include}
- .TP
--/usr/local/{X386,TeX,X11,include,lib,man,etc,bin,games,emacs}
-+/usr/local/{X386,\:TeX,\:X11,\:include,\:lib,\:man,\:etc,\:bin,\:games,\:emacs}
- .SH "SEE ALSO"
- .BR chdir (2V)
- .SH BUGS
--- 
-1.7.12.2
+Should I implement this route and send patches for review, or would
+there be some other preferred route to getting the feature into
+login-utils?
 
+Thanks,
+Cody
