@@ -1,45 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:41556 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754342Ab2JNUVd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:33 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so3908218wgb.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:33 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:32769 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752159Ab2JEQh6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 5 Oct 2012 12:37:58 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q95GbwFe018081
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 5 Oct 2012 12:37:58 -0400
+From: Milan Broz <mbroz@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 12/19] agetty: replace usleep with nanosleep
-Date: Sun, 14 Oct 2012 21:21:03 +0100
-Message-Id: <1350246070-10544-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Cc: Milan Broz <mbroz@redhat.com>
+Subject: [PATCH 2/3] tests: ignore test if kernel doesn't support minix fs
+Date: Fri,  5 Oct 2012 18:37:39 +0200
+Message-Id: <1349455060-807-2-git-send-email-mbroz@redhat.com>
+In-Reply-To: <1349455060-807-1-git-send-email-mbroz@redhat.com>
+References: <1349455060-807-1-git-send-email-mbroz@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-POSIX.1-2001 declares usleep is obsolete.
+Minix mount test returs failure if kernel have no minix support,
+ minix: mkfs ... FAILED (minix/mkfs)
+ignore test result instead in this case.
 
-Reference: http://pubs.opengroup.org/onlinepubs/009695399/functions/usleep.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Milan Broz <mbroz@redhat.com>
 ---
- term-utils/agetty.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tests/ts/minix/mkfs |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 754a43f..244ea29 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -1383,7 +1383,10 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+diff --git a/tests/ts/minix/mkfs b/tests/ts/minix/mkfs
+index 93de4e6..39185ad 100755
+--- a/tests/ts/minix/mkfs
++++ b/tests/ts/minix/mkfs
+@@ -35,7 +35,8 @@ ts_log "create mountpoint dir"
+ [ -d "$TS_MOUNTPOINT" ] || mkdir -p $TS_MOUNTPOINT
  
- 				/* Do not report trivial like EINTR/EIO errors. */
- 				if (errno == EINTR || errno == EAGAIN) {
--					usleep(1000);
-+					struct timespec waittime;
-+					waittime.tv_sec = 0;
-+					waittime.tv_nsec = 1000000;
-+					nanosleep(&waittime, NULL);
- 					continue;
- 				}
- 				switch (errno) {
+ ts_log "mount the filesystem"
+-$TS_CMD_MOUNT $DEVICE $TS_MOUNTPOINT 2>&1 >> $TS_OUTPUT
++($TS_CMD_MOUNT $DEVICE $TS_MOUNTPOINT 2>&1 >> $TS_OUTPUT || true) \
++        | grep -q "unknown filesystem type" && ts_skip "mkfs: minix fs not supported by kernel"
+ 
+ # check it
+ ts_is_mounted $DEVICE || ts_die "Cannot find $DEVICE in /proc/mounts" $DEVICE
 -- 
-1.7.12.2
+1.7.10.4
 
