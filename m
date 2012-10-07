@@ -1,121 +1,170 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout0.freenet.de ([195.4.92.90]:55014 "EHLO mout0.freenet.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754629Ab2JPQa0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Oct 2012 12:30:26 -0400
-Message-ID: <507D8B15.5050004@01019freenet.de>
-Date: Tue, 16 Oct 2012 18:28:05 +0200
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-MIME-Version: 1.0
-To: =?windows-1252?Q?Luk=E1=9A_Czerner?= <lczerner@redhat.com>
-CC: Andreas Hartmann <andihartmann@01019freenet.de>,
-        util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Subject: Re: Questions concerning fstrim and online discard.
-References: <20121004064736.64caef77@dualc.maya.org> <alpine.LFD.2.00.1210151649540.15261@dhcp-1-104.brq.redhat.com>
-In-Reply-To: <alpine.LFD.2.00.1210151649540.15261@dhcp-1-104.brq.redhat.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mailbigip.dreamhost.com ([208.97.132.5]:58001 "EHLO
+	homiemail-a38.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753129Ab2JGOds (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Oct 2012 10:33:48 -0400
+Message-ID: <1349620425.2548.7.camel@offbook>
+Subject: [PATCH 2/5] fdisk: api: improve some comments
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Date: Sun, 07 Oct 2012 16:33:45 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Lukas!
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/utils.c |   48 ++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 14 deletions(-)
 
-I'm really happy about your detailed comments! Thanks a lot!
+diff --git a/fdisks/utils.c b/fdisks/utils.c
+index 0b65186..e20c42f 100644
+--- a/fdisks/utils.c
++++ b/fdisks/utils.c
+@@ -50,7 +50,7 @@ static const struct fdisk_label *labels[] =
+ };
+ 
+ /**
+- * fdisk_write_disklabel
++ * fdisk_write_disklabel:
+  * @cxt: fdisk context
+  *
+  * Write in-memory changes to disk
+@@ -71,7 +71,7 @@ int fdisk_write_disklabel(struct fdisk_context *cxt)
+  * fdisk_verify_disklabel:
+  * @cxt: fdisk context
+  *
+- * Verifies the partition tabe.
++ * Verifies the partition table.
+  *
+  * Returns 0.
+  */
+@@ -452,14 +452,14 @@ void fdisk_init_debug(int mask)
+ 
+ /**
+  * fdisk_new_context:
+- * @filename: path to the device to be handled
++ * @fname: path to the device to be handled
+  * @readonly: how to open the device
+  *
+  * If the @readonly flag is set to false, fdisk will attempt to open
+  * the device with read-write mode and will fallback to read-only if
+  * unsuccessful.
+  *
+- * Returns: newly allocated fdisk context
++ * Returns: newly allocated fdisk context or NULL upon failure.
+  */
+ struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int readonly)
+ {
+@@ -526,8 +526,9 @@ void fdisk_free_context(struct fdisk_context *cxt)
+ 	free(cxt);
+ }
+ 
+-/*
++/**
+  * fdisk_get_nparttypes:
++ * @cxt: fdisk context
+  *
+  * Returns: number of partition types supported by the current label
+  */
+@@ -539,8 +540,14 @@ size_t fdisk_get_nparttypes(struct fdisk_context *cxt)
+ 	return cxt->label->nparttypes;
+ }
+ 
+-/*
++/**
++ * fdisk_get_parttype_from_code:
++ * @cxt: fdisk context
++ * @code: code to search for
++ * 
+  * Search in lable-specific table of supported partition types by code.
++ *
++ * Returns partition type or NULL upon failure or invalid @code.
+  */
+ struct fdisk_parttype *fdisk_get_parttype_from_code(
+ 				struct fdisk_context *cxt,
+@@ -558,8 +565,14 @@ struct fdisk_parttype *fdisk_get_parttype_from_code(
+ 	return NULL;
+ }
+ 
+-/*
++/**
++ * fdisk_get_parttype_from_string:
++ * @cxt: fdisk context
++ * @str: string to search for
++ *
+  * Search in lable-specific table of supported partition types by typestr.
++ *
++ * Returns partition type or NULL upon failure or invalid @str.
+  */
+ struct fdisk_parttype *fdisk_get_parttype_from_string(
+ 				struct fdisk_context *cxt,
+@@ -578,9 +591,15 @@ struct fdisk_parttype *fdisk_get_parttype_from_string(
+ 	return NULL;
+ }
+ 
+-/*
++/**
++ * fdisk_new_unknown_parttype:
++ * @type: type as number
++ * @typestr: type as string
++
+  * Allocates new 'unknown' partition type. Use fdisk_free_parttype() to
+  * deallocate.
++ *
++ * Returns newly allocated partition type, or NULL upon failure.
+  */
+ struct fdisk_parttype *fdisk_new_unknown_parttype(unsigned int type,
+ 						  const char *typestr)
+@@ -606,10 +625,10 @@ struct fdisk_parttype *fdisk_new_unknown_parttype(unsigned int type,
+ 	return t;
+ }
+ 
+-/*
+- * fdisk_parse_parttype
++/**
++ * fdisk_parse_parttype:
+  * @cxt: fdisk context
+- * @str: string
++ * @str: string to parse from
+  *
+  * Returns pointer to static table of the partition types, or newly allocated
+  * partition type for unknown types. It's safe to call fdisk_free_parttype()
+@@ -666,8 +685,9 @@ done:
+ 	return ret;
+ }
+ 
+-/*
++/**
+  * fdisk_free_parttype:
++ * @t: new type
+  *
+  * Free the @type.
+  */
+@@ -685,7 +705,7 @@ void fdisk_free_parttype(struct fdisk_parttype *t)
+  * @cxt: fdisk context
+  * @partnum: partition number
+  *
+- * Returns partition type
++ * Returns partition type or NULL upon failure.
+  */
+ struct fdisk_parttype *fdisk_get_partition_type(struct fdisk_context *cxt, int partnum)
+ {
+@@ -702,7 +722,7 @@ struct fdisk_parttype *fdisk_get_partition_type(struct fdisk_context *cxt, int p
+  * @partnum: partition number
+  * @t: new type
+  *
+- * Returns partition type
++ * Returns 0 on success, < 0 on error.
+  */
+ int fdisk_set_partition_type(struct fdisk_context *cxt, int partnum,
+ 			     struct fdisk_parttype *t)
+-- 
+1.7.9.5
 
-On Tue, 16 Oct 2012, Andreas Hartmann wrote: Lukáš Czerner wrote:
-> On Thu, 4 Oct 2012, Andreas Hartmann wrote:
-> 
->> Date: Thu, 4 Oct 2012 06:47:36 +0200
->> From: Andreas Hartmann <andihartmann@01019freenet.de>
->> To: util-linux@vger.kernel.org
->> Subject: Questions concerning fstrim and online discard.
->> Resent-Date: Mon, 15 Oct 2012 16:10:43 +0200
->> Resent-From: Karel Zak <kzak@redhat.com>
->> Resent-To: Lukas Czerner <lczerner@redhat.com>
->>
->> Hello!
->>
->> Please, may I ask you some questions because I'm a little bit confused
->> about the behaviour of fstrim and online discard (ext4)?
->>
->>
->> I'm using the following configuration / partitioning with a SSD
->> (Controller: SF-2281; Corsair Force GT 240GB):
->>
->> - dm_crypt: cryptsetup luksOpen - version 1.4.1, device-mapper
->>   version 1.02.75
-> 
-> Hi Andreas,
-> 
-> I hope that you realize that using discard with dm_crypt is not
-> safe.
-
-I know about this problem. My understanding is: trim usually writes 0 to
-the free addresses, hence it is possible to see which addresses are used
-and which are unused.
-
-The SF-2281 controller seems not to write zero to the addresses, hence
-the problem shouldn't be with this controller? Or did I got something wrong?
-
-cat /sys/block/sda/queue/discard_zeroes_data
-0
-
-> 
->> - lvm version 2.02.96
->> - ext4, option discard; kernel version 3.4.11
->>
->> All seems to work fine, I can't see any errors in messages or in dmesg
->> according trim / discard.
-> 
-> The question is what kernel version do you use ?
-
-3.4.11 :-)
-
-> Currnently we will
-> ignore all errors coming from the online discard including the
-> situation where the device does not support discard.
-> 
-> This is not exactly ideal, because we should really inform user that
-> there was an error.
-
-Yes, this would be really important!
-
-> However we should _NOT_ inform user about every
-> discard request failed with EOPNOTSUPP because we can have
-> multi-disk devices where some of the devices support discard and
-> some of the does not, this is perfectly valid situation and kernel
-> should not scream.
-
-Once at the moment the device is mounted would be enough.
-
-> Nevertheless I am going to change things so that we inform use about
-> problem (other than EOPNOTSUPP). And maybe warn once a day that
-> part, or whole device does not support discard at all - I think that
-> this should not hurt.
-> 
->>
->> Now, I tested fstrim from util-linux version 2.19, and surprisingly got
->> this unexpected error:
->>
->> fstrim: /: FITRIM ioctl failed: Operation not supported
-> 
-> Actually kernel version is what matters.
-> 
->>
->> Why do I get this error? Online discard always seemed to work fine (= I
->> didn't get any error).
-> 
-> Those errors probably got silently dropped so you did not know about
-> them.
-
-But if fstrim works, online discard will work, too? Or is this
-conclusion wrong (ext4)?
-
-[....]
-
-> I hope it helps.
-
-Yes, it really helped a lot!
 
 
-Kind regards,
-Andreas Hartmann
+
