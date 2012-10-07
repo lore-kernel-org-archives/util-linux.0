@@ -1,27 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24752 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755244Ab2JRKSS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Oct 2012 06:18:18 -0400
-Date: Thu, 18 Oct 2012 12:18:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
+Received: from caiajhbdcbbj.dreamhost.com ([208.97.132.119]:35799 "EHLO
+	homiemail-a38.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753129Ab2JGOeL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Oct 2012 10:34:11 -0400
+Message-ID: <1349620448.2548.10.camel@offbook>
+Subject: [PATCH 5/5] fdisk: gpt: use swap_efi_guid for new partitions
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 4/5] fdisk: fix segfault when printing gpt raw data
-Message-ID: <20121018101815.GA16021@x2.net.home>
-References: <1349620441.2548.9.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1349620441.2548.9.camel@offbook>
+Date: Sun, 07 Oct 2012 16:34:08 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 07, 2012 at 04:34:01PM +0200, Davidlohr Bueso wrote:
->  fdisks/fdisk.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/gpt.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
- Applied, thanks.
-
+diff --git a/fdisks/gpt.c b/fdisks/gpt.c
+index 467b944..5b792a6 100644
+--- a/fdisks/gpt.c
++++ b/fdisks/gpt.c
+@@ -1430,17 +1430,7 @@ static int gpt_create_new_partition(int partnum, uint64_t fsect, uint64_t lsect,
+ 	 * to have a unique GUID.
+ 	 */
+ 	uuid_generate_random((unsigned char *) &e->unique_partition_guid);
+-
+-	/*
+-	 * UUID is traditionally 16 byte big-endian array, except Intel EFI
+-	 * specs where the UUID is a structure of little-endian fields, convert.
+-	 */
+-	e->unique_partition_guid.time_low =
+-		cpu_to_le32(e->unique_partition_guid.time_low);
+-	e->unique_partition_guid.time_mid =
+-		cpu_to_le16(e->unique_partition_guid.time_mid);
+-	e->unique_partition_guid.time_hi_and_version =
+-		cpu_to_le16(e->unique_partition_guid.time_hi_and_version);
++	swap_efi_guid(&e->unique_partition_guid);
+ 
+ 	memcpy(&entries[partnum] , e, sizeof(*e));
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9.5
+
+
+
+
