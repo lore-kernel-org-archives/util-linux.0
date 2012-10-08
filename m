@@ -1,224 +1,210 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g6t0184.atlanta.hp.com ([15.193.32.61]:2179 "EHLO
-	g6t0184.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756781Ab2JWT5m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 23 Oct 2012 15:57:42 -0400
-From: Toshi Kani <toshi.kani@hp.com>
-To: util-linux@vger.kernel.org, kzak@redhat.com
-Cc: heiko.carstens@de.ibm.com, kerolasa@iki.fi, Toshi Kani <toshi.kani@hp.com>
-Subject: [PATCH] lscpu: Fix issue found on CPU hot-remove
-Date: Tue, 23 Oct 2012 13:49:46 -0600
-Message-Id: <1351021786-3362-1-git-send-email-toshi.kani@hp.com>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:56879 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753716Ab2JHHI6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:08:58 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr7so3225349wib.1
+        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:08:58 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 08/14] pg: use unistd.h STDOUT_FILENO
+Date: Mon,  8 Oct 2012 08:08:14 +0100
+Message-Id: <1349680100-18120-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-read_basicinfo() relies on sysfs cpu directories
-"/sys/devices/system/cpu/cpu%d" with assumption that cpu
-logical number %d is always sequentially assigned for all
-CPUs. However, this assumption is not correct with CPU
-hot-remove operation since it removes a target sysfs cpu
-directory after it is ejected. As a result, lscpu may not
-recognize all CPUs.
-
-The issue can be easily reproduced on KVM or VirtualBox,
-which supports CPU eject operation, as follows.
-
-1) The system has 4 CPUs
-  $ lscpu -a -e
-  CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
-  0   0    0      0    0:0:0      yes
-  1   0    1      1    1:1:1      yes
-  2   0    2      2    2:2:2      yes
-  3   0    3      3    3:3:3      yes
-
-2) Eject cpu2
-  # echo 1 > /sys/bus/acpi/devices/LNXCPU:02/eject
-
-3) lscpu no longer recognizes cpu3 after cpu2 is ejected
-  $ lscpu -a -e
-  CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
-  0   0    0      0    0:0:0      yes
-  1   0    1      1    1:1:1      yes
-
-The following changes are made to address this issue.
- - Use maxcpus to allocate and parse bitmaps.
- - Set desc->ncpu from cpu/present, which includes both on-line
-   and off-line CPUs.
- - Add is_cpu_present() to check if a CPU is present. Ejected
-   CPUs are not present.
-
-Signed-off-by: Toshi Kani <toshi.kani@hp.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/lscpu.c | 53 ++++++++++++++++++++++++++++++++---------------------
- 1 file changed, 32 insertions(+), 21 deletions(-)
+ text-utils/pg.c | 52 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 25a0273..946eb41 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -150,7 +150,8 @@ struct lscpu_desc {
- 	int	dispatching;	/* none, horizontal or vertical */
- 	int	mode;		/* rm, lm or/and tm */
- 
--	int		ncpus;		/* number of CPUs */
-+	int		ncpus;		/* number of present CPUs */
-+	cpu_set_t	*present;	/* mask with present CPUs */
- 	cpu_set_t	*online;	/* mask with online CPUs */
- 
- 	int		nnodes;		/* number of NUMA modes */
-@@ -204,8 +205,11 @@ struct lscpu_modifier {
- static int maxcpus;		/* size in bits of kernel cpu mask */
- 
- #define is_cpu_online(_d, _cpu) \
--		((_d) && (_d)->online ? \
--			CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->online) : 0)
-+	((_d) && (_d)->online ? \
-+		CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->online) : 0)
-+#define is_cpu_present(_d, _cpu) \
-+	((_d) && (_d)->present ? \
-+		CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->present) : 0)
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 4b3b668..dedcfb9 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -288,7 +288,7 @@ static int
+ outcap(int i)
+ {
+ 	char c = i;
+-	return write_all(1, &c, 1) == 0 ? 1 : -1;
++	return write_all(STDOUT_FILENO, &c, 1) == 0 ? 1 : -1;
+ }
  
  /*
-  * IDs
-@@ -340,10 +344,6 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 		err(EXIT_FAILURE, _("error: uname failed"));
- 	desc->arch = xstrdup(utsbuf.machine);
- 
--	/* count CPU(s) */
--	while(path_exist(_PATH_SYS_SYSTEM "/cpu/cpu%d", desc->ncpus))
--		desc->ncpus++;
--
- 	/* details */
- 	while (fgets(buf, sizeof(buf), fp) != NULL) {
- 		if (lookup(buf, "vendor", &desc->vendor)) ;
-@@ -391,7 +391,14 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 	if (maxcpus <= 0)
- 		/* error or we are reading some /sys snapshot instead of the
- 		 * real /sys, let's use any crazy number... */
--		maxcpus = desc->ncpus > 2048 ? desc->ncpus : 2048;
-+		maxcpus = 2048;
-+
-+	/* get mask for present CPUs */
-+	if (path_exist(_PATH_SYS_SYSTEM "/cpu/present")) {
-+		size_t setsize = CPU_ALLOC_SIZE(maxcpus);
-+		desc->present = path_cpulist(maxcpus, _PATH_SYS_SYSTEM "/cpu/present");
-+		desc->ncpus = CPU_COUNT_S(setsize, desc->present);
-+	}
- 
- 	/* get mask for online CPUs */
- 	if (path_exist(_PATH_SYS_SYSTEM "/cpu/online")) {
-@@ -626,16 +633,16 @@ read_topology(struct lscpu_desc *desc, int num)
- 		 */
- 		if (!desc->nthreads)
- 			desc->nthreads = nbooks * nsockets * ncores * nthreads;
--		/* For each map we make sure that it can have up to ncpus
-+		/* For each map we make sure that it can have up to maxcpus
- 		 * entries. This is because we cannot reliably calculate the
- 		 * number of cores, sockets and books on all architectures.
- 		 * E.g. completely virtualized architectures like s390 may
- 		 * have multiple sockets of different sizes.
- 		 */
--		desc->coremaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
--		desc->socketmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
-+		desc->coremaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
-+		desc->socketmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
- 		if (book_siblings)
--			desc->bookmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
-+			desc->bookmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
+@@ -301,7 +301,7 @@ mesg(const char *message)
+ 		return;
+ 	if (*message != '\n' && sflag)
+ 		vidputs(A_STANDOUT, outcap);
+-	write_all(1, message, strlen(message));
++	write_all(STDOUT_FILENO, message, strlen(message));
+ 	if (*message != '\n' && sflag)
+ 		vidputs(A_NORMAL, outcap);
+ }
+@@ -338,7 +338,7 @@ getwinsize(void)
+ 		initialized = 1;
  	}
- 
- 	add_cpuset_to_array(desc->socketmaps, &desc->nsockets, core_siblings);
-@@ -653,7 +660,7 @@ read_polarization(struct lscpu_desc *desc, int num)
- 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/polarization", num))
- 		return;
- 	if (!desc->polarization)
--		desc->polarization = xcalloc(desc->ncpus, sizeof(int));
-+		desc->polarization = xcalloc(maxcpus, sizeof(int));
- 	path_getstr(mode, sizeof(mode), _PATH_SYS_CPU "/cpu%d/polarization", num);
- 	if (strncmp(mode, "vertical:low", sizeof(mode)) == 0)
- 		desc->polarization[num] = POLAR_VLOW;
-@@ -673,7 +680,7 @@ read_address(struct lscpu_desc *desc, int num)
- 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/address", num))
- 		return;
- 	if (!desc->addresses)
--		desc->addresses = xcalloc(desc->ncpus, sizeof(int));
-+		desc->addresses = xcalloc(maxcpus, sizeof(int));
- 	desc->addresses[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/address", num);
+ #ifdef	TIOCGWINSZ
+-	badioctl = ioctl(1, TIOCGWINSZ, &winsz);
++	badioctl = ioctl(STDOUT_FILENO, TIOCGWINSZ, &winsz);
+ #endif
+ 	if (envcols)
+ 		ttycols = envcols - 1;
+@@ -380,7 +380,7 @@ sighandler(int signum)
+ {
+ 	if (canjump && (signum == SIGINT || signum == SIGQUIT))
+ 		longjmp(jmpenv, signum);
+-	tcsetattr(1, TCSADRAIN, &otio);
++	tcsetattr(STDOUT_FILENO, TCSADRAIN, &otio);
+ 	quit(exitstatus);
  }
  
-@@ -683,7 +690,7 @@ read_configured(struct lscpu_desc *desc, int num)
- 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/configure", num))
- 		return;
- 	if (!desc->configured)
--		desc->configured = xcalloc(desc->ncpus, sizeof(int));
-+		desc->configured = xcalloc(maxcpus, sizeof(int));
- 	desc->configured[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/configure", num);
+@@ -553,7 +553,7 @@ cline(void)
+ 	memset(buf, ' ', ttycols + 2);
+ 	buf[0] = '\r';
+ 	buf[ttycols + 1] = '\r';
+-	write_all(1, buf, ttycols + 2);
++	write_all(STDOUT_FILENO, buf, ttycols + 2);
+ 	free(buf);
  }
  
-@@ -756,7 +763,7 @@ read_cache(struct lscpu_desc *desc, int num)
- 				  num, i);
- 
- 		if (!ca->sharedmaps)
--			ca->sharedmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
-+			ca->sharedmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
- 		add_cpuset_to_array(ca->sharedmaps, &ca->nsharedmaps, map);
+@@ -583,7 +583,7 @@ getstate(int c)
+ 	default:
+ #ifdef PG_BELL
+ 		if (bell)
+-			tputs(bell, 1, outcap);
++			tputs(bell, STDOUT_FILENO, outcap);
+ #endif  /*  PG_BELL  */
+ 		return INVALID;
  	}
- }
-@@ -982,13 +989,15 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
- 	/*
- 	 * Data
- 	 */
--	for (i = 0; i < desc->ncpus; i++) {
-+	for (i = 0; i < maxcpus; i++) {
- 		int c;
- 
- 		if (!mod->offline && desc->online && !is_cpu_online(desc, i))
- 			continue;
- 		if (!mod->online && desc->online && is_cpu_online(desc, i))
- 			continue;
-+		if (desc->present && !is_cpu_present(desc, i))
-+			continue;
- 		for (c = 0; c < ncols; c++) {
- 			if (mod->compat && cols[c] == COL_CACHE) {
- 				if (!desc->ncaches)
-@@ -1026,7 +1035,7 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
- 		tt_define_column(tt, xstrdup(data), 0, 0);
+@@ -649,21 +649,21 @@ prompt(long long pageno)
  	}
- 
--	for (i = 0; i < desc->ncpus; i++) {
-+	for (i = 0; i < maxcpus; i++) {
- 		int c;
- 		struct tt_line *line;
- 
-@@ -1034,6 +1043,8 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
- 			continue;
- 		if (!mod->online && desc->online && is_cpu_online(desc, i))
- 			continue;
-+		if (desc->present && !is_cpu_present(desc, i))
-+			continue;
- 
- 		line = tt_add_line(tt, NULL);
- 
-@@ -1117,8 +1128,8 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 		if (!set)
- 			err(EXIT_FAILURE, _("failed to callocate cpu set"));
- 		CPU_ZERO_S(setsize, set);
--		for (i = 0; i < desc->ncpus; i++) {
--			if (!is_cpu_online(desc, i))
-+		for (i = 0; i < maxcpus; i++) {
-+			if (!is_cpu_online(desc, i) && is_cpu_present(desc, i))
- 				CPU_SET_S(i, setsize, set);
+ 	cmd.key = cmd.addon = cmd.cmdline[0] = '\0';
+ 	cmd.cmdlen = 0;
+-	tcgetattr(1, &tio);
++	tcgetattr(STDOUT_FILENO, &tio);
+ 	tio.c_lflag &= ~(ICANON | ECHO);
+ 	tio.c_cc[VMIN] = 1;
+ 	tio.c_cc[VTIME] = 0;
+-	tcsetattr(1, TCSADRAIN, &tio);
+-	tcflush(1, TCIFLUSH);
++	tcsetattr(STDOUT_FILENO, TCSADRAIN, &tio);
++	tcflush(STDOUT_FILENO, TCIFLUSH);
+ 	for (;;) {
+-		switch (read(1, &key, 1)) {
++		switch (read(STDOUT_FILENO, &key, 1)) {
+ 		case 0: quit(0);
+ 			/*NOTREACHED*/
+ 		case -1: quit(1);
  		}
- 		print_cpuset(mod->hex ? _("Off-line CPU(s) mask:") :
-@@ -1339,7 +1350,7 @@ int main(int argc, char *argv[])
+ 		if (key == tio.c_cc[VERASE]) {
+ 			if (cmd.cmdlen) {
+-				write_all(1, "\b \b", 3);
++				write_all(STDOUT_FILENO, "\b \b", 3);
+ 				cmd.cmdline[--cmd.cmdlen] = '\0';
+ 				switch (state) {
+ 				case ADDON_FIN:
+@@ -766,14 +766,14 @@ prompt(long long pageno)
+ 				cmd.key = key;
+ 			}
+ 		}
+-		write_all(1, &key, 1);
++		write_all(STDOUT_FILENO, &key, 1);
+ 		cmd.cmdline[cmd.cmdlen++] = key;
+ 		cmd.cmdline[cmd.cmdlen] = '\0';
+ 		if (nflag && state == CMD_FIN)
+ 			goto endprompt;
+ 	}
+ endprompt:
+-	tcsetattr(1, TCSADRAIN, &otio);
++	tcsetattr(STDOUT_FILENO, TCSADRAIN, &otio);
+ 	cline();
+ 	cmd.count = getcount(cmd.cmdline);
+ }
+@@ -1007,7 +1007,7 @@ pgfile(FILE *f, const char *name)
+ 		 * Just copy stdin to stdout.
+ 		 */
+ 		while ((sz = fread(b, sizeof *b, READBUF, f)) != 0)
+-			write_all(1, b, sz);
++			write_all(STDOUT_FILENO, b, sz);
+ 		if (ferror(f)) {
+ 			warn("%s", name);
+ 			exitstatus++;
+@@ -1147,7 +1147,7 @@ pgfile(FILE *f, const char *name)
+ 			if (cflag && clear_screen) {
+ 				switch (dline) {
+ 				case 0:
+-					tputs(clear_screen, 1, outcap);
++					tputs(clear_screen, STDOUT_FILENO, outcap);
+ 					dline = 0;
+ 				}
+ 			}
+@@ -1167,7 +1167,7 @@ pgfile(FILE *f, const char *name)
+ 				sz = p - b;
+ 				makeprint(b, sz);
+ 				canjump = 1;
+-				write_all(1, b, sz);
++				write_all(STDOUT_FILENO, b, sz);
+ 				canjump = 0;
+ 			}
+ 		}
+@@ -1457,9 +1457,9 @@ found_bw:
+ 				} else {
+ 					pid_t cpid;
  
- 	read_basicinfo(desc, mod);
+-					write_all(1, cmd.cmdline,
++					write_all(STDOUT_FILENO, cmd.cmdline,
+ 					      strlen(cmd.cmdline));
+-					write_all(1, "\n", 1);
++					write_all(STDOUT_FILENO, "\n", 1);
+ 					my_sigset(SIGINT, SIG_IGN);
+ 					my_sigset(SIGQUIT, SIG_IGN);
+ 					switch (cpid = fork()) {
+@@ -1501,8 +1501,8 @@ found_bw:
+ 				 * Help!
+ 				 */
+ 				const char *help = _(helpscreen);
+-				write_all(1, copyright, strlen(copyright));
+-				write_all(1, help, strlen(help));
++				write_all(STDOUT_FILENO, copyright, strlen(copyright));
++				write_all(STDOUT_FILENO, help, strlen(help));
+ 				goto newcmd;
+ 			}
+ 			case 'n':
+@@ -1636,9 +1636,9 @@ parse_arguments(int arg, int argc, char **argv)
+ 			/*
+ 			 * Use the prefix as specified by SUSv2.
+ 			 */
+-			write_all(1, "::::::::::::::\n", 15);
+-			write_all(1, argv[arg], strlen(argv[arg]));
+-			write_all(1, "\n::::::::::::::\n", 16);
++			write_all(STDOUT_FILENO, "::::::::::::::\n", 15);
++			write_all(STDOUT_FILENO, argv[arg], strlen(argv[arg]));
++			write_all(STDOUT_FILENO, "\n::::::::::::::\n", 16);
+ 		}
+ 		pgfile(input, argv[arg]);
+ 		if (input != stdin)
+@@ -1662,15 +1662,15 @@ main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
  
--	for (i = 0; i < desc->ncpus; i++) {
-+	for (i = 0; i < maxcpus; i++) {
- 		read_topology(desc, i);
- 		read_cache(desc, i);
- 		read_polarization(desc, i);
+-	if (tcgetattr(1, &otio) == 0) {
++	if (tcgetattr(STDOUT_FILENO, &otio) == 0) {
+ 		ontty = 1;
+ 		oldint = my_sigset(SIGINT, sighandler);
+ 		oldquit = my_sigset(SIGQUIT, sighandler);
+ 		oldterm = my_sigset(SIGTERM, sighandler);
+ 		setlocale(LC_CTYPE, "");
+ 		setlocale(LC_COLLATE, "");
+-		tty = ttyname(1);
+-		setupterm(NULL, 1, &tinfostat);
++		tty = ttyname(STDOUT_FILENO);
++		setupterm(NULL, STDOUT_FILENO, &tinfostat);
+ 		getwinsize();
+ 		helpscreen = _(helpscreen);
+ 	}
 -- 
-1.7.11.7
+1.7.12.2
 
