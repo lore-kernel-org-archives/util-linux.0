@@ -1,37 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47454 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750950Ab2JVUWs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Oct 2012 16:22:48 -0400
-Date: Mon, 22 Oct 2012 22:22:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: kerolasa@gmail.com, util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/19] write: stop using MAXHOSTNAMELEN
-Message-ID: <20121022202244.GE21724@x2.net.home>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
- <201210220201.02516.vapier@gentoo.org>
- <20121022080624.GA21724@x2.net.home>
- <201210221603.02244.vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201210221603.02244.vapier@gentoo.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:57030 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753549Ab2JHHIq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:08:46 -0400
+Received: by mail-we0-f174.google.com with SMTP id t9so2368146wey.19
+        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:08:44 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/14] various: clean ups and fixes
+Date: Mon,  8 Oct 2012 08:08:06 +0100
+Message-Id: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 22, 2012 at 04:03:01PM -0400, Mike Frysinger wrote:
-> if you were to do something like:
-> 	int foo = 10;
-> 	usleep(foo++);
-> 
-> this define macro would misbehave because it expands x twice.  not that the 
-> current code base does.
+Here comes half random bunch of patches, where most of them should make
+you yawn.
 
- Yes, I moved the fallback to c.h as inline function this morning.
+I guess the most noticable is ddate removal, which will outrage
+disordians.  Perhaps getting loads of 'signed-off-by' lines from
+distribution packagers & active contributors will make it clear that UL
+project is tired to keep such pointless garbage in source.
 
-    Karel
-
+[PATCH 01/14] ddate: remove from util-linux
+[PATCH 02/14] column: add --output-separator option
+[PATCH 03/14] docs: fix column.1 groff syntax error
+[PATCH 04/14] pg: refactor argument handing
+[PATCH 05/14] pg: use libc error printing facilities
+[PATCH 06/14] pg: add const qualifiers where suitable
+[PATCH 07/14] pg: add noreturn function attributes
+[PATCH 08/14] pg: use unistd.h STDOUT_FILENO
+[PATCH 09/14] pg: do not turn off warnigns artificially
+[PATCH 10/14] pg: fix coding style
+[PATCH 11/14] more: fix coding style
+[PATCH 12/14] more: align void in functions with prototypes, and
+[PATCH 13/14] more: remove few memory leaks
+[PATCH 14/14] swapon: remove loop declaration [smatch scan]
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
