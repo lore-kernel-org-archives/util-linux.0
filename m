@@ -1,55 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51487 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751391Ab2JJJdi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 10 Oct 2012 05:33:38 -0400
-Date: Wed, 10 Oct 2012 11:33:34 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Ondrej Oprala <ooprala@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] dmesg colorized output
-Message-ID: <20121010093334.GH28457@x2.net.home>
-References: <50752745.4020607@redhat.com>
- <20121010091926.GE28457@x2.net.home>
- <1349861169.2576.4.camel@offbook>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1349861169.2576.4.camel@offbook>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:40446 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753686Ab2JHHI4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:08:56 -0400
+Received: by mail-wi0-f170.google.com with SMTP id hm2so2855816wib.1
+        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:08:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/14] pg: add const qualifiers where suitable
+Date: Mon,  8 Oct 2012 08:08:12 +0100
+Message-Id: <1349680100-18120-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 10, 2012 at 11:26:09AM +0200, Davidlohr Bueso wrote:
-> On Wed, 2012-10-10 at 11:19 +0200, Karel Zak wrote:
-> > On Wed, Oct 10, 2012 at 09:44:05AM +0200, Ondrej Oprala wrote:
-> > > new file mode 100644
-> 
-> Hehe I actually started doing this last night.
-> 
-> I'm wondering if we actually need a new lib file for colors. I mean
-> AFAICT, dmesg is the only place we want to use it and I don't see that
+Includes a fix also to one assignment warning (see below).
 
-What about fdisk where we have many dialogs, warnings, hints? :-) It's
-not about colors only, but also about bold, etc.
+text-utils/pg.c:1477:24: warning: assignment discards 'const' qualifier \
+from pointer target type [enabled by default]
 
-The another possibility is namei(1) where we can provide output
-compatible with ls(1), or cal(1), etc.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/pg.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-> changing any time soon - Unix hackers don't like colors, we live oh so
-> boring lives :)
-
-All this should be optional. I guess than many people use aliases with
-colors
-
-$ alias | grep color
-alias egrep='egrep --color=tty'
-alias fgrep='fgrep --color=tty'
-alias grep='grep --color=tty'
-alias l.='ls -d .* --color=auto'
-alias ll='ls -l --color=auto'
-alias ls='ls --color=auto'
-
-    Karel
-
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 9f95eac..0168ebc 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -134,7 +134,7 @@ int		fflag;			/* do not split lines */
+ int		nflag;			/* no newline for commands required */
+ int		rflag;			/* "restricted" pg */
+ int		sflag;			/* use standout mode */
+-char		*pstring = ":";		/* prompt string */
++const char	*pstring = ":";		/* prompt string */
+ char		*searchfor;		/* search pattern from argv[] */
+ int		havepagelen;		/* page length is manually defined */
+ long		startline;		/* start line from argv[] */
+@@ -241,14 +241,14 @@ static void usage(FILE * out)
+ }
+ 
+ static void
+-needarg(char *s)
++needarg(const char *s)
+ {
+ 	warnx(_("option requires an argument -- %s"), s);
+ 	usage(stderr);
+ }
+ 
+ static void
+-invopt(char *s)
++invopt(const char *s)
+ {
+ 	warnx(_("illegal option -- %s"), s);
+ 	usage(stderr);
+@@ -295,7 +295,7 @@ outcap(int i)
+  * Write messages to terminal.
+  */
+ static void
+-mesg(char *message)
++mesg(const char *message)
+ {
+ 	if (ontty == 0)
+ 		return;
+@@ -927,7 +927,7 @@ makepat(void)
+  * Process errors that occurred in temporary file operations.
+  */
+ static void
+-tmperr(FILE *f, char *ftype)
++tmperr(FILE *f, const char *ftype)
+ {
+ 	if (ferror(f))
+ 		warn(_("Read error from %s file"), ftype);
+@@ -946,7 +946,7 @@ tmperr(FILE *f, char *ftype)
+  * Beware: long and ugly.
+  */
+ static void
+-pgfile(FILE *f, char *name)
++pgfile(FILE *f, const char *name)
+ {
+ 	off_t pos, oldpos, fpos;
+ 	off_t line = 0, fline = 0, bline = 0, oldline = 0, eofline = 0;
+@@ -1465,7 +1465,7 @@ found_bw:
+ 					switch (cpid = fork()) {
+ 					case 0:
+ 						p = getenv("SHELL");
+-						if (p == NULL) p = "/bin/sh";
++						if (p == NULL) p = xstrdup("/bin/sh");
+ 						if (!nobuf)
+ 							fclose(fbuf);
+ 						fclose(find);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.12.2
+
