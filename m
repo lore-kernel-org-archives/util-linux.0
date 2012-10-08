@@ -1,73 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:37484 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752607Ab2JOCAO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Oct 2012 22:00:14 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH 03/13] ipcs: determine ipc limits from /proc
-Date: Sun, 14 Oct 2012 22:00:19 -0400
-Cc: util-linux@vger.kernel.org
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi> <1350246145-10600-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246145-10600-4-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3892482.7moEQ6DxgG";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201210142200.20690.vapier@gentoo.org>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:56748 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753549Ab2JHHJI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:09:08 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so3493411wgb.1
+        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:09:07 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 13/14] more: remove few memory leaks
+Date: Mon,  8 Oct 2012 08:08:19 +0100
+Message-Id: <1349680100-18120-14-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart3892482.7moEQ6DxgG
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+The remaining memory leaks are related to ncurses internals, or the one
+open file descriptor when user users 'q' to exit.
 
-On Sunday 14 October 2012 16:22:15 Sami Kerola wrote:
-> +		fscanf(f, "%d", &(lim->msgmni));
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/more.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-no need for the paren around lim->msgmni.  same thing applies many times in=
-=20
-this patch.
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 2ecb218..163f016 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -432,6 +432,7 @@ int main(int argc, char **argv)
+ 				}
+ 			}
+ 			if (srchopt) {
++				free(previousre);
+ 				previousre = xstrdup(initbuf);
+ 				search(initbuf, stdin, 1);
+ 				if (noscroll)
+@@ -454,6 +455,7 @@ int main(int argc, char **argv)
+ 			if (firstf) {
+ 				firstf = 0;
+ 				if (srchopt) {
++					free(previousre);
+ 					previousre = xstrdup(initbuf);
+ 					search(initbuf, f, 1);
+ 					if (noscroll)
+@@ -509,6 +511,7 @@ int main(int argc, char **argv)
+ 	}
+ 	free(previousre);
+ 	free(initbuf);
++	free(Line);
+ 	reset_tty();
+ 	exit(EXIT_SUCCESS);
+ }
+@@ -766,6 +769,8 @@ void __attribute__((__noreturn__)) end_it(int dummy __attribute__((__unused__)))
+ 		fflush(stdout);
+ 	} else
+ 		putcerr('\n');
++	free(previousre);
++	free(Line);
+ 	_exit(EXIT_SUCCESS);
+ }
+ 
+@@ -1624,6 +1629,7 @@ void search(char buf[], FILE *file, register int n)
+ 			}
+ 		}
+ 	}
++	regfree(&re);
+ 	if (feof(file)) {
+ 		if (!no_intty) {
+ 			Currline = saveln;
+@@ -1632,9 +1638,9 @@ void search(char buf[], FILE *file, register int n)
+ 			putsout(_("\nPattern not found\n"));
+ 			end_it(0);
+ 		}
+-		more_error(_("Pattern not found"));
+ 		free(previousre);
+ 		previousre = NULL;
++		more_error(_("Pattern not found"));
+ 	}
+ }
+ 
+-- 
+1.7.12.2
 
-> +	if ((msgctl(0, IPC_INFO, (struct msqid_ds *)(void *)&msginfo)) < 0)
-
-the paren around msgctl doesn't make sense.  seems like you do this multipl=
-e=20
-times in this patch and none of them make sense.
-
-> +	lim->msgmni =3D (int)msginfo.msgmni;
-> +	lim->msgmnb =3D (int)msginfo.msgmnb;
-
-these casts don't make sense.  they're both ints.
-
-> +	lim->msgmax =3D (size_t)msginfo.msgmax;
-
-msgmax is an int, so it seems like blindly casting to size_t isn't a good=20
-idea.
-=2Dmike
-
---nextPart3892482.7moEQ6DxgG
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJQe240AAoJEEFjO5/oN/WB8+AQAN6ZhZrf6prkbQ/T+tehQN4I
-f/D8f5oe/wNmKw1QuwDJxaLUzqwyxXVJllrPkkVAXzorNflbAVo0ZTmNzNvupgOV
-ukJm8Kz7m8lnHEeCi9VN0cemdc5FJ3KHWyZTHGvngSRVhDOmbVL5dZDKNnRYSO83
-qlXPyIFq0ZweHiu127Iv3MWxvKeGk27wQaaSXwmqZW03aykE37CmgQARS9b4uHI5
-s8VlxgCShP1eShEVLPOjfs1BK6Vflv0xwIplE5WlwuqcQUzrByfQhMYndpxdi+9R
-7LWRYG9ZqYdIUnjaufqQ6mnjt46wPXsZQjL8inmfZzmI6jqAEqtlQGg5AAcuOup0
-lXNytZLgs1gZZJZpw7VrgDiR0yE2KAV56xif9URDsAdf57gHCEpnf76693lJe+t/
-hHy+9QJx1N8jgtMp7ywyA0VFy66GEGUZmeleOTIPvmQtIsj95W9wuPM05w68YPuz
-7EE7sK3Fh2SzKgG5YhrFylGfVqYOq9JrZSNCHAC0g16m8ApAuRfNI+Dz+3I6u8Ad
-RjUJIlBvPocDumEciOcufvTw8mFgRdOr7wRo6/N6FADsH18obelG1t3n8SuQGDip
-/fKL6LKTcpWnFB2iatIY48Nt4LxRPh4sas0pg56YaQ+iRUfpDh+y3GSYRPr8LulN
-90Gh9ZCkHsP7lOl2RVhs
-=Nwp8
------END PGP SIGNATURE-----
-
---nextPart3892482.7moEQ6DxgG--
