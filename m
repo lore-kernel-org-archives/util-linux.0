@@ -1,74 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:43725 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754686Ab2JIXaD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Oct 2012 19:30:03 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1TLjFU-0008GK-2H
-	for util-linux@vger.kernel.org; Wed, 10 Oct 2012 01:30:04 +0200
-Received: from 95.64.105.131 ([95.64.105.131])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 10 Oct 2012 01:30:04 +0200
-Received: from terminatorul by 95.64.105.131 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 10 Oct 2012 01:30:04 +0200
-To: util-linux@vger.kernel.org
-From: Timothy Madden <terminatorul@gmail.com>
-Subject: `mount` command and POSIX Utility Syntax Guidelines
-Date: Wed, 10 Oct 2012 02:28:06 +0300
-Message-ID: <k52bu0$1up$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mx4-phx2.redhat.com ([209.132.183.25]:50078 "EHLO
+	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751200Ab2JHP6E (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 11:58:04 -0400
+Date: Mon, 8 Oct 2012 11:58:02 -0400 (EDT)
+From: Miloslav Trmac <mitr@redhat.com>
+To: Cody Maloney <cmaloney@theoreticalchaos.com>
+Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Message-ID: <1602327413.10922833.1349711882201.JavaMail.root@redhat.com>
+In-Reply-To: <CA+K3q6or0gEB_FUYaL4ktVZjWikAWQhb4tQNfQgcFfnLZ54guw@mail.gmail.com>
+Subject: Re: Adding support to chsh for non-local shell modification
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+----- Original Message -----
+> Looking at chsh, it definitely looks like it should be relatively easy
+> to utilize libuser within it and add a configure for disabling the
+> dependency. If it's okay with both maintainers, both lchsh and chsh
+> are licensed under the GPL so I'd like to just merge lchsh's code into
+> chsh (rather than try to write what should be pretty much exactly the
+> same thing from the API documentation).
 
-I have the little annoying problem that I can not mount a DAV folder 
-with the davfs2 filesystem, because I usually keep POSIXLY_CORRECT 
-environment variable set. The var allows me to keep an "aliases" file 
-(similar to ~/.basrc) and change it when needed if I put the file name 
-in the ENV variable.
+Yes, that sounds reasonable.  There don't seem to be command-line argument differences, perhaps we might end up with lchsh a symlink to chsh (as long as that can be done compatibly).
 
-The problem is with the invocation of the mount helper command. `mount` 
-will compose a command line like this:
-    /sbin/mount.davfs \
-           https://storage-file-eu.gmx.com/ \
-           ./gmx-file-storage \
-           -o rw,nosuid,nodev,noauto,user,_netdev,exec
-where the option arguments ("-o rw,...") follow the operands (device, 
-mount point) on the command line.
+> If you both approve I'll start working on writing the necessary
+> patches, first adding support to chsh, then, once those patches are in
+> a happy state, implementing chfn using the same method.
 
-However GNU getopts() (from glibc) follows POSIX Utility Syntax 
-Guidelines in this case and expects the option arguments before the 
-operands.
+Please keep me Cc:ed on the patches.
 
-Subsequently the mount command returns and error when mounting my DAV
-folders. I am currently using a wrapper executable around mount.davfs 
-that changes the order of arguments on the command line to make it work.
+Let me add just a few notes:
 
-I hope mount command composes such a command line for historical reasons 
-and that there are no hidden problems with the order of the options on 
-the command line for mount helpers.
-
-Is it please possible for mount command to be updated to change the 
-order of arguments on the command line, so that it follows the POSIX 
-guidelines ? At least when POSIXLY_CORRECT is set in the environment ?
-
-I have "mount from util-linux 2.21.2 (with libblkid support)" on 
-Slackware 13.37 32-bit updated with Slackware-current packages. Also 
-happens on up-to-date CentOS 6.3 64-bit with updates from centosplus 
-repository, that is "mount from util-linux-ng 2.17.2 (with libblkid and 
-selinux support)".
-
-
-See also the mount.davfs issue report at
-      http://savannah.nongnu.org/support/?108145
-or the issue reported on Slackware list at:
-      http://comments.gmane.org/gmane.linux.slackware/4084
-
-Thank you,
-Timothy Madden
-
+1) If (!lu_uses_elevated_privileges()), the program should drop all privileges and skip the PAM authentication.
+2) Until either the privileges are dropped or the PAM auth is performed, the program should be extremely paranoid about passing untrusted data to libuser.
+3) For even more paranoia, clear LIBUSER_CONF from the environment before doing anything with libuser.
+    Mirek
