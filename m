@@ -1,72 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62049 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51487 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752159Ab2JEQh7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 5 Oct 2012 12:37:59 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q95GbxuT019496
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Fri, 5 Oct 2012 12:37:59 -0400
-From: Milan Broz <mbroz@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Milan Broz <mbroz@redhat.com>
-Subject: [PATCH 3/3] tests: fix mount move test to work with shared mount
-Date: Fri,  5 Oct 2012 18:37:40 +0200
-Message-Id: <1349455060-807-3-git-send-email-mbroz@redhat.com>
-In-Reply-To: <1349455060-807-1-git-send-email-mbroz@redhat.com>
-References: <1349455060-807-1-git-send-email-mbroz@redhat.com>
+	id S1751391Ab2JJJdi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Oct 2012 05:33:38 -0400
+Date: Wed, 10 Oct 2012 11:33:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Ondrej Oprala <ooprala@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg colorized output
+Message-ID: <20121010093334.GH28457@x2.net.home>
+References: <50752745.4020607@redhat.com>
+ <20121010091926.GE28457@x2.net.home>
+ <1349861169.2576.4.camel@offbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1349861169.2576.4.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If parent mount for test directory is mounted with shared flag,
-move mount test fails because kernel rejects mount move operation.
+On Wed, Oct 10, 2012 at 11:26:09AM +0200, Davidlohr Bueso wrote:
+> On Wed, 2012-10-10 at 11:19 +0200, Karel Zak wrote:
+> > On Wed, Oct 10, 2012 at 09:44:05AM +0200, Ondrej Oprala wrote:
+> > > new file mode 100644
+> 
+> Hehe I actually started doing this last night.
+> 
+> I'm wondering if we actually need a new lib file for colors. I mean
+> AFAICT, dmesg is the only place we want to use it and I don't see that
 
-Use another directory level and explicitly make parent mount private.
+What about fdisk where we have many dialogs, warnings, hints? :-) It's
+not about colors only, but also about bold, etc.
 
-(All "modern" systems using system have mounts shared for some reason.)
+The another possibility is namei(1) where we can provide output
+compatible with ls(1), or cal(1), etc.
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
----
- tests/ts/mount/move |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+> changing any time soon - Unix hackers don't like colors, we live oh so
+> boring lives :)
 
-diff --git a/tests/ts/mount/move b/tests/ts/mount/move
-index 3862f46..ea37685 100755
---- a/tests/ts/mount/move
-+++ b/tests/ts/mount/move
-@@ -22,9 +22,19 @@ TS_DESC="move"
- ts_init "$*"
- ts_skip_nonroot
- 
--DIR_SRC="$TS_OUTDIR/mnt-move-src"
--DIR_A="$TS_OUTDIR/mnt-move-A"
--DIR_B="$TS_OUTDIR/mnt-move-B"
-+DIR_PRIVATE2="$TS_OUTDIR/mnt-move-private2"
-+DIR_PRIVATE="$TS_OUTDIR/mnt-move-private"
-+
-+DIR_SRC="$DIR_PRIVATE/mnt-move-src"
-+DIR_A="$DIR_PRIVATE/mnt-move-A"
-+DIR_B="$DIR_PRIVATE/mnt-move-B"
-+
-+# create bind mount and make it private to be sure
-+# (kernel cannot move mount with shared parent)
-+[ -d $DIR_PRIVATE2 ] || mkdir $DIR_PRIVATE2
-+[ -d $DIR_PRIVATE ] || mkdir $DIR_PRIVATE
-+$TS_CMD_MOUNT --bind $DIR_PRIVATE2 $DIR_PRIVATE
-+$TS_CMD_MOUNT --make-private $DIR_PRIVATE
- 
- [ -d $DIR_SRC ] || mkdir $DIR_SRC
- [ -d $DIR_A ] || mkdir $DIR_A
-@@ -48,6 +58,9 @@ $TS_CMD_FINDMNT --kernel --target "$DIR_B" &> /dev/null
- $TS_CMD_UMOUNT $DIR_B
- rmdir $DIR_SRC $DIR_A $DIR_B
- 
-+$TS_CMD_UMOUNT $DIR_PRIVATE
-+rmdir $DIR_PRIVATE $DIR_PRIVATE2
-+
- ts_log "Success"
- ts_finalize
- 
+All this should be optional. I guess than many people use aliases with
+colors
+
+$ alias | grep color
+alias egrep='egrep --color=tty'
+alias fgrep='fgrep --color=tty'
+alias grep='grep --color=tty'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+
+    Karel
+
 -- 
-1.7.10.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
