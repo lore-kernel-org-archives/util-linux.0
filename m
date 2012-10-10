@@ -1,38 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:56187 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752835Ab2JBUP1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Oct 2012 16:15:27 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so1465466wib.1
-        for <util-linux@vger.kernel.org>; Tue, 02 Oct 2012 13:15:25 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/3] swapon: check numeric user inputs
-Date: Tue,  2 Oct 2012 21:15:16 +0100
-Message-Id: <1349208918-11946-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:4948 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753109Ab2JJJ0e (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 10 Oct 2012 05:26:34 -0400
+Date: Wed, 10 Oct 2012 11:26:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH] sfdisk: fix aliasing warnings
+Message-ID: <20121010092631.GG28457@x2.net.home>
+References: <1349843394-22920-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1349843394-22920-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/swapon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On Wed, Oct 10, 2012 at 12:29:54AM -0400, Mike Frysinger wrote:
+>  fdisks/sfdisk.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index c9cabc1..3fe6592 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -730,7 +730,8 @@ int main(int argc, char *argv[])
- 			usage(stdout);
- 			break;
- 		case 'p':		/* priority */
--			priority = atoi(optarg);
-+			priority = strtos16_or_err(optarg,
-+					   _("failed to parse argument"));
- 			break;
- 		case 'L':
- 			add_label(optarg);
+ Applied, thanks.
+
 -- 
-1.7.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
