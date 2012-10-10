@@ -1,170 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailbigip.dreamhost.com ([208.97.132.5]:58001 "EHLO
-	homiemail-a38.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753129Ab2JGOds (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Oct 2012 10:33:48 -0400
-Message-ID: <1349620425.2548.7.camel@offbook>
-Subject: [PATCH 2/5] fdisk: api: improve some comments
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Sun, 07 Oct 2012 16:33:45 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from cantor2.suse.de ([195.135.220.15]:34780 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751432Ab2JJMJy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Oct 2012 08:09:54 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id A8A79A3D8B
+	for <util-linux@vger.kernel.org>; Wed, 10 Oct 2012 14:09:53 +0200 (CEST)
+Date: Wed, 10 Oct 2012 14:09:10 +0200
+From: Petr Uzel <petr.uzel@suse.cz>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg colorized output
+Message-ID: <20121010120910.GC11072@foxbat.suse.cz>
+References: <50752745.4020607@redhat.com>
+ <20121010091926.GE28457@x2.net.home>
+ <1349861169.2576.4.camel@offbook>
+ <20121010093334.GH28457@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qtZFehHsKgwS5rPz"
+In-Reply-To: <20121010093334.GH28457@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisks/utils.c |   48 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 34 insertions(+), 14 deletions(-)
 
-diff --git a/fdisks/utils.c b/fdisks/utils.c
-index 0b65186..e20c42f 100644
---- a/fdisks/utils.c
-+++ b/fdisks/utils.c
-@@ -50,7 +50,7 @@ static const struct fdisk_label *labels[] =
- };
- 
- /**
-- * fdisk_write_disklabel
-+ * fdisk_write_disklabel:
-  * @cxt: fdisk context
-  *
-  * Write in-memory changes to disk
-@@ -71,7 +71,7 @@ int fdisk_write_disklabel(struct fdisk_context *cxt)
-  * fdisk_verify_disklabel:
-  * @cxt: fdisk context
-  *
-- * Verifies the partition tabe.
-+ * Verifies the partition table.
-  *
-  * Returns 0.
-  */
-@@ -452,14 +452,14 @@ void fdisk_init_debug(int mask)
- 
- /**
-  * fdisk_new_context:
-- * @filename: path to the device to be handled
-+ * @fname: path to the device to be handled
-  * @readonly: how to open the device
-  *
-  * If the @readonly flag is set to false, fdisk will attempt to open
-  * the device with read-write mode and will fallback to read-only if
-  * unsuccessful.
-  *
-- * Returns: newly allocated fdisk context
-+ * Returns: newly allocated fdisk context or NULL upon failure.
-  */
- struct fdisk_context *fdisk_new_context_from_filename(const char *fname, int readonly)
- {
-@@ -526,8 +526,9 @@ void fdisk_free_context(struct fdisk_context *cxt)
- 	free(cxt);
- }
- 
--/*
-+/**
-  * fdisk_get_nparttypes:
-+ * @cxt: fdisk context
-  *
-  * Returns: number of partition types supported by the current label
-  */
-@@ -539,8 +540,14 @@ size_t fdisk_get_nparttypes(struct fdisk_context *cxt)
- 	return cxt->label->nparttypes;
- }
- 
--/*
-+/**
-+ * fdisk_get_parttype_from_code:
-+ * @cxt: fdisk context
-+ * @code: code to search for
-+ * 
-  * Search in lable-specific table of supported partition types by code.
-+ *
-+ * Returns partition type or NULL upon failure or invalid @code.
-  */
- struct fdisk_parttype *fdisk_get_parttype_from_code(
- 				struct fdisk_context *cxt,
-@@ -558,8 +565,14 @@ struct fdisk_parttype *fdisk_get_parttype_from_code(
- 	return NULL;
- }
- 
--/*
-+/**
-+ * fdisk_get_parttype_from_string:
-+ * @cxt: fdisk context
-+ * @str: string to search for
-+ *
-  * Search in lable-specific table of supported partition types by typestr.
-+ *
-+ * Returns partition type or NULL upon failure or invalid @str.
-  */
- struct fdisk_parttype *fdisk_get_parttype_from_string(
- 				struct fdisk_context *cxt,
-@@ -578,9 +591,15 @@ struct fdisk_parttype *fdisk_get_parttype_from_string(
- 	return NULL;
- }
- 
--/*
-+/**
-+ * fdisk_new_unknown_parttype:
-+ * @type: type as number
-+ * @typestr: type as string
-+
-  * Allocates new 'unknown' partition type. Use fdisk_free_parttype() to
-  * deallocate.
-+ *
-+ * Returns newly allocated partition type, or NULL upon failure.
-  */
- struct fdisk_parttype *fdisk_new_unknown_parttype(unsigned int type,
- 						  const char *typestr)
-@@ -606,10 +625,10 @@ struct fdisk_parttype *fdisk_new_unknown_parttype(unsigned int type,
- 	return t;
- }
- 
--/*
-- * fdisk_parse_parttype
-+/**
-+ * fdisk_parse_parttype:
-  * @cxt: fdisk context
-- * @str: string
-+ * @str: string to parse from
-  *
-  * Returns pointer to static table of the partition types, or newly allocated
-  * partition type for unknown types. It's safe to call fdisk_free_parttype()
-@@ -666,8 +685,9 @@ done:
- 	return ret;
- }
- 
--/*
-+/**
-  * fdisk_free_parttype:
-+ * @t: new type
-  *
-  * Free the @type.
-  */
-@@ -685,7 +705,7 @@ void fdisk_free_parttype(struct fdisk_parttype *t)
-  * @cxt: fdisk context
-  * @partnum: partition number
-  *
-- * Returns partition type
-+ * Returns partition type or NULL upon failure.
-  */
- struct fdisk_parttype *fdisk_get_partition_type(struct fdisk_context *cxt, int partnum)
- {
-@@ -702,7 +722,7 @@ struct fdisk_parttype *fdisk_get_partition_type(struct fdisk_context *cxt, int p
-  * @partnum: partition number
-  * @t: new type
-  *
-- * Returns partition type
-+ * Returns 0 on success, < 0 on error.
-  */
- int fdisk_set_partition_type(struct fdisk_context *cxt, int partnum,
- 			     struct fdisk_parttype *t)
--- 
-1.7.9.5
+--qtZFehHsKgwS5rPz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Oct 10, 2012 at 11:33:34AM +0200, Karel Zak wrote:
+> On Wed, Oct 10, 2012 at 11:26:09AM +0200, Davidlohr Bueso wrote:
+> > On Wed, 2012-10-10 at 11:19 +0200, Karel Zak wrote:
+> > > On Wed, Oct 10, 2012 at 09:44:05AM +0200, Ondrej Oprala wrote:
+> > > > new file mode 100644
+> >=20
+> > Hehe I actually started doing this last night.
+> >=20
+> > I'm wondering if we actually need a new lib file for colors. I mean
+> > AFAICT, dmesg is the only place we want to use it and I don't see that
+>=20
+> What about fdisk where we have many dialogs, warnings, hints? :-) It's
+> not about colors only, but also about bold, etc.
+>=20
+> The another possibility is namei(1) where we can provide output
+> compatible with ls(1), or cal(1), etc.
+>=20
+> > changing any time soon - Unix hackers don't like colors, we live oh so
+> > boring lives :)
+>=20
+> All this should be optional. I guess than many people use aliases with
+> colors
+>=20
+> $ alias | grep color
+> alias egrep=3D'egrep --color=3Dtty'
+> alias fgrep=3D'fgrep --color=3Dtty'
+> alias grep=3D'grep --color=3Dtty'
+> alias l.=3D'ls -d .* --color=3Dauto'
+> alias ll=3D'ls -l --color=3Dauto'
+> alias ls=3D'ls --color=3Dauto'
+
+I totally agree. Colored output from various tools could make it
+easier to work with, but it has to be optional.
+
+My 2c.
 
 
+Petr
 
+--=20
+Petr Uzel
+IRC: ptr_uzl @ freenode
 
+--qtZFehHsKgwS5rPz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iEYEARECAAYFAlB1ZWYACgkQnZxG0T6qDD2YkACfW0ZUWt9yn4r/XuqYErCr+5dp
+kh0AnROYqe7w1SjjEcdlh/bBUnK7PYcR
+=ep8V
+-----END PGP SIGNATURE-----
+
+--qtZFehHsKgwS5rPz--
