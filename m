@@ -1,93 +1,47 @@
-Return-Path: svenkatr@ti.com
-From: Venkatraman S <venkat@linaro.org>
-To: <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <arnd.bergmann@linaro.org>,
-        Venkatraman S
-	<venkat@linaro.org>
-Subject: [PATCH 4/4] mkswap: Probe and embed useful block device info into swapheader
-Date: Mon, 22 Oct 2012 22:27:27 +0530
-Message-ID: <1350925048-31084-5-git-send-email-venkat@linaro.org>
-In-Reply-To: <1350925048-31084-1-git-send-email-venkat@linaro.org>
-References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from smtp.gentoo.org ([140.211.166.183]:32833 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750958Ab2JJEWH (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 10 Oct 2012 00:22:07 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id EB02433C235
+	for <util-linux-ng@vger.kernel.org>; Wed, 10 Oct 2012 04:22:05 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux-ng@vger.kernel.org
+Subject: [PATCH] md5: fix strict aliasing warnings
+Date: Wed, 10 Oct 2012 00:22:38 -0400
+Message-Id: <1349842958-6533-1-git-send-email-vapier@gentoo.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-As first step, embed preferred_erase_size into swap header, by probing
-the topology.
-Not-yet-Signed-off-by: Venkatraman S <venkat@linaro.org>
----
- disk-utils/mkswap.c | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+This is the same fix as was merged in gcc/binutils where this code
+appears to originate from.
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index f090121..aa61488 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -59,6 +59,7 @@
- #include "c.h"
- #include "closestream.h"
- #include "ismounted.h"
-+#include "bitops.h"
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ lib/md5.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/lib/md5.c b/lib/md5.c
+index 26ec4bb..488d16e 100644
+--- a/lib/md5.c
++++ b/lib/md5.c
+@@ -138,9 +138,12 @@ void MD5Final(unsigned char digest[MD5LENGTH], struct MD5Context *ctx)
+     }
+     byteReverse(ctx->in, 14);
  
- #ifdef HAVE_LIBUUID
- # include <uuid.h>
-@@ -148,6 +149,7 @@ is_sparc64(void)
-  *
-  */
- static unsigned int user_pagesize;
-+static unsigned int user_ebsize;
- static unsigned int pagesize;
- static unsigned long *signature_page = NULL;
+-    /* Append length in bits and transform */
+-    ((uint32_t *) ctx->in)[14] = ctx->bits[0];
+-    ((uint32_t *) ctx->in)[15] = ctx->bits[1];
++    /* Append length in bits and transform.
++     * Use memcpy to avoid aliasing problems.  On most systems,
++     * this will be optimized away to the same code.
++     */
++    memcpy(&ctx->in[14 * sizeof(uint32_t)], &ctx->bits[0], 4);
++    memcpy(&ctx->in[15 * sizeof(uint32_t)], &ctx->bits[1], 4);
  
-@@ -360,6 +362,39 @@ new_prober(int fd)
- 		errx(EXIT_FAILURE, _("unable to assign device to libblkid probe"));
- 	return pr;
- }
-+
-+static void
-+add_blkdev_info(struct swap_header_v1_2 *hdr, int fd)
-+{
-+	char *type = NULL;
-+	unsigned long eb_size = 0;
-+	blkid_probe pr = new_prober(fd);
-+
-+	if (user_ebsize) {
-+		hdr->swp_headerinfo.blkdevinfo.erase_blk_size = user_ebsize;
-+		return;
-+	}
-+
-+	blkid_probe_enable_superblocks(pr, 1);
-+	blkid_probe_enable_partitions(pr, 1);
-+	blkid_probe_set_superblocks_flags(pr, BLKID_SUBLKS_MAGIC);
-+	blkid_probe_enable_topology(pr, 1);
-+
-+	while (blkid_do_probe(pr) == 0) {
-+		if (blkid_probe_lookup_value(pr, "ERASE_BLOCK_SIZE",
-+			(const char **) &type, NULL) == 0 && type) {
-+				eb_size = strtou32_or_err(type, _("Invalid erase blk size"));
-+				hdr->swp_headerinfo.blkdevinfo.erase_blk_size =	eb_size;
-+				break;
-+		}
-+	}
-+
-+}
-+
-+#else
-+static inline void add_blkdev_info(struct swap_header_v1_2 *hdr, int fd)
-+{}
-+
- #endif
- 
- static void prepare_header(struct swap_header_v1_2 *hdr,
-@@ -625,6 +660,8 @@ main(int argc, char **argv) {
- 
- 	prepare_header(hdr, uuid, opt_label);
- 
-+	add_blkdev_info(hdr, DEV);
-+
- 	offset = 1024;
- 	if (lseek(DEV, offset, SEEK_SET) != offset)
- 		errx(EXIT_FAILURE, _("unable to rewind swap-device"));
+     MD5Transform(ctx->buf, (uint32_t *) ctx->in);
+     byteReverse((unsigned char *) ctx->buf, 4);
 -- 
-1.7.11.1.25.g0e18bef
+1.7.12
+
