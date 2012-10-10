@@ -1,70 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:49279 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754244Ab2JNUV0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:26 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hr7so1315606wib.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:25 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 07/19] sd-daemon: fix cppcheck warnings
-Date: Sun, 14 Oct 2012 21:20:58 +0100
-Message-Id: <1350246070-10544-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:50984 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753014Ab2JJJ0O (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 10 Oct 2012 05:26:14 -0400
+Date: Wed, 10 Oct 2012 11:26:12 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH] md5: fix strict aliasing warnings
+Message-ID: <20121010092612.GF28457@x2.net.home>
+References: <1349842958-6533-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1349842958-6533-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[misc-utils/sd-daemon.c:91]: (style) Checking if unsigned variable 'l' is \
-less than zero.
-[misc-utils/sd-daemon.c:254]: (warning) Comparison of a boolean \
-expression with an integer.
-[misc-utils/sd-daemon.c:363]: (style) Checking if unsigned variable \
-'length' is less than zero.
-[misc-utils/sd-daemon.c:366]: (style) Checking if unsigned variable \
-'length' is less than zero.
+On Wed, Oct 10, 2012 at 12:22:38AM -0400, Mike Frysinger wrote:
+>  lib/md5.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/sd-daemon.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Applied, thanks! My TODO list shorter now :-)
 
-diff --git a/misc-utils/sd-daemon.c b/misc-utils/sd-daemon.c
-index 763e079..21399e2 100644
---- a/misc-utils/sd-daemon.c
-+++ b/misc-utils/sd-daemon.c
-@@ -88,7 +88,7 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-                 goto finish;
-         }
- 
--        if (!p || *p || l <= 0) {
-+	if (!p || *p || l == 0) {
-                 r = -EINVAL;
-                 goto finish;
-         }
-@@ -251,7 +251,7 @@ static int sd_is_socket_internal(int fd, int type, int listening) {
-                 if (l != sizeof(accepting))
-                         return -EINVAL;
- 
--                if (!accepting != !listening)
-+		if ((!accepting) != (!listening))
-                         return 0;
-         }
- 
-@@ -360,10 +360,10 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
-                 return 0;
- 
-         if (path) {
--                if (length <= 0)
-+		if (length == 0)
-                         length = strlen(path);
- 
--                if (length <= 0)
-+		if (length == 0)
-                         /* Unnamed socket */
-                         return l == offsetof(struct sockaddr_un, sun_path);
- 
+    Karel
+
 -- 
-1.7.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
