@@ -1,225 +1,269 @@
-Return-Path: dave@gnu.org
-Message-ID: <1349861169.2576.4.camel@offbook>
-Subject: Re: [PATCH] dmesg colorized output
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from caiajhbdccah.dreamhost.com ([208.97.132.207]:37292 "EHLO
+	homiemail-a5.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755006Ab2JJKPA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Oct 2012 06:15:00 -0400
+Message-ID: <1349864096.2576.16.camel@offbook>
+Subject: Re: [PATCH 3/5] fdisk: gpt: create empty disklabels
 From: Davidlohr Bueso <dave@gnu.org>
 Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: Ondrej Oprala <ooprala@redhat.com>, util-linux@vger.kernel.org
-Date: Wed, 10 Oct 2012 11:26:09 +0200
-In-Reply-To: <20121010091926.GE28457@x2.net.home>
-References: <50752745.4020607@redhat.com>
-	 <20121010091926.GE28457@x2.net.home>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Date: Wed, 10 Oct 2012 12:14:56 +0200
+In-Reply-To: <20121010093959.GB11072@foxbat.suse.cz>
+References: <1349620433.2548.8.camel@offbook>
+	 <20121010093959.GB11072@foxbat.suse.cz>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2012-10-10 at 11:19 +0200, Karel Zak wrote:
-> On Wed, Oct 10, 2012 at 09:44:05AM +0200, Ondrej Oprala wrote:
-> > new file mode 100644
-
-Hehe I actually started doing this last night.
-
-I'm wondering if we actually need a new lib file for colors. I mean
-AFAICT, dmesg is the only place we want to use it and I don't see that
-changing any time soon - Unix hackers don't like colors, we live oh so
-boring lives :)
-
-> > index 0000000..90b62a7
-> > --- /dev/null
-> > +++ b/include/colors.h
-> > @@ -0,0 +1,19 @@
-> 
-> Please, see another files in include/.
-> 
->  #ifndef UTIL_LINUX_COLOR_H
->  #define UTIL_LINUX_COLOR_H
-> 
-> > +/*
-> > + * Copyright (C) 2012 Ondrej Oprala <ooprala@redhat.com>
-> > + *
-> > + * This file may be distributed under the terms of the
-> > + * GNU Lesser General Public License.
-> > + */
-> > +
-> > +#include <stdio.h>
-> > +#include <unistd.h>
-> > +#define CLR_RST "\033[0m"
-> 
->    #define UL_COLOR_RESET
-> 
-> to keep it readable. It would be also nice to have macros for
-> individual colors (UL_COLOR_{RED,YELLOW,BLUE,...} and extra modes like
-> bold.
-> 
-> (It's also possible to set background colors, but I guess that
-> foreground colors are enough for our utils.)
-> 
-> > --- /dev/null
-> > +++ b/lib/colors.c
-> > @@ -0,0 +1,20 @@
-> > +/*
-> > + * Copyright (C) 2012 Ondrej Oprala <ooprala@redhat.com>
-> > + *
-> > + * This file may be distributed under the terms of the
-> > + * GNU Lesser General Public License.
-> > + */
-> > +
-> > +#include "colors.h"
-> > +
-> > +void set_clr(const char *clr_scheme, FILE *out)
-> 
->   color_enable()
-> 
-> Is it necessary to care about "out"? Maybe we can assume that the
-> output is stdout.
-> 
-> > +{
-> > +	if (isatty(fileno(out)))
-> > +		fprintf(out, clr_scheme);
-> > +}
-> 
->  if I good remember than isatty() is internally implemented by any
->  ioctl(). It would be probably better to have something like:
-> 
->    int colors_init();
-> 
->  where we check all necessary terminal features and initialize a
->  global variable, so in color_enable/disable() we will check the
->  variable only.
-> 
-> > +void rst_clr(FILE *out)
-> 
->    color_disable()
-> 
-> Maybe for the functions names we should also use ul_ prefix to avoid
-> collisions (for example ncurses library also uses pretty generic names
-> for color functions).
-> 
-> > +{
-> > +	if (isatty(fileno(out)))
-> > +		fprintf(out, CLR_RST);
-> > +}
-> 
->  Please, use fputs() rather than fprintf().
-> 
-> > diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-> > index 4c85f9f..fc384d7 100644
-> > --- a/sys-utils/dmesg.c
-> > +++ b/sys-utils/dmesg.c
-> > @@ -23,6 +23,7 @@
-> >  #include <fcntl.h>
-> >  
-> >  #include "c.h"
-> > +#include "colors.h"
-> >  #include "nls.h"
-> >  #include "strutils.h"
-> >  #include "xalloc.h"
-> > @@ -33,6 +34,11 @@
-> >  #include "optutils.h"
-> >  #include "mangle.h"
-> >  
-> > +#define K_PANIC 1
-> > +#define K_ERR 3
-> 
-> really no, already defined by LOG_* macros in
-> <sys/syslog.h>, see also level_names[] array in dmesg.c.
-> 
-> > +#define CLR_PANIC "\033[31m" //Red
-> > +#define CLR_ERR "\033[1;31m" //Bright Red
-
-how about using /* ... */
-
-> 
-> #define DMESG_COLOR_ALERT   UL_COLOR_RED
-> #define DMESG_COLOR_ERR     UL_COLOR_BRIGHT_RED
-> 
-> 
-> >  /* Close the log.  Currently a NOP. */
-> >  #define SYSLOG_ACTION_CLOSE          0
-> >  /* Open the log. Currently a NOP. */
-> > @@ -147,7 +153,8 @@ struct dmesg_control {
-> >  			notime:1,	/* don't print timestamp */
-> >  			delta:1,	/* show time deltas */
-> >  			reltime:1,	/* show human readable relative times */
-> > -			ctime:1;	/* show human readable time */
-> > +			ctime:1,	/* show human readable time */
-> > +			color:1;	/* colorize error and panic messages */
-> >  };
-> >  
-> >  struct dmesg_record {
-> > @@ -193,6 +200,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
-> >  		" -f, --facility <list>       restrict output to defined facilities\n"
-> >  		" -h, --help                  display this help and exit\n"
-> >  		" -k, --kernel                display kernel messages\n"
-> > +		" -L, --color                 colorize error and panic messages\n"
-> >  		" -l, --level <list>          restrict output to defined levels\n"
-> >  		" -n, --console-level <level> set level of messages printed to console\n"
-> >  		" -r, --raw                   print the raw message buffer\n"
-> > @@ -839,8 +847,16 @@ static void print_record(struct dmesg_control *ctl,
-> >  		printf("[%5d.%06d] ", (int) rec->tv.tv_sec, (int) rec->tv.tv_usec);
-> >  
-> >  mesg:
-> > +  //Change the output color for panic and error messages
-> > +  if (ctl->color)
-> > +    set_clr(rec->level == K_PANIC ? CLR_PANIC :
-> > +        rec->level == K_ERR ? CLR_ERR : CLR_RST, stdout);
-> 
-> keep it elegant:
-> 
->     if (ctl->color)
->         set_level_color(rec->level);
-> 
-> :-)
-> 
-> >  	safe_fwrite(rec->mesg, rec->mesg_size, stdout);
-> >  
-> > +  if (ctl->color)
-> > +    rst_clr(stdout);
-> > +
-> >  	if (*(rec->mesg + rec->mesg_size - 1) != '\n')
-> >  		putchar('\n');
-> >  }
-> > @@ -1046,6 +1062,7 @@ int main(int argc, char *argv[])
-> >  	static const struct option longopts[] = {
-> >  		{ "buffer-size",   required_argument, NULL, 's' },
-> >  		{ "clear",         no_argument,	      NULL, 'C' },
-> > +		{ "color",         no_argument,	      NULL, 'L' },
-> >  		{ "console-level", required_argument, NULL, 'n' },
-> >  		{ "console-off",   no_argument,       NULL, 'D' },
-> >  		{ "console-on",    no_argument,       NULL, 'E' },
-> > @@ -1080,7 +1097,7 @@ int main(int argc, char *argv[])
-> >  	textdomain(PACKAGE);
-> >  	atexit(close_stdout);
-> >  
-> > -	while ((c = getopt_long(argc, argv, "CcDdEeF:f:hkl:n:rSs:TtuVwx",
-> > +	while ((c = getopt_long(argc, argv, "CcDdEeF:f:hkLl:n:rSs:TtuVwx",
-> >  				longopts, NULL)) != -1) {
-> >  
-> >  		err_exclusive_options(c, longopts, excl, excl_st);
-> > @@ -1123,6 +1140,9 @@ int main(int argc, char *argv[])
-> >  			ctl.fltr_fac = 1;
-> >  			setbit(ctl.facilities, FAC_BASE(LOG_KERN));
+On Wed, 2012-10-10 at 11:40 +0200, Petr Uzel wrote:
+> On Sun, Oct 07, 2012 at 04:33:53PM +0200, Davidlohr Bueso wrote:
+> > This patch enables creating a new, empty, GPT disklabel from either
+> > an empty disk or one that already has a disklabel. For this
+> > purpose, a 'g' option is added to the main menu and is visible to all
+> > labels. Here's an example for a scsi_debug device (/dev/sdb):
+> > 
+> [SNIP]
+> > ---
+> >  fdisks/fdisk.c |    4 ++
+> >  fdisks/gpt.c   |  211 +++++++++++++++++++++++++++++++++++++++++++++++++++++---
+> >  2 files changed, 204 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+> > index 1295d54..612bf87 100644
+> > --- a/fdisks/fdisk.c
+> > +++ b/fdisks/fdisk.c
+> > @@ -90,6 +90,7 @@ static const struct menulist_descr menulist[] = {
+> >  	{'e', N_("edit drive data"), {OSF_LABEL, 0}},
+> >  	{'f', N_("fix partition order"), {0, DOS_LABEL}},
+> >  	{'g', N_("create an IRIX (SGI) partition table"), {0, ANY_LABEL}},
+> > +	{'g', N_("create a new empty GPT partition table"), {ANY_LABEL, 0}},
+> >  	{'h', N_("change number of heads"), {0, DOS_LABEL | SUN_LABEL}},
+> >  	{'i', N_("change interleave factor"), {0, SUN_LABEL}},
+> >  	{'i', N_("change the disk identifier"), {0, DOS_LABEL}},
+> > @@ -1693,6 +1694,9 @@ static void command_prompt(struct fdisk_context *cxt)
+> >  		case 'd':
+> >  			delete_partition(cxt, get_existing_partition(cxt, 1, partitions));
 > >  			break;
-> > +		case 'L':
-> > +			ctl.color = 1;
+> > +		case 'g':
+> > +			fdisk_create_disklabel(cxt, "gpt");
 > > +			break;
-> >  		case 'l':
-> >  			ctl.fltr_lev= 1;
-> >  			if (string_to_bitarray(optarg,
-> > @@ -1180,9 +1200,9 @@ int main(int argc, char *argv[])
-> >  		usage(stderr);
+> >  		case 'i':
+> >  			if (disklabel == SGI_LABEL)
+> >  				create_sgiinfo(cxt);
+> [SNIP]
+> > +
+> > +/* some universal differences between the headers */
+> > +static void gpt_mknew_header_common(struct fdisk_context *cxt,
+> > +				    struct gpt_header *header, uint64_t lba)
+> > +{
+> > +	if (!cxt || !header)
+> > +		return;
+> > +
+> > +	header->my_lba = cpu_to_le32(lba);
+
+Yes, my_lba is a 64bit variable.
+
+> 
+> This should be cpu_to_le64(lba);
+> 
+> > +
+> > +	if (lba == GPT_PRIMARY_PARTITION_TABLE_LBA) { /* primary */
+> > +		header->alternative_lba = cpu_to_le64(cxt->total_sectors - 1);
+> > +		header->partition_entry_lba = cpu_to_le64(2);
+> > +	} else { /* backup */
+> > +		header->alternative_lba = cpu_to_le64(GPT_PRIMARY_PARTITION_TABLE_LBA);
+> > +		header->partition_entry_lba = header->last_usable_lba + cpu_to_le64(1);
+> 
+> Shouldn't this ^^^ rather be:
+> 
+> 		header->partition_entry_lba = cpu_to_le64(header->last_usable_lba + 1);
+> 
+> ?
+> 
+> Even with this modification, I'm still not sure if the computation is
+> correct. Are you sure that partition_entry_lba (in alternative header)
+> should be set to this value?
+
+Well the UEFI specs sure don't make this very clear. It's obvious that
+for the primary header we want it to be LBA 2. Now, from this diagram
+http://en.wikipedia.org/w/index.php?title=File:GUID_Partition_Table_Scheme.svg&page=1
+I interpret it for the backup to be the last usable lba + 1.
+
+In any case ->last_usable_lba needs to be set before calling
+gpt_mknew_header_common(), so this function needs be called last, and
+therefore I need to change the order in gpt_mknew_header().
+
+> 
+> > +	}
+> > +}
+> > +
+> > +/*
+> > + * Builds a new GPT header (at sector lba) from a backup header2.
+> > + * If building a primary header, then backup is the secondary, and vice versa.
+> > + *
+> > + * Always pass a new (zeroized) header to build upon as we don't
+> > + * explicitly zero-set some values such as CRCs and reserved.
+> 
+> Why is this? Why not zeroize the to-be-built header in this function?
+
+Well since we always allocate memory with calloc, we're always zeroising
+anyway.
+
+> 
+> > + *
+> > + * Returns 0 on success, otherwise < 0 on error.
+> > + */
+> > +static int gpt_mknew_header_from_bkp(struct fdisk_context *cxt,
+> > +				     struct gpt_header *header,
+> > +				     uint64_t lba,
+> > +				     struct gpt_header *header2)
+> > +{
+> > +	if (!cxt || !header || !header2)
+> > +		return -ENOSYS;
+> 
+> Perhaps -EINVAL would be better if the arguments passed to the
+> function are invalid?
+> 
+> > +
+> > +	header->signature              = header2->signature;
+> > +	header->revision               = header2->revision;
+> > +	header->size                   = header2->size;
+> > +	header->npartition_entries     = header2->npartition_entries;
+> > +	header->sizeof_partition_entry = header2->sizeof_partition_entry;
+> > +	header->first_usable_lba       = header2->first_usable_lba;
+> > +	header->last_usable_lba        = header2->last_usable_lba;
+> > +
+> > +	memcpy(&header->disk_guid,
+> > +	       &header2->disk_guid, sizeof(header2->disk_guid));
+> > +	gpt_mknew_header_common(cxt, header, lba);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/*
+> > + * Builds a clean new GPT header (currently under revision 1.0).
+> > + *
+> > + * Always pass a new (zeroized) header to build upon as we don't
+> > + * explicitly zero-set some values such as CRCs and reserved.
+> 
+> Again; Why?
+> 
+> > + *
+> > + * Returns 0 on success, otherwise < 0 on error.
+> > + */
+> > +static int gpt_mknew_header(struct fdisk_context *cxt,
+> > +			    struct gpt_header *header, uint64_t lba)
+> > +{
+> > +	if (!cxt || !header)
+> > +		return -ENOSYS;
+> 
+> -EINVAL ?
+> 
+> > +
+> > +	gpt_mknew_header_common(cxt, header, lba);
+> > +
+> > +	header->signature = cpu_to_le64(GPT_HEADER_SIGNATURE);
+> > +	header->revision  = cpu_to_le32(GPT_HEADER_REVISION_V1_00);
+> > +	header->size      = cpu_to_le32(sizeof(struct gpt_header));
+> > +
+> > +	/*
+> > +	 * 128 partitions is the default. It can go behond this, however,
+> > +	 * we're creating a de facto header here, so no funny business.
+> > +	 */
+> > +	header->npartition_entries     = cpu_to_le32(128);
+> > +	header->sizeof_partition_entry = cpu_to_le32(sizeof(struct gpt_entry));
+> > +
+> > +	header->first_usable_lba =
+> > +		(header->sizeof_partition_entry * header->npartition_entries /
+> > +		 cpu_to_le64(cxt->sector_size)) + cpu_to_le64(2);
+> > +	header->last_usable_lba =
+> > +		cpu_to_le64(cxt->total_sectors) -  header->first_usable_lba;
+> > +
+> > +	uuid_generate_random((unsigned char *) &header->disk_guid);
+> > +	swap_efi_guid(&header->disk_guid);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/*
+> >   * Checks if there is a valid protective MBR partition table.
+> >   * Returns 0 if it is invalid or failure. Otherwise, return
+> >   * GPT_MBR_PROTECTIVE or GPT_MBR_HYBRID, depeding on the detection.
+> > @@ -849,6 +966,22 @@ static void gpt_init(void)
+> >  	partitions = le32_to_cpu(pheader->npartition_entries);
+> >  }
 > >  
-> >  	if (ctl.raw && (ctl.fltr_lev || ctl.fltr_fac || ctl.delta ||
-> > -			ctl.notime || ctl.ctime || ctl.decode))
-> > +			ctl.notime || ctl.ctime || ctl.decode || ctl.color))
-> >  		errx(EXIT_FAILURE, _("--raw can't be used together with level, "
-> > -		     "facility, decode, delta, ctime or notime options"));
-> > +		     "facility, decode, delta, ctime, notime or color options"));
+> > +/*
+> > + * Deinitialize fdisk-specific variables
+> > + */
+> > +static void gpt_deinit(void)
+> > +{
+> > +	free(ents);
+> > +	free(pheader);
+> > +	free(bheader);
+> > +	ents = NULL;
+> > +	pheader = NULL;
+> > +	bheader = NULL;
+> > +
+> > +	disklabel = ANY_LABEL;
+> > +	partitions = 0;
+> > +}
+> > +
+> >  static int gpt_probe_label(struct fdisk_context *cxt)
+> >  {
+> >  	int mbr_type;
+> > @@ -1005,7 +1138,7 @@ fail:
+> >   * Returns 0 on success, or corresponding error otherwise.
+> >   */
+> >  static int gpt_write_header(struct fdisk_context *cxt,
+> > -			    struct gpt_header *header, uint64_t lba)
+> > +		     struct gpt_header *header, uint64_t lba)
+> >  {
+> >  	off_t offset = lba * cxt->sector_size;
+> >  
+> > @@ -1056,8 +1189,10 @@ static int gpt_write_pmbr(struct fdisk_context *cxt)
+> >  	offset = GPT_PMBR_LBA * cxt->sector_size;
+> >  	if (offset != lseek(cxt->dev_fd, offset, SEEK_SET))
+> >  		goto fail;
+> > -
+> > -	if (1 == write(cxt->dev_fd, pmbr, 1))
+> > +	
+> > +	/* pMBR covers the first sector (LBA) of the disk */
+> > +	if (cxt->sector_size == 
+> > +	    (unsigned long) write(cxt->dev_fd, pmbr, cxt->sector_size))
+> >  		return 0;
 > 
->    if (ctl.color && ul_color_init() != 0)
->      ctl.color = 0;
+> Why not use write_all() from all-io.h ?
+
+I don't really care, calling write directly is fine with me.
+
+I'll send a v2 with the corrections. Thanks for reviewing!
+
+Davidlohr
+
 > 
->   Thanks!
+> >  fail:
+> >  	return -errno;
+> > @@ -1318,7 +1453,7 @@ static int gpt_create_new_partition(int partnum, uint64_t fsect, uint64_t lsect,
+> >  
+> >  /* Performs logical checks to add a new partition entry */
+> >  static void gpt_add_partition(struct fdisk_context *cxt, int partnum,
+> > -			     struct fdisk_parttype *t)
+> > +			      struct fdisk_parttype *t)
+> >  {
+> >  	char msg[256];
+> >  	uint32_t tmp;
+> > @@ -1370,6 +1505,60 @@ static void gpt_add_partition(struct fdisk_context *cxt, int partnum,
+> >  		printf(_("Created partition %d\n"), partnum + 1);
+> >  }
+> >  
+> [SNIP]
 > 
->     Karel
+> Petr
 > 
+
+
