@@ -1,66 +1,47 @@
-Return-Path: thomas@archlinux.org
-Message-ID: <506AA49C.2000101@archlinux.org>
-Date: Tue, 02 Oct 2012 10:23:56 +0200
-From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:21386 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932311Ab2JLNXj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Oct 2012 09:23:39 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q9CDNcVM014103
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 12 Oct 2012 09:23:39 -0400
+Received: from x2 (ovpn-113-69.phx2.redhat.com [10.3.113.69])
+	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q9CDNbeK030437
+	for <util-linux@vger.kernel.org>; Fri, 12 Oct 2012 09:23:38 -0400
+Date: Fri, 12 Oct 2012 15:23:36 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: Re: [util-linux] [PATCH 00/13] Initial import of sulogin
+Message-ID: <20121012132336.GC23945@x2.net.home>
+References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+ <20120228164840.GH21406@rampage>
+ <20121012125309.GA20273@boole.suse.de>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: =?ISO-8859-15?Q?P=E1draig_Brady?= <P@draigBrady.com>,
-        Werner Fink <werner@suse.de>, Ludwig Nussel <ludwig.nussel@suse.de>,
-        util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>,
-        Tobias Powalowski <tpowa@archlinux.org>
-Subject: Re: [su] New su utility messes with my PATH
-References: <50547FE7.204@archlinux.org> <50549411.9000302@draigBrady.com> <20120920094330.GC16499@x2.net.home> <20121002081741.GA7730@x2.net.home>
-In-Reply-To: <20121002081741.GA7730@x2.net.home>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------enig9DFA3D5A59CAE0797F1290C4"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121012125309.GA20273@boole.suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9DFA3D5A59CAE0797F1290C4
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Fri, Oct 12, 2012 at 02:53:09PM +0200, Dr. Werner Fink wrote:
+> On Tue, Feb 28, 2012 at 11:48:40AM -0500, Dave Reisner wrote:
+> > On Tue, Feb 28, 2012 at 11:45:08AM -0500, Dave Reisner wrote:
+> > > This is an initial stab at importing sulogin from sysvinit and making it a bit
+> > > more universal. I've removed the distro specific code and brought the rest of
+> > > it more in line with the style of the remainder of the repo. I've also added
+> > > internationalization and cleaned up the manpage.
+> > 
+> > Err, forgot... these patches live in a repo below on the 'sulogin'
+> > branch:
+> 
+> Question: Why the code for multi console support was not included?
 
-Am 02.10.2012 10:17, schrieb Karel Zak:
-> On Thu, Sep 20, 2012 at 11:47:04AM +0200, Karel Zak wrote:
->>         commit a6fdd3f8125be23930d955c2bc6b7a46cdaf8a12
->>         Author: Werner Fink <werner@suse.de>
->>         Date:   Tue Aug 17 09:09:55 2010 +0200
->>
->>         make sure /sbin resp /usr/sbin are in PATH
->>
->>
->> Werner, Ludwig? What about to revert the patch?
->=20
->  Reverted.
->=20
->     Karel
+ Time... (the patch is one huge rewrite, I'd like to split it to more
+ patches). I'm busy with some others things, so next week.
 
-Thank you, much appreciated.
+    Karel
 
-
---------------enig9DFA3D5A59CAE0797F1290C4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
-
-iQIcBAEBCAAGBQJQaqSfAAoJEChPw0yOSxolSG8QALIIiNyctq8on1MKq0/4cf7p
-0uBNQXtygUI86MfkmgwlV+Af7zQAN5nmBIfeE3MtKZgL39LI5u2Y+0wmxPT9wx8h
-11unIHRSVvFQewH9heM8uBPZkpYaSE7bbTOxe7Ify9zIQDipiSpc3owYvQDMISC3
-+3fAV5NM/TsmPdqqAU60zIZEf2X7bE+vrGBG4rgVfwOH8UfsfxY6yOWMy+yeTNCm
-sGtIdJOJnbolQgjvKa/HVmDxyM65DXb9RG2SG7GrZDTkPir0f7NgHe3mWs6ABS/f
-d7Z+aNZFKDCEq9W1LoyNPnsrOOUVArwzYMzjqrStzcCfkEG5+UDZ657ACx+PfH8O
-xcEm3MFTju7pVbSIzzQxRGGrZc6mprxHiF1rPlqeVopIof+E2UQqrFxbtrfXT5ls
-Va+IObdKS4mptmk/vaapF/v8eDRU3C5DKRsEJS6RJ6OrzoEwvKdmwdhb8cfuT76I
-U1ResTWMTJvCoE72CBpRzc7j2f3JRNYdGEqpyvX8kBGDCwZOcj6gpQoRcsl2Q3xE
-oBfiqes4dFv4cxIiTuFdTzumdZ5OBp9r1b+fruOP4hxv3hF2vD8EsoIdhui8Fgnc
-vbMzRu9E+1RbW7X4JXKnHszfGcUfd1FEZBYylxoNT+E04Dvnm+/wCHRF0JubDolG
-P5fFYmzCn5wHmiLFWTCV
-=qm3a
------END PGP SIGNATURE-----
-
---------------enig9DFA3D5A59CAE0797F1290C4--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
