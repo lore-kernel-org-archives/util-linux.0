@@ -1,72 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46374 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752391Ab2JAPl3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Oct 2012 11:41:29 -0400
-Date: Mon, 1 Oct 2012 17:41:20 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] libmount: fix support of comma-separated fs types
- lists
-Message-ID: <20121001154120.GF8903@x2.net.home>
-References: <20120927161807.GA19450@c227.office.altlinux.ru>
- <20120927164834.GA19341@c227.office.altlinux.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120927164834.GA19341@c227.office.altlinux.ru>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:41556 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754269Ab2JNUV3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:29 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so3908218wgb.1
+        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:28 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 09/19] include/all-io: replace usleep with nanosleep
+Date: Sun, 14 Oct 2012 21:21:00 +0100
+Message-Id: <1350246070-10544-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+POSIX.1-2001 declares usleep is obsolete.
 
- Hi,
+Reference: http://pubs.opengroup.org/onlinepubs/009695399/functions/usleep.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/all-io.h | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-On Thu, Sep 27, 2012 at 08:48:34PM +0400, Gleb Fotengauer-Malinovskiy wrote:
-> 	# grep cdrom /etc/fstab
-> 	/dev/sr0 /media/cdrom udf,iso9660 ro,noauto,user,utf8 0 0
-> 	# mount /media/cdrom
-> 	mount: unknown filesystem type 'udf,iso9660'
-
- this first time I see that someone has a pattern in fstab, it seems
- undocumented and very probably unsupported on many places. But it
- seems that old (non-libmount) supported this feature too.
-
-> 	# mount -t udf,iso9660 /dev/sr0 /media/cdrom
-> 	mount: /dev/sr0 is write-protected, mounting read-only
-> 
-> Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-> ---
->  libmount/src/context_mount.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-> index f3d8ff1..867e644 100644
-> --- a/libmount/src/context_mount.c
-> +++ b/libmount/src/context_mount.c
-> @@ -691,9 +691,12 @@ int mnt_context_do_mount(struct libmnt_context *cxt)
->  		cxt->mountdata = (char *) mnt_fs_get_fs_options(cxt->fs);
->  
->  	type = mnt_fs_get_fstype(cxt->fs);
-> -	if (type)
-> -		res = do_mount(cxt, NULL);
-> -	else
-> +	if (type) {
-> +		if (strchr(type, ','))
-> +			res = do_mount_by_pattern(cxt, type);
-> +		else
-> +			res = do_mount(cxt, NULL);
-> +	} else
->  		res = do_mount_by_pattern(cxt, cxt->fstype_pattern);
-
- This is hack ;-)
-
- It would be better to improve mnt_context_apply_fstab() to initialize
- cxt->fstype_pattern (see mnt_context_set_fstype_pattern()) and
- zeroize cxt->fs->type if the fstab entry contains a pattern rather
- than a real fstype.
-
-    Karel
-
+diff --git a/include/all-io.h b/include/all-io.h
+index 38a760f..ed4f879 100644
+--- a/include/all-io.h
++++ b/include/all-io.h
+@@ -4,6 +4,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <errno.h>
++#include <time.h>
+ 
+ static inline int write_all(int fd, const void *buf, size_t count)
+ {
+@@ -18,8 +19,12 @@ static inline int write_all(int fd, const void *buf, size_t count)
+ 				buf = (void *) ((char *) buf + tmp);
+ 		} else if (errno != EINTR && errno != EAGAIN)
+ 			return -1;
+-		if (errno == EAGAIN)	/* Try later, *sigh* */
+-			usleep(10000);
++		if (errno == EAGAIN) {	/* Try later, *sigh* */
++			struct timespec waittime;
++			waittime.tv_sec = 0;
++			waittime.tv_nsec = 10000000;
++			nanosleep(&waittime, NULL);
++		}
+ 	}
+ 	return 0;
+ }
+@@ -38,8 +43,12 @@ static inline int fwrite_all(const void *ptr, size_t size,
+ 				ptr = (void *) ((char *) ptr + (tmp * size));
+ 		} else if (errno != EINTR && errno != EAGAIN)
+ 			return -1;
+-		if (errno == EAGAIN)	/* Try later, *sigh* */
+-			usleep(10000);
++		if (errno == EAGAIN) {	/* Try later, *sigh* */
++			struct timespec waittime;
++			waittime.tv_sec = 0;
++			waittime.tv_nsec = 10000000;
++			nanosleep(&waittime, NULL);
++		}
+ 	}
+ 	return 0;
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.12.2
+
