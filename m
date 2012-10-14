@@ -1,58 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14765 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757006Ab2JaMY5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 31 Oct 2012 08:24:57 -0400
-Date: Wed, 31 Oct 2012 13:24:53 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Matt Burgess <matthew@linuxfromscratch.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Discrepancies between real and symlinked mtab
-Message-ID: <20121031122453.GB27908@x2>
-References: <1351638239.1651.13.camel@kyoto.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1351638239.1651.13.camel@kyoto.localdomain>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:49279 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754244Ab2JNUVX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:23 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr7so1315606wib.1
+        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:22 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 05/19] c.h: remove unnecessary MAXHOSTNAMELEN fallback definition
+Date: Sun, 14 Oct 2012 21:20:56 +0100
+Message-Id: <1350246070-10544-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 30, 2012 at 11:03:59PM +0000, Matt Burgess wrote:
-> 1) mount(8)
-> 
-> /dev/root on / type ext3 (rw,relatime,data=ordered)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/c.h | 11 -----------
+ 1 file changed, 11 deletions(-)
 
- I see (Fedora 17, util-linux 2.21.2)
-
-   /dev/sda4 on / type ext4 (rw,relatime,data=ordered)
-
-anyway, it's not mount(8) responsibility what you have in /proc/mounts
-or /proc/self/mountinfo.
-
-> Nope, that's not /dev/sda3.  And what is /dev/root anyway? There's no
-> such node under /dev here.
-
-if I good remember there was symlink in some distributions
-
-> 3) lsblk(8)
-> 
-> NAME FSTYPE LABEL UUID                                 MOUNTPOINT
-> sda3 ext3   /lfs  aaf09e8b-d50e-429e-ba8e-11fa07ab5b75 
-
-I see:
-
- $ lsblk --fs /dev/sda4
- NAME FSTYPE LABEL UUID                                 MOUNTPOINT
- sda4 ext4         33230ae2-1093-4353-824c-f7ca09a2a882 /
-
-> As all 3 utils show the same issue, I assume this is something to do
-> with libblkid?
-
-We use libmount to get information about mountpoints. The libblkid is
-responsible for information about filesystems (LABEL, UUID, ...).
-
-
-    Karel
-
+diff --git a/include/c.h b/include/c.h
+index 64c0138..125ec62 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -224,17 +224,6 @@ static inline int dirfd(DIR *d)
+ #endif
+ 
+ /*
+- * Fallback for MAXHOSTNAMELEN
+- */
+-#ifndef MAXHOSTNAMELEN
+-# ifdef HOST_NAME_MAX
+-#  define MAXHOSTNAMELEN HOST_NAME_MAX
+-# else
+-#  define MAXHOSTNAMELEN 64
+-# endif
+-#endif
+-
+-/*
+  * Constant strings for usage() functions. For more info see
+  * Documentation/howto-usage-function.txt and sys-utils/arch.c
+  */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.12.2
+
