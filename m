@@ -1,112 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from devils.ext.ti.com ([198.47.26.153]:51912 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755443Ab2JVQ6f (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Oct 2012 12:58:35 -0400
-From: Venkatraman S <venkat@linaro.org>
-To: <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <arnd.bergmann@linaro.org>,
-        Venkatraman S <venkat@linaro.org>
-Subject: [RFC PATCH 2/4] mkswap: refactor header preparation
-Date: Mon, 22 Oct 2012 22:27:25 +0530
-Message-ID: <1350925048-31084-3-git-send-email-venkat@linaro.org>
-In-Reply-To: <1350925048-31084-1-git-send-email-venkat@linaro.org>
-References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mail-we0-f174.google.com ([74.125.82.174]:61235 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754376Ab2JNUVk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:40 -0400
+Received: by mail-we0-f174.google.com with SMTP id t9so2680285wey.19
+        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:40 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 17/19] agetty: replace gethostbyname() with getaddrinfo()
+Date: Sun, 14 Oct 2012 21:21:08 +0100
+Message-Id: <1350246070-10544-18-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Move opencoded swap header populating code to a separate
-function. No functional changes.
+The gethostbyname() is legacy function which may be withdrawn in a
+future.
 
-Signed-off-by: Venkatraman S <venkat@linaro.org>
+Reference: http://pubs.opengroup.org/onlinepubs/009695399/functions/gethostbyname.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/mkswap.c | 42 +++++++++++++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 15 deletions(-)
+ term-utils/agetty.8 |  2 +-
+ term-utils/agetty.c | 20 ++++++++++++++++----
+ 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index 0144921..f090121 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -75,6 +75,8 @@ static unsigned long badpages = 0;
- static int check = 0;
+diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
+index e400ec8..e51017d 100644
+--- a/term-utils/agetty.8
++++ b/term-utils/agetty.8
+@@ -215,7 +215,7 @@ no hostname at all will be shown.
+ \-\-long\-hostname
+ By default the hostname is only printed until the first dot.  With
+ this option enabled, the full qualified hostname by gethostname()
+-or if not found by gethostbyname() is shown.
++or if not found by getaddrinfo() is shown.
+ .TP
+ \-\-version
+ Output version information and exit.
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 244ea29..ac7c16c 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1298,17 +1298,29 @@ static void do_prompt(struct options *op, struct termios *tp)
+ 		if (!hn)
+ 			log_err(_("failed to allocate memory: %m"));
+ 		if (gethostname(hn, sysconf(_SC_HOST_NAME_MAX)) == 0) {
+-			struct hostent *ht;
+ 			char *dot = strchr(hn, '.');
  
- #define SELINUX_SWAPFILE_TYPE	"swapfile_t"
-+#define MAX_BADPAGES	((pagesize-1024-128*sizeof(int)-10)/sizeof(int))
-+#define MIN_GOODPAGES	10
- 
- #ifdef __sparc__
- # ifdef __arch64__
-@@ -271,8 +273,6 @@ It is roughly 2GB on i386, PPC, m68k, ARM, 1GB on sparc, 512MB on mips,
- 128GB on alpha and 3TB on sparc64.
- */
- 
--#define MAX_BADPAGES	((pagesize-1024-128*sizeof(int)-10)/sizeof(int))
--#define MIN_GOODPAGES	10
- 
- static void __attribute__ ((__noreturn__)) usage(FILE *out)
- {
-@@ -362,6 +362,29 @@ new_prober(int fd)
- }
- #endif
- 
-+static void prepare_header(struct swap_header_v1_2 *hdr,
-+	unsigned char *uuid, char *volume_name)
-+{
-+	unsigned long long goodpages;
-+
-+	hdr->version = 1;
-+	hdr->last_page = PAGES - 1;
-+	hdr->nr_badpages = badpages;
-+
-+	if (badpages > PAGES - MIN_GOODPAGES)
-+		errx(EXIT_FAILURE, _("Unable to set up swap-space: unreadable"));
-+
-+	goodpages = PAGES - badpages - 1;
-+	printf(_("Setting up swapspace version 1, size = %llu KiB\n"),
-+		goodpages * pagesize / 1024);
-+
-+	write_signature("SWAPSPACE2");
-+	write_uuid_and_label(uuid, volume_name);
-+
-+}
-+
-+
-+
- static void
- wipe_device(int fd, const char *devname, int force)
- {
-@@ -441,7 +464,7 @@ main(int argc, char **argv) {
- 	struct swap_header_v1_2 *hdr;
- 	int c;
- 	unsigned long long maxpages;
--	unsigned long long goodpages;
-+
- 	unsigned long long sz;
- 	off_t offset;
- 	int force = 0;
-@@ -599,19 +622,8 @@ main(int argc, char **argv) {
- 	wipe_device(DEV, device_name, force);
- 
- 	hdr = (struct swap_header_v1_2 *) signature_page;
--	hdr->version = 1;
--	hdr->last_page = PAGES - 1;
--	hdr->nr_badpages = badpages;
- 
--	if (badpages > PAGES - MIN_GOODPAGES)
--		errx(EXIT_FAILURE, _("Unable to set up swap-space: unreadable"));
--
--	goodpages = PAGES - badpages - 1;
--	printf(_("Setting up swapspace version 1, size = %llu KiB\n"),
--		goodpages * pagesize / 1024);
--
--	write_signature("SWAPSPACE2");
--	write_uuid_and_label(uuid, opt_label);
-+	prepare_header(hdr, uuid, opt_label);
- 
- 	offset = 1024;
- 	if (lseek(DEV, offset, SEEK_SET) != offset)
+ 			if ((op->flags & F_LONGHNAME) == 0) {
+ 				if (dot)
+ 					*dot = '\0';
+ 				write_all(STDOUT_FILENO, hn, strlen(hn));
+-			} else if (dot == NULL && (ht = gethostbyname(hn)))
+-				write_all(STDOUT_FILENO, ht->h_name, strlen(ht->h_name));
+-			else
++			} else if (dot == NULL) {
++				struct addrinfo *res, hints;
++				memset(&hints, 0, sizeof(hints));
++				hints.ai_flags = AI_CANONNAME;
++				if (!getaddrinfo(hn, NULL, &hints, &res)) {
++					write_all(STDOUT_FILENO,
++						  res->ai_canonname,
++						  strlen(res->ai_canonname));
++					freeaddrinfo(res);
++				} else {
++					freeaddrinfo(res);
++					goto printhn;
++				}
++			} else {
++ printhn:
+ 				write_all(STDOUT_FILENO, hn, strlen(hn));
++			}
+ 			write_all(STDOUT_FILENO, " ", 1);
+ 		}
+ 		free(hn);
 -- 
-1.7.11.1.25.g0e18bef
+1.7.12.2
 
