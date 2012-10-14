@@ -1,62 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:52596 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757610Ab2JQTX7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Oct 2012 15:23:59 -0400
-Received: by mail-we0-f174.google.com with SMTP id t9so4577496wey.19
-        for <util-linux@vger.kernel.org>; Wed, 17 Oct 2012 12:23:58 -0700 (PDT)
-Message-ID: <507F05C3.5070300@gmail.com>
-Date: Wed, 17 Oct 2012 21:23:47 +0200
-From: Milan Broz <gmazyland@gmail.com>
-MIME-Version: 1.0
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-CC: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>,
-        util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Subject: Re: Questions concerning fstrim and online discard.
-References: <20121004064736.64caef77@dualc.maya.org> <alpine.LFD.2.00.1210151649540.15261@dhcp-1-104.brq.redhat.com> <507D8B15.5050004@01019freenet.de> <alpine.LFD.2.00.1210162056290.18184@localhost> <507EEAB0.7060900@01019freenet.de>
-In-Reply-To: <507EEAB0.7060900@01019freenet.de>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:56691 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754394Ab2JNUW3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:22:29 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so3908587wgb.1
+        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:22:28 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/13] make ipcs to use proc
+Date: Sun, 14 Oct 2012 21:22:12 +0100
+Message-Id: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/17/2012 07:28 PM, Andreas Hartmann wrote:
-> I read a few articles about encryption with SSD. With linux / dm-crypt /
-> cryptseup luks, plausible deniability isn't given at all because of the
-> architecture of cryptsetup luks and the not completely crypted disk.
+Hi Karel and others.
 
-You can have separated LUKS header (with recent cryptetup) and if you
-have filled device with random, you can map another device with different
-offset into it. So you get the same arch like "plausible" deniability
-in truecrypt, just it need some script magic.
-But not possible with TRIM obviously... (hidden disk, possibly mapped
-to unused outer disk space, could be discarded).
+Couple weeks ago I decided to do the ipcs todo item, and today patches
+got to be ready enough so that I could make final polishing and send them
+for review.
 
-> Are there any known successfully carried out attacks (= partition /
-> filesystem was decryptable by the attacker) on crypted partitions on
-> SSDs which would have been not successful without TRIM enabled or is it
-> (as of today :-)) more of theory?
+The ipcs is still pretty messy.  Partly the mess arises from my decision
+to keep various ipc info mechanisms as fallback when /proc or /sys is
+missing.  And then again there are couple values which the ipc does not
+seem to expose without calling good ol' multiplexer.
 
-I don't think so.
+As the change is quite large I assume there has to be few bugs.  None of
+the where intentional, so having multiple people testing is preferable. 
 
-Discarded blocks are kind of side channel, you get more info about
-device (like I tried to show it here - I can detect filesystem
-from cipherdevice pattern here
-http://asalor.blogspot.cz/2011/08/trim-dm-crypt-problems.html
 
-Also read FAQ
-http://code.google.com/p/cryptsetup/wiki/FrequentlyAskedQuestions#5._Security_Aspects
+The following changes since commit 71b161ea37c57dc6a8341aeec6c0c2ae7cd4cfe3:
 
-But without another weakness it should not lead to decryption
-of data (and if attacker can repeatedly get snapshots of ciphertext
-device, it can be problem even today).
+  build-sys: clean update-potfiles script (2012-10-10 14:10:30 +0200)
 
-I would like people to tink about the problem, assess the risks and
-if discard is acceptable for their particular use case, no problem
-switch TRIM on.
+are available in the git repository at:
 
-And the most common case - encrypted laptop to secure data against
-random thief - should still work even with TRIM.
-But targeted attack is something different. Really, you need
-particular threat model to say if it is a problem.
+  git://github.com/kerolasa/lelux-utiliteetit.git ipcs
 
-Milan
+for you to fetch changes up to b6700fc1b733ebe44612d52e4bd649dc8dfd85be:
+
+  docs: update TODO (2012-10-14 20:56:10 +0100)
+
+----------------------------------------------------------------
+Sami Kerola (13):
+      ipcs: add data structures to read state from /proc & /sys
+      ipcs: add /proc and /sys path definitions
+      ipcs: determine ipc limits from /proc
+      ipcs: add new permissions printing function
+      ipcs: read shared memory values from /proc
+      ipcs: read message queue values from /proc
+      ipsc: read semaphore values from /proc
+      ipcs: clean up permissions printing
+      ipcs: make individual shared memory id printing to use /proc
+      ipcs: make individual message queue id printing to use /proc
+      ipcs: make individual semaphore id printing to use /proc
+      ipcs: validate numeric user input
+      docs: update TODO
+
+ Documentation/TODO      |   4 -
+ include/pathnames.h     |  11 +
+ sys-utils/Makemodule.am |   2 +-
+ sys-utils/ipcs.c        | 913 ++++++++++++++++++++++++++++++++++++------------
+ 4 files changed, 711 insertions(+), 219 deletions(-)
+
