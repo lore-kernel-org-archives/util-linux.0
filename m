@@ -1,89 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:37005 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752607Ab2JOBqe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Oct 2012 21:46:34 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH 01/19] last: stop using MAXHOSTNAMELEN
-Date: Sun, 14 Oct 2012 21:46:39 -0400
-Cc: util-linux@vger.kernel.org
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi> <1350246070-10544-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-2-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart75015980.aLbmKnorKF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201210142146.40677.vapier@gentoo.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:64919 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754335Ab2JNUVb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:31 -0400
+Received: by mail-wi0-f172.google.com with SMTP id hq12so1296035wib.1
+        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:31 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 11/19] rtcwake: replace usleep with nanosleep
+Date: Sun, 14 Oct 2012 21:21:02 +0100
+Message-Id: <1350246070-10544-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart75015980.aLbmKnorKF
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+POSIX.1-2001 declares usleep is obsolete.
 
-On Sunday 14 October 2012 16:20:52 Sami Kerola wrote:
-> --- a/login-utils/last.c
-> +++ b/login-utils/last.c
-> @@ -418,22 +418,19 @@ addtty(char *ttyname) {
->   */
->  static void
->  hostconv(char *arg) {
-> -	static int	first =3D 1;
-> -	static char	*hostdot,
-> -			name[MAXHOSTNAMELEN];
-> -	char	*argdot;
-> +	static char *hostdot;
-> +	static char *argdot;
-> +	static char *name;
->=20
->  	if (!(argdot =3D strchr(arg, '.')))
->  		return;
-> -	if (first) {
-> -		first =3D 0;
-> -		if (gethostname(name, sizeof(name)))
-> -			err(EXIT_FAILURE, _("gethostname failed"));
-> -
-> -		hostdot =3D strchr(name, '.');
-> -	}
-> +	name =3D xmalloc(sizeof(char) * (sysconf(_SC_HOST_NAME_MAX) + 1));
-> +	if (gethostname(name, sysconf(_SC_HOST_NAME_MAX)))
-> +		err(EXIT_FAILURE, _("gethostname failed"));
-> +	hostdot =3D strchr(name, '.');
->  	if (hostdot && !strcmp(hostdot, argdot))
->  		*argdot =3D '\0';
-> +	free(name);
->  }
+Reference: http://pubs.opengroup.org/onlinepubs/009695399/functions/usleep.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/rtcwake.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-marking argdot static doesn't make sense
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index a1fd6dc..08f1c11 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -38,7 +38,6 @@
+ #include "nls.h"
+ #include "xalloc.h"
+ #include "pathnames.h"
+-#include "usleep.h"
+ #include "strutils.h"
+ #include "c.h"
+ #include "closestream.h"
+@@ -390,6 +389,7 @@ int main(int argc, char **argv)
+ 	int		t;
+ 	int		fd;
+ 	time_t		alarm = 0;
++	struct timespec	waittime;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -550,7 +550,9 @@ int main(int argc, char **argv)
+ 				program_invocation_short_name, suspend, devname,
+ 				ctime(&alarm));
+ 		fflush(stdout);
+-		usleep(10 * 1000);
++		waittime.tv_sec = 0;
++		waittime.tv_nsec = 10000000;
++		nanosleep(&waittime, NULL);
+ 	}
+ 
+ 	if (strcmp(suspend, "no") == 0) {
+-- 
+1.7.12.2
 
-the way you're rewritten things also doesn't make sense to have "name" be=20
-static.  i'd go so far as to say it's wrong.  keep the existing "first" log=
-ic.
-=2Dmike
-
---nextPart75015980.aLbmKnorKF
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJQe2sAAAoJEEFjO5/oN/WBnu0QAJwhzDvXg+oQ4/+G6GneuZJP
-5hN7Qf2orR/sDd4PtCgUoZJYR5nfeW565iHLB9UI3cSLX/jUirsNkmhpG9eOaeSS
-lsmaCWPp7RWSa5/26b4N5pZJMV1bqWYODfT9bFGm3bSsw0IBvSIW9gqgMScTyCV3
-HV9d5t+li8BamatjItb63k36qGH7a/wWNCrY3FoqFyy8SHbklEKaNbEAwFo7eIAo
-pPS1onfEevcR4xC13e+M5AEr1OYN1SyZHfIs376ZJyNwitrKVcwOsWo8d6SDc/r7
-z9uFOzhocqemQRguxVid/amnB1fucR9usiglKrtmceQ6JiuEofR5PwuQ4eBRuwor
-BuP3WHFg4GQXYwp530mTjLbC/OtNyNzK61Gr3U6twKckYaweDT5JPmY0o+xfwUye
-0vSgCYrxhZTMGFLjckRC8KX3372PWoTpUsr4+W2vd/LxGJtUQRT4uLInOHwn0G37
-dH7oTwcX9IzGePOdtBWqtI/jtYzIRU6RFTS+z5FK3bMFxu+CMmQ4XpVf4Cu3GtlI
-xO5Xg4tfzaRJ163WDmRuPwSN5LaWG/mLYhAtuN3j+FuCGnue3ox7u4e655Gu74hh
-3gw1bBBybH4UQxfg34T+x4qnRrEyH85GPiD9cNbWVPfAigF+pI/jfTCVjnhT7SEW
-tea2HnIEZteKZdy+319y
-=a4K9
------END PGP SIGNATURE-----
-
---nextPart75015980.aLbmKnorKF--
