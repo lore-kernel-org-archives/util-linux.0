@@ -1,65 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:22758 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750793Ab2JVJHR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Oct 2012 05:07:17 -0400
-Date: Mon, 22 Oct 2012 11:07:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/19] compliancy fixes
-Message-ID: <20121022090706.GC21724@x2.net.home>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:64956 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751237Ab2JOIch (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 15 Oct 2012 04:32:37 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr7so1753045wib.1
+        for <util-linux@vger.kernel.org>; Mon, 15 Oct 2012 01:32:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20121014221044.GR533@rampage>
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
+	<1350246070-10544-8-git-send-email-kerolasa@iki.fi>
+	<20121014221044.GR533@rampage>
+Date: Mon, 15 Oct 2012 09:32:36 +0100
+Message-ID: <CAG27Bk26Yg3GNmX9Qw8pm2YSeyfRfxCsS-RNWKs-BUCzJCSGkA@mail.gmail.com>
+Subject: Re: [PATCH 07/19] sd-daemon: fix cppcheck warnings
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 14, 2012 at 09:20:51PM +0100, Sami Kerola wrote:
->      1  last: stop using MAXHOSTNAMELEN
->      2  login: stop using MAXHOSTNAMELEN
->      3  write: stop using MAXHOSTNAMELEN
->      4  agetty: stop using MAXHOSTNAMELEN
->      5  c.h: remove unnecessary MAXHOSTNAMELEN fallback definition
+On Sun, Oct 14, 2012 at 11:10 PM, Dave Reisner <d@falconindy.com> wrote:
+> On Sun, Oct 14, 2012 at 09:20:58PM +0100, Sami Kerola wrote:
+>> [misc-utils/sd-daemon.c:91]: (style) Checking if unsigned variable 'l' is \
+>> less than zero.
+>> [misc-utils/sd-daemon.c:254]: (warning) Comparison of a boolean \
+>> expression with an integer.
+>> [misc-utils/sd-daemon.c:363]: (style) Checking if unsigned variable \
+>> 'length' is less than zero.
+>> [misc-utils/sd-daemon.c:366]: (style) Checking if unsigned variable \
+>> 'length' is less than zero.
+>>
+>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+>> ---
+>>  misc-utils/sd-daemon.c | 8 ++++----
+>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/misc-utils/sd-daemon.c b/misc-utils/sd-daemon.c
+>> index 763e079..21399e2 100644
+>> --- a/misc-utils/sd-daemon.c
+>> +++ b/misc-utils/sd-daemon.c
+>
+> This file comes directly from the systemd tree. I think it'd be better
+> to submit the fix there first.
+>
+> Either way, there's whitespace errors in this patch (tabs rather than
+> spaces).
 
-Applied, I did some changes to the code:
+Hi Dave,
 
-    - get_hostname_max() moved to c.h
-    - added xgethostname() to xalloc.h to avoid duplicate code.
-
->      6  docs: add line breaks to whereis.1
-
->      7  sd-daemon: fix cppcheck warnings
-
-ignored
-
->      8  libmount: replace usleep with nanosleep
->      9  include/all-io: replace usleep with nanosleep
->     10  hwclock: replace usleep with nanosleep
->     11  rtcwake: replace usleep with nanosleep
->     12  agetty: replace usleep with nanosleep
->     13  tailf: replace usleep with nanosleep
->     14  include/usleep: remove remaining references to usleep
-
- it seems unnecessary as we already have a fallback solution for
- systems without usleep()
-
- I have moved the fallbcack from include/usleep.h to include/c.h.
-
->     15  libmount, eject: replace index() and rindex() with strrch() or strrchr()
->     16  logger: replace gethostbyname() with getaddrinfo()
->     17  agetty: replace gethostbyname() with getaddrinfo()
->     18  build-sys: remove gethostbyname() check
-
- applied
-
->     19  fsck.cramfs: replace utime() with utimensat()
-
- I have add fsck.cramfs to check_PROGRAMS.
-
-    Karel
+OK, I will send the patch there and remove it from my branch. Thank
+you for review.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
