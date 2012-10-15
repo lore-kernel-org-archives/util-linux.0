@@ -1,49 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:33053 "EHLO smtp.gentoo.org"
+Received: from smtp.gentoo.org ([140.211.166.183]:37842 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750882Ab2JJE3V (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 10 Oct 2012 00:29:21 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id 59EE033C235
-	for <util-linux-ng@vger.kernel.org>; Wed, 10 Oct 2012 04:29:21 +0000 (UTC)
+	id S1752819Ab2JOCOa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 14 Oct 2012 22:14:30 -0400
 From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux-ng@vger.kernel.org
-Subject: [PATCH] sfdisk: fix aliasing warnings
-Date: Wed, 10 Oct 2012 00:29:54 -0400
-Message-Id: <1349843394-22920-1-git-send-email-vapier@gentoo.org>
+To: Sami Kerola <kerolasa@iki.fi>
+Subject: Re: [PATCH 15/19] libmount, eject: replace index() and rindex() with strrch() or strrchr()
+Date: Sun, 14 Oct 2012 22:14:36 -0400
+Cc: util-linux@vger.kernel.org
+References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi> <1350246070-10544-16-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1350246070-10544-16-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart6555920.fSvSkjU89N";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201210142214.36896.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Compiles down to the same code.
+--nextPart6555920.fSvSkjU89N
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- fdisks/sfdisk.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+On Sunday 14 October 2012 16:21:06 Sami Kerola wrote:
+> Both index() and rindex() are legacy functions which may be withdrawn in
+> a future.
 
-diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
-index 3450f52..e59d52a 100644
---- a/fdisks/sfdisk.c
-+++ b/fdisks/sfdisk.c
-@@ -1561,12 +1561,14 @@ msdos_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
- 	return 0;
-     }
- 
--    unsigned int sig = *(unsigned short *)(s->data + 2);
--    if (sig <= 0x1ae
--	&& *(unsigned short *)(s->data + sig) == 0x55aa
--	&& (1 & *(unsigned char *)(s->data + sig + 2))) {
-+    unsigned short sig, magic;
-+    memcpy(&sig, s->data + 2, sizeof(sig));
-+    if (sig <= 0x1ae) {
-+	memcpy(&magic, s->data + sig, sizeof(magic));
-+	if (magic == 0x55aa && (1 & *(unsigned char *)(s->data + sig + 2))) {
- 	    warnx(_("DM6 signature found - giving up\n"));
- 	    return 0;
-+	}
-     }
- 
-     for (pno = 0; pno < 4; pno++, cp += sizeof(struct partition)) {
--- 
-1.7.12
+Acked-by: Mike Frysinger <vapier@gentoo.org>
+-mike
 
+--nextPart6555920.fSvSkjU89N
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJQe3GMAAoJEEFjO5/oN/WBatEP/0kJ7EKmdhHbuh16qDk+0ZeF
+rXAj8Tw0p7GprmtNJhyaHhX/s8pZopdE7Tf0AoBXPIBrYhEdoO6WZ8gJdgRXE1k3
+E+kWq+DRwBZ95aAMJLIlqMw/05UMqeA9Jcd5PY3D6ox47oUC49PbnBIIqaeUOVvV
+mWoA390cZhzk81fx1N5OfHGHPk3mqbjVdCmjRkHNsbEVyeTm8OmF2R6SYStdadQw
++KqflTVCJXAZ8xAdx7VtFkV14bWrloMLyQjXATKrkvElaM/8qftLDjqvwvCcEYNx
+PVsEosGBV11iC/Nqq59RCe/GcQ/lIzs/IsacmOYv27J8FZuZddSUWpQbrUNv1I8y
+M1OeA6itZITCLq1qIb6VfUJeXY1vsBMegsELBB8YAXMiJtCZmtcupovWaoc7tyrQ
++cQMsm0RPGV3cZlH4VXKi+eDXu8fq8TSrV9SNH1fYZ6Y9DoBkZCvaV6l6yE92+3k
+ZEAwG50nlVxTnujgi0UJlnvFt1ZWYUNjpzhCYn3rvXrQnmpymt6R2v8v84WRBmN+
+41WtMkWNH3muty1Ef/5Udfui11uoqOVDYTsqtouSgjmzshMF+oUC4y48q6dDElv6
+HQQcYZJifcMMpENlHd41dwWOhNCGIr+XBI1SQ/5/2GC9oViH8saQN7DCvSCaW9LF
+q/WbeS4rAdbjEXRln2/Y
+=5p6R
+-----END PGP SIGNATURE-----
+
+--nextPart6555920.fSvSkjU89N--
