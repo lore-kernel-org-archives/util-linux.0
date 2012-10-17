@@ -1,60 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:64919 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754335Ab2JNUVb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:21:31 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so1296035wib.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:21:31 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 11/19] rtcwake: replace usleep with nanosleep
-Date: Sun, 14 Oct 2012 21:21:02 +0100
-Message-Id: <1350246070-10544-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-References: <1350246070-10544-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: andihartmann@01019freenet.de
+Message-ID: <507EEAB0.7060900@01019freenet.de>
+Date: Wed, 17 Oct 2012 19:28:16 +0200
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+MIME-Version: 1.0
+To: =?windows-1252?Q?Luk=E1=9A_Czerner?= <lczerner@redhat.com>
+CC: Andreas Hartmann <andihartmann@01019freenet.de>,
+        util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Subject: Re: Questions concerning fstrim and online discard.
+References: <20121004064736.64caef77@dualc.maya.org> <alpine.LFD.2.00.1210151649540.15261@dhcp-1-104.brq.redhat.com> <507D8B15.5050004@01019freenet.de> <alpine.LFD.2.00.1210162056290.18184@localhost>
+In-Reply-To: <alpine.LFD.2.00.1210162056290.18184@localhost>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-POSIX.1-2001 declares usleep is obsolete.
+Lukáš Czerner wrote:
+> On Tue, 16 Oct 2012, Andreas Hartmann wrote:
+> 
+>> Date: Tue, 16 Oct 2012 18:28:05 +0200
+>> From: Andreas Hartmann <andihartmann@01019freenet.de>
+[...]
+>>> Hi Andreas,
+>>>
+>>> I hope that you realize that using discard with dm_crypt is not
+>>> safe.
+>>
+>> I know about this problem. My understanding is: trim usually writes 0 to
+>> the free addresses, hence it is possible to see which addresses are used
+>> and which are unused.
+> 
+> This is not exactly right. TRIM does not write anything to the
+> device, but you can read zeroes (or some other values, see bellow) when
+> reading previously trimmed blocks. The reason being that when when
+> it's tirmmed firmware does not actually need to read data from the flash.
+> 
+>>
+>> The SF-2281 controller seems not to write zero to the addresses, hence
+>> the problem shouldn't be with this controller? Or did I got something wrong?
+>>
+>> cat /sys/block/sda/queue/discard_zeroes_data
+>> 0
+> 
+> That's just one case. IIRC the device can return zeores after trim (which
+> will be advertised through sysfs interface), some other deterministic data
+> or pseudorandom data. The device would not be able to always return what
+> has been there before simply because those blocks might have already been
+> reused in wear levelling process, so it has to be substituted. And when it
+> comes to cryptography, all those options are bad.
 
-Reference: http://pubs.opengroup.org/onlinepubs/009695399/functions/usleep.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/rtcwake.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+I read a few articles about encryption with SSD. With linux / dm-crypt /
+cryptseup luks, plausible deniability isn't given at all because of the
+architecture of cryptsetup luks and the not completely crypted disk.
 
-diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
-index a1fd6dc..08f1c11 100644
---- a/sys-utils/rtcwake.c
-+++ b/sys-utils/rtcwake.c
-@@ -38,7 +38,6 @@
- #include "nls.h"
- #include "xalloc.h"
- #include "pathnames.h"
--#include "usleep.h"
- #include "strutils.h"
- #include "c.h"
- #include "closestream.h"
-@@ -390,6 +389,7 @@ int main(int argc, char **argv)
- 	int		t;
- 	int		fd;
- 	time_t		alarm = 0;
-+	struct timespec	waittime;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -550,7 +550,9 @@ int main(int argc, char **argv)
- 				program_invocation_short_name, suspend, devname,
- 				ctime(&alarm));
- 		fflush(stdout);
--		usleep(10 * 1000);
-+		waittime.tv_sec = 0;
-+		waittime.tv_nsec = 10000000;
-+		nanosleep(&waittime, NULL);
- 	}
- 
- 	if (strcmp(suspend, "no") == 0) {
--- 
-1.7.12.2
+Are there any known successfully carried out attacks (= partition /
+filesystem was decryptable by the attacker) on crypted partitions on
+SSDs which would have been not successful without TRIM enabled or is it
+(as of today :-)) more of theory?
 
+
+
+Thanks,
+kind regards,
+Andreas Hartmann
