@@ -1,39 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:21620 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38129 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752449Ab2JBIRv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Oct 2012 04:17:51 -0400
-Date: Tue, 2 Oct 2012 10:17:41 +0200
+	id S1754893Ab2JRKTL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Oct 2012 06:19:11 -0400
+Date: Thu, 18 Oct 2012 12:19:09 +0200
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-        Werner Fink <werner@suse.de>, Ludwig Nussel <ludwig.nussel@suse.de>
-Cc: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>,
-        util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>,
-        Tobias Powalowski <tpowa@archlinux.org>
-Subject: Re: [su] New su utility messes with my PATH
-Message-ID: <20121002081741.GA7730@x2.net.home>
-References: <50547FE7.204@archlinux.org>
- <50549411.9000302@draigBrady.com>
- <20120920094330.GC16499@x2.net.home>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/5] fdisk: api: propagate partition deletion to users
+Message-ID: <20121018101909.GC16021@x2.net.home>
+References: <1349620417.2548.6.camel@offbook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120920094330.GC16499@x2.net.home>
+In-Reply-To: <1349620417.2548.6.camel@offbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 20, 2012 at 11:47:04AM +0200, Karel Zak wrote:
->         commit a6fdd3f8125be23930d955c2bc6b7a46cdaf8a12
->         Author: Werner Fink <werner@suse.de>
->         Date:   Tue Aug 17 09:09:55 2010 +0200
-> 
->         make sure /sbin resp /usr/sbin are in PATH
-> 
-> 
-> Werner, Ludwig? What about to revert the patch?
+On Sun, Oct 07, 2012 at 04:33:37PM +0200, Davidlohr Bueso wrote:
+>  fdisks/fdisk.h         |    2 +-
+>  fdisks/fdiskbsdlabel.c |    6 ++++--
+>  fdisks/fdiskdoslabel.c |    4 +++-
+>  fdisks/fdisksgilabel.c |   13 ++++++++-----
+>  fdisks/fdisksunlabel.c |   12 +++++++-----
+>  fdisks/gpt.c           |    8 +++++---
+>  fdisks/utils.c         |    3 +--
+>  8 files changed, 33 insertions(+), 21 deletions(-)
 
- Reverted.
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
