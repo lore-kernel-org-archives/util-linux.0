@@ -1,39 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47584 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751806Ab2JBMN5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Oct 2012 08:13:57 -0400
-Date: Tue, 2 Oct 2012 14:13:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Philipp Thomas <pth@suse.de>
-Cc: util-linux@vger.kernel.org, Werner Fink <werner@suse.de>
-Subject: Re: Merge of sulogin in 2.22
-Message-ID: <20121002121353.GK7730@x2.net.home>
-References: <20120927143458.GB31742@paradies.suse.de>
- <20120927231811.GB9064@x2.net.home>
- <20120928124732.GB12510@paradies.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120928124732.GB12510@paradies.suse.de>
+Received: from vint.altlinux.org ([194.107.17.35]:60123 "EHLO
+	vint.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753580Ab2JRSSK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 18 Oct 2012 14:18:10 -0400
+Date: Thu, 18 Oct 2012 22:18:07 +0400
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+To: Ayan George <ayan@ayan.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Use C99 idioms in kill.c
+Message-ID: <20121018181807.GA25656@altlinux.org>
+References: <508025be.e81S03iobeo1edmy%ayan@ayan.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+In-Reply-To: <508025be.e81S03iobeo1edmy%ayan@ayan.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Sep 28, 2012 at 02:47:32PM +0200, Philipp Thomas wrote:
-> Hi Karel,
-> * Karel Zak (kzak@redhat.com) [20120928 01:18]:
-> 
-> >  Sure, send the patch. Thanks!
-> 
-> Alas, I tried to adapt the patch but as I'm not familiar with the code and
-> you've done quite a few changes to it, would you be able to help me with the
-> patch? Attached is the working part that adds the new files consoles.[c,h]
-> plus that part of the original patch that would add the needed feature but
-> doesn't apply.
 
-I'll try work on the patch later. Thanks.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    Karel
+Hi,
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On Thu, Oct 18, 2012 at 03:52:30PM +0000, Ayan George wrote:
+> * Moved some declarations closer to where the vairable is used.
+> * Declared variables used only in loops within the loop itself.
+> ---
+>  misc-utils/kill.c |   45 +++++++++++++++++++--------------------------
+>  1 file changed, 19 insertions(+), 26 deletions(-)
+>=20
+> diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+> index 6abfd24..2b88852 100644
+> --- a/misc-utils/kill.c
+> +++ b/misc-utils/kill.c
+[...]
+> -    numsig =3D SIGTERM;
+> -    do_pid =3D (! strcmp (progname, "pid")); 	/* Yecch */
+> -    do_kill =3D 0;
+> -    check_all =3D 0;
+> +    int numsig =3D SIGTERM,
+> +    	do_pid =3D (! strcmp (progname, "pid")), 	/* Yecch */
+> +    	do_kill =3D 0;
+> +    	check_all =3D 0;
+
+Please enable your .git/hooks/pre-commit to stop these whitespace errors,
+no matter whether to use C99 or not.
+
+
+--=20
+ldv
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlCAR98ACgkQfKvmrJ41Nh7oVwCbBqqcuWn8zSU02fLOv0YlLGKU
+uVgAoJQlz+CN0W1MWY4qk+VCAJncaitO
+=VEyS
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--
