@@ -1,33 +1,37 @@
-Return-Path: dave@gnu.org
-Message-ID: <1349620441.2548.9.camel@offbook>
-Subject: [PATCH 4/5] fdisk: fix segfault when printing gpt raw data
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Sun, 07 Oct 2012 16:34:01 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-la0-f46.google.com ([209.85.215.46]:52450 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755334Ab2JVREI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Oct 2012 13:04:08 -0400
+Received: by mail-la0-f46.google.com with SMTP id h6so1756128lag.19
+        for <util-linux@vger.kernel.org>; Mon, 22 Oct 2012 10:04:06 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1350925048-31084-1-git-send-email-venkat@linaro.org>
+References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
+Date: Mon, 22 Oct 2012 22:34:06 +0530
+Message-ID: <CAFSEfh03NHoWjWh2A0wx_eu8xZFvzU6jvRpLtmF-uYxNUwTE3A@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/4] Adding useful information into swap partition header
+From: Venkatraman S <venkat@linaro.org>
+To: kzak@redhat.com
+Cc: util-linux@vger.kernel.org, arnd.bergmann@linaro.org,
+        Venkatraman S <venkat@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisks/fdisk.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On 22 October 2012 22:27, Venkatraman S <venkat@linaro.org> wrote:
+> Trying some of the ideas bounced around in lkml for
+> optimizing swap on flash (eMMC / SD) media [1], we can start
+> to add useful information into swapheader without breaking
+> compatibility.
+> Such information can help the kernel swap management algo
+> to tune itself to the geometry of flash devices (erase block
+> size and page size etc).
+> Some more features (like command line override) are still
+> under development. In long term, libblkid/mkswap can be extended
+> to even detect this information by timing attacks,
+> even if sysfs parameters are not present.
+>
+Oops: Some reference links were missed in the cover letter..
 
-diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index 612bf87..a3ac087 100644
---- a/fdisks/fdisk.c
-+++ b/fdisks/fdisk.c
-@@ -1390,7 +1390,8 @@ static void print_raw(struct fdisk_context *cxt)
- 	int i;
- 
- 	printf(_("Device: %s\n"), cxt->dev_path);
--	if (disklabel == SUN_LABEL || disklabel == SGI_LABEL)
-+	if (disklabel == SUN_LABEL || disklabel == SGI_LABEL ||
-+	    disklabel == GPT_LABEL)
- 		print_buffer(cxt, cxt->firstsector);
- 	else for (i = 3; i < partitions; i++)
- 		     print_buffer(cxt, ptes[i].sectorbuffer);
--- 
-1.7.9.5
+[1] https://lkml.org/lkml/2012/3/30/410
