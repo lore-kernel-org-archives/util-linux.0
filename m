@@ -1,120 +1,112 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:65277 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754448Ab2JNUWn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Oct 2012 16:22:43 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hr7so1316198wib.1
-        for <util-linux@vger.kernel.org>; Sun, 14 Oct 2012 13:22:42 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/13] ipcs: make individual message queue id printing to use /proc
-Date: Sun, 14 Oct 2012 21:22:22 +0100
-Message-Id: <1350246145-10600-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
+Received: from devils.ext.ti.com ([198.47.26.153]:51912 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755443Ab2JVQ6f (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Oct 2012 12:58:35 -0400
+From: Venkatraman S <venkat@linaro.org>
+To: <kzak@redhat.com>
+CC: <util-linux@vger.kernel.org>, <arnd.bergmann@linaro.org>,
+        Venkatraman S <venkat@linaro.org>
+Subject: [RFC PATCH 2/4] mkswap: refactor header preparation
+Date: Mon, 22 Oct 2012 22:27:25 +0530
+Message-ID: <1350925048-31084-3-git-send-email-venkat@linaro.org>
+In-Reply-To: <1350925048-31084-1-git-send-email-venkat@linaro.org>
+References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And reindent the print_msg() function.
+Move opencoded swap header populating code to a separate
+function. No functional changes.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Venkatraman S <venkat@linaro.org>
 ---
- sys-utils/ipcs.c | 57 ++++++++++++++++++++++++++++++--------------------------
- 1 file changed, 31 insertions(+), 26 deletions(-)
+ disk-utils/mkswap.c | 42 +++++++++++++++++++++++++++---------------
+ 1 file changed, 27 insertions(+), 15 deletions(-)
 
-diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
-index cd3d14d..33759fe 100644
---- a/sys-utils/ipcs.c
-+++ b/sys-utils/ipcs.c
-@@ -403,6 +403,10 @@ static int msgctl_info_wrapper(int maxid, int id, struct msg_data **msgds,
- 			       &(msgdsp->q_rtime),
- 			       &(msgdsp->q_ctime)
- 			    );
-+			if (-1 < id && id != msgdsp->msg_perm.id) {
-+				i--;
-+				continue;
-+			}
- 			if (id < 0) {
- 				msgdsp->next = xmalloc(sizeof(struct msg_data));
- 				msgdsp = msgdsp->next;
-@@ -562,7 +566,7 @@ static void do_shm (char format, int use_proc);
- static void do_sem (char format, int use_proc);
- static void do_msg (char format, int use_proc);
- static void print_shm (int id, int use_proc);
--void print_msg (int id);
-+static void print_msg (int id, int use_proc);
- void print_sem (int id);
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index 0144921..f090121 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -75,6 +75,8 @@ static unsigned long badpages = 0;
+ static int check = 0;
  
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
-@@ -671,7 +675,7 @@ int main (int argc, char **argv)
- 		if (sem)
- 			print_sem (id);
- 		if (msg)
--			print_msg (id);
-+			print_msg (id, use_proc);
- 		if (!shm && !sem && !msg )
- 			usage (stderr);
- 	} else {
-@@ -1107,33 +1111,34 @@ static void print_shm(int shmid, int use_proc)
- 	return;
- }
+ #define SELINUX_SWAPFILE_TYPE	"swapfile_t"
++#define MAX_BADPAGES	((pagesize-1024-128*sizeof(int)-10)/sizeof(int))
++#define MIN_GOODPAGES	10
  
--
--void print_msg (int msqid)
-+static void print_msg(int msqid, int use_proc)
+ #ifdef __sparc__
+ # ifdef __arch64__
+@@ -271,8 +273,6 @@ It is roughly 2GB on i386, PPC, m68k, ARM, 1GB on sparc, 512MB on mips,
+ 128GB on alpha and 3TB on sparc64.
+ */
+ 
+-#define MAX_BADPAGES	((pagesize-1024-128*sizeof(int)-10)/sizeof(int))
+-#define MIN_GOODPAGES	10
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
  {
--	struct msqid_ds buf;
--	struct ipc_perm *ipcp = &buf.msg_perm;
-+	struct msg_data *msgdata;
- 
--	if (msgctl (msqid, IPC_STAT, &buf) == -1)
--		err(EXIT_FAILURE, _("msgctl failed"));
-+	if (msgctl_info_wrapper(-1, msqid, &msgdata, use_proc) < 1) {
-+		warnx(_("id %d not found"), msqid);
-+		return;
-+	}
- 
--	printf (_("\nMessage Queue msqid=%d\n"), msqid);
--	printf (_("uid=%u\tgid=%u\tcuid=%u\tcgid=%u\tmode=%#o\n"),
--		ipcp->uid, ipcp->gid, ipcp->cuid, ipcp->cgid, ipcp->mode);
--	printf (_("cbytes=%ld\tqbytes=%ld\tqnum=%ld\tlspid=%d\tlrpid=%d\n"),
--		/*
--		 * glibc-2.1.3 and earlier has unsigned short. glibc-2.1.91
--		 * has variation between unsigned short, unsigned long.
--		 * Austin has msgqnum_t (for msg_qbytes)
--		 */
--		(long) buf.msg_cbytes, (long) buf.msg_qbytes,
--		(long) buf.msg_qnum, buf.msg_lspid, buf.msg_lrpid);
--	printf (_("send_time=%-26.24s\n"),
--		buf.msg_stime ? ctime (&buf.msg_stime) : _("Not set"));
--	printf (_("rcv_time=%-26.24s\n"),
--		buf.msg_rtime ? ctime (&buf.msg_rtime) : _("Not set"));
--	printf (_("change_time=%-26.24s\n"),
--		buf.msg_ctime ? ctime (&buf.msg_ctime) : _("Not set"));
--	printf ("\n");
-+	printf(_("\nMessage Queue msqid=%d\n"), msqid);
-+	printf(_("uid=%u\tgid=%u\tcuid=%u\tcgid=%u\tmode=%#o\n"),
-+	       msgdata->msg_perm.uid, msgdata->msg_perm.uid,
-+	       msgdata->msg_perm.cuid, msgdata->msg_perm.cgid,
-+	       msgdata->msg_perm.mode & 0777);
-+	printf(_("cbytes=%ld\tqbytes=%ld\tqnum=%ld\tlspid=%d\tlrpid=%d\n"),
-+	       /* Old msqid_ds.msg_lqbytes is the same as
-+		* msgdata->q_cbytes.  See copy_msqid_to_user() from
-+		* http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=ipc/msg.c */
-+	       msgdata->q_cbytes, msgdata->q_cbytes,
-+	       msgdata->q_qnum, msgdata->q_lspid, msgdata->q_lrpid);
-+	printf(_("send_time=%-26.24s\n"),
-+	       msgdata->q_stime ? ctime(&msgdata->q_stime) : _("Not set"));
-+	printf(_("rcv_time=%-26.24s\n"),
-+	       msgdata->q_rtime ? ctime(&msgdata->q_rtime) : _("Not set"));
-+	printf(_("change_time=%-26.24s\n"),
-+	       msgdata->q_ctime ? ctime(&msgdata->q_ctime) : _("Not set"));
-+	printf("\n");
-+	free(msgdata);
- 	return;
+@@ -362,6 +362,29 @@ new_prober(int fd)
  }
+ #endif
  
++static void prepare_header(struct swap_header_v1_2 *hdr,
++	unsigned char *uuid, char *volume_name)
++{
++	unsigned long long goodpages;
++
++	hdr->version = 1;
++	hdr->last_page = PAGES - 1;
++	hdr->nr_badpages = badpages;
++
++	if (badpages > PAGES - MIN_GOODPAGES)
++		errx(EXIT_FAILURE, _("Unable to set up swap-space: unreadable"));
++
++	goodpages = PAGES - badpages - 1;
++	printf(_("Setting up swapspace version 1, size = %llu KiB\n"),
++		goodpages * pagesize / 1024);
++
++	write_signature("SWAPSPACE2");
++	write_uuid_and_label(uuid, volume_name);
++
++}
++
++
++
+ static void
+ wipe_device(int fd, const char *devname, int force)
+ {
+@@ -441,7 +464,7 @@ main(int argc, char **argv) {
+ 	struct swap_header_v1_2 *hdr;
+ 	int c;
+ 	unsigned long long maxpages;
+-	unsigned long long goodpages;
++
+ 	unsigned long long sz;
+ 	off_t offset;
+ 	int force = 0;
+@@ -599,19 +622,8 @@ main(int argc, char **argv) {
+ 	wipe_device(DEV, device_name, force);
+ 
+ 	hdr = (struct swap_header_v1_2 *) signature_page;
+-	hdr->version = 1;
+-	hdr->last_page = PAGES - 1;
+-	hdr->nr_badpages = badpages;
+ 
+-	if (badpages > PAGES - MIN_GOODPAGES)
+-		errx(EXIT_FAILURE, _("Unable to set up swap-space: unreadable"));
+-
+-	goodpages = PAGES - badpages - 1;
+-	printf(_("Setting up swapspace version 1, size = %llu KiB\n"),
+-		goodpages * pagesize / 1024);
+-
+-	write_signature("SWAPSPACE2");
+-	write_uuid_and_label(uuid, opt_label);
++	prepare_header(hdr, uuid, opt_label);
+ 
+ 	offset = 1024;
+ 	if (lseek(DEV, offset, SEEK_SET) != offset)
 -- 
-1.7.12.3
+1.7.11.1.25.g0e18bef
 
