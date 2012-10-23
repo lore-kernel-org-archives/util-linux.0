@@ -1,26 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3311 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47208 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754225Ab2JBIcG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Oct 2012 04:32:06 -0400
-Date: Tue, 2 Oct 2012 10:32:03 +0200
+	id S1754558Ab2JWMQO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 23 Oct 2012 08:16:14 -0400
+Date: Tue, 23 Oct 2012 14:16:10 +0200
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] column: clarify the --separator option
-Message-ID: <20121002083203.GF7730@x2.net.home>
-References: <1348694407-28676-1-git-send-email-P@draigBrady.com>
+To: Venkatraman S <venkat@linaro.org>
+Cc: util-linux@vger.kernel.org, arnd.bergmann@linaro.org
+Subject: Re: [RFC PATCH 0/4] Adding useful information into swap partition
+ header
+Message-ID: <20121023121610.GI21724@x2.net.home>
+References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1348694407-28676-1-git-send-email-P@draigBrady.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1350925048-31084-1-git-send-email-venkat@linaro.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 26, 2012 at 10:20:07PM +0100, Pádraig Brady wrote:
->  text-utils/column.c |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+On Mon, Oct 22, 2012 at 10:27:23PM +0530, Venkatraman S wrote:
+> Venkatraman S (4):
+>   libblkid/topology: add preferred_erase_size to topology probe
+>   mkswap: refactor header preparation
+>   mkswap: Add additional fields in swapheader
+>   mkswap: Probe and embed useful block device info into swapheader
 
- Applied, thanks.
+ I don't see a problem to support additional information in the swap
+ header, but our rule is pretty simple: first in Linus' tree, after
+ that in userspace.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
