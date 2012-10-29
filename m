@@ -1,41 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:56748 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753634Ab2JHHIv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:08:51 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so3493411wgb.1
-        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:08:50 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:18293 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755894Ab2J2WdE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Oct 2012 18:33:04 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q9TMX4jS023029
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Mon, 29 Oct 2012 18:33:04 -0400
+Received: from alice.com (ovpn-113-125.phx2.redhat.com [10.3.113.125])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q9TMX31q000860
+	for <util-linux@vger.kernel.org>; Mon, 29 Oct 2012 18:33:03 -0400
+From: Michal Schmidt <mschmidt@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 03/14] docs: fix column.1 groff syntax error
-Date: Mon,  8 Oct 2012 08:08:09 +0100
-Message-Id: <1349680100-18120-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
-References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] agetty: fix autodetection for TERM
+Date: Mon, 29 Oct 2012 23:33:01 +0100
+Message-Id: <1351549981-32412-1-git-send-email-mschmidt@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Quote backslash which user is expected to see.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+open_tty() autodetects whether to set TERM to "linux" or "vt102", but it
+can apply the result only if op->term is still NULL.
 ---
- text-utils/column.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ term-utils/agetty.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/text-utils/column.1 b/text-utils/column.1
-index 3727048..b6da45f 100644
---- a/text-utils/column.1
-+++ b/text-utils/column.1
-@@ -73,7 +73,7 @@ The util-linux version 2.23 changed
- option to be non-greedy, for example:
- .PP
- .EX
--$ printf "a:b:c\n1::3\n" | column  -t -s ':'
-+$ printf "a:b:c\\n1::3\\n" | column  -t -s ':'
- .EE
- .PP
- old output:
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index e53a701..2480f7d 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -283,7 +283,6 @@ int main(int argc, char **argv)
+ 		.flags  =  F_ISSUE,		/* show /etc/issue (SYSV_STYLE) */
+ 		.login  =  _PATH_LOGIN,		/* default login program */
+ 		.tty    = "tty1",		/* default tty line */
+-		.term   =  DEFAULT_VCTERM,	/* terminal type */
+ 		.issue  =  ISSUE		/* default issue file */
+ 	};
+ 	char *login_argv[LOGIN_ARGV_MAX + 1];
 -- 
-1.7.12.2
+1.7.11.7
 
