@@ -1,74 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:56911 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753686Ab2JHHI6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Oct 2012 03:08:58 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so3448340wib.1
-        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2012 00:08:56 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 07/14] pg: add noreturn function attributes
-Date: Mon,  8 Oct 2012 08:08:13 +0100
-Message-Id: <1349680100-18120-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
-References: <1349680100-18120-1-git-send-email-kerolasa@iki.fi>
+Received: from moutng.kundenserver.de ([212.227.17.8]:64493 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933313Ab2JaH74 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 31 Oct 2012 03:59:56 -0400
+Message-ID: <5090DA77.9060408@bernhard-voelker.de>
+Date: Wed, 31 Oct 2012 08:59:51 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: Matt Burgess <matthew@linuxfromscratch.org>
+CC: util-linux@vger.kernel.org
+Subject: Re: Discrepancies between real and symlinked mtab
+References: <1351638239.1651.13.camel@kyoto.localdomain>
+In-Reply-To: <1351638239.1651.13.camel@kyoto.localdomain>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/pg.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Hi Matt,
 
-diff --git a/text-utils/pg.c b/text-utils/pg.c
-index 0168ebc..4b3b668 100644
---- a/text-utils/pg.c
-+++ b/text-utils/pg.c
-@@ -208,7 +208,7 @@ static my_sighandler_t my_sigset(int sig, my_sighandler_t disp) {
- /*
-  * Quit pg.
-  */
--static void
-+static void __attribute__((__noreturn__))
- quit(int status)
- {
- 	exit(status < 0100 ? status : 077);
-@@ -217,7 +217,7 @@ quit(int status)
- /*
-  * Usage message and similar routines.
-  */
--static void usage(FILE * out)
-+static void __attribute__((__noreturn__)) usage(FILE * out)
- {
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out,
-@@ -240,14 +240,14 @@ static void usage(FILE * out)
- 	quit(out == stderr ? 2 : 0);
- }
- 
--static void
-+static void __attribute__((__noreturn__))
- needarg(const char *s)
- {
- 	warnx(_("option requires an argument -- %s"), s);
- 	usage(stderr);
- }
- 
--static void
-+static void __attribute__((__noreturn__))
- invopt(const char *s)
- {
- 	warnx(_("illegal option -- %s"), s);
-@@ -926,7 +926,7 @@ makepat(void)
- /*
-  * Process errors that occurred in temporary file operations.
-  */
--static void
-+static void __attribute__((__noreturn__))
- tmperr(FILE *f, const char *ftype)
- {
- 	if (ferror(f))
--- 
-1.7.12.2
+On 10/31/2012 12:03 AM, Matt Burgess wrote:
+> Consider trying to answer the question "What partition is mounted
+> on /" (it happens to be /dev/sda3 in this example), when /etc/mtab is a
+> symlink pointing to /proc/mounts:
 
+I'll only answer for df here because it is not part of util-linux,
+but rather in the coreutils package.
+
+> 2) df(1)
+> 
+> Filesystem     1K-blocks    Used Available Use% Mounted on
+> rootfs          20642428 1576788  18017064   9% /
+> /dev/root       20642428 1576788  18017064   9% /
+> 
+> Uh-oh - now I appear to have 2 filesystems mounted at '/' (yes, I know
+> you can tell by the same stats that it is in fact the same FS).  What is
+> this rootfs entry?
+
+That rootfs entry comes from early boot time when '/' is mounted on
+itself.
+
+BTW there is already a discussion on the coreutils ML about this:
+
+http://www.mail-archive.com/coreutils@gnu.org/msg03582.html
+
+> As all 3 utils show the same issue, I assume this is something to do
+> with libblkid?
+
+No, df doesn't use libblkid. It uses gnulib's function
+  read_file_system_list ()
+to read the mount list.
+
+Have a nice day,
+Berny
