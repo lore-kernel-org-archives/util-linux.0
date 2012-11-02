@@ -1,50 +1,24 @@
-Return-Path: gmazyland@gmail.com
-Message-ID: <50AB9CB9.3040104@gmail.com>
-Date: Tue, 20 Nov 2012 16:07:37 +0100
-From: Milan Broz <gmazyland@gmail.com>
+Return-Path: mschmidt@redhat.com
+Message-ID: <5093C317.3060406@redhat.com>
+Date: Fri, 02 Nov 2012 13:56:55 +0100
+From: Michal Schmidt <mschmidt@redhat.com>
 MIME-Version: 1.0
-To: "Richard W.M. Jones" <rjones@redhat.com>
-CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] wipefs: Add --force option
-References: <20121119154116.GA28909@rhmail.home.annexia.org> <20121120111634.GH20338@x2.net.home> <20121120135246.GB2006@x2.net.home> <20121120144111.GN1444@rhmail.home.annexia.org>
-In-Reply-To: <20121120144111.GN1444@rhmail.home.annexia.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: fix autodetection for TERM
+References: <1351549981-32412-1-git-send-email-mschmidt@redhat.com> <20121102114038.GC30319@x2.net.home>
+In-Reply-To: <20121102114038.GC30319@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On 11/20/2012 03:41 PM, Richard W.M. Jones wrote:
+Dne 2.11.2012 12:40, Karel Zak napsal(a):
+> On Mon, Oct 29, 2012 at 11:33:01PM +0100, Michal Schmidt wrote:
+>> open_tty() autodetects whether to set TERM to "linux" or "vt102", but it
+>> can apply the result only if op->term is still NULL.
+>
+>   Oh, nice. Do you have any reference to bugzilla?
 
-> In fact the problem case is where you try to wipe a device which
-> contains a volume groups and a logical volume; note the LVs don't
-> contain filesystems, and nothing is mounted.
+I discovered it while looking into this systemd bug:
+https://bugzilla.redhat.com/show_bug.cgi?id=870622#c1
 
-Well there is a problem. While you can wipe part table, kernel will
-reload it and destroy all obsolete partitions.
-There should not be problem if it contains lvm, only if it contains
-active LVs mapped.
-
-If there are active device-mapper devices (either created by kpartx,
-lvm, crypt, ...) you will lost metadata and cannot remove them
-using standard tools, you are forced to do it with dmsetup later.
-
-So wipe part table is fine, but not if partition is mounted or
-mapped... You should remove mapping first.
-
-And --force here should be used as a last resort - why not deactivate
-mapped device on top first?
-It should not be big problem (I think someone wrote this using
-lsblk --inverse).
-
-Using force in this situation just creates problem later.
-
-(I am not against the patch, it should have --force option but it
-should be used very carefully.)
-
-> libguestfs: trace: lvcreate_free "LV" "VG" 100
-> libguestfs: trace: lvcreate_free = 0
-> libguestfs: trace: wipefs "/dev/sda"
-> libguestfs: trace: wipefs = -1 (error)
-
-IMHO lvcreate implicitly activates device.
-Try lvcreate -a n !
-
-Milan
+Michal
