@@ -1,63 +1,60 @@
-Return-Path: dave@gnu.org
-Message-ID: <1352880264.2577.3.camel@offbook>
-Subject: [PATCH 1/3] fdisk: gpt: check header size
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Wed, 14 Nov 2012 00:04:24 -0800
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:58259 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932906Ab2KBR4o (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 Nov 2012 13:56:44 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id qA2Huith031900
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 2 Nov 2012 13:56:44 -0400
+From: Milan Broz <mbroz@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Milan Broz <mbroz@redhat.com>
+Subject: [PATCH 1/3] lsblk: Add revision column
+Date: Fri,  2 Nov 2012 18:56:29 +0100
+Message-Id: <1351878991-3472-1-git-send-email-mbroz@redhat.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-UEFI states that the size of the GPT header must be between 92 and
-the sector size. Add the check when verifying a valid header.
-
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Signed-off-by: Milan Broz <mbroz@redhat.com>
 ---
- fdisks/gpt.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ misc-utils/lsblk.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fdisks/gpt.c b/fdisks/gpt.c
-index 4a535f2..df26696 100644
---- a/fdisks/gpt.c
-+++ b/fdisks/gpt.c
-@@ -49,6 +49,7 @@
- #define GPT_HEADER_REVISION_V1_02 0x00010200
- #define GPT_HEADER_REVISION_V1_00 0x00010000
- #define GPT_HEADER_REVISION_V0_99 0x00009900
-+#define GPT_HEADER_MINSZ          92 /* bytes */
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index c57e78f..671d912 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -100,6 +100,7 @@ enum {
+ 	COL_PKNAME,
+ 	COL_HCTL,
+ 	COL_TRANSPORT,
++	COL_REV,
+ };
  
- #define GPT_PMBR_LBA        0
- #define GPT_MBR_PROTECTIVE  1
-@@ -183,7 +184,7 @@ static struct fdisk_parttype gpt_parttypes[] =
- 	DEF_GUID("E6D6D379-F507-44C2-A23C-238F2A3DF928", N_("Linux LVM")),
- 	DEF_GUID("8DA63339-0007-60C0-C436-083AC8230908", N_("Linux reserved")),
+ /* column names */
+@@ -150,6 +151,7 @@ static struct colinfo infos[] = {
+ 	[COL_WWN]    = { "WWN",     18, 0, N_("unique storage identifier") },
+ 	[COL_HCTL]   = { "HCTL", 10, 0, N_("Host:Channel:Target:Lun for SCSI") },
+ 	[COL_TRANSPORT] = { "TRAN", 6, 0, N_("device transport type") },
++	[COL_REV]    = { "REV",   4, TT_FL_RIGHT, N_("device revision") },
+ };
  
--      /* FreeBSD */
-+	/* FreeBSD */
- 	DEF_GUID("516E7CB4-6ECF-11D6-8FF8-00022D09712B", N_("FreeBSD data")),
- 	DEF_GUID("83BD6B9D-7F41-11DC-BE0B-001560B84F0F", N_("FreeBSD boot")),
- 	DEF_GUID("516E7CB5-6ECF-11D6-8FF8-00022D09712B", N_("FreeBSD swap")),
-@@ -660,6 +661,7 @@ static int gpt_check_signature(struct gpt_header *header)
- static struct gpt_header *gpt_get_header(struct fdisk_context *cxt, uint64_t lba)
- {
- 	struct gpt_header *header = NULL;
-+	uint32_t hsz;
- 
- 	if (!cxt)
- 		return NULL;
-@@ -684,6 +686,11 @@ static struct gpt_header *gpt_get_header(struct fdisk_context *cxt, uint64_t lba
- 	if (le64_to_cpu(header->my_lba) != lba)
- 		goto invalid;
- 
-+	/* make sure header size is between 92 and sector size bytes */
-+	hsz = le32_to_cpu(header->size);
-+	if (hsz < GPT_HEADER_MINSZ || hsz > cxt->sector_size)
-+		goto invalid;
-+
- 	return header;
- invalid:
- 	free(header);
+ struct lsblk {
+@@ -766,6 +768,13 @@ static void set_tt_data(struct blkdev_cxt *cxt, int col, int id, struct tt_line
+ 				tt_line_set_data(ln, col, p);
+ 		}
+ 		break;
++	case COL_REV:
++		if (!cxt->partition && cxt->nslaves == 0) {
++			p = sysfs_strdup(&cxt->sysfs, "device/rev");
++			if (p)
++				tt_line_set_data(ln, col, p);
++		}
++		break;
+ 	case COL_SIZE:
+ 		if (cxt->size) {
+ 			if (lsblk->bytes) {
 -- 
-1.7.9.5
+1.7.10.4
+
