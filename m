@@ -1,35 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36304 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:12422 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932176Ab2K3Ni0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Nov 2012 08:38:26 -0500
-Date: Fri, 30 Nov 2012 13:49:31 +0100
+	id S1754507Ab2KEQxs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 Nov 2012 11:53:48 -0500
+Date: Mon, 5 Nov 2012 17:53:39 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH v2 1/3] fdisk: api: move disklabel type to cxt
-Message-ID: <20121130124931.GA25691@x2.net.home>
-References: <1353903949.2945.15.camel@offbook>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 09/13] ipcs: make individual shared memory id printing to
+ use /proc
+Message-ID: <20121105165339.GD3799@x2.net.home>
+References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
+ <1350246145-10600-10-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1353903949.2945.15.camel@offbook>
+In-Reply-To: <1350246145-10600-10-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 25, 2012 at 08:25:49PM -0800, Davidlohr Bueso wrote:
->  fdisks/fdisk.c         |  191 ++++++++++++++++++++++++------------------------
->  fdisks/fdisk.h         |   34 +++++----
->  fdisks/fdiskaixlabel.c |    2 +-
->  fdisks/fdiskbsdlabel.c |    2 +-
->  fdisks/fdiskdoslabel.c |    2 +-
->  fdisks/fdiskmaclabel.c |    2 +-
->  fdisks/fdisksgilabel.c |    4 +-
->  fdisks/fdisksunlabel.c |    8 +-
->  fdisks/gpt.c           |   14 ++--
->  fdisks/utils.c         |   16 +++-
->  10 files changed, 146 insertions(+), 129 deletions(-)
+On Sun, Oct 14, 2012 at 09:22:21PM +0100, Sami Kerola wrote:
+> And reindent the print_shm() function.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/ipcs.c | 49 ++++++++++++++++++++++++++++---------------------
+>  1 file changed, 28 insertions(+), 21 deletions(-)
+> 
+> diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
+> index 960039e..cd3d14d 100644
+> --- a/sys-utils/ipcs.c
+> +++ b/sys-utils/ipcs.c
+> @@ -308,6 +308,10 @@ static int shmctl_info_wrapper(int maxid, int id, struct shm_data **shmds,
+>  			       &(shmdsp->shm_rss),
+>  			       &(shmdsp->shm_swp)
+>  			    );
+> +			if (-1 < id && id != shmdsp->shm_perm.id) {
+> +				i--;
+> +				continue;
+> +			}
 
- Applied, thanks.
+ And what action is expected when id == shmdsp->shm_perm.id ?
+
+ What about
+
+    if (id == shmdsp->shm_perm.id)
+        break;
+
+ otherwise  ipcs -m -i <id> will return another entry.
+
+ BTW,
+
+    ./ipcs <something> &> new
+    ipcs <something>   &> old
+    diff -u old new
+
+ is nice way how found bugs...
+
+    Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
