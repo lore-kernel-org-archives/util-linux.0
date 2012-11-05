@@ -1,42 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:60883 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753263Ab2KYSr4 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 13:47:56 -0500
-Received: by mail-wi0-f178.google.com with SMTP id hm6so2773672wib.1
-        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 10:47:55 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:17471 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932107Ab2KES41 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 Nov 2012 13:56:27 -0500
+Date: Mon, 5 Nov 2012 19:56:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Toshi Kani <toshi.kani@hp.com>
+Cc: util-linux@vger.kernel.org, heiko.carstens@de.ibm.com, kerolasa@iki.fi
+Subject: Re: [PATCH RESEND] lscpu: Fix issue found on CPU hot-remove
+Message-ID: <20121105185614.GF3799@x2.net.home>
+References: <1352135015-13946-1-git-send-email-toshi.kani@hp.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <50B261D9.3080403@gmail.com>
-References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
-	<1353844871-6047-2-git-send-email-kerolasa@iki.fi>
-	<50B261D9.3080403@gmail.com>
-Date: Sun, 25 Nov 2012 18:47:55 +0000
-Message-ID: <CAG27Bk2sr7-HfHAWzD+4+kOcmddzBR6ODpMqCcjh43kX+wAz2A@mail.gmail.com>
-Subject: Re: [PATCH 1/4] docs: mention Open Group requirements
-From: Sami Kerola <kerolasa@iki.fi>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1352135015-13946-1-git-send-email-toshi.kani@hp.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 25, 2012 at 6:22 PM, Bruce Dubbs <bruce.dubbs@gmail.com> wrote:
-> Sami Kerola wrote:
->>
->> Commands cal col ipcrm ipcs kill line logger mesg more newgrp pg renice
->> has Open Group requirements.  Contributors need to be aware of them.
->> +               The Single UNIX� Specification, Version 2
->> +               Copyright � 1997 The Open Group
->
-> Are non-ascii characters acceptable?
+On Mon, Nov 05, 2012 at 10:03:35AM -0700, Toshi Kani wrote:
+> read_basicinfo() relies on sysfs cpu directories
+> "/sys/devices/system/cpu/cpu%d" with assumption that cpu
+> logical number %d is always sequentially assigned for all
 
-As a matter of fact I am not sure, so I converted the characters to
-ascii in my git.
+Ah, sorry I have moved the mail to my mail archive without response...
+thanks for resend.
 
-https://github.com/kerolasa/lelux-utiliteetit/blob/2012wk47/Documentation/howto-contribute.txt#L141
-https://github.com/kerolasa/lelux-utiliteetit/blob/2012wk47/Documentation/deprecated.txt#L63
+It seems correct, I'll apply the patch tomorrow.
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
