@@ -1,120 +1,224 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:42742 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751199Ab2KZTEJ convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 26 Nov 2012 14:04:09 -0500
-Received: by mail-ee0-f46.google.com with SMTP id e53so4673054eek.19
-        for <util-linux@vger.kernel.org>; Mon, 26 Nov 2012 11:04:07 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20121126100822.GA4224@x2.net.home>
-References: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
- <50AFE72B.1010908@draigBrady.com> <20121126100822.GA4224@x2.net.home>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Mon, 26 Nov 2012 11:03:47 -0800
-Message-ID: <CALCETrVrmkzGgLniSc8JdR7_Xtus61vR169EOzi=Ue-r7TqwUw@mail.gmail.com>
-Subject: Re: [PATCH] Add no_new_privs
-To: Karel Zak <kzak@redhat.com>
-Cc: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>,
-        util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from g4t0014.houston.hp.com ([15.201.24.17]:15829 "EHLO
+	g4t0014.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752778Ab2KERLb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Nov 2012 12:11:31 -0500
+From: Toshi Kani <toshi.kani@hp.com>
+To: util-linux@vger.kernel.org, kzak@redhat.com
+Cc: heiko.carstens@de.ibm.com, kerolasa@iki.fi, Toshi Kani <toshi.kani@hp.com>
+Subject: [PATCH RESEND] lscpu: Fix issue found on CPU hot-remove
+Date: Mon,  5 Nov 2012 10:03:35 -0700
+Message-Id: <1352135015-13946-1-git-send-email-toshi.kani@hp.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 26, 2012 at 2:08 AM, Karel Zak <kzak@redhat.com> wrote:
-> On Fri, Nov 23, 2012 at 09:14:19PM +0000, Pádraig Brady wrote:
->> On 11/23/2012 08:23 PM, Andy Lutomirski wrote:
->> >---
->> >
->> >I'm not 100% sure this is appropriate for util-linux, but it seems useful.
->> >
->> >I've never written new programs for util-linux before, and I barely understand
->> >autotools.  Feedback is welcome :)
->> >
->> >+no_new_privs \- run program with new_new_privs set
->>
->> >+Sets the \fIno_new_privs\fP bit and then executes specified program.  With
->> >+this bit set,
->> >+.BR execve (2)
->> >+will not grant new privileges.  For example, the setuid
->> >+and setgid bits as well as file capabilities will not function.  This bit
->> >+is inherited by child processes and cannot be unset.  See
->> >+.BR prctl (2)
->> >+and
->> >+.IR Documentation/prctl/no_new_privs.txt
->> >+in the Linux kernel source.
->>
->> Seems very useful but a bit low level for a user command.
->> How about a prctl(1) command or equivalent, that could
->> accept that among other options to set.
->
->  It would be nice to have prctl(1) implemented like prlimit(1), it
->  means to support --set as well as --get operations.
->
->   prctl --set-endian=big --set-name=foo
->
->   prctl --pid 123    # return all --get-*
->
->   prctl --get-name --pid 123
->
->> I also notice the similar capsh(1) program for doing
->> so with capabilities. Perhaps these could be merged
->> to a setpriv(1) command or something for tweaking all
->> these knobs before exec?
->
->  hmm.. capsh(1) is libcap baby and it probably makes sense to maintain
->  it on the same place like libcap.
+read_basicinfo() relies on sysfs cpu directories
+"/sys/devices/system/cpu/cpu%d" with assumption that cpu
+logical number %d is always sequentially assigned for all
+CPUs. However, this assumption is not correct with CPU
+hot-remove operation since it removes a target sysfs cpu
+directory after it is ejected. As a result, lscpu may not
+recognize all CPUs.
 
-Taking a quick look through prctl:
+The issue can be easily reproduced on KVM or VirtualBox,
+which supports CPU eject operation, as follows.
 
-PR_CAPBSET_READ/DROP: these want libcap for parsing, and maybe they
-should go in capsh.  (Also, dropping caps requires privilege.)
+1) The system has 4 CPUs
+  $ lscpu -a -e
+  CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
+  0   0    0      0    0:0:0      yes
+  1   0    1      1    1:1:1      yes
+  2   0    2      2    2:2:2      yes
+  3   0    3      3    3:3:3      yes
 
-PR_SET/GET_DUMPABLE: IIRC these are cleared on exec.
+2) Eject cpu2
+  # echo 1 > /sys/bus/acpi/devices/LNXCPU:02/eject
 
-PR_SET/GET_ENDIAN: Does this survive exec?  I'd assume it's an ELF
-header flag as well.
+3) lscpu no longer recognizes cpu3 after cpu2 is ejected
+  $ lscpu -a -e
+  CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
+  0   0    0      0    0:0:0      yes
+  1   0    1      1    1:1:1      yes
 
-PR_SET/GET_FPEMU: IA-64 only.  Seems to be of limited use.
+The following changes are made to address this issue.
+ - Use maxcpus to allocate and parse bitmaps.
+ - Set desc->ncpu from cpu/present, which includes both on-line
+   and off-line CPUs.
+ - Add is_cpu_present() to check if a CPU is present. Ejected
+   CPUs are not present.
 
-PR_SET/GET_FPEXC: Not sure about this one.
+Signed-off-by: Toshi Kani <toshi.kani@hp.com>
+---
+ sys-utils/lscpu.c | 53 ++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 32 insertions(+), 21 deletions(-)
 
-PR_SET/GET_KEEPCAPS: Useless except in combination with capsh-like controls.
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 25a0273..946eb41 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -150,7 +150,8 @@ struct lscpu_desc {
+ 	int	dispatching;	/* none, horizontal or vertical */
+ 	int	mode;		/* rm, lm or/and tm */
+ 
+-	int		ncpus;		/* number of CPUs */
++	int		ncpus;		/* number of present CPUs */
++	cpu_set_t	*present;	/* mask with present CPUs */
+ 	cpu_set_t	*online;	/* mask with online CPUs */
+ 
+ 	int		nnodes;		/* number of NUMA modes */
+@@ -204,8 +205,11 @@ struct lscpu_modifier {
+ static int maxcpus;		/* size in bits of kernel cpu mask */
+ 
+ #define is_cpu_online(_d, _cpu) \
+-		((_d) && (_d)->online ? \
+-			CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->online) : 0)
++	((_d) && (_d)->online ? \
++		CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->online) : 0)
++#define is_cpu_present(_d, _cpu) \
++	((_d) && (_d)->present ? \
++		CPU_ISSET_S((_cpu), CPU_ALLOC_SIZE(maxcpus), (_d)->present) : 0)
+ 
+ /*
+  * IDs
+@@ -340,10 +344,6 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 		err(EXIT_FAILURE, _("error: uname failed"));
+ 	desc->arch = xstrdup(utsbuf.machine);
+ 
+-	/* count CPU(s) */
+-	while(path_exist(_PATH_SYS_SYSTEM "/cpu/cpu%d", desc->ncpus))
+-		desc->ncpus++;
+-
+ 	/* details */
+ 	while (fgets(buf, sizeof(buf), fp) != NULL) {
+ 		if (lookup(buf, "vendor", &desc->vendor)) ;
+@@ -391,7 +391,14 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 	if (maxcpus <= 0)
+ 		/* error or we are reading some /sys snapshot instead of the
+ 		 * real /sys, let's use any crazy number... */
+-		maxcpus = desc->ncpus > 2048 ? desc->ncpus : 2048;
++		maxcpus = 2048;
++
++	/* get mask for present CPUs */
++	if (path_exist(_PATH_SYS_SYSTEM "/cpu/present")) {
++		size_t setsize = CPU_ALLOC_SIZE(maxcpus);
++		desc->present = path_cpulist(maxcpus, _PATH_SYS_SYSTEM "/cpu/present");
++		desc->ncpus = CPU_COUNT_S(setsize, desc->present);
++	}
+ 
+ 	/* get mask for online CPUs */
+ 	if (path_exist(_PATH_SYS_SYSTEM "/cpu/online")) {
+@@ -626,16 +633,16 @@ read_topology(struct lscpu_desc *desc, int num)
+ 		 */
+ 		if (!desc->nthreads)
+ 			desc->nthreads = nbooks * nsockets * ncores * nthreads;
+-		/* For each map we make sure that it can have up to ncpus
++		/* For each map we make sure that it can have up to maxcpus
+ 		 * entries. This is because we cannot reliably calculate the
+ 		 * number of cores, sockets and books on all architectures.
+ 		 * E.g. completely virtualized architectures like s390 may
+ 		 * have multiple sockets of different sizes.
+ 		 */
+-		desc->coremaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
+-		desc->socketmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
++		desc->coremaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
++		desc->socketmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
+ 		if (book_siblings)
+-			desc->bookmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
++			desc->bookmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
+ 	}
+ 
+ 	add_cpuset_to_array(desc->socketmaps, &desc->nsockets, core_siblings);
+@@ -653,7 +660,7 @@ read_polarization(struct lscpu_desc *desc, int num)
+ 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/polarization", num))
+ 		return;
+ 	if (!desc->polarization)
+-		desc->polarization = xcalloc(desc->ncpus, sizeof(int));
++		desc->polarization = xcalloc(maxcpus, sizeof(int));
+ 	path_getstr(mode, sizeof(mode), _PATH_SYS_CPU "/cpu%d/polarization", num);
+ 	if (strncmp(mode, "vertical:low", sizeof(mode)) == 0)
+ 		desc->polarization[num] = POLAR_VLOW;
+@@ -673,7 +680,7 @@ read_address(struct lscpu_desc *desc, int num)
+ 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/address", num))
+ 		return;
+ 	if (!desc->addresses)
+-		desc->addresses = xcalloc(desc->ncpus, sizeof(int));
++		desc->addresses = xcalloc(maxcpus, sizeof(int));
+ 	desc->addresses[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/address", num);
+ }
+ 
+@@ -683,7 +690,7 @@ read_configured(struct lscpu_desc *desc, int num)
+ 	if (!path_exist(_PATH_SYS_CPU "/cpu%d/configure", num))
+ 		return;
+ 	if (!desc->configured)
+-		desc->configured = xcalloc(desc->ncpus, sizeof(int));
++		desc->configured = xcalloc(maxcpus, sizeof(int));
+ 	desc->configured[num] = path_getnum(_PATH_SYS_CPU "/cpu%d/configure", num);
+ }
+ 
+@@ -756,7 +763,7 @@ read_cache(struct lscpu_desc *desc, int num)
+ 				  num, i);
+ 
+ 		if (!ca->sharedmaps)
+-			ca->sharedmaps = xcalloc(desc->ncpus, sizeof(cpu_set_t *));
++			ca->sharedmaps = xcalloc(maxcpus, sizeof(cpu_set_t *));
+ 		add_cpuset_to_array(ca->sharedmaps, &ca->nsharedmaps, map);
+ 	}
+ }
+@@ -982,13 +989,15 @@ print_parsable(struct lscpu_desc *desc, int cols[], int ncols,
+ 	/*
+ 	 * Data
+ 	 */
+-	for (i = 0; i < desc->ncpus; i++) {
++	for (i = 0; i < maxcpus; i++) {
+ 		int c;
+ 
+ 		if (!mod->offline && desc->online && !is_cpu_online(desc, i))
+ 			continue;
+ 		if (!mod->online && desc->online && is_cpu_online(desc, i))
+ 			continue;
++		if (desc->present && !is_cpu_present(desc, i))
++			continue;
+ 		for (c = 0; c < ncols; c++) {
+ 			if (mod->compat && cols[c] == COL_CACHE) {
+ 				if (!desc->ncaches)
+@@ -1026,7 +1035,7 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
+ 		tt_define_column(tt, xstrdup(data), 0, 0);
+ 	}
+ 
+-	for (i = 0; i < desc->ncpus; i++) {
++	for (i = 0; i < maxcpus; i++) {
+ 		int c;
+ 		struct tt_line *line;
+ 
+@@ -1034,6 +1043,8 @@ print_readable(struct lscpu_desc *desc, int cols[], int ncols,
+ 			continue;
+ 		if (!mod->online && desc->online && is_cpu_online(desc, i))
+ 			continue;
++		if (desc->present && !is_cpu_present(desc, i))
++			continue;
+ 
+ 		line = tt_add_line(tt, NULL);
+ 
+@@ -1117,8 +1128,8 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 		if (!set)
+ 			err(EXIT_FAILURE, _("failed to callocate cpu set"));
+ 		CPU_ZERO_S(setsize, set);
+-		for (i = 0; i < desc->ncpus; i++) {
+-			if (!is_cpu_online(desc, i))
++		for (i = 0; i < maxcpus; i++) {
++			if (!is_cpu_online(desc, i) && is_cpu_present(desc, i))
+ 				CPU_SET_S(i, setsize, set);
+ 		}
+ 		print_cpuset(mod->hex ? _("Off-line CPU(s) mask:") :
+@@ -1339,7 +1350,7 @@ int main(int argc, char *argv[])
+ 
+ 	read_basicinfo(desc, mod);
+ 
+-	for (i = 0; i < desc->ncpus; i++) {
++	for (i = 0; i < maxcpus; i++) {
+ 		read_topology(desc, i);
+ 		read_cache(desc, i);
+ 		read_polarization(desc, i);
+-- 
+1.7.11.7
 
-PR_SET/GET_NAME: Reset on exec
-
-PR_SET/GET_PDEATHSIG: This is potentially very useful.
-
-PR_SET/GET_SECCOMP: This is way too specialized for a general tool.  A
-general-purpose seccomp mode 2 sandbox would be wonderful, but it
-would be rather complex is and is far beyond the scope of util-linux
-IMO.  seccomp mode 1 is simple but entirely incompatible with exec.
-
-PR_SET/GET_SECUREBITS: Useful.  Requires some parsing.  Might be
-supported by capsh already.
-
-PR_SET_TIMING: According to the man page, it gives you a choice of one option.
-
-PR_GET/SET_TSC: Potentially useful.
-
-PR_GET/SET_UNALIGN: Potentially useful on some platforms.
-
-PR_MCE_KILL[_GET]: Potentially useful.
-
-PR_GET/SET_TIMERSLACK: Useful
-
-PR_TASK_PERF_EVENTS_ENABLE/DISABLE: No clue
-
-PR_SET_MM: I'm not sure this is useful across exec
-
-PR_SET_PTRACER: Maybe useful.  I don't know if it survives exec.
-
-PR_GET/SET_CHILD_SUBREAPER: Very useful, but probably wants to be its own tool
-
-PR_GET_TID_ADDRESS: Not useful
-
-
-Do we want the useful flags in a prctl(1) tool or should the
-security-related ones possibly be in their own tool (maybe capsh;
-maybe something else)?
-
---Andy
