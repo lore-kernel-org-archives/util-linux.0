@@ -1,38 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:7978 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754871Ab2KUOxy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 21 Nov 2012 09:53:54 -0500
-Date: Wed, 21 Nov 2012 15:53:50 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org, grawity@gmail.com
-Subject: Re: [bug] incorrect GPT entry validation?
-Message-ID: <20121121145350.GA2912@x2.net.home>
-References: <20121103183511.GO482@rampage>
+Received: from smtpfb1-g21.free.fr ([212.27.42.9]:35877 "EHLO
+	smtpfb1-g21.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751168Ab2KFPGw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Nov 2012 10:06:52 -0500
+Received: from smtp2-g21.free.fr (smtp2-g21.free.fr [212.27.42.2])
+	by smtpfb1-g21.free.fr (Postfix) with ESMTP id 1821377C425
+	for <util-linux@vger.kernel.org>; Tue,  6 Nov 2012 16:06:48 +0100 (CET)
+Message-ID: <1352214367.5099275f85792@imp.free.fr>
+Date: Tue, 06 Nov 2012 16:06:07 +0100
+From: mp.lists@free.fr
+To: util-linux@vger.kernel.org
+Subject: Accessibility of swap files
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121103183511.GO482@rampage>
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Nov 03, 2012 at 02:35:11PM -0400, Dave Reisner wrote:
-> blkid correctly reads the first 2 entries on the disk, but then starts
-> reporting corrupted GPT entries (seen via LIBBLKID_DEBUG=0xffff):
+Hi *,
 
- We have two GPT headers... and the third pass have nothing
- to parse :-)
+I think, measures can|should be taken, which reduce the probability of having a
+swap file inadvertently run with too open permissions.
 
- This is the bug:
+As a first idea, it looks, as if such may be implemented, eg. by
+     letting swapon [and fstab-based "mounting"] by default not enable a swap
+file, if it has non-root access permissions
+  || letting mkswap by default ignore too open settings of umask and create the
+swap file mod 0600 instead
+.
+In both cases, an explicit switch|parameter could enable the present,
+non-restrictive behaviour.
 
-          swap_efi_guid(&e->unique_partition_guid);
-          swap_efi_guid(&e->partition_type_guid);
 
- the "e" is persistent buffer.
+Best regards,
 
- Fixed. Thanks!
+   Markus
 
-    Karel
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+PS: I'm speaking as of util-linux-ng version 2.17.2.
