@@ -1,49 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62743 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756227Ab2KWVOY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 23 Nov 2012 16:14:24 -0500
-Message-ID: <50AFE72B.1010908@draigBrady.com>
-Date: Fri, 23 Nov 2012 21:14:19 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from moutng.kundenserver.de ([212.227.17.9]:58673 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751952Ab2KFQZE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Nov 2012 11:25:04 -0500
+Date: Tue, 6 Nov 2012 17:25:02 +0100 (CET)
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
+To: util-linux@vger.kernel.org, mp.lists@free.fr
+Message-ID: <535592290.498944.1352219102253.JavaMail.open-xchange@email.1und1.de>
+In-Reply-To: <1352214367.5099275f85792@imp.free.fr>
+References: <1352214367.5099275f85792@imp.free.fr>
+Subject: Re: Accessibility of swap files
 MIME-Version: 1.0
-To: Andy Lutomirski <luto@amacapital.net>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add no_new_privs
-References: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
-In-Reply-To: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11/23/2012 08:23 PM, Andy Lutomirski wrote:
-> ---
+On November 6, 2012 at 4:06 PM mp.lists@free.fr wrote:
+> Hi *,
 >
-> I'm not 100% sure this is appropriate for util-linux, but it seems useful.
+> I think, measures can|should be taken, which reduce the probability of having
+> a
+> swap file inadvertently run with too open permissions.
 >
-> I've never written new programs for util-linux before, and I barely understand
-> autotools.  Feedback is welcome :)
->
-> +no_new_privs \- run program with new_new_privs set
+> As a first idea, it looks, as if such may be implemented, eg. by
+>      letting swapon [and fstab-based "mounting"] by default not enable a swap
+> file, if it has non-root access permissions
 
-> +Sets the \fIno_new_privs\fP bit and then executes specified program.  With
-> +this bit set,
-> +.BR execve (2)
-> +will not grant new privileges.  For example, the setuid
-> +and setgid bits as well as file capabilities will not function.  This bit
-> +is inherited by child processes and cannot be unset.  See
-> +.BR prctl (2)
-> +and
-> +.IR Documentation/prctl/no_new_privs.txt
-> +in the Linux kernel source.
+Did you know?
+The swapon utility issues a warning diagnostic with --verbose:
 
-Seems very useful but a bit low level for a user command.
-How about a prctl(1) command or equivalent, that could
-accept that among other options to set.
-I also notice the similar capsh(1) program for doing
-so with capabilities. Perhaps these could be merged
-to a setpriv(1) command or something for tweaking all
-these knobs before exec?
+  # ls -l /tmp/swapfile
+  -rw-r--r-- 1 berny users 134217728 Nov  6 17:03 /tmp/swapfile
 
-cheers,
-Pádraig.
+  # sbin/swapon -v  /tmp/swapfile
+  swapon /tmp/swapfile
+  swapon: /tmp/swapfile: insecure permissions 0644, 0600 suggested.
+  swapon: /tmp/swapfile: insecure file owner 1000, 0 (root) suggested.
+  swapon: /tmp/swapfile: found swap signature: version 1, page-size 4, same byte
+order
+  swapon: /tmp/swapfile: pagesize=4096, swapsize=134217728, devsize=134217728
+
+BTW: the check for the owner has been added in 2.19
+(in commit v2.18-88-g306c1df).
+
+I don't know if refusing to swapon insecure swap files is a good
+idea (see below).
+
+>   || letting mkswap by default ignore too open settings of umask and create
+> the
+> swap file mod 0600 instead.
+
+You don't need root privs to run mkswap. Furthermore, mkswap
+doesn't create the swap file (in terms of calling creat()).
+Instead, it just writes to it.
+Nevertheless, I think a warning would be enough/nice at this stage.
+
+> In both cases, an explicit switch|parameter could enable the present,
+> non-restrictive behaviour.
+
+Changing behavior is not always a good idea for compatibility reasons,
+and therefore deserves *good* arguments.
+Let Karel decide.
+
+> PS: I'm speaking as of util-linux-ng version 2.17.2.
+
+I'm speaking about the latest version in Git. ;-)
+
+Have a nice day,
+Berny
