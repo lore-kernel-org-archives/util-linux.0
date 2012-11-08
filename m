@@ -1,88 +1,143 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from tango.0pointer.de ([85.214.72.216]:34638 "EHLO
-	tango.0pointer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751653Ab2KTQ74 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 20 Nov 2012 11:59:56 -0500
-Date: Tue, 20 Nov 2012 17:59:54 +0100
-From: Lennart Poettering <lennart@poettering.net>
-To: util-linux@vger.kernel.org
-Subject: Re: [util-linux] agetty and special chars @ and #
-Message-ID: <20121120165954.GA18664@tango.0pointer.de>
-References: <20121107165859.GD4383@x2.net.home>
- <20121112100410.GA1887@boole.suse.de>
- <20121112132926.GD26857@x2.net.home>
- <20121114142720.GA23414@boole.suse.de>
- <20121116101419.GC20338@x2.net.home>
- <20121116124729.GA4773@tango.0pointer.de>
- <20121116130544.GE20338@x2.net.home>
- <20121120004723.GH5922@tango.0pointer.de>
- <20121120092654.GA4345@boole.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121120092654.GA4345@boole.suse.de>
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:54545 "EHLO
+	shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751461Ab2KHEdI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 7 Nov 2012 23:33:08 -0500
+Message-ID: <1352349174.4728.55.camel@deadeye.wl.decadent.org.uk>
+Subject: Re: [PATCH] lscpu: Fix issue found on CPU hot-remove
+From: Ben Hutchings <ben@decadent.org.uk>
+To: Toshi Kani <toshi.kani@hp.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        heiko.carstens@de.ibm.com, kerolasa@iki.fi
+Date: Thu, 08 Nov 2012 04:32:54 +0000
+In-Reply-To: <1352330975.19172.124.camel@misato.fc.hp.com>
+References: <1351021786-3362-1-git-send-email-toshi.kani@hp.com>
+	 <20121107114714.GA29982@x2.net.home>
+	 <1352330975.19172.124.camel@misato.fc.hp.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-Gke2Aa2O3wdqM26SPzBh"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 20.11.12 10:26, Dr. Werner Fink (werner@suse.de) wrote:
 
-> > But the getty is actually not thaaaat special, it's actually just a unit
-> > like any other with no special semantics.
-> > 
-> > This general approach is actually well documented, for example most
-> > recently here:
-> > 
-> > http://0pointer.de/blog/projects/serial-console.html
-> > 
-> > Indirectly this all is also listed in the FAQ:
-> > 
-> > http://www.freedesktop.org/wiki/Software/systemd/FrequentlyAskedQuestions
-> 
-> Hi Lennart,
-> 
-> you and also I know how to do this, nevertheless just one remark: for most
-> other users this is black magic (and most users are aliterate at the first
-> moment).  This because they are not aware how the systemd-getty-generator
-> nor how the getty services have to be read.  It is not at first glance
-> obviously from getty@.service nor serial-getty@.service how to get an other
-> getty for a special serial console nor how to have a getty with a special
-> option for e.g. for tty1.
->
-> The complexity level is to high due to the fact that there are to many
-> locations and set screws to influence the numbers, devices, and options
-> of the gettys.
+--=-Gke2Aa2O3wdqM26SPzBh
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Well, I am not really sure I buy into the complexity thing so much. We
-use the same concepts for making changes to any service here, really. So
-if an admin grokked this once he should be able to apply this to any
-service he likes.
+On Wed, 2012-11-07 at 16:29 -0700, Toshi Kani wrote:
+> On Wed, 2012-11-07 at 12:47 +0100, Karel Zak wrote:
+> > On Tue, Oct 23, 2012 at 01:49:46PM -0600, Toshi Kani wrote:
+> > > 1) The system has 4 CPUs
+> > >   $ lscpu -a -e
+> > >   CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
+> > >   0   0    0      0    0:0:0      yes
+> > >   1   0    1      1    1:1:1      yes
+> > >   2   0    2      2    2:2:2      yes
+> > >   3   0    3      3    3:3:3      yes
+> > >=20
+> > > 2) Eject cpu2
+> > >   # echo 1 > /sys/bus/acpi/devices/LNXCPU:02/eject
+> > >=20
+> > > 3) lscpu no longer recognizes cpu3 after cpu2 is ejected
+> > >   $ lscpu -a -e
+> > >   CPU NODE SOCKET CORE L1d:L1i:L2 ONLINE
+> > >   0   0    0      0    0:0:0      yes
+> > >   1   0    1      1    1:1:1      yes
+> > >=20
+> > > The following changes are made to address this issue.
+> > >  - Use maxcpus to allocate and parse bitmaps.
+> > >  - Set desc->ncpu from cpu/present, which includes both on-line
+> > >    and off-line CPUs.
+> >=20
+> >  In the directory tests we have a dump from some strange machine
+> >=20
+> >     tests/ts/lscpu/dumps/sparc64-UltraSparc-T1.tar.gz
+> >=20
+> >  where is 32 /sys/devices/system/cpu/cpu[0-9]* subdirectories, but the
+> >  present mask is 0-23, all the masks from the dump:
+> >=20
+> >  present: 0-23
+> >  possible: 0-31
+> >  online: 0-23
+> >  offline: 24-31
+> >  count: 32      (means ls -d sys/devices/system/cpu/cpu[0-9]* | wc -l)
+> >=20
+> >  strange, right? But I guess we can ignore this dump, according to
+> >  kernel Documentation/cpu-hotplug.txt the cpu[0-9]* subdirectories
+> >  have to follow the present mask. Maybe the dump is broken or so..
+>=20
+> Hi Karel,
+>=20
+> Thanks for the updated patch.  It looks good.  I have tested it on my
+> setup and it worked fine as well.
+>=20
+> I agree that the present mask and cpu directories need to be consistent.
+> I looked at the kernel code and found the following change, which might
+> be the cause of this issue.
+>=20
+> =3D=3D=3D=3D
+> commit 9f13a1fd452f11c18004ba2422a6384b424ec8a9
+> Author: Ben Hutchings <ben@decadent.org.uk>
+> Date:   Tue Jan 10 03:04:32 2012 +0000
+>=20
+>     cpu: Register a generic CPU device on architectures that currently
+> do not
+>    =20
+>     frv, h8300, m68k, microblaze, openrisc, score, um and xtensa
+> currently
+>     do not register a CPU device.  Add the config option
+> GENERIC_CPU_DEVICES
+>     which causes a generic CPU device to be registered for each present
+> CPU,
+>     and make all these architectures select it.
+>    =20
+>     Richard Weinberger <richard@nod.at> covered UML and suggested using
+>     per_cpu.
+>    =20
+>     Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+>     Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> =3D=3D=3D=3D
+>=20
+>=20
+> Hi Ben,
+>=20
+> In the change log above, you described that a generic CPU device to be
+> registered for each "present" CPU.  However, in the code below, it used
+> for_each_possible_cpu(), instead of for_each_present_cpu().  Is this
+> what you intended?
+[...]
 
-> If you like to avoid such simply approaches for agetty you may consider to
-> help normal users which do not work daily as system administrators to help
-> them by providing all infomations in a more comprehensible and user friendly
-> form in *one* file.  That could be that the getty-generator my use informations
-> from getty@.service and serial-getty@.service them self.
-> 
-> In other words: usability by striking simplicity :)
+I think the distinction doesn't matter - the GENERIC_CPU_DEVICES code
+does not support hotplug and therefore can only be used if present =3D=3D
+possible.
 
-I really don't agree that adding multiple levels of configuration really
-would be such a good idea. Adding redundancy by implementing several
-different ways to configure the same thing just adds confusion and
-complexity in my eyes.
+Ben.
 
-Note that systemd-getty-generator actually comes with a man page. Of
-course, it's a problem to get people to actually find it, or even know
-about it.
+--=20
+Ben Hutchings
+The program is absolutely right; therefore, the computer must be wrong.
 
-I have now updated the Documentation= field of the getty services to
-point to the aforementioned blog story (this will then show up in
-systemctl status), and added similar links to all man pages in any way
-related to getty configuration. I think this is the best we can do:
-keeping things uniform and not redundant, while beefing up docs and
-making them easier to find.
+--=-Gke2Aa2O3wdqM26SPzBh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-Hope this settles this,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-Lennart
+iQIVAwUAUJs19ue/yOyVhhEJAQpeGQ/9F6ZsN0gI2NxB9mEEwTJJUkTVMLIIvJTA
+4EA8R+KcZJpNkSsr8xDlKvZn2ZWT2CDwuCD9+NyY4HJabwrUOV0Sku5Rh4rwaTZS
+dcY/BfOpT3u+oSbHz/SERL4h4pl/xtw72as4QXFcR+GyK+ZLKGyyceJ/jPgScnbG
+v79w93Hvu3RgYD/I5pf24qN6wP6h2S/86qZfJY10FOqE+gp46PRTy5/IoVh5CU5J
+gZ3Qh7uCFfn3Xi5NglnRnBeDBRYkGnjnbdYNx22XZbWP4nS/QgeIfAyG+QzchDc2
+UCReGOIEeHdYHCi3jq+RJuensoCosOcn+Eu7Fzzt96gedzSIqJ6uweyuQs4dkWkA
+cbqWKioM0dDefBXFldIt8TspEq2W4MQoCVFO+acjrRSYsd25A6T8q/HN8Ttjd5++
+xrFBxGjZiA+mFYvgxRpRY4l+ACUxHN8UEQ+QdVfWEsbxagfbM27kbiG9sC9hfA7v
+USfX2F5VFmXNhJ6mVbPwgadwKnN+37Z2eamQx8C6esoJKKLv8wRoEPTovLsSCfEo
+wBQPTN+24cda6Yb7k3Zn6QTy7c3kLzlMX42CJBqPdgh6+JEH4S9GyWP0DiUqjTaI
+hc/Fi/+O8Z6TNYThszMZVnXt51CDzy8nnQKxyqNKAdtpgB1bdUYrua8BU2KAsnJa
+OVhj4TyaQEU=
+=YIng
+-----END PGP SIGNATURE-----
 
--- 
-Lennart Poettering - Red Hat, Inc.
+--=-Gke2Aa2O3wdqM26SPzBh--
