@@ -1,68 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdccac.dreamhost.com ([208.97.132.202]:54329 "EHLO
-	homiemail-a60.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753891Ab2KZEXg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 25 Nov 2012 23:23:36 -0500
-Message-ID: <1353903814.2945.13.camel@offbook>
-Subject: Re: [PATCH 3/3] fdisk: dos: always write mbr
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Date: Sun, 25 Nov 2012 20:23:34 -0800
-In-Reply-To: <20121114094358.GB1835@x2.net.home>
-References: <1352880292.2577.5.camel@offbook>
-	 <20121114094358.GB1835@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:10491 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753082Ab2KIMJV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Nov 2012 07:09:21 -0500
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id qA9C9LSW012670
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 9 Nov 2012 07:09:21 -0500
+Received: from x2 (ovpn-113-46.phx2.redhat.com [10.3.113.46])
+	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id qA9C9KZO027735
+	for <util-linux@vger.kernel.org>; Fri, 9 Nov 2012 07:09:20 -0500
+Date: Fri, 9 Nov 2012 13:09:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: Re: [util-linux] [PATCH 00/13] Initial import of sulogin
+Message-ID: <20121109120919.GC26857@x2.net.home>
+References: <1330447521-886-1-git-send-email-dreisner@archlinux.org>
+ <20120228164840.GH21406@rampage>
+ <20121012125309.GA20273@boole.suse.de>
+ <20121012132336.GC23945@x2.net.home>
+ <20121012140757.GA10101@boole.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121012140757.GA10101@boole.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2012-11-14 at 10:43 +0100, Karel Zak wrote:
-> On Wed, Nov 14, 2012 at 12:04:52AM -0800, Davidlohr Bueso wrote:
-> > There's no harm when writing the MBR, changed or not. This also
+On Fri, Oct 12, 2012 at 04:07:57PM +0200, Dr. Werner Fink wrote:
+> >  Time... (the patch is one huge rewrite, I'd like to split it to more
+> >  patches). I'm busy with some others things, so next week.
 > 
+> Yep, this missing feature is also known here ;)
+> Maybe the attached patch help as it only adds the /proc/consoles and
+> /sys/class/tty/ scanner into common lib and leave sulogin untouched.
+> 
+> The integration into sulogin.c could then be done later
 
-Sorry about the long delay, life has been crazy busy - trying to squeeze
-in some util-linux time :-)
+ Good idea. I have merged the lib/consoles.c with some changes:
 
-> it's harm -- kernel has to parse the new PT, udev has to scan all the
-> stuff etc. ... many event and every event is painful if you have
-> complicated setup (DM, multipath, udisks, ...).
+    - removed all global variables
+    - refactoring (one separate function for each detection method)
+    - add debug messages
+    - fix some disadvantages
+    - add small test program
 
-good point.
+ Now we need a patch(s) for sulogin.c. It should be relatively simple
+ task as we already have Philipp's prototype.
 
-> 
-> > allows us to get rid of the 'MBRbuffer_changed' global variable.
-> 
-> It would be nice to add to fdisk_context
-> 
->     void *labeldata;
-> 
->  and define in fdiskdos.h
-> 
->  struct fdisk_dosdata {
->     int write_status;             /* FDISKDOS_WRITE_* flags */
->     ...
->  }
-> 
->  enum {
->     FDISKDOS_WRITE_HDR     = (1 << 1)  /* header buffer modified (e.g. ID change) */
->     FDISKDOS_WRITE_PT      = (1 << 2)  /* partition table modified */
->     FDISKDOS_WRITE_EPT     = (1 << 3)  /* any extended partition table modified */
->  };
-> 
-> (maybe you found better names for the macros and variables :-)
-> 
-> 
->  than we can add fdisk_is_modified() and is_modified() to fdisk_label
->  driver and remove all label specific junk from fdisk.c.
+ http://www.spinics.net/lists/util-linux-ng/msg06916.html
 
-Yeah, a generic pointer to label-specific data is something that we have
-to do. I will take a look at this option for a v2.
+ Any suggestion how to test the code?
 
-Thanks,
-Davidlohr
+   Karel
 
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
