@@ -1,113 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:27767 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:31073 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161178Ab2KNM0N (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 Nov 2012 07:26:13 -0500
-Date: Wed, 14 Nov 2012 13:26:10 +0100
+	id S1751545Ab2KLN3a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 Nov 2012 08:29:30 -0500
+Date: Mon, 12 Nov 2012 14:29:26 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Alexey Gladkov <gladkov.alexey@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: vlock command
-Message-ID: <20121114122610.GF1835@x2.net.home>
-References: <20121114103509.GD1835@x2.net.home>
- <50A37AD8.6060601@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: "Dr. Werner Fink" <werner@suse.de>
+Subject: Re: agetty and special chars @ and #
+Message-ID: <20121112132926.GD26857@x2.net.home>
+References: <20121107165859.GD4383@x2.net.home>
+ <20121112100410.GA1887@boole.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50A37AD8.6060601@gmail.com>
+In-Reply-To: <20121112100410.GA1887@boole.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 14, 2012 at 03:04:56PM +0400, Alexey Gladkov wrote:
-> We have another version of vlock, which is being supported by Dmitry
-> V. Levin.
+On Mon, Nov 12, 2012 at 11:04:11AM +0100, Dr. Werner Fink wrote:
+> On Wed, Nov 07, 2012 at 05:58:59PM +0100, Karel Zak wrote:
+> > 
+> >  Hi Werner,
+> > 
+> >  agetty in get_logname() interprets '@' and '#' as a special chars
+> >  (see man page or the code for more details).
+> > 
+> >  The problem is that we already have crazy users who want to use AD
+> >  (access domain) usernames in format user@domain on serial line or
+> >  console.
+> > 
+> >  Yeah, I know that char '@' is not between allowed username chars
+> >  (POSIX 3.429), but do we really need to support the spacial
+> >  interpretation of the @ and # chars?
+> > 
+> >  I think it's old confusing legacy. Objections?
 > 
-> http://git.altlinux.org/people/ldv/packages/vlock.git
+> Hmmm ... AFAICR the '@' symbols can be used to set the kill character
+> and the '#' can be used to set the erase character.  But for a virtual
+> console terminal those characters those are normally not used.
+> 
+> Only connections at dialin as well connections over some serial lines
+> with hardware/software line routers/terminal servers between this could
+> be problem.  On big irons such serial lines are used even in the present
+> days.
+> 
+> Maybe it would be worth to introduce an further option to support
+> access domains in user names ... or the other way around to support
+> '@' and '#' as special characters used for software escapes on
+> oldish connection lines.
 
- Alexey, just today I added --erase option to Fedora version. Maybe
- you can apply the patch below to your repository too. Author of the
- patch is Petr Pisar <ppisar@redhat.com>.
+ I thought about something like:
+
+    --erase-chars <string>
+    --kill-chars  <string>
+
+ and if the string is empty then agetty is insensitive to the special
+ chars. This should be a default for virtual console (or also for
+ serial line?).
+
+ vice versa
+
+   agetty --erase-chars '#'
+
+ enables the support for the char.
+
+ IMHO this solution is easy to extend (you can use another chars) and
+ provides full control of the feature (you can disable it at all).
 
     Karel
 
-
-diff -up vlock-1.3/help.c.kzak vlock-1.3/help.c
---- vlock-1.3/help.c.kzak	2012-11-14 11:12:08.378692002 +0100
-+++ vlock-1.3/help.c	2012-11-14 11:13:10.038998321 +0100
-@@ -26,6 +26,7 @@ void print_help(int exitcode) {
- 	  "       switch to other virtual consoles.\n"
- 	  "-a or --all: lock all virtual consoles by preventing other users\n"
- 	  "       from switching virtual consoles.\n"
-+	  "-e or --erase: erase current virtual console content\n"
- 	  "-v or --version: Print the version number of vlock and exit.\n"
- 	  "-h or --help: Print this help message and exit.\n"
- 	  );
-diff -up vlock-1.3/vlock.1.kzak vlock-1.3/vlock.1
---- vlock-1.3/vlock.1.kzak	1999-01-14 01:19:14.000000000 +0100
-+++ vlock-1.3/vlock.1	2012-11-14 11:12:58.745935657 +0100
-@@ -38,6 +38,10 @@ Lock all console sessions and disable VC
- .IP
- Lock the current session (this is the default).
- .PP
-+.B -e,--erase
-+.IP
-+Erase current console content to prevent from leaking sensitive data.
-+.PP
- .B -h,--help
- .IP
- Print a brief help message.
-diff -up vlock-1.3/vlock.c.kzak vlock-1.3/vlock.c
---- vlock-1.3/vlock.c.kzak	2012-11-14 11:12:08.379692007 +0100
-+++ vlock-1.3/vlock.c	2012-11-14 11:12:58.745935657 +0100
-@@ -29,6 +29,9 @@
-   /* This determines whether the default behavior is to lock only the */
-   /* current VT or all of them.  0 means current, 1 means all. */
-   int o_lock_all = 0;
-+  /* This determines whether to erase terminal content after the locking.
-+   * 0 means do not erase, 1 means to erase. */
-+  int o_erase_terminal = 0;
- 
- /* Other globals */
-   struct vt_mode ovtm;
-@@ -41,6 +44,7 @@ int main(int argc, char **argv) {
-   static struct option long_options[] = { /* For parsing long arguments */
-     {"current", 0, &o_lock_all, 0},
-     {"all", 0, &o_lock_all, 1},
-+    {"erase", no_argument, &o_erase_terminal, 1},
-     {"version", no_argument, 0, O_VERSION},
-     {"help", no_argument, 0, O_HELP},
-     {0, 0, 0, 0},
-@@ -51,7 +55,7 @@ int main(int argc, char **argv) {
-   char *env;
- 
-   /* First we parse all the command line arguments */
--  while ((c = getopt_long(argc, argv, "acvh",
-+  while ((c = getopt_long(argc, argv, "acevh",
- 			  long_options, &option_index)) != -1) {
-     switch(c) {
-     case 'c':
-@@ -60,6 +64,9 @@ int main(int argc, char **argv) {
-     case 'a':
-       o_lock_all = 1;
-       break;
-+    case 'e':
-+      o_erase_terminal = 1;
-+      break;
-     case 'v':
-     case O_VERSION:
-       fprintf(stderr, VERSION);
-@@ -116,6 +123,12 @@ int main(int argc, char **argv) {
-     ioctl(vfd, VT_SETMODE, &vtm);
-   }
- 
-+  /* Erase console. 2J erases display; 3J, since Linux 3.0, erases scroll-back
-+   * buffer too. */
-+  if (o_erase_terminal) {
-+    puts("\E[3J\E[2J");
-+  }
-+
-   /* get_password() sets the terminal characteristics and does not */
-   /* return until the correct password has been read.              */
-   get_password();
+> 
+> 
+>    Werner
+> 
+> http://www.linusakesson.net/programming/tty/
+> http://digilander.libero.it/robang/rubrica/serial.htm
+> 
+> -- 
+>   "Having a smoking section in a restaurant is like having
+>           a peeing section in a swimming pool." -- Edward Burr
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 -- 
  Karel Zak  <kzak@redhat.com>
