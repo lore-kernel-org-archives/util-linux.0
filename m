@@ -1,44 +1,39 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:35649 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751458Ab2KNJ1J (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 04:27:09 -0500
+Date: Wed, 14 Nov 2012 10:27:02 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/3] fdisk: api: move disklabel type to cxt
+Message-ID: <20121114092702.GA1835@x2.net.home>
+References: <1352880280.2577.4.camel@offbook>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20121121100852.GC2006@x2.net.home>
-References: <1352214367.5099275f85792@imp.free.fr>
-	<535592290.498944.1352219102253.JavaMail.open-xchange@email.1und1.de>
-	<20121121100852.GC2006@x2.net.home>
-Date: Wed, 21 Nov 2012 13:46:59 +0000
-Message-ID: <CAG27Bk2L7p=pO3LJZTNMaS68vx2vfodG76K=1SicOvEExDQRFw@mail.gmail.com>
-Subject: Re: Accessibility of swap files
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux <util-linux@vger.kernel.org>, mp.lists@free.fr
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1352880280.2577.4.camel@offbook>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 21, 2012 at 10:08 AM, Karel Zak <kzak@redhat.com> wrote:
-> On Tue, Nov 06, 2012 at 05:25:02PM +0100, Bernhard Voelker wrote:
->> On November 6, 2012 at 4:06 PM mp.lists@free.fr wrote:
->> > As a first idea, it looks, as if such may be implemented, eg. by
->> >      letting swapon [and fstab-based "mounting"] by default not enable a swap
->> > file, if it has non-root access permissions
->>
->> Did you know?
->> The swapon utility issues a warning diagnostic with --verbose:
->>
->>   # ls -l /tmp/swapfile
->>   -rw-r--r-- 1 berny users 134217728 Nov  6 17:03 /tmp/swapfile
->>
->>   # sbin/swapon -v  /tmp/swapfile
->>   swapon /tmp/swapfile
->>   swapon: /tmp/swapfile: insecure permissions 0644, 0600 suggested.
->>   swapon: /tmp/swapfile: insecure file owner 1000, 0 (root) suggested.
->>   swapon: /tmp/swapfile: found swap signature: version 1, page-size 4, same byte
->> order
->>   swapon: /tmp/swapfile: pagesize=4096, swapsize=134217728, devsize=134217728
->
->  this waring is there since year 1999.. so it's really nothing new.
+On Wed, Nov 14, 2012 at 12:04:40AM -0800, Davidlohr Bueso wrote:
+> -	if (disklabel != DOS_LABEL)
+> +	if (cxt->disklabel != DOS_LABEL)
 
-I wonder would be be too noisy to make insecurity warnings enabled by
-default,  and add --quiet option to thous who do not want to hear
-system complaining about things they know.
+What about to encapsulate it a little? The final goal is to have
+libfdisk, so the context members shouldn't not be directly accessible.
+
+   if (fdisk_is_disklabel(cxt, DOS))
+
+something like:
+
+  #define fdisk_is_disklabel(c, x)   fdisk_dev_is_dislabel(c, FDISK_DISKLABEL_ ## x)
+
+to avoid too generic names (e.g. DOS_LABEL), but keep is brief. Note
+that we already have a function fdisk_dev_has_label().
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
