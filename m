@@ -1,64 +1,123 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12422 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754507Ab2KEQxs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 Nov 2012 11:53:48 -0500
-Date: Mon, 5 Nov 2012 17:53:39 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/13] ipcs: make individual shared memory id printing to
- use /proc
-Message-ID: <20121105165339.GD3799@x2.net.home>
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
- <1350246145-10600-10-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1350246145-10600-10-git-send-email-kerolasa@iki.fi>
+Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:58049 "EHLO
+	homiemail-a10.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752500Ab2KNIEy (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 03:04:54 -0500
+Message-ID: <1352880292.2577.5.camel@offbook>
+Subject: [PATCH 3/3] fdisk: dos: always write mbr
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Date: Wed, 14 Nov 2012 00:04:52 -0800
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 14, 2012 at 09:22:21PM +0100, Sami Kerola wrote:
-> And reindent the print_shm() function.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  sys-utils/ipcs.c | 49 ++++++++++++++++++++++++++++---------------------
->  1 file changed, 28 insertions(+), 21 deletions(-)
-> 
-> diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
-> index 960039e..cd3d14d 100644
-> --- a/sys-utils/ipcs.c
-> +++ b/sys-utils/ipcs.c
-> @@ -308,6 +308,10 @@ static int shmctl_info_wrapper(int maxid, int id, struct shm_data **shmds,
->  			       &(shmdsp->shm_rss),
->  			       &(shmdsp->shm_swp)
->  			    );
-> +			if (-1 < id && id != shmdsp->shm_perm.id) {
-> +				i--;
-> +				continue;
-> +			}
+There's no harm when writing the MBR, changed or not. This also
+allows us to get rid of the 'MBRbuffer_changed' global variable.
 
- And what action is expected when id == shmdsp->shm_perm.id ?
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdisk.c         |    9 ++++++---
+ fdisks/fdisk.h         |    2 --
+ fdisks/fdiskdoslabel.c |   23 ++++++++++-------------
+ 3 files changed, 16 insertions(+), 18 deletions(-)
 
- What about
-
-    if (id == shmdsp->shm_perm.id)
-        break;
-
- otherwise  ipcs -m -i <id> will return another entry.
-
- BTW,
-
-    ./ipcs <something> &> new
-    ipcs <something>   &> old
-    diff -u old new
-
- is nice way how found bugs...
-
-    Karel
-
-
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index 7db25af..d79b55a 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -51,8 +51,6 @@
+ 
+ #include "gpt.h"
+ 
+-int MBRbuffer_changed;
+-
+ #define hex_val(c)	({ \
+ 				char _c = (c); \
+ 				isdigit(_c) ? _c - '0' : \
+@@ -498,13 +496,18 @@ static int is_partition_table_changed(void)
+ 
+ static void maybe_exit(int rc, int *asked)
+ {
++	int i, mbr_changed = 0;
+ 	char line[LINE_LENGTH];
+ 
+ 	putchar('\n');
+ 	if (asked)
+ 		*asked = 0;
+ 
+-	if (is_partition_table_changed() || MBRbuffer_changed) {
++	for (i = 0; i < 4; i++)
++		if (ptes[i].changed)
++			mbr_changed = 1;
++
++	if (is_partition_table_changed() || mbr_changed) {
+ 		fprintf(stderr, _("Do you really want to quit? "));
+ 
+ 		if (!fgets(line, LINE_LENGTH, stdin) || rpmatch(line) == 1)
+diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
+index 53ef6bc..639d7db 100644
+--- a/fdisks/fdisk.h
++++ b/fdisks/fdisk.h
+@@ -283,8 +283,6 @@ extern const char * str_units(int);
+ 
+ extern sector_t get_nr_sects(struct partition *p);
+ 
+-extern int MBRbuffer_changed;
+-
+ /* start_sect and nr_sects are stored little endian on all machines */
+ /* moreover, they are not aligned correctly */
+ static inline void
+diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
+index e813a21..f83b794 100644
+--- a/fdisks/fdiskdoslabel.c
++++ b/fdisks/fdiskdoslabel.c
+@@ -332,7 +332,6 @@ void dos_set_mbr_id(struct fdisk_context *cxt)
+ 		return;
+ 
+ 	mbr_set_id(cxt->firstsector, new_id);
+-	MBRbuffer_changed = 1;
+ 	dos_print_mbr_id(cxt);
+ }
+ 
+@@ -798,20 +797,18 @@ static int write_sector(struct fdisk_context *cxt, sector_t secno,
+ 
+ static int dos_write_disklabel(struct fdisk_context *cxt)
+ {
+-	int i, rc = 0;
++	int i, rc = 0, mbr_changed = 0;
+ 
+-	/* MBR (primary partitions) */
+-	if (!MBRbuffer_changed) {
+-		for (i = 0; i < 4; i++)
+-			if (ptes[i].changed)
+-				MBRbuffer_changed = 1;
+-	}
+-	if (MBRbuffer_changed) {
++	for (i = 0; i < 4; i++)
++		if (ptes[i].changed)
++			mbr_changed = 1;
++
++	if (mbr_changed)
+ 		mbr_set_magic(cxt->firstsector);
+-		rc = write_sector(cxt, 0, cxt->firstsector);
+-		if (rc)
+-			goto done;
+-	}
++	rc = write_sector(cxt, 0, cxt->firstsector);
++	if (rc)
++		goto done;
++
+ 	/* EBR (logical partitions) */
+ 	for (i = 4; i < partitions; i++) {
+ 		struct pte *pe = &ptes[i];
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9.5
+
+
+
+
