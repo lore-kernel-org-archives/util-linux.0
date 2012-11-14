@@ -1,182 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:60253 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751493Ab2KZPvP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 26 Nov 2012 10:51:15 -0500
-Received: by mail-we0-f174.google.com with SMTP id d7so3499918wer.19
-        for <util-linux@vger.kernel.org>; Mon, 26 Nov 2012 07:51:13 -0800 (PST)
-From: "=?UTF-8?q?Jan=20=28yac=29=20Mat=C4=9Bjka?=" <yac@blesmrt.net>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q? "Jan=20(yac)=20Mat=C4=9Bjka" ?= <JMatejka@suse.cz>
-Subject: [PATCH] + rename --symlink option for renaming symlink target
-Date: Mon, 26 Nov 2012 16:50:08 +0100
-Message-Id: <1353945008-24493-1-git-send-email-JMatejka@suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:49494 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932723Ab2KNO1Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 09:27:25 -0500
+Date: Wed, 14 Nov 2012 15:27:20 +0100
+From: "Dr. Werner Fink" <werner@suse.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: agetty and special chars @ and #
+Message-ID: <20121114142720.GA23414@boole.suse.de>
+References: <20121107165859.GD4383@x2.net.home>
+ <20121112100410.GA1887@boole.suse.de>
+ <20121112132926.GD26857@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20121112132926.GD26857@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: "Jan (yac) Matějka" <JMatejka@suse.cz>
+On Mon, Nov 12, 2012 at 02:29:26PM +0100, Karel Zak wrote:
+> On Mon, Nov 12, 2012 at 11:04:11AM +0100, Dr. Werner Fink wrote:
+> > On Wed, Nov 07, 2012 at 05:58:59PM +0100, Karel Zak wrote:
+> > > 
+> > >  Hi Werner,
+> > > 
+> > >  agetty in get_logname() interprets '@' and '#' as a special chars
+> > >  (see man page or the code for more details).
+> > > 
+> > >  The problem is that we already have crazy users who want to use AD
+> > >  (access domain) usernames in format user@domain on serial line or
+> > >  console.
+> > > 
+> > >  Yeah, I know that char '@' is not between allowed username chars
+> > >  (POSIX 3.429), but do we really need to support the spacial
+> > >  interpretation of the @ and # chars?
+> > > 
+> > >  I think it's old confusing legacy. Objections?
+> > 
+> > Hmmm ... AFAICR the '@' symbols can be used to set the kill character
+> > and the '#' can be used to set the erase character.  But for a virtual
+> > console terminal those characters those are normally not used.
+> > 
+> > Only connections at dialin as well connections over some serial lines
+> > with hardware/software line routers/terminal servers between this could
+> > be problem.  On big irons such serial lines are used even in the present
+> > days.
+> > 
+> > Maybe it would be worth to introduce an further option to support
+> > access domains in user names ... or the other way around to support
+> > '@' and '#' as special characters used for software escapes on
+> > oldish connection lines.
+> 
+>  I thought about something like:
+> 
+>     --erase-chars <string>
+>     --kill-chars  <string>
+> 
+>  and if the string is empty then agetty is insensitive to the special
+>  chars. This should be a default for virtual console (or also for
+>  serial line?).
+> 
+>  vice versa
+> 
+>    agetty --erase-chars '#'
+> 
+>  enables the support for the char.
+> 
+>  IMHO this solution is easy to extend (you can use another chars) and
+>  provides full control of the feature (you can disable it at all).
 
----
- misc-utils/rename.1 |    3 ++
- misc-utils/rename.c |   69 +++++++++++++++++++++++++++++++++++++++++---------
- 2 files changed, 59 insertions(+), 13 deletions(-)
+Indeed this is a good solution ... but in the case of systemd and its
+getty generator we may think about a /etc/agettytab with a similar
+syntax scheme as the old /etc/inittab to be able to provide agetty
+options based on the used tty line.  Clearly this /etc/agettytab should
+be parsed by agetty and options for the specified tty are found:
 
-diff --git a/misc-utils/rename.1 b/misc-utils/rename.1
-index 5f86b23..1ce6c12 100644
---- a/misc-utils/rename.1
-+++ b/misc-utils/rename.1
-@@ -21,6 +21,9 @@ Give visual feedback which files where renamed, if any.
- \fB\-V\fR, \fB\-\-version\fR
- Display version information and exit.
- .TP
-+\fB\-s\fR, \fB\-\-symlink\fR
-+Peform rename on symlink target
-+.TP
- \fB\-h\fR, \fB\-\-help\fR
- Display help text and exit.
- .SH EXAMPLES
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index b17e03b..c71fab1 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -18,27 +18,55 @@ for i in $@; do N=`echo "$i" | sed "s/$FROM/$TO/g"`; mv "$i" "$N"; done
- #include <stdlib.h>
- #include <errno.h>
- #include <getopt.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
- 
- #include "nls.h"
- #include "xalloc.h"
- #include "c.h"
- #include "closestream.h"
- 
--static int do_rename(char *from, char *to, char *s, int verbose)
-+static int do_rename(char *from, char *to, char *s, int verbose, int symlink_)
- {
--	char *newname, *where, *p, *q;
-+	char *newname, *where, *p, *q, *target;
- 	int flen, tlen, slen;
-+	struct stat sb;
-+
-+	if (symlink_) {
-+		if (lstat(s, &sb) == -1) {
-+			err(EXIT_FAILURE, _("lstat failed"));
-+		}
-+
-+		if(!S_ISLNK(sb.st_mode))
-+			/* Check the file is symlink before allocating the size of it */
-+			errx(EXIT_FAILURE, _("%s is not a symbolic link"), s);
-+
-+		target = xmalloc(sb.st_size + 1);
-+		if(0 > readlink(s, target, sb.st_size+1)) {
-+			err(EXIT_FAILURE, _("readlink %s failed"), s);
-+		}
-+		target[sb.st_size] = '\0';
-+
-+		where = strstr(target, from);
-+	}else{
-+		where = strstr(s, from);
-+	}
- 
--	where = strstr(s, from);
- 	if (where == NULL)
- 		return 0;
- 
- 	flen = strlen(from);
- 	tlen = strlen(to);
--	slen = strlen(s);
-+	if(symlink_) {
-+		slen = strlen(target);
-+		p = target;
-+	}else{
-+		slen = strlen(s);
-+		p = s;
-+	}
- 	newname = xmalloc(tlen + slen + 1);
- 
--	p = s;
- 	q = newname;
- 	while (p < where)
- 		*q++ = *p++;
-@@ -50,11 +78,21 @@ static int do_rename(char *from, char *to, char *s, int verbose)
- 		*q++ = *p++;
- 	*q = 0;
- 
--	if (rename(s, newname) != 0)
--		err(EXIT_FAILURE, _("renaming %s to %s failed"),
--		    s, newname);
--	if (verbose)
--		printf("`%s' -> `%s'\n", s, newname);
-+	if(symlink_) {
-+		if (0 > unlink(s))
-+			err(EXIT_FAILURE, _("unlinking %s failed"), s);
-+		if (symlink(newname, s) != 0)
-+			err(EXIT_FAILURE, _("symlinking %s to %s failed"), s, newname);
-+		if (verbose)
-+			printf("%s: `%s' -> `%s'\n", s, target, newname);
-+	}else{
-+		if (rename(s, newname) != 0)
-+			err(EXIT_FAILURE, _("renaming %s to %s failed"),
-+				s, newname);
-+		if (verbose)
-+			printf("`%s' -> `%s'\n", s, newname);
-+	}
-+
- 
- 	free(newname);
- 	return 1;
-@@ -70,6 +108,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	fputs(_("\nOptions:\n"), out);
- 	fputs(_(" -v, --verbose    explain what is being done\n"
- 		" -V, --version    output version information and exit\n"
-+		" -s, --symlink    act on symlink target\n"
- 		" -h, --help       display this help and exit\n\n"), out);
- 
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-@@ -78,12 +117,13 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- int main(int argc, char **argv)
- {
- 	char *from, *to;
--	int i, c, verbose = 0;
-+	int i, c, symlink=0, verbose = 0;
- 
- 	static const struct option longopts[] = {
- 		{"verbose", no_argument, NULL, 'v'},
- 		{"version", no_argument, NULL, 'V'},
- 		{"help", no_argument, NULL, 'h'},
-+		{"symlink", no_argument, NULL, 's'},
- 		{NULL, 0, NULL, 0}
- 	};
- 
-@@ -92,11 +132,14 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
- 
--	while ((c = getopt_long(argc, argv, "vVh", longopts, NULL)) != -1)
-+	while ((c = getopt_long(argc, argv, "vsVh", longopts, NULL)) != -1)
- 		switch (c) {
- 		case 'v':
- 			verbose = 1;
- 			break;
-+		case 's':
-+			symlink = 1;
-+			break;
- 		case 'V':
- 			printf(_("%s from %s\n"),
- 			       program_invocation_short_name,
-@@ -120,7 +163,7 @@ int main(int argc, char **argv)
- 	to = argv[1];
- 
- 	for (i = 2; i < argc; i++)
--		do_rename(from, to, argv[i], verbose);
-+		do_rename(from, to, argv[i], verbose, symlink);
- 
- 	return EXIT_SUCCESS;
- }
+  1:tty1:--noclear %p
+  2:tty2:%p
+  3:tty3:%p
+  4:tty4:%p
+  5:tty5:%p
+  6:tty6:%p
+  S0:ttyS0:--erase-chars # --kill-chars @ -mt 60 %p 9600,2400,1200
+  S1:ttyS0:-L 9600 %p 9600 vt102
+
+... ??
+
+    Werner
+
 -- 
-1.7.8.6
-
+  "Having a smoking section in a restaurant is like having
+          a peeing section in a swimming pool." -- Edward Burr
