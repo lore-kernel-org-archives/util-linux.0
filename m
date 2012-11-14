@@ -1,50 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout-de.gmx.net ([213.165.64.22]:50355 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S933439Ab2K0KNz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Nov 2012 05:13:55 -0500
-Message-ID: <50B4927C.9010200@gmx.de>
-Date: Tue, 27 Nov 2012 11:14:20 +0100
-From: Ulf Zibis <Ulf.Zibis@gmx.de>
-MIME-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:35114 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754819Ab2KNKfS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 05:35:18 -0500
+Date: Wed, 14 Nov 2012 11:35:09 +0100
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Subject: question on sfdisk geometry estimation
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Subject: vlock command
+Message-ID: <20121114103509.GD1835@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-using sfdisk -l I had this output:
+ vlock(1) - Virtual Console lock program
 
-Disk /dev/sda: 19457 cylinders, 255 heads, 63 sectors/track
-Units = cylinders of 8225280 bytes, blocks of 1024 bytes, counting from 0
+This nice and small program used by admins on machines with consoles
+only. Unfortunately it has inactive upstream(s).
 
-    Device Boot Start     End   #cyls    #blocks   Id  System
-/dev/sda1   *      0+   3038    3039-  24410736    7  HPFS/NTFS/exFAT
-/dev/sda2      18936+  19456-    521-   4180680   12  Compaq diagnostics
-/dev/sda3       3039    5390    2352   18892440   83  Linux
-/dev/sda4       5391   18935   13545  108800212+   5  Extended
-/dev/sda5       9725+  12764    3040-  24418768+   7  HPFS/NTFS/exFAT
-/dev/sda6      12765+  18935    6171-  49568526    7  HPFS/NTFS/exFAT
+The original upstream for vlock-1.3 at
 
-Disk /dev/sdb: 10337 cylinders, 240 heads, 63 sectors/track
-Units = cylinders of 7741440 bytes, blocks of 1024 bytes, counting from 0
+    ftp://tsx-11.mit.edu:/pub/linux/sources/usr.bin/
 
-    Device Boot Start     End   #cyls    #blocks   Id  System
-/dev/sdb1   *      0+   4604-   4605-  34812823+   7  HPFS/NTFS/exFAT
-/dev/sdb2       9782   10336     555    4195800   12  Compaq diagnostics
-/dev/sdb3       5952    9781    3830   28954800    f  W95 Ext'd (LBA)
-/dev/sdb4       4604+   5951-   1348-  10183680    7  HPFS/NTFS/exFAT
-/dev/sdb5       5952+   9781    3830-  28954768+   b  W95 FAT32
+is inactive for years. There is also new upstream at
 
+   http://freecode.com/projects/vlock
+   http://repo.or.cz/w/vlock.git
 
-So I'm wondering why sfdisk assumed sdb to be 240 head-aligned instead of 255.
-All partitions except the sdb2 match with the 255*63 alignment.
+but this also seems inactive and from my point of view vlock-2.x is
+over-engineering rhapsody (glib, plug-ins, dependences resolver,
+external scripts etc.)
 
-Any hint, how the geometry should be estimated correctly?
+What about to merge vlock-1.3 into utils-linux? It's 630 lines of code
+(including unnecessary non-PAM code).
 
-Many thanks to your answer,
+Comments & Objections?
 
--Ulf
+    Karel
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
