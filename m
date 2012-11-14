@@ -1,86 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender1.zohomail.com ([72.5.230.103]:33375 "EHLO
-	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932202Ab2KWXLw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 23 Nov 2012 18:11:52 -0500
-Message-ID: <50AFFE46.4090309@zoho.com>
-Date: Fri, 23 Nov 2012 23:52:54 +0100
-From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
+Received: from monster.unsafe.ru ([195.18.34.9]:51904 "EHLO mail.unsafe.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752390Ab2KNLNK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 06:13:10 -0500
+Message-ID: <50A37AD8.6060601@gmail.com>
+Date: Wed, 14 Nov 2012 15:04:56 +0400
+From: Alexey Gladkov <gladkov.alexey@gmail.com>
 MIME-Version: 1.0
-To: Andy Lutomirski <luto@amacapital.net>
+To: Karel Zak <kzak@redhat.com>
 CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add no_new_privs
-References: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
-In-Reply-To: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: vlock command
+References: <20121114103509.GD1835@x2.net.home>
+In-Reply-To: <20121114103509.GD1835@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 23/11/12 21:23, Andy Lutomirski wrote:
-> ---
+14.11.2012 14:35, Karel Zak wrote:
 > 
-> I'm not 100% sure this is appropriate for util-linux, but it seems useful.
+>  vlock(1) - Virtual Console lock program
 > 
-> I've never written new programs for util-linux before, and I barely understand
-> autotools.  Feedback is welcome :)
-(...)
+> This nice and small program used by admins on machines with consoles
+> only. Unfortunately it has inactive upstream(s).
+> 
+> The original upstream for vlock-1.3 at
+> 
+>     ftp://tsx-11.mit.edu:/pub/linux/sources/usr.bin/
+> 
+> is inactive for years. There is also new upstream at
+> 
+>    http://freecode.com/projects/vlock
+>    http://repo.or.cz/w/vlock.git
+> 
+> but this also seems inactive and from my point of view vlock-2.x is
+> over-engineering rhapsody (glib, plug-ins, dependences resolver,
+> external scripts etc.)
+> 
+> What about to merge vlock-1.3 into utils-linux? It's 630 lines of code
+> (including unnecessary non-PAM code).
+> 
+> Comments & Objections?
+> 
 
-> --- /dev/null
-> +++ b/sys-utils/no_new_privs.1
-> @@ -0,0 +1,37 @@
-> +.\" Process this file with
-> +.\" groff -man -Tascii no_new_privs.1
-> +.\"
-> +.TH NO_NEW_PRIVS 1 "December 2012" "util-linux" "User Commands"
-> +.SH NAME
-> +no_new_privs \- run program with new_new_privs set
-s/new_new_privs/no_new_privs/
+We have another version of vlock, which is being supported by Dmitry
+V. Levin.
 
-> +.SH SYNOPSIS
-> +.B no_new_privs
-> +.RI [ options ]
-> +program
-> +.RI [ arguments ]
-> +.SH DESCRIPTION
-> +Sets the \fIno_new_privs\fP bit and then executes specified program.  With
-> +this bit set,
-> +.BR execve (2)
-> +will not grant new privileges.  For example, the setuid
-> +and setgid bits as well as file capabilities will not function.  This bit
-"will not be granted" instead of "will not function"?
-It's not clear from the description if a privileged program would run
-without setuid or if it wouldn't run at all (although to be fair,
-no_new_privs.txt doesn't clarify that, either).
+http://git.altlinux.org/people/ldv/packages/vlock.git
 
-> +is inherited by child processes and cannot be unset.  See
-> +.BR prctl (2)
-> +and
-> +.IR Documentation/prctl/no_new_privs.txt
-> +in the Linux kernel source.
-> +.SH OPTIONS
-> +.TP
-> +.BR \-h , " \-\-help"
-> +Print a help message,
-> +.SH NOTES
-> +If setting the no_new_privs bit fails, \fIprogram\fP will not be run.
+Some time ago, I have merged this version in kbd project:
 
-Also document that it will return 1 ?
-It is possible that something like 127 would be more appropiate, though.
+http://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=tree;f=src/vlock;h=92419b98175d215a71f83bfb06b409daa97b13c4;hb=768b8c314e1d3c465d895b206da4aa4543914d1d
 
+I have a collection of utilities for manipulation in console (openvt,
+chvt, deallocvt ...) I consider logical to have the utility for
+terminal blocking.
 
-> +.SH SEE ALSO
-> +.BR prctl (2)
-> +.SH BUGS
-> +None known so far.
-> +.SH AUTHOR
-> +Andy Lutomirski <luto@amacapital.net>
-> +.SH AVAILABILITY
-> +The no_new_privs command is part of the util-linux package and is available from
-> +ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+What do you think ?
 
-IMHO it should mention that PR_SET_NO_NEW_PRIVS is available since Linux
-3.5
-
-(...)
-
+-- 
+Rgrds, legion
 
