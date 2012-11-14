@@ -1,71 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:49064 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751673Ab2KYMBS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 07:01:18 -0500
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1492723wgb.1
-        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 04:01:18 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: =?UTF-8?q?=5BPATCH=201/4=5D=20docs=3A=20mention=20Open=20Group=20requirements?=
-Date: Sun, 25 Nov 2012 12:01:08 +0000
-Message-Id: <1353844871-6047-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
-References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:23553 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161178Ab2KNMWL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 Nov 2012 07:22:11 -0500
+Date: Wed, 14 Nov 2012 13:22:07 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Alexey Gladkov <gladkov.alexey@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: vlock command
+Message-ID: <20121114122207.GE1835@x2.net.home>
+References: <20121114103509.GD1835@x2.net.home>
+ <50A37AD8.6060601@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50A37AD8.6060601@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Commands cal col ipcrm ipcs kill line logger mesg more newgrp pg renice
-has Open Group requirements.  Contributors need to be aware of them.
+On Wed, Nov 14, 2012 at 03:04:56PM +0400, Alexey Gladkov wrote:
+> 14.11.2012 14:35, Karel Zak wrote:
+> > 
+> >  vlock(1) - Virtual Console lock program
+> > 
+> > This nice and small program used by admins on machines with consoles
+> > only. Unfortunately it has inactive upstream(s).
+> > 
+> > The original upstream for vlock-1.3 at
+> > 
+> >     ftp://tsx-11.mit.edu:/pub/linux/sources/usr.bin/
+> > 
+> > is inactive for years. There is also new upstream at
+> > 
+> >    http://freecode.com/projects/vlock
+> >    http://repo.or.cz/w/vlock.git
+> > 
+> > but this also seems inactive and from my point of view vlock-2.x is
+> > over-engineering rhapsody (glib, plug-ins, dependences resolver,
+> > external scripts etc.)
+> > 
+> > What about to merge vlock-1.3 into utils-linux? It's 630 lines of code
+> > (including unnecessary non-PAM code).
+> > 
+> > Comments & Objections?
+> > 
+> 
+> We have another version of vlock, which is being supported by Dmitry
+> V. Levin.
+> 
+> http://git.altlinux.org/people/ldv/packages/vlock.git
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/howto-contribute.txt | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ it seems the same code as the original vlock-1.3
 
-diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
-index 5df6389..e0f8ad7 100644
---- a/Documentation/howto-contribute.txt
-+++ b/Documentation/howto-contribute.txt
-@@ -117,6 +117,35 @@ Various notes
- 	  multiple lines. In case the shorthand does not look good on one
- 	  line use normal "if () else" syntax.
- 
-+Standards compliancy
-+
-+	Some of the commands maintained in this package has Open Group
-+	requirements. These commands are;
-+
-+		cal
-+		col
-+		ipcrm
-+		ipcs
-+		kill
-+		line
-+		logger
-+		mesg
-+		more
-+		newgrp
-+		pg
-+		renice
-+
-+	If you change these tools please make sure a change does not
-+	conflict with the latest standard.  For example it is
-+	recommendable not to add short command line options before they
-+	are part of standard.  Introducing new short options is
-+	acceptable.
-+
-+		The Single UNIX® Specification, Version 2
-+		Copyright © 1997 The Open Group
-+
-+		http://pubs.opengroup.org/onlinepubs/7908799/xcuix.html
-+
- IRC channel
- 
- 	* We have a new #util-linux IRC channel at freenode.net.
+> Some time ago, I have merged this version in kbd project:
+> 
+> http://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=tree;f=src/vlock;h=92419b98175d215a71f83bfb06b409daa97b13c4;hb=768b8c314e1d3c465d895b206da4aa4543914d1d
+> 
+> I have a collection of utilities for manipulation in console (openvt,
+> chvt, deallocvt ...) I consider logical to have the utility for
+> terminal blocking.
+> 
+> What do you think?
+
+ Well, vlock is mostly about authentication, but I have no strong
+ opinion about it -- we can keep it in kbd as well.
+
+    Karel
+
 -- 
-1.8.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
