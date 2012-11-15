@@ -1,53 +1,38 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 26 Nov 2012 14:27:00 +0100
-From: Karel Zak <kzak@redhat.com>
-To: NeilBrown <neilb@suse.de>
-Cc: Jaegeuk Kim <jaegeuk.kim@gmail.com>, util-linux@vger.kernel.org,
-        Vyacheslav Dubeyko <slava@dubeyko.com>,
-        Martin Steigerwald <Martin@lichtvoll.de>, linux-kernel@vger.kernel.org,
-        Jaegeuk Kim <jaegeuk.kim@samsung.com>, linux-fsdevel@vger.kernel.org,
-        gregkh@linuxfoundation.org, viro@zeniv.linux.org.uk, arnd@arndb.de,
-        tytso@mit.edu, chur.lee@samsung.com, cm224.lee@samsung.com,
-        jooyoung.hwang@samsung.com
-Subject: Re: util-linux bug: was Re: [PATCH 00/16 v3] f2fs: introduce
- flash-friendly file system
-Message-ID: <20121126132700.GA28200@x2.net.home>
-References: <003d01cdb74b$0c3fa420$24beec60$%kim@samsung.com>
- <201211021439.02797.Martin@lichtvoll.de>
- <CAOtxgye-sqJFe17EyfJQ0RrMwQqsPbDv5m+4cJT0BjnRnGv56w@mail.gmail.com>
- <201211101933.38434.Martin@lichtvoll.de>
- <8A3372F6-6294-404E-909B-3FDE0C2368B7@dubeyko.com>
- <1352634168.1893.9.camel@kjgkr>
- <20121123112309.52429ceb@notabene.brown>
+Return-Path: gladkov.alexey@gmail.com
+Message-ID: <50A4B774.4010005@gmail.com>
+Date: Thu, 15 Nov 2012 13:35:48 +0400
+From: Alexey Gladkov <gladkov.alexey@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121123112309.52429ceb@notabene.brown>
-Sender: linux-kernel-owner@vger.kernel.org
+To: Petr Pisar <ppisar@redhat.com>
+CC: util-linux@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
+        Karel Zak <kzak@redhat.com>
+Subject: Re: vlock command
+References: <20121114103509.GD1835@x2.net.home> <50A37AD8.6060601@gmail.com> <20121114122610.GF1835@x2.net.home> <20121114233117.GD20303@altlinux.org> <50A48F5F.3090404@gmail.com> <20121115075253.GA26255@x2.net.home> <20121115084821.GB1877@dhcp-0-146.brq.redhat.com>
+In-Reply-To: <20121115084821.GB1877@dhcp-0-146.brq.redhat.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 23, 2012 at 11:23:09AM +1100, NeilBrown wrote:
-> This is a bug in util-linux.
+15.11.2012 12:48, Petr Pisar wrote:
+> It's similar but insufficient. The difference between your clear_str[]
+> = "\33[H\33[J" and my string is my way clears scroll-back buffer of Linux
+> virtual terminal too. This prevents from reading history using Shift-PgUp
+> while the terminal is locked. Read current console_codes(4) page, especially
+> search for word "buffer".
 > 
-> If 'blkid' doesn't recognise the filesystem, mount reads /etc/filesystems
-> and tries everything listed there.  If that file ends with a '*', it should
-> read /proc/filesystems and try everything else listed that (that doesn't
-> start with 'nodev').
-> 
-> However it currently ignores the '*' and just adds everything
+> So what I ask is to prepend "\33[3J" to your clear_str[]. This even users with
+> older kernel not implementing this code get console cleared.
 
- Fixed. Thanks for the report!
+Sounds reasonable.
 
-> The following patch (against git://github.com/karelzak/util-linux.git) fixes
-> it for me,  though I suspect it should possible ignore 'ENODEV' too -
-> otherwise if /etc/filesystems contains an invalid filesystem name, it will
-> silently ignore all others.
+> If I understand the code correctly, you clear screen only if it's a virtual
+> terminal. I have no idea how usefull is vlock on other terminals (I use
+> "screen" there), so I do not request any change in this matter.
 
- Good idea, implemented.
+Ok. This is what I wanted to find out.
 
- ... all will be fixed in stable v2.22.2 release.
-
-    Karel
+Guys, I want to release the new version of kbd next month. This will
+be the first kbd release with the vlock. Do you have any more
+suggestions on vlock?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Rgrds, legion
