@@ -1,59 +1,56 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <50B8E344.9080405@ubuntu.com>
-Date: Fri, 30 Nov 2012 11:48:04 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:33018 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756135Ab2KOJsg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 15 Nov 2012 04:48:36 -0500
+Date: Thu, 15 Nov 2012 10:48:30 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Alexey Gladkov <gladkov.alexey@gmail.com>
+Cc: Petr Pisar <ppisar@redhat.com>, util-linux@vger.kernel.org,
+        "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: Re: vlock command
+Message-ID: <20121115094830.GB26255@x2.net.home>
+References: <20121114103509.GD1835@x2.net.home>
+ <50A37AD8.6060601@gmail.com>
+ <20121114122610.GF1835@x2.net.home>
+ <20121114233117.GD20303@altlinux.org>
+ <50A48F5F.3090404@gmail.com>
+ <20121115075253.GA26255@x2.net.home>
+ <20121115084821.GB1877@dhcp-0-146.brq.redhat.com>
+ <50A4B774.4010005@gmail.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: BUG: fdisk fails silently if EBR is outside of disk
-References: <20121130105659.GA21271@x2.net.home>
-In-Reply-To: <20121130105659.GA21271@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50A4B774.4010005@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 11/30/2012 5:56 AM, Karel Zak wrote:
-> Fixed (I hope).
+On Thu, Nov 15, 2012 at 01:35:48PM +0400, Alexey Gladkov wrote:
+> 15.11.2012 12:48, Petr Pisar wrote:
+> > It's similar but insufficient. The difference between your clear_str[]
+> > = "\33[H\33[J" and my string is my way clears scroll-back buffer of Linux
+> > virtual terminal too. This prevents from reading history using Shift-PgUp
+> > while the terminal is locked. Read current console_codes(4) page, especially
+> > search for word "buffer".
+> > 
+> > So what I ask is to prepend "\33[3J" to your clear_str[]. This even users with
+> > older kernel not implementing this code get console cleared.
 > 
-> # ./fdisk /dev/loop0 You must set cylinders. You can do this from
-> the extra functions menu. Failed to read extended partition table
-> (offset=462748414) Warning: ignoring extra data in partition table
-> 5 Warning: ignoring extra data in partition table 5 Warning:
-> ignoring extra data in partition table 5 Warning: invalid flag
-> 0x1919 of partition table 5 will be corrected by w(rite) Welcome to
-> fdisk (util-linux 2.22.269-6b3e3).
+> Sounds reasonable.
 > 
-> Changes will remain in memory only, until you decide to write
-> them. Be careful before using the write command.
+> > If I understand the code correctly, you clear screen only if it's a virtual
+> > terminal. I have no idea how usefull is vlock on other terminals (I use
+> > "screen" there), so I do not request any change in this matter.
 > 
+> Ok. This is what I wanted to find out.
 > 
-> Command (m for help): p
-> 
-> Disk /dev/loop0: 0 MB, 512 bytes, 1 sectors Units = sectors of 1 *
-> 512 = 512 bytes Sector size (logical/physical): 512 bytes / 512
-> bytes I/O size (minimum/optimal): 512 bytes / 512 bytes Disk
-> identifier: 0x0002a9f0
-> 
-> Device       Boot      Start         End      Blocks   Id   System 
-> /dev/loop0p1             256   462748159   231373952   83    Linux 
-> /dev/loop0p2       462748414   464843519     1047553    5 Extended 
-> /dev/loop0p5   ?   883823639  1304898863   210537612+  19  Unknown
+> Guys, I want to release the new version of kbd next month. This will
+> be the first kbd release with the vlock. Do you have any more
+> suggestions on vlock?
 
-If it could not read the EBR, where did it come up with the p5 entry?
+ Rename --enable-vlock to --disable-vlock and enable it by default :-)
 
+    Karel
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with undefined - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJQuONEAAoJEJrBOlT6nu75soUIAJE3pdR1r+peBOhJHakGmuHz
-5hFUMz6AvTkPW+ed1FUAp26qZtO5ngK46Q/d1+cGW4Asj30J+BXtip2pcUj8laPe
-kjbh3zoMuBWHX1TbfmJn2Ydc+s/+OpqPmxTsgtUBQ9IR3VgbzbWIK+Vf0zqKVuGw
-DEkUD+sHXLF2LfU1sTGA8BDv9VGnaHbEhfdegf2Hi6i29UWxYyXoS7tmOfaRDIes
-KJTiYWf4Tflv6FEnKEzLMtn8yOOaURo/aeHM2scTrxvQp9HXZspf9ooHn/HC8SI6
-5L6SLF3oxfxxSg1KZwb1pAMflWshU8cbckXwOE9Ye1x8TZv/x4Q8a8Z2E1Tnfuc=
-=ZVz1
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
