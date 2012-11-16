@@ -1,123 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from caiajhbdcbhh.dreamhost.com ([208.97.132.177]:58049 "EHLO
-	homiemail-a10.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752500Ab2KNIEy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 Nov 2012 03:04:54 -0500
-Message-ID: <1352880292.2577.5.camel@offbook>
-Subject: [PATCH 3/3] fdisk: dos: always write mbr
-From: Davidlohr Bueso <dave@gnu.org>
-Reply-To: dave@gnu.org
-To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Wed, 14 Nov 2012 00:04:52 -0800
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:12309 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751693Ab2KPNFr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 16 Nov 2012 08:05:47 -0500
+Date: Fri, 16 Nov 2012 14:05:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Lennart Poettering <lennart@poettering.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: agetty and special chars @ and #
+Message-ID: <20121116130544.GE20338@x2.net.home>
+References: <20121107165859.GD4383@x2.net.home>
+ <20121112100410.GA1887@boole.suse.de>
+ <20121112132926.GD26857@x2.net.home>
+ <20121114142720.GA23414@boole.suse.de>
+ <20121116101419.GC20338@x2.net.home>
+ <20121116124729.GA4773@tango.0pointer.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121116124729.GA4773@tango.0pointer.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There's no harm when writing the MBR, changed or not. This also
-allows us to get rid of the 'MBRbuffer_changed' global variable.
+On Fri, Nov 16, 2012 at 01:47:29PM +0100, Lennart Poettering wrote:
+> On Fri, 16.11.12 11:14, Karel Zak (kzak@redhat.com) wrote:
+> 
+> > 
+> > On Wed, Nov 14, 2012 at 03:27:20PM +0100, Dr. Werner Fink wrote:
+> > > Indeed this is a good solution ... but in the case of systemd and its
+> > > getty generator we may think about a /etc/agettytab with a similar
+> > > syntax scheme as the old /etc/inittab to be able to provide agetty
+> > > options based on the used tty line.  Clearly this /etc/agettytab should
+> > > be parsed by agetty and options for the specified tty are found:
+> > > 
+> > >   1:tty1:--noclear %p
+> > >   2:tty2:%p
+> > >   3:tty3:%p
+> > >   4:tty4:%p
+> > >   5:tty5:%p
+> > >   6:tty6:%p
+> > >   S0:ttyS0:--erase-chars # --kill-chars @ -mt 60 %p 9600,2400,1200
+> > >   S1:ttyS0:-L 9600 %p 9600 vt102
+> > 
+> >  Hmm, I guess it's still possible to create tty line specific config
+> >  file on systems with systemd. I'd like to avoid another place where
+> >  will be configuration.
+> 
+> Please do not add such a configuration file.
+> 
+> In systemd, if people want to configure line-specific getty
+> configuration they should just copy
+> /usr/lib/systemd/system/getty@.service to
+> /etc/systemd/system/getty@ttyS0.service and edit it there. Since systemd
+> will first look for instantiated unit files, and only then fall back to
+> generic template this should do the right thing.
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- fdisks/fdisk.c         |    9 ++++++---
- fdisks/fdisk.h         |    2 --
- fdisks/fdiskdoslabel.c |   23 ++++++++++-------------
- 3 files changed, 16 insertions(+), 18 deletions(-)
+It would be nice to make it more obvious in systemd.special man page.
 
-diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
-index 7db25af..d79b55a 100644
---- a/fdisks/fdisk.c
-+++ b/fdisks/fdisk.c
-@@ -51,8 +51,6 @@
- 
- #include "gpt.h"
- 
--int MBRbuffer_changed;
--
- #define hex_val(c)	({ \
- 				char _c = (c); \
- 				isdigit(_c) ? _c - '0' : \
-@@ -498,13 +496,18 @@ static int is_partition_table_changed(void)
- 
- static void maybe_exit(int rc, int *asked)
- {
-+	int i, mbr_changed = 0;
- 	char line[LINE_LENGTH];
- 
- 	putchar('\n');
- 	if (asked)
- 		*asked = 0;
- 
--	if (is_partition_table_changed() || MBRbuffer_changed) {
-+	for (i = 0; i < 4; i++)
-+		if (ptes[i].changed)
-+			mbr_changed = 1;
-+
-+	if (is_partition_table_changed() || mbr_changed) {
- 		fprintf(stderr, _("Do you really want to quit? "));
- 
- 		if (!fgets(line, LINE_LENGTH, stdin) || rpmatch(line) == 1)
-diff --git a/fdisks/fdisk.h b/fdisks/fdisk.h
-index 53ef6bc..639d7db 100644
---- a/fdisks/fdisk.h
-+++ b/fdisks/fdisk.h
-@@ -283,8 +283,6 @@ extern const char * str_units(int);
- 
- extern sector_t get_nr_sects(struct partition *p);
- 
--extern int MBRbuffer_changed;
--
- /* start_sect and nr_sects are stored little endian on all machines */
- /* moreover, they are not aligned correctly */
- static inline void
-diff --git a/fdisks/fdiskdoslabel.c b/fdisks/fdiskdoslabel.c
-index e813a21..f83b794 100644
---- a/fdisks/fdiskdoslabel.c
-+++ b/fdisks/fdiskdoslabel.c
-@@ -332,7 +332,6 @@ void dos_set_mbr_id(struct fdisk_context *cxt)
- 		return;
- 
- 	mbr_set_id(cxt->firstsector, new_id);
--	MBRbuffer_changed = 1;
- 	dos_print_mbr_id(cxt);
- }
- 
-@@ -798,20 +797,18 @@ static int write_sector(struct fdisk_context *cxt, sector_t secno,
- 
- static int dos_write_disklabel(struct fdisk_context *cxt)
- {
--	int i, rc = 0;
-+	int i, rc = 0, mbr_changed = 0;
- 
--	/* MBR (primary partitions) */
--	if (!MBRbuffer_changed) {
--		for (i = 0; i < 4; i++)
--			if (ptes[i].changed)
--				MBRbuffer_changed = 1;
--	}
--	if (MBRbuffer_changed) {
-+	for (i = 0; i < 4; i++)
-+		if (ptes[i].changed)
-+			mbr_changed = 1;
-+
-+	if (mbr_changed)
- 		mbr_set_magic(cxt->firstsector);
--		rc = write_sector(cxt, 0, cxt->firstsector);
--		if (rc)
--			goto done;
--	}
-+	rc = write_sector(cxt, 0, cxt->firstsector);
-+	if (rc)
-+		goto done;
-+
- 	/* EBR (logical partitions) */
- 	for (i = 4; i < partitions; i++) {
- 		struct pte *pe = &ptes[i];
+    Karel
+
 -- 
-1.7.9.5
-
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
