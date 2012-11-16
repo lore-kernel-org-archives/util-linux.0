@@ -1,40 +1,30 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54276 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751480Ab2KPJgT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 16 Nov 2012 04:36:19 -0500
-Date: Fri, 16 Nov 2012 10:36:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-Subject: Re: new mount regression
-Message-ID: <20121116093615.GA20338@x2.net.home>
-References: <50A3F95E.6030407@gmail.com>
- <20121114231031.GB20303@altlinux.org>
+Return-Path: legion@mozilla-russia.org
+Message-ID: <50A60F07.2030805@mozilla-russia.org>
+Date: Fri, 16 Nov 2012 14:01:43 +0400
+From: Alexey Gladkov <legion@mozilla-russia.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121114231031.GB20303@altlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+To: Petr Pisar <ppisar@redhat.com>
+CC: Alexey Gladkov <gladkov.alexey@gmail.com>, util-linux@vger.kernel.org,
+        "Dmitry V. Levin" <ldv@altlinux.org>, Karel Zak <kzak@redhat.com>
+Subject: Re: vlock command
+References: <20121114103509.GD1835@x2.net.home> <50A37AD8.6060601@gmail.com> <20121114122610.GF1835@x2.net.home> <20121114233117.GD20303@altlinux.org> <50A48F5F.3090404@gmail.com> <20121115075253.GA26255@x2.net.home> <20121115084821.GB1877@dhcp-0-146.brq.redhat.com> <50A4B774.4010005@gmail.com> <20121115102342.GC1877@dhcp-0-146.brq.redhat.com>
+In-Reply-To: <20121115102342.GC1877@dhcp-0-146.brq.redhat.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 15, 2012 at 03:10:31AM +0400, Dmitry V. Levin wrote:
-> > Also new mount understands fstype list in options:
-> > 
-> > $ mount -t vfat,hfsplus,ext4,ext3,ext2 /dev/loop0 /media
-> 
-> Already reported with a patch in
-> http://marc.info/?l=util-linux-ng&m=134876452206541
-> The patch was labelled a hack and rejected in
-> http://marc.info/?l=util-linux-ng&m=134910609108013
-> but no better alternative is available so far.
+15.11.2012 14:23, Petr Pisar wrote:
+> On Thu, Nov 15, 2012 at 01:35:48PM +0400, Alexey Gladkov wrote:
+>> Guys, I want to release the new version of kbd next month. This will
+>> be the first kbd release with the vlock. Do you have any more
+>> suggestions on vlock?
+>>
+> Yes. Could you please internationalize vlock code (adding the setlocate(),
+> bindtextdomain(), textdomain(), and _() around all messages)? I'll be happy to
+> translate it then.
 
- I have applied the Gleb's patch as I did not found a better
- (less invasive) solution.
+Please check:
 
- Thanks!
-
-    Karel
+http://git.altlinux.org/people/legion/packages/kbd.git
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Rgrds, legion
