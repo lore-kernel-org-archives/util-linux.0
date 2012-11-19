@@ -1,147 +1,154 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:49308 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:13484 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752864Ab2KWAXc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 22 Nov 2012 19:23:32 -0500
-Date: Fri, 23 Nov 2012 11:23:09 +1100
-From: NeilBrown <neilb@suse.de>
-To: Jaegeuk Kim <jaegeuk.kim@gmail.com>, util-linux@vger.kernel.org
-Cc: Vyacheslav Dubeyko <slava@dubeyko.com>,
-        Martin Steigerwald <Martin@lichtvoll.de>, linux-kernel@vger.kernel.org,
-        Jaegeuk Kim <jaegeuk.kim@samsung.com>, linux-fsdevel@vger.kernel.org,
-        gregkh@linuxfoundation.org, viro@zeniv.linux.org.uk, arnd@arndb.de,
-        tytso@mit.edu, chur.lee@samsung.com, cm224.lee@samsung.com,
-        jooyoung.hwang@samsung.com
-Subject: util-linux bug: was Re: [PATCH 00/16 v3] f2fs: introduce
- flash-friendly file system
-Message-ID: <20121123112309.52429ceb@notabene.brown>
-In-Reply-To: <1352634168.1893.9.camel@kjgkr>
-References: <003d01cdb74b$0c3fa420$24beec60$%kim@samsung.com>
-	<201211021439.02797.Martin@lichtvoll.de>
-	<CAOtxgye-sqJFe17EyfJQ0RrMwQqsPbDv5m+4cJT0BjnRnGv56w@mail.gmail.com>
-	<201211101933.38434.Martin@lichtvoll.de>
-	<8A3372F6-6294-404E-909B-3FDE0C2368B7@dubeyko.com>
-	<1352634168.1893.9.camel@kjgkr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/zwDmrvrVbAkMEsgIf90jZqU"; protocol="application/pgp-signature"
+	id S1753080Ab2KSPlU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 19 Nov 2012 10:41:20 -0500
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id qAJFfKsf021024
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Mon, 19 Nov 2012 10:41:20 -0500
+Received: from localhost (vpn1-6-3.ams2.redhat.com [10.36.6.3])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id qAJFfIl1000433
+	for <util-linux@vger.kernel.org>; Mon, 19 Nov 2012 10:41:19 -0500
+Date: Mon, 19 Nov 2012 15:41:16 +0000
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] wipefs: Add --force option
+Message-ID: <20121119154116.GA28909@rhmail.home.annexia.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---Sig_/zwDmrvrVbAkMEsgIf90jZqU
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, 11 Nov 2012 20:42:48 +0900 Jaegeuk Kim <jaegeuk.kim@gmail.com> wrot=
-e:
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 2012-11-11 (=EC=9D=BC), 00:55 +0300, Vyacheslav Dubeyko:
-> > Hi,
-> >=20
-> > On Nov 10, 2012, at 9:33 PM, Martin Steigerwald wrote:
-> >=20
-> > [snip]
-> > >=20
-> > > merkaba:~> mkfs.f2fs /dev/sdb1
-> > > Info: sector size =3D 512
-> > > Info: total sectors =3D 4093951 (in 512bytes)
-> > > Info: zone aligned segment0 blkaddr: 256
-> > > Info: This device doesn't support TRIM
-> > > Info: format successful
-> > > merkaba:~> mount /dev/sdb1 /mnt/zeit
-> > > mount: you must specify the filesystem type
-> > > merkaba:~#32> mount -t f2fs /dev/sdb1 /mnt/zeit
-> > > merkaba:~> df -hT /mnt/zeit
-> > > Dateisystem    Typ  Gr=C3=B6=C3=9Fe Benutzt Verf. Verw% Eingeh=C3=A4n=
-gt auf
-> > > /dev/sdb1      f2fs  2,0G    147M  1,8G    8% /mnt/zeit
-> > >=20
-> >=20
-> > Do you really have trouble with f2fs mount without definition of filesy=
-stem type? If so, it is a bug.
->=20
-> Could you explain this bug in mor)e detail?
-> Or, can anyone comment this?
->=20
-> Actually, I've looking at the *mount* in linux-utils.
-> I suspect something does not support f2fs in linux-utils.
->=20
+https://bugzilla.redhat.com/show_bug.cgi?id=872831
+https://bugzilla.redhat.com/show_bug.cgi?id=865961
 
-This is a bug in util-linux.
+Unfortunately this means you nearly always need to use the --force
+option with wipefs when trying to wipe something which is not an
+unmounted filesystem.
 
-If 'blkid' doesn't recognise the filesystem, mount reads /etc/filesystems
-and tries everything listed there.  If that file ends with a '*', it should
-read /proc/filesystems and try everything else listed that (that doesn't
-start with 'nodev').
+Tested using a modified version of libguestfs which detects if wipefs
+supports the --force option, and if it does unconditionally adds it.
+I verified that this fixes the virt-format utility on Fedora 18.
 
-However it currently ignores the '*' and just adds everything
-from /proc/filesystems.  So the list it uses will have a '*' in the
-middle, which will be before 'f2fs' appears.
+Rich.
 
-When it tries each filesystem type in turn, it will abort if it get any err=
-or
-other than EINVAL.
-When it tries with filesystem type '*' it gets 'ENODEV' and so gives up.
+-- 
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+New in Fedora 11: Fedora Windows cross-compiler. Compile Windows
+programs, test, and build Windows installers. Over 70 libraries supprt'd
+http://fedoraproject.org/wiki/MinGW http://www.annexia.org/fedora_mingw
 
-The following patch (against git://github.com/karelzak/util-linux.git) fixes
-it for me,  though I suspect it should possible ignore 'ENODEV' too -
-otherwise if /etc/filesystems contains an invalid filesystem name, it will
-silently ignore all others.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="0001-wipefs-Add-force-option-to-force-it-to-erase.patch"
 
-As a quick hack, just add 'f2fs' to /etc/filesystems
+>From 87d3843615d2ada2f474e2804acfe5a7d7529d72 Mon Sep 17 00:00:00 2001
+From: "Richard W.M. Jones" <rjones@redhat.com>
+Date: Mon, 19 Nov 2012 15:02:13 +0000
+Subject: [PATCH] wipefs: Add --force option to force it to erase.
 
-NeilBrown
+Commit c550f728f724360f99aae0fdb45b0589d9a347e0 added O_EXCL when
+opening the thing to erase.  This broke the wipefs utility when used
+on anything which isn't an unmounted filesystem.  eg. If you use it on
+a block device containing partitions, then it won't work because the
+kernel recognizes the partitions and so thinks the device is in use.
 
+This change adds the --force option which, when used, undoes the above
+flag change.  However you still have to use --force most of the time
+when erasing something that isn't a plain unmounted filesystem.
+---
+ misc-utils/wipefs.8 |  3 +++
+ misc-utils/wipefs.c | 19 +++++++++++++++----
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 624633d..054f266 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -462,6 +462,10 @@ static int get_filesystems(const char *filename, char =
-***filesystems, const char
- 			continue;
- 		if (sscanf(line, " %128[^\n ]\n", name) !=3D 1)
- 			continue;
-+		if (strcmp(name, "*") =3D=3D 0) {
-+			rc =3D 1;=09
-+			break;
-+		}
- 		if (pattern && !mnt_match_fstype(name, pattern))
- 			continue;
- 		rc =3D add_filesystem(filesystems, name);
-@@ -486,7 +490,7 @@ int mnt_get_filesystems(char ***filesystems, const char=
- *pattern)
- 	*filesystems =3D NULL;
-=20
- 	rc =3D get_filesystems(_PATH_FILESYSTEMS, filesystems, pattern);
--	if (rc)
-+	if (rc !=3D 1)
- 		return rc;
- 	return get_filesystems(_PATH_PROC_FILESYSTEMS, filesystems, pattern);
+diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
+index 05a5496..67261ee 100644
+--- a/misc-utils/wipefs.8
++++ b/misc-utils/wipefs.8
+@@ -38,6 +38,9 @@ erased.
+ .IP "\fB\-a, \-\-all\fP"
+ Erase all available signatures. This set of erased signatures could be
+ restricted by \fB\-t <list>\fP option.
++.IP "\fB\-f, \-\-force\fP"
++Force erasure, even if the filesystem is mounted.  This is required in
++order to erase the partition table on a block device.
+ .IP "\fB\-h, \-\-help\fP"
+ Print help and exit.
+ .IP "\fB\-n, \-\-no\-act\fP"
+diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
+index 0ddc148..a29f3cc 100644
+--- a/misc-utils/wipefs.c
++++ b/misc-utils/wipefs.c
+@@ -307,12 +307,17 @@ static void do_wipe_real(blkid_probe pr, const char *devname, struct wipe_desc *
  }
+ 
+ static struct wipe_desc *
+-do_wipe(struct wipe_desc *wp, const char *devname, int noact, int all, int quiet)
++do_wipe(struct wipe_desc *wp, const char *devname, int noact, int all, int quiet, int force)
+ {
+-	blkid_probe pr = new_probe(devname, O_RDWR | O_EXCL);
++	int flags;
++	blkid_probe pr;
+ 	struct wipe_desc *w, *wp0 = clone_offset(wp);
+ 	int zap = all ? 1 : wp->zap;
+ 
++	flags = O_RDWR;
++	if (!force)
++		flags |= O_EXCL;
++	pr = new_probe(devname, flags);
+ 	if (!pr)
+ 		return NULL;
+ 
+@@ -362,6 +367,7 @@ usage(FILE *out)
+ 
+ 	fputs(_("\nOptions:\n"), out);
+ 	fputs(_(" -a, --all           wipe all magic strings (BE CAREFUL!)\n"
++		" -f, --force         force erasure\n"
+ 		" -h, --help          show this help text\n"
+ 		" -n, --no-act        do everything except the actual write() call\n"
+ 		" -o, --offset <num>  offset to erase, in bytes\n"
+@@ -380,11 +386,12 @@ int
+ main(int argc, char **argv)
+ {
+ 	struct wipe_desc *wp0 = NULL, *wp;
+-	int c, all = 0, has_offset = 0, noact = 0, quiet = 0;
++	int c, all = 0, force = 0, has_offset = 0, noact = 0, quiet = 0;
+ 	int mode = WP_MODE_PRETTY;
+ 
+ 	static const struct option longopts[] = {
+ 	    { "all",       0, 0, 'a' },
++	    { "force",     0, 0, 'f' },
+ 	    { "help",      0, 0, 'h' },
+ 	    { "no-act",    0, 0, 'n' },
+ 	    { "offset",    1, 0, 'o' },
+@@ -414,6 +421,9 @@ main(int argc, char **argv)
+ 		case 'a':
+ 			all++;
+ 			break;
++		case 'f':
++			force++;
++			break;
+ 		case 'h':
+ 			usage(stdout);
+ 			break;
+@@ -463,7 +473,8 @@ main(int argc, char **argv)
+ 		 */
+ 		while (optind < argc) {
+ 			wp = clone_offset(wp0);
+-			wp = do_wipe(wp, argv[optind++], noact, all, quiet);
++			wp = do_wipe(wp, argv[optind++], noact, all, quiet,
++				     force);
+ 			free_wipe(wp);
+ 		}
+ 	}
+-- 
+1.7.11.4
 
---Sig_/zwDmrvrVbAkMEsgIf90jZqU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIVAwUBUK7B7Tnsnt1WYoG5AQJZdA//fjRxZmzxfVRm7rwWJYLtYriTvaSoVD2b
-FdmvQLCM4a0xvzfS0AVd5ON67hyfBjG+E1mncVmQgq80KQUzddEHrXqelAJi/L5Q
-EZzVXy0XiHdqXCYWmavz07nnY3lIx+/I7ermKR7qxvb0bRNRuc3xV/be3opPBqq7
-/aJhqlOjD0k9PH8f+5ubgQsue7SB/ase4Gv8P1RL3C9B2sI/wHqD6MgJ11I76lr1
-kRSMFZnmzdrLG0A+G1xAzx56exguWseujumQBv83H0+8eMrkcKR233E9WyNpRdsf
-MNI87RtXakl0VjiU5UwI2PuJJt809kQspRc6WhzDc7WK2nAEmX0Eh+DSSJBOwaqf
-8ZGs76EWSOj4q3+s36tUu9nVNffOzqnwi4fafcIGfG7FIHyUXAzOpKjN1O7BLrNZ
-xpV35iXYDws0yRtKfP0BKDYkjMoQOu82sYvXaa6ojk3pEQY81ioksr2lmR9RPBA+
-4paqsmQtxHf0zc+f+HTs40VlSTJjxGJJcAg7WP8rIsxenSYIpWKE3fQiV8xxkvvy
-FOwr24mqGKEz4Nk+JhsRdQTLeeif1linSL7GTWonnIgKRPyOaHHPUx907RvocA+N
-B6CEsA2rCMIU1WRAEMMmOiNm5b5J7/Vq7o+4uyw3ngdbYUElJncFvy/941WHtl/w
-RdaMLw74h8w=
-=L1YM
------END PGP SIGNATURE-----
-
---Sig_/zwDmrvrVbAkMEsgIf90jZqU--
+--cWoXeonUoKmBZSoM--
