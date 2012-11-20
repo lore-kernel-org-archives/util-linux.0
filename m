@@ -1,92 +1,111 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:57565 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:5228 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754334Ab2KAItS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 Nov 2012 04:49:18 -0400
-Date: Thu, 1 Nov 2012 09:49:07 +0100
-From: Petr Uzel <petr.uzel@suse.cz>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/2] fdisk: gpt: write entire first sector
-Message-ID: <20121101084906.GG3979@foxbat.suse.cz>
-References: <1351358616.2842.2.camel@offbook>
+	id S1750993Ab2KTOlP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 20 Nov 2012 09:41:15 -0500
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id qAKEfE6d023315
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 20 Nov 2012 09:41:15 -0500
+Date: Tue, 20 Nov 2012 14:41:11 +0000
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] wipefs: Add --force option
+Message-ID: <20121120144111.GN1444@rhmail.home.annexia.org>
+References: <20121119154116.GA28909@rhmail.home.annexia.org>
+ <20121120111634.GH20338@x2.net.home>
+ <20121120135246.GB2006@x2.net.home>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FN+gV9K+162wdwwF"
-In-Reply-To: <1351358616.2842.2.camel@offbook>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121120135246.GB2006@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Nov 20, 2012 at 02:52:46PM +0100, Karel Zak wrote:
+> On Tue, Nov 20, 2012 at 12:16:34PM +0100, Karel Zak wrote:
+> > On Mon, Nov 19, 2012 at 03:41:16PM +0000, Richard W.M. Jones wrote:
+> > > This change adds the --force option which, when used, undoes the above
+> > > flag change.  However you still have to use --force most of the time
+> > > when erasing something that isn't a plain unmounted filesystem.
+> > 
+> >  I'll improve the code. It's stupid disadvantage that --force is
+> >  necessary for things like partitions tables. We have to use
+> >  O_EXCL more carefully.
+> 
+>  ... it seems that this is unnecessary. It's possible to delete
+>  partition table (open with O_EXCL) if any of the partitions is not
+>  mounted. It seems that only mount(2) has any impact to O_EXCL.
+> 
+>  I guess that --force is enough.
 
---FN+gV9K+162wdwwF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry, that was my mistake.  My initial report had a simplifying
+assumption that wasn't correct.
 
-On Sat, Oct 27, 2012 at 07:23:36PM +0200, Davidlohr Bueso wrote:
-> We were writing only 1 byte in LBA0, and GPT requires dealing with an ent=
-ire
-> sector. This bug wasn't affecting when dealing with already existing devi=
-ces
-> with GPT as we weren't writing an important part of the first sector, thus
-> leaving it unchanged. Also use write_all() wrapper from all-io.h
->=20
-> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+In fact the problem case is where you try to wipe a device which
+contains a volume groups and a logical volume; note the LVs don't
+contain filesystems, and nothing is mounted.
 
-Acked-by: Petr Uzel <petr.uzel@suse.cz>
+A simple reproducer is:
 
-> ---
->  fdisks/gpt.c |    7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
->=20
-> diff --git a/fdisks/gpt.c b/fdisks/gpt.c
-> index 40cadb1..48397f3 100644
-> --- a/fdisks/gpt.c
-> +++ b/fdisks/gpt.c
-> @@ -44,6 +44,7 @@
->  #include "blkdev.h"
->  #include "bitops.h"
->  #include "strutils.h"
-> +#include "all-io.h"
-> =20
->  #define GPT_HEADER_SIGNATURE 0x5452415020494645LL /* EFI PART */
->  #define GPT_HEADER_REVISION_V1_02 0x00010200
-> @@ -1057,8 +1058,10 @@ static int gpt_write_pmbr(struct fdisk_context *cx=
-t)
->  	if (offset !=3D lseek(cxt->dev_fd, offset, SEEK_SET))
->  		goto fail;
-> =20
-> -	if (1 =3D=3D write(cxt->dev_fd, pmbr, 1))
-> -		return 0;
-> +	/* pMBR covers the first sector (LBA) of the disk */
-> +	if (write_all(cxt->dev_fd, pmbr, cxt->sector_size))
-> +		goto fail;
-> +	return 0;
->  fail:
->  	return -errno;
->  }
-> --=20
-> 1.7.9.5
->=20
->=20
->=20
->=20
+$ guestfish -N lv wipefs /dev/sda
+libguestfs: error: wipefs: wipefs: error: /dev/sda: probing initialization failed: Device or resource busy
 
-Petr
+Adding -x shows what's going on:
 
---=20
-Petr Uzel
-IRC: ptr_uzl @ freenode
+$ guestfish -N lv wipefs /dev/sda -x
+libguestfs: trace: set_pgroup true
+libguestfs: trace: set_pgroup = 0
+libguestfs: trace: add_drive "test1.img"
+libguestfs: trace: add_drive = 0
+libguestfs: trace: is_config
+libguestfs: trace: is_config = 1
+libguestfs: trace: launch
+libguestfs: trace: get_tmpdir
+libguestfs: trace: get_tmpdir = "/tmp"
+libguestfs: trace: get_cachedir
+libguestfs: trace: get_cachedir = "/var/tmp"
+libguestfs: trace: disk_format "/home/rjones/test1.img"
+libguestfs: trace: disk_format = "raw"
+libguestfs: trace: get_cachedir
+libguestfs: trace: get_cachedir = "/var/tmp"
+libguestfs: trace: launch = 0
+libguestfs: trace: part_disk "/dev/sda" "mbr"
+libguestfs: trace: part_disk = 0
+libguestfs: trace: pvcreate "/dev/sda1"
+libguestfs: trace: pvcreate = 0
+libguestfs: trace: vgcreate "VG" "/dev/sda1"
+libguestfs: trace: vgcreate = 0
+libguestfs: trace: lvcreate_free "LV" "VG" 100
+libguestfs: trace: lvcreate_free = 0
+libguestfs: trace: wipefs "/dev/sda"
+libguestfs: trace: wipefs = -1 (error)
+libguestfs: error: wipefs: wipefs: error: /dev/sda: probing initialization failed: Device or resource busy
+libguestfs: trace: close
+libguestfs: trace: internal_autosync
+libguestfs: trace: internal_autosync = 0
 
---FN+gV9K+162wdwwF
-Content-Type: application/pgp-signature
+Use -v to get more details.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
+I don't want to claim this is a bug, but it is certainly a change in
+behaviour, and we want the --force option in libguestfs so we can say
+"just do it".
 
-iEYEARECAAYFAlCSN4IACgkQnZxG0T6qDD2IEQCcC/KAbkIhY4DgK+hIgPcJ0a3o
-o4YAnj/cesFsHV9C0kPKCwRQC93mY0go
-=NTkm
------END PGP SIGNATURE-----
+By the way:
 
---FN+gV9K+162wdwwF--
+Just a partition + a PV: wipefs doesn't need to be forced.
+guestfish -N part pvcreate /dev/sda1 : wipefs /dev/sda
+
+Just a partition + a PV + a VG: wipefs doesn't need to be forced.
+guestfish -N part pvcreate /dev/sda1 : vgcreate VG /dev/sda1 : wipefs /dev/sda
+
+Partition + PV + VG + LV (but no filesystem): wipefs needs --force.
+[for example see above]
+
+Rich.
+
+-- 
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+Read my programming blog: http://rwmj.wordpress.com
+Fedora now supports 80 OCaml packages (the OPEN alternative to F#)
+http://cocan.org/getting_started_with_ocaml_on_red_hat_and_fedora
