@@ -1,61 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47265 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751114Ab2KHJoq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 8 Nov 2012 04:44:46 -0500
-Date: Thu, 8 Nov 2012 10:44:42 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Venkatraman S <venkat@linaro.org>
-Cc: util-linux@vger.kernel.org, arnd.bergmann@linaro.org
-Subject: Re: [RFC PATCH 0/4] Adding useful information into swap partition
- header
-Message-ID: <20121108094442.GA2327@x2.net.home>
-References: <1350925048-31084-1-git-send-email-venkat@linaro.org>
- <20121023121610.GI21724@x2.net.home>
- <CAFSEfh0A6JoKdhDyawc1=imRDZT7YFTUyDrVPaK-02CW1pGcRA@mail.gmail.com>
+Received: from tango.0pointer.de ([85.214.72.216]:59072 "EHLO
+	tango.0pointer.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049Ab2KTArY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 19 Nov 2012 19:47:24 -0500
+Date: Tue, 20 Nov 2012 01:47:23 +0100
+From: Lennart Poettering <lennart@poettering.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: agetty and special chars @ and #
+Message-ID: <20121120004723.GH5922@tango.0pointer.de>
+References: <20121107165859.GD4383@x2.net.home>
+ <20121112100410.GA1887@boole.suse.de>
+ <20121112132926.GD26857@x2.net.home>
+ <20121114142720.GA23414@boole.suse.de>
+ <20121116101419.GC20338@x2.net.home>
+ <20121116124729.GA4773@tango.0pointer.de>
+ <20121116130544.GE20338@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAFSEfh0A6JoKdhDyawc1=imRDZT7YFTUyDrVPaK-02CW1pGcRA@mail.gmail.com>
+In-Reply-To: <20121116130544.GE20338@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 23, 2012 at 07:07:42PM +0530, Venkatraman S wrote:
-> On 23 October 2012 17:46, Karel Zak <kzak@redhat.com> wrote:
-> > On Mon, Oct 22, 2012 at 10:27:23PM +0530, Venkatraman S wrote:
-> >> Venkatraman S (4):
-> >>   libblkid/topology: add preferred_erase_size to topology probe
-> >>   mkswap: refactor header preparation
-> >>   mkswap: Add additional fields in swapheader
-> >>   mkswap: Probe and embed useful block device info into swapheader
-> >
-> >  I don't see a problem to support additional information in the swap
-> >  header, but our rule is pretty simple: first in Linus' tree, after
-> >  that in userspace.
-> >
+On Fri, 16.11.12 14:05, Karel Zak (kzak@redhat.com) wrote:
+
 > 
-> Thanks Karl - that's understood. I posted the patches to better explain the
-> issue I faced - this new parameter I introduced in topology.c is accessible
-> only when I pass the root disk dev node to mkswap (as /dev/mmcblkX)
-> and not when invoked with /dev/mmcblkXpY) (i.e a partition with the device).
+> On Fri, Nov 16, 2012 at 01:47:29PM +0100, Lennart Poettering wrote:
+> > On Fri, 16.11.12 11:14, Karel Zak (kzak@redhat.com) wrote:
+> > 
+> > > 
+> > > On Wed, Nov 14, 2012 at 03:27:20PM +0100, Dr. Werner Fink wrote:
+> > > > Indeed this is a good solution ... but in the case of systemd and its
+> > > > getty generator we may think about a /etc/agettytab with a similar
+> > > > syntax scheme as the old /etc/inittab to be able to provide agetty
+> > > > options based on the used tty line.  Clearly this /etc/agettytab should
+> > > > be parsed by agetty and options for the specified tty are found:
+> > > > 
+> > > >   1:tty1:--noclear %p
+> > > >   2:tty2:%p
+> > > >   3:tty3:%p
+> > > >   4:tty4:%p
+> > > >   5:tty5:%p
+> > > >   6:tty6:%p
+> > > >   S0:ttyS0:--erase-chars # --kill-chars @ -mt 60 %p 9600,2400,1200
+> > > >   S1:ttyS0:-L 9600 %p 9600 vt102
+> > > 
+> > >  Hmm, I guess it's still possible to create tty line specific config
+> > >  file on systems with systemd. I'd like to avoid another place where
+> > >  will be configuration.
+> > 
+> > Please do not add such a configuration file.
+> > 
+> > In systemd, if people want to configure line-specific getty
+> > configuration they should just copy
+> > /usr/lib/systemd/system/getty@.service to
+> > /etc/systemd/system/getty@ttyS0.service and edit it there. Since systemd
+> > will first look for instantiated unit files, and only then fall back to
+> > generic template this should do the right thing.
+> 
+> It would be nice to make it more obvious in systemd.special man page.
 
- Well, the problem is that sysfs_{open,stat}() functions in
- lib/sysfs.c reads attributes from parent only for "queue/" directory
- attributes. It's trivial to fix this problem.
+But the getty is actually not thaaaat special, it's actually just a unit
+like any other with no special semantics.
 
-> So how should the topology probe be invoked in this case ?
+This general approach is actually well documented, for example most
+recently here:
 
- The question is if we really need to extend libblkid if the attribute
- is necessary only for mkswap.
+http://0pointer.de/blog/projects/serial-console.html
 
- I think it would be better to read the sysfs attribute directly in
- mkswap (by lib/sysfs.c functions). The result will be one small patch
- for mkswap.
+Indirectly this all is also listed in the FAQ:
 
- Anyway, all this is trivial and maybe implemented very quickly --
- what we need is to have support in kernel.
+http://www.freedesktop.org/wiki/Software/systemd/FrequentlyAskedQuestions
 
-    Karel
+Lennart
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Lennart Poettering - Red Hat, Inc.
