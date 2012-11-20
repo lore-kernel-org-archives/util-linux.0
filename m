@@ -1,68 +1,50 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: gmazyland@gmail.com
+Message-ID: <50AB9CB9.3040104@gmail.com>
+Date: Tue, 20 Nov 2012 16:07:37 +0100
+From: Milan Broz <gmazyland@gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20121105164251.GA3799@x2.net.home>
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
-	<20121105164251.GA3799@x2.net.home>
-Date: Wed, 7 Nov 2012 09:40:16 +0000
-Message-ID: <CAG27Bk2ZbPH+Zfbt0vR_GLyLuZoy7QHv-b96WtpEFm963DpD9w@mail.gmail.com>
-Subject: Re: [PATCH 00/13] make ipcs to use proc
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
+To: "Richard W.M. Jones" <rjones@redhat.com>
+CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] wipefs: Add --force option
+References: <20121119154116.GA28909@rhmail.home.annexia.org> <20121120111634.GH20338@x2.net.home> <20121120135246.GB2006@x2.net.home> <20121120144111.GN1444@rhmail.home.annexia.org>
+In-Reply-To: <20121120144111.GN1444@rhmail.home.annexia.org>
 Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 5, 2012 at 4:42 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Oct 14, 2012 at 09:22:12PM +0100, Sami Kerola wrote:
->> Sami Kerola (13):
+On 11/20/2012 03:41 PM, Richard W.M. Jones wrote:
 
-Hi Karel and others,
+> In fact the problem case is where you try to wipe a device which
+> contains a volume groups and a logical volume; note the LVs don't
+> contain filesystems, and nothing is mounted.
 
->  I have created ipc branch at hithub and applied some of the patches
->  (unfortunately with many changes).
+Well there is a problem. While you can wipe part table, kernel will
+reload it and destroy all obsolete partitions.
+There should not be problem if it contains lvm, only if it contains
+active LVs mapped.
 
-I would not call code review unfortunate, especially when it causes
-changes to code that will make it better.
+If there are active device-mapper devices (either created by kpartx,
+lvm, crypt, ...) you will lost metadata and cannot remove them
+using standard tools, you are forced to do it with dmsetup later.
 
->  Unfortunately I have no more time to play with this stuff this week,
+So wipe part table is fine, but not if partition is mounted or
+mapped... You should remove mapping first.
 
-Open source is supposed to be fun. Take your time, so will I. Getting
-all IPC related fixes done will most likely take several weeks. For
-example it really bugs me that semaphore counts cannot be read from
-proc. The only way I can think of getting that fixed is change to
-kernel side.
+And --force here should be used as a last resort - why not deactivate
+mapped device on top first?
+It should not be big problem (I think someone wrote this using
+lsblk --inverse).
 
-One of the ways to solve the problem would be to add fields
-to/proc/sysvipc/sem but that would change ABI. Perhaps making msg sem
-& shm directories to proc containing subdirectories that are named
-after object id is way to go. Much like how processes are represented.
-That would make IPC info easy to extend ever needed, and quite
-intuitive to use. But before writing that sort of change I think it's
-good idea to ask advice from kernel developers. Looking git log[1] it
-seems Al Viro might have opinion whether to add field or to do greater
-change.
+Using force in this situation just creates problem later.
 
-[1] git shortlog --no-merges -sne v3.0..HEAD ipc
+(I am not against the patch, it should have --force option but it
+should be used very carefully.)
 
->  but I guess that it's pretty obvious from already applied patches how
->  should be implemented the rest.
+> libguestfs: trace: lvcreate_free "LV" "VG" 100
+> libguestfs: trace: lvcreate_free = 0
+> libguestfs: trace: wipefs "/dev/sda"
+> libguestfs: trace: wipefs = -1 (error)
 
-I will investigate...
+IMHO lvcreate implicitly activates device.
+Try lvcreate -a n !
 
->  Changes:
->
->     - created sys-utils/ipcutils.{c,h}
->     - renamed functions
->     - replaced all 'unsigned long' and 'size_t' with uint64_t
->
->      The reason why we want to read from /proc is to be robust on
->      systems where kernel is 64bit and userspace is 32bit. You cannot
->      use long or size_t for data from /sys or /proc...
-
-...and adapt to correct behavior. Thank you for review and examples.
-
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+Milan
