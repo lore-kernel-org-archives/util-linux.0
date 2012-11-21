@@ -1,82 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33374 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58419 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751416Ab2KEQnC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 Nov 2012 11:43:02 -0500
-Date: Mon, 5 Nov 2012 17:42:51 +0100
+	id S1755154Ab2KUP2G (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 21 Nov 2012 10:28:06 -0500
+Date: Wed, 21 Nov 2012 16:00:05 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/13] make ipcs to use proc
-Message-ID: <20121105164251.GA3799@x2.net.home>
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
+To: kerolasa@gmail.com
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
+        util-linux <util-linux@vger.kernel.org>, mp.lists@free.fr
+Subject: Re: Accessibility of swap files
+Message-ID: <20121121150005.GB2912@x2.net.home>
+References: <1352214367.5099275f85792@imp.free.fr>
+ <535592290.498944.1352219102253.JavaMail.open-xchange@email.1und1.de>
+ <20121121100852.GC2006@x2.net.home>
+ <CAG27Bk2L7p=pO3LJZTNMaS68vx2vfodG76K=1SicOvEExDQRFw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <CAG27Bk2L7p=pO3LJZTNMaS68vx2vfodG76K=1SicOvEExDQRFw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 14, 2012 at 09:22:12PM +0100, Sami Kerola wrote:
-> Sami Kerola (13):
+On Wed, Nov 21, 2012 at 01:46:59PM +0000, Sami Kerola wrote:
+> On Wed, Nov 21, 2012 at 10:08 AM, Karel Zak <kzak@redhat.com> wrote:
+> > On Tue, Nov 06, 2012 at 05:25:02PM +0100, Bernhard Voelker wrote:
+> >> On November 6, 2012 at 4:06 PM mp.lists@free.fr wrote:
+> >> > As a first idea, it looks, as if such may be implemented, eg. by
+> >> >      letting swapon [and fstab-based "mounting"] by default not enable a swap
+> >> > file, if it has non-root access permissions
+> >>
+> >> Did you know?
+> >> The swapon utility issues a warning diagnostic with --verbose:
+> >>
+> >>   # ls -l /tmp/swapfile
+> >>   -rw-r--r-- 1 berny users 134217728 Nov  6 17:03 /tmp/swapfile
+> >>
+> >>   # sbin/swapon -v  /tmp/swapfile
+> >>   swapon /tmp/swapfile
+> >>   swapon: /tmp/swapfile: insecure permissions 0644, 0600 suggested.
+> >>   swapon: /tmp/swapfile: insecure file owner 1000, 0 (root) suggested.
+> >>   swapon: /tmp/swapfile: found swap signature: version 1, page-size 4, same byte
+> >> order
+> >>   swapon: /tmp/swapfile: pagesize=4096, swapsize=134217728, devsize=134217728
+> >
+> >  this waring is there since year 1999.. so it's really nothing new.
+> 
+> I wonder would be be too noisy to make insecurity warnings enabled by
+> default,  and add --quiet option to thous who do not want to hear
+> system complaining about things they know.
+> 
 
- I have created ipc branch at hithub and applied some of the patches
- (unfortunately with many changes).
+ since util-linux 2.9t:
 
- Unfortunately I have no more time to play with this stuff this week,
- but I guess that it's pretty obvious from already applied patches how
- should be implemented the rest.
+    /* people generally dislike this warning - now it is printed
+       only when `verbose' is set */
 
- Changes:
+ :-)
 
-    - created sys-utils/ipcutils.{c,h}
-    - renamed functions
-    - replaced all 'unsigned long' and 'size_t' with uint64_t
 
-     The reason why we want to read from /proc is to be robust on
-     systems where kernel is 64bit and userspace is 32bit. You cannot
-     use long or size_t for data from /sys or /proc...
-
->       ipcs: add data structures to read state from /proc & /sys
-
-  applied
-
->       ipcs: add /proc and /sys path definitions
-
-  applied (btw, where was nice typo)
-
->       ipcs: determine ipc limits from /proc
-
-  applied
-
->       ipcs: add new permissions printing function
-
-  applied
-
->       ipcs: read shared memory values from /proc
-
-  applied
-
->       ipcs: read message queue values from /proc
->       ipsc: read semaphore values from /proc
->       ipcs: clean up permissions printing
-
- not applied
-
->       ipcs: make individual shared memory id printing to use /proc
-
-  applied
-
->       ipcs: make individual message queue id printing to use /proc
->       ipcs: make individual semaphore id printing to use /proc
->       ipcs: validate numeric user input
->       docs: update TODO
-
- not applied
-
- ... so, all around share memory should be applied/fixed. Now we need
- to do the same for sem and msg stuff.
-
-    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
