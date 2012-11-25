@@ -1,55 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18992 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751353Ab2KLNjo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Nov 2012 08:39:44 -0500
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id qACDdi26024713
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 12 Nov 2012 08:39:44 -0500
-Date: Mon, 12 Nov 2012 14:39:41 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Ondrej Oprala <ooprala@redhat.com>
-Subject: losetup --list
-Message-ID: <20121112133941.GE26857@x2.net.home>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:34614 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753269Ab2KYSnt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 13:43:49 -0500
+Received: by mail-we0-f174.google.com with SMTP id d7so3121455wer.19
+        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 10:43:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <y2aehjhdcj7.fsf@cartman.at.offog.org>
+References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+	<1353844871-6047-2-git-send-email-kerolasa@iki.fi>
+	<y2aehjhdcj7.fsf@cartman.at.offog.org>
+Date: Sun, 25 Nov 2012 18:43:47 +0000
+Message-ID: <CAG27Bk3kXA5M0-Cff2z5bO1wOMvcNpRYriaorD09+VfFZWgk0A@mail.gmail.com>
+Subject: Re: [PATCH 1/4] docs: mention Open Group requirements
+From: Sami Kerola <kerolasa@iki.fi>
+To: Adam Sampson <ats@offog.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Nov 25, 2012 at 1:42 PM, Adam Sampson <ats@offog.org> wrote:
+> Sami Kerola <kerolasa@iki.fi> writes:
+>
+>> +     conflict with the latest standard.  For example it is
+>> +     recommendable not to add short command line options before they
+>> +     are part of standard.  Introducing new short options is
+>> +     acceptable.
+>
+> Should that second "short" be "long"?
 
- Hi,
+Hi Adam and others,
 
- I have applied Ondrej's patch to support a new losetup output format.
- The output uses tt.c, so it's compatible with our others utils
- (lscpu, lsblk, prlimit, ...).
+Correct. Adding _long_ options is fine, which I intented to write but
+brain my malfunctioned. The error is corrected in my git.
 
- Now losetup prints all loopdevs in the new format if no other option
- is specified.
-
-   $ losetup
-   NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE
-   /dev/loop0         0      0         0  0 /home/fs-images/swap.img
-   /dev/loop1         0    100         0  0 /home/fs-images/disk.img
-
-   $ losetup -O +MAJ:MIN
-   NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE                 MAJ:MIN
-   /dev/loop0         0      0         0  0 /home/fs-images/swap.img    7:0  
-   /dev/loop1         0    100         0  0 /home/fs-images/disk.img    7:1 
-
-
- (we read all important information from /sys, so it's usable for
-  non-root users too.)
-
- The change is backwardly compatible, -j or -a without --list returns
- the original format. The old format is marked as deprecated now.
-
- Thanks to Ondrej!
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+https://github.com/kerolasa/lelux-utiliteetit/blob/2012wk47/Documentation/howto-contribute.txt#L135
