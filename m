@@ -1,39 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:34614 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753269Ab2KYSnt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 13:43:49 -0500
-Received: by mail-we0-f174.google.com with SMTP id d7so3121455wer.19
-        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 10:43:48 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <y2aehjhdcj7.fsf@cartman.at.offog.org>
-References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
-	<1353844871-6047-2-git-send-email-kerolasa@iki.fi>
-	<y2aehjhdcj7.fsf@cartman.at.offog.org>
-Date: Sun, 25 Nov 2012 18:43:47 +0000
-Message-ID: <CAG27Bk3kXA5M0-Cff2z5bO1wOMvcNpRYriaorD09+VfFZWgk0A@mail.gmail.com>
-Subject: Re: [PATCH 1/4] docs: mention Open Group requirements
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:49064 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751673Ab2KYMBS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 07:01:18 -0500
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1492723wgb.1
+        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 04:01:18 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
-To: Adam Sampson <ats@offog.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: =?UTF-8?q?=5BPATCH=201/4=5D=20docs=3A=20mention=20Open=20Group=20requirements?=
+Date: Sun, 25 Nov 2012 12:01:08 +0000
+Message-Id: <1353844871-6047-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 25, 2012 at 1:42 PM, Adam Sampson <ats@offog.org> wrote:
-> Sami Kerola <kerolasa@iki.fi> writes:
->
->> +     conflict with the latest standard.  For example it is
->> +     recommendable not to add short command line options before they
->> +     are part of standard.  Introducing new short options is
->> +     acceptable.
->
-> Should that second "short" be "long"?
+Commands cal col ipcrm ipcs kill line logger mesg more newgrp pg renice
+has Open Group requirements.  Contributors need to be aware of them.
 
-Hi Adam and others,
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ Documentation/howto-contribute.txt | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-Correct. Adding _long_ options is fine, which I intented to write but
-brain my malfunctioned. The error is corrected in my git.
+diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
+index 5df6389..e0f8ad7 100644
+--- a/Documentation/howto-contribute.txt
++++ b/Documentation/howto-contribute.txt
+@@ -117,6 +117,35 @@ Various notes
+ 	  multiple lines. In case the shorthand does not look good on one
+ 	  line use normal "if () else" syntax.
+ 
++Standards compliancy
++
++	Some of the commands maintained in this package has Open Group
++	requirements. These commands are;
++
++		cal
++		col
++		ipcrm
++		ipcs
++		kill
++		line
++		logger
++		mesg
++		more
++		newgrp
++		pg
++		renice
++
++	If you change these tools please make sure a change does not
++	conflict with the latest standard.  For example it is
++	recommendable not to add short command line options before they
++	are part of standard.  Introducing new short options is
++	acceptable.
++
++		The Single UNIX® Specification, Version 2
++		Copyright © 1997 The Open Group
++
++		http://pubs.opengroup.org/onlinepubs/7908799/xcuix.html
++
+ IRC channel
+ 
+ 	* We have a new #util-linux IRC channel at freenode.net.
+-- 
+1.8.0
 
-https://github.com/kerolasa/lelux-utiliteetit/blob/2012wk47/Documentation/howto-contribute.txt#L135
