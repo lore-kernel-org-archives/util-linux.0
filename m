@@ -1,53 +1,39 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51411 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752932Ab2KEQtZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 Nov 2012 11:49:25 -0500
-Date: Mon, 5 Nov 2012 17:49:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/13] ipcs: determine ipc limits from /proc
-Message-ID: <20121105164915.GC3799@x2.net.home>
-References: <1350246145-10600-1-git-send-email-kerolasa@iki.fi>
- <1350246145-10600-4-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1350246145-10600-4-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dave@gnu.org
+Message-ID: <1353904152.2945.17.camel@offbook>
+Subject: [PATCH 2/3] fdisk: remove dead code
+From: Davidlohr Bueso <dave@gnu.org>
+Reply-To: dave@gnu.org
+To: Karel Zak <kzak@redhat.com>, Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>
+Date: Sun, 25 Nov 2012 20:29:12 -0800
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 14, 2012 at 09:22:15PM +0100, Sami Kerola wrote:
-> +static int shmctl_limits_wrapper(struct proc_limits *lim, int use_proc)
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ fdisks/fdisk.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
- The basic rule is to call function by functionality, nobody cares if
- the function is wrapper ;-)
-
- IMHO for example ipc_shm_get_limits() is better.
-
-> +{
-> +	struct shminfo shminfo;
-> +	lim->shmmax = SHMMAX;
-
- really no, shmmax is also in /proc and it maybe changed by sysctl.
-
-> +	lim->shmmin = SHMMIN;
-> +	if (use_proc) {
-> +		FILE *f;
-> +		if ((f = fopen(_PATH_PROC_IPC_SHMMNI, "r")) == NULL)
-> +			return 1;
-> +		fscanf(f, "%d", &(lim->shmmni));
-> +		fclose(f);
-> +		if ((f = fopen(_PATH_PROC_IPC_SHMALL, "r")) == NULL)
-> +			return 1;
-> +		fscanf(f, "%zu", &(lim->shmall));
-> +		fclose(f);
-> +		return 0;
-> +	}
-> +
-
-    Karel
-
+diff --git a/fdisks/fdisk.c b/fdisks/fdisk.c
+index 5683307..d9e4f62 100644
+--- a/fdisks/fdisk.c
++++ b/fdisks/fdisk.c
+@@ -352,15 +352,6 @@ sector_t align_lba(struct fdisk_context *cxt, sector_t lba, int direction)
+ 		}
+ 	}
+ 
+-	/***
+-	 fprintf(stderr, "LBA %llu (%s) --align-(%s)--> %llu (%s)\n",
+-				lba,
+-				lba_is_aligned(lba) ? "OK" : "FALSE",
+-				direction == ALIGN_UP ?   "UP     " :
+-				direction == ALIGN_DOWN ? "DOWN   " : "NEAREST",
+-				res,
+-				lba_is_aligned(res) ? "OK" : "FALSE");
+-	***/
+ 	return res;
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.9.5
