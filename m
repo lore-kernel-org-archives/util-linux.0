@@ -1,49 +1,52 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:22084 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S2992553Ab2KBLfL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Nov 2012 07:35:11 -0400
-Date: Fri, 2 Nov 2012 12:35:03 +0100
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 26 Nov 2012 14:27:00 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] gpt: create empty disklabels
-Message-ID: <20121102113503.GB30319@x2.net.home>
-References: <1351358627.2842.3.camel@offbook>
+To: NeilBrown <neilb@suse.de>
+Cc: Jaegeuk Kim <jaegeuk.kim@gmail.com>, util-linux@vger.kernel.org,
+        Vyacheslav Dubeyko <slava@dubeyko.com>,
+        Martin Steigerwald <Martin@lichtvoll.de>, linux-kernel@vger.kernel.org,
+        Jaegeuk Kim <jaegeuk.kim@samsung.com>, linux-fsdevel@vger.kernel.org,
+        gregkh@linuxfoundation.org, viro@zeniv.linux.org.uk, arnd@arndb.de,
+        tytso@mit.edu, chur.lee@samsung.com, cm224.lee@samsung.com,
+        jooyoung.hwang@samsung.com
+Subject: Re: util-linux bug: was Re: [PATCH 00/16 v3] f2fs: introduce
+ flash-friendly file system
+Message-ID: <20121126132700.GA28200@x2.net.home>
+References: <003d01cdb74b$0c3fa420$24beec60$%kim@samsung.com>
+ <201211021439.02797.Martin@lichtvoll.de>
+ <CAOtxgye-sqJFe17EyfJQ0RrMwQqsPbDv5m+4cJT0BjnRnGv56w@mail.gmail.com>
+ <201211101933.38434.Martin@lichtvoll.de>
+ <8A3372F6-6294-404E-909B-3FDE0C2368B7@dubeyko.com>
+ <1352634168.1893.9.camel@kjgkr>
+ <20121123112309.52429ceb@notabene.brown>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1351358627.2842.3.camel@offbook>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20121123112309.52429ceb@notabene.brown>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Oct 27, 2012 at 07:23:47PM +0200, Davidlohr Bueso wrote:
-> This patch enables creating a new, empty, GPT disklabel from either
-> an empty disk or one that already has a disklabel. For this
-> purpose, a 'g' option is added to the main menu and is visible to all
-> labels. Here's an example for a scsi_debug device (/dev/sdb):
+On Fri, Nov 23, 2012 at 11:23:09AM +1100, NeilBrown wrote:
+> This is a bug in util-linux.
 > 
-> ...
-> Device does not contain a recognized partition table
-> Building a new DOS disklabel with disk identifier 0x20a614c8.
-> 3696: fdisk:  CONTEXT: zeroize in-memory first sector buffer
+> If 'blkid' doesn't recognise the filesystem, mount reads /etc/filesystems
+> and tries everything listed there.  If that file ends with a '*', it should
+> read /proc/filesystems and try everything else listed that (that doesn't
+> start with 'nodev').
 > 
-> Command (m for help): g
+> However it currently ignores the '*' and just adds everything
 
- It would be be really nice to print a message, something like
+ Fixed. Thanks for the report!
 
-    GPT disk label created.
+> The following patch (against git://github.com/karelzak/util-linux.git) fixes
+> it for me,  though I suspect it should possible ignore 'ENODEV' too -
+> otherwise if /etc/filesystems contains an invalid filesystem name, it will
+> silently ignore all others.
 
- and it would be also nice to print label type in the 'p'(print)
- command output and maybe also PT uuid.
+ Good idea, implemented.
 
->  fdisks/fdisk.c |    4 ++
->  fdisks/gpt.c   |  202 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
->  2 files changed, 200 insertions(+), 6 deletions(-)
-
- Applied, excellent, thanks!
+ ... all will be fixed in stable v2.22.2 release.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
