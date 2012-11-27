@@ -1,90 +1,119 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31073 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751545Ab2KLN3a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Nov 2012 08:29:30 -0500
-Date: Mon, 12 Nov 2012 14:29:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: "Dr. Werner Fink" <werner@suse.de>
-Subject: Re: agetty and special chars @ and #
-Message-ID: <20121112132926.GD26857@x2.net.home>
-References: <20121107165859.GD4383@x2.net.home>
- <20121112100410.GA1887@boole.suse.de>
+Return-Path: luto@amacapital.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121112100410.GA1887@boole.suse.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <CALCETrVrmkzGgLniSc8JdR7_Xtus61vR169EOzi=Ue-r7TqwUw@mail.gmail.com>
+References: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
+ <50AFE72B.1010908@draigBrady.com> <20121126100822.GA4224@x2.net.home> <CALCETrVrmkzGgLniSc8JdR7_Xtus61vR169EOzi=Ue-r7TqwUw@mail.gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Mon, 26 Nov 2012 17:39:17 -0800
+Message-ID: <CALCETrUjM+g8D-wz9pH34Yw-OBP_3Mz8hv2a=nb564Dz85OyUg@mail.gmail.com>
+Subject: Re: [PATCH] Add no_new_privs
+To: Karel Zak <kzak@redhat.com>
+Cc: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>,
+        util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 12, 2012 at 11:04:11AM +0100, Dr. Werner Fink wrote:
-> On Wed, Nov 07, 2012 at 05:58:59PM +0100, Karel Zak wrote:
-> > 
-> >  Hi Werner,
-> > 
-> >  agetty in get_logname() interprets '@' and '#' as a special chars
-> >  (see man page or the code for more details).
-> > 
-> >  The problem is that we already have crazy users who want to use AD
-> >  (access domain) usernames in format user@domain on serial line or
-> >  console.
-> > 
-> >  Yeah, I know that char '@' is not between allowed username chars
-> >  (POSIX 3.429), but do we really need to support the spacial
-> >  interpretation of the @ and # chars?
-> > 
-> >  I think it's old confusing legacy. Objections?
-> 
-> Hmmm ... AFAICR the '@' symbols can be used to set the kill character
-> and the '#' can be used to set the erase character.  But for a virtual
-> console terminal those characters those are normally not used.
-> 
-> Only connections at dialin as well connections over some serial lines
-> with hardware/software line routers/terminal servers between this could
-> be problem.  On big irons such serial lines are used even in the present
-> days.
-> 
-> Maybe it would be worth to introduce an further option to support
-> access domains in user names ... or the other way around to support
-> '@' and '#' as special characters used for software escapes on
-> oldish connection lines.
+On Mon, Nov 26, 2012 at 11:03 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+> On Mon, Nov 26, 2012 at 2:08 AM, Karel Zak <kzak@redhat.com> wrote:
+>>
+>>  It would be nice to have prctl(1) implemented like prlimit(1), it
+>>  means to support --set as well as --get operations.
+>>
+>>   prctl --set-endian=big --set-name=foo
+>>
+>>   prctl --pid 123    # return all --get-*
+>>
+>>   prctl --get-name --pid 123
+>>
+>>> I also notice the similar capsh(1) program for doing
+>>> so with capabilities. Perhaps these could be merged
+>>> to a setpriv(1) command or something for tweaking all
+>>> these knobs before exec?
+>>
+>>  hmm.. capsh(1) is libcap baby and it probably makes sense to maintain
+>>  it on the same place like libcap.
+>
+> Taking a quick look through prctl:
+>
 
- I thought about something like:
+>
+> PR_GET/SET_CHILD_SUBREAPER: Very useful, but probably wants to be its own tool
+>
 
-    --erase-chars <string>
-    --kill-chars  <string>
+For example, the tool below would probably be quite handy, but I don't
+think it would make too much sense as part of a hypothetical prctl(1).
+ (I'll send this as a proper patch later on, after I make its
+interface a little less silly.)
 
- and if the string is empty then agetty is insensitive to the special
- chars. This should be a default for virtual console (or also for
- serial line?).
+---wait_all_descendents.c---
 
- vice versa
+#include <stdio.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/prctl.h>
+#include <unistd.h>
+#include <errno.h>
 
-   agetty --erase-chars '#'
+static volatile sig_atomic_t exec_failed = 0;
+static volatile int exec_errno;
 
- enables the support for the char.
+static int wait_all_children(pid_t child_pid)
+{
+	while (1) {
+		siginfo_t si;
+		if (waitid(P_ALL, 0, &si, WEXITED) != 0) {
+			if (errno == ECHILD) {
+				if (child_pid)
+					fprintf(stderr, "Warning: child never exited\n");
+				return 0;
+			} else {
+				perror("waitid");
+				return 1;
+			}
+		}
 
- IMHO this solution is easy to extend (you can use another chars) and
- provides full control of the feature (you can disable it at all).
+		if (si.si_pid == child_pid) {
+			child_pid = 0;
+			fprintf(stderr, "Immediate child exited\n");
+		}
+	}
+}
 
-    Karel
+int main(int argc, char **argv)
+{
+	if (argc < 2) {
+		printf("Usage: wait_descendents PROGRAM [ARGS]...\n");
+		return 1;
+	}
 
-> 
-> 
->    Werner
-> 
-> http://www.linusakesson.net/programming/tty/
-> http://digilander.libero.it/robang/rubrica/serial.htm
-> 
-> -- 
->   "Having a smoking section in a restaurant is like having
->           a peeing section in a swimming pool." -- Edward Burr
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+	if (signal(SIGCHLD, SIG_DFL)) {
+		perror("signal");
+		return 127;
+	}
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+	if (prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0) != 0) {
+		perror("PR_SET_CHILD_SUBREAPER");
+		return 127;
+	}
+
+	pid_t child_pid = vfork();
+	if (child_pid == -1) {
+		perror("fork");
+		return 1;
+	} else if (child_pid == 0) {
+		/* We're the child. */
+		execvp(argv[1], argv + 1);
+		exec_failed = 1;
+		exec_errno = errno;
+		_exit(1);
+	} else {
+		if (exec_failed) {
+			errno = exec_errno;
+			perror(argv[1]);
+			return 127;
+		}
+
+		return wait_all_children(child_pid);
+	}
+}
