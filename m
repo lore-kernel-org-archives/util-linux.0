@@ -1,35 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:60783
-	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964900Ab2LGMoU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Dec 2012 07:44:20 -0500
-Date: Fri, 7 Dec 2012 07:44:15 -0500
-From: Christoph Hellwig <hch@infradead.org>
-To: Alun <alun.linux@ty-penguin.org.uk>
-Cc: kzak@redhat.com, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add option to fsfreeze to call syncfs() prior to
- freezing.
-Message-ID: <20121207124415.GA28504@infradead.org>
-References: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
+Received: from mx1.redhat.com ([209.132.183.28]:56920 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932392Ab2K3UeU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Nov 2012 15:34:20 -0500
+Date: Fri, 30 Nov 2012 21:34:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: fdisk fails silently if EBR is outside of disk
+Message-ID: <20121130203416.GC25818@x2.net.home>
+References: <20121130105659.GA21271@x2.net.home>
+ <50B8E344.9080405@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
+In-Reply-To: <50B8E344.9080405@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 07, 2012 at 10:14:00AM +0000, Alun wrote:
-> Hi,
+On Fri, Nov 30, 2012 at 11:48:04AM -0500, Phillip Susi wrote:
+> > Device       Boot      Start         End      Blocks   Id   System 
+> > /dev/loop0p1             256   462748159   231373952   83    Linux 
+> > /dev/loop0p2       462748414   464843519     1047553    5 Extended 
+> > /dev/loop0p5   ?   883823639  1304898863   210537612+  19  Unknown
 > 
-> I've recently been looking into a problem on a heavily loaded fileserver.
-> Running fsfreeze on the filesystem causes the load average to go sky high.
-> Looking at the kernel sources, I discovered that the FIFREEZE ioctl suspends
-> writes, then syncs the filesystem. With a large amount of dirty data, this
-> can leave writes suspended for a significant time, even if your intent is to
-> have the filesystem frozen for a short time. I raised this on the kernel
-> list, suggesting an extra call to sync the filesystem prior to suspending
-> writes, but it was pointed out to me that this would change the semantics
-> of the ioctl.
+> If it could not read the EBR, where did it come up with the p5 entry?
 
-It might be better to send a kernel patch to do a first async sync
-attempt instead of band aiding this in one of the consumers.
+ Sorry, I forgot to fix this nonsense. Fixed now.
 
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
