@@ -1,48 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:49064 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751673Ab2KYMBV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Nov 2012 07:01:21 -0500
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1492723wgb.1
-        for <util-linux@vger.kernel.org>; Sun, 25 Nov 2012 04:01:20 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: =?UTF-8?q?=5BPATCH=203/4=5D=20docs=3A=20mention=20what=20Open=20Group=20has=20marked=20legacy?=
-Date: Sun, 25 Nov 2012 12:01:10 +0000
-Message-Id: <1353844871-6047-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
-References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:50646 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750852Ab2K3K5D (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Nov 2012 05:57:03 -0500
+Date: Fri, 30 Nov 2012 11:56:59 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: fdisk fails silently if EBR is outside of disk
+Message-ID: <20121130105659.GA21271@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/deprecated.txt | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+On Thu, Nov 29, 2012 at 03:37:47PM -0500, Phillip Susi wrote:
+> While helping a user troubleshoot an issue, I noticed fdisk fails to
+> produce any output when run on an MBR that contains an extended
+> partition that starts beyond the end of the disk.  The following is a
+> sample of the user's MBR:
 
-diff --git a/Documentation/deprecated.txt b/Documentation/deprecated.txt
-index 2d43cb0..8bb8a49 100644
---- a/Documentation/deprecated.txt
-+++ b/Documentation/deprecated.txt
-@@ -58,3 +58,15 @@ Why:	deprecated in favor of uname(1) or arch(1) from coreutils
- What:	last(1)
- Why:	nobody uses this implementation
- 
-+----------------------------
-+
-+The Single UNIX ® Specification, Version 2
-+Copyright © 1997 The Open Group
-+
-+  Legacy utilities which are part util-linux package are:
-+
-+	col
-+	line
-+	pg
-+
-+  http://pubs.opengroup.org/onlinepubs/7908799/xcu/intro.html#tag_001_003_003
+ Fixed (I hope).
+
+ # ./fdisk /dev/loop0
+ You must set cylinders.
+ You can do this from the extra functions menu.
+ Failed to read extended partition table (offset=462748414)
+ Warning: ignoring extra data in partition table 5
+ Warning: ignoring extra data in partition table 5
+ Warning: ignoring extra data in partition table 5
+ Warning: invalid flag 0x1919 of partition table 5 will be corrected
+ by w(rite)
+ Welcome to fdisk (util-linux 2.22.269-6b3e3).
+
+ Changes will remain in memory only, until you decide to write them.
+ Be careful before using the write command.
+
+
+ Command (m for help): p
+
+ Disk /dev/loop0: 0 MB, 512 bytes, 1 sectors
+ Units = sectors of 1 * 512 = 512 bytes
+ Sector size (logical/physical): 512 bytes / 512 bytes
+ I/O size (minimum/optimal): 512 bytes / 512 bytes
+ Disk identifier: 0x0002a9f0
+
+ Device       Boot      Start         End      Blocks   Id   System
+ /dev/loop0p1             256   462748159   231373952   83    Linux
+ /dev/loop0p2       462748414   464843519     1047553    5 Extended
+ /dev/loop0p5   ?   883823639  1304898863   210537612+  19  Unknown
+
+
+    Karel
+
 -- 
-1.8.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
