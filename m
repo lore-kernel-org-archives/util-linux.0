@@ -1,24 +1,34 @@
-Return-Path: mschmidt@redhat.com
-Message-ID: <5093C317.3060406@redhat.com>
-Date: Fri, 02 Nov 2012 13:56:55 +0100
-From: Michal Schmidt <mschmidt@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:40294 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756630Ab2K3Mox (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Nov 2012 07:44:53 -0500
+Date: Fri, 30 Nov 2012 13:44:42 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/4] pull: subsequent patches are also available from my
+ git
+Message-ID: <20121130124442.GB22881@x2.net.home>
+References: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: fix autodetection for TERM
-References: <1351549981-32412-1-git-send-email-mschmidt@redhat.com> <20121102114038.GC30319@x2.net.home>
-In-Reply-To: <20121102114038.GC30319@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1353844871-6047-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dne 2.11.2012 12:40, Karel Zak napsal(a):
-> On Mon, Oct 29, 2012 at 11:33:01PM +0100, Michal Schmidt wrote:
->> open_tty() autodetects whether to set TERM to "linux" or "vt102", but it
->> can apply the result only if op->term is still NULL.
->
->   Oh, nice. Do you have any reference to bugzilla?
+On Sun, Nov 25, 2012 at 12:01:07PM +0000, Sami Kerola wrote:
+>  Documentation/ddate.txt            | 73 --------------------------------------
+>  Documentation/deprecated.txt       | 12 +++++++
+>  Documentation/howto-contribute.txt | 32 +++++++++++++++--
+>  3 files changed, 41 insertions(+), 76 deletions(-)
+>  delete mode 100644 Documentation/ddate.txt
 
-I discovered it while looking into this systemd bug:
-https://bugzilla.redhat.com/show_bug.cgi?id=870622#c1
+ Applied, thanks.
 
-Michal
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
