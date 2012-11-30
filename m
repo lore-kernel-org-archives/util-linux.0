@@ -1,39 +1,59 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35649 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751458Ab2KNJ1J (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 Nov 2012 04:27:09 -0500
-Date: Wed, 14 Nov 2012 10:27:02 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <dave@gnu.org>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/3] fdisk: api: move disklabel type to cxt
-Message-ID: <20121114092702.GA1835@x2.net.home>
-References: <1352880280.2577.4.camel@offbook>
+Return-Path: psusi@ubuntu.com
+Message-ID: <50B8E344.9080405@ubuntu.com>
+Date: Fri, 30 Nov 2012 11:48:04 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1352880280.2577.4.camel@offbook>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: BUG: fdisk fails silently if EBR is outside of disk
+References: <20121130105659.GA21271@x2.net.home>
+In-Reply-To: <20121130105659.GA21271@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 14, 2012 at 12:04:40AM -0800, Davidlohr Bueso wrote:
-> -	if (disklabel != DOS_LABEL)
-> +	if (cxt->disklabel != DOS_LABEL)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-What about to encapsulate it a little? The final goal is to have
-libfdisk, so the context members shouldn't not be directly accessible.
+On 11/30/2012 5:56 AM, Karel Zak wrote:
+> Fixed (I hope).
+> 
+> # ./fdisk /dev/loop0 You must set cylinders. You can do this from
+> the extra functions menu. Failed to read extended partition table
+> (offset=462748414) Warning: ignoring extra data in partition table
+> 5 Warning: ignoring extra data in partition table 5 Warning:
+> ignoring extra data in partition table 5 Warning: invalid flag
+> 0x1919 of partition table 5 will be corrected by w(rite) Welcome to
+> fdisk (util-linux 2.22.269-6b3e3).
+> 
+> Changes will remain in memory only, until you decide to write
+> them. Be careful before using the write command.
+> 
+> 
+> Command (m for help): p
+> 
+> Disk /dev/loop0: 0 MB, 512 bytes, 1 sectors Units = sectors of 1 *
+> 512 = 512 bytes Sector size (logical/physical): 512 bytes / 512
+> bytes I/O size (minimum/optimal): 512 bytes / 512 bytes Disk
+> identifier: 0x0002a9f0
+> 
+> Device       Boot      Start         End      Blocks   Id   System 
+> /dev/loop0p1             256   462748159   231373952   83    Linux 
+> /dev/loop0p2       462748414   464843519     1047553    5 Extended 
+> /dev/loop0p5   ?   883823639  1304898863   210537612+  19  Unknown
 
-   if (fdisk_is_disklabel(cxt, DOS))
+If it could not read the EBR, where did it come up with the p5 entry?
 
-something like:
 
-  #define fdisk_is_disklabel(c, x)   fdisk_dev_is_dislabel(c, FDISK_DISKLABEL_ ## x)
 
-to avoid too generic names (e.g. DOS_LABEL), but keep is brief. Note
-that we already have a function fdisk_dev_has_label().
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with undefined - http://www.enigmail.net/
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJQuONEAAoJEJrBOlT6nu75soUIAJE3pdR1r+peBOhJHakGmuHz
+5hFUMz6AvTkPW+ed1FUAp26qZtO5ngK46Q/d1+cGW4Asj30J+BXtip2pcUj8laPe
+kjbh3zoMuBWHX1TbfmJn2Ydc+s/+OpqPmxTsgtUBQ9IR3VgbzbWIK+Vf0zqKVuGw
+DEkUD+sHXLF2LfU1sTGA8BDv9VGnaHbEhfdegf2Hi6i29UWxYyXoS7tmOfaRDIes
+KJTiYWf4Tflv6FEnKEzLMtn8yOOaURo/aeHM2scTrxvQp9HXZspf9ooHn/HC8SI6
+5L6SLF3oxfxxSg1KZwb1pAMflWshU8cbckXwOE9Ye1x8TZv/x4Q8a8Z2E1Tnfuc=
+=ZVz1
+-----END PGP SIGNATURE-----
