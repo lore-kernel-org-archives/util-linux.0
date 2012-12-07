@@ -1,66 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:9841 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755101Ab2LSO3Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Dec 2012 09:29:16 -0500
-Date: Wed, 19 Dec 2012 15:29:05 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [00/14]: pull: ipcs resubmission, bug fixes, minix todo, etc
-Message-ID: <20121219142905.GE17959@x2.net.home>
-References: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:60783
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964900Ab2LGMoU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Dec 2012 07:44:20 -0500
+Date: Fri, 7 Dec 2012 07:44:15 -0500
+From: Christoph Hellwig <hch@infradead.org>
+To: Alun <alun.linux@ty-penguin.org.uk>
+Cc: kzak@redhat.com, util-linux@vger.kernel.org
+Subject: Re: [PATCH] Add option to fsfreeze to call syncfs() prior to
+ freezing.
+Message-ID: <20121207124415.GA28504@infradead.org>
+References: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 16, 2012 at 10:43:48AM +0000, Sami Kerola wrote:
-> This review / pull request is partial resubmission.  The ipc stuff was
-> sent to list earlier, but it got to be modified after initial review so
-> here comes the modified version.
+On Fri, Dec 07, 2012 at 10:14:00AM +0000, Alun wrote:
+> Hi,
 > 
-> In these patches there are two documentation bug fixes (0001, 0005), and
-> one code bug fix (0013).  There is also one policy change (0008), which
-> makes tunelp not to be part of default build.  My feeling is that the
-> utility is not much in use.  Please correct if I am wrong, and drop the
-> patch.
+> I've recently been looking into a problem on a heavily loaded fileserver.
+> Running fsfreeze on the filesystem causes the load average to go sky high.
+> Looking at the kernel sources, I discovered that the FIFREEZE ioctl suspends
+> writes, then syncs the filesystem. With a large amount of dirty data, this
+> can leave writes suspended for a significant time, even if your intent is to
+> have the filesystem frozen for a short time. I raised this on the kernel
+> list, suggesting an extra call to sync the filesystem prior to suspending
+> writes, but it was pointed out to me that this would change the semantics
+> of the ioctl.
 
- That's probably good idea, --enable-tunelp should be enough.
+It might be better to send a kernel patch to do a first async sync
+attempt instead of band aiding this in one of the consumers.
 
->       docs: swapon.8 option name fix
-
- This reminds me, what about to use "swapon --show" by default if no
- option is specified? Now "swapon" prints help...
-
- We did the same change for "losetup", if nothing is requested then
- it prints the list of the loop devices.
-
->       ipcs: assist debugging
->       ipcs: add --human readable size conversion option
-
- I have aligned the "size" columns to the right. It's more readable.
-
->       ipcs: add --bytes size output option
->       isosize: fix usage() -h option print out
->       isosize: inform if file does not look like iso file system
->       more: remove unnecessary variable
->       tunelp: deprecation: remove command from default build
->       minix: change types in header file
->       minix: use off_t, size_t, etc appropriate types
->       minix: replace magic constants with macro names
->       docs: add missing exit value to fsck.minix(8)
->       lib/ismounted: detect loopback mounts
-
-applied
-
->       docs: fsck(8), mkfs(8): update manual references
-
-not applied
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
