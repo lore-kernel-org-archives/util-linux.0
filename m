@@ -1,114 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp5-g21.free.fr ([212.27.42.5]:58790 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751391Ab2LGTOn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Dec 2012 14:14:43 -0500
-Message-ID: <1354907674.50c2401a5ee19@imp.free.fr>
-Date: Fri, 07 Dec 2012 20:14:34 +0100
-From: mp.lists@free.fr
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Karel Zak <kzak@redhat.com>
-Subject: Re: Accessibility of swap files
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:48292 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754671Ab2LGRBV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Dec 2012 12:01:21 -0500
+Received: by mail-vc0-f174.google.com with SMTP id d16so587722vcd.19
+        for <util-linux@vger.kernel.org>; Fri, 07 Dec 2012 09:01:20 -0800 (PST)
+Date: Fri, 7 Dec 2012 12:01:18 -0500
+From: Dave Reisner <d@falconindy.com>
+To: Werner Fink <werner@suse.de>, util-linux@vger.kernel.org,
+        Karel Zak <kzak@redhat.com>
+Subject: Re: [util-linux] [PATCH 4/5] sulogin: mount temporary /dev and /proc
+ if not found
+Message-ID: <20121207170118.GG603@rampage>
+References: <1354867258-14206-1-git-send-email-werner@suse.de>
+ <1354867258-14206-4-git-send-email-werner@suse.de>
+ <20121207141709.GF603@rampage>
+ <20121207154917.GA24191@boole.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121207154917.GA24191@boole.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, Dec 07, 2012 at 04:49:17PM +0100, Dr. Werner Fink wrote:
+> On Fri, Dec 07, 2012 at 09:17:09AM -0500, Dave Reisner wrote:
+> > On Fri, Dec 07, 2012 at 09:00:57AM +0100, Werner Fink wrote:
+> > > +# define dovoid(f)	if ((f)){}
+> > > +static __attribute__((__constructor__)) void getmounts(void)
+> > > +{
+> > > +	struct statfs st;
+> > > +	if (statfs("/proc", &st) == 0 && st.f_type != PROC_SUPER_MAGIC) {
+> > 
+> > Why not use the standard mountpoint check -- compare the devno with / ?
+> > 
+> > > +		if (mount("proc", "/proc", "proc", MS_RELATIME, NULL) == 0)
+> > > +			mounts |= MNT_PROCFS;
+> > > +	}
+> > > +	if (statfs("/dev", &st) == 0 && st.f_type != TMPFS_MAGIC) {
+> > > +		if (mount("devtmpfs", "/dev", "devtmpfs", MS_RELATIME, "mode=0755,nr_inodes=0") == 0) {
+> > > +			mounts |= MNT_DEVTMPFS;
+> > 
+> > Isn't all the work below here redundant? devtmpfs provides these
+> > things.
+> > 
+> > > +			(void)mknod("/dev/console", S_IFCHR|S_IRUSR|S_IWUSR, makedev(TTYAUX_MAJOR, 1));
+> > > +			if (symlink("/proc/self/fd", "/dev/fd") == 0) {
+> > > +				dovoid(symlink("fd/0", "/dev/stdin"));
+> > > +				dovoid(symlink("fd/1", "/dev/stdout"));
+> > > +				dovoid(symlink("fd/2", "/dev/stderr"));
+> > > +			}
+> > > +		}
+> > > +	}
+> > > +	if (mounts) atexit(putmounts);
+> > > +}
+> > > +# undef dovoid
+> > > +#endif
+> > > +
+> > >  static void usage(FILE *out)
+> > >  {
+> > >  	fputs(USAGE_HEADER, out);
+> 
+> We're talking about the very early boot stage, there is no udev nor anything else
+> and the I've choosen this as this had worked very well in initrd where it had crashed
+> before.  I do not say that there is no other way to do this but this way it works and
+> the links I've done had been missed.
 
+Ok, I didn't realize udev still was responsible for these links these
+days, but perusing the code shows otherwise. Could you explain why
+sulogin is wanted in the initramfs? Seems like an odd use case to me.
 
-Karel Zak <kzak@...> writes:
+> If in initrd the sulogin will be called after mounting /proc and /dev and running
+> udev rules or enabling the links in initrd then the code does only check for existence
+> of /proc and /dev.
 
->
-> On Tue, Nov 06, 2012 at 05:25:02PM +0100, Bernhard Voelker wrote:
-> > On November 6, 2012 at 4:06 PM mp.lists@... wrote:
-> > > Hi *,
-> > >
-> > > I think, measures can|should be taken, which reduce the probability of
-having
-> > > a
-> > > swap file inadvertently run with too open permissions.
->
->  well, you need root permissions to use swapon, the swap devices and
->  files are defined in /etc/fstan which is writable by root only.
->
-Very often "root" is a human.
+If you're in the initramfs, rootfs is tmpfs. Won't your statfs check
+return a buffer which has f_type == TMPFS_MAGIC even if /dev is not
+mounted?
 
-
->  I have doubts that we have to make the system so paranoid and
->  resistant to admin's bugs. And if you really need this level of
->  paranoia then use SELinux (or so) rather than expect hardcoded rules
->  in swapon(8).
->
-Let me say it more liberally:
-I expect a POSIXoid system in its default status to be configured the paranoid
-way.  Everything else shall be an explicit informed decision.
-
-I don't care, how paranoia is implemented, but it has to be omnipresent to a
-reasonable degree.  If not, we may [in the best case] achieve correctness in a
-mathematical sense, but never practically.
-
-
-> > > As a first idea, it looks, as if such may be implemented, eg. by
-> > >      letting swapon [and fstab-based "mounting"] by default not enable a
-swap
-> > > file, if it has non-root access permissions
-> >
-> > Did you know?
-> > The swapon utility issues a warning diagnostic with --verbose:
-> >
-> >   # ls -l /tmp/swapfile
-> >   -rw-r--r-- 1 berny users 134217728 Nov  6 17:03 /tmp/swapfile
-> >
-> >   # sbin/swapon -v  /tmp/swapfile
-> >   swapon /tmp/swapfile
-> >   swapon: /tmp/swapfile: insecure permissions 0644, 0600 suggested.
-> >   swapon: /tmp/swapfile: insecure file owner 1000, 0 (root) suggested.
-> >   swapon: /tmp/swapfile: found swap signature: version 1, page-size 4, same
-byte
-> > order
-> >   swapon: /tmp/swapfile: pagesize=4096, swapsize=134217728,
-devsize=134217728
->
->  this waring is there since year 1999.. so it's really nothing new.
->
-> > BTW: the check for the owner has been added in 2.19
-> > (in commit v2.18-88-g306c1df).
-> >
-> > I don't know if refusing to swapon insecure swap files is a good
-> > idea (see below).
-> >
-> > >   || letting mkswap by default ignore too open settings of umask and
-create
-> > > the
-> > > swap file mod 0600 instead.
->
->  sorry, this is nonsense
->
-You are right.
-
-
-> > You don't need root privs to run mkswap. Furthermore, mkswap
-> > doesn't create the swap file (in terms of calling creat()).
->
->  yep, you can use cp(1) or dd(1) to create the file as a copy...
->
-> > Instead, it just writes to it.
-> > Nevertheless, I think a warning would be enough/nice at this stage.
-> >
-> > > In both cases, an explicit switch|parameter could enable the present,
-> > > non-restrictive behaviour.
-> >
-> > Changing behavior is not always a good idea for compatibility reasons,
-> > and therefore deserves *good* arguments.
->
-> Yes, I don't see good arguments.
->
-See my next posting.
-
-{In order to get the right balance, I think, its a good idea to have a look at
-those well-known systems, which are built on the policy of compatibility... }
-
-
-Best, Markus
-
-
+>   Werner
+> 
+> -- 
+>   "Having a smoking section in a restaurant is like having
+>           a peeing section in a swimming pool." -- Edward Burr
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
