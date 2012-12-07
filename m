@@ -1,65 +1,114 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:51230 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754285Ab2L1VYA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Dec 2012 16:24:00 -0500
-Received: by mail-wg0-f44.google.com with SMTP id dr12so5000988wgb.35
-        for <util-linux@vger.kernel.org>; Fri, 28 Dec 2012 13:23:59 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/4] losetup: fix declarations [smatch scan]
-Date: Fri, 28 Dec 2012 21:23:43 +0000
-Message-Id: <1356729823-729-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
-References: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
+Received: from smtp5-g21.free.fr ([212.27.42.5]:58790 "EHLO smtp5-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751391Ab2LGTOn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Dec 2012 14:14:43 -0500
+Message-ID: <1354907674.50c2401a5ee19@imp.free.fr>
+Date: Fri, 07 Dec 2012 20:14:34 +0100
+From: mp.lists@free.fr
+To: util-linux <util-linux@vger.kernel.org>
+Cc: Karel Zak <kzak@redhat.com>
+Subject: Re: Accessibility of swap files
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-sys-utils/losetup.c:309:2: error: 'for' loop initial declarations are only allowed in C99 mode
-sys-utils/losetup.c:374:2: error: 'for' loop initial declarations are only allowed in C99 mode
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/losetup.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
-index 2765a38..2c81e69 100644
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -302,11 +302,12 @@ static int make_table(struct loopdev_cxt *lc, const char *file,
- {
- 	struct stat sbuf, *st = &sbuf;
- 	struct tt_line *ln;
-+	int i;
- 
- 	if (!(tt = tt_new_table(0)))
- 		errx(EXIT_FAILURE, _("failed to initialize output table"));
- 
--	for (int i = 0; i < ncolumns; i++) {
-+	for (i = 0; i < ncolumns; i++) {
- 		struct colinfo *ci = get_column_info(i);
- 
- 		if (!tt_define_column(tt, ci->name, ci->whint, ci->flags))
-@@ -341,6 +342,8 @@ static int make_table(struct loopdev_cxt *lc, const char *file,
- 
- static void usage(FILE *out)
- {
-+	size_t i;
-+
- 	fputs(USAGE_HEADER, out);
- 
- 	fprintf(out,
-@@ -371,7 +374,7 @@ static void usage(FILE *out)
- 	fputs(USAGE_VERSION, out);
- 
- 	fputs(_("\nAvailable --list columns:\n"), out);
--	for (size_t i = 0; i < NCOLS; i++)
-+	for (i = 0; i < NCOLS; i++)
- 		fprintf(out, " %12s  %s\n", infos[i].name, _(infos[i].help));
- 
- 	fprintf(out, USAGE_MAN_TAIL("losetup(8)"));
--- 
-1.8.0.3
+Karel Zak <kzak@...> writes:
+
+>
+> On Tue, Nov 06, 2012 at 05:25:02PM +0100, Bernhard Voelker wrote:
+> > On November 6, 2012 at 4:06 PM mp.lists@... wrote:
+> > > Hi *,
+> > >
+> > > I think, measures can|should be taken, which reduce the probability of
+having
+> > > a
+> > > swap file inadvertently run with too open permissions.
+>
+>  well, you need root permissions to use swapon, the swap devices and
+>  files are defined in /etc/fstan which is writable by root only.
+>
+Very often "root" is a human.
+
+
+>  I have doubts that we have to make the system so paranoid and
+>  resistant to admin's bugs. And if you really need this level of
+>  paranoia then use SELinux (or so) rather than expect hardcoded rules
+>  in swapon(8).
+>
+Let me say it more liberally:
+I expect a POSIXoid system in its default status to be configured the paranoid
+way.  Everything else shall be an explicit informed decision.
+
+I don't care, how paranoia is implemented, but it has to be omnipresent to a
+reasonable degree.  If not, we may [in the best case] achieve correctness in a
+mathematical sense, but never practically.
+
+
+> > > As a first idea, it looks, as if such may be implemented, eg. by
+> > >      letting swapon [and fstab-based "mounting"] by default not enable a
+swap
+> > > file, if it has non-root access permissions
+> >
+> > Did you know?
+> > The swapon utility issues a warning diagnostic with --verbose:
+> >
+> >   # ls -l /tmp/swapfile
+> >   -rw-r--r-- 1 berny users 134217728 Nov  6 17:03 /tmp/swapfile
+> >
+> >   # sbin/swapon -v  /tmp/swapfile
+> >   swapon /tmp/swapfile
+> >   swapon: /tmp/swapfile: insecure permissions 0644, 0600 suggested.
+> >   swapon: /tmp/swapfile: insecure file owner 1000, 0 (root) suggested.
+> >   swapon: /tmp/swapfile: found swap signature: version 1, page-size 4, same
+byte
+> > order
+> >   swapon: /tmp/swapfile: pagesize=4096, swapsize=134217728,
+devsize=134217728
+>
+>  this waring is there since year 1999.. so it's really nothing new.
+>
+> > BTW: the check for the owner has been added in 2.19
+> > (in commit v2.18-88-g306c1df).
+> >
+> > I don't know if refusing to swapon insecure swap files is a good
+> > idea (see below).
+> >
+> > >   || letting mkswap by default ignore too open settings of umask and
+create
+> > > the
+> > > swap file mod 0600 instead.
+>
+>  sorry, this is nonsense
+>
+You are right.
+
+
+> > You don't need root privs to run mkswap. Furthermore, mkswap
+> > doesn't create the swap file (in terms of calling creat()).
+>
+>  yep, you can use cp(1) or dd(1) to create the file as a copy...
+>
+> > Instead, it just writes to it.
+> > Nevertheless, I think a warning would be enough/nice at this stage.
+> >
+> > > In both cases, an explicit switch|parameter could enable the present,
+> > > non-restrictive behaviour.
+> >
+> > Changing behavior is not always a good idea for compatibility reasons,
+> > and therefore deserves *good* arguments.
+>
+> Yes, I don't see good arguments.
+>
+See my next posting.
+
+{In order to get the right balance, I think, its a good idea to have a look at
+those well-known systems, which are built on the policy of compatibility... }
+
+
+Best, Markus
+
 
