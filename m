@@ -1,357 +1,314 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:34889 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759009Ab2LIVJq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Dec 2012 16:09:46 -0500
-Received: by mail-wi0-f174.google.com with SMTP id hm9so857405wib.1
-        for <util-linux@vger.kernel.org>; Sun, 09 Dec 2012 13:09:45 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from charybdis-ext.suse.de ([195.135.221.2]:57588 "EHLO g231.suse.de"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753895Ab2LGIWL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Dec 2012 03:22:11 -0500
+From: Werner Fink <werner@suse.de>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/3] ipcs: add --human readable size conversion option
-Date: Sun,  9 Dec 2012 21:08:34 +0000
-Message-Id: <1355087316-12422-1-git-send-email-kerolasa@iki.fi>
+Cc: Karel Zak <kzak@redhat.com>, Werner Fink <werner@suse.de>
+Subject: [PATCH 1/5] sulogin: use the linked lists from list.h for consoles list
+Date: Fri,  7 Dec 2012 09:00:54 +0100
+Message-Id: <1354867258-14206-1-git-send-email-werner@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/ipcs.1 |   3 ++
- sys-utils/ipcs.c | 155 ++++++++++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 121 insertions(+), 37 deletions(-)
+with this the double linked list feature from util-linux is used
+instead of the single linked list.
 
-diff --git a/sys-utils/ipcs.1 b/sys-utils/ipcs.1
-index 7c094c8..3c6b8c3 100644
---- a/sys-utils/ipcs.1
-+++ b/sys-utils/ipcs.1
-@@ -65,6 +65,9 @@ Show resource limits.
- .TP
- \fB\-u\fR, \fB\-\-summary\fR
- Show status summary.
-+.TP
-+.B \-\-human
-+Show print sizes in human readable format (e.g., 1K 234M 2G).
- .SH SEE ALSO
- .BR ipcrm (1),
- .BR ipcmk (1),
-diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
-index 6ef0bbe..9fe24ac 100644
---- a/sys-utils/ipcs.c
-+++ b/sys-utils/ipcs.c
-@@ -22,6 +22,7 @@
- #include "c.h"
- #include "nls.h"
- #include "closestream.h"
-+#include "strutils.h"
+Signed-off-by: Werner Fink <werner@suse.de>
+---
+ include/consoles.h |    6 ++--
+ lib/consoles.c     |   77 ++++++++++++++++++++++++++++++++--------------------
+ 2 files changed, 51 insertions(+), 32 deletions(-)
+
+diff --git include/consoles.h include/consoles.h
+index 2283d02..2544263 100644
+--- include/consoles.h
++++ include/consoles.h
+@@ -2,6 +2,7 @@
+  * consoles.h	    Header file for routines to detect the system consoles
+  *
+  * Copyright (c) 2011 SuSE LINUX Products GmbH, All rights reserved.
++ * Copyright (c) 2012 Werner Fink <werner@suse.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -25,6 +26,7 @@
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <termios.h>
++#include <list.h>
  
- #include "ipcutils.h"
+ struct chardata {
+ 	uint8_t	erase;
+@@ -33,6 +35,7 @@ struct chardata {
+ 	uint8_t parity;
+ };
+ struct console {
++	struct list_head entry;
+ 	char *tty;
+ 	FILE *file;
+ 	uint32_t flags;
+@@ -42,8 +45,7 @@ struct console {
+ 	pid_t pid;
+ 	struct chardata cp;
+ 	struct termios tio;
+-	struct console *next;
+ };
  
-@@ -31,13 +32,21 @@
- #define TIME 4
- #define PID 5
+ extern int detect_consoles(const char *device, int fallback,
+-			   struct console **consoles);
++			   struct list_head *consoles);
+diff --git lib/consoles.c lib/consoles.c
+index 7bc21b6..38c8208 100644
+--- lib/consoles.c
++++ lib/consoles.c
+@@ -3,6 +3,7 @@
+  *
+  * Copyright (c) 2011 SuSE LINUX Products GmbH, All rights reserved.
+  * Copyright (C) 2012 Karel Zak <kzak@redhat.com>
++ * Copyright (C) 2012 Werner Fink <werner@suse.de>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -56,6 +57,7 @@
+ #endif
  
--static void do_shm (char format);
--static void print_shm (int id);
-+static void do_shm (char format, int unit);
-+static void print_shm (int id, int unit);
- static void do_sem (char format);
- static void print_sem (int id);
--static void do_msg (char format);
-+static void do_msg (char format, int unit);
-+static void print_msg (int id, int unit);
+ #define alignof(type)		((sizeof(type)+(sizeof(void*)-1)) & ~(sizeof(void*)-1))
++#define	strsize(string)		(strlen((string))+1)
  
--void print_msg (int id);
-+enum {
-+	OPT_HUMAN = CHAR_MAX + 1
-+};
-+
-+enum {
-+	UNIT_DEFAULT,
-+	UNIT_HUMAN
-+};
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ static int consoles_debug;
+ #define DBG(x)	do { \
+@@ -200,7 +202,7 @@ static
+ #ifdef __GNUC__
+ __attribute__((__nonnull__,__hot__))
+ #endif
+-int append_console(struct console **list, char * name)
++int append_console(struct list_head *consoles, const char *name)
  {
-@@ -61,6 +70,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	fputs(_(" -c, --creator     show creator and owner\n"), out);
- 	fputs(_(" -l, --limits      show resource limits\n"), out);
- 	fputs(_(" -u, --summary     show status summary\n"), out);
-+	fputs(_("     --human       show sizes in human readable format\n"), out);
- 	fprintf(out, USAGE_MAN_TAIL("ipcs(1)"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
-@@ -69,6 +79,7 @@ int main (int argc, char **argv)
- {
- 	int opt, msg = 0, sem = 0, shm = 0, id=0, print=0;
- 	char format = 0;
-+	int unit = UNIT_DEFAULT;
- 	static const struct option longopts[] = {
- 		{"id", required_argument, NULL, 'i'},
- 		{"shmems", no_argument, NULL, 'm'},
-@@ -80,6 +91,7 @@ int main (int argc, char **argv)
- 		{"creator", no_argument, NULL, 'c'},
- 		{"limits", no_argument, NULL, 'l'},
- 		{"summary", no_argument, NULL, 'u'},
-+		{"human", no_argument, NULL, OPT_HUMAN},
- 		{"version", no_argument, NULL, 'V'},
- 		{"help", no_argument, NULL, 'h'},
- 		{NULL, 0, NULL, 0}
-@@ -124,6 +136,9 @@ int main (int argc, char **argv)
- 		case 'u':
- 			format = STATUS;
- 			break;
-+		case OPT_HUMAN:
-+			unit = UNIT_HUMAN;
-+			break;
- 		case 'h':
- 			usage(stdout);
- 		case 'V':
-@@ -136,11 +151,11 @@ int main (int argc, char **argv)
+ 	static const struct chardata initcp = {
+ 		.erase	= CERASE,
+@@ -210,16 +212,21 @@ int append_console(struct console **list, char * name)
+ 	};
+ 	struct console *restrict tail;
+ 	struct console *last;
++	
++	if (list_empty(consoles))
++		last = NULL;
++	else
++		last = list_entry(consoles->prev, struct console, entry);
  
- 	if  (print) {
- 		if (shm)
--			print_shm (id);
-+			print_shm (id, unit);
- 		if (sem)
- 			print_sem (id);
- 		if (msg)
--			print_msg (id);
-+			print_msg (id, unit);
- 		if (!shm && !sem && !msg )
- 			usage (stderr);
- 	} else {
-@@ -149,7 +164,7 @@ int main (int argc, char **argv)
- 		printf ("\n");
+ 	DBG(dbgprint("appenging %s", name));
  
- 		if (shm) {
--			do_shm (format);
-+			do_shm (format, unit);
- 			printf ("\n");
- 		}
- 		if (sem) {
-@@ -157,14 +172,14 @@ int main (int argc, char **argv)
- 			printf ("\n");
- 		}
- 		if (msg) {
--			do_msg (format);
-+			do_msg (format, unit);
- 			printf ("\n");
- 		}
- 	}
- 	return EXIT_SUCCESS;
+-	if (posix_memalign((void*)&tail, sizeof(void*), alignof(typeof(struct console))) != 0)
++	if (posix_memalign((void*)&tail, sizeof(void*),
++			   alignof(struct console)+strsize(name)) != 0)
+ 		return -ENOMEM;
+ 
+-	for (last = *list; last && last->next; last = last->next);
+-
+-	tail->next = NULL;
+-	tail->tty = name;
++	list_add_tail(&tail->entry, consoles);
++	tail->tty = ((char*)tail)+alignof(struct console);
++	strcpy(tail->tty, name);
+ 
+ 	tail->file = (FILE*)0;
+ 	tail->flags = 0;
+@@ -229,11 +236,6 @@ int append_console(struct console **list, char * name)
+ 	memset(&tail->tio, 0, sizeof(tail->tio));
+ 	memcpy(&tail->cp, &initcp, sizeof(struct chardata));
+ 
+-	if (!last)
+-		*list = tail;
+-	else
+-		last->next = tail;
+-
+ 	return 0;
  }
  
--static void do_shm (char format)
-+static void do_shm (char format, int unit)
+@@ -245,7 +247,7 @@ int append_console(struct console **list, char * name)
+  *	  1	- recoverable error
+  *	  2	- detection not available
+  */
+-static int detect_consoles_from_proc(struct console **consoles)
++static int detect_consoles_from_proc(struct list_head *consoles)
  {
- 	struct passwd *pw;
- 	struct shm_data *shmds, *shmdsp;
-@@ -177,11 +192,28 @@ static void do_shm (char format)
- 		printf (_("------ Shared Memory Limits --------\n"));
- 		if (ipc_shm_get_limits(&lim))
- 			return;
--		printf (_("max number of segments = %ju\n"), lim.shmmni);
--		printf (_("max seg size (kbytes) = %ju\n"), lim.shmmax / 1024);
--		printf (_("max total shared memory (kbytes) = %ju\n"),
--					(lim.shmall / 1024) * getpagesize());
--		printf (_("min seg size (bytes) = %ju\n"), lim.shmmin);
-+		printf(_("max number of segments = %ju\n"), lim.shmmni);
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("max seg size (kbytes) = %ju\n"),
-+			       lim.shmmax / 1024);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("max seg size = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    lim.shmmax));
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("max total shared memory (kbytes) = %ju\n"),
-+			       (lim.shmall / 1024) * getpagesize());
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("max total shared memory = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    lim.shmall *
-+						    getpagesize()));
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("min seg size (bytes) = %ju\n"), lim.shmmin);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("min seg size = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    lim.shmmin));
- 		return;
+ 	char fbuf[16 + 1];
+ 	DIR *dir = NULL;
+@@ -274,11 +276,12 @@ static int detect_consoles_from_proc(struct console **consoles)
+ 		if (!name)
+ 			continue;
+ 		rc = append_console(consoles, name);
++		free(name);
+ 		if (rc < 0)
+ 			goto done;
  	}
- 	case STATUS:
-@@ -245,7 +277,8 @@ static void do_shm (char format)
- 	default:
- 		printf (_("------ Shared Memory Segments --------\n"));
- 		printf ("%-10s %-10s %-10s %-10s %-10s %-10s %-12s\n",
--			_("key"),_("shmid"),_("owner"),_("perms"),_("bytes"),
-+			_("key"),_("shmid"),_("owner"),_("perms"),
-+			unit == UNIT_HUMAN ? _("size") : _("bytes"),
- 			_("nattch"),_("status"));
- 		break;
- 	}
-@@ -292,12 +325,18 @@ static void do_shm (char format)
- 				printf ("%-10d %-10.10s", shmdsp->shm_perm.id, pw->pw_name);
- 			else
- 				printf ("%-10d %-10u", shmdsp->shm_perm.id, shmdsp->shm_perm.uid);
--			printf (" %-10o %-10lu %-10ld %-6s %-6s\n",
--				shmdsp->shm_perm.mode & 0777,
--				shmdsp->shm_segsz,
--				shmdsp->shm_nattch,
--				shmdsp->shm_perm.mode & SHM_DEST ? _("dest") : " ",
--				shmdsp->shm_perm.mode & SHM_LOCKED ? _("locked") : " ");
-+			printf(" %-10o", shmdsp->shm_perm.mode & 0777);
-+			if (unit == UNIT_DEFAULT)
-+				printf(" %-10lu", shmdsp->shm_segsz);
-+			else if (unit == UNIT_HUMAN)
-+				printf(" %-10s",
-+				       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+							    shmdsp->shm_segsz));
-+			printf(" %-10ld %-6s %-6s\n", shmdsp->shm_nattch,
-+			       shmdsp->shm_perm.
-+			       mode & SHM_DEST ? _("dest") : " ",
-+			       shmdsp->shm_perm.
-+			       mode & SHM_LOCKED ? _("locked") : " ");
- 			break;
- 		}
- 	}
-@@ -407,7 +446,7 @@ static void do_sem (char format)
- 	return;
- }
  
--static void do_msg (char format)
-+static void do_msg (char format, int unit)
+-	rc = *consoles ? 0 : 1;
++	rc = list_empty(consoles) ? 1 : 0;
+ done:
+ 	if (dir)
+ 		closedir(dir);
+@@ -295,7 +298,7 @@ done:
+  *	  1	- recoverable error
+  *	  2	- detection not available
+  */
+-static int detect_consoles_from_sysfs(struct console **consoles)
++static int detect_consoles_from_sysfs(struct list_head *consoles)
  {
- 	struct passwd *pw;
- 	struct msg_data *msgds, *msgdsp;
-@@ -421,8 +460,20 @@ static void do_msg (char format)
- 			return;
- 		printf (_("------ Messages Limits --------\n"));
- 		printf (_("max queues system wide = %d\n"), lim.msgmni);
--		printf (_("max size of message (bytes) = %zu\n"), lim.msgmax);
--		printf (_("default max size of queue (bytes) = %d\n"), lim.msgmnb);
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("max size of message (bytes) = %zu\n"),
-+			       lim.msgmax);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("max size of message = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    lim.msgmax));
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("default max size of queue (bytes) = %d\n"),
-+			       lim.msgmnb);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("default max size of queue = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    lim.msgmnb));
- 		return;
- 	}
- 	case STATUS:
-@@ -434,8 +485,18 @@ static void do_msg (char format)
- 		}
- 		printf (_("------ Messages Status --------\n"));
- 		printf (_("allocated queues = %d\n"), msginfo.msgpool);
--		printf (_("used headers = %d\n"), msginfo.msgmap);
--		printf (_("used space = %d bytes\n"), msginfo.msgtql);
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("used headers = %d\n"), msginfo.msgmap);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("used headers = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    msginfo.msgmap));
-+		if (unit == UNIT_DEFAULT)
-+			printf(_("used space = %d bytes\n"), msginfo.msgtql);
-+		else if (unit == UNIT_HUMAN)
-+			printf(_("used space = %s\n"),
-+			       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+						    msginfo.msgtql));
- 		return;
- 	}
- 	case CREATOR:
-@@ -460,7 +521,8 @@ static void do_msg (char format)
- 		printf (_("------ Message Queues --------\n"));
- 		printf ("%-10s %-10s %-10s %-10s %-12s %-12s\n",
- 			_("key"), _("msqid"), _("owner"), _("perms"),
--			_("used-bytes"), _("messages"));
-+			unit == UNIT_HUMAN ? _("size") : _("used-bytes"),
-+			_("messages"));
- 		break;
+ 	char *attrib = NULL, *words, *token;
+ 	DIR *dir = NULL;
+@@ -335,11 +338,12 @@ static int detect_consoles_from_sysfs(struct console **consoles)
+ 		if (!name)
+ 			continue;
+ 		rc = append_console(consoles, name);
++		free(name);
+ 		if (rc < 0)
+ 			goto done;
  	}
  
-@@ -505,10 +567,14 @@ static void do_msg (char format)
- 				printf ("%-10d %-10.10s", msgdsp->msg_perm.id, pw->pw_name);
- 			else
- 				printf ("%-10d %-10u", msgdsp->msg_perm.id, msgdsp->msg_perm.uid);
--			printf (" %-10o %-12ld %-12ld\n",
--				msgdsp->msg_perm.mode & 0777,
--				msgdsp->q_cbytes,
--				msgdsp->q_qnum);
-+			printf(" %-10o", msgdsp->msg_perm.mode & 0777);
-+			if (unit == UNIT_DEFAULT)
-+				printf(" %-12ld", msgdsp->q_cbytes);
-+			else if (unit == UNIT_HUMAN)
-+				printf(" %-12s",
-+				       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+							    msgdsp->q_cbytes));
-+			printf(" %-12ld\n", msgdsp->q_qnum);
- 			break;
- 		}
- 	}
-@@ -517,7 +583,7 @@ static void do_msg (char format)
- 	return;
- }
- 
--static void print_shm(int shmid)
-+static void print_shm(int shmid, int unit)
- {
- 	struct shm_data *shmdata;
- 
-@@ -532,8 +598,14 @@ static void print_shm(int shmid)
- 	       shmdata->shm_perm.cuid, shmdata->shm_perm.cgid);
- 	printf(_("mode=%#o\taccess_perms=%#o\n"), shmdata->shm_perm.mode,
- 	       shmdata->shm_perm.mode & 0777);
--	printf(_("bytes=%ju\tlpid=%u\tcpid=%u\tnattch=%jd\n"),
--	       shmdata->shm_segsz, shmdata->shm_lprid, shmdata->shm_cprid,
-+	if (unit == UNIT_DEFAULT)
-+		printf(_("bytes=%ju\t"), shmdata->shm_segsz);
-+	else if (unit == UNIT_HUMAN)
-+		printf(_("size=%s\t"),
-+		       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+					    shmdata->shm_segsz));
-+	printf(_("lpid=%u\tcpid=%u\tnattch=%jd\n"),
-+	       shmdata->shm_lprid, shmdata->shm_cprid,
- 	       shmdata->shm_nattch);
- 	printf(_("att_time=%-26.24s\n"),
- 	       shmdata->shm_atim ? ctime(&(shmdata->shm_atim)) : _("Not set"));
-@@ -546,7 +618,7 @@ static void print_shm(int shmid)
+-	rc = *consoles ? 0 : 1;
++	rc = list_empty(consoles) ? 1 : 0;
+ done:
+ 	free(attrib);
+ 	if (dir)
+@@ -349,7 +353,7 @@ done:
  }
  
  
--void print_msg(int msgid)
-+void print_msg(int msgid, int unit)
+-static int detect_consoles_from_cmdline(struct console **consoles)
++static int detect_consoles_from_cmdline(struct list_head *consoles)
  {
- 	struct msg_data *msgdata;
+ 	char *cmdline, *words, *token;
+ 	dev_t comparedev;
+@@ -422,11 +426,12 @@ static int detect_consoles_from_cmdline(struct console **consoles)
+ 		if (!name)
+ 			continue;
+ 		rc = append_console(consoles, name);
++		free(name);
+ 		if (rc < 0)
+ 			goto done;
+ 	}
  
-@@ -560,8 +632,17 @@ void print_msg(int msgid)
- 	       msgdata->msg_perm.uid, msgdata->msg_perm.uid,
- 	       msgdata->msg_perm.cuid, msgdata->msg_perm.cgid,
- 	       msgdata->msg_perm.mode);
--	printf(_("cbytes=%jd\tqbytes=%jd\tqnum=%jd\tlspid=%d\tlrpid=%d\n"),
--	       msgdata->q_cbytes, msgdata->q_qbytes, msgdata->q_qnum,
-+	if (unit == UNIT_DEFAULT)
-+		printf(_("cbytes=%jd\tqbytes=%jd"), msgdata->q_cbytes,
-+		       msgdata->q_qbytes);
-+	else if (unit == UNIT_HUMAN)
-+		printf(_("csize=%s\tqsize=%s"),
-+		       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+					    msgdata->q_cbytes),
-+		       size_to_human_string(SIZE_SUFFIX_1LETTER,
-+					    msgdata->q_qbytes));
-+	printf(_("\tqnum=%jd\tlspid=%d\tlrpid=%d\n"),
-+	       msgdata->q_qnum,
- 	       msgdata->q_lspid, msgdata->q_lrpid);
- 	printf(_("send_time=%-26.24s\n"),
- 	       msgdata->q_stime ? ctime(&msgdata->q_stime) : _("Not set"));
+-	rc = *consoles ? 0 : 1;
++	rc = list_empty(consoles) ? 1 : 0;
+ done:
+ 	if (dir)
+ 		closedir(dir);
+@@ -435,7 +440,7 @@ done:
+ 	return rc;
+ }
+ 
+-static int detect_consoles_from_tiocgdev(struct console **consoles,
++static int detect_consoles_from_tiocgdev(struct list_head *consoles,
+ 					int fallback,
+ 					const char *device)
+ {
+@@ -445,6 +450,7 @@ static int detect_consoles_from_tiocgdev(struct console **consoles,
+ 	int rc = 1, fd = -1;
+ 	dev_t comparedev;
+ 	DIR *dir = NULL;
++	struct console *console;
+ 
+ 	DBG(dbgprint("trying tiocgdev"));
+ 
+@@ -478,12 +484,16 @@ static int detect_consoles_from_tiocgdev(struct console **consoles,
+ 		}
+ 	}
+ 	rc = append_console(consoles, name);
++	free(name);
+ 	if (rc < 0)
+ 		goto done;
+-	if (*consoles &&  (!device || !*device))
+-		(*consoles)->fd = fallback;
+-
+-	rc = *consoles ? 0 : 1;
++	if (list_empty(consoles)) {
++		rc = 1;
++		goto done;
++	}
++	console = list_entry(consoles->prev, struct console, entry);
++	if (console &&  (!device || !*device))
++		console->fd = fallback;
+ done:
+ 	if (fd >= 0)
+ 		close(fd);
+@@ -503,7 +513,7 @@ done:
+  * Returns 1 if stdout and stderr should be reconnected and 0
+  * otherwise or less than zero on error.
+  */
+-int detect_consoles(const char *device, int fallback, struct console **consoles)
++int detect_consoles(const char *device, int fallback, struct list_head *consoles)
+ {
+ 	int fd, reconnect = 0, rc;
+ 	dev_t comparedev = 0;
+@@ -581,10 +591,11 @@ int detect_consoles(const char *device, int fallback, struct console **consoles)
+ 
+ 		if (name) {
+ 			rc = append_console(consoles, name);
++			free(name);
+ 			if (rc < 0)
+ 				return rc;
+ 		}
+-		if (!*consoles)
++		if (list_empty(consoles))
+ 			goto fallback;
+ 
+ 		DBG(dbgprint("detection success [rc=%d]", reconnect));
+@@ -632,7 +643,7 @@ console:
+ 	if (rc < 0)
+ 		return rc;		/* fatal error */
+ 
+-	if (*consoles) {
++	if (!list_empty(consoles)) {
+ 		DBG(dbgprint("detection success [rc=%d]", reconnect));
+ 		return reconnect;
+ 	}
+@@ -642,6 +653,7 @@ console:
+ fallback:
+ 	if (fallback >= 0) {
+ 		const char *name;
++		struct console *console;
+ 
+ 		if (device && *device != '\0')
+ 			name = device;
+@@ -653,8 +665,11 @@ fallback:
+ 		rc = append_console(consoles, strdup(name));
+ 		if (rc < 0)
+ 			return rc;
+-		if (*consoles)
+-			(*consoles)->fd = fallback;
++		if (list_empty(consoles))
++			return 1;
++		console = list_entry(consoles->prev, struct console, entry);
++		if (console)
++			console->fd = fallback;
+ 	}
+ 
+ 	DBG(dbgprint("detection done by fallback [rc=%d]", reconnect));
+@@ -667,7 +682,7 @@ int main(int argc, char *argv[])
+ {
+ 	char *name = NULL;
+ 	int fd, re;
+-	struct console *p, *consoles = NULL;
++	struct list_head *p, consoles = {&consoles, &consoles};
+ 
+ 	if (argc == 2) {
+ 		name = argv[1];
+@@ -682,8 +697,10 @@ int main(int argc, char *argv[])
+ 
+ 	re = detect_consoles(name, fd, &consoles);
+ 
+-	for (p = consoles; p; p = p->next)
+-		printf("%s: id=%d %s\n", p->tty, p->id, re ? "(reconnect) " : "");
++	list_for_each(p, &consoles) {
++		struct console *c = list_entry(p, struct console, entry);
++		printf("%s: id=%d %s\n", c->tty, c->id, re ? "(reconnect) " : "");
++	}
+ 
+ 	return 0;
+ }
 -- 
-1.8.0.1
+1.7.10.4
 
