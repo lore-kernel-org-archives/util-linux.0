@@ -1,47 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hosting.adsl24.co.uk ([84.234.17.171]:53763 "EHLO
-	hosting.adsl24.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030221Ab2LHTqE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Dec 2012 14:46:04 -0500
-Date: Sat, 8 Dec 2012 19:46:41 +0000
-From: Alun <alun.linux@ty-penguin.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: kzak@redhat.com, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add option to fsfreeze to call syncfs() prior to
- freezing.
-Message-ID: <20121208194641.3efe5087@aspire.ty-penguin.org.uk>
-In-Reply-To: <20121208124743.GA18956@infradead.org>
-References: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
-	<20121207124415.GA28504@infradead.org>
-	<20121207125032.6f4a0fea@pcebbj.staff.aber.ac.uk>
-	<20121208124743.GA18956@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mx1.redhat.com ([209.132.183.28]:47885 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751046Ab2LJJGR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Dec 2012 04:06:17 -0500
+Date: Mon, 10 Dec 2012 10:06:07 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/3] ipcs: add --human readable size conversion option
+Message-ID: <20121210090607.GB21405@x2.net.home>
+References: <1355087316-12422-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1355087316-12422-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, 8 Dec 2012 07:47:43 -0500
-Christoph Hellwig <hch@infradead.org> wrote:
+On Sun, Dec 09, 2012 at 09:08:34PM +0000, Sami Kerola wrote:
+> +.B \-\-human
+> +Show print sizes in human readable format (e.g., 1K 234M 2G).
 
-> On Fri, Dec 07, 2012 at 12:50:32PM +0000, Alun wrote:
-> > Christoph Hellwig <hch@infradead.org> said, in message
-> > 20121207124415.GA28504@infradead.org:
-> > > 
-> > > It might be better to send a kernel patch to do a first async sync
-> > > attempt instead of band aiding this in one of the consumers.
-> > 
-> > That's what I did originally - see
-> > http://marc.info/?t=135474654500003&r=1&w=2
-> 
-> So let's keep the discussion there, if you do exactly the same call
-> from userspace the same arguments still apply.
+ Nice idea, but what about create any smart function to print the
+ stuff to avoid all the "if (unit == UNIT_DEFAULT) else" in the code?
 
-I'm out of my depth when it comes to the politics of all this. So I
-think I'm going to bow out now. I'd already got the solution to my
-specific issue (write a tiny "syncfs" program and call it from my
-script prior to taking a snapshot). While I'd like to try and help
-others avoid the same pitfall as me, I'm not motivated enough to
-blunder any further into this disagreement.
+> +		if (unit == UNIT_DEFAULT)
+> +			printf(_("max seg size (kbytes) = %ju\n"),
+> +			       lim.shmmax / 1024);
+> +		else if (unit == UNIT_HUMAN)
+> +			printf(_("max seg size = %s\n"),
+> +			       size_to_human_string(SIZE_SUFFIX_1LETTER,
+> +						    lim.shmmax));
 
-Cheers,
-Alun.
+ ipc_print(IPC_UNIT_KB, _("max seg size), lim.shmmax, "\n");
+
+(append " (bytes) = " if there is not "=" at the end of the string)
+
+> @@ -560,8 +632,17 @@ void print_msg(int msgid)
+>  	       msgdata->msg_perm.uid, msgdata->msg_perm.uid,
+>  	       msgdata->msg_perm.cuid, msgdata->msg_perm.cgid,
+>  	       msgdata->msg_perm.mode);
+> -	printf(_("cbytes=%jd\tqbytes=%jd\tqnum=%jd\tlspid=%d\tlrpid=%d\n"),
+> -	       msgdata->q_cbytes, msgdata->q_qbytes, msgdata->q_qnum,
+> +	if (unit == UNIT_DEFAULT)
+> +		printf(_("cbytes=%jd\tqbytes=%jd"), msgdata->q_cbytes,
+> +		       msgdata->q_qbytes);
+
+  ipc_print(IPC_UNIT_B, "cbytes=", msgdata->q_cbytes, "\t");
+  ipc_print(IPC_UNIT_B, "qbytes=", msgdata->q_qbytes, NULL);
+
+ ... or so.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
