@@ -1,39 +1,49 @@
 Return-Path: mail@bernhard-voelker.de
-Message-ID: <50D79EBD.2070705@bernhard-voelker.de>
-Date: Mon, 24 Dec 2012 01:15:57 +0100
+Date: Mon, 10 Dec 2012 09:58:34 +0100 (CET)
 From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
+Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
 To: Karel Zak <kzak@redhat.com>
-CC: Dave Reisner <dreisner@archlinux.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Require explicit call to emergency_do_mounts
-References: <1356277410-29666-1-git-send-email-dreisner@archlinux.org> <20121223220335.GC25576@x2.redhat.com>
-In-Reply-To: <20121223220335.GC25576@x2.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Message-ID: <1203571747.166876.1355129914909.JavaMail.open-xchange@email.1und1.de>
+In-Reply-To: <20121210084250.GA21405@x2.net.home>
+References: <50C4CFDD.1070405@bernhard-voelker.de> <20121210084250.GA21405@x2.net.home>
+Subject: Re: blkid: exit code as non-root user, and segfault
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On 12/23/2012 11:03 PM, Karel Zak wrote:
->  Ah, I've been faster then my fetchmail -- so I have pushed a
->  little different patch.
 
-Hi Karel,
+On December 10, 2012 at 9:42 AM Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Dec 09, 2012 at 06:52:29PM +0100, Bernhard Voelker wrote:
+> > blkid returns 0 without output when running as non-root user
+> > and when the cache /dev/.blkid.tab is not yet there:
+> >
+> >   ./blkid /dev/sdb3 ; echo $?
+> >   0
+>
+> ./blkid /dev/sdb3; echo $?2
+> 2
 
-I got a build error, because there's no make rule for
-include/consoles.h. I didn't check if this is the correct
-fix, but the following "just worked". ;-)
+Typo? "$?2" should lead to "02".
 
+It really exits 0 here, when run as non-root user and when
+/dev/.blkid.tab doesn't exist yet.
 
-diff --git a/include/Makemodule.am b/include/Makemodule.am
-index 4091896..bef118f 100644
---- a/include/Makemodule.am
-+++ b/include/Makemodule.am
-@@ -8,7 +8,6 @@ dist_noinst_HEADERS += \
-        include/canonicalize.h \
-        include/carefulputc.h \
-        include/closestream.h \
--       include/consoles.h \
-        include/cpuset.h \
-        include/crc32.h \
-        include/env.h \
+> > And another issue: blkid segfaults with this - okay, bad use of options:
+> >
+> >   ./blkid -n /dev/sdb3
+> >   Segmentation fault
+>
+>  Fixed by:
+...
+> > Using latest git; it doesn't dump core with 2.20.1.
+>
+>  Really latest? ;-)
+
+Yes, now (forgot make after pull, sorry) ;-)
+
+Ok, that means the segfault is fixed, but the above
+issue is still there.
 
 Have a nice day,
 Berny
