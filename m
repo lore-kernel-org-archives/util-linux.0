@@ -1,31 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender1.zohomail.com ([72.5.230.95]:27269 "EHLO
-	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932134Ab2L1Tfs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Dec 2012 14:35:48 -0500
-Message-ID: <50DDF41D.9030805@zoho.com>
-Date: Fri, 28 Dec 2012 20:33:49 +0100
-From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
+Received: from mx1.redhat.com ([209.132.183.28]:6451 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753084Ab2LMMbv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 13 Dec 2012 07:31:51 -0500
+Date: Thu, 13 Dec 2012 13:31:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.22.2
+Message-ID: <20121213123149.GB14601@x2.net.home>
+References: <20121213120818.GA14601@x2.net.home>
 MIME-Version: 1.0
-To: Neil Horman <nhorman@tuxdriver.com>
-CC: util-linux@vger.kernel.org, kerolasa@gmail.com, grawity@gmail.com,
-        Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH v2] sys-tools: Enhance unshare command to support the
- switching of namespaces
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com> <1356027729-26098-1-git-send-email-nhorman@tuxdriver.com> <50DD9695.4080507@zoho.com> <20121228161217.GA5325@neilslaptop.think-freely.org>
-In-Reply-To: <20121228161217.GA5325@neilslaptop.think-freely.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121213120818.GA14601@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->> There are also pid and user namespaces there, but support for those are
->> better handled in a different patch IMHO.
->>
-> I'm not really sure what you mean by a different patch here.  Why would I add
-> support for setns for other pid/uts namespaces in a different patch?
+On Thu, Dec 13, 2012 at 01:08:18PM +0100, Karel Zak wrote:
+> 
+> The util-linux release v2.22.2 is available at
+> 
+>   ftp://ftp.kernel.org/pub/linux/utils/util-linux/2.22
 
-Because unshare doesn't currently support launching processes in a new
-pid or user namespace. :)
+The correct link is:
+    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.22/
+
+ Karel
 
 
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
