@@ -1,121 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yh0-f53.google.com ([209.85.213.53]:47762 "EHLO
-	mail-yh0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752578Ab2LZTzm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Dec 2012 14:55:42 -0500
-Received: by mail-yh0-f53.google.com with SMTP id q11so1560338yhf.40
-        for <util-linux@vger.kernel.org>; Wed, 26 Dec 2012 11:55:41 -0800 (PST)
-From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:57728 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752637Ab2LPKom (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Dec 2012 05:44:42 -0500
+Received: by mail-wi0-f180.google.com with SMTP id hj13so1401256wib.1
+        for <util-linux@vger.kernel.org>; Sun, 16 Dec 2012 02:44:41 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
-Subject: [PATCH 2/2] bitops: support other OS too
-Date: Wed, 26 Dec 2012 16:54:25 -0300
-Message-Id: <1356551665-574-1-git-send-email-crrodriguez@opensuse.org>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 12/14] docs: add missing exit value to fsck.minix(8)
+Date: Sun, 16 Dec 2012 10:44:00 +0000
+Message-Id: <1355654642-22106-13-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+References: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger pointed that applying:
+And remove references to manual pages which has not been part of commonly
+used distributions for a while.
 
-[PATCH] include/bitops.h: Use the operating system byteswapping
-functions
-
-Would cause incompatibilities with non-linux OS, this patch address
-the concerns.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- configure.ac     |  3 +++
- include/bitops.h | 64 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 66 insertions(+), 1 deletion(-)
+ disk-utils/fsck.minix.8 | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 9c08fc0..b3c30f5 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -191,6 +191,9 @@ AC_CHECK_HEADERS([ \
- 	stdint.h \
- 	stdio_ext.h \
- 	stdlib.h \
-+	endian.h \
-+	byteswap.h \
-+	sys/endian.h \
- 	sys/disk.h \
- 	sys/disklabel.h \
- 	sys/file.h \
-diff --git a/include/bitops.h b/include/bitops.h
-index 89b418c..ed17ed2 100644
---- a/include/bitops.h
-+++ b/include/bitops.h
-@@ -8,8 +8,70 @@
-  */
- #include <sys/param.h>
- 
-+#if defined(HAVE_BYTESWAP_H)
- #include <byteswap.h>
--#include <endian.h>
-+#else
-+#define bswap_16(x) ((((x) & 0x00FF) << 8) | (((x) & 0xFF00) >> 8))
-+
-+#define bswap_32(x) ((((x) & 0x000000FF) << 24) | (((x) & 0x0000FF00) << 8) | (((x) & 0x00FF0000) >> 8) | (((x) & 0xFF000000) >> 24))
-+
-+#define bswap_64(x) ((((x) & 0x00000000000000FFULL) << 56) | \
-+                     (((x) & 0x000000000000FF00ULL) << 40) | \
-+                     (((x) & 0x0000000000FF0000ULL) << 24) | \
-+                     (((x) & 0x00000000FF000000ULL) << 8) | \
-+                     (((x) & 0x000000FF00000000ULL) >> 8) | \
-+                     (((x) & 0x0000FF0000000000ULL) >> 24) | \
-+                     (((x) & 0x00FF000000000000ULL) >> 40) | \
-+                     (((x) & 0xFF00000000000000ULL) >> 56))
-+#endif
-+
-+
-+#if defined(HAVE_ENDIAN_H)
-+#  include <endian.h>
-+/* BSDs have them here */
-+#elif defined(HAVE_SYS_ENDIAN_H)
-+#  include <sys/endian.h>
-+#endif
-+
-+#if defined(__OpenBSD__)
-+#  include <sys/types.h>
-+#  define be16toh(x) betoh16(x)
-+#  define be32toh(x) betoh32(x)
-+#  define be64toh(x) betoh64(x)
-+#endif
-+
-+/* Still no definitions ? bad OS (windows or others)! */
-+#ifndef htobe16
-+
-+# if !defined(WORDS_BIGENDIAN)
-+#  define htobe16(x) bswap_16 (x)
-+#  define htole16(x) (x)
-+#  define be16toh(x) bswap_16 (x)
-+#  define le16toh(x) (x)
-+#  define htobe32(x) bswap_32 (x)
-+#  define htole32(x) (x)
-+#  define be32toh(x) bswap_32 (x)
-+#  define le32toh(x) (x)
-+#  define htobe64(x) bswap_64 (x)
-+#  define htole64(x) (x)
-+#  define be64toh(x) bswap_64 (x)
-+#  define le64toh(x) (x)
-+# else
-+#  define htobe16(x) (x)
-+#  define htole16(x) bswap_16 (x)
-+#  define be16toh(x) (x)
-+#  define le16toh(x) bswap_16 (x)
-+#  define htobe32(x) (x)
-+#  define htole32(x) bswap_32 (x)
-+#  define be32toh(x) (x)
-+#  define le32toh(x) bswap_32 (x)
-+#  define htobe64(x) (x)
-+#  define htole64(x) bswap_64 (x)
-+#  define be64toh(x) (x)
-+#  define le64toh(x) bswap_64 (x)
-+# endif
-+
-+#endif
- 
- #ifndef NBBY
- # define NBBY            CHAR_BIT
+diff --git a/disk-utils/fsck.minix.8 b/disk-utils/fsck.minix.8
+index e84b82b..4458f09 100644
+--- a/disk-utils/fsck.minix.8
++++ b/disk-utils/fsck.minix.8
+@@ -79,14 +79,10 @@ Force a filesystem check even if the filesystem was marked as valid (this
+ marking is done by the kernel when the filesystem is unmounted).
+ .SH "SEE ALSO"
+ .BR fsck (8),
+-.BR fsck.ext (8),
+ .BR fsck.ext2 (8),
+-.BR fsck.xiafs (8),
+ .BR mkfs (8),
+ .BR mkfs.minix (8),
+-.BR mkfs.ext (8),
+ .BR mkfs.ext2 (8),
+-.BR mkfs.xiafs (8),
+ .BR reboot (8)
+ .SH DIAGNOSTICS
+ There are numerous diagnostic messages.  The ones mentioned here are the
+@@ -109,6 +105,8 @@ Filesystem errors corrected, system should be rebooted if filesystem was
+ mounted
+ .IP 4
+ Filesystem errors left uncorrected
++.IP 7
++Combination of exit codes 3 and 4
+ .IP 8
+ Operational error
+ .IP 16
 -- 
 1.8.0.2
 
