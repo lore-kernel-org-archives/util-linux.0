@@ -1,52 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:48802 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750922Ab2LSUT5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Dec 2012 15:19:57 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1TlQ7Y-00051c-4m
-	for util-linux@vger.kernel.org; Wed, 19 Dec 2012 21:20:04 +0100
-Received: from 78-60-211-195.static.zebra.lt ([78.60.211.195])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 19 Dec 2012 21:20:04 +0100
-Received: from grawity by 78-60-211-195.static.zebra.lt with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 19 Dec 2012 21:20:04 +0100
+Received: from mail-we0-f174.google.com ([74.125.82.174]:36643 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752614Ab2LPKoX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Dec 2012 05:44:23 -0500
+Received: by mail-we0-f174.google.com with SMTP id x10so2228563wey.19
+        for <util-linux@vger.kernel.org>; Sun, 16 Dec 2012 02:44:22 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: "Mantas M." <grawity@gmail.com>
-Subject: Re: [PATCH] sys-tools: Add setns utility to sys-tools
-Date: Wed, 19 Dec 2012 22:16:10 +0200
-Message-ID: <kat7a9$6pv$1@ger.gmane.org>
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-In-Reply-To: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/14] isosize: inform if file does not look like iso file system
+Date: Sun, 16 Dec 2012 10:43:54 +0000
+Message-Id: <1355654642-22106-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+References: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 2012-12-19 21:06, Neil Horman wrote:
-> ...
-> +.BR \-u\ <pid> , " \-\-uts=<pid>"
-> +Migrate to the uts namespace of <pid>
-> +.TP
-> +.BR \-i\ <pid> , " \-\-ipc=<pid>"
-> +Migrate to the ipc namespace of <pid>
-> +.TP
-> +.BR \-n\ <pid> , " \-\-net\<pid>"
-> +Migrate to the net namespace of <pid>
+$ isosize /dev/urandom
+isosize: /dev/urandom: might not be iso file system
+-67690643227260
 
-Wouldn't it be more useful to accept an arbitrary path, and just hand it
-to setns(2)? That way, the utility would automatically gain support for
-new namespace types (for example `setns /proc/$pid/ns/mount`), and would
-allow joining namespaces that are linked outside /proc.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/isosize.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-For example, I seem to remember someone saying that `mount --bind
-/proc/$pid/ns/net /tmp/foo-namespace` can be used to make that
-particular namespace persist even after the process quits. Then `setns
-/tmp/foo-namespace someprogram` could be used to join that namespace again.
-
+diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
+index 625dd42..5f1a297 100644
+--- a/disk-utils/isosize.c
++++ b/disk-utils/isosize.c
+@@ -32,6 +32,14 @@
+ 
+ #define ISODCL(from, to) (to - from + 1)
+ 
++static int is_iso(int fd)
++{
++	char label[8];
++	if (pread(fd, &label, 8, 0x8000) == -1)
++		return 1;
++	return memcmp(&label, &"\1CD001\1", 8);
++}
++
+ static int isonum_721(unsigned char *p)
+ {
+ 	return ((p[0] & 0xff)
+@@ -124,6 +132,8 @@ static void isosize(char *filenamep, int xflag, long divisor)
+ 
+ 	if ((fd = open(filenamep, O_RDONLY)) < 0)
+ 		err(EXIT_FAILURE, _("cannot open %s"), filenamep);
++	if (is_iso(fd))
++		warnx(_("%s: might not be iso file system"), filenamep);
+ 
+ 	if (lseek(fd, 16 << 11, 0) == (off_t) - 1)
+ 		err(EXIT_FAILURE, _("seek error on %s"), filenamep);
 -- 
-Mantas Mikulėnas <grawity@gmail.com>
+1.8.0.2
 
