@@ -1,135 +1,197 @@
-Return-Path: alun.linux@ty-penguin.org.uk
-Date: Fri, 7 Dec 2012 11:17:23 +0000
-From: Alun <alun.linux@ty-penguin.org.uk>
-To: Alun <alun.linux@ty-penguin.org.uk>
-Cc: kzak@redhat.com, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add option to fsfreeze to call syncfs() prior to
- freezing.
-Message-ID: <20121207111723.7cd3f1f8@pcebbj.staff.aber.ac.uk>
-In-Reply-To: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
-References: <20121207101400.5e46ba48@pcebbj.staff.aber.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20121219210110.GE4390@hmsreliant.think-freely.org>
+References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
+	<20121219210110.GE4390@hmsreliant.think-freely.org>
+Date: Wed, 19 Dec 2012 23:15:13 +0000
+Message-ID: <CAG27Bk3b0wgYc9P1fHihW_EUAfzqR-+WnMzR6AgssCiVZDYzGg@mail.gmail.com>
+Subject: Re: [PATCH] sys-tools: Add setns utility to sys-tools
+From: Sami Kerola <kerolasa@iki.fi>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>, grawity@gmail.com
+Content-Type: multipart/mixed; boundary=20cf307ca1445e33ac04d13cc9d0
 List-ID: <util-linux.vger.kernel.org>
 
-Dear all,
+--20cf307ca1445e33ac04d13cc9d0
+Content-Type: text/plain; charset=ISO-8859-1
 
-Very sorry - I made a small mistake in the previous patch, which
-resulted in syncfs() always being called rather than only when -s
-was specified.
+On Wed, Dec 19, 2012 at 9:01 PM, Neil Horman <nhorman@tuxdriver.com> wrote:
+>>>On 2012-12-19 21:06, Neil Horman wrote:
+>>> ...
+>>> +.BR \-u\ <pid> , " \-\-uts=<pid>"
+>>> +Migrate to the uts namespace of <pid>
+>>> +.TP
+>>> +.BR \-i\ <pid> , " \-\-ipc=<pid>"
+>>> +Migrate to the ipc namespace of <pid>
+>>> +.TP
+>>> +.BR \-n\ <pid> , " \-\-net\<pid>"
+>>> +Migrate to the net namespace of <pid>
+>>
+>>Wouldn't it be more useful to accept an arbitrary path, and just hand it
+>>to setns(2)? That way, the utility would automatically gain support for
+>>new namespace types (for example `setns /proc/$pid/ns/mount`), and would
+>>allow joining namespaces that are linked outside /proc.
+>>
+>>For example, I seem to remember someone saying that `mount --bind
+>>/proc/$pid/ns/net /tmp/foo-namespace` can be used to make that
+>>particular namespace persist even after the process quits. Then `setns
+>>/tmp/foo-namespace someprogram` could be used to join that namespace again.
+>
+> Yeah, that makes sense, I'll respin this tomorrow, and repost.  I'm also going
+> to batch the namespace switches, by opening all the file descriptors first, then
+> calling setns on them.  It was pointed out to me by doing them one by one like
+> this, if you setns the mount namespace you might loose access to the paths that
+> were specified.
 
-Signed-off-by: Alun Jones <alun.linux@ty-penguin.org.uk>
+Hi Neil, and others,
 
-diff --git a/sys-utils/fsfreeze.8 b/sys-utils/fsfreeze.8
-index 7693861..0d73afe 100644
---- a/sys-utils/fsfreeze.8
-+++ b/sys-utils/fsfreeze.8
-@@ -1,5 +1,5 @@
- .\" -*- nroff -*-
--.TH FSFREEZE 8 "May 2010" "util-linux" "System Administration"
-+.TH FSFREEZE 8 "December 2012" "util-linux" "System Administration"
- .SH NAME
- fsfreeze \- suspend access to a filesystem (Linux Ext3/4, ReiserFS, JFS, XFS)
- .SH SYNOPSIS
-@@ -9,6 +9,9 @@ fsfreeze \- suspend access to a filesystem (Linux Ext3/4, ReiserFS, JFS, XFS)
- .B fsfreeze \-u
- .I mountpoint
- 
-+.B fsfreeze \-s
-+.I mountpoint
-+
- .SH DESCRIPTION
- .B fsfreeze
- suspends and resumes access to an filesystem
-@@ -53,6 +56,14 @@ or a clean mount of the snapshot is complete.
- This option is used to un-freeze the filesystem and allow operations to
- continue.  Any filesystem modifications that were blocked by the freeze are
- unblocked and allowed to complete.
-+.IP "\fB\-s, \-\-sync\fP
-+This option, if specified, will cause fsfreeze to call syncfs() on the 
-+filesystem. It can be combined with -f to force dirty data to be written prior
-+to the freeze operation. On a filesystem with heavy write load, adding this
-+option will very likely reduce the time during which writes are suspended,
-+at the cost of a delay before suspending writes. Therefore, if it's critical
-+to reduce the time for which the filesystem is frozen, use this option; if 
-+it's critical to freeze the filesystem at a specific moment, don't use it.
- .SH AUTHOR
- .PP
- Written by Hajime Taira.
-diff --git a/sys-utils/fsfreeze.c b/sys-utils/fsfreeze.c
-index 7161442..6e8fc82 100644
---- a/sys-utils/fsfreeze.c
-+++ b/sys-utils/fsfreeze.c
-@@ -44,6 +44,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 
- 	fputs(_("\nOptions:\n"), out);
- 	fputs(_(" -h, --help        this help\n"
-+		" -s, --sync        sync the filesystem\n"
- 		" -f, --freeze      freeze the filesystem\n"
- 		" -u, --unfreeze    unfreeze the filesystem\n"), out);
- 
-@@ -56,6 +57,7 @@ int main(int argc, char **argv)
- {
- 	int fd = -1, c;
- 	int freeze = -1, rc = EXIT_FAILURE;
-+	int dosync = -1;
- 	char *path;
- 	struct stat sb;
- 
-@@ -63,6 +65,7 @@ int main(int argc, char **argv)
- 	    { "help",      0, 0, 'h' },
- 	    { "freeze",    0, 0, 'f' },
- 	    { "unfreeze",  0, 0, 'u' },
-+	    { "sync",      0, 0, 's' },
- 	    { NULL,        0, 0, 0 }
- 	};
- 
-@@ -71,7 +74,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
- 
--	while ((c = getopt_long(argc, argv, "hfu", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "hfus", longopts, NULL)) != -1) {
- 		switch(c) {
- 		case 'h':
- 			usage(stdout);
-@@ -82,13 +85,16 @@ int main(int argc, char **argv)
- 		case 'u':
- 			freeze = FALSE;
- 			break;
-+		case 's':
-+			dosync = TRUE;
-+			break;
- 		default:
- 			usage(stderr);
- 			break;
- 		}
- 	}
- 
--	if (freeze == -1)
-+	if (freeze == -1 && dosync == -1)
- 		errx(EXIT_FAILURE, _("no action specified"));
- 	if (optind == argc)
- 		errx(EXIT_FAILURE, _("no filename specified"));
-@@ -113,12 +119,19 @@ int main(int argc, char **argv)
- 		goto done;
- 	}
- 
--	if (freeze) {
-+	if (dosync == TRUE) {
-+		if (syncfs(fd)) {
-+			warn(_("%s: syncfs failed"), path);
-+			goto done;
-+		}
-+	}
-+
-+	if (freeze == TRUE) {
- 		if (freeze_f(fd)) {
- 			warn(_("%s: freeze failed"), path);
- 			goto done;
- 		}
--	} else {
-+	} else if (freeze == FALSE) {
- 		if (unfreeze_f(fd)) {
- 			warn(_("%s: unfreeze failed"), path);
- 			goto done;
+I reviewed patch, and altered it to match with util-linux
+Documentation/howto-* stuff. While doing that I notice two bugs. Short
+option made cores to be dropped, as the long option index was zero.
+The command also tried to parse options of command it later executed.
+Short option string got + character to fix that. I also included man
+page to be part of distribution package.
+
+p.s. See attachent for the modified patch. I know I should in-line it,
+but the gmail is not making it easy.
+
+-- 
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
+
+--20cf307ca1445e33ac04d13cc9d0
+Content-Type: text/plain; charset=US-ASCII; name="0001-setns-add-new-command.txt"
+Content-Disposition: attachment; filename="0001-setns-add-new-command.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hax2pv640
+
+RnJvbSA2MzJjN2UxNmExOTljMDUzZjk0NzA5YWI1ZTAwZDM1MzFiODZlMDgxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBOZWlsIEhvcm1hbiA8bmhvcm1hbkB0dXhkcml2ZXIuY29tPgpE
+YXRlOiBXZWQsIDE5IERlYyAyMDEyIDE0OjA2OjQ2IC0wNTAwClN1YmplY3Q6IFtQQVRDSF0gc2V0
+bnM6IGFkZCBuZXcgY29tbWFuZApPcmdhbml6YXRpb246IExhc3RtaW51dGUuY29tCgpMaWtlIHRo
+ZSB1bnNoYXJlIGNvbW1hbmQsIHdoaWNoIGxldHMgYSB1c2VyIGZyb20gdGhlIGNvbW1hbmQgbGlu
+ZSBkZXRhY2gKZnJvbSBzcGVjaWZpYyBuYW1lc3BhY2VzIG9mIHRoZSBwYXJlbnQgcHJvY2Vzcywg
+YW5kIGV4ZWN1dGUgYSBjb21tYW5kLApzZXRucyBwcm92aWRlcyBhIGZyb250ZW5kIHRvIHRoZSBz
+ZXRucygyKSBzeXNjYWxsLCB3aGljaCBhbGxvd3MgYSB1c2VyIHRvCm1pZ3JhdGUgYSBwcm9jZXNz
+IHRvIHRoZSBuYW1lc3BhY2VzIG9mIG90aGVyIHByb2Nlc3NlcywgcHJpb3IgdG8gY2FsbGluZwpl
+eGVjIG9uIGEgY29tbWFuZC4KCkNDOiBLYXJlbCBaYWsgPGt6YWtAcmVkaGF0LmNvbT4KUmV2aWV3
+ZWQtYnk6IFNhbWkgS2Vyb2xhIDxrZXJvbGFzYUBpa2kuZmk+ClNpZ25lZC1vZmYtYnk6IE5laWwg
+SG9ybWFuIDxuaG9ybWFuQHR1eGRyaXZlci5jb20+Ci0tLQogLmdpdGlnbm9yZSAgICAgICAgICAg
+ICAgfCAgIDEgKwogY29uZmlndXJlLmFjICAgICAgICAgICAgfCAgMTEgKysrKysKIHN5cy11dGls
+cy9NYWtlbW9kdWxlLmFtIHwgICA3ICsrKwogc3lzLXV0aWxzL3NldG5zLjEgICAgICAgfCAgNTEg
+KysrKysrKysrKysrKysrKysrKwogc3lzLXV0aWxzL3NldG5zLmMgICAgICAgfCAxMjcgKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiA1IGZpbGVzIGNoYW5n
+ZWQsIDE5NyBpbnNlcnRpb25zKCspCiBjcmVhdGUgbW9kZSAxMDA2NDQgc3lzLXV0aWxzL3NldG5z
+LjEKIGNyZWF0ZSBtb2RlIDEwMDY0NCBzeXMtdXRpbHMvc2V0bnMuYwoKZGlmZiAtLWdpdCBhLy5n
+aXRpZ25vcmUgYi8uZ2l0aWdub3JlCmluZGV4IGU4NWViMDcuLjYzZjc3YzMgMTAwNjQ0Ci0tLSBh
+Ly5naXRpZ25vcmUKKysrIGIvLmdpdGlnbm9yZQpAQCAtMTQ2LDYgKzE0Niw3IEBAIHRlc3RzL3J1
+bi5zaC50cnMKIC9zY3JpcHQKIC9zY3JpcHRyZXBsYXkKIC9zZXRhcmNoCisvc2V0bnMKIC9zZXRz
+aWQKIC9zZXR0ZXJtCiAvc2ZkaXNrCmRpZmYgLS1naXQgYS9jb25maWd1cmUuYWMgYi9jb25maWd1
+cmUuYWMKaW5kZXggOWMwOGZjMC4uODI5NTk0ZCAxMDA2NDQKLS0tIGEvY29uZmlndXJlLmFjCisr
+KyBiL2NvbmZpZ3VyZS5hYwpAQCAtODYyLDYgKzg2MiwxNyBAQCBpZiB0ZXN0ICJ4JGJ1aWxkX3Vu
+c2hhcmUiID0geHllczsgdGhlbgogICBBQ19DSEVDS19GVU5DUyhbdW5zaGFyZV0pCiBmaQogCitB
+Q19BUkdfRU5BQkxFKFtzZXRuc10sCisgIEFTX0hFTFBfU1RSSU5HKFstLWRpc2FibGUtc2V0bnNd
+LCBbZG8gbm90IGJ1aWxkIHNldG5zXSksCisgIFtdLCBlbmFibGVfdW5zaGFyZT1jaGVjaworKQor
+VUxfQlVJTERfSU5JVChbc2V0bnNdKQorVUxfUkVRVUlSRVNfTElOVVgoW3NldG5zXSkKK1VMX1JF
+UVVJUkVTX1NZU0NBTExfQ0hFQ0soW3NldG5zXSwgW1VMX0NIRUNLX1NZU0NBTEwoW3NldG5zXSld
+KQorQU1fQ09ORElUSU9OQUwoQlVJTERfU0VUTlMsIHRlc3QgIngkYnVpbGRfc2V0bnMiID0geHll
+cykKK2lmIHRlc3QgIngkYnVpbGRfc2V0bnMiID0geHllczsgdGhlbgorICBBQ19DSEVDS19GVU5D
+Uyhbc2V0bnNdKQorZmkKIAogQUNfQVJHX0VOQUJMRShbYXJjaF0sCiAgIEFTX0hFTFBfU1RSSU5H
+KFstLWVuYWJsZS1hcmNoXSwgW2RvIGJ1aWxkIGFyY2hdKSwKZGlmZiAtLWdpdCBhL3N5cy11dGls
+cy9NYWtlbW9kdWxlLmFtIGIvc3lzLXV0aWxzL01ha2Vtb2R1bGUuYW0KaW5kZXggMzMxMTJmYi4u
+ZTUxN2M5MyAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL01ha2Vtb2R1bGUuYW0KKysrIGIvc3lzLXV0
+aWxzL01ha2Vtb2R1bGUuYW0KQEAgLTI4Myw2ICsyODMsMTMgQEAgZGlzdF9tYW5fTUFOUyArPSBz
+eXMtdXRpbHMvc3dpdGNoX3Jvb3QuOAogc3dpdGNoX3Jvb3RfU09VUkNFUyA9IHN5cy11dGlscy9z
+d2l0Y2hfcm9vdC5jCiBlbmRpZgogCitpZiBCVUlMRF9TRVROUwordXNyYmluX2V4ZWNfUFJPR1JB
+TVMgKz0gc2V0bnMKK3NldG5zX1NPVVJDRVMgPSBzeXMtdXRpbHMvc2V0bnMuYworc2V0bnNfTERB
+REQgPSAkKExEQUREKSBsaWJjb21tb24ubGEKK2Rpc3RfbWFuX01BTlMgKz0gc3lzLXV0aWxzL3Nl
+dG5zLjEKK2VuZGlmCisKIGlmIEJVSUxEX1VOU0hBUkUKIHVzcmJpbl9leGVjX1BST0dSQU1TICs9
+IHVuc2hhcmUKIGRpc3RfbWFuX01BTlMgKz0gc3lzLXV0aWxzL3Vuc2hhcmUuMQpkaWZmIC0tZ2l0
+IGEvc3lzLXV0aWxzL3NldG5zLjEgYi9zeXMtdXRpbHMvc2V0bnMuMQpuZXcgZmlsZSBtb2RlIDEw
+MDY0NAppbmRleCAwMDAwMDAwLi43ZTQ5MmZmCi0tLSAvZGV2L251bGwKKysrIGIvc3lzLXV0aWxz
+L3NldG5zLjEKQEAgLTAsMCArMSw1MSBAQAorLlRIIFNFVE5TIDEgIkRlY2VtYmVyIDIwMTIiICJ1
+dGlsLWxpbnV4IiAiVXNlciBDb21tYW5kcyIKKy5TSCBOQU1FCitzZXRucyBcLSBydW4gcHJvZ3Jh
+bSB3aXRoIG5hbWVzcGFjZXMgb2YgYW5vdGhlciBwcm9jZXNzCisuU0ggU1lOT1BTSVMKKy5CIHNl
+dG5zCisuUkkgWyBvcHRpb25zIF0KK3Byb2dyYW0KKy5SSSBbIGFyZ3VtZW50cyBdCisuU0ggREVT
+Q1JJUFRJT04KK01pZ3JhdGVzIHRvIHRoZSBuYW1lc3BhY2VzIG9mIHRoZSBzcGVjaWZpZWQgcGlk
+L1w6bmFtZXNwYWNlIHBhaXJzLCBhbmQgZXhlY3V0ZXMKK2EgY2hpbGQgcHJvY2Vzcy4KKy5TSCBP
+UFRJT05TCisuVFAKK1xmQlwtdVxmUiwgXGZCXC1cLXV0c1xmUiBcZklwaWRcZlIKK01pZ3JhdGUg
+dG8gdGhlCisuQiB1dHMKK25hbWVzcGFjZSBvZgorLklSIHBpZCAuCisuVFAKK1xmQlwtaVxmUiwg
+XGZCXC1cLWlwY1xmUiBcZklwaWRcZlIKK01pZ3JhdGUgdG8gdGhlCisuQiBpcGMKK25hbWVzcGFj
+ZSBvZgorLklSIHBpZCAuCisuVFAKK1xmQlwtblxmUiwgXGZCXC1cLW5ldFxmUiBcZklwaWRcZlIK
+K01pZ3JhdGUgdG8gdGhlCisuQiBuZXQKK25hbWVzcGFjZSBvZgorLklSIHBpZCAuCisuVFAKK1xm
+QlwtVlxmUiwgXGZCXC1cLXZlcnNpb25cZlIKK0Rpc3BsYXkgdmVyc2lvbiBpbmZvcm1hdGlvbiBh
+bmQgZXhpdC4KKy5UUAorXGZCXC1oXGZSLCBcZkJcLVwtaGVscFxmUgorRGlzcGxheSBoZWxwIGFu
+ZCBleGl0LgorLlNIIFNFRSBBTFNPCisuQlIgdW5zaGFyZSAoMiksCisuQlIgc2V0bnMgKDIpLAor
+LkJSIGNsb25lICgyKSwKKy5VUiBodHRwOi8vbHduLm5ldFw6L0FydGljbGVzXDovNDA3NDk1Lwor
+LlVFCisuU0ggQVVUSE9SCisuTVQgbmhvcm1hbkB0dXhkcml2ZXIuY29tCitOZWlsIEhvcm1hbgor
+Lk1FCisuU0ggQVZBSUxBQklMSVRZCitUaGUgc2V0bnMgY29tbWFuZCBpcyBwYXJ0IG9mIHRoZSB1
+dGlsLWxpbnV4IHBhY2thZ2UgYW5kIGlzIGF2YWlsYWJsZSBmcm9tCisuVVIgZnRwOi8vXDpmdHAu
+a2VybmVsLm9yZ1w6L3B1Ylw6L2xpbnV4XDovdXRpbHNcOi91dGlsLWxpbnV4LworTGludXggS2Vy
+bmVsIEFyY2hpdmUKKy5VRSAuCmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvc2V0bnMuYyBiL3N5cy11
+dGlscy9zZXRucy5jCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAuLjhhYzkzMDkK
+LS0tIC9kZXYvbnVsbAorKysgYi9zeXMtdXRpbHMvc2V0bnMuYwpAQCAtMCwwICsxLDEyNyBAQAor
+LyoKKyAqIHNldG5zIC0gY29tbWFuZC1saW5lIGludGVyZmFjZSBmb3Igc2V0bnMoMikKKyAqCisg
+KiBDb3B5cmlnaHQgKEMpIDIwMTIgTmVpbCBIb3JtYW4gPG5ob3JtYW5AdHV4ZHJpdmVyLmNvbT4K
+KyAqCisgKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1
+dGUgaXQgYW5kL29yIG1vZGlmeSBpdAorICogdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2Vu
+ZXJhbCBQdWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQgYnkgdGhlCisgKiBGcmVlIFNvZnR3YXJl
+IEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIsIG9yIChhdCB5b3VyIG9wdGlvbikgYW55Cisg
+KiBsYXRlciB2ZXJzaW9uLgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0
+aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLCBidXQKKyAqIFdJVEhPVVQgQU5ZIFdBUlJB
+TlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YKKyAqIE1FUkNIQU5UQUJJ
+TElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUgR05VCisg
+KiBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCisgKgorICogWW91IHNo
+b3VsZCBoYXZlIHJlY2VpdmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
+c2UgYWxvbmcKKyAqIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVl
+IFNvZnR3YXJlIEZvdW5kYXRpb24sIEluYy4sCisgKiA1MSBGcmFua2xpbiBTdHJlZXQsIEZpZnRo
+IEZsb29yLCBCb3N0b24sIE1BIDAyMTEwLTEzMDEgVVNBLgorICovCisKKyNpbmNsdWRlIDxzdGRs
+aWIuaD4KKyNpbmNsdWRlIDxzdGRpby5oPgorI2luY2x1ZGUgPGxpbWl0cy5oPgorI2luY2x1ZGUg
+PHN5cy90eXBlcy5oPgorI2luY2x1ZGUgPHN5cy9zdGF0Lmg+CisjaW5jbHVkZSA8ZmNudGwuaD4K
+KyNpbmNsdWRlIDxnZXRvcHQuaD4KKyNpbmNsdWRlIDx1bmlzdGQuaD4KKyNpbmNsdWRlIDxzY2hl
+ZC5oPgorCisjaW5jbHVkZSAibmxzLmgiCisjaW5jbHVkZSAiYy5oIgorI2luY2x1ZGUgInN0cnV0
+aWxzLmgiCisjaW5jbHVkZSAieGFsbG9jLmgiCisKK3N0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18o
+KF9fbm9yZXR1cm5fXykpIHVzYWdlKEZJTEUgKm91dCkKK3sKKwlmcHV0cyhVU0FHRV9IRUFERVIs
+IG91dCk7CisJZnByaW50ZihvdXQsICIgJXMgW29wdGlvbnNdIFtjb21tYW5kXVxuIiwgcHJvZ3Jh
+bV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOworCWZwdXRzKFVTQUdFX09QVElPTlMsIG91dCk7CisJ
+ZnB1dHMoXygiIC1pLCAtLWlwYyA8cGlkPiAgIG1pZ3JhdGUgdG8gdGhlIGlwYyBuYW1lc3BhY2Vc
+biIpLCBvdXQpOworCWZwdXRzKF8oIiAtbiwgLS1uZXQgPHBpZD4gICBtaWdyYXRlIHRvIHRoZSBu
+ZXQgbmFtZXNwYWNlXG4iKSwgb3V0KTsKKwlmcHV0cyhfKCIgLXUsIC0tdXRzIDxwaWQ+ICAgbWln
+cmF0ZSB0byB0aGUgdXRzIG5hbWVzcGFjZVxuIiksIG91dCk7CisJZnB1dHMoVVNBR0VfU0VQQVJB
+VE9SLCBvdXQpOworCWZwdXRzKFVTQUdFX0hFTFAsIG91dCk7CisJZnB1dHMoVVNBR0VfVkVSU0lP
+Tiwgb3V0KTsKKwlmcHJpbnRmKG91dCwgVVNBR0VfTUFOX1RBSUwoInNldG5zKDEpIikpOworCWV4
+aXQob3V0ID09IHN0ZGVyciA/IEVYSVRfRkFJTFVSRSA6IEVYSVRfU1VDQ0VTUyk7Cit9CisKK3N0
+YXRpYyB2b2lkIHN3aXRjaF9uYW1lc3BhY2UoY29uc3QgY2hhciAqbmFtZSwgdW5zaWduZWQgbG9u
+ZyBwaWQpCit7CisJaW50IGZkOworCWNoYXIgKnBhdGg7CisKKwl4YXNwcmludGYoJnBhdGgsICIv
+cHJvYy8lbHUvbnMvJXMiLCBwaWQsIG5hbWUpOworCisJZmQgPSBvcGVuKHBhdGgsIE9fUkRPTkxZ
+KTsKKwlpZiAoZmQgPCAwKQorCQllcnIoRVhJVF9GQUlMVVJFLCBfKCJjYW5ub3Qgb3BlbiAlcyIp
+LCBwYXRoKTsKKworCWlmIChzZXRucyhmZCwgMCkgPCAwKQorCQllcnIoRVhJVF9GQUlMVVJFLCBf
+KCJzZXRucyBmYWlsZWQgZm9yICVzIG9uIHBpZCAlbHUiKSwgbmFtZSwgcGlkKTsKK30KKworaW50
+IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQoreworCWludCBvcHQ7CisJaW50IGV4ZWNpbmQg
+PSBhcmdjICsgMTsKKwl1bnNpZ25lZCBsb25nIHBpZDsKKwljb25zdCBjaGFyICp0YXJnZXQ7CisK
+KwlzdGF0aWMgY29uc3Qgc3RydWN0IG9wdGlvbiBsb3B0c1tdID0geworCQl7ImhlbHAiLCBub19h
+cmd1bWVudCwgTlVMTCwgJ2gnfSwKKwkJeyJ2ZXJzaW9uIiwgbm9fYXJndW1lbnQsIE5VTEwsICdW
+J30sCisJCXsiaXBjIiwgcmVxdWlyZWRfYXJndW1lbnQsIE5VTEwsICdpJ30sCisJCXsibmV0Iiwg
+cmVxdWlyZWRfYXJndW1lbnQsIE5VTEwsICduJ30sCisJCXsidXRzIiwgcmVxdWlyZWRfYXJndW1l
+bnQsIE5VTEwsICd1J30sCisJCXtOVUxMLCAwLCBOVUxMLCAwfQorCX07CisJZW51bSB7CisJCVNF
+VE5TX0lQQyA9IDAsCisJCVNFVE5TX05FVCwKKwkJU0VUTlNfVVRTCisJfTsKKwljb25zdCBjaGFy
+ICpzZXRuc190eXBlc1tdID0geworCQlbU0VUTlNfSVBDXSA9ICJpcGMiLAorCQlbU0VUTlNfTkVU
+XSA9ICJuZXQiLAorCQlbU0VUTlNfVVRTXSA9ICJ1dHMiCisJfTsKKworCXdoaWxlICgob3B0ID0g
+Z2V0b3B0X2xvbmcoYXJnYywgYXJndiwKKwkJCQkgICIraFZpOm46dToiLCBsb3B0cywgTlVMTCkp
+ICE9IC0xKSB7CisJCXN3aXRjaCAob3B0KSB7CisJCWNhc2UgJ2gnOgorCQkJdXNhZ2Uoc3Rkb3V0
+KTsKKwkJY2FzZSAnVic6CisJCQlwcmludGYoVVRJTF9MSU5VWF9WRVJTSU9OKTsKKwkJCXJldHVy
+biBFWElUX1NVQ0NFU1M7CisJCWNhc2UgJ2knOgorCQkJdGFyZ2V0ID0gc2V0bnNfdHlwZXNbU0VU
+TlNfSVBDXTsKKwkJCWdvdG8gcGFyc2Vfb3B0OworCQljYXNlICduJzoKKwkJCXRhcmdldCA9IHNl
+dG5zX3R5cGVzW1NFVE5TX05FVF07CisJCQlnb3RvIHBhcnNlX29wdDsKKwkJY2FzZSAndSc6CisJ
+CQl0YXJnZXQgPSBzZXRuc190eXBlc1tTRVROU19VVFNdOworIHBhcnNlX29wdDoKKwkJCXBpZCA9
+IHN0cnRvdWxfb3JfZXJyKG9wdGFyZywKKwkJCQkJICAgICBfKCJmYWlsZWQgdG8gcGFyc2UgYXJn
+dW1lbnQiKSk7CisJCQlzd2l0Y2hfbmFtZXNwYWNlKHRhcmdldCwgcGlkKTsKKwkJCWJyZWFrOwor
+CQlkZWZhdWx0OgorCQkJdXNhZ2Uoc3RkZXJyKTsKKwkJfQorCX0KKworCWlmIChvcHRpbmQgPT0g
+YXJnYykKKwkJZXJyeChFWElUX0ZBSUxVUkUsIF8oIm5vIGV4ZWN1dGFibGUgc3BlY2lmaWVkIikp
+OworCisJZXhlY2luZCA9IG9wdGluZDsKKworCWlmIChleGVjdnAoYXJndltleGVjaW5kXSwgJmFy
+Z3ZbZXhlY2luZF0pIDwgMCkKKwkJZXJyKEVYSVRfRkFJTFVSRSwgXygiZXhlY3V0aW5nICVzIGZh
+aWxlZCIpLCBhcmd2W2V4ZWNpbmRdKTsKKworCXJldHVybiBFWElUX1NVQ0NFU1M7Cit9Ci0tIAox
+LjguMC4yCgo=
+--20cf307ca1445e33ac04d13cc9d0--
