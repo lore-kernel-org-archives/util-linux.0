@@ -1,51 +1,64 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.186]:60474 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757114Ab2K3QOd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 30 Nov 2012 11:14:33 -0500
-Message-ID: <50B8DB65.60505@bernhard-voelker.de>
-Date: Fri, 30 Nov 2012 17:14:29 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [PATCH] libmount: avoid endless loop in, mnt_get_kernel_cmdline_option
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20121220092439.GA30947@x2.net.home>
+References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
+	<20121220092439.GA30947@x2.net.home>
+Date: Thu, 20 Dec 2012 11:17:49 +0000
+Message-ID: <CAG27Bk2BCnT0vMBShPPLQCCGJbj+Lgj9OajnCJmo_rrw1GFKdA@mail.gmail.com>
+Subject: Re: [PATCH] sys-tools: Add setns utility to sys-tools
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, util-linux@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->From 4ddf21607847570e1da3b692276f2a8242bd5af6 Mon Sep 17 00:00:00 2001
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Date: Fri, 30 Nov 2012 17:12:12 +0100
-Subject: [PATCH] libmount: avoid endless loop in
- mnt_get_kernel_cmdline_option
+On Thu, Dec 20, 2012 at 9:24 AM, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Dec 19, 2012 at 02:06:46PM -0500, Neil Horman wrote:
+>> Like the unshare command, which lets a user from the command line detach from
+>> specific namespaces of the parent process, and execute a command, setns provides
+>> a frontend to the setns(2) syscall, which allows a user to migrate a process to
+>> the namespaces of other processes, prior to calling exec on a command.
+>
+> Do we really need a new command? Can't we extend unshare(1)?
 
-The above function infloops when the name to search for can only
-be found at the beginning of /proc/cmdline but doesn't match,
-e.g. when searching for "ro" in "root=/dev/sda1 quiet vga=0x31a".
+IMHO adding functionality to existing command is probably better. What
+comes to adjusted patch from yesterday it is there just in case new
+command becomes more preferred option.
 
-* libmount/src/utils.c (mnt_get_kernel_cmdline_option): Replace
-while by for loop to ensure the pointer p is incremented.
+>  create a new namespace:
+>
+>     unshare --{mount,ipc,...} <program> [<args>]
+>
+>  move to already existing namespace:
+>
+>     unshare --namespace <pid> --{ipc,...} <program> [<args>]
+>
+>
+> From user's point of view in both cases the <program> will be unshared
+> from the current namespace so the util name seems OK.
+>
+> IMHO it seems better then add a new command.
+>
+>
+> If you really want to support direct namespace paths (/proc/<pid>/ns/<nsname>)
+> then we can use
+>
+>     unshare --namespace <path> <program> [<args>]
+>
+> anyway this way should be optional and not required. It's naive to
+> expect that everyone remembers and understands all the /proc tricks.
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- libmount/src/utils.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+No matter where the support for setns(2) is added I think there is
+need for two things.
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 74c3ad5..be242d0 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -947,9 +947,7 @@ char *mnt_get_kernel_cmdline_option(const char *name)
- 	if (len && *(name + len - 1) == '=')
- 		val = 1;
+1) Builds must not break when setns(2) does not exist.
+2) Good documentation.
 
--	while (p && *p) {
--		if (p != buf)
--			p++;
-+	for ( ; p && *p; p++) {
- 		if (!(p = strstr(p, name)))
- 			break;			/* not found the option */
- 		if (p != buf && !isblank(*(p - 1)))
+For the second some sort of explanation and/or example when and why
+anyone would use this would be nice.
+
 -- 
-1.7.7
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
