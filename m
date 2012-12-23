@@ -1,58 +1,46 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:36643 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752614Ab2LPKoX (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Dec 2012 05:44:23 -0500
-Received: by mail-we0-f174.google.com with SMTP id x10so2228563wey.19
-        for <util-linux@vger.kernel.org>; Sun, 16 Dec 2012 02:44:22 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 06/14] isosize: inform if file does not look like iso file system
-Date: Sun, 16 Dec 2012 10:43:54 +0000
-Message-Id: <1355654642-22106-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
-References: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: d@falconindy.com
+Date: Sat, 22 Dec 2012 23:33:42 -0500
+From: Dave Reisner <d@falconindy.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: Werner Fink <werner@suse.de>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/5] sulogin: mount temporary /dev and /proc if not found
+Message-ID: <20121223043342.GA633@rampage>
+References: <20121207170118.GG603@rampage>
+ <1355142431-8199-1-git-send-email-werner@suse.de>
+ <20121218152311.GA13554@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20121218152311.GA13554@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-$ isosize /dev/urandom
-isosize: /dev/urandom: might not be iso file system
--67690643227260
+On Tue, Dec 18, 2012 at 04:23:11PM +0100, Karel Zak wrote:
+> On Mon, Dec 10, 2012 at 01:27:10PM +0100, Werner Fink wrote:
+> >  configure.ac   |   10 +++++++++
+> >  lib/consoles.c |   66 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 76 insertions(+)
+> 
+>  Note that I have applied this (fixed) version of the patch.
+> 
+>     Karel
+> 
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/isosize.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+This is pretty broken. Using the constructor and destructor attributes
+means that ANY programs linking in the code will invoke these functions.
+As it's not a direct inclusion, but part of a libtool convenience lib,
+the effect is pretty severe:
 
-diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
-index 625dd42..5f1a297 100644
---- a/disk-utils/isosize.c
-+++ b/disk-utils/isosize.c
-@@ -32,6 +32,14 @@
- 
- #define ISODCL(from, to) (to - from + 1)
- 
-+static int is_iso(int fd)
-+{
-+	char label[8];
-+	if (pread(fd, &label, 8, 0x8000) == -1)
-+		return 1;
-+	return memcmp(&label, &"\1CD001\1", 8);
-+}
-+
- static int isonum_721(unsigned char *p)
- {
- 	return ((p[0] & 0xff)
-@@ -124,6 +132,8 @@ static void isosize(char *filenamep, int xflag, long divisor)
- 
- 	if ((fd = open(filenamep, O_RDONLY)) < 0)
- 		err(EXIT_FAILURE, _("cannot open %s"), filenamep);
-+	if (is_iso(fd))
-+		warnx(_("%s: might not be iso file system"), filenamep);
- 
- 	if (lseek(fd, 16 << 11, 0) == (off_t) - 1)
- 		err(EXIT_FAILURE, _("seek error on %s"), filenamep);
--- 
-1.8.0.2
+$ git grep -F libcommon.la | wc -l
+78
 
+This includes things such as libblkid and libmount, among others.
+
+It wouldn't generally matter (though I'm still in favor of finding
+another solution for this), but this breaks early userspace pretty hard.
+Invoking mount (or even findmnt) will preemptively run this code. I'm
+not clear on why, but the filesystems were NOT umounted by the
+destructor, and my busybox umount as well as util-linux's switch_root
+simply failed with EINVAL.
+
+I suggest that this code be relegated to sulogin.
+
+d
