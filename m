@@ -1,60 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from charlotte.tuxdriver.com ([70.61.120.58]:49834 "EHLO
-	smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751241Ab2LTPeQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Dec 2012 10:34:16 -0500
-Date: Thu, 20 Dec 2012 10:34:04 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sys-tools: Add setns utility to sys-tools
-Message-ID: <20121220153404.GA18398@shamino.rdu.redhat.com>
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
- <20121220092439.GA30947@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20121220092439.GA30947@x2.net.home>
+Received: from gerolde.archlinux.org ([66.211.214.132]:34092 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751154Ab2LWPnd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 23 Dec 2012 10:43:33 -0500
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] Require explicit call to emergency_do_mounts
+Date: Sun, 23 Dec 2012 10:43:30 -0500
+Message-Id: <1356277410-29666-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 20, 2012 at 10:24:39AM +0100, Karel Zak wrote:
-> On Wed, Dec 19, 2012 at 02:06:46PM -0500, Neil Horman wrote:
-> > Like the unshare command, which lets a user from the command line detach from
-> > specific namespaces of the parent process, and execute a command, setns provides
-> > a frontend to the setns(2) syscall, which allows a user to migrate a process to
-> > the namespaces of other processes, prior to calling exec on a command.
-> 
-> Do we really need a new command? Can't we extend unshare(1)?
-> 
->  create a new namespace:
-> 
->     unshare --{mount,ipc,...} <program> [<args>]
->     
->  move to already existing namespace:
-> 
->     unshare --namespace <pid> --{ipc,...} <program> [<args>]
-> 
-> 
-> From user's point of view in both cases the <program> will be unshared
-> from the current namespace so the util name seems OK.
-> 
-> IMHO it seems better then add a new command.
-> 
-> 
-> If you really want to support direct namespace paths (/proc/<pid>/ns/<nsname>)
-> then we can use
-> 
->     unshare --namespace <path> <program> [<args>]
-> 
-> anyway this way should be optional and not required. It's naive to
-> expect that everyone remembers and understands all the /proc tricks.
-> 
-Ok, fair enough, I can rewrite this to extend unshare
-Neil
+Keeping these functions in lib/ with constructor and destructor
+attributes causes the code to be run in invocation of a large number of
+programs in the util-linux tree. Remove the attributes and call it
+explicitly from sulogin, the only place where it (currently) makes sense
+to be called from.
 
->     Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-> 
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+I'd further vote that the flag which enables this behavior be turned off
+by default.
+
+ include/consoles.h    | 5 +++++
+ lib/consoles.c        | 2 --
+ login-utils/sulogin.c | 5 +++++
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/include/consoles.h b/include/consoles.h
+index 2544263..db2e500 100644
+--- a/include/consoles.h
++++ b/include/consoles.h
+@@ -49,3 +49,8 @@ struct console {
+ 
+ extern int detect_consoles(const char *device, int fallback,
+ 			   struct list_head *consoles);
++
++#ifdef USE_SULOGIN_EMERGENCY_MOUNT
++void emergency_do_umounts(void);
++void emergency_do_mounts(void);
++#endif
+diff --git a/lib/consoles.c b/lib/consoles.c
+index 7175a08..7930e7c 100644
+--- a/lib/consoles.c
++++ b/lib/consoles.c
+@@ -98,7 +98,6 @@ static uint32_t emergency_flags;
+ # define MNT_PROCFS    0x0001
+ # define MNT_DEVTMPFS  0x0002
+ 
+-static __attribute__((__destructor__))
+ void emergency_do_umounts(void)
+ {
+ 	if (emergency_flags & MNT_DEVTMPFS)
+@@ -107,7 +106,6 @@ void emergency_do_umounts(void)
+ 		umount2("/proc", MNT_DETACH);
+ }
+ 
+-static __attribute__((__constructor__))
+ void emergency_do_mounts(void)
+ {
+ 	struct stat rt, xt;
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index 8416e3e..42b1b73 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -834,6 +834,11 @@ int main(int argc, char **argv)
+ 	mask_signal(SIGINT,  SIG_IGN, &saved_sigint);
+ 	mask_signal(SIGHUP,  SIG_IGN, &saved_sighup);
+ 
++#ifdef USE_SULOGIN_EMERGENCY_MOUNT
++	emergency_do_mounts();
++	atexit(emergency_do_umounts);
++#endif
++
+ 	/*
+ 	 * See if we need to open an other tty device.
+ 	 */
+-- 
+1.8.0.2
+
