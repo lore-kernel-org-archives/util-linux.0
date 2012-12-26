@@ -1,83 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:64073 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752112Ab2LPKoI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Dec 2012 05:44:08 -0500
-Received: by mail-wg0-f46.google.com with SMTP id dr13so2061690wgb.1
-        for <util-linux@vger.kernel.org>; Sun, 16 Dec 2012 02:44:07 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-yh0-f53.google.com ([209.85.213.53]:47762 "EHLO
+	mail-yh0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752578Ab2LZTzm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Dec 2012 14:55:42 -0500
+Received: by mail-yh0-f53.google.com with SMTP id q11so1560338yhf.40
+        for <util-linux@vger.kernel.org>; Wed, 26 Dec 2012 11:55:41 -0800 (PST)
+From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [00/14]: pull: ipcs resubmission, bug fixes, minix todo, etc
-Date: Sun, 16 Dec 2012 10:43:48 +0000
-Message-Id: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Subject: [PATCH 2/2] bitops: support other OS too
+Date: Wed, 26 Dec 2012 16:54:25 -0300
+Message-Id: <1356551665-574-1-git-send-email-crrodriguez@opensuse.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel && all,
+Mike Frysinger pointed that applying:
 
-This review / pull request is partial resubmission.  The ipc stuff was
-sent to list earlier, but it got to be modified after initial review so
-here comes the modified version.
+[PATCH] include/bitops.h: Use the operating system byteswapping
+functions
 
-In these patches there are two documentation bug fixes (0001, 0005), and
-one code bug fix (0013).  There is also one policy change (0008), which
-makes tunelp not to be part of default build.  My feeling is that the
-utility is not much in use.  Please correct if I am wrong, and drop the
-patch.
+Would cause incompatibilities with non-linux OS, this patch address
+the concerns.
+---
+ configure.ac     |  3 +++
+ include/bitops.h | 64 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 66 insertions(+), 1 deletion(-)
 
-Minix changes aimed to remove a TODO item.  I did not remove the task
-yet, just in case someone wants to double check the code for that there
-are no remaining variables using not-optimal types.
+diff --git a/configure.ac b/configure.ac
+index 9c08fc0..b3c30f5 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -191,6 +191,9 @@ AC_CHECK_HEADERS([ \
+ 	stdint.h \
+ 	stdio_ext.h \
+ 	stdlib.h \
++	endian.h \
++	byteswap.h \
++	sys/endian.h \
+ 	sys/disk.h \
+ 	sys/disklabel.h \
+ 	sys/file.h \
+diff --git a/include/bitops.h b/include/bitops.h
+index 89b418c..ed17ed2 100644
+--- a/include/bitops.h
++++ b/include/bitops.h
+@@ -8,8 +8,70 @@
+  */
+ #include <sys/param.h>
+ 
++#if defined(HAVE_BYTESWAP_H)
+ #include <byteswap.h>
+-#include <endian.h>
++#else
++#define bswap_16(x) ((((x) & 0x00FF) << 8) | (((x) & 0xFF00) >> 8))
++
++#define bswap_32(x) ((((x) & 0x000000FF) << 24) | (((x) & 0x0000FF00) << 8) | (((x) & 0x00FF0000) >> 8) | (((x) & 0xFF000000) >> 24))
++
++#define bswap_64(x) ((((x) & 0x00000000000000FFULL) << 56) | \
++                     (((x) & 0x000000000000FF00ULL) << 40) | \
++                     (((x) & 0x0000000000FF0000ULL) << 24) | \
++                     (((x) & 0x00000000FF000000ULL) << 8) | \
++                     (((x) & 0x000000FF00000000ULL) >> 8) | \
++                     (((x) & 0x0000FF0000000000ULL) >> 24) | \
++                     (((x) & 0x00FF000000000000ULL) >> 40) | \
++                     (((x) & 0xFF00000000000000ULL) >> 56))
++#endif
++
++
++#if defined(HAVE_ENDIAN_H)
++#  include <endian.h>
++/* BSDs have them here */
++#elif defined(HAVE_SYS_ENDIAN_H)
++#  include <sys/endian.h>
++#endif
++
++#if defined(__OpenBSD__)
++#  include <sys/types.h>
++#  define be16toh(x) betoh16(x)
++#  define be32toh(x) betoh32(x)
++#  define be64toh(x) betoh64(x)
++#endif
++
++/* Still no definitions ? bad OS (windows or others)! */
++#ifndef htobe16
++
++# if !defined(WORDS_BIGENDIAN)
++#  define htobe16(x) bswap_16 (x)
++#  define htole16(x) (x)
++#  define be16toh(x) bswap_16 (x)
++#  define le16toh(x) (x)
++#  define htobe32(x) bswap_32 (x)
++#  define htole32(x) (x)
++#  define be32toh(x) bswap_32 (x)
++#  define le32toh(x) (x)
++#  define htobe64(x) bswap_64 (x)
++#  define htole64(x) (x)
++#  define be64toh(x) bswap_64 (x)
++#  define le64toh(x) (x)
++# else
++#  define htobe16(x) (x)
++#  define htole16(x) bswap_16 (x)
++#  define be16toh(x) (x)
++#  define le16toh(x) bswap_16 (x)
++#  define htobe32(x) (x)
++#  define htole32(x) bswap_32 (x)
++#  define be32toh(x) (x)
++#  define le32toh(x) bswap_32 (x)
++#  define htobe64(x) (x)
++#  define htole64(x) bswap_64 (x)
++#  define be64toh(x) (x)
++#  define le64toh(x) bswap_64 (x)
++# endif
++
++#endif
+ 
+ #ifndef NBBY
+ # define NBBY            CHAR_BIT
+-- 
+1.8.0.2
 
-That was the week that was.
-
-
-The following changes since commit 7cdfc45f99c04797aa0838310dae4e7bf95f6c9d:
-
-  docs: fix typo (2012-12-14 16:12:47 +0100)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git 2012wk50
-
-for you to fetch changes up to fa72dc4d91085705647b285e1b319ffc3bbe2daf:
-
-  docs: fsck(8), mkfs(8): update manual references (2012-12-16 10:25:46 +0000)
-
-----------------------------------------------------------------
-Sami Kerola (14):
-      docs: swapon.8 option name fix
-      ipcs: assist debugging
-      ipcs: add --human readable size conversion option
-      ipcs: add --bytes size output option
-      isosize: fix usage() -h option print out
-      isosize: inform if file does not look like iso file system
-      more: remove unnecessary variable
-      tunelp: deprecation: remove command from default build
-      minix: change types in header file
-      minix: use off_t, size_t, etc appropriate types
-      minix: replace magic constants with macro names
-      docs: add missing exit value to fsck.minix(8)
-      lib/ismounted: detect loopback mounts
-      docs: fsck(8), mkfs(8): update manual references
-
- Documentation/deprecated.txt |   4 ++
- configure.ac                 |  10 ++++
- disk-utils/fsck.8            |  16 ++-----
- disk-utils/fsck.minix.8      |   6 +--
- disk-utils/fsck.minix.c      |  26 +++++-----
- disk-utils/isosize.c         |  31 ++++++++----
- disk-utils/minix_programs.h  |  40 ++++++++--------
- disk-utils/mkfs.8            |  10 ++--
- disk-utils/mkfs.minix.c      |  12 ++---
- lib/Makemodule.am            |   1 +
- lib/ismounted.c              |   8 +++-
- sys-utils/Makemodule.am      |   2 +
- sys-utils/ipcs.1             |   6 +++
- sys-utils/ipcs.c             | 112 +++++++++++++++++++++++++++----------------
- sys-utils/ipcutils.c         |  40 ++++++++++++++++
- sys-utils/ipcutils.h         |   9 ++++
- sys-utils/swapon.8           |   2 +-
- text-utils/more.c            |   4 +-
- 18 files changed, 222 insertions(+), 117 deletions(-)
