@@ -1,57 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:57728 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752637Ab2LPKom (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Dec 2012 05:44:42 -0500
-Received: by mail-wi0-f180.google.com with SMTP id hj13so1401256wib.1
-        for <util-linux@vger.kernel.org>; Sun, 16 Dec 2012 02:44:41 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 12/14] docs: add missing exit value to fsck.minix(8)
-Date: Sun, 16 Dec 2012 10:44:00 +0000
-Message-Id: <1355654642-22106-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
-References: <1355654642-22106-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:65388 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752554Ab2LZTCl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Dec 2012 14:02:41 -0500
+Received: by mail-oa0-f46.google.com with SMTP id h16so8291836oag.19
+        for <util-linux@vger.kernel.org>; Wed, 26 Dec 2012 11:02:41 -0800 (PST)
+Message-ID: <50DB499F.10008@opensuse.org>
+Date: Wed, 26 Dec 2012 16:01:51 -0300
+From: =?UTF-8?B?Q3Jpc3RpYW4gUm9kcsOtZ3Vleg==?= <crrodriguez@opensuse.org>
+MIME-Version: 1.0
+To: Mike Frysinger <vapier@gentoo.org>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] include/bitops.h: Use the operating system byteswapping
+ functions
+References: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org> <201212261348.01760.vapier@gentoo.org>
+In-Reply-To: <201212261348.01760.vapier@gentoo.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And remove references to manual pages which has not been part of commonly
-used distributions for a while.
+On Wed 26 Dec 2012 03:48:01 PM CLST, Mike Frysinger wrote:
+> On Wednesday 26 December 2012 12:38:21 Cristian Rodríguez wrote:
+>> There is no need to reinvent the wheel.
+>
+> the trouble is that util-linux supports more than linux, and the api of these
+> funcs isn't the same (or even available) on other systems
+> -mike
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/fsck.minix.8 | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/disk-utils/fsck.minix.8 b/disk-utils/fsck.minix.8
-index e84b82b..4458f09 100644
---- a/disk-utils/fsck.minix.8
-+++ b/disk-utils/fsck.minix.8
-@@ -79,14 +79,10 @@ Force a filesystem check even if the filesystem was marked as valid (this
- marking is done by the kernel when the filesystem is unmounted).
- .SH "SEE ALSO"
- .BR fsck (8),
--.BR fsck.ext (8),
- .BR fsck.ext2 (8),
--.BR fsck.xiafs (8),
- .BR mkfs (8),
- .BR mkfs.minix (8),
--.BR mkfs.ext (8),
- .BR mkfs.ext2 (8),
--.BR mkfs.xiafs (8),
- .BR reboot (8)
- .SH DIAGNOSTICS
- There are numerous diagnostic messages.  The ones mentioned here are the
-@@ -109,6 +105,8 @@ Filesystem errors corrected, system should be rebooted if filesystem was
- mounted
- .IP 4
- Filesystem errors left uncorrected
-+.IP 7
-+Combination of exit codes 3 and 4
- .IP 8
- Operational error
- .IP 16
--- 
-1.8.0.2
+That's easy to fix. I will send a follow up patch later.
 
