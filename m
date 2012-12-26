@@ -1,41 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from charlotte.tuxdriver.com ([70.61.120.58]:37715 "EHLO
-	smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753969Ab2L1V0w (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Dec 2012 16:26:52 -0500
-Date: Fri, 28 Dec 2012 16:26:30 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: =?iso-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-Cc: util-linux@vger.kernel.org, kerolasa@gmail.com, grawity@gmail.com,
-        Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH v2] sys-tools: Enhance unshare command to support the
- switching of namespaces
-Message-ID: <20121228212630.GA3483@hmsreliant.think-freely.org>
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
- <1356027729-26098-1-git-send-email-nhorman@tuxdriver.com>
- <50DD9695.4080507@zoho.com>
- <20121228161217.GA5325@neilslaptop.think-freely.org>
- <50DDF41D.9030805@zoho.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:53288 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751579Ab2LZSrP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Dec 2012 13:47:15 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Cristian =?iso-8859-1?q?Rodr=EDguez?= <crrodriguez@opensuse.org>
+Subject: Re: [PATCH] include/bitops.h: Use the operating system byteswapping functions
+Date: Wed, 26 Dec 2012 13:48:01 -0500
+Cc: util-linux@vger.kernel.org
+References: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
+In-Reply-To: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <50DDF41D.9030805@zoho.com>
+Content-Type: multipart/signed;
+  boundary="nextPart1403764.dLglSnIyH0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201212261348.01760.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 28, 2012 at 08:33:49PM +0100, Ángel González wrote:
-> >> There are also pid and user namespaces there, but support for those are
-> >> better handled in a different patch IMHO.
-> >>
-> > I'm not really sure what you mean by a different patch here.  Why would I add
-> > support for setns for other pid/uts namespaces in a different patch?
-> 
-> Because unshare doesn't currently support launching processes in a new
-> pid or user namespace. :)
-> 
-Oh, I see what you mean, sorry.  Yes, I agree, we can add support for both
-unsharing and setns abilities when the 3.8 kernel is released.
-Neil
+--nextPart1403764.dLglSnIyH0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 
-> 
+On Wednesday 26 December 2012 12:38:21 Cristian Rodr=C3=ADguez wrote:
+> There is no need to reinvent the wheel.
+
+the trouble is that util-linux supports more than linux, and the api of the=
+se=20
+funcs isn't the same (or even available) on other systems
+=2Dmike
+
+--nextPart1403764.dLglSnIyH0
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJQ20ZhAAoJEEFjO5/oN/WBIzgQAIgJMfjrUAhMm1R9AWEIDisN
+mRrZdh4qrknfZq7dxHV7h8+RUHiai1QhejoVU4p+qVrwR/WTZY8GSWXeiu45UAdc
+WzAq9wgUrvSgS90N5d8PNRxdDollkia9egNCC94pKks+Ny2SG3wVa4+PtdLe+Knn
+hrK4fgiNSDpugNt6gCj+DDmndUsH3zZFbV4KkEzCtsaaYH73GCNs/2Mq7wl1SbMb
+diuAA5tawZ7a4hMHsR/R6I18jUuN4fOoXhkPjKWUtZE7qGmc0eGErzF5eACe0T8Y
+RqQNDowZZs/za8usdRaJvNrzwGK+irtQdlWNjig57nNKzjMBOEzfkVYvfQOej9VH
+i8lV/BkD5gNvgBPHaL+UYocrr3A73t/doIhTCLX+BUZ7KSwNSHZmOfaRfOQnOuXg
+7W0gMbiL2j0mbqAg4MbPXs3Wap8tLe4l78d87oeGhdOYhqfkls4JwQMe/V1+5LW8
+shpCmVaxBD65DLKFSR7FfUbCAtYoQdouF+7nRChsyUHWa4kz8q885FyIcXf/N0NP
+jfNJFvA5er8APc7NYGb/3nhD4Glkp241W6YmQ11ymFDAEaDx1bO2/P1tePIf86Vg
+oImEh6W8RBJes3C2f92jzRl5bfiWWQvoeyxc34vAP7xoO+NGFbj5ssOWPx3Qno4Y
+s9VoSmOofoCfIeib3Uy4
+=Wo0n
+-----END PGP SIGNATURE-----
+
+--nextPart1403764.dLglSnIyH0--
