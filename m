@@ -1,57 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:53288 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751579Ab2LZSrP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Dec 2012 13:47:15 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Cristian =?iso-8859-1?q?Rodr=EDguez?= <crrodriguez@opensuse.org>
-Subject: Re: [PATCH] include/bitops.h: Use the operating system byteswapping functions
-Date: Wed, 26 Dec 2012 13:48:01 -0500
-Cc: util-linux@vger.kernel.org
-References: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
-In-Reply-To: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1403764.dLglSnIyH0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201212261348.01760.vapier@gentoo.org>
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:56274 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754192Ab2L1Vaj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Dec 2012 16:30:39 -0500
+Received: by mail-wg0-f42.google.com with SMTP id dr1so4380491wgb.3
+        for <util-linux@vger.kernel.org>; Fri, 28 Dec 2012 13:30:38 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/4] ipcs: fix spacing in summary output
+Date: Fri, 28 Dec 2012 21:23:41 +0000
+Message-Id: <1356729823-729-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
+References: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1403764.dLglSnIyH0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Change 56692a6 introduced spacing error to --summary printing.
 
-On Wednesday 26 December 2012 12:38:21 Cristian Rodr=C3=ADguez wrote:
-> There is no need to reinvent the wheel.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/ipcs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-the trouble is that util-linux supports more than linux, and the api of the=
-se=20
-funcs isn't the same (or even available) on other systems
-=2Dmike
+diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
+index 4422162..1e1b022 100644
+--- a/sys-utils/ipcs.c
++++ b/sys-utils/ipcs.c
+@@ -465,7 +465,7 @@ static void do_msg (char format, int unit)
+ 		printf (_("------ Messages Status --------\n"));
+ 		printf (_("allocated queues = %d\n"), msginfo.msgpool);
+ 		printf (_("used headers = %d\n"), msginfo.msgmap);
+-		ipc_print_size(unit, _("used space ="), msginfo.msgtql,
++		ipc_print_size(unit, _("used space"), msginfo.msgtql,
+ 			       unit == IPC_UNIT_DEFAULT ? _(" bytes\n") : "\n", 0);
+ 		return;
+ 	}
+-- 
+1.8.0.3
 
---nextPart1403764.dLglSnIyH0
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJQ20ZhAAoJEEFjO5/oN/WBIzgQAIgJMfjrUAhMm1R9AWEIDisN
-mRrZdh4qrknfZq7dxHV7h8+RUHiai1QhejoVU4p+qVrwR/WTZY8GSWXeiu45UAdc
-WzAq9wgUrvSgS90N5d8PNRxdDollkia9egNCC94pKks+Ny2SG3wVa4+PtdLe+Knn
-hrK4fgiNSDpugNt6gCj+DDmndUsH3zZFbV4KkEzCtsaaYH73GCNs/2Mq7wl1SbMb
-diuAA5tawZ7a4hMHsR/R6I18jUuN4fOoXhkPjKWUtZE7qGmc0eGErzF5eACe0T8Y
-RqQNDowZZs/za8usdRaJvNrzwGK+irtQdlWNjig57nNKzjMBOEzfkVYvfQOej9VH
-i8lV/BkD5gNvgBPHaL+UYocrr3A73t/doIhTCLX+BUZ7KSwNSHZmOfaRfOQnOuXg
-7W0gMbiL2j0mbqAg4MbPXs3Wap8tLe4l78d87oeGhdOYhqfkls4JwQMe/V1+5LW8
-shpCmVaxBD65DLKFSR7FfUbCAtYoQdouF+7nRChsyUHWa4kz8q885FyIcXf/N0NP
-jfNJFvA5er8APc7NYGb/3nhD4Glkp241W6YmQ11ymFDAEaDx1bO2/P1tePIf86Vg
-oImEh6W8RBJes3C2f92jzRl5bfiWWQvoeyxc34vAP7xoO+NGFbj5ssOWPx3Qno4Y
-s9VoSmOofoCfIeib3Uy4
-=Wo0n
------END PGP SIGNATURE-----
-
---nextPart1403764.dLglSnIyH0--
