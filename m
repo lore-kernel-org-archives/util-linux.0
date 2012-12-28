@@ -1,38 +1,49 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:65041 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932076Ab2LRPSZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Dec 2012 10:18:25 -0500
-Date: Tue, 18 Dec 2012 16:17:42 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Werner Fink <werner@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/5] sulogin: mount temporary /dev and /proc if not found
-Message-ID: <20121218151742.GC12659@x2.net.home>
-References: <1354867258-14206-1-git-send-email-werner@suse.de>
- <1354867258-14206-4-git-send-email-werner@suse.de>
+Return-Path: ingenit@zoho.com
+Message-ID: <50DD9695.4080507@zoho.com>
+Date: Fri, 28 Dec 2012 13:54:45 +0100
+From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1354867258-14206-4-git-send-email-werner@suse.de>
-Sender: util-linux-owner@vger.kernel.org
+To: Neil Horman <nhorman@tuxdriver.com>
+CC: util-linux@vger.kernel.org, kerolasa@gmail.com, grawity@gmail.com,
+        Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH v2] sys-tools: Enhance unshare command to support the
+ switching of namespaces
+References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com> <1356027729-26098-1-git-send-email-nhorman@tuxdriver.com>
+In-Reply-To: <1356027729-26098-1-git-send-email-nhorman@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 07, 2012 at 09:00:57AM +0100, Werner Fink wrote:
->  configure.ac          |   10 ++++++++
->  login-utils/sulogin.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 67 insertions(+)
+On 20/12/12 19:22, Neil Horman wrote:
+>  		case 'm':
+> -			unshare_flags |= CLONE_NEWNS;
+> +			ns = "mount";
+> +			if (!optarg)
+> +				unshare_flags |= CLONE_NEWNS;
+>  			break;
 
- Applied with some minor changes, thanks.
+Is this right? I don't have a /proc/<task>/ns/mount locally nor is it
+documented in
+http://git.kernel.org/?p=docs/man-pages/man-pages.git;a=blob;f=man5/proc.5
 
-> +AC_ARG_ENABLE([use-emergency-dev],
-> +  AS_HELP_STRING([--disable-use-emergency-dev], [do not use emergency mount of /dev and /proc for sulogin]),
-> +  [], enable_use_emergency_dev=yes
-> +)
+However looking at
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=fs/proc/namespaces.c
+there is a reference to mntns_operations, which is defined in
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=fs/proc/namespaces.c
 
- renamed to --disable-sulogin-emergency-mount
+but seems to be called "mnt", not "mount"
 
-    Karel
+There are also pid and user namespaces there, but support for those are
+better handled in a different patch IMHO.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+> +				sprintf(path, "/proc/%d/ns/%s", (int)pid, ns); 
+> +				ns_pids[nscount] = open(path, O_RDONLY);
+> +				if (ns_pids[nscount] < 0)
+> +					err(EXIT_FAILURE, _("could not open %s"), path);
+> +				nscount++;
+
+What about err(EXIT_FAILURE, _("The kernel doesn't seem to support %s
+migrations: could not open %s"), ns, path); ?
+
+Mention in the man page the kernel version from which each namespace can
+be migrated.
