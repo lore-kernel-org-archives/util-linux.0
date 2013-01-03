@@ -1,75 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp209.alice.it ([82.57.200.105]:39132 "EHLO smtp209.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753058Ab3AGSeD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Jan 2013 13:34:03 -0500
-Message-ID: <50EB14FB.3080002@tiscalinet.it>
-Date: Mon, 07 Jan 2013 19:33:31 +0100
-From: Goffredo Baroncelli <kreijack@tiscalinet.it>
-Reply-To: kreijack@inwind.it
-MIME-Version: 1.0
-To: Hugo Mills <hugo@carfax.org.uk>, dsterba@suse.cz,
-        util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Mason <chris.mason@fusionio.com>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-References: <50E9C267.3050302@inwind.it> <20130107163327.GK20089@twin.jikos.cz> <50EB11E0.8030403@tiscalinet.it> <20130107182426.GM19051@carfax.org.uk>
-In-Reply-To: <20130107182426.GM19051@carfax.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mailserver5.natinst.com ([130.164.80.5]:48848 "EHLO
+	spamkiller05.natinst.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751038Ab3ACGkA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Jan 2013 01:40:00 -0500
+Received: from mailserv59-us.natinst.com (nb-hsrp-1338.natinst.com [130.164.19.133])
+	by spamkiller05.natinst.com (8.14.5/8.14.5) with ESMTP id r0365eRs001132
+	for <util-linux@vger.kernel.org>; Thu, 3 Jan 2013 00:05:40 -0600
+From: Richard Tollerton <rich.tollerton@ni.com>
+To: util-linux@vger.kernel.org
+Cc: Richard Tollerton <rich.tollerton@ni.com>
+Subject: [PATCH] mount: Fix -t in listing mode when run as non-root
+Date: Thu, 3 Jan 2013 00:05:34 -0600
+Message-Id: <1357193134-26828-1-git-send-email-rich.tollerton@ni.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi hugo
+Presently, libmount-mount completely prohibits the use of -t by non-root
+users.  This breaks using -t in listing mode as a user, which represents
+a regression against mount-deprecated, macosx and presumably *BSD.
 
-On 01/07/2013 07:24 PM, Hugo Mills wrote:
-[...]
+This commit fixes the issue by deferring the mnt_context_is_restricted
+check for -t until we know we're not in listing mode.
 
->>     print "Superblock #%d - %20d - '%s'"%(i,pos,sign)
->>
->> $ python extract-sign.py
->> Superblock #0 -                65600 - '_BHRfS_M'
-> 
-> 64 KiB
+Signed-off-by: Rich Tollerton <rich.tollerton@ni.com>
+---
+ sys-utils/mount.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-OK, (above)
-> 
->> Superblock #1 -             67108928 - '_BHRfS_M'
-> 
-> 256 MiB
-
-.... above is 64M, below is 256M !
-> 
->> Superblock #2 -         274877907008 - '_BHRfS_M'
-> 
-> 1 TiB
-> 
->> Superblock #3 -     1125899906842688 - ''
-> 
-> 4 PiB
-> 
->> Superblock #4 -  4611686018427387968 - ''
-> 
-> 16 EiB
-
-Not reachable in linux. There is a VFS limits to 8EB.
-> 
-> 
->> To me it seems that in a 7TB filesystem there is only 3 superblocks.
-> 
->    That would be as expected. How many on a 5 PiB filesystem, though?
-> Or a 20 EiB one?
-
-I wrote 7TB, but I meant 8EB. I first tried a test with 7TB and I wrote
-the email, but then I retested with 8EB and I corrected the email,
-forgetting some 7t instead of 8e...
-
-Anyway, if BTRFS would allow more than three super-block,  in the 7TB
-case, the super-block at 1TB would appeared
-> 
->    Hugo.
-> 
-
-
+diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+index e29e34c..fed96eb 100644
+--- a/sys-utils/mount.c
++++ b/sys-utils/mount.c
+@@ -800,7 +800,7 @@ int main(int argc, char **argv)
+ 
+ 		/* only few options are allowed for non-root users */
+ 		if (mnt_context_is_restricted(cxt) &&
+-		    !strchr("hlLUVvpris", c) &&
++		    !strchr("hlLUVvprist", c) &&
+ 		    c != MOUNT_OPT_TARGET &&
+ 		    c != MOUNT_OPT_SOURCE)
+ 			exit_non_root(option_to_longopt(c, longopts));
+@@ -950,6 +950,11 @@ int main(int argc, char **argv)
+ 		goto done;
+ 	}
+ 
++	/* Non-root users are allowed to use -t to print_all(),
++	   but not to mount */
++	if (mnt_context_is_restricted(cxt) && types)
++		exit_non_root("types");
++
+ 	if (oper && (types || all || mnt_context_get_source(cxt)))
+ 		usage(stderr);
+ 
 -- 
-gpg @keyserver.linux.it: Goffredo Baroncelli (kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+1.8.1
+
