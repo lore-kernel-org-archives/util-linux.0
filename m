@@ -1,44 +1,70 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Date: Tue, 8 Jan 2013 18:14:28 +0100
-From: David Sterba <dsterba@suse.cz>
-To: kreijack@inwind.it
-Cc: dsterba@suse.cz, util-linux@vger.kernel.org,
-        linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Mason <chris.mason@fusionio.com>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-Message-ID: <20130108171427.GO20089@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-References: <50E9C267.3050302@inwind.it>
- <20130107163327.GK20089@twin.jikos.cz>
- <50EB11E0.8030403@tiscalinet.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50EB11E0.8030403@tiscalinet.it>
-Sender: linux-btrfs-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:52668 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752861Ab3ACDad (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Jan 2013 22:30:33 -0500
+Received: by mail-pb0-f44.google.com with SMTP id uo1so8264565pbc.17
+        for <util-linux@vger.kernel.org>; Wed, 02 Jan 2013 19:30:32 -0800 (PST)
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+To: util-linux@vger.kernel.org
+Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
+Subject: [PATCH 1/3] chsh-chfn: Add flag for enabling/disabling libuser support.
+Date: Wed,  2 Jan 2013 20:21:59 -0700
+Message-Id: <1357183321-24637-2-git-send-email-cmaloney@theoreticalchaos.com>
+In-Reply-To: <1357183321-24637-1-git-send-email-cmaloney@theoreticalchaos.com>
+References: <1357183321-24637-1-git-send-email-cmaloney@theoreticalchaos.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 07, 2013 at 07:20:16PM +0100, Goffredo Baroncelli wrote:
-> On 01/07/2013 05:33 PM, David Sterba wrote:
-> > It can have as much as 4 superblock backup copies:
-> > 
-> > Superblock offset 0 is 65536 (0x10000, block=16/0x10)
-> > Superblock offset 1 is 67108864 (0x4000000, block=16384/0x4000)
-> > Superblock offset 2 is 274877906944 (0x4000000000, block=67108864/0x4000000)
-> > Superblock offset 3 is 1125899906842624 (0x4000000000000, block=274877906944/0x4000000000)
-> > Superblock offset 4 is 4611686018427387904 (0x4000000000000000, block=1125899906842624/0x4000000000000)
-> 
-> Are you sure ?
-> 
-> Regarding the btrfs-progs suite, I looked at the btrfs_read_dev_super():
-> [..]
->         for (i = 0; i < BTRFS_SUPER_MIRROR_MAX; i++) {
->                 bytenr = btrfs_sb_offset(i);
->                 ret = pread64(fd, &buf, sizeof(buf), bytenr);
-> 
-> Where BTRFS_SUPER_MIRROR_MAX is 3.
+---
+ configure.ac              | 17 +++++++++++++++++
+ login-utils/Makemodule.am |  5 +++++
+ 2 files changed, 22 insertions(+)
 
-My bad, sorry, I was using the values from an old script that computed
-the values with a wrong upper limit.
+diff --git a/configure.ac b/configure.ac
+index 9c08fc0..bfe8cba 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1095,6 +1095,23 @@ AS_HELP_STRING([--disable-chsh-only-listed], [chsh: allow shells not in /etc/she
+ [], enable_chsh_only_listed=yes
+ )
+ 
++AC_ARG_WITH([libuser], AS_HELP_STRING([--without-libuser], [compile without libuser (remote chsh)]),
++  [], with_user=auto
++)
++
++if test "x$with_user" = xno; then
++  AM_CONDITIONAL(HAVE_USER, false)
++else
++  PKG_CHECK_MODULES(LIBUSER,[libuser])
++  UL_CHECK_LIB(user, lu_start)
++  case "$with_user:$have_user" in
++  yes:no)
++   AC_MSG_ERROR([user selected but libuser not found])
++   ;;
++  esac
++fi
++
++
+ if test "x$enable_chsh_only_listed" = xyes; then
+ AC_DEFINE(ONLY_LISTED_SHELLS, 1, [Should chsh allow only shells in /etc/shells?])
+ fi
+diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
+index aef8177..479b87b 100644
+--- a/login-utils/Makemodule.am
++++ b/login-utils/Makemodule.am
+@@ -68,6 +68,11 @@ chfn_chsh_cflags = $(SUID_CFLAGS) $(AM_CFLAGS)
+ chfn_chsh_ldflags = $(SUID_LDFLAGS) $(AM_LDFLAGS)
+ chfn_chsh_ldadd = libcommon.la -lpam -lpam_misc
+ 
++if HAVE_USER
++chfn_chsh_ldflags += $(LIBUSER_LIBS)
++chfn_chsh_cflags += $(LIBUSER_CFLAGS)
++endif
++
+ if HAVE_SELINUX
+ chfn_chsh_sources += \
+ 	login-utils/selinux_utils.c \
+-- 
+1.8.1
 
-david
