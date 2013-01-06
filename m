@@ -1,191 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:37833 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755735Ab3AWRmi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 23 Jan 2013 12:42:38 -0500
-Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 26E0F22983
-	for <util-linux@vger.kernel.org>; Wed, 23 Jan 2013 12:42:38 -0500 (EST)
-Message-Id: <1358962957.12932.140661181409881.123EF29C@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:56765 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755918Ab3AFARx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 5 Jan 2013 19:17:53 -0500
+Received: by mail-ob0-f175.google.com with SMTP id vb8so16254278obc.34
+        for <util-linux@vger.kernel.org>; Sat, 05 Jan 2013 16:17:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1358962957129320";
- charset="utf-8"
-Subject: [docbug] the example for 'whereis -u' lacks an '-ms'?
-Date: Wed, 23 Jan 2013 18:42:37 +0100
+Date: Sun, 6 Jan 2013 03:17:52 +0300
+Message-ID: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
+Subject: fstab zram swap integration idea
+From: Maksim Melnikau <maxposedon@gmail.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+Linux kernel now have interesting zram feature, which I would like to
+initialize via fstab. May be you find it interesting, and this feature
+will be implemented:
 
---_----------=_1358962957129320
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+It will be nice, add to fstab option "mkswap before swapon", which
+could be used for auto-initialization swap in zram.
 
+Right now, I do it in next way, which isn't very nice I think:
+1. zram size initialized via tmpfiles systemd mechanism
+2. mkswap done via udev rule
+3. /dev/zram0 added to fstab
 
-Hi,
-
-The man page does not make it clear, but as far as I can tell
-option '-u' only has an effect when one of the options '-bms'
-is also specified.  The command given in the EXAMPLE section:
-
-  whereis -u -M /usr/man/man1 -S /usr/src -f *
-
-does not do what it says it does.  A simpler example follows.
-(For clarity I have inserted a blank line before each prompt.)
-
-$ cd /bin
-
-$ whereis open*
-open: /bin/open /usr/share/man/man2/open.2.gz /usr/share/man/man1/open.1.gz
-openvt: /bin/openvt /usr/share/man/man1/openvt.1.gz
-
-$ whereis -u open*
-open: /bin/open /usr/share/man/man2/open.2.gz /usr/share/man/man1/open.1.gz
-openvt: /bin/openvt /usr/share/man/man1/openvt.1.gz
-
-$ whereis -u -m open*
-open: /usr/share/man/man2/open.2.gz /usr/share/man/man1/open.1.gz
-
-$ whereis -u -m -M /usr/share/man/man1 -f open*
-
-$ whereis -u -m -M /usr/share/man/man2 -f open*
-openvt:
-
-$ whereis -u -M /usr/share/man/man2 -f open*
-open: /bin/open /usr/share/man/man2/open.2.gz
-openvt: /bin/openvt
-
-The latter is equivalent to what the example in the man page does,
-but it lists all given names, not just the unusual ones.
-
-
-Attached patch tries to improve the whereis man page.
-(It also does a lot of minor editing all over the place.)
-
-
-$ whereis -V
-whereis from util-linux 2.20.1
-
-But current git still behaves the same.
-
-Benno
-
--- 
-http://www.fastmail.fm - Accessible with your email software
-                          or over the web
-
-
---_----------=_1358962957129320
-Content-Disposition: attachment; filename="0001-textual-fix-the-example-in-whereis-man-page-plus-fur.patch"
-Content-Id: <1358962810.12244.1d570c7f81bcf7dfc4fea5a00671d18702a9d6e7.75E39062@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-textual-fix-the-example-in-whereis-man-page-plus-fur.patch"
-
-RnJvbSAzYzRkY2JkN2UzNzlhOGFjNjNiOTc1YmYwZDYwN2RkZTE2OTZlMWVj
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogTW9uLCAyMSBK
-YW4gMjAxMyAyMzowMTowOSArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
-YWw6IGZpeCB0aGUgZXhhbXBsZSBpbiB3aGVyZWlzIG1hbiBwYWdlLCBwbHVz
-IGZ1cnRoZXIgaW1wcm92ZW1lbnRzCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBT
-Y2h1bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBtaXNj
-LXV0aWxzL3doZXJlaXMuMSB8ICAgODMgKysrKysrKysrKysrKysrKysrKysr
-KysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogMSBmaWxlcyBjaGFuZ2Vk
-LCA0MSBpbnNlcnRpb25zKCspLCA0MiBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
-aXQgYS9taXNjLXV0aWxzL3doZXJlaXMuMSBiL21pc2MtdXRpbHMvd2hlcmVp
-cy4xCmluZGV4IGY3ZjdkMjkuLjg2ZTZhMzkgMTAwNjQ0Ci0tLSBhL21pc2Mt
-dXRpbHMvd2hlcmVpcy4xCisrKyBiL21pc2MtdXRpbHMvd2hlcmVpcy4xCkBA
-IC0zMCwxMDkgKzMwLDEwOCBAQAogLlwiIFNVQ0ggREFNQUdFLgogLlwiCiAu
-XCIgQCgjKXdoZXJlaXMuMSBmcm9tIFVDQiA0LjIKLS5USCBXSEVSRUlTIDEg
-Ikp1bmUgMjAxMiIgInV0aWwtbGludXgiICJVc2VyIENvbW1hbmRzIgorLlRI
-IFdIRVJFSVMgMSAiSmFudWFyeSAyMDEzIiAidXRpbC1saW51eCIgIlVzZXIg
-Q29tbWFuZHMiCiAuU0ggTkFNRQogd2hlcmVpcyBcLSBsb2NhdGUgdGhlIGJp
-bmFyeSwgc291cmNlLCBhbmQgbWFudWFsIHBhZ2UgZmlsZXMgZm9yIGEgY29t
-bWFuZAogLlNIIFNZTk9QU0lTCiAuQiB3aGVyZWlzCiAuUkIgWyBvcHRpb25z
-IF0KIC5SQiBbIFwtQk1TCi0uSVIgZGlyZWN0b3J5IC4uLgotLkJSIFwtZiBd
-Ci0uSVIgZmlsZW5hbWUgLi4uCisuSVIgZGlyZWN0b3J5ICIuLi4gIiBcZkJc
-LWZcZlIgXQorLklSIG5hbWUgLi4uCiAuU0ggREVTQ1JJUFRJT04KIC5CIHdo
-ZXJlaXMKLWxvY2F0ZXMgc291cmNlL2JpbmFyeSBhbmQgbWFudWFscyBzZWN0
-aW9ucyBmb3Igc3BlY2lmaWVkIGZpbGVzLgorbG9jYXRlcyB0aGUgYmluYXJ5
-LCBzb3VyY2UgYW5kIG1hbnVhbCBmaWxlcyBmb3IgdGhlIHNwZWNpZmllZCBj
-b21tYW5kIG5hbWVzLgogVGhlIHN1cHBsaWVkIG5hbWVzIGFyZSBmaXJzdCBz
-dHJpcHBlZCBvZiBsZWFkaW5nIHBhdGhuYW1lIGNvbXBvbmVudHMKIGFuZCBh
-bnkgKHNpbmdsZSkgdHJhaWxpbmcgZXh0ZW5zaW9uIG9mIHRoZSBmb3JtCi0u
-QkkgLiBleHRcZlIsXGZQCi1mb3IgZXhhbXBsZSwKLS5CUiAuYyAuCisuQkkg
-LiBleHQKKyhmb3IgZXhhbXBsZToKKy5CUiAuYyApCiBQcmVmaXhlcyBvZgog
-LkIgcy4KIHJlc3VsdGluZyBmcm9tIHVzZSBvZiBzb3VyY2UgY29kZSBjb250
-cm9sIGFyZSBhbHNvIGRlYWx0IHdpdGguCiAuQiB3aGVyZWlzCiB0aGVuIGF0
-dGVtcHRzIHRvIGxvY2F0ZSB0aGUgZGVzaXJlZCBwcm9ncmFtIGluCi1hIGxp
-c3Qgb2Ygc3RhbmRhcmQgTGludXggcGxhY2VzLgordGhlIHN0YW5kYXJkIExp
-bnV4IHBsYWNlcywgYW5kIGluIHRoZSBwbGFjZXMgc3BlY2lmaWVkIGJ5Cisu
-QlIgJFBBVEggLgorCiAuU0ggT1BUSU9OUwogLlRQCiAuSVAgIlxmQlwtYlxm
-UCIKIFNlYXJjaCBvbmx5IGZvciBiaW5hcmllcy4KIC5JUCAiXGZCXC1tXGZQ
-IgotU2VhcmNoIG9ubHkgZm9yIG1hbnVhbCBzZWN0aW9ucy4KK1NlYXJjaCBv
-bmx5IGZvciBtYW51YWxzLgogLklQICJcZkJcLXNcZlAiCiBTZWFyY2ggb25s
-eSBmb3Igc291cmNlcy4KIC5JUCAiXGZCXC11XGZQIgotU2VhcmNoIGZvciB1
-bnVzdWFsIGVudHJpZXMuICBBIGZpbGUgaXMgc2FpZCB0byBiZSB1bnVzdWFs
-IGlmIGl0IGRvZXMKLW5vdCBoYXZlIG9uZSBlbnRyeSBvZiBlYWNoIHJlcXVl
-c3RlZCB0eXBlLiBUaHVzCitPbmx5IHNob3cgdGhlIGNvbW1hbmQgbmFtZXMg
-dGhhdCBoYXZlIHVudXN1YWwgZW50cmllcy4gIEEgY29tbWFuZAoraXMgc2Fp
-ZCB0byBiZSB1bnVzdWFsIGlmIGl0IGRvZXMKK25vdCBoYXZlIGp1c3Qgb25l
-IGVudHJ5IG9mIGVhY2ggZXhwbGljaXRseSByZXF1ZXN0ZWQgdHlwZS4gIFRo
-dXMKIC5SQiBgICJ3aGVyZWlzXCBcIFwtbVwgXCBcLXVcIFwgKiIgJwogYXNr
-cyBmb3IgdGhvc2UgZmlsZXMgaW4gdGhlIGN1cnJlbnQKLWRpcmVjdG9yeSB3
-aGljaCBoYXZlIG5vIGRvY3VtZW50YXRpb24uCitkaXJlY3Rvcnkgd2hpY2gg
-aGF2ZSBubyBkb2N1bWVudGF0aW9uIGZpbGUsIG9yIG1vcmUgdGhhbiBvbmUu
-CiAuSVAgIlxmQlwtQiBcZklsaXN0XGZQIgotQ2hhbmdlIG9yIG90aGVyd2lz
-ZSBsaW1pdCB0aGUgcGxhY2VzIHdoZXJlCitMaW1pdCB0aGUgcGxhY2VzIHdo
-ZXJlCiAuQiB3aGVyZWlzCi1zZWFyY2hlcyBmb3IgYmluYXJpZXMgYnkgd2hp
-dGUtc3BhY2Ugc2VwYXJhdGVkIGxpc3Qgb2YgZGlyZWN0b3JpZXMuCitzZWFy
-Y2hlcyBmb3IgYmluYXJpZXMsIGJ5IGEgd2hpdGVzcGFjZS1zZXBhcmF0ZWQg
-bGlzdCBvZiBkaXJlY3Rvcmllcy4KIC5JUCAiXGZCXC1NIFxmSWxpc3RcZlAi
-Ci1DaGFuZ2Ugb3Igb3RoZXJ3aXNlIGxpbWl0IHRoZSBwbGFjZXMgd2hlcmUK
-K0xpbWl0IHRoZSBwbGFjZXMgd2hlcmUKIC5CIHdoZXJlaXMKLXNlYXJjaGVz
-IGZvciBtYW51YWwgc2VjdGlvbnMgYnkgd2hpdGUtc3BhY2Ugc2VwYXJhdGVk
-IGxpc3Qgb2YgZGlyZWN0b3JpZXMuCitzZWFyY2hlcyBmb3IgbWFudWFscywg
-YnkgYSB3aGl0ZXNwYWNlLXNlcGFyYXRlZCBsaXN0IG9mIGRpcmVjdG9yaWVz
-LgogLklQICJcZkJcLVMgXGZJbGlzdFxmUCIKLS5CIFwtUwotQ2hhbmdlIG9y
-IG90aGVyd2lzZSBsaW1pdCB0aGUgcGxhY2VzIHdoZXJlCitMaW1pdCB0aGUg
-cGxhY2VzIHdoZXJlCiAuQiB3aGVyZWlzCi1zZWFyY2hlcyBmb3Igc291cmNl
-cyB3aGl0ZS1zcGFjZSBzZXBhcmF0ZWQgbGlzdCBvZiBkaXJlY3Rvcmllcy4K
-K3NlYXJjaGVzIGZvciBzb3VyY2VzLCBieSBhIHdoaXRlc3BhY2Utc2VwYXJh
-dGVkIGxpc3Qgb2YgZGlyZWN0b3JpZXMuCiAuSVAgIlxmQlwtZlxmUCIKLVRl
-cm1pbmF0ZSB0aGUgbGFzdCBkaXJlY3RvcnkgbGlzdCBhbmQgc2lnbmFscyB0
-aGUgc3RhcnQgb2YgZmlsZSBuYW1lcywKLWFuZAorVGVybWluYXRlcyB0aGUg
-ZGlyZWN0b3J5IGxpc3QgYW5kIHNpZ25hbHMgdGhlIHN0YXJ0IG9mIGZpbGVu
-YW1lcy4gIEl0CiAuSSBtdXN0CiBiZSB1c2VkIHdoZW4gYW55IG9mIHRoZQog
-LkJSIFwtQiAsCiAuQlIgXC1NICwKIG9yCiAuQlIgXC1TCi1vcHRpb25zIGFy
-ZSB1c2VkLgorb3B0aW9ucyBpcyB1c2VkLgorCiAuU0ggRVhBTVBMRQotRmlu
-ZCBhbGwgZmlsZXMgaW4KK1RvIGZpbmQgYWxsIGZpbGVzIGluCiAuQiAvdXNy
-L2Jpbgogd2hpY2ggYXJlIG5vdCBkb2N1bWVudGVkCiBpbgogLkIgL3Vzci9t
-YW4vbWFuMQotd2l0aCBzb3VyY2UgaW4KK29yIGhhdmUgbm8gc291cmNlIGlu
-CiAuQlIgL3Vzci9zcmMgOgogLklQCi0ubmYKLS5mdCBCCi0kIGNkIC91c3Iv
-YmluCi0kIHdoZXJlaXMgXC11IFwtTSAvdXNyL21hbi9tYW4xIFwtUyAvdXNy
-L3NyYyBcLWYgKgotLmZpCi0uZnQgUgorLkIgJCBjZCAvdXNyL2JpbgorLmJy
-CisuQiAkIHdoZXJlaXMgXC11IFwtbXMgXC1NIC91c3IvbWFuL21hbjEgXC1T
-IC91c3Ivc3JjIFwtZiAqCisKIC5TSCBGSUxFUwogLkIgd2hlcmVpcwotaGFz
-IGJhc2ljIHNldCBvZiBoYXJkLWNvZGVkIHBhdGhzIChzZWUgYmVsb3cpLiBJ
-ZiB0aGUgb3B0aW9uCitjb250YWlucyBhIGJhc2ljIHNldCBvZiBoYXJkLWNv
-ZGVkIHBhdGhzIChzZWUgYmVsb3cpLCBidXQgaWYgdGhlCiAuQiBcLUIKLWlz
-IG5vdCBzcGVjaWZpZWQgdGhlbiBhbHNvIGZvbGxvd3MKK29wdGlvbiBpcyBu
-b3Qgc3BlY2lmaWVkLCBpdCBhbHNvIGZvbGxvd3MgdGhlCiAuQiAkUEFUSAog
-ZW52aXJvbm1lbnQgdmFyaWFibGUgKHNpbmNlIHZlcnNpb24gMi4yMSkuCi0K
-LS5UUCAyMAorLklQCisuYnIKIC97YmluLHNiaW4sZXRjfQotLlRQCisuYnIK
-IC91c3Ive2xpYixcOmJpbixcOm9sZCxcOm5ldyxcOmxvY2FsLFw6Z2FtZXMs
-XDppbmNsdWRlLFw6ZXRjLFw6c3JjLFw6bWFuLFw6c2JpbixcOlgzODYsXDpU
-ZVgsXDpnKystaW5jbHVkZX0KLS5UUAorLmJyCiAvdXNyL2xvY2FsL3tYMzg2
-LFw6VGVYLFw6WDExLFw6aW5jbHVkZSxcOmxpYixcOm1hbixcOmV0YyxcOmJp
-bixcOmdhbWVzLFw6ZW1hY3N9CiAuU0ggIlNFRSBBTFNPIgotLkJSIGNoZGly
-ICgyVikKKy5CUiBjaGRpciAoMikKIC5TSCBCVUdTCiBTaW5jZQogLkIgd2hl
-cmVpcwogdXNlcwotLkJSIGNoZGlyICgyVikKKy5CUiBjaGRpciAoMikKIHRv
-IHJ1biBmYXN0ZXIsIHBhdGhuYW1lcyBnaXZlbiB3aXRoIHRoZQorLkJSIFwt
-QiAsCiAuQlIgXC1NICwKLS5CUiBcLVMgLAogb3IKLS5CIFwtQgotbXVzdCBi
-ZSBmdWxsOyB0aGF0IGlzLCB0aGV5IG11c3QgYmVnaW4gd2l0aCBhCisuQlIg
-XC1TCitvcHRpb25zIG11c3QgYmUgZnVsbDsgdGhhdCBpcywgdGhleSBtdXN0
-IGJlZ2luIHdpdGggYQogLlJCIGAgLyAnLgogLlBQCiAuU0ggQVZBSUxBQklM
-SVRZCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1358962957129320--
-
+I asked same question at systemd-devel ML, and was redirected to
+util-linux http://lists.freedesktop.org/archives/systemd-devel/2012-November/007444.html
