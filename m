@@ -1,62 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6209 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:11640 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756222Ab3AYRgZ (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Fri, 25 Jan 2013 12:36:25 -0500
-Date: Fri, 25 Jan 2013 18:36:23 +0100
+	id S1750785Ab3AGMmJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Jan 2013 07:42:09 -0500
+Date: Mon, 7 Jan 2013 13:42:06 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: fsck files w/relative paths
-Message-ID: <20130125173623.GD1954@x2.net.home>
-References: <201301201827.23141.vapier@gentoo.org>
- <20130125151736.GP27413@x2.net.home>
- <201301251202.02511.vapier@gentoo.org>
+To: Maksim Melnikau <maxposedon@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fstab zram swap integration idea
+Message-ID: <20130107124206.GF28963@x2.redhat.com>
+References: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201301251202.02511.vapier@gentoo.org>
+In-Reply-To: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 25, 2013 at 12:02:01PM -0500, Mike Frysinger wrote:
-> On Friday 25 January 2013 10:17:36 Karel Zak wrote:
-> > On Sun, Jan 20, 2013 at 06:27:22PM -0500, Mike Frysinger wrote:
-> > > we could tweak parse_argv() so that it checks for argv[0] == '.' in
-> > > addition to argv[0] == '/'.  but that wouldn't fix other relative paths
-> > > like: $ fsck images/foo
-> > > $ fsck foo
-> > 
-> > Hmm... maybe add a hint to the fsck man page is the best solution :-)
-> > 
-> > > should we treat all non-options as devices ?  would that break anything ?
-> > 
-> > I don't think it's a good idea.
-> > 
-> > All unknown stuff is by default interpreted as filesystem specific options
-> > (options for fsck.<type>) and it's pretty common that people don't use
-> > "--" separator between fsck and fsck.<type> options.
+On Sun, Jan 06, 2013 at 03:17:52AM +0300, Maksim Melnikau wrote:
+> Linux kernel now have interesting zram feature, which I would like to
+
+ hmm... why this all is not completely hidden in kernel memory
+ management? Why we need re-route by special device?
+
+ Is it designed for anything other than swaparea?
+
+> initialize via fstab. May be you find it interesting, and this feature
+> will be implemented:
 > 
-> well, i didn't mean non-fsck options, but non-options.  i.e. things that don't 
+> It will be nice, add to fstab option "mkswap before swapon", which
+> could be used for auto-initialization swap in zram.
 
-I understand..
+ swapon(8) already contains swap area reinitialization code (exec
+ mkswap), it's used for --fixpgsz.
 
-> start with dashes.  are there fscks which use non-options as something other 
-> than "file/device to check" ?
-
- fsck.ext4 -L bad_block_file  /dev/sda1
-
-or whatever... and note that we have no clue about all possible fsck
-implementations (not all is public and open source..)
-
-> really, the fsck checking here is simply to determine whether it has to 
-> automatically look up the root device and append that to the command line.  if 
-> the user specified a file/device, then that shouldn't happen.  we could even 
-> resort to doing a stat() on the non-options to see if it exists.
-
-.. so because we have no clue about -L we will call stat() for
-bad_block_file.
-
-IMHO require absolute paths seems like a better solution :-)
+ Maybe we can add "mkswap" fstab and command line option for swapon.
+ Anyway, mkswap is a nice and quick way how to lost data if you make a
+ typo in your configuration.
 
     Karel
 
