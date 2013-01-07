@@ -1,65 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f182.google.com ([209.85.220.182]:58125 "EHLO
-	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758143Ab3AIWrS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 17:47:18 -0500
-Received: by mail-vc0-f182.google.com with SMTP id fy27so2116756vcb.41
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 14:47:18 -0800 (PST)
-Date: Wed, 9 Jan 2013 17:47:15 -0500
-From: Dave Reisner <d@falconindy.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] build-sys: add chkdupexe and uuidd socket activation
- to most-builds
-Message-ID: <20130109224715.GY31925@rampage>
-References: <1357771446-11966-1-git-send-email-kerolasa@iki.fi>
- <1357771446-11966-3-git-send-email-kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:43017 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751026Ab3AGQdd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Jan 2013 11:33:33 -0500
+Date: Mon, 7 Jan 2013 17:33:27 +0100
+From: David Sterba <dsterba@suse.cz>
+To: Goffredo Baroncelli <kreijack@inwind.it>
+Cc: util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
+        Chris Mason <chris.mason@fusionio.com>,
+        Chris Murphy <lists@colorremedies.com>
+Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
+Message-ID: <20130107163327.GK20089@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+References: <50E9C267.3050302@inwind.it>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1357771446-11966-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <50E9C267.3050302@inwind.it>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 09, 2013 at 10:44:06PM +0000, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
-
-chkdupexe was marked as deprecated and turned off by default in
-4581bd9c6797ea3b75. Maybe generalize the commit message as well, since
-this does a lot more than just enable the 2 builds it claims.
-
->  configure.ac | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
+> Currently wipefs doesn't clear all the superblock of btrfs. Only the first 
+> one is cleared.
 > 
-> diff --git a/configure.ac b/configure.ac
-> index 16255b1..e937736 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -673,15 +673,17 @@ AC_ARG_ENABLE([most-builds],
->  )
->  if test "x$enable_most_builds" = xyes; then
->    enable_arch=check
-> +  enable_chfn_chsh=yes
-> +  enable_chkdupexe=yes
->    enable_elvtune=check
-> -  enable_tunelp=yes
->    enable_last=yes
->    enable_line=yes
->    enable_mesg=yes
-> +  enable_newgrp=yes
->    enable_reset=yes
-> +  enable_socket_activation=yes
-> +  enable_tunelp=yes
->    enable_vipw=yes
-> -  enable_chfn_chsh=yes
-> -  enable_newgrp=yes
->    enable_write=yes
->  fi
->  
-> -- 
-> 1.8.1
+> Btrfs has three superblocks. The first one is placed at 64KB, the second 
+> one at 64MB, the third one at 256GB.
+
+It can have as much as 4 superblock backup copies:
+
+Superblock offset 0 is 65536 (0x10000, block=16/0x10)
+Superblock offset 1 is 67108864 (0x4000000, block=16384/0x4000)
+Superblock offset 2 is 274877906944 (0x4000000000, block=67108864/0x4000000)
+Superblock offset 3 is 1125899906842624 (0x4000000000000, block=274877906944/0x4000000000)
+Superblock offset 4 is 4611686018427387904 (0x4000000000000000, block=1125899906842624/0x4000000000000)
+
+> If the first superblock is valid except that the "magic field" is zeroed,
+> btrfs skips the check of the other superblocks.
+> If the first superblock is fully invalid, btrfs checks for the other
+> superblock.
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> So zeroing the first superblock "magic field" at the beginning seems
+> that the filesystem is wiped. But when the first superblock is overwritten
+> (e.g. by another filesystem), then the other two superblocks may be considered
+> valid, and the filesystem may resurrect.
+
+And for that purpose all the superblock copies should be taken into
+account, regardless of the tricks that btrfs_mount applies.
+
+
+david
