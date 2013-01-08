@@ -1,33 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48255 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:53598 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757869Ab3AINvM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Jan 2013 08:51:12 -0500
-Date: Wed, 9 Jan 2013 14:51:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Richard Tollerton <rich.tollerton@ni.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mount: Fix -t in listing mode when run as non-root
-Message-ID: <20130109135108.GO18204@x2.net.home>
-References: <1357193134-26828-1-git-send-email-rich.tollerton@ni.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1357193134-26828-1-git-send-email-rich.tollerton@ni.com>
+	id S1750846Ab3AHQEw convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Jan 2013 11:04:52 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1Tsbfk-0001j4-Gf
+	for util-linux@vger.kernel.org; Tue, 08 Jan 2013 17:05:04 +0100
+Received: from netkingxp.iwf.ing.tu-bs.de ([134.169.61.21])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 08 Jan 2013 17:05:04 +0100
+Received: from G.Gersdorf by netkingxp.iwf.ing.tu-bs.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 08 Jan 2013 17:05:04 +0100
+To: util-linux@vger.kernel.org
+From: =?ISO-8859-1?Q?G=FCnter_Gersdorf?= <G.Gersdorf@tu-bs.de>
+Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
+Date: Tue, 08 Jan 2013 16:48:44 +0100
+Message-ID: <kchf4t$scf$1@ger.gmane.org>
+References: <50E9C267.3050302@inwind.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <50E9C267.3050302@inwind.it>
+Cc: linux-btrfs@vger.kernel.org
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 03, 2013 at 12:05:34AM -0600, Richard Tollerton wrote:
-> Presently, libmount-mount completely prohibits the use of -t by non-root
-> users.  This breaks using -t in listing mode as a user, which represents
-> a regression against mount-deprecated, macosx and presumably *BSD.
+Am 06.01.2013 19:28, schrieb Goffredo Baroncelli:
+>
+> You can pull the change from:
+> 	http://cassiopea.homelinux.net/git/util-linux.git
+> from the branch
+> 	btrfs-wipefs
+>
+After applying this patch, findfs and blkid didn't find filesystems 
+smaller than 256GB, probably because there is no third superblock.
 
- Applied, thanks.
+Günter
 
- Note that suggested way is to use findmnt(8), mount(8) output is
- maintained only for backward compatibility.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
