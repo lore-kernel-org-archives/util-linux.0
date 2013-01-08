@@ -1,92 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:65027 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752442Ab3ATSFK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jan 2013 13:05:10 -0500
-Received: by mail-wg0-f52.google.com with SMTP id 12so919658wgh.7
-        for <util-linux@vger.kernel.org>; Sun, 20 Jan 2013 10:05:09 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/6] nsenter: adjust few error messages
-Date: Sun, 20 Jan 2013 18:04:53 +0000
-Message-Id: <1358705096-21092-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
-References: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:32805 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756231Ab3AHSB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Jan 2013 13:01:57 -0500
+Date: Tue, 8 Jan 2013 19:01:26 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Goffredo Baroncelli <kreijack@inwind.it>
+Cc: util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
+        Chris Mason <chris.mason@fusionio.com>,
+        Chris Murphy <lists@colorremedies.com>
+Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
+Message-ID: <20130108180126.GB9177@x2.net.home>
+References: <50E9C267.3050302@inwind.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <50E9C267.3050302@inwind.it>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The 'neither filename nor target' is changed to use errx() rather than
-err(), because the errno is indicating success at the time of fatal error
-which is wrong message for an user.
+On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
+> If the first superblock is valid except that the "magic field" is zeroed,
+> btrfs skips the check of the other superblocks.
+> If the first superblock is fully invalid, btrfs checks for the other
+> superblock.
 
-The "cannot open %s" is same string as in other files, making translators
-to work less.
+ Hmm... why inconsistent (or missing) superblock is not reported as a
+ problem? If I good understand the filesystem is still mountable,
+ right?
 
-Remaining changes aim to ease understanding what went wrong for a
-non-programmer audience.
+> So zeroing the first superblock "magic field" at the beginning seems
+> that the filesystem is wiped.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/nsenter.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ Well, this is exactly the idea behind wipefs(8), just wipe minimal
+ number of bytes from the device to make the filesystem invisible for
+ libblkid (udev, ...). This concept is relatively safe, if you make a
+ mistake than you can restore the magic string, your data should not
+ be affected by wipefs(8).
 
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index ce2c64d..ec8600a 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -94,7 +94,7 @@ static void open_target_fd(int *fd, const char *type, const char *path)
- 		path = pathbuf;
- 	}
- 	if (!path)
--		err(EXIT_FAILURE, _("No filename and no target pid supplied for %s"),
-+		errx(EXIT_FAILURE, _("neither filename nor target pid supplied for %s"),
- 		    type);
- 
- 	if (*fd >= 0)
-@@ -102,7 +102,7 @@ static void open_target_fd(int *fd, const char *type, const char *path)
- 
- 	*fd = open(path, O_RDONLY);
- 	if (*fd < 0)
--		err(EXIT_FAILURE, _("open of '%s' failed"), path);
-+		err(EXIT_FAILURE, _("cannot open %s"), path);
- }
- 
- static void open_namespace_fd(int nstype, const char *path)
-@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
- 		if (nsfile->fd < 0)
- 			continue;
- 		if (setns(nsfile->fd, nsfile->nstype))
--			err(EXIT_FAILURE, _("setns of '%s' failed"),
-+			err(EXIT_FAILURE, _("reassociate to namespace '%s' failed"),
- 			    nsfile->name);
- 		close(nsfile->fd);
- 		nsfile->fd = -1;
-@@ -243,13 +243,13 @@ int main(int argc, char *argv[])
- 	if (root_fd >= 0 && wd_fd < 0) {
- 		wd_fd = open(".", O_RDONLY);
- 		if (wd_fd < 0)
--			err(EXIT_FAILURE, _("open of . failed"));
-+			err(EXIT_FAILURE, _("cannot open current working directory"));
- 	}
- 
- 	/* Change the root directory */
- 	if (root_fd >= 0) {
- 		if (fchdir(root_fd) < 0)
--			err(EXIT_FAILURE, _("fchdir to root_fd failed"));
-+			err(EXIT_FAILURE, _("change directory by root file descriptor failed"));
- 
- 		if (chroot(".") < 0)
- 			err(EXIT_FAILURE, _("chroot failed"));
-@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
- 	/* Change the working directory */
- 	if (wd_fd >= 0) {
- 		if (fchdir(wd_fd) < 0)
--			err(EXIT_FAILURE, _("fchdir to wd_fd failed"));
-+			err(EXIT_FAILURE, _("change directory by working directory file descriptor failed"));
- 
- 		close(wd_fd);
- 		wd_fd = -1;
+    Karel
+
 -- 
-1.8.1.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
