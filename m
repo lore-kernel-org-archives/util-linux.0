@@ -1,65 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:64578 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932106Ab3AIThF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 14:37:05 -0500
-Received: by mail-wg0-f53.google.com with SMTP id fn15so1244936wgb.32
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 11:37:04 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from nagini.codelibre.net ([80.68.93.164]:56938 "EHLO
+	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755153Ab3AHKxT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Jan 2013 05:53:19 -0500
+Date: Tue, 8 Jan 2013 10:44:43 +0000
+From: Roger Leigh <rleigh@codelibre.net>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/4] lib: add function to seed random()
-Date: Wed,  9 Jan 2013 19:36:53 +0000
-Message-Id: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
+Subject: Preservation of non-kernel mount options
+Message-ID: <20130108104443.GF3739@codelibre.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/randutils.h |  1 +
- lib/randutils.c     | 18 ++++++++++++++++++
- 2 files changed, 19 insertions(+)
+Hi,
 
-diff --git a/include/randutils.h b/include/randutils.h
-index dec5e35..9d4d41c 100644
---- a/include/randutils.h
-+++ b/include/randutils.h
-@@ -8,5 +8,6 @@
- 
- extern int random_get_fd(void);
- extern void random_get_bytes(void *buf, size_t nbytes);
-+extern void seed_random(void);
- 
- #endif
-diff --git a/lib/randutils.c b/lib/randutils.c
-index 85cb1a9..44d996e 100644
---- a/lib/randutils.c
-+++ b/lib/randutils.c
-@@ -104,6 +104,24 @@ void random_get_bytes(void *buf, size_t nbytes)
- 	return;
- }
- 
-+/* Seed random(3). */
-+void seed_random(void)
-+{
-+	struct timeval tv;
-+	unsigned int seed;
-+	FILE *fd;
-+
-+	if ((fd = fopen("/dev/urandom", "r"))) {
-+		fread(&seed, sizeof seed, 1, fd);
-+		fclose(fd);
-+	} else {
-+		gettimeofday(&tv, NULL);
-+		/* NOTE: intentional use of uninitialized variable */
-+		seed ^= (getpid() << 16) ^ tv.tv_sec ^ tv.tv_usec;
-+	}
-+	srandom(seed);
-+}
-+
- #ifdef TEST_PROGRAM
- int main(int argc __attribute__ ((__unused__)),
-          char *argv[] __attribute__ ((__unused__)))
+Apologies if this is already implemented in git and I didn't notice.
+
+Options like _netdev, comment= etc. are currently just ignored by
+mount AFAICS.  It would however be quite useful if they could be
+preserved in e.g. utab if possible so that you can use this to
+label mounts so that you can query for the information later using
+e.g. mount or findmnt.  Is this something which might be possible
+to add if it's not already possible?
+
+It turned out (at least in Debian) that some users were using the
+"bind" option to track which filesystems were to be e.g. backed up,
+space usage checked etc. (or not).  With the switch to /proc/mounts
+this information has been lost.  While using the bind option to do
+this is debatable, I was looking for a better and more robust
+solution to their problem, and being able to attach comments to
+the mounts seemed like it would fit in with the existing tools
+if they could be stored.
+
+
+Thanks,
+Roger
+
 -- 
-1.8.1
-
+  .''`.  Roger Leigh
+ : :' :  Debian GNU/Linux    http://people.debian.org/~rleigh/
+ `. `'   schroot and sbuild  http://alioth.debian.org/projects/buildd-tools
+   `-    GPG Public Key      F33D 281D 470A B443 6756 147C 07B3 C8BC 4083 E800
