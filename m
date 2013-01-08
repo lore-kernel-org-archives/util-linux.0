@@ -1,31 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f175.google.com ([209.85.214.175]:56765 "EHLO
-	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755918Ab3AFARx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 5 Jan 2013 19:17:53 -0500
-Received: by mail-ob0-f175.google.com with SMTP id vb8so16254278obc.34
-        for <util-linux@vger.kernel.org>; Sat, 05 Jan 2013 16:17:52 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:39264 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755827Ab3AHNSN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Jan 2013 08:18:13 -0500
+Date: Tue, 8 Jan 2013 14:17:29 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Cristian =?iso-8859-1?Q?Rodr=EDguez?= <crrodriguez@opensuse.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] include/bitops.h: Use the operating system byteswapping
+ functions
+Message-ID: <20130108131729.GE18204@x2.net.home>
+References: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
 MIME-Version: 1.0
-Date: Sun, 6 Jan 2013 03:17:52 +0300
-Message-ID: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
-Subject: fstab zram swap integration idea
-From: Maksim Melnikau <maxposedon@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1356543501-7033-1-git-send-email-crrodriguez@opensuse.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Linux kernel now have interesting zram feature, which I would like to
-initialize via fstab. May be you find it interesting, and this feature
-will be implemented:
+On Wed, Dec 26, 2012 at 02:38:21PM -0300, Cristian Rodríguez wrote:
+> There is no need to reinvent the wheel.
 
-It will be nice, add to fstab option "mkswap before swapon", which
-could be used for auto-initialization swap in zram.
+ Well, htoXX function were added to glibc in version 2.9 (2009?), our
+ bitops.h is probably older.
 
-Right now, I do it in next way, which isn't very nice I think:
-1. zram size initialized via tmpfiles systemd mechanism
-2. mkswap done via udev rule
-3. /dev/zram0 added to fstab
+ Anyway, you're right that use libc implementation is good idea. I
+ have merged both patches and applied with some changes.
+ 
+ Please, use Signed-off-by: next time.
 
-I asked same question at systemd-devel ML, and was redirected to
-util-linux http://lists.freedesktop.org/archives/systemd-devel/2012-November/007444.html
+ Thanks!
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
