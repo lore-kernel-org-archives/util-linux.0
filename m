@@ -1,33 +1,52 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32880 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757758Ab3AIMrn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Jan 2013 07:47:43 -0500
-Date: Wed, 9 Jan 2013 13:47:32 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] script: search shell from path, when necessary
-Message-ID: <20130109124732.GH18204@x2.net.home>
-References: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
+Return-Path: kreijack@tiscalinet.it
+Message-ID: <50EC7CF9.9010308@tiscalinet.it>
+Date: Tue, 08 Jan 2013 21:09:29 +0100
+From: Goffredo Baroncelli <kreijack@tiscalinet.it>
+Reply-To: kreijack@inwind.it
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1356729823-729-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Chris Mason <chris.mason@fusionio.com>
+CC: Goffredo Baroncelli <kreijack@inwind.it>, util-linux@vger.kernel.org,
+        linux-btrfs <linux-btrfs@vger.kernel.org>,
+        Chris Murphy <lists@colorremedies.com>
+Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
+References: <50E9C267.3050302@inwind.it> <20130108180126.GB9177@x2.net.home>
+In-Reply-To: <20130108180126.GB9177@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 28, 2012 at 09:23:40PM +0000, Sami Kerola wrote:
-> Addresses: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=518532
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/script.c | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
+Hi Karel,
 
- Hmm... not sure, but I have not found any strong argument, so applied
- :-) Thanks.
+On 01/08/2013 07:01 PM, Karel Zak wrote:
+> On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
+>> If the first superblock is valid except that the "magic field" is zeroed,
+>> btrfs skips the check of the other superblocks.
+>> If the first superblock is fully invalid, btrfs checks for the other
+>> superblock.
+> 
+>  Hmm... why inconsistent (or missing) superblock is not reported as a
+>  problem? If I good understand the filesystem is still mountable,
+>  right?
 
-    Karel
+It should, however my tests were unsuccessful :-(... Chris ?
+
+
+> 
+>> So zeroing the first superblock "magic field" at the beginning seems
+>> that the filesystem is wiped.
+> 
+>  Well, this is exactly the idea behind wipefs(8), just wipe minimal
+>  number of bytes from the device to make the filesystem invisible for
+>  libblkid (udev, ...). This concept is relatively safe, if you make a
+>  mistake than you can restore the magic string, your data should not
+>  be affected by wipefs(8).
+
+I fully agree. However wipefs should zero all three superblock
+
+> 
+>     Karel
+> 
+
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+gpg @keyserver.linux.it: Goffredo Baroncelli (kreijackATinwind.it>
+Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
