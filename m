@@ -1,75 +1,90 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Date: Wed, 9 Jan 2013 19:10:22 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kreijack@inwind.it
-Cc: util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Mason <chris.mason@fusionio.com>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-Message-ID: <20130109181022.GA1372@x2.net.home>
-References: <50E9C267.3050302@inwind.it>
- <20130108164314.GA9177@x2.net.home>
- <50EDAD6C.4050901@gmail.com>
+Return-Path: firebird347@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50EDAD6C.4050901@gmail.com>
-Sender: linux-btrfs-owner@vger.kernel.org
+Sender: firebird347@gmail.com
+In-Reply-To: <20130107115103.GD28963@x2.redhat.com>
+References: <1357183321-24637-4-git-send-email-cmaloney@theoreticalchaos.com>
+ <805019865.52854570.1357230851238.JavaMail.root@redhat.com> <20130107115103.GD28963@x2.redhat.com>
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+Date: Mon, 7 Jan 2013 23:15:34 -0700
+Message-ID: <CA+K3q6pjbLjc3MkpOywwBdjcr-4YtbN9h-sDA1C44e3T6B1V_w@mail.gmail.com>
+Subject: Re: [PATCH 3/3] chsh: Add libuser support
+To: Karel Zak <kzak@redhat.com>
+Cc: Miloslav Trmac <mitr@redhat.com>, util-linux@vger.kernel.org
+Content-Type: multipart/alternative; boundary=e89a8f2354f5d2faef04d2c0e0cc
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 09, 2013 at 06:48:28PM +0100, Goffredo Baroncelli wrote:
-> Hi Karel,
-> 
-> > 
-> >  You can specify more than one magic strings for the same filesystem,
-> >  the .magics = { } is array.
-> 
-> thanks for you suggestion. However this seems to me not applicable. I
-> tried to change the code, and what I got to me seems inconsistently:
-> 
-> Whit this change
-> 
-> 1) if I do "wipefs <device>", I got the offset of the first superblock
-> (good enough)
-> 2) if I do "wipefs -a <device>", I clean-up *all three* superblocks
-> (very good)
-> 3) if I do "wipefs -o <offset> <device>", I clean-up only the superblock
-> located at <offset> (very bad)
+--e89a8f2354f5d2faef04d2c0e0cc
+Content-Type: text/plain; charset=ISO-8859-1
 
- this is expected behavior described in wipefs man page:
+I definitely don't mind depending on the newer version. I'll update the
+patch(es) with both your comments, and write up the patch for chfn. I
+should have them done and sent to the list in the next couple of days.
 
-Note  that  some  filesystems  or  some partition tables store more
-magic strings on the devices. The wipefs lists the first offset where
-a magic string has been detected. The device is not  scanned  for
-additional magic strings for the same filesystem. It's possible that
-after wipefs -o <offset> will be the same filesystem or partition
-table visible by another magic string on another offset.
+Cody
 
-> If the user doesn't know enough btrfs, trying 1) and 3) could think that
-> the disk is cleaned-up. Instead the 2nd and the 3rd super-blocks still
-> exist.
 
- well, users (and installers) usually use wipefs -a or wipefs -t <fsname>
+On Mon, Jan 7, 2013 at 4:51 AM, Karel Zak <kzak@redhat.com> wrote:
 
-> >  see for example libblkid/src/superblocks/reiserfs.c 
-> 
-> I think that this is a different case: the reiser superblocks are
+> On Thu, Jan 03, 2013 at 11:34:11AM -0500, Miloslav Trmac wrote:
+> > > +   memset(&val, 0, sizeof(val));
+> > > +   g_value_init(&val, G_TYPE_STRING);
+> > > +   g_value_set_string(&val, shell);
+> > > +
+> > > +   lu_ent_clear(ent, LU_LOGINSHELL);
+> > > +   lu_ent_add(ent, LU_LOGINSHELL, &val);
+> > If you don't mind depending on libuser >= 0.58, all of the above can be
+> replaced with
+> > > lu_ent_set_string(ent, LU_LOGINSHELL, shell);
+> > and you can drop the "g_value_unset" calls as well.
+>
+>  It would be nice to drop g_* junk :-)
+>
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
 
- it was example how to specify the magic strings in the code
+--e89a8f2354f5d2faef04d2c0e0cc
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> *alternative*; instead in the btrfs case, *all the three superblocks*
-> exist at the same time.
+<div dir=3D"ltr">I definitely don&#39;t mind depending on the newer version=
+. I&#39;ll update the patch(es) with both your comments, and write up the p=
+atch for chfn. I should have them done and sent to the list in the next cou=
+ple of days.<div>
 
- this is pretty common to have backup superblock (e.g. GPT) or more
- ways how to detect the filesystem (e.g. FAT).
+<br></div><div>Cody</div></div><div class=3D"gmail_extra"><br><br><div clas=
+s=3D"gmail_quote">On Mon, Jan 7, 2013 at 4:51 AM, Karel Zak <span dir=3D"lt=
+r">&lt;<a href=3D"mailto:kzak@redhat.com" target=3D"_blank">kzak@redhat.com=
+</a>&gt;</span> wrote:<br>
 
- Please, send me the patch with the magic strings :-)
- 
- I really don't want to add dummy filesystems to the library (like you
- did in the first version of the patch) -- it's very bad idea with
- many side effects.
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"im">On Thu, Jan 03, 2013 at 11=
+:34:11AM -0500, Miloslav Trmac wrote:<br>
+&gt; &gt; + =A0 memset(&amp;val, 0, sizeof(val));<br>
+&gt; &gt; + =A0 g_value_init(&amp;val, G_TYPE_STRING);<br>
+&gt; &gt; + =A0 g_value_set_string(&amp;val, shell);<br>
+&gt; &gt; +<br>
+&gt; &gt; + =A0 lu_ent_clear(ent, LU_LOGINSHELL);<br>
+&gt; &gt; + =A0 lu_ent_add(ent, LU_LOGINSHELL, &amp;val);<br>
+&gt; If you don&#39;t mind depending on libuser &gt;=3D 0.58, all of the ab=
+ove can be replaced with<br>
+&gt; &gt; lu_ent_set_string(ent, LU_LOGINSHELL, shell);<br>
+&gt; and you can drop the &quot;g_value_unset&quot; calls as well.<br>
+<br>
+</div>=A0It would be nice to drop g_* junk :-)<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+<br>
+=A0 =A0 Karel<br>
+<br>
+--<br>
+=A0Karel Zak =A0&lt;<a href=3D"mailto:kzak@redhat.com">kzak@redhat.com</a>&=
+gt;<br>
+=A0<a href=3D"http://karelzak.blogspot.com" target=3D"_blank">http://karelz=
+ak.blogspot.com</a><br>
+</font></span></blockquote></div><br></div>
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--e89a8f2354f5d2faef04d2c0e0cc--
