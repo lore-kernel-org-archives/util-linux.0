@@ -1,82 +1,89 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:50506 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756011Ab3AYRCE (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Fri, 25 Jan 2013 12:02:04 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: fsck files w/relative paths
-Date: Fri, 25 Jan 2013 12:02:01 -0500
-Cc: util-linux-ng@vger.kernel.org
-References: <201301201827.23141.vapier@gentoo.org> <20130125151736.GP27413@x2.net.home>
-In-Reply-To: <20130125151736.GP27413@x2.net.home>
+Return-Path: firebird347@gmail.com
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5267545.yz1E1c24QN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201301251202.02511.vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+Sender: firebird347@gmail.com
+In-Reply-To: <20130107115103.GD28963@x2.redhat.com>
+References: <1357183321-24637-4-git-send-email-cmaloney@theoreticalchaos.com>
+ <805019865.52854570.1357230851238.JavaMail.root@redhat.com> <20130107115103.GD28963@x2.redhat.com>
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+Date: Mon, 7 Jan 2013 23:17:10 -0700
+Message-ID: <CA+K3q6qEDsejkFpPNw5EnMhzW8-YQLwRPKjWAPU1SeN99AoGTQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] chsh: Add libuser support
+To: Karel Zak <kzak@redhat.com>
+Cc: Miloslav Trmac <mitr@redhat.com>, util-linux@vger.kernel.org
+Content-Type: multipart/alternative; boundary=14dae934089d9025fb04d2c0e6b1
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart5267545.yz1E1c24QN
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+--14dae934089d9025fb04d2c0e6b1
+Content-Type: text/plain; charset=ISO-8859-1
+
+I definitely don't mind depending on the newer version. I'll update the
+patch(es) with both your comments, and write up the patch for chfn. I
+should have them done and sent to the list in the next couple of days.
+
+
+On Mon, Jan 7, 2013 at 4:51 AM, Karel Zak <kzak@redhat.com> wrote:
+
+> On Thu, Jan 03, 2013 at 11:34:11AM -0500, Miloslav Trmac wrote:
+> > > +   memset(&val, 0, sizeof(val));
+> > > +   g_value_init(&val, G_TYPE_STRING);
+> > > +   g_value_set_string(&val, shell);
+> > > +
+> > > +   lu_ent_clear(ent, LU_LOGINSHELL);
+> > > +   lu_ent_add(ent, LU_LOGINSHELL, &val);
+> > If you don't mind depending on libuser >= 0.58, all of the above can be
+> replaced with
+> > > lu_ent_set_string(ent, LU_LOGINSHELL, shell);
+> > and you can drop the "g_value_unset" calls as well.
+>
+>  It would be nice to drop g_* junk :-)
+>
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
+
+--14dae934089d9025fb04d2c0e6b1
+Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Friday 25 January 2013 10:17:36 Karel Zak wrote:
-> On Sun, Jan 20, 2013 at 06:27:22PM -0500, Mike Frysinger wrote:
-> > we could tweak parse_argv() so that it checks for argv[0] =3D=3D '.' in
-> > addition to argv[0] =3D=3D '/'.  but that wouldn't fix other relative p=
-aths
-> > like: $ fsck images/foo
-> > $ fsck foo
->=20
-> Hmm... maybe add a hint to the fsck man page is the best solution :-)
->=20
-> > should we treat all non-options as devices ?  would that break anything=
- ?
->=20
-> I don't think it's a good idea.
->=20
-> All unknown stuff is by default interpreted as filesystem specific options
-> (options for fsck.<type>) and it's pretty common that people don't use
-> "--" separator between fsck and fsck.<type> options.
+<div dir=3D"ltr"><span style=3D"font-family:arial,sans-serif;font-size:13px=
+">I definitely don&#39;t mind depending on the newer version. I&#39;ll upda=
+te the patch(es) with both your comments, and write up the patch for chfn. =
+I should have them done and sent to the list in the next couple of days.</s=
+pan><br>
 
-well, i didn't mean non-fsck options, but non-options.  i.e. things that do=
-n't=20
-start with dashes.  are there fscks which use non-options as something othe=
-r=20
-than "file/device to check" ?
+</div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Mon,=
+ Jan 7, 2013 at 4:51 AM, Karel Zak <span dir=3D"ltr">&lt;<a href=3D"mailto:=
+kzak@redhat.com" target=3D"_blank">kzak@redhat.com</a>&gt;</span> wrote:<br=
+><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1=
+px #ccc solid;padding-left:1ex">
 
-really, the fsck checking here is simply to determine whether it has to=20
-automatically look up the root device and append that to the command line. =
- if=20
-the user specified a file/device, then that shouldn't happen.  we could eve=
-n=20
-resort to doing a stat() on the non-options to see if it exists.
-=2Dmike
+<div class=3D"im">On Thu, Jan 03, 2013 at 11:34:11AM -0500, Miloslav Trmac =
+wrote:<br>
+&gt; &gt; + =A0 memset(&amp;val, 0, sizeof(val));<br>
+&gt; &gt; + =A0 g_value_init(&amp;val, G_TYPE_STRING);<br>
+&gt; &gt; + =A0 g_value_set_string(&amp;val, shell);<br>
+&gt; &gt; +<br>
+&gt; &gt; + =A0 lu_ent_clear(ent, LU_LOGINSHELL);<br>
+&gt; &gt; + =A0 lu_ent_add(ent, LU_LOGINSHELL, &amp;val);<br>
+&gt; If you don&#39;t mind depending on libuser &gt;=3D 0.58, all of the ab=
+ove can be replaced with<br>
+&gt; &gt; lu_ent_set_string(ent, LU_LOGINSHELL, shell);<br>
+&gt; and you can drop the &quot;g_value_unset&quot; calls as well.<br>
+<br>
+</div>=A0It would be nice to drop g_* junk :-)<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+<br>
+=A0 =A0 Karel<br>
+<br>
+--<br>
+=A0Karel Zak =A0&lt;<a href=3D"mailto:kzak@redhat.com">kzak@redhat.com</a>&=
+gt;<br>
+=A0<a href=3D"http://karelzak.blogspot.com" target=3D"_blank">http://karelz=
+ak.blogspot.com</a><br>
+</font></span></blockquote></div><br></div>
 
---nextPart5267545.yz1E1c24QN
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJRArqKAAoJEEFjO5/oN/WBoU8QAJNuXURfAjpG0wJFo4huqffY
-nsis1QBW3NzLIi2Eta5PS4+qSZaEhbNXmseiW7nOqFi7bto5b3Jmy2BqFI4vCygM
-xuLguGp+93boo2yf5UV+MfpiEbOJWNV1kYNmRQaZ9Tq/DYfRbzMQzhC5O4YFJNJn
-nJGsA8IwlgAOfoHLgSNweb18Rky0LGrz9jJk1zxMeF4M8KKwo9HEy7OU8WrOuEU9
-9ACQVfq2hetyALssT4RlWmfFn6RLY3umuqyypRGlTVHKfPrtSFFFTJVuChhr5XyM
-i3sUoy91FUyMy3bPilrlLjg8zLjmW6MZudIboOQod6WLQ4BSm5x8yG/sagYMR9HE
-Ap8vo0s8prQYjgwexiyakmiCqgBVM3hfmQ3n+AY6O+PGxy/aeeX4VzrT3V6xEPgX
-IyPRwkn0Blcz7Esc8eWONtr3WTs/8sT50cM+rRehuHc5rY4kPxlAee8zgz/ApXC4
-t2e5YP4oXabM6fSXFr9o7mxq+odXMcyfKRICGZgQ72hjcVzeCmhHqgIlzG33kD6v
-OJW5vh8C56FCpUwa+2h2SeCu0zARaNEs4Qyj1n2R+w3nfY8nGEbbxQ9SQnTNIEql
-lRLCs7/jcVVsemYXBH/tFZnzUHGQjgh3WZgE/qE7wu2pNprjEd4kq2HmX/SSLufh
-AoMvI3RRts9iwRlSVyGA
-=4xVl
------END PGP SIGNATURE-----
-
---nextPart5267545.yz1E1c24QN--
+--14dae934089d9025fb04d2c0e6b1--
