@@ -1,54 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33053 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:49099 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751392Ab3AJJr6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Jan 2013 04:47:58 -0500
-Date: Thu, 10 Jan 2013 10:47:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Maksim Melnikau <maxposedon@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fstab zram swap integration idea
-Message-ID: <20130110094755.GA19166@x2.net.home>
-References: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
- <20130107124206.GF28963@x2.redhat.com>
- <CAGbmdnUTicf7VYrPW3_UmpX=BM80K25=uWjgc=u1=nyGPHzCtQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGbmdnUTicf7VYrPW3_UmpX=BM80K25=uWjgc=u1=nyGPHzCtQ@mail.gmail.com>
+	id S1756051Ab3AIIKD convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 03:10:03 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1Tsqjp-0001jq-QC
+	for util-linux@vger.kernel.org; Wed, 09 Jan 2013 09:10:17 +0100
+Received: from netkingxp.iwf.ing.tu-bs.de ([134.169.61.21])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 09:10:17 +0100
+Received: from G.Gersdorf by netkingxp.iwf.ing.tu-bs.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 09:10:17 +0100
+To: util-linux@vger.kernel.org
+From: =?ISO-8859-1?Q?G=FCnter_Gersdorf?= <G.Gersdorf@tu-bs.de>
+Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
+Date: Wed, 09 Jan 2013 09:09:45 +0100
+Message-ID: <kcj8k7$hdl$1@ger.gmane.org>
+References: <50E9C267.3050302@inwind.it> <kchf4t$scf$1@ger.gmane.org> <50EC822B.1070102@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <50EC822B.1070102@gmail.com>
+Cc: linux-btrfs@vger.kernel.org
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 07, 2013 at 05:52:28PM +0300, Maksim Melnikau wrote:
-> On Mon, Jan 7, 2013 at 3:42 PM, Karel Zak <kzak@redhat.com> wrote:
-> >  Is it designed for anything other than swaparea?
-> Yes, zram is kind-of "compressed" block device in memory, any block
-> device operations could be done on top of it. Some people initialize
-> ext4 partitions "in memory" for temporary operations.
-> So, I still think fstab is correct place for describing fs/swap even
-> for zram. Questions are: 1) what is correct place for mkfs/mkswap zram
-> devices, at startup? 2) What is correct place for setting size for
-> zram block device? (right now I use systemd's tmpfiles.d)
+Am 08.01.2013 21:31, schrieb Goffredo Baroncelli:
+> Hi Günter,
+>
+> On 01/08/2013 04:48 PM, Günter Gersdorf wrote:
+>> Am 06.01.2013 19:28, schrieb Goffredo Baroncelli:
+>>>
+>>> You can pull the change from:
+>>>      http://cassiopea.homelinux.net/git/util-linux.git
+>>> from the branch
+>>>      btrfs-wipefs
+>>>
+>> After applying this patch, findfs and blkid didn't find filesystems
+>> smaller than 256GB, probably because there is no third superblock.
+>
+> In my system also the stock "findfs" and "blkid" have the same problem:
+> ie without my patch these utilities were unable to detect a btrfs
+> filesystem.
+>
+> Could you confirm that ?
 
-I see two independent operations
+Without the patch?
+On my systems, after applying the patch blkid and findfs will not find 
+any btrfs filesystems, even if bigger than 256GB.
 
-  1/ initialize zram device
-  2/ create on-device filesystem/swap
-
-in our previous emails we have talked about 2/ for swap (call mkswap).
-
-I'm not sure if 1/ belongs to swapon/mount. It seems better to create
-a special udev rule for this purpose (we use the same solution for
-example for raw devices) or systemd unit.
-
-Note that the ideal solution is to have a special daemon for block
-devices management where you can configure complex scenarios and ask
-for usable device/filesystem.... but something like this is not
-implemented yet. These things are too complicated to hide it into
-mount/swapon.
-
-    Karel
+Günter
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
