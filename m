@@ -1,46 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:37721 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752259Ab3ATNf2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 20 Jan 2013 08:35:28 -0500
-Message-Id: <1358688927.20076.140661179956885.59525AA5@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:2730 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752957Ab3AJKHu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 10 Jan 2013 05:07:50 -0500
+Date: Thu, 10 Jan 2013 11:07:45 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Roger Leigh <rleigh@codelibre.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Preservation of non-kernel mount options
+Message-ID: <20130110100745.GB19166@x2.net.home>
+References: <20130108104443.GF3739@codelibre.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [patches] a bunch of textual fixes, plus -V for renice
-Date: Sun, 20 Jan 2013 14:35:27 +0100
-In-Reply-To: <CAG27Bk0TErNurB5fOaM9=3O4Wzy6dv7Gx7oHL-vzuv=NGEiVyA@mail.gmail.com>
-References: <1358679376.31211.140661179923553.796CC6BD@webmail.messagingengine.com>
- <CAG27Bk0TErNurB5fOaM9=3O4Wzy6dv7Gx7oHL-vzuv=NGEiVyA@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130108104443.GF3739@codelibre.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jan 08, 2013 at 10:44:43AM +0000, Roger Leigh wrote:
+> Options like _netdev, comment= etc. are currently just ignored by
+> mount AFAICS.  It would however be quite useful if they could be
+> preserved in e.g. utab if possible so that you can use this to
+> label mounts so that you can query for the information later using
+> e.g. mount or findmnt.  Is this something which might be possible
+> to add if it's not already possible?
 
-Hello Sami,
+ The goal is to minimize number of situations when anything about
+ mountpoints is maintained in userspace. It's usually too tricky to
+ keep the userspace information synchronized with in-kernel
+ information (imagine things like namespaces, sandboxes, ...).
 
-On Sun, Jan 20, 2013, at 12:25, Sami Kerola wrote:
-> +       fprintf(stderr, _("%s from %s\n"),
-> +                       program_invocation_short_name, PACKAGE_STRING);
-> 
-> should use UL version printing macro.
-> 
-> +       fprintf(stderr, UTIL_LINUX_VERSION);
+> It turned out (at least in Debian) that some users were using the
+> "bind" option to track which filesystems were to be e.g. backed up,
+> space usage checked etc. (or not).  With the switch to /proc/mounts
+> this information has been lost.  While using the bind option to do
+> this is debatable, I was looking for a better and more robust
+> solution to their problem, and being able to attach comments to
+> the mounts seemed like it would fit in with the existing tools
+> if they could be stored.
 
-Ah.  Okay.  Then it is good to leave that out for now.  I will provide a
-new patch for that later.
+ Would be possible to improve the backup scripts to maintain
+ information about *filesystems* in userspace and address the
+ information by filesystem UUIDs? Something like
 
-> In the patch 0007 the renice(1) adds -V short option along side with
-> -v to print version. IMHO if the upper case option is added the lower
-> case equivalent should be dropped.
+   /var/log/backup-info/<UUID>/item{A,B,C}
 
-I agree -v should be dropped for --version, but I didn't want to do that
-right away.  Maybe one or two releases down the line?
+ the UUID is stable, you will not affected by things like namespaces,
+ umount/mount/move/... operations. The info will be completely
+ independent on mountpoints and found the filesystem in the findmnt(8)
+ or lsblk(8) output by UUID is pretty simple.
 
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - Choose from over 50 domains or use your own
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
