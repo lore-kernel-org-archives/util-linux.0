@@ -1,209 +1,119 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:44373 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932106Ab3AIThK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 14:37:10 -0500
-Received: by mail-wi0-f177.google.com with SMTP id hm2so763375wib.10
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 11:37:09 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/4] ipcmk: allow user to create more ipc resources at a time
-Date: Wed,  9 Jan 2013 19:36:55 +0000
-Message-Id: <1357760216-4068-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
-References: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
+Received: from out03.mta.xmission.com ([166.70.13.233]:45501 "EHLO
+	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754607Ab3AKWL7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Jan 2013 17:11:59 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Michael Kerrisk \(man-pages\)" <mtk.manpages@gmail.com>
+References: <876234812z.fsf@xmission.com> <20130111161320.GA16206@x2.net.home>
+Date: Fri, 11 Jan 2013 14:11:47 -0800
+In-Reply-To: <20130111161320.GA16206@x2.net.home> (Karel Zak's message of
+	"Fri, 11 Jan 2013 17:13:20 +0100")
+Message-ID: <87ehhrnzdo.fsf@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH] enter: new command (light wrapper around setns)
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There is no reason why 'ipcmk -Q -Q' would should not work, so allow that
-and any other combination of switches such as:
+Karel Zak <kzak@redhat.com> writes:
 
-ipcmk -Q -Q -p 700 -M 42 -Q -S 13
+> On Fri, Jan 11, 2013 at 02:29:24AM -0800, Eric W. Biederman wrote:
+>> 
+>> Inspired by unshare, enter is a simple wrapper around setns that
+>> allows running a new process in the context of an existing process.
+>
+>  It would be really nice to have "ns" in the name -- for example
+>  "enterns" sounds good.
 
-The behavior of '-p' changed in this commit.  Permissions affect the
-resources mentioned after the permission option.  Earlier the last
-permission option took effect across different resources.  Notice that
-formerly user could create one of each shm, msg, and sem simultaneously.
+enterns might work.  I am still trying to reconcile that name with
+changing the working directory and the root directory.  Those really
+aren't namespaces.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/ipcmk.1 |   3 +-
- sys-utils/ipcmk.c | 110 ++++++++++++++++++++++++++++--------------------------
- 2 files changed, 59 insertions(+), 54 deletions(-)
+But name slightly less generic seems to be the popular vote.  Short of
+something better my vote is for nsenter.  enterns sounds way too much
+like interns which has a rather different meaning.
 
-diff --git a/sys-utils/ipcmk.1 b/sys-utils/ipcmk.1
-index 0900a19..b9775a4 100644
---- a/sys-utils/ipcmk.1
-+++ b/sys-utils/ipcmk.1
-@@ -29,7 +29,8 @@ Message queue.
- .SH "ADDITIONAL OPTIONS"
- .TP
- \fB\-p\fR, \fB\-\-mode\fR [\fImode\fR]
--Permission for the resource. Default is 0644.
-+Access permissions for the resource.  The mode will take effect for
-+resources that are defined after the option.  Default mode is 0644.
- .TP
- \fB\-h\fR, \fB\-\-help\fR
- Display a short help message and exit.
-diff --git a/sys-utils/ipcmk.c b/sys-utils/ipcmk.c
-index 9b943b7..8d15028 100644
---- a/sys-utils/ipcmk.c
-+++ b/sys-utils/ipcmk.c
-@@ -36,22 +36,49 @@
- #include "closestream.h"
- #include "randutils.h"
- 
--static int create_shm(size_t size, int permission)
-+enum res_types {
-+	SHM = 0,
-+	MSG,
-+	SEM
-+};
-+
-+const char *res_messages[] = {
-+	[SHM] = N_("shared memory"),
-+	[MSG] = N_("message queue"),
-+	[SEM] = N_("semaphore")
-+};
-+
-+struct ipc_res {
-+	int type;
-+	int perm;
-+	size_t size;
-+	int nsems;
-+	struct ipc_res *next;
-+};
-+
-+static int create_res(struct ipc_res *res)
- {
-+	int ret;
- 	key_t key = random();
--	return shmget(key, size, permission | IPC_CREAT);
--}
--
--static int create_msg(int permission)
--{
--	key_t key = random();
--	return msgget(key, permission | IPC_CREAT);
--}
--
--static int create_sem(int nsems, int permission)
--{
--	key_t key = random();
--	return semget(key, nsems, permission | IPC_CREAT);
-+	switch (res->type) {
-+	case SHM:
-+		ret = shmget(key, res->size, res->perm | IPC_CREAT);
-+		break;
-+	case MSG:
-+		ret = msgget(key, res->perm | IPC_CREAT);
-+		break;
-+	case SEM:
-+		ret = semget(key, res->nsems, res->perm | IPC_CREAT);
-+		break;
-+	default:
-+		abort();
-+	}
-+	if (ret == -1) {
-+		warn(_("create %s failed"), res_messages[res->type]);
-+		return 1;
-+	}
-+	printf(_("%s id: %d\n"), res_messages[res->type], ret);
-+	return 0;
- }
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
-@@ -74,11 +101,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 
- int main(int argc, char **argv)
- {
--	int permission = 0644;
-+	struct ipc_res res;
- 	int opt;
--	size_t size = 0;
--	int nsems = 0;
--	int ask_shm = 0, ask_msg = 0, ask_sem = 0;
-+	int ret = EXIT_SUCCESS;
- 	static const struct option longopts[] = {
- 		{"shmem", required_argument, NULL, 'M'},
- 		{"semaphore", required_argument, NULL, 'S'},
-@@ -93,23 +118,29 @@ int main(int argc, char **argv)
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
-+	if (argc < 2)
-+		usage(stderr);
- 	seed_random();
- 
-+	res.perm = 0644;
- 	while((opt = getopt_long(argc, argv, "hM:QS:p:Vh", longopts, NULL)) != -1) {
- 		switch(opt) {
- 		case 'M':
--			size = strtou64_or_err(optarg, _("failed to parse size"));
--			ask_shm = 1;
-+			res.type = SHM;
-+			res.size = strtou64_or_err(optarg, _("failed to parse size"));
-+			ret |= create_res(&res);
- 			break;
- 		case 'Q':
--			ask_msg = 1;
-+			res.type = MSG;
-+			ret |= create_res(&res);
- 			break;
- 		case 'S':
--			nsems = strtos32_or_err(optarg, _("failed to parse elements"));
--			ask_sem = 1;
-+			res.type = SEM;
-+			res.nsems = strtos32_or_err(optarg, _("failed to parse elements"));
-+			ret |= create_res(&res);
- 			break;
- 		case 'p':
--			permission = strtoul(optarg, NULL, 8);
-+			res.perm = strtoul(optarg, NULL, 8);
- 			break;
- 		case 'h':
- 			usage(stdout);
-@@ -118,37 +149,10 @@ int main(int argc, char **argv)
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
- 		default:
--			ask_shm = ask_msg = ask_sem = 0;
-+			usage(stderr);
- 			break;
- 		}
- 	}
- 
--	if(!ask_shm && !ask_msg && !ask_sem)
--		usage(stderr);
--
--	if (ask_shm) {
--		int shmid;
--		if (-1 == (shmid = create_shm(size, permission)))
--			err(EXIT_FAILURE, _("create share memory failed"));
--		else
--			printf(_("Shared memory id: %d\n"), shmid);
--	}
--
--	if (ask_msg) {
--		int msgid;
--		if (-1 == (msgid = create_msg(permission)))
--			err(EXIT_FAILURE, _("create message queue failed"));
--		else
--			printf(_("Message queue id: %d\n"), msgid);
--	}
--
--	if (ask_sem) {
--		int semid;
--		if (-1 == (semid = create_sem(nsems, permission)))
--			err(EXIT_FAILURE, _("create semaphore failed"));
--		else
--			printf(_("Semaphore id: %d\n"), semid);
--	}
--
--	return EXIT_SUCCESS;
-+	return ret;
- }
--- 
-1.8.1
+>> While doing a final check on this patch I just realized I am a week or
+>> two late to the discussion.
+>
+>  Yep :-)
+>
+>> Little things like retaining the the ability for unshare to be suid root
+>> safely and sanely become intractable if you call setns() and join a
+>> user namespace.  
+>
+>  Do you have any example (use case) with suid unshare(1)? 
+
+No.  Mostly I know that someone added support to unshare for being
+run suid, and changing the uids and gids back.
+
+I hope my recent changes to the user namespace allowing unshare to
+create user namespaces unprivielged and to create other namespaces with
+only privilege in the user namespace to be sufficient.
+
+>> Supporting the ability for the command to be setuid root does not
+>> work in combination with the user namespace.  As after entering
+>> the user namespace you can not reliably change your uid back to
+>> your uid without setuid as your uid may not be mapped.
+>> 
+>> When joining an existing mount namespace you most likely want to change
+>> your root directory and your working directory to the directory of the
+>> process whoose mount namespace you are entering.  Something you don't
+>> even think about when just unsharing a mount namespace.
+>> 
+>> Then there is the practical wish to call fork after entering a pid
+>> namespace and before launching a command.  You don't always want that
+>> but almost always so that the command will actually be run in the new
+>> pid namespace with a new pid, instead of having it's children in the new
+>> pid namespace.
+>> 
+>> I really can't see support for using setns being in the same binary as
+>> unshare that just mixes two different but closely related things that
+>> will want to evolve in different directions.
+>> 
+>> My inclination is to send a follow up patch to remove setns and migrate
+>> from unshare. 
+>
+>  unnecessary, "git revert" works fine :-)
+>
+>> And a second patch to add pid and user namespace support
+>> to unshare.  But since I am going against the way that seems to have
+>> already been decided I will hold off on those patches until after we
+>> there is agreement on this one.
+>
+>  well, the decision has been based on little different context. 
+
+Yes.
+
+>  I have no problem to revert the change if there is a real use case 
+>  with suid and if the setns() goals will be incompatible with the 
+>  way how people use unshare(1) command.
+
+So I don't know about the suid case.  So that might be worth some
+discussion.  Looking closer I don't actually think unsharing the user
+namespace is compatible with a suid /usr/sbin/unshare.
+
+If suid handling is removed from the discussion I don't see any
+fundamental incompatibility between unshare and nsenter.  At the same
+time I don't see any shared code between the two pieces of code either.
+Nor do I see any ordering requirements that would need unshare and setns
+to be called in the same binary.
+
+So in net I really think we will have simpler more robust code by
+leaving the two binaries separate.  Especially since unshare and nsenter
+are the raw shell utilities you drag out to debug something or to build
+things of when you don't need a sophisticated user space wrapper.
+
+Except for debugging I expect most of the usage is going to be something
+like:
+nsexec -t $(pidof foo) -muinpUrw /bin/bash -e "cmd"
+
+Anyway I will respin my patch with the name changed from enter to
+nsenter and see where we can go from there.
+
+Eric
 
