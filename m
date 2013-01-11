@@ -1,76 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:51501 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755248Ab3ASAJn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:43 -0500
-Received: by mail-wi0-f171.google.com with SMTP id hn14so5647314wib.16
-        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:42 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 11/22] tests: add line(1) check
-Date: Sat, 19 Jan 2013 00:09:00 +0000
-Message-Id: <1358554151-25985-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
-References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:20856 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754797Ab3AKQNi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Jan 2013 11:13:38 -0500
+Date: Fri, 11 Jan 2013 17:13:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: util-linux@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Subject: Re: [PATCH] enter: new command (light wrapper around setns)
+Message-ID: <20130111161320.GA16206@x2.net.home>
+References: <876234812z.fsf@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <876234812z.fsf@xmission.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/commands.sh        |  1 +
- tests/expected/misc/line |  1 +
- tests/ts/misc/line       | 24 ++++++++++++++++++++++++
- 3 files changed, 26 insertions(+)
- create mode 100644 tests/expected/misc/line
- create mode 100755 tests/ts/misc/line
+On Fri, Jan 11, 2013 at 02:29:24AM -0800, Eric W. Biederman wrote:
+> 
+> Inspired by unshare, enter is a simple wrapper around setns that
+> allows running a new process in the context of an existing process.
 
-diff --git a/tests/commands.sh b/tests/commands.sh
-index dad7010..f1e20ed 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -72,3 +72,4 @@ TS_CMD_TAILF=${TS_CMD_TAILF-"$top_builddir/tailf"}
- TS_CMD_UL=${TS_CMD_UL-"$top_builddir/ul"}
- TS_CMD_IONICE=${TS_CMD_IONICE-"$top_builddir/ionice"}
- TS_CMD_MORE=${TS_CMD_MORE-"$top_builddir/more"}
-+TS_CMD_LINE=${TS_CMD_LINE-"$top_builddir/line"}
-diff --git a/tests/expected/misc/line b/tests/expected/misc/line
-new file mode 100644
-index 0000000..7898192
---- /dev/null
-+++ b/tests/expected/misc/line
-@@ -0,0 +1 @@
-+a
-diff --git a/tests/ts/misc/line b/tests/ts/misc/line
-new file mode 100755
-index 0000000..41a95fe
---- /dev/null
-+++ b/tests/ts/misc/line
-@@ -0,0 +1,24 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="$(dirname $0)/../.."
-+TS_DESC="line"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+printf "a\nb\n" |
-+	$TS_CMD_LINE > $TS_OUTPUT 2>&1
-+
-+ts_finalize
+ It would be really nice to have "ns" in the name -- for example
+ "enterns" sounds good.
+
+> While doing a final check on this patch I just realized I am a week or
+> two late to the discussion.
+
+ Yep :-)
+
+> Little things like retaining the the ability for unshare to be suid root
+> safely and sanely become intractable if you call setns() and join a
+> user namespace.  
+
+ Do you have any example (use case) with suid unshare(1)? 
+
+> Supporting the ability for the command to be setuid root does not
+> work in combination with the user namespace.  As after entering
+> the user namespace you can not reliably change your uid back to
+> your uid without setuid as your uid may not be mapped.
+> 
+> When joining an existing mount namespace you most likely want to change
+> your root directory and your working directory to the directory of the
+> process whoose mount namespace you are entering.  Something you don't
+> even think about when just unsharing a mount namespace.
+> 
+> Then there is the practical wish to call fork after entering a pid
+> namespace and before launching a command.  You don't always want that
+> but almost always so that the command will actually be run in the new
+> pid namespace with a new pid, instead of having it's children in the new
+> pid namespace.
+> 
+> I really can't see support for using setns being in the same binary as
+> unshare that just mixes two different but closely related things that
+> will want to evolve in different directions.
+> 
+> My inclination is to send a follow up patch to remove setns and migrate
+> from unshare. 
+
+ unnecessary, "git revert" works fine :-)
+
+> And a second patch to add pid and user namespace support
+> to unshare.  But since I am going against the way that seems to have
+> already been decided I will hold off on those patches until after we
+> there is agreement on this one.
+
+ well, the decision has been based on little different context. 
+ 
+ I have no problem to revert the change if there is a real use case 
+ with suid and if the setns() goals will be incompatible with the 
+ way how people use unshare(1) command.
+
+    Karel
+
 -- 
-1.8.1.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
