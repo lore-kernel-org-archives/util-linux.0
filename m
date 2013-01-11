@@ -1,96 +1,160 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from kawka.in.waw.pl ([178.63.212.103]:50372 "EHLO kawka.in.waw.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755627Ab3AYR7F (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 25 Jan 2013 12:59:05 -0500
-Date: Fri, 25 Jan 2013 18:59:01 +0100
-From: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/5] nsenter: add --all meaning all namespaces and cwd
- and root
-Message-ID: <20130125175901.GX4278@in.waw.pl>
-References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
- <1358750287-17732-3-git-send-email-zbyszek@in.waw.pl>
- <20130125150210.GL27413@x2.net.home>
- <20130125163924.GT4278@in.waw.pl>
- <87pq0tjgx9.fsf@xmission.com>
+Return-Path: ebiederm@xmission.com
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Michael Kerrisk \(man-pages\)" <mtk.manpages@gmail.com>
+References: <876234812z.fsf@xmission.com> <20130111161320.GA16206@x2.net.home>
+Date: Fri, 11 Jan 2013 14:53:34 -0800
+In-Reply-To: <20130111161320.GA16206@x2.net.home> (Karel Zak's message of
+	"Fri, 11 Jan 2013 17:13:20 +0100")
+Message-ID: <8738y7jpqp.fsf_-_@xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <87pq0tjgx9.fsf@xmission.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+Subject: [PATCH] unshare: Add support for the pid and user namespaces
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 25, 2013 at 09:44:50AM -0800, Eric W. Biederman wrote:
-> Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
-> 
-> > On Fri, Jan 25, 2013 at 04:02:10PM +0100, Karel Zak wrote:
-> >> On Mon, Jan 21, 2013 at 01:38:02AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
-> >> > I guess that most of the time one will want to enter all
-> >> > namespaces, and then it is easier not to have to remember
-> >> > all the option names.
-> >> 
-> >>  Not sure if this is the right argument. From my point of view it's
-> >>  better to be explicit for such things, something like --all sounds
-> >>  like a magical blackbox where semantic depends on features implemented
-> >>  by kernel and nsenter(1). 
-> 
-> Which is the reason I did not implement --all in the first place,
-> although it is attractive.
-> 
-> > Hi,
-> >
-> > I'm was trying to document how a user should enter a namespace
-> > container created by systemd-nspawn. I would prefer not to have the
-> > user type 'nsenter -t $PID -muipn', but something simpler.
-> 
-> As I see it nsenter is the raw tool for when you need to get your
-> hands dirty.  lxc already has a more integrated version.  And
-> it isn't hard to define a simple wrapper such as:
-> 
-> cat > systemd-nsenter <<EOF
-> #!/bin/sh
-> PID=$1
-> shift
-> exec nsenter -t $PID --mount --ipc --pid --net --uts "$@"
-> EOF
-> 
-> If you need things to be slightly simpler and it isn't worth deriving
-> your own c wrapper.
-> 
-> I assume you didn't include -U because systemd-nspawn doesn't create
-> a user namespace?
-Yes, systemd-nspawn so far doesn't.
 
-> Of course at the point you wrap nsenter you probably want to have
-> something that takes a name and looks at a pid file I expect.
-> 
-> > What about an alternative patch, which implements --all which means:
-> > "all namespaces supported by the kernel" (i.e. iterate over /proc/$PID/ns/*'
-> > and enter all of them. This way the behaviour would depend only on the
-> > kernel options, not on util-linux version.
-> 
-> If we add another namespace will it have oddball semantics to worry
-> about?  So far the mount namespace, the user namespace, and the pid
-> namespace do.  So judging from history you have a 50/50 chance of
-> needing special code in nsenter.  I don't expect blinding iterarting
-> over /proc/[pid]/ns/* will remove the need for future changes to
-> nsenter if and when we add another namespace.
-OK, so that's not an option.
+- Update the unshare application to support the pid and user namespaces.
+- Update the man page for the new options
+- Fix typo in the man page where UTS was spelled UTC.
+- Remove the vestigal support for running a suid unshare.
+  After unsharing a user namespace setuid(getuid()) won't work because
+  no uid or gid mappings have been specified yet. So it is just easier not
+  to have any support for running suid.
 
-> What will keep from breaking peoples scripts is to not have an option
-> that is ambiguous.
-Well, in the two patches I was careful to write "enter all of the
-above namespaces", to underline the fact that the kernel might know
-about some additional ones.
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+---
 
-OK, bear with me. What about --all meaning "enter all of the
-namespaces that nsenter has support for, and fail if there's a
-namespace diffent between target and requesting process that
-nsenter doesn't know about"?
+This is on top of unshare with Neil's unshare patch reverted.
 
-In scripts one could say 'nsenter -<wanted namespaces>', but for quick'n'dirty
-commandline use, nsenter --all would work.
+ sys-utils/unshare.1 |   19 +++++++++++++++----
+ sys-utils/unshare.c |   27 ++++++++++++++++++---------
+ 2 files changed, 33 insertions(+), 13 deletions(-)
 
-Zbyszek
-
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index 1325e34..8cdc6e5 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -1,7 +1,7 @@
+ .\" Process this file with
+ .\" groff -man -Tascii lscpu.1
+ .\"
+-.TH UNSHARE 1 "October 2008" "util-linux" "User Commands"
++.TH UNSHARE 1 "January 2013" "util-linux" "User Commands"
+ .SH NAME
+ unshare \- run program with some namespaces unshared from parent
+ .SH SYNOPSIS
+@@ -31,6 +31,13 @@ process will have independent IPv4 and IPv6 stacks, IP routing tables, firewall
+ rules, the \fI/proc/net\fP and \fI/sys/class/net\fP directory trees, sockets
+ etc. (\fBCLONE_NEWNET\fP flag).
+ .TP
++.BR "pid namespace"
++children will have a distinct set of pid to process mappings than their parent.
++(\fBCLONE_NEWPID\fP flag).
++.TP
++.BR "user namespace"
++process will have distinct set of uids, gids and capabilities. (\fBCLONE_NEWUSER\fP flag).
++.TP
+ See the \fBclone\fR(2) for exact semantics of the flags.
+ .SH OPTIONS
+ .TP
+@@ -41,16 +48,20 @@ Print a help message,
+ Unshare the mount namespace,
+ .TP
+ .BR \-u , " \-\-uts"
+-Unshare the UTC namespace,
++Unshare the UTS namespace,
+ .TP
+ .BR \-i , " \-\-ipc"
+ Unshare the IPC namespace,
+ .TP
+ .BR \-n , " \-\-net"
+ Unshare the network namespace.
++.TP
++.BR \-p , " \-\-pid"
++Unshare the pid namespace.
++.TP
++.BR \-U , " \-\-user"
++Unshare the user namespace.
+ .SH NOTES
+-The unshare command drops potential privileges before executing the
+-target program. This allows to setuid unshare.
+ .SH SEE ALSO
+ .BR unshare (2),
+ .BR clone (2)
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 9de997b..00cc2cf 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -41,6 +41,12 @@
+ #ifndef CLONE_NEWNET
+ # define CLONE_NEWNET 0x40000000
+ #endif
++#ifndef CLONE_NEWUSER
++# define CLONE_NEWUSER 0x10000000
++#endif
++#ifndef CLONE_NEWPID
++# define CLONE_NEWPID 0x20000000
++#endif
+ 
+ #ifndef HAVE_UNSHARE
+ # include <sys/syscall.h>
+@@ -63,7 +69,9 @@ static void usage(int status)
+ 	fputs(_(" -m, --mount       unshare mounts namespace\n"
+ 		" -u, --uts         unshare UTS namespace (hostname etc)\n"
+ 		" -i, --ipc         unshare System V IPC namespace\n"
+-		" -n, --net         unshare network namespace\n"), out);
++		" -n, --net         unshare network namespace\n"
++		" -p, --pid         unshare pid namespace\n"
++		" -U, --user        unshare user namespace\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+@@ -82,6 +90,8 @@ int main(int argc, char *argv[])
+ 		{ "uts", no_argument, 0, 'u' },
+ 		{ "ipc", no_argument, 0, 'i' },
+ 		{ "net", no_argument, 0, 'n' },
++		{ "pid", no_argument, 0, 'p' },
++		{ "user", no_argument, 0, 'U' },
+ 		{ NULL, 0, 0, 0 }
+ 	};
+ 
+@@ -94,7 +104,7 @@ int main(int argc, char *argv[])
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	while((c = getopt_long(argc, argv, "hVmuin", longopts, NULL)) != -1) {
++	while((c = getopt_long(argc, argv, "hVmuinpU", longopts, NULL)) != -1) {
+ 		switch(c) {
+ 		case 'h':
+ 			usage(EXIT_SUCCESS);
+@@ -113,6 +123,12 @@ int main(int argc, char *argv[])
+ 		case 'n':
+ 			unshare_flags |= CLONE_NEWNET;
+ 			break;
++		case 'p':
++			unshare_flags |= CLONE_NEWPID;
++			break;
++		case 'U':
++			unshare_flags |= CLONE_NEWUSER;
++			break;
+ 		default:
+ 			usage(EXIT_FAILURE);
+ 		}
+@@ -124,13 +140,6 @@ int main(int argc, char *argv[])
+ 	if(-1 == unshare(unshare_flags))
+ 		err(EXIT_FAILURE, _("unshare failed"));
+ 
+-	/* drop potential root euid/egid if we had been setuid'd */
+-	if (setgid(getgid()) < 0)
+-		err(EXIT_FAILURE, _("cannot set group id"));
+-
+-	if (setuid(getuid()) < 0)
+-		err(EXIT_FAILURE, _("cannot set user id"));
+-
+ 	execvp(argv[optind], argv + optind);
+ 
+ 	err(EXIT_FAILURE, _("exec %s failed"), argv[optind]);
+-- 
+1.7.5.4
