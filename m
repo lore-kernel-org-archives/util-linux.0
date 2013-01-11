@@ -1,32 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-da0-f41.google.com ([209.85.210.41]:54118 "EHLO
-	mail-da0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752865Ab3ACDWR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Jan 2013 22:22:17 -0500
-Received: by mail-da0-f41.google.com with SMTP id e20so6802176dak.28
-        for <util-linux@vger.kernel.org>; Wed, 02 Jan 2013 19:22:16 -0800 (PST)
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-To: util-linux@vger.kernel.org
-Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
-Subject: [PATCH 0/3] Add support for using libuser to chsh
-Date: Wed,  2 Jan 2013 20:21:58 -0700
-Message-Id: <1357183321-24637-1-git-send-email-cmaloney@theoreticalchaos.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: ingenit@zoho.com
+Message-ID: <50F01013.2000100@zoho.com>
+Date: Fri, 11 Jan 2013 14:13:55 +0100
+From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: mtk.manpages@gmail.com, util-linux@vger.kernel.org,
+        Neil Horman <nhorman@tuxdriver.com>, Karel Zak <kzak@redhat.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>
+Subject: Re: [PATCH] enter: new command (light wrapper around setns)
+References: <876234812z.fsf@xmission.com> <CAKgNAkjOw-KPJO5AFRSwtoOb0k7K64pk1O-gRs-GS18ZQCYmaQ@mail.gmail.com> <87fw283rht.fsf@xmission.com>
+In-Reply-To: <87fw283rht.fsf@xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Add support for libuser to chsh. This follows lchsh which is packaged with
-libuser. If this set looks good, I will add libuser support to chfn.
+On 11/01/13 12:10, Eric W. Biederman wrote:
+> "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com> writes:
+> 
+>> Hi Eric,
+>>
+>> On Fri, Jan 11, 2013 at 11:29 AM, Eric W. Biederman
+>> <ebiederm@xmission.com> wrote:
+>>>
+>>> Inspired by unshare, enter is a simple wrapper around setns that
+>>> allows running a new process in the context of an existing process.
+>>
+>> The name "enter" seems way too generic (far more so than even
+>> "unshare"). How about "nsexec" or "execns" or some such?
+> 
+> Enter unlike exec is the right concept, and the name is free.
 
-Cody Maloney (3):
-  chsh-chfn: Add flag for enabling/disabling libuser support.
-  chsh: Move pam auth to its own function.
-  chsh: Add libuser support
-
- configure.ac              |  17 ++++++
- login-utils/Makemodule.am |   5 ++
- login-utils/chsh.c        | 137 ++++++++++++++++++++++++++++++++++++++--------
- 3 files changed, 135 insertions(+), 24 deletions(-)
-
--- 
-1.8.1
-
+What about enterns ?
