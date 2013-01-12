@@ -1,148 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:57210 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756118Ab3A0Unb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 27 Jan 2013 15:43:31 -0500
-Message-Id: <1359319410.12049.140661183045117.4500171E@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:47911 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751295Ab3ALFNO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 12 Jan 2013 00:13:14 -0500
+Message-ID: <50F0F0E8.2020909@ubuntu.com>
+Date: Sat, 12 Jan 2013 00:13:12 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1359319410120490";
- charset="utf-8"
-Subject: Re: [patch] ipcs (in git) produces too much output
-Date: Sun, 27 Jan 2013 21:43:30 +0100
-In-Reply-To: <CAG27Bk3C2duf6Oe0sZDpC6zNbw2q=obX9LsEuT9hZo37fFP0gQ@mail.gmail.com>
-References: <1359294676.11908.140661182937001.6C73CAEF@webmail.messagingengine.com>
- <CAG27Bk3C2duf6Oe0sZDpC6zNbw2q=obX9LsEuT9hZo37fFP0gQ@mail.gmail.com>
+To: Mike Frysinger <vapier@gentoo.org>
+CC: Thomas Orgis <thomas-forum@orgis.org>, util-linux@vger.kernel.org
+Subject: Re: losetup -d --force for zombie loop devices?
+References: <20120417100346.2a0b8301@orgis.org> <201301111852.03607.vapier@gentoo.org> <50F0B438.1080608@ubuntu.com> <201301112352.55112.vapier@gentoo.org>
+In-Reply-To: <201301112352.55112.vapier@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---_----------=_1359319410120490
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+On 01/11/2013 11:52 PM, Mike Frysinger wrote:
+>> but my point was that what you are looking for is umount -f, not
+>> umount -l.
+> 
+> and my point is that `umount -f` doesn't always work which means
+> `umount -l` is sometimes the only way to remove a mount point.  an
+> unresponsive remote or something is holding open a reference (which
+> doesn't show up in `lsof -n`).
 
-
-Hi Sami,
-
-On Sun, Jan 27, 2013, at 21:27, Sami Kerola wrote:
-> Both patches look pretty good. I just wonder would .SS make sense for
-> second level option headers?
-
-Yes, that looks nicer.  Attached an updated patch for the man page.
-It also makes a third subsection for --bytes and --human.
-
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - Send your email first class
+Right.  Forced unmounts aren't really implemented.  They need to be.
+It isn't losetup that needs to be forcibly detached, but the filesystem.
 
 
---_----------=_1359319410120490
-Content-Disposition: attachment; filename="0002-docs-improve-wording-formatting-and-accuracy-of-ipcs.patch"
-Content-Id: <1359319358.11687.794dab64d374cd2dc20f7c2cea85a56bf42ed47d.4A59CFCE@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0002-docs-improve-wording-formatting-and-accuracy-of-ipcs.patch"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with undefined - http://www.enigmail.net/
 
-RnJvbSBlZDc3OTU0ZDE4MTg3ZmM4ZTQxNTVjMTJjMTU1ZDEzM2MwYTZhOTQ0
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCAyNyBK
-YW4gMjAxMyAxNDo0MDoxOSArMDEwMApTdWJqZWN0OiBbUEFUQ0ggMi8yXSBk
-b2NzOiBpbXByb3ZlIHdvcmRpbmcsIGZvcm1hdHRpbmcgYW5kIGFjY3VyYWN5
-IG9mIGlwY3MgbWFuIHBhZ2UKClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVs
-ZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIHN5cy11dGls
-cy9pcGNzLjEgfCAgIDczICsrKysrKysrKysrKysrKysrKysrKysrKysrKyst
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDM5
-IGluc2VydGlvbnMoKyksIDM0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
-L3N5cy11dGlscy9pcGNzLjEgYi9zeXMtdXRpbHMvaXBjcy4xCmluZGV4IDVm
-YzNhODEuLmMwNzBkMWEgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9pcGNzLjEK
-KysrIGIvc3lzLXV0aWxzL2lwY3MuMQpAQCAtMSw3NiArMSw3OSBAQAogLlwi
-IENvcHlyaWdodCAxOTkzIFJpY2thcmQgRS4gRmFpdGggKGZhaXRoQGNzLnVu
-Yy5lZHUpCiAuXCIgTWF5IGJlIGRpc3RyaWJ1dGVkIHVuZGVyIHRoZSBHTlUg
-R2VuZXJhbCBQdWJsaWMgTGljZW5zZQotLlRIIElQQ1MgIjEiICJTZXB0ZW1i
-ZXIgMjAxMSIgInV0aWwtbGludXgiICJVc2VyIENvbW1hbmRzIgorLlRIIElQ
-Q1MgIjEiICJKYW51YXJ5IDIwMTMiICJ1dGlsLWxpbnV4IiAiVXNlciBDb21t
-YW5kcyIKIC5TSCBOQU1FCi1pcGNzIFwtIHByb3ZpZGUgaW5mb3JtYXRpb24g
-b24gaXBjIGZhY2lsaXRpZXMKK2lwY3MgXC0gcHJvdmlkZSBpbmZvcm1hdGlv
-biBvbiBJUEMgZmFjaWxpdGllcwogLlNIIFNZTk9QU0lTCiAuQiBpcGNzCi1b
-cmVzb3VyY2VdIFsuLi5dIFtvdXRwdXRcLWZvcm1hdF0KKy5SQiBbIHJlc291
-cmNlXC1vcHRpb24gIl0gWyIgb3V0cHV0XC1mb3JtYXQgXQogLmJyCiAuQiBp
-cGNzCi1bcmVzb3VyY2VdCi0uSSBcLWkgaWQKKy5SQiBbIHJlc291cmNlXC1v
-cHRpb24gXQorLkJJIFwtaSAiIGlkIgogLlNIIERFU0NSSVBUSU9OCiAuQiBp
-cGNzCi1wcm92aWRlcyBpbmZvcm1hdGlvbiBvbiB0aGUgaXBjIGZhY2lsaXRp
-ZXMgZm9yIHdoaWNoIHRoZSBjYWxsaW5nIHByb2Nlc3MKLWhhcyByZWFkIGFj
-Y2Vzcy4KK3Byb3ZpZGVzIGluZm9ybWF0aW9uIG9uIHRoZSBpbnRlci1wcm9j
-ZXNzIGNvbW11bmljYXRpb24gZmFjaWxpdGllcworZm9yIHdoaWNoIHRoZSBj
-YWxsaW5nIHByb2Nlc3MgaGFzIHJlYWQgYWNjZXNzLgogLlNIIE9QVElPTlMK
-IC5UUAogXGZCXC1pXGZSLCBcZkJcLVwtaWRcZlIgXGZJaWRcZlIKLVByaW50
-IGRldGFpbHMgb25seSBvbiByZXNvdXJjZSBpZGVudGlmaWVkIGJ5CitQcmlu
-dCBkZXRhaWxzIG9ubHkgb24gdGhlIHJlc291cmNlIGlkZW50aWZpZWQgYnkK
-IC5JUiBpZCAuCiAuVFAKIFxmQlwtaFxmUiwgXGZCXC1cLWhlbHBcZlIKLURp
-c3BsYXkgdGhpcyBoZWxwIGFuZCBleGl0LgorRGlzcGxheSBhIGhlbHAgdGV4
-dCBhbmQgZXhpdC4KIC5UUAogXGZCXC1WXGZSLCBcZkJcLVwtdmVyc2lvblxm
-UgotT3V0cHV0IHZlcnNpb24gaW5mb3JtYXRpb24gYW5kIGV4aXQuCi0uU0gg
-IlJFU09VUkNFIE9QVElPTlMiCi0uVFAKLVxmQlwtbVxmUiwgXGZCXC1cLXNo
-bWVtc1xmUgotV3JpdGUgaW5mb3JtYXRpb24gYWJvdXQgYWN0aXZlIHNoYXJl
-ZCBtZW1vcnkgc2VnbWVudHMuCitEaXNwbGF5IHZlcnNpb24gaW5mb3JtYXRp
-b24gYW5kIGV4aXQuCisuU1MgIlJlc291cmNlIG9wdGlvbnMiCiAuVFAKIFxm
-QlwtcVxmUiwgXGZCXC1cLXF1ZXVlc1xmUgogV3JpdGUgaW5mb3JtYXRpb24g
-YWJvdXQgYWN0aXZlIG1lc3NhZ2UgcXVldWVzLgogLlRQCitcZkJcLW1cZlIs
-IFxmQlwtXC1zaG1lbXNcZlIKK1dyaXRlIGluZm9ybWF0aW9uIGFib3V0IGFj
-dGl2ZSBzaGFyZWQgbWVtb3J5IHNlZ21lbnRzLgorLlRQCiBcZkJcLXNcZlIs
-IFxmQlwtXC1zZW1hcGhvcmVzXGZSCiBXcml0ZSBpbmZvcm1hdGlvbiBhYm91
-dCBhY3RpdmUgc2VtYXBob3JlIHNldHMuCiAuVFAKIFxmQlwtYVxmUiwgXGZC
-XC1cLWFsbFxmUgotV3JpdGUgaW5mb3JtYXRpb24gYWJvdXQgYWxsIHJlc291
-cmNlcyAoZGVmYXVsdCkuCi0uU0ggIk9VVFBVVCBGT1JNQVRTIgorV3JpdGUg
-aW5mb3JtYXRpb24gYWJvdXQgYWxsIHRocmVlIHJlc291cmNlcyAoZGVmYXVs
-dCkuCisuU1MgIk91dHB1dCBmb3JtYXRzIgorT2YgdGhlc2Ugb3B0aW9ucyBv
-bmx5IG9uZSB0YWtlcyBlZmZlY3Q6IHRoZSBsYXN0IG9uZSBzcGVjaWZpZWQu
-CisuVFAKK1xmQlwtY1xmUiwgXGZCXC1cLWNyZWF0b3JcZlIKK1Nob3cgY3Jl
-YXRvciBhbmQgb3duZXIuCisuVFAKK1xmQlwtbFxmUiwgXGZCXC1cLWxpbWl0
-c1xmUgorU2hvdyByZXNvdXJjZSBsaW1pdHMuCisuVFAKK1xmQlwtcFxmUiwg
-XGZCXC1cLXBpZFxmUgorU2hvdyBQSURzIG9mIGNyZWF0b3IgYW5kIGxhc3Qg
-b3BlcmF0b3IuCiAuVFAKIFxmQlwtdFxmUiwgXGZCXC1cLXRpbWVcZlIKLVdy
-aXRlIHRpbWUgaW5mb3JtYXRpb24uIFRpbWUgb2YgdGhlIGxhc3QgY29udHJv
-bCBvcGVyYXRpb24gdGhhdCBjaGFuZ2VkIHRoZQotYWNjZXNzIHBlcm1pc3Np
-b25zIGZvciBhbGwgZmFjaWxpdGllcywgdGltZSBvZiB0aGUgbGFzdAorV3Jp
-dGUgdGltZSBpbmZvcm1hdGlvbi4gIFRoZSB0aW1lIG9mIHRoZSBsYXN0IGNv
-bnRyb2wgb3BlcmF0aW9uIHRoYXQgY2hhbmdlZAordGhlIGFjY2VzcyBwZXJt
-aXNzaW9ucyBmb3IgYWxsIGZhY2lsaXRpZXMsIHRoZSB0aW1lIG9mIHRoZSBs
-YXN0CiAuSSBtc2dzbmQoKQogYW5kCiAuSSBtc2dyY3YoKQotb3BlcmF0aW9u
-cyBvbiBtZXNzYWdlIHF1ZXVlcywgdGltZSBvZiB0aGUgbGFzdAorb3BlcmF0
-aW9ucyBvbiBtZXNzYWdlIHF1ZXVlcywgdGhlIHRpbWUgb2YgdGhlIGxhc3QK
-IC5JIHNobWF0KCkKIGFuZAogLkkgc2htZHQoKQotb3BlcmF0aW9ucyBvbiBz
-aGFyZWQgbWVtb3J5LCBhbmQgdGltZSBvZiB0aGUgbGFzdAorb3BlcmF0aW9u
-cyBvbiBzaGFyZWQgbWVtb3J5LCBhbmQgdGhlIHRpbWUgb2YgdGhlIGxhc3QK
-IC5JIHNlbW9wKCkKIG9wZXJhdGlvbiBvbiBzZW1hcGhvcmVzLgogLlRQCi1c
-ZkJcLXBcZlIsIFxmQlwtXC1waWRcZlIKLVNob3cgY3JlYXRvciBhbmQgbGFz
-dCBvcGVyYXRpb25zIFBJRHMuCi0uVFAKLVxmQlwtY1xmUiwgXGZCXC1cLWNy
-ZWF0b3JcZlIKLVNob3cgY3JlYXRvciBhbmQgb3duZXIuCi0uVFAKLVxmQlwt
-bFxmUiwgXGZCXC1cLWxpbWl0c1xmUgotU2hvdyByZXNvdXJjZSBsaW1pdHMu
-Ci0uVFAKIFxmQlwtdVxmUiwgXGZCXC1cLXN1bW1hcnlcZlIKIFNob3cgc3Rh
-dHVzIHN1bW1hcnkuCi0uVFAKLS5CIFwtXC1odW1hbgotUHJpbnQgc2l6ZXMg
-aW4gaHVtYW4gcmVhZGFibGUgZm9ybWF0LgorLlNTICJSZXByZXNlbnRhdGlv
-biIKK1RoZXNlIGFmZmVjdCBvbmx5IHRoZSBcZkJcLWxcZlIgKFxmQlwtXC1s
-aW1pdHNcZlIpIG9wdGlvbi4KIC5UUAogXGZCXC1iXGZSLCBcZkJcLVwtYnl0
-ZXNcZlIKIFByaW50IHNpemVzIGluIGJ5dGVzLgorLlRQCisuQiBcLVwtaHVt
-YW4KK1ByaW50IHNpemVzIGluIGh1bWFuLXJlYWRhYmxlIGZvcm1hdC4KIC5T
-SCBTRUUgQUxTTwogLkJSIGlwY3JtICgxKSwKIC5CUiBpcGNtayAoMSksCkBA
-IC04Myw3ICs4Niw4IEBAIFByaW50IHNpemVzIGluIGJ5dGVzLgogLkJSIHNo
-bWdldCAoMikKIC5TSCBDT05GT1JNSU5HIFRPCiBUaGUgTGludXggaXBjcyB1
-dGlsaXR5IGlzIG5vdCBmdWxseSBjb21wYXRpYmxlIHRvIHRoZSBQT1NJWCBp
-cGNzIHV0aWxpdHkuCi1UaGUgTGludXggdmVyc2lvbiBkb2VzIG5vdCBzdXBw
-b3J0IHRoZQorVGhlIExpbnV4IHZlcnNpb24gZG9lcyBub3Qgc3VwcG9ydCB0
-aGUgUE9TSVgKKy5CUiBcLWEgLAogLkIgXC1iCiBhbmQKIC5CIFwtbwpAQCAt
-OTEsNyArOTUsOCBAQCBvcHRpb25zLCBidXQgZG9lcyBzdXBwb3J0IHRoZQog
-LkIgXC1sCiBhbmQKIC5CIFwtdQotb3B0aW9ucyBub3QgZGVmaW5lZCBieSBQ
-T1NJWC4gVGhlIHBvcnRhYmxlIGFwcGxpY2F0aW9uIHNoYWxsIG5vdCB1c2Ug
-dGhlCitvcHRpb25zIG5vdCBkZWZpbmVkIGJ5IFBPU0lYLiAgQSBwb3J0YWJs
-ZSBhcHBsaWNhdGlvbiBzaGFsbCBub3QgdXNlIHRoZQorLkJSIFwtYSAsCiAu
-QlIgXC1iICwKIC5CUiBcLW8gLAogLkJSIFwtbCAsCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1359319410120490--
-
+iQEcBAEBAgAGBQJQ8PDoAAoJEJrBOlT6nu75dGsIAMTb/fK1nw3QZGyWKmHQWknA
+AdOXe8aYqIzKTwhGCrJobamAB5ZOqEXWCHZnMfACI3/XwTfy6vNxKa69fIEevpXz
+uNU4QO1dw8uLRBi3UQpoTSNZpx4vB8DF9ka1GxgEUs7Y0Iv1I3n2OoHnU1o/GUE9
+HHeA70QSSIJaO7hUB5Q9mb5brx5ADP+GS7Ka7ZPDVFjdImBkS9ofOj3GX8aLWf1Z
+kgkxcChgEtZPc1xrp15l8ctAvI/sQnev+DQ4SmzFdmDGqEwEBNP5ROm/W+B2bNkC
+L1RdlOEhOwQvdWcjer1W3Mkl9MuhSzcmW4GdaepndXzuJYQ0VQqURSPSdBxueLY=
+=qhyJ
+-----END PGP SIGNATURE-----
