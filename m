@@ -1,63 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:63766 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754290Ab3A3STb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 30 Jan 2013 13:19:31 -0500
-Date: Wed, 30 Jan 2013 19:19:27 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] adding accents, fixing encodings, and more textual
- stuff
-Message-ID: <20130130181927.GH3741@x2.net.home>
-References: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:62440 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755765Ab3AMTbU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jan 2013 14:31:20 -0500
+Received: by mail-ie0-f175.google.com with SMTP id qd14so4148815ieb.6
+        for <util-linux@vger.kernel.org>; Sun, 13 Jan 2013 11:31:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+In-Reply-To: <50F2FBBE.7000305@gmail.com>
+References: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com> <50F2FBBE.7000305@gmail.com>
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+Date: Sun, 13 Jan 2013 12:31:00 -0700
+Message-ID: <CA+K3q6qJfS_SzFFU2pJd5jRx-ooaKgZZv9F3ubtQU2hwd98i9Q@mail.gmail.com>
+Subject: Re: [PATCH v2 0/4] Add support for using libuser to chsh and chfn
+To: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 29, 2013 at 05:44:13PM +0100, Benno Schulenberg wrote:
-> The first patch adds accents to a few names in the NEWS file;
-> since this file is now UTF-8 it will support accented letters.
+>
+> I'm not sure if I understand the changes completely, but it does not appear
+> that the changes adding PAM to chfn and chsh are optional.  By default, we
+> do not use PAM and need a way build these programs without it.
+>
 
-I have applied last two patches only. It seems like a problem with
-email encoding, my mutt see the attachments as
+If you look at the patch where I extract the pam function (2/4), I
+don't change the code flow in the case where pam is not used
+(REQUIRE_PASSWORD isn't defined). By default, REQUIRE_PASSWORD is
+defined (and can be disabled with the configure flag
+--disable-required-password).
 
- 0001-docs-NEWS-add-some-missing-accents-    [text/x-patch, base64, us-ascii, 6.3K]
+Whether or not the pam headers are included has not changed. (They
+were included previously even when REQUIRE_PASSWORD wasn't defined),
+see patch 2/4. This means if you tried to build either of these
+without the PAM headers on your system previously, it wouldn't of
+worked. This may be a bug in and of itself which would be relatively
+simple to fix now (don't compile/link auth.c, ifdef out the auth_pam
+call, and remove the ifdefs from auth_pam.c).
 
-What about to send the patches by git-send? ..or use tar ball if canot
-use git-send.
+In the case that the programs are run by root and REQUIRE_PASSWORD is
+defined, the PAM authentication has an auth bypass for when run by
+root (but not just setuid).
 
-    Karel
+The libuser code is entirely optional, and does not mandate PAM in and of
+itself. if you turn off REQUIRE_PASSWORD, libuser won't require a
+password from the user as it's password from the user goes through the
+same auth_pam function to get the password. Without REQUIRE_PASSWORD,
+we basically just do any auth that libuser requires internally (A
+password to an LDAP server, potentially, for instance), then don't
+further authenticate the user via PAM.
 
-$ git am -i -3 ~/00*.patch
-Commit Body is:
---------------------------
-docs: NEWS: add some missing accents, since this is now UTF-8
+I hope that answers/addresses your concerns, if not let me know.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
---------------------------
-Apply? [y]es/[n]o/[e]dit/[v]iew patch/[a]ccept all y
-Applying: docs: NEWS: add some missing accents, since this is now
-UTF-8
-Using index info to reconstruct a base tree...
-error: patch failed: NEWS:347
-error: NEWS: patch does not apply
-Did you hand edit your patch?
-It does not apply to blobs recorded in its index.
-Cannot fall back to three-way merge.
-Patch failed at 0001 docs: NEWS: add some missing accents, since this
-is now UTF-8
-The copy of the patch that failed is found in:
-   /home/projects/util-linux/util-linux/.git/rebase-apply/patch
-   When you have resolved this problem, run "git am --resolved".
-   If you prefer to skip this patch, run "git am --skip" instead.
-   To restore the original branch and stop patching, run "git am
-   --abort".
+Cody
 
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>
+>   -- Bruce Dubbs
+>      linuxfromscratch.org
