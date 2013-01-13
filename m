@@ -1,70 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nagini.codelibre.net ([80.68.93.164]:58319 "EHLO
-	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753991Ab3AUNQ2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 21 Jan 2013 08:16:28 -0500
-Date: Mon, 21 Jan 2013 13:16:26 +0000
-From: Roger Leigh <rleigh@codelibre.net>
+Received: from mail-ia0-f178.google.com ([209.85.210.178]:41322 "EHLO
+	mail-ia0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752013Ab3AMJMz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jan 2013 04:12:55 -0500
+Received: by mail-ia0-f178.google.com with SMTP id k25so2852664iah.9
+        for <util-linux@vger.kernel.org>; Sun, 13 Jan 2013 01:12:54 -0800 (PST)
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
 To: util-linux@vger.kernel.org
-Subject: Re: Preservation of non-kernel mount options
-Message-ID: <20130121131626.GA26057@codelibre.net>
-References: <20130108104443.GF3739@codelibre.net>
- <20130110100745.GB19166@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130110100745.GB19166@x2.net.home>
+Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
+Subject: [PATCH v2 1/4] chsh-chfn: Add flag for enabling/disabling libuser support.
+Date: Sun, 13 Jan 2013 02:12:21 -0700
+Message-Id: <1358068345-773-2-git-send-email-cmaloney@theoreticalchaos.com>
+In-Reply-To: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
+References: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 10, 2013 at 11:07:45AM +0100, Karel Zak wrote:
-> On Tue, Jan 08, 2013 at 10:44:43AM +0000, Roger Leigh wrote:
-> > Options like _netdev, comment= etc. are currently just ignored by
-> > mount AFAICS.  It would however be quite useful if they could be
-> > preserved in e.g. utab if possible so that you can use this to
-> > label mounts so that you can query for the information later using
-> > e.g. mount or findmnt.  Is this something which might be possible
-> > to add if it's not already possible?
-> 
->  The goal is to minimize number of situations when anything about
->  mountpoints is maintained in userspace. It's usually too tricky to
->  keep the userspace information synchronized with in-kernel
->  information (imagine things like namespaces, sandboxes, ...).
 
-This is what I understood, but thanks for the clarification here.
+Signed-off-by: Cody Maloney <cmaloney@theoreticalchaos.com>
+---
+ configure.ac              | 17 +++++++++++++++++
+ login-utils/Makemodule.am |  5 +++++
+ 2 files changed, 22 insertions(+)
 
-> > It turned out (at least in Debian) that some users were using the
-> > "bind" option to track which filesystems were to be e.g. backed up,
-> > space usage checked etc. (or not).  With the switch to /proc/mounts
-> > this information has been lost.  While using the bind option to do
-> > this is debatable, I was looking for a better and more robust
-> > solution to their problem, and being able to attach comments to
-> > the mounts seemed like it would fit in with the existing tools
-> > if they could be stored.
-> 
->  Would be possible to improve the backup scripts to maintain
->  information about *filesystems* in userspace and address the
->  information by filesystem UUIDs? Something like
-> 
->    /var/log/backup-info/<UUID>/item{A,B,C}
-> 
->  the UUID is stable, you will not affected by things like namespaces,
->  umount/mount/move/... operations. The info will be completely
->  independent on mountpoints and found the filesystem in the findmnt(8)
->  or lsblk(8) output by UUID is pretty simple.
-
-I already recommended this very approach.  I just wanted to
-bring it up here due to the lack of the bind option in the
-/proc/mounts|mount output having some effect on breaking
-existing applications which relied upon it, and this then
-causing work in rewriting such applications.  The reasons for
-this changing are totally understandable though.
-
-
-Thanks again,
-Roger
-
+diff --git a/configure.ac b/configure.ac
+index e937736..dd846cb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1100,6 +1100,23 @@ AS_HELP_STRING([--disable-chsh-only-listed], [chsh: allow shells not in /etc/she
+ [], enable_chsh_only_listed=yes
+ )
+ 
++AC_ARG_WITH([libuser], AS_HELP_STRING([--without-libuser], [compile without libuser (remote chsh)]),
++  [], with_user=auto
++)
++
++if test "x$with_user" = xno; then
++  AM_CONDITIONAL(HAVE_USER, false)
++else
++  PKG_CHECK_MODULES(LIBUSER,[libuser >= 0.58])
++  UL_CHECK_LIB(user, lu_start)
++  case "$with_user:$have_user" in
++  yes:no)
++   AC_MSG_ERROR([user selected but libuser not found])
++   ;;
++  esac
++fi
++
++
+ if test "x$enable_chsh_only_listed" = xyes; then
+ AC_DEFINE(ONLY_LISTED_SHELLS, 1, [Should chsh allow only shells in /etc/shells?])
+ fi
+diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
+index aef8177..479b87b 100644
+--- a/login-utils/Makemodule.am
++++ b/login-utils/Makemodule.am
+@@ -68,6 +68,11 @@ chfn_chsh_cflags = $(SUID_CFLAGS) $(AM_CFLAGS)
+ chfn_chsh_ldflags = $(SUID_LDFLAGS) $(AM_LDFLAGS)
+ chfn_chsh_ldadd = libcommon.la -lpam -lpam_misc
+ 
++if HAVE_USER
++chfn_chsh_ldflags += $(LIBUSER_LIBS)
++chfn_chsh_cflags += $(LIBUSER_CFLAGS)
++endif
++
+ if HAVE_SELINUX
+ chfn_chsh_sources += \
+ 	login-utils/selinux_utils.c \
 -- 
-  .''`.  Roger Leigh
- : :' :  Debian GNU/Linux    http://people.debian.org/~rleigh/
- `. `'   schroot and sbuild  http://alioth.debian.org/projects/buildd-tools
-   `-    GPG Public Key      F33D 281D 470A B443 6756 147C 07B3 C8BC 4083 E800
+1.8.1
+
