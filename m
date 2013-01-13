@@ -1,52 +1,47 @@
-Return-Path: kreijack@tiscalinet.it
-Message-ID: <50EC7CF9.9010308@tiscalinet.it>
-Date: Tue, 08 Jan 2013 21:09:29 +0100
-From: Goffredo Baroncelli <kreijack@tiscalinet.it>
-Reply-To: kreijack@inwind.it
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Chris Mason <chris.mason@fusionio.com>
-CC: Goffredo Baroncelli <kreijack@inwind.it>, util-linux@vger.kernel.org,
-        linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-References: <50E9C267.3050302@inwind.it> <20130108180126.GB9177@x2.net.home>
-In-Reply-To: <20130108180126.GB9177@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ia0-f173.google.com ([209.85.210.173]:50017 "EHLO
+	mail-ia0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751999Ab3AMJMx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jan 2013 04:12:53 -0500
+Received: by mail-ia0-f173.google.com with SMTP id l29so88461iag.4
+        for <util-linux@vger.kernel.org>; Sun, 13 Jan 2013 01:12:53 -0800 (PST)
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+To: util-linux@vger.kernel.org
+Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
+Subject: [PATCH v2 0/4]  Add support for using libuser to chsh and chfn
+Date: Sun, 13 Jan 2013 02:12:20 -0700
+Message-Id: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+Builds on v1 addressing comments. Factors out some of the common code
+between chsh and chfn (auth.c, libuser.c), hides almost all of the
+libuser interaction in libuser.c
 
-On 01/08/2013 07:01 PM, Karel Zak wrote:
-> On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
->> If the first superblock is valid except that the "magic field" is zeroed,
->> btrfs skips the check of the other superblocks.
->> If the first superblock is fully invalid, btrfs checks for the other
->> superblock.
-> 
->  Hmm... why inconsistent (or missing) superblock is not reported as a
->  problem? If I good understand the filesystem is still mountable,
->  right?
+The last two patches can/should probably be squashed into one commit
+for committing to the repository.
 
-It should, however my tests were unsuccessful :-(... Chris ?
+Cody Maloney (4):
+  chsh-chfn: Add flag for enabling/disabling libuser support.
+  chsh-chfn: Move pam auth to its own function, factoring out common
+    code
+  chsh: Add libuser support
+  chfn: Add libuser support
 
-
-> 
->> So zeroing the first superblock "magic field" at the beginning seems
->> that the filesystem is wiped.
-> 
->  Well, this is exactly the idea behind wipefs(8), just wipe minimal
->  number of bytes from the device to make the filesystem invisible for
->  libblkid (udev, ...). This concept is relatively safe, if you make a
->  mistake than you can restore the magic string, your data should not
->  be affected by wipefs(8).
-
-I fully agree. However wipefs should zero all three superblock
-
-> 
->     Karel
-> 
-
+ configure.ac              | 17 ++++++++++
+ login-utils/Makemodule.am | 10 ++++++
+ login-utils/auth.c        | 47 ++++++++++++++++++++++++++
+ login-utils/auth.h        | 13 ++++++++
+ login-utils/chfn.c        | 58 ++++++++++++++------------------
+ login-utils/chsh.c        | 55 ++++++++++++++-----------------
+ login-utils/libuser.c     | 84 +++++++++++++++++++++++++++++++++++++++++++++++
+ login-utils/libuser.h     | 14 ++++++++
+ 8 files changed, 234 insertions(+), 64 deletions(-)
+ create mode 100644 login-utils/auth.c
+ create mode 100644 login-utils/auth.h
+ create mode 100644 login-utils/libuser.c
+ create mode 100644 login-utils/libuser.h
 
 -- 
-gpg @keyserver.linux.it: Goffredo Baroncelli (kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+1.8.1
+
