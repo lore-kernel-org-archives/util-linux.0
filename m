@@ -1,104 +1,41 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ia0-f176.google.com ([209.85.210.176]:40481 "EHLO
-	mail-ia0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752113Ab3AMJNB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jan 2013 04:13:01 -0500
-Received: by mail-ia0-f176.google.com with SMTP id y26so2770354iab.35
-        for <util-linux@vger.kernel.org>; Sun, 13 Jan 2013 01:13:00 -0800 (PST)
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-To: util-linux@vger.kernel.org
-Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
-Subject: [PATCH v2 4/4] chfn: Add libuser support
-Date: Sun, 13 Jan 2013 02:12:25 -0700
-Message-Id: <1358068345-773-6-git-send-email-cmaloney@theoreticalchaos.com>
-In-Reply-To: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
-References: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: ebiederm@xmission.com
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Karel Zak <kzak@redhat.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Michael Kerrisk \(man-pages\)" <mtk.manpages@gmail.com>
+References: <876234812z.fsf@xmission.com> <20130111161320.GA16206@x2.net.home>
+	<87fw27jq29.fsf_-_@xmission.com>
+	<201301111845.16591.vapier@gentoo.org>
+	<20130114082846.GA16421@x2.net.home> <87a9s8lkbq.fsf_-_@xmission.com>
+Date: Wed, 16 Jan 2013 16:34:44 -0800
+In-Reply-To: <87a9s8lkbq.fsf_-_@xmission.com> (Eric W. Biederman's message of
+	"Wed, 16 Jan 2013 16:33:29 -0800")
+Message-ID: <87y5fsk5p7.fsf_-_@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: [PATCH 2/5] nsenter: Properly spell significant in a comment.
 List-ID: <util-linux.vger.kernel.org>
 
 
-Signed-off-by: Cody Maloney <cmaloney@theoreticalchaos.com>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 ---
- login-utils/chfn.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
+ sys-utils/nsenter.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-index e189558..80abefa 100644
---- a/login-utils/chfn.c
-+++ b/login-utils/chfn.c
-@@ -1,6 +1,7 @@
- /*
-  *   chfn.c -- change your finger information
-  *   (c) 1994 by salvatore valente <svalente@athena.mit.edu>
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-  *
-  *   this program is free software.  you can redistribute it and
-  *   modify it under the terms of the gnu general public license.
-@@ -31,7 +32,6 @@
- #include <sys/types.h>
- #include <unistd.h>
- 
--#include "auth.h"
- #include "c.h"
- #include "env.h"
- #include "closestream.h"
-@@ -47,6 +47,13 @@
- # include "selinux_utils.h"
- #endif
- 
-+#ifdef HAVE_LIBUSER
-+# include <libuser/user.h>
-+# include "libuser.h"
-+#else
-+# include "auth.h"
-+#endif
-+
- static char buf[1024];
- 
- struct finfo {
-@@ -149,17 +156,24 @@ int main(int argc, char **argv)
- 	}
- #endif
- 
--	/* Reality check */
--	if (uid != 0 && uid != oldf.pw->pw_uid) {
-+#ifdef HAVE_LIBUSER
-+	/* If we're setuid and not really root, disallow the password change. */
-+	if (geteuid() != getuid() && uid != pw->pw_uid) {
-+#else
-+	if (uid != 0 && uid != pw->pw_uid) {
-+#endif
- 		errno = EACCES;
--		err(EXIT_FAILURE, NULL);
-+		err(EXIT_FAILURE, _("running UID doesn't match UID of user we're "
-+		      "altering, change denied")););
- 	}
- 
- 	printf(_("Changing finger information for %s.\n"), oldf.username);
- 
-+#ifndef HAVE_LIBUSER
- 	if(!auth_pam("chfn", uid, oldf.username)) {
- 		return EXIT_FAILURE;
- 	}
-+#endif
- 
- 	if (interactive)
- 		ask_info(&oldf, &newf);
-@@ -445,9 +459,14 @@ static int save_new_data(struct finfo *pinfo)
- 		gecos[len] = 0;
- 	}
- 
-+#ifdef HAVE_LIBUSER
-+	if(set_value_libuser("chfn", pinfo->pw->pw_name, pinfo->pw->pw_uid,
-+			LU_GECOS, gecos)) {
-+#else /* HAVE_LIBUSER */
- 	/* write the new struct passwd to the passwd file. */
- 	pinfo->pw->pw_gecos = gecos;
- 	if (setpwnam(pinfo->pw) < 0) {
-+#endif
- 		warn("setpwnam");
- 		printf(_
- 		       ("Finger information *NOT* changed.  Try again later.\n"));
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index ad01355..d7d65f9 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -63,7 +63,7 @@ static struct namespace_file{
+ 	char *name;
+ 	int fd;
+ } namespace_files[] = {
+-	/* Careful the order is signifcant in this array.
++	/* Careful the order is significant in this array.
+ 	 *
+ 	 * The user namespace comes first, so that it is entered
+ 	 * first.  This gives an unprivileged user the potential to
 -- 
-1.8.1
-
+1.7.5.4
