@@ -1,42 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:45842 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755771Ab3ASAKE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:10:04 -0500
-Received: by mail-wi0-f174.google.com with SMTP id hq4so5649795wib.13
-        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:10:03 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 20/22] dmesg: parse level when --color is used
-Date: Sat, 19 Jan 2013 00:09:09 +0000
-Message-Id: <1358554151-25985-21-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
-References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: ebiederm@xmission.com
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Michael Kerrisk \(man-pages\)" <mtk.manpages@gmail.com>
+References: <876234812z.fsf@xmission.com> <20130111161320.GA16206@x2.net.home>
+	<8738y7jpqp.fsf_-_@xmission.com> <20130117123503.GB3096@x2.net.home>
+Date: Thu, 17 Jan 2013 04:56:22 -0800
+In-Reply-To: <20130117123503.GB3096@x2.net.home> (Karel Zak's message of "Thu,
+	17 Jan 2013 13:35:03 +0100")
+Message-ID: <877gnceznt.fsf@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH] unshare: Add support for the pid and user namespaces
 List-ID: <util-linux.vger.kernel.org>
 
-When user runs with --color it should not need to be combined with
-filtering per level or facility, or decoding.
+Karel Zak <kzak@redhat.com> writes:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On Fri, Jan 11, 2013 at 02:53:34PM -0800, Eric W. Biederman wrote:
+>>  sys-utils/unshare.1 |   19 +++++++++++++++----
+>>  sys-utils/unshare.c |   27 ++++++++++++++++++---------
+>>  2 files changed, 33 insertions(+), 13 deletions(-)
+>
+>  Applied, thanks.
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index ddab9b4..080fe7d 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -658,7 +658,7 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
- 			continue;	/* error or empty line? */
- 
- 		if (*begin == '<') {
--			if (ctl->fltr_lev || ctl->fltr_fac || ctl->decode)
-+			if (ctl->fltr_lev || ctl->fltr_fac || ctl->decode || ctl->color)
- 				begin = parse_faclev(begin + 1, &rec->facility,
- 						     &rec->level);
- 			else
--- 
-1.8.1.1
+I was begining to wonder as one of the later patches you applied was on
+top of this one.
 
+Thanks for getting all of these.
+
+Eric
