@@ -1,44 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32805 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756231Ab3AHSB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Jan 2013 13:01:57 -0500
-Date: Tue, 8 Jan 2013 19:01:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Goffredo Baroncelli <kreijack@inwind.it>
-Cc: util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Mason <chris.mason@fusionio.com>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-Message-ID: <20130108180126.GB9177@x2.net.home>
-References: <50E9C267.3050302@inwind.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50E9C267.3050302@inwind.it>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:33609 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755248Ab3ASAJg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:36 -0500
+Received: by mail-wg0-f47.google.com with SMTP id dq11so2578213wgb.14
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:35 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 08/22] tests: add ionice(1) check
+Date: Sat, 19 Jan 2013 00:08:57 +0000
+Message-Id: <1358554151-25985-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
-> If the first superblock is valid except that the "magic field" is zeroed,
-> btrfs skips the check of the other superblocks.
-> If the first superblock is fully invalid, btrfs checks for the other
-> superblock.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh          |  1 +
+ tests/expected/misc/ionice |  9 +++++++++
+ tests/ts/misc/ionice       | 28 ++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+)
+ create mode 100644 tests/expected/misc/ionice
+ create mode 100755 tests/ts/misc/ionice
 
- Hmm... why inconsistent (or missing) superblock is not reported as a
- problem? If I good understand the filesystem is still mountable,
- right?
-
-> So zeroing the first superblock "magic field" at the beginning seems
-> that the filesystem is wiped.
-
- Well, this is exactly the idea behind wipefs(8), just wipe minimal
- number of bytes from the device to make the filesystem invisible for
- libblkid (udev, ...). This concept is relatively safe, if you make a
- mistake than you can restore the magic string, your data should not
- be affected by wipefs(8).
-
-    Karel
-
+diff --git a/tests/commands.sh b/tests/commands.sh
+index fe79cf4..c5f7140 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -70,3 +70,4 @@ TS_CMD_GETOPT=${TS_CMD_GETOPT-"$top_builddir/getopt"}
+ TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
+ TS_CMD_TAILF=${TS_CMD_TAILF-"$top_builddir/tailf"}
+ TS_CMD_UL=${TS_CMD_UL-"$top_builddir/ul"}
++TS_CMD_IONICE=${TS_CMD_IONICE-"$top_builddir/ionice"}
+diff --git a/tests/expected/misc/ionice b/tests/expected/misc/ionice
+new file mode 100644
+index 0000000..39cfb60
+--- /dev/null
++++ b/tests/expected/misc/ionice
+@@ -0,0 +1,9 @@
++ionice: ignoring given class data for none class
++ionice: unknown prio class 7
++ionice: ioprio_set failed: Invalid argument
++ionice: unknown prio class 7
++ionice: ioprio_set failed: Invalid argument
++ionice: unknown prio class 8
++ionice: ioprio_set failed: Invalid argument
++/etc/passwd
++unknown: prio 0
+diff --git a/tests/ts/misc/ionice b/tests/ts/misc/ionice
+new file mode 100755
+index 0000000..d0cca8e
+--- /dev/null
++++ b/tests/ts/misc/ionice
+@@ -0,0 +1,28 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="$(dirname $0)/../.."
++TS_DESC="ionice"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++$TS_CMD_IONICE -p $$ -n 0 -c 0 >> $TS_OUTPUT 2>&1
++$TS_CMD_IONICE -p $$ -n 3 -c 7 >> $TS_OUTPUT 2>&1
++$TS_CMD_IONICE -p $$ -n 4 -c 7 >> $TS_OUTPUT 2>&1
++$TS_CMD_IONICE -p $$ -n 1 -c 8 >> $TS_OUTPUT 2>&1
++$TS_CMD_IONICE -n 3 ls /etc/passwd >> $TS_OUTPUT 2>&1
++$TS_CMD_IONICE -p $$ >> $TS_OUTPUT 2>&1
++
++ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.1
+
