@@ -1,264 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from charlotte.tuxdriver.com ([70.61.120.58]:44922 "EHLO
-	smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752747Ab3ABVdg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Jan 2013 16:33:36 -0500
-Date: Wed, 2 Jan 2013 16:33:24 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:48568 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751835Ab3ASAJX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:23 -0500
+Received: by mail-wg0-f44.google.com with SMTP id dr12so2539035wgb.35
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:21 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@gmail.com, grawity@gmail.com, ingenit@zoho.com,
-        Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH v3] sys-tools: Enhance unshare command to support the
- switching of namespaces
-Message-ID: <20130102213323.GA27494@hmsreliant.think-freely.org>
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
- <1356711738-1573-1-git-send-email-nhorman@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1356711738-1573-1-git-send-email-nhorman@tuxdriver.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 02/22] tests: add rev(1) check
+Date: Sat, 19 Jan 2013 00:08:51 +0000
+Message-Id: <1358554151-25985-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 28, 2012 at 11:22:18AM -0500, Neil Horman wrote:
-> In addition to the unshare syscall, there exists the setns syscall, which allows
-> processes to migrate to the namepsaces of other processes.  Add this
-> functionality into the unshare command, as they operate in a fairly simmilar
-> fashion.
-> 
-> Note: There was discussion of adding a path based namespace argument to unshare
-> in the origional discussion thread, but I opted to leave that out as it didn't
-> seem to fit in nicely with the current argument pattern.  I figure we can always
-> add that in later if we need to
-> 
-> Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-> CC: Karel Zak <kzak@redhat.com>
-Ping, any further thoughts here?
-Neil
+Fairly lenghty input line tries to ensure realloc segment in code is hit
+at least once.
 
-> ---
->  sys-utils/unshare.1 | 34 +++++++++++++++---------
->  sys-utils/unshare.c | 74 ++++++++++++++++++++++++++++++++++++++++++-----------
->  2 files changed, 81 insertions(+), 27 deletions(-)
-> 
-> diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-> index 1325e34..e0393f7 100644
-> --- a/sys-utils/unshare.1
-> +++ b/sys-utils/unshare.1
-> @@ -3,15 +3,15 @@
->  .\"
->  .TH UNSHARE 1 "October 2008" "util-linux" "User Commands"
->  .SH NAME
-> -unshare \- run program with some namespaces unshared from parent
-> +unshare \- run program with some namespaces unshared or changed from parent
->  .SH SYNOPSIS
->  .B unshare
->  .RI [ options ]
->  program
->  .RI [ arguments ]
->  .SH DESCRIPTION
-> -Unshares specified namespaces from parent process and then executes specified
-> -program. Unshareable namespaces are:
-> +Unshares or migrates specified namespaces from parent process and then executes specified
-> +program. Available namespaces are:
->  .TP
->  .BR "mount namespace"
->  mounting and unmounting filesystems will not affect rest of the system
-> @@ -32,32 +32,42 @@ rules, the \fI/proc/net\fP and \fI/sys/class/net\fP directory trees, sockets
->  etc. (\fBCLONE_NEWNET\fP flag).
->  .TP
->  See the \fBclone\fR(2) for exact semantics of the flags.
-> +.TP
->  .SH OPTIONS
->  .TP
->  .BR \-h , " \-\-help"
->  Print a help message,
->  .TP
-> -.BR \-m , " \-\-mount"
-> -Unshare the mount namespace,
-> +.BR \-m\ [pid] , " \-\-mount[=pid]"
-> +Unshare the mount namespace, or, when a pid is specified, migrate the mount
-> +namespace to the one attached to the specified pid
->  .TP
-> -.BR \-u , " \-\-uts"
-> -Unshare the UTC namespace,
-> +.BR \-u\ [pid] , " \-\-uts[=pid]"
-> +Unshare the UTC namespace, or, when a pid is specified, migrate the uts
-> +namespace to the one attached to the specified pid
->  .TP
-> -.BR \-i , " \-\-ipc"
-> -Unshare the IPC namespace,
-> +.BR \-i\ [pid] , " \-\-ipc[=pid]"
-> +Unshare the IPC namespace, or, when a pid is specified, migrate the ipc
-> +namespace to the one attached to the specified pid
->  .TP
-> -.BR \-n , " \-\-net"
-> -Unshare the network namespace.
-> +.BR \-n\ [pid] , " \-\-net[=pid]"
-> +Unshare the network namespace, or, when a pid is specified, migrate the net
-> +namespace to the one attached to the specified pid
->  .SH NOTES
->  The unshare command drops potential privileges before executing the
->  target program. This allows to setuid unshare.
-> +.P
-> +Support for migrating processes between mnt and pid namespace is available in
-> +kernels 3.8 and later
->  .SH SEE ALSO
->  .BR unshare (2),
-> +.BR setns (2),
->  .BR clone (2)
->  .SH BUGS
->  None known so far.
-> -.SH AUTHOR
-> +.SH AUTHORS
->  Mikhail Gusarov <dottedmag@dottedmag.net>
-> +Neil Horman <nhorman@tuxdriver.com>
->  .SH AVAILABILITY
->  The unshare command is part of the util-linux package and is available from
->  ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-> diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-> index 9de997b..e67986a 100644
-> --- a/sys-utils/unshare.c
-> +++ b/sys-utils/unshare.c
-> @@ -24,6 +24,7 @@
->  #include <stdio.h>
->  #include <stdlib.h>
->  #include <unistd.h>
-> +#include <getopt.h>
->  
->  #include "nls.h"
->  #include "c.h"
-> @@ -42,6 +43,9 @@
->  # define CLONE_NEWNET 0x40000000
->  #endif
->  
-> +#define NUM_ENTRIES 128
-> +static int ns_pids[128];
-> +
->  #ifndef HAVE_UNSHARE
->  # include <sys/syscall.h>
->  
-> @@ -60,10 +64,10 @@ static void usage(int status)
->  	      _(" %s [options] <program> [args...]\n"),	program_invocation_short_name);
->  
->  	fputs(USAGE_OPTIONS, out);
-> -	fputs(_(" -m, --mount       unshare mounts namespace\n"
-> -		" -u, --uts         unshare UTS namespace (hostname etc)\n"
-> -		" -i, --ipc         unshare System V IPC namespace\n"
-> -		" -n, --net         unshare network namespace\n"), out);
-> +	fputs(_(" -m, --mount       unshare|migrate mounts namespace\n"
-> +		" -u, --uts         unshare|migrate UTS namespace (hostname etc)\n"
-> +		" -i, --ipc         unshare|migrate System V IPC namespace\n"
-> +		" -n, --net         unshare|migrate network namespace\n"), out);
->  
->  	fputs(USAGE_SEPARATOR, out);
->  	fputs(USAGE_HELP, out);
-> @@ -73,28 +77,42 @@ static void usage(int status)
->  	exit(status);
->  }
->  
-> +static void close_files(void)
-> +{
-> +	int i;
-> +	for (i=0; ns_pids[i] > 0; i++)
-> +		close(ns_pids[i]);
-> +	close_stdout();
-> +}
-> +
->  int main(int argc, char *argv[])
->  {
->  	static const struct option longopts[] = {
->  		{ "help", no_argument, 0, 'h' },
->  		{ "version", no_argument, 0, 'V'},
-> -		{ "mount", no_argument, 0, 'm' },
-> -		{ "uts", no_argument, 0, 'u' },
-> -		{ "ipc", no_argument, 0, 'i' },
-> -		{ "net", no_argument, 0, 'n' },
-> +		{ "mount", optional_argument, 0, 'm' },
-> +		{ "uts", optional_argument, 0, 'u' },
-> +		{ "ipc", optional_argument, 0, 'i' },
-> +		{ "net", optional_argument, 0, 'n' },
->  		{ NULL, 0, 0, 0 }
->  	};
->  
->  	int unshare_flags = 0;
-> -
-> +	int nscount = 0;
->  	int c;
-> +	char *ns;
-> +	unsigned long pid;
-> +	char path[512];
->  
-> +	memset(ns_pids, 0, sizeof(int)*NUM_ENTRIES);
->  	setlocale(LC_MESSAGES, "");
->  	bindtextdomain(PACKAGE, LOCALEDIR);
->  	textdomain(PACKAGE);
-> -	atexit(close_stdout);
-> +	atexit(close_files);
-> +
-> +	while((c = getopt_long(argc, argv, "hVm:u:i:n:", longopts, NULL)) != -1) {
-> +		ns = NULL;
->  
-> -	while((c = getopt_long(argc, argv, "hVmuin", longopts, NULL)) != -1) {
->  		switch(c) {
->  		case 'h':
->  			usage(EXIT_SUCCESS);
-> @@ -102,25 +120,51 @@ int main(int argc, char *argv[])
->  			printf(UTIL_LINUX_VERSION);
->  			return EXIT_SUCCESS;
->  		case 'm':
-> -			unshare_flags |= CLONE_NEWNS;
-> +			ns = "mnt";
-> +			if (!optarg)
-> +				unshare_flags |= CLONE_NEWNS;
->  			break;
->  		case 'u':
-> -			unshare_flags |= CLONE_NEWUTS;
-> +			ns = "uts";
-> +			if (!optarg)
-> +				unshare_flags |= CLONE_NEWUTS;
->  			break;
->  		case 'i':
-> -			unshare_flags |= CLONE_NEWIPC;
-> +			ns = "ipc";
-> +			if (!optarg)
-> +				unshare_flags |= CLONE_NEWIPC;
->  			break;
->  		case 'n':
-> -			unshare_flags |= CLONE_NEWNET;
-> +			ns = "net";
-> +			if (!optarg)
-> +				unshare_flags |= CLONE_NEWNET;
->  			break;
->  		default:
->  			usage(EXIT_FAILURE);
->  		}
-> +
-> +		if (optarg && ns) {
-> +				if (nscount >= NUM_ENTRIES)
-> +					err(EXIT_FAILURE, _("Too many new namespaces specified"));
-> +				pid = strtoul(optarg, NULL, 10);
-> +				if (pid == ULONG_MAX)
-> +					err(EXIT_FAILURE, _("%s pid improperly specified"), ns);
-> +				sprintf(path, "/proc/%d/ns/%s", (int)pid, ns); 
-> +				ns_pids[nscount] = open(path, O_RDONLY);
-> +				if (ns_pids[nscount] < 0)
-> +					err(EXIT_FAILURE, _("Can not migrate %s: Can't open %s"), ns, path);
-> +				nscount++;
-> +		}
-> +		
->  	}
->  
->  	if(optind >= argc)
->  		usage(EXIT_FAILURE);
->  
-> +	for (nscount = 0; ns_pids[nscount] > 0; nscount++)
-> +		if (-1 == setns(ns_pids[nscount], 0))
-> +			err(EXIT_FAILURE, _("setns failed"));
-> +	
->  	if(-1 == unshare(unshare_flags))
->  		err(EXIT_FAILURE, _("unshare failed"));
->  
-> -- 
-> 1.7.11.7
-> 
-> 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh       |  1 +
+ tests/expected/misc/rev |  1 +
+ tests/ts/misc/rev       | 24 ++++++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
+ create mode 100644 tests/expected/misc/rev
+ create mode 100755 tests/ts/misc/rev
+
+diff --git a/tests/commands.sh b/tests/commands.sh
+index 3672095..f1643a6 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -45,6 +45,7 @@ TS_CMD_IPCS=${TS_CMD_IPCS:-"$top_builddir/ipcs"}
+ TS_CMD_COL=${TS_CMD_COL:-"$top_builddir/col"}
+ TS_CMD_COLUMN=${TS_CMD_COLUMN:-"$top_builddir/column"}
+ TS_CMD_COLRM=${TS_CMD_COLRM:-"$top_builddir/colrm"}
++TS_CMD_REV=${TS_CMD_REV:-"$top_builddir/rev"}
+ 
+ TS_CMD_NAMEI=${TS_CMD_NAMEI-"$top_builddir/namei"}
+ TS_CMD_LOOK=${TS_CMD_LOOK-"$top_builddir/look"}
+diff --git a/tests/expected/misc/rev b/tests/expected/misc/rev
+new file mode 100644
+index 0000000..77ceb56
+--- /dev/null
++++ b/tests/expected/misc/rev
+@@ -0,0 +1 @@
++ z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a!
+  z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a!
+  z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v!
+  u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v!
+  u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v!
+  u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m !
+ l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m !
+ l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m !
+ l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c!
+  b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c!
+  b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c!
+  b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t !
+ s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t !
+ s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t !
+ s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j!
+  i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j!
+  i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j!
+  i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a !
+ z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a !
+ z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a !
+ z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q!
+  p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q!
+  p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q!
+  p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h !
+ g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h !
+ g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h !
+ g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x!
+  w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x!
+  w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x!
+  w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o !
+ n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o !
+ n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o !
+ n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e!
+  d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e!
+  d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e!
+  d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v !
+ u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v !
+ u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a z y x w v !
+ u t s r q p o n m l k j i h g f e d c b a z y x w v u t s r q p o n m l!
+  k j i h g f e d c b a z y x w v u t s r q p o n m l k j i h g f e d c b a
+diff --git a/tests/ts/misc/rev b/tests/ts/misc/rev
+new file mode 100755
+index 0000000..d1fba16
+--- /dev/null
++++ b/tests/ts/misc/rev
+@@ -0,0 +1,24 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="$(dirname $0)/../.."
++TS_DESC="rev"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++for I in {0..512}; do printf "%s " {a..z}; done |
++	$TS_CMD_REV > $TS_OUTPUT 2>&1
++
++ts_finalize
+-- 
+1.8.1.1
+
