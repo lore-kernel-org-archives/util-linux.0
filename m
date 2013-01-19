@@ -1,40 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14093 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752319Ab3AXPcc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 Jan 2013 10:32:32 -0500
-Date: Thu, 24 Jan 2013 16:32:21 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] ipcmk: remove unnecessary create_key() function
-Message-ID: <20130124153221.GB27413@x2.net.home>
-References: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
- <1357760216-4068-2-git-send-email-kerolasa@iki.fi>
- <20130110101955.GA593@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130110101955.GA593@x2.net.home>
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:33575 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752570Ab3ASAJ3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:29 -0500
+Received: by mail-wg0-f46.google.com with SMTP id dr13so2466028wgb.1
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:28 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 05/22] tests: add mcookie(1) check
+Date: Sat, 19 Jan 2013 00:08:54 +0000
+Message-Id: <1358554151-25985-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 10, 2013 at 11:19:55AM +0100, Karel Zak wrote:
-> On Wed, Jan 09, 2013 at 07:36:54PM +0000, Sami Kerola wrote:
-> >  static int create_shm(size_t size, int permission)
-> >  {
-> > -	key_t key = create_key();
-> > +	key_t key = random();
-> 
->  we already have random_get_bytes() in randutils.c, it seems better
->  than introduce seed_random() and use random().
-> 
->     random_get_bytes(&key, sizeof(key));
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh           |  1 +
+ tests/expected/misc/mcookie |  1 +
+ tests/ts/misc/mcookie       | 26 ++++++++++++++++++++++++++
+ 3 files changed, 28 insertions(+)
+ create mode 100644 tests/expected/misc/mcookie
+ create mode 100755 tests/ts/misc/mcookie
 
- Implemented.
-
-    Karel
-
-
+diff --git a/tests/commands.sh b/tests/commands.sh
+index cb2f444..3465d41 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -67,3 +67,4 @@ TS_CMD_HEXDUMP=${TS_CMD_HEXDUMP-"$top_builddir/hexdump"}
+ 
+ TS_CMD_UTMPDUMP=${TS_CMD_UTMPDUMP-"$top_builddir/utmpdump"}
+ TS_CMD_GETOPT=${TS_CMD_GETOPT-"$top_builddir/getopt"}
++TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
+diff --git a/tests/expected/misc/mcookie b/tests/expected/misc/mcookie
+new file mode 100644
+index 0000000..d1c0351
+--- /dev/null
++++ b/tests/expected/misc/mcookie
+@@ -0,0 +1 @@
++the string meets expecations
+diff --git a/tests/ts/misc/mcookie b/tests/ts/misc/mcookie
+new file mode 100755
+index 0000000..9e650b2
+--- /dev/null
++++ b/tests/ts/misc/mcookie
+@@ -0,0 +1,26 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="$(dirname $0)/../.."
++TS_DESC="mcookie"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++$TS_CMD_MCOOKIE -f /etc/services |
++	# The sed will convert only 32 characters long hexadecimal string
++	# to expected string, but nothing else.
++	sed 's/^[0-9a-f]\{32\}$/the string meets expecations/' > $TS_OUTPUT 2>&1
++
++ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.1
+
