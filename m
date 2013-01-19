@@ -1,47 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53100 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756576Ab3A1Ohn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Jan 2013 09:37:43 -0500
-Received: from mailout-de.gmx.net ([10.1.76.17]) by mrigmx.server.lan
- (mrigmx002) with ESMTP (Nemesis) id 0Mhg69-1ULe6v0gF9-00MrGF for
- <util-linux@vger.kernel.org>; Mon, 28 Jan 2013 15:37:42 +0100
-Message-ID: <51068D38.3040708@gmx.de>
-Date: Mon, 28 Jan 2013 15:37:44 +0100
-From: Ulf Zibis <Ulf.Zibis@gmx.de>
-MIME-Version: 1.0
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:38588 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754466Ab3ASAJb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:31 -0500
+Received: by mail-wi0-f181.google.com with SMTP id hq4so3442145wib.2
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:30 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: sfdisk man page bug
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/22] tests: add tailf(1) check
+Date: Sat, 19 Jan 2013 00:08:55 +0000
+Message-Id: <1358554151-25985-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh           |  1 +
+ tests/expected/tailf/simple |  2 ++
+ tests/ts/tailf/simple       | 29 +++++++++++++++++++++++++++++
+ 3 files changed, 32 insertions(+)
+ create mode 100644 tests/expected/tailf/simple
+ create mode 100755 tests/ts/tailf/simple
 
-from the Manual page sfdisk(8):
-"... For example, when there are several primary DOS partitions, DOS assigns C: to the first among 
-these that is bootable.)"
-
-This seems to be wrong. I'm not 100 % sure about DOS, but about modern Windows, above statement is 
-definitely wrong. Correct is:
-"... Windows/DOS assigns C: to the first among these that is visible (=not hidden).)"
-"... Windows/DOS typical generic MBR boot code loads and executes the bootloader found on the first 
-among these that is bootable.)"
-
-to be sure, I tested following:
-- having old WinXP installation on sda1, labelled "WIN_OLD"
-- copy this partition by GParted to sda2
-- newly install WinXP on sda1, labelled "WIN_NEW"
-- set sda2 to active
-- boot
---> result:
-1. in effect, WinXP from sda1 becomes booted
-2. sda1 is named C:, cd1 is named D:, "bootable" sda2 is named E:
-
-As today Windows is the more interesting use case, at least please add correct info for the Windows 
-case.
-
-Many thanks for your attention and hopefully answer,
-
--Ulf
+diff --git a/tests/commands.sh b/tests/commands.sh
+index 3465d41..2718640 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -68,3 +68,4 @@ TS_CMD_HEXDUMP=${TS_CMD_HEXDUMP-"$top_builddir/hexdump"}
+ TS_CMD_UTMPDUMP=${TS_CMD_UTMPDUMP-"$top_builddir/utmpdump"}
+ TS_CMD_GETOPT=${TS_CMD_GETOPT-"$top_builddir/getopt"}
+ TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
++TS_CMD_TAILF=${TS_CMD_TAILF-"$top_builddir/tailf"}
+diff --git a/tests/expected/tailf/simple b/tests/expected/tailf/simple
+new file mode 100644
+index 0000000..ddf72de
+--- /dev/null
++++ b/tests/expected/tailf/simple
+@@ -0,0 +1,2 @@
++a b c d e f g h i j k l m n o p q r s t u v w x y z
++0 1 2 3 4 5 6 7 8 9
+diff --git a/tests/ts/tailf/simple b/tests/ts/tailf/simple
+new file mode 100755
+index 0000000..ad00b25
+--- /dev/null
++++ b/tests/ts/tailf/simple
+@@ -0,0 +1,29 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="$(dirname $0)/../.."
++TS_DESC="simple"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++rm -f $TS_SELF/input
++echo {a..z}  > $TS_SELF/input
++$TS_CMD_TAILF  $TS_SELF/input > $TS_OUTPUT 2>&1 &
++sleep 0.1
++echo {0..9} >> $TS_SELF/input
++sleep 0.1
++rm -f $TS_SELF/input
++
++ts_finalize
+-- 
+1.8.1.1
 
