@@ -1,84 +1,108 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from kawka.in.waw.pl ([178.63.212.103]:49932 "EHLO kawka.in.waw.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751874Ab3AUGkq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 Jan 2013 01:40:46 -0500
-From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:33003 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755248Ab3ASAJi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:38 -0500
+Received: by mail-wg0-f45.google.com with SMTP id dq12so2474123wgb.0
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:37 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-Subject: [PATCH 4/5] nsenter: rename --exec/-e to --no-fork/-F
-Date: Mon, 21 Jan 2013 01:38:05 -0500
-Message-Id: <1358750287-17732-6-git-send-email-zbyszek@in.waw.pl>
-In-Reply-To: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
-References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Cc: kerolasa@iki.fi
+Subject: [PATCH 09/22] more: allow non-interactive invocation of the command
+Date: Sat, 19 Jan 2013 00:08:58 +0000
+Message-Id: <1358554151-25985-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The naming of this option was really confusing.
-Just rename it for clarity.
+Needed for testing.
 
-Signed-off-by: Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/nsenter.1 | 2 +-
- sys-utils/nsenter.c | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ text-utils/more.1 |  5 +++++
+ text-utils/more.c | 17 +++++++++++------
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-index ab1a6f1..7ca0f0e 100644
---- a/sys-utils/nsenter.1
-+++ b/sys-utils/nsenter.1
-@@ -135,7 +135,7 @@ Set the working directory.  If no directory is specified set the working
- directory to the working directory of the target process.  If directory is
- specified set the working directory to the specified directory.
+diff --git a/text-utils/more.1 b/text-utils/more.1
+index 479f037..b50fdfc 100644
+--- a/text-utils/more.1
++++ b/text-utils/more.1
+@@ -97,6 +97,11 @@ remainder of each line as it is displayed.
+ .B \-s
+ Squeeze multiple blank lines into one.
  .TP
--\fB\-e\fR, \fB\-\-exec\fR
-+\fB\-e\fR, \fB\-\-no\-fork\fR
- Do not fork before exec'ing the specified program.  By default when entering a
- pid namespace enter calls fork before calling exec so that the children will be
- in the newly entered pid namespace.
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index 1f773e1..0a4985c 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -74,7 +74,7 @@ static void usage(int status)
- 		" -r, --root  [=<dir>]   set the root directory\n"
- 		" -w, --wd    [=<dir>]   set the working directory\n"
- 		" -a, --all              set root and cwd and enter namespaces listed above\n"
--		" -e, --exec             don't fork before exec'ing <program>\n"), out);
-+		" -F, --no-fork          don't fork before exec'ing <program>\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
-@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
- 		{ "root", optional_argument, NULL, 'r' },
- 		{ "wd", optional_argument, NULL, 'w' },
- 		{ "all", no_argument, NULL, 'a' },
--		{ "exec", no_argument, NULL, 'e' },
-+		{ "no-fork", no_argument, NULL, 'F' },
- 		{ NULL, 0, NULL, 0 }
- 	};
++.B \-n
++Allow non-interactive terminal to behave like a normal terminal.  Useful
++for more tests scripts.  The switch will effect properly only when it is
++part of MORE options.
++.TP
+ .B \-u
+ Suppress underlining.
+ .TP
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 41caeb1..b115539 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -134,7 +134,7 @@ void prepare_line_buffer(void);
  
-@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
- 	atexit(close_stdout);
+ struct termios otty, savetty0;
+ long file_pos, file_size;
+-int fnum, no_intty, no_tty, slow_tty;
++int fnum, no_intty, no_tty, slow_tty, non_interactive;
+ int dum_opt, dlines;
+ void onquit(int), onsusp(int), chgwinsz(int), end_it(int);
+ int nscroll = SCROLL_LEN;	/* Number of lines scrolled by 'd' */
+@@ -323,6 +323,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		  "  -c        suppress scroll, display text and clean line ends\n"
+ 		  "  -u        suppress underlining\n"
+ 		  "  -s        squeeze multiple blank lines into one\n"
++		  "  -n        allow non-interactive terminal\n"
+ 		  "  -NUM      specify the number of lines per screenful\n"
+ 		  "  +NUM      display file beginning from line number NUM\n"
+ 		  "  +/STRING  display file beginning from search string match\n"
+@@ -351,6 +352,10 @@ int main(int argc, char **argv)
+ 	nfiles = argc;
+ 	fnames = argv;
+ 	setlocale(LC_ALL, "");
++
++	if ((s = getenv("MORE")) != NULL)
++		argscan(s);
++
+ 	initterm();
  
- 	while ((c =
--		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::r::w::ae",
-+		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::r::w::aF",
- 			    longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'h':
-@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
- 			do_rd = do_wd = true;
- 			all_used = true;
+ 	/* Auto set no scroll on when binary is called page */
+@@ -362,10 +367,6 @@ int main(int argc, char **argv)
+ 	nscroll = Lpp / 2 - 1;
+ 	if (nscroll <= 0)
+ 		nscroll = 1;
+-
+-	if ((s = getenv("MORE")) != NULL)
+-		argscan(s);
+-
+ 	while (--nfiles > 0) {
+ 		if ((ch = (*++fnames)[0]) == '-') {
+ 			argscan(*fnames + 1);
+@@ -556,6 +557,9 @@ void argscan(char *s)
+ 		case 's':
+ 			ssp_opt = 1;
  			break;
--		case 'e':
-+		case 'F':
- 			do_fork = 0;
++		case 'n':
++			non_interactive = 1;
++			break;
+ 		case 'u':
+ 			ul_opt = 0;
  			break;
- 		default:
+@@ -1759,7 +1763,8 @@ void initterm(void)
+ #ifdef do_SIGTTOU
+  retry:
+ #endif
+-	no_tty = tcgetattr(fileno(stdout), &otty);
++	if (non_interactive == 0)
++		no_tty = tcgetattr(fileno(stdout), &otty);
+ 	if (!no_tty) {
+ 		docrterase = (otty.c_cc[VERASE] != 255);
+ 		docrtkill = (otty.c_cc[VKILL] != 255);
 -- 
-1.7.11.7
+1.8.1.1
 
