@@ -1,32 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18499 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751814Ab3AQMw1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Jan 2013 07:52:27 -0500
-Date: Thu, 17 Jan 2013 13:35:03 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: util-linux@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: Re: [PATCH] unshare: Add support for the pid and user namespaces
-Message-ID: <20130117123503.GB3096@x2.net.home>
-References: <876234812z.fsf@xmission.com>
- <20130111161320.GA16206@x2.net.home>
- <8738y7jpqp.fsf_-_@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <8738y7jpqp.fsf_-_@xmission.com>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:51501 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755248Ab3ASAJn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:43 -0500
+Received: by mail-wi0-f171.google.com with SMTP id hn14so5647314wib.16
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:42 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 11/22] tests: add line(1) check
+Date: Sat, 19 Jan 2013 00:09:00 +0000
+Message-Id: <1358554151-25985-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 11, 2013 at 02:53:34PM -0800, Eric W. Biederman wrote:
->  sys-utils/unshare.1 |   19 +++++++++++++++----
->  sys-utils/unshare.c |   27 ++++++++++++++++++---------
->  2 files changed, 33 insertions(+), 13 deletions(-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh        |  1 +
+ tests/expected/misc/line |  1 +
+ tests/ts/misc/line       | 24 ++++++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
+ create mode 100644 tests/expected/misc/line
+ create mode 100755 tests/ts/misc/line
 
- Applied, thanks.
-
+diff --git a/tests/commands.sh b/tests/commands.sh
+index dad7010..f1e20ed 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -72,3 +72,4 @@ TS_CMD_TAILF=${TS_CMD_TAILF-"$top_builddir/tailf"}
+ TS_CMD_UL=${TS_CMD_UL-"$top_builddir/ul"}
+ TS_CMD_IONICE=${TS_CMD_IONICE-"$top_builddir/ionice"}
+ TS_CMD_MORE=${TS_CMD_MORE-"$top_builddir/more"}
++TS_CMD_LINE=${TS_CMD_LINE-"$top_builddir/line"}
+diff --git a/tests/expected/misc/line b/tests/expected/misc/line
+new file mode 100644
+index 0000000..7898192
+--- /dev/null
++++ b/tests/expected/misc/line
+@@ -0,0 +1 @@
++a
+diff --git a/tests/ts/misc/line b/tests/ts/misc/line
+new file mode 100755
+index 0000000..41a95fe
+--- /dev/null
++++ b/tests/ts/misc/line
+@@ -0,0 +1,24 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="$(dirname $0)/../.."
++TS_DESC="line"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++printf "a\nb\n" |
++	$TS_CMD_LINE > $TS_OUTPUT 2>&1
++
++ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.1
+
