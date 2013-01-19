@@ -1,54 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31424 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752618Ab3A3Oie (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 30 Jan 2013 09:38:34 -0500
-Date: Wed, 30 Jan 2013 15:38:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] some proper pluralization, and a bunch of textual fixes
-Message-ID: <20130130143829.GC3741@x2.net.home>
-References: <1358956950.25102.140661181364417.13137B26@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1358956950.25102.140661181364417.13137B26@webmail.messagingengine.com>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:39773 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755742Ab3ASAJ5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Jan 2013 19:09:57 -0500
+Received: by mail-wi0-f180.google.com with SMTP id hj13so3442158wib.7
+        for <util-linux@vger.kernel.org>; Fri, 18 Jan 2013 16:09:56 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 17/22] docs: mkswap.8: recommend fallocate(1)
+Date: Sat, 19 Jan 2013 00:09:06 +0000
+Message-Id: <1358554151-25985-18-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 23, 2013 at 05:02:30PM +0100, Benno Schulenberg wrote:
-> The first two patches properly pluralize two error messages.  The third
-> patch makes some tiny grammar, style and punctuation tweaks to a few
-> error messages.  The fourth marks the filedescriptor as optional for the
-> -C option of fsck, and adds some missing markup to the man page, corrects
-> a word there, and expands an abbreviation for clarity.  The ninth patch
-> then slices the help text of fsck into single options, for ease of
-> translation maintenance.  (I hadn't seen Sami's survey request nor its
-> results until today -- his request had landed in my spam folder.  :|
-> But I fully agree with the outcome.)
-> 
-> The fifth patch corrects the description of the --sysroot option of lscpu,
-> and the tenth patch then slices the text into single options.
-> 
-> The sixth patch removes the incorrect spaces from "-e [=list]" and
-> "-p [=list]" in the lscpu manpage, normalizes the spacing of the text,
-> and corrects a word here and there.  The seventh patch normalizes
-> the help text of mkfs (using <type> instead of TYPE, for example),
-> marks that -t and fs-options are independent (a distinction that has
-> gone missing in a commit a year and a half ago), and slices it into
-> strips.  The eighth patch standardizes the version reporting to:
-> "program from util-linux-x.xx.x".
+There is no reason why fallocate(1) should not be preferred instead of
+'dd if=/dev/zero of=swapfile' with it's cumbersome size spec.
 
- Applied, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkswap.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Note that
-
-    fputc(USAGE_SEPARATOR, out);
-
- is incorrect, the separator is string, must be fputs().
-
-    Karel
-
+diff --git a/disk-utils/mkswap.8 b/disk-utils/mkswap.8
+index 219c49f..ab8a44a 100644
+--- a/disk-utils/mkswap.8
++++ b/disk-utils/mkswap.8
+@@ -130,7 +130,7 @@ e.g. using a command like
+ 
+ .nf
+ .RS
+-# dd if=/dev/zero of=swapfile bs=1024 count=65536
++# fallocate -l 8GB swapfile
+ .RE
+ .fi
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.1
+
