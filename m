@@ -1,38 +1,41 @@
-Return-Path: zbyszek@in.waw.pl
-Date: Fri, 25 Jan 2013 17:39:24 +0100
-From: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 2/5] nsenter: add --all meaning all namespaces and cwd
- and root
-Message-ID: <20130125163924.GT4278@in.waw.pl>
-References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
- <1358750287-17732-3-git-send-email-zbyszek@in.waw.pl>
- <20130125150210.GL27413@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20130125150210.GL27413@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:34259 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752442Ab3ATSFM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jan 2013 13:05:12 -0500
+Received: by mail-wg0-f46.google.com with SMTP id dr13so3197313wgb.1
+        for <util-linux@vger.kernel.org>; Sun, 20 Jan 2013 10:05:11 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 4/6] nsenter: fix compiler warning
+Date: Sun, 20 Jan 2013 18:04:54 +0000
+Message-Id: <1358705096-21092-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
+References: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 25, 2013 at 04:02:10PM +0100, Karel Zak wrote:
-> On Mon, Jan 21, 2013 at 01:38:02AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
-> > I guess that most of the time one will want to enter all
-> > namespaces, and then it is easier not to have to remember
-> > all the option names.
-> 
->  Not sure if this is the right argument. From my point of view it's
->  better to be explicit for such things, something like --all sounds
->  like a magical blackbox where semantic depends on features implemented
->  by kernel and nsenter(1). 
-Hi,
+nsenter.c:53:2: warning: ISO C forbids empty initializer braces [-pedantic]
 
-I'm was trying to document how a user should enter a namespace
-container created by systemd-nspawn. I would prefer not to have the
-user type 'nsenter -t $PID -muipn', but something simpler.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/nsenter.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-What about an alternative patch, which implements --all which means:
-"all namespaces supported by the kernel" (i.e. iterate over /proc/$PID/ns/*'
-and enter all of them. This way the behaviour would depend only on the
-kernel options, not on util-linux version.
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index ec8600a..b83f457 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -50,7 +50,7 @@ static struct namespace_file{
+ 	{ .nstype = CLONE_NEWNET,  .name = "ns/net",  .fd = -1 },
+ 	{ .nstype = CLONE_NEWPID,  .name = "ns/pid",  .fd = -1 },
+ 	{ .nstype = CLONE_NEWNS,   .name = "ns/mnt",  .fd = -1 },
+-	{}
++	{ .nstype = 0, .name = NULL, .fd = 0 }
+ };
+ 
+ static void usage(int status)
+-- 
+1.8.1.1
 
-Zbyszek
