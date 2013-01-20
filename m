@@ -1,56 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:49099 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756051Ab3AIIKD convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 03:10:03 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1Tsqjp-0001jq-QC
-	for util-linux@vger.kernel.org; Wed, 09 Jan 2013 09:10:17 +0100
-Received: from netkingxp.iwf.ing.tu-bs.de ([134.169.61.21])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 09:10:17 +0100
-Received: from G.Gersdorf by netkingxp.iwf.ing.tu-bs.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 09:10:17 +0100
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:63315 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752484Ab3ATSFH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jan 2013 13:05:07 -0500
+Received: by mail-wg0-f43.google.com with SMTP id e12so2031956wge.22
+        for <util-linux@vger.kernel.org>; Sun, 20 Jan 2013 10:05:06 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: =?ISO-8859-1?Q?G=FCnter_Gersdorf?= <G.Gersdorf@tu-bs.de>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-Date: Wed, 09 Jan 2013 09:09:45 +0100
-Message-ID: <kcj8k7$hdl$1@ger.gmane.org>
-References: <50E9C267.3050302@inwind.it> <kchf4t$scf$1@ger.gmane.org> <50EC822B.1070102@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-In-Reply-To: <50EC822B.1070102@gmail.com>
-Cc: linux-btrfs@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/6] build-sys: add nsenter to gitignore
+Date: Sun, 20 Jan 2013 18:04:52 +0000
+Message-Id: <1358705096-21092-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
+References: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Am 08.01.2013 21:31, schrieb Goffredo Baroncelli:
-> Hi Günter,
->
-> On 01/08/2013 04:48 PM, Günter Gersdorf wrote:
->> Am 06.01.2013 19:28, schrieb Goffredo Baroncelli:
->>>
->>> You can pull the change from:
->>>      http://cassiopea.homelinux.net/git/util-linux.git
->>> from the branch
->>>      btrfs-wipefs
->>>
->> After applying this patch, findfs and blkid didn't find filesystems
->> smaller than 256GB, probably because there is no third superblock.
->
-> In my system also the stock "findfs" and "blkid" have the same problem:
-> ie without my patch these utilities were unable to detect a btrfs
-> filesystem.
->
-> Could you confirm that ?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
 
-Without the patch?
-On my systems, after applying the patch blkid and findfs will not find 
-any btrfs filesystems, even if bigger than 256GB.
-
-Günter
-
+diff --git a/.gitignore b/.gitignore
+index e85eb07..dbcf0b4 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -127,6 +127,7 @@ tests/run.sh.trs
+ /mountpoint
+ /namei
+ /newgrp
++/nsenter
+ /partx
+ /pg
+ /pivot_root
+-- 
+1.8.1.1
 
