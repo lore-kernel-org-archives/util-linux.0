@@ -1,255 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:53910 "EHLO
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:37721 "EHLO
 	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756726Ab3A0NvS (ORCPT
+	by vger.kernel.org with ESMTP id S1752259Ab3ATNf2 (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 27 Jan 2013 08:51:18 -0500
-Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id E542C2010B
-	for <util-linux@vger.kernel.org>; Sun, 27 Jan 2013 08:51:16 -0500 (EST)
-Message-Id: <1359294676.11908.140661182937001.6C73CAEF@webmail.messagingengine.com>
+	Sun, 20 Jan 2013 08:35:28 -0500
+Message-Id: <1358688927.20076.140661179956885.59525AA5@webmail.messagingengine.com>
 From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+To: kerolasa@gmail.com
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1359294676119086";
- charset="utf-8"
-Subject: [patch] ipcs (in git) produces too much output
-Date: Sun, 27 Jan 2013 14:51:16 +0100
+Content-Type: text/plain
+Subject: Re: [patches] a bunch of textual fixes, plus -V for renice
+Date: Sun, 20 Jan 2013 14:35:27 +0100
+In-Reply-To: <CAG27Bk0TErNurB5fOaM9=3O4Wzy6dv7Gx7oHL-vzuv=NGEiVyA@mail.gmail.com>
+References: <1358679376.31211.140661179923553.796CC6BD@webmail.messagingengine.com>
+ <CAG27Bk0TErNurB5fOaM9=3O4Wzy6dv7Gx7oHL-vzuv=NGEiVyA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
 
---_----------=_1359294676119086
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Hello Sami,
 
+On Sun, Jan 20, 2013, at 12:25, Sami Kerola wrote:
+> +       fprintf(stderr, _("%s from %s\n"),
+> +                       program_invocation_short_name, PACKAGE_STRING);
+> 
+> should use UL version printing macro.
+> 
+> +       fprintf(stderr, UTIL_LINUX_VERSION);
 
-Hi,
+Ah.  Okay.  Then it is good to leave that out for now.  I will provide a
+new patch for that later.
 
-According to the synopses in the help output and in the man page,
-it should be possible to use 'ipcs' with just the '-i' option and
-an ID.
+> In the patch 0007 the renice(1) adds -V short option along side with
+> -v to print version. IMHO if the upper case option is added the lower
+> case equivalent should be dropped.
 
-$ ./ipcs --help | grep '<id>'
- ipcs [resource] -i <id>
- -i, --id <id>  print details on resource identified by id
-
-But when trying that, ipcs blurts out its entire help text.
-
-$ ./ipcs -i 111111
- [...]
-
-In the help text it also says that '-a' is the default, but when
-adding '-a' to the above command, ipcs now produces three texts:
-
-$ ./ipcs -a -i 111111
-
-Shared memory Segment shmid=111111
-[...]
-
-Semaphore Array semid=111111
-[...]
-
-ipcs: id 111111 not found
-
-(The latter error message could be clearer, mentioning that it
-refers to a message queue.)
-
-Whereas older ipcs would in this case just print an error message:
-
-$ /usr/bin/ipcs -a -i 111111
-ipcs: shmctl failed: Invalid argument
-
-(Not good either, but at least it's shorter.)
-
-Attached first patch is an attempt to fix this.  With the patch,
-ipcs now prints a clear errror message instead of outputting the
-entire help text:
-
-$ ./ipcs -a -i 111111
-ipcs: when using an ID, a single resource must be specified
-
-The second patch improves the formatting and wording of the man
-page -- it also mentions that the -a option is not as in POSIX.
-
-Regards,
+I agree -v should be dropped for --version, but I didn't want to do that
+right away.  Maybe one or two releases down the line?
 
 Benno
 
 -- 
-http://www.fastmail.fm - mmm... Fastmail...
-
-
---_----------=_1359294676119086
-Content-Disposition: attachment; filename="0001-ipcs-report-an-error-when-i-is-used-with-multiple-re.patch"
-Content-Id: <1359294596.11364.e7d93e7a0918386e8a94b4defba77ebf81e663e6.088FEA10@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-ipcs-report-an-error-when-i-is-used-with-multiple-re.patch"
-
-RnJvbSBhZTZiY2E0ZThjYjdkOThkOTYxYjUyODgxOTRhYTM4NDBhYzQzYjcz
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCAyNyBK
-YW4gMjAxMyAxMzowOTo1MSArMDEwMApTdWJqZWN0OiBbUEFUQ0ggMS8yXSBp
-cGNzOiByZXBvcnQgYW4gZXJyb3Igd2hlbiAtaSBpcyB1c2VkIHdpdGggbXVs
-dGlwbGUgcmVzb3VyY2VzCgpBbHNvIHB1dCBldmVyeXRoaW5nIGluIFBPU0lY
-IG9yZGVyOiBxdWV1ZXMsIG1lbW9yeSwgc2VtcGFob3Jlcy4KClNpZ25lZC1v
-ZmYtYnk6IEJlbm5vIFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwu
-bmV0PgotLS0KIHN5cy11dGlscy9pcGNzLmMgfCAgIDM4ICsrKysrKysrKysr
-KysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGVzIGNoYW5nZWQs
-IDE5IGluc2VydGlvbnMoKyksIDE5IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
-dCBhL3N5cy11dGlscy9pcGNzLmMgYi9zeXMtdXRpbHMvaXBjcy5jCmluZGV4
-IDFlMWIwMjIuLjM1MjczMmEgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9pcGNz
-LmMKKysrIGIvc3lzLXV0aWxzL2lwY3MuYwpAQCAtNzcsMTMgKzc3LDEzIEBA
-IHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18gKChfX25vcmV0dXJuX18pKSB1
-c2FnZShGSUxFICogb3V0KQogCiBpbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIg
-Kiphcmd2KQogewotCWludCBvcHQsIG1zZyA9IDAsIHNlbSA9IDAsIHNobSA9
-IDAsIGlkPTAsIHByaW50PTA7CisJaW50IG9wdCwgbXNnID0gMCwgc2htID0g
-MCwgc2VtID0gMCwgaWQgPSAwLCBzcGVjaWZpYyA9IDA7CiAJY2hhciBmb3Jt
-YXQgPSBOT1RTUEVDSUZJRUQ7CiAJaW50IHVuaXQgPSBJUENfVU5JVF9ERUZB
-VUxUOwogCXN0YXRpYyBjb25zdCBzdHJ1Y3Qgb3B0aW9uIGxvbmdvcHRzW10g
-PSB7CiAJCXsiaWQiLCByZXF1aXJlZF9hcmd1bWVudCwgTlVMTCwgJ2knfSwK
-LQkJeyJzaG1lbXMiLCBub19hcmd1bWVudCwgTlVMTCwgJ20nfSwKIAkJeyJx
-dWV1ZXMiLCBub19hcmd1bWVudCwgTlVMTCwgJ3EnfSwKKwkJeyJzaG1lbXMi
-LCBub19hcmd1bWVudCwgTlVMTCwgJ20nfSwKIAkJeyJzZW1hcGhvcmVzIiwg
-bm9fYXJndW1lbnQsIE5VTEwsICdzJ30sCiAJCXsiYWxsIiwgbm9fYXJndW1l
-bnQsIE5VTEwsICdhJ30sCiAJCXsidGltZSIsIG5vX2FyZ3VtZW50LCBOVUxM
-LCAndCd9LApAQCAtOTcsNyArOTcsNyBAQCBpbnQgbWFpbiAoaW50IGFyZ2Ms
-IGNoYXIgKiphcmd2KQogCQl7ImhlbHAiLCBub19hcmd1bWVudCwgTlVMTCwg
-J2gnfSwKIAkJe05VTEwsIDAsIE5VTEwsIDB9CiAJfTsKLQljaGFyIG9wdGlv
-bnNbXSA9ICJpOm1xc2F0cGNsdWJWaCI7CisJY2hhciBvcHRpb25zW10gPSAi
-aTpxbXNhdHBjbHViVmgiOwogCiAJc2V0bG9jYWxlKExDX0FMTCwgIiIpOwog
-CWJpbmR0ZXh0ZG9tYWluKFBBQ0tBR0UsIExPQ0FMRURJUik7CkBAIC0xMDgs
-NyArMTA4LDcgQEAgaW50IG1haW4gKGludCBhcmdjLCBjaGFyICoqYXJndikK
-IAkJc3dpdGNoIChvcHQpIHsKIAkJY2FzZSAnaSc6CiAJCQlpZCA9IGF0b2kg
-KG9wdGFyZyk7Ci0JCQlwcmludCA9IDE7CisJCQlzcGVjaWZpYyA9IDE7CiAJ
-CQlicmVhazsKIAkJY2FzZSAnYSc6CiAJCQltc2cgPSBzaG0gPSBzZW0gPSAx
-OwpAQCAtMTE2LDEyICsxMTYsMTIgQEAgaW50IG1haW4gKGludCBhcmdjLCBj
-aGFyICoqYXJndikKIAkJY2FzZSAncSc6CiAJCQltc2cgPSAxOwogCQkJYnJl
-YWs7Ci0JCWNhc2UgJ3MnOgotCQkJc2VtID0gMTsKLQkJCWJyZWFrOwogCQlj
-YXNlICdtJzoKIAkJCXNobSA9IDE7CiAJCQlicmVhazsKKwkJY2FzZSAncyc6
-CisJCQlzZW0gPSAxOworCQkJYnJlYWs7CiAJCWNhc2UgJ3QnOgogCQkJZm9y
-bWF0ID0gVElNRTsKIAkJCWJyZWFrOwpAQCAtMTUzLDIwICsxNTMsMjQgQEAg
-aW50IG1haW4gKGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJfQogCX0KIAot
-CWlmICAocHJpbnQpIHsKKwlpZiAoc3BlY2lmaWMgJiYgKG1zZyArIHNobSAr
-IHNlbSAhPSAxKSkKKwkJZXJyeCAoRVhJVF9GQUlMVVJFLAorCQkgICAgICBf
-KCJ3aGVuIHVzaW5nIGFuIElELCBhIHNpbmdsZSByZXNvdXJjZSBtdXN0IGJl
-IHNwZWNpZmllZCIpKTsKKwlpZiAoc3BlY2lmaWMpIHsKKwkJaWYgKG1zZykK
-KwkJCXByaW50X21zZyAoaWQsIHVuaXQpOwogCQlpZiAoc2htKQogCQkJcHJp
-bnRfc2htIChpZCwgdW5pdCk7CiAJCWlmIChzZW0pCiAJCQlwcmludF9zZW0g
-KGlkKTsKLQkJaWYgKG1zZykKLQkJCXByaW50X21zZyAoaWQsIHVuaXQpOwot
-CQlpZiAoIXNobSAmJiAhc2VtICYmICFtc2cgKQotCQkJdXNhZ2UgKHN0ZGVy
-cik7CiAJfSBlbHNlIHsKLQkJaWYgKCAhc2htICYmICFtc2cgJiYgIXNlbSkK
-LQkJCW1zZyA9IHNlbSA9IHNobSA9IDE7CisJCWlmICghbXNnICYmICFzaG0g
-JiYgIXNlbSkKKwkJCW1zZyA9IHNobSA9IHNlbSA9IDE7CiAJCXByaW50ZiAo
-IlxuIik7Ci0KKwkJaWYgKG1zZykgeworCQkJZG9fbXNnIChmb3JtYXQsIHVu
-aXQpOworCQkJcHJpbnRmICgiXG4iKTsKKwkJfQogCQlpZiAoc2htKSB7CiAJ
-CQlkb19zaG0gKGZvcm1hdCwgdW5pdCk7CiAJCQlwcmludGYgKCJcbiIpOwpA
-QCAtMTc1LDEwICsxNzksNiBAQCBpbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIg
-Kiphcmd2KQogCQkJZG9fc2VtIChmb3JtYXQpOwogCQkJcHJpbnRmICgiXG4i
-KTsKIAkJfQotCQlpZiAobXNnKSB7Ci0JCQlkb19tc2cgKGZvcm1hdCwgdW5p
-dCk7Ci0JCQlwcmludGYgKCJcbiIpOwotCQl9CiAJfQogCXJldHVybiBFWElU
-X1NVQ0NFU1M7CiB9Ci0tIAoxLjcuMC40Cgo=
-
---_----------=_1359294676119086
-Content-Disposition: attachment; filename="0002-docs-improve-wording-formatting-and-accuracy-of-ipcs.patch"
-Content-Id: <1359294603.11355.5a260c04034508c62738d857faf36c123d4af852.292A7AB8@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0002-docs-improve-wording-formatting-and-accuracy-of-ipcs.patch"
-
-RnJvbSA1YTdlNTI2MGU2Zjc0YTIzODQ1MzNjNTBkOTRiNzZiZDM4ZTYzZGJk
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCAyNyBK
-YW4gMjAxMyAxNDo0MDoxOSArMDEwMApTdWJqZWN0OiBbUEFUQ0ggMi8yXSBk
-b2NzOiBpbXByb3ZlIHdvcmRpbmcsIGZvcm1hdHRpbmcgYW5kIGFjY3VyYWN5
-IG9mIGlwY3MgbWFuIHBhZ2UKClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVs
-ZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIHN5cy11dGls
-cy9pcGNzLjEgfCAgIDcyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA0
-MCBpbnNlcnRpb25zKCspLCAzMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQg
-YS9zeXMtdXRpbHMvaXBjcy4xIGIvc3lzLXV0aWxzL2lwY3MuMQppbmRleCA1
-ZmMzYTgxLi5mZDdkNDUyIDEwMDY0NAotLS0gYS9zeXMtdXRpbHMvaXBjcy4x
-CisrKyBiL3N5cy11dGlscy9pcGNzLjEKQEAgLTEsNzYgKzEsODIgQEAKIC5c
-IiBDb3B5cmlnaHQgMTk5MyBSaWNrYXJkIEUuIEZhaXRoIChmYWl0aEBjcy51
-bmMuZWR1KQogLlwiIE1heSBiZSBkaXN0cmlidXRlZCB1bmRlciB0aGUgR05V
-IEdlbmVyYWwgUHVibGljIExpY2Vuc2UKLS5USCBJUENTICIxIiAiU2VwdGVt
-YmVyIDIwMTEiICJ1dGlsLWxpbnV4IiAiVXNlciBDb21tYW5kcyIKKy5USCBJ
-UENTICIxIiAiSmFudWFyeSAyMDEzIiAidXRpbC1saW51eCIgIlVzZXIgQ29t
-bWFuZHMiCiAuU0ggTkFNRQotaXBjcyBcLSBwcm92aWRlIGluZm9ybWF0aW9u
-IG9uIGlwYyBmYWNpbGl0aWVzCitpcGNzIFwtIHByb3ZpZGUgaW5mb3JtYXRp
-b24gb24gSVBDIGZhY2lsaXRpZXMKIC5TSCBTWU5PUFNJUwogLkIgaXBjcwot
-W3Jlc291cmNlXSBbLi4uXSBbb3V0cHV0XC1mb3JtYXRdCisuUkIgWyByZXNv
-dXJjZVwtb3B0aW9uICJdIFsiIG91dHB1dFwtZm9ybWF0IF0KIC5icgogLkIg
-aXBjcwotW3Jlc291cmNlXQotLkkgXC1pIGlkCisuUkIgWyByZXNvdXJjZVwt
-b3B0aW9uIF0KKy5CSSBcLWkgIiBpZCIKIC5TSCBERVNDUklQVElPTgogLkIg
-aXBjcwotcHJvdmlkZXMgaW5mb3JtYXRpb24gb24gdGhlIGlwYyBmYWNpbGl0
-aWVzIGZvciB3aGljaCB0aGUgY2FsbGluZyBwcm9jZXNzCi1oYXMgcmVhZCBh
-Y2Nlc3MuCitwcm92aWRlcyBpbmZvcm1hdGlvbiBvbiB0aGUgaW50ZXItcHJv
-Y2VzcyBjb21tdW5pY2F0aW9uIGZhY2lsaXRpZXMKK2ZvciB3aGljaCB0aGUg
-Y2FsbGluZyBwcm9jZXNzIGhhcyByZWFkIGFjY2Vzcy4KIC5TSCBPUFRJT05T
-CiAuVFAKIFxmQlwtaVxmUiwgXGZCXC1cLWlkXGZSIFxmSWlkXGZSCi1Qcmlu
-dCBkZXRhaWxzIG9ubHkgb24gcmVzb3VyY2UgaWRlbnRpZmllZCBieQorUHJp
-bnQgZGV0YWlscyBvbmx5IG9uIHRoZSByZXNvdXJjZSBpZGVudGlmaWVkIGJ5
-CiAuSVIgaWQgLgogLlRQCiBcZkJcLWhcZlIsIFxmQlwtXC1oZWxwXGZSCi1E
-aXNwbGF5IHRoaXMgaGVscCBhbmQgZXhpdC4KK0Rpc3BsYXkgYSBoZWxwIHRl
-eHQgYW5kIGV4aXQuCiAuVFAKIFxmQlwtVlxmUiwgXGZCXC1cLXZlcnNpb25c
-ZlIKLU91dHB1dCB2ZXJzaW9uIGluZm9ybWF0aW9uIGFuZCBleGl0LgorRGlz
-cGxheSB2ZXJzaW9uIGluZm9ybWF0aW9uIGFuZCBleGl0LgogLlNIICJSRVNP
-VVJDRSBPUFRJT05TIgogLlRQCi1cZkJcLW1cZlIsIFxmQlwtXC1zaG1lbXNc
-ZlIKLVdyaXRlIGluZm9ybWF0aW9uIGFib3V0IGFjdGl2ZSBzaGFyZWQgbWVt
-b3J5IHNlZ21lbnRzLgotLlRQCiBcZkJcLXFcZlIsIFxmQlwtXC1xdWV1ZXNc
-ZlIKIFdyaXRlIGluZm9ybWF0aW9uIGFib3V0IGFjdGl2ZSBtZXNzYWdlIHF1
-ZXVlcy4KIC5UUAorXGZCXC1tXGZSLCBcZkJcLVwtc2htZW1zXGZSCitXcml0
-ZSBpbmZvcm1hdGlvbiBhYm91dCBhY3RpdmUgc2hhcmVkIG1lbW9yeSBzZWdt
-ZW50cy4KKy5UUAogXGZCXC1zXGZSLCBcZkJcLVwtc2VtYXBob3Jlc1xmUgog
-V3JpdGUgaW5mb3JtYXRpb24gYWJvdXQgYWN0aXZlIHNlbWFwaG9yZSBzZXRz
-LgogLlRQCiBcZkJcLWFcZlIsIFxmQlwtXC1hbGxcZlIKLVdyaXRlIGluZm9y
-bWF0aW9uIGFib3V0IGFsbCByZXNvdXJjZXMgKGRlZmF1bHQpLgorV3JpdGUg
-aW5mb3JtYXRpb24gYWJvdXQgYWxsIHRocmVlIHJlc291cmNlcyAoZGVmYXVs
-dCkuCiAuU0ggIk9VVFBVVCBGT1JNQVRTIgorT2YgdGhlIG9wdGlvbnMKKy5C
-UiBcLWMgLAorLkJSIFwtbCAsCisuQlIgXC1wICwKKy5CUiBcLXQgIiBhbmQg
-IiBcLXUKK29ubHkgb25lICh0aGUgbGFzdCBvbmUgc3BlY2lmaWVkKSB0YWtl
-cyBlZmZlY3QuCisuVFAKK1xmQlwtY1xmUiwgXGZCXC1cLWNyZWF0b3JcZlIK
-K1Nob3cgY3JlYXRvciBhbmQgb3duZXIuCisuVFAKK1xmQlwtbFxmUiwgXGZC
-XC1cLWxpbWl0c1xmUgorU2hvdyByZXNvdXJjZSBsaW1pdHMuCisuVFAKK1xm
-QlwtcFxmUiwgXGZCXC1cLXBpZFxmUgorU2hvdyBQSURzIG9mIGNyZWF0b3Ig
-YW5kIGxhc3Qgb3BlcmF0b3IuCiAuVFAKIFxmQlwtdFxmUiwgXGZCXC1cLXRp
-bWVcZlIKLVdyaXRlIHRpbWUgaW5mb3JtYXRpb24uIFRpbWUgb2YgdGhlIGxh
-c3QgY29udHJvbCBvcGVyYXRpb24gdGhhdCBjaGFuZ2VkIHRoZQotYWNjZXNz
-IHBlcm1pc3Npb25zIGZvciBhbGwgZmFjaWxpdGllcywgdGltZSBvZiB0aGUg
-bGFzdAorV3JpdGUgdGltZSBpbmZvcm1hdGlvbi4gIFRoZSB0aW1lIG9mIHRo
-ZSBsYXN0IGNvbnRyb2wgb3BlcmF0aW9uIHRoYXQgY2hhbmdlZAordGhlIGFj
-Y2VzcyBwZXJtaXNzaW9ucyBmb3IgYWxsIGZhY2lsaXRpZXMsIHRoZSB0aW1l
-IG9mIHRoZSBsYXN0CiAuSSBtc2dzbmQoKQogYW5kCiAuSSBtc2dyY3YoKQot
-b3BlcmF0aW9ucyBvbiBtZXNzYWdlIHF1ZXVlcywgdGltZSBvZiB0aGUgbGFz
-dAorb3BlcmF0aW9ucyBvbiBtZXNzYWdlIHF1ZXVlcywgdGhlIHRpbWUgb2Yg
-dGhlIGxhc3QKIC5JIHNobWF0KCkKIGFuZAogLkkgc2htZHQoKQotb3BlcmF0
-aW9ucyBvbiBzaGFyZWQgbWVtb3J5LCBhbmQgdGltZSBvZiB0aGUgbGFzdAor
-b3BlcmF0aW9ucyBvbiBzaGFyZWQgbWVtb3J5LCBhbmQgdGhlIHRpbWUgb2Yg
-dGhlIGxhc3QKIC5JIHNlbW9wKCkKIG9wZXJhdGlvbiBvbiBzZW1hcGhvcmVz
-LgogLlRQCi1cZkJcLXBcZlIsIFxmQlwtXC1waWRcZlIKLVNob3cgY3JlYXRv
-ciBhbmQgbGFzdCBvcGVyYXRpb25zIFBJRHMuCi0uVFAKLVxmQlwtY1xmUiwg
-XGZCXC1cLWNyZWF0b3JcZlIKLVNob3cgY3JlYXRvciBhbmQgb3duZXIuCi0u
-VFAKLVxmQlwtbFxmUiwgXGZCXC1cLWxpbWl0c1xmUgotU2hvdyByZXNvdXJj
-ZSBsaW1pdHMuCi0uVFAKIFxmQlwtdVxmUiwgXGZCXC1cLXN1bW1hcnlcZlIK
-IFNob3cgc3RhdHVzIHN1bW1hcnkuCiAuVFAKLS5CIFwtXC1odW1hbgotUHJp
-bnQgc2l6ZXMgaW4gaHVtYW4gcmVhZGFibGUgZm9ybWF0LgotLlRQCiBcZkJc
-LWJcZlIsIFxmQlwtXC1ieXRlc1xmUgogUHJpbnQgc2l6ZXMgaW4gYnl0ZXMu
-CisuVFAKKy5CIFwtXC1odW1hbgorUHJpbnQgc2l6ZXMgaW4gaHVtYW4tcmVh
-ZGFibGUgZm9ybWF0LgogLlNIIFNFRSBBTFNPCiAuQlIgaXBjcm0gKDEpLAog
-LkJSIGlwY21rICgxKSwKQEAgLTgzLDcgKzg5LDggQEAgUHJpbnQgc2l6ZXMg
-aW4gYnl0ZXMuCiAuQlIgc2htZ2V0ICgyKQogLlNIIENPTkZPUk1JTkcgVE8K
-IFRoZSBMaW51eCBpcGNzIHV0aWxpdHkgaXMgbm90IGZ1bGx5IGNvbXBhdGli
-bGUgdG8gdGhlIFBPU0lYIGlwY3MgdXRpbGl0eS4KLVRoZSBMaW51eCB2ZXJz
-aW9uIGRvZXMgbm90IHN1cHBvcnQgdGhlCitUaGUgTGludXggdmVyc2lvbiBk
-b2VzIG5vdCBzdXBwb3J0IHRoZSBQT1NJWAorLkJSIFwtYSAsCiAuQiBcLWIK
-IGFuZAogLkIgXC1vCkBAIC05MSw3ICs5OCw4IEBAIG9wdGlvbnMsIGJ1dCBk
-b2VzIHN1cHBvcnQgdGhlCiAuQiBcLWwKIGFuZAogLkIgXC11Ci1vcHRpb25z
-IG5vdCBkZWZpbmVkIGJ5IFBPU0lYLiBUaGUgcG9ydGFibGUgYXBwbGljYXRp
-b24gc2hhbGwgbm90IHVzZSB0aGUKK29wdGlvbnMgbm90IGRlZmluZWQgYnkg
-UE9TSVguICBBIHBvcnRhYmxlIGFwcGxpY2F0aW9uIHNoYWxsIG5vdCB1c2Ug
-dGhlCisuQlIgXC1hICwKIC5CUiBcLWIgLAogLkJSIFwtbyAsCiAuQlIgXC1s
-ICwKLS0gCjEuNy4wLjQKCg==
-
---_----------=_1359294676119086--
+http://www.fastmail.fm - Choose from over 50 domains or use your own
 
