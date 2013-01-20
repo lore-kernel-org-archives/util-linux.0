@@ -1,44 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:50559 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752909Ab3AVX1m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jan 2013 18:27:42 -0500
-Received: by mail-wi0-f173.google.com with SMTP id hn17so191110wib.0
-        for <util-linux@vger.kernel.org>; Tue, 22 Jan 2013 15:27:41 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 09/14] hwclock: make usage() change translator friendly
-Date: Tue, 22 Jan 2013 23:27:08 +0000
-Message-Id: <1358897233-6676-10-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1358897233-6676-1-git-send-email-kerolasa@iki.fi>
-References: <1358897233-6676-1-git-send-email-kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:51049 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752039Ab3ATXX2 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Sun, 20 Jan 2013 18:23:28 -0500
+Received: from vapier.localnet (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 2A66433DAB7
+	for <util-linux-ng@vger.kernel.org>; Sun, 20 Jan 2013 23:23:28 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux-ng@vger.kernel.org
+Subject: fsck files w/relative paths
+Date: Sun, 20 Jan 2013 18:27:22 -0500
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5039930.N7qHBfr1Q2";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201301201827.23141.vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The --compare option from 83765871ef0d6c554c46027577648b77c7351a78 is
-made to be separate fputs() line.
+--nextPart5039930.N7qHBfr1Q2
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/hwclock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+if i create a dummy local fs in a file:
+$ dd if=3D/dev/zero of=3Dfoo count=3D1 seek=3D1000
+$ mke2fs -F foo
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 04aa650..c7c14df 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1443,8 +1443,8 @@ static void usage(const char *fmt, ...)
- 		" -w, --systohc        set the hardware clock from the current system time\n"
- 		"     --systz          set the system time based on the current timezone\n"
- 		"     --adjust         adjust the RTC to account for systematic drift since\n"
--		"                        the clock was last set or adjusted\n"
--		" -c, --compare        periodically compare the system clock with the CMOS clock\n"), usageto);
-+		"                        the clock was last set or adjusted\n"), usageto);
-+	fputs(_(" -c, --compare        periodically compare the system clock with the CMOS clock\n"), usageto);
- #ifdef __linux__
- 	fputs(_("     --getepoch       print out the kernel's hardware clock epoch value\n"
- 		"     --setepoch       set the kernel's hardware clock epoch value to the \n"
--- 
-1.8.1.1
+now trying to run fsck on it:
+$ fsck ./foo
+fsck from util-linux 2.22.2
+Usage: fsck.ext4 [-panyrcdfvtDFV] [-b superblock] [-B blocksize]
+                [-I inode_buffer_blocks] [-P process_inode_size]
+                [-l|-L bad_blocks_file] [-C fd] [-j external_journal]
+                [-E extended-options] device
 
+that's weird ...
+
+running it through strace shows it behaves as if no args were provided=20
+(num_devices=3D0), so it looks up my rootfs details, and then runs fsck:
+[pid 28095] execve("/sbin/fsck.ext4", ["fsck.ext4", "./foo", "/dev/sdd2"], =
+[/*=20
+69 vars */]) =3D 0
+
+reading the code, it expects files to have absolute paths.  so running:
+$ fsck $PWD/foo
+works just fine
+
+we could tweak parse_argv() so that it checks for argv[0] =3D=3D '.' in add=
+ition=20
+to argv[0] =3D=3D '/'.  but that wouldn't fix other relative paths like:
+$ fsck images/foo
+$ fsck foo
+
+should we treat all non-options as devices ?  would that break anything ?
+=2Dmike
+
+--nextPart5039930.N7qHBfr1Q2
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJQ/H1bAAoJEEFjO5/oN/WB44YP/2lBaaoKscb2QZ6GABWy+5bs
+JbhCq8PogRTosBWBv54Bp7mY9XogNsN0r4E8O1nqdQ7tLHPdBrGR3GN4Wy4V2tls
+NwScGul19mEwmgCn7UpT3tLprifAi7g+tSYHtPY0sd0JPIDn6IhO14TNz6XyPEgK
+H5/eNzDdMuJtispFn6ddFujFkYrz+ZF2Ojb/S0VjS7EwgjDXTA9CuUk0H5DEvbvO
+pEvtyA4J8Hjekml8UwRN/zm7+xYpxexy6VXZTJWcAG4a37e11KKRj76l0Q59T61n
+7LA68okS9vIA4GyH8sEKS0KVKryTf/RcNrKgq3Aows3Nqwa6suB+eUOrGhBWvre2
+HrpcRmRqi+/qipJgNeM6dLvjpX5XdS9cakZDkZ6sNWJq6d/8Wvzd5TBGM5ClgYRn
+q6w+r1KtUXFq4x+IwgRffmw+x46ISf9Ym+GFi2vxGM6Bdl8KeI6e+hwDhr1dkAlR
+En/u5640l+6lJodV5tbF9W9L3xnkSP6nEBEKVZawXuoPqe/OuFsoctm0RwJ0LFBb
+XwfoMTNOwUhC57ixG37pzYjtS2V8RyKoEYtdM2HQGtyHBOv3IjsHC8ASvpfs/gDN
+eE86KvgEYvCYtdXF2gIED6sHConNfXzTl1/lnbBT22vuizReV7Fr/KC0ncLA8R2Q
+6ZVplIDoVodWvlq9nPBy
+=PLaM
+-----END PGP SIGNATURE-----
+
+--nextPart5039930.N7qHBfr1Q2--
