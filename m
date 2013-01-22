@@ -1,42 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16751 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754020Ab3AGMKl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Jan 2013 07:10:41 -0500
-Date: Mon, 7 Jan 2013 13:10:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: helmut@hullen.de
-Cc: util-linux@vger.kernel.org
-Subject: Re: blkid tells different informations to user or root
-Message-ID: <20130107121026.GE28963@x2.redhat.com>
-References: <COGoGFiPCXB@helmut.hullen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <COGoGFiPCXB@helmut.hullen.de>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:41814 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752909Ab3AVX13 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jan 2013 18:27:29 -0500
+Received: by mail-wi0-f170.google.com with SMTP id hq7so3881941wib.3
+        for <util-linux@vger.kernel.org>; Tue, 22 Jan 2013 15:27:27 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 04/14] su-common: make usage() translator friendly
+Date: Tue, 22 Jan 2013 23:27:03 +0000
+Message-Id: <1358897233-6676-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1358897233-6676-1-git-send-email-kerolasa@iki.fi>
+References: <1358897233-6676-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 05, 2013 at 12:20:00PM +0100, Helmut Hullen wrote:
-> Running "blkid" as an underprivileged user apparently shows data (for  
-> sdb) which don't fit for the actually configuration.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/su-common.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
- Sure, if you have no permissions to revalidate the data...
-
-> a) where's the bug for this different output?
-
- It's expected behavior, this is reason why programs like mount(8)
- have suid permissions.
-
- Please, use lsblk(1) if you want see more reliable overview about
- system block devices. It reads data from /sys and some details from
- udevd DB.
-
-> b) how can I create an actual "/run/blkid/blkid.tab"? Only via "rm"?
-
- It should be unnecessary for privileged users.
-
-    Karel
-
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index 9daae72..47e05ff 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -646,18 +646,16 @@ usage (int status)
+     fputs(USAGE_OPTIONS, stdout);
+   }
+ 
+-  fputs (_(
+-    " -m, -p, --preserve-environment  do not reset environment variables\n"
+-    " -g, --group <group>             specify the primary group\n"
+-    " -G, --supp-group <group>        specify a supplemental group\n\n"), stdout);
+-
+-  fputs (_(
+-    " -, -l, --login                  make the shell a login shell\n"
+-    " -c, --command <command>         pass a single command to the shell with -c\n"
+-    " --session-command <command>     pass a single command to the shell with -c\n"
+-    "                                 and do not create a new session\n"
+-    " -f, --fast                      pass -f to the shell (for csh or tcsh)\n"
+-    " -s, --shell <shell>             run shell if /etc/shells allows it\n"), stdout);
++  fputs (_(" -m, -p, --preserve-environment  do not reset environment variables\n"), stdout);
++  fputs (_(" -g, --group <group>             specify the primary group\n"), stdout);
++  fputs (_(" -G, --supp-group <group>        specify a supplemental group\n\n"), stdout);
++
++  fputs (_(" -, -l, --login                  make the shell a login shell\n"), stdout);
++  fputs (_(" -c, --command <command>         pass a single command to the shell with -c\n"), stdout);
++  fputs (_(" --session-command <command>     pass a single command to the shell with -c\n"), stdout);
++  fputs (_("                                 and do not create a new session\n"), stdout);
++  fputs (_(" -f, --fast                      pass -f to the shell (for csh or tcsh)\n"), stdout);
++  fputs (_(" -s, --shell <shell>             run shell if /etc/shells allows it\n"), stdout);
+ 
+   fputs(USAGE_SEPARATOR, stdout);
+   fputs(USAGE_HELP, stdout);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.1
+
