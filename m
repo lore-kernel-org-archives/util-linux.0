@@ -1,32 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10984 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37044 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755527Ab3AYPEi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 25 Jan 2013 10:04:38 -0500
-Date: Fri, 25 Jan 2013 16:04:35 +0100
+	id S1750975Ab3AXSeB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 Jan 2013 13:34:01 -0500
+Date: Thu, 24 Jan 2013 19:33:50 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 5/5] unshare: add --all meaning all namespaces
-Message-ID: <20130125150435.GO27413@x2.net.home>
-References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
- <1358750287-17732-8-git-send-email-zbyszek@in.waw.pl>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 09/22] more: allow non-interactive invocation of the
+ command
+Message-ID: <20130124183350.GD27413@x2.net.home>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+ <1358554151-25985-10-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1358750287-17732-8-git-send-email-zbyszek@in.waw.pl>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1358554151-25985-10-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 21, 2013 at 01:38:07AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
-> Signed-off-by: Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
-> ---
->  sys-utils/unshare.1 | 3 +++
->  sys-utils/unshare.c | 9 ++++++++-
->  2 files changed, 11 insertions(+), 1 deletion(-)
+On Sat, Jan 19, 2013 at 12:08:58AM +0000, Sami Kerola wrote:
+> -	no_tty = tcgetattr(fileno(stdout), &otty);
+> +	if (non_interactive == 0)
+> +		no_tty = tcgetattr(fileno(stdout), &otty);
 
- .. same like nsenter. Not applied.
+I have added #ifdef TEST_PROGRAM to enable non-interactive mode, and
+in the tests we use "test_more" binary. It seems less invasive than to
+add the -n option.
 
-    Karel
+ Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
