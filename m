@@ -1,39 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:59662 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932106Ab3AIThM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2013 14:37:12 -0500
-Received: by mail-wi0-f178.google.com with SMTP id hn3so763686wib.11
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2013 11:37:11 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/4] include: add missing values to sysfs_cxt initializer definition
-Date: Wed,  9 Jan 2013 19:36:56 +0000
-Message-Id: <1357760216-4068-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
-References: <1357760216-4068-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:14856 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753359Ab3AYJZd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 04:25:33 -0500
+Date: Fri, 25 Jan 2013 10:25:24 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 18/22] tests: add isosize(1) check
+Message-ID: <20130125092524.GF27413@x2.net.home>
+References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
+ <1358554151-25985-19-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1358554151-25985-19-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/sysfs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sat, Jan 19, 2013 at 12:09:07AM +0000, Sami Kerola wrote:
+> +gzip -cd $TS_SELF/sample.iso.gz > $TS_SELF/sample.iso
 
-diff --git a/include/sysfs.h b/include/sysfs.h
-index 4f9c46b..739f9de 100644
---- a/include/sysfs.h
-+++ b/include/sysfs.h
-@@ -30,7 +30,7 @@ struct sysfs_cxt {
- 	unsigned int	has_hctl : 1;
- };
- 
--#define UL_SYSFSCXT_EMPTY { 0, -1, NULL, NULL }
-+#define UL_SYSFSCXT_EMPTY { 0, -1, NULL, NULL, 0, 0, 0, 0, 0 }
- 
- extern char *sysfs_devno_attribute_path(dev_t devno, char *buf,
-                                  size_t bufsiz, const char *attr);
+ Applied, note that tests/ts ($TS_SELF) directory should be used
+ read-only. It's better to write to $TS_OUTDIR.
+
+    Karel
+
 -- 
-1.8.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
