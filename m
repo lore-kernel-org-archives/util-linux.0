@@ -1,33 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18107 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:3288 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752777Ab3AJKq0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Jan 2013 05:46:26 -0500
-Date: Thu, 10 Jan 2013 11:46:17 +0100
+	id S1751536Ab3AYOxA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 09:53:00 -0500
+Date: Fri, 25 Jan 2013 15:52:53 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] build-sys: add files to distribution
-Message-ID: <20130110104617.GD593@x2.net.home>
-References: <1357771446-11966-1-git-send-email-kerolasa@iki.fi>
+To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 1/5] nsenter: allow arguments to be specified in any order
+Message-ID: <20130125145253.GK27413@x2.net.home>
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
+ <1358750287-17732-2-git-send-email-zbyszek@in.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1357771446-11966-1-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1358750287-17732-2-git-send-email-zbyszek@in.waw.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 09, 2013 at 10:44:04PM +0000, Sami Kerola wrote:
->  fdisks/Makemodule.am  | 7 ++++---
->  include/Makemodule.am | 1 +
->  2 files changed, 5 insertions(+), 3 deletions(-)
+On Mon, Jan 21, 2013 at 01:38:01AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> Allows 'nsenter -mt $PID', which would fail previously.
+> 
+> Signed-off-by: Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+> ---
+>  sys-utils/nsenter.c | 55 ++++++++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 46 insertions(+), 9 deletions(-)
 
-Applied, thanks.
-
-> +	include/colors.h \
-
- BTW, any idea where we can use colors?
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
