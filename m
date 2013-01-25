@@ -1,30 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f169.google.com ([209.85.214.169]:34258 "EHLO
-	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751878Ab3AGOw3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 7 Jan 2013 09:52:29 -0500
-Received: by mail-ob0-f169.google.com with SMTP id v19so17653010obq.0
-        for <util-linux@vger.kernel.org>; Mon, 07 Jan 2013 06:52:28 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20130107124206.GF28963@x2.redhat.com>
-References: <CAGbmdnVWDifpsPvKUkdP+qX0m4GL7VYky5NyB-XYNGS19aXsvA@mail.gmail.com>
-	<20130107124206.GF28963@x2.redhat.com>
-Date: Mon, 7 Jan 2013 17:52:28 +0300
-Message-ID: <CAGbmdnUTicf7VYrPW3_UmpX=BM80K25=uWjgc=u1=nyGPHzCtQ@mail.gmail.com>
-Subject: Re: fstab zram swap integration idea
-From: Maksim Melnikau <maxposedon@gmail.com>
+Received: from kawka.in.waw.pl ([178.63.212.103]:50338 "EHLO kawka.in.waw.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932320Ab3AYPHd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 10:07:33 -0500
+Date: Fri, 25 Jan 2013 16:07:28 +0100
+From: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 3/5] nsenter: respect --exec no matter where it appears
+Message-ID: <20130125150728.GR4278@in.waw.pl>
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
+ <1358750287-17732-4-git-send-email-zbyszek@in.waw.pl>
+ <20130125150255.GM27413@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20130125150255.GM27413@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 7, 2013 at 3:42 PM, Karel Zak <kzak@redhat.com> wrote:
->  Is it designed for anything other than swaparea?
-Yes, zram is kind-of "compressed" block device in memory, any block
-device operations could be done on top of it. Some people initialize
-ext4 partitions "in memory" for temporary operations.
-So, I still think fstab is correct place for describing fs/swap even
-for zram. Questions are: 1) what is correct place for mkfs/mkswap zram
-devices, at startup? 2) What is correct place for setting size for
-zram block device? (right now I use systemd's tmpfiles.d)
+On Fri, Jan 25, 2013 at 04:02:55PM +0100, Karel Zak wrote:
+> On Mon, Jan 21, 2013 at 01:38:03AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> >  sys-utils/nsenter.c | 11 +++++++----
+> >  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+>  It seems necessary for --all only, right?
+Hm, no. If I understand the (original) code correctly, doing something
+like 'nsenter --exec --pid' would ignore the '--exec' argument.
+
+Zbyszek
+
