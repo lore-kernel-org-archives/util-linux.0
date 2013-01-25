@@ -1,44 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:32904 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752709Ab3ABOLN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Jan 2013 09:11:13 -0500
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] mount.8: document options for debugfs
-Date: Wed,  2 Jan 2013 09:11:10 -0500
-Message-Id: <1357135870-27606-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:7850 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754620Ab3AYPD5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 10:03:57 -0500
+Date: Fri, 25 Jan 2013 16:03:50 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 4/5] nsenter: rename --exec/-e to --no-fork/-F
+Message-ID: <20130125150350.GN27413@x2.net.home>
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
+ <1358750287-17732-6-git-send-email-zbyszek@in.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1358750287-17732-6-git-send-email-zbyszek@in.waw.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Since 3.4, debugfs allows uid, gid, and mode options.
+On Mon, Jan 21, 2013 at 01:38:05AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> The naming of this option was really confusing.
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- sys-utils/mount.8 | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ I agree.
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index 2fdf655..44218cc 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -1183,8 +1183,13 @@ The debugfs filesystem is a pseudo filesystem, traditionally mounted on
- .IR /sys/kernel/debug .
- .\" or just /debug
- .\" present since 2.6.11
--There are no mount options.
--
-+As of kernel version 3.4, debugfs has the following options:
-+.TP
-+.BI uid= n ", gid=" n
-+Set the owner and group of the mountpoint.
-+.TP
-+.BI mode= value
-+Sets the mode of the mountpoint.
- .SH "Mount options for devpts"
- The devpts filesystem is a pseudo filesystem, traditionally mounted on
- .IR /dev/pts .
+> Just rename it for clarity.
+> 
+> Signed-off-by: Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+> ---
+>  sys-utils/nsenter.1 | 2 +-
+>  sys-utils/nsenter.c | 8 ++++----
+>  2 files changed, 5 insertions(+), 5 deletions(-)
+
+ Applied, thanks.
+
+    Karel
+
 -- 
-1.8.0.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
