@@ -1,245 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ia0-f178.google.com ([209.85.210.178]:53984 "EHLO
-	mail-ia0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751999Ab3AMJM7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jan 2013 04:12:59 -0500
-Received: by mail-ia0-f178.google.com with SMTP id k25so2760301iah.37
-        for <util-linux@vger.kernel.org>; Sun, 13 Jan 2013 01:12:59 -0800 (PST)
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-To: util-linux@vger.kernel.org
-Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
-Subject: [PATCH v2 3/4] chsh: Add libuser support
-Date: Sun, 13 Jan 2013 02:12:24 -0700
-Message-Id: <1358068345-773-5-git-send-email-cmaloney@theoreticalchaos.com>
-In-Reply-To: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
-References: <1358068345-773-1-git-send-email-cmaloney@theoreticalchaos.com>
+Received: from kawka.in.waw.pl ([178.63.212.103]:50372 "EHLO kawka.in.waw.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755627Ab3AYR7F (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 12:59:05 -0500
+Date: Fri, 25 Jan 2013 18:59:01 +0100
+From: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/5] nsenter: add --all meaning all namespaces and cwd
+ and root
+Message-ID: <20130125175901.GX4278@in.waw.pl>
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
+ <1358750287-17732-3-git-send-email-zbyszek@in.waw.pl>
+ <20130125150210.GL27413@x2.net.home>
+ <20130125163924.GT4278@in.waw.pl>
+ <87pq0tjgx9.fsf@xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <87pq0tjgx9.fsf@xmission.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is based directly on lchsh which is a part of libuser. libuser.{c,h}
-exist because exactly the same code is needed for both chsh and chfn.
+On Fri, Jan 25, 2013 at 09:44:50AM -0800, Eric W. Biederman wrote:
+> Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
+> 
+> > On Fri, Jan 25, 2013 at 04:02:10PM +0100, Karel Zak wrote:
+> >> On Mon, Jan 21, 2013 at 01:38:02AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> >> > I guess that most of the time one will want to enter all
+> >> > namespaces, and then it is easier not to have to remember
+> >> > all the option names.
+> >> 
+> >>  Not sure if this is the right argument. From my point of view it's
+> >>  better to be explicit for such things, something like --all sounds
+> >>  like a magical blackbox where semantic depends on features implemented
+> >>  by kernel and nsenter(1). 
+> 
+> Which is the reason I did not implement --all in the first place,
+> although it is attractive.
+> 
+> > Hi,
+> >
+> > I'm was trying to document how a user should enter a namespace
+> > container created by systemd-nspawn. I would prefer not to have the
+> > user type 'nsenter -t $PID -muipn', but something simpler.
+> 
+> As I see it nsenter is the raw tool for when you need to get your
+> hands dirty.  lxc already has a more integrated version.  And
+> it isn't hard to define a simple wrapper such as:
+> 
+> cat > systemd-nsenter <<EOF
+> #!/bin/sh
+> PID=$1
+> shift
+> exec nsenter -t $PID --mount --ipc --pid --net --uts "$@"
+> EOF
+> 
+> If you need things to be slightly simpler and it isn't worth deriving
+> your own c wrapper.
+> 
+> I assume you didn't include -U because systemd-nspawn doesn't create
+> a user namespace?
+Yes, systemd-nspawn so far doesn't.
 
-Signed-off-by: Cody Maloney <cmaloney@theoreticalchaos.com>
----
- login-utils/Makemodule.am |  3 ++
- login-utils/chsh.c        | 24 ++++++++++++--
- login-utils/libuser.c     | 84 +++++++++++++++++++++++++++++++++++++++++++++++
- login-utils/libuser.h     | 14 ++++++++
- 4 files changed, 123 insertions(+), 2 deletions(-)
- create mode 100644 login-utils/libuser.c
- create mode 100644 login-utils/libuser.h
+> Of course at the point you wrap nsenter you probably want to have
+> something that takes a name and looks at a pid file I expect.
+> 
+> > What about an alternative patch, which implements --all which means:
+> > "all namespaces supported by the kernel" (i.e. iterate over /proc/$PID/ns/*'
+> > and enter all of them. This way the behaviour would depend only on the
+> > kernel options, not on util-linux version.
+> 
+> If we add another namespace will it have oddball semantics to worry
+> about?  So far the mount namespace, the user namespace, and the pid
+> namespace do.  So judging from history you have a 50/50 chance of
+> needing special code in nsenter.  I don't expect blinding iterarting
+> over /proc/[pid]/ns/* will remove the need for future changes to
+> nsenter if and when we add another namespace.
+OK, so that's not an option.
 
-diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
-index ee85329..0c57118 100644
---- a/login-utils/Makemodule.am
-+++ b/login-utils/Makemodule.am
-@@ -73,6 +73,9 @@ chfn_chsh_ldadd = libcommon.la -lpam -lpam_misc
- if HAVE_USER
- chfn_chsh_ldflags += $(LIBUSER_LIBS)
- chfn_chsh_cflags += $(LIBUSER_CFLAGS)
-+chfn_chsh_sources+= \
-+	login-utils/libuser.c \
-+	login-utils/libuser.h
- endif
- 
- if HAVE_SELINUX
-diff --git a/login-utils/chsh.c b/login-utils/chsh.c
-index 4113df5..fa2fa84 100644
---- a/login-utils/chsh.c
-+++ b/login-utils/chsh.c
-@@ -1,6 +1,7 @@
- /*
-  *   chsh.c -- change your login shell
-  *   (c) 1994 by salvatore valente <svalente@athena.mit.edu>
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-  *
-  *   this program is free software.  you can redistribute it and
-  *   modify it under the terms of the gnu general public license.
-@@ -17,7 +18,7 @@
-  *   suggestion from Zefram.  Disallowing users with shells not in /etc/shells
-  *   from changing their shell.
-  *
-- *   1999-02-22 Arkadiusz Mi�kiewicz <misiek@pld.ORG.PL>
-+ *   1999-02-22 Arkadiusz Mi¶kiewicz <misiek@pld.ORG.PL>
-  *   - added Native Language Support
-  */
- 
-@@ -32,7 +33,6 @@
- #include <sys/types.h>
- #include <unistd.h>
- 
--#include "auth.h"
- #include "c.h"
- #include "env.h"
- #include "closestream.h"
-@@ -48,6 +48,14 @@
- # include "selinux_utils.h"
- #endif
- 
-+
-+#ifdef HAVE_LIBUSER
-+# include <libuser/user.h>
-+# include "libuser.h"
-+#else
-+# include "auth.h"
-+#endif
-+
- struct sinfo {
- 	char *username;
- 	char *shell;
-@@ -131,7 +139,12 @@ int main(int argc, char **argv)
- 		oldshell = _PATH_BSHELL;	/* default */
- 
- 	/* reality check */
-+#ifdef HAVE_LIBUSER
-+	/* If we're setuid and not really root, disallow the password change. */
-+	if (geteuid() != getuid() && uid != pw->pw_uid) {
-+#else
- 	if (uid != 0 && uid != pw->pw_uid) {
-+#endif
- 		errno = EACCES;
- 		err(EXIT_FAILURE,
- 		    _("running UID doesn't match UID of user we're "
-@@ -147,9 +160,11 @@ int main(int argc, char **argv)
- 
- 	printf(_("Changing shell for %s.\n"), pw->pw_name);
- 
-+#ifndef HAVE_LIBUSER
- 	if(!auth_pam("chsh", uid, pw->pw_name)) {
- 		return EXIT_FAILURE;
- 	}
-+#endif
- 
- 	if (!shell) {
- 		shell = prompt(_("New shell"), oldshell);
-@@ -162,10 +177,15 @@ int main(int argc, char **argv)
- 
- 	if (strcmp(oldshell, shell) == 0)
- 		errx(EXIT_SUCCESS, _("Shell not changed."));
-+
-+#ifdef HAVE_LIBUSER
-+	set_value_libuser("chsh", pw->pw_name, uid, LU_LOGINSHELL, shell);
-+#else
- 	pw->pw_shell = shell;
- 	if (setpwnam(pw) < 0)
- 		err(EXIT_FAILURE, _("setpwnam failed\n"
- 			"Shell *NOT* changed.  Try again later."));
-+#endif
- 
- 	printf(_("Shell changed.\n"));
- 	return EXIT_SUCCESS;
-diff --git a/login-utils/libuser.c b/login-utils/libuser.c
-new file mode 100644
-index 0000000..9a3e3b1
---- /dev/null
-+++ b/login-utils/libuser.c
-@@ -0,0 +1,84 @@
-+/*
-+ *   libuser.c -- Utilize libuser to set a user attribute
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-+ *
-+ *   this program is free software.  you can redistribute it and
-+ *   modify it under the terms of the gnu general public license.
-+ *   there is no warranty.
-+ *
-+ */
-+
-+#include "libuser.h"
-+
-+#include <grp.h>
-+#include <libuser/user.h>
-+#include <unistd.h>
-+
-+#include "auth.h"
-+#include "c.h"
-+#include "nls.h"
-+
-+static int auth_lu(const char *service_name, struct lu_context *ctx, uid_t uid,
-+			const char *username);
-+
-+static int auth_lu(const char *service_name, struct lu_context *ctx, uid_t uid,
-+			const char *username) {
-+	if(!lu_uses_elevated_privileges(ctx)) {
-+		/* Drop privileges */
-+		if (setegid(getgid()) == -1) {
-+			errx(EXIT_FAILURE, _("Couldn't drop group privileges"));
-+			return FALSE;
-+		}
-+		if (seteuid(getuid()) == -1) {
-+			errx(EXIT_FAILURE, _("Couldn't drop group privileges"));
-+			return FALSE;
-+		}
-+		if (initgroups(username, 0)) {
-+			errx(EXIT_FAILURE, _("Couldn't drop group privileges"));
-+			return FALSE;
-+		}
-+		return TRUE;
-+	}
-+
-+	return auth_pam(service_name, uid, username);
-+}
-+
-+int set_value_libuser(const char *service_name, const char *username, uid_t uid,
-+			const char *attr, const char *val) {
-+	struct lu_context *ctx;
-+	struct lu_error *error = NULL;
-+	struct lu_ent *ent;
-+
-+	ctx = lu_start(username, lu_user, NULL, NULL, lu_prompt_console_quiet,
-+			NULL, &error);
-+	if (ctx == NULL) {
-+		err(EXIT_FAILURE, _("Error initializing %s: %s.\n"), PACKAGE,
-+			lu_strerror(error));
-+		return FALSE;
-+	}
-+
-+	if(!auth_lu(service_name, ctx, uid, username)) {
-+		errno = EACCES;
-+		err(EXIT_FAILURE, _("Permisison denied for changing user attribute"));
-+		return FALSE;
-+	}
-+
-+	/* Look up the user's record. */
-+	ent = lu_ent_new();
-+	if (lu_user_lookup_name(ctx, username, ent, &error) == FALSE) {
-+		lu_end(ctx);
-+		err(EXIT_FAILURE, _("user \"%s\" does not exist."), username);
-+		return FALSE;
-+	}
-+
-+	lu_ent_set_string(ent, attr, val);
-+	if (!lu_user_modify(ctx, ent, &error)) {
-+		lu_ent_free(ent);
-+		lu_end(ctx);
-+		err(EXIT_FAILURE, _("Shell not changed: %s\n"), lu_strerror(error));
-+		return FALSE;
-+	}
-+	lu_ent_free(ent);
-+	lu_end(ctx);
-+	return TRUE;
-+}
-diff --git a/login-utils/libuser.h b/login-utils/libuser.h
-new file mode 100644
-index 0000000..7454b99
---- /dev/null
-+++ b/login-utils/libuser.h
-@@ -0,0 +1,14 @@
-+/*
-+ *   libuser.h -- Utilize libuser to set a user attribute
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-+ *
-+ *   this program is free software.  you can redistribute it and
-+ *   modify it under the terms of the gnu general public license.
-+ *   there is no warranty.
-+ *
-+ */
-+
-+#include <sys/types.h>
-+
-+extern int set_value_libuser(const char *service_name, const char *username,
-+			uid_t uid, const char *attr, const char *val);
--- 
-1.8.1
+> What will keep from breaking peoples scripts is to not have an option
+> that is ambiguous.
+Well, in the two patches I was careful to write "enter all of the
+above namespaces", to underline the fact that the kernel might know
+about some additional ones.
+
+OK, bear with me. What about --all meaning "enter all of the
+namespaces that nsenter has support for, and fail if there's a
+namespace diffent between target and requesting process that
+nsenter doesn't know about"?
+
+In scripts one could say 'nsenter -<wanted namespaces>', but for quick'n'dirty
+commandline use, nsenter --all would work.
+
+Zbyszek
 
