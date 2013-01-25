@@ -1,64 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55210 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:18331 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751844Ab3AGOFf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Jan 2013 09:05:35 -0500
-Date: Mon, 7 Jan 2013 15:05:23 +0100
+	id S1754451Ab3AYPX2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jan 2013 10:23:28 -0500
+Date: Fri, 25 Jan 2013 16:23:24 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: util-linux@vger.kernel.org, kerolasa@gmail.com, grawity@gmail.com,
-        ingenit@zoho.com
-Subject: Re: [PATCH v3] sys-tools: Enhance unshare command to support the
- switching of namespaces
-Message-ID: <20130107140523.GA8265@x2.net.home>
-References: <1355944006-27234-1-git-send-email-nhorman@tuxdriver.com>
- <1356711738-1573-1-git-send-email-nhorman@tuxdriver.com>
+To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 3/5] nsenter: respect --exec no matter where it appears
+Message-ID: <20130125152324.GA1954@x2.net.home>
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl>
+ <1358750287-17732-4-git-send-email-zbyszek@in.waw.pl>
+ <20130125150255.GM27413@x2.net.home>
+ <20130125150728.GR4278@in.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1356711738-1573-1-git-send-email-nhorman@tuxdriver.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20130125150728.GR4278@in.waw.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 28, 2012 at 11:22:18AM -0500, Neil Horman wrote:
->  sys-utils/unshare.1 | 34 +++++++++++++++---------
->  sys-utils/unshare.c | 74 ++++++++++++++++++++++++++++++++++++++++++-----------
->  2 files changed, 81 insertions(+), 27 deletions(-)
+On Fri, Jan 25, 2013 at 04:07:28PM +0100, Zbigniew Jędrzejewski-Szmek wrote:
+> On Fri, Jan 25, 2013 at 04:02:55PM +0100, Karel Zak wrote:
+> > On Mon, Jan 21, 2013 at 01:38:03AM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> > >  sys-utils/nsenter.c | 11 +++++++----
+> > >  1 file changed, 7 insertions(+), 4 deletions(-)
+> > 
+> >  It seems necessary for --all only, right?
+> Hm, no. If I understand the (original) code correctly, doing something
+> like 'nsenter --exec --pid' would ignore the '--exec' argument.
 
- Applied with some changes, please check/verify the changes in git, thanks.
+ Ah, I see, You're right. I'll apply the patch. Thanks.
 
-> +static void close_files(void)
-> +{
-> +	int i;
-> +	for (i=0; ns_pids[i] > 0; i++)
-> +		close(ns_pids[i]);
-> +	close_stdout();
-> +}
-
- this is unnecessary, but O_CLOEXEC is probably good idea
-
-> +	while((c = getopt_long(argc, argv, "hVm:u:i:n:", longopts, NULL)) != -1) {
-> +		ns = NULL;
-
- optional argument means "::" not ":"
-
-> +		if (optarg && ns) {
-> +				if (nscount >= NUM_ENTRIES)
-> +					err(EXIT_FAILURE, _("Too many new namespaces specified"));
-> +				pid = strtoul(optarg, NULL, 10);
-
- for the short options the 'optarg' starts with '=', so you need
- optarg++
-
-> +	for (nscount = 0; ns_pids[nscount] > 0; nscount++)
-> +		if (-1 == setns(ns_pids[nscount], 0))
-> +			err(EXIT_FAILURE, _("setns failed"));
-> +	
->  	if(-1 == unshare(unshare_flags))
->  		err(EXIT_FAILURE, _("unshare failed"));
-
- it seems that unshare() should not be called if unshare_flags == 0
-
-    Karel
+    Karel.
 
 -- 
  Karel Zak  <kzak@redhat.com>
