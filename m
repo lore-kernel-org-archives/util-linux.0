@@ -1,210 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52755 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751099Ab3AHIbi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Jan 2013 03:31:38 -0500
-Date: Tue, 8 Jan 2013 09:31:30 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: util-linux@vger.kernel.org,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
-        =?iso-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-Subject: Re: [PATCH] Add setpriv, a tool to set privileges and such
-Message-ID: <20130108083130.GA13020@x2.net.home>
-References: <b9e1a13168f41cde97e1fdaa21cdc5354ef535ea.1353702119.git.luto@amacapital.net>
- <5a4bb50baed87dbe00be9003dad7cc1ba59ca571.1354954632.git.luto@amacapital.net>
+Received: from sender1.zohomail.com ([72.5.230.95]:48822 "EHLO
+	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751086Ab3A0PrM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jan 2013 10:47:12 -0500
+Message-ID: <51054B8E.2000205@zoho.com>
+Date: Sun, 27 Jan 2013 16:45:18 +0100
+From: =?UTF-8?B?w4FuZ2VsIEdvbnrDoWxleg==?= <ingenit@zoho.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5a4bb50baed87dbe00be9003dad7cc1ba59ca571.1354954632.git.luto@amacapital.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: =?UTF-8?B?WmJpZ25pZXcgSsSZZHJ6ZWpld3NraS1Tem1law==?=
+	<zbyszek@in.waw.pl>,
+        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/5] nsenter: add --all meaning all namespaces and cwd
+ and root
+References: <1358750287-17732-1-git-send-email-zbyszek@in.waw.pl> <1358750287-17732-3-git-send-email-zbyszek@in.waw.pl> <20130125150210.GL27413@x2.net.home> <20130125163924.GT4278@in.waw.pl> <87pq0tjgx9.fsf@xmission.com>
+In-Reply-To: <87pq0tjgx9.fsf@xmission.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Eric W. Biederman writes:
+> Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
+>>>  Not sure if this is the right argument. From my point of view it's
+>>>  better to be explicit for such things, something like --all sounds
+>>>  like a magical blackbox where semantic depends on features implemented
+>>>  by kernel and nsenter(1). 
+> 
+> Which is the reason I did not implement --all in the first place,
+> although it is attractive.
+> 
+>> Hi,
+>>
+>> I'm was trying to document how a user should enter a namespace
+>> container created by systemd-nspawn. I would prefer not to have the
+>> user type 'nsenter -t $PID -muipn', but something simpler.
+> 
+> As I see it nsenter is the raw tool for when you need to get your
+> hands dirty.  lxc already has a more integrated version.  And
+> it isn't hard to define a simple wrapper such as:
+> 
+> cat > systemd-nsenter <<EOF
+> #!/bin/sh
+> PID=$1
+> shift
+> exec nsenter -t $PID --mount --ipc --pid --net --uts "$@"
+> EOF
+> 
+> If you need things to be slightly simpler and it isn't worth deriving
+> your own c wrapper.
 
- Sorry for the delay, I had 3 weeks vacation.
+Except that when you are distributing such script (eg. an init-like
+script), your shell script will need to add code detecting which
+namespaces the kernel supports (and adding appropiate flags to nsenter)
+and checking if your nsenter version supports them or not.
 
-On Sat, Dec 08, 2012 at 12:19:12AM -0800, Andy Lutomirski wrote:
-> +if BUILD_SETPRIV
-> +usrbin_exec_PROGRAMS += setpriv
-> +dist_man_MANS += sys-utils/setpriv.1
-> +setpriv_SOURCES = sys-utils/setpriv.c
-> +setpriv_LDADD = -lcap-ng
-> +endif
+It's better to have --all to enter all namespaces that nsenter supports.
+If you want to, it could print a warning when using --all and nsenter
+knows about more namespaces than the kernel or if it detects that the
+kernel knows about more namespaces than itself.
+But having a --all to enter “as namespaces as possible” would be the
+right thing IMHO.
 
- Maybe the caps support should be optional, anyway you need to check
- for the library in the configure script.
-
-> +static void complain(const char *fmt, ...)
-> +{
-> +	va_list ap;
-> +	va_start(ap, fmt);
-> +	vfprintf(stderr, fmt, ap);
-> +	va_end(ap);
-> +	fputc('\n', stderr);
-> +	usage(EXIT_FAILURE);
-> +}
-
- seems like poor reimplementation of err() from err.h :-)
-
-> +// Returns the number of capabilities printed
-
- please use /* comment */
-
-> +static void stdout_perror(const char *prefix)
-> +{
-> +	if (errno < 0 || errno >= sys_nerr)
-> +		printf(_("%s: error %d\n"), prefix, errno);
-> +	else
-> +		printf(_("%s: %s\n"), prefix, sys_errlist[errno]);
-> +}
-
- warnx() from err.h
-
-> +static void dump_label(const char *name)
-> +{
-> +	int fd = open("/proc/self/attr/current", O_RDONLY);
-> +	if (fd == -1) {
-> +		stdout_perror(name);
-> +		return;
-> +	}
-> +
-> +	char buf[4097];
-> +	ssize_t len = read(fd, buf, sizeof(buf));
-> +	int e = errno;
-
- we usually have declarations at the begin of block (function)...
-
-> +struct options {
-
- ...and structs at the begin of the file. The name "options" seems
- also too generic (like anything for getopt_long), what about 
-
-  struct privcxt {
-
-  }
-
- or so.
-
->   bool nnp;
-
-don't use bool in util-linux, within structs you can use bit arrays.
-
->   // real and effective (in that order)
->   bool have_uid[2];
->   uid_t uid[2];
->   bool have_gid[2];
->   gid_t gid[2];
-
- it would be more readable to use
-
-    uid_t ruid;
-    uid_t euid;
-   
-    unsigned have_ruid:1,
-             have_euid:1;
-
- (and the same for groups)  rather than depend on an order.
-
-> +static void priverr(const char *str)
-> +{
-> +	perror(str);
-> +	exit(127);
-> +}
-
- err(127, str);
-
-it would be also nice to have a macro (SETPRV_EX_* ?) in the code
-rather than the magic number.
-
-> +
-> +static void parse_groups(struct options *opts, const char *str)
-> +{
-> +	char *groups = strdup(str);
-> +	char *buf = groups;  /* We'll reuse it */
-> +	char *c;
-> +
-> +	opts->have_groups = true;
-> +	opts->num_groups = 0;
-> +	while ((c = strsep(&groups, ",")) != 0)
-> +		opts->num_groups++;
-> +
-> +	// Start again
-> +	strcpy(buf, str);  // It's exactly the right length
-> +	groups = buf;
-> +
-> +	opts->groups = calloc(opts->num_groups, sizeof(gid_t));
-> +	size_t i = 0;
-> +	while ((c = strsep(&groups, ",")) != 0) {
-> +		char *end;
-> +		errno = 0;
-> +		long val = strtol(c, &end, 10);
-
-   strtol_or_err()  (include/strutils.h)
-
-> +		if (!*c || *end || errno || val != (long long)(gid_t)val)
-> +			complain(_("Invalid supplementary group id"));
-> +		opts->groups[i++] = (gid_t)val;
-> +	}
-> +
-> +	free(groups);;
-> +}
-> +
-
-> +int main(int argc, char *argv[])
-> +{
-> +	enum {
-> +		NNP = 256,
-
- SETPRIV_OPT_NNP = CHAR_MAX + 1
-
-> +		RUID = 256,
-> +		EUID,
-> +		RGID,
-> +		EGID,
-> +		REUID,
-> +		REGID,
-> +		CLEAR_GROUPS,
-> +		KEEP_GROUPS,
-> +		GROUPS,
-> +		INHCAPS,
-> +		LISTCAPS,
-> +		CAPBSET,
-> +		SECUREBITS,
-> +		SELINUX_LABEL,
-> +		APPARMOR_PROFILE
-> +	};
-
-[...]
-	
-> +		if (RUID <= c && c <= REGID) {
-> +			/* This is easier than six independent cases. */
-> +			char *end;
-> +			errno = 0;
-> +			long val = strtol(optarg, &end, 10);
-> +			if (!*optarg || errno || *end)
-> +				complain(_("Failed to parse uid or gid"));
-> +
-> +			if (c == REUID) {
-
-              if (opts.have_euid)
-                err(EXIT_FAILURE, _("duplicate euid");
-              opts.have_euid = 1;
-              opts.euid = strtol_or_err(optarg, _("failed to parse euid");
-
- ... no loop, no arrays for uids, just readable code.
-
- [..]
-
-> +	if (dumplevel) {
-> +		if (total_opts != dumplevel || optind < argc)
-> +			complain(_("--dump is incompatible with all other options"));
-> +		dump(dumplevel);
-> +		return 0;
-
-
- this is main(), so return EXIT_SUCCES;
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
