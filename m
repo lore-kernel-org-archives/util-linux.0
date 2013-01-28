@@ -1,41 +1,47 @@
-Return-Path: ebiederm@xmission.com
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Karel Zak <kzak@redhat.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org,
-        Neil Horman <nhorman@tuxdriver.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        "Michael Kerrisk \(man-pages\)" <mtk.manpages@gmail.com>
-References: <876234812z.fsf@xmission.com> <20130111161320.GA16206@x2.net.home>
-	<87fw27jq29.fsf_-_@xmission.com>
-	<201301111845.16591.vapier@gentoo.org>
-	<20130114082846.GA16421@x2.net.home> <87a9s8lkbq.fsf_-_@xmission.com>
-Date: Wed, 16 Jan 2013 16:34:44 -0800
-In-Reply-To: <87a9s8lkbq.fsf_-_@xmission.com> (Eric W. Biederman's message of
-	"Wed, 16 Jan 2013 16:33:29 -0800")
-Message-ID: <87y5fsk5p7.fsf_-_@xmission.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:53100 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756576Ab3A1Ohn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jan 2013 09:37:43 -0500
+Received: from mailout-de.gmx.net ([10.1.76.17]) by mrigmx.server.lan
+ (mrigmx002) with ESMTP (Nemesis) id 0Mhg69-1ULe6v0gF9-00MrGF for
+ <util-linux@vger.kernel.org>; Mon, 28 Jan 2013 15:37:42 +0100
+Message-ID: <51068D38.3040708@gmx.de>
+Date: Mon, 28 Jan 2013 15:37:44 +0100
+From: Ulf Zibis <Ulf.Zibis@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [PATCH 2/5] nsenter: Properly spell significant in a comment.
+To: util-linux@vger.kernel.org
+Subject: sfdisk man page bug
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi,
 
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
----
- sys-utils/nsenter.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+from the Manual page sfdisk(8):
+"... For example, when there are several primary DOS partitions, DOS assigns C: to the first among 
+these that is bootable.)"
 
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index ad01355..d7d65f9 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -63,7 +63,7 @@ static struct namespace_file{
- 	char *name;
- 	int fd;
- } namespace_files[] = {
--	/* Careful the order is signifcant in this array.
-+	/* Careful the order is significant in this array.
- 	 *
- 	 * The user namespace comes first, so that it is entered
- 	 * first.  This gives an unprivileged user the potential to
--- 
-1.7.5.4
+This seems to be wrong. I'm not 100 % sure about DOS, but about modern Windows, above statement is 
+definitely wrong. Correct is:
+"... Windows/DOS assigns C: to the first among these that is visible (=not hidden).)"
+"... Windows/DOS typical generic MBR boot code loads and executes the bootloader found on the first 
+among these that is bootable.)"
+
+to be sure, I tested following:
+- having old WinXP installation on sda1, labelled "WIN_OLD"
+- copy this partition by GParted to sda2
+- newly install WinXP on sda1, labelled "WIN_NEW"
+- set sda2 to active
+- boot
+--> result:
+1. in effect, WinXP from sda1 becomes booted
+2. sda1 is named C:, cd1 is named D:, "bootable" sda2 is named E:
+
+As today Windows is the more interesting use case, at least please add correct info for the Windows 
+case.
+
+Many thanks for your attention and hopefully answer,
+
+-Ulf
+
