@@ -1,36 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:34986 "EHLO
-	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752903Ab3ABQkx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Jan 2013 11:40:53 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail.collax.com ([213.218.25.154]:55775 "EHLO mail.collax.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754135Ab3A1VxO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jan 2013 16:53:14 -0500
+Received: from localhost (mail.collax.com [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 09B8CE6BB7B
+	for <util-linux@vger.kernel.org>; Mon, 28 Jan 2013 22:43:08 +0100 (CET)
+Received: from mail.collax.com ([127.0.0.1])
+	by localhost (mail.collax.com [127.0.0.1]) (amavisd-new, port 10033)
+	with ESMTP id 649UrYN718hn for <util-linux@vger.kernel.org>;
+	Mon, 28 Jan 2013 22:43:07 +0100 (CET)
+Received: from [172.16.1.3] (unknown [172.16.1.3])
+	by mail.collax.com (Postfix) with ESMTPSA id D01B8E6BB78
+	for <util-linux@vger.kernel.org>; Mon, 28 Jan 2013 22:43:07 +0100 (CET)
+Message-ID: <5106F0FB.8020907@collax.com>
+Date: Mon, 28 Jan 2013 22:43:23 +0100
+From: Andreas Hofmeister <andi@collax.com>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Phillip Susi <psusi@ubuntu.com>
-Subject: [PATCH] libblkid: add missing promise raid metadata locations
-Date: Wed,  2 Jan 2013 11:40:46 -0500
-Message-Id: <1357144846-14945-1-git-send-email-psusi@ubuntu.com>
+Subject: output from "blkid" unstable (util-linux 2.22.2)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There are some additional locations where dmraid can find
-and use pdc raid metadata that libblkid was not checking.
----
- libblkid/src/superblocks/promise_raid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi,
 
-diff --git a/libblkid/src/superblocks/promise_raid.c b/libblkid/src/superblocks/promise_raid.c
-index 221146d..01e4e37 100644
---- a/libblkid/src/superblocks/promise_raid.c
-+++ b/libblkid/src/superblocks/promise_raid.c
-@@ -29,7 +29,7 @@ static int probe_pdcraid(blkid_probe pr,
- {
- 	unsigned int i;
- 	static unsigned int sectors[] = {
--		63, 255, 256, 16, 399, 0
-+	  63, 255, 256, 16, 399, 591, 675, 735, 911, 974, 991, 951, 3087, 0
- 	};
- 
- 	if (pr->size < 0x40000)
--- 
-1.7.9.5
 
+my "/dev/sdc" is LVM PV and "bkid says so - sometimes:
+
+---8<---
+root@ai:~# blkid /dev/sdc
+root@ai:~# blkid /dev/sdc
+/dev/sdc: UUID=",,," TYPE="LVM2_member"
+root@ai:~# blkid /dev/sdc
+/dev/sdc: UUID="..." TYPE="LVM2_member"
+root@ai:~# blkid /dev/sdc
+root@ai:~# blkid /dev/sdc
+/dev/sdc: UUID="..." TYPE="LVM2_member"
+,,,
+--->8---
+
+When looking at "blkid.tab" after each blkid invocation, it seems a 
+record for "/dev/sdc" is added and then is removed again.
+
+"blkid" from 2.21 did not have that problem, and a git bisect revealed 
+commit 2b29c1bfca6e52c9c1ce2e41fde7967c150c5877 as the culprit.
+
+Reverting that commit made "blkid.tab" and "blkid" output stable.
+
+Ciao
+   Andi
