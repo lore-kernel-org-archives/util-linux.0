@@ -1,38 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:26876 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753767Ab3AGLvO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Jan 2013 06:51:14 -0500
-Date: Mon, 7 Jan 2013 12:51:03 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Miloslav Trmac <mitr@redhat.com>
-Cc: Cody Maloney <cmaloney@theoreticalchaos.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] chsh: Add libuser support
-Message-ID: <20130107115103.GD28963@x2.redhat.com>
-References: <1357183321-24637-4-git-send-email-cmaloney@theoreticalchaos.com>
- <805019865.52854570.1357230851238.JavaMail.root@redhat.com>
+Received: from mx4-phx2.redhat.com ([209.132.183.25]:41242 "EHLO
+	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754552Ab3A1WBc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 28 Jan 2013 17:01:32 -0500
+Date: Mon, 28 Jan 2013 17:01:30 -0500 (EST)
+From: Miloslav Trmac <mitr@redhat.com>
+To: Cody Maloney <cmaloney@theoreticalchaos.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <1221077942.16839972.1359410490623.JavaMail.root@redhat.com>
+In-Reply-To: <CA+K3q6qDgdrXxbesZ-373xMYgA=oyjMnaejJWNtBaYj8HfR04w@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] chsh: Add libuser support
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <805019865.52854570.1357230851238.JavaMail.root@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 03, 2013 at 11:34:11AM -0500, Miloslav Trmac wrote:
-> > +	memset(&val, 0, sizeof(val));
-> > +	g_value_init(&val, G_TYPE_STRING);
-> > +	g_value_set_string(&val, shell);
-> > +
-> > +	lu_ent_clear(ent, LU_LOGINSHELL);
-> > +	lu_ent_add(ent, LU_LOGINSHELL, &val);
-> If you don't mind depending on libuser >= 0.58, all of the above can be replaced with
-> > lu_ent_set_string(ent, LU_LOGINSHELL, shell);
-> and you can drop the "g_value_unset" calls as well.
+Hello,
+----- Original Message -----
+> On Mon, Jan 14, 2013 at 10:16 AM, Miloslav Trmac <mitr@redhat.com>
+> wrote:
+> > (On second thought, if the program is setuid, the setuid execution
+> > mechanism doesn't change supplementary groups, so perhaps the call
+> > isn't strictly necessary; Still, initializing the groups makes the
+> > environment more deterministic.  And as long as initgroups() is
+> > called, it should be called in a way that works.)
+> 
+> I'm fine with/would prefer dropping the initgroups entirely (That the
+> initgroups man page, at least on my system, specifically talks about
+> reading them from /etc/group, never mentioning nss worries me). If
+> that's okay with you, otherwise I can move it to the beginning of
+> dropping privileges.
 
- It would be nice to drop g_* junk :-)
- 
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sorry about the late reply; after discussing it with colleagues, it seems that dropping the initgroups() is completely safe here.
+    Mirek
