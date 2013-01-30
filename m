@@ -1,168 +1,251 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:52971 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756592Ab3AYRRS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 25 Jan 2013 12:17:18 -0500
-Message-Id: <1359134237.29464.140661182331017.5B74A451@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1359134237294643";
- charset="utf-8"
-In-Reply-To: <20130125163611.GC1954@x2.net.home>
-References: <1358956950.25102.140661181364417.13137B26@webmail.messagingengine.com>
- <20130125163611.GC1954@x2.net.home>
-Subject: Re: [patches] some proper pluralization, and a bunch of textual fixes
-Date: Fri, 25 Jan 2013 18:17:17 +0100
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:52576 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755867Ab3A3Udd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Jan 2013 15:33:33 -0500
+Received: by mail-wg0-f41.google.com with SMTP id ds1so3211231wgb.0
+        for <util-linux@vger.kernel.org>; Wed, 30 Jan 2013 12:33:32 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/3] translation: unify exec error messages
+Date: Wed, 30 Jan 2013 20:33:24 +0000
+Message-Id: <1359578005-13427-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1359578005-13427-1-git-send-email-kerolasa@iki.fi>
+References: <1359578005-13427-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/newgrp.c    | 2 +-
+ login-utils/su-common.c | 4 ++--
+ login-utils/sulogin.c   | 4 ++--
+ schedutils/chrt.c       | 1 -
+ schedutils/ionice.c     | 2 +-
+ schedutils/taskset.c    | 2 +-
+ sys-utils/flock.c       | 2 +-
+ sys-utils/nsenter.c     | 2 +-
+ sys-utils/prlimit.c     | 2 +-
+ sys-utils/rtcwake.c     | 2 +-
+ sys-utils/setarch.c     | 4 ++--
+ sys-utils/setsid.c      | 2 +-
+ sys-utils/swapon.c      | 2 +-
+ sys-utils/unshare.c     | 2 +-
+ text-utils/pg.c         | 2 +-
+ 15 files changed, 17 insertions(+), 18 deletions(-)
 
---_----------=_1359134237294643
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-
-
-On Fri, Jan 25, 2013, at 17:36, Karel Zak wrote:
-> On Wed, Jan 23, 2013 at 05:02:30PM +0100, Benno Schulenberg wrote:
-> > The eighth patch standardizes the version reporting to:
-> > "program from util-linux-x.xx.x".
-> 
->  It seems that Sami, you and I did the same changes. Please, can you 
->  pull from upstream repo and rebase this set of the patches?
-
-Yes, done.
-
-Just patch 7 and 8 changed, the content of the others stayed the same,
-so I attached just those two.
-
-
-Benno
-
+diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
+index 4f6de12..093f042 100644
+--- a/login-utils/newgrp.c
++++ b/login-utils/newgrp.c
+@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
+ 	fflush(stdout);
+ 	fflush(stderr);
+ 	execl(shell, shell, (char *)0);
+-	warn(_("exec %s failed"), shell);
++	warn(_("failed to execute %s"), shell);
+ 	fflush(stderr);
+ 
+ 	return EXIT_FAILURE;
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index 47e05ff..3ef4ec4 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -593,7 +593,7 @@ run_shell (char const *shell, char const *command, char **additional_args,
+ 
+   {
+     int exit_status = (errno == ENOENT ? EXIT_ENOENT : EXIT_CANNOT_INVOKE);
+-    warn ("%s", shell);
++    warn (_("failed to execute %s"), shell);
+     exit (exit_status);
+   }
+ }
+@@ -913,7 +913,7 @@ su_main (int argc, char **argv, int mode)
+     run_shell (shell, command, argv + optind, max (0, argc - optind));
+   else {
+     execvp(argv[optind], &argv[optind]);
+-    err(EXIT_FAILURE, _("executing %s failed"), argv[optind]);
++    err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+   }
+ }
+ 
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index cf429fe..db5f41e 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -736,11 +736,11 @@ static void sushell(struct passwd *pwd)
+ 	}
+ #endif
+ 	execl(su_shell, shell, NULL);
+-	warn(_("%s: exec failed"), su_shell);
++	warn(_("failed to execute %s"), su_shell);
+ 
+ 	setenv("SHELL", "/bin/sh", 1);
+ 	execl("/bin/sh", profile ? "-sh" : "sh", NULL);
+-	warn(_("%s: exec failed"), "/bin/sh");
++	warn(_("failed to execute %s"), "/bin/sh");
+ }
+ 
+ static void usage(FILE *out)
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 0347914..60ec73e 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -331,7 +331,6 @@ int main(int argc, char **argv)
+ 	if (!pid) {
+ 		argv += optind + 1;
+ 		execvp(argv[0], argv);
+-		perror("execvp");
+ 		err(EXIT_FAILURE, _("failed to execute %s"), argv[0]);
+ 	}
+ 
+diff --git a/schedutils/ionice.c b/schedutils/ionice.c
+index f74e3c4..b7e6087 100644
+--- a/schedutils/ionice.c
++++ b/schedutils/ionice.c
+@@ -229,7 +229,7 @@ int main(int argc, char **argv)
+ 		 */
+ 		ioprio_setpid(0, ioclass, data);
+ 		execvp(argv[optind], &argv[optind]);
+-		err(EXIT_FAILURE, _("executing %s failed"), argv[optind]);
++		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ 	} else
+ 		usage(stderr);
+ 
+diff --git a/schedutils/taskset.c b/schedutils/taskset.c
+index 9039598..aba0b6f 100644
+--- a/schedutils/taskset.c
++++ b/schedutils/taskset.c
+@@ -234,7 +234,7 @@ int main(int argc, char **argv)
+ 	if (!pid) {
+ 		argv += optind + 1;
+ 		execvp(argv[0], argv);
+-		err(EXIT_FAILURE, _("executing %s failed"), argv[0]);
++		err(EXIT_FAILURE, _("failed to execute %s"), argv[0]);
+ 	}
+ 
+ 	return EXIT_SUCCESS;
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index 11c44b6..beda20f 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
+ 				close(fd);
+ 			execvp(cmd_argv[0], cmd_argv);
+ 			/* execvp() failed */
+-			warn("%s", cmd_argv[0]);
++			warn(_("failed to execute %s"), cmd_argv[0]);
+ 			_exit((errno == ENOMEM) ? EX_OSERR : EX_UNAVAILABLE);
+ 		} else {
+ 			do {
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index b6e6dc1..3df4338 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -319,5 +319,5 @@ int main(int argc, char *argv[])
+ 
+ 	execvp(argv[optind], argv + optind);
+ 
+-	err(EXIT_FAILURE, _("exec %s failed"), argv[optind]);
++	err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ }
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index a619bea..9098e49 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -637,7 +637,7 @@ int main(int argc, char **argv)
+ 	if (argc > optind) {
+ 		/* prlimit [options] COMMAND */
+ 		execvp(argv[optind], &argv[optind]);
+-		err(EXIT_FAILURE, _("executing %s failed"), argv[optind]);
++		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ 	}
+ 
+ 	return EXIT_SUCCESS;
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index 0edf7dc..f0dada2 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -573,7 +573,7 @@ int main(int argc, char **argv)
+ 		if (!dryrun) {
+ 			execv(arg[0], arg);
+ 
+-			warn(_("unable to execute %s"),	_PATH_SHUTDOWN);
++			warn(_("failed to execute %s"), _PATH_SHUTDOWN);
+ 			rc = EXIT_FAILURE;
+ 		}
+ 
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index d13cdd6..afa2d1b 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
+        if (set_arch(p, 0L))
+            err(EXIT_FAILURE, _("Failed to set personality to %s"), p);
+        execl("/bin/bash", NULL);
+-       err(EXIT_FAILURE, "/bin/bash");
++       err(EXIT_FAILURE, _("failed to execute %s"), "/bin/bash");
+    }
+   #endif
+ 
+@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
+ 
+   if (!argc) {
+     execl("/bin/sh", "-sh", NULL);
+-    err(EXIT_FAILURE, "/bin/sh");
++    err(EXIT_FAILURE, _("failed to execute %s"), "/bin/sh");
+   }
+ 
+   execvp(argv[0], argv);
+diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
+index 071ccc4..6c35280 100644
+--- a/sys-utils/setsid.c
++++ b/sys-utils/setsid.c
+@@ -94,5 +94,5 @@ int main(int argc, char **argv)
+ 			warn(_("failed to set the controlling terminal"));
+ 	}
+ 	execvp(argv[optind], argv + optind);
+-	err(EXIT_FAILURE, _("execvp failed"));
++	err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ }
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 6efe482..d5b7e37 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -279,7 +279,7 @@ static int swap_reinitialize(const char *device,
+ 		cmd[idx++] = (char *) device;
+ 		cmd[idx++] = NULL;
+ 		execv(cmd[0], cmd);
+-		err(EXIT_FAILURE, _("execv failed"));
++		err(EXIT_FAILURE, _("failed to execute %s"), cmd[0]);
+ 
+ 	default: /* parent */
+ 		do {
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 4639ac8..62d2fcb 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -115,5 +115,5 @@ int main(int argc, char *argv[])
+ 
+ 	execvp(argv[optind], argv + optind);
+ 
+-	err(EXIT_FAILURE, _("exec %s failed"), argv[optind]);
++	err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ }
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 95f59a9..ab7a85a 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -1348,7 +1348,7 @@ static void pgfile(FILE *f, const char *name)
+ 						my_sigset(SIGTERM, oldterm);
+ 						execl(sh, sh, "-c",
+ 						      cmd.cmdline + 1, NULL);
+-						warn("%s", sh);
++						warn(_("failed to execute %s"), sh);
+ 						_exit(0177);
+ 						/* NOTREACHED */
+ 					}
 -- 
-http://www.fastmail.fm - A fast, anti-spam email service.
-
-
---_----------=_1359134237294643
-Content-Disposition: attachment; filename="0007-mkfs-indicate-that-specifying-fs-type-and-fs-options.patch"
-Content-Id: <1359134136.28840.29aa3d0a249a78a6d70a36ec2f85a33a557aec55.49126224@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0007-mkfs-indicate-that-specifying-fs-type-and-fs-options.patch"
-
-RnJvbSAxNjk3N2M4NTAyNTE2Nzg3MDdjMzk3OTlkMWNkYjI1YjFjMWFmNTQ5
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVHVlLCAyMiBK
-YW4gMjAxMyAxMTo1Njo1OCArMDEwMApTdWJqZWN0OiBbUEFUQ0ggMDcvMTBd
-IG1rZnM6IGluZGljYXRlIHRoYXQgc3BlY2lmeWluZyBmcy10eXBlIGFuZCBm
-cy1vcHRpb25zIGFyZSBpbmRlcGVuZGVudAoKQWxzbyBzdGFuZGFyZGl6ZSBh
-bmQgaW1wcm92ZSB0aGUgaGVscCB0ZXh0LCBhbmQgc2xpY2UgaXQgaW50byBz
-dHJpcHMKZm9yIGVhc2Ugb2YgbGF0ZXIgdHJhbnNsYXRpb24gbWFpbnRlbmFu
-Y2UuCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2Jl
-cmdAanVzdGVtYWlsLm5ldD4KLS0tCiBkaXNrLXV0aWxzL21rZnMuOCB8ICAg
-IDIgKy0KIGRpc2stdXRpbHMvbWtmcy5jIHwgICAyOCArKysrKysrKysrKysr
-Ky0tLS0tLS0tLS0tLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlv
-bnMoKyksIDE1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2Rpc2stdXRp
-bHMvbWtmcy44IGIvZGlzay11dGlscy9ta2ZzLjgKaW5kZXggYWY5MzA0Yi4u
-YTRjZGY3MSAxMDA2NDQKLS0tIGEvZGlzay11dGlscy9ta2ZzLjgKKysrIGIv
-ZGlzay11dGlscy9ta2ZzLjgKQEAgLTcsNyArNyw3IEBAIG1rZnMgXC0gYnVp
-bGQgYSBMaW51eCBmaWxlc3lzdGVtCiAuQiBta2ZzCiAuUkkgWyBvcHRpb25z
-IF0KIC5SQiBbIFwtdAotLklSICJ0eXBlIGZzLW9wdGlvbnMiIF0gIiBkZXZp
-Y2UgIiBbIHNpemUgXQorLklSIHR5cGUgIl0gWyIgZnMtb3B0aW9ucyBdICIg
-ZGV2aWNlICIgWyBzaXplIF0KIC5TSCBERVNDUklQVElPTgogLkIgbWtmcwog
-aXMgdXNlZCB0byBidWlsZCBhIExpbnV4IGZpbGVzeXN0ZW0gb24gYSBkZXZp
-Y2UsIHVzdWFsbHkKZGlmZiAtLWdpdCBhL2Rpc2stdXRpbHMvbWtmcy5jIGIv
-ZGlzay11dGlscy9ta2ZzLmMKaW5kZXggNTU1MDZjMC4uYzM0ZjlmNiAxMDA2
-NDQKLS0tIGEvZGlzay11dGlscy9ta2ZzLmMKKysrIGIvZGlzay11dGlscy9t
-a2ZzLmMKQEAgLTM1LDIwICszNSwyMCBAQAogCiBzdGF0aWMgdm9pZCBfX2F0
-dHJpYnV0ZV9fICgoX19ub3JldHVybl9fKSkgdXNhZ2UoRklMRSAqIG91dCkK
-IHsKLQlmcHJpbnRmKG91dCwKLQkJXygiVXNhZ2U6ICVzIFtvcHRpb25zXSBb
-LXQgdHlwZSBmcy1vcHRpb25zXSBkZXZpY2UgW3NpemVdXG4iKSwKLQkJcHJv
-Z3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOwotCi0JZnByaW50ZihvdXQs
-IF8oIlxuT3B0aW9uczpcbiIKLQkJICAgICAgICIgLXQsIC0tdHlwZT1UWVBF
-ICBmaWxlIHN5c3RlbSB0eXBlLCB3aGVuIHVuZGVmaW5lZCBleHQyIGlzIHVz
-ZWRcbiIKLQkJICAgICAgICIgICAgIGZzLW9wdGlvbnMgICBwYXJhbWV0ZXJz
-IHRvIHJlYWwgZmlsZSBzeXN0ZW0gYnVpbGRlclxuIgotCQkgICAgICAgIiAg
-ICAgZGV2aWNlICAgICAgIHBhdGggdG8gYSBkZXZpY2VcbiIKLQkJICAgICAg
-ICIgICAgIHNpemUgICAgICAgICBudW1iZXIgb2YgYmxvY2tzIG9uIHRoZSBk
-ZXZpY2VcbiIKLQkJICAgICAgICIgLVYsIC0tdmVyYm9zZSAgICBleHBsYWlu
-IHdoYXQgaXMgZG9uZVxuIgotCQkgICAgICAgIiAgICAgICAgICAgICAgICAg
-IGRlZmluaW5nIC1WIG1vcmUgdGhhbiBvbmNlIHdpbGwgY2F1c2UgYSBkcnkt
-cnVuXG4iCi0JCSAgICAgICAiIC1WLCAtLXZlcnNpb24gICAgb3V0cHV0IHZl
-cnNpb24gaW5mb3JtYXRpb24gYW5kIGV4aXRcbiIKLQkJICAgICAgICIgICAg
-ICAgICAgICAgICAgICAtViBhcyB2ZXJzaW9uIG11c3QgYmUgb25seSBvcHRp
-b25cbiIKLQkJICAgICAgICIgLWgsIC0taGVscCAgICAgICBkaXNwbGF5IHRo
-aXMgaGVscCBhbmQgZXhpdFxuIikpOworCWZwcmludGYob3V0LCBfKCJVc2Fn
-ZTpcbiIpKTsKKwlmcHJpbnRmKG91dCwgXygiICVzIFtvcHRpb25zXSBbLXQg
-PHR5cGU+XSBbZnMtb3B0aW9uc10gPGRldmljZT4gWzxzaXplPl1cbiIpLAor
-CQkgICAgIHByb2dyYW1faW52b2NhdGlvbl9zaG9ydF9uYW1lKTsKKworCWZw
-cmludGYob3V0LCBfKCJcbk9wdGlvbnM6XG4iKSk7CisJZnByaW50ZihvdXQs
-IF8oIiAtdCwgLS10eXBlPTx0eXBlPiAgZmlsZXN5c3RlbSB0eXBlOyB3aGVu
-IHVuc3BlY2lmaWVkLCBleHQyIGlzIHVzZWRcbiIpKTsKKwlmcHJpbnRmKG91
-dCwgXygiICAgICBmcy1vcHRpb25zICAgICBwYXJhbWV0ZXJzIGZvciB0aGUg
-cmVhbCBmaWxlc3lzdGVtIGJ1aWxkZXJcbiIpKTsKKwlmcHJpbnRmKG91dCwg
-XygiICAgICA8ZGV2aWNlPiAgICAgICBwYXRoIHRvIHRoZSBkZXZpY2UgdG8g
-YmUgdXNlZFxuIikpOworCWZwcmludGYob3V0LCBfKCIgICAgIDxzaXplPiAg
-ICAgICAgIG51bWJlciBvZiBibG9ja3MgdG8gYmUgdXNlZCBvbiB0aGUgZGV2
-aWNlXG4iKSk7CisJZnByaW50ZihvdXQsIF8oIiAtViwgLS12ZXJib3NlICAg
-ICAgZXhwbGFpbiB3aGF0IGlzIGJlaW5nIGRvbmU7XG4iCisJCSAgICAgICAi
-ICAgICAgICAgICAgICAgICAgICAgIHNwZWNpZnlpbmcgLVYgbW9yZSB0aGFu
-IG9uY2Ugd2lsbCBjYXVzZSBhIGRyeS1ydW5cbiIpKTsKKwlmcHJpbnRmKG91
-dCwgXygiIC1WLCAtLXZlcnNpb24gICAgICBkaXNwbGF5IHZlcnNpb24gaW5m
-b3JtYXRpb24gYW5kIGV4aXQ7XG4iCisJCSAgICAgICAiICAgICAgICAgICAg
-ICAgICAgICAgIC1WIGFzIC0tdmVyc2lvbiBtdXN0IGJlIHRoZSBvbmx5IG9w
-dGlvblxuIikpOworCWZwcmludGYob3V0LCBfKCIgLWgsIC0taGVscCAgICAg
-ICAgIGRpc3BsYXkgdGhpcyBoZWxwIHRleHQgYW5kIGV4aXRcbiIpKTsKIAog
-CWZwcmludGYob3V0LCBfKCJcbkZvciBtb3JlIGluZm9ybWF0aW9uIHNlZSBt
-a2ZzKDgpLlxuIikpOwogCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1359134237294643
-Content-Disposition: attachment; filename="0008-textual-standardize-the-reporting-of-program-name-pl.patch"
-Content-Id: <1359134160.29362.bfd945d65732ab5a49a54f07fdf72ea1a43c3dd9.715BF767@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0008-textual-standardize-the-reporting-of-program-name-pl.patch"
-
-RnJvbSA2MGY0ZDBlMzY1ZmE1MDNkMTE0OTZlMzdmMzc5M2VjNmM4MDU1MzY1
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAyMyBK
-YW4gMjAxMyAxMzo0ODo1MCArMDEwMApTdWJqZWN0OiBbUEFUQ0ggMDgvMTBd
-IHRleHR1YWw6IHN0YW5kYXJkaXplIHRoZSByZXBvcnRpbmcgb2YgcHJvZ3Jh
-bSBuYW1lIHBsdXMgcGFja2FnZSB2ZXJzaW9uCgpTaWduZWQtb2ZmLWJ5OiBC
-ZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0t
-CiBkaXNrLXV0aWxzL2ZzY2subWluaXguYyB8ICAgIDIgKy0KIHN5cy11dGls
-cy9mbG9jay5jICAgICAgIHwgICAgMyArLS0KIHRleHQtdXRpbHMvbW9yZS5j
-ICAgICAgIHwgICAgMyArLS0KIDMgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRp
-b25zKCspLCA1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2Rpc2stdXRp
-bHMvZnNjay5taW5peC5jIGIvZGlzay11dGlscy9mc2NrLm1pbml4LmMKaW5k
-ZXggNTRlNTkxOC4uZmU5MjA4NSAxMDA2NDQKLS0tIGEvZGlzay11dGlscy9m
-c2NrLm1pbml4LmMKKysrIGIvZGlzay11dGlscy9mc2NrLm1pbml4LmMKQEAg
-LTIxMyw3ICsyMTMsNyBAQCBzdGF0aWMgdm9pZAogZGllKGNvbnN0IGNoYXIg
-KmZtdCwgLi4uKSB7CiAJdmFfbGlzdCBhcDsKIAotCWZwcmludGYoc3RkZXJy
-LCAiJXM6ICIsIHByb2dyYW1faW52b2NhdGlvbl9zaG9ydF9uYW1lKTsKKwlm
-cHJpbnRmKHN0ZGVyciwgVVRJTF9MSU5VWF9WRVJTSU9OKTsKIAl2YV9zdGFy
-dChhcCwgZm10KTsKIAl2ZnByaW50ZihzdGRlcnIsIGZtdCwgYXApOwogCXZh
-X2VuZChhcCk7CmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvZmxvY2suYyBiL3N5
-cy11dGlscy9mbG9jay5jCmluZGV4IDExYzQ0YjYuLjYxNDdlOTcgMTAwNjQ0
-Ci0tLSBhL3N5cy11dGlscy9mbG9jay5jCisrKyBiL3N5cy11dGlscy9mbG9j
-ay5jCkBAIC0yMDYsOCArMjA2LDcgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNo
-YXIgKmFyZ3ZbXSkKIAkJCQlfKCJpbnZhbGlkIGV4aXQgY29kZSIpKTsKIAkJ
-CWJyZWFrOwogCQljYXNlICdWJzoKLQkJCXByaW50ZihfKCIlcyBmcm9tICVz
-XG4iKSwKLQkJCSAgICAgICBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFt
-ZSwgUEFDS0FHRV9TVFJJTkcpOworCQkJcHJpbnRmKFVUSUxfTElOVVhfVkVS
-U0lPTik7CiAJCQlleGl0KEVYX09LKTsKIAkJZGVmYXVsdDoKIAkJCS8qIG9w
-dG9wdCB3aWxsIGJlIHNldCBpZiB0aGlzIHdhcyBhbiB1bnJlY29nbml6ZWQK
-ZGlmZiAtLWdpdCBhL3RleHQtdXRpbHMvbW9yZS5jIGIvdGV4dC11dGlscy9t
-b3JlLmMKaW5kZXggMmM5Nzk1MC4uYjk0YWU0OSAxMDA2NDQKLS0tIGEvdGV4
-dC11dGlscy9tb3JlLmMKKysrIGIvdGV4dC11dGlscy9tb3JlLmMKQEAgLTU2
-OCw4ICs1NjgsNyBAQCB2b2lkIGFyZ3NjYW4oY2hhciAqcykKIAkJY2FzZSAn
-XHQnOgogCQkJYnJlYWs7CiAJCWNhc2UgJ1YnOgotICAgICAgICAgICAgICAg
-ICAgICAgICAgcHJpbnRmKF8oIiVzIGZyb20gJXNcbiIpLAotICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHByb2dyYW1faW52b2NhdGlvbl9zaG9y
-dF9uYW1lLCBQQUNLQUdFX1NUUklORyk7CisJCQlwcmludGYoVVRJTF9MSU5V
-WF9WRVJTSU9OKTsKIAkJCWV4aXQoRVhJVF9TVUNDRVNTKTsKIAkJCWJyZWFr
-OwogCQlkZWZhdWx0OgotLSAKMS43LjAuNAoK
-
---_----------=_1359134237294643--
+1.8.1.2
 
