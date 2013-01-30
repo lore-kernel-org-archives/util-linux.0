@@ -1,76 +1,62 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Date: Tue, 8 Jan 2013 17:43:14 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:63766 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754290Ab3A3STb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 30 Jan 2013 13:19:31 -0500
+Date: Wed, 30 Jan 2013 19:19:27 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Goffredo Baroncelli <kreijack@inwind.it>
-Cc: util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Chris Mason <chris.mason@fusionio.com>,
-        Chris Murphy <lists@colorremedies.com>
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-Message-ID: <20130108164314.GA9177@x2.net.home>
-References: <50E9C267.3050302@inwind.it>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patches] adding accents, fixing encodings, and more textual
+ stuff
+Message-ID: <20130130181927.GH3741@x2.net.home>
+References: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <50E9C267.3050302@inwind.it>
-Sender: linux-btrfs-owner@vger.kernel.org
+In-Reply-To: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 06, 2013 at 07:28:55PM +0100, Goffredo Baroncelli wrote:
-> +const struct blkid_idinfo btrfs_idinfo1 =
-> +{
-> +	.name		= "btrfs [bak #1]",
-> +	.usage		= BLKID_USAGE_FILESYSTEM,
-> +	.probefunc	= probe_btrfs,
-> +	.minsz		= 64 * 1024 * 1024 + 4 * 1024,
-> +	.magics		=
-> +	{
-> +		{ .magic = "_BHRfS_M", 
-> +		  .len = 8, 
-> +		  .kboff = 64 * 1024, 
-> +		  .sboff = 0x40 },
-> +		{ NULL }
-> +	}
-> +};
-> +
-> +const struct blkid_idinfo btrfs_idinfo2 =
-> +{
-> +	.name		= "btrfs [bak #2]",
-> +	.usage		= BLKID_USAGE_FILESYSTEM,
-> +	.probefunc	= probe_btrfs,
-> +	.minsz		= 256 * 1024 * 1024 * 1024 + 4 *1024,
-> +	.magics		=
-> +	{
-> +		{ .magic = "_BHRfS_M", 
-> +		  .len = 8, 
-> +		  .kboff = 256 * 1024 * 1024, 
-> +		  .sboff = 0x40 },
-> +		{ NULL }
-> +	}
-> +};
+On Tue, Jan 29, 2013 at 05:44:13PM +0100, Benno Schulenberg wrote:
+> The first patch adds accents to a few names in the NEWS file;
+> since this file is now UTF-8 it will support accented letters.
 
- You can specify more than one magic strings for the same filesystem,
- the .magics = { } is array.
+I have applied last two patches only. It seems like a problem with
+email encoding, my mutt see the attachments as
 
- .magics     = {
+ 0001-docs-NEWS-add-some-missing-accents-    [text/x-patch, base64, us-ascii, 6.3K]
 
-    /* backup #1 */
-	{ .magic = "_BHRfS_M", 
-	  .len = 8, 
-	  .kboff = 64 * 1024, 
-	  .sboff = 0x40 },
-    },
+What about to send the patches by git-send? ..or use tar ball if canot
+use git-send.
 
-    /* backup #2 */
-    {   .magic = "_BHRfS_M",
-        .len = 8,
-        .kboff = 256 * 1024 * 1024,
-        .sboff = 0x40
-    }, 
-    ...
- }
+    Karel
 
- see for example libblkid/src/superblocks/reiserfs.c 
+$ git am -i -3 ~/00*.patch
+Commit Body is:
+--------------------------
+docs: NEWS: add some missing accents, since this is now UTF-8
 
- Karel
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+--------------------------
+Apply? [y]es/[n]o/[e]dit/[v]iew patch/[a]ccept all y
+Applying: docs: NEWS: add some missing accents, since this is now
+UTF-8
+Using index info to reconstruct a base tree...
+error: patch failed: NEWS:347
+error: NEWS: patch does not apply
+Did you hand edit your patch?
+It does not apply to blobs recorded in its index.
+Cannot fall back to three-way merge.
+Patch failed at 0001 docs: NEWS: add some missing accents, since this
+is now UTF-8
+The copy of the patch that failed is found in:
+   /home/projects/util-linux/util-linux/.git/rebase-apply/patch
+   When you have resolved this problem, run "git am --resolved".
+   If you prefer to skip this patch, run "git am --skip" instead.
+   To restore the original branch and stop patching, run "git am
+   --abort".
+
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
