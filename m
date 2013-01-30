@@ -1,44 +1,44 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Message-ID: <50EC822B.1070102@gmail.com>
-Date: Tue, 08 Jan 2013 21:31:39 +0100
-From: Goffredo Baroncelli <kreijack@gmail.com>
-Reply-To: kreijack@inwind.it
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:44099 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751734Ab3A3PBK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 30 Jan 2013 10:01:10 -0500
+Date: Wed, 30 Jan 2013 16:01:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg: fix typo
+Message-ID: <20130130150100.GG3741@x2.net.home>
+References: <1359214946-13515-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?G=FCnter_Gersdorf?= <G.Gersdorf@tu-bs.de>
-CC: linux-btrfs@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: Btrfs: wipe all the superblock [redhat bugzilla 889888]
-References: <50E9C267.3050302@inwind.it> <kchf4t$scf$1@ger.gmane.org>
-In-Reply-To: <kchf4t$scf$1@ger.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: linux-btrfs-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1359214946-13515-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Günter,
-
-On 01/08/2013 04:48 PM, Günter Gersdorf wrote:
-> Am 06.01.2013 19:28, schrieb Goffredo Baroncelli:
->>
->> You can pull the change from:
->>     http://cassiopea.homelinux.net/git/util-linux.git
->> from the branch
->>     btrfs-wipefs
->>
-> After applying this patch, findfs and blkid didn't find filesystems
-> smaller than 256GB, probably because there is no third superblock.
-
-In my system also the stock "findfs" and "blkid" have the same problem:
-ie without my patch these utilities were unable to detect a btrfs
-filesystem.
-
-Could you confirm that ?
-
+On Sat, Jan 26, 2013 at 03:42:26PM +0000, Sami Kerola wrote:
+> My mistake in commit fbbc4c88d5273c46db065594493261eb9bb1a2c4.
 > 
-> Günter
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/dmesg.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+> index a307d84..48c121f 100644
+> --- a/sys-utils/dmesg.c
+> +++ b/sys-utils/dmesg.c
+> @@ -236,7 +236,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+>  		fprintf(stderr, " %7s - %s\n",
+>  			level_names[i].name,
+>  			_(level_names[i].help));
+> -	fputc(USAGE_SEPARATOR, out);
+> +	fputs(USAGE_SEPARATOR, out);
 
+ Ah.. already fixed ;-)
 
-
-
+    Karel
 
 -- 
-gpg @keyserver.linux.it: Goffredo Baroncelli (kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
