@@ -1,30 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14856 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753359Ab3AYJZd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 25 Jan 2013 04:25:33 -0500
-Date: Fri, 25 Jan 2013 10:25:24 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 18/22] tests: add isosize(1) check
-Message-ID: <20130125092524.GF27413@x2.net.home>
-References: <1358554151-25985-1-git-send-email-kerolasa@iki.fi>
- <1358554151-25985-19-git-send-email-kerolasa@iki.fi>
+Return-Path: bensberg@justemail.net
+Message-Id: <1359636926.10683.140661185024845.1F6E77FF@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1358554151-25985-19-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+Subject: Re: [patches] adding accents, fixing encodings, and more textual stuff
+Date: Thu, 31 Jan 2013 13:55:26 +0100
+In-Reply-To: <20130130181927.GH3741@x2.net.home>
+References: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+ <20130130181927.GH3741@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 19, 2013 at 12:09:07AM +0000, Sami Kerola wrote:
-> +gzip -cd $TS_SELF/sample.iso.gz > $TS_SELF/sample.iso
+On Wed, Jan 30, 2013, at 19:19, Karel Zak wrote:
+> It seems like a problem with
+> email encoding, my mutt see the attachments as
+> 
+>  0001-docs-NEWS-add-some-missing-accents-    [text/x-patch, base64, us-ascii, 6.3K]
 
- Applied, note that tests/ts ($TS_SELF) directory should be used
- read-only. It's better to write to $TS_OUTDIR.
+I've forwarded the original mail to myself over a different address,
+opened it with Thunderbird, saved the attachments -- they come
+out fine.  Then I copied the Inbox, opened it with mutt, saved the
+attachments -- and they come out mangled.  Mutt replaces every
+byte between 80 and ff with a question mark (3f).  Somehow mutt
+assumes that what is inside the base64 is or must be us-ascii, and
+enforces this when showing and saving the file.  Mutt-bug.
 
-    Karel
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - Send your email first class
