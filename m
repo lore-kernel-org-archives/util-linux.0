@@ -1,28 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29699 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753263Ab3AJKqu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Jan 2013 05:46:50 -0500
-Date: Thu, 10 Jan 2013 11:46:41 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/3] build-sys: ignore chkdupexe
-Message-ID: <20130110104641.GE593@x2.net.home>
-References: <1357771446-11966-1-git-send-email-kerolasa@iki.fi>
- <1357771446-11966-2-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1357771446-11966-2-git-send-email-kerolasa@iki.fi>
+Received: from mail-we0-f171.google.com ([74.125.82.171]:57856 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751688Ab3AaTty (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Jan 2013 14:49:54 -0500
+Received: by mail-we0-f171.google.com with SMTP id u54so2443085wey.16
+        for <util-linux@vger.kernel.org>; Thu, 31 Jan 2013 11:49:52 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/2] build-sys: add namespace.h to distribution
+Date: Thu, 31 Jan 2013 19:49:48 +0000
+Message-Id: <1359661788-16188-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 09, 2013 at 10:44:05PM +0000, Sami Kerola wrote:
->  misc-utils/.gitignore | 1 +
->  1 file changed, 1 insertion(+)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/Makemodule.am | 1 +
+ 1 file changed, 1 insertion(+)
 
- Applied, thanks.
-
+diff --git a/include/Makemodule.am b/include/Makemodule.am
+index 5538570..c8af1ec 100644
+--- a/include/Makemodule.am
++++ b/include/Makemodule.am
+@@ -24,6 +24,7 @@ dist_noinst_HEADERS += \
+ 	include/mbsalign.h \
+ 	include/md5.h \
+ 	include/minix.h \
++	include/namespace.h \
+ 	include/nls.h \
+ 	include/optutils.h \
+ 	include/pager.h \
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.2
+
