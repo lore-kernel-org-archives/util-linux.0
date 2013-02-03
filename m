@@ -1,55 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56256 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751279Ab3BEJUk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 Feb 2013 04:20:40 -0500
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r159KTnV006923
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 5 Feb 2013 04:20:40 -0500
-Date: Tue, 5 Feb 2013 10:20:03 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: libguestfs@redhat.com, berrange@redhat.com, util-linux@vger.kernel.org
-Subject: Re: [Libguestfs] Should we always do wipefs before mkfs?  Discuss ...
-Message-ID: <20130205092003.GA5865@x2.net.home>
-References: <20130204182338.GA15222@rhmail.home.annexia.org>
+Received: from mail-ee0-f45.google.com ([74.125.83.45]:54231 "EHLO
+	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752864Ab3BCJjx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Feb 2013 04:39:53 -0500
+Received: by mail-ee0-f45.google.com with SMTP id b57so2730522eek.4
+        for <util-linux@vger.kernel.org>; Sun, 03 Feb 2013 01:39:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130204182338.GA15222@rhmail.home.annexia.org>
+Date: Sun, 3 Feb 2013 01:39:50 -0800
+Message-ID: <CAOMFOmWOvh2TAp5a61esH=2Kzgt_YkQ5dHvQOz=_k53zzx20Xg@mail.gmail.com>
+Subject: Why "--fake" and "--no-canonicalize" started requiring root in 2.22?
+From: Anatol Pomozov <anatol.pomozov@gmail.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 04, 2013 at 06:23:38PM +0000, Richard W.M. Jones wrote:
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=907554
+Hi,
 
- All mkfs.<type> should be robust enough to wipe the device. I'm
- currently working with guys around filesystems to improve mkfs.ext4
- and mkfs.xfs
+I am trying to compile and use libfuse. Libfuse utilises 'mount' and
+'umount' tools. One of few things it uses are "--fake" and
+"--no-canonicalize" command options run as regular user. It worked
+fine with previous versions of util-linux (2.20 from Ubuntu Precise).
+But in the latest version (2.22 from Arch) it fails to run as a
+regular user:
 
-    https://bugzilla.redhat.com/show_bug.cgi?id=902512
+$  mount --version
+mount from util-linux 2.22.2 (libmount 2.22.0: debug)
+$  mount --fake
+mount: only root can use "--fake" option
+$  mount --no-canonicalize
+mount: only root can use "--no-canonicalize" option
 
- .. but nothing is perfect so explicitly call wipefs(8) from
- installers or things like libguestfs is definitely good idea.
-
-> We could change libguestfs's guestfs_mkfs (internally) so it always
-> does an implicit wipefs on the filesystem.  wipefs is not too onerous --
-> in particular I believe it only writes to a few chosen areas of the
-> disk.  Especially considering that we're about to run mkfs anyway
-> which for some filesystems writes a lot of blocks.
-
- wipefs(8) (or blkid_do_wipe() from the library) wipes only magic
- strings to make the filesystem (raids or partition tables) invisible
- for libblkid. It means very few bytes.
-
-> Thoughts?
-
- Go ahead :-)
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Should it be removed from the list of "restricted" options like it
+happened with other options recently? This would restore the same
+behavior that "mount" had before.
