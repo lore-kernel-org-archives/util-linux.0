@@ -1,62 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62101 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46960 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932303Ab3BLLNA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Feb 2013 06:13:00 -0500
-Date: Tue, 12 Feb 2013 12:12:48 +0100
+	id S1751092Ab3BEJ1r (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Feb 2013 04:27:47 -0500
+Date: Tue, 5 Feb 2013 10:27:40 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
-Cc: kerolasa@gmail.com, Sami Kerola <kerolasa@iki.fi>,
-        util-linux@vger.kernel.org
-Subject: Re: lslocks =?utf-8?B?4oCTICJmYWlsZQ==?= =?utf-8?Q?d?= to parse pid:
- 'WRITE'"
-Message-ID: <20130212111248.GG20408@x2.net.home>
-References: <kf0ehe$q7h$1@ger.gmane.org>
- <CAG27Bk2dO1ztSAy47=j+nmG+v5YuMCBa0i4eorLWw2sFWRT2Pg@mail.gmail.com>
- <51197D69.6050901@gmail.com>
+To: Henrik Grindal Bakken <hgb@ifi.uio.no>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Problem with telnet after upgrade of util-linux
+Message-ID: <20130205092740.GB5865@x2.net.home>
+References: <x2eharj9th8.fsf@smaragd.ifi.uio.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <51197D69.6050901@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <x2eharj9th8.fsf@smaragd.ifi.uio.no>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 12, 2013 at 01:23:21AM +0200, Mantas Mikulėnas wrote:
-> On 2013-02-12 00:42, Sami Kerola wrote:
-> > Karel, and others, what do you think about adding a mode
-> > to output listing which some might say is not a mode at all?
+On Fri, Aug 31, 2012 at 01:44:03PM +0200, Henrik Grindal Bakken wrote:
 > 
-> Just tested the patch and it works here, but wouldn't it be better to
-> add a "waiting" flag to the mode display, or something like that?
-> ("WAIT-READ" and "WAIT-WRITE"?)
+> Hi.  I have a custom Linux distro running where we (unfortunately...)
+> support telnet, using netkit-telnet-0.17.
 > 
-> 
-> 
-> Side note: It seems that fs/locks.c:lock_get_status can output many
-> other variations – e.g. mandatory locks have a third type called
-> "ACCESS", shown when a program tries to simply read/write a locked file;
-> in this case listing the R/W mode might be more useful than "WAITING".
-> Mandatory locks can apparently say "RW" as well, although I haven't
-> found a way to create a "RW" lock yet.
+> A while ago, I upgraded util-linux from 2.20.1 to 2.22-rc2 (to get
+> sulogin, since I switched to systemd).  One side-effect of this, which
+> I didn't catch for some time (not frequently using telnet), was that
+> telnet started chopping some characters off its output.  The changes
+> appear to be related to login(1).
 
- Yes, IMHO we have to follow kernel and keep the original string in
- the MODE column.
+Probably also:
+ https://bugzilla.redhat.com/show_bug.cgi?id=904182
 
-> Also, while I haven't yet seen this in practice either, the same
-> fs/locks.c can output lock type "LEASE", which has completely different
-> values for the 3rd field, and cannot be represented by a binary
-> "M[andatory] = 0/1" column.
-
- Good point. This should be fixed. I think that lease locks could be
- also interpreted as mandatory (so "1" should be used in "M" column). 
- 
- But you're right that we need something more to describe lease locks
- -- probably by another column "PROCMODE" (process mode) and use
- keywords BREAKING, ACTIVE and BREAKER from kernel.  
- 
- Maybe we can use the same column to identify blocked flock/posix
- processes (by BLOCKED keyword) as I described in my previous email.
-
-    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
