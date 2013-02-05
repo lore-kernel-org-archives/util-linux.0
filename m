@@ -1,26 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52277 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52716 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751947Ab3BFKfm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Feb 2013 05:35:42 -0500
-Date: Wed, 6 Feb 2013 11:35:37 +0100
+	id S1754552Ab3BEKwE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Feb 2013 05:52:04 -0500
+Date: Tue, 5 Feb 2013 11:51:53 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] mount: fix bind mount success message
-Message-ID: <20130206103537.GC17190@x2.net.home>
-References: <5106978F.90202@bernhard-voelker.de>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] setpriv: run a program with different Linux privilege
+ settings
+Message-ID: <20130205105153.GA24170@x2.net.home>
+References: <868c8e8b2adbb687bcb6862a7efbab68449c7d5c.1358178937.git.luto@amacapital.net>
+ <1359210549-10719-1-git-send-email-kerolasa@iki.fi>
+ <CALCETrUgdKwdCCTLEbJFj=P7J5nX6w078TbNeD3AZ5yK7d=gOA@mail.gmail.com>
+ <20130205090524.GA5047@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5106978F.90202@bernhard-voelker.de>
+In-Reply-To: <20130205090524.GA5047@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 28, 2013 at 04:21:51PM +0100, Bernhard Voelker wrote:
->  sys-utils/mount.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+On Tue, Feb 05, 2013 at 10:05:24AM +0100, Karel Zak wrote:
+> On Mon, Feb 04, 2013 at 12:20:09PM -0800, Andy Lutomirski wrote:
+> > What's the status of this patch?  I'm not really familiar with the
+> > merge process for util-linux.
+> 
+>  Be patient, I'm going to merge it.
+....
+>     https://github.com/kerolasa/lelux-utiliteetit/commits/setpriv
 
- Applied, thanks.
+ Merged ;-)
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
