@@ -1,44 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:27980 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:17801 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752067Ab3BFKgX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Feb 2013 05:36:23 -0500
-Date: Wed, 6 Feb 2013 11:36:20 +0100
+	id S1751231Ab3BFLdB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Feb 2013 06:33:01 -0500
+Date: Wed, 6 Feb 2013 12:32:50 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] adding accents, fixing encodings, and more textual
- stuff
-Message-ID: <20130206103620.GD17190@x2.net.home>
-References: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: [PATCH] setpriv: Fix an error message typo
+Message-ID: <20130206113250.GA24629@x2.net.home>
+References: <20130205105153.GA24170@x2.net.home>
+ <14de6354fd3639e8535cf0e927de20bc30a40db7.1360112785.git.luto@amacapital.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1359477853.14228.140661184045573.44739122@webmail.messagingengine.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <14de6354fd3639e8535cf0e927de20bc30a40db7.1360112785.git.luto@amacapital.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 29, 2013 at 05:44:13PM +0100, Benno Schulenberg wrote:
-> The first patch adds accents to a few names in the NEWS file;
-> since this file is now UTF-8 it will support accented letters.
-> The second patch does this for one name in the AUTHORS file,
-> but mainly removes four duplicates from that file.  That these
-> names are duplicates is evidenced by their contributions being
-> claimed by a single person on Ohloh.net, or the email address
-> being identical.  The third patch spells and encodes the name
-> of Arkadiusz Miśkiewicz correctly in fifty odd files -- it has
-> annoyed me for quite a while to see this strange question mark
-> and the note "converted" when opening any of those files with
-> vim.  The fourth patch fixes two more misencodings in two files
-> -- as far as I can tell no more improper codes between hex 80
-> and hex ff remain in the repo.
-> 
-> The fifth patch gettextizes an overlooked string, and the sixth
-> patch improves an error message and the help text of isosize,
-> mainly adding the standard angular brackets around arguments.
+On Tue, Feb 05, 2013 at 05:07:26PM -0800, Andy Lutomirski wrote:
+>  sys-utils/setpriv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
- All applied, thanks.
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
