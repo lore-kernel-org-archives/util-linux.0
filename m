@@ -1,38 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:63315 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752484Ab3ATSFH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jan 2013 13:05:07 -0500
-Received: by mail-wg0-f43.google.com with SMTP id e12so2031956wge.22
-        for <util-linux@vger.kernel.org>; Sun, 20 Jan 2013 10:05:06 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-da0-f47.google.com ([209.85.210.47]:62504 "EHLO
+	mail-da0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753950Ab3BFBHf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Feb 2013 20:07:35 -0500
+Received: by mail-da0-f47.google.com with SMTP id s35so329913dak.20
+        for <util-linux@vger.kernel.org>; Tue, 05 Feb 2013 17:07:34 -0800 (PST)
+From: Andy Lutomirski <luto@amacapital.net>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/6] build-sys: add nsenter to gitignore
-Date: Sun, 20 Jan 2013 18:04:52 +0000
-Message-Id: <1358705096-21092-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
-References: <1358705096-21092-1-git-send-email-kerolasa@iki.fi>
+Cc: Karel Zak <kzak@redhat.com>, Sami Kerola <kerolasa@iki.fi>,
+        Andy Lutomirski <luto@amacapital.net>
+Subject: [PATCH] setpriv: Fix an error message typo
+Date: Tue,  5 Feb 2013 17:07:26 -0800
+Message-Id: <14de6354fd3639e8535cf0e927de20bc30a40db7.1360112785.git.luto@amacapital.net>
+In-Reply-To: <20130205105153.GA24170@x2.net.home>
+References: <20130205105153.GA24170@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 ---
- .gitignore | 1 +
- 1 file changed, 1 insertion(+)
+ sys-utils/setpriv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/.gitignore b/.gitignore
-index e85eb07..dbcf0b4 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -127,6 +127,7 @@ tests/run.sh.trs
- /mountpoint
- /namei
- /newgrp
-+/nsenter
- /partx
- /pg
- /pivot_root
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index 1662daf..921ce03 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -689,7 +689,7 @@ int main(int argc, char **argv)
+ 		case INHCAPS:
+ 			if (opts.caps_to_inherit)
+ 				errx(EXIT_FAILURE,
+-				     _("duplicate --caps option"));
++				     _("duplicate --inh-caps option"));
+ 			opts.caps_to_inherit = optarg;
+ 			break;
+ 		case CAPBSET:
 -- 
-1.8.1.1
+1.8.1
 
