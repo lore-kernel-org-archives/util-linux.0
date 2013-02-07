@@ -1,43 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f47.google.com ([209.85.215.47]:51209 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932605Ab3BKVXz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Feb 2013 16:23:55 -0500
-Received: by mail-la0-f47.google.com with SMTP id fj20so6140837lab.6
-        for <util-linux@vger.kernel.org>; Mon, 11 Feb 2013 13:23:54 -0800 (PST)
-From: "Zeeshan Ali (Khattak)" <zeeshanak@gnome.org>
+Received: from plane.gmane.org ([80.91.229.3]:48980 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754567Ab3BGOnH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 7 Feb 2013 09:43:07 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1U3ShB-0007Ho-1t
+	for util-linux@vger.kernel.org; Thu, 07 Feb 2013 15:43:25 +0100
+Received: from 78-60-211-195.static.zebra.lt ([78.60.211.195])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Thu, 07 Feb 2013 15:43:25 +0100
+Received: from grawity by 78-60-211-195.static.zebra.lt with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Thu, 07 Feb 2013 15:43:25 +0100
 To: util-linux@vger.kernel.org
-Cc: "Zeeshan Ali (Khattak)" <zeeshanak@gnome.org>
-Subject: [PATCH 1/2] libblkid: Don't keep reading same sector of ISO
-Date: Mon, 11 Feb 2013 23:22:11 +0200
-Message-Id: <1360617732-4770-1-git-send-email-zeeshanak@gnome.org>
+From: "Mantas M." <grawity@gmail.com>
+Subject: lslocks =?UTF-8?B?4oCTICJmYWlsZWQgdG8gcGFyc2UgcGlkOiAnV1JJVEUnIg==?=
+Date: Thu, 07 Feb 2013 16:42:55 +0200
+Message-ID: <kf0ehe$q7h$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: "Zeeshan Ali (Khattak)" <zeeshanak@gnome.org>
+When one process is holding an exclusive lock on a file, and other
+processes are waiting for the lock to be released, the contents of
+/proc/locks look like this:
 
-We were reading the same sector over and over again when parsing ISO9660.
-This patches fixes it.
----
- libblkid/src/superblocks/iso9660.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+$ cat /proc/locks
+1: FLOCK  ADVISORY  WRITE 431143 00:0f:6325223 0 EOF
+1: -> FLOCK  ADVISORY  WRITE 405209 00:0f:6325223 0 EOF
+1: -> FLOCK  ADVISORY  WRITE 399578 00:0f:6325223 0 EOF
+1: -> FLOCK  ADVISORY  WRITE 434120 00:0f:6325223 0 EOF
+2: FLOCK  ADVISORY  WRITE 359765 08:04:28180839 0 EOF
+3: FLOCK  ADVISORY  WRITE 359765 08:04:28180837 0 EOF
+4: POSIX  ADVISORY  WRITE 434729 08:04:8653261 0 EOF
+4: -> POSIX  ADVISORY  WRITE 434737 08:04:8653261 0 EOF
+5: FLOCK  ADVISORY  WRITE 359765 08:04:28180836 0 EOF
+6: ...
 
-diff --git a/libblkid/src/superblocks/iso9660.c b/libblkid/src/superblocks/iso9660.c
-index f7d2b76..33a8597 100644
---- a/libblkid/src/superblocks/iso9660.c
-+++ b/libblkid/src/superblocks/iso9660.c
-@@ -167,8 +167,10 @@ static int probe_iso9660(blkid_probe pr, const struct blkid_idmag *mag)
- 
- 		if (iso == NULL || iso->vd_type == ISO_VD_END)
- 			break;
--		if (iso->vd_type != ISO_VD_SUPPLEMENTARY)
-+		if (iso->vd_type != ISO_VD_SUPPLEMENTARY) {
-+			off += ISO_SECTOR_SIZE;
- 			continue;
-+      }
- 
- 		if (memcmp(iso->escape_sequences, "%/@", 3) == 0 ||
- 		    memcmp(iso->escape_sequences, "%/C", 3) == 0 ||
+If I try to run `lslocks`, it fails to parse the "->" lines and exits
+with an error message:
+
+    lslocks: failed to parse pid: 'WRITE'
+
+Can be reproduced by:
+
+touch foo & flock foo -c "sleep 100" & flock foo -c "sleep 100" &
+touch foo & lckdo -w foo sleep 100 & lckdo -w foo sleep 100 &
+
 -- 
-1.8.1.2
+Mantas Mikulėnas <grawity@gmail.com>
 
