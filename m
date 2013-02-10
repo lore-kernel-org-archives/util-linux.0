@@ -1,230 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:35369 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750920Ab3BGGWs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Feb 2013 01:22:48 -0500
-Received: by mail-ie0-f170.google.com with SMTP id c11so3063762ieb.15
-        for <util-linux@vger.kernel.org>; Wed, 06 Feb 2013 22:22:47 -0800 (PST)
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-To: util-linux@vger.kernel.org
-Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
-Subject: [PATCH v3 3/4] chsh: Add libuser support
-Date: Wed,  6 Feb 2013 23:22:20 -0700
-Message-Id: <1360218141-4463-4-git-send-email-cmaloney@theoreticalchaos.com>
-In-Reply-To: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
-References: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
+Received: from mail-vb0-f48.google.com ([209.85.212.48]:45532 "EHLO
+	mail-vb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756375Ab3BJVES (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Feb 2013 16:04:18 -0500
+Received: by mail-vb0-f48.google.com with SMTP id fc21so3377228vbb.21
+        for <util-linux@vger.kernel.org>; Sun, 10 Feb 2013 13:04:17 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <BLU0-SMTP36414270EB979DF67318E53D50B0@phx.gbl>
+References: <BLU0-SMTP36414270EB979DF67318E53D50B0@phx.gbl>
+Date: Sun, 10 Feb 2013 21:04:16 +0000
+Message-ID: <CAG27Bk2XQxWUFZPuQP8JWJaJ5OuCrxspk==9saGO-Xv6yk=7Sg@mail.gmail.com>
+Subject: Re: Hypervisor & Virtualization lscpu test fail
+From: Sami Kerola <kerolasa@iki.fi>
+To: Luis Aranguren <pizzaman@hotmail.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is based directly on lchsh which is a part of libuser. libuser.{c,h}
-exist because exactly the same code is needed for both chsh and chfn.
+On Sun, Feb 10, 2013 at 4:25 PM, Luis Aranguren <pizzaman@hotmail.com> wrote:
+> Hi, I'm trying to package util-linux for exherbo, a source based distro.
+>
+> util-linux's lscpu tests fail when compiled on a VM running under a VMware Vsphere esxi hypervisor.
+>
+> #cat ./C/64/tests/diff/lscpu/lscpu-x86_64-64cpu
+> --- /var/tmp/paludis/build/sys-apps-util-linux-2.22.2/work/util-linux-2.22.2/tests/expected/lscpu/lscpu-x86_64-64cpu    2012-10-15 10:09:42.000000000 +0000
+> +++ /var/tmp/paludis/build/sys-apps-util-linux-2.22.2/work/C/64/tests/output/lscpu/lscpu-x86_64-64cpu   2013-02-09 03:35:37.000000000 +0000
+> @@ -12,6 +12,8 @@
+>  CPU MHz:               1064.000
+>  BogoMIPS:              3989.44
+>  Virtualization:        VT-x
+> +Hypervisor vendor:     VMware
+> +Virtualization type:   full
+>  L1d cache:             32K
+>  L1i cache:             32K
+>  L2 cache:              256K
+>
+>
+> # lscpu
+> Architecture:          x86_64
+> CPU op-mode(s):        32-bit, 64-bit
+> Byte Order:            Little Endian
+> CPU(s):                2
+> On-line CPU(s) list:   0,1
+> Thread(s) per core:    1
+> Core(s) per socket:    2
+> Socket(s):             1
+> NUMA node(s):          1
+> Vendor ID:             AuthenticAMD
+> CPU family:            16
+> Model:                 6
+> Stepping:              3
+> CPU MHz:               1497.506
+> BogoMIPS:              2995.01
+> Hypervisor vendor:     VMware
+> Virtualization type:   full
+> L1d cache:             64K
+> L1i cache:             64K
+> L2 cache:              1024K
+> NUMA node0 CPU(s):     0,1
+>
+> How can I solve this?
+> Luis Aranguren
 
-Signed-off-by: Cody Maloney <cmaloney@theoreticalchaos.com>
----
- login-utils/Makemodule.am |  3 ++
- login-utils/chsh.c        | 22 ++++++++++++-
- login-utils/libuser.c     | 80 +++++++++++++++++++++++++++++++++++++++++++++++
- login-utils/libuser.h     | 14 +++++++++
- 4 files changed, 118 insertions(+), 1 deletion(-)
- create mode 100644 login-utils/libuser.c
- create mode 100644 login-utils/libuser.h
+Hi Luis,
 
-diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
-index ee85329..0c57118 100644
---- a/login-utils/Makemodule.am
-+++ b/login-utils/Makemodule.am
-@@ -73,6 +73,9 @@ chfn_chsh_ldadd = libcommon.la -lpam -lpam_misc
- if HAVE_USER
- chfn_chsh_ldflags += $(LIBUSER_LIBS)
- chfn_chsh_cflags += $(LIBUSER_CFLAGS)
-+chfn_chsh_sources+= \
-+	login-utils/libuser.c \
-+	login-utils/libuser.h
- endif
- 
- if HAVE_SELINUX
-diff --git a/login-utils/chsh.c b/login-utils/chsh.c
-index 7d3963f..66800ca 100644
---- a/login-utils/chsh.c
-+++ b/login-utils/chsh.c
-@@ -1,6 +1,7 @@
- /*
-  *   chsh.c -- change your login shell
-  *   (c) 1994 by salvatore valente <svalente@athena.mit.edu>
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-  *
-  *   this program is free software.  you can redistribute it and
-  *   modify it under the terms of the gnu general public license.
-@@ -32,7 +33,6 @@
- #include <sys/types.h>
- #include <unistd.h>
- 
--#include "auth.h"
- #include "c.h"
- #include "env.h"
- #include "closestream.h"
-@@ -48,6 +48,14 @@
- # include "selinux_utils.h"
- #endif
- 
-+
-+#ifdef HAVE_LIBUSER
-+# include <libuser/user.h>
-+# include "libuser.h"
-+#else
-+# include "auth.h"
-+#endif
-+
- struct sinfo {
- 	char *username;
- 	char *shell;
-@@ -131,7 +139,12 @@ int main(int argc, char **argv)
- 		oldshell = _PATH_BSHELL;	/* default */
- 
- 	/* reality check */
-+#ifdef HAVE_LIBUSER
-+	/* If we're setuid and not really root, disallow the password change. */
-+	if (geteuid() != getuid() && uid != pw->pw_uid) {
-+#else
- 	if (uid != 0 && uid != pw->pw_uid) {
-+#endif
- 		errno = EACCES;
- 		err(EXIT_FAILURE,
- 		    _("running UID doesn't match UID of user we're "
-@@ -147,9 +160,11 @@ int main(int argc, char **argv)
- 
- 	printf(_("Changing shell for %s.\n"), pw->pw_name);
- 
-+#ifndef HAVE_LIBUSER
- 	if(!auth_pam("chsh", uid, pw->pw_name)) {
- 		return EXIT_FAILURE;
- 	}
-+#endif
- 
- 	if (!shell) {
- 		shell = prompt(_("New shell"), oldshell);
-@@ -162,10 +177,15 @@ int main(int argc, char **argv)
- 
- 	if (strcmp(oldshell, shell) == 0)
- 		errx(EXIT_SUCCESS, _("Shell not changed."));
-+
-+#ifdef HAVE_LIBUSER
-+	set_value_libuser("chsh", pw->pw_name, uid, LU_LOGINSHELL, shell);
-+#else
- 	pw->pw_shell = shell;
- 	if (setpwnam(pw) < 0)
- 		err(EXIT_FAILURE, _("setpwnam failed\n"
- 			"Shell *NOT* changed.  Try again later."));
-+#endif
- 
- 	printf(_("Shell changed.\n"));
- 	return EXIT_SUCCESS;
-diff --git a/login-utils/libuser.c b/login-utils/libuser.c
-new file mode 100644
-index 0000000..0501d1a
---- /dev/null
-+++ b/login-utils/libuser.c
-@@ -0,0 +1,80 @@
-+/*
-+ *   libuser.c -- Utilize libuser to set a user attribute
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-+ *
-+ *   this program is free software.  you can redistribute it and
-+ *   modify it under the terms of the gnu general public license.
-+ *   there is no warranty.
-+ *
-+ */
-+
-+#include "libuser.h"
-+
-+#include <grp.h>
-+#include <libuser/user.h>
-+#include <unistd.h>
-+
-+#include "auth.h"
-+#include "c.h"
-+#include "nls.h"
-+
-+static int auth_lu(const char *service_name, struct lu_context *ctx, uid_t uid,
-+			const char *username);
-+
-+static int auth_lu(const char *service_name, struct lu_context *ctx, uid_t uid,
-+			const char *username) {
-+	if(!lu_uses_elevated_privileges(ctx)) {
-+		/* Drop privileges */
-+		if (setegid(getgid()) == -1) {
-+			errx(EXIT_FAILURE, _("Couldn't drop group privileges"));
-+			return FALSE;
-+		}
-+		if (seteuid(getuid()) == -1) {
-+			errx(EXIT_FAILURE, _("Couldn't drop group privileges"));
-+			return FALSE;
-+		}
-+		return TRUE;
-+	}
-+
-+	return auth_pam(service_name, uid, username);
-+}
-+
-+int set_value_libuser(const char *service_name, const char *username, uid_t uid,
-+			const char *attr, const char *val) {
-+	struct lu_context *ctx;
-+	struct lu_error *error = NULL;
-+	struct lu_ent *ent;
-+
-+	ctx = lu_start(username, lu_user, NULL, NULL, lu_prompt_console_quiet,
-+			NULL, &error);
-+	if (ctx == NULL) {
-+		err(EXIT_FAILURE, _("Error initializing %s: %s.\n"), PACKAGE,
-+			lu_strerror(error));
-+		return FALSE;
-+	}
-+
-+	if(!auth_lu(service_name, ctx, uid, username)) {
-+		errno = EACCES;
-+		err(EXIT_FAILURE, _("Permisison denied for changing user attribute"));
-+		return FALSE;
-+	}
-+
-+	/* Look up the user's record. */
-+	ent = lu_ent_new();
-+	if (lu_user_lookup_name(ctx, username, ent, &error) == FALSE) {
-+		lu_end(ctx);
-+		err(EXIT_FAILURE, _("user \"%s\" does not exist."), username);
-+		return FALSE;
-+	}
-+
-+	lu_ent_set_string(ent, attr, val);
-+	if (!lu_user_modify(ctx, ent, &error)) {
-+		lu_ent_free(ent);
-+		lu_end(ctx);
-+		err(EXIT_FAILURE, _("User attribute not changed: %s\n"), lu_strerror(error));
-+		return FALSE;
-+	}
-+	lu_ent_free(ent);
-+	lu_end(ctx);
-+	return TRUE;
-+}
-diff --git a/login-utils/libuser.h b/login-utils/libuser.h
-new file mode 100644
-index 0000000..7454b99
---- /dev/null
-+++ b/login-utils/libuser.h
-@@ -0,0 +1,14 @@
-+/*
-+ *   libuser.h -- Utilize libuser to set a user attribute
-+ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
-+ *
-+ *   this program is free software.  you can redistribute it and
-+ *   modify it under the terms of the gnu general public license.
-+ *   there is no warranty.
-+ *
-+ */
-+
-+#include <sys/types.h>
-+
-+extern int set_value_libuser(const char *service_name, const char *username,
-+			uid_t uid, const char *attr, const char *val);
+I have a hunch best way to proceed is to get cpu data from your /proc.
+This can be achieved easiest by running a lscpu test data collector
+script.
+
+cd src/util-linux
+sh tests/ts/lscpu/mk-input.sh vmware-esxi
+
+After running the script you can find file vmware-esxi.tar.gz in
+current directory. Please send the file to mail list, and inform if it
+can be added to be part of regression test suite (which would of
+course is much preferred).
+
 -- 
-1.8.1
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
