@@ -1,41 +1,27 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40094 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751341Ab3BFKxK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Feb 2013 05:53:10 -0500
-Date: Wed, 6 Feb 2013 11:53:00 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/3] translation: unify exec error messages
-Message-ID: <20130206105300.GB24476@x2.net.home>
-References: <1359578005-13427-1-git-send-email-kerolasa@iki.fi>
- <1359578005-13427-2-git-send-email-kerolasa@iki.fi>
+Return-Path: mail@bernhard-voelker.de
+Message-ID: <511A2DDA.40504@bernhard-voelker.de>
+Date: Tue, 12 Feb 2013 12:56:10 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1359578005-13427-2-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: kerolasa@gmail.com
+CC: Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
+        =?UTF-8?B?TWFudGFzIE1pa3VsxJduYXM=?= <grawity@gmail.com>,
+        util-linux@vger.kernel.org
+Subject: Re: lslocks =?UTF-8?B?4oCTICJmYWlsZWQgdG8gcGFyc2UgcGlkOiAnV1JJVEU=?=
+ =?UTF-8?B?JyI=?=
+References: <kf0ehe$q7h$1@ger.gmane.org> <CAG27Bk2dO1ztSAy47=j+nmG+v5YuMCBa0i4eorLWw2sFWRT2Pg@mail.gmail.com> <51197D69.6050901@gmail.com> <20130212111248.GG20408@x2.net.home> <CAG27Bk109veDrkVetXg5cRSA0TogpbhJ0PwFArRyf=pqQg0zfQ@mail.gmail.com>
+In-Reply-To: <CAG27Bk109veDrkVetXg5cRSA0TogpbhJ0PwFArRyf=pqQg0zfQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 30, 2013 at 08:33:24PM +0000, Sami Kerola wrote:
->  login-utils/newgrp.c    | 2 +-
->  login-utils/su-common.c | 4 ++--
->  login-utils/sulogin.c   | 4 ++--
->  schedutils/chrt.c       | 1 -
->  schedutils/ionice.c     | 2 +-
->  schedutils/taskset.c    | 2 +-
->  sys-utils/flock.c       | 2 +-
->  sys-utils/nsenter.c     | 2 +-
->  sys-utils/prlimit.c     | 2 +-
->  sys-utils/rtcwake.c     | 2 +-
->  sys-utils/setarch.c     | 4 ++--
->  sys-utils/setsid.c      | 2 +-
->  sys-utils/swapon.c      | 2 +-
->  sys-utils/unshare.c     | 2 +-
->  text-utils/pg.c         | 2 +-
+On 02/12/2013 12:23 PM, Sami Kerola wrote:
+> Almost off topic.
 
- Applied, thanks.
+while we're at it - ;-)
+is it necessary to open/read/close "/proc/self/mountinfo" so often?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  $ strace -e open ./lslocks 2>&1 | grep mountinfo | wc -l
+  67
+
+Have a nice day,
+Berny
