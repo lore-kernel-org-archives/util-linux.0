@@ -1,28 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:17801 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751231Ab3BFLdB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Feb 2013 06:33:01 -0500
-Date: Wed, 6 Feb 2013 12:32:50 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH] setpriv: Fix an error message typo
-Message-ID: <20130206113250.GA24629@x2.net.home>
-References: <20130205105153.GA24170@x2.net.home>
- <14de6354fd3639e8535cf0e927de20bc30a40db7.1360112785.git.luto@amacapital.net>
+Received: from mail-la0-f51.google.com ([209.85.215.51]:53314 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934006Ab3BMUi1 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Feb 2013 15:38:27 -0500
+Received: by mail-la0-f51.google.com with SMTP id fo13so1610085lab.38
+        for <util-linux@vger.kernel.org>; Wed, 13 Feb 2013 12:38:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <14de6354fd3639e8535cf0e927de20bc30a40db7.1360112785.git.luto@amacapital.net>
+In-Reply-To: <20130213131539.GE7799@x2.net.home>
+References: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
+ <1360218141-4463-5-git-send-email-cmaloney@theoreticalchaos.com> <20130213131539.GE7799@x2.net.home>
+From: Cody Maloney <cmaloney@theoreticalchaos.com>
+Date: Wed, 13 Feb 2013 13:38:06 -0700
+Message-ID: <CA+K3q6qTm+s-A=4=dgCsLzjWKis6ok9_gR2v5uvti93A5i4NoQ@mail.gmail.com>
+Subject: Re: [PATCH v3 4/4] chfn: Add libuser support
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Miloslav Trmac <mitr@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 05, 2013 at 05:07:26PM -0800, Andy Lutomirski wrote:
->  sys-utils/setpriv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Feb 13, 2013 at 6:15 AM, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Feb 06, 2013 at 11:22:21PM -0700, Cody Maloney wrote:
+>> @@ -149,17 +156,24 @@ int main(int argc, char **argv)
+>>       }
+>>  #endif
+>>
+>> -     /* Reality check */
+>> -     if (uid != 0 && uid != oldf.pw->pw_uid) {
+>                            ^^^^^^^^^^^^^^^
+>> +#ifdef HAVE_LIBUSER
+>> +     /* If we're setuid and not really root, disallow the password change. */
+>> +     if (geteuid() != getuid() && uid != pw->pw_uid) {
+>> +#else
+>> +     if (uid != 0 && uid != pw->pw_uid) {
+>> +#endif
+>
+>  Copy & past from chsh, right?
+>
+> login-utils/chfn.c: In function ‘main’:
+> login-utils/chfn.c:161:38: error: ‘pw’ undeclared (first use in this function)
+> login-utils/chfn.c:161:38: note: each undeclared identifier is
+> reported only once for each function it appears in
 
- Applied, thanks.
+Yes it was (And in turn based on lchsh)
+>
+>>               errno = EACCES;
+>> -             err(EXIT_FAILURE, NULL);
+>> +             err(EXIT_FAILURE, _("running UID doesn't match UID of user we're "
+>> +                   "altering, change denied")););
+>                                        ^^^
+>>       }
+>
+> login-utils/chfn.c:167:37: error: expected statement before ‘)’ token
+>
+>
+> Man, that's suid binary...
+>
+> Fixed and applied.
+>
+>     Karel
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks
+
+Cody
