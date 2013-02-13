@@ -1,52 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:42065 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750821Ab3BGGWj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Feb 2013 01:22:39 -0500
-Received: by mail-ie0-f178.google.com with SMTP id c13so3001114ieb.23
-        for <util-linux@vger.kernel.org>; Wed, 06 Feb 2013 22:22:37 -0800 (PST)
-From: Cody Maloney <cmaloney@theoreticalchaos.com>
-To: util-linux@vger.kernel.org
-Cc: mitr@redhat.com, Cody Maloney <cmaloney@theoreticalchaos.com>
-Subject: [PATCH v3 0/4] Add support for using libuser to chsh and chfn
-Date: Wed,  6 Feb 2013 23:22:17 -0700
-Message-Id: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
+Received: from mx1.redhat.com ([209.132.183.28]:19445 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932508Ab3BMMvd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Feb 2013 07:51:33 -0500
+Date: Wed, 13 Feb 2013 13:51:29 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Cody Maloney <cmaloney@theoreticalchaos.com>
+Cc: util-linux@vger.kernel.org, mitr@redhat.com
+Subject: Re: [PATCH v3 1/4] chsh-chfn: Add flag for enabling/disabling
+ libuser support.
+Message-ID: <20130213125129.GB7799@x2.net.home>
+References: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
+ <1360218141-4463-2-git-send-email-cmaloney@theoreticalchaos.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1360218141-4463-2-git-send-email-cmaloney@theoreticalchaos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I believe these are finally ready for merging. Freshly rebased.
-Patches 3 and 4 could be merged, but I think it's a little 
-cleaner to read/review with the changes seperate.
+On Wed, Feb 06, 2013 at 11:22:18PM -0700, Cody Maloney wrote:
+>  configure.ac              | 17 +++++++++++++++++
+>  login-utils/Makemodule.am |  5 +++++
+>  2 files changed, 22 insertions(+)
 
-Version 3 of the patches, incorporating all changes suggested to 
-this point. Only changes from v2 are fixing the error string and
-dropping initgroups in patch 3/4.
+ Fixed and applied.
 
-Tested:
-Building and running both with and without libuser support enabled,
-with a valid password, invalid password, and running as root.
+> +AC_ARG_WITH([libuser], AS_HELP_STRING([--without-libuser], [compile without libuser (remote chsh)]),
+> +  [], with_user=auto
+> +)
 
-Cody Maloney (4):
-  chsh-chfn: Add flag for enabling/disabling libuser support.
-  chsh-chfn: Move pam auth to its own function, factoring out common
-    code
-  chsh: Add libuser support
-  chfn: Add libuser support
+ you have to use the same "with_" variable name as you have in AC_ARG_WITH([libuser]
 
- configure.ac              | 17 ++++++++++
- login-utils/Makemodule.am | 10 ++++++
- login-utils/auth.c        | 47 ++++++++++++++++++++++++++++
- login-utils/auth.h        | 13 ++++++++
- login-utils/chfn.c        | 58 +++++++++++++++-------------------
- login-utils/chsh.c        | 53 ++++++++++++++-----------------
- login-utils/libuser.c     | 80 +++++++++++++++++++++++++++++++++++++++++++++++
- login-utils/libuser.h     | 14 +++++++++
- 8 files changed, 229 insertions(+), 63 deletions(-)
- create mode 100644 login-utils/auth.c
- create mode 100644 login-utils/auth.h
- create mode 100644 login-utils/libuser.c
- create mode 100644 login-utils/libuser.h
+    Karel
 
 -- 
-1.8.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
