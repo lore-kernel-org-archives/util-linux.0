@@ -1,60 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10653 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:19280 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932508Ab3BMNPn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Feb 2013 08:15:43 -0500
-Date: Wed, 13 Feb 2013 14:15:39 +0100
+	id S1756753Ab3BMNwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Feb 2013 08:52:16 -0500
+Date: Wed, 13 Feb 2013 14:52:12 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Cody Maloney <cmaloney@theoreticalchaos.com>
-Cc: util-linux@vger.kernel.org, mitr@redhat.com
-Subject: Re: [PATCH v3 4/4] chfn: Add libuser support
-Message-ID: <20130213131539.GE7799@x2.net.home>
-References: <1360218141-4463-1-git-send-email-cmaloney@theoreticalchaos.com>
- <1360218141-4463-5-git-send-email-cmaloney@theoreticalchaos.com>
+To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] unshare,nsenter: spawn shell by default
+Message-ID: <20130213135212.GF7799@x2.net.home>
+References: <1360282142-1943-1-git-send-email-zbyszek@in.waw.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1360218141-4463-5-git-send-email-cmaloney@theoreticalchaos.com>
+In-Reply-To: <1360282142-1943-1-git-send-email-zbyszek@in.waw.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 06, 2013 at 11:22:21PM -0700, Cody Maloney wrote:
-> @@ -149,17 +156,24 @@ int main(int argc, char **argv)
->  	}
->  #endif
+On Thu, Feb 07, 2013 at 07:09:01PM -0500, Zbigniew Jędrzejewski-Szmek wrote:
+> +#define DEFAULT_SHELL "/bin/sh"
+> +
+> +void __attribute__((__noreturn__)) exec_shell(void) {
+> +	const char *shell = getenv("SHELL");
+> +	if (!shell)
+> +		shell = DEFAULT_SHELL;
+> +	execl(shell, basename(shell), "-i", NULL);
+> +	err(EXIT_FAILURE, _("exec %s failed"), shell);
+> +}
+
+ Do we really need "-i", for example su(1) uses
+
+     arg0[0] = '-';
+     strcpy (arg0 + 1, shell_basename);
+
+     execv (shell, (char **) args);
+
+ see login-utils/su-common.c
+
+ man bash:
+
+   A login shell is one whose first character of argument zero is a -,
+   or one started with the --login option.
+
+ Not sure, but I guess that "-basename" as argv[0] is more portable
+ solution (it's originally from coreutils, it has to be portable :-).
+
+> +	if (optind < argc)
+> +		execvp(argv[optind], argv + optind);
+> +	else
+> +		exec_shell();
 >  
-> -	/* Reality check */
-> -	if (uid != 0 && uid != oldf.pw->pw_uid) {
-                           ^^^^^^^^^^^^^^^
-> +#ifdef HAVE_LIBUSER
-> +	/* If we're setuid and not really root, disallow the password change. */
-> +	if (geteuid() != getuid() && uid != pw->pw_uid) {
-> +#else
-> +	if (uid != 0 && uid != pw->pw_uid) {
-> +#endif
+>  	err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
 
- Copy & past from chsh, right? 
- 
-login-utils/chfn.c: In function ‘main’:
-login-utils/chfn.c:161:38: error: ‘pw’ undeclared (first use in this function)
-login-utils/chfn.c:161:38: note: each undeclared identifier is
-reported only once for each function it appears in
+ It would be more readable:
 
->  		errno = EACCES;
-> -		err(EXIT_FAILURE, NULL);
-> +		err(EXIT_FAILURE, _("running UID doesn't match UID of user we're "
-> +		      "altering, change denied")););
-                                       ^^^
->  	}
+   if (optind < argc) {
+        execvp(argv[optind], argv + optind);
+        err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+   }
+   exec_shell();
 
-login-utils/chfn.c:167:37: error: expected statement before ‘)’ token
-
-
-Man, that's suid binary... 
-
-Fixed and applied.
-
-    Karel
-
+   
+   Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
