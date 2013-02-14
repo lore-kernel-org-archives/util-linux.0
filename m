@@ -1,56 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender1.zohomail.com ([72.5.230.95]:16975 "EHLO
-	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751689Ab3BBXAG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 2 Feb 2013 18:00:06 -0500
-Message-ID: <510D99FD.8060608@zoho.com>
-Date: Sat, 02 Feb 2013 23:58:05 +0100
-From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
+Received: from cantor2.suse.de ([195.135.220.15]:33839 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755252Ab3BNMav (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Feb 2013 07:30:51 -0500
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 2FB61A52C6
+	for <util-linux@vger.kernel.org>; Thu, 14 Feb 2013 13:30:50 +0100 (CET)
+Date: Thu, 14 Feb 2013 13:30:47 +0100
+From: "Dr. Werner Fink" <werner@suse.de>
+To: Util-Linux <util-linux@vger.kernel.org>
+Subject: Discussion on BIOS/CMOS/UEFI clock in local time
+Message-ID: <20130214123047.GA12371@boole.suse.de>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] a pointer should not be compared to zero [coccinelle]
-References: <1359578005-13427-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1359578005-13427-1-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 30/01/13 21:33, Sami Kerola wrote "a pointer should not be compared
-to zero":
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Hi,
 
-Why not? It is perfectly legal.
-See http://www.c-faq.com/null/null2.html
+just before such a discussion I'd like to point the mail
 
-> ---
-> -	if (mnt == 0) {
-> +	if (mnt == NULL) {
+     https://lkml.org/lkml/2008/1/12/87
 
-> -	while ((dp = readdir(dir)) != 0) {
-> +	while ((dp = readdir(dir)) != NULL) {
+from Ted Ts'o in the mail thread
 
-> -	if (Sflag == 0)
-> +	if (Sflag == NULL)
+     https://lkml.org/lkml/2008/1/8/195
 
-> -	if (Bflag == 0) {
-> +	if (Bflag == NULL) {
+In this mail he advises to set set the system clock before running
+e2fsck on an ext3 and higher file system to avoid wrong timestamps.
 
-> -	if (Mflag == 0)
-> +	if (Mflag == NULL)
+As this problem can also occur with other journaling file systems
+the way to avoid this is to correct the kernels assumption that the
+BIOS/CMOS clock is running in UTC by using the the system call
+settimeofday(2) with the tz_minuteswest field of the timezone
+structure.
 
-> -  if (types == 0) {
-> +  if (types == NULL) {
+This may done with the hwclock option --systz or here with the
+small warpclock utility in the initrd/initramfs.  Now with the UEFI
+specs (section 7.3) the local time will become more often the default
+for the BIOS/CMOS clock.
 
-> -				get_logname(&options, &termios, &chardata)) == 0)
-> +				get_logname(&options, &termios, &chardata)) == NULL)
+This will raise twice a year the problem if or if the HW clock has
+been corrected for DST on/off by the user or an other OS like Windows[tm].
+First case requires to ask the user if or if the DST offset has been
+corrected.  Whereas in the second case I do not know where the other
+OS stores its information about DST on/off.
 
-> -	for (cp = strtok(arg, ","); cp != 0; cp = strtok((char *)0, ",")) {
-> +	for (cp = strtok(arg, ","); cp != NULL; cp = strtok((char *)0, ",")) {
+With UEFI this could be solved as the EFI BIOS shows DST and TIMEZONE
+entries.  But AFAICS from the kernels source (3.7) the timezone is
+simply ignored, compare with drivers/rtc/rtc-efi.c as well as with
+drivers/char/efirtc.c in the functions convert_to_efi_time() and
+convert_from_efi_time() ...  also for the user space tools there
+is no API to change e.g. the DST flag.
 
-> -		if ((term = getenv("TERM")) == 0) {
-> +		if ((term = getenv("TERM")) == NULL) {
 
-> -			if (Home == 0 || *Home == '\0') {
-> +			if (Home == NULL || *Home == '\0') {
+    Werner
 
+-- 
+  "Having a smoking section in a restaurant is like having
+          a peeing section in a swimming pool." -- Edward Burr
