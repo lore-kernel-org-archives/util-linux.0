@@ -1,128 +1,134 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f41.google.com ([209.85.214.41]:37282 "EHLO
-	mail-bk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757635Ab3BNOEG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Feb 2013 09:04:06 -0500
-Received: by mail-bk0-f41.google.com with SMTP id q16so1100912bkw.0
-        for <util-linux@vger.kernel.org>; Thu, 14 Feb 2013 06:04:04 -0800 (PST)
+Received: from kawka.in.waw.pl ([178.63.212.103]:56840 "EHLO kawka.in.waw.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754140Ab3BNCIT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Feb 2013 21:08:19 -0500
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Subject: [PATCHv2 2/2] nsenter: fix errors in manpage
+Date: Wed, 13 Feb 2013 21:05:49 -0500
+Message-Id: <1360807549-26476-2-git-send-email-zbyszek@in.waw.pl>
+In-Reply-To: <1360807549-26476-1-git-send-email-zbyszek@in.waw.pl>
+References: <20130213135212.GF7799@x2.net.home>
+ <1360807549-26476-1-git-send-email-zbyszek@in.waw.pl>
 MIME-Version: 1.0
-In-Reply-To: <20130214132415.GB19379@x2.net.home>
-References: <1360617732-4770-1-git-send-email-zeeshanak@gnome.org>
-	<1360617732-4770-2-git-send-email-zeeshanak@gnome.org>
-	<20130214132415.GB19379@x2.net.home>
-Date: Thu, 14 Feb 2013 16:04:04 +0200
-Message-ID: <CAAa3hFOOhm_e8Q+iTVCupDk0dtge22JhUT9K0G=zOfBh96P48g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libblkid: Expose more ISO9660 headers
-From: "Zeeshan Ali (Khattak)" <zeeshanak@gnome.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 14, 2013 at 3:24 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Feb 11, 2013 at 11:22:12PM +0200, Zeeshan Ali (Khattak) wrote:
->>  libblkid/src/superblocks/iso9660.c     | 112 +++++++++++++++++++++++++++++++--
->>  libblkid/src/superblocks/superblocks.c |  40 ++++++++++++
->>  libblkid/src/superblocks/superblocks.h |   5 +-
->>  3 files changed, 151 insertions(+), 6 deletions(-)
->
->  Applied.
->
->> +#define strstrip(string, len) strchomp(strchug(string, len), len)
->
->  I have removed this code, we already have blkid_rtrim_whitespace() so
->  it seems better to add blkid_ltrim_whitespace() and use it together.
+- spell abbreviations with capital letters
+- fix the names of a few options and files
 
-Ah ok, one is bound to make such mistakes if not familiar with code base. :)
+Signed-off-by: Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+---
+This one is actually unchanged from v1.
 
->> +static char *
->> +strchug (char *string, size_t len)
->> +{
->> +     size_t i;
->> +
->> +     for (i = 0;  i < len && isspace(string[i]); i++);
->> +
->> +     memmove (string, string + i, len - i);
->> +
->> +     return string;
->> +}
->> +
->> +static char *
->> +strchomp (char *string, size_t len)
->> +{
->> +     size_t i = len;
->> +     while (i--) {
->> +             if (isspace((unsigned char) string[i]))
->> +                     string[i] = '\0';
->> +             else
->> +                     break;
->> +}
->
->  BTW, I didn't test it, but it seems that strstrip code will not work as expected
->  for input like
->
->     "    ABC "
->
->  the result will be very probably
->
->     "ABC ABC\0"
+ sys-utils/nsenter.1 | 36 +++++++++++++++++++++---------------
+ 1 file changed, 21 insertions(+), 15 deletions(-)
 
-We'll just have a redundant NULL, yes but I don't find that anything
-to worry about. Besides its a very simple function in the core of
-gnome that has existed for many many years (and afaik widely used) so
-hard to imagine it having any issues worth worrying about.
-
->> +   if (! is_str_empty(iso->system_id, sizeof(iso->system_id))) {
->> +             unsigned char system_id[32];
->> +
->> +             memcpy(system_id, iso->system_id, sizeof(system_id));
->> +             strstrip(system_id, sizeof(system_id));
->> +             blkid_probe_set_system_id(pr, system_id, sizeof(system_id));
->> +     }
->
->  the another change to the patch -- it seems better to add
->  blkid_probe_set_id_label() and use for all the _IDs. Note that we
->  have to terminate the labels by \0.
-
-Thanks, makes sense.
-
->> +     /* Joliet Extension and Boot Record */
->>       off = ISO_VD_OFFSET;
->>       for (i = 0; i < ISO_VD_MAX; i++) {
->> -             iso = (struct iso_volume_descriptor *)
->> +             struct boot_record *boot= (struct boot_record *)
->>                       blkid_probe_get_buffer(pr,
->>                                       off,
->> -                                     sizeof(struct iso_volume_descriptor));
->> +                                     sizeof(struct boot_record));
->
->  This is bug, size of struct boot_record is smaller than the size of
->  iso_volume_descriptor, so then you can not cast:
->
->> +             /* Not a Boot record, lets see if its supplemntary volume descriptor */
->> +             iso = (struct iso_volume_descriptor *) boot;
->
->  ;-)
-
-Yikes. Since you didn't fix it before merging, now everyone will know
-I made this stupid mistake. :)
-
->  Note that "blkid <image>" without -p uses high-level libblkid cache.
->  For udev we always bypass the cache and the _ID stuff should not be
->  stored in the cache. I have fixed this issue, you have to use -p to
->  see your new IDs.
-
-Ah, didn't know anything about the cache.
-
->  Thanks, it's definitely good step to use libblkid and udev for the
->  ISO stuff.
-
-Great! Thats what I was hoping to hear. Now Kay will not kill me for
-slowing down boot. :)
-
+diff --git sys-utils/nsenter.1 sys-utils/nsenter.1
+index 4a6a34d..37c46d7 100644
+--- sys-utils/nsenter.1
++++ sys-utils/nsenter.1
+@@ -7,14 +7,14 @@ nsenter \- run program with namespaces of other processes
+ .RI [ program ]
+ .RI [ arguments ]
+ .SH DESCRIPTION
+-Enters the contexts of one or more other processes and then executes specified
++Enters the namespaces of one or more other processes and then executes the specified
+ program.  Enterable namespaces are:
+ .TP
+ .B mount namespace
+ mounting and unmounting filesystems will not affect rest of the system
+ .RB ( CLONE_\:NEWNS
+ flag), except for filesystems which are explicitly marked as shared (by mount
+---make-\:shared).  See /proc\:/self\:/mountinfo for the shared flags.
++--make-\:shared).  See /proc\:/self\:/mountinfo for the shared flag.
+ .TP
+ .B UTS namespace
+ setting hostname, domainname will not affect rest of the system
+@@ -37,13 +37,19 @@ directory trees, sockets etc.
+ .RB ( CLONE_\:NEWNET
+ flag).
+ .TP
+-.B pid namespace
+-children will have a distinct set of pid to process mappings thantheir parent.
++.B PID namespace
++children will have a set of PID to process mappings separate from the
++.B nsenter
++process
+ .RB ( CLONE_\:NEWPID
+ flag).
++.B nsenter
++will fork by default if changing the PID namespace, so that the new program
++and its children share the same PID namespace and are visible to each other.
++If \-\-no\-fork is used, the new program will be exec'ed without forking.
+ .TP
+ .B user namespace
+-process will have distinct set of uids, gids and capabilities.
++process will have distinct set of UIDs, GIDs and capabilities
+ .RB ( CLONE_\:NEWUSER
+ flag).
+ .TP
+@@ -71,16 +77,16 @@ are:
+ the mount namespace
+ .TP
+ /proc/\fIpid\fR/ns/uts
+-the uts namespace
++the UTS namespace
+ .TP
+ /proc/\fIpid\fR/ns/ipc
+-the ipc namespace
++the IPC namespace
+ .TP
+ /proc/\fIpid\fR/ns/net
+-the ipc namespace
++the network namespace
+ .TP
+ /proc/\fIpid\fR/ns/pid
+-the pid namespace
++the PID namespace
+ .TP
+ /proc/\fIpid\fR/ns/user
+ the user namespace
+@@ -88,7 +94,7 @@ the user namespace
+ /proc/\fIpid\fR/root
+ the root directory
+ .TP
+-/proc/\fIpid\fR/cw
++/proc/\fIpid\fR/cwd
+ the working directory respectively
+ .PD
+ .RE
+@@ -99,13 +105,13 @@ of the target process.  If file is specified enter the mount namespace
+ specified by file.
+ .TP
+ \fB\-u\fR, \fB\-\-uts\fR [\fIfile\fR]
+-Enter the uts namespace.  If no file is specified enter the uts namespace of
+-the target process.  If file is specified enter the uts namespace specified by
++Enter the UTS namespace.  If no file is specified enter the UTS namespace of
++the target process.  If file is specified enter the UTS namespace specified by
+ file.
+ .TP
+ \fB\-i\fR, \fB\-\-ipc\fR [\fIfile\fR]
+ Enter the IPC namespace.  If no file is specified enter the IPC namespace of
+-the target process.  If file is specified enter the uts namespace specified by
++the target process.  If file is specified enter the IPC namespace specified by
+ file.
+ .TP
+ \fB\-n\fR, \fB\-\-net\fR [\fIfile\fR]
+@@ -114,8 +120,8 @@ namespace of the target process.  If file is specified enter the network
+ namespace specified by file.
+ .TP
+ \fB\-p\fR, \fB\-\-pid\fR [\fIfile\fR]
+-Enter the pid namespace.  If no file is specified enter the pid namespace of
+-the target process.  If file is specified enter the pid namespace specified by
++Enter the PID namespace.  If no file is specified enter the PID namespace of
++the target process.  If file is specified enter the PID namespace specified by
+ file.
+ .TP
+ \fB\-U\fR, \fB\-\-user\fR [\fIfile\fR]
 -- 
-Regards,
+1.8.1
 
-Zeeshan Ali (Khattak)
-FSF member#5124
