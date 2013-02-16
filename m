@@ -1,45 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f52.google.com ([74.125.83.52]:56229 "EHLO
-	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760000Ab3BKXX0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Feb 2013 18:23:26 -0500
-Received: by mail-ee0-f52.google.com with SMTP id b15so3422966eek.39
-        for <util-linux@vger.kernel.org>; Mon, 11 Feb 2013 15:23:25 -0800 (PST)
-Message-ID: <51197D69.6050901@gmail.com>
-Date: Tue, 12 Feb 2013 01:23:21 +0200
-From: =?UTF-8?B?TWFudGFzIE1pa3VsxJduYXM=?= <grawity@gmail.com>
-MIME-Version: 1.0
-To: kerolasa@gmail.com
-CC: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: lslocks =?UTF-8?B?4oCTICJmYWlsZWQgdG8gcGFyc2UgcGlkOiAnV1JJVEU=?=
- =?UTF-8?B?JyI=?=
-References: <kf0ehe$q7h$1@ger.gmane.org> <CAG27Bk2dO1ztSAy47=j+nmG+v5YuMCBa0i4eorLWw2sFWRT2Pg@mail.gmail.com>
-In-Reply-To: <CAG27Bk2dO1ztSAy47=j+nmG+v5YuMCBa0i4eorLWw2sFWRT2Pg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:62417 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750871Ab3BPSIu (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Feb 2013 13:08:50 -0500
+Received: by mail-wi0-f177.google.com with SMTP id hm14so2224024wib.16
+        for <util-linux@vger.kernel.org>; Sat, 16 Feb 2013 10:08:49 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] wall: use xgethostname()
+Date: Sat, 16 Feb 2013 18:08:40 +0000
+Message-Id: <1361038120-5880-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 2013-02-12 00:42, Sami Kerola wrote:
-> Karel, and others, what do you think about adding a mode
-> to output listing which some might say is not a mode at all?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/wall.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-Just tested the patch and it works here, but wouldn't it be better to
-add a "waiting" flag to the mode display, or something like that?
-("WAIT-READ" and "WAIT-WRITE"?)
-
-
-
-Side note: It seems that fs/locks.c:lock_get_status can output many
-other variations – e.g. mandatory locks have a third type called
-"ACCESS", shown when a program tries to simply read/write a locked file;
-in this case listing the R/W mode might be more useful than "WAITING".
-Mandatory locks can apparently say "RW" as well, although I haven't
-found a way to create a "RW" lock yet.
-
-Also, while I haven't yet seen this in practice either, the same
-fs/locks.c can output lock type "LEASE", which has completely different
-values for the 3rd field, and cannot be represented by a binary
-"M[andatory] = 0/1" column.
-
+diff --git a/term-utils/wall.c b/term-utils/wall.c
+index e370807..c2ac7ad 100644
+--- a/term-utils/wall.c
++++ b/term-utils/wall.c
+@@ -182,10 +182,9 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	struct stat sbuf;
+ 	time_t now;
+ 	FILE *fp;
+-	char *p, *whom, *where, *hostname, *lbuf, *tmpname, *mbuf;
++	char *p, *whom, *where, *lbuf, *tmpname, *mbuf;
+ 	long line_max;
+ 
+-	hostname = xmalloc(sysconf(_SC_HOST_NAME_MAX) + 1);
+ 	line_max = sysconf(_SC_LINE_MAX);
+ 	lbuf = xmalloc(line_max);
+ 
+@@ -195,6 +194,7 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	free(tmpname);
+ 
+ 	if (print_banner == TRUE) {
++		char *hostname = xgethostname();
+ 		if (!(whom = getlogin()) || !*whom)
+ 			whom = (pw = getpwuid(getuid())) ? pw->pw_name : "???";
+ 		if (!whom) {
+@@ -206,7 +206,6 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 			where = "somewhere";
+ 			warn(_("cannot get tty name"));
+ 		}
+-		gethostname(hostname, sizeof(hostname));
+ 		time(&now);
+ 		lt = localtime(&now);
+ 
+@@ -222,6 +221,7 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 		fprintf(fp, "\r%79s\r\n", " ");
+ 		sprintf(lbuf, _("Broadcast Message from %s@%s"),
+ 			      whom, hostname);
++		free(hostname);
+ 		fprintf(fp, "%-79.79s\007\007\r\n", lbuf);
+ 		sprintf(lbuf, "        (%s) at %d:%02d ...",
+ 			      where, lt->tm_hour, lt->tm_min);
+@@ -229,7 +229,6 @@ makemsg(char *fname, size_t *mbufsize, int print_banner)
+ 	}
+ 	fprintf(fp, "%79s\r\n", " ");
+ 
+-	free(hostname);
+ 
+ 	if (fname) {
+ 		/*
 -- 
-Mantas Mikulėnas <grawity@gmail.com>
+1.8.1.3
+
