@@ -1,42 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f182.google.com ([74.125.82.182]:38506 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751723Ab3BTVbS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Feb 2013 16:31:18 -0500
-Received: by mail-we0-f182.google.com with SMTP id t57so7169823wey.13
-        for <util-linux@vger.kernel.org>; Wed, 20 Feb 2013 13:31:15 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] login: remove file descriptor leak [cppcheck]
-Date: Wed, 20 Feb 2013 21:31:09 +0000
-Message-Id: <1361395869-2959-1-git-send-email-kerolasa@iki.fi>
+Received: from zabrina.hetzner-de.towertech.it ([178.63.16.19]:43257 "EHLO
+	zabrina.hetzner-de.towertech.it" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755769Ab3BVMKI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 22 Feb 2013 07:10:08 -0500
+Date: Fri, 22 Feb 2013 13:01:52 +0100
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: Karel Zak <kzak@redhat.com>
+Cc: Util-Linux <util-linux@vger.kernel.org>, rtc-linux@googlegroups.com
+Subject: Re: Discussion on BIOS/CMOS/UEFI clock in local time
+Message-ID: <20130222130152.11a07e49@linux.lan.towertech.it>
+In-Reply-To: <20130222103103.GA5239@x2.net.home>
+References: <20130214123047.GA12371@boole.suse.de>
+	<20130222103103.GA5239@x2.net.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[login-utils/login.c:510]: (error) Resource leak: fd
+On Fri, 22 Feb 2013 11:31:03 +0100
+Karel Zak <kzak@redhat.com> wrote:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/login.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+>  That's cool news. Thanks.
+> 
+>  It seems that kernel CONFIG_RTC_HCTOSYS code should be improved to use
+>  the information from UEFI rather than blindly assume that HW clock is 
+>  always in UTC. I don't see a reason to try to fix this in userspace as
+>  we use (or we want:-) CONFIG_RTC_HCTOSYS almost everywhere.
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index a17083b..4250534 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -506,8 +506,10 @@ static void log_lastlog(struct login_context *cxt)
- 	if (fd < 0)
- 		return;
+ It seems reasonable to me ;)
+
+p.s.
  
--	if (lseek(fd, (off_t) cxt->pwd->pw_uid * sizeof(ll), SEEK_SET) == -1)
-+	if (lseek(fd, (off_t) cxt->pwd->pw_uid * sizeof(ll), SEEK_SET) == -1) {
-+		close(fd);
- 		return;
-+	}
- 
- 	/*
- 	 * Print last log message
+ Even if I'd just force everyone to use UTC... :)
+
 -- 
-1.8.1.4
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
 
