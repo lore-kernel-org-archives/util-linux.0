@@ -1,34 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from toccata.ens-lyon.fr ([140.77.166.68]:41505 "EHLO
-	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932968Ab3CNCjU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Mar 2013 22:39:20 -0400
-Date: Thu, 14 Mar 2013 03:39:17 +0100
-From: Samuel Thibault <sthibault@debian.org>
-To: Jeff Epler <jepler@unpythonic.net>
-Cc: LaMont Jones <lamont@debian.org>, Roger Leigh <rleigh@codelibre.net>,
-        util-linux@vger.kernel.org
-Subject: Re: Enable findmnt on kfreebsd
-Message-ID: <20130314023917.GJ5867@type.youpi.perso.aquilenet.fr>
-References: <20130314003946.GB4068@unpythonic.net>
- <20130314010620.GI5867@type.youpi.perso.aquilenet.fr>
- <20130314020240.GC4068@unpythonic.net>
+Received: from mx1.redhat.com ([209.132.183.28]:23947 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756720Ab3CDLcA (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Mon, 4 Mar 2013 06:32:00 -0500
+Date: Mon, 4 Mar 2013 12:31:58 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH 2/2] unshare: tweak style
+Message-ID: <20130304113158.GD8830@x2.net.home>
+References: <1362110582-23406-1-git-send-email-vapier@gentoo.org>
+ <1362110582-23406-2-git-send-email-vapier@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20130314020240.GC4068@unpythonic.net>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1362110582-23406-2-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Jeff Epler, le Wed 13 Mar 2013 21:02:41 -0500, a écrit :
-> On Thu, Mar 14, 2013 at 02:06:20AM +0100, Samuel Thibault wrote:
-> > Jeff Epler, le Wed 13 Mar 2013 19:39:47 -0500, a écrit :
-> > > +#ifdef __FreeBSD_kernel__
-> > 
-> > Perhaps rather turn all these into
-> > #ifdef __linux__
-> 
-> Fine by me, and might make e.g., hurd work too (or at least get closer).
+On Thu, Feb 28, 2013 at 11:03:02PM -0500, Mike Frysinger wrote:
+>  sys-utils/unshare.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 
-That was the point, yes :)
+ Applied, thanks.
 
-Samuel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
