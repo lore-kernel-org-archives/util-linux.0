@@ -1,103 +1,127 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:35751 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752249Ab3CPXkl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Mar 2013 19:40:41 -0400
-Received: by mail-we0-f169.google.com with SMTP id t11so4036401wey.0
-        for <util-linux@vger.kernel.org>; Sat, 16 Mar 2013 16:40:39 -0700 (PDT)
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:63166 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758218Ab3CGX1p (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Mar 2013 18:27:45 -0500
+Received: by mail-wi0-f182.google.com with SMTP id hi18so644930wib.9
+        for <util-linux@vger.kernel.org>; Thu, 07 Mar 2013 15:27:43 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 7/7] whereis: remove duplicates from search results
-Date: Sat, 16 Mar 2013 23:40:19 +0000
-Message-Id: <1363477219-29245-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
-References: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 6/7] kill, procs: use pid_t for pids
+Date: Thu,  7 Mar 2013 23:27:23 +0000
+Message-Id: <1362698844-21292-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
+References: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Now when the whereis will not have search directory duplicates, and it
-finds real path for symlinked files in paths it is time to remove search
-result duplicates.
-
-Addresses: https://bugzilla.redhat.com/show_bug.cgi?id=835211
+Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/threads.h#n30
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/whereis.c | 31 +++++++++++++++++++++++++++++--
- 1 file changed, 29 insertions(+), 2 deletions(-)
+ misc-utils/kill.c  |  6 +++---
+ misc-utils/kill.h  |  2 +-
+ misc-utils/procs.c | 17 ++++++++---------
+ 3 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 5136eff..0e333e1 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -173,6 +173,28 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+index b0145cd..742f349 100644
+--- a/misc-utils/kill.c
++++ b/misc-utils/kill.c
+@@ -156,7 +156,7 @@ int main(int argc, char **argv)
+ 	int errors, numsig, pid;
+ 	char *ep, *arg;
+ 	int do_pid, do_kill, check_all;
+-	int *pids, *ip;
++	pid_t *pids, *ip;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -414,12 +414,12 @@ static int usage(int status)
+ 	return status;
  }
  
-+static int is_same_file(char *file, struct is_here *filelist)
-+{
-+	struct stat statbuf;
-+	struct is_here *prev = NULL;
-+
-+	if (stat(file, &statbuf))
-+		return 1;
-+	while (filelist) {
-+		if (filelist->st_ino == statbuf.st_ino &&
-+		    filelist->st_dev == statbuf.st_dev)
-+			return 1;
-+		prev = filelist;
-+		filelist = filelist->next;
-+	}
-+	assert(prev);
-+	filelist = xcalloc(1, sizeof(struct is_here));
-+	filelist->st_ino = statbuf.st_ino;
-+	filelist->st_dev = statbuf.st_dev;
-+	prev->next = filelist;
-+	return 0;
-+}
-+
- static int itsit(char *cp, char *dp)
+-static int kill_verbose(char *procname, int pid, int sig)
++static int kill_verbose(char *procname, pid_t pid, int sig)
  {
- 	int i = strlen(dp);
-@@ -201,7 +223,7 @@ static int itsit(char *cp, char *dp)
- 	return 0;
- }
+ 	int rc;
  
--static void findin(char *dir, char *cp, int *nr_found, char **wait)
-+static void findin(char *dir, char *cp, int *nr_found, char **wait, struct is_here *filelist)
- {
- 	DIR *dirp;
- 	struct dirent *dp;
-@@ -213,6 +235,8 @@ static void findin(char *dir, char *cp, int *nr_found, char **wait)
- 	while ((dp = readdir(dirp)) != NULL)
- 		if (itsit(cp, dp->d_name)) {
- 			xasprintf(&full_path, "%s/%s", dir, dp->d_name);
-+			if (is_same_file(full_path, filelist))
-+				continue;
- 			rl = canonicalize_path(full_path);
- 			free(full_path);
- 			if (*(nr_found) == 0)
-@@ -376,16 +400,19 @@ static void lookup(char *argv, struct is_here *dirlist, int flags)
- {
- 	int nr_found;
- 	char *wait = NULL;
-+	struct is_here *filelist;
- 
- 	nr_found = uflag == 1 ? 0 : 1;
-+	filelist = xcalloc(1, sizeof(struct is_here));
- 
- 	for (; dirlist; dirlist = dirlist->next) {
- 		if (check_type(dirlist->type, flags))
- 			continue;
- 		if (dirlist->path != NULL)
--			findin(dirlist->path, argv, &nr_found, &wait);
-+			findin(dirlist->path, argv, &nr_found, &wait, filelist);
+ 	if (sig < 0) {
+-		printf("%d\n", pid);
++		printf("%ld\n", (long)pid);
+ 		return 0;
  	}
- 	free(wait);
-+	free_dirs(filelist, ALL_DIRS);
- 	if (1 < nr_found)
- 		putchar('\n');
- 	return;
+ #ifdef HAVE_SIGQUEUE
+diff --git a/misc-utils/kill.h b/misc-utils/kill.h
+index 43c6ed7..fb02994 100644
+--- a/misc-utils/kill.h
++++ b/misc-utils/kill.h
+@@ -1,7 +1,7 @@
+ #ifndef UTIL_LINUX_KILL
+ #define UTIL_LINUX_KILL
+ 
+-extern int *get_pids(char *process_name, int get_all);
++extern pid_t *get_pids(char *process_name, int get_all);
+ extern char *mybasename(char *);
+ 
+ #endif
+diff --git a/misc-utils/procs.c b/misc-utils/procs.c
+index 544966e..c4cb06e 100644
+--- a/misc-utils/procs.c
++++ b/misc-utils/procs.c
+@@ -25,16 +25,16 @@
+ 
+ static char *parse_parens(char *buf);
+ 
+-int *get_pids(char *process_name, int get_all)
++pid_t *get_pids(char *process_name, int get_all)
+ {
+ 	DIR *dir;
+ 	struct dirent *ent;
+ 	int status;
+-	char *dname, fname[100], *cp, buf[256];
++	char fname[100], *cp, buf[256], *end;
+ 	struct stat st;
+ 	uid_t uid;
+ 	FILE *fp;
+-	int pid, *pids, num_pids, pids_size;
++	pid_t pid, *pids, num_pids, pids_size;
+ 
+ 	dir = opendir("/proc");
+ 	if (!dir) {
+@@ -46,11 +46,10 @@ int *get_pids(char *process_name, int get_all)
+ 	num_pids = pids_size = 0;
+ 
+ 	while ((ent = readdir(dir)) != NULL) {
+-		dname = ent->d_name;
+-		if (!isdigit(*dname))
++		pid = strtol(ent->d_name, &end, 10);
++		if (errno || ent->d_name == end || (end && *end))
+ 			continue;
+-		pid = atoi(dname);
+-		sprintf(fname, "/proc/%d/cmdline", pid);
++		sprintf(fname, "/proc/%ld/cmdline", (long)pid);
+ 		/* get the process owner */
+ 		status = stat(fname, &st);
+ 		if (status != 0)
+@@ -66,7 +65,7 @@ int *get_pids(char *process_name, int get_all)
+ 		/* an empty command line means the process is swapped out */
+ 		if (!cp || !*cp) {
+ 			/* get the process name from the statfile */
+-			sprintf(fname, "/proc/%d/stat", pid);
++			sprintf(fname, "/proc/%ld/stat", (long)pid);
+ 			fp = fopen(fname, "r");
+ 			if (!fp)
+ 				continue;
+@@ -83,7 +82,7 @@ int *get_pids(char *process_name, int get_all)
+ 			continue;
+ 		while (pids_size < num_pids + 2) {
+ 			pids_size += 5;
+-			pids = (int *)xrealloc(pids, sizeof(int) * pids_size);
++			pids = xrealloc(pids, sizeof(pid_t) * pids_size);
+ 		}
+ 		if (pids) {
+ 			pids[num_pids++] = pid;
 -- 
-1.8.2
+1.8.1.5
 
