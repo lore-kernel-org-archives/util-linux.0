@@ -1,50 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qe0-f50.google.com ([209.85.128.50]:49990 "EHLO
-	mail-qe0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750850Ab3CTUx4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Mar 2013 16:53:56 -0400
-Received: by mail-qe0-f50.google.com with SMTP id k5so1370253qej.23
-        for <util-linux@vger.kernel.org>; Wed, 20 Mar 2013 13:53:55 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:57053 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755183Ab3CLOmx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Mar 2013 10:42:53 -0400
+Date: Tue, 12 Mar 2013 15:29:58 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/7] kill: modernization after undeprecation
+Message-ID: <20130312142958.GA26680@x2.net.home>
+References: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Date: Wed, 20 Mar 2013 14:53:55 -0600
-Message-ID: <CAMLZHHSgh8rdidXyqcQy7SK3f4V+03LSLjX_EkpwcOO_hS0osQ@mail.gmail.com>
-Subject: "hwclock --systohc" and tick synchronization
-From: Daniel Drake <dsd@laptop.org>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Thu, Mar 07, 2013 at 11:27:17PM +0000, Sami Kerola wrote:
+> Sami Kerola (7):
+>       kill: add long options
+>       kill: align with howto-usage-function.txt
+>       kill: use libc error printing facilities and exit values
+>       kill, procs: fix coding style
 
-We are looking at situations with OLPC XO laptops where all RTC power
-has been lost and hence the system has lost its time/date and RTC
-contents are invalid.
+>       kill, procs: move function declarations to kill.h
 
-The usual thing to do in this case is to reset the system time to the
-current moment and then use hwclock to save it to the RTC.
+  Not applied this one. The include/ headers are usually for lib/
+  stuff. The another reason that the misc-util/proc.c code would be
+  better to move to lib/procutils.c (after some refactoring) -- I'll
+  do that.
 
-However, this is proving quite confusing.
+>       kill, procs: use pid_t for pids
+>       docs: add long options and tidy up kill.1
+> 
+>  misc-utils/kill.1  |  88 ++++++-----
+>  misc-utils/kill.c  | 442 ++++++++++++++++++++++++++---------------------------
+>  misc-utils/kill.h  |   8 +-
+>  misc-utils/procs.c | 170 +++++++++++----------
+>  4 files changed, 360 insertions(+), 348 deletions(-)
 
-# hwclock --systohc
-hwclock: select() to /dev/rtc0 to wait for clock tick timed out: No
-such file or directory
+ Applied, thanks.
 
-Firstly, the corresponding warn() in hwclock-rtc.c should be warnx()
-so that it does not print the errno message. When select returns 0
-(timeout), interpreting errno does not make sense.
+    Karel
 
-Secondly, did that hwclock command fail or succeed? Our users and a
-developer saw that output and concluded "hwclock is broken" and filed
-a bug. Having seen the bug report, I drew the same conclusion. Only
-upon testing further I realised that this is only a warning and
-hwclock did go on and set the RTC time appropriately.
-
-So, can this message be silenced completely, or can we add a "RTC
-successfully set from system clock"  success message that appears
-afterwards?
-
-Let me know if there is a preference, then I'll go and send a patch.
-
-Thanks
-Daniel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
