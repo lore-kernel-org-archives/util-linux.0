@@ -1,104 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f171.google.com ([74.125.82.171]:63433 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751949Ab3CPXk3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Mar 2013 19:40:29 -0400
-Received: by mail-we0-f171.google.com with SMTP id u54so4035466wey.30
-        for <util-linux@vger.kernel.org>; Sat, 16 Mar 2013 16:40:28 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/7] whereis: add search scope listing option
-Date: Sat, 16 Mar 2013 23:40:14 +0000
-Message-Id: <1363477219-29245-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
-References: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:63667 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756555Ab3CNKOX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Mar 2013 06:14:23 -0400
+Date: Thu, 14 Mar 2013 11:14:17 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Roger Leigh <rleigh@codelibre.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: A few small findmnt/mount issues
+Message-ID: <20130314101417.GA7700@x2.net.home>
+References: <20130314002147.GR23093@codelibre.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130314002147.GR23093@codelibre.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mostly useful when debugging why the command does, or does not, work.
+On Thu, Mar 14, 2013 at 12:21:47AM +0000, Roger Leigh wrote:
+> - findmnt does not have column types for DUMP and PASS, so it's
+>   not possible to get at all the fstab information when using the
+>   --fstab option, unless there's a way of doing this I'm unaware
+>   of.  For completeness, it would be very useful to be able to
+>   retrieve all fstab(5) fields.  This would mean all access to
+>   mtab and fstab can go via findmnt in our init scripts.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/whereis.1 | 11 ++++++++++-
- misc-utils/whereis.c | 28 ++++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+), 1 deletion(-)
+ Good idea. Implemented:
 
-diff --git a/misc-utils/whereis.1 b/misc-utils/whereis.1
-index 86e6a39..9b33999 100644
---- a/misc-utils/whereis.1
-+++ b/misc-utils/whereis.1
-@@ -91,7 +91,16 @@ be used when any of the
- or
- .BR \-S
- options is used.
--
-+.IP "\fB\-l"
-+Output list of effective lookup paths the
-+.B whereis
-+is using.  When non of
-+.BR \-B ,
-+.BR \-M ,
-+or
-+.BR \-S
-+is specified the option will out hard coded paths that the command was
-+able to find on system.
- .SH EXAMPLE
- To find all files in
- .B /usr/bin
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index eeec976..f579e29 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -167,6 +167,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 		" -s         search only for sources\n"
- 		" -S <dirs>  define sources lookup path\n"
- 		" -u         search for unusual entries\n"
-+		" -l         output effective lookup paths\n"
- 		" -V         output version information and exit\n"
- 		" -h         display this help and exit\n\n"), out);
+$ findmnt --fstab -o TARGET,FREQ,PASSNO
+TARGET      FREQ PASSNO
+/              1      1
+/boot          1      2
+/boot/efi      0      0
+/home          1      2
+/home/kzak     1      2
+swap           0      0
+/mnt/backup    0      0
+/mnt/petra     0      0
+/mnt/kzak      0      0
+
  
-@@ -387,6 +388,29 @@ static void lookup(char *argv, struct is_here *dirlist, int flags)
- 	return;
- }
- 
-+static void list_search_dir(struct is_here *dirlist)
-+{
-+	while (dirlist) {
-+		if (dirlist->path != NULL) {
-+			switch (dirlist->type) {
-+			case BIN_DIR:
-+				printf("bin: ");
-+				break;
-+			case MAN_DIR:
-+				printf("man: ");
-+				break;
-+			case SRC_DIR:
-+				printf("src: ");
-+				break;
-+			default:
-+				abort();
-+			}
-+			printf("%s\n", dirlist->path);
-+		}
-+		dirlist = dirlist->next;
-+	}
-+}
-+
- int main(int argc, char **argv)
- {
- 	struct is_here *dirlist;
-@@ -456,6 +480,10 @@ int main(int argc, char **argv)
- 						flags |= SRC_BIT;
- 					continue;
- 
-+				case 'l':
-+					list_search_dir(dirlist);
-+					continue;
-+
- 				case 'V':
- 					printf(UTIL_LINUX_VERSION);
- 					return EXIT_SUCCESS;
+> - utab isn't updated on remount for _netdev:
+>   If I have an fstab entry with _netdev in the fs_mntopts, this
+>   will get stored in utab when I run "mount /foo".  However, if
+>   I want to add the option after mount and use
+>   "mount -o remount,_netdev /foo", this does not cause utab to
+>   be updated.
+
+ Hmm.. works for me (2.22.2 as well as mount(8) from git tree).
+
+
+  # mount /dev/sdb /mnt/test 
+  # cat /run/mount/utab
+
+  # mount -o remount,_netdev /mnt/test
+
+  # cat /run/mount/utab
+  SRC=/dev/sdb TARGET=/mnt/test OPTS=_netdev
+
+
+It would be nice to have reproducible example or/and debug output from
+the library:
+
+  LIBMOUNT_DEBUG=0xffff mount -o remount,_netdev ....
+
+>   While this might appear contrived, we do actually make use of this
+>   when filesystems mounted in an initramfs using busybox mount are
+
+ BTW, is it really so attractive to use busybox in initramfs? IMHO the
+ best way is to consolidate all possible utils and use the same code
+ everywhere. (It does not mean that busybox is bad thing, but mix
+ utils and environments is often problematic...)
+
+>   interface.  Tested this with 2.20.1, but looking at the source
+
+ Hmm... this is really old release. Update ;-)
+
+>   looks like it's probably still present unless I misunderstood it.
+>   May also affect other mount options?
+> 
+> Is there a preferred bugtracker you would like things like this
+> reporting, or is here OK?
+
+ Mailing list is OK.
+
+    Karel
+
 -- 
-1.8.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
