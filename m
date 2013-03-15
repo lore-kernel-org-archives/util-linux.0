@@ -1,45 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4419 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:53829 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753836Ab3CRPm1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Mar 2013 11:42:27 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r2IFgR6U019192
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 18 Mar 2013 11:42:27 -0400
-Received: from x2.net.home (ovpn-113-20.phx2.redhat.com [10.3.113.20])
-	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id r2IFgQTD019024
-	for <util-linux@vger.kernel.org>; Mon, 18 Mar 2013 11:42:26 -0400
-Date: Mon, 18 Mar 2013 16:42:25 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: newgrp(1) and sg(1)
-Message-ID: <20130318154225.GF2172@x2.net.home>
+	id S932316Ab3COVFC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Mar 2013 17:05:02 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 7F156A4386
+	for <util-linux@vger.kernel.org>; Fri, 15 Mar 2013 22:05:01 +0100 (CET)
+Message-ID: <51438CF9.7020707@suse.com>
+Date: Fri, 15 Mar 2013 17:04:57 -0400
+From: Jeff Mahoney <jeffm@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: util-linux@vger.kernel.org
+Subject: [PATCH] loopdev: sync capacity after setting it
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+I recently tried to mount an hfsplus file system from an image file with
+a partition table by using the loop offset and sizelimit options to specify
+the location of the file system.
 
+hfsplus stores some metadata at a set offset from the end of the partition,
+so it's sensitive to the device size reported by the kernel.
 
-Do we really need passwords for groups [newgrp(1) and /etc/gshadow]?
-Seems like a nice over-engineering.
+It worked with this:
+# losetup -r -o 32k --sizelimit=102400000 <loopdev> <imagefile>
+# mount -r -t hfsplus <loopdev> <mountpoint>
 
-By the way, I have fixed newgrp(1) in util-linux and shadow-utils 5
-years ago. The password verification was pretty useless for years...
+But failed with this:
+# mount -r -oloop,offset=32k,sizelimit=102400000 <imagefile> <mountpoint>
 
-IMHO it would be better to mark whole /etc/gshadow as deprecated and
-reuse "su --group <group> [--supp-group <group> ...]" code to switch
-between groups, then we don't have to maintain separate newgrp code.
+# losetup -a
+/dev/loop0: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
+/dev/loop1: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
 
-Note that newgrp(1) is available in shadow-utils and util-linux, sg(1)
-is alias in shadow-utils. We have been successful with login(1), now
-I'd like to consolidate newgrp(1) :-)
+/proc/partitions shows the correct number of blocks to match the sizelimit.
 
-Comments?
+But if I set a breakpoint in mount before the mount syscall, I could see:
+# blockdev --getsize64 /dev/loop[01]
+102400000
+102432768
 
-    Karel
+The kernel loop driver will set the gendisk capacity of the device at
+LOOP_SET_STATUS64 but won't sync it to the block device until one of two
+conditions are met: All open file descriptors referring to the device are
+closed (and it will sync when re-opened) or if the LOOP_SET_CAPACITY ioctl
+is called to sync it. Since mount opens the device and passes it directly
+to the mount syscall after LOOP_SET_STATUS64 without closing and reopening
+it, the sizelimit argument is effectively ignroed. The capacity needs to
+be synced immediately for it to work as expected.
+
+This patch adds the LOOP_SET_CAPACITY call to loopctx_setup_device since
+the device isn't yet released to the user, so it's safe to sync the capacity
+immediately.
+
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+---
+ lib/loopdev.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+--- a/lib/loopdev.c
++++ b/lib/loopdev.c
+@@ -1105,6 +1105,18 @@ int loopcxt_setup_device(struct loopdev_
+ 		goto err;
+ 	}
+ 
++	/*
++	 * mount passes the file descriptor without closing it, so
++	 * the capacity isn't updated automatically. File systems
++	 * won't see the new size if it's not the full size of
++	 * the backing file.
++	 */
++	if ((lc->info.lo_offset || lc->info.lo_sizelimit) &&
++	    ioctl(dev_fd, LOOP_SET_CAPACITY, 0)) {
++		DBG(lc, loopdev_debug("LOOP_SET_CAPACITY failed: %m"));
++		goto err;
++	}
++
+ 	DBG(lc, loopdev_debug("setup: LOOP_SET_STATUS64: OK"));
+ 
+ 	memset(&lc->info, 0, sizeof(lc->info));
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Jeff Mahoney
+SUSE Labs
