@@ -1,50 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:19830 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932963Ab3CTM40 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 20 Mar 2013 08:56:26 -0400
-Date: Wed, 20 Mar 2013 13:56:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 6/7] whereis: canonicalize files before printing
-Message-ID: <20130320125616.GA14833@x2.net.home>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:39555 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751853Ab3CPXki (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Mar 2013 19:40:38 -0400
+Received: by mail-wi0-f172.google.com with SMTP id ez12so1587973wid.17
+        for <util-linux@vger.kernel.org>; Sat, 16 Mar 2013 16:40:37 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 6/7] whereis: canonicalize files before printing
+Date: Sat, 16 Mar 2013 23:40:18 +0000
+Message-Id: <1363477219-29245-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
 References: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
- <1363477219-29245-7-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1363477219-29245-7-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 16, 2013 at 11:40:18PM +0000, Sami Kerola wrote:
-> The whereis gives promise to find files so it seems to be more correct
-> print symlink destinations than locations of symlinks.
+The whereis gives promise to find files so it seems to be more correct
+print symlink destinations than locations of symlinks.
 
- Not sure. I think it's correct to canonicalize directory paths (to
- avoid problems like /bin -> /usr/bin symlinks), but I don't see
- a reason to canonicalize whole paths (filenames).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/Makemodule.am |  1 +
+ misc-utils/whereis.c     | 20 +++++++++++++-------
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
- For example
-
-    $ whereis -b bzcat
-    bzcat: /usr/bin/bzcat
-
- is expected answer, but
-
-    $ whereis -b bzcat
-    bzcat: /usr/bin/bzip2
-
- looks strange. The another story is that many things are redirected
- by symlinks to /etc/alternatives and then to pretty specific places.
-
- Maybe we can add an option to canonicalize, but from my point of view 
- it should not be enabled by default.
-
- I have applied patch to canonicalize directory names.
-
-    Karel
-
+diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
+index b77c30a..a615047 100644
+--- a/misc-utils/Makemodule.am
++++ b/misc-utils/Makemodule.am
+@@ -44,6 +44,7 @@ namei_SOURCES = misc-utils/namei.c lib/strutils.c
+ usrbin_exec_PROGRAMS += whereis
+ dist_man_MANS += misc-utils/whereis.1
+ whereis_SOURCES = misc-utils/whereis.c
++whereis_LDADD = $(LDADD) libcommon.la
+ 
+ if BUILD_LSLOCKS
+ usrbin_exec_PROGRAMS += lslocks
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 3fad843..5136eff 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -55,6 +55,7 @@
+ #include "nls.h"
+ #include "c.h"
+ #include "closestream.h"
++#include "canonicalize.h"
+ 
+ #define BIN_BIT (1 << 1)
+ #define MAN_BIT (1 << 2)
+@@ -204,21 +205,26 @@ static void findin(char *dir, char *cp, int *nr_found, char **wait)
+ {
+ 	DIR *dirp;
+ 	struct dirent *dp;
++	char *full_path, *rl;
+ 
+ 	dirp = opendir(dir);
+ 	if (dirp == NULL)
+ 		return;
+ 	while ((dp = readdir(dirp)) != NULL)
+ 		if (itsit(cp, dp->d_name)) {
++			xasprintf(&full_path, "%s/%s", dir, dp->d_name);
++			rl = canonicalize_path(full_path);
++			free(full_path);
+ 			if (*(nr_found) == 0)
+-				xasprintf(wait, "%s/%s", dir, dp->d_name);
+-			else if (*(nr_found) == 1 && *wait != NULL)
+-				printf("%s: %s %s/%s", cp, *wait, dir,
+-				       dp->d_name);
+-			else if (*(nr_found) == 1)
+-				printf("%s: %s/%s", cp, dir, dp->d_name);
++				wait = &rl;
++			else if (*(nr_found) == 1 && *wait != NULL) {
++				printf("%s: %s %s", cp, *wait, rl);
++				free(*wait);
++			} else if (*(nr_found) == 1)
++				printf("%s: %s", cp, rl);
+ 			else
+-				printf(" %s/%s", dir, dp->d_name);
++				printf(" %s", rl);
++			free(rl);
+ 			(*nr_found)++;
+ 		}
+ 	closedir(dirp);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.2
+
