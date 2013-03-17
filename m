@@ -1,312 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:41072 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754682Ab3C0WIa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Mar 2013 18:08:30 -0400
-Received: by mail-wi0-f182.google.com with SMTP id hi18so2703696wib.15
-        for <util-linux@vger.kernel.org>; Wed, 27 Mar 2013 15:08:29 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:53603 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756360Ab3CQOSl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 17 Mar 2013 10:18:41 -0400
+Received: from relay2.suse.de (unknown [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 06F03A5077
+	for <util-linux@vger.kernel.org>; Sun, 17 Mar 2013 15:18:40 +0100 (CET)
+Message-ID: <5145D0B4.1070207@suse.com>
+Date: Sun, 17 Mar 2013 10:18:28 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/10] bash-completion: add completion files to Makefile.am
-Date: Wed, 27 Mar 2013 22:07:52 +0000
-Message-Id: <1364422072-23552-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
-References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] loopdev: sync capacity after setting it
+References: <51438CF9.7020707@suse.com>
+In-Reply-To: <51438CF9.7020707@suse.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And remove shell completion TODO item.
+On 03/15/2013 05:04 PM, Jeff Mahoney wrote:
+> I recently tried to mount an hfsplus file system from an image file with
+> a partition table by using the loop offset and sizelimit options to specify
+> the location of the file system.
+>
+> hfsplus stores some metadata at a set offset from the end of the partition,
+> so it's sensitive to the device size reported by the kernel.
+>
+> It worked with this:
+> # losetup -r -o 32k --sizelimit=102400000 <loopdev> <imagefile>
+> # mount -r -t hfsplus <loopdev> <mountpoint>
+>
+> But failed with this:
+> # mount -r -oloop,offset=32k,sizelimit=102400000 <imagefile> <mountpoint>
+>
+> # losetup -a
+> /dev/loop0: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
+> /dev/loop1: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
+>
+> /proc/partitions shows the correct number of blocks to match the sizelimit.
+>
+> But if I set a breakpoint in mount before the mount syscall, I could see:
+> # blockdev --getsize64 /dev/loop[01]
+> 102400000
+> 102432768
+>
+> The kernel loop driver will set the gendisk capacity of the device at
+> LOOP_SET_STATUS64 but won't sync it to the block device until one of two
+> conditions are met: All open file descriptors referring to the device are
+> closed (and it will sync when re-opened) or if the LOOP_SET_CAPACITY ioctl
+> is called to sync it. Since mount opens the device and passes it directly
+> to the mount syscall after LOOP_SET_STATUS64 without closing and reopening
+> it, the sizelimit argument is effectively ignroed. The capacity needs to
+> be synced immediately for it to work as expected.
+>
+> This patch adds the LOOP_SET_CAPACITY call to loopctx_setup_device since
+> the device isn't yet released to the user, so it's safe to sync the capacity
+> immediately.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/TODO             |   6 -
- shell-completion/Makemodule.am | 261 ++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 260 insertions(+), 7 deletions(-)
+It turns out this ioctl wasn't introduced until 2.6.30. I'll fix that up 
+and resend tomorrow.
 
-diff --git a/Documentation/TODO b/Documentation/TODO
-index b4139d3..4adf05d 100644
---- a/Documentation/TODO
-+++ b/Documentation/TODO
-@@ -8,12 +8,6 @@ hwlock
-  - the /var/lib/hwclock/drift should be implemented backwardly compatible,
-    it means use the file only if exists, otherwise follow /etc/adjtime 
- 
--bash completion
-----------------
-- - file per command in shel-completion/bash/
-- - use $(pkg-config --variable=completionsdir bash-completion)/util-linux/
--   as a destination install directory
--
- wipefs
- ------
-  - generate /root/wipefs-<devname>-<offset>.bak with wiped bytes, so after 
-diff --git a/shell-completion/Makemodule.am b/shell-completion/Makemodule.am
-index b784ec7..0bb8652 100644
---- a/shell-completion/Makemodule.am
-+++ b/shell-completion/Makemodule.am
-@@ -1 +1,260 @@
--dist_bashcompletion_DATA =
-+dist_bashcompletion_DATA = \
-+	shell-completion/blkid \
-+	shell-completion/cal \
-+	shell-completion/col \
-+	shell-completion/colcrt \
-+	shell-completion/colrm \
-+	shell-completion/column \
-+	shell-completion/findmnt \
-+	shell-completion/flock \
-+	shell-completion/fsck.minix \
-+	shell-completion/getopt \
-+	shell-completion/hexdump \
-+	shell-completion/ipcrm \
-+	shell-completion/ipcs \
-+	shell-completion/isosize \
-+	shell-completion/logger \
-+	shell-completion/look \
-+	shell-completion/mcookie \
-+	shell-completion/mkfs \
-+	shell-completion/mkfs.bfs \
-+	shell-completion/mkfs.minix \
-+	shell-completion/mkswap \
-+	shell-completion/namei \
-+	shell-completion/prlimit \
-+	shell-completion/readprofile \
-+	shell-completion/renice \
-+	shell-completion/rev \
-+	shell-completion/script \
-+	shell-completion/scriptreplay \
-+	shell-completion/setsid \
-+	shell-completion/tailf \
-+	shell-completion/wall \
-+	shell-completion/whereis \
-+	shell-completion/wipefs
-+
-+# disk-utils...
-+if BUILD_CRAMFS
-+dist_bashcompletion_DATA += \
-+	shell-completion/fsck.cramfs \
-+	shell-completion/mkfs.cramfs
-+endif
-+if BUILD_FSCK
-+dist_bashcompletion_DATA += \
-+	shell-completion/fsck
-+endif
-+if BUILD_PARTX
-+dist_bashcompletion_DATA += \
-+	shell-completion/addpart \
-+	shell-completion/delpart \
-+	shell-completion/resizepart \
-+	shell-completion/partx
-+endif
-+if BUILD_RAW
-+dist_bashcompletion_DATA += \
-+	shell-completion/raw
-+endif
-+if BUILD_SWAPLABEL
-+dist_bashcompletion_DATA += \
-+	shell-completion/swaplabel
-+endif
-+if LINUX
-+dist_bashcompletion_DATA += \
-+	shell-completion/blockdev \
-+	shell-completion/fdformat
-+endif
-+# ...disk-utils
-+
-+# fdisks...
-+if !ARCH_M68K
-+dist_bashcompletion_DATA += \
-+	shell-completion/fdisk
-+if !ARCH_SPARC
-+dist_bashcompletion_DATA += \
-+	shell-completion/sfdisk
-+if BUILD_CFDISK
-+dist_bashcompletion_DATA += \
-+	shell-completion/cfdisk
-+endif
-+endif # !ARCH_SPARC
-+endif # !ARCH_M68
-+# ...fdisks
-+
-+# login-utils...
-+if BUILD_CHFN_CHSH
-+dist_bashcompletion_DATA += \
-+	shell-completion/chfn \
-+	shell-completion/chsh
-+endif
-+if BUILD_LAST
-+dist_bashcompletion_DATA += \
-+	shell-completion/last
-+endif
-+if BUILD_LOGIN
-+dist_bashcompletion_DATA += \
-+	shell-completion/login
-+endif
-+if BUILD_NEWGRP
-+dist_bashcompletion_DATA += \
-+	shell-completion/newgrp
-+endif
-+if BUILD_SU
-+dist_bashcompletion_DATA += \
-+	shell-completion/su
-+endif
-+if BUILD_SULOGIN
-+dist_bashcompletion_DATA += \
-+	shell-completion/sulogin
-+endif
-+if BUILD_UTMPDUMP
-+dist_bashcompletion_DATA += \
-+	shell-completion/utmpdump
-+endif
-+# ...login-utils
-+
-+# misc-utils...
-+if BUILD_LIBUUID
-+dist_bashcompletion_DATA += \
-+	shell-completion/uuidgen
-+endif
-+if BUILD_UUIDD
-+dist_bashcompletion_DATA += \
-+	shell-completion/uuidd
-+endif
-+if BUILD_LSBLK
-+dist_bashcompletion_DATA += \
-+	shell-completion/lsblk
-+endif
-+if BUILD_LSLOCKS
-+dist_bashcompletion_DATA += \
-+	shell-completion/lslocks
-+endif
-+if BUILD_RENAME
-+dist_bashcompletion_DATA += \
-+	shell-completion/rename
-+endif
-+# ...misc-utils
-+
-+# schedutils...
-+if BUILD_SCHEDUTILS
-+dist_bashcompletion_DATA += \
-+	shell-completion/chrt
-+if BUILD_IONICE
-+dist_bashcompletion_DATA += \
-+	shell-completion/ionice
-+endif
-+if BUILD_TASKSET
-+dist_bashcompletion_DATA += \
-+	shell-completion/taskset
-+endif
-+endif # BUILD_SCHEDUTILS
-+# ...schedutils
-+
-+# sys-utils...
-+if BUILD_CHCPU
-+dist_bashcompletion_DATA += \
-+	shell-completion/chcpu
-+endif
-+if BUILD_EJECT
-+dist_bashcompletion_DATA += \
-+	shell-completion/eject
-+endif
-+if BUILD_FALLOCATE
-+dist_bashcompletion_DATA += \
-+	shell-completion/fallocate
-+endif
-+if BUILD_HWCLOCK
-+dist_bashcompletion_DATA += \
-+	shell-completion/hwclock
-+endif
-+if BUILD_TUNELP
-+dist_bashcompletion_DATA += \
-+	shell-completion/tunelp
-+endif
-+if BUILD_LSCPU
-+dist_bashcompletion_DATA += \
-+	shell-completion/lscpu
-+endif
-+if BUILD_LOSETUP
-+dist_bashcompletion_DATA += \
-+	shell-completion/losetup
-+endif
-+if BUILD_MOUNTPOINT
-+dist_bashcompletion_DATA += \
-+	shell-completion/mountpoint
-+endif
-+if BUILD_NSENTER
-+dist_bashcompletion_DATA += \
-+	shell-completion/nsenter
-+endif
-+if BUILD_PIVOT_ROOT
-+dist_bashcompletion_DATA += \
-+	shell-completion/pivot_root
-+endif
-+if BUILD_SETPRIV
-+dist_bashcompletion_DATA += \
-+	shell-completion/setpriv
-+endif
-+if BUILD_SWAPON
-+dist_bashcompletion_DATA += \
-+	shell-completion/swapon
-+endif
-+if BUILD_UNSHARE
-+dist_bashcompletion_DATA += \
-+	shell-completion/unshare
-+endif
-+if BUILD_WDCTL
-+dist_bashcompletion_DATA += \
-+	shell-completion/wdctl
-+endif
-+if LINUX
-+dist_bashcompletion_DATA += \
-+	shell-completion/blkdiscard \
-+	shell-completion/ctrlaltdel \
-+	shell-completion/cytune \
-+	shell-completion/dmesg \
-+	shell-completion/fsfreeze \
-+	shell-completion/fstrim \
-+	shell-completion/ldattach \
-+	shell-completion/rtcwake \
-+	shell-completion/setarch
-+endif
-+# ...sys-utils
-+
-+# term-utils...
-+if BUILD_AGETTY
-+dist_bashcompletion_DATA += \
-+	shell-completion/agetty
-+endif
-+if BUILD_MESG
-+dist_bashcompletion_DATA += \
-+	shell-completion/mesg
-+endif
-+if BUILD_WALL
-+dist_bashcompletion_DATA += \
-+	shell-completion/wall
-+endif
-+if BUILD_WRITE
-+dist_bashcompletion_DATA += \
-+	shell-completion/write
-+endif
-+if LINUX
-+dist_bashcompletion_DATA += \
-+	shell-completion/setterm
-+endif
-+# ...term-utils
-+
-+# text-utils...
-+if BUILD_MORE
-+dist_bashcompletion_DATA += \
-+	shell-completion/more
-+endif
-+if BUILD_PG
-+dist_bashcompletion_DATA += \
-+	shell-completion/pg
-+endif
-+if BUILD_UL
-+dist_bashcompletion_DATA += \
-+	shell-completion/ul
-+endif
-+# ...text-utils
+-Jeff
+
+
+> Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+> ---
+>   lib/loopdev.c |   12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+>
+> --- a/lib/loopdev.c
+> +++ b/lib/loopdev.c
+> @@ -1105,6 +1105,18 @@ int loopcxt_setup_device(struct loopdev_
+>   		goto err;
+>   	}
+>
+> +	/*
+> +	 * mount passes the file descriptor without closing it, so
+> +	 * the capacity isn't updated automatically. File systems
+> +	 * won't see the new size if it's not the full size of
+> +	 * the backing file.
+> +	 */
+> +	if ((lc->info.lo_offset || lc->info.lo_sizelimit) &&
+> +	    ioctl(dev_fd, LOOP_SET_CAPACITY, 0)) {
+> +		DBG(lc, loopdev_debug("LOOP_SET_CAPACITY failed: %m"));
+> +		goto err;
+> +	}
+> +
+>   	DBG(lc, loopdev_debug("setup: LOOP_SET_STATUS64: OK"));
+>
+>   	memset(&lc->info, 0, sizeof(lc->info));
+>
+
+
 -- 
-1.8.2
-
+Jeff Mahoney
+SUSE Labs
