@@ -1,45 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49750 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:24087 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755733Ab3CSIwJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Mar 2013 04:52:09 -0400
-Date: Tue, 19 Mar 2013 09:52:05 +0100
+	id S1750837Ab3CRNSc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Mar 2013 09:18:32 -0400
+Date: Mon, 18 Mar 2013 14:18:27 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Roger Leigh <rleigh@codelibre.net>
+To: Jeff Mahoney <jeffm@suse.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: newgrp(1) and sg(1)
-Message-ID: <20130319085205.GA2603@x2.net.home>
-References: <20130318154225.GF2172@x2.net.home>
- <20130318223840.GW23093@codelibre.net>
+Subject: Re: [PATCH] loopdev: sync capacity after setting it
+Message-ID: <20130318131827.GE2172@x2.net.home>
+References: <51438CF9.7020707@suse.com>
+ <5145D0B4.1070207@suse.com>
+ <20130318092700.GC2172@x2.net.home>
+ <51471122.6030804@suse.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130318223840.GW23093@codelibre.net>
+In-Reply-To: <51471122.6030804@suse.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 18, 2013 at 10:38:40PM +0000, Roger Leigh wrote:
-> I don't think that deprecation is really appropriate--the system
-> interface, NSS and /etc/gshadow are not really the purview of
-> util-linux, though tools using the interfaces certainly are.
+On Mon, Mar 18, 2013 at 09:05:38AM -0400, Jeff Mahoney wrote:
+> Yeah, but that's in losetup --set-capacity where it's an explicit
+> operation. This change will add the ioctl into every
+> loopdev_setup_device call when the offset or sizelimit options are used.
+> If it isn't supported by the kernel, the ioctl will fail silently and
+> *maybe* the mount will fail, but that's totally dependent on the the
+> file system. If the mount succeeds, it will be done outside of the
+> parameters the user requested.
+> 
+> So, all I really want to do is dump an error message when the ioctl
+> fails with -ENOTTY || -EINVAL about there being a lack of kernel
+> support. We shouldn't allow the device configuration to proceed.
+> 
+> The part that makes it more "fun" is that a few patches in 3.9-rc1 fixed
+> this in the kernel, so it won't actually be needed for new kernels.
 
- Well, gpasswd uses /etc/gshadow, what else?
-
-> newgrp(1) is specified by POSIX/SUS, so I think this is worth
-> retaining for compatibility reasons.  Making it use NSS would be
-> a good improvement though, since it's currently limited to flat
-> files.
-
- I'm talking about group paswords. I don't see a problem to support
- newgrp(1) as a way how to switch groups, but the question is if we
- really need to support the passwords.
-
- BTW, posix:
-
-   There is no convenient way to enter a password into the group
-   database. Use of group passwords is not encouraged, because by their
-   very nature they encourage poor security practices. Group passwords
-   may disappear in the future.
+ Nasty... well, send patch.
  
+    Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
