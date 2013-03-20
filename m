@@ -1,62 +1,44 @@
-Return-Path: samuel.thibault@ens-lyon.org
-Date: Fri, 22 Mar 2013 14:41:47 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.23-rc1
-Message-ID: <20130322134147.GA6125@type.bordeaux.inria.fr>
-References: <20130322125621.GA6278@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:10341 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753949Ab3CTNLp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 20 Mar 2013 09:11:45 -0400
+Date: Wed, 20 Mar 2013 14:11:39 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>, Davidlohr Bueso <dave@gnu.org>
+Subject: Re: [patches] a bunch of man-page fixes, plus -V for blkid
+Message-ID: <20130320131139.GE14833@x2.net.home>
+References: <1363639067.25811.140661206020553.0C776E64@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ibTvN161/egqYuK8"
-In-Reply-To: <20130322125621.GA6278@x2.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1363639067.25811.140661206020553.0C776E64@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Mar 18, 2013 at 09:37:47PM +0100, Benno Schulenberg wrote:
+> Attached bunch of patches mainly normalizes the formatting of the
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+ All applied, thanks.
 
-Hello,
+> man pages in the misc-utils directory.  The second patch adds -V for
+> --version to the blkid command (instead of just -v).  And the seventh
+> patch makes the section AVAILABILITY always be the last one in all
+> man pages.
+> 
+> CC'ing Davidlohr because the sixth patch touches the man page of
+> his lslocks command.  This man page makes a reference to chmod(1),
+> but on my machine chmod(1) does not say anything about lock files,
+> nor anything about being mandatory or advisory -- only fcntl(2) does.
+> So I have changed that reference, but am unsure whether this is
+> okay.  The man page also referes to lockf(2), but on my machine
+> there is only a lockf(3); so I've changed that one too, but again am
+> unsure whether it is okay.  Davidlohr?
 
-Karel Zak, le Fri 22 Mar 2013 13:56:21 +0100, a écrit :
-> The util-linux release v2.23-rc1 is available at
->  
->    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.23
->     
-> Feedback and bug reports, as always, are welcomed.
+ Heh.. where is David, that's the question :-)
 
-Here is a couple of obvious fixes for non-linux systems.
+    Karel
 
-Samuel
-
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch
-
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index db5f41e..621df1e 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -118,7 +118,9 @@ static void tcinit(struct console *con)
- 		cfsetispeed(tio, ispeed);
- 		cfsetospeed(tio, ospeed);
- 
-+#ifdef HAVE_STRUCT_TERMIOS_C_LINE
- 		tio->c_line         = 0;
-+#endif
- 		tio->c_cc[VTIME]    = 0;
- 		tio->c_cc[VMIN]     = 1;
- 
-@@ -198,7 +200,7 @@ static void tcfinal(struct console *con)
- 	tio->c_cc[VEOF]     = CEOF;
- #ifdef VSWTC
- 	tio->c_cc[VSWTC]    = _POSIX_VDISABLE;
--#else
-+#elif defined(VSWTCH)
- 	tio->c_cc[VSWTCH]   = _POSIX_VDISABLE;
- #endif
- 	tio->c_cc[VSTART]   = CSTART;
-
---ibTvN161/egqYuK8--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
