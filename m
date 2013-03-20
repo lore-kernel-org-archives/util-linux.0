@@ -1,66 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:36631 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758218Ab3CGX1m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Mar 2013 18:27:42 -0500
-Received: by mail-we0-f169.google.com with SMTP id t11so321082wey.14
-        for <util-linux@vger.kernel.org>; Thu, 07 Mar 2013 15:27:41 -0800 (PST)
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20130320125616.GA14833@x2.net.home>
+References: <1363477219-29245-1-git-send-email-kerolasa@iki.fi>
+	<1363477219-29245-7-git-send-email-kerolasa@iki.fi>
+	<20130320125616.GA14833@x2.net.home>
+Date: Wed, 20 Mar 2013 14:03:19 +0000
+Message-ID: <CAG27Bk1R_juhAC7wt-7Jc-F2Yg6o5AaKJmqpz0-trPqNevgEng@mail.gmail.com>
+Subject: Re: [PATCH 6/7] whereis: canonicalize files before printing
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 5/7] kill, procs: move function declarations to kill.h
-Date: Thu,  7 Mar 2013 23:27:22 +0000
-Message-Id: <1362698844-21292-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
-References: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/kill.c  | 2 --
- misc-utils/kill.h  | 8 +++++++-
- misc-utils/procs.c | 1 -
- 3 files changed, 7 insertions(+), 4 deletions(-)
+On Wed, Mar 20, 2013 at 12:56 PM, Karel Zak <kzak@redhat.com> wrote:
+> On Sat, Mar 16, 2013 at 11:40:18PM +0000, Sami Kerola wrote:
+>> The whereis gives promise to find files so it seems to be more correct
+>> print symlink destinations than locations of symlinks.
+>
+>  Not sure. I think it's correct to canonicalize directory paths (to
+>  avoid problems like /bin -> /usr/bin symlinks), but I don't see
+>  a reason to canonicalize whole paths (filenames).
+>
+>  For example
+>
+>     $ whereis -b bzcat
+>     bzcat: /usr/bin/bzcat
+>
+>  is expected answer, but
+>
+>     $ whereis -b bzcat
+>     bzcat: /usr/bin/bzip2
+>
+>  looks strange. The another story is that many things are redirected
+>  by symlinks to /etc/alternatives and then to pretty specific places.
+>
+>  Maybe we can add an option to canonicalize, but from my point of view
+>  it should not be enabled by default.
+>
+>  I have applied patch to canonicalize directory names.
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index 5e349c8..b0145cd 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -139,8 +139,6 @@ struct signv {
- #endif
- };
- 
--extern char *mybasename(char *);
--
- static int arg_to_signum(char *arg, int mask);
- static void nosig(char *name);
- static void printsig(int sig);
-diff --git a/misc-utils/kill.h b/misc-utils/kill.h
-index 27a12a8..43c6ed7 100644
---- a/misc-utils/kill.h
-+++ b/misc-utils/kill.h
-@@ -1 +1,7 @@
--extern int *get_pids (char *process_name, int get_all);
-+#ifndef UTIL_LINUX_KILL
-+#define UTIL_LINUX_KILL
-+
-+extern int *get_pids(char *process_name, int get_all);
-+extern char *mybasename(char *);
-+
-+#endif
-diff --git a/misc-utils/procs.c b/misc-utils/procs.c
-index 071a63a..544966e 100644
---- a/misc-utils/procs.c
-+++ b/misc-utils/procs.c
-@@ -23,7 +23,6 @@
- #include "kill.h"
- #include "xalloc.h"
- 
--extern char *mybasename(char *);
- static char *parse_parens(char *buf);
- 
- int *get_pids(char *process_name, int get_all)
+Hi Karel,
+
+Thank you for the additional work put to whereis(1) patch series.
+
+I agree. Additional --canonical option is right way to expose where
+files are. I will have a look of this sometime later the week(end).
+
 -- 
-1.8.1.5
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
