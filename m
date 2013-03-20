@@ -1,58 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f180.google.com ([209.85.220.180]:55173 "EHLO
-	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752518Ab3CRUJz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Mar 2013 16:09:55 -0400
-Received: by mail-vc0-f180.google.com with SMTP id m17so3263841vca.39
-        for <util-linux@vger.kernel.org>; Mon, 18 Mar 2013 13:09:55 -0700 (PDT)
+Received: from mail-qe0-f50.google.com ([209.85.128.50]:49990 "EHLO
+	mail-qe0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750850Ab3CTUx4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Mar 2013 16:53:56 -0400
+Received: by mail-qe0-f50.google.com with SMTP id k5so1370253qej.23
+        for <util-linux@vger.kernel.org>; Wed, 20 Mar 2013 13:53:55 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20130318154225.GF2172@x2.net.home>
-References: <20130318154225.GF2172@x2.net.home>
-Date: Mon, 18 Mar 2013 20:09:54 +0000
-Message-ID: <CAG27Bk1=0EVWCsqiOQUEzz8pR_sQZqSTSKMRFX8gWHtG+KUxcg@mail.gmail.com>
-Subject: Re: newgrp(1) and sg(1)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
+Date: Wed, 20 Mar 2013 14:53:55 -0600
+Message-ID: <CAMLZHHSgh8rdidXyqcQy7SK3f4V+03LSLjX_EkpwcOO_hS0osQ@mail.gmail.com>
+Subject: "hwclock --systohc" and tick synchronization
+From: Daniel Drake <dsd@laptop.org>
+To: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 18, 2013 at 3:42 PM, Karel Zak <kzak@redhat.com> wrote:
-> Do we really need passwords for groups [newgrp(1) and /etc/gshadow]?
-> Seems like a nice over-engineering.
->
-> By the way, I have fixed newgrp(1) in util-linux and shadow-utils 5
-> years ago. The password verification was pretty useless for years...
->
-> IMHO it would be better to mark whole /etc/gshadow as deprecated and
-> reuse "su --group <group> [--supp-group <group> ...]" code to switch
-> between groups, then we don't have to maintain separate newgrp code.
->
-> Note that newgrp(1) is available in shadow-utils and util-linux, sg(1)
-> is alias in shadow-utils. We have been successful with login(1), now
-> I'd like to consolidate newgrp(1) :-)
->
-> Comments?
+Hi,
 
-Usefulness of gshadow was discussed earlier[1]. I have not heard
-anyone using gshadow. Neither Open Group or Linux Standard Base
-recognize gshadow file, so keeping it a live seems to be voluntary.
-There is also quite long history with confusion how the gshadow should
-work[2]. So maybe it is time to get rid of this legacy experiment.
+We are looking at situations with OLPC XO laptops where all RTC power
+has been lost and hence the system has lost its time/date and RTC
+contents are invalid.
 
-Maybe it is worthwhile to mention that Open Group defines newgrp[3]
-command, so one of the projects should probably deliver it. The
-shadow-utils version seems to be more complete (it has built in syslog
-for example), so perhaps it should be the chosen one.
+The usual thing to do in this case is to reset the system time to the
+current moment and then use hwclock to save it to the RTC.
 
-Having 'su --group', or similar, as newgrp alternative sounds fair.
+However, this is proving quite confusing.
 
-[1] https://groups.google.com/d/msg/fa.linux.kernel/Zg987XcLy2U/wlV3Z9h66d0J
-[2] https://groups.google.com/forum/#!search/gshadow/comp.os.linux.admin/QptNuTMTMio/lDoeuy7KwOkJ
-[3] http://pubs.opengroup.org/onlinepubs/000095399/utilities/newgrp.html
+# hwclock --systohc
+hwclock: select() to /dev/rtc0 to wait for clock tick timed out: No
+such file or directory
 
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+Firstly, the corresponding warn() in hwclock-rtc.c should be warnx()
+so that it does not print the errno message. When select returns 0
+(timeout), interpreting errno does not make sense.
+
+Secondly, did that hwclock command fail or succeed? Our users and a
+developer saw that output and concluded "hwclock is broken" and filed
+a bug. Having seen the bug report, I drew the same conclusion. Only
+upon testing further I realised that this is only a warning and
+hwclock did go on and set the RTC time appropriately.
+
+So, can this message be silenced completely, or can we add a "RTC
+successfully set from system clock"  success message that appears
+afterwards?
+
+Let me know if there is a preference, then I'll go and send a patch.
+
+Thanks
+Daniel
