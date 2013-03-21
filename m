@@ -1,86 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53829 "EHLO mx2.suse.de"
+Received: from agero.humv.es ([193.146.74.20]:58141 "EHLO agero.humv.es"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932316Ab3COVFC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Mar 2013 17:05:02 -0400
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 7F156A4386
-	for <util-linux@vger.kernel.org>; Fri, 15 Mar 2013 22:05:01 +0100 (CET)
-Message-ID: <51438CF9.7020707@suse.com>
-Date: Fri, 15 Mar 2013 17:04:57 -0400
-From: Jeff Mahoney <jeffm@suse.com>
+	id S1422633Ab3CVSFL (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 22 Mar 2013 14:05:11 -0400
+Message-ID: <55112.82.128.17.98.1363910230.squirrel@correo.humv.es>
+Date: Fri, 22 Mar 2013 00:57:10 +0100 (CET)
+Subject: ACHTUNG FRIEND!
+From: "WERNER ERICH ZELLER" <e639@humv.es>
+Reply-To: wernererichzeller@yahoo.com
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] loopdev: sync capacity after setting it
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;charset=iso-8859-1
+To: unlisted-recipients:; (no To-header on input)@mail.corp.redhat.com
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I recently tried to mount an hfsplus file system from an image file with
-a partition table by using the loop offset and sizelimit options to specify
-the location of the file system.
 
-hfsplus stores some metadata at a set offset from the end of the partition,
-so it's sensitive to the device size reported by the kernel.
 
-It worked with this:
-# losetup -r -o 32k --sizelimit=102400000 <loopdev> <imagefile>
-# mount -r -t hfsplus <loopdev> <mountpoint>
-
-But failed with this:
-# mount -r -oloop,offset=32k,sizelimit=102400000 <imagefile> <mountpoint>
-
-# losetup -a
-/dev/loop0: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
-/dev/loop1: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
-
-/proc/partitions shows the correct number of blocks to match the sizelimit.
-
-But if I set a breakpoint in mount before the mount syscall, I could see:
-# blockdev --getsize64 /dev/loop[01]
-102400000
-102432768
-
-The kernel loop driver will set the gendisk capacity of the device at
-LOOP_SET_STATUS64 but won't sync it to the block device until one of two
-conditions are met: All open file descriptors referring to the device are
-closed (and it will sync when re-opened) or if the LOOP_SET_CAPACITY ioctl
-is called to sync it. Since mount opens the device and passes it directly
-to the mount syscall after LOOP_SET_STATUS64 without closing and reopening
-it, the sizelimit argument is effectively ignroed. The capacity needs to
-be synced immediately for it to work as expected.
-
-This patch adds the LOOP_SET_CAPACITY call to loopctx_setup_device since
-the device isn't yet released to the user, so it's safe to sync the capacity
-immediately.
-
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
----
- lib/loopdev.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
---- a/lib/loopdev.c
-+++ b/lib/loopdev.c
-@@ -1105,6 +1105,18 @@ int loopcxt_setup_device(struct loopdev_
- 		goto err;
- 	}
- 
-+	/*
-+	 * mount passes the file descriptor without closing it, so
-+	 * the capacity isn't updated automatically. File systems
-+	 * won't see the new size if it's not the full size of
-+	 * the backing file.
-+	 */
-+	if ((lc->info.lo_offset || lc->info.lo_sizelimit) &&
-+	    ioctl(dev_fd, LOOP_SET_CAPACITY, 0)) {
-+		DBG(lc, loopdev_debug("LOOP_SET_CAPACITY failed: %m"));
-+		goto err;
-+	}
-+
- 	DBG(lc, loopdev_debug("setup: LOOP_SET_STATUS64: OK"));
- 
- 	memset(&lc->info, 0, sizeof(lc->info));
 
 -- 
-Jeff Mahoney
-SUSE Labs
+Eure Eminenz, das ist das dritte Mal, dass ich schreibe Ihnen bin, ich
+bete nur du es dieses Mal! Ich bin Barrister Werner Erich Zeller des
+Vereinigten Königreichs und ich schreibe auf Ihre 100% aufrichtiges
+Interesse und Partnerschaft bei der Wiederherstellung der Höhe von € 15
+Mio. (EURO) Privatbank, die früher zu einem späten Kunde von mir, die,
+ohne einem bestimmten Nest weitergegeben gehörten zu suchen Angehörigen
+und Empfänger. Wie für die Rechtmäßigkeit und Echtheit, lassen Sie das zu
+mir, ich werde es als Rechtsanwalt rechtlich 100% Griff! Wir stehen beide
+zu 50% des € 15 Mio. (EURO) jeweils als Partner profitieren. Schicken Sie
+mir eine private E-Mail für die Details: wernererichzeller@yahoo.com und
+Telefon: +447024090820
+
+Bitte zurück zu mir sofort!
+Werner Erich Zeller (Attorney)
