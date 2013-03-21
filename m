@@ -1,27 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43939 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757156Ab3CDLbk (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 4 Mar 2013 06:31:40 -0500
-Date: Mon, 4 Mar 2013 12:31:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: [PATCH 1/2] unshare(1): delete empty NOTES section
-Message-ID: <20130304113134.GC8830@x2.net.home>
-References: <1362110582-23406-1-git-send-email-vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1362110582-23406-1-git-send-email-vapier@gentoo.org>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:61686 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752977Ab3CUVrc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Mar 2013 17:47:32 -0400
+Received: by mail-wi0-f177.google.com with SMTP id hm14so3659766wib.16
+        for <util-linux@vger.kernel.org>; Thu, 21 Mar 2013 14:47:31 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/2] blkid: use xalloc.h when possible
+Date: Thu, 21 Mar 2013 21:47:14 +0000
+Message-Id: <1363902435-1487-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 28, 2013 at 11:03:01PM -0500, Mike Frysinger wrote:
->  sys-utils/unshare.1 | 1 -
->  1 file changed, 1 deletion(-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/blkid.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
- Applied, thanks.
-
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index 78e0a93..fd27da7 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -49,6 +49,7 @@ extern int optind;
+ 
+ #include "closestream.h"
+ #include "ttyutils.h"
++#include "xalloc.h"
+ 
+ const char *progname = "blkid";
+ 
+@@ -703,8 +704,8 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'L':
+ 			eval++;
+-			search_value = strdup(optarg);
+-			search_type = strdup("LABEL");
++			search_value = xstrdup(optarg);
++			search_type = xstrdup("LABEL");
+ 			break;
+ 		case 'n':
+ 			fltr_type = list_to_types(optarg, &fltr_flag);
+@@ -714,8 +715,8 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'U':
+ 			eval++;
+-			search_value = strdup(optarg);
+-			search_type = strdup("UUID");
++			search_value = xstrdup(optarg);
++			search_type = xstrdup("UUID");
+ 			break;
+ 		case 'i':
+ 			lowprobe |= LOWPROBE_TOPOLOGY;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.2
+
