@@ -1,127 +1,608 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:63166 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758218Ab3CGX1p (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Mar 2013 18:27:45 -0500
-Received: by mail-wi0-f182.google.com with SMTP id hi18so644930wib.9
-        for <util-linux@vger.kernel.org>; Thu, 07 Mar 2013 15:27:43 -0800 (PST)
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:57485 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753714Ab3C0WIJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Mar 2013 18:08:09 -0400
+Received: by mail-wg0-f45.google.com with SMTP id x12so1024837wgg.24
+        for <util-linux@vger.kernel.org>; Wed, 27 Mar 2013 15:08:07 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 6/7] kill, procs: use pid_t for pids
-Date: Thu,  7 Mar 2013 23:27:23 +0000
-Message-Id: <1362698844-21292-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
-References: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 02/10] bash-completion: disk-utils
+Date: Wed, 27 Mar 2013 22:07:44 +0000
+Message-Id: <1364422072-23552-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/threads.h#n30
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/kill.c  |  6 +++---
- misc-utils/kill.h  |  2 +-
- misc-utils/procs.c | 17 ++++++++---------
- 3 files changed, 12 insertions(+), 13 deletions(-)
+ shell-completion/addpart     | 25 +++++++++++++++++++++++++
+ shell-completion/blockdev    | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ shell-completion/delpart     | 19 +++++++++++++++++++
+ shell-completion/fdformat    | 11 +++++++++++
+ shell-completion/fsck        | 36 ++++++++++++++++++++++++++++++++++++
+ shell-completion/fsck.cramfs | 18 ++++++++++++++++++
+ shell-completion/fsck.minix  | 11 +++++++++++
+ shell-completion/isosize     | 17 +++++++++++++++++
+ shell-completion/mkfs        | 25 +++++++++++++++++++++++++
+ shell-completion/mkfs.bfs    | 28 ++++++++++++++++++++++++++++
+ shell-completion/mkfs.cramfs | 40 ++++++++++++++++++++++++++++++++++++++++
+ shell-completion/mkfs.minix  | 33 +++++++++++++++++++++++++++++++++
+ shell-completion/mkswap      | 36 ++++++++++++++++++++++++++++++++++++
+ shell-completion/partx       | 37 +++++++++++++++++++++++++++++++++++++
+ shell-completion/raw         | 17 +++++++++++++++++
+ shell-completion/resizepart  | 22 ++++++++++++++++++++++
+ shell-completion/swaplabel   | 28 ++++++++++++++++++++++++++++
+ 17 files changed, 447 insertions(+)
+ create mode 100644 shell-completion/addpart
+ create mode 100644 shell-completion/blockdev
+ create mode 100644 shell-completion/delpart
+ create mode 100644 shell-completion/fdformat
+ create mode 100644 shell-completion/fsck
+ create mode 100644 shell-completion/fsck.cramfs
+ create mode 100644 shell-completion/fsck.minix
+ create mode 100644 shell-completion/isosize
+ create mode 100644 shell-completion/mkfs
+ create mode 100644 shell-completion/mkfs.bfs
+ create mode 100644 shell-completion/mkfs.cramfs
+ create mode 100644 shell-completion/mkfs.minix
+ create mode 100644 shell-completion/mkswap
+ create mode 100644 shell-completion/partx
+ create mode 100644 shell-completion/raw
+ create mode 100644 shell-completion/resizepart
+ create mode 100644 shell-completion/swaplabel
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index b0145cd..742f349 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -156,7 +156,7 @@ int main(int argc, char **argv)
- 	int errors, numsig, pid;
- 	char *ep, *arg;
- 	int do_pid, do_kill, check_all;
--	int *pids, *ip;
-+	pid_t *pids, *ip;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -414,12 +414,12 @@ static int usage(int status)
- 	return status;
- }
- 
--static int kill_verbose(char *procname, int pid, int sig)
-+static int kill_verbose(char *procname, pid_t pid, int sig)
- {
- 	int rc;
- 
- 	if (sig < 0) {
--		printf("%d\n", pid);
-+		printf("%ld\n", (long)pid);
- 		return 0;
- 	}
- #ifdef HAVE_SIGQUEUE
-diff --git a/misc-utils/kill.h b/misc-utils/kill.h
-index 43c6ed7..fb02994 100644
---- a/misc-utils/kill.h
-+++ b/misc-utils/kill.h
-@@ -1,7 +1,7 @@
- #ifndef UTIL_LINUX_KILL
- #define UTIL_LINUX_KILL
- 
--extern int *get_pids(char *process_name, int get_all);
-+extern pid_t *get_pids(char *process_name, int get_all);
- extern char *mybasename(char *);
- 
- #endif
-diff --git a/misc-utils/procs.c b/misc-utils/procs.c
-index 544966e..c4cb06e 100644
---- a/misc-utils/procs.c
-+++ b/misc-utils/procs.c
-@@ -25,16 +25,16 @@
- 
- static char *parse_parens(char *buf);
- 
--int *get_pids(char *process_name, int get_all)
-+pid_t *get_pids(char *process_name, int get_all)
- {
- 	DIR *dir;
- 	struct dirent *ent;
- 	int status;
--	char *dname, fname[100], *cp, buf[256];
-+	char fname[100], *cp, buf[256], *end;
- 	struct stat st;
- 	uid_t uid;
- 	FILE *fp;
--	int pid, *pids, num_pids, pids_size;
-+	pid_t pid, *pids, num_pids, pids_size;
- 
- 	dir = opendir("/proc");
- 	if (!dir) {
-@@ -46,11 +46,10 @@ int *get_pids(char *process_name, int get_all)
- 	num_pids = pids_size = 0;
- 
- 	while ((ent = readdir(dir)) != NULL) {
--		dname = ent->d_name;
--		if (!isdigit(*dname))
-+		pid = strtol(ent->d_name, &end, 10);
-+		if (errno || ent->d_name == end || (end && *end))
- 			continue;
--		pid = atoi(dname);
--		sprintf(fname, "/proc/%d/cmdline", pid);
-+		sprintf(fname, "/proc/%ld/cmdline", (long)pid);
- 		/* get the process owner */
- 		status = stat(fname, &st);
- 		if (status != 0)
-@@ -66,7 +65,7 @@ int *get_pids(char *process_name, int get_all)
- 		/* an empty command line means the process is swapped out */
- 		if (!cp || !*cp) {
- 			/* get the process name from the statfile */
--			sprintf(fname, "/proc/%d/stat", pid);
-+			sprintf(fname, "/proc/%ld/stat", (long)pid);
- 			fp = fopen(fname, "r");
- 			if (!fp)
- 				continue;
-@@ -83,7 +82,7 @@ int *get_pids(char *process_name, int get_all)
- 			continue;
- 		while (pids_size < num_pids + 2) {
- 			pids_size += 5;
--			pids = (int *)xrealloc(pids, sizeof(int) * pids_size);
-+			pids = xrealloc(pids, sizeof(pid_t) * pids_size);
- 		}
- 		if (pids) {
- 			pids[num_pids++] = pid;
+diff --git a/shell-completion/addpart b/shell-completion/addpart
+new file mode 100644
+index 0000000..07ebf5e
+--- /dev/null
++++ b/shell-completion/addpart
+@@ -0,0 +1,25 @@
++_addpart_module()
++{
++	local cur
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $COMP_CWORD in
++		1)
++			local DEVS
++			DEVS="$(lsblk -o NAME -n -r)"
++			OPTS="-h --help -V --version $DEVS"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			;;
++		2)
++			COMPREPLY=( $(compgen -W "$((1 + $(ls $prev?* 2>/dev/null | wc -l)))" -- $cur) )
++			;;
++		3)
++			COMPREPLY=( $(compgen -W "start" -- $cur) )
++			;;
++		4)
++			COMPREPLY=( $(compgen -W "length" -- $cur) )
++			;;
++	esac
++	return 0
++}
++complete -F _addpart_module addpart
+diff --git a/shell-completion/blockdev b/shell-completion/blockdev
+new file mode 100644
+index 0000000..82ac6c1
+--- /dev/null
++++ b/shell-completion/blockdev
+@@ -0,0 +1,44 @@
++_blockdev_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	DEVS="$(lsblk -o NAME -n -r)"
++	OPTS="-h -V -q
++		--report
++		--getsz
++		--setro
++		--setrw
++		--getro
++		--getdiscardzeroes
++		--getss
++		--getpbsz
++		--getiomin
++		--getioopt
++		--getalignoff
++		--getmaxsect
++		--getbsz
++		--setbsz
++		--getsize64
++		--setra
++		--getra
++		--setfra
++		--getfra
++		--flushbufs
++		--rereadpt
++		$DEVS"
++	case $prev in
++		'--setbsz')
++			COMPREPLY=( $(compgen -W "bytes" -- $cur) )
++			return 0
++			;;
++		'--setbsz'|'--setfra')
++			COMPREPLY=( $(compgen -W "sectors" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++	return 0
++}
++complete -F _blockdev_module blockdev
+diff --git a/shell-completion/delpart b/shell-completion/delpart
+new file mode 100644
+index 0000000..849c018
+--- /dev/null
++++ b/shell-completion/delpart
+@@ -0,0 +1,19 @@
++_delpart_module()
++{
++	local cur OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $COMP_CWORD in
++		1)
++			local DEVS
++			DEVS="$(lsblk -o NAME,TYPE -n -r | awk '$2 ~ /disk/ {print "/dev/" $1}')"
++			OPTS="-h --help -V --version $DEVS"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			;;
++		2)
++			COMPREPLY=( $(compgen -W "$(cat /sys/block/${prev##*/}/*/partition 2>/dev/null)" -- $cur) )
++			;;
++	esac
++	return 0
++}
++complete -F _delpart_module delpart
+diff --git a/shell-completion/fdformat b/shell-completion/fdformat
+new file mode 100644
+index 0000000..f7d6a8e
+--- /dev/null
++++ b/shell-completion/fdformat
+@@ -0,0 +1,11 @@
++_fdformat_module()
++{
++	local cur OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	DEVS=$(ls /dev/fd[0-9]* 2>/dev/null)
++	OPTS="-n --no-verify -h --help -V --version $DEVS"
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++	return 0
++}
++complete -F _fdformat_module fdformat
+diff --git a/shell-completion/fsck b/shell-completion/fsck
+new file mode 100644
+index 0000000..c3da5f5
+--- /dev/null
++++ b/shell-completion/fsck
+@@ -0,0 +1,36 @@
++_fsck_module()
++{
++	local cur prev OPTS DEVS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-b')
++			COMPREPLY=( $(compgen -W "superblock" -- $cur) )
++			return 0
++			;;
++		'-B')
++			COMPREPLY=( $(compgen -W "blocksize" -- $cur) )
++			return 0
++			;;
++		'-j')
++			COMPREPLY=( $(compgen -W "external_journal" -- $cur) )
++			return 0
++			;;
++		'-l'|'-L')
++			COMPREPLY=( $(compgen -W "bad_blocks_file" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-p -n -y -c -f -v -b -B -j -l -L"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	DEVS="$(lsblk -o NAME -n -r | awk '{print "/dev/" $1}')"
++	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
++	return 0
++}
++complete -F _fsck_module fsck
+diff --git a/shell-completion/fsck.cramfs b/shell-completion/fsck.cramfs
+new file mode 100644
+index 0000000..410b084
+--- /dev/null
++++ b/shell-completion/fsck.cramfs
+@@ -0,0 +1,18 @@
++_fsck.cramfs_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	OPTS='-v --verbose -x --destination -h --help -V --version file'
++	case $prev in
++		'-x'|'--destination')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -o dirnames -- ${cur:-"/"}) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -S ' ' -- $cur) )
++	return 0
++}
++complete -F _fsck.cramfs_module fsck.cramfs
+diff --git a/shell-completion/fsck.minix b/shell-completion/fsck.minix
+new file mode 100644
+index 0000000..f01626a
+--- /dev/null
++++ b/shell-completion/fsck.minix
+@@ -0,0 +1,11 @@
++_fsck.minix_module()
++{
++	local cur OPTS DEVS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	DEVS="$(lsblk -o NAME -n -r | awk '{print "/dev/" $1}')"
++	OPTS="-l -a -r -v -s -m -f -V --version"
++	COMPREPLY=( $(compgen -W "${OPTS[*]} $DEVS" -- $cur) )
++	return 0
++}
++complete -F _fsck.minix_module fsck.minix
+diff --git a/shell-completion/isosize b/shell-completion/isosize
+new file mode 100644
+index 0000000..2b4a499
+--- /dev/null
++++ b/shell-completion/isosize
+@@ -0,0 +1,17 @@
++_isosize_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	OPTS='-d --divisor -x --sectors -h --help -V --version'
++	case $prev in
++		'-d'|'--divisor')
++			COMPREPLY=( $(compgen -W "number" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++	return 0
++}
++complete -F _isosize_module isosize
+diff --git a/shell-completion/mkfs b/shell-completion/mkfs
+new file mode 100644
+index 0000000..ee6a26b
+--- /dev/null
++++ b/shell-completion/mkfs
+@@ -0,0 +1,25 @@
++_mkfs_module()
++{
++	local cur prev OPTS DEVS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-t'|'--type')
++			FSTYPES=$(for I in $(\ls /sbin/mkfs.* /usr/sbin/mkfs.* 2>/dev/null); do echo ${I##*mkfs.}; done)
++			COMPREPLY=( $(compgen -W "$FSTYPES" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS='-t --type --verbose -h --help -V --version'
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	DEVS="$(lsblk -o NAME -n -r | awk '{print "/dev/" $1}')"
++	COMPREPLY=( $(compgen -W "$DEVS /path/to/file" -- $cur) )
++	return 0
++}
++complete -F _mkfs_module mkfs
+diff --git a/shell-completion/mkfs.bfs b/shell-completion/mkfs.bfs
+new file mode 100644
+index 0000000..b1a226a
+--- /dev/null
++++ b/shell-completion/mkfs.bfs
+@@ -0,0 +1,28 @@
++_bfs_module()
++{
++	local cur prev OPTS DEVS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-N'|'--inodes')
++			COMPREPLY=( $(compgen -W "number" -- $cur) )
++			return 0
++			;;
++		'-V'|'--vname'|'-F'|'--fname')
++			COMPREPLY=( $(compgen -W "name" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS='-N --inodes --vname --fname -v --verbose -h --help -V --version'
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	DEVS="$(lsblk -o NAME -n -r | awk '{print "/dev/" $1}')"
++	COMPREPLY=( $(compgen -W "$DEVS /path/to/file" -- $cur) )
++	return 0
++}
++complete -F _bfs_module bfs
+diff --git a/shell-completion/mkfs.cramfs b/shell-completion/mkfs.cramfs
+new file mode 100644
+index 0000000..65ee988
+--- /dev/null
++++ b/shell-completion/mkfs.cramfs
+@@ -0,0 +1,40 @@
++_mkfs.cramfs_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-b')
++			COMPREPLY=( $(compgen -W "blksize" -- $cur) )
++			return 0
++			;;
++		'-e')
++			COMPREPLY=( $(compgen -W "edition" -- $cur) )
++			return 0
++			;;
++		'-N')
++			COMPREPLY=( $(compgen -W "big little host" -- $cur) )
++			return 0
++			;;
++		'-i')
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++		'-n')
++			COMPREPLY=( $(compgen -W "name" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-h -v -E -b -e -N -i -n -p -s -z"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _mkfs.cramfs_module mkfs.cramfs
+diff --git a/shell-completion/mkfs.minix b/shell-completion/mkfs.minix
+new file mode 100644
+index 0000000..c717b3c
+--- /dev/null
++++ b/shell-completion/mkfs.minix
+@@ -0,0 +1,33 @@
++_mkfs.minix_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-i')
++			COMPREPLY=( $(compgen -W "inodes" -- $cur) )
++			return 0
++			;;
++		'-l')
++			COMPREPLY=( $(compgen -W "badblocks-file" -- $cur) )
++			return 0
++			;;
++		'-n')
++			COMPREPLY=( $(compgen -W "14 30" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-c -i -l -n -1 -2 -3"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	local DEVS
++	DEVS="$(lsblk -o NAME -n -r | awk '{print "/dev/" $1}')"
++	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
++	return 0
++}
++complete -F _mkfs.minix_module mkfs.minix
+diff --git a/shell-completion/mkswap b/shell-completion/mkswap
+new file mode 100644
+index 0000000..c847aa9
+--- /dev/null
++++ b/shell-completion/mkswap
+@@ -0,0 +1,36 @@
++_mkswap_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-p'|'--pagesize')
++			COMPREPLY=( $(compgen -W "bytes" -- $cur) )
++			return 0
++			;;
++		'-L'|'--label')
++			COMPREPLY=( $(compgen -W "label" -- $cur) )
++			return 0
++			;;
++		'-v'|'--swapversion')
++			COMPREPLY=( $(compgen -W "1" -- $cur) )
++			return 0
++			;;
++		'-U'|--uuid)
++			COMPREPLY=( $(compgen -W "$(lsblk -n --output uuid)" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-c --check -f --force -p --pagesize -L  --label -v --swapversion -U --uuid -V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _mkswap_module mkswap
+diff --git a/shell-completion/partx b/shell-completion/partx
+new file mode 100644
+index 0000000..c558d36
+--- /dev/null
++++ b/shell-completion/partx
+@@ -0,0 +1,37 @@
++_partx_module()
++{
++	local cur prev OPTS OUTPUT
++	COMPREPLY=()
++	OUTPUT="NR START END SECTORS SIZE NAME UUID TYPE FLAGS SCHEME"
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-n'|'--nr')
++			COMPREPLY=( $(compgen -W "$(lsblk -o NAME,TYPE -n -r | awk '$2 ~ /part/ {print "/dev/" $1}')" -- $cur) )
++			return 0
++			;;
++		'-o'|'--output')
++			# FIXME: how to append to a string with compgen?
++			compopt -o nospace
++			COMPREPLY=( $(compgen -W "$OUTPUT" -S ',' -- $cur) )
++			return 0
++			;;
++		'-t'|'--type')
++			# FIXME: some command should list type libblkid knows.
++			COMPREPLY=( $(compgen -W "aix bsd dos gpt mac minix sgi solaris_x86 sun ultrix unixware" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-a --add -d --delete -s --show -u --update -b --bytes -g --noheadings -n --nr -o --output -P --pairs -r --raw -t --type -v --verbose -h --help -V --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	local DEVS
++	DEVS="$(sblk -o NAME,TYPE -n -r | awk '$2 ~ /disk/ {print "/dev/" $1}')"
++	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
++	return 0
++}
++complete -F _partx_module partx
+diff --git a/shell-completion/raw b/shell-completion/raw
+new file mode 100644
+index 0000000..41e03f2
+--- /dev/null
++++ b/shell-completion/raw
+@@ -0,0 +1,17 @@
++_raw_module()
++{
++	local cur
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $cur in
++		-*)
++			local OPTS
++			OPTS="-q --query -a --all -h --help -V --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "$(ls 2>/dev/null /dev/raw/*)" -- $cur) )
++	return 0
++}
++complete -F _raw_module raw
+diff --git a/shell-completion/resizepart b/shell-completion/resizepart
+new file mode 100644
+index 0000000..827638a
+--- /dev/null
++++ b/shell-completion/resizepart
+@@ -0,0 +1,22 @@
++_resizepart_module()
++{
++	local cur OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $COMP_CWORD in
++		1)
++			local DEVS
++			DEVS="$(lsblk -o NAME,TYPE -n -r | awk '$2 ~ /disk/ {print "/dev/" $1}')"
++			OPTS="-h --help -V --version $DEVS"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			;;
++		2)
++			COMPREPLY=( $(compgen -W "$(cat /sys/block/${prev##*/}/*/partition 2>/dev/null)" -- $cur) )
++			;;
++		3)
++			COMPREPLY="length"
++			;;
++	esac
++	return 0
++}
++complete -F _resizepart_module resizepart
+diff --git a/shell-completion/swaplabel b/shell-completion/swaplabel
+new file mode 100644
+index 0000000..c857d15
+--- /dev/null
++++ b/shell-completion/swaplabel
+@@ -0,0 +1,28 @@
++_swaplabel_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-L'|'--label')
++			COMPREPLY=( $(compgen -W "label" -- $cur) )
++			return 0
++			;;
++		'-U'|'--uuid')
++			COMPREPLY=( $(compgen -W '$(uuidgen)' -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-L --label -U --uuid -h --help -V --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _swaplabel_module swaplabel
 -- 
-1.8.1.5
+1.8.2
 
