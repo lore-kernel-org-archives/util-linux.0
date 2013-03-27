@@ -1,58 +1,310 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:61686 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752977Ab3CUVrc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Mar 2013 17:47:32 -0400
-Received: by mail-wi0-f177.google.com with SMTP id hm14so3659766wib.16
-        for <util-linux@vger.kernel.org>; Thu, 21 Mar 2013 14:47:31 -0700 (PDT)
+Received: from mail-we0-f182.google.com ([74.125.82.182]:40217 "EHLO
+	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751980Ab3C0WIP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Mar 2013 18:08:15 -0400
+Received: by mail-we0-f182.google.com with SMTP id k14so4852794wer.13
+        for <util-linux@vger.kernel.org>; Wed, 27 Mar 2013 15:08:13 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 1/2] blkid: use xalloc.h when possible
-Date: Thu, 21 Mar 2013 21:47:14 +0000
-Message-Id: <1363902435-1487-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 04/10] bash-completion: login-utils
+Date: Wed, 27 Mar 2013 22:07:46 +0000
+Message-Id: <1364422072-23552-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/blkid.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ shell-completion/chfn     | 31 +++++++++++++++++++++++++++++++
+ shell-completion/chsh     | 23 +++++++++++++++++++++++
+ shell-completion/last     | 38 ++++++++++++++++++++++++++++++++++++++
+ shell-completion/login    | 27 +++++++++++++++++++++++++++
+ shell-completion/newgrp   | 16 ++++++++++++++++
+ shell-completion/su       | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ shell-completion/sulogin  | 24 ++++++++++++++++++++++++
+ shell-completion/utmpdump | 17 +++++++++++++++++
+ 8 files changed, 221 insertions(+)
+ create mode 100644 shell-completion/chfn
+ create mode 100644 shell-completion/chsh
+ create mode 100644 shell-completion/last
+ create mode 100644 shell-completion/login
+ create mode 100644 shell-completion/newgrp
+ create mode 100644 shell-completion/su
+ create mode 100644 shell-completion/sulogin
+ create mode 100644 shell-completion/utmpdump
 
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index 78e0a93..fd27da7 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -49,6 +49,7 @@ extern int optind;
- 
- #include "closestream.h"
- #include "ttyutils.h"
-+#include "xalloc.h"
- 
- const char *progname = "blkid";
- 
-@@ -703,8 +704,8 @@ int main(int argc, char **argv)
- 			break;
- 		case 'L':
- 			eval++;
--			search_value = strdup(optarg);
--			search_type = strdup("LABEL");
-+			search_value = xstrdup(optarg);
-+			search_type = xstrdup("LABEL");
- 			break;
- 		case 'n':
- 			fltr_type = list_to_types(optarg, &fltr_flag);
-@@ -714,8 +715,8 @@ int main(int argc, char **argv)
- 			break;
- 		case 'U':
- 			eval++;
--			search_value = strdup(optarg);
--			search_type = strdup("UUID");
-+			search_value = xstrdup(optarg);
-+			search_type = xstrdup("UUID");
- 			break;
- 		case 'i':
- 			lowprobe |= LOWPROBE_TOPOLOGY;
+diff --git a/shell-completion/chfn b/shell-completion/chfn
+new file mode 100644
+index 0000000..1c5167a
+--- /dev/null
++++ b/shell-completion/chfn
+@@ -0,0 +1,31 @@
++_chfn_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-f'|'--full-name')
++			COMPREPLY=( $(compgen -W "name" -- $cur) )
++			return 0
++			;;
++		'-o'|'--office')
++			COMPREPLY=( $(compgen -W "office" -- $cur) )
++			return 0
++			;;
++		'-p'|'--office-phone'|'-h'|'--home-phone')
++			COMPREPLY=( $(compgen -W "phone-nr" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-f --full-name -o --office -p --office-phone -h --home-phone -u --help -v --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -u -- $cur) )
++	return 0
++}
++complete -F _chfn_module chfn
+diff --git a/shell-completion/chsh b/shell-completion/chsh
+new file mode 100644
+index 0000000..c0a194c
+--- /dev/null
++++ b/shell-completion/chsh
+@@ -0,0 +1,23 @@
++_chsh_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-s'|'--shell')
++			COMPREPLY=( $(compgen -W "$(chsh -l)" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-s --shell -l --list-shells -V --version -u --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -u -- $cur) )
++	return 0
++}
++complete -F _chsh_module chsh
+diff --git a/shell-completion/last b/shell-completion/last
+new file mode 100644
+index 0000000..493051e
+--- /dev/null
++++ b/shell-completion/last
+@@ -0,0 +1,38 @@
++_last_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-f')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++		'-h')
++			COMPREPLY=( $(compgen -A hostname -- $cur) )
++			return 0
++			;;
++		'-i')
++			COMPREPLY=( $(compgen -W "ipaddr" -- $cur) )
++			return 0
++			;;
++		'-t')
++			local TTYS
++			TTYS=$(cd /sys/devices/virtual/tty && echo *)
++			COMPREPLY=( $(compgen -W "$TTYS" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-f -h -i -l -t -y"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -u -- $cur) )
++	return 0
++}
++complete -F _last_module last
+diff --git a/shell-completion/login b/shell-completion/login
+new file mode 100644
+index 0000000..c075f64
+--- /dev/null
++++ b/shell-completion/login
+@@ -0,0 +1,27 @@
++_login_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-f')
++			COMPREPLY=( $(compgen -u -- $cur) )
++			return 0
++			;;
++		'-h')
++			COMPREPLY=( $(compgen -A hostname -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-p -f -h -H -V"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -u -- $cur) )
++	return 0
++}
++complete -F _login_module login
+diff --git a/shell-completion/newgrp b/shell-completion/newgrp
+new file mode 100644
+index 0000000..567c08c
+--- /dev/null
++++ b/shell-completion/newgrp
+@@ -0,0 +1,16 @@
++_newgrp_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $cur in
++		-*)
++			OPTS="-V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -g -- $cur) )
++	return 0
++}
++complete -F _newgrp_module newgrp
+diff --git a/shell-completion/su b/shell-completion/su
+new file mode 100644
+index 0000000..ded4b7b
+--- /dev/null
++++ b/shell-completion/su
+@@ -0,0 +1,45 @@
++_su_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-'|'-u'|'--user')
++			COMPREPLY=( $(compgen -u -- $cur) )
++			return 0
++			;;
++		'-g'|'--group'|'-G'|'--supp-group')
++			COMPREPLY=( $(compgen -g -- $cur) )
++			return 0
++			;;
++		'-s'|'--shell')
++			COMPREPLY=( $(compgen -W "$(chsh -l)" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="	-u --user
++				-m -p --preserve-environment
++				-g --group
++				-G --supp-group
++				- -l --login
++				-c --command
++				- -c
++				--session-command
++				-- -c
++				-f --fast
++				-s --shell
++				-h --help
++				-V --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _su_module su
++complete -F _su_module runuser
+diff --git a/shell-completion/sulogin b/shell-completion/sulogin
+new file mode 100644
+index 0000000..9fdc20e
+--- /dev/null
++++ b/shell-completion/sulogin
+@@ -0,0 +1,24 @@
++_sulogin_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-t'|'--timeout')
++			COMPREPLY=( $(compgen -W "seconds" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-p --login-shell -t --timeout -V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- ${cur:-"/dev/tty"}) )
++	return 0
++}
++complete -F _sulogin_module sulogin
+diff --git a/shell-completion/utmpdump b/shell-completion/utmpdump
+new file mode 100644
+index 0000000..e306ef8
+--- /dev/null
++++ b/shell-completion/utmpdump
+@@ -0,0 +1,17 @@
++_utmpdump_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $cur in
++		-*)
++			OPTS="-f --follow -r --reverse -V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _utmpdump_module utmpdump
 -- 
 1.8.2
 
