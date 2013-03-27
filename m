@@ -1,323 +1,385 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:41589 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752563Ab3C0UpI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 27 Mar 2013 16:45:08 -0400
-Message-ID: <51535A4C.4060604@suse.com>
-Date: Wed, 27 Mar 2013 16:45:00 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: [PATCH v2] loopdev: sync capacity after setting it
-References: <51438CF9.7020707@suse.com> <5145D0B4.1070207@suse.com> <20130318092700.GC2172@x2.net.home> <51471122.6030804@suse.com> <20130318131827.GE2172@x2.net.home>
-In-Reply-To: <20130318131827.GE2172@x2.net.home>
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:43618 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754669Ab3C0WIZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Mar 2013 18:08:25 -0400
+Received: by mail-wg0-f44.google.com with SMTP id z12so999338wgg.35
+        for <util-linux@vger.kernel.org>; Wed, 27 Mar 2013 15:08:24 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 08/10] bash-completion: term-utils
+Date: Wed, 27 Mar 2013 22:07:50 +0000
+Message-Id: <1364422072-23552-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I recently tried to mount an hfsplus file system from an image file with
-a partition table by using the loop offset and sizelimit options to specify
-the location of the file system.
-
-hfsplus stores some metadata at a set offset from the end of the partition,
-so it's sensitive to the device size reported by the kernel.
-
-It worked with this:
-# losetup -r -o 32k --sizelimit=102400000 <loopdev> <imagefile>
-# mount -r -t hfsplus <loopdev> <mountpoint>
-
-But failed with this:
-# mount -r -oloop,offset=32k,sizelimit=102400000 <imagefile> <mountpoint>
-
-# losetup -a
-/dev/loop0: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
-/dev/loop1: [0089]:2 (<imagefile>), offset 32768, sizelimit 102400000
-
-/proc/partitions shows the correct number of blocks to match the sizelimit.
-
-But if I set a breakpoint in mount before the mount syscall, I could see:
-# blockdev --getsize64 /dev/loop[01]
-102400000
-102432768
-
-The kernel loop driver will set the gendisk capacity of the device at
-LOOP_SET_STATUS64 but won't sync it to the block device until one of two
-conditions are met: All open file descriptors referring to the device are
-closed (and it will sync when re-opened) or if the LOOP_SET_CAPACITY ioctl
-is called to sync it. Since mount opens the device and passes it directly
-to the mount syscall after LOOP_SET_STATUS64 without closing and reopening
-it, the sizelimit argument is effectively ignroed. The capacity needs to
-be synced immediately for it to work as expected.
-
-This patch adds the LOOP_SET_CAPACITY call to loopctx_setup_device since
-the device isn't yet released to the user, so it's safe to sync the capacity
-immediately.
-
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- include/loopdev.h        |    1 
- lib/Makefile.am          |    4 +-
- lib/blkdev.c             |    2 -
- lib/loopdev.c            |   89 +++++++++++++++++++++++++++++++++++++++++++++--
- libmount/src/Makefile.am |    1 
- mount/mount.8            |   16 ++++++++
- sys-utils/Makefile.am    |    3 +
- sys-utils/losetup.c      |   19 ++--------
- 8 files changed, 114 insertions(+), 21 deletions(-)
+ shell-completion/agetty       |  70 +++++++++++++++++++++++++++
+ shell-completion/mesg         |  16 +++++++
+ shell-completion/script       |  38 +++++++++++++++
+ shell-completion/scriptreplay |  28 +++++++++++
+ shell-completion/setterm      | 109 ++++++++++++++++++++++++++++++++++++++++++
+ shell-completion/wall         |  24 ++++++++++
+ shell-completion/write        |  19 ++++++++
+ 7 files changed, 304 insertions(+)
+ create mode 100644 shell-completion/agetty
+ create mode 100644 shell-completion/mesg
+ create mode 100644 shell-completion/script
+ create mode 100644 shell-completion/scriptreplay
+ create mode 100644 shell-completion/setterm
+ create mode 100644 shell-completion/wall
+ create mode 100644 shell-completion/write
 
---- a/include/loopdev.h
-+++ b/include/loopdev.h
-@@ -160,6 +160,7 @@ extern int loopcxt_next(struct loopdev_c
- 
- extern int loopcxt_setup_device(struct loopdev_cxt *lc);
- extern int loopcxt_delete_device(struct loopdev_cxt *lc);
-+extern int loopcxt_set_capacity(struct loopdev_cxt *lc);
- 
- int loopcxt_set_offset(struct loopdev_cxt *lc, uint64_t offset);
- int loopcxt_set_sizelimit(struct loopdev_cxt *lc, uint64_t sizelimit);
---- a/lib/Makefile.am
-+++ b/lib/Makefile.am
-@@ -13,6 +13,7 @@ noinst_PROGRAMS += test_sysfs test_loopd
- endif
- 
- test_blkdev_SOURCES = blkdev.c
-+test_blkdev_CFLAGS = -DTEST_PROGRAM_BLKDEV
- test_ismounted_SOURCES = ismounted.c
- test_wholedisk_SOURCES = wholedisk.c
- test_mangle_SOURCES = mangle.c
-@@ -31,7 +32,8 @@ test_sysfs_CFLAGS = -DTEST_PROGRAM_SYSFS
- test_loopdev_SOURCES = loopdev.c \
- 		       $(test_sysfs_SOURCES) \
- 		       $(top_srcdir)/lib/linux_version.c \
--		       $(top_srcdir)/lib/canonicalize.c
-+		       $(top_srcdir)/lib/canonicalize.c \
-+		       $(top_srcdir)/lib/blkdev.c
- 
- test_loopdev_CFLAGS = -DTEST_PROGRAM_LOOPDEV
- endif
---- a/lib/blkdev.c
-+++ b/lib/blkdev.c
-@@ -263,7 +263,7 @@ int blkdev_is_cdrom(int fd)
- #endif
- }
- 
--#ifdef TEST_PROGRAM
-+#ifdef TEST_PROGRAM_BLKDEV
- #include <stdio.h>
- #include <stdlib.h>
- #include <fcntl.h>
---- a/lib/loopdev.c
-+++ b/lib/loopdev.c
-@@ -37,6 +37,7 @@
- #include "pathnames.h"
- #include "loopdev.h"
- #include "canonicalize.h"
-+#include "blkdev.h"
- 
- #define CONFIG_LOOPDEV_DEBUG
- 
-@@ -968,6 +969,66 @@ int loopcxt_set_backing_file(struct loop
- }
- 
- /*
-+ * In kernels prior to v3.9, if the offset or sizelimit options
-+ * are used, the block device's size won't be synced automatically.
-+ * blockdev --getsize64 and filesystems will use the backing
-+ * file size until the block device has been re-opened or the
-+ * LOOP_SET_CAPACITY ioctl is called to sync the sizes.
-+ *
-+ * Since mount -oloop uses the LO_FLAGS_AUTOCLEAR option and passes
-+ * the open file descriptor to the mount system call, we need to use
-+ * the ioctl. Calling losetup directly doesn't have this problem since
-+ * it closes the device when it exits and whatever consumes the device
-+ * next will re-open it, causing the resync.
-+ */
-+static int
-+loopcxt_check_size(struct loopdev_cxt *lc, int file_fd)
+diff --git a/shell-completion/agetty b/shell-completion/agetty
+new file mode 100644
+index 0000000..dc37a68
+--- /dev/null
++++ b/shell-completion/agetty
+@@ -0,0 +1,70 @@
++_agetty_module()
 +{
-+	unsigned long long size, expected_size;
-+	int dev_fd;
-+	struct stat st;
-+	int retry = 2;
-+
-+	if (!lc->info.lo_offset && !lc->info.lo_sizelimit)
-+		return 0;
-+
-+	if (fstat(file_fd, &st))
-+		return -errno;
-+
-+	expected_size = st.st_size;
-+
-+	if (lc->info.lo_offset > 0)
-+		expected_size -= lc->info.lo_offset;
-+
-+	if (lc->info.lo_sizelimit > 0 && lc->info.lo_sizelimit < expected_size)
-+		expected_size = lc->info.lo_sizelimit;
-+
-+	dev_fd = loopcxt_get_fd(lc);
-+	if (dev_fd < 0)
-+		return -errno;
-+
-+	if (blkdev_get_size(dev_fd, &size))
-+		return -errno;
-+
-+	if (expected_size != size) {
-+		if (loopcxt_set_capacity(lc)) {
-+			/* ioctl not available */
-+			if (errno == ENOTTY || errno == EINVAL)
-+				errno = ERANGE;
-+			return -errno;
-+		}
-+
-+		if (blkdev_get_size(dev_fd, &size))
-+			return -errno;
-+
-+		if (expected_size != size)
-+			return -ERANGE;
-+	}
-+
-+	return 0;
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-a'|'--autologin')
++			COMPREPLY=( $(compgen -u -- $cur) )
++			return 0
++			;;
++		'-o'|'--issue-file'|'-I'|'--login-program')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++		'-I'|'--init-string'|'--erase-chars'|'--kill-chars')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -W "string" -- $cur) )
++			return 0
++			;;
++		'-o'|'--login-options')
++			COMPREPLY=( $(compgen -W "login-options" -- $cur) )
++			return 0
++			;;
++		'-t'|'--timeout')
++			COMPREPLY=( $(compgen -W "seconds" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-8 --8bits
++				-a --autologin
++				-c --noreset
++				-f --issue-file
++				-h --flow-control
++				-H --host
++				-i --noissue
++				-I --init-string
++				-l --login-program
++				-L --local-line
++				-m --extract-baud
++				-n --skip-login
++				-o --login-options
++				-p --loginpause
++				-R --hangup
++				-s --keep-baud
++				-t --timeout
++				-U --detect-case
++				-w --wait-cr
++				   --nocleardo
++				   --nohintsdo
++				   --nonewlinedo
++				   --no-hostnameno
++				   --long-hostnameshow
++				   --erase-chars
++				   --kill-chars
++				-h --help
++				-V --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	local BAUD_RATES
++	BAUD_RATES="75 110 300 1200 2400 4800 9600 19200 38400 57600 115200"
++	COMPREPLY=( $(compgen -W "$BAUD_RATES $(echo /dev/tty*)" -- $cur) )
++	return 0
 +}
-+
-+/*
-  * @cl: context
-  *
-  * Associate the current device (see loopcxt_{set,get}_device()) with
-@@ -1045,9 +1106,6 @@ int loopcxt_setup_device(struct loopdev_
- 
- 	DBG(lc, loopdev_debug("setup: LOOP_SET_FD: OK"));
- 
--	close(file_fd);
--	file_fd = -1;
--
- 	if (ioctl(dev_fd, LOOP_SET_STATUS64, &lc->info)) {
- 		DBG(lc, loopdev_debug("LOOP_SET_STATUS64 failed: %m"));
- 		goto err;
-@@ -1055,6 +1113,12 @@ int loopcxt_setup_device(struct loopdev_
- 
- 	DBG(lc, loopdev_debug("setup: LOOP_SET_STATUS64: OK"));
- 
-+	if ((rc = loopcxt_check_size(lc, file_fd)))
-+		goto err;
-+
-+	close(file_fd);
-+	file_fd = -1;
-+
- 	memset(&lc->info, 0, sizeof(lc->info));
- 	lc->has_info = 0;
- 	lc->info_failed = 0;
-@@ -1071,6 +1135,25 @@ err:
- 	return rc;
- }
- 
-+int loopcxt_set_capacity(struct loopdev_cxt *lc)
++complete -F _agetty_module agetty
+diff --git a/shell-completion/mesg b/shell-completion/mesg
+new file mode 100644
+index 0000000..62c98ca
+--- /dev/null
++++ b/shell-completion/mesg
+@@ -0,0 +1,16 @@
++_mesg_module()
 +{
-+	int fd = loopcxt_get_fd(lc);
-+	int rc;
-+
-+	if (fd < 0)
-+		return -EINVAL;
-+
-+	/* Kernels prior to v2.6.30 don't support this ioctl */
-+	if (ioctl(fd, LOOP_SET_CAPACITY, 0) < 0) {
-+		int rc = -errno;
-+		DBG(lc, loopdev_debug("LOOP_SET_CAPACITY failed: %m"));
-+		return rc;
-+	}
-+
-+	DBG(lc, loopdev_debug("capacity set"));
-+	return 0;
++	local cur OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $cur in
++		-*)
++			OPTS="-v --verbose -V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "y n" -- $cur) )
++	return 0
 +}
-+
- int loopcxt_delete_device(struct loopdev_cxt *lc)
- {
- 	int fd = loopcxt_get_fd(lc);
---- a/libmount/src/Makefile.am
-+++ b/libmount/src/Makefile.am
-@@ -23,6 +23,7 @@ libmount_la_SOURCES =	mountP.h version.c
- 			$(top_srcdir)/lib/strutils.c \
- 			$(top_srcdir)/lib/env.c \
- 			$(top_srcdir)/lib/loopdev.c \
-+			$(top_srcdir)/lib/blkdev.c \
- 			$(top_srcdir)/lib/sysfs.c \
- 			$(top_srcdir)/lib/linux_version.c
- 
---- a/mount/mount.8
-+++ b/mount/mount.8
-@@ -2844,6 +2844,22 @@ and
- .BR ioctl
- families of functions) may lead to inconsistent result due to the lack of
- consistency check in kernel even if noac is used.
-+.PP
-+The
-+.B loop
-+option with the
-+.B offset
-+or
-+.B sizelimit
-+options used may fail when using older kernels if the
-+.B mount
-+command can't confirm that the size of the block device has been configured
-+as requested. This situation can be worked around by using
-+the
-+.B losetup
-+command manually before calling
-+.B mount
-+with the configured loop device.
- .SH HISTORY
- A
- .B mount
---- a/sys-utils/Makefile.am
-+++ b/sys-utils/Makefile.am
-@@ -34,7 +34,8 @@ losetup_SOURCES = losetup.c \
- 		$(top_srcdir)/lib/loopdev.c \
- 		$(top_srcdir)/lib/canonicalize.c \
- 		$(top_srcdir)/lib/xgetpass.c \
--		$(top_srcdir)/lib/strutils.c
-+		$(top_srcdir)/lib/strutils.c \
-+		$(top_srcdir)/lib/blkdev.c
- 
- if HAVE_STATIC_LOSETUP
- bin_PROGRAMS += losetup.static
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -107,20 +107,6 @@ static int show_all_loops(struct loopdev
- 	return 0;
- }
- 
--static int set_capacity(struct loopdev_cxt *lc)
--{
--	int fd = loopcxt_get_fd(lc);
--
--	if (fd < 0)
--		warn(_("%s: open failed"), loopcxt_get_device(lc));
--	else if (ioctl(fd, LOOP_SET_CAPACITY) != 0)
--		warnx(_("%s: set capacity failed"), loopcxt_get_device(lc));
--	else
--		return 0;
--
--	return -1;
--}
--
- static int delete_loop(struct loopdev_cxt *lc)
- {
- 	if (loopcxt_delete_device(lc))
-@@ -394,7 +380,10 @@ int main(int argc, char **argv)
- 			warn(_("%s"), loopcxt_get_device(&lc));
- 		break;
- 	case A_SET_CAPACITY:
--		res = set_capacity(&lc);
-+		res = loopcxt_set_capacity(&lc);
-+		if (res)
-+			warn(_("%s: set capacity failed"),
-+			        loopcxt_get_device(&lc));
- 		break;
- 	default:
- 		usage(stderr);
-
-
-
++complete -F _mesg_module mesg
+diff --git a/shell-completion/script b/shell-completion/script
+new file mode 100644
+index 0000000..fb6c106
+--- /dev/null
++++ b/shell-completion/script
+@@ -0,0 +1,38 @@
++_script_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-c'|'--command')
++			compopt -o bashdefault
++			COMPREPLY=( $(compgen -c -- $cur) )
++			return 0
++			;;
++		'-t'|'--timing')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-a --append
++				-c --command
++				-e --return
++				-f --flush
++				   --force
++				-q --quiet
++				-t --timing
++				-V --version
++				-h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _script_module script
+diff --git a/shell-completion/scriptreplay b/shell-completion/scriptreplay
+new file mode 100644
+index 0000000..78e5b23
+--- /dev/null
++++ b/shell-completion/scriptreplay
+@@ -0,0 +1,28 @@
++_scriptreplay_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-d'|'--divisor')
++			COMPREPLY=( $(compgen -W "digit" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-t --timing
++				-s --typescript
++				-d --divisor
++				-V --version
++				-h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _scriptreplay_module scriptreplay
+diff --git a/shell-completion/setterm b/shell-completion/setterm
+new file mode 100644
+index 0000000..a0dff44
+--- /dev/null
++++ b/shell-completion/setterm
+@@ -0,0 +1,109 @@
++_setterm_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-term')
++			# FIXME: terminal type list would be nice
++			COMPREPLY=( $(compgen -W "vt100 xterm linux screen etc" -- $cur) )
++			return 0
++			;;
++		'-foreground'|'-background'|'-ulcolor'|'-hbcolor')
++			COMPREPLY=( $(compgen -W "default black blue cyan green magenta red white yellow" -- $cur) )
++			return 0
++			;;
++		'-cursor'|'-repeat'|'-appcursorkeys'|'-linewrap'|'-inversescreen'|'-bold'|'-half-bright'|'-blink'|'-reverse'|'-underline'|'-msg')
++			COMPREPLY=( $(compgen -W "off on" -- $cur) )
++			return 0
++			;;
++		'-clear')
++			COMPREPLY=( $(compgen -W "all rest" -- $cur) )
++			return 0
++			;;
++		'-tabs'|'-clrtabs')
++			COMPREPLY=( $(compgen -W "tab1 tab2 tab3 tab160" -- $cur) )
++			return 0
++			;;
++		'-regtabs')
++			COMPREPLY=( $(compgen -W "$(echo {1..160})" -- $cur) )
++			return 0
++			;;
++		'-blank')
++			COMPREPLY=( $(compgen -W "$(echo {0..60}) force poke" -- $cur) )
++			return 0
++			;;
++		'-dump'|'-append')
++			local NUM_CONS
++			NUM_CONS=$(ls /sys/class/tty | wc -l)
++			COMPREPLY=( $(compgen -W "$(echo {1..$NUM_CONS})" -- $cur) )
++			return 0
++			;;
++		'-file')
++			compopt -o filenames
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++		'-msglevel')
++			COMPREPLY=( $(compgen -W "$(echo {1..8})" -- $cur) )
++			return 0
++			;;
++		'-powersave')
++			COMPREPLY=( $(compgen -W "on vsync hsync powerdown off" -- $cur) )
++			return 0
++			;;
++		'-powerdown')
++			COMPREPLY=( $(compgen -W "$(echo {0..60})" -- $cur) )
++			return 0
++			;;
++		'-blength')
++			COMPREPLY=( $(compgen -W "0-2000" -- $cur) )
++			return 0
++			;;
++		'-bfreq')
++			COMPREPLY=( $(compgen -W "freqnumber" -- $cur) )
++			return 0
++			;;
++	esac
++	OPTS="	-term
++		-reset
++		-initialize
++		-cursor
++		-repeat
++		-appcursorkeys
++		-linewrap
++		-default
++		-foreground
++		-background
++		-ulcolor
++		-hbcolor
++		-ulcolor
++		-hbcolor
++		-inversescreen
++		-bold
++		-half-bright
++		-blink
++		-reverse
++		-underline
++		-store
++		-clear
++		-tabs
++		-clrtabs
++		-regtabs
++		-blank
++		-dump
++		-append
++		-file
++		-msg
++		-msglevel
++		-powersave
++		-powerdown
++		-blength
++		-bfreq
++		-version
++		-help"
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++	return 0
++}
++complete -F _setterm_module setterm
+diff --git a/shell-completion/wall b/shell-completion/wall
+new file mode 100644
+index 0000000..d3cbbd5
+--- /dev/null
++++ b/shell-completion/wall
+@@ -0,0 +1,24 @@
++_wall_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-t'|'--timeout')
++			COMPREPLY=( $(compgen -W "seconds" -- $cur) )
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="-n --nobanner -t --timeout -V --version -h --help"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- $cur) )
++	return 0
++}
++complete -F _wall_module wall
+diff --git a/shell-completion/write b/shell-completion/write
+new file mode 100644
+index 0000000..ba67569
+--- /dev/null
++++ b/shell-completion/write
+@@ -0,0 +1,19 @@
++_write_module()
++{
++	local cur
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	case $COMP_CWORD in
++		1)
++			COMPREPLY=( $(compgen -u -- $cur) )
++			return 0
++			;;
++		2)
++			local TERMS=$(for I in $(\ls /sys/class/tty 2>/dev/null); do echo "/dev/$I"; done)
++			COMPREPLY=( $(compgen -W "$TERMS" -- $cur) )
++			return 0
++			;;
++	esac
++	return 0
++}
++complete -F _write_module write
 -- 
-Jeff Mahoney
-SUSE Labs
+1.8.2
+
