@@ -1,47 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57053 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55668 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755183Ab3CLOmx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Mar 2013 10:42:53 -0400
-Date: Tue, 12 Mar 2013 15:29:58 +0100
+	id S1752593Ab3C1KFx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 28 Mar 2013 06:05:53 -0400
+Date: Thu, 28 Mar 2013 11:05:43 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/7] kill: modernization after undeprecation
-Message-ID: <20130312142958.GA26680@x2.net.home>
-References: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 04/10] bash-completion: login-utils
+Message-ID: <20130328100543.GD24678@x2.net.home>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+ <1364422072-23552-5-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1362698844-21292-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364422072-23552-5-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 07, 2013 at 11:27:17PM +0000, Sami Kerola wrote:
-> Sami Kerola (7):
->       kill: add long options
->       kill: align with howto-usage-function.txt
->       kill: use libc error printing facilities and exit values
->       kill, procs: fix coding style
+On Wed, Mar 27, 2013 at 10:07:46PM +0000, Sami Kerola wrote:
+> +++ b/shell-completion/login
+> @@ -0,0 +1,27 @@
+> +_login_module()
 
->       kill, procs: move function declarations to kill.h
+ Unnecessary module, nobody calls login(1) from command line, it does
+ not work, it's not supported :-)
 
-  Not applied this one. The include/ headers are usually for lib/
-  stuff. The another reason that the misc-util/proc.c code would be
-  better to move to lib/procutils.c (after some refactoring) -- I'll
-  do that.
+> +++ b/shell-completion/sulogin
+> @@ -0,0 +1,24 @@
+> +_sulogin_module()
 
->       kill, procs: use pid_t for pids
->       docs: add long options and tidy up kill.1
-> 
->  misc-utils/kill.1  |  88 ++++++-----
->  misc-utils/kill.c  | 442 ++++++++++++++++++++++++++---------------------------
->  misc-utils/kill.h  |   8 +-
->  misc-utils/procs.c | 170 +++++++++++----------
->  4 files changed, 360 insertions(+), 348 deletions(-)
-
- Applied, thanks.
-
-    Karel
+ the same thing, unnecessary
 
 -- 
  Karel Zak  <kzak@redhat.com>
