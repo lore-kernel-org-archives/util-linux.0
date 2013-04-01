@@ -1,96 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f172.google.com ([74.125.82.172]:46540 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752192Ab3D1RLS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 13:11:18 -0400
-Received: by mail-we0-f172.google.com with SMTP id r6so789845wey.3
-        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 10:11:16 -0700 (PDT)
+Received: from mail-we0-f173.google.com ([74.125.82.173]:65170 "EHLO
+	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759233Ab3DARAb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Apr 2013 13:00:31 -0400
+Received: by mail-we0-f173.google.com with SMTP id t57so1873348wey.32
+        for <util-linux@vger.kernel.org>; Mon, 01 Apr 2013 10:00:30 -0700 (PDT)
+Date: Mon, 1 Apr 2013 18:00:26 +0100
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 02/11] cal: convert function like definitions to functions
-Date: Sun, 28 Apr 2013 18:10:58 +0100
-Message-Id: <1367169067-23705-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 02/10] bash-completion: disk-utils
+Message-ID: <20130401170018.GC22182@gmail.com>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+ <1364422072-23552-3-git-send-email-kerolasa@iki.fi>
+ <20130328095414.GB24678@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130328095414.GB24678@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 45 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 28 insertions(+), 17 deletions(-)
+On Thu, Mar 28, 2013 at 10:54:14AM +0100, Karel Zak wrote:
+> On Wed, Mar 27, 2013 at 10:07:44PM +0000, Sami Kerola wrote:
+> > diff --git a/shell-completion/mkfs b/shell-completion/mkfs
+> > new file mode 100644
+> > index 0000000..ee6a26b
+> > --- /dev/null
+> > +++ b/shell-completion/mkfs
+> > @@ -0,0 +1,25 @@
+> > +_mkfs_module()
+> > +{
+> > +	local cur prev OPTS DEVS
+> > +	COMPREPLY=()
+> > +	cur="${COMP_WORDS[COMP_CWORD]}"
+> > +	prev="${COMP_WORDS[COMP_CWORD-1]}"
+> > +	case $prev in
+> > +		'-t'|'--type')
+> > +			FSTYPES=$(for I in $(\ls /sbin/mkfs.* /usr/sbin/mkfs.* 2>/dev/null); do echo ${I##*mkfs.}; done)
+> 
+> The /sbin and /usr/sbin are the same directories on many systems, so you
+> need to de-duplicate the list or use only one directory (I suggest /sbin).
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 13830de..eacf3dd 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -209,23 +209,6 @@ char j_day_headings[J_WEEK_LEN*6+1];
- /* weekstart = 1  =>   "  M  Tu   W  Th   F   S   S " */
- const char *full_month[12];
- 
--/* leap year -- account for gregorian reformation in 1752 */
--#define	leap_year(yr) \
--	((yr) <= 1752 ? !((yr) % 4) : \
--	(!((yr) % 4) && ((yr) % 100)) || !((yr) % 400))
--
--/* number of centuries since 1700, not inclusive */
--#define	centuries_since_1700(yr) \
--	((yr) > 1700 ? (yr) / 100 - 17 : 0)
--
--/* number of centuries since 1700 whose modulo of 400 is 0 */
--#define	quad_centuries_since_1700(yr) \
--	((yr) > 1600 ? ((yr) - 1600) / 400 : 0)
--
--/* number of leap years between year 1 and this year, not inclusive */
--#define	leap_years_since_year_1(yr) \
--	((yr) / 4 - centuries_since_1700(yr) + quad_centuries_since_1700(yr))
--
- /* 0 => sunday, 1 => monday */
- int weekstart=0;
- int julian;
-@@ -239,6 +222,9 @@ struct fmt_st
-   char s[FMT_ST_LINES][FMT_ST_CHARS];
- };
- 
-+int leap_year(int year);
-+int centuries_since_1700(int year, int centuries);
-+int leap_years_since_year_1(int year);
- char * ascii_day(char *, int);
- int center_str(const char* src, char* dest, size_t dest_size, size_t width);
- void center(const char *, size_t, int);
-@@ -413,6 +399,31 @@ main(int argc, char **argv) {
- 	return EXIT_SUCCESS;
- }
- 
-+/* leap year -- account for gregorian reformation in 1752 */
-+int leap_year(int year)
-+{
-+	if (year <= 1752)
-+		return !(year % 4);
-+	else
-+		return !(year % 4 && (year % 100 || year % 400));
-+}
-+
-+/* number of centuries since 1700 */
-+int centuries_since_1700(int year, int n)
-+{
-+	if (year < 1700)
-+		return 0;
-+	else
-+		return ((year / (100 * n)) - (17 / n));
-+}
-+
-+/* number of leap years between year 1 and this year, not inclusive */
-+int leap_years_since_year_1(int year)
-+{
-+	return (year / 4 - centuries_since_1700(year, 1) +
-+		centuries_since_1700(year, 4));
-+}
-+
- void headers_init(void)
- {
- 	int i, wd;
+The compgen will remove duplicates.  Perhaps most systems now a days has
+/sbin -> /usr/sbin symlink, but because that cannot be guaranteed I would
+rather let the later command to sort out duplicates than being over
+clever about what is necessary.
+
+> > diff --git a/shell-completion/mkswap b/shell-completion/mkswap
+> > new file mode 100644
+> > index 0000000..c847aa9
+> > --- /dev/null
+> > +++ b/shell-completion/mkswap
+> > @@ -0,0 +1,36 @@
+> > +_mkswap_module()
+> > +{
+> > +	local cur prev OPTS
+> > +	COMPREPLY=()
+> > +	cur="${COMP_WORDS[COMP_CWORD]}"
+> > +	prev="${COMP_WORDS[COMP_CWORD-1]}"
+> > +	case $prev in
+> > +		'-p'|'--pagesize')
+> > +			COMPREPLY=( $(compgen -W "bytes" -- $cur) )
+> > +			return 0
+> > +			;;
+> > +		'-L'|'--label')
+> > +			COMPREPLY=( $(compgen -W "label" -- $cur) )
+> > +			return 0
+> > +			;;
+> > +		'-v'|'--swapversion')
+> > +			COMPREPLY=( $(compgen -W "1" -- $cur) )
+> > +			return 0
+> > +			;;
+> > +		'-U'|--uuid)
+> > +			COMPREPLY=( $(compgen -W "$(lsblk -n --output uuid)" -- $cur) )
+> 
+>  The -U|--uuid is not a device identifier here, it's UUID you want to
+>  use for the new swap superblock. So ask lsblk does not make sense. 
+>  (It will generate duplicate UUIDS.)
+> 
+>  If you do not specify -U then mkswap will generate a new. 
+
+Fixed.
+
 -- 
-1.8.2.2
-
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
