@@ -1,44 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:62637 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935753Ab3DIMjJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Apr 2013 08:39:09 -0400
-Date: Tue, 9 Apr 2013 14:39:02 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] loopdev: sync capacity after setting it
-Message-ID: <20130409123902.GA26442@x2.net.home>
-References: <51438CF9.7020707@suse.com>
- <5145D0B4.1070207@suse.com>
- <20130318092700.GC2172@x2.net.home>
- <51471122.6030804@suse.com>
- <20130318131827.GE2172@x2.net.home>
- <51535A4C.4060604@suse.com>
+Received: from mail-we0-f181.google.com ([74.125.82.181]:43778 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757684Ab3DAPyR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Apr 2013 11:54:17 -0400
+Received: by mail-we0-f181.google.com with SMTP id d7so1858825wer.40
+        for <util-linux@vger.kernel.org>; Mon, 01 Apr 2013 08:54:15 -0700 (PDT)
+Date: Mon, 1 Apr 2013 16:54:12 +0100
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 02/10] bash-completion: disk-utils
+Message-ID: <20130401155341.GB20549@gmail.com>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
+ <1364422072-23552-3-git-send-email-kerolasa@iki.fi>
+ <20130328014215.GW526@rampage>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <51535A4C.4060604@suse.com>
+In-Reply-To: <20130328014215.GW526@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 27, 2013 at 04:45:00PM -0400, Jeff Mahoney wrote:
->  include/loopdev.h        |    1 
->  lib/Makefile.am          |    4 +-
->  lib/blkdev.c             |    2 -
->  lib/loopdev.c            |   89 +++++++++++++++++++++++++++++++++++++++++++++--
->  libmount/src/Makefile.am |    1 
->  mount/mount.8            |   16 ++++++++
->  sys-utils/Makefile.am    |    3 +
->  sys-utils/losetup.c      |   19 ++--------
->  8 files changed, 114 insertions(+), 21 deletions(-)
+On Wed, Mar 27, 2013 at 09:42:15PM -0400, Dave Reisner wrote:
+> On Wed, Mar 27, 2013 at 10:07:44PM +0000, Sami Kerola wrote:
+> > +			local DEVS
+> > +			DEVS="$(lsblk -o NAME -n -r)"
+> > +			OPTS="-h --help -V --version $DEVS"
+> > +			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+> 
+> You've defined OPTS as a simple string variable and then you're
+> expanding it as an array. Make sure to localize any variables you might
+> define in the completion function as well, or else they leak to the
+> user's environment (DEVS, OPTS). In general, I'd recommend *against*
+> using all capitalized variable names, particularly for local variables.
 
-It seems you have some very old version (or stable/ branch? :-) I have
-ported the patch to the current git master and merged.
+I made attempt to find non-localized variables, and correct them.  It
+could be that there are still some left.
 
-Thanks!
+> > +			;;
+> > +		2)
+> > +			COMPREPLY=( $(compgen -W "$((1 + $(ls $prev?* 2>/dev/null | wc -l)))" -- $cur) )
+> 
+> Please don't use ls to count items in a directory. It's slightly longer
+> winded, but bash does this just fine without forking:
+> 
+>  filecount=0
+>  files=("$prev"?*)
+>  [[ -e ${files[0]} ]] && filecount=${#files[*]}
+> 
+> This advice and the above apply to a bunch of your patches.
 
-    Karel
+All instances of 'ls' execution are gone.
+
+> > +_delpart_module()
+> > +{
+> > +	local cur OPTS
+> > +	COMPREPLY=()
+> > +	cur="${COMP_WORDS[COMP_CWORD]}"
+> > +	case $COMP_CWORD in
+> > +		1)
+> > +			local DEVS
+> > +			DEVS="$(lsblk -o NAME,TYPE -n -r | awk '$2 ~ /disk/ {print "/dev/" $1}')"
+> 
+>   local dev typ
+>   while read dev typ; do
+>     [[ $dev = 'disk' ]] && devices+=("/dev/$dev")
+>   done < <(lsblk -nro name,type)
+
+Changed to version you proposed.
+
+> > +			OPTS="-h --help -V --version $DEVS"
+> > +			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+> > +			;;
+> > +		2)
+> > +			COMPREPLY=( $(compgen -W "$(cat /sys/block/${prev##*/}/*/partition 2>/dev/null)" -- $cur) )
+> 
+> Bash has a builtin "cat" which uses mmap instead of direct reads, and is
+> far more efficient:
+> 
+>   COMPREPLY=( $(compgen -W "$(</sys/block/"${prev##*/}"/*/partition 2>/dev/null)" -- $cur) )
+
+I left that as-is.  Reading from a bunch of files would require a loop,
+which and I don't think avoiding cat is worth of the mess.
+
+Thank you for advice Dave.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
