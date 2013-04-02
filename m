@@ -1,40 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:36660 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756759Ab3DYN0g (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 25 Apr 2013 09:26:36 -0400
-Received: from public by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <public@plane.gmane.org>)
-	id 1UVMC3-0007gQ-B3
-	for util-linux@vger.kernel.org; Thu, 25 Apr 2013 15:26:35 +0200
-From: Andi Kleen <andi@firstfloor.org>
-To: Karel Zak <public-kzak-H+wXaHxf7aLQT0dZR+AlfA@plane.gmane.org>
-Cc: public-linux-kernel-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org,
-        public-linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org,
-        public-util-linux-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org
-Subject: Re: [ANNOUNCE] util-linux 2.23
-References: <20130425110450.GF2244@x2.net.home>
-Date: Thu, 25 Apr 2013 06:25:03 -0700
-In-Reply-To: <20130425110450.GF2244@x2.net.home> (Karel Zak's message of "Thu,
-	25 Apr 2013 13:04:50 +0200")
-Message-ID: <m2haiuvj2o.fsf@firstfloor.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:40249 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760521Ab3DBTnT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:19 -0400
+Received: by mail-wg0-f42.google.com with SMTP id k13so3512308wgh.5
+        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:18 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/13] losetup: allow -j option argument to be relative path
+Date: Tue,  2 Apr 2013 20:42:50 +0100
+Message-Id: <1364931777-2645-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/losetup.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-
-Karel Zak <kzak-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> writes:
->
-> Util-linux 2.23 Release Notes
-> =============================
->
-> The cryptoloop support in the commands mount(8) and losetup(8) has been
-> REMOVED. The encryption= mount option and -e,-E,--encryption losetup options
-> are no more supported.
-
-That's crazy. You're taking away access to existing data.
-
--Andi
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index 45e46c8..8f3614e 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -23,6 +23,7 @@
+ #include "closestream.h"
+ #include "optutils.h"
+ #include "xalloc.h"
++#include "canonicalize.h"
+ 
+ enum {
+ 	A_CREATE = 1,		/* setup a new device */
+@@ -167,9 +168,15 @@ static int show_all_loops(struct loopdev_cxt *lc, const char *file,
+ 		st = NULL;
+ 
+ 	while (loopcxt_next(lc) == 0) {
+-
+-		if (file && !loopcxt_is_used(lc, st, file, offset, flags))
+-			continue;
++		if (file && !loopcxt_is_used(lc, st, file, offset, flags)) {
++			char *canonized;
++			int ret;
++			canonized = canonicalize_path(file);
++			ret = loopcxt_is_used(lc, st, canonized, offset, flags);
++			free(canonized);
++			if (!ret)
++				continue;
++		}
+ 		printf_loopdev(lc);
+ 	}
+ 	loopcxt_deinit_iterator(lc);
+-- 
+1.8.2
 
