@@ -1,85 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.171]:50018 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756843Ab3DJJhB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 10 Apr 2013 05:37:01 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mail-we0-f173.google.com ([74.125.82.173]:42982 "EHLO
+	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760521Ab3DBTnL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:11 -0400
+Received: by mail-we0-f173.google.com with SMTP id t57so614019wey.18
+        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:09 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] bash-completion: add swapoff
-Date: Wed, 10 Apr 2013 11:36:21 +0200
-Message-Id: <1365586581-30512-1-git-send-email-mail@bernhard-voelker.de>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 03/13] agetty: the command does not have -h and -V options
+Date: Tue,  2 Apr 2013 20:42:47 +0100
+Message-Id: <1364931777-2645-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- bash-completion/swapoff | 56 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
- create mode 100644 bash-completion/swapoff
+ term-utils/agetty.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/bash-completion/swapoff b/bash-completion/swapoff
-new file mode 100644
-index 0000000..badc1de
---- /dev/null
-+++ b/bash-completion/swapoff
-@@ -0,0 +1,56 @@
-+_swapoff_module()
-+{
-+	local cur prev OPTS
-+	COMPREPLY=()
-+	cur="${COMP_WORDS[COMP_CWORD]}"
-+	prev="${COMP_WORDS[COMP_CWORD-1]}"
-+	case $prev in
-+		'-a'|'--all')
-+			return 0
-+			;;
-+		'-U'|'UUID=')
-+			# only works for block devices, i.e., not for swap files.
-+			local SWAPS
-+			SWAPS="$(swapon --show=TYPE,NAME --raw --noheading | \
-+				awk '$1 !~ /file/ { print $2 }')"
-+			[ -z "$SWAPS" ] && return 0
-+			local UUIDS
-+			UUIDS="$(lsblk -nrp -o UUID "$SWAPS")"
-+			COMPREPLY=( $(compgen -W "$UUIDS" -- $cur) )
-+			return 0
-+			;;
-+		'-L'|'LABEL=')
-+			# only works for block devices, i.e., not for swap files.
-+			local SWAPS
-+			SWAPS="$(swapon --show=TYPE,NAME --raw --noheading | \
-+				awk '$1 !~ /file/ { print $2 }')"
-+			[ -z "$SWAPS" ] && return 0
-+			local LABELS
-+			LABELS="$(lsblk -nrp -o LABEL "$SWAPS")"
-+			COMPREPLY=( $(compgen -W "$LABELS" -- $cur) )
-+			return 0
-+			;;
-+		'-h'|'--help'|'-V'|'--version')
-+			return 0
-+			;;
-+	esac
-+	case $cur in
-+		-*)
-+			OPTS="-a
-+				-L
-+				-U
-+				-v
-+				--all
-+				--verbose
-+				--help
-+				--version"
-+			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
-+			return 0
-+			;;
-+	esac
-+	local DEVS
-+	DEVS="$(swapon --show=NAME --raw --noheading)"
-+	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
-+	return 0
-+}
-+complete -F _swapoff_module swapoff
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index f745e68..311582c 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1662,9 +1662,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	fputs(_("     --long-hostname        show full qualified hostname\n"), out);
+ 	fputs(_("     --erase-chars <string> additional backspace chars\n"), out);
+ 	fputs(_("     --kill-chars <string>  additional kill chars\n"), out);
+-	fputs(USAGE_SEPARATOR, out);
+-	fputs(USAGE_HELP, out);
+-	fputs(USAGE_VERSION, out);
++	fputs(_("     --help                 display this help and exit\n"), out);
++	fputs(_("     --version              output version information and exit\n"), out);
+ 	fprintf(out, USAGE_MAN_TAIL("agetty(8)"));
+ 
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
 -- 
-1.8.1.3.619.g7b6e784
+1.8.2
 
