@@ -1,93 +1,115 @@
-Return-Path: richard@nod.at
-From: Richard Weinberger <richard@nod.at>
-To: kzak@redhat.com
-Cc: ebiederm@xmission.com, util-linux@vger.kernel.org, davidlohr.bueso@hp.com,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH] nsenter: Allow selecting the uid and gid to be used in the entered userns
-Date: Thu, 25 Apr 2013 21:11:40 +0200
-Message-Id: <1366917100-10581-1-git-send-email-richard@nod.at>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f53.google.com ([74.125.82.53]:45066 "EHLO
+	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760521Ab3DBTn3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:29 -0400
+Received: by mail-wg0-f53.google.com with SMTP id c11so881608wgh.20
+        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:28 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 10/13] setterm: fix various color option argument lists
+Date: Tue,  2 Apr 2013 20:42:54 +0100
+Message-Id: <1364931777-2645-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Using -S (--setuid) and -G (--setgid) one can select
-the uid/gid which will be used in the entered user namespace.
+The lists did not have correct colors in usage().  Because the usage()
+had to be fixed, it is best to make the output easy for translators to
+work with.
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/nsenter.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ term-utils/setterm.c | 74 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 37 insertions(+), 37 deletions(-)
 
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index 106349c..7b2255c 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -72,6 +72,8 @@ static void usage(int status)
- 	fputs(_(" -n, --net   [=<file>]  enter network namespace\n"), out);
- 	fputs(_(" -p, --pid   [=<file>]  enter pid namespace\n"), out);
- 	fputs(_(" -U, --user  [=<file>]  enter user namespace\n"), out);
-+	fputs(_(" -S, --setuid <uid>     set uid in user namespace\n"), out);
-+	fputs(_(" -G, --setgid <gid>     set gid in user namespace\n"), out);
- 	fputs(_(" -r, --root  [=<dir>]   set the root directory\n"), out);
- 	fputs(_(" -w, --wd    [=<dir>]   set the working directory\n"), out);
- 	fputs(_(" -F, --no-fork          do not fork before exec'ing <program>\n"), out);
-@@ -169,6 +171,8 @@ int main(int argc, char *argv[])
- 		{ "net", optional_argument, NULL, 'n' },
- 		{ "pid", optional_argument, NULL, 'p' },
- 		{ "user", optional_argument, NULL, 'U' },
-+		{ "setuid", required_argument, NULL, 'S' },
-+		{ "setgid", required_argument, NULL, 'G' },
- 		{ "root", optional_argument, NULL, 'r' },
- 		{ "wd", optional_argument, NULL, 'w' },
- 		{ "no-fork", no_argument, NULL, 'F' },
-@@ -179,6 +183,10 @@ int main(int argc, char *argv[])
- 	int c, namespaces = 0;
- 	bool do_rd = false, do_wd = false;
- 	int do_fork = -1; /* unknown yet */
-+	bool set_uid = false;
-+	bool set_gid = false;
-+	uid_t uid = 0;
-+	gid_t gid = 0;
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 0e72cf0..310c3fa 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -678,43 +678,43 @@ usage(FILE *out) {
+ 	      _(" %s [options]\n"), program_invocation_short_name);
  
- 	setlocale(LC_MESSAGES, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -186,7 +194,7 @@ int main(int argc, char *argv[])
- 	atexit(close_stdout);
+ 	fputs(_("\nOptions:\n"), out);
+-	fputs(_(" -term <terminal_name>\n"
+-		" -reset\n"
+-		" -initialize\n"
+-		" -cursor <on|off>\n"
+-		" -repeat <on|off>\n"
+-		" -appcursorkeys <on|off>\n"
+-		" -linewrap <on|off>\n"
+-		" -default\n"
+-		" -foreground <black|blue|green|cyan|red|magenta|yellow|white|default>\n"
+-		" -background <black|blue|green|cyan|red|magenta|yellow|white|default>\n"
+-		" -ulcolor <black|grey|blue|green|cyan|red|magenta|yellow|white>\n"
+-		" -ulcolor <bright blue|green|cyan|red|magenta|yellow|white>\n"
+-		" -hbcolor <black|grey|blue|green|cyan|red|magenta|yellow|white>\n"
+-		" -hbcolor <bright blue|green|cyan|red|magenta|yellow|white>\n"
+-		" -inversescreen <on|off>\n"
+-		" -bold <on|off>\n"
+-		" -half-bright <on|off>\n"
+-		" -blink <on|off>\n"
+-		" -reverse <on|off>\n"
+-		" -underline <on|off>\n"
+-		" -store >\n"
+-		" -clear <all|rest>\n"
+-		" -tabs < tab1 tab2 tab3 ... >      (tabn = 1-160)\n"
+-		" -clrtabs < tab1 tab2 tab3 ... >   (tabn = 1-160)\n"
+-		" -regtabs <1-160>\n"
+-		" -blank <0-60|force|poke>\n"
+-		" -dump   <1-NR_CONSOLES>\n"
+-		" -append <1-NR_CONSOLES>\n"
+-		" -file dumpfilename\n"
+-		" -msg <on|off>\n"
+-		" -msglevel <0-8>\n"
+-		" -powersave <on|vsync|hsync|powerdown|off>\n"
+-		" -powerdown <0-60>\n"
+-		" -blength <0-2000>\n"
+-		" -bfreq freqnumber\n"
+-		" -version\n"
+-		" -help\n"), out);
++	fputs(_(" -term <terminal_name>\n"), out);
++	fputs(_(" -reset\n"), out);
++	fputs(_(" -initialize\n"), out);
++	fputs(_(" -cursor <on|off>\n"), out);
++	fputs(_(" -repeat <on|off>\n"), out);
++	fputs(_(" -appcursorkeys <on|off>\n"), out);
++	fputs(_(" -linewrap <on|off>\n"), out);
++	fputs(_(" -default\n"), out);
++	fputs(_(" -foreground <default|black|blue|cyan|green|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -background <default|black|blue|cyan|green|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -ulcolor <black|blue|bright|cyan|green|grey|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -ulcolor <black|blue|bright|cyan|green|grey|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -hbcolor <black|blue|bright|cyan|green|grey|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -hbcolor <black|blue|bright|cyan|green|grey|magenta|red|white|yellow>\n"), out);
++	fputs(_(" -inversescreen <on|off>\n"), out);
++	fputs(_(" -bold <on|off>\n"), out);
++	fputs(_(" -half-bright <on|off>\n"), out);
++	fputs(_(" -blink <on|off>\n"), out);
++	fputs(_(" -reverse <on|off>\n"), out);
++	fputs(_(" -underline <on|off>\n"), out);
++	fputs(_(" -store\n"), out);
++	fputs(_(" -clear <all|rest>\n"), out);
++	fputs(_(" -tabs <tab1 tab2 tab3 ...>      (tabn = 1-160)\n"), out);
++	fputs(_(" -clrtabs <tab1 tab2 tab3 ...>   (tabn = 1-160)\n"), out);
++	fputs(_(" -regtabs <1-160>\n"), out);
++	fputs(_(" -blank <0-60|force|poke>\n"), out);
++	fputs(_(" -dump   <1-NR_CONSOLES>\n"), out);
++	fputs(_(" -append <1-NR_CONSOLES>\n"), out);
++	fputs(_(" -file dumpfilename\n"), out);
++	fputs(_(" -msg <on|off>\n"), out);
++	fputs(_(" -msglevel <0-8>\n"), out);
++	fputs(_(" -powersave <on|vsync|hsync|powerdown|off>\n"), out);
++	fputs(_(" -powerdown <0-60>\n"), out);
++	fputs(_(" -blength <0-2000>\n"), out);
++	fputs(_(" -bfreq freqnumber\n"), out);
++	fputs(_(" -version\n"), out);
++	fputs(_(" -help\n"), out);
  
- 	while ((c =
--		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::r::w::F",
-+		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::S:G:r::w::F",
- 			    longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'h':
-@@ -234,6 +242,14 @@ int main(int argc, char *argv[])
- 			else
- 				namespaces |= CLONE_NEWUSER;
- 			break;
-+		case 'S':
-+			uid = strtoul_or_err(optarg, _("failed to parse uid"));
-+			set_uid = true;
-+			break;
-+		case 'G':
-+			gid = strtoul_or_err(optarg, _("failed to parse gid"));
-+			set_gid = true;
-+			break;
- 		case 'F':
- 			do_fork = 0;
- 			break;
-@@ -319,5 +335,15 @@ int main(int argc, char *argv[])
- 		execvp(argv[optind], argv + optind);
- 		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
- 	}
-+
-+	if (namespaces & CLONE_NEWUSER) {
-+		if (set_uid)
-+			if (setuid(uid) < 0)
-+				err(EXIT_FAILURE, _("setuid failed"));
-+		if (set_gid)
-+			if (setgid(gid) < 0)
-+				err(EXIT_FAILURE, _("setgid failed"));
-+	}
-+
- 	exec_shell();
- }
+ 	fprintf(out, USAGE_MAN_TAIL("setterm(1)"));
+ 
 -- 
-1.8.1.4
+1.8.2
+
