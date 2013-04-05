@@ -1,26 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41758 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:63706 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755554Ab3DYHsT (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Thu, 25 Apr 2013 03:48:19 -0400
-Date: Thu, 25 Apr 2013 09:48:13 +0200
+	id S1161757Ab3DEOLz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 5 Apr 2013 10:11:55 -0400
+Date: Fri, 5 Apr 2013 16:11:45 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: [PATCH] rtcwake: pass -h to shutdown
-Message-ID: <20130425074813.GB2244@x2.net.home>
-References: <1366773801-8246-1-git-send-email-vapier@gentoo.org>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/10] [pull] bash-completion
+Message-ID: <20130405141145.GI14350@x2.net.home>
+References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1366773801-8246-1-git-send-email-vapier@gentoo.org>
+In-Reply-To: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 23, 2013 at 11:23:21PM -0400, Mike Frysinger wrote:
->  sys-utils/rtcwake.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+On Wed, Mar 27, 2013 at 10:07:42PM +0000, Sami Kerola wrote:
+>   git://github.com/kerolasa/lelux-utiliteetit.git shell-completion
 
- Applied, thanks.
+ Merged, thanks!
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
