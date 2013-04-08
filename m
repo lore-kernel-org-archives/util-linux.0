@@ -1,122 +1,171 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out01.mta.xmission.com ([166.70.13.231]:53398 "EHLO
-	out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751914Ab3DUWHc convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 21 Apr 2013 18:07:32 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        systemd-devel@lists.freedesktop.org
-References: <20130420182319.GU3394@in.waw.pl> <87k3nwzvkt.fsf@xmission.com>
-	<20130421144523.GW3394@in.waw.pl> <87wqrvx3fp.fsf@xmission.com>
-	<20130421193331.GX3394@in.waw.pl>
-Date: Sun, 21 Apr 2013 15:07:18 -0700
-In-Reply-To: <20130421193331.GX3394@in.waw.pl> ("Zbigniew
-	\=\?utf-8\?Q\?J\=C4\=99drzejewski-Szmek\=22's\?\= message of "Sun, 21 Apr 2013
- 21:33:31 +0200")
-Message-ID: <87txmzv8q1.fsf@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Subject: Re: nsenter and SIGSTOP
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:57419 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935672Ab3DHTdz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Apr 2013 15:33:55 -0400
+Received: by mail-wg0-f42.google.com with SMTP id k13so4125844wgh.1
+        for <util-linux@vger.kernel.org>; Mon, 08 Apr 2013 12:33:54 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi, Peter Schiffer <pschiffe@redhat.com>
+Subject: [PATCH 08/14] tools: add checks to manual page test script
+Date: Mon,  8 Apr 2013 20:32:53 +0100
+Message-Id: <1365449579-13238-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
+This change includes
 
-> On Sun, Apr 21, 2013 at 09:18:34AM -0700, Eric W. Biederman wrote:
->> Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
->> 
->> > On Sat, Apr 20, 2013 at 03:27:46PM -0700, Eric W. Biederman wrote:
->> >> Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> writes:
->> >> 
->> >> > Hi,
->> >> > I've hit a bit of a problem with nsenter and systemd-nspawn.
->> >> > When nsenter is used to enter the PID namespace created with
->> >> > systemd-nspawn, and the container's init attempts a shutdown,
->> >> > it hangs because nsenter is suspended.
->> >> >
->> >> > The sequence of events leading to the hang is:
->> >> >
->> >> > 1. nsenter launches a shell inside the container with
->> >> >    PPID=0 as seen inside the container,
->> >> > 2. systemd with PID=1 goes through the shutdown sequence,
->> >> >    issuing the equivalent(*) of
->> >> >
->> >> >    kill(-1, SIGSTOP)
->> >> 
->> >> This baffles me.  I am not certain why someone whould send SIGSTOP
->> >> when the want processes to exit.  I'm not even saying it's wrong just
->> >> saying that is odd.
->> > Like Lennart wrote, it's for atomicity of the subsequent killing.
->> 
->> When you don't do kill(-1, SIGTERM) that makes sense.
-> Because not all processes are killed: during normal shutdown processes
-> with argv[0] beginning with @ are spared
-> (http://www.freedesktop.org/wiki/Software/systemd/RootStorageDaemons).
+- better way to detect manual page inclusion
+- man -k header test, which uses lexgrog
+- repeated word detection
+- static declaration to known repeated words
 
-I wasn't arguing.  But since you bring up root storage daemons and
-initial ram disks, I don't believe any of those actually apply to a
-container.
+Most of the  changes are based on man-page-day-1.sh, that is in use at
+RedHat Quality Assurance, and wrote by Peter Schiffer.
 
-My point was only that using SIGSTOP makes sense when it becomes clear
-that kill(-1, SIGTERM) is not happening.
+CC: Peter Schiffer <pschiffe@redhat.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tools/checkmans.sh | 98 +++++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 74 insertions(+), 24 deletions(-)
 
->> No.  However it is possible to get a notification when the child wakes
->> up, and even more when the child is killed (SIGCHLD).
-> Right, but that doesn't help at all, since nsenter is sleeping. It'll
-> get the notification, when it wakes up, but there's nothing to wake it
-> up.
-
-I believe you could make it all work with a poll based on a periodic
-wake up.  If you don't send yourself SIGSTOP I don't believe the outer
-shell will recognize what has happened, but you should be able to wake
-yourself up with a timer and see verify you child is still stopped.
-
->> Well when this happens with ssh "reboot & exit" has a pretty good track
->> record of working.  'shutdown -r "now + 1 minute" &' might even be
->> better.
->> 
->> When you are interactive I don't imaginge going "doh!" and typing fg
->> is not going to be particularly hard either.
-> We're trying to get things to work without kludges like sleeping or 
-> manual prodding. For debugging that's fine, but people use systemd-nspawn
-> containers for services, and expect them to "just work".
-
-Like I said below nsenter is about interactive/debugging case.  More
-sysadmin debugging than application debugging but I guess that makes
-it debugging.
-
-Essentially that was the point of implementing setns for the pid
-namespace.  So you exceptional cases could be handled without having to
-got to the expense of having to depend on a functioning login daemon in
-the container.
-
->> So I guess I am saying I would bias nsenter towards the interactive users
->> rather than scripted automation.
-> Agreed.
->
->> > For systemd-nspawn, we'll grow our own facility to enter the
->> > container, since we want to set the environment and find the container
->> > by name and in general integrate with systemd-nspawn. So there's
->> > little reason to modify nsenter for this purpose. 
->> 
->> Sounds reaasonable to me.  Just make certain multiple roots in the pid
->> namespace doing mess you up.
-> Yeah, multiple roots with unkillable zombie processes surely are enough
-> to make people confused. I'm still trying to wrap my head around PID
-> and mount namespaces, and I know that user namespaces add another level
-> of fun :).
-
-Well this isn't a case of unkillable zombies.  This is a case of
-processes not being reaped.  And a weird process that doesn't fully die
-until all of it's children are dead (similar to the leader of a thread
-group).  Now honestly I would not be adverse in theory to handling this
-weird corrner case better in zap_pid_ns_processes.  Right now
-zap_pid_ns_processes is the best so far.
-
-For launching new services in a container simply sending a message to
-the init process is probably what you want.  I think those messages
-already traverse unix domain sockets so it insn't too shabby.
-
-Eric
+diff --git a/tools/checkmans.sh b/tools/checkmans.sh
+index 4b149d0..a987f41 100755
+--- a/tools/checkmans.sh
++++ b/tools/checkmans.sh
+@@ -13,15 +13,21 @@ SCRIPT_INVOCATION_SHORT_NAME=$(basename ${0})
+ trap 'echo "${SCRIPT_INVOCATION_SHORT_NAME}: exit on error"; exit 1' ERR
+ 
+ usage() {
+-	echo "Usage: ${0} [-ph]"
+-	echo " -p   print file names before checking"
++	echo "Usage: ${0} [-vVh]"
++	echo " -v  verbose messaging"
++	echo " -V  print version and exit"
++	echo " -h  print this help and exit"
+ }
+ 
+-PRINT_FILE_NAMES='false'
+-while getopts ph OPTIONS; do
++VERBOSE='false'
++while getopts vVh OPTIONS; do
+ 	case ${OPTIONS} in
+-		p)
+-			PRINT_FILE_NAMES='true'
++		v)
++			VERBOSE='true'
++			;;
++		V)
++			echo "util-linux: ${SCRIPT_INVOCATION_SHORT_NAME}: 2"
++			exit 0
+ 			;;
+ 		h)
+ 			usage
+@@ -37,39 +43,83 @@ ERROR_FILE=$(mktemp ${SCRIPT_INVOCATION_SHORT_NAME}.XXXXXXXXXX)
+ # remove tmp file at exit
+ trap "rm -f ${ERROR_FILE}" 0
+ 
++COUNT_ERRORS=0
++declare -a REPEATS
++declare -A KNOWN_REPEATS
++KNOWN_REPEATS[mount.8]='foo'
++KNOWN_REPEATS[sfdisk.8]="0 <c,h,s>"
++KNOWN_REPEATS[flock.1]='"$0"'
++KNOWN_REPEATS[switch_root.8]='$DIR'
++
++remove_repeats()
++{
++	set +u
++	for KN in ${KNOWN_REPEATS[${I##*/}]}; do
++		if [ "${KN}" = "${REPEATS[$1]}" ]; then
++			if $VERBOSE; then
++				echo "info: ${I} removing repeat: ${REPEATS[$1]}"
++			fi
++			unset REPEATS[$1]
++		fi
++	done
++	set -u
++}
++
+ for I in $(
+ 	find $(git rev-parse --show-toplevel) -name '*.[1-8]' |
+ 	egrep -v '(Documentation|.git|/.libs/|autom4te.cache)'
+ ); do
+-	# FIXME: the determination whether a manual does include
+-	# should probably be somewhat smarter.
+-	IS_INCLUDE=$(wc -w ${I} | awk '{print $1}')
+-	if [ ${IS_INCLUDE} -eq 2 ]; then
+-		# Some manuals, such as x86_64, call include which
+-		# will read system manual.  Testing what comes from
+-		# package does not make much sense, so skip doing it.
+-		if ${PRINT_FILE_NAMES}; then
+-			echo "skipping: ${I}"
++	if awk '{if (1 < NR) {exit 1}; if ($1 ~ /^.so$/) {exit 0}}' ${I}; then
++		# Some manuals, such as x86_64, call inclusion and they
++		# should not be tested any further.
++		if ${VERBOSE}; then
++			printf "skipping: ${I}: includes "
++			awk '{print $2}' ${I}
+ 		fi
+ 		continue
+ 	fi
+-	if ${PRINT_FILE_NAMES}; then
++	I_ERR=0
++	if ${VERBOSE}; then
+ 		echo "testing: ${I}"
+-		man --warnings=all ${I} >/dev/null
+-	else
+-		man --warnings=all ${I} >/dev/null 2>> ${ERROR_FILE}
+ 	fi
++	MANWIDTH=80 man --warnings=all ${I} >/dev/null 2>| ${ERROR_FILE}
++	if [ -s ${ERROR_FILE} ]; then
++		echo "error: run: man --warnings=all ${I} >/dev/null" >&2
++		I_ERR=1
++	fi
++	if ! lexgrog ${I} >/dev/null; then
++		echo "error: run: lexgrog ${I}" >&2
++		I_ERR=1
++	fi
++	REPEATS=( $(MANWIDTH=2000 man -l ${I} |
++		col -b |
++		sed  -e 's/\s\+/\n/g; /^$/d' |
++		awk 'BEGIN { p="" } { if (0 < length($0)) { if (p == $0) { print } } p = $0 }') )
++	if [ 0 -lt "${#REPEATS[@]}" ]; then
++		ITER=${#REPEATS[@]}
++		while [ -1 -lt ${ITER} ]; do
++			remove_repeats ${ITER}
++			# The 'let' may cause exit on error.
++			# When ITER == 0 -> let returns 1, bash bug?
++			let ITER=${ITER}-1 || true
++		done
++		if [ 0 -lt "${#REPEATS[@]}" ]; then
++			echo "warning: ${I} has repeating words: ${REPEATS[@]}"
++		fi
++	fi
++	# The 'let' may cause exit on error.
++	# COUNT_ERRORS=0; let COUNT_ERRORS=$COUNT_ERRORS+0; echo $?
++	# Is this a bash bug?
++	let COUNT_ERRORS=$COUNT_ERRORS+$I_ERR || true
+ done
+ 
+-COUNT_ERRORS=$(awk 'END {print NR}' ${ERROR_FILE})
+ if [ ${COUNT_ERRORS} -ne 0 ]; then
+-	echo "${SCRIPT_INVOCATION_SHORT_NAME}: failed"
+-	echo "use: $(readlink -f ${0}) -p"
+-	echo "     to find where the problems are."
++	echo "error: ${SCRIPT_INVOCATION_SHORT_NAME}: ${COUNT_ERRORS} manuals failed" >&2
+ 	exit 1
+ fi
+ 
+-if ! ${PRINT_FILE_NAMES}; then
++if ! ${VERBOSE}; then
+ 	echo "${SCRIPT_INVOCATION_SHORT_NAME}: success"
+ fi
++
+ exit 0
+-- 
+1.8.2.1
 
