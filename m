@@ -1,42 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:52087 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935672Ab3DHTeG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Apr 2013 15:34:06 -0400
-Received: by mail-wg0-f43.google.com with SMTP id f12so6030591wgh.34
-        for <util-linux@vger.kernel.org>; Mon, 08 Apr 2013 12:34:05 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/14] docs: col.1: fix manual page name section [checkmans.sh]
-Date: Mon,  8 Apr 2013 20:32:55 +0100
-Message-Id: <1365449579-13238-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
-References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:42976 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934420Ab3DHRBw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Apr 2013 13:01:52 -0400
+Date: Mon, 8 Apr 2013 18:25:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/5] bash-completion: Don't offer any more completions
+ after help or version.
+Message-ID: <20130408162534.GP14350@x2.net.home>
+References: <1365322328-1607-1-git-send-email-ville.skytta@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1365322328-1607-1-git-send-email-ville.skytta@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-$ lexgrog text-utils/col.1
-text-utils/col.1: parse failed
+On Sun, Apr 07, 2013 at 11:12:04AM +0300, Ville Skyttä wrote:
+>  87 files changed, 353 insertions(+), 23 deletions(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/col.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ All 5 patches applied. THANKS!
 
-diff --git a/text-utils/col.1 b/text-utils/col.1
-index 9efc72f..2b36c85 100644
---- a/text-utils/col.1
-+++ b/text-utils/col.1
-@@ -35,7 +35,7 @@
- .\"     @(#)col.1	6.8 (Berkeley) 6/17/91
- .\"
- .TH COL "1" "September 2011" "util-linux" "User Commands"
--.SH COL
-+.SH NAME
- col - filter reverse line feeds from input
- .SH SYNOPSIS
- .B col
 -- 
-1.8.2.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
