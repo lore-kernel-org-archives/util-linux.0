@@ -1,83 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:51598 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762152Ab3DBTne (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:34 -0400
-Received: by mail-wg0-f54.google.com with SMTP id a12so885660wgh.9
-        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:33 -0700 (PDT)
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:62198 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935672Ab3DHTeK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Apr 2013 15:34:10 -0400
+Received: by mail-wi0-f181.google.com with SMTP id hj8so2937297wib.14
+        for <util-linux@vger.kernel.org>; Mon, 08 Apr 2013 12:34:08 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 12/13] chrt: make command syntax easier to understand in usage()
-Date: Tue,  2 Apr 2013 20:42:56 +0100
-Message-Id: <1364931777-2645-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
-References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 11/14] docs: remove repeated words [checkmans.sh]
+Date: Mon,  8 Apr 2013 20:32:56 +0100
+Message-Id: <1365449579-13238-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And mention in manual that the default is referring to the internal
-default of this command, not the Linux system default.  Manual page
-example also tries to be a little more complete how to use the command.
-
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- schedutils/chrt.1 | 11 ++++++++---
- schedutils/chrt.c |  4 ++--
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ disk-utils/elvtune.8        | 2 +-
+ libuuid/man/uuid_generate.3 | 2 +-
+ sys-utils/cytune.8          | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/schedutils/chrt.1 b/schedutils/chrt.1
-index b85717b..50aa841 100644
---- a/schedutils/chrt.1
-+++ b/schedutils/chrt.1
-@@ -91,8 +91,10 @@ Operate on an existing PID and do not launch a new task.
+diff --git a/disk-utils/elvtune.8 b/disk-utils/elvtune.8
+index f71b1d4..0554269 100644
+--- a/disk-utils/elvtune.8
++++ b/disk-utils/elvtune.8
+@@ -45,7 +45,7 @@ pending in the queue.
+ Display help text and exit.
  .TP
- .B -r, --rr
- Set scheduling policy to
--.BR SCHED_RR
--(the default).
-+.BR SCHED_RR .
-+When policy is not defined the
-+.B SCHED_RR
-+is used as default.
+ .BI -v
+-Display version version information and exit.
++Display version information and exit.
+ .SH NOTE
+ Actually, the only fields tunable are those relative
+ to the IO scheduler.  It's not possible to select
+diff --git a/libuuid/man/uuid_generate.3 b/libuuid/man/uuid_generate.3
+index 07ad94c..3bb789c 100644
+--- a/libuuid/man/uuid_generate.3
++++ b/libuuid/man/uuid_generate.3
+@@ -79,7 +79,7 @@ by concurrently running processes, the uuid library uses global
+ clock state counter (if the process has permissions to gain exclusive access
+ to this file) and/or the
+ .B uuidd
+-daemon, if it is running already or can be be spawned by the process (if
++daemon, if it is running already or can be spawned by the process (if
+ installed and the process has enough permissions to run it).  If neither of
+ these two synchronization mechanisms can be used, it is theoretically possible
+ that two concurrently running processes obtain the same UUID(s).  To tell
+diff --git a/sys-utils/cytune.8 b/sys-utils/cytune.8
+index fd82391..940fa28 100644
+--- a/sys-utils/cytune.8
++++ b/sys-utils/cytune.8
+@@ -154,7 +154,7 @@ units.  When the
+ .I tty
+ is next opened, this value will be used instead of the default.  If
+ .I value
+-is zero, then the the value will default to 0x20 (160ms), soon to be 0x02
++is zero, then the value will default to 0x20 (160ms), soon to be 0x02
+ (10ms).
  .TP
- .B -R, --reset-on-fork
- Add
-@@ -123,7 +125,7 @@ You can also retrieve the real-time attributes of an existing task:
- .I pid
- .TP
- Or set them:
--.B chrt \-p
-+.B chrt \-r \-p
- .I prio pid
- .SH PERMISSIONS
- A user must possess
-@@ -138,6 +140,9 @@ and
- .BR SCHED_RR
- are part of POSIX 1003.1b Process Scheduling. The other scheduling attributes
- may be ignored on some systems.
-+.P
-+Linux default scheduling policy is
-+.BR SCHED_OTHER .
- .SH AUTHOR
- Written by Robert M. Love.
- .SH COPYRIGHT
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index 60ec73e..20df6fa 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -62,9 +62,9 @@ static void __attribute__((__noreturn__)) show_usage(int rc)
- 	fprintf(out, _(
- 	"\nchrt - manipulate real-time attributes of a process\n"
- 	"\nSet policy:\n"
--	"  chrt [options] <policy> <priority> {<pid> | <command> [<arg> ...]}\n"
-+	"  chrt [options] [-policy] <priority> [-p <pid> | <command> <arg> ...]\n"
- 	"\nGet policy:\n"
--	"  chrt [options] {<pid> | <command> [<arg> ...]}\n"));
-+	"  chrt [options] -p <pid>\n"));
- 
- 	fprintf(out, _(
- 	"\nScheduling policies:\n"
+ \fB\-G\fR, \fB\-\-get\-glush\fR
 -- 
-1.8.2
+1.8.2.1
 
