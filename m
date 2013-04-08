@@ -1,42 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:37626 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753216Ab3DMT43 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:29 -0400
-Received: by mail-wg0-f45.google.com with SMTP id l18so3656527wgh.12
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:28 -0700 (PDT)
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:63180 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935672Ab3DHTeD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Apr 2013 15:34:03 -0400
+Received: by mail-wi0-f172.google.com with SMTP id hr17so2949130wib.5
+        for <util-linux@vger.kernel.org>; Mon, 08 Apr 2013 12:34:01 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 29/33] swaplabel: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:57 +0100
-Message-Id: <1365882901-11429-30-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 09/14] docs: mount.8: make propagation flags adjustable [checkmans.sh]
+Date: Mon,  8 Apr 2013 20:32:54 +0100
+Message-Id: <1365449579-13238-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/swaplabel.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sys-utils/mount.8 | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/disk-utils/swaplabel.c b/disk-utils/swaplabel.c
-index 3e3e78b..a5ccb7e 100644
---- a/disk-utils/swaplabel.c
-+++ b/disk-utils/swaplabel.c
-@@ -145,7 +145,10 @@ static int change_info(const char *devname, const char *label, const char *uuid)
- 		}
- 	}
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 4538605..72f0f0b 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -506,7 +506,14 @@ after previous successful mount operation. Note that this use case is not
+ atomic. The propagation flags is possible to specify in
+ .BR fstab (5)
+ as mount options
+-(private,slave,shared,unbindable,rprivate,rslave,rshared,runbindable).
++.RI ( private ,
++.IR slave ,
++.IR shared ,
++.IR unbindable ,
++.IR rprivate ,
++.IR rslave ,
++.IR rshared ,
++.IR runbindable ).
  
--	close(fd);
-+	if (close_fd(fd) != 0) {
-+		warn(_("write failed: %s"), devname);
-+		return -1;
-+	}
- 	return 0;
- err:
- 	if (fd >= 0)
+ For example
+ .RS
 -- 
 1.8.2.1
 
