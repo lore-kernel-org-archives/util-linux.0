@@ -1,39 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:60242 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760521Ab3DBTnV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:21 -0400
-Received: by mail-wi0-f175.google.com with SMTP id c10so2925593wiw.8
-        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:20 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 07/13] lscpu: fix error message
-Date: Tue,  2 Apr 2013 20:42:51 +0100
-Message-Id: <1364931777-2645-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
-References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:36190 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761473Ab3DHQ1A (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Apr 2013 12:27:00 -0400
+Date: Mon, 8 Apr 2013 18:26:50 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] bash-completion: Symlink runuser symlink to su so it
+ gets loaded on demand.
+Message-ID: <20130408162650.GQ14350@x2.net.home>
+References: <1365324972-4139-1-git-send-email-ville.skytta@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1365324972-4139-1-git-send-email-ville.skytta@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/lscpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Apr 07, 2013 at 11:56:12AM +0300, Ville Skyttä wrote:
+>  bash-completion/Makemodule.am | 3 +++
+>  1 file changed, 3 insertions(+)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 46f9e35..e90e8f5 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -1357,7 +1357,7 @@ int main(int argc, char *argv[])
- 	if (cpu_modifier_specified && mod->mode == OUTPUT_SUMMARY) {
- 		fprintf(stderr,
- 			_("%s: options --all, --online and --offline may only "
--			  "be used with options --extended or --parsable.\n"),
-+			  "be used with options --extended or --parse.\n"),
- 			program_invocation_short_name);
- 		return EXIT_FAILURE;
- 	}
+ Applied, thanks.
+
+> 
+> diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
+> index 34bdc6c..4c41218 100644
+> --- a/bash-completion/Makemodule.am
+> +++ b/bash-completion/Makemodule.am
+> @@ -98,6 +98,9 @@ endif
+>  if BUILD_SU
+>  dist_bashcompletion_DATA += \
+>  	bash-completion/su
+> +install-data-hook-bashcomp-su::
+> +	ln -sf su $(DESTDIR)$(bashcompletiondir)/runuser
+> +INSTALL_DATA_HOOKS += install-data-hook-bashcomp-su
+
+ I have renamed the hook (*-runuser rather than *-su) and added 
+ 'if BUILD_RUNUSER'.
+
+     Karel
+
 -- 
-1.8.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
