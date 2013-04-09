@@ -1,40 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:57572 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752244Ab3DMT4M (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:12 -0400
-Received: by mail-wg0-f53.google.com with SMTP id c11so3531924wgh.8
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:10 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 23/33] fsck.cramfs: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:51 +0100
-Message-Id: <1365882901-11429-24-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:62637 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935753Ab3DIMjJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Apr 2013 08:39:09 -0400
+Date: Tue, 9 Apr 2013 14:39:02 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2] loopdev: sync capacity after setting it
+Message-ID: <20130409123902.GA26442@x2.net.home>
+References: <51438CF9.7020707@suse.com>
+ <5145D0B4.1070207@suse.com>
+ <20130318092700.GC2172@x2.net.home>
+ <51471122.6030804@suse.com>
+ <20130318131827.GE2172@x2.net.home>
+ <51535A4C.4060604@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <51535A4C.4060604@suse.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/fsck.cramfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On Wed, Mar 27, 2013 at 04:45:00PM -0400, Jeff Mahoney wrote:
+>  include/loopdev.h        |    1 
+>  lib/Makefile.am          |    4 +-
+>  lib/blkdev.c             |    2 -
+>  lib/loopdev.c            |   89 +++++++++++++++++++++++++++++++++++++++++++++--
+>  libmount/src/Makefile.am |    1 
+>  mount/mount.8            |   16 ++++++++
+>  sys-utils/Makefile.am    |    3 +
+>  sys-utils/losetup.c      |   19 ++--------
+>  8 files changed, 114 insertions(+), 21 deletions(-)
 
-diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
-index 5c4b8c4..3c861d5 100644
---- a/disk-utils/fsck.cramfs.c
-+++ b/disk-utils/fsck.cramfs.c
-@@ -513,7 +513,8 @@ static void do_file(char *path, struct cramfs_inode *i)
- 	if (i->size)
- 		do_uncompress(path, fd, offset, i->size);
- 	if (opt_extract) {
--		close(fd);
-+		if (close_fd(fd) != 0)
-+			err(FSCK_EX_ERROR, _("write failed: %s"), path);
- 		change_file_status(path, i);
- 	}
- }
+It seems you have some very old version (or stable/ branch? :-) I have
+ported the patch to the current git master and merged.
+
+Thanks!
+
+    Karel
+
 -- 
-1.8.2.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
