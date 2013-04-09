@@ -1,106 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f173.google.com ([74.125.82.173]:35526 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751772Ab3DMT4G (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:06 -0400
-Received: by mail-we0-f173.google.com with SMTP id t57so2737982wey.4
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:05 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 21/33] sfdisk: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:49 +0100
-Message-Id: <1365882901-11429-22-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:5130 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935228Ab3DIKp4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Apr 2013 06:45:56 -0400
+Date: Tue, 9 Apr 2013 12:30:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/14] [pull] smatch scan, and manual tooling
+Message-ID: <20130409103018.GR14350@x2.net.home>
+References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- fdisks/sfdisk.c | 30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+On Mon, Apr 08, 2013 at 08:32:45PM +0100, Sami Kerola wrote:
+> Sami Kerola (14):
 
-diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
-index 3206a6b..27f62d8 100644
---- a/fdisks/sfdisk.c
-+++ b/fdisks/sfdisk.c
-@@ -284,12 +284,16 @@ save_sectors(char *dev, int fdin) {
- 	    }
- 	}
- 
--    close(fdout);
-+    if (close_fd(fdout) != 0) {
-+	warn(_("write failed: %s"), save_sector_file);
-+	return 0;
-+    }
-     return 1;
- 
-  err:
-     if (fdout >= 0)
--	close(fdout);
-+	if (close_fd(fdout) != 0)
-+	    warn(_("write failed: %s"), save_sector_file);
-     return 0;
- }
- 
-@@ -355,7 +359,10 @@ restore_sectors(char *dev) {
-     if (!reread_disk_partition(dev, fdout))	/* closes fdout */
- 	goto err;
-     close(fdin);
--
-+    if (close_fd(fdout) != 0) {
-+	error(_("write failed: %s"), dev);
-+	return 0;
-+    }
-     return 1;
- 
-  err:
-@@ -791,7 +798,7 @@ reread_disk_partition(char *dev, int fd) {
- 	return 0;
-     }
- 
--    if (fsync(fd) || close(fd)) {
-+    if (close_fd(fd) != 0) {
- 	perror(dev);
- 	warnx(_("Error closing %s\n"), dev);
- 	return 0;
-@@ -3026,7 +3033,10 @@ do_activate(char **av, int ac, char *arg) {
- 		 "but the DOS MBR will only boot a disk with 1 active partition.\n"),
- 		i);
- 
--    close(fd);
-+    if (close_fd(fd) != 0) {
-+	my_warn(_("write failed"));
-+	exit_status = 1;
-+    }
- }
- 
- static void
-@@ -3074,7 +3084,10 @@ do_unhide(char **av, int ac, char *arg) {
-     else
- 	exit_status = 1;
- 
--    close(fd);
-+    if (close_fd(fd) != 0) {
-+	my_warn(_("write failed"));
-+	exit_status = 1;
-+    }
- }
- 
- static void
-@@ -3108,7 +3121,10 @@ do_change_id(char *dev, char *pnam, char *id) {
- 	exit_status = 1;
- 
- done:
--    close(fd);
-+    if (close_fd(fd) != 0) {
-+	my_warn(_("write failed"));
-+	exit_status = 1;
-+    }
- }
- 
- static void
+ All applied, thanks.
+
+>       setarch: clean up usage()
+>       bash-completion: setarch: use correct list for architectures
+>       bash-completion: swapon: add options and fix argument
+>       various: fix variable and function declarations [smatch scan]
+>       various: fix shadow declarations [smatch scan]
+>       libmount, col: remove redundant null checks [smatch scan]
+>       libblkid: number of functions should not be declared extern [smatch scan]
+>       tools: add checks to manual page test script
+>       docs: mount.8: make propagation flags adjustable [checkmans.sh]
+>       docs: col.1: fix manual page name section [checkmans.sh]
+>       docs: remove repeated words [checkmans.sh]
+>       tools: make checkmans.sh to find missing manuals
+
+>       docs: add mkfs.cramfs manual page
+>       docs: add fsck.cramfs manual page
+
+ extra thanks for the new man pages!
+
+    Karel
+
 -- 
-1.8.2.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
