@@ -1,42 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:41967 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758835Ab3DAQGZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Apr 2013 12:06:25 -0400
-Received: by mail-wi0-f169.google.com with SMTP id c10so2301356wiw.0
-        for <util-linux@vger.kernel.org>; Mon, 01 Apr 2013 09:06:24 -0700 (PDT)
-Date: Mon, 1 Apr 2013 17:06:19 +0100
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51915 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936176Ab3DJMiV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Apr 2013 08:38:21 -0400
+Date: Wed, 10 Apr 2013 14:38:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 04/10] bash-completion: login-utils
-Message-ID: <20130401160605.GD20549@gmail.com>
-References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
- <1364422072-23552-5-git-send-email-kerolasa@iki.fi>
- <20130328100543.GD24678@x2.net.home>
+Subject: Re: [PATCH] bash-completion: add swapoff
+Message-ID: <20130410123813.GD26442@x2.net.home>
+References: <1365586581-30512-1-git-send-email-mail@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130328100543.GD24678@x2.net.home>
+In-Reply-To: <1365586581-30512-1-git-send-email-mail@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 28, 2013 at 11:05:43AM +0100, Karel Zak wrote:
-> On Wed, Mar 27, 2013 at 10:07:46PM +0000, Sami Kerola wrote:
-> > +++ b/shell-completion/login
-> > @@ -0,0 +1,27 @@
-> > +_login_module()
-> 
->  Unnecessary module, nobody calls login(1) from command line, it does
->  not work, it's not supported :-)
-> 
-> > +++ b/shell-completion/sulogin
-> > @@ -0,0 +1,24 @@
-> > +_sulogin_module()
-> 
->  the same thing, unnecessary
+On Wed, Apr 10, 2013 at 11:36:21AM +0200, Bernhard Voelker wrote:
+>  bash-completion/swapoff | 56 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 56 insertions(+)
+>  create mode 100644 bash-completion/swapoff
 
-Both are removed, and the agetty as well which is mentioned in later message.
+ Applied, thanks.
+
+> +	case $cur in
+> +		-*)
+> +			OPTS="-a
+> +				-L
+> +				-U
+> +				-v
+> +				--all
+> +				--verbose
+> +				--help
+> +				--version"
+
+ We prefer long options (so I have removed -a and -v).
+
+    Karel
 
 -- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
