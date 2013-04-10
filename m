@@ -1,73 +1,55 @@
-Return-Path: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-References: <20130420182319.GU3394@in.waw.pl>
-Date: Sat, 20 Apr 2013 15:27:46 -0700
-In-Reply-To: <20130420182319.GU3394@in.waw.pl> ("Zbigniew
-	\=\?utf-8\?Q\?J\=C4\=99drzejewski-Szmek\=22's\?\= message of "Sat,
-	20 Apr 2013 20:23:19 +0200")
-Message-ID: <87k3nwzvkt.fsf@xmission.com>
+Return-Path: samuel.thibault@ens-lyon.org
+Date: Thu, 11 Apr 2013 00:43:27 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: [PATCH] fix non-linux build (was: [ANNOUNCE] util-linux v2.23-rc2)
+Message-ID: <20130410224327.GK17173@type.leflore.lan>
+References: <20130410222248.GF26442@x2.net.home>
 MIME-Version: 1.0
-Cc: util-linux <util-linux@vger.kernel.org>,
-        systemd-devel@lists.freedesktop.org
-Subject: Re: [systemd-devel] nsenter and SIGSTOP
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Sender: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
-Errors-To: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
+Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
+In-Reply-To: <20130410222248.GF26442@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-WmJpZ25pZXcgSsSZZHJ6ZWpld3NraS1Tem1layA8emJ5c3pla0Bpbi53YXcucGw+IHdyaXRlczoK
-Cj4gSGksCj4gSSd2ZSBoaXQgYSBiaXQgb2YgYSBwcm9ibGVtIHdpdGggbnNlbnRlciBhbmQgc3lz
-dGVtZC1uc3Bhd24uCj4gV2hlbiBuc2VudGVyIGlzIHVzZWQgdG8gZW50ZXIgdGhlIFBJRCBuYW1l
-c3BhY2UgY3JlYXRlZCB3aXRoCj4gc3lzdGVtZC1uc3Bhd24sIGFuZCB0aGUgY29udGFpbmVyJ3Mg
-aW5pdCBhdHRlbXB0cyBhIHNodXRkb3duLAo+IGl0IGhhbmdzIGJlY2F1c2UgbnNlbnRlciBpcyBz
-dXNwZW5kZWQuCj4KPiBUaGUgc2VxdWVuY2Ugb2YgZXZlbnRzIGxlYWRpbmcgdG8gdGhlIGhhbmcg
-aXM6Cj4KPiAxLiBuc2VudGVyIGxhdW5jaGVzIGEgc2hlbGwgaW5zaWRlIHRoZSBjb250YWluZXIg
-d2l0aAo+ICAgIFBQSUQ9MCBhcyBzZWVuIGluc2lkZSB0aGUgY29udGFpbmVyLAo+IDIuIHN5c3Rl
-bWQgd2l0aCBQSUQ9MSBnb2VzIHRocm91Z2ggdGhlIHNodXRkb3duIHNlcXVlbmNlLAo+ICAgIGlz
-c3VpbmcgdGhlIGVxdWl2YWxlbnQoKikgb2YKPgo+ICAgIGtpbGwoLTEsIFNJR1NUT1ApCgpUaGlz
-IGJhZmZsZXMgbWUuICBJIGFtIG5vdCBjZXJ0YWluIHdoeSBzb21lb25lIHdob3VsZCBzZW5kIFNJ
-R1NUT1AKd2hlbiB0aGUgd2FudCBwcm9jZXNzZXMgdG8gZXhpdC4gIEknbSBub3QgZXZlbiBzYXlp
-bmcgaXQncyB3cm9uZyBqdXN0CnNheWluZyB0aGF0IGlzIG9kZC4KCj4gICAga2lsbCgtMSwgU0lH
-VEVSTSkKPiAgICBraWxsKF8xLCBTSUdDT05UKQo+ICAgIHJlYm9vdChSQl9IQUxUX1NZU1RFTSkK
-Pgo+IE5vdywgbnNlbnRlciBoYXMgYSBzdGFuemEgaW4gY29udGludWVfYXNfY2hpbGQgd2hlcmUg
-aXQgc3RvcHMgaXRzZWxmCj4gd2hlbiB0aGUgY2hpbGQgZ2V0cyBzdG9wcGVkLiBVbmZvcnR1bmF0
-ZWx5LCB0aGlzIG1lYW5zIHRoYXQgbnNlbnRlcgo+IGdldHMgc3RvcHBlZCBpbiByZXNwb25zZSB0
-byBraWxsKC0xLCBTSUdTVE9QKSB3aGljaCBoaXRzIHRoZSBjaGlsZC4KPiBUaGVuIHRoZSBjaGls
-ZCBkaWVzIG9uIGtpbGwoLTEsIFNJR1RFUk0pLCBpcyByZXN1bWVkIHdpdGgga2lsbCgtMSwKPiBT
-SUdDT05UKSBhbmQgZXhpdHMgKGl0IHByaW50cyAiZXhpdCIsIHNvIGl0J3MgZWFzeSB0byBzZWUg
-dGhhdCBpdAo+IHRlcm1pbmF0ZWQgcHJvcGVybHkuIFRoZW4gdGhlIHNoZWxsIGJlY29tZXMgYSB6
-b21iaWUsIHNpbmNlIG5zZW50ZXIgaXQKPiBpdCdzIHBhcmVudCBhbmQgaXQncyBzbGVlcGluZy4g
-TWVhbndoaWxlLCBpbml0IGV4ZWN1dGVzIHJlYm9vdCwgYW5kCj4gaGFuZ3MgaW4gdGhlcmUsIHNp
-bmNlIHRoZSBjb250YWluZXIgd2FpdHMgZm9yIHRoZSBQSUQgbmFtZXNwYWNlIHRvCj4gYmVjb21l
-IGVtcHR5IChJJ20gZ3Vlc3NpbmcgaGVyZSwgYnV0IHRoYXQgc2VlbXMgbG9naWNhbCkuCgpJIGV4
-cGVjdCB0aGUgaGFuZyBpcyBpbiB0aGUgcGlkIG5hbWVzcGFjZSBpbml0IGV4aXRpbmcuCmluIGtl
-cm5lbC9waWRfbmFtZXNwYWNlLng6emFwX3BpZF9uc19wcm9jZXNzZXMoKSBoYXMgdGhlIGJhdmlv
-dXIgb2YKYmxvY2tpbmcgdW50aWwgYWxsIGNoaWxkcmVuIG9mIGluaXQgaGF2ZSBiZWVuIHJlYXBl
-ZCB0aGF0IHlvdSBkZXNjcmliZS4KCj4gV2hlbiB0aGVuCj4gSSB0eXBlICdmZycgdG8gY29udGlu
-dWUgbnNlbnRlciwgdGhlIGNoaWxkIGdldHMgY29sbGVjdGVkIGFuZCB0aGUKPiBjb250YWluZXIg
-c3VjY2Vzc2Z1bGx5IGV4aXRzLgo+Cj4gVGhpcyBpcyB3aXRoIGtlcm5lbCAzLjktcmM2IGZyb20g
-RmVkb3JhLgoKRm9yIG5zZW50ZXIgYW5kIHRoZSBwaWQgbmFtZXNwYWNlIHRoZXkgYXJlIHdvcmtp
-bmcgYXMgZGVzaWduZWQuICBCdXQKZ2l2ZW4gdGhpcyBvdXRjb2RlIGl0IHdvdWxkIGJlIG5pY2Ug
-aWYgd2UgY291bGQgZ2V0IGEgU0lHQ09OVCB3aGVuIHRoZQpjaGlsZCB3YWtlcyB1cCBhZ2Fpbi4K
-ClRoZSBjdXJyZW50IGJlaGF2aW9yIHN1cHBvcnRzIGJlaW5nIGFibGUgdG8gdHlwZSBzdXNwZW5k
-IGluIHlvdXIgc2hlbGwKaW4gdGhlIG5hbWVzcGFjZSBhbmQgYWJsZSB0byB3b3JrIG91dHNpZGUg
-dGhlIG5hbWVzcGFjZS4KCkkgY2FuJ3QgdGhpbmsgb2YgYSB3YXkgb2ZmIHRoZSB0b3Agb2YgbXkg
-aGVhZCB0byB3YWtlIG5zZW50ZXIgdXAgd2hlbgppdCdzIGNoaWxkIGlzIHdva2VuIHVwIHVuZGVy
-bmVhdGggaXQsIGJ1dCBpdCBzb3VuZHMgbGlrZSB0aGF0IHdvdWxkIGJlCm5pY2UgdG8gZG8uCgpG
-b3IgdGhlIHNob3J0IHRlcm0gSSB3b3VsZCByZWNvbW1lbmQgbm90IHR5cGluZyAicmVib290ICYg
-ZXhpdCIgaW5zdGVhZApvZiAicmVib290IiBmcm9tIGEgc2hlbGwgc3RhcnRlZCB3aXRoIG5zZW50
-ZXIsIGFuZCBvdGhlcndpc2Ugbm90IGxlYXZpbmcKcHJvY2Vzc2VzIHdpdGggcGFyZW50cyBvdXRz
-aWRlIHRoZSBwaWQgbmFtZXNwYWNlIGFyb3VuZC4KCk9mIGNvdXJzZSB0aGF0IHNlZGluZyBTSUdT
-VE9QIGJlZm9yZSBzZW5kaW5nIFNJR1RFUk0gc2VlbXMgbWlnaHR5IGZpc2h5CmFzIHdlbGwuCgpF
-cmljCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnN5c3Rl
-bWQtZGV2ZWwgbWFpbGluZyBsaXN0CnN5c3RlbWQtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-Cmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9zeXN0ZW1kLWRl
-dmVsCg==
+
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Make enabling fdformat depend on being a linux build.
+
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+
+diff --git a/configure.ac b/configure.ac
+index dd5d3e1..d9d6cb8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -968,7 +968,7 @@ AM_CONDITIONAL(BUILD_BFS, test "x$build_bfs" = xyes)
+ 
+ AC_ARG_ENABLE([fdformat],
+   AS_HELP_STRING([--disable-fdformat], [do not build fdformat]),
+-  [], enable_fdformat=yes
++  [], enable_fdformat=check
+ )
+ UL_BUILD_INIT([fdformat])
+ UL_REQUIRES_LINUX([fdformat])
+
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch
+
+diff --git a/configure.ac b/configure.ac
+index dd5d3e1..d9d6cb8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -968,7 +968,7 @@ AM_CONDITIONAL(BUILD_BFS, test "x$build_bfs" = xyes)
+ 
+ AC_ARG_ENABLE([fdformat],
+   AS_HELP_STRING([--disable-fdformat], [do not build fdformat]),
+-  [], enable_fdformat=yes
++  [], enable_fdformat=check
+ )
+ UL_BUILD_INIT([fdformat])
+ UL_REQUIRES_LINUX([fdformat])
+
+--SLDf9lqlvOQaIe6s--
