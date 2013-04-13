@@ -1,42 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vb0-f50.google.com ([209.85.212.50]:58681 "EHLO
-	mail-vb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750828Ab3D2I7Q convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 04:59:16 -0400
-Received: by mail-vb0-f50.google.com with SMTP id w15so213511vbb.9
-        for <util-linux@vger.kernel.org>; Mon, 29 Apr 2013 01:59:16 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <517DBDB7.8090506@draigBrady.com>
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
-	<1367169067-23705-9-git-send-email-kerolasa@iki.fi>
-	<517DBDB7.8090506@draigBrady.com>
-Date: Mon, 29 Apr 2013 09:59:15 +0100
-Message-ID: <CAG27Bk0iSZDx=mJ_WM1sA5ins7g5zCqnTdVGLyogSZ4E9d57OA@mail.gmail.com>
-Subject: Re: [PATCH 08/11] cal: allow day highlight testing
+Received: from mail-we0-f180.google.com ([74.125.82.180]:55850 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753701Ab3DMTzs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:55:48 -0400
+Received: by mail-we0-f180.google.com with SMTP id r5so2759638wey.11
+        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:55:47 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 14/33] libblkid: check writing to a file was successful
+Date: Sat, 13 Apr 2013 20:54:42 +0100
+Message-Id: <1365882901-11429-15-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 29 April 2013 01:24, Pádraig Brady <P@draigbrady.com> wrote:
-> On 04/28/2013 06:11 PM, Sami Kerola wrote:
->> Requires similar trick as done with more to by pass check whether a
->> session is or isn't interactive.
->
-> I wonder should we have an option or env variable to force highlighting?
-> I've wanted a couple of times to pipe output like:
->   cal --color=always | ansi2html.sh
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libblkid/src/evaluate.c | 4 +++-
+ libblkid/src/save.c     | 7 ++++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-Hi Padraig,
+diff --git a/libblkid/src/evaluate.c b/libblkid/src/evaluate.c
+index 8853009..8ef9277 100644
+--- a/libblkid/src/evaluate.c
++++ b/libblkid/src/evaluate.c
+@@ -24,6 +24,7 @@
+ 
+ #include "pathnames.h"
+ #include "canonicalize.h"
++#include "closestream.h"
+ 
+ #include "blkidP.h"
+ 
+@@ -123,7 +124,8 @@ int blkid_send_uevent(const char *devname, const char *action)
+ 		rc = 0;
+ 		if (fputs(action, f) >= 0)
+ 			rc = 0;
+-		fclose(f);
++		if (close_stream(f) != 0)
++			DBG(EVALUATE, blkid_debug("write failed: %s", uevent));
+ 	}
+ 	DBG(EVALUATE, blkid_debug("%s: send uevent %s",
+ 			uevent, rc == 0 ? "SUCCES" : "FAILED"));
+diff --git a/libblkid/src/save.c b/libblkid/src/save.c
+index 86eda6c..424017a 100644
+--- a/libblkid/src/save.c
++++ b/libblkid/src/save.c
+@@ -21,6 +21,9 @@
+ #ifdef HAVE_ERRNO_H
+ #include <errno.h>
+ #endif
++
++#include "closestream.h"
++
+ #include "blkidP.h"
+ 
+ static int save_dev(blkid_dev dev, FILE *file)
+@@ -148,7 +151,9 @@ int blkid_flush_cache(blkid_cache cache)
+ 		ret = 1;
+ 	}
+ 
+-	fclose(file);
++	if (close_stream(file) != 0)
++		DBG(SAVE, blkid_debug("write failed: %s", filename));
++
+ 	if (opened != filename) {
+ 		if (ret < 0) {
+ 			unlink(opened);
+-- 
+1.8.2.1
 
-Your proposal makes totally sense. Karel, please wait a moment (till
-tomorrow) that I have a change to rewrite this change to be more
-useful. I'll send new patch to the list, and update my git sometime
-off-work-hour.
-
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
