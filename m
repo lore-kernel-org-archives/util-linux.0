@@ -1,157 +1,296 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from fsm2.ukr.net ([195.214.192.121]:28949 "EHLO fsm2.ukr.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752922Ab3DKSMe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Apr 2013 14:12:34 -0400
-Received: from ip-4ffd.proline.net.ua ([93.126.79.253] helo=localhost)
-	by fsm2.ukr.net with esmtpsa ID 1UQLfy-000A0K-C4
-	for util-linux@vger.kernel.org; Thu, 11 Apr 2013 20:52:46 +0300
-Content-Type: multipart/mixed; boundary=----------Gkj5JYRvz8P5iuljqgoqIv
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Date: Thu, 11 Apr 2013 20:52:45 +0300
-Subject: [PATCH] Fix typos in util-linux sources
+Received: from mail-vb0-f47.google.com ([209.85.212.47]:41054 "EHLO
+	mail-vb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752464Ab3DMV7Q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 17:59:16 -0400
+Received: by mail-vb0-f47.google.com with SMTP id x13so2967655vbb.34
+        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 14:59:16 -0700 (PDT)
+Date: Sat, 13 Apr 2013 17:59:13 -0400
+From: Dave Reisner <d@falconindy.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 05/33] bash-completion: prefer bash 3.x 'here string'
+ syntax
+Message-ID: <20130413215913.GF11968@rampage>
+References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+ <1365882901-11429-6-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-From: "Yuri Chornoivan" <yurchor@ukr.net>
-Message-ID: <op.wvd097grl2zvei@localhost>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1365882901-11429-6-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-------------Gkj5JYRvz8P5iuljqgoqIv
-Content-Type: text/plain; charset=utf-8; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
+On Sat, Apr 13, 2013 at 08:54:33PM +0100, Sami Kerola wrote:
+> The '< <' syntax is bash 2.x trick, and <<< does the same job when bash
+> 3.x is in use.  For some unknown reason my bash 4.2.45(2)-release became
+> allergic to old syntax today(?).
 
-Hi!
+I don't follow this. The syntax is <(commands), which is a process
+substitution. It creates a temporary file descriptor which can be
+redirected via <. It still very much works, and I don't expect this to
+break any time soon. It's likely more memory efficient since there's no
+need to expand the output in place -- it can just be read off of the
+file descriptor.
 
-Attached is a patch to fix some typos in util-linux messages.
+I think you should figure out what's wrong with your shell instead of
+doing this.
 
-Thanks for reviewing this patch.
-
-Best regards,
-Yuri
-------------Gkj5JYRvz8P5iuljqgoqIv
-Content-Disposition: attachment; filename=0001-Fix-various-typos.patch
-Content-Type: application/octet-stream; name=0001-Fix-various-typos.patch
-Content-Transfer-Encoding: Base64
-
-RnJvbSBmNmI3ODgxNDg3OTg5ZjNhNzQ1Yzk2ZmQ0ZmNmM2Y0MjZkNmEwMGVmIE1v
-biBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBZdXJpIENob3Jub2l2YW4gPHl1
-cmNob3JAdWtyLm5ldD4KRGF0ZTogVGh1LCAxMSBBcHIgMjAxMyAyMDo1MTozOSAr
-MDMwMApTdWJqZWN0OiBbUEFUQ0hdIEZpeCB2YXJpb3VzIHR5cG9zCgotLS0KIGZk
-aXNrcy9mZGlzay1hc2suYyAgICAgfCAgICAyICstCiBmZGlza3MvZmRpc2tkb3Ns
-YWJlbC5jIHwgICAgNCArKy0tCiBmZGlza3MvZmRpc2tzdW5sYWJlbC5jIHwgICAg
-MiArLQogbGliZmRpc2svc3JjL2dwdC5jICAgICB8ICAgIDIgKy0KIGxpYm1vdW50
-L3NyYy9jb250ZXh0LmMgfCAgICAyICstCiBtaXNjLXV0aWxzL2xzYmxrLmMgICAg
-IHwgICAgMiArLQogc3lzLXV0aWxzL21vdW50LjggICAgICB8ICAgIDIgKy0KIHN5
-cy11dGlscy9zZXRwcml2LmMgICAgfCAgICAyICstCiB0ZXh0LXV0aWxzL21vcmUu
-YyAgICAgIHwgICAgMiArLQogOSBmaWxlcyBjaGFuZ2VkLCAxMCBpbnNlcnRpb25z
-KCspLCAxMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9mZGlza3MvZmRpc2st
-YXNrLmMgYi9mZGlza3MvZmRpc2stYXNrLmMKaW5kZXggOWQyZjg3YS4uNzQ5NWQ4
-NSAxMDA2NDQKLS0tIGEvZmRpc2tzL2ZkaXNrLWFzay5jCisrKyBiL2ZkaXNrcy9m
-ZGlzay1hc2suYwpAQCAtMjA3LDcgKzIwNyw3IEBAIGludCBhc2tfY2FsbGJhY2so
-c3RydWN0IGZkaXNrX2NvbnRleHQgKmN4dCwgc3RydWN0IGZkaXNrX2FzayAqYXNr
-LAogCQlEQkcoQVNLLCBkYmdwcmludCgieWVzLW5vIGFzazogcmVwbHkgJyVzJyBb
-cmM9JWRdIiwgYnVmLCByYykpOwogCQlicmVhazsKIAlkZWZhdWx0OgotCQl3YXJu
-eChfKCJpbnRlcm5hbCBlcnJvcjogdW5zc3Vwb3J0ZWQgZGlhbG9nIHR5cGUgJWQi
-KSwgZmRpc2tfYXNrX2dldF90eXBlKGFzaykpOworCQl3YXJueChfKCJpbnRlcm5h
-bCBlcnJvcjogdW5zdXBwb3J0ZWQgZGlhbG9nIHR5cGUgJWQiKSwgZmRpc2tfYXNr
-X2dldF90eXBlKGFzaykpOwogCQlyZXR1cm4gLUVJTlZBTDsKIAl9CiAJcmV0dXJu
-IHJjOwpkaWZmIC0tZ2l0IGEvZmRpc2tzL2ZkaXNrZG9zbGFiZWwuYyBiL2ZkaXNr
-cy9mZGlza2Rvc2xhYmVsLmMKaW5kZXggZmUwNGFjNy4uNjZlM2JkYyAxMDA2NDQK
-LS0tIGEvZmRpc2tzL2ZkaXNrZG9zbGFiZWwuYworKysgYi9mZGlza3MvZmRpc2tk
-b3NsYWJlbC5jCkBAIC0xMDk2LDggKzEwOTYsOCBAQCBzdGF0aWMgaW50IGRvc19z
-ZXRfcGFydHR5cGUoCiAKIAlpZiAoaXNfZG9zX3BhcnRpdGlvbih0LT50eXBlKSB8
-fCBpc19kb3NfcGFydGl0aW9uKHAtPnN5c19pbmQpKQogCSAgICBwcmludGYoCi0J
-CV8oIlxuV0FSTklORzogSWYgeW91IGhhdmUgY3JlYXRlZCBvciBtb2RpZmllZCBh
-bnkgRE9TIDYueCIKLQkJInBhcnRpdGlvbnMsIHBsZWFzZSBzZWUgdGhlIGZkaXNr
-IG1hbnVhbCBwYWdlIGZvciBhZGRpdGlvbmFsIgorCQlfKCJcbldBUk5JTkc6IElm
-IHlvdSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgYW55IERPUyA2LnggIgorCQki
-cGFydGl0aW9ucywgcGxlYXNlIHNlZSB0aGUgZmRpc2sgbWFudWFsIHBhZ2UgZm9y
-IGFkZGl0aW9uYWwgIgogCQkiaW5mb3JtYXRpb24uXG5cbiIpKTsKIAogCXAtPnN5
-c19pbmQgPSB0LT50eXBlOwpkaWZmIC0tZ2l0IGEvZmRpc2tzL2ZkaXNrc3VubGFi
-ZWwuYyBiL2ZkaXNrcy9mZGlza3N1bmxhYmVsLmMKaW5kZXggMjIyNmY0Yy4uOTc4
-MTlhZiAxMDA2NDQKLS0tIGEvZmRpc2tzL2ZkaXNrc3VubGFiZWwuYworKysgYi9m
-ZGlza3MvZmRpc2tzdW5sYWJlbC5jCkBAIC0xMzYsNyArMTM2LDcgQEAgc3RhdGlj
-IGludCBzdW5fcHJvYmVfbGFiZWwoc3RydWN0IGZkaXNrX2NvbnRleHQgKmN4dCkK
-IAkJY3N1bSBePSAqdXNoLS07CiAKIAlpZiAoY3N1bSkgewotCQlmZGlza193YXJu
-eChjeHQsIF8oIkRldGVjdGVkIHN1biBkaXNrbGFiZWwgd2l0aCB3cm9uZyBjaGVj
-c3VtLlxuIgorCQlmZGlza193YXJueChjeHQsIF8oIkRldGVjdGVkIHN1biBkaXNr
-bGFiZWwgd2l0aCB3cm9uZyBjaGVja3N1bS5cbiIKIAkJCSAgICAgICJQcm9iYWJs
-eSB5b3UnbGwgaGF2ZSB0byBzZXQgYWxsIHRoZSB2YWx1ZXMsXG4iCiAJCQkgICAg
-ICAiZS5nLiBoZWFkcywgc2VjdG9ycywgY3lsaW5kZXJzIGFuZCBwYXJ0aXRpb25z
-XG4iCiAJCQkgICAgICAib3IgZm9yY2UgYSBmcmVzaCBsYWJlbCAocyBjb21tYW5k
-IGluIG1haW4gbWVudSkiKSk7CmRpZmYgLS1naXQgYS9saWJmZGlzay9zcmMvZ3B0
-LmMgYi9saWJmZGlzay9zcmMvZ3B0LmMKaW5kZXggNzVlMWUxNC4uNDQyYjQxZCAx
-MDA2NDQKLS0tIGEvbGliZmRpc2svc3JjL2dwdC5jCisrKyBiL2xpYmZkaXNrL3Ny
-Yy9ncHQuYwpAQCAtMTY4LDcgKzE2OCw3IEBAIHN0YXRpYyBzdHJ1Y3QgZmRpc2tf
-cGFydHR5cGUgZ3B0X3BhcnR0eXBlc1tdID0KIAlERUZfR1VJRCgiRUJEMEEwQTIt
-QjlFNS00NDMzLTg3QzAtNjhCNkI3MjY5OUM3IiwgTl8oIk1pY3Jvc29mdCBiYXNp
-YyBkYXRhIikpLAogCURFRl9HVUlEKCI1ODA4QzhBQS03RThGLTQyRTAtODVEMi1F
-MUU5MDQzNENGQjMiLCBOXygiTWljcm9zb2Z0IExETSBtZXRhZGF0YSIpKSwKIAlE
-RUZfR1VJRCgiQUY5QjYwQTAtMTQzMS00RjYyLUJDNjgtMzMxMTcxNEE2OUFEIiwg
-Tl8oIk1pY3Jvc29mdCBMRE0gZGF0YSIpKSwKLQlERUZfR1VJRCgiREU5NEJCQTQt
-MDZEMS00RDQwLUExNkEtQkZENTAxNzlENkFDIiwgTl8oIldpbmRvd3MgcmVjb3Zl
-cnkgZXZpcm9ubW5ldCIpKSwKKwlERUZfR1VJRCgiREU5NEJCQTQtMDZEMS00RDQw
-LUExNkEtQkZENTAxNzlENkFDIiwgTl8oIldpbmRvd3MgcmVjb3ZlcnkgZXZpcm9u
-bWVudCIpKSwKIAlERUZfR1VJRCgiMzdBRkZDOTAtRUY3RC00RTk2LTkxQzMtMkQ3
-QUUwNTVCMTc0IiwgTl8oIklCTSBHZW5lcmFsIFBhcmFsbGVsIEZzIikpLAogCiAJ
-LyogSFAtVVggKi8KZGlmZiAtLWdpdCBhL2xpYm1vdW50L3NyYy9jb250ZXh0LmMg
-Yi9saWJtb3VudC9zcmMvY29udGV4dC5jCmluZGV4IDYxNGQzZjMuLjdmOTI0MDIg
-MTAwNjQ0Ci0tLSBhL2xpYm1vdW50L3NyYy9jb250ZXh0LmMKKysrIGIvbGlibW91
-bnQvc3JjL2NvbnRleHQuYwpAQCAtODQyLDcgKzg0Miw3IEBAIGludCBtbnRfY29u
-dGV4dF9zZXRfb3B0aW9uc19wYXR0ZXJuKHN0cnVjdCBsaWJtbnRfY29udGV4dCAq
-Y3h0LCBjb25zdCBjaGFyICpwYXR0CiAgKiBAY3h0OiBtb3VudCBjb250ZXh0CiAg
-KiBAdGI6IGZzdGFiCiAgKgotICogVGhlIG1vdW50IGNvbnRleHQgcmVhZHMgL2V0
-Yy9mc3RhYiB0byB0aGUgdGhlIHByaXZhdGUgc3RydWN0IGxpYm1udF90YWJsZSBi
-eSBkZWZhdWx0LgorICogVGhlIG1vdW50IGNvbnRleHQgcmVhZHMgL2V0Yy9mc3Rh
-YiB0byB0aGUgcHJpdmF0ZSBzdHJ1Y3QgbGlibW50X3RhYmxlIGJ5IGRlZmF1bHQu
-CiAgKiBUaGlzIGZ1bmN0aW9uIGFsbG93cyB0byBvdmVyd3JpdGUgdGhlIHByaXZh
-dGUgZnN0YWIgd2l0aCBhbiBleHRlcm5hbAogICogaW5zdGFuY2UuIE5vdGUgdGhh
-dCB0aGUgZXh0ZXJuYWwgaW5zdGFuY2UgaXMgbm90IGRlYWxsb2NhdGVkIGJ5IG1u
-dF9mcmVlX2NvbnRleHQoKS4KICAqCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL2xz
-YmxrLmMgYi9taXNjLXV0aWxzL2xzYmxrLmMKaW5kZXggNDFmNzcyYS4uODg0NWUy
-ZSAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay5jCisrKyBiL21pc2MtdXRp
-bHMvbHNibGsuYwpAQCAtMTM2Myw3ICsxMzYzLDcgQEAgc3RhdGljIHZvaWQgX19h
-dHRyaWJ1dGVfXygoX19ub3JldHVybl9fKSkgaGVscChGSUxFICpvdXQpCiAJZnB1
-dHMoXygiIC1sLCAtLWxpc3QgICAgICAgICAgIHVzZSBsaXN0IGZvcm1hdCBvdXRw
-dXRcbiIpLCBvdXQpOwogCWZwdXRzKF8oIiAtbiwgLS1ub2hlYWRpbmdzICAgICBk
-b24ndCBwcmludCBoZWFkaW5nc1xuIiksIG91dCk7CiAJZnB1dHMoXygiIC1vLCAt
-LW91dHB1dCA8bGlzdD4gIG91dHB1dCBjb2x1bW5zXG4iKSwgb3V0KTsKLQlmcHV0
-cyhfKCIgLXAsIC0tcGF0aHMgICAgICAgICAgcHJpbnQgY29tcGxhdGUgZGV2aWNl
-IHBhdGhcbiIpLCBvdXQpOworCWZwdXRzKF8oIiAtcCwgLS1wYXRocyAgICAgICAg
-ICBwcmludCBjb21wbGV0ZSBkZXZpY2UgcGF0aFxuIiksIG91dCk7CiAJZnB1dHMo
-XygiIC1QLCAtLXBhaXJzICAgICAgICAgIHVzZSBrZXk9XCJ2YWx1ZVwiIG91dHB1
-dCBmb3JtYXRcbiIpLCBvdXQpOwogCWZwdXRzKF8oIiAtciwgLS1yYXcgICAgICAg
-ICAgICB1c2UgcmF3IG91dHB1dCBmb3JtYXRcbiIpLCBvdXQpOwogCWZwdXRzKF8o
-IiAtcywgLS1pbnZlcnNlICAgICAgICBpbnZlcnNlIGRlcGVuZGVuY2llc1xuIiks
-IG91dCk7CmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvbW91bnQuOCBiL3N5cy11dGls
-cy9tb3VudC44CmluZGV4IDYyNmQ4NjEuLjA3OGI2ZWQgMTAwNjQ0Ci0tLSBhL3N5
-cy11dGlscy9tb3VudC44CisrKyBiL3N5cy11dGlscy9tb3VudC44CkBAIC03MTks
-NyArNzE5LDcgQEAgYW5kCiBzdXBwb3J0IGZpbGVzeXN0ZW0gc3VidHlwZXMuICBU
-aGUgc3VidHlwZSBpcyBkZWZpbmVkIGJ5ICcuc3VidHlwZScgc3VmZml4LiAgRm9y
-CiBleGFtcGxlICAnZnVzZS5zc2hmcycuIEl0J3MgcmVjb21tZW5kZWQgdG8gdXNl
-IHN1YnR5cGUgbm90YXRpb24gcmF0aGVyIHRoYW4gYWRkCiBhbnkgcHJlZml4IHRv
-IHRoZSBtb3VudCBzb3VyY2UgKGZvciBleGFtcGxlICdzc2hmcyNleGFtcGxlLmNv
-bScgaXMKLWRlcHJlYWNhdGVkKS4KK2RlcHJlY2F0ZWQpLgogCiBGb3IgbW9zdCB0
-eXBlcyBhbGwgdGhlCiAuQiBtb3VudApkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL3Nl
-dHByaXYuYyBiL3N5cy11dGlscy9zZXRwcml2LmMKaW5kZXggYTU0N2ZkNy4uOWRi
-M2I5ZCAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL3NldHByaXYuYworKysgYi9zeXMt
-dXRpbHMvc2V0cHJpdi5jCkBAIC03OTMsNyArNzkzLDcgQEAgaW50IG1haW4oaW50
-IGFyZ2MsIGNoYXIgKiphcmd2KQogCiAJaWYgKG9wdHMuaGF2ZV9zZWN1cmViaXRz
-KQogCQlpZiAocHJjdGwoUFJfU0VUX1NFQ1VSRUJJVFMsIG9wdHMuc2VjdXJlYml0
-cywgMCwgMCwgMCkgIT0gMCkKLQkJCWVycihTRVRQUklWX0VYSVRfUFJJVkVSUiwg
-Xygic2V0IHByb2NlY2VzcyBzZWN1cmViaXRzIGZhaWxlZCIpKTsKKwkJCWVycihT
-RVRQUklWX0VYSVRfUFJJVkVSUiwgXygic2V0IHByb2Nlc3Mgc2VjdXJlYml0cyBm
-YWlsZWQiKSk7CiAKIAlpZiAob3B0cy5ib3VuZGluZ19zZXQpIHsKIAkJZG9fY2Fw
-cyhDQVBOR19CT1VORElOR19TRVQsIG9wdHMuYm91bmRpbmdfc2V0KTsKZGlmZiAt
-LWdpdCBhL3RleHQtdXRpbHMvbW9yZS5jIGIvdGV4dC11dGlscy9tb3JlLmMKaW5k
-ZXggNDk2YjExNi4uNjZkZTJiZiAxMDA2NDQKLS0tIGEvdGV4dC11dGlscy9tb3Jl
-LmMKKysrIGIvdGV4dC11dGlscy9tb3JlLmMKQEAgLTE3NzQsNyArMTc3NCw3IEBA
-IHZvaWQgaW5pdHRlcm0odm9pZCkKIAkJewogCQkJaW50IHRncnA7CiAJCQkvKiBX
-YWl0IHVudGlsIHdlJ3JlIGluIHRoZSBmb3JlZ3JvdW5kIGJlZm9yZSB3ZQotCQkJ
-ICogc2F2ZSB0aGUgdGhlIHRlcm1pbmFsIG1vZGVzLiAqLworCQkJICogc2F2ZSB0
-aGUgdGVybWluYWwgbW9kZXMuICovCiAJCQlpZiAoKHRncnAgPSB0Y2dldHBncnAo
-ZmlsZW5vKHN0ZG91dCkpKSA8IDApIHsKIAkJCQlwZXJyb3IoInRjZ2V0cGdycCIp
-OwogCQkJCWV4aXQoRVhJVF9GQUlMVVJFKTsKLS0gCjEuNy4xMAoK
-
-------------Gkj5JYRvz8P5iuljqgoqIv--
-
+> Reference: http://linuxshellaccount.blogspot.co.uk/2008/08/using-bash-to-feed-command-output-to.html
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  bash-completion/addpart    | 2 +-
+>  bash-completion/blkdiscard | 2 +-
+>  bash-completion/blkid      | 2 +-
+>  bash-completion/blockdev   | 2 +-
+>  bash-completion/delpart    | 2 +-
+>  bash-completion/fdisk      | 4 ++--
+>  bash-completion/findmnt    | 2 +-
+>  bash-completion/fsck       | 2 +-
+>  bash-completion/fsck.minix | 2 +-
+>  bash-completion/lsblk      | 2 +-
+>  bash-completion/mkfs       | 2 +-
+>  bash-completion/mkfs.bfs   | 2 +-
+>  bash-completion/mkfs.minix | 2 +-
+>  bash-completion/partx      | 2 +-
+>  bash-completion/resizepart | 2 +-
+>  bash-completion/sfdisk     | 2 +-
+>  bash-completion/wipefs     | 2 +-
+>  17 files changed, 18 insertions(+), 18 deletions(-)
+>
+> diff --git a/bash-completion/addpart b/bash-completion/addpart
+> index 2b1e6bb..3b4e603 100644
+> --- a/bash-completion/addpart
+> +++ b/bash-completion/addpart
+> @@ -6,7 +6,7 @@ _addpart_module()
+>  	case $COMP_CWORD in
+>  		1)
+>  			local DEVS=''
+> -			while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +			while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  			OPTS="--help --version $DEVS"
+>  			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+>  			;;
+> diff --git a/bash-completion/blkdiscard b/bash-completion/blkdiscard
+> index 310cdfb..9e2e262 100644
+> --- a/bash-completion/blkdiscard
+> +++ b/bash-completion/blkdiscard
+> @@ -21,7 +21,7 @@ _blkdiscard_module()
+>  			;;
+>  	esac
+>  	local DEVS
+> -	DEVS=''; while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	DEVS=''; while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/blkid b/bash-completion/blkid
+> index b439328..de8b8ce 100644
+> --- a/bash-completion/blkid
+> +++ b/bash-completion/blkid
+> @@ -60,7 +60,7 @@ _blkid_module()
+>  	local DEV TYPE DEVICES=''
+>  	while read DEV TYPE; do
+>  		[ $TYPE = 'part' ] && DEVICES+="$DEV "
+> -	done < <(lsblk -pnro name,type)
+> +	done <<<"$(lsblk -pnro name,type)"
+>  	COMPREPLY=( $(compgen -W "$DEVICES" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/blockdev b/bash-completion/blockdev
+> index ce986cb..4c86cda 100644
+> --- a/bash-completion/blockdev
+> +++ b/bash-completion/blockdev
+> @@ -4,7 +4,7 @@ _blockdev_module()
+>  	COMPREPLY=()
+>  	cur="${COMP_WORDS[COMP_CWORD]}"
+>  	prev="${COMP_WORDS[COMP_CWORD-1]}"
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	OPTS="-h -V -q
+>  		--report
+>  		--getsz
+> diff --git a/bash-completion/delpart b/bash-completion/delpart
+> index a4b20c8..6fa7006 100644
+> --- a/bash-completion/delpart
+> +++ b/bash-completion/delpart
+> @@ -14,7 +14,7 @@ _delpart_module()
+>  			local DEV TYPE DEVICES=''
+>  			while read DEV TYPE; do
+>  				[ $TYPE = 'disk' ] && DEVICES+="$DEV "
+> -			done < <(lsblk -pnro name,type)
+> +			done <<<"$(lsblk -pnro name,type)"
+>  			OPTS="--help --version $DEVICES"
+>  			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+>  			;;
+> diff --git a/bash-completion/fdisk b/bash-completion/fdisk
+> index b800f8d..4a59070 100644
+> --- a/bash-completion/fdisk
+> +++ b/bash-completion/fdisk
+> @@ -9,7 +9,7 @@ _fdisk_module()
+>  			local DEV TYPE DEVICES=''
+>  			while read DEV TYPE; do
+>  				[ $TYPE = 'part' ] && DEVICES+="$DEV "
+> -			done < <(lsblk -pnro name,type)
+> +			done <<<"$(lsblk -pnro name,type)"
+>  			COMPREPLY=( $(compgen -W "$DEVICES" -- $cur) )
+>  			return 0
+>  			;;
+> @@ -43,7 +43,7 @@ _fdisk_module()
+>  	local DEV TYPE DEVICES=''
+>  	while read DEV TYPE; do
+>  		[ $TYPE = 'disk' ] && DEVICES+="$DEV "
+> -	done < <(lsblk -pnro name,type)
+> +	done <<<"$(lsblk -pnro name,type)"
+>  	COMPREPLY=( $(compgen -W "$DEVICES" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/findmnt b/bash-completion/findmnt
+> index 9386d8f..4cb0be8 100644
+> --- a/bash-completion/findmnt
+> +++ b/bash-completion/findmnt
+> @@ -37,7 +37,7 @@ _findmnt_module()
+>  				for I in ${TMP_ARR[@]}; do
+>  					MNT_OPTS[$I]='1'
+>  				done
+> -			done < <(findmnt -rno OPTIONS)
+> +			done <<<"$(findmnt -rno OPTIONS)"
+>  			COMPREPLY=( $(compgen -W "${!MNT_OPTS[@]}" -- $cur) )
+>  			return 0
+>  			;;
+> diff --git a/bash-completion/fsck b/bash-completion/fsck
+> index 04899a0..448b6b7 100644
+> --- a/bash-completion/fsck
+> +++ b/bash-completion/fsck
+> @@ -32,7 +32,7 @@ _fsck_module()
+>  			return 0
+>  			;;
+>  	esac
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/fsck.minix b/bash-completion/fsck.minix
+> index 1ec9a78..b9ff739 100644
+> --- a/bash-completion/fsck.minix
+> +++ b/bash-completion/fsck.minix
+> @@ -9,7 +9,7 @@ _fsck.minix_module()
+>  			return 0
+>  			;;
+>  	esac
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	OPTS="-l -a -r -v -s -m -f --version"
+>  	COMPREPLY=( $(compgen -W "${OPTS[*]} $DEVS" -- $cur) )
+>  	return 0
+> diff --git a/bash-completion/lsblk b/bash-completion/lsblk
+> index 07e9368..2beb8a5 100644
+> --- a/bash-completion/lsblk
+> +++ b/bash-completion/lsblk
+> @@ -61,7 +61,7 @@ _lsblk_module()
+>  			;;
+>  	esac
+>  	local DEVS
+> -	DEVS=''; while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	DEVS=''; while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/mkfs b/bash-completion/mkfs
+> index 4e6e175..daa9ea5 100644
+> --- a/bash-completion/mkfs
+> +++ b/bash-completion/mkfs
+> @@ -21,7 +21,7 @@ _mkfs_module()
+>  			return 0
+>  			;;
+>  	esac
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS /path/to/file" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/mkfs.bfs b/bash-completion/mkfs.bfs
+> index 8adbc60..4f56403 100644
+> --- a/bash-completion/mkfs.bfs
+> +++ b/bash-completion/mkfs.bfs
+> @@ -24,7 +24,7 @@ _bfs_module()
+>  			return 0
+>  			;;
+>  	esac
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS /path/to/file" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/mkfs.minix b/bash-completion/mkfs.minix
+> index 78c986f..e7b60a3 100644
+> --- a/bash-completion/mkfs.minix
+> +++ b/bash-completion/mkfs.minix
+> @@ -29,7 +29,7 @@ _mkfs.minix_module()
+>  			;;
+>  	esac
+>  	local DEVS
+> -	while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/partx b/bash-completion/partx
+> index 7b08fa8..9b382fd 100644
+> --- a/bash-completion/partx
+> +++ b/bash-completion/partx
+> @@ -34,7 +34,7 @@ _partx_module()
+>  	local DEV TYPE DEVICES=''
+>  	while read DEV TYPE; do
+>  		[ $TYPE = 'disk' ] && DEVICES+="$DEV "
+> -	done < <(lsblk -pnro name,type)
+> +	done <<<"$(lsblk -pnro name,type)"
+>  	COMPREPLY=( $(compgen -W "$DEVICES" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/resizepart b/bash-completion/resizepart
+> index c78af15..08a95f0 100644
+> --- a/bash-completion/resizepart
+> +++ b/bash-completion/resizepart
+> @@ -14,7 +14,7 @@ _resizepart_module()
+>  			local DEV TYPE DEVICES=''
+>  			while read DEV TYPE; do
+>  				[ $TYPE = 'disk' ] && DEVICES+="$DEV "
+> -			done < <(lsblk -pnro name,type)
+> +			done <<<"$(lsblk -pnro name,type)"
+>  			OPTS="--help --version $DEVICES"
+>  			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+>  			;;
+> diff --git a/bash-completion/sfdisk b/bash-completion/sfdisk
+> index 0226b04..d39e2ba 100644
+> --- a/bash-completion/sfdisk
+> +++ b/bash-completion/sfdisk
+> @@ -75,7 +75,7 @@ _sfdisk_module()
+>  	local DEV TYPE DEVICES=''
+>  	while read DEV TYPE; do
+>  		[ $TYPE = 'disk' ] && DEVICES+="$DEV "
+> -	done < <(lsblk -pnro name,type)
+> +	done <<<"$(lsblk -pnro name,type)"
+>  	COMPREPLY=( $(compgen -W "$DEVICES" -- $cur) )
+>  	return 0
+>  }
+> diff --git a/bash-completion/wipefs b/bash-completion/wipefs
+> index e0e3286..f0a3ba6 100644
+> --- a/bash-completion/wipefs
+> +++ b/bash-completion/wipefs
+> @@ -27,7 +27,7 @@ _wipefs_module()
+>  			;;
+>  	esac
+>  	local DEVS
+> -	DEVS=''; while read dev; do DEVS+="$dev " ; done < <(lsblk -pnro name)
+> +	DEVS=''; while read dev; do DEVS+="$dev " ; done <<<"$(lsblk -pnro name)"
+>  	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
+>  	return 0
+>  }
+> --
+> 1.8.2.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
