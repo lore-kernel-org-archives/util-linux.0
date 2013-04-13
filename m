@@ -1,68 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:40482 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935672Ab3DHTda (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Apr 2013 15:33:30 -0400
-Received: by mail-wi0-f173.google.com with SMTP id ez12so2949883wid.6
-        for <util-linux@vger.kernel.org>; Mon, 08 Apr 2013 12:33:29 -0700 (PDT)
+Received: from mail-we0-f175.google.com ([74.125.82.175]:46988 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753216Ab3DMTzN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:55:13 -0400
+Received: by mail-we0-f175.google.com with SMTP id t11so2840323wey.34
+        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:55:11 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 03/14] bash-completion: swapon: add options and fix argument
-Date: Mon,  8 Apr 2013 20:32:48 +0100
-Message-Id: <1365449579-13238-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
-References: <1365449579-13238-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 02/33] blkid, hwclock, ldattach: use program_invocation_short_name
+Date: Sat, 13 Apr 2013 20:54:30 +0100
+Message-Id: <1365882901-11429-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The initial bash-completion missed swapon options -L and -U.  Use of
-block device was proposed to be more appropriate than a path to a file.
-
-Requested-by: Karel Zak <kzak@redhat.com>
-References: http://marc.info/?l=util-linux-ng&m=136517310727426&w=2
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- bash-completion/swapon | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ misc-utils/blkid.c   | 4 +---
+ sys-utils/hwclock.h  | 1 -
+ sys-utils/ldattach.c | 3 ---
+ 3 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/bash-completion/swapon b/bash-completion/swapon
-index e127153..7656d4e 100644
---- a/bash-completion/swapon
-+++ b/bash-completion/swapon
-@@ -19,6 +19,18 @@ _swapon_module()
- 			COMPREPLY=( $(compgen -W "$OUTPUT" -S ',' -- $cur) )
- 			return 0
- 			;;
-+		'-U')
-+			local UUIDS
-+			UUIDS="$(lsblk -nrp -o FSTYPE,UUID | awk '$1 ~ /swap/ { print $2 }')"
-+			COMPREPLY=( $(compgen -W "$UUIDS" -- $cur) )
-+			return 0
-+			;;
-+		'-L')
-+			local LABELS
-+			LABELS="$(lsblk -nrp -o FSTYPE,LABEL | awk '$1 ~ /swap/ { print $2 }')"
-+			COMPREPLY=( $(compgen -W "$LABELS" -- $cur) )
-+			return 0
-+			;;
- 		'-h'|'--help'|'-V'|'--version')
- 			return 0
- 			;;
-@@ -42,10 +54,9 @@ _swapon_module()
- 			return 0
- 			;;
- 	esac
--	# FIXME: compgen will split SPEC= from '=' point.  The append
--	# comma separated value problem is very similar.
--	compopt -o filenames
--	COMPREPLY=( $(compgen -f -- $cur) )
-+	local DEVS
-+	DEVS="$(lsblk -nrp -o FSTYPE,NAME | awk '$1 ~ /swap/ { print $2 }')"
-+	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
- 	return 0
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index ce712ac..f4a9cf5 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -51,8 +51,6 @@ extern int optind;
+ #include "ttyutils.h"
+ #include "xalloc.h"
+ 
+-const char *progname = "blkid";
+-
+ int raw_chars;
+ 
+ static void print_version(FILE *out)
+@@ -98,7 +96,7 @@ static void usage(int error)
+ 		" -O <offset> probe at the given offset\n"
+ 		" -u <list>   filter by \"usage\" (e.g. -u filesystem,raid)\n"
+ 		" -n <list>   filter by filesystem type (e.g. -n vfat,ext3)\n"
+-		"\n", progname);
++		"\n", program_invocation_short_name);
+ 
+ 	exit(error);
  }
- complete -F _swapon_module swapon
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index 175a6d1..69b0ce2 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -24,7 +24,6 @@ extern struct clock_ops *probe_for_kd_clock(void);
+ typedef int bool;
+ 
+ /* hwclock.c */
+-extern char *progname;
+ extern int debug;
+ extern unsigned long epoch_option;
+ extern double time_diff(struct timeval subtrahend, struct timeval subtractor);
+diff --git a/sys-utils/ldattach.c b/sys-utils/ldattach.c
+index c06aed2..5c460fe 100644
+--- a/sys-utils/ldattach.c
++++ b/sys-utils/ldattach.c
+@@ -42,7 +42,6 @@
+ # define TIOCSETD   0x5423
+ #endif
+ 
+-static const char *progname;
+ static int debug = 0;
+ 
+ struct ld_table {
+@@ -238,8 +237,6 @@ int main(int argc, char **argv)
+ 	atexit(close_stdout);
+ 
+ 	/* parse options */
+-	progname = program_invocation_short_name;
+-
+ 	if (argc == 0)
+ 		usage(EXIT_SUCCESS);
+ 	while ((optc =
 -- 
 1.8.2.1
 
