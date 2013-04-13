@@ -1,36 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f172.google.com ([209.85.220.172]:34472 "EHLO
-	mail-vc0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759198Ab3D2UVv convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 16:21:51 -0400
-Received: by mail-vc0-f172.google.com with SMTP id hx10so5809354vcb.17
-        for <util-linux@vger.kernel.org>; Mon, 29 Apr 2013 13:21:50 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <517E8FFC.2040109@archlinux.org>
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
-	<1367169067-23705-3-git-send-email-kerolasa@iki.fi>
-	<517E8FFC.2040109@archlinux.org>
-Date: Mon, 29 Apr 2013 21:21:50 +0100
-Message-ID: <CAG27Bk3-sczegeV-N8Ybap5hkViqnUB4qij+f+JNBGLCFmXiAA@mail.gmail.com>
-Subject: Re: [PATCH 02/11] cal: convert function like definitions to functions
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:57199 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753216Ab3DMT40 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:26 -0400
+Received: by mail-wg0-f42.google.com with SMTP id k13so516546wgh.1
+        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:25 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: =?ISO-8859-1?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
-Cc: Sami Kerola <public-kerolasa-X3B1VOXEql0@plane.gmane.org>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 28/33] mkswap: unify write check to a file descriptor
+Date: Sat, 13 Apr 2013 20:54:56 +0100
+Message-Id: <1365882901-11429-29-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 29 April 2013 16:21, Thomas Bächler <thomas@archlinux.org> wrote:
-> This formula is incorrect, there's a difference between the old version
-> and yours. The original (correct) version is:
->
-> ( !(year % 4) && (year % 100) ) || !(year % 400)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkswap.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-Indeed. Your version is now part of my git, which I will send later
-when all feedback is reflected in code.
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index ec6fc5f..71503f4 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -625,15 +625,6 @@ main(int argc, char **argv) {
+ 			_("%s: unable to write signature page"),
+ 			device_name);
+ 
+-	/*
+-	 * A subsequent swapon() will fail if the signature
+-	 * is not actually on disk. (This is a kernel bug.)
+-	 */
+-#ifdef HAVE_FSYNC
+-	if (fsync(DEV))
+-		errx(EXIT_FAILURE, _("fsync failed"));
+-#endif
+-
+ #ifdef HAVE_LIBSELINUX
+ 	if (S_ISREG(statbuf.st_mode) && is_selinux_enabled() > 0) {
+ 		security_context_t context_string;
+@@ -664,5 +655,12 @@ main(int argc, char **argv) {
+ 		freecon(oldcontext);
+ 	}
+ #endif
++	/*
++	 * A subsequent swapon() will fail if the signature
++	 * is not actually on disk. (This is a kernel bug.)
++	 * The fsync() in close_fd() will take care of writing.
++	 */
++	if (close_fd(DEV) != 0)
++		err(EXIT_FAILURE, _("write failed"));
+ 	return EXIT_SUCCESS;
+ }
+-- 
+1.8.2.1
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
