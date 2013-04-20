@@ -1,73 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:43329 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758837Ab3DAQFG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Apr 2013 12:05:06 -0400
-Received: by mail-wi0-f179.google.com with SMTP id hn17so1673748wib.0
-        for <util-linux@vger.kernel.org>; Mon, 01 Apr 2013 09:05:04 -0700 (PDT)
-Date: Mon, 1 Apr 2013 17:05:00 +0100
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 04/10] bash-completion: login-utils
-Message-ID: <20130401160453.GC20549@gmail.com>
-References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
- <1364422072-23552-5-git-send-email-kerolasa@iki.fi>
- <20130328014223.GX526@rampage>
+Return-Path: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+References: <20130420182319.GU3394@in.waw.pl>
+Date: Sat, 20 Apr 2013 15:27:46 -0700
+In-Reply-To: <20130420182319.GU3394@in.waw.pl> ("Zbigniew
+	\=\?utf-8\?Q\?J\=C4\=99drzejewski-Szmek\=22's\?\= message of "Sat,
+	20 Apr 2013 20:23:19 +0200")
+Message-ID: <87k3nwzvkt.fsf@xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130328014223.GX526@rampage>
-Sender: util-linux-owner@vger.kernel.org
+Cc: util-linux <util-linux@vger.kernel.org>,
+        systemd-devel@lists.freedesktop.org
+Subject: Re: [systemd-devel] nsenter and SIGSTOP
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+	<mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+	<mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Content-Type: text/plain; charset="utf-8"
+Sender: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
+Errors-To: systemd-devel-bounces+kzak=redhat.com@lists.freedesktop.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 27, 2013 at 09:42:23PM -0400, Dave Reisner wrote:
-> On Wed, Mar 27, 2013 at 10:07:46PM +0000, Sami Kerola wrote:
-> > +++ b/shell-completion/chfn
-> > @@ -0,0 +1,31 @@
-> > +_chfn_module()
-> > +{
-> > +	local cur prev OPTS
-> > +	COMPREPLY=()
-> > +	cur="${COMP_WORDS[COMP_CWORD]}"
-> > +	prev="${COMP_WORDS[COMP_CWORD-1]}"
-> > +	case $prev in
-> > +		'-f'|'--full-name')
-> > +			COMPREPLY=( $(compgen -W "name" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +		'-o'|'--office')
-> > +			COMPREPLY=( $(compgen -W "office" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +		'-p'|'--office-phone'|'-h'|'--home-phone')
-> > +			COMPREPLY=( $(compgen -W "phone-nr" -- $cur) )
-> > +			return 0
-> > +			;;
-> 
-> I don't understand these. Given the previous argument being one of the
-> found flags, you're completing staticly defined strings. Why complete
-> anything at all?
-
-I thought giving a textual hint to user is good idea.  The hint is now
-gone.  Some of the commands are giving similar hints, other are not.  Let
-see what is found to be more preferred by users and adjust accordingly.
-
-> > +			OPTS="	-u --user
-> > +				-m -p --preserve-environment
-> > +				-g --group
-> > +				-G --supp-group
-> > +				- -l --login
-> > +				-c --command
-> > +				- -c
-> > +				--session-command
-> > +				-- -c
-> 
-> Please don't include the end of options marker in here. You appear to
-> have duplicated -c as well.
-
-Good catch, end of options marker is removed.  While writing this reply I
-realized that the duplicates are still in my git.  Hold on I'll do rebase
-fix to that.
-
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+WmJpZ25pZXcgSsSZZHJ6ZWpld3NraS1Tem1layA8emJ5c3pla0Bpbi53YXcucGw+IHdyaXRlczoK
+Cj4gSGksCj4gSSd2ZSBoaXQgYSBiaXQgb2YgYSBwcm9ibGVtIHdpdGggbnNlbnRlciBhbmQgc3lz
+dGVtZC1uc3Bhd24uCj4gV2hlbiBuc2VudGVyIGlzIHVzZWQgdG8gZW50ZXIgdGhlIFBJRCBuYW1l
+c3BhY2UgY3JlYXRlZCB3aXRoCj4gc3lzdGVtZC1uc3Bhd24sIGFuZCB0aGUgY29udGFpbmVyJ3Mg
+aW5pdCBhdHRlbXB0cyBhIHNodXRkb3duLAo+IGl0IGhhbmdzIGJlY2F1c2UgbnNlbnRlciBpcyBz
+dXNwZW5kZWQuCj4KPiBUaGUgc2VxdWVuY2Ugb2YgZXZlbnRzIGxlYWRpbmcgdG8gdGhlIGhhbmcg
+aXM6Cj4KPiAxLiBuc2VudGVyIGxhdW5jaGVzIGEgc2hlbGwgaW5zaWRlIHRoZSBjb250YWluZXIg
+d2l0aAo+ICAgIFBQSUQ9MCBhcyBzZWVuIGluc2lkZSB0aGUgY29udGFpbmVyLAo+IDIuIHN5c3Rl
+bWQgd2l0aCBQSUQ9MSBnb2VzIHRocm91Z2ggdGhlIHNodXRkb3duIHNlcXVlbmNlLAo+ICAgIGlz
+c3VpbmcgdGhlIGVxdWl2YWxlbnQoKikgb2YKPgo+ICAgIGtpbGwoLTEsIFNJR1NUT1ApCgpUaGlz
+IGJhZmZsZXMgbWUuICBJIGFtIG5vdCBjZXJ0YWluIHdoeSBzb21lb25lIHdob3VsZCBzZW5kIFNJ
+R1NUT1AKd2hlbiB0aGUgd2FudCBwcm9jZXNzZXMgdG8gZXhpdC4gIEknbSBub3QgZXZlbiBzYXlp
+bmcgaXQncyB3cm9uZyBqdXN0CnNheWluZyB0aGF0IGlzIG9kZC4KCj4gICAga2lsbCgtMSwgU0lH
+VEVSTSkKPiAgICBraWxsKF8xLCBTSUdDT05UKQo+ICAgIHJlYm9vdChSQl9IQUxUX1NZU1RFTSkK
+Pgo+IE5vdywgbnNlbnRlciBoYXMgYSBzdGFuemEgaW4gY29udGludWVfYXNfY2hpbGQgd2hlcmUg
+aXQgc3RvcHMgaXRzZWxmCj4gd2hlbiB0aGUgY2hpbGQgZ2V0cyBzdG9wcGVkLiBVbmZvcnR1bmF0
+ZWx5LCB0aGlzIG1lYW5zIHRoYXQgbnNlbnRlcgo+IGdldHMgc3RvcHBlZCBpbiByZXNwb25zZSB0
+byBraWxsKC0xLCBTSUdTVE9QKSB3aGljaCBoaXRzIHRoZSBjaGlsZC4KPiBUaGVuIHRoZSBjaGls
+ZCBkaWVzIG9uIGtpbGwoLTEsIFNJR1RFUk0pLCBpcyByZXN1bWVkIHdpdGgga2lsbCgtMSwKPiBT
+SUdDT05UKSBhbmQgZXhpdHMgKGl0IHByaW50cyAiZXhpdCIsIHNvIGl0J3MgZWFzeSB0byBzZWUg
+dGhhdCBpdAo+IHRlcm1pbmF0ZWQgcHJvcGVybHkuIFRoZW4gdGhlIHNoZWxsIGJlY29tZXMgYSB6
+b21iaWUsIHNpbmNlIG5zZW50ZXIgaXQKPiBpdCdzIHBhcmVudCBhbmQgaXQncyBzbGVlcGluZy4g
+TWVhbndoaWxlLCBpbml0IGV4ZWN1dGVzIHJlYm9vdCwgYW5kCj4gaGFuZ3MgaW4gdGhlcmUsIHNp
+bmNlIHRoZSBjb250YWluZXIgd2FpdHMgZm9yIHRoZSBQSUQgbmFtZXNwYWNlIHRvCj4gYmVjb21l
+IGVtcHR5IChJJ20gZ3Vlc3NpbmcgaGVyZSwgYnV0IHRoYXQgc2VlbXMgbG9naWNhbCkuCgpJIGV4
+cGVjdCB0aGUgaGFuZyBpcyBpbiB0aGUgcGlkIG5hbWVzcGFjZSBpbml0IGV4aXRpbmcuCmluIGtl
+cm5lbC9waWRfbmFtZXNwYWNlLng6emFwX3BpZF9uc19wcm9jZXNzZXMoKSBoYXMgdGhlIGJhdmlv
+dXIgb2YKYmxvY2tpbmcgdW50aWwgYWxsIGNoaWxkcmVuIG9mIGluaXQgaGF2ZSBiZWVuIHJlYXBl
+ZCB0aGF0IHlvdSBkZXNjcmliZS4KCj4gV2hlbiB0aGVuCj4gSSB0eXBlICdmZycgdG8gY29udGlu
+dWUgbnNlbnRlciwgdGhlIGNoaWxkIGdldHMgY29sbGVjdGVkIGFuZCB0aGUKPiBjb250YWluZXIg
+c3VjY2Vzc2Z1bGx5IGV4aXRzLgo+Cj4gVGhpcyBpcyB3aXRoIGtlcm5lbCAzLjktcmM2IGZyb20g
+RmVkb3JhLgoKRm9yIG5zZW50ZXIgYW5kIHRoZSBwaWQgbmFtZXNwYWNlIHRoZXkgYXJlIHdvcmtp
+bmcgYXMgZGVzaWduZWQuICBCdXQKZ2l2ZW4gdGhpcyBvdXRjb2RlIGl0IHdvdWxkIGJlIG5pY2Ug
+aWYgd2UgY291bGQgZ2V0IGEgU0lHQ09OVCB3aGVuIHRoZQpjaGlsZCB3YWtlcyB1cCBhZ2Fpbi4K
+ClRoZSBjdXJyZW50IGJlaGF2aW9yIHN1cHBvcnRzIGJlaW5nIGFibGUgdG8gdHlwZSBzdXNwZW5k
+IGluIHlvdXIgc2hlbGwKaW4gdGhlIG5hbWVzcGFjZSBhbmQgYWJsZSB0byB3b3JrIG91dHNpZGUg
+dGhlIG5hbWVzcGFjZS4KCkkgY2FuJ3QgdGhpbmsgb2YgYSB3YXkgb2ZmIHRoZSB0b3Agb2YgbXkg
+aGVhZCB0byB3YWtlIG5zZW50ZXIgdXAgd2hlbgppdCdzIGNoaWxkIGlzIHdva2VuIHVwIHVuZGVy
+bmVhdGggaXQsIGJ1dCBpdCBzb3VuZHMgbGlrZSB0aGF0IHdvdWxkIGJlCm5pY2UgdG8gZG8uCgpG
+b3IgdGhlIHNob3J0IHRlcm0gSSB3b3VsZCByZWNvbW1lbmQgbm90IHR5cGluZyAicmVib290ICYg
+ZXhpdCIgaW5zdGVhZApvZiAicmVib290IiBmcm9tIGEgc2hlbGwgc3RhcnRlZCB3aXRoIG5zZW50
+ZXIsIGFuZCBvdGhlcndpc2Ugbm90IGxlYXZpbmcKcHJvY2Vzc2VzIHdpdGggcGFyZW50cyBvdXRz
+aWRlIHRoZSBwaWQgbmFtZXNwYWNlIGFyb3VuZC4KCk9mIGNvdXJzZSB0aGF0IHNlZGluZyBTSUdT
+VE9QIGJlZm9yZSBzZW5kaW5nIFNJR1RFUk0gc2VlbXMgbWlnaHR5IGZpc2h5CmFzIHdlbGwuCgpF
+cmljCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnN5c3Rl
+bWQtZGV2ZWwgbWFpbGluZyBsaXN0CnN5c3RlbWQtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
+Cmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9zeXN0ZW1kLWRl
+dmVsCg==
