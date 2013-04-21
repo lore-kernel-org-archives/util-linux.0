@@ -1,74 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:55850 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753701Ab3DMTzs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:55:48 -0400
-Received: by mail-we0-f180.google.com with SMTP id r5so2759638wey.11
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:55:47 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 14/33] libblkid: check writing to a file was successful
-Date: Sat, 13 Apr 2013 20:54:42 +0100
-Message-Id: <1365882901-11429-15-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from kawka.in.waw.pl ([178.63.212.103]:45932 "EHLO kawka.in.waw.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753641Ab3DUOuw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 21 Apr 2013 10:50:52 -0400
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, util-linux@vger.kernel.org
+Cc: systemd-devel@lists.freedesktop.org,
+        =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Subject: [not-for-applying PATCH] nsenter: do not self-suspend if child is suspended
+Date: Sun, 21 Apr 2013 10:50:19 -0400
+Message-Id: <1366555819-9208-1-git-send-email-zbyszek@in.waw.pl>
+In-Reply-To: <20130421144523.GW3394@in.waw.pl>
+References: <20130421144523.GW3394@in.waw.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+nsenter would kill(self, SIGSTOP) when the child was stopped,
+making it possible to use 'suspend -f' in the child shell to
+suspend both the shell and the parent nsenter process. Unfortunately
+this interferes with other uses of SIGSTOP, since nsenter process
+is not visible in the child PID namespace and can be only resumed
+from outside.
 ---
- libblkid/src/evaluate.c | 4 +++-
- libblkid/src/save.c     | 7 ++++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ sys-utils/nsenter.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/libblkid/src/evaluate.c b/libblkid/src/evaluate.c
-index 8853009..8ef9277 100644
---- a/libblkid/src/evaluate.c
-+++ b/libblkid/src/evaluate.c
-@@ -24,6 +24,7 @@
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index 106349c..5cef4bf 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -129,7 +129,6 @@ static void continue_as_child(void)
+ {
+ 	pid_t child = fork();
+ 	int status;
+-	pid_t ret;
  
- #include "pathnames.h"
- #include "canonicalize.h"
-+#include "closestream.h"
+ 	if (child < 0)
+ 		err(EXIT_FAILURE, _("fork failed"));
+@@ -138,16 +137,8 @@ static void continue_as_child(void)
+ 	if (child == 0)
+ 		return;
  
- #include "blkidP.h"
- 
-@@ -123,7 +124,8 @@ int blkid_send_uevent(const char *devname, const char *action)
- 		rc = 0;
- 		if (fputs(action, f) >= 0)
- 			rc = 0;
--		fclose(f);
-+		if (close_stream(f) != 0)
-+			DBG(EVALUATE, blkid_debug("write failed: %s", uevent));
- 	}
- 	DBG(EVALUATE, blkid_debug("%s: send uevent %s",
- 			uevent, rc == 0 ? "SUCCES" : "FAILED"));
-diff --git a/libblkid/src/save.c b/libblkid/src/save.c
-index 86eda6c..424017a 100644
---- a/libblkid/src/save.c
-+++ b/libblkid/src/save.c
-@@ -21,6 +21,9 @@
- #ifdef HAVE_ERRNO_H
- #include <errno.h>
- #endif
+-	for (;;) {
+-		ret = waitpid(child, &status, WUNTRACED);
+-		if ((ret == child) && (WIFSTOPPED(status))) {
+-			/* The child suspended so suspend us as well */
+-			kill(getpid(), SIGSTOP);
+-			kill(child, SIGCONT);
+-		} else {
+-			break;
+-		}
+-	}
++	waitpid(child, &status, 0);
 +
-+#include "closestream.h"
-+
- #include "blkidP.h"
- 
- static int save_dev(blkid_dev dev, FILE *file)
-@@ -148,7 +151,9 @@ int blkid_flush_cache(blkid_cache cache)
- 		ret = 1;
- 	}
- 
--	fclose(file);
-+	if (close_stream(file) != 0)
-+		DBG(SAVE, blkid_debug("write failed: %s", filename));
-+
- 	if (opened != filename) {
- 		if (ret < 0) {
- 			unlink(opened);
+ 	/* Return the child's exit code if possible */
+ 	if (WIFEXITED(status)) {
+ 		exit(WEXITSTATUS(status));
 -- 
-1.8.2.1
+1.8.2.562.g931e949
 
