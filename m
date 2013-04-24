@@ -1,49 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:50648 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760521Ab3DBTnN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:13 -0400
-Received: by mail-wi0-f170.google.com with SMTP id hm11so3584690wib.5
-        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 04/13] dmesg: fix usage() output consistancy
-Date: Tue,  2 Apr 2013 20:42:48 +0100
-Message-Id: <1364931777-2645-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
-References: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:33430 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757052Ab3DXDXR (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 23 Apr 2013 23:23:17 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id D9DD133DC57
+	for <util-linux-ng@vger.kernel.org>; Wed, 24 Apr 2013 03:23:16 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux-ng@vger.kernel.org
+Subject: [PATCH] rtcwake: pass -h to shutdown
+Date: Tue, 23 Apr 2013 23:23:21 -0400
+Message-Id: <1366773801-8246-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Possible facilities and levels are meant to be printed to same file as
-the rest of the usage output.
+The sysvinit shutdown requires you use -h when using -H or -P.
+Other inits just don't seem to care.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
- sys-utils/dmesg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/rtcwake.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 3387ea4..6c7f7ed 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -254,13 +254,13 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(USAGE_VERSION, out);
- 	fputs(_("\nSupported log facilities:\n"), out);
- 	for (i = 0; i < ARRAY_SIZE(level_names); i++)
--		fprintf(stderr, " %7s - %s\n",
-+		fprintf(out, " %7s - %s\n",
- 			facility_names[i].name,
- 			_(facility_names[i].help));
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index f2efc87..eedf78d 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -569,13 +569,14 @@ int main(int argc, char **argv)
+ 		dryrun = 1;	/* to skip disabling alarm at the end */
  
- 	fputs(_("\nSupported log levels (priorities):\n"), out);
- 	for (i = 0; i < ARRAY_SIZE(level_names); i++)
--		fprintf(stderr, " %7s - %s\n",
-+		fprintf(out, " %7s - %s\n",
- 			level_names[i].name,
- 			_(level_names[i].help));
- 	fputs(USAGE_SEPARATOR, out);
+ 	} else if (strcmp(suspend, "off") == 0) {
+-		char *arg[4];
++		char *arg[5];
+ 		int i = 0;
+ 
+ 		if (verbose)
+ 			printf(_("suspend mode: off; executing %s\n"),
+ 						_PATH_SHUTDOWN);
+ 		arg[i++] = _PATH_SHUTDOWN;
++		arg[i++] = "-h";
+ 		arg[i++] = "-P";
+ 		arg[i++] = "now";
+ 		arg[i]   = NULL;
 -- 
-1.8.2
+1.8.2.1
 
