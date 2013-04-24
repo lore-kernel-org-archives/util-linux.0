@@ -1,60 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2.vodafone.ie ([213.233.128.44]:5230 "EHLO
-	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758406Ab3D2Nku (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 09:40:50 -0400
-Message-ID: <517E7860.1060604@draigBrady.com>
-Date: Mon, 29 Apr 2013 14:40:48 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: kerolasa@gmail.com
-CC: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi> <1367169067-23705-11-git-send-email-kerolasa@iki.fi> <517DBF96.3040409@draigBrady.com> <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
-In-Reply-To: <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from g1t0029.austin.hp.com ([15.216.28.36]:43904 "EHLO
+	g1t0029.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757402Ab3DXD11 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 23 Apr 2013 23:27:27 -0400
+Message-ID: <1366774046.3218.1.camel@buesod1.americas.hpqcorp.net>
+Subject: [PATCH] libfdisk: gpt: remove leftover comments
+From: Davidlohr Bueso <davidlohr.bueso@hp.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>
+Date: Tue, 23 Apr 2013 20:27:26 -0700
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/29/2013 10:11 AM, Sami Kerola wrote:
-> On 29 April 2013 01:32, Pádraig Brady <P@draigbrady.com> wrote:
->> On 04/28/2013 06:11 PM, Sami Kerola wrote:
->>> Includes fix to checks that conform earlier output practise.
->>
->> I'm not sure about this.
->> Other output modes have trailing whitespace.
->> Also consider the case where you're outputting to a <pre> in a web page,
->> where the pre has a different bg color to the web page.
->> You'd want the full width output in that case.
-> 
-> I did not realize someone might be doing that.  The reason why I wrote
-> the change is to be consistent with month and year print out, which
-> are already trimming spaces. 
+I must have left those in some commit.
 
-I don't see month/year here with trimmed spaces?
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ libfdisk/src/gpt.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-$ cal -1 | head -n1 | tr ' ' .
-.....April.2013.....
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index 735c9d9..482d453 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -1529,12 +1529,6 @@ static int gpt_create_new_partition(struct fdisk_context *cxt,
+ 
+ 	gpt_entry_set_type(e, type);
+ 
+-	/* deal with partition name
+-	for (i = 0; i < GPT_PART_NAME_LEN; i++)
+-		e->partition_name[i] =
+-			cpu_to_le16((uint16_t) gpt_sys_types[sys].name[i]);
+-	*/
+-
+ 	/*
+ 	 * Any time a new partition entry is created a new GUID must be
+ 	 * generated for that partition, and every partition is guaranteed
+-- 
+1.7.11.7
 
-$ cal -y | head -n3 | tr ' ' .
-...............................2013...............................
-
-.......January...............February.................March.......
 
 
-I do see that spaces are trimmed from the last day in -1 and -y formats.
-So I suppose it's best to be consistent and trail space there.
-I suppose one could also not trim spaces for -1 and -y there?
-
-> Perhaps there should be
-> '--trim=[yes|no|auto]', where the 'auto' would be the current
-> practice, and default.
-
-I don't think it needs an option TBH as removing trailing
-spaces is trivial with: sed 's/ *$//'
-Padding out with spaces is not trivial though,
-which is another reason to err on the side of
-leaving the trailing spaces.
-
-cheers,
-Pádraig.
