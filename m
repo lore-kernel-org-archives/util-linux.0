@@ -1,42 +1,93 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vb0-f51.google.com ([209.85.212.51]:45880 "EHLO
-	mail-vb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750828Ab3D2JLD convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 05:11:03 -0400
-Received: by mail-vb0-f51.google.com with SMTP id x19so4903763vbf.24
-        for <util-linux@vger.kernel.org>; Mon, 29 Apr 2013 02:11:02 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <517DBF96.3040409@draigBrady.com>
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
-	<1367169067-23705-11-git-send-email-kerolasa@iki.fi>
-	<517DBF96.3040409@draigBrady.com>
-Date: Mon, 29 Apr 2013 10:11:02 +0100
-Message-ID: <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
-Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
-From: Sami Kerola <kerolasa@iki.fi>
-To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: richard@nod.at
+From: Richard Weinberger <richard@nod.at>
+To: kzak@redhat.com
+Cc: ebiederm@xmission.com, util-linux@vger.kernel.org, davidlohr.bueso@hp.com,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH] nsenter: Allow selecting the uid and gid to be used in the entered userns
+Date: Thu, 25 Apr 2013 21:11:40 +0200
+Message-Id: <1366917100-10581-1-git-send-email-richard@nod.at>
 List-ID: <util-linux.vger.kernel.org>
 
-On 29 April 2013 01:32, Pádraig Brady <P@draigbrady.com> wrote:
-> On 04/28/2013 06:11 PM, Sami Kerola wrote:
->> Includes fix to checks that conform earlier output practise.
->
-> I'm not sure about this.
-> Other output modes have trailing whitespace.
-> Also consider the case where you're outputting to a <pre> in a web page,
-> where the pre has a different bg color to the web page.
-> You'd want the full width output in that case.
+Using -S (--setuid) and -G (--setgid) one can select
+the uid/gid which will be used in the entered user namespace.
 
-I did not realize someone might be doing that.  The reason why I wrote
-the change is to be consistent with month and year print out, which
-are already trimming spaces. Perhaps there should be
-'--trim=[yes|no|auto]', where the 'auto' would be the current
-practice, and default.
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ sys-utils/nsenter.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index 106349c..7b2255c 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -72,6 +72,8 @@ static void usage(int status)
+ 	fputs(_(" -n, --net   [=<file>]  enter network namespace\n"), out);
+ 	fputs(_(" -p, --pid   [=<file>]  enter pid namespace\n"), out);
+ 	fputs(_(" -U, --user  [=<file>]  enter user namespace\n"), out);
++	fputs(_(" -S, --setuid <uid>     set uid in user namespace\n"), out);
++	fputs(_(" -G, --setgid <gid>     set gid in user namespace\n"), out);
+ 	fputs(_(" -r, --root  [=<dir>]   set the root directory\n"), out);
+ 	fputs(_(" -w, --wd    [=<dir>]   set the working directory\n"), out);
+ 	fputs(_(" -F, --no-fork          do not fork before exec'ing <program>\n"), out);
+@@ -169,6 +171,8 @@ int main(int argc, char *argv[])
+ 		{ "net", optional_argument, NULL, 'n' },
+ 		{ "pid", optional_argument, NULL, 'p' },
+ 		{ "user", optional_argument, NULL, 'U' },
++		{ "setuid", required_argument, NULL, 'S' },
++		{ "setgid", required_argument, NULL, 'G' },
+ 		{ "root", optional_argument, NULL, 'r' },
+ 		{ "wd", optional_argument, NULL, 'w' },
+ 		{ "no-fork", no_argument, NULL, 'F' },
+@@ -179,6 +183,10 @@ int main(int argc, char *argv[])
+ 	int c, namespaces = 0;
+ 	bool do_rd = false, do_wd = false;
+ 	int do_fork = -1; /* unknown yet */
++	bool set_uid = false;
++	bool set_gid = false;
++	uid_t uid = 0;
++	gid_t gid = 0;
+ 
+ 	setlocale(LC_MESSAGES, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -186,7 +194,7 @@ int main(int argc, char *argv[])
+ 	atexit(close_stdout);
+ 
+ 	while ((c =
+-		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::r::w::F",
++		getopt_long(argc, argv, "hVt:m::u::i::n::p::U::S:G:r::w::F",
+ 			    longopts, NULL)) != -1) {
+ 		switch (c) {
+ 		case 'h':
+@@ -234,6 +242,14 @@ int main(int argc, char *argv[])
+ 			else
+ 				namespaces |= CLONE_NEWUSER;
+ 			break;
++		case 'S':
++			uid = strtoul_or_err(optarg, _("failed to parse uid"));
++			set_uid = true;
++			break;
++		case 'G':
++			gid = strtoul_or_err(optarg, _("failed to parse gid"));
++			set_gid = true;
++			break;
+ 		case 'F':
+ 			do_fork = 0;
+ 			break;
+@@ -319,5 +335,15 @@ int main(int argc, char *argv[])
+ 		execvp(argv[optind], argv + optind);
+ 		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+ 	}
++
++	if (namespaces & CLONE_NEWUSER) {
++		if (set_uid)
++			if (setuid(uid) < 0)
++				err(EXIT_FAILURE, _("setuid failed"));
++		if (set_gid)
++			if (setgid(gid) < 0)
++				err(EXIT_FAILURE, _("setgid failed"));
++	}
++
+ 	exec_shell();
+ }
+-- 
+1.8.1.4
