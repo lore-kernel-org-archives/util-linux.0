@@ -1,92 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14043 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161562Ab3DEOpD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 5 Apr 2013 10:45:03 -0400
-Date: Fri, 5 Apr 2013 16:44:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 07/10] bash-completion: sys-utils
-Message-ID: <20130405144453.GL14350@x2.net.home>
-References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
- <1364422072-23552-8-git-send-email-kerolasa@iki.fi>
+Return-Path: linux-fsdevel-owner@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1364422072-23552-8-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20130425110450.GF2244@x2.net.home>
+References: <20130425110450.GF2244@x2.net.home>
+Date: Thu, 25 Apr 2013 13:59:51 +0200
+Message-ID: <CAFLxGvyBc2c95BGQ78vuz0iofGB65RD6bFxF3kQpg48-ViZQsw@mail.gmail.com>
+Subject: Re: [ANNOUNCE] util-linux 2.23
+From: richard -rw- weinberger <richard.weinberger@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        util-linux@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 27, 2013 at 10:07:49PM +0000, Sami Kerola wrote:
-> diff --git a/shell-completion/swapon b/shell-completion/swapon
-> new file mode 100644
-> index 0000000..83e7e24
-> --- /dev/null
-> +++ b/shell-completion/swapon
-> @@ -0,0 +1,48 @@
-> +_swapon_module()
-> +{
-> +	local cur prev OPTS
-> +	COMPREPLY=()
-> +	cur="${COMP_WORDS[COMP_CWORD]}"
-> +	prev="${COMP_WORDS[COMP_CWORD-1]}"
-> +	case $prev in
-> +		'-p'|'--priority')
-> +			# Priority range is -1 to 32767.  Perhaps these
-> +			# few are enough.
-> +			COMPREPLY=( $(compgen -W "$(echo {-1..9} 32767)" -- $cur) )
-> +			return 0
-> +			;;
-> +		'--show')
-> +			# FIXME: how to append to a string with compgen?
-> +			local OUTPUT
-> +			OUTPUT="NAME TYPE SIZE USED PRIO"
-> +			compopt -o nospace
-> +			COMPREPLY=( $(compgen -W "$OUTPUT" -S ',' -- $cur) )
-> +			return 0
-> +			;;
+On Thu, Apr 25, 2013 at 1:04 PM, Karel Zak <kzak@redhat.com> wrote:
+> The util-linux release 2.23 is available at
+>
+>    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.23
+>
+> Feedback and bug reports, as always, are welcomed.
+>
+>        Karel
+>
+>
+>
+> Util-linux 2.23 Release Notes
+> =============================
+>
+> The cryptoloop support in the commands mount(8) and losetup(8) has been
+> REMOVED. The encryption= mount option and -e,-E,--encryption losetup options
+> are no more supported.
+>
+> The command arch(1) has been REMOVED from util-linux in favour of coreutils
+> version.
+>
+> The command chkdupexe has been REMOVED from util-linux.
+>
+> The library libblkid supports LIBBLKID_DEBUG=<mask> environment variable to
+> print debug messages on stderr. The old BLKID_DEBUG= is no more supported.
+>
+> Release highlights
+> ------------------
+>
+> nsenter(1):
+>   - this NEW COMMAND provides command line interface to setns() Linux syscall
+>     and allows to run program with namespaces of other processes
 
-What about to -L <label> and -U <uuid>? For example:
+It would be nice if nsenter(1) would allow us to specify a uid/gid
+which is switched to
+if a user namespace is entered. Otherwise we become nobody:nogroup
+after entering the
+user namespace.
 
-  lsblk -nrp -o FSTYPE,UUID | awk '$1 ~ /swap/ { print $2 }'
+I.e. ./nsenter -t <pid> -U --setuid=0 --setgid=0
 
-returns all swaps UUIDs
+Would you accept such a patch? :)
 
-> +	esac
-> +	case $cur in
-> +		-*)
-> +			OPTS="-a --all
-> +				-d --discard
-> +				-e --ifexists
-> +				-f --fixpgsz
-> +				-p --priority
-> +				-s --summary
-> +				   --show
-> +				   --noheadings
-> +				   --raw
-> +				   --bytes
-> +				-v --verbose
-> +				-h --help
-> +				-V --version"
-> +			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
-> +			return 0
-> +			;;
-> +	esac
-> +	# FIXME: compgen will split SPEC= from '=' point.  The append
-> +	# comma separated value problem is very similar.
-> +	compopt -o filenames
-> +	COMPREPLY=( $(compgen -f -- $cur) )
-> +	return 0
-> +}
-
- Would be better to offer list of block devices where is swap header?
-
-   lsblk -nrp -o FSTYPE,NAME | awk '$1 ~ /swap/ { print $2 }'
-
- rather than list of files? I think that swap to files is unusual.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--
+Thanks,
+//richard
