@@ -1,132 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f50.google.com ([74.125.82.50]:58026 "EHLO
-	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758869Ab3DAQdE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Apr 2013 12:33:04 -0400
-Received: by mail-wg0-f50.google.com with SMTP id k13so2210535wgh.17
-        for <util-linux@vger.kernel.org>; Mon, 01 Apr 2013 09:33:02 -0700 (PDT)
-Date: Mon, 1 Apr 2013 17:32:53 +0100
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 07/10] bash-completion: sys-utils
-Message-ID: <20130401163233.GA22182@gmail.com>
-References: <1364422072-23552-1-git-send-email-kerolasa@iki.fi>
- <1364422072-23552-8-git-send-email-kerolasa@iki.fi>
- <20130329163335.GI24678@x2.net.home>
+Received: from plane.gmane.org ([80.91.229.3]:36660 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756759Ab3DYN0g (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 25 Apr 2013 09:26:36 -0400
+Received: from public by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <public@plane.gmane.org>)
+	id 1UVMC3-0007gQ-B3
+	for util-linux@vger.kernel.org; Thu, 25 Apr 2013 15:26:35 +0200
+From: Andi Kleen <andi@firstfloor.org>
+To: Karel Zak <public-kzak-H+wXaHxf7aLQT0dZR+AlfA@plane.gmane.org>
+Cc: public-linux-kernel-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org,
+        public-linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org,
+        public-util-linux-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org
+Subject: Re: [ANNOUNCE] util-linux 2.23
+References: <20130425110450.GF2244@x2.net.home>
+Date: Thu, 25 Apr 2013 06:25:03 -0700
+In-Reply-To: <20130425110450.GF2244@x2.net.home> (Karel Zak's message of "Thu,
+	25 Apr 2013 13:04:50 +0200")
+Message-ID: <m2haiuvj2o.fsf@firstfloor.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130329163335.GI24678@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 29, 2013 at 05:33:35PM +0100, Karel Zak wrote:
-> On Wed, Mar 27, 2013 at 10:07:49PM +0000, Sami Kerola wrote:
-> > @@ -0,0 +1,25 @@
-> > +_blkdiscard_module()
-> > +{
-> > +	local cur prev OPTS
-> > +	COMPREPLY=()
-> > +	cur="${COMP_WORDS[COMP_CWORD]}"
-> > +	prev="${COMP_WORDS[COMP_CWORD-1]}"
-> > +	case $prev in
-> > +		'-o'|'--offset'|'-l'|'--length')
-> > +			COMPREPLY=( $(compgen -W "num" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +	esac
-> > +	case $cur in
-> > +		-*)
-> > +			OPTS="-o --offset -l --length -s --secure -v --verbose -h --help -V --version"
-> > +			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +	esac
-> > +	local DEVS
-> > +	DEVS="$(\ls -d /sys/class/block/* | sed 's|/sys/class/block/|/dev/|g')"
-> 
-> It does not look like the right way how to generate the paths, because
-> /sys/class/block/ contains also paths to unassociated loop devices and
-> all the paths are based on kernel device names (e.g. dm-X).
-> 
-> I have add --paths to lsblk(8), so now you can use:
-> 
->  lsblk -p -o NAME -n -l
-> 
-> to list the paths, for exmaple:
->  
->  /dev/sda
->  /dev/sda1
->  /dev/sda2
->  /dev/sda3
->  /dev/sda4
->  /dev/sda5
->  /dev/sda6
->  /dev/mapper/luks-10d813de-fa82-4f67-a86c-23d5d0e7c30e
->  /dev/sdb
->  /dev/sr0
-> 
-> it would be nice to use this solution everywhere.
 
-I think I found all references to block devices, and replaced them with
-lsblk which is using Dave's while loop.
 
-> > +_eject_module()
-> > +{
->  ....
-> > +	DEVS="$(for I in /sys/class/block/*/removable; do
-> > +		if [ $(cat $I) -ne 0 ]; then
-> > +			OLD_IFS=$IFS
-> > +			IFS='/';
-> > +			ARR=($I)
-> > +			echo "/dev/${ARR[4]}"
-> > +			IFS=$OLD_IFS
-> > +		fi
-> > +	done)"
-> 
->  lsblk -rpn -o RM,NAME | awk '/^1/ { print $2 }'
-> 
->  The common rule is to not read data from /sys if possible.
-> 
-> > diff --git a/shell-completion/fstrim b/shell-completion/fstrim
-> > new file mode 100644
-> > index 0000000..87cb050
-> > --- /dev/null
-> > +++ b/shell-completion/fstrim
-> > @@ -0,0 +1,25 @@
-> > +_fstrim_module()
-> > +{
-> > +	local cur prev OPTS
-> > +	COMPREPLY=()
-> > +	cur="${COMP_WORDS[COMP_CWORD]}"
-> > +	prev="${COMP_WORDS[COMP_CWORD-1]}"
-> > +	case $prev in
-> > +		'-o'|'--offset'|'-l'|'--length'|'-m'|'--minimum')
-> > +			COMPREPLY=( $(compgen -W "num" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +	esac
-> > +	case $cur in
-> > +		-*)
-> > +			OPTS="-o --offset -l --length -m --minimum -v --verbose -h --help -V --version"
-> > +			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
-> > +			return 0
-> > +			;;
-> > +	esac
-> > +	local MPOINTS
-> > +	MPOINTS=$(awk '{if ($1 ~ /^\//){print $2}}' /etc/mtab 2>/dev/null)
-> 
->  The same problem, don't read mtab directly (for example because
->  some chars could be escaped...). Use:
-> 
->    findmnt -rno SOURCE | grep '/dev'
+Karel Zak <kzak-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> writes:
+>
+> Util-linux 2.23 Release Notes
+> =============================
+>
+> The cryptoloop support in the commands mount(8) and losetup(8) has been
+> REMOVED. The encryption= mount option and -e,-E,--encryption losetup options
+> are no more supported.
 
-With this I had a small whoops.  The diff I sent moment ago did not have
-findmnt v.s. /etc/mtab fixes, which are now in my git.
+That's crazy. You're taking away access to existing data.
 
-What comes to principle of using helper commands rather than /sys or
-/proc files I fully agree this is better.
+-Andi
 
--- 
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
