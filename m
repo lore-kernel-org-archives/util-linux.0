@@ -1,41 +1,120 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f50.google.com ([74.125.82.50]:42557 "EHLO
-	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753216Ab3DMT4e (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:34 -0400
-Received: by mail-wg0-f50.google.com with SMTP id k13so3668717wgh.29
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:33 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 31/33] setpriv: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:59 +0100
-Message-Id: <1365882901-11429-32-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:43809 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755385Ab3DZSYT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 26 Apr 2013 14:24:19 -0400
+Received: from compute2.internal (compute2.nyi.mail.srv.osa [10.202.2.42])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 6A6A4208D9
+	for <util-linux@vger.kernel.org>; Fri, 26 Apr 2013 14:24:18 -0400 (EDT)
+Message-Id: <1367000658.896.140661223222089.41EAF215@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="_----------=_13670006588963"; charset="utf-8"
+Subject: [patch] uniformizing the help text of 'su'
+Date: Fri, 26 Apr 2013 20:24:18 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/setpriv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+This is a multi-part message in MIME format.
 
-diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
-index 18810c5..4a44106 100644
---- a/sys-utils/setpriv.c
-+++ b/sys-utils/setpriv.c
-@@ -526,7 +526,9 @@ static void do_selinux_label(const char *label)
- 		err(SETPRIV_EXIT_PRIVERR,
- 		    _("write failed: %s"), _PATH_PROC_ATTR_EXEC);
- 
--	close(fd);
-+	if (close_fd(fd) != 0)
-+		err(SETPRIV_EXIT_PRIVERR,
-+		    _("write failed: %s"), _PATH_PROC_ATTR_EXEC);
- }
- 
- static void do_apparmor_profile(const char *label)
+--_----------=_13670006588963
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+
+
+Hi,
+
+Attached patch adapts the help text of 'su' to consistently use
+angular brackets to mark to-be-filled-in arguments.
+
+Regards,
+
+Benno
+
 -- 
-1.8.2.1
+http://www.fastmail.fm - Same, same, but different...
+
+
+--_----------=_13670006588963
+Content-Disposition: attachment; filename="0001-textual-consistent-angular-brackets-and-lowercase-in.patch"
+Content-Id: <1367000639.880.edb19978775a8466fc06db29b9cc49ff754b426a.17EC37FF@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-textual-consistent-angular-brackets-and-lowercase-in.patch"
+
+RnJvbSA3ZTg2NjIwYmIxZjAyYWRkM2JlNWEwNGY3YjRhZTZjMTY4NTcwMjc5
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogTW9uLCAyMiBB
+cHIgMjAxMyAxMDowNjozNiArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
+YWw6IGNvbnNpc3RlbnQgYW5ndWxhciBicmFja2V0cyBhbmQgbG93ZXJjYXNl
+IGluIGhlbHAgdGV4dCBvZiAnc3UnCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBT
+Y2h1bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBsb2dp
+bi11dGlscy9zdS1jb21tb24uYyB8ICAgMjMgKysrKysrKysrKystLS0tLS0t
+LS0tLS0KIDEgZmlsZXMgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgMTIg
+ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbG9naW4tdXRpbHMvc3UtY29t
+bW9uLmMgYi9sb2dpbi11dGlscy9zdS1jb21tb24uYwppbmRleCBiZDE2OGNl
+Li5kMWE3MzM5IDEwMDY0NAotLS0gYS9sb2dpbi11dGlscy9zdS1jb21tb24u
+YworKysgYi9sb2dpbi11dGlscy9zdS1jb21tb24uYwpAQCAtNjI3LDI0ICs2
+MjcsMjMgQEAgdXNhZ2UgKGludCBzdGF0dXMpCiB7CiAgIGlmIChzdV9tb2Rl
+ID09IFJVTlVTRVJfTU9ERSkgewogICAgIGZwdXRzKFVTQUdFX0hFQURFUiwg
+c3Rkb3V0KTsKLSAgICBwcmludGYgKF8oIiAlcyBbb3B0aW9uc10gLXUgPFVT
+RVI+IENPTU1BTkRcbiIpLCBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFt
+ZSk7Ci0gICAgcHJpbnRmIChfKCIgJXMgW29wdGlvbnNdIFstXSBbVVNFUiBb
+YXJnXS4uLl1cbiIpLCBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFtZSk7
+CisgICAgcHJpbnRmIChfKCIgJXMgW29wdGlvbnNdIC11IDx1c2VyPiA8Y29t
+bWFuZD5cbiIpLCBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFtZSk7Cisg
+ICAgcHJpbnRmIChfKCIgJXMgW29wdGlvbnNdIFstXSBbPHVzZXI+IFs8YXJn
+dW1lbnQ+Li4uXV1cbiIpLCBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFt
+ZSk7CiAgICAgZnB1dHMgKF8oIlxuIgotICAgICJSdW4gQ09NTUFORCB3aXRo
+IHRoZSBlZmZlY3RpdmUgPHVzZXI+IGlkIGFuZCBncm91cCBpZC4gSWYgLXUg
+bm90XG4iCi0gICAgImdpdmVuLCBmYWxsYmFjayB0byBzdSgxKSBjb21wYXRp
+YmxlIHNlbWFudGljIGFuZCBzaGVsbCBpcyBleGVjdXRlZC5cbiIKKyAgICAi
+UnVuIDxjb21tYW5kPiB3aXRoIHRoZSBlZmZlY3RpdmUgdXNlciBJRCBhbmQg
+Z3JvdXAgSUQgb2YgPHVzZXI+LiAgSWYgLXUgaXNcbiIKKyAgICAibm90IGdp
+dmVuLCBmYWxsIGJhY2sgdG8gc3UoMSktY29tcGF0aWJsZSBzZW1hbnRpY3Mg
+YW5kIGV4ZWN1dGUgc3RhbmRhcmQgc2hlbGwuXG4iCiAgICAgIlRoZSBvcHRp
+b25zIC1sLCAtYywgLWYsIC1zIGFyZSBtdXR1YWxseSBleGNsdXNpdmUgdG8g
+LXUuXG4iKSwgc3Rkb3V0KTsKIAogICAgIGZwdXRzKFVTQUdFX09QVElPTlMs
+IHN0ZG91dCk7CiAKLSAgICBmcHV0cyAoXygKLSAgICAiIC11LCAtLXVzZXIg
+PHVzZXI+ICAgICAgICAgICAgICAgdXNlcm5hbWVcbiIpLCBzdGRvdXQpOwor
+ICAgIGZwdXRzIChfKCIgLXUsIC0tdXNlciA8dXNlcj4gICAgICAgICAgICAg
+dXNlcm5hbWVcbiIpLCBzdGRvdXQpOwogCiAgIH0gZWxzZSB7CiAgICAgZnB1
+dHMoVVNBR0VfSEVBREVSLCBzdGRvdXQpOwotICAgIHByaW50ZiAoXygiICVz
+IFtvcHRpb25zXSBbLV0gW1VTRVIgW2FyZ10uLi5dXG4iKSwgcHJvZ3JhbV9p
+bnZvY2F0aW9uX3Nob3J0X25hbWUpOworICAgIHByaW50ZiAoXygiICVzIFtv
+cHRpb25zXSBbLV0gWzx1c2VyPiBbPGFyZ3VtZW50Pi4uLl1dXG4iKSwgcHJv
+Z3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOwogICAgIGZwdXRzIChfKCJc
+biIKLSAgICAiQ2hhbmdlIHRoZSBlZmZlY3RpdmUgdXNlciBpZCBhbmQgZ3Jv
+dXAgaWQgdG8gdGhhdCBvZiBVU0VSLlxuIgotICAgICJBIG1lcmUgLSBpbXBs
+aWVzIC1sLiAgIElmIFVTRVIgbm90IGdpdmVuLCBhc3N1bWUgcm9vdC5cbiIp
+LCBzdGRvdXQpOworICAgICJDaGFuZ2UgdGhlIGVmZmVjdGl2ZSB1c2VyIElE
+IGFuZCBncm91cCBJRCB0byB0aGF0IG9mIDx1c2VyPi5cbiIKKyAgICAiQSBt
+ZXJlIC0gaW1wbGllcyAtbC4gIElmIDx1c2VyPiBpcyBub3QgZ2l2ZW4sIHJv
+b3QgaXMgYXNzdW1lZC5cbiIpLCBzdGRvdXQpOwogCiAgICAgZnB1dHMoVVNB
+R0VfT1BUSU9OUywgc3Rkb3V0KTsKICAgfQpAQCAtNjU1LDEwICs2NTQsMTAg
+QEAgdXNhZ2UgKGludCBzdGF0dXMpCiAKICAgZnB1dHMgKF8oIiAtLCAtbCwg
+LS1sb2dpbiAgICAgICAgICAgICAgICAgIG1ha2UgdGhlIHNoZWxsIGEgbG9n
+aW4gc2hlbGxcbiIpLCBzdGRvdXQpOwogICBmcHV0cyAoXygiIC1jLCAtLWNv
+bW1hbmQgPGNvbW1hbmQ+ICAgICAgICAgcGFzcyBhIHNpbmdsZSBjb21tYW5k
+IHRvIHRoZSBzaGVsbCB3aXRoIC1jXG4iKSwgc3Rkb3V0KTsKLSAgZnB1dHMg
+KF8oIiAtLXNlc3Npb24tY29tbWFuZCA8Y29tbWFuZD4gICAgIHBhc3MgYSBz
+aW5nbGUgY29tbWFuZCB0byB0aGUgc2hlbGwgd2l0aCAtY1xuIiksIHN0ZG91
+dCk7Ci0gIGZwdXRzIChfKCIgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBhbmQgZG8gbm90IGNyZWF0ZSBhIG5ldyBzZXNzaW9uXG4iKSwgc3Rk
+b3V0KTsKKyAgZnB1dHMgKF8oIiAtLXNlc3Npb24tY29tbWFuZCA8Y29tbWFu
+ZD4gICAgIHBhc3MgYSBzaW5nbGUgY29tbWFuZCB0byB0aGUgc2hlbGwgd2l0
+aCAtY1xuIgorICAgICAgICAgICAiICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBhbmQgZG8gbm90IGNyZWF0ZSBhIG5ldyBzZXNzaW9uXG4i
+KSwgc3Rkb3V0KTsKICAgZnB1dHMgKF8oIiAtZiwgLS1mYXN0ICAgICAgICAg
+ICAgICAgICAgICAgIHBhc3MgLWYgdG8gdGhlIHNoZWxsIChmb3IgY3NoIG9y
+IHRjc2gpXG4iKSwgc3Rkb3V0KTsKLSAgZnB1dHMgKF8oIiAtcywgLS1zaGVs
+bCA8c2hlbGw+ICAgICAgICAgICAgIHJ1biBzaGVsbCBpZiAvZXRjL3NoZWxs
+cyBhbGxvd3MgaXRcbiIpLCBzdGRvdXQpOworICBmcHV0cyAoXygiIC1zLCAt
+LXNoZWxsIDxzaGVsbD4gICAgICAgICAgICAgcnVuIDxzaGVsbD4gaWYgL2V0
+Yy9zaGVsbHMgYWxsb3dzIGl0XG4iKSwgc3Rkb3V0KTsKIAogICBmcHV0cyhV
+U0FHRV9TRVBBUkFUT1IsIHN0ZG91dCk7CiAgIGZwdXRzKFVTQUdFX0hFTFAs
+IHN0ZG91dCk7Ci0tIAoxLjcuMC40Cgo=
+
+--_----------=_13670006588963--
 
