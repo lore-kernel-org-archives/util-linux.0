@@ -1,31 +1,30 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from outerface.net ([195.70.199.109]:32782 "EHLO outerface.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750738Ab3DJNRq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 10 Apr 2013 09:17:46 -0400
-Received: from umbar.oktetlabs.ru ([188.134.5.200]:33658 helo=[192.168.38.110])
-	by outerface.net with esmtpsa (TLS-1.0:RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.69)
-	(envelope-from <mailbox@sergio.spb.ru>)
-	id 1UPutK-0002kx-Cd
-	for util-linux@vger.kernel.org; Wed, 10 Apr 2013 17:16:46 +0400
-Message-ID: <51656671.6010803@sergio.spb.ru>
-Date: Wed, 10 Apr 2013 17:17:37 +0400
-From: sergio <mailbox@sergio.spb.ru>
+Return-Path: richard@nod.at
+Message-ID: <517A1311.5000209@nod.at>
+Date: Fri, 26 Apr 2013 07:39:29 +0200
+From: Richard Weinberger <richard@nod.at>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: lscpu should show model name
-References: <51653A7F.8060807@sergio.spb.ru> <20130410123018.GC26442@x2.net.home>
-In-Reply-To: <20130410123018.GC26442@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: kzak@redhat.com, util-linux@vger.kernel.org, davidlohr.bueso@hp.com
+Subject: Re: [PATCH] nsenter: Allow selecting the uid and gid to be used in
+ the entered userns
+References: <1366917100-10581-1-git-send-email-richard@nod.at> <871u9yqf5d.fsf@xmission.com>
+In-Reply-To: <871u9yqf5d.fsf@xmission.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/04/13 16:30, Karel Zak wrote:
+Am 26.04.2013 03:01, schrieb Eric W. Biederman:
+> Richard Weinberger <richard@nod.at> writes:
+>
+>> Using -S (--setuid) and -G (--setgid) one can select
+>> the uid/gid which will be used in the entered user namespace.
+>
+> There is definitely utility here.  I don't have a strong preference but
+> I am inclined to suggest that you remove the set_uid and set_gid
+> variables, and unconditionally call setuid and setgid when entering
+> a user namespace.
 
->   Implemented.
+I thought about that too. But this would introduce a behavior change.
+Karel, are you fine with such a change?
 
-Thank you, Karel!
-
--- 
-sergio.
+Thanks,
+//richard
