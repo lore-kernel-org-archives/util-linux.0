@@ -1,70 +1,191 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:35584 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760521Ab3DBTnE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Apr 2013 15:43:04 -0400
-Received: by mail-wi0-f181.google.com with SMTP id hj8so816120wib.2
-        for <util-linux@vger.kernel.org>; Tue, 02 Apr 2013 12:43:02 -0700 (PDT)
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:56352 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756485Ab3D1UUj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 16:20:39 -0400
+Received: by mail-wg0-f45.google.com with SMTP id l18so3253982wgh.24
+        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 13:20:38 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 00/13] pull: fixes in preparation to v2.23 release
-Date: Tue,  2 Apr 2013 20:42:44 +0100
-Message-Id: <1364931777-2645-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 12/12] cal: mark all functions static
+Date: Sun, 28 Apr 2013 21:20:29 +0100
+Message-Id: <1367180429-26340-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel, and others.
+Proposed-by: Dave Reisner <dreisner@archlinux.org>
+Reference: http://marc.info/?l=util-linux-ng&m=136717012419551&w=2
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 71 +++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 37 insertions(+), 34 deletions(-)
 
-While doing the bash-completion patches I ran many of the commands, and
-found few inconveniences.  These fixes are an attempt to take care most
-of them, and hopefully most, if not all, of them get merged before next
-release is out.
-
-
-The following changes since commit c7e76cd145b0c40e1d346203f3222f5937146939:
-
-  lsblk: add --paths (2013-03-29 17:16:09 +0100)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk13
-
-for you to fetch changes up to 6329a948bdf6f2b12a6ec3caa568f5c71e7bbbfd:
-
-  logger: make local sockets to try both stream and datagram (2013-04-02 20:28:51 +0100)
-
-----------------------------------------------------------------
-Sami Kerola (13):
-      docs: fix type in mkfs.8
-      newgrp: use xstrdup to check allocation succeeded
-      agetty: add -h and -V options
-      dmesg: fix usage() output consistancy
-      fsfreeze: tell user when mandatory option is not specified
-      losetup: allow -j option argument to be relative path
-      lscpu: fix error message
-      partx: remove deprecated option from usage()
-      setarch: add option to list settable architectures
-      setterm: fix various color option argument lists
-      vipw: add usage() function
-      chrt: make command syntax easier to understand in usage()
-      logger: make local sockets to try both stream and datagram
-
- disk-utils/mkfs.8    |  1 -
- disk-utils/partx.c   |  1 -
- login-utils/newgrp.c |  3 ++-
- login-utils/vipw.c   | 23 +++++++++++++---
- misc-utils/logger.c  | 42 +++++++++++++++++------------
- schedutils/chrt.1    | 11 +++++---
- schedutils/chrt.c    |  4 +--
- sys-utils/dmesg.c    |  4 +--
- sys-utils/fsfreeze.c | 25 +++++++++++++-----
- sys-utils/losetup.c  | 13 ++++++---
- sys-utils/lscpu.c    |  2 +-
- sys-utils/setarch.8  |  3 +++
- sys-utils/setarch.c  | 18 ++++++++++---
- term-utils/agetty.c  |  5 ++--
- term-utils/setterm.c | 74 ++++++++++++++++++++++++++--------------------------
- 15 files changed, 144 insertions(+), 85 deletions(-)
-
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 663f928..c5f14cb 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -229,22 +229,22 @@ static int days_in_month[2][13] = {
+ 
+ 
+ /* function prototypes */
+-int leap_year(int year);
+-int centuries_since_1700(int year, int centuries);
+-int leap_years_since_year_1(int year);
+-char * ascii_day(const int, char *, int);
+-int center_str(const char* src, char* dest, size_t dest_size, size_t width);
+-void center(const char *, size_t, int);
+-void day_array(const int, const int, int, int, int, int *);
+-int day_in_week(int, int, int);
+-int day_in_year(int, int, int);
+-void yearly(int, int, const int, const int, const char *, const char **);
+-void do_monthly(const int, const int, const char *, const char **, int, int, int, struct fmt_st*);
+-void monthly(const int, const int, const char *, const char **, int, int, int);
+-void monthly3(const int, const int, const char *, const char **, int, int, int);
+-void trim_trailing_spaces(char *);
++static int leap_year(int year);
++static int centuries_since_1700(int year, int centuries);
++static int leap_years_since_year_1(int year);
++static char * ascii_day(const int, char *, int);
++static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
++static void center(const char *, size_t, int);
++static void day_array(const int, const int, int, int, int, int *);
++static int day_in_week(int, int, int);
++static int day_in_year(int, int, int);
++static void yearly(int, int, const int, const int, const char *, const char **);
++static void do_monthly(const int, const int, const char *, const char **, int, int, int, struct fmt_st*);
++static void monthly(const int, const int, const char *, const char **, int, int, int);
++static void monthly3(const int, const int, const char *, const char **, int, int, int);
++static void trim_trailing_spaces(char *);
+ static void __attribute__ ((__noreturn__)) usage(FILE * out);
+-void headers_init(const int, const int, char *, const char **);
++static void headers_init(const int, const int, char *, const char **);
+ 
+ int main(int argc, char **argv)
+ {
+@@ -434,8 +434,8 @@ static int leap_years_since_year_1(int year)
+ 		centuries_since_1700(year, 4));
+ }
+ 
+-void headers_init(const int julian, const int weekstart, char *day_headings,
+-		  const char **full_month)
++static void headers_init(const int julian, const int weekstart,
++			 char *day_headings, const char **full_month)
+ {
+ 	int i, wd, spaces = julian ? J_DAY_LEN - 1 : DAY_LEN - 1;
+ 	char *cur_dh = day_headings;
+@@ -458,9 +458,9 @@ void headers_init(const int julian, const int weekstart, char *day_headings,
+ 		full_month[i] = nl_langinfo(MON_1 + i);
+ }
+ 
+-void do_monthly(const int julian, const int weekstart, const char *day_headings,
+-		const char **full_month, int day, int month, int year,
+-		struct fmt_st *out)
++static void do_monthly(const int julian, const int weekstart,
++		       const char *day_headings, const char **full_month,
++		       int day, int month, int year, struct fmt_st *out)
+ {
+ 	int col, row, days[MAXDAYS];
+ 	char *p, lineout[FMT_ST_CHARS];
+@@ -495,8 +495,9 @@ void do_monthly(const int julian, const int weekstart, const char *day_headings,
+ 	}
+ }
+ 
+-void monthly(const int julian, const int weekstart, const char *day_headings,
+-	     const char **full_month, int day, int month, int year)
++static void monthly(const int julian, const int weekstart,
++		    const char *day_headings, const char **full_month, int day,
++		    int month, int year)
+ {
+ 	int i;
+ 	struct fmt_st out;
+@@ -508,8 +509,9 @@ void monthly(const int julian, const int weekstart, const char *day_headings,
+ 	}
+ }
+ 
+-void monthly3(const int julian, const int weekstart, const char *day_headings,
+-	      const char **full_month, int day, int month, int year)
++static void monthly3(const int julian, const int weekstart,
++		     const char *day_headings, const char **full_month, int day,
++		     int month, int year)
+ {
+ 	char lineout[FMT_ST_CHARS];
+ 	int i;
+@@ -567,8 +569,8 @@ void monthly3(const int julian, const int weekstart, const char *day_headings,
+ 	}
+ }
+ 
+-void yearly(int day, int year, const int julian, const int weekstart,
+-	    const char *day_headings, const char **full_month)
++static void yearly(int day, int year, const int julian, const int weekstart,
++		   const char *day_headings, const char **full_month)
+ {
+ 	int col, *dp, i, month, row, which_cal;
+ 	int maxrow, sep_len, week_len;
+@@ -633,8 +635,8 @@ void yearly(int day, int year, const int julian, const int weekstart,
+  *	out end to end.  You would have 42 numbers or spaces.  This routine
+  *	builds that array for any month from Jan. 1 through Dec. 9999.
+  */
+-void day_array(const int julian, const int weekstart, int day, int month,
+-	       int year, int *days)
++static void day_array(const int julian, const int weekstart, int day, int month,
++		      int year, int *days)
+ {
+ 	int julday, daynum, dw, dm;
+ 	int *sep1752;
+@@ -665,7 +667,7 @@ void day_array(const int julian, const int weekstart, int day, int month,
+  * day_in_year --
+  *	return the 1 based day number within the year
+  */
+-int day_in_year(int day, int month, int year)
++static int day_in_year(int day, int month, int year)
+ {
+ 	int i, leap;
+ 
+@@ -682,7 +684,7 @@ int day_in_year(int day, int month, int year)
+  *	3 Sep. 1752 through 13 Sep. 1752.  Returns Thursday for all
+  *	missing days.
+  */
+-int day_in_week(int day, int month, int year)
++static int day_in_week(int day, int month, int year)
+ {
+ 	long temp;
+ 
+@@ -697,7 +699,7 @@ int day_in_week(int day, int month, int year)
+ 	return (REFORMATION_WEEKDAY);
+ }
+ 
+-char *ascii_day(const int julian, char *p, int day)
++static char *ascii_day(const int julian, char *p, int day)
+ {
+ 	int display, val;
+ 	int highlight = 0;
+@@ -745,7 +747,7 @@ char *ascii_day(const int julian, char *p, int day)
+ 	return p;
+ }
+ 
+-void trim_trailing_spaces(char *s)
++static void trim_trailing_spaces(char *s)
+ {
+ 	char *p;
+ 
+@@ -763,13 +765,14 @@ void trim_trailing_spaces(char *s)
+  * In addition if the string is too large for the width it's truncated.
+  * The number of trailing spaces may be 1 less than the number of leading spaces.
+  */
+-int center_str(const char *src, char *dest, size_t dest_size, size_t width)
++static int center_str(const char *src, char *dest, size_t dest_size,
++		      size_t width)
+ {
+ 	return mbsalign(src, dest, dest_size, &width,
+ 			MBS_ALIGN_CENTER, MBA_UNIBYTE_FALLBACK);
+ }
+ 
+-void center(const char *str, size_t len, int separate)
++static void center(const char *str, size_t len, int separate)
+ {
+ 	char lineout[FMT_ST_CHARS];
+ 
+-- 
+1.8.2.2
 
