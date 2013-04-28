@@ -1,72 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:42862 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752123Ab3D2P3y (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 11:29:54 -0400
-Message-ID: <517E8FFC.2040109@archlinux.org>
-Date: Mon, 29 Apr 2013 17:21:32 +0200
-From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
-MIME-Version: 1.0
-To: Sami Kerola <kerolasa-X3B1VOXEql0@public.gmane.org>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 02/11] cal: convert function like definitions to functions
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi> <1367169067-23705-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1367169067-23705-3-git-send-email-kerolasa@iki.fi>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="----enig2TFNBBLVJNHJODVEKXNIS"
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:60720 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752192Ab3D1RLN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 13:11:13 -0400
+Received: by mail-wi0-f181.google.com with SMTP id c10so2069569wiw.2
+        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 10:11:12 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/11] pull: cal(1) spring clean up
+Date: Sun, 28 Apr 2013 18:10:56 +0100
+Message-Id: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
-------enig2TFNBBLVJNHJODVEKXNIS
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Hi all,
 
-Am 28.04.2013 19:10, schrieb Sami Kerola:
-> -/* leap year -- account for gregorian reformation in 1752 */
-> -#define	leap_year(yr) \
-> -	((yr) <=3D 1752 ? !((yr) % 4) : \
-> -	(!((yr) % 4) && ((yr) % 100)) || !((yr) % 400))
-> [...]=20
-> +/* leap year -- account for gregorian reformation in 1752 */
-> +int leap_year(int year)
-> +{
-> +	if (year <=3D 1752)
-> +		return !(year % 4);
-> +	else
-> +		return !(year % 4 && (year % 100 || year % 400));
-> +}
+Occasionally I wonder why cal(1) does not have --week option to include
+week numbers to print out.  So I decided to have a closer look of the
+cal, and found out that it could made a little cleaner.  These patches
+are about that, and hopefully rather uninteresting.  Only patch that has
+any implications to users is 0010 which removes of trailing white spaces
+from three month print out.
 
-This formula is incorrect, there's a difference between the old version
-and yours. The original (correct) version is:
-
-( !(year % 4) && (year % 100) ) || !(year % 400)
+But back to the question.  Would it make sense to try add week number
+printing?  It would work much like 'gcal --with-week-number
+--iso-week-number=yes', which brings me to next question.  If week
+numbers are preferred should both 'standard' and 'iso' week numbers be
+implemented?  Hearing that the week numbers are not really needed is also
+fine.  It's not often I need such, the feature would be more like 'nice
+to have'.
 
 
+The following changes since commit a48c321dd175d043fb4572bab625631b2055075e:
 
-------enig2TFNBBLVJNHJODVEKXNIS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+  textual: fixing typos in a warning and an error message (2013-04-26 13:55:29 +0200)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+are available in the git repository at:
 
-iQIcBAEBCAAGBQJRfo//AAoJEChPw0yOSxoliocP/3d7Ldrv7qymp6e/JlGgoOnY
-MPwkHM+2br3kXRtbCrvDdPdBljhII/+jAx5Vv6WHAShKQWAUIFZu445/GgC5HziP
-8RgNDhGs1LDNeSE98gFVrIoFLGLzzdSe/X9g+XP7xjBpW0sIYlrw4tzG+P2bMZKo
-hbnnp+ZvN7visXapZ/ESBiCy+rjMD+V8WLOC0GLnowkd1rQyWbV0IPo8sFyjbOmb
-+vd4wjHjbaK26MxwgzV1znZJ1LNni9BCFjxQyHIyU/EGxLaQkflzLc/3Ngi+XwYx
-ijIXxKWzfKW5UzSr+cM2K7uvM4meGbbkLb7yFMMMgT1LGvOPOA9Eigup3Ko1v4Hg
-Y4TGjTk/D+N4wi58GqT7zInoSvIqQy9rMTiaaU4zs4gYTl0RXRrQXSu23+hLETUj
-ZYoC/u4+eWRw+U5hDik2aLPt+noR/k4dnTlqr5QK+njG5WTZ/xKyu3i4rFDzQk30
-fsrzr7wRVskOgmp4szvxSTTVySjsmtH7sMgS/BhP0bgSolNvn0FxOrji96sEPOs6
-tthTER3poWNLER7VtNxy1cppBkGZHIe7gVfe8j3PRAH9015zp0OEBTjVCNe3rbjB
-JtsdHRg36rxGxl2HgNtrf/Sww1qDQvY3mKEtr8z1AX6oL/xmJlrKRtrGVbBwUTCW
-me1A8Ci+QJymsgh7Mj6b
-=TXmb
------END PGP SIGNATURE-----
+  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk16
 
-------enig2TFNBBLVJNHJODVEKXNIS--
+for you to fetch changes up to 0ec2cbe22ef73a0f3b1814a08510c8a30e76ee07:
+
+  cal: move global variables to local scope (2013-04-28 17:55:40 +0100)
+
+----------------------------------------------------------------
+Sami Kerola (11):
+      cal: fix preprocessor directive indendation
+      cal: convert function like definitions to functions
+      cal: clean up use of constants
+      tests: add calendar reformation check
+      cal: simplify calendar reformat calculations
+      cal: remove unnecessary initializations
+      cal: de-duplicate julian specific functions
+      cal: allow day highlight testing
+      tests: add cal day highlight corner cases
+      cal: trim three month display trailing white spaces
+      cal: move global variables to local scope
+
+ misc-utils/Makemodule.am     |   8 +
+ misc-utils/cal.c             | 517 +++++++++++++++++++++----------------------
+ tests/commands.sh            |   2 +-
+ tests/expected/cal/1m        |   8 +-
+ tests/expected/cal/3m        |  24 +-
+ tests/expected/cal/highlight |  55 +++++
+ tests/expected/cal/sep1752   | 198 +++++++++++++++++
+ tests/expected/cal/year      |   8 +-
+ tests/ts/cal/highlight       |  70 ++++++
+ tests/ts/cal/sep1752         |  95 ++++++++
+ 10 files changed, 702 insertions(+), 283 deletions(-)
+ create mode 100644 tests/expected/cal/highlight
+ create mode 100644 tests/expected/cal/sep1752
+ create mode 100755 tests/ts/cal/highlight
+ create mode 100755 tests/ts/cal/sep1752
+
+
