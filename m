@@ -1,215 +1,388 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:42417 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752800Ab3D1RLe (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 13:11:34 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hm14so2054485wib.5
-        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 10:11:33 -0700 (PDT)
+Received: from mail-wg0-f54.google.com ([74.125.82.54]:45093 "EHLO
+	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752192Ab3D1RLU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 13:11:20 -0400
+Received: by mail-wg0-f54.google.com with SMTP id y10so3021479wgg.33
+        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 10:11:19 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 08/11] cal: allow day highlight testing
-Date: Sun, 28 Apr 2013 18:11:04 +0100
-Message-Id: <1367169067-23705-9-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 03/11] cal: clean up use of constants
+Date: Sun, 28 Apr 2013 18:10:59 +0100
+Message-Id: <1367169067-23705-4-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
 References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Requires similar trick as done with more to by pass check whether a
-session is or isn't interactive.
+The commit also adds few new symbolic names, such as DAYS_IN_WEEK.  While
+these definitions may look a little too trivial to have I am sure they
+ease understanding what is going on in code where they are used.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/Makemodule.am | 8 ++++++++
- misc-utils/cal.c         | 6 ++++++
- tests/commands.sh        | 2 +-
- tests/expected/cal/1m    | 8 ++++----
- tests/expected/cal/3m    | 8 ++++----
- tests/expected/cal/year  | 8 ++++----
- 6 files changed, 27 insertions(+), 13 deletions(-)
+ misc-utils/cal.c | 142 ++++++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 82 insertions(+), 60 deletions(-)
 
-diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
-index a615047..dcd55bf 100644
---- a/misc-utils/Makemodule.am
-+++ b/misc-utils/Makemodule.am
-@@ -12,14 +12,22 @@ endif
- 
- cal_LDADD = $(LDADD)
- 
-+check_PROGRAMS += test_cal
-+test_cal_SOURCES = $(cal_SOURCES)
-+test_cal_CFLAGS = -DTEST_CAL_PROGRAM
-+test_cal_LDADD = $(LDADD)
-+
- if HAVE_TINFO
- cal_LDADD += -ltinfo @NCURSES_LIBS@
-+test_cal_LDADD += -ltinfo @NCURSES_LIBS@
- else
- if HAVE_NCURSES
- cal_LDADD += @NCURSES_LIBS@
-+test_cal_LDADD += @NCURSES_LIBS@
- else
- if HAVE_TERMCAP
- cal_LDADD += -ltermcap
-+test_cal_LDADD += -ltermcap
- endif
- endif # !HAVE_NCURSES
- endif # !HAVE_TINFO
 diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index a7fd423..949f003 100644
+index eacf3dd..f0d97af 100644
 --- a/misc-utils/cal.c
 +++ b/misc-utils/cal.c
-@@ -72,6 +72,10 @@
- #include "mbsalign.h"
- #include "strutils.h"
+@@ -151,15 +151,51 @@ char		*Hrow;		/* pointer to highlighted row in month */
+ #error NUM_MONTHS must be 1 or 3
+ #endif
  
-+#ifdef TEST_CAL_PROGRAM
-+# define NON_INTERACTIVE_MORE 1
-+#endif
+-#define	THURSDAY		4		/* for reformation */
+-#define	SATURDAY		6		/* 1 Jan 1 was a Saturday */
++enum {
++	SUNDAY = 0,
++	MONDAY,
++	TUESDAY,
++	WEDNESDAY,
++	THURSDAY,
++	FRIDAY,
++	SATURDAY,
++	DAYS_IN_WEEK
++};
 +
- #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW)
- # ifdef HAVE_NCURSES_H
- #  include <ncurses.h>
-@@ -392,8 +396,10 @@ main(int argc, char **argv) {
++#define	FIRST_WEEKDAY		SATURDAY	/* Jan 1st, 1 was a Saturday */
++#define	REFORMATION_WEEKDAY	TUESDAY		/* after reformation it was Thursday */
+ 
++#define REFORMATION_YEAR	1752		/* Signed-off-by: Lord Chesterfield */
++#define REFORMATION_MONTH	9		/* September */
+ #define	FIRST_MISSING_DAY	639799		/* 3 Sep 1752 */
+ #define	NUMBER_MISSING_DAYS	11		/* 11 day correction */
+ 
++#define DAYS_IN_YEAR		365		/* the common case, leap years are calculated */
++#define MONTHS_IN_YEAR		12
++#define DAYS_IN_MONTH		31
+ #define	MAXDAYS			42		/* slots in a month array */
+ #define	SPACE			-1		/* used in day array */
+ 
++#define SMALLEST_YEAR		1
++#define GREATEST_YEAR		9999
++
++#define	DAY_LEN			3		/* 3 spaces per day */
++#define	WEEK_LEN		(DAYS_IN_WEEK * DAY_LEN)
++#define	HEAD_SEP		2
++
++#define	J_DAY_LEN		4		/* 4 spaces per day */
++#define	J_WEEK_LEN		(DAYS_IN_WEEK * J_DAY_LEN)
++#define	J_HEAD_SEP		2
++
++#define TODAY_FLAG		0x400		/* flag day for highlighting */
++
++#define FMT_ST_LINES 8
++#define FMT_ST_CHARS 300	/* 90 suffices in most locales */
++struct fmt_st
++{
++  char s[FMT_ST_LINES][FMT_ST_CHARS];
++};
++
+ static int days_in_month[2][13] = {
+ 	{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+ 	{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+@@ -195,33 +231,19 @@ int sep1752[MAXDAYS+6] = {
+ 	SPACE,	SPACE,	SPACE,	SPACE,	SPACE,	SPACE,	SPACE
+ };
+ 
+-#define	DAY_LEN		3		/* 3 spaces per day */
+-#define	J_DAY_LEN	4		/* 4 spaces per day */
+-#define	WEEK_LEN	21		/* 7 days * 3 characters */
+-#define	J_WEEK_LEN	28		/* 7 days * 4 characters */
+-#define	HEAD_SEP	2		/* spaces between day headings */
+-#define	J_HEAD_SEP	2
+ 
+ /* utf-8 can have up to 6 bytes per char; and an extra byte for ending \0 */
+ char day_headings[WEEK_LEN*6+1];
+ /* weekstart = 1  =>   " M Tu  W Th  F  S  S " */
+ char j_day_headings[J_WEEK_LEN*6+1];
+ /* weekstart = 1  =>   "  M  Tu   W  Th   F   S   S " */
+-const char *full_month[12];
++const char *full_month[MONTHS_IN_YEAR];
+ 
+ /* 0 => sunday, 1 => monday */
+-int weekstart=0;
++int weekstart = SUNDAY;
+ int julian;
+ 
+-#define TODAY_FLAG		0x400		/* flag day for highlighting */
+-
+-#define FMT_ST_LINES 8
+-#define FMT_ST_CHARS 300	/* 90 suffices in most locales */
+-struct fmt_st
+-{
+-  char s[FMT_ST_LINES][FMT_ST_CHARS];
+-};
+-
++/* function prototypes */
+ int leap_year(int year);
+ int centuries_since_1700(int year, int centuries);
+ int leap_years_since_year_1(int year);
+@@ -244,7 +266,7 @@ int
+ main(int argc, char **argv) {
+ 	struct tm *local_time;
+ 	time_t now;
+-	int ch, day, month, year, yflag;
++	int ch, day = 0, month = 0, year = 0, yflag = 0;
+ 	int num_months = NUM_MONTHS;
+ 
+ 	static const struct option longopts[] = {
+@@ -267,7 +289,7 @@ main(int argc, char **argv) {
+ #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_LIBTERMCAP)
+ 	if ((term = getenv("TERM"))) {
+ 		int ret;
+-		my_setupterm(term, 1, &ret);
++		my_setupterm(term, STDOUT_FILENO, &ret);
+ 		if (ret > 0) {
+ 			Senter = my_tgetstr("so","smso");
+ 			Sexit = my_tgetstr("se","rmso");
+@@ -307,11 +329,10 @@ main(int argc, char **argv) {
+ 
+ 		wfd = val.word;
+ 		wfd = day_in_week(wfd % 100, (wfd / 100) % 100, wfd / (100 * 100));
+-		weekstart = (wfd + *nl_langinfo(_NL_TIME_FIRST_WEEKDAY) - 1) % 7;
++		weekstart = (wfd + *nl_langinfo(_NL_TIME_FIRST_WEEKDAY) - 1) % DAYS_IN_WEEK;
  	}
- 	headers_init(julian);
+ #endif
  
-+#ifndef NON_INTERACTIVE_MORE
- 	if (!isatty(STDOUT_FILENO))
+-	yflag = 0;
+ 	while ((ch = getopt_long(argc, argv, "13mjsyVh", longopts, NULL)) != -1)
+ 		switch(ch) {
+ 		case '1':
+@@ -321,10 +342,10 @@ main(int argc, char **argv) {
+ 			num_months = 3;
+ 			break;
+ 		case 's':
+-			weekstart = 0;		/* default */
++			weekstart = SUNDAY;	/* default */
+ 			break;
+ 		case 'm':
+-			weekstart = 1;
++			weekstart = MONDAY;
+ 			break;
+ 		case 'j':
+ 			julian = 1;
+@@ -347,21 +368,20 @@ main(int argc, char **argv) {
+ 	time(&now);
+ 	local_time = localtime(&now);
+ 
+-	day = month = year = 0;
+ 	switch(argc) {
+ 	case 3:
+ 		day = strtos32_or_err(*argv++, _("illegal day value"));
+-                if (day < 1 || 31 < day)
+-			errx(EXIT_FAILURE, _("illegal day value: use 1-%d"), 31);
++		if (day < 1 || DAYS_IN_MONTH < day)
++			errx(EXIT_FAILURE, _("illegal day value: use 1-%d"), DAYS_IN_MONTH);
+ 		/* FALLTHROUGH */
+ 	case 2:
+ 		month = strtos32_or_err(*argv++, _("illegal month value: use 1-12"));
+-		if (month < 1 || 12 < month)
++		if (month < 1 || MONTHS_IN_YEAR < month)
+ 			errx(EXIT_FAILURE, _("illegal month value: use 1-12"));
+ 		/* FALLTHROUGH */
+ 	case 1:
+ 		year = strtos32_or_err(*argv++, _("illegal year value: use 1-9999"));
+-		if (year < 1 || 9999 < year)
++		if (year < SMALLEST_YEAR || GREATEST_YEAR < year)
+ 			errx(EXIT_FAILURE, _("illegal year value: use 1-9999"));
+ 		if (day) {
+ 			int dm = days_in_month[leap_year(year)][month];
+@@ -384,7 +404,7 @@ main(int argc, char **argv) {
+ 	}
+ 	headers_init();
+ 
+-	if (!isatty(1))
++	if (!isatty(STDOUT_FILENO))
  		day = 0; /* don't highlight */
-+#endif
  
- 	if (yflag)
- 		yearly(day, year, julian);
-diff --git a/tests/commands.sh b/tests/commands.sh
-index d12c009..7848b10 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -25,7 +25,7 @@ TS_HELPER_SYSINFO="$top_builddir/test_sysinfo"
- TS_CMD_ADDPART=${TS_CMD_ADDPART:-"$top_builddir/addpart"}
- TS_CMD_DELPART=${TS_CMD_DELPART:-"$top_builddir/delpart"}
- TS_CMD_BLKID=${TS_CMD_BLKID-"$top_builddir/blkid"}
--TS_CMD_CAL=${TS_CMD_CAL-"$top_builddir/cal"}
-+TS_CMD_CAL=${TS_CMD_CAL-"$top_builddir/test_cal"}
- TS_CMD_COLRM=${TS_CMD_COLRM:-"$top_builddir/colrm"}
- TS_CMD_COL=${TS_CMD_COL:-"$top_builddir/col"}
- TS_CMD_COLUMN=${TS_CMD_COLUMN:-"$top_builddir/column"}
-diff --git a/tests/expected/cal/1m b/tests/expected/cal/1m
-index f657875..1d95643 100644
---- a/tests/expected/cal/1m
-+++ b/tests/expected/cal/1m
-@@ -6,7 +6,7 @@ Mo Tu We Th Fr Sa Su
-  4  5  6  7  8  9 10
- 11 12 13 14 15 16 17
- 18 19 20 21 22 23 24
--25 26 27 28 29 30
-+25 26 [7m27[27m 28 29 30
+ 	if (yflag && julian)
+@@ -402,7 +422,7 @@ main(int argc, char **argv) {
+ /* leap year -- account for gregorian reformation in 1752 */
+ int leap_year(int year)
+ {
+-	if (year <= 1752)
++	if (year <= REFORMATION_YEAR)
+ 		return !(year % 4);
+ 	else
+ 		return !(year % 4 && (year % 100 || year % 400));
+@@ -411,10 +431,10 @@ int leap_year(int year)
+ /* number of centuries since 1700 */
+ int centuries_since_1700(int year, int n)
+ {
+-	if (year < 1700)
++	if (year < REFORMATION_YEAR)
+ 		return 0;
+ 	else
+-		return ((year / (100 * n)) - (17 / n));
++		return ((year / (100 * n)) - ((REFORMATION_YEAR / 100) / n));
+ }
  
- Gregorian - Sunday-based week
-    September 2006   
-@@ -15,7 +15,7 @@ Su Mo Tu We Th Fr Sa
-  3  4  5  6  7  8  9
- 10 11 12 13 14 15 16
- 17 18 19 20 21 22 23
--24 25 26 27 28 29 30
-+24 25 26 [7m27[27m 28 29 30
+ /* number of leap years between year 1 and this year, not inclusive */
+@@ -432,9 +452,9 @@ void headers_init(void)
+ 	strcpy(day_headings, "");
+ 	strcpy(j_day_headings, "");
  
- Julian - Monday-based week
-        September 2006      
-@@ -24,7 +24,7 @@ Mon Tue Wed Thu Fri Sat Sun
- 247 248 249 250 251 252 253
- 254 255 256 257 258 259 260
- 261 262 263 264 265 266 267
--268 269 270 271 272 273
-+268 269 [7m270[27m 271 272 273
+-	for (i = 0; i < 7; i++) {
++	for (i = 0; i < DAYS_IN_WEEK; i++) {
+ 		ssize_t space_left;
+-		wd = (i + weekstart) % 7;
++		wd = (i + weekstart) % DAYS_IN_WEEK;
  
- Julian - Sunday-based week
-        September 2006      
-@@ -33,5 +33,5 @@ Sun Mon Tue Wed Thu Fri Sat
- 246 247 248 249 250 251 252
- 253 254 255 256 257 258 259
- 260 261 262 263 264 265 266
--267 268 269 270 271 272 273
-+267 268 269 [7m270[27m 271 272 273
+ 		if (i)
+ 			strcat(cur_dh++, " ");
+@@ -457,7 +477,7 @@ void headers_init(void)
+ 			       space_left, 3);
+ 	}
  
-diff --git a/tests/expected/cal/3m b/tests/expected/cal/3m
-index ba9657d..724d521 100644
---- a/tests/expected/cal/3m
-+++ b/tests/expected/cal/3m
-@@ -6,7 +6,7 @@ Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su
-  7  8  9 10 11 12 13   4  5  6  7  8  9 10   2  3  4  5  6  7  8
- 14 15 16 17 18 19 20  11 12 13 14 15 16 17   9 10 11 12 13 14 15
- 21 22 23 24 25 26 27  18 19 20 21 22 23 24  16 17 18 19 20 21 22
--28 29 30 31           25 26 27 28 29 30     23 24 25 26 27 28 29
-+28 29 30 31           25 26 [7m27[27m 28 29 30     23 24 25 26 27 28 29
-                                             30 31               
- Gregorian - Sunday-based week
-      August 2006         September 2006         October 2006    
-@@ -15,7 +15,7 @@ Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
-  6  7  8  9 10 11 12   3  4  5  6  7  8  9   8  9 10 11 12 13 14
- 13 14 15 16 17 18 19  10 11 12 13 14 15 16  15 16 17 18 19 20 21
- 20 21 22 23 24 25 26  17 18 19 20 21 22 23  22 23 24 25 26 27 28
--27 28 29 30 31        24 25 26 27 28 29 30  29 30 31            
-+27 28 29 30 31        24 25 26 [7m27[27m 28 29 30  29 30 31            
-                                                                 
- Julian - Monday-based week
-         August 2006                 September 2006                October 2006       
-@@ -24,7 +24,7 @@ Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed Thu Fri Sa
- 219 220 221 222 223 224 225  247 248 249 250 251 252 253  275 276 277 278 279 280 281
- 226 227 228 229 230 231 232  254 255 256 257 258 259 260  282 283 284 285 286 287 288
- 233 234 235 236 237 238 239  261 262 263 264 265 266 267  289 290 291 292 293 294 295
--240 241 242 243              268 269 270 271 272 273      296 297 298 299 300 301 302
-+240 241 242 243              268 269 [7m270[27m 271 272 273      296 297 298 299 300 301 302
-                                                           303 304                    
- Julian - Sunday-based week
-         August 2006                 September 2006                October 2006       
-@@ -33,5 +33,5 @@ Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue Wed Thu Fr
- 218 219 220 221 222 223 224  246 247 248 249 250 251 252  281 282 283 284 285 286 287
- 225 226 227 228 229 230 231  253 254 255 256 257 258 259  288 289 290 291 292 293 294
- 232 233 234 235 236 237 238  260 261 262 263 264 265 266  295 296 297 298 299 300 301
--239 240 241 242 243          267 268 269 270 271 272 273  302 303 304                
-+239 240 241 242 243          267 268 269 [7m270[27m 271 272 273  302 303 304                
-                                                                                      
-diff --git a/tests/expected/cal/year b/tests/expected/cal/year
-index 616d61a..a79589d 100644
---- a/tests/expected/cal/year
-+++ b/tests/expected/cal/year
-@@ -32,7 +32,7 @@ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
-  2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
-  9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
- 16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
--23 24 25 26 27 28 29   27 28 29 30            25 26 27 28 29 30 31
-+23 24 25 26 27 28 29   27 28 [7m29[27m 30            25 26 27 28 29 30 31
- 30 31
+-	for (i = 0; i < 12; i++)
++	for (i = 0; i < MONTHS_IN_YEAR; i++)
+ 		full_month[i] = nl_langinfo(MON_1 + i);
+ }
  
- Gregorian - Sunday-based week
-@@ -68,7 +68,7 @@ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
-  8  9 10 11 12 13 14    5  6  7  8  9 10 11    3  4  5  6  7  8  9
- 15 16 17 18 19 20 21   12 13 14 15 16 17 18   10 11 12 13 14 15 16
- 22 23 24 25 26 27 28   19 20 21 22 23 24 25   17 18 19 20 21 22 23
--29 30 31               26 27 28 29 30         24 25 26 27 28 29 30
-+29 30 31               26 27 28 [7m29[27m 30         24 25 26 27 28 29 30
-                                               31
+@@ -481,10 +501,10 @@ do_monthly(int day, int month, int year, struct fmt_st *out) {
  
- Julian - Monday-based week
-@@ -120,7 +120,7 @@ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
- 310 311 312 313 314 315 316   338 339 340 341 342 343 344
- 317 318 319 320 321 322 323   345 346 347 348 349 350 351
- 324 325 326 327 328 329 330   352 353 354 355 356 357 358
--331 332 333 334               359 360 361 362 363 364 365
-+331 332 [7m333[27m 334               359 360 361 362 363 364 365
+ 	snprintf(out->s[1], FMT_ST_CHARS, "%s",
+ 		julian ? j_day_headings : day_headings);
+-	for (row = 0; row < 6; row++) {
++	for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
+ 		int has_hl = 0;
+-		for (col = 0, p = lineout; col < 7; col++) {
+-			int xd = days[row * 7 + col];
++		for (col = 0, p = lineout; col < DAYS_IN_WEEK; col++) {
++			int xd = days[row * DAYS_IN_WEEK + col];
+ 			if (xd != SPACE && (xd & TODAY_FLAG))
+ 				has_hl = 1;
+ 			p = ascii_day(p, xd);
+@@ -521,13 +541,13 @@ monthly3(int day, int month, int year) {
+ 	int next_month, next_year;
  
+ 	if (month == 1) {
+-		prev_month = 12;
++		prev_month = MONTHS_IN_YEAR;
+ 		prev_year  = year - 1;
+ 	} else {
+ 		prev_month = month - 1;
+ 		prev_year  = year;
+ 	}
+-	if (month == 12) {
++	if (month == MONTHS_IN_YEAR) {
+ 		next_month = 1;
+ 		next_year  = year + 1;
+ 	} else {
+@@ -567,29 +587,29 @@ monthly3(int day, int month, int year) {
+ void
+ j_yearly(int day, int year) {
+ 	int col, *dp, i, month, row, which_cal;
+-	int days[12][MAXDAYS];
++	int days[MONTHS_IN_YEAR][MAXDAYS];
+ 	char *p, lineout[80];
  
- Julian - Sunday-based week
-@@ -172,6 +172,6 @@ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
- 309 310 311 312 313 314 315   337 338 339 340 341 342 343
- 316 317 318 319 320 321 322   344 345 346 347 348 349 350
- 323 324 325 326 327 328 329   351 352 353 354 355 356 357
--330 331 332 333 334           358 359 360 361 362 363 364
-+330 331 332 [7m333[27m 334           358 359 360 361 362 363 364
-                               365
+ 	snprintf(lineout, sizeof(lineout), "%d", year);
+ 	center(lineout, J_WEEK_LEN*2 + J_HEAD_SEP - 1, 0);
+ 	my_putstring("\n\n");
  
+-	for (i = 0; i < 12; i++)
++	for (i = 0; i < MONTHS_IN_YEAR; i++)
+ 		day_array(day, i + 1, year, days[i]);
+ 	memset(lineout, ' ', sizeof(lineout) - 1);
+ 	lineout[sizeof(lineout) - 1] = '\0';
+-	for (month = 0; month < 12; month += 2) {
++	for (month = 0; month < MONTHS_IN_YEAR; month += 2) {
+ 		center(full_month[month], J_WEEK_LEN-1, J_HEAD_SEP+1);
+ 		center(full_month[month + 1], J_WEEK_LEN-1, 0);
+ 		snprintf(lineout, sizeof(lineout),
+ 			    "\n%s%*s %s\n", j_day_headings, J_HEAD_SEP, "",
+ 			    j_day_headings);
+ 		my_putstring(lineout);
+-		for (row = 0; row < 6; row++) {
++		for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
+ 			p = lineout;
+ 			for (which_cal = 0; which_cal < 2; which_cal++) {
+-				dp = &days[month + which_cal][row * 7];
+-				for (col = 0; col < 7; col++)
++				dp = &days[month + which_cal][row * DAYS_IN_WEEK];
++				for (col = 0; col < DAYS_IN_WEEK; col++)
+ 					p = ascii_day(p, *dp++);
+ 				p += sprintf(p, "  ");
+ 			}
+@@ -605,18 +625,18 @@ j_yearly(int day, int year) {
+ void
+ yearly(int day, int year) {
+ 	int col, *dp, i, month, row, which_cal;
+-	int days[12][MAXDAYS];
++	int days[MONTHS_IN_YEAR][MAXDAYS];
+ 	char *p, lineout[100];
+ 
+ 	snprintf(lineout, sizeof(lineout), "%d", year);
+ 	center(lineout, WEEK_LEN*3 + HEAD_SEP*2 - 1, 0);
+ 	my_putstring("\n\n");
+ 
+-	for (i = 0; i < 12; i++)
++	for (i = 0; i < MONTHS_IN_YEAR; i++)
+ 		day_array(day, i + 1, year, days[i]);
+ 	memset(lineout, ' ', sizeof(lineout) - 1);
+ 	lineout[sizeof(lineout) - 1] = '\0';
+-	for (month = 0; month < 12; month += 3) {
++	for (month = 0; month < MONTHS_IN_YEAR; month += 3) {
+ 		center(full_month[month], WEEK_LEN-1, HEAD_SEP+1);
+ 		center(full_month[month + 1], WEEK_LEN-1, HEAD_SEP+1);
+ 		center(full_month[month + 2], WEEK_LEN-1, 0);
+@@ -624,11 +644,11 @@ yearly(int day, int year) {
+ 			"\n%s%*s %s%*s %s\n", day_headings, HEAD_SEP,
+ 			"", day_headings, HEAD_SEP, "", day_headings);
+ 		my_putstring(lineout);
+-		for (row = 0; row < 6; row++) {
++		for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
+ 			p = lineout;
+ 			for (which_cal = 0; which_cal < 3; which_cal++) {
+-				dp = &days[month + which_cal][row * 7];
+-				for (col = 0; col < 7; col++)
++				dp = &days[month + which_cal][row * DAYS_IN_WEEK];
++				for (col = 0; col < DAYS_IN_WEEK; col++)
+ 					p = ascii_day(p, *dp++);
+ 				p += sprintf(p, "  ");
+ 			}
+@@ -653,7 +673,7 @@ day_array(int day, int month, int year, int *days) {
+ 	int julday, daynum, dw, dm;
+ 	int *d_sep1752;
+ 
+-	if (month == 9 && year == 1752) {
++	if (month == REFORMATION_MONTH && year == REFORMATION_YEAR) {
+ 		int sep1752_ofs = (weekstart + SEP1752_OFS) % 7;
+ 		d_sep1752 = julian ? j_sep1752 : sep1752;
+ 		memcpy(days, d_sep1752 + sep1752_ofs, MAXDAYS * sizeof(int));
+@@ -664,7 +684,7 @@ day_array(int day, int month, int year, int *days) {
+ 	}
+ 	memcpy(days, empty, MAXDAYS * sizeof(int));
+ 	dm = days_in_month[leap_year(year)][month];
+-	dw = (day_in_week(1, month, year) - weekstart + 7) % 7;
++	dw = (day_in_week(1, month, year) - weekstart + DAYS_IN_WEEK) % DAYS_IN_WEEK;
+ 	julday = day_in_year(1, month, year);
+ 	daynum = julian ? julday : 1;
+ 	while (dm--) {
+@@ -700,13 +720,15 @@ int
+ day_in_week(int day, int month, int year) {
+ 	long temp;
+ 
+-	temp = (long)(year - 1) * 365 + leap_years_since_year_1(year - 1)
++	temp =
++	    (long)(year - SMALLEST_YEAR) * DAYS_IN_YEAR +
++	    leap_years_since_year_1(year - SMALLEST_YEAR)
+ 	    + day_in_year(day, month, year);
+ 	if (temp < FIRST_MISSING_DAY)
+-		return ((temp - 1 + SATURDAY) % 7);
++		return ((temp - 1 + FIRST_WEEKDAY) % DAYS_IN_WEEK);
+ 	if (temp >= (FIRST_MISSING_DAY + NUMBER_MISSING_DAYS))
+-		return (((temp - 1 + SATURDAY) - NUMBER_MISSING_DAYS) % 7);
+-	return (THURSDAY);
++		return (((temp - 1 + FIRST_WEEKDAY) - NUMBER_MISSING_DAYS) % DAYS_IN_WEEK);
++	return (REFORMATION_WEEKDAY);
+ }
+ 
+ char *
 -- 
 1.8.2.2
 
