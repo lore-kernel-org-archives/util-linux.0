@@ -1,61 +1,122 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56331 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751678Ab3D2J6M (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 29 Apr 2013 05:58:12 -0400
-Date: Mon, 29 Apr 2013 11:58:07 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 08/11] cal: allow day highlight testing
-Message-ID: <20130429095807.GA22791@x2.net.home>
-References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
- <1367169067-23705-9-git-send-email-kerolasa@iki.fi>
- <517DBDB7.8090506@draigBrady.com>
- <CAG27Bk0iSZDx=mJ_WM1sA5ins7g5zCqnTdVGLyogSZ4E9d57OA@mail.gmail.com>
+Received: from mail-ve0-f169.google.com ([209.85.128.169]:59901 "EHLO
+	mail-ve0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756516Ab3D1UUL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 16:20:11 -0400
+Received: by mail-ve0-f169.google.com with SMTP id pa12so1175172veb.28
+        for <util-linux@vger.kernel.org>; Sun, 28 Apr 2013 13:20:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAG27Bk0iSZDx=mJ_WM1sA5ins7g5zCqnTdVGLyogSZ4E9d57OA@mail.gmail.com>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20130428172840.GE1925@rampage>
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
+	<1367169067-23705-3-git-send-email-kerolasa@iki.fi>
+	<20130428172840.GE1925@rampage>
+Date: Sun, 28 Apr 2013 21:20:10 +0100
+Message-ID: <CAG27Bk3Ycy3AvLmOJbSfC4r=d5q_vw9--qv6=Zq2Cbqj5cW5bg@mail.gmail.com>
+Subject: Re: [PATCH 02/11] cal: convert function like definitions to functions
+From: Sami Kerola <kerolasa@iki.fi>
+To: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 29, 2013 at 09:59:15AM +0100, Sami Kerola wrote:
-> On 29 April 2013 01:24, Pádraig Brady <P@draigbrady.com> wrote:
-> > On 04/28/2013 06:11 PM, Sami Kerola wrote:
-> >> Requires similar trick as done with more to by pass check whether a
-> >> session is or isn't interactive.
-> >
-> > I wonder should we have an option or env variable to force highlighting?
-> > I've wanted a couple of times to pipe output like:
-> >   cal --color=always | ansi2html.sh
+On 28 April 2013 18:28, Dave Reisner <d@falconindy.com> wrote:
+> I agree with the change, but the new functions (all functions here,
+> really) should be marked as static.
 
- yep, coreutils way:
+Thank you for review Dave.
 
-   --color[=WHEN]
-
- where WHEN is 'auto', 'never' or 'always'. 
- 
- Sami, see lib/colors.c. It would be nice to have WHEN evaluation
- (conversion to some enum value) on one place and use the code 
- in dmesg --color[=WHEN] too.
-
-> Your proposal makes totally sense. Karel, please wait a moment (till
-> tomorrow) that I have a change to rewrite this change to be more
-> useful. I'll send new patch to the list, and update my git sometime
-> off-work-hour.
-
- Maybe we can use more colors in the cal(1) output. What about a
- weekend days, month name, week days line etc. ?
+Good point, new version of that patch is below and pushed to my git. I
+will shortly submit a change which makes all functions static, and
+should be applied on top of the earlier patches.
 
 
- I personally believe that there is still a lot of places where we can
- improve command line usability and readability. (See for example
- "dmesg -H" in the latest release.)
+>From 68f869cc0d258cfe978368fcc084d46901b8ed3d Mon Sep 17 00:00:00 2001
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sat, 27 Apr 2013 22:51:35 +0100
+Subject: [PATCH 02/12] cal: convert function like definitions to functions
+Organization: Lastminute.com
 
-    Karel
- 
+Reviewed-by: Dave Reisner <dreisner@archlinux.org>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 45 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 28 insertions(+), 17 deletions(-)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 13830de..0c8cffc 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -209,23 +209,6 @@ char j_day_headings[J_WEEK_LEN*6+1];
+ /* weekstart = 1  =>   "  M  Tu   W  Th   F   S   S " */
+ const char *full_month[12];
+
+-/* leap year -- account for gregorian reformation in 1752 */
+-#define leap_year(yr) \
+- ((yr) <= 1752 ? !((yr) % 4) : \
+- (!((yr) % 4) && ((yr) % 100)) || !((yr) % 400))
+-
+-/* number of centuries since 1700, not inclusive */
+-#define centuries_since_1700(yr) \
+- ((yr) > 1700 ? (yr) / 100 - 17 : 0)
+-
+-/* number of centuries since 1700 whose modulo of 400 is 0 */
+-#define quad_centuries_since_1700(yr) \
+- ((yr) > 1600 ? ((yr) - 1600) / 400 : 0)
+-
+-/* number of leap years between year 1 and this year, not inclusive */
+-#define leap_years_since_year_1(yr) \
+- ((yr) / 4 - centuries_since_1700(yr) + quad_centuries_since_1700(yr))
+-
+ /* 0 => sunday, 1 => monday */
+ int weekstart=0;
+ int julian;
+@@ -239,6 +222,9 @@ struct fmt_st
+   char s[FMT_ST_LINES][FMT_ST_CHARS];
+ };
+
++int leap_year(int year);
++int centuries_since_1700(int year, int centuries);
++int leap_years_since_year_1(int year);
+ char * ascii_day(char *, int);
+ int center_str(const char* src, char* dest, size_t dest_size, size_t width);
+ void center(const char *, size_t, int);
+@@ -413,6 +399,31 @@ main(int argc, char **argv) {
+  return EXIT_SUCCESS;
+ }
+
++/* leap year -- account for gregorian reformation in 1752 */
++static int leap_year(int year)
++{
++ if (year <= 1752)
++ return !(year % 4);
++ else
++ return !(year % 4 && (year % 100 || year % 400));
++}
++
++/* number of centuries since 1700 */
++static int centuries_since_1700(int year, int n)
++{
++ if (year < 1700)
++ return 0;
++ else
++ return ((year / (100 * n)) - (17 / n));
++}
++
++/* number of leap years between year 1 and this year, not inclusive */
++static int leap_years_since_year_1(int year)
++{
++ return (year / 4 - centuries_since_1700(year, 1) +
++ centuries_since_1700(year, 4));
++}
++
+ void headers_init(void)
+ {
+  int i, wd;
+--
+1.8.2.2
+
+
+--
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
