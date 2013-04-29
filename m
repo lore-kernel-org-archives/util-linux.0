@@ -1,46 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:60422 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753701Ab3DMTzp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:55:45 -0400
-Received: by mail-wi0-f169.google.com with SMTP id c10so525850wiw.0
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:55:44 -0700 (PDT)
+Received: from mail-vb0-f51.google.com ([209.85.212.51]:45880 "EHLO
+	mail-vb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750828Ab3D2JLD convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 05:11:03 -0400
+Received: by mail-vb0-f51.google.com with SMTP id x19so4903763vbf.24
+        for <util-linux@vger.kernel.org>; Mon, 29 Apr 2013 02:11:02 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <517DBF96.3040409@draigBrady.com>
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
+	<1367169067-23705-11-git-send-email-kerolasa@iki.fi>
+	<517DBF96.3040409@draigBrady.com>
+Date: Mon, 29 Apr 2013 10:11:02 +0100
+Message-ID: <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
+Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 13/33] pg: check writing to a file was successful
-Date: Sat, 13 Apr 2013 20:54:41 +0100
-Message-Id: <1365882901-11429-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/pg.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+On 29 April 2013 01:32, Pádraig Brady <P@draigbrady.com> wrote:
+> On 04/28/2013 06:11 PM, Sami Kerola wrote:
+>> Includes fix to checks that conform earlier output practise.
+>
+> I'm not sure about this.
+> Other output modes have trailing whitespace.
+> Also consider the case where you're outputting to a <pre> in a web page,
+> where the pre has a different bg color to the web page.
+> You'd want the full width output in that case.
 
-diff --git a/text-utils/pg.c b/text-utils/pg.c
-index c00b737..7ddf96b 100644
---- a/text-utils/pg.c
-+++ b/text-utils/pg.c
-@@ -1228,7 +1228,14 @@ static void pgfile(FILE *f, const char *name)
- 					/* No error check for compat. */
- 					fwrite_all(b, sizeof *b, sz, save);
- 				}
--				fclose(save);
-+				if (close_stream(save) != 0) {
-+					cmd.count = errno;
-+					mesg(_("write failed"));
-+					mesg(": ");
-+					mesg(p);
-+					mesg(strerror(cmd.count));
-+					goto newcmd;
-+				}
- 				fseeko(fbuf, (off_t)0, SEEK_END);
- 				mesg(_("saved"));
- 				goto newcmd;
--- 
-1.8.2.1
+I did not realize someone might be doing that.  The reason why I wrote
+the change is to be consistent with month and year print out, which
+are already trimming spaces. Perhaps there should be
+'--trim=[yes|no|auto]', where the 'auto' would be the current
+practice, and default.
 
+--
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
