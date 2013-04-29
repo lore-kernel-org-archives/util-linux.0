@@ -1,27 +1,1050 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57622 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755416Ab3DYHsy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 25 Apr 2013 03:48:54 -0400
-Date: Thu, 25 Apr 2013 09:48:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <davidlohr.bueso@hp.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] AUTHORS: fix prlimit typo
-Message-ID: <20130425074852.GD2244@x2.net.home>
-References: <1366774110.3218.2.camel@buesod1.americas.hpqcorp.net>
+Received: from mail-vb0-f50.google.com ([209.85.212.50]:44050 "EHLO
+	mail-vb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752133Ab3D2SBr convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 14:01:47 -0400
+Received: by mail-vb0-f50.google.com with SMTP id w15so637649vbb.9
+        for <util-linux@vger.kernel.org>; Mon, 29 Apr 2013 11:01:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1366774110.3218.2.camel@buesod1.americas.hpqcorp.net>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <517E7860.1060604@draigBrady.com>
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
+	<1367169067-23705-11-git-send-email-kerolasa@iki.fi>
+	<517DBF96.3040409@draigBrady.com>
+	<CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
+	<517E7860.1060604@draigBrady.com>
+Date: Mon, 29 Apr 2013 19:01:46 +0100
+Message-ID: <CAG27Bk3YqnYo_FSAo9gQuesF6K2jZ-LCzfhv2Oz7TkPqx97sZg@mail.gmail.com>
+Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
+From: Sami Kerola <kerolasa@iki.fi>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 23, 2013 at 08:28:30PM -0700, Davidlohr Bueso wrote:
->  AUTHORS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On 29 April 2013 14:40, Pádraig Brady <P@draigbrady.com> wrote:
+> On 04/29/2013 10:11 AM, Sami Kerola wrote:
+>> On 29 April 2013 01:32, Pádraig Brady <P@draigbrady.com> wrote:
+>>> On 04/28/2013 06:11 PM, Sami Kerola wrote:
+>>>> Includes fix to checks that conform earlier output practise.
+>>>
+>>> I'm not sure about this.
+>>> Other output modes have trailing whitespace.
+>>> Also consider the case where you're outputting to a <pre> in a web page,
+>>> where the pre has a different bg color to the web page.
+>>> You'd want the full width output in that case.
+>>
+>> I did not realize someone might be doing that.  The reason why I wrote
+>> the change is to be consistent with month and year print out, which
+>> are already trimming spaces.
+>
+> I don't see month/year here with trimmed spaces?
+>
+> $ cal -1 | head -n1 | tr ' ' .
+> .....April.2013.....
+>
+> $ cal -y | head -n3 | tr ' ' .
+> ...............................2013...............................
+>
+> .......January...............February.................March.......
+>
+> I do see that spaces are trimmed from the last day in -1 and -y formats.
+> So I suppose it's best to be consistent and trail space there.
+> I suppose one could also not trim spaces for -1 and -y there?
 
- Applied, thanks.
+Headers are using mbsalign() function to align center, which also does
+printing. That printing is not filtered through trim_trailing_spaces()
+like the calendar's numeric output.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>> Perhaps there should be
+>> '--trim=[yes|no|auto]', where the 'auto' would be the current
+>> practice, and default.
+>
+> I don't think it needs an option TBH as removing trailing
+> spaces is trivial with: sed 's/ *$//'
+> Padding out with spaces is not trivial though,
+> which is another reason to err on the side of
+> leaving the trailing spaces.
+
+True. Perhaps dropping the trimming all together is correct thing to
+do. The following demonstrates what not trimming would mean for code
+and tests.
+
+
+commit b5f91fdd9f92512ebebe43a1560635c5fcfbf3c3
+Author: Sami Kerola <kerolasa@iki.fi>
+Date:   Sun Apr 28 15:35:26 2013 +0100
+
+    cal: stop trimming whitespaces
+
+    Remove trailing spaces from output it is trivial
+
+    cal | sed 's/ *$//'
+
+    but padding them back is difficult.
+
+    CC: PÃ¡draig Brady <P@draigbrady.com>
+    Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 094dfa3..1fcd68c 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -250,7 +250,6 @@ void yearly(int, int, int);
+ void do_monthly(int, int, int, struct fmt_st*);
+ void monthly(int, int, int);
+ void monthly3(int, int, int);
+-void trim_trailing_spaces(char *);
+ static void __attribute__ ((__noreturn__)) usage(FILE * out);
+ void headers_init(int);
+
+@@ -488,7 +487,6 @@ do_monthly(int day, int month, int year, struct
+fmt_st *out) {
+  p = ascii_day(p, xd);
+  }
+  *p = '\0';
+- trim_trailing_spaces(lineout);
+  snprintf(out->s[row+2], FMT_ST_CHARS, "%s", lineout);
+  if (has_hl)
+  Hrow = out->s[row+2];
+@@ -612,7 +610,6 @@ yearly(int day, int year, int julian) {
+  p += sprintf(p, "  ");
+  }
+  *p = '\0';
+- trim_trailing_spaces(lineout);
+  my_putstring(lineout);
+  my_putstring("\n");
+  }
+@@ -738,20 +735,6 @@ ascii_day(char *p, int day) {
+  return p;
+ }
+
+-void
+-trim_trailing_spaces(char *s)
+-{
+- char *p;
+-
+- for (p = s; *p; ++p)
+- continue;
+- while (p > s && isspace(*--p))
+- continue;
+- if (p > s)
+- ++p;
+- *p = '\0';
+-}
+-
+ /*
+  * Center string, handling multibyte characters appropriately.
+  * In addition if the string is too large for the width it's truncated.
+diff --git a/tests/expected/cal/1m b/tests/expected/cal/1m
+index 1d95643..7af98e1 100644
+--- a/tests/expected/cal/1m
++++ b/tests/expected/cal/1m
+@@ -2,36 +2,36 @@
+ Gregorian - Monday-based week
+    September 2006
+ Mo Tu We Th Fr Sa Su
+-             1  2  3
+- 4  5  6  7  8  9 10
+-11 12 13 14 15 16 17
+-18 19 20 21 22 23 24
+-25 26 [7m27[27m 28 29 30
+-
++             1  2  3
++ 4  5  6  7  8  9 10
++11 12 13 14 15 16 17
++18 19 20 21 22 23 24
++25 26 [7m27[27m 28 29 30
++
+ Gregorian - Sunday-based week
+    September 2006
+ Su Mo Tu We Th Fr Sa
+-                1  2
+- 3  4  5  6  7  8  9
+-10 11 12 13 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 [7m27[27m 28 29 30
+-
++                1  2
++ 3  4  5  6  7  8  9
++10 11 12 13 14 15 16
++17 18 19 20 21 22 23
++24 25 26 [7m27[27m 28 29 30
++
+ Julian - Monday-based week
+        September 2006
+ Mon Tue Wed Thu Fri Sat Sun
+-                244 245 246
+-247 248 249 250 251 252 253
+-254 255 256 257 258 259 260
+-261 262 263 264 265 266 267
+-268 269 [7m270[27m 271 272 273
+-
++                244 245 246
++247 248 249 250 251 252 253
++254 255 256 257 258 259 260
++261 262 263 264 265 266 267
++268 269 [7m270[27m 271 272 273
++
+ Julian - Sunday-based week
+        September 2006
+ Sun Mon Tue Wed Thu Fri Sat
+-                    244 245
+-246 247 248 249 250 251 252
+-253 254 255 256 257 258 259
+-260 261 262 263 264 265 266
+-267 268 269 [7m270[27m 271 272 273
+-
++                    244 245
++246 247 248 249 250 251 252
++253 254 255 256 257 258 259
++260 261 262 263 264 265 266
++267 268 269 [7m270[27m 271 272 273
++
+diff --git a/tests/expected/cal/3m b/tests/expected/cal/3m
+index 724d521..f13d3b0 100644
+--- a/tests/expected/cal/3m
++++ b/tests/expected/cal/3m
+@@ -2,36 +2,36 @@
+ Gregorian - Monday-based week
+      August 2006         September 2006         October 2006
+ Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su
+-    1  2  3  4  5  6               1  2  3                     1
+- 7  8  9 10 11 12 13   4  5  6  7  8  9 10   2  3  4  5  6  7  8
+-14 15 16 17 18 19 20  11 12 13 14 15 16 17   9 10 11 12 13 14 15
+-21 22 23 24 25 26 27  18 19 20 21 22 23 24  16 17 18 19 20 21 22
+-28 29 30 31           25 26 [7m27[27m 28 29 30     23 24 25 26 27 28 29
+-                                            30 31
++    1  2  3  4  5  6                1  2  3                      1
++ 7  8  9 10 11 12 13    4  5  6  7  8  9 10    2  3  4  5  6  7  8
++14 15 16 17 18 19 20   11 12 13 14 15 16 17    9 10 11 12 13 14 15
++21 22 23 24 25 26 27   18 19 20 21 22 23 24   16 17 18 19 20 21 22
++28 29 30 31            25 26 [7m27[27m 28 29 30      23 24 25 26 27 28 29
++                                              30 31
+ Gregorian - Sunday-based week
+      August 2006         September 2006         October 2006
+ Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
+-       1  2  3  4  5                  1  2   1  2  3  4  5  6  7
+- 6  7  8  9 10 11 12   3  4  5  6  7  8  9   8  9 10 11 12 13 14
+-13 14 15 16 17 18 19  10 11 12 13 14 15 16  15 16 17 18 19 20 21
+-20 21 22 23 24 25 26  17 18 19 20 21 22 23  22 23 24 25 26 27 28
+-27 28 29 30 31        24 25 26 [7m27[27m 28 29 30  29 30 31
+-
++       1  2  3  4  5                   1  2    1  2  3  4  5  6  7
++ 6  7  8  9 10 11 12    3  4  5  6  7  8  9    8  9 10 11 12 13 14
++13 14 15 16 17 18 19   10 11 12 13 14 15 16   15 16 17 18 19 20 21
++20 21 22 23 24 25 26   17 18 19 20 21 22 23   22 23 24 25 26 27 28
++27 28 29 30 31         24 25 26 [7m27[27m 28 29 30   29 30 31
++
+ Julian - Monday-based week
+         August 2006                 September 2006
+October 2006
+ Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed
+Thu Fri Sat Sun
+-    213 214 215 216 217 218                  244 245 246
+            274
+-219 220 221 222 223 224 225  247 248 249 250 251 252 253  275 276 277
+278 279 280 281
+-226 227 228 229 230 231 232  254 255 256 257 258 259 260  282 283 284
+285 286 287 288
+-233 234 235 236 237 238 239  261 262 263 264 265 266 267  289 290 291
+292 293 294 295
+-240 241 242 243              268 269 [7m270[27m 271 272 273
+296 297 298 299 300 301 302
+-                                                          303 304
++    213 214 215 216 217 218                   244 245 246
+              274
++219 220 221 222 223 224 225   247 248 249 250 251 252 253   275 276
+277 278 279 280 281
++226 227 228 229 230 231 232   254 255 256 257 258 259 260   282 283
+284 285 286 287 288
++233 234 235 236 237 238 239   261 262 263 264 265 266 267   289 290
+291 292 293 294 295
++240 241 242 243               268 269 [7m270[27m 271 272 273
+296 297 298 299 300 301 302
++                                                            303 304
+ Julian - Sunday-based week
+         August 2006                 September 2006
+October 2006
+ Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue
+Wed Thu Fri Sat
+-        213 214 215 216 217                      244 245  274 275 276
+277 278 279 280
+-218 219 220 221 222 223 224  246 247 248 249 250 251 252  281 282 283
+284 285 286 287
+-225 226 227 228 229 230 231  253 254 255 256 257 258 259  288 289 290
+291 292 293 294
+-232 233 234 235 236 237 238  260 261 262 263 264 265 266  295 296 297
+298 299 300 301
+-239 240 241 242 243          267 268 269 [7m270[27m 271 272 273
+302 303 304
+-
++        213 214 215 216 217                       244 245   274 275
+276 277 278 279 280
++218 219 220 221 222 223 224   246 247 248 249 250 251 252   281 282
+283 284 285 286 287
++225 226 227 228 229 230 231   253 254 255 256 257 258 259   288 289
+290 291 292 293 294
++232 233 234 235 236 237 238   260 261 262 263 264 265 266   295 296
+297 298 299 300 301
++239 240 241 242 243           267 268 269 [7m270[27m 271 272 273
+302 303 304
++
+diff --git a/tests/expected/cal/highlight b/tests/expected/cal/highlight
+index 9e70d12..a207840 100644
+--- a/tests/expected/cal/highlight
++++ b/tests/expected/cal/highlight
+@@ -2,54 +2,54 @@
+ First day
+       January 1
+ Su Mo Tu We Th Fr Sa
+-                  [7m 1[27m
+- 2  3  4  5  6  7  8
+- 9 10 11 12 13 14 15
+-16 17 18 19 20 21 22
+-23 24 25 26 27 28 29
+-30 31
++                  [7m 1[27m
++ 2  3  4  5  6  7  8
++ 9 10 11 12 13 14 15
++16 17 18 19 20 21 22
++23 24 25 26 27 28 29
++30 31
+ Reformation corner cases 1
+    September 1752
+ Su Mo Tu We Th Fr Sa
+-       1 [7m 2[27m 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-
+-
+-
++       1 [7m 2[27m 14 15 16
++17 18 19 20 21 22 23
++24 25 26 27 28 29 30
++
++
++
+ Reformation corner cases 2
+    September 1752
+ Su Mo Tu We Th Fr Sa
+-       1  2 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-
+-
+-
++       1  2 14 15 16
++17 18 19 20 21 22 23
++24 25 26 27 28 29 30
++
++
++
+ Reformation corner cases 3
+    September 1752
+ Su Mo Tu We Th Fr Sa
+-       1  2 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-
+-
+-
++       1  2 14 15 16
++17 18 19 20 21 22 23
++24 25 26 27 28 29 30
++
++
++
+ Reformation corner cases 4
+    September 1752
+ Su Mo Tu We Th Fr Sa
+-       1  2 [7m14[27m 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-
+-
+-
++       1  2 [7m14[27m 15 16
++17 18 19 20 21 22 23
++24 25 26 27 28 29 30
++
++
++
+ Last day
+     December 9999
+ Su Mo Tu We Th Fr Sa
+-          1  2  3  4
+- 5  6  7  8  9 10 11
+-12 13 14 15 16 17 18
+-19 20 21 22 23 24 25
+-26 27 28 29 30 [7m31[27m
+-
++          1  2  3  4
++ 5  6  7  8  9 10 11
++12 13 14 15 16 17 18
++19 20 21 22 23 24 25
++26 27 28 29 30 [7m31[27m
++
+diff --git a/tests/expected/cal/sep1752 b/tests/expected/cal/sep1752
+index b718fa0..0b12e49 100644
+--- a/tests/expected/cal/sep1752
++++ b/tests/expected/cal/sep1752
+@@ -2,197 +2,197 @@
+ Gregorian - Monday-based month
+    September 1752
+ Mo Tu We Th Fr Sa Su
+-    1  2 14 15 16 17
+-18 19 20 21 22 23 24
+-25 26 27 28 29 30
+-
+-
+-
++    1  2 14 15 16 17
++18 19 20 21 22 23 24
++25 26 27 28 29 30
++
++
++
+ Gregorian - Sunday-based month
+    September 1752
+ Su Mo Tu We Th Fr Sa
+-       1  2 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-
+-
+-
++       1  2 14 15 16
++17 18 19 20 21 22 23
++24 25 26 27 28 29 30
++
++
++
+ Julian - Monday-based month
+        September 1752
+ Mon Tue Wed Thu Fri Sat Sun
+-    245 246 258 259 260 261
+-262 263 264 265 266 267 268
+-269 270 271 272 273 274
+-
+-
+-
++    245 246 258 259 260 261
++262 263 264 265 266 267 268
++269 270 271 272 273 274
++
++
++
+ Julian - Sunday-based month
+        September 1752
+ Sun Mon Tue Wed Thu Fri Sat
+-        245 246 258 259 260
+-261 262 263 264 265 266 267
+-268 269 270 271 272 273 274
+-
+-
+-
++        245 246 258 259 260
++261 262 263 264 265 266 267
++268 269 270 271 272 273 274
++
++
++
+ Gregorian - Monday-based three months
+      August 1752         September 1752         October 1752
+ Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su  Mo Tu We Th Fr Sa Su
+-                1  2      1  2 14 15 16 17                     1
+- 3  4  5  6  7  8  9  18 19 20 21 22 23 24   2  3  4  5  6  7  8
+-10 11 12 13 14 15 16  25 26 27 28 29 30      9 10 11 12 13 14 15
+-17 18 19 20 21 22 23                        16 17 18 19 20 21 22
+-24 25 26 27 28 29 30                        23 24 25 26 27 28 29
+-31                                          30 31
++                1  2       1  2 14 15 16 17                      1
++ 3  4  5  6  7  8  9   18 19 20 21 22 23 24    2  3  4  5  6  7  8
++10 11 12 13 14 15 16   25 26 27 28 29 30       9 10 11 12 13 14 15
++17 18 19 20 21 22 23                          16 17 18 19 20 21 22
++24 25 26 27 28 29 30                          23 24 25 26 27 28 29
++31                                            30 31
+ Gregorian - Sunday-based three months
+      August 1752         September 1752         October 1752
+ Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
+-                   1         1  2 14 15 16   1  2  3  4  5  6  7
+- 2  3  4  5  6  7  8  17 18 19 20 21 22 23   8  9 10 11 12 13 14
+- 9 10 11 12 13 14 15  24 25 26 27 28 29 30  15 16 17 18 19 20 21
+-16 17 18 19 20 21 22                        22 23 24 25 26 27 28
+-23 24 25 26 27 28 29                        29 30 31
+-30 31
++                   1          1  2 14 15 16    1  2  3  4  5  6  7
++ 2  3  4  5  6  7  8   17 18 19 20 21 22 23    8  9 10 11 12 13 14
++ 9 10 11 12 13 14 15   24 25 26 27 28 29 30   15 16 17 18 19 20 21
++16 17 18 19 20 21 22                          22 23 24 25 26 27 28
++23 24 25 26 27 28 29                          29 30 31
++30 31
+ Julian - Monday-based three months
+         August 1752                 September 1752
+October 1752
+ Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed Thu Fri Sat Sun  Mon Tue Wed
+Thu Fri Sat Sun
+-                    214 215      245 246 258 259 260 261
+            275
+-216 217 218 219 220 221 222  262 263 264 265 266 267 268  276 277 278
+279 280 281 282
+-223 224 225 226 227 228 229  269 270 271 272 273 274      283 284 285
+286 287 288 289
+-230 231 232 233 234 235 236                               290 291 292
+293 294 295 296
+-237 238 239 240 241 242 243                               297 298 299
+300 301 302 303
+-244                                                       304 305
++                    214 215       245 246 258 259 260 261
+              275
++216 217 218 219 220 221 222   262 263 264 265 266 267 268   276 277
+278 279 280 281 282
++223 224 225 226 227 228 229   269 270 271 272 273 274       283 284
+285 286 287 288 289
++230 231 232 233 234 235 236                                 290 291
+292 293 294 295 296
++237 238 239 240 241 242 243                                 297 298
+299 300 301 302 303
++244                                                         304 305
+ Julian - Sunday-based three months
+         August 1752                 September 1752
+October 1752
+ Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue Wed Thu Fri Sat  Sun Mon Tue
+Wed Thu Fri Sat
+-                        214          245 246 258 259 260  275 276 277
+278 279 280 281
+-215 216 217 218 219 220 221  261 262 263 264 265 266 267  282 283 284
+285 286 287 288
+-222 223 224 225 226 227 228  268 269 270 271 272 273 274  289 290 291
+292 293 294 295
+-229 230 231 232 233 234 235                               296 297 298
+299 300 301 302
+-236 237 238 239 240 241 242                               303 304 305
+-243 244
++                        214           245 246 258 259 260   275 276
+277 278 279 280 281
++215 216 217 218 219 220 221   261 262 263 264 265 266 267   282 283
+284 285 286 287 288
++222 223 224 225 226 227 228   268 269 270 271 272 273 274   289 290
+291 292 293 294 295
++229 230 231 232 233 234 235                                 296 297
+298 299 300 301 302
++236 237 238 239 240 241 242                                 303 304
+305
++243 244
+ Gregorian - Monday-based year
+                                1752
+
+        January               February                 March
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-       1  2  3  4  5                   1  2                      1
+- 6  7  8  9 10 11 12    3  4  5  6  7  8  9    2  3  4  5  6  7  8
+-13 14 15 16 17 18 19   10 11 12 13 14 15 16    9 10 11 12 13 14 15
+-20 21 22 23 24 25 26   17 18 19 20 21 22 23   16 17 18 19 20 21 22
+-27 28 29 30 31         24 25 26 27 28 29      23 24 25 26 27 28 29
+-                                              30 31
++       1  2  3  4  5                   1  2                      1
++ 6  7  8  9 10 11 12    3  4  5  6  7  8  9    2  3  4  5  6  7  8
++13 14 15 16 17 18 19   10 11 12 13 14 15 16    9 10 11 12 13 14 15
++20 21 22 23 24 25 26   17 18 19 20 21 22 23   16 17 18 19 20 21 22
++27 28 29 30 31         24 25 26 27 28 29      23 24 25 26 27 28 29
++                                              30 31
+         April                   May                   June
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-       1  2  3  4  5                1  2  3    1  2  3  4  5  6  7
+- 6  7  8  9 10 11 12    4  5  6  7  8  9 10    8  9 10 11 12 13 14
+-13 14 15 16 17 18 19   11 12 13 14 15 16 17   15 16 17 18 19 20 21
+-20 21 22 23 24 25 26   18 19 20 21 22 23 24   22 23 24 25 26 27 28
+-27 28 29 30            25 26 27 28 29 30 31   29 30
+-
++       1  2  3  4  5                1  2  3    1  2  3  4  5  6  7
++ 6  7  8  9 10 11 12    4  5  6  7  8  9 10    8  9 10 11 12 13 14
++13 14 15 16 17 18 19   11 12 13 14 15 16 17   15 16 17 18 19 20 21
++20 21 22 23 24 25 26   18 19 20 21 22 23 24   22 23 24 25 26 27 28
++27 28 29 30            25 26 27 28 29 30 31   29 30
++
+         July                  August                September
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-       1  2  3  4  5                   1  2       1  2 14 15 16 17
+- 6  7  8  9 10 11 12    3  4  5  6  7  8  9   18 19 20 21 22 23 24
+-13 14 15 16 17 18 19   10 11 12 13 14 15 16   25 26 27 28 29 30
+-20 21 22 23 24 25 26   17 18 19 20 21 22 23
+-27 28 29 30 31         24 25 26 27 28 29 30
+-                       31
++       1  2  3  4  5                   1  2       1  2 14 15 16 17
++ 6  7  8  9 10 11 12    3  4  5  6  7  8  9   18 19 20 21 22 23 24
++13 14 15 16 17 18 19   10 11 12 13 14 15 16   25 26 27 28 29 30
++20 21 22 23 24 25 26   17 18 19 20 21 22 23
++27 28 29 30 31         24 25 26 27 28 29 30
++                       31
+        October               November               December
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-                   1          1  2  3  4  5                1  2  3
+- 2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
+- 9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
+-16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
+-23 24 25 26 27 28 29   27 28 29 30            25 26 27 28 29 30 31
+-30 31
++                   1          1  2  3  4  5                1  2  3
++ 2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
++ 9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
++16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
++23 24 25 26 27 28 29   27 28 29 30            25 26 27 28 29 30 31
++30 31
+
+ Gregorian - Sunday-based year
+                                1752
+
+        January               February                 March
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+-          1  2  3  4                      1    1  2  3  4  5  6  7
+- 5  6  7  8  9 10 11    2  3  4  5  6  7  8    8  9 10 11 12 13 14
+-12 13 14 15 16 17 18    9 10 11 12 13 14 15   15 16 17 18 19 20 21
+-19 20 21 22 23 24 25   16 17 18 19 20 21 22   22 23 24 25 26 27 28
+-26 27 28 29 30 31      23 24 25 26 27 28 29   29 30 31
+-
++          1  2  3  4                      1    1  2  3  4  5  6  7
++ 5  6  7  8  9 10 11    2  3  4  5  6  7  8    8  9 10 11 12 13 14
++12 13 14 15 16 17 18    9 10 11 12 13 14 15   15 16 17 18 19 20 21
++19 20 21 22 23 24 25   16 17 18 19 20 21 22   22 23 24 25 26 27 28
++26 27 28 29 30 31      23 24 25 26 27 28 29   29 30 31
++
+         April                   May                   June
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+-          1  2  3  4                   1  2       1  2  3  4  5  6
+- 5  6  7  8  9 10 11    3  4  5  6  7  8  9    7  8  9 10 11 12 13
+-12 13 14 15 16 17 18   10 11 12 13 14 15 16   14 15 16 17 18 19 20
+-19 20 21 22 23 24 25   17 18 19 20 21 22 23   21 22 23 24 25 26 27
+-26 27 28 29 30         24 25 26 27 28 29 30   28 29 30
+-                       31
++          1  2  3  4                   1  2       1  2  3  4  5  6
++ 5  6  7  8  9 10 11    3  4  5  6  7  8  9    7  8  9 10 11 12 13
++12 13 14 15 16 17 18   10 11 12 13 14 15 16   14 15 16 17 18 19 20
++19 20 21 22 23 24 25   17 18 19 20 21 22 23   21 22 23 24 25 26 27
++26 27 28 29 30         24 25 26 27 28 29 30   28 29 30
++                       31
+         July                  August                September
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+-          1  2  3  4                      1          1  2 14 15 16
+- 5  6  7  8  9 10 11    2  3  4  5  6  7  8   17 18 19 20 21 22 23
+-12 13 14 15 16 17 18    9 10 11 12 13 14 15   24 25 26 27 28 29 30
+-19 20 21 22 23 24 25   16 17 18 19 20 21 22
+-26 27 28 29 30 31      23 24 25 26 27 28 29
+-                       30 31
++          1  2  3  4                      1          1  2 14 15 16
++ 5  6  7  8  9 10 11    2  3  4  5  6  7  8   17 18 19 20 21 22 23
++12 13 14 15 16 17 18    9 10 11 12 13 14 15   24 25 26 27 28 29 30
++19 20 21 22 23 24 25   16 17 18 19 20 21 22
++26 27 28 29 30 31      23 24 25 26 27 28 29
++                       30 31
+        October               November               December
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+- 1  2  3  4  5  6  7             1  2  3  4                   1  2
+- 8  9 10 11 12 13 14    5  6  7  8  9 10 11    3  4  5  6  7  8  9
+-15 16 17 18 19 20 21   12 13 14 15 16 17 18   10 11 12 13 14 15 16
+-22 23 24 25 26 27 28   19 20 21 22 23 24 25   17 18 19 20 21 22 23
+-29 30 31               26 27 28 29 30         24 25 26 27 28 29 30
+-                                              31
++ 1  2  3  4  5  6  7             1  2  3  4                   1  2
++ 8  9 10 11 12 13 14    5  6  7  8  9 10 11    3  4  5  6  7  8  9
++15 16 17 18 19 20 21   12 13 14 15 16 17 18   10 11 12 13 14 15 16
++22 23 24 25 26 27 28   19 20 21 22 23 24 25   17 18 19 20 21 22 23
++29 30 31               26 27 28 29 30         24 25 26 27 28 29 30
++                                              31
+
+ Julian - Monday-based year
+                            1752
+
+           January                       February
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-          1   2   3   4   5                        32  33
+-  6   7   8   9  10  11  12    34  35  36  37  38  39  40
+- 13  14  15  16  17  18  19    41  42  43  44  45  46  47
+- 20  21  22  23  24  25  26    48  49  50  51  52  53  54
+- 27  28  29  30  31            55  56  57  58  59  60
+-
++          1   2   3   4   5                        32  33
++  6   7   8   9  10  11  12    34  35  36  37  38  39  40
++ 13  14  15  16  17  18  19    41  42  43  44  45  46  47
++ 20  21  22  23  24  25  26    48  49  50  51  52  53  54
++ 27  28  29  30  31            55  56  57  58  59  60
++
+            March                         April
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-                         61            92  93  94  95  96
+- 62  63  64  65  66  67  68    97  98  99 100 101 102 103
+- 69  70  71  72  73  74  75   104 105 106 107 108 109 110
+- 76  77  78  79  80  81  82   111 112 113 114 115 116 117
+- 83  84  85  86  87  88  89   118 119 120 121
+- 90  91
++                         61            92  93  94  95  96
++ 62  63  64  65  66  67  68    97  98  99 100 101 102 103
++ 69  70  71  72  73  74  75   104 105 106 107 108 109 110
++ 76  77  78  79  80  81  82   111 112 113 114 115 116 117
++ 83  84  85  86  87  88  89   118 119 120 121
++ 90  91
+             May                           June
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-                122 123 124   153 154 155 156 157 158 159
+-125 126 127 128 129 130 131   160 161 162 163 164 165 166
+-132 133 134 135 136 137 138   167 168 169 170 171 172 173
+-139 140 141 142 143 144 145   174 175 176 177 178 179 180
+-146 147 148 149 150 151 152   181 182
+-
++                122 123 124   153 154 155 156 157 158 159
++125 126 127 128 129 130 131   160 161 162 163 164 165 166
++132 133 134 135 136 137 138   167 168 169 170 171 172 173
++139 140 141 142 143 144 145   174 175 176 177 178 179 180
++146 147 148 149 150 151 152   181 182
++
+             July                         August
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-        183 184 185 186 187                       214 215
+-188 189 190 191 192 193 194   216 217 218 219 220 221 222
+-195 196 197 198 199 200 201   223 224 225 226 227 228 229
+-202 203 204 205 206 207 208   230 231 232 233 234 235 236
+-209 210 211 212 213           237 238 239 240 241 242 243
+-                              244
++        183 184 185 186 187                       214 215
++188 189 190 191 192 193 194   216 217 218 219 220 221 222
++195 196 197 198 199 200 201   223 224 225 226 227 228 229
++202 203 204 205 206 207 208   230 231 232 233 234 235 236
++209 210 211 212 213           237 238 239 240 241 242 243
++                              244
+          September                      October
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-    245 246 258 259 260 261                           275
+-262 263 264 265 266 267 268   276 277 278 279 280 281 282
+-269 270 271 272 273 274       283 284 285 286 287 288 289
+-                              290 291 292 293 294 295 296
+-                              297 298 299 300 301 302 303
+-                              304 305
++    245 246 258 259 260 261                           275
++262 263 264 265 266 267 268   276 277 278 279 280 281 282
++269 270 271 272 273 274       283 284 285 286 287 288 289
++                              290 291 292 293 294 295 296
++                              297 298 299 300 301 302 303
++                              304 305
+           November                      December
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-        306 307 308 309 310                   336 337 338
+-311 312 313 314 315 316 317   339 340 341 342 343 344 345
+-318 319 320 321 322 323 324   346 347 348 349 350 351 352
+-325 326 327 328 329 330 331   353 354 355 356 357 358 359
+-332 333 334 335               360 361 362 363 364 365 366
+-
++        306 307 308 309 310                   336 337 338
++311 312 313 314 315 316 317   339 340 341 342 343 344 345
++318 319 320 321 322 323 324   346 347 348 349 350 351 352
++325 326 327 328 329 330 331   353 354 355 356 357 358 359
++332 333 334 335               360 361 362 363 364 365 366
++
+
+ Julian - Sunday-based year
+diff --git a/tests/expected/cal/year b/tests/expected/cal/year
+index a79589d..6f0ae5c 100644
+--- a/tests/expected/cal/year
++++ b/tests/expected/cal/year
+@@ -4,174 +4,174 @@ Gregorian - Monday-based week
+
+        January               February                 March
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-                   1          1  2  3  4  5          1  2  3  4  5
+- 2  3  4  5  6  7  8    6  7  8  9 10 11 12    6  7  8  9 10 11 12
+- 9 10 11 12 13 14 15   13 14 15 16 17 18 19   13 14 15 16 17 18 19
+-16 17 18 19 20 21 22   20 21 22 23 24 25 26   20 21 22 23 24 25 26
+-23 24 25 26 27 28 29   27 28                  27 28 29 30 31
+-30 31
++                   1          1  2  3  4  5          1  2  3  4  5
++ 2  3  4  5  6  7  8    6  7  8  9 10 11 12    6  7  8  9 10 11 12
++ 9 10 11 12 13 14 15   13 14 15 16 17 18 19   13 14 15 16 17 18 19
++16 17 18 19 20 21 22   20 21 22 23 24 25 26   20 21 22 23 24 25 26
++23 24 25 26 27 28 29   27 28                  27 28 29 30 31
++30 31
+         April                   May                   June
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-                1  2    1  2  3  4  5  6  7             1  2  3  4
+- 3  4  5  6  7  8  9    8  9 10 11 12 13 14    5  6  7  8  9 10 11
+-10 11 12 13 14 15 16   15 16 17 18 19 20 21   12 13 14 15 16 17 18
+-17 18 19 20 21 22 23   22 23 24 25 26 27 28   19 20 21 22 23 24 25
+-24 25 26 27 28 29 30   29 30 31               26 27 28 29 30
+-
++                1  2    1  2  3  4  5  6  7             1  2  3  4
++ 3  4  5  6  7  8  9    8  9 10 11 12 13 14    5  6  7  8  9 10 11
++10 11 12 13 14 15 16   15 16 17 18 19 20 21   12 13 14 15 16 17 18
++17 18 19 20 21 22 23   22 23 24 25 26 27 28   19 20 21 22 23 24 25
++24 25 26 27 28 29 30   29 30 31               26 27 28 29 30
++
+         July                  August                September
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-                1  2       1  2  3  4  5  6                1  2  3
+- 3  4  5  6  7  8  9    7  8  9 10 11 12 13    4  5  6  7  8  9 10
+-10 11 12 13 14 15 16   14 15 16 17 18 19 20   11 12 13 14 15 16 17
+-17 18 19 20 21 22 23   21 22 23 24 25 26 27   18 19 20 21 22 23 24
+-24 25 26 27 28 29 30   28 29 30 31            25 26 27 28 29 30
+-31
++                1  2       1  2  3  4  5  6                1  2  3
++ 3  4  5  6  7  8  9    7  8  9 10 11 12 13    4  5  6  7  8  9 10
++10 11 12 13 14 15 16   14 15 16 17 18 19 20   11 12 13 14 15 16 17
++17 18 19 20 21 22 23   21 22 23 24 25 26 27   18 19 20 21 22 23 24
++24 25 26 27 28 29 30   28 29 30 31            25 26 27 28 29 30
++31
+        October               November               December
+ Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su   Mo Tu We Th Fr Sa Su
+-                   1          1  2  3  4  5                1  2  3
+- 2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
+- 9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
+-16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
+-23 24 25 26 27 28 29   27 28 [7m29[27m 30            25 26 27 28 29 30 31
+-30 31
++                   1          1  2  3  4  5                1  2  3
++ 2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
++ 9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
++16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
++23 24 25 26 27 28 29   27 28 [7m29[27m 30            25 26 27 28 29 30 31
++30 31
+
+ Gregorian - Sunday-based week
+                                2006
+
+        January               February                 March
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+- 1  2  3  4  5  6  7             1  2  3  4             1  2  3  4
+- 8  9 10 11 12 13 14    5  6  7  8  9 10 11    5  6  7  8  9 10 11
+-15 16 17 18 19 20 21   12 13 14 15 16 17 18   12 13 14 15 16 17 18
+-22 23 24 25 26 27 28   19 20 21 22 23 24 25   19 20 21 22 23 24 25
+-29 30 31               26 27 28               26 27 28 29 30 31
+-
++ 1  2  3  4  5  6  7             1  2  3  4             1  2  3  4
++ 8  9 10 11 12 13 14    5  6  7  8  9 10 11    5  6  7  8  9 10 11
++15 16 17 18 19 20 21   12 13 14 15 16 17 18   12 13 14 15 16 17 18
++22 23 24 25 26 27 28   19 20 21 22 23 24 25   19 20 21 22 23 24 25
++29 30 31               26 27 28               26 27 28 29 30 31
++
+         April                   May                   June
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+-                   1       1  2  3  4  5  6                1  2  3
+- 2  3  4  5  6  7  8    7  8  9 10 11 12 13    4  5  6  7  8  9 10
+- 9 10 11 12 13 14 15   14 15 16 17 18 19 20   11 12 13 14 15 16 17
+-16 17 18 19 20 21 22   21 22 23 24 25 26 27   18 19 20 21 22 23 24
+-23 24 25 26 27 28 29   28 29 30 31            25 26 27 28 29 30
+-30
++                   1       1  2  3  4  5  6                1  2  3
++ 2  3  4  5  6  7  8    7  8  9 10 11 12 13    4  5  6  7  8  9 10
++ 9 10 11 12 13 14 15   14 15 16 17 18 19 20   11 12 13 14 15 16 17
++16 17 18 19 20 21 22   21 22 23 24 25 26 27   18 19 20 21 22 23 24
++23 24 25 26 27 28 29   28 29 30 31            25 26 27 28 29 30
++30
+         July                  August                September
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+-                   1          1  2  3  4  5                   1  2
+- 2  3  4  5  6  7  8    6  7  8  9 10 11 12    3  4  5  6  7  8  9
+- 9 10 11 12 13 14 15   13 14 15 16 17 18 19   10 11 12 13 14 15 16
+-16 17 18 19 20 21 22   20 21 22 23 24 25 26   17 18 19 20 21 22 23
+-23 24 25 26 27 28 29   27 28 29 30 31         24 25 26 27 28 29 30
+-30 31
++                   1          1  2  3  4  5                   1  2
++ 2  3  4  5  6  7  8    6  7  8  9 10 11 12    3  4  5  6  7  8  9
++ 9 10 11 12 13 14 15   13 14 15 16 17 18 19   10 11 12 13 14 15 16
++16 17 18 19 20 21 22   20 21 22 23 24 25 26   17 18 19 20 21 22 23
++23 24 25 26 27 28 29   27 28 29 30 31         24 25 26 27 28 29 30
++30 31
+        October               November               December
+ Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+- 1  2  3  4  5  6  7             1  2  3  4                   1  2
+- 8  9 10 11 12 13 14    5  6  7  8  9 10 11    3  4  5  6  7  8  9
+-15 16 17 18 19 20 21   12 13 14 15 16 17 18   10 11 12 13 14 15 16
+-22 23 24 25 26 27 28   19 20 21 22 23 24 25   17 18 19 20 21 22 23
+-29 30 31               26 27 28 [7m29[27m 30         24 25 26 27 28 29 30
+-                                              31
++ 1  2  3  4  5  6  7             1  2  3  4                   1  2
++ 8  9 10 11 12 13 14    5  6  7  8  9 10 11    3  4  5  6  7  8  9
++15 16 17 18 19 20 21   12 13 14 15 16 17 18   10 11 12 13 14 15 16
++22 23 24 25 26 27 28   19 20 21 22 23 24 25   17 18 19 20 21 22 23
++29 30 31               26 27 28 [7m29[27m 30         24 25 26 27 28 29 30
++                                              31
+
+ Julian - Monday-based week
+                            2006
+
+           January                       February
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-                          1            32  33  34  35  36
+-  2   3   4   5   6   7   8    37  38  39  40  41  42  43
+-  9  10  11  12  13  14  15    44  45  46  47  48  49  50
+- 16  17  18  19  20  21  22    51  52  53  54  55  56  57
+- 23  24  25  26  27  28  29    58  59
+- 30  31
++                          1            32  33  34  35  36
++  2   3   4   5   6   7   8    37  38  39  40  41  42  43
++  9  10  11  12  13  14  15    44  45  46  47  48  49  50
++ 16  17  18  19  20  21  22    51  52  53  54  55  56  57
++ 23  24  25  26  27  28  29    58  59
++ 30  31
+            March                         April
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-         60  61  62  63  64                        91  92
+- 65  66  67  68  69  70  71    93  94  95  96  97  98  99
+- 72  73  74  75  76  77  78   100 101 102 103 104 105 106
+- 79  80  81  82  83  84  85   107 108 109 110 111 112 113
+- 86  87  88  89  90           114 115 116 117 118 119 120
+-
++         60  61  62  63  64                        91  92
++ 65  66  67  68  69  70  71    93  94  95  96  97  98  99
++ 72  73  74  75  76  77  78   100 101 102 103 104 105 106
++ 79  80  81  82  83  84  85   107 108 109 110 111 112 113
++ 86  87  88  89  90           114 115 116 117 118 119 120
++
+             May                           June
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-121 122 123 124 125 126 127               152 153 154 155
+-128 129 130 131 132 133 134   156 157 158 159 160 161 162
+-135 136 137 138 139 140 141   163 164 165 166 167 168 169
+-142 143 144 145 146 147 148   170 171 172 173 174 175 176
+-149 150 151                   177 178 179 180 181
+-
++121 122 123 124 125 126 127               152 153 154 155
++128 129 130 131 132 133 134   156 157 158 159 160 161 162
++135 136 137 138 139 140 141   163 164 165 166 167 168 169
++142 143 144 145 146 147 148   170 171 172 173 174 175 176
++149 150 151                   177 178 179 180 181
++
+             July                         August
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-                    182 183       213 214 215 216 217 218
+-184 185 186 187 188 189 190   219 220 221 222 223 224 225
+-191 192 193 194 195 196 197   226 227 228 229 230 231 232
+-198 199 200 201 202 203 204   233 234 235 236 237 238 239
+-205 206 207 208 209 210 211   240 241 242 243
+-212
++                    182 183       213 214 215 216 217 218
++184 185 186 187 188 189 190   219 220 221 222 223 224 225
++191 192 193 194 195 196 197   226 227 228 229 230 231 232
++198 199 200 201 202 203 204   233 234 235 236 237 238 239
++205 206 207 208 209 210 211   240 241 242 243
++212
+          September                      October
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-                244 245 246                           274
+-247 248 249 250 251 252 253   275 276 277 278 279 280 281
+-254 255 256 257 258 259 260   282 283 284 285 286 287 288
+-261 262 263 264 265 266 267   289 290 291 292 293 294 295
+-268 269 270 271 272 273       296 297 298 299 300 301 302
+-                              303 304
++                244 245 246                           274
++247 248 249 250 251 252 253   275 276 277 278 279 280 281
++254 255 256 257 258 259 260   282 283 284 285 286 287 288
++261 262 263 264 265 266 267   289 290 291 292 293 294 295
++268 269 270 271 272 273       296 297 298 299 300 301 302
++                              303 304
+           November                      December
+ Mon Tue Wed Thu Fri Sat Sun   Mon Tue Wed Thu Fri Sat Sun
+-        305 306 307 308 309                   335 336 337
+-310 311 312 313 314 315 316   338 339 340 341 342 343 344
+-317 318 319 320 321 322 323   345 346 347 348 349 350 351
+-324 325 326 327 328 329 330   352 353 354 355 356 357 358
+-331 332 [7m333[27m 334               359 360 361 362 363 364 365
+-
++        305 306 307 308 309                   335 336 337
++310 311 312 313 314 315 316   338 339 340 341 342 343 344
++317 318 319 320 321 322 323   345 346 347 348 349 350 351
++324 325 326 327 328 329 330   352 353 354 355 356 357 358
++331 332 [7m333[27m 334               359 360 361 362 363 364 365
++
+
+ Julian - Sunday-based week
+                            2006
+
+           January                       February
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-  1   2   3   4   5   6   7                32  33  34  35
+-  8   9  10  11  12  13  14    36  37  38  39  40  41  42
+- 15  16  17  18  19  20  21    43  44  45  46  47  48  49
+- 22  23  24  25  26  27  28    50  51  52  53  54  55  56
+- 29  30  31                    57  58  59
+-
++  1   2   3   4   5   6   7                32  33  34  35
++  8   9  10  11  12  13  14    36  37  38  39  40  41  42
++ 15  16  17  18  19  20  21    43  44  45  46  47  48  49
++ 22  23  24  25  26  27  28    50  51  52  53  54  55  56
++ 29  30  31                    57  58  59
++
+            March                         April
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-             60  61  62  63                            91
+- 64  65  66  67  68  69  70    92  93  94  95  96  97  98
+- 71  72  73  74  75  76  77    99 100 101 102 103 104 105
+- 78  79  80  81  82  83  84   106 107 108 109 110 111 112
+- 85  86  87  88  89  90       113 114 115 116 117 118 119
+-                              120
++             60  61  62  63                            91
++ 64  65  66  67  68  69  70    92  93  94  95  96  97  98
++ 71  72  73  74  75  76  77    99 100 101 102 103 104 105
++ 78  79  80  81  82  83  84   106 107 108 109 110 111 112
++ 85  86  87  88  89  90       113 114 115 116 117 118 119
++                              120
+             May                           June
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-    121 122 123 124 125 126                   152 153 154
+-127 128 129 130 131 132 133   155 156 157 158 159 160 161
+-134 135 136 137 138 139 140   162 163 164 165 166 167 168
+-141 142 143 144 145 146 147   169 170 171 172 173 174 175
+-148 149 150 151               176 177 178 179 180 181
+-
++    121 122 123 124 125 126                   152 153 154
++127 128 129 130 131 132 133   155 156 157 158 159 160 161
++134 135 136 137 138 139 140   162 163 164 165 166 167 168
++141 142 143 144 145 146 147   169 170 171 172 173 174 175
++148 149 150 151               176 177 178 179 180 181
++
+             July                         August
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-                        182           213 214 215 216 217
+-183 184 185 186 187 188 189   218 219 220 221 222 223 224
+-190 191 192 193 194 195 196   225 226 227 228 229 230 231
+-197 198 199 200 201 202 203   232 233 234 235 236 237 238
+-204 205 206 207 208 209 210   239 240 241 242 243
+-211 212
++                        182           213 214 215 216 217
++183 184 185 186 187 188 189   218 219 220 221 222 223 224
++190 191 192 193 194 195 196   225 226 227 228 229 230 231
++197 198 199 200 201 202 203   232 233 234 235 236 237 238
++204 205 206 207 208 209 210   239 240 241 242 243
++211 212
+          September                      October
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-                    244 245   274 275 276 277 278 279 280
+-246 247 248 249 250 251 252   281 282 283 284 285 286 287
+-253 254 255 256 257 258 259   288 289 290 291 292 293 294
+-260 261 262 263 264 265 266   295 296 297 298 299 300 301
+-267 268 269 270 271 272 273   302 303 304
+-
++                    244 245   274 275 276 277 278 279 280
++246 247 248 249 250 251 252   281 282 283 284 285 286 287
++253 254 255 256 257 258 259   288 289 290 291 292 293 294
++260 261 262 263 264 265 266   295 296 297 298 299 300 301
++267 268 269 270 271 272 273   302 303 304
++
+           November                      December
+ Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+-            305 306 307 308                       335 336
+-309 310 311 312 313 314 315   337 338 339 340 341 342 343
+-316 317 318 319 320 321 322   344 345 346 347 348 349 350
+-323 324 325 326 327 328 329   351 352 353 354 355 356 357
+-330 331 332 [7m333[27m 334           358 359 360 361 362 363 364
+-                              365
++            305 306 307 308                       335 336
++309 310 311 312 313 314 315   337 338 339 340 341 342 343
++316 317 318 319 320 321 322   344 345 346 347 348 349 350
++323 324 325 326 327 328 329   351 352 353 354 355 356 357
++330 331 332 [7m333[27m 334           358 359 360 361 362 363 364
++                              365
+
+
+
+
+--
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
