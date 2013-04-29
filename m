@@ -1,27 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42976 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934420Ab3DHRBw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Apr 2013 13:01:52 -0400
-Date: Mon, 8 Apr 2013 18:25:34 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/5] bash-completion: Don't offer any more completions
- after help or version.
-Message-ID: <20130408162534.GP14350@x2.net.home>
-References: <1365322328-1607-1-git-send-email-ville.skytta@iki.fi>
+Received: from mail2.vodafone.ie ([213.233.128.44]:27961 "EHLO
+	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756563Ab3D2Acx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Apr 2013 20:32:53 -0400
+Message-ID: <517DBF96.3040409@draigBrady.com>
+Date: Mon, 29 Apr 2013 01:32:22 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1365322328-1607-1-git-send-email-ville.skytta@iki.fi>
+To: Sami Kerola <kerolasa@iki.fi>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi> <1367169067-23705-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1367169067-23705-11-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 07, 2013 at 11:12:04AM +0300, Ville Skyttä wrote:
->  87 files changed, 353 insertions(+), 23 deletions(-)
+On 04/28/2013 06:11 PM, Sami Kerola wrote:
+> Includes fix to checks that conform earlier output practise.
 
- All 5 patches applied. THANKS!
+I'm not sure about this.
+Other output modes have trailing whitespace.
+Also consider the case where you're outputting to a <pre> in a web page,
+where the pre has a different bg color to the web page.
+You'd want the full width output in that case.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+thanks,
+Pádraig.
