@@ -1,55 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:55779 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751772Ab3DMT4B (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:01 -0400
-Received: by mail-wi0-f176.google.com with SMTP id hm14so509460wib.3
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:00 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 19/33] resizepart: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:47 +0100
-Message-Id: <1365882901-11429-20-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:56331 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751678Ab3D2J6M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Apr 2013 05:58:12 -0400
+Date: Mon, 29 Apr 2013 11:58:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 08/11] cal: allow day highlight testing
+Message-ID: <20130429095807.GA22791@x2.net.home>
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi>
+ <1367169067-23705-9-git-send-email-kerolasa@iki.fi>
+ <517DBDB7.8090506@draigBrady.com>
+ <CAG27Bk0iSZDx=mJ_WM1sA5ins7g5zCqnTdVGLyogSZ4E9d57OA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CAG27Bk0iSZDx=mJ_WM1sA5ins7g5zCqnTdVGLyogSZ4E9d57OA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/resizepart.c | 5 +++++
- 1 file changed, 5 insertions(+)
+On Mon, Apr 29, 2013 at 09:59:15AM +0100, Sami Kerola wrote:
+> On 29 April 2013 01:24, Pádraig Brady <P@draigbrady.com> wrote:
+> > On 04/28/2013 06:11 PM, Sami Kerola wrote:
+> >> Requires similar trick as done with more to by pass check whether a
+> >> session is or isn't interactive.
+> >
+> > I wonder should we have an option or env variable to force highlighting?
+> > I've wanted a couple of times to pipe output like:
+> >   cal --color=always | ansi2html.sh
 
-diff --git a/disk-utils/resizepart.c b/disk-utils/resizepart.c
-index 5517c4f..765e3a4 100644
---- a/disk-utils/resizepart.c
-+++ b/disk-utils/resizepart.c
-@@ -11,6 +11,7 @@
- #include "partx.h"
- #include "sysfs.h"
- #include "strutils.h"
-+#include "closestream.h"
+ yep, coreutils way:
+
+   --color[=WHEN]
+
+ where WHEN is 'auto', 'never' or 'always'. 
  
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
-@@ -73,6 +74,7 @@ int main(int argc, char **argv)
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
-+	atexit(close_stdout);
+ Sami, see lib/colors.c. It would be nice to have WHEN evaluation
+ (conversion to some enum value) on one place and use the code 
+ in dmesg --color[=WHEN] too.
+
+> Your proposal makes totally sense. Karel, please wait a moment (till
+> tomorrow) that I have a change to rewrite this change to be more
+> useful. I'll send new patch to the list, and update my git sometime
+> off-work-hour.
+
+ Maybe we can use more colors in the cal(1) output. What about a
+ weekend days, month name, week days line etc. ?
+
+
+ I personally believe that there is still a lot of places where we can
+ improve command line usability and readability. (See for example
+ "dmesg -H" in the latest release.)
+
+    Karel
  
- 	while ((c = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
- 		switch (c) {
-@@ -102,5 +104,8 @@ int main(int argc, char **argv)
- 			strtou64_or_err(argv[3], _("invalid length argument"))))
- 		err(EXIT_FAILURE, _("failed to resize partition"));
- 
-+	if (close_fd(fd) != 0)
-+		err(EXIT_FAILURE, _("write failed"));
-+
- 	return 0;
- }
+
 -- 
-1.8.2.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
