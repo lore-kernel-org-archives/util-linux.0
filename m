@@ -1,39 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f175.google.com ([74.125.82.175]:48131 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752244Ab3DMT4O (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 13 Apr 2013 15:56:14 -0400
-Received: by mail-we0-f175.google.com with SMTP id t11so2824492wey.6
-        for <util-linux@vger.kernel.org>; Sat, 13 Apr 2013 12:56:13 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 24/33] fsck.minix: check writing to a file descriptor was successful
-Date: Sat, 13 Apr 2013 20:54:52 +0100
-Message-Id: <1365882901-11429-25-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
-References: <1365882901-11429-1-git-send-email-kerolasa@iki.fi>
+Received: from mail2.vodafone.ie ([213.233.128.44]:5230 "EHLO
+	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758406Ab3D2Nku (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 29 Apr 2013 09:40:50 -0400
+Message-ID: <517E7860.1060604@draigBrady.com>
+Date: Mon, 29 Apr 2013 14:40:48 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: kerolasa@gmail.com
+CC: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 10/11] cal: trim three month display trailing white spaces
+References: <1367169067-23705-1-git-send-email-kerolasa@iki.fi> <1367169067-23705-11-git-send-email-kerolasa@iki.fi> <517DBF96.3040409@draigBrady.com> <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
+In-Reply-To: <CAG27Bk0J_a+avhcHa9TAfbdTj0EL6BeQOY8HshovA=jV75AJeg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/fsck.minix.c | 2 ++
- 1 file changed, 2 insertions(+)
+On 04/29/2013 10:11 AM, Sami Kerola wrote:
+> On 29 April 2013 01:32, Pádraig Brady <P@draigbrady.com> wrote:
+>> On 04/28/2013 06:11 PM, Sami Kerola wrote:
+>>> Includes fix to checks that conform earlier output practise.
+>>
+>> I'm not sure about this.
+>> Other output modes have trailing whitespace.
+>> Also consider the case where you're outputting to a <pre> in a web page,
+>> where the pre has a different bg color to the web page.
+>> You'd want the full width output in that case.
+> 
+> I did not realize someone might be doing that.  The reason why I wrote
+> the change is to be consistent with month and year print out, which
+> are already trimming spaces. 
 
-diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
-index 89e96fc..c0ed017 100644
---- a/disk-utils/fsck.minix.c
-+++ b/disk-utils/fsck.minix.c
-@@ -1385,6 +1385,8 @@ main(int argc, char **argv) {
- 	if (repair && !automatic)
- 		tcsetattr(STDIN_FILENO, TCSANOW, &termios);
- 
-+	if (close_fd(IN) != 0)
-+		err(FSCK_EX_ERROR, _("write failed"));
- 	if (changed)
- 		retcode += 3;
- 	if (errors_uncorrected)
--- 
-1.8.2.1
+I don't see month/year here with trimmed spaces?
 
+$ cal -1 | head -n1 | tr ' ' .
+.....April.2013.....
+
+$ cal -y | head -n3 | tr ' ' .
+...............................2013...............................
+
+.......January...............February.................March.......
+
+
+I do see that spaces are trimmed from the last day in -1 and -y formats.
+So I suppose it's best to be consistent and trail space there.
+I suppose one could also not trim spaces for -1 and -y there?
+
+> Perhaps there should be
+> '--trim=[yes|no|auto]', where the 'auto' would be the current
+> practice, and default.
+
+I don't think it needs an option TBH as removing trailing
+spaces is trivial with: sed 's/ *$//'
+Padding out with spaces is not trivial though,
+which is another reason to err on the side of
+leaving the trailing spaces.
+
+cheers,
+Pádraig.
