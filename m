@@ -1,27 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36232 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752613Ab3EFR2N (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 6 May 2013 13:28:13 -0400
-Date: Mon, 6 May 2013 19:28:11 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux-ng@vger.kernel.org
-Subject: Re: [PATCH] docs: note ddate removal
-Message-ID: <20130506172811.GF9740@x2.net.home>
-References: <1367642974-2425-1-git-send-email-vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1367642974-2425-1-git-send-email-vapier@gentoo.org>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:62865 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932805Ab3EBSzK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:55:10 -0400
+Received: by mail-wi0-f174.google.com with SMTP id m6so924915wiv.13
+        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:55:08 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] dmesg: fix usage() typo
+Date: Thu,  2 May 2013 19:55:03 +0100
+Message-Id: <1367520903-15133-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, May 04, 2013 at 12:49:34AM -0400, Mike Frysinger wrote:
-> +The command ddate has been REMOVED from util-linux.  You can find it here:
-> +https://github.com/bo0ts/ddate
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/dmesg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Good idea. Applied, thanks.
-
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index a89fb6c..6910fc7 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -264,7 +264,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 			level_names[i].name,
+ 			_(level_names[i].help));
+ 	fputs(USAGE_SEPARATOR, out);
+-	fprintf(out, USAGE_MAN_TAIL("dmesg(q)"));
++	fprintf(out, USAGE_MAN_TAIL("dmesg(1)"));
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.2.2
+
