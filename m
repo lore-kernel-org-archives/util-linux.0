@@ -1,69 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:41410 "EHLO Ishtar.hs"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755549Ab3ETXaj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 May 2013 19:30:39 -0400
-Message-ID: <519AB20D.7030503@tlinx.org>
-Date: Mon, 20 May 2013 16:30:21 -0700
-From: Linda Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mount --no-canonical seems broken.
-References: <5175BA15.9060803@tlinx.org> <20130423123648.GB24501@x2.net.home> <517729C7.2030806@tlinx.org> <20130520074001.GE16493@x2.net.home>
-In-Reply-To: <20130520074001.GE16493@x2.net.home>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:64340 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761948Ab3EBSwX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:52:23 -0400
+Received: by mail-wi0-f182.google.com with SMTP id m6so932209wiv.15
+        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:52:21 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 11/16] docs: cal: add --highlight option description
+Date: Thu,  2 May 2013 19:51:36 +0100
+Message-Id: <1367520701-14962-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
+References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.1 | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-
-
-Karel Zak wrote:
->
-> The problem is that "mount" (without options) prints always canonicalized 
-> paths (and in this case --no-canonicalize has no effect, this option
-> is used for mounting only). It means if you have non-canonical paths
-> in /etc/mtab then "mount" still prints canonical paths. I can fix it
-> and make the output sensitive to --no-canonicalize option too.
->
-> Anyway, use findmnt, it provides but complete control on the output.
->
->     Karel
->   
-----
-    Sure give better control, but not as widely known as "df" or "mount".
-
-I might point out that by default,
-> findmnt /
-
-TARGET SOURCE    FSTYPE OPTIONS
-/      /dev/root xfs    rw,nodiratime,relatime,attr2,inode64,noquota
-> > l /dev/root
-ls: cannot access /dev/root: No such file or directory
-
------
-It's not a device in /dev/ nor is it in /proc/devices.
-
-Conversely, 
-
-klogd 1.4.1, log source = ksyslog started.
-[    0.000000] Initializing cgroup subsys cpuset
-[    0.000000] Initializing cgroup subsys cpu
-[    0.000000] Linux version 3.9.0-Isht-Van (law@Ishtar) (gcc version
-4.7.2 20130205 [gcc-4_7-branch revision 195759] (SUSE Linux) ) #6 SMP
-PREEMPT Wed May 8 17:28:40 PDT 2013
-[    0.000000] Command line: BOOT_IMAGE=390-Isht-Van rw root=/dev/sdc1
-root=/dev/sdc1 showopts console=ttyS0,115200n8 console=tty0 elevator=cfq
-pcie_aspm=force pcie_ports=native reboot=bios
-
-The kernel seems to know the root image at boot (even told twice from
-this output!)
-
-Not to mention, there is some comment in the kernel-related code of using
-/dev/root because there is no writable storage available... even though
-the command line
-shows that root is mounted 'rw'...
-
-
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index 4d9b3d1..decdcf5 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -65,6 +65,19 @@ Display Julian dates (days one-based, numbered from January 1).
+ \fB\-y\fR, \fB\-\-year\fR
+ Display a calendar for the current year.
+ .TP
++\fB\-\-highlight\fR \fIwhen\fR
++Highlight output.  The
++.I when
++can be one
++.IR never ,
++.IR auto ,
++or
++.IR always .
++Never will turn off highlighting in all situations.  Auto is default, and
++it will make highlight to be in use if output is done to termina.  Always
++will allow highlight to be outputed when cal outputs to pipe, or is
++called from a script.
++.TP
+ \fB\-V\fR, \fB\-\-version\fR
+ Display version information and exit.
+ .TP
+-- 
+1.8.2.2
 
