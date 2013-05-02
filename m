@@ -1,390 +1,444 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:35045 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760451Ab3EBSv5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:51:57 -0400
-Received: by mail-wg0-f46.google.com with SMTP id n12so899268wgh.1
-        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:51:56 -0700 (PDT)
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:45081 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760943Ab3EBSwP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:52:15 -0400
+Received: by mail-wi0-f180.google.com with SMTP id h11so932484wiv.7
+        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:52:13 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 03/16] cal: clean up use of constants
-Date: Thu,  2 May 2013 19:51:28 +0100
-Message-Id: <1367520701-14962-4-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 08/16] lib: copy argmatch from gnulib
+Date: Thu,  2 May 2013 19:51:33 +0100
+Message-Id: <1367520701-14962-9-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
 References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The commit also adds few new symbolic names, such as DAYS_IN_WEEK.  While
-these definitions may look a little too trivial to have I am sure they
-ease understanding what is going on in code where they are used.
+Both argmatch.h and argmatch.c are copied from gnulib.  Biggest
+difference is that messaging does not use same quoting as the gnulib
+does.  Other than that code is nearly untouched.
 
-Reviewed-by: Thomas Bächler <thomas@archlinux.org>
+gnulib-commit: 92f3a4c8e52e64c233e260431d095dbf88554c14
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/cal.c | 141 ++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 81 insertions(+), 60 deletions(-)
+ include/Makemodule.am |   1 +
+ include/argmatch.h    | 100 +++++++++++++++++++
+ lib/Makemodule.am     |   1 +
+ lib/argmatch.c        | 272 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 374 insertions(+)
+ create mode 100644 include/argmatch.h
+ create mode 100644 lib/argmatch.c
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index e6dd92f..433db72 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -151,15 +151,50 @@ char		*Hrow;		/* pointer to highlighted row in month */
- #error NUM_MONTHS must be 1 or 3
- #endif
+diff --git a/include/Makemodule.am b/include/Makemodule.am
+index 7ba4593..f27d67e 100644
+--- a/include/Makemodule.am
++++ b/include/Makemodule.am
+@@ -1,6 +1,7 @@
  
--#define	THURSDAY		4		/* for reformation */
--#define	SATURDAY		6		/* 1 Jan 1 was a Saturday */
-+enum {
-+	SUNDAY = 0,
-+	MONDAY,
-+	TUESDAY,
-+	WEDNESDAY,
-+	THURSDAY,
-+	FRIDAY,
-+	SATURDAY,
-+	DAYS_IN_WEEK
-+};
- 
-+#define	FIRST_WEEKDAY		SATURDAY	/* Jan 1st, 1 was a Saturday */
-+#define	REFORMATION_WEEKDAY	THURSDAY	/* after reformation it was Thursday */
-+#define REFORMATION_YEAR	1752		/* Signed-off-by: Lord Chesterfield */
-+#define REFORMATION_MONTH	9		/* September */
- #define	FIRST_MISSING_DAY	639799		/* 3 Sep 1752 */
- #define	NUMBER_MISSING_DAYS	11		/* 11 day correction */
- 
-+#define DAYS_IN_YEAR		365		/* the common case, leap years are calculated */
-+#define MONTHS_IN_YEAR		12
-+#define DAYS_IN_MONTH		31
- #define	MAXDAYS			42		/* slots in a month array */
- #define	SPACE			-1		/* used in day array */
- 
-+#define SMALLEST_YEAR		1
-+#define GREATEST_YEAR		9999
+ dist_noinst_HEADERS += \
+ 	include/all-io.h \
++	include/argmatch.h \
+ 	include/at.h \
+ 	include/bitops.h \
+ 	include/blkdev.h \
+diff --git a/include/argmatch.h b/include/argmatch.h
+new file mode 100644
+index 0000000..57dcb6d
+--- /dev/null
++++ b/include/argmatch.h
+@@ -0,0 +1,100 @@
++/* argmatch.h -- definitions and prototypes for argmatch.c
 +
-+#define	DAY_LEN			3		/* 3 spaces per day */
-+#define	WEEK_LEN		(DAYS_IN_WEEK * DAY_LEN)
-+#define	HEAD_SEP		2
++   Copyright (C) 1990, 1998-1999, 2001-2002, 2004-2005, 2009-2013 Free Software
++   Foundation, Inc.
 +
-+#define	J_DAY_LEN		4		/* 4 spaces per day */
-+#define	J_WEEK_LEN		(DAYS_IN_WEEK * J_DAY_LEN)
-+#define	J_HEAD_SEP		2
++   This program is free software: you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3 of the License, or
++   (at your option) any later version.
 +
-+#define TODAY_FLAG		0x400		/* flag day for highlighting */
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
 +
-+#define FMT_ST_LINES 8
-+#define FMT_ST_CHARS 300	/* 90 suffices in most locales */
-+struct fmt_st
++   You should have received a copy of the GNU General Public License
++   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
++
++/* Written by David MacKenzie <djm@ai.mit.edu>
++   Modified by Akim Demaille <demaille@inf.enst.fr> */
++
++#ifndef ARGMATCH_H_
++# define ARGMATCH_H_ 1
++
++# include <stddef.h>
++
++# define ARRAY_CARDINALITY(Array) (sizeof (Array) / sizeof *(Array))
++
++/* Assert there are as many real arguments as there are values
++   (argument list ends with a NULL guard).  */
++
++# define ARGMATCH_VERIFY(Arglist, Vallist) \
++    verify (ARRAY_CARDINALITY (Arglist) == ARRAY_CARDINALITY (Vallist) + 1)
++
++/* Return the index of the element of ARGLIST (NULL terminated) that
++   matches with ARG.  If VALLIST is not NULL, then use it to resolve
++   false ambiguities (i.e., different matches of ARG but corresponding
++   to the same values in VALLIST).  */
++
++ptrdiff_t argmatch (char const *arg, char const *const *arglist,
++                    char const *vallist, size_t valsize);
++
++# define ARGMATCH(Arg, Arglist, Vallist) \
++  argmatch (Arg, Arglist, (char const *) (Vallist), sizeof *(Vallist))
++
++/* xargmatch calls this function when it fails.  This function should not
++   return.  By default, this is a function that calls ARGMATCH_DIE which
++   in turn defaults to 'exit (exit_failure)'.  */
++typedef void (*argmatch_exit_fn) (void);
++extern argmatch_exit_fn argmatch_die;
++
++/* Report on stderr why argmatch failed.  Report correct values. */
++
++void argmatch_invalid (char const *context, char const *value,
++                       ptrdiff_t problem);
++
++/* Left for compatibility with the old name invalid_arg */
++
++# define invalid_arg(Context, Value, Problem) \
++  argmatch_invalid (Context, Value, Problem)
++
++
++
++/* Report on stderr the list of possible arguments.  */
++
++void argmatch_valid (char const *const *arglist,
++                     char const *vallist, size_t valsize);
++
++# define ARGMATCH_VALID(Arglist, Vallist) \
++  argmatch_valid (Arglist, (char const *) (Vallist), sizeof *(Vallist))
++
++
++
++/* Same as argmatch, but upon failure, report an explanation of the
++   failure, and exit using the function EXIT_FN. */
++
++ptrdiff_t __xargmatch_internal (char const *context,
++                                char const *arg, char const *const *arglist,
++                                char const *vallist, size_t valsize,
++                                argmatch_exit_fn exit_fn);
++
++/* Programmer friendly interface to __xargmatch_internal. */
++
++# define XARGMATCH(Context, Arg, Arglist, Vallist)              \
++  ((Vallist) [__xargmatch_internal (Context, Arg, Arglist,      \
++                                    (char const *) (Vallist),   \
++                                    sizeof *(Vallist),          \
++                                    argmatch_die)])
++
++/* Convert a value into a corresponding argument. */
++
++char const *argmatch_to_argument (char const *value,
++                                  char const *const *arglist,
++                                  char const *vallist, size_t valsize);
++
++# define ARGMATCH_TO_ARGUMENT(Value, Arglist, Vallist)                  \
++  argmatch_to_argument (Value, Arglist,                                 \
++                        (char const *) (Vallist), sizeof *(Vallist))
++
++#endif /* ARGMATCH_H_ */
+diff --git a/lib/Makemodule.am b/lib/Makemodule.am
+index afc2156..6757cb9 100644
+--- a/lib/Makemodule.am
++++ b/lib/Makemodule.am
+@@ -2,6 +2,7 @@
+ noinst_LTLIBRARIES += libcommon.la
+ libcommon_la_CFLAGS = $(AM_CFLAGS)
+ libcommon_la_SOURCES = \
++	lib/argmatch.c \
+ 	lib/at.c \
+ 	lib/blkdev.c \
+ 	lib/canonicalize.c \
+diff --git a/lib/argmatch.c b/lib/argmatch.c
+new file mode 100644
+index 0000000..58ce5e1
+--- /dev/null
++++ b/lib/argmatch.c
+@@ -0,0 +1,272 @@
++/* argmatch.c -- find a match for a string in an array
++
++   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2013 Free Software
++   Foundation, Inc.
++
++   This program is free software: you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3 of the License, or
++   (at your option) any later version.
++
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
++
++/* Written by David MacKenzie <djm@ai.mit.edu>
++   Modified by Akim Demaille <demaille@inf.enst.fr> */
++
++#include <config.h>
++
++/* Specification.  */
++#include "argmatch.h"
++
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "nls.h"
++
++#include "error.h"
++
++#if USE_UNLOCKED_IO
++# include "unlocked-io.h"
++#endif
++
++/* When reporting an invalid argument, show nonprinting characters
++   by using the quoting style ARGMATCH_QUOTING_STYLE.  Do not use
++   literal_quoting_style.  */
++#ifndef ARGMATCH_QUOTING_STYLE
++# define ARGMATCH_QUOTING_STYLE locale_quoting_style
++#endif
++
++/* Non failing version of argmatch call this function after failing. */
++#ifndef ARGMATCH_DIE
++# define ARGMATCH_DIE exit (EXIT_FAILURE)
++#endif
++
++#ifdef ARGMATCH_DIE_DECL
++ARGMATCH_DIE_DECL;
++#endif
++
++static void
++__argmatch_die (void)
 +{
-+  char s[FMT_ST_LINES][FMT_ST_CHARS];
++  ARGMATCH_DIE;
++}
++
++/* Used by XARGMATCH and XARGCASEMATCH.  See description in argmatch.h.
++   Default to __argmatch_die, but allow caller to change this at run-time. */
++argmatch_exit_fn argmatch_die = __argmatch_die;
++
++
++/* If ARG is an unambiguous match for an element of the
++   NULL-terminated array ARGLIST, return the index in ARGLIST
++   of the matched element, else -1 if it does not match any element
++   or -2 if it is ambiguous (is a prefix of more than one element).
++
++   If VALLIST is none null, use it to resolve ambiguities limited to
++   synonyms, i.e., for
++     "yes", "yop" -> 0
++     "no", "nope" -> 1
++   "y" is a valid argument, for 0, and "n" for 1.  */
++
++ptrdiff_t
++argmatch (const char *arg, const char *const *arglist,
++          const char *vallist, size_t valsize)
++{
++  size_t i;                     /* Temporary index in ARGLIST.  */
++  size_t arglen;                /* Length of ARG.  */
++  ptrdiff_t matchind = -1;      /* Index of first nonexact match.  */
++  bool ambiguous = false;       /* If true, multiple nonexact match(es).  */
++
++  arglen = strlen (arg);
++
++  /* Test all elements for either exact match or abbreviated matches.  */
++  for (i = 0; arglist[i]; i++)
++    {
++      if (!strncmp (arglist[i], arg, arglen))
++        {
++          if (strlen (arglist[i]) == arglen)
++            /* Exact match found.  */
++            return i;
++          else if (matchind == -1)
++            /* First nonexact match found.  */
++            matchind = i;
++          else
++            {
++              /* Second nonexact match found.  */
++              if (vallist == NULL
++                  || memcmp (vallist + valsize * matchind,
++                             vallist + valsize * i, valsize))
++                {
++                  /* There is a real ambiguity, or we could not
++                     disambiguate. */
++                  ambiguous = true;
++                }
++            }
++        }
++    }
++  if (ambiguous)
++    return -2;
++  else
++    return matchind;
++}
++
++/* Error reporting for argmatch.
++   CONTEXT is a description of the type of entity that was being matched.
++   VALUE is the invalid value that was given.
++   PROBLEM is the return value from argmatch.  */
++
++void
++argmatch_invalid (const char *context, const char *value, ptrdiff_t problem)
++{
++  char const *format = (problem == -1
++                        ? _("invalid argument %s for %s")
++                        : _("ambiguous argument %s for %s"));
++
++  error (0, 0, format, value, context);
++}
++
++/* List the valid arguments for argmatch.
++   ARGLIST is the same as in argmatch.
++   VALLIST is a pointer to an array of values.
++   VALSIZE is the size of the elements of VALLIST */
++void
++argmatch_valid (const char *const *arglist,
++                const char *vallist, size_t valsize)
++{
++  size_t i;
++  const char *last_val = NULL;
++
++  /* We try to put synonyms on the same line.  The assumption is that
++     synonyms follow each other */
++  fputs (_("Valid arguments are:"), stderr);
++  for (i = 0; arglist[i]; i++)
++    if ((i == 0)
++        || memcmp (last_val, vallist + valsize * i, valsize))
++      {
++        fprintf (stderr, "\n  - %s", arglist[i]);
++        last_val = vallist + valsize * i;
++      }
++    else
++      {
++        fprintf (stderr, ", %s", arglist[i]);
++      }
++  putc ('\n', stderr);
++}
++
++/* Never failing versions of the previous functions.
++
++   CONTEXT is the context for which argmatch is called (e.g.,
++   "--version-control", or "$VERSION_CONTROL" etc.).  Upon failure,
++   calls the (supposed never to return) function EXIT_FN. */
++
++ptrdiff_t
++__xargmatch_internal (const char *context,
++                      const char *arg, const char *const *arglist,
++                      const char *vallist, size_t valsize,
++                      argmatch_exit_fn exit_fn)
++{
++  ptrdiff_t res = argmatch (arg, arglist, vallist, valsize);
++  if (res >= 0)
++    /* Success. */
++    return res;
++
++  /* We failed.  Explain why. */
++  argmatch_invalid (context, arg, res);
++  argmatch_valid (arglist, vallist, valsize);
++  (*exit_fn) ();
++
++  return -1; /* To please the compilers. */
++}
++
++/* Look for VALUE in VALLIST, an array of objects of size VALSIZE and
++   return the first corresponding argument in ARGLIST */
++const char *
++argmatch_to_argument (const char *value,
++                      const char *const *arglist,
++                      const char *vallist, size_t valsize)
++{
++  size_t i;
++
++  for (i = 0; arglist[i]; i++)
++    if (!memcmp (value, vallist + valsize * i, valsize))
++      return arglist[i];
++  return NULL;
++}
++
++#ifdef TEST
++/*
++ * Based on "getversion.c" by David MacKenzie <djm@gnu.ai.mit.edu>
++ */
++char *program_name;
++
++/* When to make backup files.  */
++enum backup_type
++{
++  /* Never make backups.  */
++  no_backups,
++
++  /* Make simple backups of every file.  */
++  simple_backups,
++
++  /* Make numbered backups of files that already have numbered backups,
++     and simple backups of the others.  */
++  numbered_existing_backups,
++
++  /* Make numbered backups of every file.  */
++  numbered_backups
 +};
 +
- static int days_in_month[2][13] = {
- 	{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
- 	{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-@@ -195,33 +230,19 @@ int sep1752[MAXDAYS+6] = {
- 	SPACE,	SPACE,	SPACE,	SPACE,	SPACE,	SPACE,	SPACE
- };
- 
--#define	DAY_LEN		3		/* 3 spaces per day */
--#define	J_DAY_LEN	4		/* 4 spaces per day */
--#define	WEEK_LEN	21		/* 7 days * 3 characters */
--#define	J_WEEK_LEN	28		/* 7 days * 4 characters */
--#define	HEAD_SEP	2		/* spaces between day headings */
--#define	J_HEAD_SEP	2
- 
- /* utf-8 can have up to 6 bytes per char; and an extra byte for ending \0 */
- char day_headings[WEEK_LEN*6+1];
- /* weekstart = 1  =>   " M Tu  W Th  F  S  S " */
- char j_day_headings[J_WEEK_LEN*6+1];
- /* weekstart = 1  =>   "  M  Tu   W  Th   F   S   S " */
--const char *full_month[12];
-+const char *full_month[MONTHS_IN_YEAR];
- 
- /* 0 => sunday, 1 => monday */
--int weekstart=0;
-+int weekstart = SUNDAY;
- int julian;
- 
--#define TODAY_FLAG		0x400		/* flag day for highlighting */
--
--#define FMT_ST_LINES 8
--#define FMT_ST_CHARS 300	/* 90 suffices in most locales */
--struct fmt_st
--{
--  char s[FMT_ST_LINES][FMT_ST_CHARS];
--};
--
-+/* function prototypes */
- static int leap_year(int year);
- static int centuries_since_1700(int year, int centuries);
- static int leap_years_since_year_1(int year);
-@@ -244,7 +265,7 @@ int
- main(int argc, char **argv) {
- 	struct tm *local_time;
- 	time_t now;
--	int ch, day, month, year, yflag;
-+	int ch, day = 0, month = 0, year = 0, yflag = 0;
- 	int num_months = NUM_MONTHS;
- 
- 	static const struct option longopts[] = {
-@@ -267,7 +288,7 @@ main(int argc, char **argv) {
- #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_LIBTERMCAP)
- 	if ((term = getenv("TERM"))) {
- 		int ret;
--		my_setupterm(term, 1, &ret);
-+		my_setupterm(term, STDOUT_FILENO, &ret);
- 		if (ret > 0) {
- 			Senter = my_tgetstr("so","smso");
- 			Sexit = my_tgetstr("se","rmso");
-@@ -307,11 +328,10 @@ main(int argc, char **argv) {
- 
- 		wfd = val.word;
- 		wfd = day_in_week(wfd % 100, (wfd / 100) % 100, wfd / (100 * 100));
--		weekstart = (wfd + *nl_langinfo(_NL_TIME_FIRST_WEEKDAY) - 1) % 7;
-+		weekstart = (wfd + *nl_langinfo(_NL_TIME_FIRST_WEEKDAY) - 1) % DAYS_IN_WEEK;
- 	}
- #endif
- 
--	yflag = 0;
- 	while ((ch = getopt_long(argc, argv, "13mjsyVh", longopts, NULL)) != -1)
- 		switch(ch) {
- 		case '1':
-@@ -321,10 +341,10 @@ main(int argc, char **argv) {
- 			num_months = 3;
- 			break;
- 		case 's':
--			weekstart = 0;		/* default */
-+			weekstart = SUNDAY;	/* default */
- 			break;
- 		case 'm':
--			weekstart = 1;
-+			weekstart = MONDAY;
- 			break;
- 		case 'j':
- 			julian = 1;
-@@ -347,21 +367,20 @@ main(int argc, char **argv) {
- 	time(&now);
- 	local_time = localtime(&now);
- 
--	day = month = year = 0;
- 	switch(argc) {
- 	case 3:
- 		day = strtos32_or_err(*argv++, _("illegal day value"));
--                if (day < 1 || 31 < day)
--			errx(EXIT_FAILURE, _("illegal day value: use 1-%d"), 31);
-+		if (day < 1 || DAYS_IN_MONTH < day)
-+			errx(EXIT_FAILURE, _("illegal day value: use 1-%d"), DAYS_IN_MONTH);
- 		/* FALLTHROUGH */
- 	case 2:
- 		month = strtos32_or_err(*argv++, _("illegal month value: use 1-12"));
--		if (month < 1 || 12 < month)
-+		if (month < 1 || MONTHS_IN_YEAR < month)
- 			errx(EXIT_FAILURE, _("illegal month value: use 1-12"));
- 		/* FALLTHROUGH */
- 	case 1:
- 		year = strtos32_or_err(*argv++, _("illegal year value: use 1-9999"));
--		if (year < 1 || 9999 < year)
-+		if (year < SMALLEST_YEAR || GREATEST_YEAR < year)
- 			errx(EXIT_FAILURE, _("illegal year value: use 1-9999"));
- 		if (day) {
- 			int dm = days_in_month[leap_year(year)][month];
-@@ -384,7 +403,7 @@ main(int argc, char **argv) {
- 	}
- 	headers_init();
- 
--	if (!isatty(1))
-+	if (!isatty(STDOUT_FILENO))
- 		day = 0; /* don't highlight */
- 
- 	if (yflag && julian)
-@@ -402,7 +421,7 @@ main(int argc, char **argv) {
- /* leap year -- account for gregorian reformation in 1752 */
- static int leap_year(int year)
- {
--	if (year <= 1752)
-+	if (year <= REFORMATION_YEAR)
- 		return !(year % 4);
- 	else
- 		return ( !(year % 4) && (year % 100) ) || !(year % 400);
-@@ -411,10 +430,10 @@ static int leap_year(int year)
- /* number of centuries since 1700 */
- static int centuries_since_1700(int year, int n)
- {
--	if (year < 1700)
-+	if (year < REFORMATION_YEAR)
- 		return 0;
- 	else
--		return ((year / (100 * n)) - (17 / n));
-+		return ((year / (100 * n)) - ((REFORMATION_YEAR / 100) / n));
- }
- 
- /* number of leap years between year 1 and this year, not inclusive */
-@@ -432,9 +451,9 @@ void headers_init(void)
- 	strcpy(day_headings, "");
- 	strcpy(j_day_headings, "");
- 
--	for (i = 0; i < 7; i++) {
-+	for (i = 0; i < DAYS_IN_WEEK; i++) {
- 		ssize_t space_left;
--		wd = (i + weekstart) % 7;
-+		wd = (i + weekstart) % DAYS_IN_WEEK;
- 
- 		if (i)
- 			strcat(cur_dh++, " ");
-@@ -457,7 +476,7 @@ void headers_init(void)
- 			       space_left, 3);
- 	}
- 
--	for (i = 0; i < 12; i++)
-+	for (i = 0; i < MONTHS_IN_YEAR; i++)
- 		full_month[i] = nl_langinfo(MON_1 + i);
- }
- 
-@@ -481,10 +500,10 @@ do_monthly(int day, int month, int year, struct fmt_st *out) {
- 
- 	snprintf(out->s[1], FMT_ST_CHARS, "%s",
- 		julian ? j_day_headings : day_headings);
--	for (row = 0; row < 6; row++) {
-+	for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
- 		int has_hl = 0;
--		for (col = 0, p = lineout; col < 7; col++) {
--			int xd = days[row * 7 + col];
-+		for (col = 0, p = lineout; col < DAYS_IN_WEEK; col++) {
-+			int xd = days[row * DAYS_IN_WEEK + col];
- 			if (xd != SPACE && (xd & TODAY_FLAG))
- 				has_hl = 1;
- 			p = ascii_day(p, xd);
-@@ -521,13 +540,13 @@ monthly3(int day, int month, int year) {
- 	int next_month, next_year;
- 
- 	if (month == 1) {
--		prev_month = 12;
-+		prev_month = MONTHS_IN_YEAR;
- 		prev_year  = year - 1;
- 	} else {
- 		prev_month = month - 1;
- 		prev_year  = year;
- 	}
--	if (month == 12) {
-+	if (month == MONTHS_IN_YEAR) {
- 		next_month = 1;
- 		next_year  = year + 1;
- 	} else {
-@@ -567,29 +586,29 @@ monthly3(int day, int month, int year) {
- void
- j_yearly(int day, int year) {
- 	int col, *dp, i, month, row, which_cal;
--	int days[12][MAXDAYS];
-+	int days[MONTHS_IN_YEAR][MAXDAYS];
- 	char *p, lineout[80];
- 
- 	snprintf(lineout, sizeof(lineout), "%d", year);
- 	center(lineout, J_WEEK_LEN*2 + J_HEAD_SEP - 1, 0);
- 	my_putstring("\n\n");
- 
--	for (i = 0; i < 12; i++)
-+	for (i = 0; i < MONTHS_IN_YEAR; i++)
- 		day_array(day, i + 1, year, days[i]);
- 	memset(lineout, ' ', sizeof(lineout) - 1);
- 	lineout[sizeof(lineout) - 1] = '\0';
--	for (month = 0; month < 12; month += 2) {
-+	for (month = 0; month < MONTHS_IN_YEAR; month += 2) {
- 		center(full_month[month], J_WEEK_LEN-1, J_HEAD_SEP+1);
- 		center(full_month[month + 1], J_WEEK_LEN-1, 0);
- 		snprintf(lineout, sizeof(lineout),
- 			    "\n%s%*s %s\n", j_day_headings, J_HEAD_SEP, "",
- 			    j_day_headings);
- 		my_putstring(lineout);
--		for (row = 0; row < 6; row++) {
-+		for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
- 			p = lineout;
- 			for (which_cal = 0; which_cal < 2; which_cal++) {
--				dp = &days[month + which_cal][row * 7];
--				for (col = 0; col < 7; col++)
-+				dp = &days[month + which_cal][row * DAYS_IN_WEEK];
-+				for (col = 0; col < DAYS_IN_WEEK; col++)
- 					p = ascii_day(p, *dp++);
- 				p += sprintf(p, "  ");
- 			}
-@@ -605,18 +624,18 @@ j_yearly(int day, int year) {
- void
- yearly(int day, int year) {
- 	int col, *dp, i, month, row, which_cal;
--	int days[12][MAXDAYS];
-+	int days[MONTHS_IN_YEAR][MAXDAYS];
- 	char *p, lineout[100];
- 
- 	snprintf(lineout, sizeof(lineout), "%d", year);
- 	center(lineout, WEEK_LEN*3 + HEAD_SEP*2 - 1, 0);
- 	my_putstring("\n\n");
- 
--	for (i = 0; i < 12; i++)
-+	for (i = 0; i < MONTHS_IN_YEAR; i++)
- 		day_array(day, i + 1, year, days[i]);
- 	memset(lineout, ' ', sizeof(lineout) - 1);
- 	lineout[sizeof(lineout) - 1] = '\0';
--	for (month = 0; month < 12; month += 3) {
-+	for (month = 0; month < MONTHS_IN_YEAR; month += 3) {
- 		center(full_month[month], WEEK_LEN-1, HEAD_SEP+1);
- 		center(full_month[month + 1], WEEK_LEN-1, HEAD_SEP+1);
- 		center(full_month[month + 2], WEEK_LEN-1, 0);
-@@ -624,11 +643,11 @@ yearly(int day, int year) {
- 			"\n%s%*s %s%*s %s\n", day_headings, HEAD_SEP,
- 			"", day_headings, HEAD_SEP, "", day_headings);
- 		my_putstring(lineout);
--		for (row = 0; row < 6; row++) {
-+		for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
- 			p = lineout;
- 			for (which_cal = 0; which_cal < 3; which_cal++) {
--				dp = &days[month + which_cal][row * 7];
--				for (col = 0; col < 7; col++)
-+				dp = &days[month + which_cal][row * DAYS_IN_WEEK];
-+				for (col = 0; col < DAYS_IN_WEEK; col++)
- 					p = ascii_day(p, *dp++);
- 				p += sprintf(p, "  ");
- 			}
-@@ -653,7 +672,7 @@ day_array(int day, int month, int year, int *days) {
- 	int julday, daynum, dw, dm;
- 	int *d_sep1752;
- 
--	if (month == 9 && year == 1752) {
-+	if (month == REFORMATION_MONTH && year == REFORMATION_YEAR) {
- 		int sep1752_ofs = (weekstart + SEP1752_OFS) % 7;
- 		d_sep1752 = julian ? j_sep1752 : sep1752;
- 		memcpy(days, d_sep1752 + sep1752_ofs, MAXDAYS * sizeof(int));
-@@ -664,7 +683,7 @@ day_array(int day, int month, int year, int *days) {
- 	}
- 	memcpy(days, empty, MAXDAYS * sizeof(int));
- 	dm = days_in_month[leap_year(year)][month];
--	dw = (day_in_week(1, month, year) - weekstart + 7) % 7;
-+	dw = (day_in_week(1, month, year) - weekstart + DAYS_IN_WEEK) % DAYS_IN_WEEK;
- 	julday = day_in_year(1, month, year);
- 	daynum = julian ? julday : 1;
- 	while (dm--) {
-@@ -700,13 +719,15 @@ int
- day_in_week(int day, int month, int year) {
- 	long temp;
- 
--	temp = (long)(year - 1) * 365 + leap_years_since_year_1(year - 1)
-+	temp =
-+	    (long)(year - SMALLEST_YEAR) * DAYS_IN_YEAR +
-+	    leap_years_since_year_1(year - SMALLEST_YEAR)
- 	    + day_in_year(day, month, year);
- 	if (temp < FIRST_MISSING_DAY)
--		return ((temp - 1 + SATURDAY) % 7);
-+		return ((temp - 1 + FIRST_WEEKDAY) % DAYS_IN_WEEK);
- 	if (temp >= (FIRST_MISSING_DAY + NUMBER_MISSING_DAYS))
--		return (((temp - 1 + SATURDAY) - NUMBER_MISSING_DAYS) % 7);
--	return (THURSDAY);
-+		return (((temp - 1 + FIRST_WEEKDAY) - NUMBER_MISSING_DAYS) % DAYS_IN_WEEK);
-+	return(REFORMATION_WEEKDAY);
- }
- 
- char *
++/* Two tables describing arguments (keys) and their corresponding
++   values */
++static const char *const backup_args[] =
++{
++  "no", "none", "off",
++  "simple", "never",
++  "existing", "nil",
++  "numbered", "t",
++  0
++};
++
++static const enum backup_type backup_vals[] =
++{
++  no_backups, no_backups, no_backups,
++  simple_backups, simple_backups,
++  numbered_existing_backups, numbered_existing_backups,
++  numbered_backups, numbered_backups
++};
++
++int
++main (int argc, const char *const *argv)
++{
++  const char *cp;
++  enum backup_type backup_type = no_backups;
++
++  program_name = (char *) argv[0];
++
++  if (argc > 2)
++    {
++      fprintf (stderr, "Usage: %s [VERSION_CONTROL]\n", program_name);
++      exit (1);
++    }
++
++  if ((cp = getenv ("VERSION_CONTROL")))
++    backup_type = XARGMATCH ("$VERSION_CONTROL", cp,
++                             backup_args, backup_vals);
++
++  if (argc == 2)
++    backup_type = XARGMATCH (program_name, argv[1],
++                             backup_args, backup_vals);
++
++  printf ("The version control is '%s'\n",
++          ARGMATCH_TO_ARGUMENT (backup_type, backup_args, backup_vals));
++
++  return 0;
++}
++#endif
 -- 
 1.8.2.2
 
