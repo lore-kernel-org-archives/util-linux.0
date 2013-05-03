@@ -1,38 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:48317 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751319Ab3EDEt3 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Sat, 4 May 2013 00:49:29 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id BED4B33DB6E
-	for <util-linux-ng@vger.kernel.org>; Sat,  4 May 2013 04:49:28 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux-ng@vger.kernel.org
-Subject: [PATCH] docs: note ddate removal
-Date: Sat,  4 May 2013 00:49:34 -0400
-Message-Id: <1367642974-2425-1-git-send-email-vapier@gentoo.org>
+Received: from mail-da0-f43.google.com ([209.85.210.43]:53296 "EHLO
+	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934031Ab3ECUTF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 3 May 2013 16:19:05 -0400
+Received: by mail-da0-f43.google.com with SMTP id u7so960741dae.30
+        for <util-linux@vger.kernel.org>; Fri, 03 May 2013 13:19:04 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1367520701-14962-17-git-send-email-kerolasa@iki.fi>
+References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
+	<1367520701-14962-17-git-send-email-kerolasa@iki.fi>
+Date: Fri, 3 May 2013 21:19:03 +0100
+Message-ID: <CAG27Bk1KXxQ_G-5RjS=3cYAn35fLwCArU4rv7LS_EPMMuf=0Yw@mail.gmail.com>
+Subject: Re: [PATCH 16/16] cal: simplify day_in_week()
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- Documentation/releases/v2.23-ReleaseNotes | 3 +++
- 1 file changed, 3 insertions(+)
+On 2 May 2013 19:51, Sami Kerola <kerolasa@iki.fi> wrote:
+> The day_in_week() does not need to perform fullfledged September 1752
+> calculations, that month is dealt as static assignment.
 
-diff --git a/Documentation/releases/v2.23-ReleaseNotes b/Documentation/releases/v2.23-ReleaseNotes
-index 1da0007..7e9ed88 100644
---- a/Documentation/releases/v2.23-ReleaseNotes
-+++ b/Documentation/releases/v2.23-ReleaseNotes
-@@ -10,6 +10,9 @@ version.
- 
- The command chkdupexe has been REMOVED from util-linux.
- 
-+The command ddate has been REMOVED from util-linux.  You can find it here:
-+https://github.com/bo0ts/ddate
-+
- The library libblkid supports LIBBLKID_DEBUG=<mask> environment variable to
- print debug messages on stderr. The old BLKID_DEBUG= is no more supported.
- 
--- 
-1.8.2.1
+Hi Karel, and others,
 
+Please drop this patch. Having abort() at the end of the function is
+bad choice, if something like weekday name highlighting is
+implemented[1]. When I reconsider that bit the function it should
+return for the eleven days at September 1752 a day out of bounds,
+which basically some sort of NaN equivalent.
+
+[1] http://www.spinics.net/lists/util-linux-ng/msg07904.html
+
+--
+   Sami Kerola
+   http://www.iki.fi/kerolasa/
