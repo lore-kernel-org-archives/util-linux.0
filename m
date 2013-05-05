@@ -1,67 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:38528 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761977Ab3EBSwU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:52:20 -0400
-Received: by mail-wg0-f44.google.com with SMTP id z12so894162wgg.23
-        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:52:18 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/16] cal: add --highlight to usage()
-Date: Thu,  2 May 2013 19:51:35 +0100
-Message-Id: <1367520701-14962-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-ve0-f175.google.com ([209.85.128.175]:51862 "EHLO
+	mail-ve0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751613Ab3EESPo convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 5 May 2013 14:15:44 -0400
+Received: by mail-ve0-f175.google.com with SMTP id m1so2648131ves.6
+        for <util-linux@vger.kernel.org>; Sun, 05 May 2013 11:15:43 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAGXs5wU+m3utoCQapgGfd4fOaTnJTQ+5Bmj0bOZwA8Wx2R8_Kw@mail.gmail.com>
+References: <CAGXs5wVLX+aq2D5D5SOaSYSjt1i3V_RNy9XXv1ti8vZdBoDCEg@mail.gmail.com>
+	<20130505161231.GA7764@type.youpi.perso.aquilenet.fr>
+	<CAGXs5wU+m3utoCQapgGfd4fOaTnJTQ+5Bmj0bOZwA8Wx2R8_Kw@mail.gmail.com>
+Date: Sun, 5 May 2013 21:15:42 +0300
+Message-ID: <CAGXs5wVA54qwmwUQ6aJJ-JWJCLXXfG5F-6EfT9h1_xX8rRW9mQ@mail.gmail.com>
+Subject: Re: error with util-linux from git
+From: Kevin Wilson <wkevils@gmail.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Kevin Wilson <wkevils@gmail.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And clean up the usage() function.
+Hello,
+Now..
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index cf50c57..d88fc2e 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -809,20 +809,19 @@ center(const char *str, size_t len, int separate)
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
--	fputs(_("\nUsage:\n"), out);
--	fprintf(out,
--	      _(" %s [options] [[[day] month] year]\n"),
--			program_invocation_short_name);
--
--	fputs(_("\nOptions:\n"), out);
--	fputs(_(" -1, --one        show only current month (default)\n"
--	        " -3, --three      show previous, current and next month\n"
--		" -s, --sunday     Sunday as first day of week\n"
--		" -m, --monday     Monday as first day of week\n"
--		" -j, --julian     output Julian dates\n"
--		" -y, --year       show whole current year\n"
--		" -V, --version    display version information and exit\n"
--		" -h, --help       display this help text and exit\n\n"), out);
--
-+	fputs(USAGE_HEADER, out);
-+	fprintf(out, _(" %s [options] [[[day] month] year]\n"), program_invocation_short_name);
-+	fputs(USAGE_OPTIONS, out);
-+	fputs(_(" -1, --one               show only current month (default)\n"), out);
-+	fputs(_(" -3, --three             show previous, current and next month\n"), out);
-+	fputs(_(" -s, --sunday            Sunday as first day of week\n"), out);
-+	fputs(_(" -m, --monday            Monday as first day of week\n"), out);
-+	fputs(_(" -j, --julian            output Julian dates\n"), out);
-+	fputs(_(" -y, --year              show whole current year\n"), out);
-+	fputs(_("     --highlight <when>  advice when to highlight; never, auto, always\n"), out);
-+	fputs(USAGE_SEPARATOR, out);
-+	fputs(USAGE_HELP, out);
-+	fputs(USAGE_VERSION, out);
-+	fprintf(out, USAGE_MAN_TAIL("cal(1)"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
--- 
-1.8.2.2
+make[1]: Leaving directory `/work/src/util-linux'
+root@amd:/work/src/util-linux# make
+make  all-recursive
+make[1]: Entering directory `/work/src/util-linux'
+Making all in po
+make[2]: Entering directory `/work/src/util-linux/po'
+test -z "ca.gmo cs.gmo da.gmo de.gmo es.gmo et.gmo eu.gmo fi.gmo
+fr.gmo gl.gmo hr.gmo hu.gmo id.gmo it.gmo ja.gmo nl.gmo pl.gmo
+pt_BR.gmo ru.gmo sl.gmo sv.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo
+zh_TW.gmo" || make ca.gmo cs.gmo da.gmo de.gmo es.gmo et.gmo eu.gmo
+fi.gmo fr.gmo gl.gmo hr.gmo hu.gmo id.gmo it.gmo ja.gmo nl.gmo pl.gmo
+pt_BR.gmo ru.gmo sl.gmo sv.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo
+zh_TW.gmo
+make[3]: Entering directory `/work/src/util-linux/po'
+: --update ca.po util-linux.pot
+rm -f ca.gmo && : -c --statistics -o ca.gmo ca.po
+mv: cannot stat ‘t-ca.gmo’: No such file or directory
+make[3]: *** [ca.gmo] Error 1
+make[3]: Leaving directory `/work/src/util-linux/po'
+make[2]: *** [stamp-po] Error 2
+make[2]: Leaving directory `/work/src/util-linux/po'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/work/src/util-linux'
+make: *** [all] Error 2
 
+
+googled for it, install gettext by apt-get install gettext, but this
+did not help
+
+any ideas?
+rgs
+KW
+
+On Sun, May 5, 2013 at 8:57 PM, Kevin Wilson <wkevils@gmail.com> wrote:
+> Hi,
+> Thanks, apt-get install pkg-config solved it
+> rgs
+> Kevin
+>
+>
+> On Sun, May 5, 2013 at 7:12 PM, Samuel Thibault
+> <samuel.thibault@ens-lyon.org> wrote:
+>> Kevin Wilson, le Sun 05 May 2013 19:08:42 +0300, a écrit :
+>>> any ideas?
+>>
+>> Install pkg-config on your system, or anything which would ship
+>> pkg.m4
+>>
+>> Samuel
