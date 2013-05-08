@@ -1,35 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31007 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756946Ab3ENLrN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 May 2013 07:47:13 -0400
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r4EBlDuY013906
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 14 May 2013 07:47:13 -0400
-Date: Tue, 14 May 2013 12:47:05 +0100
-From: "Richard W.M. Jones" <rjones@redhat.com>
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: ReFS
-Message-ID: <20130514114705.GB17246@redhat.com>
-References: <20130514110316.GA17246@redhat.com>
+Received: from mx2.mendoza-conicet.gob.ar ([200.69.149.90]:40948 "EHLO
+	mx2.mendoza-conicet.gob.ar" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751190Ab3EHJG6 convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Wed, 8 May 2013 05:06:58 -0400
+Date: Wed, 8 May 2013 05:46:28 -0300 (ART)
+From: "John P. Goldman" <gliceaga@mendoza-conicet.gob.ar>
+Reply-To: "John P. Goldman" <johnp.goldman@yahoo.com>
+Message-ID: <351326728.69416.1368002788604.JavaMail.root@correo.mendoza-conicet.gob.ar>
+Subject: dringender Vorschlag
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130514110316.GA17246@redhat.com>
+Content-Type: text/plain; charset=utf-8
+To: undisclosed-recipients:;
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-Here's a blank, freshly created ReFS disk image (no partition table -
-just the contents of the partition) if you want to look into this
-further.
 
-http://oirase.annexia.org/tmp/refs-blank.img.xz
-8c72f6ef6541ad752a106604541055c7  refs-blank.img.xz
+Entschuldigungen für kommen in Ihre Privatsphäre! Ich bin Rechtsanwalt
+Werner Erich Zeller; Ich habe einen meiner einflussreichen und
+wohlhabenden Kunden zum Tode; und er hatte eine sehr geheime und private
+Investitionen von €15,000,000.00 bei einer privaten Bank in Großbritannien
+hier zu Lebzeiten. Diese Investition wurde ohne einen deklarierten
+nächsten Angehörigen und begünstigte. Jetzt brauche ich Sie arbeiten mit
+mir als mein Partner zu erholen und zu je 50 % Aktienfonds. Alle Dokumente
+werden rechtlich beantragt und beschafft, und in 5 Werktage, wird diese
+Transaktion auftreten. Aber ich brauche einen ernsten, treuen und
+glaubwürdigen Partner.
 
-Rich.
+Bitte senden Sie mir eine vertrauliche Antwort, wenn Sie denken, Sie
+vertraut werden können und sind von den Qualitäten! Ich warte auf Ihre
+schnelle Antwort.
 
--- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-libguestfs lets you edit virtual machines.  Supports shell scripting,
-bindings from many languages.  http://libguestfs.org
+Werner Erich Zeller (Rechtsanwalt)
+Rufen Sie + 44-702-409-0820 (Office)
