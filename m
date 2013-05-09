@@ -1,67 +1,111 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:62845 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750802Ab3EJGHy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 10 May 2013 02:07:54 -0400
-Received: by mail-wg0-f43.google.com with SMTP id c11so3790276wgh.22
-        for <util-linux@vger.kernel.org>; Thu, 09 May 2013 23:07:51 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <87ppx057sf.fsf@xmission.com>
-References: <CAF0Lin2vFqLg3J_nhSkpdmzYuB56ZNn2TNqrZbSTynMB3x5Tew@mail.gmail.com>
-	<87ppx057sf.fsf@xmission.com>
-Date: Fri, 10 May 2013 09:07:51 +0300
-Message-ID: <CAF0Lin2XM9kSzjDyLJS19zV-M9PdAS55hH3jwDT3ph4F7mSYLg@mail.gmail.com>
-Subject: Re: Cannot allocate memory when calling unshare
-From: Andy Johnson <johnsonzjo@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46213 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751260Ab3EIJmb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 May 2013 05:42:31 -0400
+Date: Thu, 9 May 2013 11:42:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: George Mitchell <george@chinilu.com>
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: umount and findmnt commands not working with btrfs labels ...
+Message-ID: <20130509094226.GD17527@x2.net.home>
+References: <51882EA5.9080805@chinilu.com>
+ <20130507094835.GB7086@x2.net.home>
+ <51891448.5010804@chinilu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <51891448.5010804@chinilu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thanks.
-Copy ans paste of that line:
-unshare --pid -- /bin/sh -c /bin/bash
+On Tue, May 07, 2013 at 07:48:40AM -0700, George Mitchell wrote:
+> problem.  Is there a different debug statement I can use with findmnt?  What
 
-still gave:
-./unshare --pid -- /bin/sh -c /bin/bash
-bash: fork: Cannot allocate memory
+ LIBMOUNT_DEBUG=  for libmount
+ LIBBLKID_DEBUG=  for libblkid
 
-also tried to tweak a bit and it did not help
-I am using latest git linux-util on fedora 18 with 3.8.4-202.fc18.x86_64 kernel
+ We usually use /dev/disk/by-label and by-uuid/ to convert LABELs and
+ UUIDs to device names. These symlinks are maintained by udevd and
+ created according to result from
 
-regards,
-Andy
+   blkid -o udev -p <device>
+
+ the duplicate LABELs are ignored, there is only one LABEL of course.
+
+> fix or whether I will need to redo this with each reboot?  Also you did your
+> testing with a simple one partition btrfs volume.  My system involves up to
+
+ I had two independent partitions, each initialized by mkfs.btrfs.
+
+> five partitions in a single RAID 1 volume.  My boot volume is spread over
+> two partitions.  I am wondering if that could have something to do with it?
+> In any case, here is what I come up with using the same debug prefix with
+> findmnt.
+
+ Ah, do you mean btrfs raid? For example:
+
+   mkfs.btrfs --data raid1 --label FOO /dev/sdd1 /dev/sdd2
+
+ then the LABEL and UUID is really duplicate.
 
 
-On Thu, May 9, 2013 at 9:26 PM, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Andy Johnson <johnsonzjo@gmail.com> writes:
->
->> Hello,
->> I use git last update of util-linux.
->>
->> ./unshare -n /bin/bash
->> works ok.
->>
->> From a different terminal I run:
->>
->> ./unshare -p /bin/bash
->> and get:
->> bash: fork: Cannot allocate memory
->>
->> typing:
->> shows 141 Mb free.
->>
->> the machine has x86_64 ubuntu, 13.04, Raring Ringtail
->>
->> any advice ?
->
-> Pid namespaces are funny.  What you are seeing is expected and correct
-> behavior.  The process that calls unshare is not put into the pid
-> namespace it's first child is.  Which means that the first child of bash
-> becomes the init in the pid namespace and the next child of bash.
->
-> The following should do what you want.
-> unshare --pid -- /bin/sh -c /bin/bash
->
-> Eric
+ Anyway, the right way how to umount any filesystem is to specify the
+ filesystem by mountpoint, for example
+
+   umount /mnt
+
+ this is the way how Linux umount(2) syscall works, because everything
+ else is unreliable. Don't forget that you can mount the same filesystem
+ on more places and sometimes filesystem != device (e.g. btrfs), etc.
+
+ The umount-by-device is marked in the umount(8) man page as obsolete.
+ It seems I have to add a note about RAIDs too.
+
+> Using findmnt on MAGEIA3BTR-BOOT produces the following.  It appears to find
+> the mount point and then print the result:
+> 
+> [root@localhost ghmitch]# LIBMOUNT_DEBUG=0xffff findmnt
+> LABEL=MAGEIA3BTR-BOOT
+[...]
+> However, when I do the same operation with MAGEIA3BTR, it DOES seem to find
+> the mount point (4814: libmount:    CACHE: [0x861c8a0]: add entry [ 1]
+> (tag): /dev/sdd1: LABEL).  The problem is, that is NOT the mount point.  The
+> mount point is /dev/sde1.
+
+ It seems that we need a note about duplicate LABELs to the man page ;-)
+
+ Note, for Linux RAID (mdadm(8)) we're able to detect that the
+ filesystem is within a raid member device (e.g. /dev/sda<N>) and the
+ device is reported as RAID member, the filesystem is ignored. The
+ filesystem is visible only on the final raid device (e.g /dev/md0).
+
+ It means that the duplicate filesystems (RAID1 members) are invisible.
+
+
+ I guess something like this is unnecessary for btrfs, because you can
+ mount arbitrary btrfs raid member (device) as btrfs kernel code is
+ able to find the next raid members and compose the final array.
+
+> Here is my blkid which will give you an overview of the partitions involved.
+> NOTE that with btrfs there are often multiple partitions with the same LABEL
+> and UUID, but only ONE of those will be the mount point and that mount point
+> can change at any time to one of the OTHER partitions sharing the same
+> label.  If umount OR findmnt happen to get the wrong mountpoint even with
+> the right label, things are not going to work out:
+
+ So I don't see a bug. All what we need is to more explicitly explain
+ to users that conversion from <device|uuid|label> to <mountpoint> is
+ not reliable, because the same device could be mounted on more places
+ or the mountpoint could be connected to more devices.
+
+> /dev/sda5: LABEL="MAGEIA3BTR-BOOT" UUID="63f13151-dd34-45e1-b40d-7ed7d0d0ec4a" UUID_SUB="978f5c02-5e11-4df4-8f72-4ff6d09e58ff" TYPE="btrfs"
+> /dev/sdb5: LABEL="MAGEIA3BTR-BOOT" UUID="63f13151-dd34-45e1-b40d-7ed7d0d0ec4a" UUID_SUB="0587a676-8bad-4d61-a8af-0e262d997ba7" TYPE="btrfs"
+
+ Yes, I see.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
