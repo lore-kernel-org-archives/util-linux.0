@@ -1,135 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f182.google.com ([209.85.220.182]:58716 "EHLO
-	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751820Ab3EEQIn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 5 May 2013 12:08:43 -0400
-Received: by mail-vc0-f182.google.com with SMTP id ia10so2534564vcb.13
-        for <util-linux@vger.kernel.org>; Sun, 05 May 2013 09:08:42 -0700 (PDT)
+Received: from nagini.codelibre.net ([80.68.93.164]:53621 "EHLO
+	nagini.codelibre.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751761Ab3EIUCE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 May 2013 16:02:04 -0400
+Date: Thu, 9 May 2013 20:54:14 +0100
+From: Roger Leigh <rleigh@codelibre.net>
+To: George Mitchell <george@chinilu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: umount and findmnt commands not working with btrfs labels ...
+Message-ID: <20130509195414.GU21041@codelibre.net>
+References: <51882EA5.9080805@chinilu.com>
+ <20130507094835.GB7086@x2.net.home>
+ <51891448.5010804@chinilu.com>
+ <20130509094226.GD17527@x2.net.home>
+ <518BC86D.2050702@chinilu.com>
 MIME-Version: 1.0
-Date: Sun, 5 May 2013 19:08:42 +0300
-Message-ID: <CAGXs5wVLX+aq2D5D5SOaSYSjt1i3V_RNy9XXv1ti8vZdBoDCEg@mail.gmail.com>
-Subject: error with util-linux from git
-From: Kevin Wilson <wkevils@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <518BC86D.2050702@chinilu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
-I git cloned util-linux today from
-git clone http://git.kernel.org/cgit/utils/util-linux/util-linux.git
+On Thu, May 09, 2013 at 09:01:49AM -0700, George Mitchell wrote:
+> Karel,  Your answer left me really frustrated, but after rethinking
+> the whole thing, I am left wondering if this whole issue, including
+> the broader issue of what should appear on the mount table in the
+> first place, would be better addressed by the btrfs group simply
+> abstracting the mount point like software raid has always done and
+> handling all the details internally within btrfs.  I already have
+> seen applications that didn't understand btrfs partitions were in
+> use and bad things could result from that.  It would be nice if
+> btrfs would just lock all of these partitions out and represent them
+> collectively to the broader system as /dev/mntX or whatever.  That
+> would surely greatly simplify things for everybody.  I am going
+> broach that idea on the btrfs list.
 
-I ran:
-./autogen.sh
-And I get this error:
-(this is with ubutnu 13.04, with ubuntu 12.10 there was no problem)
+If you do bring this up on the list, a related problem that breaks
+a number of tools, and also boot-time fsck on Debian systems, is
+that the device reported by stat(2) st_rdev is fictional and not
+present in /dev.  This is probably because every subvolume has a
+different device ID.  But it's not exposed to userspace.
 
+If you want to get the device node to fsck from a read-only
+mount, then you're stuck.  And it also breaks other tools which
+expect the device number to actually have real meaning.  Btrfs is
+AFAICT unique in this respect, and it's quite broken to behave in
+this way.
 
-libtoolize: linking file `m4/lt~obsolete.m4'
-configure.ac:126: error: Could not locate the pkg-config autoconf
-    macros. These are usually located in /usr/share/aclocal/pkg.m4.
-    If your macros are in a different location, try setting the
-    environment variable AL_OPTS="-I/other/macro/dir" before running
-    ./autogen.sh or autoreconf again.
-configure.ac:126: the top level
-autom4te: /usr/bin/m4 failed with exit status: 1
-aclocal: autom4te failed with exit status: 1
-
-
-more info:
-dpkg -L autoconf
-
-/.
-/etc
-/etc/emacs
-/etc/emacs/site-start.d
-/etc/emacs/site-start.d/50autoconf.el
-/usr
-/usr/share
-/usr/share/doc
-/usr/share/doc/autoconf
-/usr/share/doc/autoconf/README
-/usr/share/doc/autoconf/NEWS.gz
-/usr/share/doc/autoconf/README.Debian
-/usr/share/doc/autoconf/NEWS.Debian.gz
-/usr/share/doc/autoconf/changelog.Debian.gz
-/usr/share/doc/autoconf/copyright
-/usr/share/autoconf
-/usr/share/autoconf/autoconf
-/usr/share/autoconf/autoconf/autotest.m4
-/usr/share/autoconf/autoconf/specific.m4
-/usr/share/autoconf/autoconf/autoscan.m4
-/usr/share/autoconf/autoconf/autoconf.m4
-/usr/share/autoconf/autoconf/oldnames.m4
-/usr/share/autoconf/autoconf/status.m4
-/usr/share/autoconf/autoconf/c.m4
-/usr/share/autoconf/autoconf/types.m4
-/usr/share/autoconf/autoconf/general.m4
-/usr/share/autoconf/autoconf/autoupdate.m4
-/usr/share/autoconf/autoconf/headers.m4
-/usr/share/autoconf/autoconf/libs.m4
-/usr/share/autoconf/autoconf/fortran.m4
-/usr/share/autoconf/autoconf/lang.m4
-/usr/share/autoconf/autoconf/programs.m4
-/usr/share/autoconf/autoconf/erlang.m4
-/usr/share/autoconf/autoconf/functions.m4
-/usr/share/autoconf/autoconf/go.m4
-/usr/share/autoconf/autoconf/autoconf.m4f
-/usr/share/autoconf/autoconf/autoheader.m4
-/usr/share/autoconf/m4sugar
-/usr/share/autoconf/m4sugar/m4sh.m4
-/usr/share/autoconf/m4sugar/foreach.m4
-/usr/share/autoconf/m4sugar/m4sugar.m4
-/usr/share/autoconf/m4sugar/version.m4
-/usr/share/autoconf/m4sugar/m4sugar.m4f
-/usr/share/autoconf/m4sugar/m4sh.m4f
-/usr/share/autoconf/autoscan
-/usr/share/autoconf/autoscan/autoscan.list
-/usr/share/autoconf/INSTALL
-/usr/share/autoconf/autotest
-/usr/share/autoconf/autotest/autotest.m4
-/usr/share/autoconf/autotest/specific.m4
-/usr/share/autoconf/autotest/general.m4
-/usr/share/autoconf/autotest/autotest.m4f
-/usr/share/autoconf/Autom4te
-/usr/share/autoconf/Autom4te/ChannelDefs.pm
-/usr/share/autoconf/Autom4te/XFile.pm
-/usr/share/autoconf/Autom4te/FileUtils.pm
-/usr/share/autoconf/Autom4te/C4che.pm
-/usr/share/autoconf/Autom4te/General.pm
-/usr/share/autoconf/Autom4te/Configure_ac.pm
-/usr/share/autoconf/Autom4te/Request.pm
-/usr/share/autoconf/Autom4te/Channels.pm
-/usr/share/autoconf/Autom4te/Getopt.pm
-/usr/share/autoconf/autom4te.cfg
-/usr/share/emacs
-/usr/share/emacs/site-lisp
-/usr/share/emacs/site-lisp/autoconf
-/usr/share/emacs/site-lisp/autoconf/autotest-mode.el
-/usr/share/man
-/usr/share/man/man1
-/usr/share/man/man1/autoscan.1.gz
-/usr/share/man/man1/autom4te.1.gz
-/usr/share/man/man1/autoheader.1.gz
-/usr/share/man/man1/autoreconf.1.gz
-/usr/share/man/man1/config.guess.1.gz
-/usr/share/man/man1/autoupdate.1.gz
-/usr/share/man/man1/ifnames.1.gz
-/usr/share/man/man1/config.sub.1.gz
-/usr/share/man/man1/autoconf.1.gz
-/usr/bin
-/usr/bin/ifnames
-/usr/bin/autoheader
-/usr/bin/autoconf
-/usr/bin/autom4te
-/usr/bin/autoscan
-/usr/bin/autoreconf
-/usr/bin/autoupdate
+If the filesystem could expose real devices to userspace, that
+would IMO be a big improvement.  Even if it's just a virtual
+"proxy" for the filesystem.
 
 
+Regards,
+Roger
 
-
-any ideas?
-
-rgs,
-Kevin
+-- 
+  .''`.  Roger Leigh
+ : :' :  Debian GNU/Linux    http://people.debian.org/~rleigh/
+ `. `'   schroot and sbuild  http://alioth.debian.org/projects/buildd-tools
+   `-    GPG Public Key      F33D 281D 470A B443 6756 147C 07B3 C8BC 4083 E800
