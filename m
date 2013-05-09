@@ -1,13 +1,13 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from atl4mhob10.myregisteredsite.com ([209.17.115.48]:42855 "EHLO
+Received: from atl4mhob10.myregisteredsite.com ([209.17.115.48]:58099 "EHLO
 	atl4mhob10.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754149Ab3EIQBs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 9 May 2013 12:01:48 -0400
-Received: from mailpod1.hostingplatform.com ([10.30.71.114])
-	by atl4mhob10.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id r49G1lwj024554
-	for <util-linux@vger.kernel.org>; Thu, 9 May 2013 12:01:47 -0400
-Message-ID: <518BC86D.2050702@chinilu.com>
-Date: Thu, 09 May 2013 09:01:49 -0700
+	by vger.kernel.org with ESMTP id S1752562Ab3EIOGZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 May 2013 10:06:25 -0400
+Received: from mailpod1.hostingplatform.com ([10.30.71.116])
+	by atl4mhob10.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id r49E6O6R026565
+	for <util-linux@vger.kernel.org>; Thu, 9 May 2013 10:06:24 -0400
+Message-ID: <518BAD64.6080704@chinilu.com>
+Date: Thu, 09 May 2013 07:06:28 -0700
 From: George Mitchell <george@chinilu.com>
 Reply-To: george@chinilu.com
 MIME-Version: 1.0
@@ -18,6 +18,12 @@ In-Reply-To: <20130509094226.GD17527@x2.net.home>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
+
+So what I think I hear you saying on this issue is that though I can 
+easily turn a label into a mount point with my little grep trick, umount 
+is unable to do that so that in my scripts I will always have to use 
+this kluge for things to work correctly?  And that of course the same 
+would hold true with findmnt?
 
 On 05/09/2013 02:42 AM, Karel Zak wrote:
 > On Tue, May 07, 2013 at 07:48:40AM -0700, George Mitchell wrote:
@@ -102,17 +108,4 @@ On 05/09/2013 02:42 AM, Karel Zak wrote:
 >      Karel
 >
 >
-Karel,  Your answer left me really frustrated, but after rethinking the 
-whole thing, I am left wondering if this whole issue, including the 
-broader issue of what should appear on the mount table in the first 
-place, would be better addressed by the btrfs group simply abstracting 
-the mount point like software raid has always done and handling all the 
-details internally within btrfs.  I already have seen applications that 
-didn't understand btrfs partitions were in use and bad things could 
-result from that.  It would be nice if btrfs would just lock all of 
-these partitions out and represent them collectively to the broader 
-system as /dev/mntX or whatever.  That would surely greatly simplify 
-things for everybody.  I am going broach that idea on the btrfs list.  
-Thanks so much for taking the time to discuss this with me.  It is much 
-appreciated even though at the time I was not so happy with some of your 
-answers.  - George
+
