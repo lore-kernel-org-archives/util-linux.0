@@ -1,47 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:63715 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753281Ab3ENN1M (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 May 2013 09:27:12 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r4EDRBMP021172
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 14 May 2013 09:27:11 -0400
-Date: Tue, 14 May 2013 14:27:07 +0100
-From: "Richard W.M. Jones" <rjones@redhat.com>
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: ReFS
-Message-ID: <20130514132707.GC17246@redhat.com>
-References: <20130514110316.GA17246@redhat.com>
+Received: from mailout07.t-online.de ([194.25.134.83]:50132 "EHLO
+	mailout07.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750877Ab3EIRN7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 May 2013 13:13:59 -0400
+Date: 09 May 2013 18:59:00 +0200
+From: Hullen@t-online.de (Helmut Hullen)
+To: util-linux@vger.kernel.org
+Message-ID: <CWYcVs5uCXB@helmut.hullen.de>
+In-Reply-To: <518BC86D.2050702@chinilu.com>
+Subject: Re: umount and findmnt commands not working with btrfs labels ...
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130514110316.GA17246@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: helmut@hullen.de
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 14, 2013 at 12:03:16PM +0100, Richard W.M. Jones wrote:
-> ReFS is Microsoft's new filesystem used in Windows 2012 Server and
-> above.  There's no support for this in Linux (although I'm hoping to
-> change that) but it'd be nice if blkid could at least recognize it.
-> 
-> So I thought you might be interested in the filesystem signature for
-> ReFS, which appears to be in the first 8 bytes:
-> 
-> 00000000  00 00 00 52 65 46 53 00  00 00 00 00 00 00 00 00  |...ReFS.........|
+Hallo, George,
 
-After further research, I found some preliminary analysis:
+Du meintest am 09.05.13:
 
-http://libfslibs.googlecode.com/files/Resilient%20File%20System%20(ReFS).pdf
+>>   Ah, do you mean btrfs raid? For example:
+>>
+>>     mkfs.btrfs --data raid1 --label FOO /dev/sdd1 /dev/sdd2
+>>
+>>   then the LABEL and UUID is really duplicate.
 
-which is the best we have to go on so far.  There is no superblock as
-such, but there is a level 0 metadata block.  In any case that
-analysis agrees with me that you should just check the first 8 bytes
-of the filesystem / partition.
+[...]
 
-Rich.
+> It would be nice if btrfs would just lock all of these partitions out
+> and represent them collectively to the broader system as /dev/mntX or
+> whatever.
 
--- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-virt-top is 'top' for virtual machines.  Tiny program with many
-powerful monitoring features, net stats, disk stats, logging, etc.
-http://people.redhat.com/~rjones/virt-top
+Perhaps you shouldn't use only "blkid" - sometimes I've seen strange  
+answers (or no answer). I haven't yet found the system behind this  
+behaviour.
+
+        file -s /dev/sdd1
+
+(p.e.) is more reliable.
+
+But for mounting and unmounting I haven't seen any problem:
+
+        mount LABEL=FOO /path/to/mountpoint
+
+        umount LABEL=FOO
+
+has always worked as expected; for existing devices and mountpoints and  
+also for nonexisting devices and mountpoints.
+
+By the way: my system doesn't use "udev"; working/addressing with LABEL  
+works fine also without "udev".
+
+And by another way:
+
+        blkid
+
+tells every btrfs disk/partition which is part of the btrfs cluster (in  
+my installations: all 3 disks) - they have the same UUID but different  
+UUID_SUBs. No real problem.
+
+Viele Gruesse!
+Helmut
