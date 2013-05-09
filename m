@@ -1,51 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from kawka.in.waw.pl ([178.63.212.103]:45887 "EHLO kawka.in.waw.pl"
+Received: from mx1.redhat.com ([209.132.183.28]:48199 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751550Ab3DTTJj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 20 Apr 2013 15:09:39 -0400
-Date: Sat, 20 Apr 2013 20:23:19 +0200
-From: Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
-To: util-linux <util-linux@vger.kernel.org>, ebiederm@xmission.com
-Cc: systemd-devel@lists.freedesktop.org
-Subject: nsenter and SIGSTOP
-Message-ID: <20130420182319.GU3394@in.waw.pl>
+	id S1751727Ab3EISxt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 May 2013 14:53:49 -0400
+Date: Thu, 9 May 2013 20:53:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: George Mitchell <george@chinilu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: umount and findmnt commands not working with btrfs labels ...
+Message-ID: <20130509185344.GA9821@x2.net.home>
+References: <51882EA5.9080805@chinilu.com>
+ <20130507094835.GB7086@x2.net.home>
+ <51891448.5010804@chinilu.com>
+ <20130509094226.GD17527@x2.net.home>
+ <518BAD64.6080704@chinilu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130417155727.GE19116@tango.0pointer.de>
+In-Reply-To: <518BAD64.6080704@chinilu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
-I've hit a bit of a problem with nsenter and systemd-nspawn.
-When nsenter is used to enter the PID namespace created with
-systemd-nspawn, and the container's init attempts a shutdown,
-it hangs because nsenter is suspended.
+On Thu, May 09, 2013 at 07:06:28AM -0700, George Mitchell wrote:
+> So what I think I hear you saying on this issue is that though I can easily
+> turn a label into a mount point with my little grep trick, umount is unable
+> to do that so that in my scripts I will always have to use this kluge for
+> things to work correctly?  And that of course the same would hold true with
+> findmnt?
 
-The sequence of events leading to the hang is:
+ Yes, this is not btrfs issue only, this is a generic problem:
 
-1. nsenter launches a shell inside the container with
-   PPID=0 as seen inside the container,
-2. systemd with PID=1 goes through the shutdown sequence,
-   issuing the equivalent(*) of
 
-   kill(-1, SIGSTOP)
-   kill(-1, SIGTERM)
-   kill(_1, SIGCONT)
-   reboot(RB_HALT_SYSTEM)
+  mount LABEL=foo  /A
+  mount LABEL=foo  /B
 
-Now, nsenter has a stanza in continue_as_child where it stops itself
-when the child gets stopped. Unfortunately, this means that nsenter
-gets stopped in response to kill(-1, SIGSTOP) which hits the child.
-Then the child dies on kill(-1, SIGTERM), is resumed with kill(-1,
-SIGCONT) and exits (it prints "exit", so it's easy to see that it
-terminated properly. Then the shell becomes a zombie, since nsenter it
-it's parent and it's sleeping. Meanwhile, init executes reboot, and
-hangs in there, since the container waits for the PID namespace to
-become empty (I'm guessing here, but that seems logical). When then
-I type 'fg' to continue nsenter, the child gets collected and the
-container successfully exits.
+  umount LABEL=foo
 
-This is with kernel 3.9-rc6 from Fedora.
+ .. do you want to umount /A or /B  ?
 
-Thanks,
-Zbyszek
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
