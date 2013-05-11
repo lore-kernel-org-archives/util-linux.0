@@ -1,65 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:8722 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754240Ab3ETHxd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 May 2013 03:53:33 -0400
-Date: Mon, 20 May 2013 09:53:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: util-linux@vger.kernel.org, LKML <linux-lkml@vger.kernel.org>
-Subject: Re: new mount is broken w/regard to devnames in /etc/fstab
-Message-ID: <20130520075329.GA19935@x2.net.home>
-References: <5198086A.1010903@tlinx.org>
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:59498 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752028Ab3EKXjO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 11 May 2013 19:39:14 -0400
+Received: by mail-vc0-f182.google.com with SMTP id ia10so4590006vcb.41
+        for <util-linux@vger.kernel.org>; Sat, 11 May 2013 16:39:13 -0700 (PDT)
+Received: from localhost (ool-4a582486.dyn.optonline.net. [74.88.36.134])
+        by mx.google.com with ESMTPSA id a17sm7647982vdj.2.2013.05.11.16.39.11
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Sat, 11 May 2013 16:39:11 -0700 (PDT)
+Date: Sat, 11 May 2013 19:39:10 -0400
+From: Dave Reisner <d@falconindy.com>
+To: util-linux@vger.kernel.org
+Subject: loopdev regression with v2.23
+Message-ID: <20130511233910.GO494@rampage>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5198086A.1010903@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, May 18, 2013 at 04:02:02PM -0700, Linda Walsh wrote:
-> 1) How is one supposed to get the real root device?
-> It's not /dev/root -- and on my system /dev/root doesn't even exist.
-> (though to be fair, it has in the past -- udev musta got sloppy this time,
-> and did point to the real root device).  But how can I get /proc to display
-> the real root device instead of some fake name.   
-> 
-> It's insecure the way it is -- as /dev/root could be "anything"...
+Hi,
 
-I don't think this is util-linux issue. It's more distro specific and 
-related to kernel & initramfs & udevd.
+I have a bug report that points out that v2.23 has disallowed losetup of
+a block device with an offset:
 
-For example my Fedora 18:
+https://bugs.archlinux.org/task/35193
 
-$ findmnt /                                                                 
-TARGET SOURCE    FSTYPE OPTIONS
-/      /dev/sda4 ext4   rw,relatime,data=ordered
+As I also note in the bug report, I've bisected this to commit 293714c0d15.
 
-$ df /
-Filesystem     1K-blocks     Used Available Use% Mounted on
-/dev/sda4       35146488 16233036  17121452  49% /
+I'm not clear on what the proper fix is here -- "expected_size" is set
+to 0 since the fstat call is performed on a special file which has a 0
+size. Is the right thing to do simply return 0 if the size of the
+"backing file" is 0?
 
-$ grep ' / ' /proc/mounts                                
-rootfs / rootfs rw 0 0
-/dev/sda4 / ext4 rw,relatime,data=ordered 0 0
+There's also the problem of the error message -- the fabricated ERANGE
+return fails to also set errno=ERANGE before returning.
 
-
-> 2) I'd like lvm's naming to be available through mount.  Ideally, lvm's
-> naming would be available in /proc/mounts...  At least, though
-> in going from /dev/VG/LV => /dev/mapper/VG-LV, that can be
-> scripted reliably to get the mount device name. 
-
-For example lsblk(8) should be able to convert to the /dev/mapper
-format
-
-   lsblk -rno NAME /dev/VG/LV
-
-you can also use /dev/VG/LV for findmnt(8), it should be able to
-convert the names for /dev/mapper/VG-LV to search for mountpoint.
-
-.. or use /dev/mapper/<name> in your /etc/fstab ;-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Cheers,
+Dave
