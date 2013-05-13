@@ -1,88 +1,144 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from atl4mhob10.myregisteredsite.com ([209.17.115.48]:53240 "EHLO
-	atl4mhob10.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755138Ab3EGPK2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 7 May 2013 11:10:28 -0400
-Received: from mailpod1.hostingplatform.com ([10.30.71.117])
-	by atl4mhob10.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id r47FARL9023657
-	for <util-linux@vger.kernel.org>; Tue, 7 May 2013 11:10:27 -0400
-Message-ID: <51891967.7030804@chinilu.com>
-Date: Tue, 07 May 2013 08:10:31 -0700
-From: George Mitchell <george@chinilu.com>
-Reply-To: george@chinilu.com
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: umount and findmnt commands not working with btrfs labels ...
-References: <51882EA5.9080805@chinilu.com> <20130507094835.GB7086@x2.net.home>
-In-Reply-To: <20130507094835.GB7086@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from lizzard.sbs.de ([194.138.37.39]:17159 "EHLO lizzard.sbs.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753966Ab3EMWTN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 May 2013 18:19:13 -0400
+Received: from mail1.sbs.de (localhost [127.0.0.1])
+	by lizzard.sbs.de (8.13.6/8.13.6) with ESMTP id r4DLx7vO026888
+	for <util-linux@vger.kernel.org>; Mon, 13 May 2013 23:59:07 +0200
+From: Dennis H Jensen <dennis.h.jensen@siemens.com>
+To: util-linux@vger.kernel.org
+Cc: Dennis H Jensen <dennis.h.jensen@siemens.com>
+Subject: [PATCH RFC] logger: add support for --loglevel-prefix when logging stdin
+Date: Mon, 13 May 2013 23:57:18 +0200
+Message-Id: <1368482238-6023-1-git-send-email-dennis.h.jensen@siemens.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/07/2013 02:48 AM, Karel Zak wrote:
->   Hi George,
->
-> On Mon, May 06, 2013 at 03:28:53PM -0700, George Mitchell wrote:
->> [root@localhost ghmitch]# umount LABEL=MAGEIA3BTR-BOOT
->>
->> umount: LABEL=MAGEIA3BTR-BOOT: not found
->   umount --version ?
->
->   It works for me (tested with util-linux 2.22 and 2.23):
->
->    # mkfs.btrfs -L MAGEIA3BTR /dev/sdb1
->    # mkfs.btrfs -L MAGEIA3BTR-FOO /dev/sdb2
->
->    # mount LABEL=MAGEIA3BTR /mnt/test
->    # mount LABEL=MAGEIA3BTR-FOO /mnt/test
->
->    # findmnt LABEL=MAGEIA3BTR
->    TARGET    SOURCE    FSTYPE OPTIONS
->    /mnt/test /dev/sdb1 btrfs  rw,relatime,ssd,space_cache
->
->    # findmnt LABEL=MAGEIA3BTR-FOO
->    TARGET     SOURCE    FSTYPE OPTIONS
->    /mnt/test2 /dev/sdb2 btrfs  rw,relatime,ssd,space_cache
->
->    # umount LABEL=MAGEIA3BTR
->    # umount LABEL=MAGEIA3BTR-FOO
->
->    # lsblk --fs /dev/sdb
->    NAME   FSTYPE LABEL          UUID                                 MOUNTPOINT
->    sdb
->    ├─sdb1 btrfs  MAGEIA3BTR     6dcc3293-ce27-474f-ab31-dd7a8e5bb2da
->    └─sdb2 btrfs  MAGEIA3BTR-FOO f3bb2d57-8b46-40a0-ae76-50d78268d6d9
->
->
-> It would be nice to have a simple reproducible scenario rather than a
-> lot of mount -l outputs and some egrep tricks :-)
->
-> You can also try
->
->    LIBMOUNT_DEBUG=0xffff umount LABEL=MAGEIA3BTR-BOOT
->
-> to see more details.
->
->      Karel
->
-Just to further illustrate the complexity here:
+This patch adds a new option to logger that will make it look for a
+loglevel prefix <[0-7]> at the beginning of every line.
 
-[root@localhost ghmitch]# blkid | egrep COMMON
-/dev/sdc4: LABEL="COMMON" UUID="4b0983d7-8d85-463d-85c1-c20aa3b4fa3b" 
-UUID_SUB="2fed487e-c68a-4688-8ab7-526751d50e62" TYPE="btrfs"
-/dev/sdd4: LABEL="COMMON" UUID="4b0983d7-8d85-463d-85c1-c20aa3b4fa3b" 
-UUID_SUB="91b80d1e-1a9c-4a1a-9f5f-e396ea205085" TYPE="btrfs"
-/dev/sde4: LABEL="COMMON" UUID="4b0983d7-8d85-463d-85c1-c20aa3b4fa3b" 
-UUID_SUB="8e4a1292-980a-4815-9d1f-c43c312bfeb8" TYPE="btrfs"
-/dev/sdf4: LABEL="COMMON" UUID="4b0983d7-8d85-463d-85c1-c20aa3b4fa3b" 
-UUID_SUB="1e459a35-ed8d-4021-b6ea-161bda96305a" TYPE="btrfs"
-/dev/sdg4: LABEL="COMMON" UUID="4b0983d7-8d85-463d-85c1-c20aa3b4fa3b" 
-UUID_SUB="92bfb4cb-9f4b-4277-ad5e-fe6cf34d368f" TYPE="btrfs"
-[root@localhost ghmitch]# mount -l | egrep COMMON
-/dev/sde4 on /common type btrfs (rw,relatime,space_cache) [COMMON]
+If a loglevel is found logger will log the message using the found
+loglevel combined with the facility specified by --priority. When no
+loglevel is found the default level provided by the --priority option
+will be used.
 
-if findmnt OR umount simply search for an association between the LABEL 
-and the DEVICE, how do they come up with the correct mount point when 
-only ONE of the devices involved will serve as the mount point?  
-Hopefully that question better describes the problem.  - George
+Signed-off-by: Dennis H Jensen <dennis.h.jensen@siemens.com>
+---
+ misc-utils/logger.1 |  9 +++++++++
+ misc-utils/logger.c | 33 +++++++++++++++++++++++++++++----
+ 2 files changed, 38 insertions(+), 4 deletions(-)
+
+diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+index 09ecdc4..af6f4f5 100644
+--- a/misc-utils/logger.1
++++ b/misc-utils/logger.1
+@@ -109,6 +109,15 @@ Write to the specified
+ .I socket
+ instead of to the builtin syslog routines.
+ .TP
++\fB\-\-loglevel\-prefix\fR
++Look for a log level prefix on every line read from standard input.
++The log level prefix must have the format \fI<0...7>\fR; logger will
++use the facility specified by the \fB\-p\fR option and the specified level
++as the default when no log level prefix is found. For example \fB\-p\fR
++\fIuser.debug\fR will log messages in the user facility and default to
++the debug level.
++This option doesn't affect a command-line message.
++.TP
+ \fB\-V\fR, \fB\-\-version\fR
+ Display version information and exit.
+ .TP
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index c83c0b8..36371be 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -64,6 +64,10 @@ enum {
+ 	ALL_TYPES = TYPE_UDP | TYPE_TCP
+ };
+ 
++enum {
++	ARG_LOGLEVEL_PREFIX = 0x100
++};
++
+ static int decode(char *name, CODE *codetab)
+ {
+ 	register CODE *c;
+@@ -240,7 +244,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+  */
+ int
+ main(int argc, char **argv) {
+-	int ch, logflags, pri;
++	int ch, logflags, pri, loglevel_prefix;
+ 	char *tag, buf[1024];
+ 	char *usock = NULL;
+ 	char *server = NULL;
+@@ -260,6 +264,7 @@ main(int argc, char **argv) {
+ 		{ "port",	required_argument,  0, 'P' },
+ 		{ "version",	no_argument,	    0, 'V' },
+ 		{ "help",	no_argument,	    0, 'h' },
++		{ "loglevel-prefix", no_argument,   0, ARG_LOGLEVEL_PREFIX },
+ 		{ NULL,		0, 0, 0 }
+ 	};
+ 
+@@ -271,9 +276,10 @@ main(int argc, char **argv) {
+ 	tag = NULL;
+ 	pri = LOG_NOTICE;
+ 	logflags = 0;
++	loglevel_prefix = 0;
+ 	while ((ch = getopt_long(argc, argv, "f:ip:st:u:dTn:P:Vh",
+ 					    longopts, NULL)) != -1) {
+-		switch((char)ch) {
++		switch (ch) {
+ 		case 'f':		/* file to log */
+ 			if (freopen(optarg, "r", stdin) == NULL)
+ 				err(EXIT_FAILURE, _("file %s"),
+@@ -311,6 +317,9 @@ main(int argc, char **argv) {
+ 			exit(EXIT_SUCCESS);
+ 		case 'h':
+ 			usage(stdout);
++		case ARG_LOGLEVEL_PREFIX:
++			loglevel_prefix = 1;
++			break;
+ 		case '?':
+ 		default:
+ 			usage(stderr);
+@@ -360,6 +369,9 @@ main(int argc, char **argv) {
+ 			mysyslog(LogSock, logflags, pri, tag, buf);
+ 		}
+ 	} else {
++		char *msg = buf;
++		int default_priority = pri;
++		int facility = default_priority & LOG_FACMASK;
+ 		while (fgets(buf, sizeof(buf), stdin) != NULL) {
+ 		    /* glibc is buggy and adds an additional newline,
+ 		       so we have to remove it here until glibc is fixed */
+@@ -368,10 +380,23 @@ main(int argc, char **argv) {
+ 		    if (len > 0 && buf[len - 1] == '\n')
+ 			    buf[len - 1] = '\0';
+ 
++			msg = buf;
++			if (loglevel_prefix) {
++				int level = default_priority & LOG_PRIMASK;
++				if (msg[0] == '<' && msg[1] && msg[2] == '>') {
++					switch (msg[1]) {
++					case '0' ... '7':
++						level = msg[1] - '0';
++						msg += 3;
++					}
++				}
++				pri = facility | level;
++			}
++
+ 		    if (!usock && !server)
+-			syslog(pri, "%s", buf);
++			syslog(pri, "%s", msg);
+ 		    else
+-			mysyslog(LogSock, logflags, pri, tag, buf);
++			mysyslog(LogSock, logflags, pri, tag, msg);
+ 		}
+ 	}
+ 	if (!usock && !server)
+-- 
+1.8.1.4
+
