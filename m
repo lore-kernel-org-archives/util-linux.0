@@ -1,39 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp3-g21.free.fr ([212.27.42.3]:43244 "EHLO smtp3-g21.free.fr"
+Received: from mx1.redhat.com ([209.132.183.28]:1666 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753554Ab3EMOw6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 May 2013 10:52:58 -0400
-From: Gilles Espinasse <g.esp@free.fr>
-To: util-linux@vger.kernel.org
-Cc: Gilles Espinasse <g.esp@free.fr>
-Subject: [PATCH] util-linux: tests new warning fix
-Date: Mon, 13 May 2013 16:52:28 +0200
-Message-Id: <1368456748-12202-1-git-send-email-g.esp@free.fr>
+	id S1750758Ab3EMMnr (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Mon, 13 May 2013 08:43:47 -0400
+Date: Mon, 13 May 2013 14:43:45 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [PATCH] standard SEE ALSO section of man pages
+Message-ID: <20130513124345.GA5580@x2.net.home>
+References: <1368051124-11407-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1368051124-11407-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-2.23 added -Wstrict-prototypes check. Fix make check showing
-CC tests/helpers/test_md5.o
-tests/helpers/test_md5.c:8: warning: function declaration isn't a prototype
+On Wed, May 08, 2013 at 06:12:04PM -0400, Mike Frysinger wrote:
+>  disk-utils/mkfs.bfs.8   | 2 +-
+>  libblkid/libblkid.3     | 2 +-
+>  misc-utils/blkid.8      | 4 ++--
+>  misc-utils/findfs.8     | 3 +--
+>  misc-utils/lslocks.8    | 4 ++--
+>  misc-utils/wipefs.8     | 3 +--
+>  sys-utils/setpriv.1     | 2 +-
+>  sys-utils/switch_root.8 | 6 +++---
+>  text-utils/tailf.1      | 3 ++-
+>  9 files changed, 14 insertions(+), 15 deletions(-)
 
-Signed-off-by: Gilles Espinasse <g.esp@free.fr>
----
- tests/helpers/test_md5.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Applied, thanks.
 
-diff --git a/tests/helpers/test_md5.c b/tests/helpers/test_md5.c
-index 0f37afd..44f6a93 100644
---- a/tests/helpers/test_md5.c
-+++ b/tests/helpers/test_md5.c
-@@ -4,7 +4,7 @@
- 
- #include "md5.h"
- 
--int main()
-+int main(void)
- {
- 	int i, ret;
- 	struct MD5Context ctx;
 -- 
-1.7.2.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
