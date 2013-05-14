@@ -1,72 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:63055 "EHLO mx1.redhat.com"
+Received: from gecko.sbs.de ([194.138.37.40]:20519 "EHLO gecko.sbs.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755737Ab3E1K3n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 May 2013 06:29:43 -0400
-Date: Tue, 28 May 2013 12:29:41 +0200
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.23.1 (stable)
-Message-ID: <20130528102941.GA20866@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	id S1756554Ab3ENIjs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 May 2013 04:39:48 -0400
+Message-ID: <1368520701.16406.10.camel@djensen-laptop>
+Subject: Re: [PATCH RFC] logger: add support for --loglevel-prefix when
+ logging stdin
+From: Dennis H Jensen <dennis.h.jensen@siemens.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Date: Tue, 14 May 2013 10:38:21 +0200
+In-Reply-To: <20130514080702.GA18123@x2.net.home>
+References: <1368482238-6023-1-git-send-email-dennis.h.jensen@siemens.com>
+	 <20130514080702.GA18123@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, 2013-05-14 at 10:07 +0200, Karel Zak wrote:
+> Hi Dennis,
+> 
+> On Mon, May 13, 2013 at 11:57:18PM +0200, Dennis H Jensen wrote:
+> > This patch adds a new option to logger that will make it look for a
+> > loglevel prefix <[0-7]> at the beginning of every line.
+> > 
+> > If a loglevel is found logger will log the message using the found
+> > loglevel combined with the facility specified by --priority. When no
+> > loglevel is found the default level provided by the --priority option
+> > will be used.
+> 
+> I have doubts if this is a good idea. 
+> 
+> It seems that you're trying to introduce a new meaning of the <n>
+> convention.  The <n> in the syslog API is not only log level, it's
+> ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK)) -- bottom 3 bits are the
+> priority and the top 28 bits are the facility).
+>  
+> 
+> It would be better to follow this already existing convention. It means 
+> to use something like
+> 
+>     --prio-prefix
+> 
+> and use the <n> number as whole priority number. The result will be
+> command line interface with pretty simple semantic.
 
-The util-linux stable release v2.23.1 is available at
-       
-    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.23
-                
-Feedback and bug reports, as always, are welcomed.
-                 
-   Karel
+I wanted the <n> convention but only provide the level, but you are
+right, it would be best to provide the whole API.
+
+> 
+> The problem is that <n> encoding is not user friendly, but I guess we
+> should be able to explain all in the logger man page (for example in
+> an EXAMPLE section). For example user.debug:
+> 
+>     LOG_USER=$((1<<3))
+>     LOG_DEBUG=7
+>     echo $(( $LOG_USER & 0x03f8 | $LOG_DEBUG & 0x07 ))
+> 
+> to get the number in shell.
+
+maybe I will add a shiny example to the man page :)
+
+> 
+> > --- a/misc-utils/logger.c
+> > +++ b/misc-utils/logger.c
+> > @@ -64,6 +64,10 @@ enum {
+> >  	ALL_TYPES = TYPE_UDP | TYPE_TCP
+> >  };
+> >  
+> > +enum {
+> > +	ARG_LOGLEVEL_PREFIX = 0x100
+> 
+>  We usually use OPT_* and CHAR_MAX, for example:
+> 
+>         OPT_PRIO_PREFIX = CHAR_MAX + 1
+> 
+> 
+
+I will resend a new version of the patch..
+
+//Dennis
 
 
-
-Util-linux 2.23.1 Release Notes
-===============================
-
-blkid:
-   - fix typo in ID_FS_AMBIVALEN=  [Karel Zak]
-build-sys:
-   - add --disable-setterm  [Karel Zak]
-   - always check for setns() and unshare() libs functions  [Karel Zak]
-   - use -Wno-clobbered for some BSD crap  [Karel Zak]
-chcpu:
-   - clean up error messages  [Karel Zak]
-lib/loopdev:
-   - fix loopcxt_check_size() to work with blkdevs  [Karel Zak]
-lib/tty:
-   - don't hardcode terminal fd in get_terminal_name()  [Karel Zak]
-   - fix get_terminal_name() usage, cleanup code  [Karel Zak]
-libblkid:
-   - add ReFS magic string  [Karel Zak]
-   - fix blkid_parse_tag_string() to ignore incomplete tags  [Karel Zak]
-libfdisk:
-   - do not use va_list in the Ask API  [Karel Zak]
-libmount:
-   - don't ignore root fs on umount -a  [Karel Zak]
-   - use MS_SILENT for /{proc,etc}/filesystems  [Karel Zak]
-losetup:
-   - use warn_size() for regular files only  [Karel Zak]
-lsblk:
-   - add SERIAL column  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update nl.po (from translationproject.org)  [Benno Schulenberg]
-   - update vi.po (from translationproject.org)  [Trần Ngọc Quân]
-   - update zh_CN.po (from translationproject.org)  [Wylmer Wang]
-sfdisk:
-   - don't call BLKRRPART for non-block devices  [Karel Zak]
-sulogin:
-   - clean up error messages  [Karel Zak]
-tests:
-   - new warning fix  [Gilles Espinasse]
-
-- standard SEE ALSO section of man pages  [Mike Frysinger]
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
