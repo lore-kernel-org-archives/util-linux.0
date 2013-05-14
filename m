@@ -1,33 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2.vodafone.ie ([213.233.128.44]:22389 "EHLO
-	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728Ab3EFAMZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 5 May 2013 20:12:25 -0400
-Message-ID: <5186F568.2070305@draigBrady.com>
-Date: Mon, 06 May 2013 01:12:24 +0100
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
+Received: from mx1.redhat.com ([209.132.183.28]:63715 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753281Ab3ENN1M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 May 2013 09:27:12 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r4EDRBMP021172
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 14 May 2013 09:27:11 -0400
+Date: Tue, 14 May 2013 14:27:07 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: ReFS
+Message-ID: <20130514132707.GC17246@redhat.com>
+References: <20130514110316.GA17246@redhat.com>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 13/16] cal: stop trimming whitespaces
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi> <1367520701-14962-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1367520701-14962-14-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130514110316.GA17246@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/02/2013 07:51 PM, Sami Kerola wrote:
-> Remove trailing spaces from output it is trivial
+On Tue, May 14, 2013 at 12:03:16PM +0100, Richard W.M. Jones wrote:
+> ReFS is Microsoft's new filesystem used in Windows 2012 Server and
+> above.  There's no support for this in Linux (although I'm hoping to
+> change that) but it'd be nice if blkid could at least recognize it.
 > 
-> cal | sed 's/ *$//'
+> So I thought you might be interested in the filesystem signature for
+> ReFS, which appears to be in the first 8 bytes:
 > 
-> but padding them back is difficult.
-> 
-> CC: Pádraig Brady <P@draigbrady.com>
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> 00000000  00 00 00 52 65 46 53 00  00 00 00 00 00 00 00 00  |...ReFS.........|
 
-Looks good.
+After further research, I found some preliminary analysis:
 
-thanks,
-Pádraig.
+http://libfslibs.googlecode.com/files/Resilient%20File%20System%20(ReFS).pdf
 
+which is the best we have to go on so far.  There is no superblock as
+such, but there is a level 0 metadata block.  In any case that
+analysis agrees with me that you should just check the first 8 bytes
+of the filesystem / partition.
+
+Rich.
+
+-- 
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+virt-top is 'top' for virtual machines.  Tiny program with many
+powerful monitoring features, net stats, disk stats, logging, etc.
+http://people.redhat.com/~rjones/virt-top
