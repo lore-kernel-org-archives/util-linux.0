@@ -1,53 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3309 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:19655 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757305Ab3EGHQg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 May 2013 03:16:36 -0400
-Date: Tue, 7 May 2013 09:16:21 +0200
+	id S1751881Ab3ENKtn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 May 2013 06:49:43 -0400
+Date: Tue, 14 May 2013 12:49:33 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Kevin Wilson <wkevils@gmail.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
-Subject: Re: error with util-linux from git
-Message-ID: <20130507071621.GB29882@x2.net.home>
-References: <CAGXs5wVLX+aq2D5D5SOaSYSjt1i3V_RNy9XXv1ti8vZdBoDCEg@mail.gmail.com>
- <20130505161231.GA7764@type.youpi.perso.aquilenet.fr>
- <CAGXs5wU+m3utoCQapgGfd4fOaTnJTQ+5Bmj0bOZwA8Wx2R8_Kw@mail.gmail.com>
- <CAGXs5wVA54qwmwUQ6aJJ-JWJCLXXfG5F-6EfT9h1_xX8rRW9mQ@mail.gmail.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 14/16] cal: move global variables to local scope
+Message-ID: <20130514104933.GG18123@x2.net.home>
+References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
+ <1367520701-14962-15-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAGXs5wVA54qwmwUQ6aJJ-JWJCLXXfG5F-6EfT9h1_xX8rRW9mQ@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1367520701-14962-15-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 05, 2013 at 09:15:42PM +0300, Kevin Wilson wrote:
-> Making all in po
-> make[2]: Entering directory `/work/src/util-linux/po'
-> test -z "ca.gmo cs.gmo da.gmo de.gmo es.gmo et.gmo eu.gmo fi.gmo
-> fr.gmo gl.gmo hr.gmo hu.gmo id.gmo it.gmo ja.gmo nl.gmo pl.gmo
-> pt_BR.gmo ru.gmo sl.gmo sv.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo
-> zh_TW.gmo" || make ca.gmo cs.gmo da.gmo de.gmo es.gmo et.gmo eu.gmo
-> fi.gmo fr.gmo gl.gmo hr.gmo hu.gmo id.gmo it.gmo ja.gmo nl.gmo pl.gmo
-> pt_BR.gmo ru.gmo sl.gmo sv.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo
-> zh_TW.gmo
-> make[3]: Entering directory `/work/src/util-linux/po'
-> : --update ca.po util-linux.pot
-> rm -f ca.gmo && : -c --statistics -o ca.gmo ca.po
-> mv: cannot stat ‘t-ca.gmo’: No such file or directory
-> make[3]: *** [ca.gmo] Error 1
-> make[3]: Leaving directory `/work/src/util-linux/po'
-> make[2]: *** [stamp-po] Error 2
-> make[2]: Leaving directory `/work/src/util-linux/po'
-> make[1]: *** [all-recursive] Error 1
-> make[1]: Leaving directory `/work/src/util-linux'
-> make: *** [all] Error 2
+On Thu, May 02, 2013 at 07:51:39PM +0100, Sami Kerola wrote:
+> Also include small change to function parameter coding style.  The braces
+> are from function line to new line, and return value is in same line with
+> the function.
 
- Hmm... never seen that, try
+ The version you send to mailing list seems correct, but the version
+ in your cal-again branch is completely broken. It's obvious that
+ nobody has tried "make cal" for the branch :-(
 
-    git clean -xdf
-    ./autogen.sh
-    ./configure
-    make
+ Anyway, I'm really not sure if this change:
 
+> -void monthly(int, int, int);
+> +void monthly(const int, const int, const char *, const char **, int, int, int);
+
+ makes the code more readable. Maybe you can drop the patch at all for now.
+
+ From long term point of view it would be better to introduce
+ 'cal_context' struct for all the stuff. It's a way how to make the
+ code more readable and extendible.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
