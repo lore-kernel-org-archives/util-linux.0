@@ -1,77 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from atl4mhob07.myregisteredsite.com ([209.17.115.45]:56008 "EHLO
-	atl4mhob07.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932907Ab3EGOKo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 7 May 2013 10:10:44 -0400
-Received: from mailpod1.hostingplatform.com ([10.30.71.115])
-	by atl4mhob07.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id r47EAhwn007176
-	for <util-linux@vger.kernel.org>; Tue, 7 May 2013 10:10:43 -0400
-Message-ID: <51890B67.5040700@chinilu.com>
-Date: Tue, 07 May 2013 07:10:47 -0700
-From: George Mitchell <george@chinilu.com>
-Reply-To: george@chinilu.com
+Received: from ishtar.tlinx.org ([173.164.175.65]:45242 "EHLO Ishtar.hs"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753460Ab3ERXCI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 18 May 2013 19:02:08 -0400
+Message-ID: <5198086A.1010903@tlinx.org>
+Date: Sat, 18 May 2013 16:02:02 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: umount and findmnt commands not working with btrfs labels ...
-References: <51882EA5.9080805@chinilu.com> <20130507094835.GB7086@x2.net.home>
-In-Reply-To: <20130507094835.GB7086@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: util-linux@vger.kernel.org, LKML <linux-lkml@vger.kernel.org>
+Subject: new mount is broken w/regard to devnames in /etc/fstab
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/07/2013 02:48 AM, Karel Zak wrote:
->   Hi George,
->
-> On Mon, May 06, 2013 at 03:28:53PM -0700, George Mitchell wrote:
->> [root@localhost ghmitch]# umount LABEL=MAGEIA3BTR-BOOT
->>
->> umount: LABEL=MAGEIA3BTR-BOOT: not found
->   umount --version ?
->
->   It works for me (tested with util-linux 2.22 and 2.23):
->
->    # mkfs.btrfs -L MAGEIA3BTR /dev/sdb1
->    # mkfs.btrfs -L MAGEIA3BTR-FOO /dev/sdb2
->
->    # mount LABEL=MAGEIA3BTR /mnt/test
->    # mount LABEL=MAGEIA3BTR-FOO /mnt/test
->
->    # findmnt LABEL=MAGEIA3BTR
->    TARGET    SOURCE    FSTYPE OPTIONS
->    /mnt/test /dev/sdb1 btrfs  rw,relatime,ssd,space_cache
->
->    # findmnt LABEL=MAGEIA3BTR-FOO
->    TARGET     SOURCE    FSTYPE OPTIONS
->    /mnt/test2 /dev/sdb2 btrfs  rw,relatime,ssd,space_cache
->
->    # umount LABEL=MAGEIA3BTR
->    # umount LABEL=MAGEIA3BTR-FOO
->
->    # lsblk --fs /dev/sdb
->    NAME   FSTYPE LABEL          UUID                                 MOUNTPOINT
->    sdb
->    ├─sdb1 btrfs  MAGEIA3BTR     6dcc3293-ce27-474f-ab31-dd7a8e5bb2da
->    └─sdb2 btrfs  MAGEIA3BTR-FOO f3bb2d57-8b46-40a0-ae76-50d78268d6d9
->
->
-> It would be nice to have a simple reproducible scenario rather than a
-> lot of mount -l outputs and some egrep tricks :-)
->
-> You can also try
->
->    LIBMOUNT_DEBUG=0xffff umount LABEL=MAGEIA3BTR-BOOT
->
-> to see more details.
->
->      Karel
->
-Thanks, and sorry for including all the garbage.  I just wanted to make 
-sure I didn't leave anything out.  The version I have here is 2.22.2.  I 
-retested it using the DEBUG statement and it then worked and findmnt now 
-works OK as well, so I don't know what was going on.  Something seems to 
-have gotten cleaned up somewhere.  Tonight I will retest it on my other 
-system that I use for maintainance on the USR partition since it would 
-probably be unwise to fiddle with the USR partition with the system 
-running.  At that point I will repost letting you know what I find.  - 
-George
+
+
+There are 2 problems -- they are unlikely to be
+directly related, but are in so much as they are in the new version
+of mount.
+
+1) How is one supposed to get the real root device?
+It's not /dev/root -- and on my system /dev/root doesn't even exist.
+(though to be fair, it has in the past -- udev musta got sloppy this time,
+and did point to the real root device).  But how can I get /proc to display
+the real root device instead of some fake name.   
+
+It's insecure the way it is -- as /dev/root could be "anything"...
+
+2) I'd like lvm's naming to be available through mount.  Ideally, lvm's
+naming would be available in /proc/mounts...  At least, though
+in going from /dev/VG/LV => /dev/mapper/VG-LV, that can be
+scripted reliably to get the mount device name. 
+
+But /dev/root?... How to script that, *reliably*...
+And why the bogus name?
+
+
