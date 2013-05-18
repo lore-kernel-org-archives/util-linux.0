@@ -1,35 +1,106 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42461 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752147Ab3ERIAz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 18 May 2013 04:00:55 -0400
+Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 545C420728
+	for <util-linux@vger.kernel.org>; Sat, 18 May 2013 03:51:11 -0400 (EDT)
+Message-Id: <1368863471.1350.140661232594457.41BCEB9B@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20130506171622.GC9740@x2.net.home>
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-	<1367520701-14962-9-git-send-email-kerolasa@iki.fi>
-	<20130506171622.GC9740@x2.net.home>
-Date: Tue, 7 May 2013 22:14:17 +0100
-Message-ID: <CAG27Bk24+veeRDvg3ytkVZr2RJSWPgD5NOTym=GLBmxi_MqeVQ@mail.gmail.com>
-Subject: Re: [PATCH 08/16] lib: copy argmatch from gnulib
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary="_----------=_136886347113501";
+ charset="utf-8"
+Subject: [patch] uuidd: fix typo in error message, and improve their consistency
+Date: Sat, 18 May 2013 09:51:11 +0200
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 May 2013 18:16, Karel Zak <kzak@redhat.com> wrote:
-> On Thu, May 02, 2013 at 07:51:33PM +0100, Sami Kerola wrote:
->> Both argmatch.h and argmatch.c are copied from gnulib.
->
->  Ah no... this is overkill, all we need is to parse three words.
->
->  I have updated lib/colors.c and dmesg.c to support color modes 'auto',
->  'never' and 'always'. Please, use it also in cal.c.
+This is a multi-part message in MIME format.
 
-I thought there might be other uses to argmatch, but perhaps there
-isn't. I changed the cal to use lib/colors.c argument parsing in
-'cal-again' branch.
+--_----------=_136886347113501
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/a33225e623b389e49d05b665104dcdef17e01502
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+Hi,
+
+Attached patch fixes a typo ("rrror") in a uuidd error message,
+adds a word for clarity, removes some periods for consistency,
+and adds a period to two informational messages (where others
+use a period too).
+
+Regards,
+
+Benno
+
+-- 
+http://www.fastmail.fm - Access your email from home and the web
+
+
+--_----------=_136886347113501
+Content-Disposition: attachment; filename="0001-textual-fix-typo-in-error-message-and-uniformize-the.patch"
+Content-Id: <1368863456.1356.17581b72402236c33405277c9aa619a7c7247cbe.2F9E6703@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-textual-fix-typo-in-error-message-and-uniformize-the.patch"
+
+RnJvbSA2MWFmMTI5N2QxNWEwNjAxMDE0MzVmYWIxYmM3YjkxM2Q2OWNlMTQ0
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAxOCBN
+YXkgMjAxMyAwOTo0NToxMSArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
+YWw6IGZpeCB0eXBvIGluIGVycm9yIG1lc3NhZ2UgYW5kIHVuaWZvcm1pemUg
+dGhlaXIgdXNlIG9mIHBlcmlvZAoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2No
+dWxlbmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogbWlzYy11
+dGlscy91dWlkZC5jIHwgICAxMiArKysrKystLS0tLS0KIDEgZmlsZXMgY2hh
+bmdlZCwgNiBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL21pc2MtdXRpbHMvdXVpZGQuYyBiL21pc2MtdXRpbHMvdXVpZGQu
+YwppbmRleCBiNzA2MTU1Li5kMGVjYjk1IDEwMDY0NAotLS0gYS9taXNjLXV0
+aWxzL3V1aWRkLmMKKysrIGIvbWlzYy11dGlscy91dWlkZC5jCkBAIC0zMTgs
+NyArMzE4LDcgQEAgc3RhdGljIHZvaWQgc2VydmVyX2xvb3AoY29uc3QgY2hh
+ciAqc29ja2V0X3BhdGgsIGNvbnN0IGNoYXIgKnBpZGZpbGVfcGF0aCwKIAkJ
+CQkgIHNpemVvZihyZXBseV9idWYpLCAwLCBOVUxMKTsKIAkJaWYgKHJldCA+
+IDApIHsKIAkJCWlmICghdXVpZGRfY3h0LT5xdWlldCkKLQkJCQl3YXJueChf
+KCJ1dWlkZCBkYWVtb24gYWxyZWFkeSBydW5uaW5nIGF0IHBpZCAlcyIpLAor
+CQkJCXdhcm54KF8oInV1aWRkIGRhZW1vbiBpcyBhbHJlYWR5IHJ1bm5pbmcg
+YXQgcGlkICVzIiksCiAJCQkJICAgICAgIHJlcGx5X2J1Zik7CiAJCQlleGl0
+KEVYSVRfRkFJTFVSRSk7CiAJCX0KQEAgLTM1NSw3ICszNTUsNyBAQCBzdGF0
+aWMgdm9pZCBzZXJ2ZXJfbG9vcChjb25zdCBjaGFyICpzb2NrZXRfcGF0aCwg
+Y29uc3QgY2hhciAqcGlkZmlsZV9wYXRoLAogI2lmZGVmIFVTRV9TT0NLRVRf
+QUNUSVZBVElPTgogCWlmICh1dWlkZF9jeHQtPm5vX3NvY2spIHsKIAkJaWYg
+KHNkX2xpc3Rlbl9mZHMoMCkgIT0gMSkKLQkJCWVycngoRVhJVF9GQUlMVVJF
+LCBfKCJubyBvciB0b28gbWFueSBmaWxlIGRlc2NyaXB0b3JzIHJlY2VpdmVk
+LiIpKTsKKwkJCWVycngoRVhJVF9GQUlMVVJFLCBfKCJubyBvciB0b28gbWFu
+eSBmaWxlIGRlc2NyaXB0b3JzIHJlY2VpdmVkIikpOwogCiAJCXMgPSBTRF9M
+SVNURU5fRkRTX1NUQVJUICsgMDsKIAl9CkBAIC0zNzgsNyArMzc4LDcgQEAg
+c3RhdGljIHZvaWQgc2VydmVyX2xvb3AoY29uc3QgY2hhciAqc29ja2V0X3Bh
+dGgsIGNvbnN0IGNoYXIgKnBpZGZpbGVfcGF0aCwKIAkJCWlmIChsZW4gPCAw
+KQogCQkJCXdhcm4oXygicmVhZCBmYWlsZWQiKSk7CiAJCQllbHNlCi0JCQkJ
+d2FybngoXygicnJyb3IgcmVhZGluZyBmcm9tIGNsaWVudCwgbGVuID0gJWQi
+KSwKKwkJCQl3YXJueChfKCJlcnJvciByZWFkaW5nIGZyb20gY2xpZW50LCBs
+ZW4gPSAlZCIpLAogCQkJCQkJbGVuKTsKIAkJCWdvdG8gc2h1dGRvd25fc29j
+a2V0OwogCQl9CkBAIC01NDQsNyArNTQ0LDcgQEAgaW50IG1haW4oaW50IGFy
+Z2MsIGNoYXIgKiphcmd2KQogCQkJbm9fcGlkID0gMTsKICNlbHNlCiAJCQll
+cnJ4KEVYSVRfRkFJTFVSRSwgXygidXVpZGQgaGFzIGJlZW4gYnVpbHQgd2l0
+aG91dCAiCi0JCQkJCSAgICAgInN1cHBvcnQgZm9yIHNvY2tldCBhY3RpdmF0
+aW9uLiIpKTsKKwkJCQkJICAgICAic3VwcG9ydCBmb3Igc29ja2V0IGFjdGl2
+YXRpb24iKSk7CiAjZW5kaWYKIAkJCWJyZWFrOwogCQljYXNlICdxJzoKQEAg
+LTU4NSw3ICs1ODUsNyBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFy
+Z3YpCiAJLyogY3VzdG9tIHNvY2tldCBwYXRoIGFuZCBzb2NrZXQtYWN0aXZh
+dGlvbiBtYWtlIG5vIHNlbnNlICovCiAJaWYgKHNfZmxhZyAmJiB1dWlkZF9j
+eHQubm9fc29jayAmJiAhdXVpZGRfY3h0LnF1aWV0KQogCQl3YXJueChfKCJC
+b3RoIC0tc29ja2V0LWFjdGl2YXRpb24gYW5kIC0tc29ja2V0IHNwZWNpZmll
+ZC4gIgotCQkJIklnbm9yaW5nIC0tc29ja2V0IikpOworCQkJIklnbm9yaW5n
+IC0tc29ja2V0LiIpKTsKIAogCWlmIChudW0gJiYgZG9fdHlwZSkgewogCQly
+ZXQgPSBjYWxsX2RhZW1vbihzb2NrZXRfcGF0aCwgZG9fdHlwZSArIDIsIGJ1
+ZiwKQEAgLTY0MSw3ICs2NDEsNyBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hh
+ciAqKmFyZ3YpCiAJCQkJcmV0dXJuIEVYSVRfRkFJTFVSRTsKIAkJCX0KIAkJ
+CWlmICghdXVpZGRfY3h0LnF1aWV0KQotCQkJCXByaW50ZihfKCJLaWxsZWQg
+dXVpZGQgcnVubmluZyBhdCBwaWQgJWRcbiIpLAorCQkJCXByaW50ZihfKCJL
+aWxsZWQgdXVpZGQgcnVubmluZyBhdCBwaWQgJWQuXG4iKSwKIAkJCQkgICAg
+ICAgZG9fa2lsbCk7CiAJCX0KIAkJcmV0dXJuIEVYSVRfU1VDQ0VTUzsKLS0g
+CjEuNy4wLjQKCg==
+
+--_----------=_136886347113501--
+
