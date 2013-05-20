@@ -1,36 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.8]:57671 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754807Ab3EZSYe (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 26 May 2013 14:24:34 -0400
-Message-ID: <51A2533B.9060905@bernhard-voelker.de>
-Date: Sun, 26 May 2013 20:23:55 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mailout04.t-online.de ([194.25.134.18]:39023 "EHLO
+	mailout04.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751080Ab3ETJB2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 May 2013 05:01:28 -0400
+Date: 20 May 2013 10:03:00 +0200
+From: Hullen@t-online.de (Helmut Hullen)
+To: util-linux@vger.kernel.org
+Message-ID: <CXE+rHTuCXB@helmut.hullen.de>
+In-Reply-To: <5198086A.1010903@tlinx.org>
+Subject: Re: new mount is broken w/regard to devnames in /etc/fstab
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0000] pull: cal the branch four
-References: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: helmut@hullen.de
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Sami,
+Hallo, Linda,
 
-On 05/26/2013 11:14 AM, Sami Kerola wrote:
-> The cal branch I have in my git has got fixes to issues reviewed earlier,
-> and I hope all works.  Based on that I decided to get rid of upper cal
-> year limit, 9999, and replace it with unsigned long.  I know the change
-> does not make much practical sense, the point of the change is that where
-> there is no need to have artificial limits to a random magic number they
-> should not exist.
+Du meintest am 18.05.13:
 
-unsigned years ... hmm, not that this would work today, but what about BC
-years? E.g. on what weekday did Julius Caesar die (March 15th, 44 BC, [1])?
-Maybe a future improvement (... having to make years signed again)?
 
-[1] http://en.wikipedia.org/wiki/Julius_Caesar
 
-Have a nice day,
-Berny
+> There are 2 problems -- they are unlikely to be
+> directly related, but are in so much as they are in the new version
+> of mount.
+
+> 1) How is one supposed to get the real root device?
+> It's not /dev/root -- and on my system /dev/root doesn't even exist.
+> (though to be fair, it has in the past -- udev musta got sloppy this
+> time, and did point to the real root device).  But how can I get
+> /proc to display the real root device instead of some fake name.
+
+        rdev
+
+should do the job.
+
+Viele Gruesse!
+Helmut
