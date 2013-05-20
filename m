@@ -1,50 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:62214 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754673Ab3EZSz4 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 26 May 2013 14:55:56 -0400
-Received: by mail-pa0-f46.google.com with SMTP id fa10so6096019pad.33
-        for <util-linux@vger.kernel.org>; Sun, 26 May 2013 11:55:55 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:35577 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754474Ab3ETHkK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 May 2013 03:40:10 -0400
+Date: Mon, 20 May 2013 09:40:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: mount --no-canonical seems broken.
+Message-ID: <20130520074001.GE16493@x2.net.home>
+References: <5175BA15.9060803@tlinx.org>
+ <20130423123648.GB24501@x2.net.home>
+ <517729C7.2030806@tlinx.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <51A2533B.9060905@bernhard-voelker.de>
-References: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
-	<51A2533B.9060905@bernhard-voelker.de>
-Date: Sun, 26 May 2013 19:55:55 +0100
-Message-ID: <CAG27Bk19Z3GFnu5=-hvuWT9mCuZ23f5h_YpeA1q11WdgGTxt2w@mail.gmail.com>
-Subject: Re: [PATCH 0000] pull: cal the branch four
-From: Sami Kerola <kerolasa@iki.fi>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <517729C7.2030806@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 26 May 2013 19:23, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
-> On 05/26/2013 11:14 AM, Sami Kerola wrote:
->> The cal branch I have in my git has got fixes to issues reviewed earlier,
->> and I hope all works.  Based on that I decided to get rid of upper cal
->> year limit, 9999, and replace it with unsigned long.  I know the change
->> does not make much practical sense, the point of the change is that where
->> there is no need to have artificial limits to a random magic number they
->> should not exist.
->
-> unsigned years ... hmm, not that this would work today, but what about BC
-> years? E.g. on what weekday did Julius Caesar die (March 15th, 44 BC, [1])?
-> Maybe a future improvement (... having to make years signed again)?
->
-> [1] http://en.wikipedia.org/wiki/Julius_Caesar
+On Tue, Apr 23, 2013 at 05:39:35PM -0700, Linda Walsh wrote:
+>     Well my main concern has been how lvm volumes are renamed.
+> 
+> i.e. /dev/Vol-group/Log-vol ->
+> /dev/mapper/Vol--group-Log--vol
 
-Hi Berny,
+The /dev/mapper/<name> is the canonical name, this is only
+user-friendly name that is possible to generate by utils in userspace,
+because the <name> is exported by /sys/block/dm-<n>/dm/name to
+userspace. 
 
-You are right. I'll make the year to be signed, and make error to be
-displayed, for now, if negative year is defined.
+Things like /dev/Vol-group/Log-vol are LVM specific and
+there is no way how to convert /dev/dm-<n> to this format. This is
+reason why mount(8) canonicalizes the names to /dev/mapper/<name>.
 
-BTW I tried the Tøndering's algorithm negative years and it gave odd
-and obviously wrong results. If someone who is part of this list is
-interested of mathematical puzzles making the negative year weekday
-determination to work should be interesting challenge.
+> I have backup and file-system utils that use the values in fstab, and it
+> looks for those values in the output of mount (and df).
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+The ideal solution is to use utils which are able to convert
+symlinks/tags/whatever to canonical device names. It's mistake to
+assume that fstab matches with /proc/mounts.
+
+Use
+    $ findmnt --fstab --canonicalize --evaluate
+
+to get canonical paths and evaluated tags.
+
+> I've been using the mount --no-canonicalize to mount my lvm volumes --
+> and also going back and doing the "mount -f --nocanonicalize ..." to get the
+> ones mounted at boot time.
+
+> Recently it was changed back to a symlink and on top of that -- whether
+> it is a file or a symlink, mount doesn't seem to show the "non-canon" name
+> (i.e. /dev/Vol/Log...)
+> (though oddly enough -- "df" does!)...
+
+The problem is that "mount" (without options) prints always canonicalized 
+paths (and in this case --no-canonicalize has no effect, this option
+is used for mounting only). It means if you have non-canonical paths
+in /etc/mtab then "mount" still prints canonical paths. I can fix it
+and make the output sensitive to --no-canonicalize option too.
+
+Anyway, use findmnt, it provides but complete control on the output.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
