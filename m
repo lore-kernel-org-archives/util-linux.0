@@ -1,80 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g6t0186.atlanta.hp.com ([15.193.32.63]:26231 "EHLO
-	g6t0186.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751796Ab3EETqv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 5 May 2013 15:46:51 -0400
-Message-ID: <1367783211.1823.2.camel@buesod1.americas.hpqcorp.net>
-Subject: [PATCH] prlimit: delete rem_prlim prototype
-From: Davidlohr Bueso <davidlohr.bueso@hp.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Date: Sun, 05 May 2013 12:46:51 -0700
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:8722 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754240Ab3ETHxd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 May 2013 03:53:33 -0400
+Date: Mon, 20 May 2013 09:53:29 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org, LKML <linux-lkml@vger.kernel.org>
+Subject: Re: new mount is broken w/regard to devnames in /etc/fstab
+Message-ID: <20130520075329.GA19935@x2.net.home>
+References: <5198086A.1010903@tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5198086A.1010903@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-We can just move the function up before any of its callers.
+On Sat, May 18, 2013 at 04:02:02PM -0700, Linda Walsh wrote:
+> 1) How is one supposed to get the real root device?
+> It's not /dev/root -- and on my system /dev/root doesn't even exist.
+> (though to be fair, it has in the past -- udev musta got sloppy this time,
+> and did point to the real root device).  But how can I get /proc to display
+> the real root device instead of some fake name.   
+> 
+> It's insecure the way it is -- as /dev/root could be "anything"...
 
-Signed-off-by: Davidlohr Bueso <dave@gnu.org>
----
- sys-utils/prlimit.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+I don't think this is util-linux issue. It's more distro specific and 
+related to kernel & initramfs & udevd.
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index 9098e49..6d9ded2 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -144,8 +144,6 @@ static int prlimit(pid_t p, int resource,
- }
- #endif
- 
--static void rem_prlim(struct prlimit *lim);
--
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
- 	size_t i;
-@@ -273,6 +271,14 @@ static int column_name_to_id(const char *name, size_t namesz)
- 	return -1;
- }
- 
-+static void rem_prlim(struct prlimit *lim)
-+{
-+	if (!lim)
-+		return;
-+	list_del(&lim->lims);
-+	free(lim);
-+}
-+
- static int show_limits(struct list_head *lims, int tt_flags)
- {
- 	int i;
-@@ -372,8 +378,6 @@ static void do_prlimit(struct list_head *lims)
- 	}
- }
- 
--
--
- static int get_range(char *str, rlim_t *soft, rlim_t *hard, int *found)
- {
- 	char *end = NULL;
-@@ -466,14 +470,6 @@ static int add_prlim(char *ops, struct list_head *lims, size_t id)
- 	return 0;
- }
- 
--static void rem_prlim(struct prlimit *lim)
--{
--	if (!lim)
--		return;
--	list_del(&lim->lims);
--	free(lim);
--}
--
- int main(int argc, char **argv)
- {
- 	int opt, tt_flags = 0;
+For example my Fedora 18:
+
+$ findmnt /                                                                 
+TARGET SOURCE    FSTYPE OPTIONS
+/      /dev/sda4 ext4   rw,relatime,data=ordered
+
+$ df /
+Filesystem     1K-blocks     Used Available Use% Mounted on
+/dev/sda4       35146488 16233036  17121452  49% /
+
+$ grep ' / ' /proc/mounts                                
+rootfs / rootfs rw 0 0
+/dev/sda4 / ext4 rw,relatime,data=ordered 0 0
+
+
+> 2) I'd like lvm's naming to be available through mount.  Ideally, lvm's
+> naming would be available in /proc/mounts...  At least, though
+> in going from /dev/VG/LV => /dev/mapper/VG-LV, that can be
+> scripted reliably to get the mount device name. 
+
+For example lsblk(8) should be able to convert to the /dev/mapper
+format
+
+   lsblk -rno NAME /dev/VG/LV
+
+you can also use /dev/VG/LV for findmnt(8), it should be able to
+convert the names for /dev/mapper/VG-LV to search for mountpoint.
+
+.. or use /dev/mapper/<name> in your /etc/fstab ;-)
+
+    Karel
+
 -- 
-1.7.11.7
-
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
