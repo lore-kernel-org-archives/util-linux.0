@@ -1,46 +1,45 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:37387 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752209Ab3E2QU0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 May 2013 12:20:26 -0400
-Received: by mail-pa0-f54.google.com with SMTP id kx1so9496330pab.13
-        for <util-linux@vger.kernel.org>; Wed, 29 May 2013 09:20:26 -0700 (PDT)
+Return-Path: linux-kernel-owner@vger.kernel.org
+Message-ID: <519BCB96.6050908@tlinx.org>
+Date: Tue, 21 May 2013 12:31:34 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20130528134925.GC30341@x2.net.home>
-References: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
-	<51A2533B.9060905@bernhard-voelker.de>
-	<CAG27Bk19Z3GFnu5=-hvuWT9mCuZ23f5h_YpeA1q11WdgGTxt2w@mail.gmail.com>
-	<20130528134925.GC30341@x2.net.home>
-Date: Wed, 29 May 2013 17:20:26 +0100
-Message-ID: <CAG27Bk2UwNVNC-6Ziei3B2tem3_bM9-jTY7ezJfhOFsyXqDP5g@mail.gmail.com>
-Subject: Re: [PATCH 0000] pull: cal the branch four
-From: Sami Kerola <kerolasa@iki.fi>
 To: Karel Zak <kzak@redhat.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+CC: util-linux@vger.kernel.org, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mount --no-canonical seems broken.
+References: <5175BA15.9060803@tlinx.org> <20130423123648.GB24501@x2.net.home> <517729C7.2030806@tlinx.org> <20130520074001.GE16493@x2.net.home> <519AB20D.7030503@tlinx.org> <20130521094711.GD11688@x2.net.home>
+In-Reply-To: <20130521094711.GD11688@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 28 May 2013 14:49, Karel Zak <kzak@redhat.com> wrote:
->  If I good remember from "my previous life" than for example
->  PostgreSQL uses Julian calendar for unlimited datetime calculations.
+
+
+
+
+Karel Zak wrote:
+> On Mon, May 20, 2013 at 04:30:21PM -0700, Linda Walsh wrote:
+>   
+>>  widely known as "df" or "mount".
+>>
+>> I might point out that by default,
+>>     
+>>> findmnt /
+>>>       
+>> TARGET SOURCE    FSTYPE OPTIONS
+>> /      /dev/root xfs    rw,nodiratime,relatime,attr2,inode64,noquota
+>>     
+>>>> l /dev/root
+>>>>         
+>> ls: cannot access /dev/root: No such file or directory
+>>     
 >
->  See  https://github.com/postgres/postgres/blob/master/src/backend/utils/adt/datetime.c
->
->  and date2j(), j2date() and j2day() functions. Anyway, I have no clue
->  if the calculations are correct (in regards to reformation 1752).
+>  util-linux 2.23 ? 
+>  
+>  libmount since this version is able to use the root= kernel command
+>  line option to convert /dev/root from the /proc/self/mountinfo file
+>  to a real device name.
+>   
+----
+    I'm only at 2.19, will get & try newer version.  Thanks!
 
-Inspiring.
 
-Perhaps the easiest way to signed year to work is shift year zero to
-(LONG_MAX / 2). After that the all left to do is to match the week day
-vs year, month, day equation table with new alignment, and find how
-1752 has alteration has to be done. While that's a bit of work I find
-it much easier than fixing the divisions when negative numbers are
-involved. (*ehm* not even amateur mathematician talking)
-
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
