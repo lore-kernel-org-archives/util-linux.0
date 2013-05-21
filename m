@@ -1,39 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f171.google.com ([209.85.214.171]:48240 "EHLO
-	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750699Ab3EJEGE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 10 May 2013 00:06:04 -0400
-Received: by mail-ob0-f171.google.com with SMTP id ef5so965042obb.16
-        for <util-linux@vger.kernel.org>; Thu, 09 May 2013 21:06:03 -0700 (PDT)
-Received: from [192.168.0.75] (cpe-70-123-200-41.satx.res.rr.com. [70.123.200.41])
-        by mx.google.com with ESMTPSA id jt9sm1351620obc.0.2013.05.09.21.05.59
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Thu, 09 May 2013 21:06:00 -0700 (PDT)
-Message-ID: <518C7226.7020407@gmail.com>
-Date: Thu, 09 May 2013 23:05:58 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-MIME-Version: 1.0
+Received: from mailout07.t-online.de ([194.25.134.83]:35614 "EHLO
+	mailout07.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755340Ab3EUCfg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 May 2013 22:35:36 -0400
+Date: 21 May 2013 04:28:00 +0200
+From: Hullen@t-online.de (Helmut Hullen)
 To: util-linux@vger.kernel.org
-Subject: umount -r
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Message-ID: <CXJ1$W69CXB@helmut.hullen.de>
+In-Reply-To: <5198086A.1010903@tlinx.org>
+Subject: Re: new mount is broken w/regard to devnames in /etc/fstab
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: helmut@hullen.de
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-We have as a part of our shutdown scripts:
+Hallo, Linda,
 
-umount -a -d -r -t notmpfs,nosysfs,nodevtmpfs,noproc
+Du meintest am 18.05.13:
 
-What we expect is that the rootfs (/) will fail, but be remounted read 
-only.  This doesn't seem to be happening because we get messages about 
-recovery needed during the next boot.
+> 1) How is one supposed to get the real root device?
 
-We can work around it by adding
+        rdev
 
-mount -n -o remount,ro /
+> It's not /dev/root -- and on my system /dev/root doesn't even exist.
+> (though to be fair, it has in the past -- udev musta got sloppy this
+> time, and did point to the real root device).
 
-I have a report that umount works as expected in version 2.21.2, but not 
-in 2.22.2 or later.  I this a misunderstanding about umount or a bug?
+My system doesn't use "udev", it has no "/dev/root" entry, and it shows  
+since some (few) years "/dev/root" when I invoke "df". No problem.
 
-   -- Bruce Dubbs
-      linuxfromscratch
+Viele Gruesse!
+Helmut
