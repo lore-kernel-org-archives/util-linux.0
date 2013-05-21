@@ -1,51 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp3-g21.free.fr ([212.27.42.3]:36930 "EHLO smtp3-g21.free.fr"
+Received: from mx1.redhat.com ([209.132.183.28]:26316 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754793Ab3EMOvW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 May 2013 10:51:22 -0400
-From: Gilles Espinasse <g.esp@free.fr>
-To: util-linux@vger.kernel.org
-Cc: Gilles Espinasse <g.esp@free.fr>
-Subject: =?UTF-8?q?=5BPATCH=5D=20util-linux=20minor=20typo=20fixes?=
-Date: Mon, 13 May 2013 16:51:08 +0200
-Message-Id: <1368456668-18523-1-git-send-email-g.esp@free.fr>
+	id S1752576Ab3EUJkA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 21 May 2013 05:40:00 -0400
+Date: Tue, 21 May 2013 11:39:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Gilles Espinasse <g.esp@free.fr>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] util-linux: tests new warning fix
+Message-ID: <20130521093957.GC11688@x2.net.home>
+References: <1368456748-12202-1-git-send-email-g.esp@free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1368456748-12202-1-git-send-email-g.esp@free.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Gilles Espinasse <g.esp@free.fr>
----
- Documentation/releases/v2.23-ReleaseNotes |    2 +-
- configure.ac                              |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+On Mon, May 13, 2013 at 04:52:28PM +0200, Gilles Espinasse wrote:
+>  tests/helpers/test_md5.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/Documentation/releases/v2.23-ReleaseNotes b/Documentation/releases/v2.23-ReleaseNotes
-index 7e9ed88..ce07ac1 100644
---- a/Documentation/releases/v2.23-ReleaseNotes
-+++ b/Documentation/releases/v2.23-ReleaseNotes
-@@ -150,7 +150,7 @@ bash-completion:
-    - Don't offer any more completions after help or version.  [Ville Skyttä]
-    - Don't offer short options where corresponding long one exists.  [Ville Skyttä]
-    - Symlink runuser symlink to su so it gets loaded on demand.  [Ville Skyttä]
--   - add bash completetion configure option  [Sami Kerola]
-+   - add bash completion configure option  [Sami Kerola]
-    - add completion files to Makefile.am  [Sami Kerola]
-    - add swapoff  [Bernhard Voelker]
-    - disk-utils  [Sami Kerola]
-diff --git a/configure.ac b/configure.ac
-index dad0439..4050fe4 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1308,7 +1308,7 @@ AM_CONDITIONAL(BUILD_SETTERM, test "x$build_setterm" = xyes)
- 
- 
- AC_ARG_ENABLE([schedutils],
--  AS_HELP_STRING([--disable-schedutils], [do not build chrt, ionice, teskset]),
-+  AS_HELP_STRING([--disable-schedutils], [do not build chrt, ionice, taskset]),
-   [], enable_schedutils=yes
- )
- UL_BUILD_INIT([schedutils])
+ Applied, thanks.
+
 -- 
-1.7.2.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
