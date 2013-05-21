@@ -1,141 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f175.google.com ([74.125.82.175]:49522 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760354Ab3EBSvu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 2 May 2013 14:51:50 -0400
-Received: by mail-we0-f175.google.com with SMTP id s43so744381wey.20
-        for <util-linux@vger.kernel.org>; Thu, 02 May 2013 11:51:49 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 01/16] cal: fix preprocessor directive indendation
-Date: Thu,  2 May 2013 19:51:26 +0100
-Message-Id: <1367520701-14962-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Tue, 21 May 2013 11:47:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mount --no-canonical seems broken.
+Message-ID: <20130521094711.GD11688@x2.net.home>
+References: <5175BA15.9060803@tlinx.org>
+ <20130423123648.GB24501@x2.net.home>
+ <517729C7.2030806@tlinx.org>
+ <20130520074001.GE16493@x2.net.home>
+ <519AB20D.7030503@tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <519AB20D.7030503@tlinx.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And code within the blocks selected by preprocessor to be live code.
+On Mon, May 20, 2013 at 04:30:21PM -0700, Linda Walsh wrote:
+>  widely known as "df" or "mount".
+> 
+> I might point out that by default,
+> > findmnt /
+> 
+> TARGET SOURCE    FSTYPE OPTIONS
+> /      /dev/root xfs    rw,nodiratime,relatime,attr2,inode64,noquota
+> > > l /dev/root
+> ls: cannot access /dev/root: No such file or directory
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 81 +++++++++++++++++++++++++++-----------------------------
- 1 file changed, 39 insertions(+), 42 deletions(-)
+ util-linux 2.23 ? 
+ 
+ libmount since this version is able to use the root= kernel command
+ line option to convert /dev/root from the /proc/self/mountinfo file
+ to a real device name.
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 276148d..13830de 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -73,69 +73,66 @@
- #include "strutils.h"
- 
- #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW)
--
--#ifdef HAVE_NCURSES_H
--#include <ncurses.h>
--#elif defined(HAVE_NCURSES_NCURSES_H)
--#include <ncurses/ncurses.h>
--#endif
--
--#include <term.h>                       /* include after <curses.h> */
--
--static void
--my_setupterm(const char *term, int fildes, int *errret) {
--    setupterm((char*)term, fildes, errret);
-+# ifdef HAVE_NCURSES_H
-+#  include <ncurses.h>
-+# elif defined(HAVE_NCURSES_NCURSES_H)
-+#  include <ncurses/ncurses.h>
-+# endif
-+# include <term.h>
-+
-+static void my_setupterm(const char *term, int fildes, int *errret)
-+{
-+	setupterm((char *)term, fildes, errret);
- }
- 
--static void
--my_putstring(char *s) {
--     putp(s);
-+static void my_putstring(char *s)
-+{
-+	putp(s);
- }
- 
--static const char *
--my_tgetstr(char *s __attribute__ ((__unused__)), char *ss) {
--    const char* ret = tigetstr(ss);
--    if (!ret || ret==(char*)-1)
--	return "";
--    else
--	return ret;
-+static const char *my_tgetstr(char *s __attribute__((__unused__)), char *ss)
-+{
-+	const char *ret = tigetstr(ss);
-+	if (!ret || ret == (char *)-1)
-+		return "";
-+	else
-+		return ret;
- }
- 
- #elif defined(HAVE_LIBTERMCAP)
--
--#include <termcap.h>
-+# include <termcap.h>
- 
- char termbuffer[4096];
- char tcbuffer[4096];
- char *strbuf = termbuffer;
- 
--static void
--my_setupterm(const char *term, int fildes, int *errret) {
--    *errret = tgetent(tcbuffer, term);
-+static void my_setupterm(const char *term, int fildes, int *errret)
-+{
-+	*errret = tgetent(tcbuffer, term);
- }
- 
--static void
--my_putstring(char *s) {
--     tputs (s, 1, putchar);
-+static void my_putstring(char *s)
-+{
-+	tputs(s, 1, putchar);
- }
- 
--static const char *
--my_tgetstr(char *s, char *ss __attribute__ ((__unused__))) {
--    const char* ret = tgetstr(s, &strbuf);
--    if (!ret)
--	return "";
--    else
--	return ret;
-+static const char *my_tgetstr(char *s, char *ss __attribute__((__unused__)))
-+{
-+	const char *ret = tgetstr(s, &strbuf);
-+	if (!ret)
-+		return "";
-+	else
-+		return ret;
- }
- 
--#else /* ! (HAVE_LIBTERMCAP || HAVE_LIBNCURSES || HAVE_LIBNCURSESW) */
-+#else	/* ! (HAVE_LIBTERMCAP || HAVE_LIBNCURSES || HAVE_LIBNCURSESW) */
- 
--static void
--my_putstring(char *s) {
--     fputs(s, stdout);
-+static void my_putstring(char *s)
-+{
-+	fputs(s, stdout);
- }
- 
--#endif
-+#endif	/* end of LIBTERMCAP / NCURSES */
- 
- 
- const char	*term="";
+    Karel
+
 -- 
-1.8.2.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
