@@ -1,39 +1,49 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:62214 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754673Ab3EZSz4 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 May 2013 14:55:56 -0400
+Received: by mail-pa0-f46.google.com with SMTP id fa10so6096019pad.33
+        for <util-linux@vger.kernel.org>; Sun, 26 May 2013 11:55:55 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20130514104504.GF18123@x2.net.home>
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
-	<1367520701-14962-14-git-send-email-kerolasa@iki.fi>
-	<20130514104504.GF18123@x2.net.home>
-Date: Tue, 21 May 2013 21:34:39 +0100
-Message-ID: <CAG27Bk00BAopjTyKRUcZh_JMP9q2uyVyewV_0BDWr7f8k4bqOA@mail.gmail.com>
-Subject: Re: [PATCH 13/16] cal: stop trimming whitespaces
+In-Reply-To: <51A2533B.9060905@bernhard-voelker.de>
+References: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
+	<51A2533B.9060905@bernhard-voelker.de>
+Date: Sun, 26 May 2013 19:55:55 +0100
+Message-ID: <CAG27Bk19Z3GFnu5=-hvuWT9mCuZ23f5h_YpeA1q11WdgGTxt2w@mail.gmail.com>
+Subject: Re: [PATCH 0000] pull: cal the branch four
 From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 14 May 2013 11:45, Karel Zak <kzak@redhat.com> wrote:
-> On Thu, May 02, 2013 at 07:51:38PM +0100, Sami Kerola wrote:
->> Remove trailing spaces from output it is trivial
+On 26 May 2013 19:23, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
+> On 05/26/2013 11:14 AM, Sami Kerola wrote:
+>> The cal branch I have in my git has got fixes to issues reviewed earlier,
+>> and I hope all works.  Based on that I decided to get rid of upper cal
+>> year limit, 9999, and replace it with unsigned long.  I know the change
+>> does not make much practical sense, the point of the change is that where
+>> there is no need to have artificial limits to a random magic number they
+>> should not exist.
 >
-> and introduce a regression and ugly output, see "cal -3":
+> unsigned years ... hmm, not that this would work today, but what about BC
+> years? E.g. on what weekday did Julius Caesar die (March 15th, 44 BC, [1])?
+> Maybe a future improvement (... having to make years signed again)?
+>
+> [1] http://en.wikipedia.org/wiki/Julius_Caesar
 
-[d'oh]
+Hi Berny,
 
-> I guess we have regression test just to check for regressions.
+You are right. I'll make the year to be signed, and make error to be
+displayed, for now, if negative year is defined.
 
-Fixed here.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/a0a150f8c14ac6b62483d03ec446f07e751903bf#L0L564
-
-As all can see removal of couple white spaces removed regression.
-
-I also dropped the global variables patch (earlier nr 14) from the
-fourth branch. There are no other changes in 'cal-fourth' branch.
+BTW I tried the Tøndering's algorithm negative years and it gave odd
+and obviously wrong results. If someone who is part of this list is
+interested of mathematical puzzles making the negative year weekday
+determination to work should be interesting challenge.
 
 --
    Sami Kerola
