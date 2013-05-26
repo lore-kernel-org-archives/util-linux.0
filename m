@@ -1,166 +1,104 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:46951 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751996Ab3EHWMD (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Wed, 8 May 2013 18:12:03 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id C2C3533DF3D
-	for <util-linux-ng@vger.kernel.org>; Wed,  8 May 2013 22:12:01 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux-ng@vger.kernel.org
-Subject: [PATCH] standard SEE ALSO section of man pages
-Date: Wed,  8 May 2013 18:12:04 -0400
-Message-Id: <1368051124-11407-1-git-send-email-vapier@gentoo.org>
+Received: from mail-we0-f181.google.com ([74.125.82.181]:43584 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751389Ab3EZJOT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 May 2013 05:14:19 -0400
+Received: by mail-we0-f181.google.com with SMTP id u57so3544712wes.26
+        for <util-linux@vger.kernel.org>; Sun, 26 May 2013 02:14:18 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/4] =?UTF-8?q?cal:=20use=20Claus=20T=C3=B8ndering's=20day?= =?UTF-8?q?=20of=20the=20week=20algorithm?=
+Date: Sun, 26 May 2013 10:14:07 +0100
+Message-Id: <1369559650-12341-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
+References: <1369559650-12341-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The standard format is to seperate each entry with a comma, and
-for each one to be on a line by itself.  Most util-linux pages
-follow this, but a few do not.
-
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+Reference: http://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week#T.C3.B8ndering.27s_algorithm
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/mkfs.bfs.8   | 2 +-
- libblkid/libblkid.3     | 2 +-
- misc-utils/blkid.8      | 4 ++--
- misc-utils/findfs.8     | 3 +--
- misc-utils/lslocks.8    | 4 ++--
- misc-utils/wipefs.8     | 3 +--
- sys-utils/setpriv.1     | 2 +-
- sys-utils/switch_root.8 | 6 +++---
- text-utils/tailf.1      | 3 ++-
- 9 files changed, 14 insertions(+), 15 deletions(-)
+ misc-utils/cal.c | 50 ++++++++++++++++++++------------------------------
+ 1 file changed, 20 insertions(+), 30 deletions(-)
 
-diff --git a/disk-utils/mkfs.bfs.8 b/disk-utils/mkfs.bfs.8
-index c1794e5..c8ddfa9 100644
---- a/disk-utils/mkfs.bfs.8
-+++ b/disk-utils/mkfs.bfs.8
-@@ -52,7 +52,7 @@ The exit code returned by
- .B mkfs.bfs
- is 0 when all went well, and 1 when something went wrong.
- .SH "SEE ALSO"
--.BR mkfs (8).
-+.BR mkfs (8)
- .SH AVAILABILITY
- The mkfs.bfs command is part of the util-linux package and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-diff --git a/libblkid/libblkid.3 b/libblkid/libblkid.3
-index c96bc87..a0288bf 100644
---- a/libblkid/libblkid.3
-+++ b/libblkid/libblkid.3
-@@ -72,7 +72,7 @@ The low-level probing code was rewritten by Karel Zak.
- is available under the terms of the GNU Library General Public License (LGPL),
- version 2 (or at your discretion any later version).
- .SH "SEE ALSO"
--.BR blkid (8)
-+.BR blkid (8),
- .BR findfs (8)
- .SH AVAILABILITY
- libblkid is part of the util-linux package since version 2.15 and is available from
-diff --git a/misc-utils/blkid.8 b/misc-utils/blkid.8
-index 82d6ed6..a974b8e 100644
---- a/misc-utils/blkid.8
-+++ b/misc-utils/blkid.8
-@@ -300,8 +300,8 @@ and Karel Zak.
- .SH ENVIRONMENT
- .IP "Setting LIBBLKID_DEBUG=0xffff enables debug output."
- .SH SEE ALSO
--.BR libblkid (3)
--.BR findfs (8)
-+.BR libblkid (3),
-+.BR findfs (8),
- .BR wipefs (8)
- .SH AVAILABILITY
- The blkid command is part of the util-linux package and is available from
-diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
-index 530f186..8a6bca1 100644
---- a/misc-utils/findfs.8
-+++ b/misc-utils/findfs.8
-@@ -29,9 +29,8 @@ the util-linux package by Karel Zak (kzak@redhat.com).
- .IP LIBBLKID_DEBUG=0xffff
- enables debug output.
- .SH SEE ALSO
--.BR blkid (8)
-+.BR blkid (8),
- .BR fsck (8)
- .SH AVAILABILITY
- The findfs command is part of the util-linux package and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 4d45145..9575db4 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -234,8 +234,6 @@ int julian;
+ 
+ /* function prototypes */
+ static int leap_year(int year);
+-static int centuries_since_1700(int year, int centuries);
+-static int leap_years_since_year_1(int year);
+ static char * ascii_day(char *, int);
+ static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
+ static void center(const char *, size_t, int);
+@@ -427,22 +425,6 @@ static int leap_year(int year)
+ 		return ( !(year % 4) && (year % 100) ) || !(year % 400);
+ }
+ 
+-/* number of centuries since 1700 */
+-static int centuries_since_1700(int year, int n)
+-{
+-	if (year < REFORMATION_YEAR)
+-		return 0;
+-	else
+-		return ((year / (100 * n)) - ((REFORMATION_YEAR / 100) / n));
+-}
 -
-diff --git a/misc-utils/lslocks.8 b/misc-utils/lslocks.8
-index f8d072b..4612201 100644
---- a/misc-utils/lslocks.8
-+++ b/misc-utils/lslocks.8
-@@ -86,8 +86,8 @@ Davidlohr Bueso <dave@gnu.org>
- .fi
- 
- .SH "SEE ALSO"
--.BR flock (1)
--.BR fcntl (2)
-+.BR flock (1),
-+.BR fcntl (2),
- .BR lockf (2)
- 
- .SH AVAILABILITY
-diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
-index fee9aaf..0c34b0f 100644
---- a/misc-utils/wipefs.8
-+++ b/misc-utils/wipefs.8
-@@ -92,9 +92,8 @@ Karel Zak <kzak@redhat.com>
- .SH ENVIRONMENT
- .IP "Setting LIBBLKID_DEBUG=0xffff enables debug output."
- .SH SEE ALSO
--.BR blkid (8)
-+.BR blkid (8),
- .BR findfs (8)
- .SH AVAILABILITY
- The wipefs command is part of the util-linux package and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+-/* number of leap years between year 1 and this year, not inclusive */
+-static int leap_years_since_year_1(int year)
+-{
+-	return (year / 4 - centuries_since_1700(year, 1) +
+-		centuries_since_1700(year, 4));
+-}
 -
-diff --git a/sys-utils/setpriv.1 b/sys-utils/setpriv.1
-index c05473c..89cd60c 100644
---- a/sys-utils/setpriv.1
-+++ b/sys-utils/setpriv.1
-@@ -136,7 +136,7 @@ For example, setting no_\:new_\:privs and then execing a program that is
- SELinux\-\:confined (as this tool would do) may prevent the SELinux
- restrictions from taking effect.
- .SH SEE ALSO
--.BR prctl (2)
-+.BR prctl (2),
- .BR capability (7)
- .SH AUTHOR
- .MT luto@amacapital.net
-diff --git a/sys-utils/switch_root.8 b/sys-utils/switch_root.8
-index 34ab0d0..debf0c8 100644
---- a/sys-utils/switch_root.8
-+++ b/sys-utils/switch_root.8
-@@ -46,9 +46,9 @@ mount --bind $DIR $DIR
- .fi
+ static void headers_init(int julian)
+ {
+ 	int i, wd, spaces = julian ? J_DAY_LEN - 1 : DAY_LEN - 1;
+@@ -681,18 +663,26 @@ day_in_year(int day, int month, int year) {
+  *	during the period of 11 days.
+  */
+ static int
+-day_in_week(int day, int month, int year) {
+-	long temp;
+-
+-	temp =
+-	    (long)(year - SMALLEST_YEAR) * DAYS_IN_YEAR +
+-	    leap_years_since_year_1(year - SMALLEST_YEAR)
+-	    + day_in_year(day, month, year);
+-	if (temp < FIRST_MISSING_DAY)
+-		return ((temp + (FIRST_WEEKDAY - 1)) % DAYS_IN_WEEK);
+-	if (temp >= (FIRST_MISSING_DAY + NUMBER_MISSING_DAYS))
+-		return ((temp + (FIRST_WEEKDAY - 1 - NUMBER_MISSING_DAYS)) % DAYS_IN_WEEK);
+-	return (NONEDAY);
++day_in_week(int d, int m, int y)
++{
++	static const int reform[] = {
++		SUNDAY, WEDNESDAY, TUESDAY, FRIDAY, SUNDAY, WEDNESDAY,
++		FRIDAY, MONDAY, THURSDAY, SATURDAY, TUESDAY, THURSDAY
++	};
++	static const int old[] = {
++		FRIDAY, MONDAY, SUNDAY, WEDNESDAY, FRIDAY, MONDAY,
++		WEDNESDAY, SATURDAY, TUESDAY, THURSDAY, SUNDAY, TUESDAY
++	};
++	if (y != 1753)
++		y -= m < 3;
++	else
++		y -= (m < 3) + 14;
++	if (1752 < y || (y == 1752 && 9 < m) || (y == 1752 && m == 9 && 13 < d))
++		return (y + (y / 4) - (y / 100) + (y / 400) + reform[m - 1] +
++			d) % 7;
++	if (y < 1752 || (y == 1752 && m < 9) || (y == 1752 && m == 9 && d < 3))
++		return (y + y / 4 + old[m - 1] + d) % 7;
++	return NONEDAY;
+ }
  
- .SH "SEE ALSO"
--.BR mount (8)
--.BR chroot (2)
--.BR init (8)
-+.BR mount (8),
-+.BR chroot (2),
-+.BR init (8),
- .BR mkinitrd (8)
- .SH AUTHORS
- .nf
-diff --git a/text-utils/tailf.1 b/text-utils/tailf.1
-index d64d2ca..49eda0b 100644
---- a/text-utils/tailf.1
-+++ b/text-utils/tailf.1
-@@ -62,7 +62,8 @@ NO WARRANTY for this program.
- 
- The latest inotify based implementation was written by Karel Zak (kzak@redhat.com).
- .SH "SEE ALSO"
--.BR tail "(1), " less "(1)"
-+.BR tail (1),
-+.BR less (1)
- .SH AVAILABILITY
- The tailf command is part of the util-linux package and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+ static char *
 -- 
-1.8.2.1
+1.8.2.3
 
