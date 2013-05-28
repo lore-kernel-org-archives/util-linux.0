@@ -1,26 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44547 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:63055 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752613Ab3EFR3T (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 May 2013 13:29:19 -0400
-Date: Mon, 6 May 2013 19:29:16 +0200
+	id S1755737Ab3E1K3n (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 May 2013 06:29:43 -0400
+Date: Tue, 28 May 2013 12:29:41 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Davidlohr Bueso <davidlohr.bueso@hp.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] prlimit: delete rem_prlim prototype
-Message-ID: <20130506172916.GA29882@x2.net.home>
-References: <1367783211.1823.2.camel@buesod1.americas.hpqcorp.net>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.23.1 (stable)
+Message-ID: <20130528102941.GA20866@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1367783211.1823.2.camel@buesod1.americas.hpqcorp.net>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 05, 2013 at 12:46:51PM -0700, Davidlohr Bueso wrote:
->  sys-utils/prlimit.c | 20 ++++++++------------
->  1 file changed, 8 insertions(+), 12 deletions(-)
 
- Applied, thanks.
+The util-linux stable release v2.23.1 is available at
+       
+    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.23
+                
+Feedback and bug reports, as always, are welcomed.
+                 
+   Karel
+
+
+
+Util-linux 2.23.1 Release Notes
+===============================
+
+blkid:
+   - fix typo in ID_FS_AMBIVALEN=  [Karel Zak]
+build-sys:
+   - add --disable-setterm  [Karel Zak]
+   - always check for setns() and unshare() libs functions  [Karel Zak]
+   - use -Wno-clobbered for some BSD crap  [Karel Zak]
+chcpu:
+   - clean up error messages  [Karel Zak]
+lib/loopdev:
+   - fix loopcxt_check_size() to work with blkdevs  [Karel Zak]
+lib/tty:
+   - don't hardcode terminal fd in get_terminal_name()  [Karel Zak]
+   - fix get_terminal_name() usage, cleanup code  [Karel Zak]
+libblkid:
+   - add ReFS magic string  [Karel Zak]
+   - fix blkid_parse_tag_string() to ignore incomplete tags  [Karel Zak]
+libfdisk:
+   - do not use va_list in the Ask API  [Karel Zak]
+libmount:
+   - don't ignore root fs on umount -a  [Karel Zak]
+   - use MS_SILENT for /{proc,etc}/filesystems  [Karel Zak]
+losetup:
+   - use warn_size() for regular files only  [Karel Zak]
+lsblk:
+   - add SERIAL column  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update nl.po (from translationproject.org)  [Benno Schulenberg]
+   - update vi.po (from translationproject.org)  [Trần Ngọc Quân]
+   - update zh_CN.po (from translationproject.org)  [Wylmer Wang]
+sfdisk:
+   - don't call BLKRRPART for non-block devices  [Karel Zak]
+sulogin:
+   - clean up error messages  [Karel Zak]
+tests:
+   - new warning fix  [Gilles Espinasse]
+
+- standard SEE ALSO section of man pages  [Mike Frysinger]
 
 -- 
  Karel Zak  <kzak@redhat.com>
