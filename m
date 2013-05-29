@@ -1,32 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2109 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753336Ab3EFRQc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 May 2013 13:16:32 -0400
-Date: Mon, 6 May 2013 19:16:22 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 08/16] lib: copy argmatch from gnulib
-Message-ID: <20130506171622.GC9740@x2.net.home>
-References: <1367520701-14962-1-git-send-email-kerolasa@iki.fi>
- <1367520701-14962-9-git-send-email-kerolasa@iki.fi>
+Return-Path: mail@bernhard-voelker.de
+Message-ID: <51A5D07E.8000603@bernhard-voelker.de>
+Date: Wed, 29 May 2013 11:55:10 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1367520701-14962-9-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        10317@debbugs.gnu.org
+Subject: Re: su: -l and -p should not be used together
+References: <519DF601.4090700@bernhard-voelker.de> <20130529094010.GF30341@x2.net.home>
+In-Reply-To: <20130529094010.GF30341@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 02, 2013 at 07:51:33PM +0100, Sami Kerola wrote:
-> Both argmatch.h and argmatch.c are copied from gnulib. 
+Hi Karel,
 
- Ah no... this is overkill, all we need is to parse three words.
+On 05/29/2013 11:40 AM, Karel Zak wrote:
+> diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+> index ba2a616..a41d015 100644
+> --- a/login-utils/su-common.c
+> +++ b/login-utils/su-common.c
+> @@ -810,6 +810,11 @@ su_main (int argc, char **argv, int mode)
+>        ++optind;
+>      }
+>  
+> +  if (simulate_login && !change_environment) {
+> +    warnx(_("ignore --preserve-environment, it's mutually exclusive to --login."));
+> +    change_environment = true;
+> +  }
+> +
 
- I have updated lib/colors.c and dmesg.c to support color modes 'auto',
- 'never' and 'always'. Please, use it also in cal.c.
+thanks.
 
-    Karel
+As the change was in su-common.c, this also affects runuser.
+I think this should then be documented in runuser.1, too, right?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Have a nice day,
+Berny
