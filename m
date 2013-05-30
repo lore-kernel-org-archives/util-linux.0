@@ -1,63 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout07.t-online.de ([194.25.134.83]:50132 "EHLO
-	mailout07.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750877Ab3EIRN7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 9 May 2013 13:13:59 -0400
-Date: 09 May 2013 18:59:00 +0200
-From: Hullen@t-online.de (Helmut Hullen)
-To: util-linux@vger.kernel.org
-Message-ID: <CWYcVs5uCXB@helmut.hullen.de>
-In-Reply-To: <518BC86D.2050702@chinilu.com>
-Subject: Re: umount and findmnt commands not working with btrfs labels ...
+Received: from mx1.redhat.com ([209.132.183.28]:47878 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967694Ab3E3Hdd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 30 May 2013 03:33:33 -0400
+Date: Thu, 30 May 2013 09:33:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: RFD: patch: su: ignoring switches and continuing:
+  --preserve-environment v. --login
+Message-ID: <20130530073330.GG30341@x2.net.home>
+References: <51A66104.3060508@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: helmut@hullen.de
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <51A66104.3060508@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hallo, George,
+On Wed, May 29, 2013 at 01:11:48PM -0700, Linda Walsh wrote:
+> > @@ -98,6 +98,7 @@ Preserves the whole environment, ie does not set
+> >  .B USER
+> >  nor
+> >  .BR LOGNAME .
+> > +The option is ignored if the option \fB\-\-login\fR is specified.
+> ---
+> There are 2 problems
+> On the surface, this patch, alone, appears to remove desirable
+> functionality from su, and, it is a dangerous change in default
 
-Du meintest am 09.05.13:
+ Did you read the code?
 
->>   Ah, do you mean btrfs raid? For example:
->>
->>     mkfs.btrfs --data raid1 --label FOO /dev/sdd1 /dev/sdd2
->>
->>   then the LABEL and UUID is really duplicate.
+ if (simulate_login) {
+    ...
+ } else {
 
-[...]
+    if (change_environment) {
+    ....
+    }
 
-> It would be nice if btrfs would just lock all of these partitions out
-> and represent them collectively to the broader system as /dev/mntX or
-> whatever.
+ }
 
-Perhaps you shouldn't use only "blkid" - sometimes I've seen strange  
-answers (or no answer). I haven't yet found the system behind this  
-behaviour.
+ the patch does not change anything...
 
-        file -s /dev/sdd1
+    Karel
 
-(p.e.) is more reliable.
-
-But for mounting and unmounting I haven't seen any problem:
-
-        mount LABEL=FOO /path/to/mountpoint
-
-        umount LABEL=FOO
-
-has always worked as expected; for existing devices and mountpoints and  
-also for nonexisting devices and mountpoints.
-
-By the way: my system doesn't use "udev"; working/addressing with LABEL  
-works fine also without "udev".
-
-And by another way:
-
-        blkid
-
-tells every btrfs disk/partition which is part of the btrfs cluster (in  
-my installations: all 3 disks) - they have the same UUID but different  
-UUID_SUBs. No real problem.
-
-Viele Gruesse!
-Helmut
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
