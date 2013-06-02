@@ -1,57 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:54311 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753110Ab3FFTUL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 6 Jun 2013 15:20:11 -0400
-Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id C012B2061F
-	for <util-linux@vger.kernel.org>; Thu,  6 Jun 2013 15:20:10 -0400 (EDT)
-Message-Id: <1370546410.26881.140661240782209.0B5E998E@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20130606050412.GA3632@album.bayer.uni.cx>
-References: <1370462889.27341.140661240351977.05B18AA0@webmail.messagingengine.com>
- <20130606050412.GA3632@album.bayer.uni.cx>
-Subject: Re: [patch] for "Mistakes in messages" reported by Petr Pisar
-Date: Thu, 06 Jun 2013 21:20:10 +0200
+Received: from mail-we0-f170.google.com ([74.125.82.170]:38772 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754839Ab3FBRvb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:51:31 -0400
+Received: by mail-we0-f170.google.com with SMTP id w57so1057773wes.1
+        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:51:30 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/19] pull: various clean ups and couple bug fixes
+Date: Sun,  2 Jun 2013 18:51:06 +0100
+Message-Id: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
-On Thu, Jun 6, 2013, at 7:04, Petr Pisar wrote:
-> My English is terrible, but since when `partion' is an adjective
-> <http://wordnetweb.princeton.edu/perl/webwn?s=partition>?
+This weeks patch series is bag of random clean ups, fixes, and features. 
+The commits, and corresponding messages, are hopefully good enough so
+that individual patches does not need much explaining.
 
-Well, my knowledge of grammatical constructs is terrible, so whether
-it's called an adjective or a compound noun or whatever, I don't know,
-but I do know that English allows putting just about any word into any
-role.  So even if the dictionary says it's a verb or a noun, it can be
-employed as almost anything else too.  Can "table" be an adjective?
-The above dictionary seems to say no, but Merriam Webster says sure.
+If there is only one patch to get comments I hope it is the dmesg boot
+time detection fix (0018).  Either that change is wrong, or there is not
+a better way (at last at the moment) to determine system start time.
 
-  http://wordnetweb.princeton.edu/perl/webwn?s=table
-  http://www.merriam-webster.com/dictionary/table
 
-When table, why not partition too?
+The following changes since commit 8225bb78a631d032121f9d7eed19481220933c88:
 
-Also, error messages are often written in telegram style, mostly lacking
-a verb: "Invalid argument", "No such directory", and so on.  The latter
-is in my opinion short for: "There is no such directory".
+  libmount: more robust options string parsing (2013-05-30 13:29:34 +0200)
 
-Thus I understand "Partition overlap on the disk" to be a shortened form
-of "There is partition overlap on the disk".
+are available in the git repository at:
 
-When "overlap" would be a verb, "Partitions overlap on the disk" doesn't
-sound right.  It would be better as: "Some partitions on the disk overlap".
+  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk21
 
-Which do you prefer?
+for you to fetch changes up to fdcb3a36c4d9a6154473b393481bea8595a22104:
 
-Regards,
+  cal: fix few type mismatches (2013-06-02 17:10:22 +0100)
 
-Benno
+----------------------------------------------------------------
+Sami Kerola (19):
+      lib: remove unused code
+      lscpu: add max MHz value to make cpu governor effects more visible
+      docs: add lscpu max mhz to manual and bash completion
+      sfdisk: use libc error printing function, and symbolic exit values
+      sfdisk: clean up usage() functions
+      sfdisk: use program_invocation_short_name to determine program name
+      docs: correct sfdisk --activate instructions
+      sfdisk: remove --unhide and related functions
+      sfdisk: replace my_warn() with warnx()
+      rev: stop adding new line at the end when input does not have it
+      rev: simplify new line detection and impossible test
+      rev: reduce stream checking when closing read-only file descriptor
+      dmesg: make time format parsing to use enum bit field
+      dmesg: add --time-format option
+      dmesg: add iso-8601 time format
+      docs: add --time-format option and ISO-8601 format to manual
+      dmesg: make usage() a little bit shorter
+      dmesg: more deterministic boot time detection
+      cal: fix few type mismatches
 
--- 
-http://www.fastmail.fm - A fast, anti-spam email service.
+ bash-completion/lscpu   |   3 +-
+ fdisks/sfdisk.8         |  33 +++-
+ fdisks/sfdisk.c         | 406 ++++++++++++++++++------------------------------
+ include/pathnames.h     |   3 +-
+ lib/pager.c             |  10 --
+ misc-utils/cal.c        |  12 +-
+ sys-utils/dmesg.1       |  22 +++
+ sys-utils/dmesg.c       | 148 ++++++++++++------
+ sys-utils/lscpu.1       |   5 +
+ sys-utils/lscpu.c       |  26 +++-
+ tests/expected/misc/rev |   4 +-
+ tests/ts/misc/rev       |   2 +
+ text-utils/rev.c        |  17 +-
+ 13 files changed, 358 insertions(+), 333 deletions(-)
+
 
