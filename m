@@ -1,326 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:61625 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755360Ab3FPSyq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:46 -0400
-Received: by mail-wi0-f178.google.com with SMTP id k10so1574895wiv.11
-        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:45 -0700 (PDT)
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:55180 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755036Ab3FBRwb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:52:31 -0400
+Received: by mail-wg0-f41.google.com with SMTP id k13so2046713wgh.2
+        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:52:29 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 13/15] sd-daemon: update files taken from systemd project
-Date: Sun, 16 Jun 2013 19:53:54 +0100
-Message-Id: <1371408836-16663-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
-References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 17/19] dmesg: make usage() a little bit shorter
+Date: Sun,  2 Jun 2013 18:51:23 +0100
+Message-Id: <1370195485-27907-18-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Update sd-damoen.[hc] files from systemd upstream, using commit
-fa3868c6d317b88715c55422b898f9070afe6575 as the sync point.
+The dmesg has rather long usage, so drop the timestamp format options
+which are aliases of the more generic options.  Old options will remain
+working as earlier.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/sd-daemon.c | 100 ++++++++++++++++++++++---------------------------
- misc-utils/sd-daemon.h |  14 +++----
- 2 files changed, 52 insertions(+), 62 deletions(-)
+ sys-utils/dmesg.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/misc-utils/sd-daemon.c b/misc-utils/sd-daemon.c
-index 763e079..485b301 100644
---- a/misc-utils/sd-daemon.c
-+++ b/misc-utils/sd-daemon.c
-@@ -25,18 +25,14 @@
- ***/
- 
- #ifndef _GNU_SOURCE
--#define _GNU_SOURCE
-+#  define _GNU_SOURCE
- #endif
- 
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/socket.h>
- #include <sys/un.h>
--#ifdef __BIONIC__
--#include <linux/fcntl.h>
--#else
--#include <sys/fcntl.h>
--#endif
-+#include <fcntl.h>
- #include <netinet/in.h>
- #include <stdlib.h>
- #include <errno.h>
-@@ -47,22 +43,22 @@
- #include <stddef.h>
- #include <limits.h>
- 
--#if defined(__linux__)
--#include <mqueue.h>
-+#if defined(__linux__) && !defined(SD_DAEMON_DISABLE_MQ)
-+#  include <mqueue.h>
- #endif
- 
- #include "sd-daemon.h"
- 
- #if (__GNUC__ >= 4)
--#ifdef SD_EXPORT_SYMBOLS
-+#  ifdef SD_EXPORT_SYMBOLS
- /* Export symbols */
--#define _sd_export_ __attribute__ ((visibility("default")))
--#else
-+#    define _sd_export_ __attribute__ ((visibility("default")))
-+#  else
- /* Don't export the symbols */
--#define _sd_export_ __attribute__ ((visibility("hidden")))
--#endif
-+#    define _sd_export_ __attribute__ ((visibility("hidden")))
-+#  endif
- #else
--#define _sd_export_
-+#  define _sd_export_
- #endif
- 
- _sd_export_ int sd_listen_fds(int unset_environment) {
-@@ -75,7 +71,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-         char *p = NULL;
-         unsigned long l;
- 
--        if (!(e = getenv("LISTEN_PID"))) {
-+        e = getenv("LISTEN_PID");
-+        if (!e) {
-                 r = 0;
-                 goto finish;
-         }
-@@ -83,12 +80,12 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-         errno = 0;
-         l = strtoul(e, &p, 10);
- 
--        if (errno != 0) {
-+        if (errno > 0) {
-                 r = -errno;
-                 goto finish;
-         }
- 
--        if (!p || *p || l <= 0) {
-+        if (!p || p == e || *p || l <= 0) {
-                 r = -EINVAL;
-                 goto finish;
-         }
-@@ -99,7 +96,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-                 goto finish;
-         }
- 
--        if (!(e = getenv("LISTEN_FDS"))) {
-+        e = getenv("LISTEN_FDS");
-+        if (!e) {
-                 r = 0;
-                 goto finish;
-         }
-@@ -107,12 +105,12 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-         errno = 0;
-         l = strtoul(e, &p, 10);
- 
--        if (errno != 0) {
-+        if (errno > 0) {
-                 r = -errno;
-                 goto finish;
-         }
- 
--        if (!p || *p) {
-+        if (!p || p == e || *p) {
-                 r = -EINVAL;
-                 goto finish;
-         }
-@@ -120,7 +118,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
-         for (fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + (int) l; fd ++) {
-                 int flags;
- 
--                if ((flags = fcntl(fd, F_GETFD)) < 0) {
-+                flags = fcntl(fd, F_GETFD);
-+                if (flags < 0) {
-                         r = -errno;
-                         goto finish;
-                 }
-@@ -152,7 +151,6 @@ _sd_export_ int sd_is_fifo(int fd, const char *path) {
-         if (fd < 0)
-                 return -EINVAL;
- 
--        memset(&st_fd, 0, sizeof(st_fd));
-         if (fstat(fd, &st_fd) < 0)
-                 return -errno;
- 
-@@ -162,7 +160,6 @@ _sd_export_ int sd_is_fifo(int fd, const char *path) {
-         if (path) {
-                 struct stat st_path;
- 
--                memset(&st_path, 0, sizeof(st_path));
-                 if (stat(path, &st_path) < 0) {
- 
-                         if (errno == ENOENT || errno == ENOTDIR)
-@@ -272,15 +269,13 @@ _sd_export_ int sd_is_socket(int fd, int family, int type, int listening) {
-         if (family < 0)
-                 return -EINVAL;
- 
--        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
-+        r = sd_is_socket_internal(fd, type, listening);
-+        if (r <= 0)
-                 return r;
- 
-         if (family > 0) {
--                union sockaddr_union sockaddr;
--                socklen_t l;
--
--                memset(&sockaddr, 0, sizeof(sockaddr));
--                l = sizeof(sockaddr);
-+                union sockaddr_union sockaddr = {};
-+                socklen_t l = sizeof(sockaddr);
- 
-                 if (getsockname(fd, &sockaddr.sa, &l) < 0)
-                         return -errno;
-@@ -295,19 +290,17 @@ _sd_export_ int sd_is_socket(int fd, int family, int type, int listening) {
- }
- 
- _sd_export_ int sd_is_socket_inet(int fd, int family, int type, int listening, uint16_t port) {
--        union sockaddr_union sockaddr;
--        socklen_t l;
-+        union sockaddr_union sockaddr = {};
-+        socklen_t l = sizeof(sockaddr);
-         int r;
- 
-         if (family != 0 && family != AF_INET && family != AF_INET6)
-                 return -EINVAL;
- 
--        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
-+        r = sd_is_socket_internal(fd, type, listening);
-+        if (r <= 0)
-                 return r;
- 
--        memset(&sockaddr, 0, sizeof(sockaddr));
--        l = sizeof(sockaddr);
--
-         if (getsockname(fd, &sockaddr.sa, &l) < 0)
-                 return -errno;
- 
-@@ -340,16 +333,14 @@ _sd_export_ int sd_is_socket_inet(int fd, int family, int type, int listening, u
- }
- 
- _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *path, size_t length) {
--        union sockaddr_union sockaddr;
--        socklen_t l;
-+        union sockaddr_union sockaddr = {};
-+        socklen_t l = sizeof(sockaddr);
-         int r;
- 
--        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
-+        r = sd_is_socket_internal(fd, type, listening);
-+        if (r <= 0)
-                 return r;
- 
--        memset(&sockaddr, 0, sizeof(sockaddr));
--        l = sizeof(sockaddr);
--
-         if (getsockname(fd, &sockaddr.sa, &l) < 0)
-                 return -errno;
- 
-@@ -360,10 +351,10 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
-                 return 0;
- 
-         if (path) {
--                if (length <= 0)
-+                if (length == 0)
-                         length = strlen(path);
- 
--                if (length <= 0)
-+                if (length == 0)
-                         /* Unnamed socket */
-                         return l == offsetof(struct sockaddr_un, sun_path);
- 
-@@ -383,7 +374,7 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
- }
- 
- _sd_export_ int sd_is_mq(int fd, const char *path) {
--#if !defined(__linux__)
-+#if !defined(__linux__) || defined(SD_DAEMON_DISABLE_MQ)
-         return 0;
- #else
-         struct mq_attr attr;
-@@ -434,7 +425,8 @@ _sd_export_ int sd_notify(int unset_environment, const char *state) {
-                 goto finish;
-         }
- 
--        if (!(e = getenv("NOTIFY_SOCKET")))
-+        e = getenv("NOTIFY_SOCKET");
-+        if (!e)
-                 return 0;
- 
-         /* Must be an abstract socket, or an absolute path */
-@@ -443,7 +435,8 @@ _sd_export_ int sd_notify(int unset_environment, const char *state) {
-                 goto finish;
-         }
- 
--        if ((fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0)) < 0) {
-+        fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-+        if (fd < 0) {
-                 r = -errno;
-                 goto finish;
-         }
-@@ -513,18 +506,15 @@ _sd_export_ int sd_booted(void) {
- #if defined(DISABLE_SYSTEMD) || !defined(__linux__)
-         return 0;
- #else
-+        struct stat st;
- 
--        struct stat a, b;
--
--        /* We simply test whether the systemd cgroup hierarchy is
--         * mounted */
--
--        if (lstat("/sys/fs/cgroup", &a) < 0)
--                return 0;
-+        /* We test whether the runtime unit file directory has been
-+         * created. This takes place in mount-setup.c, so is
-+         * guaranteed to happen very early during boot. */
- 
--        if (lstat("/sys/fs/cgroup/systemd", &b) < 0)
-+        if (lstat("/run/systemd/system/", &st) < 0)
-                 return 0;
- 
--        return a.st_dev != b.st_dev;
-+        return !!S_ISDIR(st.st_mode);
- #endif
- }
-diff --git a/misc-utils/sd-daemon.h b/misc-utils/sd-daemon.h
-index fe51159..daa3f4c 100644
---- a/misc-utils/sd-daemon.h
-+++ b/misc-utils/sd-daemon.h
-@@ -59,20 +59,20 @@ extern "C" {
-   You may find an up-to-date version of these source files online:
- 
-   http://cgit.freedesktop.org/systemd/systemd/plain/src/systemd/sd-daemon.h
--  http://cgit.freedesktop.org/systemd/systemd/plain/src/sd-daemon.c
-+  http://cgit.freedesktop.org/systemd/systemd/plain/src/libsystemd-daemon/sd-daemon.c
- 
-   This should compile on non-Linux systems, too, but with the
-   exception of the sd_is_xxx() calls all functions will become NOPs.
- 
--  See sd-daemon(7) for more information.
-+  See sd-daemon(3) for more information.
- */
- 
- #ifndef _sd_printf_attr_
--#if __GNUC__ >= 4
--#define _sd_printf_attr_(a,b) __attribute__ ((format (printf, a, b)))
--#else
--#define _sd_printf_attr_(a,b)
--#endif
-+#  if __GNUC__ >= 4
-+#    define _sd_printf_attr_(a,b) __attribute__ ((format (printf, a, b)))
-+#  else
-+#    define _sd_printf_attr_(a,b)
-+#  endif
- #endif
- 
- /*
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index adfd6a5..d80b3e9 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -234,8 +234,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -C, --clear                 clear the kernel ring buffer\n"), out);
+ 	fputs(_(" -c, --read-clear            read and clear all messages\n"), out);
+ 	fputs(_(" -D, --console-off           disable printing messages to console\n"), out);
+-	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
+-	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
+ 	fputs(_(" -E, --console-on            enable printing messages to console\n"), out);
+ 	fputs(_(" -F, --file <file>           use the file instead of the kernel log buffer\n"), out);
+ 	fputs(_(" -f, --facility <list>       restrict output to defined facilities\n"), out);
+@@ -248,14 +246,12 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -r, --raw                   print the raw message buffer\n"), out);
+ 	fputs(_(" -S, --syslog                force to use syslog(2) rather than /dev/kmsg\n"), out);
+ 	fputs(_(" -s, --buffer-size <size>    buffer size to query the kernel ring buffer\n"), out);
+-	fputs(_(" -T, --ctime                 show human readable timestamp (could be \n"
+-		"                               inaccurate if you have used SUSPEND/RESUME)\n"), out);
+-	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
+ 	fputs(_(" -u, --userspace             display userspace messages\n"), out);
+ 	fputs(_(" -w, --follow                wait for new messages\n"), out);
+ 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
+ 	fputs(_("     --time-format <format>  show time stamp using format:\n"
+-		"                               [notime|ctime|delta|reltime|iso]\n"), out);
++		"                               [notime|ctime|delta|reltime|iso]\n"
++		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
 -- 
-1.8.3.1
+1.8.3
 
