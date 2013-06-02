@@ -1,42 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:38119 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752215Ab3FHSuF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 8 Jun 2013 14:50:05 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1UlODD-0001lK-Fm
-	for util-linux@vger.kernel.org; Sat, 08 Jun 2013 20:50:03 +0200
-Received: from piekna-gts.2a.pl ([217.153.90.242])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 08 Jun 2013 20:50:03 +0200
-Received: from giecrilj by piekna-gts.2a.pl with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 08 Jun 2013 20:50:03 +0200
+Received: from mail-we0-f176.google.com ([74.125.82.176]:62614 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755031Ab3FBRw2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:52:28 -0400
+Received: by mail-we0-f176.google.com with SMTP id t61so1036793wes.21
+        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:52:27 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: Krzysztof =?UTF-8?B?xbtlbGVjaG93c2tp?= <giecrilj@stegny.2a.pl>
-Subject: Re: [PATCH] Fix typos found by misspellings
-Date: Sat, 08 Jun 2013 01:49:16 +0200
-Message-ID: <kotrf8$s14$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Cc: kerolasa@iki.fi
+Subject: [PATCH 16/19] docs: add --time-format option and ISO-8601 format to manual
+Date: Sun,  2 Jun 2013 18:51:22 +0100
+Message-Id: <1370195485-27907-17-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-<URL: 
-http://article.gmane.org/
-gmane.linux.utilities.util-linux-ng/5651/match=visable >
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/dmesg.1 | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-The
- .BR rootcontext=
- option allows you to explicitly label the root inode of a FS being mounted
--before that FS or inode because visable to userspace. This was found to be
-+before that FS or inode because visible to userspace. This was found to be
- useful for things like stateless linux.
-
-I still do not understand the first sentence.  What is that supposed to 
-mean?
-
-Chris
+diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
+index c060688..ce186d8 100644
+--- a/sys-utils/dmesg.1
++++ b/sys-utils/dmesg.1
+@@ -153,6 +153,28 @@ Wait for new messages. This feature is supported on systems with readable
+ /dev/kmsg only (since kernel 3.5.0).
+ .IP "\fB\-x\fR, \fB\-\-decode\fR"
+ Decode facility and level (priority) number to human readable prefixes.
++.IP "\fB\-\-time\-format\fR \fIformat\fR"
++Print time stam using format
++.IR ctime ,
++.IR delta ,
++.I reltime
++or
++.IR iso .
++The three first time formats are aliases of time format specific options.
++The
++.I iso
++is a
++.B dmesg
++implementation of ISO-8601 timestamp format.  Purpose of this format is
++to make comparing of timestamps in between two system, and other parsing,
++easy.  The defition of timestamp is YYYY-MM-DD<T stands for date and time
++separator>HH:MM:SS,<microseconds><-+><GMT-0 timezone offset>.
++.IP
++The
++.I iso
++time format has the same issue as
++.IR ctime ,
++the time may be inaccurate if a system is suspended and resumed.
+ .SH SEE ALSO
+ .BR syslogd (8)
+ .SH AUTHORS
+-- 
+1.8.3
 
