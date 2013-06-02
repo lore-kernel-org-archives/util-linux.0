@@ -1,145 +1,213 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34911 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752106Ab3FRKr0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Jun 2013 06:47:26 -0400
-Date: Tue, 18 Jun 2013 12:47:21 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] eject: Check host_status and driver_status when using
- SG_IO.
-Message-ID: <20130618104721.GD29243@x2.net.home>
-References: <1371232880.11619.1.camel@oct.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1371232880.11619.1.camel@oct.suse.cz>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:34395 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754990Ab3FBRwU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:52:20 -0400
+Received: by mail-wi0-f172.google.com with SMTP id m6so2028410wiv.5
+        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:52:18 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 13/19] dmesg: make time format parsing to use enum bit field
+Date: Sun,  2 Jun 2013 18:51:19 +0100
+Message-Id: <1370195485-27907-14-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 14, 2013 at 08:01:20PM +0200, Stanislav Brabec wrote:
-> diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-> index 4ec69e7..b319dd2 100644
-> --- a/sys-utils/eject.c
-> +++ b/sys-utils/eject.c
-> @@ -41,6 +41,7 @@
->  #include <scsi/scsi.h>
->  #include <scsi/sg.h>
->  #include <scsi/scsi_ioctl.h>
-> +#include <scsi/sg_io_linux.h>
+This will pave way to add single option to define all time formats, such
+as --time-format=[ctime|reltime|delta|none].
 
-I don't see this file on Fedora and it seems that the *_OK macros are
-defined in include/scsi/scsi.h in kernel tree. Anyway it seems that
-the *_OK macros are unnecessary as zero means OK.
- 
->  #include <sys/time.h>
->  
->  #include <libmount.h>
-> @@ -604,17 +605,17 @@ static int eject_scsi(int fd)
->  
->  	io_hdr.cmdp = allowRmBlk;
->  	status = ioctl(fd, SG_IO, (void *)&io_hdr);
-> -	if (status < 0)
-> +	if (status < 0 || io_hdr.host_status != DID_OK || io_hdr.driver_status != DRIVER_OK)
->  		return 0;
->  
->  	io_hdr.cmdp = startStop1Blk;
->  	status = ioctl(fd, SG_IO, (void *)&io_hdr);
-> -	if (status < 0)
-> +	if (status < 0 || io_hdr.host_status != DID_OK || io_hdr.driver_status != DRIVER_OK)
->  		return 0;
-
-This makes "eject --scsi" useless when you want to open empty (with no medium)
-device. Strace:
-
-  ioctl(3, SG_IO, {'S', SG_DXFER_NONE, cmd[6]=[1b, 00, 00, 00, 01,
-  00], mx_sb_len=32, iovec_count=0, dxfer_len=0, timeout=10000,
-  flags=0, status=02, masked_status=01, sb[18]=[70, 00, 02, 00, 00,
-  00, 00, 0a, 00, 00, 00, 00, 3a, 00, 00, 00, 00, 00], host_status=0,
-  driver_status=0x8, resid=0, duration=3, info=0x1}) = 0
-
-driver_status is DRIVER_SENSE in this situation, and according to
-sb[12] (additional sense code 3a) it's MEDIUM NOT PRESENT.
-
-I have applied a little different patch, see below.
-
-Thanks!
-
-    Karel
-
->From 90a0e97c7be9da39fd54600228e006b98667ad56 Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Tue, 18 Jun 2013 12:24:28 +0200
-Subject: [PATCH] eject: Check host_status and driver_status when using SG_IO.
-
-Based on Suse patch, originally from
-	Anna Bernathova <anicka@suse.cz>, May 2008
-
-  SG_IO completion status is weird but still well defined. You'll need
-  to check both host_status, driver_status and status to determine that
-  a command actually succeeded. -- Tejun Heo, May 2008
-
-Note that we also need to check driver_status and sense_buffer to
-detect situation when there is no medium. It's valid request to call
-eject(8) for device with no medium.
-
-References: https://bugzilla.novell.com/show_bug.cgi?id=358033
-Signed-off-by: Anna Bernathova <anicka@suse.cz>
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/eject.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ sys-utils/dmesg.c | 59 +++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 33 insertions(+), 26 deletions(-)
 
-diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-index 4ec69e7..f98f227 100644
---- a/sys-utils/eject.c
-+++ b/sys-utils/eject.c
-@@ -53,6 +53,14 @@
- #include "pathnames.h"
- #include "sysfs.h"
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index ae8e938..b882120 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -126,6 +126,13 @@ enum {
+ 	DMESG_METHOD_MMAP	/* mmap file with records (see --file) */
+ };
  
-+/*
-+ * sg_io_hdr_t driver_status -- see kernel include/scsi/scsi.h
-+ */
-+#ifndef DRIVER_SENSE
-+# define DRIVER_SENSE	0x08
-+#endif
++enum {
++	TIMEFTM_NONE	= (1 << 0),
++	TIMEFTM_CTIME	= (1 << 1),
++	TIMEFTM_DELTA	= (1 << 2),
++	TIMEFTM_RELTIME = (1 << 3),
++};
 +
+ struct dmesg_control {
+ 	/* bit arrays -- see include/bitops.h */
+ 	char levels[ARRAY_SIZE(level_names) / NBBY + 1];
+@@ -152,16 +159,13 @@ struct dmesg_control {
+ 	char		*filename;
+ 	char		*mmap_buff;
+ 	size_t		pagesize;
++	unsigned int	time_fmt;	/* time format */
+ 
+ 	unsigned int	follow:1,	/* wait for new messages */
+ 			raw:1,		/* raw mode */
+ 			fltr_lev:1,	/* filter out by levels[] */
+ 			fltr_fac:1,	/* filter out by facilities[] */
+ 			decode:1,	/* use "facility: level: " prefix */
+-			notime:1,	/* don't print timestamp */
+-			delta:1,	/* show time deltas */
+-			reltime:1,	/* show human readable relative times */
+-			ctime:1,	/* show human readable time */
+ 			pager:1,	/* pipe output into a pager */
+ 			color:1;	/* colorize messages */
+ };
+@@ -689,9 +693,10 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
+ 
+ 		if (*begin == '[' && (*(begin + 1) == ' ' ||
+ 				      isdigit(*(begin + 1)))) {
+-			if (ctl->delta || ctl->ctime || ctl->reltime)
++			if (ctl->time_fmt & (TIMEFTM_DELTA | TIMEFTM_CTIME | TIMEFTM_RELTIME))
+ 				begin = parse_syslog_timestamp(begin + 1, &rec->tv);
+-			else if (ctl->notime)
 +
- #define EJECT_DEFAULT_DEVICE "/dev/cdrom"
++			else if (ctl->time_fmt & TIMEFTM_NONE)
+ 				begin = skip_item(begin, end, "]");
  
+ 			if (begin < end && *begin == ' ')
+@@ -855,12 +860,12 @@ static void print_record(struct dmesg_control *ctl,
+ 	/*
+ 	 * [sec.usec <delta>] or [ctime <delta>]
+ 	 */
+-	if (ctl->delta) {
++	if (ctl->time_fmt & TIMEFTM_DELTA) {
+ 		if (ctl->color)
+ 			color_enable(DMESG_COLOR_TIME);
+-		if (ctl->ctime)
++		if (ctl->time_fmt & TIMEFTM_CTIME)
+ 			printf("[%s ", record_ctime(ctl, rec, buf, sizeof(buf)));
+-		else if (ctl->notime)
++		else if (ctl->time_fmt == TIMEFTM_NONE)
+ 			putchar('[');
+ 		else
+ 			printf("[%5d.%06d ", (int) rec->tv.tv_sec,
+@@ -872,7 +877,7 @@ static void print_record(struct dmesg_control *ctl,
+ 	/*
+ 	 * [ctime]
+ 	 */
+-	} else if (ctl->ctime) {
++	} else if (ctl->time_fmt & TIMEFTM_CTIME) {
+ 		if (ctl->color)
+ 			color_enable(DMESG_COLOR_TIME);
+ 		printf("[%s] ", record_ctime(ctl, rec, buf, sizeof(buf)));
+@@ -883,7 +888,7 @@ static void print_record(struct dmesg_control *ctl,
+ 	/*
+ 	 * [reltime]
+ 	 */
+-	else if (ctl->reltime) {
++	else if (ctl->time_fmt & TIMEFTM_RELTIME) {
+ 		double delta;
+ 		struct tm cur;
  
-@@ -604,17 +612,27 @@ static int eject_scsi(int fd)
+@@ -918,14 +923,15 @@ static void print_record(struct dmesg_control *ctl,
+ 	 * the [sec.usec] string.
+ 	 */
+ 	if (ctl->method == DMESG_METHOD_KMSG &&
+-	    !ctl->notime && !ctl->delta && !ctl->ctime && !ctl->reltime) {
++	    !(ctl->time_fmt & TIMEFTM_NONE)
++	    && !(ctl->time_fmt & (TIMEFTM_CTIME | TIMEFTM_DELTA | TIMEFTM_RELTIME)))
++	{
+ 		if (ctl->color)
+ 			color_enable(DMESG_COLOR_TIME);
+ 		printf("[%5d.%06d] ", (int) rec->tv.tv_sec, (int) rec->tv.tv_usec);
+ 		if (ctl->color)
+ 			color_disable();
+ 	}
+-
+ mesg:
+ 	mesg = rec->mesg;
+ 	mesg_size = rec->mesg_size;
+@@ -1065,7 +1071,7 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
+ 		goto mesg;
  
- 	io_hdr.cmdp = allowRmBlk;
- 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
--	if (status < 0)
-+	if (status < 0 || io_hdr.host_status || io_hdr.driver_status)
- 		return 0;
+ 	/* C) timestamp */
+-	if (ctl->notime)
++	if (ctl->time_fmt & TIMEFTM_NONE)
+ 		p = skip_item(p, end, ",;");
+ 	else
+ 		p = parse_kmsg_timestamp(p, &rec->tv);
+@@ -1148,6 +1154,7 @@ int main(int argc, char *argv[])
+ 		.action = SYSLOG_ACTION_READ_ALL,
+ 		.method = DMESG_METHOD_KMSG,
+ 		.kmsg = -1,
++		.time_fmt = 0,
+ 	};
+ 	int colormode = UL_COLORMODE_NEVER;
  
- 	io_hdr.cmdp = startStop1Blk;
- 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
--	if (status < 0)
-+	if (status < 0 || io_hdr.host_status)
-+		return 0;
-+
-+	/* Ignore errors when there is not medium -- in this case driver sense
-+	 * buffer sets MEDIUM NOT PRESENT (3a) bit. For more details see:
-+	 * http://www.tldp.org/HOWTO/archived/SCSI-Programming-HOWTO/SCSI-Programming-HOWTO-22.html#sec-sensecodes
-+	 * -- kzak Jun 2013
-+	 */
-+	if (io_hdr.driver_status != 0 &&
-+	    !(io_hdr.driver_status == DRIVER_SENSE && io_hdr.sbp &&
-+		                                      io_hdr.sbp[12] == 0x3a))
- 		return 0;
+@@ -1209,13 +1216,13 @@ int main(int argc, char *argv[])
+ 			ctl.action = SYSLOG_ACTION_CONSOLE_OFF;
+ 			break;
+ 		case 'd':
+-			ctl.delta = 1;
++			ctl.time_fmt |= TIMEFTM_DELTA;
+ 			break;
+ 		case 'E':
+ 			ctl.action = SYSLOG_ACTION_CONSOLE_ON;
+ 			break;
+ 		case 'e':
+-			ctl.reltime = 1;
++			ctl.time_fmt |= TIMEFTM_RELTIME;
+ 			break;
+ 		case 'F':
+ 			ctl.filename = optarg;
+@@ -1228,7 +1235,7 @@ int main(int argc, char *argv[])
+ 				return EXIT_FAILURE;
+ 			break;
+ 		case 'H':
+-			ctl.reltime = 1;
++			ctl.time_fmt |= TIMEFTM_RELTIME;
+ 			ctl.color = 1;
+ 			ctl.pager = 1;
+ 			break;
+@@ -1273,10 +1280,10 @@ int main(int argc, char *argv[])
+ 		case 'T':
+ 			ctl.boot_time = get_boot_time();
+ 			if (ctl.boot_time)
+-				ctl.ctime = 1;
++				ctl.time_fmt |= TIMEFTM_CTIME;
+ 			break;
+ 		case 't':
+-			ctl.notime = 1;
++			ctl.time_fmt |= TIMEFTM_NONE;
+ 			break;
+ 		case 'u':
+ 			ctl.fltr_fac = 1;
+@@ -1304,20 +1311,20 @@ int main(int argc, char *argv[])
+ 	if (argc > 1)
+ 		usage(stderr);
  
- 	io_hdr.cmdp = startStop2Blk;
- 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
--	if (status < 0)
-+	if (status < 0 || io_hdr.host_status || io_hdr.driver_status)
- 		return 0;
+-	if (ctl.raw && (ctl.fltr_lev || ctl.fltr_fac || ctl.delta ||
+-			ctl.notime || ctl.ctime || ctl.decode))
++	if (ctl.raw && (ctl.fltr_lev || ctl.fltr_fac || ctl.decode ||
++			ctl.time_fmt & (TIMEFTM_NONE | TIMEFTM_DELTA | TIMEFTM_CTIME)))
+ 		errx(EXIT_FAILURE, _("--raw can't be used together with level, "
+-		     "facility, decode, delta, ctime or notime options"));
++				     "facility, decode, delta, ctime or notime options"));
  
- 	/* force kernel to reread partition table when new disc inserted */
+-	if (ctl.notime && (ctl.ctime || ctl.reltime))
++	if (ctl.time_fmt & TIMEFTM_NONE && (ctl.time_fmt & (TIMEFTM_CTIME | TIMEFTM_RELTIME)))
+ 		errx(EXIT_FAILURE, _("--notime can't be used together with --ctime or --reltime"));
+-	if (ctl.reltime && ctl.ctime)
++	if ((ctl.time_fmt & TIMEFTM_RELTIME) && (ctl.time_fmt & TIMEFTM_CTIME))
+ 		errx(EXIT_FAILURE, _("--reltime can't be used together with --ctime "));
+ 
+-	if (ctl.reltime) {
++	if (ctl.time_fmt & TIMEFTM_RELTIME) {
+ 		ctl.boot_time = get_boot_time();
+ 		if (!ctl.boot_time)
+-			ctl.reltime = 0;
++			ctl.time_fmt &= TIMEFTM_RELTIME;
+ 	}
+ 
+ 	ctl.color = colors_init(colormode) ? 1 : 0;
 -- 
-1.8.1.4
+1.8.3
 
