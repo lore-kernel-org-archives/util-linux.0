@@ -1,183 +1,149 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:49327 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754142Ab3F1AFK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 27 Jun 2013 20:05:10 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
-Cc: ebiederm@xmission.com, mtk.manpages@gmail.com
-Subject: [PATCH/RFC] unshare: add --fork/--mount-proc options for pid namespaces
-Date: Thu, 27 Jun 2013 20:04:58 -0400
-Message-Id: <1372377898-2602-1-git-send-email-vapier@gentoo.org>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48029 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757286Ab3FEUIP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Jun 2013 16:08:15 -0400
+Message-Id: <1370462889.27341.140661240351977.05B18AA0@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
+Cc: =?UTF-8?Q?Petr=20P=C3=ADsa=C5=99?= <petr.pisar@atlas.cz>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="_----------=_1370462889273415";
+ charset="utf-8"
+Subject: [patch] for "Mistakes in messages" reported by Petr Pisar
+Date: Wed, 05 Jun 2013 22:08:09 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The ability of unshare to launch a new pid namespace is a bit limited.
-The first process in the namespace is expected to be the "init" for it.
-When it's not, you get bad behavior.
+This is a multi-part message in MIME format.
 
-For example, trying to launch a shell in a new pid namespace fails very
-quickly:
-	$ sudo unshare -p dash
-	# uname -r
-	3.8.3
-	# uname -m
-	dash: 2: Cannot fork
-	# ls -ld /
-	dash: 3: Cannot fork
-	# echo $$
-	1324
+--_----------=_1370462889273415
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-For this to work smoothly, we need an init process to actively watch over
-things.  But forcing people to re-use an existing init or write their own
-mini init is a bit overkill.  So let's add a --fork option to unshare to
-do this common bit of book keeping.  Now we can do:
-	$ sudo unshare -p --fork dash
-	# uname -r
-	3.8.3
-	# uname -m
-	x86_64
-	# ls -ld /
-	drwxr-xr-x 22 root root 4096 May  4 14:01 /
-	# echo $$
-	1
 
-When it comes to pid namespaces, it's also useful for /proc to reflect
-the current namespace.  Again, this is easy to pull off, but annoying
-to force everyone to do it themselves.  So let's add a --mount-proc to
-do the magic for us.  The downside is that this also implies creating
-a mount namespace as mounting the new pid namespace /proc over top the
-system one will quickly break all other processes on the system.
-	$ sudo unshare --fork -p dash --mount-proc
-	# ps uaxOT
-	USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-	root         1  0.0  0.0   4328   632 pts/15   S    19:51   0:00 dash
-	root         2  0.0  0.0  22592  1148 pts/15   R+   19:51   0:00 ps uaxOT
+Hi,
 
-Thanks to Michael Kerrisk for his namespace articles on lwn.net
+Attached patch fixes most of the issues reported by Petr Pisar a
+week ago.  (Cannot follow up to his message; I wasn't subscribed.)
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- sys-utils/unshare.1 | 10 ++++++++++
- sys-utils/unshare.c | 41 +++++++++++++++++++++++++++++++++++++----
- 2 files changed, 47 insertions(+), 4 deletions(-)
+Some of the things he reported were already fixed, and one thing
+is not an error, I think: "Partition overlap on the disk." -- here the
+word "Partition" is an adjective and "overlap" a noun.  "Partitions
+overlap on the disk." doesn't make it any clearer, in my opinion.
 
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index bd0f13e..5e2c27c 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -63,6 +63,16 @@ Unshare the UTS namespace.
- .TP
- .BR \-U , " \-\-user"
- Unshare the user namespace.
-+.TP
-+.BR \-\-fork
-+Fork the specified process as a child of unshare rather than running it
-+directly.  This is useful when creating a new pid namespace.
-+.TP
-+.BR \-\-mount\-proc
-+Just before running the program, mount the proc filesystem at /proc.  This
-+is useful when creating a new pid namespace.  It also implies creating a
-+new mount namespace since the /proc mount would otherwise mess up existing
-+programs on the system.
- .SH SEE ALSO
- .BR unshare (2),
- .BR clone (2)
-diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index 8cc9c46..bc25d76 100644
---- a/sys-utils/unshare.c
-+++ b/sys-utils/unshare.c
-@@ -21,9 +21,12 @@
- #include <errno.h>
- #include <getopt.h>
- #include <sched.h>
-+#include <stdbool.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <unistd.h>
-+#include <sys/mount.h>
-+#include <sys/wait.h>
- 
- #include "nls.h"
- #include "c.h"
-@@ -46,6 +49,8 @@ static void usage(int status)
- 	fputs(_(" -n, --net         unshare network namespace\n"), out);
- 	fputs(_(" -p, --pid         unshare pid namespace\n"), out);
- 	fputs(_(" -U, --user        unshare user namespace\n"), out);
-+	fputs(_("     --fork        fork before launching <program>\n"), out);
-+	fputs(_("     --mount-proc  mount /proc first (implies --mount)\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
-@@ -66,12 +71,17 @@ int main(int argc, char *argv[])
- 		{ "net", no_argument, 0, 'n' },
- 		{ "pid", no_argument, 0, 'p' },
- 		{ "user", no_argument, 0, 'U' },
-+		{ "fork", no_argument, 0, 1 },
-+		{ "mount-proc", no_argument, 0, 2 },
- 		{ NULL, 0, 0, 0 }
- 	};
- 
- 	int unshare_flags = 0;
- 
- 	int c;
-+	pid_t pid;
-+	bool forkit = false;
-+	bool mount_proc = false;
- 
- 	setlocale(LC_MESSAGES, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -85,6 +95,9 @@ int main(int argc, char *argv[])
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-+		case 2: /* --mount-proc */
-+			mount_proc = true;
-+			/* fall through */
- 		case 'm':
- 			unshare_flags |= CLONE_NEWNS;
- 			break;
-@@ -103,6 +116,9 @@ int main(int argc, char *argv[])
- 		case 'U':
- 			unshare_flags |= CLONE_NEWUSER;
- 			break;
-+		case 1: /* --fork */
-+			forkit = true;
-+			break;
- 		default:
- 			usage(EXIT_FAILURE);
- 		}
-@@ -111,9 +127,26 @@ int main(int argc, char *argv[])
- 	if (-1 == unshare(unshare_flags))
- 		err(EXIT_FAILURE, _("unshare failed"));
- 
--	if (optind < argc) {
--		execvp(argv[optind], argv + optind);
--		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
-+	pid = forkit ? fork() : 1;
-+	if (pid == 0) {
-+		/* child */
-+		if (mount_proc && mount("proc", "/proc", "proc", 0, NULL))
-+			err(EXIT_FAILURE, _("mount(/proc) failed"));
-+		if (optind < argc) {
-+			execvp(argv[optind], argv + optind);
-+			err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
-+		}
-+		exec_shell();
-+	} else {
-+		/* parent */
-+		int status;
-+		if (waitpid(pid, &status, 0) == -1)
-+			err(EXIT_FAILURE, _("waitpid failed"));
-+		if (WIFEXITED(status))
-+			return WEXITSTATUS(status);
-+		else if (WIFSIGNALED(status))
-+			kill(getpid(), WTERMSIG(status));
-+		/* still here !? */
-+		err(EXIT_FAILURE, _("child exit failed"));
- 	}
--	exec_shell();
- }
+Regards,
+
+Benno
+
 -- 
-1.8.2.1
+http://www.fastmail.fm - Faster than the air-speed velocity of an
+                          unladen european swallow
+
+
+--_----------=_1370462889273415
+Content-Disposition: attachment; filename="0001-textual-improve-clarity-of-some-error-messages.patch"
+Content-Id: <1370462878.27367.a5a9c68cffc4a81e75b29f61eaa5c32634dd2ed7.04B883E5@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-textual-improve-clarity-of-some-error-messages.patch"
+
+RnJvbSBmZTM1MDcxMjU2ZTBiZDU1ZGEyYzE2YjI2OWQ2ZTIyNWM3OTRlNDIw
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCA1IEp1
+biAyMDEzIDIxOjU4OjEzICswMjAwClN1YmplY3Q6IFtQQVRDSF0gdGV4dHVh
+bDogaW1wcm92ZSBjbGFyaXR5IG9mIHNvbWUgZXJyb3IgbWVzc2FnZXMKTUlN
+RS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFy
+c2V0PVVURi04CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKClJl
+cG9ydGVkLWJ5OiBQZXRyIFDDrXNhxZkgPHBldHIucGlzYXJAYXRsYXMuY3o+
+ClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0Bq
+dXN0ZW1haWwubmV0PgotLS0KIGRpc2stdXRpbHMvbWtmcy5jcmFtZnMuYyB8
+ICAgIDYgKysrLS0tCiBkaXNrLXV0aWxzL21rZnMubWluaXguYyAgfCAgICAy
+ICstCiBsb2dpbi11dGlscy9zdWxvZ2luLmMgICAgfCAgICA2ICsrKy0tLQog
+bWlzYy11dGlscy9maW5kbW50LmMgICAgIHwgICAgMiArLQogc3lzLXV0aWxz
+L2xvc2V0dXAuYyAgICAgIHwgICAgNiArKystLS0KIDUgZmlsZXMgY2hhbmdl
+ZCwgMTEgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pCgpkaWZmIC0t
+Z2l0IGEvZGlzay11dGlscy9ta2ZzLmNyYW1mcy5jIGIvZGlzay11dGlscy9t
+a2ZzLmNyYW1mcy5jCmluZGV4IDIzZGNmZWYuLmZkYzJjYWUgMTAwNjQ0Ci0t
+LSBhL2Rpc2stdXRpbHMvbWtmcy5jcmFtZnMuYworKysgYi9kaXNrLXV0aWxz
+L21rZnMuY3JhbWZzLmMKQEAgLTczNiw3ICs3MzYsNyBAQCBpbnQgbWFpbihp
+bnQgYXJnYywgY2hhciAqKmFyZ3YpCiAJCQlvcHRfZXJyb3JzID0gMTsKIAkJ
+CWJyZWFrOwogCQljYXNlICdlJzoKLQkJCW9wdF9lZGl0aW9uID0gc3RydG91
+MzJfb3JfZXJyKG9wdGFyZywgXygiZWRpdGlvbiBudW1iZXIgYXJndW1lbnQg
+ZmFpbGVkIikpOworCQkJb3B0X2VkaXRpb24gPSBzdHJ0b3UzMl9vcl9lcnIo
+b3B0YXJnLCBfKCJpbnZhbGlkIGVkaXRpb24gbnVtYmVyIGFyZ3VtZW50Iikp
+OwogCQkJYnJlYWs7CiAJCWNhc2UgJ04nOgogCQkJaWYgKHN0cmNtcChvcHRh
+cmcsICJiaWciKSA9PSAwKQpAQCAtNzQ2LDggKzc0Niw4IEBAIGludCBtYWlu
+KGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJCWVsc2UgaWYgKHN0cmNtcChv
+cHRhcmcsICJob3N0IikgPT0gMCkKIAkJCQkvKiBkZWZhdWx0ICovIDsKIAkJ
+CWVsc2UKLQkJCQllcnJ4KE1LRlNfRVhfVVNBR0UsIF8oImludmFsaWQgZW5k
+aWFubmVzcyBnaXZlbi4iCi0JCQkJCQkgICAiIE11c3QgYmUgJ2JpZycsICds
+aXR0bGUnLCBvciAnaG9zdCciKSk7CisJCQkJZXJyeChNS0ZTX0VYX1VTQUdF
+LCBfKCJpbnZhbGlkIGVuZGlhbm5lc3MgZ2l2ZW47IgorCQkJCQkJICAgIiBt
+dXN0IGJlICdiaWcnLCAnbGl0dGxlJywgb3IgJ2hvc3QnIikpOwogCQkJYnJl
+YWs7CiAJCWNhc2UgJ2knOgogCQkJb3B0X2ltYWdlID0gb3B0YXJnOwpkaWZm
+IC0tZ2l0IGEvZGlzay11dGlscy9ta2ZzLm1pbml4LmMgYi9kaXNrLXV0aWxz
+L21rZnMubWluaXguYwppbmRleCAzYTE2MTdiLi42MzlhY2U3IDEwMDY0NAot
+LS0gYS9kaXNrLXV0aWxzL21rZnMubWluaXguYworKysgYi9kaXNrLXV0aWxz
+L21rZnMubWluaXguYwpAQCAtNDgyLDcgKzQ4Miw3IEBAIHN0YXRpYyB2b2lk
+IHNldHVwX3RhYmxlcyh2b2lkKSB7CiAKIAlzdXBlcl9ibG9ja19idWZmZXIg
+PSBjYWxsb2MoMSwgTUlOSVhfQkxPQ0tfU0laRSk7CiAJaWYgKCFzdXBlcl9i
+bG9ja19idWZmZXIpCi0JCWVycihNS0ZTX0VYX0VSUk9SLCBfKCIlczogdW5h
+YmxlIHRvIGFsbG9jIGJ1ZmZlciBmb3Igc3VwZXJibG9jayIpLAorCQllcnIo
+TUtGU19FWF9FUlJPUiwgXygiJXM6IHVuYWJsZSB0byBhbGxvY2F0ZSBidWZm
+ZXIgZm9yIHN1cGVyYmxvY2siKSwKIAkJCQlkZXZpY2VfbmFtZSk7CiAKIAlt
+ZW1zZXQoYm9vdF9ibG9ja19idWZmZXIsMCw1MTIpOwpkaWZmIC0tZ2l0IGEv
+bG9naW4tdXRpbHMvc3Vsb2dpbi5jIGIvbG9naW4tdXRpbHMvc3Vsb2dpbi5j
+CmluZGV4IDMyYWU5YTIuLjM1MmM3ODEgMTAwNjQ0Ci0tLSBhL2xvZ2luLXV0
+aWxzL3N1bG9naW4uYworKysgYi9sb2dpbi11dGlscy9zdWxvZ2luLmMKQEAg
+LTQ4NCwxMyArNDg0LDEzIEBAIHN0YXRpYyB2b2lkIGRvcHJvbXB0KGNvbnN0
+IGNoYXIgKmNyeXB0ZWQsIHN0cnVjdCBjb25zb2xlICpjb24pCiAJaWYgKGNy
+eXB0ZWRbMF0pCiAJCWZwcmludGYoY29uLT5maWxlLCBfKCJHaXZlIHJvb3Qg
+cGFzc3dvcmQgZm9yIGxvZ2luOiAiKSk7CiAJZWxzZQotCQlmcHJpbnRmKGNv
+bi0+ZmlsZSwgXygiUHJlc3MgZW50ZXIgZm9yIGxvZ2luOiAiKSk7CisJCWZw
+cmludGYoY29uLT5maWxlLCBfKCJQcmVzcyBFbnRlciBmb3IgbG9naW46ICIp
+KTsKICNlbHNlCiAJaWYgKGNyeXB0ZWRbMF0pCiAJCWZwcmludGYoY29uLT5m
+aWxlLCBfKCJHaXZlIHJvb3QgcGFzc3dvcmQgZm9yIG1haW50ZW5hbmNlXG4i
+KSk7CiAJZWxzZQotCQlmcHJpbnRmKGNvbi0+ZmlsZSwgXygiUHJlc3MgZW50
+ZXIgZm9yIG1haW50ZW5hbmNlIikpOwotCWZwcmludGYoY29uLT5maWxlLCBf
+KCIob3IgdHlwZSBDb250cm9sLUQgdG8gY29udGludWUpOiAiKSk7CisJCWZw
+cmludGYoY29uLT5maWxlLCBfKCJQcmVzcyBFbnRlciBmb3IgbWFpbnRlbmFu
+Y2UiKSk7CisJZnByaW50Zihjb24tPmZpbGUsIF8oIihvciBwcmVzcyBDb250
+cm9sLUQgdG8gY29udGludWUpOiAiKSk7CiAjZW5kaWYKIAlmZmx1c2goY29u
+LT5maWxlKTsKIGVycjoKZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvZmluZG1u
+dC5jIGIvbWlzYy11dGlscy9maW5kbW50LmMKaW5kZXggNGEzZTc2MC4uNDhj
+ODA3YyAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9maW5kbW50LmMKKysrIGIv
+bWlzYy11dGlscy9maW5kbW50LmMKQEAgLTEzMyw3ICsxMzMsNyBAQCBzdGF0
+aWMgc3RydWN0IGNvbGluZm8gaW5mb3NbRklORE1OVF9OQ09MVU1OU10gPSB7
+CiAJW0NPTF9JRF0gICAgICAgICAgID0geyAiSUQiLCAgICAgICAgICAgICAg
+MiwgVFRfRkxfUklHSFQsIE5fKCJtb3VudCBJRCIpIH0sCiAJW0NPTF9PUFRf
+RklFTERTXSAgID0geyAiT1BULUZJRUxEUyIsICAgMC4xMCwgVFRfRkxfVFJV
+TkMsIE5fKCJvcHRpb25hbCBtb3VudCBmaWVsZHMiKSB9LAogCVtDT0xfUFJP
+UEFHQVRJT05dICA9IHsgIlBST1BBR0FUSU9OIiwgIDAuMTAsIDAsIE5fKCJW
+RlMgcHJvcGFnYXRpb24gZmxhZ3MiKSB9LAotCVtDT0xfRlJFUV0gICAgICAg
+ICA9IHsgIkZSRVEiLCAgICAgICAgICAgIDEsIFRUX0ZMX1JJR0hULCBOXygi
+ZHVtcCg4KSBmcmVxdWVuY3kgaW4gZGF5cyBbZnN0YWIgb25seV0iKSB9LAor
+CVtDT0xfRlJFUV0gICAgICAgICA9IHsgIkZSRVEiLCAgICAgICAgICAgIDEs
+IFRUX0ZMX1JJR0hULCBOXygiZHVtcCg4KSBwZXJpb2QgaW4gZGF5cyBbZnN0
+YWIgb25seV0iKSB9LAogCVtDT0xfUEFTU05PXSAgICAgICA9IHsgIlBBU1NO
+TyIsICAgICAgICAgIDEsIFRUX0ZMX1JJR0hULCBOXygicGFzcyBudW1iZXIg
+b24gcGFyYWxsZWwgZnNjayg4KSBbZnN0YWIgb25seV0iKSB9CiB9OwogCmRp
+ZmYgLS1naXQgYS9zeXMtdXRpbHMvbG9zZXR1cC5jIGIvc3lzLXV0aWxzL2xv
+c2V0dXAuYwppbmRleCA5MGU3NWViLi42OGZmNDNjIDEwMDY0NAotLS0gYS9z
+eXMtdXRpbHMvbG9zZXR1cC5jCisrKyBiL3N5cy11dGlscy9sb3NldHVwLmMK
+QEAgLTM5NiwxMSArMzk2LDExIEBAIHN0YXRpYyB2b2lkIHdhcm5fc2l6ZShj
+b25zdCBjaGFyICpmaWxlbmFtZSwgdWludDY0X3Qgc2l6ZSkKIAl9CiAKIAlp
+ZiAoc2l6ZSA8IDUxMikKLQkJd2FybngoXygiJXM6IHdhcm5pbmc6IGZpbGUg
+c21hbGxlciB0aGFuIDUxMiBieXRlcywgdGhlIGxvb3AgZGV2aWNlICIKLQkJ
+CSJtYXliZSBiZSB1c2VsZXNzIG9yIGludmlzaWJsZSBmb3Igc3lzdGVtIHRv
+b2xzLiIpLAorCQl3YXJueChfKCIlczogV2FybmluZzogZmlsZSBpcyBzbWFs
+bGVyIHRoYW4gNTEyIGJ5dGVzOyB0aGUgbG9vcCBkZXZpY2UgIgorCQkJIm1h
+eSBiZSB1c2VsZXNzIG9yIGludmlzaWJsZSBmb3Igc3lzdGVtIHRvb2xzLiIp
+LAogCQkJZmlsZW5hbWUpOwogCWVsc2UgaWYgKHNpemUgJSA1MTIpCi0JCXdh
+cm54KF8oIiVzOiB3YXJuaW5nOiBmaWxlIGRvZXMgbm90IGZpdCBpbnRvIGEg
+NTEyLWJ5dGUgc2VjdG9yICIKKwkJd2FybngoXygiJXM6IFdhcm5pbmc6IGZp
+bGUgZG9lcyBub3QgZml0IGludG8gYSA1MTItYnl0ZSBzZWN0b3I7ICIKIAkJ
+ICAgICAgICAidGhlIGVuZCBvZiB0aGUgZmlsZSB3aWxsIGJlIGlnbm9yZWQu
+IiksCiAJCQlmaWxlbmFtZSk7CiB9Ci0tIAoxLjcuMC40Cgo=
+
+--_----------=_1370462889273415--
 
