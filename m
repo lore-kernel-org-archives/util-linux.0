@@ -1,34 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:45150 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756858Ab3FSOx2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 19 Jun 2013 10:53:28 -0400
-Received: by mail-ea0-f182.google.com with SMTP id d10so3343905eaj.13
-        for <util-linux@vger.kernel.org>; Wed, 19 Jun 2013 07:53:27 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:38714 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751527Ab3FGJ2V (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Jun 2013 05:28:21 -0400
+Date: Fri, 7 Jun 2013 11:28:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        10317@debbugs.gnu.org
+Subject: Re: su: -l and -p should not be used together
+Message-ID: <20130607092807.GA19555@x2.net.home>
+References: <519DF601.4090700@bernhard-voelker.de>
+ <20130529094010.GF30341@x2.net.home>
+ <51A5D07E.8000603@bernhard-voelker.de>
 MIME-Version: 1.0
-Date: Wed, 19 Jun 2013 16:53:27 +0200
-Message-ID: <CADJQGJfOj2GQNdoW89hC2LMukC_cwPuJVBiN6+xy64UphbOiZg@mail.gmail.com>
-Subject: forking in setsid
-From: Damien Wyart <damien.wyart@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <51A5D07E.8000603@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Wed, May 29, 2013 at 11:55:10AM +0200, Bernhard Voelker wrote:
+> As the change was in su-common.c, this also affects runuser.
+> I think this should then be documented in runuser.1, too, right?
 
-While searching information about setsid and daemonization, I came accros
-the following "bug" report in Debian :
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495881
+ Good point, fixed.
 
-Unfortunately, it doesn't seem to have been forwarded upstream after
-creation, and never received an answer.
+    Karel
 
-I would be interested in getting your opinions about it and the patch
-attached to it.
-
-Thanks in advance
-
-Best regards,
-
-Damien
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
