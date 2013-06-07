@@ -1,168 +1,147 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:46235 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756915Ab3FSQAK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 19 Jun 2013 12:00:10 -0400
-Received: by mail-pb0-f48.google.com with SMTP id ma3so5177671pbc.7
-        for <util-linux@vger.kernel.org>; Wed, 19 Jun 2013 09:00:09 -0700 (PDT)
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:41293 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753453Ab3FGR1F (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Jun 2013 13:27:05 -0400
+Received: by mail-wi0-f180.google.com with SMTP id hn14so1558889wib.13
+        for <util-linux@vger.kernel.org>; Fri, 07 Jun 2013 10:27:03 -0700 (PDT)
+Received: from ?IPv6:2a01:e35:8a2c:b230:c963:a32b:eca6:2292? ([2a01:e35:8a2c:b230:c963:a32b:eca6:2292])
+        by mx.google.com with ESMTPSA id k10sm23804736wia.4.2013.06.07.10.27.01
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Fri, 07 Jun 2013 10:27:02 -0700 (PDT)
+Message-ID: <51B217E4.1000800@gmail.com>
+Date: Fri, 07 Jun 2013 19:27:00 +0200
+From: Gabriel de Perthuis <g2p.code@gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CADJQGJfOj2GQNdoW89hC2LMukC_cwPuJVBiN6+xy64UphbOiZg@mail.gmail.com>
-References: <CADJQGJfOj2GQNdoW89hC2LMukC_cwPuJVBiN6+xy64UphbOiZg@mail.gmail.com>
-Date: Wed, 19 Jun 2013 17:00:09 +0100
-Message-ID: <CAG27Bk0tULzTdYpPPZz3C9Z2XZk9mTHbV=UCkMJEW+6XbRFZvw@mail.gmail.com>
-Subject: Re: forking in setsid
-From: Sami Kerola <kerolasa@iki.fi>
-To: Damien Wyart <damien.wyart@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: [PATCH v3] libblkid: print PTUUID, the partition table uuid
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 19 June 2013 15:53, Damien Wyart <damien.wyart@gmail.com> wrote:
-> While searching information about setsid and daemonization, I came accros
-> the following "bug" report in Debian :
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495881
->
-> Unfortunately, it doesn't seem to have been forwarded upstream after
-> creation, and never received an answer.
->
-> I would be interested in getting your opinions about it and the patch
-> attached to it.
+Call it ID_PART_TABLE_UUID in udev rules.
 
-Hi Damien,
-
-I am not sure if it is good idea to change default behavior of the
-software. Perhaps waiting return value of child should be new option,
-something like
-
-
->From c2deb80ef6feb7039a0554e4b8a8272e59cb1a87 Mon Sep 17 00:00:00 2001
-From: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
-Date: Wed, 20 Aug 2008 12:00:00 +0100
-Subject: [PATCH] setsid: add an option to wait child return value
-Organization: Lastminute.com
-
-This change was sent by Damien Wyart in behalf of Daniel Kahn Gillmor.
-
-Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495881
-Reference: http://permalink.gmane.org/gmane.linux.utilities.util-linux-ng/7736
-Reported-by: Damien Wyart <damien.wyart@gmail.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Gabriel de Perthuis <g2p.code@gmail.com>
 ---
- sys-utils/setsid.1 |  5 +++++
- sys-utils/setsid.c | 28 +++++++++++++++++++++++-----
- 2 files changed, 28 insertions(+), 5 deletions(-)
+v3: Call it ID_PART_TABLE_UUID in udev rules
 
-diff --git a/sys-utils/setsid.1 b/sys-utils/setsid.1
-index eff7948..da8d648 100644
---- a/sys-utils/setsid.1
-+++ b/sys-utils/setsid.1
-@@ -15,6 +15,11 @@ runs a program in a new session.
- .TP
- \fB\-c\fP, \fB\-\-ctty\fP
- Set the controlling terminal to the current one.
-+.TP
-+\fB\-w\fP, \fB\-\-wait\fP
-+Wait the execution of the program to end, and return the exit value of
-+the child as return value of the
-+.BR setsid .
- .SH "SEE ALSO"
- .BR setsid (2)
- .SH AUTHOR
-diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
-index 756a520..0e11a1a 100644
---- a/sys-utils/setsid.c
-+++ b/sys-utils/setsid.c
-@@ -9,6 +9,9 @@
-  * 2001-01-18 John Fremlin <vii@penguinpowered.com>
-  * - fork in case we are process group leader
+ libblkid/src/partitions/gpt.c        |  8 ++++----
+ libblkid/src/partitions/partitions.c | 14 +++++++++++---
+ misc-utils/blkid.c                   |  3 +++
+ 3 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/libblkid/src/partitions/gpt.c b/libblkid/src/partitions/gpt.c
+index 4441939..87b5ff6 100644
+--- a/libblkid/src/partitions/gpt.c
++++ b/libblkid/src/partitions/gpt.c
+@@ -320,14 +320,10 @@ static int probe_gpt_pt(blkid_probe pr,
+ 	if (blkid_probe_set_magic(pr, lba << 9,
+ 			      sizeof(GPT_HEADER_SIGNATURE_STR) - 1,
+ 			      (unsigned char *) GPT_HEADER_SIGNATURE_STR))
+ 		goto err;
+ 
+-	if (blkid_partitions_need_typeonly(pr))
+-		/* caller does not ask for details about partitions */
+-		return 0;
+-
+ 	ls = blkid_probe_get_partlist(pr);
+ 	if (!ls)
+ 		goto err;
+ 
+ 	tab = blkid_partlist_new_parttable(ls, "gpt", lba << 9);
+@@ -336,10 +332,14 @@ static int probe_gpt_pt(blkid_probe pr,
+ 
+ 	guid = h->disk_guid;
+ 	swap_efi_guid(&guid);
+ 	blkid_parttable_set_id(tab, (const unsigned char *) &guid);
+ 
++	if (blkid_partitions_need_typeonly(pr))
++		/* caller does not ask for details about partitions */
++		return 0;
++
+ 	ssf = blkid_probe_get_sectorsize(pr) / 512;
+ 
+ 	fu = le64_to_cpu(h->first_usable_lba);
+ 	lu = le64_to_cpu(h->last_usable_lba);
+ 
+diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
+index 87ca0c1..f732527 100644
+--- a/libblkid/src/partitions/partitions.c
++++ b/libblkid/src/partitions/partitions.c
+@@ -35,10 +35,12 @@
   *
-+ * 2008-08-20 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
-+ * - if forked, wait on child process and emit its return code.
+  * NAME=value interface, supported tags:
+  *
+  * @PTTYPE: partition table type (dos, gpt, etc.).
+  *
++ * @PTUUID: partition table uuid (gpt only)
 + *
+  * @PART_ENTRY_SCHEME: partition table type
+  *
+  * @PART_ENTRY_NAME: partition name (gpt and mac only)
+  *
+  * @PART_ENTRY_UUID: partition UUID (gpt only)
+@@ -568,17 +570,18 @@ nothing:
   */
-
- #include <getopt.h>
-@@ -16,6 +19,8 @@
- #include <stdlib.h>
- #include <unistd.h>
- #include <sys/ioctl.h>
-+#include <sys/types.h>
-+#include <sys/wait.h>
-
- #include "c.h"
- #include "nls.h"
-@@ -29,8 +34,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
-  program_invocation_short_name);
-
-  fputs(USAGE_OPTIONS, out);
-- fputs(_(" -c, --ctty     set the controlling terminal to the current one\n"),
-- out);
-+ fputs(_(" -c, --ctty     set the controlling terminal to the current
-one\n"), out);
-+ fputs(_(" -w, --wait     wait program to exit, and use the same
-return\n"), out);
-
-  fputs(USAGE_HELP, out);
-  fputs(USAGE_VERSION, out);
-@@ -43,10 +48,13 @@ int main(int argc, char **argv)
+ static int partitions_probe(blkid_probe pr, struct blkid_chain *chn)
  {
-  int ch;
-  int ctty = 0;
-+ pid_t pid;
-+ int status = 0;
+ 	int rc = 1;
+ 	size_t i;
++	blkid_partlist ls;
++	blkid_parttable pt;
+ 
+ 	if (!pr || chn->idx < -1)
+ 		return -1;
+ 	blkid_probe_chain_reset_vals(pr, chn);
+ 
+-	if (chn->binary)
+-		partitions_init_data(chn);
++	ls = partitions_init_data(chn);
+ 
+ 	if (!pr->wipe_size && (pr->prob_flags & BLKID_PROBE_FL_IGNORE_PT))
+ 		goto details_only;
+ 
+ 	DBG(LOWPROBE, blkid_debug("--> starting probing loop [PARTS idx=%d]",
+@@ -600,14 +603,19 @@ static int partitions_probe(blkid_probe pr, struct blkid_chain *chn)
+ 			continue;
+ 
+ 		name = idinfos[i]->name;
+ 
+ 		/* all checks passed */
+-		if (!chn->binary)
++		if (!chn->binary) {
+ 			blkid_probe_set_value(pr, "PTTYPE",
+ 						(unsigned char *) name,
+ 						strlen(name) + 1);
++			pt = blkid_partlist_get_table(ls);
++			if (pt && pt->id && strcmp(name, "gpt") == 0)
++				blkid_probe_set_value(pr, "PTUUID",
++						      pt->id, 37);
++		}
+ 		DBG(LOWPROBE, blkid_debug("<-- leaving probing loop (type=%s) [PARTS idx=%d]",
+ 			name, chn->idx));
+ 		rc = 0;
+ 		break;
+ 	}
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index f572a20..b032c85 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -251,10 +251,13 @@ static void print_udev_format(const char *name, const char *value)
+ 		printf("ID_FS_%s=%s\n", name, safe);
+ 
+ 		blkid_encode_string(value, enc, sizeof(enc));
+ 		printf("ID_FS_%s_ENC=%s\n", name, enc);
+ 
++	} else if (!strcmp(name, "PTUUID")) {
++		printf("ID_PART_TABLE_UUID=%s\n", value);
++
+ 	} else if (!strcmp(name, "PTTYPE")) {
+ 		printf("ID_PART_TABLE_TYPE=%s\n", value);
+ 
+ 	} else if (!strcmp(name, "PART_ENTRY_NAME") ||
+ 		  !strcmp(name, "PART_ENTRY_TYPE")) {
+-- 
+1.8.3.222.g430da9e
 
-  static const struct option longopts[] = {
-  {"ctty", no_argument, NULL, 'c'},
-  {"version", no_argument, NULL, 'V'},
-+ {"wait", no_argument, NULL, 'w'},
-  {"help", no_argument, NULL, 'h'},
-  {NULL, 0, NULL, 0}
-  };
-@@ -56,7 +64,7 @@ int main(int argc, char **argv)
-  textdomain(PACKAGE);
-  atexit(close_stdout);
-
-- while ((ch = getopt_long(argc, argv, "+Vhc", longopts, NULL)) != -1)
-+ while ((ch = getopt_long(argc, argv, "+Vhcw", longopts, NULL)) != -1)
-  switch (ch) {
-  case 'V':
-  printf(UTIL_LINUX_VERSION);
-@@ -64,6 +72,9 @@ int main(int argc, char **argv)
-  case 'c':
-  ctty=1;
-  break;
-+ case 'w':
-+ status = 1;
-+ break;
-  case 'h':
-  usage(stdout);
-  default:
-@@ -74,15 +85,22 @@ int main(int argc, char **argv)
-  usage(stderr);
-
-  if (getpgrp() == getpid()) {
-- switch (fork()) {
-+ pid = fork();
-+ switch (pid) {
-  case -1:
-  err(EXIT_FAILURE, _("fork"));
-  case 0:
-  /* child */
-  break;
-  default:
-+ if (!status)
-+ return EXIT_SUCCESS;
-  /* parent */
-- return 0;
-+ if (wait(&status) != pid)
-+ err(EXIT_FAILURE, "wait");
-+ if (WIFEXITED(status))
-+ return WEXITSTATUS(status);
-+ err(status, _("child %d did not exit normally"), pid);
-  }
-  }
-  if (setsid() < 0)
---
-1.8.3.1
