@@ -1,126 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:50366 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753691Ab3FGQo1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Jun 2013 12:44:27 -0400
-Received: by mail-wi0-f171.google.com with SMTP id hm9so1537642wib.4
-        for <util-linux@vger.kernel.org>; Fri, 07 Jun 2013 09:44:26 -0700 (PDT)
-Received: from ?IPv6:2a01:e35:8a2c:b230:c963:a32b:eca6:2292? ([2a01:e35:8a2c:b230:c963:a32b:eca6:2292])
-        by mx.google.com with ESMTPSA id e5sm23613745wiy.5.2013.06.07.09.44.25
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Fri, 07 Jun 2013 09:44:26 -0700 (PDT)
-Message-ID: <51B20DE8.7090701@gmail.com>
-Date: Fri, 07 Jun 2013 18:44:24 +0200
-From: Gabriel de Perthuis <g2p.code@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:41642 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755686Ab3FGK2M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Jun 2013 06:28:12 -0400
+Date: Fri, 7 Jun 2013 12:28:02 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/19] pull: various clean ups and couple bug fixes
+Message-ID: <20130607102802.GB9955@x2.net.home>
+References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: util-linux <util-linux@vger.kernel.org>
-Subject: [PATCH v2] libblkid: print PTUUID, the partition table uuid
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Gabriel de Perthuis <g2p.code@gmail.com>
----
-v2: only enable this for GPT, dos ids are too weak and not unique
+On Sun, Jun 02, 2013 at 06:51:06PM +0100, Sami Kerola wrote:
+>       lib: remove unused code
+>       lscpu: add max MHz value to make cpu governor effects more visible
+>       docs: add lscpu max mhz to manual and bash completion
 
- libblkid/src/partitions/gpt.c        |  8 ++++----
- libblkid/src/partitions/partitions.c | 14 +++++++++++---
- 2 files changed, 15 insertions(+), 7 deletions(-)
+ Applied.
 
-diff --git a/libblkid/src/partitions/gpt.c b/libblkid/src/partitions/gpt.c
-index 4441939..87b5ff6 100644
---- a/libblkid/src/partitions/gpt.c
-+++ b/libblkid/src/partitions/gpt.c
-@@ -320,14 +320,10 @@ static int probe_gpt_pt(blkid_probe pr,
- 	if (blkid_probe_set_magic(pr, lba << 9,
- 			      sizeof(GPT_HEADER_SIGNATURE_STR) - 1,
- 			      (unsigned char *) GPT_HEADER_SIGNATURE_STR))
- 		goto err;
- 
--	if (blkid_partitions_need_typeonly(pr))
--		/* caller does not ask for details about partitions */
--		return 0;
--
- 	ls = blkid_probe_get_partlist(pr);
- 	if (!ls)
- 		goto err;
- 
- 	tab = blkid_partlist_new_parttable(ls, "gpt", lba << 9);
-@@ -336,10 +332,14 @@ static int probe_gpt_pt(blkid_probe pr,
- 
- 	guid = h->disk_guid;
- 	swap_efi_guid(&guid);
- 	blkid_parttable_set_id(tab, (const unsigned char *) &guid);
- 
-+	if (blkid_partitions_need_typeonly(pr))
-+		/* caller does not ask for details about partitions */
-+		return 0;
-+
- 	ssf = blkid_probe_get_sectorsize(pr) / 512;
- 
- 	fu = le64_to_cpu(h->first_usable_lba);
- 	lu = le64_to_cpu(h->last_usable_lba);
- 
-diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
-index 87ca0c1..f732527 100644
---- a/libblkid/src/partitions/partitions.c
-+++ b/libblkid/src/partitions/partitions.c
-@@ -35,10 +35,12 @@
-  *
-  * NAME=value interface, supported tags:
-  *
-  * @PTTYPE: partition table type (dos, gpt, etc.).
-  *
-+ * @PTUUID: partition table uuid (gpt only)
-+ *
-  * @PART_ENTRY_SCHEME: partition table type
-  *
-  * @PART_ENTRY_NAME: partition name (gpt and mac only)
-  *
-  * @PART_ENTRY_UUID: partition UUID (gpt only)
-@@ -568,17 +570,18 @@ nothing:
-  */
- static int partitions_probe(blkid_probe pr, struct blkid_chain *chn)
- {
- 	int rc = 1;
- 	size_t i;
-+	blkid_partlist ls;
-+	blkid_parttable pt;
- 
- 	if (!pr || chn->idx < -1)
- 		return -1;
- 	blkid_probe_chain_reset_vals(pr, chn);
- 
--	if (chn->binary)
--		partitions_init_data(chn);
-+	ls = partitions_init_data(chn);
- 
- 	if (!pr->wipe_size && (pr->prob_flags & BLKID_PROBE_FL_IGNORE_PT))
- 		goto details_only;
- 
- 	DBG(LOWPROBE, blkid_debug("--> starting probing loop [PARTS idx=%d]",
-@@ -600,14 +603,19 @@ static int partitions_probe(blkid_probe pr, struct blkid_chain *chn)
- 			continue;
- 
- 		name = idinfos[i]->name;
- 
- 		/* all checks passed */
--		if (!chn->binary)
-+		if (!chn->binary) {
- 			blkid_probe_set_value(pr, "PTTYPE",
- 						(unsigned char *) name,
- 						strlen(name) + 1);
-+			pt = blkid_partlist_get_table(ls);
-+			if (pt && pt->id && strcmp(name, "gpt") == 0)
-+				blkid_probe_set_value(pr, "PTUUID",
-+						      pt->id, 37);
-+		}
- 		DBG(LOWPROBE, blkid_debug("<-- leaving probing loop (type=%s) [PARTS idx=%d]",
- 			name, chn->idx));
- 		rc = 0;
- 		break;
- 	}
+>       sfdisk: use libc error printing function, and symbolic exit values
+>       sfdisk: clean up usage() functions
+>       sfdisk: use program_invocation_short_name to determine program name
+>       docs: correct sfdisk --activate instructions
+>       sfdisk: remove --unhide and related functions
+>       sfdisk: replace my_warn() with warnx()
+
+ Not applied.
+
+>       rev: stop adding new line at the end when input does not have it
+>       rev: simplify new line detection and impossible test
+>       rev: reduce stream checking when closing read-only file descriptor
+
+ Applied.
+
+>       dmesg: make time format parsing to use enum bit field
+>       dmesg: add --time-format option
+>       dmesg: add iso-8601 time format
+>       docs: add --time-format option and ISO-8601 format to manual
+>       dmesg: make usage() a little bit shorter
+>       dmesg: more deterministic boot time detection
+
+ Not applied.
+
+>       cal: fix few type mismatches
+
+ Applied.
+
+
+    Karel
+
 -- 
-1.8.3.222.g430da9e
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
