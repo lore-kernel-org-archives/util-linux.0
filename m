@@ -1,31 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42909 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:38119 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754140Ab3FGKMF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Jun 2013 06:12:05 -0400
-Date: Fri, 7 Jun 2013 12:11:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] more message tweaks and man-page formatting
-Message-ID: <20130607101159.GD24313@x2.net.home>
-References: <1369947975.27016.140661237820897.7E35B492@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1369947975.27016.140661237820897.7E35B492@webmail.messagingengine.com>
+	id S1752215Ab3FHSuF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 8 Jun 2013 14:50:05 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1UlODD-0001lK-Fm
+	for util-linux@vger.kernel.org; Sat, 08 Jun 2013 20:50:03 +0200
+Received: from piekna-gts.2a.pl ([217.153.90.242])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 08 Jun 2013 20:50:03 +0200
+Received: from giecrilj by piekna-gts.2a.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 08 Jun 2013 20:50:03 +0200
+To: util-linux@vger.kernel.org
+From: Krzysztof =?UTF-8?B?xbtlbGVjaG93c2tp?= <giecrilj@stegny.2a.pl>
+Subject: Re: [PATCH] Fix typos found by misspellings
+Date: Sat, 08 Jun 2013 01:49:16 +0200
+Message-ID: <kotrf8$s14$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 30, 2013 at 11:06:15PM +0200, Benno Schulenberg wrote:
-> The first patch tweaks the grammar of some loop-device error messages,
-> removes an inconsistent period and ungettextizes an untranslatable string.
-> Second patch does similar things for a bunch of other files, and adds the
-> now standard angular brackets to non-literal arguments in command
-> synopses.  Third and fourth patch normalize formatting and grammar
-> of the man pages for nsenter, unshare and column.
+<URL: 
+http://article.gmane.org/
+gmane.linux.utilities.util-linux-ng/5651/match=visable >
 
- Applied, thanks.
+The
+ .BR rootcontext=
+ option allows you to explicitly label the root inode of a FS being mounted
+-before that FS or inode because visable to userspace. This was found to be
++before that FS or inode because visible to userspace. This was found to be
+ useful for things like stateless linux.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I still do not understand the first sentence.  What is that supposed to 
+mean?
+
+Chris
+
