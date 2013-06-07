@@ -1,117 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:59481 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754839Ab3FBRvv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:51:51 -0400
-Received: by mail-wg0-f53.google.com with SMTP id m15so2523190wgh.8
-        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:51:49 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 05/19] sfdisk: clean up usage() functions
-Date: Sun,  2 Jun 2013 18:51:11 +0100
-Message-Id: <1370195485-27907-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
-References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+Received: from tx2ehsobe002.messaging.microsoft.com ([65.55.88.12]:49028 "EHLO
+	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750737Ab3FGEIl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Jun 2013 00:08:41 -0400
+Received: from mail192-tx2 (localhost [127.0.0.1])	by
+ mail192-tx2-R.bigfish.com (Postfix) with ESMTP id 8DCA54C06E5	for
+ <util-linux@vger.kernel.org>; Fri,  7 Jun 2013 04:08:40 +0000 (UTC)
+Received: from TX2EHSMHS041.bigfish.com (unknown [10.9.14.230])	by
+ mail192-tx2.bigfish.com (Postfix) with ESMTP id 224512E0047	for
+ <util-linux@vger.kernel.org>; Fri,  7 Jun 2013 04:08:39 +0000 (UTC)
+Received: from unknown-38-66.xilinx.com ([149.199.38.66]
+ helo=xsj-smtp1.xilinx.com)	by xsj-gw1 with esmtp (Exim 4.63)	(envelope-from
+ <nathan.rossi@xilinx.com>)	id 1Uknyg-0002Lt-J3	for
+ util-linux@vger.kernel.org; Thu, 06 Jun 2013 21:08:38 -0700
+From: Nathan Rossi <nathan.rossi@xilinx.com>
+To: <util-linux@vger.kernel.org>
+CC: Nathan Rossi <nathan.rossi@xilinx.com>
+Subject: [PATCH] fdisk: add support for the MicroBlaze architecture
+Date: Fri, 7 Jun 2013 14:08:06 +1000
+MIME-Version: 1.0
+Content-Type: text/plain
+Message-ID: <f2659884-36d1-4011-9485-e2dda08b5a6d@TX2EHSMHS041.ehs.local>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Includes removal of unhide usage function, which was never implemented.
+Add support to fdisk for the MicroBlaze architecture.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Nathan Rossi <nathan.rossi@xilinx.com>
 ---
- fdisks/sfdisk.c | 39 ++++++++++++++++++---------------------
- 1 file changed, 18 insertions(+), 21 deletions(-)
+ fdisks/fdiskbsdlabel.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
-index f64f3cd..cac8252 100644
---- a/fdisks/sfdisk.c
-+++ b/fdisks/sfdisk.c
-@@ -2370,11 +2370,11 @@ read_input(char *dev, int interactive, struct disk_desc *z) {
-  */
- static void usage(FILE * out)
- {
--	fputs(_("\nUsage:\n"), out);
-+	fputs(USAGE_HEADER, out);
- 	fprintf(out,
- 		_(" %s [options] <device> [...]\n"),  program_invocation_short_name);
- 
--	fputs(_("\nOptions:\n"), out);
-+	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -s, --show-size           list size of a partition\n"
- 		" -c, --id                  change or print partition Id\n"
- 		"     --change-id           change Id\n"
-@@ -2421,27 +2421,29 @@ static void usage(FILE * out)
- 	fputs(_("\nOverride the detected geometry using:\n"
- 		" -C, --cylinders <number>  set the number of cylinders to use\n"
- 		" -H, --heads <number>      set the number of heads to use\n"
--		" -S, --sectors <number>    set the number of sectors to use\n\n"), out);
-+		" -S, --sectors <number>    set the number of sectors to use\n"), out);
- 
-+	fprintf(out, USAGE_MAN_TAIL("sfdisk(8)"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
- static void
--activate_usage(char *progn) {
--    puts(_("Usage:"));
--    printf(_("%s device		 list active partitions on device\n"), progn);
--    printf(_("%s device n1 n2 ... activate partitions n1 ..., inactivate the rest\n"),
--	   progn);
--    printf(_("%s -An device	 activate partition n, inactivate the other ones\n"),
--	   program_invocation_short_name);
-+activate_usage(void) {
-+    char *p;
-+    if (!strcmp(program_invocation_short_name, "activate"))
-+	p = " ";
-+    else
-+	p = " --activate=";
-+    fputs(USAGE_HEADER, stderr);
-+    fputs(USAGE_SEPARATOR, stderr);
-+    fprintf(stderr, _(" %s%sdevice            list active partitions on device\n"),
-+	   program_invocation_short_name, p);
-+    fprintf(stderr, _(" %s%sdevice n1 n2 ...  activate partitions n1 ..., inactivate the rest\n"),
-+	   program_invocation_short_name, p);
-+    fprintf(stderr, USAGE_MAN_TAIL("sfdisk(8)"));
-     exit(EXIT_FAILURE);
- }
- 
--static void
--unhide_usage(char *progn __attribute__ ((__unused__))) {
--    exit(1);
--}
--
- static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TU::V";
- 
- #define PRINT_ID 0400
-@@ -2557,7 +2559,6 @@ main(int argc, char **argv) {
-     int activate = 0;
-     int do_id = 0;
-     int unhide = 0;
--    int fdisk = 0;
-     char *activatearg = 0;
-     char *unhidearg = 0;
- 
-@@ -2578,8 +2579,6 @@ main(int argc, char **argv) {
-     else if (!strcmp(progn, "unhide"))
- 	unhide = 1;		/* equivalent to `sfdisk -U' */
- #endif
--    else
--	fdisk = 1;
- 
-     while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
- 	switch (c) {
-@@ -2742,9 +2741,7 @@ main(int argc, char **argv) {
- 
-     if (optind == argc) {
- 	if (activate)
--	    activate_usage(fdisk ? "sfdisk -A" : progn);
--	else if (unhide)
--	    unhide_usage(fdisk ? "sfdisk -U" : progn);
-+	    activate_usage();
- 	else
- 	    usage(stderr);
-     }
+diff --git a/fdisks/fdiskbsdlabel.h b/fdisks/fdiskbsdlabel.h
+index 8c4e4e7..69f1065 100644
+--- a/fdisks/fdiskbsdlabel.h
++++ b/fdisks/fdiskbsdlabel.h
+@@ -49,7 +49,8 @@
+ #if defined (__i386__) || defined (__sparc__) || defined (__arm__) || \
+     defined (__mips__) || defined (__s390__) || defined (__sh__) || \
+     defined (__aarch64__) || defined(__xtensa__) || \
+-    defined(__x86_64__) || defined (__avr32__) || defined(__cris__)
++    defined (__x86_64__) || defined (__avr32__) || defined(__cris__) || \
++    defined (__microblaze__)
+ #define BSD_LABELSECTOR   1
+ #define BSD_LABELOFFSET   0
+ #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__) || defined (__hppa__)
 -- 
-1.8.3
+1.7.5.4
+
 
