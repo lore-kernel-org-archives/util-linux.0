@@ -1,60 +1,107 @@
-Return-Path: kerolasa@gmail.com
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20130607102802.GB9955@x2.net.home>
-References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
-	<20130607102802.GB9955@x2.net.home>
-Date: Fri, 7 Jun 2013 16:45:16 +0100
-Message-ID: <CAG27Bk38mjk0xuE3ksM24g944C9FmciGtUe5JeOtVfpxfrQEdA@mail.gmail.com>
-Subject: Re: [PATCH 00/19] pull: various clean ups and couple bug fixes
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:56036 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753344Ab3FNSBW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 14 Jun 2013 14:01:22 -0400
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 03DAEA341E
+	for <util-linux@vger.kernel.org>; Fri, 14 Jun 2013 20:01:21 +0200 (CEST)
+Message-ID: <1371232880.11619.1.camel@oct.suse.cz>
+Subject: [PATCH] eject: Check host_status and driver_status when using SG_IO.
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: util-linux@vger.kernel.org
+Date: Fri, 14 Jun 2013 20:01:20 +0200
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 7 June 2013 11:28, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Jun 02, 2013 at 06:51:06PM +0100, Sami Kerola wrote:
->>       lib: remove unused code
->>       lscpu: add max MHz value to make cpu governor effects more visible
->>       docs: add lscpu max mhz to manual and bash completion
->
->  Applied.
->
->>       sfdisk: use libc error printing function, and symbolic exit values
->>       sfdisk: clean up usage() functions
->>       sfdisk: use program_invocation_short_name to determine program name
->>       docs: correct sfdisk --activate instructions
->>       sfdisk: remove --unhide and related functions
->>       sfdisk: replace my_warn() with warnx()
->
->  Not applied.
->
->>       rev: stop adding new line at the end when input does not have it
->>       rev: simplify new line detection and impossible test
->>       rev: reduce stream checking when closing read-only file descriptor
->
->  Applied.
->
->>       dmesg: make time format parsing to use enum bit field
->>       dmesg: add --time-format option
->>       dmesg: add iso-8601 time format
->>       docs: add --time-format option and ISO-8601 format to manual
->>       dmesg: make usage() a little bit shorter
->>       dmesg: more deterministic boot time detection
->
->  Not applied.
->
->>       cal: fix few type mismatches
->
->  Applied.
+I just reviewed patches from SUSE eject package. I found one which
+probably still applies. It was written by Anna Bernathova (now
+Maresova).
 
-Karel, thank you for comments and partial merge. My week has utterly
-crazy, so I have not had time to react on the earlier message. I'll do
-my best fixing the reported issues sometime in next 10 days.
-Meanwhile, all reading this list, have a good week.
+>From c8a15b1f325a20a33233f56815cf3c6e71b86031 Mon Sep 17 00:00:00 2001
+From: Anna Bernathova <anicka@suse.cz>
+Date: Tue, 27 May 2008 09:39:49 +0200
+Subject: [PATCH] eject: Check host_status and driver_status when using SG_IO.
 
---
-   Sami Kerola
-   http://www.iki.fi/kerolasa/
+Detailed description from https://bugzilla.novell.com/show_bug.cgi?id=358033
+
+Tejun Heo 2008-05-23 11:54:01 UTC:
+
+ioctl(4, SG_IO, {'S', SG_DXFER_NONE, cmd[6]=[1b, 00, 00, 00, 02, 00],
+mx_sb_len=32, iovec_count=0, dxfer_len=0, timeout=8000, flags=0, status=00,
+masked_status=00, sb[0]=[], host_status=0x4, driver_status=0, resid=0,
+duration=0, info=0x1}) = 0
+
+The SG_IO succeeded with host_status=0x4 which is DID_BAD_TARGET meaning that
+there was no such device.  SG_IO completion status is weird but still well
+defined.  You'll need to check both host_status, driver_status and status to
+determine that a command actually succeeded.
+
+Please take a look at http://sg.torque.net/sg/sg_io.html and
+include/scsi/scsi.h for details.
+
+Signed-off-by: Anna Bernathova <anicka@suse.cz>
+---
+ sys-utils/eject.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index 4ec69e7..b319dd2 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -41,6 +41,7 @@
+ #include <scsi/scsi.h>
+ #include <scsi/sg.h>
+ #include <scsi/scsi_ioctl.h>
++#include <scsi/sg_io_linux.h>
+ #include <sys/time.h>
+ 
+ #include <libmount.h>
+@@ -604,17 +605,17 @@ static int eject_scsi(int fd)
+ 
+ 	io_hdr.cmdp = allowRmBlk;
+ 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
+-	if (status < 0)
++	if (status < 0 || io_hdr.host_status != DID_OK || io_hdr.driver_status != DRIVER_OK)
+ 		return 0;
+ 
+ 	io_hdr.cmdp = startStop1Blk;
+ 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
+-	if (status < 0)
++	if (status < 0 || io_hdr.host_status != DID_OK || io_hdr.driver_status != DRIVER_OK)
+ 		return 0;
+ 
+ 	io_hdr.cmdp = startStop2Blk;
+ 	status = ioctl(fd, SG_IO, (void *)&io_hdr);
+-	if (status < 0)
++	if (status < 0 || io_hdr.host_status != DID_OK || io_hdr.driver_status != DRIVER_OK)
+ 		return 0;
+ 
+ 	/* force kernel to reread partition table when new disc inserted */
+-- 
+1.8.1.4
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                  fax: +420 284 028 951
+Czech Republic                                    http://www.suse.cz/
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                  fax: +420 284 028 951
+Czech Republic                                    http://www.suse.cz/
+
