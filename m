@@ -1,51 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from tx2ehsobe002.messaging.microsoft.com ([65.55.88.12]:49028 "EHLO
-	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750737Ab3FGEIl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Jun 2013 00:08:41 -0400
-Received: from mail192-tx2 (localhost [127.0.0.1])	by
- mail192-tx2-R.bigfish.com (Postfix) with ESMTP id 8DCA54C06E5	for
- <util-linux@vger.kernel.org>; Fri,  7 Jun 2013 04:08:40 +0000 (UTC)
-Received: from TX2EHSMHS041.bigfish.com (unknown [10.9.14.230])	by
- mail192-tx2.bigfish.com (Postfix) with ESMTP id 224512E0047	for
- <util-linux@vger.kernel.org>; Fri,  7 Jun 2013 04:08:39 +0000 (UTC)
-Received: from unknown-38-66.xilinx.com ([149.199.38.66]
- helo=xsj-smtp1.xilinx.com)	by xsj-gw1 with esmtp (Exim 4.63)	(envelope-from
- <nathan.rossi@xilinx.com>)	id 1Uknyg-0002Lt-J3	for
- util-linux@vger.kernel.org; Thu, 06 Jun 2013 21:08:38 -0700
-From: Nathan Rossi <nathan.rossi@xilinx.com>
-To: <util-linux@vger.kernel.org>
-CC: Nathan Rossi <nathan.rossi@xilinx.com>
-Subject: [PATCH] fdisk: add support for the MicroBlaze architecture
-Date: Fri, 7 Jun 2013 14:08:06 +1000
-MIME-Version: 1.0
-Content-Type: text/plain
-Message-ID: <f2659884-36d1-4011-9485-e2dda08b5a6d@TX2EHSMHS041.ehs.local>
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:60648 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755360Ab3FPSyn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:43 -0400
+Received: by mail-wg0-f43.google.com with SMTP id z11so1750912wgg.34
+        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:42 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 12/15] dmesg: regroup time related options close to each other
+Date: Sun, 16 Jun 2013 19:53:53 +0100
+Message-Id: <1371408836-16663-13-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add support to fdisk for the MicroBlaze architecture.
-
-Signed-off-by: Nathan Rossi <nathan.rossi@xilinx.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/fdiskbsdlabel.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ sys-utils/dmesg.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fdisks/fdiskbsdlabel.h b/fdisks/fdiskbsdlabel.h
-index 8c4e4e7..69f1065 100644
---- a/fdisks/fdiskbsdlabel.h
-+++ b/fdisks/fdiskbsdlabel.h
-@@ -49,7 +49,8 @@
- #if defined (__i386__) || defined (__sparc__) || defined (__arm__) || \
-     defined (__mips__) || defined (__s390__) || defined (__sh__) || \
-     defined (__aarch64__) || defined(__xtensa__) || \
--    defined(__x86_64__) || defined (__avr32__) || defined(__cris__)
-+    defined (__x86_64__) || defined (__avr32__) || defined(__cris__) || \
-+    defined (__microblaze__)
- #define BSD_LABELSECTOR   1
- #define BSD_LABELOFFSET   0
- #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__) || defined (__hppa__)
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index be08f6c..480c897 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -238,8 +238,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -C, --clear                 clear the kernel ring buffer\n"), out);
+ 	fputs(_(" -c, --read-clear            read and clear all messages\n"), out);
+ 	fputs(_(" -D, --console-off           disable printing messages to console\n"), out);
+-	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
+-	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
+ 	fputs(_(" -E, --console-on            enable printing messages to console\n"), out);
+ 	fputs(_(" -F, --file <file>           use the file instead of the kernel log buffer\n"), out);
+ 	fputs(_(" -f, --facility <list>       restrict output to defined facilities\n"), out);
+@@ -252,14 +250,16 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -r, --raw                   print the raw message buffer\n"), out);
+ 	fputs(_(" -S, --syslog                force to use syslog(2) rather than /dev/kmsg\n"), out);
+ 	fputs(_(" -s, --buffer-size <size>    buffer size to query the kernel ring buffer\n"), out);
+-	fputs(_(" -T, --ctime                 show human readable timestamp (could be \n"
+-		"                               inaccurate if you have used SUSPEND/RESUME)\n"), out);
+-	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
+ 	fputs(_(" -u, --userspace             display userspace messages\n"), out);
+ 	fputs(_(" -w, --follow                wait for new messages\n"), out);
+ 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
++	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
++	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
++	fputs(_(" -T, --ctime                 show human readable timestamp\n"), out);
++	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
+ 	fputs(_("     --time-format <format>  show time stamp using format:\n"
+-		"                               [delta|reltime|ctime|notime|iso]\n"), out);
++		"                               [delta|reltime|ctime|notime|iso]\n"
++		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
 -- 
-1.7.5.4
-
+1.8.3.1
 
