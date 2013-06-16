@@ -1,166 +1,326 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f182.google.com ([74.125.82.182]:57351 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755408Ab3FPSy0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:26 -0400
-Received: by mail-we0-f182.google.com with SMTP id p60so1741043wes.41
-        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:24 -0700 (PDT)
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:61625 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755360Ab3FPSyq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:46 -0400
+Received: by mail-wi0-f178.google.com with SMTP id k10so1574895wiv.11
+        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:45 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 06/15] sfdisk: remove --unhide and related functions
-Date: Sun, 16 Jun 2013 19:53:47 +0100
-Message-Id: <1371408836-16663-7-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 13/15] sd-daemon: update files taken from systemd project
+Date: Sun, 16 Jun 2013 19:53:54 +0100
+Message-Id: <1371408836-16663-14-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The --unhide was never implemented, and did not do anything.
+Update sd-damoen.[hc] files from systemd upstream, using commit
+fa3868c6d317b88715c55422b898f9070afe6575 as the sync point.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/sfdisk.c | 70 +--------------------------------------------------------
- 1 file changed, 1 insertion(+), 69 deletions(-)
+ misc-utils/sd-daemon.c | 100 ++++++++++++++++++++++---------------------------
+ misc-utils/sd-daemon.h |  14 +++----
+ 2 files changed, 52 insertions(+), 62 deletions(-)
 
-diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
-index 2b4969b..ae17e8d 100644
---- a/fdisks/sfdisk.c
-+++ b/fdisks/sfdisk.c
-@@ -2391,7 +2391,6 @@ static void usage(FILE * out)
- 	fputs(_(" -g, --show-geometry       print the kernel's idea of the geometry\n"
- 		" -G, --show-pt-geometry    print geometry guessed from the partition table\n"), out);
- 	fputs(_(" -A, --activate[=<device>] activate bootable flag\n"
--		" -U, --unhide[=<dev>]      set partition unhidden\n"
- 		" -x, --show-extended       also list extended partitions in the output,\n"
- 		"                             or expect descriptors for them in the input\n"), out);
- 	fputs(_("     --leave-last          do not allocate the last cylinder\n"
-@@ -2430,7 +2429,7 @@ activate_usage(void) {
-     exit(EXIT_FAILURE);
- }
+diff --git a/misc-utils/sd-daemon.c b/misc-utils/sd-daemon.c
+index 763e079..485b301 100644
+--- a/misc-utils/sd-daemon.c
++++ b/misc-utils/sd-daemon.c
+@@ -25,18 +25,14 @@
+ ***/
  
--static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TU::V";
-+static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TV";
+ #ifndef _GNU_SOURCE
+-#define _GNU_SOURCE
++#  define _GNU_SOURCE
+ #endif
  
- #define PRINT_ID 0400
- #define CHANGE_ID 01000
-@@ -2473,7 +2472,6 @@ static const struct option long_opts[] = {
-     { "Linux",            no_argument, NULL, 'L' },
-     { "re-read",          no_argument, NULL, 'R' },
-     { "list-types",       no_argument, NULL, 'T' },
--    { "unhide",           optional_argument, NULL, 'U' },
-     { "no-reread",        no_argument, NULL, OPT_NO_REREAD },
-     { "IBM",              no_argument, NULL, OPT_LEAVE_LAST },
-     { "leave-last",       no_argument, NULL, OPT_LEAVE_LAST },
-@@ -2528,7 +2526,6 @@ static void do_pt_geom(char *dev, int silent);
- static void do_fdisk(char *dev);
- static void do_reread(char *dev);
- static void do_change_id(char *dev, char *part, char *id);
--static void do_unhide(char **av, int ac, char *arg);
- static void do_activate(char **av, int ac, char *arg);
- 
- unsigned long long total_size;
-@@ -2543,9 +2540,7 @@ main(int argc, char **argv) {
-     int opt_reread = 0;
-     int activate = 0;
-     int do_id = 0;
--    int unhide = 0;
-     char *activatearg = 0;
--    char *unhidearg = 0;
- 
-     setlocale(LC_ALL, "");
-     bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -2556,10 +2551,6 @@ main(int argc, char **argv) {
- 	errx(EXIT_FAILURE, _("no command?"));
-     if (!strcmp(program_invocation_short_name, "activate"))
- 	activate = 1;		/* equivalent to `sfdisk -A' */
--#if 0				/* not important enough to deserve a name */
--    else if (!strcmp(program_invocation_short_name, "unhide"))
--	unhide = 1;		/* equivalent to `sfdisk -U' */
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/socket.h>
+ #include <sys/un.h>
+-#ifdef __BIONIC__
+-#include <linux/fcntl.h>
+-#else
+-#include <sys/fcntl.h>
 -#endif
++#include <fcntl.h>
+ #include <netinet/in.h>
+ #include <stdlib.h>
+ #include <errno.h>
+@@ -47,22 +43,22 @@
+ #include <stddef.h>
+ #include <limits.h>
  
-     while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
- 	switch (c) {
-@@ -2643,10 +2634,6 @@ main(int argc, char **argv) {
- 	case 'T':
- 	    list_types();
- 	    return EXIT_SUCCESS;
--	case 'U':
--	    unhidearg = optarg;
--	    unhide = 1;
--	    break;
- 	case 'V':
- 	    verify = 1;
- 	    break;
-@@ -2746,10 +2733,6 @@ main(int argc, char **argv) {
- 	do_activate(argv + optind, argc - optind, activatearg);
- 	return exit_status;
-     }
--    if (unhide) {
--	do_unhide(argv + optind, argc - optind, unhidearg);
--	return exit_status;
--    }
-     if (do_id) {
- 	if ((do_id & PRINT_ID) != 0 && optind != argc - 2)
- 	    errx(EXIT_FAILURE, _("usage: sfdisk --print-id device partition-number"));
-@@ -3003,57 +2986,6 @@ do_activate(char **av, int ac, char *arg) {
+-#if defined(__linux__)
+-#include <mqueue.h>
++#if defined(__linux__) && !defined(SD_DAEMON_DISABLE_MQ)
++#  include <mqueue.h>
+ #endif
+ 
+ #include "sd-daemon.h"
+ 
+ #if (__GNUC__ >= 4)
+-#ifdef SD_EXPORT_SYMBOLS
++#  ifdef SD_EXPORT_SYMBOLS
+ /* Export symbols */
+-#define _sd_export_ __attribute__ ((visibility("default")))
+-#else
++#    define _sd_export_ __attribute__ ((visibility("default")))
++#  else
+ /* Don't export the symbols */
+-#define _sd_export_ __attribute__ ((visibility("hidden")))
+-#endif
++#    define _sd_export_ __attribute__ ((visibility("hidden")))
++#  endif
+ #else
+-#define _sd_export_
++#  define _sd_export_
+ #endif
+ 
+ _sd_export_ int sd_listen_fds(int unset_environment) {
+@@ -75,7 +71,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
+         char *p = NULL;
+         unsigned long l;
+ 
+-        if (!(e = getenv("LISTEN_PID"))) {
++        e = getenv("LISTEN_PID");
++        if (!e) {
+                 r = 0;
+                 goto finish;
+         }
+@@ -83,12 +80,12 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
+         errno = 0;
+         l = strtoul(e, &p, 10);
+ 
+-        if (errno != 0) {
++        if (errno > 0) {
+                 r = -errno;
+                 goto finish;
+         }
+ 
+-        if (!p || *p || l <= 0) {
++        if (!p || p == e || *p || l <= 0) {
+                 r = -EINVAL;
+                 goto finish;
+         }
+@@ -99,7 +96,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
+                 goto finish;
+         }
+ 
+-        if (!(e = getenv("LISTEN_FDS"))) {
++        e = getenv("LISTEN_FDS");
++        if (!e) {
+                 r = 0;
+                 goto finish;
+         }
+@@ -107,12 +105,12 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
+         errno = 0;
+         l = strtoul(e, &p, 10);
+ 
+-        if (errno != 0) {
++        if (errno > 0) {
+                 r = -errno;
+                 goto finish;
+         }
+ 
+-        if (!p || *p) {
++        if (!p || p == e || *p) {
+                 r = -EINVAL;
+                 goto finish;
+         }
+@@ -120,7 +118,8 @@ _sd_export_ int sd_listen_fds(int unset_environment) {
+         for (fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + (int) l; fd ++) {
+                 int flags;
+ 
+-                if ((flags = fcntl(fd, F_GETFD)) < 0) {
++                flags = fcntl(fd, F_GETFD);
++                if (flags < 0) {
+                         r = -errno;
+                         goto finish;
+                 }
+@@ -152,7 +151,6 @@ _sd_export_ int sd_is_fifo(int fd, const char *path) {
+         if (fd < 0)
+                 return -EINVAL;
+ 
+-        memset(&st_fd, 0, sizeof(st_fd));
+         if (fstat(fd, &st_fd) < 0)
+                 return -errno;
+ 
+@@ -162,7 +160,6 @@ _sd_export_ int sd_is_fifo(int fd, const char *path) {
+         if (path) {
+                 struct stat st_path;
+ 
+-                memset(&st_path, 0, sizeof(st_path));
+                 if (stat(path, &st_path) < 0) {
+ 
+                         if (errno == ENOENT || errno == ENOTDIR)
+@@ -272,15 +269,13 @@ _sd_export_ int sd_is_socket(int fd, int family, int type, int listening) {
+         if (family < 0)
+                 return -EINVAL;
+ 
+-        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
++        r = sd_is_socket_internal(fd, type, listening);
++        if (r <= 0)
+                 return r;
+ 
+         if (family > 0) {
+-                union sockaddr_union sockaddr;
+-                socklen_t l;
+-
+-                memset(&sockaddr, 0, sizeof(sockaddr));
+-                l = sizeof(sockaddr);
++                union sockaddr_union sockaddr = {};
++                socklen_t l = sizeof(sockaddr);
+ 
+                 if (getsockname(fd, &sockaddr.sa, &l) < 0)
+                         return -errno;
+@@ -295,19 +290,17 @@ _sd_export_ int sd_is_socket(int fd, int family, int type, int listening) {
  }
  
- static void
--set_unhidden(struct disk_desc *z, char *pnam) {
--    int pno;
--    unsigned char id;
+ _sd_export_ int sd_is_socket_inet(int fd, int family, int type, int listening, uint16_t port) {
+-        union sockaddr_union sockaddr;
+-        socklen_t l;
++        union sockaddr_union sockaddr = {};
++        socklen_t l = sizeof(sockaddr);
+         int r;
+ 
+         if (family != 0 && family != AF_INET && family != AF_INET6)
+                 return -EINVAL;
+ 
+-        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
++        r = sd_is_socket_internal(fd, type, listening);
++        if (r <= 0)
+                 return r;
+ 
+-        memset(&sockaddr, 0, sizeof(sockaddr));
+-        l = sizeof(sockaddr);
 -
--    pno = asc_to_index(pnam, z);
--    id = z->partitions[pno].p.sys_type;
--    if (id == 0x11 || id == 0x14 || id == 0x16 || id == 0x17)
--	id -= 0x10;
--    else
--	errx(EXIT_FAILURE, _("partition %s has id %x and is not hidden"), pnam, id);
--    z->partitions[pno].p.sys_type = id;
--}
+         if (getsockname(fd, &sockaddr.sa, &l) < 0)
+                 return -errno;
+ 
+@@ -340,16 +333,14 @@ _sd_export_ int sd_is_socket_inet(int fd, int family, int type, int listening, u
+ }
+ 
+ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *path, size_t length) {
+-        union sockaddr_union sockaddr;
+-        socklen_t l;
++        union sockaddr_union sockaddr = {};
++        socklen_t l = sizeof(sockaddr);
+         int r;
+ 
+-        if ((r = sd_is_socket_internal(fd, type, listening)) <= 0)
++        r = sd_is_socket_internal(fd, type, listening);
++        if (r <= 0)
+                 return r;
+ 
+-        memset(&sockaddr, 0, sizeof(sockaddr));
+-        l = sizeof(sockaddr);
 -
--/*
-- * maybe remove and make part of --change-id
-- */
--static void
--do_unhide(char **av, int ac, char *arg) {
--    char *dev = av[0];
--    int fd, rw, i;
--    struct disk_desc *z;
+         if (getsockname(fd, &sockaddr.sa, &l) < 0)
+                 return -errno;
+ 
+@@ -360,10 +351,10 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
+                 return 0;
+ 
+         if (path) {
+-                if (length <= 0)
++                if (length == 0)
+                         length = strlen(path);
+ 
+-                if (length <= 0)
++                if (length == 0)
+                         /* Unnamed socket */
+                         return l == offsetof(struct sockaddr_un, sun_path);
+ 
+@@ -383,7 +374,7 @@ _sd_export_ int sd_is_socket_unix(int fd, int type, int listening, const char *p
+ }
+ 
+ _sd_export_ int sd_is_mq(int fd, const char *path) {
+-#if !defined(__linux__)
++#if !defined(__linux__) || defined(SD_DAEMON_DISABLE_MQ)
+         return 0;
+ #else
+         struct mq_attr attr;
+@@ -434,7 +425,8 @@ _sd_export_ int sd_notify(int unset_environment, const char *state) {
+                 goto finish;
+         }
+ 
+-        if (!(e = getenv("NOTIFY_SOCKET")))
++        e = getenv("NOTIFY_SOCKET");
++        if (!e)
+                 return 0;
+ 
+         /* Must be an abstract socket, or an absolute path */
+@@ -443,7 +435,8 @@ _sd_export_ int sd_notify(int unset_environment, const char *state) {
+                 goto finish;
+         }
+ 
+-        if ((fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0)) < 0) {
++        fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0);
++        if (fd < 0) {
+                 r = -errno;
+                 goto finish;
+         }
+@@ -513,18 +506,15 @@ _sd_export_ int sd_booted(void) {
+ #if defined(DISABLE_SYSTEMD) || !defined(__linux__)
+         return 0;
+ #else
++        struct stat st;
+ 
+-        struct stat a, b;
 -
--    z = &oldp;
+-        /* We simply test whether the systemd cgroup hierarchy is
+-         * mounted */
 -
--    rw = !no_write;
--    fd = my_open(dev, rw, 0);
--
--    free_sectors();
--    get_cylindersize(dev, fd, 1);
--    get_partitions(dev, fd, z);
--
--    /* unhide where desired */
--    if (ac == 1)
--	set_unhidden(z, arg);
--    else
--	for (i = 1; i < ac; i++)
--	    set_unhidden(z, av[i]);
--
--    /* then write to disk */
--    if (write_partitions(dev, fd, z))
--	my_warn(_("Done\n\n"));
--    else
--	exit_status = 1;
--
--    if (close_fd(fd) != 0) {
--	my_warn(_("write failed"));
--	exit_status = 1;
--    }
--}
--
--static void
- do_change_id(char *dev, char *pnam, char *id) {
-     int fd, rw, pno;
-     struct disk_desc *z;
+-        if (lstat("/sys/fs/cgroup", &a) < 0)
+-                return 0;
++        /* We test whether the runtime unit file directory has been
++         * created. This takes place in mount-setup.c, so is
++         * guaranteed to happen very early during boot. */
+ 
+-        if (lstat("/sys/fs/cgroup/systemd", &b) < 0)
++        if (lstat("/run/systemd/system/", &st) < 0)
+                 return 0;
+ 
+-        return a.st_dev != b.st_dev;
++        return !!S_ISDIR(st.st_mode);
+ #endif
+ }
+diff --git a/misc-utils/sd-daemon.h b/misc-utils/sd-daemon.h
+index fe51159..daa3f4c 100644
+--- a/misc-utils/sd-daemon.h
++++ b/misc-utils/sd-daemon.h
+@@ -59,20 +59,20 @@ extern "C" {
+   You may find an up-to-date version of these source files online:
+ 
+   http://cgit.freedesktop.org/systemd/systemd/plain/src/systemd/sd-daemon.h
+-  http://cgit.freedesktop.org/systemd/systemd/plain/src/sd-daemon.c
++  http://cgit.freedesktop.org/systemd/systemd/plain/src/libsystemd-daemon/sd-daemon.c
+ 
+   This should compile on non-Linux systems, too, but with the
+   exception of the sd_is_xxx() calls all functions will become NOPs.
+ 
+-  See sd-daemon(7) for more information.
++  See sd-daemon(3) for more information.
+ */
+ 
+ #ifndef _sd_printf_attr_
+-#if __GNUC__ >= 4
+-#define _sd_printf_attr_(a,b) __attribute__ ((format (printf, a, b)))
+-#else
+-#define _sd_printf_attr_(a,b)
+-#endif
++#  if __GNUC__ >= 4
++#    define _sd_printf_attr_(a,b) __attribute__ ((format (printf, a, b)))
++#  else
++#    define _sd_printf_attr_(a,b)
++#  endif
+ #endif
+ 
+ /*
 -- 
 1.8.3.1
 
