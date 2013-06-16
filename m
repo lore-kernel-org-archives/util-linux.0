@@ -1,213 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:34395 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754990Ab3FBRwU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:52:20 -0400
-Received: by mail-wi0-f172.google.com with SMTP id m6so2028410wiv.5
-        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:52:18 -0700 (PDT)
+Received: from mail-we0-f171.google.com ([74.125.82.171]:45952 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755360Ab3FPSyE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:04 -0400
+Received: by mail-we0-f171.google.com with SMTP id m46so1780852wev.30
+        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:02 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 13/19] dmesg: make time format parsing to use enum bit field
-Date: Sun,  2 Jun 2013 18:51:19 +0100
-Message-Id: <1370195485-27907-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
-References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 00/15] pull: sfdisk and dmesg resubmission, plus bits and bobs
+Date: Sun, 16 Jun 2013 19:53:41 +0100
+Message-Id: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This will pave way to add single option to define all time formats, such
-as --time-format=[ctime|reltime|delta|none].
+Hi Karel and others,
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 59 +++++++++++++++++++++++++++++++------------------------
- 1 file changed, 33 insertions(+), 26 deletions(-)
+Half of the patches in this pull request are re-worked changes, which
+were rejected earlier.  The sfdisk error printing is now using plain
+glibc warn() and err() functions.  The dmesg time format selection is
+much cleaner when done the way Karel proposed.
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index ae8e938..b882120 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -126,6 +126,13 @@ enum {
- 	DMESG_METHOD_MMAP	/* mmap file with records (see --file) */
- };
+Unfortunately the most troubling dmesg patch is now dropped by me.  I had
+a look how systemd determines boot time, and it seem very early at
+execution clock_gettime() is called, and results are saved.  If dmesg
+should agree with systemd when startup happen I see two possible options;
+
+1. Make dmesg to get system startup time from systemd using dbus.
+
+2. Make both dmesg and systemd to ask start up time from kernel.
+
+I feel first option is not great.  The systemd boot time stamp is similar
+sort of approximation as reading fstat from /proc/1.  Also asking when
+system started from system itself feels more neutral than consulting a
+software the system started.
+
+If the second option is favored a kernel patch, such as the one below, is
+needed and a bit coordination to make various programs to use the
+boottime from kernel.  Meanwhile it migth be fine that differnt programs
+using differnet time stamps for klog messages.
+
+Any opinions about klog time stamps?
+
+
+--- a/kernel/ksysfs.c
++++ b/kernel/ksysfs.c
+@@ -157,6 +157,16 @@ static ssize_t rcu_expedited_store(struct kobject
+*kobj,
+ }
+ KERNEL_ATTR_RW(rcu_expedited);
  
-+enum {
-+	TIMEFTM_NONE	= (1 << 0),
-+	TIMEFTM_CTIME	= (1 << 1),
-+	TIMEFTM_DELTA	= (1 << 2),
-+	TIMEFTM_RELTIME = (1 << 3),
-+};
++/* High precision timestamp of the system boot. */
++static ssize_t boottime_show(struct kobject *kobj,
++                            struct kobj_attribute *attr, char *buf)
++{
++       struct timespec ts;
++       getboottime(&ts);
++       return sprintf(buf, "%ld.%ld\n", ts.tv_sec, ts.tv_nsec);
++}
++KERNEL_ATTR_RO(hp_uptime);
 +
- struct dmesg_control {
- 	/* bit arrays -- see include/bitops.h */
- 	char levels[ARRAY_SIZE(level_names) / NBBY + 1];
-@@ -152,16 +159,13 @@ struct dmesg_control {
- 	char		*filename;
- 	char		*mmap_buff;
- 	size_t		pagesize;
-+	unsigned int	time_fmt;	/* time format */
- 
- 	unsigned int	follow:1,	/* wait for new messages */
- 			raw:1,		/* raw mode */
- 			fltr_lev:1,	/* filter out by levels[] */
- 			fltr_fac:1,	/* filter out by facilities[] */
- 			decode:1,	/* use "facility: level: " prefix */
--			notime:1,	/* don't print timestamp */
--			delta:1,	/* show time deltas */
--			reltime:1,	/* show human readable relative times */
--			ctime:1,	/* show human readable time */
- 			pager:1,	/* pipe output into a pager */
- 			color:1;	/* colorize messages */
+ /*
+  * Make /sys/kernel/notes give the raw contents of our kernel .notes
+  * section.
+  */
+@@ -197,6 +207,7 @@ static struct attribute * kernel_attrs[] = {
+        &vmcoreinfo_attr.attr,
+ #endif
+        &rcu_expedited_attr.attr,
++       &hp_uptime_attr.attr,
+        NULL
  };
-@@ -689,9 +693,10 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
- 
- 		if (*begin == '[' && (*(begin + 1) == ' ' ||
- 				      isdigit(*(begin + 1)))) {
--			if (ctl->delta || ctl->ctime || ctl->reltime)
-+			if (ctl->time_fmt & (TIMEFTM_DELTA | TIMEFTM_CTIME | TIMEFTM_RELTIME))
- 				begin = parse_syslog_timestamp(begin + 1, &rec->tv);
--			else if (ctl->notime)
-+
-+			else if (ctl->time_fmt & TIMEFTM_NONE)
- 				begin = skip_item(begin, end, "]");
- 
- 			if (begin < end && *begin == ' ')
-@@ -855,12 +860,12 @@ static void print_record(struct dmesg_control *ctl,
- 	/*
- 	 * [sec.usec <delta>] or [ctime <delta>]
- 	 */
--	if (ctl->delta) {
-+	if (ctl->time_fmt & TIMEFTM_DELTA) {
- 		if (ctl->color)
- 			color_enable(DMESG_COLOR_TIME);
--		if (ctl->ctime)
-+		if (ctl->time_fmt & TIMEFTM_CTIME)
- 			printf("[%s ", record_ctime(ctl, rec, buf, sizeof(buf)));
--		else if (ctl->notime)
-+		else if (ctl->time_fmt == TIMEFTM_NONE)
- 			putchar('[');
- 		else
- 			printf("[%5d.%06d ", (int) rec->tv.tv_sec,
-@@ -872,7 +877,7 @@ static void print_record(struct dmesg_control *ctl,
- 	/*
- 	 * [ctime]
- 	 */
--	} else if (ctl->ctime) {
-+	} else if (ctl->time_fmt & TIMEFTM_CTIME) {
- 		if (ctl->color)
- 			color_enable(DMESG_COLOR_TIME);
- 		printf("[%s] ", record_ctime(ctl, rec, buf, sizeof(buf)));
-@@ -883,7 +888,7 @@ static void print_record(struct dmesg_control *ctl,
- 	/*
- 	 * [reltime]
- 	 */
--	else if (ctl->reltime) {
-+	else if (ctl->time_fmt & TIMEFTM_RELTIME) {
- 		double delta;
- 		struct tm cur;
- 
-@@ -918,14 +923,15 @@ static void print_record(struct dmesg_control *ctl,
- 	 * the [sec.usec] string.
- 	 */
- 	if (ctl->method == DMESG_METHOD_KMSG &&
--	    !ctl->notime && !ctl->delta && !ctl->ctime && !ctl->reltime) {
-+	    !(ctl->time_fmt & TIMEFTM_NONE)
-+	    && !(ctl->time_fmt & (TIMEFTM_CTIME | TIMEFTM_DELTA | TIMEFTM_RELTIME)))
-+	{
- 		if (ctl->color)
- 			color_enable(DMESG_COLOR_TIME);
- 		printf("[%5d.%06d] ", (int) rec->tv.tv_sec, (int) rec->tv.tv_usec);
- 		if (ctl->color)
- 			color_disable();
- 	}
--
- mesg:
- 	mesg = rec->mesg;
- 	mesg_size = rec->mesg_size;
-@@ -1065,7 +1071,7 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
- 		goto mesg;
- 
- 	/* C) timestamp */
--	if (ctl->notime)
-+	if (ctl->time_fmt & TIMEFTM_NONE)
- 		p = skip_item(p, end, ",;");
- 	else
- 		p = parse_kmsg_timestamp(p, &rec->tv);
-@@ -1148,6 +1154,7 @@ int main(int argc, char *argv[])
- 		.action = SYSLOG_ACTION_READ_ALL,
- 		.method = DMESG_METHOD_KMSG,
- 		.kmsg = -1,
-+		.time_fmt = 0,
- 	};
- 	int colormode = UL_COLORMODE_NEVER;
- 
-@@ -1209,13 +1216,13 @@ int main(int argc, char *argv[])
- 			ctl.action = SYSLOG_ACTION_CONSOLE_OFF;
- 			break;
- 		case 'd':
--			ctl.delta = 1;
-+			ctl.time_fmt |= TIMEFTM_DELTA;
- 			break;
- 		case 'E':
- 			ctl.action = SYSLOG_ACTION_CONSOLE_ON;
- 			break;
- 		case 'e':
--			ctl.reltime = 1;
-+			ctl.time_fmt |= TIMEFTM_RELTIME;
- 			break;
- 		case 'F':
- 			ctl.filename = optarg;
-@@ -1228,7 +1235,7 @@ int main(int argc, char *argv[])
- 				return EXIT_FAILURE;
- 			break;
- 		case 'H':
--			ctl.reltime = 1;
-+			ctl.time_fmt |= TIMEFTM_RELTIME;
- 			ctl.color = 1;
- 			ctl.pager = 1;
- 			break;
-@@ -1273,10 +1280,10 @@ int main(int argc, char *argv[])
- 		case 'T':
- 			ctl.boot_time = get_boot_time();
- 			if (ctl.boot_time)
--				ctl.ctime = 1;
-+				ctl.time_fmt |= TIMEFTM_CTIME;
- 			break;
- 		case 't':
--			ctl.notime = 1;
-+			ctl.time_fmt |= TIMEFTM_NONE;
- 			break;
- 		case 'u':
- 			ctl.fltr_fac = 1;
-@@ -1304,20 +1311,20 @@ int main(int argc, char *argv[])
- 	if (argc > 1)
- 		usage(stderr);
- 
--	if (ctl.raw && (ctl.fltr_lev || ctl.fltr_fac || ctl.delta ||
--			ctl.notime || ctl.ctime || ctl.decode))
-+	if (ctl.raw && (ctl.fltr_lev || ctl.fltr_fac || ctl.decode ||
-+			ctl.time_fmt & (TIMEFTM_NONE | TIMEFTM_DELTA | TIMEFTM_CTIME)))
- 		errx(EXIT_FAILURE, _("--raw can't be used together with level, "
--		     "facility, decode, delta, ctime or notime options"));
-+				     "facility, decode, delta, ctime or notime options"));
- 
--	if (ctl.notime && (ctl.ctime || ctl.reltime))
-+	if (ctl.time_fmt & TIMEFTM_NONE && (ctl.time_fmt & (TIMEFTM_CTIME | TIMEFTM_RELTIME)))
- 		errx(EXIT_FAILURE, _("--notime can't be used together with --ctime or --reltime"));
--	if (ctl.reltime && ctl.ctime)
-+	if ((ctl.time_fmt & TIMEFTM_RELTIME) && (ctl.time_fmt & TIMEFTM_CTIME))
- 		errx(EXIT_FAILURE, _("--reltime can't be used together with --ctime "));
- 
--	if (ctl.reltime) {
-+	if (ctl.time_fmt & TIMEFTM_RELTIME) {
- 		ctl.boot_time = get_boot_time();
- 		if (!ctl.boot_time)
--			ctl.reltime = 0;
-+			ctl.time_fmt &= TIMEFTM_RELTIME;
- 	}
- 
- 	ctl.color = colors_init(colormode) ? 1 : 0;
--- 
-1.8.3
+
+
+And comments about & review of the patches are also highly appreciated.
+
+
+The following changes since commit 76b86412c607ba47f43ef7c0535436bca2a660d2:
+
+  fdisk: don't use ptes[] in generic code (2013-06-12 17:39:09 +0200)
+
+are available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk23
+
+for you to fetch changes up to 314e07144b26e30a5bd5b0a41fb18fe3020dfe8a:
+
+  hexdump: use simple printing functions when possible (2013-06-16 19:00:33 +0100)
+
+----------------------------------------------------------------
+Sami Kerola (15):
+      renice: exit with non-zero value when arguments cause warnings
+      sfdisk: use libc error printing function, and symbolic exit values
+      sfdisk: clean up usage() functions
+      sfdisk: use program_invocation_short_name to determine program name
+      docs: correct sfdisk --activate instructions
+      sfdisk: remove --unhide and related functions
+      sfdisk: replace my_warn() with warnx()
+      dmesg: convert time format bitfield to enum
+      dmesg: add --time-format option
+      dmesg: add iso-8601 time format
+      docs: add --time-format option and ISO-8601 format to manual
+      dmesg: regroup time related options close to each other
+      sd-daemon: update files taken from systemd project
+      hexdump: remove unnecessary global variables
+      hexdump: use simple printing functions when possible
+
+ fdisks/sfdisk.8        |  33 +++-
+ fdisks/sfdisk.c        | 451 ++++++++++++++++++-------------------------------
+ misc-utils/sd-daemon.c | 100 +++++------
+ misc-utils/sd-daemon.h |  14 +-
+ sys-utils/dmesg.1      |  22 +++
+ sys-utils/dmesg.c      | 214 +++++++++++++----------
+ sys-utils/renice.c     |   4 +-
+ text-utils/display.c   |  16 +-
+ text-utils/hexdump.c   |   4 +-
+ text-utils/hexdump.h   |   2 -
+ 10 files changed, 408 insertions(+), 452 deletions(-)
+
 
