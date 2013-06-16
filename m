@@ -1,149 +1,166 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48029 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757286Ab3FEUIP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Jun 2013 16:08:15 -0400
-Message-Id: <1370462889.27341.140661240351977.05B18AA0@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-Cc: =?UTF-8?Q?Petr=20P=C3=ADsa=C5=99?= <petr.pisar@atlas.cz>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1370462889273415";
- charset="utf-8"
-Subject: [patch] for "Mistakes in messages" reported by Petr Pisar
-Date: Wed, 05 Jun 2013 22:08:09 +0200
+Received: from mail-we0-f182.google.com ([74.125.82.182]:57351 "EHLO
+	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755408Ab3FPSy0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:26 -0400
+Received: by mail-we0-f182.google.com with SMTP id p60so1741043wes.41
+        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:24 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/15] sfdisk: remove --unhide and related functions
+Date: Sun, 16 Jun 2013 19:53:47 +0100
+Message-Id: <1371408836-16663-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+The --unhide was never implemented, and did not do anything.
 
---_----------=_1370462889273415
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ fdisks/sfdisk.c | 70 +--------------------------------------------------------
+ 1 file changed, 1 insertion(+), 69 deletions(-)
 
-
-Hi,
-
-Attached patch fixes most of the issues reported by Petr Pisar a
-week ago.  (Cannot follow up to his message; I wasn't subscribed.)
-
-Some of the things he reported were already fixed, and one thing
-is not an error, I think: "Partition overlap on the disk." -- here the
-word "Partition" is an adjective and "overlap" a noun.  "Partitions
-overlap on the disk." doesn't make it any clearer, in my opinion.
-
-Regards,
-
-Benno
-
+diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
+index 2b4969b..ae17e8d 100644
+--- a/fdisks/sfdisk.c
++++ b/fdisks/sfdisk.c
+@@ -2391,7 +2391,6 @@ static void usage(FILE * out)
+ 	fputs(_(" -g, --show-geometry       print the kernel's idea of the geometry\n"
+ 		" -G, --show-pt-geometry    print geometry guessed from the partition table\n"), out);
+ 	fputs(_(" -A, --activate[=<device>] activate bootable flag\n"
+-		" -U, --unhide[=<dev>]      set partition unhidden\n"
+ 		" -x, --show-extended       also list extended partitions in the output,\n"
+ 		"                             or expect descriptors for them in the input\n"), out);
+ 	fputs(_("     --leave-last          do not allocate the last cylinder\n"
+@@ -2430,7 +2429,7 @@ activate_usage(void) {
+     exit(EXIT_FAILURE);
+ }
+ 
+-static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TU::V";
++static const char short_opts[] = "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TV";
+ 
+ #define PRINT_ID 0400
+ #define CHANGE_ID 01000
+@@ -2473,7 +2472,6 @@ static const struct option long_opts[] = {
+     { "Linux",            no_argument, NULL, 'L' },
+     { "re-read",          no_argument, NULL, 'R' },
+     { "list-types",       no_argument, NULL, 'T' },
+-    { "unhide",           optional_argument, NULL, 'U' },
+     { "no-reread",        no_argument, NULL, OPT_NO_REREAD },
+     { "IBM",              no_argument, NULL, OPT_LEAVE_LAST },
+     { "leave-last",       no_argument, NULL, OPT_LEAVE_LAST },
+@@ -2528,7 +2526,6 @@ static void do_pt_geom(char *dev, int silent);
+ static void do_fdisk(char *dev);
+ static void do_reread(char *dev);
+ static void do_change_id(char *dev, char *part, char *id);
+-static void do_unhide(char **av, int ac, char *arg);
+ static void do_activate(char **av, int ac, char *arg);
+ 
+ unsigned long long total_size;
+@@ -2543,9 +2540,7 @@ main(int argc, char **argv) {
+     int opt_reread = 0;
+     int activate = 0;
+     int do_id = 0;
+-    int unhide = 0;
+     char *activatearg = 0;
+-    char *unhidearg = 0;
+ 
+     setlocale(LC_ALL, "");
+     bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -2556,10 +2551,6 @@ main(int argc, char **argv) {
+ 	errx(EXIT_FAILURE, _("no command?"));
+     if (!strcmp(program_invocation_short_name, "activate"))
+ 	activate = 1;		/* equivalent to `sfdisk -A' */
+-#if 0				/* not important enough to deserve a name */
+-    else if (!strcmp(program_invocation_short_name, "unhide"))
+-	unhide = 1;		/* equivalent to `sfdisk -U' */
+-#endif
+ 
+     while ((c = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
+ 	switch (c) {
+@@ -2643,10 +2634,6 @@ main(int argc, char **argv) {
+ 	case 'T':
+ 	    list_types();
+ 	    return EXIT_SUCCESS;
+-	case 'U':
+-	    unhidearg = optarg;
+-	    unhide = 1;
+-	    break;
+ 	case 'V':
+ 	    verify = 1;
+ 	    break;
+@@ -2746,10 +2733,6 @@ main(int argc, char **argv) {
+ 	do_activate(argv + optind, argc - optind, activatearg);
+ 	return exit_status;
+     }
+-    if (unhide) {
+-	do_unhide(argv + optind, argc - optind, unhidearg);
+-	return exit_status;
+-    }
+     if (do_id) {
+ 	if ((do_id & PRINT_ID) != 0 && optind != argc - 2)
+ 	    errx(EXIT_FAILURE, _("usage: sfdisk --print-id device partition-number"));
+@@ -3003,57 +2986,6 @@ do_activate(char **av, int ac, char *arg) {
+ }
+ 
+ static void
+-set_unhidden(struct disk_desc *z, char *pnam) {
+-    int pno;
+-    unsigned char id;
+-
+-    pno = asc_to_index(pnam, z);
+-    id = z->partitions[pno].p.sys_type;
+-    if (id == 0x11 || id == 0x14 || id == 0x16 || id == 0x17)
+-	id -= 0x10;
+-    else
+-	errx(EXIT_FAILURE, _("partition %s has id %x and is not hidden"), pnam, id);
+-    z->partitions[pno].p.sys_type = id;
+-}
+-
+-/*
+- * maybe remove and make part of --change-id
+- */
+-static void
+-do_unhide(char **av, int ac, char *arg) {
+-    char *dev = av[0];
+-    int fd, rw, i;
+-    struct disk_desc *z;
+-
+-    z = &oldp;
+-
+-    rw = !no_write;
+-    fd = my_open(dev, rw, 0);
+-
+-    free_sectors();
+-    get_cylindersize(dev, fd, 1);
+-    get_partitions(dev, fd, z);
+-
+-    /* unhide where desired */
+-    if (ac == 1)
+-	set_unhidden(z, arg);
+-    else
+-	for (i = 1; i < ac; i++)
+-	    set_unhidden(z, av[i]);
+-
+-    /* then write to disk */
+-    if (write_partitions(dev, fd, z))
+-	my_warn(_("Done\n\n"));
+-    else
+-	exit_status = 1;
+-
+-    if (close_fd(fd) != 0) {
+-	my_warn(_("write failed"));
+-	exit_status = 1;
+-    }
+-}
+-
+-static void
+ do_change_id(char *dev, char *pnam, char *id) {
+     int fd, rw, pno;
+     struct disk_desc *z;
 -- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
-
-
---_----------=_1370462889273415
-Content-Disposition: attachment; filename="0001-textual-improve-clarity-of-some-error-messages.patch"
-Content-Id: <1370462878.27367.a5a9c68cffc4a81e75b29f61eaa5c32634dd2ed7.04B883E5@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-textual-improve-clarity-of-some-error-messages.patch"
-
-RnJvbSBmZTM1MDcxMjU2ZTBiZDU1ZGEyYzE2YjI2OWQ2ZTIyNWM3OTRlNDIw
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCA1IEp1
-biAyMDEzIDIxOjU4OjEzICswMjAwClN1YmplY3Q6IFtQQVRDSF0gdGV4dHVh
-bDogaW1wcm92ZSBjbGFyaXR5IG9mIHNvbWUgZXJyb3IgbWVzc2FnZXMKTUlN
-RS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFy
-c2V0PVVURi04CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKClJl
-cG9ydGVkLWJ5OiBQZXRyIFDDrXNhxZkgPHBldHIucGlzYXJAYXRsYXMuY3o+
-ClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0Bq
-dXN0ZW1haWwubmV0PgotLS0KIGRpc2stdXRpbHMvbWtmcy5jcmFtZnMuYyB8
-ICAgIDYgKysrLS0tCiBkaXNrLXV0aWxzL21rZnMubWluaXguYyAgfCAgICAy
-ICstCiBsb2dpbi11dGlscy9zdWxvZ2luLmMgICAgfCAgICA2ICsrKy0tLQog
-bWlzYy11dGlscy9maW5kbW50LmMgICAgIHwgICAgMiArLQogc3lzLXV0aWxz
-L2xvc2V0dXAuYyAgICAgIHwgICAgNiArKystLS0KIDUgZmlsZXMgY2hhbmdl
-ZCwgMTEgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pCgpkaWZmIC0t
-Z2l0IGEvZGlzay11dGlscy9ta2ZzLmNyYW1mcy5jIGIvZGlzay11dGlscy9t
-a2ZzLmNyYW1mcy5jCmluZGV4IDIzZGNmZWYuLmZkYzJjYWUgMTAwNjQ0Ci0t
-LSBhL2Rpc2stdXRpbHMvbWtmcy5jcmFtZnMuYworKysgYi9kaXNrLXV0aWxz
-L21rZnMuY3JhbWZzLmMKQEAgLTczNiw3ICs3MzYsNyBAQCBpbnQgbWFpbihp
-bnQgYXJnYywgY2hhciAqKmFyZ3YpCiAJCQlvcHRfZXJyb3JzID0gMTsKIAkJ
-CWJyZWFrOwogCQljYXNlICdlJzoKLQkJCW9wdF9lZGl0aW9uID0gc3RydG91
-MzJfb3JfZXJyKG9wdGFyZywgXygiZWRpdGlvbiBudW1iZXIgYXJndW1lbnQg
-ZmFpbGVkIikpOworCQkJb3B0X2VkaXRpb24gPSBzdHJ0b3UzMl9vcl9lcnIo
-b3B0YXJnLCBfKCJpbnZhbGlkIGVkaXRpb24gbnVtYmVyIGFyZ3VtZW50Iikp
-OwogCQkJYnJlYWs7CiAJCWNhc2UgJ04nOgogCQkJaWYgKHN0cmNtcChvcHRh
-cmcsICJiaWciKSA9PSAwKQpAQCAtNzQ2LDggKzc0Niw4IEBAIGludCBtYWlu
-KGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJCWVsc2UgaWYgKHN0cmNtcChv
-cHRhcmcsICJob3N0IikgPT0gMCkKIAkJCQkvKiBkZWZhdWx0ICovIDsKIAkJ
-CWVsc2UKLQkJCQllcnJ4KE1LRlNfRVhfVVNBR0UsIF8oImludmFsaWQgZW5k
-aWFubmVzcyBnaXZlbi4iCi0JCQkJCQkgICAiIE11c3QgYmUgJ2JpZycsICds
-aXR0bGUnLCBvciAnaG9zdCciKSk7CisJCQkJZXJyeChNS0ZTX0VYX1VTQUdF
-LCBfKCJpbnZhbGlkIGVuZGlhbm5lc3MgZ2l2ZW47IgorCQkJCQkJICAgIiBt
-dXN0IGJlICdiaWcnLCAnbGl0dGxlJywgb3IgJ2hvc3QnIikpOwogCQkJYnJl
-YWs7CiAJCWNhc2UgJ2knOgogCQkJb3B0X2ltYWdlID0gb3B0YXJnOwpkaWZm
-IC0tZ2l0IGEvZGlzay11dGlscy9ta2ZzLm1pbml4LmMgYi9kaXNrLXV0aWxz
-L21rZnMubWluaXguYwppbmRleCAzYTE2MTdiLi42MzlhY2U3IDEwMDY0NAot
-LS0gYS9kaXNrLXV0aWxzL21rZnMubWluaXguYworKysgYi9kaXNrLXV0aWxz
-L21rZnMubWluaXguYwpAQCAtNDgyLDcgKzQ4Miw3IEBAIHN0YXRpYyB2b2lk
-IHNldHVwX3RhYmxlcyh2b2lkKSB7CiAKIAlzdXBlcl9ibG9ja19idWZmZXIg
-PSBjYWxsb2MoMSwgTUlOSVhfQkxPQ0tfU0laRSk7CiAJaWYgKCFzdXBlcl9i
-bG9ja19idWZmZXIpCi0JCWVycihNS0ZTX0VYX0VSUk9SLCBfKCIlczogdW5h
-YmxlIHRvIGFsbG9jIGJ1ZmZlciBmb3Igc3VwZXJibG9jayIpLAorCQllcnIo
-TUtGU19FWF9FUlJPUiwgXygiJXM6IHVuYWJsZSB0byBhbGxvY2F0ZSBidWZm
-ZXIgZm9yIHN1cGVyYmxvY2siKSwKIAkJCQlkZXZpY2VfbmFtZSk7CiAKIAlt
-ZW1zZXQoYm9vdF9ibG9ja19idWZmZXIsMCw1MTIpOwpkaWZmIC0tZ2l0IGEv
-bG9naW4tdXRpbHMvc3Vsb2dpbi5jIGIvbG9naW4tdXRpbHMvc3Vsb2dpbi5j
-CmluZGV4IDMyYWU5YTIuLjM1MmM3ODEgMTAwNjQ0Ci0tLSBhL2xvZ2luLXV0
-aWxzL3N1bG9naW4uYworKysgYi9sb2dpbi11dGlscy9zdWxvZ2luLmMKQEAg
-LTQ4NCwxMyArNDg0LDEzIEBAIHN0YXRpYyB2b2lkIGRvcHJvbXB0KGNvbnN0
-IGNoYXIgKmNyeXB0ZWQsIHN0cnVjdCBjb25zb2xlICpjb24pCiAJaWYgKGNy
-eXB0ZWRbMF0pCiAJCWZwcmludGYoY29uLT5maWxlLCBfKCJHaXZlIHJvb3Qg
-cGFzc3dvcmQgZm9yIGxvZ2luOiAiKSk7CiAJZWxzZQotCQlmcHJpbnRmKGNv
-bi0+ZmlsZSwgXygiUHJlc3MgZW50ZXIgZm9yIGxvZ2luOiAiKSk7CisJCWZw
-cmludGYoY29uLT5maWxlLCBfKCJQcmVzcyBFbnRlciBmb3IgbG9naW46ICIp
-KTsKICNlbHNlCiAJaWYgKGNyeXB0ZWRbMF0pCiAJCWZwcmludGYoY29uLT5m
-aWxlLCBfKCJHaXZlIHJvb3QgcGFzc3dvcmQgZm9yIG1haW50ZW5hbmNlXG4i
-KSk7CiAJZWxzZQotCQlmcHJpbnRmKGNvbi0+ZmlsZSwgXygiUHJlc3MgZW50
-ZXIgZm9yIG1haW50ZW5hbmNlIikpOwotCWZwcmludGYoY29uLT5maWxlLCBf
-KCIob3IgdHlwZSBDb250cm9sLUQgdG8gY29udGludWUpOiAiKSk7CisJCWZw
-cmludGYoY29uLT5maWxlLCBfKCJQcmVzcyBFbnRlciBmb3IgbWFpbnRlbmFu
-Y2UiKSk7CisJZnByaW50Zihjb24tPmZpbGUsIF8oIihvciBwcmVzcyBDb250
-cm9sLUQgdG8gY29udGludWUpOiAiKSk7CiAjZW5kaWYKIAlmZmx1c2goY29u
-LT5maWxlKTsKIGVycjoKZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvZmluZG1u
-dC5jIGIvbWlzYy11dGlscy9maW5kbW50LmMKaW5kZXggNGEzZTc2MC4uNDhj
-ODA3YyAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9maW5kbW50LmMKKysrIGIv
-bWlzYy11dGlscy9maW5kbW50LmMKQEAgLTEzMyw3ICsxMzMsNyBAQCBzdGF0
-aWMgc3RydWN0IGNvbGluZm8gaW5mb3NbRklORE1OVF9OQ09MVU1OU10gPSB7
-CiAJW0NPTF9JRF0gICAgICAgICAgID0geyAiSUQiLCAgICAgICAgICAgICAg
-MiwgVFRfRkxfUklHSFQsIE5fKCJtb3VudCBJRCIpIH0sCiAJW0NPTF9PUFRf
-RklFTERTXSAgID0geyAiT1BULUZJRUxEUyIsICAgMC4xMCwgVFRfRkxfVFJV
-TkMsIE5fKCJvcHRpb25hbCBtb3VudCBmaWVsZHMiKSB9LAogCVtDT0xfUFJP
-UEFHQVRJT05dICA9IHsgIlBST1BBR0FUSU9OIiwgIDAuMTAsIDAsIE5fKCJW
-RlMgcHJvcGFnYXRpb24gZmxhZ3MiKSB9LAotCVtDT0xfRlJFUV0gICAgICAg
-ICA9IHsgIkZSRVEiLCAgICAgICAgICAgIDEsIFRUX0ZMX1JJR0hULCBOXygi
-ZHVtcCg4KSBmcmVxdWVuY3kgaW4gZGF5cyBbZnN0YWIgb25seV0iKSB9LAor
-CVtDT0xfRlJFUV0gICAgICAgICA9IHsgIkZSRVEiLCAgICAgICAgICAgIDEs
-IFRUX0ZMX1JJR0hULCBOXygiZHVtcCg4KSBwZXJpb2QgaW4gZGF5cyBbZnN0
-YWIgb25seV0iKSB9LAogCVtDT0xfUEFTU05PXSAgICAgICA9IHsgIlBBU1NO
-TyIsICAgICAgICAgIDEsIFRUX0ZMX1JJR0hULCBOXygicGFzcyBudW1iZXIg
-b24gcGFyYWxsZWwgZnNjayg4KSBbZnN0YWIgb25seV0iKSB9CiB9OwogCmRp
-ZmYgLS1naXQgYS9zeXMtdXRpbHMvbG9zZXR1cC5jIGIvc3lzLXV0aWxzL2xv
-c2V0dXAuYwppbmRleCA5MGU3NWViLi42OGZmNDNjIDEwMDY0NAotLS0gYS9z
-eXMtdXRpbHMvbG9zZXR1cC5jCisrKyBiL3N5cy11dGlscy9sb3NldHVwLmMK
-QEAgLTM5NiwxMSArMzk2LDExIEBAIHN0YXRpYyB2b2lkIHdhcm5fc2l6ZShj
-b25zdCBjaGFyICpmaWxlbmFtZSwgdWludDY0X3Qgc2l6ZSkKIAl9CiAKIAlp
-ZiAoc2l6ZSA8IDUxMikKLQkJd2FybngoXygiJXM6IHdhcm5pbmc6IGZpbGUg
-c21hbGxlciB0aGFuIDUxMiBieXRlcywgdGhlIGxvb3AgZGV2aWNlICIKLQkJ
-CSJtYXliZSBiZSB1c2VsZXNzIG9yIGludmlzaWJsZSBmb3Igc3lzdGVtIHRv
-b2xzLiIpLAorCQl3YXJueChfKCIlczogV2FybmluZzogZmlsZSBpcyBzbWFs
-bGVyIHRoYW4gNTEyIGJ5dGVzOyB0aGUgbG9vcCBkZXZpY2UgIgorCQkJIm1h
-eSBiZSB1c2VsZXNzIG9yIGludmlzaWJsZSBmb3Igc3lzdGVtIHRvb2xzLiIp
-LAogCQkJZmlsZW5hbWUpOwogCWVsc2UgaWYgKHNpemUgJSA1MTIpCi0JCXdh
-cm54KF8oIiVzOiB3YXJuaW5nOiBmaWxlIGRvZXMgbm90IGZpdCBpbnRvIGEg
-NTEyLWJ5dGUgc2VjdG9yICIKKwkJd2FybngoXygiJXM6IFdhcm5pbmc6IGZp
-bGUgZG9lcyBub3QgZml0IGludG8gYSA1MTItYnl0ZSBzZWN0b3I7ICIKIAkJ
-ICAgICAgICAidGhlIGVuZCBvZiB0aGUgZmlsZSB3aWxsIGJlIGlnbm9yZWQu
-IiksCiAJCQlmaWxlbmFtZSk7CiB9Ci0tIAoxLjcuMC40Cgo=
-
---_----------=_1370462889273415--
+1.8.3.1
 
