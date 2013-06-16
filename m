@@ -1,121 +1,108 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f171.google.com ([74.125.82.171]:45952 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755360Ab3FPSyE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:04 -0400
-Received: by mail-we0-f171.google.com with SMTP id m46so1780852wev.30
-        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:02 -0700 (PDT)
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:48869 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755403Ab3FPSyh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:37 -0400
+Received: by mail-wi0-f170.google.com with SMTP id ey16so3395495wid.5
+        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:36 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 00/15] pull: sfdisk and dmesg resubmission, plus bits and bobs
-Date: Sun, 16 Jun 2013 19:53:41 +0100
-Message-Id: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 10/15] dmesg: add iso-8601 time format
+Date: Sun, 16 Jun 2013 19:53:51 +0100
+Message-Id: <1371408836-16663-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel and others,
+The ISO-8601 should be welcomed by anyone who tries to parse dmesg time
+stamp, and compare them across servers.  Time format tries to imitate
+coreutils 'date --iso-8601=ns' output, but instead of having nanoseconds
+the dmesg is using microseconds.
 
-Half of the patches in this pull request are re-worked changes, which
-were rejected earlier.  The sfdisk error printing is now using plain
-glibc warn() and err() functions.  The dmesg time format selection is
-much cleaner when done the way Karel proposed.
+Reference: http://www.cs.tut.fi/~jkorpela/iso8601.html
+Addresses: http://xkcd.com/1179/
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/dmesg.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-Unfortunately the most troubling dmesg patch is now dropped by me.  I had
-a look how systemd determines boot time, and it seem very early at
-execution clock_gettime() is called, and results are saved.  If dmesg
-should agree with systemd when startup happen I see two possible options;
-
-1. Make dmesg to get system startup time from systemd using dbus.
-
-2. Make both dmesg and systemd to ask start up time from kernel.
-
-I feel first option is not great.  The systemd boot time stamp is similar
-sort of approximation as reading fstat from /proc/1.  Also asking when
-system started from system itself feels more neutral than consulting a
-software the system started.
-
-If the second option is favored a kernel patch, such as the one below, is
-needed and a bit coordination to make various programs to use the
-boottime from kernel.  Meanwhile it migth be fine that differnt programs
-using differnet time stamps for klog messages.
-
-Any opinions about klog time stamps?
-
-
---- a/kernel/ksysfs.c
-+++ b/kernel/ksysfs.c
-@@ -157,6 +157,16 @@ static ssize_t rcu_expedited_store(struct kobject
-*kobj,
- }
- KERNEL_ATTR_RW(rcu_expedited);
- 
-+/* High precision timestamp of the system boot. */
-+static ssize_t boottime_show(struct kobject *kobj,
-+                            struct kobj_attribute *attr, char *buf)
-+{
-+       struct timespec ts;
-+       getboottime(&ts);
-+       return sprintf(buf, "%ld.%ld\n", ts.tv_sec, ts.tv_nsec);
-+}
-+KERNEL_ATTR_RO(hp_uptime);
-+
- /*
-  * Make /sys/kernel/notes give the raw contents of our kernel .notes
-  * section.
-  */
-@@ -197,6 +207,7 @@ static struct attribute * kernel_attrs[] = {
-        &vmcoreinfo_attr.attr,
- #endif
-        &rcu_expedited_attr.attr,
-+       &hp_uptime_attr.attr,
-        NULL
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 2199e7f..be08f6c 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -133,7 +133,8 @@ enum {
+ 	DMESG_TIMEFTM_DELTA,		/* [<delta>] */
+ 	DMESG_TIMEFTM_RELTIME,		/* [relative] */
+ 	DMESG_TIMEFTM_TIME,		/* [time] */
+-	DMESG_TIMEFTM_TIME_DELTA	/* [time <delta>] */
++	DMESG_TIMEFTM_TIME_DELTA,	/* [time <delta>] */
++	DMESG_TIMEFTM_ISO8601		/* 2013-06-13T22:11:00,123456+0100 */
  };
-
-
-And comments about & review of the patches are also highly appreciated.
-
-
-The following changes since commit 76b86412c607ba47f43ef7c0535436bca2a660d2:
-
-  fdisk: don't use ptes[] in generic code (2013-06-12 17:39:09 +0200)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk23
-
-for you to fetch changes up to 314e07144b26e30a5bd5b0a41fb18fe3020dfe8a:
-
-  hexdump: use simple printing functions when possible (2013-06-16 19:00:33 +0100)
-
-----------------------------------------------------------------
-Sami Kerola (15):
-      renice: exit with non-zero value when arguments cause warnings
-      sfdisk: use libc error printing function, and symbolic exit values
-      sfdisk: clean up usage() functions
-      sfdisk: use program_invocation_short_name to determine program name
-      docs: correct sfdisk --activate instructions
-      sfdisk: remove --unhide and related functions
-      sfdisk: replace my_warn() with warnx()
-      dmesg: convert time format bitfield to enum
-      dmesg: add --time-format option
-      dmesg: add iso-8601 time format
-      docs: add --time-format option and ISO-8601 format to manual
-      dmesg: regroup time related options close to each other
-      sd-daemon: update files taken from systemd project
-      hexdump: remove unnecessary global variables
-      hexdump: use simple printing functions when possible
-
- fdisks/sfdisk.8        |  33 +++-
- fdisks/sfdisk.c        | 451 ++++++++++++++++++-------------------------------
- misc-utils/sd-daemon.c | 100 +++++------
- misc-utils/sd-daemon.h |  14 +-
- sys-utils/dmesg.1      |  22 +++
- sys-utils/dmesg.c      | 214 +++++++++++++----------
- sys-utils/renice.c     |   4 +-
- text-utils/display.c   |  16 +-
- text-utils/hexdump.c   |   4 +-
- text-utils/hexdump.h   |   2 -
- 10 files changed, 408 insertions(+), 452 deletions(-)
-
+ #define is_timefmt(c, f) (c->time_fmt == (DMESG_TIMEFTM_ ##f))
+ 
+@@ -258,7 +259,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -w, --follow                wait for new messages\n"), out);
+ 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
+ 	fputs(_("     --time-format <format>  show time stamp using format:\n"
+-		"                               [delta|reltime|ctime|notime]\n"), out);
++		"                               [delta|reltime|ctime|notime|iso]\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+@@ -794,6 +795,23 @@ static char *short_ctime(struct tm *tm, char *buf, size_t bufsiz)
+ 	return buf;
+ }
+ 
++static char *iso_8601_time(struct dmesg_control *ctl, struct dmesg_record *rec,
++			   char *buf, size_t bufsiz)
++{
++	struct tm tm;
++	size_t len;
++	record_localtime(ctl, rec, &tm);
++	if (strftime(buf, bufsiz, "%Y-%m-%dT%H:%M:%S", &tm) == 0) {
++		*buf = '\0';
++		return buf;
++	}
++	len = strlen(buf);
++	snprintf(buf + len, bufsiz - len, ",%06d", (int)rec->tv.tv_usec);
++	len = strlen(buf);
++	strftime(buf + len, bufsiz - len, "%z", &tm);
++	return buf;
++}
++
+ static double record_count_delta(struct dmesg_control *ctl,
+ 				 struct dmesg_record *rec)
+ {
+@@ -904,6 +922,9 @@ static void print_record(struct dmesg_control *ctl,
+ 		printf("[%5d.%06d <%12.06f>] ", (int)rec->tv.tv_sec,
+ 		       (int)rec->tv.tv_usec, record_count_delta(ctl, rec));
+ 		break;
++	case DMESG_TIMEFTM_ISO8601:
++		printf("%s ", iso_8601_time(ctl, rec, buf, sizeof(buf)));
++		break;
+ 	default:
+ 		abort();
+ 	}
+@@ -1131,6 +1152,8 @@ static int which_time_format(const char *optarg)
+ 		return DMESG_TIMEFTM_DELTA;
+ 	if (!strcmp(optarg, "reltime"))
+ 		return DMESG_TIMEFTM_RELTIME;
++	if (!strcmp(optarg, "iso"))
++		return DMESG_TIMEFTM_ISO8601;
+ 	errx(EXIT_FAILURE, _("unknown time format: %s"), optarg);
+ }
+ 
+@@ -1314,7 +1337,7 @@ int main(int argc, char *argv[])
+ 	if (argc > 1)
+ 		usage(stderr);
+ 
+-	if (is_timefmt(ctl, RELTIME) || is_timefmt(ctl, CTIME)) {
++	if (is_timefmt(ctl, RELTIME) || is_timefmt(ctl, CTIME) || is_timefmt(ctl, ISO8601)) {
+ 		ctl.boot_time = get_boot_time();
+ 		if (!ctl.boot_time)
+ 			ctl.time_fmt = DMESG_TIMEFTM_NONE;
+-- 
+1.8.3.1
 
