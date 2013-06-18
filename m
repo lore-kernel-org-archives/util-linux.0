@@ -1,60 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:55180 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755036Ab3FBRwb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Jun 2013 13:52:31 -0400
-Received: by mail-wg0-f41.google.com with SMTP id k13so2046713wgh.2
-        for <util-linux@vger.kernel.org>; Sun, 02 Jun 2013 10:52:29 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:52311
+	"EHLO snark.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750788Ab3FRFVW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 18 Jun 2013 01:21:22 -0400
+Received: from [127.0.1.1] (localhost [127.0.0.1])
+	by snark.thyrsus.com (Postfix) with ESMTP id 36DA3417C5
+	for <util-linux@vger.kernel.org>; Tue, 18 Jun 2013 01:14:02 -0400 (EDT)
+Content-Type: multipart/mixed; boundary="===============7769751279321074495=="
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 17/19] dmesg: make usage() a little bit shorter
-Date: Sun,  2 Jun 2013 18:51:23 +0100
-Message-Id: <1370195485-27907-18-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
-References: <1370195485-27907-1-git-send-email-kerolasa@iki.fi>
+Subject: Problems in logger.1
+Message-Id: <20130618051402.36DA3417C5@snark.thyrsus.com>
+Date: Tue, 18 Jun 2013 01:14:02 -0400 (EDT)
+From: esr@thyrsus.com
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The dmesg has rather long usage, so drop the timestamp format options
-which are aliases of the more generic options.  Old options will remain
-working as earlier.
+--===============7769751279321074495==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+This is automatically generated email about markup problems in a man
+page for which you appear to be responsible.  If you are not the right
+person or list, please tell me so I can correct my database.
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index adfd6a5..d80b3e9 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -234,8 +234,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -C, --clear                 clear the kernel ring buffer\n"), out);
- 	fputs(_(" -c, --read-clear            read and clear all messages\n"), out);
- 	fputs(_(" -D, --console-off           disable printing messages to console\n"), out);
--	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
--	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
- 	fputs(_(" -E, --console-on            enable printing messages to console\n"), out);
- 	fputs(_(" -F, --file <file>           use the file instead of the kernel log buffer\n"), out);
- 	fputs(_(" -f, --facility <list>       restrict output to defined facilities\n"), out);
-@@ -248,14 +246,12 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -r, --raw                   print the raw message buffer\n"), out);
- 	fputs(_(" -S, --syslog                force to use syslog(2) rather than /dev/kmsg\n"), out);
- 	fputs(_(" -s, --buffer-size <size>    buffer size to query the kernel ring buffer\n"), out);
--	fputs(_(" -T, --ctime                 show human readable timestamp (could be \n"
--		"                               inaccurate if you have used SUSPEND/RESUME)\n"), out);
--	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
- 	fputs(_(" -u, --userspace             display userspace messages\n"), out);
- 	fputs(_(" -w, --follow                wait for new messages\n"), out);
- 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
- 	fputs(_("     --time-format <format>  show time stamp using format:\n"
--		"                               [notime|ctime|delta|reltime|iso]\n"), out);
-+		"                               [notime|ctime|delta|reltime|iso]\n"
-+		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
--- 
-1.8.3
+See http://catb.org/~esr/doclifter/bugs.html for details on how and
+why these patches were generated.  Feel free to email me with any
+questions.  Note: These patches do not change the modification date of
+any manual page.  You may wish to do that by hand.
 
+I apologize if this message seems spammy or impersonal. The volume of
+markup bugs I am tracking is over five hundred - there is no real
+alternative to generating bugmail from a database and template.
+
+--
+                             Eric S. Raymond
+
+--===============7769751279321074495==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+Problems with logger.1:
+
+My records indicate that you have accepted this patch, so this is just
+a reminder.
+
+Wrong order of arguments in .Dd macro.
+
+--- logger.1-unpatched	2012-06-29 10:17:28.914062782 -0400
++++ logger.1	2012-06-29 10:18:16.278061896 -0400
+@@ -33,7 +33,7 @@
+ .\"
+ .\" Section on valid facility and level strings added by
+ .\" and1000@debian.org, 26 Oct 1997.
+-.Dd August 2011 "  "
++.Dd August "  " 2011 
+ .Dt LOGGER(1) "" "User Commands"
+ .Os util-linux
+ .Sh NAME
+
+--===============7769751279321074495==--
