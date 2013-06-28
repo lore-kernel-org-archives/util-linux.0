@@ -1,60 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:60648 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755360Ab3FPSyn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Jun 2013 14:54:43 -0400
-Received: by mail-wg0-f43.google.com with SMTP id z11so1750912wgg.34
-        for <util-linux@vger.kernel.org>; Sun, 16 Jun 2013 11:54:42 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:49332 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754142Ab3F1AFP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 27 Jun 2013 20:05:15 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 52AEA33E774
+	for <util-linux@vger.kernel.org>; Fri, 28 Jun 2013 00:05:15 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 12/15] dmesg: regroup time related options close to each other
-Date: Sun, 16 Jun 2013 19:53:53 +0100
-Message-Id: <1371408836-16663-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
-References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] exec_shell: add a license and touch up func def
+Date: Thu, 27 Jun 2013 20:05:18 -0400
+Message-Id: <1372377918-2644-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+When this file was created, the standard license header was missed.
+Add it using the same one from unshare.c.
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index be08f6c..480c897 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -238,8 +238,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -C, --clear                 clear the kernel ring buffer\n"), out);
- 	fputs(_(" -c, --read-clear            read and clear all messages\n"), out);
- 	fputs(_(" -D, --console-off           disable printing messages to console\n"), out);
--	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
--	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
- 	fputs(_(" -E, --console-on            enable printing messages to console\n"), out);
- 	fputs(_(" -F, --file <file>           use the file instead of the kernel log buffer\n"), out);
- 	fputs(_(" -f, --facility <list>       restrict output to defined facilities\n"), out);
-@@ -252,14 +250,16 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -r, --raw                   print the raw message buffer\n"), out);
- 	fputs(_(" -S, --syslog                force to use syslog(2) rather than /dev/kmsg\n"), out);
- 	fputs(_(" -s, --buffer-size <size>    buffer size to query the kernel ring buffer\n"), out);
--	fputs(_(" -T, --ctime                 show human readable timestamp (could be \n"
--		"                               inaccurate if you have used SUSPEND/RESUME)\n"), out);
--	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
- 	fputs(_(" -u, --userspace             display userspace messages\n"), out);
- 	fputs(_(" -w, --follow                wait for new messages\n"), out);
- 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
-+	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
-+	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
-+	fputs(_(" -T, --ctime                 show human readable timestamp\n"), out);
-+	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
- 	fputs(_("     --time-format <format>  show time stamp using format:\n"
--		"                               [delta|reltime|ctime|notime|iso]\n"), out);
-+		"                               [delta|reltime|ctime|notime|iso]\n"
-+		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
+The noreturn attribute is not needed since we include the header
+which has it on the prototype.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ lib/exec_shell.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/lib/exec_shell.c b/lib/exec_shell.c
+index 95620cd..2b26364 100644
+--- a/lib/exec_shell.c
++++ b/lib/exec_shell.c
+@@ -1,3 +1,21 @@
++/*
++ * exec_shell() - launch a shell, else exit!
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
+@@ -11,7 +29,8 @@
+ 
+ #define DEFAULT_SHELL "/bin/sh"
+ 
+-void __attribute__((__noreturn__)) exec_shell(void) {
++void exec_shell(void)
++{
+ 	const char *shell = getenv("SHELL"), *shell_basename;
+ 	char *arg0;
+ 	if (!shell)
 -- 
-1.8.3.1
+1.8.2.1
 
