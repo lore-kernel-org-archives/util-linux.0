@@ -1,29 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:23135 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754678Ab3FRInj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Jun 2013 04:43:39 -0400
-Date: Tue, 18 Jun 2013 10:43:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Krzysztof =?utf-8?Q?=C5=BBelechowski?= <giecrilj@stegny.2a.pl>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] Fix typos found by misspellings
-Message-ID: <20130618084319.GB29243@x2.net.home>
-References: <kotrf8$s14$1@ger.gmane.org>
- <1370768088.29446.140661241694937.4E337ABA@webmail.messagingengine.com>
+Received: from nm43-vm10.bullet.mail.bf1.yahoo.com ([216.109.114.171]:33246
+	"EHLO nm43-vm10.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755189Ab3F1J6V convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 28 Jun 2013 05:58:21 -0400
+References: <1372412934.77779.YahooMailNeo@web162205.mail.bf1.yahoo.com>
+Message-ID: <1372413058.87399.YahooMailNeo@web162204.mail.bf1.yahoo.com>
+Date: Fri, 28 Jun 2013 02:50:58 -0700 (PDT)
+From: Marek Mrva <mrvamarek@yahoo.com>
+Reply-To: Marek Mrva <mrvamarek@yahoo.com>
+Subject: [bug] Cannot mount from directories containing = (equals)
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+In-Reply-To: <1372412934.77779.YahooMailNeo@web162205.mail.bf1.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1370768088.29446.140661241694937.4E337ABA@webmail.messagingengine.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 09, 2013 at 10:54:48AM +0200, Benno Schulenberg wrote:
->  sys-utils/mount.8 |   23 +++++++++++------------
->  1 files changed, 11 insertions(+), 12 deletions(-)
+Hello, hopefully this is the correct mailing list...
 
- Applied, thanks.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I have noticed an odd behavior [subject] when trying to mount some ext2 disk file image
+
+This problem probably occurs because the = character forces the mount command to interpret the path as an UUID rather than a file
+
+Some info:
+
+# mount -V
+mount from util-linux 2.22.2 (libmount 2.22.0: debug)
+
+
+
+I wonder, is this more of a bug or a feature? Any help would be greatly appreciated :-)
+
+
+Best regards,
+  Marek Mrva
+
