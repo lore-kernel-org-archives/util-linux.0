@@ -1,64 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:52311
-	"EHLO snark.thyrsus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750788Ab3FRFVW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 18 Jun 2013 01:21:22 -0400
-Received: from [127.0.1.1] (localhost [127.0.0.1])
-	by snark.thyrsus.com (Postfix) with ESMTP id 36DA3417C5
-	for <util-linux@vger.kernel.org>; Tue, 18 Jun 2013 01:14:02 -0400 (EDT)
-Content-Type: multipart/mixed; boundary="===============7769751279321074495=="
+Received: from mx1.redhat.com ([209.132.183.28]:30285 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750981Ab3F1Nhe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 28 Jun 2013 09:37:34 -0400
+Date: Fri, 28 Jun 2013 15:37:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Marek Mrva <mrvamarek@yahoo.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [bug] Cannot mount from directories containing = (equals)
+Message-ID: <20130628133732.GA13089@x2.net.home>
+References: <1372412934.77779.YahooMailNeo@web162205.mail.bf1.yahoo.com>
+ <1372413058.87399.YahooMailNeo@web162204.mail.bf1.yahoo.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Problems in logger.1
-Message-Id: <20130618051402.36DA3417C5@snark.thyrsus.com>
-Date: Tue, 18 Jun 2013 01:14:02 -0400 (EDT)
-From: esr@thyrsus.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1372413058.87399.YahooMailNeo@web162204.mail.bf1.yahoo.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---===============7769751279321074495==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+On Fri, Jun 28, 2013 at 02:50:58AM -0700, Marek Mrva wrote:
+> This problem probably occurs because the = character forces the
+> mount command to interpret the path as an UUID rather than a file
+> 
+> Some info:
+> 
+> # mount -V mount from util-linux 2.22.2 (libmount 2.22.0: debug)
 
-This is automatically generated email about markup problems in a man
-page for which you appear to be responsible.  If you are not the right
-person or list, please tell me so I can correct my database.
+This should be already fixed in version 2.23. Note that the mount
+source has to be specified by absolute path otherwise it's still
+interpreted as a tag.
 
-See http://catb.org/~esr/doclifter/bugs.html for details on how and
-why these patches were generated.  Feel free to email me with any
-questions.  Note: These patches do not change the modification date of
-any manual page.  You may wish to do that by hand.
+(It will probably necessary to extend libblkid API and add a new
+ function to verify what is a valid tag.)
 
-I apologize if this message seems spammy or impersonal. The volume of
-markup bugs I am tracking is over five hundred - there is no real
-alternative to generating bugmail from a database and template.
+    Karel
 
---
-                             Eric S. Raymond
-
---===============7769751279321074495==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-Problems with logger.1:
-
-My records indicate that you have accepted this patch, so this is just
-a reminder.
-
-Wrong order of arguments in .Dd macro.
-
---- logger.1-unpatched	2012-06-29 10:17:28.914062782 -0400
-+++ logger.1	2012-06-29 10:18:16.278061896 -0400
-@@ -33,7 +33,7 @@
- .\"
- .\" Section on valid facility and level strings added by
- .\" and1000@debian.org, 26 Oct 1997.
--.Dd August 2011 "  "
-+.Dd August "  " 2011 
- .Dt LOGGER(1) "" "User Commands"
- .Os util-linux
- .Sh NAME
-
---===============7769751279321074495==--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
