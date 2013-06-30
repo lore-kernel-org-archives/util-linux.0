@@ -1,48 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f177.google.com ([209.85.215.177]:44460 "EHLO
-	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753052Ab3GGTy6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:54:58 -0400
-Received: by mail-ea0-f177.google.com with SMTP id j14so2495401eak.22
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:54:57 -0700 (PDT)
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:44912 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750976Ab3F3IoW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Jun 2013 04:44:22 -0400
+Received: by mail-wg0-f51.google.com with SMTP id e11so2833333wgh.6
+        for <util-linux@vger.kernel.org>; Sun, 30 Jun 2013 01:44:21 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 01/34] sfdisk: make unhiding as complete as possible
-Date: Sun,  7 Jul 2013 20:54:16 +0100
-Message-Id: <1373226889-3451-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
-References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] ul: enhance command performance
+Date: Sun, 30 Jun 2013 09:44:00 +0100
+Message-Id: <1372581840-18966-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-It is unlikely anyone will ever need this, but I like idea commands being
-complete.  The partition id's that can be unhide after this change are;
+Avoid reseting, time after time, the memory which was not used.  Effect
+of the change is below in before and after timings.
 
-Hidden HPFS/NTFS
-Hidden W95 FAT32
-Hidden W95 FAT32 (LBA)
-Hidden W95 FAT16 (LBA)
+$ time ./ul </etc/services >/dev/null
+real    0m0.320s
+user    0m0.307s
+sys     0m0.010s
+
+$ time ./ul </etc/services >/dev/null
+real    0m0.068s
+user    0m0.050s
+sys     0m0.017s
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- fdisks/sfdisk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ text-utils/ul.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
-index 6efef47..6b757a7 100644
---- a/fdisks/sfdisk.c
-+++ b/fdisks/sfdisk.c
-@@ -2992,7 +2992,8 @@ set_unhidden(struct disk_desc *z, char *pnam) {
+diff --git a/text-utils/ul.c b/text-utils/ul.c
+index 5710a55..572f1b8 100644
+--- a/text-utils/ul.c
++++ b/text-utils/ul.c
+@@ -491,11 +491,11 @@ static void initbuf(void)
+ 	if (obuf == NULL) {
+ 		/* First time. */
+ 		obuflen = BUFSIZ;
+-		obuf = xmalloc(sizeof(struct CHAR) * obuflen);
++		obuf = xcalloc(obuflen, sizeof(struct CHAR));
+ 	}
  
-     pno = asc_to_index(pnam, z);
-     id = z->partitions[pno].p.sys_type;
--    if (id == 0x11 || id == 0x14 || id == 0x16 || id == 0x17)
-+    if (id == 0x11 || id == 0x14 || id == 0x16 || id == 0x17 ||
-+	id == 0x17 || id == 0x1b || id == 0x1c || id == 0x1e)
- 	id -= 0x10;
-     else
- 	errx(EXIT_FAILURE, _("partition %s has id %x and is not hidden"), pnam, id);
+ 	/* assumes NORMAL == 0 */
+-	memset(obuf, 0, sizeof(struct CHAR) * obuflen);
++	memset(obuf, 0, sizeof(struct CHAR) * col);
+ 	setcol(0);
+ 	maxcol = 0;
+ 	mode &= ALTSET;
 -- 
-1.8.3.2
+1.8.3.1
 
