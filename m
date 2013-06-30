@@ -1,104 +1,98 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:56848 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753331Ab3GAOrF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Jul 2013 10:47:05 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH/RFC] unshare: add --fork/--mount-proc options for pid namespaces
-Date: Mon, 1 Jul 2013 10:47:04 -0400
-Cc: util-linux@vger.kernel.org, ebiederm@xmission.com, mtk.manpages@gmail.com
-References: <1372377898-2602-1-git-send-email-vapier@gentoo.org> <20130701114008.GA1946@x2.net.home>
-In-Reply-To: <20130701114008.GA1946@x2.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1485929.KjD58xY2UD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201307011047.05595.vapier@gentoo.org>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:38576 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751688Ab3F3SLz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Jun 2013 14:11:55 -0400
+Received: by mail-we0-f175.google.com with SMTP id t59so2593044wes.6
+        for <util-linux@vger.kernel.org>; Sun, 30 Jun 2013 11:11:53 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi, Kay Sievers <kay@vrfy.org>
+Subject: [PATCH 16/15] dmesg: make time stamps to be printed consistently
+Date: Sun, 30 Jun 2013 19:11:22 +0100
+Message-Id: <1372615882-11589-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1372615882-11589-1-git-send-email-kerolasa@iki.fi>
+References: <1372615882-11589-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1485929.KjD58xY2UD
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Earlier uptime determination, which was done with sysinfo(2), had one
+second resolution, which made time stamps to be rounded unstable way
+depending on when a dmesg command was executed.  In practical terms; the
+command below was supposed not to differ but it did.
 
-On Monday 01 July 2013 07:40:08 Karel Zak wrote:
-> On Thu, Jun 27, 2013 at 08:04:58PM -0400, Mike Frysinger wrote:
-> > When it comes to pid namespaces, it's also useful for /proc to reflect
-> > the current namespace.  Again, this is easy to pull off, but annoying
-> > to force everyone to do it themselves.  So let's add a --mount-proc to
-> > do the magic for us.
->=20
->  This is not so easy. For example on Fedora 18 the default is "shared":
->=20
->  # grep /proc /proc/self/mountinfo
->  14 33 0:3 / /proc rw,nosuid,nodev,noexec,relatime shared:5 - proc proc rw
->=20
->  it means that unshare( CLONE_NEWNS ) has no expected effect and the
->  following mount(/proc) has horrible impact for all system. You have
->  to use (for example):
->=20
->     mount --make-rprivate /proc
->     unshare --fork --mount-proc --pid
+$ diff -q <(dmesg --ctime) <(sleep 0.5 ; dmesg --ctime)
 
-i'm not quite following here.  are you saying that Fedora 18 by default mak=
-es=20
-it hard to do pid namespaces ? =20
+CC: Kay Sievers <kay@vrfy.org>
+References: https://lkml.org/lkml/2013/6/30/37
+Buglink: https://github.com/karelzak/util-linux/issues/24
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/dmesg.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
->  The --fork option makes sense, but I have doubts about --mount-proc.
->=20
->  It would be better to keep unshare(1) simple and stupid rather than
->  expect that we can setup usable container by the util.
->=20
->  It's easy to call "mount proc /proc -t proc" after "unshare --pid
->  --mount --fork".
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 480c897..c429a82 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -145,7 +145,7 @@ struct dmesg_control {
+ 
+ 	struct timeval	lasttime;	/* last printed timestamp */
+ 	struct tm	lasttm;		/* last localtime */
+-	time_t		boot_time;	/* system boot time */
++	struct timeval	boot_time;	/* system boot time */
+ 
+ 	int		action;		/* SYSLOG_ACTION_* */
+ 	int		method;		/* DMESG_METHOD_* */
+@@ -472,18 +472,19 @@ static int get_syslog_buffer_size(void)
+ 	return n > 0 ? n : 0;
+ }
+ 
+-static time_t get_boot_time(void)
++static void get_boot_time(struct timeval *boot_time)
+ {
+-	struct sysinfo info;
+-	struct timeval tv;
++	struct timespec hires_uptime;
++	struct timeval lores_uptime, now;
+ 
+-	if (sysinfo(&info) != 0)
+-		warn(_("sysinfo failed"));
+-	else if (gettimeofday(&tv, NULL) != 0)
++	if (clock_gettime(CLOCK_BOOTTIME, &hires_uptime) != 0)
++		warn(_("clock_gettime failed"));
++	else if (gettimeofday(&now, NULL) != 0)
+ 		warn(_("gettimeofday failed"));
+-	else
+-		return tv.tv_sec -= info.uptime;
+-	return 0;
++	else {
++		TIMESPEC_TO_TIMEVAL(&lores_uptime, &hires_uptime);
++		timersub(&now, &lores_uptime, boot_time);
++	}
+ }
+ 
+ /*
+@@ -771,7 +772,7 @@ static struct tm *record_localtime(struct dmesg_control *ctl,
+ 				   struct dmesg_record *rec,
+ 				   struct tm *tm)
+ {
+-	time_t t = ctl->boot_time + rec->tv.tv_sec;
++	time_t t = ctl->boot_time.tv_sec + rec->tv.tv_sec;
+ 	return localtime_r(&t, tm);
+ }
+ 
+@@ -1338,8 +1339,8 @@ int main(int argc, char *argv[])
+ 		usage(stderr);
+ 
+ 	if (is_timefmt(ctl, RELTIME) || is_timefmt(ctl, CTIME) || is_timefmt(ctl, ISO8601)) {
+-		ctl.boot_time = get_boot_time();
+-		if (!ctl.boot_time)
++		get_boot_time(&(ctl.boot_time));
++		if (ctl.boot_time.tv_sec == 0 && ctl.boot_time.tv_usec == 0)
+ 			ctl.time_fmt = DMESG_TIMEFTM_NONE;
+ 	}
+ 
+-- 
+1.8.3.2
 
-unless you're running on a system that has a shared /proc ? :)
-
-> > -	if (optind < argc) {
-> > -		execvp(argv[optind], argv + optind);
-> > -		err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
-> > +	pid =3D forkit ? fork() : 1;
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^
->=20
->  I guess it's bug that exec_shell() only when forkit is set and
->  waitpid() is called always.
-
-i fixed this locally already.  guess i sent out a stale version.  change th=
-e=20
-"1" to "0".
-
->  See the patch below.
-
-sure, that gets us half way home :)
-
-> +		switch(pid) {
-
-needs a space before the (
-=2Dmike
-
---nextPart1485929.KjD58xY2UD
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJR0ZZpAAoJEEFjO5/oN/WB40MQAOVYJWUbvSUkh4KYO2gx2URJ
-q3JjzhOMFrwWLh58NpHHiPV5X1p25rmJh/7U67ZdzTv0IIHoGkrEZxVIyNhuj4cT
-XL4Zv25SkeyLnGNMebs1gn0nY2FFYAVElUJA8iQWQdpsIT6neTqvtM1bOYBZzor2
-O3uJ1QFJ/cM+2R15rQTkj1jnnn6t76eWlh6MmEBpwvuXo6lzr9riX9byypHUFB//
-9WtIaNcgO5GKWFknXiHYQzfH/TaVa30tkNQM/cJzJe+KKKcpHLSCu/oAKobevn4a
-PeoLmdwF4jpQg5pbszRKLsXNqVc3DJqJIZTCyHLmbJBtQm7BK2sp75qY2JklTc8T
-Zg6YBc2ArFjNvfsypSpi1z//GD+CxZgUOPh0PopgBdJmAit30x8HlCMWP8W2WQoa
-CDbOgNjDMtHGrF+u2xw7ckl05fftTy8KWmXPYVoZC8txmjJNOLWQUmXJ+05+YPFw
-lK9wDXSPZrRaQkuDuiLpMauSNaPuftCPOwM8UgAiEh2/Z+6ecTbI8GIouvZSPFT/
-Np0C90Nx3QekF6sCm486zAkrxpzqngE6XNm7/Po+aG8YaTst/YiFuf5LRFATYlqD
-orn+ij905DoCf4SmudED6qJ9WcwYk8+fH36uwda4cMDegwedzFyWw1LMVp/Pvpwy
-ESlXJswSV18cCc82noDe
-=F4TU
------END PGP SIGNATURE-----
-
---nextPart1485929.KjD58xY2UD--
