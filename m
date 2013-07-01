@@ -1,53 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30403 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752865Ab3GIJhA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Jul 2013 05:37:00 -0400
-Date: Tue, 9 Jul 2013 11:36:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Damien Wyart <damien.wyart@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: forking in setsid
-Message-ID: <20130709093657.GC24716@x2.net.home>
-References: <CADJQGJfOj2GQNdoW89hC2LMukC_cwPuJVBiN6+xy64UphbOiZg@mail.gmail.com>
- <CAG27Bk0tULzTdYpPPZz3C9Z2XZk9mTHbV=UCkMJEW+6XbRFZvw@mail.gmail.com>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:55834 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752862Ab3GAK65 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Jul 2013 06:58:57 -0400
+Received: by mail-pa0-f47.google.com with SMTP id kl14so4827969pab.20
+        for <util-linux@vger.kernel.org>; Mon, 01 Jul 2013 03:58:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0tULzTdYpPPZz3C9Z2XZk9mTHbV=UCkMJEW+6XbRFZvw@mail.gmail.com>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20130701090103.GA28709@x2.net.home>
+References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+	<1371408836-16663-16-git-send-email-kerolasa@iki.fi>
+	<20130701090103.GA28709@x2.net.home>
+Date: Mon, 1 Jul 2013 11:58:56 +0100
+Message-ID: <CAG27Bk38mrA54btgSAQsiKTOoh2ZXFD8jgJ3vLHWf12QAy9-dw@mail.gmail.com>
+Subject: Re: [PATCH 15/15] hexdump: use simple printing functions when possible
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 19, 2013 at 05:00:09PM +0100, Sami Kerola wrote:
-> From c2deb80ef6feb7039a0554e4b8a8272e59cb1a87 Mon Sep 17 00:00:00 2001
-> From: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
-> Date: Wed, 20 Aug 2008 12:00:00 +0100
-> Subject: [PATCH] setsid: add an option to wait child return value
-> Organization: Lastminute.com
+On 1 July 2013 10:01, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Jun 16, 2013 at 07:53:56PM +0100, Sami Kerola wrote:
+>> This makes common cases 35-50% quicker.
+>
+>  What about portability and code readability?
+>
+>  It would be nice to have include/unlocked-io.h and add
+>  AC_CHECK_DECLS_ONCE() for all *_unlocked functions.
+>
+>  See gnulib/lib/unlocked-io.h
+>      gnulib/m4/unlocked-io.m4
+>
+>  .. then you can control all the behaviour by "#include unlocked-io.h"
+>  rather than change all the code in the util(s). Maybe we can use the
+>  functions in more utils where we intensively print something (e.g.
+>  dmesg).
+>
+>  I guess we don't want separate m4 file for this stuff.
 
-it would be nice to have usable patch, ideally sent by git-send-email.
+Good idea.
 
-    Karel
+When I tested the putchar_unlocked() was more or less equally quick
+with putchar(), but I chose to squeeze even the theoretical speed out
+of the printing. For now it might be best, from portability point of
+view, to 's/_unlocked//' and add later some clever build time
+automation which will pick the most suitable function.
 
-> - fputs(_(" -c, --ctty     set the controlling terminal to the current one\n"),
-> - out);
-> + fputs(_(" -c, --ctty     set the controlling terminal to the current
-> one\n"), out);
-> + fputs(_(" -w, --wait     wait program to exit, and use the same
-> return\n"), out);
-
- invalid patch formatting
-
-> + if (wait(&status) != pid)
-> + err(EXIT_FAILURE, "wait");
-> + if (WIFEXITED(status))
-> + return WEXITSTATUS(status);
-> + err(status, _("child %d did not exit normally"), pid);
-
- useless formatting...
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--
+Sami Kerola
+http://www.iki.fi/kerolasa/
