@@ -1,38 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f47.google.com ([74.125.83.47]:39802 "EHLO
-	mail-ee0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753125Ab3GGTz3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:55:29 -0400
-Received: by mail-ee0-f47.google.com with SMTP id e49so2360959eek.6
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:55:28 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 11/34] lib/loopdev: assigned value is never read [clang-analyzer]
-Date: Sun,  7 Jul 2013 20:54:26 +0100
-Message-Id: <1373226889-3451-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
-References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:21167 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752350Ab3GAMF0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 1 Jul 2013 08:05:26 -0400
+Date: Mon, 1 Jul 2013 14:05:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] ul: enhance command performance
+Message-ID: <20130701120515.GB1946@x2.net.home>
+References: <1372581840-18966-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1372581840-18966-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/loopdev.c | 1 -
- 1 file changed, 1 deletion(-)
+On Sun, Jun 30, 2013 at 09:44:00AM +0100, Sami Kerola wrote:
+> Avoid reseting, time after time, the memory which was not used.  Effect
+> of the change is below in before and after timings.
+> 
+> $ time ./ul </etc/services >/dev/null
+> real    0m0.320s
+> user    0m0.307s
+> sys     0m0.010s
+> 
+> $ time ./ul </etc/services >/dev/null
+> real    0m0.068s
+> user    0m0.050s
+> sys     0m0.017s
 
-diff --git a/lib/loopdev.c b/lib/loopdev.c
-index 3b65b5d..001a9ad 100644
---- a/lib/loopdev.c
-+++ b/lib/loopdev.c
-@@ -1234,7 +1234,6 @@ int loopcxt_setup_device(struct loopdev_cxt *lc)
- 		goto err;
- 
- 	close(file_fd);
--	file_fd = -1;
- 
- 	memset(&lc->info, 0, sizeof(lc->info));
- 	lc->has_info = 0;
+ Good catch :-)
+
+> @@ -491,11 +491,11 @@ static void initbuf(void)
+>  	if (obuf == NULL) {
+>  		/* First time. */
+>  		obuflen = BUFSIZ;
+> -		obuf = xmalloc(sizeof(struct CHAR) * obuflen);
+> +		obuf = xcalloc(obuflen, sizeof(struct CHAR));
+>  	}
+>  
+    else
+
+>  	/* assumes NORMAL == 0 */
+> -	memset(obuf, 0, sizeof(struct CHAR) * obuflen);
+> +	memset(obuf, 0, sizeof(struct CHAR) * col);
+
+ I think 'maxcol' rather than col is more precise solution ;-) 
+
+ Applied, thanks.
+
+    Karel
+
 -- 
-1.8.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
