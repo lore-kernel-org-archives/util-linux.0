@@ -1,45 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:8243 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752027Ab3GHICY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Jul 2013 04:02:24 -0400
-Date: Mon, 8 Jul 2013 10:02:11 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 13/34] libmount: fix memory leak [clang-analyzer]
-Message-ID: <20130708080211.GA11126@x2.net.home>
+Received: from mail-ee0-f49.google.com ([74.125.83.49]:42883 "EHLO
+	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753044Ab3GGT4j (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:39 -0400
+Received: by mail-ee0-f49.google.com with SMTP id b57so2371172eek.36
+        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:37 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 32/34] ul: use string printing function
+Date: Sun,  7 Jul 2013 20:54:47 +0100
+Message-Id: <1373226889-3451-33-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
 References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
- <1373226889-3451-14-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1373226889-3451-14-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 07, 2013 at 08:54:28PM +0100, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  libmount/src/utils.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-> index 1655764..7714b50 100644
-> --- a/libmount/src/utils.c
-> +++ b/libmount/src/utils.c
-> @@ -198,6 +198,7 @@ int mnt_chdir_to_parent(const char *target, char **filename)
->  		else
->  			memcpy(*filename, last, strlen(last) + 1);
->  	}
-    else
+Use of for loop and printing a string character by character is slower
+than to print whole string with single function.
 
-> +	free(buf);
->  	return 0;
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/ul.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
- Please, read the code and don't blindly follow analyzers.
-
-    Karel
-
+diff --git a/text-utils/ul.c b/text-utils/ul.c
+index add419b..a69ac8a 100644
+--- a/text-utils/ul.c
++++ b/text-utils/ul.c
+@@ -448,8 +448,7 @@ static void overstrike(void)
+ 	putwchar('\r');
+ 	for (*cp = ' '; *cp == ' '; cp--)
+ 		*cp = 0;
+-	for (cp = lbuf; *cp; cp++)
+-		putwchar(*cp);
++	fputws(lbuf, stdout);
+ 	if (hadbold) {
+ 		putwchar('\r');
+ 		for (cp = lbuf; *cp; cp++)
+@@ -482,8 +481,7 @@ static void iattr(void)
+ 		}
+ 	for (*cp = ' '; *cp == ' '; cp--)
+ 		*cp = 0;
+-	for (cp = lbuf; *cp; cp++)
+-		putwchar(*cp);
++	fputws(lbuf, stdout);
+ 	putwchar('\n');
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
