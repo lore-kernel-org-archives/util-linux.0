@@ -1,53 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1663 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753241Ab3GAJj7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Jul 2013 05:39:59 -0400
-Date: Mon, 1 Jul 2013 11:39:49 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/15] pull: sfdisk and dmesg resubmission, plus bits and
- bobs
-Message-ID: <20130701093949.GD28709@x2.net.home>
-References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-ee0-f52.google.com ([74.125.83.52]:53243 "EHLO
+	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753125Ab3GGT4D (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:03 -0400
+Received: by mail-ee0-f52.google.com with SMTP id c50so2402824eek.39
+        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:02 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 22/34] rev: assigned value is never read [clang-analyzer]
+Date: Sun,  7 Jul 2013 20:54:37 +0100
+Message-Id: <1373226889-3451-23-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/rev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Applied, thanks. Exceptions:
-
-On Sun, Jun 16, 2013 at 07:53:41PM +0100, Sami Kerola wrote:
-> Sami Kerola (15):
->       renice: exit with non-zero value when arguments cause warnings
->       sfdisk: use libc error printing function, and symbolic exit values
->       sfdisk: clean up usage() functions
->       sfdisk: use program_invocation_short_name to determine program name
->       docs: correct sfdisk --activate instructions
-
->       sfdisk: remove --unhide and related functions
-
- Not applied (--unhide is valid operation, unimplemented was "unhide"
- as command name).
-
->       sfdisk: replace my_warn() with warnx()
->       dmesg: convert time format bitfield to enum
->       dmesg: add --time-format option
->       dmesg: add iso-8601 time format
->       docs: add --time-format option and ISO-8601 format to manual
->       dmesg: regroup time related options close to each other
->       sd-daemon: update files taken from systemd project
->       hexdump: remove unnecessary global variables
-
->       hexdump: use simple printing functions when possible
-
-  Not applied (the patch is too aggressive and unportable).
-
-    Karel
-
+diff --git a/text-utils/rev.c b/text-utils/rev.c
+index 13249de..0764466 100644
+--- a/text-utils/rev.c
++++ b/text-utils/rev.c
+@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
+ 			usage(stderr);
+ 		}
+ 
+-	argc -= optind;
+ 	argv += optind;
+ 
+ 	buf = xmalloc(bufsiz * sizeof(wchar_t));
+@@ -173,3 +172,4 @@ int main(int argc, char *argv[])
+ 	return rval;
+ }
+ 
++ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
