@@ -1,26 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31503 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753217Ab3GIJMk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Jul 2013 05:12:40 -0400
-Date: Tue, 9 Jul 2013 11:12:36 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] improve man pages for dmesg and *fdisk
-Message-ID: <20130709091236.GB24716@x2.net.home>
-References: <1372846805.9577.140661251406749.2931020E@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1372846805.9577.140661251406749.2931020E@webmail.messagingengine.com>
+Received: from mail-ea0-f172.google.com ([209.85.215.172]:35604 "EHLO
+	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753125Ab3GGT4A (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:00 -0400
+Received: by mail-ea0-f172.google.com with SMTP id q10so2527982eaj.31
+        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:55:59 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 21/34] mesg: assigned value is never read [clang-analyzer]
+Date: Sun,  7 Jul 2013 20:54:36 +0100
+Message-Id: <1373226889-3451-22-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 03, 2013 at 12:20:05PM +0200, Benno Schulenberg wrote:
-> Attached three patches improve wording and formatting for the man
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/mesg.c | 1 -
+ 1 file changed, 1 deletion(-)
 
- Applied, thanks.
-
+diff --git a/term-utils/mesg.c b/term-utils/mesg.c
+index 430236f..638a8c7 100644
+--- a/term-utils/mesg.c
++++ b/term-utils/mesg.c
+@@ -115,7 +115,6 @@ int main(int argc, char *argv[])
+ 			usage(stderr);
+ 		}
+ 
+-	argc -= optind;
+ 	argv += optind;
+ 
+ 	if ((tty = ttyname(STDERR_FILENO)) == NULL)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
