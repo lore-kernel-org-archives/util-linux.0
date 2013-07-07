@@ -1,39 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47329 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753597Ab3GIJIy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Jul 2013 05:08:54 -0400
-Date: Tue, 9 Jul 2013 11:08:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org, ebiederm@xmission.com, mtk.manpages@gmail.com
-Subject: Re: [PATCH/RFC] unshare: add --fork/--mount-proc options for pid
- namespaces
-Message-ID: <20130709090850.GA24716@x2.net.home>
-References: <1372377898-2602-1-git-send-email-vapier@gentoo.org>
- <201307011047.05595.vapier@gentoo.org>
- <20130703103635.GA722@x2.net.home>
- <201307031308.31557.vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201307031308.31557.vapier@gentoo.org>
+Received: from mail-ea0-f179.google.com ([209.85.215.179]:41326 "EHLO
+	mail-ea0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753125Ab3GGT4Q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:16 -0400
+Received: by mail-ea0-f179.google.com with SMTP id b15so2496334eae.24
+        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:15 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 26/34] login: assigned value is never read [clang-analyzer]
+Date: Sun,  7 Jul 2013 20:54:41 +0100
+Message-Id: <1373226889-3451-27-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 03, 2013 at 01:08:30PM -0400, Mike Frysinger wrote:
-> i'm not familiar with that flag as it's 
-> not in the mount(2) man page (looks like it's listed as a TODO).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/login.c | 1 -
+ 1 file changed, 1 deletion(-)
 
- the flag is used for mount --make-private, 
-
- http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/filesystems/sharedsubtree.txt
-
-> Acked-by: Mike Frysinger <vapier@gentoo.or>
-
- Merged, thanks.
-
-    Karel
-
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 89df489..fbfc199 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1290,7 +1290,6 @@ int main(int argc, char **argv)
+ 			fprintf(stderr, _("Usage: login [-p] [-h <host>] [-H] [[-f] <username>]\n"));
+ 			exit(EXIT_FAILURE);
+ 		}
+-	argc -= optind;
+ 	argv += optind;
+ 
+ 	if (*argv) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
