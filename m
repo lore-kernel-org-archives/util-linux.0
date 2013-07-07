@@ -1,47 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13597 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752974Ab3GAJZ7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Jul 2013 05:25:59 -0400
-Date: Mon, 1 Jul 2013 11:25:49 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 10/15] dmesg: add iso-8601 time format
-Message-ID: <20130701092549.GB28709@x2.net.home>
-References: <1371408836-16663-1-git-send-email-kerolasa@iki.fi>
- <1371408836-16663-11-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1371408836-16663-11-git-send-email-kerolasa@iki.fi>
+Received: from mail-ee0-f50.google.com ([74.125.83.50]:63765 "EHLO
+	mail-ee0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753125Ab3GGT4T (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:19 -0400
+Received: by mail-ee0-f50.google.com with SMTP id d49so2365461eek.37
+        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:18 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 27/34] sfdisk: assigned value is never read [clang-analyzer]
+Date: Sun,  7 Jul 2013 20:54:42 +0100
+Message-Id: <1373226889-3451-28-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 16, 2013 at 07:53:51PM +0100, Sami Kerola wrote:
->  sys-utils/dmesg.c | 29 ++++++++++++++++++++++++++---
->  1 file changed, 26 insertions(+), 3 deletions(-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ fdisks/sfdisk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Applied, thanks. Notes:
-
-> diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-> index 2199e7f..be08f6c 100644
-> --- a/sys-utils/dmesg.c
-> +++ b/sys-utils/dmesg.c
-> @@ -133,7 +133,8 @@ enum {
->  	DMESG_TIMEFTM_DELTA,		/* [<delta>] */
->  	DMESG_TIMEFTM_RELTIME,		/* [relative] */
->  	DMESG_TIMEFTM_TIME,		/* [time] */
-> -	DMESG_TIMEFTM_TIME_DELTA	/* [time <delta>] */
-> +	DMESG_TIMEFTM_TIME_DELTA,	/* [time <delta>] */
-> +	DMESG_TIMEFTM_ISO8601		/* 2013-06-13T22:11:00,123456+0100 */
-
-    dmesg --show-delta --time-format=iso
-
- is unsupported, right? I have no problem with this restriction, but
- it would be nice to add some warning to the code.
-
-    Karel
-
+diff --git a/fdisks/sfdisk.c b/fdisks/sfdisk.c
+index 6b757a7..152e5f5 100644
+--- a/fdisks/sfdisk.c
++++ b/fdisks/sfdisk.c
+@@ -1505,7 +1505,7 @@ msdos_partition(char *dev, int fd, unsigned long start, struct disk_desc *z) {
+     struct partition pt;
+     struct sector *s;
+     struct part_desc *partitions = &(z->partitions[0]);
+-    int pno = z->partno;
++    int pno;
+     int bsd_later = 1;
+     unsigned short sig, magic;
+ #ifdef __linux__
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
