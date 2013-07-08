@@ -1,39 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f45.google.com ([74.125.83.45]:42101 "EHLO
-	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753125Ab3GGTzy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:55:54 -0400
-Received: by mail-ee0-f45.google.com with SMTP id c1so2411698eek.18
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:55:52 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 19/34] eject: assigned value is never read [clang-analyzer]
-Date: Sun,  7 Jul 2013 20:54:34 +0100
-Message-Id: <1373226889-3451-20-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:8243 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752027Ab3GHICY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Jul 2013 04:02:24 -0400
+Date: Mon, 8 Jul 2013 10:02:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 13/34] libmount: fix memory leak [clang-analyzer]
+Message-ID: <20130708080211.GA11126@x2.net.home>
 References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+ <1373226889-3451-14-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1373226889-3451-14-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/eject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Jul 07, 2013 at 08:54:28PM +0100, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  libmount/src/utils.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+> index 1655764..7714b50 100644
+> --- a/libmount/src/utils.c
+> +++ b/libmount/src/utils.c
+> @@ -198,6 +198,7 @@ int mnt_chdir_to_parent(const char *target, char **filename)
+>  		else
+>  			memcpy(*filename, last, strlen(last) + 1);
+>  	}
+    else
 
-diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-index f98f227..5bcde68 100644
---- a/sys-utils/eject.c
-+++ b/sys-utils/eject.c
-@@ -636,7 +636,7 @@ static int eject_scsi(int fd)
- 		return 0;
- 
- 	/* force kernel to reread partition table when new disc inserted */
--	status = ioctl(fd, BLKRRPART);
-+	ioctl(fd, BLKRRPART);
- 	return 1;
- }
- 
+> +	free(buf);
+>  	return 0;
+
+ Please, read the code and don't blindly follow analyzers.
+
+    Karel
+
 -- 
-1.8.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
