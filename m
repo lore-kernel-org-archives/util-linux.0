@@ -1,45 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f172.google.com ([209.85.215.172]:63131 "EHLO
-	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753044Ab3GGT4b (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:31 -0400
-Received: by mail-ea0-f172.google.com with SMTP id q10so2492053eaj.17
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:29 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 31/34] ul: use correct types
-Date: Sun,  7 Jul 2013 20:54:46 +0100
-Message-Id: <1373226889-3451-32-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:5466 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751464Ab3GHIX4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Jul 2013 04:23:56 -0400
+Date: Mon, 8 Jul 2013 10:23:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 21/34] mesg: assigned value is never read [clang-analyzer]
+Message-ID: <20130708082346.GB11126@x2.net.home>
 References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+ <1373226889-3451-22-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1373226889-3451-22-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/ul.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On Sun, Jul 07, 2013 at 08:54:36PM +0100, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  term-utils/mesg.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/term-utils/mesg.c b/term-utils/mesg.c
+> index 430236f..638a8c7 100644
+> --- a/term-utils/mesg.c
+> +++ b/term-utils/mesg.c
+> @@ -115,7 +115,6 @@ int main(int argc, char *argv[])
+>  			usage(stderr);
+>  		}
+>  
+> -	argc -= optind;
+>  	argv += optind;
 
-diff --git a/text-utils/ul.c b/text-utils/ul.c
-index c2c19f6..add419b 100644
---- a/text-utils/ul.c
-+++ b/text-utils/ul.c
-@@ -464,11 +464,11 @@ static void iattr(void)
- {
- 	register int i;
- #ifdef __GNUC__
--	register char *lbuf = __builtin_alloca((maxcol+1)*sizeof(char));
-+	register wchar_t *lbuf = __builtin_alloca((maxcol+1)*sizeof(wchar_t));
- #else
--	char lbuf[BUFSIZ];
-+	wchar_t lbuf[BUFSIZ];
- #endif
--	register char *cp = lbuf;
-+	register wchar_t *cp = lbuf;
- 
- 	for (i = 0; i < maxcol; i++)
- 		switch (obuf[i].c_mode) {
+ This is technically correct change, but I don't think it makes code
+ more robust. The argv[] and argc are twins and it's bad coding style
+ manner to divide the relation.
+
+    Karel
+
+
 -- 
-1.8.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
