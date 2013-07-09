@@ -1,54 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f171.google.com ([209.85.215.171]:43300 "EHLO
-	mail-ea0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753125Ab3GGTzi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:55:38 -0400
-Received: by mail-ea0-f171.google.com with SMTP id m14so2476603eaj.16
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:55:37 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 14/34] ipcs: assigned values are never read [clang-analyzer]
-Date: Sun,  7 Jul 2013 20:54:29 +0100
-Message-Id: <1373226889-3451-15-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
-References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:30403 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752865Ab3GIJhA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Jul 2013 05:37:00 -0400
+Date: Tue, 9 Jul 2013 11:36:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Damien Wyart <damien.wyart@gmail.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: forking in setsid
+Message-ID: <20130709093657.GC24716@x2.net.home>
+References: <CADJQGJfOj2GQNdoW89hC2LMukC_cwPuJVBiN6+xy64UphbOiZg@mail.gmail.com>
+ <CAG27Bk0tULzTdYpPPZz3C9Z2XZk9mTHbV=UCkMJEW+6XbRFZvw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0tULzTdYpPPZz3C9Z2XZk9mTHbV=UCkMJEW+6XbRFZvw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/ipcs.c | 3 ---
- 1 file changed, 3 deletions(-)
+On Wed, Jun 19, 2013 at 05:00:09PM +0100, Sami Kerola wrote:
+> From c2deb80ef6feb7039a0554e4b8a8272e59cb1a87 Mon Sep 17 00:00:00 2001
+> From: Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+> Date: Wed, 20 Aug 2008 12:00:00 +0100
+> Subject: [PATCH] setsid: add an option to wait child return value
+> Organization: Lastminute.com
 
-diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
-index 14f5f0b..16e5206 100644
---- a/sys-utils/ipcs.c
-+++ b/sys-utils/ipcs.c
-@@ -278,7 +278,6 @@ static void do_shm (char format, int unit)
- 	 */
- 	if (ipc_shm_get_info(-1, &shmds) < 1)
- 		return;
--	shmdsp = shmds;
- 
- 	for (shmdsp = shmds; shmdsp->next != NULL; shmdsp = shmdsp->next) {
- 		if (format == CREATOR)  {
-@@ -396,7 +395,6 @@ static void do_sem (char format)
- 	 */
- 	if (ipc_sem_get_info(-1, &semds) < 1)
- 		return;
--	semdsp = semds;
- 
- 	for (semdsp = semds; semdsp->next != NULL; semdsp = semdsp->next) {
- 		if (format == CREATOR)  {
-@@ -501,7 +499,6 @@ static void do_msg (char format, int unit)
- 	 */
- 	if (ipc_msg_get_info(-1, &msgds) < 1)
- 		return;
--	msgdsp = msgds;
- 
- 	for (msgdsp = msgds; msgdsp->next != NULL; msgdsp = msgdsp->next) {
- 		if (format == CREATOR) {
+it would be nice to have usable patch, ideally sent by git-send-email.
+
+    Karel
+
+> - fputs(_(" -c, --ctty     set the controlling terminal to the current one\n"),
+> - out);
+> + fputs(_(" -c, --ctty     set the controlling terminal to the current
+> one\n"), out);
+> + fputs(_(" -w, --wait     wait program to exit, and use the same
+> return\n"), out);
+
+ invalid patch formatting
+
+> + if (wait(&status) != pid)
+> + err(EXIT_FAILURE, "wait");
+> + if (WIFEXITED(status))
+> + return WEXITSTATUS(status);
+> + err(status, _("child %d did not exit normally"), pid);
+
+ useless formatting...
+
+    Karel
+
 -- 
-1.8.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
