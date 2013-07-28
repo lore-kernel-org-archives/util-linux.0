@@ -1,54 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:53432 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753125Ab3GGT4W (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Jul 2013 15:56:22 -0400
-Received: by mail-ea0-f182.google.com with SMTP id d10so2520745eaj.13
-        for <util-linux@vger.kernel.org>; Sun, 07 Jul 2013 12:56:21 -0700 (PDT)
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:63208 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751185Ab3G1VLm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Jul 2013 17:11:42 -0400
+Received: by mail-wg0-f48.google.com with SMTP id f12so3617309wgh.3
+        for <util-linux@vger.kernel.org>; Sun, 28 Jul 2013 14:11:41 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 28/34] sulogin: fix memory leak [clang-analyzer]
-Date: Sun,  7 Jul 2013 20:54:43 +0100
-Message-Id: <1373226889-3451-29-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
-References: <1373226889-3451-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 6/7] build-sys: use backticks rather than $() for commands in configure
+Date: Sun, 28 Jul 2013 22:11:20 +0100
+Message-Id: <1375045881-11978-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
+References: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-And make code a little bit more robust.
+The configure had both backticks and $() in use.  These command
+susbstitutions are mutually interchangeable, so one should pick only one
+form.  In this case backticks were favored because they are known with
+greater range of shells, making the backticks to be more portable.
 
+References: https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Shell-Substitutions.html#index-g_t_0024_0028_0040var_007bcommands_007d_0029-1632
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/sulogin-consoles.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ configure.ac | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/login-utils/sulogin-consoles.c b/login-utils/sulogin-consoles.c
-index d0f0eab..a131e79 100644
---- a/login-utils/sulogin-consoles.c
-+++ b/login-utils/sulogin-consoles.c
-@@ -719,7 +719,7 @@ console:
+diff --git a/configure.ac b/configure.ac
+index 6fae31e..7252e9b 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1347,7 +1347,7 @@ AS_IF([test "x$enable_socket_activation" = xyes], [
  
- fallback:
- 	if (fallback >= 0) {
--		const char *name;
-+		const char *name, *n;
- 		struct console *console;
+ AC_ARG_WITH([systemdsystemunitdir],
+   AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [directory for systemd service files]),
+-  [], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
++  [], [with_systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`])
  
- 		if (device && *device != '\0')
-@@ -729,7 +729,11 @@ fallback:
- 		if (!name)
- 			name = "/dev/tty";
- 
--		rc = append_console(consoles, strdup(name));
-+		n = strdup(name);
-+		if (!n)
-+			return -ENOMEM;
-+		rc = append_console(consoles, n);
-+		free(n);
- 		if (rc < 0)
- 			return rc;
- 		if (list_empty(consoles))
+ AS_IF([test "x$with_systemdsystemunitdir" != "xno"], [
+   AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+@@ -1359,8 +1359,8 @@ AM_CONDITIONAL([HAVE_SYSTEMD], [test -n "$with_systemdsystemunitdir" -a "x$with_
+ AC_ARG_WITH([bashcompletiondir],
+   AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),
+   [],
+-  [AS_IF([$($PKG_CONFIG --exists bash-completion)], [
+-    with_bashcompletiondir=$($PKG_CONFIG --variable=completionsdir bash-completion)
++  [AS_IF([`$PKG_CONFIG --exists bash-completion`], [
++    with_bashcompletiondir=`$PKG_CONFIG --variable=completionsdir bash-completion`
+   ], [
+     with_bashcompletiondir=${datadir}/bash-completion/completions
+   ])
 -- 
-1.8.3.2
+1.8.3.4
 
