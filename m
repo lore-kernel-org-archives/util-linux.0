@@ -1,71 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:52340 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751185Ab3G1VLq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Jul 2013 17:11:46 -0400
-Received: by mail-wi0-f174.google.com with SMTP id j17so1815770wiw.1
-        for <util-linux@vger.kernel.org>; Sun, 28 Jul 2013 14:11:44 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 7/7] rev: use string printing rather than character output
-Date: Sun, 28 Jul 2013 22:11:21 +0100
-Message-Id: <1375045881-11978-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
-References: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:64390 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752360Ab3GaMvv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 31 Jul 2013 08:51:51 -0400
+Date: Wed, 31 Jul 2013 14:51:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.23.2
+Message-ID: <20130731125148.GA1127@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fliping a string in memory, and printing it with multibyte output
-function makes the command about 1/3 quicker.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/rev.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+The util-linux stable bugfix release v2.23.2 is available at
 
-diff --git a/text-utils/rev.c b/text-utils/rev.c
-index 1c44036..85e1630 100644
---- a/text-utils/rev.c
-+++ b/text-utils/rev.c
-@@ -86,10 +86,20 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
-+static void reverse_str(wchar_t *str, size_t n)
-+{
-+	size_t i;
-+
-+	for (i = 0; i < n / 2; ++i) {
-+		wchar_t tmp = str[i];
-+		str[i] = str[n - 1 - i];
-+		str[n - 1 - i] = tmp;
-+	}
-+}
-+
- int main(int argc, char *argv[])
- {
- 	char *filename = "stdin";
--	wchar_t *t;
- 	size_t len, bufsiz = BUFSIZ;
- 	FILE *fp = stdin;
- 	int ch, rval = EXIT_SUCCESS;
-@@ -153,13 +163,8 @@ int main(int argc, char *argv[])
- 
- 				len = wcslen(buf);
- 			}
--
--			if (*(t = buf + len - 1) == '\n')
--				--t;
--			for ( ; buf <= t; --t)
--				putwchar(*t);
--			if (!feof(fp))
--				putwchar('\n');
-+			reverse_str(buf, len - 1);
-+			fputws(buf, stdout);
- 		}
- 		if (ferror(fp)) {
- 			warn("%s", filename);
--- 
-1.8.3.4
+  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.23
+
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
+
+
+
+Util-linux 2.23.2 Release Notes
+===============================
+
+agetty:
+   - don't remove ECHOCTL from c_lflag  [Karel Zak]
+   - fix a kill/erase error in man page and improve clarity  [Benno Schulenberg]
+   - fix memory leak [clang-analyzer]  [Sami Kerola]
+   - update man page and usage()  [Karel Zak]
+   - unrecognized option '--loginpause'"  [kernc]
+cal:
+   - fix -y output for UTF8  [Karel Zak]
+column:
+   - dereference of null pointer [clang-analyzer]  [Sami Kerola]
+dmesg:
+   - don't use pager for --follow  [Karel Zak]
+docs:
+   - update AUTHORS file  [Karel Zak]
+eject:
+   - unlock door before issuing CDROMEJECT command  [Aaron Lu]
+exec_shell:
+   - add a license and touch up func def  [Mike Frysinger]
+fdisk:
+   - add support for the MicroBlaze architecture  [Nathan Rossi]
+findmnt:
+   - avoid unused parameter warning  [Karel Zak]
+   - make udev usage more robust  [Karel Zak]
+   - test for fstype/options/maj min before source and target  [Karel Zak]
+getopt:
+   - add reference to /usr/share/docs to man page  [Karel Zak]
+hwclock:
+   - remove references to adjtimex from man page  [Karel Zak]
+libmount:
+   - be robust for empty target/source strings  [Karel Zak]
+   - fix memory leak [clang-analyzer]  [Karel Zak]
+   - more robust options string parsing  [Karel Zak]
+login:
+   - use TCSANOW to remove HUPCL  [Karel Zak]
+losetup:
+   - set errno for misaligned offsets  [Karel Zak]
+lsblk:
+   - use devno to get mountpoint  [Karel Zak]
+mkfs.bfs:
+   - fix 64-Bit and endian problems  [ihno]
+mkfs.cramfs:
+   - argument to free() is a constant address [clang-analyzer]  [Sami Kerola]
+mount:
+   - (deprecated) fix typo tailed->failed  [Yuri Chornoivan]
+   - fix mistaken word and some grammar in man page of mount  [Benno Schulenberg]
+   - remove repeating words from mount.8  [Karel Zak]
+   - update xfs docs  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update cs.po (from translationproject.org)  [Petr Písař]
+   - update fr.po (from translationproject.org)  [David Prévot]
+   - update pl.po (from translationproject.org)  [Jakub Bogusz]
+   - update uk.po (from translationproject.org)  [Yuri Chornoivan]
+renice:
+   - exit with non-zero value when arguments cause warnings  [Sami Kerola]
+runuser:
+   - update man page, add note about -l vs. -p  [Karel Zak]
+sfdisk:
+   - don't use word 'disk'.  [Karel Zak]
+su:
+   - ignore --preserve-environment, it's mutually exclusive to --login  [Karel Zak]
+sulogin:
+   - fix compiler warning  [Karel Zak]
+   - fix memory leak [clang-analyzer]  [Sami Kerola]
+uuidd:
+   - add missing initializer [clang-analyzer]  [Karel Zak]
 
