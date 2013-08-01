@@ -1,38 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.10]:63425 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757573Ab3HMPJh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Aug 2013 11:09:37 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] last: mention optional arguments in usage
-Date: Tue, 13 Aug 2013 17:09:23 +0200
-Message-Id: <1376406563-24198-1-git-send-email-mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:36892 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755432Ab3HAOEO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 Aug 2013 10:04:14 -0400
+Date: Thu, 1 Aug 2013 16:04:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Dr. David Alan Gilbert" <dave@treblig.org>
+Cc: util-linux@vger.kernel.org, rleigh@debian.org
+Subject: Re: [PATCH] get_line fixes for wide characters and overflows
+Message-ID: <20130801140407.GC2484@x2.net.home>
+References: <20130716232033.GD9944@gallifrey>
+ <20130719223501.GA13613@gallifrey>
+ <20130801110159.GA2484@x2.net.home>
+ <20130801125703.GA7815@gallifrey>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130801125703.GA7815@gallifrey>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* login-utils/last.c (usage): Add '[name...]' to document the optional
-username or terminal type argument.
+On Thu, Aug 01, 2013 at 01:57:03PM +0100, Dr. David Alan Gilbert wrote:
+> e to
+> >  reproduce the problem with the file from Suse bugzilla).
+> 
+> Hi Karel,
+>   Thanks for the reply.  I'll give it a go over the weekend,
+> but I don't think it can handle the wchar problems I described and fixed
+> in my follow up patch. If a 4byte wchar hapens to land at the end of the buffer
+> how do you guarantee the space?
 
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- login-utils/last.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Ah, I probably see what you mean. So I have added p < &Line[LineLen - 1]
+ check to the for() where the code copies the multibyte buffer to line buffer.
+ See git tree for more details.
 
-diff --git a/login-utils/last.c b/login-utils/last.c
-index 0f475f2..913637e 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -418,7 +418,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out, _(
--		" %s [options]\n"), program_invocation_short_name);
-+		" %s [options] [name...]\n"), program_invocation_short_name);
- 
- 	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -<number>            how many lines to show\n"), out);
+    Karel
+
+
+
 -- 
-1.8.3.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
