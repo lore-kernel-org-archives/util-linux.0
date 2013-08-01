@@ -1,27 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45776 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:16699 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755349Ab3HEIsT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 Aug 2013 04:48:19 -0400
-Date: Mon, 5 Aug 2013 10:48:10 +0200
+	id S1752813Ab3HALlx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 Aug 2013 07:41:53 -0400
+Date: Thu, 1 Aug 2013 13:41:43 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] column: use variable lenght printf field width to
- wprint blanks
-Message-ID: <20130805084810.GD15105@x2.net.home>
-References: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 1/7] lscpu: fix shadow declaration [smatch scan]
+Message-ID: <20130801114143.GB2484@x2.net.home>
+References: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 04, 2013 at 12:15:19AM +0100, Sami Kerola wrote:
->  text-utils/column.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+On Sun, Jul 28, 2013 at 10:11:15PM +0100, Sami Kerola wrote:
+>  sys-utils/lscpu.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
- Applied, thanks.
+ Applied all 7 patches, thanks!
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
