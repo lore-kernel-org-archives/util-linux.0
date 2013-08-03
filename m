@@ -1,45 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f175.google.com ([74.125.82.175]:38463 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754018Ab3HQSPs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:15:48 -0400
-Received: by mail-we0-f175.google.com with SMTP id q58so2661355wes.34
-        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:15:47 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 02/16] docs: update TODO
-Date: Sat, 17 Aug 2013 19:15:07 +0100
-Message-Id: <1376763321-22782-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
-References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: dg@treblig.org
+Date: Sat, 3 Aug 2013 13:38:30 +0100
+From: "Dr. David Alan Gilbert" <dave@treblig.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, rleigh@debian.org
+Subject: Re: [PATCH] get_line fixes for wide characters and overflows
+Message-ID: <20130803123830.GB5098@gallifrey>
+References: <20130716232033.GD9944@gallifrey>
+ <20130719223501.GA13613@gallifrey>
+ <20130801110159.GA2484@x2.net.home>
+ <20130801125703.GA7815@gallifrey>
+ <20130801140407.GC2484@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130801140407.GC2484@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-The minix type fixes took place December 2012.
+* Karel Zak (kzak@redhat.com) wrote:
+> On Thu, Aug 01, 2013 at 01:57:03PM +0100, Dr. David Alan Gilbert wrote:
+> > e to
+> > >  reproduce the problem with the file from Suse bugzilla).
+> > 
+> > Hi Karel,
+> >   Thanks for the reply.  I'll give it a go over the weekend,
+> > but I don't think it can handle the wchar problems I described and fixed
+> > in my follow up patch. If a 4byte wchar hapens to land at the end of the buffer
+> > how do you guarantee the space?
+> 
+>  Ah, I probably see what you mean. So I have added p < &Line[LineLen - 1]
+>  check to the for() where the code copies the multibyte buffer to line buffer.
+>  See git tree for more details.
 
-Commit: a180dc6c54f90896d6491f9bdf704523236dd99c
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- Documentation/TODO | 5 -----
- 1 file changed, 5 deletions(-)
+OK; so I think with your ...ea608842 change then it should work (not tried
+to push it); but with that change hopefully the extra check in ..623bc74f
+should never trigger; which is good because if it does then I think you'll
+end up outputing part of a wide character which would get messy.
 
-diff --git a/Documentation/TODO b/Documentation/TODO
-index fe67f12..89b147b 100644
---- a/Documentation/TODO
-+++ b/Documentation/TODO
-@@ -25,11 +25,6 @@ lscpu
-   - detect more hypervisors, see 'virt-what' shell script
-     http://people.redhat.com/~rjones/virt-what/
- 
--minix (fsck, mkfs)
--------------------
--
-- - clean up types -- use ino_t, size_t and ssize_t
--
- libmount (mount/umount)
- -----------------------
- 
+One thing I tried to do in my change was remove the magic '4's that
+pop up in a few places because of the wide characters.
+
+(Any particular reason you prefered this over my fix?)
+
+Dave
+
+> 
+>     Karel
+> 
+> 
+> 
+> -- 
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
 -- 
-1.8.3.4
-
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
+\ gro.gilbert @ treblig.org |                               | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/
