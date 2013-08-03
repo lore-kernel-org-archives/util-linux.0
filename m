@@ -1,38 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33524 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756404Ab3H2KJb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Aug 2013 06:09:31 -0400
-Date: Thu, 29 Aug 2013 12:09:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 11/17] last: parse easy to use time formats
-Message-ID: <20130829100919.GC24438@x2.net.home>
-References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
- <1377626779-26030-11-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1377626779-26030-11-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:62075 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753310Ab3HCXPd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 Aug 2013 19:15:33 -0400
+Received: by mail-wg0-f45.google.com with SMTP id x12so1460245wgg.0
+        for <util-linux@vger.kernel.org>; Sat, 03 Aug 2013 16:15:32 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/3] cal: set statically defined data read-only
+Date: Sun,  4 Aug 2013 00:15:21 +0100
+Message-Id: <1375571721-30008-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
+References: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 27, 2013 at 07:06:13PM +0100, Sami Kerola wrote:
->  		case 'p':
->  			present = parsetm(optarg);
-> -			if (present == (time_t) -1)
-> +			if (present != (time_t) -1)
-> +				break;
-> +			if (parse_timestamp(optarg, &p) < 0)
->  				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
-> +			present = (time_t) (p / 1000000);
->  			break;
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
- It would be better to add support for YYYYMMDDHHMMSS into
- parse_timestamp() rather than maintain and use two parsers.
-
-    Karel
-
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index c4ed1d1..d31b51d 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -197,14 +197,14 @@ struct fmt_st
+ 	char s[FMT_ST_LINES][FMT_ST_CHARS];
+ };
+ 
+-static int days_in_month[2][13] = {
++static const int days_in_month[2][13] = {
+ 	{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+ 	{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+ };
+ 
+ /* September 1752 is special, and has static assignments for both date
+  * and Julian representations.  */
+-static int d_sep1752[MAXDAYS / 2] = {
++static const int d_sep1752[MAXDAYS / 2] = {
+ 	SPACE,	SPACE,	1,	2,	14,	15,	16,
+ 	17,	18,	19,	20,	21,	22,	23,
+ 	24,	25,	26,	27,	28,	29,	30
+@@ -658,7 +658,7 @@ static void yearly(int day, long year, int julian)
+ static void day_array(int day, int month, long year, int *days)
+ {
+ 	int julday, daynum, dw, dm;
+-	int *sep1752;
++	const int *sep1752;
+ 
+ 	memcpy(days, empty, MAXDAYS * sizeof(int));
+ 	if (year == REFORMATION_YEAR && month == REFORMATION_MONTH) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.4
+
