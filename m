@@ -1,49 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53744 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752894Ab3H2KPa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 Aug 2013 06:15:30 -0400
-Date: Thu, 29 Aug 2013 12:15:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 15/17] last: use configuration struct
-Message-ID: <20130829101519.GE24438@x2.net.home>
-References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
- <1377626779-26030-15-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1377626779-26030-15-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f54.google.com ([74.125.82.54]:37469 "EHLO
+	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752156Ab3HDJ74 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 Aug 2013 05:59:56 -0400
+Received: by mail-wg0-f54.google.com with SMTP id e12so548320wgh.21
+        for <util-linux@vger.kernel.org>; Sun, 04 Aug 2013 02:59:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] mkswap: add run time warning when maximum number of pages is exceeded
+Date: Sun,  4 Aug 2013 10:59:50 +0100
+Message-Id: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 27, 2013 at 07:06:17PM +0100, Sami Kerola wrote:
-> +	struct last_control ctl;
-> +	int c;
->  	usec_t p;
->  
->  	static const struct option long_opts[] = {
-> @@ -761,6 +775,11 @@ int main(int argc, char **argv)
->  	      { NULL, 0, NULL, 0 }
->  	};
->  
-> +	memset(&ctl, 0, sizeof(struct last_control));
-> +	ctl.showhost = TRUE;
-> +	ctl.name_len = LAST_LOGIN_LEN;
-> +	ctl.domain_len = LAST_DOMAIN_LEN;
-> +
+The commit f1477c4 mentioned in manual page swap header has a hard limit
+for usable page count, which user will very likely miss unless there is a
+run time warning.
 
-  struct last_control ctl = {
-         .showhost = TRUE,
-         .name_len = LAST_LOGIN_LEN,
-         .domain_len = LAST_DOMAIN_LEN
-  };
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkswap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
- is good enough, memset() is unnecessary.
-
-
-    Karel
-
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index 71503f4..16e7b1e 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -556,6 +556,9 @@ main(int argc, char **argv) {
+ 			(long)(MIN_GOODPAGES * pagesize/1024));
+ 		usage(stderr);
+ 	}
++	if (UINT_MAX < PAGES)
++		warnx(_("warning: swap area exceeds greatest number of supported pages by %llu"),
++			PAGES - UINT_MAX);
+ 
+ #ifdef __linux__
+ 	if (get_linux_version() >= KERNEL_VERSION(2,3,4))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.4
+
