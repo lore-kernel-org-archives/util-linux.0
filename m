@@ -1,27 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5902 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:16718 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751258Ab3HAJdJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 Aug 2013 05:33:09 -0400
-Date: Thu, 1 Aug 2013 11:32:57 +0200
+	id S1754165Ab3HEIoc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 Aug 2013 04:44:32 -0400
+Date: Mon, 5 Aug 2013 10:44:23 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Daniel Kahn Gillmor <dkg@fifthhorseman.net>
-Subject: Re: [PATCH] setsid: add an option to wait child return value
-Message-ID: <20130801093257.GC32099@x2.net.home>
-References: <1374494207-3891-1-git-send-email-kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mkswap: add run time warning when maximum number of
+ pages is exceeded
+Message-ID: <20130805084423.GB15105@x2.net.home>
+References: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1374494207-3891-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 22, 2013 at 12:56:47PM +0100, Sami Kerola wrote:
->  sys-utils/setsid.1 |  5 +++++
->  sys-utils/setsid.c | 27 ++++++++++++++++++++++-----
->  2 files changed, 27 insertions(+), 5 deletions(-)
+On Sun, Aug 04, 2013 at 10:59:50AM +0100, Sami Kerola wrote:
+> The commit f1477c4 mentioned in manual page swap header has a hard limit
+> for usable page count, which user will very likely miss unless there is a
+> run time warning.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  disk-utils/mkswap.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+> index 71503f4..16e7b1e 100644
+> --- a/disk-utils/mkswap.c
+> +++ b/disk-utils/mkswap.c
+> @@ -556,6 +556,9 @@ main(int argc, char **argv) {
+>  			(long)(MIN_GOODPAGES * pagesize/1024));
+>  		usage(stderr);
+>  	}
+> +	if (UINT_MAX < PAGES)
+> +		warnx(_("warning: swap area exceeds greatest number of supported pages by %llu"),
+> +			PAGES - UINT_MAX);
 
-Applied, thanks.
+ I don't think this is necessary... what about the "if (PAGES >
+ maxpages)" check in the code?
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
