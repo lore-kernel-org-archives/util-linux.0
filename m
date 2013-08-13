@@ -1,29 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16699 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752813Ab3HALlx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 Aug 2013 07:41:53 -0400
-Date: Thu, 1 Aug 2013 13:41:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] lscpu: fix shadow declaration [smatch scan]
-Message-ID: <20130801114143.GB2484@x2.net.home>
-References: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
+Received: from moutng.kundenserver.de ([212.227.17.8]:50482 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758545Ab3HMT7U (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Aug 2013 15:59:20 -0400
+Message-ID: <520A9016.8040208@bernhard-voelker.de>
+Date: Tue, 13 Aug 2013 21:59:18 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1375045881-11978-1-git-send-email-kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] last: mention optional arguments in usage
+References: <1376406563-24198-1-git-send-email-mail@bernhard-voelker.de> <1376408542.14036.9332767.314B2850@webmail.messagingengine.com>
+In-Reply-To: <1376408542.14036.9332767.314B2850@webmail.messagingengine.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 28, 2013 at 10:11:15PM +0100, Sami Kerola wrote:
->  sys-utils/lscpu.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+On 08/13/2013 05:42 PM, Benno Schulenberg wrote:
+> 
+> On Tue, Aug 13, 2013, at 17:09, Bernhard Voelker wrote:
+>> -		" %s [options]\n"), program_invocation_short_name);
+>> +		" %s [options] [name...]\n"), program_invocation_short_name);
+> 
+> Better use angular-brackets convention right away: "[<name>...]".
 
- Applied all 7 patches, thanks!
+Correct. I just did it as in the man page, therefore that
+one should also be fixed.
 
-    Karel
+However, I'm not that happy with it anyway, because <name> can
+either be a username or a terminal name, e.g. 'last root tty0',
+and '<name>' does not describe that too well.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Any idea - besides falling back to the old '[<username>..] [tty..]'
+(which isn't too bad IMO)?
+
+Have a nice day,
+Berny
