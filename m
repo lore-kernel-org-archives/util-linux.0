@@ -1,49 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16718 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754165Ab3HEIoc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 Aug 2013 04:44:32 -0400
-Date: Mon, 5 Aug 2013 10:44:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mkswap: add run time warning when maximum number of
- pages is exceeded
-Message-ID: <20130805084423.GB15105@x2.net.home>
-References: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:49283 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754018Ab3HQSQk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:16:40 -0400
+Received: by mail-wg0-f47.google.com with SMTP id j13so2417177wgh.14
+        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:16:39 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 10/16] last: prefer enum rather than #definition list
+Date: Sat, 17 Aug 2013 19:15:15 +0100
+Message-Id: <1376763321-22782-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
+References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 04, 2013 at 10:59:50AM +0100, Sami Kerola wrote:
-> The commit f1477c4 mentioned in manual page swap header has a hard limit
-> for usable page count, which user will very likely miss unless there is a
-> run time warning.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  disk-utils/mkswap.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-> index 71503f4..16e7b1e 100644
-> --- a/disk-utils/mkswap.c
-> +++ b/disk-utils/mkswap.c
-> @@ -556,6 +556,9 @@ main(int argc, char **argv) {
->  			(long)(MIN_GOODPAGES * pagesize/1024));
->  		usage(stderr);
->  	}
-> +	if (UINT_MAX < PAGES)
-> +		warnx(_("warning: swap area exceeds greatest number of supported pages by %llu"),
-> +			PAGES - UINT_MAX);
+Incremental number lists are more hard to get wrong with enum, and they
+are nicer to debug as for example gdb is aware of these symbolic names.
 
- I don't think this is necessary... what about the "if (PAGES >
- maxpages)" check in the code?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/last.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-    Karel
-
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 276d13a..d561e96 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -64,13 +64,15 @@ struct utmplist {
+ struct utmplist *utmplist = NULL;
+ 
+ /* Types of listing */
+-#define R_CRASH		1 /* No logout record, system boot in between */
+-#define R_DOWN		2 /* System brought down in decent way */
+-#define R_NORMAL	3 /* Normal */
+-#define R_NOW		4 /* Still logged in */
+-#define R_REBOOT	5 /* Reboot record. */
+-#define R_PHANTOM	6 /* No logout record but session is stale. */
+-#define R_TIMECHANGE	7 /* NEW_TIME or OLD_TIME */
++enum {
++	R_CRASH = 1,	/* No logout record, system boot in between */
++	R_DOWN,		/* System brought down in decent way */
++	R_NORMAL,	/* Normal */
++	R_NOW,		/* Still logged in */
++	R_REBOOT,	/* Reboot record. */
++	R_PHANTOM,	/* No logout record but session is stale. */
++	R_TIMECHANGE	/* NEW_TIME or OLD_TIME */
++};
+ 
+ /* Global variables */
+ static unsigned int maxrecs = 0; /* Maximum number of records to list. */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.4
+
