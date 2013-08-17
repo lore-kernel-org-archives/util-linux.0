@@ -1,54 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43051 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753600Ab3HWKHg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 23 Aug 2013 06:07:36 -0400
-Date: Fri, 23 Aug 2013 12:07:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/16] pull: additions recent to last(1) work, plus few
- small changes
-Message-ID: <20130823100727.GB32136@x2.net.home>
-References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mail-wg0-f52.google.com ([74.125.82.52]:56447 "EHLO
+	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754018Ab3HQSQf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:16:35 -0400
+Received: by mail-wg0-f52.google.com with SMTP id b13so2381251wgh.31
+        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:16:34 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 09/16] last: make switch cases complete, and inform if impossible occurs
+Date: Sat, 17 Aug 2013 19:15:14 +0100
+Message-Id: <1376763321-22782-10-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
+References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Aug 17, 2013 at 07:15:05PM +0100, Sami Kerola wrote:
->       build-sys: remove unnecessary environment variable
->       docs: update TODO
->       build-sys: complete elvtune removal
->       docs: be clear which last(1) is deprecated
->       docs: add long options to last.1 manual page
->       include: carefulput: print determined char when unprintable char is found
->       last: use carefulput() for printable character output
->       last: check expected numeric user input is number
->       last: make switch cases complete, and inform if impossible occurs
->       last: prefer enum rather than #definition list
->       last: remove broken code
->       last: use as narrow variable scoping as possible
+Some of the ut_type numbers does not seem to be recognized by last(1) so
+they are, at least for now, silently ignored.  See glibc documentation
+for information what the ignored EMPTY, INIT_PROCESS, LOGIN_PROCESS, and
+ACCOUNTING mean.
 
- Applied.
+Reference: FIXME
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/last.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
->       last: use ISO 8601 time format for --fulltimes
-
- This is not backwardly compatible. Not applied.
+diff --git a/login-utils/last.c b/login-utils/last.c
+index f188092..276d13a 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -343,6 +343,8 @@ static int list(struct utmp *p, time_t t, int what)
+ 			break;
+ 		case R_NORMAL:
+ 			break;
++		default:
++			abort();
+ 	}
  
- We need --fulltimes[=ctime|iso] or add --output=<list> and use lib/tt.c to 
- generate output with arbitrary columns and formats.
-
->       last: global variables are initialize automatically to zero
->       last: allow --file to be defined multiple times
->       last: add --present option
-
- Good ideas, applied. Thanks.
-
-    Karel
-
-
+ 	/*
+@@ -808,6 +810,15 @@ int main(int argc, char **argv)
+ 			utmplist = p;
+ 			break;
+ 
++		case EMPTY:
++		case INIT_PROCESS:
++		case LOGIN_PROCESS:
++		case ACCOUNTING:
++			/* ignored ut_types */
++			break;
++
++		default:
++			warnx("unrecogized ut_type: %d", ut.ut_type);
+ 		}
+ 
+ 		/*
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.4
+
