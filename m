@@ -1,63 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f177.google.com ([209.85.215.177]:40771 "EHLO
-	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751592Ab3H0SGt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Aug 2013 14:06:49 -0400
-Received: by mail-ea0-f177.google.com with SMTP id f15so2412638eak.22
-        for <util-linux@vger.kernel.org>; Tue, 27 Aug 2013 11:06:48 -0700 (PDT)
+Received: from mail-we0-f175.google.com ([74.125.82.175]:38463 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754018Ab3HQSPs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:15:48 -0400
+Received: by mail-we0-f175.google.com with SMTP id q58so2661355wes.34
+        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:15:47 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 05/17] mesg: sync usage() with howto-usage-function.txt
-Date: Tue, 27 Aug 2013 19:06:07 +0100
-Message-Id: <1377626779-26030-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
-References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 02/16] docs: update TODO
+Date: Sat, 17 Aug 2013 19:15:07 +0100
+Message-Id: <1376763321-22782-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
+References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The minix type fixes took place December 2012.
+
+Commit: a180dc6c54f90896d6491f9bdf704523236dd99c
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- term-utils/mesg.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ Documentation/TODO | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/term-utils/mesg.c b/term-utils/mesg.c
-index 430236f..097fb9c 100644
---- a/term-utils/mesg.c
-+++ b/term-utils/mesg.c
-@@ -68,16 +68,16 @@
+diff --git a/Documentation/TODO b/Documentation/TODO
+index fe67f12..89b147b 100644
+--- a/Documentation/TODO
++++ b/Documentation/TODO
+@@ -25,11 +25,6 @@ lscpu
+   - detect more hypervisors, see 'virt-what' shell script
+     http://people.redhat.com/~rjones/virt-what/
  
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
--	fputs(_("\nUsage:\n"), out);
-+	fputs(USAGE_HEADER, out);
- 	/* TRANSLATORS: this program uses for y and n rpmatch(3),
- 	 * which means they can be translated.  */
- 	fprintf(out,
- 	      _(" %s [options] [y | n]\n"), program_invocation_short_name);
+-minix (fsck, mkfs)
+-------------------
 -
--	fputs(_("\nOptions:\n"), out);
--	fputs(_(" -v, --verbose      explain what is being done\n"
--		" -V, --version      output version information and exit\n"
--		" -h, --help         output help screen and exit\n\n"), out);
-+	fputs(USAGE_OPTIONS, out);
-+	fputs(_(" -v, --verbose  explain what is being done\n"), out);
-+	fputs(USAGE_HELP, out);
-+	fputs(USAGE_VERSION, out);
-+	fprintf(out, USAGE_MAN_TAIL("mesg(1)"));
+- - clean up types -- use ino_t, size_t and ssize_t
+-
+ libmount (mount/umount)
+ -----------------------
  
- 	exit(out == stderr ? MESG_EXIT_FAILURE : EXIT_SUCCESS);
- }
-@@ -106,8 +106,7 @@ int main(int argc, char *argv[])
- 			verbose = TRUE;
- 			break;
- 		case 'V':
--			printf(_("%s from %s\n"), program_invocation_short_name,
--			PACKAGE_STRING);
-+			printf(UTIL_LINUX_VERSION);
- 			exit(EXIT_SUCCESS);
- 		case 'h':
- 			usage(stdout);
 -- 
-1.8.4
+1.8.3.4
 
