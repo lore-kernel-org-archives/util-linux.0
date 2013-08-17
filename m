@@ -1,54 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:53298 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753307Ab3HCXPa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 3 Aug 2013 19:15:30 -0400
-Received: by mail-we0-f180.google.com with SMTP id p61so1511947wes.11
-        for <util-linux@vger.kernel.org>; Sat, 03 Aug 2013 16:15:29 -0700 (PDT)
+Received: from mail-we0-f178.google.com ([74.125.82.178]:50969 "EHLO
+	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754018Ab3HQSQH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:16:07 -0400
+Received: by mail-we0-f178.google.com with SMTP id u57so2601591wes.37
+        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:16:05 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 2/3] more: make output redirection more efficient
-Date: Sun,  4 Aug 2013 00:15:20 +0100
-Message-Id: <1375571721-30008-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
-References: <1375571721-30008-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 04/16] docs: be clear which last(1) is deprecated
+Date: Sat, 17 Aug 2013 19:15:09 +0100
+Message-Id: <1376763321-22782-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
+References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Especially with large inputs the change improves performance
-considerably.
-
-old> time more /boot/vmlinuz >/dev/null
-real    0m0.224s
-
-new> more /boot/vmlinuz >/dev/null
-real    0m0.009s
+The recently merged sysvinit last(1) and lastb(1) are supported.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- text-utils/more.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ Documentation/deprecated.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index ac35acc..598e048 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -780,10 +780,11 @@ void __attribute__((__noreturn__)) end_it(int dummy __attribute__((__unused__)))
+diff --git a/Documentation/deprecated.txt b/Documentation/deprecated.txt
+index f78965c..9a21980 100644
+--- a/Documentation/deprecated.txt
++++ b/Documentation/deprecated.txt
+@@ -51,7 +51,7 @@ Why:	parallel port printers are probably almost extinct devices
  
- void copy_file(register FILE *f)
- {
--	register int c;
-+	char buf[BUFSIZ];
-+	size_t sz;
+ --------------------------
  
--	while ((c = getc(f)) != EOF)
--		putchar(c);
-+	while ((sz = fread(&buf, sizeof(char), sizeof(buf), f)) > 0)
-+		fwrite(&buf, sizeof(char), sz, stdout);
- }
+-What:	last(1)
++What:	deprecated_last(1)
+ Why:	nobody uses this implementation
  
- #define ringbell()	putcerr('\007')
+ ----------------------------
 -- 
 1.8.3.4
 
