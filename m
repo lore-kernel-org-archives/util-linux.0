@@ -1,92 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:45727 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754018Ab3HQSQx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 17 Aug 2013 14:16:53 -0400
-Received: by mail-wg0-f51.google.com with SMTP id a12so2340729wgh.6
-        for <util-linux@vger.kernel.org>; Sat, 17 Aug 2013 11:16:51 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 13/16] last: use ISO 8601 time format for --fulltimes
-Date: Sat, 17 Aug 2013 19:15:18 +0100
-Message-Id: <1376763321-22782-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
-References: <1376763321-22782-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:25420 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755015Ab3HWKCl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 23 Aug 2013 06:02:41 -0400
+Date: Fri, 23 Aug 2013 12:02:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
+        Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] last: mention optional arguments in usage
+Message-ID: <20130823100234.GA32136@x2.net.home>
+References: <1376406563-24198-1-git-send-email-mail@bernhard-voelker.de>
+ <1376408542.14036.9332767.314B2850@webmail.messagingengine.com>
+ <520A9016.8040208@bernhard-voelker.de>
+ <1376469249.6044.9623767.55648398@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1376469249.6044.9623767.55648398@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The ISO 8601 format allows easy time stamp parsing, it tells which
-timezone the clock is represented, and this format makes sorting and
-searching very easy.
+On Wed, Aug 14, 2013 at 10:34:09AM +0200, Benno Schulenberg wrote:
+> On Tue, Aug 13, 2013, at 21:59, Bernhard Voelker wrote:
+> > On 08/13/2013 05:42 PM, Benno Schulenberg wrote:
+> > > Better use angular-brackets convention right away: "[<name>...]".
+> > 
+> > Correct. I just did it as in the man page, therefore that
+> > one should also be fixed.
+> 
+> No, man pages do not use angular brackets, they use instead
+> italics for arguments.
+> 
+> > However, I'm not that happy with it anyway, because <name> can
+> > either be a username or a terminal name, e.g. 'last root tty0',
+> > and '<name>' does not describe that too well.
+> 
+> Yes, I thought of that too, moments after sending the mail.  :)
+> 
+> > Any idea - besides falling back to the old '[<username>..] [tty..]'
+> > (which isn't too bad IMO)?
+> 
+> "<username>" and ".RI [ username ...]" would be fine.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/last.1 |  2 +-
- login-utils/last.c | 23 +++++++++++++++++------
- 2 files changed, 18 insertions(+), 7 deletions(-)
+ Fixed (in .c and .1), Thanks Bernhard!
 
-diff --git a/login-utils/last.1 b/login-utils/last.1
-index eff6fe4..c7d2aa6 100644
---- a/login-utils/last.1
-+++ b/login-utils/last.1
-@@ -92,7 +92,7 @@ specify that time with
- and look for "still logged in".
- .TP
- \fB\-F\fR, \fB\-\-fulltimes\fR
--Print full login and logout times and dates.
-+Print full login and logout times and dates in ISO 8601 format.
- .TP
- \fB\-R\fR, \fB\-\-nohostname\fR
- Suppresses the display of the hostname field.
-diff --git a/login-utils/last.c b/login-utils/last.c
-index e94f1f0..24a752c 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -253,6 +253,7 @@ static int dns_lookup(char *result, int size, int useip, int32_t *a)
- static int list(struct utmp *p, time_t t, int what)
- {
- 	time_t		secs, tmp;
-+	struct tm	*tm;
- 	char		logintime[32];
- 	char		logouttime[32];
- 	char		length[32];
-@@ -291,10 +292,13 @@ static int list(struct utmp *p, time_t t, int what)
- 	 *	Calculate times
- 	 */
- 	tmp = (time_t)p->ut_time;
--	strcpy(logintime, ctime(&tmp));
--	if (fulltime)
--		sprintf(logouttime, "- %s", ctime(&t));
--	else {
-+	if (fulltime) {
-+		tm = localtime(&tmp);
-+		strftime(logintime, sizeof(logintime), "%Y-%m-%dT%H:%M:%S%z", tm);
-+		tm = localtime(&t);
-+		strftime(logouttime, sizeof(logouttime), "- %Y-%m-%dT%H:%M:%S%z", tm);
-+	} else {
-+		strcpy(logintime, ctime(&tmp));
- 		logintime[16] = 0;
- 		sprintf(logouttime, "- %s", ctime(&t) + 11);
- 		logouttime[7] = 0;
-@@ -804,8 +808,15 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
--	printf(_("\n%s begins %s"), basename(ufile), ctime(&begintime));
--
-+	printf(_("\n%s begins "), basename(ufile));
-+	if (fulltime) {
-+		char t[32];
-+		struct tm *tm;
-+		tm = localtime(&begintime);
-+		strftime(t, sizeof(t), "%Y-%m-%dT%H:%M:%S%z", tm);
-+		puts(t);
-+	} else
-+		fputs(ctime(&begintime), stdout);
- 	fclose(fp);
- 	return EXIT_SUCCESS;
- }
+    Karel
+
 -- 
-1.8.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
