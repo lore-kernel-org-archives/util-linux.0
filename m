@@ -1,52 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f52.google.com ([74.125.83.52]:51038 "EHLO
-	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751592Ab3H0SGj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Aug 2013 14:06:39 -0400
-Received: by mail-ee0-f52.google.com with SMTP id c41so2465955eek.11
-        for <util-linux@vger.kernel.org>; Tue, 27 Aug 2013 11:06:37 -0700 (PDT)
+Received: from mail-ea0-f176.google.com ([209.85.215.176]:46223 "EHLO
+	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751554Ab3HZMUn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 26 Aug 2013 08:20:43 -0400
+Received: by mail-ea0-f176.google.com with SMTP id q16so1578379ead.35
+        for <util-linux@vger.kernel.org>; Mon, 26 Aug 2013 05:20:40 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 02/17] wall: send message also to sessions opened by user 'sleeper'
-Date: Tue, 27 Aug 2013 19:06:04 +0100
-Message-Id: <1377626779-26030-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
-References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] build-sys: pylibmount will not work when python3 is present
+Date: Mon, 26 Aug 2013 13:20:29 +0100
+Message-Id: <1377519629-7063-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ignoring an user by name, and not telling about it in manual page, is
-unexpected.
+While compiling with up to date Archlinux I notice the recently added
+pylibmount does not link correctly.  Failures inform fundamental types
+such as PyFileObject and PyFile_Type being missing.
+
+It seems automake AM_PATH_PYTHON will prefer the python in path, which
+for this distribution right now is python3.  As some sort of go-around
+one can install older python, and symlink it to earlier in PATH lookup.
+
+$ ln -s /usr/bin/python2 $HOME/bin/python
+$ export PATH=$HOME/bin:$PATH
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- term-utils/wall.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ configure.ac | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/term-utils/wall.c b/term-utils/wall.c
-index 2d87e47..98dc5c7 100644
---- a/term-utils/wall.c
-+++ b/term-utils/wall.c
-@@ -69,7 +69,6 @@
- #include "fileutils.h"
- #include "closestream.h"
+diff --git a/configure.ac b/configure.ac
+index 982606e..35e1eab 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1387,6 +1387,12 @@ AS_IF([test "x$with_python" = xyes], [
+   ])
+ ])
  
--#define	IGNOREUSER	"sleeper"
- #define WRITE_TIME_OUT	300		/* in seconds */
++dnl FIXME: the python3 should be fixed in future.
++AS_CASE([$PYTHON_VERSION],
++	[2.*], [],
++	[3.*], [AC_MSG_ERROR([pylibmount will not work with python3])],
++	[AC_MSG_ERROR([unanticipated python version])]
++)
  
- /* Function prototypes */
-@@ -157,9 +156,7 @@ int main(int argc, char **argv)
- 	iov.iov_base = mbuf;
- 	iov.iov_len = mbufsize;
- 	while((utmpptr = getutent())) {
--		if (!utmpptr->ut_name[0] ||
--		    !strncmp(utmpptr->ut_name, IGNOREUSER,
--			     sizeof(utmpptr->ut_name)))
-+		if (!utmpptr->ut_name[0])
- 			continue;
- #ifdef USER_PROCESS
- 		if (utmpptr->ut_type != USER_PROCESS)
+ UL_BUILD_INIT([pylibmount], [check])
+ UL_REQUIRES_HAVE([pylibmount], [python])
 -- 
 1.8.4
 
