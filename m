@@ -1,152 +1,306 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ea0-f172.google.com ([209.85.215.172]:39473 "EHLO
-	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756368Ab3H2SBN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 29 Aug 2013 14:01:13 -0400
-Received: by mail-ea0-f172.google.com with SMTP id r16so419218ead.3
-        for <util-linux@vger.kernel.org>; Thu, 29 Aug 2013 11:01:12 -0700 (PDT)
-Date: Thu, 29 Aug 2013 19:01:07 +0100
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Thu, 29 Aug 2013 19:02:51 +0100
 From: Sami Kerola <kerolasa@iki.fi>
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 11/17] last: parse easy to use time formats
-Message-ID: <20130829180104.GA28314@gmail.com>
+Subject: Re: [PATCH 10/17] lib/time-util: copy time parsing functions from
+ systemd
+Message-ID: <20130829180250.GB28314@gmail.com>
 References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
- <1377626779-26030-11-git-send-email-kerolasa@iki.fi>
- <20130829100919.GC24438@x2.net.home>
+ <1377626779-26030-10-git-send-email-kerolasa@iki.fi>
+ <20130829101127.GD24438@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130829100919.GC24438@x2.net.home>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20130829101127.GD24438@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 29, 2013 at 12:09:19PM +0200, Karel Zak wrote:
-> On Tue, Aug 27, 2013 at 07:06:13PM +0100, Sami Kerola wrote:
-> >  		case 'p':
-> >  			present = parsetm(optarg);
-> > -			if (present == (time_t) -1)
-> > +			if (present != (time_t) -1)
-> > +				break;
-> > +			if (parse_timestamp(optarg, &p) < 0)
-> >  				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
-> > +			present = (time_t) (p / 1000000);
-> >  			break;
+On Thu, Aug 29, 2013 at 12:11:27PM +0200, Karel Zak wrote:
+> On Tue, Aug 27, 2013 at 07:06:12PM +0100, Sami Kerola wrote:
+> > +static char *startswith(const char *s, const char *prefix)
+> > +static char *startswith_no_case(const char *s, const char *prefix)
+> > +static char *endswith(const char *s, const char *postfix)
 > 
->  It would be better to add support for YYYYMMDDHHMMSS into
->  parse_timestamp() rather than maintain and use two parsers.
+>  We already have startswith() and endswith() in libmount/src/utils.c.
+> 
+>  What about to move the code to lib/strutils.c (together with
+>  *_no_case() versions)?
 
-Done as proposed.
-
-This, and there rest of the changes I will sent shortly, are also in the
-git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git 2013wk34
+I hope the following is roughly what you where thinking.
 
 
 
->From 10e295c115849c0467eee550fb5b2176e6885839 Mon Sep 17 00:00:00 2001
+>From a1969bc9f9d08b05c2fa6f750388cfdf6033fc1a Mon Sep 17 00:00:00 2001
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Thu, 29 Aug 2013 16:11:41 +0100
-Subject: [PATCH 13/26] lib/time-util: move YYYYMMDDHHMMSS to common parser
+Date: Thu, 29 Aug 2013 15:50:17 +0100
+Subject: [PATCH 11/26] lib/strutils: move *swith() functions to private
+ library
 Organization: Lastminute.com
 
-Even while the YYYYMMDDHHMMSS time format it not magnificent it is best
-to make it to be part of the one, and only, time format parser.
+Avoid code dublication in libmount and time-util.
 
 Proposed-by: Karel Zak <kzak@redhat.com>
-References: http://markmail.org/message/6baqt4ttkopu7ra6
+Reference: http://markmail.org/message/h7zexvqsieqngtmx
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- lib/time-util.c    |  7 +++++++
- login-utils/last.c | 45 ---------------------------------------------
- 2 files changed, 7 insertions(+), 45 deletions(-)
+ include/strutils.h           |  4 +++
+ lib/strutils.c               | 67 ++++++++++++++++++++++++++++++++++++++++++++
+ lib/time-util.c              | 58 --------------------------------------
+ libmount/src/context_mount.c |  1 +
+ libmount/src/mountP.h        |  5 ----
+ libmount/src/optmap.c        |  1 +
+ libmount/src/utils.c         | 31 --------------------
+ 7 files changed, 73 insertions(+), 94 deletions(-)
 
-diff --git a/lib/time-util.c b/lib/time-util.c
-index a0b27bf..e027bac 100644
---- a/lib/time-util.c
-+++ b/lib/time-util.c
-@@ -306,6 +306,13 @@ int parse_timestamp(const char *t, usec_t *usec)
- 		goto finish;
- 	}
+diff --git a/include/strutils.h b/include/strutils.h
+index 709fcad..8d8a6e4 100644
+--- a/include/strutils.h
++++ b/include/strutils.h
+@@ -102,4 +102,8 @@ extern int parse_range(const char *str, int *lower, int *upper, int def);
  
-+	tm = copy;
-+	k = strptime(t, "%Y%m%d%H%M%S", &tm);
-+	if (k && *k == 0) {
-+		tm.tm_sec = 0;
-+		goto finish;
-+	}
+ extern int streq_except_trailing_slash(const char *s1, const char *s2);
+ 
++extern char *startswith(const char *s, const char *prefix);
++extern char *startswith_no_case(const char *s, const char *prefix);
++extern char *endswith(const char *s, const char *postfix);
 +
- 	return -EINVAL;
+ #endif
+diff --git a/lib/strutils.c b/lib/strutils.c
+index c263b86..95ab5a8 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -10,6 +10,7 @@
+ #include <errno.h>
+ #include <sys/stat.h>
+ #include <string.h>
++#include <assert.h>
  
-  finish:
-diff --git a/login-utils/last.c b/login-utils/last.c
-index df78436..410e612 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -440,45 +440,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ #include "c.h"
+ #include "nls.h"
+@@ -685,6 +686,72 @@ int streq_except_trailing_slash(const char *s1, const char *s2)
+ 	return equal;
  }
  
++/*
++ * Match string beginning.
++ */
++char *startswith(const char *s, const char *prefix)
++{
++	const char *a, *b;
++
++	assert(s);
++	assert(prefix);
++
++	a = s, b = prefix;
++	for (;;) {
++		if (*b == 0)
++			return (char *)a;
++		if (*a != *b)
++			return NULL;
++
++		a++, b++;
++	}
++}
++
++/*
++ * Case insensitive match string beginning.
++ */
++char *startswith_no_case(const char *s, const char *prefix)
++{
++	const char *a, *b;
++
++	assert(s);
++	assert(prefix);
++
++	a = s, b = prefix;
++	for (;;) {
++		if (*b == 0)
++			return (char *)a;
++		if (tolower(*a) != tolower(*b))
++			return NULL;
++
++		a++, b++;
++	}
++}
++
++/*
++ * Match string ending.
++ */
++char *endswith(const char *s, const char *postfix)
++{
++	size_t sl, pl;
++
++	assert(s);
++	assert(postfix);
++
++	sl = strlen(s);
++	pl = strlen(postfix);
++
++	if (pl == 0)
++		return (char *)s + sl;
++
++	if (sl < pl)
++		return NULL;
++
++	if (memcmp(s + sl - pl, postfix, pl) != 0)
++		return NULL;
++
++	return (char *)s + sl - pl;
++}
  
--static time_t parsetm(char *ts)
+ #ifdef TEST_PROGRAM
+ 
+diff --git a/lib/time-util.c b/lib/time-util.c
+index c8fcc2a..a0b27bf 100644
+--- a/lib/time-util.c
++++ b/lib/time-util.c
+@@ -30,64 +30,6 @@
+ 
+ #define streq(a,b) (strcmp((a),(b)) == 0)
+ 
+-static char *startswith(const char *s, const char *prefix)
 -{
--	struct tm	u, origu;
--	time_t		tm;
+-	const char *a, *b;
 -
--	memset(&tm, 0, sizeof(tm));
+-	assert(s);
+-	assert(prefix);
 -
--	if (sscanf(ts, "%4d%2d%2d%2d%2d%2d", &u.tm_year,
--	    &u.tm_mon, &u.tm_mday, &u.tm_hour, &u.tm_min,
--	    &u.tm_sec) != 6)
--		return (time_t)-1;
+-	a = s, b = prefix;
+-	for (;;) {
+-		if (*b == 0)
+-			return (char *)a;
+-		if (*a != *b)
+-			return NULL;
 -
--	u.tm_year -= 1900;
--	u.tm_mon -= 1;
--	u.tm_isdst = -1;
--
--	origu = u;
--
--	if ((tm = mktime(&u)) == (time_t)-1)
--		return tm;
--
--	/*
--	 *	Unfortunately mktime() is much more forgiving than
--	 *	it should be.  For example, it'll gladly accept
--	 *	"30" as a valid month number.  This behavior is by
--	 *	design, but we don't like it, so we want to detect
--	 *	it and complain.
--	 */
--	if (u.tm_year != origu.tm_year ||
--	    u.tm_mon != origu.tm_mon ||
--	    u.tm_mday != origu.tm_mday ||
--	    u.tm_hour != origu.tm_hour ||
--	    u.tm_min != origu.tm_min ||
--	    u.tm_sec != origu.tm_sec)
--		return (time_t)-1;
--
--	return tm;
+-		a++, b++;
+-	}
 -}
 -
- static void process_wtmp_file(char *ufile, int lastb, int extended,
- 			      time_t until, time_t present)
+-static char *startswith_no_case(const char *s, const char *prefix)
+-{
+-	const char *a, *b;
+-
+-	assert(s);
+-	assert(prefix);
+-
+-	a = s, b = prefix;
+-	for (;;) {
+-		if (*b == 0)
+-			return (char *)a;
+-		if (tolower(*a) != tolower(*b))
+-			return NULL;
+-
+-		a++, b++;
+-	}
+-}
+-
+-static char *endswith(const char *s, const char *postfix)
+-{
+-	size_t sl, pl;
+-
+-	assert(s);
+-	assert(postfix);
+-
+-	sl = strlen(s);
+-	pl = strlen(postfix);
+-
+-	if (pl == 0)
+-		return (char *)s + sl;
+-
+-	if (sl < pl)
+-		return NULL;
+-
+-	if (memcmp(s + sl - pl, postfix, pl) != 0)
+-		return NULL;
+-
+-	return (char *)s + sl - pl;
+-}
+-
+ static int parse_sec(const char *t, usec_t *usec)
  {
-@@ -796,17 +757,11 @@ int main(int argc, char **argv)
- 			fulltime++;
- 			break;
- 		case 'p':
--			present = parsetm(optarg);
--			if (present != (time_t) -1)
--				break;
- 			if (parse_timestamp(optarg, &p) < 0)
- 				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
- 			present = (time_t) (p / 1000000);
- 			break;
- 		case 't':
--			until = parsetm(optarg);
--			if (until != (time_t) -1)
--				break;
- 			if (parse_timestamp(optarg, &p) < 0)
- 				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
- 			until = (time_t) (p / 1000000);
+ 	 static const struct {
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index 94db1ac..4f376e4 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -21,6 +21,7 @@
+ 
+ #include "linux_version.h"
+ #include "mountP.h"
++#include "strutils.h"
+ 
+ /*
+  * Kernel supports only one MS_PROPAGATION flag change by one mount(2) syscall,
+diff --git a/libmount/src/mountP.h b/libmount/src/mountP.h
+index 9e6f4bd..9362c00 100644
+--- a/libmount/src/mountP.h
++++ b/libmount/src/mountP.h
+@@ -137,11 +137,6 @@ extern int mnt_run_test(struct libmnt_test *tests, int argc, char *argv[]);
+ #endif
+ 
+ /* utils.c */
+-extern int endswith(const char *s, const char *sx)
+-			__attribute__((nonnull));
+-extern int startswith(const char *s, const char *sx)
+-			__attribute__((nonnull));
+-
+ extern char *stripoff_last_component(char *path);
+ 
+ extern int mnt_valid_tagname(const char *tagname);
+diff --git a/libmount/src/optmap.c b/libmount/src/optmap.c
+index 504a5cf..5b25b8f 100644
+--- a/libmount/src/optmap.c
++++ b/libmount/src/optmap.c
+@@ -58,6 +58,7 @@
+  * mount/mount.h.
+  */
+ #include "mountP.h"
++#include "strutils.h"
+ 
+ /*
+  * fs-independent mount flags (built-in MNT_LINUX_MAP)
+diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+index 4e6a131..9f99241 100644
+--- a/libmount/src/utils.c
++++ b/libmount/src/utils.c
+@@ -23,37 +23,6 @@
+ #include "env.h"
+ #include "match.h"
+ 
+-int endswith(const char *s, const char *sx)
+-{
+-	ssize_t off;
+-
+-	assert(s);
+-	assert(sx);
+-
+-	off = strlen(s);
+-	if (!off)
+-		return 0;
+-	off -= strlen(sx);
+-	if (off < 0)
+-		return 0;
+-
+-        return !strcmp(s + off, sx);
+-}
+-
+-int startswith(const char *s, const char *sx)
+-{
+-	size_t off;
+-
+-	assert(s);
+-	assert(sx);
+-
+-	off = strlen(sx);
+-	if (!off)
+-		return 0;
+-
+-        return !strncmp(s, sx, off);
+-}
+-
+ int append_string(char **a, const char *b)
+ {
+ 	size_t al, bl;
 -- 
 1.8.4
 
