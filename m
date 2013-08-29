@@ -1,42 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:37469 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752156Ab3HDJ74 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 4 Aug 2013 05:59:56 -0400
-Received: by mail-wg0-f54.google.com with SMTP id e12so548320wgh.21
-        for <util-linux@vger.kernel.org>; Sun, 04 Aug 2013 02:59:55 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] mkswap: add run time warning when maximum number of pages is exceeded
-Date: Sun,  4 Aug 2013 10:59:50 +0100
-Message-Id: <1375610390-3590-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:33524 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756404Ab3H2KJb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Aug 2013 06:09:31 -0400
+Date: Thu, 29 Aug 2013 12:09:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 11/17] last: parse easy to use time formats
+Message-ID: <20130829100919.GC24438@x2.net.home>
+References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
+ <1377626779-26030-11-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1377626779-26030-11-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The commit f1477c4 mentioned in manual page swap header has a hard limit
-for usable page count, which user will very likely miss unless there is a
-run time warning.
+On Tue, Aug 27, 2013 at 07:06:13PM +0100, Sami Kerola wrote:
+>  		case 'p':
+>  			present = parsetm(optarg);
+> -			if (present == (time_t) -1)
+> +			if (present != (time_t) -1)
+> +				break;
+> +			if (parse_timestamp(optarg, &p) < 0)
+>  				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
+> +			present = (time_t) (p / 1000000);
+>  			break;
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/mkswap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ It would be better to add support for YYYYMMDDHHMMSS into
+ parse_timestamp() rather than maintain and use two parsers.
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index 71503f4..16e7b1e 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -556,6 +556,9 @@ main(int argc, char **argv) {
- 			(long)(MIN_GOODPAGES * pagesize/1024));
- 		usage(stderr);
- 	}
-+	if (UINT_MAX < PAGES)
-+		warnx(_("warning: swap area exceeds greatest number of supported pages by %llu"),
-+			PAGES - UINT_MAX);
- 
- #ifdef __linux__
- 	if (get_linux_version() >= KERNEL_VERSION(2,3,4))
+    Karel
+
 -- 
-1.8.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
