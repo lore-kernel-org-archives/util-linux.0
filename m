@@ -1,42 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ee0-f54.google.com ([74.125.83.54]:49804 "EHLO
-	mail-ee0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751652Ab3H0SGx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Aug 2013 14:06:53 -0400
-Received: by mail-ee0-f54.google.com with SMTP id e53so2409762eek.41
-        for <util-linux@vger.kernel.org>; Tue, 27 Aug 2013 11:06:52 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 06/17] wall: line wrap at column 79 also when line has tab chars
-Date: Tue, 27 Aug 2013 19:06:08 +0100
-Message-Id: <1377626779-26030-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:53744 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752894Ab3H2KPa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 Aug 2013 06:15:30 -0400
+Date: Thu, 29 Aug 2013 12:15:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 15/17] last: use configuration struct
+Message-ID: <20130829101519.GE24438@x2.net.home>
 References: <1377626779-26030-1-git-send-email-kerolasa@iki.fi>
+ <1377626779-26030-15-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1377626779-26030-15-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier tabs caused random ragged right indentation, because the tab
-length was assumed to be 1 char which is not the case most of the time.
+On Tue, Aug 27, 2013 at 07:06:17PM +0100, Sami Kerola wrote:
+> +	struct last_control ctl;
+> +	int c;
+>  	usec_t p;
+>  
+>  	static const struct option long_opts[] = {
+> @@ -761,6 +775,11 @@ int main(int argc, char **argv)
+>  	      { NULL, 0, NULL, 0 }
+>  	};
+>  
+> +	memset(&ctl, 0, sizeof(struct last_control));
+> +	ctl.showhost = TRUE;
+> +	ctl.name_len = LAST_LOGIN_LEN;
+> +	ctl.domain_len = LAST_DOMAIN_LEN;
+> +
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/wall.c | 2 ++
- 1 file changed, 2 insertions(+)
+  struct last_control ctl = {
+         .showhost = TRUE,
+         .name_len = LAST_LOGIN_LEN,
+         .domain_len = LAST_DOMAIN_LEN
+  };
 
-diff --git a/term-utils/wall.c b/term-utils/wall.c
-index 451b5d3..fbea7e4 100644
---- a/term-utils/wall.c
-+++ b/term-utils/wall.c
-@@ -281,6 +281,8 @@ static char *makemsg(char *fname, char **mvec, int mvecsz,
- 					putc('\n', fp);
- 					cnt = 0;
- 				}
-+				if (ch == '\t')
-+					cnt += (7 - (cnt % 8));
- 				if (ch != '\n')
- 					carefulputc(ch, fp, '^');
- 			}
+ is good enough, memset() is unnecessary.
+
+
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
