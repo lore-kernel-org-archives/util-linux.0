@@ -1,68 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f181.google.com ([74.125.82.181]:50020 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873Ab3I2JvT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 29 Sep 2013 05:51:19 -0400
-Received: by mail-we0-f181.google.com with SMTP id p61so4299011wes.40
-        for <util-linux@vger.kernel.org>; Sun, 29 Sep 2013 02:51:18 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] build-sys: simplify python detection
-Date: Sun, 29 Sep 2013 10:51:13 +0100
-Message-Id: <1380448273-13445-1-git-send-email-kerolasa@iki.fi>
+Received: from mail3.vodafone.ie ([213.233.128.45]:60312 "EHLO
+	mail3.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751727Ab3IIDdf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Sep 2013 23:33:35 -0400
+Message-ID: <522D3F3F.3090509@draigBrady.com>
+Date: Mon, 09 Sep 2013 04:23:43 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: Sami Kerola <kerolasa@iki.fi>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/4] lib/fileutils: advice there is no point caching temporary
+ files
+References: <1378656549-3729-1-git-send-email-kerolasa@iki.fi> <1378656549-3729-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1378656549-3729-3-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This allows './configure --enable-most-builds' and 'make distcheck' to
-work when both python2 and python3 are installed, and user has set python
-version preference using symlink and PATH order.
+On 09/08/2013 05:09 PM, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  lib/fileutils.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/lib/fileutils.c b/lib/fileutils.c
+> index 92b474c..23cf80c 100644
+> --- a/lib/fileutils.c
+> +++ b/lib/fileutils.c
+> @@ -8,6 +8,7 @@
+>  #include <unistd.h>
+>  #include <sys/time.h>
+>  #include <sys/resource.h>
+> +#include <fcntl.h>
+>  
+>  #include "c.h"
+>  #include "fileutils.h"
+> @@ -43,6 +44,9 @@ int xmkstemp(char **tmpname, char *dir)
+>  		free(localtmp);
+>  		localtmp = NULL;
+>  	}
+> +#ifdef POSIX_FADV_NOREUSE
+> +	posix_fadvise(fd, 0, lseek(fd, 0, 0), POSIX_FADV_NOREUSE);
+> +#endif
+>  	*tmpname = localtmp;
+>  	return fd;
+>  }
+> 
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- configure.ac | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+I don't follow. The above is saying to NOREUSE the data
+from the start to the current position?
+But won't the file be empty and the current position == 0 here?
+Also POSIX_FADV_NOREUSE currently does nothing in the kernel.
+There is POSIX_FADV_DONTNEED to drop the file (range) from cache.
+But I'm not sure that's appropriate or needed for all temp files?
+Note also DONTNEED is auto done when a file is unlinked.
 
-diff --git a/configure.ac b/configure.ac
-index 553228a..1f02bd8 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1386,20 +1386,14 @@ AS_IF([test "x$with_python" != xno], [
-   # (minimal version is 2) but if major version is explicitly specified by
-   # --with-python=2 or --with-python=3 then we look for PKG module "python2" or
-   # "python3".
--  pymajor="2"
--  modname="python"
--  AS_IF([test "x$withval" != xno -a "x$withval" != xyes], [
--    pymajor="$withval"
--    modname="python${pymajor}"
--  ])
--  PKG_CHECK_MODULES(PYTHON,[${modname} >= $pymajor],
--		           [have_python=yes
--			    AM_PATH_PYTHON([$pymajor])],
--			   [have_python=no])
-+  AS_IF([test "x$withval" != xno -a "x$withval" != xyes],
-+	[pymajor="$withval"; PYTHON=python${pymajor}], [pymajor="2"])
-+  AM_PATH_PYTHON([$pymajor], [have_python=yes], [have_python=no])
-   AS_CASE([$with_python:$have_python],
-     [yes:no],
--      [AC_MSG_ERROR([python selected but libpython not found])],
-+      [AC_MSG_ERROR([python selected but libpython not found])]
-   )
-+  PKG_CHECK_MODULES([PYTHON], [python-$PYTHON_VERSION])
- 
-   UL_BUILD_INIT([pylibmount], [check])
-   UL_REQUIRES_HAVE([pylibmount], [python], [libpython])
-@@ -1541,7 +1535,8 @@ AC_MSG_RESULT([
- 	ldflags:           ${LDFLAGS}
- 	suid ldflags:      ${SUID_LDFLAGS}
- 
--	Python:            ${PYTHON_VERSION}
-+	Python:            ${PYTHON}
-+	Python version:    ${PYTHON_VERSION}
- 	Python libs:       ${pyexecdir}
- 
- 	Bash completions:  ${with_bashcompletiondir}
--- 
-1.8.4
+cheers,
+Pádraig.
 
