@@ -1,130 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:7179 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754079Ab3I3NHW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Sep 2013 09:07:22 -0400
-Date: Mon, 30 Sep 2013 15:07:18 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] clean up term lib handling
-Message-ID: <20130930130718.GN5101@x2.net.home>
-References: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
+Received: from mail-vc0-f181.google.com ([209.85.220.181]:63787 "EHLO
+	mail-vc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753630Ab3IJHLo convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 10 Sep 2013 03:11:44 -0400
+Received: by mail-vc0-f181.google.com with SMTP id hz10so4598046vcb.40
+        for <util-linux@vger.kernel.org>; Tue, 10 Sep 2013 00:11:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <522D3F3F.3090509@draigBrady.com>
+References: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
+	<1378656549-3729-3-git-send-email-kerolasa@iki.fi>
+	<522D3F3F.3090509@draigBrady.com>
+Date: Tue, 10 Sep 2013 08:11:43 +0100
+Message-ID: <CAG27Bk3ZxWFJsNEgzmGcrYPDT43qO8G4Hj6n8pBJEuzi+oSZHQ@mail.gmail.com>
+Subject: Re: [PATCH 3/4] lib/fileutils: advice there is no point caching
+ temporary files
+From: Sami Kerola <kerolasa@iki.fi>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 9 September 2013 04:23, Pádraig Brady <P@draigbrady.com> wrote:
+> On 09/08/2013 05:09 PM, Sami Kerola wrote:
+>> +#ifdef POSIX_FADV_NOREUSE
+>> +     posix_fadvise(fd, 0, lseek(fd, 0, 0), POSIX_FADV_NOREUSE);
+>> +#endif
+>
+> I don't follow. The above is saying to NOREUSE the data
+> from the start to the current position?
+> But won't the file be empty and the current position == 0 here?
+> Also POSIX_FADV_NOREUSE currently does nothing in the kernel.
+> There is POSIX_FADV_DONTNEED to drop the file (range) from cache.
+> But I'm not sure that's appropriate or needed for all temp files?
+> Note also DONTNEED is auto done when a file is unlinked.
 
- I have applied the patch, but now when play with it I see that
+Hi Pádraig,
 
-On Sun, Sep 29, 2013 at 12:44:43AM -0400, Mike Frysinger wrote:
-> With a minor tweak to how tinfo is handled, we can do the same thing -- we
-> just always use TINFO_LIBS in the Makefile's.
-
-you have introduced unnecessary dependence on ncurses for utils where
-was "ifdef tinfo *else* ncurses"
-
->  AC_CHECK_LIB([tinfo], [tgetent], [have_tinfo=yes])
-> -AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
-> +AS_IF([test "x$have_tinfo" = xyes], [
-> +  TINFO_LIBS="-ltinfo"
-> +])
-> +AC_SUBST([TINFO_LIBS])
-
-...
-
-> -if HAVE_TINFO
-> -setterm_LDADD = $(LDADD) -ltinfo
-> -else
-> -setterm_LDADD = $(LDADD) @NCURSES_LIBS@
-> -endif
-> +setterm_CFLAGS = $(AM_CFLAGS) $(NCURSES_CFLAGS)
-> +setterm_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
->  endif
-
-...
-
-> -ul_LDADD = $(LDADD)
-> -if HAVE_TINFO
-> -ul_LDADD += -ltinfo
-> -else 
-> -ul_LDADD += @NCURSES_LIBS@
-> -endif
-> +ul_CFLAGS = $(AM_CFLAGS) $(NCURSES_CFLAGS)
-> +ul_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
->  endif # BUILD_UL
-
-...
-
-> -if HAVE_TINFO
-> -more_LDADD += -ltinfo
-> -else
-> -if HAVE_NCURSES
-> -more_LDADD += @NCURSES_LIBS@
-> -else
-> +more_CFLAGS = $(AM_CFLAGS) $(BSD_WARN_CFLAGS) $(NCURSES_CFLAGS)
-> +more_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
-> +if HAVE_TERMCAP
->  more_LDADD += -ltermcap
->  endif
-> -endif
-
- old version:
-
-./more:
-	linux-vdso.so.1 =>  (0x00007fff2af9d000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-./setterm:
-	linux-vdso.so.1 =>  (0x00007fff5cd5e000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-./ul:
-	linux-vdso.so.1 =>  (0x00007fffa070b000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-
-
-your version:
-
-
-./more:
-	linux-vdso.so.1 =>  (0x00007ffff21fe000)
-	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-./setterm:
-	linux-vdso.so.1 =>  (0x00007fff1455b000)
-	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-./ul:
-	linux-vdso.so.1 =>  (0x00007fff274ee000)
-	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
-	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
-	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
-	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
-	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
-
-
- Maybe we need to revert back to 
-
-   AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
-
- or introduce something like $TINFO_OR_CURSES_{LIBS,CFLAGS} to keep 
- the makefiles simple and define the variable in ./configure :-)
-
-    Karel
+I misunderstood posix_fadvice() manual page. Thank you for explaining
+how caching instructions work. Perhaps adding a note to
+posix_fadvise(3P) about unlinking and DONOTNEED would be appropriate.
+That, after all, makes manual fiddling with this function pointless in
+cases like I proposed.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
