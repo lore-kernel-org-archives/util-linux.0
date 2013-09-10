@@ -1,44 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:41860 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750785Ab3IFSLx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Sep 2013 14:11:53 -0400
-Received: by mail-wi0-f171.google.com with SMTP id hm2so1251673wib.4
-        for <util-linux@vger.kernel.org>; Fri, 06 Sep 2013 11:11:52 -0700 (PDT)
-From: Gabriel de Perthuis <g2p.code@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Rolf Fokkens <rolf@rolffokkens.nl>, util-linux@vger.kernel.org,
-        Gabriel de Perthuis <g2p.code@gmail.com>
-Subject: [PATCH 0/2] Deal with incorrect checksums
-Date: Fri,  6 Sep 2013 20:11:27 +0200
-Message-Id: <1378491089-1135-1-git-send-email-g2p.code@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:18496 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751104Ab3IJLNX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Sep 2013 07:13:23 -0400
+Date: Tue, 10 Sep 2013 13:13:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/4] last: fix memory leak
+Message-ID: <20130910111313.GB8061@x2.net.home>
+References: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is to avoid exposing backend devices that are supposed
-to be used through a stacked device.
+On Sun, Sep 08, 2013 at 05:09:06PM +0100, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  login-utils/last.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-Good magic / bad csum superblocks are still exposed to wipefs.
-
-Prompted by the bcache patch.
-
-Can be pulled from https://github.com/g2p/util-linux/commits
-
-Gabriel de Perthuis (2):
-  libblkid: Abort after an incorrect checksum
-  wipefs: Also wipe superblocks with bad checksums
-
- libblkid/src/blkid.h.in                 | 1 +
- libblkid/src/blkidP.h                   | 6 ++++++
- libblkid/src/probe.c                    | 7 +++++++
- libblkid/src/superblocks/lvm.c          | 9 ++++++---
- libblkid/src/superblocks/nilfs.c        | 3 +--
- libblkid/src/superblocks/silicon_raid.c | 7 ++++---
- libblkid/src/superblocks/superblocks.c  | 9 +++++++++
- libblkid/src/superblocks/via_raid.c     | 4 ++--
- misc-utils/wipefs.c                     | 3 ++-
- 9 files changed, 38 insertions(+), 11 deletions(-)
+ Applied, thanks.
 
 -- 
-1.8.4.25.g05e4ae6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
