@@ -1,24 +1,25 @@
-Return-Path: g2p.code@gmail.com
-Message-ID: <523487DC.1070704@gmail.com>
-Date: Sat, 14 Sep 2013 17:59:24 +0200
-From: Gabriel de Perthuis <g2p.code@gmail.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Rolf Fokkens <rolf@rolffokkens.nl>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] libblkid: Abort after an incorrect checksum
-References: <1378491089-1135-1-git-send-email-g2p.code@gmail.com> <1378491089-1135-2-git-send-email-g2p.code@gmail.com>
-In-Reply-To: <1378491089-1135-2-git-send-email-g2p.code@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: rolf@rolffokkens.nl
+Date: Wed, 11 Sep 2013 13:59:10 +0200
+Subject: Re: bcache-tools package for Fedora / status probe-bcache
+From: Rolf Fokkens <rolf@rolffokkens.nl>
+To: Gabriel de Perthuis <g2p.code@gmail.com>, Karel Zak <kzak@redhat.com>
+CC: "linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>,
+        util-linux <util-linux@vger.kernel.org>
+Message-ID: <CE5623FD.1AC8F%rolf@rolffokkens.nl>
+In-Reply-To: <522DE939.5090009@gmail.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 List-ID: <util-linux.vger.kernel.org>
 
-> Log incorrect checksums and stop the superblock probing loop when
-> one is encountered.
-> This is to avoid exposing backend devices that are supposed
-> to be used through a stacked device (like raid or bcache).
+Op 09-09-13 17:28 schreef Gabriel de Perthuis <g2p.code@gmail.com>:
 
-Sorry, but some of the changes you made when applying break the patch.
-The intent is to stop the probing loop when a bad container is encountered;
-the contents shouldn't be scanned.
+>> Maybe we can backport the patch to F20 if you need it -- it's not too
+>>  invasive change.
+>
+>(Letting Rolf field this one)
 
-That means returning an error from the sb-specific prober doesn't work,
-and deferring to superblocks_probe was necessary.  I'll send a followup patch.
+Most important for me is to have bcache identification by blkid in before
+F20, so the udev rules file doesn't have to call bcache-probe. Whether or
+not it uses checksums is not the most important thing, and that aspect
+might even change later.
