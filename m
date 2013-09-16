@@ -1,38 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:40095 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755084Ab3I1WWt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Sep 2013 18:22:49 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] findmnt: always allocate memory for cell value
-Date: Sat, 28 Sep 2013 18:22:43 -0400
-Message-Id: <1380406963-32202-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55748 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751181Ab3IPIYS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Sep 2013 04:24:18 -0400
+Date: Mon, 16 Sep 2013 10:24:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Gabriel de Perthuis <g2p.code@gmail.com>
+Cc: Rolf Fokkens <rolf@rolffokkens.nl>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] libblkid: Abort after an incorrect checksum
+Message-ID: <20130916082413.GA6752@x2.net.home>
+References: <1378491089-1135-1-git-send-email-g2p.code@gmail.com>
+ <1378491089-1135-2-git-send-email-g2p.code@gmail.com>
+ <523487DC.1070704@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <523487DC.1070704@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Since b3386c83fe77, findmnt's output uses TT_FL_FREEDATA, which causes
-a crash here when string literal is returned instead of a heap address.
+On Sat, Sep 14, 2013 at 05:59:24PM +0200, Gabriel de Perthuis wrote:
+> > Log incorrect checksums and stop the superblock probing loop when
+> > one is encountered.
+> > This is to avoid exposing backend devices that are supposed
+> > to be used through a stacked device (like raid or bcache).
+> 
+> Sorry, but some of the changes you made when applying break the patch.
+> The intent is to stop the probing loop when a bad container is encountered;
+> the contents shouldn't be scanned.
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- misc-utils/findmnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Why? This is unwanted behaviour. If there is incomplete (broken)
+ superblock we continue with probing to check for another superblock.
+ This is very basic libblkid feature.
 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index 8861b09..91cc935 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -469,7 +469,7 @@ static char *get_vfs_attr(struct libmnt_fs *fs, int sizetype)
- 		break;
- 	case COL_USEPERC:
- 		if (buf.f_blocks == 0)
--			return "-";
-+			return xstrdup("-");
- 
- 		xasprintf(&sizestr, "%.0f%%",
- 				(double)(buf.f_blocks - buf.f_bfree) /
+ It's pretty common that there is old obsolete superblock, but user
+ expects a new superblock after mkfs. Unfortunately not all mkfs-like
+ programs wipe devices.
+
+
+ Do you think that the content in the bad bcache could be interpreted
+ as regular filesystem? I don't think so.
+
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
