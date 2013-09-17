@@ -1,64 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g5t0009.atlanta.hp.com ([15.192.0.46]:9997 "EHLO
-	g5t0009.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752835Ab3IWTAf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 23 Sep 2013 15:00:35 -0400
-Message-ID: <1379962831.11845.3.camel@buesod1.americas.hpqcorp.net>
-Subject: Re: [PATCH] lscpu: report cpu min mhz
-From: Davidlohr Bueso <davidlohr@hp.com>
-To: kerolasa@gmail.com
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Date: Mon, 23 Sep 2013 12:00:31 -0700
-In-Reply-To: <CAG27Bk0eMtYkZdDLVdEjOO+-ZyYOShDDk2mo9_N_qiZCfhB-Jg@mail.gmail.com>
-References: <1379821420.2145.50.camel@buesod1.americas.hpqcorp.net>
-	 <CAG27Bk0eMtYkZdDLVdEjOO+-ZyYOShDDk2mo9_N_qiZCfhB-Jg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from gerolde.archlinux.org ([66.211.214.132]:57896 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753933Ab3IQVLK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Sep 2013 17:11:10 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] libmount/utils: use memmove when overlap possible
+Date: Tue, 17 Sep 2013 17:05:09 -0400
+Message-Id: <1379451909-23800-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 2013-09-22 at 10:39 +0100, Sami Kerola wrote:
-> On 22 September 2013 04:43, Davidlohr Bueso <davidlohr@hp.com> wrote:
-> > The lscpu tool only shows the current and max CPU frequencies, however,
-> > in many scenarios this is not enough. If there are energy saving situations
-> > (like some CPUs being idle, or not fully used) the cpugov can lower this value.
-> 
-> Hi Davidlohr,
-> 
-> The patch seems to work as one might expect. Only small thing seems to require
-> attention, tests broke again. Could you run in util-linux source directory
-> 
-> ./tests/run.sh lscpu
-> 
-> and adjust expected outputs accordingly?
+When unmounting some mountpoints as an unprivileged user (via the
+'user' option in fstab), the umount fails. Debug output of 'umount
+/opt' reveals:
 
-This actually don't break for me, I get the following with or without
-this patch:
+17760: libmount: CXT: [0x22890e0]: do umount
+17760: libmount: UTILS: moving to /opt parent
+17760: libmount: CXT: current directory moved to / [last_component='opt']
+17760: libmount: CXT: [0x22890e0]: umount(2) [target='pt', flags=0x00000000]
 
--------------------- util-linux regression tests --------------------
+valgrind shows the problem:
 
-                    For development purpose only.                    
-                 Don't execute on production system!                 
+==23544== Source and destination overlap in memcpy(0x58d1370, 0x58d1371, 4)
+==23544==    at 0x4C2BBC3: memcpy@@GLIBC_2.14 (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==23544==    by 0x4E537C3: mnt_chdir_to_parent (utils.c:168)
+==23544==    by 0x4E45E4C: mnt_context_do_umount (context_umount.c:601)
+==23544==    by 0x4E46513: mnt_context_umount (context_umount.c:855)
+==23544==    by 0x403476: umount_one (umount.c:299)
+==23544==    by 0x402B34: main (umount.c:629)
+==23544==
 
-        lscpu:                                ...
-                : armv7                       ... FAILED (lscpu/lscpu-armv7)
-                : ppc64-POWER7-64cpu          ... OK
-                : ppc64-POWER7                ... OK
-                : s390-kvm                    ... OK
-                : s390-lpar                   ... OK
-                : s390-zvm                    ... OK
-                : x86_64-64cpu                ... FAILED (lscpu/lscpu-x86_64-64cpu)
-                : x86_64-dell_e4310           ... FAILED (lscpu/lscpu-x86_64-dell_e4310)
-           ... FAILED (3 from 8 sub-tests)
+ref: https://bugs.archlinux.org/task/36968
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ libmount/src/utils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
----------------------------------------------------------------------
-  1 tests of 1 FAILED
----------------------------------------------------------------------
-
-Also, these tests seem to bee arch-specific, so not sure how valuable
-updating them would be.
-
-Thanks,
-Davidlohr
-
+diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+index 9f99241..3cab936 100644
+--- a/libmount/src/utils.c
++++ b/libmount/src/utils.c
+@@ -165,7 +165,7 @@ int mnt_chdir_to_parent(const char *target, char **filename)
+ 		if (!last || !*last)
+ 			memcpy(*filename, ".", 2);
+ 		else
+-			memcpy(*filename, last, strlen(last) + 1);
++			memmove(*filename, last, strlen(last) + 1);
+ 	} else
+ 		free(buf);
+ 	return 0;
+-- 
+1.8.4
 
