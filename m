@@ -1,65 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g4t0014.houston.hp.com ([15.201.24.17]:31861 "EHLO
-	g4t0014.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752615Ab3IVDpU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 21 Sep 2013 23:45:20 -0400
-From: Davidlohr Bueso <davidlohr@hp.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Davidlohr Bueso <davidlohr@hp.com>
-Subject: [PATCH 3/3] libfdisk: gpt: loosen check fot pmbr size in lba
-Date: Sat, 21 Sep 2013 20:45:16 -0700
-Message-Id: <1379821516-2540-3-git-send-email-davidlohr@hp.com>
-In-Reply-To: <1379821516-2540-1-git-send-email-davidlohr@hp.com>
-References: <1379821516-2540-1-git-send-email-davidlohr@hp.com>
+Received: from gerolde.archlinux.org ([66.211.214.132]:52279 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751344Ab3IROPc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Sep 2013 10:15:32 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] libmount/context_umount: free username after check
+Date: Wed, 18 Sep 2013 10:15:29 -0400
+Message-Id: <1379513729-15563-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-While most disk partitioning tools out there create a pMBR's size in lba
-to be the lesser of the whole disk or 2Tib, Microsoft apparently does not[1].
-It always sets the entry to the maximum 32-bit limitation - even though a
-drive may be smaller than that.
+Leak reported by valgrind:
 
-Loosen this check and only verify that the size is either the whole disk
-or 0xFFFFFFFF.  No tool in its right mind would set it to any value
-other than these.
+==14226== 7 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==14226==    at 0x4C2757B: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==14226==    by 0x5534839: strdup (in /usr/lib/libc-2.18.so)
+==14226==    by 0x4E53FE0: mnt_get_username (utils.c:560)
+==14226==    by 0x4E456A5: mnt_context_prepare_umount (context_umount.c:413)
+==14226==    by 0x4E464F7: mnt_context_umount (context_umount.c:851)
+==14226==    by 0x403476: umount_one (umount.c:299)
+==14226==    by 0x402B34: main (umount.c:629)
 
-[1] http://thestarman.pcministry.com/asm/mbr/GPT.htm#GPTPT
-
-Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
 ---
- libfdisk/src/gpt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ libmount/src/context_umount.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index bb9e9a7..83659cb 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -477,6 +477,7 @@ static int valid_pmbr(struct fdisk_context *cxt)
- {
- 	int i, part = 0, ret = 0; /* invalid by default */
- 	struct gpt_legacy_mbr *pmbr = NULL;
-+	uint32_t sz_lba = 0;
- 
- 	if (!cxt->firstsector)
- 		goto done;
-@@ -517,12 +518,15 @@ check_hybrid:
- 	/*
- 	 * Protective MBRs take up the lesser of the whole disk
- 	 * or 2 TiB (32bit LBA), ignoring the rest of the disk.
-+	 * Some partitioning programs, nonetheless, choose to set
-+	 * the size to the maximum 32-bit limitation, disregarding
-+	 * the disk size.
- 	 *
- 	 * Hybrid MBRs do not necessarily comply with this.
- 	 */
- 	if (ret == GPT_MBR_PROTECTIVE) {
--		if (le32_to_cpu(pmbr->partition_record[part].size_in_lba) !=
--		    min((uint32_t) cxt->total_sectors - 1, 0xFFFFFFFF))
-+		sz_lba = le32_to_cpu(pmbr->partition_record[part].size_in_lba);
-+		if (sz_lba != (uint32_t) cxt->total_sectors - 1 && sz_lba != 0xFFFFFFFF)
- 			ret = 0;
+diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
+index 2e912c0..766adfd 100644
+--- a/libmount/src/context_umount.c
++++ b/libmount/src/context_umount.c
+@@ -423,6 +423,8 @@ static int evaluate_permissions(struct libmnt_context *cxt)
+ 		if (optstr && !mnt_optstr_get_option(optstr,
+ 					"user", &mtab_user, &sz) && sz)
+ 			ok = !strncmp(curr_user, mtab_user, sz);
++
++		free(curr_user);
  	}
- done:
+ 
+ 	if (ok) {
 -- 
-1.7.11.7
+1.8.4
 
