@@ -1,35 +1,36 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout07.t-online.de ([194.25.134.83]:51765 "EHLO
-	mailout07.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752639Ab3I0PJ6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Sep 2013 11:09:58 -0400
-Date: 27 Sep 2013 17:04:00 +0200
-From: Hullen@t-online.de (Helmut Hullen)
-To: util-linux@vger.kernel.org
-Message-ID: <CedICKtuCXB@helmut.hullen.de>
-Subject: detecting SMP CPU
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: helmut@hullen.de
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: davidlohr@hp.com
+From: Davidlohr Bueso <davidlohr@hp.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Davidlohr Bueso <davidlohr@hp.com>
+Subject: [PATCH 1/3] libfdisk: gpt: avoid unnecessary pmbr check
+Date: Sat, 21 Sep 2013 20:45:14 -0700
+Message-Id: <1379821516-2540-1-git-send-email-davidlohr@hp.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Hallo, util-linux,
+We only jump to the 'check_hybrid' label when a valid pmbr
+is detected, so we need not recheck again. Move the label's
+logic so it doesn't include the check.
 
-I want to detect the existence of an SMP CPU (multi core CPU). I've  
-tried the contents of "/proc/cpuinfo" and the output of "lscpu".
+Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+---
+ libfdisk/src/gpt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Both ways only showed the existence of both processors of my AMD CPU  
-when I run them under a kernel which was compiled with the option  
-"SMP=Y".
-
-The "help" for this kernel option proposes to set this option only if  
-the kernel really runs on such a CPU.
-
-Is there any way to detect a multi core CPU under a kernel which is  
-compiled with "SMP=n"?
-
-Please excuse my gerlish.
-
-Viele Gruesse!
-Helmut
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index b929b84..2a6284a 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -503,9 +503,10 @@ static int valid_pmbr(struct fdisk_context *cxt)
+ 			goto check_hybrid;
+ 		}
+ 	}
+-check_hybrid:
++
+ 	if (ret != GPT_MBR_PROTECTIVE)
+ 		goto done;
++check_hybrid:
+ 	for (i = 0 ; i < 4; i++) {
+ 		if ((pmbr->partition_record[i].os_type != EFI_PMBR_OSTYPE) &&
+ 		    (pmbr->partition_record[i].os_type != 0x00))
+-- 
+1.7.11.7
