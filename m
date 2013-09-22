@@ -1,40 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:50857 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753313Ab3IHQJV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Sep 2013 12:09:21 -0400
-Received: by mail-wg0-f51.google.com with SMTP id a12so4519588wgh.30
-        for <util-linux@vger.kernel.org>; Sun, 08 Sep 2013 09:09:20 -0700 (PDT)
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <1379821420.2145.50.camel@buesod1.americas.hpqcorp.net>
+References: <1379821420.2145.50.camel@buesod1.americas.hpqcorp.net>
+Date: Sun, 22 Sep 2013 10:39:40 +0100
+Message-ID: <CAG27Bk0eMtYkZdDLVdEjOO+-ZyYOShDDk2mo9_N_qiZCfhB-Jg@mail.gmail.com>
+Subject: Re: [PATCH] lscpu: report cpu min mhz
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/4] tools: generate autotools files if missing
-Date: Sun,  8 Sep 2013 17:09:07 +0100
-Message-Id: <1378656549-3729-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
-References: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Davidlohr Bueso <davidlohr@hp.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tools/config-gen | 4 ++++
- 1 file changed, 4 insertions(+)
+On 22 September 2013 04:43, Davidlohr Bueso <davidlohr@hp.com> wrote:
+> The lscpu tool only shows the current and max CPU frequencies, however,
+> in many scenarios this is not enough. If there are energy saving situations
+> (like some CPUs being idle, or not fully used) the cpugov can lower this value.
 
-diff --git a/tools/config-gen b/tools/config-gen
-index 72cefc9..b7ccadd 100755
---- a/tools/config-gen
-+++ b/tools/config-gen
-@@ -28,5 +28,9 @@ if [ -n "$CFLAGS" ]; then
- 	export CFLAGS
- fi
- 
-+if [ ! -f ./configure ]; then
-+	./autogen.sh
-+fi
-+
- echo
- ./configure $opts
+Hi Davidlohr,
+
+The patch seems to work as one might expect. Only small thing seems to require
+attention, tests broke again. Could you run in util-linux source directory
+
+./tests/run.sh lscpu
+
+and adjust expected outputs accordingly?
+
+Tested-by: Sami Kerola <kerolasa@iki.fi>
+
 -- 
-1.8.4
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
