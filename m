@@ -1,112 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:50112 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753313Ab3IHQJ1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Sep 2013 12:09:27 -0400
-Received: by mail-wg0-f52.google.com with SMTP id m14so4503349wgh.31
-        for <util-linux@vger.kernel.org>; Sun, 08 Sep 2013 09:09:26 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from host-254-7-12-185.cloudsigma.com ([185.12.7.254]:36609 "EHLO
+	kathu.ole32.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1753991Ab3IXQob (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Sep 2013 12:44:31 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by kathu.ole32.com (Postfix) with ESMTP id BB03F206DF
+	for <util-linux@vger.kernel.org>; Tue, 24 Sep 2013 18:22:12 +0200 (CEST)
+Received: from kathu.ole32.com ([127.0.0.1])
+	by localhost (localhost [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id j-LeLr5QOMVD for <util-linux@vger.kernel.org>;
+	Tue, 24 Sep 2013 18:22:11 +0200 (CEST)
+Received: from [192.168.0.40] (kamala [217.162.47.94])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by kathu.ole32.com (Postfix) with ESMTPSA id 7FCD42043E
+	for <util-linux@vger.kernel.org>; Tue, 24 Sep 2013 18:22:10 +0200 (CEST)
+Message-ID: <5241BC33.8050700@breezl.com>
+Date: Tue, 24 Sep 2013 18:22:11 +0200
+From: butter@breezl.com
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi, Ondrej Oprala <ooprala@redhat.com>
-Subject: [PATCH 4/4] hexdump: revert global exitval variable change
-Date: Sun,  8 Sep 2013 17:09:09 +0100
-Message-Id: <1378656549-3729-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
-References: <1378656549-3729-1-git-send-email-kerolasa@iki.fi>
+Subject: losetup -d does not move partition devices
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The change f2a037fb7b153954d5d34cca48182b6d8832fcfa had unfavorable
-effect of making hexdump to return non-zero exit value always.
+Hi all
 
-This happen because oversight when 'exitval' gets to be set.  By clance,
-one might expect main() to call next() which will return value for
-'exitval'.  That assessment misses later call chain main() -> display()
--> get() -> next(), which in reverse should return correct value for
-'exitval'.
+On Ubuntu Desktop 13.04 64bit the loop device partitions do not automatically
+get deleted when you call "losetup -d DEVICE". This causes other programs
+(like lvmdiskscan -l) to report Input/output errors.
 
-It was mentioned in util-linux maillist that Ondrej Oprala is working on
-major renewal of the hexdump .  That in mind it seems best to simply to
-revert the global 'exitval' and avoid conflict with Ondrej's work.
+Here is how to reproduce the problem:
 
-Reference: http://markmail.org/message/sbnvuhkboreujj5p
-Reported-by: Dave Reisner <d@falconindy.com>
-CC: Ondrej Oprala <ooprala@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/display.c | 6 +++---
- text-utils/hexdump.c | 4 ++--
- text-utils/hexdump.h | 1 +
- 3 files changed, 6 insertions(+), 5 deletions(-)
+	LOOPDEV=/dev/loop3
+	IMAGEFILE=`pwd`/mydisk.img
+	MOUNTPOINT=`pwd`/mnt
 
-diff --git a/text-utils/display.c b/text-utils/display.c
-index 41ddd8d..1f9a11b 100644
---- a/text-utils/display.c
-+++ b/text-utils/display.c
-@@ -295,7 +295,7 @@ get(void)
- int next(char **argv)
- {
- 	static int done;
--	int statok, exitval = 0;
-+	int statok;
- 
- 	if (argv) {
- 		_argv = argv;
-@@ -305,14 +305,14 @@ int next(char **argv)
- 		if (*_argv) {
- 			if (!(freopen(*_argv, "r", stdin))) {
- 				warn("%s", *_argv);
--				exitval = 1;
-+				exitval = EXIT_FAILURE;
- 				++_argv;
- 				continue;
- 			}
- 			statok = done = 1;
- 		} else {
- 			if (done++)
--				return(exitval);
-+				return(0);
- 			statok = 0;
- 		}
- 		if (skip)
-diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
-index 411d809..e966cc3 100644
---- a/text-utils/hexdump.c
-+++ b/text-utils/hexdump.c
-@@ -47,11 +47,11 @@
- 
- FS *fshead;				/* head of format strings */
- ssize_t blocksize;			/* data block size */
-+int exitval;				/* final exit value */
- ssize_t length = -1;			/* max bytes to read */
- 
- int main(int argc, char **argv)
- {
--	int exitval;			/* final exit value */
- 	FS *tfs;
- 	char *p;
- 
-@@ -76,7 +76,7 @@ int main(int argc, char **argv)
- 	for (tfs = fshead; tfs; tfs = tfs->nextfs)
- 		rewrite(tfs);
- 
--	exitval = next(argv);
-+	(void)next(argv);
- 	display();
- 	return exitval;
- }
-diff --git a/text-utils/hexdump.h b/text-utils/hexdump.h
-index b2ea1f1..fa8f632 100644
---- a/text-utils/hexdump.h
-+++ b/text-utils/hexdump.h
-@@ -73,6 +73,7 @@ typedef struct _fs {			/* format strings */
- extern FU *endfu;
- extern FS *fshead;			/* head of format strings list */
- extern ssize_t blocksize;		/* data block size */
-+extern int exitval;			/* final exit value */
- extern ssize_t length;			/* max bytes to read */
- extern off_t skip;                      /* bytes to skip */
- 
--- 
-1.8.4
+	# 1. Create and mount an ext4 partition from a file-based disk image
+	dd if=/dev/zero of=$IMAGEFILE bs=1M count=80
+	sudo losetup $LOOPDEV $IMAGEFILE
+	sudo parted $LOOPDEV mklabel msdos
+	sudo parted $LOOPDEV mkpart primary 2048s    43007s
+	sudo mkfs -t ext4 ${LOOPDEV}p1
+	mkdir $MOUNTPOINT
+	sudo mount ${LOOPDEV}p1 $MOUNTPOINT
 
+	# 2. Unmount again => ERROR: the partition device files are not deleted
+	sudo umount $MOUNTPOINT
+	sudo losetup -d $LOOPDEV
+	rmdir $MOUNTPOINT
+	rm $IMAGEFILE
+	ls -l ${LOOPDEV}*
+
+The last command shows:
+
+	/tmp/test[10:18]% ls -l ${LOOPDEV}*
+	brw-rw---- 1 root disk   7, 3 Sep 24 18:18 /dev/loop3
+	brw-rw---- 1 root disk 259, 0 Sep 24 18:17 /dev/loop3p1
+
+As no device is connected there is no partition 1! Isn't this a bug?
+
+Regards
+BB.
