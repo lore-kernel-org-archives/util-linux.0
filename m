@@ -1,49 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:58268 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750890Ab3I2KLl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 29 Sep 2013 06:11:41 -0400
-Received: by mail-pa0-f44.google.com with SMTP id lf10so4622121pab.3
-        for <util-linux@vger.kernel.org>; Sun, 29 Sep 2013 03:11:41 -0700 (PDT)
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:62748 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754675Ab3IYPcb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Sep 2013 11:32:31 -0400
+Received: by mail-pb0-f42.google.com with SMTP id un15so6227766pbc.1
+        for <util-linux@vger.kernel.org>; Wed, 25 Sep 2013 08:32:30 -0700 (PDT)
 From: Namhyung Kim <namhyung@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] libmount: Save errno if mkostemp() failed
-Date: Sun, 29 Sep 2013 19:11:37 +0900
-Message-Id: <1380449497-3298-1-git-send-email-namhyung@gmail.com>
+Subject: [PATCH 2/4] libmount: Free splitted optstr's when error occurred
+Date: Thu, 26 Sep 2013 00:32:04 +0900
+Message-Id: <1380123126-3030-2-git-send-email-namhyung@gmail.com>
+In-Reply-To: <1380123126-3030-1-git-send-email-namhyung@gmail.com>
+References: <1380123126-3030-1-git-send-email-namhyung@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-After mkostemp() failed, umask() and free() might alter the errno
-to another value.  Not sure those calls really changes the errno
-or not.  But let's be more conservative.
+When strdup() failed, u, v and f optstr's should be freed.
 
 Signed-off-by: Namhyung Kim <namhyung@gmail.com>
 ---
- libmount/src/utils.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ libmount/src/fs.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 3cab936..7930e29 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -849,6 +849,8 @@ int mnt_open_uniq_filename(const char *filename, char **name)
- 	oldmode = umask(S_IRGRP|S_IWGRP|S_IXGRP|
- 			S_IROTH|S_IWOTH|S_IXOTH);
- 	fd = mkostemp(n, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
-+	if (fd < 0)
-+		fd = -errno;
- 	umask(oldmode);
+diff --git a/libmount/src/fs.c b/libmount/src/fs.c
+index c95cdc7..e3a2e1a 100644
+--- a/libmount/src/fs.c
++++ b/libmount/src/fs.c
+@@ -774,8 +774,12 @@ int mnt_fs_set_options(struct libmnt_fs *fs, const char *optstr)
+ 		if (rc)
+ 			return rc;
+ 		n = strdup(optstr);
+-		if (!n)
++		if (!n) {
++			free(u);
++			free(v);
++			free(f);
+ 			return -ENOMEM;
++		}
+ 	}
  
- 	if (fd >= 0 && name)
-@@ -856,7 +858,7 @@ int mnt_open_uniq_filename(const char *filename, char **name)
- 	else
- 		free(n);
- 
--	return fd < 0 ? -errno : fd;
-+	return fd;
- }
- 
- /**
+ 	free(fs->fs_optstr);
 -- 
 1.7.9.2
 
