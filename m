@@ -1,27 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28294 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754051Ab3ITIPQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Sep 2013 04:15:16 -0400
-Date: Fri, 20 Sep 2013 10:15:10 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] bash-completion: fix typos in mkfs.bfs logic
-Message-ID: <20130920081510.GA21960@x2.net.home>
-References: <1379033344-3616-1-git-send-email-vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1379033344-3616-1-git-send-email-vapier@gentoo.org>
+Received: from gerolde.archlinux.org ([66.211.214.132]:40095 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755084Ab3I1WWt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Sep 2013 18:22:49 -0400
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] findmnt: always allocate memory for cell value
+Date: Sat, 28 Sep 2013 18:22:43 -0400
+Message-Id: <1380406963-32202-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 12, 2013 at 08:49:04PM -0400, Mike Frysinger wrote:
->  bash-completion/mkfs.bfs | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Since b3386c83fe77, findmnt's output uses TT_FL_FREEDATA, which causes
+a crash here when string literal is returned instead of a heap address.
 
- Applied, thanks.
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ misc-utils/findmnt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index 8861b09..91cc935 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -469,7 +469,7 @@ static char *get_vfs_attr(struct libmnt_fs *fs, int sizetype)
+ 		break;
+ 	case COL_USEPERC:
+ 		if (buf.f_blocks == 0)
+-			return "-";
++			return xstrdup("-");
+ 
+ 		xasprintf(&sizestr, "%.0f%%",
+ 				(double)(buf.f_blocks - buf.f_bfree) /
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4
+
