@@ -1,56 +1,130 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:57896 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753933Ab3IQVLK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Sep 2013 17:11:10 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] libmount/utils: use memmove when overlap possible
-Date: Tue, 17 Sep 2013 17:05:09 -0400
-Message-Id: <1379451909-23800-1-git-send-email-dreisner@archlinux.org>
+Received: from mx1.redhat.com ([209.132.183.28]:7179 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754079Ab3I3NHW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Sep 2013 09:07:22 -0400
+Date: Mon, 30 Sep 2013 15:07:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] clean up term lib handling
+Message-ID: <20130930130718.GN5101@x2.net.home>
+References: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When unmounting some mountpoints as an unprivileged user (via the
-'user' option in fstab), the umount fails. Debug output of 'umount
-/opt' reveals:
 
-17760: libmount: CXT: [0x22890e0]: do umount
-17760: libmount: UTILS: moving to /opt parent
-17760: libmount: CXT: current directory moved to / [last_component='opt']
-17760: libmount: CXT: [0x22890e0]: umount(2) [target='pt', flags=0x00000000]
+ I have applied the patch, but now when play with it I see that
 
-valgrind shows the problem:
+On Sun, Sep 29, 2013 at 12:44:43AM -0400, Mike Frysinger wrote:
+> With a minor tweak to how tinfo is handled, we can do the same thing -- we
+> just always use TINFO_LIBS in the Makefile's.
 
-==23544== Source and destination overlap in memcpy(0x58d1370, 0x58d1371, 4)
-==23544==    at 0x4C2BBC3: memcpy@@GLIBC_2.14 (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==23544==    by 0x4E537C3: mnt_chdir_to_parent (utils.c:168)
-==23544==    by 0x4E45E4C: mnt_context_do_umount (context_umount.c:601)
-==23544==    by 0x4E46513: mnt_context_umount (context_umount.c:855)
-==23544==    by 0x403476: umount_one (umount.c:299)
-==23544==    by 0x402B34: main (umount.c:629)
-==23544==
+you have introduced unnecessary dependence on ncurses for utils where
+was "ifdef tinfo *else* ncurses"
 
-ref: https://bugs.archlinux.org/task/36968
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- libmount/src/utils.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>  AC_CHECK_LIB([tinfo], [tgetent], [have_tinfo=yes])
+> -AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
+> +AS_IF([test "x$have_tinfo" = xyes], [
+> +  TINFO_LIBS="-ltinfo"
+> +])
+> +AC_SUBST([TINFO_LIBS])
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 9f99241..3cab936 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -165,7 +165,7 @@ int mnt_chdir_to_parent(const char *target, char **filename)
- 		if (!last || !*last)
- 			memcpy(*filename, ".", 2);
- 		else
--			memcpy(*filename, last, strlen(last) + 1);
-+			memmove(*filename, last, strlen(last) + 1);
- 	} else
- 		free(buf);
- 	return 0;
+...
+
+> -if HAVE_TINFO
+> -setterm_LDADD = $(LDADD) -ltinfo
+> -else
+> -setterm_LDADD = $(LDADD) @NCURSES_LIBS@
+> -endif
+> +setterm_CFLAGS = $(AM_CFLAGS) $(NCURSES_CFLAGS)
+> +setterm_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
+>  endif
+
+...
+
+> -ul_LDADD = $(LDADD)
+> -if HAVE_TINFO
+> -ul_LDADD += -ltinfo
+> -else 
+> -ul_LDADD += @NCURSES_LIBS@
+> -endif
+> +ul_CFLAGS = $(AM_CFLAGS) $(NCURSES_CFLAGS)
+> +ul_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
+>  endif # BUILD_UL
+
+...
+
+> -if HAVE_TINFO
+> -more_LDADD += -ltinfo
+> -else
+> -if HAVE_NCURSES
+> -more_LDADD += @NCURSES_LIBS@
+> -else
+> +more_CFLAGS = $(AM_CFLAGS) $(BSD_WARN_CFLAGS) $(NCURSES_CFLAGS)
+> +more_LDADD = $(LDADD) $(NCURSES_LIBS) $(TINFO_LIBS)
+> +if HAVE_TERMCAP
+>  more_LDADD += -ltermcap
+>  endif
+> -endif
+
+ old version:
+
+./more:
+	linux-vdso.so.1 =>  (0x00007fff2af9d000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+./setterm:
+	linux-vdso.so.1 =>  (0x00007fff5cd5e000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+./ul:
+	linux-vdso.so.1 =>  (0x00007fffa070b000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+
+
+your version:
+
+
+./more:
+	linux-vdso.so.1 =>  (0x00007ffff21fe000)
+	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+./setterm:
+	linux-vdso.so.1 =>  (0x00007fff1455b000)
+	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+./ul:
+	linux-vdso.so.1 =>  (0x00007fff274ee000)
+	libncursesw.so.5 => /lib64/libncursesw.so.5 (0x0000003e7ba00000)
+	libtinfo.so.5 => /lib64/libtinfo.so.5 (0x0000003e8d200000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003e77200000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x0000003e77600000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003e76e00000)
+
+
+ Maybe we need to revert back to 
+
+   AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
+
+ or introduce something like $TINFO_OR_CURSES_{LIBS,CFLAGS} to keep 
+ the makefiles simple and define the variable in ./configure :-)
+
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
