@@ -1,48 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31061 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752122Ab3JaQvC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 31 Oct 2013 12:51:02 -0400
-Date: Thu, 31 Oct 2013 17:50:58 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Bind mounts record fstype of none
-Message-ID: <20131031165058.GJ1536@x2.net.home>
-References: <527122AF.90003@ubuntu.com>
- <20131031105747.GB1536@x2.net.home>
- <527266B0.7040201@ubuntu.com>
- <20131031151001.GH1536@x2.net.home>
- <52727739.70301@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52727739.70301@ubuntu.com>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:41048 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753036Ab3JCJgm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 05:36:42 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz1so2346134pad.2
+        for <util-linux@vger.kernel.org>; Thu, 03 Oct 2013 02:36:41 -0700 (PDT)
+From: Michael Forney <mforney@mforney.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/4] Use _POSIX_VERSION to determine support for %m
+Date: Thu,  3 Oct 2013 02:36:05 -0700
+Message-Id: <1380792968-1176-2-git-send-email-mforney@mforney.org>
+In-Reply-To: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+References: <1380792968-1176-1-git-send-email-mforney@mforney.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 31, 2013 at 11:28:57AM -0400, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 10/31/2013 11:10 AM, Karel Zak wrote:
-> > There is *many disadvantages* when you use mtab, not sure if it
-> > make sense to fix the issues especially when mtab is currently
-> > unused by (almost) all distributions.
-> > 
-> > Maybe we can keep the fstype and not replace it with "none" for
-> > mtab, but is it so important when we use "none" since 2009 and mtab
-> > is almost dead?
-> 
-> I know there were a number of issues with this transition, have they
-> all been worked out at this point?  Is all you need to do to make the
-> switch is replace /etc/mtab with a symlink to /proc/mounts?  Maybe
-> I'll try doing that.
+%m is included in POSIX 2008, so we can check if the libc implements
+that before failing.
+---
+ configure.ac | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
- Yes, the symlink and libmount based mount(8). We had some issues with
- df(1) but I guess all is resolved by recent coreutils.
-
-    Karel
-
+diff --git a/configure.ac b/configure.ac
+index cbcda46..95ff8b3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -430,6 +430,7 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+ 
+     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+      #include <stdio.h>
++     #include <unistd.h>
+ 
+      #ifdef __GLIBC__
+ 
+@@ -437,8 +438,13 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+      #error %m is not available
+      #endif
+ 
+-     #else
++     #elif defined(_POSIX_VERSION)
+ 
++     #if _POSIX_VERSION < 200809L
++     #error %m is not available
++     #endif
++
++     #else
+      #error Your C-library is not supported.
+      #endif
+      ])],
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4
+
