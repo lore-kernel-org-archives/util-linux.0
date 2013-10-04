@@ -1,33 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:20353 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753464Ab3JRL5L (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Oct 2013 07:57:11 -0400
-Date: Fri, 18 Oct 2013 13:57:07 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: blkid doesn't find lvm pv when boot loader installed
-Message-ID: <20131018115707.GD15115@x2.net.home>
-References: <525821B6.9010304@ubuntu.com>
- <20131014135953.GG28914@x2.net.home>
- <525C0743.9020706@ubuntu.com>
- <20131018093617.GC15115@x2.net.home>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35229 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754024Ab3JDLml (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Oct 2013 07:42:41 -0400
+Message-Id: <1380886960.30366.29949569.056246FC@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20131018093617.GC15115@x2.net.home>
+Content-Type: text/plain
+In-Reply-To: <20131004102946.GC14360@x2.net.home>
+References: <1380799327.6719.29499593.49A8C84F@webmail.messagingengine.com>
+ <20131004102946.GC14360@x2.net.home>
+Subject: Re: some spelling and grammar fixes for messages and man pages
+Date: Fri, 04 Oct 2013 13:42:40 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 18, 2013 at 11:36:17AM +0200, Karel Zak wrote:
->  Now when I'm thinking about it ... maybe it would be good idea to add
->  to fdisk a warning to inform users that there is not only the new 
->  partition table but also anything else.
 
- implemented in libfdisk branch on github
+On Fri, Oct 4, 2013, at 12:29, Karel Zak wrote:
+>  Please, ALWAYS when you want to change any very common message then
+>  see po/util-linux.pot. 
+>  
+>  We have on "cannot open %s" on more than 100 places!
+> 
+>  The ideal solution is to use already translated message than
+>  introduce new one. Or if you don't like the message then change the
+>  string on *all places*. 
 
-    Karel
+Yes, you are right.  I wasn't thinking.
+
+>  It would be nice to cleanup all the messages and use for example
+> 
+>     cannot open %s
+>     cannot close %s
+>     cannot read %s
+>     cannot write %s
+>     seek on %s failed
+> 
+>  on all places. Now (rc1) is the ideal time for this change.
+
+I will be working on that.
+
+>  (Not sure why someone updated util-linux on translationproject.org
+>   when there is no -rc2 yet.)
+
+I did.  To give translators extra time to catch up, because there have
+been massive string changes.  And to give them a chance to report
+errors or doubts, and get them fixed before rc2.
+
+Benno
+
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - mmm... Fastmail...
+
