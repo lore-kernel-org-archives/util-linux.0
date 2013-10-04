@@ -1,41 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qa0-f44.google.com ([209.85.216.44]:63264 "EHLO
-	mail-qa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752101Ab3J3Qpt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 12:45:49 -0400
-Received: by mail-qa0-f44.google.com with SMTP id cm18so3865148qab.17
-        for <util-linux@vger.kernel.org>; Wed, 30 Oct 2013 09:45:49 -0700 (PDT)
-Date: Wed, 30 Oct 2013 12:45:46 -0400
-From: Dave Reisner <d@falconindy.com>
-To: helmut@hullen.de
-Cc: util-linux@vger.kernel.org
-Subject: Re: Bind mounts record fstype of none
-Message-ID: <20131030164546.GL735@rampage>
-References: <345614206.235496.1383150183769.open-xchange@email.1und1.de>
- <CgqsAZmPCXB@helmut.hullen.de>
+Received: from fep14.mx.upcmail.net ([62.179.121.34]:36126 "EHLO
+	fep14.mx.upcmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753406Ab3JDKE3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Oct 2013 06:04:29 -0400
+Date: Fri, 4 Oct 2013 12:04:15 +0200
+From: Petr Pisar <petr.pisar@atlas.cz>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: util-linux 2.24-rc1 message errors
+Message-ID: <20131004100415.GE3808@album.bayer.uni.cx>
+References: <20131004085637.GC3808@album.bayer.uni.cx>
+ <1380878588.23958.29906781.520589D2@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CgqsAZmPCXB@helmut.hullen.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="AsxXAMtlQ5JHofzM"
+In-Reply-To: <1380878588.23958.29906781.520589D2@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 30, 2013 at 05:31:00PM +0100, Helmut Hullen wrote:
-> Hallo, Bernhard,
-> 
-> Du meintest am 30.10.13:
-> 
-> >> So is mount wrong for recording the filesystem type as 'none' or
-> >> not?
-> 
-> > Where do you see 'none'?
-> 
->         df -a -T
-> 
-> Maybe that problem is related to the option "-type"; "bind" is no  
-> allowed "type".
 
-The fstype of "none" only shows up on older systems where mtab is a
-regular file and not a symlink to /proc/self/mounts.
+--AsxXAMtlQ5JHofzM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Dave
+On Fri, Oct 04, 2013 at 11:23:08AM +0200, Benno Schulenberg wrote:
+> On Fri, Oct 4, 2013, at 10:56, Petr Pisar wrote:
+> > # FIXME: Signular or plural? Missing `s'.
+> > #: libfdisk/src/sgi.c:762
+> > msgid "Partition overlap on the disk."
+>=20
+> We were here before.  The phrase is correct, "overlap" is a noun.
+> But as it bothers you, I'll dig up my previous proposal.
+>=20
+Ah, sorry. I forgot to process the explanation. I have changed the translat=
+ion
+and removed the comment now.
+
+-- Petr
+
+
+--AsxXAMtlQ5JHofzM
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.20 (GNU/Linux)
+
+iF4EABEIAAYFAlJOkp8ACgkQEsnFx2fG+qLIbAEAlVplEHeBJPYWs3vsOXebxqLs
+xnCr/smPiFgYkWGR+l0A+wfWLeJbmiuHu3lycnS56JAksaPl2t0J/j6XVfgB1ZEt
+=8eGO
+-----END PGP SIGNATURE-----
+
+--AsxXAMtlQ5JHofzM--
