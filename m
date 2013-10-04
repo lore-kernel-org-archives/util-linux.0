@@ -1,46 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:62424 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752613Ab3JVPXW (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 22 Oct 2013 11:23:22 -0400
-Received: by mail-pa0-f47.google.com with SMTP id lf10so6272594pab.34
-        for <util-linux-ng@vger.kernel.org>; Tue, 22 Oct 2013 08:23:22 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:44493 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751400Ab3JDLgC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Oct 2013 07:36:02 -0400
+Date: Fri, 4 Oct 2013 13:35:59 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] clean up term lib handling
+Message-ID: <20131004113559.GE14360@x2.net.home>
+References: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
+ <20130930130718.GN5101@x2.net.home>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20131022103214.GG15115@x2.net.home>
-References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
-	<20131022103214.GG15115@x2.net.home>
-Date: Tue, 22 Oct 2013 16:23:22 +0100
-Message-ID: <CAG27Bk3+XOmDrSumdaqWn_tTH1OxYQjwfeoaZ0pM8jN6OJuNQA@mail.gmail.com>
-Subject: Re: [RFC/PATCH] week numbers for cal
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Tommi Kyntola <tommi.kyntola@gmail.com>, util-linux-ng@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20130930130718.GN5101@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 22 October 2013 11:32, Karel Zak <kzak@redhat.com> wrote:
-> On Sat, Oct 05, 2013 at 11:59:54PM +0300, Tommi Kyntola wrote:
->> I keep trying -w with cal from time to time and I finally decided it's
->> about time to do something about it. I'm not sure if this is something
->> you'd be interested in incorporating into util-linux cal, but it's
->> something I wanted, so here it is. There's gcal of course, but I only
->> wanted a toothpick not the whole forest.
->
-> Applied, thanks.
+On Mon, Sep 30, 2013 at 03:07:18PM +0200, Karel Zak wrote:
+> 
+>  I have applied the patch, but now when play with it I see that
+> 
+> On Sun, Sep 29, 2013 at 12:44:43AM -0400, Mike Frysinger wrote:
+> > With a minor tweak to how tinfo is handled, we can do the same thing -- we
+> > just always use TINFO_LIBS in the Makefile's.
+> 
+> you have introduced unnecessary dependence on ncurses for utils where
+> was "ifdef tinfo *else* ncurses"
 
-FYI
+...
 
-I started think, and play with the cal code, in order to make the source a
-little bit more maintainable.  My plan is to add run time configuration
-and parameters structures. With bit of luck changing data structures
-allows less strange functions.
+>  Maybe we need to revert back to 
+> 
+>    AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
 
-Broken peak preview:
-https://github.com/kerolasa/lelux-utiliteetit/tree/cal-ng
+ Done. It also seems that we can use pkg-config for tinfo.
+
+ Please, test the changes in your environment. Thanks!
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
