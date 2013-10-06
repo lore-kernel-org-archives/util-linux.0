@@ -1,71 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:20258 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753638Ab3JDK3u (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Oct 2013 06:29:50 -0400
-Date: Fri, 4 Oct 2013 12:29:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: some spelling and grammar fixes for messages and man pages
-Message-ID: <20131004102946.GC14360@x2.net.home>
-References: <1380799327.6719.29499593.49A8C84F@webmail.messagingengine.com>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:33200 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754152Ab3JFSiP (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Sun, 6 Oct 2013 14:38:15 -0400
+Message-Id: <1381084694.1334.30658017.687B2CE7@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Tommi Kyntola <tommi.kyntola@gmail.com>
+Cc: kerolasa@gmail.com, util-linux-ng@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1380799327.6719.29499593.49A8C84F@webmail.messagingengine.com>
+Content-Type: text/plain
+Subject: Re: [RFC/PATCH] week numbers for cal
+Date: Sun, 06 Oct 2013 20:38:14 +0200
+In-Reply-To: <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
+ <CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
+ <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 03, 2013 at 01:22:07PM +0200, Benno Schulenberg wrote:
-> About the 0003 patch I'm not entirely sure, but looking at almost
-> identical messages, a path should be %s, not %d.
 
- You're right, %d is bug. Almost all your patches applied, thanks!
+On Sun, Oct 6, 2013, at 19:23, Tommi Kyntola wrote:
+> (I fixed some cal related faulty translations from the fi.po while at
+> it, although I doubt anyone uses those here)
 
-> -		fdisk_warn(cxt, _("open failed %s"), path);
-> +		fdisk_warn(cxt, _("opening %s failed"), path);
+Most of the things you changed were to "fuzzy" messages, which don't
+get used because they were automatically filled in by msgmerge, so they
+were not really faulty (in the sense that the translator made a mistake).
+I've forwarded your changes to the Finnish transator; with a little luck
+the PO file at the translation project will get updated.
 
- I don't like this kind of change.
+One tiny thing: please wrap lines in the man page at around column 70.
 
- Please, ALWAYS when you want to change any very common message then
- see po/util-linux.pot. 
- 
- We have on "cannot open %s" on more than 100 places!
+Regards,
 
- The ideal solution is to use already translated message than
- introduce new one. Or if you don't like the message then change the
- string on *all places*. 
- 
- The goal is to minimize number of messages and unify our utils.
-
- It would be nice to cleanup all the messages and use for example
-
-    cannot open %s
-    cannot close %s
-    cannot read %s
-    cannot write %s
-    seek on %s failed
-
- on all places. Now (rc1) is the ideal time for this change. 
- 
- (Not sure why someone updated util-linux on translationproject.org
-  when there is no -rc2 yet.)
-
->  	if (read_all(fd, ptr, size) != size) {
-> -		fdisk_warn(cxt, _("read failed %s"), path);
-> +		fdisk_warn(cxt, _("reading %s failed"), path);
-
-...
-
->  	if (write_all(cxt->dev_fd, l->bsdbuffer, BSD_BBSIZE)) {
-> -		fdisk_warn(cxt, _("write failed %s"), cxt->dev_path);
-> +		fdisk_warn(cxt, _("writing %s failed"), cxt->dev_path);
-
- I have committed "cannot {write,read} %s".
-
-
-    Karel
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - The professional email service
+
