@@ -1,75 +1,115 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54469 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751971Ab3JKIht (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Oct 2013 04:37:49 -0400
-Date: Fri, 11 Oct 2013 10:37:42 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: Matthias Schniedermeyer <ms@citd.de>, util-linux@vger.kernel.org
-Subject: Re: Filesystem specific mount options mixed with auto fs type
-Message-ID: <20131011083742.GA14457@x2.net.home>
-References: <5256B7CF.7010103@ubuntu.com>
- <20131010170330.GA19031@citd.de>
- <5256E3EA.4000304@ubuntu.com>
+Received: from mail-ve0-f172.google.com ([209.85.128.172]:63494 "EHLO
+	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753697Ab3JFRXL (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Sun, 6 Oct 2013 13:23:11 -0400
+Received: by mail-ve0-f172.google.com with SMTP id oz11so3419158veb.3
+        for <util-linux-ng@vger.kernel.org>; Sun, 06 Oct 2013 10:23:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5256E3EA.4000304@ubuntu.com>
+In-Reply-To: <CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
+	<CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
+Date: Sun, 6 Oct 2013 20:23:10 +0300
+Message-ID: <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+Subject: Re: [RFC/PATCH] week numbers for cal
+From: Tommi Kyntola <tommi.kyntola@gmail.com>
+To: kerolasa@gmail.com
+Cc: util-linux-ng@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 10, 2013 at 01:29:14PM -0400, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 10/10/2013 1:03 PM, Matthias Schniedermeyer wrote:
-> > AFAIK "mount -s" is just for that case:
-> > 
-> > - man mount - -s Tolerate sloppy mount options rather than failing.
-> > This will ignore mount options not supported by a filesystem type.
-> > Not all filesystems support this option. This option exists for
-> > support of the Linux autofs-based automounter. - man mount -
-> 
-> This doesn't seem to actually work.  Trying to mount an ext2 fs with
-> the utf8 option still fails with an unknown option error.
+Oh, forgot the today flag. It has to be masked out before passing the
+day to week_number().
+Good catch and thanks for taking the time to look at it!
 
-"sloppy" is userspace command line option and I guess it was introduced
-for NFS (nfs4, nfs, ...) and if I good remember nothing else uses this
-option.
+I fixed the flaw and redid the commits, this time with additional
+changes to the man page, bash-completion etc.
+(I fixed some cal related faulty translations from the fi.po while at
+it, although I doubt anyone uses those here)
 
-There is also "silent" (MS_SILENT) kernel mount flag, but it's usually 
-used to avoid unwanted printk() when superblok not found.
+I can split the changes into smaller chunks if appropriate, but I'll
+hold that until I get more feedback.
 
-Notes:
-
- * the "auto" fs type is usually used with generic mount options or
-   with no options at all ("default" options)
-
- * well designed filesystems allows to save the filesystem specific 
-   options to the FS superblock by some tune util (e.g. tune2fs)
-
- * for removable media users usually use udisks based solutions
-
- * mount by FS identifier
-
-        LABEL=FOO       /mnt/floppy     vfat    utf8
-        LABEL=BAR       /mnt/floppy     ext2    default
-
-    and then "mount LABEL= ... "
-  
-
- * for example NFS has nfsmount.conf where you can specify additional
-   options, but I don't think it's a good idea to introduce this for
-   all filesystems
+cheers,
+Tommi Kyntola
 
 
-Maybe we can improve mount(8) to test all entries from /etc/fstab
-with the same mountpoint (if you want to mount-by-mountpoint)
-until the filesystem will be mounted successfully. But I have doubts
-that we really need to resolve this very old disadvantage.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On Sun, Oct 6, 2013 at 6:29 PM, Sami Kerola <kerolasa@iki.fi> wrote:
+> On 5 October 2013 21:59, Tommi Kyntola <tommi.kyntola@gmail.com> wrote:
+>> I keep trying -w with cal from time to time and I finally decided it's
+>> about time to do something about it. I'm not sure if this is something
+>> you'd be interested in incorporating into util-linux cal, but it's
+>> something I wanted, so here it is. There's gcal of course, but I only
+>> wanted a toothpick not the whole forest.
+>>
+>> I added -w|--week for showing week numbers. It defaults to North
+>> American numbering, because cal itself defaults to Sundays being the
+>> first day of the week. With Monday first it uses the ISO-8601 week
+>> numbers.
+>>
+>> I didn't worry too much about the implementation being as clean as
+>> possible just yet, but should this be deemed worth a jack, I or anyone
+>> else can take it to any direction.
+>>
+>> The three relevant patches are in my github:
+>> https://github.com/Kynde/util-linux.git
+>> https://github.com/Kynde/util-linux/commits
+>>
+>> Tommi Kyntola (4):
+>>       cal: added two missing tests
+>>       cal: added -w|--week for showing week numbers
+>>       cal: tests for week number modes added
+>>       cal: added more week number tests to cover various special cases
+>>
+>> The first that's on top of Karel's tree is a minor test fix for
+>> bigyear and sep1752 which seemed to lack final their last tests.
+>>
+>>  misc-utils/cal.c            |  140 +++-
+>>  tests/expected/cal/1mw      |   37 ++
+>>  tests/expected/cal/3mw      |   37 ++
+>>  tests/expected/cal/bigyear  |   51 ++
+>>  tests/expected/cal/bigyearw |  257 ++++++++
+>>  tests/expected/cal/colorw   |   55 ++
+>>  tests/expected/cal/sep1752  |   51 ++
+>>  tests/expected/cal/sep1752w |  249 ++++++++
+>>  tests/expected/cal/weeknum  | 1485 +++++++++++++++++++++++++++++++++++++++++++
+>>  tests/expected/cal/yearw    |  177 ++++++
+>>  tests/ts/cal/1mw            |   59 ++
+>>  tests/ts/cal/3mw            |   58 ++
+>>  tests/ts/cal/bigyear        |    1 +
+>>  tests/ts/cal/bigyearw       |   96 +++
+>>  tests/ts/cal/colorw         |   71 +++
+>>  tests/ts/cal/sep1752        |    1 +
+>>  tests/ts/cal/sep1752w       |   96 +++
+>>  tests/ts/cal/weeknum        |   87 +++
+>>  tests/ts/cal/yearw          |   58 ++
+>>  19 files changed, 3037 insertions(+), 29 deletions(-)
+>>
+>> Please cc me as I'm not on the list.
+>
+> Hello Tommi,
+>
+> Thank you for the weekday contribution. Earlier the year I though I'll
+> make this to work, but you were first.
+>
+> I had look of your patch set and found out peculiarity. If the first
+> day of the week is highlighted the week number is calculated wrong.
+>
+> $ cal -w 6 10 2013
+>       October 2013
+>    Su Mo Tu We Th Fr Sa
+> 39        1  2  3  4  5
+> 147  6  7  8  9 10 11 12
+> 41 13 14 15 16 17 18 19
+> 42 20 21 22 23 24 25 26
+> 43 27 28 29 30 31
+>
+> When day is not highlighted error does not occur.
+>
+> $ cal --color=never -w 13 10 2013
+>
+> --
+> Sami Kerola
+> http://www.iki.fi/kerolasa/
