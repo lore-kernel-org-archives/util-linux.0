@@ -1,32 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13950 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751797Ab3JHNzi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Oct 2013 09:55:38 -0400
-Date: Tue, 8 Oct 2013 15:55:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] various: fix mixing declarations and code compiler
- warnings [smatch]
-Message-ID: <20131008135527.GE13559@x2.net.home>
-References: <1381183463-1297-1-git-send-email-kerolasa@iki.fi>
- <1381183463-1297-2-git-send-email-kerolasa@iki.fi>
+Received: from mail-ve0-f180.google.com ([209.85.128.180]:44908 "EHLO
+	mail-ve0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755360Ab3JGR7r (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Mon, 7 Oct 2013 13:59:47 -0400
+Received: by mail-ve0-f180.google.com with SMTP id jz11so3744980veb.39
+        for <util-linux-ng@vger.kernel.org>; Mon, 07 Oct 2013 10:59:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1381183463-1297-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <5252EA23.4080508@draigBrady.com>
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
+	<CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
+	<CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+	<52522615.4010304@draigBrady.com>
+	<CAO2cUkQuNiHwdmxACq1i1W8ix1teVvtUi9McPtksRrFC-M7F3g@mail.gmail.com>
+	<5252EA23.4080508@draigBrady.com>
+Date: Mon, 7 Oct 2013 20:59:46 +0300
+Message-ID: <CAO2cUkTZeLMTh=_nsHcXzUKeq6sGJ9+5V_KocMs-g7SdE3n=0w@mail.gmail.com>
+Subject: Re: [RFC/PATCH] week numbers for cal
+From: Tommi Kyntola <tommi.kyntola@gmail.com>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: Sami Kerola <kerolasa@gmail.com>, util-linux-ng@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 07, 2013 at 11:04:23PM +0100, Sami Kerola wrote:
->  libfdisk/src/dos.c           |  6 +++---
->  libmount/python/pylibmount.c |  3 ++-
->  libmount/python/tab.c        |  3 ++-
->  term-utils/mesg.c            | 10 +++++-----
->  4 files changed, 12 insertions(+), 10 deletions(-)
+> It's generally best to avoid optional args on short args,
+> as in this case -w3 is ambiguous and -wj is problematic.
+> So I'd instead support an interface like -w,--week[=NUM]
 
- Applied, thanks.
+Agreed. I dropped the :: from the short arg.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cheers,
+Tommi Kyntola
