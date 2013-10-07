@@ -1,42 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32206 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751228Ab3JRI1e (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Oct 2013 04:27:34 -0400
-Date: Fri, 18 Oct 2013 10:27:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?utf-8?B?VHLhuqduIE5n4buNYyBRdcOibg==?= <vnwildman@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: gettext error
-Message-ID: <20131018082731.GA15115@x2.net.home>
-References: <525F2FC0.70802@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <525F2FC0.70802@gmail.com>
+Received: from mail-wg0-f54.google.com ([74.125.82.54]:50377 "EHLO
+	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751604Ab3JGWEu (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 7 Oct 2013 18:04:50 -0400
+Received: by mail-wg0-f54.google.com with SMTP id m15so8099515wgh.9
+        for <util-linux@vger.kernel.org>; Mon, 07 Oct 2013 15:04:48 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/2] libblkid: fix compiler warning [smatch]
+Date: Mon,  7 Oct 2013 23:04:22 +0100
+Message-Id: <1381183463-1297-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 17, 2013 at 07:30:56AM +0700, Trần Ngọc Quân wrote:
-> $ nsenter --help
-> display l10n incorrecttly.
-> Fix:
-> Change sys-utils/nsenter.c:189 to:
-> setlocale(LC_ALL, "");
+warning: overflow in implicit constant conversion
 
- Fixed.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libblkid/src/superblocks/bcache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> I have a question:
-> I will sent rc2 translation, so do I have to sent util-linux-2.24-rc1.vi.po?
-
- Well, I'm going download the latest translation (newer than the previous u-l
- release) from http://translationproject.org/latest/util-linux/. So, I care 
- more about date then about a version.
-
- ... and it seems there is already your vi.po. Thanks.
-
-    Karel
-
-
+diff --git a/libblkid/src/superblocks/bcache.c b/libblkid/src/superblocks/bcache.c
+index 303f7ee..f5a8ce6 100644
+--- a/libblkid/src/superblocks/bcache.c
++++ b/libblkid/src/superblocks/bcache.c
+@@ -20,7 +20,7 @@
+ #define node(i, j)         ((i)->d + (j))
+ #define end(i)             node(i, (i)->keys)
+ 
+-static const char bcache_magic[] = {
++static const unsigned char bcache_magic[] = {
+ 	0xc6, 0x85, 0x73, 0xf6, 0x4e, 0x1a, 0x45, 0xca,
+ 	0x82, 0x65, 0xf5, 0x7f, 0x48, 0xba, 0x6d, 0x81
+ };
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4
+
