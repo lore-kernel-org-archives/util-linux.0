@@ -1,250 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54331 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752629Ab3JCLWI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 07:22:08 -0400
-Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 4A92A211EF
-	for <util-linux@vger.kernel.org>; Thu,  3 Oct 2013 07:22:07 -0400 (EDT)
-Message-Id: <1380799327.6719.29499593.49A8C84F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail2.vodafone.ie ([213.233.128.44]:27145 "EHLO
+	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755100Ab3JGDUE (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Sun, 6 Oct 2013 23:20:04 -0400
+Message-ID: <52522615.4010304@draigBrady.com>
+Date: Mon, 07 Oct 2013 04:10:13 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_138079932767191";
- charset="utf-8"
-Subject: some spelling and grammar fixes for messages and man pages
-Date: Thu, 03 Oct 2013 13:22:07 +0200
+To: Tommi Kyntola <tommi.kyntola@gmail.com>
+CC: kerolasa@gmail.com, util-linux-ng@vger.kernel.org
+Subject: Re: [RFC/PATCH] week numbers for cal
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com> <CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com> <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+In-Reply-To: <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+Looks good.
+I don't suppose it would be useful to allow
+specifying a week number as input, like:
 
---_----------=_138079932767191
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+cal --week=44
 
-
-Hi,
-
-Attached flurry of patches fix some tiny spelling and word-order
-problems in some error messages, man pages, and comments.
-
-About the 0003 patch I'm not entirely sure, but looking at almost
-identical messages, a path should be %s, not %d.
-
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - Does exactly what it says on the tin
-
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0002-textual-improve-grammar-of-four-error-messages.patch"
-Content-Id: <1380798784.4548.114592c354d5d7ee89f2568bf69cb9158aca9c99.41907B0C@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0002-textual-improve-grammar-of-four-error-messages.patch"
-
-RnJvbSA2NGJjNDQwMTkxMzVmYWE2NGQxM2ZhMzM4YmFmNGQ5MmM0OTBkN2Q4
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzIE9j
-dCAyMDEzIDEyOjMzOjI5ICswMjAwClN1YmplY3Q6IFtQQVRDSCAyLzddIHRl
-eHR1YWw6IGltcHJvdmUgZ3JhbW1hciBvZiBmb3VyIGVycm9yIG1lc3NhZ2Vz
-CgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2JlcmdA
-anVzdGVtYWlsLm5ldD4KLS0tCiBsaWJmZGlzay9zcmMvYnNkLmMgfCAgICA4
-ICsrKystLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwg
-NCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9saWJmZGlzay9zcmMvYnNk
-LmMgYi9saWJmZGlzay9zcmMvYnNkLmMKaW5kZXggYTllNWQ3NS4uZGFlYzYz
-NiAxMDA2NDQKLS0tIGEvbGliZmRpc2svc3JjL2JzZC5jCisrKyBiL2xpYmZk
-aXNrL3NyYy9ic2QuYwpAQCAtNTIwLDEyICs1MjAsMTIgQEAgc3RhdGljIGlu
-dCBic2RfZ2V0X2Jvb3RzdHJhcChzdHJ1Y3QgZmRpc2tfY29udGV4dCAqY3h0
-LAogCWludCBmZDsKIAogCWlmICgoZmQgPSBvcGVuKHBhdGgsIE9fUkRPTkxZ
-KSkgPCAwKSB7Ci0JCWZkaXNrX3dhcm4oY3h0LCBfKCJvcGVuIGZhaWxlZCAl
-cyIpLCBwYXRoKTsKKwkJZmRpc2tfd2FybihjeHQsIF8oIm9wZW5pbmcgJXMg
-ZmFpbGVkIiksIHBhdGgpOwogCQlyZXR1cm4gLWVycm5vOwogCX0KIAogCWlm
-IChyZWFkX2FsbChmZCwgcHRyLCBzaXplKSAhPSBzaXplKSB7Ci0JCWZkaXNr
-X3dhcm4oY3h0LCBfKCJyZWFkIGZhaWxlZCAlcyIpLCBwYXRoKTsKKwkJZmRp
-c2tfd2FybihjeHQsIF8oInJlYWRpbmcgJXMgZmFpbGVkIiksIHBhdGgpOwog
-CQljbG9zZShmZCk7CiAJCXJldHVybiAtZXJybm87CiAJfQpAQCAtNTkyLDEy
-ICs1OTIsMTIgQEAgaW50IGZkaXNrX2JzZF93cml0ZV9ib290c3RyYXAoc3Ry
-dWN0IGZkaXNrX2NvbnRleHQgKmN4dCkKIAlhbHBoYV9ib290YmxvY2tfY2hl
-Y2tzdW0obC0+YnNkYnVmZmVyKTsKICNlbmRpZgogCWlmIChsc2VlayhjeHQt
-PmRldl9mZCwgKG9mZl90KSBzZWN0b3IgKiBERUZBVUxUX1NFQ1RPUl9TSVpF
-LCBTRUVLX1NFVCkgPT0gLTEpIHsKLQkJZmRpc2tfd2FybihjeHQsIF8oInNl
-ZWsgZmFpbGVkICVzIiksIGN4dC0+ZGV2X3BhdGgpOworCQlmZGlza193YXJu
-KGN4dCwgXygic2VlayBvbiAlcyBmYWlsZWQiKSwgY3h0LT5kZXZfcGF0aCk7
-CiAJCXJjID0gLWVycm5vOwogCQlnb3RvIGRvbmU7CiAJfQogCWlmICh3cml0
-ZV9hbGwoY3h0LT5kZXZfZmQsIGwtPmJzZGJ1ZmZlciwgQlNEX0JCU0laRSkp
-IHsKLQkJZmRpc2tfd2FybihjeHQsIF8oIndyaXRlIGZhaWxlZCAlcyIpLCBj
-eHQtPmRldl9wYXRoKTsKKwkJZmRpc2tfd2FybihjeHQsIF8oIndyaXRpbmcg
-JXMgZmFpbGVkIiksIGN4dC0+ZGV2X3BhdGgpOwogCQlyYyA9IC1lcnJubzsK
-IAkJZ290byBkb25lOwogCX0KLS0gCjEuNy4wLjQKCg==
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0003-libfdisk-paths-are-strings-not-numbers-in-some-error.patch"
-Content-Id: <1380798793.4677.c3f29de54039eee167227be955913eb93db6c42c.7B0C61A6@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0003-libfdisk-paths-are-strings-not-numbers-in-some-error.patch"
-
-RnJvbSBkMjA5Mzk3ZWNmYmQyNjRkODdiNWNlZGMxMTAxODQ4NTNkMWYwM2E0
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzIE9j
-dCAyMDEzIDEyOjM2OjUzICswMjAwClN1YmplY3Q6IFtQQVRDSCAzLzddIGxp
-YmZkaXNrOiBwYXRocyBhcmUgc3RyaW5ncywgbm90IG51bWJlcnMgKGluIHNv
-bWUgZXJyb3IgbWVzc2FnZXMpCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1
-bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBsaWJmZGlz
-ay9zcmMvYnNkLmMgfCAgICA0ICsrLS0KIDEgZmlsZXMgY2hhbmdlZCwgMiBp
-bnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2xp
-YmZkaXNrL3NyYy9ic2QuYyBiL2xpYmZkaXNrL3NyYy9ic2QuYwppbmRleCBk
-YWVjNjM2Li5kOGQ2ODA1IDEwMDY0NAotLS0gYS9saWJmZGlzay9zcmMvYnNk
-LmMKKysrIGIvbGliZmRpc2svc3JjL2JzZC5jCkBAIC03NjAsMTEgKzc2MCwx
-MSBAQCBzdGF0aWMgaW50IGJzZF93cml0ZV9kaXNrbGFiZWwoc3RydWN0IGZk
-aXNrX2NvbnRleHQgKmN4dCkKIAlhbHBoYV9ib290YmxvY2tfY2hlY2tzdW0o
-bC0+YnNkYnVmZmVyKTsKICNlbmRpZgogCWlmIChsc2VlayhjeHQtPmRldl9m
-ZCwgb2Zmc2V0LCBTRUVLX1NFVCkgPT0gLTEpIHsKLQkJZmRpc2tfd2Fybihj
-eHQsIF8oInNlZWsgZmFpbGVkOiAlZCIpLCBjeHQtPmRldl9wYXRoKTsKKwkJ
-ZmRpc2tfd2FybihjeHQsIF8oInNlZWsgb24gJXMgZmFpbGVkIiksIGN4dC0+
-ZGV2X3BhdGgpOwogCQlyZXR1cm4gLWVycm5vOwogCX0KIAlpZiAod3JpdGVf
-YWxsKGN4dC0+ZGV2X2ZkLCBsLT5ic2RidWZmZXIsIHNpemVvZihsLT5ic2Ri
-dWZmZXIpKSkgewotCQlmZGlza193YXJuKGN4dCwgXygid3JpdGUgZmFpbGVk
-OiAlZCIpLCBjeHQtPmRldl9wYXRoKTsKKwkJZmRpc2tfd2FybihjeHQsIF8o
-IndyaXRpbmcgJXMgZmFpbGVkIiksIGN4dC0+ZGV2X3BhdGgpOwogCQlyZXR1
-cm4gLWVycm5vOwogCX0KIAlzeW5jX2Rpc2tzKGN4dCk7Ci0tIAoxLjcuMC40
-Cgo=
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0004-libfdisk-improve-spelling-of-two-comments.patch"
-Content-Id: <1380798801.4730.72b60f8972300d2626dfd4e512549591c1bcdbcf.258B933D@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0004-libfdisk-improve-spelling-of-two-comments.patch"
-
-RnJvbSA5OTY3ZjNhOWY0MzAxMDUyYzY5MzM1NWIzYmNkMjZhYmMyZmZkMmFi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzIE9j
-dCAyMDEzIDEyOjQxOjAwICswMjAwClN1YmplY3Q6IFtQQVRDSCA0LzddIGxp
-YmZkaXNrOiBpbXByb3ZlIHNwZWxsaW5nIG9mIHR3byBjb21tZW50cwoKU2ln
-bmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJlbnNiZXJnQGp1c3Rl
-bWFpbC5uZXQ+Ci0tLQogbGliZmRpc2svc3JjL2JzZC5jIHwgICAgNCArKy0t
-CiAxIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
-bnMoLSkKCmRpZmYgLS1naXQgYS9saWJmZGlzay9zcmMvYnNkLmMgYi9saWJm
-ZGlzay9zcmMvYnNkLmMKaW5kZXggZDhkNjgwNS4uMzBiZTU2MSAxMDA2NDQK
-LS0tIGEvbGliZmRpc2svc3JjL2JzZC5jCisrKyBiL2xpYmZkaXNrL3NyYy9i
-c2QuYwpAQCAtNzUxLDEyICs3NTEsMTIgQEAgc3RhdGljIGludCBic2Rfd3Jp
-dGVfZGlza2xhYmVsKHN0cnVjdCBmZGlza19jb250ZXh0ICpjeHQpCiAJZC0+
-ZF9jaGVja3N1bSA9IDA7CiAJZC0+ZF9jaGVja3N1bSA9IGJzZF9ka2Nrc3Vt
-KGQpOwogCi0JLyogVXBkYXRlIGxhYmVsIHdpdGggaW4gYm9vdCBibG9jay4g
-Ki8KKwkvKiBVcGRhdGUgbGFiZWwgd2l0aGluIGJvb3QgYmxvY2suICovCiAJ
-bWVtbW92ZSgmbC0+YnNkYnVmZmVyW0JTRF9MQUJFTFNFQ1RPUiAqIERFRkFV
-TFRfU0VDVE9SX1NJWkUKIAkJCSAgICsgQlNEX0xBQkVMT0ZGU0VUXSwgZCwg
-c2l6ZW9mKCpkKSk7CiAKICNpZiBkZWZpbmVkIChfX2FscGhhX18pICYmIEJT
-RF9MQUJFTFNFQ1RPUiA9PSAwCi0JLyogd3JpdGUgdGhlIGNoZWNrIHN1bSB0
-byB0aGUgZW5kIG9mIHRoZSBmaXJzdCBzZWN0b3IgKi8KKwkvKiBXcml0ZSB0
-aGUgY2hlY2tzdW0gdG8gdGhlIGVuZCBvZiB0aGUgZmlyc3Qgc2VjdG9yLiAq
-LwogCWFscGhhX2Jvb3RibG9ja19jaGVja3N1bShsLT5ic2RidWZmZXIpOwog
-I2VuZGlmCiAJaWYgKGxzZWVrKGN4dC0+ZGV2X2ZkLCBvZmZzZXQsIFNFRUtf
-U0VUKSA9PSAtMSkgewotLSAKMS43LjAuNAoK
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0006-docs-tweak-the-grammar-of-an-agetty-man-page-fragmen.patch"
-Content-Id: <1380798815.4731.ed39d39a802244e09b6f0d6b568259961de68601.34868163@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0006-docs-tweak-the-grammar-of-an-agetty-man-page-fragmen.patch"
-
-RnJvbSA3OGM4MGRlYWVmMDM1ODg2OTUyMTE0ZGQzNDE5OWUzY2I4YjM2MTZi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzIE9j
-dCAyMDEzIDEzOjA1OjQzICswMjAwClN1YmplY3Q6IFtQQVRDSCA2LzddIGRv
-Y3M6IHR3ZWFrIHRoZSBncmFtbWFyIG9mIGFuIGFnZXR0eSBtYW4tcGFnZSBm
-cmFnbWVudAoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJl
-bnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogdGVybS11dGlscy9hZ2V0dHku
-OCB8ICAgIDggKysrKy0tLS0KIDEgZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRp
-b25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3Rlcm0tdXRp
-bHMvYWdldHR5LjggYi90ZXJtLXV0aWxzL2FnZXR0eS44CmluZGV4IGQ3Nzk1
-NTUuLmFkMGJmYTAgMTAwNjQ0Ci0tLSBhL3Rlcm0tdXRpbHMvYWdldHR5LjgK
-KysrIGIvdGVybS11dGlscy9hZ2V0dHkuOApAQCAtMTQ0LDE0ICsxNDQsMTQg
-QEAgQ29udHJvbCB0aGUgQ0xPQ0FMIGxpbmUgZmxhZy4gIFRoZSBvcHRpb25h
-bCBcZkltb2RlXGZQIGFyZ3VtZW50IGlzICdhdXRvJywgJ2Fsd2EKIElmIHRo
-ZSBcZkltb2RlXGZQIGFyZ3VtZW50IGlzIG9taXR0ZWQsIHRoZW4gdGhlIGRl
-ZmF1bHQgaXMgJ2Fsd2F5cycuICBJZiB0aGUKIFwtXC1sb2NhbFwtbGluZSBv
-cHRpb24gaXMgbm90IGdpdmVuIGF0IGFsbCwgdGhlbiB0aGUgZGVmYXVsdCBp
-cyAnYXV0bycuCiAKLVRoZSBcZkltb2RlXGZQICdhbHdheXMnIGZvcmNlcyB0
-aGUgbGluZSB0byBiZSBhIGxvY2FsIGxpbmUgd2l0aCBubyBuZWVkIGZvciBj
-YXJyaWVyIGRldGVjdC4gVGhpcyBjYW4KLWJlIHVzZWZ1bCB3aGVuIHlvdSBo
-YXZlIGEgbG9jYWxseSBhdHRhY2hlZCB0ZXJtaW5hbCB3aGVyZSB0aGUgc2Vy
-aWFsIGxpbmUKK1RoZSBcZkltb2RlXGZQICdhbHdheXMnIGZvcmNlcyB0aGUg
-bGluZSB0byBiZSBhIGxvY2FsIGxpbmUgd2l0aCBubyBuZWVkIGZvciBjYXJy
-aWVyIGRldGVjdC4KK1RoaXMgY2FuIGJlIHVzZWZ1bCB3aGVuIHlvdSBoYXZl
-IGEgbG9jYWxseSBhdHRhY2hlZCB0ZXJtaW5hbCB3aGVyZSB0aGUgc2VyaWFs
-IGxpbmUKIGRvZXMgbm90IHNldCB0aGUgY2Fycmllci1kZXRlY3Qgc2lnbmFs
-LgogCi1UaGUgXGZJbW9kZVxmUCAnbmV2ZXInIGV4cGxpY2l0bHkgY2xlYXJz
-IENMT0NBTCBmbGFncyBmcm9tIGxpbmUgc2V0dGluZyBhbmQKK1RoZSBcZklt
-b2RlXGZQICduZXZlcicgZXhwbGljaXRseSBjbGVhcnMgdGhlIENMT0NBTCBm
-bGFnIGZyb20gdGhlIGxpbmUgc2V0dGluZyBhbmQKIHRoZSBjYXJyaWVyLWRl
-dGVjdCBzaWduYWwgaXMgZXhwZWN0ZWQgb24gdGhlIGxpbmUuCiAKLVRoZSBc
-Zkltb2RlXGZQICdhdXRvJyAoYWdldHR5IGRlZmF1bHQpIGRvZXMgbm90IG1v
-ZGlmeSBDTE9DQUwgc2V0dGluZworVGhlIFxmSW1vZGVcZlAgJ2F1dG8nIChh
-Z2V0dHkgZGVmYXVsdCkgZG9lcyBub3QgbW9kaWZ5IHRoZSBDTE9DQUwgc2V0
-dGluZwogYW5kIGZvbGxvd3MgdGhlIHNldHRpbmcgZW5hYmxlZCBieSB0aGUg
-a2VybmVsLgogLlRQCiBcLW0sIFwtXC1leHRyYWN0XC1iYXVkCi0tIAoxLjcu
-MC40Cgo=
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0007-docs-spell-the-name-of-the-loop-control-device-corre.patch"
-Content-Id: <1380798821.4729.7bf55c70a3910516c5cd0531b785a375125b04fa.48A32687@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0007-docs-spell-the-name-of-the-loop-control-device-corre.patch"
-
-RnJvbSBhZmRlYTFiNTI0NGMyNDFmM2U2OWFiYTNkNTdiOGJiZDM3ZTVkZDEx
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAzIE9j
-dCAyMDEzIDEzOjA3OjAwICswMjAwClN1YmplY3Q6IFtQQVRDSCA3LzddIGRv
-Y3M6IHNwZWxsIHRoZSBuYW1lIG9mIHRoZSBsb29wLWNvbnRyb2wgZGV2aWNl
-IGNvcnJlY3RseQoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcg
-PGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogc3lzLXV0aWxzL2xvc2V0
-dXAuOCB8ICAgIDIgKy0KIDEgZmlsZXMgY2hhbmdlZCwgMSBpbnNlcnRpb25z
-KCspLCAxIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3N5cy11dGlscy9s
-b3NldHVwLjggYi9zeXMtdXRpbHMvbG9zZXR1cC44CmluZGV4IDljNGM3Yzku
-LmM2MWE2MWUgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9sb3NldHVwLjgKKysr
-IGIvc3lzLXV0aWxzL2xvc2V0dXAuOApAQCAtMTQwLDcgKzE0MCw3IEBAIGZy
-b20gZGV0ZXJtaW5pbmcgdGhlIHN0YXR1cyBvZiB0aGUgZGV2aWNlLgogLkkg
-L2Rldi9sb29wWzAuLk5dCiBsb29wIGJsb2NrIGRldmljZXMKIC5UUAotLkkg
-L2Rldi9sb29wLWNvdHJvbAorLkkgL2Rldi9sb29wLWNvbnRyb2wKIGxvb3Ag
-Y29udHJvbCBkZXZpY2UKIAogLlNIIEVYQU1QTEUKLS0gCjEuNy4wLjQKCg==
-
---_----------=_138079932767191
-Content-Disposition: attachment; filename="0001-agetty-use-standard-angular-brackets-in-usage-messag.patch"
-Content-Id: <1380798956.5103.57117dfa2434a3d1b7890a0d10daa8ef889545f9.23855966@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-agetty-use-standard-angular-brackets-in-usage-messag.patch"
-
-RnJvbSBhZGMyOGVjNmY3M2Q0NTMzODQ5MDg3Y2E2ZTRhZTc2MDI2MTZmMjVi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAyNSBT
-ZXAgMjAxMyAxMjoyNToxNSArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIGFnZXR0
-eTogdXNlIHN0YW5kYXJkIGFuZ3VsYXIgYnJhY2tldHMgaW4gdXNhZ2UgbWVz
-c2FnZQoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJlbnNi
-ZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogdGVybS11dGlscy9hZ2V0dHkuYyB8
-ICAgIDQgKystLQogMSBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
-IDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvdGVybS11dGlscy9hZ2V0
-dHkuYyBiL3Rlcm0tdXRpbHMvYWdldHR5LmMKaW5kZXggOTJkNWEzYy4uYjk0
-ZjIwMyAxMDA2NDQKLS0tIGEvdGVybS11dGlscy9hZ2V0dHkuYworKysgYi90
-ZXJtLXV0aWxzL2FnZXR0eS5jCkBAIC0xNzk0LDggKzE3OTQsOCBAQCBzdGF0
-aWMgc3BlZWRfdCBiY29kZShjaGFyICpzKQogc3RhdGljIHZvaWQgX19hdHRy
-aWJ1dGVfXyAoKF9fbm9yZXR1cm5fXykpIHVzYWdlKEZJTEUgKm91dCkKIHsK
-IAlmcHV0cyhVU0FHRV9IRUFERVIsIG91dCk7Ci0JZnByaW50ZihvdXQsIF8o
-IiAlMSRzIFtvcHRpb25zXSBsaW5lIFtiYXVkX3JhdGUsLi4uXSBbdGVybXR5
-cGVdXG4iCi0JCSAgICAgICAiICUxJHMgW29wdGlvbnNdIGJhdWRfcmF0ZSwu
-Li4gbGluZSBbdGVybXR5cGVdXG4iKSwgcHJvZ3JhbV9pbnZvY2F0aW9uX3No
-b3J0X25hbWUpOworCWZwcmludGYob3V0LCBfKCIgJTEkcyBbb3B0aW9uc10g
-PGxpbmU+IFs8YmF1ZF9yYXRlPiwuLi5dIFs8dGVybXR5cGU+XVxuIgorCQkg
-ICAgICAgIiAlMSRzIFtvcHRpb25zXSA8YmF1ZF9yYXRlPiwuLi4gPGxpbmU+
-IFs8dGVybXR5cGU+XVxuIiksIHByb2dyYW1faW52b2NhdGlvbl9zaG9ydF9u
-YW1lKTsKIAlmcHV0cyhVU0FHRV9PUFRJT05TLCBvdXQpOwogCWZwdXRzKF8o
-IiAtOCwgLS04Yml0cyAgICAgICAgICAgICAgICBhc3N1bWUgOC1iaXQgdHR5
-XG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWEsIC0tYXV0b2xvZ2luIDx1c2Vy
-PiAgICAgbG9naW4gdGhlIHNwZWNpZmllZCB1c2VyIGF1dG9tYXRpY2FsbHlc
-biIpLCBvdXQpOwotLSAKMS43LjAuNAoK
-
---_----------=_138079932767191--
-
+cheers,
+Pádraig.
