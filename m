@@ -1,77 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f179.google.com ([74.125.82.179]:63306 "EHLO
-	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754523Ab3J0Umr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:42:47 -0400
-Received: by mail-we0-f179.google.com with SMTP id w61so5898476wes.10
-        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:42:46 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 02/10] cal: add input variable names to function prototypes
-Date: Sun, 27 Oct 2013 20:42:28 +0000
-Message-Id: <1382906556-16442-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
-References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-vb0-f48.google.com ([209.85.212.48]:38135 "EHLO
+	mail-vb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751436Ab3JGLj3 (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Mon, 7 Oct 2013 07:39:29 -0400
+Received: by mail-vb0-f48.google.com with SMTP id w16so3298214vbf.21
+        for <util-linux-ng@vger.kernel.org>; Mon, 07 Oct 2013 04:39:28 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <52522615.4010304@draigBrady.com>
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
+	<CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
+	<CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
+	<52522615.4010304@draigBrady.com>
+Date: Mon, 7 Oct 2013 14:39:27 +0300
+Message-ID: <CAO2cUkQuNiHwdmxACq1i1W8ix1teVvtUi9McPtksRrFC-M7F3g@mail.gmail.com>
+Subject: Re: [RFC/PATCH] week numbers for cal
+From: Tommi Kyntola <tommi.kyntola@gmail.com>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: Sami Kerola <kerolasa@gmail.com>, util-linux-ng@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-While prototypes such as 'function(int, int, char, int);' are legal they
-do not help when trying to understand how the function is expected to be
-used.  Adding variable names gives at least a hint when looking the
-prototypes.
+Why not. I wasn't sure what exactly should be done with 52 when many
+years have days belonging to two different 52 weeks, but I came up
+with a spec that says it points to the week that starts during the
+relevant year.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+A patch in guthub:
+https://github.com/Kynde/util-linux/commit/3a53abddc14f46eccb4264668b24875054f5ba62
+
+cheers,
+Tommi Kyntola
 ---
- misc-utils/cal.c | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+commit 3a53abddc14f46eccb4264668b24875054f5ba62
+Author: Tommi Kyntola <kynde@iki.fi>
+Date:   Mon Oct 7 14:32:23 2013 +0300
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index b4eb1ba..720a548 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -248,23 +248,25 @@ struct cal_control {
- 
- /* function prototypes */
- static int leap_year(long year);
--static char *ascii_day(char *, int, const struct cal_control *ctl);
--static char *ascii_wnum(char *p, int wn, const struct cal_control *ctl);
--static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
--static void center(const char *, size_t, int);
--static void day_array(int, int, long, int *, const struct cal_control *ctl);
--static int day_in_week(int, int, long);
--static int day_in_year(int, int, long);
--static int week_number(int, int, long, const struct cal_control *ctl);
--static int week_to_day(long, const struct cal_control *ctl);
--static void yearly(int, long, const struct cal_control *ctl);
--static int do_monthly(int day, int month, long year, struct fmt_st *out,
--		      int header_hint, const struct cal_control *ctl);
--static void monthly(int, int, long, const struct cal_control *ctl);
--static int two_header_lines(int month, long year, const struct cal_control *ctl);
--static void monthly3(int, int, long, const struct cal_control *ctl);
--static void __attribute__ ((__noreturn__)) usage(FILE * out);
- static void headers_init(struct cal_control *ctl);
-+static int do_monthly(int day, int month, long year, struct fmt_st *out, int header_hint,
-+		      const struct cal_control *ctl);
-+static void monthly(int day, int month, long year, const struct cal_control *ctl);
-+static int two_header_lines(int month, long year, const struct cal_control *ctl);
-+static void monthly3(int day, int month, long year, const struct cal_control *ctl);
-+static char *append_wnum(char *p, int *dp, int month, long year, int cal, int row,
-+			 const struct cal_control *ctl);
-+static void yearly(int day, long year, const struct cal_control *ctl);
-+static void day_array(int day, int month, long year, int *days, const struct cal_control *ctl);
-+static int day_in_year(int day, int month, long year);
-+static int day_in_week(int d, int m, long y);
-+static int week_number(int day, int month, long year, const struct cal_control *ctl);
-+static int week_to_day(long year, const struct cal_control *ctl);
-+static char *ascii_day(char *p, int day, const struct cal_control *ctl);
-+static char *ascii_wnum(char *p, int wnum, const struct cal_control *ctl);
-+static int center_str(const char *src, char *dest, size_t dest_size, size_t width);
-+static void center(const char *str, size_t len, int separate);
-+static void __attribute__((__noreturn__)) usage(FILE *out);
- 
- int main(int argc, char **argv)
- {
--- 
-1.8.4.1
+    cal: added argument option for -w|--week to display that week
 
+    Because many years have two sections of week 52 or 53, the week that
+    this argument points to is the one that starts during that year (when availa
+    The week number in argument is also highlighted in addition to possibly visi
+    current/defined date highlighting.
+
+    Signed-off-by: Tommi Kyntola <kynde@iki.fi>
+
+ misc-utils/cal.1           |   2 +-
+ misc-utils/cal.c           | 115 +++++++++++++++++++++++++++++++++------
+ tests/expected/cal/weekarg | 127 +++++++++++++++++++++++++++++++++++++++++++
+ tests/ts/cal/weekarg       | 131 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 358 insertions(+), 17 deletions(-)
