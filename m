@@ -1,45 +1,126 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44493 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50681 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751400Ab3JDLgC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Oct 2013 07:36:02 -0400
-Date: Fri, 4 Oct 2013 13:35:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
+	id S1753842Ab3JHOJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Oct 2013 10:09:45 -0400
+Date: Tue, 8 Oct 2013 15:09:40 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] clean up term lib handling
-Message-ID: <20131004113559.GE14360@x2.net.home>
-References: <1380429883-25187-1-git-send-email-vapier@gentoo.org>
- <20130930130718.GN5101@x2.net.home>
+Subject: Re: [PATCH] blockdev: Remove the --setbsz (set blocksize) option
+ which has never worked.
+Message-ID: <20131008140940.GW1887@redhat.com>
+References: <1381222450-30380-1-git-send-email-rjones@redhat.com>
+ <5254113A.2010709@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20130930130718.GN5101@x2.net.home>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <5254113A.2010709@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 30, 2013 at 03:07:18PM +0200, Karel Zak wrote:
+On Tue, Oct 08, 2013 at 03:05:46PM +0100, Pádraig Brady wrote:
+> On 10/08/2013 09:54 AM, Richard W.M. Jones wrote:
+> > From: "Richard W.M. Jones" <rjones@redhat.com>
+> > 
+> > This option has never worked.  If you try setting the block size on a
+> > block device, and then read it using --getbsz, you will see that the
+> > block size never changes.
+> > 
+> > The reason for this is because the block size is specific to the
+> > current file descriptor opening the block device, so the change of
+> > block size only persists for as long as blockdev has the device open,
+> > and is lost once blockdev exits.
+> > 
+> > Also the block size is not really used anywhere.  Filesystems, for
+> > example, have their own idea of block size and ignore this setting
+> > completely.
+> > 
+> > (Thanks Masayoshi Mizuma for diagnosing the problem)
+> > 
+> > Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
+> > ---
+> >  bash-completion/blockdev | 7 +------
+> >  disk-utils/blockdev.8    | 2 --
+> >  disk-utils/blockdev.c    | 7 -------
+> >  3 files changed, 1 insertion(+), 15 deletions(-)
+> > 
+> > diff --git a/bash-completion/blockdev b/bash-completion/blockdev
+> > index ce986cb..5889955 100644
+> > --- a/bash-completion/blockdev
+> > +++ b/bash-completion/blockdev
+> > @@ -19,7 +19,6 @@ _blockdev_module()
+> >  		--getalignoff
+> >  		--getmaxsect
+> >  		--getbsz
+> > -		--setbsz
+> >  		--getsize64
+> >  		--setra
+> >  		--getra
+> > @@ -29,11 +28,7 @@ _blockdev_module()
+> >  		--rereadpt
+> >  		$DEVS"
+> >  	case $prev in
+> > -		'--setbsz')
+> > -			COMPREPLY=( $(compgen -W "bytes" -- $cur) )
+> > -			return 0
+> > -			;;
+> > -		'--setbsz'|'--setfra')
+> > +		'--setfra')
+> >  			COMPREPLY=( $(compgen -W "sectors" -- $cur) )
+> >  			return 0
+> >  			;;
+> > diff --git a/disk-utils/blockdev.8 b/disk-utils/blockdev.8
+> > index 2b3d64c..6ab4324 100644
+> > --- a/disk-utils/blockdev.8
+> > +++ b/disk-utils/blockdev.8
+> > @@ -67,8 +67,6 @@ Print sectorsize in bytes - usually 512.
+> >  Get size in 512-byte sectors.
+> >  .IP "\fB\-\-rereadpt\fP"
+> >  Reread partition table
+> > -.IP "\fB\-\-setbsz\fP \fIbytes\fP"
+> > -Set blocksize.
+> >  .IP "\fB\-\-setfra\fP \fIsectors\fP"
+> >  Set filesystem readahead (same like --setra on 2.6 kernels).
+> >  .IP "\fB\-\-setra\fP \fIsectors\fP"
+> > diff --git a/disk-utils/blockdev.c b/disk-utils/blockdev.c
+> > index 4543818..dc02d48 100644
+> > --- a/disk-utils/blockdev.c
+> > +++ b/disk-utils/blockdev.c
+> > @@ -122,13 +122,6 @@ static const struct bdc bdcms[] =
+> >  		.argval = -1,
+> >  		.help = N_("get blocksize")
+> >  	},{
+> > -		IOCTL_ENTRY(BLKBSZSET),
+> > -		.name = "--setbsz",
+> > -		.argname = "<bytes>",
+> > -		.argtype = ARG_INT,
+> > -		.flags = FL_NORESULT,
+> > -	        .help = N_("set blocksize")
+> > -	},{
+> >  		IOCTL_ENTRY(BLKGETSIZE),
+> >  		.name = "--getsize",
+> >  		.argtype = ARG_ULONG,
+> > 
 > 
->  I have applied the patch, but now when play with it I see that
+> Might one process the adjusted block device in a subshell?
 > 
-> On Sun, Sep 29, 2013 at 12:44:43AM -0400, Mike Frysinger wrote:
-> > With a minor tweak to how tinfo is handled, we can do the same thing -- we
-> > just always use TINFO_LIBS in the Makefile's.
-> 
-> you have introduced unnecessary dependence on ncurses for utils where
-> was "ifdef tinfo *else* ncurses"
+> $ (blockdev --setbsz 2048 /dev/stdin; blockdev --getbsz /dev/stdin) < /dev/loop0
+> 2048
 
-...
+Yes .. if that was documented anywhere, if it wasn't so obscure, and
+if it was useful for anything except changing a handle property that
+nothing uses.
 
->  Maybe we need to revert back to 
-> 
->    AM_CONDITIONAL([HAVE_TINFO], [test "x$have_tinfo" = xyes])
+There's an informative but unfortunately private exchange on the
+subject in this bug:
+https://bugzilla.redhat.com/show_bug.cgi?id=1002825
 
- Done. It also seems that we can use pkg-config for tinfo.
+I have asked if we can make the contents of this bug public.
 
- Please, test the changes in your environment. Thanks!
-
-    Karel
+Rich.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+virt-top is 'top' for virtual machines.  Tiny program with many
+powerful monitoring features, net stats, disk stats, logging, etc.
+http://people.redhat.com/~rjones/virt-top
