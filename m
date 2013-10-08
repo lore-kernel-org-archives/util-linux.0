@@ -1,29 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp2.hushmail.com ([65.39.178.134]:54780 "EHLO
-	smtp2.hushmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932486Ab3JKLLU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Oct 2013 07:11:20 -0400
-Received: from smtp2.hushmail.com (localhost [127.0.0.1])
-	by smtp2.hushmail.com (Postfix) with SMTP id 1F8EBA010C
-	for <util-linux@vger.kernel.org>; Fri, 11 Oct 2013 10:34:31 +0000 (UTC)
-Received: from smtp.hushmail.com (w4.hushmail.com [65.39.178.50])
-	by smtp2.hushmail.com (Postfix) with ESMTP
-	for <util-linux@vger.kernel.org>; Fri, 11 Oct 2013 10:34:31 +0000 (UTC)
+Received: from mx1.redhat.com ([209.132.183.28]:27764 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754689Ab3JHN4M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Oct 2013 09:56:12 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r98DuBcc008908
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 8 Oct 2013 09:56:11 -0400
+Date: Tue, 8 Oct 2013 15:56:09 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] blockdev: Remove the --setbsz (set blocksize) option
+ which has never worked.
+Message-ID: <20131008135609.GF13559@x2.net.home>
+References: <1381222450-30380-1-git-send-email-rjones@redhat.com>
 MIME-Version: 1.0
-Date: Fri, 11 Oct 2013 12:34:30 +0200
-To: util-linux@vger.kernel.org
-From: bugreporter99@hushmail.com
-Content-Type: text/plain; charset="UTF-8"
-Message-Id: <20131011103431.0FBC9C04A6@smtp.hushmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1381222450-30380-1-git-send-email-rjones@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi all,
+On Tue, Oct 08, 2013 at 09:54:10AM +0100, Richard W.M. Jones wrote:
+>  bash-completion/blockdev | 7 +------
+>  disk-utils/blockdev.8    | 2 --
+>  disk-utils/blockdev.c    | 7 -------
+>  3 files changed, 1 insertion(+), 15 deletions(-)
 
-I'm new to linux and tried to use "lscpu".
-After asking around on the ubuntu IRC channel I got told that the first line of the output "Architecture:..." tells the architecture of my OS and NOT my cpu.
-Could you please change the text in the first line somehow?
-Maybe "Architecture (of operating system):" or os architecture or something in those lines?
-Cause when I use lscpu I think (as a newbe) it will list all things about my cpu and not about my operating system.
-Thanks!
+ Applied, thanks.
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
