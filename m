@@ -1,38 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from magister.com.au ([123.243.98.134]:49829 "EHLO magister.com.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751924Ab3JKVfO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Oct 2013 17:35:14 -0400
-Date: Sat, 12 Oct 2013 08:34:40 +1100 (EST)
-From: Craig <util-linux_contact@magister.com.au>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
- *must* have disable option! :(
-In-Reply-To: <20131011090442.GE14457@x2.net.home>
-Message-ID: <alpine.LFD.2.02.1310120828440.3289@trabz.zntvfgre.pbz.nh>
-References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au> <20131009141628.GB940@x2.net.home> <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh> <20131010111045.GA29199@x2.net.home> <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
- <20131011090442.GE14457@x2.net.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:59590 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755474Ab3JIPRi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Oct 2013 11:17:38 -0400
+Received: by mail-pb0-f53.google.com with SMTP id up15so1050520pbc.26
+        for <util-linux@vger.kernel.org>; Wed, 09 Oct 2013 08:17:38 -0700 (PDT)
+From: Namhyung Kim <namhyung@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] libmount: Fix mnt_context_is_child()
+Date: Thu, 10 Oct 2013 00:17:09 +0900
+Message-Id: <1381331829-9791-2-git-send-email-namhyung@gmail.com>
+In-Reply-To: <1381331829-9791-1-git-send-email-namhyung@gmail.com>
+References: <1381331829-9791-1-git-send-email-namhyung@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 11 Oct 2013, Karel Zak <kzak@redhat.com> wrote:
+It should check if fork (mount -F) is enabled.
 
-[...]
+Signed-off-by: Namhyung Kim <namhyung@gmail.com>
+---
+ libmount/src/context.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Yep. I don't want any "smart" solution there. All will be controlled
-> by users.
+diff --git a/libmount/src/context.c b/libmount/src/context.c
+index 04eb286..a4d9824 100644
+--- a/libmount/src/context.c
++++ b/libmount/src/context.c
+@@ -387,7 +387,7 @@ int mnt_context_is_parent(struct libmnt_context *cxt)
+  */
+ int mnt_context_is_child(struct libmnt_context *cxt)
+ {
+-	return !mnt_context_is_fork(cxt) && cxt->pid;
++	return mnt_context_is_fork(cxt) && cxt->pid;
+ }
+ 
+ /**
+-- 
+1.7.9.2
 
-> (Well, in the default mode for non-expert users with standard PMBR we will
->  generate the MBR as expected by UEFI specification of course.)
-
-Ah, splendid; glad to hear that.  Then for the moment I'll simply make a 
-temporary RPM package with the pre-GPT fdisk; that will do for my 
-situation.  I'd rather not faff around with a custom util-linux RPM, 
-either which would break updates or not get updated at all.  A separate 
-fdisk RPM will do for the moment and will solve my hybrid MBR problem. :)
-
-Cheerio,
-Craig
