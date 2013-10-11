@@ -1,45 +1,41 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57250 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750715Ab3JaLe7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 31 Oct 2013 07:34:59 -0400
-Date: Thu, 31 Oct 2013 12:34:49 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 05/10] cal: determine output width at beginning of run
- and reuse result
-Message-ID: <20131031113449.GD1536@x2.net.home>
-References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
- <1382906556-16442-6-git-send-email-kerolasa@iki.fi>
+Return-Path: psusi@ubuntu.com
+Message-ID: <52580DF9.4050906@ubuntu.com>
+Date: Fri, 11 Oct 2013 10:40:57 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1382906556-16442-6-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: Matthias Schniedermeyer <ms@citd.de>, util-linux@vger.kernel.org
+Subject: Re: Filesystem specific mount options mixed with auto fs type
+References: <5256B7CF.7010103@ubuntu.com> <20131010170330.GA19031@citd.de> <5256E3EA.4000304@ubuntu.com> <20131011083742.GA14457@x2.net.home> <525800EB.9060208@ubuntu.com> <20131011140954.GD24613@x2.net.home>
+In-Reply-To: <20131011140954.GD24613@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 27, 2013 at 08:42:31PM +0000, Sami Kerola wrote:
-> +struct cal_width {
-> +	size_t dy;			/* day width in characters in printout */
-> +	size_t wk;			/* week width == (7 * dlen + possible week num) */
-> +};
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Is it really necessary to have a special struct for this setting? I
- see that everywhere in the code you have
+On 10/11/2013 10:09 AM, Karel Zak wrote:
+> I thought something like:
+> 
+> /dev/fd0 /mnt/floppy    vfat    utf8 /dev/fd0 /mnt/floppy    auto
+> default
+> 
+> and then try in loop all the filesystem types for the mountpoint
+> (or make it smart and ask blkid for the type).
 
-    ctl.width.wk or ctl.width.wk
+What would this do to other utilities?  Would this confuse udisks or
+systemd or upstart's mountall?
 
- what about to add 
- 
-    int day_width;
-    int week_width; 
-    
- to the control struct?
- 
- BTW, yes, it's C, but ... "dy" and "wk" seems pretty unreadable :-)
 
-    Karel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJSWA35AAoJEJrBOlT6nu75d/cH/Rqe9m5Ttw1hdnG9+e636vkE
+YNBxfBnJKV2Ob7YywnxZdIxO/fj5YCnydW+68YDR0+okJAO2p0PPPzyRhHJw+H5T
+lohuBuRKfeRTuDwEKfAeIsAIOji9ed5BwHUOH2A+abd/fysiyG+ZTuet8vuXBv/Y
+3Rzjh5jvkYBT+gwY9aiBoA69ChHsU9HKLQGJXd7S/UDmshqNYxhH7n3kDFiNxU3m
+tzoQdSIDYRk4VTKrRp0X5kF6OtQnW7askF6RYWrMJnOYInGPFQ+WKVftx3sgw/OW
+vNmKR1zrVBD+DpYSzzgG95SUQVlnoL4eZr7Ri20HQpT+bSj8opPd9IFffMX8hws=
+=dA7m
+-----END PGP SIGNATURE-----
