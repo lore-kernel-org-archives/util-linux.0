@@ -1,45 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:63021 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751305Ab3J3P7p (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 11:59:45 -0400
-Message-ID: <52712CF0.9070603@ubuntu.com>
-Date: Wed, 30 Oct 2013 11:59:44 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56271 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751411Ab3JKIxB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Oct 2013 04:53:01 -0400
+Date: Fri, 11 Oct 2013 10:52:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: docs: improve the cal --help [was: standardizing...]
+Message-ID: <20131011085254.GB14457@x2.net.home>
+References: <1381246807.30460.31493077.03F09F4B@webmail.messagingengine.com>
+ <20131009094712.GK13559@x2.net.home>
+ <1381345029.20143.32053929.35B2647B@webmail.messagingengine.com>
 MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: util-linux@vger.kernel.org
-Subject: Re: Bind mounts record fstype of none
-References: <527122AF.90003@ubuntu.com> <1530541679.232932.1383147597747.open-xchange@email.1und1.de>
-In-Reply-To: <1530541679.232932.1383147597747.open-xchange@email.1und1.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1381345029.20143.32053929.35B2647B@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Oct 09, 2013 at 08:57:09PM +0200, Benno Schulenberg wrote:
+>  misc-utils/cal.1 |    4 ++--
+>  misc-utils/cal.c |    9 ++++++---
+>  2 files changed, 8 insertions(+), 5 deletions(-)
 
-On 10/30/2013 11:39 AM, Bernhard Voelker wrote:
-> yes, df(1) is from coreutils. ;-)
-> 
-> However, latest df(1) will skip such bind mounts per default - but 
-> now because of some 'bind' information (which is not available 
-> anyway), but just because it skips "duplicates" based on the
-> device numbers. For the same device number, it will output that
-> with the shortest mount point name. You have to use -a to see all.
+ Applied with some minor changed, thanks.
 
-So is mount wrong for recording the filesystem type as 'none' or not?
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJScSzwAAoJEJrBOlT6nu7587EH/j35wWxXuNqljBAn9B4fimyd
-UcTuchJuPoeWg6fmB6XGJB+Zuv/sari8ur/ihVuV+SiC9+MvBYrkoy+xlTW+vmMc
-B4usMZRvZQK9QW74nvqibDgp2S1mG2iEbpO58oJK2E6ILQoFLNPY2Awuz2VR7LY9
-sLxseN4eSzRdPFRiFfzFIaI6s6PO4fvcJceNukO2LIvbhKEhufduTPEJrPKMDIYK
-OAgmsDm5PUDCITDyyO9YYlZdVm/RxJmRvssdN+WycfsXzYgad+/BAdc0WENtw81R
-JHg7MciHqNfNBJ5bmlqwnnynud37gWe7dYRLNoMgXDcAMsIwjBL1NsrEpKcmqmk=
-=05sY
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
