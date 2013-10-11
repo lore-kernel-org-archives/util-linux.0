@@ -1,33 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from magister.com.au ([123.243.98.134]:33988 "EHLO magister.com.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756320Ab3JIMs7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Oct 2013 08:48:59 -0400
-Date: Wed, 9 Oct 2013 22:23:13 +1100 (EST)
-From: Craig <util-linux_contact@magister.com.au>
-To: util-linux@vger.kernel.org
-Subject: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR; *must*
- have disable option! :(
-Message-ID: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au>
+Received: from smtp2.hushmail.com ([65.39.178.134]:54780 "EHLO
+	smtp2.hushmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932486Ab3JKLLU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Oct 2013 07:11:20 -0400
+Received: from smtp2.hushmail.com (localhost [127.0.0.1])
+	by smtp2.hushmail.com (Postfix) with SMTP id 1F8EBA010C
+	for <util-linux@vger.kernel.org>; Fri, 11 Oct 2013 10:34:31 +0000 (UTC)
+Received: from smtp.hushmail.com (w4.hushmail.com [65.39.178.50])
+	by smtp2.hushmail.com (Postfix) with ESMTP
+	for <util-linux@vger.kernel.org>; Fri, 11 Oct 2013 10:34:31 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Date: Fri, 11 Oct 2013 12:34:30 +0200
+To: util-linux@vger.kernel.org
+From: bugreporter99@hushmail.com
+Content-Type: text/plain; charset="UTF-8"
+Message-Id: <20131011103431.0FBC9C04A6@smtp.hushmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Greetings,
+Hi all,
 
-Sorry if this isn't the place, but curiously, I could find no 
-bug-reporting info in the documentation, and definitely I consider this 
-one a bug!  Adding experimental GPT support to fdisk has completely broken 
-its ability to read the MBR for a hybrid partitioning scheme.  To be 
-blunt, I don't see the point in fdisk GPT support in any case; gdisk does 
-a *vastly* better job, and appears to be mature.  At the least however, 
-there needs urgently to be a means by which GPT can be disabled 
-(command-line switch?) or by which fdisk can be forced to read an existing 
-MBR under _any_ circumstances.
+I'm new to linux and tried to use "lscpu".
+After asking around on the ubuntu IRC channel I got told that the first line of the output "Architecture:..." tells the architecture of my OS and NOT my cpu.
+Could you please change the text in the first line somehow?
+Maybe "Architecture (of operating system):" or os architecture or something in those lines?
+Cause when I use lscpu I think (as a newbe) it will list all things about my cpu and not about my operating system.
+Thanks!
 
-On a related note, fdisk cannot differentiate between lower and upper-case 
-command input (e.g., `G' vs. `g' is rather pointless as things stand).
-
-Cheerio,
-Craig
