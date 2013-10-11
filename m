@@ -1,27 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49640 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:61581 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751682Ab3JHNyq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Oct 2013 09:54:46 -0400
-Date: Tue, 8 Oct 2013 15:54:40 +0200
+	id S1752314Ab3JKIz1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Oct 2013 04:55:27 -0400
+Date: Fri, 11 Oct 2013 10:55:24 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>,
-        Petr =?utf-8?B?UMOtc2HFmQ==?= <petr.pisar@atlas.cz>
-Subject: Re: [patches] pluralization, and some trifles along the way
-Message-ID: <20131008135440.GC13559@x2.net.home>
-References: <1381056152.6496.30556453.76E742F1@webmail.messagingengine.com>
+To: Namhyung Kim <namhyung@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] libmount: Fix mnt_context_is_child()
+Message-ID: <20131011085524.GD14457@x2.net.home>
+References: <1381331829-9791-1-git-send-email-namhyung@gmail.com>
+ <1381331829-9791-2-git-send-email-namhyung@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1381056152.6496.30556453.76E742F1@webmail.messagingengine.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1381331829-9791-2-git-send-email-namhyung@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 06, 2013 at 12:42:32PM +0200, Benno Schulenberg wrote:
-> Attached bunch of patches fix most of the issues reported by  Petr Písař
-> two days ago.  It also fixes some small things I noticed along the way.
+On Thu, Oct 10, 2013 at 12:17:09AM +0900, Namhyung Kim wrote:
+> It should check if fork (mount -F) is enabled.
+> 
+> Signed-off-by: Namhyung Kim <namhyung@gmail.com>
+> ---
+>  libmount/src/context.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libmount/src/context.c b/libmount/src/context.c
+> index 04eb286..a4d9824 100644
+> --- a/libmount/src/context.c
+> +++ b/libmount/src/context.c
+> @@ -387,7 +387,7 @@ int mnt_context_is_parent(struct libmnt_context *cxt)
+>   */
+>  int mnt_context_is_child(struct libmnt_context *cxt)
+>  {
+> -	return !mnt_context_is_fork(cxt) && cxt->pid;
+> +	return mnt_context_is_fork(cxt) && cxt->pid;
+>  }
 
- Applied, thanks.
+ No, the code is correct, the function docs is incorrect. The fork
+ flag is disabled in all children (see mnt_fork_context()) to avoid
+ recursive forking.
+
+ I have fixed the function comment.
+
+    Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
