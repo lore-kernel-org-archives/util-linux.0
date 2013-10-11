@@ -1,31 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56271 "EHLO mx1.redhat.com"
+Received: from magister.com.au ([123.243.98.134]:49829 "EHLO magister.com.au"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751411Ab3JKIxB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Oct 2013 04:53:01 -0400
-Date: Fri, 11 Oct 2013 10:52:54 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: docs: improve the cal --help [was: standardizing...]
-Message-ID: <20131011085254.GB14457@x2.net.home>
-References: <1381246807.30460.31493077.03F09F4B@webmail.messagingengine.com>
- <20131009094712.GK13559@x2.net.home>
- <1381345029.20143.32053929.35B2647B@webmail.messagingengine.com>
+	id S1751924Ab3JKVfO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Oct 2013 17:35:14 -0400
+Date: Sat, 12 Oct 2013 08:34:40 +1100 (EST)
+From: Craig <util-linux_contact@magister.com.au>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
+ *must* have disable option! :(
+In-Reply-To: <20131011090442.GE14457@x2.net.home>
+Message-ID: <alpine.LFD.2.02.1310120828440.3289@trabz.zntvfgre.pbz.nh>
+References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au> <20131009141628.GB940@x2.net.home> <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh> <20131010111045.GA29199@x2.net.home> <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
+ <20131011090442.GE14457@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1381345029.20143.32053929.35B2647B@webmail.messagingengine.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 09, 2013 at 08:57:09PM +0200, Benno Schulenberg wrote:
->  misc-utils/cal.1 |    4 ++--
->  misc-utils/cal.c |    9 ++++++---
->  2 files changed, 8 insertions(+), 5 deletions(-)
+On Fri, 11 Oct 2013, Karel Zak <kzak@redhat.com> wrote:
 
- Applied with some minor changed, thanks.
+[...]
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> Yep. I don't want any "smart" solution there. All will be controlled
+> by users.
+
+> (Well, in the default mode for non-expert users with standard PMBR we will
+>  generate the MBR as expected by UEFI specification of course.)
+
+Ah, splendid; glad to hear that.  Then for the moment I'll simply make a 
+temporary RPM package with the pre-GPT fdisk; that will do for my 
+situation.  I'd rather not faff around with a custom util-linux RPM, 
+either which would break updates or not get updated at all.  A separate 
+fdisk RPM will do for the moment and will solve my hybrid MBR problem. :)
+
+Cheerio,
+Craig
