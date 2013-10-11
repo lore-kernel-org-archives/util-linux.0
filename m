@@ -1,154 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f172.google.com ([74.125.82.172]:36050 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754910Ab3J0UnG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:43:06 -0400
-Received: by mail-we0-f172.google.com with SMTP id q58so5880784wes.3
-        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:43:04 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 08/10] cal: determine how many header lines are needed at initialization
-Date: Sun, 27 Oct 2013 20:42:34 +0000
-Message-Id: <1382906556-16442-9-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
-References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:26538 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752103Ab3JKJEv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Oct 2013 05:04:51 -0400
+Date: Fri, 11 Oct 2013 11:04:42 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Craig <util-linux_contact@magister.com.au>
+Cc: util-linux@vger.kernel.org
+Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
+ *must* have disable option! :(
+Message-ID: <20131011090442.GE14457@x2.net.home>
+References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au>
+ <20131009141628.GB940@x2.net.home>
+ <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh>
+ <20131010111045.GA29199@x2.net.home>
+ <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 53 ++++++++++++++++++++++-------------------------------
- 1 file changed, 22 insertions(+), 31 deletions(-)
+On Fri, Oct 11, 2013 at 02:45:57PM +1100, Craig wrote:
+> On Thu, 10 Oct 2013, Karel Zak <kzak@redhat.com> wrote:
+> 
+> >Note that in v2.24 the GPT code in fdisk does not allow to write hybrid
+> >GPT, the support is read-only.
+> 
+> Hmm; not good for the long term.  Although a hack and potentially disastrous
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index b12a959..07c613a 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -251,16 +251,16 @@ struct cal_control {
- 	int wflag;			/* uses WEEK_NUM_ enum */
- 	struct cal_request req;		/* the times user is interested */
- 	unsigned int	julian:1,	/* julian output */
--			yflag:1;	/* print whole year */
-+			yflag:1,	/* print whole year */
-+			header_hint:1;	/* does month name + year execeed cal_width.wk */
- };
+ It's temporary solution. 
  
- /* function prototypes */
- static int leap_year(long year);
- static void headers_init(struct cal_control *ctl);
--static int do_monthly(int day, int month, long year, struct fmt_st *out, int header_hint,
-+static int do_monthly(int day, int month, long year, struct fmt_st *out,
- 		      const struct cal_control *ctl);
- static void monthly(const struct cal_control *ctl);
--static int two_header_lines(int month, long year, const struct cal_control *ctl);
- static void monthly3(const struct cal_control *ctl);
- static char *append_wnum(char *p, int *dp, int month, long year, int cal, int row,
- 			 const struct cal_control *ctl);
-@@ -514,6 +514,10 @@ static void headers_init(struct cal_control *ctl)
- {
- 	size_t i, wd;
- 	char *cur_dh = day_headings;
-+	char tmp[FMT_ST_CHARS];
-+	size_t year_len;
-+
-+	year_len = snprintf(tmp, sizeof(tmp), "%ld", ctl->req.year);
+ The long term goal is to support *manual* protective/hybrid MBR
+ modification. 
  
- 	for (i = 0; i < DAYS_IN_WEEK; i++) {
- 		size_t space_left;
-@@ -529,12 +533,16 @@ static void headers_init(struct cal_control *ctl)
- 				     space_left, ctl->width.dy - 1);
- 	}
+ It means that user will be able in expert mode switch to MBR, modify and 
+ write MBR to the device and then switch back to GPT. The GPT driver will 
+ only print warning, but no overwrite the manually modified MBR.
+
+> if not handled carefully, hybrid MBR really is necessary under certain
+> conditions.  Perhaps support should be read-only by default, with a means to
+> switch to write, and dire warnings that one is likely severely to break
+> things if one isn't careful?  Although it could be argued that those likely
+> to be playing with fdisk (rather e.g. than Partid) might be expected to know
+> what they're doing. :D To be honest, I'd like to see a means completely to
+> separate GPT/MBR changes, so if necessary one could do absolutely anything
+> to either without affecting the other.  If somebody is playing around with
+> both, then really they should expect to understand what will happen if
+> they're careless.
+
+ Yep. I don't want any "smart" solution there. All will be controlled
+ by users. 
  
--	for (i = 0; i < MONTHS_IN_YEAR; i++)
-+	for (i = 0; i < MONTHS_IN_YEAR; i++) {
- 		ctl->full_month[i] = nl_langinfo(MON_1 + i);
-+		/* The +1 after year_len is space in between month and year. */
-+		if (ctl->width.wk < strlen(ctl->full_month[i]) + year_len + 1)
-+			ctl->header_hint = 1;
-+	}
- }
- 
- static int do_monthly(int day, int month, long year, struct fmt_st *out,
--		      int header_hint, const struct cal_control *ctl)
-+		      const struct cal_control *ctl)
- {
- 	int col, row, days[MAXDAYS];
- 	char *p, lineout[FMT_ST_CHARS];
-@@ -542,9 +550,7 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
- 
- 	day_array(day, month, year, days, ctl);
- 
--	if (header_hint < 0)
--		header_hint = two_header_lines(month, year, ctl);
--	if (header_hint) {
-+	if (ctl->header_hint) {
- 		snprintf(lineout, sizeof(lineout), _("%s"), ctl->full_month[month - 1]);
- 		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), ctl->width.wk - 1);
- 		pos++;
-@@ -600,30 +606,18 @@ static void monthly(const struct cal_control *ctl)
- 	int i, rows;
- 	struct fmt_st out;
- 
--	rows = do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out, -1, ctl);
-+	rows = do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out, ctl);
- 	for (i = 0; i < rows; i++) {
- 		my_putstring(out.s[i]);
- 		my_putstring("\n");
- 	}
- }
- 
--static int two_header_lines(int month, long year, const struct cal_control *ctl)
--{
--	char lineout[FMT_ST_CHARS];
--	size_t len;
--	snprintf(lineout, sizeof(lineout), "%ld", year);
--	len = strlen(lineout);
--	len += strlen(ctl->full_month[month - 1]) + 1;
--	if (ctl->width.wk - 1 < len)
--		return 1;
--	return 0;
--}
--
- static void monthly3(const struct cal_control *ctl)
- {
- 	char lineout[FMT_ST_CHARS];
- 	int i;
--	int rows, two_lines;
-+	int rows;
- 	struct fmt_st out_prev;
- 	struct fmt_st out_curm;
- 	struct fmt_st out_next;
-@@ -647,23 +641,20 @@ static void monthly3(const struct cal_control *ctl)
- 		next_month = ctl->req.month + 1;
- 		next_year  = ctl->req.year;
- 	}
--	two_lines = two_header_lines(prev_month, prev_year, ctl);
--	two_lines += two_header_lines(ctl->req.month, ctl->req.year, ctl);
--	two_lines += two_header_lines(next_month, next_year, ctl);
--	if (0 < two_lines)
-+	if (ctl->header_hint)
- 		rows = FMT_ST_LINES;
- 	else
- 		rows = FMT_ST_LINES - 1;
--	do_monthly(ctl->req.day, prev_month, prev_year, &out_prev, two_lines, ctl);
--	do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out_curm, two_lines, ctl);
--	do_monthly(ctl->req.day, next_month, next_year, &out_next, two_lines, ctl);
-+	do_monthly(ctl->req.day, prev_month, prev_year, &out_prev, ctl);
-+	do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out_curm, ctl);
-+	do_monthly(ctl->req.day, next_month, next_year, &out_next, ctl);
- 
--	for (i = 0; i < (two_lines ? 3 : 2); i++) {
-+	for (i = 0; i < (ctl->header_hint ? 3 : 2); i++) {
- 		snprintf(lineout, sizeof(lineout),
- 			"%s  %s  %s\n", out_prev.s[i], out_curm.s[i], out_next.s[i]);
- 		my_putstring(lineout);
- 	}
--	for (i = two_lines ? 3 : 2; i < rows; i++) {
-+	for (i = ctl->header_hint ? 3 : 2; i < rows; i++) {
- 		int w1, w2, w3;
- 		w1 = w2 = w3 = ctl->width.wk;
- 
+ (Well, in the default mode for non-expert users with standard PMBR we will 
+  generate the MBR as expected by UEFI specification of course.)
+
+    Karel
+
 -- 
-1.8.4.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
