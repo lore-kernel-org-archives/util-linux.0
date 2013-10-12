@@ -1,62 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:26538 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752103Ab3JKJEv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Oct 2013 05:04:51 -0400
-Date: Fri, 11 Oct 2013 11:04:42 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Craig <util-linux_contact@magister.com.au>
-Cc: util-linux@vger.kernel.org
-Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
- *must* have disable option! :(
-Message-ID: <20131011090442.GE14457@x2.net.home>
-References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au>
- <20131009141628.GB940@x2.net.home>
- <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh>
- <20131010111045.GA29199@x2.net.home>
- <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
+Return-Path: bruce.dubbs@gmail.com
+Message-ID: <5258C359.9010407@gmail.com>
+Date: Fri, 11 Oct 2013 22:34:49 -0500
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.24-rc2
+References: <20131011114403.GB24613@x2.net.home>
+In-Reply-To: <20131011114403.GB24613@x2.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 11, 2013 at 02:45:57PM +1100, Craig wrote:
-> On Thu, 10 Oct 2013, Karel Zak <kzak@redhat.com> wrote:
-> 
-> >Note that in v2.24 the GPT code in fdisk does not allow to write hybrid
-> >GPT, the support is read-only.
-> 
-> Hmm; not good for the long term.  Although a hack and potentially disastrous
+Karel Zak wrote:
+>
+>   The util-linux release v2.24-rc2 is available at
+>
+>     ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.24/
+>
+>   Feedback and bug reports, as always, are welcomed.
 
- It's temporary solution. 
- 
- The long term goal is to support *manual* protective/hybrid MBR
- modification. 
- 
- It means that user will be able in expert mode switch to MBR, modify and 
- write MBR to the device and then switch back to GPT. The GPT driver will 
- only print warning, but no overwrite the manually modified MBR.
+When I run:
 
-> if not handled carefully, hybrid MBR really is necessary under certain
-> conditions.  Perhaps support should be read-only by default, with a means to
-> switch to write, and dire warnings that one is likely severely to break
-> things if one isn't careful?  Although it could be argued that those likely
-> to be playing with fdisk (rather e.g. than Partid) might be expected to know
-> what they're doing. :D To be honest, I'd like to see a means completely to
-> separate GPT/MBR changes, so if necessary one could do absolutely anything
-> to either without affecting the other.  If somebody is playing around with
-> both, then really they should expect to understand what will happen if
-> they're careless.
+./configure --disable-su --disable-sulogin --disable-login
 
- Yep. I don't want any "smart" solution there. All will be controlled
- by users. 
- 
- (Well, in the default mode for non-expert users with standard PMBR we will 
-  generate the MBR as expected by UEFI specification of course.)
+I get:
 
-    Karel
+         util-linux  2.24-rc2
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+         prefix:            /usr
+         exec prefix:       ${prefix}
+
+         localstatedir:     /run
+         bindir:            /lib
+         sbindir:           ${exec_prefix}/sbin
+         libdir:            ${exec_prefix}/lib
+         includedir:        ${prefix}/include
+         usrbin_execdir:    ${exec_prefix}/bin
+         usrsbin_execdir:   ${exec_prefix}/sbin
+         usrlib_execdir:    ${exec_prefix}/lib
+
+         compiler:          gcc -std=gnu99
+         cflags:            -g -O2
+         suid cflags:
+         ldflags:
+         suid ldflags:
+
+         Python:
+         Python version:
+         Python libs:
+
+Surely bindir should not be /lib.  I can't even override it with 
+--bindir=/bin
+
+Indeed, if I make && make DESTDIR=/tmp/util-linux install I get:
+
+$ ls /tmp/util-linux/lib
+dmesg  findmnt  kill  lsblk  more  mount  mountpoint  umount  wdctl
+
+I'm not an autotools expert, but I tried changing line 55 in 
+configure.ac to
+
+AS_CASE([$libdir],  ['${exec_prefix}/lib'],  [libdir=/lib;  ...
+                                               ^^^
+and not
+AS_CASE([$libdir],  ['${exec_prefix}/lib'],  [bindir=/lib;
+
+But that's not right either because it changes bindir to /sbin and not /bin.
+
+Also, a lot of executables are placed in /usr/sbin when the default 
+should be /sbin.  Examples are swapon, fsck*, mkfs*, etc.
+
+   -- Bruce
