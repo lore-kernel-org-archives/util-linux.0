@@ -1,60 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30411 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759017Ab3JONsr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Oct 2013 09:48:47 -0400
-Date: Tue, 15 Oct 2013 15:48:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [patches] a few more man-page improvements
-Message-ID: <20131015134843.GD31477@x2.net.home>
-References: <1381783511.18298.33939989.442C9894@webmail.messagingengine.com>
- <20131015082731.GA31477@x2.net.home>
- <1381830660.19586.34144785.7C200E19@webmail.messagingengine.com>
- <20131015113117.GC31477@x2.net.home>
- <1381840942.1853.34205941.61403749@webmail.messagingengine.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:35057 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750755Ab3JNPBZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Oct 2013 11:01:25 -0400
+Message-ID: <525C0743.9020706@ubuntu.com>
+Date: Mon, 14 Oct 2013 11:01:23 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1381840942.1853.34205941.61403749@webmail.messagingengine.com>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: blkid doesn't find lvm pv when boot loader installed
+References: <525821B6.9010304@ubuntu.com> <20131014135953.GG28914@x2.net.home>
+In-Reply-To: <20131014135953.GG28914@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 15, 2013 at 02:42:22PM +0200, Benno Schulenberg wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 10/14/2013 9:59 AM, Karel Zak wrote:
+> Yes, unfortunately this is currently unsupported scenario.
 > 
-> On Tue, Oct 15, 2013, at 13:31, Karel Zak wrote:
-> > On Tue, Oct 15, 2013 at 11:51:00AM +0200, Benno Schulenberg wrote:
-> > > Now it compiles fine, with only those five warnings in libfdisk/src/ask.c:
-> > > «format '%zd' expects argument of type 'signed size_t', but...» and two
-> > > unused variables in misc-utils/cal.c (when compiled without ncurses).
-> > 
-> >  Thanks! Fixed.
+> The libblkid checks for collision between LVM and
+> filesystems/partition tables to avoid very common situations when
+> users use whole-disks previously used by LVM in new setups with
+> partition tables.
+
+Isn't mdadm in the same boat?  i.e. you have a partitioned single
+disk, and decided to turn it into a raid1.  Now the partition table is
+still there and valid, but should be ignored in favor of the raid
+superblock.
+
+> Unfortunately, partitioning tools usually does not wipe LVM header
+>  from the device and it easy to create situation when there is 
+> valid PT as well as valid LVM header.
 > 
-> Well... the warnings for ask.c have gone, but now I get these three for gpt.c:
+> So.. libblkid assumes that there is only LVM header within first
+> 8K of the device, because pvcreate wipes this area (try pvcreate
+> again and it will silently erase your grub!). If there is anything
+> else then the previously detected LVM is ignored.
 > 
-> libfdisk/src/gpt.c: In function 'gpt_verify_disklabel':
-> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'uint64_t' [-Wformat]
-> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'uint64_t' [-Wformat]
-> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'uint64_t' [-Wformat]
+> Yes, it's really not perfect solution, but do we have any better 
+> solution? Maybe it would be enough to improve the blkid partition 
+> table parser to not interpret the boot loader with empty PT as a 
+> valid PT. Not sure.
 
- I have fixed this in libfdisk branch (git hub) for the next release
- v2.25, for v2.24 it's tricky as a real fix requires changes to
- translated strings too.
+I started thinking along those lines, but it doesn't cover the above
+mentioned raid1 case.
 
- I'll probably do the change after po/ stuff merge rather than cast
- from uint64_t from long.
+I'm now leaning towards thinking that any partition tool that doesn't
+wipe the existing signatures is broken, and that's what needs fixed
+rather than trying to work around it in blkid.
 
-> And the ones for cal.c are still there:
-> 
-> misc-utils/cal.c:139:20: warning: 'term' defined but not used [-Wunused-variable]
-> misc-utils/cal.c:141:13: warning: 'Slen' defined but not used [-Wunused-variable]
 
- Ah, so you don't have libncurses as well as libtermcap :-) Fixed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
- Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJSXAdDAAoJEJrBOlT6nu75SngH/28P2VeL2Mki64ZJc3t1Mejy
+ceRaOu3bEgmoskPD6esaRsOOUODFaN+KzdacB3fAoql0gQJwHMvNWmnOdgK5Cn+r
+0BCGAB+5WdReOBQE4T5ey2pmkmD5G+rRuwx+e8tCfQ6yKkjU1kw80tecCXq9WgIQ
+SYPgclR4BILGxaIutCOXAuzk52Q5Dteq/3BaWP7o8qWmKXG6P31SWG9Frm4GtAd9
+OWXHZSsf6W9S9lCrSlgY85ptq9x6GE2llFhRZoZpxR18F4zQHW0RId49tr7PLxVS
+wU9dUbAoT6KFDErUbXNBAgYn0He8nYT3X1jZs4SOEyICM3hSmSc2+2sDicn51+g=
+=3j23
+-----END PGP SIGNATURE-----
