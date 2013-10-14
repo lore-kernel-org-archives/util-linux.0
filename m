@@ -1,54 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from awesome.dsw2k3.info ([217.188.63.246]:37030 "EHLO
-	awesome.dsw2k3.info" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751611Ab3JIKXa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Oct 2013 06:23:30 -0400
-Date: Wed, 9 Oct 2013 12:16:15 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: butter@breezl.com, util-linux@vger.kernel.org,
-        Phillip Susi <psusi@ubuntu.com>
-Subject: Re: losetup -d does not move partition devices
-Message-ID: <20131009101615.GA31760@citd.de>
-References: <5241BC33.8050700@breezl.com>
- <20131007113852.GF14360@x2.net.home>
- <525493CA.40207@breezl.com>
- <20131009075305.GG13559@x2.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:11522 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755955Ab3JNNIZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Oct 2013 09:08:25 -0400
+Date: Mon, 14 Oct 2013 15:08:21 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patches] equalizing a few error messages and polishing some man
+ pages
+Message-ID: <20131014130821.GF28914@x2.net.home>
+References: <1381696131.25361.33507989.56047B16@webmail.messagingengine.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20131009075305.GG13559@x2.net.home>
+In-Reply-To: <1381696131.25361.33507989.56047B16@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 09.10.2013 09:53, Karel Zak wrote:
-> On Wed, Oct 09, 2013 at 01:22:50AM +0200, butter@breezl.com wrote:
-> > Anyway, one last minor comment: 
-> > 
-> > Ubuntu 13.04 64bit does not yet support option -P for losetup. So
-> > this must be an older version of util-linux. But then: how do I
-> > determine the version of util-linux installed? The binaries have
-> > no --version option and 'strings /sbin/losetup | egrep '[0-9]' does
-> > not reveal anything useful either. Maybe there is a general version
-> > for util-linux available in another binary? The man page does not
-> > tell. I failed to identify the version number!
-> 
->  The option --version for losetup is supported since v2.21.
+On Sun, Oct 13, 2013 at 10:28:51PM +0200, Benno Schulenberg wrote:
+> The fifth patch slightly improves the spelling and grammar of the
+> 2.24 ReleaseNotes, and mentions only those PO files which were
+> actually updated during this cycle.  Karel, judging from the rc2
+> announcement, you have a more recent version of this file.  If
+> you wish me to resolve any conflicts, please push your version.
 
-As Debian (even SID/unstable) only has an ancient version of util-linux 
-i'm not surprised.
+ The problem is that the details in the ReleaseNotes are generated
+ from git log, so I have applied only begin of the patch (release
+ highlights).
 
-$ dpkg -l | grep util-linux
-ii  util-linux                              2.20.1-5.5                          i386         Miscellaneous system utilities
+ It seems that I have applied non-updated .po stuff for some languages
+ during work on the release. It's no problem, but it's visible in the
+ log.
 
-$ losetup --version
-losetup: unrecognized option '--version'
-...
+ (And note that I also use po files from stable (e.g. 2.23.2) releases
+  for the next release -rc1.)
 
 
-If Ubuntu doesn't roll it's own util-linux, there is the explantion.
+ Applied, thanks!
 
-
+    Karel
 
 -- 
-
-Matthias
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
