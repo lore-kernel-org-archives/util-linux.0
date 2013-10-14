@@ -1,44 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:55557 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752063Ab3JZHzD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Oct 2013 03:55:03 -0400
-Received: by mail-pd0-f172.google.com with SMTP id w10so3123391pde.31
-        for <util-linux@vger.kernel.org>; Sat, 26 Oct 2013 00:55:02 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:21444 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751102Ab3JNHwv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Oct 2013 03:52:51 -0400
+Date: Mon, 14 Oct 2013 09:52:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.24-rc2
+Message-ID: <20131014075248.GA28914@x2.net.home>
+References: <20131011114403.GB24613@x2.net.home>
+ <5258C359.9010407@gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CAGXs5wV3LjfLoE-hrY5Z7zFD2Vz1R92+fq3tSDxp70bD7jAwRA@mail.gmail.com>
-References: <CAGXs5wV3LjfLoE-hrY5Z7zFD2Vz1R92+fq3tSDxp70bD7jAwRA@mail.gmail.com>
-Date: Sat, 26 Oct 2013 08:55:02 +0100
-Message-ID: <CAG27Bk03ih0r-KrnHFwFmTipVesi-0KeZF06p2o=bTJr2zfwYw@mail.gmail.com>
-Subject: Re: official web site (error: "not found on this server")
-From: Sami Kerola <kerolasa@iki.fi>
-To: Kevin Wilson <wkevils@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5258C359.9010407@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 26 October 2013 08:30, Kevin Wilson <wkevils@gmail.com> wrote:
-> What is the official web site of util-linux ? (not
-> util-linux-ng)?
-> I try;
-> https://www.kernel.org/~kzak/util-linux/
-> according to
-> https://lkml.org/lkml/2010/12/1/464
->
-> by it gave an error
-> The requested URL /~kzak/util-linux/ was not found on this server.
->
-> The gitweb was ok:
-> http://git.kernel.org/cgit/utils/util-linux/util-linux.git
+On Fri, Oct 11, 2013 at 10:34:49PM -0500, Bruce Dubbs wrote:
+> Surely bindir should not be /lib.  I can't even override it with
+> --bindir=/bin
 
-Hi Kevin,
+ Oh, this is stupid bug. Thanks!
 
-Project readme has all URLs that are maintained.
-
-http://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/README
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
