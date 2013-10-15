@@ -1,39 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:39556 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751628Ab3JCJjb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 05:39:31 -0400
-Received: by mail-pd0-f176.google.com with SMTP id q10so2205233pdj.35
-        for <util-linux@vger.kernel.org>; Thu, 03 Oct 2013 02:39:31 -0700 (PDT)
-From: Michael Forney <mforney@mforney.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/4] Fix check for __GNU_LIBRARY__
-Date: Thu,  3 Oct 2013 02:39:19 -0700
-Message-Id: <1380793159-27602-4-git-send-email-mforney@mforney.org>
-In-Reply-To: <1380792968-1176-1-git-send-email-mforney@mforney.org>
-References: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+Received: from mx1.redhat.com ([209.132.183.28]:30411 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759017Ab3JONsr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Oct 2013 09:48:47 -0400
+Date: Tue, 15 Oct 2013 15:48:43 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patches] a few more man-page improvements
+Message-ID: <20131015134843.GD31477@x2.net.home>
+References: <1381783511.18298.33939989.442C9894@webmail.messagingengine.com>
+ <20131015082731.GA31477@x2.net.home>
+ <1381830660.19586.34144785.7C200E19@webmail.messagingengine.com>
+ <20131015113117.GC31477@x2.net.home>
+ <1381840942.1853.34205941.61403749@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1381840942.1853.34205941.61403749@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If we are not on glibc, __GNU_LIBRARY__ will not exist causing the check
-to always fail and try to use syscalls directly.
----
- term-utils/setterm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Tue, Oct 15, 2013 at 02:42:22PM +0200, Benno Schulenberg wrote:
+> 
+> On Tue, Oct 15, 2013, at 13:31, Karel Zak wrote:
+> > On Tue, Oct 15, 2013 at 11:51:00AM +0200, Benno Schulenberg wrote:
+> > > Now it compiles fine, with only those five warnings in libfdisk/src/ask.c:
+> > > «format '%zd' expects argument of type 'signed size_t', but...» and two
+> > > unused variables in misc-utils/cal.c (when compiled without ncurses).
+> > 
+> >  Thanks! Fixed.
+> 
+> Well... the warnings for ask.c have gone, but now I get these three for gpt.c:
+> 
+> libfdisk/src/gpt.c: In function 'gpt_verify_disklabel':
+> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'uint64_t' [-Wformat]
+> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'uint64_t' [-Wformat]
+> libfdisk/src/gpt.c:1540:7: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'uint64_t' [-Wformat]
 
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index d41e335..f179ea8 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -124,7 +124,7 @@
- #include "nls.h"
- #include "closestream.h"
- 
--#if __GNU_LIBRARY__ < 5
-+#if defined(__GNU_LIBRARY__) && __GNU_LIBRARY__ < 5
- #ifndef __alpha__
- # include <linux/unistd.h>
- #define __NR_klogctl __NR_syslog
+ I have fixed this in libfdisk branch (git hub) for the next release
+ v2.25, for v2.24 it's tricky as a real fix requires changes to
+ translated strings too.
+
+ I'll probably do the change after po/ stuff merge rather than cast
+ from uint64_t from long.
+
+> And the ones for cal.c are still there:
+> 
+> misc-utils/cal.c:139:20: warning: 'term' defined but not used [-Wunused-variable]
+> misc-utils/cal.c:141:13: warning: 'Slen' defined but not used [-Wunused-variable]
+
+ Ah, so you don't have libncurses as well as libtermcap :-) Fixed.
+
+ Thanks!
+
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
