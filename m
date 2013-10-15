@@ -1,38 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:41474 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753667Ab3J3PQA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 11:16:00 -0400
-Message-ID: <527122AF.90003@ubuntu.com>
-Date: Wed, 30 Oct 2013 11:15:59 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59863 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752591Ab3JOI1h (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Oct 2013 04:27:37 -0400
+Date: Tue, 15 Oct 2013 10:27:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patches] a few more man-page improvements
+Message-ID: <20131015082731.GA31477@x2.net.home>
+References: <1381783511.18298.33939989.442C9894@webmail.messagingengine.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Bind mounts record fstype of none
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1381783511.18298.33939989.442C9894@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Oct 14, 2013 at 10:45:11PM +0200, Benno Schulenberg wrote:
+> 
+> Attached is another small set of man-page tweaks.  The second
+> patch is a big one: it standardizes the phrases for the --help
+> and --version options in all man pages.
+> 
+> 
+> By the way, when trying to build util-linux from git, I get errors
+> for mount and getopt.  The output of a second 'make -k':
+> 
+> make  all-recursive
+> make[1]: Entering directory `/home/ben/UTLNX'
+> Making all in po
+> make[2]: Entering directory `/home/ben/UTLNX/po'
+> make[2]: Nothing to be done for `all'.
+> make[2]: Leaving directory `/home/ben/UTLNX/po'
+> make[2]: Entering directory `/home/ben/UTLNX'
+> rm: cannot remove 'mount': Is a directory
+> make[2]: *** [mount] Error 1
+> rm: cannot remove 'getopt': Is a directory
+> make[2]: *** [getopt] Error 1
+> make[2]: Target `all-am' not remade because of errors.
+> make[2]: Leaving directory `/home/ben/UTLNX'
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory `/home/ben/UTLNX'
+> make: *** [all] Error 2
+> 
+> This has been like this for quite a while.  I thought I must be
+> doing something wrong or missing some tool, but I wonder.
+> 
+> Trying a 'make clean' ends in:
+> 
+> Making clean in .
+> make[1]: Entering directory `/home/ben/UTLNX'
+>  rm -f dmesg mount umount wdctl mountpoint lsblk findmnt kill
+> rm: cannot remove 'mount': Is a directory
+> make[1]: *** [clean-binPROGRAMS] Error 1
+> make[1]: Leaving directory `/home/ben/UTLNX'
+> make: *** [clean-recursive] Error 1
 
-I came across an old bug filed in debian noting that mount records the
-fstype for bind mounts as 'none' and this causes df to suppress
-showing it.  This seems like an error to me.  The type should be what
-the actual filesystem type is, and if df wants to suppress showing
-bind mounts, it should do so based on the bind flag.
-
-Thoughts?
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJScSKuAAoJEJrBOlT6nu75tJwIAKk1IQyvsQIpPUj9ugSrHVDp
-CdsGB5D8VNznUJ+a+AReNp57AGi/UprdCXsWl33yOuz3zjQKNlYaGEMCsN/pSJnq
-nn+8pJ5GSggPekUh2FO82sLGaEh4y+rMPlN6rwCyOERkP1V+MaYI9Z2KzCrpnpfI
-LaDm17q1IzpDtJry55Vg+yd0vuJZ3qpfvLUmD4rj/h7N5gt/lXWeSzcUyIIQvHaA
-IR7Nch1YaA612Tqz0Zf+dews1ERwERNw2+s8BBlsvTW4FzbR5gfMdn3Xzv8WFnTY
-yr54S7Krrxn7jbBFCF44GQddxptIJ7jjI2GqYIq1D8L9DoTwSIGEk552/y2negc=
-=k4dY
------END PGP SIGNATURE-----
+ Oh, it seems you have very old stuff in your work tree, try:
+ 
+    git clean -xdf
+    git checkout -f
+ 
+ or you can delete all and git clone again ;-)
+ 
+    Karel
+ 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
