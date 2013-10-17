@@ -1,57 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35229 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754024Ab3JDLml (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Oct 2013 07:42:41 -0400
-Message-Id: <1380886960.30366.29949569.056246FC@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-pb0-f51.google.com ([209.85.160.51]:34293 "EHLO
+	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760735Ab3JQAbR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Oct 2013 20:31:17 -0400
+Received: by mail-pb0-f51.google.com with SMTP id jt11so1537321pbb.24
+        for <util-linux@vger.kernel.org>; Wed, 16 Oct 2013 17:31:17 -0700 (PDT)
+Message-ID: <525F2FC0.70802@gmail.com>
+Date: Thu, 17 Oct 2013 07:30:56 +0700
+From: =?UTF-8?B?VHLhuqduIE5n4buNYyBRdcOibg==?= <vnwildman@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20131004102946.GC14360@x2.net.home>
-References: <1380799327.6719.29499593.49A8C84F@webmail.messagingengine.com>
- <20131004102946.GC14360@x2.net.home>
-Subject: Re: some spelling and grammar fixes for messages and man pages
-Date: Fri, 04 Oct 2013 13:42:40 +0200
+To: util-linux <util-linux@vger.kernel.org>
+Subject: gettext error
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
+in util-linux-2.24-rc2
+$ nsenter --help
+display l10n incorrecttly.
+Fix:
+Change sys-utils/nsenter.c:189 to:
+setlocale(LC_ALL, "");
 
-On Fri, Oct 4, 2013, at 12:29, Karel Zak wrote:
->  Please, ALWAYS when you want to change any very common message then
->  see po/util-linux.pot. 
->  
->  We have on "cannot open %s" on more than 100 places!
-> 
->  The ideal solution is to use already translated message than
->  introduce new one. Or if you don't like the message then change the
->  string on *all places*. 
-
-Yes, you are right.  I wasn't thinking.
-
->  It would be nice to cleanup all the messages and use for example
-> 
->     cannot open %s
->     cannot close %s
->     cannot read %s
->     cannot write %s
->     seek on %s failed
-> 
->  on all places. Now (rc1) is the ideal time for this change.
-
-I will be working on that.
-
->  (Not sure why someone updated util-linux on translationproject.org
->   when there is no -rc2 yet.)
-
-I did.  To give translators extra time to catch up, because there have
-been massive string changes.  And to give them a chance to report
-errors or doubts, and get them fixed before rc2.
-
-Benno
-
+I have a question:
+I will sent rc2 translation, so do I have to sent util-linux-2.24-rc1.vi.po?
 
 -- 
-http://www.fastmail.fm - mmm... Fastmail...
+Trần Ngọc Quân.
 
