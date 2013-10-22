@@ -1,79 +1,94 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24450 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:25946 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751520Ab3JGLjI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Oct 2013 07:39:08 -0400
-Date: Mon, 7 Oct 2013 13:38:52 +0200
+	id S1752554Ab3JVKcV (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 22 Oct 2013 06:32:21 -0400
+Date: Tue, 22 Oct 2013 12:32:14 +0200
 From: Karel Zak <kzak@redhat.com>
-To: butter@breezl.com
-Cc: util-linux@vger.kernel.org, Phillip Susi <psusi@ubuntu.com>
-Subject: Re: losetup -d does not move partition devices
-Message-ID: <20131007113852.GF14360@x2.net.home>
-References: <5241BC33.8050700@breezl.com>
+To: Tommi Kyntola <tommi.kyntola@gmail.com>
+Cc: util-linux-ng@vger.kernel.org
+Subject: Re: [RFC/PATCH] week numbers for cal
+Message-ID: <20131022103214.GG15115@x2.net.home>
+References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5241BC33.8050700@breezl.com>
+In-Reply-To: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 24, 2013 at 06:22:11PM +0200, butter@breezl.com wrote:
-> get deleted when you call "losetup -d DEVICE". This causes other programs
-> (like lvmdiskscan -l) to report Input/output errors.
-> 
-> Here is how to reproduce the problem:
-> 
-> 	LOOPDEV=/dev/loop3
-> 	IMAGEFILE=`pwd`/mydisk.img
-> 	MOUNTPOINT=`pwd`/mnt
-> 
-> 	# 1. Create and mount an ext4 partition from a file-based disk image
-> 	dd if=/dev/zero of=$IMAGEFILE bs=1M count=80
-> 	sudo losetup $LOOPDEV $IMAGEFILE
+On Sat, Oct 05, 2013 at 11:59:54PM +0300, Tommi Kyntola wrote:
+> I keep trying -w with cal from time to time and I finally decided it's
+> about time to do something about it. I'm not sure if this is something
+> you'd be interested in incorporating into util-linux cal, but it's
+> something I wanted, so here it is. There's gcal of course, but I only
+> wanted a toothpick not the whole forest.
 
-kernel uses partitions on loop devices conditionally, and here you said
-"I don't care about partitions...". You have to use
+Applied, thanks.
 
-    sudo losetup -P $LOOPDEV $IMAGEFILE
+Comments:
 
-if you want to force kernel loopdev driver to use partitions.
+* please, next time always use space around operators and after
+  commas, things like
+  
+            week_number(xd&~TODAY_FLAG,month+which_cal+1,year,wflag);
 
-> 	sudo parted $LOOPDEV mklabel msdos
-> 	sudo parted $LOOPDEV mkpart primary 2048s    43007s
-> 	sudo mkfs -t ext4 ${LOOPDEV}p1
-> 	mkdir $MOUNTPOINT
-> 	sudo mount ${LOOPDEV}p1 $MOUNTPOINT
-> 
-> 	# 2. Unmount again => ERROR: the partition device files are not deleted
-> 	sudo umount $MOUNTPOINT
+  are horrible.
 
-mount/umount is completely irrelevant for this issue. The simple way
-to reproduce the problem is:
+* I don't understand this feature:
 
-         dd if=/dev/zero of=img bs=1M count=80
-         losetup -f img --show
-         parted /dev/loop0 mklabel msdos
-         parted /dev/loop0 mklabel msdos
-         losetup -d /dev/loop0
+           /* In some years (e.g. 2010 in ISO mode) it's possible to
+            * have a remnant of week 53 starting the year yet the year
+            * in question ends during 52, in this case we're assuming
+            * that early remnant is being referred to if 53 is given
+            * as argument.  */
 
-         cat /sys/block/loop0/size
-         cat /sys/block/loop0/loop0p1/size
+ For example:
 
-Anyway, the problem is that parted uses BLKPG_ADD_PARTITION ioctl to create
-/dev/loop0p1, but the loop0 device has been created without PARTSCAN flag 
-(see /sys/block/loop0/loop/partscan). It means that loopdev kernel driver
-does not call BLKRRPART during loop0 cleanup (loop_clr_fd() in kernel code).
+        $ LANG=de_DE.UTF8 ./cal --week=53 2009
+             Dezember 2009     
+           Mo Di Mi Do Fr Sa So
+        49     1  2  3  4  5  6 
+        50  7  8  9 10 11 12 13 
+        51 14 15 16 17 18 19 20 
+        52 21 22 23 24 25 26 27 
+        53 28 29 30 31          
 
-You can remove the partition manually by BLKPG_DEL_PARTITION ioctl:
+  it's correct, let's try the next year:
+                        
+        $ LANG=de_DE.UTF8 ./cal --week=53 2010
+              Januar 2010      
+           Mo Di Mi Do Fr Sa So
+        53              1  2  3 
+         1  4  5  6  7  8  9 10 
+         2 11 12 13 14 15 16 17 
+         3 18 19 20 21 22 23 24 
+         4 25 26 27 28 29 30 31 
+                        
+  oh... week 53 of the year 2010 in January 2010, but week 52 is December:
 
-    # partx -d /dev/loop0p1
+        $ LANG=de_DE.UTF8 ./cal --week=52 2010
+             Dezember 2010     
+           Mo Di Mi Do Fr Sa So
+        48        1  2  3  4  5 
+        49  6  7  8  9 10 11 12 
+        50 13 14 15 16 17 18 19 
+        51 20 21 22 23 24 25 26 
+        52 27 28 29 30 31       
 
 
-... but this all is known issue, Phillip Susi tried to fix this
-disadvantage, but his solution has been reverted (see kernel commit
-c2fccc1c9f7c81700cbac2120a4ad5441dd37004).
+ It seems pretty strange to interpret --week=53 2010 as last week
+ of the year 2009. I think it would be more intuitive to interpret
 
+      cal --week=53 2010
+
+ as invalid week number (or for another years expect this week after
+ week 52).
+
+ Note that I'm talking about command line --week=53 interpretations, the
+ week numbers in the output are correct of course.
 
     Karel
+    
 
 -- 
  Karel Zak  <kzak@redhat.com>
