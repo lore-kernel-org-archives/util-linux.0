@@ -1,53 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vb0-f48.google.com ([209.85.212.48]:38135 "EHLO
-	mail-vb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751436Ab3JGLj3 (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 7 Oct 2013 07:39:29 -0400
-Received: by mail-vb0-f48.google.com with SMTP id w16so3298214vbf.21
-        for <util-linux-ng@vger.kernel.org>; Mon, 07 Oct 2013 04:39:28 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:38260 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750936Ab3JWP1s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 23 Oct 2013 11:27:48 -0400
+Date: Wed, 23 Oct 2013 17:27:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Aleksey Midenkov <midenok@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Per-filesystem default mount options
+Message-ID: <20131023152744.GB21504@x2.net.home>
+References: <CAF8BazAW7xxXpO1-vCBJvfvORBLXnJkDxv=qagoe0ZJe-12aJg@mail.gmail.com>
+ <CAF8BazDFWf7-NPwCr7Cg=aV9prKsWNUxJu2neZ3x+8XP1fZPHQ@mail.gmail.com>
+ <20131018083452.GB15115@x2.net.home>
+ <CAF8BazB4jsWj0_3Ns14o5qDF2wVch9_K5u_ZsJ8GwjMyNZb6Uw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <52522615.4010304@draigBrady.com>
-References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
-	<CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com>
-	<CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com>
-	<52522615.4010304@draigBrady.com>
-Date: Mon, 7 Oct 2013 14:39:27 +0300
-Message-ID: <CAO2cUkQuNiHwdmxACq1i1W8ix1teVvtUi9McPtksRrFC-M7F3g@mail.gmail.com>
-Subject: Re: [RFC/PATCH] week numbers for cal
-From: Tommi Kyntola <tommi.kyntola@gmail.com>
-To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
-Cc: Sami Kerola <kerolasa@gmail.com>, util-linux-ng@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAF8BazB4jsWj0_3Ns14o5qDF2wVch9_K5u_ZsJ8GwjMyNZb6Uw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Why not. I wasn't sure what exactly should be done with 52 when many
-years have days belonging to two different 52 weeks, but I came up
-with a spec that says it points to the week that starts during the
-relevant year.
+On Sat, Oct 19, 2013 at 08:03:29AM +0400, Aleksey Midenkov wrote:
+> On Fri, Oct 18, 2013 at 12:34 PM, Karel Zak <kzak@redhat.com> wrote:
+> > On Wed, Oct 16, 2013 at 06:13:17PM +0400, Aleksey Midenkov wrote:
+> >> Is it possible to specify per-filesystem default mount options
+> >> somewhere in configuration file?
+> >
+> >  /etc/fstab, or tune2fs for extN, or /etc/nsfmount.conf for NFS.
+> >
+> >  The per-filesystem-type default options are also hardcoded in kernel.
+> >
+> 
+> I'm sorry for my misguide and, perhaps, a wrong start. What I mean is
+> per-fs type default mount options. That's true, they are hardcoded in
+> kernel. But, there is a need to have them customized. I know, there is
+> ton of user-level utils that maybe can provide it. But... I feel that
+> this basic feature is important for the core. That's why I decided to
+> ask here in hope that you will discuss this with me.
 
-A patch in guthub:
-https://github.com/Kynde/util-linux/commit/3a53abddc14f46eccb4264668b24875054f5ba62
+ If you really need a generic (on device independent solution), then I
+ don't see a better way than improve libmount for read something 
+ like /etc/mount/<fsname>.conf. The problem is that such feature will 
+ not be usable for non-libmount applications.
 
-cheers,
-Tommi Kyntola
----
-commit 3a53abddc14f46eccb4264668b24875054f5ba62
-Author: Tommi Kyntola <kynde@iki.fi>
-Date:   Mon Oct 7 14:32:23 2013 +0300
+> I keep stumbling upon this lack for a million-th times for as long as
+> 15 years. Every barely installed host, f.ex. even routers that have no
+> ability to install another utils except the 'mount', they require me
+> each time to put charset from command line. And you know, this is the
+> common source for errors for non-latin countries like your servant's.
 
-    cal: added argument option for -w|--week to display that week
+ I understand the pain for removable media, but for regular disks you
+ can use /etc/fstab, right?
 
-    Because many years have two sections of week 52 or 53, the week that
-    this argument points to is the one that starts during that year (when availa
-    The week number in argument is also highlighted in addition to possibly visi
-    current/defined date highlighting.
+> When charset option is forgotten the filenames are garbled after copy.
+> And you not always notice it because non-latin ones are somewhere deep
+> inside. But after some time passed you see the surprise...
 
-    Signed-off-by: Tommi Kyntola <kynde@iki.fi>
+ I understand.
 
- misc-utils/cal.1           |   2 +-
- misc-utils/cal.c           | 115 +++++++++++++++++++++++++++++++++------
- tests/expected/cal/weekarg | 127 +++++++++++++++++++++++++++++++++++++++++++
- tests/ts/cal/weekarg       | 131 +++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 358 insertions(+), 17 deletions(-)
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
