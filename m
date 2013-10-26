@@ -1,41 +1,27 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <52580DF9.4050906@ubuntu.com>
-Date: Fri, 11 Oct 2013 10:40:57 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.18]:57704 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751390Ab3JZKQk convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Oct 2013 06:16:40 -0400
+Received: from 3capp-gmx-bs40.server.lan ([172.19.170.92]) by
+ mrigmx.server.lan (mrigmx002) with ESMTP (Nemesis) id
+ 0MKwSE-1Va0v82cMa-0005nW for <util-linux@vger.kernel.org>; Sat, 26 Oct 2013
+ 12:16:38 +0200
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Matthias Schniedermeyer <ms@citd.de>, util-linux@vger.kernel.org
-Subject: Re: Filesystem specific mount options mixed with auto fs type
-References: <5256B7CF.7010103@ubuntu.com> <20131010170330.GA19031@citd.de> <5256E3EA.4000304@ubuntu.com> <20131011083742.GA14457@x2.net.home> <525800EB.9060208@ubuntu.com> <20131011140954.GD24613@x2.net.home>
-In-Reply-To: <20131011140954.GD24613@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <trinity-e7dfd7ef-b198-4b29-a28a-a1243935fd6a-1382782598509@3capp-gmx-bs40>
+From: andreas.hanke@gmx-topmail.de
+To: util-linux@vger.kernel.org
+Subject: Support the new Linux /home partition GUID
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 26 Oct 2013 12:16:38 +0200 (CEST)
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+systemd has recently introduced a new GUID that is used to auto-mount /home partitions on Linux. [1] This is documented at [2] and [3] and already supported in gdisk [4], but not yet in fdisk. I think this would be a useful addition.
 
-On 10/11/2013 10:09 AM, Karel Zak wrote:
-> I thought something like:
-> 
-> /dev/fd0 /mnt/floppy    vfat    utf8 /dev/fd0 /mnt/floppy    auto
-> default
-> 
-> and then try in loop all the filesystem types for the mountpoint
-> (or make it smart and ask blkid for the type).
+[1] http://cgit.freedesktop.org/systemd/systemd/commit/?id=1a14a53cfded6e78c6e8dfb73fdff0039971d642
+[2] http://www.freedesktop.org/software/systemd/man/systemd-gpt-auto-generator.html
+[3] https://en.wikipedia.org/w/index.php?title=GUID_Partition_Table&oldid=576037522#Partition_type_GUIDs
+[4] http://sourceforge.net/p/gptfdisk/code/ci/0fde58b966f37807260ad0dd8997e3f0c824d39c/
 
-What would this do to other utilities?  Would this confuse udisks or
-systemd or upstart's mountall?
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJSWA35AAoJEJrBOlT6nu75d/cH/Rqe9m5Ttw1hdnG9+e636vkE
-YNBxfBnJKV2Ob7YywnxZdIxO/fj5YCnydW+68YDR0+okJAO2p0PPPzyRhHJw+H5T
-lohuBuRKfeRTuDwEKfAeIsAIOji9ed5BwHUOH2A+abd/fysiyG+ZTuet8vuXBv/Y
-3Rzjh5jvkYBT+gwY9aiBoA69ChHsU9HKLQGJXd7S/UDmshqNYxhH7n3kDFiNxU3m
-tzoQdSIDYRk4VTKrRp0X5kF6OtQnW7askF6RYWrMJnOYInGPFQ+WKVftx3sgw/OW
-vNmKR1zrVBD+DpYSzzgG95SUQVlnoL4eZr7Ri20HQpT+bSj8opPd9IFffMX8hws=
-=dA7m
------END PGP SIGNATURE-----
+Andreas
