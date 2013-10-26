@@ -1,20 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:60013 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753036Ab3JCJgk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 05:36:40 -0400
-Received: by mail-pd0-f177.google.com with SMTP id y10so2211047pdj.22
-        for <util-linux@vger.kernel.org>; Thu, 03 Oct 2013 02:36:40 -0700 (PDT)
-From: Michael Forney <mforney@mforney.org>
-To: util-linux@vger.kernel.org
-Subject: Various portability fixes
-Date: Thu,  3 Oct 2013 02:36:04 -0700
-Message-Id: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+Received: from mx1.redhat.com ([209.132.183.28]:15527 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752028Ab3JZHqv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 26 Oct 2013 03:46:51 -0400
+Date: Sat, 26 Oct 2013 09:46:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk lacks msdos partition support in gpt mode
+Message-ID: <20131026074646.GB2119@x2.net.home>
+References: <20131024165810.GA26722@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20131024165810.GA26722@aepfle.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Thu, Oct 24, 2013 at 06:58:10PM +0200, Olaf Hering wrote:
+> 
+> The guys to decided to use gpt labels even on legacy systems. That
+> happens to work. But when it breaks its now difficult to see whats
+> actually on disk. Now that fdisk from util-linux 2.23.2 has gpt support
+> its unable to print the msdos partition table.
+> 
+> It would be nice if fdisk gets some do-it-anyway flag to ignore gpt for
+> a moment and at least dump such content.
 
-These patches address various portability issues. They are needed to build
-util-linux against musl libc.
+   fdisk -t dos <device>
 
+to force fdisk to use MBR driver only.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
