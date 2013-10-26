@@ -1,47 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:41106 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755474Ab3JIPRg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Oct 2013 11:17:36 -0400
-Received: by mail-pb0-f52.google.com with SMTP id wz12so1039653pbc.39
-        for <util-linux@vger.kernel.org>; Wed, 09 Oct 2013 08:17:35 -0700 (PDT)
-From: Namhyung Kim <namhyung@gmail.com>
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:35697 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751815Ab3JZHaF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Oct 2013 03:30:05 -0400
+Received: by mail-ob0-f178.google.com with SMTP id wm4so1855414obc.37
+        for <util-linux@vger.kernel.org>; Sat, 26 Oct 2013 00:30:04 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 26 Oct 2013 10:30:04 +0300
+Message-ID: <CAGXs5wV3LjfLoE-hrY5Z7zFD2Vz1R92+fq3tSDxp70bD7jAwRA@mail.gmail.com>
+Subject: official web site (error: "not found on this server")
+From: Kevin Wilson <wkevils@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] libmount: Fix typo in comment
-Date: Thu, 10 Oct 2013 00:17:08 +0900
-Message-Id: <1381331829-9791-1-git-send-email-namhyung@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-s/MNT_OMASK_/MNT_OMODE_/
+Hello,
+What is the official web site of util-linux ? (not
+util-linux-ng)?
+I try;
+https://www.kernel.org/~kzak/util-linux/
+according to
+https://lkml.org/lkml/2010/12/1/464
 
-Signed-off-by: Namhyung Kim <namhyung@gmail.com>
----
- libmount/src/context.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+by it gave an error
+The requested URL /~kzak/util-linux/ was not found on this server.
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 0f8f112..04eb286 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -229,7 +229,7 @@ int mnt_context_is_restricted(struct libmnt_context *cxt)
- /**
-  * mnt_context_set_optsmode
-  * @cxt: mount context
-- * @mode: MNT_OMASK_* flags
-+ * @mode: MNT_OMODE_* flags
-  *
-  * Controls how to use mount optionssource and target paths from fstab/mtab.
-  *
-@@ -276,7 +276,7 @@ int mnt_context_set_optsmode(struct libmnt_context *cxt, int mode)
-  * mnt_context_get_optsmode
-  * @cxt: mount context
-  *
-- * Returns: MNT_OMASK_* mask or zero.
-+ * Returns: MNT_OMODE_* mask or zero.
-  */
- 
- int mnt_context_get_optsmode(struct libmnt_context *cxt)
--- 
-1.7.9.2
+The gitweb was ok:
+http://git.kernel.org/cgit/utils/util-linux/util-linux.git
 
+regards,
+Kevin
