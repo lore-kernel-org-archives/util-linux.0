@@ -1,35 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:41982 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753825Ab3JaPx1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Oct 2013 11:53:27 -0400
-Message-ID: <52727CF6.5050604@ubuntu.com>
-Date: Thu, 31 Oct 2013 11:53:26 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:55557 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752063Ab3JZHzD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Oct 2013 03:55:03 -0400
+Received: by mail-pd0-f172.google.com with SMTP id w10so3123391pde.31
+        for <util-linux@vger.kernel.org>; Sat, 26 Oct 2013 00:55:02 -0700 (PDT)
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: umount: it seems %s is mounted multiple times
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <CAGXs5wV3LjfLoE-hrY5Z7zFD2Vz1R92+fq3tSDxp70bD7jAwRA@mail.gmail.com>
+References: <CAGXs5wV3LjfLoE-hrY5Z7zFD2Vz1R92+fq3tSDxp70bD7jAwRA@mail.gmail.com>
+Date: Sat, 26 Oct 2013 08:55:02 +0100
+Message-ID: <CAG27Bk03ih0r-KrnHFwFmTipVesi-0KeZF06p2o=bTJr2zfwYw@mail.gmail.com>
+Subject: Re: official web site (error: "not found on this server")
+From: Sami Kerola <kerolasa@iki.fi>
+To: Kevin Wilson <wkevils@gmail.com>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 26 October 2013 08:30, Kevin Wilson <wkevils@gmail.com> wrote:
+> What is the official web site of util-linux ? (not
+> util-linux-ng)?
+> I try;
+> https://www.kernel.org/~kzak/util-linux/
+> according to
+> https://lkml.org/lkml/2010/12/1/464
+>
+> by it gave an error
+> The requested URL /~kzak/util-linux/ was not found on this server.
+>
+> The gitweb was ok:
+> http://git.kernel.org/cgit/utils/util-linux/util-linux.git
 
-When non root tries to umount a directory that has multiple mounts in
-it, mount dies with this error message.  Why is this?  Why doesn't it
-check for the user option and either give the permission error, or
-allow the umount?
+Hi Kevin,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Project readme has all URLs that are maintained.
 
-iQEcBAEBAgAGBQJScnz2AAoJEJrBOlT6nu75un4H/0PN4ClIVnepvvP7u1/Ozl1c
-98dMHTTUuJKNWF/3ad1/RsUVk1HH7IxwE+PsgSuqcDAQV70uJV62RIWokDhlA5UM
-8SZbpppENUiDY1lo9dmWOq3ZNbOVOIfhMA9xCnVGsUgUJOozGsRbUAJ0u2Y5SGC+
-LKVFqNG6k/LSKce4cxFkZmB4R0/VByBmnztiXt4/bDAgRWDTS9iVAu7pMcuLprhV
-kBtuBEGBal9prUq2gSUUOV7+16TBW5r7uZq3AT+lNSBnVBzg0hokf8rwDyb8Iz/3
-mVO68THRyyJu5pKp6oJKsFi7JOD4/CnuHAKEun4yTPn5q0dXIhB8lwTvT23ji+8=
-=fDSY
------END PGP SIGNATURE-----
+http://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/README
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
