@@ -1,105 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47978 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751961Ab3JRJgV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Oct 2013 05:36:21 -0400
-Date: Fri, 18 Oct 2013 11:36:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: blkid doesn't find lvm pv when boot loader installed
-Message-ID: <20131018093617.GC15115@x2.net.home>
-References: <525821B6.9010304@ubuntu.com>
- <20131014135953.GG28914@x2.net.home>
- <525C0743.9020706@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <525C0743.9020706@ubuntu.com>
+Received: from mail-we0-f179.google.com ([74.125.82.179]:63306 "EHLO
+	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754523Ab3J0Umr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:42:47 -0400
+Received: by mail-we0-f179.google.com with SMTP id w61so5898476wes.10
+        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:42:46 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 02/10] cal: add input variable names to function prototypes
+Date: Sun, 27 Oct 2013 20:42:28 +0000
+Message-Id: <1382906556-16442-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
+References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 14, 2013 at 11:01:23AM -0400, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 10/14/2013 9:59 AM, Karel Zak wrote:
-> > Yes, unfortunately this is currently unsupported scenario.
-> > 
-> > The libblkid checks for collision between LVM and
-> > filesystems/partition tables to avoid very common situations when
-> > users use whole-disks previously used by LVM in new setups with
-> > partition tables.
-> 
-> Isn't mdadm in the same boat?  i.e. you have a partitioned single
-> disk, and decided to turn it into a raid1.  Now the partition table is
-> still there and valid, but should be ignored in favor of the raid
-> superblock.
+While prototypes such as 'function(int, int, char, int);' are legal they
+do not help when trying to understand how the function is expected to be
+used.  Adding variable names gives at least a hint when looking the
+prototypes.
 
- Yes, and with raids it's more complicated because if the raid1
- superblock is at the end of the device and the raid device is partitioned
- then there is a partition table at the begin as well as raid
- superblock at the end and all is valid and wanted :-) 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
+
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index b4eb1ba..720a548 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -248,23 +248,25 @@ struct cal_control {
  
- (So in these cases we have to parse PT and raid superblock to check
- if the PT is within raid or vice versa.. nasty.. fortunately the
- current Linux raid default is superblock at the begin of the device.)
-
-> > So.. libblkid assumes that there is only LVM header within first
-> > 8K of the device, because pvcreate wipes this area (try pvcreate
-> > again and it will silently erase your grub!). If there is anything
-> > else then the previously detected LVM is ignored.
-> > 
-> > Yes, it's really not perfect solution, but do we have any better 
-> > solution? Maybe it would be enough to improve the blkid partition 
-> > table parser to not interpret the boot loader with empty PT as a 
-> > valid PT. Not sure.
-> 
-> I started thinking along those lines, but it doesn't cover the above
-> mentioned raid1 case.
-
- libblkid cover both cases 
-
-> I'm now leaning towards thinking that any partition tool that doesn't
-> wipe the existing signatures is broken
-
- fdisk currently wipes the first sector only, the problem is that we
- have to somehow live with boot loaders or partitioned raids etc.
+ /* function prototypes */
+ static int leap_year(long year);
+-static char *ascii_day(char *, int, const struct cal_control *ctl);
+-static char *ascii_wnum(char *p, int wn, const struct cal_control *ctl);
+-static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
+-static void center(const char *, size_t, int);
+-static void day_array(int, int, long, int *, const struct cal_control *ctl);
+-static int day_in_week(int, int, long);
+-static int day_in_year(int, int, long);
+-static int week_number(int, int, long, const struct cal_control *ctl);
+-static int week_to_day(long, const struct cal_control *ctl);
+-static void yearly(int, long, const struct cal_control *ctl);
+-static int do_monthly(int day, int month, long year, struct fmt_st *out,
+-		      int header_hint, const struct cal_control *ctl);
+-static void monthly(int, int, long, const struct cal_control *ctl);
+-static int two_header_lines(int month, long year, const struct cal_control *ctl);
+-static void monthly3(int, int, long, const struct cal_control *ctl);
+-static void __attribute__ ((__noreturn__)) usage(FILE * out);
+ static void headers_init(struct cal_control *ctl);
++static int do_monthly(int day, int month, long year, struct fmt_st *out, int header_hint,
++		      const struct cal_control *ctl);
++static void monthly(int day, int month, long year, const struct cal_control *ctl);
++static int two_header_lines(int month, long year, const struct cal_control *ctl);
++static void monthly3(int day, int month, long year, const struct cal_control *ctl);
++static char *append_wnum(char *p, int *dp, int month, long year, int cal, int row,
++			 const struct cal_control *ctl);
++static void yearly(int day, long year, const struct cal_control *ctl);
++static void day_array(int day, int month, long year, int *days, const struct cal_control *ctl);
++static int day_in_year(int day, int month, long year);
++static int day_in_week(int d, int m, long y);
++static int week_number(int day, int month, long year, const struct cal_control *ctl);
++static int week_to_day(long year, const struct cal_control *ctl);
++static char *ascii_day(char *p, int day, const struct cal_control *ctl);
++static char *ascii_wnum(char *p, int wnum, const struct cal_control *ctl);
++static int center_str(const char *src, char *dest, size_t dest_size, size_t width);
++static void center(const char *str, size_t len, int separate);
++static void __attribute__((__noreturn__)) usage(FILE *out);
  
- IMHO it is more important to wipe devices in mkfs-like programs where
- anything else than the FS/LVM/etc is unexpected.
-
- Now when I'm thinking about it ... maybe it would be good idea to add
- to fdisk a warning to inform users that there is not only the new 
- partition table but also anything else.
-
-> and that's what needs fixed
-> rather than trying to work around it in blkid.
-
- Well, we don't control all the programs and the problem is that users
- have already partitioned/LVM disks with obsolete superblocks/PT for
- years, when we ported all the stuff to udev then it was visible and
- reported as regressions...
-
- BTW, libblkid provides API to wipe devices
-
-       fd = open(devname, O_RDWR|O_CLOEXEC);
-       blkid_probe_set_device(pr, fd, 0, 0);
- 
-       blkid_probe_enable_partitions(pr, 1);
-       blkid_probe_enable_superblocks(pr, 1);
-       blkid_probe_set_superblocks_flags(pr, BLKID_SUBLKS_MAGIC);
- 
-       while (blkid_do_probe(pr) == 0)
-           blkid_do_wipe(pr, FALSE);
- 
- 
- ...to wipe all from the device, nice is that it removes only magic
- strings, so you don't lost data if you make a mistake (wipefs(8)
- backup the magic strings too).
-
-    Karel
-
-
+ int main(int argc, char **argv)
+ {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.1
+
