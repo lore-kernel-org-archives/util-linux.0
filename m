@@ -1,47 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49407 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753290Ab3JOJvG convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Oct 2013 05:51:06 -0400
-Message-Id: <1381830660.19586.34144785.7C200E19@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-In-Reply-To: <20131015082731.GA31477@x2.net.home>
-References: <1381783511.18298.33939989.442C9894@webmail.messagingengine.com>
- <20131015082731.GA31477@x2.net.home>
-Subject: Re: [patches] a few more man-page improvements
-Date: Tue, 15 Oct 2013 11:51:00 +0200
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:38039 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754523Ab3J0UnA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:43:00 -0400
+Received: by mail-wg0-f51.google.com with SMTP id l18so5688247wgh.6
+        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:42:59 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/10] tests: cal: take account week numbers when determing month lenght
+Date: Sun, 27 Oct 2013 20:42:32 +0000
+Message-Id: <1382906556-16442-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
+References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The month header does not need to wrap if month width with week number
+allows printing to single line.
 
-On Tue, Oct 15, 2013, at 10:27, Karel Zak wrote:
-> On Mon, Oct 14, 2013 at 10:45:11PM +0200, Benno Schulenberg wrote:
-> > rm: cannot remove 'mount': Is a directory
-> > make[2]: *** [mount] Error 1
-> > rm: cannot remove 'getopt': Is a directory
-> > make[2]: *** [getopt] Error 1
-> 
->  Oh, it seems you have very old stuff in your work tree, try:
->  
->     git clean -xdf
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/cal/bigyearw | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-Thanks, that worked:
-
-$ git clean -dxf
-Removing getopt/
-Removing mount/
-
-Now it compiles fine, with only those five warnings in libfdisk/src/ask.c:
-«format '%zd' expects argument of type 'signed size_t', but...» and two
-unused variables in misc-utils/cal.c (when compiled without ncurses).
-
-Benno
-
+diff --git a/tests/expected/cal/bigyearw b/tests/expected/cal/bigyearw
+index 61bf92f..d7fe0a2 100644
+--- a/tests/expected/cal/bigyearw
++++ b/tests/expected/cal/bigyearw
+@@ -20,8 +20,7 @@ Gregorian - Sunday-based month with week numbers
+ 52 24 25 26 27 28 29 30 
+ 53 31                   
+ Julian - Monday-based month with week numbers
+-           December           
+-      1234567890123456789     
++ December 1234567890123456789 
+    Mon Tue Wed Thu Fri Sat Sun
+ 48                 335 336 337 
+ 49 338 339 340 341 342 343 344 
+@@ -30,8 +29,7 @@ Julian - Monday-based month with week numbers
+ 52 359 360 361 362 363 364 365 
+                                
+ Julian - Sunday-based month with week numbers
+-           December           
+-      1234567890123456789     
++ December 1234567890123456789 
+    Sun Mon Tue Wed Thu Fri Sat
+ 48                     335 336 
+ 49 337 338 339 340 341 342 343 
+@@ -60,8 +58,7 @@ Gregorian - Sunday-based three months with week numbers
+ 48 26 27 28 29 30        52 24 25 26 27 28 29 30   4 28 29 30 31          
+                          53 31                                            
+ Julian - Monday-based three months with week numbers
+-           November                        December                         January           
+-      1234567890123456789             1234567890123456789             1234567890123456790     
++ November 1234567890123456789    December 1234567890123456789     January 1234567890123456790 
+    Mon Tue Wed Thu Fri Sat Sun     Mon Tue Wed Thu Fri Sat Sun     Mon Tue Wed Thu Fri Sat Sun
+ 44         305 306 307 308 309  48                 335 336 337   1   1   2   3   4   5   6   7 
+ 45 310 311 312 313 314 315 316  49 338 339 340 341 342 343 344   2   8   9  10  11  12  13  14 
+@@ -70,8 +67,7 @@ Julian - Monday-based three months with week numbers
+ 48 331 332 333 334              52 359 360 361 362 363 364 365   5  29  30  31                 
+                                                                                                
+ Julian - Sunday-based three months with week numbers
+-           November                        December                         January           
+-      1234567890123456789             1234567890123456789             1234567890123456790     
++ November 1234567890123456789    December 1234567890123456789     January 1234567890123456790 
+    Sun Mon Tue Wed Thu Fri Sat     Sun Mon Tue Wed Thu Fri Sat     Sun Mon Tue Wed Thu Fri Sat
+ 44             305 306 307 308  48                     335 336  53       1   2   3   4   5   6 
+ 45 309 310 311 312 313 314 315  49 337 338 339 340 341 342 343   1   7   8   9  10  11  12  13 
 -- 
-http://www.fastmail.fm - Choose from over 50 domains or use your own
+1.8.4.1
 
