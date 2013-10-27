@@ -1,212 +1,291 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:38333 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754919Ab3J0UnJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:43:09 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hn9so3129773wib.5
-        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:43:07 -0700 (PDT)
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:64014 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753427Ab3J0Um5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Oct 2013 16:42:57 -0400
+Received: by mail-wi0-f172.google.com with SMTP id ez12so3030999wid.5
+        for <util-linux@vger.kernel.org>; Sun, 27 Oct 2013 13:42:56 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 09/10] cal: add month contents structure
-Date: Sun, 27 Oct 2013 20:42:35 +0000
-Message-Id: <1382906556-16442-10-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 05/10] cal: determine output width at beginning of run and reuse result
+Date: Sun, 27 Oct 2013 20:42:31 +0000
+Message-Id: <1382906556-16442-6-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This commit changes determination of calendar month content completely,
-as well as outputing.  The output is done week by week, which will allow
-laying out months horizontally more understandable way.
-
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/cal.c | 156 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 150 insertions(+), 6 deletions(-)
+ misc-utils/cal.c | 90 +++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 43 insertions(+), 47 deletions(-)
 
 diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 07c613a..1e1721e 100644
+index 44c1af1..df92cdd 100644
 --- a/misc-utils/cal.c
 +++ b/misc-utils/cal.c
-@@ -255,11 +255,21 @@ struct cal_control {
- 			header_hint:1;	/* does month name + year execeed cal_width.wk */
+@@ -187,11 +187,6 @@ enum {
+ #define MONTH_COLS		3		/* month columns in year view */
+ #define WNUM_LEN                3
+ 
+-#define	J_DAY_LEN		4		/* 4 spaces per day */
+-#define	J_WEEK_LEN		(DAYS_IN_WEEK * J_DAY_LEN)
+-#define	J_HEAD_SEP		2
+-#define J_MONTH_COLS		2
+-
+ #define TODAY_FLAG		0x400		/* flag day for highlighting */
+ 
+ #define FMT_ST_LINES 9
+@@ -233,12 +228,18 @@ enum {
  };
  
-+struct cal_month {
-+	int days[MAXDAYS];		/* internally day numbers are julian or SPACE */
-+	int dsny;			/* days since new year */
-+	int weeks[MAXDAYS / DAYS_IN_WEEK];
-+	int month;
-+	long year;
+ /* utf-8 can have up to 6 bytes per char; and an extra byte for ending \0 */
+-static char day_headings[J_WEEK_LEN * 6 + 1];
++static char day_headings[(WEEK_LEN + 1) * 6 + 1];
++
++struct cal_width {
++	size_t dy;			/* day width in characters in printout */
++	size_t wk;			/* week width == (7 * dlen + possible week num) */
 +};
-+
- /* function prototypes */
- static int leap_year(long year);
- static void headers_init(struct cal_control *ctl);
- static int do_monthly(int day, int month, long year, struct fmt_st *out,
- 		      const struct cal_control *ctl);
-+static void cal_fill_month(struct cal_month *month, int mt, long yr,
-+			   const struct cal_control *ctl);
- static void monthly(const struct cal_control *ctl);
- static void monthly3(const struct cal_control *ctl);
- static char *append_wnum(char *p, int *dp, int month, long year, int cal, int row,
-@@ -601,15 +611,149 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
- 	return pos;
- }
  
-+static void cal_fill_month(struct cal_month *month, int mt, long yr, const struct cal_control *ctl)
-+{
-+	int first_week_day = day_in_week(1, mt, yr);
-+	int month_days;
-+	int i, j, weeklines = 0;
-+
-+	month->year = yr;
-+	month->month = mt - 1;
-+
-+	if (ctl->julian)
-+		j = day_in_year(1, mt, yr);
-+	else
-+		j = 1;
-+	month_days = j + days_in_month[leap_year(yr)][mt];
-+
-+	/* True when Sunday is not first day in the output week. */
-+	if (ctl->weekstart) {
-+		first_week_day -= ctl->weekstart;
-+		if (first_week_day < 0)
-+			first_week_day = DAYS_IN_WEEK - ctl->weekstart;
-+		month_days += ctl->weekstart - 1;
-+	}
-+
-+	/* Fill day array. */
-+	for (i = 0; i < MAXDAYS; i++) {
-+		if (0 < first_week_day) {
-+			month->days[i] = SPACE;
-+			first_week_day--;
-+			continue;
-+		}
-+		if (j < month_days) {
-+			if (yr == 1752 && mt == 9 && (j == 3 || j == 247))
-+				j += NUMBER_MISSING_DAYS;
-+			month->days[i] = j;
-+			j++;
-+			continue;
-+		}
-+		month->days[i] = SPACE;
-+		weeklines++;
-+	}
-+
-+	/* Add week numbers */
-+	if (ctl->wflag) {
-+		int weeknum = week_number(1, mt, yr, ctl);
-+		weeklines = MAXDAYS / DAYS_IN_WEEK - weeklines / DAYS_IN_WEEK;
-+		for (i = 0; i < MAXDAYS / DAYS_IN_WEEK; i++) {
-+			if (0 < weeklines)
-+				month->weeks[i] = weeknum++;
-+			else
-+				month->weeks[i] = SPACE;
-+			weeklines--;
-+			if (52 < weeknum && i == 0)
-+				weeknum = week_number(month->days[DAYS_IN_WEEK * (i + 1)], 1, yr, ctl);
-+			else if (52 < weeknum)
-+				weeknum = week_number(31, 12, yr, ctl);
-+		}
-+	}
-+}
-+
-+static void cal_output_month_headers(int line, struct cal_month *month, const struct cal_control *ctl)
-+{
-+	char out[FMT_ST_CHARS];
-+
-+	if (!ctl->header_hint) {
-+		sprintf(out, _("%s %ld"), ctl->full_month[month->month], month->year);
-+		center(out, ctl->width.wk - 1, 0);
-+	} else {
-+		if (line == 0)
-+			sprintf(out, _("%s"), ctl->full_month[month->month]);
-+		else
-+			sprintf(out, _("%ld"), month->year);
-+		center(out, ctl->width.wk - 1, 0);
-+	}
-+}
-+
-+static void cal_output_day_header(const struct cal_control *ctl)
-+{
-+	if (ctl->wflag) {
-+		if (ctl->julian)
-+			printf("%*s%s", (int)ctl->width.dy - 1, "", day_headings);
-+		else
-+			printf("%*s%s", (int)ctl->width.dy, "", day_headings);
+ struct cal_control {
+ 	const char *full_month[MONTHS_IN_YEAR];	/* month names */
+ 	int colormode;			/* day and week number highlight */
+ 	int num_months;			/* number of months horizontally in print out */
++	struct cal_width width;		/* width of output */
+ 	int weekstart;			/* day the week starts, often Sun or Mon */
+ 	int wflag;			/* uses WEEK_NUM_ enum */
+ 	int wnum;			/* requested --week=number */
+@@ -278,7 +279,8 @@ int main(int argc, char **argv)
+ 		.weekstart = SUNDAY,
+ 		.num_months = NUM_MONTHS,
+ 		.colormode = UL_COLORMODE_AUTO,
+-		.wflag = WEEK_NUM_DISABLED
++		.wflag = WEEK_NUM_DISABLED,
++		.width.dy = DAY_LEN
+ 	};
+ 
+ 	enum {
+@@ -367,6 +369,7 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'j':
+ 			ctl.julian = 1;
++			ctl.width.dy = DAY_LEN + 1;
+ 			break;
+ 		case 'y':
+ 			ctl.yflag = 1;
+@@ -400,7 +403,9 @@ int main(int argc, char **argv)
+ 	if (ctl.wflag) {
+ 		ctl.wflag = ctl.wnum & WEEK_NUM_MASK;
+ 		ctl.wflag |= (ctl.weekstart == MONDAY ? WEEK_NUM_ISO : WEEK_NUM_US);
+-	}
++		ctl.width.wk = (ctl.width.dy * DAYS_IN_WEEK) + WNUM_LEN;
 +	} else
-+		fputs(day_headings, stdout);
-+}
-+
-+static void cal_output_week(int week, struct cal_month *month, const struct cal_control *ctl)
-+{
-+	int i, reqday = 0;
-+	int j = 7 * week;
-+	int skip = ctl->width.dy - 1;
-+
-+	if (ctl->wflag) {
-+		skip--;
-+		if (0 < month->weeks[week]) {
-+			if ((ctl->wflag & WEEK_NUM_MASK) == month->weeks[week])
-+				printf("%s%2d%s", Senter, month->weeks[week], Sexit);
-+			else
-+				printf("%2d", month->weeks[week]);
-+		} else
-+			printf("%2s", "");
-+		skip = ctl->width.dy;
-+	}
-+
-+	/* Determine the day that should be highlighted. */
-+	if ((month->month + 1) == ctl->req.month && month->year == ctl->req.year) {
-+		if (ctl->julian)
-+			reqday = ctl->req.day;
-+		else
-+			reqday = ctl->req.day + 1 - day_in_year(1, month->month + 1, ctl->req.year);
-+	}
-+
-+	for (i = 0; i < DAYS_IN_WEEK; i++) {
-+		if (0 < month->days[j])
-+			if (reqday == month->days[j])
-+				printf("%*s%s%*d%s", skip - (ctl->julian ? 3 : 2), "", Senter, (ctl->julian ? 3 : 2), month->days[j], Sexit);
-+			else
-+				printf("%*d", skip, month->days[j]);
-+		else {
-+			printf("%*s", skip, "");
-+		}
-+		if (skip < (int)ctl->width.dy)
-+			skip++;
-+		j++;
-+	}
-+}
-+
- static void monthly(const struct cal_control *ctl)
- {
--	int i, rows;
--	struct fmt_st out;
-+	struct cal_month month;
-+	int i;
-+
-+	cal_fill_month(&month, ctl->req.month, ctl->req.year, ctl);
++		ctl.width.wk = (ctl.width.dy * DAYS_IN_WEEK);
  
--	rows = do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out, ctl);
--	for (i = 0; i < rows; i++) {
--		my_putstring(out.s[i]);
--		my_putstring("\n");
-+	for (i = 0; i <= ctl->header_hint; i++) {
-+		cal_output_month_headers(i, &month, ctl);
-+		fputs("\n", stdout);
-+	}
-+	cal_output_day_header(ctl);
-+	fputs("\n", stdout);
-+	for (i = 0; i < MAXDAYS / DAYS_IN_WEEK; i++) {
-+		cal_output_week(i, &month, ctl);
-+		fputs(" \n", stdout);
+ 	time(&now);
+ 	local_time = localtime(&now);
+@@ -474,9 +479,13 @@ int main(int argc, char **argv)
+ 		ctl.wflag &= ~WEEK_NUM_MASK;
  	}
+ 
+-	if (ctl.yflag)
++	if (ctl.yflag) {
++		if (ctl.julian)
++			ctl.num_months = MONTH_COLS - 1;
++		else
++			ctl.num_months = MONTH_COLS;
+ 		yearly(day, year, &ctl);
+-	else if (ctl.num_months == 1)
++	} else if (ctl.num_months == 1)
+ 		monthly(day, month, year, &ctl);
+ 	else if (ctl.num_months == 3)
+ 		monthly3(day, month, year, &ctl);
+@@ -495,7 +504,7 @@ static int leap_year(long year)
+ 
+ static void headers_init(struct cal_control *ctl)
+ {
+-	size_t i, wd, spaces = ctl->julian ? J_DAY_LEN - 1 : DAY_LEN - 1;
++	size_t i, wd;
+ 	char *cur_dh = day_headings;
+ 
+ 	for (i = 0; i < DAYS_IN_WEEK; i++) {
+@@ -506,10 +515,10 @@ static void headers_init(struct cal_control *ctl)
+ 			strcat(cur_dh++, " ");
+ 		space_left = sizeof(day_headings) - (cur_dh - day_headings);
+ 
+-		if (space_left <= spaces)
++		if (space_left <= (ctl->width.dy - 1))
+ 			break;
+ 		cur_dh += center_str(nl_langinfo(ABDAY_1 + wd), cur_dh,
+-				     space_left, spaces);
++				     space_left, ctl->width.dy - 1);
+ 	}
+ 
+ 	for (i = 0; i < MONTHS_IN_YEAR; i++)
+@@ -521,8 +530,6 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
+ {
+ 	int col, row, days[MAXDAYS];
+ 	char *p, lineout[FMT_ST_CHARS];
+-	size_t width = (ctl->julian ? J_WEEK_LEN : WEEK_LEN) - 1
+-		       + (ctl->wflag ? WNUM_LEN : 0);
+ 	int pos = 0;
+ 
+ 	day_array(day, month, year, days, ctl);
+@@ -531,10 +538,10 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
+ 		header_hint = two_header_lines(month, year, ctl);
+ 	if (header_hint) {
+ 		snprintf(lineout, sizeof(lineout), _("%s"), ctl->full_month[month - 1]);
+-		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), width);
++		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), ctl->width.wk - 1);
+ 		pos++;
+ 		snprintf(lineout, sizeof(lineout), _("%ld"), year);
+-		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), width);
++		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), ctl->width.wk - 1);
+ 		pos++;
+ 	} else {
+ 		/* TRANSLATORS: %s is the month name, %ld the year number.
+@@ -543,7 +550,7 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
+ 		 */
+ 		snprintf(lineout, sizeof(lineout), _("%s %ld"),
+ 			ctl->full_month[month - 1], year);
+-		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), width);
++		center_str(lineout, out->s[pos], ARRAY_SIZE(out->s[pos]), ctl->width.wk - 1);
+ 		pos++;
+ 	}
+ 
+@@ -595,12 +602,11 @@ static void monthly(int day, int month, long year, const struct cal_control *ctl
+ static int two_header_lines(int month, long year, const struct cal_control *ctl)
+ {
+ 	char lineout[FMT_ST_CHARS];
+-	size_t width = (ctl->julian ? J_WEEK_LEN : WEEK_LEN) - 1;
+ 	size_t len;
+ 	snprintf(lineout, sizeof(lineout), "%ld", year);
+ 	len = strlen(lineout);
+ 	len += strlen(ctl->full_month[month - 1]) + 1;
+-	if (width < len)
++	if (ctl->width.wk - 1 < len)
+ 		return 1;
+ 	return 0;
+ }
+@@ -609,7 +615,7 @@ static void monthly3(int day, int month, long year, const struct cal_control *ct
+ {
+ 	char lineout[FMT_ST_CHARS];
+ 	int i;
+-	int width, rows, two_lines;
++	int rows, two_lines;
+ 	struct fmt_st out_prev;
+ 	struct fmt_st out_curm;
+ 	struct fmt_st out_next;
+@@ -644,7 +650,6 @@ static void monthly3(int day, int month, long year, const struct cal_control *ct
+ 	do_monthly(day, month,      year,      &out_curm, two_lines, ctl);
+ 	do_monthly(day, next_month, next_year, &out_next, two_lines, ctl);
+ 
+-	width = (ctl->julian ? J_WEEK_LEN : WEEK_LEN) -1;
+ 	for (i = 0; i < (two_lines ? 3 : 2); i++) {
+ 		snprintf(lineout, sizeof(lineout),
+ 			"%s  %s  %s\n", out_prev.s[i], out_curm.s[i], out_next.s[i]);
+@@ -652,7 +657,7 @@ static void monthly3(int day, int month, long year, const struct cal_control *ct
+ 	}
+ 	for (i = two_lines ? 3 : 2; i < rows; i++) {
+ 		int w1, w2, w3;
+-		w1 = w2 = w3 = width;
++		w1 = w2 = w3 = ctl->width.wk;
+ 
+ #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_LIBTERMCAP)
+ 		/* adjust width to allow for non printable characters */
+@@ -692,7 +697,6 @@ static char *append_wnum(char *p, int *dp,
+ static void yearly(int day, long year, const struct cal_control *ctl)
+ {
+ 	int col, i, month, row, which_cal;
+-	int maxrow, sep_len, week_len;
+ 	int days[MONTHS_IN_YEAR][MAXDAYS];
+ 	char *p;
+ 	/* three weeks + separators + \0 */
+@@ -700,50 +704,42 @@ static void yearly(int day, long year, const struct cal_control *ctl)
+ 	char lineout[ wnumlen + sizeof(day_headings) + 2 +
+ 		      wnumlen + sizeof(day_headings) + 2 +
+ 		      wnumlen + sizeof(day_headings) + 1 ];
+-	if (ctl->julian) {
+-		maxrow = J_MONTH_COLS;
+-		sep_len = J_HEAD_SEP;
+-		week_len = J_WEEK_LEN + wnumlen;
+-	} else {
+-		maxrow = MONTH_COLS;
+-		sep_len = HEAD_SEP;
+-		week_len = WEEK_LEN + wnumlen;
+-	}
++
+ 	snprintf(lineout, sizeof(lineout), "%ld", year);
+ 
+-	/* 2013-04-28: The -1 near sep_len makes year header to be aligned
++	/* 2013-04-28: The -1 near HEAD_SEP makes year header to be aligned
+ 	 * exactly how it has been aligned for long time, but it is
+ 	 * unexplainable.  */
+-	center(lineout, (week_len + sep_len) * maxrow - sep_len - 1, 0);
++	center(lineout, (ctl->width.wk + HEAD_SEP) * ctl->num_months - HEAD_SEP - 1, 0);
+ 	my_putstring("\n\n");
+ 
+ 	for (i = 0; i < MONTHS_IN_YEAR; i++)
+ 		day_array(day, i + 1, year, days[i], ctl);
+ 
+-	for (month = 0; month < MONTHS_IN_YEAR; month += maxrow) {
+-		center(ctl->full_month[month], week_len - 1, sep_len + 1);
++	for (month = 0; month < MONTHS_IN_YEAR; month += ctl->num_months) {
++		center(ctl->full_month[month], ctl->width.wk - 1, HEAD_SEP + 1);
+ 		if (ctl->julian) {
+-			center(ctl->full_month[month + 1], week_len - 1, 0);
++			center(ctl->full_month[month + 1], ctl->width.wk - 1, 0);
+ 		} else {
+-			center(ctl->full_month[month + 1], week_len - 1, sep_len + 1);
+-			center(ctl->full_month[month + 2], week_len - 1, 0);
++			center(ctl->full_month[month + 1], ctl->width.wk - 1, HEAD_SEP + 1);
++			center(ctl->full_month[month + 2], ctl->width.wk - 1, 0);
+ 		}
+ 		if (ctl->julian)
+ 			snprintf(lineout, sizeof(lineout),
+ 				 "\n%*s%s%*s %*s%s\n",
+-				 wnumlen,"", day_headings, sep_len, "",
++				 wnumlen,"", day_headings, HEAD_SEP, "",
+ 				 wnumlen,"", day_headings);
+ 		else
+ 			snprintf(lineout, sizeof(lineout),
+ 				 "\n%*s%s%*s %*s%s%*s %*s%s\n",
+-				 wnumlen,"", day_headings, sep_len, "",
+-				 wnumlen,"", day_headings, sep_len, "",
++				 wnumlen,"", day_headings, HEAD_SEP, "",
++				 wnumlen,"", day_headings, HEAD_SEP, "",
+ 				 wnumlen,"", day_headings);
+ 
+ 		my_putstring(lineout);
+ 		for (row = 0; row < DAYS_IN_WEEK - 1; row++) {
+ 			p = lineout;
+-			for (which_cal = 0; which_cal < maxrow; which_cal++) {
++			for (which_cal = 0; which_cal < ctl->num_months; which_cal++) {
+ 				int *dp = &days[month + which_cal][row * DAYS_IN_WEEK];
+ 
+ 				if (ctl->wflag)
+@@ -919,6 +915,7 @@ static int week_to_day(long year, const struct cal_control *ctl)
+ 	return yday;
  }
  
++
+ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
+ {
+ 	int display, val;
+@@ -933,9 +930,8 @@ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
+ 	};
+ 
+ 	if (day == SPACE) {
+-		int len = ctl->julian ? J_DAY_LEN : DAY_LEN;
+-		memset(p, ' ', len);
+-		return p+len;
++		memset(p, ' ', ctl->width.dy);
++		return p + ctl->width.dy;
+ 	}
+ 	if (day & TODAY_FLAG) {
+ 		day &= ~TODAY_FLAG;
 -- 
 1.8.4.1
 
