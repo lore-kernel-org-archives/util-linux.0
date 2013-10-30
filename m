@@ -1,30 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2.vodafone.ie ([213.233.128.44]:48649 "EHLO
-	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751456Ab3JGXdR (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Mon, 7 Oct 2013 19:33:17 -0400
-Message-ID: <525344BB.80502@draigBrady.com>
-Date: Tue, 08 Oct 2013 00:33:15 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from moutng.kundenserver.de ([212.227.17.8]:60350 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751377Ab3J3PkA convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 11:40:00 -0400
+Date: Wed, 30 Oct 2013 16:39:57 +0100 (CET)
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
+To: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org
+Message-ID: <1530541679.232932.1383147597747.open-xchange@email.1und1.de>
+In-Reply-To: <527122AF.90003@ubuntu.com>
+References: <527122AF.90003@ubuntu.com>
+Subject: Re: Bind mounts record fstype of none
 MIME-Version: 1.0
-To: Tommi Kyntola <tommi.kyntola@gmail.com>
-CC: Sami Kerola <kerolasa@gmail.com>, util-linux-ng@vger.kernel.org
-Subject: Re: [RFC/PATCH] week numbers for cal
-References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com> <CAG27Bk3APFUnaWq+TzK9p3snpAzZ2v4SBoikB+8HWHaPojZVMQ@mail.gmail.com> <CAO2cUkRXsUrK=kZsx=yHAKR+Ht2baA5bLiTwU4J9UD4sEbBepg@mail.gmail.com> <52522615.4010304@draigBrady.com> <CAO2cUkQuNiHwdmxACq1i1W8ix1teVvtUi9McPtksRrFC-M7F3g@mail.gmail.com> <5252EA23.4080508@draigBrady.com> <CAO2cUkTZeLMTh=_nsHcXzUKeq6sGJ9+5V_KocMs-g7SdE3n=0w@mail.gmail.com>
-In-Reply-To: <CAO2cUkTZeLMTh=_nsHcXzUKeq6sGJ9+5V_KocMs-g7SdE3n=0w@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/07/2013 06:59 PM, Tommi Kyntola wrote:
->> It's generally best to avoid optional args on short args,
->> as in this case -w3 is ambiguous and -wj is problematic.
->> So I'd instead support an interface like -w,--week[=NUM]
-> 
-> Agreed. I dropped the :: from the short arg.
 
-lgtm
 
-thanks,
-P�draig.
+> On October 30, 2013 at 4:15 PM Phillip Susi <psusi@ubuntu.com> wrote:
+> I came across an old bug filed in debian noting that mount records the
+> fstype for bind mounts as 'none' and this causes df to suppress
+> showing it.  This seems like an error to me.  The type should be what
+> the actual filesystem type is, and if df wants to suppress showing
+> bind mounts, it should do so based on the bind flag.
+>
+> Thoughts?
+
+yes, df(1) is from coreutils. ;-)
+
+However, latest df(1) will skip such bind mounts per default - but
+now because of some 'bind' information (which is not available
+anyway), but just because it skips "duplicates" based on the device
+numbers. For the same device number, it will output that with the
+shortest mount point name.
+You have to use -a to see all.
+
+Have a nice day,
+Berny
