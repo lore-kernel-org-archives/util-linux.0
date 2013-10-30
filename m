@@ -1,29 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50302 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751465Ab3JDKad (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Oct 2013 06:30:33 -0400
-Date: Fri, 4 Oct 2013 12:30:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Michael Forney <mforney@mforney.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Various portability fixes
-Message-ID: <20131004103030.GD14360@x2.net.home>
-References: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:41474 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753667Ab3J3PQA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 11:16:00 -0400
+Message-ID: <527122AF.90003@ubuntu.com>
+Date: Wed, 30 Oct 2013 11:15:59 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+To: util-linux@vger.kernel.org
+Subject: Bind mounts record fstype of none
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 03, 2013 at 02:36:04AM -0700, Michael Forney wrote:
-> These patches address various portability issues. They are needed to build
-> util-linux against musl libc.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Applied, thanks!  (Please, use "Signed-off-by:" next time.)
+I came across an old bug filed in debian noting that mount records the
+fstype for bind mounts as 'none' and this causes df to suppress
+showing it.  This seems like an error to me.  The type should be what
+the actual filesystem type is, and if df wants to suppress showing
+bind mounts, it should do so based on the bind flag.
 
-    Karel
+Thoughts?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJScSKuAAoJEJrBOlT6nu75tJwIAKk1IQyvsQIpPUj9ugSrHVDp
+CdsGB5D8VNznUJ+a+AReNp57AGi/UprdCXsWl33yOuz3zjQKNlYaGEMCsN/pSJnq
+nn+8pJ5GSggPekUh2FO82sLGaEh4y+rMPlN6rwCyOERkP1V+MaYI9Z2KzCrpnpfI
+LaDm17q1IzpDtJry55Vg+yd0vuJZ3qpfvLUmD4rj/h7N5gt/lXWeSzcUyIIQvHaA
+IR7Nch1YaA612Tqz0Zf+dews1ERwERNw2+s8BBlsvTW4FzbR5gfMdn3Xzv8WFnTY
+yr54S7Krrxn7jbBFCF44GQddxptIJ7jjI2GqYIq1D8L9DoTwSIGEk552/y2negc=
+=k4dY
+-----END PGP SIGNATURE-----
