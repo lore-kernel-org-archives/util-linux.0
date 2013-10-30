@@ -1,27 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:57704 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751390Ab3JZKQk convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Oct 2013 06:16:40 -0400
-Received: from 3capp-gmx-bs40.server.lan ([172.19.170.92]) by
- mrigmx.server.lan (mrigmx002) with ESMTP (Nemesis) id
- 0MKwSE-1Va0v82cMa-0005nW for <util-linux@vger.kernel.org>; Sat, 26 Oct 2013
- 12:16:38 +0200
+Received: from mail-qa0-f44.google.com ([209.85.216.44]:63264 "EHLO
+	mail-qa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752101Ab3J3Qpt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Oct 2013 12:45:49 -0400
+Received: by mail-qa0-f44.google.com with SMTP id cm18so3865148qab.17
+        for <util-linux@vger.kernel.org>; Wed, 30 Oct 2013 09:45:49 -0700 (PDT)
+Date: Wed, 30 Oct 2013 12:45:46 -0400
+From: Dave Reisner <d@falconindy.com>
+To: helmut@hullen.de
+Cc: util-linux@vger.kernel.org
+Subject: Re: Bind mounts record fstype of none
+Message-ID: <20131030164546.GL735@rampage>
+References: <345614206.235496.1383150183769.open-xchange@email.1und1.de>
+ <CgqsAZmPCXB@helmut.hullen.de>
 MIME-Version: 1.0
-Message-ID: <trinity-e7dfd7ef-b198-4b29-a28a-a1243935fd6a-1382782598509@3capp-gmx-bs40>
-From: andreas.hanke@gmx-topmail.de
-To: util-linux@vger.kernel.org
-Subject: Support the new Linux /home partition GUID
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 26 Oct 2013 12:16:38 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CgqsAZmPCXB@helmut.hullen.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-systemd has recently introduced a new GUID that is used to auto-mount /home partitions on Linux. [1] This is documented at [2] and [3] and already supported in gdisk [4], but not yet in fdisk. I think this would be a useful addition.
+On Wed, Oct 30, 2013 at 05:31:00PM +0100, Helmut Hullen wrote:
+> Hallo, Bernhard,
+> 
+> Du meintest am 30.10.13:
+> 
+> >> So is mount wrong for recording the filesystem type as 'none' or
+> >> not?
+> 
+> > Where do you see 'none'?
+> 
+>         df -a -T
+> 
+> Maybe that problem is related to the option "-type"; "bind" is no  
+> allowed "type".
 
-[1] http://cgit.freedesktop.org/systemd/systemd/commit/?id=1a14a53cfded6e78c6e8dfb73fdff0039971d642
-[2] http://www.freedesktop.org/software/systemd/man/systemd-gpt-auto-generator.html
-[3] https://en.wikipedia.org/w/index.php?title=GUID_Partition_Table&oldid=576037522#Partition_type_GUIDs
-[4] http://sourceforge.net/p/gptfdisk/code/ci/0fde58b966f37807260ad0dd8997e3f0c824d39c/
+The fstype of "none" only shows up on older systems where mtab is a
+regular file and not a symlink to /proc/self/mounts.
 
-Andreas
+Cheers,
+Dave
