@@ -1,49 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:61113 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751491Ab3JaQxw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 31 Oct 2013 12:53:52 -0400
-Date: Thu, 31 Oct 2013 17:53:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Bind mounts record fstype of none
-Message-ID: <20131031165348.GK1536@x2.net.home>
-References: <527122AF.90003@ubuntu.com>
- <20131031105747.GB1536@x2.net.home>
- <527266B0.7040201@ubuntu.com>
- <20131031151001.GH1536@x2.net.home>
- <52727739.70301@ubuntu.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:57674 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752204Ab3JaRNw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Oct 2013 13:13:52 -0400
+Message-ID: <52728FCE.2050003@ubuntu.com>
+Date: Thu, 31 Oct 2013 13:13:50 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52727739.70301@ubuntu.com>
+To: util-linux@vger.kernel.org
+Subject: fdisk shows sun end sectors with +1 error
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 31, 2013 at 11:28:57AM -0400, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 10/31/2013 11:10 AM, Karel Zak wrote:
-> > There is *many disadvantages* when you use mtab, not sure if it
-> > make sense to fix the issues especially when mtab is currently
-> > unused by (almost) all distributions.
-> > 
-> > Maybe we can keep the fstype and not replace it with "none" for
-> > mtab, but is it so important when we use "none" since 2009 and mtab
-> > is almost dead?
-> 
-> I know there were a number of issues with this transition, have they
-> all been worked out at this point?  Is all you need to do to make the
-> switch is replace /etc/mtab with a symlink to /proc/mounts?  Maybe
-> I'll try doing that.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- ... and it's also good to link mount.nfs from nfs-utils with libmount
- as NFS maintains some mount options in userspace (in this case we use
- private library /run/mount/utab file).
+Command (m for help): p
+Disk /dev/loop0: 9.6 GiB, 10245537792 bytes, 20010816 sectors
+Geometry: 255 heads, 63 sectors/track, 1245 cylinders
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: sun
 
-    Karel
+Device       Flag     Start       End   Blocks  Id System
+/dev/loop0p1              0  19904535  9952267+ 83 Linux native
+/dev/loop0p2   u   19904535  20000925    48195  82 Linux swap
+/dev/loop0p3              0  20000925 10000462+  5 Whole disk
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+(parted) print
+Model: Loopback device (loop)
+Disk /dev/loop0: 20010816s
+Sector size (logical/physical): 512B/512B
+Partition Table: sun
+
+Number  Start      End        Size       File system  Flags
+ 1      0s         19904534s  19904535s
+ 2      19904535s  20000924s  96390s
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJSco/OAAoJEJrBOlT6nu75SDcIAJ9T0YpHFzMT72TPOOcVZPtm
+8ZIofOcwaXolffGL56TUgbCna79aJHuIfk0Vl2wL2m1PAb0npAbXyqNH457FlpwT
+c/YEVheSldcrXQSJpMUGvFhkCgZOp1NAoXMGRIZ5GMmDybI3mKn/mlgJznV9RR27
+3KOVN1QTR2lSZ6Fx71oCcgGOnBlrI3gREVMSRR8QvYnWp0/MNU2leVn+4ixvS03d
+CxcLVC1grTvKqPnUTxiDqbyeUeJnVG5EBWkTswbQGRDR2jnuSgPXgJC5Kc1zQuFi
+68Z4MUFln9/WaJz8+p7yjbv/zPRMEDJOuIg84PCgQ5qsvHnz09UuMvd/9JbvKzE=
+=DdKd
+-----END PGP SIGNATURE-----
