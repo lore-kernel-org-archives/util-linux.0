@@ -1,42 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f170.google.com ([209.85.214.170]:34680 "EHLO
-	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751446Ab3JVOMu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Oct 2013 10:12:50 -0400
-Received: by mail-ob0-f170.google.com with SMTP id wp18so3872687obc.29
-        for <util-linux@vger.kernel.org>; Tue, 22 Oct 2013 07:12:49 -0700 (PDT)
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:55580 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754465Ab3JaOVL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Oct 2013 10:21:11 -0400
+Message-ID: <52726756.8060205@ubuntu.com>
+Date: Thu, 31 Oct 2013 10:21:10 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-In-Reply-To: <20131018083452.GB15115@x2.net.home>
-References: <CAF8BazAW7xxXpO1-vCBJvfvORBLXnJkDxv=qagoe0ZJe-12aJg@mail.gmail.com>
-	<CAF8BazDFWf7-NPwCr7Cg=aV9prKsWNUxJu2neZ3x+8XP1fZPHQ@mail.gmail.com>
-	<20131018083452.GB15115@x2.net.home>
-Date: Tue, 22 Oct 2013 18:12:49 +0400
-Message-ID: <CAF8BazDK6_RMQ7KR5aUhAf10PZmp79NN5VSmy3oY_tQcoOee-Q@mail.gmail.com>
-Subject: Re: Per-filesystem default mount options
-From: Aleksey Midenkov <midenok@gmail.com>
 To: util-linux@vger.kernel.org
+Subject: script input redirection / eof handling
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 18, 2013 at 12:34 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Wed, Oct 16, 2013 at 06:13:17PM +0400, Aleksey Midenkov wrote:
->> Is it possible to specify per-filesystem default mount options
->> somewhere in configuration file?
->
->  /etc/fstab, or tune2fs for extN, or /etc/nsfmount.conf for NFS.
->
->  The per-filesystem-type default options are also hardcoded in kernel.
->
->     Karel
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's true, they are hardcoded in kernel. But, there is a need to
-have them customized. I know, there is a ton of user-level utils that
-maybe can provide it. IMHO this basic feature is important for the
-core.
+I came across an old bug filed in debian about script being redirected
+from a file misbehaving.  It seems that when the master ( input )
+process hits eof, it exits immediately, orphaning the child ( output )
+and user processes.
 
->
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+I believe the correct thing to do is signal the eof to the user
+process and wait for the children to exit, but I'm not sure how to
+make a pty signal eof.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJScmdWAAoJEJrBOlT6nu75JIQH/1Eqt6gsG+vKGc8xpybIE6F7
+UGgo8sLyn++PE3U6MZQcsWj2nHZ6p76uHOp4Kn1sk8xrb2zetueQTF1idtgJO7nS
+PKhwbfInD3ocSuEQB1HygMmKTKuXT9qYCBj18AT9ZQp7eQ5ocz+nvNnGHQuR4KPR
+/CsI0D0/BnTO32ayh6qgE1HtxD0sUY4K1Qw3MyyChINwFAU9q8p3Y9Lz5RqQTTZk
+2j3kc6jDdNaGy1b6w1exhEMrhs7zC1LRvz5GhqM+ODVAN/YiMh4eKYH9a4OrYXru
+l8Df0gDWNRrQhqrJxvOMKph/DZO1sZEZP3ZG/kOXak/cpbHVy0MkGepP0qId91g=
+=ZaJO
+-----END PGP SIGNATURE-----
