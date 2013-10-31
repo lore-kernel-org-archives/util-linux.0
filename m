@@ -1,78 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10680 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52320 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753185Ab3JVPzj (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 22 Oct 2013 11:55:39 -0400
-Date: Tue, 22 Oct 2013 17:55:35 +0200
+	id S1751742Ab3JaMPH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 31 Oct 2013 08:15:07 -0400
+Date: Thu, 31 Oct 2013 13:14:56 +0100
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Tommi Kyntola <tommi.kyntola@gmail.com>, util-linux-ng@vger.kernel.org
-Subject: Re: [RFC/PATCH] week numbers for cal
-Message-ID: <20131022155535.GI15115@x2.net.home>
-References: <CAO2cUkTj+f+6xrgr6+WzY9D+TwwZHWYhMfuMKKYF=39vJ8wU6w@mail.gmail.com>
- <20131022103214.GG15115@x2.net.home>
- <CAG27Bk3+XOmDrSumdaqWn_tTH1OxYQjwfeoaZ0pM8jN6OJuNQA@mail.gmail.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [0000/0010] cal: code revisit part I
+Message-ID: <20131031121456.GF1536@x2.net.home>
+References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3+XOmDrSumdaqWn_tTH1OxYQjwfeoaZ0pM8jN6OJuNQA@mail.gmail.com>
+In-Reply-To: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 22, 2013 at 04:23:22PM +0100, Sami Kerola wrote:
-> On 22 October 2013 11:32, Karel Zak <kzak@redhat.com> wrote:
-> > On Sat, Oct 05, 2013 at 11:59:54PM +0300, Tommi Kyntola wrote:
-> >> I keep trying -w with cal from time to time and I finally decided it's
-> >> about time to do something about it. I'm not sure if this is something
-> >> you'd be interested in incorporating into util-linux cal, but it's
-> >> something I wanted, so here it is. There's gcal of course, but I only
-> >> wanted a toothpick not the whole forest.
-> >
-> > Applied, thanks.
-> 
-> FYI
-> 
-> I started think, and play with the cal code, in order to make the source a
-> little bit more maintainable.  My plan is to add run time configuration
-> and parameters structures. With bit of luck changing data structures
-> allows less strange functions.
+On Sun, Oct 27, 2013 at 08:42:26PM +0000, Sami Kerola wrote:
+> I got the --one and --three outputs working, but I am not completely
+> happy about the --three.  Quite frankly better function would take input
+> how many horizontal calendar outputs are needed, and would do exactly
+> that.  Such function would be more reusable when considering yearly
+> output, and the fact it has two column output when in julian mode.
 
- That's also my wish. The current source is based on code rather data
- structures. That's alway bad thing, the result is mess of for/if()
- machinery.
+ Yes, in the final output function should not be hardcoded a number of
+ months -- it would be better to have a generic function that
+ is able to use arbitrary list/array of the months. The list/array of
+ the months should be composed in another function.
  
- It would be nice to describe the problem by structs and split code 
- to two sets of the functions 
-
-        1/ generate calendar(s), 
-        2/ print calendar. 
-        
-  Something like:
-
-  struct cal_week {
-        int week_number;
-        int days[7];
-        ...
-  };
-
-  struct cal_month {
-        struct cal_week weeks[5];
-        ...
-  }
-
-  struct cal_control {
-        int week_start;
-        ...
-        struct cal_month cals[12];
-  }
+ Now it's possible to print only 1, 3 or 12 months, and all is
+ hardcoded. It would be nice to have a way how to print arbitrary
+ number of months (or arbitrary range).
  
-  cal_new_month();
-  cal_add_month();
-  cal_get_month();
-  cal_month_get_week();
-  ...
-  cal_print_calendar()
+ For example it would be nice to have a way how to specify a quarter 
+ of the company fiscal year (!= calendar year). I can imagine
+ something like --month=<list> option or so..
 
-  ... or better.
+> Karel, it is be best not to merge the last patch.  It is more of
+> work-in-progress, comments would be great.
+
+ I'll probably wait for whole code refactoring rather than merge
+ an incomplete thing.
 
     Karel
 
