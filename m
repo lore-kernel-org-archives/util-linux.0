@@ -1,53 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:41048 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753036Ab3JCJgm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 05:36:42 -0400
-Received: by mail-pa0-f43.google.com with SMTP id hz1so2346134pad.2
-        for <util-linux@vger.kernel.org>; Thu, 03 Oct 2013 02:36:41 -0700 (PDT)
-From: Michael Forney <mforney@mforney.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/4] Use _POSIX_VERSION to determine support for %m
-Date: Thu,  3 Oct 2013 02:36:05 -0700
-Message-Id: <1380792968-1176-2-git-send-email-mforney@mforney.org>
-In-Reply-To: <1380792968-1176-1-git-send-email-mforney@mforney.org>
-References: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49106 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751807Ab3JaLuI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 31 Oct 2013 07:50:08 -0400
+Date: Thu, 31 Oct 2013 12:49:58 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 07/10] cal: make user request to be part of read-only
+ control struct
+Message-ID: <20131031114958.GE1536@x2.net.home>
+References: <1382906556-16442-1-git-send-email-kerolasa@iki.fi>
+ <1382906556-16442-8-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1382906556-16442-8-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-%m is included in POSIX 2008, so we can check if the libc implements
-that before failing.
----
- configure.ac | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On Sun, Oct 27, 2013 at 08:42:33PM +0000, Sami Kerola wrote:
+> +struct cal_request {
+> +	int day;
+> +	int month;
+> +	long year;
+> +	int week;
+> +};
 
-diff --git a/configure.ac b/configure.ac
-index cbcda46..95ff8b3 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -430,6 +430,7 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+ It makes more sense than cal_width :-)
+
+> +			ctl.req.day = day_in_year(ctl.req.day, ctl.req.month, ctl.req.year);
+
+   req.day = calculate_request_day(&req);
+
+> -static void monthly(int day, int month, long year, const struct cal_control *ctl)
+> +static void monthly(const struct cal_control *ctl)
+...  
+> -	rows = do_monthly(day, month, year, &out, -1, ctl);
+> +	rows = do_monthly(ctl->req.day, ctl->req.month, ctl->req.year, &out, -1, ctl);
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ Well, if you have a request struct then use it!
+
+      do_monthly(req, &out, -1, ctl);
+
+
+ Maybe you can keep request and control structs independent, so then
+ one day you can implement something like  
  
-     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-      #include <stdio.h>
-+     #include <unistd.h>
+    cal --date=Dec-2013 --date=Dec-2014
+
+ to print more independent calendars :-)
+
  
-      #ifdef __GLIBC__
- 
-@@ -437,8 +438,13 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
-      #error %m is not available
-      #endif
- 
--     #else
-+     #elif defined(_POSIX_VERSION)
- 
-+     #if _POSIX_VERSION < 200809L
-+     #error %m is not available
-+     #endif
-+
-+     #else
-      #error Your C-library is not supported.
-      #endif
-      ])],
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
