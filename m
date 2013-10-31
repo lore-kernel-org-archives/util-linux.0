@@ -1,80 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:37060 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751357Ab3JCJj2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Oct 2013 05:39:28 -0400
-Received: by mail-pb0-f47.google.com with SMTP id rr4so2198931pbb.34
-        for <util-linux@vger.kernel.org>; Thu, 03 Oct 2013 02:39:28 -0700 (PDT)
-From: Michael Forney <mforney@mforney.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/4] Add missing includes
-Date: Thu,  3 Oct 2013 02:39:17 -0700
-Message-Id: <1380793159-27602-2-git-send-email-mforney@mforney.org>
-In-Reply-To: <1380792968-1176-1-git-send-email-mforney@mforney.org>
-References: <1380792968-1176-1-git-send-email-mforney@mforney.org>
+Received: from mx1.redhat.com ([209.132.183.28]:32389 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754886Ab3JaPKQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 31 Oct 2013 11:10:16 -0400
+Date: Thu, 31 Oct 2013 16:10:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Bind mounts record fstype of none
+Message-ID: <20131031151001.GH1536@x2.net.home>
+References: <527122AF.90003@ubuntu.com>
+ <20131031105747.GB1536@x2.net.home>
+ <527266B0.7040201@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <527266B0.7040201@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-sys/types.h: For u_char typedef
-sys/params.h: For MAXNAMLEN
-sys/ttydefaults.h: For various tty definitions (also add configure check)
----
- configure.ac         | 1 +
- include/ttyutils.h   | 3 +++
- term-utils/ttymsg.c  | 1 +
- text-utils/display.c | 1 +
- 4 files changed, 6 insertions(+)
+On Thu, Oct 31, 2013 at 10:18:24AM -0400, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 10/31/2013 6:57 AM, Karel Zak wrote:
+> > On Wed, Oct 30, 2013 at 11:15:59AM -0400, Phillip Susi wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+> >> 
+> >> I came across an old bug filed in debian noting that mount
+> >> records the fstype for bind mounts as 'none' and this causes df
+> >> to suppress
+> > 
+> > It was explicitly requested by Al Viro to use "none" for some VFS
+> > operations years ago (c4966ccb16868fa748009a826340fac9d1b1ce39, 
+> > 0fae284a7a13d4d2dba7a908e0662a6d9c46f877).
+> > 
+> > I think it's correct, because FS type does not make any sense
+> > there and it's waste of time to try to determine FS type for
+> > MS_BINS or MS_PROPAGATION operations.
+> 
+> How does it not make sense?
 
-diff --git a/configure.ac b/configure.ac
-index 95ff8b3..12d0bab 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -204,6 +204,7 @@ AC_CHECK_HEADERS([ \
- 	sys/swap.h \
- 	sys/syscall.h \
- 	sys/time.h \
-+	sys/ttydefaults.h \
- 	sys/types.h \
- 	sys/un.h \
- 	unistd.h \
-diff --git a/include/ttyutils.h b/include/ttyutils.h
-index 13495ba..4f2fd88 100644
---- a/include/ttyutils.h
-+++ b/include/ttyutils.h
-@@ -13,6 +13,9 @@
- #ifdef HAVE_SYS_IOCTL_H
- #include <sys/ioctl.h>
- #endif
-+#ifdef HAVE_SYS_TTYDEFAULTS_H
-+#include <sys/ttydefaults.h>
-+#endif
- 
- /* Some shorthands for control characters. */
- #define CTL(x)		((x) ^ 0100)	/* Assumes ASCII dialect */
-diff --git a/term-utils/ttymsg.c b/term-utils/ttymsg.c
-index d610826..8bf993c 100644
---- a/term-utils/ttymsg.c
-+++ b/term-utils/ttymsg.c
-@@ -41,6 +41,7 @@
-   */
- 
- #include <sys/types.h>
-+#include <sys/param.h>
- #include <sys/uio.h>
- #include <signal.h>
- #include <fcntl.h>
-diff --git a/text-utils/display.c b/text-utils/display.c
-index 1f9a11b..1130366 100644
---- a/text-utils/display.c
-+++ b/text-utils/display.c
-@@ -33,6 +33,7 @@
- 
- #include <sys/param.h>
- #include <sys/stat.h>
-+#include <sys/types.h>
- #include <unistd.h>
- #include <errno.h>
- #include <ctype.h>
+ It is not FS operation, FS type is completely irrelevant here, kernel
+ does not use this argument of the mount(2) syscall.
+
+> >> showing it.  This seems like an error to me.  The type should be
+> >> what the actual filesystem type is, and if df wants to suppress
+> >> showing bind mounts, it should do so based on the bind flag.
+> > 
+> > Seems like you're victim of the mtab file. My Fedora 19:
+> > 
+> > # mount --bind /home /mnt/test # mount | grep /mnt/test /dev/sda5
+> > on /mnt/test type ext4 (rw,relatime,data=ordered)
+> 
+> Since the kernel reports the correct type, then I'd say mount should
+> behave the same when using mtab, and record it right instead of
+> forcing it to none.
+
+ There is *many disadvantages* when you use mtab, not sure if it make
+ sense to fix the issues especially when mtab is currently unused by 
+ (almost) all distributions.
+
+ Maybe we can keep the fstype and not replace it with "none" for mtab,
+ but is it so important when we use "none" since 2009 and mtab is
+ almost dead?
+
+    Karel
+
 -- 
-1.8.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
