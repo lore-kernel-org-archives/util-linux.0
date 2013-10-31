@@ -1,34 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mo-p00-ob.rzone.de ([81.169.146.161]:41074 "EHLO
-	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753749Ab3JXQ6O (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 24 Oct 2013 12:58:14 -0400
-Received: from probook.site
-	(dslb-084-057-067-069.pools.arcor-ip.net [84.57.67.69])
-	by smtp.strato.de (RZmta 32.11 DYNA|AUTH)
-	with (TLSv1.0:DHE-RSA-AES256-SHA encrypted) ESMTPSA id 0031fbp9OGoW8J
-	for <util-linux@vger.kernel.org>;
-	Thu, 24 Oct 2013 18:58:11 +0200 (CEST)
-Date: Thu, 24 Oct 2013 18:58:10 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: util-linux@vger.kernel.org
-Subject: fdisk lacks msdos partition support in gpt mode
-Message-ID: <20131024165810.GA26722@aepfle.de>
+Received: from mx1.redhat.com ([209.132.183.28]:36782 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751949Ab3JaHzH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 31 Oct 2013 03:55:07 -0400
+Date: Thu, 31 Oct 2013 08:55:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: andreas.hanke@gmx-topmail.de
+Cc: util-linux@vger.kernel.org
+Subject: Re: Support the new Linux /home partition GUID
+Message-ID: <20131031075501.GD2119@x2.net.home>
+References: <trinity-e7dfd7ef-b198-4b29-a28a-a1243935fd6a-1382782598509@3capp-gmx-bs40>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <trinity-e7dfd7ef-b198-4b29-a28a-a1243935fd6a-1382782598509@3capp-gmx-bs40>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Oct 26, 2013 at 12:16:38PM +0200, andreas.hanke@gmx-topmail.de wrote:
+> systemd has recently introduced a new GUID that is used to
+> auto-mount /home partitions on Linux. [1] This is documented at [2]
+> and [3] and already supported in gdisk [4], but not yet in fdisk. I
+> think this would be a useful addition.
 
-The guys to decided to use gpt labels even on legacy systems. That
-happens to work. But when it breaks its now difficult to see whats
-actually on disk. Now that fdisk from util-linux 2.23.2 has gpt support
-its unable to print the msdos partition table.
+ Good point. Added.
 
-It would be nice if fdisk gets some do-it-anyway flag to ignore gpt for
-a moment and at least dump such content.
+    Karel
 
-
-Thanks.
-
-Olaf
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
