@@ -1,28 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:15009 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752354Ab3KSNr1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Nov 2013 08:47:27 -0500
-Date: Tue, 19 Nov 2013 14:47:23 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add ext4 to list of filesystems with progress bars in
- fsck man page
-Message-ID: <20131119134723.GK5572@x2.net.home>
-References: <1384802150-24264-1-git-send-email-psusi@ubuntu.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:48767 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752627Ab3KAQyQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 12:54:16 -0400
+Message-ID: <5273DCB6.4020909@ubuntu.com>
+Date: Fri, 01 Nov 2013 12:54:14 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1384802150-24264-1-git-send-email-psusi@ubuntu.com>
+To: util-linux@vger.kernel.org
+Subject: /proc/mounts doesn't store bind flag
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 18, 2013 at 02:15:50PM -0500, Phillip Susi wrote:
->  disk-utils/fsck.8 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Applied, thanks.
+When symlinking /etc/mtab to /proc/mounts, bind mounts no longer have
+the bind option stored.  Is this a bug or working as intended?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJSc9y2AAoJEJrBOlT6nu75ihwH/A/rKo6GYPN+fIS+eA271n2X
+jqeGjHZr3mLfu5NGv+ihBWc9DM7zpxUXjWLzgY6+kyZ0RKyYbsbruQJLK3m+DPh5
++QASQ0p7ptKEArimKGeRMwqOlg0rRscZZRcPiT26ntwaS4aTreKtM2MvkJOdx2nR
+XqQTFyWOlu6neo4cS1fZse+sFO6PcwnsyB1zclRVcQbSMS0e/8qS7SKZ9PO8KRzS
+goT7gzvM/ShXmpOSblurFn3HFuVFswElDQ6WgWoNGHnJL9ClenBygUT7pMMj3Pbx
+qyHJzCW67Tc4iBDBN3V6g3y3ZmyCzKvTe2BQop009KnPeutlv8yzEVYW0f7XST0=
+=+HTn
+-----END PGP SIGNATURE-----
