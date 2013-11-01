@@ -1,65 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2886 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752539Ab3KDN6P (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 4 Nov 2013 08:58:15 -0500
-Date: Mon, 4 Nov 2013 14:58:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: mount --bind /A /A multiplies mount entries
-Message-ID: <20131104135808.GA21311@x2.net.home>
-References: <749356890.38567.1383563352930.open-xchange@email.1und1.de>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:45267 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752288Ab3KANhA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 09:37:00 -0400
+Message-ID: <5273AE7A.9000004@ubuntu.com>
+Date: Fri, 01 Nov 2013 09:36:58 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <749356890.38567.1383563352930.open-xchange@email.1und1.de>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: fdisk shows sun end sectors with +1 error
+References: <52728FCE.2050003@ubuntu.com> <20131101112340.GA23604@x2.net.home>
+In-Reply-To: <20131101112340.GA23604@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 04, 2013 at 12:09:12PM +0100, Bernhard Voelker wrote:
->   $ ./mount | grep sdb
->   /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
->   /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Yes, it seems correct, use findmnt(8) to see what happen.  It's more
- tricky :-) (or see /proc/self/mountinfo where is Id<->Parent
- relationship described by two first columns).
+On 11/1/2013 7:23 AM, Karel Zak wrote:
+> Oh, excellent catch -- it seems like pretty old bug (I see it in
+> v2.9, year 1999) ;-)
 
- ... and don't forget that mounts are propagated in shared trees, so
- try to compare:
+Yep, I'm slowly working my way through the massive pile of debian bug
+reports and found this one from 2006.
 
-  mkdir /mnt/test
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-  mount --bind /mnt/test /mnt/test
-  mount --make-private /mnt/test
-  mount --bind /mnt/test /mnt/test
-  mount --bind /mnt/test /mnt/test
-
- and:
-
-  mount --bind /mnt/test /mnt/test
-  mount --make-shared /mnt/test
-  mount --bind /mnt/test /mnt/test
-  mount --bind /mnt/test /mnt/test
-
-you can also try to mount something else to /mnt/test/A to see what
-happen.
-
-> This is probably a kernel bug
-
- I don't think it's bug :-)
-
->, but as bind mounts to self
-> are not that much of use, wouldn't it be worthwhile to
-> prohibit it at all in mount(8)?
-
-  mount --bind  /A /A
-
- is pretty common operation if you want to create a mountpoint
- from non-mountpoint directory.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJSc656AAoJEJrBOlT6nu75ciUIAIiX70XbdMAbyUKXJeFNyXo1
+G7wGltOuBeo2TJfKzQG7jX2e1t1xkxnB4BntqldehQsfPcn/chIQgFpRzOMUUNDt
+oPOnCHhGJ+mdEMDQAY98erLRZ8oqsoefFFScEdTZ+UVH/g+k4+2qYV3RH9i8iPYz
+kJxMB7xoAq7Lvffltx2tI9glmPGiOIKHWySEgE9piMlrdYA3MtGLub0c/3HnGdzS
+CNtS4Bsql/805zJhmZL6TjugYNQHBe/5iSe6UAkwxNaoYmQ1iNY3GfZrb25R3RLX
+aWNatMRkoLlvFL8xfqP5bdnYjBbxepnyQZzOuVPN+EeMlJGPWEIyoa3aKRN9FDg=
+=ctnu
+-----END PGP SIGNATURE-----
