@@ -1,47 +1,36 @@
-Return-Path: hpa@zytor.com
-Message-ID: <5292430D.6000709@zytor.com>
-Date: Sun, 24 Nov 2013 10:18:53 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:49696 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751732Ab3KAO73 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 10:59:29 -0400
+Message-ID: <5273C1CF.8020000@ubuntu.com>
+Date: Fri, 01 Nov 2013 10:59:27 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Craig <util-linux_contact@magister.com.au>
-CC: util-linux@vger.kernel.org
-Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
- *must* have disable option! :(
-References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au> <20131009141628.GB940@x2.net.home> <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh> <20131010111045.GA29199@x2.net.home> <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh> <20131011090442.GE14457@x2.net.home>
-In-Reply-To: <20131011090442.GE14457@x2.net.home>
+To: util-linux@vger.kernel.org
+Subject: blkid does not escape quotes in volume labels
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/11/2013 02:04 AM, Karel Zak wrote:
-> 
->  Yep. I don't want any "smart" solution there. All will be controlled
->  by users. 
->  
->  (Well, in the default mode for non-expert users with standard PMBR we will 
->   generate the MBR as expected by UEFI specification of course.)
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-There is one other useful mode for non-expert users, which is the one in
-which the current (hybrid) boot partition is manifest in the MBR (as
-well as as the GPT of course.)  Changing the hybrid boot partition would
-change the MBR to match.  From a UI perspective this could very easily
-be done by setting or removing a "hybrid" flag on a partition.
+e2label /dev/loop0 'La"bel'
+blkid -p /dev/loop0
+/dev/loop0: LABEL="La"bel" UUID="cb71cd2a-5237-44b6-92f1-d2bff59ed688"
+VERSION="1.0" TYPE="ext2" USAGE="files
+ystem"
 
-One could potentially allow more than one hybrid partition, but when one
-then accounts for PMBR partitions, there is no guarantee that one can
-fit more than one unless the layout is suitable.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-In the worst case, one can always fit one:
-
-MBR:	1. Leading PMBR partition
-	2. Hybrid boot partition
-	3. Tailing PMBR partition
-
-In the best case, one can fit 3:
-
-MBR:	1. Hybrid partition 1
-	2. Hybrid partition 2
-	3. Hybrid partition 3
-	4. Tailing PMBR partition
-
-	-hpa
+iQEcBAEBAgAGBQJSc8HPAAoJEJrBOlT6nu75jGQH/jMMW9Hahbwhbp1Op+7HBP8Z
+zkPqZiglRtk3JPsH8jGCvbLHWTC0GQse1cp8ySC0xfaUIaNkU+ikpajovpaNqhuE
+O9sZ0g3pWjGGw/pFEHbWygEmAVFi8RVPyPz/FIuH++Vm/D2wXau7D+/lCJRamT+3
+NE4EEdDm40ISn5NNvRJcm08Hjaxe98cAa9bGZcklxAyJFEWLf3iBCrDah3tkfFnA
+FtzbOZn/fVTnpTxXVjP0A2tF0UmXKthFzRreUhpz7Xn3wN2vykLEdMDVUgBJPqea
+I8I3VFL+Pf0C1TUq2Q62u0gnGeUKk4F4nlY1aIf3OoR3VRh/Tq4GOrx7B1/80sI=
+=rLB4
+-----END PGP SIGNATURE-----
