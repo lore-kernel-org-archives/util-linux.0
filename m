@@ -1,37 +1,35 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <5283C4CC.5010200@ubuntu.com>
-Date: Wed, 13 Nov 2013 13:28:28 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:48842 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751785Ab3KATVO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 15:21:14 -0400
+Message-ID: <5273FF29.1090403@ubuntu.com>
+Date: Fri, 01 Nov 2013 15:21:13 -0400
 From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: external mount utilities and utab
-References: <5273FF29.1090403@ubuntu.com> <20131104133735.GH23604@x2.net.home> <5277AA0C.70309@ubuntu.com>
-In-Reply-To: <5277AA0C.70309@ubuntu.com>
+To: util-linux@vger.kernel.org
+Subject: external mount utilities and utab
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 11/4/2013 9:07 AM, Phillip Susi wrote:
-> Are you saying then that all of the helpers should now be using 
-> libmount, and taking care of the utab updates themselves rather
-> than just having mount do it?
-
-ping... still wondering if the proper fix for this is to link
-mount.cifs with libmount and make it suid, or if mount needs fixed to
-do the utab update?
-
+When mount runs mount.cifs, /run/mount/utab is not updated, so the
+user mount flag is lost and thus, I can't umount as the user.  Running
+mount -i works correctly.  Is this a bug in mount.cifs, or should
+mount be recording these options whether it runs the external helper
+or not?
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.17 (MingW32)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQEcBAEBAgAGBQJSg8TMAAoJEJrBOlT6nu75vV0H/RfDGiv5oPR+R2TsaABnd/GV
-HMJ8AZfS322qdYjeMMyMTCTx9y/cy6fKzfW9q/JqyvQy6JNBq8LSFEve0Z298dwf
-4JNvImDO1pjnXedMEvtN9X5NwxJbYpkY+LP9owg4LWP6d0RnLu8uwxNDHDpLp2Oi
-PX2nbXHoUm8r8r6a3FfN1mVDqExhMbc5nJP7RCD6AqYzJ8ARz6x5/z3ei9u8UsT9
-tctApV8wEvnGqdQufLXtP236pOplWnTMJ32RfIe7chM86T88MRheC5Mxq2MHjtZ4
-slDJptr6dcTHAz8lY12J6mIZPpbLrb0mT9xOKmalivk8PJj0jkhj2/Fm9ejp87E=
-=V2jT
+iQEcBAEBAgAGBQJSc/8pAAoJEJrBOlT6nu75ybMH/jtQUtC2FJ78ohCc7jsFYh6u
+UU+lL4K4AdUQBZ44/cW23N8KV1fNppeF4JhYeHaIiCv0DWw4pglMsMN2HhCJuY01
+8rYXRo5MVvvO/TpZlomm5JPIbuTaAyCChgU7doQXCyVTzXSi+On8KOFpXachqMiq
+fPWL1wBQpSCS11n3+f4O7trkg8pB8pXuNYk+TcUEzRM11yEpu0Q+XvYN6po9faZc
+YDJKyb4Zq2+b3Xp3jbfa15wMQ01hpVG6XZBFeBkmOdvdMmHvzO0Qgj1bYAPp+WEr
+Ea4lDFtgedNlL0dGYmlyktywK8mkKTTMpq/dGE3ChTSZLl/DSFfx6s5nSQi5s5k=
+=JvkV
 -----END PGP SIGNATURE-----
