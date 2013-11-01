@@ -1,34 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:40307 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753169Ab3KAVCD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 17:02:03 -0400
-Message-ID: <527416C9.9020702@ubuntu.com>
-Date: Fri, 01 Nov 2013 17:02:01 -0400
+Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:58431 "EHLO
+	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752002Ab3KARok (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 13:44:40 -0400
 From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Subject: blkid: reports swap version + 1
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH] blockdev: don't use HDIO_GETGEO
+Date: Fri,  1 Nov 2013 13:37:05 -0400
+Message-Id: <1383327425-2694-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+blockdev was still using this depreciated ioctl and that was
+causing blockdev --report to fail on loop and nbd devices.
+Switch to reading the partition start from sysfs instead.
+This also allows it to correctly report > 2^32 sector counts.
 
-blkid adds one to the version number it reports when probing swap,
-saying version 2 for swap version 1, and saying version 1 for the old
-and no longer supported v0.
+Signed-off-by: Phillip Susi <psusi@ubuntu.com>
+---
+ disk-utils/blockdev.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+diff --git a/disk-utils/blockdev.c b/disk-utils/blockdev.c
+index d030217..2ebe0e1 100644
+--- a/disk-utils/blockdev.c
++++ b/disk-utils/blockdev.c
+@@ -16,6 +16,7 @@
+ #include "blkdev.h"
+ #include "pathnames.h"
+ #include "closestream.h"
++#include "sysfs.h"
+ 
+ struct bdc {
+ 	long		ioc;		/* ioctl code */
+@@ -436,7 +437,9 @@ static void report_device(char *device, int quiet)
+ 	int ro, ssz, bsz;
+ 	long ra;
+ 	unsigned long long bytes;
+-	struct hd_geometry g;
++	unsigned long long start = 0;
++	struct sysfs_cxt cxt;
++	struct stat st;
+ 
+ 	fd = open(device, O_RDONLY | O_NONBLOCK);
+ 	if (fd < 0) {
+@@ -446,15 +449,19 @@ static void report_device(char *device, int quiet)
+ 	}
+ 
+ 	ro = ssz = bsz = 0;
+-	g.start = ra = 0;
++	ra = 0;
++	if (fstat(fd, &st) == 0) {
++		sysfs_init(&cxt, st.st_rdev, NULL);
++		sysfs_read_u64(&cxt, "start", &start);
++		sysfs_deinit(&cxt);
++	}
+ 	if (ioctl(fd, BLKROGET, &ro) == 0 &&
+ 	    ioctl(fd, BLKRAGET, &ra) == 0 &&
+ 	    ioctl(fd, BLKSSZGET, &ssz) == 0 &&
+ 	    ioctl(fd, BLKBSZGET, &bsz) == 0 &&
+-	    ioctl(fd, HDIO_GETGEO, &g) == 0 &&
+ 	    blkdev_get_size(fd, &bytes) == 0) {
+-		printf("%s %5ld %5d %5d %10ld %15lld   %s\n",
+-		       ro ? "ro" : "rw", ra, ssz, bsz, g.start, bytes, device);
++		printf("%s %5ld %5d %5d %10lld %15lld   %s\n",
++		       ro ? "ro" : "rw", ra, ssz, bsz, start, bytes, device);
+ 	} else {
+ 		if (!quiet)
+ 			warnx(_("ioctl error on %s"), device);
+-- 
+1.8.1.2
 
-iQEcBAEBAgAGBQJSdBbJAAoJEJrBOlT6nu75xhIIAMR4wlDO1vil5CQ4vzd3tDpP
-CayY4eP/+zrtzlyiBeITzg3pCw58kr1m2rOvtMOHE+c6EBjqA5LjNz6SwZN+P7pa
-6Aj0roZfg4uzQWX/QmoSXaYnW7tzoZSvpWqLLkmagAzncxFTx/A3dzX94tSbk4/7
-f5IcPFZVV+8fg22VDII04WrVk1ilX7Nf7ct9TNj0VpVtunIgYPndE3LgE2+SvDJe
-TTZBK7AZrn+U0yMcYDagzIzYFEZAquYhmg0Q8zT731IeSTdet6gAUpBuqKDf7v0n
-PmAXOsL2Zkk1PcJ3nHJwjSs+3TbuvU4HUwem98LIYjyE/ifXWFzg4lV4Eag/QAs=
-=PNbL
------END PGP SIGNATURE-----
