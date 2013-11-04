@@ -1,51 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:41217 "EHLO
-	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932356Ab3KMPax (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Nov 2013 10:30:53 -0500
-From: Phillip Susi <psusi@ubuntu.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Remove cruft from mkswap man page
-Date: Wed, 13 Nov 2013 10:30:52 -0500
-Message-Id: <1384356652-27468-1-git-send-email-psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:7446 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752018Ab3KDNg1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 08:36:27 -0500
+Date: Mon, 4 Nov 2013 14:36:23 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: external mount utilities and utab
+Message-ID: <20131104133623.GG23604@x2.net.home>
+References: <5273FF29.1090403@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5273FF29.1090403@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I don't think there's any reason to continue to mention behavior
-of kernels older than 10 years.
+On Fri, Nov 01, 2013 at 03:21:13PM -0400, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> When mount runs mount.cifs, /run/mount/utab is not updated, so the
+> user mount flag is lost and thus, I can't umount as the user.  Running
+> mount -i works correctly.  Is this a bug in mount.cifs, or should
+> mount be recording these options whether it runs the external helper
+> or not?
 
-Signed-off-by: Phillip Susi <psusi@ubuntu.com>
----
- disk-utils/mkswap.8 | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ Fixed, so if you have suid mount.cifs then you can use "user" mount
+ option and libmount will (after successful external helper) update
+ /run/mount/utab.
 
-diff --git a/disk-utils/mkswap.8 b/disk-utils/mkswap.8
-index 68cc40b..e08aa03 100644
---- a/disk-utils/mkswap.8
-+++ b/disk-utils/mkswap.8
-@@ -103,21 +103,13 @@ Display version information and exit.
- .SH NOTES
- The maximum useful size of a swap area depends on the architecture and
- the kernel version.
--It is roughly 2GiB on i386, PPC, m68k and ARM, 1GiB on sparc, 512MiB on mips,
--128GiB on alpha, and 3TiB on sparc64.  For kernels after 2.3.3 (May 1999) there is no
--such limitation.
- 
- The maximum number of the pages that is possible to address by swap area header
- is 4294967295 (UINT_MAX). The remaining space on the swap device is ignored.
- 
--Note that before version 2.1.117 the kernel allocated one byte for each page,
--while it now allocates two bytes, so that taking into use a swap area of 2 GiB
--might require 2 MiB of kernel memory.
--
--Presently, Linux allows 32 swap areas (this was 8 before Linux 2.4.10 (Sep 2001)).
-+Presently, Linux allows 32 swap areas.
- The areas in use can be seen in the file
- .I /proc/swaps
--(since 2.1.25 (Sep 1997)).
- 
- .B mkswap
- refuses areas smaller than 10 pages.
+    Karel
+
 -- 
-1.8.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
