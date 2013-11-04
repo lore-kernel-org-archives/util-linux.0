@@ -1,53 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:3911 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:27483 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751624Ab3KSR1Y (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Nov 2013 12:27:24 -0500
-Date: Tue, 19 Nov 2013 18:27:18 +0100
+	id S1753174Ab3KDOcG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 09:32:06 -0500
+Date: Mon, 4 Nov 2013 15:32:03 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Phillip Susi <psusi@ubuntu.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: umount by uuid
-Message-ID: <20131119172050.GL5572@x2.net.home>
-References: <528A735A.9060606@ubuntu.com>
+Subject: Re: /proc/mounts doesn't store bind flag
+Message-ID: <20131104143203.GE21311@x2.net.home>
+References: <5273DCB6.4020909@ubuntu.com>
+ <20131104102932.GF23604@x2.net.home>
+ <5277A8EC.30809@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <528A735A.9060606@ubuntu.com>
+In-Reply-To: <5277A8EC.30809@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 18, 2013 at 03:06:50PM -0500, Phillip Susi wrote:
+On Mon, Nov 04, 2013 at 09:02:20AM -0500, Phillip Susi wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
-> It seems that you now can umount by uuid using the UUID= tag, but not
-> with the -U switch, so it doesn't mirror mount.
+> That is pretty much what I thought, but why is the bind flag stored
+> when you do use mtab then?  Shouldn't they give the same behavior, so
 
-
- man umount:
-
-    A file system is specified by giving the directory where it has been
-    mounted.  Giving the special device on which the file system lives
-    may also work, but is obsolete, mainly because it will fail in case
-    this device was mounted on more than one directory.
-
- .. so umount by tag is supported (and will be supported) but I don't
- think we need to extend this functionality. Add -U and -L to umount
- seems like a bad idea.
+ Historical reasons... 10 years ago nobody cares about the 
+ sense of the flag in the mtab ;-(
  
-> or is the -U form considered depreciated?
+ And it's also difficult for userspace to generate the right mount
+ source device if a directory is specified. 
 
- That's a good question, I don't like -{U,L} because these options are
- tag specific. For example now we also support PARTUUID= and there is
- no a special command line option for this tag. Anyway, people use the
- -{U,L} options, so we will support it probably forever... (internally
- it does not matter as all is converted to tags).
+ I'm not sure if I want to change the mtab behavior if for example
+ old coreutils df(1) or some backup tools depend on this odd behavior. 
+ 
+ It seems better to keep it without a change and provide a better
+ solution only for new systems without mtab.
 
+> bind should not be stored in mtab?  In particular it changes the way
+> you have to remount a bind mount ro, which is an unexpected user
+> visible change.
 
- Note that I found a bug in mount and umount, mount and umount by TAG=
- does not work for non-root users since v2.23. Fixed in git tree.
+ Yes. The update to systems without mtab has some disadvantages, but
+ it's still acceptable compare to mtab disadvantages.
+
+ Fedora did the change years (2?) ago and the number of the bug
+ reports related to this problem is almost zero. The question is what
+ will happen on server (e.g. RHEL), we will see :-)
 
     Karel
+ 
 
 -- 
  Karel Zak  <kzak@redhat.com>
