@@ -1,76 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47202 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:2886 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750823Ab3KSSGC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Nov 2013 13:06:02 -0500
-Date: Tue, 19 Nov 2013 19:05:56 +0100
+	id S1752539Ab3KDN6P (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 08:58:15 -0500
+Date: Mon, 4 Nov 2013 14:58:08 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] setsid: don't fork
-Message-ID: <20131119180556.GN5572@x2.net.home>
-References: <1384456993-3721-1-git-send-email-psusi@ubuntu.com>
- <20131119132412.GG5572@x2.net.home>
- <528B7D4C.1030405@ubuntu.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: mount --bind /A /A multiplies mount entries
+Message-ID: <20131104135808.GA21311@x2.net.home>
+References: <749356890.38567.1383563352930.open-xchange@email.1und1.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <528B7D4C.1030405@ubuntu.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <749356890.38567.1383563352930.open-xchange@email.1und1.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 19, 2013 at 10:01:32AM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 11/19/2013 8:24 AM, Karel Zak wrote:
-> > Yep, it was our goal to not change the default behaviour that
-> > exists for years.
-> 
-> It isn't really a default preference but a straight up bug since the
-> behavior depends on how the shell invokes it.  You only get the no
-> wait behavior when it is a process group leader.  When invoked not as
-> a group leader, then you get the wait behavior whether you asked for
-> it or not.  So if you really want no wait to be the default behavior
+On Mon, Nov 04, 2013 at 12:09:12PM +0100, Bernhard Voelker wrote:
+>   $ ./mount | grep sdb
+>   /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+>   /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
 
- but why you don't want --wait behavior? It does not change anything,
- but fix the problem with group leader. 
- 
- IMHO we can make it (--wait) the default (you almost convinced me
- that the default behaviour should be fixed).
+ Yes, it seems correct, use findmnt(8) to see what happen.  It's more
+ tricky :-) (or see /proc/self/mountinfo where is Id<->Parent
+ relationship described by two first columns).
 
-> then you need to fork whether or not you're a group leader and the
-> policy decision chooses whether to wait for the child or not.
-> 
-> > It does not seem too elegant :-) If you really want to change the 
-> > default behaviour than it would be better to make --wait default 
-> > and exec() in child, then you don't need setpgid(), kill() and 
-> > sleep/pause() at all.
-> 
-> What's not elegant about it? 
+ ... and don't forget that mounts are propagated in shared trees, so
+ try to compare:
 
- fork for sleep() and then kill it
+  mkdir /mnt/test
 
-> I think it's cleaner than keeping around
-> a useless intermediary process that just waits for the child and
-> returns its exit status. 
- 
- it also fixes the problem with group leader as child process is never
- group leader (you have to call setpgid() to be leader).
+  mount --bind /mnt/test /mnt/test
+  mount --make-private /mnt/test
+  mount --bind /mnt/test /mnt/test
+  mount --bind /mnt/test /mnt/test
 
- I'm also not sure if remove --wait is the best way... what about
- people who already use it? (yep, it's release few weeks ago, but...)
+ and:
 
-> I'm still not sure why the kernel requires
-> you to not be a group leader but this seems like a better workaround
-> than forking off a lost child.
+  mount --bind /mnt/test /mnt/test
+  mount --make-shared /mnt/test
+  mount --bind /mnt/test /mnt/test
+  mount --bind /mnt/test /mnt/test
 
- If I good understand the man page then setsid() caller is session and
- group leader of the *new* session and group. It's probably unwanted
- to make the original group orphaned (without leader), because
- processes in orphaned group get SIGCONT from kernel...
+you can also try to mount something else to /mnt/test/A to see what
+happen.
 
- (BTW, SIGCONT is probably what will happen in your version after
-  kill(pid) as the sleeping child is group leader, right?)
+> This is probably a kernel bug
+
+ I don't think it's bug :-)
+
+>, but as bind mounts to self
+> are not that much of use, wouldn't it be worthwhile to
+> prohibit it at all in mount(8)?
+
+  mount --bind  /A /A
+
+ is pretty common operation if you want to create a mountpoint
+ from non-mountpoint directory.
 
     Karel
 
