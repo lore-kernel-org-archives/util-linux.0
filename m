@@ -1,65 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:53133 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751899Ab3K2Poh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 29 Nov 2013 10:44:37 -0500
-Received: from relay1.suse.de (unknown [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 03223A7D78
-	for <util-linux@vger.kernel.org>; Fri, 29 Nov 2013 16:44:36 +0100 (CET)
-From: Werner Fink <werner@suse.de>
-To: util-linux@vger.kernel.org
-Cc: werner@suse.de
-Subject: [PATCH] Support the special terminal on first serial line on a S/390
-Date: Fri, 29 Nov 2013 16:44:25 +0100
-Message-Id: <1385739865-24696-1-git-send-email-werner@suse.de>
+Received: from moutng.kundenserver.de ([212.227.126.186]:55094 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753142Ab3KDLJO convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Nov 2013 06:09:14 -0500
+Date: Mon, 4 Nov 2013 12:09:12 +0100 (CET)
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Reply-To: Bernhard Voelker <mail@bernhard-voelker.de>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Message-ID: <749356890.38567.1383563352930.open-xchange@email.1und1.de>
+Subject: mount --bind /A /A multiplies mount entries
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-which is due legacy reasons a block terminal of type 3270 or higher.
-Whereas the second serial line on a S/390(x) is a real character
-terminal which is compatible with VT220.
+Using the same mount point as SRC and DST with mount --bind
+somehow multiplies the number of mount points:
 
-Signed-off-by: Werner Fink <werner@suse.de>
----
- term-utils/agetty.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+  $ ./mount | grep sdb
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
 
-diff --git term-utils/agetty.c term-utils/agetty.c
-index 113f8e7..c881f3d 100644
---- term-utils/agetty.c
-+++ term-utils/agetty.c
-@@ -49,6 +49,10 @@
- #  ifndef DEFAULT_VCTERM
- #    define DEFAULT_VCTERM "linux"
- #  endif
-+#  if defined (__s390__) || defined (__s390x__)
-+#    define DEFAULT_TTYS0  "ibm327x"
-+#    define DEFAULT_TTYS1  "vt220"
-+#  endif
- #  ifndef DEFAULT_STERM
- #    define DEFAULT_STERM  "vt102"
- #  endif
-@@ -1052,6 +1056,20 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
- 	if (tcgetattr(STDIN_FILENO, tp) < 0)
- 		log_err(_("%s: failed to get terminal attributes: %m"), tty);
- 
-+#if defined (__s390__) || defined (__s390x__)
-+	if (!op->term) {
-+	        /*
-+		 * Special terminal on first serial line on a S/390(x) which
-+		 * is due legacy reasons a block terminal of type 3270 or
-+		 * higher.  Whereas the second serial line on a S/390(x) is
-+		 * a real character terminal which is compatible with VT220.
-+		 */
-+		if (strcmp(op->tty, "ttyS0") == 0)
-+			op->term = DEFAULT_TTYS0;
-+		else if (strcmp(op->tty, "ttyS1") == 0)
-+			op->term = DEFAULT_TTYS1;
-+	}
-+#endif
- 	/*
- 	 * Detect if this is a virtual console or serial/modem line.
- 	 * In case of a virtual console the ioctl TIOCMGET fails and
--- 
-1.7.9.2
+  $ ./mount --bind /home /home
 
+  $ ./mount | grep sdb
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+
+  $ ./mount --bind /home /home
+
+  $ ./mount | grep sdb
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+
+  $ ./mount --bind /home /home
+
+  $ ./mount | grep sdb
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+  /dev/sdb on /home type ext4 (rw,relatime,data=ordered)
+
+This is probably a kernel bug, but as bind mounts to self
+are not that much of use, wouldn't it be worthwhile to
+prohibit it at all in mount(8)?
+
+System (mount from latest git):
+
+  $ lsb_release -a
+  LSB Version:    n/a
+  Distributor ID: openSUSE project
+  Description:    openSUSE 12.3 (x86_64)
+  Release:        12.3
+  Codename:       Dartmouth
+
+  $ uname -r
+  3.7.10-1.16-desktop
+
+Have a nice day,
+Berny
