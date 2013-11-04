@@ -1,40 +1,33 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <528B792C.4010202@ubuntu.com>
-Date: Tue, 19 Nov 2013 09:43:56 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:24171 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752887Ab3KDJGP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 04:06:15 -0500
+Date: Mon, 4 Nov 2013 10:06:11 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: blkid: reports swap version + 1
+Message-ID: <20131104090611.GD23604@x2.net.home>
+References: <527416C9.9020702@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fdisk: remove angle brackets from usage
-References: <1384803754-973-1-git-send-email-psusi@ubuntu.com> <20131119092347.GB5572@x2.net.home>
-In-Reply-To: <20131119092347.GB5572@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <527416C9.9020702@ubuntu.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Nov 01, 2013 at 05:02:01PM -0400, Phillip Susi wrote:
+> blkid adds one to the version number it reports when probing swap,
+> saying version 2 for swap version 1, and saying version 1 for the old
+> and no longer supported v0.
 
-On 11/19/2013 4:23 AM, Karel Zak wrote:
-> On Mon, Nov 18, 2013 at 02:42:34PM -0500, Phillip Susi wrote:
->> Remove superfluous angle brackets and use square brackets where
->> appropriate to conform to the man page convention.
-> 
-> The angle brackets are expected, see
-> Documentation/howto-usage-function.txt.
+ Hmm.. old bug (introduced in udev volume_id), it's probably because
+ the magic string is "SWAPSPACE2".
 
-In that case, then fdisk should have square brackets added around the
-<disk> since it is an optional argument.
+ Fixed (I hope it does not introduce a regression).
 
+    Karel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJSi3ksAAoJEJrBOlT6nu759TsH/2CdeIsN/IV8YgFmxaWDtI2+
-cEXaGHsZSOrRJuiAbfQt/ktA5+V7x0VtyUZJanZtpHB3upNB2gz831cP3d2Tbw/z
-6G8NFCy/IoJzZANci/5e+bcVch8r4mFHKv8ia8VUEUjbRMDBJxQ8QEKNu2MjuEPk
-78GZmtObY6C/hn7Ec4842IXgzsNHozzc8a0ftC7g4zfsNmcUxwmwljuLrDd9ESrd
-DuZhozwtHfsZrWURnX3gQcI/OvDXexZ8PGMO2Of9xYinw+1gvMkFQgULmwt/6HIO
-SCaPc9wwNwdFDx45krXy/8dtolvIZ4my16LJTjiGGr/6tBUwkwLwT12dKj2Mbog=
-=ouFR
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
