@@ -1,33 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40643 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:32768 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751782Ab3KDNhh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 4 Nov 2013 08:37:37 -0500
-Date: Mon, 4 Nov 2013 14:37:35 +0100
+	id S1753565Ab3KDOQO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 09:16:14 -0500
+Date: Mon, 4 Nov 2013 15:16:11 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Phillip Susi <psusi@ubuntu.com>
 Cc: util-linux@vger.kernel.org
 Subject: Re: external mount utilities and utab
-Message-ID: <20131104133735.GH23604@x2.net.home>
+Message-ID: <20131104141611.GD21311@x2.net.home>
 References: <5273FF29.1090403@ubuntu.com>
+ <20131104133735.GH23604@x2.net.home>
+ <5277AA0C.70309@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5273FF29.1090403@ubuntu.com>
+In-Reply-To: <5277AA0C.70309@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 01, 2013 at 03:21:13PM -0400, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> When mount runs mount.cifs, /run/mount/utab is not updated, so the
-> user mount flag is lost and thus, I can't umount as the user.  Running
-> mount -i works correctly.  Is this a bug in mount.cifs, or should
-> mount be recording these options whether it runs the external helper
-> or not?
+On Mon, Nov 04, 2013 at 09:07:08AM -0500, Phillip Susi wrote:
+> Are you saying then that all of the helpers should now be using
+> libmount, and taking care of the utab updates themselves rather than
+> just having mount do it?
 
- ah.. note, that mount.cifs is not suid on Fedora, only suid mount
- helper is mount.nfs on my machine.
+ That would be the best solution (and not only for utab, but also for
+ options parsing, userspace options, command line options used for
+ helpers, etc.). It's better to have all the things in one library.
+
+ Anyway, the change I did today allows to use "user" fstab mount
+ option also for non-libmount external helper.
+
+ It's already in my TODO list to write libmount patch for mount.cifs.
+
 
     Karel
 
