@@ -1,45 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from brent.tribalogic.net ([78.86.109.144]:57074 "EHLO
-	brent.tribalogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751300Ab3KRRsT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Nov 2013 12:48:19 -0500
-Message-ID: <528A5134.8070004@colin.guthr.ie>
-Date: Mon, 18 Nov 2013 17:41:08 +0000
-From: Colin Guthrie <gmane@colin.guthr.ie>
+Received: from mx1.redhat.com ([209.132.183.28]:60397 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752018Ab3KDN7g (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Nov 2013 08:59:36 -0500
+Date: Mon, 4 Nov 2013 14:59:32 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: util-linux@vger.kernel.org, jason.cipriani@gmail.com
+Subject: Re: [PATCH] blkdiscard: BLKSSZGET fills in an int, not a uint64
+Message-ID: <20131104135932.GB21311@x2.net.home>
+References: <20131102234451.GA10255@thunk.org>
+ <1383435966-29337-1-git-send-email-tytso@mit.edu>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] su: Remove the impossible -C option to request the same
- session.
-References: <1384785840-31957-1-git-send-email-colin@mageia.org> <20131118164252.GA5572@x2.net.home>
-In-Reply-To: <20131118164252.GA5572@x2.net.home>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1383435966-29337-1-git-send-email-tytso@mit.edu>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-'Twas brillig, and Karel Zak at 18/11/13 16:42 did gyre and gimble:
-> On Mon, Nov 18, 2013 at 02:44:00PM +0000, Colin Guthrie wrote:
->> It's impossible to pass this argument so it is pointless to keep the
->> code to support it.
-> 
->  Really? See struct option longopts[] and --session-command.
+On Sat, Nov 02, 2013 at 07:46:06PM -0400, Theodore Ts'o wrote:
+>  sys-utils/blkdiscard.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Gah, sorry! Could have sworn I'd searched for the 'C' but must have been
-fat fingers while on a bumpy train.
+ Applied, thanks!
 
-Sorry 'bout that.
-
-Col
+    Karel
 
 -- 
-
-Colin Guthrie
-gmane(at)colin.guthr.ie
-http://colin.guthr.ie/
-
-Day Job:
-  Tribalogic Limited http://www.tribalogic.net/
-Open Source:
-  Mageia Contributor http://www.mageia.org/
-  PulseAudio Hacker http://www.pulseaudio.org/
-  Trac Hacker http://trac.edgewall.org/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
