@@ -1,40 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:45267 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:37125 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752288Ab3KANhA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Nov 2013 09:37:00 -0400
-Message-ID: <5273AE7A.9000004@ubuntu.com>
-Date: Fri, 01 Nov 2013 09:36:58 -0400
+	with ESMTP id S1753584Ab3KHAcT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Nov 2013 19:32:19 -0500
+Message-ID: <527C3112.40904@ubuntu.com>
+Date: Thu, 07 Nov 2013 19:32:18 -0500
 From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: fdisk shows sun end sectors with +1 error
-References: <52728FCE.2050003@ubuntu.com> <20131101112340.GA23604@x2.net.home>
-In-Reply-To: <20131101112340.GA23604@x2.net.home>
+To: util-linux@vger.kernel.org
+Subject: Generating release from git
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hash: SHA512
 
-On 11/1/2013 7:23 AM, Karel Zak wrote:
-> Oh, excellent catch -- it seems like pretty old bug (I see it in
-> v2.9, year 1999) ;-)
-
-Yep, I'm slowly working my way through the massive pile of debian bug
-reports and found this one from 2006.
+How do you generate the release tarball from the git repo?  I thought
+it would be to run make dist, but it seems the real release tarball is
+bootstrapped with autogen.sh, but NOT configured, and make dist
+generates a tarball that is already configured.
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
+Version: GnuPG v1.4.14 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQEcBAEBAgAGBQJSc656AAoJEJrBOlT6nu75ciUIAIiX70XbdMAbyUKXJeFNyXo1
-G7wGltOuBeo2TJfKzQG7jX2e1t1xkxnB4BntqldehQsfPcn/chIQgFpRzOMUUNDt
-oPOnCHhGJ+mdEMDQAY98erLRZ8oqsoefFFScEdTZ+UVH/g+k4+2qYV3RH9i8iPYz
-kJxMB7xoAq7Lvffltx2tI9glmPGiOIKHWySEgE9piMlrdYA3MtGLub0c/3HnGdzS
-CNtS4Bsql/805zJhmZL6TjugYNQHBe/5iSe6UAkwxNaoYmQ1iNY3GfZrb25R3RLX
-aWNatMRkoLlvFL8xfqP5bdnYjBbxepnyQZzOuVPN+EeMlJGPWEIyoa3aKRN9FDg=
-=ctnu
+iQEcBAEBCgAGBQJSfDESAAoJEJrBOlT6nu75wf4IANb9Bi8txCj1XDA10vThctmv
+71+d3YRpvJIhItmgXidPGpuRRBJmQEGWhiLKeYan7WRoZBonniG3KdiEtHTGgqvS
+rZIOXBLcoxmisL6LQb0X10Zj3kPK7N3qQfh3rm4p51ATVBKxb82E6DhnyHgN2Kbt
+3LZaMrfzGdXHzVl7tWH83gFpf6m3jMixisA87hbU48dmd4PC71e8T3fsCzE4uPkx
+X5P59qv84PRj7Z7Kx+au3j3cYiidVR61lJRu110MyS1HnpylSjNU2iND+JTmxw/y
+VxX5zaaPyEqnDu0D1TUrz5p8SNxfVKp0P0n4jB93+jkZy663yVnsjf1cCD93iZw=
+=bU9G
 -----END PGP SIGNATURE-----
