@@ -1,42 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:34439 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755001Ab3KNSQb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Nov 2013 13:16:31 -0500
-Message-ID: <5285137E.60900@ubuntu.com>
-Date: Thu, 14 Nov 2013 13:16:30 -0500
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
+Received: from mail-we0-f175.google.com ([74.125.82.175]:51034 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751773Ab3KJUGP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 15:06:15 -0500
+Received: by mail-we0-f175.google.com with SMTP id p61so1218648wes.6
+        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 12:06:14 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: SGI disk labels show wrong device
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/2] docs: add patching process to howto-contribute.txt
+Date: Sun, 10 Nov 2013 20:06:09 +0000
+Message-Id: <1384113970-2558-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ Documentation/howto-contribute.txt | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-Parted lists the device name using the wrong partition number:
+diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
+index f0b64ef..5f4531e 100644
+--- a/Documentation/howto-contribute.txt
++++ b/Documentation/howto-contribute.txt
+@@ -88,6 +88,29 @@ Coding style
+ 	  something is not quite right, and you are unwilling to fix the
+ 	  issue.
+ 
++Patching process
++
++	* Tell in mail list when you are going to work with some particular
++	  piece of code for long time.  This helps other to avoid massive
++	  merge conflicts.  Small or quick work does not need to be
++	  announced.
++
++	* Submit only changes that you think are ready to merge.  If you only
++	  want change review tell your intention clearly in change cover
++	  letter, and/or in each patch subject to review-only.
++
++	* When getting comments align the changes with them.  Resubmission
++	  without changes is as good as ignoring advice, and is neither
++	  recommended nor polite.
++
++	* Resubmission can be partial or complete.  If only few alterations
++	  are needed here and there resubmit particular patches.  When
++	  comments cause greater effect resubmit everything again.
++
++	* All patch submissions, big or small, are either commented, reject,
++	  or merge.  When maintainer rejects a patch (series) it is pointless
++	  to resubmit.
++
+ Various notes
+ 
+ 	* The util-linux does not use kernel headers for file system super
+-- 
+1.8.4.2
 
-Disk /dev/sde: 8 MiB, 8388608 bytes, 16384 sectors
-Geometry: 8 heads, 32 sectors/track, 64 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 32768 bytes
-Disklabel type: sgi
-
-Pt# Device    Info Start       End Sectors Id System
- 9: /dev/sde1          0      4095    4096  0 SGI volhdr
-11: /dev/sde2          0     16383   16384  6 SGI volume
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJShRN9AAoJEJrBOlT6nu75Q80H/0/cu1cCm4l6RDfsMgFkDyG9
-SxX3f4sUWJYsmOxA6EvzQpCkltWqYopqOpFjT4GLAhzij6cxTS55RE9x6sjcJOei
-B7JJTqSc7+4ah5endSFGblD0OMR3SG8iBpTIcvOKChMT9j/a59i6gcokfdUOOxXQ
-NE3Vk2aC3k3eUhGKKly12DCdubKsRGMxhw2PFktyKjmQjECGtHUH12GsorFugzpq
-iMIjxGGKenFXw46wLUey9BHCjwvc+7TspcDzkcnGTwCPrCWX1uICa8KZ6I5jeki4
-HlbP3jm+imLSPDVIhjzNm8yCMscdcnAwHCvFQxp4KR3NJmL3wnjuJnbFHfwT93Y=
-=q6v4
------END PGP SIGNATURE-----
