@@ -1,29 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:23361 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751336Ab3KLKtH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Nov 2013 05:49:07 -0500
-Date: Tue, 12 Nov 2013 11:48:56 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] docs: add patching process to howto-contribute.txt
-Message-ID: <20131112104856.GF12667@x2.net.home>
-References: <1384113970-2558-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1384113970-2558-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:33108 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751587Ab3KJSY5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 13:24:57 -0500
+Received: by mail-wg0-f45.google.com with SMTP id x13so2730992wgg.12
+        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 10:24:56 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 05/13] cal: simplify ascii_weeknum() function
+Date: Sun, 10 Nov 2013 18:23:32 +0000
+Message-Id: <1384107820-498-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 10, 2013 at 08:06:09PM +0000, Sami Kerola wrote:
->  Documentation/howto-contribute.txt | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
+Either the week is or isn't highlighted, there is no need to over
+complicate printing of that.
 
- Applied, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-    Karel
-
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 748288d..c1bbdce 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -970,12 +970,9 @@ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
+ static char *ascii_weeknum(char *p, int weeknum, const struct cal_control *ctl)
+ {
+ 	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
+-		p += sprintf(p,"%s",Senter);
+-	p += sprintf(p,"%2d",weeknum);
+-	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
+-		p += sprintf(p,"%s ",Sexit);
++		p += sprintf(p, "%s%2d%s ", Senter, weeknum, Sexit);
+ 	else
+-		p += sprintf(p," ");
++		p += sprintf(p, "%2d ", weeknum);
+ 	return p;
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.2
+
