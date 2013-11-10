@@ -1,44 +1,69 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Sat, 2 Nov 2013 19:44:51 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jason Cipriani <jason.cipriani@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, util-linux@vger.kernel.org
-Subject: Re: Correct parameter size for BLKSSZGET ioctl.
-Message-ID: <20131102234451.GA10255@thunk.org>
-References: <CAF1GSti2xbHGtBx4Qq8Br9unEM_GE8GJ99fzoRm6qKaun7MHZw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAF1GSti2xbHGtBx4Qq8Br9unEM_GE8GJ99fzoRm6qKaun7MHZw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:38952 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751838Ab3KJSX4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 13:23:56 -0500
+Received: by mail-wi0-f175.google.com with SMTP id hm11so1284832wib.2
+        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 10:23:55 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 02/13] cal: rename ascii_wnum() to ascii_weeknum()
+Date: Sun, 10 Nov 2013 18:23:29 +0000
+Message-Id: <1384107820-498-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 01, 2013 at 08:29:26PM -0400, Jason Cipriani wrote:
-> In blkdiscard in util-linux, at least since version 2.23, the
-> following code is used to retrieve a device's physical sector size:
-> 
->   uint64_t secsize;
->   ioctl(fd, BLKSSZGET, &secsize);
-> 
-> On my machine (Ubuntu 12.04 -- 3.2.0-55-generic-pae #85-Ubuntu SMP Wed
-> Oct 2 14:03:15 UTC 2013 i686 i686 i386 GNU/Linux) this yields
-> incorrect results as it seems a 32-bit int is expected, this causes
-> subsequent sector alignment calculations in blkdiscard to be
-> incorrect, which in turn causes blkdiscards trim ioctl's to fail in
-> certain situations (or even worse, to trim the wrong blocks).
+Week is not long word, so it does not need to be enshorted and made more
+difficult to understand.
 
-BLKSSZGET returns an int.  If you look at the sources of util-linux
-v2.23, you'll see it passes an int to BLKSSZGET in 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/cal.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-	sys-utils/blkdiscard.c
-	lib/blkdev.c
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index f82d02e..bcc1580 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -249,7 +249,7 @@ struct cal_control {
+ /* function prototypes */
+ static int leap_year(long year);
+ static char *ascii_day(char *, int, const struct cal_control *ctl);
+-static char *ascii_wnum(char *p, int wn, const struct cal_control *ctl);
++static char *ascii_weeknum(char *p, int wn, const struct cal_control *ctl);
+ static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
+ static void center(const char *, size_t, int);
+ static void day_array(int, int, long, int *, const struct cal_control *ctl);
+@@ -558,7 +558,7 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
+ 				if (xd != SPACE) {
+ 					int wn = week_number(xd & ~TODAY_FLAG,
+ 							month, year, ctl);
+-					p = ascii_wnum(p, wn, ctl);
++					p = ascii_weeknum(p, wn, ctl);
+ 					break;
+ 				} else if (col+1 == DAYS_IN_WEEK)
+ 					p += sprintf(p,"   ");
+@@ -679,7 +679,7 @@ static char *append_weeknum(char *p, int *dp,
+ 		if (xd != SPACE) {
+ 			int weeknum = week_number(xd & ~TODAY_FLAG,
+ 					       month + cal + 1, year, ctl);
+-			p = ascii_wnum(p, weeknum, ctl);
++			p = ascii_weeknum(p, weeknum, ctl);
+ 			break;
+ 		} else if (col+1 == DAYS_IN_WEEK)
+ 			p += sprintf(p,"   ");
+@@ -965,7 +965,7 @@ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
+ 	return p;
+ }
+ 
+-static char *ascii_wnum(char *p, int weeknum, const struct cal_control *ctl)
++static char *ascii_weeknum(char *p, int weeknum, const struct cal_control *ctl)
+ {
+ 	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
+ 		p += sprintf(p,"%s",Senter);
+-- 
+1.8.4.2
 
-E2fsprogs also expects BLKSSZGET to return an int, and if you look at
-the kernel sources, it very clearly returns an int.
-
-The one place it doesn't is in sys-utils/blkdiscard.c, where as you
-have noted, it is passing in a uint64 to BLKSSZGET.  This looks like
-it's a bug in sys-util/blkdiscard.c.
-
-I'll send a proposed patch in the next e-mail message.
-
-     	    	     	      	  - Ted
