@@ -1,35 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:37125 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753584Ab3KHAcT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Nov 2013 19:32:19 -0500
-Message-ID: <527C3112.40904@ubuntu.com>
-Date: Thu, 07 Nov 2013 19:32:18 -0500
+Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:41208 "EHLO
+	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755676Ab3KMPTF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Nov 2013 10:19:05 -0500
 From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Subject: Generating release from git
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH] Correct mount man page default iso9660 permission
+Date: Wed, 13 Nov 2013 10:19:04 -0500
+Message-Id: <1384355944-27258-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+The mount man page said the default permissions are read for
+everyone, but it is in fact, read and execute.
 
-How do you generate the release tarball from the git repo?  I thought
-it would be to run make dist, but it seems the real release tarball is
-bootstrapped with autogen.sh, but NOT configured, and make dist
-generates a tarball that is already configured.
+Signed-off-by: Phillip Susi <psusi@ubuntu.com>
+---
+ sys-utils/mount.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 371f1a1..9b9a9db 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1980,7 +1980,7 @@ but also apply Acorn extensions if present.
+ .TP
+ .BI mode= value
+ For non-Rock Ridge volumes, give all files the indicated mode.
+-(Default: read permission for everybody.)
++(Default: read and execute permission for everybody.)
+ Since Linux 2.1.37 one no longer needs to specify the mode in
+ decimal. (Octal is indicated by a leading 0.)
+ .TP
+-- 
+1.8.3.2
 
-iQEcBAEBCgAGBQJSfDESAAoJEJrBOlT6nu75wf4IANb9Bi8txCj1XDA10vThctmv
-71+d3YRpvJIhItmgXidPGpuRRBJmQEGWhiLKeYan7WRoZBonniG3KdiEtHTGgqvS
-rZIOXBLcoxmisL6LQb0X10Zj3kPK7N3qQfh3rm4p51ATVBKxb82E6DhnyHgN2Kbt
-3LZaMrfzGdXHzVl7tWH83gFpf6m3jMixisA87hbU48dmd4PC71e8T3fsCzE4uPkx
-X5P59qv84PRj7Z7Kx+au3j3cYiidVR61lJRu110MyS1HnpylSjNU2iND+JTmxw/y
-VxX5zaaPyEqnDu0D1TUrz5p8SNxfVKp0P0n4jB93+jkZy663yVnsjf1cCD93iZw=
-=bU9G
------END PGP SIGNATURE-----
