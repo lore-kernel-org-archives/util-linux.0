@@ -1,33 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:44835 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754761Ab3KNSpX (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Nov 2013 13:45:23 -0500
-Message-ID: <52851A42.7090401@ubuntu.com>
-Date: Thu, 14 Nov 2013 13:45:22 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:32198 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752942Ab3KNLcW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Nov 2013 06:32:22 -0500
+Date: Thu, 14 Nov 2013 12:32:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Remove cruft from mkswap man page
+Message-ID: <20131114113219.GD13330@x2.net.home>
+References: <1384356652-27468-1-git-send-email-psusi@ubuntu.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: cfdisk trips on out of order logical partitions
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1384356652-27468-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Nov 13, 2013 at 10:30:52AM -0500, Phillip Susi wrote:
+> I don't think there's any reason to continue to mention behavior
+> of kernels older than 10 years.
 
-cfdisk's partition parsing logic is flawed in that it assumes they are
-in order, so if you have out of order partitions it complains that
-they overlap.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+ ..but...but.. it's our history, you're sooo pedantic. 
+ 
+ Applied, thanks :-)
 
-iQEcBAEBAgAGBQJShRpCAAoJEJrBOlT6nu75jiYIAJJrq7QAm0uvYUqXlrH9PaD4
-EKNdda9uoDdQ77ZbT69X3/53SLq/pG3MPrnKvrJvZ3O1xELNoxiqddxDYoYc+gR1
-09EKiFoF+3ifMoK+h3DrRVBGyBsoJoKD47EwSBK6CehVdvfUZJifkq3Shs6YhURT
-PukmY3r5jfWGWi/5FRNXu75zR8IJHlgH1Y9MIk7RsIO2rt8WMWAblSxu5W1SLH6G
-9ChxK7hiEebxLtimIACzcie7CmE5ZdwDKo8bM2OLeAxt4XCqgzDM59p0wJX0v/h1
-oIGM7EASTFFB/iabZZSoBlNblHnS5Mx6hA7+WcZ6VNmccX72fU8hqStBL90USSE=
-=ZNSa
------END PGP SIGNATURE-----
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
