@@ -1,41 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:34684 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751405Ab3KGRDE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Nov 2013 12:03:04 -0500
-Message-ID: <527BC7C5.8010700@ubuntu.com>
-Date: Thu, 07 Nov 2013 12:03:01 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from brent.tribalogic.net ([78.86.109.144]:57074 "EHLO
+	brent.tribalogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300Ab3KRRsT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Nov 2013 12:48:19 -0500
+Message-ID: <528A5134.8070004@colin.guthr.ie>
+Date: Mon, 18 Nov 2013 17:41:08 +0000
+From: Colin Guthrie <gmane@colin.guthr.ie>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Simple blkid typeo
-Content-Type: text/plain; charset=ISO-8859-1
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] su: Remove the impossible -C option to request the same
+ session.
+References: <1384785840-31957-1-git-send-email-colin@mageia.org> <20131118164252.GA5572@x2.net.home>
+In-Reply-To: <20131118164252.GA5572@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+'Twas brillig, and Karel Zak at 18/11/13 16:42 did gyre and gimble:
+> On Mon, Nov 18, 2013 at 02:44:00PM +0000, Colin Guthrie wrote:
+>> It's impossible to pass this argument so it is pointless to keep the
+>> code to support it.
+> 
+>  Really? See struct option longopts[] and --session-command.
 
-- --- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -595,7 +595,7 @@
-        return mask;
- err:
-        *flag = 0;
-- -       fprintf(stderr, "unknown kerword in -u <list> argument: '%s'\n",
-+       fprintf(stderr, "unknown keyword in -u <list> argument: '%s'\n",
-                        word ? word : list);
-        exit(BLKID_EXIT_OTHER);
- }
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Gah, sorry! Could have sworn I'd searched for the 'C' but must have been
+fat fingers while on a bumpy train.
 
-iQEcBAEBAgAGBQJSe8fFAAoJEJrBOlT6nu75L3QIAJmMW9/m7d4aQ1ty7ccIUhZz
-4B25djaB+3rDckHUgOAKK8z1/cjR9SkGvKZHDaiIAtwCfCaMZa+2Oiw3O69wcZt1
-G+ZA2W5pJ8azO6KUiP2m2+9i8RrBr8ld772kviZNVI8BuXJvPTizHPu+YzO/C8Wl
-i5GAAlgJaGlGc2K8LDAvM4azF8mWwQEvJB9Pg7xA4xt1s6OxUTKFDV24xvWadYRF
-jrMHa7dWYPCLt4S6nG+CTwde99S099A85MjEzFWZsrCyhB7NoWDAVBD9KqVHaSwP
-u58lVj/tre2aRaPaa5fWgmnCi3J5eEWjpIdWkUTU+GUj0awcMszpamWbtIFiNXk=
-=gp0j
------END PGP SIGNATURE-----
+Sorry 'bout that.
+
+Col
+
+-- 
+
+Colin Guthrie
+gmane(at)colin.guthr.ie
+http://colin.guthr.ie/
+
+Day Job:
+  Tribalogic Limited http://www.tribalogic.net/
+Open Source:
+  Mageia Contributor http://www.mageia.org/
+  PulseAudio Hacker http://www.pulseaudio.org/
+  Trac Hacker http://trac.edgewall.org/
