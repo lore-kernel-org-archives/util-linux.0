@@ -1,69 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:38952 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751838Ab3KJSX4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 13:23:56 -0500
-Received: by mail-wi0-f175.google.com with SMTP id hm11so1284832wib.2
-        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 10:23:55 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:38957 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751961Ab3KRUGw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Nov 2013 15:06:52 -0500
+Message-ID: <528A735A.9060606@ubuntu.com>
+Date: Mon, 18 Nov 2013 15:06:50 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 02/13] cal: rename ascii_wnum() to ascii_weeknum()
-Date: Sun, 10 Nov 2013 18:23:29 +0000
-Message-Id: <1384107820-498-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
-References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+Subject: umount by uuid
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Week is not long word, so it does not need to be enshorted and made more
-difficult to understand.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+It seems that you now can umount by uuid using the UUID= tag, but not
+with the -U switch, so it doesn't mirror mount.  Should this be added,
+or is the -U form considered depreciated?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index f82d02e..bcc1580 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -249,7 +249,7 @@ struct cal_control {
- /* function prototypes */
- static int leap_year(long year);
- static char *ascii_day(char *, int, const struct cal_control *ctl);
--static char *ascii_wnum(char *p, int wn, const struct cal_control *ctl);
-+static char *ascii_weeknum(char *p, int wn, const struct cal_control *ctl);
- static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
- static void center(const char *, size_t, int);
- static void day_array(int, int, long, int *, const struct cal_control *ctl);
-@@ -558,7 +558,7 @@ static int do_monthly(int day, int month, long year, struct fmt_st *out,
- 				if (xd != SPACE) {
- 					int wn = week_number(xd & ~TODAY_FLAG,
- 							month, year, ctl);
--					p = ascii_wnum(p, wn, ctl);
-+					p = ascii_weeknum(p, wn, ctl);
- 					break;
- 				} else if (col+1 == DAYS_IN_WEEK)
- 					p += sprintf(p,"   ");
-@@ -679,7 +679,7 @@ static char *append_weeknum(char *p, int *dp,
- 		if (xd != SPACE) {
- 			int weeknum = week_number(xd & ~TODAY_FLAG,
- 					       month + cal + 1, year, ctl);
--			p = ascii_wnum(p, weeknum, ctl);
-+			p = ascii_weeknum(p, weeknum, ctl);
- 			break;
- 		} else if (col+1 == DAYS_IN_WEEK)
- 			p += sprintf(p,"   ");
-@@ -965,7 +965,7 @@ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
- 	return p;
- }
- 
--static char *ascii_wnum(char *p, int weeknum, const struct cal_control *ctl)
-+static char *ascii_weeknum(char *p, int weeknum, const struct cal_control *ctl)
- {
- 	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
- 		p += sprintf(p,"%s",Senter);
--- 
-1.8.4.2
-
+iQEcBAEBAgAGBQJSinNaAAoJEJrBOlT6nu75koQH/3oHJy6CWkF96MdSNfIS7prn
+R4Cz+F9NTSXagcVAzvUzgb2+yZ1QlMywyEQc+iX6oajB7+OFTJVY5E5et+zgGqOa
+tPkz97iuPrq1yM3L8F9+aHtyUX79BFjoJtZm4gbbu1AcOrum+AQCo/YPpOZSnawH
+s5GcHv75oUUeKHKyni1vbRtd2TKi94GV6gVzmXlm8SIpDjmuRfPjvvFFrId7wMnj
+0DuWBFgM1/XW2snU+dt7E/QhUFnFwTYN0Up8+v0vn6iH6xpSspomBgzF7sHOAiu3
+tH8UEtcg7qiFrsM9R2oF6Wua6u3yOUYZhQwOU6xXT5pF4T5cpaqKzB/cPQH8n3k=
+=LQnd
+-----END PGP SIGNATURE-----
