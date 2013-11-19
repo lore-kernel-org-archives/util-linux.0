@@ -1,33 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:54290 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757136Ab3KMQG0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Nov 2013 11:06:26 -0500
-Message-ID: <5283A380.6020909@ubuntu.com>
-Date: Wed, 13 Nov 2013 11:06:24 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:10321 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751563Ab3KSMQt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Nov 2013 07:16:49 -0500
+Date: Tue, 19 Nov 2013 13:16:46 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: cfdisk trips on out of order logical partitions
+Message-ID: <20131119121646.GF5572@x2.net.home>
+References: <52851A42.7090401@ubuntu.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: fdisk expert print lists wrong start sector for logical partitions
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <52851A42.7090401@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Nov 14, 2013 at 01:45:22PM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> cfdisk's partition parsing logic is flawed in that it assumes they are
+> in order, so if you have out of order partitions it complains that
+> they overlap.
 
-The expert print function shows all logical partitions as having the
-same start sector as the extended partition that contains them.
+ I currently don't plan to fix anything in cfdisk and sfdisk. I'd like
+ to rewrite the code to use libfdisk to share code between all the
+ fdisks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+    Karel
 
-iQEcBAEBAgAGBQJSg6OAAAoJEJrBOlT6nu75Xm8H/1gJG62oJVo1+LsACZpOQJz8
-D2/TwwZgAtrxCS6rOE0zq+tA+g2+4SZ611XiNBO3YNZrYRNxp6RpPehbSUFVGLI6
-uuFFKobZ5x+xIZVSH6ZV4lO//lEpRM1YN2lhAMRS2svfpoYeYmmLBpa683WNgwvX
-Ry86GEBrYCA8bRzqwovhtASgPLH/C3U+iEYbASPdUJpUxQL6CjPmAL6KsL7/EZJg
-O8W96cl4B3mubeyIUsAfiIZaYaQwM3A9kdGL9pmMztw4Pl/RwjzCgzNI3ZJ7b7z3
-mktjDX3DISvVfyu5+dQQfRj0V0aDR3xFTTOGyb+1i9WJTRa4s/qnH96vo13zGWU=
-=zRsJ
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
