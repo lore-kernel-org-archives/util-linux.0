@@ -1,35 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10321 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751563Ab3KSMQt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Nov 2013 07:16:49 -0500
-Date: Tue, 19 Nov 2013 13:16:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: cfdisk trips on out of order logical partitions
-Message-ID: <20131119121646.GF5572@x2.net.home>
-References: <52851A42.7090401@ubuntu.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:34081 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751568Ab3KSPBd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Nov 2013 10:01:33 -0500
+Message-ID: <528B7D4C.1030405@ubuntu.com>
+Date: Tue, 19 Nov 2013 10:01:32 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52851A42.7090401@ubuntu.com>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] setsid: don't fork
+References: <1384456993-3721-1-git-send-email-psusi@ubuntu.com> <20131119132412.GG5572@x2.net.home>
+In-Reply-To: <20131119132412.GG5572@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 14, 2013 at 01:45:22PM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> cfdisk's partition parsing logic is flawed in that it assumes they are
-> in order, so if you have out of order partitions it complains that
-> they overlap.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- I currently don't plan to fix anything in cfdisk and sfdisk. I'd like
- to rewrite the code to use libfdisk to share code between all the
- fdisks.
+On 11/19/2013 8:24 AM, Karel Zak wrote:
+> Yep, it was our goal to not change the default behaviour that
+> exists for years.
 
-    Karel
+It isn't really a default preference but a straight up bug since the
+behavior depends on how the shell invokes it.  You only get the no
+wait behavior when it is a process group leader.  When invoked not as
+a group leader, then you get the wait behavior whether you asked for
+it or not.  So if you really want no wait to be the default behavior
+then you need to fork whether or not you're a group leader and the
+policy decision chooses whether to wait for the child or not.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> It does not seem too elegant :-) If you really want to change the 
+> default behaviour than it would be better to make --wait default 
+> and exec() in child, then you don't need setpgid(), kill() and 
+> sleep/pause() at all.
+
+What's not elegant about it?  I think it's cleaner than keeping around
+a useless intermediary process that just waits for the child and
+returns its exit status.  I'm still not sure why the kernel requires
+you to not be a group leader but this seems like a better workaround
+than forking off a lost child.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJSi31MAAoJEJrBOlT6nu75Hd4H/2zwoBVn/wFbKfbTCMKxXg/i
+80+PwDicDX3hnsU4RgSfi7AvqWJkiMBabSYg6aPE8f1HpKCxRDhdOg3wGP2a3Xj6
+wZJRMLmVfxVW+bC0IuWU9unnsGmLF35OGfUMM1oNc0f3pdMPtMG80nV3FTwWints
+cP4YoAaHa3DC+yV0e7hxtLDqJVwx6xlRVu5B9eo/uOk/GCnJ4Hv0Zj+4Ff/FF6LV
+07dbSqt6glXLc1IIuja19qxpJL2xT/tQ0+723zNK3JiDdM6zSQ+0IGTRZw+/HhD+
+kjtWQWxXSCRGj/bHcotJpwJ8qmNW7/gTGEpZk7lUNAEMH2OzNN9+2uIA7PD7hxk=
+=UgK/
+-----END PGP SIGNATURE-----
