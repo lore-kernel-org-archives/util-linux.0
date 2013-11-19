@@ -1,40 +1,28 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <5284F93F.8020601@ubuntu.com>
-Date: Thu, 14 Nov 2013 11:24:31 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55374 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751810Ab3KSJXv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Nov 2013 04:23:51 -0500
+Date: Tue, 19 Nov 2013 10:23:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fdisk: remove angle brackets from usage
+Message-ID: <20131119092347.GB5572@x2.net.home>
+References: <1384803754-973-1-git-send-email-psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: fdisk expert print lists wrong start sector for logical partitions
-References: <5283A380.6020909@ubuntu.com> <20131114115711.GE13330@x2.net.home>
-In-Reply-To: <20131114115711.GE13330@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1384803754-973-1-git-send-email-psusi@ubuntu.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Nov 18, 2013 at 02:42:34PM -0500, Phillip Susi wrote:
+> Remove superfluous angle brackets and use square brackets
+> where appropriate to conform to the man page convention.
 
-On 11/14/2013 6:57 AM, Karel Zak wrote:
-> It's correct, although probably it seems strange at a first
-> glance.
-> 
-> It dumps MBR and EBR tables, nothing else. It means that you can 
-> see all the values as stored on the device without any
-> calculation.
+ The angle brackets are expected, see Documentation/howto-usage-function.txt.
 
-So it isn't saying the partition starts at sector 2048, but rather it
-is 2048 sectors from the EBR?
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJShPk+AAoJEJrBOlT6nu75oUIH/iuXeQO+m9zuazRX26qJFMmY
-OtdPbSX73qEoP+/nB/aKFJH8w20Mlx6z5t9jX6yaZedYkDMXsup8rOzG9nQh854U
-ZRGhqfoA5gTfLUqZqAyzyaNT6tCxDIX8IBtC7eLKsz21SwlAWtxiVndS5eQ0ySc3
-moW4igUcg5zgwc6JJc5Ybx38T4kT4McBZpJAh3mMhFPww20o8WS3vmAnCYTZi9jt
-H3HvR9OBKKEZxmz/Ddlz3YcQ6U5Z941xns/MbxAJMCl8ZY9Fn7dByvCEyuBtQ2Rs
-wGz+XQJ1s/fEMDVko6xgEGmiSyQoVe76ux9iHe4u4Z22h+cbbH7AxpYmPhSUfJM=
-=YrnF
------END PGP SIGNATURE-----
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
