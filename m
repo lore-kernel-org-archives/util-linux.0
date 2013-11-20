@@ -1,59 +1,76 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <5277A8EC.30809@ubuntu.com>
-Date: Mon, 04 Nov 2013 09:02:20 -0500
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: /proc/mounts doesn't store bind flag
-References: <5273DCB6.4020909@ubuntu.com> <20131104102932.GF23604@x2.net.home>
-In-Reply-To: <20131104102932.GF23604@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:54288 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752152Ab3KTA5P (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Nov 2013 19:57:15 -0500
+Received: by mail-pa0-f52.google.com with SMTP id ld10so4558353pab.25
+        for <util-linux@vger.kernel.org>; Tue, 19 Nov 2013 16:57:14 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/2] namei: align missing files with rest of the print out
+Date: Wed, 20 Nov 2013 00:57:04 +0000
+Message-Id: <1384909024-562-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1384909024-562-1-git-send-email-kerolasa@iki.fi>
+References: <1384909024-562-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This change should make namei output more readable when multiple
+arguments are supplied.
 
-That is pretty much what I thought, but why is the bind flag stored
-when you do use mtab then?  Shouldn't they give the same behavior, so
-bind should not be stored in mtab?  In particular it changes the way
-you have to remount a bind mount ro, which is an unexpected user
-visible change.
+The old:
 
-On 11/4/2013 5:29 AM, Karel Zak wrote:
-> On Fri, Nov 01, 2013 at 12:54:14PM -0400, Phillip Susi wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- When symlinking /etc/mtab to
->> /proc/mounts, bind mounts no longer have the bind option stored.
->> Is this a bug or working as intended?
-> 
-> This is expected thing. All utils that expect "bind" flag are
-> broken.
-> 
-> There is nothing like "bind" mountpoint (and kernel does not
-> maintain such information at all), all mountpoints are equal, there
-> is nothing like a primary (original) mountpoint.
-> 
-> You have to think about it as about hardlinks for files. The bind 
-> operation creates just another path to the filesystem. That's all.
-> 
-> mount /dev/sda1 /A mount --bind /A /B umount /A
-> 
-> then /B is still valid (BTW, this is impossible to describe in the
-> traditional /etc/mtab where was always relation between /A and
-> /B).
-> 
-> Karel
-> 
+$ namei -l /usr/foo
+f: /usr/foo
+drwxr-xr-x root root /
+drwxr-xr-x root root usr
+foo - No such file or directory
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+The new:
 
-iQEcBAEBAgAGBQJSd6jsAAoJEJrBOlT6nu75zi8IALrs8Att9snO3z1Z1PcNikiG
-yXuhaDLP8+4Nz8c8+GTFUc2SpaZHR6t1uUenMBiRrtlzqZFcGdQaNGF1wWorSTf9
-cih7ffcgzXC7hA/pkPTCTTZYh1BJQbZqiH1coHoNlkyJo1ej6e0ZO42HEgQA+Aa3
-0OKa6SkARTLY2NM7HBhxMpK42pt8G/3lZxngs3YHgVhB8UxeVylDcdH3M/z6GTPY
-IdnjP/k1EzTgfhMXgd5OH/lvxmOhgt9kknSXz3D4sBUH24MJzKQ2N41+t1k/4K2u
-LY8jb70kOxtlgmnlw+1fXk8lqi2vRxSUlupS8fLust6M4bUEzHlfLAOUaebTNYY=
-=rHWj
------END PGP SIGNATURE-----
+$ namei -l /usr/foo
+f: /usr/foo
+drwxr-xr-x root root /
+drwxr-xr-x root root usr
+                     foo - No such file or directory
+
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/namei.c         | 9 +++++++++
+ tests/expected/namei/logic | 2 +-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/misc-utils/namei.c b/misc-utils/namei.c
+index a9c8301..1152ea7 100644
+--- a/misc-utils/namei.c
++++ b/misc-utils/namei.c
+@@ -367,6 +367,15 @@ print_namei(struct namei *nm, char *path)
+ 		char md[11];
+ 
+ 		if (nm->noent) {
++			int blanks = 1;
++			if (flags & NAMEI_MODES)
++				blanks += 9;
++			if (flags & NAMEI_OWNERS)
++				blanks += uwidth + gwidth + 2;
++			if (!(flags & NAMEI_VERTICAL))
++				blanks += 1;
++			blanks += nm->level * 2;
++			printf("%*s ", blanks, "");
+ 			printf(_("%s - No such file or directory\n"), nm->name);
+ 			return -1;
+ 		}
+diff --git a/tests/expected/namei/logic b/tests/expected/namei/logic
+index 9632db0..8e217d9 100644
+--- a/tests/expected/namei/logic
++++ b/tests/expected/namei/logic
+@@ -10,4 +10,4 @@ f: namei1/namei2/a/b
+  d namei1
+  d namei2
+  - a
+-b - No such file or directory
++   b - No such file or directory
+-- 
+1.8.4.2
+
