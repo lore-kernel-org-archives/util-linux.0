@@ -1,42 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25466 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752550Ab3KSRc5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Nov 2013 12:32:57 -0500
-Date: Tue, 19 Nov 2013 18:32:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fdisk: remove angle brackets from usage
-Message-ID: <20131119173252.GM5572@x2.net.home>
-References: <1384803754-973-1-git-send-email-psusi@ubuntu.com>
- <20131119092347.GB5572@x2.net.home>
- <528B792C.4010202@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <528B792C.4010202@ubuntu.com>
+Received: from gerolde.archlinux.org ([66.211.214.132]:51055 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752317Ab3KURfw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Nov 2013 12:35:52 -0500
+From: Dave Reisner <dreisner@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] pylibmount: correctly import from pylibmount.so
+Date: Thu, 21 Nov 2013 12:25:27 -0500
+Message-Id: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 19, 2013 at 09:43:56AM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 11/19/2013 4:23 AM, Karel Zak wrote:
-> > On Mon, Nov 18, 2013 at 02:42:34PM -0500, Phillip Susi wrote:
-> >> Remove superfluous angle brackets and use square brackets where
-> >> appropriate to conform to the man page convention.
-> > 
-> > The angle brackets are expected, see
-> > Documentation/howto-usage-function.txt.
-> 
-> In that case, then fdisk should have square brackets added around the
-> <disk> since it is an optional argument.
+Without this, python is unable to find the module:
 
- Yes, it's optional for -l. Fixed. Thanks.
+$ python -c 'import libmount'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.3/site-packages/libmount/__init__.py", line 1, in <module>
+    from pylibmount import *
+ImportError: No module named 'pylibmount'
 
-    Karel
+Signed-off-by: Dave Reisner <dreisner@archlinux.org>
+---
+ libmount/python/libmount/__init__.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/libmount/python/libmount/__init__.py b/libmount/python/libmount/__init__.py
+index 243c639..09104e2 100644
+--- a/libmount/python/libmount/__init__.py
++++ b/libmount/python/libmount/__init__.py
+@@ -1,2 +1,2 @@
+-from pylibmount import *
++from .pylibmount import *
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.2
+
