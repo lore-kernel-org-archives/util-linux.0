@@ -1,34 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28113 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750812Ab3KALXo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Nov 2013 07:23:44 -0400
-Date: Fri, 1 Nov 2013 12:23:40 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fdisk shows sun end sectors with +1 error
-Message-ID: <20131101112340.GA23604@x2.net.home>
-References: <52728FCE.2050003@ubuntu.com>
+Return-Path: hpa@zytor.com
+Message-ID: <5292430D.6000709@zytor.com>
+Date: Sun, 24 Nov 2013 10:18:53 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52728FCE.2050003@ubuntu.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Craig <util-linux_contact@magister.com.au>
+CC: util-linux@vger.kernel.org
+Subject: Re: ***Urgent***!  Fdisk: GPT support utterly breaks hybrid MBR;
+ *must* have disable option! :(
+References: <alpine.LFD.2.03.1310092211290.7406@aslan.magister.com.au> <20131009141628.GB940@x2.net.home> <alpine.LFD.2.02.1310101129260.4624@trabz.zntvfgre.pbz.nh> <20131010111045.GA29199@x2.net.home> <alpine.LFD.2.02.1310111435300.6990@trabz.zntvfgre.pbz.nh> <20131011090442.GE14457@x2.net.home>
+In-Reply-To: <20131011090442.GE14457@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 31, 2013 at 01:13:50PM -0400, Phillip Susi wrote:
-> Device       Flag     Start       End   Blocks  Id System
-> /dev/loop0p1              0  19904535  9952267+ 83 Linux native
-> /dev/loop0p2   u   19904535  20000925    48195  82 Linux swap
-> /dev/loop0p3              0  20000925 10000462+  5 Whole disk
+On 10/11/2013 02:04 AM, Karel Zak wrote:
+> 
+>  Yep. I don't want any "smart" solution there. All will be controlled
+>  by users. 
+>  
+>  (Well, in the default mode for non-expert users with standard PMBR we will 
+>   generate the MBR as expected by UEFI specification of course.)
+> 
 
-Oh, excellent catch -- it seems like pretty old bug (I see it in v2.9,
-year 1999) ;-)
+There is one other useful mode for non-expert users, which is the one in
+which the current (hybrid) boot partition is manifest in the MBR (as
+well as as the GPT of course.)  Changing the hybrid boot partition would
+change the MBR to match.  From a UI perspective this could very easily
+be done by setting or removing a "hybrid" flag on a partition.
 
-Fixed. Thanks.
+One could potentially allow more than one hybrid partition, but when one
+then accounts for PMBR partitions, there is no guarantee that one can
+fit more than one unless the layout is suitable.
 
-    Karel
+In the worst case, one can always fit one:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+MBR:	1. Leading PMBR partition
+	2. Hybrid boot partition
+	3. Tailing PMBR partition
+
+In the best case, one can fit 3:
+
+MBR:	1. Hybrid partition 1
+	2. Hybrid partition 2
+	3. Hybrid partition 3
+	4. Tailing PMBR partition
+
+	-hpa
