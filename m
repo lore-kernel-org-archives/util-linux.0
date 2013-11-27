@@ -1,39 +1,41 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from gerolde.archlinux.org ([66.211.214.132]:51055 "EHLO
-	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752317Ab3KURfw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Nov 2013 12:35:52 -0500
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] pylibmount: correctly import from pylibmount.so
-Date: Thu, 21 Nov 2013 12:25:27 -0500
-Message-Id: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: psusi@ubuntu.com
+Message-ID: <52965E84.4070101@ubuntu.com>
+Date: Wed, 27 Nov 2013 16:05:08 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: Curtis Gedak <gedakc@gmail.com>, Karel Zak <kzak@redhat.com>
+CC: Marc MERLIN <marc@merlins.org>, util-linux@vger.kernel.org
+Subject: Re: Severe fdisk problem leading to data loss?
+References: <20131118102051.GA31813@merlins.org> <20131124135226.GH11389@merlins.org> <20131125103124.GQ5572@x2.net.home> <529605B7.3020903@ubuntu.com> <20131127145840.GB32483@x2.net.home> <52963910.60800@ubuntu.com> <52964ED3.8030504@gmail.com> <5296515A.1070505@ubuntu.com> <529654CF.1010904@gmail.com>
+In-Reply-To: <529654CF.1010904@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Without this, python is unable to find the module:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-$ python -c 'import libmount'
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-  File "/usr/lib/python3.3/site-packages/libmount/__init__.py", line 1, in <module>
-    from pylibmount import *
-ImportError: No module named 'pylibmount'
+On 11/27/2013 3:23 PM, Curtis Gedak wrote:
+> IMHO Apple's choice of using an ID of zero for the firmware
+> partition is a poor decision.  With that being said, these devices
+> with this strange ID setting do exist in the real world.
 
-Signed-off-by: Dave Reisner <dreisner@archlinux.org>
----
- libmount/python/libmount/__init__.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+So it doesn't bother the iPod if you change the id?
 
-diff --git a/libmount/python/libmount/__init__.py b/libmount/python/libmount/__init__.py
-index 243c639..09104e2 100644
---- a/libmount/python/libmount/__init__.py
-+++ b/libmount/python/libmount/__init__.py
-@@ -1,2 +1,2 @@
--from pylibmount import *
-+from .pylibmount import *
- 
--- 
-1.8.4.2
+I'm thinking parted should throw an exception noting the broken
+partition and offer to fix it by changing the id, or deleting it.
+Changing the id would have the added benefit of keeping Windows from
+overwriting it.
 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJSll6EAAoJEI5FoCIzSKrwPCIH/2wSSKh/XT5J5fSpuqEG4NVq
++n/rhl8WpgfQhVjoAJbzoR9T6loDozdRXiqtunQ0kzGb8qreTiKmJJGMf/writiN
+8PaFFyX+ga8geO6RALiTLp5yzNTUjUn8VGsaWwWozMwp5HsUte2lzVVcDPdKfY43
+CBt8jXSXQxHyJlz2xbFlR2qo6/iGeUrYSI6rpoqMRnN6WU4KDBuZeJ3ByXg+Cli2
+bFEGTr0B8lAJ3KSOWWBhOjSVpP22HypaTXI+xPth5LV4/AlbOuIZGuLk/uZSBnQF
+ubv4xsodXfXcr97ZODUIstshKBS7pdVa33D2PE+4Yd0fOds0jWCSrKoubamIvCM=
+=8DRl
+-----END PGP SIGNATURE-----
