@@ -1,51 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:48670 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751642Ab3KPKfF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 16 Nov 2013 05:35:05 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1VhdDU-0008LN-1y
-	for util-linux@vger.kernel.org; Sat, 16 Nov 2013 11:35:04 +0100
-Received: from nemi.mork.no ([148.122.252.4])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 16 Nov 2013 11:35:04 +0100
-Received: from bjorn by nemi.mork.no with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 16 Nov 2013 11:35:04 +0100
-To: util-linux@vger.kernel.org
-From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-Subject: Re: RFQ: changes on ldattach.c for GSM710 discipline
-Date: Sat, 16 Nov 2013 11:28:28 +0100
-Message-ID: <87fvqwljxv.fsf@nemi.mork.no>
-References: <52863868.9080806@aps-systems.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:34299 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754595Ab3K0VHe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Nov 2013 16:07:34 -0500
+Received: by mail-ie0-f177.google.com with SMTP id tp5so12844065ieb.36
+        for <util-linux@vger.kernel.org>; Wed, 27 Nov 2013 13:07:33 -0800 (PST)
+Message-ID: <52965F13.4050003@gmail.com>
+Date: Wed, 27 Nov 2013 14:07:31 -0700
+From: Curtis Gedak <gedakc@gmail.com>
+MIME-Version: 1.0
+To: Phillip Susi <psusi@ubuntu.com>, Karel Zak <kzak@redhat.com>
+CC: Marc MERLIN <marc@merlins.org>, util-linux@vger.kernel.org
+Subject: Re: Severe fdisk problem leading to data loss?
+References: <20131118102051.GA31813@merlins.org> <20131124135226.GH11389@merlins.org> <20131125103124.GQ5572@x2.net.home> <529605B7.3020903@ubuntu.com> <20131127145840.GB32483@x2.net.home> <52963910.60800@ubuntu.com> <52964ED3.8030504@gmail.com> <5296515A.1070505@ubuntu.com> <529654CF.1010904@gmail.com> <52965E84.4070101@ubuntu.com>
+In-Reply-To: <52965E84.4070101@ubuntu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Martin Schmid <scm@aps-systems.ch> writes:
 
-> I'd like to add support for N_GSM710 that comes with the kernel module
-> n_gsm. Someone else ('guowenxue') has already brought a slightly
-> patched version into the wild which is too restricted and specific.
+On 13-11-27 02:05 PM, Phillip Susi wrote:
+> So it doesn't bother the iPod if you change the id?
 >
-> The planned features are:
->
-> - setting the GSM710 discipline
+> I'm thinking parted should throw an exception noting the broken
+> partition and offer to fix it by changing the id, or deleting it.
+> Changing the id would have the added benefit of keeping Windows from
+> overwriting it.
 
-Sounds like a great plan to me.  Just a minor nit:
-
- "GSM 0710" (or maybe even better: "GSM 07.10") and "N_GSM0710"
-
-"All 3GPP specifications have a specification number consisting of 4 or
-5 digits." - ref http://www.3gpp.org/specifications/specification-numbering
-
-You don't want this work confused with GSM 71.0x support when the 3GPP
-gets there :-)
+I believe that you have to change the ID back to zero for the iPod to 
+function properly.  At least that is what all of the instructions I've 
+seen on the Internet indicate.
 
 
-
-Bjørn
 
