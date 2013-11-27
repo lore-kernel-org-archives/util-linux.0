@@ -1,42 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53465 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754824Ab3KNWYo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Nov 2013 17:24:44 -0500
-Date: Thu, 14 Nov 2013 23:24:40 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: external mount utilities and utab
-Message-ID: <20131114222440.GH13330@x2.net.home>
-References: <5273FF29.1090403@ubuntu.com>
- <20131104133735.GH23604@x2.net.home>
- <5277AA0C.70309@ubuntu.com>
- <5283C4CC.5010200@ubuntu.com>
- <20131114083912.GA7281@x2.net.home>
- <5284F7AD.2030207@ubuntu.com>
+Return-Path: psusi@ubuntu.com
+Message-ID: <529605B7.3020903@ubuntu.com>
+Date: Wed, 27 Nov 2013 09:46:15 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5284F7AD.2030207@ubuntu.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Marc MERLIN <marc@merlins.org>
+CC: util-linux@vger.kernel.org
+Subject: Re: Severe fdisk problem leading to data loss?
+References: <20131118102051.GA31813@merlins.org> <20131124135226.GH11389@merlins.org> <20131125103124.GQ5572@x2.net.home>
+In-Reply-To: <20131125103124.GQ5572@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 14, 2013 at 11:17:49AM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 11/14/2013 3:39 AM, Karel Zak wrote:
-> > I have improved libmount (in git tree) and now it updates utab for
-> > the helpers.
-> 
-> But does that mean that the helper has to use libmount?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No, after successful helper execution (helper has to return 0) the
-library checks utab and update the file if there is user= mount option
-and the mountpoint is not in the file.
+On 11/25/2013 5:31 AM, Karel Zak wrote:
+> This is definitely bug too, because Linux does not care about 
+> partition type and kernel is able to use this partition:
 
-    Karel
+Isn't the bug actually in the kernel, not parted?  An ID of zero means
+the slot is unused, so it shouldn't be paying any attention to the
+start and length.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJSlgW3AAoJEI5FoCIzSKrwOiUIAIeaV+yAJZ4kDiU6OZU/jCwp
+xIHnsyZ7Rg6XvaNBzgKl0RNuKx9ZvrcKJi2o/bmMr+k6dGl/vWO9/TbDfm5bP7gK
+Z3Pt1GNbrPlXNwD0CQFoXbLi478vOcLG43/BfyISwc89BgKVosKFfVoeIL3YVFvM
+okUJ9/W0Conasor9XXgT6xNdhEKelM80mWiNGzpUiruespVYO3AiDYp/SQvyfwyt
+rAifX3tFNg5OULxL7DQSPlhpaknpnFwDB6wGzFW1ynR6vt+v/l3YBKAnczueMtex
+X19qe4UiNkqHXtlCIvYI3W+MbasCbN/j/dtV7VcZfjvuBJEYX4uzRCq2eAcKxl0=
+=+lAu
+-----END PGP SIGNATURE-----
