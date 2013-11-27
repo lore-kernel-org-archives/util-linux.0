@@ -1,48 +1,49 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:33108 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751587Ab3KJSY5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 13:24:57 -0500
-Received: by mail-wg0-f45.google.com with SMTP id x13so2730992wgg.12
-        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 10:24:56 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 05/13] cal: simplify ascii_weeknum() function
-Date: Sun, 10 Nov 2013 18:23:32 +0000
-Message-Id: <1384107820-498-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
-References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: gedakc@gmail.com
+Message-ID: <52964ED3.8030504@gmail.com>
+Date: Wed, 27 Nov 2013 12:58:11 -0700
+From: Curtis Gedak <gedakc@gmail.com>
+MIME-Version: 1.0
+To: Phillip Susi <psusi@ubuntu.com>, Karel Zak <kzak@redhat.com>
+CC: Marc MERLIN <marc@merlins.org>, util-linux@vger.kernel.org
+Subject: Re: Severe fdisk problem leading to data loss?
+References: <20131118102051.GA31813@merlins.org> <20131124135226.GH11389@merlins.org> <20131125103124.GQ5572@x2.net.home> <529605B7.3020903@ubuntu.com> <20131127145840.GB32483@x2.net.home> <52963910.60800@ubuntu.com>
+In-Reply-To: <52963910.60800@ubuntu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Either the week is or isn't highlighted, there is no need to over
-complicate printing of that.
+On 13-11-27 11:25 AM, Phillip Susi wrote:
+> On 11/27/2013 9:58 AM, Karel Zak wrote:
+>> After 20 years it's feature ;-) as I'm almost sure that we cannot
+>> fix it and disable all partition where is no the ID.
+> While that's cute and all, I think we both know it isn't really true ;)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/cal.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+Unfortunately at least one company produces devices that have partitions 
+with ID set to 0, yet these same partitions contain data.
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 748288d..c1bbdce 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -970,12 +970,9 @@ static char *ascii_day(char *p, int day, const struct cal_control *ctl)
- static char *ascii_weeknum(char *p, int weeknum, const struct cal_control *ctl)
- {
- 	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
--		p += sprintf(p,"%s",Senter);
--	p += sprintf(p,"%2d",weeknum);
--	if ((ctl->weektype & WEEK_NUM_MASK) == weeknum)
--		p += sprintf(p,"%s ",Sexit);
-+		p += sprintf(p, "%s%2d%s ", Senter, weeknum, Sexit);
- 	else
--		p += sprintf(p," ");
-+		p += sprintf(p, "%2d ", weeknum);
- 	return p;
- }
- 
--- 
-1.8.4.2
+An Apple iPod Shuffle is such an example as shown in the following fdisk 
+output:
 
+user@debian:~$ sudo fdisk -l /dev/sde
+Note: sector size is 2048 (not 512)
+
+Disk /dev/sde: 8120 MB, 8120172544 bytes
+250 heads, 62 sectors/track, 255 cylinders
+Units = cylinders of 15500 * 2048 = 31744000 bytes
+
+    Device Boot      Start         End      Blocks   Id System
+/dev/sde1               1           3       92876    0 Empty
+/dev/sde2               4         255     7812000    b  W95 FAT32
+
+This has lead some people, who wish to re-partition such a device, to 
+use fdisk to temporarily set the ID to a non-zero value.  Then they can 
+edit the partitions.  When the partitioning tasks are complete they use 
+fdisk to set the ID back to zero again.
+
+By doing this work-around, data loss can be avoided.
+
+As such this "feature" of fdisk has been used and described on the 
+Internet.  For example see the following post:
+http://dreamlayers.blogspot.ca/2012/01/editing-ipod-partitions-with-gparted.html
+
+Regards,
+Curtis
