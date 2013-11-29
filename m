@@ -1,77 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:39996 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751773Ab3KJSX7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Nov 2013 13:23:59 -0500
-Received: by mail-we0-f169.google.com with SMTP id q58so3865339wes.0
-        for <util-linux@vger.kernel.org>; Sun, 10 Nov 2013 10:23:58 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:53133 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751899Ab3K2Poh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 29 Nov 2013 10:44:37 -0500
+Received: from relay1.suse.de (unknown [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 03223A7D78
+	for <util-linux@vger.kernel.org>; Fri, 29 Nov 2013 16:44:36 +0100 (CET)
+From: Werner Fink <werner@suse.de>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 03/13] cal: add input variable names to function prototypes
-Date: Sun, 10 Nov 2013 18:23:30 +0000
-Message-Id: <1384107820-498-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
-References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+Cc: werner@suse.de
+Subject: [PATCH] Support the special terminal on first serial line on a S/390
+Date: Fri, 29 Nov 2013 16:44:25 +0100
+Message-Id: <1385739865-24696-1-git-send-email-werner@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-While prototypes such as 'function(int, int, char, int);' are legal they
-do not help when trying to understand how the function is expected to be
-used.  Adding variable names gives at least a hint when looking the
-prototypes.
+which is due legacy reasons a block terminal of type 3270 or higher.
+Whereas the second serial line on a S/390(x) is a real character
+terminal which is compatible with VT220.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Werner Fink <werner@suse.de>
 ---
- misc-utils/cal.c | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ term-utils/agetty.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index bcc1580..abb6e0f 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -248,23 +248,25 @@ struct cal_control {
+diff --git term-utils/agetty.c term-utils/agetty.c
+index 113f8e7..c881f3d 100644
+--- term-utils/agetty.c
++++ term-utils/agetty.c
+@@ -49,6 +49,10 @@
+ #  ifndef DEFAULT_VCTERM
+ #    define DEFAULT_VCTERM "linux"
+ #  endif
++#  if defined (__s390__) || defined (__s390x__)
++#    define DEFAULT_TTYS0  "ibm327x"
++#    define DEFAULT_TTYS1  "vt220"
++#  endif
+ #  ifndef DEFAULT_STERM
+ #    define DEFAULT_STERM  "vt102"
+ #  endif
+@@ -1052,6 +1056,20 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
+ 	if (tcgetattr(STDIN_FILENO, tp) < 0)
+ 		log_err(_("%s: failed to get terminal attributes: %m"), tty);
  
- /* function prototypes */
- static int leap_year(long year);
--static char *ascii_day(char *, int, const struct cal_control *ctl);
--static char *ascii_weeknum(char *p, int wn, const struct cal_control *ctl);
--static int center_str(const char* src, char* dest, size_t dest_size, size_t width);
--static void center(const char *, size_t, int);
--static void day_array(int, int, long, int *, const struct cal_control *ctl);
--static int day_in_week(int, int, long);
--static int day_in_year(int, int, long);
--static int week_number(int, int, long, const struct cal_control *ctl);
--static int week_to_day(long, const struct cal_control *ctl);
--static void yearly(int, long, const struct cal_control *ctl);
--static int do_monthly(int day, int month, long year, struct fmt_st *out,
--		      int header_hint, const struct cal_control *ctl);
--static void monthly(int, int, long, const struct cal_control *ctl);
--static int two_header_lines(int month, long year, const struct cal_control *ctl);
--static void monthly3(int, int, long, const struct cal_control *ctl);
--static void __attribute__ ((__noreturn__)) usage(FILE * out);
- static void headers_init(struct cal_control *ctl);
-+static int do_monthly(int day, int month, long year, struct fmt_st *out, int header_hint,
-+		      const struct cal_control *ctl);
-+static void monthly(int day, int month, long year, const struct cal_control *ctl);
-+static int two_header_lines(int month, long year, const struct cal_control *ctl);
-+static void monthly3(int day, int month, long year, const struct cal_control *ctl);
-+static char *append_weeknum(char *p, int *dp, int month, long year, int cal, int row,
-+			    const struct cal_control *ctl);
-+static void yearly(int day, long year, const struct cal_control *ctl);
-+static void day_array(int day, int month, long year, int *days, const struct cal_control *ctl);
-+static int day_in_year(int day, int month, long year);
-+static int day_in_week(int d, int m, long y);
-+static int week_number(int day, int month, long year, const struct cal_control *ctl);
-+static int week_to_day(long year, const struct cal_control *ctl);
-+static char *ascii_day(char *p, int day, const struct cal_control *ctl);
-+static char *ascii_weeknum(char *p, int weeknum, const struct cal_control *ctl);
-+static int center_str(const char *src, char *dest, size_t dest_size, size_t width);
-+static void center(const char *str, size_t len, int separate);
-+static void __attribute__((__noreturn__)) usage(FILE *out);
- 
- int main(int argc, char **argv)
- {
++#if defined (__s390__) || defined (__s390x__)
++	if (!op->term) {
++	        /*
++		 * Special terminal on first serial line on a S/390(x) which
++		 * is due legacy reasons a block terminal of type 3270 or
++		 * higher.  Whereas the second serial line on a S/390(x) is
++		 * a real character terminal which is compatible with VT220.
++		 */
++		if (strcmp(op->tty, "ttyS0") == 0)
++			op->term = DEFAULT_TTYS0;
++		else if (strcmp(op->tty, "ttyS1") == 0)
++			op->term = DEFAULT_TTYS1;
++	}
++#endif
+ 	/*
+ 	 * Detect if this is a virtual console or serial/modem line.
+ 	 * In case of a virtual console the ioctl TIOCMGET fails and
 -- 
-1.8.4.2
+1.7.9.2
 
