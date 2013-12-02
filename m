@@ -1,40 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:46679 "EHLO plane.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:36237 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751976Ab3LQT6i (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Dec 2013 14:58:38 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1Vt0mq-0007s8-GF
-	for util-linux@vger.kernel.org; Tue, 17 Dec 2013 20:58:36 +0100
-Received: from bd0693be.virtua.com.br ([bd0693be.virtua.com.br])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 20:58:36 +0100
-Received: from marcosfrm by bd0693be.virtua.com.br with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 20:58:36 +0100
-To: util-linux@vger.kernel.org
-From: Marcos Mello <marcosfrm@gmail.com>
-Subject: Re: Automatic SSD trim script
-Date: Tue, 17 Dec 2013 19:58:14 +0000 (UTC)
-Message-ID: <loom.20131217T205330-253@post.gmane.org>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home> <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain> <20131210154442.GC8419@x2.net.home> <loom.20131217T203643-235@post.gmane.org>
-Mime-Version: 1.0
+	id S1753237Ab3LBKPb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Dec 2013 05:15:31 -0500
+Date: Mon, 2 Dec 2013 11:15:25 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] pylibmount: correctly import from pylibmount.so
+Message-ID: <20131202101525.GZ5572@x2.net.home>
+References: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Marcos Mello <marcosfrm@...> writes:
+On Thu, Nov 21, 2013 at 12:25:27PM -0500, Dave Reisner wrote:
+> Without this, python is unable to find the module:
+> 
+> $ python -c 'import libmount'
+> Traceback (most recent call last):
+>   File "<string>", line 1, in <module>
+>   File "/usr/lib/python3.3/site-packages/libmount/__init__.py", line 1, in <module>
+>     from pylibmount import *
+> ImportError: No module named 'pylibmount'
 
-> 
-[snip]
-> 
-> Thanks, Karel!
-> 
-> Would it be possible add an option for the "--all" mode to tell fstrim skip
-> mountpoints witch have "discard" option in fstab?
-> 
+ Hmm... it seems we have always tested this with PYTHONPATH=...
 
-s/witch/which/
+> -from pylibmount import *
+> +from .pylibmount import *
 
+ Applied, thanks.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
