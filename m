@@ -1,41 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35584 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52889 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751675Ab3LLQY3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Dec 2013 11:24:29 -0500
-Date: Thu, 12 Dec 2013 17:02:33 +0100
+	id S1753448Ab3LBMhD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Dec 2013 07:37:03 -0500
+Date: Mon, 2 Dec 2013 13:36:59 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: read only bind mount ignores ready only
-Message-ID: <20131212160233.GL16572@x2.net.home>
-References: <52A878C5.6050505@ubuntu.com>
- <20131212120544.GJ16572@x2.net.home>
- <52A9CF3E.1040402@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: script input redirection / eof handling
+Message-ID: <20131202123659.GE5572@x2.net.home>
+References: <52726756.8060205@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52A9CF3E.1040402@ubuntu.com>
+In-Reply-To: <52726756.8060205@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 12, 2013 at 09:59:10AM -0500, Phillip Susi wrote:
+On Thu, Oct 31, 2013 at 10:21:10AM -0400, Phillip Susi wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
-> On 12/12/2013 7:05 AM, Karel Zak wrote:
-> > I have it implemented, so
-> > 
-> > mount --bind --read-only /mnt /mnt
-> > 
-> > is interpreted as two requests (two mount(2) calls)
-> > 
-> > mount --bind /mnt /mnt mount -o remount,bind,ro /tmp
-> 
-> And mount -o bind,ro is the same right?  So you can set up a ro bind
-> mount in fstab?
+> I came across an old bug filed in debian about script being redirected
+> from a file misbehaving. 
 
- Yes, but it is not in the git tree yet (I'd like to wait for Miklos's
- reply).
+Do you mean something like:
+
+   echo "ps uf" | script
+
+.. if yes, then it's pretty unexpected usage. The code expects that
+stdin is terminal. (For example it copy the current terminal
+attributes the new pseudo-terminal.)
+
+Unfortunately it does not check tcgetatt() return code so the problem 
+is not visible. I'll fix it.
+
+> It seems that when the master ( input )
+> process hits eof, it exits immediately, orphaning the child ( output )
+> and user processes.
+
+Yep, I think it would be enough to add 
+
+       kill(0, SIGTERM);
+
+before done() in doinput() to avoid orphans.
 
     Karel
 
