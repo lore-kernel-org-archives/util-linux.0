@@ -1,45 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:57576 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751064Ab3LKCIF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Dec 2013 21:08:05 -0500
-Received: from [160.129.138.113] ([160.129.138.113]) by mail.gmx.com
- (mrgmx003) with ESMTPSA (Nemesis) id 0MHHdb-1VlOYz3fVb-00E8Zv for
- <util-linux@vger.kernel.org>; Wed, 11 Dec 2013 03:08:03 +0100
-Message-ID: <52A7C8FB.4030605@gmx.de>
-Date: Tue, 10 Dec 2013 20:07:55 -0600
-From: Sten Heinze <sten.heinze@gmx.de>
+Received: from aserp1040.oracle.com ([141.146.126.69]:29942 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932245Ab3LENhR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 5 Dec 2013 08:37:17 -0500
+Date: Thu, 5 Dec 2013 14:37:07 +0100
+From: Daniel Kiper <daniel.kiper@oracle.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, xen-devel@lists.xen.org
+Subject: Re: [RFC PATCH] sgetty: Smart serial console getty
+Message-ID: <20131205133707.GB17074@olila.local.net-space.pl>
+References: <1386196297-2398-1-git-send-email-daniel.kiper@oracle.com>
+ <20131205110508.GC8058@x2.net.home>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>,
-        =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: Automatic SSD trim script
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home> <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain> <20131210154442.GC8419@x2.net.home>
-In-Reply-To: <20131210154442.GC8419@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20131205110508.GC8058@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 12/10/2013 9:44 AM, Karel Zak wrote:
-> On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
->>> All we need is to link fstrim with libmount and lib/sysfs.c, add a new
->>> option --all and check non-zero /sys/block/<name>/queue/discard_granularity
->>> (or so).
->>
->> Yes and yes. This is the ultimate solution. Simply being able to run
->> fstrim --all to discard free space on all the mounted supported file
->> systems is great idea. In that case we do not need any scripts at
->> all.
->
->   Implemented. Sten, maybe you can try fstrim --all from git tree
->   in your crontab.
->
->      Karel
->
+Hi Karel,
 
-This was fantastic fast! I will try it out as soon as I have cloned the 
-git repo and built it.
+On Thu, Dec 05, 2013 at 12:05:08PM +0100, Karel Zak wrote:
+>
+>  Hi Daniel,
+>
+> On Wed, Dec 04, 2013 at 11:31:37PM +0100, Daniel Kiper wrote:
+> > Very often when I was switching from Xen to Linux I was forced
+> > to change /etc/inittab to make serial console working. It was
+> > boring so I thought how to solve that problem. I was not able
+> > to find sensible solution. So I decided to write something.
+> > Here it is.
+>
+> Would be better to extend agetty(1) to read console name from kernel
+> command line rather than introduce a special wrapper?
+>
+> Something like:
+>
+>    agetty --detect-console [baud_rate...] [term]
 
-Thanks a lot!
+Make sens.
 
-Sten
+> Note that in login-utils/sulogin-consoles.c we have code to detect
+> consoles for sulogin, for example detect_consoles_from_cmdline().
+
+Great... I will try to use it. Should I build this file as a library
+and then link into agetty or just link ordinary object file
+(login-utils/sulogin-consoles.o) with it?
+
+> We did a lot of work to consolidate and clean up agetty and kill
+> things like mingetty in last years. So I'd like to have only util,
+> especially if all the magic is just console name only.
+
+Agreed.
+
+> > I posted this patch earlier to Xen-devel list but Ian Campbell
+> > stated that it is more generic and maybe I should try to include
+>
+> yeah, that's probably a generic issue.
+>
+> BTW, I guess that systemd does not use hardcoded console names (like
+> /etc/inittab), ... just for the record :-) (I have no problem to
+> support classic inittab.)
+
+That is great. However, I do not know systemd (I only heard about that)
+and maybe my question is stupid but I am curious how it starts getty
+on serial console, i.e. how it gets a name of serial console and
+passes it to getty.
+
+Daniel
