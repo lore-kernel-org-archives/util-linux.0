@@ -1,26 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42551 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:4346 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751311Ab3LLKMq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Dec 2013 05:12:46 -0500
-Date: Thu, 12 Dec 2013 11:12:41 +0100
+	id S1751961Ab3LFKH1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 6 Dec 2013 05:07:27 -0500
+Date: Fri, 6 Dec 2013 11:07:18 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: small textual improvement to fstrim
-Message-ID: <20131212101241.GH16572@x2.net.home>
-References: <1386762373.12856.58257609.2028060D@webmail.messagingengine.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 12/13] cal: use month contents structure for --three
+ printing
+Message-ID: <20131206100718.GD16891@x2.net.home>
+References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+ <1384107820-498-13-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1386762373.12856.58257609.2028060D@webmail.messagingengine.com>
+In-Reply-To: <1384107820-498-13-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 11, 2013 at 12:46:13PM +0100, Benno Schulenberg wrote:
-> Hmm... "discard all mounted filesystems" does not sound like what
-> one would want fstrim to do.  :) 
+> +	struct cal_month m1, m2, m3, *i;
+> +	int first_month;
+> +	long first_year;
+> +
+> +	m1.next = &m2;
+> +	m2.next = &m3;
+> +	m3.next = NULL;
+ ...
+> +	set_consecutive_months(&m1, first_month, first_year);
 
- Good point ;-) Applied, thanks.
+Maybe you can add something like:
+
+  m1 = cal_new_months(clt->req);
+
+to allocate and initialize all necessary months and join all to the
+list according to the user's request (where should be info if whole year
+or 1 or 3 months are requested).
+
+And then ... cal_free_months()
 
     Karel
 
