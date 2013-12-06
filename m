@@ -1,72 +1,98 @@
-Return-Path: linux-nfs-owner@vger.kernel.org
-Date: Thu, 19 Dec 2013 12:09:27 -0500
-From: "J. Bruce Fields" <bfields@fieldses.org>
-To: Sander Klein <roedie@roedie.nl>
-Cc: linux-nfs@vger.kernel.org, linux-nfs-owner@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: rpc.mountd high cpu usage
-Message-ID: <20131219170927.GA3013@fieldses.org>
-References: <889b64df295ba04d47f941762ebe0bac@roedie.nl>
- <20131212154642.GA11521@fieldses.org>
- <3e92cb841fa81d6a16f3d471cdd8bb20@roedie.nl>
- <20131212212213.GC13467@fieldses.org>
- <c50ec8735833f8c05a351928ae48b6df@roedie.nl>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:65482 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754062Ab3LFKtu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 6 Dec 2013 05:49:50 -0500
+Date: Fri, 6 Dec 2013 11:49:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sten Heinze <shze@gmx.de>
+Cc: util-linux@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>
+Subject: Re: Automatic SSD trim script
+Message-ID: <20131206104944.GE16891@x2.net.home>
+References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c50ec8735833f8c05a351928ae48b6df@roedie.nl>
-Sender: linux-nfs-owner@vger.kernel.org
+In-Reply-To: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 13, 2013 at 08:32:56PM +0100, Sander Klein wrote:
-> On , J. Bruce Fields wrote:
-> >>>I think what happens is that exportfs flushes the kernel's export cache
-> >>>at which point every use of an uncached export triggers an upcall to
-> >>>mountd.  That upcall is probably visible in the strace as a read of a
-> >>>file descriptor associated with /proc/net/sunrpc/nfsd.fh/content.
-> >>>
-> >>>That upcall is handled by nfs-utils/utils/mountd/cache.c:nfsd_fh(),
-> >>>which is given a filehandle fragment identifying the filesystem in
-> >>>question and has to match it to an export.
-> >>>
-> >>>That's done by match_fsid().  Which does do a stat of the export path,
-> >>>but not of all the devices....  That's probably happening in one of the
-> >>>libblkid calls in uuid_by_path()?  I wonder if there's something wrong
-> >>>with libblkid configuration or with the way we're using it?
-> >>
-> >>Is there any way I can help getting this fixed? My coding skills are
-> >>limited but I am very willing to help in any way I can.
-> >
-> >I wonder if ltrace could help determine if libblkid is where most of
-> >those stat's are coming from (and if so, which calls)?
-> >
-> >May also be worth reading up on libblkid (man libblkid, etc.) and
-> >checking your configuration to make sure there's nothing obvious broken
-> >there.  (If so, maybe the libblkid commandline tools would exhibit the
-> >same problem?)
+
+ Hi Sten,
+
+On Thu, Dec 05, 2013 at 08:20:07PM +0100, Sten Heinze wrote:
+> Having experienced the drop in speed when using a SSD with online
+> discard, I wrote a small perl script to run fstrim using batched
+> discard on partitions located on a SSD through cron. Do you think
+> util-linux would be a good place for such a script, given that it is
+> a helper to fstrim? What would be the best way to include one in
+> util-linux?
+
+I have doubts we want to add a perl script to the package as a regular
+util, util-linux is very basic package and dependence on Perl is
+unexpected here. Maybe it would be possible to write a simple shell
+script for this task and add it to the Documentation/example.files/
+directory.
+
+
+IMHO the best solution would be to improve fstrim to trim all
+filesystems where it makes sense.
+
+All we need is to link fstrim with libmount and lib/sysfs.c, add a new
+option --all and check non-zero /sys/block/<name>/queue/discard_granularity
+(or so).
+
+I guess that implement something like this will be ~30 lines in C :-)  
+
+[CC: to Lukas who is fstrim author]
+
+    Karel
+
+
+Anyway, a few comments to your script:
+
+> # list all mounted drives; blkid doesn't provide mount points; fstab does ans is another possible source.
+
+ don't use mount(8) to list info about mountpoints, findmnt(8) is better, for example:
+
+    findmnt -clo TARGET -O nodiscard
+
+> # maybe only include fixed/internal drives? /sys/block/sdX/removable doesn't help for deciding if a dev is fixed.
+> sub get_devs_from_mount {
+>   my %devs = (); # empty hash
 > 
-> I didn't have any config in /etc/blkid.conf and the manpage says it
-> will use EVALUATE=udev,scan which in fact scans through all the
-> /dev/disk/by-* dirs and parses the /proc/partitions. I put
-> 'EVALUATE=scan' in /etc/blkid.conf but that doesn't help. I
-> restarted anything NFS related...
+>   my $output = `$mount`; 
+>   my @lines = split( '\n', $output); # split the output into lines
+>   foreach my $line ( @lines ) {
+>     if( $line =~ m$(\S+) on (/\S*) type \S+ (.*)$) { # eg. /dev/sda8 on /home type ext4 (rw,relatime,data=ordered)
+>       my $path = $1;
+>       my $mount_point = $2;
+>       my $mount_options = $3;
+>       next if( index( $mount_options, $discard_option ) != -1 ); # not -1 means found discard, i.e. skip this line
+>       next if( ! -e $path ); # skip lines that are virtual fs
+>       $path = realpath( $path ); # get absolute path for those mount points that are uuid symlinks
+>       $devs{ $path } = $mount_point; # add to hash
+>     }
+>   }
+>   return %devs;
+> }
 > 
-> I also attached ltrace to the rpc.mountd process. The output of the
-> trace is at http://pastebin.com/ika1Vetq . I'm not sure what I'm
-> looking for. The ltrace is done on a server with only 10 harddisks
-> but the strace showed the same behavour of newfstatat-ing every disk
-> in a lot of ways.
+> # check if device is ssd using hdparm
+> sub is_ssd_hdparm {
+>   my $dev = shift;
+>   $dev = substr( $dev, 5, 3 ); # short to 3 chars: /dev/xxxN to xxx
+> 
+>   return 0 if( ! -X $hdparm || ! -X $grep ); # return no ssd if no hdparm or no grep command available
+> 
+>   `$hdparm -I /dev/$dev 2>&1 | $grep 'TRIM supported' 2>/dev/null`; # perl calls bash, use bash redirect
 
-Hm.  I *think* that those SYS_262's are the newfstatat's.  And it looks
-like they happen as part of the implementation of blkid_devno_to_devname
-(just because you see that call start above the SYS_262's and return
-only after).
 
-That is indeed called from utils/mountd/cache.c:get_uuid_blkdev().
+ it would be possible to use lsblk to list devices with non-zero DISC-GRAN column,
+ the util also provides mounpoints.
 
-So libblkid is mapping device numbers to paths by stat'ing lots of stuff
-under /dev.
+> # check if device is ssd using /sys/block/sdX/queue/rotational: 0=SSD, 1=likely HDD, but could be USB memory etc.
 
-I'm not sure what to do about that.... Cc'ing util-linux in case they
-can help.
+ again, use lsblk
 
---b.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
