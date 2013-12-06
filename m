@@ -1,53 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:54331 "EHLO plane.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:3422 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752791Ab3LQTuJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Dec 2013 14:50:09 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1Vt0eZ-0000UC-5o
-	for util-linux@vger.kernel.org; Tue, 17 Dec 2013 20:50:03 +0100
-Received: from bd0693be.virtua.com.br ([bd0693be.virtua.com.br])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 20:50:03 +0100
-Received: from marcosfrm by bd0693be.virtua.com.br with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 20:50:03 +0100
-To: util-linux@vger.kernel.org
-From: Marcos Mello <marcosfrm@gmail.com>
-Subject: Re: Automatic SSD trim script
-Date: Tue, 17 Dec 2013 19:46:35 +0000 (UTC)
-Message-ID: <loom.20131217T203643-235@post.gmane.org>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home> <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain> <20131210154442.GC8419@x2.net.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	id S1751961Ab3LFKWw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 6 Dec 2013 05:22:52 -0500
+Date: Fri, 6 Dec 2013 11:02:06 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/13] pull: cal: code revisit part I try II
+Message-ID: <20131206100206.GC16891@x2.net.home>
+References: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1384107820-498-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@...> writes:
+On Sun, Nov 10, 2013 at 06:23:27PM +0000, Sami Kerola wrote:
+> I'll have a look of that about in December.
 
-> 
-> On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
-> > > All we need is to link fstrim with libmount and lib/sysfs.c, add a new
-> > > option --all and check non-zero
-/sys/block/≤name>/queue/discard_granularity
-> > > (or so).
-> > 
-> > Yes and yes. This is the ultimate solution. Simply being able to run
-> > fstrim --all to discard free space on all the mounted supported file
-> > systems is great idea. In that case we do not need any scripts at
-> > all.
-> 
->  Implemented. Sten, maybe you can try fstrim --all from git tree 
->  in your crontab.
-> 
+ look forward to see the patches :-)
 
-Thanks, Karel!
+>  misc-utils/cal.c            | 781 ++++++++++++++++++++------------------------
+>  tests/expected/cal/bigyearw |  12 +-
+>  tests/expected/cal/weekarg  |  84 ++---
+>  3 files changed, 405 insertions(+), 472 deletions(-)
 
-Would it be possible add an option for the "--all" mode to tell fstrim skip
-mountpoints witch have "discard" option in fstab?
+ Applied, thanks.
 
---
-Marcos
+    Karel
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
