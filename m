@@ -1,41 +1,117 @@
-Return-Path: P@draigBrady.com
-Message-ID: <52A8444F.2040904@draigBrady.com>
-Date: Wed, 11 Dec 2013 10:54:07 +0000
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
-MIME-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50323 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933531Ab3LINnk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 9 Dec 2013 08:43:40 -0500
+Date: Mon, 9 Dec 2013 14:43:32 +0100 (CET)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
 To: Karel Zak <kzak@redhat.com>
-CC: =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>,
-        Sten Heinze <shze@gmx.de>, util-linux@vger.kernel.org
+cc: Sten Heinze <shze@gmx.de>, util-linux@vger.kernel.org
 Subject: Re: Automatic SSD trim script
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home> <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain> <20131210154442.GC8419@x2.net.home>
-In-Reply-To: <20131210154442.GC8419@x2.net.home>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20131206104944.GE16891@x2.net.home>
+Message-ID: <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
+References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 12/10/2013 03:44 PM, Karel Zak wrote:
-> On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
->>> All we need is to link fstrim with libmount and lib/sysfs.c, add a new
->>> option --all and check non-zero /sys/block/<name>/queue/discard_granularity
->>> (or so).
->>
->> Yes and yes. This is the ultimate solution. Simply being able to run
->> fstrim --all to discard free space on all the mounted supported file
->> systems is great idea. In that case we do not need any scripts at
->> all.
+On Fri, 6 Dec 2013, Karel Zak wrote:
+
+> Date: Fri, 6 Dec 2013 11:49:44 +0100
+> From: Karel Zak <kzak@redhat.com>
+> To: Sten Heinze <shze@gmx.de>
+> Cc: util-linux@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>
+> Subject: Re: Automatic SSD trim script
 > 
->  Implemented. Sten, maybe you can try fstrim --all from git tree 
->  in your crontab.
+> 
+>  Hi Sten,
+> 
+> On Thu, Dec 05, 2013 at 08:20:07PM +0100, Sten Heinze wrote:
+> > Having experienced the drop in speed when using a SSD with online
+> > discard, I wrote a small perl script to run fstrim using batched
+> > discard on partitions located on a SSD through cron. Do you think
+> > util-linux would be a good place for such a script, given that it is
+> > a helper to fstrim? What would be the best way to include one in
+> > util-linux?
+> 
+> I have doubts we want to add a perl script to the package as a regular
+> util, util-linux is very basic package and dependence on Perl is
+> unexpected here. Maybe it would be possible to write a simple shell
+> script for this task and add it to the Documentation/example.files/
+> directory.
 
-Very nice:
-https://git.kernel.org/cgit/utils/util-linux/util-linux.git/commit/?id=36c370c
+I very much like the idea of having a simple script to add to cron
+to be able to keep SSD's at top of its performance.
 
-One foible was it was called multiple times for my /home
-Now my /home is mounted a couple of times on my system (why I don't know):
+> 
+> 
+> IMHO the best solution would be to improve fstrim to trim all
+> filesystems where it makes sense.
+> 
+> All we need is to link fstrim with libmount and lib/sysfs.c, add a new
+> option --all and check non-zero /sys/block/<name>/queue/discard_granularity
+> (or so).
 
-├─/home                         /dev/sdb1           ext4                  rw,relatime,seclabel,user_xattr,barrier=1,data=ordered
-│ └─/home                       /dev/sdb1           ext4                  rw,relatime,seclabel,user_xattr,barrier=1,data=ordered
+Yes and yes. This is the ultimate solution. Simply being able to run
+fstrim --all to discard free space on all the mounted supported file
+systems is great idea. In that case we do not need any scripts at
+all.
 
-If this was common it might be worth avoiding processing the same entry multiple times.
+Thanks!
+-Lukas
 
-thanks!
-Pádraig
+> 
+> I guess that implement something like this will be ~30 lines in C :-)  
+> 
+> [CC: to Lukas who is fstrim author]
+> 
+>     Karel
+> 
+> 
+> Anyway, a few comments to your script:
+> 
+> > # list all mounted drives; blkid doesn't provide mount points; fstab does ans is another possible source.
+> 
+>  don't use mount(8) to list info about mountpoints, findmnt(8) is better, for example:
+> 
+>     findmnt -clo TARGET -O nodiscard
+> 
+> > # maybe only include fixed/internal drives? /sys/block/sdX/removable doesn't help for deciding if a dev is fixed.
+> > sub get_devs_from_mount {
+> >   my %devs = (); # empty hash
+> > 
+> >   my $output = `$mount`; 
+> >   my @lines = split( '\n', $output); # split the output into lines
+> >   foreach my $line ( @lines ) {
+> >     if( $line =~ m$(\S+) on (/\S*) type \S+ (.*)$) { # eg. /dev/sda8 on /home type ext4 (rw,relatime,data=ordered)
+> >       my $path = $1;
+> >       my $mount_point = $2;
+> >       my $mount_options = $3;
+> >       next if( index( $mount_options, $discard_option ) != -1 ); # not -1 means found discard, i.e. skip this line
+> >       next if( ! -e $path ); # skip lines that are virtual fs
+> >       $path = realpath( $path ); # get absolute path for those mount points that are uuid symlinks
+> >       $devs{ $path } = $mount_point; # add to hash
+> >     }
+> >   }
+> >   return %devs;
+> > }
+> > 
+> > # check if device is ssd using hdparm
+> > sub is_ssd_hdparm {
+> >   my $dev = shift;
+> >   $dev = substr( $dev, 5, 3 ); # short to 3 chars: /dev/xxxN to xxx
+> > 
+> >   return 0 if( ! -X $hdparm || ! -X $grep ); # return no ssd if no hdparm or no grep command available
+> > 
+> >   `$hdparm -I /dev/$dev 2>&1 | $grep 'TRIM supported' 2>/dev/null`; # perl calls bash, use bash redirect
+> 
+> 
+>  it would be possible to use lsblk to list devices with non-zero DISC-GRAN column,
+>  the util also provides mounpoints.
+> 
+> > # check if device is ssd using /sys/block/sdX/queue/rotational: 0=SSD, 1=likely HDD, but could be USB memory etc.
+> 
+>  again, use lsblk
+> 
+> 
