@@ -1,40 +1,110 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36237 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753237Ab3LBKPb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Dec 2013 05:15:31 -0500
-Date: Mon, 2 Dec 2013 11:15:25 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <dreisner@archlinux.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] pylibmount: correctly import from pylibmount.so
-Message-ID: <20131202101525.GZ5572@x2.net.home>
-References: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37598 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751319Ab3LKLqT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Dec 2013 06:46:19 -0500
+Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 7F09B2143A
+	for <util-linux@vger.kernel.org>; Wed, 11 Dec 2013 06:46:14 -0500 (EST)
+Message-Id: <1386762373.12856.58257609.2028060D@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1385054727-20661-1-git-send-email-dreisner@archlinux.org>
+Content-Type: multipart/mixed; boundary="_----------=_1386762373128560";
+ charset="utf-8"
+Subject: small textual improvement to fstrim
+Date: Wed, 11 Dec 2013 12:46:13 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 21, 2013 at 12:25:27PM -0500, Dave Reisner wrote:
-> Without this, python is unable to find the module:
-> 
-> $ python -c 'import libmount'
-> Traceback (most recent call last):
->   File "<string>", line 1, in <module>
->   File "/usr/lib/python3.3/site-packages/libmount/__init__.py", line 1, in <module>
->     from pylibmount import *
-> ImportError: No module named 'pylibmount'
+This is a multi-part message in MIME format.
 
- Hmm... it seems we have always tested this with PYTHONPATH=...
+--_----------=_1386762373128560
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-> -from pylibmount import *
-> +from .pylibmount import *
 
- Applied, thanks.
+Hi,
 
-    Karel
+Hmm... "discard all mounted filesystems" does not sound like what
+one would want fstrim to do.  :)  Better use the word "trim".  Attached
+patch makes this change, and improves some other small issues beside.
+
+Regards,
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - Same, same, but different...
+
+
+--_----------=_1386762373128560
+Content-Disposition: attachment; filename="0001-textual-small-inprovements-to-usage-and-man-page-of-.patch"
+Content-Id: <1386762316.12181.9188a14e6fa60fdf688ece80d85b0a486745b352.0AF4028B@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-textual-small-inprovements-to-usage-and-man-page-of-.patch"
+
+RnJvbSBjMzQ4NDhlNzllZmY1OGZlOTQ0ZjhiYjk4ODY1MzI2MWJiODI0YjFk
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAxMSBE
+ZWMgMjAxMyAxMjo0MDoxNCArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
+YWw6IHNtYWxsIGlucHJvdmVtZW50cyB0byB1c2FnZSBhbmQgbWFuIHBhZ2Ug
+b2YgZnN0cmltCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8
+YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBzeXMtdXRpbHMvZnN0cmlt
+LjggfCAgICA5ICsrKysrLS0tLQogc3lzLXV0aWxzL2ZzdHJpbS5jIHwgICAg
+OCArKysrLS0tLQogMiBmaWxlcyBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyks
+IDggZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL2ZzdHJp
+bS44IGIvc3lzLXV0aWxzL2ZzdHJpbS44CmluZGV4IDY1NzJjNzAuLjhmNjgz
+NTEgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9mc3RyaW0uOAorKysgYi9zeXMt
+dXRpbHMvZnN0cmltLjgKQEAgLTM3LDkgKzM3LDEwIEBAIEdpQiwgVGlCLCBQ
+aUIsIEVpQiwgWmlCIGFuZCBZaUIgKHRoZSAiaUIiIGlzIG9wdGlvbmFsLCBl
+LmcuICJLIiBoYXMgdGhlIHNhbWUKIG1lYW5pbmcgYXMgIktpQiIpIG9yIHRo
+ZSBzdWZmaXhlcyBLQj0xMDAwLCBNQj0xMDAwKjEwMDAsIGFuZCBzbyBvbiBm
+b3IgR0IsIFRCLAogUEIsIEVCLCBaQiBhbmQgWUIuCiAuSVAgIlxmQlwtYSwg
+XC1cLWFsbFxmUCIKLURpc2NhcmQgYWxsIG1vdW50ZWQgZmlsZXN5c3RlbSBv
+biBkZXZpY2VzIHRoYXQgc3VwcG9ydCBkaXNjYXJkIG9wZXJhdGlvbi4gVGhl
+Ci1hbm90aGVyIG9wdGlvbnMgbGlrZSBvZmZzZXQsIGxlbmd0aCBhbmQgbWlu
+aW11bSBhcmUgYXBwbGllZCB0byBhbGwgdGhlIGRldmljZXMuCi1UaGUgZXJy
+b3JzIGZyb20gZmlsZXN5c3RlbXMgdGhhdCBkbyBub3Qgc3VwcG9ydCBkaXNj
+YXJkIG9wZXJhdGlvbiBhcmUgc2lsZW50bHkKK1RyaW0gYWxsIG1vdW50ZWQg
+ZmlsZXN5c3RlbXMgb24gZGV2aWNlcyB0aGF0IHN1cHBvcnQgdGhlIGRpc2Nh
+cmQgb3BlcmF0aW9uLgorVGhlIG90aGVyIHN1cHBsaWVkIG9wdGlvbnMsIGxp
+a2UgXGZCXC1cLW9mZnNldFxmUiwgXGZCXC1cLWxlbmd0aFxmUiBhbmQKK1xm
+Qi1cLW1pbmltdW1cZlIsIGFyZSBhcHBsaWVkIHRvIGFsbCB0aGVzZSBkZXZp
+Y2VzLgorRXJyb3JzIGZyb20gZmlsZXN5c3RlbXMgdGhhdCBkbyBub3Qgc3Vw
+cG9ydCB0aGUgZGlzY2FyZCBvcGVyYXRpb24gYXJlIHNpbGVudGx5CiBpZ25v
+cmVkLgogLklQICJcZkJcLWgsIFwtXC1oZWxwXGZQIgogRGlzcGxheSBoZWxw
+IHRleHQgYW5kIGV4aXQuCkBAIC04Nyw3ICs4OCw3IEBAIGZhaWx1cmUKIC5J
+UCAzMgogYWxsIGZhaWxlZAogLklQIDY0Ci1zb21lIGZpbGVzdGVtcyBkaXNj
+YXJkIHN1Y2NlZWRlZCwgc29tZSBmYWlsZWQKK3NvbWUgZmlsZXN5c3RlbSBk
+aXNjYXJkcyBoYXZlIHN1Y2NlZWRlZCwgc29tZSBmYWlsZWQKIC5QUAogVGhl
+IGNvbW1hbmQKIC5CIGZzdHJpbSAtLWFsbApkaWZmIC0tZ2l0IGEvc3lzLXV0
+aWxzL2ZzdHJpbS5jIGIvc3lzLXV0aWxzL2ZzdHJpbS5jCmluZGV4IDc0N2U2
+YmIuLjI4ZDBlZDcgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9mc3RyaW0uYwor
+KysgYi9zeXMtdXRpbHMvZnN0cmltLmMKQEAgLTIxNSwxMCArMjE1LDEwIEBA
+IHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18oKF9fbm9yZXR1cm5fXykpIHVz
+YWdlKEZJTEUgKm91dCkKIAlmcHJpbnRmKG91dCwKIAkgICAgICBfKCIgJXMg
+W29wdGlvbnNdIDxtb3VudCBwb2ludD5cbiIpLCBwcm9ncmFtX2ludm9jYXRp
+b25fc2hvcnRfbmFtZSk7CiAJZnB1dHMoVVNBR0VfT1BUSU9OUywgb3V0KTsK
+LQlmcHV0cyhfKCIgLWEsIC0tYWxsICAgICAgICAgICBkaXNjYXJkIGFsbCBt
+b3VudGVkIHN1cHBvcnRlZCBmaWxlc3lzdGVtc1xuIiksIG91dCk7Ci0JZnB1
+dHMoXygiIC1vLCAtLW9mZnNldCA8bnVtPiAgb2Zmc2V0IGluIGJ5dGVzIHRv
+IGRpc2NhcmQgZnJvbVxuIiksIG91dCk7Ci0JZnB1dHMoXygiIC1sLCAtLWxl
+bmd0aCA8bnVtPiAgbGVuZ3RoIG9mIGJ5dGVzIHRvIGRpc2NhcmQgZnJvbSB0
+aGUgb2Zmc2V0XG4iKSwgb3V0KTsKLQlmcHV0cyhfKCIgLW0sIC0tbWluaW11
+bSA8bnVtPiBtaW5pbXVtIGV4dGVudCBsZW5ndGggdG8gZGlzY2FyZFxuIiks
+IG91dCk7CisJZnB1dHMoXygiIC1hLCAtLWFsbCAgICAgICAgICAgdHJpbSBh
+bGwgbW91bnRlZCBmaWxlc3lzdGVtcyB0aGF0IGFyZSBzdXBwb3J0ZWRcbiIp
+LCBvdXQpOworCWZwdXRzKF8oIiAtbywgLS1vZmZzZXQgPG51bT4gIHRoZSBv
+ZmZzZXQgaW4gYnl0ZXMgdG8gc3RhcnQgZGlzY2FyZGluZyBmcm9tXG4iKSwg
+b3V0KTsKKwlmcHV0cyhfKCIgLWwsIC0tbGVuZ3RoIDxudW0+ICB0aGUgbnVt
+YmVyIG9mIGJ5dGVzIHRvIGRpc2NhcmRcbiIpLCBvdXQpOworCWZwdXRzKF8o
+IiAtbSwgLS1taW5pbXVtIDxudW0+IHRoZSBtaW5pbXVtIGV4dGVudCBsZW5n
+dGggdG8gZGlzY2FyZFxuIiksIG91dCk7CiAJZnB1dHMoXygiIC12LCAtLXZl
+cmJvc2UgICAgICAgcHJpbnQgbnVtYmVyIG9mIGRpc2NhcmRlZCBieXRlc1xu
+IiksIG91dCk7CiAKIAlmcHV0cyhVU0FHRV9TRVBBUkFUT1IsIG91dCk7Ci0t
+IAoxLjcuMC40Cgo=
+
+--_----------=_1386762373128560--
+
