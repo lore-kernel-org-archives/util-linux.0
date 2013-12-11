@@ -1,59 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35548 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:57576 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751576Ab3LBMyY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Dec 2013 07:54:24 -0500
-Date: Mon, 2 Dec 2013 13:54:21 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: script input redirection / eof handling
-Message-ID: <20131202125421.GF5572@x2.net.home>
-References: <52726756.8060205@ubuntu.com>
- <20131202123659.GE5572@x2.net.home>
+	id S1751064Ab3LKCIF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Dec 2013 21:08:05 -0500
+Received: from [160.129.138.113] ([160.129.138.113]) by mail.gmx.com
+ (mrgmx003) with ESMTPSA (Nemesis) id 0MHHdb-1VlOYz3fVb-00E8Zv for
+ <util-linux@vger.kernel.org>; Wed, 11 Dec 2013 03:08:03 +0100
+Message-ID: <52A7C8FB.4030605@gmx.de>
+Date: Tue, 10 Dec 2013 20:07:55 -0600
+From: Sten Heinze <sten.heinze@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20131202123659.GE5572@x2.net.home>
+To: Karel Zak <kzak@redhat.com>,
+        =?UTF-8?B?THVrw6HFoSBDemVybmVy?= <lczerner@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: Automatic SSD trim script
+References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home> <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain> <20131210154442.GC8419@x2.net.home>
+In-Reply-To: <20131210154442.GC8419@x2.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 02, 2013 at 01:36:59PM +0100, Karel Zak wrote:
-> On Thu, Oct 31, 2013 at 10:21:10AM -0400, Phillip Susi wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > I came across an old bug filed in debian about script being redirected
-> > from a file misbehaving. 
-> 
-> Do you mean something like:
-> 
->    echo "ps uf" | script
-> 
-> .. if yes, then it's pretty unexpected usage. The code expects that
-> stdin is terminal. (For example it copy the current terminal
-> attributes the new pseudo-terminal.)
-> 
-> Unfortunately it does not check tcgetatt() return code so the problem 
-> is not visible. I'll fix it.
+On 12/10/2013 9:44 AM, Karel Zak wrote:
+> On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
+>>> All we need is to link fstrim with libmount and lib/sysfs.c, add a new
+>>> option --all and check non-zero /sys/block/<name>/queue/discard_granularity
+>>> (or so).
+>>
+>> Yes and yes. This is the ultimate solution. Simply being able to run
+>> fstrim --all to discard free space on all the mounted supported file
+>> systems is great idea. In that case we do not need any scripts at
+>> all.
+>
+>   Implemented. Sten, maybe you can try fstrim --all from git tree
+>   in your crontab.
+>
+>      Karel
+>
 
-Note, that if you want to support this scenario (stdin is not a
-terminal) then send a patch ;-) 
+This was fantastic fast! I will try it out as soon as I have cloned the 
+git repo and built it.
 
-I guess you have to initialize the terminal (see inlude/ttyutils.h, 
-reset_virtual_console()) and use this dummy struct termios instead of
-the current 'tt'.
+Thanks a lot!
 
-> Yep, I think it would be enough to add 
-> 
->        kill(0, SIGTERM);
-> 
-> before done() in doinput() to avoid orphans.
-
- This is probably not the best solution (because shell will print
- "Terminated" etc.), but it's definitely better than orphans.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sten
