@@ -1,55 +1,65 @@
-Return-Path: lkml@tlinx.org
-Message-ID: <52B1FFED.7010800@tlinx.org>
-Date: Wed, 18 Dec 2013 12:05:01 -0800
-From: Linda Walsh <lkml@tlinx.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:5331 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751489Ab3LLMFt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Dec 2013 07:05:49 -0500
+Date: Thu, 12 Dec 2013 13:05:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: read only bind mount ignores ready only
+Message-ID: <20131212120544.GJ16572@x2.net.home>
+References: <52A878C5.6050505@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: regression bug: user loses DISPLAY & REMOTEHOST with  'su -p - username"
-References: <52B0DA78.8060109@tlinx.org> <20131218105454.GA21748@x2.net.home>
-In-Reply-To: <20131218105454.GA21748@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <52A878C5.6050505@ubuntu.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> it means that --login and --preserve-environment has been always
-> mutually exclusive and the latest version prints wanning when the
-> options are use together. It's also described in the man page.
->   
-----
-    You are right.  Compared back with to core utils 8.9 -- same.
-Confused it with an open suse change to call pam_env /session instead of
-per_auth which has a similar effect of losing remote DISPLAY/REMOTEHOST
-vals.
 
->   
->> The preserve environment flag is NOT incompatible with login.
->> It means don't clear the env, but do call login via -<shell>.
->>
->> -p means don't clear the ENV -- but do call the user's shell
->> with a '-' in front of it.  That has always been the functionality
->> of 'su'.
->>
->> If you want to make 'su' fancier, maybe it needs a "/etc/suers.conf"
->> file so specific values can be easily changed to reflect
->> site policy rather than hard coding them.
->>     
->
-> It would be probably better to use PAM for such things.
->   
-----
+ [CC: kernel guys]
 
-    PAM doesn't maintain state.  After the initial authorization that 
-grants you access to the machine -- the "where" you came from is lost.
+On Wed, Dec 11, 2013 at 09:37:57AM -0500, Phillip Susi wrote:
+> It seems that the kernel has a bug where it silently ignores the
+> MS_RDONLY flag when creating a bind mount.  mount issues a warning
+> that the mount point appears to be read-write even though you
+> requested read only.  The reporter suggests a patch to automatically
+> attempt to remount with MS_RDONLY before issuing this warning to work
+> around the kernel bug.  What do you think?
 
-    Perhaps this is a deficiency in PAM, can't say, but DISPLAY is
-like TERM.  It tells you how to send output to the user.  DISPLAY can be
-derived from REMOTEHOST only on initial authorization when the host is
-first entered.  Since future "sessions" from a remote-entry all stem from
-the initial login, it would seem useful to preserve information about
-the origination.  TERM is preserved because it describes the nature of
-the terminal functions to use at 'DISPLAY'.  It seems a bit myopic to
-save TERM but not DISPLAY. 
+I have it implemented, so
 
-    Other vars could easily fall into that category.  But certainly,
-losing DISPLAY information is at least, no less valuable than losing TERM.
+ mount --bind --read-only /mnt /mnt
+
+is interpreted as two requests (two mount(2) calls)
+
+ mount --bind /mnt /mnt
+ mount -o remount,bind,ro /tmp      
+
+it works as expected, but it does not work with MS_REC (recursive)
+because kernel currently does not support
+
+  MS_REMOUNT|MS_BIND|MS_REC|...
+
+it means that 
+
+  mount --rbind --read-only /mnt /mnt
+
+creates only top-level read-only mountpoint, the rest is unchanged.
+
+
+Miklos would be possible to fix kernel to accept MS_REC for
+MS_REMOUNT|MS_BIND|MS_RDONLY operation? Please.
+
+It seems that all we need is to call stuff in mnt_make_readonly() for 
+all next_mnt() items.
+
+
+(Well, it would be also nice to learn kernel to support
+ MS_BIND|MS_RDONLY, but it's probably more invasive change.)
+
+    Lare;
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
