@@ -1,45 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:55880 "EHLO Ishtar.tlinx.org"
+Received: from mx1.redhat.com ([209.132.183.28]:35584 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751231Ab3LQXiN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Dec 2013 18:38:13 -0500
-Received: from [192.168.4.12] (Athenae [192.168.4.12])
-	by Ishtar.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id rBHNCtl5045761
-	for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 15:12:57 -0800
-Message-ID: <52B0DA78.8060109@tlinx.org>
-Date: Tue, 17 Dec 2013 15:12:56 -0800
-From: Linda Walsh <lkml@tlinx.org>
+	id S1751675Ab3LLQY3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Dec 2013 11:24:29 -0500
+Date: Thu, 12 Dec 2013 17:02:33 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: read only bind mount ignores ready only
+Message-ID: <20131212160233.GL16572@x2.net.home>
+References: <52A878C5.6050505@ubuntu.com>
+ <20131212120544.GJ16572@x2.net.home>
+ <52A9CF3E.1040402@ubuntu.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: regression bug: user loses DISPLAY & REMOTEHOST with  'su -p - username"
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <52A9CF3E.1040402@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Dec 12, 2013 at 09:59:10AM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 12/12/2013 7:05 AM, Karel Zak wrote:
+> > I have it implemented, so
+> > 
+> > mount --bind --read-only /mnt /mnt
+> > 
+> > is interpreted as two requests (two mount(2) calls)
+> > 
+> > mount --bind /mnt /mnt mount -o remount,bind,ro /tmp
+> 
+> And mount -o bind,ro is the same right?  So you can set up a ro bind
+> mount in fstab?
 
-"su --preserve_environment - username" no longer preserves
-your REMOTEHOST and DISPLAY values.  They should be
-in the same class as 'TERM', as they are passed from the
-pre-login environment.
+ Yes, but it is not in the git tree yet (I'd like to wait for Miklos's
+ reply).
 
-I don't know if there are other values that shouldn't be
-removed -- but it is bad to clear the environment just
-because one wants a shell called with '-<shell>'.
+    Karel
 
-The preserve environment flag is NOT incompatible with login.
-It means don't clear the env, but do call login via -<shell>.
-
--p means don't clear the ENV -- but do call the user's shell
-with a '-' in front of it.  That has always been the functionality
-of 'su'.
-
-If you want to make 'su' fancier, maybe it needs a "/etc/suers.conf"
-file so specific values can be easily changed to reflect
-site policy rather than hard coding them.
-
-
-
-
-
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
