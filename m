@@ -1,50 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31025 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751133Ab3LKLgy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 11 Dec 2013 06:36:54 -0500
-Date: Wed, 11 Dec 2013 12:36:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: =?utf-8?B?THVrw6HFoQ==?= Czerner <lczerner@redhat.com>,
-        Sten Heinze <shze@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: Automatic SSD trim script
-Message-ID: <20131211113646.GA16572@x2.net.home>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
- <20131206104944.GE16891@x2.net.home>
- <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
- <20131210154442.GC8419@x2.net.home>
- <52A8444F.2040904@draigBrady.com>
+Received: from mail-qc0-f175.google.com ([209.85.216.175]:61784 "EHLO
+	mail-qc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751570Ab3LLTm5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 12 Dec 2013 14:42:57 -0500
+Received: by mail-qc0-f175.google.com with SMTP id e9so717785qcy.34
+        for <util-linux@vger.kernel.org>; Thu, 12 Dec 2013 11:42:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <52A8444F.2040904@draigBrady.com>
+In-Reply-To: <20131212120544.GJ16572@x2.net.home>
+References: <52A878C5.6050505@ubuntu.com>
+	<20131212120544.GJ16572@x2.net.home>
+Date: Thu, 12 Dec 2013 20:42:54 +0100
+Message-ID: <CAJfpegvWeEb7Dtk8CMxLO4DB-xSLQMxLxccUPReU0GeQ=9d5MA@mail.gmail.com>
+Subject: Re: read only bind mount ignores ready only
+From: Miklos Szeredi <miklos@szeredi.hu>
+To: Karel Zak <kzak@redhat.com>
+Cc: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org,
+        Linux-Fsdevel <linux-fsdevel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 11, 2013 at 10:54:07AM +0000, Pádraig Brady wrote:
-> Very nice:
-> https://git.kernel.org/cgit/utils/util-linux/util-linux.git/commit/?id=36c370c
-> 
-> One foible was it was called multiple times for my /home
-> Now my /home is mounted a couple of times on my system (why I don't know):
-> 
-> ├─/home                         /dev/sdb1           ext4                  rw,relatime,seclabel,user_xattr,barrier=1,data=ordered
-> │ └─/home                       /dev/sdb1           ext4                  rw,relatime,seclabel,user_xattr,barrier=1,data=ordered
-> 
-> If this was common it might be worth avoiding processing the same entry multiple times.
+On Thu, Dec 12, 2013 at 1:05 PM, Karel Zak <kzak@redhat.com> wrote:
+>
+>  [CC: kernel guys]
+>
+> On Wed, Dec 11, 2013 at 09:37:57AM -0500, Phillip Susi wrote:
+>> It seems that the kernel has a bug where it silently ignores the
+>> MS_RDONLY flag when creating a bind mount.  mount issues a warning
+>> that the mount point appears to be read-write even though you
+>> requested read only.  The reporter suggests a patch to automatically
+>> attempt to remount with MS_RDONLY before issuing this warning to work
+>> around the kernel bug.  What do you think?
+>
+> I have it implemented, so
+>
+>  mount --bind --read-only /mnt /mnt
+>
+> is interpreted as two requests (two mount(2) calls)
+>
+>  mount --bind /mnt /mnt
+>  mount -o remount,bind,ro /tmp
+>
+> it works as expected, but it does not work with MS_REC (recursive)
+> because kernel currently does not support
+>
+>   MS_REMOUNT|MS_BIND|MS_REC|...
+>
+> it means that
+>
+>   mount --rbind --read-only /mnt /mnt
+>
+> creates only top-level read-only mountpoint, the rest is unchanged.
+>
+>
+> Miklos would be possible to fix kernel to accept MS_REC for
+> MS_REMOUNT|MS_BIND|MS_RDONLY operation? Please.
 
-The common things is something like:
+I really hate the current mount(2) API. It's a gigantic hack, and it's
+nearing the end of its life anyway due to flags running out.
 
-├─/boot                          systemd-1   autofs rw,relatime,fd=41,pgrp=1,timeout=300,minproto=5,maxpr
-│ └─/boot                        /dev/sda1   vfat   rw,relatime,fmask=0077,dmask=0077,codepage=437,iochar
+So instead of adding more hacks, I think it would be better to think
+about adding a couple of syscalls that have clearly defined semantics.
 
-but "autofs" is ignored.
-
-My old plan is to add some de-duplication function to libmount... now
-I have a real motivation :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks,
+Miklos
