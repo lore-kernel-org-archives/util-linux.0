@@ -1,117 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50323 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933531Ab3LINnk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Dec 2013 08:43:40 -0500
-Date: Mon, 9 Dec 2013 14:43:32 +0100 (CET)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: Karel Zak <kzak@redhat.com>
-cc: Sten Heinze <shze@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: Automatic SSD trim script
-In-Reply-To: <20131206104944.GE16891@x2.net.home>
-Message-ID: <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30> <20131206104944.GE16891@x2.net.home>
+Return-Path: skalkoto@admin.grnet.gr
+Message-ID: <52AAE5FF.90403@grnet.gr>
+Date: Fri, 13 Dec 2013 12:48:31 +0200
+From: Nikos Skalkotos <skalkoto@grnet.gr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org, synnefo-devel@googlegroups.com
+Subject: Re: Support for the new OpenBSD disklabel format
+References: <529CC1AE.9090006@grnet.gr> <20131210103208.GA8419@x2.net.home>
+In-Reply-To: <20131210103208.GA8419@x2.net.home>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 6 Dec 2013, Karel Zak wrote:
+Hello Karel,
 
-> Date: Fri, 6 Dec 2013 11:49:44 +0100
-> From: Karel Zak <kzak@redhat.com>
-> To: Sten Heinze <shze@gmx.de>
-> Cc: util-linux@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>
-> Subject: Re: Automatic SSD trim script
-> 
-> 
->  Hi Sten,
-> 
-> On Thu, Dec 05, 2013 at 08:20:07PM +0100, Sten Heinze wrote:
-> > Having experienced the drop in speed when using a SSD with online
-> > discard, I wrote a small perl script to run fstrim using batched
-> > discard on partitions located on a SSD through cron. Do you think
-> > util-linux would be a good place for such a script, given that it is
-> > a helper to fstrim? What would be the best way to include one in
-> > util-linux?
-> 
-> I have doubts we want to add a perl script to the package as a regular
-> util, util-linux is very basic package and dependence on Perl is
-> unexpected here. Maybe it would be possible to write a simple shell
-> script for this task and add it to the Documentation/example.files/
-> directory.
+On Tue 10 Dec 2013 12:32:08 PM EET, Karel Zak wrote:
+> On Mon, Dec 02, 2013 at 07:21:50PM +0200, Nikos Skalkotos wrote:
+>> Besides the python tool I've written, for a more permanent solution, I'm
+>> considering patching libfdisk to support the OpenBSD disklabel. I wanted
+>> to know if you are interested for those patches. I think the best way to
+>> do it is to split the disklabel parts that have changed into different
+>> structs and use unions to create a disklabel struct that will work both
+>> for NetBSD and OpenBSD. What do you think?
+>
+> I'm just doing some invasive changes to the library -- it would be
+> probably better to wait to January to avoid some collisions and extra
+> work.
+>
+> We also have some very simple partitions table parser in libblkid
+> (see libblkid/src/partitions/, mostly dos.c for nested partition tables). It
+> would be nice to extend this partition table parser too.
+>
+> Don't forget to send some test image with the new BSD disklabel! :-)
 
-I very much like the idea of having a simple script to add to cron
-to be able to keep SSD's at top of its performance.
+No problem, I can wait till January. I'll keep an eye on the changes 
+made in
+libfdisk. I'll also examine the code under libblkid/src/partitions.
 
-> 
-> 
-> IMHO the best solution would be to improve fstrim to trim all
-> filesystems where it makes sense.
-> 
-> All we need is to link fstrim with libmount and lib/sysfs.c, add a new
-> option --all and check non-zero /sys/block/<name>/queue/discard_granularity
-> (or so).
+>
+>> If this works out, I'd be happy to create python bindings for libfdisk
+>> (like the ones you have for libmount) as a later step. I know that the
+>> API is not currently stable, but most parts seem OK.
+>
+> It's probably too early, the API is not stable at all, maybe later in
+> next year.
+>
+> Anyway, python binding is wanted -- we already have binding for
+> libmount, Ondrej promised binding for libblkid, so binding for
+> libfdisk would be excellent thing!
+>
+> Now the library is good enough for dialogs driven interfaces (like
+> fdisk), but it's necessary to improve it for programs like cfdisk and
+> sfdisk. Now I'm working on new cfdisk.
 
-Yes and yes. This is the ultimate solution. Simply being able to run
-fstrim --all to discard free space on all the mounted supported file
-systems is great idea. In that case we do not need any scripts at
-all.
+Actually I wanted to ask you about this. I've seen the fdisk_ask struct
+and how the client can registers an ask_callback function, but it's not
+clear to me how you are planning to allow programs to use the
+library in an unattended way. Are you going to provide new methods
+for this or are you going to document the data each method will ask
+for to allow the user to provide the answers in advance?
 
-Thanks!
--Lukas
+If you rewrite sfdisk to use the library, I'll get all the answers I 
+need. :-)
 
-> 
-> I guess that implement something like this will be ~30 lines in C :-)  
-> 
-> [CC: to Lukas who is fstrim author]
-> 
+>
 >     Karel
-> 
-> 
-> Anyway, a few comments to your script:
-> 
-> > # list all mounted drives; blkid doesn't provide mount points; fstab does ans is another possible source.
-> 
->  don't use mount(8) to list info about mountpoints, findmnt(8) is better, for example:
-> 
->     findmnt -clo TARGET -O nodiscard
-> 
-> > # maybe only include fixed/internal drives? /sys/block/sdX/removable doesn't help for deciding if a dev is fixed.
-> > sub get_devs_from_mount {
-> >   my %devs = (); # empty hash
-> > 
-> >   my $output = `$mount`; 
-> >   my @lines = split( '\n', $output); # split the output into lines
-> >   foreach my $line ( @lines ) {
-> >     if( $line =~ m$(\S+) on (/\S*) type \S+ (.*)$) { # eg. /dev/sda8 on /home type ext4 (rw,relatime,data=ordered)
-> >       my $path = $1;
-> >       my $mount_point = $2;
-> >       my $mount_options = $3;
-> >       next if( index( $mount_options, $discard_option ) != -1 ); # not -1 means found discard, i.e. skip this line
-> >       next if( ! -e $path ); # skip lines that are virtual fs
-> >       $path = realpath( $path ); # get absolute path for those mount points that are uuid symlinks
-> >       $devs{ $path } = $mount_point; # add to hash
-> >     }
-> >   }
-> >   return %devs;
-> > }
-> > 
-> > # check if device is ssd using hdparm
-> > sub is_ssd_hdparm {
-> >   my $dev = shift;
-> >   $dev = substr( $dev, 5, 3 ); # short to 3 chars: /dev/xxxN to xxx
-> > 
-> >   return 0 if( ! -X $hdparm || ! -X $grep ); # return no ssd if no hdparm or no grep command available
-> > 
-> >   `$hdparm -I /dev/$dev 2>&1 | $grep 'TRIM supported' 2>/dev/null`; # perl calls bash, use bash redirect
-> 
-> 
->  it would be possible to use lsblk to list devices with non-zero DISC-GRAN column,
->  the util also provides mounpoints.
-> 
-> > # check if device is ssd using /sys/block/sdX/queue/rotational: 0=SSD, 1=likely HDD, but could be USB memory etc.
-> 
->  again, use lsblk
-> 
-> 
+>
