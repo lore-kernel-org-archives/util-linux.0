@@ -1,66 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qc0-f175.google.com ([209.85.216.175]:61784 "EHLO
-	mail-qc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751570Ab3LLTm5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 12 Dec 2013 14:42:57 -0500
-Received: by mail-qc0-f175.google.com with SMTP id e9so717785qcy.34
-        for <util-linux@vger.kernel.org>; Thu, 12 Dec 2013 11:42:54 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20131212120544.GJ16572@x2.net.home>
-References: <52A878C5.6050505@ubuntu.com>
-	<20131212120544.GJ16572@x2.net.home>
-Date: Thu, 12 Dec 2013 20:42:54 +0100
-Message-ID: <CAJfpegvWeEb7Dtk8CMxLO4DB-xSLQMxLxccUPReU0GeQ=9d5MA@mail.gmail.com>
-Subject: Re: read only bind mount ignores ready only
-From: Miklos Szeredi <miklos@szeredi.hu>
-To: Karel Zak <kzak@redhat.com>
-Cc: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org,
+Received: from mx1.redhat.com ([209.132.183.28]:7808 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752269Ab3LMKpp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Dec 2013 05:45:45 -0500
+Date: Fri, 13 Dec 2013 11:45:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Phillip Susi <psusi@ubuntu.com>,
+        util-linux@vger.kernel.org,
         Linux-Fsdevel <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: read only bind mount ignores ready only
+Message-ID: <20131213104516.GN16572@x2.net.home>
+References: <52A878C5.6050505@ubuntu.com>
+ <20131212120544.GJ16572@x2.net.home>
+ <CAJfpegvWeEb7Dtk8CMxLO4DB-xSLQMxLxccUPReU0GeQ=9d5MA@mail.gmail.com>
+ <20131212215325.GE10323@ZenIV.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20131212215325.GE10323@ZenIV.linux.org.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 12, 2013 at 1:05 PM, Karel Zak <kzak@redhat.com> wrote:
->
->  [CC: kernel guys]
->
-> On Wed, Dec 11, 2013 at 09:37:57AM -0500, Phillip Susi wrote:
->> It seems that the kernel has a bug where it silently ignores the
->> MS_RDONLY flag when creating a bind mount.  mount issues a warning
->> that the mount point appears to be read-write even though you
->> requested read only.  The reporter suggests a patch to automatically
->> attempt to remount with MS_RDONLY before issuing this warning to work
->> around the kernel bug.  What do you think?
->
-> I have it implemented, so
->
->  mount --bind --read-only /mnt /mnt
->
-> is interpreted as two requests (two mount(2) calls)
->
->  mount --bind /mnt /mnt
->  mount -o remount,bind,ro /tmp
->
-> it works as expected, but it does not work with MS_REC (recursive)
-> because kernel currently does not support
->
->   MS_REMOUNT|MS_BIND|MS_REC|...
->
-> it means that
->
->   mount --rbind --read-only /mnt /mnt
->
-> creates only top-level read-only mountpoint, the rest is unchanged.
->
->
-> Miklos would be possible to fix kernel to accept MS_REC for
-> MS_REMOUNT|MS_BIND|MS_RDONLY operation? Please.
+On Thu, Dec 12, 2013 at 09:53:25PM +0000, Al Viro wrote:
+> 	Frankly, I wonder if we are trying to pack too much into one
+> syscall - not just in terms of overloading it (that much is obvious),
+> but in terms of trying to cram a sequence of syscalls into one.  If
+> we end up introducing new API(s) for mount(), it's probably worth
+> considering something like this:
+> 	* open a connection to fs type driver, get a descriptor
+> 	* use normal IO syscalls (usually just write(2)) on that
+> descriptor to tell fs type driver what do we want.  If any kind of
+> authentication is needed, that's the time for doing it
+> 	* attach the thing identified by that descriptor to mountpoint
 
-I really hate the current mount(2) API. It's a gigantic hack, and it's
-nearing the end of its life anyway due to flags running out.
+Yes, exactly. This is my wish for years.
 
-So instead of adding more hacks, I think it would be better to think
-about adding a couple of syscalls that have clearly defined semantics.
+I don't think we need more *independent* syscalls to replace mount(2)
+(for example a special syscall to change propagation flags, or so).
 
-Thanks,
-Miklos
+I strongly believe that APIs for complex tasks have to be based on 
+handlers (file descriptors). These APIs are extendible.
+
+It would be also nice to provide some information about the mount
+operation to userspace by the file descriptor -- it means to support
+read(2) and at least to return mount Id.  The current situation when
+we have only errno in userspace is insufficient. If you want to know
+more information then you have parse /proc/self/mountinfo, but which
+entry in the right entry for the last mount(2) call?
+
+> I have an old writeup somewhere (several variants of it, actually) on possible
+> replacement APIs; I'll try to dig it out and post it.
+
+ Please, share it :-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
