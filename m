@@ -1,80 +1,84 @@
-Return-Path: midenok@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47566 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751302Ab3LQKCP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Dec 2013 05:02:15 -0500
+Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id B3BB920ACC
+	for <util-linux@vger.kernel.org>; Tue, 17 Dec 2013 05:02:14 -0500 (EST)
+Message-Id: <1387274534.32475.60577705.14EC62A9@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20131023152744.GB21504@x2.net.home>
-References: <CAF8BazAW7xxXpO1-vCBJvfvORBLXnJkDxv=qagoe0ZJe-12aJg@mail.gmail.com>
-	<CAF8BazDFWf7-NPwCr7Cg=aV9prKsWNUxJu2neZ3x+8XP1fZPHQ@mail.gmail.com>
-	<20131018083452.GB15115@x2.net.home>
-	<CAF8BazB4jsWj0_3Ns14o5qDF2wVch9_K5u_ZsJ8GwjMyNZb6Uw@mail.gmail.com>
-	<20131023152744.GB21504@x2.net.home>
-Date: Fri, 13 Dec 2013 16:49:00 +0400
-Message-ID: <CAF8BazA6Q_qECmMe_n8KxkBmXgH_8H1AYGbW4jO1Q2Y2hphcWA@mail.gmail.com>
-Subject: Re: Per-filesystem default mount options
-From: Aleksey Midenkov <midenok@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Mikhail Mukovnikov <m.mukovnikov@gmail.com>, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary="_----------=_1387274534324754";
+ charset="utf-8"
+Subject: [attempt at patch] adding --no-wrap to msgmerge
+Date: Tue, 17 Dec 2013 11:02:14 +0100
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel,
+This is a multi-part message in MIME format.
 
-I'm sorry for long delay. We are getting ready to start development.
-But we need to settle some questions before we can start development
-(please, see below).
+--_----------=_1387274534324754
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-On Wed, Oct 23, 2013 at 7:27 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Sat, Oct 19, 2013 at 08:03:29AM +0400, Aleksey Midenkov wrote:
->> On Fri, Oct 18, 2013 at 12:34 PM, Karel Zak <kzak@redhat.com> wrote:
->> > On Wed, Oct 16, 2013 at 06:13:17PM +0400, Aleksey Midenkov wrote:
->> >> Is it possible to specify per-filesystem default mount options
->> >> somewhere in configuration file?
->> >
->> >  /etc/fstab, or tune2fs for extN, or /etc/nsfmount.conf for NFS.
->> >
->> >  The per-filesystem-type default options are also hardcoded in kernel.
->> >
->>
->> I'm sorry for my misguide and, perhaps, a wrong start. What I mean is
->> per-fs type default mount options. That's true, they are hardcoded in
->> kernel. But, there is a need to have them customized. I know, there is
->> ton of user-level utils that maybe can provide it. But... I feel that
->> this basic feature is important for the core. That's why I decided to
->> ask here in hope that you will discuss this with me.
->
->  If you really need a generic (on device independent solution), then I
->  don't see a better way than improve libmount for read something
->  like /etc/mount/<fsname>.conf. The problem is that such feature will
->  not be usable for non-libmount applications.
 
-I guess, it is possible to do it in /etc/fstab. This solution would
-bring us additional advantages (f.ex. better readability of /etc/fstab
-itself). An example draft is available here:
+Hi,
 
-https://github.com/better-oss/util-linux/issues/1#issuecomment-30503845
+Attached is a patch that should add the option --no-wrap to the runs
+of msgmerge (after a renewal of the POT file) to reduce the number
+of spurious differences.
 
-What are these non-libmount applications? Do they mount without
-/bin/mount invocation? Why would they do this?
+However, I can't get the thing to work here.  When i run autogen.sh
+it says "Copying file po/Makefile.in.in", and when I then look in that
+file it mentions "# Origin: gettext-0.14".  But the only Makefile.in.in
+I have on this testing system is /usr/share/gettext/po/Makefile.in.in
+and in that file it says "# Origin: gettext-0.18".  (That version is needed,
+otherwise it doesn't know the MSGMERGE_OPTIONS variable.)
 
->
->> I keep stumbling upon this lack for a million-th times for as long as
->> 15 years. Every barely installed host, f.ex. even routers that have no
->> ability to install another utils except the 'mount', they require me
->> each time to put charset from command line. And you know, this is the
->> common source for errors for non-latin countries like your servant's.
->
->  I understand the pain for removable media, but for regular disks you
->  can use /etc/fstab, right?
+So... where does autogen.sh/autopoint take its Makefile.in.in from?
 
-Yes, for regular disks usual /etc/fstab is enough.
+Regards,
 
->
->> When charset option is forgotten the filenames are garbled after copy.
->> And you not always notice it because non-latin ones are somewhere deep
->> inside. But after some time passed you see the surprise...
->
->  I understand.
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+Benno
+
+-- 
+http://www.fastmail.fm - Or how I learned to stop worrying and
+                          love email again
+
+
+--_----------=_1387274534324754
+Content-Disposition: attachment; filename="0001-po-add-no-wrap-to-msgmerge-to-not-wrap-long-message-.patch"
+Content-Id: <1387274516.32511.f8e0a38cb5872c1115b3778d6bce1ba41fb7e144.136F4798@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-po-add-no-wrap-to-msgmerge-to-not-wrap-long-message-.patch"
+
+RnJvbSA0ZDlhNjI5YjJkM2E5ZTE3NjhlYjI2OGFjYWY5ZTczZmIxNjk5Nzhm
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogTW9uLCAxNiBE
+ZWMgMjAxMyAyMjo0MTo1NiArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHBvOiBh
+ZGQgJy0tbm8td3JhcCcgdG8gbXNnbWVyZ2UsIHRvIG5vdCB3cmFwIGxvbmcg
+bWVzc2FnZSBsaW5lcwoKVGhpcyBhdm9pZHMgdW5uZWVkZWQgY2h1cm4gZHVy
+aW5nIFBPVC1maWxlIHJlbmV3YWwgYW5kIFBPLWZpbGUgdXBkYXRlcywKYXMg
+dGhlIFBPIGZpbGVzIGF0IHRoZSBUUCBhcmUgbWFkZSB3aXRoICctLW5vLXdy
+YXAnLgoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJlcmcgPGJlbnNi
+ZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogcG8vTWFrZXZhcnMgfCAgICAzICsr
+KwogMSBmaWxlcyBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDAgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvcG8vTWFrZXZhcnMgYi9wby9NYWtldmFy
+cwppbmRleCA5OTM4ZTQ0Li40ZDU2MjljIDEwMDY0NAotLS0gYS9wby9NYWtl
+dmFycworKysgYi9wby9NYWtldmFycwpAQCAtMTAsNiArMTAsOSBAQCB0b3Bf
+YnVpbGRkaXIgPSAuLgogIyBUaGVzZSBvcHRpb25zIGdldCBwYXNzZWQgdG8g
+eGdldHRleHQuCiBYR0VUVEVYVF9PUFRJT05TID0gLS1rZXl3b3JkPV8gLS1r
+ZXl3b3JkPU5fIC0ta2V5d29yZD1QXzoxLDIKIAorIyBUaGlzIG9wdGlvbiBn
+ZXRzIHBhc3NlZCB0byBtc2dtZXJnZS4KK01TR01FUkdFX09QVElPTlMgPSAt
+LW5vLXdyYXAKKwogIyBUaGlzIGlzIHRoZSBjb3B5cmlnaHQgaG9sZGVyIHRo
+YXQgZ2V0cyBpbnNlcnRlZCBpbnRvIHRoZSBoZWFkZXIgb2YgdGhlCiAjICQo
+RE9NQUlOKS5wb3QgZmlsZS4gIFNldCB0aGlzIHRvIHRoZSBjb3B5cmlnaHQg
+aG9sZGVyIG9mIHRoZSBzdXJyb3VuZGluZwogIyBwYWNrYWdlLiAgKE5vdGUg
+dGhhdCB0aGUgbXNnc3RyIHN0cmluZ3MsIGV4dHJhY3RlZCBmcm9tIHRoZSBw
+YWNrYWdlJ3MKLS0gCjEuNy4wLjQKCg==
+
+--_----------=_1387274534324754--
+
