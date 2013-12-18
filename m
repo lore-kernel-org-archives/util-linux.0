@@ -1,283 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29798 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753075Ab3LCPZB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 3 Dec 2013 10:25:01 -0500
-From: Lukas Czerner <lczerner@redhat.com>
+Received: from filtteri1.pp.htv.fi ([213.243.153.184]:40339 "EHLO
+	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753558Ab3LRWNz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Dec 2013 17:13:55 -0500
+From: =?UTF-8?q?Ville=20Skytt=C3=A4?= <ville.skytta@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com, linux-ext4@vger.kernel.org,
-        Lukas Czerner <lczerner@redhat.com>
-Subject: [PATCH] libblkid: Identify extN file system properly
-Date: Tue,  3 Dec 2013 16:24:44 +0100
-Message-Id: <1386084284-22120-1-git-send-email-lczerner@redhat.com>
+Cc: kzak@redhat.com
+Subject: [PATCH] man: Syntax and spelling fixes.
+Date: Thu, 19 Dec 2013 00:13:48 +0200
+Message-Id: <1387404828-29648-1-git-send-email-ville.skytta@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Currently when trying to identify extN file system we're playing games
-with searching for kernel modules and parsing /proc/filesystem. All of
-this just because ext4 module can be used to mount ext3 and ext2 file
-systems on recent kernel and also because of ext4dev.
-
-However all of this is not necessary. Ext4 module which does support
-mounting ext2 and ext3 file system is able to recognize and mount ext2
-and ext3 type so there is no need to disguise it and ext4dev should only
-be ever used for testing and not as fallback when other modules are
-missing (use -t instead).
-
-This also introduces a bug when in situation that we only have ext4
-modules with ext2/ext3 support which is not loaded and we try to mount
-ext2 file system we will mount it incorrectly as ext4. This will not
-happen if the ext4 module is already loaded.
-
-With this patch we remove all the unnecessary checks and return the real
-type of the file system which is on the device. This fixes the issue.
-However on the kernel which was not compiled with EXT4_USE_FOR_EXT23
-support one would have to provide file system type (-t) to be able to
-mount the file system with ext4 driver.
-
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Ville Skyttä <ville.skytta@iki.fi>
 ---
- libblkid/src/superblocks/ext.c | 182 +----------------------------------------
- 1 file changed, 3 insertions(+), 179 deletions(-)
+ login-utils/nologin.8 | 2 +-
+ sys-utils/lscpu.1     | 2 +-
+ sys-utils/mount.8     | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/libblkid/src/superblocks/ext.c b/libblkid/src/superblocks/ext.c
-index 8d57cb5..c711168 100644
---- a/libblkid/src/superblocks/ext.c
-+++ b/libblkid/src/superblocks/ext.c
-@@ -18,7 +18,6 @@
- #endif
- #include <time.h>
- 
--#include "linux_version.h"
- #include "superblocks.h"
- 
- struct ext2_super_block {
-@@ -132,140 +131,11 @@ struct ext2_super_block {
- #define EXT3_FEATURE_RO_COMPAT_UNSUPPORTED	~EXT3_FEATURE_RO_COMPAT_SUPP
- 
- /*
-- * Check to see if a filesystem is in /proc/filesystems.
-- * Returns 1 if found, 0 if not
-- */
--static int fs_proc_check(const char *fs_name)
--{
--	FILE	*f;
--	char	buf[80], *cp, *t;
--
--	f = fopen("/proc/filesystems", "r" UL_CLOEXECSTR);
--	if (!f)
--		return 0;
--	while (!feof(f)) {
--		if (!fgets(buf, sizeof(buf), f))
--			break;
--		cp = buf;
--		if (!isspace(*cp)) {
--			while (*cp && !isspace(*cp))
--				cp++;
--		}
--		while (*cp && isspace(*cp))
--			cp++;
--		if ((t = strchr(cp, '\n')) != NULL)
--			*t = 0;
--		if ((t = strchr(cp, '\t')) != NULL)
--			*t = 0;
--		if ((t = strchr(cp, ' ')) != NULL)
--			*t = 0;
--		if (!strcmp(fs_name, cp)) {
--			fclose(f);
--			return 1;
--		}
--	}
--	fclose(f);
--	return (0);
--}
--
--/*
-- * Check to see if a filesystem is available as a module
-- * Returns 1 if found, 0 if not
-- */
--static int check_for_modules(const char *fs_name)
--{
--#ifdef __linux__
--	struct utsname	uts;
--	FILE		*f;
--	char		buf[1024], *cp;
--	int		namesz;
--
--	if (uname(&uts))
--		return 0;
--	snprintf(buf, sizeof(buf), "/lib/modules/%s/modules.dep", uts.release);
--
--	f = fopen(buf, "r" UL_CLOEXECSTR);
--	if (!f)
--		return 0;
--
--	namesz = strlen(fs_name);
--
--	while (!feof(f)) {
--		if (!fgets(buf, sizeof(buf), f))
--			break;
--		if ((cp = strchr(buf, ':')) != NULL)
--			*cp = 0;
--		else
--			continue;
--		if ((cp = strrchr(buf, '/')) == NULL)
--			continue;
--		cp++;
--
--		if (!strncmp(cp, fs_name, namesz) &&
--		    (!strcmp(cp + namesz, ".ko") ||
--		     !strcmp(cp + namesz, ".ko.gz"))) {
--			fclose(f);
--			return 1;
--		}
--	}
--	fclose(f);
--#endif /* __linux__ */
--	return 0;
--}
--
--/*
-  * Starting in 2.6.29, ext4 can be used to support filesystems
-  * without a journal.
-  */
- #define EXT4_SUPPORTS_EXT2 KERNEL_VERSION(2, 6, 29)
- 
--static int system_supports_ext2(void)
--{
--	static time_t	last_check = 0;
--	static int	ret = -1;
--	time_t		now = time(0);
--
--	if (ret != -1 || (now - last_check) < 5)
--		return ret;
--	last_check = now;
--	ret = (fs_proc_check("ext2") || check_for_modules("ext2"));
--	return ret;
--}
--
--static int system_supports_ext4(void)
--{
--	static time_t	last_check = 0;
--	static int	ret = -1;
--	time_t		now = time(0);
--
--	if (ret != -1 || (now - last_check) < 5)
--		return ret;
--	last_check = now;
--	ret = (fs_proc_check("ext4") || check_for_modules("ext4"));
--	return ret;
--}
--
--static int system_supports_ext4dev(void)
--{
--	static time_t	last_check = 0;
--	static int	ret = -1;
--	time_t		now = time(0);
--
--	if (ret != -1 || (now - last_check) < 5)
--		return ret;
--	last_check = now;
--	ret = (fs_proc_check("ext4dev") || check_for_modules("ext4dev"));
--	return ret;
--}
--
--static int system_supports_ext4_ext2(void)
--{
--#ifdef __linux__
--	return get_linux_version() >= EXT4_SUPPORTS_EXT2;
--#else
--	return 0;
--#endif
--}
- /*
-  * reads superblock and returns:
-  *	fc = feature_compat
-@@ -357,15 +227,6 @@ static int probe_ext2(blkid_probe pr,
- 	    (fi  & EXT2_FEATURE_INCOMPAT_UNSUPPORTED))
- 		return -BLKID_ERR_PARAM;
- 
--	/*
--	 * If ext2 is not present, but ext4 or ext4dev are, then
--	 * disclaim we are ext2
--	 */
--	if (!system_supports_ext2() &&
--	    (system_supports_ext4() || system_supports_ext4dev()) &&
--	    system_supports_ext4_ext2())
--		return -BLKID_ERR_PARAM;
--
- 	ext_get_info(pr, 2, es);
- 	return 0;
- }
-@@ -408,31 +269,7 @@ static int probe_ext4dev(blkid_probe pr,
- 	if (fi & EXT3_FEATURE_INCOMPAT_JOURNAL_DEV)
- 		return -BLKID_ERR_PARAM;
- 
--	/*
--	 * If the filesystem does not have a journal and ext2 and ext4
--	 * is not present, then force this to be detected as an
--	 * ext4dev filesystem.
--	 */
--	if (!(fc & EXT3_FEATURE_COMPAT_HAS_JOURNAL) &&
--	    !system_supports_ext2() && !system_supports_ext4() &&
--	    system_supports_ext4dev() &&
--	    system_supports_ext4_ext2())
--		goto force_ext4dev;
--
--	/*
--	 * If the filesystem is marked as OK for use by in-development
--	 * filesystem code, but ext4dev is not supported, and ext4 is,
--	 * then don't call ourselves ext4dev, since we should be
--	 * detected as ext4 in that case.
--	 *
--	 * If the filesystem is marked as in use by production
--	 * filesystem, then it can only be used by ext4 and NOT by
--	 * ext4dev, so always disclaim we are ext4dev in that case.
--	 */
--	if (le32_to_cpu(es->s_flags) & EXT2_FLAGS_TEST_FILESYS) {
--		if (!system_supports_ext4dev() && system_supports_ext4())
--			return -BLKID_ERR_PARAM;
--	} else
-+	if (!(le32_to_cpu(es->s_flags) & EXT2_FLAGS_TEST_FILESYS))
- 		return -BLKID_ERR_PARAM;
- 
- force_ext4dev:
-@@ -454,22 +291,11 @@ static int probe_ext4(blkid_probe pr,
- 	if (fi & EXT3_FEATURE_INCOMPAT_JOURNAL_DEV)
- 		return -BLKID_ERR_PARAM;
- 
--	/*
--	 * If the filesystem does not have a journal and ext2 is not
--	 * present, then force this to be detected as an ext2
--	 * filesystem.
--	 */
--	if (!(fc & EXT3_FEATURE_COMPAT_HAS_JOURNAL) &&
--	    !system_supports_ext2() && system_supports_ext4() &&
--	    system_supports_ext4_ext2())
--		goto force_ext4;
--
- 	/* Ext4 has at least one feature which ext3 doesn't understand */
- 	if (!(frc & EXT3_FEATURE_RO_COMPAT_UNSUPPORTED) &&
- 	    !(fi  & EXT3_FEATURE_INCOMPAT_UNSUPPORTED))
- 		return -BLKID_ERR_PARAM;
- 
--force_ext4:
- 	/*
- 	 * If the filesystem is a OK for use by in-development
- 	 * filesystem code, and ext4dev is supported or ext4 is not
-@@ -480,10 +306,8 @@ force_ext4:
- 	 * filesystem, then it can only be used by ext4 and NOT by
- 	 * ext4dev.
- 	 */
--	if (le32_to_cpu(es->s_flags) & EXT2_FLAGS_TEST_FILESYS) {
--		if (system_supports_ext4dev() || !system_supports_ext4())
--			return -BLKID_ERR_PARAM;
--	}
-+	if (le32_to_cpu(es->s_flags) & EXT2_FLAGS_TEST_FILESYS)
-+		return -BLKID_ERR_PARAM;
- 
- 	ext_get_info(pr, 4, es);
- 	return 0;
+diff --git a/login-utils/nologin.8 b/login-utils/nologin.8
+index b7fe1d9..1cbaa33 100644
+--- a/login-utils/nologin.8
++++ b/login-utils/nologin.8
+@@ -33,7 +33,7 @@ access is always refused independently on the file.
+ .BR pam_nologin (8)
+ PAM module usually prevents all non-root users from logging into the system.
+ .BR pam_nologin (8)
+-functionality is controled by /var/run/nologin or /etc/nologin file. 
++functionality is controlled by /var/run/nologin or /etc/nologin file. 
+ .SH AUTHORS
+ .UR kzak@redhat.com
+ Karel Zak
+diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
+index bf81a44..5e838fb 100644
+--- a/sys-utils/lscpu.1
++++ b/sys-utils/lscpu.1
+@@ -82,7 +82,7 @@ and hypervisor support CPU polarization.
+ .TP
+ .B MMHZ
+ Maximum megaherz value for the cpu.  Useful when lscpu is used as hardware
+-inventory infomation gathering tool.  Notice that the megahertz value is
++inventory information gathering tool.  Notice that the megahertz value is
+ dynamic, and driven by CPU governor depending on current resource need.
+ .RE
+ .SH OPTIONS
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 1810d0b..364b515 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -2673,7 +2673,7 @@ Make the data allocator use the filestreams allocation mode
+ across the entire filesystem rather than just on directories
+ configured to use it.
+ .TP
+-.BP ikeep | noikeep
++.BR ikeep | noikeep
+ When ikeep is specified, XFS does not delete empty inode
+ clusters and keeps them around on disk.  When noikeep is
+ specified, empty inode clusters are returned to the free
+@@ -2719,7 +2719,7 @@ The default value is 8 buffers.
+ If the memory cost of 8 log buffers is too high on small
+ systems, then it may be reduced at some cost to performance
+ on metadata intensive workloads. The logbsize option below
+-controls the size of each buffer and so is also relevent to
++controls the size of each buffer and so is also relevant to
+ this case.
+ .TP
+ .BR logbsize=value
 -- 
 1.8.3.1
 
