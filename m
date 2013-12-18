@@ -1,38 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45876 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752710Ab3LJPot (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Dec 2013 10:44:49 -0500
-Date: Tue, 10 Dec 2013 16:44:42 +0100
-From: Karel Zak <kzak@redhat.com>
-To: =?utf-8?B?THVrw6HFoQ==?= Czerner <lczerner@redhat.com>
-Cc: Sten Heinze <shze@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: Automatic SSD trim script
-Message-ID: <20131210154442.GC8419@x2.net.home>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
- <20131206104944.GE16891@x2.net.home>
- <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
+Received: from qmta09.westchester.pa.mail.comcast.net ([76.96.62.96]:43009
+	"EHLO qmta09.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751249Ab3LRWic (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Dec 2013 17:38:32 -0500
+Received: from hobgoblin.ariadne.com (hobgoblin.ariadne.com [127.0.0.1])
+	by hobgoblin.ariadne.com (8.14.7/8.14.7) with ESMTP id rBIMWP1c020105
+	for <util-linux@vger.kernel.org>; Wed, 18 Dec 2013 17:32:25 -0500
+Date: Wed, 18 Dec 2013 17:32:25 -0500
+Message-Id: <201312182232.rBIMWPWN020104@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: util-linux@vger.kernel.org
+Subject: losetup "-p" option is not documented
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
-> > All we need is to link fstrim with libmount and lib/sysfs.c, add a new
-> > option --all and check non-zero /sys/block/<name>/queue/discard_granularity
-> > (or so).
-> 
-> Yes and yes. This is the ultimate solution. Simply being able to run
-> fstrim --all to discard free space on all the mounted supported file
-> systems is great idea. In that case we do not need any scripts at
-> all.
+(My understanding is that this is the correct place to report bugs for
+util-linux.)
 
- Implemented. Sten, maybe you can try fstrim --all from git tree 
- in your crontab.
+In the manual page for losetup (in util-linux-2.23.2-4.fc19.x86_64) is
+the text:
 
-    Karel
+       Setup loop device:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+            losetup [-o offset] [--sizelimit size]
+                    [-p pfd] [-rP] {-f[--show]|loopdev} file
+
+However, the "-p" option is not described in the text.
+
+There also should be a space after "-f".
+
+Thanks for attending to this,
+
+Dale
