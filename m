@@ -1,46 +1,42 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <529C9CFF.5030709@ubuntu.com>
-Date: Mon, 02 Dec 2013 09:45:19 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pb0-f54.google.com ([209.85.160.54]:56731 "EHLO
+	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751218Ab3LSKaI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 19 Dec 2013 05:30:08 -0500
+Received: by mail-pb0-f54.google.com with SMTP id un15so969371pbc.41
+        for <util-linux@vger.kernel.org>; Thu, 19 Dec 2013 02:30:07 -0800 (PST)
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: script input redirection / eof handling
-References: <52726756.8060205@ubuntu.com> <20131202123659.GE5572@x2.net.home> <20131202125421.GF5572@x2.net.home>
-In-Reply-To: <20131202125421.GF5572@x2.net.home>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1387406874.28811.61304297.734D6974@webmail.messagingengine.com>
+References: <1387274534.32475.60577705.14EC62A9@webmail.messagingengine.com>
+	<CAG27Bk096iW65aEUApwHtJqMRY9zyiN0MpHao+jvJvjkEcP-jA@mail.gmail.com>
+	<1387406874.28811.61304297.734D6974@webmail.messagingengine.com>
+Date: Thu, 19 Dec 2013 10:30:07 +0000
+Message-ID: <CAG27Bk3kBSsebBN1w9CMP1RWG6vJGmLs35Tx3hzvbTd9WkPeNA@mail.gmail.com>
+Subject: Re: [patch] adding --no-wrap to msgmerge
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 18 December 2013 22:47, Benno Schulenberg <bensberg@justemail.net> wrote:
+> Although, now, during ./autogen.sh, I get the following warning:
+>
+> configure.ac:149: warning: The 'AM_PROG_MKDIR_P' macro is deprecated, and its use is discouraged.
+> configure.ac:149: You should use the Autoconf-provided 'AC_PROG_MKDIR_P' macro instead,
+> configure.ac:149: and use '$(MKDIR_P)' instead of '$(mkdir_p)'in your Makefile.am fi
 
-On 12/2/2013 7:54 AM, Karel Zak wrote:
-> Note, that if you want to support this scenario (stdin is not a 
-> terminal) then send a patch ;-)
+Yes, that is coming from gettext. I have hunch the error is expected.
+See link below for details.
 
-It seems to work fine up until it hits eof, which can also happen on a
-tty and you'll get the same bad behavior, so I think refusing to run
-on a non tty isn't a proper fix.
+http://git.savannah.gnu.org/cgit/gettext.git/commit/gettext-tools/po?id=c35de4365ac8f7a87b62b85a35eb122f79cb12ad
 
->> Yep, I think it would be enough to add
->> 
->> kill(0, SIGTERM);
->> 
->> before done() in doinput() to avoid orphans.
+I'm sure bug-gnu-gettext@gnu.org can make just call if the $(mkdir_p)
+should replaced with $(MKDIR_P), and if the gettext should attempt to
+find the value for the macro.
 
-You don't want to just make sure the children die, you want to make
-sure that the child sees the eof and capture any final output it may have.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJSnJz9AAoJEI5FoCIzSKrw6j0IAKZvkym0kJQfWghombuTnV1z
-5FCcWPz3Jyo9V96X+fnD3cXpkkPjIM5ZUIBaRJubUYX65AKebXaXw+FkE9YyXsIR
-Jeegewp5IlSlF3zbZzCSUchI/gK0KCHv1yKe21xD20iGAy9MGApXBJszsOaREbU2
-nG9mFYwviFDQnURBfwHxvS7Bf4S+6i1wgKeS58EqSeXpMpMDCimTw1/mv8MLnGdS
-0nzCrPZvgRZcc2avYPSWYs8ZLtFgu5rDuJ7J9TfEuiEzGWCqlPXQYF1a6nHvpT0W
-KSdu+1bzsasdrEXFF6Iai2NvFndg9JXqiLCGfKdELbJayYPjwltOtl41PfalG/w=
-=2lT4
------END PGP SIGNATURE-----
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
