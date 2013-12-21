@@ -1,110 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37598 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751319Ab3LKLqT (ORCPT
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:52825 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753519Ab3LURXG (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 11 Dec 2013 06:46:19 -0500
+	Sat, 21 Dec 2013 12:23:06 -0500
 Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 7F09B2143A
-	for <util-linux@vger.kernel.org>; Wed, 11 Dec 2013 06:46:14 -0500 (EST)
-Message-Id: <1386762373.12856.58257609.2028060D@webmail.messagingengine.com>
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 2A5DC20BA9
+	for <util-linux@vger.kernel.org>; Sat, 21 Dec 2013 12:23:05 -0500 (EST)
+Message-Id: <1387646585.6225.62363057.526D760E@webmail.messagingengine.com>
 From: Benno Schulenberg <bensberg@justemail.net>
 To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1386762373128560";
+Content-Type: multipart/mixed; boundary="_----------=_138764658562253";
  charset="utf-8"
-Subject: small textual improvement to fstrim
-Date: Wed, 11 Dec 2013 12:46:13 +0100
+Subject: [patch] the first Sunday of the week...
+Date: Sat, 21 Dec 2013 18:23:05 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 This is a multi-part message in MIME format.
 
---_----------=_1386762373128560
+--_----------=_138764658562253
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain
 
 
 Hi,
 
-Hmm... "discard all mounted filesystems" does not sound like what
-one would want fstrim to do.  :)  Better use the word "trim".  Attached
-patch makes this change, and improves some other small issues beside.
-
-Regards,
+The man page of cal speaks of "first Sunday of the week"
+instead of of "first Sunday of the year".  Attached patch
+fixes this, and tries to further improve the clarity of the
+paragraph.
 
 Benno
 
 -- 
-http://www.fastmail.fm - Same, same, but different...
+http://www.fastmail.fm - Faster than the air-speed velocity of an
+                          unladen european swallow
 
 
---_----------=_1386762373128560
-Content-Disposition: attachment; filename="0001-textual-small-inprovements-to-usage-and-man-page-of-.patch"
-Content-Id: <1386762316.12181.9188a14e6fa60fdf688ece80d85b0a486745b352.0AF4028B@messagingengine.com>
+--_----------=_138764658562253
+Content-Disposition: attachment; filename="0001-docs-in-cal-s-man-page-admit-that-any-week-has-just-.patch"
+Content-Id: <1387646507.5925.4015b69de478cded7d2181c36d0f5da82fd33cc6.34ED6E19@messagingengine.com>
 Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-textual-small-inprovements-to-usage-and-man-page-of-.patch"
+Content-Type: text/x-patch; name="0001-docs-in-cal-s-man-page-admit-that-any-week-has-just-.patch"
 
-RnJvbSBjMzQ4NDhlNzllZmY1OGZlOTQ0ZjhiYjk4ODY1MzI2MWJiODI0YjFk
+RnJvbSA2MzQ3NTY1ZjU3MTIxZjI4Y2E2NmViZGM3MTU4MzBlMGRmZTAzZjIy
 IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAxMSBE
-ZWMgMjAxMyAxMjo0MDoxNCArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
-YWw6IHNtYWxsIGlucHJvdmVtZW50cyB0byB1c2FnZSBhbmQgbWFuIHBhZ2Ug
-b2YgZnN0cmltCgpTaWduZWQtb2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8
-YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KLS0tCiBzeXMtdXRpbHMvZnN0cmlt
-LjggfCAgICA5ICsrKysrLS0tLQogc3lzLXV0aWxzL2ZzdHJpbS5jIHwgICAg
-OCArKysrLS0tLQogMiBmaWxlcyBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyks
-IDggZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL2ZzdHJp
-bS44IGIvc3lzLXV0aWxzL2ZzdHJpbS44CmluZGV4IDY1NzJjNzAuLjhmNjgz
-NTEgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9mc3RyaW0uOAorKysgYi9zeXMt
-dXRpbHMvZnN0cmltLjgKQEAgLTM3LDkgKzM3LDEwIEBAIEdpQiwgVGlCLCBQ
-aUIsIEVpQiwgWmlCIGFuZCBZaUIgKHRoZSAiaUIiIGlzIG9wdGlvbmFsLCBl
-LmcuICJLIiBoYXMgdGhlIHNhbWUKIG1lYW5pbmcgYXMgIktpQiIpIG9yIHRo
-ZSBzdWZmaXhlcyBLQj0xMDAwLCBNQj0xMDAwKjEwMDAsIGFuZCBzbyBvbiBm
-b3IgR0IsIFRCLAogUEIsIEVCLCBaQiBhbmQgWUIuCiAuSVAgIlxmQlwtYSwg
-XC1cLWFsbFxmUCIKLURpc2NhcmQgYWxsIG1vdW50ZWQgZmlsZXN5c3RlbSBv
-biBkZXZpY2VzIHRoYXQgc3VwcG9ydCBkaXNjYXJkIG9wZXJhdGlvbi4gVGhl
-Ci1hbm90aGVyIG9wdGlvbnMgbGlrZSBvZmZzZXQsIGxlbmd0aCBhbmQgbWlu
-aW11bSBhcmUgYXBwbGllZCB0byBhbGwgdGhlIGRldmljZXMuCi1UaGUgZXJy
-b3JzIGZyb20gZmlsZXN5c3RlbXMgdGhhdCBkbyBub3Qgc3VwcG9ydCBkaXNj
-YXJkIG9wZXJhdGlvbiBhcmUgc2lsZW50bHkKK1RyaW0gYWxsIG1vdW50ZWQg
-ZmlsZXN5c3RlbXMgb24gZGV2aWNlcyB0aGF0IHN1cHBvcnQgdGhlIGRpc2Nh
-cmQgb3BlcmF0aW9uLgorVGhlIG90aGVyIHN1cHBsaWVkIG9wdGlvbnMsIGxp
-a2UgXGZCXC1cLW9mZnNldFxmUiwgXGZCXC1cLWxlbmd0aFxmUiBhbmQKK1xm
-Qi1cLW1pbmltdW1cZlIsIGFyZSBhcHBsaWVkIHRvIGFsbCB0aGVzZSBkZXZp
-Y2VzLgorRXJyb3JzIGZyb20gZmlsZXN5c3RlbXMgdGhhdCBkbyBub3Qgc3Vw
-cG9ydCB0aGUgZGlzY2FyZCBvcGVyYXRpb24gYXJlIHNpbGVudGx5CiBpZ25v
-cmVkLgogLklQICJcZkJcLWgsIFwtXC1oZWxwXGZQIgogRGlzcGxheSBoZWxw
-IHRleHQgYW5kIGV4aXQuCkBAIC04Nyw3ICs4OCw3IEBAIGZhaWx1cmUKIC5J
-UCAzMgogYWxsIGZhaWxlZAogLklQIDY0Ci1zb21lIGZpbGVzdGVtcyBkaXNj
-YXJkIHN1Y2NlZWRlZCwgc29tZSBmYWlsZWQKK3NvbWUgZmlsZXN5c3RlbSBk
-aXNjYXJkcyBoYXZlIHN1Y2NlZWRlZCwgc29tZSBmYWlsZWQKIC5QUAogVGhl
-IGNvbW1hbmQKIC5CIGZzdHJpbSAtLWFsbApkaWZmIC0tZ2l0IGEvc3lzLXV0
-aWxzL2ZzdHJpbS5jIGIvc3lzLXV0aWxzL2ZzdHJpbS5jCmluZGV4IDc0N2U2
-YmIuLjI4ZDBlZDcgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9mc3RyaW0uYwor
-KysgYi9zeXMtdXRpbHMvZnN0cmltLmMKQEAgLTIxNSwxMCArMjE1LDEwIEBA
-IHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18oKF9fbm9yZXR1cm5fXykpIHVz
-YWdlKEZJTEUgKm91dCkKIAlmcHJpbnRmKG91dCwKIAkgICAgICBfKCIgJXMg
-W29wdGlvbnNdIDxtb3VudCBwb2ludD5cbiIpLCBwcm9ncmFtX2ludm9jYXRp
-b25fc2hvcnRfbmFtZSk7CiAJZnB1dHMoVVNBR0VfT1BUSU9OUywgb3V0KTsK
-LQlmcHV0cyhfKCIgLWEsIC0tYWxsICAgICAgICAgICBkaXNjYXJkIGFsbCBt
-b3VudGVkIHN1cHBvcnRlZCBmaWxlc3lzdGVtc1xuIiksIG91dCk7Ci0JZnB1
-dHMoXygiIC1vLCAtLW9mZnNldCA8bnVtPiAgb2Zmc2V0IGluIGJ5dGVzIHRv
-IGRpc2NhcmQgZnJvbVxuIiksIG91dCk7Ci0JZnB1dHMoXygiIC1sLCAtLWxl
-bmd0aCA8bnVtPiAgbGVuZ3RoIG9mIGJ5dGVzIHRvIGRpc2NhcmQgZnJvbSB0
-aGUgb2Zmc2V0XG4iKSwgb3V0KTsKLQlmcHV0cyhfKCIgLW0sIC0tbWluaW11
-bSA8bnVtPiBtaW5pbXVtIGV4dGVudCBsZW5ndGggdG8gZGlzY2FyZFxuIiks
-IG91dCk7CisJZnB1dHMoXygiIC1hLCAtLWFsbCAgICAgICAgICAgdHJpbSBh
-bGwgbW91bnRlZCBmaWxlc3lzdGVtcyB0aGF0IGFyZSBzdXBwb3J0ZWRcbiIp
-LCBvdXQpOworCWZwdXRzKF8oIiAtbywgLS1vZmZzZXQgPG51bT4gIHRoZSBv
-ZmZzZXQgaW4gYnl0ZXMgdG8gc3RhcnQgZGlzY2FyZGluZyBmcm9tXG4iKSwg
-b3V0KTsKKwlmcHV0cyhfKCIgLWwsIC0tbGVuZ3RoIDxudW0+ICB0aGUgbnVt
-YmVyIG9mIGJ5dGVzIHRvIGRpc2NhcmRcbiIpLCBvdXQpOworCWZwdXRzKF8o
-IiAtbSwgLS1taW5pbXVtIDxudW0+IHRoZSBtaW5pbXVtIGV4dGVudCBsZW5n
-dGggdG8gZGlzY2FyZFxuIiksIG91dCk7CiAJZnB1dHMoXygiIC12LCAtLXZl
-cmJvc2UgICAgICAgcHJpbnQgbnVtYmVyIG9mIGRpc2NhcmRlZCBieXRlc1xu
-IiksIG91dCk7CiAKIAlmcHV0cyhVU0FHRV9TRVBBUkFUT1IsIG91dCk7Ci0t
-IAoxLjcuMC40Cgo=
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU2F0LCAyMSBE
+ZWMgMjAxMyAxODoxNToxNCArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGRvY3M6
+IGluIGNhbCdzIG1hbiBwYWdlIGFkbWl0IHRoYXQgYW55IHdlZWsgaGFzIGp1
+c3Qgb25lIFN1bmRheQoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJl
+cmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogbWlzYy11dGlscy9j
+YWwuMSB8ICAgMTAgKysrKystLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA1IGlu
+c2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbWlz
+Yy11dGlscy9jYWwuMSBiL21pc2MtdXRpbHMvY2FsLjEKaW5kZXggZmE3OWY5
+MS4uODYwZjcwOCAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9jYWwuMQorKysg
+Yi9taXNjLXV0aWxzL2NhbC4xCkBAIC0xMDgsMTEgKzEwOCwxMSBAQCBTZXB0
+ZW1iZXIuIEJ5IHRoaXMgdGltZSwgbW9zdCBjb3VudHJpZXMgaGFkIHJlY29n
+bml6ZWQgdGhlIHJlZm9ybWF0aW9uCiBmb2xsb3dpbmcgdGhhdCBkYXRlIHdl
+cmUgZWxpbWluYXRlZCBieSB0aGUgcmVmb3JtYXRpb24sIHNvIHRoZSBjYWxl
+bmRhciBmb3IKIHRoYXQgbW9udGggaXMgYSBiaXQgdW51c3VhbC4KIC5QUAot
+VGhlIHdlZWsgbnVtYmVyaW5nIGRlcGVuZHMgb24gdGhlIGZpcnN0IGRheSBv
+ZiB0aGUgd2Vlay4gSWYgU3VuZGF5ICh0aGUKLWRlZmF1bHQpIGlzIHVzZWQg
+Zm9yIHRoZSBmaXJzdCBkYXkgb2YgdGhlIHdlZWssIHRoZW4gdGhlIGN1c3Rv
+bWFyeSBOb3J0aAotQW1lcmljYW4gbnVtYmVyaW5nIHdpbGwgYmUgdXNlZCwg
+aS5lLiBmaXJzdCBTdW5kYXkgb2YgdGhlIHdlZWsgc3RhcnRzIHRoZQotZmly
+c3Qgd2Vlay4gSWYgTW9uZGF5IGlzIHNlbGVjdGVkLCB0aGVuIHRoZSBJU08t
+ODYwMSBzdGFuZGFyZCB3ZWVrIG51bWJlcmluZwotaXMgdXNlZCwgd2hlcmUg
+dGhlIGZpcnN0IFRodXJzZGF5IGlzIGluIHdlZWsgbnVtYmVyIDEuCitUaGUg
+d2VlayBudW1iZXJpbmcgZGVwZW5kcyBvbiB0aGUgY2hvaWNlIG9mIHRoZSBm
+aXJzdCBkYXkgb2YgdGhlIHdlZWsuICBJZiBTdW5kYXkKKyh0aGUgZGVmYXVs
+dCkgaXMgdXNlZCBmb3IgdGhlIGZpcnN0IGRheSBvZiB0aGUgd2VlaywgdGhl
+biB0aGUgY3VzdG9tYXJ5IE5vcnRoCitBbWVyaWNhbiBudW1iZXJpbmcgd2ls
+bCBiZSB1c2VkLCBpLmUuIHRoZSBmaXJzdCBTdW5kYXkgb2YgdGhlIHllYXIg
+c3RhcnRzIHRoZQorZmlyc3Qgd2Vlay4gIElmIE1vbmRheSBpcyBzZWxlY3Rl
+ZCwgdGhlbiB0aGUgSVNPLTg2MDEgc3RhbmRhcmQgd2VlayBudW1iZXJpbmcK
+K2lzIHVzZWQsIHdoZXJlIHRoZSBmaXJzdCBUaHVyc2RheSBvZiB0aGUgeWVh
+ciBpcyBpbiB3ZWVrIG51bWJlciAxLgogLlNIIEhJU1RPUlkKIEEgY2FsIGNv
+bW1hbmQgYXBwZWFyZWQgaW4gVmVyc2lvbiA2IEFUJlQgVU5JWC4KIC5TSCBB
+VkFJTEFCSUxJVFkKLS0gCjEuNy4wLjQKCg==
 
---_----------=_1386762373128560--
+--_----------=_138764658562253--
 
