@@ -1,58 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-bk0-f42.google.com ([209.85.214.42]:42988 "EHLO
-	mail-bk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751582AbaAXUDN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Jan 2014 15:03:13 -0500
-Received: by mail-bk0-f42.google.com with SMTP id 6so1455816bkj.15
-        for <util-linux@vger.kernel.org>; Fri, 24 Jan 2014 12:03:11 -0800 (PST)
-From: Andy Lutomirski <luto@amacapital.net>
+Received: from smtp.gentoo.org ([140.211.166.183]:44176 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932079Ab3LWAB3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Dec 2013 19:01:29 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 78F4333EAF3
+	for <util-linux@vger.kernel.org>; Mon, 23 Dec 2013 00:01:29 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
 To: util-linux@vger.kernel.org
-Cc: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH] setpriv: Fix --apparmor-profile
-Date: Fri, 24 Jan 2014 12:02:59 -0800
-Message-Id: <f995bb644f1349c842e686c876355a68d10eb09e.1390593743.git.luto@amacapital.net>
+Subject: [PATCH] tests: libmount: skip tabfiles-py when pylibmount is disabled
+Date: Sun, 22 Dec 2013 19:01:32 -0500
+Message-Id: <1387756892-25074-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There were two bugs.  First, trying to access /proc/self/attr/exec
-with O_CREAT | O_EXCL has no chance of working.  Second, it turns
-out that the correct command to send is "exec", not "changeprofile".
-Of course, there was no way to know this until:
+The default configure disables python support, so this test fails by
+default.  Add a simple check for module availability.
 
-    commit 3eea57c26e49a5add4c053a031cc2a1977b7c48e
-    Author: John Johansen <john.johansen@canonical.com>
-    Date:   Wed Feb 27 03:44:40 2013 -0800
-
-        apparmor: fix setprocattr arg processing for onexec
-
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
+ tests/ts/libmount/tabfiles-py | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I obviously never tested this particular flag very well.  I take solace
-in the fact that all of my development machines use selinux, not apparmor.
-
- sys-utils/setpriv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
-index a17f925..7bea626 100644
---- a/sys-utils/setpriv.c
-+++ b/sys-utils/setpriv.c
-@@ -538,12 +538,12 @@ static void do_apparmor_profile(const char *label)
- 	if (access(_PATH_SYS_APPARMOR, F_OK) != 0)
- 		errx(SETPRIV_EXIT_PRIVERR, _("AppArmor is not running"));
+diff --git a/tests/ts/libmount/tabfiles-py b/tests/ts/libmount/tabfiles-py
+index 64e8911..b89fb5b 100755
+--- a/tests/ts/libmount/tabfiles-py
++++ b/tests/ts/libmount/tabfiles-py
+@@ -12,6 +12,8 @@ ts_init_py libmount
+ PYDBG="$PYTHON -m pdb"
+ TESTPROG="$TS_HELPER_PYLIBMOUNT_TAB"
  
--	f = fopen(_PATH_PROC_ATTR_EXEC, "wx");
-+	f = fopen(_PATH_PROC_ATTR_EXEC, "r+");
- 	if (!f)
- 		err(SETPRIV_EXIT_PRIVERR,
- 		    _("cannot open %s"), _PATH_PROC_ATTR_EXEC);
- 
--	fprintf(f, "changeprofile %s", label);
-+	fprintf(f, "exec %s", label);
- 
- 	if (close_stream(f) != 0)
- 		err(SETPRIV_EXIT_PRIVERR,
++$PYTHON -c 'import libmount' 2>/dev/null || ts_skip "pylibmount not compiled"
++
+ ts_init_subtest "parse-fstab"
+ $PYTHON $TESTPROG --parse "$TS_SELF/files/fstab" &> $TS_OUTPUT
+ sed -i -e 's/fs: 0x.*/fs:/g' $TS_OUTPUT
 -- 
-1.8.5.3
+1.8.4.3
 
