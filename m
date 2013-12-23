@@ -1,141 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp08.au.ibm.com ([202.81.31.141]:46001 "EHLO
-	e23smtp08.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750712AbaABJou (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 2 Jan 2014 04:44:50 -0500
-Received: from /spool/local
-	by e23smtp08.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <maddy@linux.vnet.ibm.com>;
-	Thu, 2 Jan 2014 19:44:48 +1000
-Received: from d23relay03.au.ibm.com (d23relay03.au.ibm.com [9.190.235.21])
-	by d23dlp03.au.ibm.com (Postfix) with ESMTP id B985B3578066
-	for <util-linux@vger.kernel.org>; Thu,  2 Jan 2014 20:44:46 +1100 (EST)
-Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
-	by d23relay03.au.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s029iYJm10420694
-	for <util-linux@vger.kernel.org>; Thu, 2 Jan 2014 20:44:34 +1100
-Received: from d23av02.au.ibm.com (localhost [127.0.0.1])
-	by d23av02.au.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s029ikMW024011
-	for <util-linux@vger.kernel.org>; Thu, 2 Jan 2014 20:44:46 +1100
-From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com, qcai@redhat.com,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Subject: [PATCH 1/1] lscpu: support discontinuous NUMA nodes
-Date: Thu,  2 Jan 2014 15:14:37 +0530
-Message-Id: <1388655877-18492-1-git-send-email-maddy@linux.vnet.ibm.com>
+Received: from mail.pictura-hosting.nl ([195.93.224.144]:37729 "EHLO
+	mail.pictura-dp.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753416Ab3LWLHx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 23 Dec 2013 06:07:53 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Mon, 23 Dec 2013 12:01:00 +0100
+From: Sander Klein <roedie@roedie.nl>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-nfs@vger.kernel.org, linux-nfs-owner@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: rpc.mountd high cpu usage
+In-Reply-To: <20131219170927.GA3013@fieldses.org>
+References: <889b64df295ba04d47f941762ebe0bac@roedie.nl>
+ <20131212154642.GA11521@fieldses.org>
+ <3e92cb841fa81d6a16f3d471cdd8bb20@roedie.nl>
+ <20131212212213.GC13467@fieldses.org>
+ <c50ec8735833f8c05a351928ae48b6df@roedie.nl>
+ <20131219170927.GA3013@fieldses.org>
+Message-ID: <330713f604e5fa049c4f5c09db12d270@roedie.nl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lscpu fails to print proper NUMA node values in a system
-with discontinuous nodes. This patch adds support by
-creating a nodeidx array to map node numbers.
+On , J. Bruce Fields wrote:
+> On Fri, Dec 13, 2013 at 08:32:56PM +0100, Sander Klein wrote:
+>> On , J. Bruce Fields wrote:
+>> >>>I think what happens is that exportfs flushes the kernel's export cache
+>> >>>at which point every use of an uncached export triggers an upcall to
+>> >>>mountd.  That upcall is probably visible in the strace as a read of a
+>> >>>file descriptor associated with /proc/net/sunrpc/nfsd.fh/content.
+>> >>>
+>> >>>That upcall is handled by nfs-utils/utils/mountd/cache.c:nfsd_fh(),
+>> >>>which is given a filehandle fragment identifying the filesystem in
+>> >>>question and has to match it to an export.
+>> >>>
+>> >>>That's done by match_fsid().  Which does do a stat of the export path,
+>> >>>but not of all the devices....  That's probably happening in one of the
+>> >>>libblkid calls in uuid_by_path()?  I wonder if there's something wrong
+>> >>>with libblkid configuration or with the way we're using it?
+>> >>
+>> >>Is there any way I can help getting this fixed? My coding skills are
+>> >>limited but I am very willing to help in any way I can.
+>> >
+>> >I wonder if ltrace could help determine if libblkid is where most of
+>> >those stat's are coming from (and if so, which calls)?
+>> >
+>> >May also be worth reading up on libblkid (man libblkid, etc.) and
+>> >checking your configuration to make sure there's nothing obvious broken
+>> >there.  (If so, maybe the libblkid commandline tools would exhibit the
+>> >same problem?)
+>> 
+>> I didn't have any config in /etc/blkid.conf and the manpage says it
+>> will use EVALUATE=udev,scan which in fact scans through all the
+>> /dev/disk/by-* dirs and parses the /proc/partitions. I put
+>> 'EVALUATE=scan' in /etc/blkid.conf but that doesn't help. I
+>> restarted anything NFS related...
+>> 
+>> I also attached ltrace to the rpc.mountd process. The output of the
+>> trace is at http://pastebin.com/ika1Vetq . I'm not sure what I'm
+>> looking for. The ltrace is done on a server with only 10 harddisks
+>> but the strace showed the same behavour of newfstatat-ing every disk
+>> in a lot of ways.
+> 
+> Hm.  I *think* that those SYS_262's are the newfstatat's.  And it looks
+> like they happen as part of the implementation of 
+> blkid_devno_to_devname
+> (just because you see that call start above the SYS_262's and return
+> only after).
+> 
+> That is indeed called from utils/mountd/cache.c:get_uuid_blkdev().
+> 
+> So libblkid is mapping device numbers to paths by stat'ing lots of 
+> stuff
+> under /dev.
+> 
+> I'm not sure what to do about that.... Cc'ing util-linux in case they
+> can help.
+> 
+> --b.
 
-Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
----
- sys-utils/lscpu.c |   47 +++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 41 insertions(+), 6 deletions(-)
+Anything else I can do to help a bit getting this fixed?
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 8f14b3a..6683aff 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -50,6 +50,7 @@
- /* /sys paths */
- #define _PATH_SYS_SYSTEM	"/sys/devices/system"
- #define _PATH_SYS_CPU		_PATH_SYS_SYSTEM "/cpu"
-+#define _PATH_SYS_NODE		_PATH_SYS_SYSTEM "/node"
- #define _PATH_PROC_XEN		"/proc/xen"
- #define _PATH_PROC_XENCAP	_PATH_PROC_XEN "/capabilities"
- #define _PATH_PROC_CPUINFO	"/proc/cpuinfo"
-@@ -177,6 +178,7 @@ struct lscpu_desc {
- 	int		*idx2cpunum;	/* mapping index to CPU num */
- 
- 	int		nnodes;		/* number of NUMA modes */
-+	int		*idx2nodenum;	/* Support for discontinuous nodes */
- 	cpu_set_t	**nodemaps;	/* array with NUMA nodes */
- 
- 	/* books -- based on book_siblings (internal kernel map of cpuX's
-@@ -912,25 +914,58 @@ read_cache(struct lscpu_desc *desc, int idx)
- 	}
- }
- 
-+static int
-+check_for_dir(const char *path, const char *file_name)
-+{
-+	char buf[100];
-+	struct stat file;
-+
-+	sprintf(buf, "%s/%s", path, file_name);
-+	return stat(buf, &file) == 0 && S_ISDIR(file.st_mode);
-+}
-+
- static void
- read_nodes(struct lscpu_desc *desc)
- {
--	int i;
-+	int i=0;
-+	DIR *dir=NULL;
-+	struct dirent *curdir=NULL;
- 
- 	/* number of NUMA node */
--	while (path_exist(_PATH_SYS_SYSTEM "/node/node%d", desc->nnodes))
--		desc->nnodes++;
-+	dir=opendir(_PATH_SYS_NODE);
-+	if(dir) {
-+		while ((curdir = readdir(dir)) != NULL) {
-+			if((strncmp(curdir->d_name, "node", 4) == 0) &&
-+			    check_for_dir(_PATH_SYS_NODE, curdir->d_name) &&
-+			    isdigit_string(curdir->d_name + 4) )
-+				desc->nnodes++;
-+			}
-+		closedir(dir);
-+	}
- 
- 	if (!desc->nnodes)
- 		return;
- 
- 	desc->nodemaps = xcalloc(desc->nnodes, sizeof(cpu_set_t *));
-+	desc->idx2nodenum = xmalloc(desc->nnodes * sizeof(int));
-+
-+	dir=opendir(_PATH_SYS_NODE);
-+	if(dir) {
-+		while ((curdir = readdir(dir)) != NULL) {
-+			if( (strncmp(curdir->d_name, "node", 4) == 0) &&
-+			    check_for_dir(_PATH_SYS_NODE, curdir->d_name) &&
-+			    isdigit_string(curdir->d_name + 4) )
-+				desc->idx2nodenum[i++] = strtol_or_err(((curdir->d_name)+4),
-+							_("Failed to extract the node number"));
-+			}
-+		closedir(dir);
-+	}
- 
- 	/* information about how nodes share different CPUs */
- 	for (i = 0; i < desc->nnodes; i++)
- 		desc->nodemaps[i] = path_read_cpuset(maxcpus,
- 					_PATH_SYS_SYSTEM "/node/node%d/cpumap",
--					i);
-+					desc->idx2nodenum[i]);
- }
- 
- static char *
-@@ -961,7 +996,7 @@ get_cell_data(struct lscpu_desc *desc, int idx, int col,
- 	case COL_NODE:
- 		if (cpuset_ary_isset(cpu, desc->nodemaps,
- 				     desc->nnodes, setsize, &i) == 0)
--			snprintf(buf, bufsz, "%zd", i);
-+			snprintf(buf, bufsz, "%d", desc->idx2nodenum[i]);
- 		break;
- 	case COL_BOOK:
- 		if (cpuset_ary_isset(cpu, desc->bookmaps,
-@@ -1378,7 +1413,7 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 	}
- 
- 	for (i = 0; i < desc->nnodes; i++) {
--		snprintf(buf, sizeof(buf), _("NUMA node%d CPU(s):"), i);
-+		snprintf(buf, sizeof(buf), _("NUMA node%d CPU(s):"), desc->idx2nodenum[i]);
- 		print_cpuset(buf, desc->nodemaps[i], mod->hex);
- 	}
- }
--- 
-1.7.10.4
+Regards,
 
+Sander
