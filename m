@@ -1,109 +1,149 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from elasmtp-galgo.atl.sa.earthlink.net ([209.86.89.61]:55509 "EHLO
-	elasmtp-galgo.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751735AbaAOOKV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 15 Jan 2014 09:10:21 -0500
-Received: from [24.144.107.66] (helo=[192.168.0.11])
-	by elasmtp-galgo.atl.sa.earthlink.net with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.67)
-	(envelope-from <mrmazda@earthlink.net>)
-	id 1W3RAi-0003up-Cv
-	for util-linux@vger.kernel.org; Wed, 15 Jan 2014 09:10:20 -0500
-Message-ID: <52D696CB.5060606@earthlink.net>
-Date: Wed, 15 Jan 2014 09:10:19 -0500
-From: Felix Miata <mrmazda@earthlink.net>
-MIME-Version: 1.0
-CC: util-linux@vger.kernel.org
-Subject: Re: global fdisk colors disable
-References: <52D62F0C.9060308@earthlink.net> <20140115082708.GH12700@x2.net.home>
-In-Reply-To: <20140115082708.GH12700@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-To: unlisted-recipients:; (no To-header on input)@mail.corp.redhat.com
+Received: from shell.v3.sk ([195.168.3.45]:42771 "EHLO shell.v3.sk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754757Ab3L0VYj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Dec 2013 16:24:39 -0500
+From: Lubomir Rintel <lkundrak@v3.sk>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, Mikhail Gusarov <dottedmag@dottedmag.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Lubomir Rintel <lkundrak@v3.sk>
+Subject: [PATCH] unshare: Add possibility to add mapping into root user in user namespace
+Date: Fri, 27 Dec 2013 22:14:48 +0100
+Message-Id: <1388178888-24475-1-git-send-email-lkundrak@v3.sk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 2014-01-15 09:27 (GMT+0100) Karel Zak composed:
+This makes it very convenient to use make use of privileged actions
+on CONFIG_USER_NS enabled kernels, without having to manually tinker
+with uid_map and gid_map to obtain required credentials (as those
+given upon unshare() vanish with call to execve() and lot of userspace
+checks for euid==0 anyway).
 
-> On Wed, Jan 15, 2014 at 01:47:40AM -0500, Felix Miata wrote:
+Usage example:
 
->> Is there a way to do $SUBJECT? One really shouldn't have to resort to using
->> -L on every invocation to be able to see fdisk output.
+$ unshare --uts
+unshare: unshare failed: Operation not permitted
 
->   Does it mean that fdisk output is broken or you just don't like
->   colors? You can use:
+$ unshare --user --uts
+[nfsnobody@odvarok ~]$ hostname swag
+hostname: you must be root to change the host name
 
-How about I defer answering that until you look at this image I should have 
-included in my OP:
+$ unshare -r --uts
+[root@odvarok util-linux]# hostname swag
+[root@odvarok util-linux]#
 
-http://fm.no-ip.com/SS/colorsTTYbadFdisk.png
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+---
+ sys-utils/unshare.1 |  8 ++++++++
+ sys-utils/unshare.c | 36 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 42 insertions(+), 2 deletions(-)
 
-I hope you can understand the problem this way. It's much like web page 
-designers have taken to doing the past few years, trying to be "helpful" by 
-using gray text instead of black, ostensibly to compensate for harshness of 
-maladjusted displays without considering impact on correctly adjusted displays.
-
-Exactly what in that image is the non-default color supposed to be conveying?
-
->     alias fdisk=fdisk -L=never
-
->   in your shell profile or rc file.
-
-That seems to have ignored a keyword in $SUBJECT: global
-
-I have many logins on many installations. In what global config file (e.g. 
-Debian, Fedora, Gentoo, Knoppix, Mageia, openSUSE, Slackware, etc.) can I 
-make never the default for all users?
-
->> I see nothing in the
->> man page about any kind of config file. I don't think there's ever been a
->> reason to configure it before.
-
->   Well, I guess that more people prefer colorized output so this
->   feature is enabled by default.
-
-Colors that have a standard meaning in a common context can make sense, but 
-as likely colors confuse, besides reducing contrast. cf.:
-
-http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Usability/Color "Colors 
-must be used carefully..."
-
-http://www.webdesignref.com/chapters/13/ch13-16.htm "To avoid color contrast 
-problems, white and black always make a good pairing..."
-
-http://usabilitygeek.com/12-typography-guidelines-for-good-website-usability/ 
-"Avoid colouring text in red or green..."
-
-Orange on a 16 color display doesn't look much different than red. Both 
-contrast poorly unless the background is white, detracting from any value as 
-warning intended by those color choices.
-
->   I have already thought about it and it would be probably nice to have
->   a way how to globally configure colors for all command line utils
->   (e.g.  util-linux, coreutils, ...).
-
-I'm pretty sure all other utils I commonly use have a way to turn off color 
-globally. Some utils don't, so I don't use them unless no alternative exists. 
-There really is no practical alternative to fdisk -l that I'm aware of.
-
->   It seems we have no standard and package  independent solution now,
->   so distributions use things like "alias" in shell profile files (for
->   example for ls(1), grep(1), ...). It would be nice to have at least
->   global variable (something like COLOR_MODE={auto,never,always}) to
->   avoid aliases with --color= option. (CC: Padraig ;-)
-
-One reason I use the ttys is for comfort, a pleasant environment where 
-legibility is maximized, in part by big bold text, in part by lack of 
-distraction from other windows and widgets, in other part by using only the 
-two colors of my choice. In that environment I don't want or need to be 
-"warned" by colors I can barely see.
-
-Maybe what I need is a way to prevent framebuffer ttys
-  from using any but the two colors of my choice. Anyone know if that's possible?
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index 1f5273e..41ea2ec 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -80,6 +80,14 @@ Just before running the program, mount the proc filesystem at the \fImountpoint\
+ implies creating a new mount namespace since the /proc mount would otherwise
+ mess up existing programs on the system. The new proc filesystem is explicitly
+ mounted as private (by MS_PRIVATE|MS_REC).
++.TP
++.BR \-r , " \-\-map-root-user"
++Run the program only after current effective user and group ID have been mapped to
++superuser UID and GID in newly created user namespace. This makes it possible to
++conveniently gain capabilities needed to manage various aspects of newly created
++namespaces (such as configure interfaces in network namespace or mount filesystems in
++mount) even when run unprivileged. As a convenience feature, it does not support
++more sophisticated use cases, such as mapping multiple ranges of UIDs and GIDs.
+ .SH SEE ALSO
+ .BR unshare (2),
+ .BR clone (2),
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 114f17d..7c2fa0a 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -32,6 +32,7 @@
+ #include "closestream.h"
+ #include "namespace.h"
+ #include "exec_shell.h"
++#include "xalloc.h"
+ 
+ static void usage(int status)
+ {
+@@ -50,6 +51,7 @@ static void usage(int status)
+ 	fputs(_(" -U, --user                unshare user namespace\n"), out);
+ 	fputs(_(" -f, --fork                fork before launching <program>\n"), out);
+ 	fputs(_("     --mount-proc[=<dir>]  mount proc filesystem first (implies --mount)\n"), out);
++	fputs(_(" -r, --map-root-user       map current user to root (implies --user)\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+@@ -75,19 +77,22 @@ int main(int argc, char *argv[])
+ 		{ "user", no_argument, 0, 'U' },
+ 		{ "fork", no_argument, 0, 'f' },
+ 		{ "mount-proc", optional_argument, 0, OPT_MOUNTPROC },
++		{ "map-root-user", no_argument, 0, 'r' },
+ 		{ NULL, 0, 0, 0 }
+ 	};
+ 
+ 	int unshare_flags = 0;
+-	int c, forkit = 0;
++	int c, forkit = 0, maproot = 0;
+ 	const char *procmnt = NULL;
++	uid_t real_euid = geteuid();
++	gid_t real_egid = getegid();;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	while ((c = getopt_long(argc, argv, "fhVmuinpU", longopts, NULL)) != -1) {
++	while ((c = getopt_long(argc, argv, "fhVmuinpUr", longopts, NULL)) != -1) {
+ 		switch (c) {
+ 		case 'f':
+ 			forkit = 1;
+@@ -119,6 +124,10 @@ int main(int argc, char *argv[])
+ 			unshare_flags |= CLONE_NEWNS;
+ 			procmnt = optarg ? optarg : "/proc";
+ 			break;
++		case 'r':
++			unshare_flags |= CLONE_NEWUSER;
++			maproot = 1;
++			break;
+ 		default:
+ 			usage(EXIT_FAILURE);
+ 		}
+@@ -147,6 +156,29 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 
++	if (maproot) {
++		int fd;
++		char *buf;
++
++		fd = open("/proc/self/uid_map", O_WRONLY);
++		if (fd == -1)
++			err(EXIT_FAILURE, _("Opening %s failed"), "uid_map");
++		xasprintf(&buf, "0 %d 1", real_euid);
++		if (write(fd, buf, strlen(buf)) != (int)strlen(buf))
++			err(EXIT_FAILURE, _("Writing to %s failed"), "uid_map");
++		free(buf);
++		close(fd);
++
++		fd = open("/proc/self/gid_map", O_WRONLY);
++		if (fd == -1)
++			err(EXIT_FAILURE, _("Opening %s failed"), "gid_map");
++		xasprintf(&buf, "0 %d 1", real_egid);
++		if (write(fd, buf, strlen(buf)) != (int)strlen(buf))
++			err(EXIT_FAILURE, _("Writing to %s failed"), "gid_map");
++		free(buf);
++		close(fd);
++	}
++
+ 	if (procmnt &&
+ 	    (mount("none", procmnt, NULL, MS_PRIVATE|MS_REC, NULL) != 0 ||
+ 	     mount("proc", procmnt, "proc", MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0))
 -- 
-"The wise are known for their understanding, and pleasant
-words are persuasive." Proverbs 16:21 (New Living Translation)
+1.8.4.2
 
-  Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
-
-Felix Miata  ***  http://fm.no-ip.com/
