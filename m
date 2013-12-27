@@ -1,77 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from stirling.just4dns.com ([178.18.116.215]:42144 "EHLO
-	stirling.just4dns.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754599AbaA1SGd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Jan 2014 13:06:33 -0500
-Received: from 88-106-244-22.dynamic.dsl.as9105.com ([88.106.244.22]:44036 helo=F20Main.crowhill)
-	by stirling.just4dns.com with esmtpsa (TLSv1:DHE-RSA-AES128-SHA:128)
-	(Exim 4.82)
-	(envelope-from <stuart@stella-maris.org.uk>)
-	id 1W8Cex-00085w-5W
-	for util-linux@vger.kernel.org; Tue, 28 Jan 2014 17:41:15 +0000
-Message-ID: <52E7EBBC.4070009@stella-maris.org.uk>
-Date: Tue, 28 Jan 2014 17:41:16 +0000
-From: Stuart T Rogers <stuart@stella-maris.org.uk>
-MIME-Version: 1.0
+Received: from mailhub.sw.ru ([195.214.232.25]:37323 "EHLO relay.sw.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753143Ab3L0NtM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Dec 2013 08:49:12 -0500
+From: Andrey Vagin <avagin@openvz.org>
 To: util-linux@vger.kernel.org
-Subject: Possible problem mounting Video DVD
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Karel Zak <kzak@redhat.com>, Andrew Vagin <avagin@openvz.org>
+Subject: [PATCH] hexdump: don't access hex after freeing it
+Date: Fri, 27 Dec 2013 17:45:06 +0400
+Message-Id: <1388151906-9057-1-git-send-email-avagin@openvz.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I am hoping this is the right place for some advice on an issue I have 
-with one type of Video DVD created on my Panasonic DVD Recorder. If this 
-is not the right place, I apologise and would appreciate being directed 
-to the correct team.
+From: Andrew Vagin <avagin@openvz.org>
 
-I have been having problems with Video DVDs created on my Panasonic DVD 
-recorder which records terrestrial TV. They will not mount as browsable 
-by a normal user on my Fedora 20 64bit system. All other Video DVDs from 
-my Sony and LG recorders mount as browsable as they should. I can browse 
-the directory structure OK with these failing DVDs only if I login as root.
+==20209== Invalid read of size 4
+==20209==    at 0x923C: main (hexdump.c:202)
+==20209==  Address 0x49af034 is 12 bytes inside a block of size 32 free'd
+==20209==    at 0x48348B8: free (vg_replace_malloc.c:427)
+==20209==    by 0x923B: main (hexdump.c:200)
 
-The same problem happens on two different PCs so it is unlikely to be a 
-hardware problem.
+Signed-off-by: Andrey Vagin <avagin@openvz.org>
+---
+ text-utils/hexdump.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-I can play these Video DVDs without any problem in Dragon Player, VLC or 
-Kaffeine as a normal user on both PCs but any attempt to open them to 
-rip the video in say K3B fails.
-
-If I boot the PCs into Windows XP then I can browse the file structure 
-as a normal user without any problem and on XP Pinnacle Studio can 
-import the video with no problem at all.
-
-The DVDs in question show the following error messages when placed in 
-the drive:-
-
-Jan 27 12:31:14 F20Main kernel: [16280.275124] sr 0:0:0:0: [sr0] Invalid 
-command failure
-Jan 27 12:31:14 F20Main kernel: [16280.275137] sr 0:0:0:0: [sr0]
-Jan 27 12:31:14 F20Main kernel: [16280.275143] Result: hostbyte=DID_OK 
-driverbyte=DRIVER_SENSE
-Jan 27 12:31:14 F20Main kernel: [16280.275149] sr 0:0:0:0: [sr0]
-Jan 27 12:31:14 F20Main kernel: [16280.275153] Sense Key : Illegal 
-Request [current]
-Jan 27 12:31:14 F20Main kernel: [16280.275160] sr 0:0:0:0: [sr0]
-Jan 27 12:31:14 F20Main kernel: [16280.275166] Add. Sense: Invalid field 
-in cdb
-Jan 27 12:31:14 F20Main kernel: [16280.275171] sr 0:0:0:0: [sr0] CDB:
-Jan 27 12:31:14 F20Main kernel: [16280.275174] Write(10): 2a 00 00 00 00 
-40 00 00 01 00
-Jan 27 12:31:14 F20Main kernel: [16280.275190] end_request: critical 
-target error, dev sr0, sector 256
-Jan 27 12:31:14 F20Main kernel: [16280.275199] Buffer I/O error on 
-device sr0, logical block 64
-Jan 27 12:31:14 F20Main kernel: [16280.275203] lost page write due to 
-I/O error on sr0
-Jan 27 12:31:14 F20Main kernel: [16280.491663] UDF-fs: INFO Mounting 
-volume 'DVD_VIDEO_RECORDER', timestamp 2014/01/26 14:04 (1000)
-Jan 27 12:31:14 F20Main udisksd[1084]: Mounted /dev/sr0 at 
-/run/media/stuart/DVD_VIDEO_RECORDER on behalf of uid 1000
-
-Is this a potential bug in the mount command?
-
-Stuart
+diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
+index 1806077..cebd676 100644
+--- a/text-utils/hexdump.c
++++ b/text-utils/hexdump.c
+@@ -165,11 +165,13 @@ int main(int argc, char **argv)
+ {
+ 	struct list_head *p;
+ 	struct hexdump_fs *tfs;
++	int ret;
+ 	char *c;
+ 
+ 	struct hexdump *hex = malloc (sizeof (struct hexdump));
+ 	hex->length = -1;
+ 	hex->skip = 0;
++	hex->exitval = 0;
+ 	INIT_LIST_HEAD(&hex->fshead);
+ 
+ 	setlocale(LC_ALL, "");
+@@ -197,8 +199,9 @@ int main(int argc, char **argv)
+ 
+ 	next(argv, hex);
+ 	display(hex);
++	ret = hex->exitval;
+ 	hex_free(hex);
+-	return hex->exitval;
++	return ret;
+ }
+ 
+ void hex_free(struct hexdump *hex)
 -- 
-Website: http://www.stella-maris.org.uk
-or:      http://www.broadstairs.org
+1.8.4.2
+
