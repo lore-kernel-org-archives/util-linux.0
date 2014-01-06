@@ -1,29 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f45.google.com ([209.85.219.45]:34902 "EHLO
-	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873AbaAVHid (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 22 Jan 2014 02:38:33 -0500
-Received: by mail-oa0-f45.google.com with SMTP id i11so27722oag.4
-        for <util-linux@vger.kernel.org>; Tue, 21 Jan 2014 23:38:31 -0800 (PST)
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Date: Wed, 22 Jan 2014 10:38:31 +0300
-Message-ID: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
-Subject: Typo in mkfs man-page
-From: Kenny Rachuonyo <krmboya@gmail.com>
-To: util-linux@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140106123040.GA31045@x2.net.home>
+References: <201312222142.44536.vapier@gentoo.org>
+	<20140106123040.GA31045@x2.net.home>
+Date: Mon, 6 Jan 2014 12:55:08 +0000
+Message-ID: <CAG27Bk0wpvkoRxL1G4Yd6AE8J9L6tCZzeeYr6qX_KDn+MCwYew@mail.gmail.com>
+Subject: Re: tests: cal/bigyear only works on 64bit (sizeof(long) == 8) systems
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Mike Frysinger <vapier@gentoo.org>,
+        util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The short form of the --verbose option should probably be -v instead of -V
+On 6 January 2014 12:30, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Dec 22, 2013 at 09:42:43PM -0500, Mike Frysinger wrote:
+>> that's a signed long type, so on 32bit systems, you get:
+>>           cal: Year 1234567890123456789       ...cal: illegal year value:
+>>
+>> should the test detect the sizeof(long) and then calculate a number that is
+>> smaller than that ?
+>
+>  It would be better to keep cal(1) arch insensitive.
+>
+>  Sami, why we need so huge year numbers and why the number is signed?
+>  I guess it would be enough to  use "unsigned int" (UINT_MAX is 4294967295).
 
-This occurs both on the online man-page:
+Hi Mike & Karel,
 
-http://man7.org/linux/man-pages/man8/mkfs.8.html
+Year was left signed because someone said it might be interesting to
+know pre-year-zero outputs. After a bit research the pre-zero year
+calendars are theoretical construct, mostly because agreement in
+western world is not more than couple hundred years old. That means
+pre-zero calendar could only be considered as a what a modern western
+people think the calendar should have looked. Whether that is
+valuable, interesting, useful, etc is a different question.
 
-and my local system (Ubuntu 12.04) man-page.
+Meanwhile the big year test is clearly broken. I recon there should be
+a version for various sizes of INT_MAX tests, and depending how large
+values are supported by system corresponding tests are ran.
 
 -- 
-http://dumaworks.com
-https://github.com/krmboya
-http://keyboardinterrupt.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
