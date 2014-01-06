@@ -1,60 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from alerce.vps.bitfolk.com ([85.119.82.134]:44610 "EHLO
-	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753201AbaAWWGk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Jan 2014 17:06:40 -0500
-Received: from 87-198-57-52.ptr.magnet.ie ([87.198.57.52] helo=sdfg.com.ar)
-	by alerce.vps.bitfolk.com with esmtpsa (TLS1.0:DHE_RSA_AES_128_CBC_SHA1:16)
-	(Exim 4.76)
-	(envelope-from <rodrigo@sdfg.com.ar>)
-	id 1W6U7G-0004zB-Bm
-	for util-linux@vger.kernel.org; Thu, 23 Jan 2014 20:55:22 -0300
-Date: Thu, 23 Jan 2014 21:28:13 +0000
-From: Rodrigo Campos <rodrigo@sdfg.com.ar>
-To: util-linux@vger.kernel.org
-Subject: drill: Make a file sparse without using extra disk space
-Message-ID: <20140123212813.GE20054@sdfg.com.ar>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:33026 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757028AbaAFXVE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jan 2014 18:21:04 -0500
+Received: by mail-pd0-f177.google.com with SMTP id q10so18660758pdj.22
+        for <util-linux@vger.kernel.org>; Mon, 06 Jan 2014 15:21:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140106130832.GF31045@x2.net.home>
+References: <201312222142.44536.vapier@gentoo.org>
+	<20140106123040.GA31045@x2.net.home>
+	<CAG27Bk0wpvkoRxL1G4Yd6AE8J9L6tCZzeeYr6qX_KDn+MCwYew@mail.gmail.com>
+	<20140106130832.GF31045@x2.net.home>
+Date: Mon, 6 Jan 2014 23:21:03 +0000
+Message-ID: <CAG27Bk1ROQ51LMyx=qjxasgX4MLBKy=_NiQZkcHbdhkMRzoC5A@mail.gmail.com>
+Subject: Re: tests: cal/bigyear only works on 64bit (sizeof(long) == 8) systems
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Mike Frysinger <vapier@gentoo.org>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi!
+On 6 January 2014 13:08, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Jan 06, 2014 at 12:55:08PM +0000, Sami Kerola wrote:
+>> Year was left signed because someone said it might be interesting to
+>> know pre-year-zero outputs. After a bit research the pre-zero year
+>> calendars are theoretical construct, mostly because agreement in
+>
+> but the code is:
+>
+>     #define SMALLEST_YEAR           1
+>
+>     if (ctl.req.year < SMALLEST_YEAR)
+>           errx(EXIT_FAILURE,  _("illegal year value: use positive integer"));
 
-I've written a small simple tool to make a file sparse without using extra disk
-space, it just digs holes on the file when possible. To dig the hole uses the
-Linux-specific fallocate(2) syscall with FALLOC_FL_PUNCH_HOLE. So, also, it only
-works on some file-systems.
+Hi Karel,
 
-Do you think that util-linux would be a good place for such a simple, linux-only
-program ? The case I see it can be useful is to use on VM images file backed (or
-I wrote it with this in mind, at least :)).
+That is correct right now. If negative years are allowed to be used
+I'm sure bug reports will follow. The leap year printouts are
+obviously wrong.
 
-The code is quite simple, it's written in plain C (C99 actually) and doesn't
-have any external dependencies. You can see the gitweb here:
+>> Meanwhile the big year test is clearly broken. I recon there should be
+>> a version for various sizes of INT_MAX tests, and depending how large
+>> values are supported by system corresponding tests are ran.
+>
+>  INT_MAX is the same everywhere, all you need is to remove arch
+>  specific "long" from the code and use strtos32_or_err() to parse the
+>  year number.
+>
+>  (Well, I guess that 2147483647 years is enough :-)
 
-	http://sdfg.com.ar/git/?p=drill.git
+Use of 32 bit int is indeed the easiest fix, and I'm all in favor of
+cutting the cal output there.
 
-or just clone it from:
-
-	git://sdfg.com.ar/drill.git
-
-
-Given that there is a fallocate tool that uses the other mode of fallocate(2)
-already, all the detection for fallocate is already there. So it should, I
-guess, be easy to integrate to the code-base, adding also the #ifndef
-fallocate.c has and that compatibility stuff.
-
-Also, as you can see in the commits, I just started it some days ago. So if
-you think it should have some other feature, or something else, please let me
-know :)
-
-I'm not sure how this work, but I can write a patch against util-linux if you
-think it can be added. If you know there is something I should particulary take
-into account for that, I will really appreciate if you let me know :)
-
-
-
-
-Thanks a lot,
-Rodrigo
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
