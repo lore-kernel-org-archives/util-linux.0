@@ -1,36 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from qmta03.westchester.pa.mail.comcast.net ([76.96.62.32]:41326
-	"EHLO qmta03.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751974AbaA2Uy4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 29 Jan 2014 15:54:56 -0500
-Date: Wed, 29 Jan 2014 15:54:53 -0500
-Message-Id: <201401292054.s0TKsrph021368@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Stuart T Rogers <stuart@stella-maris.org.uk>
-CC: util-linux@vger.kernel.org
-In-reply-to: <52E836E0.70900@stella-maris.org.uk> (stuart@stella-maris.org.uk)
-Subject: Re: Possible problem mounting Video DVD
-References: <52E7EBBC.4070009@stella-maris.org.uk> <201401282126.s0SLQFZK011980@hobgoblin.ariadne.com> <52E836E0.70900@stella-maris.org.uk>
+Received: from mx1.redhat.com ([209.132.183.28]:2354 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752997AbaAFIJ6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 6 Jan 2014 03:09:58 -0500
+Date: Mon, 6 Jan 2014 09:09:53 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: "Dale R. Worley" <worley@alum.mit.edu>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: losetup "-p" option is not documented
+Message-ID: <20140106080953.GE4435@x2.net.home>
+References: <201312182232.rBIMWPWN020104@hobgoblin.ariadne.com>
+ <CAG27Bk0jsee=nEOUz-m-RRF0cO=u36mqduhd-w1226=S+Yw_SQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0jsee=nEOUz-m-RRF0cO=u36mqduhd-w1226=S+Yw_SQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Stuart T Rogers <stuart@stella-maris.org.uk>
+On Thu, Dec 19, 2013 at 09:46:27AM +0000, Sami Kerola wrote:
+> +.IP "\fB\-p, \-\-pass-fd\fP \fIfile descriptior\fP"
+> +This option is no longer supported.
+>  
+>  .SH ENCRYPTION
+>  .B Cryptoloop is no longer supported in favor of dm-crypt. For more details see
+> diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+> index 70d9155..7708fd9 100644
+> --- a/sys-utils/losetup.c
+> +++ b/sys-utils/losetup.c
+> @@ -538,7 +538,7 @@ int main(int argc, char **argv)
+>  			list = 1;
+>  			break;
+>  		case 'p':
+> -                        warn(_("--pass-fd is no longer supported"));
+> +			warnx(_("--pass-fd is no longer supported"));
+>  			break;
 
-> Sorry I did not make myself completely clear, these disks mount with the 
-> wrong permissions, my user in this case uid 1000 has no access to the 
-> directory structure of the DVD, either a filemanager or cd in a console 
-> gets permission denied. All other DVDs I create from other recorders 
-> will mount with uid 1000 having read access to the directory structure.
+ I have removed the option (and also -e and -E) from code and man page
+ at all, I don't think we have to maintain the warnings for ever.
 
-Can you provide the exact mount command that you are using, an "ls
--al" showing what user/group/permissions the files *are* showing up
-as, etc.?  There's a tremendous amount of information that you're not
-telling us, and even if I had your DVD and your computer in hand, I
-couldn't begin to verify that I'm seeing the same problem you are
-having.
+    Karel
 
-"How to Report Bugs Effectively"
-http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
-
-Dale
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
