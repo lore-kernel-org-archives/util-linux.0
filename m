@@ -1,58 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:46550 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752636AbaA3PU2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jan 2014 10:20:28 -0500
-Message-ID: <52EA6DBA.6000903@ubuntu.com>
-Date: Thu, 30 Jan 2014 10:20:26 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:52664 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751512AbaAGLUZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 7 Jan 2014 06:20:25 -0500
+Date: Tue, 7 Jan 2014 12:20:15 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
+Message-ID: <20140107112015.GC2658@x2.net.home>
+References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>,
-        Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: pivot_root depreciated?
-References: <52E91888.4080601@ubuntu.com> <20140130081651.GE22884@x2.net.home> <52EA5E6F.6040203@ubuntu.com> <52EA66CC.9070107@archlinux.org>
-In-Reply-To: <52EA66CC.9070107@archlinux.org>
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jan 06, 2014 at 11:39:08PM +0000, Sami Kerola wrote:
+>  configure.ac             |   3 +
+>  misc-utils/Makemodule.am |   3 +-
+>  misc-utils/sd-daemon.c   | 520 -----------------------------------------------
+>  misc-utils/sd-daemon.h   | 282 -------------------------
+>  misc-utils/uuidd.c       |   2 +-
+>  5 files changed, 5 insertions(+), 805 deletions(-)
+>  delete mode 100644 misc-utils/sd-daemon.c
+>  delete mode 100644 misc-utils/sd-daemon.h
 
-On 1/30/2014 9:50 AM, Thomas Bächler wrote:
-> At least mkinitcpio now generates a fresh "initrd" to return to
-> during system shutdown instead of keeping around the actual
-> initrd.
+ Applied with some minor changes, thanks!
 
-I see, so at shutdown the initramfs is re-loaded into a tmpfs that is
-then pivot_root()ed to?  And at boot time, pivot_root is not used?
+    Karel
 
-> Initrd is a bad idea. It's a ramdisk of fixed size with an actual
-> file system on it. Instead, we now use initramfs, which is simply
-> an archive which is extracted directly into rootfs. And as I said
-> above, you can't pivot rootfs.
-
-Ok, that sounds like it is what I was trying to remember.  They said
-hell no, rootfs is rootfs, and there will be no pivoting it.  I guess
-I assumed that meant pivot_root() was dead, not thinking you could
-still use it after chrooting to a non rootfs.
-
-> 4) chdir("/realroot"); mount --move /realroot ., chroot(".");
-
-Wait, how do you move a mount into itself?  I thought this was just
-the chdir and chroot.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJS6m26AAoJEI5FoCIzSKrwUIcH/0Gq64aC4Sr0bb9vqhNYTgeY
-TiSxsR4lx3r0g3Oja91j0az8TXeCdpb2LakY+TOxMYEtA6JyJ5rF9kFeo5imbVT4
-XYj/40gmirs4m021gGNgAXIqyt7+RDMZh2KGSFN6zuUTX39HlvIqjBrPzDp2Howa
-ASCfcOn6LujS5F1iaBK7aSkBdSQhq3WhsQAJN4OJ3DAjOoO74F07AoziPc0vG0Cn
-66bkvEvMHTYpKULoJOB7YPTtkDqp3IjyrBx5kKPB1DKYGDKXQX2y4I0ZNb/VRkWn
-RUvnFneULyWIWZRWb0z2Rf+NfdpkYU+Bfkg6TpnGquE4hKHZpTw5DrUB6Uv3UX4=
-=Sgny
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
