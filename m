@@ -1,91 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:43971 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757612AbaAHUhb convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 8 Jan 2014 15:37:31 -0500
-Received: by mail-pb0-f47.google.com with SMTP id um1so2036722pbc.6
-        for <util-linux@vger.kernel.org>; Wed, 08 Jan 2014 12:37:31 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140108092116.GA7516@x2.net.home>
-References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
-	<52CBCF17.50706@archlinux.org>
-	<20140107101935.GA2658@x2.net.home>
-	<201401071344.09876.vapier@gentoo.org>
-	<20140108092116.GA7516@x2.net.home>
-Date: Wed, 8 Jan 2014 20:37:30 +0000
-Message-ID: <CAG27Bk2S5ert+sjnai8ybEhhoUruYmX6P+U7c1AaghfjQ_s2TA@mail.gmail.com>
-Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Mike Frysinger <vapier@gentoo.org>,
-        =?ISO-8859-1?Q?Thomas_B=E4chler?= <thomas@archlinux.org>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from cantor2.suse.de ([195.135.220.15]:36707 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752274AbaAHRzp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 8 Jan 2014 12:55:45 -0500
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id E634EAC35
+	for <util-linux@vger.kernel.org>; Wed,  8 Jan 2014 17:55:43 +0000 (UTC)
+Message-ID: <1389203741.8841.31.camel@oct.suse.cz>
+Subject: mount: "nofail" and already mounted devices?
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: util-linux@vger.kernel.org
+Date: Wed, 08 Jan 2014 18:55:41 +0100
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 8 January 2014 09:21, Karel Zak <kzak@redhat.com> wrote:
-> On Tue, Jan 07, 2014 at 01:44:07PM -0500, Mike Frysinger wrote:
->> On Tuesday 07 January 2014 05:19:35 Karel Zak wrote:
->> > On Tue, Jan 07, 2014 at 10:55:35AM +0100, Thomas Bächler wrote:
->> > > >> We already have such a cyclic dependency, since udevd depends on
->> > > >> libblkid+libuuid, and findmnt (from util-linux) depends on libudev.
->> > > >>
->> > > >  .. and nobody complains, good point :-) Thanks!
->> > > >
->> > > >     Karel
->> > >
->> > > Actually, now that I know you care about these things, I am complaining.
->> > >
->> >  :-)))
->> >  :
->> > > It has caused me (minor) trouble once already.
->> >
->> >  It's possible (first time) to compile util-linux without libudev,
->> >  compile systemd/udevd and then again recompile util-linux with
->> >  libudev.
->> >
->> >  IMHO libudev is very useful for findmnt and lsblk to get info about
->> >  devices.
->> >
->> >  Note that uuidd is absolutely unnecessary if you don't have huge SAP
->> >  installation (-- it means unnecessary for 99% of the all Linux users).
->>
->> on a semi-related matter, it'd be nice if we could easily build util-linux
->> such that we only get the libraries.  the plethora of configure flags that
->> control utils is a nightmare to manage, and i'm not sure there's a flag for
->> every utility (i haven't checked myself, so i could easily be wrong).
->
-> not yet ;-)
->
->> if that were in play, the circular loop would be easy to address -- build
->> util-linux once just for its libs, then udev/systemd, then util-linux again.
->
-> Yep, I know about the pain... I guess it would be enough to have
-> something like
->
->  ./configure --disable-all-builds --enable-libblkid
->
-> where --enable/disable-all-builds controls the default of the
-> enable_<name>= variables (the current default is usually "check")
-> in configure.
->
-> I'll try to implement it later (I'm working on new cfdisk now) -- or
-> maybe some volunteer...? :-)
+Attempting to mount of already mounted devices is a common situation in
+many scripts. There is no easy way to detect it in the current mount
+implementation.
 
-I could try to fiddle around with autotools in next days/weeks.
+One of our users complains that this situation is not covered by
+"nofail" mount option. ("nofail" does exactly what the documentation
+describes and nothing more.)
 
-The one thing I am thinking to change immediately is
-'s/--disable-all-builds/--enable-minimal/'.  Unfortunately, due I'm just
-a random contributor without distribution packaging experience at all I
-will need few hints from real pros.  Most important question being what
-the minimal should include?  I did think that option could be
---enable-libaries-only, but is that too minimal to be practical?
+Would be acceptable a patch that adds "already mounted" to "nofail"?
 
-p.s.  Karel, the consider the cal(1) enhancements being temporarily
-postponed.  Well, they weren't import anyway, so IMHO not a big loss.
+If not, what would be the best way of enabling this feature for mounting
+a single device? (It already exists in mount, but it is usable only with
+"mount -a".)
+
+- Add another mount option, e. g. mountednofail or mountedok
+- Make possible to use "-a" with further arguments.
+- Add new option, e. g. "-A".
+and/or
+- New result code, e. g. 33 instead of 32. (As it can not suppress the
+error message, it is well usable only as an addition to above.)
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
