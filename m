@@ -1,58 +1,120 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qc0-f181.google.com ([209.85.216.181]:48839 "EHLO
-	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752572AbaA3Oyg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jan 2014 09:54:36 -0500
-Received: by mail-qc0-f181.google.com with SMTP id e9so4978102qcy.40
-        for <util-linux@vger.kernel.org>; Thu, 30 Jan 2014 06:54:35 -0800 (PST)
-Date: Thu, 30 Jan 2014 09:54:33 -0500
-From: Dave Reisner <d@falconindy.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: pivot_root depreciated?
-Message-ID: <20140130145433.GE905@rampage>
-References: <52E91888.4080601@ubuntu.com>
- <20140130081651.GE22884@x2.net.home>
- <52EA5E6F.6040203@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52EA5E6F.6040203@ubuntu.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+From: Sami Kerola <kerolasa@iki.fi>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>,
+        Karel Zak <kzak@redhat.com>,
+        Thomas =?iso-8859-1?q?B=E4chler?= <thomas@archlinux.org>
+Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
+Date: Wed,  8 Jan 2014 22:28:06 +0000
+Message-Id: <1389220086-7475-1-git-send-email-kerolasa@iki.fi>
+References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi> <20140108092116.GA7516@x2.net.home> <CAG27Bk2S5ert+sjnai8ybEhhoUruYmX6P+U7c1AaghfjQ_s2TA@mail.gmail.com> <201401081544.37516.vapier@gentoo.org>
+In-Reply-To: <201401081544.37516.vapier@gentoo.org>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 30, 2014 at 09:15:11AM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 1/30/2014 3:16 AM, Karel Zak wrote:
-> > everyone switched to our switch_root :-)
-> 
-> Except apparently for the systemd folks, which for some odd reason
-> like the idea of keeping around the initrd for the life of the system
-> so init can "return" to it ( yuck! ).
-> 
+Hi Mike, and others,
 
-To be clear, systemd uses the syscall, not the util-linux utility. I'm
-not sure why you think this is a poor idea when it, in fact, solves real
-problems. If your root filesystem resides on a stacked block device
-(mdadm, lvm, dmraid, dm-crypt), this is the *only* way to cleanly umount
-the filesystem for disassembly. Remounting the filesystem read-only
-might not be enough.
+So the change that's needed could be something like
 
-Results of not doing this vary. If your root is dm-crypt, you open up
-more possibilities of cold boot attacks. If you use mdadm for a fakeraid
-array, your fakeraid controller might insist on rebuilding the array on
-the next reboot which could take hours.
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Wed, 8 Jan 2014 22:16:05 +0000
+Subject: [PATCH] build-sys: add ./configure --enable-libraries-only option
 
-> > Anyway, I don't see any info about pivot_root syscall deprecation
-> > in Linux kernel source tree.
-> 
-> Me neither, but then why switch_root?  I thought the whole reason it
-> came about was because Linus et al considered pivot_root() to have
-> been a terrible idea.
+The option is meant to help distributors to bootstrap systems out of
+scratch.
 
-My understanding is that pivot_root is a relic from the days of
-/dev/initrd. Since 2.6 and the introduction of initramfs, it's no longer
-needed for this purpose.
+Reference: http://www.spinics.net/lists/util-linux-ng/index.html#08695
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ Makefile.am               | 12 ++++++++++++
+ configure.ac              | 10 +++++++++-
+ login-utils/Makemodule.am | 11 -----------
+ 3 files changed, 21 insertions(+), 12 deletions(-)
 
-d
+diff --git a/Makefile.am b/Makefile.am
+index 17f4c33..24a7212 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -79,6 +79,7 @@ include libblkid/Makemodule.am
+ include libmount/Makemodule.am
+ include libfdisk/Makemodule.am
+ 
++if HAVE_COMMANDS
+ include schedutils/Makemodule.am
+ include text-utils/Makemodule.am
+ include term-utils/Makemodule.am
+@@ -92,6 +93,7 @@ include fdisks/Makemodule.am
+ include bash-completion/Makemodule.am
+ 
+ include tests/Makemodule.am
++endif	# HAVE_COMMANDS
+ 
+ #
+ # Don't rely on configure.ac AC_CONFIG_FILES for install paths.
+@@ -191,6 +193,16 @@ checksmatch:
+ changelog: $(CHANGELOG_FILE)
+ 
+ install-exec-hook: $(INSTALL_EXEC_HOOKS)
++if HAVE_COMMANDS
++if BUILD_SU
++if MAKEINSTALL_DO_SETUID
++	chmod 4755 $(DESTDIR)$(bindir)/su
++endif
++endif	# BUILD_SU
++if BUILD_VIPW
++	cd $(DESTDIR)$(usrsbin_execdir) && ln -sf vipw vigr
++endif
++endif	# HAVE_COMMANDS
+ 
+ uninstall-hook: $(UNINSTALL_HOOKS)
+ 
+diff --git a/configure.ac b/configure.ac
+index 6bf5048..d08589e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -704,6 +704,11 @@ AS_IF([test "x$with_utempter" = xyes], [
+   AM_CONDITIONAL([HAVE_UTEMPTER], [false])
+ ])
+ 
++AC_ARG_ENABLE([binaries],
++  AS_HELP_STRING([--disable-binaries], [build only libraries]),
++  [], [enable_libraries_only=yes]
++)
++AM_CONDITIONAL(HAVE_COMMANDS, test "x$enable_libraries_only" = xyes)
+ 
+ AC_ARG_ENABLE([most-builds],
+   AS_HELP_STRING([--enable-most-builds], [build everything other than experimental code]),
+@@ -1570,7 +1575,10 @@ libblkid/src/blkid.h
+ libmount/docs/Makefile
+ libmount/docs/version.xml
+ libmount/src/libmount.h
+-po/Makefile.in
++])
++
++AS_IF([test "x$enable_libraries_only" = xyes], [
++  AC_CONFIG_FILES([po/Makefile.in])
+ ])
+ 
+ AC_OUTPUT
+diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
+index aca028a..c57aca7 100644
+--- a/login-utils/Makemodule.am
++++ b/login-utils/Makemodule.am
+@@ -196,14 +196,3 @@ test_logindefs_SOURCES = \
+ 	login-utils/logindefs.c \
+ 	login-utils/logindefs.h
+ test_logindefs_CPPFLAGS = -DTEST_PROGRAM $(AM_CPPFLAGS)
+-
+-
+-install-exec-hook:
+-if BUILD_SU
+-if MAKEINSTALL_DO_SETUID
+-	chmod 4755 $(DESTDIR)$(bindir)/su
+-endif
+-endif
+-if BUILD_VIPW
+-	cd $(DESTDIR)$(usrsbin_execdir) && ln -sf vipw vigr
+-endif
+-- 
+1.8.5.2
