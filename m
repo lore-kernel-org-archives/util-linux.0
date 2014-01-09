@@ -1,53 +1,43 @@
-Return-Path: kmp@linux.vnet.ibm.com
-Message-ID: <52BBD37B.30609@linux.vnet.ibm.com>
-Date: Thu, 26 Dec 2013 12:28:03 +0530
-From: Madhu Pavan <kmp@linux.vnet.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:49344 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752717AbaAIIy1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 Jan 2014 03:54:27 -0500
+Date: Thu, 9 Jan 2014 09:54:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org,
+        Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>
+Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
+Message-ID: <20140109085413.GC7516@x2.net.home>
+References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
+ <20140108092116.GA7516@x2.net.home>
+ <CAG27Bk2S5ert+sjnai8ybEhhoUruYmX6P+U7c1AaghfjQ_s2TA@mail.gmail.com>
+ <201401081544.37516.vapier@gentoo.org>
+ <1389220086-7475-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: kzak@redhat.com
-CC: util-linux@vger.kernel.org, deepakcs@linux.vnet.ibm.com,
-        athunugu@linux.vnet.ibm.com
-Subject: util-linux-2.24 not compatible with ppc64le architecture
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1389220086-7475-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Jan 08, 2014 at 10:28:06PM +0000, Sami Kerola wrote:
+> So the change that's needed could be something like
 
-Hi Karel Zak,
+It would be really better to have --disable-all-builds, then we can
+support things like:
 
-We are in the process of adding support for new arch (ppc64le) and as 
-part of that we wanted to send patches for config.guess and configure as 
-appropriate.
+    --disable-all-builds --enable-unshare
 
-util-linux-2.24 could not be built on ppc64le because it had an outdated 
-configure/config.guess/libtool.m4. Since your pkg uses libtool and the 
-latest tarball of your pkg didn't build on ppc64le due to outdated 
-libtool present on your system. We wanted to request you to upgrade your 
-libtool to the alpha release of libtool which has all the bits and 
-pieces needed for ppc64le support.
+how many utils are not covered by any enable_<name>= ? I think all we
+need is to just add AC_ARG_ENABLE() to all utils. 
 
-In that context, I wanted to confirm the below
+(Well, for stuff like schedutils we have AC_ARG_ENABLE([schedutils])
+ and it's enough, it's unnecessary to have AC_ARG_ENABLE for taskset,
+ ionice, ..) 
 
-1) Should we send patches to 'util-linux@vger.kernel.org' mailing list 
-or there is some other mailing list?
+    Karel
 
-2) New libtool alpha release which supports ppc64le arch is available, 
-you may  pick up the alpha release from either of the below:
-
-ftp://alpha.gnu.org/gnu/libtool/libtool-2.4.2.418.tar.gz (1.6MB)
-
-ftp://alpha.gnu.org/gnu/libtool/libtool-2.4.2.418.tar.xz (920KB)
-
-It would be great if you can install this new libtool which supports 
-ppc64le, and spin the pkg and let us know the new tar availability. We 
-can test it on ppc64le architecture for you. Please let me know if you 
-are planning to release or spin newer version.
-
-Currently I used
-
-https://www.kernel.org/pub/linux/utils/util-linux/v2.24/util-linux-2.24.tar.xz
-
-Which does not have ppc64le support.
-
-Your response is highly appreciated.
-
-Thanks in advance,
-Madhu Pavan Kothapally
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
