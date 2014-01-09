@@ -1,57 +1,93 @@
-Return-Path: thomas@archlinux.org
-Message-ID: <52EB6B0D.1050500@archlinux.org>
-Date: Fri, 31 Jan 2014 10:21:17 +0100
-From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>,
-        =?ISO-8859-15?Q?Thomas_B=E4chler?=
- <thomas@archlinux.org>
-CC: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org
-Subject: Re: pivot_root depreciated?
-References: <52E91888.4080601@ubuntu.com> <20140130081651.GE22884@x2.net.home> <52EA5E6F.6040203@ubuntu.com> <52EA66CC.9070107@archlinux.org> <20140131091759.GA10498@x2.net.home>
-In-Reply-To: <20140131091759.GA10498@x2.net.home>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:56646 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751402AbaAIPv7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 Jan 2014 10:51:59 -0500
+Message-ID: <1389282714.8841.109.camel@oct.suse.cz>
+Subject: Re: mount: "nofail" and already mounted devices?
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Date: Thu, 09 Jan 2014 16:51:54 +0100
+In-Reply-To: <20140109100254.GD7516@x2.net.home>
+References: <1389203741.8841.31.camel@oct.suse.cz>
+	 <20140109100254.GD7516@x2.net.home>
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Karel Zak wrote:
+> On Wed, Jan 08, 2014 at 06:55:41PM +0100, Stanislav Brabec wrote:
+> > Attempting to mount of already mounted devices is a common situation in
+> > many scripts.
+> 
+> What about to fix the scripts? :-)
+> 
+> All you need is to call
+> 
+>     findmnt --source <dev> --target <mountpoint>
 
-Am 31.01.2014 10:17, schrieb Karel Zak:
->(I guess that dracut
-> without systemd still uses the original switch_root.)
+Yes, it is an option.
 
-So does mkinitcpio when used without systemd (which is still the
-default). We used to use busybox switch_root, but at some point switched
-to util-linux's version.
+The new behavior could simplify common situation and also prevent a
+race:
+if the device is not yet mounted
+   mount it
+do the work
 
+> > Would be acceptable a patch that adds "already mounted" to "nofail"?
+> 
+> Maybe.
 
+Well, It could be a straightforward solution (~2 lines change). But it
+could break following script (theoretical, a bit dumb and fragile, but
+still depending only on documented behavior):
 
---JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+... do some actions that will initiate delayed $DEVICE creation ...
+while mount -o nofail $DEVICE /opt ; do
+  if test -d /opt/myvendor ; then
+    break
+  fi
+  sleep 1
+done
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Now imagine, that somebody previously called:
+mount $DEVICE /opt
 
-iQIcBAEBCAAGBQJS62sPAAoJEChPw0yOSxolVYMP/jyudNouFEdhGzANtYwGh3Ps
-Eod7dTukzzGsKFMRE7sWD/EcLsICiFhA7bzGSR5kzR/LD5lixzom0nyEqrdMSdtW
-OzUfO+jXOr/1Xdqp8Q86LT6rU4gywRDLrqe7Q/Dkya8nG/wMT7CVo5Ul/cqW083b
-AbUXX8gqDtl+B/209afBYBkz42Ar/naMRrZIINRBdeuVWR07NtcRSg6xGoMSy/Dd
-GTYFodM9YWeb9NycIQP+VooAROykkIcNn54qgaHV/Ce7sNWc4A/XYA62nWkBaSW3
-c0kUxWusdej8S7ZpaAS0ntA+DkFziwce9J/R6wHvxVsyz5nGKWagdMHBYfR5Zymp
-eDkSD2Dr/uiY0gKDosjPQrGit6l3liKjfBUIW1zPoUISBpgQlCqlWyB3w6/EtfWg
-+toWzpGQ+bsKuZilyQv81kLlCrHrCahnGGuidKY4eYp/4l0H2WNKEoHlputMel1l
-qFxH8ThMVe35qvayGjHJCli7iXhFJEw7KV8xxD50/FB1+QyCEL8VhR3CrxBbUBu/
-ghZxgZKGawYpfzsquj2mBxxEtqkKNrWjsDQDaVz367zf3lWUaNH2lu+0XChy3uAP
-MyI5wAp/0C8jCR0ABETbdRsZ+lSImwYntJ1frRKGPnKCpKR0Ms6PHVIR/7cn8o/s
-tKVZFFjkI7eJX2bIemrK
-=xR4H
------END PGP SIGNATURE-----
+What will happen with the current mount?
+The script will fail as expected.
 
---JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA--
+What will happen after such patch?
+The script will enter to a dead loop.
+
+> > - Make possible to use "-a" with further arguments.
+> 
+>   mount -a /foo /bar [...]
+> 
+> Right? 
+
+Well, it sounds interesting as well, but I was thinking about
+(conflicting):
+mount -a /dev/device /mountpoint
+
+It can be done both:
+
+mount -a /foo /bar [...]
+mount -A /dev/device /mountpoint
+
+-A Do not report errors if the mount point is already used or device is
+   already mounted.
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
