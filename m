@@ -1,69 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36696 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752543AbaACOlG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 3 Jan 2014 09:41:06 -0500
-Date: Fri, 3 Jan 2014 15:40:50 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Kjetil Torgrim Homme <kjetil.homme@redpill-linpro.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: flock(1): working with fcntl locks
-Message-ID: <20140103144050.GA4435@x2.net.home>
-References: <52C6C23E.1070207@redpill-linpro.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:54439 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750877AbaAJOiV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 10 Jan 2014 09:38:21 -0500
+Message-ID: <52D005DC.1000809@ubuntu.com>
+Date: Fri, 10 Jan 2014 09:38:20 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52C6C23E.1070207@redpill-linpro.com>
+To: util-linux@vger.kernel.org
+Subject: Another question on bind mounts without mtab
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 03, 2014 at 02:59:26PM +0100, Kjetil Torgrim Homme wrote:
-> I was a bit surprised to find that flock(2) specifically ignores fcntl
-> locks.  from its manual page:
-> 
->        Since  kernel  2.0,  flock() is implemented as a system call in its
-> own
->        right rather than being emulated in the GNU C  library  as a  call
-> to
->        fcntl(2).   This  yields  true  BSD  semantics: there is no
-> interaction
->        between the types of lock placed by flock() and fcntl(2), and
-> flock()
->        does not detect deadlock.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Welcome to POSIX/Linux locking... read nice Lennart's summary: 
- http://0pointer.de/blog/projects/locking.html
- http://0pointer.de/blog/projects/locking2
+I've had another question come up about bind mounts and the lack of
+mtab and I'm not sure how to answer it because it does seem a more
+important use case that has been lost than those previously discussed.
 
-> I was trying to check if dpkg or apt-get was holding its lock and skip
-> running my cron job if so, but unfortunately it uses fcntl (F_SETLK), and
-> flock(1) will happily call flock(2) which succeeds.
-> 
-> it's a bit sad to have to write the lock testing in C or Perl rather than
-> use the nice little flock(1), so I wonder if we could "fix" flock(1)
-> somehow.  I think I'm not alone to be surprised that flock(1) is so
-> ineffective against locking done by other utilities, so my prefered solution
-> would be to switch to using fcntl(2).
+If /dev/sda1 is mounted in /, and you bind mount /home/foo to /mnt,
+then there is no way to tell from the output of mount that it is in
+fact, the /home/foo directory of /dev/sda1 that is in /mnt.  It looks
+like you just bind mounted the whole drive there, and the subdirectory
+path is lost.
 
- Sorry, but today is not 1st Apr ;-)  
- 
- And process based fcntl(2) sucks more than flock(2) and for things like 
- flock(1) it's probably completely useless.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-> the chance of a problematic regression is small, I think.  my *guess* is
-> that most flock(1) usage is only interacting with other usage of flock(1)
-> (not flock(2)).  also relying on flock(1) succeeding on a fcntl-locked file
-> would be just Wrong(tm).
-> 
-> the "safe" solution is to add a flag, --fcntl, but isn't that just cruft?
-> 
-> I can provide patches when I hear what the mailing list wants.
-
- No please, flock(1) is based on flock(2), that's all. The semantic
- and all possible limitations are well known. I don't think we want to
- make things more complicated.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJS0AXcAAoJEI5FoCIzSKrw/H4H/0tHL4gj0O7Ftj/wC02hRnP2
+jz5cSaHntsQPyu4qZ7YAda4D0niuF+dRO/OXOak6QkJS1FgmXVWrKvfgfe+diut9
+YcxzQkc8P/uDxpC08Hh00JIy7GN0oSGiITQp7VLBd6c96tdT7rQC8AgymaSnBwfT
+BDA65x7StqFcWi46l9Te9CG48ZV0XtVGx+IsaV6RR78yO1XLG3cQ/CCV4PNE04zr
+DcsfA1fhVfTkiRWEp4AxjrDuciLe8NSXk5mUd1GuL3I9CmrLJIkMZ7DMu1ucAiSQ
+Q0u/KSfvfpT211TwDfCfk9Bc+uPfnfxrrLWYwejU0uJI/qJIC/DuX314mIEr6n4=
+=d4lU
+-----END PGP SIGNATURE-----
