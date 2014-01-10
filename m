@@ -1,60 +1,118 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:33026 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757028AbaAFXVE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jan 2014 18:21:04 -0500
-Received: by mail-pd0-f177.google.com with SMTP id q10so18660758pdj.22
-        for <util-linux@vger.kernel.org>; Mon, 06 Jan 2014 15:21:04 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140106130832.GF31045@x2.net.home>
-References: <201312222142.44536.vapier@gentoo.org>
-	<20140106123040.GA31045@x2.net.home>
-	<CAG27Bk0wpvkoRxL1G4Yd6AE8J9L6tCZzeeYr6qX_KDn+MCwYew@mail.gmail.com>
-	<20140106130832.GF31045@x2.net.home>
-Date: Mon, 6 Jan 2014 23:21:03 +0000
-Message-ID: <CAG27Bk1ROQ51LMyx=qjxasgX4MLBKy=_NiQZkcHbdhkMRzoC5A@mail.gmail.com>
-Subject: Re: tests: cal/bigyear only works on 64bit (sizeof(long) == 8) systems
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Mike Frysinger <vapier@gentoo.org>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mx1.redhat.com ([209.132.183.28]:42668 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751865AbaAJNGp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 10 Jan 2014 08:06:45 -0500
+From: Carlos Maiolino <cmaiolino@redhat.com>
+To: util-linux@vger.kernel.org, linux-ext4@vger.kernel.org
+Subject: [PATCH] Update ext3/4 mount options [V2]
+Date: Fri, 10 Jan 2014 11:06:40 -0200
+Message-Id: <1389359200-16539-1-git-send-email-cmaiolino@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 January 2014 13:08, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Jan 06, 2014 at 12:55:08PM +0000, Sami Kerola wrote:
->> Year was left signed because someone said it might be interesting to
->> know pre-year-zero outputs. After a bit research the pre-zero year
->> calendars are theoretical construct, mostly because agreement in
->
-> but the code is:
->
->     #define SMALLEST_YEAR           1
->
->     if (ctl.req.year < SMALLEST_YEAR)
->           errx(EXIT_FAILURE,  _("illegal year value: use positive integer"));
+Add missing mount options to ext3 and ext4 filesystems. This also remove resize
+option information from the man page.
 
-Hi Karel,
+Changelog:
 
-That is correct right now. If negative years are allowed to be used
-I'm sure bug reports will follow. The leap year printouts are
-obviously wrong.
+V2 - applied phrasing corrections
 
->> Meanwhile the big year test is clearly broken. I recon there should be
->> a version for various sizes of INT_MAX tests, and depending how large
->> values are supported by system corresponding tests are ran.
->
->  INT_MAX is the same everywhere, all you need is to remove arch
->  specific "long" from the code and use strtos32_or_err() to parse the
->  year number.
->
->  (Well, I guess that 2147483647 years is enough :-)
+Signed-off-by: Carlos Maiolino <cmaiolino@redhat.com>
+---
+ sys-utils/mount.8 | 42 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 11 deletions(-)
 
-Use of 32 bit int is indeed the easiest fix, and I'm all in favor of
-cutting the cal output there.
-
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 6a5edd0..7f05f52 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1466,12 +1466,12 @@ journal file;  ext3 will create a new journal, overwriting the old contents
+ of the file whose inode number is
+ .IR inum .
+ .TP
+-.BR journal_dev=devnum
++.BR journal_dev=devnum / journal_path=path
+ When the external journal device's major/minor numbers
+-have changed, this option allows the user to specify
++have changed, these options allow the user to specify
+ the new journal location.  The journal device is
+-identified through its new major/minor numbers encoded
+-in devnum.
++identified either through its new major/minor numbers encoded
++in devnum, or via a path to the device.
+ .TP
+ .BR norecovery / noload
+ Don't load the journal on mounting.  Note that
+@@ -1504,6 +1504,13 @@ internal filesystem integrity, however it can allow old data to appear
+ in files after a crash and journal recovery.
+ .RE
+ .TP
++.BR data_err=ignore
++Just print an error message if an error occurs in a file data buffer in
++ordered mode.
++.TP
++.BR data_err=abort
++Abort the journal if an error occurs in a file data buffer in ordered mode.
++.TP
+ .BR barrier=0 " / "  barrier=1 "
+ This enables/disables barriers.  barrier=0 disables it, barrier=1 enables it.
+ Write barriers enforce proper on-disk ordering of journal commits, making
+@@ -1541,7 +1548,7 @@ incorporates scalability and reliability enhancements for supporting large
+ filesystem.
+ 
+ The options
+-.B journal_dev, noload, data, commit, orlov, oldalloc, [no]user_xattr
++.B journal_dev, norecovery, noload, data, commit, orlov, oldalloc, [no]user_xattr
+ .B [no]acl, bsddf, minixdf, debug, errors, data_err, grpid, bsdgroups, nogrpid
+ .B sysvgroups, resgid, resuid, sb, quota, noquota, grpquota, usrquota
+ .B usrjquota, grpjquota and jqfmt
+@@ -1637,6 +1644,17 @@ operation is committed.  This provides roughly the same level of guarantees as
+ ext3, and avoids the "zero-length" problem that can happen when a system
+ crashes before the delayed allocation blocks are forced to disk.
+ .TP
++.BR noinit_itable
++Do not initialize any uninitialized inode table blocks in the background. This
++feature may be used by installation CD's so that the install process can
++complete as quickly as possible; the inode table initialization process would
++then be deferred until the next time the filesystem is mounted.
++.TP
++.BR init_itable=n
++The lazy itable init code will wait n times the number of milliseconds it took
++to zero out the previous block group's inode table. This minimizes the impact on
++system performance while the filesystem's inode table is being initialized.
++.TP
+ .BR discard / nodiscard
+ Controls whether ext4 should issue discard/TRIM commands to the underlying
+ block device when blocks are freed.  This is useful for SSD devices and
+@@ -1648,12 +1666,6 @@ Disables 32-bit UIDs and GIDs.  This is for
+ interoperability  with  older kernels which only
+ store and expect 16-bit values.
+ .TP
+-.BR resize
+-Allows to resize filesystem to the end of the last
+-existing block group, further resize has to be done
+-with resize2fs either online, or offline. It can be
+-used only with conjunction with remount.
+-.TP
+ .BR block_validity / noblock_validity
+ This options allows to enables/disables the in-kernel facility for tracking
+ filesystem metadata blocks within internal data structures. This allows multi-
+@@ -1672,6 +1684,14 @@ Note that dioread_nolock code path is only used for extent-based files.
+ Because of the restrictions this options comprises it is off by default
+ (e.g. dioread_lock).
+ .TP
++.BR max_dir_size_kb=n
++This limits the size of the directories so that any attempt to expand them
++beyond the specified limit in kilobytes will cause an ENOSPC error. This is
++useful in memory-constrained environments, where a very large directory can
++cause severe performance problems or even provoke the Out Of Memory killer. (For
++example, if there is only 512mb memory available, a 176mb directory may
++seriously cramp the system's style.)
++.TP
+ .BR i_version
+ Enable 64-bit inode version support. This option is off by default.
+ 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+1.8.1.4
+
