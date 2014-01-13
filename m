@@ -1,47 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:50235 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932128AbaA1U5h (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Jan 2014 15:57:37 -0500
-Message-ID: <52E819BF.4090503@ubuntu.com>
-Date: Tue, 28 Jan 2014 15:57:35 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:25936 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751534AbaAMMMe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Jan 2014 07:12:34 -0500
+Date: Mon, 13 Jan 2014 13:12:31 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Marcos Mello <marcosfrm@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Automatic SSD trim script
+Message-ID: <20140113121231.GB12700@x2.net.home>
+References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
+ <20131206104944.GE16891@x2.net.home>
+ <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
+ <20131210154442.GC8419@x2.net.home>
+ <loom.20131217T203643-235@post.gmane.org>
 MIME-Version: 1.0
-To: Christoph Anton Mitterer <calestyo@scientia.net>,
-        util-linux@vger.kernel.org
-Subject: Re: fdisk: add GPT partition types for plain dm-crypt and LUKS
-References: <1390934933.15213.17.camel@heisenberg.scientia.net>
-In-Reply-To: <1390934933.15213.17.camel@heisenberg.scientia.net>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <loom.20131217T203643-235@post.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-On 01/28/2014 01:48 PM, Christoph Anton Mitterer wrote:
-> Hi.
+On Tue, Dec 17, 2013 at 07:46:35PM +0000, Marcos Mello wrote:
+> Karel Zak <kzak@...> writes:
 > 
-> Recently a discussion[0] was initiated at the dm-crypt mailing
-> list about whether or not to have a GPT type for it.
+> > 
+> > On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
+> > > > All we need is to link fstrim with libmount and lib/sysfs.c, add a new
+> > > > option --all and check non-zero
+> /sys/block/≤name>/queue/discard_granularity
+> > > > (or so).
+> > > 
+> > > Yes and yes. This is the ultimate solution. Simply being able to run
+> > > fstrim --all to discard free space on all the mounted supported file
+> > > systems is great idea. In that case we do not need any scripts at
+> > > all.
+> > 
+> >  Implemented. Sten, maybe you can try fstrim --all from git tree 
+> >  in your crontab.
+> > 
 > 
-> In the end, upstream basically agreed[1][2] to the following 
-> definitions: plain dm-crypt   7FFEC5C9-2D00-49B7-8941-3EA10A5586B7 
-> LUKS partition   CA7D7CCB-63ED-4C53-861C-1742536059CC
+> Thanks, Karel!
+> 
+> Would it be possible add an option for the "--all" mode to tell fstrim skip
+> mountpoints witch have "discard" option in fstab?
 
-Why?  Linux doesn't use partition IDs.  Also isn't plain dm-crypt
-depreciated?
+It seems like unnecessary optimization -- the overhead on filesystem with 
+active discard is minimal.
 
+(And according to Lukas in some cases FSTRIM ioctl can help you 
+ with deleted files smaller than than discard_granularity.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+    Karel
 
-iQEcBAEBCgAGBQJS6Bm/AAoJEI5FoCIzSKrw5pIH/RNRrw1saTRL0emY+QBzjYAb
-AY8Me6djgDkzQchnm5OdLQGvfDSjBy+Mrci2zEyjqGN80ceM2ugwZKvlEZnppkjc
-UjeWKsLBs8AK2NT3sWDzA4Qo0iuvwYJprbjRp46BAhwiI4VHn8Pgj1ZMutgJLo/n
-mjUFt1zB+P9Bs8YyhUWael6Bf0dM2M/PKrHgJDHSll3rVpHwWnZIPQ0Q19eoCxD9
-ZocxIPkyPXFZPX8hzz00BBseQfYGIOC544Zi5FZzlXiiouqfAfC6nJhsp1GKZKiS
-1gcQycOphugBPHqHtDR5scj0Jj+BkjTcEgjdgs3aDsQFt85ky7KOn8j1l+1u4VQ=
-=DZc2
------END PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
