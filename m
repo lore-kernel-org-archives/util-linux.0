@@ -1,35 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52664 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751512AbaAGLUZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Jan 2014 06:20:25 -0500
-Date: Tue, 7 Jan 2014 12:20:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
-Message-ID: <20140107112015.GC2658@x2.net.home>
-References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-qa0-f50.google.com ([209.85.216.50]:61414 "EHLO
+	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751746AbaANOxo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jan 2014 09:53:44 -0500
+Received: by mail-qa0-f50.google.com with SMTP id cm18so6478366qab.9
+        for <util-linux@vger.kernel.org>; Tue, 14 Jan 2014 06:53:44 -0800 (PST)
+Date: Tue, 14 Jan 2014 09:53:42 -0500 (EST)
+From: Scott Moser <smoser@ubuntu.com>
+To: Phillip Susi <psusi@ubuntu.com>
+cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] fix partx --update ranges and out of order tables
+In-Reply-To: <52D54D09.10506@ubuntu.com>
+Message-ID: <alpine.DEB.2.02.1401140952480.5329@brickies>
+References: <alpine.DEB.2.02.1401131526340.5329@brickies> <20140114085439.GF12700@x2.net.home> <52D54D09.10506@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 06, 2014 at 11:39:08PM +0000, Sami Kerola wrote:
->  configure.ac             |   3 +
->  misc-utils/Makemodule.am |   3 +-
->  misc-utils/sd-daemon.c   | 520 -----------------------------------------------
->  misc-utils/sd-daemon.h   | 282 -------------------------
->  misc-utils/uuidd.c       |   2 +-
->  5 files changed, 5 insertions(+), 805 deletions(-)
->  delete mode 100644 misc-utils/sd-daemon.c
->  delete mode 100644 misc-utils/sd-daemon.h
+On Tue, 14 Jan 2014, Phillip Susi wrote:
 
- Applied with some minor changes, thanks!
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> > +blkid_partition get_partition_by_partno(blkid_partlist ls, int n)
+>
+> I was wondering why libblkid didn't already have a function like this,
+> should this be moved there instead of just being in partx.c?
 
-    Karel
+I figured I'd leave that up to upstream.
+I had an implementation of that, but didn't know of the policy for adding
+stuff to libblkid.  This was less invasive.  I'm fine with libblkid also.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Scott
