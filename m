@@ -1,41 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:57566 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751689AbaANPV2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jan 2014 10:21:28 -0500
-Message-ID: <52D555F7.7020405@ubuntu.com>
-Date: Tue, 14 Jan 2014 10:21:27 -0500
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
-To: Scott Moser <smoser@ubuntu.com>
-CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] fix partx --update ranges and out of order tables
-References: <alpine.DEB.2.02.1401131526340.5329@brickies> <20140114085439.GF12700@x2.net.home> <52D54D09.10506@ubuntu.com> <alpine.DEB.2.02.1401140952480.5329@brickies>
-In-Reply-To: <alpine.DEB.2.02.1401140952480.5329@brickies>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:38626 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752094AbaANVUY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jan 2014 16:20:24 -0500
+Received: by mail-pb0-f45.google.com with SMTP id rp16so181374pbb.4
+        for <util-linux@vger.kernel.org>; Tue, 14 Jan 2014 13:20:23 -0800 (PST)
+From: Michael Marineau <michael.marineau@coreos.com>
+To: util-linux@vger.kernel.org
+Cc: Michael Marineau <michael.marineau@coreos.com>
+Subject: [PATCH 2/2] lsblk: add PARTTYPE tag
+Date: Tue, 14 Jan 2014 13:19:50 -0800
+Message-Id: <1389734390-32485-2-git-send-email-michael.marineau@coreos.com>
+In-Reply-To: <1389734390-32485-1-git-send-email-michael.marineau@coreos.com>
+References: <1389734390-32485-1-git-send-email-michael.marineau@coreos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+To stay in sync with blkid add PARTTYPE as an available output column.
+---
+ misc-utils/lsblk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-On 1/14/2014 9:53 AM, Scott Moser wrote:
-> I figured I'd leave that up to upstream. I had an implementation of
-> that, but didn't know of the policy for adding stuff to libblkid.
-> This was less invasive.  I'm fine with libblkid also.
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 9b53be3..7061531 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -71,6 +71,7 @@ enum {
+ 	COL_TARGET,
+ 	COL_LABEL,
+ 	COL_UUID,
++	COL_PARTTYPE,
+ 	COL_PARTLABEL,
+ 	COL_PARTUUID,
+ 	COL_RA,
+@@ -125,6 +126,7 @@ static struct colinfo infos[] = {
+ 	[COL_LABEL]  = { "LABEL",   0.1, 0, N_("filesystem LABEL") },
+ 	[COL_UUID]   = { "UUID",    36,  0, N_("filesystem UUID") },
+ 
++	[COL_PARTTYPE]  = { "PARTTYPE",  36,  0, N_("partition type UUID") },
+ 	[COL_PARTLABEL] = { "PARTLABEL", 0.1, 0, N_("partition LABEL") },
+ 	[COL_PARTUUID]  = { "PARTUUID",  36,  0, N_("partition UUID") },
+ 
+@@ -208,6 +210,7 @@ struct blkdev_cxt {
+ 	char *fstype;		/* detected fs, NULL or "?" if cannot detect */
+ 	char *uuid;		/* filesystem UUID (or stack uuid) */
+ 	char *label;		/* filesystem label */
++	char *parttype;		/* partiton type UUID */
+ 	char *partuuid;		/* partition UUID */
+ 	char *partlabel;	/* partiton label */
+ 	char *wwn;		/* storage WWN */
+@@ -291,6 +294,7 @@ static void reset_blkdev_cxt(struct blkdev_cxt *cxt)
+ 	free(cxt->fstype);
+ 	free(cxt->uuid);
+ 	free(cxt->label);
++	free(cxt->parttype);
+ 	free(cxt->partuuid);
+ 	free(cxt->partlabel);
+ 	free(cxt->wwn);
+@@ -441,6 +445,8 @@ static int get_udev_properties(struct blkdev_cxt *cxt)
+ 		}
+ 		if ((data = udev_device_get_property_value(dev, "ID_FS_TYPE")))
+ 			cxt->fstype = xstrdup(data);
++		if ((data = udev_device_get_property_value(dev, "ID_PART_ENTRY_TYPE")))
++			cxt->parttype = xstrdup(data);
+ 		if ((data = udev_device_get_property_value(dev, "ID_PART_ENTRY_UUID")))
+ 			cxt->partuuid = xstrdup(data);
+ 		if ((data = udev_device_get_property_value(dev, "ID_WWN")))
+@@ -496,6 +502,8 @@ static void probe_device(struct blkdev_cxt *cxt)
+ 			cxt->uuid = xstrdup(data);
+ 		if (!blkid_probe_lookup_value(pr, "LABEL", &data, NULL))
+ 			cxt->label = xstrdup(data);
++		if (!blkid_probe_lookup_value(pr, "PART_ENTRY_TYPE", &data, NULL))
++			cxt->parttype = xstrdup(data);
+ 		if (!blkid_probe_lookup_value(pr, "PART_ENTRY_UUID", &data, NULL))
+ 			cxt->partuuid = xstrdup(data);
+ 		if (!blkid_probe_lookup_value(pr, "PART_ENTRY_NAME", &data, NULL))
+@@ -752,6 +760,11 @@ static void set_tt_data(struct blkdev_cxt *cxt, int col, int id, struct tt_line
+ 		if (cxt->uuid)
+ 			tt_line_set_data(ln, col, xstrdup(cxt->uuid));
+ 		break;
++	case COL_PARTTYPE:
++		probe_device(cxt);
++		if (cxt->parttype)
++			tt_line_set_data(ln, col, xstrdup(cxt->parttype));
++		break;
+ 	case COL_PARTLABEL:
+ 		probe_device(cxt);
+ 		if (!cxt->partlabel)
+-- 
+1.8.3.2
 
-Right, that was directed at Karel ;)
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJS1VX3AAoJEI5FoCIzSKrw2poIAJlwO24I6M6I+8RGMx3DGzNv
-8/dX2CyIQQ59AXoCEIs/t6nY/LO+CuSn1h/xZx+zdDrp4/apSEHl058kBAFhfb3U
-4YTtlFgvdJOuWLrXYAMTBYNLS6SsMNEiIipsdomFSRMhufgE12jx/HXcp7sZw75Q
-7D0k9kGZfw376RE8R4OveOsU9cpIbhgP509rCXNF5En+lil0npOV18YshaI2FapE
-d1hUaKrio16YKKLlxMNEX+aUWBLgkBLapohRZBv1ce4NeMPoSRBshq4fEMA5K5ou
-Lw30+oVCynwKCqFqAqKH5Lx6vKgIZIr78j6+5rD+U0LoZkq/fklUEfn2BGnRh2k=
-=vgEx
------END PGP SIGNATURE-----
