@@ -1,72 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail5.vodafone.ie ([213.233.128.176]:20505 "EHLO
-	mail5.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750984AbaAXBA6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Jan 2014 20:00:58 -0500
-Message-ID: <52E1BB47.80609@draigBrady.com>
-Date: Fri, 24 Jan 2014 01:00:55 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from mx1.redhat.com ([209.132.183.28]:5443 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750959AbaANIzQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Jan 2014 03:55:16 -0500
+Date: Tue, 14 Jan 2014 09:54:39 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Scott Moser <smoser@ubuntu.com>
+Cc: util-linux@vger.kernel.org, Philip Susi <psusi@ubuntu.com>
+Subject: Re: [PATCH] fix partx --update ranges and out of order tables
+Message-ID: <20140114085439.GF12700@x2.net.home>
+References: <alpine.DEB.2.02.1401131526340.5329@brickies>
 MIME-Version: 1.0
-To: Rodrigo Campos <rodrigo@sdfg.com.ar>
-CC: util-linux@vger.kernel.org
-Subject: Re: drill: Make a file sparse without using extra disk space
-References: <20140123212813.GE20054@sdfg.com.ar>
-In-Reply-To: <20140123212813.GE20054@sdfg.com.ar>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.DEB.2.02.1401131526340.5329@brickies>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 01/23/2014 09:28 PM, Rodrigo Campos wrote:
-> Hi!
+On Mon, Jan 13, 2014 at 03:32:49PM -0500, Scott Moser wrote:
+> partx --update DEVICE NUMBER
+> was broken in 2 cases:
+>  * if NUMBER != 1
+>  * if the partition table was "out of order".
+>    Ie, where sda2 came after sda3.
 > 
-> I've written a small simple tool to make a file sparse without using extra disk
-> space, it just digs holes on the file when possible. To dig the hole uses the
-> Linux-specific fallocate(2) syscall with FALLOC_FL_PUNCH_HOLE. So, also, it only
-> works on some file-systems.
-> 
-> Do you think that util-linux would be a good place for such a simple, linux-only
-> program ? The case I see it can be useful is to use on VM images file backed (or
-> I wrote it with this in mind, at least :)).
-> 
-> The code is quite simple, it's written in plain C (C99 actually) and doesn't
-> have any external dependencies. You can see the gitweb here:
-> 
-> 	http://sdfg.com.ar/git/?p=drill.git
-> 
-> or just clone it from:
-> 
-> 	git://sdfg.com.ar/drill.git
-> 
-> 
-> Given that there is a fallocate tool that uses the other mode of fallocate(2)
-> already, all the detection for fallocate is already there. So it should, I
-> guess, be easy to integrate to the code-base, adding also the #ifndef
-> fallocate.c has and that compatibility stuff.
-> 
-> Also, as you can see in the commits, I just started it some days ago. So if
-> you think it should have some other feature, or something else, please let me
-> know :)
-> 
-> I'm not sure how this work, but I can write a patch against util-linux if you
-> think it can be added. If you know there is something I should particulary take
-> into account for that, I will really appreciate if you let me know :)
-> 
-> 
-> 
-> 
-> Thanks a lot,
-> Rodrigo
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> fixes http://pad.lv/1244662.
+> See bug for example recreates.
 
-This functionality is useful.
-Would it be possible to just add to fallocate with --punch-hole=sparse or something?
-Also dd has the conv=sparse option, so maybe this functionality can be added there.
-We're currently discussing that on the GNU coreutils mailing list.
+ Good catch.
 
-thanks,
-Pádraig.
+> -	for (i = 0, n = lower; n <= upper; n++) {
+> -		par = blkid_partlist_get_partition(ls, i);
+> -		an = blkid_partition_get_partno(par);
+> -
+> -		if (lower && n < lower)
+> -			continue;
+> -		if (upper && n > upper)
 
+
+ It was really stupid code :-(
+
+ Applied, thanks! 
+
+
+ You forgot "Signed-off-by: ", I have fixed this mistake before commit
+ as I guess you agree with this change. OK?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
