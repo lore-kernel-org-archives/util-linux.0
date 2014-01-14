@@ -1,75 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from stirling.just4dns.com ([178.18.116.215]:40727 "EHLO
-	stirling.just4dns.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753294AbaA3Tis (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jan 2014 14:38:48 -0500
-Message-ID: <52EAAA43.8030509@stella-maris.org.uk>
-Date: Thu, 30 Jan 2014 19:38:43 +0000
-From: Stuart T Rogers <stuart@stella-maris.org.uk>
+Received: from mail-qe0-f41.google.com ([209.85.128.41]:35981 "EHLO
+	mail-qe0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751475AbaANOl6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jan 2014 09:41:58 -0500
+Received: by mail-qe0-f41.google.com with SMTP id gh4so8702257qeb.0
+        for <util-linux@vger.kernel.org>; Tue, 14 Jan 2014 06:41:58 -0800 (PST)
+Date: Tue, 14 Jan 2014 09:41:56 -0500 (EST)
+From: Scott Moser <smoser@ubuntu.com>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org, Philip Susi <psusi@ubuntu.com>
+Subject: Re: [PATCH] fix partx --update ranges and out of order tables
+In-Reply-To: <20140114085439.GF12700@x2.net.home>
+Message-ID: <alpine.DEB.2.02.1401140941030.5329@brickies>
+References: <alpine.DEB.2.02.1401131526340.5329@brickies> <20140114085439.GF12700@x2.net.home>
 MIME-Version: 1.0
-To: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
-Subject: Re: Possible problem mounting Video DVD
-References: <52E7EBBC.4070009@stella-maris.org.uk> <201401282126.s0SLQFZK011980@hobgoblin.ariadne.com> <52E836E0.70900@stella-maris.org.uk> <201401292054.s0TKsrph021368@hobgoblin.ariadne.com> <52E98342.8070103@stella-maris.org.uk> <201401301906.s0UJ60YL023456@hobgoblin.ariadne.com>
-In-Reply-To: <201401301906.s0UJ60YL023456@hobgoblin.ariadne.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, 14 Jan 2014, Karel Zak wrote:
 
+> On Mon, Jan 13, 2014 at 03:32:49PM -0500, Scott Moser wrote:
+> > partx --update DEVICE NUMBER
+> > was broken in 2 cases:
+> >  * if NUMBER != 1
+> >  * if the partition table was "out of order".
+> >    Ie, where sda2 came after sda3.
+> >
+> > fixes http://pad.lv/1244662.
+> > See bug for example recreates.
+>
+>  Good catch.
+>
+> > -	for (i = 0, n = lower; n <= upper; n++) {
+> > -		par = blkid_partlist_get_partition(ls, i);
+> > -		an = blkid_partition_get_partno(par);
+> > -
+> > -		if (lower && n < lower)
+> > -			continue;
+> > -		if (upper && n > upper)
+>
+>
+>  It was really stupid code :-(
+>
+>  Applied, thanks!
+>
+>
+>  You forgot "Signed-off-by: ", I have fixed this mistake before commit
+>  as I guess you agree with this change. OK?
 
-On 30/01/14 19:06, Dale R. Worley wrote:
->> From: Stuart T Rogers <stuart@stella-maris.org.uk>
->
->> OK let me explain, I am not issuing any mount commands myself. I place
->> the DVD in the drive and close it, wait until it appears in the device
->> notifier and select action Open in File Manager, when it opens having
->> been mounted by the system at run/media/stuart/DVD_RECORDER the response
->> from Dolphin is that the permissions wont allow me to open the root
->> directory of the drive for browsing. If I try to play the video using
->> Dragon etc again this works OK the permissions it is mounted with do not
->> stop that action.
->
-> In regard to *playing* the videos, it's possible that the players
-> don't mount the DVD as a file system at all, so the fact that they
-> work isn't particularly informative.
->
-> http://forums.fedoraforum.org/showthread.php?t=296874
->
-> It looks like Skull One in that thread has the best explanation.  I'm
-> not familiar with the details of mounting DVDs, but he suggests that
-> the directories /run/media/stuart/DVD_VIDEO_RECORDER and
-> /run/media/stuart/LG_VDR *on your disk* may have different
-> permissions, and those permissions leak into the permissions seen when
-> a DVD is mounted there.  So what are the permissions on those
-> directories (when no DVD is mounted)?
->
-> In any case, it's unlikely to be a problem that this mailing list
-> deals with.  We only handle the mount executable.  One possibility is
-> that the DVD mount and processing code in the kernel is providing
-> unreasonable permission values (after all, it synthesizes them), in
-> which case the fix is a kernel change.  Another possibility is that
-> adjusting the permissions of /run/media/stuart/DVD_VIDEO_RECORDER will
-> make the problem go away, in which case it can reasonably be
-> considered to be a configuration error.  It's also possible that
-> whatever is automounting the DVD isn't being smart enough about the
-> permissions it is setting up for the DVD file system.  That would be a
-> problem for the a different mailing list.
->
-> Dale
->
+I agree.  Thanks.
 
-Dale
+Signed-off-by: Scott Moser <smoser@ubuntu.com>
 
-Thanks for that explanation. The only thing regarding the DVD_RECORDER 
-directory is that it does not exist until the DVD is mounted so whoever 
-creates it sets the permissions. The name DVD_RECORDER is the volume 
-name of the DVD. I'm not sure how the DVD can itself have permissions 
-attributed to it though.
-
-I will attempt to discover the right place to progress this issue.
-
-Stuart
-
--- 
-Website: http://www.stella-maris.org.uk
-or:      http://www.broadstairs.org
+Scott
