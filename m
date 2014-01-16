@@ -1,53 +1,66 @@
-Return-Path: linux-ext4-owner@vger.kernel.org
-Message-Id: <1389299455.29292.68757293.7B539718@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Carlos Maiolino <cmaiolino@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>, linux-ext4@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:43624 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751544AbaAPJ7a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jan 2014 04:59:30 -0500
+Date: Thu, 16 Jan 2014 10:59:27 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Felix Miata <mrmazda@earthlink.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: global fdisk colors disable
+Message-ID: <20140116095927.GO12700@x2.net.home>
+References: <52D62F0C.9060308@earthlink.net>
+ <20140115082708.GH12700@x2.net.home>
+ <52D696CB.5060606@earthlink.net>
+ <201401151021.22057.vapier@gentoo.org>
+ <52D7A542.70805@earthlink.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH] Update ext3/4 mount options
-Date: Thu, 09 Jan 2014 21:30:55 +0100
-In-Reply-To: <1389288890-17282-1-git-send-email-cmaiolino@redhat.com>
-References: <1389288890-17282-1-git-send-email-cmaiolino@redhat.com>
-Sender: linux-ext4-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <52D7A542.70805@earthlink.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jan 16, 2014 at 04:24:18AM -0500, Felix Miata wrote:
+> On 2014-01-15 10:21 (GMT-0500) Mike Frysinger composed:
+> 
+> >On Wednesday 15 January 2014 09:10:19 Felix Miata wrote:
+> 
+> >>I have many logins on many installations. In what global config file (e.g.
+> >>Debian, Fedora, Gentoo, Knoppix, Mageia, openSUSE, Slackware, etc.) can I
+> >>make never the default for all users?
+> 
+> >/etc/profile
+> 
+> That always seems to have a rather recent date, even though I never touch
+> it. Are you sure you don't mean /etc/profile.local?
 
-On Thu, Jan 9, 2014, at 18:34, Carlos Maiolino wrote:
-> -have changed, this option allows the user to specify
-> +have changed, these options allows the user to specify
+For example Fedora uses /etc/profile where is:
 
-s/allows/allow/
+for i in /etc/profile.d/*.sh ; do
+    if [ -r "$i" ]; then
+        if [ "${-#*i}" != "$-" ]; then 
+            . "$i"
+        else
+            . "$i" >/dev/null
+        fi
+    fi
+done
 
-> +identified through euther its new major/minor numbers encoded
-> +in devnum, or via a path to the device.
 
-s/through euther/either through/
-(swapped, otherwise the "via" needs to be dropped)
+and in the /etc/profile.d/ directory are many scripts, for example
+/etc/profile.d/colorls.sh with --color=auto alias for ls(1).
 
-> +Abort the journal if an error occurs in a file data buffer in ordered mode.
+It's pretty common that people and packages add/modify the stuff in 
+the /etc/profile.d/ directory.
 
-"Abort loading the journal..." maybe?
+IMHO it's elegant way how to maintain global configuration for shells.
 
-> +The lazy itable init code will wait n times the number of milliseconds it took
-> +to zero out the previous block group's inode table. This minimizes the impact on
-> +the system performance while filesystem's inode table is being initialized.
+The files like ~/.bash_profile are users' playground and I don't think
+that good admin touches these ~/ files.
 
-s/the system/system/
-s/while/while the/
+    Karel
 
-> +useful in memory constrained environments, where a very large directory can
-
-better: memory-constrained
-
-> +cause severe performance problems or even provoke the Out Of Memory killer. (For
-> +example, if there is only 512mb memory available, a 176mb directory may
-> +seriously cramp the system's style).
-
-s/)./.)/
-
-Benno
 
 -- 
-http://www.fastmail.fm - Choose from over 50 domains or use your own
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
