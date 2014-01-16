@@ -1,89 +1,73 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1389041754.20901.67345501.1AAE5142@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from elasmtp-curtail.atl.sa.earthlink.net ([209.86.89.64]:40626 "EHLO
+	elasmtp-curtail.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751214AbaAPJGF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Jan 2014 04:06:05 -0500
+Received: from [24.144.107.66] (helo=[192.168.0.11])
+	by elasmtp-curtail.atl.sa.earthlink.net with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.67)
+	(envelope-from <mrmazda@earthlink.net>)
+	id 1W3itn-000560-PW
+	for util-linux@vger.kernel.org; Thu, 16 Jan 2014 04:06:03 -0500
+Message-ID: <52D7A0FA.8010303@earthlink.net>
+Date: Thu, 16 Jan 2014 04:06:02 -0500
+From: Felix Miata <mrmazda@earthlink.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1389041754209010";
- charset="utf-8"
-Subject: [patch] cal: improve wording about when Gregorian reformation happened
-Date: Mon, 06 Jan 2014 21:55:54 +0100
-In-Reply-To: <20140106112608.GA14933@x2.net.home>
-References: <1387645415.1452.62357161.76BB1F01@webmail.messagingengine.com>
- <1387627066-29740-1-git-send-email-kerolasa@iki.fi>
- <1387737102-32083-1-git-send-email-kerolasa@iki.fi>
- <20140106112608.GA14933@x2.net.home>
+To: util-linux@vger.kernel.org
+Subject: Re: global fdisk colors disable
+References: <52D62F0C.9060308@earthlink.net> <20140115082708.GH12700@x2.net.home> <52D696CB.5060606@earthlink.net> <20140115171128.GM12700@x2.net.home>
+In-Reply-To: <20140115171128.GM12700@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+On 2014-01-15 18:11 (GMT+0100) Karel Zak composed:
 
---_----------=_1389041754209010
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+> On Wed, Jan 15, 2014 at 09:10:19AM -0500, Felix Miata wrote:
 
+>> Orange on a 16 color display doesn't look much different than red. Both
+>> contrast poorly unless the background is white, detracting from any value as
+>> warning intended by those color choices.
 
-On Mon, Jan 6, 2014, at 12:26, Karel Zak wrote:
-> On Sun, Dec 22, 2013 at 06:31:42PM +0000, Sami Kerola wrote:
-> >  misc-utils/cal.1 | 18 ++++++++++++------
-> >  1 file changed, 12 insertions(+), 6 deletions(-)
-> 
->  Applied, thanks.
+>   so your suggestion is to disable the colors at all for all Linux boxes by
+>   default?
 
-Hmm...  I reviewed that change, but it appears Sami did not actually
-process any of my comments into the second version of the patch --
-or probably forgot to regenerate it?
+I've been using white on blue text modes for nearly 3 decades, ever since I 
+learned to use ansi to set screen colors in DOS 3, as I find white on black 
+rather unpleasant to need to use more than occasionally.
 
-Attached patch now makes the proposed changes to the current state.
+Probably better to have some option for a user or admin to force the ttys 
+into 2 or 4 color mode regardless whether the system is capable of or 
+happiest with 8, 15, 16, 24 or more.
 
-Regards,
+>   I understand your point of view, but I'd like to use default that is
+>   usable to majority of the Linux users.
 
-Benno
+That is a typical majority rule effect. The problem is those with poorer than 
+average vision by definition are both a minority and handicapped. From that 
+it apparently follows that making it more difficult for the minority already 
+handicapped must be OK because the majority of average or better people might 
+enjoy some colors that may or may not make sense or provide real enhancement.
 
+>> One reason I use the ttys is for comfort, a pleasant environment where
+>> legibility is maximized, in part by big bold text, in part by lack of
+>> distraction from other windows and widgets, in other part by using only the
+>> two colors of my choice. In that environment I don't want or need to be
+>> "warned" by colors I can barely see.
+
+>   I understand.. it would be nice to have a one place to disable/enable
+>   colors for all terminal utils, maybe something like
+
+>      /etc/terminal-colors.d/[<utilname>.]disable
+
+>   I'm going to resolve the problem for the next v2.25. Thanks!
+
+Thank you! This sounds like it should be a good option for many.
 -- 
-http://www.fastmail.fm - Accessible with your email software
-                          or over the web
+"The wise are known for their understanding, and pleasant
+words are persuasive." Proverbs 16:21 (New Living Translation)
 
+  Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
 
---_----------=_1389041754209010
-Content-Disposition: attachment; filename="0001-cal-in-man-page-improve-grammar-and-wording-of-the-r.patch"
-Content-Id: <1389041699.20209.fc3f511464f94fd771c9652ff3b9bcc624320a9a.6421D970@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-cal-in-man-page-improve-grammar-and-wording-of-the-r.patch"
-
-RnJvbSAyNmRkN2E5MGNmNWIwYTZhZjM3M2M0NGVjMzJjNWM5MjU2MjYxM2M2
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogTW9uLCA2IEph
-biAyMDE0IDIxOjQzOjQ0ICswMTAwClN1YmplY3Q6IFtQQVRDSF0gY2FsOiBp
-biBtYW4gcGFnZSBpbXByb3ZlIGdyYW1tYXIgYW5kIHdvcmRpbmcgb2YgdGhl
-IHJlZm9ybWF0aW9uIGxpbWl0YXRpb24KClNpZ25lZC1vZmYtYnk6IEJlbm5v
-IFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIG1p
-c2MtdXRpbHMvY2FsLjEgfCAgIDExICsrKysrKy0tLS0tCiAxIGZpbGVzIGNo
-YW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKCmRpZmYg
-LS1naXQgYS9taXNjLXV0aWxzL2NhbC4xIGIvbWlzYy11dGlscy9jYWwuMQpp
-bmRleCBjMzA1ZWVlLi40NzBkMjMxIDEwMDY0NAotLS0gYS9taXNjLXV0aWxz
-L2NhbC4xCisrKyBiL21pc2MtdXRpbHMvY2FsLjEKQEAgLTExMSwxMSArMTEx
-LDEyIEBAIGlzIHVzZWQsIHdoZXJlIHRoZSBmaXJzdCBUaHVyc2RheSBvZiB0
-aGUgeWVhciBpcyBpbiB3ZWVrIG51bWJlciAxLgogLlBQCiBUaGUKIC5CIGNh
-bAotaXMgdXNpbmcgZm9yIEdyZWdvcmlhbiByZWZvcm1hdGlvbiB0aGUgZGF0
-ZSBvZiAxNzUyIG9uIHRoZSAzcmQgb2YKLVNlcHRlbWJlciB3aGVuIGl0IGhh
-cHBlbiBpbiBHcmVhdCBCcml0YWluIGFuZCBpdCdzIGNvbG9uaWVzIChpbmNs
-dWRpbmcKLXdoYXQgaXMgbm93IHRoZSBVU0EpLiAgVGVuIGRheXMgZm9sbG93
-aW5nIHRoYXQgZGF0ZSB3ZXJlIGVsaW1pbmF0ZWQgYnkKLXRoZSByZWZvcm1h
-dGlvbiwgc28gdGhlIGNhbGVuZGFyIGZvciB0aGF0IG1vbnRoIGlzIGEgYml0
-IHVudXN1YWwuICBUaGUKLWhpc3Rvcnkgd2hlbiBjYWxlbmRhciByZWZvcm1h
-dGlvbiBoYXBwZW4gaW4gZGlmZmVyZW50IGxvY2FsZXMgaXMgaWdub3JlZC4K
-K3Byb2dyYW0gdXNlcyB0aGUgM3JkIG9mIFNlcHRlbWJlciAxNzUyIGFzIHRo
-ZSBkYXRlIG9mIHRoZSBHcmVnb3JpYW4gY2FsZW5kYXIKK3JlZm9ybWF0aW9u
-IC0tIHRoYXQgaXMgd2hlbiBpdCBoYXBwZW5lZCBpbiBHcmVhdCBCcml0YWlu
-IGFuZCBpdHMgY29sb25pZXMKKyhpbmNsdWRpbmcgd2hhdCBpcyBub3cgdGhl
-IFVTQSkuICBUZW4gZGF5cyBmb2xsb3dpbmcgdGhhdCBkYXRlIHdlcmUgZWxp
-bWluYXRlZAorYnkgdGhpcyByZWZvcm1hdGlvbiwgc28gdGhlIGNhbGVuZGFy
-IGZvciB0aGF0IG1vbnRoIGlzIHJhdGhlciB1bnVzdWFsLgorVGhlIGFjdHVh
-bCBoaXN0b3JpY2FsIGRhdGVzIGF0IHdoaWNoIHRoZSBjYWxlbmRhciByZWZv
-cm0gaGFwcGVuZWQgaW4gYWxsIHRoZQorZGlmZmVyZW50IGNvdW50cmllcyAo
-bG9jYWxlcykgYXJlIGlnbm9yZWQuCiAuUFAKIEFsdGVybmF0aXZlIGNhbGVu
-ZGFycywgc3VjaCBhcyB0aGUgVW1tIGFsLVF1cmEsIHRoZSBTb2xhciBIaWpy
-aSwgdGhlIEdlJ2V6LAogb3IgdGhlIGx1bmlzb2xhciBIaW5kdSwgYXJlIG5v
-dCBzdXBwb3J0ZWQuCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1389041754209010--
+Felix Miata  ***  http://fm.no-ip.com/
