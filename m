@@ -1,74 +1,144 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:35071 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:12051 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751025Ab3LZH4a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Dec 2013 02:56:30 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Madhu Pavan <kmp@linux.vnet.ibm.com>
-Subject: Re: util-linux-2.24 not compatible with ppc64le architecture
-Date: Thu, 26 Dec 2013 02:56:34 -0500
-Cc: kzak@redhat.com, util-linux@vger.kernel.org, deepakcs@linux.vnet.ibm.com,
-        athunugu@linux.vnet.ibm.com
-References: <52BBD37B.30609@linux.vnet.ibm.com>
-In-Reply-To: <52BBD37B.30609@linux.vnet.ibm.com>
+	id S1751797AbaATPhG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Jan 2014 10:37:06 -0500
+Date: Mon, 20 Jan 2014 16:37:03 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.24.1
+Message-ID: <20140120153703.GB2153@x2.net.home>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2308263.d7UCrLoPrb";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201312260256.36705.vapier@gentoo.org>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2308263.d7UCrLoPrb
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
-On Thursday 26 December 2013 01:58:03 Madhu Pavan wrote:
-> We are in the process of adding support for new arch (ppc64le) and as
-> part of that we wanted to send patches for config.guess and configure as
-> appropriate.
+The util-linux release v2.24.1 is available at
 
-as i explained to one of your coworkers (specifically, about GNU/patch &=20
-libtool & ppc64le), and to others about aarch64 in config.{sub,guess}, you'=
-re=20
-approaching this all wrong.  your packaging system should be updating confi=
-g.
-{sub,guess} automatically, and you probably should implement something for=
-=20
-autoregenerating libtool stuff for ppc64le support.
+  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.24/
 
-you're going to hit this in every single package out there.  it is=20
-unreasonable to go to every maintainer and ask them to regenerate their=20
-autotools & re-release using bleeding edge tools (in this case, master bran=
-ch=20
-of libtool).  you're going to have to update your build scripts to do this=
-=20
-automatically.  this is expected behavior every time you release a new=20
-architecture that requires changes in core autotool packages.
-=2Dmike
+Feedback and bug reports, as always, are welcomed.
 
---nextPart2308263.d7UCrLoPrb
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+    Karel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
 
-iQIcBAABAgAGBQJSu+E0AAoJEEFjO5/oN/WBSy4QANntLYMX1Wo83UcYfZzi2vBM
-r0SOVUp5eREOtpVd7OjphFd3nmRs9uMtIwrlK2LGoSP+bnZ3W2YKyRYTjKdy/O9v
-KR4b2C/vvgdf2RMMDOU1g/SzRn4ClMMkS3TXKw6RENu9pHlm6flFTwNMUFKTArJG
-7fdlxVXFQfXpyBaTR1X+NRL/+AzYrPyF1/s1zVChTlYqkDHo9ipddgVXuDoy+VxY
-rYIy2Y6IG6X3Sg8bppK64OgJNYhgwPic9bm9RfbtYsxOJ0dAH/tb50ulYaUpZJOH
-8HOE9Tgz9CJO5+nZzNz266+mVE4cu/R6/QhacYA+x3nSNjC+H51RkaFpR1j7qZ4K
-f4FCwVKSPluh86QLWqsg+oTVgEYTZ5sVemEhK9pH3ap2/OQaRcKCq/XpWQglHzCM
-k0b2xsGsq+OjPKz42u/Ttw8txVt7KlTrENR/kzXpuhHaEUbuE/IHwIkbJv6ffWtF
-/85BN9rSJX0fqoCUGai9OfqsvoMoNnGXMQNdeW12QusG9YF8ZaULUx7mOxwM2WYj
-QkOgm37qq/EWzEm4GPfxLckP1+SGxxJ7wRo7kS6z9YzqZlhi4d7Cq31IXbyHAHG8
-xvOAZ6eZPxSByN10uUqah4m/kKHqCsvUfyfyI+oxvEnWDgDpbXBuIbev/U5V/41A
-IouktTNSkI+UlGapkaTm
-=mgrN
------END PGP SIGNATURE-----
 
---nextPart2308263.d7UCrLoPrb--
+Util-linux 2.24.1 Release Notes
+===============================
+
+agetty:
+   - support the special terminal on first serial line on a S/390  [Werner Fink]
+blkdiscard:
+   - BLKSSZGET fills in an int, not a uint64  [Theodore Ts'o]
+blkid:
+   - escape quotes in the output  [Karel Zak]
+   - simple typo  [Phillip Susi]
+blockdev:
+   - don't use HDIO_GETGEO  [Phillip Susi]
+build-sys:
+   - add --with-smack to config-gen.d  [Karel Zak]
+   - fstrim depends on libmount  [Karel Zak]
+chsh, chfn:
+   - add info about non-local support to the man pages  [Karel Zak]
+dmesg:
+   - fix --raw zero timestamp for kmsg  [Karel Zak]
+docs:
+   - add patching process to howto-contribute.txt  [Sami Kerola]
+   - update AUTHORS file  [Karel Zak]
+   - update links to http //git.kernel.org/ web repository views  [Sami Kerola]
+fdisk:
+   - don't care about partition type  [Karel Zak]
+   - fix printf stuff  [Karel Zak]
+   - fix usage(), -l [<disk>]  [Karel Zak]
+flock:
+   - Change the 'exit status' man page section to make more sense  [Wieland Hoffmann]
+fsck:
+   - add ext4 to list of filesystems with progress bars in fsck man page  [Phillip Susi]
+fstrim:
+   - add --all to discard all filesystem  [Karel Zak]
+   - cleanup usage()  [Karel Zak]
+lib/path:
+   - add path_strdup()  [Karel Zak]
+libblkid:
+   - (nilfs2) check also backup superblock  [Karel Zak]
+   - detect alone PMBR  [Karel Zak]
+   - fix memory leak in blkid_parse_tag_string()  [Karel Zak]
+   - fix swap-area version  [Karel Zak]
+libfdisk:
+   - (dos) be more verbose when change bootable flag  [Karel Zak]
+   - (dos) fix free part counter  [Karel Zak]
+   - (dos) warn on type 0  [Karel Zak]
+   - (gpt) add /home GUID  [Karel Zak]
+   - (gpt) improve and cleanup recovery code  [Karel Zak]
+   - (gpt) recover from corrupted primary/backup PT  [Karel Zak]
+   - (sgi) generate partname according to partition position  [Karel Zak]
+   - (sun) fix end sectors with +1 error  [Karel Zak]
+libmount:
+   - add efivarfs to the list of pseudo filesystems  [Karel Zak]
+   - add mnt_tag_is_valid()  [Karel Zak]
+   - cleanup fix_optstr() regards to selinux and smack  [Karel Zak]
+   - fix typo in smack path  [Karel Zak]
+   - remove smackfs* option when SMACK not enabled  [Karel Zak]
+lsblk:
+   - fix -D segfault  [Karel Zak]
+lscpu:
+   - sort NUMA nodes to keep output human readable  [Karel Zak]
+   - support discontinuous NUMA nodes  [Karel Zak]
+   - support non sequentially numbering of CPUs  [Alexander Troosh]
+man:
+   - Syntax and spelling fixes.  [Ville Skyttä]
+mkfs.minix:
+   - fix fscanf() format string [coverity scan]  [Karel Zak]
+mkswap:
+   - fix compiler warning [-Wunused-variable]  [Karel Zak]
+   - remove cruft from the man page  [Phillip Susi]
+mount:
+   - add note about "noauto" to --all description  [Karel Zak]
+   - correct mount man page default iso9660 permission  [Phillip Susi]
+   - fix man mount page type  [Phillip Susi]
+   - improve -s man mage info  [Karel Zak]
+   - make NAME=value tags usable for non-root  [Karel Zak]
+   - mount.8 fix grammar  [Phillip Susi]
+   - update man page ext3/4 mount options  [Carlos Maiolino]
+partx:
+   - fix --update ranges and out of order tables  [Scott Moser]
+po:
+   - merge changes  [Karel Zak]
+   - update da.po (from translationproject.org)  [Joe Hansen]
+   - update de.po (from translationproject.org)  [Mario Blättermann]
+   - update pt_BR.po (from translationproject.org)  [Rafael Ferreira]
+   - update zh_CN.po (from translationproject.org)  [Wylmer Wang]
+pylibmount:
+   - correctly import from pylibmount.so  [Dave Reisner]
+   - import directly from pylibmount in tests  [Karel Zak]
+   - remove unncessary subdirectory  [Karel Zak]
+script:
+   - don't call TIOCGWINSZ in signal handler  [Karel Zak]
+   - restore errno in signal handler  [Karel Zak]
+   - use poll() rather then O_NONBLOCK  [Karel Zak]
+setpriv:
+   - simplify usage()  [Karel Zak]
+setterm:
+   - fix -dump man page info  [Karel Zak]
+sulogin:
+   - use dirent->d_type when scans /dev  [Karel Zak]
+taskset:
+   - fix PERMISSIONS section of taskset man page  [Rik van Riel]
+tests:
+   - update blkid swap tests  [Karel Zak]
+   - update build-sys tests  [Karel Zak]
+   - update lscpu tests  [Karel Zak]
+textual:
+   - small inprovements to usage and man page of fstrim  [Benno Schulenberg]
+umount:
+   - fix umount by tag for non-roots  [Karel Zak]
+unshare:
+   - add more hints about mount namespaces to the man page  [Karel Zak]
+wipefs:
+   - call BLKRRPART when erase partition table  [Karel Zak]
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
