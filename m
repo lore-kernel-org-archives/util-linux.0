@@ -1,144 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12051 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751797AbaATPhG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Jan 2014 10:37:06 -0500
-Date: Mon, 20 Jan 2014 16:37:03 +0100
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.24.1
-Message-ID: <20140120153703.GB2153@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from mail-ee0-f45.google.com ([74.125.83.45]:50900 "EHLO
+	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751987AbaAXKML (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Jan 2014 05:12:11 -0500
+Received: by mail-ee0-f45.google.com with SMTP id b15so862082eek.4
+        for <util-linux@vger.kernel.org>; Fri, 24 Jan 2014 02:12:10 -0800 (PST)
+Received: from [10.0.0.1] (bzq-79-177-15-211.red.bezeqint.net. [79.177.15.211])
+        by mx.google.com with ESMTPSA id g1sm1758482eet.6.2014.01.24.02.12.08
+        for <util-linux@vger.kernel.org>
+        (version=SSLv3 cipher=RC4-SHA bits=128/128);
+        Fri, 24 Jan 2014 02:12:09 -0800 (PST)
+Message-ID: <1390558252.22222.14.camel@debox>
+Subject: mount, vfat and fmask
+From: ST <smntov@gmail.com>
+To: util-linux@vger.kernel.org
+Date: Fri, 24 Jan 2014 12:10:52 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi,
 
-The util-linux release v2.24.1 is available at
+I have to deal with users who use vfat on their usb sticks. I mount them
+with certain fmask and all files get certain permissions. Once the media
+is mounted I have to go through all files and change the permission of
+some files if they fulfill certain conditions. chmod doesn't work in
+this case.
 
-  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.24/
+1. Do you have any ideas for a workaround?
+2. Is it possible to achieve this somehow with sudo?
+3. Is there a program that creates some kind of virtual layer and
+emulates extX filesystem above vfat?
+4. If there is no other way but to change the source code of mount(or
+something else?) what are the places in the code I have to take look on?
 
-Feedback and bug reports, as always, are welcomed.
-
-    Karel
-
+Thank you very much in advance
+Sim
 
 
-Util-linux 2.24.1 Release Notes
-===============================
+ps: I could find how I can subscribe to the list, but I never saw the
+email address of the list written explicitly. Is it left as exercise to
+the subscriber to guess the address? Or is it a kind of IQ test to
+filter out those who is not eligible to use the list? :)  
 
-agetty:
-   - support the special terminal on first serial line on a S/390  [Werner Fink]
-blkdiscard:
-   - BLKSSZGET fills in an int, not a uint64  [Theodore Ts'o]
-blkid:
-   - escape quotes in the output  [Karel Zak]
-   - simple typo  [Phillip Susi]
-blockdev:
-   - don't use HDIO_GETGEO  [Phillip Susi]
-build-sys:
-   - add --with-smack to config-gen.d  [Karel Zak]
-   - fstrim depends on libmount  [Karel Zak]
-chsh, chfn:
-   - add info about non-local support to the man pages  [Karel Zak]
-dmesg:
-   - fix --raw zero timestamp for kmsg  [Karel Zak]
-docs:
-   - add patching process to howto-contribute.txt  [Sami Kerola]
-   - update AUTHORS file  [Karel Zak]
-   - update links to http //git.kernel.org/ web repository views  [Sami Kerola]
-fdisk:
-   - don't care about partition type  [Karel Zak]
-   - fix printf stuff  [Karel Zak]
-   - fix usage(), -l [<disk>]  [Karel Zak]
-flock:
-   - Change the 'exit status' man page section to make more sense  [Wieland Hoffmann]
-fsck:
-   - add ext4 to list of filesystems with progress bars in fsck man page  [Phillip Susi]
-fstrim:
-   - add --all to discard all filesystem  [Karel Zak]
-   - cleanup usage()  [Karel Zak]
-lib/path:
-   - add path_strdup()  [Karel Zak]
-libblkid:
-   - (nilfs2) check also backup superblock  [Karel Zak]
-   - detect alone PMBR  [Karel Zak]
-   - fix memory leak in blkid_parse_tag_string()  [Karel Zak]
-   - fix swap-area version  [Karel Zak]
-libfdisk:
-   - (dos) be more verbose when change bootable flag  [Karel Zak]
-   - (dos) fix free part counter  [Karel Zak]
-   - (dos) warn on type 0  [Karel Zak]
-   - (gpt) add /home GUID  [Karel Zak]
-   - (gpt) improve and cleanup recovery code  [Karel Zak]
-   - (gpt) recover from corrupted primary/backup PT  [Karel Zak]
-   - (sgi) generate partname according to partition position  [Karel Zak]
-   - (sun) fix end sectors with +1 error  [Karel Zak]
-libmount:
-   - add efivarfs to the list of pseudo filesystems  [Karel Zak]
-   - add mnt_tag_is_valid()  [Karel Zak]
-   - cleanup fix_optstr() regards to selinux and smack  [Karel Zak]
-   - fix typo in smack path  [Karel Zak]
-   - remove smackfs* option when SMACK not enabled  [Karel Zak]
-lsblk:
-   - fix -D segfault  [Karel Zak]
-lscpu:
-   - sort NUMA nodes to keep output human readable  [Karel Zak]
-   - support discontinuous NUMA nodes  [Karel Zak]
-   - support non sequentially numbering of CPUs  [Alexander Troosh]
-man:
-   - Syntax and spelling fixes.  [Ville Skyttä]
-mkfs.minix:
-   - fix fscanf() format string [coverity scan]  [Karel Zak]
-mkswap:
-   - fix compiler warning [-Wunused-variable]  [Karel Zak]
-   - remove cruft from the man page  [Phillip Susi]
-mount:
-   - add note about "noauto" to --all description  [Karel Zak]
-   - correct mount man page default iso9660 permission  [Phillip Susi]
-   - fix man mount page type  [Phillip Susi]
-   - improve -s man mage info  [Karel Zak]
-   - make NAME=value tags usable for non-root  [Karel Zak]
-   - mount.8 fix grammar  [Phillip Susi]
-   - update man page ext3/4 mount options  [Carlos Maiolino]
-partx:
-   - fix --update ranges and out of order tables  [Scott Moser]
-po:
-   - merge changes  [Karel Zak]
-   - update da.po (from translationproject.org)  [Joe Hansen]
-   - update de.po (from translationproject.org)  [Mario Blättermann]
-   - update pt_BR.po (from translationproject.org)  [Rafael Ferreira]
-   - update zh_CN.po (from translationproject.org)  [Wylmer Wang]
-pylibmount:
-   - correctly import from pylibmount.so  [Dave Reisner]
-   - import directly from pylibmount in tests  [Karel Zak]
-   - remove unncessary subdirectory  [Karel Zak]
-script:
-   - don't call TIOCGWINSZ in signal handler  [Karel Zak]
-   - restore errno in signal handler  [Karel Zak]
-   - use poll() rather then O_NONBLOCK  [Karel Zak]
-setpriv:
-   - simplify usage()  [Karel Zak]
-setterm:
-   - fix -dump man page info  [Karel Zak]
-sulogin:
-   - use dirent->d_type when scans /dev  [Karel Zak]
-taskset:
-   - fix PERMISSIONS section of taskset man page  [Rik van Riel]
-tests:
-   - update blkid swap tests  [Karel Zak]
-   - update build-sys tests  [Karel Zak]
-   - update lscpu tests  [Karel Zak]
-textual:
-   - small inprovements to usage and man page of fstrim  [Benno Schulenberg]
-umount:
-   - fix umount by tag for non-roots  [Karel Zak]
-unshare:
-   - add more hints about mount namespaces to the man page  [Karel Zak]
-wipefs:
-   - call BLKRRPART when erase partition table  [Karel Zak]
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
