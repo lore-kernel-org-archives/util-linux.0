@@ -1,70 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64020 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750902AbaAFNIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 Jan 2014 08:08:36 -0500
-Date: Mon, 6 Jan 2014 14:08:32 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Mike Frysinger <vapier@gentoo.org>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: tests: cal/bigyear only works on 64bit (sizeof(long) == 8)
- systems
-Message-ID: <20140106130832.GF31045@x2.net.home>
-References: <201312222142.44536.vapier@gentoo.org>
- <20140106123040.GA31045@x2.net.home>
- <CAG27Bk0wpvkoRxL1G4Yd6AE8J9L6tCZzeeYr6qX_KDn+MCwYew@mail.gmail.com>
+Received: from alerce.vps.bitfolk.com ([85.119.82.134]:44665 "EHLO
+	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751112AbaAXCSa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Jan 2014 21:18:30 -0500
+Date: Fri, 24 Jan 2014 02:16:02 +0000
+From: Rodrigo Campos <rodrigo@sdfg.com.ar>
+To: =?utf-8?Q?P=C3=A1draig?= Brady <P@draigBrady.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: drill: Make a file sparse without using extra disk space
+Message-ID: <20140124021602.GA28658@sdfg.com.ar>
+References: <20140123212813.GE20054@sdfg.com.ar>
+ <52E1BB47.80609@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0wpvkoRxL1G4Yd6AE8J9L6tCZzeeYr6qX_KDn+MCwYew@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <52E1BB47.80609@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 06, 2014 at 12:55:08PM +0000, Sami Kerola wrote:
-> On 6 January 2014 12:30, Karel Zak <kzak@redhat.com> wrote:
-> > On Sun, Dec 22, 2013 at 09:42:43PM -0500, Mike Frysinger wrote:
-> >> that's a signed long type, so on 32bit systems, you get:
-> >>           cal: Year 1234567890123456789       ...cal: illegal year value:
-> >>
-> >> should the test detect the sizeof(long) and then calculate a number that is
-> >> smaller than that ?
-> >
-> >  It would be better to keep cal(1) arch insensitive.
-> >
-> >  Sami, why we need so huge year numbers and why the number is signed?
-> >  I guess it would be enough to  use "unsigned int" (UINT_MAX is 4294967295).
-> 
-> Hi Mike & Karel,
-> 
-> Year was left signed because someone said it might be interesting to
-> know pre-year-zero outputs. After a bit research the pre-zero year
-> calendars are theoretical construct, mostly because agreement in
+On Fri, Jan 24, 2014 at 01:00:55AM +0000, Pádraig Brady wrote:
+> On 01/23/2014 09:28 PM, Rodrigo Campos wrote:
+> > Hi!
+> > 
+> > I've written a small simple tool to make a file sparse without using extra disk
+> > space, it just digs holes on the file when possible. To dig the hole uses the
+> > Linux-specific fallocate(2) syscall with FALLOC_FL_PUNCH_HOLE. So, also, it only
+> > works on some file-systems.
+> > 
+> > Do you think that util-linux would be a good place for such a simple, linux-only
+> > program ? The case I see it can be useful is to use on VM images file backed (or
+> > I wrote it with this in mind, at least :)).
+> > 
+> This functionality is useful.
+> Would it be possible to just add to fallocate with --punch-hole=sparse or something?
 
-but the code is:
+Totally, that's an option too :)
 
-    #define SMALLEST_YEAR           1
+> Also dd has the conv=sparse option, so maybe this functionality can be added there.
 
-    if (ctl.req.year < SMALLEST_YEAR)
-          errx(EXIT_FAILURE,  _("illegal year value: use positive integer"));
+But how are you going to do a hole in-place in a portable fashion ? I don't know
+of any
 
-> western world is not more than couple hundred years old. That means
-> pre-zero calendar could only be considered as a what a modern western
-> people think the calendar should have looked. Whether that is
-> valuable, interesting, useful, etc is a different question.
-> 
-> Meanwhile the big year test is clearly broken. I recon there should be
-> a version for various sizes of INT_MAX tests, and depending how large
-> values are supported by system corresponding tests are ran.
+> We're currently discussing that on the GNU coreutils mailing list.
 
- INT_MAX is the same everywhere, all you need is to remove arch
- specific "long" from the code and use strtos32_or_err() to parse the
- year number.
- 
- (Well, I guess that 2147483647 years is enough :-)
-
-    Karel
+You mean the thread "making a file sparse - in-place?" started after this thread ?
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
+Thanks a lot,
+Rodrigo
