@@ -1,57 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25936 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751534AbaAMMMe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Jan 2014 07:12:34 -0500
-Date: Mon, 13 Jan 2014 13:12:31 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Marcos Mello <marcosfrm@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Automatic SSD trim script
-Message-ID: <20140113121231.GB12700@x2.net.home>
-References: <trinity-43b508b8-bb14-4ad1-81b0-a22e3bd084b4-1386271207144@3capp-gmx-bs30>
- <20131206104944.GE16891@x2.net.home>
- <alpine.LFD.2.00.1312091438300.2143@localhost.localdomain>
- <20131210154442.GC8419@x2.net.home>
- <loom.20131217T203643-235@post.gmane.org>
+Return-Path: rodrigo@sdfg.com.ar
+Date: Fri, 24 Jan 2014 14:04:45 +0000
+From: Rodrigo Campos <rodrigo@sdfg.com.ar>
+To: Karel Zak <kzak@redhat.com>
+Cc: =?utf-8?Q?P=C3=A1draig?= Brady <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+Subject: Re: drill: Make a file sparse without using extra disk space
+Message-ID: <20140124140444.GB32270@sdfg.com.ar>
+References: <20140123212813.GE20054@sdfg.com.ar>
+ <52E1BB47.80609@draigBrady.com>
+ <20140124021602.GA28658@sdfg.com.ar>
+ <20140124093448.GA24972@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <loom.20131217T203643-235@post.gmane.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20140124093448.GA24972@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 17, 2013 at 07:46:35PM +0000, Marcos Mello wrote:
-> Karel Zak <kzak@...> writes:
+On Fri, Jan 24, 2014 at 10:34:48AM +0100, Karel Zak wrote:
+> On Fri, Jan 24, 2014 at 02:16:02AM +0000, Rodrigo Campos wrote:
+> > On Fri, Jan 24, 2014 at 01:00:55AM +0000, Pádraig Brady wrote:
+> > > On 01/23/2014 09:28 PM, Rodrigo Campos wrote:
+> > > > I've written a small simple tool to make a file sparse without using extra disk
+> > > > space, it just digs holes on the file when possible.
 > 
-> > 
-> > On Mon, Dec 09, 2013 at 02:43:32PM +0100, Lukáš Czerner wrote:
-> > > > All we need is to link fstrim with libmount and lib/sysfs.c, add a new
-> > > > option --all and check non-zero
-> /sys/block/≤name>/queue/discard_granularity
-> > > > (or so).
-> > > 
-> > > Yes and yes. This is the ultimate solution. Simply being able to run
-> > > fstrim --all to discard free space on all the mounted supported file
-> > > systems is great idea. In that case we do not need any scripts at
-> > > all.
-> > 
-> >  Implemented. Sten, maybe you can try fstrim --all from git tree 
-> >  in your crontab.
-> > 
+>  Nice idea.
+
+Thanks! Not really original, though :)
+
 > 
-> Thanks, Karel!
+> > > > To dig the hole uses the
+> > > > Linux-specific fallocate(2) syscall with FALLOC_FL_PUNCH_HOLE. So, also, it only
+> > > > works on some file-systems.
+> > > > 
+> > > > Do you think that util-linux would be a good place for such a simple, linux-only
+> > > > program ? The case I see it can be useful is to use on VM images file backed (or
+> > > > I wrote it with this in mind, at least :)).
+> > > > 
+> > > This functionality is useful.
+> > > Would it be possible to just add to fallocate with --punch-hole=sparse or something?
+> > 
+> > Totally, that's an option too :)
 > 
-> Would it be possible add an option for the "--all" mode to tell fstrim skip
-> mountpoints witch have "discard" option in fstab?
+>  It would be the best way for util-linux, I really don't want to add
+>  another util for fallocate.
 
-It seems like unnecessary optimization -- the overhead on filesystem with 
-active discard is minimal.
+Great!
 
-(And according to Lukas in some cases FSTRIM ioctl can help you 
- with deleted files smaller than than discard_granularity.)
+> 
+>  Maybe we can use a new option --dig-holes [ --length <size> ] or so.
 
-    Karel
+Sounds fine, but needs to be mutually exclusive with the options it takes now, I
+think. Or maybe something can be shared...
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Will try to come up with a patch during the weekend or next week. Thanks!
+
+> > > Also dd has the conv=sparse option, so maybe this functionality can be added there.
+> 
+>  IMHO would be possible to add this functionality to both places ;-)
+
+:-D
+
+
+
+
+
+Thanks a lot,
+Rodrigo
