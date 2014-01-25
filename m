@@ -1,32 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:57046 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752539Ab3LaCw3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 30 Dec 2013 21:52:29 -0500
-Message-ID: <52C2316C.6010705@ubuntu.com>
-Date: Mon, 30 Dec 2013 21:52:28 -0500
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
+Received: from alerce.vps.bitfolk.com ([85.119.82.134]:45069 "EHLO
+	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751600AbaAYTZe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 25 Jan 2014 14:25:34 -0500
+Received: from 87-198-57-52.ptr.magnet.ie ([87.198.57.52] helo=sdfg.com.ar)
+	by alerce.vps.bitfolk.com with esmtpsa (TLS1.0:DHE_RSA_AES_128_CBC_SHA1:16)
+	(Exim 4.76)
+	(envelope-from <rodrigo@sdfg.com.ar>)
+	id 1W7B7Z-00038s-AP
+	for util-linux@vger.kernel.org; Sat, 25 Jan 2014 18:50:33 -0300
+Date: Sat, 25 Jan 2014 19:23:03 +0000
+From: Rodrigo Campos <rodrigo@sdfg.com.ar>
 To: util-linux@vger.kernel.org
-Subject: nilfs2 backup superblock detection
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: fallocate: Add "--dig-holes" options and minor fixes
+Message-ID: <20140125192303.GA7455@sdfg.com.ar>
+References: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On Sat, Jan 25, 2014 at 07:17:25PM +0000, Rodrigo Campos wrote:
+> Hi,
+> 
+> As discussed in this[1] gmane thread, I'm submitting the funtionality to dig
+> holes as part of the fallocate(1) command.
 
-Just noticed that the nilfs2 blkid probe code does not check for the
-backup superblock, so adding that might be nice.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Ohh, forgot to tell, but I tried to re-use already used strings in _("")
+contructors and make "perror" just print the function name, as that is what I
+observed in other util-linux tools.
 
-iQEcBAEBCgAGBQJSwjFsAAoJEI5FoCIzSKrw190H/RHpiepClffvNmIjnxVUxd2V
-wEeEDmzFACVjL8TPH5DFf2y6fDe3BS7lHVk2teAyRpawfIi3/KShTJ2onnXJ7RCj
-/QpJau+osdv9MpLlhazc2bAdgWc/06h6vHpBZzjWRdX6UjCVd4SCZ/YP7r+h0boM
-ipo8jCVooF361TTg0cUOVPA+N85s8dpsoj6xXChjmr9jOgOFoi8tEgybfUmLM6/y
-gTne+aR8YOiE4ldD/Y+7wf56fze0OqkXMZA5kR9cDI5a/gABqmiZYxA1T789rvsn
-Im5DXTxeOxPB+9aDURAx7fLFoT3uIJB87cqjwgseAFc9tVWFTZ7lvsPloJHrWH0=
-=32Jn
------END PGP SIGNATURE-----
+If I missed something, please let me know :)
+
+
+
+
+Thanks again.
+Rodrigo
