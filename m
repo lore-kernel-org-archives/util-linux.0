@@ -1,48 +1,101 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25534 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750849AbaAGJyV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Jan 2014 04:54:21 -0500
-Date: Tue, 7 Jan 2014 10:54:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH] uuidd: use pkg-config to find systemd-deamon support
-Message-ID: <20140107095408.GL31045@x2.net.home>
-References: <1389051548-1268-1-git-send-email-kerolasa@iki.fi>
- <20140107085831.GK31045@x2.net.home>
- <52CBCB08.1000702@archlinux.org>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:33577 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753719AbaA0TIc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jan 2014 14:08:32 -0500
+Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 6635F20B82
+	for <util-linux@vger.kernel.org>; Mon, 27 Jan 2014 14:08:31 -0500 (EST)
+Message-Id: <1390849711.26603.75936773.1466C128@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <52CBCB08.1000702@archlinux.org>
+Content-Type: multipart/mixed; boundary="_----------=_1390849711266034";
+ charset="utf-8"
+Subject: [patch] hwclock: gettextize interface phrases
+Date: Mon, 27 Jan 2014 20:08:31 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 07, 2014 at 10:38:16AM +0100, Thomas Bächler wrote:
-> Am 07.01.2014 09:58, schrieb Karel Zak:
-> > On Mon, Jan 06, 2014 at 11:39:08PM +0000, Sami Kerola wrote:
-> >>  configure.ac             |   3 +
-> >>  misc-utils/Makemodule.am |   3 +-
-> >>  misc-utils/sd-daemon.c   | 520 -----------------------------------------------
-> >>  misc-utils/sd-daemon.h   | 282 -------------------------
-> >>  misc-utils/uuidd.c       |   2 +-
-> > 
-> >  Seems like a good idea, unfortunately I'm not sure about it. 
-> >  
-> >  The systemd (udevd) depends on libblkid+libuuid, it would be 
-> >  probably better to keep util-linux without dependencies on systemd
-> >  libs otherwise we will introduce a cyclic dependence -- it could be
-> >  too tricky for some build systems and users :-) I'll think about it...
-> > 
-> >     Karel
-> 
-> We already have such a cyclic dependency, since udevd depends on
-> libblkid+libuuid, and findmnt (from util-linux) depends on libudev.
+This is a multi-part message in MIME format.
 
- .. and nobody complains, good point :-) Thanks!
+--_----------=_1390849711266034
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-    Karel
+
+Hi,
+
+When using the --debug option with hwclock, the phrase that denotes 
+the interface being used isn't getting localized, because it isn't
+gettextized.  Attached patch fixes this in a translator-friendly way: 
+making the announcements into whole sentences.
+
+Regards,
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - The professional email service
+
+
+--_----------=_1390849711266034
+Content-Disposition: attachment; filename="0001-hwclock-internationalizing-the-message-of-the-used-i.patch"
+Content-Id: <1390849687.26631.54cb2b36e38a17246b5475e715bdeb6d22fdaf18.6E8ECF27@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name="0001-hwclock-internationalizing-the-message-of-the-used-i.patch"
+
+RnJvbSBjZmYwYTVhMDZlM2E0ZTRiY2RiNmUzMmExNTM0YWIwYmI5M2NhMDRl
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCAyNiBK
+YW4gMjAxNCAyMjozMjoxNSArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGh3Y2xv
+Y2s6IGludGVybmF0aW9uYWxpemluZyB0aGUgbWVzc2FnZSBvZiB0aGUgdXNl
+ZCBpbnRlcmZhY2UKCkluIGFkZGl0aW9uLCBkbyBpdCBpbiBhIHNpbmdsZSBz
+ZW50ZW5jZSBpbnN0ZWFkIG9mIGluIHR3byBmcmFnbWVudHMuCgpTaWduZWQt
+b2ZmLWJ5OiBCZW5ubyBTY2h1bGVuYmVyZyA8YmVuc2JlcmdAanVzdGVtYWls
+Lm5ldD4KLS0tCiBzeXMtdXRpbHMvaHdjbG9jay1jbW9zLmMgfCAgICAyICst
+CiBzeXMtdXRpbHMvaHdjbG9jay1rZC5jICAgfCAgICAyICstCiBzeXMtdXRp
+bHMvaHdjbG9jay1ydGMuYyAgfCAgICAyICstCiBzeXMtdXRpbHMvaHdjbG9j
+ay5jICAgICAgfCAgICAyICstCiA0IGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0
+aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zeXMtdXRp
+bHMvaHdjbG9jay1jbW9zLmMgYi9zeXMtdXRpbHMvaHdjbG9jay1jbW9zLmMK
+aW5kZXggNThiM2VhNS4uN2ZmYmY5NSAxMDA2NDQKLS0tIGEvc3lzLXV0aWxz
+L2h3Y2xvY2stY21vcy5jCisrKyBiL3N5cy11dGlscy9od2Nsb2NrLWNtb3Mu
+YwpAQCAtNjQ5LDcgKzY0OSw3IEBAIHN0YXRpYyBpbnQgZ2V0X3Blcm1pc3Np
+b25zX2Ntb3Modm9pZCkKIH0KIAogc3RhdGljIHN0cnVjdCBjbG9ja19vcHMg
+Y21vcyA9IHsKLQkiZGlyZWN0IEkvTyBpbnN0cnVjdGlvbnMgdG8gSVNBIGNs
+b2NrIiwKKwlOXygiVXNpbmcgZGlyZWN0IEkvTyBpbnN0cnVjdGlvbnMgdG8g
+SVNBIGNsb2NrLiIpLAogCWdldF9wZXJtaXNzaW9uc19jbW9zLAogCXJlYWRf
+aGFyZHdhcmVfY2xvY2tfY21vcywKIAlzZXRfaGFyZHdhcmVfY2xvY2tfY21v
+cywKZGlmZiAtLWdpdCBhL3N5cy11dGlscy9od2Nsb2NrLWtkLmMgYi9zeXMt
+dXRpbHMvaHdjbG9jay1rZC5jCmluZGV4IDhlNjcwMDkuLjNkYWM3MDcgMTAw
+NjQ0Ci0tLSBhL3N5cy11dGlscy9od2Nsb2NrLWtkLmMKKysrIGIvc3lzLXV0
+aWxzL2h3Y2xvY2sta2QuYwpAQCAtMTQzLDcgKzE0Myw3IEBAIHN0YXRpYyBp
+bnQgZ2V0X3Blcm1pc3Npb25zX2tkKHZvaWQpCiB9CiAKIHN0YXRpYyBzdHJ1
+Y3QgY2xvY2tfb3BzIGtkID0gewotCSJLREdIV0NMSyBpbnRlcmZhY2UgdG8g
+bTY4ayBjbG9jayIsCisJTl8oIlVzaW5nIHRoZSBLREdIV0NMSyBpbnRlcmZh
+Y2UgdG8gbTY4ayBjbG9jay4iKSwKIAlnZXRfcGVybWlzc2lvbnNfa2QsCiAJ
+cmVhZF9oYXJkd2FyZV9jbG9ja19rZCwKIAlzZXRfaGFyZHdhcmVfY2xvY2tf
+a2QsCmRpZmYgLS1naXQgYS9zeXMtdXRpbHMvaHdjbG9jay1ydGMuYyBiL3N5
+cy11dGlscy9od2Nsb2NrLXJ0Yy5jCmluZGV4IGEyMmNlNGMuLjc4ZjQyYWEg
+MTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9od2Nsb2NrLXJ0Yy5jCisrKyBiL3N5
+cy11dGlscy9od2Nsb2NrLXJ0Yy5jCkBAIC0zOTcsNyArMzk3LDcgQEAgc3Rh
+dGljIGludCBnZXRfcGVybWlzc2lvbnNfcnRjKHZvaWQpCiB9CiAKIHN0YXRp
+YyBzdHJ1Y3QgY2xvY2tfb3BzIHJ0YyA9IHsKLQkiL2RldiBpbnRlcmZhY2Ug
+dG8gY2xvY2siLAorCU5fKCJVc2luZyB0aGUgL2RldiBpbnRlcmZhY2UgdG8g
+dGhlIGNsb2NrLiIpLAogCWdldF9wZXJtaXNzaW9uc19ydGMsCiAJcmVhZF9o
+YXJkd2FyZV9jbG9ja19ydGMsCiAJc2V0X2hhcmR3YXJlX2Nsb2NrX3J0YywK
+ZGlmZiAtLWdpdCBhL3N5cy11dGlscy9od2Nsb2NrLmMgYi9zeXMtdXRpbHMv
+aHdjbG9jay5jCmluZGV4IDVkZDc5MTkuLjMwNjYwZDQgMTAwNjQ0Ci0tLSBh
+L3N5cy11dGlscy9od2Nsb2NrLmMKKysrIGIvc3lzLXV0aWxzL2h3Y2xvY2su
+YwpAQCAtMTE0MCw3ICsxMTQwLDcgQEAgc3RhdGljIHZvaWQgZGV0ZXJtaW5l
+X2Nsb2NrX2FjY2Vzc19tZXRob2QoY29uc3QgYm9vbCB1c2VyX3JlcXVlc3Rz
+X0lTQSkKIAogCWlmIChkZWJ1ZykgewogCQlpZiAodXIpCi0JCQlwcmludGYo
+XygiVXNpbmcgJXMuXG4iKSwgdXItPmludGVyZmFjZV9uYW1lKTsKKwkJCXB1
+dHMoXyh1ci0+aW50ZXJmYWNlX25hbWUpKTsKIAkJZWxzZQogCQkJcHJpbnRm
+KF8oIk5vIHVzYWJsZSBjbG9jayBpbnRlcmZhY2UgZm91bmQuXG4iKSk7CiAJ
+fQotLSAKMS43LjAuNAoK
+
+--_----------=_1390849711266034--
+
