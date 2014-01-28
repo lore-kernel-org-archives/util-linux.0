@@ -1,93 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from alerce.vps.bitfolk.com ([85.119.82.134]:45067 "EHLO
-	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751551AbaAYTUr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 25 Jan 2014 14:20:47 -0500
-From: Rodrigo Campos <rodrigo@sdfg.com.ar>
+Received: from stirling.just4dns.com ([178.18.116.215]:42144 "EHLO
+	stirling.just4dns.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754599AbaA1SGd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Jan 2014 13:06:33 -0500
+Received: from 88-106-244-22.dynamic.dsl.as9105.com ([88.106.244.22]:44036 helo=F20Main.crowhill)
+	by stirling.just4dns.com with esmtpsa (TLSv1:DHE-RSA-AES128-SHA:128)
+	(Exim 4.82)
+	(envelope-from <stuart@stella-maris.org.uk>)
+	id 1W8Cex-00085w-5W
+	for util-linux@vger.kernel.org; Tue, 28 Jan 2014 17:41:15 +0000
+Message-ID: <52E7EBBC.4070009@stella-maris.org.uk>
+Date: Tue, 28 Jan 2014 17:41:16 +0000
+From: Stuart T Rogers <stuart@stella-maris.org.uk>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Rodrigo Campos <rodrigo@sdfg.com.ar>
-Subject: [PATCH 2/3] fallocate: Hide #ifdef tricks to call fallocate in a function
-Date: Sat, 25 Jan 2014 19:17:27 +0000
-Message-Id: <1390677448-7173-3-git-send-email-rodrigo@sdfg.com.ar>
-In-Reply-To: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
-References: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
+Subject: Possible problem mounting Video DVD
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Future patches will add more calls to fallocate(), so it will be useful to have
-all these tricks inside a function.
+I am hoping this is the right place for some advice on an issue I have 
+with one type of Video DVD created on my Panasonic DVD Recorder. If this 
+is not the right place, I apologise and would appreciate being directed 
+to the correct team.
 
-The error message when fallocate is not supported is slightly changed: the file
-name is not printed as a prefix because is not available in the context of the
-function. Also, to only print one of the two possible errors (as happens when
-using directly exit()), an else clause was added.
+I have been having problems with Video DVDs created on my Panasonic DVD 
+recorder which records terrestrial TV. They will not mount as browsable 
+by a normal user on my Fedora 20 64bit system. All other Video DVDs from 
+my Sony and LG recorders mount as browsable as they should. I can browse 
+the directory structure OK with these failing DVDs only if I login as root.
 
-Signed-off-by: Rodrigo Campos <rodrigo@sdfg.com.ar>
----
- sys-utils/fallocate.c | 43 ++++++++++++++++++++++++++++---------------
- 1 file changed, 28 insertions(+), 15 deletions(-)
+The same problem happens on two different PCs so it is unlikely to be a 
+hardware problem.
 
-diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
-index 55e8411..5c66553 100644
---- a/sys-utils/fallocate.c
-+++ b/sys-utils/fallocate.c
-@@ -82,6 +82,30 @@ static loff_t cvtnum(char *s)
- 	return x;
- }
- 
-+static int xfallocate(int fd, int mode, off_t offset, off_t length)
-+{
-+	int error;
-+
-+#ifdef HAVE_FALLOCATE
-+	error = fallocate(fd, mode, offset, length);
-+#else
-+	error = syscall(SYS_fallocate, fd, mode, offset, length);
-+#endif
-+	/*
-+	 * EOPNOTSUPP: The FALLOC_FL_KEEP_SIZE is unsupported
-+	 * ENOSYS: The filesystem does not support sys_fallocate
-+	 */
-+	if (error < 0) {
-+		if ((mode & FALLOC_FL_KEEP_SIZE) && errno == EOPNOTSUPP) {
-+			fputs(_("keep size mode (-n option) unsupported\n"),
-+			      stderr);
-+		} else {
-+			fputs(_("fallocate failed\n"), stderr);
-+		}
-+	}
-+	return error;
-+}
-+
- int main(int argc, char **argv)
- {
- 	char	*fname;
-@@ -153,21 +177,10 @@ int main(int argc, char **argv)
- 	if (fd < 0)
- 		err(EXIT_FAILURE, _("cannot open %s"), fname);
- 
--#ifdef HAVE_FALLOCATE
--	error = fallocate(fd, mode, offset, length);
--#else
--	error = syscall(SYS_fallocate, fd, mode, offset, length);
--#endif
--	/*
--	 * EOPNOTSUPP: The FALLOC_FL_KEEP_SIZE is unsupported
--	 * ENOSYS: The filesystem does not support sys_fallocate
--	 */
--	if (error < 0) {
--		if ((mode & FALLOC_FL_KEEP_SIZE) && errno == EOPNOTSUPP)
--			errx(EXIT_FAILURE,
--				_("keep size mode (-n option) unsupported"));
--		err(EXIT_FAILURE, _("%s: fallocate failed"), fname);
--	}
-+	error = xfallocate(fd, mode, offset, length);
-+
-+	if (error < 0)
-+		exit(EXIT_FAILURE);
- 
- 	if (close_fd(fd) != 0)
- 		err(EXIT_FAILURE, _("write failed: %s"), fname);
+I can play these Video DVDs without any problem in Dragon Player, VLC or 
+Kaffeine as a normal user on both PCs but any attempt to open them to 
+rip the video in say K3B fails.
+
+If I boot the PCs into Windows XP then I can browse the file structure 
+as a normal user without any problem and on XP Pinnacle Studio can 
+import the video with no problem at all.
+
+The DVDs in question show the following error messages when placed in 
+the drive:-
+
+Jan 27 12:31:14 F20Main kernel: [16280.275124] sr 0:0:0:0: [sr0] Invalid 
+command failure
+Jan 27 12:31:14 F20Main kernel: [16280.275137] sr 0:0:0:0: [sr0]
+Jan 27 12:31:14 F20Main kernel: [16280.275143] Result: hostbyte=DID_OK 
+driverbyte=DRIVER_SENSE
+Jan 27 12:31:14 F20Main kernel: [16280.275149] sr 0:0:0:0: [sr0]
+Jan 27 12:31:14 F20Main kernel: [16280.275153] Sense Key : Illegal 
+Request [current]
+Jan 27 12:31:14 F20Main kernel: [16280.275160] sr 0:0:0:0: [sr0]
+Jan 27 12:31:14 F20Main kernel: [16280.275166] Add. Sense: Invalid field 
+in cdb
+Jan 27 12:31:14 F20Main kernel: [16280.275171] sr 0:0:0:0: [sr0] CDB:
+Jan 27 12:31:14 F20Main kernel: [16280.275174] Write(10): 2a 00 00 00 00 
+40 00 00 01 00
+Jan 27 12:31:14 F20Main kernel: [16280.275190] end_request: critical 
+target error, dev sr0, sector 256
+Jan 27 12:31:14 F20Main kernel: [16280.275199] Buffer I/O error on 
+device sr0, logical block 64
+Jan 27 12:31:14 F20Main kernel: [16280.275203] lost page write due to 
+I/O error on sr0
+Jan 27 12:31:14 F20Main kernel: [16280.491663] UDF-fs: INFO Mounting 
+volume 'DVD_VIDEO_RECORDER', timestamp 2014/01/26 14:04 (1000)
+Jan 27 12:31:14 F20Main udisksd[1084]: Mounted /dev/sr0 at 
+/run/media/stuart/DVD_VIDEO_RECORDER on behalf of uid 1000
+
+Is this a potential bug in the mount command?
+
+Stuart
 -- 
-1.8.5.2
-
+Website: http://www.stella-maris.org.uk
+or:      http://www.broadstairs.org
