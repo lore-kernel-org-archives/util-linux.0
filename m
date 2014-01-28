@@ -1,48 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:60569 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:50235 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752572AbaA3OPN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jan 2014 09:15:13 -0500
-Message-ID: <52EA5E6F.6040203@ubuntu.com>
-Date: Thu, 30 Jan 2014 09:15:11 -0500
+	with ESMTP id S932128AbaA1U5h (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Jan 2014 15:57:37 -0500
+Message-ID: <52E819BF.4090503@ubuntu.com>
+Date: Tue, 28 Jan 2014 15:57:35 -0500
 From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: pivot_root depreciated?
-References: <52E91888.4080601@ubuntu.com> <20140130081651.GE22884@x2.net.home>
-In-Reply-To: <20140130081651.GE22884@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Christoph Anton Mitterer <calestyo@scientia.net>,
+        util-linux@vger.kernel.org
+Subject: Re: fdisk: add GPT partition types for plain dm-crypt and LUKS
+References: <1390934933.15213.17.camel@heisenberg.scientia.net>
+In-Reply-To: <1390934933.15213.17.camel@heisenberg.scientia.net>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hash: SHA512
 
-On 1/30/2014 3:16 AM, Karel Zak wrote:
-> everyone switched to our switch_root :-)
+On 01/28/2014 01:48 PM, Christoph Anton Mitterer wrote:
+> Hi.
+> 
+> Recently a discussion[0] was initiated at the dm-crypt mailing
+> list about whether or not to have a GPT type for it.
+> 
+> In the end, upstream basically agreed[1][2] to the following 
+> definitions: plain dm-crypt   7FFEC5C9-2D00-49B7-8941-3EA10A5586B7 
+> LUKS partition   CA7D7CCB-63ED-4C53-861C-1742536059CC
 
-Except apparently for the systemd folks, which for some odd reason
-like the idea of keeping around the initrd for the life of the system
-so init can "return" to it ( yuck! ).
-
-> Anyway, I don't see any info about pivot_root syscall deprecation
-> in Linux kernel source tree.
-
-Me neither, but then why switch_root?  I thought the whole reason it
-came about was because Linus et al considered pivot_root() to have
-been a terrible idea.
+Why?  Linux doesn't use partition IDs.  Also isn't plain dm-crypt
+depreciated?
 
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
+Version: GnuPG v1.4.14 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQEcBAEBAgAGBQJS6l5vAAoJEI5FoCIzSKrwaXoIAJ+aU1qEbvIjUqyZjQmbf3tV
-zvDLwxK+BGtf7YYjqpe/SaU6nfusdjyALiLUYvwhbT4QbjBqxhcvbbNhe9Om0VSC
-ClOdL/+aeHhjmy5GENeeaT1QKmVj5k/lHe/8u0eAF4Ha9GDPeSctq7ExhO1NzRVw
-kibYrlMWrSKa4NrAw0lJYGQUrCMnksRqvLPM8r5T1xW6+GzUgideHR4K40i7sVnk
-tNAQKdgTn8E3R0vUZfNIFvIlLwcZFWCjJxIFXB5ibq3zauNtW9kCU86r9+lN1E7I
-ZHywaMb/w7qlFLDXrNMp0EPP8gisfhEFalWjhERraSeJthH4s865u6tFKCts7Dw=
-=TQZ1
+iQEcBAEBCgAGBQJS6Bm/AAoJEI5FoCIzSKrw5pIH/RNRrw1saTRL0emY+QBzjYAb
+AY8Me6djgDkzQchnm5OdLQGvfDSjBy+Mrci2zEyjqGN80ceM2ugwZKvlEZnppkjc
+UjeWKsLBs8AK2NT3sWDzA4Qo0iuvwYJprbjRp46BAhwiI4VHn8Pgj1ZMutgJLo/n
+mjUFt1zB+P9Bs8YyhUWael6Bf0dM2M/PKrHgJDHSll3rVpHwWnZIPQ0Q19eoCxD9
+ZocxIPkyPXFZPX8hzz00BBseQfYGIOC544Zi5FZzlXiiouqfAfC6nJhsp1GKZKiS
+1gcQycOphugBPHqHtDR5scj0Jj+BkjTcEgjdgs3aDsQFt85ky7KOn8j1l+1u4VQ=
+=DZc2
 -----END PGP SIGNATURE-----
