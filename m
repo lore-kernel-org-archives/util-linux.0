@@ -1,61 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:22749 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753873AbaAFLw2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 Jan 2014 06:52:28 -0500
-Date: Mon, 6 Jan 2014 12:52:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: libmount: skip tabfiles-py when pylibmount is
- disabled
-Message-ID: <20140106115226.GE14933@x2.net.home>
-References: <1387756892-25074-1-git-send-email-vapier@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1387756892-25074-1-git-send-email-vapier@gentoo.org>
+Received: from qmta03.westchester.pa.mail.comcast.net ([76.96.62.32]:41326
+	"EHLO qmta03.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751974AbaA2Uy4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 29 Jan 2014 15:54:56 -0500
+Date: Wed, 29 Jan 2014 15:54:53 -0500
+Message-Id: <201401292054.s0TKsrph021368@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Stuart T Rogers <stuart@stella-maris.org.uk>
+CC: util-linux@vger.kernel.org
+In-reply-to: <52E836E0.70900@stella-maris.org.uk> (stuart@stella-maris.org.uk)
+Subject: Re: Possible problem mounting Video DVD
+References: <52E7EBBC.4070009@stella-maris.org.uk> <201401282126.s0SLQFZK011980@hobgoblin.ariadne.com> <52E836E0.70900@stella-maris.org.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 22, 2013 at 07:01:32PM -0500, Mike Frysinger wrote:
-> The default configure disables python support, so this test fails by
-> default.  Add a simple check for module availability.
-> 
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> ---
->  tests/ts/libmount/tabfiles-py | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/tests/ts/libmount/tabfiles-py b/tests/ts/libmount/tabfiles-py
-> index 64e8911..b89fb5b 100755
-> --- a/tests/ts/libmount/tabfiles-py
-> +++ b/tests/ts/libmount/tabfiles-py
-> @@ -12,6 +12,8 @@ ts_init_py libmount
->  PYDBG="$PYTHON -m pdb"
->  TESTPROG="$TS_HELPER_PYLIBMOUNT_TAB"
->  
-> +$PYTHON -c 'import libmount' 2>/dev/null || ts_skip "pylibmount not compiled"
-> +
+> From: Stuart T Rogers <stuart@stella-maris.org.uk>
 
-Hmm... in function ts_init_py() is
+> Sorry I did not make myself completely clear, these disks mount with the 
+> wrong permissions, my user in this case uid 1000 has no access to the 
+> directory structure of the DVD, either a filemanager or cd in a console 
+> gets permission denied. All other DVDs I create from other recorders 
+> will mount with uid 1000 having read access to the directory structure.
 
-    [ -f "$TS_TOPDIR/../py${LIBNAME}.la" ] || ts_skip "py${LIBNAME} not compiled"
+Can you provide the exact mount command that you are using, an "ls
+-al" showing what user/group/permissions the files *are* showing up
+as, etc.?  There's a tremendous amount of information that you're not
+telling us, and even if I had your DVD and your computer in hand, I
+couldn't begin to verify that I'm seeing the same problem you are
+having.
 
-and it works for me:
+"How to Report Bugs Effectively"
+http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
 
-    $ ./ts/libmount/tabfiles-py te     libmount: tab files-py... IGNORE (pylibmount not compiled)
-
-fixed by:
-
-   commit f48145b500cc214746ae5dca997098ad22f41ead
-   Author: Karel Zak <kzak@redhat.com>
-   Date:   Thu Oct 3 16:20:38 2013 +0200
-
-    testsL fix py<libname> check
-
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Dale
