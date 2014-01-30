@@ -1,35 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:57406 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751149AbaA2PEm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Jan 2014 10:04:42 -0500
-Message-ID: <52E91888.4080601@ubuntu.com>
-Date: Wed, 29 Jan 2014 10:04:40 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-qc0-f181.google.com ([209.85.216.181]:48839 "EHLO
+	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752572AbaA3Oyg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jan 2014 09:54:36 -0500
+Received: by mail-qc0-f181.google.com with SMTP id e9so4978102qcy.40
+        for <util-linux@vger.kernel.org>; Thu, 30 Jan 2014 06:54:35 -0800 (PST)
+Date: Thu, 30 Jan 2014 09:54:33 -0500
+From: Dave Reisner <d@falconindy.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: pivot_root depreciated?
+Message-ID: <20140130145433.GE905@rampage>
+References: <52E91888.4080601@ubuntu.com>
+ <20140130081651.GE22884@x2.net.home>
+ <52EA5E6F.6040203@ubuntu.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: pivot_root depreciated?
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <52EA5E6F.6040203@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jan 30, 2014 at 09:15:11AM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 1/30/2014 3:16 AM, Karel Zak wrote:
+> > everyone switched to our switch_root :-)
+> 
+> Except apparently for the systemd folks, which for some odd reason
+> like the idea of keeping around the initrd for the life of the system
+> so init can "return" to it ( yuck! ).
+> 
 
-I could have sworn that the pivot_root syscall was considered a
-fragile dirty hack that needed to die in a fire, and everyone switched
-to run-init years ago.  Am I misremembering things or does anyone know
-what I'm talking about?
+To be clear, systemd uses the syscall, not the util-linux utility. I'm
+not sure why you think this is a poor idea when it, in fact, solves real
+problems. If your root filesystem resides on a stacked block device
+(mdadm, lvm, dmraid, dm-crypt), this is the *only* way to cleanly umount
+the filesystem for disassembly. Remounting the filesystem read-only
+might not be enough.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Results of not doing this vary. If your root is dm-crypt, you open up
+more possibilities of cold boot attacks. If you use mdadm for a fakeraid
+array, your fakeraid controller might insist on rebuilding the array on
+the next reboot which could take hours.
 
-iQEcBAEBAgAGBQJS6RiIAAoJEI5FoCIzSKrwvW0IAJtdki3mJn6AqiRQdxcDA4Km
-Wbxk/YAuotL/RD4JHASs5ewlRD8FJDHK5zm38b5Gp6h1QRAtmWYFgX3v2QDzsnK9
-gkurBVNNYKklARBo4yKoGbbzIPfnpeIP1bgKblPc1/bLjt9/d9bJY0NQ8MsuhR1+
-HmGTB5WiIidQ5n8A9x3IgySBmrqTikiVEwk4SshJtbfWGGd2WT4kzNlYKbvAyxFm
-Pok+f88+f/Zj5toajVtnbE2QOIMn2LSJYZeecodWa/Eq787OK9hAt2lnJSexFSV3
-wfWVxrtEbQtjoqSYXixbu0OnuJ8InEcWEObALiEa5069JmTOi8i/njE7M9sBef4=
-=O5GB
------END PGP SIGNATURE-----
+> > Anyway, I don't see any info about pivot_root syscall deprecation
+> > in Linux kernel source tree.
+> 
+> Me neither, but then why switch_root?  I thought the whole reason it
+> came about was because Linus et al considered pivot_root() to have
+> been a terrible idea.
+
+My understanding is that pivot_root is a relic from the days of
+/dev/initrd. Since 2.6 and the introduction of initramfs, it's no longer
+needed for this purpose.
+
+d
