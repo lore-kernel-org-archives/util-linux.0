@@ -1,55 +1,57 @@
-Return-Path: P@draigBrady.com
-Message-ID: <52D6552B.6040704@draigBrady.com>
-Date: Wed, 15 Jan 2014 09:30:19 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Return-Path: thomas@archlinux.org
+Message-ID: <52EB6B0D.1050500@archlinux.org>
+Date: Fri, 31 Jan 2014 10:21:17 +0100
+From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Felix Miata <mrmazda@earthlink.net>, util-linux@vger.kernel.org
-Subject: Re: global fdisk colors disable
-References: <52D62F0C.9060308@earthlink.net> <20140115082708.GH12700@x2.net.home>
-In-Reply-To: <20140115082708.GH12700@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Karel Zak <kzak@redhat.com>,
+        =?ISO-8859-15?Q?Thomas_B=E4chler?=
+ <thomas@archlinux.org>
+CC: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org
+Subject: Re: pivot_root depreciated?
+References: <52E91888.4080601@ubuntu.com> <20140130081651.GE22884@x2.net.home> <52EA5E6F.6040203@ubuntu.com> <52EA66CC.9070107@archlinux.org> <20140131091759.GA10498@x2.net.home>
+In-Reply-To: <20140131091759.GA10498@x2.net.home>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA"
 List-ID: <util-linux.vger.kernel.org>
 
-On 01/15/2014 08:27 AM, Karel Zak wrote:
-> On Wed, Jan 15, 2014 at 01:47:40AM -0500, Felix Miata wrote:
->> Is there a way to do $SUBJECT? One really shouldn't have to resort to using
->> -L on every invocation to be able to see fdisk output. 
-> 
->  Does it mean that fdisk output is broken or you just don't like
->  colors? You can use:
-> 
->    alias fdisk=fdisk -L=never
-> 
->  in your shell profile or rc file.
-> 
->> I see nothing in the
->> man page about any kind of config file. I don't think there's ever been a
->> reason to configure it before.
-> 
->  Well, I guess that more people prefer colorized output so this
->  feature is enabled by default.
-> 
-> 
->  I have already thought about it and it would be probably nice to have
->  a way how to globally configure colors for all command line utils
->  (e.g.  util-linux, coreutils, ...).
->  
->  It seems we have no standard and package  independent solution now,
->  so distributions use things like "alias" in shell profile files (for
->  example for ls(1), grep(1), ...). It would be nice to have at least
->  global variable (something like COLOR_MODE={auto,never,always}) to
->  avoid aliases with --color= option. (CC: Padraig ;-)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I think the current mechanism used is best.
-I.E. default to showing colors when possible but give an option to disable.
-Global env vars come with their own disadvantages.
+Am 31.01.2014 10:17, schrieb Karel Zak:
+>(I guess that dracut
+> without systemd still uses the original switch_root.)
 
-However I will say that one has to be careful when using colors,
-and the use in fdisk seems a bit redundant. I.E. colors are useful
-to distinguish things, like the portion of a match in grep or
-the type of a file in ls. I'm not sure the items distinguished
-in fdisk non obvious and worth the hassle of worrying about color.
+So does mkinitcpio when used without systemd (which is still the
+default). We used to use busybox switch_root, but at some point switched
+to util-linux's version.
 
-thanks,
-Pádraig.
+
+
+--JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQIcBAEBCAAGBQJS62sPAAoJEChPw0yOSxolVYMP/jyudNouFEdhGzANtYwGh3Ps
+Eod7dTukzzGsKFMRE7sWD/EcLsICiFhA7bzGSR5kzR/LD5lixzom0nyEqrdMSdtW
+OzUfO+jXOr/1Xdqp8Q86LT6rU4gywRDLrqe7Q/Dkya8nG/wMT7CVo5Ul/cqW083b
+AbUXX8gqDtl+B/209afBYBkz42Ar/naMRrZIINRBdeuVWR07NtcRSg6xGoMSy/Dd
+GTYFodM9YWeb9NycIQP+VooAROykkIcNn54qgaHV/Ce7sNWc4A/XYA62nWkBaSW3
+c0kUxWusdej8S7ZpaAS0ntA+DkFziwce9J/R6wHvxVsyz5nGKWagdMHBYfR5Zymp
+eDkSD2Dr/uiY0gKDosjPQrGit6l3liKjfBUIW1zPoUISBpgQlCqlWyB3w6/EtfWg
++toWzpGQ+bsKuZilyQv81kLlCrHrCahnGGuidKY4eYp/4l0H2WNKEoHlputMel1l
+qFxH8ThMVe35qvayGjHJCli7iXhFJEw7KV8xxD50/FB1+QyCEL8VhR3CrxBbUBu/
+ghZxgZKGawYpfzsquj2mBxxEtqkKNrWjsDQDaVz367zf3lWUaNH2lu+0XChy3uAP
+MyI5wAp/0C8jCR0ABETbdRsZ+lSImwYntJ1frRKGPnKCpKR0Ms6PHVIR/7cn8o/s
+tKVZFFjkI7eJX2bIemrK
+=xR4H
+-----END PGP SIGNATURE-----
+
+--JeHLO5pQTrGeuh473RnDpJE7rL6jRDhcA--
