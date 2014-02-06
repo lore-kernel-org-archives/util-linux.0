@@ -1,67 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from jespernyerup.dk ([109.74.204.79]:43347 "EHLO jespernyerup.dk"
+Received: from mx1.redhat.com ([209.132.183.28]:59980 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755074AbaBRKVo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Feb 2014 05:21:44 -0500
-Date: Tue, 18 Feb 2014 11:21:42 +0100
-From: Jesper Dahl Nyerup <nyerup@one.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] script: Also flush writes to timing file.
-Message-ID: <20140218102142.GA10373@one.com>
-Reply-To: nyerup@one.com
-References: <1392673386-42128-1-git-send-email-nyerup@one.com>
- <CAG27Bk2pvdG_Gewxqo8Q=q_2qExCf=u2vvFjmrgvLnYSmvQe+Q@mail.gmail.com>
+	id S1756067AbaBFNcq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 6 Feb 2014 08:32:46 -0500
+Date: Thu, 6 Feb 2014 14:00:11 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Richard Weinberger <richard@nod.at>
+Cc: ebiederm@xmission.com, util-linux@vger.kernel.org, davidlohr.bueso@hp.com
+Subject: Re: [PATCH] nsenter: Allow selecting the uid and gid to be used in
+ the entered userns
+Message-ID: <20140206130011.GA12324@x2.net.home>
+References: <1366917100-10581-1-git-send-email-richard@nod.at>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-In-Reply-To: <CAG27Bk2pvdG_Gewxqo8Q=q_2qExCf=u2vvFjmrgvLnYSmvQe+Q@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1366917100-10581-1-git-send-email-richard@nod.at>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Apr 25, 2013 at 09:11:40PM +0200, Richard Weinberger wrote:
+> +	if (namespaces & CLONE_NEWUSER) {
+> +		if (set_uid)
+> +			if (setuid(uid) < 0)
+> +				err(EXIT_FAILURE, _("setuid failed"));
+> +		if (set_gid)
+> +			if (setgid(gid) < 0)
+> +				err(EXIT_FAILURE, _("setgid failed"));
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Ah.. we make a bug here, it has to be in reverse order (gid and then uid).
 
-On Feb 18  10:08, Sami Kerola wrote:
-> On 17 February 2014 21:43, Jesper Dahl Nyerup <nyerup@one.com> wrote:
-> > If both -f and -t are given, flush the timing fd on each write, similar
-> > to the behavior on the script fd. This allows playback of still-running
-> > sessions, and reduces the risk of ending up with empty timing files when
-> > script(1) exits abnormally.
->=20
-> Instead of flushing all the time how about checking write status at
-> the end? See attached patch how that could work.
+ The another question is what about supplementary groups? Do we care
+ about it? If yes, we need initgroups(), otherwise it would be
+ probably better to drop all by setgroups(0, NULL).
+ 
+ I guess it's over-engineering to try to reimplement su(1) within nsenter,
+ so drop the supplementary group is the right way.
+ 
+    Karel
 
-That's a good idea, and should take care of the scenario where an
-abnormal exit leads to empty timings The other use case however,
-scriptreplay(1)'ing transcripts while script(1) is still running, would
-not be improved upon.
-
-Besides, the man page describes the -f option behavior as `Flush output
-after each write`. I would expect this to apply to the timing fd as
-well, and honoring this description was the main purpose of my patch.
-
-I think it'd be great if both patches were applied.
-
-J.
---=20
-Jesper Dahl Nyerup
-Systems Engineer
-One.com, nyerup@one.com
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlMDNDYACgkQtzA4yjN/Kb224wCgiH7ZI7onUWaavqlZOoJ4GtZH
-BEIAnAynUKf1OlbHRtct/Q/EqJZdvhv6
-=Pwj1
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
