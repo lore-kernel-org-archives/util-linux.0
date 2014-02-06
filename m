@@ -1,49 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10459 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752197AbaBKSeR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Feb 2014 13:34:17 -0500
-Date: Tue, 11 Feb 2014 19:34:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Rodrigo Campos <rodrigo@sdfg.com.ar>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fallocate: Add "--dig-holes" options and minor fixes
-Message-ID: <20140211183408.GV8506@x2.net.home>
-References: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
- <20140125192303.GA7455@sdfg.com.ar>
- <20140201040414.GA23360@sdfg.com.ar>
- <20140211113139.GA19087@sdfg.com.ar>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:63221 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753527AbaBFUxx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 6 Feb 2014 15:53:53 -0500
+Message-ID: <52F3F660.8060600@ubuntu.com>
+Date: Thu, 06 Feb 2014 15:53:52 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140211113139.GA19087@sdfg.com.ar>
+To: util-linux@vger.kernel.org
+Subject: setarch treats all x86 variants as i686?
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 11, 2014 at 11:31:39AM +0000, Rodrigo Campos wrote:
-> On Sat, Feb 01, 2014 at 04:04:14AM +0000, Rodrigo Campos wrote:
-> > On Sat, Jan 25, 2014 at 07:23:03PM +0000, Rodrigo Campos wrote:
-> > > On Sat, Jan 25, 2014 at 07:17:25PM +0000, Rodrigo Campos wrote:
-> > > > Hi,
-> > > > 
-> > > > As discussed in this[1] gmane thread, I'm submitting the funtionality to dig
-> > > > holes as part of the fallocate(1) command.
-> > > 
-> > > Ohh, forgot to tell, but I tried to re-use already used strings in _("")
-> > > contructors and make "perror" just print the function name, as that is what I
-> > > observed in other util-linux tools.
-> > > 
-> > > If I missed something, please let me know :)
-> > 
-> > Ping ? :)
-> 
-> Re-ping ? Any comments on this ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Be patient, the patches seem good, I'm going to merge it this or next
- week. (I was busy with something else last weeks and now I have
- vacation.)
+setarch i486
+uname -m
+i686
 
-    Karel
+Is this a bug?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBAgAGBQJS8/ZgAAoJEI5FoCIzSKrwfT4IAJKywIsfNUQfT4Yf7tR3+Ej9
+Wkyipwm6UYqx3xrv+0ndVTPUXINBBFVTqPdpmkvdNhz92aqdHQy7xEWX5/c9oV63
+jw9GL/UU0GygdXsHYJEtLUE2FZMSNej9czmi04h3K8eKO/dYpzw4JSiqGUlGmRtS
+VrL5vFZZuYBYxf4LRk4NP6+WZhsjY8vQnryctFBrOlj358D0twohPhMCP5WxBJYs
+0LFCQK3BuLcJqX8wW483Oi80PEwbAryvJlt1UcI0Buj7iOpq6t3vuf6Ak93elRh0
+ml+9zlqmbxfmtC6eVf6W1znJGQ9/F+M7HL3vdzEKeXynHSN5LpSiU3xx4LXLI4w=
+=v7iW
+-----END PGP SIGNATURE-----
