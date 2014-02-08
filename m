@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:35870 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751076AbaBKJFd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Feb 2014 04:05:33 -0500
-Received: by mail-pa0-f53.google.com with SMTP id lj1so7386534pab.12
-        for <util-linux@vger.kernel.org>; Tue, 11 Feb 2014 01:05:32 -0800 (PST)
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:50516 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751700AbaBHPsP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Feb 2014 10:48:15 -0500
+Message-ID: <52F651BC.9090109@ubuntu.com>
+Date: Sat, 08 Feb 2014 10:48:12 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <201402102055.s1AKt0q7015336@hobgoblin.ariadne.com>
-References: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
-	<20140210173545.GK8506@x2.net.home>
-	<20140210185741.GF4724@thunk.org>
-	<201402102055.s1AKt0q7015336@hobgoblin.ariadne.com>
-Date: Tue, 11 Feb 2014 09:05:32 +0000
-Message-ID: <CAG27Bk09kBXQ3B1Vtm6oDxw2iyqvsYbj9uYyGTdBgfLnLAvtsg@mail.gmail.com>
-Subject: Re: Typo in mkfs man-page
-From: Sami Kerola <kerolasa@iki.fi>
-To: "Dale R. Worley" <worley@alum.mit.edu>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, util-linux <util-linux@vger.kernel.org>
+To: Mike Frysinger <vapier@gentoo.org>
+CC: util-linux@vger.kernel.org
+Subject: Re: setarch treats all x86 variants as i686?
+References: <52F3F660.8060600@ubuntu.com> <1445010.UmVgbvgH5k@vapier>
+In-Reply-To: <1445010.UmVgbvgH5k@vapier>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10 February 2014 20:55, Dale R. Worley <worley@alum.mit.edu> wrote:
->> From: "Theodore Ts'o" <tytso@mit.edu>
->
->> But /sbin/mkfs.xxx is generally run by system administrators, and IMHO
->> it's better to tell people to run the command "/sbin/mkfs.xxx" instead
->> of "/sbin/mkfs -t xxx".
->
-> This makes sense to me.
->
-> More exactly, mkfs is generally run "manually".
->
-> And while having fsck "do what I mean" is largely safe, creating a
-> file system is not the time that you want the user to be unclear on
-> the exact implications of each option he has specified.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
-Would it make sense to add banner 'you probably should not run this
-utility, consider using file system specific mkfs' to mkfs?
+On 02/08/2014 06:26 AM, Mike Frysinger wrote:
+> no.  setarch is merely calling the kernel and the kernel is doing 
+> this.  see `man personality` for more details.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Ahh, looking at the syscall it is clear that there is only a generic
+linux 32 vs 64 bit flag, so setarch must be aliasing ix86 to the
+generic 32 bit flag.  The man page probably should be a little more
+clear that these aliases all map to the same thing.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBCgAGBQJS9lG8AAoJEI5FoCIzSKrwKDoIAJI1+SHLvv20ZPBbNjG7ieT3
+KDgBBD8kj50qQVTVdXBlp/TkdDNBO0GuuabQ+6PZm8UAUNSpfiYEOdMlma3y/o/g
+ZfDBR43XBiqNK7ppnIZ/Ro9MS4rn7yze/UdLgg9t+Shm4RHHarl2VKaNEh0FB0UT
+onUJt9SBG2czPY3evFGNWlmsaGNJ04nW70SHgiCLA14mIgaSx7tSU8FuCeEjg1dG
+XFIMhbgCl4qeBqTEcwl/kwzz23wYoHpWHWHK0eMbc4j4CJCk0G7nbbnWI2IEdgzz
+QGYdDurLT4lCdPDx5l5LoP8xTQzdvRy35HLjnZrVM0T6nAZXxf89h3wG64K+zBY=
+=waCb
+-----END PGP SIGNATURE-----
