@@ -1,35 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:31332 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751855AbaBQKpQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 17 Feb 2014 05:45:16 -0500
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s1HAjEnE008328
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 17 Feb 2014 05:45:15 -0500
-Date: Mon, 17 Feb 2014 11:45:12 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] ionice: add the way to specify the target processes with
- pgid and uid
-Message-ID: <20140217104512.GB2254@x2.net.home>
-References: <1391093558-20108-1-git-send-email-yamato@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1391093558-20108-1-git-send-email-yamato@redhat.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:44195 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751969AbaBHSWN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Feb 2014 13:22:13 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Correct max priority in renice man page
+Date: Sat,  8 Feb 2014 13:22:10 -0500
+Message-Id: <1391883730-11767-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 30, 2014 at 11:52:38PM +0900, Masatake YAMATO wrote:
->  schedutils/ionice.1 | 26 ++++++++++++++++++++
->  schedutils/ionice.c | 68 ++++++++++++++++++++++++++++++++++++-----------------
->  2 files changed, 73 insertions(+), 21 deletions(-)
+The man page stated that the PRIO_MAX is 20.  While this
+is correct, the header definition is wrong and the max
+value is actually 19.
 
- Applied, thanks.
+Signed-off-by: Phillip Susi <psusi@ubuntu.com>
+---
+ sys-utils/renice.1 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-    Karel
-
+diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
+index 538687e..9cb50b8 100644
+--- a/sys-utils/renice.1
++++ b/sys-utils/renice.1
+@@ -86,14 +86,14 @@ PIDs 987 and 32, plus all processes owned by the users daemon and root:
+ Users other than the superuser may only alter the priority of processes they
+ own, and can only monotonically increase their ``nice value'' (for security
+ reasons) within the range 0 to
+-.BR PRIO_MAX \ (20),
++.BR PRIO_MAX \ (19),
+ unless a nice resource limit is set (Linux 2.6.12 and higher).  The
+ superuser may alter the priority of any process and set the priority to any
+ value in the range
+ .BR PRIO_MIN \ (\-20)
+ to
+ .BR PRIO_MAX .
+-Useful priorities are: 20 (the affected processes will run only when nothing
++Useful priorities are: 19 (the affected processes will run only when nothing
+ else in the system wants to), 0 (the ``base'' scheduling priority), anything
+ negative (to make things go very fast).
+ .SH FILES
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.3.2
+
