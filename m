@@ -1,125 +1,104 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:62323 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752497AbaBPXyn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 18:54:43 -0500
-Received: by mail-wi0-f174.google.com with SMTP id f8so1878637wiw.1
-        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 15:54:42 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from kontorsmtp1.one.com ([195.47.247.16]:37435 "EHLO
+	kontorsmtp1.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751889AbaBJLDL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Feb 2014 06:03:11 -0500
+From: Jesper Dahl Nyerup <nyerup@one.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/9] docs: make hexdump.1 color specification easier to understand
-Date: Sun, 16 Feb 2014 23:54:17 +0000
-Message-Id: <1392594862-15807-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
-References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+Cc: nyerup@one.com
+Subject: [PATCH] scriptreplay: Add --maxdelay option.
+Date: Mon, 10 Feb 2014 11:53:18 +0100
+Message-Id: <1392029598-8089-1-git-send-email-nyerup@one.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fix also spacing, input line lenghts, and troff table for data that is a
-table.
+This option caps the delay between updates, to avoid long pauses in
+transcript playback.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Jesper Dahl Nyerup <nyerup@one.com>
 ---
- text-utils/hexdump.1 | 72 ++++++++++++++++++++++++++--------------------------
- 1 file changed, 36 insertions(+), 36 deletions(-)
+ term-utils/scriptreplay.1 |  6 ++++++
+ term-utils/scriptreplay.c | 15 ++++++++++++---
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
-index 8b4bf27..edf5d6f 100644
---- a/text-utils/hexdump.1
-+++ b/text-utils/hexdump.1
-@@ -226,46 +226,46 @@ displayed as a single
- Output US ASCII characters, with the exception that control characters are
- displayed using the following, lower-case, names.  Characters greater than
- 0xff, hexadecimal, are displayed as hexadecimal strings.
--.PP
--.nf
--          000 nul  001 soh  002 stx  003 etx  004 eot  005 enq
--          006 ack  007 bel  008 bs   009 ht   00A lf   00B vt
--          00C ff   00D cr   00E so   00F si   010 dle  011 dc1
--          012 dc2  013 dc3  014 dc4  015 nak  016 syn  017 etb
--          018 can  019 em   01A sub  01B esc  01C fs   01D gs
--          01E rs   01F us   0FF del
--.nf
-+.RS 10
-+.TS
-+tab(|);
-+left l l l l l.
-+000 nul|001 soh|002 stx|003 etx|004 eot|005 enq
-+006 ack|007 bel|008 bs|009 ht|00A lf|00B vt
-+00C ff|00D cr|00E so|00F si|010 dle|011 dc1
-+012 dc2|013 dc3|014 dc4|015 nak|016 syn|017 etb
-+018 can|019 em|01A sub|01B esc|01C fs|01D gs
-+01E rs|01F us|0FF del
-+.TE
- .SS Colors
--When put at the end of a format specifier, hexdump highlights the respective
--string with the color specified. Conditions, if present, are evaluated
--prior to highlighting.
--.TP
--.B \&_L[color_unit_1,color_unit_2,...,color_unit_n]
--.TP
-+When put at the end of a format specifier, hexdump highlights the
-+respective string with the color specified.  Conditions, if present, are
-+evaluated prior to highlighting.
-+.PP
-+.B \&_L[color_unit_1,\:color_unit_2,\:...,\:color_unit_n]
-+.PP
- The full syntax of a color unit is as follows:
--.TP
--.B [!]COLOR[:HEX_VAL|:OCT_VAL|:STRING][@DEC_OFFT|@DEC_OFFT_START-DEC_OFFT_END]
-+.PP
-+.B [!]COLOR\:[:VALUE]\:[@OFFSET_START[-END]]
+diff --git a/term-utils/scriptreplay.1 b/term-utils/scriptreplay.1
+index 20b6d93..329dbc9 100644
+--- a/term-utils/scriptreplay.1
++++ b/term-utils/scriptreplay.1
+@@ -56,6 +56,12 @@ Speed up the replay displaying this
+ of times.  The argument is a floating point number.  It's called divisor
+ because it divides the timings by this factor.
  .TP
- .B !
--Negate the condition. Please note that it only makes sense to negate
--a unit if both a value/string and an offset are specified. In that case
--the respective output string will be highlighted if and only if the value/string
--does not match the one at the offset.
--.PP
-+Negate the condition.  Please note that it only makes sense to negate a
-+unit if both a value/\:string and an offset are specified.  In that case
-+the respective output string will be highlighted if and only if the
-+value/\:string does not match the one at the offset.
++.BR \-m , " \-\-maxdelay " \fInumber\fR
++Set the maximal delay between transcript updates to
++.I number
++seconds.  The argument is a floating point number.  This can be used to
++avoid long pauses in the transcript replay.
 +.TP
- .BR COLOR
- One of the 8 basic shell colors.
--.PP
--.BR HEX_VAL , OCT_VAL
--A value to be matched specified in hexadecimal or octal base.
--.PP
--.BR STRING
--A string to be matched. Please note that the usual C escape sequences
--are not interpreted by hexdump inside the color_units.
--.PP
--.BR DEC_OFFT , DEC_OFFT_START , DEC_OFFT_END
--An offset or an offset range at which
--to check for a match. Please note that DEC_OFFT is equal to DEC_OFFT-DEC_OFFT.
--Also, the range may not be larger than the respective format byte count.
-+.TP
-+.B VALUE
-+A value to be matched specified in hexadecimal, or octal base, or as a
-+string.  Please note that the usual C escape sequences are not
-+interpreted by hexdump inside the color_units.
-+.TP
-+.B OFFSET
-+An offset or an offset range at which to check for a match.  Please note
-+that lone OFFSET_START uses the same value as END offset.  Also, the
-+range may not be larger than the respective format byte count.
- .SS Counters
- The default and supported byte counts for the conversion characters
- are as follows:
-@@ -345,8 +345,8 @@ Implement the \-x option:
-    "%07.7_ax  " 8/2 "%04x " "\en"
- .nf
- .PP
--MBR Boot Signature example:
--Highlight the addresses cyan and the bytes at offsets 510 and 511 green if their value is 0xAA55, red otherwise.
-+MBR Boot Signature example: Highlight the addresses cyan and the bytes at
-+offsets 510 and 511 green if their value is 0xAA55, red otherwise.
- .nf
-    "%07.7_Ax_L[cyan]\en"
-    "%07.7_ax_L[cyan]  " 8/2 "   %04x_L[green:0xAA55@510-511,!red:0xAA55@510-511] " "\en"
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+ .TP
+diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
+index 46468be..6a29874 100644
+--- a/term-utils/scriptreplay.c
++++ b/term-utils/scriptreplay.c
+@@ -46,6 +46,7 @@ usage(FILE *out)
+ 	fputs(_(" -t, --timing <file>     script timing output file\n"
+ 		" -s, --typescript <file> script terminal session output file\n"
+ 		" -d, --divisor <num>     speed up or slow down execution with time divisor\n"
++		" -m, --maxdelay <num>    wait at most this many seconds between updates\n"
+ 		" -V, --version           output version information and exit\n"
+ 		" -h, --help              display this help and exit\n\n"), out);
+ 
+@@ -130,8 +131,8 @@ main(int argc, char *argv[])
+ {
+ 	FILE *tfile, *sfile;
+ 	const char *sname = NULL, *tname = NULL;
+-	double divi = 1;
+-	int c, diviopt = FALSE, idx;
++	double divi = 1, maxdelay = 10;
++	int c, diviopt = FALSE, maxdelayopt = FALSE, idx;
+ 	unsigned long line;
+ 	size_t oldblk = 0;
+ 	char ch;
+@@ -140,6 +141,7 @@ main(int argc, char *argv[])
+ 		{ "timing",	required_argument,	0, 't' },
+ 		{ "typescript",	required_argument,	0, 's' },
+ 		{ "divisor",	required_argument,	0, 'd' },
++		{ "maxdelay",	required_argument,	0, 'm' },
+ 		{ "version",	no_argument,		0, 'V' },
+ 		{ "help",	no_argument,		0, 'h' },
+ 		{ NULL,		0, 0, 0 }
+@@ -156,7 +158,7 @@ main(int argc, char *argv[])
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	while ((ch = getopt_long(argc, argv, "t:s:d:Vh", longopts, NULL)) != -1)
++	while ((ch = getopt_long(argc, argv, "t:s:d:m:Vh", longopts, NULL)) != -1)
+ 		switch(ch) {
+ 		case 't':
+ 			tname = optarg;
+@@ -168,6 +170,10 @@ main(int argc, char *argv[])
+ 			diviopt = TRUE;
+ 			divi = getnum(optarg);
+ 			break;
++		case 'm':
++			maxdelayopt = TRUE;
++			maxdelay = getnum(optarg);
++			break;
+ 		case 'V':
+ 			printf(_("%s from %s\n"), program_invocation_short_name,
+ 						  PACKAGE_STRING);
+@@ -219,6 +225,9 @@ main(int argc, char *argv[])
+ 		}
+ 		delay /= divi;
+ 
++		if (maxdelayopt && delay > maxdelay)
++			delay = maxdelay;
++
+ 		if (delay > SCRIPT_MIN_DELAY)
+ 			delay_for(delay);
+ 
 -- 
-1.9.0
+1.8.4
 
