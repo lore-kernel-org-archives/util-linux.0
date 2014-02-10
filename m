@@ -1,28 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:26831 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36986 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751949AbaBJR1G (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Feb 2014 12:27:06 -0500
-Date: Mon, 10 Feb 2014 18:26:51 +0100
+	id S1751949AbaBJSKx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Feb 2014 13:10:53 -0500
+Date: Mon, 10 Feb 2014 19:10:40 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] last: make session gone determination more robust
-Message-ID: <20140210172651.GJ8506@x2.net.home>
-References: <1390341905-23864-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] cal: remove unnecessary static variables
+Message-ID: <20140210181040.GR8506@x2.net.home>
+References: <1391966429-28219-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1390341905-23864-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1391966429-28219-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 21, 2014 at 10:05:05PM +0000, Sami Kerola wrote:
->  login-utils/last.c | 25 ++++++++++++++++++++++---
->  1 file changed, 22 insertions(+), 3 deletions(-)
+On Sun, Feb 09, 2014 at 05:20:29PM +0000, Sami Kerola wrote:
+>  misc-utils/cal.c | 19 -------------------
+>  1 file changed, 19 deletions(-)
 
- No perfect, but better than the previous version.
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
