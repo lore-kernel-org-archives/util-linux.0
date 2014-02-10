@@ -1,49 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13283 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750809AbaBKJWZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 11 Feb 2014 04:22:25 -0500
-Date: Tue, 11 Feb 2014 10:22:19 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: "Dale R. Worley" <worley@alum.mit.edu>, "Theodore Ts'o" <tytso@mit.edu>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: Typo in mkfs man-page
-Message-ID: <20140211092219.GT8506@x2.net.home>
-References: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
- <20140210173545.GK8506@x2.net.home>
- <20140210185741.GF4724@thunk.org>
- <201402102055.s1AKt0q7015336@hobgoblin.ariadne.com>
- <CAG27Bk09kBXQ3B1Vtm6oDxw2iyqvsYbj9uYyGTdBgfLnLAvtsg@mail.gmail.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:38003 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752554AbaBJXZH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Feb 2014 18:25:07 -0500
+Message-ID: <52F95FD1.5090305@ubuntu.com>
+Date: Mon, 10 Feb 2014 18:25:05 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk09kBXQ3B1Vtm6oDxw2iyqvsYbj9uYyGTdBgfLnLAvtsg@mail.gmail.com>
+To: util-linux@vger.kernel.org
+Subject: Can't unmount broken nfs mount
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 11, 2014 at 09:05:32AM +0000, Sami Kerola wrote:
-> On 10 February 2014 20:55, Dale R. Worley <worley@alum.mit.edu> wrote:
-> >> From: "Theodore Ts'o" <tytso@mit.edu>
-> >
-> >> But /sbin/mkfs.xxx is generally run by system administrators, and IMHO
-> >> it's better to tell people to run the command "/sbin/mkfs.xxx" instead
-> >> of "/sbin/mkfs -t xxx".
-> >
-> > This makes sense to me.
-> >
-> > More exactly, mkfs is generally run "manually".
-> >
-> > And while having fsck "do what I mean" is largely safe, creating a
-> > file system is not the time that you want the user to be unclear on
-> > the exact implications of each option he has specified.
-> 
-> Would it make sense to add banner 'you probably should not run this
-> utility, consider using file system specific mkfs' to mkfs?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
-And mark it deprecated and one day kill it at all.
+Forwarding from debian bug #711183:
 
-    Karel
+User reports that a broken nfs mount has its mounted directory in
+/proc/mounts renamed from /foo to /foo\040(deleted) when an nfs mount
+is broken due to an unreachable server, and this prevents unmounting
+it since umount can not find "/foo" in /proc/mounts.  Is this a kernel
+bug, or something that umount needs to work around?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBCgAGBQJS+V/RAAoJEI5FoCIzSKrwrSYIAIabY0n6tptzm+DenwAv8cf4
+fb7bb7+rcjXXpeYEzyD7xIDvmRgNuYoxMOdTfRkMeR04K4E8MDKx98pH0WU8m2CY
+SQh0WCVKStxNFYOd8DugeRYP0kaisyhoe43XtKyHGjwvpNXIjDEsPFV30Rw1cLQa
+OJD2FrZLNUhciuvzRXl17mmUowWqGa9QqoVA54Hn2dkgmP3Arlkx+11cxwxD3zE1
+OXplSvugMfwgDugLawdorDrUl37Efv47+l4yW6ZiLjhb6cu8QxDQDpaTgHLXtFJi
+ZBECGDbKDDEBbNWGvjSkY40CaTiZeEXn5DePYQkY1iaq8TfhXHi/YTg21w7Srgg=
+=dvV4
+-----END PGP SIGNATURE-----
