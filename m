@@ -1,128 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58905 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752617AbaBVKI5 (ORCPT
+Received: from qmta01.westchester.pa.mail.comcast.net ([76.96.62.16]:40206
+	"EHLO qmta01.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753285AbaBJUzG (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 22 Feb 2014 05:08:57 -0500
-Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id DDB8B20A70
-	for <util-linux@vger.kernel.org>; Sat, 22 Feb 2014 05:08:56 -0500 (EST)
-Message-Id: <1393063736.22669.86436873.5D54747B@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1393063736226692";
- charset="utf-8"
-Subject: [patch] fix :p and apostrophe commands in man page of more
-Date: Sat, 22 Feb 2014 11:08:56 +0100
+	Mon, 10 Feb 2014 15:55:06 -0500
+Date: Mon, 10 Feb 2014 15:55:00 -0500
+Message-Id: <201402102055.s1AKt0q7015336@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: util-linux@vger.kernel.org
+In-reply-to: <20140210185741.GF4724@thunk.org> (tytso@mit.edu)
+Subject: Re: Typo in mkfs man-page
+References: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
+ <20140210173545.GK8506@x2.net.home> <20140210185741.GF4724@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+> From: "Theodore Ts'o" <tytso@mit.edu>
 
---_----------=_1393063736226692
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+> But /sbin/mkfs.xxx is generally run by system administrators, and IMHO
+> it's better to tell people to run the command "/sbin/mkfs.xxx" instead
+> of "/sbin/mkfs -t xxx".
 
+This makes sense to me.
 
-Hi,
+More exactly, mkfs is generally run "manually".
 
-Currently the man page of more gives :P instead of the correct :p
-as the command for 'previous file', and it shows an acute accent
-(groff conversions) instead of an apostrophe as the command key
-for 'go back to where you were'.
+And while having fsck "do what I mean" is largely safe, creating a
+file system is not the time that you want the user to be unclear on
+the exact implications of each option he has specified.
 
-Attached patch fixes those two things.  It also condenses some
-descriptions, removes two pointless comments, and deletes a
-leftover formatting line.
-
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
-
-
---_----------=_1393063736226692
-Content-Disposition: attachment; filename="0001-docs-fix-two-command-representations-in-the-man-page.patch"
-Content-Id: <1393063611.22416.cf39f97b66384eac15bacfb80e3e9fe9189b377a.6FBB2A92@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-diff; name="0001-docs-fix-two-command-representations-in-the-man-page.patch"
-
-RnJvbSAzZWI5NDk1NTI1NDgyMjY1YWRmMDE2NzZmZGZmYjY4YmE0NGJlMTZk
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogRnJpLCAyMSBG
-ZWIgMjAxNCAxODoyMjozMyArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGRvY3M6
-IGZpeCB0d28gY29tbWFuZCByZXByZXNlbnRhdGlvbnMgaW4gdGhlIG1hbiBw
-YWdlIG9mIG1vcmUKClRoZSBwcmV2aW91cy1maWxlIGNvbW1hbmQgaXMgbm90
-IDpQIGJ1dCA6cCwgYW5kIHRoZSBiYWNrLXRvLXdoZXJlCmNvbW1hbmQgaXMg
-bm90IGFuIGFjdXRlIGFjY2VudCBidXQgYW4gYXBvc3Ryb3BoZS4gIEFsc28g
-Y29uZGVuc2UKc29tZSBvZiB0aGUgZGVzY3JpcHRpb25zIGFuZCByZW1vdmUg
-c29tZSB1c2VsZXNzIGNvbW1lbnRzLgoKU2lnbmVkLW9mZi1ieTogQmVubm8g
-U2NodWxlbmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogdGV4
-dC11dGlscy9tb3JlLjEgfCAgIDM4ICsrKysrKysrKysrKysrLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlv
-bnMoKyksIDI0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3RleHQtdXRp
-bHMvbW9yZS4xIGIvdGV4dC11dGlscy9tb3JlLjEKaW5kZXggMGNmMzg5Mi4u
-NTg5ZWFmNyAxMDA2NDQKLS0tIGEvdGV4dC11dGlscy9tb3JlLjEKKysrIGIv
-dGV4dC11dGlscy9tb3JlLjEKQEAgLTMyLDExICszMiw5IEBACiAuXCIKIC5c
-IglAKCMpbW9yZS4xCTUuMTUgKEJlcmtlbGV5KSA3LzI5LzkxCiAuXCIKLS5c
-IiBSZXZpc2VkOiBGcmkgRGVjIDI1IDE1OjI3OjI3IDE5OTIgYnkgcm9vdAog
-LlwiIDI1RGVjOTI6IEV4dGVuc2l2ZSBjaGFuZ2VzIG1hZGUgYnkgUmlrIEZh
-aXRoIChmYWl0aEBjcy51bmMuZWR1KSB0bwogLlwiIGNvbmZvcm0gd2l0aCB0
-aGUgbW9yZSA1LjE5IGN1cnJlbnRseSBpbiB1c2UgYnkgdGhlIExpbnV4IGNv
-bW11bml0eS4KIC5cIgotLlwiIC5EZCBKdWx5IDI5LCAxOTkxIChNb2RpZmll
-ZCBEZWNlbWJlciAyNSwgMTk5MikKIC5USCBNT1JFICIxIiAiRmVicnVhcnkg
-MjAxNCIgInV0aWwtbGludXgiICJVc2VyIENvbW1hbmRzIgogLlNIIE5BTUUK
-IG1vcmUgXC0gZmlsZSBwZXJ1c2FsIGZpbHRlciBmb3IgY3J0IHZpZXdpbmcK
-QEAgLTUzLDMyICs1MSwyNCBAQCBwcm92aWRlcwogLkJSIG1vcmUgKDEpCiBl
-bXVsYXRpb24gcGx1cyBleHRlbnNpdmUgZW5oYW5jZW1lbnRzLgogLlNIIE9Q
-VElPTlMKLUNvbW1hbmQtbGluZSBvcHRpb25zIGFyZSBkZXNjcmliZWQgYmVs
-b3cuICBPcHRpb25zIGFyZSBhbHNvIHRha2VuIGZyb20gdGhlCi1lbnZpcm9u
-bWVudCB2YXJpYWJsZQorT3B0aW9ucyBhcmUgYWxzbyB0YWtlbiBmcm9tIHRo
-ZSBlbnZpcm9ubWVudCB2YXJpYWJsZQogLkIgTU9SRQotKG1ha2Ugc3VyZSB0
-byBwcmVjZWRlIHRoZW0gd2l0aCBhIGRhc2ggKGBgLScnKSkgYnV0IGNvbW1h
-bmQgbGluZSBvcHRpb25zIHdpbGwKLW92ZXJyaWRlIHRoZW0uCi0uSXQgRmwg
-bnVtCisobWFrZSBzdXJlIHRvIHByZWNlZGUgdGhlbSB3aXRoIGEgZGFzaAor
-LlJCICggXC0gKSkKK2J1dCBjb21tYW5kLWxpbmUgb3B0aW9ucyB3aWxsIG92
-ZXJyaWRlIHRob3NlLgogLlRQCiAuQiBcLWQKLS5CIG1vcmUKLXdpbGwgcHJv
-bXB0IHRoZSB1c2VyIHdpdGggdGhlIG1lc3NhZ2UgIltQcmVzcyBzcGFjZSB0
-byBjb250aW51ZSwgJ3EnIHRvCi1xdWl0Ll0iIGFuZCB3aWxsIGRpc3BsYXkg
-IltQcmVzcyAnaCcgZm9yIGluc3RydWN0aW9ucy5dIiBpbnN0ZWFkIG9mIHJp
-bmdpbmcKK1Byb21wdCB3aXRoICJbUHJlc3Mgc3BhY2UgdG8gY29udGludWUs
-ICdxJyB0byBxdWl0Ll0iLAorYW5kIGRpc3BsYXkgIltQcmVzcyAnaCcgZm9y
-IGluc3RydWN0aW9ucy5dIiBpbnN0ZWFkIG9mIHJpbmdpbmcKIHRoZSBiZWxs
-IHdoZW4gYW4gaWxsZWdhbCBrZXkgaXMgcHJlc3NlZC4KIC5UUAogLkIgXC1s
-Ci0uQiBtb3JlCi11c3VhbGx5IHRyZWF0cworRG8gbm90IHBhdXNlIGFmdGVy
-IGFueSBsaW5lIGNvbnRhaW5pbmcgYQogLkIgXCZeTAotKGZvcm0gZmVlZCkg
-YXMgYSBzcGVjaWFsIGNoYXJhY3RlciwgYW5kIHdpbGwgcGF1c2UgYWZ0ZXIg
-YW55IGxpbmUgdGhhdAotY29udGFpbnMgYSBmb3JtIGZlZWQuICBUaGUKLS5C
-IFwtbAotb3B0aW9uIHdpbGwgcHJldmVudCB0aGlzIGJlaGF2aW9yLgorKGZv
-cm0gZmVlZCkuCiAuVFAKLS5CIC1mCi1DYXVzZXMKLS5CIG1vcmUKLXRvIGNv
-dW50IGxvZ2ljYWwsIHJhdGhlciB0aGFuIHNjcmVlbiBsaW5lcyAoaS5lLiwg
-bG9uZyBsaW5lcyBhcmUgbm90IGZvbGRlZCkuCisuQiBcLWYKK0NvdW50IGxv
-Z2ljYWwgbGluZXMsIHJhdGhlciB0aGFuIHNjcmVlbiBsaW5lcyAoaS5lLiwg
-bG9uZyBsaW5lcyBhcmUgbm90IGZvbGRlZCkuCiAuVFAKIC5CIFwtcAogRG8g
-bm90IHNjcm9sbC4gIEluc3RlYWQsIGNsZWFyIHRoZSB3aG9sZSBzY3JlZW4g
-YW5kIHRoZW4gZGlzcGxheSB0aGUgdGV4dC4KQEAgLTEyNCw3ICsxMTQsNyBA
-QCBtZWFucwogLlBEIDEKIC5UUCAxMAogLkJSIGggXCBvciBcID8KLUhlbHA6
-IGRpc3BsYXkgYSBzdW1tYXJ5IG9mIHRoZXNlIGNvbW1hbmRzLiAgSWYgeW91
-IGZvcmdldCBhbGwgdGhlIG90aGVyCitIZWxwOyBkaXNwbGF5IGEgc3VtbWFy
-eSBvZiB0aGVzZSBjb21tYW5kcy4gIElmIHlvdSBmb3JnZXQgYWxsIG90aGVy
-CiBjb21tYW5kcywgcmVtZW1iZXIgdGhpcyBvbmUuCiAuVFAKIC5CIFNQQUNF
-CkBAIC0xNTQsOCArMTQ0LDggQEAgU2tpcCBmb3J3YXJkIGsgc2NyZWVuZnVs
-cyBvZiB0ZXh0LiAgRGVmYXVsdHMgdG8gMS4KIFNraXAgYmFja3dhcmRzIGsg
-c2NyZWVuZnVscyBvZiB0ZXh0LiAgRGVmYXVsdHMgdG8gMS4gIE9ubHkgd29y
-a3Mgd2l0aCBmaWxlcywKIG5vdCBwaXBlcy4KIC5UUAotLkIgXCcKLUdvIHRv
-IHBsYWNlIHdoZXJlIHByZXZpb3VzIHNlYXJjaCBzdGFydGVkLgorLkIgJwor
-R28gdG8gdGhlIHBsYWNlIHdoZXJlIHRoZSBsYXN0IHNlYXJjaCBzdGFydGVk
-LgogLlRQCiAuQiA9CiBEaXNwbGF5IGN1cnJlbnQgbGluZSBudW1iZXIuCkBA
-IC0xOTQsNyArMTg0LDcgQEAgUmVkcmF3IHNjcmVlbi4KIC5CIDpuCiBHbyB0
-byBrdGggbmV4dCBmaWxlLiAgRGVmYXVsdHMgdG8gMS4KIC5UUAotLkIgOlAK
-Ky5CIDpwCiBHbyB0byBrdGggcHJldmlvdXMgZmlsZS4gIERlZmF1bHRzIHRv
-IDEuCiAuVFAKIC5CIDpmCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1393063736226692--
-
+Dale
