@@ -1,43 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44620 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:32827 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751533AbaBQLwm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 17 Feb 2014 06:52:42 -0500
-Date: Mon, 17 Feb 2014 12:52:38 +0100
+	id S1752940AbaBJSIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Feb 2014 13:08:36 -0500
+Date: Mon, 10 Feb 2014 19:08:31 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Phillip Susi <psusi@ubuntu.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: chrt requires priority argument
-Message-ID: <20140217115238.GC2254@x2.net.home>
-References: <52F3F4F1.5000007@ubuntu.com>
+Subject: Re: [PATCH] Correct max priority in renice man page
+Message-ID: <20140210180831.GQ8506@x2.net.home>
+References: <1391883730-11767-1-git-send-email-psusi@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52F3F4F1.5000007@ubuntu.com>
+In-Reply-To: <1391883730-11767-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 06, 2014 at 03:47:45PM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> chrt requires a priority argument, even for classes ( like batch )
-> that do not support them.  If you specify a non zero value, then the
-> command fails.  I think the argument should be ignored and forced to
-> zero for these classes
+On Sat, Feb 08, 2014 at 01:22:10PM -0500, Phillip Susi wrote:
+> The man page stated that the PRIO_MAX is 20.  While this
+> is correct, the header definition is wrong and the max
+> value is actually 19.
 
- Well, why do you expect this correction in userspace? I really
- don't like when we're trying to be more smart than kernel.
+ I have removed all notes about PRIO_MAX from the man page. The kernel
+ syscalls use hardcoded limits rather than anything from header files.
 
- For example for setpriority() is kernel able to do the correction
- for prio argument when the argument is out of the expected range. For
- some reason sched_setscheduler() is not so smart and incorrect
- priority ends with error.
+ SYSCALL_DEFINE3(setpriority, int, which, int, who, int, niceval)
+    ...
+	if (niceval < -20)
+		niceval = -20;
+	if (niceval > 19)
+		niceval = 19;
 
- IMHO is better to follow kernel for so low-level utils like chrt(1)
- than silently hide mistakes in usage. And the current code is also
- ready for possible future kernel changes -- implement extra
- corrections and policies in userspace means that one day you will in
- conflict with your kernel.
+ and almost the same is SYSCALL_DEFINE1(nice...
 
-    Karel
+ :-)
+
+>  sys-utils/renice.1 | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+ Applied, thanks.
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
