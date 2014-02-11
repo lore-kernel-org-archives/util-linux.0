@@ -1,266 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:54987 "EHLO plane.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:13283 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754100AbaBTNn3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 20 Feb 2014 08:43:29 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1WGTuQ-0007a8-4O
-	for util-linux@vger.kernel.org; Thu, 20 Feb 2014 14:43:26 +0100
-Received: from 78-60-211-195.static.zebra.lt ([78.60.211.195])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 20 Feb 2014 14:43:26 +0100
-Received: from grawity by 78-60-211-195.static.zebra.lt with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 20 Feb 2014 14:43:26 +0100
-To: util-linux@vger.kernel.org
-From: =?UTF-8?B?TWFudGFzIE1pa3VsxJduYXM=?= <grawity@gmail.com>
-Subject: findmnt on 3.14-rc3 =?UTF-8?B?4oCTIG9ubHkgc2hvd3MgL3Byb2MgaW4gdHI=?=
- =?UTF-8?B?ZWUgbW9kZQ==?=
-Date: Thu, 20 Feb 2014 15:43:13 +0200
-Message-ID: <le50p4$1td$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------090805040200030705070605"
+	id S1750809AbaBKJWZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 11 Feb 2014 04:22:25 -0500
+Date: Tue, 11 Feb 2014 10:22:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: "Dale R. Worley" <worley@alum.mit.edu>, "Theodore Ts'o" <tytso@mit.edu>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: Typo in mkfs man-page
+Message-ID: <20140211092219.GT8506@x2.net.home>
+References: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
+ <20140210173545.GK8506@x2.net.home>
+ <20140210185741.GF4724@thunk.org>
+ <201402102055.s1AKt0q7015336@hobgoblin.ariadne.com>
+ <CAG27Bk09kBXQ3B1Vtm6oDxw2iyqvsYbj9uYyGTdBgfLnLAvtsg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk09kBXQ3B1Vtm6oDxw2iyqvsYbj9uYyGTdBgfLnLAvtsg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------090805040200030705070605
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Tue, Feb 11, 2014 at 09:05:32AM +0000, Sami Kerola wrote:
+> On 10 February 2014 20:55, Dale R. Worley <worley@alum.mit.edu> wrote:
+> >> From: "Theodore Ts'o" <tytso@mit.edu>
+> >
+> >> But /sbin/mkfs.xxx is generally run by system administrators, and IMHO
+> >> it's better to tell people to run the command "/sbin/mkfs.xxx" instead
+> >> of "/sbin/mkfs -t xxx".
+> >
+> > This makes sense to me.
+> >
+> > More exactly, mkfs is generally run "manually".
+> >
+> > And while having fsck "do what I mean" is largely safe, creating a
+> > file system is not the time that you want the user to be unclear on
+> > the exact implications of each option he has specified.
+> 
+> Would it make sense to add banner 'you probably should not run this
+> utility, consider using file system specific mkfs' to mkfs?
 
-Using util-linux 2.24.1 on Arch Linux, running `findmnt` only shows
-mounts at or under "/proc", and ignores all other mount points
-(including "/"). This only happens in "tree" mode – if I run `findmnt
---raw` it lists all mounts correctly.
+And mark it deprecated and one day kill it at all.
 
-This happens with custom-built 3.14-rc3 kernel, but works fine with
-Arch's stock 3.13.x (the same Arch initramfs for both). Building
-`findmnt` from util-linux.git did not change anything.
-
-> $ findmnt
-> TARGET                       SOURCE      FSTYPE    OPTIONS
-> /proc                        proc        proc      rw,nosuid,nodev,noexec,relatime
-> └─/proc/sys/fs/binfmt_misc   systemd-1   autofs    rw,relatime,fd=21,pgrp=1,timeout=300,minprot
->   └─/proc/sys/fs/binfmt_misc binfmt_misc binfmt_mi rw,relatime
-
-It seems there is a small difference in /proc/self/mountinfo with 3.14;
-the entry for / looks like this:
-
-> 19 0 8:3 / / rw,relatime - ext4 /dev/sda3 rw,data=ordered
-
-...while in 3.13 it used to be:
-
-> 19 1 8:3 / / rw,relatime - ext4 /dev/sda3 rw,data=ordered
+    Karel
 
 -- 
-Mantas Mikulėnas <grawity@gmail.com>
-
---------------090805040200030705070605
-Content-Type: text/plain; charset=UTF-8;
- name="bad-mountinfo.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="bad-mountinfo.txt"
-
-MTUgMTkgMDoyIC8gL3Byb2Mgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIHBy
-b2MgcHJvYyBydwoxNiAxOSAwOjE0IC8gL3N5cyBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJl
-bGF0aW1lIC0gc3lzZnMgc3lzIHJ3CjE3IDE5IDA6NCAvIC9kZXYgcncsbm9zdWlkLHJlbGF0
-aW1lIC0gZGV2dG1wZnMgZGV2IHJ3LHNpemU9MTk1MjQ0OGssbnJfaW5vZGVzPTQ4ODExMixt
-b2RlPTc1NQoxOCAxOSAwOjE1IC8gL3J1biBydyxub3N1aWQsbm9kZXYscmVsYXRpbWUgLSB0
-bXBmcyBydW4gcncsbW9kZT03NTUKMTkgMCA4OjMgLyAvIHJ3LHJlbGF0aW1lIC0gZXh0NCAv
-ZGV2L3NkYTMgcncsZGF0YT1vcmRlcmVkCjIwIDE2IDA6MTMgLyAvc3lzL2tlcm5lbC9zZWN1
-cml0eSBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gc2VjdXJpdHlmcyBzZWN1
-cml0eWZzIHJ3CjIxIDE3IDA6MTYgLyAvZGV2L3NobSBydyxub3N1aWQsbm9kZXYgLSB0bXBm
-cyB0bXBmcyBydwoyMiAxNyAwOjEwIC8gL2Rldi9wdHMgcncsbm9zdWlkLG5vZXhlYyxyZWxh
-dGltZSAtIGRldnB0cyBkZXZwdHMgcncsZ2lkPTUsbW9kZT02MjAscHRteG1vZGU9MDAwCjIz
-IDE2IDA6MTcgLyAvc3lzL2ZzL2Nncm91cCBydyxub3N1aWQsbm9kZXYsbm9leGVjIC0gdG1w
-ZnMgdG1wZnMgcncsbW9kZT03NTUKMjQgMjMgMDoxOCAvIC9zeXMvZnMvY2dyb3VwL3N5c3Rl
-bWQgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncs
-eGF0dHIscmVsZWFzZV9hZ2VudD0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQtY2dyb3Vwcy1h
-Z2VudCxuYW1lPXN5c3RlbWQKMjUgMTYgMDoxOSAvIC9zeXMvZnMvcHN0b3JlIHJ3LG5vc3Vp
-ZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBwc3RvcmUgcHN0b3JlIHJ3CjI2IDE2IDA6MjAg
-LyAvc3lzL2Zpcm13YXJlL2VmaS9lZml2YXJzIHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVs
-YXRpbWUgLSBlZml2YXJmcyBlZml2YXJmcyBydwoyNyAyMyAwOjIxIC8gL3N5cy9mcy9jZ3Jv
-dXAvY3B1c2V0IHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dy
-b3VwIHJ3LGNwdXNldAoyOCAyMyAwOjIyIC8gL3N5cy9mcy9jZ3JvdXAvY3B1LGNwdWFjY3Qg
-cncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncsY3B1
-LGNwdWFjY3QKMjkgMjMgMDoyMyAvIC9zeXMvZnMvY2dyb3VwL21lbW9yeSBydyxub3N1aWQs
-bm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gY2dyb3VwIGNncm91cCBydyxtZW1vcnkKMzAgMjMg
-MDoyNCAvIC9zeXMvZnMvY2dyb3VwL2RldmljZXMgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxy
-ZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncsZGV2aWNlcwozMSAyMyAwOjI1IC8gL3N5cy9m
-cy9jZ3JvdXAvZnJlZXplciBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gY2dy
-b3VwIGNncm91cCBydyxmcmVlemVyCjMyIDIzIDA6MjYgLyAvc3lzL2ZzL2Nncm91cC9uZXRf
-Y2xzIHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dyb3VwIHJ3
-LG5ldF9jbHMKMzMgMjMgMDoyNyAvIC9zeXMvZnMvY2dyb3VwL2Jsa2lvIHJ3LG5vc3VpZCxu
-b2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dyb3VwIHJ3LGJsa2lvCjM0IDE1IDA6
-MjggLyAvcHJvYy9zeXMvZnMvYmluZm10X21pc2MgcncscmVsYXRpbWUgLSBhdXRvZnMgc3lz
-dGVtZC0xIHJ3LGZkPTIxLHBncnA9MSx0aW1lb3V0PTMwMCxtaW5wcm90bz01LG1heHByb3Rv
-PTUsZGlyZWN0CjM1IDE5IDA6MjkgLyAvYm9vdCBydyxyZWxhdGltZSAtIGF1dG9mcyBzeXN0
-ZW1kLTEgcncsZmQ9MjIscGdycD0xLHRpbWVvdXQ9MzAwLG1pbnByb3RvPTUsbWF4cHJvdG89
-NSxkaXJlY3QKMzYgMzQgMDozMCAvIC9wcm9jL3N5cy9mcy9iaW5mbXRfbWlzYyBydyxyZWxh
-dGltZSAtIGJpbmZtdF9taXNjIGJpbmZtdF9taXNjIHJ3CjM5IDE2IDA6NiAvIC9zeXMva2Vy
-bmVsL2RlYnVnIHJ3LHJlbGF0aW1lIC0gZGVidWdmcyBkZWJ1Z2ZzIHJ3CjM3IDE3IDA6MzEg
-LyAvZGV2L2h1Z2VwYWdlcyBydyxyZWxhdGltZSAtIGh1Z2V0bGJmcyBodWdldGxiZnMgcncK
-MzggMTkgMDozMiAvIC90bXAgcncgLSB0bXBmcyB0bXBmcyBydwo0MCAxNyAwOjEyIC8gL2Rl
-di9tcXVldWUgcncscmVsYXRpbWUgLSBtcXVldWUgbXF1ZXVlIHJ3CjQyIDE2IDA6MzMgLyAv
-c3lzL2tlcm5lbC9jb25maWcgcncscmVsYXRpbWUgLSBjb25maWdmcyBjb25maWdmcyBydwo0
-MyAxOSA4OjQgLyAvaG9tZSBydyxub2F0aW1lIC0gZXh0NCAvZGV2L3NkYTQgcncsZGF0YT1v
-cmRlcmVkCjQ0IDM1IDg6MiAvIC9ib290IHJ3LG5vYXRpbWUgLSBleHQ0IC9kZXYvc2RhMiBy
-dyxkYXRhPW9yZGVyZWQKNDUgNDQgODoxIC8gL2Jvb3QvZWZpIHJ3LG5vYXRpbWUgLSB2ZmF0
-IC9kZXYvc2RhMSBydyxmbWFzaz0wMTMzLGRtYXNrPTAwMjIsY29kZXBhZ2U9NDM3LGlvY2hh
-cnNldD1pc284ODU5LTEsc2hvcnRuYW1lPW1peGVkLGVycm9ycz1yZW1vdW50LXJvCjQ2IDQz
-IDA6MzQgLyAvaG9tZS9ncmF3aXR5L1ByaXZhdGUgcncsbm9zdWlkLG5vZGV2LHJlbGF0aW1l
-IC0gZWNyeXB0ZnMgL2hvbWUvZ3Jhd2l0eS8uUHJpdmF0ZSBydyxlY3J5cHRmc19mbmVrX3Np
-Zz0yNGY0MTcyNTBkMzI0YTY0LGVjcnlwdGZzX3NpZz1mNjE1ZjY4MzBmMDUyYTc3LGVjcnlw
-dGZzX2NpcGhlcj1hZXMsZWNyeXB0ZnNfa2V5X2J5dGVzPTE2LGVjcnlwdGZzX3VubGlua19z
-aWdzCjQ3IDE2IDA6MzUgLyAvc3lzL2ZzL2Z1c2UvY29ubmVjdGlvbnMgcncscmVsYXRpbWUg
-LSBmdXNlY3RsIGZ1c2VjdGwgcncKNDggMTggMDozNiAvIC9ydW4vdXNlci8xMDAwL2d2ZnMg
-cncsbm9zdWlkLG5vZGV2LHJlbGF0aW1lIC0gZnVzZS5ndmZzZC1mdXNlIGd2ZnNkLWZ1c2Ug
-cncsdXNlcl9pZD0xMDAwLGdyb3VwX2lkPTEwMDAK
---------------090805040200030705070605
-Content-Type: text/plain; charset=UTF-8;
- name="good-mountinfo.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="good-mountinfo.txt"
-
-MTUgMTkgMDozIC8gL3Byb2Mgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIHBy
-b2MgcHJvYyBydwoxNiAxOSAwOjE0IC8gL3N5cyBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJl
-bGF0aW1lIC0gc3lzZnMgc3lzIHJ3CjE3IDE5IDA6NSAvIC9kZXYgcncsbm9zdWlkLHJlbGF0
-aW1lIC0gZGV2dG1wZnMgZGV2IHJ3LHNpemU9MTk1MjMyOGssbnJfaW5vZGVzPTQ4ODA4Mixt
-b2RlPTc1NQoxOCAxOSAwOjE1IC8gL3J1biBydyxub3N1aWQsbm9kZXYscmVsYXRpbWUgLSB0
-bXBmcyBydW4gcncsbW9kZT03NTUKMTkgMSA4OjMgLyAvIHJ3LHJlbGF0aW1lIC0gZXh0NCAv
-ZGV2L3NkYTMgcncsZGF0YT1vcmRlcmVkCjIwIDE2IDA6MTYgLyAvc3lzL2tlcm5lbC9zZWN1
-cml0eSBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gc2VjdXJpdHlmcyBzZWN1
-cml0eWZzIHJ3CjIxIDE3IDA6MTcgLyAvZGV2L3NobSBydyxub3N1aWQsbm9kZXYgLSB0bXBm
-cyB0bXBmcyBydwoyMiAxNyAwOjExIC8gL2Rldi9wdHMgcncsbm9zdWlkLG5vZXhlYyxyZWxh
-dGltZSAtIGRldnB0cyBkZXZwdHMgcncsZ2lkPTUsbW9kZT02MjAscHRteG1vZGU9MDAwCjIz
-IDE2IDA6MTggLyAvc3lzL2ZzL2Nncm91cCBydyxub3N1aWQsbm9kZXYsbm9leGVjIC0gdG1w
-ZnMgdG1wZnMgcncsbW9kZT03NTUKMjQgMjMgMDoxOSAvIC9zeXMvZnMvY2dyb3VwL3N5c3Rl
-bWQgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncs
-eGF0dHIscmVsZWFzZV9hZ2VudD0vdXNyL2xpYi9zeXN0ZW1kL3N5c3RlbWQtY2dyb3Vwcy1h
-Z2VudCxuYW1lPXN5c3RlbWQKMjUgMTYgMDoyMCAvIC9zeXMvZnMvcHN0b3JlIHJ3LG5vc3Vp
-ZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBwc3RvcmUgcHN0b3JlIHJ3CjI2IDE2IDA6MjEg
-LyAvc3lzL2Zpcm13YXJlL2VmaS9lZml2YXJzIHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVs
-YXRpbWUgLSBlZml2YXJmcyBlZml2YXJmcyBydwoyNyAyMyAwOjIyIC8gL3N5cy9mcy9jZ3Jv
-dXAvY3B1c2V0IHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dy
-b3VwIHJ3LGNwdXNldAoyOCAyMyAwOjIzIC8gL3N5cy9mcy9jZ3JvdXAvY3B1LGNwdWFjY3Qg
-cncsbm9zdWlkLG5vZGV2LG5vZXhlYyxyZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncsY3B1
-YWNjdCxjcHUKMjkgMjMgMDoyNCAvIC9zeXMvZnMvY2dyb3VwL21lbW9yeSBydyxub3N1aWQs
-bm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gY2dyb3VwIGNncm91cCBydyxtZW1vcnkKMzAgMjMg
-MDoyNSAvIC9zeXMvZnMvY2dyb3VwL2RldmljZXMgcncsbm9zdWlkLG5vZGV2LG5vZXhlYyxy
-ZWxhdGltZSAtIGNncm91cCBjZ3JvdXAgcncsZGV2aWNlcwozMSAyMyAwOjI2IC8gL3N5cy9m
-cy9jZ3JvdXAvZnJlZXplciBydyxub3N1aWQsbm9kZXYsbm9leGVjLHJlbGF0aW1lIC0gY2dy
-b3VwIGNncm91cCBydyxmcmVlemVyCjMyIDIzIDA6MjcgLyAvc3lzL2ZzL2Nncm91cC9uZXRf
-Y2xzIHJ3LG5vc3VpZCxub2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dyb3VwIHJ3
-LG5ldF9jbHMKMzMgMjMgMDoyOCAvIC9zeXMvZnMvY2dyb3VwL2Jsa2lvIHJ3LG5vc3VpZCxu
-b2Rldixub2V4ZWMscmVsYXRpbWUgLSBjZ3JvdXAgY2dyb3VwIHJ3LGJsa2lvCjM0IDE1IDA6
-MjkgLyAvcHJvYy9zeXMvZnMvYmluZm10X21pc2MgcncscmVsYXRpbWUgLSBhdXRvZnMgc3lz
-dGVtZC0xIHJ3LGZkPTIxLHBncnA9MSx0aW1lb3V0PTMwMCxtaW5wcm90bz01LG1heHByb3Rv
-PTUsZGlyZWN0CjM1IDE5IDA6MzAgLyAvYm9vdCBydyxyZWxhdGltZSAtIGF1dG9mcyBzeXN0
-ZW1kLTEgcncsZmQ9MjIscGdycD0xLHRpbWVvdXQ9MzAwLG1pbnByb3RvPTUsbWF4cHJvdG89
-NSxkaXJlY3QKMzYgMzQgMDozMSAvIC9wcm9jL3N5cy9mcy9iaW5mbXRfbWlzYyBydyxyZWxh
-dGltZSAtIGJpbmZtdF9taXNjIGJpbmZtdF9taXNjIHJ3CjM3IDE5IDA6MzIgLyAvdG1wIHJ3
-IC0gdG1wZnMgdG1wZnMgcncKMzggMTcgMDoxMyAvIC9kZXYvbXF1ZXVlIHJ3LHJlbGF0aW1l
-IC0gbXF1ZXVlIG1xdWV1ZSBydwo0MCAxNiAwOjcgLyAvc3lzL2tlcm5lbC9kZWJ1ZyBydyxy
-ZWxhdGltZSAtIGRlYnVnZnMgZGVidWdmcyBydwozOSAxNyAwOjMzIC8gL2Rldi9odWdlcGFn
-ZXMgcncscmVsYXRpbWUgLSBodWdldGxiZnMgaHVnZXRsYmZzIHJ3CjQyIDE2IDA6MzQgLyAv
-c3lzL2tlcm5lbC9jb25maWcgcncscmVsYXRpbWUgLSBjb25maWdmcyBjb25maWdmcyBydwo0
-NCAzNSA4OjIgLyAvYm9vdCBydyxub2F0aW1lIC0gZXh0NCAvZGV2L3NkYTIgcncsZGF0YT1v
-cmRlcmVkCjQzIDE5IDg6NCAvIC9ob21lIHJ3LG5vYXRpbWUgLSBleHQ0IC9kZXYvc2RhNCBy
-dyxkYXRhPW9yZGVyZWQKNDUgNDQgODoxIC8gL2Jvb3QvZWZpIHJ3LG5vYXRpbWUgLSB2ZmF0
-IC9kZXYvc2RhMSBydyxmbWFzaz0wMTMzLGRtYXNrPTAwMjIsY29kZXBhZ2U9NDM3LGlvY2hh
-cnNldD1pc284ODU5LTEsc2hvcnRuYW1lPW1peGVkLGVycm9ycz1yZW1vdW50LXJvCjQ2IDQz
-IDA6MzUgLyAvaG9tZS9ncmF3aXR5L1ByaXZhdGUgcncsbm9zdWlkLG5vZGV2LHJlbGF0aW1l
-IC0gZWNyeXB0ZnMgL2hvbWUvZ3Jhd2l0eS8uUHJpdmF0ZSBydyxlY3J5cHRmc19mbmVrX3Np
-Zz0yNGY0MTcyNTBkMzI0YTY0LGVjcnlwdGZzX3NpZz1mNjE1ZjY4MzBmMDUyYTc3LGVjcnlw
-dGZzX2NpcGhlcj1hZXMsZWNyeXB0ZnNfa2V5X2J5dGVzPTE2LGVjcnlwdGZzX3VubGlua19z
-aWdzCg==
---------------090805040200030705070605
-Content-Type: text/plain; charset=UTF-8;
- name="bad-findmnt-debug.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="bad-findmnt-debug.txt"
-
-NTY0NTA5OiBsaWJtb3VudDogICAgIElOSVQ6IGxpYnJhcnkgZGVidWcgbWFzazogMHhmZmZm
-CjU2NDUwOTogbGlibW91bnQ6ICAgICBJTklUOiBsaWJyYXJ5IHZlcnNpb246IDIuMjQuMAo1
-NjQ1MDk6IGxpYm1vdW50OiAgICAgSU5JVDogICAgIGZlYXR1cmU6IGRlYnVnCjU2NDUwOTog
-bGlibW91bnQ6ICAgICBJTklUOiAgICAgZmVhdHVyZTogYXNzZXJ0CjU2NDUwOTogbGlibW91
-bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogYWxsb2MKNTY0NTA5OiBsaWJtb3VudDogICAg
-ICBUQUI6IFsweDE3ODZkYTBdOiAvcHJvYy9zZWxmL21vdW50aW5mbzogc3RhcnQgcGFyc2lu
-ZyBbZW50cmllcz0wLCBmaWx0ZXI9bm90XQo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjog
-dHJ5aW5nIHRvIGd1ZXNzIHRhYmxlIHR5cGUKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6
-IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IHByb2MgL3Byb2MKNTY0NTA5OiBsaWJtb3VudDog
-ICAgICBUQUI6IFRJRCBmb3IgL3Byb2Mvc2VsZi9tb3VudGluZm8gaXMgNTY0NTA5CjU2NDUw
-OTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiBzeXMgL3N5
-cwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTog
-ZGV2IC9kZXYKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQg
-ZW50cnk6IHJ1biAvcnVuCjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEw
-XTogYWRkIGVudHJ5OiAvZGV2L3NkYTMgLwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjog
-WzB4MTc4NmRhMF06IGFkZCBlbnRyeTogc2VjdXJpdHlmcyAvc3lzL2tlcm5lbC9zZWN1cml0
-eQo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTog
-dG1wZnMgL2Rldi9zaG0KNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBd
-OiBhZGQgZW50cnk6IGRldnB0cyAvZGV2L3B0cwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRB
-QjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogdG1wZnMgL3N5cy9mcy9jZ3JvdXAKNTY0NTA5
-OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGNncm91cCAv
-c3lzL2ZzL2Nncm91cC9zeXN0ZW1kCjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgx
-Nzg2ZGEwXTogYWRkIGVudHJ5OiBwc3RvcmUgL3N5cy9mcy9wc3RvcmUKNTY0NTA5OiBsaWJt
-b3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGVmaXZhcmZzIC9zeXMv
-ZmlybXdhcmUvZWZpL2VmaXZhcnMKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3
-ODZkYTBdOiBhZGQgZW50cnk6IGNncm91cCAvc3lzL2ZzL2Nncm91cC9jcHVzZXQKNTY0NTA5
-OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGNncm91cCAv
-c3lzL2ZzL2Nncm91cC9jcHUsY3B1YWNjdAo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjog
-WzB4MTc4NmRhMF06IGFkZCBlbnRyeTogY2dyb3VwIC9zeXMvZnMvY2dyb3VwL21lbW9yeQo1
-NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogY2dy
-b3VwIC9zeXMvZnMvY2dyb3VwL2RldmljZXMKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6
-IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGNncm91cCAvc3lzL2ZzL2Nncm91cC9mcmVlemVy
-CjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiBj
-Z3JvdXAgL3N5cy9mcy9jZ3JvdXAvbmV0X2Nscwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRB
-QjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogY2dyb3VwIC9zeXMvZnMvY2dyb3VwL2Jsa2lv
-CjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiBz
-eXN0ZW1kLTEgL3Byb2Mvc3lzL2ZzL2JpbmZtdF9taXNjCjU2NDUwOTogbGlibW91bnQ6ICAg
-ICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiBzeXN0ZW1kLTEgL2Jvb3QKNTY0NTA5
-OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGJpbmZtdF9t
-aXNjIC9wcm9jL3N5cy9mcy9iaW5mbXRfbWlzYwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRB
-QjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogZGVidWdmcyAvc3lzL2tlcm5lbC9kZWJ1Zwo1
-NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogaHVn
-ZXRsYmZzIC9kZXYvaHVnZXBhZ2VzCjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgx
-Nzg2ZGEwXTogYWRkIGVudHJ5OiB0bXBmcyAvdG1wCjU2NDUwOTogbGlibW91bnQ6ICAgICAg
-VEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiBtcXVldWUgL2Rldi9tcXVldWUKNTY0NTA5
-OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IGNvbmZpZ2Zz
-IC9zeXMva2VybmVsL2NvbmZpZwo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4
-NmRhMF06IGFkZCBlbnRyeTogL2Rldi9zZGE0IC9ob21lCjU2NDUwOTogbGlibW91bnQ6ICAg
-ICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiAvZGV2L3NkYTIgL2Jvb3QKNTY0NTA5
-OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBhZGQgZW50cnk6IC9kZXYvc2Rh
-MSAvYm9vdC9lZmkKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBh
-ZGQgZW50cnk6IGZ1c2VjdGwgL3N5cy9mcy9mdXNlL2Nvbm5lY3Rpb25zCjU2NDUwOTogbGli
-bW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogYWRkIGVudHJ5OiAvaG9tZS9ncmF3aXR5
-Ly5Qcml2YXRlIC9ob21lL2dyYXdpdHkvUHJpdmF0ZQo1NjQ1MDk6IGxpYm1vdW50OiAgICAg
-IFRBQjogWzB4MTc4NmRhMF06IGFkZCBlbnRyeTogZ3Zmc2QtZnVzZSAvcnVuL3VzZXIvMTAw
-MC9ndmZzCjU2NDUwOTogbGlibW91bnQ6ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogL3Byb2Mv
-c2VsZi9tb3VudGluZm86IHN0b3AgcGFyc2luZyAoMzMgZW50cmllcykKNTY0NTA5OiBsaWJt
-b3VudDogICAgQ0FDSEU6IFsweDE3OGUyMTBdOiBhbGxvYwo1NjQ1MDk6IGxpYm1vdW50OiAg
-ICAgIFRBQjogWzB4MTc4NmRhMF06IGxvb2t1cCByb290IGZzCjU2NDUwOTogbGlibW91bnQ6
-ICAgICAgVEFCOiBbMHgxNzg2ZGEwXTogbG9va3VwIG5leHQgY2hpbGQgb2YgJy9wcm9jJwo1
-NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGxvb2t1cCBuZXh0IGNo
-aWxkIG9mICcvcHJvYy9zeXMvZnMvYmluZm10X21pc2MnCjU2NDUwOTogbGlibW91bnQ6ICAg
-ICAgVEFCOiBbMHgxNzg2ZGEwXTogbG9va3VwIG5leHQgY2hpbGQgb2YgJy9wcm9jL3N5cy9m
-cy9iaW5mbXRfbWlzYycKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBd
-OiBsb29rdXAgbmV4dCBjaGlsZCBvZiAnL3Byb2Mvc3lzL2ZzL2JpbmZtdF9taXNjJwo1NjQ1
-MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGxvb2t1cCBuZXh0IGNoaWxk
-IG9mICcvcHJvYycKNTY0NTA5OiBsaWJtb3VudDogICAgICBUQUI6IFsweDE3ODZkYTBdOiBy
-ZXNldAo1NjQ1MDk6IGxpYm1vdW50OiAgICAgIFRBQjogWzB4MTc4NmRhMF06IGZyZWUKNTY0
-NTA5OiBsaWJtb3VudDogICAgQ0FDSEU6IFsweDE3OGUyMTBdOiBmcmVlClRBUkdFVCAgICAg
-ICAgICAgICAgICAgICAgICAgU09VUkNFICAgICAgRlNUWVBFICAgICAgT1BUSU9OUwovcHJv
-YyAgICAgICAgICAgICAgICAgICAgICAgIHByb2MgICAgICAgIHByb2MgICAgICAgIHJ3LG5v
-c3VpZCxub2Rldixub2V4ZWMscmVsYXRpbWUK4pSU4pSAL3Byb2Mvc3lzL2ZzL2JpbmZtdF9t
-aXNjICAgc3lzdGVtZC0xICAgYXV0b2ZzICAgICAgcncscmVsYXRpbWUsZmQ9MjEscGdycD0x
-LHRpbWVvdXQ9MzAwLG1pbnByb3RvPTUsbWF4cHJvdG89NSxkaXJlY3QKICDilJTilIAvcHJv
-Yy9zeXMvZnMvYmluZm10X21pc2MgYmluZm10X21pc2MgYmluZm10X21pc2MgcncscmVsYXRp
-bWUK
---------------090805040200030705070605--
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
