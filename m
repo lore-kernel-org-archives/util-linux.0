@@ -1,35 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44601 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751851AbaBQMTr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 17 Feb 2014 07:19:47 -0500
-Date: Mon, 17 Feb 2014 13:19:43 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
+Received: from alerce.vps.bitfolk.com ([85.119.82.134]:48312 "EHLO
+	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752506AbaBNNg1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Feb 2014 08:36:27 -0500
+Date: Fri, 14 Feb 2014 13:35:51 +0000
+From: Rodrigo Campos <rodrigo@sdfg.com.ar>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Can't unmount broken nfs mount
-Message-ID: <20140217121943.GE2254@x2.net.home>
-References: <52F95FD1.5090305@ubuntu.com>
+Subject: Re: [PATCH v3] fallocate: Add "--dig-holes" option
+Message-ID: <20140214133551.GF7927@sdfg.com.ar>
+References: <1390747439-14086-1-git-send-email-rodrigo@sdfg.com.ar>
+ <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
+ <20140214104756.GA28125@x2.net.home>
+ <20140214130752.GD7927@sdfg.com.ar>
+ <20140214133059.GC28125@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52F95FD1.5090305@ubuntu.com>
+In-Reply-To: <20140214133059.GC28125@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 10, 2014 at 06:25:05PM -0500, Phillip Susi wrote:
-> Forwarding from debian bug #711183:
+On Fri, Feb 14, 2014 at 02:30:59PM +0100, Karel Zak wrote:
+> On Fri, Feb 14, 2014 at 01:07:53PM +0000, Rodrigo Campos wrote:
+> > On Fri, Feb 14, 2014 at 11:47:56AM +0100, Karel Zak wrote:
+> > > > +	for (off_t offset = 0; offset + hole_size <= end; offset += buf_len) {
+> > >          ^^^^^^^^^^^
+> > > 
+> > >  Yes it's expected by C standards, but it sucks. Don't use it, it's
+> > >  reader's nightmare.
+> > 
+> > Ohh, I didn't know. Can I ask why ?
+> > 
+> > And what type should I use ? loff_t ? Why is this better ?
+> > 
+> > (just curious, I want to understand :))
 > 
-> User reports that a broken nfs mount has its mounted directory in
-> /proc/mounts renamed from /foo to /foo\040(deleted) when an nfs mount
-> is broken due to an unreachable server, and this prevents unmounting
-> it since umount can not find "/foo" in /proc/mounts.  Is this a kernel
-> bug, or something that umount needs to work around?
+>  Ah, my mistake.. I have no talked about "off_t", but about variables
+>  declarations. It's always better to have declarations at the begin of
+>  the code block or function. 
+> 
+>     for (int i = 0; ... )
+> 
+>  is C++ism that for unknown crazy reason has been accepted by C
+>  compilers/standards (C99). 
 
-I have improved the mountinfo libmount parser, now it removes the
-"\040(deleted)" from the target path. You can try it with NFS.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Ohh, sorry, my bad. I see you already fixed it also, thanks! :)
