@@ -1,90 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f51.google.com ([209.85.215.51]:55522 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751900AbaB1SSp convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 13:18:45 -0500
-Received: by mail-la0-f51.google.com with SMTP id pv20so2174083lab.38
-        for <util-linux@vger.kernel.org>; Fri, 28 Feb 2014 10:18:43 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:25365 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750932AbaBNKsG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 14 Feb 2014 05:48:06 -0500
+Date: Fri, 14 Feb 2014 11:47:56 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Rodrigo Campos <rodrigo@sdfg.com.ar>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v3] fallocate: Add "--dig-holes" option
+Message-ID: <20140214104756.GA28125@x2.net.home>
+References: <1390747439-14086-1-git-send-email-rodrigo@sdfg.com.ar>
+ <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
 MIME-Version: 1.0
-In-Reply-To: <5310B80C.7000205@ubuntu.com>
-References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
-	<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>
-	<CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>
-	<5310B80C.7000205@ubuntu.com>
-Date: Fri, 28 Feb 2014 19:18:43 +0100
-Message-ID: <CAKC8-7xHSxCbfqATDUBp+9h9B4LSMz9XhT5U5WpHWEKDAnTJbQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
-From: =?ISO-8859-2?Q?Maciej_Ma=B3ecki?= <me@mmalecki.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: Davidlohr Bueso <davidlohr@hp.com>, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Phillip,
+On Sun, Jan 26, 2014 at 03:06:50PM +0000, Rodrigo Campos wrote:
+>  bash-completion/fallocate |   2 +-
+>  sys-utils/fallocate.1     |  19 +++++++-
+>  sys-utils/fallocate.c     | 114 ++++++++++++++++++++++++++++++++++++++++------
+>  3 files changed, 120 insertions(+), 15 deletions(-)
 
-That's pretty much what I thought about this function, but didn't want
-to make too intrusive changes. I'll make this patch do that instead
-(i.e. warn and retry opening in read-only mode in `fdisk`land, not
-`libfdisk`land). Thanks for the review.
+ Applied with some changes and I believe that the code still need some
+ improvements, see below
 
-On Fri, Feb 28, 2014 at 5:23 PM, Phillip Susi <psusi@ubuntu.com> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 2/28/2014 6:00 AM, Maciej Małecki wrote:
->>>> libfdisk/src/context.c | 17 +++++++++++++---- 1 file changed,
->>>> 13 insertions(+), 4 deletions(-)
->>>>
->>>> diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
->>>> index c405403..40f9080 100644 --- a/libfdisk/src/context.c +++
->>>> b/libfdisk/src/context.c @@ -248,17 +248,26 @@ static int
->>>> warn_wipe(struct fdisk_context *cxt) int
->>>> fdisk_context_assign_device(struct fdisk_context *cxt, const
->>>> char *fname, int readonly) { -     int fd; +     int fd, mode;
->>>>
->>>> DBG(CONTEXT, dbgprint("assigning device %s", fname));
->>>> assert(cxt);
->>>>
->>>> reset_context(cxt);
->>>>
->>>> -     if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC))
->>>> < 0) { -             if ((fd = open(fname, O_RDONLY|O_CLOEXEC))
->>>> < 0) +retry: +     mode = (readonly ? O_RDONLY : O_RDWR) |
->>>> O_CLOEXEC; +     fd = open(fname, mode); +     if (fd < 0) { +
->>>> if (readonly) return -errno; -             readonly = 1; +
->>>> else { +                     fdisk_warn(cxt, +
->>>> _("%s: opening device in read write mode failed"), +
->>>> fname); +                     readonly = 1; +
->>>> goto retry; +             } }
->>>
->>> This is 1) obscenely ugly and 2) not the place for such message.
->>> There's no reason to pollute output like this. Why do I care how
->>> the device is opened when I'm not going to write anything to it?
->>>
->>> The correct way is to do what you do in patch 2, inform the user
->>> that the device is only for opened for reading and just skip the
->>> write operation.
->
-> You really want to tell the user that they aren't going to be able to
-> write up front.
->
-> I have to say this function was already broken.  If the caller
-> requests write access and that fails, then the call should fail.  It
-> should *not* automatically fall back to read-only without giving any
-> indication to the caller.  If the caller wants to retry for read only,
-> then it can, and print a warning letting the user know it has switched
-> to ready only.
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v2.0.17 (MingW32)
-> Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
->
-> iQEcBAEBAgAGBQJTELgMAAoJEI5FoCIzSKrwlM0H/iVJLdAPqE3OOgaIJRmk+NC5
-> uLlMwVMY4zHJakuq4GtxX5rekdy+kLTuVokZjxUTcI2WM9uBJwFXSwd4sPJ2i3C+
-> 47w8tS4FMzP4LKOck60cc61FpAaKaqez9GGQ8zkMNZnt5S6ptCOOoMGtYuqXm1AW
-> LWYHSbSsmXsTiQIWLEg/GZhBMUaInjcMiVr4nzINXN8CnwJ695Xyold0rnkAHxK0
-> +FhKNtGuab88GjGosla9kK1Nd2/6rjLt6HqYDBHfZaWkcTzjv4y+OCEz6Am7SFZp
-> PkrqmWV0FXvUGj8C4RrNf3dSiElorgkPbTS1P1+JRNFLZIAO7YFbapke7MZ4eDg=
-> =7pzO
-> -----END PGP SIGNATURE-----
+> + */
+> +static int detect_holes(int fd, size_t hole_size)
+> +{
+> +	int ret = 0;
+> +	int err;
+> +
+> +	if (hole_size >= 100 * 1024 * 1024) {
+> +		size_t ram_mb = hole_size / 1024 / 1024;
+> +		printf("WARNING: %zu MB RAM will be used\n", ram_mb);
+> +		sleep(3);
+> +	}
+
+ I have removed this thing... 
+ 
+ I don't like all the detection algorithm. Do we really need to allocate 
+ all hole size and the buffer? 
+
+ IMHO it would be enough to:
+
+ * add posix_fadvise(... POSIX_FADV_SEQUENTIAL | POSIX_FADV_NOREUSE)
+
+ * read the file in small chunks -- for example BUFSIZ and compare
+   this with small empty static buffer.
+
+ .. it's kernel business to read from FS/device in optimal way and I
+ don't think that context switches are so critical issue when all the
+ thing is about I/O.
+
+ I didn't test it, so maybe I'm wrong, but the current code where we
+ eat RAM seems too crazy. Comments?
+
+> +	/* Create a buffer of '\0's to compare against */
+> +	/* XXX: Use mmap() with MAP_PRIVATE so Linux can avoid this allocation */
+> +	void *zeros = mmap(NULL, hole_size, PROT_READ,
+> +	                   MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+> +	if (zeros == MAP_FAILED) {
+> +		perror("mmap");
+
+ we use err.h stuff, and it's usually good enough to exit after error
+ than waste time with memory deallocation and another clean ups. The
+ kernel is smart enough to clean up after exit().
+
+> +	off_t end = lseek(fd, 0, SEEK_END);
+    ^^^^^^^^^^^^^^
+> +	if (end == -1) {
+> +		perror("lseek");
+> +		ret = -1;
+> +		goto out;
+> +	}
+> +
+> +	for (off_t offset = 0; offset + hole_size <= end; offset += buf_len) {
+         ^^^^^^^^^^^
+
+ Yes it's expected by C standards, but it sucks. Don't use it, it's
+ reader's nightmare.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
