@@ -1,89 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25365 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750932AbaBNKsG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 14 Feb 2014 05:48:06 -0500
-Date: Fri, 14 Feb 2014 11:47:56 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Rodrigo Campos <rodrigo@sdfg.com.ar>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v3] fallocate: Add "--dig-holes" option
-Message-ID: <20140214104756.GA28125@x2.net.home>
-References: <1390747439-14086-1-git-send-email-rodrigo@sdfg.com.ar>
- <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:54624 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752178AbaBOECq (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Fri, 14 Feb 2014 23:02:46 -0500
+Message-ID: <52FEE6E5.7010206@ubuntu.com>
+Date: Fri, 14 Feb 2014 23:02:45 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux-ng@vger.kernel.org
+Subject: Re: findmnt/df discrepancy
+References: <52FB9355.3090702@gmail.com> <20140212153806.GB583@rampage>
+In-Reply-To: <20140212153806.GB583@rampage>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 26, 2014 at 03:06:50PM +0000, Rodrigo Campos wrote:
->  bash-completion/fallocate |   2 +-
->  sys-utils/fallocate.1     |  19 +++++++-
->  sys-utils/fallocate.c     | 114 ++++++++++++++++++++++++++++++++++++++++------
->  3 files changed, 120 insertions(+), 15 deletions(-)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
- Applied with some changes and I believe that the code still need some
- improvements, see below
+On 02/12/2014 10:38 AM, Dave Reisner wrote:
+> It's the reserved space on the filesystem. On an ext4 FS where the 
+> reserved space is 0%, df and findmnt (mostly) agree:
 
-> + */
-> +static int detect_holes(int fd, size_t hole_size)
-> +{
-> +	int ret = 0;
-> +	int err;
-> +
-> +	if (hole_size >= 100 * 1024 * 1024) {
-> +		size_t ram_mb = hole_size / 1024 / 1024;
-> +		printf("WARNING: %zu MB RAM will be used\n", ram_mb);
-> +		sleep(3);
-> +	}
+Why would findmnt report a different value?  It is the kernel that
+adjusts the numbers it returns in statfs(), which both should be using.
 
- I have removed this thing... 
- 
- I don't like all the detection algorithm. Do we really need to allocate 
- all hole size and the buffer? 
 
- IMHO it would be enough to:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
- * add posix_fadvise(... POSIX_FADV_SEQUENTIAL | POSIX_FADV_NOREUSE)
-
- * read the file in small chunks -- for example BUFSIZ and compare
-   this with small empty static buffer.
-
- .. it's kernel business to read from FS/device in optimal way and I
- don't think that context switches are so critical issue when all the
- thing is about I/O.
-
- I didn't test it, so maybe I'm wrong, but the current code where we
- eat RAM seems too crazy. Comments?
-
-> +	/* Create a buffer of '\0's to compare against */
-> +	/* XXX: Use mmap() with MAP_PRIVATE so Linux can avoid this allocation */
-> +	void *zeros = mmap(NULL, hole_size, PROT_READ,
-> +	                   MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-> +	if (zeros == MAP_FAILED) {
-> +		perror("mmap");
-
- we use err.h stuff, and it's usually good enough to exit after error
- than waste time with memory deallocation and another clean ups. The
- kernel is smart enough to clean up after exit().
-
-> +	off_t end = lseek(fd, 0, SEEK_END);
-    ^^^^^^^^^^^^^^
-> +	if (end == -1) {
-> +		perror("lseek");
-> +		ret = -1;
-> +		goto out;
-> +	}
-> +
-> +	for (off_t offset = 0; offset + hole_size <= end; offset += buf_len) {
-         ^^^^^^^^^^^
-
- Yes it's expected by C standards, but it sucks. Don't use it, it's
- reader's nightmare.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBCgAGBQJS/ublAAoJEI5FoCIzSKrwhYwH/RQeM8f0vTACy6bRGzCtFyPy
+YJL4/GAJk2B4tTPGqcAUFaByu5XR760unjMvk6TRUjgvPtJN35oaF0SwYqA68o7Q
+GviH5+21hztANKQz/JO6RZPbzueEttSlCsAjNbhuFmY/+ysMkxGA9inlNyE14MU0
+pGOfTtpw0vAAJFX0+7gjGZZkOsm8yYH4yhb0ERoQACYZxrcFLRaqxV+V3eKhtZuo
+tFvP2mNXCPk4AyP9oXaepPESBaZmmPNh81FvZBAarZURKefPJDw5TJslZmeLAO1O
+fWUmEa+xBexX7jSwqgdeIYk0Inci+X2kTx5dckkQM9LcnVqJ67nYufb+IDzQoow=
+=USil
+-----END PGP SIGNATURE-----
