@@ -1,62 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:36708 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617AbaBHRP5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Feb 2014 12:15:57 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:38957 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752290AbaBPPXN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 10:23:13 -0500
+Received: by mail-wi0-f181.google.com with SMTP id hi5so1685596wib.14
+        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 07:23:12 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] more: comply with howto-usage-function.txt
-Date: Sat,  8 Feb 2014 12:15:55 -0500
-Message-Id: <1391879755-11534-1-git-send-email-psusi@ubuntu.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/4] tools: make config-gen to require build target argument
+Date: Sun, 16 Feb 2014 15:22:55 +0000
+Message-Id: <1392564176-11596-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
+References: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add angle brackets around the -<num> argument to make it
-clear that this is a number, and not the word "NUM"
+When argument is not supplied help user by telling what arguments can be
+used.
 
-Signed-off-by: Phillip Susi <psusi@ubuntu.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- text-utils/more.1 | 4 ++--
- text-utils/more.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ tools/config-gen | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/text-utils/more.1 b/text-utils/more.1
-index 479f037..b6b6585 100644
---- a/text-utils/more.1
-+++ b/text-utils/more.1
-@@ -59,7 +59,7 @@ environment variable
- override them.
- .It Fl num
- .TP
--.B \-number
-+.B \-<number>
- This option specifies an integer
- .I number
- which is the screen size (in lines).
-@@ -106,7 +106,7 @@ The
- option specifies a string that will be searched for before each file is
- displayed.
- .TP
--.B +number
-+.B +<number>
- Start at line
- .IR number .
- .SH COMMANDS
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 4c39887..1a93257 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -327,8 +327,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 		  "  -c        do not scroll, display text and clean line ends\n"
- 		  "  -u        suppress underlining\n"
- 		  "  -s        squeeze multiple blank lines into one\n"
--		  "  -NUM      specify the number of lines per screenful\n"
--		  "  +NUM      display file beginning from line number NUM\n"
-+		  "  -<NUM>    specify NUM number of lines per screenful\n"
-+		  "  +<NUM>    display file beginning from line number NUM\n"
- 		  "  +/STRING  display file beginning from search string match\n"
- 		  "  -V        output version information and exit\n"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+diff --git a/tools/config-gen b/tools/config-gen
+index b7ccadd..5febdc4 100755
+--- a/tools/config-gen
++++ b/tools/config-gen
+@@ -12,6 +12,15 @@ test -f sys-utils/mount.c || {
+ 
+ . tools/config-gen-functions.sh
+ 
++if [ $# -eq 0 ]; then
++	echo "This script requires at least one of the folloving arguments:"
++	cd tools/config-gen.d
++	for i in *.conf; do
++		echo "  ${i%%.conf}"
++	done
++	exit 1
++fi
++
+ while [ -n "$1" ]; do
+ 	opts="$opts $(ul_get_configuration tools/config-gen.d/$1.conf)"
+ 	shift
 -- 
-1.8.3.2
+1.8.5.5
 
