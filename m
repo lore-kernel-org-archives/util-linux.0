@@ -1,46 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from kontorsmtp2.one.com ([195.47.247.17]:52507 "EHLO
-	kontorsmtp2.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752316AbaBRTs5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 18 Feb 2014 14:48:57 -0500
-From: Jesper Dahl Nyerup <nyerup@one.com>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:63483 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753600AbaBPXyz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 18:54:55 -0500
+Received: by mail-we0-f175.google.com with SMTP id q59so9954448wes.6
+        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 15:54:54 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: nyerup@one.com
-Subject: [PATCH] script: Also flush writes to timing file.
-Date: Tue, 18 Feb 2014 20:48:45 +0100
-Message-Id: <1392752925-48502-1-git-send-email-nyerup@one.com>
-In-Reply-To: <1392673386-42128-1-git-send-email-nyerup@one.com>
-References: <1392673386-42128-1-git-send-email-nyerup@one.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 9/9] isosize: make --divisor to require argument
+Date: Sun, 16 Feb 2014 23:54:22 +0000
+Message-Id: <1392594862-15807-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If both -f and -t are given, flush the timing fd on each write, similar
-to the behavior on the script fd. This allows playback of still-running
-sessions, and reduces the risk of ending up with empty timing files when
-script(1) exits abnormally.
+Silly bug, only the short option -d allowed divisor argument.
 
-Signed-off-by: Jesper Dahl Nyerup <nyerup@one.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- term-utils/script.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ disk-utils/isosize.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index a4c2e0c..d6e04d6 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -440,8 +440,11 @@ dooutput(FILE *timingfd) {
- 			warn (_("cannot write script file"));
- 			fail();
- 		}
--		if (fflg)
-+		if (fflg) {
- 			fflush(fscript);
-+			if (tflg)
-+				fflush(timingfd);
-+		}
- 		if (write_all(STDOUT_FILENO, obuf, cc)) {
- 			warn (_("write failed"));
- 			fail();
+diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
+index f90029e..5030a50 100644
+--- a/disk-utils/isosize.c
++++ b/disk-utils/isosize.c
+@@ -186,7 +186,7 @@ int main(int argc, char **argv)
+ 	long divisor = 0;
+ 
+ 	static const struct option longopts[] = {
+-		{"divisor", no_argument, 0, 'd'},
++		{"divisor", required_argument, 0, 'd'},
+ 		{"sectors", no_argument, 0, 'x'},
+ 		{"version", no_argument, 0, 'V'},
+ 		{"help", no_argument, 0, 'h'},
 -- 
-1.8.4
+1.9.0
 
