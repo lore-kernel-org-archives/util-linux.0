@@ -1,31 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28523 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750952AbaBFOgM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 6 Feb 2014 09:36:12 -0500
-Date: Thu, 6 Feb 2014 15:36:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: cfdisk trips on out of order logical partitions
-Message-ID: <20140206143608.GB12324@x2.net.home>
-References: <52851A42.7090401@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <52851A42.7090401@ubuntu.com>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:41082 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752290AbaBPPXJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 10:23:09 -0500
+Received: by mail-we0-f180.google.com with SMTP id u57so10047657wes.11
+        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 07:23:07 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/4] build-sys: add libs-only to config-gen.d
+Date: Sun, 16 Feb 2014 15:22:54 +0000
+Message-Id: <1392564176-11596-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
+References: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 14, 2013 at 01:45:22PM -0500, Phillip Susi wrote:
-> cfdisk's partition parsing logic is flawed in that it assumes they are
-> in order, so if you have out of order partitions it complains that
-> they overlap.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tools/config-gen.d/libs-only.conf | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+ create mode 100644 tools/config-gen.d/libs-only.conf
 
- Note that I'm working on new cfdisk version and out-of-order
- partition will be definitely supported.
-
-    Karel
-
+diff --git a/tools/config-gen.d/libs-only.conf b/tools/config-gen.d/libs-only.conf
+new file mode 100644
+index 0000000..f000288
+--- /dev/null
++++ b/tools/config-gen.d/libs-only.conf
+@@ -0,0 +1,10 @@
++include:core.conf
++
++--disable-diskutils
++--disable-fdisks
++--disable-loginutils
++--disable-miscutils
++--disable-schedutils
++--disable-sysutils
++--disable-termutils
++--disable-textutils
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.5
+
