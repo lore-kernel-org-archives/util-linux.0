@@ -1,81 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60919 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751833AbaBNMDG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 14 Feb 2014 07:03:06 -0500
-Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 562ED20C82
-	for <util-linux@vger.kernel.org>; Fri, 14 Feb 2014 06:56:02 -0500 (EST)
-Message-Id: <1392378962.7365.83374729.31A9DCD2@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_139237896273651";
- charset="utf-8"
-Subject: [patch] silence two compiler warnings
-Date: Fri, 14 Feb 2014 12:56:02 +0100
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:35311 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752497AbaBPXyx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 18:54:53 -0500
+Received: by mail-wi0-f169.google.com with SMTP id e4so1876381wiv.2
+        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 15:54:52 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 8/9] tests: add isosize --sectors and --divisor tests
+Date: Sun, 16 Feb 2014 23:54:21 +0000
+Message-Id: <1392594862-15807-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/isosize/print-size                |  1 -
+ tests/expected/isosize/print-size-default_output |  1 +
+ tests/expected/isosize/print-size-divisor_output |  1 +
+ tests/expected/isosize/print-size-sector_output  |  1 +
+ tests/ts/isosize/print-size                      | 13 ++++++++++++-
+ 5 files changed, 15 insertions(+), 2 deletions(-)
+ delete mode 100644 tests/expected/isosize/print-size
+ create mode 100644 tests/expected/isosize/print-size-default_output
+ create mode 100644 tests/expected/isosize/print-size-divisor_output
+ create mode 100644 tests/expected/isosize/print-size-sector_output
 
---_----------=_139237896273651
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-
-
-Hi,
-
-Attached patch silences for me two compiler warnings
-about mismatching print specifiers.
-
-Regards,
-
-Benno
-
+diff --git a/tests/expected/isosize/print-size b/tests/expected/isosize/print-size
+deleted file mode 100644
+index 3def437..0000000
+--- a/tests/expected/isosize/print-size
++++ /dev/null
+@@ -1 +0,0 @@
+-515899392
+diff --git a/tests/expected/isosize/print-size-default_output b/tests/expected/isosize/print-size-default_output
+new file mode 100644
+index 0000000..3def437
+--- /dev/null
++++ b/tests/expected/isosize/print-size-default_output
+@@ -0,0 +1 @@
++515899392
+diff --git a/tests/expected/isosize/print-size-divisor_output b/tests/expected/isosize/print-size-divisor_output
+new file mode 100644
+index 0000000..ee214a6
+--- /dev/null
++++ b/tests/expected/isosize/print-size-divisor_output
+@@ -0,0 +1 @@
++57322154
+diff --git a/tests/expected/isosize/print-size-sector_output b/tests/expected/isosize/print-size-sector_output
+new file mode 100644
+index 0000000..dff3634
+--- /dev/null
++++ b/tests/expected/isosize/print-size-sector_output
+@@ -0,0 +1 @@
++sector count: 251904, sector size: 2048
+diff --git a/tests/ts/isosize/print-size b/tests/ts/isosize/print-size
+index 312fdc1..277c124 100755
+--- a/tests/ts/isosize/print-size
++++ b/tests/ts/isosize/print-size
+@@ -20,7 +20,18 @@ ts_init "$*"
+ 
+ ts_check_test_command "$TS_CMD_ISOSIZE"
+ 
+-gzip -cd $TS_SELF/sample.iso.gz > $TS_OUTDIR/sample.iso
++gzip -cd $TS_SELF/sample.iso.gz >| $TS_OUTDIR/sample.iso
++
++ts_init_subtest "default_output"
+ $TS_CMD_ISOSIZE $TS_OUTDIR/sample.iso >| $TS_OUTPUT 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "sector_output"
++$TS_CMD_ISOSIZE --sectors $TS_OUTDIR/sample.iso &> $TS_OUTPUT 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "divisor_output"
++$TS_CMD_ISOSIZE --divisor=9 $TS_OUTDIR/sample.iso &> $TS_OUTPUT 2>&1
++ts_finalize_subtest
+ 
+ ts_finalize
 -- 
-http://www.fastmail.fm - A no graphics, no pop-ups email service
-
-
---_----------=_139237896273651
-Content-Disposition: attachment; filename="0001-libfdisk-avoid-two-compiler-warnings-about-wrong-pri.patch"
-Content-Id: <1392378929.7046.c9001d0693389bb52fa585f21fded3d71cc01078.3B26FCCC@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-libfdisk-avoid-two-compiler-warnings-about-wrong-pri.patch"
-
-RnJvbSBiODU0NjQyODM0ZTA4OTc0ZTQzYjNlYjA1ZjRkY2I4NTJmMjliYzk1
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogVGh1LCAxMyBG
-ZWIgMjAxNCAyMTozNjo0MyArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGxpYmZk
-aXNrOiBhdm9pZCB0d28gY29tcGlsZXIgd2FybmluZ3MgYWJvdXQgd3Jvbmcg
-cHJpbnQgZm9ybWF0cwoKU2lnbmVkLW9mZi1ieTogQmVubm8gU2NodWxlbmJl
-cmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogbGliZmRpc2svc3Jj
-L2Rvcy5jIHwgICAgMiArLQogbGliZmRpc2svc3JjL2dwdC5jIHwgICAgMiAr
-LQogMiBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRp
-b25zKC0pCgpkaWZmIC0tZ2l0IGEvbGliZmRpc2svc3JjL2Rvcy5jIGIvbGli
-ZmRpc2svc3JjL2Rvcy5jCmluZGV4IDZhZjA2MWIuLmRiMDY2NmIgMTAwNjQ0
-Ci0tLSBhL2xpYmZkaXNrL3NyYy9kb3MuYworKysgYi9saWJmZGlzay9zcmMv
-ZG9zLmMKQEAgLTMwMyw3ICszMDMsNyBAQCBzdGF0aWMgdm9pZCBkb3NfaW5p
-dChzdHJ1Y3QgZmRpc2tfY29udGV4dCAqY3h0KQogCQlmZGlza193YXJueChj
-eHQsCiAJCV8oIlRoZSBzaXplIG9mIHRoaXMgZGlzayBpcyAlcyAoJWp1IGJ5
-dGVzKS4gRE9TICIKIAkJICAicGFydGl0aW9uIHRhYmxlIGZvcm1hdCBjYW4g
-bm90IGJlIHVzZWQgb24gZHJpdmVzIGZvciAiCi0JCSAgInZvbHVtZXMgbGFy
-Z2VyIHRoYW4gJWp1IGJ5dGVzIGZvciAlbHUtYnl0ZSAiCisJCSAgInZvbHVt
-ZXMgbGFyZ2VyIHRoYW4gJWx1IGJ5dGVzIGZvciAlbHUtYnl0ZSAiCiAJCSAg
-InNlY3RvcnMuIFVzZSBHVUlEIHBhcnRpdGlvbiB0YWJsZSBmb3JtYXQgKEdQ
-VCkuIiksCiAJCQlzenN0ciwgYnl0ZXMsCiAJCQlVSU5UX01BWCAqIGN4dC0+
-c2VjdG9yX3NpemUsCmRpZmYgLS1naXQgYS9saWJmZGlzay9zcmMvZ3B0LmMg
-Yi9saWJmZGlzay9zcmMvZ3B0LmMKaW5kZXggZGM2ZTZjNy4uZWIxNWQ4YyAx
-MDA2NDQKLS0tIGEvbGliZmRpc2svc3JjL2dwdC5jCisrKyBiL2xpYmZkaXNr
-L3NyYy9ncHQuYwpAQCAtMTg1MCw3ICsxODUwLDcgQEAgc3RhdGljIGludCBn
-cHRfYWRkX3BhcnRpdGlvbigKIAogCWlmIChncHRfY3JlYXRlX25ld19wYXJ0
-aXRpb24oY3h0LCBwYXJ0bnVtLAogCQkJCSAgICAgdXNlcl9mLCB1c2VyX2ws
-ICZ0eXBlaWQsIGVudHMpICE9IDApCi0JCWZkaXNrX3dhcm54KGN4dCwgXygi
-Q291bGQgbm90IGNyZWF0ZSBwYXJ0aXRpb24gJWp1IiksIHBhcnRudW0gKyAx
-KTsKKwkJZmRpc2tfd2FybngoY3h0LCBfKCJDb3VsZCBub3QgY3JlYXRlIHBh
-cnRpdGlvbiAlenUiKSwgcGFydG51bSArIDEpOwogCWVsc2UgewogCQlzdHJ1
-Y3QgZmRpc2tfcGFydHR5cGUgKnQ7CiAKLS0gCjEuNy4wLjQKCg==
-
---_----------=_139237896273651--
+1.9.0
 
