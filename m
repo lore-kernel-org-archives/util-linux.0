@@ -1,54 +1,47 @@
-Return-Path: rodrigo@sdfg.com.ar
-Date: Fri, 14 Feb 2014 13:16:22 +0000
-From: Rodrigo Campos <rodrigo@sdfg.com.ar>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v3] fallocate: Add "--dig-holes" option
-Message-ID: <20140214131622.GE7927@sdfg.com.ar>
-References: <1390747439-14086-1-git-send-email-rodrigo@sdfg.com.ar>
- <1390748810-14517-1-git-send-email-rodrigo@sdfg.com.ar>
- <20140214104756.GA28125@x2.net.home>
- <20140214113432.GB28125@x2.net.home>
+Return-Path: psusi@ubuntu.com
+Message-ID: <5302209E.4000102@ubuntu.com>
+Date: Mon, 17 Feb 2014 09:45:50 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140214113432.GB28125@x2.net.home>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: please document alternate "bind" syntax in mount(8)
+References: <52F50F60.3010103@ubuntu.com> <20140217115829.GD2254@x2.net.home>
+In-Reply-To: <20140217115829.GD2254@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 14, 2014 at 12:34:32PM +0100, Karel Zak wrote:
-> On Fri, Feb 14, 2014 at 11:47:56AM +0100, Karel Zak wrote:
-> >  I don't like all the detection algorithm. Do we really need to allocate 
-> >  all hole size and the buffer? 
-> > 
-> >  IMHO it would be enough to:
-> > 
-> >  * add posix_fadvise(... POSIX_FADV_SEQUENTIAL | POSIX_FADV_NOREUSE)
-> > 
-> >  * read the file in small chunks -- for example BUFSIZ and compare
-> >    this with small empty static buffer.
-> > 
-> >  .. it's kernel business to read from FS/device in optimal way and I
-> >  don't think that context switches are so critical issue when all the
-> >  thing is about I/O.
-> > 
-> >  I didn't test it, so maybe I'm wrong, but the current code where we
-> >  eat RAM seems too crazy. Comments?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 2/17/2014 6:58 AM, Karel Zak wrote:
+> I see section "The bind mounts." in the man mount page where is 
+> fstab example.
+
+Oh my... even being told right where it was I had to read it three
+times before I saw it.
+
+>> Isn't it also time to update the SYNOPSIS in mount(8), now that
+>> linux versions >=2.4.0 will be standard ?  I suggest adding two
+>> lines like this: mount { --bind | -o bind } olddir newdir mount {
+>> --rbind | -o rbind } olddir newdir or, possibly, just one line 
+>> mount { --bind | --rbind | -o bind | -o rbind } olddir newdir
 > 
->  .. and another issue, the current code assumes that the holes are
->  aligned to hole_size that we read from the file. If the hole starts
->  within the buffer and continues in the next chunk than it's ignored.
+> IMHO all is well described in the man page now.
 
-Yes, that was for simplicity too. And also, if the hole size is "small" compared
-to the size of the chunks of '\0's, you will create a hole for most of the space
-anyways.
-
-There are, of course, pathological cases. But I'm not sure they happen in real
-life, I think they are probably more theoretical and in practice only little
-space that was '\0's where not holed. And if they do happen, we can improve it
-later.
-
-What do you think ?
+It is... somewhere down in the mountain of text that is mount.8.  It
+might be nice to have the usage shown in the synopsis though.
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-Thanks a lot,
-Rodrigo
+iQEcBAEBAgAGBQJTAiCeAAoJEI5FoCIzSKrwsXIIAKgQX+W54lBwv6+DZgd0jd5N
+F+tSMbx2rdfffr5SW2cp98S//JfiQLCC7Z/dtce5ycYHXM5XZacNAWBg9SDi7/ne
+OhEFArcMN03GqCUjhPvGfDcoaPSZ246ZkjmSTNePXwzbLGsZlhJmRUK3OgAzgJ5x
+qPkHos8/3gG+FnQWYNeeN0VORKjvP069dbBBBOyoFYq/CuL8lv7BJJFz3ktRSOkm
+IOkNYeU7SVmhk43Cdw7pEVWHSQ6s8Gw1xR4fjVCGyRgXjrqHO0cj9cK7y48L0uhT
+uuRNlTzhbMbYKxCz94CT0mVHSvxwMi0CM3i7JRHlOv2+8U2r2OM11dJwWPHPNJA=
+=Nj6l
+-----END PGP SIGNATURE-----
