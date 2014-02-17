@@ -1,42 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:53483 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751688AbaBHPsP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Feb 2014 10:48:15 -0500
-Message-ID: <52F651BC.90907@ubuntu.com>
-Date: Sat, 08 Feb 2014 10:48:12 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:65002 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751330AbaBQJF5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 17 Feb 2014 04:05:57 -0500
+Received: by mail-pa0-f50.google.com with SMTP id kp14so15039018pab.37
+        for <util-linux@vger.kernel.org>; Mon, 17 Feb 2014 01:05:56 -0800 (PST)
 MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1496112.KWppGQQCcY@vapier>
+References: <1496112.KWppGQQCcY@vapier>
+Date: Mon, 17 Feb 2014 09:05:56 +0000
+Message-ID: <CAG27Bk3X8zv1oAvBG2hRX6U=SVY8CBtcmtp9ytyyA_Wjhmi4vw@mail.gmail.com>
+Subject: Re: last/last test fails
+From: Sami Kerola <kerolasa@iki.fi>
 To: Mike Frysinger <vapier@gentoo.org>
-CC: util-linux@vger.kernel.org
-Subject: Re: setarch treats all x86 variants as i686?
-References: <52F3F660.8060600@ubuntu.com> <1445010.UmVgbvgH5k@vapier>
-In-Reply-To: <1445010.UmVgbvgH5k@vapier>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On 17 February 2014 08:39, Mike Frysinger <vapier@gentoo.org> wrote:
+> current git (24b2a479fd5ba138e9b836fa2115939eb3b59dfe) fails this test for me.
+> see recent blkid test post for config.log.
 
-On 02/08/2014 06:26 AM, Mike Frysinger wrote:
+Hi Mike,
 
+My bad, when the earlier last(1) change was sent tests were not fixed
+in same go, or by in another change immediately afterwards. See below
+for late delivery of the test fix.
 
-Ahh, looking at the syscall it is clear that there is only a generic
-linux 32 vs 64 bit flag, so setarch must be aliasing ix86 to the
-generic 32 bit flag.  The man page probably should be a little more
-clear that these aliases all map to the same thing.
+http://www.spinics.net/lists/util-linux-ng/msg08866.html
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBCgAGBQJS9lG8AAoJEI5FoCIzSKrwKDoIAJI1+SHLvv20ZPBbNjG7ieT3
-KDgBBD8kj50qQVTVdXBlp/TkdDNBO0GuuabQ+6PZm8UAUNSpfiYEOdMlma3y/o/g
-ZfDBR43XBiqNK7ppnIZ/Ro9MS4rn7yze/UdLgg9t+Shm4RHHarl2VKaNEh0FB0UT
-onUJt9SBG2czPY3evFGNWlmsaGNJ04nW70SHgiCLA14mIgaSx7tSU8FuCeEjg1dG
-XFIMhbgCl4qeBqTEcwl/kwzz23wYoHpWHWHK0eMbc4j4CJCk0G7nbbnWI2IEdgzz
-QGYdDurLT4lCdPDx5l5LoP8xTQzdvRy35HLjnZrVM0T6nAZXxf89h3wG64K+zBY=
-=waCb
------END PGP SIGNATURE-----
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
