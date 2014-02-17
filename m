@@ -1,26 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16264 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59235 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755273AbaBUMqg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 21 Feb 2014 07:46:36 -0500
-Date: Fri, 21 Feb 2014 13:46:20 +0100
+	id S1751999AbaBQMhk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 17 Feb 2014 07:37:40 -0500
+Date: Mon, 17 Feb 2014 13:37:35 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+To: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] more: fix double free crash
-Message-ID: <20140221124620.GF30903@x2.net.home>
-References: <1392977831-3789-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] libmount: initialize *root to NULL in
+ mnt_table_get_root_fs
+Message-ID: <20140217123735.GF2254@x2.net.home>
+References: <1392559086-4010-1-git-send-email-thomas@archlinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1392977831-3789-1-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1392559086-4010-1-git-send-email-thomas@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 21, 2014 at 10:17:11AM +0000, Sami Kerola wrote:
->  text-utils/more.c | 1 -
->  1 file changed, 1 deletion(-)
+On Sun, Feb 16, 2014 at 02:58:06PM +0100, Thomas Bächler wrote:
+>  libmount/src/tab.c | 1 +
+>  1 file changed, 1 insertion(+)
 
- Applied, thanks!
+ Applied with a small change, thanks!
 
     Karel
 
