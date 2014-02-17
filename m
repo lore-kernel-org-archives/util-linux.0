@@ -1,115 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:36781 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755035AbaBRKI2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 18 Feb 2014 05:08:28 -0500
-Received: by mail-pd0-f171.google.com with SMTP id g10so16024064pdj.30
-        for <util-linux@vger.kernel.org>; Tue, 18 Feb 2014 02:08:27 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:41028 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750845AbaBQOLe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 17 Feb 2014 09:11:34 -0500
+Date: Mon, 17 Feb 2014 15:11:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/9] tests: make tests to run parallel
+Message-ID: <20140217141121.GH2254@x2.net.home>
+References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+ <1392594862-15807-2-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1392673386-42128-1-git-send-email-nyerup@one.com>
-References: <1392673386-42128-1-git-send-email-nyerup@one.com>
-Date: Tue, 18 Feb 2014 10:08:27 +0000
-Message-ID: <CAG27Bk2pvdG_Gewxqo8Q=q_2qExCf=u2vvFjmrgvLnYSmvQe+Q@mail.gmail.com>
-Subject: Re: [PATCH] script: Also flush writes to timing file.
-From: Sami Kerola <kerolasa@iki.fi>
-To: Jesper Dahl Nyerup <nyerup@one.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: multipart/mixed; boundary=bcaec520e9a9166d8e04f2ab74c3
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1392594862-15807-2-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---bcaec520e9a9166d8e04f2ab74c3
-Content-Type: text/plain; charset=ISO-8859-1
+On Sun, Feb 16, 2014 at 11:54:15PM +0000, Sami Kerola wrote:
+>  tests/functions.sh | 15 +++++++--------
+>  tests/run.sh       | 32 +++++++++++++++++++-------------
+>  2 files changed, 26 insertions(+), 21 deletions(-)
 
-On 17 February 2014 21:43, Jesper Dahl Nyerup <nyerup@one.com> wrote:
-> If both -f and -t are given, flush the timing fd on each write, similar
-> to the behavior on the script fd. This allows playback of still-running
-> sessions, and reduces the risk of ending up with empty timing files when
-> script(1) exits abnormally.
+Applied, but with changes:
 
-Hi Jesper,
+* It is not enabled by default if you manually execute ./run.sh, you have 
+  to specify --parallel[=<num>] to enable this feature (the =<num> is optional).
+  It's enabled for "make check".
+ 
+  Frankly, I cannot imagine that I will debug anything around mount(8)
+  with enabled --parallel :-)
 
-Instead of flushing all the time how about checking write status at
-the end? See attached patch how that could work.
+* the option is propagated to function.sh (where is $TS_PARALLEL)
+
+* the output format depends on $TS_PARALLEL, it means that without
+  the --parallel option is the output still the same.
+
+    Karel
+
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
-
---bcaec520e9a9166d8e04f2ab74c3
-Content-Type: text/plain; charset=US-ASCII;
-	name="0001-script-Also-flush-writes-to-timing-file.txt"
-Content-Disposition: attachment;
-	filename="0001-script-Also-flush-writes-to-timing-file.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hrt0c2cd0
-
-RnJvbSA2YjFiYjIyMDE3M2I2OWQxYjNlYTgwMTUzYmUwOGY3YTg2NjE3NzViIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKZXNwZXIgRGFobCBOeWVydXAgPG55ZXJ1cEBvbmUuY29tPgpE
-YXRlOiBNb24sIDE3IEZlYiAyMDE0IDIyOjQzOjA2ICswMTAwClN1YmplY3Q6IFtQQVRDSF0gc2Ny
-aXB0OiBBbHNvIGZsdXNoIHdyaXRlcyB0byB0aW1pbmcgZmlsZS4KT3JnYW5pemF0aW9uOiBsYXN0
-bWludXRlLmNvbQoKSWYgYm90aCAtZiBhbmQgLXQgYXJlIGdpdmVuLCBmbHVzaCB0aGUgdGltaW5n
-IGZkIG9uIGVhY2ggd3JpdGUsIHNpbWlsYXIKdG8gdGhlIGJlaGF2aW9yIG9uIHRoZSBzY3JpcHQg
-ZmQuIFRoaXMgYWxsb3dzIHBsYXliYWNrIG9mIHN0aWxsLXJ1bm5pbmcKc2Vzc2lvbnMsIGFuZCBy
-ZWR1Y2VzIHRoZSByaXNrIG9mIGVuZGluZyB1cCB3aXRoIGVtcHR5IHRpbWluZyBmaWxlcyB3aGVu
-CnNjcmlwdCgxKSBleGl0cyBhYm5vcm1hbGx5LgoKW2tlcm9sYXNhQGlraS5maTogLSBjaGVjayB0
-aW1pbmcgZmlsZSB3cml0ZSBzdGF0dXMgaW4gZG9uZSgpXQoKU2lnbmVkLW9mZi1ieTogSmVzcGVy
-IERhaGwgTnllcnVwIDxueWVydXBAb25lLmNvbT4KU2lnbmVkLW9mZi1ieTogU2FtaSBLZXJvbGEg
-PGtlcm9sYXNhQGlraS5maT4KLS0tCiB0ZXJtLXV0aWxzL3NjcmlwdC5jIHwgNDIgKysrKysrKysr
-KysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMjAgaW5z
-ZXJ0aW9ucygrKSwgMjIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvdGVybS11dGlscy9zY3Jp
-cHQuYyBiL3Rlcm0tdXRpbHMvc2NyaXB0LmMKaW5kZXggYTRjMmUwYy4uNGI4MTZlYyAxMDA2NDQK
-LS0tIGEvdGVybS11dGlscy9zY3JpcHQuYworKysgYi90ZXJtLXV0aWxzL3NjcmlwdC5jCkBAIC03
-OCw4ICs3OCw4IEBACiAjZGVmaW5lIERFRkFVTFRfT1VUUFVUICJ0eXBlc2NyaXB0IgogCiB2b2lk
-IGZpbmlzaChpbnQpOwotdm9pZCBkb25lKHZvaWQpOwotdm9pZCBmYWlsKHZvaWQpOwordm9pZCBk
-b25lKEZJTEUgKnRpbWluZ2ZkKTsKK3ZvaWQgZmFpbChGSUxFICp0aW1pbmdmZCk7CiB2b2lkIHJl
-c2l6ZShpbnQpOwogdm9pZCBmaXh0dHkodm9pZCk7CiB2b2lkIGdldG1hc3Rlcih2b2lkKTsKQEAg
-LTIzNyw3ICsyMzcsNyBAQCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikgewogCiAJaWYgKChm
-c2NyaXB0ID0gZm9wZW4oZm5hbWUsIGFmbGcgPyAiYSIgOiAidyIpKSA9PSBOVUxMKSB7CiAJCXdh
-cm4oXygiY2Fubm90IG9wZW4gJXMiKSwgZm5hbWUpOwotCQlmYWlsKCk7CisJCWZhaWwodGltaW5n
-ZmQpOwogCX0KIAogCXNoZWxsID0gZ2V0ZW52KCJTSEVMTCIpOwpAQCAtMjY4LDcgKzI2OCw3IEBA
-IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KSB7CiAKIAlpZiAoY2hpbGQgPCAwKSB7CiAJCXdh
-cm4oXygiZm9yayBmYWlsZWQiKSk7Ci0JCWZhaWwoKTsKKwkJZmFpbCh0aW1pbmdmZCk7CiAJfQog
-CWlmIChjaGlsZCA9PSAwKSB7CiAKQEAgLTI3OCw3ICsyNzgsNyBAQCBtYWluKGludCBhcmdjLCBj
-aGFyICoqYXJndikgewogCiAJCWlmIChjaGlsZCA8IDApIHsKIAkJCXdhcm4oXygiZm9yayBmYWls
-ZWQiKSk7Ci0JCQlmYWlsKCk7CisJCQlmYWlsKHRpbWluZ2ZkKTsKIAkJfQogCQlpZiAoY2hpbGQp
-IHsKIAkJCWlmICghdGltaW5nZmQpCkBAIC0zMTksNyArMzE5LDcgQEAgZG9pbnB1dCh2b2lkKSB7
-CiAJCWlmICgoY2MgPSByZWFkKFNURElOX0ZJTEVOTywgaWJ1ZiwgQlVGU0laKSkgPiAwKSB7CiAJ
-CQlpZiAod3JpdGVfYWxsKG1hc3RlciwgaWJ1ZiwgY2MpKSB7CiAJCQkJd2FybiAoXygid3JpdGUg
-ZmFpbGVkIikpOwotCQkJCWZhaWwoKTsKKwkJCQlmYWlsKE5VTEwpOwogCQkJfQogCQl9CiAJCWVs
-c2UgaWYgKGNjIDwgMCAmJiBlcnJubyA9PSBFSU5UUiAmJiByZXNpemVkKQpAQCAtMzU1LDcgKzM1
-NSw3IEBAIGRvaW5wdXQodm9pZCkgewogCiAJCWlmICh3cml0ZV9hbGwobWFzdGVyLCAmYywgMSkp
-IHsKIAkJCXdhcm4gKF8oIndyaXRlIGZhaWxlZCIpKTsKLQkJCWZhaWwoKTsKKwkJCWZhaWwoTlVM
-TCk7CiAJCX0KIAogCQkvKiB3YWl0IGZvciAiZXhpdCIgbWVzc2FnZSBmcm9tIHNoZWxsIGJlZm9y
-ZSB3ZSBwcmludCAiU2NyaXB0CkBAIC0zNjUsNyArMzY1LDcgQEAgZG9pbnB1dCh2b2lkKSB7CiAK
-IAlpZiAoIWRpZSkKIAkJZmluaXNoKDApOwkvKiB3YWl0IGZvciBjaGlsZGVybiAqLwotCWRvbmUo
-KTsKKwlkb25lKE5VTEwpOwogfQogCiB2b2lkCkBAIC00MzgsMTkgKzQzOCwxNSBAQCBkb291dHB1
-dChGSUxFICp0aW1pbmdmZCkgewogCQl9CiAJCWlmIChmd3JpdGVfYWxsKG9idWYsIDEsIGNjLCBm
-c2NyaXB0KSkgewogCQkJd2FybiAoXygiY2Fubm90IHdyaXRlIHNjcmlwdCBmaWxlIikpOwotCQkJ
-ZmFpbCgpOworCQkJZmFpbCh0aW1pbmdmZCk7CiAJCX0KLQkJaWYgKGZmbGcpCi0JCQlmZmx1c2go
-ZnNjcmlwdCk7CiAJCWlmICh3cml0ZV9hbGwoU1RET1VUX0ZJTEVOTywgb2J1ZiwgY2MpKSB7CiAJ
-CQl3YXJuIChfKCJ3cml0ZSBmYWlsZWQiKSk7Ci0JCQlmYWlsKCk7CisJCQlmYWlsKHRpbWluZ2Zk
-KTsKIAkJfQogCX0gd2hpbGUoMSk7CiAKLQlpZiAoY2xvc2Vfc3RyZWFtKHRpbWluZ2ZkKSAhPSAw
-KQotCQllcnJ4KEVYSVRfRkFJTFVSRSwgXygid3JpdGUgZXJyb3IiKSk7Ci0JZG9uZSgpOworCWRv
-bmUodGltaW5nZmQpOwogfQogCiB2b2lkCkBAIC00OTYsNyArNDkyLDcgQEAgZG9zaGVsbCh2b2lk
-KSB7CiAJCQlleGVjbHAoc2huYW1lLCAiLWkiLCBOVUxMKTsKIAl9CiAJd2FybihfKCJmYWlsZWQg
-dG8gZXhlY3V0ZSAlcyIpLCBzaGVsbCk7Ci0JZmFpbCgpOworCWZhaWwoTlVMTCk7CiB9CiAKIHZv
-aWQKQEAgLTUxMywxNCArNTA5LDE0IEBAIGZpeHR0eSh2b2lkKSB7CiB9CiAKIHZvaWQKLWZhaWwo
-dm9pZCkgeworZmFpbChGSUxFICp0aW1pbmdmZCkgewogCiAJa2lsbCgwLCBTSUdURVJNKTsKLQlk
-b25lKCk7CisJZG9uZSh0aW1pbmdmZCk7CiB9CiAKIHZvaWQgX19hdHRyaWJ1dGVfXygoX19ub3Jl
-dHVybl9fKSkKLWRvbmUodm9pZCkgeworZG9uZShGSUxFICp0aW1pbmdmZCkgewogCXRpbWVfdCB0
-dmVjOwogCiAJaWYgKHN1YmNoaWxkKSB7CkBAIC01MzAsOCArNTI2LDEwIEBAIGRvbmUodm9pZCkg
-ewogCQlteV9zdHJmdGltZShidWYsIHNpemVvZiBidWYsICIlY1xuIiwgbG9jYWx0aW1lKCZ0dmVj
-KSk7CiAJCWZwcmludGYoZnNjcmlwdCwgXygiXG5TY3JpcHQgZG9uZSBvbiAlcyIpLCBidWYpOwog
-CisJCWlmICh0aW1pbmdmZCAmJiBjbG9zZV9zdHJlYW0odGltaW5nZmQpICE9IDApCisJCQl3YXJu
-KF8oIndyaXRlIGVycm9yIikpOwogCQlpZiAoY2xvc2Vfc3RyZWFtKGZzY3JpcHQpICE9IDApCi0J
-CQllcnJ4KEVYSVRfRkFJTFVSRSwgXygid3JpdGUgZXJyb3IiKSk7CisJCQllcnIoRVhJVF9GQUlM
-VVJFLCBfKCJ3cml0ZSBlcnJvciIpKTsKIAkJY2xvc2UobWFzdGVyKTsKIAogCQltYXN0ZXIgPSAt
-MTsKQEAgLTU3NCw3ICs1NzIsNyBAQCBnZXRtYXN0ZXIodm9pZCkgewogCiAJaWYgKHJjIDwgMCkg
-ewogCQl3YXJuKF8oIm9wZW5wdHkgZmFpbGVkIikpOwotCQlmYWlsKCk7CisJCWZhaWwoTlVMTCk7
-CiAJfQogI2Vsc2UKIAljaGFyICpwdHksICpiYW5rLCAqY3A7CkBAIC02MTQsNyArNjEyLDcgQEAg
-Z2V0bWFzdGVyKHZvaWQpIHsKIAl9CiAJbWFzdGVyID0gLTE7CiAJd2FybihfKCJvdXQgb2YgcHR5
-J3MiKSk7Ci0JZmFpbCgpOworCWZhaWwoTlVMTCk7CiAjZW5kaWYgLyogbm90IEhBVkVfTElCVVRJ
-TCAqLwogfQogCi0tIAoxLjkuMAoK
---bcaec520e9a9166d8e04f2ab74c3--
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
