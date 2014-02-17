@@ -1,182 +1,185 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:56137 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751556AbaBIKnL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Feb 2014 05:43:11 -0500
-Message-Id: <1391942590.7886.81126833.1430CD91@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from smtp.gentoo.org ([140.211.166.183]:52010 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751074AbaBQIj0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 17 Feb 2014 03:39:26 -0500
+Received: from vapier.localnet (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id C4A3533F582
+	for <util-linux@vger.kernel.org>; Mon, 17 Feb 2014 08:39:25 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: last/last test fails
+Date: Mon, 17 Feb 2014 03:39:25 -0500
+Message-ID: <1496112.KWppGQQCcY@vapier>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_139194259078861";
- charset="utf-8"
-In-Reply-To: <1391879755-11534-1-git-send-email-psusi@ubuntu.com>
-References: <1391879755-11534-1-git-send-email-psusi@ubuntu.com>
-Subject: Re: [PATCH] more: comply with howto-usage-function.txt
-Date: Sun, 09 Feb 2014 11:43:10 +0100
+Content-Type: multipart/signed; boundary="nextPart40986695.LcNeSyDqqS"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
 
---_----------=_139194259078861
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+--nextPart40986695.LcNeSyDqqS
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
 
+current git (24b2a479fd5ba138e9b836fa2115939eb3b59dfe) fails this test =
+for me.
+see recent blkid test post for config.log.
+$ ./configure
+$ make
+$ ./tests/run.sh --nonroot --verbose last
+...
 
-On Sat, Feb 8, 2014, at 18:15, Phillip Susi wrote:
->  .TP
-> -.B \-number
-> +.B \-<number>
+     script: /usr/local/src/util-linux/tests/ts/last/last
+    sub dir: /usr/local/src/util-linux/tests/ts/last
+    top dir: /usr/local/src/util-linux/tests
+       self: /usr/local/src/util-linux/tests/ts/last
+  test name: last
+  test desc: last
+  component: last
+  namespace: last/last
+    verbose: yes
+     output: /usr/local/src/util-linux/tests/output/last/last
+   valgrind: /usr/local/src/util-linux/tests/output/last/last.vgdump
+   expected: /usr/local/src/util-linux/tests/expected/last/last
+ mountpoint: /usr/local/src/util-linux/tests/output/last/last-mnt
 
-The angle-bracket convention is valid for the in-program usage texts,
-not for man pages.  Man pages use italics for non-literal parameters,
-as in the explanatory text of the option:
+         last: last                           ...~~~ basic output ~~~
+~~~ include system ~~~
+~~~ dns short ~~~
+~~~ dns long ~~~
+~~~ dns host last ~~~
+~~~ show ip ~~~
+~~~ no host ~~~
+~~~ full times ~~~
+~~~ no time ~~~
+~~~ iso-8601 time ~~~
+~~~ since and until ~~~
+~~~ present ~~~
+ FAILED (last/last)
 
->  This option specifies an integer
->  .I number
->  which is the screen size (in lines).
+=2D--------------------------------------------------------------------
+  1 tests of 2 FAILED
+=2D--------------------------------------------------------------------
 
-Attached changes the man page to use italics for every non-literal
-parameter.
+=2D-- tests/expected/last/last=092014-01-17 20:16:42.575779735 +0000
++++ tests/output/last/last=092014-02-17 08:38:08.610056705 +0000
+@@ -1,6 +1,6 @@
+ ~~~ basic output ~~~
+ rick     long         never-gonna-logo Thu Jan  1 00:00 - 03:14 (24855=
++03:14)
+=2Dtorvalds linux        hobby            Mon Aug 26 00:57   still logged=
+ in
++torvalds linux        hobby            Mon Aug 26 00:57    gone - no l=
+ogout
+ reboot   system boot  system-name      Wed Aug 28 18:00   still runnin=
+g
+ reboot   system boot  system-name      Wed Aug 28 16:00 - 17:00  (01:0=
+0)
+ IPv4     root         dns-server       Wed Aug 28 13:00 - 14:00  (01:0=
+0)
+@@ -17,7 +17,7 @@
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ include system ~~~
+ rick     long         never-gonna-logo Thu Jan  1 00:00 - 03:14 (24855=
++03:14)
+=2Dtorvalds linux        hobby            Mon Aug 26 00:57   still logged=
+ in
++torvalds linux        hobby            Mon Aug 26 00:57    gone - no l=
+ogout
+ reboot   system boot  system-name      Wed Aug 28 18:00   still runnin=
+g
+ shutdown system down  system-name      Wed Aug 28 17:00 - 18:00  (01:0=
+0)
+ reboot   system boot  system-name      Wed Aug 28 16:00 - 17:00  (01:0=
+0)
+@@ -47,16 +47,16 @@
+=20
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ show ip ~~~
+=2Dtorvalds linux        128.214.205.14   Mon Aug 26 00:57   still logged=
+ in
++torvalds linux        128.214.205.14   Mon Aug 26 00:57    gone - no l=
+ogout
+=20
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ no host ~~~
+=2Dtorvalds linux        Mon Aug 26 00:57   still logged in
++torvalds linux        Mon Aug 26 00:57    gone - no logout
+=20
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ full times ~~~
+ rick     long         never-gonna-logo Thu Jan  1 00:00:00 1970 - Tue =
+Jan 19 03:14:07 2038 (24855+03:14)
+=2Dtorvalds linux        hobby            Mon Aug 26 00:57:08 1991   stil=
+l logged in
++torvalds linux        hobby            Mon Aug 26 00:57:08 1991   gone=
+ - no logout
+ reboot   system boot  system-name      Wed Aug 28 18:00:00 2013   stil=
+l running
+ reboot   system boot  system-name      Wed Aug 28 16:00:00 2013 - Wed =
+Aug 28 17:00:00 2013  (01:00)
+ IPv4     root         dns-server       Wed Aug 28 13:00:00 2013 - Wed =
+Aug 28 14:00:00 2013  (01:00)
+@@ -73,7 +73,7 @@
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ no time ~~~
+ rick     long         never-gonna-logo   (24855+03:14)
+=2Dtorvalds linux        hobby              logged in
++torvalds linux        hobby              - no logout
+ reboot   system boot  system-name        running
+ reboot   system boot  system-name         (01:00)
+ IPv4     root         dns-server          (01:00)
+@@ -90,7 +90,7 @@
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ iso-8601 time ~~~
+ rick     long         never-gonna-logout 1970-01-01T00:00:00+0000 - 20=
+38-01-19T03:14:07+0000 (24855+03:14)
+=2Dtorvalds linux        hobby            1991-08-26T00:57:08+0000   stil=
+l logged in
++torvalds linux        hobby            1991-08-26T00:57:08+0000   gone=
+ - no logout
+ reboot   system boot  system-name      2013-08-28T18:00:00+0000   stil=
+l running
+ reboot   system boot  system-name      2013-08-28T16:00:00+0000 - 2013=
+=2D08-28T17:00:00+0000  (01:00)
+ IPv4     root         dns-server       2013-08-28T13:00:00+0000 - 2013=
+=2D08-28T14:00:00+0000  (01:00)
+@@ -115,7 +115,7 @@
+ wtmp begins Wed Aug 28 03:00:00 2013
+ ~~~ present ~~~
+ rick     long         never-gonna-logo Thu Jan  1 00:00 - 03:14 (24855=
++03:14)
+=2Dtorvalds linux        hobby            Mon Aug 26 00:57   still logged=
+ in
++torvalds linux        hobby            Mon Aug 26 00:57    gone - no l=
+ogout
+ runlevel foo          one              Wed Aug 28 11:00 - 12:00  (01:0=
+0)
+=20
+ wtmp begins Wed Aug 28 03:00:00 2013
+=2Dmike
+--nextPart40986695.LcNeSyDqqS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-> -		  "  -NUM      specify the number of lines per screenful\n"
-> -		  "  +NUM      display file beginning from line number NUM\n"
-> +		  "  -<NUM>    specify NUM number of lines per screenful\n"
-> +		  "  +<NUM>    display file beginning from line number NUM\n"
->  		  "  +/STRING  display file beginning from search string match\n"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-If <NUM> then also <STRING>, no?  Attached patch includes that
-change, and uses the full word "number" in all lowercase instead,
-as is the convention when using angular brackets, and seizes the
-opportunity to slice up the monolithic help text into single options
-for ease of translation.
+iQIcBAABAgAGBQJTAcq9AAoJEEFjO5/oN/WB21kP/ira/liY4SCXdxE3HQOSV6Ls
+scJOPqm4xQZbVBTsS66KHjid4cCkWZqivMOydgc/L/IRGX6AhFO+IWEWhvPwqMNX
+RjnrtPBN22swSBpbHC03acrg0mlVIey8EJhM5uAmWnRcHtUo8ojpbCP33QHFoHte
+oteAh1qj4kSpDe/FC1g8rxZhbZG4xHY6If8kYkbfYxLBmjl7y1BXM1Xl/mbOAyNK
+9qxX3HcnLytJE+BEZ/fIhuaZ2lymAeGZzYK7FnMBVYjpj3wGYwE7zjp2AVnUf7Qs
+CWy8Ei3Gd14Lem7TvN3rPQq+PWxEn9R47pqGD0uLr16CN/o5wqgCsLFMiSMVsCeX
+q7eFH3c30BT1NeDR+XaGcOvH2RbUi3JLpG5tRzWpG1q3izcI/F7g6KURIS+Ly3z8
+aFBbtIuGWTrRiN0WhdtajiA9xeIEzZZLo3+UjblGx5qzI0YbMFBmtE9K7YJFQWwz
+R+7noOhZCA9Y4AYibYs8wRq+HGxhxYvd3v3pCqBPUa+QR6pP5NEd1rnLkmJnFh1d
+gQOm3FvaSAAFjo8kV/FBWpBEpg4roeCvqKQ/bY3QpNdEv87l3sgFyQT6i2csqSmE
+Q+3jXWXEl2l6VP3sISVhZ719OagbcIP4B4xSl3vnAWRe+lvCKa4MTbg2UYbEtAC5
+Iz3/mJc43W+HZeGtmk2L
+=a4mG
+-----END PGP SIGNATURE-----
 
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - The way an email service should be
-
-
---_----------=_139194259078861
-Content-Disposition: attachment; filename="0001-more-improve-formatting-and-wording-of-man-page-and-.patch"
-Content-Id: <1391942574.7886.3f20162d2a7d88d89e1cc195234da2f3c3db5307.5E8C1138@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name="0001-more-improve-formatting-and-wording-of-man-page-and-.patch"
-
-RnJvbSA2N2NmZjQ2YmJkYjM2ZTFmMjJlYzBiYzZlMmQyYzNhYjIwZTBiNjc1
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogU3VuLCA5IEZl
-YiAyMDE0IDExOjI2OjQ5ICswMTAwClN1YmplY3Q6IFtQQVRDSF0gbW9yZTog
-aW1wcm92ZSBmb3JtYXR0aW5nIGFuZCB3b3JkaW5nIG9mIG1hbiBwYWdlIGFu
-ZCBoZWxwIHRleHQKCkFsc28sIHNsaWNlIHVwIHRoZSB1c2FnZSB0ZXh0IGZv
-ciBlYXNlIG9mIHRyYW5zbGF0aW9uLgoKUmVwb3J0ZWQtYnk6IFBoaWxsaXAg
-U3VzaSA8cHN1c2lAdWJ1bnR1LmNvbT4KU2lnbmVkLW9mZi1ieTogQmVubm8g
-U2NodWxlbmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogdGV4
-dC11dGlscy9tb3JlLjEgfCAgIDM4ICsrKysrKysrKysrKysrKysrKysrLS0t
-LS0tLS0tLS0tLS0tLS0tCiB0ZXh0LXV0aWxzL21vcmUuYyB8ICAgMzEgKysr
-KysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLQogMiBmaWxlcyBjaGFuZ2Vk
-LCAzNSBpbnNlcnRpb25zKCspLCAzNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
-aXQgYS90ZXh0LXV0aWxzL21vcmUuMSBiL3RleHQtdXRpbHMvbW9yZS4xCmlu
-ZGV4IDQ3OWYwMzcuLjBjZjM4OTIgMTAwNjQ0Ci0tLSBhL3RleHQtdXRpbHMv
-bW9yZS4xCisrKyBiL3RleHQtdXRpbHMvbW9yZS4xCkBAIC0zNywxMiArMzcs
-MTMgQEAKIC5cIiBjb25mb3JtIHdpdGggdGhlIG1vcmUgNS4xOSBjdXJyZW50
-bHkgaW4gdXNlIGJ5IHRoZSBMaW51eCBjb21tdW5pdHkuCiAuXCIKIC5cIiAu
-RGQgSnVseSAyOSwgMTk5MSAoTW9kaWZpZWQgRGVjZW1iZXIgMjUsIDE5OTIp
-Ci0uVEggTU9SRSAiMSIgIlNlcHRlbWJlciAyMDExIiAidXRpbC1saW51eCIg
-IlVzZXIgQ29tbWFuZHMiCisuVEggTU9SRSAiMSIgIkZlYnJ1YXJ5IDIwMTQi
-ICJ1dGlsLWxpbnV4IiAiVXNlciBDb21tYW5kcyIKIC5TSCBOQU1FCiBtb3Jl
-IFwtIGZpbGUgcGVydXNhbCBmaWx0ZXIgZm9yIGNydCB2aWV3aW5nCiAuU0gg
-U1lOT1BTSVMKIC5CIG1vcmUKLVtvcHRpb25zXSBmaWxlIFsuLi5dCitbb3B0
-aW9uc10KKy5JUiBmaWxlIC4uLgogLlNIIERFU0NSSVBUSU9OCiAuQiBtb3Jl
-CiBpcyBhIGZpbHRlciBmb3IgcGFnaW5nIHRocm91Z2ggdGV4dCBvbmUgc2Ny
-ZWVuZnVsIGF0IGEgdGltZS4gIFRoaXMgdmVyc2lvbiBpcwpAQCAtNTksMTEg
-KzYwLDYgQEAgZW52aXJvbm1lbnQgdmFyaWFibGUKIG92ZXJyaWRlIHRoZW0u
-CiAuSXQgRmwgbnVtCiAuVFAKLS5CIFwtbnVtYmVyCi1UaGlzIG9wdGlvbiBz
-cGVjaWZpZXMgYW4gaW50ZWdlcgotLkkgbnVtYmVyCi13aGljaCBpcyB0aGUg
-c2NyZWVuIHNpemUgKGluIGxpbmVzKS4KLS5UUAogLkIgXC1kCiAuQiBtb3Jl
-CiB3aWxsIHByb21wdCB0aGUgdXNlciB3aXRoIHRoZSBtZXNzYWdlICJbUHJl
-c3Mgc3BhY2UgdG8gY29udGludWUsICdxJyB0bwpAQCAtMTAwLDE1ICs5Niwx
-OSBAQCBTcXVlZXplIG11bHRpcGxlIGJsYW5rIGxpbmVzIGludG8gb25lLgog
-LkIgXC11CiBTdXBwcmVzcyB1bmRlcmxpbmluZy4KIC5UUAotLkIgKy8KLVRo
-ZQotLkIgKy8KLW9wdGlvbiBzcGVjaWZpZXMgYSBzdHJpbmcgdGhhdCB3aWxs
-IGJlIHNlYXJjaGVkIGZvciBiZWZvcmUgZWFjaCBmaWxlIGlzCi1kaXNwbGF5
-ZWQuCisuQkkgXC0gbnVtYmVyCitUaGUgc2NyZWVuIHNpemUgdG8gdXNlLCBp
-bgorLkkgbnVtYmVyCitvZiBsaW5lcy4KIC5UUAotLkIgK251bWJlcgotU3Rh
-cnQgYXQgbGluZQorLkJJICsgbnVtYmVyCitTdGFydCBkaXNwbGF5aW5nIGVh
-Y2ggZmlsZSBhdCBsaW5lCiAuSVIgbnVtYmVyIC4KKy5UUAorLkJJICsvIHN0
-cmluZworVGhlCisuSSBzdHJpbmcKK3RvIGJlIHNlYXJjaGVkIGluIGVhY2gg
-ZmlsZSBiZWZvcmUgc3RhcnRpbmcgdG8gZGlzcGxheSBpdC4KIC5TSCBDT01N
-QU5EUwogSW50ZXJhY3RpdmUgY29tbWFuZHMgZm9yCiAuQiBtb3JlCkBAIC0y
-MDMsNyArMjAzLDkgQEAgRGlzcGxheSBjdXJyZW50IGZpbGUgbmFtZSBhbmQg
-bGluZSBudW1iZXIuCiAuQiBcJi4KIFJlcGVhdCBwcmV2aW91cyBjb21tYW5k
-LgogLlNIIEVOVklST05NRU5UCi1Nb3JlIHV0aWxpemVzIHRoZSBmb2xsb3dp
-bmcgZW52aXJvbm1lbnQgdmFyaWFibGVzLCBpZiB0aGV5IGV4aXN0OgorVGhl
-CisuQiBtb3JlCitjb21tYW5kIHJlc3BlY3RzIHRoZSBmb2xsb3dpbmcgZW52
-aXJvbm1lbnQgdmFyaWFibGVzLCBpZiB0aGV5IGV4aXN0OgogLlRQCiAuQiBN
-T1JFCiBUaGlzIHZhcmlhYmxlIG1heSBiZSBzZXQgd2l0aCBmYXZvcmVkIG9w
-dGlvbnMgdG8KQEAgLTIxMywxNiArMjE1LDE2IEBAIFRoaXMgdmFyaWFibGUg
-bWF5IGJlIHNldCB3aXRoIGZhdm9yZWQgb3B0aW9ucyB0bwogQ3VycmVudCBz
-aGVsbCBpbiB1c2UgKG5vcm1hbGx5IHNldCBieSB0aGUgc2hlbGwgYXQgbG9n
-aW4gdGltZSkuCiAuVFAKIC5CIFRFUk0KLVNwZWNpZmllcyB0ZXJtaW5hbCB0
-eXBlLCB1c2VkIGJ5IG1vcmUgdG8gZ2V0IHRoZSB0ZXJtaW5hbAorVGhlIHRl
-cm1pbmFsIHR5cGUgdXNlZCBieSBcZkJtb3JlXGZSIHRvIGdldCB0aGUgdGVy
-bWluYWwKIGNoYXJhY3RlcmlzdGljcyBuZWNlc3NhcnkgdG8gbWFuaXB1bGF0
-ZSB0aGUgc2NyZWVuLgogLlRQCiAuQiBWSVNVQUwKLUVkaXRvciB0aGUgdXNl
-ciBpcyBwcmVmZXJyaW5nLiAgVXNlZCB3aGVuIGtleSBjb21tYW5kCitUaGUg
-ZWRpdG9yIHRoZSB1c2VyIHByZWZlcnMuICBJbnZva2VkIHdoZW4gY29tbWFu
-ZCBrZXkKIC5JIHYKIGlzIHByZXNzZWQuCiAuVFAKIC5CIEVESVRPUgotRWRp
-dG9yIG9mIGNob2lzZSB3aGVuCitUaGUgZWRpdG9yIG9mIGNob2ljZSB3aGVu
-CiAuQiBWSVNVQUwKIGlzIG5vdCBzcGVjaWZpZWQuCiAuU0ggU0VFIEFMU08K
-ZGlmZiAtLWdpdCBhL3RleHQtdXRpbHMvbW9yZS5jIGIvdGV4dC11dGlscy9t
-b3JlLmMKaW5kZXggNGMzOTg4Ny4uYjA2YWJiYiAxMDA2NDQKLS0tIGEvdGV4
-dC11dGlscy9tb3JlLmMKKysrIGIvdGV4dC11dGlscy9tb3JlLmMKQEAgLTMx
-NSwyMiArMzE1LDIxIEBAIHN0YXRpYyBjaGFyICpteV90Z290byhjaGFyICpj
-YXAsIGludCBjb2wsIGludCByb3cpCiAKIHN0YXRpYyB2b2lkIF9fYXR0cmli
-dXRlX18oKF9fbm9yZXR1cm5fXykpIHVzYWdlKEZJTEUgKm91dCkKIHsKLQlm
-cHJpbnRmKG91dCwKLQkJXygiVXNhZ2U6ICVzIFtvcHRpb25zXSBmaWxlLi4u
-XG5cbiIpLAotCQlwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFtZSk7Ci0J
-ZnByaW50ZihvdXQsCi0JCV8oIk9wdGlvbnM6XG4iCi0JCSAgIiAgLWQgICAg
-ICAgIGRpc3BsYXkgaGVscCBpbnN0ZWFkIG9mIHJpbmcgYmVsbFxuIgotCQkg
-ICIgIC1mICAgICAgICBjb3VudCBsb2dpY2FsLCByYXRoZXIgdGhhbiBzY3Jl
-ZW4gbGluZXNcbiIKLQkJICAiICAtbCAgICAgICAgc3VwcHJlc3MgcGF1c2Ug
-YWZ0ZXIgZm9ybSBmZWVkXG4iCi0JCSAgIiAgLXAgICAgICAgIGRvIG5vdCBz
-Y3JvbGwsIGNsZWFuIHNjcmVlbiBhbmQgZGlzcGxheSB0ZXh0XG4iCi0JCSAg
-IiAgLWMgICAgICAgIGRvIG5vdCBzY3JvbGwsIGRpc3BsYXkgdGV4dCBhbmQg
-Y2xlYW4gbGluZSBlbmRzXG4iCi0JCSAgIiAgLXUgICAgICAgIHN1cHByZXNz
-IHVuZGVybGluaW5nXG4iCi0JCSAgIiAgLXMgICAgICAgIHNxdWVlemUgbXVs
-dGlwbGUgYmxhbmsgbGluZXMgaW50byBvbmVcbiIKLQkJICAiICAtTlVNICAg
-ICAgc3BlY2lmeSB0aGUgbnVtYmVyIG9mIGxpbmVzIHBlciBzY3JlZW5mdWxc
-biIKLQkJICAiICArTlVNICAgICAgZGlzcGxheSBmaWxlIGJlZ2lubmluZyBm
-cm9tIGxpbmUgbnVtYmVyIE5VTVxuIgotCQkgICIgICsvU1RSSU5HICBkaXNw
-bGF5IGZpbGUgYmVnaW5uaW5nIGZyb20gc2VhcmNoIHN0cmluZyBtYXRjaFxu
-IgotCQkgICIgIC1WICAgICAgICBvdXRwdXQgdmVyc2lvbiBpbmZvcm1hdGlv
-biBhbmQgZXhpdFxuIikpOworCWZwdXRzKFVTQUdFX0hFQURFUiwgb3V0KTsK
-KwlmcHJpbnRmKG91dCwgXygiICVzIFtvcHRpb25zXSA8ZmlsZT4uLi5cbiIp
-LCBwcm9ncmFtX2ludm9jYXRpb25fc2hvcnRfbmFtZSk7CisJZnB1dHMoVVNB
-R0VfT1BUSU9OUywgb3V0KTsKKwlmcHV0cyhfKCIgLWQgICAgICAgICAgZGlz
-cGxheSBoZWxwIGluc3RlYWQgb2YgcmluZ2luZyBiZWxsXG4iKSwgb3V0KTsK
-KwlmcHV0cyhfKCIgLWYgICAgICAgICAgY291bnQgbG9naWNhbCByYXRoZXIg
-dGhhbiBzY3JlZW4gbGluZXNcbiIpLCBvdXQpOworCWZwdXRzKF8oIiAtbCAg
-ICAgICAgICBzdXBwcmVzcyBwYXVzZSBhZnRlciBmb3JtIGZlZWRcbiIpLCBv
-dXQpOworCWZwdXRzKF8oIiAtYyAgICAgICAgICBkbyBub3Qgc2Nyb2xsLCBk
-aXNwbGF5IHRleHQgYW5kIGNsZWFuIGxpbmUgZW5kc1xuIiksIG91dCk7CisJ
-ZnB1dHMoXygiIC1wICAgICAgICAgIGRvIG5vdCBzY3JvbGwsIGNsZWFuIHNj
-cmVlbiBhbmQgZGlzcGxheSB0ZXh0XG4iKSwgb3V0KTsKKwlmcHV0cyhfKCIg
-LXMgICAgICAgICAgc3F1ZWV6ZSBtdWx0aXBsZSBibGFuayBsaW5lcyBpbnRv
-IG9uZVxuIiksIG91dCk7CisJZnB1dHMoXygiIC11ICAgICAgICAgIHN1cHBy
-ZXNzIHVuZGVybGluaW5nXG4iKSwgb3V0KTsKKwlmcHV0cyhfKCIgLTxudW1i
-ZXI+ICAgdGhlIG51bWJlciBvZiBsaW5lcyBwZXIgc2NyZWVuZnVsXG4iKSwg
-b3V0KTsKKwlmcHV0cyhfKCIgKzxudW1iZXI+ICAgZGlzcGxheSBmaWxlIGJl
-Z2lubmluZyBmcm9tIGxpbmUgbnVtYmVyXG4iKSwgb3V0KTsKKwlmcHV0cyhf
-KCIgKy88c3RyaW5nPiAgZGlzcGxheSBmaWxlIGJlZ2lubmluZyBmcm9tIHNl
-YXJjaCBzdHJpbmcgbWF0Y2hcbiIpLCBvdXQpOworCWZwdXRzKF8oIiAtViAg
-ICAgICAgICBkaXNwbGF5IHZlcnNpb24gaW5mb3JtYXRpb24gYW5kIGV4aXRc
-biIpLCBvdXQpOworCWZwcmludGYob3V0LCBVU0FHRV9NQU5fVEFJTCgibW9y
-ZSgxKSIpKTsKIAlleGl0KG91dCA9PSBzdGRlcnIgPyBFWElUX0ZBSUxVUkUg
-OiBFWElUX1NVQ0NFU1MpOwogfQogCi0tIAoxLjcuMC40Cgo=
-
---_----------=_139194259078861--
+--nextPart40986695.LcNeSyDqqS--
 
