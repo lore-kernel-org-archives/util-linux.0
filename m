@@ -1,54 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:55148 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752045AbaBGQwu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Feb 2014 11:52:50 -0500
-Message-ID: <52F50F60.3010103@ubuntu.com>
-Date: Fri, 07 Feb 2014 11:52:48 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from jespernyerup.dk ([109.74.204.79]:43347 "EHLO jespernyerup.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755074AbaBRKVo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 18 Feb 2014 05:21:44 -0500
+Date: Tue, 18 Feb 2014 11:21:42 +0100
+From: Jesper Dahl Nyerup <nyerup@one.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] script: Also flush writes to timing file.
+Message-ID: <20140218102142.GA10373@one.com>
+Reply-To: nyerup@one.com
+References: <1392673386-42128-1-git-send-email-nyerup@one.com>
+ <CAG27Bk2pvdG_Gewxqo8Q=q_2qExCf=u2vvFjmrgvLnYSmvQe+Q@mail.gmail.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: please document alternate "bind" syntax in mount(8)
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+In-Reply-To: <CAG27Bk2pvdG_Gewxqo8Q=q_2qExCf=u2vvFjmrgvLnYSmvQe+Q@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Forwarded from debian bug #409942:
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-At the moment, neither mount(8) nor fstab(5) tells us how to do bind
-mounts with fstab, or even that it's possible.  We have to *guess* that
-doing this in fstab works:
-/some/old/dir   /some/new/mountpoint   ???   bind   ???   ???
-and it's not clear what is or isn't permitted for ???.
+On Feb 18  10:08, Sami Kerola wrote:
+> On 17 February 2014 21:43, Jesper Dahl Nyerup <nyerup@one.com> wrote:
+> > If both -f and -t are given, flush the timing fd on each write, similar
+> > to the behavior on the script fd. This allows playback of still-running
+> > sessions, and reduces the risk of ending up with empty timing files when
+> > script(1) exits abnormally.
+>=20
+> Instead of flushing all the time how about checking write status at
+> the end? See attached patch how that could work.
 
-Please consider amending mount(8) so the options listed under -o include
-something like this:
-        bind     same as --bind (other mount options are silently ignored)
-        [...]
-	rbind    same as --rbind (other mount options are silently ignored)
+That's a good idea, and should take care of the scenario where an
+abnormal exit leads to empty timings The other use case however,
+scriptreplay(1)'ing transcripts while script(1) is still running, would
+not be improved upon.
 
-Isn't it also time to update the SYNOPSIS in mount(8), now that linux
-versions >=2.4.0 will be standard ?  I suggest adding two lines
-like this:
-         mount { --bind | -o bind } olddir newdir
-         mount { --rbind | -o rbind } olddir newdir
-or, possibly, just one line
-         mount { --bind | --rbind | -o bind | -o rbind } olddir newdir
+Besides, the man page describes the -f option behavior as `Flush output
+after each write`. I would expect this to apply to the timing fd as
+well, and honoring this description was the main purpose of my patch.
 
-Thanks for your work.
+I think it'd be great if both patches were applied.
+
+J.
+--=20
+Jesper Dahl Nyerup
+Systems Engineer
+One.com, nyerup@one.com
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQEcBAEBAgAGBQJS9Q9fAAoJEI5FoCIzSKrwvJcIAJAzpyfRhoqBUred3klaeoVC
-MKxWyFlKmfj0qf18KrWcqxdDG2wssXPLkDexCOfD32ZPDUbnJol8BCc237b7TNVe
-gU3NJQXZ3WrmwzeGO6+0HVHdSiu0QR2vgMHYda7q+xHhyIyEhZFwl2vHoRf4HXNm
-3hd5CeINnz9eu8Zh/h7BFbj+bZFMu7HVlb/IoTT7aByMqCLv+yJvB0+vOOSHFkmU
-AEBvEJix8DxwNDyXcq4LniifvrvxeG70B6AY8ZGLumano3I2BpYYu9a/LdUNv+lN
-JtiRffmEXk+joeTy8rosKWj7XI12Jabb5+PXUAHg4nxZKzP3I0HUF6UcAiDsoJY=
-=WglM
+iEYEARECAAYFAlMDNDYACgkQtzA4yjN/Kb224wCgiH7ZI7onUWaavqlZOoJ4GtZH
+BEIAnAynUKf1OlbHRtct/Q/EqJZdvhv6
+=Pwj1
 -----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--
