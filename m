@@ -1,49 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.126.131]:60454 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751763AbaB1Ity (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 03:49:54 -0500
-Message-ID: <53104DB0.6030305@bernhard-voelker.de>
-Date: Fri, 28 Feb 2014 09:49:52 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:35557 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755888AbaBROuR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 18 Feb 2014 09:50:17 -0500
+Message-ID: <53037325.3090808@ubuntu.com>
+Date: Tue, 18 Feb 2014 09:50:13 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: chcpu exit code?
-References: <530F0972.3040205@bernhard-voelker.de> <20140228075355.GB4216@osiris>
-In-Reply-To: <20140228075355.GB4216@osiris>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: util-linux@vger.kernel.org
+Subject: Option to create missing mount point
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 02/28/2014 08:53 AM, Heiko Carstens wrote:
-> The question is: what should chcpu return if it partially succeeded?
->
-> # chcpu -d 3-4
-> CPU 3 disabled
-> CPU 4 does not exist
->
-> If I remember correctly this was the reason to make it always return 0.
->
-> However, it is indeed valid to say if *everything* failed, it should
-> return an error. Hm?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Indeed, e.g. df(1) also fails if only a single mount point
-cannot be listed.  Otherwise, the calling script could not rely
-on the exit code, and would still have to fall back to parsing
-the output.
+A debian bug has requested that mount create the mount point if it
+does not exist yet.  My initial reaction was no, but one use case does
+seem to be a good reason.  That would be if you want to set up a tmpfs
+mount with several sub mounts in /etc/fstab.  You currently can't do
+that since when the tmpfs is mounted, it is empty.  Is this something
+that might be a good idea?
 
-But thanks to your question I was reminded to have a look
-at *where* chcpu writes messages:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-   $ chcpu -d 3-4 > /dev/null
-   $ chcpu -d 3-4 2> /dev/null
-   CPU 3 is already disabled
-   CPU 4 does not exist
-   $
-
-I.e. chcpu does not write the error diagnostic to stderr ... humm.
-
-Have a nice day,
-Berny
-
+iQEcBAEBAgAGBQJTA3MlAAoJEI5FoCIzSKrwb0EH/RN9N2CflAi5xhegkPk+wtcH
+pJnoHZROF2vID8eRy4tLxIoWhsKDAhIjEG7GWWOnrQwBpTJqf36+4ah8djuYAZDq
+TfVIuEG/Ww1ByoP2K7AqgN2URKW8Z91SxSZM2PLLAg91lg7nM8WTbnhCm2znOABj
+lQsXEYdKh/8n8bb8w/SULhF3ffbj0tMPpnY3LjI1RkbQcp3CjqqBtmJG4XM9M0L0
+7PUAdDpk2FiiWGYi/PfMMajfjeb8S80n+v/Gmvz0LJWPBkdeW2hP1gosyGL3gKgm
+MzpV8bInWV18s0qWcqgrfxoS8mWxgTSZowf0/cQVkNKnsleET3UMxo/Qo55O1n4=
+=Cdtu
+-----END PGP SIGNATURE-----
