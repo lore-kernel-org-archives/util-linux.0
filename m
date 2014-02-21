@@ -1,46 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:42886 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752497AbaBPXys (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 18:54:48 -0500
-Received: by mail-we0-f180.google.com with SMTP id u57so9936775wes.25
-        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 15:54:47 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 6/9] swaplabel: wrong version number in check
-Date: Sun, 16 Feb 2014 23:54:19 +0000
-Message-Id: <1392594862-15807-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
-References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:20951 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755226AbaBUMoZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 21 Feb 2014 07:44:25 -0500
+Date: Fri, 21 Feb 2014 13:44:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Jesper Dahl Nyerup <nyerup@one.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] script: Also flush writes to timing file.
+Message-ID: <20140221124420.GE30903@x2.net.home>
+References: <1392673386-42128-1-git-send-email-nyerup@one.com>
+ <1392752925-48502-1-git-send-email-nyerup@one.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1392752925-48502-1-git-send-email-nyerup@one.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-$ swaplabel /dev/sda2
-swaplabel: /dev/sda2: unsupported swap version '1'
+On Tue, Feb 18, 2014 at 08:48:45PM +0100, Jesper Dahl Nyerup wrote:
+>  term-utils/script.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-The mkswap does not allow any other version, so swaplabel(8) must be
-wrong.
+ Applied, thanks.
 
-Reference: https://github.com/karelzak/util-linux/blob/master/disk-utils/mkswap.c#L520
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/swaplabel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ I have also made the files usage more robust and close all in done()
+ (based on Sami's suggestion).
 
-diff --git a/disk-utils/swaplabel.c b/disk-utils/swaplabel.c
-index a5ccb7e..5d048aa 100644
---- a/disk-utils/swaplabel.c
-+++ b/disk-utils/swaplabel.c
-@@ -70,7 +70,7 @@ static blkid_probe get_swap_prober(const char *devname)
- 		/* supported is SWAPSPACE2 only */
- 		if (blkid_probe_lookup_value(pr, "VERSION", &version, NULL) == 0
- 		    && version
--		    && strcmp(version, "2"))
-+		    && strcmp(version, "1"))
- 			warnx(_("%s: unsupported swap version '%s'"),
- 						devname, version);
- 		else
+    Karel
+
 -- 
-1.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
