@@ -1,36 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:65002 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751330AbaBQJF5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 17 Feb 2014 04:05:57 -0500
-Received: by mail-pa0-f50.google.com with SMTP id kp14so15039018pab.37
-        for <util-linux@vger.kernel.org>; Mon, 17 Feb 2014 01:05:56 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:17188 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753000AbaBUK6v (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 21 Feb 2014 05:58:51 -0500
+Date: Fri, 21 Feb 2014 11:58:46 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Phillip Susi <psusi@ubuntu.com>, Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] more: comply with howto-usage-function.txt
+Message-ID: <20140221105846.GB30903@x2.net.home>
+References: <1391879755-11534-1-git-send-email-psusi@ubuntu.com>
+ <1391942590.7886.81126833.1430CD91@webmail.messagingengine.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1496112.KWppGQQCcY@vapier>
-References: <1496112.KWppGQQCcY@vapier>
-Date: Mon, 17 Feb 2014 09:05:56 +0000
-Message-ID: <CAG27Bk3X8zv1oAvBG2hRX6U=SVY8CBtcmtp9ytyyA_Wjhmi4vw@mail.gmail.com>
-Subject: Re: last/last test fails
-From: Sami Kerola <kerolasa@iki.fi>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1391942590.7886.81126833.1430CD91@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 17 February 2014 08:39, Mike Frysinger <vapier@gentoo.org> wrote:
-> current git (24b2a479fd5ba138e9b836fa2115939eb3b59dfe) fails this test for me.
-> see recent blkid test post for config.log.
+On Sun, Feb 09, 2014 at 11:43:10AM +0100, Benno Schulenberg wrote:
+>  text-utils/more.1 |   38 ++++++++++++++++++++------------------
+>  text-utils/more.c |   31 +++++++++++++++----------------
+>  2 files changed, 35 insertions(+), 34 deletions(-)
 
-Hi Mike,
-
-My bad, when the earlier last(1) change was sent tests were not fixed
-in same go, or by in another change immediately afterwards. See below
-for late delivery of the test fix.
-
-http://www.spinics.net/lists/util-linux-ng/msg08866.html
+ Applied, thanks.
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
