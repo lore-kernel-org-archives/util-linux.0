@@ -1,43 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from alerce.vps.bitfolk.com ([85.119.82.134]:47786 "EHLO
-	alerce.vps.bitfolk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757AbaBKLcK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Feb 2014 06:32:10 -0500
-Date: Tue, 11 Feb 2014 11:31:39 +0000
-From: Rodrigo Campos <rodrigo@sdfg.com.ar>
-To: util-linux@vger.kernel.org, kzak@redhat.com
-Subject: Re: fallocate: Add "--dig-holes" options and minor fixes
-Message-ID: <20140211113139.GA19087@sdfg.com.ar>
-References: <1390677448-7173-1-git-send-email-rodrigo@sdfg.com.ar>
- <20140125192303.GA7455@sdfg.com.ar>
- <20140201040414.GA23360@sdfg.com.ar>
+Received: from mx1.redhat.com ([209.132.183.28]:27697 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754439AbaBULH0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 21 Feb 2014 06:07:26 -0500
+Date: Fri, 21 Feb 2014 12:07:22 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Kenny Rachuonyo <krmboya@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: Typo in mkfs man-page
+Message-ID: <20140221110722.GC30903@x2.net.home>
+References: <CAFeW3TRKCNKtXv-9mQC86JM6xQNySQn=csJQFa2RqBRBnbujug@mail.gmail.com>
+ <20140210173545.GK8506@x2.net.home>
+ <20140210185741.GF4724@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140201040414.GA23360@sdfg.com.ar>
+In-Reply-To: <20140210185741.GF4724@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 01, 2014 at 04:04:14AM +0000, Rodrigo Campos wrote:
-> On Sat, Jan 25, 2014 at 07:23:03PM +0000, Rodrigo Campos wrote:
-> > On Sat, Jan 25, 2014 at 07:17:25PM +0000, Rodrigo Campos wrote:
-> > > Hi,
+On Mon, Feb 10, 2014 at 01:57:41PM -0500, Theodore Ts'o wrote:
+> On Mon, Feb 10, 2014 at 06:35:45PM +0100, Karel Zak wrote:
+> > On Wed, Jan 22, 2014 at 10:38:31AM +0300, Kenny Rachuonyo wrote:
+> > > The short form of the --verbose option should probably be -v instead of -V
 > > > 
-> > > As discussed in this[1] gmane thread, I'm submitting the funtionality to dig
-> > > holes as part of the fallocate(1) command.
+> > > This occurs both on the online man-page:
+> > > 
+> > > http://man7.org/linux/man-pages/man8/mkfs.8.html
+> > > 
+> > > and my local system (Ubuntu 12.04) man-page.
 > > 
-> > Ohh, forgot to tell, but I tried to re-use already used strings in _("")
-> > contructors and make "perror" just print the function name, as that is what I
-> > observed in other util-linux tools.
-> > 
-> > If I missed something, please let me know :)
+> >  I think this historical mess is well explained in the man page. 
 > 
-> Ping ? :)
+> I'll add that I've never been convinced that the mkfs front end is all
+> that useful.  It's probably better for people to explicitly run
 
-Re-ping ? Any comments on this ?
+Good point, I have marked the wrapper as deprecated.
 
+    Karel
 
-
-
-
-Thanks,
-Rodrigo
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
