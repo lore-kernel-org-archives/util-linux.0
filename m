@@ -1,59 +1,128 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from jespernyerup.dk ([109.74.204.79]:50208 "EHLO jespernyerup.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751326AbaBWTUB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 23 Feb 2014 14:20:01 -0500
-Date: Sun, 23 Feb 2014 20:20:00 +0100
-From: Jesper Dahl Nyerup <nyerup@one.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] script: Also flush writes to timing file.
-Message-ID: <20140223191959.GA3103@one.com>
-Reply-To: nyerup@one.com
-References: <1392673386-42128-1-git-send-email-nyerup@one.com>
- <1392752925-48502-1-git-send-email-nyerup@one.com>
- <20140221124420.GE30903@x2.net.home>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58905 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752617AbaBVKI5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 22 Feb 2014 05:08:57 -0500
+Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id DDB8B20A70
+	for <util-linux@vger.kernel.org>; Sat, 22 Feb 2014 05:08:56 -0500 (EST)
+Message-Id: <1393063736.22669.86436873.5D54747B@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-In-Reply-To: <20140221124420.GE30903@x2.net.home>
+Content-Type: multipart/mixed; boundary="_----------=_1393063736226692";
+ charset="utf-8"
+Subject: [patch] fix :p and apostrophe commands in man page of more
+Date: Sat, 22 Feb 2014 11:08:56 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This is a multi-part message in MIME format.
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--_----------=_1393063736226692
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-On Feb 21  13:44, Karel Zak wrote:
-> On Tue, Feb 18, 2014 at 08:48:45PM +0100, Jesper Dahl Nyerup wrote:
-> >  term-utils/script.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
->=20
->  Applied, thanks.
->=20
->  I have also made the files usage more robust and close all in done()
->  (based on Sami's suggestion).
 
-Thanks!
+Hi,
 
-J.
---=20
-Jesper Dahl Nyerup
-Systems Engineer
-One.com, nyerup@one.com
+Currently the man page of more gives :P instead of the correct :p
+as the command for 'previous file', and it shows an acute accent
+(groff conversions) instead of an apostrophe as the command key
+for 'go back to where you were'.
 
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Attached patch fixes those two things.  It also condenses some
+descriptions, removes two pointless comments, and deletes a
+leftover formatting line.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Regards,
 
-iEYEARECAAYFAlMKSd8ACgkQtzA4yjN/Kb37qgCfdGwKaAz55ZdNIj6v4rB/bb2z
-UnkAoIXyXkPzLHUcmi4NsEHzW9oI68TZ
-=qaZQ
------END PGP SIGNATURE-----
+Benno
 
---Qxx1br4bt0+wmkIi--
+-- 
+http://www.fastmail.fm - Faster than the air-speed velocity of an
+                          unladen european swallow
+
+
+--_----------=_1393063736226692
+Content-Disposition: attachment; filename="0001-docs-fix-two-command-representations-in-the-man-page.patch"
+Content-Id: <1393063611.22416.cf39f97b66384eac15bacfb80e3e9fe9189b377a.6FBB2A92@messagingengine.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/x-diff; name="0001-docs-fix-two-command-representations-in-the-man-page.patch"
+
+RnJvbSAzZWI5NDk1NTI1NDgyMjY1YWRmMDE2NzZmZGZmYjY4YmE0NGJlMTZk
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
+YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogRnJpLCAyMSBG
+ZWIgMjAxNCAxODoyMjozMyArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGRvY3M6
+IGZpeCB0d28gY29tbWFuZCByZXByZXNlbnRhdGlvbnMgaW4gdGhlIG1hbiBw
+YWdlIG9mIG1vcmUKClRoZSBwcmV2aW91cy1maWxlIGNvbW1hbmQgaXMgbm90
+IDpQIGJ1dCA6cCwgYW5kIHRoZSBiYWNrLXRvLXdoZXJlCmNvbW1hbmQgaXMg
+bm90IGFuIGFjdXRlIGFjY2VudCBidXQgYW4gYXBvc3Ryb3BoZS4gIEFsc28g
+Y29uZGVuc2UKc29tZSBvZiB0aGUgZGVzY3JpcHRpb25zIGFuZCByZW1vdmUg
+c29tZSB1c2VsZXNzIGNvbW1lbnRzLgoKU2lnbmVkLW9mZi1ieTogQmVubm8g
+U2NodWxlbmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+Ci0tLQogdGV4
+dC11dGlscy9tb3JlLjEgfCAgIDM4ICsrKysrKysrKysrKysrLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlv
+bnMoKyksIDI0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3RleHQtdXRp
+bHMvbW9yZS4xIGIvdGV4dC11dGlscy9tb3JlLjEKaW5kZXggMGNmMzg5Mi4u
+NTg5ZWFmNyAxMDA2NDQKLS0tIGEvdGV4dC11dGlscy9tb3JlLjEKKysrIGIv
+dGV4dC11dGlscy9tb3JlLjEKQEAgLTMyLDExICszMiw5IEBACiAuXCIKIC5c
+IglAKCMpbW9yZS4xCTUuMTUgKEJlcmtlbGV5KSA3LzI5LzkxCiAuXCIKLS5c
+IiBSZXZpc2VkOiBGcmkgRGVjIDI1IDE1OjI3OjI3IDE5OTIgYnkgcm9vdAog
+LlwiIDI1RGVjOTI6IEV4dGVuc2l2ZSBjaGFuZ2VzIG1hZGUgYnkgUmlrIEZh
+aXRoIChmYWl0aEBjcy51bmMuZWR1KSB0bwogLlwiIGNvbmZvcm0gd2l0aCB0
+aGUgbW9yZSA1LjE5IGN1cnJlbnRseSBpbiB1c2UgYnkgdGhlIExpbnV4IGNv
+bW11bml0eS4KIC5cIgotLlwiIC5EZCBKdWx5IDI5LCAxOTkxIChNb2RpZmll
+ZCBEZWNlbWJlciAyNSwgMTk5MikKIC5USCBNT1JFICIxIiAiRmVicnVhcnkg
+MjAxNCIgInV0aWwtbGludXgiICJVc2VyIENvbW1hbmRzIgogLlNIIE5BTUUK
+IG1vcmUgXC0gZmlsZSBwZXJ1c2FsIGZpbHRlciBmb3IgY3J0IHZpZXdpbmcK
+QEAgLTUzLDMyICs1MSwyNCBAQCBwcm92aWRlcwogLkJSIG1vcmUgKDEpCiBl
+bXVsYXRpb24gcGx1cyBleHRlbnNpdmUgZW5oYW5jZW1lbnRzLgogLlNIIE9Q
+VElPTlMKLUNvbW1hbmQtbGluZSBvcHRpb25zIGFyZSBkZXNjcmliZWQgYmVs
+b3cuICBPcHRpb25zIGFyZSBhbHNvIHRha2VuIGZyb20gdGhlCi1lbnZpcm9u
+bWVudCB2YXJpYWJsZQorT3B0aW9ucyBhcmUgYWxzbyB0YWtlbiBmcm9tIHRo
+ZSBlbnZpcm9ubWVudCB2YXJpYWJsZQogLkIgTU9SRQotKG1ha2Ugc3VyZSB0
+byBwcmVjZWRlIHRoZW0gd2l0aCBhIGRhc2ggKGBgLScnKSkgYnV0IGNvbW1h
+bmQgbGluZSBvcHRpb25zIHdpbGwKLW92ZXJyaWRlIHRoZW0uCi0uSXQgRmwg
+bnVtCisobWFrZSBzdXJlIHRvIHByZWNlZGUgdGhlbSB3aXRoIGEgZGFzaAor
+LlJCICggXC0gKSkKK2J1dCBjb21tYW5kLWxpbmUgb3B0aW9ucyB3aWxsIG92
+ZXJyaWRlIHRob3NlLgogLlRQCiAuQiBcLWQKLS5CIG1vcmUKLXdpbGwgcHJv
+bXB0IHRoZSB1c2VyIHdpdGggdGhlIG1lc3NhZ2UgIltQcmVzcyBzcGFjZSB0
+byBjb250aW51ZSwgJ3EnIHRvCi1xdWl0Ll0iIGFuZCB3aWxsIGRpc3BsYXkg
+IltQcmVzcyAnaCcgZm9yIGluc3RydWN0aW9ucy5dIiBpbnN0ZWFkIG9mIHJp
+bmdpbmcKK1Byb21wdCB3aXRoICJbUHJlc3Mgc3BhY2UgdG8gY29udGludWUs
+ICdxJyB0byBxdWl0Ll0iLAorYW5kIGRpc3BsYXkgIltQcmVzcyAnaCcgZm9y
+IGluc3RydWN0aW9ucy5dIiBpbnN0ZWFkIG9mIHJpbmdpbmcKIHRoZSBiZWxs
+IHdoZW4gYW4gaWxsZWdhbCBrZXkgaXMgcHJlc3NlZC4KIC5UUAogLkIgXC1s
+Ci0uQiBtb3JlCi11c3VhbGx5IHRyZWF0cworRG8gbm90IHBhdXNlIGFmdGVy
+IGFueSBsaW5lIGNvbnRhaW5pbmcgYQogLkIgXCZeTAotKGZvcm0gZmVlZCkg
+YXMgYSBzcGVjaWFsIGNoYXJhY3RlciwgYW5kIHdpbGwgcGF1c2UgYWZ0ZXIg
+YW55IGxpbmUgdGhhdAotY29udGFpbnMgYSBmb3JtIGZlZWQuICBUaGUKLS5C
+IFwtbAotb3B0aW9uIHdpbGwgcHJldmVudCB0aGlzIGJlaGF2aW9yLgorKGZv
+cm0gZmVlZCkuCiAuVFAKLS5CIC1mCi1DYXVzZXMKLS5CIG1vcmUKLXRvIGNv
+dW50IGxvZ2ljYWwsIHJhdGhlciB0aGFuIHNjcmVlbiBsaW5lcyAoaS5lLiwg
+bG9uZyBsaW5lcyBhcmUgbm90IGZvbGRlZCkuCisuQiBcLWYKK0NvdW50IGxv
+Z2ljYWwgbGluZXMsIHJhdGhlciB0aGFuIHNjcmVlbiBsaW5lcyAoaS5lLiwg
+bG9uZyBsaW5lcyBhcmUgbm90IGZvbGRlZCkuCiAuVFAKIC5CIFwtcAogRG8g
+bm90IHNjcm9sbC4gIEluc3RlYWQsIGNsZWFyIHRoZSB3aG9sZSBzY3JlZW4g
+YW5kIHRoZW4gZGlzcGxheSB0aGUgdGV4dC4KQEAgLTEyNCw3ICsxMTQsNyBA
+QCBtZWFucwogLlBEIDEKIC5UUCAxMAogLkJSIGggXCBvciBcID8KLUhlbHA6
+IGRpc3BsYXkgYSBzdW1tYXJ5IG9mIHRoZXNlIGNvbW1hbmRzLiAgSWYgeW91
+IGZvcmdldCBhbGwgdGhlIG90aGVyCitIZWxwOyBkaXNwbGF5IGEgc3VtbWFy
+eSBvZiB0aGVzZSBjb21tYW5kcy4gIElmIHlvdSBmb3JnZXQgYWxsIG90aGVy
+CiBjb21tYW5kcywgcmVtZW1iZXIgdGhpcyBvbmUuCiAuVFAKIC5CIFNQQUNF
+CkBAIC0xNTQsOCArMTQ0LDggQEAgU2tpcCBmb3J3YXJkIGsgc2NyZWVuZnVs
+cyBvZiB0ZXh0LiAgRGVmYXVsdHMgdG8gMS4KIFNraXAgYmFja3dhcmRzIGsg
+c2NyZWVuZnVscyBvZiB0ZXh0LiAgRGVmYXVsdHMgdG8gMS4gIE9ubHkgd29y
+a3Mgd2l0aCBmaWxlcywKIG5vdCBwaXBlcy4KIC5UUAotLkIgXCcKLUdvIHRv
+IHBsYWNlIHdoZXJlIHByZXZpb3VzIHNlYXJjaCBzdGFydGVkLgorLkIgJwor
+R28gdG8gdGhlIHBsYWNlIHdoZXJlIHRoZSBsYXN0IHNlYXJjaCBzdGFydGVk
+LgogLlRQCiAuQiA9CiBEaXNwbGF5IGN1cnJlbnQgbGluZSBudW1iZXIuCkBA
+IC0xOTQsNyArMTg0LDcgQEAgUmVkcmF3IHNjcmVlbi4KIC5CIDpuCiBHbyB0
+byBrdGggbmV4dCBmaWxlLiAgRGVmYXVsdHMgdG8gMS4KIC5UUAotLkIgOlAK
+Ky5CIDpwCiBHbyB0byBrdGggcHJldmlvdXMgZmlsZS4gIERlZmF1bHRzIHRv
+IDEuCiAuVFAKIC5CIDpmCi0tIAoxLjcuMC40Cgo=
+
+--_----------=_1393063736226692--
+
