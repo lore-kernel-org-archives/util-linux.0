@@ -1,46 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32827 "EHLO mx1.redhat.com"
+Received: from jespernyerup.dk ([109.74.204.79]:50208 "EHLO jespernyerup.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752940AbaBJSIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Feb 2014 13:08:36 -0500
-Date: Mon, 10 Feb 2014 19:08:31 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
+	id S1751326AbaBWTUB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 23 Feb 2014 14:20:01 -0500
+Date: Sun, 23 Feb 2014 20:20:00 +0100
+From: Jesper Dahl Nyerup <nyerup@one.com>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Correct max priority in renice man page
-Message-ID: <20140210180831.GQ8506@x2.net.home>
-References: <1391883730-11767-1-git-send-email-psusi@ubuntu.com>
+Subject: Re: [PATCH] script: Also flush writes to timing file.
+Message-ID: <20140223191959.GA3103@one.com>
+Reply-To: nyerup@one.com
+References: <1392673386-42128-1-git-send-email-nyerup@one.com>
+ <1392752925-48502-1-git-send-email-nyerup@one.com>
+ <20140221124420.GE30903@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1391883730-11767-1-git-send-email-psusi@ubuntu.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+In-Reply-To: <20140221124420.GE30903@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 08, 2014 at 01:22:10PM -0500, Phillip Susi wrote:
-> The man page stated that the PRIO_MAX is 20.  While this
-> is correct, the header definition is wrong and the max
-> value is actually 19.
 
- I have removed all notes about PRIO_MAX from the man page. The kernel
- syscalls use hardcoded limits rather than anything from header files.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- SYSCALL_DEFINE3(setpriority, int, which, int, who, int, niceval)
-    ...
-	if (niceval < -20)
-		niceval = -20;
-	if (niceval > 19)
-		niceval = 19;
+On Feb 21  13:44, Karel Zak wrote:
+> On Tue, Feb 18, 2014 at 08:48:45PM +0100, Jesper Dahl Nyerup wrote:
+> >  term-utils/script.c | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+>=20
+>  Applied, thanks.
+>=20
+>  I have also made the files usage more robust and close all in done()
+>  (based on Sami's suggestion).
 
- and almost the same is SYSCALL_DEFINE1(nice...
+Thanks!
 
- :-)
+J.
+--=20
+Jesper Dahl Nyerup
+Systems Engineer
+One.com, nyerup@one.com
 
->  sys-utils/renice.1 | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
- Applied, thanks.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
+iEYEARECAAYFAlMKSd8ACgkQtzA4yjN/Kb37qgCfdGwKaAz55ZdNIj6v4rB/bb2z
+UnkAoIXyXkPzLHUcmi4NsEHzW9oI68TZ
+=qaZQ
+-----END PGP SIGNATURE-----
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--Qxx1br4bt0+wmkIi--
