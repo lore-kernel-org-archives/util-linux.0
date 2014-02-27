@@ -1,254 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f201.google.com ([209.85.214.201]:62313 "EHLO
-	mail-ob0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751157AbaB0SlC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 27 Feb 2014 13:41:02 -0500
-Received: by mail-ob0-f201.google.com with SMTP id gq1so542343obb.2
-        for <util-linux@vger.kernel.org>; Thu, 27 Feb 2014 10:41:01 -0800 (PST)
-From: Chris MacGregor <chrismacgregor@google.com>
+Received: from mail-ea0-f172.google.com ([209.85.215.172]:53092 "EHLO
+	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752868AbaB0DYr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Feb 2014 22:24:47 -0500
+Received: by mail-ea0-f172.google.com with SMTP id l9so1421757eaj.17
+        for <util-linux@vger.kernel.org>; Wed, 26 Feb 2014 19:24:45 -0800 (PST)
+From: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
 To: util-linux@vger.kernel.org
-Cc: Chris MacGregor <chris@cybermato.com>
-Subject: [PATCH] hwclock: fix possible hang and other set_hardware_clock_exact() issues
-Date: Thu, 27 Feb 2014 10:40:59 -0800
-Message-ID: <vcw5ha7kiekk.fsf@chrismacgregor0.sea.corp.google.com>
+Cc: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+Subject: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
+Date: Thu, 27 Feb 2014 04:26:39 +0100
+Message-Id: <1393471600-17777-1-git-send-email-me@mmalecki.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In sys-utils/hwclock.c, set_hardware_clock_exact() has some problems when the
-process gets pre-empted (for more than 100ms) before reaching the time for
-which it waits:
+Otherwise, `fdisk` fails silently with "Bad file descriptor" when
+writing the partition table.
 
-1. The "continue" statement causes execution to skip the final tdiff
-assignment at the end of the do...while loop, leading to the while condition
-using the wrong value of tdiff, and thus always exiting the loop once
-newhwtime != sethwtime (e.g., after 1 second).  This masks bug # 2, below.
+Signed-off-by: Maciej Małecki <me@mmalecki.com>
+---
+ libfdisk/src/context.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-2. The previously-existing bug is that because it starts over waiting for the
-desired time whenever two successive calls to gettimeofday() return values >
-100ms apart, the loop will never terminate unless the process holds the CPU
-(without losing it for more than 100ms) for at least 500ms.  This can happen
-on a heavily loaded machine or on a virtual machine (or on a heavily loaded
-virtual machine).  This has been observed to occur, preventing a machine from
-completing the shutdown or reboot process due to a "hwclock --systohc" call in
-a shutdown script.
-
-The new implementation presented in this patch takes a somewhat different
-approach, intended to accomplish the same goals:
-
-It computes the desired target system time (at which the requested hardware
-clock time will be applied to the hardware clock), and waits for that time to
-arrive.  If it misses the time (such as due to being pre-empted for too long),
-it recalculates the target time, and increases the tolerance (how late it can
-be relative to the target time, and still be "close enough".  Thus, if all is
-well, the time will be set *very* precisely.  On a machine where the hwclock
-process is repeatedly pre-empted, it will set the time as precisely as is
-possible under the conditions present on that particular machine.  In any
-case, it will always terminate eventually (and pretty quickly); it will never
-hang forever.
-
-Signed-off-by: Chris MacGregor <chrismacgregor@google.com>
-
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 30660d4..161d5cf 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -125,7 +125,7 @@ struct adjtime {
-  * We are running in debug mode, wherein we put a lot of information about
-  * what we're doing to standard output.
-  */
--bool debug;
-+int debug;
- 
- /* Workaround for Award 4.50g BIOS bug: keep the year in a file. */
- bool badyear;
-@@ -526,43 +526,137 @@ set_hardware_clock_exact(const time_t sethwtime,
- 			 const struct timeval refsystime,
- 			 const bool universal, const bool testing)
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index c405403..40f9080 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -248,17 +248,26 @@ static int warn_wipe(struct fdisk_context *cxt)
+ int fdisk_context_assign_device(struct fdisk_context *cxt,
+ 				const char *fname, int readonly)
  {
--	time_t newhwtime = sethwtime;
--	struct timeval beginsystime, nowsystime;
--	double tdiff;
--	int time_resync = 1;
--
- 	/*
--	 * Now delay some more until Hardware Clock time newhwtime arrives.
--	 * The 0.5 s is because the Hardware Clock always sets to your set
--	 * time plus 500 ms (because it is designed to update to the next
--	 * second precisely 500 ms after you finish the setting).
-+	 * The Hardware Clock can only be set to any integer time plus one
-+	 * half second.	 The integer time is required because there is no
-+	 * interface to set or get a fractional second.	 The additional half
-+	 * second is because the Hardware Clock updates to the following
-+	 * second precisely 500 ms (not 1 second!) after you release the
-+	 * divider reset (after setting the new time) - see description of
-+	 * DV2, DV1, DV0 in Register A in the MC146818A data sheet (and note
-+	 * that although that document doesn't say so, real-world code seems
-+	 * to expect that the SET bit in Register B functions the same way).
-+	 * That means that, e.g., when you set the clock to 1:02:03, it
-+	 * effectively really sets it to 1:02:03.5, because it will update to
-+	 * 1:02:04 only half a second later.  Our caller passes the desired
-+	 * integer Hardware Clock time in sethwtime, and the corresponding
-+	 * system time (which may have a fractional part, and which may or may
-+	 * not be the same!) in refsystime.  In an ideal situation, we would
-+	 * then apply sethwtime to the Hardware Clock at refsystime+500ms, so
-+	 * that when the Hardware Clock ticks forward to sethwtime+1s half a
-+	 * second later at refsystime+1000ms, everything is in sync.  So we
-+	 * spin, waiting for gettimeofday() to return a time at or after that
-+	 * time (refsystime+500ms) up to a tolerance value, initially 1ms.  If
-+	 * we miss that time due to being preempted for some other process,
-+	 * then we increase the margin a little bit (initially 1ms, doubling
-+	 * each time), add 1 second (or more, if needed to get a time that is
-+	 * in the future) to both the time for which we are waiting and the
-+	 * time that we will apply to the Hardware Clock, and start waiting
-+	 * again.
-+	 * 
-+	 * For example, the caller requests that we set the Hardware Clock to
-+	 * 1:02:03, with reference time (current system time) = 6:07:08.250.
-+	 * We want the Hardware Clock to update to 1:02:04 at 6:07:09.250 on
-+	 * the system clock, and the first such update will occur 0.500
-+	 * seconds after we write to the Hardware Clock, so we spin until the
-+	 * system clock reads 6:07:08.750.  If we get there, great, but let's
-+	 * imagine the system is so heavily loaded that our process is
-+	 * preempted and by the time we get to run again, the system clock
-+	 * reads 6:07:11.990.  We now want to wait until the next xx:xx:xx.750
-+	 * time, which is 6:07:12.750 (4.5 seconds after the reference time),
-+	 * at which point we will set the Hardware Clock to 1:02:07 (4 seconds
-+	 * after the originally requested time).  If we do that successfully,
-+	 * then at 6:07:13.250 (5 seconds after the reference time), the
-+	 * Hardware Clock will update to 1:02:08 (5 seconds after the
-+	 * originally requested time), and all is well thereafter.
- 	 */
--	do {
--		if (time_resync) {
--			gettimeofday(&beginsystime, NULL);
--			tdiff = time_diff(beginsystime, refsystime);
--			newhwtime = sethwtime + (int)(tdiff + 0.5);
--			if (debug)
--				printf(_
--				       ("Time elapsed since reference time has been %.6f seconds.\n"
--					"Delaying further to reach the new time.\n"),
--				       tdiff);
--			time_resync = 0;
-+
-+	time_t newhwtime = sethwtime;
-+	double target_time_tolerance_secs = 0.001;  /* initial value */
-+	double tolerance_incr_secs = 0.001;	    /* initial value */
-+	const double RTC_SET_DELAY_SECS = 0.5;	    /* 500 ms */
-+	const struct timeval RTC_SET_DELAY_TV
-+		= { 0, RTC_SET_DELAY_SECS * 1E6 };
-+	struct timeval targetsystime;
-+	timeradd(&refsystime, &RTC_SET_DELAY_TV, &targetsystime);
-+	struct timeval nowsystime;
-+	struct timeval prevsystime = refsystime;
-+	double deltavstarget;
-+
-+	while (1) {
-+		/* FOR TESTING ONLY: inject random delays of up to 1000ms */
-+		if (debug >= 10) {
-+			int usec = random() % 1000000;
-+			printf(_("sleeping ~%d usec\n"), usec);
-+			usleep(usec);
- 		}
+-	int fd;
++	int fd, mode;
  
- 		gettimeofday(&nowsystime, NULL);
--		tdiff = time_diff(nowsystime, beginsystime);
--		if (tdiff < 0) {
--			time_resync = 1;	/* probably backward time reset */
--			continue;
--		}
--		if (tdiff > 0.1) {
--			time_resync = 1;	/* probably forward time reset */
--			continue;
-+		deltavstarget = time_diff(nowsystime, targetsystime);
-+		double ticksize = time_diff(nowsystime, prevsystime);
-+		prevsystime = nowsystime;
-+		if (ticksize < 0) {
-+			if (debug)
-+				printf(_("time jumped backward %.6f seconds "
-+					 "to %ld.%06d - retargeting\n"),
-+				       ticksize, (long)nowsystime.tv_sec,
-+				       (int)nowsystime.tv_usec);
-+			/* The retarget is handled at the end of the loop. */
-+		} else if (deltavstarget < 0) {
-+			/* deltavstarget < 0 if current time < target time */
-+			if (debug >= 2)
-+				printf(_("%ld.%06d < %ld.%06d (%.6f)\n"),
-+				       (long)nowsystime.tv_sec,
-+				       (int)nowsystime.tv_usec,
-+				       (long)targetsystime.tv_sec,
-+				       (int)targetsystime.tv_usec,
-+				       deltavstarget);
-+			continue;  /* not there yet - keep spinning */
-+		} else if (deltavstarget <= target_time_tolerance_secs) {
-+			/* Close enough to the target time; done waiting. */
-+			break;
-+		} else /* (deltavstarget > target_time_tolerance_secs) */ {
-+			/*
-+			 * We missed our window.  Increase the tolerance and
-+			 * aim for the next opportunity.
-+			 */
-+			if (debug)
-+				printf(_("missed it - %ld.%06d is too far "
-+					 "past %ld.%06d (%.6f > %.6f)\n"),
-+				       (long)nowsystime.tv_sec,
-+				       (int)nowsystime.tv_usec,
-+				       (long)targetsystime.tv_sec,
-+				       (int)targetsystime.tv_usec,
-+				       deltavstarget,
-+				       target_time_tolerance_secs);
-+			target_time_tolerance_secs += tolerance_incr_secs;
-+			tolerance_incr_secs *= 2;
- 		}
--		beginsystime = nowsystime;
--		tdiff = time_diff(nowsystime, refsystime);
--	} while (newhwtime == sethwtime + (int)(tdiff + 0.5));
-+
-+		/*
-+		 * Aim for the same offset (tv_usec) within the second in
-+		 * either the current second (if that offset hasn't arrived
-+		 * yet), or the next second.
-+		 */
-+		if (nowsystime.tv_usec < targetsystime.tv_usec)
-+			targetsystime.tv_sec = nowsystime.tv_sec;
-+		else
-+			targetsystime.tv_sec = nowsystime.tv_sec + 1;
-+	}
-+
-+	newhwtime = sethwtime
-+		    + (int)(time_diff(nowsystime, refsystime)
-+			    - RTC_SET_DELAY_SECS /* don't count this */
-+			    + 0.5 /* for rounding */);
-+	if (debug)
-+		printf(_("%ld.%06d is close enough to %ld.%06d (%.6f < %.6f)\n"
-+			 "Set RTC to %ld (%ld + %d; refsystime = %ld.%06d)\n"),
-+		       (long)nowsystime.tv_sec, (int)nowsystime.tv_usec,
-+		       (long)targetsystime.tv_sec, (int)targetsystime.tv_usec,
-+		       deltavstarget, target_time_tolerance_secs,
-+		       (long)newhwtime, (long)sethwtime,
-+		       (int)(newhwtime - sethwtime),
-+		       (long)refsystime.tv_sec, (int)refsystime.tv_usec);
+ 	DBG(CONTEXT, dbgprint("assigning device %s", fname));
+ 	assert(cxt);
  
- 	set_hardware_clock(newhwtime, universal, testing);
- }
-@@ -1636,7 +1730,7 @@ int main(int argc, char **argv)
+ 	reset_context(cxt);
  
- 		switch (c) {
- 		case 'D':
--			debug = TRUE;
-+			++debug;
- 			break;
- 		case 'a':
- 			adjust = TRUE;
-@@ -1953,10 +2047,4 @@ void __attribute__((__noreturn__)) hwaudit_exit(int status)
-  *
-  * hwclock uses this method, and considers the Hardware Clock to have
-  * infinite precision.
-- *
-- * TODO: Enhancements needed:
-- *
-- *  - When waiting for whole second boundary in set_hardware_clock_exact,
-- *    fail if we miss the goal by more than .1 second, as could happen if we
-- *    get pre-empted (by the kernel dispatcher).
-  */
+-	if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC)) < 0) {
+-		if ((fd = open(fname, O_RDONLY|O_CLOEXEC)) < 0)
++retry:
++	mode = (readonly ? O_RDONLY : O_RDWR) | O_CLOEXEC;
++	fd = open(fname, mode);
++	if (fd < 0) {
++		if (readonly)
+ 			return -errno;
+-		readonly = 1;
++		else {
++			fdisk_warn(cxt,
++			    _("%s: opening device in read write mode failed"),
++			    fname);
++			readonly = 1;
++			goto retry;
++		}
+ 	}
+ 
+ 	cxt->dev_fd = fd;
+-- 
+1.9.0
+
