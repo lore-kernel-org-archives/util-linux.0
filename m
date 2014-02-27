@@ -1,72 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g9t1613g.houston.hp.com ([15.240.0.71]:54784 "EHLO
-	g9t1613g.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750948AbaB1S1q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 13:27:46 -0500
-Received: from g4t3425.houston.hp.com (g4t3425.houston.hp.com [15.201.208.53])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by g9t1613g.houston.hp.com (Postfix) with ESMTPS id 4D67B61F5F
-	for <util-linux@vger.kernel.org>; Fri, 28 Feb 2014 18:27:46 +0000 (UTC)
-Message-ID: <1393612047.2899.31.camel@buesod1.americas.hpqcorp.net>
-Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
-From: Davidlohr Bueso <davidlohr@hp.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: Maciej =?UTF-8?Q?Ma=C5=82ecki?= <me@mmalecki.com>,
-        util-linux@vger.kernel.org
-Date: Fri, 28 Feb 2014 10:27:27 -0800
-In-Reply-To: <5310B80C.7000205@ubuntu.com>
+Received: from mail-ee0-f49.google.com ([74.125.83.49]:49623 "EHLO
+	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752868AbaB0DY5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Feb 2014 22:24:57 -0500
+Received: by mail-ee0-f49.google.com with SMTP id b57so1026370eek.8
+        for <util-linux@vger.kernel.org>; Wed, 26 Feb 2014 19:24:55 -0800 (PST)
+From: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+Subject: [PATCH 2/2] fdisk: do not allow writing to a read-only device
+Date: Thu, 27 Feb 2014 04:26:40 +0100
+Message-Id: <1393471600-17777-2-git-send-email-me@mmalecki.com>
+In-Reply-To: <1393471600-17777-1-git-send-email-me@mmalecki.com>
 References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
-		<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>
-	 <CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>
-	 <5310B80C.7000205@ubuntu.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 2014-02-28 at 11:23 -0500, Phillip Susi wrote:
-> On 2/28/2014 6:00 AM, Maciej Małecki wrote:
-> >>> libfdisk/src/context.c | 17 +++++++++++++---- 1 file changed,
-> >>> 13 insertions(+), 4 deletions(-)
-> >>> 
-> >>> diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c 
-> >>> index c405403..40f9080 100644 --- a/libfdisk/src/context.c +++
-> >>> b/libfdisk/src/context.c @@ -248,17 +248,26 @@ static int
-> >>> warn_wipe(struct fdisk_context *cxt) int
-> >>> fdisk_context_assign_device(struct fdisk_context *cxt, const
-> >>> char *fname, int readonly) { -     int fd; +     int fd, mode;
-> >>> 
-> >>> DBG(CONTEXT, dbgprint("assigning device %s", fname)); 
-> >>> assert(cxt);
-> >>> 
-> >>> reset_context(cxt);
-> >>> 
-> >>> -     if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC))
-> >>> < 0) { -             if ((fd = open(fname, O_RDONLY|O_CLOEXEC))
-> >>> < 0) +retry: +     mode = (readonly ? O_RDONLY : O_RDWR) |
-> >>> O_CLOEXEC; +     fd = open(fname, mode); +     if (fd < 0) { +
-> >>> if (readonly) return -errno; -             readonly = 1; +
-> >>> else { +                     fdisk_warn(cxt, +
-> >>> _("%s: opening device in read write mode failed"), +
-> >>> fname); +                     readonly = 1; +
-> >>> goto retry; +             } }
-> >> 
-> >> This is 1) obscenely ugly and 2) not the place for such message.
-> >> There's no reason to pollute output like this. Why do I care how
-> >> the device is opened when I'm not going to write anything to it?
-> >> 
-> >> The correct way is to do what you do in patch 2, inform the user
-> >> that the device is only for opened for reading and just skip the
-> >> write operation.
-> 
-> You really want to tell the user that they aren't going to be able to
-> write up front.
+Print a warning instead. This fixes the aforementioned "Bad file
+descriptor" issue when writing to read-only completely.
 
-Sure why not, just not in a library! You can do this in the fdisk
-program. And if Karel doesn't agree and wants to apply this patch
-anyway, then it should *at least* be in DBG context.
+Signed-off-by: Maciej Małecki <me@mmalecki.com>
+---
+ fdisks/fdisk-menu.c    | 4 ++++
+ libfdisk/src/context.c | 3 +++
+ libfdisk/src/fdiskP.h  | 1 +
+ 3 files changed, 8 insertions(+)
 
-Thanks,
-Davidlohr
+diff --git a/fdisks/fdisk-menu.c b/fdisks/fdisk-menu.c
+index ced819a..f965e3f 100644
+--- a/fdisks/fdisk-menu.c
++++ b/fdisks/fdisk-menu.c
+@@ -448,6 +448,10 @@ static int generic_menu_cb(struct fdisk_context **cxt0,
+ 		rc = fdisk_list_disklabel(cxt);
+ 		break;
+ 	case 'w':
++		if (cxt->readonly) {
++			fdisk_warnx(cxt, _("Device open in read-only mode"));
++			break;
++		}
+ 		rc = fdisk_write_disklabel(cxt);
+ 		if (rc)
+ 			err(EXIT_FAILURE, _("failed to write disklabel"));
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index 40f9080..05833df 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -45,6 +45,7 @@ struct fdisk_context *fdisk_new_nested_context(struct fdisk_context *parent,
+ 	DBG(LABEL, dbgprint("new context %p allocated", cxt));
+ 	cxt->dev_fd = parent->dev_fd;
+ 	cxt->parent = parent;
++	cxt->readonly = parent->readonly;
+ 
+ 	cxt->io_size =          parent->io_size;
+ 	cxt->optimal_io_size =  parent->optimal_io_size;
+@@ -173,6 +174,7 @@ static void reset_context(struct fdisk_context *cxt)
+ 
+ 	/* initialize */
+ 	cxt->dev_fd = -1;
++	cxt->readonly = -1;
+ 	cxt->dev_path = NULL;
+ 	cxt->firstsector = NULL;
+ 
+@@ -271,6 +273,7 @@ retry:
+ 	}
+ 
+ 	cxt->dev_fd = fd;
++	cxt->readonly = readonly;
+ 	cxt->dev_path = strdup(fname);
+ 	if (!cxt->dev_path)
+ 		goto fail;
+diff --git a/libfdisk/src/fdiskP.h b/libfdisk/src/fdiskP.h
+index feaab3d..da56c13 100644
+--- a/libfdisk/src/fdiskP.h
++++ b/libfdisk/src/fdiskP.h
+@@ -264,6 +264,7 @@ struct fdisk_ask {
+ 
+ struct fdisk_context {
+ 	int dev_fd;         /* device descriptor */
++	int readonly;       /* is the device read-only? */
+ 	char *dev_path;     /* device path */
+ 	unsigned char *firstsector; /* buffer with master boot record */
+ 
+-- 
+1.9.0
 
