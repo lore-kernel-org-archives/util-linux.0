@@ -1,104 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from kontorsmtp1.one.com ([195.47.247.16]:37435 "EHLO
-	kontorsmtp1.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751889AbaBJLDL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Feb 2014 06:03:11 -0500
-From: Jesper Dahl Nyerup <nyerup@one.com>
-To: util-linux@vger.kernel.org
-Cc: nyerup@one.com
-Subject: [PATCH] scriptreplay: Add --maxdelay option.
-Date: Mon, 10 Feb 2014 11:53:18 +0100
-Message-Id: <1392029598-8089-1-git-send-email-nyerup@one.com>
+Received: from mail-la0-f49.google.com ([209.85.215.49]:33271 "EHLO
+	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751516AbaB1LAf convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 06:00:35 -0500
+Received: by mail-la0-f49.google.com with SMTP id mc6so2529525lab.8
+        for <util-linux@vger.kernel.org>; Fri, 28 Feb 2014 03:00:34 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>
+References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
+	<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>
+Date: Fri, 28 Feb 2014 12:00:34 +0100
+Message-ID: <CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
+From: =?ISO-8859-2?Q?Maciej_Ma=B3ecki?= <me@mmalecki.com>
+To: Davidlohr Bueso <davidlohr@hp.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This option caps the delay between updates, to avoid long pauses in
-transcript playback.
+Davidlohr,
 
-Signed-off-by: Jesper Dahl Nyerup <nyerup@one.com>
----
- term-utils/scriptreplay.1 |  6 ++++++
- term-utils/scriptreplay.c | 15 ++++++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+Thanks for the review.
 
-diff --git a/term-utils/scriptreplay.1 b/term-utils/scriptreplay.1
-index 20b6d93..329dbc9 100644
---- a/term-utils/scriptreplay.1
-+++ b/term-utils/scriptreplay.1
-@@ -56,6 +56,12 @@ Speed up the replay displaying this
- of times.  The argument is a floating point number.  It's called divisor
- because it divides the timings by this factor.
- .TP
-+.BR \-m , " \-\-maxdelay " \fInumber\fR
-+Set the maximal delay between transcript updates to
-+.I number
-+seconds.  The argument is a floating point number.  This can be used to
-+avoid long pauses in the transcript replay.
-+.TP
- .BR \-V , " \-\-version"
- Display version information and exit.
- .TP
-diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
-index 46468be..6a29874 100644
---- a/term-utils/scriptreplay.c
-+++ b/term-utils/scriptreplay.c
-@@ -46,6 +46,7 @@ usage(FILE *out)
- 	fputs(_(" -t, --timing <file>     script timing output file\n"
- 		" -s, --typescript <file> script terminal session output file\n"
- 		" -d, --divisor <num>     speed up or slow down execution with time divisor\n"
-+		" -m, --maxdelay <num>    wait at most this many seconds between updates\n"
- 		" -V, --version           output version information and exit\n"
- 		" -h, --help              display this help and exit\n\n"), out);
- 
-@@ -130,8 +131,8 @@ main(int argc, char *argv[])
- {
- 	FILE *tfile, *sfile;
- 	const char *sname = NULL, *tname = NULL;
--	double divi = 1;
--	int c, diviopt = FALSE, idx;
-+	double divi = 1, maxdelay = 10;
-+	int c, diviopt = FALSE, maxdelayopt = FALSE, idx;
- 	unsigned long line;
- 	size_t oldblk = 0;
- 	char ch;
-@@ -140,6 +141,7 @@ main(int argc, char *argv[])
- 		{ "timing",	required_argument,	0, 't' },
- 		{ "typescript",	required_argument,	0, 's' },
- 		{ "divisor",	required_argument,	0, 'd' },
-+		{ "maxdelay",	required_argument,	0, 'm' },
- 		{ "version",	no_argument,		0, 'V' },
- 		{ "help",	no_argument,		0, 'h' },
- 		{ NULL,		0, 0, 0 }
-@@ -156,7 +158,7 @@ main(int argc, char *argv[])
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
- 
--	while ((ch = getopt_long(argc, argv, "t:s:d:Vh", longopts, NULL)) != -1)
-+	while ((ch = getopt_long(argc, argv, "t:s:d:m:Vh", longopts, NULL)) != -1)
- 		switch(ch) {
- 		case 't':
- 			tname = optarg;
-@@ -168,6 +170,10 @@ main(int argc, char *argv[])
- 			diviopt = TRUE;
- 			divi = getnum(optarg);
- 			break;
-+		case 'm':
-+			maxdelayopt = TRUE;
-+			maxdelay = getnum(optarg);
-+			break;
- 		case 'V':
- 			printf(_("%s from %s\n"), program_invocation_short_name,
- 						  PACKAGE_STRING);
-@@ -219,6 +225,9 @@ main(int argc, char *argv[])
- 		}
- 		delay /= divi;
- 
-+		if (maxdelayopt && delay > maxdelay)
-+			delay = maxdelay;
-+
- 		if (delay > SCRIPT_MIN_DELAY)
- 			delay_for(delay);
- 
--- 
-1.8.4
+I'm not sure why this is not a place for such message, as a user I
+mostly open a device to write something to it. I want to know that
+whatever I do, my writes will fail, otherwise I'm just wasting time
+putting together my disk layout.
+The reason for this patch was trying to open a write-blocked SD card.
 
+Anyway, if that's still a NAK, should I only make this patch so that
+`fdisk_context_assign_device` sets `dev->readonly = 1`, without any
+error message?
+
+On Fri, Feb 28, 2014 at 3:32 AM, Davidlohr Bueso <davidlohr@hp.com> wrote:
+> On Thu, 2014-02-27 at 04:26 +0100, Maciej Małecki wrote:
+>> Otherwise, `fdisk` fails silently with "Bad file descriptor" when
+>> writing the partition table.
+>>
+>> Signed-off-by: Maciej Małecki <me@mmalecki.com>
+>> ---
+>>  libfdisk/src/context.c | 17 +++++++++++++----
+>>  1 file changed, 13 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+>> index c405403..40f9080 100644
+>> --- a/libfdisk/src/context.c
+>> +++ b/libfdisk/src/context.c
+>> @@ -248,17 +248,26 @@ static int warn_wipe(struct fdisk_context *cxt)
+>>  int fdisk_context_assign_device(struct fdisk_context *cxt,
+>>                               const char *fname, int readonly)
+>>  {
+>> -     int fd;
+>> +     int fd, mode;
+>>
+>>       DBG(CONTEXT, dbgprint("assigning device %s", fname));
+>>       assert(cxt);
+>>
+>>       reset_context(cxt);
+>>
+>> -     if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC)) < 0) {
+>> -             if ((fd = open(fname, O_RDONLY|O_CLOEXEC)) < 0)
+>> +retry:
+>> +     mode = (readonly ? O_RDONLY : O_RDWR) | O_CLOEXEC;
+>> +     fd = open(fname, mode);
+>> +     if (fd < 0) {
+>> +             if (readonly)
+>>                       return -errno;
+>> -             readonly = 1;
+>> +             else {
+>> +                     fdisk_warn(cxt,
+>> +                         _("%s: opening device in read write mode failed"),
+>> +                         fname);
+>> +                     readonly = 1;
+>> +                     goto retry;
+>> +             }
+>>       }
+>
+> This is 1) obscenely ugly and 2) not the place for such message. There's
+> no reason to pollute output like this. Why do I care how the device is
+> opened when I'm not going to write anything to it?
+>
+> The correct way is to do what you do in patch 2, inform the user that
+> the device is only for opened for reading and just skip the write
+> operation.
+>
+> So, NAK for this patch.
+>
+> Thanks,
+> Davidlohr
+>
+>
