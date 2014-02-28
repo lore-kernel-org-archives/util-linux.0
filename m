@@ -1,48 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:46714 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:45415 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752910AbaBJUsf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Feb 2014 15:48:35 -0500
-Message-ID: <52F93B20.2030703@ubuntu.com>
-Date: Mon, 10 Feb 2014 15:48:32 -0500
+	with ESMTP id S1751743AbaB1TS0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 14:18:26 -0500
+Message-ID: <5310E100.5020405@ubuntu.com>
+Date: Fri, 28 Feb 2014 14:18:24 -0500
 From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: sfdisk does not handle whitespace the way the man page says
-Content-Type: text/plain; charset=ISO-8859-1
+To: Davidlohr Bueso <davidlohr@hp.com>
+CC: =?UTF-8?B?TWFjaWVqIE1hxYJlY2tp?= <me@mmalecki.com>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
+References: <1393471600-17777-1-git-send-email-me@mmalecki.com>		<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>	 <CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>	 <5310B80C.7000205@ubuntu.com> <1393612047.2899.31.camel@buesod1.americas.hpqcorp.net>
+In-Reply-To: <1393612047.2899.31.camel@buesod1.americas.hpqcorp.net>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Forwarding from deb bug #406817:
+On 2/28/2014 1:27 PM, Davidlohr Bueso wrote:
+>> You really want to tell the user that they aren't going to be
+>> able to write up front.
+> 
+> Sure why not, just not in a library! You can do this in the fdisk 
+> program. And if Karel doesn't agree and wants to apply this patch 
+> anyway, then it should *at least* be in DBG context.
 
-The sfdisk man page says:
+Right, which is what I said just after that ;)
 
-Fields are separated by whitespace, or comma or semicolon possibly
-followed by whitespace;  initial and  trailing  whitespace  is  ignored.
-
-Looking at the code, it looks like it attempts to do this, but it
-fails somehow.  It complains about trailing junk after number when I
-give it:
-
-"    2048,2048,80"
-
-Further, it hard codes a single space or hard tab as a field separator
-rather than using isspace() and does not make allowance for treating
-multiple spaces as a single separator, nor ignoring white space after
-a comma or semicolon.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.17 (MingW32)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQEcBAEBAgAGBQJS+TsgAAoJEI5FoCIzSKrw6KYIAI82PcZHoJSOs5v1NOppGkbJ
-jO5/+9xIFcwzFEXTA3b4772qiuKhV91C04dLt/n8uBwgI2kHT2jvdssqW/8g7UPs
-HeHuCdmjdjmyEzRQmNhdODmRgulb6NyUxnQdxeDvPnc4cbV/n0hfzqL3vxx4Vlr4
-GuzsCXk49P0TIfLaUsQicFuH8xxARcR64n14bZ97M049fTjIsZsDq2rsEWY7NEZy
-ysADmMKoxlRD16gBFj0slvo9eOWPxR+e84wdbEEYohyM+Ej4+xebKqMbiwoBd+5x
-CSA8eHpJnTftmjzk9AUPoAhM0m5HDECIQZSElF+M55iKLpN+3g2vp3pb4OnREh8=
-=ZsOK
+iQEcBAEBAgAGBQJTEOEAAAoJEI5FoCIzSKrwgosH/2VJe8a639As2jvFhBDnp8Fr
+H0xuH1fPt/RTE3+d9GlCHlBsfWQlmBgNEzItJR2hCnHLikf8ghY8SXwCXqgmUYZa
+RGdwyU10ulhBC552F5x2I+Qgu7xGRxsOhHOlxpgzrPtsZNkf5vqXwlNjxjGr2i2G
+zLcdH4Oq2K/D0JoPEKS5Bn8xnbNL/vnd7B6Hn9tqZ8+RfPm6iajr5bIPGOpLOa2E
+S/FBo+8Abjln2DIllSZGwQLsoidyWv3fT2iGxaMmtkAGNn9Dbw/r7Uvq4Yt1OICB
+/T7F3y1fYb+E/1JPaNneM0wl2smyl3em40uKBuGIi4rhj0g2QVycmANOmol1P0U=
+=rQOh
 -----END PGP SIGNATURE-----
