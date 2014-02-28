@@ -1,188 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f179.google.com ([74.125.82.179]:35414 "EHLO
-	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752440AbaBPXyh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Feb 2014 18:54:37 -0500
-Received: by mail-we0-f179.google.com with SMTP id q58so9925295wes.24
-        for <util-linux@vger.kernel.org>; Sun, 16 Feb 2014 15:54:36 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/9] tests: make tests to run parallel
-Date: Sun, 16 Feb 2014 23:54:15 +0000
-Message-Id: <1392594862-15807-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
-References: <1392594862-15807-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-la0-f51.google.com ([209.85.215.51]:55522 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751900AbaB1SSp convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2014 13:18:45 -0500
+Received: by mail-la0-f51.google.com with SMTP id pv20so2174083lab.38
+        for <util-linux@vger.kernel.org>; Fri, 28 Feb 2014 10:18:43 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <5310B80C.7000205@ubuntu.com>
+References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
+	<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>
+	<CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>
+	<5310B80C.7000205@ubuntu.com>
+Date: Fri, 28 Feb 2014 19:18:43 +0100
+Message-ID: <CAKC8-7xHSxCbfqATDUBp+9h9B4LSMz9XhT5U5WpHWEKDAnTJbQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
+From: =?ISO-8859-2?Q?Maciej_Ma=B3ecki?= <me@mmalecki.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: Davidlohr Bueso <davidlohr@hp.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Unarguably this change makes test output to be more messy, but when I
-compare run time tells with clear numbers parallel is quicker.  For me
-the quickness is important factor.  Running test suite always after a
-change is preferrably quick, and if something is indicated to be broken
-it is ok to spend time in drilling down what happen.
+Phillip,
 
-$ time ./tests/run.sh --parallel=5
-[...]
-real    1m48.037s
+That's pretty much what I thought about this function, but didn't want
+to make too intrusive changes. I'll make this patch do that instead
+(i.e. warn and retry opening in read-only mode in `fdisk`land, not
+`libfdisk`land). Thanks for the review.
 
-Same without parallelization.
-
-$ time ./tests/run.sh
-real    3m16.687s
-
-The default is changed to be parallel, where job count is same as number
-of CPUs.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/functions.sh | 15 +++++++--------
- tests/run.sh       | 32 +++++++++++++++++++-------------
- 2 files changed, 26 insertions(+), 21 deletions(-)
-
-diff --git a/tests/functions.sh b/tests/functions.sh
-index 17fa6d2..f6f2a5c 100644
---- a/tests/functions.sh
-+++ b/tests/functions.sh
-@@ -38,7 +38,7 @@ function ts_check_test_command {
- }
- 
- function ts_skip_subtest {
--	echo " IGNORE ($1)"
-+	echo "$TITLE IGNORE ($1)"
- }
- 
- function ts_skip {
-@@ -57,9 +57,9 @@ function ts_skip_nonroot {
- 
- function ts_failed_subtest {
- 	if [ x"$1" == x"" ]; then
--		echo " FAILED ($TS_NS)"
-+		echo "$TITLE FAILED ($TS_NS)"
- 	else
--		echo " FAILED ($1)"
-+		echo "$TITLE FAILED ($1)"
- 	fi
- }
- 
-@@ -70,9 +70,9 @@ function ts_failed {
- 
- function ts_ok_subtest {
- 	if [ x"$1" == x"" ]; then
--		echo " OK"
-+		echo "$TITLE OK"
- 	else
--		echo " OK ($1)"
-+		echo "$TITLE OK ($1)"
- 	fi
- }
- 
-@@ -214,8 +214,7 @@ function ts_init_subtest {
- 
- 	[ $TS_NSUBTESTS -eq 0 ] && echo
- 	TS_NSUBTESTS=$(( $TS_NSUBTESTS + 1 ))
--
--	printf "%16s: %-27s ..." "" "$TS_SUBNAME"
-+	TITLE=$(printf "%13s: %-30s ...\n%16s: %-27s ..." "$TS_COMPONENT" "$TS_DESC" "" "$TS_SUBNAME")
- }
- 
- function ts_init {
-@@ -229,7 +228,7 @@ function ts_init {
- 
- 	ts_init_env "$*"
- 
--	printf "%13s: %-30s ..." "$TS_COMPONENT" "$TS_DESC"
-+	TITLE=$(printf "%13s: %-30s ..." "$TS_COMPONENT" "$TS_DESC")
- 
- 	[ "$is_fake" == "yes" ] && ts_skip "fake mode"
- 	[ "$TS_OPTIONAL" == "yes" -a "$is_force" != "yes" ] && ts_skip "optional"
-diff --git a/tests/run.sh b/tests/run.sh
-index 8a7924a..4f55295 100755
---- a/tests/run.sh
-+++ b/tests/run.sh
-@@ -23,6 +23,8 @@ OPTS=
- top_srcdir=
- top_builddir=
- 
-+paraller_jobs=$(lscpu -bp | grep -cv '^#')
-+
- while [ -n "$1" ]; do
- 	case "$1" in
- 	--force)
-@@ -49,6 +51,9 @@ while [ -n "$1" ]; do
- 	--builddir=*)
- 		top_builddir="${1##--builddir=}"
- 		;;
-+	--parallel=*)
-+		paraller_jobs="${1##--parallel=}"
-+		;;
- 	--*)
- 		echo "Unknown option $1"
- 		echo "Usage: "
-@@ -61,6 +66,7 @@ while [ -n "$1" ]; do
- 		echo "  --nonroot         ignore test suite if user is root"
- 		echo "  --srcdir=<path>   autotools top source directory"
- 		echo "  --builddir=<path> autotools top build directory"
-+		echo "  --parallel=<num>  number of parallel test jobs, default: num cpus"
- 		echo
- 		exit 1
- 		;;
-@@ -87,12 +93,12 @@ fi
- 
- OPTS="$OPTS --srcdir=$top_srcdir --builddir=$top_builddir"
- 
-+declare -a comps
- if [ -n "$SUBTESTS" ]; then
- 	# selected tests only
- 	for s in $SUBTESTS; do
- 		if [ -d "$top_srcdir/tests/ts/$s" ]; then
--			co=$(find $top_srcdir/tests/ts/$s -type f -perm /a+x -regex ".*/[^\.~]*" |  sort)
--			comps="$comps $co"
-+			comps+=( $(find $top_srcdir/tests/ts/$s -type f -perm /a+x -regex ".*/[^\.~]*") )
- 		else
- 			echo "Unknown test component '$s'"
- 			exit 1
-@@ -104,7 +110,7 @@ else
- 		exit 1
- 	fi
- 
--	comps=$(find $top_srcdir/tests/ts/ -type f -perm /a+x -regex ".*/[^\.~]*" |  sort)
-+	comps=( $(find $top_srcdir/tests/ts/ -type f -perm /a+x -regex ".*/[^\.~]*") )
- fi
- 
- 
-@@ -119,21 +125,21 @@ echo "                    For development purpose only.                    "
- echo "                 Don't execute on production system!                 "
- echo
- 
--res=0
- count=0
--for ts in $comps; do
--	$ts "$OPTS"
--	res=$(( $res + $? ))
--	count=$(( $count + 1 ))
--done
--
-+>| $top_srcdir/tests/failures
-+printf "%s\n" ${comps[*]} |
-+	xargs -I '{}' -P $paraller_jobs -n 1 bash -c "'{}' \"$OPTS\" ||
-+		echo 1 >> $top_srcdir/tests/failures"
-+declare -a fail_file
-+fail_file=( $( < $top_srcdir/tests/failures ) )
-+rm -f $top_srcdir/tests/failures
- echo
- echo "---------------------------------------------------------------------"
--if [ $res -eq 0 ]; then
--	echo "  All $count tests PASSED"
-+if [ ${#fail_file[@]} -eq 0 ]; then
-+	echo "  All ${#comps[@]} tests PASSED"
- 	res=0
- else
--	echo "  $res tests of $count FAILED"
-+	echo "  ${#fail_file[@]} tests of ${#comps[@]} FAILED"
- 	res=1
- fi
- echo "---------------------------------------------------------------------"
--- 
-1.9.0
-
+On Fri, Feb 28, 2014 at 5:23 PM, Phillip Susi <psusi@ubuntu.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On 2/28/2014 6:00 AM, Maciej Małecki wrote:
+>>>> libfdisk/src/context.c | 17 +++++++++++++---- 1 file changed,
+>>>> 13 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+>>>> index c405403..40f9080 100644 --- a/libfdisk/src/context.c +++
+>>>> b/libfdisk/src/context.c @@ -248,17 +248,26 @@ static int
+>>>> warn_wipe(struct fdisk_context *cxt) int
+>>>> fdisk_context_assign_device(struct fdisk_context *cxt, const
+>>>> char *fname, int readonly) { -     int fd; +     int fd, mode;
+>>>>
+>>>> DBG(CONTEXT, dbgprint("assigning device %s", fname));
+>>>> assert(cxt);
+>>>>
+>>>> reset_context(cxt);
+>>>>
+>>>> -     if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC))
+>>>> < 0) { -             if ((fd = open(fname, O_RDONLY|O_CLOEXEC))
+>>>> < 0) +retry: +     mode = (readonly ? O_RDONLY : O_RDWR) |
+>>>> O_CLOEXEC; +     fd = open(fname, mode); +     if (fd < 0) { +
+>>>> if (readonly) return -errno; -             readonly = 1; +
+>>>> else { +                     fdisk_warn(cxt, +
+>>>> _("%s: opening device in read write mode failed"), +
+>>>> fname); +                     readonly = 1; +
+>>>> goto retry; +             } }
+>>>
+>>> This is 1) obscenely ugly and 2) not the place for such message.
+>>> There's no reason to pollute output like this. Why do I care how
+>>> the device is opened when I'm not going to write anything to it?
+>>>
+>>> The correct way is to do what you do in patch 2, inform the user
+>>> that the device is only for opened for reading and just skip the
+>>> write operation.
+>
+> You really want to tell the user that they aren't going to be able to
+> write up front.
+>
+> I have to say this function was already broken.  If the caller
+> requests write access and that fails, then the call should fail.  It
+> should *not* automatically fall back to read-only without giving any
+> indication to the caller.  If the caller wants to retry for read only,
+> then it can, and print a warning letting the user know it has switched
+> to ready only.
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v2.0.17 (MingW32)
+> Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+>
+> iQEcBAEBAgAGBQJTELgMAAoJEI5FoCIzSKrwlM0H/iVJLdAPqE3OOgaIJRmk+NC5
+> uLlMwVMY4zHJakuq4GtxX5rekdy+kLTuVokZjxUTcI2WM9uBJwFXSwd4sPJ2i3C+
+> 47w8tS4FMzP4LKOck60cc61FpAaKaqez9GGQ8zkMNZnt5S6ptCOOoMGtYuqXm1AW
+> LWYHSbSsmXsTiQIWLEg/GZhBMUaInjcMiVr4nzINXN8CnwJ695Xyold0rnkAHxK0
+> +FhKNtGuab88GjGosla9kK1Nd2/6rjLt6HqYDBHfZaWkcTzjv4y+OCEz6Am7SFZp
+> PkrqmWV0FXvUGj8C4RrNf3dSiElorgkPbTS1P1+JRNFLZIAO7YFbapke7MZ4eDg=
+> =7pzO
+> -----END PGP SIGNATURE-----
