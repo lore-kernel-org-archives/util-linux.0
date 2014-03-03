@@ -1,38 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29047 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751459AbaCEKM3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 5 Mar 2014 05:12:29 -0500
-Date: Wed, 5 Mar 2014 11:12:22 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: chcpu exit code?
-Message-ID: <20140305101222.GB13353@x2.net.home>
-References: <530F0972.3040205@bernhard-voelker.de>
- <20140228075355.GB4216@osiris>
- <20140228090418.GA2783@x2.net.home>
- <5314662F.2010801@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5314662F.2010801@bernhard-voelker.de>
+Received: from mail-ea0-f179.google.com ([209.85.215.179]:61263 "EHLO
+	mail-ea0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754119AbaCCVMF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 3 Mar 2014 16:12:05 -0500
+Received: by mail-ea0-f179.google.com with SMTP id q10so4795208ead.38
+        for <util-linux@vger.kernel.org>; Mon, 03 Mar 2014 13:12:04 -0800 (PST)
+From: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+Subject: [PATCH v2 2/3] libfdisk: remove `O_RDONLY` fallback mode when opening device
+Date: Mon,  3 Mar 2014 22:14:06 +0100
+Message-Id: <1393881247-17092-2-git-send-email-me@mmalecki.com>
+In-Reply-To: <1393881247-17092-1-git-send-email-me@mmalecki.com>
+References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
+ <1393881247-17092-1-git-send-email-me@mmalecki.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 03, 2014 at 12:23:27PM +0100, Bernhard Voelker wrote:
-> On 02/28/2014 10:04 AM, Karel Zak wrote:
-> >I think we can do something like this with chcpu, my suggestion is
-> >
-> >    0 - success
-> >    1 - failure
-> >   64 - partial success
-> 
-> +1
+---
+ libfdisk/src/context.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
- Fixed. Thanks for your report.
-
-    Karel
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index dc9f0f9..795718c 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -241,10 +241,6 @@ static int warn_wipe(struct fdisk_context *cxt)
+  * @fname: path to the device to be handled
+  * @readonly: how to open the device
+  *
+- * If the @readonly flag is set to false, fdisk will attempt to open
+- * the device with read-write mode and will fallback to read-only if
+- * unsuccessful.
+- *
+  * Returns: 0 on success, < 0 on error.
+  */
+ int fdisk_context_assign_device(struct fdisk_context *cxt,
+@@ -257,10 +253,8 @@ int fdisk_context_assign_device(struct fdisk_context *cxt,
+ 
+ 	reset_context(cxt);
+ 
+-	if (readonly == 1 || (fd = open(fname, O_RDWR|O_CLOEXEC)) < 0) {
+-		if ((fd = open(fname, O_RDONLY|O_CLOEXEC)) < 0)
+-			return -errno;
+-		readonly = 1;
++	if ((fd = open(fname, (readonly == 1 ? O_RDONLY : O_RDWR) | O_CLOEXEC)) < 0) {
++		goto fail;
+ 	}
+ 
+ 	cxt->dev_fd = fd;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.0
+
