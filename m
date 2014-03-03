@@ -1,40 +1,24 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38993 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751648AbaCGKok (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Mar 2014 05:44:40 -0500
-Date: Fri, 7 Mar 2014 11:44:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/4] pull: allow disabling command builds
-Message-ID: <20140307104429.GC9303@x2.net.home>
-References: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
+Return-Path: mail@bernhard-voelker.de
+Message-ID: <5314662F.2010801@bernhard-voelker.de>
+Date: Mon, 03 Mar 2014 12:23:27 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: chcpu exit code?
+References: <530F0972.3040205@bernhard-voelker.de> <20140228075355.GB4216@osiris> <20140228090418.GA2783@x2.net.home>
+In-Reply-To: <20140228090418.GA2783@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 16, 2014 at 03:22:52PM +0000, Sami Kerola wrote:
-> This pull request has four patches that will allow a builder to disable
-> all commands. 
+On 02/28/2014 10:04 AM, Karel Zak wrote:
+> I think we can do something like this with chcpu, my suggestion is
+>
+>     0 - success
+>     1 - failure
+>    64 - partial success
 
-Note that I don't silently ignore these patches, but I'd like to play
-with it later and try to provide better granularity, maybe something
-like
++1
 
-  --enable-util=<list>
-  --disable-util=<list>
-  --enable-all
-  --disable-all
-
-where <list> is comma separated list of the utils names (we already
-use thing like this for static programs), then we can avoid huge
-number of --enable-* options.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks & have a nice day,
+Berny
