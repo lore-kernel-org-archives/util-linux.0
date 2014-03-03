@@ -1,209 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp09.au.ibm.com ([202.81.31.142]:55387 "EHLO
-	e23smtp09.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757162AbaCTJkM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:40:12 -0400
-Received: from /spool/local
-	by e23smtp09.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 19:40:11 +1000
-Subject: [PATCH 07/33] Do elf_coredump
-To: linux-kernel@vger.kernel.org
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
-        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
-        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
-        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
-        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:09:58 +0530
-Message-ID: <20140320093958.14878.60354.stgit@localhost.localdomain>
-In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
-References: <20140320093040.14878.903.stgit@localhost.localdomain>
+Received: from mail-ee0-f48.google.com ([74.125.83.48]:60891 "EHLO
+	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754119AbaCCVMA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 3 Mar 2014 16:12:00 -0500
+Received: by mail-ee0-f48.google.com with SMTP id e51so3254465eek.7
+        for <util-linux@vger.kernel.org>; Mon, 03 Mar 2014 13:11:59 -0800 (PST)
+From: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Maciej=20Ma=C5=82ecki?= <me@mmalecki.com>
+Subject: [PATCH v2 1/3] fdisk: do not allow writing to a read-only device
+Date: Mon,  3 Mar 2014 22:14:05 +0100
+Message-Id: <1393881247-17092-1-git-send-email-me@mmalecki.com>
+In-Reply-To: <1393471600-17777-1-git-send-email-me@mmalecki.com>
+References: <1393471600-17777-1-git-send-email-me@mmalecki.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Perform the actual dump depending on whether it is 32 bit or 64 bit.
+Print a warning instead. This fixes the aforementioned "Bad file
+descriptor" issue when writing to read-only completely.
 
-We create three files elf.c elf32.c and elf64.c. In elf.c we have all the elf
-related code in a generic format(not 32 or 64 bit specific). In elf32.c and
-elf64.c we include elf.c and #define the required datatypes and functions into
-32 or 64 specific values respectively.
-
-Essentially we have two copies of elf.c, one which is 32 bit specific and the
-other 64 bit specific and hence the appropriate function is called based on the
-application to be dumped.
-
-Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+Signed-off-by: Maciej Małecki <me@mmalecki.com>
 ---
- src/Makefile.am |    2 +-
- src/coredump.c  |    9 +++++++++
- src/elf.c       |   31 +++++++++++++++++++++++++++++++
- src/elf32.c     |   33 +++++++++++++++++++++++++++++++++
- src/elf64.c     |   33 +++++++++++++++++++++++++++++++++
- 5 files changed, 107 insertions(+), 1 deletion(-)
- create mode 100644 src/elf.c
- create mode 100644 src/elf32.c
- create mode 100644 src/elf64.c
+ fdisks/fdisk-menu.c    | 4 ++++
+ libfdisk/src/context.c | 3 +++
+ libfdisk/src/fdiskP.h  | 1 +
+ 3 files changed, 8 insertions(+)
 
-diff --git a/src/Makefile.am b/src/Makefile.am
-index 9e5d3c0..90d8b25 100644
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -3,5 +3,5 @@ HAVE_SYSTEMD_SOCKET_SUPPORT = 0
- CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)'
+diff --git a/fdisks/fdisk-menu.c b/fdisks/fdisk-menu.c
+index ced819a..f965e3f 100644
+--- a/fdisks/fdisk-menu.c
++++ b/fdisks/fdisk-menu.c
+@@ -448,6 +448,10 @@ static int generic_menu_cb(struct fdisk_context **cxt0,
+ 		rc = fdisk_list_disklabel(cxt);
+ 		break;
+ 	case 'w':
++		if (cxt->readonly) {
++			fdisk_warnx(cxt, _("Device open in read-only mode"));
++			break;
++		}
+ 		rc = fdisk_write_disklabel(cxt);
+ 		if (rc)
+ 			err(EXIT_FAILURE, _("failed to write disklabel"));
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index c405403..dc9f0f9 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -45,6 +45,7 @@ struct fdisk_context *fdisk_new_nested_context(struct fdisk_context *parent,
+ 	DBG(LABEL, dbgprint("new context %p allocated", cxt));
+ 	cxt->dev_fd = parent->dev_fd;
+ 	cxt->parent = parent;
++	cxt->readonly = parent->readonly;
  
- bin_PROGRAMS = gencore
--gencore_SOURCES = coredump.c proc.c
-+gencore_SOURCES = coredump.c proc.c elf32.c elf64.c
+ 	cxt->io_size =          parent->io_size;
+ 	cxt->optimal_io_size =  parent->optimal_io_size;
+@@ -173,6 +174,7 @@ static void reset_context(struct fdisk_context *cxt)
  
-diff --git a/src/coredump.c b/src/coredump.c
-index f9c7176..b1ee99d 100644
---- a/src/coredump.c
-+++ b/src/coredump.c
-@@ -28,6 +28,7 @@
- #include <stdlib.h>
- #include <dirent.h>
- #include <errno.h>
-+#include <elf.h>
- #include <sys/ptrace.h>
- #include <coredump.h>
+ 	/* initialize */
+ 	cxt->dev_fd = -1;
++	cxt->readonly = -1;
+ 	cxt->dev_path = NULL;
+ 	cxt->firstsector = NULL;
  
-@@ -193,6 +194,14 @@ int do_coredump(int pid, char *core_file)
- 	if (ret == -1)
- 		goto cleanup;
+@@ -262,6 +264,7 @@ int fdisk_context_assign_device(struct fdisk_context *cxt,
+ 	}
  
-+	/* Do elf_dump */
-+	if (cp.elf_class == ELFCLASS32)
-+		ret = do_elf32_coredump(pid, &cp);
-+	else
-+		ret = do_elf64_coredump(pid, &cp);
-+	if (ret)
-+		goto cleanup;
-+
- cleanup:
+ 	cxt->dev_fd = fd;
++	cxt->readonly = readonly;
+ 	cxt->dev_path = strdup(fname);
+ 	if (!cxt->dev_path)
+ 		goto fail;
+diff --git a/libfdisk/src/fdiskP.h b/libfdisk/src/fdiskP.h
+index feaab3d..da56c13 100644
+--- a/libfdisk/src/fdiskP.h
++++ b/libfdisk/src/fdiskP.h
+@@ -264,6 +264,7 @@ struct fdisk_ask {
  
- 	/* Release the threads */
-diff --git a/src/elf.c b/src/elf.c
-new file mode 100644
-index 0000000..280df13
---- /dev/null
-+++ b/src/elf.c
-@@ -0,0 +1,31 @@
-+/*
-+ * ELF helper routines for gencore
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2013
-+ *
-+ * Authors:
-+ *      Janani Venkataraman <jananve@in.ibm.com>
-+ *      Suzuki K. Poulose <suzuki@in.ibm.com>
-+ */
-+
-+#include <stdio.h>
-+#include "coredump.h"
-+
-+int do_elf_coredump(int pid, struct core_proc *cp)
-+{
-+	return 0;
-+}
-diff --git a/src/elf32.c b/src/elf32.c
-new file mode 100644
-index 0000000..d6b40b4
---- /dev/null
-+++ b/src/elf32.c
-@@ -0,0 +1,33 @@
-+/*
-+ * ELF helper routines for gencore
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2013
-+ *
-+ * Authors:
-+ *      Janani Venkataraman <jananve@in.ibm.com>
-+ */
-+
-+/*
-+ * We include elf.c to add all the elf specific operations here.
-+ * In this file, we define all 32 bit specific data and hence
-+ * this file would contain all elf 32 bit specific functions
-+ * and operations once elf.c is included.
-+ */
-+
-+#define do_elf_coredump do_elf32_coredump
-+
-+#include "elf.c"
-diff --git a/src/elf64.c b/src/elf64.c
-new file mode 100644
-index 0000000..d8b5e89
---- /dev/null
-+++ b/src/elf64.c
-@@ -0,0 +1,33 @@
-+/*
-+ * ELF helper routines for gencore
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2013
-+ *
-+ * Authors:
-+ *      Janani Venkataraman <jananve@in.ibm.com>
-+ */
-+
-+/*
-+ * We include elf.c to add all the elf specific operations here.
-+ * In this file, we define all 64 bit specific data and hence
-+ * this file would contain all elf 64 bit specific functions
-+ * and operations once elf.c is included.
-+ */
-+
-+#define do_elf_coredump do_elf64_coredump
-+
-+#include "elf.c"
+ struct fdisk_context {
+ 	int dev_fd;         /* device descriptor */
++	int readonly;       /* is the device read-only? */
+ 	char *dev_path;     /* device path */
+ 	unsigned char *firstsector; /* buffer with master boot record */
+ 
+-- 
+1.9.0
 
