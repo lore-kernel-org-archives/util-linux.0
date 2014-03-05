@@ -1,28 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:8206 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:29047 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753559AbaCLLIC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Mar 2014 07:08:02 -0400
-Date: Wed, 12 Mar 2014 12:07:51 +0100
+	id S1751459AbaCEKM3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 5 Mar 2014 05:12:29 -0500
+Date: Wed, 5 Mar 2014 11:12:22 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/5] mkswap: remove unnecessary usage output
-Message-ID: <20140312110751.GL9303@x2.net.home>
-References: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: chcpu exit code?
+Message-ID: <20140305101222.GB13353@x2.net.home>
+References: <530F0972.3040205@bernhard-voelker.de>
+ <20140228075355.GB4216@osiris>
+ <20140228090418.GA2783@x2.net.home>
+ <5314662F.2010801@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <5314662F.2010801@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 08, 2014 at 11:01:53AM -0600, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+On Mon, Mar 03, 2014 at 12:23:27PM +0100, Bernhard Voelker wrote:
+> On 02/28/2014 10:04 AM, Karel Zak wrote:
+> >I think we can do something like this with chcpu, my suggestion is
+> >
+> >    0 - success
+> >    1 - failure
+> >   64 - partial success
+> 
+> +1
 
- All 5 patches applied. Thanks.
+ Fixed. Thanks for your report.
 
     Karel
-
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
