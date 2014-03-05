@@ -1,108 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from fenja.rhi.hi.is ([130.208.165.103]:36191 "EHLO fenja.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752932AbaCaRfu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 31 Mar 2014 13:35:50 -0400
-Received: from smtp.hi.is (smtp.hi.is [130.208.165.149])
-	by fenja.rhi.hi.is (8.13.8/8.13.8) with ESMTP id s2VHO6IR028465
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2014 17:24:07 GMT
-Received: from katla.rhi.hi.is (katla.rhi.hi.is [130.208.165.1])
-	by smtp.hi.is (8.14.4/8.14.4) with ESMTP id s2VHO6Sm031248
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2014 17:24:06 GMT
-Received: from katla.rhi.hi.is (localhost [127.0.0.1])
-	by katla.rhi.hi.is (8.14.4+Sun/8.14.4) with ESMTP id s2VHBILK004660
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2014 17:11:18 GMT
-Received: (from bjarniig@localhost)
-	by katla.rhi.hi.is (8.14.4+Sun/8.14.4/Submit) id s2VHBIsh004659
-	for util-linux@vger.kernel.org; Mon, 31 Mar 2014 17:11:18 GMT
-Date: Mon, 31 Mar 2014 17:11:18 +0000
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] mount.8: Some typographical and prefix corrections to the
- manual
-Message-ID: <20140331171117.GA4657@rhi.hi.is>
+Received: from moutng.kundenserver.de ([212.227.17.10]:59565 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753306AbaCEKzg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 5 Mar 2014 05:55:36 -0500
+Message-ID: <531702A6.2070903@bernhard-voelker.de>
+Date: Wed, 05 Mar 2014 11:55:34 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Util-Linux <util-linux@vger.kernel.org>
+Subject: [PATCH] libmount: define BTRFS_TEST_MAGIC if missing
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Source: util-linux
-Version: 2.24.1
-File: sys-utils/mount.8
-Severity: minor
-Tags: patch
+The patch below avoid the following compile error:
 
-  Changes:
+   libmount/src/utils.c: In function 'mnt_statfs_get_fstype':
+   libmount/src/utils.c:397:7: error: 'BTRFS_TEST_MAGIC' undeclared (first use in this function)
+     case BTRFS_TEST_MAGIC:  return "btrfs";
+          ^
+   libmount/src/utils.c:397:7: note: each undeclared identifier is reported only once for each function it appears in
 
-  Space at end of lines removed
-
-  -- changed to \-\- if it means an option
-
-  Macro BR changed to macro B if there is only one argument
-
-  - changed to \- if it means an option
-
-  Macro IR changed to macro I if there is only one argument
-
-  Space put before a punctuation mark if it is a part of the only
-argument to the macro IR
-
-  A full stop (.), that begins or ends a string, protected with \&
-
-  \- changed to - if it is to be rendered (permanently) as a hyphen in
-a compound name for an option.
-  People that use UTF-8 and copy-and-paste (and thus need only a
-temporary display) can use the command "info", "man --ascii" or the
-"man" command should have an option for these people to display both \-
-and - with the code hyphen-minus (0x2D).
-  This case should be solved on a meta level and not in each man page
-(lowest level).
+Have a nice day,
+Berny
 
 
- " - " changed to " \(en " (en-dash) if it means a dash (pause,
-separation)
+ From 2a5ed00775aa558a71be462c05ded86ad3e632d9 Mon Sep 17 00:00:00 2001
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Date: Wed, 5 Mar 2014 11:52:13 +0100
+Subject: [PATCH] libmount: define BTRFS_TEST_MAGIC if missing
 
-  \, added before an italic character (italic correction)
+* libmount/src/utils.c (BTRFS_TEST_MAGIC): Conditionally add define
+which is used since commit v2.24-243-g6a52473.
 
-  Macro BR changed to macro B it there is only one argument
+Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
+---
+  libmount/src/utils.c | 3 +++
+  1 file changed, 3 insertions(+)
 
-  No line adjustment (.na) for a long line added
+diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+index d402b7e..2541a22 100644
+--- a/libmount/src/utils.c
++++ b/libmount/src/utils.c
+@@ -333,6 +333,9 @@ int mnt_fstype_is_netfs(const char *type)
+  #ifndef CONFIGFS_SUPER_MAGIC
+  # define CONFIGFS_SUPER_MAGIC	0x62656570
+  #endif
++#ifndef BTRFS_TEST_MAGIC
++# define BTRFS_TEST_MAGIC	0x73727279
++#endif
 
-  \c added at the end of a line to inhibit an addition of a word space
-
-  k (prefix for units) changed to KiB
-
-  A comma added at end of lines when the next line continues the series
-of words
-
-  .. changed to ...
-
-  512mb changed to 512\ MB and 176mb to 176\ MB
-
-  ~ made bigger for troff to be better visible
-
-  The word pickyness changed to
-           pickiness
-
-  The word binary added before mega and giga
-
-  kibi, mebi, and gibi added after corresponding names
-
-  - between numbers changed to \(en if it means a range
-
-  A full stop (.) removed from the end of a name of an option
-
-  A word space added after a comma in an enumeration
-
-  kilobytes changed to kibibytes when the examples indicate that
-
-  "16\ k" changed to "value=16k", etc. for clarification
-
-  Space added to an argument for the BR macro
-
-  Patch is in the attachment
-
-
+  const char *mnt_statfs_get_fstype(struct statfs *vfs)
+  {
 -- 
-Bjarni I. Gislason
+1.8.4.2
+
