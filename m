@@ -1,139 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f42.google.com ([209.85.219.42]:55112 "EHLO
-	mail-oa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751741AbaCIUab (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Mar 2014 16:30:31 -0400
-Received: by mail-oa0-f42.google.com with SMTP id i4so6226580oah.1
-        for <util-linux@vger.kernel.org>; Sun, 09 Mar 2014 13:30:30 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 01/10] findfs: use symbolic exit values, and tell about them in manual
-Date: Sun,  9 Mar 2014 15:30:14 -0500
-Message-Id: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
+Received: from qmta15.westchester.pa.mail.comcast.net ([76.96.59.228]:58721
+	"EHLO qmta15.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751545AbaCGXWh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Mar 2014 18:22:37 -0500
+Date: Fri, 7 Mar 2014 18:22:33 -0500
+Message-Id: <201403072322.s27NMX6A018323@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Stuart T Rogers <stuart@stella-maris.org.uk>
+CC: util-linux@vger.kernel.org
+In-reply-to: <52EAAA43.8030509@stella-maris.org.uk>
+	(stuart@stella-maris.org.uk)
+Subject: Re: Possible problem mounting Video DVD
+References: <52E7EBBC.4070009@stella-maris.org.uk> <201401282126.s0SLQFZK011980@hobgoblin.ariadne.com> <52E836E0.70900@stella-maris.org.uk> <201401292054.s0TKsrph021368@hobgoblin.ariadne.com> <52E98342.8070103@stella-maris.org.uk> <201401301906.s0UJ60YL023456@hobgoblin.ariadne.com> <52EAAA43.8030509@stella-maris.org.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/exitcodes.h |  5 +++++
- misc-utils/findfs.8 | 30 ++++++++++++++++++++++++++----
- misc-utils/findfs.c | 13 +++++++------
- 3 files changed, 38 insertions(+), 10 deletions(-)
+> From: Stuart T Rogers <stuart@stella-maris.org.uk>
 
-diff --git a/include/exitcodes.h b/include/exitcodes.h
-index 24ee123..fc893f1 100644
---- a/include/exitcodes.h
-+++ b/include/exitcodes.h
-@@ -32,4 +32,9 @@
- #define MOUNT_EX_FAIL		32	/* mount failure */
- #define MOUNT_EX_SOMEOK		64	/* some mount succeeded */
- 
-+/* Exit codes used by findfs. */
-+#define FINDFS_SUCCESS		0	/* no errors */
-+#define FINDFS_NOT_FOUND	1	/* label or uuid cannot be found */
-+#define FINDFS_USAGE_ERROR	2	/* user did something unexpected */
-+
- #endif	/* UTIL_LINUX_EXITCODES_H */
-diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
-index 8a6bca1..1469df2 100644
---- a/misc-utils/findfs.8
-+++ b/misc-utils/findfs.8
-@@ -2,7 +2,7 @@
- .\" Copyright 1993, 1994, 1995 by Theodore Ts'o.  All Rights Reserved.
- .\" This file may be copied under the terms of the GNU Public License.
- .\"
--.TH FINDFS 8 "February 2009" "util-linux" "System Administration"
-+.TH FINDFS 8 "March 2014" "util-linux" "System Administration"
- .SH NAME
- findfs \- find a filesystem by label or UUID
- .SH SYNOPSIS
-@@ -21,10 +21,30 @@ or a UUID equal to
- If the filesystem is found, the device name for the filesystem will
- be printed on stdout.
- .PP
-+.SH "EXIT STATUS"
-+.RS
-+.PD 0
-+.TP
-+.B 0
-+success
-+.TP
-+.B 1
-+label or uuid cannot be found
-+.TP
-+.B 2
-+usage error, wrong number of arguments or unknown option
-+.PD
-+.RE
- .SH AUTHOR
- .B findfs
--was originally written by Theodore Ts'o (tytso@mit.edu) and re-written for
--the util-linux package by Karel Zak (kzak@redhat.com).
-+was originally written by
-+.MT tytso@mit.edu
-+Theodore Ts'o
-+.ME
-+and re-written for the util-linux package by
-+.MT kzak@redhat.com
-+Karel Zak
-+.ME .
- .SH ENVIRONMENT
- .IP LIBBLKID_DEBUG=0xffff
- enables debug output.
-@@ -33,4 +53,6 @@ enables debug output.
- .BR fsck (8)
- .SH AVAILABILITY
- The findfs command is part of the util-linux package and is available from
--ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-+.UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
-+Linux Kernel Archive
-+.UE .
-diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
-index bc4a843..aff6ba8 100644
---- a/misc-utils/findfs.c
-+++ b/misc-utils/findfs.c
-@@ -14,6 +14,7 @@
- #include "nls.h"
- #include "closestream.h"
- #include "c.h"
-+#include "exitcodes.h"
- 
- static void __attribute__((__noreturn__)) usage(int rc)
- {
-@@ -41,7 +42,7 @@ int main(int argc, char **argv)
- 	if (argc != 2)
- 		/* we return '2' for backward compatibility
- 		 * with version from e2fsprogs */
--		usage(2);
-+		usage(FINDFS_USAGE_ERROR);
- 
- 	if (!strncmp(argv[1], "LABEL=", 6)) {
- 		tk = "LABEL";
-@@ -52,18 +53,18 @@ int main(int argc, char **argv)
- 	} else if (strcmp(argv[1], "-V") == 0 ||
- 		   strcmp(argv[1], "--version") == 0) {
- 		printf(UTIL_LINUX_VERSION);
--		return EXIT_SUCCESS;
-+		return FINDFS_SUCCESS;
- 	} else if (strcmp(argv[1], "-h") == 0 ||
- 		   strcmp(argv[1], "--help") == 0) {
--		usage(EXIT_SUCCESS);
-+		usage(FINDFS_SUCCESS);
- 	} else
--		usage(2);
-+		usage(FINDFS_USAGE_ERROR);
- 
- 	dev = blkid_evaluate_tag(tk, vl, NULL);
- 	if (!dev)
--		errx(EXIT_FAILURE, _("unable to resolve '%s'"),	argv[1]);
-+		errx(FINDFS_NOT_FOUND, _("unable to resolve '%s'"), argv[1]);
- 
- 	puts(dev);
--	exit(EXIT_SUCCESS);
-+	return FINDFS_SUCCESS;
- }
- 
--- 
-1.9.0
+> Thanks for that explanation. The only thing regarding the DVD_RECORDER 
+> directory is that it does not exist until the DVD is mounted so whoever 
+> creates it sets the permissions. The name DVD_RECORDER is the volume 
+> name of the DVD. I'm not sure how the DVD can itself have permissions 
+> attributed to it though.
 
+One thing you can try for diagnosis is this:  Insert the DVD and wait
+for it to show up in File Manager.  Then go to a shell and run "df".
+That command lists *all* of the file systems that are rightly and
+properly mounted.  Most likely, /run/media/stuart/DVD_RECORDER will
+show up as a mount point, showing that your DVD *actually is*
+mounted.  Which starts to narrow down where things could be going
+wrong.
+
+Then run "mount".  That dumps a lot of information about the options
+that were used during the mount operation.  In particular, the word
+after "type" in the relevant line is the type of file system, and the
+stuff in parentheses is the options.  You can go to the mount manual
+page and look up the options to see if one of the options is buggering
+how the DVD is mounted.
+
+You can also do "ls -al /run/media/stuart/DVD_RECORDER", which will
+show what the permissions are of the DVD_RECORDER directory and also
+the subdirectories within it.  (Under normal conditions, those should
+be the same.)
+
+This will give you some info to help figure out what's messing up:
+the program creating DVD_RECORDER, the mount command that is getting
+executed, the mount program itself, or the kernel filesystem code.
+
+Dale
