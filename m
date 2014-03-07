@@ -1,30 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50340 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:2450 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759541AbaCTSOt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 20 Mar 2014 14:14:49 -0400
-Date: Thu, 20 Mar 2014 19:14:39 +0100
+	id S1751011AbaCGKzI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Mar 2014 05:55:08 -0500
+Date: Fri, 7 Mar 2014 11:54:56 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Werner Fink <werner@suse.de>, Stanislav Brabec <sbrabec@suse.com>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCHv3 0/2] Abort blkid probing errors
-Message-ID: <20140320181439.GD26374@x2.net.home>
-References: <1395309830-58744-1-git-send-email-hare@suse.de>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/4] tools: make config-gen to require build target
+ argument
+Message-ID: <20140307105456.GD9303@x2.net.home>
+References: <1392564176-11596-1-git-send-email-kerolasa@iki.fi>
+ <1392564176-11596-4-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1395309830-58744-1-git-send-email-hare@suse.de>
+In-Reply-To: <1392564176-11596-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 20, 2014 at 11:03:48AM +0100, Hannes Reinecke wrote:
-> Hannes Reinecke (2):
->   blkid: stop scanning on I/O error
->   blkid: convert superblocks to new calling convention
+On Sun, Feb 16, 2014 at 03:22:55PM +0000, Sami Kerola wrote:
+>  tools/config-gen | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 
- Applied, thanks!
+ Applied, thanks.
 
-    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
