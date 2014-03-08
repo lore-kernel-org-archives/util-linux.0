@@ -1,300 +1,136 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Subject: [PATCH 04/33] Hold threads
-To: linux-kernel@vger.kernel.org
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
-        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
-        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
-        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
-        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:09:31 +0530
-Message-ID: <20140320093931.14878.89112.stgit@localhost.localdomain>
-In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
-References: <20140320093040.14878.903.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:52417 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751591AbaCHRCZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Mar 2014 12:02:25 -0500
+Received: by mail-ob0-f171.google.com with SMTP id wn1so5460822obc.2
+        for <util-linux@vger.kernel.org>; Sat, 08 Mar 2014 09:02:24 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 4/5] docs: add a new command boilerplate code
+Date: Sat,  8 Mar 2014 11:01:56 -0600
+Message-Id: <1394298117-16531-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+References: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Getting number of threads and their respective IDs through /proc/pid/stat and
-/proc/pid/task.
+Having howtos is good, having an working code that can be used as-is to
+kickstart a write of a new command is better.
 
-The threads are then seized and interrupted. After the dump is taken they are
-detached.
-
-Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- src/coredump.c |  149 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/coredump.h |   10 ++++
- src/proc.c     |   52 ++++++++++++++++++++
- 3 files changed, 210 insertions(+), 1 deletion(-)
+ Documentation/boilerplate.c | 100 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 100 insertions(+)
+ create mode 100644 Documentation/boilerplate.c
 
-diff --git a/src/coredump.c b/src/coredump.c
-index ad9ee7d..dd9089f 100644
---- a/src/coredump.c
-+++ b/src/coredump.c
-@@ -26,6 +26,9 @@
- #include <stdio.h>
- #include <string.h>
- #include <stdlib.h>
-+#include <dirent.h>
-+#include <errno.h>
-+#include <sys/ptrace.h>
- #include <coredump.h>
- 
- /* For logging all the messages */
-@@ -43,10 +46,154 @@ void gencore_log(char *fmt, ...)
- 	va_end(argptr);
- }
- 
-+/* Core process object */
-+struct core_proc cp;
+diff --git a/Documentation/boilerplate.c b/Documentation/boilerplate.c
+new file mode 100644
+index 0000000..3ee7d7b
+--- /dev/null
++++ b/Documentation/boilerplate.c
+@@ -0,0 +1,100 @@
++/* Please use this file as a template when introducing new command to
++ * util-linux package.
++ * -- remove above */
++/*
++ * fixme-command-name - purpose of it
++ *
++ * Copyright (c) 20nn  Example Commercial, Inc
++ * Written by Your Name <you@example.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it would be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
 +
-+/* Initialised core process members */
-+void init_core(void)
++#include <getopt.h>
++#include <stdio.h>
++#include <unistd.h>
++
++#include "c.h"
++#include "closestream.h"
++#include "nls.h"
++
++static void __attribute__((__noreturn__)) usage(FILE *out)
 +{
-+	memset(&cp, 0, sizeof(struct core_proc));
++	fputs(USAGE_HEADER, out);
++	fprintf(out, _(" %s [options] file...\n"), program_invocation_short_name);
++	fputs(USAGE_OPTIONS, out);
++	fputs(_(" -n, --no-argument       option does not use argument\n"), out);
++	fputs(_(" -o, --optional[=<arg>]  option argument is optional\n"), out);
++	fputs(_(" -r, --required <arg>    option requires an argument\n"), out);
++	fputs(_(" -z                      no long option\n"), out);
++	fputs(_("     --xyzzy             a long option only\n"), out);
++	fputs(_(" -e, --extremely-long-long-option\n"), out);
++	fputs(_("                         use next line for description when needed\n"), out);
++	fputs(_(" -l, --long-explanation  an example of very verbose, and chatty option\n"), out);
++	fputs(_("                           description on two, or multiple lines, where the\n"), out);
++	fputs(_("                           consecutive lines are intended by two spaces\n"), out);
++	fputs(_(" -f, --foobar            next option description resets indent\n"), out);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_HELP, out);
++	fputs(USAGE_VERSION, out);
++	fprintf(out, USAGE_MAN_TAIL("fixme-command-name(1)"));
++	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
 +}
 +
-+/* Gets the Thread IDS and siezes them */
-+int seize_threads(int pid)
++int main(int argc, char **argv)
 +{
-+	char filename[40];
-+	DIR *dir;
-+	int ct = 0, ret = 0, tmp_tid;
-+	struct dirent *entry;
-+	char state;
++	int c;
 +
-+	ret = get_thread_count(pid);
-+	if (ret == -1)
-+		return -1;
++	enum {
++		OPT_XYZZY = CHAR_MAX + 1
++	};
++	static const struct option longopts[] = {
++		{"no-argument", no_argument, NULL, 'n'},
++		{"optional", optional_argument, NULL, 'o'},
++		{"required", required_argument, NULL, 'r'},
++		{"xyzzy", no_argument, NULL, OPT_XYZZY},
++		{"extremely-long-long-option", no_argument, NULL, 'e'},
++		{"long-explanation", no_argument, NULL, 'l'},
++		{"foobar", no_argument, NULL, 'f'},
++		{"version", no_argument, NULL, 'V'},
++		{"help", no_argument, NULL, 'h'},
++		{NULL, 0, NULL, 0}
++	};
 +
-+	cp.thread_count = ret;
-+	cp.t_id = calloc(cp.thread_count, sizeof(int));
-+	if (!cp.t_id) {
-+		status = errno;
-+		gencore_log("Could not allocate memory for thread_ids.\n");
-+		return -1;
-+	}
++	setlocale(LC_ALL, "");
++	bindtextdomain(PACKAGE, LOCALEDIR);
++	textdomain(PACKAGE);
++	atexit(close_stdout);
 +
-+	snprintf(filename, 40, "/proc/%d/task", pid);
-+	dir = opendir(filename);
-+
-+	while ((entry = readdir(dir))) {
-+		if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
-+			tmp_tid = atoi(entry->d_name);
-+			ret = ptrace(PTRACE_SEIZE, tmp_tid, 0, 0);
-+			if (ret) {
-+				state = get_thread_status(tmp_tid);
-+				if (state == 'Z')
-+					goto assign;
-+				status = errno;
-+				gencore_log("Could not seize thread: %d\n",
-+								tmp_tid);
-+				break;
-+			}
-+			ret = ptrace(PTRACE_INTERRUPT, tmp_tid, 0, 0);
-+			if (ret) {
-+				state = get_thread_status(tmp_tid);
-+				if (state == 'Z')
-+					goto assign;
-+				status = errno;
-+				gencore_log("Could not interrupt thread: %d\n",
-+								tmp_tid);
-+				break;
-+			}
-+assign:
-+			/* If a new thread, is created after we fetch the thread_count,
-+			 * we may encounter a buffer overflow situation in the cp_tid.
-+			 * Hence we check this case and re-allocate memory if required.
-+			 */
-+			cp.t_id[ct++] = tmp_tid;
++	while ((c = getopt_long(argc, argv, "no::r:elfVh", longopts, NULL)) != -1)
++		switch (c) {
++		case 'n':
++		case 'o':
++		case 'r':
++		case OPT_XYZZY:
++		case 'e':
++		case 'l':
++		case 'f':
++			break;
++		case 'V':
++			printf(UTIL_LINUX_VERSION);
++			return EXIT_SUCCESS;
++		case 'h':
++			usage(stdout);
++		default:
++			usage(stderr);
 +		}
-+	}
 +
-+	/* Reassigning based on successful seizes */
-+	cp.thread_count = ct;
-+
-+	closedir(dir);
-+
-+	/* Successful seize and interrupt on all threads makes ret = 0 */
-+	return ret;
++	return EXIT_SUCCESS;
 +}
-+
-+/* Wait for threads to stop */
-+int wait_for_threads_to_stop(void)
-+{
-+	int i;
-+	char state;
-+
-+	/*
-+	 * We check for the process to stop infinitely now. We need
-+	 * to break out after some definite time. Need to work on
-+	 * that.
-+	 */
-+	for (i = 0; i < cp.thread_count; i++) {
-+		do {
-+			state = get_thread_status(cp.t_id[i]);
-+			if (state != 't')
-+				sched_yield();
-+		} while (state != 't' && state!='Z' && state != -1);
-+		if (state == -1)
-+			return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Release the threads that are held */
-+int release_threads(void)
-+{
-+	int i, ret = 0;
-+	char state;
-+
-+	/* Detach the process to be dumped */
-+	for (i = 0; i < cp.thread_count; i++) {
-+		state = get_thread_status(cp.t_id[i]);
-+		if (state == 't') {
-+			ret += ptrace(PTRACE_DETACH, cp.t_id[i], 0, 0);
-+			if (ret)
-+				gencore_log("Could not detach from thread: %d\n",
-+								cp.t_id[i]);
-+		}
-+	}
-+
-+	/* Successful detach on all threads makes ret = 0 */
-+	return ret;
-+}
-+
- /* Performs the core dump */
- int do_coredump(int pid, char *core_file)
- {
--	return 0;
-+	int ret;
-+
-+	/* Initialise members of core process */
-+	init_core();
-+
-+	/* Getting thread information and seizing them */
-+	ret = seize_threads(pid);
-+	if (ret)
-+		goto cleanup;
-+
-+	/* Wait for threads to stop */
-+	ret = wait_for_threads_to_stop();
-+	if (ret)
-+		goto cleanup;
-+
-+cleanup:
-+
-+	/* Release the threads */
-+	release_threads();
-+
-+	if (cp.t_id)
-+		free(cp.t_id);
-+
-+	errno = status;
-+
-+	return ret;
- }
- 
- /* Daemon for self dump */
-diff --git a/src/coredump.h b/src/coredump.h
-index cc77197..00cb008 100644
---- a/src/coredump.h
-+++ b/src/coredump.h
-@@ -1,6 +1,10 @@
- #define COMM_LEN 17            /* Maximum length of command line */
- #define NUM_STAT_FEILDS 30     /* Number of fields read from /proc/pid/stat */
- 
-+#define THREAD_COUNT_IDX 16	/* Index for number of threads */
-+
-+#define __ps_thread_count ps_num[THREAD_COUNT_IDX]	/* Process Information */
-+
- /* Status of the dump */
- extern int status;
- 
-@@ -11,3 +15,9 @@ struct pid_stat {
- 	char ps_state;
- 	unsigned long long ps_num[NUM_STAT_FEILDS];
- };
-+
-+/* Structure for the Core of the Process */
-+struct core_proc {
-+	int thread_count;		/* Number of threads */
-+	int *t_id;			/* Threads_ids of all the threads */
-+};
-diff --git a/src/proc.c b/src/proc.c
-index 6c9e804..fc16d90 100644
---- a/src/proc.c
-+++ b/src/proc.c
-@@ -24,6 +24,7 @@
- 
- #include <stdio.h>
- #include <errno.h>
-+#include <stdlib.h>
- #include <coredump.h>
- 
- /* Get Process Stats */
-@@ -84,3 +85,54 @@ err:
- 	fclose(fin);
- 	return ret;
- }
-+
-+/* Counts the number of threads in the process */
-+int get_thread_count(int pid)
-+{
-+	struct pid_stat p;
-+	int ret;
-+
-+	ret = get_pid_stat(pid, &p);
-+	if (ret)
-+		return -1;
-+
-+	return p.__ps_thread_count;
-+}
-+
-+/* Fetched thread status */
-+char get_thread_status(int tid)
-+{
-+	int ret;
-+	char filename[40], buff[40];
-+	FILE *fin;
-+	char *pos;
-+
-+	snprintf(filename, 40, "/proc/%d/stat", tid);
-+	fin = fopen(filename, "r");
-+	if (fin == NULL) {
-+		status = errno;
-+		gencore_log("Failure while fetching thread state from %s.\n",
-+								filename);
-+		return -1;
-+	}
-+
-+	ret = fread(buff, 40, 1, fin);
-+	if (ret == 0) {
-+		status = errno;
-+		gencore_log("Failure while fetching thread state from %s.\n",
-+								filename);
-+		return -1;
-+	}
-+
-+	pos = strrchr(buff, ')');
-+	if (pos == NULL) {
-+		status = errno;
-+		gencore_log("Failure while fetching thread state from %s.\n",
-+								filename);
-+		return -1;
-+	}
-+
-+	fclose(fin);
-+
-+	return buff[pos - buff + 2];
-+}
+-- 
+1.9.0
 
