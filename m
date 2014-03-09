@@ -1,109 +1,60 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Message-ID: <533128F8.7030102@linux.vnet.ibm.com>
-Date: Tue, 25 Mar 2014 12:28:00 +0530
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-MIME-Version: 1.0
-To: Pavel Emelyanov <xemul@parallels.com>
-CC: linux-kernel@vger.kernel.org, amwang@redhat.com, procps@freelists.org,
-        rdunlap@xenotime.net, james.hogan@imgtec.com,
-        aravinda@linux.vnet.ibm.com, hch@lst.de, mhiramat@redhat.com,
-        jeremy.fitzhardinge@citrix.com, d.hatayama@jp.fujitsu.com,
-        coreutils@gnu.org, kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Subject: Re: [PATCH 04/33] Hold threads
-References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140320093931.14878.89112.stgit@localhost.localdomain> <532B3B00.6080201@parallels.com>
-In-Reply-To: <532B3B00.6080201@parallels.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-oa0-f50.google.com ([209.85.219.50]:50984 "EHLO
+	mail-oa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751741AbaCIUai (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Mar 2014 16:30:38 -0400
+Received: by mail-oa0-f50.google.com with SMTP id i7so6348247oag.9
+        for <util-linux@vger.kernel.org>; Sun, 09 Mar 2014 13:30:37 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/10] kill: leeway deprecation of --pid invocation as command name
+Date: Sun,  9 Mar 2014 15:30:19 -0500
+Message-Id: <1394397023-7050-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
+References: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Who knows if anyone is linking or copying kill to a file name 'pid' and
+using --pid option functionality that way, so lets inform these users and
+get rid of command name hack after few releases.
 
-On 03/21/2014 12:31 AM, Pavel Emelyanov wrote:
-> On 03/20/2014 01:39 PM, Janani Venkataraman wrote:
->> Getting number of threads and their respective IDs through /proc/pid/stat and
->> /proc/pid/task.
->>
->> The threads are then seized and interrupted. After the dump is taken they are
->> detached.
->>
->> Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
->> ---
->> +/* Gets the Thread IDS and siezes them */
->> +int seize_threads(int pid)
->> +{
->> +	char filename[40];
->> +	DIR *dir;
->> +	int ct = 0, ret = 0, tmp_tid;
->> +	struct dirent *entry;
->> +	char state;
->> +
->> +	ret = get_thread_count(pid);
->> +	if (ret == -1)
->> +		return -1;
->> +
->> +	cp.thread_count = ret;
->> +	cp.t_id = calloc(cp.thread_count, sizeof(int));
->> +	if (!cp.t_id) {
->> +		status = errno;
->> +		gencore_log("Could not allocate memory for thread_ids.\n");
->> +		return -1;
->> +	}
->> +
->> +	snprintf(filename, 40, "/proc/%d/task", pid);
->> +	dir = opendir(filename);
->> +
->> +	while ((entry = readdir(dir))) {
-> This simple loop is not enough -- threads may appear and disappear while
-> you do the readdir and seize, so you should scan it several times to
-> make sure you caught all the threads.
-I will look into this.
-> You can look at how this is done in CRIU in cr-dump,c:collect_threads().
-Yes I will look into that function. Thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/kill.1 | 5 +++++
+ misc-utils/kill.c | 2 ++
+ 2 files changed, 7 insertions(+)
 
-Thanks.
-Janani
->> +		if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
->> +			tmp_tid = atoi(entry->d_name);
->> +			ret = ptrace(PTRACE_SEIZE, tmp_tid, 0, 0);
->> +			if (ret) {
->> +				state = get_thread_status(tmp_tid);
->> +				if (state == 'Z')
->> +					goto assign;
->> +				status = errno;
->> +				gencore_log("Could not seize thread: %d\n",
->> +								tmp_tid);
->> +				break;
->> +			}
->> +			ret = ptrace(PTRACE_INTERRUPT, tmp_tid, 0, 0);
->> +			if (ret) {
->> +				state = get_thread_status(tmp_tid);
->> +				if (state == 'Z')
->> +					goto assign;
->> +				status = errno;
->> +				gencore_log("Could not interrupt thread: %d\n",
->> +								tmp_tid);
->> +				break;
->> +			}
->> +assign:
->> +			/* If a new thread, is created after we fetch the thread_count,
->> +			 * we may encounter a buffer overflow situation in the cp_tid.
->> +			 * Hence we check this case and re-allocate memory if required.
->> +			 */
->> +			cp.t_id[ct++] = tmp_tid;
->> +		}
->> +	}
->> +
->> +	/* Reassigning based on successful seizes */
->> +	cp.thread_count = ct;
->> +
->> +	closedir(dir);
->> +
->> +	/* Successful seize and interrupt on all threads makes ret = 0 */
->> +	return ret;
->> +}
+diff --git a/misc-utils/kill.1 b/misc-utils/kill.1
+index 50f5cd2..e6c4000 100644
+--- a/misc-utils/kill.1
++++ b/misc-utils/kill.1
+@@ -88,6 +88,11 @@ Specify that
+ .B kill
+ should only print the process id (pid) of the named processes, and not send any
+ signals.
++.IP
++The \-\-pid option functionality is enabled when the command
++copied or linked to name
++.BR pid .
++This functionality will be deprecated in future.
+ .TP
+ \fB\-q\fR, \fB\-\-queue\fR \fIsigval\fR
+ Use
+diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+index 2fecda3..11c8cd2 100644
+--- a/misc-utils/kill.c
++++ b/misc-utils/kill.c
+@@ -170,6 +170,8 @@ int main(int argc, char **argv)
+ 
+ 	numsig = SIGTERM;
+ 	do_pid = (!strcmp(program_invocation_short_name, "pid"));	/* Yecch */
++	if (do_pid)
++		warnx(_("use of 'kill --pid' option as command name will be deprecated in future"));
+ 	do_kill = 0;
+ 	check_all = 0;
+ 	/* Loop through the arguments.  Actually, -a is the only option
+-- 
+1.9.0
 
