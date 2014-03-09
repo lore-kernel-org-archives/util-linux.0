@@ -1,221 +1,139 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp01.in.ibm.com ([122.248.162.1]:39548 "EHLO
-	e28smtp01.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756983AbaCTJjO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:39:14 -0400
-Received: from /spool/local
-	by e28smtp01.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 15:09:11 +0530
-Subject: [PATCH 00/33] [RFC] Non disruptive application core dump
- infrastructure
-To: linux-kernel@vger.kernel.org
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
-        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
-        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
-        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
-        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:09:03 +0530
-Message-ID: <20140320093040.14878.903.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-oa0-f42.google.com ([209.85.219.42]:55112 "EHLO
+	mail-oa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751741AbaCIUab (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Mar 2014 16:30:31 -0400
+Received: by mail-oa0-f42.google.com with SMTP id i4so6226580oah.1
+        for <util-linux@vger.kernel.org>; Sun, 09 Mar 2014 13:30:30 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 01/10] findfs: use symbolic exit values, and tell about them in manual
+Date: Sun,  9 Mar 2014 15:30:14 -0500
+Message-Id: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi all,
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/exitcodes.h |  5 +++++
+ misc-utils/findfs.8 | 30 ++++++++++++++++++++++++++----
+ misc-utils/findfs.c | 13 +++++++------
+ 3 files changed, 38 insertions(+), 10 deletions(-)
 
-The following series implements an infrastructure for capturing the core of an
-application without disrupting its process.
-
-Kernel Space Approach:
-
-1) Posted an RFD to LKML explaining the various kernel-methods being analysed.
-
-https://lkml.org/lkml/2013/9/3/122
-
-2) Went ahead to implement the same using the task_work_add approach and posted an
-RFC to LKML.
-
-http://lwn.net/Articles/569534/
-
-Based on the responses, the present approach implements the same in User-Space.
-
-User Space Approach:
-
-We didn't adopt the CRIU approach because our method would give us a head
-start, as all that the distro would need is the PTRACE_functionality and nothing
-more which is available from kernel versions 3.4 and above.
-
-Basic Idea of User Space:
-
-1) The threads are held using PTRACE_SEIZE and PTRACE_INTERRUPT.
-
-2) The dump is then taken using the following:
-    1) The register sets namely general purpose, floating point and the arch
-    specific register sets are collected through PTRACE_GETREGSET calls by
-    passing the appropriate register type as parameter.
-    2) The virtual memory maps are collected from /proc/pid/maps.
-    3) The auxiliary vector is collected from /proc/pid/auxv.
-    4) Process state information for filling the notes such as PRSTATUS and
-    PRPSINFO are collected from /proc/pid/stat and /proc/pid/status.
-    5) The actual memory is read through process_vm_readv syscall as suggested
-    by Andi Kleen.
-    6) Command line arguments are collected from /proc/pid/cmdline
-
-3) The threads are then released using PTRACE_DETACH.
-
-Self Dump:
-
-A self dump is implemented with the following approach which was adapted
-from CRIU:
-
-Gencore Daemon
-
-The programs can request a dump using gencore() API, provided through
-libgencore. This is implemented through a daemon which listens on a UNIX File
-socket. The daemon is started immediately post installation.
-
-We have provided service scripts for integration with systemd.
-
-NOTE:
-
-On systems with systemd, we could make use of socket option, which will avoid
-the need for running the gencore daemon always. The systemd can wait on the
-socket for requests and trigger the daemon as and when required. However, since
-the systemd socket APIs are not exported yet, we have disabled the supporting
-code for this feature.
-
-libgencore:
-
-1) The client interface is a standard library call. All that the dump requester
-does is open the library and call the gencore() API and the dump will be
-generated in the path specified(relative/absolute).
-
-To Do:
-
-1) Presently we wait indefinitely for the all the threads to seize. We can add
-a time-out to decide how much time we need to wait for the threads to be
-seized. This can be passed as command line argument in the case of a third
-party dump and in the case of the self-dump through the library call. We need
-to work on how much time to wait.
-
-2) Like mentioned before, the systemd socket APIs are not exported yet and
-hence this option is disabled now. Once these API's are available we can enable
-the socket option.
-
-We would like to push this to one of the following packages:
-a) util-linux
-b) coreutils
-c) procps-ng
-
-We are not sure which one would suit this application the best.
-Please let us know your views on the same.
-
-Patches 1 - 16 implements the dump generation.
-
-Patches 17 - 24 implements the daemon approach.
-
-Patch 25 implements the systemd socket approach.
-
-Patches 26-27 implements the client-interface library.
-
-Patches 28-33 handles the building and other packaging aspects.
-
-Please let us know your reviews and comments.
-
-Thanks.
-
-Janani Venkataraman (33):
-      Configure and Make files
-      Validity of arguments
-      Process Status
-      Hold threads
-      Fetching Memory maps
-      Check ELF class
-      Do elf_coredump
-      Fills elf header
-      Adding notes infrastructure
-      Populates PRPS info
-      Populate AUXV
-      Fetch File maps
-      Fetching thread specific Notes
-      Populating Program Headers
-      Updating Offset
-      Writing to core file
-      Daemonizing the Process
-      Socket operations
-      Block till request
-      Handling Requests
-      Get Clients PID
-      Dump the task
-      Handling SIG TERM of the daemon
-      Handling SIG TERM of the child
-      Systemd Socket ID retrieval
-      [libgencore] Setting up Connection
-      [libgencore] Request for dump
-      Man pages
-      Automake files for the doc folder
-      README, COPYING, Changelog
-      Spec file
-      Socket and Service files.
-      Support check
-
-
- COPYING            |   24 ++
- COPYING.LIBGENCORE |   24 ++
- Changelog          |    7 
- Makefile.am        |   22 +
- README             |  108 +++++++
- configure.ac       |    8 +
- doc/Makefile.am    |    2 
- doc/gencore.1      |   31 ++
- doc/gencore.3      |   28 ++
- gencore.service    |    9 +
- gencore.socket     |   10 +
- gencore.spec.in    |   88 ++++++
- gencore@.service   |    9 +
- libgencore.pc.in   |    8 +
- src/Makefile.am    |   13 +
- src/client.c       |  121 ++++++++
- src/coredump.c     |  764 ++++++++++++++++++++++++++++++++++++++++++++++++
- src/coredump.h     |   74 +++++
- src/elf-compat.h   |  124 ++++++++
- src/elf.c          |  827 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/elf32.c        |   43 +++
- src/elf64.c        |   44 +++
- src/gencore.h      |    1 
- src/proc.c         |  278 +++++++++++++++++
- 24 files changed, 2667 insertions(+)
- create mode 100644 COPYING
- create mode 100644 COPYING.LIBGENCORE
- create mode 100644 Changelog
- create mode 100644 README
- create mode 100644 doc/Makefile.am
- create mode 100644 doc/gencore.1
- create mode 100644 doc/gencore.3
- create mode 100644 gencore.service
- create mode 100644 gencore.socket
- create mode 100644 gencore.spec.in
- create mode 100644 gencore@.service
- create mode 100644 libgencore.pc.in
- create mode 100644 src/Makefile.am
- create mode 100644 src/client.c
- create mode 100644 src/coredump.c
- create mode 100644 src/coredump.h
- create mode 100644 src/elf-compat.h
- create mode 100644 src/elf.c
- create mode 100644 src/elf32.c
- create mode 100644 src/elf64.c
- create mode 100644 src/gencore.h
- create mode 100644 src/proc.c
-
+diff --git a/include/exitcodes.h b/include/exitcodes.h
+index 24ee123..fc893f1 100644
+--- a/include/exitcodes.h
++++ b/include/exitcodes.h
+@@ -32,4 +32,9 @@
+ #define MOUNT_EX_FAIL		32	/* mount failure */
+ #define MOUNT_EX_SOMEOK		64	/* some mount succeeded */
+ 
++/* Exit codes used by findfs. */
++#define FINDFS_SUCCESS		0	/* no errors */
++#define FINDFS_NOT_FOUND	1	/* label or uuid cannot be found */
++#define FINDFS_USAGE_ERROR	2	/* user did something unexpected */
++
+ #endif	/* UTIL_LINUX_EXITCODES_H */
+diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
+index 8a6bca1..1469df2 100644
+--- a/misc-utils/findfs.8
++++ b/misc-utils/findfs.8
+@@ -2,7 +2,7 @@
+ .\" Copyright 1993, 1994, 1995 by Theodore Ts'o.  All Rights Reserved.
+ .\" This file may be copied under the terms of the GNU Public License.
+ .\"
+-.TH FINDFS 8 "February 2009" "util-linux" "System Administration"
++.TH FINDFS 8 "March 2014" "util-linux" "System Administration"
+ .SH NAME
+ findfs \- find a filesystem by label or UUID
+ .SH SYNOPSIS
+@@ -21,10 +21,30 @@ or a UUID equal to
+ If the filesystem is found, the device name for the filesystem will
+ be printed on stdout.
+ .PP
++.SH "EXIT STATUS"
++.RS
++.PD 0
++.TP
++.B 0
++success
++.TP
++.B 1
++label or uuid cannot be found
++.TP
++.B 2
++usage error, wrong number of arguments or unknown option
++.PD
++.RE
+ .SH AUTHOR
+ .B findfs
+-was originally written by Theodore Ts'o (tytso@mit.edu) and re-written for
+-the util-linux package by Karel Zak (kzak@redhat.com).
++was originally written by
++.MT tytso@mit.edu
++Theodore Ts'o
++.ME
++and re-written for the util-linux package by
++.MT kzak@redhat.com
++Karel Zak
++.ME .
+ .SH ENVIRONMENT
+ .IP LIBBLKID_DEBUG=0xffff
+ enables debug output.
+@@ -33,4 +53,6 @@ enables debug output.
+ .BR fsck (8)
+ .SH AVAILABILITY
+ The findfs command is part of the util-linux package and is available from
+-ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
++.UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
++Linux Kernel Archive
++.UE .
+diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
+index bc4a843..aff6ba8 100644
+--- a/misc-utils/findfs.c
++++ b/misc-utils/findfs.c
+@@ -14,6 +14,7 @@
+ #include "nls.h"
+ #include "closestream.h"
+ #include "c.h"
++#include "exitcodes.h"
+ 
+ static void __attribute__((__noreturn__)) usage(int rc)
+ {
+@@ -41,7 +42,7 @@ int main(int argc, char **argv)
+ 	if (argc != 2)
+ 		/* we return '2' for backward compatibility
+ 		 * with version from e2fsprogs */
+-		usage(2);
++		usage(FINDFS_USAGE_ERROR);
+ 
+ 	if (!strncmp(argv[1], "LABEL=", 6)) {
+ 		tk = "LABEL";
+@@ -52,18 +53,18 @@ int main(int argc, char **argv)
+ 	} else if (strcmp(argv[1], "-V") == 0 ||
+ 		   strcmp(argv[1], "--version") == 0) {
+ 		printf(UTIL_LINUX_VERSION);
+-		return EXIT_SUCCESS;
++		return FINDFS_SUCCESS;
+ 	} else if (strcmp(argv[1], "-h") == 0 ||
+ 		   strcmp(argv[1], "--help") == 0) {
+-		usage(EXIT_SUCCESS);
++		usage(FINDFS_SUCCESS);
+ 	} else
+-		usage(2);
++		usage(FINDFS_USAGE_ERROR);
+ 
+ 	dev = blkid_evaluate_tag(tk, vl, NULL);
+ 	if (!dev)
+-		errx(EXIT_FAILURE, _("unable to resolve '%s'"),	argv[1]);
++		errx(FINDFS_NOT_FOUND, _("unable to resolve '%s'"), argv[1]);
+ 
+ 	puts(dev);
+-	exit(EXIT_SUCCESS);
++	return FINDFS_SUCCESS;
+ }
+ 
 -- 
-Janani
+1.9.0
 
