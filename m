@@ -1,46 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59809 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932721AbaCSMh4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Mar 2014 08:37:56 -0400
-Message-Id: <1395232676.8853.96331789.08D073EF@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:8206 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753559AbaCLLIC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 12 Mar 2014 07:08:02 -0400
+Date: Wed, 12 Mar 2014 12:07:51 +0100
+From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/5] mkswap: remove unnecessary usage output
+Message-ID: <20140312110751.GL9303@x2.net.home>
+References: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 05/10] kill: make usage() not to return
-Date: Wed, 19 Mar 2014 13:37:56 +0100
-In-Reply-To: <1394397023-7050-5-git-send-email-kerolasa@iki.fi>
-References: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
- <1394397023-7050-5-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Mar 08, 2014 at 11:01:53AM -0600, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 
-On Sun, Mar 9, 2014, at 21:30, Sami Kerola wrote:
-> And change the function argument to be output stream.  Earlier the --help
-> made kill to exit with none zero value, that now is corrected.
+ All 5 patches applied. Thanks.
 
-Textual amendments:
-
-s/be/be an/
-s/made/option made/
-s/to exit/exit/
-s/none zero/non-zero/
-s/now is/is now/
-
-Or in summary:
-
-And change the function argument to be an output stream.  Earlier the
---help option made kill exit with a non-zero value; that is now corrected.
-
-Regards,
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
