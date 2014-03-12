@@ -1,38 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:48720 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755218AbaCZSrf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Mar 2014 14:47:35 -0400
-Message-ID: <533320C5.7040609@ubuntu.com>
-Date: Wed, 26 Mar 2014 14:47:33 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:37175 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753280AbaCLKhX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 12 Mar 2014 06:37:23 -0400
+Date: Wed, 12 Mar 2014 11:37:12 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 01/10] findfs: use symbolic exit values, and tell about
+ them in manual
+Message-ID: <20140312103712.GK9303@x2.net.home>
+References: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: tty swtch key
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Mar 09, 2014 at 03:30:14PM -0500, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  include/exitcodes.h |  5 +++++
+>  misc-utils/findfs.8 | 30 ++++++++++++++++++++++++++----
+>  misc-utils/findfs.c | 13 +++++++------
+>  3 files changed, 38 insertions(+), 10 deletions(-)
+> 
+> diff --git a/include/exitcodes.h b/include/exitcodes.h
+> index 24ee123..fc893f1 100644
+> --- a/include/exitcodes.h
+> +++ b/include/exitcodes.h
+> @@ -32,4 +32,9 @@
+>  #define MOUNT_EX_FAIL		32	/* mount failure */
+>  #define MOUNT_EX_SOMEOK		64	/* some mount succeeded */
+>  
+> +/* Exit codes used by findfs. */
+> +#define FINDFS_SUCCESS		0	/* no errors */
+> +#define FINDFS_NOT_FOUND	1	/* label or uuid cannot be found */
+> +#define FINDFS_USAGE_ERROR	2	/* user did something unexpected */
 
-I could have sworn that I used the tty swtch feature once many years
-ago and that it sent a special signal to the shell, causing it to be
-suspended and return you to the parent shell, as if you had entered
-the suspend command.  I can't find the signal in the man pages now,
-and using stty to set a swtch key and hitting it does nothing.  Is
-this unimplemented on linux, and if so, shouldn't the man page be
-updated to reflect that?
+ Do we really need to add findfs exit codes to exitcodes.h? The
+ codes are specific to findfs and no shared anywhere.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+ It would be also better to use FINDFS_EX_{SUCCESS,NOTFOUND,USAGE}.
 
-iQEcBAEBAgAGBQJTMyDFAAoJEI5FoCIzSKrw5/8IAIlrwdqcGiPX3uIjttm1E3sh
-dltS5nUj9YP+blgsQ4h5uu8m/bzFGp19ocx7OlO3/1qESyuGpnwoNr9wJtzXB8YV
-xqqbhlsIF+9dxdD9CUIcHkt+hb7Hu6WDh7YfJRfctfbQgYYVNYKbQgQrl9AMrNmK
-DNtXJy90KUhpwqtR9RuOfbwcLsZUU4AsfyqujQs1zBbhAJm9i3JrUGewBUZ0QFOe
-M2IW8619AW/qoI//ko1rNVkUBPraZAf4K/XeoQbmT87ch778E+EeWPZhClOlmbM2
-QsynEnjy3uUj0r3A5ja97dphjeyGegHI7wpMVLnLs3iR9USOBrlwqll7b2IJYBw=
-=DP1V
------END PGP SIGNATURE-----
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
