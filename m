@@ -1,116 +1,28 @@
-Return-Path: hare@suse.de
-Message-ID: <532A04B6.9050706@suse.de>
-Date: Wed, 19 Mar 2014 21:57:26 +0100
-From: Hannes Reinecke <hare@suse.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:58915 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753385AbaCLLkX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 12 Mar 2014 07:40:23 -0400
+Date: Wed, 12 Mar 2014 12:14:55 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [patch] silence two compiler warnings
+Message-ID: <20140312111455.GN9303@x2.net.home>
+References: <1392378962.7365.83374729.31A9DCD2@webmail.messagingengine.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Werner Fink <werner@suse.de>, Stanislav Brabec <sbrabec@suse.com>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] blkid: convert superblocks to new calling convention
-References: <1395237056-26595-1-git-send-email-hare@suse.de> <1395237056-26595-3-git-send-email-hare@suse.de> <20140319175541.GB31824@x2.net.home>
-In-Reply-To: <20140319175541.GB31824@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1392378962.7365.83374729.31A9DCD2@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/19/2014 06:55 PM, Karel Zak wrote:
-> On Wed, Mar 19, 2014 at 02:50:56PM +0100, Hannes Reinecke wrote:
->> --- a/libblkid/src/partitions/bsd.c
->> +++ b/libblkid/src/partitions/bsd.c
->> @@ -42,14 +42,18 @@ static int probe_bsd_pt(blkid_probe pr, const struct blkid_idmag *mag)
->>   		return 0;
->>
->>   	data = blkid_probe_get_sector(pr, BLKID_MAG_SECTOR(mag));
->> -	if (!data)
->> -		goto nothing;
->> +	if (!data) {
->> +		if (errno)
->> +			goto err;
->> +		else
->> +			goto nothing;
->> +	}
->
->   It would be nice to return the error code (-errno) from the function.
->
->   Maybe you can use something like:
->
->            int rc = 1;   /* default is nothing */
->
->            data = blkid_probe_get_sector(pr, BLKID_MAG_SECTOR(mag));
->            if (!data) {
->                rc = error ? -errno : 1;
->                goto done;
->            }
->
->            ...
->            rc = 0;   /* success, all probing stuff pass */
->
->          done:
->            return rc;
->
->
->   to reduce number of the code lines and number of goto labels and to return the
->   proper return code.
->
->
->>   	ls = blkid_probe_get_partlist(pr);
->>   	if (!ls)
->> -		goto err;
->> +		goto nothing;
->
->   hmm.. it usually means malloc() error, I have doubts we want to
->   ignore such errors, it would be probably better to return -ENOMEM
->   in this case.
->
->       if (!ls) {
->          rc = -ENOMEM;
->          goto done;
->       }
->
->   If you do the cleanup then do it for all errors, not for I/O only ;-)
->
-Errm.
+On Fri, Feb 14, 2014 at 12:56:02PM +0100, Benno Schulenberg wrote:
+>  libfdisk/src/dos.c |    2 +-
+>  libfdisk/src/gpt.c |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-Before I attempt this the codebase needs some in-depth cleanup.
-Main problem here is the inconsistent usage of -1, 0, and 1.
-The ->probefunc functions use 0 to signal 'not found',
+ Applied, thanks.
 
-partitions_probe uses the inverse, namely '0' signals found.
-
-And so on and so forth.
-
-Plus there are even some vestiges of an attempted error code
-handling; BLKID_ERR_* are used occasionally.
-
-It would be good if one could agree on a common strategy here,
-and audit the code base to adhere to this.
-Once that is done we can work on returning correct error codes.
-
-But without that prior step it's virtually impossible.
-
-I would vote for reversing the return values of 'partitions_probe', and 
-auditing the code further up. Hope is that this will be less coding.
-Alternatively we could inverse the probefunc() callbacks, seeing that 
-this patch touches them anyway.
-
-What do you prefer?
-
-Cheers,
-
-Hannes
-
-
->> +		if (!data) {
->> +			if (errno)
->> +				goto err;
->> +			else
->> +				goto leave;	/* malformed partition? */
->> +		}
->
->    BTW, "else" after "goto" is probably unnecessary, just
->
->      if (foo)
->          goto y;
->      goto x;
->
->    Karel
->
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
