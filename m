@@ -1,48 +1,168 @@
-Return-Path: psusi@ubuntu.com
-Message-ID: <53303927.1030004@ubuntu.com>
-Date: Mon, 24 Mar 2014 09:54:47 -0400
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
-To: Janani Venkataraman <jananive@linux.vnet.ibm.com>,
-        Karel Zak <kzak@redhat.com>
-CC: amwang@redhat.com, rdunlap@xenotime.net, andi@firstfloor.org,
-        aravinda@linux.vnet.ibm.com, hch@lst.de, mhiramat@redhat.com,
-        jeremy.fitzhardinge@citrix.com, xemul@parallels.com,
-        suzuki@linux.vnet.ibm.com, kosaki.motohiro@jp.fujitsu.com,
-        adobriyan@gmail.com, tarundsk@linux.vnet.ibm.com, vapier@gentoo.org,
-        roland@hack.frob.com, tj@kernel.org, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, d.hatayama@jp.fujitsu.com, james.hogan@imgtec.com,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        coreutils@gnu.org, procps@freelists.org, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/33] [RFC] Non disruptive application core dump infrastructure
-References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140321080855.GE26374@x2.net.home> <532C54A3.3030903@ubuntu.com> <532FFE3A.9060002@linux.vnet.ibm.com>
-In-Reply-To: <532FFE3A.9060002@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:52697 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753180AbaCMQtN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 13 Mar 2014 12:49:13 -0400
+Received: by mail-wi0-f175.google.com with SMTP id cc10so4201309wib.14
+        for <util-linux@vger.kernel.org>; Thu, 13 Mar 2014 09:49:11 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Cc: kerolasa@iki.fi
+Subject: Re: [PATCH 01/10] findfs: use symbolic exit values, and tell about them in manual
+Date: Thu, 13 Mar 2014 16:49:06 +0000
+Message-Id: <1394729346-2440-1-git-send-email-kerolasa@iki.fi>
+References: <20140312103712.GK9303@x2.net.home>
+In-Reply-To: <1394397023-7050-1-git-send-email-kerolasa@iki.fi> <20140312103712.GK9303@x2.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 12 March 2014 10:37, Karel Zak <kzak@redhat.com> wrote:
+>  Do we really need to add findfs exit codes to exitcodes.h? The
+>  codes are specific to findfs and no shared anywhere.
+>
+>  It would be also better to use FINDFS_EX_{SUCCESS,NOTFOUND,USAGE}.
 
-On 3/24/2014 5:43 AM, Janani Venkataraman wrote:
-> Gcore attaches to the process using gdb and runs the gdb gcore
-> command and then detaches. In gcore the dump cannot be issued from
-> a signal handler context as fork() is not signal safe and moreover
-> it is disruptive in
+Hi Karel,
 
-You can fork+exec from a signal handler just fine.
+Oh, I see.  I misunderstood exitcodes.h, the modified change adds a hint
+to the file how to use it.
 
+BTW I am 98.5% certain the findfs was the last utility to use none binary
+exit values and have them as numbers in source.  Getting rid of such
+magic was the original reason of the change.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 9 Mar 2014 10:49:44 -0500
+Subject: [PATCH] findfs: use symbolic exit values, and tell about them in manual
+Organization: lastminute.com
 
-iQEcBAEBAgAGBQJTMDknAAoJEI5FoCIzSKrwo2QH/RCmAn404PlO6cZLNuQ5PXqc
-MdR6U62K/BwZo42Fr694FzzjGKwuqx3YHB8gU+tyE26yZ31reFWG8KpdfV46NRYG
-sEPH/lJOerMXwfbpxE0YFZBow5wZqTg/XsiXMyz8M4/KdMgOgCEqsaG/IRPvK0+B
-NiaQmFct0Y2onwoy50mrR2sGeKOgA5510osoChCq+TKUrsCJp80jYvz6bVOi6kwY
-Oi+bAl/tzcQDy7yHkUqYJXYRf3o9jbHqGxnC/IzygOntggqmIiB8ez4ZDZC2YbOl
-htv0gP/jqZk8Pm3C/gv5S7xhqjy2+yvkWXg7mhsz7gsbSA4K5LXd5bN5ovEBGAw=
-=JWwx
------END PGP SIGNATURE-----
+And mention the exitcodes.h is meant to be used when same exit codes are
+used in multiple utilities.  See reference for advice about this.
+
+Reference: http://www.spinics.net/lists/util-linux-ng/msg08970.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/exitcodes.h |  1 +
+ misc-utils/findfs.8 | 30 ++++++++++++++++++++++++++----
+ misc-utils/findfs.c | 17 +++++++++++------
+ 3 files changed, 38 insertions(+), 10 deletions(-)
+
+diff --git a/include/exitcodes.h b/include/exitcodes.h
+index 24ee123..b7f37cd 100644
+--- a/include/exitcodes.h
++++ b/include/exitcodes.h
+@@ -3,6 +3,7 @@
+ /*
+  * BE CAREFUL
+  *
++ * Exit codes in this file are shared in multiple utilities.
+  * These exit codes are part of the official interface for mount,
+  * fsck, mkfs, etc. wrappers.
+  */
+diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
+index 8a6bca1..1469df2 100644
+--- a/misc-utils/findfs.8
++++ b/misc-utils/findfs.8
+@@ -2,7 +2,7 @@
+ .\" Copyright 1993, 1994, 1995 by Theodore Ts'o.  All Rights Reserved.
+ .\" This file may be copied under the terms of the GNU Public License.
+ .\"
+-.TH FINDFS 8 "February 2009" "util-linux" "System Administration"
++.TH FINDFS 8 "March 2014" "util-linux" "System Administration"
+ .SH NAME
+ findfs \- find a filesystem by label or UUID
+ .SH SYNOPSIS
+@@ -21,10 +21,30 @@ or a UUID equal to
+ If the filesystem is found, the device name for the filesystem will
+ be printed on stdout.
+ .PP
++.SH "EXIT STATUS"
++.RS
++.PD 0
++.TP
++.B 0
++success
++.TP
++.B 1
++label or uuid cannot be found
++.TP
++.B 2
++usage error, wrong number of arguments or unknown option
++.PD
++.RE
+ .SH AUTHOR
+ .B findfs
+-was originally written by Theodore Ts'o (tytso@mit.edu) and re-written for
+-the util-linux package by Karel Zak (kzak@redhat.com).
++was originally written by
++.MT tytso@mit.edu
++Theodore Ts'o
++.ME
++and re-written for the util-linux package by
++.MT kzak@redhat.com
++Karel Zak
++.ME .
+ .SH ENVIRONMENT
+ .IP LIBBLKID_DEBUG=0xffff
+ enables debug output.
+@@ -33,4 +53,6 @@ enables debug output.
+ .BR fsck (8)
+ .SH AVAILABILITY
+ The findfs command is part of the util-linux package and is available from
+-ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
++.UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
++Linux Kernel Archive
++.UE .
+diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
+index bc4a843..5c834cc 100644
+--- a/misc-utils/findfs.c
++++ b/misc-utils/findfs.c
+@@ -14,6 +14,11 @@
+ #include "nls.h"
+ #include "closestream.h"
+ #include "c.h"
++#include "exitcodes.h"
++
++#define FINDFS_EX_SUCCESS	0	/* no errors */
++#define FINDFS_EX_NOTFOUND	1	/* label or uuid cannot be found */
++#define FINDFS_EX_USAGE		2	/* user did something unexpected */
+ 
+ static void __attribute__((__noreturn__)) usage(int rc)
+ {
+@@ -41,7 +46,7 @@ int main(int argc, char **argv)
+ 	if (argc != 2)
+ 		/* we return '2' for backward compatibility
+ 		 * with version from e2fsprogs */
+-		usage(2);
++		usage(FINDFS_EX_USAGE);
+ 
+ 	if (!strncmp(argv[1], "LABEL=", 6)) {
+ 		tk = "LABEL";
+@@ -52,18 +57,18 @@ int main(int argc, char **argv)
+ 	} else if (strcmp(argv[1], "-V") == 0 ||
+ 		   strcmp(argv[1], "--version") == 0) {
+ 		printf(UTIL_LINUX_VERSION);
+-		return EXIT_SUCCESS;
++		return FINDFS_EX_SUCCESS;
+ 	} else if (strcmp(argv[1], "-h") == 0 ||
+ 		   strcmp(argv[1], "--help") == 0) {
+-		usage(EXIT_SUCCESS);
++		usage(FINDFS_EX_SUCCESS);
+ 	} else
+-		usage(2);
++		usage(FINDFS_EX_USAGE);
+ 
+ 	dev = blkid_evaluate_tag(tk, vl, NULL);
+ 	if (!dev)
+-		errx(EXIT_FAILURE, _("unable to resolve '%s'"),	argv[1]);
++		errx(FINDFS_EX_NOTFOUND, _("unable to resolve '%s'"), argv[1]);
+ 
+ 	puts(dev);
+-	exit(EXIT_SUCCESS);
++	return FINDFS_EX_SUCCESS;
+ }
+ 
+-- 
+1.9.0
+
