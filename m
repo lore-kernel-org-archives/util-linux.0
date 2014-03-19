@@ -1,228 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp09.au.ibm.com ([202.81.31.142]:55485 "EHLO
-	e23smtp09.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757529AbaCTJkr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:40:47 -0400
-Received: from /spool/local
-	by e23smtp09.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 19:40:45 +1000
-Subject: [PATCH 10/33] Populates PRPS info
-To: linux-kernel@vger.kernel.org
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
-        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
-        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
-        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
-        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:10:32 +0530
-Message-ID: <20140320094032.14878.79807.stgit@localhost.localdomain>
-In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
-References: <20140320093040.14878.903.stgit@localhost.localdomain>
+Received: from mx1.redhat.com ([209.132.183.28]:42302 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751191AbaCSRzs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 19 Mar 2014 13:55:48 -0400
+Date: Wed, 19 Mar 2014 18:55:41 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Werner Fink <werner@suse.de>, Stanislav Brabec <sbrabec@suse.com>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] blkid: convert superblocks to new calling convention
+Message-ID: <20140319175541.GB31824@x2.net.home>
+References: <1395237056-26595-1-git-send-email-hare@suse.de>
+ <1395237056-26595-3-git-send-email-hare@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1395237056-26595-3-git-send-email-hare@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Populates the prps_info by reading /proc/pid/stat and /proc/pid/cmdline.
+On Wed, Mar 19, 2014 at 02:50:56PM +0100, Hannes Reinecke wrote:
+> --- a/libblkid/src/partitions/bsd.c
+> +++ b/libblkid/src/partitions/bsd.c
+> @@ -42,14 +42,18 @@ static int probe_bsd_pt(blkid_probe pr, const struct blkid_idmag *mag)
+>  		return 0;
+>  
+>  	data = blkid_probe_get_sector(pr, BLKID_MAG_SECTOR(mag));
+> -	if (!data)
+> -		goto nothing;
+> +	if (!data) {
+> +		if (errno) 
+> +			goto err;
+> +		else
+> +			goto nothing;
+> +	}
 
-Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
----
- src/coredump.h   |   10 +++++++++
- src/elf-compat.h |   48 +++++++++++++++++++++++++++++++++++++++++++++
- src/elf.c        |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/elf32.c      |    1 +
- src/elf64.c      |    1 +
- 5 files changed, 118 insertions(+)
- create mode 100644 src/elf-compat.h
+ It would be nice to return the error code (-errno) from the function.
 
-diff --git a/src/coredump.h b/src/coredump.h
-index 9b19f19..d5562fe 100644
---- a/src/coredump.h
-+++ b/src/coredump.h
-@@ -1,9 +1,19 @@
- #define COMM_LEN 17            /* Maximum length of command line */
- #define NUM_STAT_FEILDS 30     /* Number of fields read from /proc/pid/stat */
- 
-+#define PPID 0			/* Index for parent process ID */
-+#define PGRP 1			/* Index for process group ID */
-+#define SID 2			/* Index for session ID */
-+#define FLAG 5			/* Index for flags */
-+#define NICE 15		/* Index for nice value */
- #define THREAD_COUNT_IDX 16	/* Index for number of threads */
- 
- #define __ps_thread_count ps_num[THREAD_COUNT_IDX]	/* Process Information */
-+#define __ps_ppid ps_num[PPID]				/* Process PID */	
-+#define __ps_pgrp ps_num[PGRP]				/* Process Group ID */ 
-+#define __ps_sid ps_num[SID]				/* Process Session ID */
-+#define __ps_flag ps_num[FLAG]				/* Process Flags */
-+#define __ps_nice ps_num[NICE]				/* Process Nice Value */
- 
- /* Status of the dump */
- extern int status;
-diff --git a/src/elf-compat.h b/src/elf-compat.h
-new file mode 100644
-index 0000000..463070a
---- /dev/null
-+++ b/src/elf-compat.h
-@@ -0,0 +1,48 @@
-+/*
-+ * ELF structures for gencore
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2013
-+ *
-+ * Authors:
-+ *      Janani Venkataraman <jananve@in.ibm.com>
-+ */
-+
-+#if defined(__PPC64__) || defined(__PPC__)
-+typedef unsigned int compat_id;
-+#endif
-+
-+#if defined(__s390x__) || defined(__s390__)
-+typedef unsigned short compat_id;
-+#endif
-+
-+#if defined(__x86_64) || defined(__i386)
-+typedef unsigned short compat_id;
-+#endif
-+
-+/* Compat structure for PRPS_INFO */
-+struct compat_elf_prpsinfo {
-+	char				pr_state;
-+	char				pr_sname;
-+	char				pr_zomb;
-+	char				pr_nice;
-+	unsigned int			pr_flag;
-+	compat_id			pr_uid;
-+	compat_id			pr_gid;
-+	int				pr_pid, pr_ppid, pr_pgrp, pr_sid;
-+	char				pr_fname[16];
-+	char				pr_psargs[ELF_PRARGSZ];
-+};
-diff --git a/src/elf.c b/src/elf.c
-index dfcb1d7..18bbeeb 100644
---- a/src/elf.c
-+++ b/src/elf.c
-@@ -27,7 +27,9 @@
- #include <stdlib.h>
- #include <string.h>
- #include <sys/uio.h>
-+#include <sys/procfs.h>
- #include <linux/elf.h>
-+#include "elf-compat.h"
- #include "coredump.h"
- 
- #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
-@@ -187,6 +189,57 @@ static int fill_elf_header(int pid, struct core_proc *cp)
- 	return 0;
- }
- 
-+/* Populates PRPS_INFO */
-+static int get_prpsinfo(int pid, struct core_proc *cp)
-+{
-+	char filename[40];
-+	int ret;
-+	FILE *fin;
-+	struct Elf_prpsinfo prps;
-+	struct pid_stat p;
-+
-+	ret = get_pid_stat(pid, &p);
-+	if (ret)
-+		return -1;
-+
-+	prps.pr_pid = p.ps_pid;
-+	strcpy(prps.pr_fname, p.ps_comm);
-+	prps.pr_state = p.ps_state;
-+	prps.pr_ppid = p.__ps_ppid;
-+	prps.pr_pgrp = p.__ps_pgrp;
-+	prps.pr_sid = p.__ps_sid;
-+	prps.pr_flag = p.__ps_flag;
-+	prps.pr_nice = p.__ps_nice;
-+
-+	prps.pr_sname = prps.pr_state;
-+	if (prps.pr_sname == 'z')
-+		prps.pr_zomb = 1;
-+	else
-+		prps.pr_zomb = 0;
-+
-+	snprintf(filename, 40, "/proc/%d/cmdline", pid);
-+	fin = fopen(filename, "r");
-+	if (fin == NULL) {
-+		status = errno;
-+		gencore_log("Failure while fetching command line arguments from %s.\n", filename);
-+		return -1;
-+	}
-+
-+	/* Getting CMDLINE arguments */
-+	ret = fread(prps.pr_psargs, ELF_PRARGSZ, 1, fin);
-+	if (ret == -1) {
-+		status = errno;
-+		gencore_log("Failure while fetching command line arguments from %s.\n", filename);
-+		fclose(fin);
-+		return -1;
-+	}
-+
-+	fclose(fin);
-+
-+	/* Adding PRPSINFO */
-+	return add_note("CORE", NT_PRPSINFO, sizeof(prps), &prps, cp);
-+}
-+
- int do_elf_coredump(int pid, struct core_proc *cp)
- {
- 	int ret;
-@@ -196,5 +249,10 @@ int do_elf_coredump(int pid, struct core_proc *cp)
- 	if (ret)
- 		return -1;
- 
-+	/* Get prps_info */
-+	ret = get_prpsinfo(pid, cp);
-+	if (ret)
-+		return -1;
-+
- 	return 0;
- }
-diff --git a/src/elf32.c b/src/elf32.c
-index 01b3923..8778bed 100644
---- a/src/elf32.c
-+++ b/src/elf32.c
-@@ -34,5 +34,6 @@
- #define Elf_Phdr Elf32_Phdr
- #define Elf_Shdr Elf32_Shdr
- #define Elf_Nhdr Elf32_Nhdr
-+#define Elf_prpsinfo compat_elf_prpsinfo
- 
- #include "elf.c"
-diff --git a/src/elf64.c b/src/elf64.c
-index a99a73b..d062888 100644
---- a/src/elf64.c
-+++ b/src/elf64.c
-@@ -34,5 +34,6 @@
- #define Elf_Phdr Elf64_Phdr
- #define Elf_Shdr Elf64_Shdr
- #define Elf_Nhdr Elf64_Nhdr
-+#define Elf_prpsinfo elf_prpsinfo
- 
- #include "elf.c"
+ Maybe you can use something like:
 
+          int rc = 1;   /* default is nothing */
+
+          data = blkid_probe_get_sector(pr, BLKID_MAG_SECTOR(mag));
+          if (!data) {
+              rc = error ? -errno : 1;
+              goto done;
+          }
+         
+          ...
+          rc = 0;   /* success, all probing stuff pass */
+
+        done:
+          return rc;
+
+
+ to reduce number of the code lines and number of goto labels and to return the 
+ proper return code.
+
+
+>  	ls = blkid_probe_get_partlist(pr);
+>  	if (!ls)
+> -		goto err;
+> +		goto nothing;
+
+ hmm.. it usually means malloc() error, I have doubts we want to
+ ignore such errors, it would be probably better to return -ENOMEM
+ in this case.
+
+     if (!ls) {
+        rc = -ENOMEM;
+        goto done;
+     }
+
+ If you do the cleanup then do it for all errors, not for I/O only ;-)
+  
+> +		if (!data) {
+> +			if (errno)
+> +				goto err;
+> +			else
+> +				goto leave;	/* malformed partition? */
+> +		}
+
+  BTW, "else" after "goto" is probably unnecessary, just
+
+    if (foo)
+        goto y;
+    goto x;
+
+  Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
