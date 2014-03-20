@@ -1,110 +1,122 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay.parallels.com ([195.214.232.42]:43353 "EHLO
-	relay.parallels.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751271AbaCTTBn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 15:01:43 -0400
-Message-ID: <532B3B00.6080201@parallels.com>
-Date: Thu, 20 Mar 2014 23:01:20 +0400
-From: Pavel Emelyanov <xemul@parallels.com>
+Received: from mx1.redhat.com ([209.132.183.28]:27815 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751224AbaCTJTW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 20 Mar 2014 05:19:22 -0400
+Date: Thu, 20 Mar 2014 10:18:25 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Werner Fink <werner@suse.de>, Stanislav Brabec <sbrabec@suse.com>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] blkid: convert superblocks to new calling convention
+Message-ID: <20140320091825.GA26374@x2.net.home>
+References: <1395237056-26595-1-git-send-email-hare@suse.de>
+ <1395237056-26595-3-git-send-email-hare@suse.de>
+ <20140319175541.GB31824@x2.net.home>
+ <532A04B6.9050706@suse.de>
 MIME-Version: 1.0
-To: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-CC: <linux-kernel@vger.kernel.org>, <amwang@redhat.com>,
-        <procps@freelists.org>, <rdunlap@xenotime.net>,
-        <james.hogan@imgtec.com>, <aravinda@linux.vnet.ibm.com>, <hch@lst.de>,
-        <mhiramat@redhat.com>, <jeremy.fitzhardinge@citrix.com>,
-        <d.hatayama@jp.fujitsu.com>, <coreutils@gnu.org>,
-        <kosaki.motohiro@jp.fujitsu.com>, <adobriyan@gmail.com>,
-        <util-linux@vger.kernel.org>, <tarundsk@linux.vnet.ibm.com>,
-        <vapier@gentoo.org>, <roland@hack.frob.com>,
-        <ananth@linux.vnet.ibm.com>, <gorcunov@openvz.org>,
-        <avagin@openvz.org>, <oleg@redhat.com>, <eparis@redhat.com>,
-        <suzuki@linux.vnet.ibm.com>, <andi@firstfloor.org>, <tj@kernel.org>,
-        <akpm@linux-foundation.org>, <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 04/33] Hold threads
-References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140320093931.14878.89112.stgit@localhost.localdomain>
-In-Reply-To: <20140320093931.14878.89112.stgit@localhost.localdomain>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <532A04B6.9050706@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/20/2014 01:39 PM, Janani Venkataraman wrote:
-> Getting number of threads and their respective IDs through /proc/pid/stat and
-> /proc/pid/task.
+On Wed, Mar 19, 2014 at 09:57:26PM +0100, Hannes Reinecke wrote:
+> Before I attempt this the codebase needs some in-depth cleanup.
+> Main problem here is the inconsistent usage of -1, 0, and 1.
+> The ->probefunc functions use 0 to signal 'not found',
+
+I see that ->probefunc functions (FS or partition specific functions)
+use <0 = errors, 1 = not found and 0 = success.
+
+> partitions_probe uses the inverse, namely '0' signals found.
 > 
-> The threads are then seized and interrupted. After the dump is taken they are
-> detached.
+> And so on and so forth.
 > 
-> Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-> ---
+> Plus there are even some vestiges of an attempted error code
+> handling; BLKID_ERR_* are used occasionally.
+> 
+> It would be good if one could agree on a common strategy here,
 
-> +/* Gets the Thread IDS and siezes them */
-> +int seize_threads(int pid)
-> +{
-> +	char filename[40];
-> +	DIR *dir;
-> +	int ct = 0, ret = 0, tmp_tid;
-> +	struct dirent *entry;
-> +	char state;
-> +
-> +	ret = get_thread_count(pid);
-> +	if (ret == -1)
-> +		return -1;
-> +
-> +	cp.thread_count = ret;
-> +	cp.t_id = calloc(cp.thread_count, sizeof(int));
-> +	if (!cp.t_id) {
-> +		status = errno;
-> +		gencore_log("Could not allocate memory for thread_ids.\n");
-> +		return -1;
-> +	}
-> +
-> +	snprintf(filename, 40, "/proc/%d/task", pid);
-> +	dir = opendir(filename);
-> +
-> +	while ((entry = readdir(dir))) {
+ The library has too two parts, 
+ 
+    1/ original high-level (based on blkid_cache)
+    2/ low-level (based on blkid_probe, probe.c, partitions/ and
+                  superblocks/)
 
-This simple loop is not enough -- threads may appear and disappear while
-you do the readdir and seize, so you should scan it several times to
-make sure you caught all the threads.
+ My suggestion is to care about the low-level part for now.
 
-You can look at how this is done in CRIU in cr-dump,c:collect_threads().
+ The low-level part has three layers:
 
-> +		if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
-> +			tmp_tid = atoi(entry->d_name);
-> +			ret = ptrace(PTRACE_SEIZE, tmp_tid, 0, 0);
-> +			if (ret) {
-> +				state = get_thread_status(tmp_tid);
-> +				if (state == 'Z')
-> +					goto assign;
-> +				status = errno;
-> +				gencore_log("Could not seize thread: %d\n",
-> +								tmp_tid);
-> +				break;
-> +			}
-> +			ret = ptrace(PTRACE_INTERRUPT, tmp_tid, 0, 0);
-> +			if (ret) {
-> +				state = get_thread_status(tmp_tid);
-> +				if (state == 'Z')
-> +					goto assign;
-> +				status = errno;
-> +				gencore_log("Could not interrupt thread: %d\n",
-> +								tmp_tid);
-> +				break;
-> +			}
-> +assign:
-> +			/* If a new thread, is created after we fetch the thread_count,
-> +			 * we may encounter a buffer overflow situation in the cp_tid.
-> +			 * Hence we check this case and re-allocate memory if required.
-> +			 */
-> +			cp.t_id[ct++] = tmp_tid;
-> +		}
-> +	}
-> +
-> +	/* Reassigning based on successful seizes */
-> +	cp.thread_count = ct;
-> +
-> +	closedir(dir);
-> +
-> +	/* Successful seize and interrupt on all threads makes ret = 0 */
-> +	return ret;
-> +}
+ a) API  (blkid_do_probe(), blkid_do_safeprobe(), ...)
+
+ now:
+    1 nothing,  0 success, <0 error, -2 ambivalent result
+ 
+ suggestion:
+    1 nothing,  0 success, -1 error, -2 ambivalent result
+
+    + modify errno only if we return -1 and original errno is still
+      0 (it means that error has been generated by our library rather
+     rather than a syscall).
+
+ Note that this is part of API, so we have to very careful.
+
+
+ b) chain driver (struct blkid_chaindrv, superblock.c and
+                  partitions.c)
+
+   now:
+        1 nothing, 0 success, <0 error,  -2 ambivalent
+
+   my suggestion:
+        2 ambivalent, 1 nothing, 0 success, <0 error
+
+ In a) and b) is small collision between "ambivalent" and "error"
+ return codes. That's mistake that should be fixed.
+
+ c) FS/partition specific probing functions:
+
+   now:
+        ..mess...
+
+   my suggestion:
+        0 success, <0 error, 1 nothing
+
+
+ where for b) and c) we can return real error codes (e.g. -errno)
+ rather than too generic -1. My suggestion is not to modify errno
+ there. If we want to touch errno then in the top-level library
+ functions (layer a) only. In the b) and c) We need things like
+
+   return -EINVAL;
+
+ without care about errno.
+ 
+> and audit the code base to adhere to this.
+> Once that is done we can work on returning correct error codes.
+
+ I think we don't need two iterations.
+
+> What do you prefer?
+
+ 0) make a decision about the return codes
+
+ 1) add to the code (blkidP.h ?) hint about the codes
+
+ 2) clean up the code
+    - start from the layer c) then b) and a)
+    - from the beginning use real error codes rather than
+      the generic -1, if necessary use -EINVAL, -ENOMEM, etc.
+    - don't rely on errno to return error codes from
+      probing functions.
+
+
+(BTW, I'm on #util-linux on freenode IRC if you want to talk about it
+ more. Maybe I can help you and cleanup some part of the library too,
+ it's my mess ;-))
+
+  Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
