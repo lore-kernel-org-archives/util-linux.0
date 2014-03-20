@@ -1,43 +1,119 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:47030 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756947AbaC0TW4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 27 Mar 2014 15:22:56 -0400
-Message-ID: <53347A8E.7060608@ubuntu.com>
-Date: Thu, 27 Mar 2014 15:22:54 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from e23smtp09.au.ibm.com ([202.81.31.142]:55641 "EHLO
+	e23smtp09.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932678AbaCTJmN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:42:13 -0400
+Received: from /spool/local
+	by e23smtp09.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
+	Thu, 20 Mar 2014 19:42:12 +1000
+Subject: [PATCH 22/33] Dump the task
+To: linux-kernel@vger.kernel.org
+From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
+        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
+        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
+        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
+        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
+        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
+        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
+        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
+        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
+        tj@kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org
+Date: Thu, 20 Mar 2014 15:11:59 +0530
+Message-ID: <20140320094159.14878.9459.stgit@localhost.localdomain>
+In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
+References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
-To: =?UTF-8?B?TWFudGFzIE1pa3VsxJduYXM=?= <grawity@gmail.com>,
-        util-linux@vger.kernel.org
-Subject: Re: tty swtch key
-References: <533320C5.7040609@ubuntu.com> <lh1ra8$dd7$1@ger.gmane.org>
-In-Reply-To: <lh1ra8$dd7$1@ger.gmane.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Now we have the PID and the absolute or relative path of the core. We now call
+the do_coredump function with the appropriate parameters.
 
-On 3/27/2014 2:40 PM, Mantas Mikulėnas wrote:
+Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+---
+ src/coredump.c |   60 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
 
-> On the other hand, there _is_ a reimplementation of shl for Linux
-> and Solaris, as part of heirloom-toolchest 
-> <http://heirloom.sourceforge.net/tools.html> and 
-> <http://heirloom.sourceforge.net/man/shl.1.html>.
+diff --git a/src/coredump.c b/src/coredump.c
+index 599a912..72ba8d8 100755
+--- a/src/coredump.c
++++ b/src/coredump.c
+@@ -446,6 +446,61 @@ int get_client_pid(struct ucred *client_info)
+ 	return 0;
+ }
+ 
++/* Dumps the client process */
++int dump_task(struct ucred *client_info, char *core_file)
++{
++
++	char filename[40], cwd[CORE_FILE_NAME_SZ], corefile[CORE_FILE_NAME_SZ];
++	memset(filename, 0, 40);
++	memset(cwd, 0, CORE_FILE_NAME_SZ);
++	memset(corefile, 0, CORE_FILE_NAME_SZ);
++
++	if (setgid(client_info->gid)) {
++		send_reply(errno);
++		gencore_log("[%d]: Could not change GID:%s\n",
++				pid_log, strerror(errno));
++		return -1;
++	}
++
++	if (setuid(client_info->uid)) {
++		send_reply(errno);
++		gencore_log("[%d]: Could not change UID:%s\n",
++				pid_log, strerror(errno));
++		return -1;
++	}
++
++	/* Checking if UID was changed */
++	if (geteuid() != client_info->uid) {
++		send_reply(errno);
++		gencore_log("[%d]: Could not change UID:%s\n",
++				pid_log, strerror(errno));
++		return -1;
++	}
++
++	/* Converting the path to absolute path */
++	if (core_file[0] != '/') {
++		snprintf(filename, 40, "/proc/%d/cwd", client_info->pid);
++		readlink(filename, cwd, CORE_FILE_NAME_SZ);
++		snprintf(corefile, CORE_FILE_NAME_SZ, "%s/%s", cwd, core_file);
++	} else
++		strcpy(corefile, core_file);
++
++	if (do_coredump(client_info->pid, (char *)corefile)) {
++		send_reply(errno);
++		gencore_log("[%d]: Could not create core file %s.\n",
++						pid_log, corefile);
++		fflush(fp_log);
++		return -1;
++	}
++
++	gencore_log("[%d]: Core file %s created.\n", pid_log,
++							corefile);
++
++	send_reply(0);
++
++	return 0;
++}
++
+ /* Services requests */
+ int service_request(void)
+ {
+@@ -463,6 +518,11 @@ int service_request(void)
+ 	if (ret)
+ 		goto cleanup;
+ 
++	/* Dump process */
++	ret = dump_task(&client_info, core_file);
++	if (ret)
++		goto cleanup;
++
+ cleanup:
+ 	close(new_sock);
+ 	if (ret == -1)
 
-How so?  It has to be implemented in the kernel tty layer.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBAgAGBQJTNHqMAAoJEI5FoCIzSKrwWIwIAJ1AgQuHn5RMQkWlO11WrA85
-Nu1QnJvD/Ubyxchl5L+vbGTXXz2rkb8UKBhzeSZsg4cSO3dTUBL45PunC3+Wh0uk
-UYNAtdTmaftiJ4P0OHeO7Q20u7OyzEK4y62aUk65ul5t2m5t6zJMViQhyQeTGqHh
-aE2Yz99H3ZycaixcdaTvvc7DK0hLvwr0Zm4vC1oOvHKGobvAvL2dy+Z+2WzBCZ/+
-f52dsIObvhprAAeyBykjvoSHvPPCJpuIz3RXtS7yv9wbBr7vqFG43bNBeyEOZgkV
-xoZDDAj6o1lrYRjUWmqdyOxbQ6/p8q98kCSk80lLORc4+fr7HdNvRUcIpkOsPeo=
-=1Xr+
------END PGP SIGNATURE-----
