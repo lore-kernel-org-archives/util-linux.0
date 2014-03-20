@@ -1,13 +1,13 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp04.au.ibm.com ([202.81.31.146]:34745 "EHLO
-	e23smtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758455AbaCTJlB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:41:01 -0400
+Received: from e28smtp04.in.ibm.com ([122.248.162.4]:54639 "EHLO
+	e28smtp04.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758056AbaCTJlZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:41:25 -0400
 Received: from /spool/local
-	by e23smtp04.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
 	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 19:41:00 +1000
-Subject: [PATCH 12/33] Fetch File maps
+	Thu, 20 Mar 2014 15:11:23 +0530
+Subject: [PATCH 15/33] Updating Offset
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -21,8 +21,8 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:10:48 +0530
-Message-ID: <20140320094048.14878.1986.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:11:17 +0530
+Message-ID: <20140320094117.14878.54577.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
@@ -30,141 +30,92 @@ Content-Type: text/plain; charset="utf-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The file maps details are got from the maps linked list which was
-populated in Patch 5 and they are filled as a note in the following
-format.
+Updating offset throughout keeping in mind that they need to be PAGE ALIGNED.
 
-long count     -- how many files are mapped
-long page_size -- units for file_ofs
-array of [COUNT] elements of
-long start
-long end
-long file_ofs
-followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
-
-Signed-off-by: Suzuki K. Poulose <suzuki@in.ibm.com>
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/elf.c   |   78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/elf32.c |    1 +
- src/elf64.c |    1 +
- 3 files changed, 80 insertions(+)
+ src/elf.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 49 insertions(+), 1 deletion(-)
 
 diff --git a/src/elf.c b/src/elf.c
-index b7fd6d0..9e3623f 100644
+index a5a1feb..a101ddf 100644
 --- a/src/elf.c
 +++ b/src/elf.c
-@@ -308,6 +308,79 @@ static int get_auxv(int pid, struct core_proc *cp)
- 	return ret;
+@@ -39,6 +39,8 @@
+ 
+ #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+ 
++#define ALIGN(addr, pagesize) (((addr) + (pagesize) - 1) & ~(pagesize - 1))
++
+ /* Default alignment for program headers */
+ #ifndef ELF_EXEC_PAGESIZE
+ #define ELF_EXEC_PAGESIZE PAGESIZE
+@@ -617,7 +619,6 @@ static int get_phdrs(int pid, struct core_proc *cp)
+ 	cp_phdrs[0].p_offset = 0;
+ 	cp_phdrs[0].p_vaddr = 0;
+ 	cp_phdrs[0].p_paddr = 0;
+-	/* Will fill the size after filling notes */
+ 	cp_phdrs[0].p_filesz = 0;
+ 	cp_phdrs[0].p_memsz = 0;
+ 
+@@ -671,6 +672,50 @@ static int get_phdrs(int pid, struct core_proc *cp)
+ 	return 0;
  }
  
-+/*
-+ * Get File Maps in the following format:
-+ * long count     -- how many files are mapped
-+ * long page_size -- units for file_ofs
-+ * array of [COUNT] elements of
-+ * long start
-+ * long end
-+ * long file_ofs
-+ * followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
-+ */
-+static int get_file_maps(struct core_proc *cp)
++/* Updating the Offset */
++static void update_offset(struct core_proc *cp)
 +{
-+	Elf_Long count = 0;
-+	Elf_Long fmap_size = 0, namesz = 0;
-+	Elf_Long *fmap;
-+	Elf_Long *data_pos;
-+	unsigned char *name_pos;
-+	int ret;
-+	struct maps *map = cp->vmas;
++	Elf_Long data_offset = 0;
++	struct mem_note *note = cp->notes;
++	int i;
++	Elf_Phdr *cp_phdrs;
++	Elf_Ehdr *cp_elf;
 +
-+	/*
-+	 * Finding the actual size of the file map for which we need
-+	 * to know number of VMAS(non zero inode) plus the file name size
-+	 * for each of the VMAS(non zero inode.
-+	 */
-+	while (map) {
-+		if (map->inode) {
-+			count++;
-+			namesz += strlen(map->fname) + 1;
-+		}
-+		map = map->next;
++	cp_elf = (Elf_Ehdr *)cp->elf_hdr;
++	cp_phdrs = (Elf_Phdr *)cp->phdrs;
++
++	/* ELF HEADER */
++	data_offset += sizeof(Elf_Ehdr);
++
++	/* Program Headers */
++	data_offset += cp->phdrs_count * sizeof(Elf_Phdr);
++
++	/* Notes */
++	cp_phdrs[0].p_offset = data_offset;
++
++	/* Calucalating entire NOTES size */
++	while (note) {
++		data_offset += note->size;
++		note = note->next;
 +	}
 +
-+	/*
-+	 * We add 2 for the count and page_size, 3 * (number of vmas)
-+	 * for the start, end and file_ofs and finally the entire size
-+	 * of the filenames of all the VMAS.
-+	 */
-+	fmap_size = ((2 + (3 * count)) * sizeof(Elf_Long))
-+				+ (namesz * sizeof(unsigned char));
++	/* Filling PT_NOTE size */
++	cp_phdrs[0].p_filesz = data_offset - cp_phdrs[0].p_offset;
 +
-+	fmap = calloc(fmap_size, 1);
-+	if (!fmap) {
-+		status = errno;
-+		gencore_log("Could not allocate memory for file map data\n");
-+		return -1;
++	data_offset = ALIGN(data_offset, ELF_EXEC_PAGESIZE);
++
++	/* Populating offsets of Program Headers */
++	for (i = 1; i < cp->phdrs_count; i++) {
++		cp_phdrs[i].p_offset = data_offset;
++		data_offset += cp_phdrs[i].p_filesz;
++		data_offset = ALIGN(data_offset, ELF_EXEC_PAGESIZE);
 +	}
 +
-+	data_pos = fmap + 2;
-+	name_pos = (unsigned char *)(fmap + 2 + (count * 3));
-+
-+	map = cp->vmas;
-+	while (map) {
-+		if (map->inode) {
-+			*data_pos++ = map->src;
-+			*data_pos++ = map->dst;
-+			*data_pos++ = map->offset;
-+
-+			strcpy(name_pos, map->fname);
-+			name_pos += strlen(map->fname) + 1;
-+		}
-+		map = map->next;
-+	}
-+
-+	fmap[0] = count;
-+	fmap[1] = 1;
-+
-+	ret = add_note("CORE", NT_FILE, fmap_size, fmap, cp);
-+	free(fmap);
-+
-+	return ret;
++	/* Filling extra program header offset if phnum > PN_XNUM */
++	if (cp->phdrs_count > PN_XNUM)
++		cp_elf->e_shoff = data_offset;
 +}
 +
  int do_elf_coredump(int pid, struct core_proc *cp)
  {
- 	int ret;
-@@ -327,5 +400,10 @@ int do_elf_coredump(int pid, struct core_proc *cp)
+ 	int ret, i;
+@@ -705,5 +750,8 @@ int do_elf_coredump(int pid, struct core_proc *cp)
  	if (ret)
  		return -1;
  
-+	/* Get File maps */
-+	ret = get_file_maps(cp);
-+	if (ret)
-+		return -1;
++	/* Updating offset */
++	update_offset(cp);
 +
  	return 0;
  }
-diff --git a/src/elf32.c b/src/elf32.c
-index 8778bed..0f7c03d 100644
---- a/src/elf32.c
-+++ b/src/elf32.c
-@@ -35,5 +35,6 @@
- #define Elf_Shdr Elf32_Shdr
- #define Elf_Nhdr Elf32_Nhdr
- #define Elf_prpsinfo compat_elf_prpsinfo
-+#define Elf_Long int
- 
- #include "elf.c"
-diff --git a/src/elf64.c b/src/elf64.c
-index d062888..77da222 100644
---- a/src/elf64.c
-+++ b/src/elf64.c
-@@ -35,5 +35,6 @@
- #define Elf_Shdr Elf64_Shdr
- #define Elf_Nhdr Elf64_Nhdr
- #define Elf_prpsinfo elf_prpsinfo
-+#define Elf_Long long
- 
- #include "elf.c"
 
