@@ -1,13 +1,5 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp01.in.ibm.com ([122.248.162.1]:40668 "EHLO
-	e28smtp01.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932187AbaCTJlm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:41:42 -0400
-Received: from /spool/local
-	by e28smtp01.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 15:11:40 +0530
-Subject: [PATCH 18/33] Socket operations
+Return-Path: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 20/33] Handling Requests
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -21,144 +13,135 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:11:32 +0530
-Message-ID: <20140320094132.14878.87442.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:11:43 +0530
+Message-ID: <20140320094143.14878.80702.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Sender: util-linux-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Creates a file socket using socket passing PF_UNIX, binds and then listens on
-the connection.
+Accepting requests and then spawning a new thread to service them.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/Makefile.am |    3 +-
- src/coredump.c  |  110 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 112 insertions(+), 1 deletion(-)
+ src/coredump.c |  110 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 110 insertions(+)
+ mode change 100644 => 100755 src/coredump.c
 
-diff --git a/src/Makefile.am b/src/Makefile.am
-index 90d8b25..b9b2e9b 100644
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -1,6 +1,7 @@
- AUTOMAKE_OPTIONS = foreign
- HAVE_SYSTEMD_SOCKET_SUPPORT = 0
--CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)'
-+SOCKET_PATH = /var/run/gencored.socket
-+CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)' -DSOCKET_PATH='"$(SOCKET_PATH)"'
- 
- bin_PROGRAMS = gencore
- gencore_SOURCES = coredump.c proc.c elf32.c elf64.c
 diff --git a/src/coredump.c b/src/coredump.c
-index 09fb8da..c992c66 100644
+old mode 100644
+new mode 100755
+index d93f4b2..fadb7cd
 --- a/src/coredump.c
 +++ b/src/coredump.c
-@@ -33,8 +33,15 @@
- #include <syslog.h>
- #include <signal.h>
- #include <sys/ptrace.h>
-+#include <sys/socket.h>
-+#include <sys/un.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
- #include <coredump.h>
+@@ -42,6 +42,11 @@
+ /* Main Socket */
+ int socket_fd;
  
-+/* Main Socket */
-+int socket_fd;
++/* Accepted Socket */
++int new_sock;
++
++#define CORE_FILE_NAME_SZ 1000	/* Size of core file name */
 +
  /* For logging all the messages */
  FILE *fp_log;
  
-@@ -255,9 +262,98 @@ cleanup:
- 	return ret;
+@@ -381,6 +386,100 @@ int block_on_request(void)
+ 	return 0;
  }
  
-+/* Creating a Unix socket */
-+int create_socket(void)
++/* Handles a SIGCHILD */
++void sigchild_handler(int sig)
 +{
-+	socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
-+	if (socket_fd < 0) {
-+		gencore_log("[%d]: Could not create a socket:%s.\n",
++	int pid;
++
++	pid = waitpid(0, &status, WNOHANG);
++
++	gencore_log("[%d]: Request handled by child with PID:%d and exited.\n",
++				pid_log, pid);
++}
++
++/* Sends message to client */
++int send_reply(int err)
++{
++	if (write(new_sock, &err , sizeof(err)) == -1) {
++		gencore_log("[%d]: Could not send message:%s\n",
 +					pid_log, strerror(errno));
 +		return -1;
 +	}
 +
-+	gencore_log("[%d]: Created socket.\n", pid_log);
++	gencore_log("[%d]: Message sent:%d\n", pid_log, err);
 +
 +	return 0;
 +}
 +
-+/* Binding the socket to a address */
-+int bind_socket(void)
++/* Receive message from client */
++int receive_core_filename(char *core_file)
 +{
-+	struct sockaddr_un address;
-+	struct stat buffer;
-+	if (stat(SOCKET_PATH, &buffer) == 0)
-+		unlink(SOCKET_PATH);
-+
-+	memset(&address, 0, sizeof(struct sockaddr_un));
-+
-+	address.sun_family = PF_FILE;
-+	strcpy(address.sun_path, SOCKET_PATH);
-+
-+	if (bind(socket_fd, (struct sockaddr *) &address,
-+			sizeof(struct sockaddr_un)) != 0) {
-+		gencore_log("[%d]: Could not bind:%s.\n", pid_log,
-+							strerror(errno));
-+		close(socket_fd);
++	memset(core_file, 0, CORE_FILE_NAME_SZ);
++	if (read(new_sock, core_file , CORE_FILE_NAME_SZ) == -1) {
++		send_reply(errno);
++		gencore_log("[%d]: Could not get Core file name:%s\n",
++					pid_log, strerror(errno));
 +		return -1;
 +	}
 +
-+	if (chmod(SOCKET_PATH, S_IROTH | S_IWOTH
-+						| S_IRUSR | S_IWUSR)) {
-+		gencore_log("[%d]: Could not change permissions of socket:%s.\n",
-+						pid_log, strerror(errno));
-+		close(socket_fd);
-+		return -1;
-+	}
-+
-+	gencore_log("[%d]: Bind done.\n", pid_log);
++	gencore_log("[%d]: Core file path received:%s\n", pid_log,
++						core_file);
++	/* Sending the acknowledgment */
++	send_reply(0);
 +
 +	return 0;
 +}
 +
-+/* Listen for connections */
-+int listen_conn(void)
-+{
-+	if (listen(socket_fd, 5) != 0) {
-+		gencore_log("[%d]: Could not listen:%s.\n", pid_log,
-+							strerror(errno));
-+		close(socket_fd);
-+		return -1;
-+	}
-+
-+	gencore_log("[%d]: Listening.\n", pid_log);
-+
-+	return 0;
-+}
-+
-+/* Setting up server */
-+int setup_server(void)
++/* Services requests */
++int service_request(void)
 +{
 +	int ret;
++	char core_file[CORE_FILE_NAME_SZ];
 +
-+	/* Create Socket */
-+	ret = create_socket();
++	/* Receive the message */
++	ret = receive_core_filename(core_file);
 +	if (ret)
-+		return -1;
++		goto cleanup;
 +
-+	/* Bind Socket */
-+	ret = bind_socket();
-+	if (ret)
-+		return -1;
++cleanup:
++	close(new_sock);
++	if (ret == -1)
++		exit(EXIT_FAILURE);
 +
-+	/* Listen for connections */
-+	ret = listen_conn();
-+	if (ret)
++	exit(EXIT_SUCCESS);
++}
++
++/* Handles new requests */
++int handle_request(void)
++{
++	int pid_new;
++	struct sockaddr_un client_address;
++	socklen_t client_size = sizeof(client_address);
++
++	new_sock = accept(socket_fd, (struct sockaddr *) &client_address,
++							&client_size);
++	if (new_sock < 0) {
++		gencore_log("[%d]: Could not accept:%s\n", pid_log,
++							strerror(errno));
++		close(socket_fd);
++		fclose(fp_log);
 +		return -1;
++	}
++
++	gencore_log("[%d]: Accepted.\n", pid_log);
++
++	gencore_log("[%d]: Handling request.\n", pid_log);
++
++	/* New thread to service request */
++	pid_new = fork();
++	if (pid_new == 0) {
++		pid_log = getpid();
++		service_request();
++	}
 +
 +	return 0;
 +}
@@ -166,31 +149,29 @@ index 09fb8da..c992c66 100644
  /* Daemon for self dump */
  int daemon_dump(void)
  {
-+	int ret;
+@@ -418,6 +517,9 @@ int daemon_dump(void)
+ 	/* Flush the log */
+ 	fflush(fp_log);
+ 
++	/* SIGCHILD - Signal handler */
++	signal(SIGCHLD, sigchild_handler);
 +
- 	/* Check if daemon is running as root */
- 	if (geteuid()) {
- 		fprintf(stderr, "Run the daemon as root.\n");
-@@ -282,7 +378,21 @@ int daemon_dump(void)
- 		return -1;
+ 	while (1) {
+ 
+ 		/* Blocks on request */
+@@ -427,6 +529,14 @@ int daemon_dump(void)
+ 
+ 		/* Flush the log */
+ 		fflush(fp_log);
++
++		/* Handle new connections */
++		ret = handle_request();
++		if (ret)
++			goto cleanup;
++
++		/* Flush the log */
++		fflush(fp_log);
  	}
  
-+	/* Setting up server */
-+	ret = setup_server();
-+	if (ret)
-+		goto cleanup;
-+
-+	/* Flush the log */
-+	fflush(fp_log);
-+
-+cleanup:
-+
- 	fclose(fp_log);
-+
-+	if (ret == -1)
-+		return -1;
-+
  	return 0;
- }
- 
 
