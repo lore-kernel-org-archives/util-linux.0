@@ -1,5 +1,5 @@
 Return-Path: linux-kernel-owner@vger.kernel.org
-Subject: [PATCH 08/33] Fills elf header
+Subject: [PATCH 04/33] Hold threads
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -13,8 +13,8 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:10:09 +0530
-Message-ID: <20140320094009.14878.56164.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:09:31 +0530
+Message-ID: <20140320093931.14878.89112.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
@@ -22,180 +22,279 @@ Content-Type: text/plain; charset="utf-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Populates the ELF header. It fills the magic number, version, machine number of
-program headers and other members of the ELF_HEADER.
+Getting number of threads and their respective IDs through /proc/pid/stat and
+/proc/pid/task.
 
-All the information is derived from the ELF_HEADER of the exe of the process to
-be dumped through /proc/pid/exe.
+The threads are then seized and interrupted. After the dump is taken they are
+detached.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/coredump.c |    3 ++
- src/coredump.h |    1 +
- src/elf.c      |   96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/elf32.c    |    4 ++
- src/elf64.c    |    4 ++
- 5 files changed, 108 insertions(+)
+ src/coredump.c |  149 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/coredump.h |   10 ++++
+ src/proc.c     |   52 ++++++++++++++++++++
+ 3 files changed, 210 insertions(+), 1 deletion(-)
 
 diff --git a/src/coredump.c b/src/coredump.c
-index b1ee99d..de0a7ce 100644
+index ad9ee7d..dd9089f 100644
 --- a/src/coredump.c
 +++ b/src/coredump.c
-@@ -213,6 +213,9 @@ cleanup:
- 	if (cp.vmas)
- 		free_maps(cp.vmas);
- 
-+	if (cp.elf_hdr)
-+		free(cp.elf_hdr);
-+
- 	errno = status;
- 
- 	return ret;
-diff --git a/src/coredump.h b/src/coredump.h
-index 25042f5..4e508c1 100644
---- a/src/coredump.h
-+++ b/src/coredump.h
-@@ -32,4 +32,5 @@ struct core_proc {
- 	struct maps *vmas;		/* VMAs */
- 	int phdrs_count;		/* Number of Program headers */
- 	int elf_class;			/* Elf class of the process */
-+	void *elf_hdr;			/* Stores the ELF_header */
- };
-diff --git a/src/elf.c b/src/elf.c
-index 280df13..9f65c77 100644
---- a/src/elf.c
-+++ b/src/elf.c
-@@ -22,10 +22,106 @@
-  *      Suzuki K. Poulose <suzuki@in.ibm.com>
-  */
- 
-+#include <errno.h>
+@@ -26,6 +26,9 @@
  #include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/uio.h>
-+#include <linux/elf.h>
- #include "coredump.h"
+ #include <string.h>
+ #include <stdlib.h>
++#include <dirent.h>
++#include <errno.h>
++#include <sys/ptrace.h>
+ #include <coredump.h>
  
-+/* Fetchs ELF header of the executable */
-+static int get_elf_hdr_exe_file(int pid, Elf_Ehdr *elf)
+ /* For logging all the messages */
+@@ -43,10 +46,154 @@ void gencore_log(char *fmt, ...)
+ 	va_end(argptr);
+ }
+ 
++/* Core process object */
++struct core_proc cp;
++
++/* Initialised core process members */
++void init_core(void)
++{
++	memset(&cp, 0, sizeof(struct core_proc));
++}
++
++/* Gets the Thread IDS and siezes them */
++int seize_threads(int pid)
 +{
 +	char filename[40];
-+	int ret;
-+	FILE *fin;
++	DIR *dir;
++	int ct = 0, ret = 0, tmp_tid;
++	struct dirent *entry;
++	char state;
 +
-+	snprintf(filename, 40, "/proc/%d/exe", pid);
++	ret = get_thread_count(pid);
++	if (ret == -1)
++		return -1;
++
++	cp.thread_count = ret;
++	cp.t_id = calloc(cp.thread_count, sizeof(int));
++	if (!cp.t_id) {
++		status = errno;
++		gencore_log("Could not allocate memory for thread_ids.\n");
++		return -1;
++	}
++
++	snprintf(filename, 40, "/proc/%d/task", pid);
++	dir = opendir(filename);
++
++	while ((entry = readdir(dir))) {
++		if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
++			tmp_tid = atoi(entry->d_name);
++			ret = ptrace(PTRACE_SEIZE, tmp_tid, 0, 0);
++			if (ret) {
++				state = get_thread_status(tmp_tid);
++				if (state == 'Z')
++					goto assign;
++				status = errno;
++				gencore_log("Could not seize thread: %d\n",
++								tmp_tid);
++				break;
++			}
++			ret = ptrace(PTRACE_INTERRUPT, tmp_tid, 0, 0);
++			if (ret) {
++				state = get_thread_status(tmp_tid);
++				if (state == 'Z')
++					goto assign;
++				status = errno;
++				gencore_log("Could not interrupt thread: %d\n",
++								tmp_tid);
++				break;
++			}
++assign:
++			/* If a new thread, is created after we fetch the thread_count,
++			 * we may encounter a buffer overflow situation in the cp_tid.
++			 * Hence we check this case and re-allocate memory if required.
++			 */
++			cp.t_id[ct++] = tmp_tid;
++		}
++	}
++
++	/* Reassigning based on successful seizes */
++	cp.thread_count = ct;
++
++	closedir(dir);
++
++	/* Successful seize and interrupt on all threads makes ret = 0 */
++	return ret;
++}
++
++/* Wait for threads to stop */
++int wait_for_threads_to_stop(void)
++{
++	int i;
++	char state;
++
++	/*
++	 * We check for the process to stop infinitely now. We need
++	 * to break out after some definite time. Need to work on
++	 * that.
++	 */
++	for (i = 0; i < cp.thread_count; i++) {
++		do {
++			state = get_thread_status(cp.t_id[i]);
++			if (state != 't')
++				sched_yield();
++		} while (state != 't' && state!='Z' && state != -1);
++		if (state == -1)
++			return -1;
++	}
++
++	return 0;
++}
++
++/* Release the threads that are held */
++int release_threads(void)
++{
++	int i, ret = 0;
++	char state;
++
++	/* Detach the process to be dumped */
++	for (i = 0; i < cp.thread_count; i++) {
++		state = get_thread_status(cp.t_id[i]);
++		if (state == 't') {
++			ret += ptrace(PTRACE_DETACH, cp.t_id[i], 0, 0);
++			if (ret)
++				gencore_log("Could not detach from thread: %d\n",
++								cp.t_id[i]);
++		}
++	}
++
++	/* Successful detach on all threads makes ret = 0 */
++	return ret;
++}
++
+ /* Performs the core dump */
+ int do_coredump(int pid, char *core_file)
+ {
+-	return 0;
++	int ret;
++
++	/* Initialise members of core process */
++	init_core();
++
++	/* Getting thread information and seizing them */
++	ret = seize_threads(pid);
++	if (ret)
++		goto cleanup;
++
++	/* Wait for threads to stop */
++	ret = wait_for_threads_to_stop();
++	if (ret)
++		goto cleanup;
++
++cleanup:
++
++	/* Release the threads */
++	release_threads();
++
++	if (cp.t_id)
++		free(cp.t_id);
++
++	errno = status;
++
++	return ret;
+ }
+ 
+ /* Daemon for self dump */
+diff --git a/src/coredump.h b/src/coredump.h
+index cc77197..00cb008 100644
+--- a/src/coredump.h
++++ b/src/coredump.h
+@@ -1,6 +1,10 @@
+ #define COMM_LEN 17            /* Maximum length of command line */
+ #define NUM_STAT_FEILDS 30     /* Number of fields read from /proc/pid/stat */
+ 
++#define THREAD_COUNT_IDX 16	/* Index for number of threads */
++
++#define __ps_thread_count ps_num[THREAD_COUNT_IDX]	/* Process Information */
++
+ /* Status of the dump */
+ extern int status;
+ 
+@@ -11,3 +15,9 @@ struct pid_stat {
+ 	char ps_state;
+ 	unsigned long long ps_num[NUM_STAT_FEILDS];
+ };
++
++/* Structure for the Core of the Process */
++struct core_proc {
++	int thread_count;		/* Number of threads */
++	int *t_id;			/* Threads_ids of all the threads */
++};
+diff --git a/src/proc.c b/src/proc.c
+index 6c9e804..fc16d90 100644
+--- a/src/proc.c
++++ b/src/proc.c
+@@ -24,6 +24,7 @@
+ 
+ #include <stdio.h>
+ #include <errno.h>
++#include <stdlib.h>
+ #include <coredump.h>
+ 
+ /* Get Process Stats */
+@@ -84,3 +85,54 @@ err:
+ 	fclose(fin);
+ 	return ret;
+ }
++
++/* Counts the number of threads in the process */
++int get_thread_count(int pid)
++{
++	struct pid_stat p;
++	int ret;
++
++	ret = get_pid_stat(pid, &p);
++	if (ret)
++		return -1;
++
++	return p.__ps_thread_count;
++}
++
++/* Fetched thread status */
++char get_thread_status(int tid)
++{
++	int ret;
++	char filename[40], buff[40];
++	FILE *fin;
++	char *pos;
++
++	snprintf(filename, 40, "/proc/%d/stat", tid);
 +	fin = fopen(filename, "r");
 +	if (fin == NULL) {
 +		status = errno;
-+		gencore_log("Failed to open %s for checking the ELF header.",
++		gencore_log("Failure while fetching thread state from %s.\n",
 +								filename);
 +		return -1;
 +	}
 +
-+	ret = fread(elf, sizeof(*elf), 1, fin);
-+	if (ret != 1) {
++	ret = fread(buff, 40, 1, fin);
++	if (ret == 0) {
 +		status = errno;
-+		gencore_log("Failure while fetching the ELF header of the executable from %s.\n", filename);
-+		fclose(fin);
++		gencore_log("Failure while fetching thread state from %s.\n",
++								filename);
++		return -1;
++	}
++
++	pos = strrchr(buff, ')');
++	if (pos == NULL) {
++		status = errno;
++		gencore_log("Failure while fetching thread state from %s.\n",
++								filename);
 +		return -1;
 +	}
 +
 +	fclose(fin);
 +
-+	return 0;
++	return buff[pos - buff + 2];
 +}
-+
-+/* Fills the ELF HEADER */
-+static int fill_elf_header(int pid, struct core_proc *cp)
-+{
-+	Elf_Ehdr elf, *cp_elf;
-+	int ret;
-+
-+	cp->elf_hdr = malloc(sizeof(Elf_Ehdr));
-+	if (!cp->elf_hdr) {
-+		status = errno;
-+		gencore_log("Failure in allocating memory for ELF header.\n");
-+		return -1;
-+	}
-+
-+	cp_elf = (Elf_Ehdr *)cp->elf_hdr;
-+
-+	memset(cp_elf, 0, EI_NIDENT);
-+
-+	ret = get_elf_hdr_exe_file(pid, &elf);
-+	if (ret == -1)
-+		return -1;
-+
-+	/* Magic Number */
-+	memcpy(cp_elf->e_ident, ELFMAG, SELFMAG);
-+
-+	cp_elf->e_ident[EI_CLASS] = elf.e_ident[EI_CLASS];
-+	cp_elf->e_ident[EI_DATA] = elf.e_ident[EI_DATA];
-+	cp_elf->e_ident[EI_VERSION] = EV_CURRENT;
-+	cp_elf->e_ident[EI_OSABI] = EI_OSABI;
-+
-+	/* Rest of the fields */
-+	cp_elf->e_entry = 0;
-+	cp_elf->e_type = ET_CORE;
-+	cp_elf->e_machine = elf.e_machine;
-+	cp_elf->e_version = EV_CURRENT;
-+	cp_elf->e_phoff = sizeof(Elf_Ehdr);
-+	cp_elf->e_shoff = 0;
-+	cp_elf->e_flags = 0;
-+	cp_elf->e_ehsize =  sizeof(Elf_Ehdr);
-+	cp_elf->e_phentsize = sizeof(Elf_Phdr);
-+
-+	if (cp->phdrs_count > PN_XNUM) {
-+		cp_elf->e_phnum = PN_XNUM;
-+		cp_elf->e_shentsize = sizeof(Elf_Shdr);
-+		cp_elf->e_shnum = 1;
-+	} else {
-+		cp_elf->e_phnum = cp->phdrs_count;
-+		cp_elf->e_shentsize = 0;
-+		cp_elf->e_shnum = 0;
-+	}
-+
-+	cp_elf->e_shstrndx = SHN_UNDEF;
-+
-+	return 0;
-+}
-+
- int do_elf_coredump(int pid, struct core_proc *cp)
- {
-+	int ret;
-+
-+	/* Fill ELF Header */
-+	ret = fill_elf_header(pid, cp);
-+	if (ret)
-+		return -1;
-+
- 	return 0;
- }
-diff --git a/src/elf32.c b/src/elf32.c
-index d6b40b4..1a95ff2 100644
---- a/src/elf32.c
-+++ b/src/elf32.c
-@@ -30,4 +30,8 @@
- 
- #define do_elf_coredump do_elf32_coredump
- 
-+#define Elf_Ehdr Elf32_Ehdr
-+#define Elf_Phdr Elf32_Phdr
-+#define Elf_Shdr Elf32_Shdr
-+
- #include "elf.c"
-diff --git a/src/elf64.c b/src/elf64.c
-index d8b5e89..953b826 100644
---- a/src/elf64.c
-+++ b/src/elf64.c
-@@ -30,4 +30,8 @@
- 
- #define do_elf_coredump do_elf64_coredump
- 
-+#define Elf_Ehdr Elf64_Ehdr
-+#define Elf_Phdr Elf64_Phdr
-+#define Elf_Shdr Elf64_Shdr
-+
- #include "elf.c"
 
