@@ -1,5 +1,5 @@
 Return-Path: linux-kernel-owner@vger.kernel.org
-Subject: [PATCH 23/33] Handling SIG TERM of the daemon
+Subject: [PATCH 24/33] Handling SIG TERM of the child
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -13,8 +13,8 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:12:10 +0530
-Message-ID: <20140320094210.14878.75209.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:12:16 +0530
+Message-ID: <20140320094216.14878.32708.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
@@ -22,46 +22,47 @@ Content-Type: text/plain; charset="utf-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-We handle SIGTERM on the daemon, by closing the socket opened for that
-connection.
+We handle SIGTERM on the child, by sending a message to the client and then
+closing the socket opened for that connection.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/coredump.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ src/coredump.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/src/coredump.c b/src/coredump.c
-index 72ba8d8..c0da457 100755
+index c0da457..ab120b9 100755
 --- a/src/coredump.c
 +++ b/src/coredump.c
-@@ -562,6 +562,17 @@ int handle_request(void)
+@@ -501,6 +501,18 @@ int dump_task(struct ucred *client_info, char *core_file)
  	return 0;
  }
  
-+/* Handles Signals to the Daemon */
-+void sig_daemon_handler(int sig)
++/* Handles signals to the child */
++void sig_handler_service_proc(int sig)
 +{
-+	close(socket_fd);
-+	unlink(SOCKET_PATH);
++	if (sig != SIGPIPE)
++		send_reply(EINTR);
++	close(new_sock);
 +
-+	gencore_log("[%d]: Cleanup done and daemon exiting.\n", pid_log);
++	gencore_log("[%d]: Cleanup done and child exiting.\n", pid_log);
 +
-+	fclose(fp_log);
++	fflush(fp_log);
 +}
 +
- /* Daemon for self dump */
- int daemon_dump(void)
+ /* Services requests */
+ int service_request(void)
  {
-@@ -602,6 +613,11 @@ int daemon_dump(void)
- 	/* SIGCHILD - Signal handler */
- 	signal(SIGCHLD, sigchild_handler);
+@@ -508,6 +520,11 @@ int service_request(void)
+ 	char core_file[CORE_FILE_NAME_SZ];
+ 	struct ucred client_info;
  
-+	/* Terminate Daemon - signal handler */
-+	signal(SIGTERM, sig_daemon_handler);
-+	signal(SIGSEGV, sig_daemon_handler);
-+	signal(SIGPIPE, sig_daemon_handler);
++	/* Handles stopping of the servicing process */
++	signal(SIGTERM, sig_handler_service_proc);
++	signal(SIGSEGV, sig_handler_service_proc);
++	signal(SIGPIPE, sig_handler_service_proc);
 +
- 	while (1) {
- 
- 		/* Blocks on request */
+ 	/* Receive the message */
+ 	ret = receive_core_filename(core_file);
+ 	if (ret)
 
