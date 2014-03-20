@@ -1,5 +1,13 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Subject: [PATCH 20/33] Handling Requests
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from e28smtp07.in.ibm.com ([122.248.162.7]:54895 "EHLO
+	e28smtp07.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758432AbaCTJk5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:40:57 -0400
+Received: from /spool/local
+	by e28smtp07.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
+	Thu, 20 Mar 2014 15:10:51 +0530
+Subject: [PATCH 11/33] Populate AUXV
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -13,165 +21,124 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:11:43 +0530
-Message-ID: <20140320094143.14878.80702.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:10:43 +0530
+Message-ID: <20140320094043.14878.87687.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Accepting requests and then spawning a new thread to service them.
+Populate the auxillary vector using /proc/pid/auxv.
 
+Signed-off-by: Suzuki K. Poulose <suzuki@in.ibm.com>
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/coredump.c |  110 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 110 insertions(+)
- mode change 100644 => 100755 src/coredump.c
+ src/elf.c |   73 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
-diff --git a/src/coredump.c b/src/coredump.c
-old mode 100644
-new mode 100755
-index d93f4b2..fadb7cd
---- a/src/coredump.c
-+++ b/src/coredump.c
-@@ -42,6 +42,11 @@
- /* Main Socket */
- int socket_fd;
+diff --git a/src/elf.c b/src/elf.c
+index 18bbeeb..b7fd6d0 100644
+--- a/src/elf.c
++++ b/src/elf.c
+@@ -26,12 +26,16 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <fcntl.h>
++#include <unistd.h>
+ #include <sys/uio.h>
+ #include <sys/procfs.h>
+ #include <linux/elf.h>
+ #include "elf-compat.h"
+ #include "coredump.h"
  
-+/* Accepted Socket */
-+int new_sock;
++#define PAGESIZE getpagesize()
 +
-+#define CORE_FILE_NAME_SZ 1000	/* Size of core file name */
-+
- /* For logging all the messages */
- FILE *fp_log;
+ #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
  
-@@ -381,6 +386,100 @@ int block_on_request(void)
- 	return 0;
+ /* Appending the note to the list */
+@@ -240,6 +244,70 @@ static int get_prpsinfo(int pid, struct core_proc *cp)
+ 	return add_note("CORE", NT_PRPSINFO, sizeof(prps), &prps, cp);
  }
  
-+/* Handles a SIGCHILD */
-+void sigchild_handler(int sig)
++/* Populate auxillary vector */
++static int get_auxv(int pid, struct core_proc *cp)
 +{
-+	int pid;
++	unsigned char buff[PAGESIZE];
++	char filename[40];
++	int ret, fd, pages;
++	unsigned char *ptr, *auxv;
++	unsigned int auxv_size;
 +
-+	pid = waitpid(0, &status, WNOHANG);
++	snprintf(filename, 40, "/proc/%d/auxv", pid);
 +
-+	gencore_log("[%d]: Request handled by child with PID:%d and exited.\n",
-+				pid_log, pid);
-+}
-+
-+/* Sends message to client */
-+int send_reply(int err)
-+{
-+	if (write(new_sock, &err , sizeof(err)) == -1) {
-+		gencore_log("[%d]: Could not send message:%s\n",
-+					pid_log, strerror(errno));
++	fd = open(filename, O_RDONLY);
++	if (fd < 0) {
++		status = errno;
++		gencore_log("Failure while fetching auxv data from %s.\n",
++								filename);
 +		return -1;
 +	}
 +
-+	gencore_log("[%d]: Message sent:%d\n", pid_log, err);
-+
-+	return 0;
-+}
-+
-+/* Receive message from client */
-+int receive_core_filename(char *core_file)
-+{
-+	memset(core_file, 0, CORE_FILE_NAME_SZ);
-+	if (read(new_sock, core_file , CORE_FILE_NAME_SZ) == -1) {
-+		send_reply(errno);
-+		gencore_log("[%d]: Could not get Core file name:%s\n",
-+					pid_log, strerror(errno));
++	auxv = malloc(PAGESIZE);
++	if (!auxv) {
++		status = errno;
++		gencore_log("Could not allocate memory for the auxv_buffer.\n");
++		close(fd);
++		return -1;
++	}
++	/* Position to copy the auxv data */
++	ptr = auxv;
++	pages = 1;
++	/*
++	 * We read the auxv data page by page and also we don't not
++	 * know the size of auxv, hence we read till ret becomes
++	 * lesser than PAGESIZE.
++	 */
++	while ((ret = read(fd, buff, PAGESIZE)) > 0) {
++		memcpy(ptr, buff, ret);
++		if (ret < PAGESIZE)   /* Finished reading */
++			break;
++		else {
++			/* We have more data to read */
++			pages++;
++			auxv = realloc(auxv, pages * PAGESIZE);
++			ptr = auxv + ((pages - 1) * PAGESIZE);
++		}
++	}
++	if (ret >= 0)
++		auxv_size = ((pages - 1) * PAGESIZE) + ret;
++	else {
++		status = errno;
++		gencore_log("Failure while fetching auxv data from %s.\n", filename);
++		close(fd);
++		free(auxv);
 +		return -1;
 +	}
 +
-+	gencore_log("[%d]: Core file path received:%s\n", pid_log,
-+						core_file);
-+	/* Sending the acknowledgment */
-+	send_reply(0);
++	/* Adding AUXV */
++	ret = add_note("CORE", NT_AUXV, auxv_size, auxv, cp);
 +
-+	return 0;
++	close(fd);
++	free(auxv);
++
++	return ret;
 +}
 +
-+/* Services requests */
-+int service_request(void)
-+{
-+	int ret;
-+	char core_file[CORE_FILE_NAME_SZ];
-+
-+	/* Receive the message */
-+	ret = receive_core_filename(core_file);
-+	if (ret)
-+		goto cleanup;
-+
-+cleanup:
-+	close(new_sock);
-+	if (ret == -1)
-+		exit(EXIT_FAILURE);
-+
-+	exit(EXIT_SUCCESS);
-+}
-+
-+/* Handles new requests */
-+int handle_request(void)
-+{
-+	int pid_new;
-+	struct sockaddr_un client_address;
-+	socklen_t client_size = sizeof(client_address);
-+
-+	new_sock = accept(socket_fd, (struct sockaddr *) &client_address,
-+							&client_size);
-+	if (new_sock < 0) {
-+		gencore_log("[%d]: Could not accept:%s\n", pid_log,
-+							strerror(errno));
-+		close(socket_fd);
-+		fclose(fp_log);
-+		return -1;
-+	}
-+
-+	gencore_log("[%d]: Accepted.\n", pid_log);
-+
-+	gencore_log("[%d]: Handling request.\n", pid_log);
-+
-+	/* New thread to service request */
-+	pid_new = fork();
-+	if (pid_new == 0) {
-+		pid_log = getpid();
-+		service_request();
-+	}
-+
-+	return 0;
-+}
-+
- /* Daemon for self dump */
- int daemon_dump(void)
+ int do_elf_coredump(int pid, struct core_proc *cp)
  {
-@@ -418,6 +517,9 @@ int daemon_dump(void)
- 	/* Flush the log */
- 	fflush(fp_log);
+ 	int ret;
+@@ -254,5 +322,10 @@ int do_elf_coredump(int pid, struct core_proc *cp)
+ 	if (ret)
+ 		return -1;
  
-+	/* SIGCHILD - Signal handler */
-+	signal(SIGCHLD, sigchild_handler);
++	/* Get Auxillary Vector */
++	ret = get_auxv(pid, cp);
++	if (ret)
++		return -1;
 +
- 	while (1) {
- 
- 		/* Blocks on request */
-@@ -427,6 +529,14 @@ int daemon_dump(void)
- 
- 		/* Flush the log */
- 		fflush(fp_log);
-+
-+		/* Handle new connections */
-+		ret = handle_request();
-+		if (ret)
-+			goto cleanup;
-+
-+		/* Flush the log */
-+		fflush(fp_log);
- 	}
- 
  	return 0;
+ }
 
