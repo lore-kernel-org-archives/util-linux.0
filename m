@@ -1,279 +1,196 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f177.google.com ([209.85.214.177]:42283 "EHLO
-	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751130AbaCHRCN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Mar 2014 12:02:13 -0500
-Received: by mail-ob0-f177.google.com with SMTP id wo20so5216066obc.22
-        for <util-linux@vger.kernel.org>; Sat, 08 Mar 2014 09:02:13 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/5] build-sys: sort gitignore files
-Date: Sat,  8 Mar 2014 11:01:55 -0600
-Message-Id: <1394298117-16531-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
-References: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+Received: from e28smtp08.in.ibm.com ([122.248.162.8]:46544 "EHLO
+	e28smtp08.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757281AbaCTJj2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:39:28 -0400
+Received: from /spool/local
+	by e28smtp08.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
+	Thu, 20 Mar 2014 15:09:25 +0530
+Subject: [PATCH 02/33] Validity of arguments
+To: linux-kernel@vger.kernel.org
+From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
+        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
+        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
+        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
+        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
+        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
+        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
+        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
+        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
+        tj@kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org
+Date: Thu, 20 Mar 2014 15:09:20 +0530
+Message-ID: <20140320093920.14878.52834.stgit@localhost.localdomain>
+In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
+References: <20140320093040.14878.903.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Use 'LC_ALL=C sort -fu' order for all lists.
+The validity of the arguments passed to the program are checked. PID is a
+mandatory argument. The core file name is optional, if not specified the
+default file name is core.pid.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+If a self dump is requested then, the application is called with a --daemon
+option or the --socket option.
+
+If the SYSTEMD_SOCKET_OPTION is enabled, then the socket option will be fully
+functional. The system where the program is run needs to have sd-daemon.h. For
+this we need to have the correct version of systemd which has this socket
+option enabled.
+
+Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- .gitignore                  | 67 ++++++++++++++++++++++-----------------------
- libblkid/docs/.gitignore    | 16 +++++------
- libblkid/samples/.gitignore |  4 +--
- libmount/docs/.gitignore    | 16 +++++------
- po/.gitignore               | 24 ++++++++--------
- sys-utils/.gitignore        |  8 +++---
- 6 files changed, 67 insertions(+), 68 deletions(-)
+ Makefile.am     |    2 +
+ configure.ac    |    2 +
+ src/Makefile.am |    7 ++++
+ src/coredump.c  |  104 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 113 insertions(+), 2 deletions(-)
+ create mode 100644 src/Makefile.am
+ create mode 100644 src/coredump.c
 
-diff --git a/.gitignore b/.gitignore
-index 91b625f..bafe258 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -1,59 +1,58 @@
- #
- # generic stuff
- #
--*~
--*.[ao]
--*.static
--*.so
--*.lo
--*.la
--*.so.*
--*.pc
- *.gcda
- *.gcno
- *.gcov
-+*.la
-+*.lo
-+*.pc
- *.pyc
-+*.so
-+*.so.*
-+*.static
- *.vim
--Makefile
-+*.[ao]
-+*~
-+.clang_complete
-+.deps
-+.dirstamp
-+.libs
-+.tarball-version
-+.version
-+ABOUT-NLS
- aclocal.m4
- autom4te.cache
--stamp-h.in
--Makefile.in
--configure
-+compile
- config.cache
-+config.guess
- config.h
- config.h.in
- config.log
--config.guess
-+config.rpath
- config.status
- config.sub
--stamp-h
--stamp-h1
--update.log
--m4/*.m4
--aclocal.m4
--ABOUT-NLS
--config.rpath
--mkinstalldirs
--compile
-+config/ltmain.sh
-+config/test-driver
-+configure
-+cscope.out
- depcomp
--install-sh
- INSTALL
--missing
-+install-sh
- libtool
--cscope.out
-+m4/*.m4
-+Makefile
-+Makefile.in
-+missing
-+mkinstalldirs
-+stamp-h
-+stamp-h.in
-+stamp-h1
- tags
--.deps
--.libs
--.tarball-version
--.version
--.dirstamp
--.clang_complete
--config/ltmain.sh
--config/test-driver
- test-suite.log
- tests/run.sh.log
- tests/run.sh.trs
-+update.log
- 
- # libuuid depends on AX_TLS macro
- !m4/tls.m4
-@@ -70,6 +69,7 @@ tests/run.sh.trs
- #
- /addpart
- /agetty
-+/blkdiscard
- /blkid
- /blockdev
- /cal
-@@ -98,7 +98,6 @@ tests/run.sh.trs
- /fsck.minix
- /fsfreeze
- /fstrim
--/blkdiscard
- /getopt
- /hexdump
- /hwclock
-diff --git a/libblkid/docs/.gitignore b/libblkid/docs/.gitignore
-index e40d782..f91f93d 100644
---- a/libblkid/docs/.gitignore
-+++ b/libblkid/docs/.gitignore
-@@ -1,18 +1,18 @@
--*.args
--*.bak
--*.types
- *-decl-list.txt
- *-decl.txt
-+*-overrides.txt
-+*-undeclared.txt
-+*-undocumented.txt
-+*-unused.txt
-+*.args
-+*.bak
- *.hierarchy
--html/*
- *.interfaces
--*-overrides.txt
- *.prerequisites
- *.signals
- *.stamp
-+*.types
-+html/*
- tmpl/*
--*-undeclared.txt
--*-undocumented.txt
--*-unused.txt
- version.xml
- xml/*
-diff --git a/libblkid/samples/.gitignore b/libblkid/samples/.gitignore
-index 409e5cf..4efeb62 100644
---- a/libblkid/samples/.gitignore
-+++ b/libblkid/samples/.gitignore
-@@ -1,4 +1,4 @@
--topology
--partitions
- mkfs
-+partitions
- superblocks
-+topology
-diff --git a/libmount/docs/.gitignore b/libmount/docs/.gitignore
-index e40d782..f91f93d 100644
---- a/libmount/docs/.gitignore
-+++ b/libmount/docs/.gitignore
-@@ -1,18 +1,18 @@
--*.args
--*.bak
--*.types
- *-decl-list.txt
- *-decl.txt
-+*-overrides.txt
-+*-undeclared.txt
-+*-undocumented.txt
-+*-unused.txt
-+*.args
-+*.bak
- *.hierarchy
--html/*
- *.interfaces
--*-overrides.txt
- *.prerequisites
- *.signals
- *.stamp
-+*.types
-+html/*
- tmpl/*
--*-undeclared.txt
--*-undocumented.txt
--*-unused.txt
- version.xml
- xml/*
-diff --git a/po/.gitignore b/po/.gitignore
-index 8263386..432d9c1 100644
---- a/po/.gitignore
-+++ b/po/.gitignore
-@@ -1,16 +1,16 @@
--stamp-po
--remove-potcdate.sin
--remove-potcdate.sed
--quot.sed
--insert-header.sin
- *.gmo
--en@quot.header
--en@boldquot.header
- boldquot.sed
--Rules-quot
-+en@boldquot.header
-+en@quot.header
-+insert-header.sin
-+Makefile
-+Makefile.in
-+Makefile.in.in
-+Makevars.template
- POTFILES
- POTFILES.in
--Makevars.template
--Makefile.in.in
--Makefile.in
--Makefile
-+quot.sed
-+remove-potcdate.sed
-+remove-potcdate.sin
-+Rules-quot
-+stamp-po
-diff --git a/sys-utils/.gitignore b/sys-utils/.gitignore
-index 97e6e60..8d8737a 100644
---- a/sys-utils/.gitignore
-+++ b/sys-utils/.gitignore
-@@ -2,19 +2,19 @@ i386.8
- ia64.8
- linux32.8
- linux64.8
-+mips.8
- mips32.8
- mips64.8
--mips.8
-+parisc.8
- parisc32.8
- parisc64.8
--parisc.8
-+ppc.8
- ppc32.8
- ppc64.8
--ppc.8
- s390.8
- s390x.8
-+sparc.8
- sparc32.8
- sparc32bash.8
- sparc64.8
--sparc.8
- x86_64.8
--- 
-1.9.0
+diff --git a/Makefile.am b/Makefile.am
+index 2cc6dc7..dfa49b2 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,2 +1,2 @@
+ AUTOMAKE_OPTIONS = foreign
+-SUBDIRS =
++SUBDIRS = src
+diff --git a/configure.ac b/configure.ac
+index f34a0c3..8c785cd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4,4 +4,4 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+ AC_CONFIG_HEADERS([config.h])
+ AC_PROG_CC
+ AC_CONFIG_FILES(Makefile)
+-AC_OUTPUT()
++AC_OUTPUT(src/Makefile)
+diff --git a/src/Makefile.am b/src/Makefile.am
+new file mode 100644
+index 0000000..f7b25fa
+--- /dev/null
++++ b/src/Makefile.am
+@@ -0,0 +1,7 @@
++AUTOMAKE_OPTIONS = foreign
++HAVE_SYSTEMD_SOCKET_SUPPORT = 0
++CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)'
++
++bin_PROGRAMS = gencore
++gencore_SOURCES = coredump.c
++
+diff --git a/src/coredump.c b/src/coredump.c
+new file mode 100644
+index 0000000..7a7fe11
+--- /dev/null
++++ b/src/coredump.c
+@@ -0,0 +1,104 @@
++/*
++ * Initiates the core-dump
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Copyright (C) IBM Corporation, 2013, 2014
++ *
++ * Authors:
++ *      Janani Venkataraman <jananve@in.ibm.com>
++ *      Suzuki K. Poulose <suzuki@in.ibm.com>
++ */
++
++#include <stdarg.h>
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++
++/* For logging all the messages */
++FILE *fp_log;
++
++/* Logging messages */
++void gencore_log(char *fmt, ...)
++{
++	va_list argptr;
++	va_start(argptr, fmt);
++	vfprintf(fp_log, fmt, argptr);
++	va_end(argptr);
++}
++
++/* Performs the core dump */
++int do_coredump(int pid, char *core_file)
++{
++	return 0;
++}
++
++/* Daemon for self dump */
++int daemon_dump(void)
++{
++	return 0;
++}
++
++#if HAVE_SYSTEMD_SOCKET_SUPPORT
++/* Systemd socket for self dump */
++int socket_dump(void)
++{
++	return 0;
++}
++#endif
++
++int main(int argc, char *argv[])
++{
++	int ret;
++	int pid;
++	char core_file[15];
++
++	if (argc < 2 || argc > 3) {
++		fprintf(stderr, "Invalid number of arguments.\n\n");
++		fprintf(stderr, "Usage: %s pid [output-file-name]\n", argv[0]);
++		return -1;
++	}
++
++	if (strcmp(argv[1], "--daemon") == 0)
++		ret = daemon_dump();
++#if HAVE_SYSTEMD_SOCKET_SUPPORT
++	else if (strcmp(argv[1], "--socket") == 0) {
++		fp_log = stderr;
++		ret = socket_dump();
++	}
++#endif
++	else if (strcmp(argv[1], "--help") == 0) {
++		printf("Usage: %s pid [output-file-name]\n", argv[0]);
++		return -1;
++	} else {
++		fp_log = stderr;
++		pid = atoi(argv[1]);
++		if (pid == 0 && argv[1][0] != '0') {
++			fprintf(stderr, "Enter a valid PID.\n");
++			fprintf(stderr, "Usage: %s pid [output-file-name]\n", argv[0]);
++			return -1;
++		}
++		if (argc == 2) {
++			snprintf(core_file, 15, "core.%d", pid);
++			ret = do_coredump(pid, core_file);
++		} else
++			ret = do_coredump(pid, argv[2]);
++
++		if (ret == -1)
++			gencore_log("Failed to create core file.\n");
++	}
++
++	return ret;
++}
 
