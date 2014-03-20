@@ -1,13 +1,13 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp09.au.ibm.com ([202.81.31.142]:55641 "EHLO
-	e23smtp09.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932678AbaCTJmN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:42:13 -0400
+Received: from e28smtp01.in.ibm.com ([122.248.162.1]:40668 "EHLO
+	e28smtp01.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932187AbaCTJlm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:41:42 -0400
 Received: from /spool/local
-	by e23smtp09.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	by e28smtp01.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
 	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 19:42:12 +1000
-Subject: [PATCH 22/33] Dump the task
+	Thu, 20 Mar 2014 15:11:40 +0530
+Subject: [PATCH 18/33] Socket operations
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -21,8 +21,8 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:11:59 +0530
-Message-ID: <20140320094159.14878.9459.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:11:32 +0530
+Message-ID: <20140320094132.14878.87442.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
@@ -30,90 +30,167 @@ Content-Type: text/plain; charset="utf-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Now we have the PID and the absolute or relative path of the core. We now call
-the do_coredump function with the appropriate parameters.
+Creates a file socket using socket passing PF_UNIX, binds and then listens on
+the connection.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/coredump.c |   60 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
+ src/Makefile.am |    3 +-
+ src/coredump.c  |  110 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 112 insertions(+), 1 deletion(-)
 
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 90d8b25..b9b2e9b 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1,6 +1,7 @@
+ AUTOMAKE_OPTIONS = foreign
+ HAVE_SYSTEMD_SOCKET_SUPPORT = 0
+-CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)'
++SOCKET_PATH = /var/run/gencored.socket
++CFLAGS += -I. -DHAVE_SYSTEMD_SOCKET_SUPPORT='$(HAVE_SYSTEMD_SOCKET_SUPPORT)' -DSOCKET_PATH='"$(SOCKET_PATH)"'
+ 
+ bin_PROGRAMS = gencore
+ gencore_SOURCES = coredump.c proc.c elf32.c elf64.c
 diff --git a/src/coredump.c b/src/coredump.c
-index 599a912..72ba8d8 100755
+index 09fb8da..c992c66 100644
 --- a/src/coredump.c
 +++ b/src/coredump.c
-@@ -446,6 +446,61 @@ int get_client_pid(struct ucred *client_info)
- 	return 0;
+@@ -33,8 +33,15 @@
+ #include <syslog.h>
+ #include <signal.h>
+ #include <sys/ptrace.h>
++#include <sys/socket.h>
++#include <sys/un.h>
++#include <sys/types.h>
++#include <sys/stat.h>
+ #include <coredump.h>
+ 
++/* Main Socket */
++int socket_fd;
++
+ /* For logging all the messages */
+ FILE *fp_log;
+ 
+@@ -255,9 +262,98 @@ cleanup:
+ 	return ret;
  }
  
-+/* Dumps the client process */
-+int dump_task(struct ucred *client_info, char *core_file)
++/* Creating a Unix socket */
++int create_socket(void)
 +{
-+
-+	char filename[40], cwd[CORE_FILE_NAME_SZ], corefile[CORE_FILE_NAME_SZ];
-+	memset(filename, 0, 40);
-+	memset(cwd, 0, CORE_FILE_NAME_SZ);
-+	memset(corefile, 0, CORE_FILE_NAME_SZ);
-+
-+	if (setgid(client_info->gid)) {
-+		send_reply(errno);
-+		gencore_log("[%d]: Could not change GID:%s\n",
-+				pid_log, strerror(errno));
++	socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
++	if (socket_fd < 0) {
++		gencore_log("[%d]: Could not create a socket:%s.\n",
++					pid_log, strerror(errno));
 +		return -1;
 +	}
 +
-+	if (setuid(client_info->uid)) {
-+		send_reply(errno);
-+		gencore_log("[%d]: Could not change UID:%s\n",
-+				pid_log, strerror(errno));
-+		return -1;
-+	}
-+
-+	/* Checking if UID was changed */
-+	if (geteuid() != client_info->uid) {
-+		send_reply(errno);
-+		gencore_log("[%d]: Could not change UID:%s\n",
-+				pid_log, strerror(errno));
-+		return -1;
-+	}
-+
-+	/* Converting the path to absolute path */
-+	if (core_file[0] != '/') {
-+		snprintf(filename, 40, "/proc/%d/cwd", client_info->pid);
-+		readlink(filename, cwd, CORE_FILE_NAME_SZ);
-+		snprintf(corefile, CORE_FILE_NAME_SZ, "%s/%s", cwd, core_file);
-+	} else
-+		strcpy(corefile, core_file);
-+
-+	if (do_coredump(client_info->pid, (char *)corefile)) {
-+		send_reply(errno);
-+		gencore_log("[%d]: Could not create core file %s.\n",
-+						pid_log, corefile);
-+		fflush(fp_log);
-+		return -1;
-+	}
-+
-+	gencore_log("[%d]: Core file %s created.\n", pid_log,
-+							corefile);
-+
-+	send_reply(0);
++	gencore_log("[%d]: Created socket.\n", pid_log);
 +
 +	return 0;
 +}
 +
- /* Services requests */
- int service_request(void)
++/* Binding the socket to a address */
++int bind_socket(void)
++{
++	struct sockaddr_un address;
++	struct stat buffer;
++	if (stat(SOCKET_PATH, &buffer) == 0)
++		unlink(SOCKET_PATH);
++
++	memset(&address, 0, sizeof(struct sockaddr_un));
++
++	address.sun_family = PF_FILE;
++	strcpy(address.sun_path, SOCKET_PATH);
++
++	if (bind(socket_fd, (struct sockaddr *) &address,
++			sizeof(struct sockaddr_un)) != 0) {
++		gencore_log("[%d]: Could not bind:%s.\n", pid_log,
++							strerror(errno));
++		close(socket_fd);
++		return -1;
++	}
++
++	if (chmod(SOCKET_PATH, S_IROTH | S_IWOTH
++						| S_IRUSR | S_IWUSR)) {
++		gencore_log("[%d]: Could not change permissions of socket:%s.\n",
++						pid_log, strerror(errno));
++		close(socket_fd);
++		return -1;
++	}
++
++	gencore_log("[%d]: Bind done.\n", pid_log);
++
++	return 0;
++}
++
++/* Listen for connections */
++int listen_conn(void)
++{
++	if (listen(socket_fd, 5) != 0) {
++		gencore_log("[%d]: Could not listen:%s.\n", pid_log,
++							strerror(errno));
++		close(socket_fd);
++		return -1;
++	}
++
++	gencore_log("[%d]: Listening.\n", pid_log);
++
++	return 0;
++}
++
++/* Setting up server */
++int setup_server(void)
++{
++	int ret;
++
++	/* Create Socket */
++	ret = create_socket();
++	if (ret)
++		return -1;
++
++	/* Bind Socket */
++	ret = bind_socket();
++	if (ret)
++		return -1;
++
++	/* Listen for connections */
++	ret = listen_conn();
++	if (ret)
++		return -1;
++
++	return 0;
++}
++
+ /* Daemon for self dump */
+ int daemon_dump(void)
  {
-@@ -463,6 +518,11 @@ int service_request(void)
- 	if (ret)
- 		goto cleanup;
++	int ret;
++
+ 	/* Check if daemon is running as root */
+ 	if (geteuid()) {
+ 		fprintf(stderr, "Run the daemon as root.\n");
+@@ -282,7 +378,21 @@ int daemon_dump(void)
+ 		return -1;
+ 	}
  
-+	/* Dump process */
-+	ret = dump_task(&client_info, core_file);
++	/* Setting up server */
++	ret = setup_server();
 +	if (ret)
 +		goto cleanup;
 +
- cleanup:
- 	close(new_sock);
- 	if (ret == -1)
++	/* Flush the log */
++	fflush(fp_log);
++
++cleanup:
++
+ 	fclose(fp_log);
++
++	if (ret == -1)
++		return -1;
++
+ 	return 0;
+ }
+ 
 
