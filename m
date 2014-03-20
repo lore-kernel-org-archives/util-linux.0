@@ -1,13 +1,5 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp08.au.ibm.com ([202.81.31.141]:39962 "EHLO
-	e23smtp08.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757017AbaCTJoK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:44:10 -0400
-Received: from /spool/local
-	by e23smtp08.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 19:44:08 +1000
-Subject: [PATCH 32/33] Socket and Service files.
+Return-Path: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 23/33] Handling SIG TERM of the daemon
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -21,156 +13,55 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:13:55 +0530
-Message-ID: <20140320094355.14878.93423.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:12:10 +0530
+Message-ID: <20140320094210.14878.75209.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Sender: util-linux-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The socket and service files for systemd are created.
+We handle SIGTERM on the daemon, by closing the socket opened for that
+connection.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- Makefile.am      |   15 +++++++++++++++
- configure.ac     |    1 +
- gencore.service  |    9 +++++++++
- gencore.socket   |   10 ++++++++++
- gencore.spec.in  |   21 +++++++++++++++++++++
- gencore@.service |    9 +++++++++
- 6 files changed, 65 insertions(+)
- create mode 100644 gencore.service
- create mode 100644 gencore.socket
- create mode 100644 gencore@.service
+ src/coredump.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/Makefile.am b/Makefile.am
-index 30e86f5..4c6c269 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -3,5 +3,20 @@ SUBDIRS = src doc
+diff --git a/src/coredump.c b/src/coredump.c
+index 72ba8d8..c0da457 100755
+--- a/src/coredump.c
++++ b/src/coredump.c
+@@ -562,6 +562,17 @@ int handle_request(void)
+ 	return 0;
+ }
  
- EXTRA_DIST = src/coredump.h src/elf.c src/elf-compat.h doc/gencore.1 doc/gencore.3 Changelog COPYING.LIBGENCORE
++/* Handles Signals to the Daemon */
++void sig_daemon_handler(int sig)
++{
++	close(socket_fd);
++	unlink(SOCKET_PATH);
++
++	gencore_log("[%d]: Cleanup done and daemon exiting.\n", pid_log);
++
++	fclose(fp_log);
++}
++
+ /* Daemon for self dump */
+ int daemon_dump(void)
+ {
+@@ -602,6 +613,11 @@ int daemon_dump(void)
+ 	/* SIGCHILD - Signal handler */
+ 	signal(SIGCHLD, sigchild_handler);
  
-+if HAVE_SYSTEMD_SOCKET_SUPPORT 
-+EXTRA_DIST += gencore.socket gencore@.service
-+else
-+EXTRA_DIST += gencore.service
-+endif
++	/* Terminate Daemon - signal handler */
++	signal(SIGTERM, sig_daemon_handler);
++	signal(SIGSEGV, sig_daemon_handler);
++	signal(SIGPIPE, sig_daemon_handler);
 +
- pkgconfigdir = $(libdir)/pkgconfig
- pkgconfig_DATA = libgencore.pc
-+
-+systemddir = /usr/lib/systemd
-+systemdir = /usr/lib/systemd/system
-+
-+if HAVE_SYSTEMD_SOCKET_SUPPORT
-+system_DATA = gencore@.service gencore.socket
-+else
-+system_DATA = gencore.service
-+endif
-diff --git a/configure.ac b/configure.ac
-index 6245ae1..39d7902 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -4,4 +4,5 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
- AC_CONFIG_HEADERS([config.h])
- AC_PROG_CC
- AC_CONFIG_FILES(Makefile gencore.spec libgencore.pc)
-+AM_CONDITIONAL(HAVE_SYSTEMD_SOCKET_SUPPORT, test "have_systemd_socket_support" = false)
- AC_OUTPUT(src/Makefile doc/Makefile)
-diff --git a/gencore.service b/gencore.service
-new file mode 100644
-index 0000000..79220ff
---- /dev/null
-+++ b/gencore.service
-@@ -0,0 +1,9 @@
-+[Unit]
-+Description=Gencore service
-+
-+[Service]
-+Type=forking
-+ExecStart=/usr/bin/gencore --daemon
-+
-+[Install]
-+WantedBy=multi-user.target
-diff --git a/gencore.socket b/gencore.socket
-new file mode 100644
-index 0000000..b9afce8
---- /dev/null
-+++ b/gencore.socket
-@@ -0,0 +1,10 @@
-+[Unit]
-+Description=Gencore socket
-+
-+[Socket]
-+ListenStream=/var/run/gencored.socket
-+Accept=true
-+
-+[Install]
-+WantedBy=socket.target
-+
-diff --git a/gencore.spec.in b/gencore.spec.in
-index 58c699e..3937edb 100644
---- a/gencore.spec.in
-+++ b/gencore.spec.in
-@@ -1,3 +1,5 @@
-+%define HAVE_SYSTEMD_SOCKET_SUPPORT 0
-+
- Name: gencore
- Version: @VERSION@
- Release: 0
-@@ -39,10 +41,19 @@ make
- %install
- make DESTDIR=$RPM_BUILD_ROOT install
+ 	while (1) {
  
-+%preun
-+systemctl stop gencore.service
-+
- %files
- %doc README COPYING Changelog
- %{_bindir}/gencore
- %{_mandir}/man1/gencore.1*
-+%if %HAVE_SYSTEMD_SOCKET_SUPPORT
-+%{_unitdir}/gencore@.service
-+%{_unitdir}/gencore.socket
-+%else
-+%{_unitdir}/gencore.service
-+%endif
- 
- %files -n libgencore
- %doc COPYING.LIBGENCORE
-@@ -56,6 +67,16 @@ make DESTDIR=$RPM_BUILD_ROOT install
- %{_libdir}/libgencore.la
- %{_libdir}/pkgconfig/libgencore.pc
- 
-+%post
-+systemctl --system daemon-reload
-+%if %HAVE_SYSTEMD_SOCKET_SUPPORT
-+systemctl enable gencore.socket
-+systemctl start gencore.socket 
-+%else
-+systemctl enable gencore.service
-+systemctl start gencore.service 
-+%endif
-+
- %post -n libgencore
- ldconfig -n %{_libdir}/libgencore.so.*
- 
-diff --git a/gencore@.service b/gencore@.service
-new file mode 100644
-index 0000000..4dcfb1c
---- /dev/null
-+++ b/gencore@.service
-@@ -0,0 +1,9 @@
-+[Unit]
-+Description=Gencore service
-+
-+[Service]
-+Type=forking
-+ExecStart=/usr/bin/gencore --socket
-+
-+[Install]
-+WantedBy=multi-user.target
+ 		/* Blocks on request */
 
