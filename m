@@ -1,13 +1,5 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp04.in.ibm.com ([122.248.162.4]:54639 "EHLO
-	e28smtp04.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758056AbaCTJlZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Mar 2014 05:41:25 -0400
-Received: from /spool/local
-	by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 20 Mar 2014 15:11:23 +0530
-Subject: [PATCH 15/33] Updating Offset
+Return-Path: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 21/33] Get Clients PID
 To: linux-kernel@vger.kernel.org
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
@@ -21,101 +13,72 @@ Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
         eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
         tj@kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:11:17 +0530
-Message-ID: <20140320094117.14878.54577.stgit@localhost.localdomain>
+Date: Thu, 20 Mar 2014 15:11:48 +0530
+Message-ID: <20140320094148.14878.73813.stgit@localhost.localdomain>
 In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
 References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Sender: util-linux-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Updating offset throughout keeping in mind that they need to be PAGE ALIGNED.
+Get the Clients PID using getsockopt. This is done for security reasons. So
+that we dont get any malicious dump requests.
 
 Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
 ---
- src/elf.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 49 insertions(+), 1 deletion(-)
+ src/coredump.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/src/elf.c b/src/elf.c
-index a5a1feb..a101ddf 100644
---- a/src/elf.c
-+++ b/src/elf.c
-@@ -39,6 +39,8 @@
+diff --git a/src/coredump.c b/src/coredump.c
+index fadb7cd..599a912 100755
+--- a/src/coredump.c
++++ b/src/coredump.c
+@@ -22,6 +22,7 @@
+  *      Suzuki K. Poulose <suzuki@in.ibm.com>
+  */
  
- #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
- 
-+#define ALIGN(addr, pagesize) (((addr) + (pagesize) - 1) & ~(pagesize - 1))
-+
- /* Default alignment for program headers */
- #ifndef ELF_EXEC_PAGESIZE
- #define ELF_EXEC_PAGESIZE PAGESIZE
-@@ -617,7 +619,6 @@ static int get_phdrs(int pid, struct core_proc *cp)
- 	cp_phdrs[0].p_offset = 0;
- 	cp_phdrs[0].p_vaddr = 0;
- 	cp_phdrs[0].p_paddr = 0;
--	/* Will fill the size after filling notes */
- 	cp_phdrs[0].p_filesz = 0;
- 	cp_phdrs[0].p_memsz = 0;
- 
-@@ -671,6 +672,50 @@ static int get_phdrs(int pid, struct core_proc *cp)
++#define _GNU_SOURCE
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -430,17 +431,38 @@ int receive_core_filename(char *core_file)
  	return 0;
  }
  
-+/* Updating the Offset */
-+static void update_offset(struct core_proc *cp)
++/* Get client details */
++int get_client_pid(struct ucred *client_info)
 +{
-+	Elf_Long data_offset = 0;
-+	struct mem_note *note = cp->notes;
-+	int i;
-+	Elf_Phdr *cp_phdrs;
-+	Elf_Ehdr *cp_elf;
-+
-+	cp_elf = (Elf_Ehdr *)cp->elf_hdr;
-+	cp_phdrs = (Elf_Phdr *)cp->phdrs;
-+
-+	/* ELF HEADER */
-+	data_offset += sizeof(Elf_Ehdr);
-+
-+	/* Program Headers */
-+	data_offset += cp->phdrs_count * sizeof(Elf_Phdr);
-+
-+	/* Notes */
-+	cp_phdrs[0].p_offset = data_offset;
-+
-+	/* Calucalating entire NOTES size */
-+	while (note) {
-+		data_offset += note->size;
-+		note = note->next;
++	socklen_t len = sizeof(struct ucred);
++	if (getsockopt(new_sock, SOL_SOCKET, SO_PEERCRED,
++				client_info, &len)) {
++		send_reply(errno);
++		gencore_log("[%d]: Can't get credentials of the client:%s\n",
++				pid_log, strerror(errno));
++		return -1;
 +	}
 +
-+	/* Filling PT_NOTE size */
-+	cp_phdrs[0].p_filesz = data_offset - cp_phdrs[0].p_offset;
-+
-+	data_offset = ALIGN(data_offset, ELF_EXEC_PAGESIZE);
-+
-+	/* Populating offsets of Program Headers */
-+	for (i = 1; i < cp->phdrs_count; i++) {
-+		cp_phdrs[i].p_offset = data_offset;
-+		data_offset += cp_phdrs[i].p_filesz;
-+		data_offset = ALIGN(data_offset, ELF_EXEC_PAGESIZE);
-+	}
-+
-+	/* Filling extra program header offset if phnum > PN_XNUM */
-+	if (cp->phdrs_count > PN_XNUM)
-+		cp_elf->e_shoff = data_offset;
++	return 0;
 +}
 +
- int do_elf_coredump(int pid, struct core_proc *cp)
+ /* Services requests */
+ int service_request(void)
  {
- 	int ret, i;
-@@ -705,5 +750,8 @@ int do_elf_coredump(int pid, struct core_proc *cp)
- 	if (ret)
- 		return -1;
+ 	int ret;
+ 	char core_file[CORE_FILE_NAME_SZ];
++	struct ucred client_info;
  
-+	/* Updating offset */
-+	update_offset(cp);
+ 	/* Receive the message */
+ 	ret = receive_core_filename(core_file);
+ 	if (ret)
+ 		goto cleanup;
+ 
++	/* Fetch client PID */
++	ret = get_client_pid(&client_info);
++	if (ret)
++		goto cleanup;
 +
- 	return 0;
- }
+ cleanup:
+ 	close(new_sock);
+ 	if (ret == -1)
 
