@@ -1,42 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:61453 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:36370 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754330AbaCCVr2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 3 Mar 2014 16:47:28 -0500
-Message-ID: <5314F86E.9010205@ubuntu.com>
-Date: Mon, 03 Mar 2014 16:47:26 -0500
+	with ESMTP id S1751488AbaCUPDC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Mar 2014 11:03:02 -0400
+Message-ID: <532C54A3.3030903@ubuntu.com>
+Date: Fri, 21 Mar 2014 11:02:59 -0400
 From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: =?UTF-8?B?TWFjaWVqIE1hxYJlY2tp?= <me@mmalecki.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] fdisk: warn if opening a device in write mode failed
-References: <1393471600-17777-1-git-send-email-me@mmalecki.com>	<1393554731.2899.15.camel@buesod1.americas.hpqcorp.net>	<CAKC8-7xwz+SZ_TPYx8EbzRbqqErHkaVJ=rOJRG+gvJnu9zdzyQ@mail.gmail.com>	<5310B80C.7000205@ubuntu.com>	<1393612047.2899.31.camel@buesod1.americas.hpqcorp.net>	<5310E100.5020405@ubuntu.com>	<20140303090438.GB2783@x2.net.home> <CAKC8-7yzVUYCkO3L+omT3fsQ3q-Tj-VJkeu77LcR+ie6tJ0kog@mail.gmail.com>
-In-Reply-To: <CAKC8-7yzVUYCkO3L+omT3fsQ3q-Tj-VJkeu77LcR+ie6tJ0kog@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+To: Karel Zak <kzak@redhat.com>,
+        Janani Venkataraman <jananive@linux.vnet.ibm.com>
+CC: linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/33] [RFC] Non disruptive application core dump infrastructure
+References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140321080855.GE26374@x2.net.home>
+In-Reply-To: <20140321080855.GE26374@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 3/3/2014 4:19 PM, Maciej Małecki wrote:
-> I just sent out fixed patches, but for some reason they went to
-> the main list (I think I needed `git send-email --thread`). Sorry
-> for that.
+On 3/21/2014 4:17 AM, Karel Zak wrote:
+> The gencore command looks like a good idea, but why we need the 
+> client-server infrastructure? At least at first glance it seems 
+> like overkill.
 
-You want --in-reply-to and then you need to look up the Message-ID in
-the headers of the mail you want to reply to.
+Yes, the server seems pointless.
+
+>> We would like to push this to one of the following packages: a)
+>> util-linux b) coreutils c) procps-ng
+> 
+> d) somewhere near to gdb :-)
+
+gdb already has such a thing; it's called gcore.  Kind of makes this
+work seem redundant?
 
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.17 (MingW32)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQEcBAEBAgAGBQJTFPhuAAoJEI5FoCIzSKrwKqMIAI+ojKYXo/XGOnGf381PixCT
-uMKDm1tcuWMrAkGQgJmKqqADIXqWyj15uiXu3P/d7eMEWEBgfEQjt0fwAzN6HWXg
-CuO9vN2nJQhKh2iq7J+J5LPd7277dDN6QfZcu702OWA+FJlawNSrEejNUsONifNB
-+ieQuh0e7b2LzPZmDhPJJVA+kD7vMYh0CGdVL4qgujP08EzN3DlS2lOg4s2TMBrQ
-LeJPXAi65LahwBHCx08rJk5ub0rY+Zz3qlx7lus+AgW1xVKsqH7EJdiquR71OfhI
-pAVAR71r/Xg7xOi1mD0KvsoM/tBk5Viu93ubnKCYpZJtcBjHCpgAOTHPLgjz4O4=
-=HE/O
+iQEcBAEBAgAGBQJTLFSjAAoJEI5FoCIzSKrwuTIH/jGtc3dB1WKgtDSE2wtXXHO0
+0WxhWDbVkpJ0Q+tkG/tjw4wudYtEJ+XAHsCIK3vH7OMX7i4PMOLDgjT/FyxTPrWl
+W+eUCazi4vRPNGscii5mRFlsthgEd2pofotlx5UB7Br9D05/QZqErtEMJMqD935V
+94wlvJSvJI0n3hfAUgcM8apxTgxYr/TIPEQPfqLem3xTZIw3lTRic613Qji2Kwif
+l+kqs0WLy/AHEwBLRrXDQahnv5n2IhOVUn3KDwm9Su56rbrmAF7LAvK0+uxRyoQk
+IVC5h8BdBQ4QMYl7KYYEPy+n+0Qbe1EQ4tLmYvaEBwXP5c0QDGX0M5VUkko+eGI=
+=zFoW
 -----END PGP SIGNATURE-----
