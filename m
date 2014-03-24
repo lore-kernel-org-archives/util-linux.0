@@ -1,121 +1,57 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Subject: [PATCH 06/33] Check ELF class
-To: linux-kernel@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from e28smtp04.in.ibm.com ([122.248.162.4]:33946 "EHLO
+	e28smtp04.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752221AbaCXJnd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Mar 2014 05:43:33 -0400
+Received: from /spool/local
+	by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
+	Mon, 24 Mar 2014 15:13:30 +0530
+Message-ID: <532FFE3A.9060002@linux.vnet.ibm.com>
+Date: Mon, 24 Mar 2014 15:13:22 +0530
 From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-Cc: amwang@redhat.com, procps@freelists.org, rdunlap@xenotime.net,
-        james.hogan@imgtec.com, aravinda@linux.vnet.ibm.com, hch@lst.de,
-        mhiramat@redhat.com, jeremy.fitzhardinge@citrix.com,
-        xemul@parallels.com, d.hatayama@jp.fujitsu.com, coreutils@gnu.org,
-        kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
-        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
-        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
-        tj@kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org
-Date: Thu, 20 Mar 2014 15:09:47 +0530
-Message-ID: <20140320093947.14878.48540.stgit@localhost.localdomain>
-In-Reply-To: <20140320093040.14878.903.stgit@localhost.localdomain>
-References: <20140320093040.14878.903.stgit@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Sender: linux-kernel-owner@vger.kernel.org
+To: Phillip Susi <psusi@ubuntu.com>, Karel Zak <kzak@redhat.com>
+CC: amwang@redhat.com, rdunlap@xenotime.net, andi@firstfloor.org,
+        aravinda@linux.vnet.ibm.com, hch@lst.de, mhiramat@redhat.com,
+        jeremy.fitzhardinge@citrix.com, xemul@parallels.com,
+        suzuki@linux.vnet.ibm.com, kosaki.motohiro@jp.fujitsu.com,
+        adobriyan@gmail.com, tarundsk@linux.vnet.ibm.com, vapier@gentoo.org,
+        roland@hack.frob.com, tj@kernel.org, ananth@linux.vnet.ibm.com,
+        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
+        eparis@redhat.com, d.hatayama@jp.fujitsu.com, james.hogan@imgtec.com,
+        akpm@linux-foundation.org, torvalds@linux-foundation.org,
+        coreutils@gnu.org, procps@freelists.org, util-linux@vger.kernel.org,
+        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/33] [RFC] Non disruptive application core dump infrastructure
+References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140321080855.GE26374@x2.net.home> <532C54A3.3030903@ubuntu.com>
+In-Reply-To: <532C54A3.3030903@ubuntu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The process to be dumped can be either a 32bit application or a 64 bit
-application. We first need to check this and proceed with the dump accordingly.
 
-Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
----
- src/coredump.c |    5 +++++
- src/coredump.h |    1 +
- src/proc.c     |   45 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 51 insertions(+)
+On 03/21/2014 08:32 PM, Phillip Susi wrote:
+> On 3/21/2014 4:17 AM, Karel Zak wrote:
+>> The gencore command looks like a good idea, but why we need the
+>> client-server infrastructure? At least at first glance it seems
+>> like overkill.
+> Yes, the server seems pointless.
+>
+>>> We would like to push this to one of the following packages: a)
+>>> util-linux b) coreutils c) procps-ng
+>> d) somewhere near to gdb :-)
+> gdb already has such a thing; it's called gcore.  Kind of makes this
+> work seem redundant?
 
-diff --git a/src/coredump.c b/src/coredump.c
-index 7a559e2..f9c7176 100644
---- a/src/coredump.c
-+++ b/src/coredump.c
-@@ -188,6 +188,11 @@ int do_coredump(int pid, char *core_file)
- 	if (ret)
- 		goto cleanup;
- 
-+	/* Compat Support */
-+	cp.elf_class = ret = get_elf_class(pid, &cp);
-+	if (ret == -1)
-+		goto cleanup;
-+
- cleanup:
- 
- 	/* Release the threads */
-diff --git a/src/coredump.h b/src/coredump.h
-index 291e13b..25042f5 100644
---- a/src/coredump.h
-+++ b/src/coredump.h
-@@ -31,4 +31,5 @@ struct core_proc {
- 	int *t_id;			/* Threads_ids of all the threads */
- 	struct maps *vmas;		/* VMAs */
- 	int phdrs_count;		/* Number of Program headers */
-+	int elf_class;			/* Elf class of the process */
- };
-diff --git a/src/proc.c b/src/proc.c
-index a401aa5..3a4a387 100644
---- a/src/proc.c
-+++ b/src/proc.c
-@@ -27,6 +27,7 @@
- #include <stdlib.h>
- #include <string.h>
- #include <coredump.h>
-+#include <elf.h>
- 
- /* Get Process Stats */
- int get_pid_stat(int pid, struct pid_stat *ps)
-@@ -231,3 +232,47 @@ int get_vmas(int pid, struct core_proc *cp)
- 	fclose(fin);
- 	return 0;
- }
-+
-+/* Check if its ELF */
-+int check_elf_hdr(unsigned char *elf_ident)
-+{
-+	if (memcmp(elf_ident, ELFMAG, SELFMAG) != 0)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+/* Get ELF Class */
-+int get_elf_class(int pid, struct core_proc *cp)
-+{
-+	FILE *fin;
-+	unsigned char elf_magic[EI_NIDENT];
-+	char filename[40];
-+	int ret;
-+
-+	snprintf(filename, 40, "/proc/%d/exe", pid);
-+	fin = fopen(filename, "r");
-+	if (fin == NULL) {
-+		status = errno;
-+		gencore_log("Failure while fetching the ELF header of the executable from %s.\n", filename);
-+		return -1;
-+	}
-+
-+	ret = fread(elf_magic, EI_NIDENT, 1, fin);
-+	if (ret != 1) {
-+		status = errno;
-+		gencore_log("Failure while fetching the ELF header of the executable from %s.\n", filename);
-+		fclose(fin);
-+		return -1;
-+	}
-+
-+	if (check_elf_hdr(elf_magic)) {
-+		status = EINVAL;
-+		gencore_log("Process to be dumped is not an ELF.\n");
-+		return -1;
-+	}
-+
-+	fclose(fin);
-+
-+	return elf_magic[EI_CLASS];
-+}
+Gcore attaches to the process using gdb and runs the gdb gcore command
+and then detaches. In gcore the dump cannot be issued from a signal handler
+context as fork() is not signal safe and moreover it is disruptive in nature as the
+gdb attaches using ptrace which sends a SIGSTOP signal. Hence the gcore method
+cannot be used if the process wants to initiate a self dump as well.
+The following link points to a discussion regarding why not gcore.
+
+https://lkml.org/lkml/2013/9/3/122
+
+>
 
