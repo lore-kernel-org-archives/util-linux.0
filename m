@@ -1,62 +1,109 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f42.google.com ([209.85.219.42]:62813 "EHLO
-	mail-oa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751096AbaCHVng (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Mar 2014 16:43:36 -0500
-Received: by mail-oa0-f42.google.com with SMTP id i4so5653216oah.29
-        for <util-linux@vger.kernel.org>; Sat, 08 Mar 2014 13:43:36 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/5] mcookie: use same variable type consistently
-Date: Sat,  8 Mar 2014 15:43:28 -0600
-Message-Id: <1394315010-22481-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1394315010-22481-1-git-send-email-kerolasa@iki.fi>
-References: <1394315010-22481-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Message-ID: <533128F8.7030102@linux.vnet.ibm.com>
+Date: Tue, 25 Mar 2014 12:28:00 +0530
+From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+MIME-Version: 1.0
+To: Pavel Emelyanov <xemul@parallels.com>
+CC: linux-kernel@vger.kernel.org, amwang@redhat.com, procps@freelists.org,
+        rdunlap@xenotime.net, james.hogan@imgtec.com,
+        aravinda@linux.vnet.ibm.com, hch@lst.de, mhiramat@redhat.com,
+        jeremy.fitzhardinge@citrix.com, d.hatayama@jp.fujitsu.com,
+        coreutils@gnu.org, kosaki.motohiro@jp.fujitsu.com, adobriyan@gmail.com,
+        util-linux@vger.kernel.org, tarundsk@linux.vnet.ibm.com,
+        vapier@gentoo.org, roland@hack.frob.com, ananth@linux.vnet.ibm.com,
+        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
+        eparis@redhat.com, suzuki@linux.vnet.ibm.com, andi@firstfloor.org,
+        tj@kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org
+Subject: Re: [PATCH 04/33] Hold threads
+References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140320093931.14878.89112.stgit@localhost.localdomain> <532B3B00.6080201@parallels.com>
+In-Reply-To: <532B3B00.6080201@parallels.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/mcookie.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/misc-utils/mcookie.c b/misc-utils/mcookie.c
-index 41f5a0c..9167440 100644
---- a/misc-utils/mcookie.c
-+++ b/misc-utils/mcookie.c
-@@ -39,9 +39,9 @@ enum {
- };
- 
- /* The basic function to hash a file */
--static off_t hash_file(struct MD5Context *ctx, int fd)
-+static size_t hash_file(struct MD5Context *ctx, int fd)
- {
--	off_t count = 0;
-+	size_t count = 0;
- 	ssize_t r;
- 	unsigned char buf[BUFFERSIZE];
- 
-@@ -74,7 +74,7 @@ static void randomness_from_files(char **files, int nfiles,
- 				  struct MD5Context *ctx, int verbose)
- {
- 	int fd, i;
--	int count = 0;
-+	size_t count = 0;
- 
- 	for (i = 0; i < nfiles; i++) {
- 		if (files[i][0] == '-' && !files[i][1])
-@@ -88,8 +88,8 @@ static void randomness_from_files(char **files, int nfiles,
- 			count = hash_file(ctx, fd);
- 			if (verbose)
- 				fprintf(stderr,
--					P_("Got %d byte from %s\n",
--					   "Got %d bytes from %s\n", count),
-+					P_("Got %zu byte from %s\n",
-+					   "Got %zu bytes from %s\n", count),
- 					count, files[i]);
- 
- 			if (fd != STDIN_FILENO)
--- 
-1.9.0
+On 03/21/2014 12:31 AM, Pavel Emelyanov wrote:
+> On 03/20/2014 01:39 PM, Janani Venkataraman wrote:
+>> Getting number of threads and their respective IDs through /proc/pid/stat and
+>> /proc/pid/task.
+>>
+>> The threads are then seized and interrupted. After the dump is taken they are
+>> detached.
+>>
+>> Signed-off-by: Janani Venkataraman <jananive@linux.vnet.ibm.com>
+>> ---
+>> +/* Gets the Thread IDS and siezes them */
+>> +int seize_threads(int pid)
+>> +{
+>> +	char filename[40];
+>> +	DIR *dir;
+>> +	int ct = 0, ret = 0, tmp_tid;
+>> +	struct dirent *entry;
+>> +	char state;
+>> +
+>> +	ret = get_thread_count(pid);
+>> +	if (ret == -1)
+>> +		return -1;
+>> +
+>> +	cp.thread_count = ret;
+>> +	cp.t_id = calloc(cp.thread_count, sizeof(int));
+>> +	if (!cp.t_id) {
+>> +		status = errno;
+>> +		gencore_log("Could not allocate memory for thread_ids.\n");
+>> +		return -1;
+>> +	}
+>> +
+>> +	snprintf(filename, 40, "/proc/%d/task", pid);
+>> +	dir = opendir(filename);
+>> +
+>> +	while ((entry = readdir(dir))) {
+> This simple loop is not enough -- threads may appear and disappear while
+> you do the readdir and seize, so you should scan it several times to
+> make sure you caught all the threads.
+I will look into this.
+> You can look at how this is done in CRIU in cr-dump,c:collect_threads().
+Yes I will look into that function. Thanks.
+
+Thanks.
+Janani
+>> +		if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
+>> +			tmp_tid = atoi(entry->d_name);
+>> +			ret = ptrace(PTRACE_SEIZE, tmp_tid, 0, 0);
+>> +			if (ret) {
+>> +				state = get_thread_status(tmp_tid);
+>> +				if (state == 'Z')
+>> +					goto assign;
+>> +				status = errno;
+>> +				gencore_log("Could not seize thread: %d\n",
+>> +								tmp_tid);
+>> +				break;
+>> +			}
+>> +			ret = ptrace(PTRACE_INTERRUPT, tmp_tid, 0, 0);
+>> +			if (ret) {
+>> +				state = get_thread_status(tmp_tid);
+>> +				if (state == 'Z')
+>> +					goto assign;
+>> +				status = errno;
+>> +				gencore_log("Could not interrupt thread: %d\n",
+>> +								tmp_tid);
+>> +				break;
+>> +			}
+>> +assign:
+>> +			/* If a new thread, is created after we fetch the thread_count,
+>> +			 * we may encounter a buffer overflow situation in the cp_tid.
+>> +			 * Hence we check this case and re-allocate memory if required.
+>> +			 */
+>> +			cp.t_id[ct++] = tmp_tid;
+>> +		}
+>> +	}
+>> +
+>> +	/* Reassigning based on successful seizes */
+>> +	cp.thread_count = ct;
+>> +
+>> +	closedir(dir);
+>> +
+>> +	/* Successful seize and interrupt on all threads makes ret = 0 */
+>> +	return ret;
+>> +}
 
