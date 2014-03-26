@@ -1,57 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f51.google.com ([209.85.219.51]:38346 "EHLO
-	mail-oa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751130AbaCHRCK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Mar 2014 12:02:10 -0500
-Received: by mail-oa0-f51.google.com with SMTP id i4so5399499oah.24
-        for <util-linux@vger.kernel.org>; Sat, 08 Mar 2014 09:02:09 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:48720 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755218AbaCZSrf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Mar 2014 14:47:35 -0400
+Message-ID: <533320C5.7040609@ubuntu.com>
+Date: Wed, 26 Mar 2014 14:47:33 -0400
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/5] mkswap: remove unnecessary usage output
-Date: Sat,  8 Mar 2014 11:01:53 -0600
-Message-Id: <1394298117-16531-1-git-send-email-kerolasa@iki.fi>
+Subject: tty swtch key
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The usage output changes too often making unnecessarily expected output
-in test unstable.  Besides in this case the usage ouput does not even
-help user, because invalid swap target size error cannot be fixed by
-specificing an option.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/mkswap.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+I could have sworn that I used the tty swtch feature once many years
+ago and that it sent a special signal to the shell, causing it to be
+suspended and return you to the parent shell, as if you had entered
+the suspend command.  I can't find the signal in the man pages now,
+and using stty to set a swtch key and hitting it does nothing.  Is
+this unimplemented on linux, and if so, shouldn't the man page be
+updated to reflect that?
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index a2c6529..ae73f80 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -545,18 +545,16 @@ main(int argc, char **argv) {
- 	sz = get_size(device_name);
- 	if (!PAGES)
- 		PAGES = sz;
--	else if (PAGES > sz && !force) {
-+	else if (PAGES > sz && !force)
- 		errx(EXIT_FAILURE,
- 			_("error: "
- 			  "size %llu KiB is larger than device size %llu KiB"),
- 			PAGES*(pagesize/1024), sz*(pagesize/1024));
--	}
- 
--	if (PAGES < MIN_GOODPAGES) {
--		warnx(_("error: swap area needs to be at least %ld KiB"),
--			(long)(MIN_GOODPAGES * pagesize/1024));
--		usage(stderr);
--	}
-+	if (PAGES < MIN_GOODPAGES)
-+		errx(EXIT_FAILURE,
-+		     _("error: swap area needs to be at least %ld KiB"),
-+		     (long)(MIN_GOODPAGES * pagesize / 1024));
- 
- #ifdef __linux__
- 	if (get_linux_version() >= KERNEL_VERSION(2,3,4))
--- 
-1.9.0
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
+iQEcBAEBAgAGBQJTMyDFAAoJEI5FoCIzSKrw5/8IAIlrwdqcGiPX3uIjttm1E3sh
+dltS5nUj9YP+blgsQ4h5uu8m/bzFGp19ocx7OlO3/1qESyuGpnwoNr9wJtzXB8YV
+xqqbhlsIF+9dxdD9CUIcHkt+hb7Hu6WDh7YfJRfctfbQgYYVNYKbQgQrl9AMrNmK
+DNtXJy90KUhpwqtR9RuOfbwcLsZUU4AsfyqujQs1zBbhAJm9i3JrUGewBUZ0QFOe
+M2IW8619AW/qoI//ko1rNVkUBPraZAf4K/XeoQbmT87ch778E+EeWPZhClOlmbM2
+QsynEnjy3uUj0r3A5ja97dphjeyGegHI7wpMVLnLs3iR9USOBrlwqll7b2IJYBw=
+=DP1V
+-----END PGP SIGNATURE-----
