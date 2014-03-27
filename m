@@ -1,42 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58496 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964883AbaCSMcx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Mar 2014 08:32:53 -0400
-Message-Id: <1395232368.7652.96330753.426A8F05@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from toccata.ens-lyon.org ([140.77.166.68]:59905 "EHLO
+	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755862AbaC1AHO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 27 Mar 2014 20:07:14 -0400
+Date: Fri, 28 Mar 2014 00:57:47 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
+Cc: Phillip Susi <psusi@ubuntu.com>, util-linux@vger.kernel.org
+Subject: Re: tty swtch key
+Message-ID: <20140327235747.GB4601@type.youpi.perso.aquilenet.fr>
+References: <533320C5.7040609@ubuntu.com>
+ <lh1ra8$dd7$1@ger.gmane.org>
+ <53347A8E.7060608@ubuntu.com>
+ <53348639.1040100@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1394397023-7050-3-git-send-email-kerolasa@iki.fi>
-References: <1394397023-7050-1-git-send-email-kerolasa@iki.fi>
- <1394397023-7050-3-git-send-email-kerolasa@iki.fi>
-Subject: Re: [PATCH 03/10] kill: flip all comparions to be in smaller - greater
- order
-Date: Wed, 19 Mar 2014 13:32:48 +0100
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <53348639.1040100@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Mantas Mikulėnas, le Thu 27 Mar 2014 22:12:41 +0200, a écrit :
+> On 2014-03-27 21:22, Phillip Susi wrote:
+> > On 3/27/2014 2:40 PM, Mantas Mikulėnas wrote:
+> > 
+> >> On the other hand, there _is_ a reimplementation of shl for Linux
+> >> and Solaris, as part of heirloom-toolchest
+> >> <http://heirloom.sourceforge.net/tools.html> and
+> >> <http://heirloom.sourceforge.net/man/shl.1.html>.
+> > 
+> > How so?  It has to be implemented in the kernel tty layer.
+> 
+> Not necessarily – remember that `screen` and `tmux` and `dtach` were
+> implemented entirely in user space.
 
-On Sun, Mar 9, 2014, at 21:30, Sami Kerola wrote:
-> This makes code more readable.
+Err, no, they have to depend on some kernel features. For instance, you
+want to be able to ^C a program running in a sudo shell. Only the kernel
+can do that.
 
-Hmm, I don't agree with that.
-
-> -			if (argc > 2)
-> +			if (2 < argc)
-
-> -	if (num < SIGRTMIN || num > SIGRTMAX)
-> +	if (num < SIGRTMIN || SIGRTMAX < num)
-
-I like to see always the variable on the left and the fixed value on the right.
-
-Regards,
-
-Benno
-
--- 
-http://www.fastmail.fm - Send your email first class
-
+Samuel
