@@ -1,44 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.13]:53072 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752982AbaCKHVS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Mar 2014 03:21:18 -0400
-Message-ID: <531EB96C.4040500@bernhard-voelker.de>
-Date: Tue, 11 Mar 2014 08:21:16 +0100
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:37137 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751276AbaC1X7X (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 28 Mar 2014 19:59:23 -0400
+Received: by mail-pb0-f45.google.com with SMTP id uo5so5665415pbc.4
+        for <util-linux@vger.kernel.org>; Fri, 28 Mar 2014 16:59:22 -0700 (PDT)
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 06/10] kill: leeway deprecation of --pid invocation as
- command name
-References: <1394397023-7050-1-git-send-email-kerolasa@iki.fi> <1394397023-7050-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1394397023-7050-6-git-send-email-kerolasa@iki.fi>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <201403281632.s2SGWvWL030745@hobgoblin.ariadne.com>
+References: <20140327194912.33d74236@ginster.fritz.box>
+	<20140328085200.GE23464@x2.net.home>
+	<201403281632.s2SGWvWL030745@hobgoblin.ariadne.com>
+Date: Fri, 28 Mar 2014 23:59:22 +0000
+Message-ID: <CAG27Bk1Y1a5PN4ZuoFANiuxitw2+EFTvsQtGHY2ECJTiGaEUWA@mail.gmail.com>
+Subject: Re: Bug: libmount essentially undocumented
+From: Sami Kerola <kerolasa@iki.fi>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/09/2014 09:30 PM, Sami Kerola wrote:
-> diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-> index 2fecda3..11c8cd2 100644
-> --- a/misc-utils/kill.c
-> +++ b/misc-utils/kill.c
-> @@ -170,6 +170,8 @@ int main(int argc, char **argv)
->  
->  	numsig = SIGTERM;
->  	do_pid = (!strcmp(program_invocation_short_name, "pid"));	/* Yecch */
-> +	if (do_pid)
-> +		warnx(_("use of 'kill --pid' option as command name will be deprecated in future"));
+On 28 March 2014 16:32, Dale R. Worley <worley@alum.mit.edu> wrote:
+>> Anyway it's open source, you can send patches, the docs is generated
+>> from source code comments.
+>
+> I've always held to the principle that the project isn't done until
+> you can use it reliably after reading the documentation *alone* (that
+> is, *without* having to read the code).  Otherwise, it's not a
+> professionally-done job.  Certainly, it's not something I'd want a
+> potential employer to find with my name attached to it.
 
-You deprecate now:
-  s/will .* future/is deprecated/
+Looking the git log I have nearly 1000 commits to this project. Thank
+you for pointing out I have done unprofessional job.
 
+'When it comes to all free software the question "why didn't they ..."
+always has a simple answer: "because you didn't". You have three
+options: 1. contribute. 2. don't use it. 3. accept it the way it is.'
+- hegborg
 
-Another minor note:
-Shouldn't there be something like a
-
-  +  /* FIXME: remove in March 2016.  */
-
-together with deprecations like that?
-It would be easier to find and fix then.
-
-Have a nice day,
-Berny
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
