@@ -1,48 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:61139 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751245AbaDOLPq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 07:15:46 -0400
-Received: by mail-we0-f174.google.com with SMTP id t60so9146430wes.5
-        for <util-linux@vger.kernel.org>; Tue, 15 Apr 2014 04:15:45 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/9] kill: remove unnecessary indirection
-Date: Tue, 15 Apr 2014 12:15:28 +0100
-Message-Id: <1397560535-14622-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
-References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:1940 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751740AbaDANpW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 1 Apr 2014 09:45:22 -0400
+Date: Tue, 1 Apr 2014 15:45:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Paul Barker <paul@paulbarker.me.uk>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Compile failure due to use of qsort_r
+Message-ID: <20140401134517.GP23464@x2.net.home>
+References: <CANyK_8d6L7vL6Mfq4VNdScjoVLb1K1+8hYsDnuQBZLOh5LC3BA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CANyK_8d6L7vL6Mfq4VNdScjoVLb1K1+8hYsDnuQBZLOh5LC3BA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/kill.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+On Tue, Apr 01, 2014 at 01:03:10PM +0100, Paul Barker wrote:
+> Hi all,
+> 
+> I'm using util-linux as part of the OpenEmbedded build system and
+> we've ran into two places where the use of qsort_r in util-linux is
+> causing a compile failure:
+> 
+> - CentOS 5.10 is using an old version of glibc which doesn't provide qsort_r
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index e678661..9566f14 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -434,8 +434,6 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
- 	}
- 	if (!*argv)
- 		errx(EXIT_FAILURE, _("not enough arguments"));
--	if (ctl->do_pid)
--		ctl->numsig = -1;
- 	return argv;
- }
- 
-@@ -444,7 +442,7 @@ static int kill_verbose(const struct kill_control *ctl)
- {
- 	int rc = 0;
- 
--	if (ctl->numsig < 0) {
-+	if (ctl->do_pid) {
- 		printf("%ld\n", (long) ctl->pid);
- 		return 0;
- 	}
+ Well, I don't like this kind of arguments -- it's almost always
+ problematic to update only small subset of distro...
+
+> - We're experimenting with musl-libc and this also doesn't provide qsort_r
+
+ This is better, I'll add #ifdef to the code. Thanks.
+
+    Karel
+
 -- 
-1.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
