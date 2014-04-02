@@ -1,34 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41351 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:29247 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756894AbaDHR0p (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Apr 2014 13:26:45 -0400
-Date: Tue, 8 Apr 2014 19:26:36 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] fstrim: add systemd units
-Message-ID: <20140408172636.GN22126@x2.net.home>
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
- <20140407104304.GJ22126@x2.net.home>
- <201404081225.21563.sweet_f_a@gmx.de>
- <5343D600.7000507@archlinux.org>
+	id S932258AbaDBPwd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Apr 2014 11:52:33 -0400
+Date: Wed, 2 Apr 2014 17:52:27 +0200 (CEST)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+To: =?ISO-8859-15?Q?P=E1draig_Brady?= <P@draigbrady.com>
+cc: util-linux@vger.kernel.org, kzak@redhat.com
+Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
+In-Reply-To: <533C021C.4060106@draigBrady.com>
+Message-ID: <alpine.LFD.2.00.1404021742410.2169@localhost.localdomain>
+References: <1396438265-21535-1-git-send-email-lczerner@redhat.com> <533C021C.4060106@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <5343D600.7000507@archlinux.org>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-884720301-1396453950=:2169"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 08, 2014 at 12:57:04PM +0200, Thomas Bächler wrote:
-> > BTW fstrim.timer is missing in "make dist" tar ball.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323328-884720301-1396453950=:2169
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+
+On Wed, 2 Apr 2014, Pádraig Brady wrote:
+
+> Date: Wed, 02 Apr 2014 13:27:08 +0100
+> From: Pádraig Brady <P@draigbrady.com>
+> To: Lukas Czerner <lczerner@redhat.com>
+> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
 > 
-> Sorry, you are right. I'm a bit lost in this build system, Karel
-> probably knows how to fix this.
+> On 04/02/2014 12:31 PM, Lukas Czerner wrote:
+> > Recent Linux kernel supports FALLOC_FL_ZERO_RANGE in fallocate(2).
+> > This patch adds FALLOC_FL_ZERO_RANGE support to fallocate utility,
+> > by introducing a new option -z|--zero-range.
+> > 
+> > Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+> 
+> Looks good thanks.
+> 
+> I was wondering how this interacts with the --dig-holes option.
+> That looks for ranges of zeros as efficiently as possible to turn them into holes.
+> It uses SEEK_DATA for that, so I was wondering if these preallocated
+> ranges of zeroes are treated specially in that regard?
+> Note one could use fiemap to distinguish these ranges,
+> but it's buggy as one needs to sync the file before using it.
 
- Fixed.
+It's currently implemented by ext4 and xfs and what it does is that
+it converts initialized extents to initialized and preallocates
+holes within that range.
 
-    Karel
+Preallocated (unwritten) extents are indeed treated differently at
+least in ext4 (not sure about other fs). If we encounter unwritten
+extent we would check the page cache whether there are any data for
+a given extent and treat it as DATA, or HOLE respectively.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Btw, you can create unwritten extent just with fallocate itself as
+well.
+
+Thanks!
+-Lukas
+
+> 
+> thanks,
+> Pádraig.
+> 
+> 
+--8323328-884720301-1396453950=:2169--
