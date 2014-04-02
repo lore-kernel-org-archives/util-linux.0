@@ -1,99 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from jespernyerup.dk ([109.74.204.79]:52368 "EHLO jespernyerup.dk"
+Received: from katla.rhi.hi.is ([130.208.165.1]:54655 "EHLO katla.rhi.hi.is"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933516AbaD2KAb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Apr 2014 06:00:31 -0400
-Date: Tue, 29 Apr 2014 12:00:28 +0200
-From: Jesper Dahl Nyerup <nyerup@one.com>
-To: =?iso-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-Cc: util-linux@vger.kernel.org, Vedpal Rajera <vedpalr@one.com>,
-        Martin Topholm <mph@one.com>
-Subject: Re: Using script(1) to log all user sessions
-Message-ID: <20140429100028.GA31241@one.com>
-Reply-To: nyerup@one.com
-References: <20140425082133.GA3790@one.com>
- <535D6026.1000709@zoho.com>
+	id S1161068AbaDBXh1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Apr 2014 19:37:27 -0400
+Received: from katla.rhi.hi.is (localhost [127.0.0.1])
+	by katla.rhi.hi.is (8.14.4+Sun/8.14.4) with ESMTP id s32NbQiN023492
+	for <util-linux@vger.kernel.org>; Wed, 2 Apr 2014 23:37:26 GMT
+Received: (from bjarniig@localhost)
+	by katla.rhi.hi.is (8.14.4+Sun/8.14.4/Submit) id s32NbQP3023491
+	for util-linux@vger.kernel.org; Wed, 2 Apr 2014 23:37:26 GMT
+Date: Wed, 2 Apr 2014 23:37:26 +0000
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] isosize(8): A few typographical changes to the manual
+Message-ID: <20140402233724.GA23478@rhi.hi.is>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
-In-Reply-To: <535D6026.1000709@zoho.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Package: util-linux
+Version: 2.24.1
+Severity: minor
+File: disk-utils/isosize.8
+Tags: patch
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Changes:
 
-On Apr 27  21:53, =C1ngel Gonz=E1lez wrote:
-> On 25/04/14 10:21, Jesper Dahl Nyerup wrote:
-> >[...] support config files, to supply configurable
-> >default values for some of the concepts normally passed in the
-> >environment or as command line arguments.
->=20
-> You can start it from a script acting as the user shell, through
-> sshd config or one of the shell init scripts. As you already need to
-> start script somehow, those defaults could be passed there, too
-> (although I don't see a problem with supporting config files
-> either).
+  A full stop (.), that begins or ends a string, protected with \&
 
-Yes, this is how we have it working in our current test deployments, but
-for simplicity we'd like to leave out these steps, and ideally have
-users' shell to be /usr/bin/script.
+  A space between a number and an unit changed to an unpaddable space
+"\ "
 
-> >1. Adding a daemon next to script(1) and scriptreplay(1), eg.
-> >scriptcollect(1), to be in the receiving end of the traffic, [...]
->=20
-> I'm unsure about this bit. It may be needed. Perhaps a transfer
-> after the session finishes also works.
+  Patch:
 
-We also considered that, but we keep running in to theoretical corner
-cases where this could end up being a problem - logging in on systems
-with filled up mountpoints, securing the transcript even if the system
-crashes, and so on.
+--- isosize.8	2013-09-18 13:50:12.000000000 +0000
++++ isosize.8.new	2014-04-02 00:47:06.000000000 +0000
+@@ -8,9 +8,9 @@ isosize \- output the length of an iso96
+ .PP
+ This command outputs the length of an iso9660 filesystem that
+ is contained in the specified file.  This file may be a normal file or
+-a block device (e.g. /dev/hdd or /dev/sr0).  In the absence of
++a block device (e.g.\& /dev/hdd or /dev/sr0).  In the absence of
+ any options (and errors), it will output the size of the iso9660
+-filesystem in bytes.  This can now be a large number (>> 4 GB).
++filesystem in bytes.  This can now be a large number (>> 4\ GB).
+ .SH OPTIONS
+ .TP
+ .BR \-x , " \-\-sectors"
 
-> >2. Optionally linking against some crypto library to avoid putting
-> >users' console data on the wire in clear text.
->=20
-> Following unix philosophy, I would try to avoid reinventing crypto
-> into the program, attempting instead to solve the issue by eg. using
-> sftp to transfer the files and/or gpg to encrypt the data.
 
-I fully agree with this concern. This is just a necessary follow up, if
-we want to natively enable network support in script(1).
-
-However as both you and others have suggested us to reconsider this, and
-as we also were pretty doubtful about this ourselves, we will probably
-find an alternative transport method, one way or the other.
-
-> PS: I expect you are properly warning your users about the
-> fascist-level logging done on your systems.
-
-I appreciate your concern for our users.
-
-These users are myself as well as my colleagues, and we all have a
-shared interest in maintaining audit trails and tracebacks of who did
-what, when and where.
-
-I can assure you that everyone are aware of these measures.
-
-Yours,
---=20
-Jesper Dahl Nyerup
-Systems Engineer
-One.com, nyerup@one.com
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlNfeDwACgkQtzA4yjN/Kb10iwCfTZqy0m8DrkxKuwQ0ysnAz9mF
-A7UAn0N3LV6C7k1ys+bDn1Qx8YmOB1nE
-=OZ2Q
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--
+-- 
+Bjarni I. Gislason
