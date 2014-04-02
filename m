@@ -1,133 +1,174 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:37749 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757AbaD0UGF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:06:05 -0400
-Received: by mail-we0-f174.google.com with SMTP id w62so4282144wes.19
-        for <util-linux@vger.kernel.org>; Sun, 27 Apr 2014 13:06:04 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.219]:36041 "EHLO
+	mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932413AbaDBRA4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Apr 2014 13:00:56 -0400
+Received: from probook.fritz.box ([2001:a60:1088:9701:1ec1:deff:fe91:f51c])
+	by smtp.strato.de (RZmta 32.31 AUTH)
+	with ESMTPSA id J05b6dq32H0sUWD
+	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	for <util-linux@vger.kernel.org>;
+	Wed, 2 Apr 2014 19:00:54 +0200 (CEST)
+Date: Wed, 2 Apr 2014 19:00:54 +0200
+From: Olaf Hering <olaf@aepfle.de>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 05/12] mkswap, swaplabel: move version number to header
-Date: Sun, 27 Apr 2014 21:05:31 +0100
-Message-Id: <1398629138-31718-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: fdisk partition reorder fails
+Message-ID: <20140402170054.GA14987@aepfle.de>
+References: <20140402164925.GA13910@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20140402164925.GA13910@aepfle.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Corrently only the swap version 1 is supported, which is a magic value so
-move it to header.
+On Wed, Apr 02, Olaf Hering wrote:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/mkswap.c    | 10 +++++-----
- disk-utils/swaplabel.c |  4 ++--
- include/swapheader.h   |  1 +
- sys-utils/swapon.c     | 10 ++++------
- 4 files changed, 12 insertions(+), 13 deletions(-)
+> Looks like 2.24.1, included in Factory, is still broken.
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index ae73f80..cd96ad5 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -449,7 +449,7 @@ main(int argc, char **argv) {
- 	unsigned long long sz;
- 	off_t offset;
- 	int force = 0;
--	int version = 1;
-+	int version = SWAP_VERSION;
- 	char *block_count = 0;
- 	char *opt_label = NULL;
- 	unsigned char *uuid = NULL;
-@@ -517,7 +517,7 @@ main(int argc, char **argv) {
- 		usage(stderr);
- 	}
- 
--	if (version != 1)
-+	if (version != SWAP_VERSION)
- 		errx(EXIT_FAILURE,
- 			_("swapspace version %d is not supported"), version);
- 
-@@ -601,7 +601,7 @@ main(int argc, char **argv) {
- 	wipe_device(DEV, device_name, force);
- 
- 	hdr = (struct swap_header_v1_2 *) signature_page;
--	hdr->version = 1;
-+	hdr->version = version;
- 	hdr->last_page = PAGES - 1;
- 	hdr->nr_badpages = badpages;
- 
-@@ -609,8 +609,8 @@ main(int argc, char **argv) {
- 		errx(EXIT_FAILURE, _("Unable to set up swap-space: unreadable"));
- 
- 	goodpages = PAGES - badpages - 1;
--	printf(_("Setting up swapspace version 1, size = %llu KiB\n"),
--		goodpages * pagesize / 1024);
-+	printf(_("Setting up swapspace version %d, size = %llu KiB\n"),
-+		version, goodpages * pagesize / 1024);
- 
- 	write_signature("SWAPSPACE2");
- 	write_uuid_and_label(uuid, opt_label);
-diff --git a/disk-utils/swaplabel.c b/disk-utils/swaplabel.c
-index 5d048aa..8d5b260 100644
---- a/disk-utils/swaplabel.c
-+++ b/disk-utils/swaplabel.c
-@@ -67,10 +67,10 @@ static blkid_probe get_swap_prober(const char *devname)
- 		warnx(_("%s: not a valid swap partition"), devname);
- 
- 	if (rc == 0) {
--		/* supported is SWAPSPACE2 only */
-+		/* Only the SWAPSPACE2 is supported. */
- 		if (blkid_probe_lookup_value(pr, "VERSION", &version, NULL) == 0
- 		    && version
--		    && strcmp(version, "1"))
-+		    && strcmp(version, stringify_value(SWAP_VERSION)))
- 			warnx(_("%s: unsupported swap version '%s'"),
- 						devname, version);
- 		else
-diff --git a/include/swapheader.h b/include/swapheader.h
-index 42d521a..80fa36b 100644
---- a/include/swapheader.h
-+++ b/include/swapheader.h
-@@ -11,6 +11,7 @@ struct swap_header_v1 {
- };
- 
- 
-+#define SWAP_VERSION 1
- #define SWAP_UUID_LENGTH 16
- #define SWAP_LABEL_LENGTH 16
- 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 3866ee7..6c422ce 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -402,21 +402,19 @@ static unsigned long long swap_get_size(const char *hdr, const char *devname,
- 					unsigned int pagesize)
- {
- 	unsigned int last_page = 0;
--	int swap_version = 0;
-+	const unsigned int swap_version = SWAP_VERSION;
- 	int flip = 0;
- 	struct swap_header_v1_2 *s;
- 
- 	s = (struct swap_header_v1_2 *) hdr;
--	if (s->version == 1) {
--		swap_version = 1;
-+	if (s->version == swap_version) {
- 		last_page = s->last_page;
--	} else if (swab32(s->version) == 1) {
-+	} else if (swab32(s->version) == swap_version) {
- 		flip = 1;
--		swap_version = 1;
- 		last_page = swab32(s->last_page);
- 	}
- 	if (verbose)
--		warnx(_("%s: found swap signature: version %d, "
-+		warnx(_("%s: found swap signature: version %ud, "
- 			"page-size %d, %s byte order"),
- 			devname,
- 			swap_version,
--- 
-1.9.2
+The version included in 12.3 was appearently still good:
 
+optiplex:~ # fdisk /dev/sda
+Welcome to fdisk (util-linux 2.21.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+
+Command (m for help): p
+
+Disk /dev/sda: 1500.3 GB, 1500301910016 bytes
+255 heads, 63 sectors/track, 182401 cylinders, total 2930277168 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0003bcd6
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *        2048     2097151     1047552   83  Linux
+/dev/sda2         2097152     4194303     1048576    7  HPFS/NTFS/exFAT
+/dev/sda3         4194304    20971519     8388608   82  Linux swap / Solaris
+/dev/sda4        20971520  2930276351  1454652416    f  W95 Ext'd (LBA)
+/dev/sda5        20973568    73402367    26214400    7  HPFS/NTFS/exFAT
+/dev/sda6        73404416   136318975    31457280    7  HPFS/NTFS/exFAT
+/dev/sda7       136321024   199235583    31457280    7  HPFS/NTFS/exFAT
+/dev/sda8       199237632   262152191    31457280    7  HPFS/NTFS/exFAT
+/dev/sda9       262154240   325068799    31457280    7  HPFS/NTFS/exFAT
+/dev/sda10      325070848   702558207   188743680    7  HPFS/NTFS/exFAT
+/dev/sda11      899624960  1048561663    74468352   83  Linux
+/dev/sda12     1048576000  1258289151   104856576   83  Linux
+/dev/sda13     1258291200  1853884415   297796608   83  Linux
+/dev/sda14     1853886464  2930276351   538194944   83  Linux
+/dev/sda15      702558209   723529472    10485632   83  Linux
+/dev/sda16      723529728   744501247    10485760   83  Linux
+/dev/sda17      744501249   765471888    10485320   83  Linux
+/dev/sda18      765472768   786442239    10484736   83  Linux
+/dev/sda19      786442241   807414304    10486032   83  Linux
+/dev/sda20      807414306   828385512    10485603+  83  Linux
+/dev/sda21      828385514   849356720    10485603+  83  Linux
+/dev/sda22      849356800   870328319    10485760   83  Linux
+
+Partition table entries are not in disk order
+
+Command (m for help): x
+
+Expert command (m for help): p
+
+Disk /dev/sda: 255 heads, 63 sectors, 182401 cylinders
+
+Nr AF  Hd Sec  Cyl  Hd Sec  Cyl     Start      Size ID
+ 1 80 117   1    1 138   8 1023       2048    2095104 83
+ 2 00 138   8 1023 138   8 1023    2097152    2097152 07
+ 3 00  21  17  261 254  63 1023    4194304   16777216 82
+ 4 00 254  63 1023 254  63 1023   20971520 2909304832 0f
+ 5 00 138   8 1023 138   8 1023       2048   52428800 07
+ 6 00 138   8 1023 138   8 1023        184   62914560 07
+ 7 00 138   8 1023 138   8 1023        944   62914560 07
+ 8 00 138   8 1023 138   8 1023        592   62914560 07
+ 9 00 138   8 1023 138   8 1023        240   62914560 07
+10 00 138   8 1023 138   8 1023       1000  377487360 07
+11 00 138   8 1023 138   8 1023        280  148936704 83
+12 00 138   8 1023 138   8 1023         32  209713152 83
+13 00 138   8 1023 138   8 1023        928  595593216 83
+14 00 138   8 1023 138   8 1023         96 1076389888 83
+15 00 138   8 1023 138   8 1023          1   20971264 83
+16 00 138   8 1023 138   8 1023        255   20971520 83
+17 00 138   8 1023 138   8 1023          1   20970640 83
+18 00 138   8 1023 138   8 1023        879   20969472 83
+19 00 138   8 1023 138   8 1023          1   20972064 83
+20 00 138   8 1023 138   8 1023          1   20971207 83
+21 00 138   8 1023 138   8 1023          1   20971207 83
+22 00 138   8 1023 138   8 1023         79   20971520 83
+
+Expert command (m for help): f
+Done.
+
+Expert command (m for help): p
+
+Disk /dev/sda: 255 heads, 63 sectors, 182401 cylinders
+
+Nr AF  Hd Sec  Cyl  Hd Sec  Cyl     Start      Size ID
+ 1 80 117   1    1 138   8 1023       2048    2095104 83
+ 2 00 138   8 1023 138   8 1023    2097152    2097152 07
+ 3 00  21  17  261 254  63 1023    4194304   16777216 82
+ 4 00 254  63 1023 254  63 1023   20971520 2909304832 0f
+ 5 00 138   8 1023 138   8 1023       2048   52428800 07
+ 6 00 138   8 1023 138   8 1023        184   62914560 07
+ 7 00 138   8 1023 138   8 1023        944   62914560 07
+ 8 00 138   8 1023 138   8 1023        592   62914560 07
+ 9 00 138   8 1023 138   8 1023        240   62914560 07
+10 00 138   8 1023 138   8 1023       1000  377487360 07
+11 00 138   8 1023 138   8 1023          1   20971264 83
+12 00 138   8 1023 138   8 1023        255   20971520 83
+13 00 138   8 1023 138   8 1023          1   20970640 83
+14 00 138   8 1023 138   8 1023        879   20969472 83
+15 00 138   8 1023 138   8 1023          1   20972064 83
+16 00 138   8 1023 138   8 1023          1   20971207 83
+17 00 138   8 1023 138   8 1023          1   20971207 83
+18 00 138   8 1023 138   8 1023         79   20971520 83
+19 00 138   8 1023 138   8 1023        280  148936704 83
+20 00 138   8 1023 138   8 1023         32  209713152 83
+21 00 138   8 1023 138   8 1023        928  595593216 83
+22 00 138   8 1023 138   8 1023         96 1076389888 83
+
+Expert command (m for help): r
+
+Command (m for help): p
+
+Disk /dev/sda: 1500.3 GB, 1500301910016 bytes
+255 heads, 63 sectors/track, 182401 cylinders, total 2930277168 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0003bcd6
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *        2048     2097151     1047552   83  Linux
+/dev/sda2         2097152     4194303     1048576    7  HPFS/NTFS/exFAT
+/dev/sda3         4194304    20971519     8388608   82  Linux swap / Solaris
+/dev/sda4        20971520  2930276351  1454652416    f  W95 Ext'd (LBA)
+/dev/sda5        20973568    73402367    26214400    7  HPFS/NTFS/exFAT
+/dev/sda6        73404416   136318975    31457280    7  HPFS/NTFS/exFAT
+/dev/sda7       136321024   199235583    31457280    7  HPFS/NTFS/exFAT
+/dev/sda8       199237632   262152191    31457280    7  HPFS/NTFS/exFAT
+/dev/sda9       262154240   325068799    31457280    7  HPFS/NTFS/exFAT
+/dev/sda10      325070848   702558207   188743680    7  HPFS/NTFS/exFAT
+/dev/sda11      702558209   723529472    10485632   83  Linux
+/dev/sda12      723529728   744501247    10485760   83  Linux
+/dev/sda13      744501249   765471888    10485320   83  Linux
+/dev/sda14      765472768   786442239    10484736   83  Linux
+/dev/sda15      786442241   807414304    10486032   83  Linux
+/dev/sda16      807414306   828385512    10485603+  83  Linux
+/dev/sda17      828385514   849356720    10485603+  83  Linux
+/dev/sda18      849356800   870328319    10485760   83  Linux
+/dev/sda19      899624960  1048561663    74468352   83  Linux
+/dev/sda20     1048576000  1258289151   104856576   83  Linux
+/dev/sda21     1258291200  1853884415   297796608   83  Linux
+/dev/sda22     1853886464  2930276351   538194944   83  Linux
+
+Command (m for help): q
+
+optiplex:~ # 
+
+
+Olaf
