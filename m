@@ -1,105 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:55048 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756824AbaD2Qwc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 29 Apr 2014 12:52:32 -0400
-Received: by mail-pd0-f178.google.com with SMTP id fp1so447647pdb.37
-        for <util-linux@vger.kernel.org>; Tue, 29 Apr 2014 09:52:31 -0700 (PDT)
+Received: from mout.gmx.net ([212.227.17.21]:63725 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030403AbaDBVyK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Apr 2014 17:54:10 -0400
+Received: from brln-4db84a2f.pool.mediaways.net ([77.184.74.47]) by
+ mail.gmx.com (mrgmx102) with ESMTPSA (Nemesis) id 0MP1PX-1WQnsl3sDn-006MS6
+ for <util-linux@vger.kernel.org>; Wed, 02 Apr 2014 23:54:09 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: fdisk partition reorder fails
+Date: Wed, 2 Apr 2014 23:54:05 +0200
+References: <20140402164925.GA13910@aepfle.de> <533C4911.4020406@yahoo.com.ar>
+In-Reply-To: <533C4911.4020406@yahoo.com.ar>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140429104640.GC24681@x2.net.home>
-References: <20140429104640.GC24681@x2.net.home>
-Date: Tue, 29 Apr 2014 17:52:28 +0100
-Message-ID: <CAG27Bk3vrfPb2qktGDpmpNYqi7nRcTfNDOZJgzBbn2+j_6rZWw@mail.gmail.com>
-Subject: Re: terminal-colors.d and termname
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201404022354.05958.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 29 April 2014 11:46, Karel Zak <kzak@redhat.com> wrote:
->  I'd like to support terminal names ($TERM) in terminal-colors.d,
->  because the current implementation does not care about terminal
->  types, so you can disable/enable the colors only globally for all
->  terminals. That's stupid, because xterm-256color is not the
->  same thing as vt100, etc.
+On Wednesday 02 April 2014, Gerardo Exequiel Pozzi wrote:
+> Looks like similar to this[#1] that I reported some time ago.
 >
->  possible ways:
->
->  1) add terminal name to the file names, for example
->
->     touch terminal-colors.d/dmesg@vt100.disable
->
->  The disadvantage is that there is huge number of terminals and
->  this concept does not allow to use patterns (e.g. fnmatch() patterns
->  like xterm-*). But I think the patterns are unnecessary, because people
->  usually use very small set of terminals (serial line, ssh, xterm), so
->  force users to use whole terminal names is no so big problem.
->
->  The advantage is the we can use this concept for color schemes and
->  support symlinks to reuse the same scheme for a different terminals.
->  The nice things is also that one readdir() is enough to get whole
->  configuration.
->
->    echo "error red standard" > dmesg@xterm.scheme
->    ln -s dmesg@xterm.scheme dmesg@linux.scheme
->
->  2) use sub-directory
->
->     /etc/terminal-colors/<termname>/dmesg.disable
->
->  but it's less readable (you need "ls -R" or "find") and use symlinks
->  will be nightmare.
->
->
->  3) store the terminal names (or patterns) to the files
->
->     echo "TERM vt10*" >> dmesg.disable
->
->  The same way uses coreutils DIR_COLORS. This concept means that we
->  have to always parse the files and you cannot easily create two
->  independent color schemes for the same util as there is only one
->  'dmesg.scheme', so we will need more advanced file format with
->  multiple sections, etc.
->
->  4) ?
->
->
->  I prefer 1) because it's KISS concept and we have a chance to see
->  this way supported by another projects too.
+> [#1] http://www.spinics.net/lists/util-linux-ng/msg08005.html
 
-Hi Karel,
+I've translated Gerardo's example into a reproducable command lines. Do 
+this only on filesystems which support sparse files. Here I've skipped 
+any output for readability:
 
-Does this image summarize the logic that you are describing?
+## create a partition table with a "hole" between partition 5 and 6
+$ rm -f testdisk
+$ truncate -s 2199023255552  testdisk
+$ sfdisk testdisk  <<EOF
+unit: sectors
+testdisk1 : start=     2048, size=   131072, Id=83
+testdisk2 : start=   133120, size= 41943040, Id=83
+testdisk3 : start= 42076160, size= 41943040, Id=83
+testdisk4 : start= 84019200, size=3823009968, Id= 5
+testdisk5 : start= 84021248, size=  8388608, Id=83
+testdisk6 : start=125974528, size=1258291200, Id=83
+testdisk7 : start=1384267776, size=2097152000, Id=83
+testdisk8 : start=3481421824, size=425607344, Id=83
+EOF
+[... output skipped ...]
 
-http://ut3.org/~kerolasa/ul-bikeshed.png
 
-What comes to proposed options (IMHO) 1 seems to better than 2 or 3 to
-find yes/no answers. For matching meanings with colors some sort of
-syntax is probably needed, such as "error red standard" where a color
-red seems to mean an error; which leaves it to be commands problem to
-determine what is an error.  I do not know what you meant with word
-standard.
+## add another partition and print before and after sorting (don't
+## write, so this line can be used repeatedly)
+$ echo -e "n\n\n\np\nx\nf\nr\np\n" | fdisk testdisk
+[... output skipped ...]
 
-Over-complicating a bit, or forgetting KISS for now. There seems to be
-nearly infinite colors, and possibly infinite meanings. Designing an
-interface that will support such may result to be too difficult to
-understand. Maybe limiting meanings to a finite set, such as what
-syslog has done with levels and facilities, gives enough flexibility
-without being impossible to use. Sticking to syslog definitions has
-one thing favoring such decision; unixian people are already familiar
-with the concept. Downside is that some syslog keywords (LOG_UUCP)
-feel a bit legacy. That in mind the syntax could look something like
 
-facility:level:#FFFFFF
-facility:level:red
+## See that fdisk is not even able to write the partitions correctly
+## after adding the 9th partition without sorting. Maybe this is part
+## of the bug
+$ echo -e "n\n\n\np\nw\n" | fdisk testdisk
+$ fdisk -l testdisk
 
-where the later is using the named colors there happens to be. Was
-that too beoynd KISS?
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+cu,
+Rudi
