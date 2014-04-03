@@ -1,40 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6488 "EHLO mx1.redhat.com"
+Received: from katla.rhi.hi.is ([130.208.165.1]:54891 "EHLO katla.rhi.hi.is"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751177AbaDNLqs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Apr 2014 07:46:48 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s3EBklLo018431
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 14 Apr 2014 07:46:47 -0400
-Date: Mon, 14 Apr 2014 13:46:45 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ondrej Oprala <ooprala@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/10] Man page corrections v1.0
-Message-ID: <20140414114645.GC5786@x2.net.home>
-References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
+	id S932512AbaDCCXH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Apr 2014 22:23:07 -0400
+Received: from katla.rhi.hi.is (localhost [127.0.0.1])
+	by katla.rhi.hi.is (8.14.4+Sun/8.14.4) with ESMTP id s332N5s4025087
+	for <util-linux@vger.kernel.org>; Thu, 3 Apr 2014 02:23:05 GMT
+Received: (from bjarniig@localhost)
+	by katla.rhi.hi.is (8.14.4+Sun/8.14.4/Submit) id s332N45r025086
+	for util-linux@vger.kernel.org; Thu, 3 Apr 2014 02:23:04 GMT
+Date: Thu, 3 Apr 2014 02:23:04 +0000
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] mkfs.bfs(8): One typographical correction to the manual
+Message-ID: <20140403022303.GA25075@rhi.hi.is>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 08, 2014 at 09:48:39AM +0200, Ondrej Oprala wrote:
->  disk-utils/addpart.8   |  8 ++++----
->  disk-utils/cfdisk.8    | 24 ++++++++++++------------
->  disk-utils/delpart.8   |  2 +-
->  login-utils/last.1     | 32 ++++++++++++++++----------------
->  login-utils/nologin.8  | 10 +++++-----
->  login-utils/runuser.1  | 28 ++++++++++++++--------------
->  login-utils/su.1       | 20 ++++++++++----------
->  login-utils/sulogin.8  |  2 +-
->  login-utils/utmpdump.1 | 24 ++++++++++++------------
->  login-utils/vipw.8     |  2 +-
->  10 files changed, 76 insertions(+), 76 deletions(-)
+Package: util-linux
+Version: 2.24.1
+Severity: minor
+Tags: patch
 
- Applied, thanks.
+  Change:
+
+  - between numbers changed to \(en  (an en-dash)
+
+  Patch:
+
+--- mkfs.bfs.8	2013-10-15 10:50:43.000000000 +0000
++++ mkfs.bfs.8.new	2014-04-02 23:45:11.000000000 +0000
+@@ -19,7 +19,7 @@ If nothing is specified, the entire part
+ .TP
+ .BR \-N , " \-\-inodes " \fInumber\fR
+ Specify the desired \fInumber\fR of inodes (at most 512).
+-If nothing is specified, some default number in the range 48-512 is picked
++If nothing is specified, some default number in the range 48\(en512 is picked
+ depending on the size of the partition.
+ .TP
+ .BR \-V , " \-\-vname " \fIlabel\fR
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Bjarni I. Gislason
