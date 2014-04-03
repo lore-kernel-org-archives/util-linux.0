@@ -1,70 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29247 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932258AbaDBPwd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Apr 2014 11:52:33 -0400
-Date: Wed, 2 Apr 2014 17:52:27 +0200 (CEST)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: =?ISO-8859-15?Q?P=E1draig_Brady?= <P@draigbrady.com>
-cc: util-linux@vger.kernel.org, kzak@redhat.com
-Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
-In-Reply-To: <533C021C.4060106@draigBrady.com>
-Message-ID: <alpine.LFD.2.00.1404021742410.2169@localhost.localdomain>
-References: <1396438265-21535-1-git-send-email-lczerner@redhat.com> <533C021C.4060106@draigBrady.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-884720301-1396453950=:2169"
+Received: from gerolde.archlinux.org ([66.211.214.132]:52562 "EHLO
+	gerolde.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751574AbaDCVl6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Apr 2014 17:41:58 -0400
+From: =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
+Subject: [PATCH] fstrim: add systemd units
+Date: Thu,  3 Apr 2014 23:41:51 +0200
+Message-Id: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This adds a timer and a service for systemd that runs
+fstrim -a once a day.
 
---8323328-884720301-1396453950=:2169
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+The Persistent=true option used will only work on systemd 212
+or newer.
+---
+ sys-utils/.gitignore        |  1 +
+ sys-utils/Makemodule.am     |  6 ++++++
+ sys-utils/fstrim.service.in |  6 ++++++
+ sys-utils/fstrim.timer      | 10 ++++++++++
+ 4 files changed, 23 insertions(+)
+ create mode 100644 sys-utils/fstrim.service.in
+ create mode 100644 sys-utils/fstrim.timer
 
-On Wed, 2 Apr 2014, Pádraig Brady wrote:
+diff --git a/sys-utils/.gitignore b/sys-utils/.gitignore
+index 8d8737a..bcd6e02 100644
+--- a/sys-utils/.gitignore
++++ b/sys-utils/.gitignore
+@@ -18,3 +18,4 @@ sparc32.8
+ sparc32bash.8
+ sparc64.8
+ x86_64.8
++fstrim.service
+diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+index ae254a3..1c2b210 100644
+--- a/sys-utils/Makemodule.am
++++ b/sys-utils/Makemodule.am
+@@ -53,8 +53,14 @@ dist_man_MANS += sys-utils/fstrim.8
+ fstrim_SOURCES = sys-utils/fstrim.c
+ fstrim_LDADD = $(LDADD) libcommon.la libmount.la
+ fstrim_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
++systemdsystemunit_DATA += \
++	sys-utils/fstrim.service \
++	sys-utils/fstrim.timer
+ endif
+ 
++PATHFILES += \
++	sys-utils/fstrim.service
++
+ if LINUX
+ #
+ # Linux-only utils with no another dependencies. All another dependencies have
+diff --git a/sys-utils/fstrim.service.in b/sys-utils/fstrim.service.in
+new file mode 100644
+index 0000000..52155d0
+--- /dev/null
++++ b/sys-utils/fstrim.service.in
+@@ -0,0 +1,6 @@
++[Unit]
++Description=Discard unused blocks
++
++[Service]
++Type=oneshot
++ExecStart=@sbindir@/fstrim -a
+diff --git a/sys-utils/fstrim.timer b/sys-utils/fstrim.timer
+new file mode 100644
+index 0000000..24eeee5
+--- /dev/null
++++ b/sys-utils/fstrim.timer
+@@ -0,0 +1,10 @@
++[Unit]
++Description=Discard unused blocks once a day
++
++[Timer]
++OnCalendar=daily
++AccuracySec=1h
++Persistent=true
++
++[Install]
++WantedBy=multi-user.target
+-- 
+1.9.1
 
-> Date: Wed, 02 Apr 2014 13:27:08 +0100
-> From: Pádraig Brady <P@draigbrady.com>
-> To: Lukas Czerner <lczerner@redhat.com>
-> Cc: util-linux@vger.kernel.org, kzak@redhat.com
-> Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
-> 
-> On 04/02/2014 12:31 PM, Lukas Czerner wrote:
-> > Recent Linux kernel supports FALLOC_FL_ZERO_RANGE in fallocate(2).
-> > This patch adds FALLOC_FL_ZERO_RANGE support to fallocate utility,
-> > by introducing a new option -z|--zero-range.
-> > 
-> > Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-> 
-> Looks good thanks.
-> 
-> I was wondering how this interacts with the --dig-holes option.
-> That looks for ranges of zeros as efficiently as possible to turn them into holes.
-> It uses SEEK_DATA for that, so I was wondering if these preallocated
-> ranges of zeroes are treated specially in that regard?
-> Note one could use fiemap to distinguish these ranges,
-> but it's buggy as one needs to sync the file before using it.
-
-It's currently implemented by ext4 and xfs and what it does is that
-it converts initialized extents to initialized and preallocates
-holes within that range.
-
-Preallocated (unwritten) extents are indeed treated differently at
-least in ext4 (not sure about other fs). If we encounter unwritten
-extent we would check the page cache whether there are any data for
-a given extent and treat it as DATA, or HOLE respectively.
-
-Btw, you can create unwritten extent just with fallocate itself as
-well.
-
-Thanks!
--Lukas
-
-> 
-> thanks,
-> Pádraig.
-> 
-> 
---8323328-884720301-1396453950=:2169--
