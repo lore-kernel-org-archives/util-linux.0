@@ -1,35 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55531 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750749AbaD1InJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Apr 2014 04:43:09 -0400
-Message-Id: <1398674252.3689.111120501.427ACD73@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:13665 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752926AbaDDOJy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Apr 2014 10:09:54 -0400
+Date: Fri, 4 Apr 2014 16:09:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Paul Barker <paul@paulbarker.me.uk>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Compile failure due to use of qsort_r
+Message-ID: <20140404140949.GB22126@x2.net.home>
+References: <CANyK_8d6L7vL6Mfq4VNdScjoVLb1K1+8hYsDnuQBZLOh5LC3BA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1398629138-31718-9-git-send-email-kerolasa@iki.fi>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
- <1398629138-31718-9-git-send-email-kerolasa@iki.fi>
-Subject: Re: [PATCH 08/12] swapon: swaps with legacy version label are not
- supported
-Date: Mon, 28 Apr 2014 10:37:32 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CANyK_8d6L7vL6Mfq4VNdScjoVLb1K1+8hYsDnuQBZLOh5LC3BA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Apr 01, 2014 at 01:03:10PM +0100, Paul Barker wrote:
+> Personally I think a good solution would be to add a configure check
+> on whether qsort_r is provided and to either error out at that stage
+> or provide a workaround.
 
-On Sun, Apr 27, 2014, at 22:05, Sami Kerola wrote:
-> -	if (memcmp(buf, "SWAP-SPACE", 10) == 0 ||
-> -            memcmp(buf, "SWAPSPACE2", 10) == 0)
-> +	if (memcmp(buf, SWAP_SIGNATURE, 10) == 0)
+Fixed.
 
-s/10/SWAP_SIGNATURE_SZ/  ?
+The code in libfdisk is not so important, I've made it optional by #ifdef
+HAVE_QSORT_R.
 
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - Accessible with your email software
-                          or over the web
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
