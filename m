@@ -1,38 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:54427 "EHLO imap.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751183AbaDOE1d (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Apr 2014 00:27:33 -0400
-Date: Tue, 15 Apr 2014 00:27:29 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Qu Wenruo <quwenruo@cn.fujitsu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
-Message-ID: <20140415042729.GC3403@thunk.org>
-References: <534C9625.8030906@cn.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <534C9625.8030906@cn.fujitsu.com>
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:41082 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752750AbaDDNBk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Apr 2014 09:01:40 -0400
+Received: by mail-pb0-f47.google.com with SMTP id up15so3400513pbc.6
+        for <util-linux@vger.kernel.org>; Fri, 04 Apr 2014 06:01:39 -0700 (PDT)
+From: Jonathan Liu <net147@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Jonathan Liu <net147@gmail.com>
+Subject: [PATCH] umount: fix typo in usage
+Date: Sat,  5 Apr 2014 00:08:01 +1100
+Message-Id: <1396616881-30759-1-git-send-email-net147@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 15, 2014 at 10:15:01AM +0800, Qu Wenruo wrote:
-> 
-> Though the above patch try to avoid the whole cache, it's not good enough
-> since it break the pricible not
-> to probe the devices too frequently.
-> 
-> After some searching, it seems that libblkid does not provide such API, or
-> am I missing something?
+Signed-off-by: Jonathan Liu <net147@gmail.com>
+---
+ sys-utils/umount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The blkid_verify() function is designed to make sure the information
-in the cache corresponds with reality.  If it does not, it will update
-the cache to match with reality, so it will do what you want.
+diff --git a/sys-utils/umount.c b/sys-utils/umount.c
+index fe120db..f3bac0f 100644
+--- a/sys-utils/umount.c
++++ b/sys-utils/umount.c
+@@ -80,7 +80,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all               unmount all filesystems\n"), out);
+-	fputs(_(" -A, --all-targets       unmount all mountpoins for the given device in the\n"
++	fputs(_(" -A, --all-targets       unmount all mountpoints for the given device in the\n"
+ 	        "                           current namespace\n"), out);
+ 	fputs(_(" -c, --no-canonicalize   don't canonicalize paths\n"), out);
+ 	fputs(_(" -d, --detach-loop       if mounted loop device, also free this loop device\n"), out);
+-- 
+1.9.0
 
-Using blkid_verify() will involve accessing the disk involved, but
-that's still better than the alternative of scanning all of the disks
-in the system.
-
-Cheers,
-
-					- Ted
