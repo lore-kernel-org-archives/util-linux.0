@@ -1,39 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:61745 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753637AbaD1IoB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 28 Apr 2014 04:44:01 -0400
-Received: by mail-pa0-f53.google.com with SMTP id ld10so5474010pab.26
-        for <util-linux@vger.kernel.org>; Mon, 28 Apr 2014 01:44:01 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:14725 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750740AbaDGKgM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Apr 2014 06:36:12 -0400
+Date: Mon, 7 Apr 2014 12:36:04 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] blockdev(8): Some minor corrections to the manual
+Message-ID: <20140407103604.GH22126@x2.net.home>
+References: <20140402232331.GA23303@rhi.hi.is>
+ <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1398674252.3689.111120501.427ACD73@webmail.messagingengine.com>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
-	<1398629138-31718-9-git-send-email-kerolasa@iki.fi>
-	<1398674252.3689.111120501.427ACD73@webmail.messagingengine.com>
-Date: Mon, 28 Apr 2014 09:44:01 +0100
-Message-ID: <CAG27Bk15aE5t7zDUg=LONmZ8q9ZgwvEauwXstEV6HA5xE3eCJg@mail.gmail.com>
-Subject: Re: [PATCH 08/12] swapon: swaps with legacy version label are not supported
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 28 April 2014 09:37, Benno Schulenberg <bensberg@justemail.net> wrote:
->
-> On Sun, Apr 27, 2014, at 22:05, Sami Kerola wrote:
->> -     if (memcmp(buf, "SWAP-SPACE", 10) == 0 ||
->> -            memcmp(buf, "SWAPSPACE2", 10) == 0)
->> +     if (memcmp(buf, SWAP_SIGNATURE, 10) == 0)
->
-> s/10/SWAP_SIGNATURE_SZ/  ?
+> On 3 April 2014 00:23, Bjarni Ingi Gislason <bjarniig@rhi.hi.is> wrote:
+> >   Patch is in the attachment
 
-Hi Benno,
+ Bjarni, I have merged all your patches, but Sami is right. It would
+ be nice to have your patches in better format next time. Thanks!
 
-Yes, that would be better. Karel, can you amend & add Benno as reviewer?
+    Karel
+
+On Thu, Apr 03, 2014 at 09:49:54AM +0100, Sami Kerola wrote:
+> git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
+> util-linux
+> git config --global user.name "Bjarni Ingi Gislason"
+> git config --global user.email bjarniig@rhi.hi.is
+> git branch bjani
+> git checkout bjarni
+> # while patches {
+> git apply <each of your patch separately>
+> git add .
+> git commit -s
+> # }
+> 
+> # create patches
+> git format-patch -n master ~/ul-patches/
+> 
+> # test that you can send/receive emails
+> git send-email --to bjarniig@rhi.hi.is ~/ul-patches/*
+> # if yes, and all looks good
+> git send-email --to util-linux@vger.kernel.org ~/ul-patches/*
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
