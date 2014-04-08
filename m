@@ -1,255 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42619 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751769AbaD3Ipl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 30 Apr 2014 04:45:41 -0400
-Message-Id: <1398847539.17112.112031737.2FCD139F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="_----------=_1398847539171120";
- charset="utf-8"
-Subject: Re: [patches] removing some duplicate includes and standardizing a usage
- text
-Date: Wed, 30 Apr 2014 10:45:39 +0200
-In-Reply-To: <CAG27Bk0byyTHWfEz7+HtVx1=-o+4JCnxa3NiW9934=oyFXOnqg@mail.gmail.com>
-References: <1398797443.20719.111805353.31C825B4@webmail.messagingengine.com>
- <CAG27Bk0byyTHWfEz7+HtVx1=-o+4JCnxa3NiW9934=oyFXOnqg@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:43181 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756800AbaDHVwk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Apr 2014 17:52:40 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id DF1F2AAF3
+	for <util-linux@vger.kernel.org>; Tue,  8 Apr 2014 21:52:38 +0000 (UTC)
+Message-ID: <1396993958.14732.144.camel@oct.suse.cz>
+Subject: libblkid: check for ext* is deeply broken
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: util-linux@vger.kernel.org
+Date: Tue, 08 Apr 2014 23:52:38 +0200
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
+I am digging into an incorrect detection of ext* filesystems in blkid
+2.24.1.
 
---_----------=_1398847539171120
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+The result of blkid is totally illogical. You cannot write any simple
+function that will parse the result. Both prioritizing of TYPE over
+SEC_TYPE and vice versa fail for some cases.
 
+ext2 with ext4 module unloaded:
+  SEC_TYPE="ext2" TYPE="ext4"
+ext3 with ext4 module unloaded:
+  SEC_TYPE="ext2" TYPE="ext3"
+ext4 with ext4 module unloaded:
+  TYPE="ext4"
+ext2 with ext4 module loaded:
+  TYPE="ext2"
+ext3 with ext4 module loaded:
+  SEC_TYPE="ext2" TYPE="ext3"
+ext4 with ext4 module loaded:
+  TYPE="ext4"
 
-On Tue, Apr 29, 2014, at 21:40, Sami Kerola wrote:
-> You are right. That looks better. Now when you are working with this
-> maybe the commands and other documents could be fixed in same go.
+I even don't know, what was intended to be returned on system that
+supports ext2 via ext4:
+    SEC_TYPE="ext2" TYPE="ext4"
+  or
+    TYPE="ext2"?
 
-Okay, attached patch does that.  The remaining "[...]" in the docs are
-appropriate and shouldn't be changed.  The patch also removes some
-angular brackets around <shm|msg|sem> as those are literal values
-and should not be replaced with anything else.  This mistaken use of
-angular brackets occurs more often -- I've been wanting to bring this
-up for a long time, but didn't get around to it.
+If the first one, all system_supports_ext?() have to be rewritten to
+detect loaded ext4 module supporting ext2.
 
-For another issue, see the upcoming message.
+If the second one, system_supports_ext4_ext2() should be moved inside
+system_supports?() calls.
 
-Benno
+In both cases, expressions using these calls have to be rewritten.
+
+Details:
+
+It seems, that the code attempts to be intelligent and detect the best
+possible support for the particular file system.
+
+But check as they are written are broken, return inconsistent results
+and cannot be fixed to be consistent:
+
+check_for_modules("ext2") correctly returns that module named "ext2"
+does not exist (only "ext4" does).
+
+But at least on a new Linux kernel version I am working on
+fs_proc_check("ext2") returns success whenever ext4 module is loaded.
+It is because /proc/filesystems include "ext2", even if the module is
+named "ext4".
+
+It causes system_supports_ext?() being inconsistent between calls with
+"ext4" module loaded and "ext4" module unloaded.
+
+It implies, that all subsequent logic expressions in probe_ext* are
+inconsistent and makes no sense as well. Additionally, I guess that some
+of these checks are incorrect per self. (As long as only one
+probe_ext?() returns success, then blkid returns at least something.)
 
 -- 
-http://www.fastmail.fm - One of many happy users:
-  http://www.fastmail.fm/help/overview_quotes.html
+Best Regards / S pozdravem,
 
-
---_----------=_1398847539171120
-Content-Disposition: attachment; filename="0001-textual-remove-square-brackets-from-around-three-dot.patch"
-Content-Id: <1398847369.16490.5cf058065f097e273f26fcbdd43931a76a47c700.3E32A617@messagingengine.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/x-diff; name="0001-textual-remove-square-brackets-from-around-three-dot.patch"
-
-RnJvbSA4YmY2NGUyMmYwNGI3MWM1OGJkNTJiNjJkZDBhMjRkM2ZkNzA2OTRi
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5ubyBTY2h1bGVu
-YmVyZyA8YmVuc2JlcmdAanVzdGVtYWlsLm5ldD4KRGF0ZTogV2VkLCAzMCBB
-cHIgMjAxNCAxMDozODoxMiArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIHRleHR1
-YWw6IHJlbW92ZSBzcXVhcmUgYnJhY2tldHMgZnJvbSBhcm91bmQgdGhyZWUg
-ZG90cwoKQWxzbyBpbXByb3ZlIHNvbWUgb3B0aW9uIGRlc2NyaXB0aW9ucyBo
-ZXJlIGFuZCB0aGVyZS4KClNpZ25lZC1vZmYtYnk6IEJlbm5vIFNjaHVsZW5i
-ZXJnIDxiZW5zYmVyZ0BqdXN0ZW1haWwubmV0PgotLS0KIGRpc2stdXRpbHMv
-c2ZkaXNrLmMgIHwgICAgNiArKystLS0KIG1pc2MtdXRpbHMva2lsbC5jICAg
-IHwgICAgMiArLQogc3lzLXV0aWxzL2N5dHVuZS44ICAgfCAgICA4ICsrKyst
-LS0tCiBzeXMtdXRpbHMvY3l0dW5lLmMgICB8ICAgMTIgKysrKysrLS0tLS0t
-CiBzeXMtdXRpbHMvaXBjcm0uYyAgICB8ICAgIDggKysrKy0tLS0KIHN5cy11
-dGlscy9sb3NldHVwLmMgIHwgICAxMCArKysrKy0tLS0tCiB0ZXh0LXV0aWxz
-L2hleGR1bXAuMSB8ICAgIDIgKy0KIDcgZmlsZXMgY2hhbmdlZCwgMjQgaW5z
-ZXJ0aW9ucygrKSwgMjQgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZGlz
-ay11dGlscy9zZmRpc2suYyBiL2Rpc2stdXRpbHMvc2ZkaXNrLmMKaW5kZXgg
-YmQzMmFhOC4uM2M1NWQ1ZSAxMDA2NDQKLS0tIGEvZGlzay11dGlscy9zZmRp
-c2suYworKysgYi9kaXNrLXV0aWxzL3NmZGlzay5jCkBAIC0yMzQ2LDcgKzIz
-NDYsNyBAQCBzdGF0aWMgdm9pZCB1c2FnZShGSUxFICogb3V0KQogewogCWZw
-dXRzKFVTQUdFX0hFQURFUiwgb3V0KTsKIAlmcHJpbnRmKG91dCwKLQkJXygi
-ICVzIFtvcHRpb25zXSA8ZGV2aWNlPiBbLi4uXVxuIiksICBwcm9ncmFtX2lu
-dm9jYXRpb25fc2hvcnRfbmFtZSk7CisJCV8oIiAlcyBbb3B0aW9uc10gPGRl
-dmljZT4uLi5cbiIpLCAgcHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUp
-OwogCiAJZnB1dHMoVVNBR0VfT1BUSU9OUywgb3V0KTsKIAlmcHV0cyhfKCIg
-LXMsIC0tc2hvdy1zaXplICAgICAgICAgICBsaXN0IHNpemUgb2YgYSBwYXJ0
-aXRpb25cbiIKQEAgLTIzNzgsOCArMjM3OCw4IEBAIHN0YXRpYyB2b2lkIHVz
-YWdlKEZJTEUgKiBvdXQpCiAJCSIgLUwsIC0tTGludXggICAgICAgICAgICAg
-ICBkbyBub3QgY29tcGxhaW4gYWJvdXQgdGhpbmdzIGlycmVsZXZhbnQgZm9y
-IExpbnV4XG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWcsIC0tc2hvdy1nZW9t
-ZXRyeSAgICAgICBwcmludCB0aGUga2VybmVsJ3MgaWRlYSBvZiB0aGUgZ2Vv
-bWV0cnlcbiIKIAkJIiAtRywgLS1zaG93LXB0LWdlb21ldHJ5ICAgIHByaW50
-IGdlb21ldHJ5IGd1ZXNzZWQgZnJvbSB0aGUgcGFydGl0aW9uIHRhYmxlXG4i
-KSwgb3V0KTsKLQlmcHV0cyhfKCIgLUEsIC0tYWN0aXZhdGVbPTxkZXZpY2U+
-XSBhY3RpdmF0ZSBib290YWJsZSBmbGFnXG4iCi0JCSIgLVUsIC0tdW5oaWRl
-Wz08ZGV2Pl0gICAgICBzZXQgcGFydGl0aW9uIHVuaGlkZGVuXG4iCisJZnB1
-dHMoXygiIC1BLCAtLWFjdGl2YXRlWz08ZGV2aWNlPl0gYWN0aXZhdGUgdGhl
-IGJvb3RhYmxlIGZsYWdcbiIKKwkJIiAtVSwgLS11bmhpZGVbPTxkZXZpY2U+
-XSAgIHNldCBwYXJ0aXRpb24gYXMgdW5oaWRkZW5cbiIKIAkJIiAteCwgLS1z
-aG93LWV4dGVuZGVkICAgICAgIGFsc28gbGlzdCBleHRlbmRlZCBwYXJ0aXRp
-b25zIGluIHRoZSBvdXRwdXQsXG4iCiAJCSIgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIG9yIGV4cGVjdCBkZXNjcmlwdG9ycyBmb3IgdGhlbSBpbiB0
-aGUgaW5wdXRcbiIpLCBvdXQpOwogCWZwdXRzKF8oIiAgICAgLS1sZWF2ZS1s
-YXN0ICAgICAgICAgIGRvIG5vdCBhbGxvY2F0ZSB0aGUgbGFzdCBjeWxpbmRl
-clxuIgpkaWZmIC0tZ2l0IGEvbWlzYy11dGlscy9raWxsLmMgYi9taXNjLXV0
-aWxzL2tpbGwuYwppbmRleCBiMzBiOTRmLi41ZDJmMjdkIDEwMDY0NAotLS0g
-YS9taXNjLXV0aWxzL2tpbGwuYworKysgYi9taXNjLXV0aWxzL2tpbGwuYwpA
-QCAtMzAzLDcgKzMwMyw3IEBAIHN0YXRpYyBpbnQgYXJnX3RvX3NpZ251bShj
-aGFyICphcmcsIGludCBtYXNrYml0KQogc3RhdGljIHZvaWQgX19hdHRyaWJ1
-dGVfXygoX19ub3JldHVybl9fKSkgdXNhZ2UoRklMRSAqb3V0KQogewogCWZw
-dXRzKFVTQUdFX0hFQURFUiwgb3V0KTsKLQlmcHJpbnRmKG91dCwgXygiICVz
-IFtvcHRpb25zXSA8cGlkfG5hbWU+IFsuLi5dXG4iKSwgcHJvZ3JhbV9pbnZv
-Y2F0aW9uX3Nob3J0X25hbWUpOworCWZwcmludGYob3V0LCBfKCIgJXMgW29w
-dGlvbnNdIDxwaWR8bmFtZT4uLi5cbiIpLCBwcm9ncmFtX2ludm9jYXRpb25f
-c2hvcnRfbmFtZSk7CiAKIAlmcHV0cyhVU0FHRV9PUFRJT05TLCBvdXQpOwog
-CWZwdXRzKF8oIiAtYSwgLS1hbGwgICAgICAgICAgICAgIGRvIG5vdCByZXN0
-cmljdCB0aGUgbmFtZS10by1waWQgY29udmVyc2lvbiB0byBwcm9jZXNzZXNc
-biIKZGlmZiAtLWdpdCBhL3N5cy11dGlscy9jeXR1bmUuOCBiL3N5cy11dGls
-cy9jeXR1bmUuOAppbmRleCA5NDBmYTI4Li4zYmY3YWZjIDEwMDY0NAotLS0g
-YS9zeXMtdXRpbHMvY3l0dW5lLjgKKysrIGIvc3lzLXV0aWxzL2N5dHVuZS44
-CkBAIC0yOSw3ICsyOSw3IEBACiBjeXR1bmUgXC0gdHVuZSBkcml2ZXIgcGFy
-YW1ldGVycyBmb3IgQ3ljbGFkZXMtWiBtdWx0aXBvcnQgc2VyaWFsIGNhcmQK
-IC5TSCBTWU5PUFNJUwogLkIgY3l0dW5lCi1bb3B0aW9uc10gdHR5IFsuLi5d
-CisuUkkgW29wdGlvbnNdIHR0eSAuLi4KIC5TSCBERVNDUklQVElPTgogLkIg
-Y3l0dW5lCiBxdWVyaWVzIGFuZCBtb2RpZmllcyB0aGUgaW50ZXJydXB0aW9u
-IHRocmVzaG9sZCBmb3IgdGhlIEN5Y2xhZGVzIGRyaXZlci4KQEAgLTEzNiw4
-ICsxMzYsOCBAQCBuZXh0IG9wZW4uICBPbmx5IHZhbHVlcyBiZXR3ZWVuIDAg
-YW5kIDI1NSwgaW5jbHVzaXZlLCBhcmUgcGVybWl0dGVkLiAgU2V0dGluZwog
-dG8gemVybyBmb3JjZXMgdGhlIGRlZmF1bHQsIGN1cnJlbnRseSAweDIwICgx
-NjBtcyksIGJ1dCBzb29uIHRvIGJlIDB4MDIKICgxMG1zKS4gIFVuaXRzIGFy
-ZSA1IG1zLgogLlRQCi1cZkJcLWdcZlIsIFxmQlwtXC1nZXRcLXRocmVzaG9s
-ZFxmUgotR2V0IHRoZSBjdXJyZW50IHRocmVzaG9sZCBhbmQgdGltZW91dC4K
-K1xmQlwtZ1xmUiwgXGZCXC1cLWdldC10aHJlc2hvbGRcZlIKK0dldCB0aGUg
-Y3VycmVudCB0aHJlc2hvbGQgYW5kIGZsdXNoIHRpbWVvdXQgdmFsdWVzLgog
-LlRQCiBcZkJcLVNcZlIsIFxmQlwtXC1zZXRcLWRlZmF1bHRcLXRocmVzaG9s
-ZFxmUiBcZkl2YWx1ZVxmUgogU2V0IHRoZSBkZWZhdWx0IHRocmVzaG9sZCB0
-bwpAQCAtMTU3LDcgKzE1Nyw3IEBAIGlzIG5leHQgb3BlbmVkLCB0aGlzIHZh
-bHVlIHdpbGwgYmUgdXNlZCBpbnN0ZWFkIG9mIHRoZSBkZWZhdWx0LiAgSWYK
-IGlzIHplcm8sIHRoZW4gdGhlIHZhbHVlIHdpbGwgZGVmYXVsdCB0byAweDIw
-ICgxNjBtcyksIHNvb24gdG8gYmUgMHgwMgogKDEwbXMpLgogLlRQCi1cZkJc
-LUdcZlIsIFxmQlwtXC1nZXRcLWdsdXNoXGZSCitcZkJcLUdcZlIsIFxmQlwt
-XC1nZXQtZmx1c2hcZlIKIEdldCB0aGUgZGVmYXVsdCB0aHJlc2hvbGQgYW5k
-IGZsdXNoIHRpbWVvdXQgdmFsdWVzLgogLlRQCiBcZkJcLXFcZlIsIFxmQlwt
-XC1zdGF0c1xmUgpkaWZmIC0tZ2l0IGEvc3lzLXV0aWxzL2N5dHVuZS5jIGIv
-c3lzLXV0aWxzL2N5dHVuZS5jCmluZGV4IDhhNDJmOTYuLjE1NTI5ZmYgMTAw
-NjQ0Ci0tLSBhL3N5cy11dGlscy9jeXR1bmUuYworKysgYi9zeXMtdXRpbHMv
-Y3l0dW5lLmMKQEAgLTg5LDE0ICs4OSwxNCBAQCBzdGF0aWMgY2hhciAqKipn
-bG9iYWxfYXJndjsKIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18gKChfX25v
-cmV0dXJuX18pKSB1c2FnZShGSUxFICogb3V0KQogewogCWZwcmludGYob3V0
-LCBVU0FHRV9IRUFERVIpOwotCWZwcmludGYob3V0LCBfKCIgJXMgW29wdGlv
-bnNdIDx0dHk+IFsuLi5dXG4iKSwgcHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0
-X25hbWUpOworCWZwcmludGYob3V0LCBfKCIgJXMgW29wdGlvbnNdIDx0dHk+
-Li4uXG4iKSwgcHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOwogCWZw
-cmludGYob3V0LCBVU0FHRV9PUFRJT05TKTsKIAlmcHJpbnRmKG91dCwgXygi
-IC1zLCAtLXNldC10aHJlc2hvbGQgPG51bT4gICAgICAgICAgc2V0IGludGVy
-cnVwdGlvbiB0aHJlc2hvbGQgdmFsdWVcbiIpKTsKLQlmcHJpbnRmKG91dCwg
-XygiIC1nLCAtLWdldC10aHJlc2hvbGQgICAgICAgICAgICAgICAgZGlzcGxh
-eSBjdXJyZW50IHRocmVzaG9sZCB2YWx1ZVxuIikpOwotCWZwcmludGYob3V0
-LCBfKCIgLVMsIC0tc2V0LWRlZmF1bHQtdGhyZXNob2xkIDxudW0+ICBzZXQg
-ZGVmYXVsdCB0aHJlc2hvbGQgdmFsdWVcbiIpKTsKLQlmcHJpbnRmKG91dCwg
-XygiIC10LCAtLXNldC1mbHVzaCA8bnVtPiAgICAgICAgICAgICAgc2V0IGZs
-dXNoIHRpbWVvdXQgdG8gdmFsdWVcbiIpKTsKLQlmcHJpbnRmKG91dCwgXygi
-IC1HLCAtLWdldC1mbHVzaCAgICAgICAgICAgICAgICAgICAgZGlzcGxheSBk
-ZWZhdWx0IGZsdXNoIHRpbWVvdXQgdmFsdWVcbiIpKTsKLQlmcHJpbnRmKG91
-dCwgXygiIC1ULCAtLXNldC1kZWZhdWx0LWZsdXNoIDxudW0+ICAgICAgc2V0
-IHRoZSBkZWZhdWx0IGZsdXNoIHRpbWVvdXQgdG8gdmFsdWVcbiIpKTsKKwlm
-cHJpbnRmKG91dCwgXygiIC1nLCAtLWdldC10aHJlc2hvbGQgICAgICAgICAg
-ICAgICAgZGlzcGxheSB0aGUgY3VycmVudCB2YWx1ZXNcbiIpKTsKKwlmcHJp
-bnRmKG91dCwgXygiIC1TLCAtLXNldC1kZWZhdWx0LXRocmVzaG9sZCA8bnVt
-PiAgc2V0IHRoZSBkZWZhdWx0IHRocmVzaG9sZCB2YWx1ZVxuIikpOworCWZw
-cmludGYob3V0LCBfKCIgLXQsIC0tc2V0LWZsdXNoIDxudW0+ICAgICAgICAg
-ICAgICBzZXQgdGhlIGZsdXNoIHRpbWVvdXRcbiIpKTsKKwlmcHJpbnRmKG91
-dCwgXygiIC1HLCAtLWdldC1mbHVzaCAgICAgICAgICAgICAgICAgICAgZGlz
-cGxheSB0aGUgZGVmYXVsdCB2YWx1ZXNcbiIpKTsKKwlmcHJpbnRmKG91dCwg
-XygiIC1ULCAtLXNldC1kZWZhdWx0LWZsdXNoIDxudW0+ICAgICAgc2V0IHRo
-ZSBkZWZhdWx0IGZsdXNoIHRpbWVvdXRcbiIpKTsKIAlmcHJpbnRmKG91dCwg
-XygiIC1xLCAtLXN0YXRzICAgICAgICAgICAgICAgICAgICAgICAgZGlzcGxh
-eSBzdGF0aXN0aWNzIGFib3V0IHRoZSB0dHlcbiIpKTsKIAlmcHJpbnRmKG91
-dCwgXygiIC1pLCAtLWludGVydmFsIDxzZWNvbmRzPiAgICAgICAgICAgZ2F0
-aGVyIHN0YXRpc3RpY3MgZXZlcnkgPHNlY29uZHM+IGludGVydmFsXG4iKSk7
-CiAJZnByaW50ZihvdXQsIFVTQUdFX1NFUEFSQVRPUik7CmRpZmYgLS1naXQg
-YS9zeXMtdXRpbHMvaXBjcm0uYyBiL3N5cy11dGlscy9pcGNybS5jCmluZGV4
-IDQ2YzI5OTcuLmFhNTgxNzIgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9pcGNy
-bS5jCisrKyBiL3N5cy11dGlscy9pcGNybS5jCkBAIC00MywyMCArNDMsMjAg
-QEAgdHlwZWRlZiBlbnVtIHR5cGVfaWQgewogCiBzdGF0aWMgaW50IHZlcmJv
-c2UgPSAwOwogCi0vKiBwcmludCB0aGUgbmV3IHVzYWdlICovCisvKiBwcmlu
-dCB0aGUgdXNhZ2UgKi8KIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18gKChf
-X25vcmV0dXJuX18pKSB1c2FnZShGSUxFICogb3V0KQogewogCWZwcmludGYo
-b3V0LCBVU0FHRV9IRUFERVIpOwogCWZwcmludGYob3V0LCAiICVzIFtvcHRp
-b25zXVxuIiwgcHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOwotCWZw
-cmludGYob3V0LCAiICVzIDxzaG18bXNnfHNlbT4gPGlkPiBbLi4uXVxuIiwg
-cHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOworCWZwcmludGYob3V0
-LCAiICVzIHNobXxtc2d8c2VtIDxpZD4uLi5cbiIsIHByb2dyYW1faW52b2Nh
-dGlvbl9zaG9ydF9uYW1lKTsKIAlmcHJpbnRmKG91dCwgVVNBR0VfT1BUSU9O
-Uyk7Ci0JZnB1dHMoXygiIC1tLCAtLXNobWVtLWlkIDxpZD4gICAgICAgIHJl
-bW92ZSBzaGFyZWQgbWVtb3J5IHNlZ21lbnQgYnkgc2htaWRcbiIpLCBvdXQp
-OworCWZwdXRzKF8oIiAtbSwgLS1zaG1lbS1pZCA8aWQ+ICAgICAgICByZW1v
-dmUgc2hhcmVkIG1lbW9yeSBzZWdtZW50IGJ5IGlkXG4iKSwgb3V0KTsKIAlm
-cHV0cyhfKCIgLU0sIC0tc2htZW0ta2V5IDxrZXk+ICAgICAgcmVtb3ZlIHNo
-YXJlZCBtZW1vcnkgc2VnbWVudCBieSBrZXlcbiIpLCBvdXQpOwogCWZwdXRz
-KF8oIiAtcSwgLS1xdWV1ZS1pZCA8aWQ+ICAgICAgICByZW1vdmUgbWVzc2Fn
-ZSBxdWV1ZSBieSBpZFxuIiksIG91dCk7CiAJZnB1dHMoXygiIC1RLCAtLXF1
-ZXVlLWtleSA8a2V5PiAgICAgIHJlbW92ZSBtZXNzYWdlIHF1ZXVlIGJ5IGtl
-eVxuIiksIG91dCk7CiAJZnB1dHMoXygiIC1zLCAtLXNlbWFwaG9yZS1pZCA8
-aWQ+ICAgIHJlbW92ZSBzZW1hcGhvcmUgYnkgaWRcbiIpLCBvdXQpOwogCWZw
-dXRzKF8oIiAtUywgLS1zZW1hcGhvcmUta2V5IDxrZXk+ICByZW1vdmUgc2Vt
-YXBob3JlIGJ5IGtleVxuIiksIG91dCk7Ci0JZnB1dHMoXygiIC1hLCAtLWFs
-bFs9PHNobXxtc2d8c2VtPl0gIHJlbW92ZSBhbGxcbiIpLCBvdXQpOworCWZw
-dXRzKF8oIiAtYSwgLS1hbGxbPXNobXxtc2d8c2VtXSAgICByZW1vdmUgYWxs
-IChpbiB0aGUgc3BlY2lmaWVkIGNhdGVnb3J5KVxuIiksIG91dCk7CiAJZnB1
-dHMoXygiIC12LCAtLXZlcmJvc2UgICAgICAgICAgICAgIGV4cGxhaW4gd2hh
-dCBpcyBiZWluZyBkb25lXG4iKSwgb3V0KTsKIAlmcHJpbnRmKG91dCwgVVNB
-R0VfU0VQQVJBVE9SKTsKIAlmcHJpbnRmKG91dCwgVVNBR0VfSEVMUCk7CmRp
-ZmYgLS1naXQgYS9zeXMtdXRpbHMvbG9zZXR1cC5jIGIvc3lzLXV0aWxzL2xv
-c2V0dXAuYwppbmRleCA4NWExNWFjLi4yNzVhZTQ1IDEwMDY0NAotLS0gYS9z
-eXMtdXRpbHMvbG9zZXR1cC5jCisrKyBiL3N5cy11dGlscy9sb3NldHVwLmMK
-QEAgLTM3MiwxOCArMzcyLDE4IEBAIHN0YXRpYyB2b2lkIHVzYWdlKEZJTEUg
-Km91dCkKIAogCWZwdXRzKFVTQUdFX09QVElPTlMsIG91dCk7CiAJZnB1dHMo
-XygiIC1hLCAtLWFsbCAgICAgICAgICAgICAgICAgICAgIGxpc3QgYWxsIHVz
-ZWQgZGV2aWNlc1xuIiksIG91dCk7Ci0JZnB1dHMoXygiIC1kLCAtLWRldGFj
-aCA8bG9vcGRldj4gWy4uLl0gIGRldGFjaCBvbmUgb3IgbW9yZSBkZXZpY2Vz
-XG4iKSwgb3V0KTsKKwlmcHV0cyhfKCIgLWQsIC0tZGV0YWNoIDxsb29wZGV2
-Pi4uLiAgICAgZGV0YWNoIG9uZSBvciBtb3JlIGRldmljZXNcbiIpLCBvdXQp
-OwogCWZwdXRzKF8oIiAtRCwgLS1kZXRhY2gtYWxsICAgICAgICAgICAgICBk
-ZXRhY2ggYWxsIHVzZWQgZGV2aWNlc1xuIiksIG91dCk7CiAJZnB1dHMoXygi
-IC1mLCAtLWZpbmQgICAgICAgICAgICAgICAgICAgIGZpbmQgZmlyc3QgdW51
-c2VkIGRldmljZVxuIiksIG91dCk7Ci0JZnB1dHMoXygiIC1jLCAtLXNldC1j
-YXBhY2l0eSA8bG9vcGRldj4gIHJlc2l6ZSBkZXZpY2VcbiIpLCBvdXQpOwor
-CWZwdXRzKF8oIiAtYywgLS1zZXQtY2FwYWNpdHkgPGxvb3BkZXY+ICByZXNp
-emUgdGhlIGRldmljZVxuIiksIG91dCk7CiAJZnB1dHMoXygiIC1qLCAtLWFz
-c29jaWF0ZWQgPGZpbGU+ICAgICAgIGxpc3QgYWxsIGRldmljZXMgYXNzb2Np
-YXRlZCB3aXRoIDxmaWxlPlxuIiksIG91dCk7CiAKIAlmcHV0cyhVU0FHRV9T
-RVBBUkFUT1IsIG91dCk7CiAKIAlmcHV0cyhfKCIgLW8sIC0tb2Zmc2V0IDxu
-dW0+ICAgICAgICAgICAgc3RhcnQgYXQgb2Zmc2V0IDxudW0+IGludG8gZmls
-ZVxuIiksIG91dCk7Ci0JZnB1dHMoXygiICAgICAtLXNpemVsaW1pdCA8bnVt
-PiAgICAgICAgIGRldmljZSBsaW1pdGVkIHRvIDxudW0+IGJ5dGVzIG9mIHRo
-ZSBmaWxlXG4iKSwgb3V0KTsKLQlmcHV0cyhfKCIgLVAsIC0tcGFydHNjYW4g
-ICAgICAgICAgICAgICAgY3JlYXRlIHBhcnRpdGlvbmVkIGxvb3AgZGV2aWNl
-XG4iKSwgb3V0KTsKLQlmcHV0cyhfKCIgLXIsIC0tcmVhZC1vbmx5ICAgICAg
-ICAgICAgICAgc2V0dXAgcmVhZC1vbmx5IGxvb3AgZGV2aWNlXG4iKSwgb3V0
-KTsKKwlmcHV0cyhfKCIgICAgIC0tc2l6ZWxpbWl0IDxudW0+ICAgICAgICAg
-ZGV2aWNlIGlzIGxpbWl0ZWQgdG8gPG51bT4gYnl0ZXMgb2YgdGhlIGZpbGVc
-biIpLCBvdXQpOworCWZwdXRzKF8oIiAtUCwgLS1wYXJ0c2NhbiAgICAgICAg
-ICAgICAgICBjcmVhdGUgYSBwYXJ0aXRpb25lZCBsb29wIGRldmljZVxuIiks
-IG91dCk7CisJZnB1dHMoXygiIC1yLCAtLXJlYWQtb25seSAgICAgICAgICAg
-ICAgIHNldCB1cCBhIHJlYWQtb25seSBsb29wIGRldmljZVxuIiksIG91dCk7
-CiAJZnB1dHMoXygiICAgICAtLXNob3cgICAgICAgICAgICAgICAgICAgIHBy
-aW50IGRldmljZSBuYW1lIGFmdGVyIHNldHVwICh3aXRoIC1mKVxuIiksIG91
-dCk7CiAJZnB1dHMoXygiIC12LCAtLXZlcmJvc2UgICAgICAgICAgICAgICAg
-IHZlcmJvc2UgbW9kZVxuIiksIG91dCk7CiAKZGlmZiAtLWdpdCBhL3RleHQt
-dXRpbHMvaGV4ZHVtcC4xIGIvdGV4dC11dGlscy9oZXhkdW1wLjEKaW5kZXgg
-ZTQ4ODg5Yi4uNjI0YjhkMyAxMDA2NDQKLS0tIGEvdGV4dC11dGlscy9oZXhk
-dW1wLjEKKysrIGIvdGV4dC11dGlscy9oZXhkdW1wLjEKQEAgLTM2LDcgKzM2
-LDcgQEAKIGhleGR1bXAgXC0gZGlzcGxheSBmaWxlIGNvbnRlbnRzIGluIGFz
-Y2lpLCBkZWNpbWFsLCBoZXhhZGVjaW1hbCwgb3Igb2N0YWwKIC5TSCBTWU5P
-UFNJUwogLkIgaGV4ZHVtcAotW29wdGlvbnNdIGZpbGUgWy4uLl0KKy5SSSBb
-b3B0aW9uc10gZmlsZSAuLi4KIC5TSCBERVNDUklQVElPTgogVGhlCiAuQiBo
-ZXhkdW1wCi0tIAoxLjcuMC40Cgo=
-
---_----------=_1398847539171120--
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
