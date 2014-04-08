@@ -1,57 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39953 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33496 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751178AbaDRLC6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Apr 2014 07:02:58 -0400
-Date: Fri, 18 Apr 2014 13:02:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Qu Wenruo <quwenruo@cn.fujitsu.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
-Message-ID: <20140418110244.GL5786@x2.net.home>
-References: <534C9625.8030906@cn.fujitsu.com>
- <20140415112159.GE5786@x2.net.home>
- <534DD487.6090700@cn.fujitsu.com>
- <20140416090359.GF5786@x2.net.home>
- <534F2B8F.5010906@cn.fujitsu.com>
- <20140417082105.GH5786@x2.net.home>
- <534F90D2.1030807@cn.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <534F90D2.1030807@cn.fujitsu.com>
+	id S1756272AbaDHHs7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Apr 2014 03:48:59 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s387mxQ6008383
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:48:59 -0400
+Received: from redhat.brq.redhat.com (unused-4-202.brq.redhat.com [10.34.4.202])
+	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id s387moTq004800
+	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:48:58 -0400
+From: Ondrej Oprala <ooprala@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 08/10] addpart: minor man page improvements
+Date: Tue,  8 Apr 2014 09:48:47 +0200
+Message-Id: <1396943329-22347-9-git-send-email-ooprala@redhat.com>
+In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
+References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 17, 2014 at 04:29:06PM +0800, Qu Wenruo wrote:
-> >>So if someone (maybe insane) use mknod to create as block device file and
-> >>use 'btrfs dev del' on the newly created
-> >>block device file, libblkid will still be unable to detect the change since
-> >>the ctime/mtime of block device file in /dev/
-> >>does not change.
-> >Not sure if I understand, it would be nice to have complete example.
-> >
-> >     Karel
-> >
-> Sorry for my poor English.
-> Use /dev/sda6(major 8, minor 6) as an example.
-> ------
-> # stat  /dev/sda6
->   File: '/dev/sda6'
->   Size: 0             Blocks: 0          IO Block: 4096   block special file
-> Device: 5h/5d    Inode: 7289        Links: 1     Device type: 8,6
-> Access: (0660/brw-rw----)  Uid: (    0/    root)   Gid: (    6/ disk)
-> Access: 2014-04-17 12:30:08.981732698 +0800
-> Modify: 2014-04-17 12:30:08.981732698 +0800
-> Change: 2014-04-17 12:30:08.981732698 +0800
->                                      ^^^^^^^^^^^^^^^^^
->  Birth: -
-> # mknod sda6 b 8 6
-> # mkfs.ext4 ./sda6 <<< Not /dev/sda6
+Signed-off-by: Ondrej Oprala <ooprala@redhat.com>
+---
+ disk-utils/addpart.8 | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
- Ah... it's too crazy to support this scenario :-)
-
-    Karel
-
+diff --git a/disk-utils/addpart.8 b/disk-utils/addpart.8
+index 9dcd0a3..875ca9e 100644
+--- a/disk-utils/addpart.8
++++ b/disk-utils/addpart.8
+@@ -5,15 +5,15 @@
+ .TH ADDPART 8 "January 2007" "util-linux" "System Administration"
+ .SH NAME
+ addpart \-
+-simple wrapper around the "add partition" ioctl
++a simple wrapper around the "add partition" ioctl
+ .SH SYNOPSIS
+ .B addpart
+ .I device partition start length
+ .SH DESCRIPTION
+ .B addpart
+-is a program that informs the Linux kernel of new partition.
++is a program that informs the Linux kernel of a new partition.
+ 
+-This command doesn't manipulate partitions on hard drive.
++This command doesn't manipulate partitions on the hard drive.
+ 
+ .SH PARAMETERS
+ .TP
+@@ -24,7 +24,7 @@ Specify the disk device.
+ Specify the partition number.
+ .TP
+ .I start
+-Specify the begin of the partition (in 512-byte sectors).
++Specify the beginning of the partition (in 512-byte sectors).
+ .TP
+ .I length
+ Specify the length of the partition (in 512-byte sectors).
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.1
+
