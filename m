@@ -1,65 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:54647 "EHLO katla.rhi.hi.is"
+Received: from mx1.redhat.com ([209.132.183.28]:15129 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932208AbaDBXfb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Apr 2014 19:35:31 -0400
-Received: from katla.rhi.hi.is (localhost [127.0.0.1])
-	by katla.rhi.hi.is (8.14.4+Sun/8.14.4) with ESMTP id s32NZT48023466
-	for <util-linux@vger.kernel.org>; Wed, 2 Apr 2014 23:35:29 GMT
-Received: (from bjarniig@localhost)
-	by katla.rhi.hi.is (8.14.4+Sun/8.14.4/Submit) id s32NZTGN023465
-	for util-linux@vger.kernel.org; Wed, 2 Apr 2014 23:35:29 GMT
-Date: Wed, 2 Apr 2014 23:35:29 +0000
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+	id S1756350AbaDHHtB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Apr 2014 03:49:01 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s387n1as008388
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:49:01 -0400
+Received: from redhat.brq.redhat.com (unused-4-202.brq.redhat.com [10.34.4.202])
+	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id s387moTs004800
+	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:49:00 -0400
+From: Ondrej Oprala <ooprala@redhat.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] fsck.minix(8): A few typographical corrections to the
- manual
-Message-ID: <20140402233528.GA23454@rhi.hi.is>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 10/10] delpart: minor man page improvements
+Date: Tue,  8 Apr 2014 09:48:49 +0200
+Message-Id: <1396943329-22347-11-git-send-email-ooprala@redhat.com>
+In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
+References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Package: util-linux
-Version: 2.24.1
-Severity: minor
-File: disk-utils/fsck.minix.8
-Tags: patch
+Signed-off-by: Ondrej Oprala <ooprala@redhat.com>
+---
+ disk-utils/delpart.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  Changes:
-
-  - between numbers changed to \(en if it means a range
-
-  A full stop (.), that begins or ends a string, protected with \&
-
-  Patch:
-
---- fsck.minix.8	2013-09-18 13:50:12.000000000 +0000
-+++ fsck.minix.8.new	2014-04-01 23:45:31.000000000 +0000
-@@ -23,10 +23,10 @@ searches for files).
- The \fIdevice\fR name will usually have the following form:
- .nf
- .RS
--/dev/hda[1-63] (IDE disk 1)
--/dev/hdb[1-63] (IDE disk 2)
--/dev/sda[1-15] (SCSI disk 1)
--/dev/sdb[1-15] (SCSI disk 2)
-+/dev/hda[1\(en63] (IDE disk 1)
-+/dev/hdb[1\(en63] (IDE disk 2)
-+/dev/sda[1\(en15] (SCSI disk 1)
-+/dev/sdb[1\(en15] (SCSI disk 2)
- .RE
- .fi
+diff --git a/disk-utils/delpart.8 b/disk-utils/delpart.8
+index 433582f..5f90ec1 100644
+--- a/disk-utils/delpart.8
++++ b/disk-utils/delpart.8
+@@ -13,7 +13,7 @@ simple wrapper around the "del partition" ioctl
+ .B delpart
+ is a program that asks the Linux kernel to remove a partition.
  
-@@ -118,7 +118,7 @@ Linus Torvalds (torvalds@cs.helsinki.fi)
- .br
- Error code values by Rik Faith (faith@cs.unc.edu)
- .br
--Added support for filesystem valid flag: Dr. Wettstein
-+Added support for filesystem valid flag: Dr.\& Wettstein
- (greg%wind.uucp@plains.nodak.edu)
- .br
- Check to prevent fsck of mounted filesystem added by Daniel Quinlan
-
+-This command doesn't manipulate partitions on hard drive.
++This command doesn't manipulate partitions on a hard drive.
+ 
+ .SH OPTIONS
+ .TP
 -- 
-Bjarni I. Gislason
+1.8.5.1
+
