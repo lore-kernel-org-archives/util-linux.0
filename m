@@ -1,67 +1,98 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:36528 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1162653AbaDCIty (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Apr 2014 04:49:54 -0400
-Received: by mail-pa0-f51.google.com with SMTP id kq14so1526127pab.10
-        for <util-linux@vger.kernel.org>; Thu, 03 Apr 2014 01:49:54 -0700 (PDT)
+Return-Path: d@falconindy.com
+Date: Tue, 8 Apr 2014 11:42:13 -0400
+From: Dave Reisner <d@falconindy.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>,
+        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] fstrim: add systemd units
+Message-ID: <20140408154213.GG585@rampage>
+References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
+ <201404081225.21563.sweet_f_a@gmx.de>
+ <5343D600.7000507@archlinux.org>
+ <201404081407.29362.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140402232331.GA23303@rhi.hi.is>
-References: <20140402232331.GA23303@rhi.hi.is>
-Date: Thu, 3 Apr 2014 09:49:54 +0100
-Message-ID: <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
-Subject: Re: [PATCH] blockdev(8): Some minor corrections to the manual
-From: Sami Kerola <kerolasa@iki.fi>
-To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <201404081407.29362.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On 3 April 2014 00:23, Bjarni Ingi Gislason <bjarniig@rhi.hi.is> wrote:
->   Patch is in the attachment
+On Tue, Apr 08, 2014 at 02:07:28PM +0200, Ruediger Meier wrote:
+> On Tuesday 08 April 2014, Thomas Bächler wrote:
+> > Am 08.04.2014 12:25, schrieb Ruediger Meier:
+> > > Hm, isn't this a bit over the top? Adding a script just to
+> > > call "fstrim -a" automatically?
+> >
+> > It's a common task. I was getting tired of having to add this on
+> > every single machine that I set up.
+> 
+> For me it's very common task to do "rm -rf /tmp" after each reboot. I 
+> have to setup this on every single machine. Should I go to coreutils, 
+> the developers of rm to add a script which calls "rm -rf /tmp" on 
+> reboot?
+> No, of course my distribution should give me that feature.
 
-Hi Bjarni,
+You're again comparing one-time bootstrap tasks to recurring maintenance
+tasks. Does your distribution ship any cronjobs which reside in
+/etc/cron.*? You'd be better off comparing the proposed timer and
+service unit to this.
 
-Great to see new contributor.
+> > > Should we also add scripts for "mount -a" or "fsck -a" or "swapon
+> > > -a"?
+> >
+> > And what purpose would that serve? Did you just take random commands
+> > and add '-a' to prove a point?
+> 
+> I wanted to point out that util-linux is a project to provide us tools 
+> and not all the ways how and when to use them. systemd ustream is 
+> mounting and fsck'ing our filesystems automatically. So they can also 
+> fstrim if they find it useful.
 
-It seems you are sending quite a few patches, and it would be better
-to get them in git native format. Looking your message I think you
-have downloaded release package, made changes and used 'diff -u'.
-That's not too bad when sending a small number of changes. To me your
-number your patches is exceeding what I would describe as small
-number.
+Again, you're not making a reasonable comparison here.
 
-Could you get yourself a clone of this project. Configure your git,
-and resubmit.
+> > > And wouldn't we also need to add "example crontab" lines for
+> > > non-systemd systems! Sounds a bit ridiculous, right?
+> >
+> > You can add them if you feel like it. But this is not an "example"
+> > file, it is ready to be used.
+> 
+> An example crontab line is also ready to use. Your example timer is 
+> (hopefully) not automatically enabled just because it is installed.
 
-git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-util-linux
-git config --global user.name "Bjarni Ingi Gislason"
-git config --global user.email bjarniig@rhi.hi.is
-git branch bjani
-git checkout bjarni
-# while patches {
-git apply <each of your patch separately>
-git add .
-git commit -s
-# }
+No, it's up to the local admin to enable it.
 
-# create patches
-git format-patch -n master ~/ul-patches/
+> > > I think it's the distro's or admin's job to write and add the
+> > > scripts for filesystems maintenance etc.
+> >
+> > That's ridiculous. We finally, for the first time ever, have a
+> > unified way of creating service definitions that can be used
+> > unchanged in all relevant distributions (except Gentoo and Slackware,
+> > of course).
+> 
+> Beside the fact that before "unique service definitions" were invented 
+> nobody would have thought that one would need such thing just to call a 
+> single commandline one time per day.
 
-# test that you can send/receive emails
-git send-email --to bjarniig@rhi.hi.is ~/ul-patches/*
-# if yes, and all looks good
-git send-email --to util-linux@vger.kernel.org ~/ul-patches/*
+Really? You've never heard of cron?
 
-If you end struggling with email for hours it might be easier to save
-all files in ul-patches directory to a single tar.gz file, and send it
-as an attachment. This is not quite as good as seeing patches in email
-list as message body, but at least the patches would be in easy to
-process format.
+> > The main advantage of this unification is that they can  
+> > be shipped and maintained by upstream projects - after all, the
+> > upstream projects know what services make sense and how to start them
+> > properly.
+> 
+> I don't say something against systemd here and I don't see this black 
+> and white only. I'am just against adding sysadmin scripts which 
+> actually do only trivial things. Though it might be worth to add such 
+> unit file if it does something more interesting, like we have already 
+> uuidd.service and uuidd.socket (and uuidd.rc) which provides nices ways 
+> how to start uuidd.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+> > > BTW fstrim.timer is missing in "make dist" tar ball.
+> >
+> > Sorry, you are right. I'm a bit lost in this build system, Karel
+> > probably knows how to fix this.
+> 
+> cu,
+> Rudi
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
