@@ -1,44 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:33523 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757AbaD0UGD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:06:03 -0400
-Received: by mail-we0-f180.google.com with SMTP id t61so734405wes.25
-        for <util-linux@vger.kernel.org>; Sun, 27 Apr 2014 13:06:02 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 04/12] include/c.h: add macro to print definitions as string
-Date: Sun, 27 Apr 2014 21:05:30 +0100
-Message-Id: <1398629138-31718-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.22]:51233 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756308AbaDHKZ1 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Apr 2014 06:25:27 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] fstrim: add systemd units
+Date: Tue, 8 Apr 2014 12:25:21 +0200
+Cc: Thomas =?iso-8859-1?q?B=E4chler?= <thomas@archlinux.org>,
+        util-linux@vger.kernel.org
+References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <20140407104304.GJ22126@x2.net.home>
+In-Reply-To: <20140407104304.GJ22126@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201404081225.21563.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/c.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+On Monday 07 April 2014, Karel Zak wrote:
+> On Thu, Apr 03, 2014 at 11:41:51PM +0200, Thomas Bächler wrote:
+> >  sys-utils/.gitignore        |  1 +
+> >  sys-utils/Makemodule.am     |  6 ++++++
+> >  sys-utils/fstrim.service.in |  6 ++++++
+> >  sys-utils/fstrim.timer      | 10 ++++++++++
+> >  4 files changed, 23 insertions(+)
+> >  create mode 100644 sys-utils/fstrim.service.in
+> >  create mode 100644 sys-utils/fstrim.timer
+>
+>  Applied, thanks.
 
-diff --git a/include/c.h b/include/c.h
-index a192fb1..6b8793a 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -307,4 +307,13 @@ static inline int xusleep(useconds_t usec)
- # define SEEK_HOLE	4
- #endif
- 
-+
-+/*
-+ * Macros to convert #define'itions to strings, for example
-+ * #define XYXXY 42
-+ * printf ("%s=%s\n", stringify(XYXXY), stringify_value(XYXXY));
-+ */
-+#define stringify_value(s) stringify(s)
-+#define stringify(s) #s
-+
- #endif /* UTIL_LINUX_C_H */
--- 
-1.9.2
+Hm, isn't this a bit over the top? Adding a script just to 
+call "fstrim -a" automatically?
+Should we also add scripts for "mount -a" or "fsck -a" or "swapon -a"?
 
+And wouldn't we also need to add "example crontab" lines for non-systemd 
+systems! Sounds a bit ridiculous, right?
+
+I think it's the distro's or admin's job to write and add the scripts 
+for filesystems maintenance etc.
+
+BTW fstrim.timer is missing in "make dist" tar ball.
+
+cu,
+Rudi
