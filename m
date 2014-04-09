@@ -1,66 +1,98 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from jespernyerup.dk ([109.74.204.79]:45383 "EHLO jespernyerup.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752577AbaDZV1R (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 26 Apr 2014 17:27:17 -0400
-Date: Sat, 26 Apr 2014 23:27:15 +0200
-From: Jesper Dahl Nyerup <nyerup@one.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Vedpal Rajera <vedpalr@one.com>,
-        Martin Topholm <mph@one.com>
-Subject: Re: Using script(1) to log all user sessions
-Message-ID: <20140426212715.GA14316@one.com>
-Reply-To: nyerup@one.com
-References: <20140425082133.GA3790@one.com>
+Return-Path: thomas@archlinux.org
+Message-ID: <5345663A.1050403@archlinux.org>
+Date: Wed, 09 Apr 2014 17:24:42 +0200
+From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-In-Reply-To: <20140425082133.GA3790@one.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Ruediger Meier <sweet_f_a@gmx.de>,
+        =?ISO-8859-15?Q?Thomas_B=E4chler?=
+ <thomas@archlinux.org>
+CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] fstrim: add systemd units
+References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <201404091412.34060.sweet_f_a@gmx.de> <534541E3.4080906@archlinux.org> <201404091716.05131.sweet_f_a@gmx.de>
+In-Reply-To: <201404091716.05131.sweet_f_a@gmx.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="2UcwNPhVbnHchmHRgrBV0tKQh7SEGOXUR"
 List-ID: <util-linux.vger.kernel.org>
 
-
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--2UcwNPhVbnHchmHRgrBV0tKQh7SEGOXUR
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-Karel,
-
-On Apr 25  10:21, Jesper Dahl Nyerup wrote:
-> This could involve:
+Am 09.04.2014 17:16, schrieb Ruediger Meier:
+> On Wednesday 09 April 2014, Thomas B=E4chler wrote:
+>> Am 09.04.2014 14:12, schrieb Ruediger Meier:
+>>>> well, "fstrim -a" contains heruistic to select the right filestems
+>>>> (it really does not call trim for all devices), it has been
+>>>> implemented to *avoid* sysadmins creativity. If you don't like it,
+>>>> you can use "fstrim <device>" (for example from crontab).
+>>>
+>>> I'd like the documentation more detailed.
+>>> Does it really run on all mounts or only /etc/fstab?
+>>> Does it write on automounted devices which are probably not owned
+>>> by the admin? Does it affect read-only mounts?
+>>
+>> The documentation is precise here:
+>>
+>> 'Trim all mounted filesystems on devices that support the discard
+>> operation.'
 >=20
-> 1. Adding a daemon next to script(1) and scriptreplay(1), eg.
-> scriptcollect(1), to be in the receiving end of the traffic, optionally
-> handling the timing functionality, and finally storing data in the same
-> manner script(1) would.
+> If this is 100% true then Karel's statement 10 lines above would be=20
+> wrong.
+
+There is no contradiction between this and what Karel said. I think you
+are confused and should read both statements again.
+
+> Also this doc line indicates that even read-only mounts could be trimme=
+d=20
+> (if FS supports it) which would be at least dangerous if it runs=20
+> automatically while admin is trying to repair a broken filesystem.
+
+The documentation says nothing about excluding read-only file systems,
+that should probably be changed (but it is not something that I,
+personally, am terribly concerned about).
+
+>> It is not complicated, it is just a task that shouldn't be repeated
+>> countless times.
 >=20
-> 2. Optionally linking against some crypto library to avoid putting
-> users' console data on the wire in clear text.
->=20
-> Ideally we'd like to upstream any changes we make, and this post serves
-> as an attempt to gauge the mood and ask for guidance as to which
-> direction you guys think we should take our efforts.
+> Now you still need to enable it "countless times" which I would do usin=
+g=20
+> rsync or git anyway like I would sync self created timers, crontabs or =
 
-Do you think functionality like this belongs in script(1) et al., and do
-you think you'd accept the patches, if they look sane?
+> whatever config files with same effort.
 
-J.
---=20
-Jesper Dahl Nyerup
-Systems Engineer
-One.com, nyerup@one.com
+This is getting annoying. It is your opinion that we should not add
+useful things because we haven't done so in the past, or because someone
+might want to do it slightly differently.
 
---J/dobhs11T7y2rNN
+I submitted it, Karel added it, period. There's no point continuing this
+argument.
+
+
+
+--2UcwNPhVbnHchmHRgrBV0tKQh7SEGOXUR
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Version: GnuPG v2.0.22 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlNcJLMACgkQtzA4yjN/Kb312ACePqJLupwBzL6nAS5CWdihucdw
-TTwAoMlW5ngdGMr6MpctzEUHO9X8SLVD
-=I+Ia
+iQIcBAEBCAAGBQJTRWY9AAoJEChPw0yOSxolrBIP/2RCjtmpX7obYYJEk2+3m2WI
+Gbkan/CJW+QpX4ZIxdxFtsD/T/xAjnUkh5ZYTAhlXC0K7b+cgxxN/flYv7WJgHPI
+BJw2qCDgJPG0gDswULWKAsGBhkilL7Zs46s5PKGbdfcc1HiLYnd1A/Ppw6Ksasks
+AWUUekqKVd6TquDEdQkquX5Wje1rgivZgf6ktA5P107n89Nh2MaEUGdNoQRpcT4K
+Pto+RVfRO2ttTCxu6ezS3qYvLZmWbSnzGj2ohybPe5HN5MEiwWjvgDl2X9C+emoX
+tq7T7AD6+kWyX1qU19HYkCMUd7HWz6pcPu5OhKcYFWzdV9hNn/dbSsXdxhCuEOem
+go1Lvf2GIyAGXfz7vIeexX3dukXuLBaD9NeyIziPxEeGJjAygtQ/jOk7itbit9Xl
+9tjcWCNOEvdm6l4NoZzr4AeYcytATr/epmCvrCyBO8LpxfiGYa9pWomVQ5v/3jlY
+vW9IDpOhznQCPeEwz5Qpu/FUCPRmfcFeWWUBVAXOs6qXoQhZBIRd+oP22waMZt6t
+KvEpDNYaznYGNO7qtOtN6EZlZmhhvZ4nHkCV4ODmCEghXzrE+OQe2hr5P+TIUS1z
+z+wseX1m9DFyQC+Et/pcTPbKe2DjTHOHDYatSfLMsfj8tT0eRZcACfR44fGoFnpw
+Ns8lBHE1ky0IFcikF6Pr
+=1Vuj
 -----END PGP SIGNATURE-----
 
---J/dobhs11T7y2rNN--
+--2UcwNPhVbnHchmHRgrBV0tKQh7SEGOXUR--
