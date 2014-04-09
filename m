@@ -1,140 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2378 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752466AbaD1Gwz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Apr 2014 02:52:55 -0400
-Date: Mon, 28 Apr 2014 08:52:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from ud10.udmedia.de ([194.117.254.50]:55911 "EHLO
+	mail.ud10.udmedia.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932908AbaDIPz7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Apr 2014 11:55:59 -0400
+Date: Wed, 9 Apr 2014 17:55:57 +0200
+From: Markus Trippelsdorf <markus@trippelsdorf.de>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 01/12] include/xalloc: ensure arithmetics overflow cannot
- happen
-Message-ID: <20140428065243.GJ2405@x2.net.home>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
- <1398629138-31718-2-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] fstrim: add systemd units
+Message-ID: <20140409155557.GF26270@x4>
+References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
+ <20140409110251.GT22126@x2.net.home>
+ <20140409140240.GA26270@x4>
+ <201404091748.07452.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1398629138-31718-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <201404091748.07452.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 27, 2014 at 09:05:27PM +0100, Sami Kerola wrote:
-> The xrealloc() changes has the greatest change.  It splits the size and
-> multiplier arguments so that arithmetics overflow can be detected.  This
-> change is propagated to use of the function in other files.
+On 2014.04.09 at 17:48 +0200, Ruediger Meier wrote:
+> On Wednesday 09 April 2014, Markus Trippelsdorf wrote:
+> > On 2014.04.09 at 13:02 +0200, Karel Zak wrote:
+> > > On Wed, Apr 09, 2014 at 12:07:56PM +0200, Ruediger Meier wrote:
+> > > > Actually I think daily "fstrim -a" IS not a good idea for most of
+> > > > my systems
+> > >
+> > > install service != enable (this is important detail, I'll never
+> > > agree with automatically enabled services).
+> > >
+> > > BTW, why IS not a good idea for your systems?
+> >
+> > The fixed interval is problematic. There are SSD devices out there
+> > that suffer (their flash cells die out faster) when they get trimmed
+> > too often. A good rule of thumb is to trim once you have written the
+> > same amount as you have free space on your device. Obviously, that
+> > interval varies for every user (e.g. it's one week in my case).
+> 
+> Is "mount -o discard" instead of fstrim interval more or less bad 
+> regarding lifetime?
 
- I don't like it at all. The function realloc() has well know semantic
- and arguments. We don't want to create parallel universe...
- 
- If you want something else "nmemb, size"  then introduce xrecalloc()
- or so.. but don't use "realloc" name at all.
+It really depends on the specific SSD model. But a cron job with fstrim
+should do a better job in general.
 
-> Additionally this change checks that size inputs for allocations are
-> never zero.  It is uncertain if in these cases abort() should be called
-> to get a core.
+> And BTW does fstrim makes sense on non SSDs at all?
 
- I don't think we need a different semantic than C standards.
-
->  void *xmalloc(const size_t size)
->  {
-> -        void *ret = malloc(size);
-> +	void *ret;
->  
-> -        if (!ret && size)
-> -                err(XALLOC_EXIT_CODE, "cannot allocate %zu bytes", size);
-> -        return ret;
-> +	if (size == 0)
-> +		err(XALLOC_EXIT_CODE, "xmalloc: zero size");
-
- man malloc, zero size is just correct
-
-> +	ret = malloc(size);
-> +	if (!ret)
-> +		err(XALLOC_EXIT_CODE, "xmalloc: cannot allocate %zu bytes", size);
-> +	return ret;
->  }
-
- I don't think we need "xmalloc:" prefix to the error message.
-
->  static inline __ul_alloc_size(2)
-> -void *xrealloc(void *ptr, const size_t size)
-> +void *xrealloc(void *ptr, const size_t nmemb, const size_t size)
->  {
-> -        void *ret = realloc(ptr, size);
-> -
-> -        if (!ret && size)
-> -                err(XALLOC_EXIT_CODE, "cannot allocate %zu bytes", size);
-> -        return ret;
-> +	void *ret;
-> +	size_t new_size = nmemb * size;
-> +
-> +	if (new_size == 0)
-> +		err(XALLOC_EXIT_CODE, "xrealloc: zero size");
-
- man realloc, zero size is correct
-
-> +	if (SIZE_MAX / nmemb < size)
-> +		err(XALLOC_EXIT_CODE, "xrealloc: nmemb * size > SIZE_MAX");
-> +	if (ptr == NULL)
-> +		ret = malloc(new_size);
-> +	else
-> +		ret = realloc(ptr, new_size);
-> +	if (!ret)
-> +		err(XALLOC_EXIT_CODE, "xrealloc: cannot allocate %zu bytes", size);
-> +	return ret;
->  }
->  
->  static inline __ul_calloc_size(1, 2)
->  void *xcalloc(const size_t nelems, const size_t size)
->  {
-> -        void *ret = calloc(nelems, size);
-> -
-> -        if (!ret && size && nelems)
-> -                err(XALLOC_EXIT_CODE, "cannot allocate %zu bytes", size);
-> -        return ret;
-> +	void *ret;
-> +
-> +	if (nelems == 0 || size == 0)
-> +		err(XALLOC_EXIT_CODE, "xcalloc: zero size");
-
- zero size is correct
-
-> +	if (SIZE_MAX / nelems < size)
-> +		err(XALLOC_EXIT_CODE, "xcalloc: nmemb * size > SIZE_MAX");
-> +	ret = calloc(nelems, size);
-> +	if (!ret)
-> +		err(XALLOC_EXIT_CODE, "xcalloc: cannot allocate %zu bytes", nelems * size);
-> +	return ret;
->  }
->  
->  static inline char __attribute__((warn_unused_result)) *xstrdup(const char *str)
->  {
-> -        char *ret;
-> -
-> -        if (!str)
-> -                return NULL;
-> -
-> -        ret = strdup(str);
-> +	size_t len;
-> +	char *ret;
->  
-> -        if (!ret)
-> -                err(XALLOC_EXIT_CODE, "cannot duplicate string");
-> -        return ret;
-> +	if (!str)
-> +		return NULL;
-> +	len = strlen(str) + 1;
-> +	ret = xmalloc(len);
-> +	memcpy(ret, str, len);
-> +	return ret;
->  }
-
- Seem like premature optimization, it would be better to use libc
- rather than maintain private implementation.
-
-    Karel
-
+No. (There are huge storage solutions with thin provisioning, that offer
+trim support.)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Markus
