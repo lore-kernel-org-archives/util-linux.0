@@ -1,65 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cn.fujitsu.com ([59.151.112.132]:64281 "EHLO
-	heian.cn.fujitsu.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750865AbaDOEvp convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 00:51:45 -0400
-Message-ID: <534CBB1E.70701@cn.fujitsu.com>
-Date: Tue, 15 Apr 2014 12:52:46 +0800
-From: Qu Wenruo <quwenruo@cn.fujitsu.com>
-MIME-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:50156 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934697AbaDJIF0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 10 Apr 2014 04:05:26 -0400
+Date: Thu, 10 Apr 2014 10:05:14 +0200
+From: Karel Zak <kzak@redhat.com>
 To: "Theodore Ts'o" <tytso@mit.edu>
-CC: <util-linux@vger.kernel.org>
-Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
-References: <534C9625.8030906@cn.fujitsu.com> <20140415042729.GC3403@thunk.org>
-In-Reply-To: <20140415042729.GC3403@thunk.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Cc: Markus Trippelsdorf <markus@trippelsdorf.de>,
+        Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] fstrim: add systemd units
+Message-ID: <20140410080514.GA26252@x2.net.home>
+References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
+ <20140409110251.GT22126@x2.net.home>
+ <20140409140240.GA26270@x4>
+ <201404091748.07452.sweet_f_a@gmx.de>
+ <20140409155557.GF26270@x4>
+ <20140409183954.GB778@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140409183954.GB778@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Apr 09, 2014 at 02:39:54PM -0400, Theodore Ts'o wrote:
+> On Wed, Apr 09, 2014 at 05:55:57PM +0200, Markus Trippelsdorf wrote:
+> > > > The fixed interval is problematic. There are SSD devices out there
+> > > > that suffer (their flash cells die out faster) when they get trimmed
+> > > > too often. A good rule of thumb is to trim once you have written the
+> > > > same amount as you have free space on your device. Obviously, that
+> > > > interval varies for every user (e.g. it's one week in my case).
+> > > 
+> > > Is "mount -o discard" instead of fstrim interval more or less bad 
+> > > regarding lifetime?
+> 
+> For those SSD's that have a problem, "mount -o discard" is a disaster.
+> Some turn into bricks, others will have a degraded flash cells, many
+> will cause extremely degraded performance for other processes.
+> 
+> What I usually tell people as far as who ask me for advice is that
+> once a week is usually sufficient, especially for most desktop and
+> server systems.  If you are running an extreme workload which is doing
+> a huge number of random writes, then sure, running fstrim more
+> frequently, or even using "mount -o discard" might make a lot more
+> sense --- especially if you are using PCIe attached flash.  But in
+> those cases, the system administrator might not want be willing to
+> tolerate the random latencies in performance that might show up when
+> fstrim is running (for pretty much all SATA and SAS attached SSD's out
+> there, they don't yet support queued trim, so each trim command
+> requires draining the NCQ queue, which is why sending trim commands,
+> whether via "mount -o discard" or via fstrim will incur a performance
+> penalty to whatever else might be trying to use the disk at the time).
+> 
+> I'll note BTW that even using "fstrim" could potentially brick an
+> especially inexpensive/trashy SSD, although the vendor for whose drive
+> had been most commonly accused of promulgating those to the world is
+> out of business (although there are probably plenty of those SSD's
+> still in use in various community distros' audiences.)
 
--------- Original Message --------
-Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
-From: Theodore Ts'o <tytso@mit.edu>
-To: Qu Wenruo <quwenruo@cn.fujitsu.com>
-Date: 2014年04月15日 12:27
-> On Tue, Apr 15, 2014 at 10:15:01AM +0800, Qu Wenruo wrote:
->> Though the above patch try to avoid the whole cache, it's not good enough
->> since it break the pricible not
->> to probe the devices too frequently.
->>
->> After some searching, it seems that libblkid does not provide such API, or
->> am I missing something?
-> The blkid_verify() function is designed to make sure the information
-> in the cache corresponds with reality.  If it does not, it will update
-> the cache to match with reality, so it will do what you want.
->
-> Using blkid_verify() will involve accessing the disk involved, but
-> that's still better than the alternative of scanning all of the disks
-> in the system.
->
-> Cheers,
->
-> 					- Ted
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-I hope I was wrong but according to the codes, blkid_verify() seems 
-still using the cache:
-------
-blkid_dev blkid_verify(blkid_cache cache, blkid_dev dev)
-{
-......
-             (diff < BLKID_PROBE_MIN ||
-                 (dev->bid_flags & BLKID_BID_FL_VERIFIED &&
-                  diff < BLKID_PROBE_INTERVAL)))
-                 return dev;
-------
+ Thanks for the advices. 
+ 
+ I have modified the systemd fstrim.timer (daily -> weekly) and added
+ some notes to the man page.
 
-So it seems not working in the case.
+    Karel
 
-Also in the btrfs-progs codes, it has already called blkid_verify() 
-before operations.
-
-Thanks,
-Qu.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
