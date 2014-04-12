@@ -1,43 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57657 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755308AbaDHHs4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Apr 2014 03:48:56 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s387mt35007704
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:48:55 -0400
-Received: from redhat.brq.redhat.com (unused-4-202.brq.redhat.com [10.34.4.202])
-	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id s387moTm004800
-	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:48:55 -0400
-From: Ondrej Oprala <ooprala@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 04/10] sulogin: minor man page improvements
-Date: Tue,  8 Apr 2014 09:48:43 +0200
-Message-Id: <1396943329-22347-5-git-send-email-ooprala@redhat.com>
-In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
-References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
+Received: from moutng.kundenserver.de ([212.227.126.187]:50900 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750833AbaDLP5i (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 12 Apr 2014 11:57:38 -0400
+Message-ID: <53496267.80502@bernhard-voelker.de>
+Date: Sat, 12 Apr 2014 17:57:27 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/7] kill: make options --pid and --queue mutually exclusive
+References: <1397298524-3364-1-git-send-email-kerolasa@iki.fi> <1397298524-3364-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1397298524-3364-2-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Ondrej Oprala <ooprala@redhat.com>
----
- login-utils/sulogin.8 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/login-utils/sulogin.8 b/login-utils/sulogin.8
-index a401446..57a7118 100644
---- a/login-utils/sulogin.8
-+++ b/login-utils/sulogin.8
-@@ -76,7 +76,7 @@ or
- to determine what shell to start.  If the environment variable is not set, it
- will try to execute root's shell from
- .IR /etc/passwd .
--If that fails it
-+If that fails, it
- will fall back to
- .IR /bin/sh .
- .SH AUTHOR
--- 
-1.8.5.1
+On 04/12/2014 12:28 PM, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/kill.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+> index d461b36..e678661 100644
+> --- a/misc-utils/kill.c
+> +++ b/misc-utils/kill.c
+> @@ -381,6 +381,10 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
+>  			ctl->do_pid = 1;
+>  			if (ctl->do_kill)
+>  				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--signal");
+> +#ifdef HAVE_SIGQUEUE
+> +			if (ctl->use_sigval)
+> +				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
+> +#endif
+>  			continue;
+>  		}
+>  		if (!strcmp(arg, "-s") || !strcmp(arg, "--signal")) {
+> @@ -399,6 +403,8 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
+>  		if (!strcmp(arg, "-q") || !strcmp(arg, "--queue")) {
+>  			if (argc < 2)
+>  				errx(EXIT_FAILURE, _("option '%s' requires an argument"), arg);
+> +			if (ctl->do_pid)
+> +				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
+>  			argc--, argv++;
+>  			arg = *argv;
+>  			if ((ctl->numsig = arg_to_signum(arg, 0)) < 0)
+> 
+
+Ain't this a good case for
+  err_exclusive_options(c, longopts, excl, excl_st);
+?
+
+Have a nice day,
+Berny
+
 
