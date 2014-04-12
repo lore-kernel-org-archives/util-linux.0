@@ -1,82 +1,105 @@
-Return-Path: thomas@archlinux.org
-Message-ID: <5343D600.7000507@archlinux.org>
-Date: Tue, 08 Apr 2014 12:57:04 +0200
-From: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
-MIME-Version: 1.0
-To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
-CC: =?ISO-8859-15?Q?Thomas_B=E4chler?= <thomas@archlinux.org>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH] fstrim: add systemd units
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <20140407104304.GJ22126@x2.net.home> <201404081225.21563.sweet_f_a@gmx.de>
-In-Reply-To: <201404081225.21563.sweet_f_a@gmx.de>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="MRD6Al6rHrj3QCLdgktqnVitmW2vCRILM"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:51033 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756043AbaDLK3D (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 12 Apr 2014 06:29:03 -0400
+Received: by mail-wg0-f46.google.com with SMTP id b13so6296654wgh.17
+        for <util-linux@vger.kernel.org>; Sat, 12 Apr 2014 03:29:01 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 5/7] tests: check various ways to specify kill signal
+Date: Sat, 12 Apr 2014 11:28:42 +0100
+Message-Id: <1397298524-3364-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>
+References: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---MRD6Al6rHrj3QCLdgktqnVitmW2vCRILM
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/kill/options |  1 +
+ tests/ts/kill/options       | 63 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 64 insertions(+)
+ create mode 100644 tests/expected/kill/options
+ create mode 100755 tests/ts/kill/options
 
-Am 08.04.2014 12:25, schrieb Ruediger Meier:
-> Hm, isn't this a bit over the top? Adding a script just to=20
-> call "fstrim -a" automatically?
+diff --git a/tests/expected/kill/options b/tests/expected/kill/options
+new file mode 100644
+index 0000000..d48ce72
+--- /dev/null
++++ b/tests/expected/kill/options
+@@ -0,0 +1 @@
++all ok
+diff --git a/tests/ts/kill/options b/tests/ts/kill/options
+new file mode 100755
+index 0000000..6cf2251
+--- /dev/null
++++ b/tests/ts/kill/options
+@@ -0,0 +1,63 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="options"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++ts_check_test_command "$TS_CMD_KILL"
++ts_check_test_command "$TS_CMD_FLOCK"
++all_ok=true
++
++try_option()
++{
++	$TS_HELPER_SIGRECEIVE &
++	TEST_PID=$(jobs -p)
++	# test_sigreceive needs time to start up
++	sleep 0.01
++	$TS_CMD_KILL $@ ${TS_HELPER_SIGRECEIVE##*/} >> $TS_OUTPUT 2>&1
++	if [ $? -ne 0 ]; then
++		echo "kill $@ did not work" >> $TS_OUTPUT
++		all_ok=false
++	fi
++	wait $TEST_PID
++	if [ $? -ne 1 ]; then
++		echo "wait $TEST_PID for $@ did not work" >> $TS_OUTPUT
++		all_ok=false
++	fi
++}
++
++# parallel kill checks could kill wrong sigreceiver
++exec 42<$TS_HELPER_SIGRECEIVE
++$TS_CMD_FLOCK 42
++
++try_option -s 1
++try_option --signal 1
++try_option --signal HUP
++try_option --signal SIGHUP
++try_option -q HUP
++try_option --queue HUP
++try_option -1
++try_option -HUP
++try_option -SIGHUP
++
++$TS_CMD_FLOCK -u 42
++
++if $all_ok; then
++	echo 'all ok' >> $TS_OUTPUT
++fi
++
++ts_finalize
+-- 
+1.9.2
 
-It's a common task. I was getting tired of having to add this on every
-single machine that I set up.
-
-> Should we also add scripts for "mount -a" or "fsck -a" or "swapon -a"?
-
-And what purpose would that serve? Did you just take random commands and
-add '-a' to prove a point?
-
-> And wouldn't we also need to add "example crontab" lines for non-system=
-d=20
-> systems! Sounds a bit ridiculous, right?
-
-You can add them if you feel like it. But this is not an "example" file,
-it is ready to be used.
-
-> I think it's the distro's or admin's job to write and add the scripts=20
-> for filesystems maintenance etc.
-
-That's ridiculous. We finally, for the first time ever, have a unified
-way of creating service definitions that can be used unchanged in all
-relevant distributions (except Gentoo and Slackware, of course). The
-main advantage of this unification is that they can be shipped and
-maintained by upstream projects - after all, the upstream projects know
-what services make sense and how to start them properly.
-
-> BTW fstrim.timer is missing in "make dist" tar ball.
-
-Sorry, you are right. I'm a bit lost in this build system, Karel
-probably knows how to fix this.
-
-
-
---MRD6Al6rHrj3QCLdgktqnVitmW2vCRILM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQIcBAEBCAAGBQJTQ9YAAAoJEChPw0yOSxoltOEQAMOYiy2QRZauakzZgjFmC9eh
-9Cww4ABzF5Vs4qDu5gXv/m+mHZHJwNkH0tYNRqERtcD67lWKE9RaTFILzs8pQCab
-dvs6x9VxDlwDgEbMpimIg4wjCsAFrbGlUGE1X7I2ZxE9iNflL8gRdaKO4kIgP4Ro
-8MxbqOr3UlYvhy2mDEHiCLzRTjVMbPGq+vspBNbShMh0ERs3RrvP+RmOp3qS3+Ht
-pnf1JN2UQTjTQO2PU1VWfp/uv2YEY5WoN2elXW8+cK+t93bttd/lSPokyLz+P2An
-wB8WsKHyDHOFNq1+egg4NRgbUiC3Qv8GbsnhNnADloptKFGYbhM+rQ01vesjMTSO
-OdlJe2i1LE+eCnNcxcwaWdk1cLhreb3kgrz2VhUnSX6OhFJdfaHqCYu+clV8YU6M
-BXPIwi+rgQv/JUb32d+NjLykD22FO4iTBiLWNeKxkhI5qCH8f/ao9UPHPHGRphHT
-eRhhnen6M9x8aOiiLrd7EOOBeuL5nqt0VvvMsgTf2tYoKj/nMQB2fOulyShwZCbO
-vTBEXHqv5sIbXjQwTnt4ad8Q8rEBdm9PTzTCMHGzhpJOopLM3bndgPbr6SCQrk9u
-NEZLq6QZxJFWqatv8QmjfckjdE/VlI6R0QmEpy8mkh+IJm2mQ6smw/m2vvqEmBkR
-XJANqcNJkgVhC2auCLz8
-=OkuH
------END PGP SIGNATURE-----
-
---MRD6Al6rHrj3QCLdgktqnVitmW2vCRILM--
