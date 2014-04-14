@@ -1,89 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58947 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030734AbaDJNWU convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 10 Apr 2014 09:22:20 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] fstrim: add systemd units
-Date: Thu, 10 Apr 2014 15:22:12 +0200
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-        Markus Trippelsdorf <markus@trippelsdorf.de>,
-        util-linux@vger.kernel.org
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <20140410124914.GB26252@x2.net.home> <201404101516.26942.sweet_f_a@gmx.de>
-In-Reply-To: <201404101516.26942.sweet_f_a@gmx.de>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:62194 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754296AbaDNHmu (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Apr 2014 03:42:50 -0400
+Received: by mail-pa0-f49.google.com with SMTP id lj1so7824706pab.8
+        for <util-linux@vger.kernel.org>; Mon, 14 Apr 2014 00:42:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201404101522.13699.sweet_f_a@gmx.de>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <534B0E1B.4040208@bernhard-voelker.de>
+References: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>
+	<1397298524-3364-5-git-send-email-kerolasa@iki.fi>
+	<534B0E1B.4040208@bernhard-voelker.de>
+Date: Mon, 14 Apr 2014 08:42:50 +0100
+Message-ID: <CAG27Bk1w81SaDxomfv14cDwZjFi_6nyq3uHHtc+JxV6xB5rp0Q@mail.gmail.com>
+Subject: Re: [PATCH 4/7] tests: check kill is converting signals names correctly
+From: Sami Kerola <kerolasa@iki.fi>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-
-On Thursday 10 April 2014, Ruediger Meier wrote:
-> On Thursday 10 April 2014, Karel Zak wrote:
-> > On Thu, Apr 10, 2014 at 11:17:04AM +0200, Ruediger Meier wrote:
-> > > Thanks, maybe we could add another minor change to "fstrim -a"
-> > > itself. If possible it would be IMO useful to skip bind mounts to
-> > > avoid trimming the same filesystem several times in a row like
-> > > this:
-> > >
-> > > $ grep "tmp" /etc/fstab
-> > > /dev/vg0/tmpdirs     /mnt/tmpdirs   ext4       acl,user_xattr    
-> > > 1 2 /mnt/tmpdirs/tmp     /tmp           none       bind
-> > > 0 0 /mnt/tmpdirs/var/tmp /var/tmp       none       bind
-> > >   0 0
-> > >
-> > > $ ./fstrim -av
-> > > /tmp: 392 KiB (401408 bytes) trimmed
-> > > /var/tmp: 0 B (0 bytes) trimmed
-> > > /mnt/tmpdirs: 0 B (0 bytes) trimmed
-> > >
-> > > Skipping bind mounts should still trim all mounted filesytems.
-> >
-> > Good idea point, but what about systems where the original
-> > mountpoint is umounted?
-> >
-> >  /dev/sda1  /foo    ext4    default
-> >  /foo       /bar    none    bind
-> >
-> >   # mount /foo
-> >   # mount /bar
-> >   # umount /foo
+On 13 April 2014 23:22, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
+> On 04/12/2014 12:28 PM, Sami Kerola wrote:
+>> +     $TS_HELPER_SIGRECEIVE &
+>> +     TEST_PID=$(jobs -p)
+>> +     # test_sigreceive needs time to start up
+>> +     sleep 0.01
+>> +     $TS_CMD_KILL -$SIG ${TS_HELPER_SIGRECEIVE##*/} >> $TS_OUTPUT 2>&1
+>> +     wait $TEST_PID
+>> +     if [ $? -ne $EXPECTED ]; then
+>> +             echo "$SIG returned $? while $EXPECTED was expected" >> $TS_OUTPUT
+>> +             all_ok=false
+>> +     fi
 >
-> Nice, I thought that wouldn't be even possible to do.
+> This is racy. Although this might work in most cases, one can not
+> determine that the SIGRECEIVE process had enough time to startup
+> and register all signal handlers before the signal arrives.
+> Usually this would fail more likely with high system load,
+> e.g. on build servers with massive parallel builds.
 >
-> > the another story is that we use /proc/self/mountinfo where is
-> > nothing about "bind". It would be probably better to de-duplicate
-> > the list of the filesystems according to filesystem UUID or so.
-> >
-> > I'll think about it.
+> The only chance is that the SIGRECEIVE program indicates that it
+> has fully come up, e.g. by creating a file which did not exist
+> beforehand. The second part of avoiding unwanted behavior is to
+> wait for such a witness file to appear in the parent test script
+> ... but avoiding to wait infinitely (because other unknown reasons
+> may have prevented the creation of the witness file).
 >
-> Maybe you could borrow the filter from lsblk. With my fstab above it
-> seems to skip the bind mounts:
+> In the test-suite of coreutils, there are a few complex (and yet
+> necessary) snippets to do this:
+> a) test case waiting for the inspected program to be ready:
+>   http://git.savannah.gnu.org/cgit/coreutils.git/tree/tests/tail-2/retry.sh#n45
+> b) utility function to retry with increasing delay until a
+> maximum number has reached:
+>   http://git.savannah.gnu.org/cgit/coreutils.git/tree/init.cfg#n597
 >
-> NAME            MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-> sda               8:0    0 232.9G  0 disk
-> sda1            8:1    0   512M  0 part /boot
-> sda2            8:2    0 232.4G  0 part
->   vg0-root    253:0    0    24G  0 lvm  /
->   vg0-swap    253:1    0     4G  0 lvm  [SWAP]
->   vg0-tmpdirs 253:2    0 204.4G  0 lvm  /mnt/tmpdirs
+> Maybe a solution like the above is too heavy for this situation (unless
+> it could be reused in other tests), so something like the following may
+> suffice here - assuming that $TS_HELPER_SIGRECEIVE will successfully
+> perform a 'creat("witnessfile", mode)':
+>
+>   rm -f witnessfile   || fail=1
+>   test -f witnessfile && fail=1
+>   $TS_HELPER_SIGRECEIVE & TEST_PID=$!
+>   up=0
+>   while i in 0.01 0.1 1 2 ; do
+>     test -f witnessfile && { up=1; break; }
+>     sleep $i
+>   done
+>   test $up = 1 || fail=1
+>   $TS_CMD_KILL -$SIG ${TS_HELPER_SIGRECEIVE##*/} >> $TS_OUTPUT 2>&1
+>   ...
+>
+> WDYT?
 
-... seems the first mount wins. After umounting the origin:
+Hi Berny,
 
-$ umount /mnt/tmpdirs/
-$ lsblk
-NAME            MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sda               8:0    0 232.9G  0 disk
-├─sda1            8:1    0   512M  0 part /boot
-└─sda2            8:2    0 232.4G  0 part
-  ├─vg0-root    253:0    0    24G  0 lvm  /
-  ├─vg0-swap    253:1    0     4G  0 lvm  [SWAP]
-  └─vg0-tmpdirs 253:2    0 204.4G  0 lvm  /tmp
-sr0              11:0    1  1024M  0 rom
-loop0             7:0    0     1G  0 loop /mnt/a
+I wish I had though witnessfile before sending the patches, thanks for
+the idea. I have feeling it might solve various parallel test issues I
+had while doing test runs earlier. Version that used combined with
+mktemp symlinks to sigreive helper to alter name of the killed program
+was an attempt to make parallel runs to work, but it was flaky
+probably due reasons you gave. The symlink approach with witnessfile
+might allow to get rid of flock that makes the kill tests to run
+sequentially. Let me try that.
 
-cu,
-Rudi
+Karel please for completion of the second try. I will keep these
+patches untouched in
+
+git://github.com/kerolasa/lelux-utiliteetit.git kill-tests
+
+The witnessfile version goes this branch, once I have something to push.
+
+git://github.com/kerolasa/lelux-utiliteetit.git kill-tests-v2
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
