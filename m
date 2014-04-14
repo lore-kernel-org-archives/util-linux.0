@@ -1,46 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54905 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:6488 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750857AbaDRLNE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Apr 2014 07:13:04 -0400
-Date: Fri, 18 Apr 2014 13:12:56 +0200
+	id S1751177AbaDNLqs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Apr 2014 07:46:48 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s3EBklLo018431
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Mon, 14 Apr 2014 07:46:47 -0400
+Date: Mon, 14 Apr 2014 13:46:45 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Nicolas <nicolas.delaby@ezeep.com>, util-linux@vger.kernel.org
-Subject: Re: nsenter: passing command arguments
-Message-ID: <20140418111256.GM5786@x2.net.home>
-References: <534F91FD.4020803@ezeep.com>
- <535052E2.2010705@bernhard-voelker.de>
+To: Ondrej Oprala <ooprala@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/10] Man page corrections v1.0
+Message-ID: <20140414114645.GC5786@x2.net.home>
+References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <535052E2.2010705@bernhard-voelker.de>
+In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Apr 18, 2014 at 12:17:06AM +0200, Bernhard Voelker wrote:
-> On 04/17/2014 10:34 AM, Nicolas wrote:
-> > Hi,
-> > I'm struggling with nsenter to call commands with options because they 
-> > are caught by nsenter and complain this is an invalid option.
-> > 
-> > How can I pass any arbitrary argument ?
-> > 
-> > Thanks for reading,
-> > Nicolas
-> > 
-> > ```
-> > $ nsenter --target $PID --mount --uts --ipc --net --pid ls -a
-> > nsenter: invalid option -- 'a'
-> 
-> Use '--' to tell nsenter to stop option parsing:
->   $ nsenter --target $PID --mount --uts --ipc --net --pid -- ls -a
-> 
-> Although I think this can be considered a bug; nsenter should
-> do this automatically when seeing the first non-option.
+On Tue, Apr 08, 2014 at 09:48:39AM +0200, Ondrej Oprala wrote:
+>  disk-utils/addpart.8   |  8 ++++----
+>  disk-utils/cfdisk.8    | 24 ++++++++++++------------
+>  disk-utils/delpart.8   |  2 +-
+>  login-utils/last.1     | 32 ++++++++++++++++----------------
+>  login-utils/nologin.8  | 10 +++++-----
+>  login-utils/runuser.1  | 28 ++++++++++++++--------------
+>  login-utils/su.1       | 20 ++++++++++----------
+>  login-utils/sulogin.8  |  2 +-
+>  login-utils/utmpdump.1 | 24 ++++++++++++------------
+>  login-utils/vipw.8     |  2 +-
+>  10 files changed, 76 insertions(+), 76 deletions(-)
 
- Yep, fixed (also in unshare).
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
