@@ -1,126 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:55176 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751064AbaD0UF4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:05:56 -0400
-Received: by mail-we0-f180.google.com with SMTP id t61so741841wes.39
-        for <util-linux@vger.kernel.org>; Sun, 27 Apr 2014 13:05:55 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 02/12] dmesg: move get_boot_time() to lib/timeutils
-Date: Sun, 27 Apr 2014 21:05:28 +0100
-Message-Id: <1398629138-31718-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+Received: from moutng.kundenserver.de ([212.227.126.131]:57775 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753244AbaDOJL1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 05:11:27 -0400
+Message-ID: <534CF73C.50309@bernhard-voelker.de>
+Date: Tue, 15 Apr 2014 11:09:16 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: kerolasa@gmail.com
+CC: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 4/7] tests: check kill is converting signals names correctly
+References: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>	<1397298524-3364-5-git-send-email-kerolasa@iki.fi>	<534B0E1B.4040208@bernhard-voelker.de>	<CAG27Bk1w81SaDxomfv14cDwZjFi_6nyq3uHHtc+JxV6xB5rp0Q@mail.gmail.com>	<CAG27Bk0k46-Vnj5Jonb_xXkW+h_WZTt=YXfOroy8nMvaiwLdCg@mail.gmail.com>	<534C096C.2070500@bernhard-voelker.de> <CAG27Bk1pgj3QeLgcUCP05h0QnLsLXibQVkFj3egQbG1nmxew3Q@mail.gmail.com>
+In-Reply-To: <CAG27Bk1pgj3QeLgcUCP05h0QnLsLXibQVkFj3egQbG1nmxew3Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In future the last(1) will use get_boot_time() as well.
+On 04/14/2014 09:00 PM, Sami Kerola wrote:
+> On 14 April 2014 17:14, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
+> Most of the tests could use pid, but I am afraid there should be at
+> least one of them using name. Else killing by name remains untested.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/timeutils.h |  1 +
- lib/timeutils.c     | 29 +++++++++++++++++++++++++++++
- sys-utils/dmesg.c   | 27 ---------------------------
- 3 files changed, 30 insertions(+), 27 deletions(-)
+What about creating a test 'kill_by_name', and avoiding complexity
+in the other tests? They all have a certain purpose each, so there's
+no need to put a certain aspect into all of them.
 
-diff --git a/include/timeutils.h b/include/timeutils.h
-index bcae613..b9ba0f7 100644
---- a/include/timeutils.h
-+++ b/include/timeutils.h
-@@ -51,5 +51,6 @@ typedef uint64_t nsec_t;
- #define FORMAT_TIMESPAN_MAX 64
- 
- int parse_timestamp(const char *t, usec_t *usec);
-+int get_boot_time(struct timeval *boot_time);
- 
- #endif /* UTIL_LINUX_TIME_UTIL_H */
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index 7fe6218..c1b632e 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -21,9 +21,12 @@
- #include <assert.h>
- #include <ctype.h>
- #include <string.h>
-+#include <sys/sysinfo.h>
-+#include <sys/time.h>
- #include <time.h>
- 
- #include "c.h"
-+#include "nls.h"
- #include "strutils.h"
- #include "timeutils.h"
- 
-@@ -336,3 +339,29 @@ int parse_timestamp(const char *t, usec_t *usec)
- 
- 	return 0;
- }
-+
-+int get_boot_time(struct timeval *boot_time)
-+{
-+	struct timespec hires_uptime;
-+	struct timeval lores_uptime, now;
-+	struct sysinfo info;
-+
-+	if (gettimeofday(&now, NULL) != 0) {
-+		warn(_("gettimeofday failed"));
-+		return -errno;
-+	}
-+#ifdef CLOCK_BOOTTIME
-+	if (clock_gettime(CLOCK_BOOTTIME, &hires_uptime) == 0) {
-+		TIMESPEC_TO_TIMEVAL(&lores_uptime, &hires_uptime);
-+		timersub(&now, &lores_uptime, boot_time);
-+		return 0;
-+	}
-+#endif
-+	/* fallback */
-+	if (sysinfo(&info) != 0)
-+		warn(_("sysinfo failed"));
-+
-+	boot_time->tv_sec = now.tv_sec - info.uptime;
-+	boot_time->tv_usec = 0;
-+	return 0;
-+}
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index df68c84..196cc61 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -472,33 +472,6 @@ static int get_syslog_buffer_size(void)
- 	return n > 0 ? n : 0;
- }
- 
--static int get_boot_time(struct timeval *boot_time)
--{
--	struct timespec hires_uptime;
--	struct timeval lores_uptime, now;
--	struct sysinfo info;
--
--	if (gettimeofday(&now, NULL) != 0) {
--		warn(_("gettimeofday failed"));
--		return -errno;
--	}
--
--#ifdef CLOCK_BOOTTIME
--	if (clock_gettime(CLOCK_BOOTTIME, &hires_uptime) == 0) {
--		TIMESPEC_TO_TIMEVAL(&lores_uptime, &hires_uptime);
--		timersub(&now, &lores_uptime, boot_time);
--		return 0;
--	}
--#endif
--	/* fallback */
--	if (sysinfo(&info) != 0)
--		warn(_("sysinfo failed"));
--
--	boot_time->tv_sec = now.tv_sec - info.uptime;
--	boot_time->tv_usec = 0;
--	return 0;
--}
--
- /*
-  * Reads messages from regular file by mmap
-  */
--- 
-1.9.2
+> Of course simple kill by name test could do the job, but I am not
+> hugely in favor to simplify tests until they work without
+> understanding why they fail in first place.
 
+Agreed. Unfortunately, I didn't find *the* reason for the failure yet.
+BTW, I often see both "all_processes" and "name_to_number" failing here.
+
+It seems that there are several issues.
+First of all, this looks odd in the receiver program:
+
+ > +	if (!stat(argv[1], &statbuf)) {
+ > +		if (S_ISDIR(statbuf.st_mode))
+ > +			xasprintf(&pid_path, "%s/%d", argv[1], getpid());
+ > +	} else
+ > +		xasprintf(&pid_path, "%s", argv[1]);
+
+What if the argv[1] is stat()able but not a directory?
+
+Anyway, I'm 40:60 against letting the receiver program decide where
+the witness file is located, i.e. I'd rather use deterministic names
+everywhere. E.g. in the 'name_to_number' tests, the name of the witness
+files could contain the signal name rather than using unsafe mktemp.
+
+Furthermore, the open() call would return -1 upon failure instead
+of 0 as assumed here:
+
+ > +	if (!(fd = open(pid_path, O_WRONLY | O_CREAT | O_TRUNC, mode)))
+ > +		err(EXIT_FAILURE, "cannot open pid file: %s", pid_path);
+
+Re. the "all_processes" test: I'm not sure how su(1) and the intermediate
+shell change the signal handling. Maybe the reason for the failure is
+somehow related to this, because $! will refer to the shell's PID rather
+than to that of the receiver program.
+Anyway, maybe it's better to use $TS_CMD_SU instead of the local 'su',
+or even adding a dedicated setuid() helper.
+
+As already said, these are just side notes.
+
+Have a nice day,
+Berny
