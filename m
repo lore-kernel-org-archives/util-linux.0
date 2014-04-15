@@ -1,60 +1,201 @@
-Return-Path: thomas@archlinux.org
-Message-ID: <5344321B.5060105@archlinux.org>
-Date: Tue, 08 Apr 2014 19:30:03 +0200
-From: =?ISO-8859-1?Q?Thomas_B=E4chler?= <thomas@archlinux.org>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fstrim: add systemd units
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <20140407104304.GJ22126@x2.net.home> <201404081225.21563.sweet_f_a@gmx.de> <5343D600.7000507@archlinux.org> <20140408172636.GN22126@x2.net.home>
-In-Reply-To: <20140408172636.GN22126@x2.net.home>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="5gh8AF7cRhvir6o1nNLXjurXeOwajPGCh"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:58333 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751335AbaDOLPs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 07:15:48 -0400
+Received: by mail-wg0-f48.google.com with SMTP id l18so9444782wgh.7
+        for <util-linux@vger.kernel.org>; Tue, 15 Apr 2014 04:15:47 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi, Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: [PATCH 3/9] tests: add signal receiver program
+Date: Tue, 15 Apr 2014 12:15:29 +0100
+Message-Id: <1397560535-14622-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---5gh8AF7cRhvir6o1nNLXjurXeOwajPGCh
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Target to kill with a check that will be wrote later.
 
-Am 08.04.2014 19:26, schrieb Karel Zak:
-> On Tue, Apr 08, 2014 at 12:57:04PM +0200, Thomas B=E4chler wrote:
->>> BTW fstrim.timer is missing in "make dist" tar ball.
->>
->> Sorry, you are right. I'm a bit lost in this build system, Karel
->> probably knows how to fix this.
->=20
->  Fixed.
->=20
->     Karel
+CC: Bernhard Voelker <mail@bernhard-voelker.de>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/helpers/Makemodule.am     |   3 +
+ tests/helpers/test_sigreceive.c | 153 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 156 insertions(+)
+ create mode 100644 tests/helpers/test_sigreceive.c
 
-Thanks.
+diff --git a/tests/helpers/Makemodule.am b/tests/helpers/Makemodule.am
+index 9724dae..0b927e9 100644
+--- a/tests/helpers/Makemodule.am
++++ b/tests/helpers/Makemodule.am
+@@ -10,3 +10,6 @@ test_pathnames_SOURCES = tests/helpers/test_pathnames.c
+ 
+ check_PROGRAMS += test_sysinfo
+ test_sysinfo_SOURCES = tests/helpers/test_sysinfo.c
++
++check_PROGRAMS += test_sigreceive
++test_sigreceive_SOURCES = tests/helpers/test_sigreceive.c
+diff --git a/tests/helpers/test_sigreceive.c b/tests/helpers/test_sigreceive.c
+new file mode 100644
+index 0000000..a84f95a
+--- /dev/null
++++ b/tests/helpers/test_sigreceive.c
+@@ -0,0 +1,153 @@
++/*
++ * test_sigreceive - wait for signal and exit with value of it
++ *
++ * Written by Sami Kerola <kerolasa@iki.fi>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it would be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++#include <err.h>
++#include <errno.h>
++#include <signal.h>
++#include <stdio.h>
++#include <sys/select.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++#include <xalloc.h>
++
++char *pid_path;
++int fd;
++
++static __attribute__ ((__noreturn__))
++void exiter(int sig)
++{
++	close(fd);
++	unlink(pid_path);
++	_exit(sig);
++}
++
++int main(int argc, char **argv)
++{
++	struct sigaction sigact;
++	fd_set rfds;
++	struct timeval timeout;
++	struct stat statbuf;
++	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
++
++	if (argc != 2) {
++		fputs("Usage: test_sigreceive <file|directory>\n", stderr);
++		return -1;
++	}
++
++	if (!stat(argv[1], &statbuf)) {
++		if (S_ISDIR(statbuf.st_mode))
++			xasprintf(&pid_path, "%s/%d", argv[1], getpid());
++	} else
++		xasprintf(&pid_path, "%s", argv[1]);
++
++	sigemptyset(&sigact.sa_mask);
++	sigact.sa_flags = 0;
++	sigact.sa_handler = exiter;
++	timeout.tv_sec = 5;
++	timeout.tv_usec = 0;
++
++	sigaction(SIGHUP, &sigact, NULL);
++	sigaction(SIGINT, &sigact, NULL);
++	sigaction(SIGQUIT, &sigact, NULL);
++	sigaction(SIGILL, &sigact, NULL);
++#ifdef SIGTRAP
++	sigaction(SIGTRAP, &sigact, NULL);
++#endif
++	sigaction(SIGABRT, &sigact, NULL);
++#ifdef SIGIOT
++	sigaction(SIGIOT, &sigact, NULL);
++#endif
++#ifdef SIGEMT
++	sigaction(SIGEMT, &sigact, NULL);
++#endif
++#ifdef SIGBUS
++	sigaction(SIGBUS, &sigact, NULL);
++#endif
++	sigaction(SIGFPE, &sigact, NULL);
++	sigaction(SIGKILL, &sigact, NULL);
++	sigaction(SIGUSR1, &sigact, NULL);
++	sigaction(SIGSEGV, &sigact, NULL);
++	sigaction(SIGUSR2, &sigact, NULL);
++	sigaction(SIGPIPE, &sigact, NULL);
++	sigaction(SIGALRM, &sigact, NULL);
++	sigaction(SIGTERM, &sigact, NULL);
++#ifdef SIGSTKFLT
++	sigaction(SIGSTKFLT, &sigact, NULL);
++#endif
++	sigaction(SIGCHLD, &sigact, NULL);
++#ifdef SIGCLD
++	sigaction(SIGCLD, &sigact, NULL);
++#endif
++	sigaction(SIGCONT, &sigact, NULL);
++	sigaction(SIGSTOP, &sigact, NULL);
++	sigaction(SIGTSTP, &sigact, NULL);
++	sigaction(SIGTTIN, &sigact, NULL);
++	sigaction(SIGTTOU, &sigact, NULL);
++#ifdef SIGURG
++	sigaction(SIGURG, &sigact, NULL);
++#endif
++#ifdef SIGXCPU
++	sigaction(SIGXCPU, &sigact, NULL);
++#endif
++#ifdef SIGXFSZ
++	sigaction(SIGXFSZ, &sigact, NULL);
++#endif
++#ifdef SIGVTALRM
++	sigaction(SIGVTALRM, &sigact, NULL);
++#endif
++#ifdef SIGPROF
++	sigaction(SIGPROF, &sigact, NULL);
++#endif
++#ifdef SIGWINCH
++	sigaction(SIGWINCH, &sigact, NULL);
++#endif
++#ifdef SIGIO
++	sigaction(SIGIO, &sigact, NULL);
++#endif
++#ifdef SIGPOLL
++	sigaction(SIGPOLL, &sigact, NULL);
++#endif
++#ifdef SIGINFO
++	sigaction(SIGINFO, &sigact, NULL);
++#endif
++#ifdef SIGLOST
++	sigaction(SIGLOST, &sigact, NULL);
++#endif
++#ifdef SIGPWR
++	sigaction(SIGPWR, &sigact, NULL);
++#endif
++#ifdef SIGUNUSED
++	sigaction(SIGUNUSED, &sigact, NULL);
++#endif
++#ifdef SIGSYS
++	sigaction(SIGSYS, &sigact, NULL);
++#endif
++#ifdef SIGRTMIN
++	sigaction(SIGRTMIN+0, &sigact, NULL);
++	sigaction(SIGRTMAX+0, &sigact, NULL);
++#endif
++	FD_ZERO(&rfds);
++	FD_SET(0, &rfds);
++
++	if (!(fd = open(pid_path, O_WRONLY | O_CREAT | O_TRUNC, mode)))
++		err(EXIT_FAILURE, "cannot open pid file: %s", pid_path);
++	select(STDIN_FILENO, &rfds, NULL, NULL, &timeout);
++	exiter(0);
++}
+-- 
+1.9.2
 
-
-
---5gh8AF7cRhvir6o1nNLXjurXeOwajPGCh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQIcBAEBAgAGBQJTRDIdAAoJEChPw0yOSxol/nAQAM4hPaUbuV3/p4tua2l+ZUxs
-t+xwQ+S7MKmpn3vEweyqccztvgbWVzag1GKilhrM3rHjtVm5xGZXrlB83sDVUmN2
-4RZeC0JRij/5wWCb3C2fVyYnfsj2qpT1YZ7h/CzZ+i01hYdYbpQK+Dss/ak2xQQe
-uOx+h3BeWQUTf9MY5S3nhN2Pi/cQhz3+YNFSs7piri4bfuiUoGUvlL5KR6UoNhNL
-jL7mzhZpWusaZnoE14d9n7qBynsYD6VLFsO9dOwsGtlrLwfmIKBQcJ//PQIFZX0T
-DExAwRfgp85kNkfzpvun9taY2ITHXeUyaRT1Nyq/h2g133fvAWcuera5S8yoOppy
-XlhI5Vt94S4DHE1O6cZKc1acujqJXu5uUW761xUr3JpCt9k7Da+boh+pZMsETBMY
-VSLX12sHTqkcUOiCKMzDextqjnpVR+vX3zSkyoGbYHitzq/arHR4/24MTxUzQBSJ
-blBskbHqrFQAnGjxHZnONZFag3MCv/Ns5xj0rX4xYDjQ568Xn7JVhzpMyvDR0PkF
-RH6icuPqnAaJH469a2FIomn+gCzXi2I3imcDLmeFQuoX4BF/KZ6nEvPzIIlvrnvo
-PkAOWnF46nDPkFZo3873NfyF6h4iA+na+BVkwG817rt108AtH1vIZzKXwDRe7Xmv
-HifZiqbupEzZyleodPBV
-=YGJ/
------END PGP SIGNATURE-----
-
---5gh8AF7cRhvir6o1nNLXjurXeOwajPGCh--
