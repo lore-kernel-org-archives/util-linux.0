@@ -1,40 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41850 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755022AbaD1KEE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Apr 2014 06:04:04 -0400
-Date: Mon, 28 Apr 2014 12:03:54 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/9] pull: kill tests
-Message-ID: <20140428100354.GO2405@x2.net.home>
-References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+Received: from vps22121.lws-hosting.com ([192.162.68.139]:46744 "EHLO
+	vps22121.lws-hosting.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750784AbaDOVPQ convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux-ng@vger.kernel.org>);
+	Tue, 15 Apr 2014 17:15:16 -0400
+Message-Id: <XSJ0Bc5ArFMKTiOrnG9XWbsMmjF3l7OyHAq5EcRbz3aw@isabelle.de>
+Mime-Version: 1.0
+From: isabelle <contact_claude@isabelle.de>
+To: Undisclosed-Recipients:;
+Reply-To: isabelle.claude654@laposte.net
+Subject: spende /Donation
+Date: Tue, 15 Apr 2014 21:49:34 +0200
+Content-type: text/plain; charset=iso-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 15, 2014 at 12:15:26PM +0100, Sami Kerola wrote:
-> Sami Kerola (9):
->       kill: make options --pid and --queue mutually exclusive
->       kill: remove unnecessary indirection
->       tests: add signal receiver program
->       tests: check kill is converting signals names correctly
->       tests: check various ways to specify kill signal
->       tests: check kill print pid option
->       tests: check kill all user processes
->       kill: add --verbose option to display what is killed
->       lib/procutils: reset errno before strtol() call
+Hallo
+Wenn ich diese Nachricht zu senden wollte, ist dies nicht einfach Zufall. Dies ist, weil Ihre e-Mail vom elektronischen Roboter gesichert meine WX.7AR BW ausgewählt wurde.
+Zunächst möchte ich mich für dieses Eindringen in Ihr Leben zu entschuldigen, obwohl ich zugeben, dass es mir sehr wichtig. Ich bin Isabelle Vasudev. Ich leide an Krebs im Hals seit nun mehr als 3 Jahre und eine halbe und es leider, mein Arzt hat gerade informiert mich, dass ich bin voller unheilbar und, dass meine Tage, wegen meinen etwas gezählt sind abgebaut Zustand. Ich bin eine Witwe und ich habe keine Kind, das ich beginne zu bedauern.
+In der Tat ist der Grund, warum ich Sie kontaktieren bin, möchte ich einen Teil von meinem Grundstück zu spenden, weil ich niemand, wer die Erben konnte. Ich habe fast mein ganzes Zeug, darunter ein Unternehmen der Export von Holz, Gummi und Stahl-Industrie in Afrika, wo ich wohne nun mehr 10 Jahren, verkauft. Ein großer Teil der Gelder gesammelt wurde mit unterschiedlichen Verbänden humanitären Charakter überall in der Welt, aber besonders hier in Afrika bezahlt.
+Im Hinblick auf den Rest der Summe genau in Höhe von 750.000, 00euros (sieben hundert und fünfzig tausend Euro) auf eine gesperrte Mitarbeiter-Account, meine letzte wünschen würde Sie es spenden, so dass Sie in Ihrer Branche und vor allem den humanitären investieren können. Ich bin ganz bewusst was ich zu tun beabsichtigen, und ich denke, trotz der Tatsache, die wir nicht wissen, werdet ihr diese Summe gut nutzen. Ich bitte Sie, bitte dieses Erbe zu akzeptieren, ohne jedoch Fragen Sie alles, was in zurückgeben wenn es nicht immer denken, gutes zu tun, um dich herum, was ich nicht getan habe, in meiner Existenz.
+Das heißt, wird auf einer verantwortlichen Person und besonders gutem Glauben fallen zu lassen beruhigt, ich möchte bitten, dass Sie bitte mich bei den meisten schnell kontaktieren, um weitere Erklärung über die Gründe für meine Geste und den Verlauf der Dinge zu geben. Bitte kontaktieren Sie mich so bald wie möglich, wenn Sie mein Angebot akzeptieren.
+Gott möge mit dir sein!
+Ich fordere Sie auf, mich über meine persönliche e-Mail-Adresse zu kontaktieren:
+Isabelle.claude654@laposte.net
+Der Frieden und Barmherzigkeit Gottes möge mit dir sein.
+Mrs Isabelle
 
- Merged. I have moved the awk stuff to kill_functions.sh to avoid
- duplicate code in the tests.
-
- Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
