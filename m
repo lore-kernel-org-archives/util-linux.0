@@ -1,109 +1,161 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:41131 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752068AbaDOLPx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 07:15:53 -0400
-Received: by mail-wi0-f180.google.com with SMTP id q5so5468962wiv.13
-        for <util-linux@vger.kernel.org>; Tue, 15 Apr 2014 04:15:52 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi, Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH 5/9] tests: check various ways to specify kill signal
-Date: Tue, 15 Apr 2014 12:15:31 +0100
-Message-Id: <1397560535-14622-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
-References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: quwenruo@cn.fujitsu.com
+Message-ID: <534DD487.6090700@cn.fujitsu.com>
+Date: Wed, 16 Apr 2014 08:53:27 +0800
+From: Qu Wenruo <quwenruo@cn.fujitsu.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: <util-linux@vger.kernel.org>
+Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
+References: <534C9625.8030906@cn.fujitsu.com> <20140415112159.GE5786@x2.net.home>
+In-Reply-To: <20140415112159.GE5786@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-CC: Bernhard Voelker <mail@bernhard-voelker.de>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/expected/kill/options |  1 +
- tests/ts/kill/options       | 66 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 67 insertions(+)
- create mode 100644 tests/expected/kill/options
- create mode 100755 tests/ts/kill/options
 
-diff --git a/tests/expected/kill/options b/tests/expected/kill/options
-new file mode 100644
-index 0000000..d48ce72
---- /dev/null
-+++ b/tests/expected/kill/options
-@@ -0,0 +1 @@
-+all ok
-diff --git a/tests/ts/kill/options b/tests/ts/kill/options
-new file mode 100755
-index 0000000..70ae7da
---- /dev/null
-+++ b/tests/ts/kill/options
-@@ -0,0 +1,66 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="options"
-+
-+. "$TS_TOPDIR/functions.sh"
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_KILL"
-+all_ok=true
-+
-+TS_CWD="${0%/*}"
-+HELPER_SYMLINK="$TS_CWD/$(mktemp -u XXXXXXXXXXXXXXX)"
-+ln -s "$TS_HELPER_SIGRECEIVE" "$HELPER_SYMLINK"
-+trap "rm -f $HELPER_SYMLINK" 0
-+
-+try_option()
-+{
-+	"$HELPER_SYMLINK" "$TS_CWD" >> "$TS_OUTPUT" 2>&1 &
-+	TEST_PID=$!
-+	# test_sigreceive needs time to start up
-+	up=0
-+	for i in 0.01 0.1 1 1 1 1; do
-+		test -f "$TS_CWD/$TEST_PID" && { up=1; break; }
-+		sleep $i
-+	done
-+	test $up = 1 || echo "$@ sigreceive helper did not start" >> "$TS_OUTPUT"
-+	"$TS_CMD_KILL" "$@" $TEST_PID >> "$TS_OUTPUT" 2>&1
-+	if [ $? -ne 0 ]; then
-+		echo "kill $@ did not work" >> "$TS_OUTPUT"
-+		all_ok=false
-+	fi
-+	wait $TEST_PID
-+	if [ $? -ne 1 ]; then
-+		echo "wait $TEST_PID for $@ did not work" >> "$TS_OUTPUT"
-+		all_ok=false
-+	fi
-+}
-+
-+try_option -s 1
-+try_option --signal 1
-+try_option --signal HUP
-+try_option --signal SIGHUP
-+try_option -q HUP
-+try_option --queue HUP
-+try_option -1
-+try_option -HUP
-+try_option -SIGHUP
-+
-+if $all_ok; then
-+	echo 'all ok' >> "$TS_OUTPUT"
-+fi
-+
-+ts_finalize
--- 
-1.9.2
+-------- Original Message --------
+Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
+From: Karel Zak <kzak@redhat.com>
+To: Qu Wenruo <quwenruo@cn.fujitsu.com>
+Date: 2014=E5=B9=B404=E6=9C=8815=E6=97=A5 19:21
+> On Tue, Apr 15, 2014 at 10:15:01AM +0800, Qu Wenruo wrote:
+>> When using the blkid_get_cache(), things will be cached to reduce the pr=
+obe
+>> frequency.
+> The question is if you really want to use the cache at all :-)
+>
+> It's pretty common that we have udevd that maintain all necessary
+> information about devices, including information from libblkid. The
+> udev db is the primary source for many system actions and tools.
+>
+> All you need is to use libudev udev_enumerate API to scan for all
+> block devices and udev_device_get_property_value(ID_FS_TYPE). Maybe
+> you can add a new method BTRFS_SCAN_UDEV and use it as default. It
+> would be better to keep libblkid as a fallback solution only. (For
+> very unusual situations where there is no udev or so.)
+Thanks for the suggestion to use libudev.
+It sounds solid and I'll try to use it instead.
+>
+>> But filesystem which supports device management like btrfs can remove de=
+vice
+>> and if fast enough, libblkid will not invalidate the old cache and cause=
+ to get
+>> the wrong filesystem type.
+> Well, since commit 6c2f2b9d (year 2010, v2.18), the libblkid uses
+> microsecond resolution to check for device modifications.
+>
+> So the problem is not that btrfs is fast enough ;-)
+According to your explaination, it seems that if there is any=20
+modification to the block device, libblkid will rescan it and not
+to use the old cache, do I understand it right?
+>
+>> The bug is describe in the following btrfs patch:
+>> https://patchwork.kernel.org/patch/3960191/
+> The patch does not make sense at all, blkid without a cache scans
+> /proc/partitions -- so it's almost the same like BTRFS_SCAN_PROC
+> btrfs_scan_block_devices().
+>
+>
+>> So is there any idea about forcing given cached entry invalidated?
+> It seems you're trying workaround the *btrfs problem*. The command
+>
+>    btrfs device delete
+>
+> does not open and modify the device! It uses btrfs ioctl and kernel
+> does the changes to the device. The problem is that kernel does not
+> update atime and mtime of the device. So the changes are completely
+> invisible for libblkid (or another mtime based solutions). See
+> my example below.
+Thanks for pointing out the problem a lot !
 
+>
+> IMHO it's strange manner to modify files in kernel, but no update
+> mtime.
+>
+> Fortunately kernel at least sends event to udev.
+>
+> Maybe possible workaround is to add utime() call to "btrfs device
+> delete". Something like:
+This sounds good, much better than my poor patch.
+I will also try to fix it in kernel codes if possible.
+>
+> diff --git a/cmds-device.c b/cmds-device.c
+> index 309b49e..5c438bf 100644
+> --- a/cmds-device.c
+> +++ b/cmds-device.c
+> @@ -20,6 +20,8 @@
+>   #include <unistd.h>
+>   #include <fcntl.h>
+>   #include <sys/ioctl.h>
+> +#include <sys/types.h>
+> +#include <utime.h>
+>   #include <errno.h>
+>   #include <sys/stat.h>
+>   #include <getopt.h>
+> @@ -179,7 +181,8 @@ static int cmd_rm_dev(int argc, char **argv)
+>   				"ERROR: error removing the device '%s' - %s\n",
+>   				argv[i], strerror(e));
+>   			ret++;
+> -		}
+> +		} else
+> +			utime(argv[i], NULL);
+>   	}
+>  =20
+>   	close_file_or_dir(fdmnt, dirstream);
+>
+>
+> BTW, it would be nice to have --verbose option for btrfs-scan, now it
+> seems like black box.
+I'd like to add it, but as you know, 'btrfs dev scan' just calls a btrfs=20
+ioctl, so even '--verbose' is added,
+nothing useful will be printed out. :(
+
+>
+>      Karel
+>
+>
+> See mtime:
+>
+>
+> # stat /dev/sdb2
+>    File: =E2=80=98/dev/sdb2=E2=80=99
+>    Size: 0               Blocks: 0          IO Block: 4096   block specia=
+l file
+> Device: 5h/5d   Inode: 392701      Links: 1     Device type: 8,12
+> Access: (0660/brw-rw----)  Uid: (    0/    root)   Gid: (    6/    disk)
+> Access: 2014-04-15 11:58:58.338758155 +0200
+> Modify: 2014-04-15 11:58:58.338758155 +0200
+> Change: 2014-04-15 11:58:58.338758155 +0200
+>   Birth: -
+>
+> # btrfs device add /dev/sdb2 /mnt/test
+> SMALL VOLUME: forcing mixed metadata/data groups
+>
+> # stat /dev/sdb2
+>    File: =E2=80=98/dev/sdb2=E2=80=99
+>    Size: 0               Blocks: 0          IO Block: 4096   block specia=
+l file
+> Device: 5h/5d   Inode: 392701      Links: 1     Device type: 8,12
+> Access: (0660/brw-rw----)  Uid: (    0/    root)   Gid: (    6/    disk)
+> Access: 2014-04-15 11:59:34.930143021 +0200
+> Modify: 2014-04-15 11:59:34.930143021 +0200
+> Change: 2014-04-15 11:59:34.930143021 +0200
+>                              ^^^^^^^^
+>
+> # btrfs device delete /dev/sdb2 /mnt/test
+>
+> # stat /dev/sdb2
+>    File: =E2=80=98/dev/sdb2=E2=80=99
+>    Size: 0               Blocks: 0          IO Block: 4096   block specia=
+l file
+> Device: 5h/5d   Inode: 392701      Links: 1     Device type: 8,12
+> Access: (0660/brw-rw----)  Uid: (    0/    root)   Gid: (    6/    disk)
+> Access: 2014-04-15 11:59:34.930143021 +0200
+> Modify: 2014-04-15 11:59:34.930143021 +0200
+> Change: 2014-04-15 11:59:34.930143021 +0200
+>                              ^^^^^^^^^
+>
+>
+Great thanks for all your advise! It helps a lot!!
+
+Thanks,
+Qu
