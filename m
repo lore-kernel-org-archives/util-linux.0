@@ -1,52 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:55650 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933430AbaDIOEN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Apr 2014 10:04:13 -0400
-Received: from public by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <public@plane.gmane.org>)
-	id 1WXt6q-0001CG-DH
-	for util-linux@vger.kernel.org; Wed, 09 Apr 2014 16:04:12 +0200
-Date: Wed, 9 Apr 2014 16:02:40 +0200
-From: Markus Trippelsdorf <markus@trippelsdorf.de>
-To: Karel Zak <public-kzak-H+wXaHxf7aLQT0dZR+AlfA@plane.gmane.org>
-Cc: Ruediger Meier <public-sweet_f_a-Mmb7MZpHnFY@plane.gmane.org>,
-        Thomas =?iso-8859-1?Q?B=E4chler?=
-	<public-thomas-fd97jBR+K/6hPH1hqNUYSQ@plane.gmane.org>,
-        public-util-linux-u79uwXL29TY76Z2rM5mHXA@plane.gmane.org
-Subject: Re: [PATCH] fstrim: add systemd units
-Message-ID: <20140409140240.GA26270@x4>
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
- <201404081407.29362.sweet_f_a@gmx.de>
- <20140409075215.GP22126@x2.net.home>
- <201404091207.56691.sweet_f_a@gmx.de>
- <20140409110251.GT22126@x2.net.home>
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:48106 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755935AbaDQIeK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 17 Apr 2014 04:34:10 -0400
+Received: by mail-wg0-f41.google.com with SMTP id n12so133510wgh.24
+        for <util-linux@vger.kernel.org>; Thu, 17 Apr 2014 01:34:09 -0700 (PDT)
+Received: from [172.16.3.2] (91-64-36-142-dynip.superkabel.de. [91.64.36.142])
+        by mx.google.com with ESMTPSA id n5sm3504048wiz.1.2014.04.17.01.34.07
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Thu, 17 Apr 2014 01:34:07 -0700 (PDT)
+Message-ID: <534F91FD.4020803@ezeep.com>
+Date: Thu, 17 Apr 2014 10:34:05 +0200
+From: Nicolas <nicolas.delaby@ezeep.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140409110251.GT22126@x2.net.home>
+To: util-linux@vger.kernel.org
+Subject: nsenter: passing command arguments
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi,
+I'm struggling with nsenter to call commands with options because they 
+are caught by nsenter and complain this is an invalid option.
 
+How can I pass any arbitrary argument ?
 
+Thanks for reading,
+Nicolas
 
-On 2014.04.09 at 13:02 +0200, Karel Zak wrote:
-> On Wed, Apr 09, 2014 at 12:07:56PM +0200, Ruediger Meier wrote:
-> > Actually I think daily "fstrim -a" IS not a good idea for most of my 
-> > systems
-> 
-> install service != enable (this is important detail, I'll never agree
-> with automatically enabled services).
-> 
-> BTW, why IS not a good idea for your systems?
+```
+$ nsenter --target $PID --mount --uts --ipc --net --pid ls -a
+nsenter: invalid option -- 'a'
 
-The fixed interval is problematic. There are SSD devices out there that
-suffer (their flash cells die out faster) when they get trimmed too
-often. A good rule of thumb is to trim once you have written the same
-amount as you have free space on your device. Obviously, that interval
-varies for every user (e.g. it's one week in my case).
+Usage:
+  nsenter [options] <program> [args...]
+
+Options:
+  -t, --target <pid>     target process to get namespaces from
+  -m, --mount [=<file>]  enter mount namespace
+  -u, --uts   [=<file>]  enter UTS namespace (hostname etc)
+  -i, --ipc   [=<file>]  enter System V IPC namespace
+  -n, --net   [=<file>]  enter network namespace
+  -p, --pid   [=<file>]  enter pid namespace
+  -U, --user  [=<file>]  enter user namespace
+  -S, --setuid <uid>     set uid in user namespace
+  -G, --setgid <gid>     set gid in user namespace
+  -r, --root  [=<dir>]   set the root directory
+  -w, --wd    [=<dir>]   set the working directory
+  -F, --no-fork          do not fork before exec'ing <program>
+
+  -h, --help     display this help and exit
+  -V, --version  output version information and exit
+
+For more details see nsenter(1).
+
+```
 
 -- 
-Markus
 
+Nicolas Delaby · Software Engineer · ezeep.com
 
+ezeep GmbH · Ohlauer Str. 43 · 10999 Berlin · Germany
+
+Registry Court: Charlottenburg · HRB133318 · Managing partner: Sascha 
+Kellert
