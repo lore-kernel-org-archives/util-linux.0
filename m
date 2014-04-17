@@ -1,31 +1,39 @@
-Return-Path: P@draigbrady.com
-Message-ID: <533C021C.4060106@draigBrady.com>
-Date: Wed, 02 Apr 2014 13:27:08 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from moutng.kundenserver.de ([212.227.17.24]:50159 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750893AbaDQWRJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 17 Apr 2014 18:17:09 -0400
+Message-ID: <535052E2.2010705@bernhard-voelker.de>
+Date: Fri, 18 Apr 2014 00:17:06 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-To: Lukas Czerner <lczerner@redhat.com>
-CC: util-linux@vger.kernel.org, kzak@redhat.com
-Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
-References: <1396438265-21535-1-git-send-email-lczerner@redhat.com>
-In-Reply-To: <1396438265-21535-1-git-send-email-lczerner@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Nicolas <nicolas.delaby@ezeep.com>, util-linux@vger.kernel.org
+Subject: Re: nsenter: passing command arguments
+References: <534F91FD.4020803@ezeep.com>
+In-Reply-To: <534F91FD.4020803@ezeep.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/02/2014 12:31 PM, Lukas Czerner wrote:
-> Recent Linux kernel supports FALLOC_FL_ZERO_RANGE in fallocate(2).
-> This patch adds FALLOC_FL_ZERO_RANGE support to fallocate utility,
-> by introducing a new option -z|--zero-range.
+On 04/17/2014 10:34 AM, Nicolas wrote:
+> Hi,
+> I'm struggling with nsenter to call commands with options because they 
+> are caught by nsenter and complain this is an invalid option.
 > 
-> Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+> How can I pass any arbitrary argument ?
+> 
+> Thanks for reading,
+> Nicolas
+> 
+> ```
+> $ nsenter --target $PID --mount --uts --ipc --net --pid ls -a
+> nsenter: invalid option -- 'a'
 
-Looks good thanks.
+Use '--' to tell nsenter to stop option parsing:
+  $ nsenter --target $PID --mount --uts --ipc --net --pid -- ls -a
 
-I was wondering how this interacts with the --dig-holes option.
-That looks for ranges of zeros as efficiently as possible to turn them into holes.
-It uses SEEK_DATA for that, so I was wondering if these preallocated
-ranges of zeroes are treated specially in that regard?
-Note one could use fiemap to distinguish these ranges,
-but it's buggy as one needs to sync the file before using it.
+Although I think this can be considered a bug; nsenter should
+do this automatically when seeing the first non-option.
 
-thanks,
-Pádraig.
+Have a nice day,
+Berny
