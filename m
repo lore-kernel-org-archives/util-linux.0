@@ -1,105 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28450 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756272AbaDHHtA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Apr 2014 03:49:00 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s387n0hR017087
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:49:00 -0400
-Received: from redhat.brq.redhat.com (unused-4-202.brq.redhat.com [10.34.4.202])
-	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id s387moTr004800
-	for <util-linux@vger.kernel.org>; Tue, 8 Apr 2014 03:48:59 -0400
-From: Ondrej Oprala <ooprala@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 09/10] cfdisk: minor man page improvements
-Date: Tue,  8 Apr 2014 09:48:48 +0200
-Message-Id: <1396943329-22347-10-git-send-email-ooprala@redhat.com>
-In-Reply-To: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
-References: <1396943329-22347-1-git-send-email-ooprala@redhat.com>
+Received: from cn.fujitsu.com ([59.151.112.132]:37873 "EHLO
+	heian.cn.fujitsu.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750998AbaDQBP6 convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Apr 2014 21:15:58 -0400
+Message-ID: <534F2B8F.5010906@cn.fujitsu.com>
+Date: Thu, 17 Apr 2014 09:17:03 +0800
+From: Qu Wenruo <quwenruo@cn.fujitsu.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: <util-linux@vger.kernel.org>
+Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
+References: <534C9625.8030906@cn.fujitsu.com> <20140415112159.GE5786@x2.net.home> <534DD487.6090700@cn.fujitsu.com> <20140416090359.GF5786@x2.net.home>
+In-Reply-To: <20140416090359.GF5786@x2.net.home>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Ondrej Oprala <ooprala@redhat.com>
----
- disk-utils/cfdisk.8 | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/disk-utils/cfdisk.8 b/disk-utils/cfdisk.8
-index 64197ef..01bde08 100644
---- a/disk-utils/cfdisk.8
-+++ b/disk-utils/cfdisk.8
-@@ -14,7 +14,7 @@
- .\" " for hilit mode
- .TH CFDISK 8 "March 2014" "util-linux" "System Administration"
- .SH NAME
--cfdisk \- display or manipulate disk partition table
-+cfdisk \- display or manipulate a disk partition table
- .SH SYNOPSIS
- .B cfdisk
- .RB [ options ]
-@@ -26,13 +26,13 @@ The default device is /dev/sda.
- 
- Note that
- .B cfdisk
--provides basic partitioning functionality by user friendly interface. If you
--need advanced features then use 
-+provides basic partitioning functionality by a user friendly interface. If you
-+need advanced features, use 
- .BR fdisk (8).
- 
- Since version 2.25
- .BR cfdisk (8)
--supports MBR (DOS), GPT, SUN and SGI disk labels, but it does not provides any
-+supports MBR (DOS), GPT, SUN and SGI disk labels, but it does not provide any
- functionality in regards to CHS (Cylinder-Head-Sector) addressing. CHS has
- never been important for Linux and this addressing concept does not make any
- sense for new devices.
-@@ -44,9 +44,9 @@ utils
- .BR partx (8)
- and
- .BR lsblk (8)
--in very comfortable and rich way.
-+in a very comfortable and rich way.
- 
--If you want to remove an old partition table from device than use
-+If you want to remove an old partition table from a device, use
- .BR wipefs (8).
- 
- .SH OPTIONS
-@@ -55,7 +55,7 @@ Display help text and exit.
- .IP "\fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]"
- Colorize output, enabled by default.  The optional argument \fIwhen\fP can be
- \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is omitted,
--then it defaults to \fBauto\fR.
-+it defaults to \fBauto\fR.
- .IP "\fB-V, \-\-version"
- Display version information and exit.
- 
-@@ -67,9 +67,9 @@ after the command is not necessary).  Here is a list of the available
- commands:
- .TP
- .B b
--Toggle bootable flag of the current partition.  This allows you to
--select which primary partition is bootable on the drive. This command does not
--have to available for all partition label types.
-+Toggle the bootable flag of the current partition.  This allows you to
-+select which primary partition is bootable on the drive. This command may not
-+be available for all partition label types.
- .TP
- .B d
- Delete the current partition.  This will convert the current partition
-@@ -92,8 +92,8 @@ MiB=1024*1024, and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB"
- is optional, e.g. "K" has the same meaning as  "KiB")
- .TP
- .B q
--Quit program.  This will exit the program without writing any data to
--disk.
-+Quit the program.  This will exit the program without writing any data to
-+the disk.
- .TP
- .B t
- Change the partition type.  By default, new partitions are created as
--- 
-1.8.5.1
+-------- Original Message --------
+Subject: Re: libblkid: Idea to force given cached entry to be invalidated?
+From: Karel Zak <kzak@redhat.com>
+To: Qu Wenruo <quwenruo@cn.fujitsu.com>
+Date: 2014年04月16日 17:03
+> On Wed, Apr 16, 2014 at 08:53:27AM +0800, Qu Wenruo wrote:
+>>> So the problem is not that btrfs is fast enough ;-)
+>> According to your explaination, it seems that if there is any modification
+>> to the block device, libblkid will rescan it and not
+>> to use the old cache, do I understand it right?
+> Yes, blkid_verify():
+>
+> 	if (now >= dev->bid_time &&
+> #ifdef HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
+> 	    (st.st_mtime < dev->bid_time ||
+> 	        (st.st_mtime == dev->bid_time &&
+> 		 st.st_mtim.tv_nsec / 1000 <= dev->bid_utime)) &&
+> #else
+> 	    st.st_mtime <= dev->bid_time &&
+> #endif
+> 	    (diff < BLKID_PROBE_MIN ||
+> 		(dev->bid_flags & BLKID_BID_FL_VERIFIED &&
+> 		 diff < BLKID_PROBE_INTERVAL)))
+> 		return dev;
+>
+>
+> It checks two basic things:
+>
+>   a) compare device st_mtime with cache entry time (bid_time and bid_utime),
+>      the valid cache entry has not to be older than device mtime.
+>
+>   b) valid cache entry has not to be older than BLKID_PROBE_MIN (2 sec)
+>      and previous blkid_verify() validation remaining in memory has not
+>      to be older than BLKID_PROBE_INTERVAL (200s).
+>
+>>> BTW, it would be nice to have --verbose option for btrfs-scan, now it
+>>> seems like black box.
+>> I'd like to add it, but as you know, 'btrfs dev scan' just calls a btrfs
+>> ioctl, so even '--verbose' is added,
+>> nothing useful will be printed out. :(
+> Well, I mean at least info about for what devices it calls the ioctls.
+>
+>      Karel
+>
+Thanks for all your explaination.
+Now I think I am somewhat clear of the libblkid cache now.
 
+But after some tests, it seems that the ctime/mtime based cache seems 
+not perfect due to the fact that multiple
+device file can be created in different fs with same major/minor number.
+especially each of them has individual ctime/mtime timestamp.
+
+So if someone (maybe insane) use mknod to create as block device file 
+and use 'btrfs dev del' on the newly created
+block device file, libblkid will still be unable to detect the change 
+since the ctime/mtime of block device file in /dev/
+does not change.
+
+Will libblkid be able to deal with it in later versions? (Although not 
+related to my original problem now)
+
+Thanks,
+Qu
