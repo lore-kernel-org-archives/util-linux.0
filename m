@@ -1,52 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14725 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:11716 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750740AbaDGKgM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Apr 2014 06:36:12 -0400
-Date: Mon, 7 Apr 2014 12:36:04 +0200
+	id S1752808AbaDRJxR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 18 Apr 2014 05:53:17 -0400
+Date: Fri, 18 Apr 2014 11:53:13 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] blockdev(8): Some minor corrections to the manual
-Message-ID: <20140407103604.GH22126@x2.net.home>
-References: <20140402232331.GA23303@rhi.hi.is>
- <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk partition reorder fails
+Message-ID: <20140418095313.GI5786@x2.net.home>
+References: <20140402164925.GA13910@aepfle.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
+In-Reply-To: <20140402164925.GA13910@aepfle.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> On 3 April 2014 00:23, Bjarni Ingi Gislason <bjarniig@rhi.hi.is> wrote:
-> >   Patch is in the attachment
+On Wed, Apr 02, 2014 at 06:49:25PM +0200, Olaf Hering wrote:
+> 
+> This is fdisk from openSUSE 13.1. I have added partitions 15+ with
+> parted. Once I'm done with repartitioning, I wanted to sort the
+> partitions with fdisk like I have done it in the past. Too bad, this
+> fails with the version included. The start sector is all scrambled and
+> outside the disk. Lukily, this time I did not write it to disk.
+> 
+> Looks like 2.24.1, included in Factory, is still broken.
 
- Bjarni, I have merged all your patches, but Sami is right. It would
- be nice to have your patches in better format next time. Thanks!
+Fixed, thanks for your report!
 
     Karel
-
-On Thu, Apr 03, 2014 at 09:49:54AM +0100, Sami Kerola wrote:
-> git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-> util-linux
-> git config --global user.name "Bjarni Ingi Gislason"
-> git config --global user.email bjarniig@rhi.hi.is
-> git branch bjani
-> git checkout bjarni
-> # while patches {
-> git apply <each of your patch separately>
-> git add .
-> git commit -s
-> # }
-> 
-> # create patches
-> git format-patch -n master ~/ul-patches/
-> 
-> # test that you can send/receive emails
-> git send-email --to bjarniig@rhi.hi.is ~/ul-patches/*
-> # if yes, and all looks good
-> git send-email --to util-linux@vger.kernel.org ~/ul-patches/*
-
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
