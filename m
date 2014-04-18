@@ -1,50 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f170.google.com ([74.125.82.170]:46920 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751335AbaDOLPn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 15 Apr 2014 07:15:43 -0400
-Received: by mail-we0-f170.google.com with SMTP id w61so9445198wes.1
-        for <util-linux@vger.kernel.org>; Tue, 15 Apr 2014 04:15:42 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/9] kill: make options --pid and --queue mutually exclusive
-Date: Tue, 15 Apr 2014 12:15:27 +0100
-Message-Id: <1397560535-14622-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
-References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:23744 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751200AbaDRKxC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 18 Apr 2014 06:53:02 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s3IAr2qY016544
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Fri, 18 Apr 2014 06:53:02 -0400
+Date: Fri, 18 Apr 2014 12:53:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Lukas Czerner <lczerner@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fallocate: add FALLOC_FL_ZERO_RANGE support
+Message-ID: <20140418105301.GK5786@x2.net.home>
+References: <1396438265-21535-1-git-send-email-lczerner@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1396438265-21535-1-git-send-email-lczerner@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/kill.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+On Wed, Apr 02, 2014 at 01:31:05PM +0200, Lukas Czerner wrote:
+>  sys-utils/fallocate.1 | 14 ++++++++++++++
+>  sys-utils/fallocate.c | 25 +++++++++++++++++++------
+>  2 files changed, 33 insertions(+), 6 deletions(-)
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index d461b36..e678661 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -381,6 +381,10 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
- 			ctl->do_pid = 1;
- 			if (ctl->do_kill)
- 				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--signal");
-+#ifdef HAVE_SIGQUEUE
-+			if (ctl->use_sigval)
-+				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
-+#endif
- 			continue;
- 		}
- 		if (!strcmp(arg, "-s") || !strcmp(arg, "--signal")) {
-@@ -399,6 +403,8 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
- 		if (!strcmp(arg, "-q") || !strcmp(arg, "--queue")) {
- 			if (argc < 2)
- 				errx(EXIT_FAILURE, _("option '%s' requires an argument"), arg);
-+			if (ctl->do_pid)
-+				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
- 			argc--, argv++;
- 			arg = *argv;
- 			if ((ctl->numsig = arg_to_signum(arg, 0)) < 0)
+ Applied, thanks.
+
 -- 
-1.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
