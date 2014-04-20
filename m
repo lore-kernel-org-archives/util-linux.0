@@ -1,59 +1,112 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:52175 "EHLO imap.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933458AbaDISkA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Apr 2014 14:40:00 -0400
-Date: Wed, 9 Apr 2014 14:39:54 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Markus Trippelsdorf <markus@trippelsdorf.de>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] fstrim: add systemd units
-Message-ID: <20140409183954.GB778@thunk.org>
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org>
- <20140409110251.GT22126@x2.net.home>
- <20140409140240.GA26270@x4>
- <201404091748.07452.sweet_f_a@gmx.de>
- <20140409155557.GF26270@x4>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140409155557.GF26270@x4>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140416101308.GG5786@x2.net.home>
+References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>
+	<1397560535-14622-8-git-send-email-kerolasa@iki.fi>
+	<20140416101308.GG5786@x2.net.home>
+Date: Sun, 20 Apr 2014 10:53:47 +0100
+Message-ID: <CAG27Bk0oL7rEh-uDH7A6J5sofE+XrXcK-kavtOBiXQiF0JCjwA@mail.gmail.com>
+Subject: Re: [PATCH 7/9] tests: check kill all user processes
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Bernhard Voelker <mail@bernhard-voelker.de>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 09, 2014 at 05:55:57PM +0200, Markus Trippelsdorf wrote:
-> > > The fixed interval is problematic. There are SSD devices out there
-> > > that suffer (their flash cells die out faster) when they get trimmed
-> > > too often. A good rule of thumb is to trim once you have written the
-> > > same amount as you have free space on your device. Obviously, that
-> > > interval varies for every user (e.g. it's one week in my case).
-> > 
-> > Is "mount -o discard" instead of fstrim interval more or less bad 
-> > regarding lifetime?
+On 16 April 2014 11:13, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Apr 15, 2014 at 12:15:33PM +0100, Sami Kerola wrote:
+>> +ts_check_test_command "$TS_CMD_KILL"
+>> +ts_check_test_command "$TS_CMD_SU"
+>
+>  ts_check_test_command "TS_HELPER_SIGRECEIVE"
 
-For those SSD's that have a problem, "mount -o discard" is a disaster.
-Some turn into bricks, others will have a degraded flash cells, many
-will cause extremely degraded performance for other processes.
+These are added.
 
-What I usually tell people as far as who ask me for advice is that
-once a week is usually sufficient, especially for most desktop and
-server systems.  If you are running an extreme workload which is doing
-a huge number of random writes, then sure, running fstrim more
-frequently, or even using "mount -o discard" might make a lot more
-sense --- especially if you are using PCIe attached flash.  But in
-those cases, the system administrator might not want be willing to
-tolerate the random latencies in performance that might show up when
-fstrim is running (for pretty much all SATA and SAS attached SSD's out
-there, they don't yet support queued trim, so each trim command
-requires draining the NCQ queue, which is why sending trim commands,
-whether via "mount -o discard" or via fstrim will incur a performance
-penalty to whatever else might be trying to use the disk at the time).
+>> +if ! getent passwd nobody >/dev/null; then
+>> +     ts_skip "no nobody user"
+>> +fi
+>> +
+>> +TEST_PID=''
+>> +TS_CWD="${0%/*}"
+>
+> Please, use $TS_OUTDIR. The tests should not write to another places.
+> The output/ is the directory that clean up our build system.
 
-I'll note BTW that even using "fstrim" could potentially brick an
-especially inexpensive/trashy SSD, although the vendor for whose drive
-had been most commonly accused of promulgating those to the world is
-out of business (although there are probably plenty of those SSD's
-still in use in various community distros' audiences.)
+These are removed.
 
-Cheers,
+>> +HELPER_SYMLINK="$TS_CWD/$(mktemp -u XXXXXXXXXXXXXXX)"
+>> +ln -s "$TS_HELPER_SIGRECEIVE" "$HELPER_SYMLINK"
+>> +trap "rm -f $HELPER_SYMLINK" 0
+>> +
+>> +su nobody -s /bin/sh -c "$HELPER_SYMLINK $TS_CWD/nobody" >> "$TS_OUTPUT" 2>&1 &
+>
+> I don't understand this idea, on my system Mr.Nobody can not write
+> to my directories.
+>
+> It would be also better to add --setgit and --setuid to the helper to
+> avoid extra su(1) process, then you can use TEST_PID=$!
 
-						- Ted
+The --setuid is added, which made me to scratch my head for a moment
+why it behaved the way it did, resulting to a patch fixing
+lib/procutils
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/08b7b1c60eaeddbf25ef28f2a7d1d0e6778a6af8
+
+>> +# test_sigreceive needs time to start up
+>> +for i in 0.01 0.1 1 1 1 1; do
+>> +     test -f "$TS_CWD/nobody" && { up=1; break; }
+>> +     sleep $i
+>> +done
+>
+> The question is if we really need to use the PID files. Would be
+> possible to use test_sigreceive that does not write anything?
+>
+> You can for example to use
+>
+>    awk '/SigCgt/ { print $2}' /proc/<pid>/status
+>
+> to check if the signal handlers are already initialized (the final
+> mask is 800000027ffbfeff on my system).
+
+That is a much better way to determine if the process is ready to be
+killed. Implemented in my git, and I have only one remaining question.
+Would you prefer me to send the patch set again or is review from
+remote branch OK? The biggest change is use of SigCgt, that is done
+the same way in all scripts and can be seen for instance looking this
+change.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/08b7b1c60eaeddbf25ef28f2a7d1d0e6778a6af8
+
+--- pull --
+The following changes since commit 9348ef251102eefdf9e352616393778f0950720f:
+
+  libfdisk: (gpt) implement 'fix order' commnad (2014-04-18 14:00:39 +0200)
+
+are available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git kill-tests-v3
+
+for you to fetch changes up to 08b7b1c60eaeddbf25ef28f2a7d1d0e6778a6af8:
+
+  lib/procutils: notice setuid() process ownership changes (2014-04-20
+10:36:05 +0100)
+
+----------------------------------------------------------------
+Sami Kerola (10):
+      kill: make options --pid and --queue mutually exclusive
+      kill: remove unnecessary indirection
+      tests: add signal receiver program
+      tests: check kill is converting signals names correctly
+      tests: check various ways to specify kill signal
+      tests: check kill print pid option
+      tests: check kill all user processes
+      kill: add --verbose option to display what is killed
+      lib/procutils: reset errno before strtol() call
+      lib/procutils: notice setuid() process ownership changes
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
