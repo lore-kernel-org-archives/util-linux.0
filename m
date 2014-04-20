@@ -1,50 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f182.google.com ([74.125.82.182]:59312 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755310AbaDLK2w (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 12 Apr 2014 06:28:52 -0400
-Received: by mail-we0-f182.google.com with SMTP id p61so6280915wes.41
-        for <util-linux@vger.kernel.org>; Sat, 12 Apr 2014 03:28:51 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/7] kill: make options --pid and --queue mutually exclusive
-Date: Sat, 12 Apr 2014 11:28:38 +0100
-Message-Id: <1397298524-3364-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>
-References: <1397298524-3364-1-git-send-email-kerolasa@iki.fi>
+Received: from moutng.kundenserver.de ([212.227.17.24]:59300 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755372AbaDTPgd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Apr 2014 11:36:33 -0400
+Message-ID: <5353E97D.5010603@bernhard-voelker.de>
+Date: Sun, 20 Apr 2014 17:36:29 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 7/9] tests: check kill all user processes
+References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>	<1397560535-14622-8-git-send-email-kerolasa@iki.fi>	<20140416101308.GG5786@x2.net.home> <CAG27Bk0oL7rEh-uDH7A6J5sofE+XrXcK-kavtOBiXQiF0JCjwA@mail.gmail.com>
+In-Reply-To: <CAG27Bk0oL7rEh-uDH7A6J5sofE+XrXcK-kavtOBiXQiF0JCjwA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/kill.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+On 04/20/2014 11:53 AM, Sami Kerola wrote:
+> On 16 April 2014 11:13, Karel Zak <kzak@redhat.com> wrote:
+>> On Tue, Apr 15, 2014 at 12:15:33PM +0100, Sami Kerola wrote:
+>>> +HELPER_SYMLINK="$TS_CWD/$(mktemp -u XXXXXXXXXXXXXXX)"
+>>> +ln -s "$TS_HELPER_SIGRECEIVE" "$HELPER_SYMLINK"
+>>> +trap "rm -f $HELPER_SYMLINK" 0
+>>> +
+>>> +su nobody -s /bin/sh -c "$HELPER_SYMLINK $TS_CWD/nobody" >> "$TS_OUTPUT" 2>&1 &
+>>
+>> I don't understand this idea, on my system Mr.Nobody can not write
+>> to my directories.
+>>
+>> It would be also better to add --setgit and --setuid to the helper to
+>> avoid extra su(1) process, then you can use TEST_PID=$!
+> 
+> The --setuid is added, [...]
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index d461b36..e678661 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -381,6 +381,10 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
- 			ctl->do_pid = 1;
- 			if (ctl->do_kill)
- 				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--signal");
-+#ifdef HAVE_SIGQUEUE
-+			if (ctl->use_sigval)
-+				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
-+#endif
- 			continue;
- 		}
- 		if (!strcmp(arg, "-s") || !strcmp(arg, "--signal")) {
-@@ -399,6 +403,8 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
- 		if (!strcmp(arg, "-q") || !strcmp(arg, "--queue")) {
- 			if (argc < 2)
- 				errx(EXIT_FAILURE, _("option '%s' requires an argument"), arg);
-+			if (ctl->do_pid)
-+				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
- 			argc--, argv++;
- 			arg = *argv;
- 			if ((ctl->numsig = arg_to_signum(arg, 0)) < 0)
--- 
-1.9.2
+yes, setuid is a great idea, yet I'm not sure
+if using UID 1 is a good idea:
 
+		if (setuid(1) < 0)
+			err(TEST_SIGRECEIVE_FAILURE, "setuid failed");
+
+Doesn't everyone hack&build under his own private user account?
+So maybe that would be the best choice (if the kill-test doesn't
+kill random processes of the user.
+Anyone a better idea?
+
+>>> +# test_sigreceive needs time to start up
+>>> +for i in 0.01 0.1 1 1 1 1; do
+>>> +     test -f "$TS_CWD/nobody" && { up=1; break; }
+>>> +     sleep $i
+>>> +done
+>>
+>> The question is if we really need to use the PID files. Would be
+>> possible to use test_sigreceive that does not write anything?
+>>
+>> You can for example to use
+>>
+>>    awk '/SigCgt/ { print $2}' /proc/<pid>/status
+>>
+>> to check if the signal handlers are already initialized (the final
+>> mask is 800000027ffbfeff on my system).
+
+
+> That is a much better way to determine if the process is ready to be
+> killed. Implemented in my git, and I have only one remaining question.
+
+I'm not a big fan of magic numbers. Is there a chance to narrow down
+the relevant bits?
+
+Have a nice day,
+Berny
