@@ -1,59 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:43108 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751856AbaDVH4R (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Apr 2014 03:56:17 -0400
-Received: by mail-wg0-f48.google.com with SMTP id l18so3576507wgh.7
-        for <util-linux@vger.kernel.org>; Tue, 22 Apr 2014 00:56:16 -0700 (PDT)
-Received: from [172.16.3.2] (91-64-36-142-dynip.superkabel.de. [91.64.36.142])
-        by mx.google.com with ESMTPSA id be3sm60702020wjc.5.2014.04.22.00.56.15
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 22 Apr 2014 00:56:15 -0700 (PDT)
-Message-ID: <5356209E.4040908@ezeep.com>
-Date: Tue, 22 Apr 2014 09:56:14 +0200
-From: Nicolas <nicolas.delaby@ezeep.com>
-MIME-Version: 1.0
+Received: from katla.rhi.hi.is ([130.208.165.1]:47490 "EHLO katla.rhi.hi.is"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751043AbaDUAc1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 20 Apr 2014 20:32:27 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 To: util-linux@vger.kernel.org
-Subject: Re: nsenter: passing command arguments
-References: <534F91FD.4020803@ezeep.com> <535052E2.2010705@bernhard-voelker.de>
-In-Reply-To: <535052E2.2010705@bernhard-voelker.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 4/4] swaplabel.8: Improve the typesetting of the manual
+Date: Mon, 21 Apr 2014 00:30:27 +0000
+Message-Id: <1398040227-14535-4-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/18/2014 12:17 AM, Bernhard Voelker wrote:
-> On 04/17/2014 10:34 AM, Nicolas wrote:
->> Hi,
->> I'm struggling with nsenter to call commands with options because they
->> are caught by nsenter and complain this is an invalid option.
->>
->> How can I pass any arbitrary argument ?
->>
->> Thanks for reading,
->> Nicolas
->>
->> ```
->> $ nsenter --target $PID --mount --uts --ipc --net --pid ls -a
->> nsenter: invalid option -- 'a'
->
-> Use '--' to tell nsenter to stop option parsing:
->    $ nsenter --target $PID --mount --uts --ipc --net --pid -- ls -a
->
-> Although I think this can be considered a bug; nsenter should
-> do this automatically when seeing the first non-option.
+  Change macro 'IR' to 'I' if it has only one (italic) argument
 
-Thank you Bernhard,
+  Remove space at end of lines
 
-It Worked like a charm :)
-Have a nice day too.
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ disk-utils/swaplabel.8 | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Nicolas
+diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
+index 4e655ef..0f83b2d 100644
+--- a/disk-utils/swaplabel.8
++++ b/disk-utils/swaplabel.8
+@@ -15,13 +15,13 @@ swaplabel \- print or change the label or UUID of a swap area
+ .SH DESCRIPTION
+ .B swaplabel
+ will display or change the label or UUID of a swap partition located on
+-.IR device 
++.I device
+ (or regular file).
+ .PP
+ If the optional arguments
+-.B \-L 
++.B \-L
+ and
+-.B \-U 
++.B \-U
+ are not given,
+ .B swaplabel
+ will simply display the current swap-area label and UUID of
 -- 
+1.9.0
 
-Nicolas Delaby · Software Engineer · ezeep.com
-
-ezeep GmbH · Ohlauer Str. 43 · 10999 Berlin · Germany
-
-Registry Court: Charlottenburg · HRB133318 · Managing partner: Sascha 
-Kellert
