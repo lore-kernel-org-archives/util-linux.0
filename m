@@ -1,54 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:47482 "EHLO katla.rhi.hi.is"
+Received: from mx1.redhat.com ([209.132.183.28]:19295 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750908AbaDUAcD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 20 Apr 2014 20:32:03 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 2/4] raw.8: Improve the typesetting of the manual
-Date: Mon, 21 Apr 2014 00:30:25 +0000
-Message-Id: <1398040227-14535-2-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
+	id S1751261AbaDVKPd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 Apr 2014 06:15:33 -0400
+Date: Tue, 22 Apr 2014 12:15:20 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/4] partx.8: Improve the typesetting of the manual
+Message-ID: <20140422101520.GD2405@x2.net.home>
 References: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Remove space at end of lines
+On Mon, Apr 21, 2014 at 12:30:24AM +0000, Bjarni Ingi Gislason wrote:
+> Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 
-  Change '-' to '\-', if it indicates an option
+ All 4 patches merged. Thanks!
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- disk-utils/raw.8 | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+    Karel
 
-diff --git a/disk-utils/raw.8 b/disk-utils/raw.8
-index d0c4137..74c15a9 100644
---- a/disk-utils/raw.8
-+++ b/disk-utils/raw.8
-@@ -34,10 +34,10 @@ device numbers, or as a path name
- .I /dev/<blockdev>
- to an existing block device file.
- .PP
--The bindings already in existence can be queried with the 
-+The bindings already in existence can be queried with the
- .I \-q
- option, which is used either with a raw device filename to query that one
--device, or with the 
-+device, or with the
- .I \-a
- option to query all bound raw devices.
- .PP
-@@ -67,7 +67,7 @@ will query an existing binding instead of setting a new one.
- .TP
- \fB\-a\fR, \fB\-\-all\fR
- With
--.B -q
-+.B \-q
- , specify that all bound raw devices should be queried.
- .TP
- \fB\-h\fR, \fB\-\-help\fR
 -- 
-1.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
