@@ -1,65 +1,175 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.13]:49576 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751064AbaD0Up1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:45:27 -0400
-Message-ID: <535D6C65.50006@bernhard-voelker.de>
-Date: Sun, 27 Apr 2014 22:45:25 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:21072 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754548AbaDXK0Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 Apr 2014 06:26:25 -0400
+Date: Thu, 24 Apr 2014 12:26:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.24.2
+Message-ID: <20140424102623.GF2405@x2.net.home>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 01/12] include/xalloc: ensure arithmetics overflow cannot
- happen
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi> <1398629138-31718-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1398629138-31718-2-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/27/2014 10:05 PM, Sami Kerola wrote:
-> The xrealloc() changes has the greatest change.  It splits the size and
-> multiplier arguments so that arithmetics overflow can be detected.  This
-> change is propagated to use of the function in other files.
-> 
-> Additionally this change checks that size inputs for allocations are
-> never zero.  It is uncertain if in these cases abort() should be called
-> to get a core.
 
-I'd favor to see the behavior of the allocation functions to be harmonized
-with gnulib: quite a couple of us guys may work in projects using it, thus
-being familiar with its details and corner cases.
-WDYT?
+ The util-linux stable bugfix release v2.23.2 is available at
 
-> The xstrdup() is made to use memcpy(), which is exactly what the library
-> call does so one layer of absraction is saved here.
-...
->  static inline char __attribute__((warn_unused_result)) *xstrdup(const char *str)
->  {
-> -        char *ret;
-> -
-> -        if (!str)
-> -                return NULL;
-> -
-> -        ret = strdup(str);
-> +	size_t len;
-> +	char *ret;
->  
-> -        if (!ret)
-> -                err(XALLOC_EXIT_CODE, "cannot duplicate string");
-> -        return ret;
-> +	if (!str)
-> +		return NULL;
-> +	len = strlen(str) + 1;
-> +	ret = xmalloc(len);
-> +	memcpy(ret, str, len);
-> +	return ret;
->  }
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.24
 
-Hmm, while memcpy() alone is faster than strcpy(), replacing the
-latter by strlen() + memcpy() certainly is not.  The compilers and
-libc are optimized enough, e.g. by using had-crafted assembler code,
-that I think you don't have a chance to be faster by trying to be
-smarter than them.
+ Feedback and bug reports, as always, are welcomed.
 
-Have a nice day,
-Berny
+  Karel
+
+
+Util-linux 2.24.2 Release Notes
+===============================
+
+addpart:
+   - minor man page improvements  [Ondrej Oprala]
+blockdev:
+   - Some minor corrections to the manual  [Bjarni Ingi Gislason]
+build-sys:
+   - don't connect _DEPENDENCIES and _LIBADD  [Karel Zak]
+   - fix .h.in usage in libblkid and libmount  [Karel Zak]
+   - libmount/python/__init__.py is always a dist file  [Ruediger Meier]
+chcpu:
+   - cleanup return codes  [Karel Zak]
+   - cleanup stdout/stderr usage  [Karel Zak]
+delpart:
+   - minor man page improvements  [Ondrej Oprala]
+dmesg:
+   - -w output not line-buffered  [Karel Zak]
+   - don't report EPIPE  [Karel Zak]
+docs:
+   - update AUTHORS file  [Karel Zak]
+fallocate:
+   - Clarify that space can also be deallocated  [Rodrigo Campos]
+fdformat:
+   - Some minor change to the manual  [Bjarni Ingi Gislason]
+fdisk:
+   - don't colorize "foo " prefixes  [Karel Zak]
+flock:
+   - use nfs4 fallback on EBADF too  [Karel Zak]
+fsck:
+   - Some typographical corrections to the manual  [Bjarni Ingi Gislason]
+fsck.minix:
+   - A few typographical corrections to the manual  [Bjarni Ingi Gislason]
+fstrim:
+   - add hint to man page  [Karel Zak]
+getopt:
+   - getopt.1 The usual doc dir is /usr/share/doc, not .../docs  [Ville Skyttä]
+hwclock:
+   - fix possible hang and other set_hardware_clock_exact() issues  [Chris MacGregor]
+include/closestream:
+   - don't wipe errno on EPIPE  [Karel Zak]
+ipcs:
+   - cleanup jumplabel stlyes  [Ruediger Meier]
+   - fix ipc_msg_get_info fallback case  [Ruediger Meier]
+   - fix ipc_sem_get_info fallback case  [Ruediger Meier]
+   - fix ipc_shm_get_info fallback case  [Ruediger Meier]
+   - fix memleak in ipc_*_get_info functions  [Ruediger Meier]
+isosize:
+   - A few typographical changes to the manual  [Bjarni Ingi Gislason]
+last:
+   - fix minor typos in the man page  [Ondrej Oprala]
+lib/sysfs:
+   - make dirent d_type usage more robust  [Karel Zak]
+libblkid:
+   - add extra checks to XFS prober  [Karel Zak]
+libfdisk:
+   - fix logical partition reorder command  [Karel Zak]
+   - make qsort_r() optional  [Karel Zak]
+   - properly implement read-only mode  [Karel Zak]
+libmount:
+   - FS id and parent ID could be zero  [Karel Zak]
+   - accept (deleted) path suffix in mountinfo file  [Karel Zak]
+   - initialize *root to NULL in mnt_table_get_root_fs  [Thomas Bächler]
+login:
+   - fix minor typos in the man page  [Ondrej Oprala]
+losetup:
+   - wait for udev  [Karel Zak]
+lscpu:
+   - cleanup, use _PATH_SYS_CPU/NODE  [Ruediger Meier]
+   - don't abort if cache size is unknown  [Ruediger Meier]
+   - don't assume filesystem supports d_type when searching for NUMA nodes  [Stewart Smith]
+   - read_hypervisor_dmi  only fallback to memory scan on x86/x86_64  [Stewart Smith]
+mkfs:
+   - Some typographical changes to the manual  [Bjarni Ingi Gislason]
+mkfs.bfs:
+   - One typographical correction to the manual  [Bjarni Ingi Gislason]
+mkfs.cramfs:
+   - Some typographical corrections to the manual  [Bjarni Ingi Gislason]
+mkfs.minix:
+   - Some typographical changes in the manual  [Bjarni Ingi Gislason]
+mkswap:
+   - Some minor typographical corrections to the manual  [Bjarni Ingi Gislason]
+more:
+   - improve formatting and wording of man page and help text  [Benno Schulenberg]
+mount:
+   - apply "nofail" to MNT_ERR_NOSOURCE libmount error  [Karel Zak]
+   - fix --all and nofail return code  [Karel Zak]
+   - mount.8 Some typographical and prefix corrections to the manual  [Bjarni Ingi Gislason]
+   - remove obsolete and confusing statement from mount.8  [Phillip Susi]
+   - update mount.8 about barrier mount options defaults  [Ruediger Meier]
+nologin:
+   - minor man page improvements  [Ondrej Oprala]
+nsenter:
+   - fix set{gid,uid} order,drop supplementary groups  [Karel Zak]
+partx:
+   - Improve the typesetting of the manual  [Bjarni Ingi Gislason]
+   - make dirent d_type usage more robust  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update cs.po (from translationproject.org)  [Petr Písař]
+   - update da.po (from translationproject.org)  [Joe Hansen]
+   - update de.po (from translationproject.org)  [Mario Blättermann]
+raw:
+   - Improve the typesetting of the manual  [Bjarni Ingi Gislason]
+renice:
+   - correct max priority in renice man page  [Phillip Susi]
+runuser:
+   - fix minor typos in the man page  [Ondrej Oprala]
+script:
+   - Also flush writes to timing file.  [Jesper Dahl Nyerup]
+   - time from end of read() call partially fixes #58  [Wolfgang Richter]
+scriptreplay:
+   - no need to skip first time value or last bytes fixes #58  [Wolfgang Richter]
+setarch:
+   - Fix ppc64le architectures  [Anton Blanchard]
+setpriv:
+   - Fix --apparmor-profile  [Andy Lutomirski]
+su:
+   - don't use kill(0, ...) when propagate signal  [Karel Zak]
+   - fix minor typos in the man page  [Ondrej Oprala]
+sulogin:
+   - minor man page improvements  [Ondrej Oprala]
+swaplabel:
+   - Improve the typesetting of the manual  [Bjarni Ingi Gislason]
+   - wrong version number in check  [Sami Kerola]
+switch_root:
+   - make dirent d_type usage more robust  [Karel Zak]
+   - verify initramfs by f_type, not devno  [Dave Reisner]
+tests:
+   - add fdisk 'f' command MBR test  [Karel Zak]
+   - add lscpu dump for ppc cpu with no cache size  [Ruediger Meier]
+   - clean up backport  [Karel Zak]
+   - cleanup, remove unused lscpu output  [Ruediger Meier]
+   - update Py parse mountinfo test  [Karel Zak]
+   - update libmount tabdiff tests  [Karel Zak]
+   - use old output format  [Karel Zak]
+umount:
+   - fix typo in usage  [Jonathan Liu]
+   - more robust success message for --all  [Karel Zak]
+unshare:
+   - include libmount.h to provide missing MS_* defines  [Ruediger Meier]
+utmpdump:
+   - minor man page improvements  [Ondrej Oprala]
+vipw:
+   - minor man page improvements  [Ondrej Oprala]
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
