@@ -1,49 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ozlabs.org ([203.10.76.45]:41063 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753464AbaDFXSO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 6 Apr 2014 19:18:14 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	by ozlabs.org (Postfix) with ESMTPSA id 6A4901400B2
-	for <util-linux@vger.kernel.org>; Mon,  7 Apr 2014 09:18:13 +1000 (EST)
-Date: Mon, 7 Apr 2014 09:18:13 +1000
-From: Anton Blanchard <anton@samba.org>
+Received: from mail-we0-f169.google.com ([74.125.82.169]:46198 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751381AbaD0UF7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:05:59 -0400
+Received: by mail-we0-f169.google.com with SMTP id k48so62718wev.14
+        for <util-linux@vger.kernel.org>; Sun, 27 Apr 2014 13:05:58 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] setarch: Fix ppc64le architectures
-Message-ID: <20140407091813.74f6695d@kryten>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc: kerolasa@iki.fi
+Subject: [PATCH 03/12] last: fix is_phantom() detection
+Date: Sun, 27 Apr 2014 21:05:29 +0100
+Message-Id: <1398629138-31718-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The /proc/<pid>/loginuid is not always available, and when so a running
+session should not be determined to be gone.  This is a regression from
+commit mentioned in reference.
 
-setarch currently fails on ppc64le because it tries to
-use big endian architecture names. Fix it.
+Sessions that have started before previous system boot, and did not log
+out meanwhile, will be marked as gone.  It is fair to say that these
+sessions are most likely result of a wtmp corruption.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+Reference: 404fa3f93c00c7e130f5a0ec963b2dc6a3743986
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
+ login-utils/last.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index 99724c6..957bb2b 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -149,11 +149,17 @@ set_arch(const char *pers, unsigned long options, int list)
-     {PER_LINUX32, "linux32", NULL},
-     {PER_LINUX, "linux64", NULL},
- #if defined(__powerpc__) || defined(__powerpc64__)
-+#ifdef __BIG_ENDIAN__
-     {PER_LINUX32, "ppc32", "ppc"},
-     {PER_LINUX32, "ppc", "ppc"},
-     {PER_LINUX, "ppc64", "ppc64"},
-     {PER_LINUX, "ppc64pseries", "ppc64"},
-     {PER_LINUX, "ppc64iseries", "ppc64"},
-+#else
-+    {PER_LINUX32, "ppc32le", "ppcle"},
-+    {PER_LINUX32, "ppcle", "ppcle"},
-+    {PER_LINUX, "ppc64le", "ppc64le"},
-+#endif
- #endif
- #if defined(__x86_64__) || defined(__i386__) || defined(__ia64__)
-     {PER_LINUX32, "i386", "i386"},
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 5122f8e..ed10586 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -94,6 +94,7 @@ struct last_control {
+ 	unsigned int altc;	/* Number of alternative files */
+ 	unsigned int alti;	/* Index number of the alternative file */
+ 
++	struct timeval boot_time; /* system boot time */
+ 	time_t since;		/* at what time to start displaying the file */
+ 	time_t until;		/* at what time to stop displaying the file */
+ 	time_t present;		/* who where present at time_t */
+@@ -573,19 +574,24 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+-static int is_phantom(struct utmp *ut)
++static int is_phantom(const struct last_control *ctl, struct utmp *ut)
+ {
+ 	struct passwd *pw;
+ 	char path[32];
+ 	FILE *f;
+-	unsigned int loginuid, ret = 0;
++	unsigned int loginuid;
++	int ret = 0;
+ 
++	if (ut->UL_UT_TIME < ctl->boot_time.tv_sec)
++		return 1;
+ 	pw = getpwnam(ut->ut_name);
+ 	if (!pw)
+ 		return 1;
+ 	sprintf(path, "/proc/%u/loginuid", ut->ut_pid);
+-	if (!(f = fopen(path, "r")))
++	if (access(path, R_OK) == 0 && !(f = fopen(path, "r")))
+ 		return 1;
++	else
++		return ret;
+ 	if (fscanf(f, "%u", &loginuid) != 1)
+ 		ret = 1;
+ 	fclose(f);
+@@ -787,7 +793,7 @@ static void process_wtmp_file(const struct last_control *ctl)
+ 				if (!lastboot) {
+ 					c = R_NOW;
+ 					/* Is process still alive? */
+-					if (is_phantom(&ut))
++					if (is_phantom(ctl, &ut))
+ 						c = R_PHANTOM;
+ 				} else
+ 					c = whydown;
+@@ -980,6 +986,7 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	for (; ctl.alti < ctl.altc; ctl.alti++) {
++		get_boot_time(&ctl.boot_time);
+ 		process_wtmp_file(&ctl);
+ 		free(ctl.altv[ctl.alti]);
+ 	}
+-- 
+1.9.2
+
