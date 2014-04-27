@@ -1,79 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:63499 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932106AbaD3CGs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Apr 2014 22:06:48 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:45159 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751757AbaD0UGP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:06:15 -0400
+Received: by mail-wi0-f171.google.com with SMTP id q5so4772225wiv.4
+        for <util-linux@vger.kernel.org>; Sun, 27 Apr 2014 13:06:14 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 7/7] lib/terminal-colors.d.5: Improve the typesetting of the manual
-Date: Wed, 30 Apr 2014 02:05:00 +0000
-Message-Id: <1398823500-19737-2-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398823500-19737-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398823500-19737-1-git-send-email-bjarniig@rhi.hi.is>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 09/12] swapon, swapheader, mkswap: move swap signature to header
+Date: Sun, 27 Apr 2014 21:05:35 +0100
+Message-Id: <1398629138-31718-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Remove '\&' in front of a full stop (.), when it does not start or
-end a string
+Both swapon and mkswap need to know what is valid device signature, so
+share the value.
 
-  Adjust space between sentences to two space characters (or begin each
-sentence on a new line).
-
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- lib/terminal-colors.d.5 | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ disk-utils/mkswap.c  | 4 ++--
+ include/swapheader.h | 2 ++
+ sys-utils/swapon.c   | 3 ---
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/lib/terminal-colors.d.5 b/lib/terminal-colors.d.5
-index ea06f96..c5208cd 100644
---- a/lib/terminal-colors.d.5
-+++ b/lib/terminal-colors.d.5
-@@ -3,35 +3,35 @@
- .\" Copyright (C) 2014 Karel Zak <kzak@redhat.com>
- .\" Copyright 2014 Red Hat, Inc.
- .\" May be distributed under the GNU General Public License
--.TH "TERMINAL_COLORS\&.D" "5" "January 2014" "util-linux" "terminal-colors.d"
-+.TH "TERMINAL_COLORS.D" "5" "January 2014" "util-linux" "terminal-colors.d"
- .SH "NAME"
- terminal-colors.d \- Configure output colorization for various utilities
- .SH "SYNOPSIS"
- .PP
--/etc/terminal-colors\&.d/[name\&.]disable
-+/etc/terminal-colors.d/[name.]disable
- .sp
--/etc/terminal-colors\&.d/name\&.enable
-+/etc/terminal-colors.d/name.enable
- .SH "DESCRIPTION"
- Files in this directory determine the default behaviour for utilities
--when coloring output. The
-+when coloring output.  The
- .B name
--is an utility name. Supported files:
-+is an utility name.  Supported files:
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index 830b14c..16b8e89 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -177,7 +177,7 @@ write_signature(char *sig)
+ {
+ 	char *sp = (char *) signature_page;
  
- .TP
- .B disable
- Turns off output colorization for all compatible utilities.
- .TP
--.B name\&.disable
-+.B name.disable
- Turns off output colorization for specified utility.
- .TP
--.B name\&.enable
-+.B name.enable
- Turns on output colorization on terminal for specified utility, all another
- .B disable
- files are ignored.
+-	strncpy(sp + pagesize - 10, sig, 10);
++	strncpy(sp + pagesize - 10, sig, SWAP_SIGNATURE_SZ);
+ }
  
- .SH COMPATIBILITY
--The terminal-colors\&.d functionality is currently supported by all util-linux
--utilities which provides colorized output. For more details always see the
-+The terminal-colors.d functionality is currently supported by all util-linux
-+utilities which provides colorized output.  For more details always see the
- COLORS section in the man page for the utility.
+ static void
+@@ -611,7 +611,7 @@ main(int argc, char **argv) {
+ 	printf(_("Setting up swapspace version %d, size = %llu KiB\n"),
+ 		version, goodpages * pagesize / 1024);
  
- .SH AVAILABILITY
+-	write_signature("SWAPSPACE2");
++	write_signature(SWAP_SIGNATURE);
+ 	write_uuid_and_label(uuid, opt_label);
+ 
+ 	offset = 1024;
+diff --git a/include/swapheader.h b/include/swapheader.h
+index 1e1090c..9ca9673 100644
+--- a/include/swapheader.h
++++ b/include/swapheader.h
+@@ -5,6 +5,8 @@
+ #define SWAP_UUID_LENGTH 16
+ #define SWAP_LABEL_LENGTH 16
+ #define SWAP_HEADER_SIZE 1540
++#define SWAP_SIGNATURE "SWAPSPACE2"
++#define SWAP_SIGNATURE_SZ (sizeof(SWAP_SIGNATURE) - 1)
+ 
+ #include <stdint.h>
+ 
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index c2d4795..f321b05 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -76,9 +76,6 @@ enum {
+ 	SIG_SWSUSPEND
+ };
+ 
+-#define SWAP_SIGNATURE		"SWAPSPACE2"
+-#define SWAP_SIGNATURE_SZ	(sizeof(SWAP_SIGNATURE) - 1)
+-
+ static int all;
+ static int priority = -1;	/* non-prioritized swap by default */
+ static int discard;		/* don't send swap discards by default */
 -- 
-1.9.0
+1.9.2
 
