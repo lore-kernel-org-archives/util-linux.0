@@ -1,71 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from moutng.kundenserver.de ([212.227.17.24]:59300 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755372AbaDTPgd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Apr 2014 11:36:33 -0400
-Message-ID: <5353E97D.5010603@bernhard-voelker.de>
-Date: Sun, 20 Apr 2014 17:36:29 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-To: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>
-CC: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 7/9] tests: check kill all user processes
-References: <1397560535-14622-1-git-send-email-kerolasa@iki.fi>	<1397560535-14622-8-git-send-email-kerolasa@iki.fi>	<20140416101308.GG5786@x2.net.home> <CAG27Bk0oL7rEh-uDH7A6J5sofE+XrXcK-kavtOBiXQiF0JCjwA@mail.gmail.com>
-In-Reply-To: <CAG27Bk0oL7rEh-uDH7A6J5sofE+XrXcK-kavtOBiXQiF0JCjwA@mail.gmail.com>
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140428065243.GJ2405@x2.net.home>
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+	<1398629138-31718-2-git-send-email-kerolasa@iki.fi>
+	<20140428065243.GJ2405@x2.net.home>
+Date: Mon, 28 Apr 2014 09:42:12 +0100
+Message-ID: <CAG27Bk3H0-Lp=vFQhw0mbeg7=rZS-0T+7BirPW1-cTSiCFN1sQ@mail.gmail.com>
+Subject: Re: [PATCH 01/12] include/xalloc: ensure arithmetics overflow cannot happen
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/20/2014 11:53 AM, Sami Kerola wrote:
-> On 16 April 2014 11:13, Karel Zak <kzak@redhat.com> wrote:
->> On Tue, Apr 15, 2014 at 12:15:33PM +0100, Sami Kerola wrote:
->>> +HELPER_SYMLINK="$TS_CWD/$(mktemp -u XXXXXXXXXXXXXXX)"
->>> +ln -s "$TS_HELPER_SIGRECEIVE" "$HELPER_SYMLINK"
->>> +trap "rm -f $HELPER_SYMLINK" 0
->>> +
->>> +su nobody -s /bin/sh -c "$HELPER_SYMLINK $TS_CWD/nobody" >> "$TS_OUTPUT" 2>&1 &
->>
->> I don't understand this idea, on my system Mr.Nobody can not write
->> to my directories.
->>
->> It would be also better to add --setgit and --setuid to the helper to
->> avoid extra su(1) process, then you can use TEST_PID=$!
-> 
-> The --setuid is added, [...]
+On 28 April 2014 07:52, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Apr 27, 2014 at 09:05:27PM +0100, Sami Kerola wrote:
+>> The xrealloc() changes has the greatest change.  It splits the size and
+>> multiplier arguments so that arithmetics overflow can be detected.  This
+>> change is propagated to use of the function in other files.
+>
+>  I don't like it at all. The function realloc() has well know semantic
+>  and arguments. We don't want to create parallel universe...
+>
+>  If you want something else "nmemb, size"  then introduce xrecalloc()
+>  or so.. but don't use "realloc" name at all.
+>
+>> Additionally this change checks that size inputs for allocations are
+>> never zero.  It is uncertain if in these cases abort() should be called
+>> to get a core.
+>
+>  I don't think we need a different semantic than C standards.
 
-yes, setuid is a great idea, yet I'm not sure
-if using UID 1 is a good idea:
+Hi Karel,
 
-		if (setuid(1) < 0)
-			err(TEST_SIGRECEIVE_FAILURE, "setuid failed");
+Considering that, and other feedback, this patch is completely dead.
+Please skip, and I'll have look if there is some value to add
+xrecalloc() to xalloc.h.
 
-Doesn't everyone hack&build under his own private user account?
-So maybe that would be the best choice (if the kill-test doesn't
-kill random processes of the user.
-Anyone a better idea?
-
->>> +# test_sigreceive needs time to start up
->>> +for i in 0.01 0.1 1 1 1 1; do
->>> +     test -f "$TS_CWD/nobody" && { up=1; break; }
->>> +     sleep $i
->>> +done
->>
->> The question is if we really need to use the PID files. Would be
->> possible to use test_sigreceive that does not write anything?
->>
->> You can for example to use
->>
->>    awk '/SigCgt/ { print $2}' /proc/<pid>/status
->>
->> to check if the signal handlers are already initialized (the final
->> mask is 800000027ffbfeff on my system).
-
-
-> That is a much better way to determine if the process is ready to be
-> killed. Implemented in my git, and I have only one remaining question.
-
-I'm not a big fan of magic numbers. Is there a chance to narrow down
-the relevant bits?
-
-Have a nice day,
-Berny
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
