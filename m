@@ -1,37 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:62169 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753765AbaDGSGv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Apr 2014 14:06:51 -0400
-Date: Mon, 7 Apr 2014 18:06:39 +0000
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] blockdev(8): Some minor corrections to the manual
-Message-ID: <20140407180638.GA20448@rhi.hi.is>
-References: <20140402232331.GA23303@rhi.hi.is>
- <CAG27Bk2m=Y-kr_mrB=gssKB-XRM+4+3kkKmWkUisgHtNDe8wtw@mail.gmail.com>
- <20140407103604.GH22126@x2.net.home>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:55338 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756660AbaD2Tke (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 29 Apr 2014 15:40:34 -0400
+Received: by mail-pd0-f172.google.com with SMTP id g10so602725pdj.17
+        for <util-linux@vger.kernel.org>; Tue, 29 Apr 2014 12:40:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140407103604.GH22126@x2.net.home>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1398797443.20719.111805353.31C825B4@webmail.messagingengine.com>
+References: <1398797443.20719.111805353.31C825B4@webmail.messagingengine.com>
+Date: Tue, 29 Apr 2014 20:40:33 +0100
+Message-ID: <CAG27Bk0byyTHWfEz7+HtVx1=-o+4JCnxa3NiW9934=oyFXOnqg@mail.gmail.com>
+Subject: Re: [patches] removing some duplicate includes and standardizing a
+ usage text
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 07, 2014 at 12:36:04PM +0200, Karel Zak wrote:
-> > On 3 April 2014 00:23, Bjarni Ingi Gislason <bjarniig@rhi.hi.is> wrote:
-> > >   Patch is in the attachment
-> 
->  Bjarni, I have merged all your patches, but Sami is right. It would
->  be nice to have your patches in better format next time. Thanks!
-> 
+On 29 April 2014 19:50, Benno Schulenberg <bensberg@justemail.net> wrote:
+> The first few patches remove two duplicate includes, tweak some
+> comments and usage strings, and normalizes another include.
+>
+> The sixth patch adds a missing error message to ionice.  And as the
+> usage text of ionice recently changed, the seventh patch seizes the
+> opportunity to slice it up, standardize its form, and improve some
+> of the descriptions.
+>
+> The eighth patch tries to massage the usage howto into a better
+> grammatical shape.
+>
+> Sami, there is one thing I changed: the square brackets around the
+> three dots, as that seems pleonastic to me, and the man-pages man page
+> suggests the bare three dots: see 'man 1 man' and search for "repeat".
 
-  I have compiled "git", but I still have to get acquainted with (test
-how to use) it.
+Hi Benno,
 
-  There are more man pages in "git", that I imagined, so it is better
-that I learn to use it instead of just using "diff -u ...", which causes
-other people more work.
+You are right. That looks better. Now when you are working with this
+maybe the commands and other documents could be fixed in same go.
+
+$ git grep -l '\[\.\.\.\]' *utils lib* Documentation
+Documentation/howto-debug.txt
+Documentation/howto-usage-function.txt
+Documentation/releases/v2.13-ReleaseNotes
+disk-utils/sfdisk.c
+misc-utils/kill.c
+sys-utils/cytune.8
+sys-utils/cytune.c
+sys-utils/ipcrm.c
+sys-utils/losetup.c
+text-utils/hexdump.1
 
 -- 
-Bjarni I. Gislason
+Sami Kerola
+http://www.iki.fi/kerolasa/
