@@ -1,81 +1,105 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:55288 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030661AbaDJNQd convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 10 Apr 2014 09:16:33 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] fstrim: add systemd units
-Date: Thu, 10 Apr 2014 15:16:26 +0200
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-        Markus Trippelsdorf <markus@trippelsdorf.de>,
-        util-linux@vger.kernel.org
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <201404101117.05565.sweet_f_a@gmx.de> <20140410124914.GB26252@x2.net.home>
-In-Reply-To: <20140410124914.GB26252@x2.net.home>
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:55048 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756824AbaD2Qwc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 29 Apr 2014 12:52:32 -0400
+Received: by mail-pd0-f178.google.com with SMTP id fp1so447647pdb.37
+        for <util-linux@vger.kernel.org>; Tue, 29 Apr 2014 09:52:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201404101516.26942.sweet_f_a@gmx.de>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140429104640.GC24681@x2.net.home>
+References: <20140429104640.GC24681@x2.net.home>
+Date: Tue, 29 Apr 2014 17:52:28 +0100
+Message-ID: <CAG27Bk3vrfPb2qktGDpmpNYqi7nRcTfNDOZJgzBbn2+j_6rZWw@mail.gmail.com>
+Subject: Re: terminal-colors.d and termname
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 10 April 2014, Karel Zak wrote:
-> On Thu, Apr 10, 2014 at 11:17:04AM +0200, Ruediger Meier wrote:
-> > Thanks, maybe we could add another minor change to "fstrim -a"
-> > itself. If possible it would be IMO useful to skip bind mounts to
-> > avoid trimming the same filesystem several times in a row like
-> > this:
-> >
-> > $ grep "tmp" /etc/fstab
-> > /dev/vg0/tmpdirs     /mnt/tmpdirs   ext4       acl,user_xattr     1
-> > 2 /mnt/tmpdirs/tmp     /tmp           none       bind              
-> > 0 0 /mnt/tmpdirs/var/tmp /var/tmp       none       bind            
-> >   0 0
-> >
-> > $ ./fstrim -av
-> > /tmp: 392 KiB (401408 bytes) trimmed
-> > /var/tmp: 0 B (0 bytes) trimmed
-> > /mnt/tmpdirs: 0 B (0 bytes) trimmed
-> >
-> > Skipping bind mounts should still trim all mounted filesytems.
+On 29 April 2014 11:46, Karel Zak <kzak@redhat.com> wrote:
+>  I'd like to support terminal names ($TERM) in terminal-colors.d,
+>  because the current implementation does not care about terminal
+>  types, so you can disable/enable the colors only globally for all
+>  terminals. That's stupid, because xterm-256color is not the
+>  same thing as vt100, etc.
 >
-> Good idea point, but what about systems where the original
-> mountpoint is umounted?
+>  possible ways:
 >
->  /dev/sda1  /foo    ext4    default
->  /foo       /bar    none    bind
+>  1) add terminal name to the file names, for example
 >
->   # mount /foo
->   # mount /bar
->   # umount /foo
-
-Nice, I thought that wouldn't be even possible to do.
-
-> the another story is that we use /proc/self/mountinfo where is
-> nothing about "bind". It would be probably better to de-duplicate the
-> list of the filesystems according to filesystem UUID or so.
+>     touch terminal-colors.d/dmesg@vt100.disable
 >
-> I'll think about it.
+>  The disadvantage is that there is huge number of terminals and
+>  this concept does not allow to use patterns (e.g. fnmatch() patterns
+>  like xterm-*). But I think the patterns are unnecessary, because people
+>  usually use very small set of terminals (serial line, ssh, xterm), so
+>  force users to use whole terminal names is no so big problem.
+>
+>  The advantage is the we can use this concept for color schemes and
+>  support symlinks to reuse the same scheme for a different terminals.
+>  The nice things is also that one readdir() is enough to get whole
+>  configuration.
+>
+>    echo "error red standard" > dmesg@xterm.scheme
+>    ln -s dmesg@xterm.scheme dmesg@linux.scheme
+>
+>  2) use sub-directory
+>
+>     /etc/terminal-colors/<termname>/dmesg.disable
+>
+>  but it's less readable (you need "ls -R" or "find") and use symlinks
+>  will be nightmare.
+>
+>
+>  3) store the terminal names (or patterns) to the files
+>
+>     echo "TERM vt10*" >> dmesg.disable
+>
+>  The same way uses coreutils DIR_COLORS. This concept means that we
+>  have to always parse the files and you cannot easily create two
+>  independent color schemes for the same util as there is only one
+>  'dmesg.scheme', so we will need more advanced file format with
+>  multiple sections, etc.
+>
+>  4) ?
+>
+>
+>  I prefer 1) because it's KISS concept and we have a chance to see
+>  this way supported by another projects too.
 
-Maybe you could borrow the filter from lsblk. With my fstab above it 
-seems to skip the bind mounts:
+Hi Karel,
 
-NAME            MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sda               8:0    0 232.9G  0 disk
-├─sda1            8:1    0   512M  0 part /boot
-└─sda2            8:2    0 232.4G  0 part
-  ├─vg0-root    253:0    0    24G  0 lvm  /
-  ├─vg0-swap    253:1    0     4G  0 lvm  [SWAP]
-  └─vg0-tmpdirs 253:2    0 204.4G  0 lvm  /mnt/tmpdirs
+Does this image summarize the logic that you are describing?
 
-> Note all this is probably no problema for ext4 where according to
-> Lukas is optimization to not call device trim command when there is
-> nothing to trim.
+http://ut3.org/~kerolasa/ul-bikeshed.png
 
-Yes, but maybe nice if we could avoid this anyway. Who know what happens 
-exactly when there is already a heavy load queue and we want to place 
-in several trims.
+What comes to proposed options (IMHO) 1 seems to better than 2 or 3 to
+find yes/no answers. For matching meanings with colors some sort of
+syntax is probably needed, such as "error red standard" where a color
+red seems to mean an error; which leaves it to be commands problem to
+determine what is an error.  I do not know what you meant with word
+standard.
 
-cu,
-Rudi
+Over-complicating a bit, or forgetting KISS for now. There seems to be
+nearly infinite colors, and possibly infinite meanings. Designing an
+interface that will support such may result to be too difficult to
+understand. Maybe limiting meanings to a finite set, such as what
+syslog has done with levels and facilities, gives enough flexibility
+without being impossible to use. Sticking to syslog definitions has
+one thing favoring such decision; unixian people are already familiar
+with the concept. Downside is that some syslog keywords (LOG_UUCP)
+feel a bit legacy. That in mind the syntax could look something like
 
+facility:level:#FFFFFF
+facility:level:red
+
+where the later is using the named colors there happens to be. Was
+that too beoynd KISS?
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
