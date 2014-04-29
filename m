@@ -1,52 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:47914 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754283AbaD3LZv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Apr 2014 07:25:51 -0400
-Received: by mail-pd0-f173.google.com with SMTP id p10so1574824pdj.32
-        for <util-linux@vger.kernel.org>; Wed, 30 Apr 2014 04:25:50 -0700 (PDT)
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:37703 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751731AbaD2VFY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 29 Apr 2014 17:05:24 -0400
+Received: by mail-pa0-f47.google.com with SMTP id fa1so805004pad.34
+        for <util-linux@vger.kernel.org>; Tue, 29 Apr 2014 14:05:23 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-In-Reply-To: <1398847941.19293.112034049.7CA00422@webmail.messagingengine.com>
-References: <1398847941.19293.112034049.7CA00422@webmail.messagingengine.com>
-Date: Wed, 30 Apr 2014 12:25:49 +0100
-Message-ID: <CAG27Bk0A3cHh1v6Q6yPOqorZ8AkxpxRr3rj_jCnW8NB=FcsmKQ@mail.gmail.com>
-Subject: Re: cytune: misnamed long options
+In-Reply-To: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+Date: Tue, 29 Apr 2014 22:05:19 +0100
+Message-ID: <CAG27Bk2oYs=yEcyxHz8b0xPeMXyLbbbvgX4E4=E93Rv8EpqDxQ@mail.gmail.com>
+Subject: Re: [PATCH 00/12] pull: mostly swap command clarifications
 From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
+To: util-linux <util-linux@vger.kernel.org>
+Cc: Sami Kerola <kerolasa@iki.fi>
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 30 April 2014 09:52, Benno Schulenberg <bensberg@justemail.net> wrote:
-> According to the code and the man page of cytune, the option -g
-> shows the current values of the threshold and the flush timeout,
-> and option -G shows the default values.  But the corresponding
-> long options of those two are: --get-threshold and --get-flush.
-> Confusing.  Shouldn't those be changed to --get-current and
-> --get-defaults?  (Or the first one maybe just --get?)  However,
-> the docs say not to change any options.  What to do?  Sami?
+On 27 April 2014 21:05, Sami Kerola <kerolasa@iki.fi> wrote:
+> are available in the git repository at:
+>
+>   git://github.com/kerolasa/lelux-utiliteetit.git 2014wk16
 
-Hi Benno,
+[snip]
 
-The recommendation never to change options tries to protect a Random J
-Developer in breaking existing scripts. If options are deprecated at
-least there should be a backwards compatibility with a deprecation
-warning for some time (couple years).
+>   include/xalloc: ensure arithmetics overflow cannot happen
+>   dmesg: move get_boot_time() to lib/timeutils
+>   last: fix is_phantom() detection
+>   include/c.h: add macro to print definitions as string
+>   mkswap, swaplabel: move version number to header
+>   mkswap: remove legacy swap structure
+>   include/swapheader.h: ensure type sizes
+>   swapon: swaps with legacy version label are not supported
+>   swapon, swapheader, mkswap: move swap signature to header
+>   libsmartcols: remove ununsed assignment
+>   lib/timeutils: fix memory leak
+>   lib/pager: use names when referring to standard file descriptors
 
-Looking the kernel interface
+Good evening,
 
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/cyclades.c#n2639
+I got rid of the xalloc change, with intention to send some sort of
+xrecalloc() later. The 'swapon: swaps with legacy version label are
+not supported' patch now uses SWAP_SIGNATURE_SZ instead of magic
+number & Bernhard is added as reviewer. Karel, I am not sure if I got
+the libsmartcols check right so please ensure the logic is correct.
 
-the 'threshold' keyword seems to be ok. Use of word 'flush' is a bit
-odd, and 'timeout' would be closer match with what the kernel is
-doing. Karel, are you OK with s/flush/timeout/ ABI change?
-
-After looking sys-utils/cytune.c for a moment I feel the command could
-be improved various way. I could aim to do that before v2.25, unless
-someone else wants to do more or less similar things what was done
-with kill(1).
+Corrected versions of the patches are available from my github remote
+branch that is using the same name as previous time I sent these. IMHO
+the changes are pretty small, so resubmission is not (yet) necessary.
+If there's more feedback that might change.
 
 -- 
 Sami Kerola
