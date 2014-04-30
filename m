@@ -1,49 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:47490 "EHLO katla.rhi.hi.is"
+Received: from mx1.redhat.com ([209.132.183.28]:27382 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751043AbaDUAc1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 20 Apr 2014 20:32:27 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 4/4] swaplabel.8: Improve the typesetting of the manual
-Date: Mon, 21 Apr 2014 00:30:27 +0000
-Message-Id: <1398040227-14535-4-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398040227-14535-1-git-send-email-bjarniig@rhi.hi.is>
+	id S1751713AbaD3GrA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 30 Apr 2014 02:47:00 -0400
+Date: Wed, 30 Apr 2014 08:46:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>
+Subject: Re: terminal-colors.d and termname
+Message-ID: <20140430064654.GB24535@x2.net.home>
+References: <20140429104640.GC24681@x2.net.home>
+ <CAG27Bk3vrfPb2qktGDpmpNYqi7nRcTfNDOZJgzBbn2+j_6rZWw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk3vrfPb2qktGDpmpNYqi7nRcTfNDOZJgzBbn2+j_6rZWw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Change macro 'IR' to 'I' if it has only one (italic) argument
+On Tue, Apr 29, 2014 at 05:52:28PM +0100, Sami Kerola wrote:
+> Does this image summarize the logic that you are describing?
+> 
+> http://ut3.org/~kerolasa/ul-bikeshed.png
 
-  Remove space at end of lines
+ Probably.
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- disk-utils/swaplabel.8 | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> What comes to proposed options (IMHO) 1 seems to better than 2 or 3 to
+> find yes/no answers. For matching meanings with colors some sort of
+> syntax is probably needed, such as "error red standard" where a color
+> red seems to mean an error; which leaves it to be commands problem to
+> determine what is an error.  I do not know what you meant with word
+> standard.
 
-diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
-index 4e655ef..0f83b2d 100644
---- a/disk-utils/swaplabel.8
-+++ b/disk-utils/swaplabel.8
-@@ -15,13 +15,13 @@ swaplabel \- print or change the label or UUID of a swap area
- .SH DESCRIPTION
- .B swaplabel
- will display or change the label or UUID of a swap partition located on
--.IR device 
-+.I device
- (or regular file).
- .PP
- If the optional arguments
--.B \-L 
-+.B \-L
- and
--.B \-U 
-+.B \-U
- are not given,
- .B swaplabel
- will simply display the current swap-area label and UUID of
+ <class> <foreground> <background>
+
+the same uses ls(1) DIR_COLORS.
+
+> Over-complicating a bit, or forgetting KISS for now. There seems to be
+> nearly infinite colors, and possibly infinite meanings. Designing an
+> interface that will support such may result to be too difficult to
+> understand. Maybe limiting meanings to a finite set, such as what
+
+ The <class> is a string defined by util and only the util has to care
+ what the string means. We don't have to be generic.
+
+> syslog has done with levels and facilities, gives enough flexibility
+> without being impossible to use. Sticking to syslog definitions has
+> one thing favoring such decision; unixian people are already familiar
+> with the concept. Downside is that some syslog keywords (LOG_UUCP)
+> feel a bit legacy. That in mind the syntax could look something like
+> 
+> facility:level:#FFFFFF
+> facility:level:red
+
+Now we have
+
+  #define DMESG_COLOR_SUBSYS	UL_COLOR_BROWN
+  #define DMESG_COLOR_TIME	    UL_COLOR_GREEN
+
+all I want to use is
+
+  #define DMESG_COLOR_SUBSYS "subsys"
+  #define DMESG_COLOR_TIME   "time"
+
+  cl = colors_get_color(DMESG_COLOR_TIME);
+  fputs(cl, stdout);
+
+where in the dmesg.scheme will be 
+
+  subsys brown 0
+  time green 0
+
+and in dmesg.1 man page will be explained what does it mean "time"
+and "subsys". (For now let's ignore that we will need some hardcoded 
+defaults.) 
+
+The format of the <class> string depends on the util, I don't see
+problem to support for example:
+
+  kern.err red 0
+
+for dmesg.
+
+> Was that too beoynd KISS?
+
+ Yes :-)
+
+    Karel
+
 -- 
-1.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
