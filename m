@@ -1,70 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender1.zohomail.com ([72.5.230.103]:8670 "EHLO
-	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750733AbaD0UJm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Apr 2014 16:09:42 -0400
-Message-ID: <535D6026.1000709@zoho.com>
-Date: Sun, 27 Apr 2014 21:53:10 +0200
-From: =?ISO-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-MIME-Version: 1.0
-To: nyerup@one.com
-CC: util-linux@vger.kernel.org, Vedpal Rajera <vedpalr@one.com>,
-        Martin Topholm <mph@one.com>
-Subject: Re: Using script(1) to log all user sessions
-References: <20140425082133.GA3790@one.com>
-In-Reply-To: <20140425082133.GA3790@one.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from katla.rhi.hi.is ([130.208.165.1]:63493 "EHLO katla.rhi.hi.is"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757385AbaD3CGM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Apr 2014 22:06:12 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 6/7] libblkid/libblkid.3: Improve the typsetting of the manual
+Date: Wed, 30 Apr 2014 02:04:59 +0000
+Message-Id: <1398823500-19737-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 25/04/14 10:21, Jesper Dahl Nyerup wrote:
-> Hi list,
->
-> We're toying with the idea of using script(1) to log all user sessions
-> towards a collection of systems, as one in a number of metheds to aid
-> debugging, education and auditing.
->
-> In order to do so, I have a couple of questions regarding a few
-> extensions we're considering to implement.
->
-> Firstly, script(1) is clearly and sanely designed to be invoked from the
-> command line to record a limited portion of a user's session. In order
-> for the user to have the logging started without manual invocation, it
-> may come in handy to support config files, to supply configurable
-> default values for some of the concepts normally passed in the
-> environment or as command line arguments.
+   Correct space between sentences to two space characters
+ (or begin each sentence on a new line).
 
-You can start it from a script acting as the user shell, through sshd 
-config or one of the shell init scripts. As you already need to start 
-script somehow, those defaults could be passed there, too (although I 
-don't see a problem with supporting config files either).
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ libblkid/libblkid.3 | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
-> Secondly, we're considering to add functionality for script(1) to
-> transmit the session transcript over the network to a collection daemon,
-> to be able to store transcripts from multiple machines on one or more
-> central systems.
->
-> This could involve:
->
-> 1. Adding a daemon next to script(1) and scriptreplay(1), eg.
-> scriptcollect(1), to be in the receiving end of the traffic, optionally
-> handling the timing functionality, and finally storing data in the same
-> manner script(1) would.
-
-I'm unsure about this bit. It may be needed. Perhaps a transfer after 
-the session finishes also works.
-
-
-> 2. Optionally linking against some crypto library to avoid putting
-> users' console data on the wire in clear text.
-
-Following unix philosophy, I would try to avoid reinventing crypto into 
-the program, attempting instead to solve the issue by eg. using sftp to 
-transfer the files and/or gpg to encrypt the data.
-
-
-
-PS: I expect you are properly warning your users about the fascist-level 
-logging done on your systems.
+diff --git a/libblkid/libblkid.3 b/libblkid/libblkid.3
+index a0288bf..58ca91c 100644
+--- a/libblkid/libblkid.3
++++ b/libblkid/libblkid.3
+@@ -37,11 +37,11 @@ environment variable BLKID_FILE.
+ .P
+ In situations where one is getting information about a single known device, it
+ does not impact performance whether the cache is used or not (unless you are
+-not able to read the block device directly). 
++not able to read the block device directly).
+ .P
+ The high-level part of the library supports two methods to evaluate LABEL/UUID.
+ It reads information directly from a block device or read information from
+-/dev/disk/by-* udev symlinks. The udev is preferred method by default.
++/dev/disk/by-* udev symlinks.  The udev is preferred method by default.
+ .P
+ If you are dealing with
+ multiple devices, use of the cache is highly recommended (even if empty) as
+@@ -57,7 +57,7 @@ in this situation.
+ .SH CONFIGURATION FILE
+ The standard location of the
+ .I /etc/blkid.conf
+-config file can be overridden by the environment variable BLKID_CONF. For more
++config file can be overridden by the environment variable BLKID_CONF.  For more
+ details about the config file see
+ .BR blkid (8)
+ man page.
+-- 
+1.9.0
 
