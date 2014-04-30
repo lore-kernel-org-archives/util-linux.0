@@ -1,79 +1,37 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Thomas =?utf-8?q?B=C3=A4chler?= <thomas@archlinux.org>
-Subject: Re: [PATCH] fstrim: add systemd units
-Date: Tue, 8 Apr 2014 14:07:28 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <1396561311-12825-1-git-send-email-thomas@archlinux.org> <201404081225.21563.sweet_f_a@gmx.de> <5343D600.7000507@archlinux.org>
-In-Reply-To: <5343D600.7000507@archlinux.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47092 "EHLO
+	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758192AbaD3IwW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 30 Apr 2014 04:52:22 -0400
+Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 4723320DCF
+	for <util-linux@vger.kernel.org>; Wed, 30 Apr 2014 04:52:21 -0400 (EDT)
+Message-Id: <1398847941.19293.112034049.7CA00422@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201404081407.29362.sweet_f_a@gmx.de>
+Content-Type: text/plain
+Subject: cytune: misnamed long options
+Date: Wed, 30 Apr 2014 10:52:21 +0200
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 08 April 2014, Thomas B=C3=A4chler wrote:
-> Am 08.04.2014 12:25, schrieb Ruediger Meier:
-> > Hm, isn't this a bit over the top? Adding a script just to
-> > call "fstrim -a" automatically?
->
-> It's a common task. I was getting tired of having to add this on
-> every single machine that I set up.
 
-=46or me it's very common task to do "rm -rf /tmp" after each reboot. I=20
-have to setup this on every single machine. Should I go to coreutils,=20
-the developers of rm to add a script which calls "rm -rf /tmp" on=20
-reboot?
-No, of course my distribution should give me that feature.
+Hi,
 
-> > Should we also add scripts for "mount -a" or "fsck -a" or "swapon
-> > -a"?
->
-> And what purpose would that serve? Did you just take random commands
-> and add '-a' to prove a point?
+According to the code and the man page of cytune, the option -g
+shows the current values of the threshold and the flush timeout,
+and option -G shows the default values.  But the corresponding
+long options of those two are: --get-threshold and --get-flush.
+Confusing.  Shouldn't those be changed to --get-current and
+--get-defaults?  (Or the first one maybe just --get?)  However,
+the docs say not to change any options.  What to do?  Sami?
 
-I wanted to point out that util-linux is a project to provide us tools=20
-and not all the ways how and when to use them. systemd ustream is=20
-mounting and fsck'ing our filesystems automatically. So they can also=20
-fstrim if they find it useful.
+Regards,
 
-> > And wouldn't we also need to add "example crontab" lines for
-> > non-systemd systems! Sounds a bit ridiculous, right?
->
-> You can add them if you feel like it. But this is not an "example"
-> file, it is ready to be used.
+Benno
 
-An example crontab line is also ready to use. Your example timer is=20
-(hopefully) not automatically enabled just because it is installed.
+-- 
+http://www.fastmail.fm - The professional email service
 
-> > I think it's the distro's or admin's job to write and add the
-> > scripts for filesystems maintenance etc.
->
-> That's ridiculous. We finally, for the first time ever, have a
-> unified way of creating service definitions that can be used
-> unchanged in all relevant distributions (except Gentoo and Slackware,
-> of course).
-
-Beside the fact that before "unique service definitions" were invented=20
-nobody would have thought that one would need such thing just to call a=20
-single commandline one time per day.
-
-> The main advantage of this unification is that they can =20
-> be shipped and maintained by upstream projects - after all, the
-> upstream projects know what services make sense and how to start them
-> properly.
-
-I don't say something against systemd here and I don't see this black=20
-and white only. I'am just against adding sysadmin scripts which=20
-actually do only trivial things. Though it might be worth to add such=20
-unit file if it does something more interesting, like we have already=20
-uuidd.service and uuidd.socket (and uuidd.rc) which provides nices ways=20
-how to start uuidd.
-
-> > BTW fstrim.timer is missing in "make dist" tar ball.
->
-> Sorry, you are right. I'm a bit lost in this build system, Karel
-> probably knows how to fix this.
-
-cu,
-Rudi
