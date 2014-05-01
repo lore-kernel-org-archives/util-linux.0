@@ -1,35 +1,23 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53485 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934558AbaEFKCc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 May 2014 06:02:32 -0400
-Date: Tue, 6 May 2014 12:02:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 08/16] libuuid/man/uuid_clear.3: Improve the typesetting
- of the manual
-Message-ID: <20140506100225.GH5962@x2.net.home>
-References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+Received: from mail-ve0-f173.google.com ([209.85.128.173]:65098 "EHLO
+	mail-ve0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751760AbaEAXhp (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 1 May 2014 19:37:45 -0400
+Received: by mail-ve0-f173.google.com with SMTP id pa12so3630852veb.18
+        for <util-linux@vger.kernel.org>; Thu, 01 May 2014 16:37:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Thu, 1 May 2014 16:37:23 -0700
+Message-ID: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
+Subject: getting rid of "mount: only root can ..."
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 02, 2014 at 02:37:33AM +0000, Bjarni Ingi Gislason wrote:
-> diff --git a/libuuid/man/uuid_clear.3 b/libuuid/man/uuid_clear.3
-> index edb80d6..70fca02 100644
-> --- a/libuuid/man/uuid_clear.3
-> +++ b/libuuid/man/uuid_clear.3
-
- All libuuid/man patches applied. Thanks.
-
- Note that it's better to use "libuuid: " prefix for the patches.
- We use the prefix to aggregate all changes in the ReleaseNotes files.
-
-    Karel
+This isn't really true any more.  Can we get rid of those checks or at
+least have an option to turn them off?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Andy Lutomirski
+AMA Capital Management, LLC
