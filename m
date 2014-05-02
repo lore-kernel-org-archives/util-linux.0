@@ -1,70 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f178.google.com ([74.125.82.178]:38872 "EHLO
-	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754878AbaEDPuz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:50:55 -0400
-Received: by mail-we0-f178.google.com with SMTP id u56so5728546wes.9
-        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:50:54 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from katla.rhi.hi.is ([130.208.165.1]:59387 "EHLO katla.rhi.hi.is"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751297AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 May 2014 22:38:08 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 13/15] cytune: add noreturn function attributes
-Date: Sun,  4 May 2014 16:49:54 +0100
-Message-Id: <1399218596-21321-14-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
-References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 14/16] libuuid/man/uuid_time.3: Improve the typesetting of the manual
+Date: Fri,  2 May 2014 02:37:39 +0000
+Message-Id: <1398998261-17569-7-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The query_tty_stats() will exit only when it is signaled to stop.
+  Protect a full stop (.), that begins or ends a string, with \&
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
+use '.ad l' for the entire manual
+
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 ---
- sys-utils/cytune.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ libuuid/man/uuid_time.3 | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
-index dde793e..c93951d 100644
---- a/sys-utils/cytune.c
-+++ b/sys-utils/cytune.c
-@@ -120,7 +120,8 @@ static inline double dtime(struct timeval *tvpnew, struct timeval *tvpold)
- 	return diff;
- }
- 
--static void signal_handler(int sig __attribute__((__unused__)))
-+static void __attribute__((__noreturn__))
-+signal_handler(int sig __attribute__((__unused__)))
- {
- 	struct cyclades_control *cc;
- 	int argc, local_optind;
-@@ -135,6 +136,7 @@ static void signal_handler(int sig __attribute__((__unused__)))
- 			"and the maximum transfer rate in characters/second was %f"),
- 		      cc->filename, cc->threshold_value, cc->maxmax, cc->maxtran);
- 	}
-+	free(cmon);
- 	exit(EXIT_SUCCESS);
- }
- 
-@@ -161,7 +163,8 @@ static void cyg_get_mon(int fd, struct cyclades_monitor *mon, char *file,
- 		err(EXIT_FAILURE, _("cannot get timeout for %s"), file);
- }
- 
--static void query_tty_stats(int argc, char **argv, struct cytune_modifiers *mod)
-+static void __attribute__((__noreturn__))
-+query_tty_stats(int argc, char **argv, struct cytune_modifiers *mod)
- {
- 	struct cyclades_monitor cywork;
- 	struct cyclades_control *cc;
-@@ -233,9 +236,6 @@ static void query_tty_stats(int argc, char **argv, struct cytune_modifiers *mod)
- 			memcpy(&cc->c, &cywork, sizeof(struct cyclades_monitor));
- 		}
- 	}
--
--	free(cmon);
--	return;
- }
- 
- int main(int argc, char **argv)
+diff --git a/libuuid/man/uuid_time.3 b/libuuid/man/uuid_time.3
+index c2af0b6..483676b 100644
+--- a/libuuid/man/uuid_time.3
++++ b/libuuid/man/uuid_time.3
+@@ -60,11 +60,12 @@ the epoch, is also stored in the location pointed to by
+ (see
+ .BR gettimeofday "(2))."
+ .SH AUTHOR
+-Theodore Y. Ts'o
++Theodore Y.\& Ts'o
+ .SH AVAILABILITY
+ .B libuuid
+ is part of the util-linux package since version 2.15.1 and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
++.na
+ .SH "SEE ALSO"
+ .BR uuid (3),
+ .BR uuid_clear (3),
+@@ -74,3 +75,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+ .BR uuid_is_null (3),
+ .BR uuid_parse (3),
+ .BR uuid_unparse (3)
++.ad
 -- 
-1.9.2
+1.9.0
 
