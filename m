@@ -1,46 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:38230 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754974AbaEEIei (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 04:34:38 -0400
-Message-Id: <1399278878.12657.113701373.0499DDA9@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1399218596-21321-2-git-send-email-kerolasa@iki.fi>
-References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
- <1399218596-21321-2-git-send-email-kerolasa@iki.fi>
-Subject: Re: [PATCH 01/15] cytune: rename threshold and timeout variables
-Date: Mon, 05 May 2014 10:34:38 +0200
+Received: from katla.rhi.hi.is ([130.208.165.1]:59374 "EHLO katla.rhi.hi.is"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751312AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 May 2014 22:38:08 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 10/16] libuuid/man/uuid_copy.3: Improve the typesetting of the manual
+Date: Fri,  2 May 2014 02:37:35 +0000
+Message-Id: <1398998261-17569-3-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+  Protect a full stop (.), that begins or ends a string, with \&
 
-On Sun, May 4, 2014, at 17:49, Sami Kerola wrote:
-> +			threshold_def_val = strtou32_or_err(optarg,
-> +						_("Invalid threshold default value"));
-> +			if (threshold_def_val < 0 || 12 < threshold_def_val) {
-> +				warnx(_("Invalid threshold default value: %d"),
+  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
+use '.ad l' for the entire manual
 
-Again, swap "threshold" and "default".
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ libuuid/man/uuid_copy.3 | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> +						_("Invalid set timeout value"));
-> +			if (timeout_val < 1 || 255 < timeout_val) {
-> +				warnx(_("Invalid set timeout value: %d"),
-> +				      timeout_val);
-
-s/set//
-
-> +						_("Invalid default timeout value"));
-> +			if (timeout_def_val < 0 || 255 < timeout_def_val) {
->  				warnx(_("Invalid default time value: %d"),
-
-s/time/timeout/
-
-Benno
-
+diff --git a/libuuid/man/uuid_copy.3 b/libuuid/man/uuid_copy.3
+index f31d94e..5159fa6 100644
+--- a/libuuid/man/uuid_copy.3
++++ b/libuuid/man/uuid_copy.3
+@@ -47,11 +47,12 @@ function copies the UUID variable
+ The copied UUID is returned in the location pointed to by
+ .IR dst .
+ .SH AUTHOR
+-Theodore Y. Ts'o
++Theodore Y.\& Ts'o
+ .SH AVAILABILITY
+ .B libuuid
+ is part of the util-linux package since version 2.15.1 and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
++.na
+ .SH "SEE ALSO"
+ .BR uuid (3),
+ .BR uuid_clear (3),
+@@ -60,3 +61,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+ .BR uuid_is_null (3),
+ .BR uuid_parse (3),
+ .BR uuid_unparse (3)
++.ad
 -- 
-http://www.fastmail.fm - The professional email service
+1.9.0
 
