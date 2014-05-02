@@ -1,48 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:44889 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752136AbaECRm0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 3 May 2014 13:42:26 -0400
-Received: by mail-pd0-f179.google.com with SMTP id g10so4032121pdj.10
-        for <util-linux@vger.kernel.org>; Sat, 03 May 2014 10:42:25 -0700 (PDT)
-From: Shakur Shams Mullick <shakursmullick@gmail.com>
+Received: from katla.rhi.hi.is ([130.208.165.1]:59372 "EHLO katla.rhi.hi.is"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750795AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 May 2014 22:38:08 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 To: util-linux@vger.kernel.org
-Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
-Subject: [PATCH 2/8] libsmartcols/src/libsmartcols.sym: add function symbol
-Date: Sat,  3 May 2014 23:41:22 +0600
-Message-Id: <1399138888-7554-2-git-send-email-shakursmullick@gmail.com>
-In-Reply-To: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
-References: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 09/16] libuuid/man/uuid_compare.3: Improve the typesetting of the manual
+Date: Fri,  2 May 2014 02:37:34 +0000
+Message-Id: <1398998261-17569-2-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
----
- libsmartcols/src/libsmartcols.sym | 4 ++++
- 1 file changed, 4 insertions(+)
+  Protect a full stop (.), that begins or ends a string, with \&
 
-diff --git a/libsmartcols/src/libsmartcols.sym b/libsmartcols/src/libsmartcols.sym
-index 4b64f28..fe7f36c 100644
---- a/libsmartcols/src/libsmartcols.sym
-+++ b/libsmartcols/src/libsmartcols.sym
-@@ -70,6 +70,8 @@ global:
- 	scols_table_enable_maxout;
- 	scols_table_enable_noheadings;
- 	scols_table_enable_raw;
-+	scols_table_enable_namesort;
-+	scols_table_enable_sizesort;
- 	scols_table_get_column;
- 	scols_table_get_column_separator;
- 	scols_table_get_line;
-@@ -84,6 +86,8 @@ global:
- 	scols_table_is_noheadings;
- 	scols_table_is_raw;
- 	scols_table_is_tree;
-+	scols_table_is_namesort;
-+	scols_table_is_sizesort;
- 	scols_table_new_column;
- 	scols_table_new_line;
- 	scols_table_next_column;
+  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
+use '.ad l' for the entire manual
+
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ libuuid/man/uuid_compare.3 | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libuuid/man/uuid_compare.3 b/libuuid/man/uuid_compare.3
+index 9300c51..f91181a 100644
+--- a/libuuid/man/uuid_compare.3
++++ b/libuuid/man/uuid_compare.3
+@@ -51,11 +51,12 @@ is found,  respectively, to be lexicographically less than, equal, or
+ greater than
+ .IR uu2 .
+ .SH AUTHOR
+-Theodore Y. Ts'o
++Theodore Y.\& Ts'o
+ .SH AVAILABILITY
+ .B libuuid
+ is part of the util-linux package since version 2.15.1 and is available from
+ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
++.na
+ .SH "SEE ALSO"
+ .BR uuid (3),
+ .BR uuid_clear (3),
+@@ -64,3 +65,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
+ .BR uuid_is_null (3),
+ .BR uuid_parse (3),
+ .BR uuid_unparse (3)
++.ad
 -- 
-1.8.3.2
+1.9.0
 
