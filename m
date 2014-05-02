@@ -1,62 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59497 "EHLO mx1.redhat.com"
+Received: from katla.rhi.hi.is ([130.208.165.1]:59375 "EHLO katla.rhi.hi.is"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753083AbaENITv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 May 2014 04:19:51 -0400
-Date: Wed, 14 May 2014 10:19:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: terminal-colors.d changes
-Message-ID: <20140514081946.GB26357@x2.net.home>
-References: <20140513113858.GA26357@x2.net.home>
- <lktnib$mk7$1@ger.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <lktnib$mk7$1@ger.gmane.org>
+	id S1751447AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 1 May 2014 22:38:08 -0400
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Subject: [PATCH 11/16] libuuid/man/uuid_generate.3: Improve the typesetting of the manual
+Date: Fri,  2 May 2014 02:37:36 +0000
+Message-Id: <1398998261-17569-4-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 13, 2014 at 09:16:40PM +0300, Mantas Mikulėnas wrote:
-> On 2014-05-13 14:38, Karel Zak wrote:
-> >   * "scheme" files to customize colors are supported now, for example
-> > 
-> >        echo 'alert 37;41' >> /etc/terminal-colors.d/dmesg.scheme
-> > 
-> >     sets red background color for alert messages.
-> >     
-> >     The scheme files supports color names (e.g. "red"), ANSI color
-> >     sequences (e.g. 37;41) and escape sequences (e.g. \a for bell).
-> 
-> Does it support multiple escape sequences?
-> 
-> The 16/256/RGB-color sequence is a bit _odd_ in that it consists of
-> three parameters (e.g. \e[38;5;72m for color72) and generally cannot be
-> mixed with other sequences. (Some terminals allow this, others forbid,
-> particularly mosh [1].)
+  Change '-' to '\-', if it means a minus
 
-Yes, for example
+  Protect a full stop (.), that begins or ends a string, with \&
 
-   echo 'warn 38;5;72' >> /etc/terminal-colors.d/dmesg.scheme
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ libuuid/man/uuid_generate.3 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-works. The \e[ m is unnecessary (we follow coreutils dir colors
-semantic).
-
-> I guess right now 'alert 38;5;16m\e[48;5;202' would work, but it just
-> doesn't feel right.
-
-  alert 38;5;16m\e[48;5;202
-
-works, but in this case more consistent and readable notation is probably
-
-  alert \e[38;5;16m\e[48;5;202m  
-
-that works too. 
-
-(The result is orange background and black foreground, right? :-)
-
-    Karel
-
+diff --git a/libuuid/man/uuid_generate.3 b/libuuid/man/uuid_generate.3
+index 3bb789c..19904d7 100644
+--- a/libuuid/man/uuid_generate.3
++++ b/libuuid/man/uuid_generate.3
+@@ -104,11 +104,11 @@ and in the future.
+ The newly created UUID is returned in the memory location pointed to by
+ .IR out .
+ .B uuid_generate_time_safe
+-returns zero if the UUID has been generated in a safe manner, -1 otherwise.
++returns zero if the UUID has been generated in a safe manner, \-1 otherwise.
+ .SH "CONFORMING TO"
+ OSF DCE 1.1
+ .SH AUTHOR
+-Theodore Y. Ts'o
++Theodore Y.\& Ts'o
+ .SH AVAILABILITY
+ .B libuuid
+ is part of the util-linux package since version 2.15.1 and is available from
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.0
+
