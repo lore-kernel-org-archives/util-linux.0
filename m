@@ -1,43 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:59392 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751550AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 May 2014 22:38:08 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 16/16] libuuid/man/uuid.3: Improve the typesetting of the manual
-Date: Fri,  2 May 2014 02:37:41 +0000
-Message-Id: <1398998261-17569-9-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+Received: from mail-vc0-f176.google.com ([209.85.220.176]:63981 "EHLO
+	mail-vc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751388AbaEBWhL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 2 May 2014 18:37:11 -0400
+Received: by mail-vc0-f176.google.com with SMTP id lg15so3308298vcb.35
+        for <util-linux@vger.kernel.org>; Fri, 02 May 2014 15:37:10 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <201405022221.s42MLpT4015462@hobgoblin.ariadne.com>
+References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
+ <201405022221.s42MLpT4015462@hobgoblin.ariadne.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Fri, 2 May 2014 15:36:50 -0700
+Message-ID: <CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
+Subject: Re: getting rid of "mount: only root can ..."
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Protect a full stop (.), that begins or ends a string, with \&
+On Fri, May 2, 2014 at 3:21 PM, Dale R. Worley <worley@alum.mit.edu> wrote:
+>> From: Andy Lutomirski <luto@amacapital.net>
+>>
+>> This isn't really true any more.  Can we get rid of those checks or at
+>> least have an option to turn them off?
+>
+> My understanding is that whether the user has to be root when running
+> mount depends on the "user" and "users" options in fstab.  I assume
+> that "those checks" haven't changed recently because the required
+> behavior hasn't changed recently.
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
+Blech.  I forgot that mount is setuid root.
 
-Notes (default):
-    I am checking the man pages in alphabetic order (<dir>/<name>) with a script
+What if mount determined that the requested option wasn't allowed by
+fstab and instead fell back to dropping privileges and trying anyway?
 
- libuuid/man/uuid.3 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libuuid/man/uuid.3 b/libuuid/man/uuid.3
-index 62b99eb..37b0499 100644
---- a/libuuid/man/uuid.3
-+++ b/libuuid/man/uuid.3
-@@ -49,7 +49,7 @@ of a name clash.
- .SH "CONFORMING TO"
- OSF DCE 1.1
- .SH AUTHOR
--Theodore Y. Ts'o
-+Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
- is part of the util-linux package since version 2.15.1 and is available from
--- 
-1.9.0
-
+--Andy
