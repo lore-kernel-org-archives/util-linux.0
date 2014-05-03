@@ -1,32 +1,55 @@
-Return-Path: kerolasa@gmail.com
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20140512121011.GH8951@x2.net.home>
-References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
-	<1399836409-7769-12-git-send-email-kerolasa@iki.fi>
-	<20140512121011.GH8951@x2.net.home>
-Date: Mon, 12 May 2014 15:53:29 +0100
-Message-ID: <CAG27Bk15kOBNWt=T77H2EcdC1JhD7RLQD=89xcRdBmcfp+D2nQ@mail.gmail.com>
-Subject: Re: [PATCH 12/12] setterm: convert remaining magic values to symbolic references
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:54144 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752136AbaECRmV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 May 2014 13:42:21 -0400
+Received: by mail-pa0-f51.google.com with SMTP id kq14so216787pab.24
+        for <util-linux@vger.kernel.org>; Sat, 03 May 2014 10:42:21 -0700 (PDT)
+From: Shakur Shams Mullick <shakursmullick@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
+Subject: [PATCH 1/8] libsmartcols/src/libsmartcols.h.in: add function name
+Date: Sat,  3 May 2014 23:41:21 +0600
+Message-Id: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 12 May 2014 13:10, Karel Zak <kzak@redhat.com> wrote:
->  Please, use enum {} to group together things which have any relation,
->  otherwise use #define.
->
->  Fixed and merged.
+Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
+---
+ libsmartcols/src/libsmartcols.h.in | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Thanks for review & advice, I'll try to better changes in future.
-
->  Applied all patches in the patchset, thanks.
-
-Which brings to me to generic FYI; I'll work more with setterm(1) this week.
-
+diff --git a/libsmartcols/src/libsmartcols.h.in b/libsmartcols/src/libsmartcols.h.in
+index 9468226..da27262 100644
+--- a/libsmartcols/src/libsmartcols.h.in
++++ b/libsmartcols/src/libsmartcols.h.in
+@@ -157,7 +157,7 @@ extern int scols_line_set_data(struct libscols_line *ln, size_t n, const char *d
+ extern int scols_line_refer_data(struct libscols_line *ln, size_t n, char *data);
+ extern struct libscols_line *scols_copy_line(struct libscols_line *ln);
+ 
+-/* table */
++/* table.c */
+ extern int scols_table_colors_wanted(struct libscols_table *tb);
+ extern int scols_table_is_raw(struct libscols_table *tb);
+ extern int scols_table_is_ascii(struct libscols_table *tb);
+@@ -166,6 +166,8 @@ extern int scols_table_is_empty(struct libscols_table *tb);
+ extern int scols_table_is_export(struct libscols_table *tb);
+ extern int scols_table_is_maxout(struct libscols_table *tb);
+ extern int scols_table_is_tree(struct libscols_table *tb);
++extern int scols_table_is_namesort(struct libscols_table *tb);
++extern int scols_table_is_sizesort(struct libscols_table *tb);
+ 
+ extern int scols_table_enable_colors(struct libscols_table *tb, int enable);
+ extern int scols_table_enable_raw(struct libscols_table *tb, int enable);
+@@ -173,6 +175,8 @@ extern int scols_table_enable_ascii(struct libscols_table *tb, int enable);
+ extern int scols_table_enable_noheadings(struct libscols_table *tb, int enable);
+ extern int scols_table_enable_export(struct libscols_table *tb, int enable);
+ extern int scols_table_enable_maxout(struct libscols_table *tb, int enable);
++extern int scols_table_enable_namesort(struct libscols_table *tb, int enable);
++extern int scols_table_enable_sizesort(struct libscols_table *tb, int enable);
+ 
+ extern int scols_table_set_column_separator(struct libscols_table *tb, const char *sep);
+ extern int scols_table_set_line_separator(struct libscols_table *tb, const char *sep);
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+1.8.3.2
+
