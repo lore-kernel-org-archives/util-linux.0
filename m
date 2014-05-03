@@ -1,222 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:45668 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751172AbaEROF7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:05:59 -0400
-Received: by mail-wg0-f48.google.com with SMTP id b13so6705844wgh.31
-        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:05:58 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:40905 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555AbaECRml (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 May 2014 13:42:41 -0400
+Received: by mail-pd0-f174.google.com with SMTP id w10so5137457pde.33
+        for <util-linux@vger.kernel.org>; Sat, 03 May 2014 10:42:41 -0700 (PDT)
+From: Shakur Shams Mullick <shakursmullick@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 03/17] setterm: use string utils to numeric parsing
-Date: Sun, 18 May 2014 15:05:27 +0100
-Message-Id: <1400421941-14244-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
+Subject: [PATCH 6/8] misc-utils/lsblk.c: add sorting support for lsblk command
+Date: Sat,  3 May 2014 23:41:26 +0600
+Message-Id: <1399138888-7554-6-git-send-email-shakursmullick@gmail.com>
+In-Reply-To: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
+References: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Check the input numbers are numbers, which makes also the code shorter,
-and user experience better as half invalid imputs will error.
+It adds support for sorting in lsblk command. sorting can be done by name(-c) or size(-z). For longoptions use --sort name or --sort size
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+e.g. lsblk -c
+     lsblk -q name
+     lsblk --sort size
+
+Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
 ---
- term-utils/Makemodule.am |  2 +-
- term-utils/setterm.c     | 70 +++++++++++++++++++++++-------------------------
- 2 files changed, 35 insertions(+), 37 deletions(-)
+ misc-utils/lsblk.c | 43 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 37 insertions(+), 6 deletions(-)
 
-diff --git a/term-utils/Makemodule.am b/term-utils/Makemodule.am
-index e53471f..39fddc9 100644
---- a/term-utils/Makemodule.am
-+++ b/term-utils/Makemodule.am
-@@ -29,7 +29,7 @@ usrbin_exec_PROGRAMS += setterm
- dist_man_MANS += term-utils/setterm.1
- setterm_SOURCES = term-utils/setterm.c
- setterm_CFLAGS = $(AM_CFLAGS)
--setterm_LDADD = $(LDADD)
-+setterm_LDADD = $(LDADD) libcommon.la
- if HAVE_TINFO
- setterm_LDADD += $(TINFO_LIBS)
- setterm_CFLAGS += $(TINFO_CFLAGS)
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index 25baff7..c4753d0 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -124,6 +124,7 @@
- #include "c.h"
- #include "closestream.h"
- #include "nls.h"
-+#include "strutils.h"
- #include "xalloc.h"
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 2efb2ec..2d9c9c7 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -110,11 +110,13 @@ enum {
  
- /* Constants. */
-@@ -227,6 +228,15 @@ static void screendump(int vcnum, FILE *F);
-  * Note that it is an error for a given option to be invoked more than once.
-  */
+ /* basic table settings */
+ enum {
+-	LSBLK_ASCII =		(1 << 0),
+-	LSBLK_RAW =		(1 << 1),
+-	LSBLK_NOHEADINGS =	(1 << 2),
+-	LSBLK_EXPORT =		(1 << 3),
+-	LSBLK_TREE =		(1 << 4),
++	LSBLK_ASCII       =	(1 << 0),
++	LSBLK_RAW         =	(1 << 1),
++	LSBLK_NOHEADINGS  =	(1 << 2),
++	LSBLK_EXPORT      =	(1 << 3),
++	LSBLK_TREE        =	(1 << 4),
++	LSBLK_NSORTED  =  (1 << 5),   /* sort by name */
++	LSBLK_SZSORTED  =  (1 << 6),   /* sort by size */
+ };
  
-+static int strtoint_or_err(const char *str)
-+{
-+	int64_t num = strtos64_or_err(str, _("argument error"));
-+
-+	if (num < INT_MIN || INT_MAX < num)
-+		errx(EXIT_FAILURE, _("argument error: %s"), str);
-+	return num;
-+}
-+
- static int parse_switch(const char *arg, const char *t, const char *f)
- {
- 	if (strcmp(arg, t) == 0)
-@@ -238,6 +248,8 @@ static int parse_switch(const char *arg, const char *t, const char *f)
+ /* column names */
+@@ -1355,6 +1357,10 @@ static void __attribute__((__noreturn__)) help(FILE *out)
+ 	fputs(_(" -i, --ascii          use ascii characters only\n"), out);
+ 	fputs(_(" -I, --include <list> show only devices with specified major numbers\n"), out);
+ 	fputs(_(" -l, --list           use list format output\n"), out);
++	fputs(_(" -z,                  show list sorted  by size\n"), out);
++	fputs(_(" -c,                  show list sorted  by name\n"), out);
++	fputs(_(" -q  --sort WORD      sort by WORD: size -z, name -c\n"), out);
++	fputs(_(" 					   e.g. --sort size\n"), out);
+ 	fputs(_(" -m, --perms          output info about permissions\n"), out);
+ 	fputs(_(" -n, --noheadings     don't print headings\n"), out);
+ 	fputs(_(" -o, --output <list>  output columns\n"), out);
+@@ -1413,6 +1419,9 @@ int main(int argc, char *argv[])
+ 		{ "pairs",      0, 0, 'P' },
+ 		{ "scsi",       0, 0, 'S' },
+ 		{ "version",    0, 0, 'V' },
++		{ "sort",       1, 0, 'q' },
++		{ NULL,         0, 0, 'z' },
++		{ NULL,         0, 0, 'c' },
+ 		{ NULL, 0, 0, 0 },
+ 	};
  
- static int parse_febg_color(const char *arg)
- {
-+	int color;
-+
- 	if (strcmp(arg, "black") == 0)
- 		return BLACK;
- 	else if (strcmp(arg, "red") == 0)
-@@ -256,15 +268,11 @@ static int parse_febg_color(const char *arg)
- 		return WHITE;
- 	else if (strcmp(arg, "default") == 0)
- 		return DEFAULT;
--	else if (isdigit(arg[0])) {
--		int color;
--
--		color = atoi(arg);
--		if (color < BLACK || DEFAULT < color || color == GREY)
--			errx(EXIT_FAILURE, _("argument error: %s"), arg);
--		return color;
--	}
--	errx(EXIT_FAILURE, _("argument error: %s"), arg);
-+	else
-+		color = strtoint_or_err(arg);
-+	if (color < BLACK || DEFAULT < color || color == GREY)
-+		errx(EXIT_FAILURE, _("argument error: %s"), arg);
-+	return color;
- }
+@@ -1432,7 +1441,7 @@ int main(int argc, char *argv[])
+ 	memset(lsblk, 0, sizeof(*lsblk));
  
- static int parse_ulhb_color(char **argv, int *optind)
-@@ -298,11 +306,11 @@ static int parse_ulhb_color(char **argv, int *optind)
- 		color = CYAN;
- 	else if (strcmp(color_name, "white") == 0)
- 		color = WHITE;
--	else if (isdigit(color_name[0]))
--		color = atoi(color_name);
--
--	if (color < BLACK || DEFAULT < color)
--		errx(EXIT_FAILURE, _("argument error: %s"), color_name);
-+	else {
-+		color = strtoint_or_err(color_name);
-+		if (color < BLACK || DEFAULT < color)
-+			errx(EXIT_FAILURE, _("argument error"));
-+	}
- 	if (bright && (color == BLACK || color == GREY))
- 		errx(EXIT_FAILURE, _("argument error: bright %s is not supported"), color_name);
+ 	while((c = getopt_long(argc, argv,
+-			       "abdDe:fhlnmo:pPiI:rstVS", longopts, NULL)) != -1) {
++			       "abdDe:fhlnmo:pPiI:rstVSq:zc", longopts, NULL)) != -1) {
  
-@@ -335,10 +343,9 @@ static int parse_blank(char **argv, char *optarg, int *optind)
- 	else if (!strcmp(arg, "poke"))
- 		return UNBLANKSCREEN;
- 	else {
--		int ret = -1;
-+		int ret;
+ 		err_exclusive_options(c, longopts, excl, excl_st);
  
--		if (isdigit(arg[0]))
--			ret = atoi(arg);
-+		ret = strtoint_or_err(arg);
- 		if (ret < 0 || BLANK_MAX < ret)
- 			errx(EXIT_FAILURE, _("argument error: %s"), arg);
- 		return ret;
-@@ -364,10 +371,9 @@ static int parse_powersave(const char *arg)
- 
- static int parse_msglevel(const char *arg)
- {
--	int ret = CONSOLE_LEVEL_MIN - 1;
-+	int ret;
- 
--	if (isdigit(arg[0]))
--		ret = atoi(arg);
-+	ret = strtoint_or_err(arg);
- 	if (ret < CONSOLE_LEVEL_MIN || CONSOLE_LEVEL_MAX < ret)
- 		errx(EXIT_FAILURE, _("argument error: %s"), arg);
- 	return ret;
-@@ -375,14 +381,13 @@ static int parse_msglevel(const char *arg)
- 
- static int parse_snap(char **argv, char *optarg, int *optind)
- {
--	int ret = 0;
-+	int ret;
- 	char *arg;
- 
- 	arg = find_optional_arg(argv, optarg, optind);
- 	if (!arg)
- 		return 0;
--	if (isdigit(arg[0]))
--		ret = atoi(arg);
-+	ret = strtoint_or_err(arg);
- 	if (ret < 1)
- 		errx(EXIT_FAILURE, _("argument error: %s"), arg);
- 	return ret;
-@@ -393,7 +398,7 @@ static void parse_tabs(char **argv, char *optarg, int *optind, int *tab_array)
- 	int i = 0;
- 
- 	if (optarg) {
--		tab_array[i] = atoi(optarg);
-+		tab_array[i] = strtoint_or_err(optarg);
- 		i++;
- 	}
- 	while (argv[*optind]) {
-@@ -401,10 +406,7 @@ static void parse_tabs(char **argv, char *optarg, int *optind, int *tab_array)
- 			errx(EXIT_FAILURE, _("too many tabs"));
- 		if (argv[*optind][0] == '-')
+@@ -1462,6 +1471,26 @@ int main(int argc, char *argv[])
+ 		case 'l':
+ 			scols_flags &= ~LSBLK_TREE; /* disable the default */
  			break;
--		if (isdigit(argv[*optind][0]))
--			tab_array[i] = atoi(argv[*optind]);
--		else
--			break;
-+		tab_array[i] = strtoint_or_err(argv[*optind]);
- 		(*optind)++;
- 		i++;
- 	}
-@@ -419,7 +421,7 @@ static int parse_regtabs(char **argv, char *optarg, int *optind)
- 	arg = find_optional_arg(argv, optarg, optind);
- 	if (!arg)
- 		return DEFAULT_TAB_LEN;
--	ret = atoi(arg);
-+	ret = strtoint_or_err(arg);
- 	if (ret < 1 || TABS_MAX < ret)
- 		errx(EXIT_FAILURE, _("argument error: %s"), arg);
- 	return ret;
-@@ -433,8 +435,7 @@ static int parse_blength(char **argv, char *optarg, int *optind)
- 	arg = find_optional_arg(argv, optarg, optind);
- 	if (!arg)
- 		return 0;
--	if (isdigit(arg[0]))
--		ret = atoi(arg);
-+	ret = strtoint_or_err(arg);
- 	if (ret < 0 || BLENGTH_MAX < ret)
- 		errx(EXIT_FAILURE, _("argument error: %s"), arg);
- 	return ret;
-@@ -447,9 +448,7 @@ static int parse_bfreq(char **argv, char *optarg, int *optind)
- 	arg = find_optional_arg(argv, optarg, optind);
- 	if (!arg)
- 		return 0;
--	if (isdigit(arg[0]))
--		return atoi(arg);
--	return 0;
-+	return strtoint_or_err(arg);
- }
++		case 'q':
++			if(strncasecmp(optarg, "size", 4) == 0)
++			{
++				scols_flags |= LSBLK_SZSORTED;
++				scols_flags &= ~LSBLK_TREE; /* disable the default */
++			}
++			else if(strncasecmp(optarg, "name", 4) == 0)
++			{
++				scols_flags |= LSBLK_NSORTED;
++				scols_flags &= ~LSBLK_TREE; /* disable the default */
++			}
++			break;
++		case 'c':
++			scols_flags |= LSBLK_NSORTED;
++			scols_flags &= ~LSBLK_TREE; /* disable the default */
++			break;
++		case 'z':
++			scols_flags |= LSBLK_SZSORTED;
++			scols_flags &= ~LSBLK_TREE; /* disable the default */
++			break;
+ 		case 'n':
+ 			scols_flags |= LSBLK_NOHEADINGS;
+ 			break;
+@@ -1564,6 +1593,8 @@ int main(int argc, char *argv[])
+ 	scols_table_enable_export(lsblk->table, !!(scols_flags & LSBLK_EXPORT));
+ 	scols_table_enable_ascii(lsblk->table, !!(scols_flags & LSBLK_ASCII));
+ 	scols_table_enable_noheadings(lsblk->table, !!(scols_flags & LSBLK_NOHEADINGS));
++	scols_table_enable_namesort(lsblk->table, !!(scols_flags & LSBLK_NSORTED));
++	scols_table_enable_sizesort(lsblk->table, !!(scols_flags & LSBLK_SZSORTED));
  
- static void
-@@ -717,8 +716,7 @@ static void parse_option(int argc, char **argv)
- 			break;
- 		case OPT_FILE:
- 			set_opt_flag(&opt_snapfile);
--			strncpy(opt_sn_name, optarg, PATH_MAX);	/* FIXME: should use xstrncpy() */
--			opt_sn_name[PATH_MAX - 1] = 0;
-+			xstrncpy(opt_sn_name, optarg, PATH_MAX);
- 			break;
- 		case OPT_MSG:
- 			set_opt_flag(&opt_msg);
+ 	for (i = 0; i < ncolumns; i++) {
+ 		struct colinfo *ci = get_column_info(i);
 -- 
-1.9.2
+1.8.3.2
 
