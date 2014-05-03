@@ -1,103 +1,135 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f173.google.com ([74.125.82.173]:55669 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211AbaEROGa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:30 -0400
-Received: by mail-we0-f173.google.com with SMTP id u57so4392849wes.4
-        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:29 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:55203 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753098AbaECRmi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 May 2014 13:42:38 -0400
+Received: by mail-pa0-f53.google.com with SMTP id kp14so2608240pab.26
+        for <util-linux@vger.kernel.org>; Sat, 03 May 2014 10:42:37 -0700 (PDT)
+From: Shakur Shams Mullick <shakursmullick@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 17/17] setterm: add set_blanking() action
-Date: Sun, 18 May 2014 15:05:41 +0100
-Message-Id: <1400421941-14244-18-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
+Subject: [PATCH 5/8] libsmartcols/src/table_print.c: sort table before printing
+Date: Sat,  3 May 2014 23:41:25 +0600
+Message-Id: <1399138888-7554-5-git-send-email-shakursmullick@gmail.com>
+In-Reply-To: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
+References: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This make over long perform_sequence() function a little bit shorter.
+It fascilitates sorting before printing the table. Sorting can be done by size or name.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
 ---
- term-utils/setterm.c | 57 +++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 36 insertions(+), 21 deletions(-)
+ libsmartcols/src/table_print.c | 60 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 59 insertions(+), 1 deletion(-)
 
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index ba175f9..90d193e 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -746,6 +746,40 @@ static int open_snapshot_device(struct setterm_control *ctl)
- 	return fd;
+diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
+index 2942053..b256198 100644
+--- a/libsmartcols/src/table_print.c
++++ b/libsmartcols/src/table_print.c
+@@ -20,6 +20,7 @@
+ #include <string.h>
+ #include <termios.h>
+ #include <ctype.h>
++#include <list.h>
+ 
+ #include "nls.h"
+ #include "mbsalign.h"
+@@ -27,6 +28,7 @@
+ #include "ttyutils.h"
+ #include "carefulputc.h"
+ #include "smartcolsP.h"
++#include "strutils.h"
+ 
+ /* This is private struct to work with output data */
+ struct libscols_buffer {
+@@ -38,6 +40,8 @@ struct libscols_buffer {
+ 	size_t	art_idx;	/* begin of the tree ascii art or zero */
+ };
+ 
++static uint sq;
++
+ static struct libscols_buffer *new_buffer(size_t sz)
+ {
+ 	struct libscols_buffer *buf = malloc(sz + sizeof(struct libscols_buffer));
+@@ -694,7 +698,35 @@ static size_t strlen_line(struct libscols_line *ln)
+ 	return sz;
  }
  
-+static void set_blanking(struct setterm_control *ctl)
++int size_comparison(struct list_head *a, struct list_head *b, void *data)
 +{
-+	char ioctlarg;
-+	int ret;
++	struct libscols_line *ra, *rb;
++	uint64_t n, m;
++	
++	ra = list_entry(a, struct libscols_line, ln_lines);
++	rb = list_entry(b, struct libscols_line, ln_lines);
++		
++	strtosize(ra->cells[sq].data, &n);
++	strtosize(rb->cells[sq].data, &m);
 +
-+	if (0 <= ctl->opt_bl_min) {
-+		printf("\033[9;%d]", ctl->opt_bl_min);
-+		return;
-+	}
-+	switch (ctl->opt_bl_min) {
-+	case BLANKSCREEN:
-+		ioctlarg = TIOCL_BLANKSCREEN;
-+		if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
-+			warn(_("cannot force blank"));
-+		break;
-+	case UNBLANKSCREEN:
-+		ioctlarg = TIOCL_UNBLANKSCREEN;
-+		if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
-+			warn(_("cannot force unblank"));
-+		break;
-+	case BLANKEDSCREEN:
-+		ioctlarg = TIOCL_BLANKEDSCREEN;
-+		ret = ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg);
-+		if (ret < 0)
-+			warn(_("cannot get blank status"));
-+		else
-+			printf("%d\n", ret);
-+		break;
-+	default:		/* should be impossible to reach */
-+		abort();
-+	}
-+	return;
++	if (n >= m)
++		return 1;
++	return -1;
 +}
+ 
++int name_comparison(struct list_head *a, struct list_head *b, void *data)
++{
++	struct libscols_line *ra, *rb;
++	int n, m;
++	
++	ra = list_entry(a, struct libscols_line, ln_lines);
++	rb = list_entry(b, struct libscols_line, ln_lines);
 +
- static void screendump(struct setterm_control *ctl)
- {
- 	unsigned char header[4];
-@@ -973,27 +1007,8 @@ static void perform_sequence(struct setterm_control *ctl)
- 	}
++	n = strlen(ra->cells[sq].data);
++	m = strlen(rb->cells[sq].data);
++	 
++	return strncmp(ra->cells[sq].data, rb->cells[sq].data, (n>=m ? n : m));
++}
  
- 	/* -blank [0-60]. */
--	if (ctl->opt_blank && vc_only(ctl, "-blank")) {
--		if (ctl->opt_bl_min >= 0)
--			printf("\033[9;%d]", ctl->opt_bl_min);
--		else if (ctl->opt_bl_min == BLANKSCREEN) {
--			char ioctlarg = TIOCL_BLANKSCREEN;
--			if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
--				warn(_("cannot force blank"));
--		} else if (ctl->opt_bl_min == UNBLANKSCREEN) {
--			char ioctlarg = TIOCL_UNBLANKSCREEN;
--			if (ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg))
--				warn(_("cannot force unblank"));
--		} else if (ctl->opt_bl_min == BLANKEDSCREEN) {
--			char ioctlarg = TIOCL_BLANKEDSCREEN;
--			int ret;
--			ret = ioctl(STDIN_FILENO, TIOCLINUX, &ioctlarg);
--			if (ret < 0)
--				warn(_("cannot get blank status"));
--			else
--				printf("%d\n", ret);
--		}
--	}
-+	if (ctl->opt_blank && vc_only(ctl, "-blank"))
-+		set_blanking(ctl);
+ /**
+  * scols_print_table:
+@@ -711,7 +743,9 @@ int scols_print_table(struct libscols_table *tb)
+ 	struct libscols_line *ln;
+ 	struct libscols_iter itr;
+ 	struct libscols_buffer *buf;
+-
++	struct list_head *p;
++	char *sdata;
++	
+ 	assert(tb);
+ 	if (!tb)
+ 		return -1;
+@@ -743,6 +777,30 @@ int scols_print_table(struct libscols_table *tb)
  
- 	/* -powersave [on|vsync|hsync|powerdown|off] (console) */
- 	if (ctl->opt_powersave) {
+ 	if (scols_table_is_tree(tb))
+ 		rc = print_tree(tb, buf);
++	else if (scols_table_is_namesort(tb))
++	{
++		list_for_each(p, &tb->tb_columns) {
++			struct libscols_column *cl = list_entry(p, struct libscols_column, cl_columns);
++			if(strncmp(cl->header.data, "NAME", 4) == 0){
++				sq = cl->seqnum;
++				break;
++			}
++		}
++		list_sort(&tb->tb_lines, name_comparison, NULL);
++		print_table(tb, buf);
++	}
++	else if (scols_table_is_sizesort(tb))
++	{
++		list_for_each(p, &tb->tb_columns) {
++			struct libscols_column *cl = list_entry(p, struct libscols_column, cl_columns);
++			if(strncmp(cl->header.data, "SIZE", 4) == 0){
++				sq = cl->seqnum;
++				break;
++			}
++		}
++		list_sort(&tb->tb_lines, size_comparison, NULL);
++		print_table(tb, buf);
++	}
+ 	else
+ 		rc = print_table(tb, buf);
+ 
 -- 
-1.9.2
+1.8.3.2
 
