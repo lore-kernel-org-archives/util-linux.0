@@ -1,52 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:59387 "EHLO katla.rhi.hi.is"
+Received: from katla.rhi.hi.is ([130.208.165.1]:50063 "EHLO katla.rhi.hi.is"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751297AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 May 2014 22:38:08 -0400
+	id S1752765AbaECCcu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 2 May 2014 22:32:50 -0400
 From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 To: util-linux@vger.kernel.org
 Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 14/16] libuuid/man/uuid_time.3: Improve the typesetting of the manual
-Date: Fri,  2 May 2014 02:37:39 +0000
-Message-Id: <1398998261-17569-7-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+Subject: [PATCH 19/21] login-utils/last-deprecated.1: Improve the typesetting of the manual
+Date: Sat,  3 May 2014 02:32:37 +0000
+Message-Id: <1399084359-28425-3-git-send-email-bjarniig@rhi.hi.is>
+In-Reply-To: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
+References: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Protect a full stop (.), that begins or ends a string, with \&
+  Change \(em to \- in the NAME section
 
-  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
-use '.ad l' for the entire manual
+  Add a space character in front of an ellipsis
 
 Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 ---
- libuuid/man/uuid_time.3 | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ login-utils/last-deprecated.1 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libuuid/man/uuid_time.3 b/libuuid/man/uuid_time.3
-index c2af0b6..483676b 100644
---- a/libuuid/man/uuid_time.3
-+++ b/libuuid/man/uuid_time.3
-@@ -60,11 +60,12 @@ the epoch, is also stored in the location pointed to by
- (see
- .BR gettimeofday "(2))."
- .SH AUTHOR
--Theodore Y. Ts'o
-+Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
- is part of the util-linux package since version 2.15.1 and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-+.na
- .SH "SEE ALSO"
- .BR uuid (3),
- .BR uuid_clear (3),
-@@ -74,3 +75,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
- .BR uuid_is_null (3),
- .BR uuid_parse (3),
- .BR uuid_unparse (3)
-+.ad
+diff --git a/login-utils/last-deprecated.1 b/login-utils/last-deprecated.1
+index beb6917..3176885 100644
+--- a/login-utils/last-deprecated.1
++++ b/login-utils/last-deprecated.1
+@@ -1,6 +1,6 @@
+ .TH LAST 1 "March 1992" "util-linux" "User Commands"
+ .SH NAME
+-last \(em indicate last logins by user or terminal
++last \- indicate last logins by user or terminal
+ .SH SYNOPSIS
+ .ad l
+ .B last
+@@ -15,7 +15,7 @@ last \(em indicate last logins by user or terminal
+ .IR address ]
+ .RB [ \-l ]
+ .RB [ \-y ]
+-.RI [ name ...]
++.RI [ name " ...]
+ .ad b
+ .SH DESCRIPTION
+ \fBLast\fP looks back in the \fBwtmp\fP file which records all logins
 -- 
 1.9.0
 
