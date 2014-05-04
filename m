@@ -1,67 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51107 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750803AbaESJwi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 May 2014 05:52:38 -0400
-Date: Mon, 19 May 2014 11:52:26 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/17] setterm: remove devfs and /dev/vcsa0 support
-Message-ID: <20140519095226.GI26357@x2.net.home>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
- <1400421941-14244-10-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1400421941-14244-10-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:59087 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752689AbaEDPue (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:50:34 -0400
+Received: by mail-wg0-f50.google.com with SMTP id x12so389284wgg.33
+        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:50:33 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/15] cytune: prefer sigaction(), and remove unnecessary abstractions
+Date: Sun,  4 May 2014 16:49:47 +0100
+Message-Id: <1399218596-21321-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 18, 2014 at 03:05:33PM +0100, Sami Kerola wrote:
-> The devfs files /dev/vcc/a* does not need to be supported, and vcsa0 has
-> not existed in years if ever.
-> 
-> Reference: http://lwn.net/Articles/65197/
-> Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt?id=14186fea0cb06bc43181ce239efe0df6f1af260a#n260
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  bash-completion/setterm |  2 +-
->  term-utils/setterm.c    | 26 +++++++-------------------
->  2 files changed, 8 insertions(+), 20 deletions(-)
-> 
-> diff --git a/bash-completion/setterm b/bash-completion/setterm
-> index a7ef6eb..f47debf 100644
-> --- a/bash-completion/setterm
-> +++ b/bash-completion/setterm
-> @@ -40,7 +40,7 @@ _setterm_module()
->  			;;
->  		'-dump'|'-append')
->  			local NUM_CONS
-> -			NUM_CONS=(/sys/class/tty/*)
-> +			NUM_CONS=(/dev/vcsa?*)
->  			COMPREPLY=( $(compgen -W "{1..${#NUM_CONS[*]}}" -- $cur) )
->  			return 0
->  			;;
-> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-> index d889db4..3a02347 100644
-> --- a/term-utils/setterm.c
-> +++ b/term-utils/setterm.c
-> @@ -724,31 +724,18 @@ static void show_tabs(void)
->  
->  static void __attribute__((__noreturn__)) read_error(struct setterm_control *ctl)
->  {
-> -	if (ctl->opt_sn_num != 0)
-> -		errx(EXIT_DUMPFILE, _("Couldn't read %s"), ctl->in_device);
-> -	else
-> -		errx(EXIT_DUMPFILE, _("Couldn't read neither /dev/vcsa0 nor /dev/vcsa"));
-> +	err(EXIT_DUMPFILE, _("Couldn't read %s"), ctl->in_device);
->  }
+The signal(3) system call is not exactly deprecated, but it should not be
+used in new code.  The gettimeofday() does not require timezone to be
+real variable, so get rid of it.  The mvtime #define was in use only
+which make literal expression more readable.
 
- Sooo.. do we really need read_error()? ;-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/cytune.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-    Karel
-
-
+diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
+index 7ca39c7..4cc7db6 100644
+--- a/sys-utils/cytune.c
++++ b/sys-utils/cytune.c
+@@ -72,8 +72,6 @@ int cmon_index;
+ static int global_argc, global_optind;
+ static char ***global_argv;
+ 
+-#define mvtime(tvpto, tvpfrom)  (((tvpto)->tv_sec = (tvpfrom)->tv_sec),(tvpto)->tv_usec = (tvpfrom)->tv_usec)
+-
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fprintf(out, USAGE_HEADER);
+@@ -143,17 +141,22 @@ static void query_tty_stats(int argc, char **argv, unsigned int interval, int nu
+ {
+ 	struct cyclades_monitor cywork;
+ 	struct timeval lasttime, thistime;
+-	struct timezone tz = { 0, 0 };
+ 	int i;
+ 	double diff;
+ 	double xfer_rate;
++	struct sigaction sigact;
+ 
+ 	cmon = xmalloc(sizeof(struct cyclades_control) * numfiles);
+ 
+-	if (signal(SIGINT, summary) ||
+-	    signal(SIGQUIT, summary) || signal(SIGTERM, summary))
++	sigemptyset(&sigact.sa_mask);
++	sigact.sa_handler = &summary;
++	sigact.sa_flags = SA_RESTART;
++	if (sigaction(SIGINT, &sigact, NULL) ||
++	    sigaction(SIGQUIT, &sigact, NULL) ||
++	    sigaction(SIGTERM, &sigact, NULL))
+ 		err(EXIT_FAILURE, _("cannot set signal handler"));
+-	if (gettimeofday(&lasttime, &tz))
++
++	if (gettimeofday(&lasttime, NULL))
+ 		err(EXIT_FAILURE, _("gettimeofday failed"));
+ 
+ 	for (i = optind; i < argc; i++) {
+@@ -177,10 +180,11 @@ static void query_tty_stats(int argc, char **argv, unsigned int interval, int nu
+ 	while (1) {
+ 		sleep(interval);
+ 
+-		if (gettimeofday(&thistime, &tz))
++		if (gettimeofday(&thistime, NULL))
+ 			err(EXIT_FAILURE, _("gettimeofday failed"));
+ 		diff = dtime(&thistime, &lasttime);
+-		mvtime(&lasttime, &thistime);
++		lasttime.tv_sec = thistime.tv_sec;
++		lasttime.tv_usec = thistime.tv_usec;
+ 
+ 		for (i = optind; i < argc; i++) {
+ 			cmon_index = i - optind;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.2
+
