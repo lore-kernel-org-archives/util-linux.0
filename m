@@ -1,57 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29103 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752464AbaELKxi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 May 2014 06:53:38 -0400
-Date: Mon, 12 May 2014 12:53:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: question about test suite regarding stderr/stdout
-Message-ID: <20140512105332.GC8951@x2.net.home>
-References: <201405120038.12221.sweet_f_a@gmx.de>
- <CAG27Bk0dj=SOiGY5Hb6VttoTZG7o4P2X=XPRV6vc82g0yheybw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0dj=SOiGY5Hb6VttoTZG7o4P2X=XPRV6vc82g0yheybw@mail.gmail.com>
+Received: from mail-we0-f176.google.com ([74.125.82.176]:61353 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752618AbaEDPvB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:51:01 -0400
+Received: by mail-we0-f176.google.com with SMTP id q59so4180908wes.35
+        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:51:00 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 15/15] cytune: update copyright
+Date: Sun,  4 May 2014 16:49:56 +0100
+Message-Id: <1399218596-21321-16-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 12, 2014 at 12:22:46AM +0100, Sami Kerola wrote:
-> On 11 May 2014 23:38, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > if you do this grep in util-linux
-> >   git grep '2>&1 >> $TS_OUTPUT' tests/ts
-> >
-> > then you find 45 lines like this
-> > $TS_CMD_MKCRAMFS -n $LABEL $IMAGE_SRC $IMAGE_PATH 2>&1 >> $TS_OUTPUT
-> >
-> >
-> > which means that these warnings go to make's output but not to
-> > $TS_OUTPUT.
-> >
-> > I'm not sure whether this is really always wanted. For me it often looks
-> > like a typo which should be ">> $TS_OUTPUT 2>&1" instead. Of course
-> > could also be that it's really wanted as is to ignore stderr of too
-> > verbose commands.
-> >
-> > Could somebody please check this too?
-> > I'v had some cases where I would have liked to see that stderr in test
-> > diff instead of build log. Moreover because of parallel tests it can be
-> > difficult to find out which warning belongs to which particular test.
-> 
-> Hi Rudi,
-> 
-> Before parallel tests sending messages to stdout was OK, but now
-> things has changed and I think directing all messages to $TS_OUTPUT is
-> better option.
+Take the blame of bugs I (hopefully did not) introduce.
 
- That's usually correct and wanted, but note that some utils generate
- non-generic and irrelevant messages on stdout (for example messages 
- with device names). You cannot log such stuff to $TS_OUTPUT, so
- sometimes it's better to rely on stderr only and ignore stdout.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/cytune.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-    Karel
-
+diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
+index d9bc900..95db9c9 100644
+--- a/sys-utils/cytune.c
++++ b/sys-utils/cytune.c
+@@ -35,6 +35,8 @@
+   * - added Native Language Support
+   * Sun Mar 21 1999 - Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   * - fixed strerr(errno) in gettext calls
++  * May 2014 - Sami Kerola <kerolasa@iki.fi>
++  * - more than 50% rewrite of the code
+   */
+ 
+ #include <getopt.h>
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.2
+
