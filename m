@@ -1,115 +1,223 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:50682 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753570AbaEHKK1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 8 May 2014 06:10:27 -0400
-From: Werner Fink <werner@suse.de>
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:36353 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751009AbaEDPuT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:50:19 -0400
+Received: by mail-wi0-f176.google.com with SMTP id n15so1705973wiw.15
+        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:50:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Werner Fink <werner@suse.de>, Ruediger Meier <sweet_f_a@gmx.de>
-Subject: [PATCH 3/4] Better support of the special system consoles on S390
-Date: Thu,  8 May 2014 12:09:24 +0200
-Message-Id: <1399543765-31106-3-git-send-email-werner@suse.de>
-In-Reply-To: <1399543765-31106-1-git-send-email-werner@suse.de>
-References: <1399543765-31106-1-git-send-email-werner@suse.de>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 01/15] cytune: rename threshold and timeout variables
+Date: Sun,  4 May 2014 16:49:42 +0100
+Message-Id: <1399218596-21321-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-That is that there are several consoles, the /dev/ttyS0 which
-is type of ibm3215 and a dumb terminal, then there is the device
-/dev/3270/tty1 which can handle ANSI color escape sequences and is
-a ibm327x terminal, and the /dev/ttyS1 which is a vt220 terminal.
+Especially the treshold was difficult to read, as the variable name had
+no reference what it was setting.  Effect of the variables
+s/get/get_current/ and s/get_def/get_defaults/ seem to documented wrong
+way, that became apparent after looking into this name space.
 
-The macro is_speed() in agetty.c allows to distinguish between the
-terminal line (/dev)3270/tty1 and the speed options on the command
-line used in
-
-/run/systemd/generator/getty.target.wants/serial-getty@3270-tty1.service
-
-which is a symbolic link to /usr/lib/systemd/system/serial-getty@.service
-
-Signed-off-by: Werner Fink <werner@suse.de>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/sulogin.c |    8 +++++++-
- term-utils/agetty.c   |   15 ++++++++++-----
- 2 files changed, 17 insertions(+), 6 deletions(-)
+ sys-utils/cytune.c | 101 +++++++++++++++++++++++++++--------------------------
+ 1 file changed, 52 insertions(+), 49 deletions(-)
 
-diff --git login-utils/sulogin.c login-utils/sulogin.c
-index 1e227a8..147e633 100644
---- login-utils/sulogin.c
-+++ login-utils/sulogin.c
-@@ -231,10 +231,16 @@ static void tcfinal(struct console *con)
- 		setenv("TERM", "linux", 1);
- 		return;
- 	}
--	if (con->flags & CON_NOTTY)
-+	if (con->flags & CON_NOTTY) {
-+		setenv("TERM", "dumb", 1);
- 		return;
-+	}
- 
-+#if defined (__s390__) || defined (__s390x__)
-+	setenv("TERM", "dumb", 1);
-+#else
- 	setenv("TERM", "vt102", 1);
-+#endif
- 	tio = &con->tio;
- 	fd = con->fd;
- 
-diff --git term-utils/agetty.c term-utils/agetty.c
-index fe671a9..24c9366 100644
---- term-utils/agetty.c
-+++ term-utils/agetty.c
-@@ -51,7 +51,8 @@
- #    define DEFAULT_VCTERM "linux"
- #  endif
- #  if defined (__s390__) || defined (__s390x__)
--#    define DEFAULT_TTYS0  "ibm327x"
-+#    define DEFAULT_TTYS0  "dumb"
-+#    define DEFAULT_TTY32  "ibm327x"
- #    define DEFAULT_TTYS1  "vt220"
- #  endif
- #  ifndef DEFAULT_STERM
-@@ -569,6 +570,8 @@ static void login_options_to_argv(char *argv[], int *argc,
- 	*argc = i;
- }
- 
-+#define is_speed(str) (strlen((str)) == strspn((str), "0123456789,"))
-+
- /* Parse command-line arguments. */
- static void parse_args(int argc, char **argv, struct options *op)
+diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
+index 8a42f96..544865f 100644
+--- a/sys-utils/cytune.c
++++ b/sys-utils/cytune.c
+@@ -274,23 +274,26 @@ int main(int argc, char **argv)
  {
-@@ -747,7 +750,7 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 	int query = 0;
+ 	int interval = 1;
+-	int set = 0;
+-	int set_val = -1;
+-	int get = 0;
+-	int set_def = 0;
+-	int set_def_val = -1;
+-	int get_def = 0;
+-	int set_time = 0;
+-	int set_time_val = -1;
+-	int set_def_time = 0;
+-	int set_def_time_val = -1;
+ 	int errflg = 0;
+ 	int file;
+ 	int numfiles;
+ 	int i;
++
++	int get_current = 0;
++	int get_defaults = 0;
+ 	unsigned long threshold_value;
+ 	unsigned long timeout_value;
+ 
++	int set_threshold = 0;
++	int threshold_val = -1;
++	int set_threshold_def = 0;
++	int threshold_def_val = -1;
++
++	int set_timeout = 0;
++	int timeout_val = -1;
++	int set_timeout_def = 0;
++	int timeout_def_val = -1;
++
+ 	static const struct option longopts[] = {
+ 		{"set-threshold", required_argument, NULL, 's'},
+ 		{"get-threshold", no_argument, NULL, 'g'},
+@@ -331,48 +334,48 @@ int main(int argc, char **argv)
+ 			}
+ 			break;
+ 		case 's':
+-			++set;
+-			set_val = strtou32_or_err(optarg, _("Invalid set value"));
+-			if (set_val < 1 || 12 < set_val) {
+-				warnx(_("Invalid set value: %d"), set_val);
++			++set_threshold;
++			threshold_val = strtou32_or_err(optarg, _("Invalid threshold value"));
++			if (threshold_val < 1 || 12 < threshold_val) {
++				warnx(_("Invalid threshold value: %d"), threshold_val);
+ 				errflg++;
+ 			}
+ 			break;
+ 		case 'S':
+-			++set_def;
+-			set_def_val = strtou32_or_err(optarg,
+-						_("Invalid default value"));
+-			if (set_def_val < 0 || 12 < set_def_val) {
+-				warnx(_("Invalid default value: %d"),
+-				      set_def_val);
++			++set_threshold_def;
++			threshold_def_val = strtou32_or_err(optarg,
++						_("Invalid threshold default value"));
++			if (threshold_def_val < 0 || 12 < threshold_def_val) {
++				warnx(_("Invalid threshold default value: %d"),
++				      threshold_def_val);
+ 				errflg++;
+ 			}
+ 			break;
+ 		case 't':
+-			++set_time;
+-			set_time_val = strtou32_or_err(optarg,
+-						_("Invalid set time value"));
+-			if (set_time_val < 1 || 255 < set_time_val) {
+-				warnx(_("Invalid set time value: %d"),
+-				      set_time_val);
++			++set_timeout;
++			timeout_val = strtou32_or_err(optarg,
++						_("Invalid set timeout value"));
++			if (timeout_val < 1 || 255 < timeout_val) {
++				warnx(_("Invalid set timeout value: %d"),
++				      timeout_val);
+ 				errflg++;
+ 			}
+ 			break;
+ 		case 'T':
+-			++set_def_time;
+-			set_def_time_val = strtou32_or_err(optarg,
+-						_("Invalid default time value"));
+-			if (set_def_time_val < 0 || 255 < set_def_time_val) {
++			++set_threshold_def;
++			timeout_def_val = strtou32_or_err(optarg,
++						_("Invalid default timeout value"));
++			if (timeout_def_val < 0 || 255 < timeout_def_val) {
+ 				warnx(_("Invalid default time value: %d"),
+-				      set_def_time_val);
++				      timeout_def_val);
+ 				errflg++;
+ 			}
+ 			break;
+ 		case 'g':
+-			++get;
++			++get_current;
+ 			break;
+ 		case 'G':
+-			++get_def;
++			++get_defaults;
+ 			break;
+ 		case 'V':
+ 			printf(_("%s from %s\n"), program_invocation_short_name,
+@@ -388,62 +391,62 @@ int main(int argc, char **argv)
+ 
+ 	if (errflg
+ 	    || (numfiles == 0)
+-	    || (!query && !set && !set_def && !get && !get_def && !set_time && !set_def_time)
+-	    || (set && set_def)
+-	    || (set_time && set_def_time)
+-	    || (get && get_def))
++	    || (!query && !set_threshold && !set_threshold_def && !get_defaults && !get_current && !set_timeout && !set_timeout_def)
++	    || (set_threshold && set_threshold_def)
++	    || (set_timeout && set_timeout_def)
++	    || (get_defaults && get_current))
+ 		usage(stderr);
+ 
+ 	/* For signal routine. */
+ 	global_optind = optind;
+ 
+-	if (set || set_def) {
++	if (set_threshold || set_threshold_def) {
+ 		for (i = optind; i < argc; i++) {
+ 			file = open(argv[i], O_RDONLY);
+ 			if (file == -1)
+ 				err(EXIT_FAILURE, _("cannot open %s"), argv[i]);
+ 			if (ioctl(file,
+-				  set ? CYSETTHRESH : CYSETDEFTHRESH,
+-				  set ? set_val : set_def_val))
++				  set_threshold ? CYSETTHRESH : CYSETDEFTHRESH,
++				  set_threshold ? threshold_val : threshold_def_val))
+ 				err(EXIT_FAILURE,
+ 				    _("cannot set %s to threshold %d"), argv[i],
+-				    set ? set_val : set_def_val);
++				    set_threshold ? threshold_val : threshold_def_val);
+ 			close(file);
+ 		}
+ 	}
+-	if (set_time || set_def_time) {
++	if (set_timeout || set_timeout_def) {
+ 		for (i = optind; i < argc; i++) {
+ 			file = open(argv[i], O_RDONLY);
+ 			if (file == -1)
+ 				err(EXIT_FAILURE, _("cannot open %s"), argv[i]);
+ 			if (ioctl(file,
+-				  set_time ? CYSETTIMEOUT : CYSETDEFTIMEOUT,
+-				  set_time ? set_time_val : set_def_time_val))
++				  set_timeout ? CYSETTIMEOUT : CYSETDEFTIMEOUT,
++				  set_timeout ? timeout_val : timeout_def_val))
+ 				err(EXIT_FAILURE,
+ 				    _("cannot set %s to time threshold %d"),
+ 				    argv[i],
+-				    set_time ? set_time_val : set_def_time_val);
++				    set_timeout ? timeout_val : timeout_def_val);
+ 			close(file);
+ 		}
  	}
  
- 	/* Accept "tty", "baudrate tty", and "tty baudrate". */
--	if ('0' <= argv[optind][0] && argv[optind][0] <= '9') {
-+	if (is_speed(argv[optind])) {
- 		/* Assume BSD style speed. */
- 		parse_speeds(op, argv[optind++]);
- 		if (argc < optind + 1) {
-@@ -759,7 +762,7 @@ static void parse_args(int argc, char **argv, struct options *op)
- 		op->tty = argv[optind++];
- 		if (argc > optind) {
- 			char *v = argv[optind++];
--			if ('0' <= *v && *v <= '9')
-+			if (is_speed(v))
- 				parse_speeds(op, v);
+-	if (get || get_def) {
++	if (get_defaults || get_current) {
+ 		for (i = optind; i < argc; i++) {
+ 			file = open(argv[i], O_RDONLY);
+ 			if (file == -1)
+ 				err(EXIT_FAILURE, _("cannot open %s"), argv[i]);
+ 			if (ioctl
+-			    (file, get ? CYGETTHRESH : CYGETDEFTHRESH,
++			    (file, get_defaults ? CYGETTHRESH : CYGETDEFTHRESH,
+ 			     &threshold_value))
+ 				err(EXIT_FAILURE,
+ 				    _("cannot get threshold for %s"), argv[i]);
+ 			if (ioctl
+-			    (file, get ? CYGETTIMEOUT : CYGETDEFTIMEOUT,
++			    (file, get_current ? CYGETTIMEOUT : CYGETDEFTIMEOUT,
+ 			     &timeout_value))
+ 				err(EXIT_FAILURE,
+ 				    _("cannot get timeout for %s"), argv[i]);
+ 			close(file);
+-			if (get)
++			if (get_defaults)
+ 				printf(_("%s: %ld current threshold and %ld current timeout\n"),
+ 					argv[i], threshold_value, timeout_value);
  			else
- 				op->speeds[op->numspeed++] = bcode("9600");
-@@ -1069,9 +1072,11 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
- 		 * higher.  Whereas the second serial line on a S/390(x) is
- 		 * a real character terminal which is compatible with VT220.
- 		 */
--		if (strcmp(op->tty, "ttyS0") == 0)
-+		if (strcmp(op->tty, "ttyS0") == 0)		/* linux/drivers/s390/char/con3215.c */
- 			op->term = DEFAULT_TTYS0;
--		else if (strcmp(op->tty, "ttyS1") == 0)
-+		else if (strncmp(op->tty, "3270/tty", 8) == 0)	/* linux/drivers/s390/char/con3270.c */
-+			op->term = DEFAULT_TTY32;
-+		else if (strcmp(op->tty, "ttyS1") == 0)		/* linux/drivers/s390/char/sclp_vt220.c */
- 			op->term = DEFAULT_TTYS1;
- 	}
- #endif
 -- 
-1.7.9.2
+1.9.2
 
