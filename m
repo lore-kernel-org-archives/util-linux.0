@@ -1,57 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:48096 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750799AbaEEStD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 May 2014 14:49:03 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 0BA89AAF1
-	for <util-linux@vger.kernel.org>; Mon,  5 May 2014 18:49:02 +0000 (UTC)
-Message-ID: <1399315741.11780.36.camel@oct.suse.cz>
-Subject: [PATCH 0/2] hwclock: Fix excessive adjustment
-From: Stanislav Brabec <sbrabec@suse.cz>
+Received: from mail-wg0-f52.google.com ([74.125.82.52]:57049 "EHLO
+	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752689AbaEDPuY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:50:24 -0400
+Received: by mail-wg0-f52.google.com with SMTP id l18so5622596wgh.35
+        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:50:23 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Date: Mon, 05 May 2014 20:49:01 +0200
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+Cc: kerolasa@iki.fi
+Subject: [PATCH 03/15] cytune: be consistent with interval data type
+Date: Sun,  4 May 2014 16:49:44 +0100
+Message-Id: <1399218596-21321-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Algorithm of calculation of hwclock adjustment is vulnerable to
-miscalculations. These miscalculations may lead to clock drifting by
-many years even after fixing CMOS hwclock failure.
+The sleep(3) uses unsigned int as input.
 
-Following two patches are attempts to solve the most visible parts of
-the problem:
-- Calculation of excessive drift values in /etc/adjtime
-- Applying of excessive drift that causes many years clock failure.
-- It also prevents hangs before 4a44a54b.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/cytune.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-There are further poor places in the code that are above the scope of
-this patch set:
-- Algorithm for detecting of invalid hwclock is very poor (valid_p fails
-  only if hwclock output fails to pass mktime()).
-- There is no or failing discrimination between fine time adjustment and
-  clock set.
-- In particular, proposed patch does not cover miscalculation while
-  changing clock due to DST change, and more than 2 days passed since
-  last adjustment. This could be covered by lowering of MAX_DRIFT, but
-  heuristics for discrimination between adjustment and clock setting
-  would be much better.
-- Most of failures fixed by these patches were hidden by a poor
-  calculation of time passed since last adjustment:
-  if ((hclocktime - adjtime_p->last_calib_time) < 23 * 60 * 60)
-  (As there is no abs(), all times in past were considered as "less than
-  one day ago".)
-
+diff --git a/sys-utils/cytune.c b/sys-utils/cytune.c
+index 64e15cc..63f6980 100644
+--- a/sys-utils/cytune.c
++++ b/sys-utils/cytune.c
+@@ -149,7 +149,7 @@ static void summary(int sig)
+ 	cc->timeout_value = 0;
+ }
+ 
+-static void query_tty_stats(int argc, char **argv, int interval, int numfiles,
++static void query_tty_stats(int argc, char **argv, unsigned int interval, int numfiles,
+ 		     unsigned long *threshold_value,
+ 		     unsigned long *timeout_value)
+ {
+@@ -273,7 +273,7 @@ static void query_tty_stats(int argc, char **argv, int interval, int numfiles,
+ int main(int argc, char **argv)
+ {
+ 	int query = 0;
+-	int interval = 1;
++	unsigned int interval = 1;
+ 	int file;
+ 	int i;
+ 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+1.9.2
 
