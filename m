@@ -1,63 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:59383 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751342AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 May 2014 22:38:08 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 13/16] libuuid/man/uuid_parse.3: Improve the typesetting of the manual
-Date: Fri,  2 May 2014 02:37:38 +0000
-Message-Id: <1398998261-17569-6-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+Received: from qmta01.westchester.pa.mail.comcast.net ([76.96.62.16]:37371
+	"EHLO qmta01.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756752AbaEEW45 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 18:56:57 -0400
+Date: Mon, 5 May 2014 18:50:49 -0400
+Message-Id: <201405052250.s45Monxm008110@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Andy Lutomirski <luto@amacapital.net>
+CC: util-linux@vger.kernel.org
+In-reply-to: <CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
+	(luto@amacapital.net)
+Subject: Re: getting rid of "mount: only root can ..."
+References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
+ <201405022221.s42MLpT4015462@hobgoblin.ariadne.com> <CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Use \e for the printable escape character instead of \\
+> From: Andy Lutomirski <luto@amacapital.net>
 
-  Protect a full stop (.), that begins or ends a string, with \&
+> What if mount determined that the requested option wasn't allowed by
+> fstab and instead fell back to dropping privileges and trying anyway?
 
-  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
-use '.ad l' for the entire manual
+I'm not envisioning the problem that you're addressing very well.
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- libuuid/man/uuid_parse.3 | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+What I was thinking is that, in the best of all worlds, if mount
+doesn't permit the requested operation, it should correctly report the
+test that failed.  For instance, sometimes only root may perform the
+operation, and so mount should say
 
-diff --git a/libuuid/man/uuid_parse.3 b/libuuid/man/uuid_parse.3
-index 9030345..31a5926 100644
---- a/libuuid/man/uuid_parse.3
-+++ b/libuuid/man/uuid_parse.3
-@@ -46,7 +46,7 @@ function converts the UUID string given by
- into the binary representation.  The input UUID is a string of the form
- 1b4e28ba\-2fa1\-11d2\-883f\-b9a761bde3fb (in
- .BR printf (3)
--format "%08x\-%04x\-%04x\-%04x\-%012x", 36 bytes plus the trailing '\\0').
-+format "%08x\-%04x\-%04x\-%04x\-%012x", 36 bytes plus the trailing '\e0').
- .SH RETURN VALUE
- Upon successfully parsing the input string, 0 is returned, and the UUID is
- stored in the location pointed to by
-@@ -55,11 +55,12 @@ otherwise \-1 is returned.
- .SH "CONFORMING TO"
- OSF DCE 1.1
- .SH AUTHOR
--Theodore Y. Ts'o
-+Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
- is part of the util-linux package since version 2.15.1 and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-+.na
- .SH "SEE ALSO"
- .BR uuid (3),
- .BR uuid_clear (3),
-@@ -69,3 +70,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
- .BR uuid_is_null (3),
- .BR uuid_time (3),
- .BR uuid_unparse (3)
-+.ad
--- 
-1.9.0
+ "mount: only root can ..."
 
+But if members of group 'foo' are permitted, then it should say
+
+ "mount: only members of 'foo' and root can ..."
+
+etc.
+
+Dale
