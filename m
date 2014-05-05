@@ -1,77 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f47.google.com ([209.85.215.47]:49921 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932352AbaEENbc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 09:31:32 -0400
-Received: by mail-la0-f47.google.com with SMTP id e16so1944592lan.34
-        for <util-linux@vger.kernel.org>; Mon, 05 May 2014 06:31:31 -0700 (PDT)
+Received: from mail-la0-f51.google.com ([209.85.215.51]:35456 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932232AbaEEN3q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 09:29:46 -0400
+Received: by mail-la0-f51.google.com with SMTP id mc6so781132lab.38
+        for <util-linux@vger.kernel.org>; Mon, 05 May 2014 06:29:44 -0700 (PDT)
 From: Alexander <alexsamilovskih@gmail.com>
 To: alexander samilovskih <alexsamilovskih@gmail.com>,
         util-linux@vger.kernel.org, kerolasa@iki.fi
-Subject: [PATCH 3/3] libmount/lock: add monotonic clock support
-Date: Mon, 05 May 2014 20:31:05 +0200
-Message-ID: <1915096.fhfZFCZoMz@alexpc.org>
+Subject: [PATCH 1/3] lib/timeutils: add monotonic clock support
+Date: Mon, 05 May 2014 20:29:15 +0200
+Message-ID: <1471196.p9mLsTAGGY@alexpc.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->From b8ca74bfdb93034e9d1c52ab8702ff02dab8787c Mon Sep 17 00:00:00 2001
+>From b641e268ab0aa1597e46f79accd169c388f06c7c Mon Sep 17 00:00:00 2001
 From: Alex Samilovskih <alexsamilovskih@gmail.com>
-Date: Fri, 2 May 2014 18:28:31 +0000
-Subject: [PATCH 3/3] Add support for monotonic clock in libmount
+Date: Fri, 2 May 2014 18:15:12 +0000
+Subject: [PATCH 1/3] Add support for monotonic clock
 
 ---
- libmount/src/lock.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/timeutils.h |  1 +
+ lib/timeutils.c     | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/libmount/src/lock.c b/libmount/src/lock.c
-index 8667db9..41f8ed1 100644
---- a/libmount/src/lock.c
-+++ b/libmount/src/lock.c
-@@ -25,6 +25,7 @@
- #include "closestream.h"
- #include "pathnames.h"
- #include "mountP.h"
-+#include "timeutils.h"
+diff --git a/include/timeutils.h b/include/timeutils.h
+index bcae613..7cf972d 100644
+--- a/include/timeutils.h
++++ b/include/timeutils.h
+@@ -51,5 +51,6 @@ typedef uint64_t nsec_t;
+ #define FORMAT_TIMESPAN_MAX 64
  
- /*
-  * lock handler
-@@ -258,7 +259,7 @@ static int mnt_wait_mtab_lock(struct libmnt_lock *ml, struct flock *fl, time_t m
- 	struct sigaction sa, osa;
- 	int ret = 0;
+ int parse_timestamp(const char *t, usec_t *usec);
++int gettime_monotonic(struct timeval *tv);
  
--	gettimeofday(&now, NULL);
-+	gettime_monotonic(&now);
+ #endif /* UTIL_LINUX_TIME_UTIL_H */
+diff --git a/lib/timeutils.c b/lib/timeutils.c
+index 7fe6218..b3fb87b 100644
+--- a/lib/timeutils.c
++++ b/lib/timeutils.c
+@@ -336,3 +336,27 @@ int parse_timestamp(const char *t, usec_t *usec)
  
- 	if (now.tv_sec >= maxtime)
- 		return 1;		/* timeout */
-@@ -408,7 +409,7 @@ static int lock_mtab(struct libmnt_lock *ml)
- 	}
- 	close(i);
- 
--	gettimeofday(&maxtime, NULL);
-+	gettime_monotonic(&maxtime);
- 	maxtime.tv_sec += MOUNTLOCK_MAXTIME;
- 
- 	waittime.tv_sec = 0;
-@@ -434,7 +435,7 @@ static int lock_mtab(struct libmnt_lock *ml)
- 		if (ml->lockfile_fd < 0) {
- 			/* Strange... Maybe the file was just deleted? */
- 			int errsv = errno;
--			gettimeofday(&now, NULL);
-+			gettime_monotonic(&now);
- 			if (errsv == ENOENT && now.tv_sec < maxtime.tv_sec) {
- 				ml->locked = 0;
- 				continue;
-@@ -646,7 +647,7 @@ int test_lock(struct libmnt_test *ts, int argc, char *argv[])
- 
- 	/* start the test in exactly defined time */
- 	if (synctime) {
--		gettimeofday(&tv, NULL);
-+		gettimeofday(&tv);
- 		if (synctime && synctime - tv.tv_sec > 1) {
- 			usecs = ((synctime - tv.tv_sec) * 1000000UL) -
- 						(1000000UL - tv.tv_usec);
+ 	return 0;
+ }
++
++/*  Get the current time that is not a subject to resetting and drifting  */
++int gettime_monotonic(struct timeval *tv)
++{
++#ifdef CLOCK_MONOTONIC
++	int ret;
++	struct timespec ts;
++	
++#ifdef CLOCK_MONOTONIC_RAW
++	if (!(ret = clock_gettime(CLOCK_MONOTONIC_RAW, &ts))) {
++#else /* CLOCK_MONOTONIC_RAW is not available */
++	if (!(ret = clock_gettime(CLOCK_MONOTONIC, &ts))) {
++#endif
++		tv->tv_sec = ts.tv_sec;
++		tv->tv_usec = ts.tv_nsec / 1000;
++	}
++	
++	return ret;
++	
++#else /* CLOCK_MONOTONIC is not available */
++
++	return gettimeofday(tv, NULL);
++#endif
++}
 -- 
 1.9.2
