@@ -1,63 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ve0-f172.google.com ([209.85.128.172]:51449 "EHLO
-	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754556AbaEFMGT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 6 May 2014 08:06:19 -0400
-Received: by mail-ve0-f172.google.com with SMTP id oz11so2718496veb.17
-        for <util-linux@vger.kernel.org>; Tue, 06 May 2014 05:06:18 -0700 (PDT)
+Received: from mail-vc0-f175.google.com ([209.85.220.175]:58784 "EHLO
+	mail-vc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756894AbaEEW7L (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 18:59:11 -0400
+Received: by mail-vc0-f175.google.com with SMTP id lh4so9103vcb.6
+        for <util-linux@vger.kernel.org>; Mon, 05 May 2014 15:59:10 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140506092650.GC5962@x2.net.home>
-References: <1398847941.19293.112034049.7CA00422@webmail.messagingengine.com>
-	<CAG27Bk0A3cHh1v6Q6yPOqorZ8AkxpxRr3rj_jCnW8NB=FcsmKQ@mail.gmail.com>
-	<20140506092650.GC5962@x2.net.home>
-Date: Tue, 6 May 2014 13:06:18 +0100
-Message-ID: <CAG27Bk111VDqEXCPeOxPyC7uyXFf+9EWTDi7Z1EaT45SiH63Aw@mail.gmail.com>
-Subject: Re: cytune: misnamed long options
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
+In-Reply-To: <201405052250.s45Monxm008110@hobgoblin.ariadne.com>
+References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
+ <201405022221.s42MLpT4015462@hobgoblin.ariadne.com> <CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
+ <201405052250.s45Monxm008110@hobgoblin.ariadne.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Mon, 5 May 2014 15:58:50 -0700
+Message-ID: <CALCETrXTJpkA-EqzS=kvSfS4QEO5Gc3TV42+FFrUbQN3ALfuCw@mail.gmail.com>
+Subject: Re: getting rid of "mount: only root can ..."
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 May 2014 10:26, Karel Zak <kzak@redhat.com> wrote:
-> On Wed, Apr 30, 2014 at 12:25:49PM +0100, Sami Kerola wrote:
->> On 30 April 2014 09:52, Benno Schulenberg <bensberg@justemail.net> wrote:
->> > According to the code and the man page of cytune, the option -g
->> > shows the current values of the threshold and the flush timeout,
->> > and option -G shows the default values.  But the corresponding
->> > long options of those two are: --get-threshold and --get-flush.
->> > Confusing.  Shouldn't those be changed to --get-current and
->> > --get-defaults?  (Or the first one maybe just --get?)  However,
->> > the docs say not to change any options.  What to do?  Sami?
->>
->> Hi Benno,
->>
->> The recommendation never to change options tries to protect a Random J
->> Developer in breaking existing scripts. If options are deprecated at
->> least there should be a backwards compatibility with a deprecation
->> warning for some time (couple years).
->>
->> Looking the kernel interface
->>
->> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/cyclades.c#n2639
->>
->> the 'threshold' keyword seems to be ok. Use of word 'flush' is a bit
->> odd, and 'timeout' would be closer match with what the kernel is
->> doing. Karel, are you OK with s/flush/timeout/ ABI change?
+On Mon, May 5, 2014 at 3:50 PM, Dale R. Worley <worley@alum.mit.edu> wrote:
+>> From: Andy Lutomirski <luto@amacapital.net>
 >
->  NACK, it seems better to be backwardly compatible than perfect.
+>> What if mount determined that the requested option wasn't allowed by
+>> fstab and instead fell back to dropping privileges and trying anyway?
+>
+> I'm not envisioning the problem that you're addressing very well.
 
-The NACK seems to indicate the change
+If I set up a user namespace in which non-root users can call mount
+(the system call), it's annoying to work with because mount (the
+util-linux program) just assumes that uid != 0 means that mount won't
+work.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/2453ab9f64de49bb5a1b9a0bcd3653cd761a22b2
-
-should not warnx(), nor be marked deprecated. Or to say other way, the
-old long options should be silently accepted until end of universe.
-Let me fix that (later the day when I'm not in office).
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+The issue here is that there are two conflicting sets of policy: the
+in-kernel policy of who may mount/umount and the userspace policy of
+who may use the setuid mount tool to mount as euid == 0 despite their
+actual (kernel) privileges.
