@@ -1,95 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f177.google.com ([74.125.82.177]:52213 "EHLO
-	mail-we0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751349AbaEROGN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:13 -0400
-Received: by mail-we0-f177.google.com with SMTP id x48so4309319wes.8
-        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:48096 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750799AbaEEStD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 5 May 2014 14:49:03 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 0BA89AAF1
+	for <util-linux@vger.kernel.org>; Mon,  5 May 2014 18:49:02 +0000 (UTC)
+Message-ID: <1399315741.11780.36.camel@oct.suse.cz>
+Subject: [PATCH 0/2] hwclock: Fix excessive adjustment
+From: Stanislav Brabec <sbrabec@suse.cz>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 09/17] setterm: remove devfs and /dev/vcsa0 support
-Date: Sun, 18 May 2014 15:05:33 +0100
-Message-Id: <1400421941-14244-10-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+Date: Mon, 05 May 2014 20:49:01 +0200
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The devfs files /dev/vcc/a* does not need to be supported, and vcsa0 has
-not existed in years if ever.
+Algorithm of calculation of hwclock adjustment is vulnerable to
+miscalculations. These miscalculations may lead to clock drifting by
+many years even after fixing CMOS hwclock failure.
 
-Reference: http://lwn.net/Articles/65197/
-Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt?id=14186fea0cb06bc43181ce239efe0df6f1af260a#n260
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/setterm |  2 +-
- term-utils/setterm.c    | 26 +++++++-------------------
- 2 files changed, 8 insertions(+), 20 deletions(-)
+Following two patches are attempts to solve the most visible parts of
+the problem:
+- Calculation of excessive drift values in /etc/adjtime
+- Applying of excessive drift that causes many years clock failure.
+- It also prevents hangs before 4a44a54b.
 
-diff --git a/bash-completion/setterm b/bash-completion/setterm
-index a7ef6eb..f47debf 100644
---- a/bash-completion/setterm
-+++ b/bash-completion/setterm
-@@ -40,7 +40,7 @@ _setterm_module()
- 			;;
- 		'-dump'|'-append')
- 			local NUM_CONS
--			NUM_CONS=(/sys/class/tty/*)
-+			NUM_CONS=(/dev/vcsa?*)
- 			COMPREPLY=( $(compgen -W "{1..${#NUM_CONS[*]}}" -- $cur) )
- 			return 0
- 			;;
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index d889db4..3a02347 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -724,31 +724,18 @@ static void show_tabs(void)
- 
- static void __attribute__((__noreturn__)) read_error(struct setterm_control *ctl)
- {
--	if (ctl->opt_sn_num != 0)
--		errx(EXIT_DUMPFILE, _("Couldn't read %s"), ctl->in_device);
--	else
--		errx(EXIT_DUMPFILE, _("Couldn't read neither /dev/vcsa0 nor /dev/vcsa"));
-+	err(EXIT_DUMPFILE, _("Couldn't read %s"), ctl->in_device);
- }
- 
- static int open_snapshot_device(struct setterm_control *ctl)
- {
--	char infile[MAXPATHLEN];
- 	int fd;
- 
--	sprintf(infile, "/dev/vcsa%d", ctl->opt_sn_num);
--	fd = open(infile, O_RDONLY);
--	if (fd < 0 && ctl->opt_sn_num == 0) {
--		/* vcsa0 is often called vcsa */
--		sprintf(infile, "/dev/vcsa");
--		fd = open(infile, O_RDONLY);
--	}
--	if (fd < 0) {
--		/* try devfs name - for zero ctl->opt_sn_num just /dev/vcc/a */
--		/* some gcc's warn for %.u - add 0 */
--		sprintf(infile, "/dev/vcc/a%.0u", ctl->opt_sn_num);
--		fd = open(infile, O_RDONLY);
--	}
--	ctl->in_device = infile;
-+	if (ctl->opt_sn_num)
-+		xasprintf(&ctl->in_device, "/dev/vcsa%d", ctl->opt_sn_num);
-+	else
-+		xasprintf(&ctl->in_device, "/dev/vcsa");
-+	fd = open(ctl->in_device, O_RDONLY);
- 	if (fd < 0)
- 		read_error(ctl);
- 	return fd;
-@@ -803,6 +790,7 @@ static void screendump(struct setterm_control *ctl)
- 	close(fd);
- 	free(inbuf);
- 	free(outbuf);
-+	free(ctl->in_device);
- 	if (close_stream(out) != 0)
- 		errx(EXIT_FAILURE, _("write error"));
- 	return;
+There are further poor places in the code that are above the scope of
+this patch set:
+- Algorithm for detecting of invalid hwclock is very poor (valid_p fails
+  only if hwclock output fails to pass mktime()).
+- There is no or failing discrimination between fine time adjustment and
+  clock set.
+- In particular, proposed patch does not cover miscalculation while
+  changing clock due to DST change, and more than 2 days passed since
+  last adjustment. This could be covered by lowering of MAX_DRIFT, but
+  heuristics for discrimination between adjustment and clock setting
+  would be much better.
+- Most of failures fixed by these patches were hidden by a poor
+  calculation of time passed since last adjustment:
+  if ((hclocktime - adjtime_p->last_calib_time) < 23 * 60 * 60)
+  (As there is no abs(), all times in past were considered as "less than
+  one day ago".)
+
 -- 
-1.9.2
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
