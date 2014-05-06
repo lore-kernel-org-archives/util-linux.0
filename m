@@ -1,54 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:34120 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751231AbaEXLIV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 24 May 2014 07:08:21 -0400
-Received: by mail-wg0-f48.google.com with SMTP id k14so1651435wgh.19
-        for <util-linux@vger.kernel.org>; Sat, 24 May 2014 04:08:20 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 0/4] setterm: documentation updates
-Date: Sat, 24 May 2014 12:08:12 +0100
-Message-Id: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:53485 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934558AbaEFKCc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 May 2014 06:02:32 -0400
+Date: Tue, 6 May 2014 12:02:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 08/16] libuuid/man/uuid_clear.3: Improve the typesetting
+ of the manual
+Message-ID: <20140506100225.GH5962@x2.net.home>
+References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 20 May 2014 11:02, Karel Zak <kzak@redhat.com> wrote:
->  BTW, setterm still need our love:
+On Fri, May 02, 2014 at 02:37:33AM +0000, Bjarni Ingi Gislason wrote:
+> diff --git a/libuuid/man/uuid_clear.3 b/libuuid/man/uuid_clear.3
+> index edb80d6..70fca02 100644
+> --- a/libuuid/man/uuid_clear.3
+> +++ b/libuuid/man/uuid_clear.3
 
-Hi Karel and others,
+ All libuuid/man patches applied. Thanks.
 
-Here is the remaining setterm(1) love before release 2.25. 
+ Note that it's better to use "libuuid: " prefix for the patches.
+ We use the prefix to aggregate all changes in the ReleaseNotes files.
 
->   * usage() contains only options, but no any description
-
-In this patch set, see 0001.
-
->   * it would be nice to have long options (--term rather than -term)
->     in the man page
-
-Hold on, do you mean what I did in commit
-fb27f91cac9702ad1858d782dd840d5868547423
-
->   * nowhere (in man page) is info that --long options are supported
->     since v2.25 (and for backward compatibility is better to use
->     "-foo" rather than "--foo")
-
-In this patch set, see 0003.
-
-
-Sami Kerola (4):
-  setterm: add usage() descriptions
-  docs: setterm.1 add missing options to manual page and remove
-    duplicate
-  docs: setterm.1 add options compatibility note
-  docs: setterm.1 clean up manual page groff style
-
- term-utils/setterm.1 | 291 +++++++++++++++++++++++++++++++++------------------
- term-utils/setterm.c |  69 ++++++------
- 2 files changed, 222 insertions(+), 138 deletions(-)
+    Karel
 
 -- 
-1.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
