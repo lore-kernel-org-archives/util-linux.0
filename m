@@ -1,59 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:41423 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:32929 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753289AbaE0SiT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 May 2014 14:38:19 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 12B4AAC4C
-	for <util-linux@vger.kernel.org>; Tue, 27 May 2014 18:38:18 +0000 (UTC)
-Message-ID: <1401215897.15260.28.camel@oct.suse.cz>
-Subject: [PATCH 2/2] Don't ignore EBUSY in losetup when the loop device is
- given
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.de>
-Date: Tue, 27 May 2014 20:38:17 +0200
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+	id S934579AbaEFK53 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 May 2014 06:57:29 -0400
+Date: Tue, 6 May 2014 12:57:22 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Stanislav Brabec <sbrabec@suse.cz>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] hwclock: Warning typo fix
+Message-ID: <20140506105722.GO5962@x2.net.home>
+References: <1399317654.11780.43.camel@oct.suse.cz>
+ <CAG27Bk3HocOszOVAXfzTeLUgr_6fhgpRt61_KuwVxCV4tKADYQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk3HocOszOVAXfzTeLUgr_6fhgpRt61_KuwVxCV4tKADYQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-losetup ignores the EBUSY error.  In the loop fo A_CREATE action, it skips
-the error handling when errno = EBUSY.  It's OK for the case where no loop
-device is specified, but the error has to be handled when the device is given
-explicitly.
+On Mon, May 05, 2014 at 08:35:17PM +0100, Sami Kerola wrote:
+> On 5 May 2014 20:20, Stanislav Brabec <sbrabec@suse.cz> wrote:
+> > Trailing '\n' is missing in:
+> > "Not setting clock because last adjustment time is zero, so history is bad."
+> >
+> > Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+> > ---
+> >  sys-utils/hwclock.c | 2 +-
+> 
+> Hi Stanislav,
+> 
+> The hwclock.c change is OK. The po files are not updated this way.
+> 
+> See also http://www.spinics.net/lists/util-linux-ng/msg09087.html
 
-Author:  Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- sys-utils/losetup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Yep, fixed manually.
 
-diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
-index f6b8685..ecba8a5 100644
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -662,7 +662,7 @@ int main(int argc, char **argv)
- 			res = loopcxt_setup_device(&lc);
- 			if (res == 0)
- 				break;			/* success */
--			if (errno == EBUSY)
-+			if (errno == EBUSY && !hasdev)
- 				continue;
- 
- 			/* errors */
--- 
-1.8.4.5
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
