@@ -1,110 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37227 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750875AbaEUHiA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 21 May 2014 03:38:00 -0400
-Date: Wed, 21 May 2014 09:37:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Stanislav Brabec <sbrabec@suse.cz>,
-        Petr Uzel <petr.uzel@suse.cz>
-Subject: Re: [PATCH 3/5] lscpu: detect OS/400 and pHyp hypervisors
-Message-ID: <20140521073753.GA2898@x2.net.home>
-References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
- <1400600551-7227-4-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-ve0-f172.google.com ([209.85.128.172]:51449 "EHLO
+	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754556AbaEFMGT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 6 May 2014 08:06:19 -0400
+Received: by mail-ve0-f172.google.com with SMTP id oz11so2718496veb.17
+        for <util-linux@vger.kernel.org>; Tue, 06 May 2014 05:06:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1400600551-7227-4-git-send-email-sweet_f_a@gmx.de>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140506092650.GC5962@x2.net.home>
+References: <1398847941.19293.112034049.7CA00422@webmail.messagingengine.com>
+	<CAG27Bk0A3cHh1v6Q6yPOqorZ8AkxpxRr3rj_jCnW8NB=FcsmKQ@mail.gmail.com>
+	<20140506092650.GC5962@x2.net.home>
+Date: Tue, 6 May 2014 13:06:18 +0100
+Message-ID: <CAG27Bk111VDqEXCPeOxPyC7uyXFf+9EWTDi7Z1EaT45SiH63Aw@mail.gmail.com>
+Subject: Re: cytune: misnamed long options
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 20, 2014 at 03:42:29PM +0000, Ruediger Meier wrote:
->  const int hv_vendor_pci[] = {
-> @@ -574,6 +577,51 @@ read_hypervisor_cpuid(struct lscpu_desc *desc)
->  static void
->  read_hypervisor_cpuid(struct lscpu_desc *desc __attribute__((__unused__)))
->  {
-> +#ifdef __powerpc__
-> +	/* powerpc:
-> +	 * IBM iSeries: legacy, if /proc/iSeries exists, its para-virtualized on top of OS/400
-> +	 * IBM pSeries: always has a hypervisor
-> +	 *              if partition-name is "full", its kind of "bare-metal": full-system-partition
-> +	 *              otherwise its some partition created by Hardware Management Console
-> +	 *              in any case, its always some sort of HVM
-> +	 * KVM: "linux,kvm" in /hypervisor/compatible indicates a KVM guest
-> +	 * Xen: not in use, not detected
-> +	 */
+On 6 May 2014 10:26, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Apr 30, 2014 at 12:25:49PM +0100, Sami Kerola wrote:
+>> On 30 April 2014 09:52, Benno Schulenberg <bensberg@justemail.net> wrote:
+>> > According to the code and the man page of cytune, the option -g
+>> > shows the current values of the threshold and the flush timeout,
+>> > and option -G shows the default values.  But the corresponding
+>> > long options of those two are: --get-threshold and --get-flush.
+>> > Confusing.  Shouldn't those be changed to --get-current and
+>> > --get-defaults?  (Or the first one maybe just --get?)  However,
+>> > the docs say not to change any options.  What to do?  Sami?
+>>
+>> Hi Benno,
+>>
+>> The recommendation never to change options tries to protect a Random J
+>> Developer in breaking existing scripts. If options are deprecated at
+>> least there should be a backwards compatibility with a deprecation
+>> warning for some time (couple years).
+>>
+>> Looking the kernel interface
+>>
+>> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/cyclades.c#n2639
+>>
+>> the 'threshold' keyword seems to be ok. Use of word 'flush' is a bit
+>> odd, and 'timeout' would be closer match with what the kernel is
+>> doing. Karel, are you OK with s/flush/timeout/ ABI change?
+>
+>  NACK, it seems better to be backwardly compatible than perfect.
 
- I don't see relation between this code and CPU ID. Why this  codes is
- with in read_hypervisor_cpuid() ? 
- 
- Wouldn't be better to add  read_powerpc_hypervisor() and call it from 
- read_hypervisor()?
+The NACK seems to indicate the change
 
-    Karel
+https://github.com/kerolasa/lelux-utiliteetit/commit/2453ab9f64de49bb5a1b9a0bcd3653cd761a22b2
 
-> +	if (path_exist("/proc/iSeries")) {
-> +		desc->hyper = HYPER_OS400;
-> +		desc->virtype = VIRT_FULL;
-> +	} else if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")) {
-> +		FILE *fd;
-> +		desc->hyper = HYPER_PHYP;
-> +		desc->virtype = VIRT_FULL;
-> +		fd = fopen(_PATH_PROC_DEVICETREE "/ibm,partition-name", "r");
-> +		if (fd) {
-> +			char buf[256];
-> +			if (fscanf(fd, "%s", buf) == 1 && !strcmp(buf, "full"))
-> +				desc->virtype = VIRT_NONE;
-> +			fclose(fd);
-> +		}
-> +	} else if (path_exist(_PATH_PROC_DEVICETREE "/hypervisor/compatible")) {
-> +		FILE *fd;
-> +		fd = fopen(_PATH_PROC_DEVICETREE "/hypervisor/compatible", "r");
-> +		if (fd) {
-> +			char buf[256];
-> +			int i;
-> +			memset(buf, 0, sizeof(buf));
-> +			fread(buf, sizeof(buf) - 1, 1, fd);
-> +			fclose(fd);
-> +			for (i = 0; i < sizeof(buf);) {
-> +				if (!strcmp(&buf[i], "linux,kvm")) {
-> +					desc->hyper = HYPER_KVM;
-> +					desc->virtype = VIRT_FULL;
-> +					break;
-> +				}
-> +				i += strlen(&buf[i]);
-> +				i++;
-> +			}
-> +		}
-> +	}
-> +#endif
->  }
->  #endif
->  
-> diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-> index 7bb538d..6c25c4f 100644
-> --- a/sys-utils/lscpu.h
-> +++ b/sys-utils/lscpu.h
-> @@ -14,7 +14,9 @@ enum {
->  	HYPER_INNOTEK,		/* VBOX */
->  	HYPER_HITACHI,
->  	HYPER_PARALLELS,	/* OpenVZ/VIrtuozzo */
-> -	HYPER_VBOX
-> +	HYPER_VBOX,
-> +	HYPER_OS400,
-> +	HYPER_PHYP
->  };
->  
->  extern int read_hypervisor_dmi(void);
-> -- 
-> 1.8.4.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+should not warnx(), nor be marked deprecated. Or to say other way, the
+old long options should be silently accepted until end of universe.
+Let me fix that (later the day when I'm not in office).
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
