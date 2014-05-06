@@ -1,42 +1,28 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:43025 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753988AbaENFK4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 14 May 2014 01:10:56 -0400
-Received: by mail-pb0-f53.google.com with SMTP id md12so1189361pbc.26
-        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 22:10:56 -0700 (PDT)
-From: Shakur Shams Mullick <shakursmullick@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
-Subject: [PATCH v3 3/5] libsmartcols/src/smartcolsP.h: add field to struct libscols_column
-Date: Wed, 14 May 2014 11:09:58 +0600
-Message-Id: <1400044200-9196-3-git-send-email-shakursmullick@gmail.com>
-In-Reply-To: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
-References: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 02/12] dmesg: move get_boot_time() to lib/timeutils
+Date: Tue, 6 May 2014 15:42:44 +0200
+Cc: util-linux@vger.kernel.org
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi> <201405061200.00836.sweet_f_a@gmx.de> <20140506112054.GP5962@x2.net.home>
+In-Reply-To: <20140506112054.GP5962@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201405061542.45205.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
+On Tuesday 06 May 2014, Karel Zak wrote:
+> On Tue, May 06, 2014 at 12:00:00PM +0200, Ruediger Meier wrote:
 
-Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
----
- libsmartcols/src/smartcolsP.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> > clock_gettime() needs -lrt on some systems. That's why we had
+> > dmesg_LDADD += -lrt. Now every binary which links against libcommon
+> > needs that.
+>
+>  Fixed, I have moved get_boot_time() outside libcommon.
 
-diff --git a/libsmartcols/src/smartcolsP.h b/libsmartcols/src/smartcolsP.h
-index ebdc929..ee3ee1a 100644
---- a/libsmartcols/src/smartcolsP.h
-+++ b/libsmartcols/src/smartcolsP.h
-@@ -82,7 +82,9 @@ struct libscols_column {
- 	int	flags;
- 	int	is_extreme;
- 	char	*color;		/* default column color */
--
-+	
-+	int (*compare_data)(struct libscols_cell *, struct libscols_cell *, void *); /* comparison function to use*/
-+	
- 	struct libscols_cell	header;
- 	struct list_head	cl_columns;
- };
--- 
-1.8.3.2
+Thanks, you still have forgotten to commit the new header
+  include/boottime.h
 
+cu,
+Rudi
