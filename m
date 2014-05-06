@@ -1,48 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:35164 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751195AbaEXMiR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 24 May 2014 08:38:17 -0400
-Message-Id: <1400935096.17218.121085157.1650AD96@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:14419 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934579AbaEFKnW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 May 2014 06:43:22 -0400
+Date: Tue, 6 May 2014 12:43:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Shakur Shams Mullick <shakursmullick@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 6/8] misc-utils/lsblk.c: add sorting support for lsblk
+ command
+Message-ID: <20140506104319.GM5962@x2.net.home>
+References: <1399138888-7554-1-git-send-email-shakursmullick@gmail.com>
+ <1399138888-7554-6-git-send-email-shakursmullick@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1400929696-12548-4-git-send-email-kerolasa@iki.fi>
-References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
- <1400929696-12548-4-git-send-email-kerolasa@iki.fi>
-Subject: Re: [PATCH 3/4] docs: setterm.1 add options compatibility note
-Date: Sat, 24 May 2014 14:38:16 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1399138888-7554-6-git-send-email-shakursmullick@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, May 03, 2014 at 11:41:26PM +0600, Shakur Shams Mullick wrote:
+> It adds support for sorting in lsblk command. sorting can be done by name(-c) or size(-z). For longoptions use --sort name or --sort size
+> 
+> e.g. lsblk -c
+>      lsblk -q name
+>      lsblk --sort size
 
-On Sat, May 24, 2014, at 13:08, Sami Kerola wrote:
-> +Since version 2.25 the
-> +.B setterm
-> +has supported long options with two hyphens, for example
+IMHO it would be better to have a generic option
 
-s/has supported/has support for/
+    lsblk --order-by <column>
 
-> +.BR \-\-help ,
-> +aside with single hyphen options, for example
+and maybe sort-cuts --order-by-size and --order-by-name to sort by NAME
+and SIZE columns. (or s/order/sort/ ...)
 
-s/aside with single hyphen options/
-  beside the historical long options with a single hyphen/
+It will probably necessary to add info about compare function type
+(number or string) to lsblk "struct colinfo".
 
-> +In scripts it is better to use backward compatibile single hyphen rather
+Maybe we can also add scols_cmpstr_cells() and scols_cmpnum_cells() to
+the library to avoid duplicate code.
 
-s/use backward /use the backward-/
-s/compatibile/compatible/
-
-> +than two hyphens.  Currently there are no plans or good reasons to
-
-s/two hyphens/the double hyphen/
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - A fast, anti-spam email service.
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
