@@ -1,35 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:59135 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:47394 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751818AbaE2AxV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 28 May 2014 20:53:21 -0400
-Received: from tenfore.ga-group.nl ([77.12.144.175]) by mail.gmx.com
- (mrgmx001) with ESMTPSA (Nemesis) id 0LoEwL-1WNNeo1KcT-00gDrm for
- <util-linux@vger.kernel.org>; Thu, 29 May 2014 02:53:19 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] setarch question, uname -m
-Date: Thu, 29 May 2014 02:53:17 +0200
-Message-Id: <1401324798-15059-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <201405270134.29753.sweet_f_a@gmx.de>
-References: <201405270134.29753.sweet_f_a@gmx.de>
+	id S934490AbaEFJ36 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 May 2014 05:29:58 -0400
+Date: Tue, 6 May 2014 11:29:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 7/7] lib/terminal-colors.d.5: Improve the typesetting of
+ the manual
+Message-ID: <20140506092951.GF5962@x2.net.home>
+References: <1398823500-19737-1-git-send-email-bjarniig@rhi.hi.is>
+ <1398823500-19737-2-git-send-email-bjarniig@rhi.hi.is>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1398823500-19737-2-git-send-email-bjarniig@rhi.hi.is>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Apr 30, 2014 at 02:05:00AM +0000, Bjarni Ingi Gislason wrote:
+>  lib/terminal-colors.d.5 | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
 
-I just send a patch proposal to let "setarch $(uname -m) ..." work
-everywhere. Tested on several arm flavours. If this makes no sense
-please tell me. Then I would fix our setarch test for non-hardcoded
-archs.
-
-
-Ruediger Meier (1):
-  setarch, add generic support for setarch $(uname -m) ...
-
- sys-utils/setarch.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ Applied, thanks.
 
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
