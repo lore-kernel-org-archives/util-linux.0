@@ -1,34 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:56592 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:17597 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754161AbaEMNgW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 13 May 2014 09:36:22 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: bugs on exotic archs
-Date: Tue, 13 May 2014 15:36:15 +0200
-Cc: util-linux@vger.kernel.org
-References: <201405122045.18801.sweet_f_a@gmx.de> <20140513082349.GL8951@x2.net.home>
-In-Reply-To: <20140513082349.GL8951@x2.net.home>
+	id S1752671AbaEFLVI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 May 2014 07:21:08 -0400
+Date: Tue, 6 May 2014 13:20:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 02/12] dmesg: move get_boot_time() to lib/timeutils
+Message-ID: <20140506112054.GP5962@x2.net.home>
+References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
+ <1398629138-31718-3-git-send-email-kerolasa@iki.fi>
+ <201405061200.00836.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201405131536.15870.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201405061200.00836.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 13 May 2014, Karel Zak wrote:
-> On Mon, May 12, 2014 at 08:45:18PM +0200, Ruediger Meier wrote:
+On Tue, May 06, 2014 at 12:00:00PM +0200, Ruediger Meier wrote:
+> On Sunday 27 April 2014, Sami Kerola wrote:
+> > In future the last(1) will use get_boot_time() as well.
+> >
+> > Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> > ---
+> >  include/timeutils.h |  1 +
+> >  lib/timeutils.c     | 29 +++++++++++++++++++++++++++++
+> >  sys-utils/dmesg.c   | 27 ---------------------------
+> >  3 files changed, 30 insertions(+), 27 deletions(-)
+> >
+> > [...]
+> > -
+> > -#ifdef CLOCK_BOOTTIME
+> > -	if (clock_gettime(CLOCK_BOOTTIME, &hires_uptime) == 0) {
+> > -		TIMESPEC_TO_TIMEVAL(&lores_uptime, &hires_uptime);
+> > -		timersub(&now, &lores_uptime, boot_time);
+> > -		return 0;
+> > -	}
+> 
+> clock_gettime() needs -lrt on some systems. That's why we had 
+> dmesg_LDADD += -lrt. Now every binary which links against libcommon 
+> needs that.
 
-> > %ifarch ppc ppc64
-> >   hexdump
->
->  this is not a bug, but the hexdump test disadvantage -- the output
->  may be different on big-endian if the output is composed from more
-> input bytes.
+ Fixed, I have moved get_boot_time() outside libcommon. The question
+ is how portable will be last(1), maybe it will necessary to add
+ something like "if HAVE_LIBRT" to the build system, now there is 
+ hardcoded -lrt.
 
-I've fixed the hexdump test partially
-https://github.com/karelzak/util-linux/pull/76
+    Karel
 
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
