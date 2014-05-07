@@ -1,59 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:51099 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754020AbaENFLJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 14 May 2014 01:11:09 -0400
-Received: by mail-pa0-f43.google.com with SMTP id hz1so1189739pad.16
-        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 22:11:08 -0700 (PDT)
-From: Shakur Shams Mullick <shakursmullick@gmail.com>
+Received: from mout.gmx.net ([212.227.17.20]:51369 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932752AbaEGOb4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 7 May 2014 10:31:56 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx003)
+ with ESMTPSA (Nemesis) id 0MV5hN-1WLDTr2J13-00YRP1 for
+ <util-linux@vger.kernel.org>; Wed, 07 May 2014 16:31:54 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
-Subject: [PATCH v3 5/5] libsmartcols/src/table_print.c: add sorting for table
-Date: Wed, 14 May 2014 11:10:00 +0600
-Message-Id: <1400044200-9196-5-git-send-email-shakursmullick@gmail.com>
-In-Reply-To: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
-References: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
+Subject: last: please review -F and --time-format
+Date: Wed, 7 May 2014 16:31:53 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201405071631.53729.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
----
- libsmartcols/src/table_print.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Hi,
 
-diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
-index 24b73f9..fed0305 100644
---- a/libsmartcols/src/table_print.c
-+++ b/libsmartcols/src/table_print.c
-@@ -694,7 +694,28 @@ static size_t strlen_line(struct libscols_line *ln)
- 	return sz;
- }
- 
-+int comparison_func(struct list_head *a, struct list_head *b, void *data)
-+{
-+	struct libscols_column *cl;
-+	struct libscols_line *ra, *rb;
-+	struct libscols_cell *ca, *cb;
-+	
-+	cl = (struct libscols_column *)(data);
-+	
-+	ra = list_entry(a, struct libscols_line, ln_lines);
-+	rb = list_entry(b, struct libscols_line, ln_lines);
-+	
-+	ca = scols_line_get_cell(ra, cl->seqnum);
-+	cb = scols_line_get_cell(rb, cl->seqnum);
-+
-+	return cl->compare_data(ca, cb, NULL);
-+}
- 
-+void scols_sort_table(struct libscols_table *tb, struct libscols_column *cl)
-+{		
-+	assert(tb);
-+	list_sort(&tb->tb_lines, comparison_func, cl);
-+}
- 
- /**
-  * scols_print_table:
--- 
-1.8.3.2
+IMO -F and --time-format=xxx need some review/cleanup regarding
+logout times "still running" and "gone - no logout".
 
+Is there any reason why -F and --time-format=full
+look different? --time-format=notime looks ugly too.
+
+See the all the cases here: 
+------------
+for opt in -F --time-format=full --time-format=iso --time-format=short --time-format=notime; do
+    echo "### $opt ###"
+    ./last  -f ../tests/ts/last/wtmp.LE  $opt  | grep "running\| no logout"
+done
+
+### -F ###
+torvalds linux        hobby            Mon Aug 26 02:57:08 1991   gone - no logout
+reboot   system boot  system-name      Wed Aug 28 20:00:00 2013   still running
+### --time-format=full ###
+torvalds linux        hobby            Mon Aug 26 02:57:08 1991    gone                    - no logout
+reboot   system boot  system-name      Wed Aug 28 20:00:00 2013   still                    running
+### --time-format=iso ###
+torvalds linux        hobby            1991-08-26T02:57:08+0200   gone - no logout
+reboot   system boot  system-name      2013-08-28T20:00:00+0200   still running
+### --time-format=short ###
+torvalds linux        hobby            Mon Aug 26 02:57    gone - no logout
+reboot   system boot  system-name      Wed Aug 28 20:00   still running
+### --time-format=notime ###
+torvalds linux        hobby              - no logout
+reboot   system boot  system-name        running
+------------
+
+
+cu,
+Rudi
