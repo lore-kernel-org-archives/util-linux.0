@@ -1,55 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12407 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934579AbaEFK4t (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 May 2014 06:56:49 -0400
-Date: Tue, 6 May 2014 12:56:45 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] hwclock: Fix excessive adjustment
-Message-ID: <20140506105645.GN5962@x2.net.home>
-References: <1399315741.11780.36.camel@oct.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1399315741.11780.36.camel@oct.suse.cz>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:40441 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751884AbaEGRBP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 7 May 2014 13:01:15 -0400
+Received: by mail-we0-f180.google.com with SMTP id t61so1314057wes.11
+        for <util-linux@vger.kernel.org>; Wed, 07 May 2014 10:01:13 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] tests: make kill to go-around when /proc is not available
+Date: Wed,  7 May 2014 18:01:08 +0100
+Message-Id: <1399482068-6460-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 05, 2014 at 08:49:01PM +0200, Stanislav Brabec wrote:
-> Algorithm of calculation of hwclock adjustment is vulnerable to
-> miscalculations. These miscalculations may lead to clock drifting by
-> many years even after fixing CMOS hwclock failure.
-> 
-> Following two patches are attempts to solve the most visible parts of
-> the problem:
-> - Calculation of excessive drift values in /etc/adjtime
-> - Applying of excessive drift that causes many years clock failure.
-> - It also prevents hangs before 4a44a54b.
+And change messaging to be easier to debug, if the outcome of the
+opportunistic sleep is unsuccessful test.  In such case one could assume
+the test_sigreceive was not successful when setting handler.  Maybe
+because of load on test server, or some other reason.
 
- Applied, thanks.
+Reference: https://travis-ci.org/rudimeier/util-linux/jobs/24561058
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/ts/kill/kill_functions.sh | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-> There are further poor places in the code that are above the scope of
-> this patch set:
-> - Algorithm for detecting of invalid hwclock is very poor (valid_p fails
->   only if hwclock output fails to pass mktime()).
-> - There is no or failing discrimination between fine time adjustment and
->   clock set.
-> - In particular, proposed patch does not cover miscalculation while
->   changing clock due to DST change, and more than 2 days passed since
->   last adjustment. This could be covered by lowering of MAX_DRIFT, but
->   heuristics for discrimination between adjustment and clock setting
->   would be much better.
-> - Most of failures fixed by these patches were hidden by a poor
->   calculation of time passed since last adjustment:
->   if ((hclocktime - adjtime_p->last_calib_time) < 23 * 60 * 60)
->   (As there is no abs(), all times in past were considered as "less than
->   one day ago".)
-
-Look forward to see another patches ;-)
-
-    Karel
-
+diff --git a/tests/ts/kill/kill_functions.sh b/tests/ts/kill/kill_functions.sh
+index 043b4cb..56ad98b 100644
+--- a/tests/ts/kill/kill_functions.sh
++++ b/tests/ts/kill/kill_functions.sh
+@@ -5,6 +5,16 @@ function check_test_sigreceive {
+ 	local pid=$1
+ 
+ 	for i in 0.01 0.1 1 1 1 1; do
++		if [ ! -f /proc/$pid/status ]; then
++			# This message is visible in tests/run.sh output.
++			# Do not direct to $TS_OUTPUT it would make test
++			# fail, while with a bit of luck this might be
++			# recoverable (after a sleep).
++			echo "kill_functions.sh: /proc/$pid/status: No such file or directory" &&
++			rc=1 &&
++			sleep 2 &&
++			break
++		fi
+ 		awk 'BEGIN { retval=1 }
+ 		/^SigCgt/ {
+ 			lbyte = strtonum("0x" substr($2, 16, 16))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.2
+
