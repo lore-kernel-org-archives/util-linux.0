@@ -1,79 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:44188 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754896AbaEKIVZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 04:21:25 -0400
-Received: by mail-pd0-f182.google.com with SMTP id v10so5359211pde.13
-        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 01:21:24 -0700 (PDT)
-From: Shakur Shams Mullick <shakursmullick@gmail.com>
+Received: from mout.gmx.net ([212.227.15.19]:61835 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753795AbaEKWiP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 11 May 2014 18:38:15 -0400
+Received: from brln-4d0cc907.pool.mediaways.net ([77.12.201.7]) by
+ mail.gmx.com (mrgmx102) with ESMTPSA (Nemesis) id 0MDFB2-1WbrYX3YNw-00Gc3A
+ for <util-linux@vger.kernel.org>; Mon, 12 May 2014 00:38:14 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
-Subject: [PATCH 4/8] libsmartcols/src/cell.c: add two functions to compare number and string cells
-Date: Sun, 11 May 2014 14:20:34 +0600
-Message-Id: <1399796438-5495-4-git-send-email-shakursmullick@gmail.com>
-In-Reply-To: <1399796438-5495-1-git-send-email-shakursmullick@gmail.com>
-References: <1399796438-5495-1-git-send-email-shakursmullick@gmail.com>
+Subject: question about test suite regarding stderr/stdout
+Date: Mon, 12 May 2014 00:38:12 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201405120038.12221.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-scols_cmpstr_cells and scols_cmpnum_cells compare string and number cells.
-When comparing data of two cells for the purpose of sorting, it is not
-necessary to use these two library functions. Developers can use their
-own implementation of cell comparison function.
+Hi,
 
-Furthermore these two functions can be extended to fascilitate sorting
-in reverse order.
-These two functions could be modified to fascilitate sorting in reverse order.
----
- libsmartcols/src/cell.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+if you do this grep in util-linux
+  git grep '2>&1 >> $TS_OUTPUT' tests/ts
 
-diff --git a/libsmartcols/src/cell.c b/libsmartcols/src/cell.c
-index 491b8a1..9304d2a 100644
---- a/libsmartcols/src/cell.c
-+++ b/libsmartcols/src/cell.c
-@@ -25,6 +25,7 @@
- #include <ctype.h>
- 
- #include "smartcolsP.h"
-+#include "strutils.h"
- 
- /*
-  * The cell has no ref-counting, free() and new() functions. All is
-@@ -181,3 +182,33 @@ int scols_cell_copy_content(struct libscols_cell *dest,
- 		rc = scols_cell_set_color(dest, scols_cell_get_color(src));
- 	return rc;
- }
-+
-+int scols_cmpstr_cells(struct libscols_cell *a, struct libscols_cell *b, void *data)
-+{
-+	int n, m;
-+	const char *adata, *bdata;
-+
-+	adata = scols_cell_get_data(a);
-+	bdata = scols_cell_get_data(b);
-+	
-+	n = strlen(adata);
-+	m = strlen(bdata);
-+	
-+	return strncmp(adata, bdata, (n>=m ? n : m));
-+}
-+
-+int scols_cmpnum_cells(struct libscols_cell *a, struct libscols_cell *b, void *data)
-+{
-+	uint64_t n, m;
-+	const char *adata, *bdata;
-+
-+	adata = scols_cell_get_data(a);
-+	bdata = scols_cell_get_data(b);
-+	
-+	strtosize(adata, &n);
-+	strtosize(bdata, &m);
-+	
-+	if (n >= m)
-+		return 1;
-+	return -1;
-+}
--- 
-1.8.3.2
+then you find 45 lines like this
+$TS_CMD_MKCRAMFS -n $LABEL $IMAGE_SRC $IMAGE_PATH 2>&1 >> $TS_OUTPUT
 
+which means that these warnings go to make's output but not to 
+$TS_OUTPUT.
+
+I'm not sure whether this is really always wanted. For me it often looks 
+like a typo which should be ">> $TS_OUTPUT 2>&1" instead. Of course 
+could also be that it's really wanted as is to ignore stderr of too 
+verbose commands.
+
+Could somebody please check this too?
+I'v had some cases where I would have liked to see that stderr in test 
+diff instead of build log. Moreover because of parallel tests it can be 
+difficult to find out which warning belongs to which particular test.
+
+cu,
+Rudi
