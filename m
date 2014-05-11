@@ -1,92 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp02.au.ibm.com ([202.81.31.144]:56410 "EHLO
-	e23smtp02.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751931AbaE2LoP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 29 May 2014 07:44:15 -0400
-Received: from /spool/local
-	by e23smtp02.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <jananive@linux.vnet.ibm.com>;
-	Thu, 29 May 2014 21:44:12 +1000
-Received: from d23relay03.au.ibm.com (d23relay03.au.ibm.com [9.190.235.21])
-	by d23dlp02.au.ibm.com (Postfix) with ESMTP id 56FC12BB0040
-	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 21:44:10 +1000 (EST)
-Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
-	by d23relay03.au.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s4TBhs0511927980
-	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 21:43:54 +1000
-Received: from d23av02.au.ibm.com (localhost [127.0.0.1])
-	by d23av02.au.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s4TBi9vr016954
-	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 21:44:10 +1000
-Message-ID: <53871D87.2070401@linux.vnet.ibm.com>
-Date: Thu, 29 May 2014 17:14:07 +0530
-From: Janani Venkataraman <jananive@linux.vnet.ibm.com>
-MIME-Version: 1.0
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:45418 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934102AbaEKT1H (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 15:27:07 -0400
+Received: by mail-wi0-f174.google.com with SMTP id r20so3491060wiv.7
+        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 12:27:06 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-CC: "Suzuki K. Poulose" <suzuki@in.ibm.com>, ananth@linux.vnet.ibm.com,
-        Tarundeep Singh <tarundsk@linux.vnet.ibm.com>
-Subject: Non disruptive application core dump infrastructure
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/12] build-sys: remove unnecessary void casts
+Date: Sun, 11 May 2014 20:26:43 +0100
+Message-Id: <1399836409-7769-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c |  2 +-
+ term-utils/ttymsg.c | 26 +++++++++++++-------------
+ 2 files changed, 14 insertions(+), 14 deletions(-)
 
-We have developed a tool called "gencore" which captures the core of an 
-application without
-disrupting its process. The dump is collected non-disruptively and this 
-tool currently supports
-s390, x86 and power systems.
-
-THE TOOL:
-
-The tool can perform non-disruptive third party dumps. The tool also 
-contains a library "libgencore"
-which helps applicationsto trigger self dumps.
-
-The tool can perform:
-
-1) Third party dump: The pid of the process to dumped is given along 
-with name of the core-file to
-be created.
-
-eg.
-
-[janani@localhost]:gencore 6616 core.test
-
-2) Self dump: The programs can request a self-dump using gencore() API, 
-provided throughlibgencore. This
-is implemented through a daemon which listens on a UNIX Filesocket for 
-such requests. The daemon is started
-immediately post installation. The program which requires the dump makes 
-use of the gencore() API and provides
-the name of the core-file as a parameter.
-
-eg.
-
-/* Opening the library, in this case the library is present in the 
-/usr/lib64 */
-lib = dlopen("libgencore.so", RTLD_LAZY);
-
-gencore = dlsym(lib, "gencore");
-
-Call the API:
-gencore("/home/janani/core_test").
-
-BASIC IDEA:
-
-The basic idea is that the threads of the process are held using ptrace 
-calls and the dump is generated in the
-ELF format using the /proc/pid filesystem.
-
-PATCH SET:
-We have designed this tool based on the discussions with linux kernel 
-community. The patches have been posted
-at: https://lkml.org/lkml/2014/3/20/138
-
-Do you think this can be part of the util-linux bundle? We can tweak it 
-to make it work as a package in util-linux.
-
-Let us know your reviews and comments.
-
-Thanks.
-Janani
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index b7f9064..a862e55 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -275,7 +275,7 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
+ 		       if (!cp)
+ 			       cp = "<someone>";
+ 	       }
+-               (void)time(&now);
++	       time(&now);
+ 	       tp = ctime(&now)+4;
+ 
+                snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
+diff --git a/term-utils/ttymsg.c b/term-utils/ttymsg.c
+index 8bf993c..fb2614f 100644
+--- a/term-utils/ttymsg.c
++++ b/term-utils/ttymsg.c
+@@ -85,10 +85,10 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
+ 	   also wrong since people use /dev/pts/xxx. */
+ 
+ 	if (strlen(line) + sizeof(_PATH_DEV) + 1 > sizeof(device)) {
+-		(void) sprintf(errbuf, _("excessively long line arg"));
++		sprintf(errbuf, _("excessively long line arg"));
+ 		return (errbuf);
+ 	}
+-	(void) sprintf(device, "%s%s", _PATH_DEV, line);
++	sprintf(device, "%s%s", _PATH_DEV, line);
+ 
+ 	/*
+ 	 * open will fail on slip lines or exclusive-use lines
+@@ -99,7 +99,7 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
+ 			return (NULL);
+ 		if (strlen(strerror(errno)) > 1000)
+ 			return (NULL);
+-		(void) sprintf(errbuf, "%s: %m", device);
++		sprintf(errbuf, "%s: %m", device);
+ 		errbuf[1024] = 0;
+ 		return (errbuf);
+ 	}
+@@ -134,32 +134,32 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
+ 			sigset_t sigmask;
+ 
+ 			if (forked) {
+-				(void) close(fd);
++				close(fd);
+ 				_exit(EXIT_FAILURE);
+ 			}
+ 			cpid = fork();
+ 			if (cpid < 0) {
+ 				if (strlen(strerror(errno)) > 1000)
+-					(void) sprintf(errbuf, _("cannot fork"));
++					sprintf(errbuf, _("cannot fork"));
+ 				else {
+ 					errsv = errno;
+-					(void) sprintf(errbuf,
++					sprintf(errbuf,
+ 						 _("fork: %s"), strerror(errsv));
+ 				}
+-				(void) close(fd);
++				close(fd);
+ 				return (errbuf);
+ 			}
+ 			if (cpid) {	/* parent */
+-				(void) close(fd);
++				close(fd);
+ 				return (NULL);
+ 			}
+ 			forked++;
+ 			/* wait at most tmout seconds */
+-			(void) signal(SIGALRM, SIG_DFL);
+-			(void) signal(SIGTERM, SIG_DFL); /* XXX */
++			signal(SIGALRM, SIG_DFL);
++			signal(SIGTERM, SIG_DFL); /* XXX */
+ 			sigemptyset(&sigmask);
+ 			sigprocmask (SIG_SETMASK, &sigmask, NULL);
+-			(void) alarm((u_int)tmout);
++			alarm((u_int)tmout);
+ 			flags = fcntl(fd, F_GETFL);
+ 			fcntl(flags, F_SETFL, (long) (flags & ~O_NONBLOCK));
+ 			continue;
+@@ -175,11 +175,11 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
+ 		if (forked)
+ 			_exit(EXIT_FAILURE);
+ 		if (strlen(strerror(errno)) > 1000)
+-			(void) sprintf(errbuf, _("%s: BAD ERROR, message is "
++			sprintf(errbuf, _("%s: BAD ERROR, message is "
+ 						 "far too long"), device);
+ 		else {
+ 			errsv = errno;
+-			(void) sprintf(errbuf, "%s: %s", device,
++			sprintf(errbuf, "%s: %s", device,
+ 				       strerror(errsv));
+ 		}
+ 		errbuf[1024] = 0;
+-- 
+1.9.2
 
