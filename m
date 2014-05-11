@@ -1,44 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29166 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752018AbaEFPbC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 May 2014 11:31:02 -0400
-Date: Tue, 6 May 2014 16:40:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 02/12] dmesg: move get_boot_time() to lib/timeutils
-Message-ID: <20140506144028.GS5962@x2.net.home>
-References: <1398629138-31718-1-git-send-email-kerolasa@iki.fi>
- <201405061200.00836.sweet_f_a@gmx.de>
- <20140506112054.GP5962@x2.net.home>
- <201405061542.45205.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201405061542.45205.sweet_f_a@gmx.de>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:32882 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934085AbaEKT07 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 15:26:59 -0400
+Received: by mail-wi0-f179.google.com with SMTP id bs8so3507508wib.0
+        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 12:26:58 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 03/12] blkid: remove unused variable
+Date: Sun, 11 May 2014 20:26:40 +0100
+Message-Id: <1399836409-7769-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 06, 2014 at 03:42:44PM +0200, Ruediger Meier wrote:
-> On Tuesday 06 May 2014, Karel Zak wrote:
-> > On Tue, May 06, 2014 at 12:00:00PM +0200, Ruediger Meier wrote:
-> 
-> > > clock_gettime() needs -lrt on some systems. That's why we had
-> > > dmesg_LDADD += -lrt. Now every binary which links against libcommon
-> > > needs that.
-> >
-> >  Fixed, I have moved get_boot_time() outside libcommon.
-> 
-> Thanks, you still have forgotten to commit the new header
->   include/boottime.h
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/blkid.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- Ooooh, fixed...
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index b3eade5..0d0ea6a 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -366,7 +366,7 @@ static void print_tags(blkid_dev dev, char *show[], int output)
  
- It would be nice to have any connection between build system and git
- to avoid just stupid (but common) mistakes.
-
-    Karel
-
+ static int append_str(char **res, size_t *sz, const char *a, const char *b)
+ {
+-	char *str = *res;
++	char *str;
+ 	size_t asz = a ? strlen(a) : 0;
+ 	size_t bsz = b ? strlen(b) : 0;
+ 	size_t len = *sz + asz + bsz;
+@@ -374,7 +374,7 @@ static int append_str(char **res, size_t *sz, const char *a, const char *b)
+ 	if (!len)
+ 		return -1;
+ 
+-	*res = str = xrealloc(str, len + 1);
++	str = xrealloc(str, len + 1);
+ 	str += *sz;
+ 
+ 	if (a) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.2
+
