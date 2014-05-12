@@ -1,60 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.24]:53419 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751567AbaELHFg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 12 May 2014 03:05:36 -0400
-Message-ID: <537072BE.3090301@bernhard-voelker.de>
-Date: Mon, 12 May 2014 09:05:34 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:8273 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755099AbaELKZS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 May 2014 06:25:18 -0400
+Date: Mon, 12 May 2014 12:25:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: last: please review -F and --time-format
+Message-ID: <20140512102510.GB8951@x2.net.home>
+References: <201405071631.53729.sweet_f_a@gmx.de>
+ <CAG27Bk0fWizWdEhQQUxQNVHp+SsM71qZwqgXgXbhVKxBZkmY+g@mail.gmail.com>
+ <201405082226.36617.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-CC: Ruediger Meier <sweet_f_a@gmx.de>
-Subject: Re: [PATCH 01/12] tests: check /proc availability, and go-around
- if it is incomplete
-References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201405082226.36617.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/11/2014 09:26 PM, Sami Kerola wrote:
-> diff --git a/tests/ts/kill/kill_functions.sh b/tests/ts/kill/kill_functions.sh
-> index 73fff05..a2a2483 100644
-> --- a/tests/ts/kill/kill_functions.sh
-> +++ b/tests/ts/kill/kill_functions.sh
-> @@ -1,3 +1,5 @@
-> +# kill tests, or command, will not when /proc is missing.
-> +test /proc || ts_skip "/proc not available"
+On Thu, May 08, 2014 at 10:26:36PM +0200, Ruediger Meier wrote:
+> That's a bit ugly to fix without more refactoring. I've tried here to 
+> address both issues:
+> https://github.com/karelzak/util-linux/pull/73
 
-Ahem, this only ensures that '/proc' is a string, nothing else ...
+ Merged, but note that code like:
 
+   if (ctl->time_fmt > LAST_TIMEFTM_SHORT_CTIME)
 
->  # unfortunately we are using gawk features
->  type gawk >/dev/null 2>&1 || ts_skip "cannot find gawk"
-> @@ -8,6 +10,17 @@ function check_test_sigreceive {
->  	local pid=$1
->  
->  	for i in 0.01 0.1 1 1 1 1; do
-> +		if [ ! -f /proc/$pid/status ]; then
-> +			# The /proc exists, but not status file. Because
-> +			# the process already started it is unlikely the
-> +			# file would appear after any amount of waiting.
-> +			# Try to sleep for moment and hopefully
-> +			# test_sigreceive is ready to be killed.
-> +			echo "kill_functions.sh: /proc/$pid/status: No such file or directory"
-> +			sleep 2
-> +			rc=1
-> +			break
-> +		fi
->  		gawk 'BEGIN { retval=1 }
->  		/^SigCgt/ {
->  			lbyte = strtonum("0x" substr($2, 16, 16))
-> 
+ is fragile (as someone can modify LAST_TIMEFTM_* enum), it would be
+ better to introduce any macro and keep it near to LAST_TIMEFTM_*
+ definitions or fix the problem in a better way.
 
-Seeing all this /proc stuff going into the tests - it now even
-requires gawk - I still personally think that a simple witness
-file would have done it.
-So Karel, if you really prefer this, then I'm okay with it, of course.
+    Karel
 
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
