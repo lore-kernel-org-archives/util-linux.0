@@ -1,42 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:58775 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751734AbaE0Kuo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 27 May 2014 06:50:44 -0400
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: BUG: cal prints bad month headers
-Date: Tue, 27 May 2014 12:50:41 +0200
-Cc: Sami Kerola <kerolasa@iki.fi>
-References: <201405271145.56596.sweet_f_a@gmx.de>
-In-Reply-To: <201405271145.56596.sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: last: please review -F and --time-format
+Date: Mon, 12 May 2014 13:01:02 +0200
+Cc: kerolasa@gmail.com, "util-linux" <util-linux@vger.kernel.org>
+References: <201405071631.53729.sweet_f_a@gmx.de> <201405082226.36617.sweet_f_a@gmx.de> <20140512102510.GB8951@x2.net.home>
+In-Reply-To: <20140512102510.GB8951@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <201405271250.41256.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Message-Id: <201405121301.02972.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 27 May 2014, Ruediger Meier wrote:
-> This happens only if output is redirected into a file
-> $ ./cal -ym > bla ;cat bla
-> It looks good in terminal.
+On Monday 12 May 2014, Karel Zak wrote:
+> On Thu, May 08, 2014 at 10:26:36PM +0200, Ruediger Meier wrote:
+> > That's a bit ugly to fix without more refactoring. I've tried here
+> > to address both issues:
+> > https://github.com/karelzak/util-linux/pull/73
 >
-> Reverting 95f4adde (plus 0c6dc4b9 and 4a7424a5) fixes the problem.
+>  Merged, but note that code like:
+>
+>    if (ctl->time_fmt > LAST_TIMEFTM_SHORT_CTIME)
+>
+>  is fragile (as someone can modify LAST_TIMEFTM_* enum), it would be
+>  better to introduce any macro and keep it near to LAST_TIMEFTM_*
+>  definitions or fix the problem in a better way.
 
-Just another hint. Adding a fflush() like you see below also "fixes" the 
-problem. Maybe we are mixing several output methods (printf, puts, 
-my_putstring, etc.) like we shouldn't.
+Yes, my first version of that patch had hardcoded
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 81375fe..2b61a30 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -760,6 +760,7 @@ static void yearly(const struct cal_control *ctl)
-                set_consecutive_months(&m1, month, ctl->req.year);
-                for (i = &m1; i; i = i->next)
-                        cal_fill_month(i, ctl);
-+               fflush(NULL);
-                cal_output_header(&m1, ctl);
-                cal_output_months(&m1, ctl);
-        }
+   if (timefmts[ctl->time_fmt].out > 7)
+
+because the particular strings in these if statements really require "7" 
+and nothing else. But then I've notived that the whole thing explodes 
+anyway if somebody would change fmt values.
+
+cu,
+Rudi
