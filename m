@@ -1,46 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:52569 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750745AbaETPmp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 May 2014 11:42:45 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Stanislav Brabec <sbrabec@suse.cz>, Petr Uzel <petr.uzel@suse.cz>
-Subject: [PATCH 0/5] lscpu: improve hypervisor detection
-Date: Tue, 20 May 2014 15:42:26 +0000
-Message-Id: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140512121011.GH8951@x2.net.home>
+References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+	<1399836409-7769-12-git-send-email-kerolasa@iki.fi>
+	<20140512121011.GH8951@x2.net.home>
+Date: Mon, 12 May 2014 15:53:29 +0100
+Message-ID: <CAG27Bk15kOBNWt=T77H2EcdC1JhD7RLQD=89xcRdBmcfp+D2nQ@mail.gmail.com>
+Subject: Re: [PATCH 12/12] setterm: convert remaining magic values to symbolic references
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On 12 May 2014 13:10, Karel Zak <kzak@redhat.com> wrote:
+>  Please, use enum {} to group together things which have any relation,
+>  otherwise use #define.
+>
+>  Fixed and merged.
 
-This patch set is based on an openSUSE / SLE patch. Original author was
-probably Petr Uzel.
+Thanks for review & advice, I'll try to better changes in future.
 
-I've splitted the original patch into smaller pieces, removed some
-incompatible output format changes and added some test data.
+>  Applied all patches in the patchset, thanks.
 
-You can also review and pull from my github repo
-https://github.com/rudimeier/util-linux/compare/lscpu-detect?expand=1
-
-CC: Stanislav Brabec <sbrabec@suse.cz>
-CC: Petr Uzel <petr.uzel@suse.cz>
-
-Ruediger Meier (5):
-  lscpu: minor cleanup and improve hypervisor detection
-  tests: add vbox lscpu dump
-  lscpu: detect OS/400 and pHyp hypervisors
-  lscpu: improve vmware detection
-  lscpu: avoid compiler warnings
-
- sys-utils/lscpu.c                    | 148 ++++++++++++++++++++++++++++++++++-
- sys-utils/lscpu.h                    |   5 +-
- tests/expected/lscpu/lscpu-vbox-win  |  29 +++++++
- tests/ts/lscpu/dumps/vbox-win.tar.gz | Bin 0 -> 15769 bytes
- 4 files changed, 179 insertions(+), 3 deletions(-)
- create mode 100644 tests/expected/lscpu/lscpu-vbox-win
- create mode 100644 tests/ts/lscpu/dumps/vbox-win.tar.gz
+Which brings to me to generic FYI; I'll work more with setterm(1) this week.
 
 -- 
-1.8.4.5
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
