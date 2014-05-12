@@ -1,75 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:52029 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:4344 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750892AbaEGUMX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 7 May 2014 16:12:23 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH] tests: make kill to go-around when /proc is not available
-Date: Wed, 7 May 2014 22:12:12 +0200
-Cc: util-linux@vger.kernel.org
-References: <1399482068-6460-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1399482068-6460-1-git-send-email-kerolasa@iki.fi>
+	id S1752682AbaELLG1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 May 2014 07:06:27 -0400
+Date: Mon, 12 May 2014 13:06:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org,
+        Ruediger Meier <sweet_f_a@gmx.de>
+Subject: Re: [PATCH 01/12] tests: check /proc availability, and go-around if
+ it is incomplete
+Message-ID: <20140512110608.GD8951@x2.net.home>
+References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+ <537072BE.3090301@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201405072212.12680.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <537072BE.3090301@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Sami,
+On Mon, May 12, 2014 at 09:05:34AM +0200, Bernhard Voelker wrote:
+> On 05/11/2014 09:26 PM, Sami Kerola wrote:
+> > diff --git a/tests/ts/kill/kill_functions.sh b/tests/ts/kill/kill_functions.sh
+> > index 73fff05..a2a2483 100644
+> > --- a/tests/ts/kill/kill_functions.sh
+> > +++ b/tests/ts/kill/kill_functions.sh
+> > @@ -1,3 +1,5 @@
+> > +# kill tests, or command, will not when /proc is missing.
+> > +test /proc || ts_skip "/proc not available"
+> 
+> Ahem, this only ensures that '/proc' is a string, nothing else ...
 
-On Wednesday 07 May 2014, Sami Kerola wrote:
-> [PATCH] tests: make kill to go-around when /proc is not available
+ Fixed.
 
-Do you really want to get it work when whole /proc is not available
-or just if /proc/$pid/status is still missing?
+> >  # unfortunately we are using gawk features
+> >  type gawk >/dev/null 2>&1 || ts_skip "cannot find gawk"
+> > @@ -8,6 +10,17 @@ function check_test_sigreceive {
+> >  	local pid=$1
+> >  
+> >  	for i in 0.01 0.1 1 1 1 1; do
+> > +		if [ ! -f /proc/$pid/status ]; then
+> > +			# The /proc exists, but not status file. Because
+> > +			# the process already started it is unlikely the
+> > +			# file would appear after any amount of waiting.
+> > +			# Try to sleep for moment and hopefully
+> > +			# test_sigreceive is ready to be killed.
+> > +			echo "kill_functions.sh: /proc/$pid/status: No such file or directory"
+> > +			sleep 2
+> > +			rc=1
+> > +			break
+> > +		fi
+> >  		gawk 'BEGIN { retval=1 }
+> >  		/^SigCgt/ {
+> >  			lbyte = strtonum("0x" substr($2, 16, 16))
+> > 
+> 
+> Seeing all this /proc stuff going into the tests - it now even
+> requires gawk - I still personally think that a simple witness
+> file would have done it.
+> So Karel, if you really prefer this, then I'm okay with it, of course.
 
-> And change messaging to be easier to debug, if the outcome of the
-> opportunistic sleep is unsuccessful test.  In such case one could
-> assume the test_sigreceive was not successful when setting handler. 
-> Maybe because of load on test server, or some other reason.
->
-> Reference: https://travis-ci.org/rudimeier/util-linux/jobs/24561058
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  tests/ts/kill/kill_functions.sh | 10 ++++++++++
->  1 file changed, 10 insertions(+)
->
-> diff --git a/tests/ts/kill/kill_functions.sh
-> b/tests/ts/kill/kill_functions.sh index 043b4cb..56ad98b 100644
-> --- a/tests/ts/kill/kill_functions.sh
-> +++ b/tests/ts/kill/kill_functions.sh
-> @@ -5,6 +5,16 @@ function check_test_sigreceive {
->  	local pid=$1
->
->  	for i in 0.01 0.1 1 1 1 1; do
-> +		if [ ! -f /proc/$pid/status ]; then
-> +			# This message is visible in tests/run.sh output.
-> +			# Do not direct to $TS_OUTPUT it would make test
-> +			# fail, while with a bit of luck this might be
-> +			# recoverable (after a sleep).
+The dependence on gawk is not nice thing, I have modified the function
+to use simple awk print stuff and shell to convert & check sigmask.
 
-How could the test still succeed if we break the loop and return 1?
-In this case the particular tests usually write "helper did not start"
-to $TS_OUTPUT.
+    Karel
 
-> +			echo "kill_functions.sh: /proc/$pid/status: No such file or directory" &&
-> +			rc=1 && 
-
-Shouldn't we return 0 here ...
-
-> +			sleep 2 &&
-> +			break
-
-... or only continue the loop to hope that /proc/$pid/status will be
-there next round?
-
-> +		fi
->  		awk 'BEGIN { retval=1 }
->  		/^SigCgt/ {
->  			lbyte = strtonum("0x" substr($2, 16, 16))
-
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
