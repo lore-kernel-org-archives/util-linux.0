@@ -1,104 +1,83 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 3/5] lscpu: detect OS/400 and pHyp hypervisors
-Date: Wed, 28 May 2014 23:54:21 +0200
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Karel Zak <kzak@redhat.com>,
-        Paul Mackerras <paulus@au1.ibm.com>, util-linux@vger.kernel.org,
-        Stanislav Brabec <sbrabec@suse.cz>, Petr Uzel <petr.uzel@suse.cz>,
-        Ben Herrenschmidt <benh@kernel.crashing.org>
-References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de> <20140522090824.GC4430@osiris> <537DC3A1.6000401@suse.de>
-In-Reply-To: <537DC3A1.6000401@suse.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:45149 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751925AbaELMh6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 May 2014 08:37:58 -0400
+Date: Mon, 12 May 2014 14:37:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Shakur Shams Mullick <shakursmullick@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/8] libsmartcols/src/cell.c: add two functions to
+ compare number and string cells
+Message-ID: <20140512123753.GJ8951@x2.net.home>
+References: <1399796438-5495-1-git-send-email-shakursmullick@gmail.com>
+ <1399796438-5495-4-git-send-email-shakursmullick@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201405282354.22353.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1399796438-5495-4-git-send-email-shakursmullick@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thank you all for your comments!
+On Sun, May 11, 2014 at 02:20:34PM +0600, Shakur Shams Mullick wrote:
+> +int scols_cmpstr_cells(struct libscols_cell *a, struct libscols_cell *b, void *data)
+> +{
+> +	int n, m;
+> +	const char *adata, *bdata;
+> +
+> +	adata = scols_cell_get_data(a);
+> +	bdata = scols_cell_get_data(b);
+> +	
+> +	n = strlen(adata);
+> +	m = strlen(bdata);
+> +	
+> +	return strncmp(adata, bdata, (n>=m ? n : m));
+> +}
 
-Patch set updated here:
-https://github.com/karelzak/util-linux/pull/87
+ This looks good.
 
+> +int scols_cmpnum_cells(struct libscols_cell *a, struct libscols_cell *b, void *data)
+> +{
+> +	uint64_t n, m;
+> +	const char *adata, *bdata;
+> +
+> +	adata = scols_cell_get_data(a);
+> +	bdata = scols_cell_get_data(b);
+> +	
+> +	strtosize(adata, &n);
+> +	strtosize(bdata, &m);
 
-On Thursday 22 May 2014, Alexander Graf wrote:
-> >>>> +	if (path_exist("/proc/iSeries")) {
-> >>>> +		desc->hyper = HYPER_OS400;
-> >>>> +		desc->virtype = VIRT_FULL;
-> >>> ... shouldn't this be VIRT_PARA? Somebody who knows this may correct this.
-> 
-> iSeries is PV, yes. Among others it's also dead :). But I'll let Ben 
-> comment.
-
-We set VIRT_PARA now for iSeries and (real) pSeries. 
+ I have doubts that we can scols_cmpnum_cells() to the library API.
+ (Sorry for the suggestion.)
  
-> >>>
-> >>>> +	} else if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")) {
-> >>>> +		FILE *fd;
-> >>>> +		desc->hyper = HYPER_PHYP;
-> >>>> +		desc->virtype = VIRT_FULL;
-> >>> Maybe more obvious here for pSeries where p seems to stand for para
-> >>> http://www.ibm.com/developerworks/aix/library/au-syspvirtualization/index.html?S_TACT=105AGX99&S_CMP=CP
-> 
-> This is slightly more complicated. The ibm,partition-name device tree 
-> property is defined in sPAPR which is a specification that both pHyp and 
-> QEMU implement. Right now QEMU does not expose the ibm,partition-name 
-> property, but there's no reason it will stay that way.
-> 
-> There are a few ways we could try to distinguish QEMU's implementation 
-> of the pSeries machine and pHyp's implementation of it.
-> 
->    /proc/device-tree/hmc-managed?
-> 
-> I don't think QEMU will ever implement this property, but at least my 
-> pHyp reference VM does. If it's there we can use it as a definite marker 
-> that we are in fact running on pHyp.
-> 
->    /proc/device-tree/chosen/qemu,graphic-width
+ The size strings are composed by applications and no by the library,
+ the size_to_human_string() is private util-linux function, so rely on
+ strtosize() seems strange. The cmpnum_cells() have to be within
+ lsblk.c.
 
-OK, we do it like this for now
-  if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")
-      && path_exist(_PATH_PROC_DEVICETREE "/hmc-managed?")
-      && !path_exist(_PATH_PROC_DEVICETREE "/chosen/qemu,graphic-width")) {
-  desc->hyper = HYPER_PHYP;
-  desc->virtype = VIRT_PARA;
-  ....  
+ It would be better to provide scols_cmpstr_cells() only.
 
-Haven't yet done something about the "pSeries on QEMU/KVM" detection
-according to the comments below. Could be that our existing KVM detection
-would catch it already.
+ Note that you don't have to send v3, I'm going to fix/improve it
+ before merge. Thanks!
 
-IMO we should add a script to easily make correct (and complete) /sys, /proc
-dumps. So users who own exotic machines could send us test data.
+    Karel
 
-> Only QEMU puts qemu, properties in the chosen directory. At least the 
-> current code always sets the graphic-* properties, so if we find one we 
-> can safely assume we're running on QEMU. We do not know whether we're 
-> running on KVM yet.
-> 
-> Checking on KVM is slightly more tricky. I think we have 2 options:
-> 
->    1) Check if /proc/device-tree/cpus/*@0/timebase-frequency is 1000000000.
-> 
->       If it is, we're emulated (no KVM). If it's not, we're running with 
-> a native CPU (KVM).
-> 
->    2) Check whether /proc/device-tree/hypervisor/compatible == "linux,kvm"
-> 
->      I have a patch in my queue to make the sPAPR compliant pSeries 
-> machine type in QEMU also ePAPR compliant and expose a /hypervisor node. 
-> Current versions of QEMU don't do this though, so this would not catch 
-> QEMU versions < 2.1.
-> 
->      The nice thing about the ePAPR compliant check is that we'd catch 
-> non-pSeries machine types as well. We expose this node on all emulated 
-> Mac machines and on FSL e500 style machines.
-> 
-> 
-> Alex
+
+
+
+
+> +	if (n >= m)
+> +		return 1;
+> +	return -1;
+> +}
+> -- 
+> 1.8.3.2
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe util-linux" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
