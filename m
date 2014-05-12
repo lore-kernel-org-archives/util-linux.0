@@ -1,50 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ve0-f171.google.com ([209.85.128.171]:40476 "EHLO
-	mail-ve0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751058AbaEKXWr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 19:22:47 -0400
-Received: by mail-ve0-f171.google.com with SMTP id oz11so7796450veb.2
-        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 16:22:46 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:12271 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755154AbaELMdd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 May 2014 08:33:33 -0400
+Date: Mon, 12 May 2014 14:01:05 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org, Ruediger Meier <sweet_f_a@gmx.de>
+Subject: Re: [PATCH 01/12] tests: check /proc availability, and go-around if
+ it is incomplete
+Message-ID: <20140512120105.GE8951@x2.net.home>
+References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <201405120038.12221.sweet_f_a@gmx.de>
-References: <201405120038.12221.sweet_f_a@gmx.de>
-Date: Mon, 12 May 2014 00:22:46 +0100
-Message-ID: <CAG27Bk0dj=SOiGY5Hb6VttoTZG7o4P2X=XPRV6vc82g0yheybw@mail.gmail.com>
-Subject: Re: question about test suite regarding stderr/stdout
-From: Sami Kerola <kerolasa@iki.fi>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11 May 2014 23:38, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> if you do this grep in util-linux
->   git grep '2>&1 >> $TS_OUTPUT' tests/ts
->
-> then you find 45 lines like this
-> $TS_CMD_MKCRAMFS -n $LABEL $IMAGE_SRC $IMAGE_PATH 2>&1 >> $TS_OUTPUT
->
-> which means that these warnings go to make's output but not to
-> $TS_OUTPUT.
->
-> I'm not sure whether this is really always wanted. For me it often looks
-> like a typo which should be ">> $TS_OUTPUT 2>&1" instead. Of course
-> could also be that it's really wanted as is to ignore stderr of too
-> verbose commands.
->
-> Could somebody please check this too?
-> I'v had some cases where I would have liked to see that stderr in test
-> diff instead of build log. Moreover because of parallel tests it can be
-> difficult to find out which warning belongs to which particular test.
+On Sun, May 11, 2014 at 08:26:38PM +0100, Sami Kerola wrote:
+>  tests/ts/kill/kill_functions.sh | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 
-Hi Rudi,
+ Fixed & merged, but I have removed the gawk-only code.
 
-Before parallel tests sending messages to stdout was OK, but now
-things has changed and I think directing all messages to $TS_OUTPUT is
-better option.
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
