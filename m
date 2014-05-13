@@ -1,70 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4344 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:48298 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752682AbaELLG1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 May 2014 07:06:27 -0400
-Date: Mon, 12 May 2014 13:06:08 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org,
-        Ruediger Meier <sweet_f_a@gmx.de>
-Subject: Re: [PATCH 01/12] tests: check /proc availability, and go-around if
- it is incomplete
-Message-ID: <20140512110608.GD8951@x2.net.home>
-References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
- <537072BE.3090301@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <537072BE.3090301@bernhard-voelker.de>
+	id S1753760AbaEMSQz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 13 May 2014 14:16:55 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1WkHG1-0002gn-Oq
+	for util-linux@vger.kernel.org; Tue, 13 May 2014 20:16:53 +0200
+Received: from 78-60-211-195.static.zebra.lt ([78.60.211.195])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 20:16:53 +0200
+Received: from grawity by 78-60-211-195.static.zebra.lt with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 20:16:53 +0200
+To: util-linux@vger.kernel.org
+From: =?UTF-8?B?TWFudGFzIE1pa3VsxJduYXM=?= <grawity@gmail.com>
+Subject: Re: terminal-colors.d changes
+Date: Tue, 13 May 2014 21:16:40 +0300
+Message-ID: <lktnib$mk7$1@ger.gmane.org>
+References: <20140513113858.GA26357@x2.net.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20140513113858.GA26357@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 12, 2014 at 09:05:34AM +0200, Bernhard Voelker wrote:
-> On 05/11/2014 09:26 PM, Sami Kerola wrote:
-> > diff --git a/tests/ts/kill/kill_functions.sh b/tests/ts/kill/kill_functions.sh
-> > index 73fff05..a2a2483 100644
-> > --- a/tests/ts/kill/kill_functions.sh
-> > +++ b/tests/ts/kill/kill_functions.sh
-> > @@ -1,3 +1,5 @@
-> > +# kill tests, or command, will not when /proc is missing.
-> > +test /proc || ts_skip "/proc not available"
+On 2014-05-13 14:38, Karel Zak wrote:
+>   * "scheme" files to customize colors are supported now, for example
 > 
-> Ahem, this only ensures that '/proc' is a string, nothing else ...
-
- Fixed.
-
-> >  # unfortunately we are using gawk features
-> >  type gawk >/dev/null 2>&1 || ts_skip "cannot find gawk"
-> > @@ -8,6 +10,17 @@ function check_test_sigreceive {
-> >  	local pid=$1
-> >  
-> >  	for i in 0.01 0.1 1 1 1 1; do
-> > +		if [ ! -f /proc/$pid/status ]; then
-> > +			# The /proc exists, but not status file. Because
-> > +			# the process already started it is unlikely the
-> > +			# file would appear after any amount of waiting.
-> > +			# Try to sleep for moment and hopefully
-> > +			# test_sigreceive is ready to be killed.
-> > +			echo "kill_functions.sh: /proc/$pid/status: No such file or directory"
-> > +			sleep 2
-> > +			rc=1
-> > +			break
-> > +		fi
-> >  		gawk 'BEGIN { retval=1 }
-> >  		/^SigCgt/ {
-> >  			lbyte = strtonum("0x" substr($2, 16, 16))
-> > 
+>        echo 'alert 37;41' >> /etc/terminal-colors.d/dmesg.scheme
 > 
-> Seeing all this /proc stuff going into the tests - it now even
-> requires gawk - I still personally think that a simple witness
-> file would have done it.
-> So Karel, if you really prefer this, then I'm okay with it, of course.
+>     sets red background color for alert messages.
+>     
+>     The scheme files supports color names (e.g. "red"), ANSI color
+>     sequences (e.g. 37;41) and escape sequences (e.g. \a for bell).
 
-The dependence on gawk is not nice thing, I have modified the function
-to use simple awk print stuff and shell to convert & check sigmask.
+Does it support multiple escape sequences?
 
-    Karel
+The 16/256/RGB-color sequence is a bit _odd_ in that it consists of
+three parameters (e.g. \e[38;5;72m for color72) and generally cannot be
+mixed with other sequences. (Some terminals allow this, others forbid,
+particularly mosh [1].)
+
+I guess right now 'alert 38;5;16m\e[48;5;202' would work, but it just
+doesn't feel right.
+
+[1]: https://github.com/keithw/mosh/issues/110
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Mantas Mikulėnas <grawity@gmail.com>
+
