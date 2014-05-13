@@ -1,52 +1,26 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:59379 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751463AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 May 2014 22:38:08 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 12/16] libuuid/man/uuid_is_null.3: Improve the typesetting of the manual
-Date: Fri,  2 May 2014 02:37:37 +0000
-Message-Id: <1398998261-17569-5-git-send-email-bjarniig@rhi.hi.is>
-In-Reply-To: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
-References: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: "Dr. Werner Fink" <werner@suse.de>
+Subject: Re: [PATCH 1/4] Avoid that agetty nor sulogin are fooled by a running plymouth
+Date: Tue, 13 May 2014 14:10:52 +0200
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1399543765-31106-1-git-send-email-werner@suse.de> <20140513085658.GM8951@x2.net.home> <20140513104222.GA16787@boole.suse.de>
+In-Reply-To: <20140513104222.GA16787@boole.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201405131410.52423.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-  Protect a full stop (.), that begins or ends a string, with \&
+On Tuesday 13 May 2014, Dr. Werner Fink wrote:
+> In my experience plymouth has some more further side effects if on is
+> using a further serial console or if there is no virtual console
+> (s390 and some x86_64 server systems).  Maybe upstream of plymouth is
+> not aware that in server business a virtual console used for graphic
+> is not that common.
 
-  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
-use '.ad l' for the entire manual
+I am more wondering why we are using plymouth in server business then. 
+But that's an openSUSE issue ;)
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- libuuid/man/uuid_is_null.3 | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/libuuid/man/uuid_is_null.3 b/libuuid/man/uuid_is_null.3
-index ccf24ed..86a7a50 100644
---- a/libuuid/man/uuid_is_null.3
-+++ b/libuuid/man/uuid_is_null.3
-@@ -46,11 +46,12 @@ function compares the value of the supplied UUID variable
- to the NULL value.  If the value is equal to the NULL UUID, 1 is returned,
- otherwise 0 is returned.
- .SH AUTHOR
--Theodore Y. Ts'o
-+Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
- is part of the util-linux package since version 2.15.1 and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-+.na
- .SH "SEE ALSO"
- .BR uuid (3),
- .BR uuid_clear (3),
-@@ -60,3 +61,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
- .BR uuid_time (3),
- .BR uuid_parse (3),
- .BR uuid_unparse (3)
-+.ad
--- 
-1.9.0
-
+cu,
+Rudi
