@@ -1,54 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:51369 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932752AbaEGOb4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 7 May 2014 10:31:56 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx003)
- with ESMTPSA (Nemesis) id 0MV5hN-1WLDTr2J13-00YRP1 for
- <util-linux@vger.kernel.org>; Wed, 07 May 2014 16:31:54 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:33455 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753873AbaENFKr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 14 May 2014 01:10:47 -0400
+Received: by mail-pb0-f43.google.com with SMTP id up15so1208544pbc.2
+        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 22:10:47 -0700 (PDT)
+From: Shakur Shams Mullick <shakursmullick@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: last: please review -F and --time-format
-Date: Wed, 7 May 2014 16:31:53 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201405071631.53729.sweet_f_a@gmx.de>
+Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
+Subject: [PATCH v3 2/5] libsmartcols/src/libsmartcols.sym: add function symbol
+Date: Wed, 14 May 2014 11:09:57 +0600
+Message-Id: <1400044200-9196-2-git-send-email-shakursmullick@gmail.com>
+In-Reply-To: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
+References: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
+---
+ libsmartcols/src/libsmartcols.sym | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-IMO -F and --time-format=xxx need some review/cleanup regarding
-logout times "still running" and "gone - no logout".
+diff --git a/libsmartcols/src/libsmartcols.sym b/libsmartcols/src/libsmartcols.sym
+index 4b64f28..c4ca8b8 100644
+--- a/libsmartcols/src/libsmartcols.sym
++++ b/libsmartcols/src/libsmartcols.sym
+@@ -9,6 +9,8 @@ global:
+ 	scols_cell_refer_data;
+ 	scols_cell_set_color;
+ 	scols_cell_set_data;
++	scols_cmpstr_cells;
++	scols_cmpnum_cells;
+ 	scols_column_get_color;
+ 	scols_column_get_flags;
+ 	scols_column_get_header;
+@@ -21,6 +23,7 @@ global:
+ 	scols_column_set_color;
+ 	scols_column_set_flags;
+ 	scols_column_set_whint;
++	scols_column_set_sortcmp;
+ 	scols_copy_column;
+ 	scols_copy_line;
+ 	scols_copy_symbols;
+@@ -51,6 +54,7 @@ global:
+ 	scols_new_table;
+ 	scols_parse_version_string;
+ 	scols_print_table;
++	scols_sort_table;
+ 	scols_print_table_to_string;
+ 	scols_ref_column;
+ 	scols_ref_line;
+-- 
+1.8.3.2
 
-Is there any reason why -F and --time-format=full
-look different? --time-format=notime looks ugly too.
-
-See the all the cases here: 
-------------
-for opt in -F --time-format=full --time-format=iso --time-format=short --time-format=notime; do
-    echo "### $opt ###"
-    ./last  -f ../tests/ts/last/wtmp.LE  $opt  | grep "running\| no logout"
-done
-
-### -F ###
-torvalds linux        hobby            Mon Aug 26 02:57:08 1991   gone - no logout
-reboot   system boot  system-name      Wed Aug 28 20:00:00 2013   still running
-### --time-format=full ###
-torvalds linux        hobby            Mon Aug 26 02:57:08 1991    gone                    - no logout
-reboot   system boot  system-name      Wed Aug 28 20:00:00 2013   still                    running
-### --time-format=iso ###
-torvalds linux        hobby            1991-08-26T02:57:08+0200   gone - no logout
-reboot   system boot  system-name      2013-08-28T20:00:00+0200   still running
-### --time-format=short ###
-torvalds linux        hobby            Mon Aug 26 02:57    gone - no logout
-reboot   system boot  system-name      Wed Aug 28 20:00   still running
-### --time-format=notime ###
-torvalds linux        hobby              - no logout
-reboot   system boot  system-name        running
-------------
-
-
-cu,
-Rudi
