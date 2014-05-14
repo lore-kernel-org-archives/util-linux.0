@@ -1,126 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f45.google.com ([209.85.219.45]:36339 "EHLO
-	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753662AbaE3Gaq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 30 May 2014 02:30:46 -0400
-Received: by mail-oa0-f45.google.com with SMTP id l6so1442608oag.18
-        for <util-linux@vger.kernel.org>; Thu, 29 May 2014 23:30:45 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:59497 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753083AbaENITv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 14 May 2014 04:19:51 -0400
+Date: Wed, 14 May 2014 10:19:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: terminal-colors.d changes
+Message-ID: <20140514081946.GB26357@x2.net.home>
+References: <20140513113858.GA26357@x2.net.home>
+ <lktnib$mk7$1@ger.gmane.org>
 MIME-Version: 1.0
-Date: Fri, 30 May 2014 15:30:45 +0900
-Message-ID: <CADhtO=98eyzuDjbNgSzfdq17wxwWnuWp5H7-Go-Ut4SvMAQ7hw@mail.gmail.com>
-Subject: [PATCH] deadlock in script
-From: Csaba Kos <csaba.kos@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary=001a11c2f4947b27d704fa982f95
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <lktnib$mk7$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---001a11c2f4947b27d704fa982f95
-Content-Type: text/plain; charset=UTF-8
+On Tue, May 13, 2014 at 09:16:40PM +0300, Mantas Mikulėnas wrote:
+> On 2014-05-13 14:38, Karel Zak wrote:
+> >   * "scheme" files to customize colors are supported now, for example
+> > 
+> >        echo 'alert 37;41' >> /etc/terminal-colors.d/dmesg.scheme
+> > 
+> >     sets red background color for alert messages.
+> >     
+> >     The scheme files supports color names (e.g. "red"), ANSI color
+> >     sequences (e.g. 37;41) and escape sequences (e.g. \a for bell).
+> 
+> Does it support multiple escape sequences?
+> 
+> The 16/256/RGB-color sequence is a bit _odd_ in that it consists of
+> three parameters (e.g. \e[38;5;72m for color72) and generally cannot be
+> mixed with other sequences. (Some terminals allow this, others forbid,
+> particularly mosh [1].)
 
-Hi,
+Yes, for example
 
-I use the "script" command to save the output of certain jobs on a
-heavily loaded Linux cluster. Every now and then the "script" command
-hangs.
+   echo 'warn 38;5;72' >> /etc/terminal-colors.d/dmesg.scheme
 
-I made some modifications to util-linux 2.23 and have been using the
-patched "script" command without problems for about a year.
+works. The \e[ m is unnecessary (we follow coreutils dir colors
+semantic).
 
-Attached I'm submitting the patches (updated to the current master) for review.
+> I guess right now 'alert 38;5;16m\e[48;5;202' would work, but it just
+> doesn't feel right.
 
-Best regards,
+  alert 38;5;16m\e[48;5;202
 
-Csaba Kos
+works, but in this case more consistent and readable notation is probably
 
---001a11c2f4947b27d704fa982f95
-Content-Type: text/x-diff; charset=US-ASCII;
-	name="0001-script-fix-a-rare-deadlock-after-child-termination.patch"
-Content-Disposition: attachment;
-	filename="0001-script-fix-a-rare-deadlock-after-child-termination.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hvt413gr0
+  alert \e[38;5;16m\e[48;5;202m  
 
-RnJvbSBmYWQ0ODI0MjdkZGQ4MTlhOTJkMWU2MzZlMjBiYmY4YWRhZjcyMWRkIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBDc2FiYSBLb3MgPGNzYWJhLmtvc0BnbWFpbC5jb20+CkRhdGU6
-IEZyaSwgMzAgTWF5IDIwMTQgMTQ6MzM6MzIgKzA5MDAKU3ViamVjdDogW1BBVENIIDEvMl0gc2Ny
-aXB0OiBmaXggYSByYXJlIGRlYWRsb2NrIGFmdGVyIGNoaWxkIHRlcm1pbmF0aW9uCgotLS0KIHRl
-cm0tdXRpbHMvc2NyaXB0LmMgfCA1MiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKystLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgNDUgaW5zZXJ0aW9ucygrKSwgNyBk
-ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS90ZXJtLXV0aWxzL3NjcmlwdC5jIGIvdGVybS11dGls
-cy9zY3JpcHQuYwppbmRleCBlNWQyMzljLi4zMjkwNmQwIDEwMDY0NAotLS0gYS90ZXJtLXV0aWxz
-L3NjcmlwdC5jCisrKyBiL3Rlcm0tdXRpbHMvc2NyaXB0LmMKQEAgLTM2LDYgKzM2LDkgQEAKICAq
-IC0gYWRkZWQgTmF0aXZlIExhbmd1YWdlIFN1cHBvcnQKICAqCiAgKiAyMDAwLTA3LTMwIFBlciBB
-bmRyZWFzIEJ1ZXIgPHBlckBsaW5wcm8ubm8+IC0gYWRkZWQgInEiLW9wdGlvbgorICoKKyAqIDIw
-MTQtMDUtMzAgQ3NhYmEgS29zIDxjc2FiYS5rb3NAZ21haWwuY29tPgorICogLSBmaXhlZCBhIHJh
-cmUgZGVhZGxvY2sgYWZ0ZXIgY2hpbGQgdGVybWluYXRpb24KICAqLwogCiAvKgpAQCAtMTE0LDYg
-KzExNyw4IEBAIGludAl0ZmxnID0gMDsKIGludAlmb3JjZWZsZyA9IDA7CiBpbnQJaXN0ZXJtOwog
-CitzaWdzZXRfdCBibG9ja19tYXNrLCB1bmJsb2NrX21hc2s7CisKIGludCBkaWU7CiBpbnQgcmVz
-aXplZDsKIApAQCAtMzA2LDYgKzMxMSw3IEBAIGRvaW5wdXQodm9pZCkgewogCWludCBlcnJzdiA9
-IDA7CiAJc3NpemVfdCBjYyA9IDA7CiAJY2hhciBpYnVmW0JVRlNJWl07CisJZmRfc2V0IHJlYWRm
-ZHM7CiAKIAkvKiBjbG9zZSB0aGluZ3MgaXJyZWxldmFudCBmb3IgdGhpcyBwcm9jZXNzICovCiAJ
-aWYgKGZzY3JpcHQpCkBAIC0zMTQsMTQgKzMyMCwyNyBAQCBkb2lucHV0KHZvaWQpIHsKIAkJZmNs
-b3NlKHRpbWluZ2ZkKTsKIAlmc2NyaXB0ID0gdGltaW5nZmQgPSBOVUxMOwogCisJRkRfWkVSTygm
-cmVhZGZkcyk7CisKKwkvKiBibG9jayBTSUdDSExEICovCisJc2lncHJvY21hc2soU0lHX1NFVE1B
-U0ssICZibG9ja19tYXNrLCAmdW5ibG9ja19tYXNrKTsKKwogCXdoaWxlIChkaWUgPT0gMCkgewot
-CQlpZiAoKGNjID0gcmVhZChTVERJTl9GSUxFTk8sIGlidWYsIEJVRlNJWikpID4gMCkgewotCQkJ
-aWYgKHdyaXRlX2FsbChtYXN0ZXIsIGlidWYsIGNjKSkgewotCQkJCXdhcm4gKF8oIndyaXRlIGZh
-aWxlZCIpKTsKLQkJCQlmYWlsKCk7CisJCUZEX1NFVChTVERJTl9GSUxFTk8sICZyZWFkZmRzKTsK
-KworCQkvKiB3YWl0IGZvciBpbnB1dCBvciBzaWduYWwgKGluY2x1ZGluZyBTSUdDSExEKSAqLwor
-CQlpZiAoKGNjID0gcHNlbGVjdChTVERJTl9GSUxFTk8gKyAxLCAmcmVhZGZkcywgTlVMTCwgTlVM
-TCwgTlVMTCwKKwkJCSZ1bmJsb2NrX21hc2spKSA+IDApIHsKKworCQkJaWYgKChjYyA9IHJlYWQo
-U1RESU5fRklMRU5PLCBpYnVmLCBCVUZTSVopKSA+IDApIHsKKwkJCQlpZiAod3JpdGVfYWxsKG1h
-c3RlciwgaWJ1ZiwgY2MpKSB7CisJCQkJCXdhcm4gKF8oIndyaXRlIGZhaWxlZCIpKTsKKwkJCQkJ
-ZmFpbCgpOworCQkJCX0KIAkJCX0KIAkJfQotCQllbHNlIGlmIChjYyA8IDAgJiYgZXJybm8gPT0g
-RUlOVFIgJiYgcmVzaXplZCkKKworCQlpZiAoY2MgPCAwICYmIGVycm5vID09IEVJTlRSICYmIHJl
-c2l6ZWQpCiAJCXsKIAkJCS8qIHRyYW5zbWl0IHdpbmRvdyBjaGFuZ2UgaW5mb3JtYXRpb24gdG8g
-dGhlIGNoaWxkICovCiAJCQlpZiAoaXN0ZXJtKSB7CkBAIC0zMzAsMTIgKzM0OSwxNSBAQCBkb2lu
-cHV0KHZvaWQpIHsKIAkJCX0KIAkJCXJlc2l6ZWQgPSAwOwogCi0JCX0gZWxzZSB7CisJCX0gZWxz
-ZSBpZiAoY2MgPD0gMCkgewogCQkJZXJyc3YgPSBlcnJubzsKIAkJCWJyZWFrOwogCQl9CiAJfQog
-CisJLyogdW5ibG9jayBTSUdDSExEICovCisJc2lncHJvY21hc2soU0lHX1NFVE1BU0ssICZ1bmJs
-b2NrX21hc2ssIE5VTEwpOworCiAJLyogVG8gYmUgc3VyZSB0aGF0IHdlIGRvbid0IG1pc3MgYW55
-IGRhdGEgKi8KIAl3YWl0X2Zvcl9lbXB0eV9mZChzbGF2ZSk7CiAJd2FpdF9mb3JfZW1wdHlfZmQo
-bWFzdGVyKTsKQEAgLTQwNCw2ICs0MjYsNyBAQCBkb291dHB1dCh2b2lkKSB7CiAJc3RydWN0IHRp
-bWV2YWwgdHY7CiAJZG91YmxlIG9sZHRpbWU9dGltZShOVUxMKSwgbmV3dGltZTsKIAlpbnQgZXJy
-c3YgPSAwOworCWZkX3NldCByZWFkZmRzOwogCiAJY2xvc2UoU1RESU5fRklMRU5PKTsKICNpZmRl
-ZiBIQVZFX0xJQlVUSUwKQEAgLTQxNiw2ICs0MzksOCBAQCBkb291dHB1dCh2b2lkKSB7CiAJbXlf
-c3RyZnRpbWUob2J1Ziwgc2l6ZW9mIG9idWYsICIlY1xuIiwgbG9jYWx0aW1lKCZ0dmVjKSk7CiAJ
-ZnByaW50Zihmc2NyaXB0LCBfKCJTY3JpcHQgc3RhcnRlZCBvbiAlcyIpLCBvYnVmKTsKIAorCUZE
-X1pFUk8oJnJlYWRmZHMpOworCiAJZG8gewogCQlpZiAoZGllIHx8IGVycnN2ID09IEVJTlRSKSB7
-CiAJCQlzdHJ1Y3QgcG9sbGZkIGZkc1tdID0ge3sgLmZkID0gbWFzdGVyLCAuZXZlbnRzID0gUE9M
-TElOIH19OwpAQCAtNDIzLDEwICs0NDgsMjMgQEAgZG9vdXRwdXQodm9pZCkgewogCQkJCWJyZWFr
-OwogCQl9CiAKKwkJLyogYmxvY2sgU0lHQ0hMRCAqLworCQlzaWdwcm9jbWFzayhTSUdfU0VUTUFT
-SywgJmJsb2NrX21hc2ssICZ1bmJsb2NrX21hc2spOworCisJCUZEX1NFVChtYXN0ZXIsICZyZWFk
-ZmRzKTsKIAkJZXJybm8gPSAwOwotCQljYyA9IHJlYWQobWFzdGVyLCBvYnVmLCBzaXplb2YgKG9i
-dWYpKTsKKworCQkvKiB3YWl0IGZvciBpbnB1dCBvciBzaWduYWwgKGluY2x1ZGluZyBTSUdDSExE
-KSAqLworCQlpZiAoKGNjID0gcHNlbGVjdChtYXN0ZXIrMSwgJnJlYWRmZHMsIE5VTEwsIE5VTEws
-IE5VTEwsCisJCQkmdW5ibG9ja19tYXNrKSkgPiAwKSB7CisKKwkJCWNjID0gcmVhZChtYXN0ZXIs
-IG9idWYsIHNpemVvZiAob2J1ZikpOworCQl9CiAJCWVycnN2ID0gZXJybm87CiAKKwkJLyogdW5i
-bG9jayBTSUdDSExEICovCisJCXNpZ3Byb2NtYXNrKFNJR19TRVRNQVNLLCAmdW5ibG9ja19tYXNr
-LCBOVUxMKTsKKwogCQlpZiAodGZsZykKIAkJCWdldHRpbWVvZmRheSgmdHYsIE5VTEwpOwogCi0t
-IAoxLjguNS5yYzMuMi5nYzMwMjk0MQoK
---001a11c2f4947b27d704fa982f95
-Content-Type: text/x-diff; charset=US-ASCII;
-	name="0002-script-fix-spurious-exit-from-input-read-loop-on-EIN.patch"
-Content-Disposition: attachment;
-	filename="0002-script-fix-spurious-exit-from-input-read-loop-on-EIN.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hvt413ou1
+that works too. 
 
-RnJvbSBhMmRkNGRmMzQ5ZjQyNmM2NjA1ZTRiMTUxYWFmY2NjZTRiMmVhOGU3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBDc2FiYSBLb3MgPGNzYWJhLmtvc0BnbWFpbC5jb20+CkRhdGU6
-IEZyaSwgMzAgTWF5IDIwMTQgMTQ6NTE6MzggKzA5MDAKU3ViamVjdDogW1BBVENIIDIvMl0gc2Ny
-aXB0OiBmaXggc3B1cmlvdXMgZXhpdCBmcm9tIGlucHV0IHJlYWQgbG9vcCBvbiBFSU5UUi4KCi0t
-LQogdGVybS11dGlscy9zY3JpcHQuYyB8IDMgKystCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRp
-b25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvdGVybS11dGlscy9zY3JpcHQuYyBi
-L3Rlcm0tdXRpbHMvc2NyaXB0LmMKaW5kZXggMzI5MDZkMC4uNjM5MTNjOCAxMDA2NDQKLS0tIGEv
-dGVybS11dGlscy9zY3JpcHQuYworKysgYi90ZXJtLXV0aWxzL3NjcmlwdC5jCkBAIC0zMjgsNiAr
-MzI4LDcgQEAgZG9pbnB1dCh2b2lkKSB7CiAJd2hpbGUgKGRpZSA9PSAwKSB7CiAJCUZEX1NFVChT
-VERJTl9GSUxFTk8sICZyZWFkZmRzKTsKIAorCQllcnJubyA9IDA7CiAJCS8qIHdhaXQgZm9yIGlu
-cHV0IG9yIHNpZ25hbCAoaW5jbHVkaW5nIFNJR0NITEQpICovCiAJCWlmICgoY2MgPSBwc2VsZWN0
-KFNURElOX0ZJTEVOTyArIDEsICZyZWFkZmRzLCBOVUxMLCBOVUxMLCBOVUxMLAogCQkJJnVuYmxv
-Y2tfbWFzaykpID4gMCkgewpAQCAtMzQ5LDcgKzM1MCw3IEBAIGRvaW5wdXQodm9pZCkgewogCQkJ
-fQogCQkJcmVzaXplZCA9IDA7CiAKLQkJfSBlbHNlIGlmIChjYyA8PSAwKSB7CisJCX0gZWxzZSBp
-ZiAoY2MgPD0gMCAmJiBlcnJubyAhPSBFSU5UUikgewogCQkJZXJyc3YgPSBlcnJubzsKIAkJCWJy
-ZWFrOwogCQl9Ci0tIAoxLjguNS5yYzMuMi5nYzMwMjk0MQoK
---001a11c2f4947b27d704fa982f95--
+(The result is orange background and black foreground, right? :-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
