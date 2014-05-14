@@ -1,81 +1,56 @@
-Return-Path: luto@amacapital.net
-MIME-Version: 1.0
-In-Reply-To: <201405061350.s46DoVxC008646@hobgoblin.ariadne.com>
-References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
-	<201405022221.s42MLpT4015462@hobgoblin.ariadne.com>
-	<CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
-	<201405052250.s45Monxm008110@hobgoblin.ariadne.com>
-	<CALCETrXTJpkA-EqzS=kvSfS4QEO5Gc3TV42+FFrUbQN3ALfuCw@mail.gmail.com>
-	<20140506094631.GG5962@x2.net.home>
-	<201405061350.s46DoVxC008646@hobgoblin.ariadne.com>
-Date: Tue, 6 May 2014 08:38:02 -0700
-Message-ID: <CALCETrUBTf=Wyz76Y3T=2CXqtKNhgK1YVgmBv1mEh85mNt4MKA@mail.gmail.com>
-Subject: Re: getting rid of "mount: only root can ..."
-From: Andy Lutomirski <luto@amacapital.net>
-To: "Dale R. Worley" <worley@alum.mit.edu>
-Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Content-Type: multipart/alternative; boundary=bcaec51b9a8d8ec12f04f8bd0898
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:37393 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753623AbaENFKW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 14 May 2014 01:10:22 -0400
+Received: by mail-pa0-f51.google.com with SMTP id kq14so1181047pab.24
+        for <util-linux@vger.kernel.org>; Tue, 13 May 2014 22:10:21 -0700 (PDT)
+From: Shakur Shams Mullick <shakursmullick@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
+Subject: [PATCH v3 1/5] libsmartcols/src/libsmartcols.h.in: add function
+Date: Wed, 14 May 2014 11:09:56 +0600
+Message-Id: <1400044200-9196-1-git-send-email-shakursmullick@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---bcaec51b9a8d8ec12f04f8bd0898
-Content-Type: text/plain; charset=UTF-8
+Signed-off-by: Shakur Shams Mullick <shakursmullick@gmail.com>
+---
+ libsmartcols/src/libsmartcols.h.in | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-On May 6, 2014 6:50 AM, "Dale R. Worley" <worley@alum.mit.edu> wrote:
->
-> > From: Karel Zak <kzak@redhat.com>
->
-> > I'll try to improve it to make it more usable with user namespaces.
-> > The problem is that mount(8) is not just about mount(2) call only. If
-> > we drop privileges then mount(8) will report problems with things like
-> > FS detection, loopdevs setups, etc. It's necessary to review the code
-> > and make errors/warnings somehow usable. ... added to my TODO for the
-> > next week ;-)
->
-> Yeah, that's the only thing that will work well:  Have mount(8) and
-> the kernel both know what the rules are and enforce them
-> consistently.  And ideally, mount(8) should tell the user exactly what
-> the rule is that's being violated.
->
+diff --git a/libsmartcols/src/libsmartcols.h.in b/libsmartcols/src/libsmartcols.h.in
+index 9468226..5ead53f 100644
+--- a/libsmartcols/src/libsmartcols.h.in
++++ b/libsmartcols/src/libsmartcols.h.in
+@@ -115,6 +115,8 @@ extern int scols_cell_refer_data(struct libscols_cell *ce, char *str);
+ extern const char *scols_cell_get_data(const struct libscols_cell *ce);
+ extern int scols_cell_set_color(struct libscols_cell *ce, const char *color);
+ extern const char *scols_cell_get_color(const struct libscols_cell *ce);
++extern int scols_cmpstr_cells(struct libscols_cell *a, struct libscols_cell *b, void *data);
++extern int scols_cmpnum_cells(struct libscols_cell *a, struct libscols_cell *b, void *data);
+ 
+ /* column.c */
+ extern int scols_column_is_tree(struct libscols_column *cl);
+@@ -134,7 +136,9 @@ extern double scols_column_get_whint(struct libscols_column *cl);
+ extern struct libscols_cell *scols_column_get_header(struct libscols_column *cl);
+ extern int scols_column_set_color(struct libscols_column *cl, const char *color);
+ extern const char *scols_column_get_color(struct libscols_column *cl);
+-
++extern int scols_column_set_sortcmp(struct libscols_column *cl, 
++	int (*compar)(struct libscols_cell *a, struct libscols_cell *b, void *), void *data);
++	
+ /* line.c */
+ extern struct libscols_line *scols_new_line(void);
+ extern void scols_ref_line(struct libscols_line *ln);
+@@ -206,6 +210,7 @@ extern int scols_table_reduce_termwidth(struct libscols_table *tb, size_t reduce
+ /* table_print.c */
+ extern int scols_print_table(struct libscols_table *tb);
+ extern int scols_print_table_to_string(struct libscols_table *tb, char **data);
++extern void scols_sort_table(struct libscols_table *tb, struct libscols_column *cl);
+ 
+ #ifdef __cplusplus
+ }
+-- 
+1.8.3.2
 
-A kind of hackish solution would be for mount --nopriv or whatever to drop
-privileges immediately and stop enforcing any policy at all.
-
---Andy
-
---bcaec51b9a8d8ec12f04f8bd0898
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"><br>
-On May 6, 2014 6:50 AM, &quot;Dale R. Worley&quot; &lt;<a href=3D"mailto:wo=
-rley@alum.mit.edu">worley@alum.mit.edu</a>&gt; wrote:<br>
-&gt;<br>
-&gt; &gt; From: Karel Zak &lt;<a href=3D"mailto:kzak@redhat.com">kzak@redha=
-t.com</a>&gt;<br>
-&gt;<br>
-&gt; &gt; I&#39;ll try to improve it to make it more usable with user names=
-paces.<br>
-&gt; &gt; The problem is that mount(8) is not just about mount(2) call only=
-. If<br>
-&gt; &gt; we drop privileges then mount(8) will report problems with things=
- like<br>
-&gt; &gt; FS detection, loopdevs setups, etc. It&#39;s necessary to review =
-the code<br>
-&gt; &gt; and make errors/warnings somehow usable. ... added to my TODO for=
- the<br>
-&gt; &gt; next week ;-)<br>
-&gt;<br>
-&gt; Yeah, that&#39;s the only thing that will work well: =C2=A0Have mount(=
-8) and<br>
-&gt; the kernel both know what the rules are and enforce them<br>
-&gt; consistently. =C2=A0And ideally, mount(8) should tell the user exactly=
- what<br>
-&gt; the rule is that&#39;s being violated.<br>
-&gt;</p>
-<p dir=3D"ltr">A kind of hackish solution would be for mount --nopriv or wh=
-atever to drop privileges immediately and stop enforcing any policy at all.=
-</p>
-<p dir=3D"ltr">--Andy<br>
-</p>
-
---bcaec51b9a8d8ec12f04f8bd0898--
