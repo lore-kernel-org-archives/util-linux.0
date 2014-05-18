@@ -1,45 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38559 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751824AbaETH2g (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 May 2014 03:28:36 -0400
-Date: Tue, 20 May 2014 09:28:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: feature-freeze for v2.25
-Message-ID: <20140520072830.GN26357@x2.net.home>
-References: <20140519101605.GL26357@x2.net.home>
- <201405192151.40129.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201405192151.40129.sweet_f_a@gmx.de>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:61221 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751172AbaEROFv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:05:51 -0400
+Received: by mail-wi0-f178.google.com with SMTP id cc10so311019wib.5
+        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:05:50 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/17] pull: almost complete setterm refactoring
+Date: Sun, 18 May 2014 15:05:24 +0100
+Message-Id: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 19, 2014 at 09:51:39PM +0200, Ruediger Meier wrote:
-> On Monday 19 May 2014, Karel Zak wrote:
-> >  Hi,
-> >
-> >  note that I'd like to release v2.25 next month. I'm going to merge
-> >  new features to completely new things (like libsmartcols or
-> > lslogins) and to regression tests only. All another non-bugfix or
-> > invasive refactoring patches will be postponed. (well, in progress
-> > setterm stuff will be merged.)
-> 
-> I'd like to have two more minor features in v2.25:
-> 
-> 1. squashfs3 detection in superblocks.h
-> 2. improved hypervisor detection in lscpu
-> 
-> Would it have a chance if I commit soon? Both patches are used and 
-> tested already in SLE since v2.16 or v2.19 and in openSUSE devel since 
-> v2.24.
+Hello,
 
- OK, send it.
+Here is bunch of patches to setterm, with the intention to make the code
+to look a little bit more fresh.  I admit the second patch being
+practically impossible to review because there is so much going on in it. 
+Unfortunately I could not figure out how to change how options work, and
+keep the change small.
 
-    Karel
+Lets hope this does not break anything, while the change should make the
+command more robust in various ways.
+
+
+The following changes since commit 1efded63dfe85d62bcd8f0ff29ea6b62aa5cac74:
+
+  Merge branch 'tests-mount' of https://github.com/rudimeier/util-linux (2014-05-16 14:30:05 +0200)
+
+are available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk19
+
+for you to fetch changes up to 19d616172ad30e375056ab3ce86d0166a840773a:
+
+  setterm: add set_blanking() action (2014-05-18 14:55:23 +0100)
+
+Sami Kerola (17):
+  setterm: clean up includes
+  setterm: use getopt_long_only() for option parsing
+  setterm: use string utils to numeric parsing
+  setterm: move show_tabs() and screendump() functions
+  setterm: remove usage comment segment
+  setterm: add option control structure
+  setterm: add init_terminal() to make main() shorter
+  setterm: clean up screendump()
+  setterm: remove devfs and /dev/vcsa0 support
+  setterm: make -msglevel 0 to work as is did earlier
+  setterm: correct usage() bright color argument
+  setterm: improve perform_sequence() coding style
+  setterm: tell user when options does not effect
+  setterm: improve error messages
+  setterm: various visual terminal effects are not console specific
+  setterm: mark some options to be exclusive with each other
+  setterm: add set_blanking() action
+
+ bash-completion/setterm  |   19 +-
+ term-utils/Makemodule.am |    2 +-
+ term-utils/setterm.c     | 1621 +++++++++++++++++++++-------------------------
+ 3 files changed, 761 insertions(+), 881 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.2
+
