@@ -1,121 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:45418 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934102AbaEKT1H (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 15:27:07 -0400
-Received: by mail-wi0-f174.google.com with SMTP id r20so3491060wiv.7
-        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 12:27:06 -0700 (PDT)
+Received: from mail-we0-f175.google.com ([74.125.82.175]:34887 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751349AbaEROGQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:16 -0400
+Received: by mail-we0-f175.google.com with SMTP id t61so4349954wes.6
+        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:15 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 06/12] build-sys: remove unnecessary void casts
-Date: Sun, 11 May 2014 20:26:43 +0100
-Message-Id: <1399836409-7769-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
-References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 10/17] setterm: make -msglevel 0 to work as is did earlier
+Date: Sun, 18 May 2014 15:05:34 +0100
+Message-Id: <1400421941-14244-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Commit 3393c136 caused regression.  The klogctl() logging range is 1-8,
+but the value 0 is special according to setterm.1 manual page.  It turns
+on loging, same way as '-msg on' option.
+
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/logger.c |  2 +-
- term-utils/ttymsg.c | 26 +++++++++++++-------------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ bash-completion/setterm |  2 +-
+ term-utils/setterm.c    | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index b7f9064..a862e55 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -275,7 +275,7 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
- 		       if (!cp)
- 			       cp = "<someone>";
- 	       }
--               (void)time(&now);
-+	       time(&now);
- 	       tp = ctime(&now)+4;
+diff --git a/bash-completion/setterm b/bash-completion/setterm
+index f47debf..8e0f629 100644
+--- a/bash-completion/setterm
++++ b/bash-completion/setterm
+@@ -51,7 +51,7 @@ _setterm_module()
+ 			return 0
+ 			;;
+ 		'-msglevel')
+-			COMPREPLY=( $(compgen -W "{1..8}" -- $cur) )
++			COMPREPLY=( $(compgen -W "{0..8}" -- $cur) )
+ 			return 0
+ 			;;
+ 		'-powersave')
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 3a02347..2f9151c 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -134,7 +134,7 @@ enum {
  
-                snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
-diff --git a/term-utils/ttymsg.c b/term-utils/ttymsg.c
-index 8bf993c..fb2614f 100644
---- a/term-utils/ttymsg.c
-+++ b/term-utils/ttymsg.c
-@@ -85,10 +85,10 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
- 	   also wrong since people use /dev/pts/xxx. */
+ /* Console log levels */
+ enum {
+-	CONSOLE_LEVEL_MIN = 1,
++	CONSOLE_LEVEL_MIN = 0,
+ 	CONSOLE_LEVEL_MAX = 8
+ };
  
- 	if (strlen(line) + sizeof(_PATH_DEV) + 1 > sizeof(device)) {
--		(void) sprintf(errbuf, _("excessively long line arg"));
-+		sprintf(errbuf, _("excessively long line arg"));
- 		return (errbuf);
+@@ -446,16 +446,14 @@ usage(FILE *out) {
+ 	fputs(_(" -append <1-NR_CONSOLES>\n"), out);
+ 	fputs(_(" -file dumpfilename\n"), out);
+ 	fputs(_(" -msg <on|off>\n"), out);
+-	fputs(_(" -msglevel <0-8>\n"), out);	/* FIXME: klogctl console_log range is 1-8 */
++	fputs(_(" -msglevel <0-8>\n"), out);
+ 	fputs(_(" -powersave <on|vsync|hsync|powerdown|off>\n"), out);
+ 	fputs(_(" -powerdown <0-60>\n"), out);
+ 	fputs(_(" -blength <0-2000>\n"), out);
+ 	fputs(_(" -bfreq freqnumber\n"), out);
+ 	fputs(_(" -version\n"), out);
+ 	fputs(_(" -help\n"), out);
+-
+ 	fprintf(out, USAGE_MAN_TAIL("setterm(1)"));
+-
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+@@ -660,6 +658,10 @@ static void parse_option(struct setterm_control *ctl, int argc, char **argv)
+ 		case OPT_MSGLEVEL:
+ 			ctl->opt_msglevel = set_opt_flag(ctl->opt_msglevel);
+ 			ctl->opt_msglevel_num = parse_msglevel(optarg);
++			if (ctl->opt_msglevel_num == 0) {
++				ctl->opt_msg = set_opt_flag(ctl->opt_msg);
++				ctl->opt_msg_on |= 1;
++			}
+ 			break;
+ 		case OPT_POWERSAVE:
+ 			ctl->opt_powersave = set_opt_flag(ctl->opt_powersave);
+@@ -1031,7 +1033,7 @@ static void perform_sequence(struct setterm_control *ctl)
  	}
--	(void) sprintf(device, "%s%s", _PATH_DEV, line);
-+	sprintf(device, "%s%s", _PATH_DEV, line);
  
- 	/*
- 	 * open will fail on slip lines or exclusive-use lines
-@@ -99,7 +99,7 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
- 			return (NULL);
- 		if (strlen(strerror(errno)) > 1000)
- 			return (NULL);
--		(void) sprintf(errbuf, "%s: %m", device);
-+		sprintf(errbuf, "%s: %m", device);
- 		errbuf[1024] = 0;
- 		return (errbuf);
- 	}
-@@ -134,32 +134,32 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
- 			sigset_t sigmask;
- 
- 			if (forked) {
--				(void) close(fd);
-+				close(fd);
- 				_exit(EXIT_FAILURE);
- 			}
- 			cpid = fork();
- 			if (cpid < 0) {
- 				if (strlen(strerror(errno)) > 1000)
--					(void) sprintf(errbuf, _("cannot fork"));
-+					sprintf(errbuf, _("cannot fork"));
- 				else {
- 					errsv = errno;
--					(void) sprintf(errbuf,
-+					sprintf(errbuf,
- 						 _("fork: %s"), strerror(errsv));
- 				}
--				(void) close(fd);
-+				close(fd);
- 				return (errbuf);
- 			}
- 			if (cpid) {	/* parent */
--				(void) close(fd);
-+				close(fd);
- 				return (NULL);
- 			}
- 			forked++;
- 			/* wait at most tmout seconds */
--			(void) signal(SIGALRM, SIG_DFL);
--			(void) signal(SIGTERM, SIG_DFL); /* XXX */
-+			signal(SIGALRM, SIG_DFL);
-+			signal(SIGTERM, SIG_DFL); /* XXX */
- 			sigemptyset(&sigmask);
- 			sigprocmask (SIG_SETMASK, &sigmask, NULL);
--			(void) alarm((u_int)tmout);
-+			alarm((u_int)tmout);
- 			flags = fcntl(fd, F_GETFL);
- 			fcntl(flags, F_SETFL, (long) (flags & ~O_NONBLOCK));
- 			continue;
-@@ -175,11 +175,11 @@ ttymsg(struct iovec *iov, size_t iovcnt, char *line, int tmout) {
- 		if (forked)
- 			_exit(EXIT_FAILURE);
- 		if (strlen(strerror(errno)) > 1000)
--			(void) sprintf(errbuf, _("%s: BAD ERROR, message is "
-+			sprintf(errbuf, _("%s: BAD ERROR, message is "
- 						 "far too long"), device);
- 		else {
- 			errsv = errno;
--			(void) sprintf(errbuf, "%s: %s", device,
-+			sprintf(errbuf, "%s: %s", device,
- 				       strerror(errsv));
- 		}
- 		errbuf[1024] = 0;
+ 	/* -msglevel [0-8] */
+-	if (ctl->opt_msglevel && ctl->vcterm) {
++	if (ctl->opt_msglevel_num && ctl->vcterm) {
+ 		/* 8 -- Set level of messages printed to console */
+ 		result = klogctl(SYSLOG_ACTION_CONSOLE_LEVEL, NULL, ctl->opt_msglevel_num);
+ 		if (result != 0)
 -- 
 1.9.2
 
