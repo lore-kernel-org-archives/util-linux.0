@@ -1,57 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:48103 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751473AbaEEStu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 May 2014 14:49:50 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id D4422AAF1
-	for <util-linux@vger.kernel.org>; Mon,  5 May 2014 18:49:49 +0000 (UTC)
-Message-ID: <1399315789.11780.40.camel@oct.suse.cz>
-Subject: [PATCH 2/2] hwclock: Check drift value in /etc/adjtime
-From: Stanislav Brabec <sbrabec@suse.cz>
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:62673 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751433AbaEROG2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:28 -0400
+Received: by mail-wg0-f51.google.com with SMTP id x13so6869222wgg.22
+        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:27 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Date: Mon, 05 May 2014 20:49:49 +0200
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+Cc: kerolasa@iki.fi
+Subject: [PATCH 16/17] setterm: mark some options to be exclusive with each other
+Date: Sun, 18 May 2014 15:05:40 +0100
+Message-Id: <1400421941-14244-17-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Due to bug in older versions of hwclock, /etc/adjtime can contain
-excessive drift value (up to many years per day). Prevent it
-from applying.
-
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/hwclock.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ term-utils/setterm.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 5e786a8..fe97fcb 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1211,6 +1211,10 @@ do_adjustment(struct adjtime *adjtime_p,
- 			printf(_
- 			       ("Not setting clock because last adjustment time is zero, "
- 				"so history is bad."));
-+	} else if (abs(adjtime_p->drift_factor) > MAX_DRIFT) {
-+		if (debug)
-+		printf(_("Not setting clock because drift factor %f is far too high.\n"),
-+		       adjtime_p->drift_factor);
- 	} else {
- 		int adjustment;
- 		/* Number of seconds we must insert in the Hardware Clock */
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 10ca021..ba175f9 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -78,6 +78,7 @@
+ #include "c.h"
+ #include "closestream.h"
+ #include "nls.h"
++#include "optutils.h"
+ #include "strutils.h"
+ #include "xalloc.h"
+ 
+@@ -541,8 +542,16 @@ static void parse_option(struct setterm_control *ctl, int argc, char **argv)
+ 		{"help", no_argument, NULL, OPT_HELP},
+ 		{NULL, 0, NULL, 0}
+ 	};
++	static const ul_excl_t excl[] = {
++		{ OPT_DEFAULT, OPT_STORE },
++		{ OPT_TABS, OPT_CLRTABS, OPT_REGTABS },
++		{ OPT_MSG, OPT_MSGLEVEL },
++		{ 0 }
++	};
++	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+ 
+ 	while ((c = getopt_long_only(argc, argv, "", longopts, NULL)) != -1) {
++		err_exclusive_options(c, longopts, excl, excl_st);
+ 		switch (c) {
+ 		case OPT_TERM:
+ 			ctl->opt_term = set_opt_flag(ctl->opt_term);
 -- 
-1.8.4.5
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+1.9.2
 
