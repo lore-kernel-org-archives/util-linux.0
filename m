@@ -1,50 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from katla.rhi.hi.is ([130.208.165.1]:59368 "EHLO katla.rhi.hi.is"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751283AbaEBCiI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 1 May 2014 22:38:08 -0400
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:59975 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751349AbaEROGF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:05 -0400
+Received: by mail-wi0-f180.google.com with SMTP id hi2so2960613wib.7
+        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:04 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Subject: [PATCH 08/16] libuuid/man/uuid_clear.3: Improve the typesetting of the manual
-Date: Fri,  2 May 2014 02:37:33 +0000
-Message-Id: <1398998261-17569-1-git-send-email-bjarniig@rhi.hi.is>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 05/17] setterm: remove usage comment segment
+Date: Sun, 18 May 2014 15:05:29 +0100
+Message-Id: <1400421941-14244-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  Protect a full stop (.), that begins or ends a string, with \&
+It is enough trouble to keep usage output aligned with getopt() parsing,
+manual page, and bash-completion, so get rid of the unnecessary effort
+duplication.
 
-  Inhibit right adjusting for the section "SEE ALSO" with ".na/.ad", or
-use '.ad l' for the entire manual
-
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libuuid/man/uuid_clear.3 | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ term-utils/setterm.c | 46 ----------------------------------------------
+ 1 file changed, 46 deletions(-)
 
-diff --git a/libuuid/man/uuid_clear.3 b/libuuid/man/uuid_clear.3
-index edb80d6..70fca02 100644
---- a/libuuid/man/uuid_clear.3
-+++ b/libuuid/man/uuid_clear.3
-@@ -45,11 +45,12 @@ function sets the value of the supplied uuid variable
- .I uu
- to the NULL value.
- .SH AUTHOR
--Theodore Y. Ts'o
-+Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
- is part of the util-linux package since version 2.15.1 and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-+.na
- .SH "SEE ALSO"
- .BR uuid (3),
- .BR uuid_compare (3),
-@@ -58,3 +59,4 @@ ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
- .BR uuid_is_null (3),
- .BR uuid_parse (3),
- .BR uuid_unparse (3)
-+.ad
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 734d275..268ddec 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -19,52 +19,6 @@
+  * 1999-02-22 Arkadiusz Miśkiewicz <misiek@pld.ORG.PL>
+  * - added Native Language Support
+  *
+- *
+- * Syntax:
+- *
+- * setterm
+- *   [ -term terminal_name ]
+- *   [ -reset ]
+- *   [ -initialize ]
+- *   [ -cursor [on|off] ]
+- *   [ -repeat [on|off] ]
+- *   [ -appcursorkeys [on|off] ]
+- *   [ -linewrap [on|off] ]
+- *   [ -snow [on|off] ]
+- *   [ -softscroll [on|off] ]
+- *   [ -defaults ]
+- *   [ -foreground black|red|green|yellow|blue|magenta|cyan|white|default ]
+- *   [ -background black|red|green|yellow|blue|magenta|cyan|white|default ]
+- *   [ -ulcolor black|grey|red|green|yellow|blue|magenta|cyan|white ]
+- *   [ -ulcolor bright red|green|yellow|blue|magenta|cyan|white ]
+- *   [ -hbcolor black|grey|red|green|yellow|blue|magenta|cyan|white ]
+- *   [ -hbcolor bright red|green|yellow|blue|magenta|cyan|white ]
+- *   [ -inversescreen [on|off] ]
+- *   [ -bold [on|off] ]
+- *   [ -half-bright [on|off] ]
+- *   [ -blink [on|off] ]
+- *   [ -reverse [on|off] ]
+- *   [ -underline [on|off] ]
+- *   [ -store ]
+- *   [ -clear [ all|rest ] ]
+- *   [ -tabs [tab1 tab2 tab3 ... ] ]     (tabn = 1-160)
+- *   [ -clrtabs [ tab1 tab2 tab3 ... ]   (tabn = 1-160)
+- *   [ -regtabs [1-160] ]
+- *   [ -blank [0-60|force|poke|] ]
+- *   [ -dump   [1-NR_CONS ] ]
+- *   [ -append [1-NR_CONS ] ]
+- *   [ -file dumpfilename ]
+- *   [ -standout [attr] ]
+- *   [ -msg [on|off] ]
+- *   [ -msglevel [0-8] ]
+- *   [ -powersave [on|vsync|hsync|powerdown|off] ]
+- *   [ -powerdown [0-60] ]
+- *   [ -blength [0-2000] ]
+- *   [ -bfreq freq ]
+- *   [ -version ]
+- *   [ -help ]
+- *
+- *
+  * Semantics:
+  *
+  * Setterm writes to standard output a character string that will
 -- 
-1.9.0
+1.9.2
 
