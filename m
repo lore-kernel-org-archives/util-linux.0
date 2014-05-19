@@ -1,63 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:37062 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934100AbaEKT1D (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 15:27:03 -0400
-Received: by mail-wg0-f46.google.com with SMTP id n12so6052180wgh.5
-        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 12:27:01 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 04/12] logger: fail when io vector number exceeds maximum
-Date: Sun, 11 May 2014 20:26:41 +0100
-Message-Id: <1399836409-7769-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
-References: <1399836409-7769-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:11744 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750929AbaESKCe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 19 May 2014 06:02:34 -0400
+Date: Mon, 19 May 2014 12:02:24 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 13/17] setterm: tell user when options does not effect
+Message-ID: <20140519100224.GK26357@x2.net.home>
+References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+ <1400421941-14244-14-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1400421941-14244-14-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier version silently failed without logging anything.
+On Sun, May 18, 2014 at 03:05:37PM +0100, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  term-utils/setterm.c | 83 ++++++++++++++++++++++++++++------------------------
+>  1 file changed, 45 insertions(+), 38 deletions(-)
+> 
+> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+> index f1ed862..2a0162e 100644
+> --- a/term-utils/setterm.c
+> +++ b/term-utils/setterm.c
+> @@ -792,6 +792,17 @@ static void screendump(struct setterm_control *ctl)
+>  	return;
+>  }
+>  
+> +/* Some options are applicable when terminal is virtual console. */
+> +static int vc_only(struct setterm_control *ctl, const char *err)
+> +{
+> +	if (!ctl->vcterm) {
+> +		if (err)
+> +			warnx(_("terminal %s does not support %s"),
+> +			      ctl->opt_te_terminal_name, err);
+> +	}
+> +	return ctl->vcterm;
+> +}
+> +
+>  static void perform_sequence(struct setterm_control *ctl)
+>  {
+>  	int result;
+> @@ -812,49 +823,45 @@ static void perform_sequence(struct setterm_control *ctl)
+>  			putp(ti_entry("civis"));
+>  	}
+>  
+> -	/* -linewrap [on|off]. Vc only (vt102) */
+> -	if (ctl->opt_linewrap && ctl->vcterm)
+> +	/* -linewrap [on|off]. */
+> +	if (ctl->opt_linewrap && vc_only(ctl, "-linewrap"))
+>  		fputs(ctl->opt_li_on ? "\033[?7h" : "\033[?7l", stdout);
+>  
+> -	/* -repeat [on|off]. Vc only (vt102) */
+> -	if (ctl->opt_repeat && ctl->vcterm)
+> +	/* -repeat [on|off]. */
+> +	if (ctl->opt_repeat && vc_only(ctl, "-repeat"))
 
-$ logger --journald=/etc/services ; echo $?
-1
+ Please use complete long options in error messages ("--repeat" rather 
+ than "-repeat").
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+    Karel
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index f3bdc90..fccba38 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -37,6 +37,7 @@
-  */
- 
- #include <errno.h>
-+#include <limits.h>
- #include <unistd.h>
- #include <stdlib.h>
- #include <time.h>
-@@ -231,6 +232,8 @@ static int journald_entry(FILE *fp)
- 		}
- 		if (lines == vectors) {
- 			vectors *= 2;
-+			if (IOV_MAX < vectors)
-+				errx(EXIT_FAILURE, _("maximum input lines (%d) exceeded"), IOV_MAX);
- 			iovec = xrealloc(iovec, vectors * sizeof(struct iovec));
- 		}
- 		iovec[lines].iov_base = buf;
-@@ -415,7 +418,9 @@ int main(int argc, char **argv)
- 		int ret = journald_entry(jfd);
- 		if (stdin != jfd)
- 			fclose(jfd);
--		return ret ? EXIT_FAILURE : EXIT_SUCCESS;
-+		if (ret)
-+			errx(EXIT_FAILURE, "journald entry could not be wrote");
-+		return EXIT_SUCCESS;
- 	}
- #endif
- 	if (server)
+
 -- 
-1.9.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
