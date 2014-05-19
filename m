@@ -1,39 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f175.google.com ([209.85.220.175]:58784 "EHLO
-	mail-vc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756894AbaEEW7L (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 18:59:11 -0400
-Received: by mail-vc0-f175.google.com with SMTP id lh4so9103vcb.6
-        for <util-linux@vger.kernel.org>; Mon, 05 May 2014 15:59:10 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <201405052250.s45Monxm008110@hobgoblin.ariadne.com>
-References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
- <201405022221.s42MLpT4015462@hobgoblin.ariadne.com> <CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
- <201405052250.s45Monxm008110@hobgoblin.ariadne.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Mon, 5 May 2014 15:58:50 -0700
-Message-ID: <CALCETrXTJpkA-EqzS=kvSfS4QEO5Gc3TV42+FFrUbQN3ALfuCw@mail.gmail.com>
-Subject: Re: getting rid of "mount: only root can ..."
-To: "Dale R. Worley" <worley@alum.mit.edu>
+Received: from mx1.redhat.com ([209.132.183.28]:15102 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753561AbaESJ30 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 19 May 2014 05:29:26 -0400
+Date: Mon, 19 May 2014 11:29:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH 02/17] setterm: use getopt_long_only() for option parsing
+Message-ID: <20140519092915.GF26357@x2.net.home>
+References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+ <1400421941-14244-3-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1400421941-14244-3-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 5, 2014 at 3:50 PM, Dale R. Worley <worley@alum.mit.edu> wrote:
->> From: Andy Lutomirski <luto@amacapital.net>
->
->> What if mount determined that the requested option wasn't allowed by
->> fstab and instead fell back to dropping privileges and trying anyway?
->
-> I'm not envisioning the problem that you're addressing very well.
+On Sun, May 18, 2014 at 03:05:26PM +0100, Sami Kerola wrote:
+> +static void set_opt_flag(int *opt)
+> +{
+> +	if (*opt)
+> +		errx(EXIT_FAILURE, "duplicate use of an option");
 
-If I set up a user namespace in which non-root users can call mount
-(the system call), it's annoying to work with because mount (the
-util-linux program) just assumes that uid != 0 means that mount won't
-work.
+ NLS.. _("duplicate use of an option")
 
-The issue here is that there are two conflicting sets of policy: the
-in-kernel policy of who may mount/umount and the userspace policy of
-who may use the setuid mount tool to mount as euid == 0 despite their
-actual (kernel) privileges.
+> +	*opt = 1;
+> +}
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
