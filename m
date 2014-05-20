@@ -1,28 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36883 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:57190 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934558AbaEFKDQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 May 2014 06:03:16 -0400
-Date: Tue, 6 May 2014 12:03:11 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 17/21] login-utils/chfn.1: Improve the typesetting of the
- manual
-Message-ID: <20140506100311.GI5962@x2.net.home>
-References: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
+	id S1754094AbaETQeY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 20 May 2014 12:34:24 -0400
+Message-ID: <1400603662.5497.86.camel@oct.suse.cz>
+Subject: Re: [PATCH 0/5] lscpu: improve hypervisor detection
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org, Petr Uzel <petr.uzel@suse.cz>
+Date: Tue, 20 May 2014 18:34:22 +0200
+In-Reply-To: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
+References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, May 03, 2014 at 02:32:35AM +0000, Bjarni Ingi Gislason wrote:
->  login-utils/chfn.1 |   8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+Ruediger Meierwrote:
 
- Applied, thanks.
+> I've splitted the original patch into smaller pieces, removed some
+> incompatible output format changes and added some test data.
+
+There was a controversial part of this patch, that causes test failure.
+
+There should be a way how to output result of the virtual machine
+detection without breaking test cases (and possibly existing scripts).
+
+Index: util-linux-2.24.1/sys-utils/lscpu.c
+===================================================================
+--- util-linux-2.24.1.orig/sys-utils/lscpu.c
++++ util-linux-2.24.1/sys-utils/lscpu.c
+@@ -1181,6 +1322,7 @@ print_parsable(struct lscpu_desc *desc,
+ 		}
+ 		fputs(data && *data ? data : "", stdout);
+ 	}
++	printf(",HvVendor,VirtType");
+ 	putchar('\n');
+ 
+ 	/*
+@@ -1210,7 +1352,9 @@ print_parsable(struct lscpu_desc *desc,
+ 					     buf, sizeof(buf));
+ 			fputs(data && *data ? data : "", stdout);
+ 		}
+-		putchar('\n');
++		printf(",%s,%s\n",
++		       hv_vendors[desc->hyper] ? hv_vendors[desc->hyper] : "none",
++		       virt_types[desc->virtype]);
+ 	}
+ }
+ 
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
