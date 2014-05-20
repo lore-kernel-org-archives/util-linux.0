@@ -1,23 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ve0-f173.google.com ([209.85.128.173]:65098 "EHLO
-	mail-ve0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751760AbaEAXhp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 1 May 2014 19:37:45 -0400
-Received: by mail-ve0-f173.google.com with SMTP id pa12so3630852veb.18
-        for <util-linux@vger.kernel.org>; Thu, 01 May 2014 16:37:45 -0700 (PDT)
-MIME-Version: 1.0
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Thu, 1 May 2014 16:37:23 -0700
-Message-ID: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
-Subject: getting rid of "mount: only root can ..."
+Received: from mout.gmx.net ([212.227.17.21]:52569 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750745AbaETPmp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 20 May 2014 11:42:45 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Cc: Stanislav Brabec <sbrabec@suse.cz>, Petr Uzel <petr.uzel@suse.cz>
+Subject: [PATCH 0/5] lscpu: improve hypervisor detection
+Date: Tue, 20 May 2014 15:42:26 +0000
+Message-Id: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This isn't really true any more.  Can we get rid of those checks or at
-least have an option to turn them off?
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
+
+This patch set is based on an openSUSE / SLE patch. Original author was
+probably Petr Uzel.
+
+I've splitted the original patch into smaller pieces, removed some
+incompatible output format changes and added some test data.
+
+You can also review and pull from my github repo
+https://github.com/rudimeier/util-linux/compare/lscpu-detect?expand=1
+
+CC: Stanislav Brabec <sbrabec@suse.cz>
+CC: Petr Uzel <petr.uzel@suse.cz>
+
+Ruediger Meier (5):
+  lscpu: minor cleanup and improve hypervisor detection
+  tests: add vbox lscpu dump
+  lscpu: detect OS/400 and pHyp hypervisors
+  lscpu: improve vmware detection
+  lscpu: avoid compiler warnings
+
+ sys-utils/lscpu.c                    | 148 ++++++++++++++++++++++++++++++++++-
+ sys-utils/lscpu.h                    |   5 +-
+ tests/expected/lscpu/lscpu-vbox-win  |  29 +++++++
+ tests/ts/lscpu/dumps/vbox-win.tar.gz | Bin 0 -> 15769 bytes
+ 4 files changed, 179 insertions(+), 3 deletions(-)
+ create mode 100644 tests/expected/lscpu/lscpu-vbox-win
+ create mode 100644 tests/ts/lscpu/dumps/vbox-win.tar.gz
 
 -- 
-Andy Lutomirski
-AMA Capital Management, LLC
+1.8.4.5
+
