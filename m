@@ -1,38 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:59392 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751827AbaEZPtp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 26 May 2014 11:49:45 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rq2so7802758pbb.5
-        for <util-linux@vger.kernel.org>; Mon, 26 May 2014 08:49:45 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140526095028.GB2968@x2.net.home>
-References: <1401015580-27951-1-git-send-email-kerolasa@iki.fi>
-	<1401015580-27951-2-git-send-email-kerolasa@iki.fi>
-	<20140526095028.GB2968@x2.net.home>
-Date: Mon, 26 May 2014 16:49:45 +0100
-Message-ID: <CAG27Bk1Mmh0gkLoyZ6D215TYDe3r4UWbGahPM=SALFr4gmat6Q@mail.gmail.com>
-Subject: Re: [PATCH 2/4] uuidd: set options to be mutually exclusive
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:64062 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751231AbaEXLI2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 24 May 2014 07:08:28 -0400
+Received: by mail-wi0-f171.google.com with SMTP id cc10so1994145wib.10
+        for <util-linux@vger.kernel.org>; Sat, 24 May 2014 04:08:27 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/4] docs: setterm.1 add missing options to manual page and remove duplicate
+Date: Sat, 24 May 2014 12:08:14 +0100
+Message-Id: <1400929696-12548-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
+References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 26 May 2014 10:50, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, May 25, 2014 at 11:59:38AM +0100, Sami Kerola wrote:
->> --pid     || --no-pid
->> --debug   || --quiet
->> --timeout || --socket-activation
->
->  timeout and socket-activation are not mutually exclusive
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/setterm.1 | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-That exclusion is removed, and should be merged from my branch 'uuid'.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/e4faf6484719061f41624d135beb93ca821045c6
-
+diff --git a/term-utils/setterm.1 b/term-utils/setterm.1
+index d15fd40..5b843dc 100644
+--- a/term-utils/setterm.1
++++ b/term-utils/setterm.1
+@@ -52,6 +52,9 @@ cause problems for vi users.
+ Like \fB\-\-dump\fP, but appends to the snapshot file instead of overwriting
+ it.  Only works if no \fB\-\-dump\fP options are given.
+ .TP
++\fB\-\-foreground\fP \fI8-color\fP|\fBdefault\fP (virtual consoles only)
++Sets the foreground text color.
++.TP
+ \fB\-\-background\fP \fI8-color\fP|\fBdefault\fP (virtual consoles only)
+ Sets the background text color.
+ .TP
+@@ -106,16 +109,25 @@ specified in the \fB\-\-file\fP option, overwriting its contents; the default
+ is screen.dump.  Without an argument, dumps the current virtual console.
+ Overrides \fB\-\-append\fP.
+ .TP
+-.BR \-\-append " [\fI1-NR_CONS\fP]"
+-Like \fB\-\-dump\fP, but appends to the snapshot file instead of overwriting
+-it.  Only works if no \fB\-\-dump\fP options are given.
+-.TP
+ .BI \-\-file " dumpfilename"
+ Sets the snapshot file name for any \fB\-\-dump\fP or \fB\-\-append\fP options
+ on the same command line.  If this option is not present, the default is
+ screen.dump in the current directory.  A path name that exceeds system
+ maximum will be truncated, see PATH_MAX from linux/limits.h for the value.
+ .TP
++\fB\-\-hbcolor\fP \fI16-color\fP (virtual consoles only)
++Sets the color for bold characters.
++.TP
++.B \-\-initialize
++Displays the terminal initialization string, which typically sets the
++terminal's rendering options, and other attributes to the default values.
++.TP
++.BR \-\-inversescreen " [" on | off "]"
++Invert foreground and background color.
++.TP
++.BR \-\-linewrap " [" on | off "]"
++Continue on a new line when a line is full.
++.TP
+ .BR \-\-msg " [" on | off "] (virtual consoles only)"
+ Enables or disables the sending of kernel \fBprintk()\fP messages to the
+ console.
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+1.9.3
+
