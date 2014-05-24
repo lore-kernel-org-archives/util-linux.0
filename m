@@ -1,47 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:52433 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751543AbaE3DbE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 29 May 2014 23:31:04 -0400
-Received: from brln-4db8647f.pool.mediaways.net ([77.184.100.127]) by
- mail.gmx.com (mrgmx001) with ESMTPSA (Nemesis) id 0MK0Np-1WoqUC0x8f-001OSe
- for <util-linux@vger.kernel.org>; Fri, 30 May 2014 05:31:01 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:34120 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751231AbaEXLIV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 24 May 2014 07:08:21 -0400
+Received: by mail-wg0-f48.google.com with SMTP id k14so1651435wgh.19
+        for <util-linux@vger.kernel.org>; Sat, 24 May 2014 04:08:20 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: BUG: fdisk, gpt broken on 32bit big endian systems
-Date: Fri, 30 May 2014 05:31:00 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201405300531.00403.sweet_f_a@gmx.de>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 0/4] setterm: documentation updates
+Date: Sat, 24 May 2014 12:08:12 +0100
+Message-Id: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On 20 May 2014 11:02, Karel Zak <kzak@redhat.com> wrote:
+>  BTW, setterm still need our love:
 
-This ...
+Hi Karel and others,
 
-$ rm -f xxx; truncate -s 10M xxx
-$ echo -ne "g\nx\ni\n26841E90-46E0-4205-B012-4B8AEC35C088\nr\nw\nq\n" | fdisk xxx
+Here is the remaining setterm(1) love before release 2.25. 
 
-... creates a broken gpt image on 32bit big endian systems.
+>   * usage() contains only options, but no any description
 
-"hexdiff" xxx-broken xxx-good:
- 00000260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
- *
- 009ffe00  45 46 49 20 50 41 52 54  00 00 01 00 00 02 00 00  |EFI PART........|
--009ffe10  68 a5 49 d1 00 00 00 00  ff ff ff ff ff ff ff ff  |h.I.............|
-+009ffe10  15 b9 f3 7e 00 00 00 00  ff 4f 00 00 00 00 00 00  |...~.....O......|
- 009ffe20  01 00 00 00 00 00 00 00  00 08 00 00 00 00 00 00  |................|
- 009ffe30  de 4f 00 00 00 00 00 00  90 1e 84 26 e0 46 05 42  |.O.........&.F.B|
- 009ffe40  b0 12 4b 8a ec 35 c0 88  df 4f 00 00 00 00 00 00  |..K..5...O......|
+In this patch set, see 0001.
+
+>   * it would be nice to have long options (--term rather than -term)
+>     in the man page
+
+Hold on, do you mean what I did in commit
+fb27f91cac9702ad1858d782dd840d5868547423
+
+>   * nowhere (in man page) is info that --long options are supported
+>     since v2.25 (and for backward compatibility is better to use
+>     "-foo" rather than "--foo")
+
+In this patch set, see 0003.
 
 
-Looks like the backup header is broken.
+Sami Kerola (4):
+  setterm: add usage() descriptions
+  docs: setterm.1 add missing options to manual page and remove
+    duplicate
+  docs: setterm.1 add options compatibility note
+  docs: setterm.1 clean up manual page groff style
 
-Notes:
-  - I only used fixed uuid to have better diff.
-  - 64bit big endian systems are not broken
+ term-utils/setterm.1 | 291 +++++++++++++++++++++++++++++++++------------------
+ term-utils/setterm.c |  69 ++++++------
+ 2 files changed, 222 insertions(+), 138 deletions(-)
 
-cu,
-Rudi
+-- 
+1.9.3
+
