@@ -1,53 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:36714 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754459AbaEFMMD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 6 May 2014 08:12:03 -0400
-Message-Id: <1399378322.18824.114190781.0FF4ADDF@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>,
-        "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:64926 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751342AbaEYK6y (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 25 May 2014 06:58:54 -0400
+Received: by mail-pa0-f47.google.com with SMTP id lf10so6221736pab.20
+        for <util-linux@vger.kernel.org>; Sun, 25 May 2014 03:58:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140506101829.GK5962@x2.net.home>
-References: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
- <1399084359-28425-4-git-send-email-bjarniig@rhi.hi.is>
- <1399121099.30443.113236621.44458DE1@webmail.messagingengine.com>
- <20140506101829.GK5962@x2.net.home>
-Subject: Re: [PATCH 20/21] login-utils/last.1: Improve the typesetting of the
- manual
-Date: Tue, 06 May 2014 14:12:02 +0200
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1400935458.18113.121085821.31470970@webmail.messagingengine.com>
+References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
+	<1400929696-12548-5-git-send-email-kerolasa@iki.fi>
+	<1400935458.18113.121085821.31470970@webmail.messagingengine.com>
+Date: Sun, 25 May 2014 11:58:53 +0100
+Message-ID: <CAG27Bk2CBYDtF36R-41ZAqQrpzbdqP4=TDQx3m32=hs25GyFZg@mail.gmail.com>
+Subject: Re: [PATCH 4/4] docs: setterm.1 clean up manual page groff style
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 24 May 2014 13:44, Benno Schulenberg <bensberg@justemail.net> wrote:
+> On Sat, May 24, 2014, at 13:08, Sami Kerola wrote:
+>> Underline option arguments, and use bold for options.
+>
+> Ehm, no, that is not the style.  Italics (underline on a terminal) is
+> for things that need to be replaced, need to be filled in; bold is for
+> literal arguments, things that have to be typed as is.
 
-On Tue, May 6, 2014, at 12:18, Karel Zak wrote:
-> On Sat, May 03, 2014 at 02:44:59PM +0200, Benno Schulenberg wrote:
-> > On Sat, May 3, 2014, at 4:32, Bjarni Ingi Gislason wrote:
-> > >   Add a space character in front of an ellipsis
-> > 
-> > Hmm.  I find it clearer when the ellipsis is glued to the thing
-> > that it applies to.  But, as a space before it seems to be the
-> > accepted convention, okay.
-> 
->  But it would be nice to be consistent. Few minutes ago I merged your
->  patch with
-> 
->      - <device> [...]
->      + <device>...\
-> 
->  I don't have any strong opinion about it, but I'd like to avoid 
->  situation when we every week change it.
+That convention should be documented. Meanwhile I hope the following
+is a bit closer how the manual should be.
 
-:)
-
-Of course.  We'll wait and see what Bjarni has to say.  If he has a
-strong opinion about this, we'll go with his.  If not, we'll negotiate
-and agree on something.
-
-Benno
+New version:
+https://github.com/kerolasa/lelux-utiliteetit/commit/bbc05cc2e30a6d6a3adcc7207d5549b782f03574
 
 -- 
-http://www.fastmail.fm - The way an email service should be
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
