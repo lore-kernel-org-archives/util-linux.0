@@ -1,64 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:57190 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754094AbaETQeY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 May 2014 12:34:24 -0400
-Message-ID: <1400603662.5497.86.camel@oct.suse.cz>
-Subject: Re: [PATCH 0/5] lscpu: improve hypervisor detection
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Petr Uzel <petr.uzel@suse.cz>
-Date: Tue, 20 May 2014 18:34:22 +0200
-In-Reply-To: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
-References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:59936 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752439AbaEZPqM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 26 May 2014 11:46:12 -0400
+Received: by mail-pa0-f44.google.com with SMTP id ld10so7748486pab.17
+        for <util-linux@vger.kernel.org>; Mon, 26 May 2014 08:46:12 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140526101102.GE2968@x2.net.home>
+References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
+	<1400929696-12548-5-git-send-email-kerolasa@iki.fi>
+	<1400935458.18113.121085821.31470970@webmail.messagingengine.com>
+	<CAG27Bk2CBYDtF36R-41ZAqQrpzbdqP4=TDQx3m32=hs25GyFZg@mail.gmail.com>
+	<1401052223.27518.121405397.106D8440@webmail.messagingengine.com>
+	<CAG27Bk2sEtwwNZPb8=ExxwhRVG0WQrd60W=MJuHaJBNXOpptoQ@mail.gmail.com>
+	<20140526101102.GE2968@x2.net.home>
+Date: Mon, 26 May 2014 16:46:12 +0100
+Message-ID: <CAG27Bk1cbXACiCaoRVQALB874_84tgxac78WcH6iwK0XAw=A+g@mail.gmail.com>
+Subject: Re: [PATCH 4/4] docs: setterm.1 clean up manual page groff style
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ruediger Meierwrote:
+On 26 May 2014 11:11, Karel Zak <kzak@redhat.com> wrote:
+>  BTW, it would be really nice to have per feature/issue branches
+>  rather than only branch 2014wk20 with setterm, uuidd and rename
+>  changes :-)
 
-> I've splitted the original patch into smaller pieces, removed some
-> incompatible output format changes and added some test data.
+Hi Karel,
 
-There was a controversial part of this patch, that causes test failure.
+Here you are. The changes are the same, with one exception; uuidd
+--timeout vs --socket-activation exclusion is gone.
 
-There should be a way how to output result of the virtual machine
-detection without breaking test cases (and possibly existing scripts).
-
-Index: util-linux-2.24.1/sys-utils/lscpu.c
-===================================================================
---- util-linux-2.24.1.orig/sys-utils/lscpu.c
-+++ util-linux-2.24.1/sys-utils/lscpu.c
-@@ -1181,6 +1322,7 @@ print_parsable(struct lscpu_desc *desc,
- 		}
- 		fputs(data && *data ? data : "", stdout);
- 	}
-+	printf(",HvVendor,VirtType");
- 	putchar('\n');
- 
- 	/*
-@@ -1210,7 +1352,9 @@ print_parsable(struct lscpu_desc *desc,
- 					     buf, sizeof(buf));
- 			fputs(data && *data ? data : "", stdout);
- 		}
--		putchar('\n');
-+		printf(",%s,%s\n",
-+		       hv_vendors[desc->hyper] ? hv_vendors[desc->hyper] : "none",
-+		       virt_types[desc->virtype]);
- 	}
- }
- 
+git://github.com/kerolasa/lelux-utiliteetit.git uuid
+git://github.com/kerolasa/lelux-utiliteetit.git rename
+git://github.com/kerolasa/lelux-utiliteetit.git setterm
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
