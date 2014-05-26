@@ -1,44 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47050 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39325 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751262AbaESJjG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 May 2014 05:39:06 -0400
-Date: Mon, 19 May 2014 11:38:55 +0200
+	id S1751515AbaEZKGW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 26 May 2014 06:06:22 -0400
+Date: Mon, 26 May 2014 12:06:12 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 06/17] setterm: add option control structure
-Message-ID: <20140519093855.GG26357@x2.net.home>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
- <1400421941-14244-7-git-send-email-kerolasa@iki.fi>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org, Stanislav Brabec <sbrabec@suse.cz>,
+        Miklos Szeredi <mszeredi@suse.cz>
+Subject: Re: [PATCH] libblkid: detect squashfs 3 vs 4
+Message-ID: <20140526100612.GD2968@x2.net.home>
+References: <1400581413-17456-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1400421941-14244-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1400581413-17456-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 18, 2014 at 03:05:30PM +0100, Sami Kerola wrote:
-> +			ctl->opt_repeat = set_opt_flag(ctl->opt_repeat);
-> +			ctl->opt_rep_on = parse_switch(optarg, "on", "off");
-...
-> +			ctl->opt_foreground = set_opt_flag(ctl->opt_foreground);
-> +			ctl->opt_fo_color = parse_febg_color(optarg);
+On Tue, May 20, 2014 at 10:23:33AM +0000, Ruediger Meier wrote:
+>  libblkid/src/superblocks/squashfs.c    | 63 ++++++++++++++++++++++++++--------
+>  libblkid/src/superblocks/superblocks.c |  1 +
+>  libblkid/src/superblocks/superblocks.h |  1 +
+>  3 files changed, 50 insertions(+), 15 deletions(-)
 
-It would be nice (by another patch!) consolidate the names of the
-options. For example opt_foreground and opt_fo_color is brain dead.
-What about:
-
-     ctl->opt_repeat
-     ctl->opt_repeat_on
-
-and
-
-     ctl->opt_foreground
-     ctl->opt_foreground_color
-
-etc. Maybe the whole "opt_" prefix is unnecessary.
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
