@@ -1,59 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53578 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754953AbaEEIYm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 5 May 2014 04:24:42 -0400
-Message-Id: <1399278280.10915.113698213.4CBE794E@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail4.vodafone.ie ([213.233.128.170]:34557 "EHLO
+	mail4.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751031AbaE1L33 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 28 May 2014 07:29:29 -0400
+Message-ID: <5384770F.7040402@draigBrady.com>
+Date: Tue, 27 May 2014 12:29:19 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 04/15] cytune: use single loop for setting and getting
- ioctl() calls
-Date: Mon, 05 May 2014 10:24:40 +0200
-In-Reply-To: <1399218596-21321-5-git-send-email-kerolasa@iki.fi>
-References: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
- <1399218596-21321-5-git-send-email-kerolasa@iki.fi>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+CC: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: BUG: cal prints bad month headers
+References: <201405271145.56596.sweet_f_a@gmx.de> <201405271250.41256.sweet_f_a@gmx.de>
+In-Reply-To: <201405271250.41256.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 05/27/2014 11:50 AM, Ruediger Meier wrote:
+> On Tuesday 27 May 2014, Ruediger Meier wrote:
+>> This happens only if output is redirected into a file
+>> $ ./cal -ym > bla ;cat bla
+>> It looks good in terminal.
+>>
+>> Reverting 95f4adde (plus 0c6dc4b9 and 4a7424a5) fixes the problem.
+> 
+> Just another hint. Adding a fflush() like you see below also "fixes" the 
+> problem. Maybe we are mixing several output methods (printf, puts, 
+> my_putstring, etc.) like we shouldn't.
+> 
+> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+> index 81375fe..2b61a30 100644
+> --- a/misc-utils/cal.c
+> +++ b/misc-utils/cal.c
+> @@ -760,6 +760,7 @@ static void yearly(const struct cal_control *ctl)
+>                 set_consecutive_months(&m1, month, ctl->req.year);
+>                 for (i = &m1; i; i = i->next)
+>                         cal_fill_month(i, ctl);
+> +               fflush(NULL);
+>                 cal_output_header(&m1, ctl);
+>                 cal_output_months(&m1, ctl);
+>         }
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Hi Sami,
+This would avoid the problem.
+The correct fix would to have all output go through
+the same channel (buffer), i.e. all output should use
+my_putstring()
 
-On Sun, May 4, 2014, at 17:49, Sami Kerola wrote:
-> +		if (set_threshold)
-> +			if (ioctl(file, CYSETTHRESH, threshold_val))
-> +				err(EXIT_FAILURE, _("cannot set %s to threshold %d"), argv[i], threshold_val);
-> +
-> +		if (set_threshold_def)
-> +			if (ioctl(file, CYSETDEFTHRESH, threshold_def_val))
-> +				err(EXIT_FAILURE, _("cannot set %s to threshold %d"), argv[i], threshold_def_val);
-
-Shouldn't the latter message contain the word "default"?
-
-> +		if (set_timeout)
-> +			if (ioctl(file, CYSETTIMEOUT, timeout_val))
-> +				err(EXIT_FAILURE, _("cannot set %s to time threshold %d"), argv[i], timeout_val);
-
-s/time threshold/timeout/ ?
-
-> +		if (set_timeout_def)
-> +			if (ioctl(file, CYSETDEFTIMEOUT, timeout_def_val))
-> +				err(EXIT_FAILURE, _("cannot set %s to time threshold %d"), argv[i], timeout_def_val);
-
-s/time threshold/default timeout/ ?
-
-> +		if (get_defaults) {
-> +			if (ioctl(file, CYGETDEFTHRESH, &threshold_value))
-> +				err(EXIT_FAILURE, _("cannot get threshold for %s"), argv[i]);
-> +			if (ioctl(file, CYGETDEFTIMEOUT, &timeout_value))
-> +				err(EXIT_FAILURE, _("cannot get timeout for %s"), argv[i]);
-
-Again the words "default"?
-
-Benno
-
--- 
-http://www.fastmail.fm - mmm... Fastmail...
-
+cheers,
+Pádraig.
