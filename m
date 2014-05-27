@@ -1,59 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:63468 "EHLO mout.gmx.net"
+Received: from cantor2.suse.de ([195.135.220.15]:41423 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754167AbaE2AxV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 28 May 2014 20:53:21 -0400
-Received: from tenfore.ga-group.nl ([77.12.144.175]) by mail.gmx.com
- (mrgmx001) with ESMTPSA (Nemesis) id 0LjaEi-1WIghL31ZY-00bZAh for
- <util-linux@vger.kernel.org>; Thu, 29 May 2014 02:53:19 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+	id S1753289AbaE0SiT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 27 May 2014 14:38:19 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 12B4AAC4C
+	for <util-linux@vger.kernel.org>; Tue, 27 May 2014 18:38:18 +0000 (UTC)
+Message-ID: <1401215897.15260.28.camel@oct.suse.cz>
+Subject: [PATCH 2/2] Don't ignore EBUSY in losetup when the loop device is
+ given
+From: Stanislav Brabec <sbrabec@suse.cz>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] setarch, add generic support for setarch $(uname -m) ...
-Date: Thu, 29 May 2014 02:53:18 +0200
-Message-Id: <1401324798-15059-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1401324798-15059-1-git-send-email-sweet_f_a@gmx.de>
-References: <201405270134.29753.sweet_f_a@gmx.de>
- <1401324798-15059-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Takashi Iwai <tiwai@suse.de>
+Date: Tue, 27 May 2014 20:38:17 +0200
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+losetup ignores the EBUSY error.  In the loop fo A_CREATE action, it skips
+the error handling when errno = EBUSY.  It's OK for the case where no loop
+device is specified, but the error has to be handled when the device is given
+explicitly.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Author:  Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- sys-utils/setarch.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sys-utils/losetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index 8e2b6e5..f335f83 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -202,9 +202,25 @@ set_arch(const char *pers, unsigned long options, int list)
-     {PER_LINUX, "alphaev6", "alpha"},
-     {PER_LINUX, "alphaev67", "alpha"},
- #endif
-+    {-1, NULL, NULL}, /* place holder, eventually filled up at runtime */
-     {-1, NULL, NULL}
-   };
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index f6b8685..ecba8a5 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -662,7 +662,7 @@ int main(int argc, char **argv)
+ 			res = loopcxt_setup_device(&lc);
+ 			if (res == 0)
+ 				break;			/* success */
+-			if (errno == EBUSY)
++			if (errno == EBUSY && !hasdev)
+ 				continue;
  
-+  /* Add the trivial transition {PER_LINUX, machine, machine} if no such
-+     target_arch is hardcoded yet. */
-+  uname(&un);
-+  for (i = 0; transitions[i].perval >= 0; i++)
-+  	if(!strcmp(un.machine, transitions[i].target_arch))
-+  		break;
-+  if (transitions[i].perval < 0) {
-+  	unsigned long wrdsz = CHAR_BIT * sizeof(void*);
-+  	if (wrdsz == 32 || wrdsz == 64) {
-+  		transitions[i].perval = wrdsz == 32 ? PER_LINUX32 : PER_LINUX;
-+  		transitions[i].target_arch = un.machine;
-+  		transitions[i].result_arch = un.machine;
-+  	}
-+  }
-+
-   if (list) {
-     for(i = 0; transitions[i].target_arch != NULL; i++)
-       printf("%s\n", transitions[i].target_arch);
+ 			/* errors */
 -- 
 1.8.4.5
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
