@@ -1,77 +1,146 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:51255 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.15.19]:55870 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751981AbaEETpW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 5 May 2014 15:45:22 -0400
-Message-ID: <1399319120.11780.46.camel@oct.suse.cz>
-Subject: Re: [PATCH] hwclock: Warning typo fix
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Mon, 05 May 2014 21:45:20 +0200
-In-Reply-To: <CAG27Bk3HocOszOVAXfzTeLUgr_6fhgpRt61_KuwVxCV4tKADYQ@mail.gmail.com>
-References: <1399317654.11780.43.camel@oct.suse.cz>
-	 <CAG27Bk3HocOszOVAXfzTeLUgr_6fhgpRt61_KuwVxCV4tKADYQ@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+	id S1752289AbaE0NHI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 27 May 2014 09:07:08 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?P=C3=A1draig=20Brady?= <P@draigbrady.com>
+Subject: [PATCH] cal: all output must use my_putstring
+Date: Tue, 27 May 2014 15:07:05 +0200
+Message-Id: <1401196025-7090-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <201405271250.41256.sweet_f_a@gmx.de>
+References: <201405271250.41256.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sami Kerola wrote:
-> On 5 May 2014 20:20, Stanislav Brabec <sbrabec@suse.cz> wrote:
-> > Trailing '\n' is missing in:
-> > "Not setting clock because last adjustment time is zero, so history is bad."
-> >
-> > Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
-> > ---
-> >  sys-utils/hwclock.c | 2 +-
-> 
-> Hi Stanislav,
-> 
-> The hwclock.c change is OK. The po files are not updated this way.
-> 
-> See also http://www.spinics.net/lists/util-linux-ng/msg09087.html
-> 
-OK. I just wanted to save translators' time and fixed all po files,
-including existing translations.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
->From baf61d938ec3c72be9cffb65b15a44ecca681e22 Mon Sep 17 00:00:00 2001
-From: Stanislav Brabec <sbrabec@suse.cz>
-Date: Mon, 5 May 2014 21:16:31 +0200
-Subject: [PATCH] hwclock: Warning typo fix
+Replace all puts, fputs and printf calls by my_putstring() because
+we don't want to mix different output channels (buffers).
 
-The hwclock.c change is OK. The po files are not updated this way.
-
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- sys-utils/hwclock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ misc-utils/cal.c | 50 ++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 20 deletions(-)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index fe97fcb..beb2845 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1210,7 +1210,7 @@ do_adjustment(struct adjtime *adjtime_p,
- 		if (debug)
- 			printf(_
- 			       ("Not setting clock because last adjustment time is zero, "
--				"so history is bad."));
-+				"so history is bad.\n"));
- 	} else if (abs(adjtime_p->drift_factor) > MAX_DRIFT) {
- 		if (debug)
- 		printf(_("Not setting clock because drift factor %f is far too high.\n"),
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 81375fe..e763fe1 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -609,7 +609,7 @@ static void cal_output_header(struct cal_month *month, const struct cal_control
+ 			center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
+ 		}
+ 		if (!ctl->yflag) {
+-			fputs("\n", stdout);
++			my_putstring("\n");
+ 			for (i = month; i; i = i->next) {
+ 				sprintf(out, _("%d"), i->year);
+ 				center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
+@@ -621,23 +621,27 @@ static void cal_output_header(struct cal_month *month, const struct cal_control
+ 			center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
+ 		}
+ 	}
+-	puts("");
++	my_putstring("\n");
+ 	for (i = month; i; i = i->next) {
+ 		if (ctl->weektype) {
+ 			if (ctl->julian)
+-				printf("%*s%s", (int)ctl->day_width - 1, "", day_headings);
++				sprintf(out, "%*s%s", (int)ctl->day_width - 1, "", day_headings);
+ 			else
+-				printf("%*s%s", (int)ctl->day_width, "", day_headings);
++				sprintf(out, "%*s%s", (int)ctl->day_width, "", day_headings);
++			my_putstring(out);
+ 		} else
+-			fputs(day_headings, stdout);
+-		if (i->next != NULL)
+-			printf("%*s", ctl->gutter_width, "");
++			my_putstring(day_headings);
++		if (i->next != NULL) {
++			sprintf(out, "%*s", ctl->gutter_width, "");
++			my_putstring(out);
++		}
+ 	}
+-	puts("");
++	my_putstring("\n");
+ }
+ 
+ static void cal_output_months(struct cal_month *month, const struct cal_control *ctl)
+ {
++	char out[FMT_ST_CHARS];
+ 	int reqday, week_line, d;
+ 	int skip;
+ 	struct cal_month *i;
+@@ -659,12 +663,13 @@ static void cal_output_months(struct cal_month *month, const struct cal_control
+ 				if (0 < i->weeks[week_line]) {
+ 					if ((ctl->weektype & WEEK_NUM_MASK) ==
+ 					    i->weeks[week_line])
+-						printf("%s%2d%s", Senter, i->weeks[week_line],
++						sprintf(out, "%s%2d%s", Senter, i->weeks[week_line],
+ 						       Sexit);
+ 					else
+-						printf("%2d", i->weeks[week_line]);
++						sprintf(out, "%2d", i->weeks[week_line]);
+ 				} else
+-					printf("%2s", "");
++					sprintf(out, "%2s", "");
++				my_putstring(out);
+ 				skip = ctl->day_width;
+ 			} else
+ 				/* First day of the week is one char narrower than the other days,
+@@ -675,21 +680,26 @@ static void cal_output_months(struct cal_month *month, const struct cal_control
+ 			     d < DAYS_IN_WEEK * week_line + DAYS_IN_WEEK; d++) {
+ 				if (0 < i->days[d]) {
+ 					if (reqday == i->days[d])
+-						printf("%*s%s%*d%s", skip - (ctl->julian ? 3 : 2),
++						sprintf(out, "%*s%s%*d%s", skip - (ctl->julian ? 3 : 2),
+ 						       "", Senter, (ctl->julian ? 3 : 2),
+ 						       i->days[d], Sexit);
+ 					else
+-						printf("%*d", skip, i->days[d]);
++						sprintf(out, "%*d", skip, i->days[d]);
+ 				} else
+-					printf("%*s", skip, "");
++					sprintf(out, "%*s", skip, "");
++				my_putstring(out);
+ 				if (skip < (int)ctl->day_width)
+ 					skip++;
+ 			}
+-			if (i->next != NULL)
+-				printf("%*s", ctl->gutter_width, "");
++			if (i->next != NULL) {
++				sprintf(out, "%*s", ctl->gutter_width, "");
++				my_putstring(out);
++			}
++		}
++		if (i == NULL) {
++			sprintf(out, "%*s\n", ctl->gutter_width - (ctl->yflag ? 0 : 1), "");
++			my_putstring(out);
+ 		}
+-		if (i == NULL)
+-			printf("%*s\n", ctl->gutter_width - (ctl->yflag ? 0 : 1), "");
+ 	}
+ }
+ 
+@@ -754,7 +764,7 @@ static void yearly(const struct cal_control *ctl)
+ 		year_width--;
+ 	sprintf(out, "%d", ctl->req.year);
+ 	center(out, year_width, 0);
+-	fputs("\n\n", stdout);
++	my_putstring("\n\n");
+ 
+ 	for (month = 1; month < MONTHS_IN_YEAR; month += ctl->julian ? 2 : 3) {
+ 		set_consecutive_months(&m1, month, ctl->req.year);
+@@ -764,7 +774,7 @@ static void yearly(const struct cal_control *ctl)
+ 		cal_output_months(&m1, ctl);
+ 	}
+ 	/* Is empty line at the end year output really needed? */
+-	puts("");
++	my_putstring("\n");
+ }
+ 
+ /*
 -- 
 1.8.4.5
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
