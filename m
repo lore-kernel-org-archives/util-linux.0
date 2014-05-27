@@ -1,26 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12250 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:30572 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934490AbaEFJ2Y (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 May 2014 05:28:24 -0400
-Date: Tue, 6 May 2014 11:28:21 +0200
+	id S1751250AbaE0OoA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 27 May 2014 10:44:00 -0400
+Date: Tue, 27 May 2014 16:43:54 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] setpriv: Fix --selinux-label
-Message-ID: <20140506092821.GD5962@x2.net.home>
-References: <a14933a93032e16adfce8ba1fe8b5b8aead3d838.1398920968.git.luto@amacapital.net>
+To: Petr Uzel <petr.uzel@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Roberto Angelino <rangelino@novell.com>,
+        Holger Hetterich <hhetter@suse.com>,
+        Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH] sfdisk: suppress Linux-irrelevant warnings with -L
+Message-ID: <20140527144354.GA385@x2.net.home>
+References: <1401121683-18503-1-git-send-email-petr.uzel@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <a14933a93032e16adfce8ba1fe8b5b8aead3d838.1398920968.git.luto@amacapital.net>
+In-Reply-To: <1401121683-18503-1-git-send-email-petr.uzel@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 30, 2014 at 10:10:13PM -0700, Andy Lutomirski wrote:
->  sys-utils/setpriv.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Mon, May 26, 2014 at 06:28:03PM +0200, Petr Uzel wrote:
+>  disk-utils/sfdisk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Applied, thanks.
+ Applied, thanks.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
