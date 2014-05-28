@@ -1,123 +1,104 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:53794 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751461AbaETPnB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 20 May 2014 11:43:01 -0400
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Stanislav Brabec <sbrabec@suse.cz>, Petr Uzel <petr.uzel@suse.cz>
-Subject: [PATCH 3/5] lscpu: detect OS/400 and pHyp hypervisors
-Date: Tue, 20 May 2014 15:42:29 +0000
-Message-Id: <1400600551-7227-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
-References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+To: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 3/5] lscpu: detect OS/400 and pHyp hypervisors
+Date: Wed, 28 May 2014 23:54:21 +0200
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Karel Zak <kzak@redhat.com>,
+        Paul Mackerras <paulus@au1.ibm.com>, util-linux@vger.kernel.org,
+        Stanislav Brabec <sbrabec@suse.cz>, Petr Uzel <petr.uzel@suse.cz>,
+        Ben Herrenschmidt <benh@kernel.crashing.org>
+References: <1400600551-7227-1-git-send-email-sweet_f_a@gmx.de> <20140522090824.GC4430@osiris> <537DC3A1.6000401@suse.de>
+In-Reply-To: <537DC3A1.6000401@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201405282354.22353.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Thank you all for your comments!
 
-This patch comes from openSUSE / SLE. Original author was probably
-Petr Uzel.
-Internal SUSE references: fate310255, sr226509
+Patch set updated here:
+https://github.com/karelzak/util-linux/pull/87
 
-CC: Stanislav Brabec <sbrabec@suse.cz>
-CC: Petr Uzel <petr.uzel@suse.cz>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/lscpu.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++++-
- sys-utils/lscpu.h |  4 +++-
- 2 files changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 0203916..b9e07e6 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -60,6 +60,7 @@
- #define _PATH_PROC_STATUS	"/proc/self/status"
- #define _PATH_PROC_VZ	"/proc/vz"
- #define _PATH_PROC_BC	"/proc/bc"
-+#define _PATH_PROC_DEVICETREE	"/proc/device-tree"
- #define _PATH_DEV_MEM 		"/dev/mem"
- 
- /* virtualization types */
-@@ -88,7 +89,9 @@ const char *hv_vendors[] = {
- 	[HYPER_INNOTEK]	= "Innotek GmbH",
- 	[HYPER_HITACHI]	= "Hitachi",
- 	[HYPER_PARALLELS] = "Parallels",
--	[HYPER_VBOX]	= "Oracle"
-+	[HYPER_VBOX]	= "Oracle",
-+	[HYPER_OS400]	= "OS/400",
-+	[HYPER_PHYP]	= "pHyp"
- };
- 
- const int hv_vendor_pci[] = {
-@@ -574,6 +577,51 @@ read_hypervisor_cpuid(struct lscpu_desc *desc)
- static void
- read_hypervisor_cpuid(struct lscpu_desc *desc __attribute__((__unused__)))
- {
-+#ifdef __powerpc__
-+	/* powerpc:
-+	 * IBM iSeries: legacy, if /proc/iSeries exists, its para-virtualized on top of OS/400
-+	 * IBM pSeries: always has a hypervisor
-+	 *              if partition-name is "full", its kind of "bare-metal": full-system-partition
-+	 *              otherwise its some partition created by Hardware Management Console
-+	 *              in any case, its always some sort of HVM
-+	 * KVM: "linux,kvm" in /hypervisor/compatible indicates a KVM guest
-+	 * Xen: not in use, not detected
-+	 */
-+	if (path_exist("/proc/iSeries")) {
-+		desc->hyper = HYPER_OS400;
-+		desc->virtype = VIRT_FULL;
-+	} else if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")) {
-+		FILE *fd;
-+		desc->hyper = HYPER_PHYP;
-+		desc->virtype = VIRT_FULL;
-+		fd = fopen(_PATH_PROC_DEVICETREE "/ibm,partition-name", "r");
-+		if (fd) {
-+			char buf[256];
-+			if (fscanf(fd, "%s", buf) == 1 && !strcmp(buf, "full"))
-+				desc->virtype = VIRT_NONE;
-+			fclose(fd);
-+		}
-+	} else if (path_exist(_PATH_PROC_DEVICETREE "/hypervisor/compatible")) {
-+		FILE *fd;
-+		fd = fopen(_PATH_PROC_DEVICETREE "/hypervisor/compatible", "r");
-+		if (fd) {
-+			char buf[256];
-+			int i;
-+			memset(buf, 0, sizeof(buf));
-+			fread(buf, sizeof(buf) - 1, 1, fd);
-+			fclose(fd);
-+			for (i = 0; i < sizeof(buf);) {
-+				if (!strcmp(&buf[i], "linux,kvm")) {
-+					desc->hyper = HYPER_KVM;
-+					desc->virtype = VIRT_FULL;
-+					break;
-+				}
-+				i += strlen(&buf[i]);
-+				i++;
-+			}
-+		}
-+	}
-+#endif
- }
- #endif
- 
-diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-index 7bb538d..6c25c4f 100644
---- a/sys-utils/lscpu.h
-+++ b/sys-utils/lscpu.h
-@@ -14,7 +14,9 @@ enum {
- 	HYPER_INNOTEK,		/* VBOX */
- 	HYPER_HITACHI,
- 	HYPER_PARALLELS,	/* OpenVZ/VIrtuozzo */
--	HYPER_VBOX
-+	HYPER_VBOX,
-+	HYPER_OS400,
-+	HYPER_PHYP
- };
- 
- extern int read_hypervisor_dmi(void);
--- 
-1.8.4.5
+On Thursday 22 May 2014, Alexander Graf wrote:
+> >>>> +	if (path_exist("/proc/iSeries")) {
+> >>>> +		desc->hyper = HYPER_OS400;
+> >>>> +		desc->virtype = VIRT_FULL;
+> >>> ... shouldn't this be VIRT_PARA? Somebody who knows this may correct this.
+> 
+> iSeries is PV, yes. Among others it's also dead :). But I'll let Ben 
+> comment.
 
+We set VIRT_PARA now for iSeries and (real) pSeries. 
+ 
+> >>>
+> >>>> +	} else if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")) {
+> >>>> +		FILE *fd;
+> >>>> +		desc->hyper = HYPER_PHYP;
+> >>>> +		desc->virtype = VIRT_FULL;
+> >>> Maybe more obvious here for pSeries where p seems to stand for para
+> >>> http://www.ibm.com/developerworks/aix/library/au-syspvirtualization/index.html?S_TACT=105AGX99&S_CMP=CP
+> 
+> This is slightly more complicated. The ibm,partition-name device tree 
+> property is defined in sPAPR which is a specification that both pHyp and 
+> QEMU implement. Right now QEMU does not expose the ibm,partition-name 
+> property, but there's no reason it will stay that way.
+> 
+> There are a few ways we could try to distinguish QEMU's implementation 
+> of the pSeries machine and pHyp's implementation of it.
+> 
+>    /proc/device-tree/hmc-managed?
+> 
+> I don't think QEMU will ever implement this property, but at least my 
+> pHyp reference VM does. If it's there we can use it as a definite marker 
+> that we are in fact running on pHyp.
+> 
+>    /proc/device-tree/chosen/qemu,graphic-width
+
+OK, we do it like this for now
+  if (path_exist(_PATH_PROC_DEVICETREE "/ibm,partition-name")
+      && path_exist(_PATH_PROC_DEVICETREE "/hmc-managed?")
+      && !path_exist(_PATH_PROC_DEVICETREE "/chosen/qemu,graphic-width")) {
+  desc->hyper = HYPER_PHYP;
+  desc->virtype = VIRT_PARA;
+  ....  
+
+Haven't yet done something about the "pSeries on QEMU/KVM" detection
+according to the comments below. Could be that our existing KVM detection
+would catch it already.
+
+IMO we should add a script to easily make correct (and complete) /sys, /proc
+dumps. So users who own exotic machines could send us test data.
+
+> Only QEMU puts qemu, properties in the chosen directory. At least the 
+> current code always sets the graphic-* properties, so if we find one we 
+> can safely assume we're running on QEMU. We do not know whether we're 
+> running on KVM yet.
+> 
+> Checking on KVM is slightly more tricky. I think we have 2 options:
+> 
+>    1) Check if /proc/device-tree/cpus/*@0/timebase-frequency is 1000000000.
+> 
+>       If it is, we're emulated (no KVM). If it's not, we're running with 
+> a native CPU (KVM).
+> 
+>    2) Check whether /proc/device-tree/hypervisor/compatible == "linux,kvm"
+> 
+>      I have a patch in my queue to make the sPAPR compliant pSeries 
+> machine type in QEMU also ePAPR compliant and expose a /hypervisor node. 
+> Current versions of QEMU don't do this though, so this would not catch 
+> QEMU versions < 2.1.
+> 
+>      The nice thing about the ePAPR compliant check is that we'd catch 
+> non-pSeries machine types as well. We expose this node on all emulated 
+> Mac machines and on FSL e500 style machines.
+> 
+> 
+> Alex
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
