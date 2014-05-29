@@ -1,74 +1,146 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:37420 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751121AbaECMpD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 3 May 2014 08:45:03 -0400
-Message-Id: <1399121099.30443.113236621.44458DE1@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.15.15]:57936 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756218AbaE2PCH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 May 2014 11:02:07 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: bugs on exotic archs
+Date: Thu, 29 May 2014 17:01:54 +0200
+Cc: util-linux@vger.kernel.org
+References: <201405122045.18801.sweet_f_a@gmx.de> <20140513082349.GL8951@x2.net.home>
+In-Reply-To: <20140513082349.GL8951@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 20/21] login-utils/last.1: Improve the typesetting of the
- manual
-Date: Sat, 03 May 2014 14:44:59 +0200
-In-Reply-To: <1399084359-28425-4-git-send-email-bjarniig@rhi.hi.is>
-References: <1399084359-28425-1-git-send-email-bjarniig@rhi.hi.is>
- <1399084359-28425-4-git-send-email-bjarniig@rhi.hi.is>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201405291701.55218.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tuesday 13 May 2014, Karel Zak wrote:
+> On Mon, May 12, 2014 at 08:45:18PM +0200, Ruediger Meier wrote:
 
-Hello Bjarni,
+> > Failing test on certain archs:
+> >
+> > %ifarch ppc ppc64
+> >   hexdump
+>
+>  this is not a bug, but the hexdump test disadvantage -- the output
+>  may be different on big-endian if the output is composed from more
+> input bytes.
+>
+> >   fdisk/bsd
+>
+>  BSD disklabel location depends on arch
 
-On Sat, May 3, 2014, at 4:32, Bjarni Ingi Gislason wrote:
->   Add a space character in front of an ellipsis
+I'am going to fix these fdisk/bsd test md5sums for big endian.
+Below I've added md5sum and hex diff of LE and BE images if
+somebody want to check:
 
-Hmm.  I find it clearer when the ellipsis is glued to the thing
-that it applies to.  But, as a space before it seems to be the
-accepted convention, okay.
+md5sum diff:
+-------------------
+ rudi@gcc1-power7:~/devel/util-linux/build$ cat tests/diff/fdisk/bsd
+--- /home/rudi/devel/util-linux/tests/expected/fdisk/bsd        2014-05-17 04:22:07.140999802 -0700
++++ /home/rudi/devel/util-linux/build/tests/output/fdisk/bsd    2014-05-29 07:39:26.715585544 -0700
+@@ -50,7 +50,7 @@
+ -------------------
 
-However, it would be nice if you could make thematic patches:
-one patch for each type of change.  For example, one big patch
-for *all* man pages (in util-linux) that makes this space-before-
-ellipsis change, then one big patch for no-minus-within-options,
-and so on.
+ Create default BSD
+-2e1cee529cb59c9341afef0443f196a1 bsd.img
++c2273b52976351db75596c47c10b0725 bsd.img
 
-(A strange effect of this ellipsis is that between the following pair
-of "] [" brackets there will be a double space instead of a single one.
-Do you see this too?  An if so, would this be a bug or intentional?)
+ ---layout----------
+ Welcome to fdisk <removed>.
+@@ -79,7 +79,7 @@
+ Command (m for help):
+ -------------------
 
->   A minus is not used in words.  People using UTF-8 and copy-and-paste
-> can(?) (may?) use "info", "man --ascii"
+-b5c121c2091b2ff26b880551feac7112 bsd.img
++9a234a5b99e37d2ce0d92b65437b93cd bsd.img
 
-No, you cannot require/suggest that people (if they want to copy and
-paste from the man-page output) use 'info' instead of 'man', or use an
-extra option.  Commands in the output of plain 'man' should be copy-
-and-pastable.  People who want to actually print a manual page may
-be required to use extra options to get the typesetting right.
-
-But for me, on a terminal in a UTF-8 locale, it makes no difference
-whether a man page contains \-\-long-option or --long-option, all
-those dashes render to  0x2d.  So copy-and-paste will work fine.
-
-By the way, what do you use to look at a typeset version of a man
-page?  For the first time in my life I've looked at a virtual printout
-with 'man -Tps login-utils/last.1 >last.ps; evince last.ps', and I must
-say that I find the rendering of --long-option more readable than of
-\-\-long-option.  But as I won't ever use this, either way is fine with me.
-
-> -.RI [ username ...]
-> -.RI [ tty ...]
-> +.RI [ username " ...]
-> +.RI [ tty " ...]
-
-Hm.  An unpaired quotation mark I find ugly.
-Better do "username " or " ...]" instead.
+ ---layout----------
+ Welcome to fdisk <removed>.
+--------------------
 
 
-Benno
+hexdump diff 1, "2e1cee529cb59c9341afef0443f196a1 vs c2273b52976351db75596c47c10b0725":
+-----------------------------
+--- /tmp/bsd-le-1.img_  2014-05-29 16:47:54.110684041 +0200
++++ /tmp/bsd-be-1.img_  2014-05-29 16:47:54.040685344 +0200
+@@ -7,19 +7,19 @@
+ 000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
+ 00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+-00200200  57 45 56 82 06 00 00 00  00 00 00 00 00 00 00 00  |WEV.............|
+-00200210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+-00200220  00 00 00 00 00 00 00 00  00 02 00 00 3f 00 00 00  |............?...|
+-00200230  ff 00 00 00 01 00 00 00  c1 3e 00 00 c1 3e 00 00  |.........>...>..|
+-00200240  00 00 00 00 00 00 00 00  10 0e 01 00 00 00 00 00  |................|
+-00200250  00 00 00 00 00 00 00 00  20 00 00 00 00 00 00 00  |........ .......|
+-00200260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++00200040  82 56 45 57 00 06 00 00  00 00 00 00 00 00 00 00  |.VEW............|
++00200050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++00200060  00 00 00 00 00 00 00 00  00 00 02 00 00 00 00 3f  |...............?|
++00200070  00 00 00 ff 00 00 00 01  00 00 3e c1 00 00 3e c1  |..........>...>.|
++00200080  00 00 00 00 00 00 00 00  0e 10 00 01 00 00 00 00  |................|
++00200090  00 00 00 00 00 00 00 00  00 00 00 20 00 00 00 00  |........... ....|
++002000a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+-00200280  00 00 00 00 57 45 56 82  33 62 04 00 00 20 00 00  |....WEV.3b... ..|
+-00200290  00 20 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |. ..............|
+-002002a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+-002002b0  00 00 00 00 00 40 00 00  00 10 00 00 00 00 00 00  |.....@..........|
+-002002c0  00 00 00 00 c1 3e 00 00  00 00 00 00 00 00 00 00  |.....>..........|
+-002002d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++002000c0  00 00 00 00 82 56 45 57  62 33 00 04 00 00 20 00  |.....VEWb3.... .|
++002000d0  00 00 20 00 00 00 00 00  00 00 00 00 00 00 00 00  |.. .............|
++002000e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++002000f0  00 00 00 00 00 00 40 00  00 00 10 00 00 00 00 00  |......@.........|
++00200100  00 00 00 00 00 00 3e c1  00 00 00 00 00 00 00 00  |......>.........|
++00200110  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+ 00a00000
+--------------------------
 
--- 
-http://www.fastmail.fm - Or how I learned to stop worrying and
-                          love email again
 
+hexdump diff 1, "b5c121c2091b2ff26b880551feac7112 vs 9a234a5b99e37d2ce0d92b65437b93cd":
+-----------------------------
+--- /tmp/bsd-le-2.img_  2014-05-29 16:47:54.147683353 +0200
++++ /tmp/bsd-be-2.img_  2014-05-29 16:47:54.075684693 +0200
+@@ -7,19 +7,19 @@
+ 000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
+ 00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+-00200200  57 45 56 82 06 00 00 00  00 00 00 00 00 00 00 00  |WEV.............|
+-00200210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+-00200220  00 00 00 00 00 00 00 00  00 02 00 00 3f 00 00 00  |............?...|
+-00200230  ff 00 00 00 01 00 00 00  c1 3e 00 00 c1 3e 00 00  |.........>...>..|
+-00200240  00 00 00 00 00 00 00 00  10 0e 01 00 00 00 00 00  |................|
+-00200250  00 00 00 00 00 00 00 00  20 00 00 00 00 00 00 00  |........ .......|
+-00200260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++00200040  82 56 45 57 00 06 00 00  00 00 00 00 00 00 00 00  |.VEW............|
++00200050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++00200060  00 00 00 00 00 00 00 00  00 00 02 00 00 00 00 3f  |...............?|
++00200070  00 00 00 ff 00 00 00 01  00 00 3e c1 00 00 3e c1  |..........>...>.|
++00200080  00 00 00 00 00 00 00 00  0e 10 00 01 00 00 00 00  |................|
++00200090  00 00 00 00 00 00 00 00  00 00 00 20 00 00 00 00  |........... ....|
++002000a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+-00200280  00 00 00 00 57 45 56 82  35 7a 04 00 00 20 00 00  |....WEV.5z... ..|
+-00200290  00 20 00 00 01 08 00 00  00 10 00 00 00 00 00 00  |. ..............|
+-002002a0  07 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+-002002b0  00 00 00 00 00 40 00 00  00 10 00 00 00 00 00 00  |.....@..........|
+-002002c0  00 00 00 00 c1 3e 00 00  00 00 00 00 00 00 00 00  |.....>..........|
+-002002d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++002000c0  00 00 00 00 82 56 45 57  7d 32 00 04 00 00 20 00  |.....VEW}2.... .|
++002000d0  00 00 20 00 00 00 08 01  00 00 10 00 00 00 00 00  |.. .............|
++002000e0  07 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
++002000f0  00 00 00 00 00 00 40 00  00 00 10 00 00 00 00 00  |......@.........|
++00200100  00 00 00 00 00 00 3e c1  00 00 00 00 00 00 00 00  |......>.........|
++00200110  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+ *
+ 00a00000
+-------------------------
+
+cu,
+Rudi
