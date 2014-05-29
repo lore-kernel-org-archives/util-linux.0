@@ -1,34 +1,29 @@
-Return-Path: worley@ariadne.com
-Date: Thu, 8 May 2014 17:01:10 -0400
-Message-Id: <201405082101.s48L1AYa030864@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-Sender: worley@alum.mit.edu (Dale R. Worley)
-To: Andy Lutomirski <luto@amacapital.net>
-CC: util-linux@vger.kernel.org, kzak@redhat.com
-In-reply-to: 
-	<CALCETrUBTf=Wyz76Y3T=2CXqtKNhgK1YVgmBv1mEh85mNt4MKA@mail.gmail.com>
-	(luto@amacapital.net)
-Subject: Re: getting rid of "mount: only root can ..."
-References: <CALCETrUbaFwpdiLBv7G8GbkgUuiEgyyBWn0dr8R57NzCdSL9gg@mail.gmail.com>
-	<201405022221.s42MLpT4015462@hobgoblin.ariadne.com>
-	<CALCETrUU6ziKYA3RSb_6nEW4HyeR5BLGQ_3SgcnnnLnBX1us0g@mail.gmail.com>
-	<201405052250.s45Monxm008110@hobgoblin.ariadne.com>
-	<CALCETrXTJpkA-EqzS=kvSfS4QEO5Gc3TV42+FFrUbQN3ALfuCw@mail.gmail.com>
-	<20140506094631.GG5962@x2.net.home>
-	<201405061350.s46DoVxC008646@hobgoblin.ariadne.com> <CALCETrUBTf=Wyz76Y3T=2CXqtKNhgK1YVgmBv1mEh85mNt4MKA@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:27746 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756062AbaE2Hxx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 29 May 2014 03:53:53 -0400
+Date: Thu, 29 May 2014 09:53:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] setarch, add generic support for setarch $(uname -m) ...
+Message-ID: <20140529075346.GB9000@x2.net.home>
+References: <201405270134.29753.sweet_f_a@gmx.de>
+ <1401324798-15059-1-git-send-email-sweet_f_a@gmx.de>
+ <1401324798-15059-2-git-send-email-sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1401324798-15059-2-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Andy Lutomirski <luto@amacapital.net>
-> 
-> A kind of hackish solution would be for mount --nopriv or whatever to drop
-> privileges immediately and stop enforcing any policy at all.
+On Thu, May 29, 2014 at 02:53:18AM +0200, Ruediger Meier wrote:
+>  sys-utils/setarch.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 
-Given what Karel has said, I'm not sure that would give the correct
-behavior:
+ Applied, thanks.
 
-    The problem is that mount(8) is not just about mount(2) call only. If
-    we drop privileges then mount(8) will report problems with things like
-    FS detection, loopdevs setups, etc. It's necessary to review the code
-    and make errors/warnings somehow usable.
-
-Dale
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
