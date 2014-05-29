@@ -1,57 +1,119 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:42592 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751009AbaEDPuQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 4 May 2014 11:50:16 -0400
-Received: by mail-wi0-f171.google.com with SMTP id hm4so4469920wib.4
-        for <util-linux@vger.kernel.org>; Sun, 04 May 2014 08:50:15 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 00/15] cytune modernization
-Date: Sun,  4 May 2014 16:49:41 +0100
-Message-Id: <1399218596-21321-1-git-send-email-kerolasa@iki.fi>
+Received: from e28smtp05.in.ibm.com ([122.248.162.5]:58707 "EHLO
+	e28smtp05.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757359AbaE2Mpo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 29 May 2014 08:45:44 -0400
+Received: from /spool/local
+	by e28smtp05.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <suzuki@in.ibm.com>;
+	Thu, 29 May 2014 18:15:41 +0530
+Received: from d28relay05.in.ibm.com (d28relay05.in.ibm.com [9.184.220.62])
+	by d28dlp02.in.ibm.com (Postfix) with ESMTP id E01723940048
+	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 18:15:38 +0530 (IST)
+Received: from d28av02.in.ibm.com (d28av02.in.ibm.com [9.184.220.64])
+	by d28relay05.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s4TCjo7n7602620
+	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 18:15:50 +0530
+Received: from d28av02.in.ibm.com (localhost [127.0.0.1])
+	by d28av02.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s4TCjbAi020204
+	for <util-linux@vger.kernel.org>; Thu, 29 May 2014 18:15:38 +0530
+Message-ID: <53872BF1.5030303@in.ibm.com>
+Date: Thu, 29 May 2014 18:15:37 +0530
+From: "Suzuki K. Poulose" <suzuki@in.ibm.com>
+MIME-Version: 1.0
+To: Ondrej Oprala <ooprala@redhat.com>,
+        Janani Venkataraman <jananive@linux.vnet.ibm.com>,
+        util-linux@vger.kernel.org
+CC: ananth@linux.vnet.ibm.com, Tarundeep Singh <tarundsk@linux.vnet.ibm.com>
+Subject: Re: Non disruptive application core dump infrastructure
+References: <53871D87.2070401@linux.vnet.ibm.com> <53871E15.1040209@redhat.com>
+In-Reply-To: <53871E15.1040209@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello all,
+On 05/29/2014 05:16 PM, Ondrej Oprala wrote:
+> On 05/29/2014 01:44 PM, Janani Venkataraman wrote:
+>> Hi,
+>>
+>> We have developed a tool called "gencore" which captures the core of
+>> an application without
+>> disrupting its process. The dump is collected non-disruptively and
+>> this tool currently supports
+>> s390, x86 and power systems.
+>>
+>> THE TOOL:
+>>
+>> The tool can perform non-disruptive third party dumps. The tool also
+>> contains a library "libgencore"
+>> which helps applicationsto trigger self dumps.
+>>
+>> The tool can perform:
+>>
+>> 1) Third party dump: The pid of the process to dumped is given along
+>> with name of the core-file to
+>> be created.
+>>
+>> eg.
+>>
+>> [janani@localhost]:gencore 6616 core.test
+>>
+>> 2) Self dump: The programs can request a self-dump using gencore()
+>> API, provided throughlibgencore. This
+>> is implemented through a daemon which listens on a UNIX Filesocket for
+>> such requests. The daemon is started
+>> immediately post installation. The program which requires the dump
+>> makes use of the gencore() API and provides
+>> the name of the core-file as a parameter.
+>>
+>> eg.
+>>
+>> /* Opening the library, in this case the library is present in the
+>> /usr/lib64 */
+>> lib = dlopen("libgencore.so", RTLD_LAZY);
+>>
+>> gencore = dlsym(lib, "gencore");
+>>
+>> Call the API:
+>> gencore("/home/janani/core_test").
+>>
+>> BASIC IDEA:
+>>
+>> The basic idea is that the threads of the process are held using
+>> ptrace calls and the dump is generated in the
+>> ELF format using the /proc/pid filesystem.
+>>
+>> PATCH SET:
+>> We have designed this tool based on the discussions with linux kernel
+>> community. The patches have been posted
+>> at: https://lkml.org/lkml/2014/3/20/138
+>>
+>> Do you think this can be part of the util-linux bundle? We can tweak
+>> it to make it work as a package in util-linux.
+>>
+>> Let us know your reviews and comments.
+>>
+>> Thanks.
+>> Janani
+>>
+>> -- 
+>> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Interesting,
+> but how is this different from attaching to a process with GDB and using
+> the gcore command? Or to automate it more, using the gcore script that
+> comes with GDB?
+> Cheers,
+> Ondrej
+> 
 
-Couple days ago Benno Schulenberg mentioned email with subject 'cytune:
-misnamed long options' usage() being a bit misleading that I concurred
-with note that the cytune could probably be improved various ways.  This
-patch set proposes the improvements I had in mind.
+There are two major issues with that.
 
-Please notice that I do not have hardware to test the cytune command, so
-testing after the changes did not happen.  All I can say I tried to be
-careful not to break program logic, and hopefully that will work.
+1) GDB uses PTRACE_ATTACH and hence the process gets a SIGSTOP.
 
-p.s. The cytune and column changes are also available in the git
-repository at:
+2) A process cannot initiate the request to dump itself, say from a
+signal handler. (since fork() is not signal safe)
 
-  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk17
-
-Sami Kerola (15):
-  cytune: rename threshold and timeout variables
-  cytune: remove unnecessary variables
-  cytune: be consistent with interval data type
-  cytune: use single loop for setting and getting ioctl() calls
-  cytune: kernel still does not have send_count in cyclades_monitor
-    structure
-  cytune: prefer sigaction(), and remove unnecessary abstractions
-  cytune: add cyg_get_mon() to avoid duplicate code
-  cytune: add structure to hold run time configuration
-  cytune: pull signal handling and statistic priting apart
-  cytune: remove unnecessary type casts
-  cytune: deprecate undescriptive options
-  cytune: add filename to struct cyclades_control
-  cytune: add noreturn function attributes
-  cytune: use matching type in struct cyclades_control with kernel
-  cytune: update copyright
-
- sys-utils/cytune.8 |  10 +-
- sys-utils/cytune.c | 468 ++++++++++++++++++++++++-----------------------------
- 2 files changed, 213 insertions(+), 265 deletions(-)
-
--- 
-1.9.2
+Thanks
+Suzuki
 
