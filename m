@@ -1,50 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:38742 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751342AbaEYK75 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 May 2014 06:59:57 -0400
-Received: by mail-we0-f169.google.com with SMTP id u56so6860915wes.14
-        for <util-linux@vger.kernel.org>; Sun, 25 May 2014 03:59:56 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/4] uuidd: do not mix signed type and unsigned code
-Date: Sun, 25 May 2014 11:59:40 +0100
-Message-Id: <1401015580-27951-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1401015580-27951-1-git-send-email-kerolasa@iki.fi>
-References: <1401015580-27951-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:10085 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751861AbaE3IyN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 May 2014 04:54:13 -0400
+Date: Fri, 30 May 2014 10:54:06 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: fdisk, gpt broken on 32bit big endian systems
+Message-ID: <20140530085406.GD9000@x2.net.home>
+References: <201405300531.00403.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201405300531.00403.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Both the strtou32_or_err() and alarm() expect timeout to be unsigned.
+On Fri, May 30, 2014 at 05:31:00AM +0200, Ruediger Meier wrote:
+> $ rm -f xxx; truncate -s 10M xxx
+> $ echo -ne "g\nx\ni\n26841E90-46E0-4205-B012-4B8AEC35C088\nr\nw\nq\n" | fdisk xxx
+> 
+> ... creates a broken gpt image on 32bit big endian systems.
+> 
+> "hexdiff" xxx-broken xxx-good:
+>  00000260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+>  *
+>  009ffe00  45 46 49 20 50 41 52 54  00 00 01 00 00 02 00 00  |EFI PART........|
+> -009ffe10  68 a5 49 d1 00 00 00 00  ff ff ff ff ff ff ff ff  |h.I.............|
+> +009ffe10  15 b9 f3 7e 00 00 00 00  ff 4f 00 00 00 00 00 00  |...~.....O......|
+>  009ffe20  01 00 00 00 00 00 00 00  00 08 00 00 00 00 00 00  |................|
+>  009ffe30  de 4f 00 00 00 00 00 00  90 1e 84 26 e0 46 05 42  |.O.........&.F.B|
+>  009ffe40  b0 12 4b 8a ec 35 c0 88  df 4f 00 00 00 00 00 00  |..K..5...O......|
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/uuidd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Fixed now, I hope (not tested on 32bit BE, but the code was so
+ stupid that it has to be the problem :-)
 
-diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-index 1f4a38b..f728e2e 100644
---- a/misc-utils/uuidd.c
-+++ b/misc-utils/uuidd.c
-@@ -59,7 +59,7 @@ extern int optind;
- 
- /* server loop control structure */
- struct uuidd_cxt_t {
--	int	timeout;
-+	uint32_t	timeout;
- 	unsigned int	debug: 1,
- 			quiet: 1,
- 			no_fork: 1,
-@@ -366,7 +366,7 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
- 
- 	while (1) {
- 		fromlen = sizeof(from_addr);
--		if (uuidd_cxt->timeout > 0)
-+		if (uuidd_cxt->timeout != 0)
- 			alarm(uuidd_cxt->timeout);
- 		ns = accept(s, (struct sockaddr *) &from_addr, &fromlen);
- 		alarm(0);
+    Karel
+
 -- 
-1.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
