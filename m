@@ -1,56 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:61071 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751092AbaEYV62 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 May 2014 17:58:28 -0400
-Received: by mail-wg0-f51.google.com with SMTP id x13so6985089wgg.34
-        for <util-linux@vger.kernel.org>; Sun, 25 May 2014 14:58:27 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/2] rename: allow renaming in subdirectories
-Date: Sun, 25 May 2014 22:58:22 +0100
-Message-Id: <1401055103-28558-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:40468 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751665AbaE3I1C (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 May 2014 04:27:02 -0400
+Date: Fri, 30 May 2014 10:26:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: fdisk, gpt broken on 32bit big endian systems
+Message-ID: <20140530082654.GC9000@x2.net.home>
+References: <201405300531.00403.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201405300531.00403.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier the rename(1) considered path as possible string to be renamed,
-could lead to an issue with none existing destination.  See below for
-demonstration of this issue.  After this change all directory elements
-are ignored when the match finding happens.
+On Fri, May 30, 2014 at 05:31:00AM +0200, Ruediger Meier wrote:
+> Hi,
+> 
+> This ...
+> 
+> $ rm -f xxx; truncate -s 10M xxx
+> $ echo -ne "g\nx\ni\n26841E90-46E0-4205-B012-4B8AEC35C088\nr\nw\nq\n" | fdisk xxx
+> 
+> ... creates a broken gpt image on 32bit big endian systems.
+> 
+> "hexdiff" xxx-broken xxx-good:
+>  00000260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+>  *
+>  009ffe00  45 46 49 20 50 41 52 54  00 00 01 00 00 02 00 00  |EFI PART........|
+> -009ffe10  68 a5 49 d1 00 00 00 00  ff ff ff ff ff ff ff ff  |h.I.............|
+> +009ffe10  15 b9 f3 7e 00 00 00 00  ff 4f 00 00 00 00 00 00  |...~.....O......|
+             ^^^^^^^^^^^ ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^ 
+                crc32     reserved           header LBA
 
-$ cd $(mktemp -d)
-$ mkdir aa ab
-$ touch a{a,b}/aa
-$ rename -v a x */aa
-rename: aa/aa: rename to xa/aa failed: No such file or directory
+The problem is the LBA, "ff ff ff ff ff ff ff ff" seems strange :-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/rename.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+(Correct is ff4f,  (means 0x4fff * 512 + 512 = 10485760, 10MiB).
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index 9db85fb..b945aaa 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -46,9 +46,14 @@ static int do_rename(char *from, char *to, char *s, int verbose, int symtarget)
- 
- 		target[sb.st_size] = '\0';
- 		where = strstr(target, from);
--	} else
--		where = strstr(s, from);
-+	} else {
-+		char *file;
- 
-+		file = rindex(s, '/');
-+		if (file == NULL)
-+			file = s;
-+		where = strstr(file, from);
-+	}
- 	if (where == NULL) {
- 		free(target);
- 		return 0;
+    Karel
+
 -- 
-1.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
