@@ -1,103 +1,126 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f171.google.com ([74.125.82.171]:65524 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751349AbaEROGK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 May 2014 10:06:10 -0400
-Received: by mail-we0-f171.google.com with SMTP id w62so4477490wes.30
-        for <util-linux@vger.kernel.org>; Sun, 18 May 2014 07:06:08 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-oa0-f45.google.com ([209.85.219.45]:36339 "EHLO
+	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753662AbaE3Gaq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 30 May 2014 02:30:46 -0400
+Received: by mail-oa0-f45.google.com with SMTP id l6so1442608oag.18
+        for <util-linux@vger.kernel.org>; Thu, 29 May 2014 23:30:45 -0700 (PDT)
+MIME-Version: 1.0
+Date: Fri, 30 May 2014 15:30:45 +0900
+Message-ID: <CADhtO=98eyzuDjbNgSzfdq17wxwWnuWp5H7-Go-Ut4SvMAQ7hw@mail.gmail.com>
+Subject: [PATCH] deadlock in script
+From: Csaba Kos <csaba.kos@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 07/17] setterm: add init_terminal() to make main() shorter
-Date: Sun, 18 May 2014 15:05:31 +0100
-Message-Id: <1400421941-14244-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
-References: <1400421941-14244-1-git-send-email-kerolasa@iki.fi>
+Content-Type: multipart/mixed; boundary=001a11c2f4947b27d704fa982f95
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/setterm.c | 50 ++++++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 24 deletions(-)
+--001a11c2f4947b27d704fa982f95
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-index 63c912b..05ea387 100644
---- a/term-utils/setterm.c
-+++ b/term-utils/setterm.c
-@@ -1060,46 +1060,48 @@ static void perform_sequence(struct setterm_control *ctl)
- 
- }
- 
--int main(int argc, char **argv)
-+static void init_terminal(struct setterm_control *ctl)
- {
--	struct setterm_control ctl;
- 	int term_errno;
- 
--	memset(&ctl, 0, sizeof (ctl));
--	setlocale(LC_ALL, "");
--	bindtextdomain(PACKAGE, LOCALEDIR);
--	textdomain(PACKAGE);
--	atexit(close_stdout);
--
--	if (argc < 2)
--		usage(stderr);
--
--	/* Parse arguments. */
--	parse_option(&ctl, argc, argv);
--
--	/* Find out terminal name. */
--	if (!ctl.opt_te_terminal_name) {
--		ctl.opt_te_terminal_name = getenv("TERM");
--		if (ctl.opt_te_terminal_name == NULL)
-+	if (!ctl->opt_te_terminal_name) {
-+		ctl->opt_te_terminal_name = getenv("TERM");
-+		if (ctl->opt_te_terminal_name == NULL)
- 			errx(EXIT_FAILURE, _("$TERM is not defined."));
- 	}
- 
- 	/* Find terminfo entry. */
--	if (setupterm(ctl.opt_te_terminal_name, 1, &term_errno))
--		switch(term_errno) {
-+	if (setupterm(ctl->opt_te_terminal_name, STDOUT_FILENO, &term_errno))
-+		switch (term_errno) {
- 		case -1:
- 			errx(EXIT_FAILURE, _("terminfo database cannot be found"));
- 		case 0:
--			errx(EXIT_FAILURE, _("%s: unknown terminal type"), ctl.opt_te_terminal_name);
-+			errx(EXIT_FAILURE, _("%s: unknown terminal type"), ctl->opt_te_terminal_name);
- 		case 1:
- 			errx(EXIT_FAILURE, _("terminal is hardcopy"));
- 		}
- 
- 	/* See if the terminal is a virtual console terminal. */
--	ctl.vcterm = (!strncmp(ctl.opt_te_terminal_name, "con", 3) ||
--		      !strncmp(ctl.opt_te_terminal_name, "linux", 5));
-+	ctl->vcterm = (!strncmp(ctl->opt_te_terminal_name, "con", 3) ||
-+		       !strncmp(ctl->opt_te_terminal_name, "linux", 5));
-+}
-+
- 
--	/* Perform the selected options. */
-+int main(int argc, char **argv)
-+{
-+	struct setterm_control ctl;
-+
-+	memset(&ctl, 0, sizeof (ctl));
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	atexit(close_stdout);
-+
-+	if (argc < 2)
-+		usage(stderr);
-+
-+	parse_option(&ctl, argc, argv);
-+	init_terminal(&ctl);
- 	perform_sequence(&ctl);
- 
- 	return EXIT_SUCCESS;
--- 
-1.9.2
+Hi,
 
+I use the "script" command to save the output of certain jobs on a
+heavily loaded Linux cluster. Every now and then the "script" command
+hangs.
+
+I made some modifications to util-linux 2.23 and have been using the
+patched "script" command without problems for about a year.
+
+Attached I'm submitting the patches (updated to the current master) for review.
+
+Best regards,
+
+Csaba Kos
+
+--001a11c2f4947b27d704fa982f95
+Content-Type: text/x-diff; charset=US-ASCII;
+	name="0001-script-fix-a-rare-deadlock-after-child-termination.patch"
+Content-Disposition: attachment;
+	filename="0001-script-fix-a-rare-deadlock-after-child-termination.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hvt413gr0
+
+RnJvbSBmYWQ0ODI0MjdkZGQ4MTlhOTJkMWU2MzZlMjBiYmY4YWRhZjcyMWRkIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBDc2FiYSBLb3MgPGNzYWJhLmtvc0BnbWFpbC5jb20+CkRhdGU6
+IEZyaSwgMzAgTWF5IDIwMTQgMTQ6MzM6MzIgKzA5MDAKU3ViamVjdDogW1BBVENIIDEvMl0gc2Ny
+aXB0OiBmaXggYSByYXJlIGRlYWRsb2NrIGFmdGVyIGNoaWxkIHRlcm1pbmF0aW9uCgotLS0KIHRl
+cm0tdXRpbHMvc2NyaXB0LmMgfCA1MiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKystLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgNDUgaW5zZXJ0aW9ucygrKSwgNyBk
+ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS90ZXJtLXV0aWxzL3NjcmlwdC5jIGIvdGVybS11dGls
+cy9zY3JpcHQuYwppbmRleCBlNWQyMzljLi4zMjkwNmQwIDEwMDY0NAotLS0gYS90ZXJtLXV0aWxz
+L3NjcmlwdC5jCisrKyBiL3Rlcm0tdXRpbHMvc2NyaXB0LmMKQEAgLTM2LDYgKzM2LDkgQEAKICAq
+IC0gYWRkZWQgTmF0aXZlIExhbmd1YWdlIFN1cHBvcnQKICAqCiAgKiAyMDAwLTA3LTMwIFBlciBB
+bmRyZWFzIEJ1ZXIgPHBlckBsaW5wcm8ubm8+IC0gYWRkZWQgInEiLW9wdGlvbgorICoKKyAqIDIw
+MTQtMDUtMzAgQ3NhYmEgS29zIDxjc2FiYS5rb3NAZ21haWwuY29tPgorICogLSBmaXhlZCBhIHJh
+cmUgZGVhZGxvY2sgYWZ0ZXIgY2hpbGQgdGVybWluYXRpb24KICAqLwogCiAvKgpAQCAtMTE0LDYg
+KzExNyw4IEBAIGludAl0ZmxnID0gMDsKIGludAlmb3JjZWZsZyA9IDA7CiBpbnQJaXN0ZXJtOwog
+CitzaWdzZXRfdCBibG9ja19tYXNrLCB1bmJsb2NrX21hc2s7CisKIGludCBkaWU7CiBpbnQgcmVz
+aXplZDsKIApAQCAtMzA2LDYgKzMxMSw3IEBAIGRvaW5wdXQodm9pZCkgewogCWludCBlcnJzdiA9
+IDA7CiAJc3NpemVfdCBjYyA9IDA7CiAJY2hhciBpYnVmW0JVRlNJWl07CisJZmRfc2V0IHJlYWRm
+ZHM7CiAKIAkvKiBjbG9zZSB0aGluZ3MgaXJyZWxldmFudCBmb3IgdGhpcyBwcm9jZXNzICovCiAJ
+aWYgKGZzY3JpcHQpCkBAIC0zMTQsMTQgKzMyMCwyNyBAQCBkb2lucHV0KHZvaWQpIHsKIAkJZmNs
+b3NlKHRpbWluZ2ZkKTsKIAlmc2NyaXB0ID0gdGltaW5nZmQgPSBOVUxMOwogCisJRkRfWkVSTygm
+cmVhZGZkcyk7CisKKwkvKiBibG9jayBTSUdDSExEICovCisJc2lncHJvY21hc2soU0lHX1NFVE1B
+U0ssICZibG9ja19tYXNrLCAmdW5ibG9ja19tYXNrKTsKKwogCXdoaWxlIChkaWUgPT0gMCkgewot
+CQlpZiAoKGNjID0gcmVhZChTVERJTl9GSUxFTk8sIGlidWYsIEJVRlNJWikpID4gMCkgewotCQkJ
+aWYgKHdyaXRlX2FsbChtYXN0ZXIsIGlidWYsIGNjKSkgewotCQkJCXdhcm4gKF8oIndyaXRlIGZh
+aWxlZCIpKTsKLQkJCQlmYWlsKCk7CisJCUZEX1NFVChTVERJTl9GSUxFTk8sICZyZWFkZmRzKTsK
+KworCQkvKiB3YWl0IGZvciBpbnB1dCBvciBzaWduYWwgKGluY2x1ZGluZyBTSUdDSExEKSAqLwor
+CQlpZiAoKGNjID0gcHNlbGVjdChTVERJTl9GSUxFTk8gKyAxLCAmcmVhZGZkcywgTlVMTCwgTlVM
+TCwgTlVMTCwKKwkJCSZ1bmJsb2NrX21hc2spKSA+IDApIHsKKworCQkJaWYgKChjYyA9IHJlYWQo
+U1RESU5fRklMRU5PLCBpYnVmLCBCVUZTSVopKSA+IDApIHsKKwkJCQlpZiAod3JpdGVfYWxsKG1h
+c3RlciwgaWJ1ZiwgY2MpKSB7CisJCQkJCXdhcm4gKF8oIndyaXRlIGZhaWxlZCIpKTsKKwkJCQkJ
+ZmFpbCgpOworCQkJCX0KIAkJCX0KIAkJfQotCQllbHNlIGlmIChjYyA8IDAgJiYgZXJybm8gPT0g
+RUlOVFIgJiYgcmVzaXplZCkKKworCQlpZiAoY2MgPCAwICYmIGVycm5vID09IEVJTlRSICYmIHJl
+c2l6ZWQpCiAJCXsKIAkJCS8qIHRyYW5zbWl0IHdpbmRvdyBjaGFuZ2UgaW5mb3JtYXRpb24gdG8g
+dGhlIGNoaWxkICovCiAJCQlpZiAoaXN0ZXJtKSB7CkBAIC0zMzAsMTIgKzM0OSwxNSBAQCBkb2lu
+cHV0KHZvaWQpIHsKIAkJCX0KIAkJCXJlc2l6ZWQgPSAwOwogCi0JCX0gZWxzZSB7CisJCX0gZWxz
+ZSBpZiAoY2MgPD0gMCkgewogCQkJZXJyc3YgPSBlcnJubzsKIAkJCWJyZWFrOwogCQl9CiAJfQog
+CisJLyogdW5ibG9jayBTSUdDSExEICovCisJc2lncHJvY21hc2soU0lHX1NFVE1BU0ssICZ1bmJs
+b2NrX21hc2ssIE5VTEwpOworCiAJLyogVG8gYmUgc3VyZSB0aGF0IHdlIGRvbid0IG1pc3MgYW55
+IGRhdGEgKi8KIAl3YWl0X2Zvcl9lbXB0eV9mZChzbGF2ZSk7CiAJd2FpdF9mb3JfZW1wdHlfZmQo
+bWFzdGVyKTsKQEAgLTQwNCw2ICs0MjYsNyBAQCBkb291dHB1dCh2b2lkKSB7CiAJc3RydWN0IHRp
+bWV2YWwgdHY7CiAJZG91YmxlIG9sZHRpbWU9dGltZShOVUxMKSwgbmV3dGltZTsKIAlpbnQgZXJy
+c3YgPSAwOworCWZkX3NldCByZWFkZmRzOwogCiAJY2xvc2UoU1RESU5fRklMRU5PKTsKICNpZmRl
+ZiBIQVZFX0xJQlVUSUwKQEAgLTQxNiw2ICs0MzksOCBAQCBkb291dHB1dCh2b2lkKSB7CiAJbXlf
+c3RyZnRpbWUob2J1Ziwgc2l6ZW9mIG9idWYsICIlY1xuIiwgbG9jYWx0aW1lKCZ0dmVjKSk7CiAJ
+ZnByaW50Zihmc2NyaXB0LCBfKCJTY3JpcHQgc3RhcnRlZCBvbiAlcyIpLCBvYnVmKTsKIAorCUZE
+X1pFUk8oJnJlYWRmZHMpOworCiAJZG8gewogCQlpZiAoZGllIHx8IGVycnN2ID09IEVJTlRSKSB7
+CiAJCQlzdHJ1Y3QgcG9sbGZkIGZkc1tdID0ge3sgLmZkID0gbWFzdGVyLCAuZXZlbnRzID0gUE9M
+TElOIH19OwpAQCAtNDIzLDEwICs0NDgsMjMgQEAgZG9vdXRwdXQodm9pZCkgewogCQkJCWJyZWFr
+OwogCQl9CiAKKwkJLyogYmxvY2sgU0lHQ0hMRCAqLworCQlzaWdwcm9jbWFzayhTSUdfU0VUTUFT
+SywgJmJsb2NrX21hc2ssICZ1bmJsb2NrX21hc2spOworCisJCUZEX1NFVChtYXN0ZXIsICZyZWFk
+ZmRzKTsKIAkJZXJybm8gPSAwOwotCQljYyA9IHJlYWQobWFzdGVyLCBvYnVmLCBzaXplb2YgKG9i
+dWYpKTsKKworCQkvKiB3YWl0IGZvciBpbnB1dCBvciBzaWduYWwgKGluY2x1ZGluZyBTSUdDSExE
+KSAqLworCQlpZiAoKGNjID0gcHNlbGVjdChtYXN0ZXIrMSwgJnJlYWRmZHMsIE5VTEwsIE5VTEws
+IE5VTEwsCisJCQkmdW5ibG9ja19tYXNrKSkgPiAwKSB7CisKKwkJCWNjID0gcmVhZChtYXN0ZXIs
+IG9idWYsIHNpemVvZiAob2J1ZikpOworCQl9CiAJCWVycnN2ID0gZXJybm87CiAKKwkJLyogdW5i
+bG9jayBTSUdDSExEICovCisJCXNpZ3Byb2NtYXNrKFNJR19TRVRNQVNLLCAmdW5ibG9ja19tYXNr
+LCBOVUxMKTsKKwogCQlpZiAodGZsZykKIAkJCWdldHRpbWVvZmRheSgmdHYsIE5VTEwpOwogCi0t
+IAoxLjguNS5yYzMuMi5nYzMwMjk0MQoK
+--001a11c2f4947b27d704fa982f95
+Content-Type: text/x-diff; charset=US-ASCII;
+	name="0002-script-fix-spurious-exit-from-input-read-loop-on-EIN.patch"
+Content-Disposition: attachment;
+	filename="0002-script-fix-spurious-exit-from-input-read-loop-on-EIN.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hvt413ou1
+
+RnJvbSBhMmRkNGRmMzQ5ZjQyNmM2NjA1ZTRiMTUxYWFmY2NjZTRiMmVhOGU3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBDc2FiYSBLb3MgPGNzYWJhLmtvc0BnbWFpbC5jb20+CkRhdGU6
+IEZyaSwgMzAgTWF5IDIwMTQgMTQ6NTE6MzggKzA5MDAKU3ViamVjdDogW1BBVENIIDIvMl0gc2Ny
+aXB0OiBmaXggc3B1cmlvdXMgZXhpdCBmcm9tIGlucHV0IHJlYWQgbG9vcCBvbiBFSU5UUi4KCi0t
+LQogdGVybS11dGlscy9zY3JpcHQuYyB8IDMgKystCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRp
+b25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvdGVybS11dGlscy9zY3JpcHQuYyBi
+L3Rlcm0tdXRpbHMvc2NyaXB0LmMKaW5kZXggMzI5MDZkMC4uNjM5MTNjOCAxMDA2NDQKLS0tIGEv
+dGVybS11dGlscy9zY3JpcHQuYworKysgYi90ZXJtLXV0aWxzL3NjcmlwdC5jCkBAIC0zMjgsNiAr
+MzI4LDcgQEAgZG9pbnB1dCh2b2lkKSB7CiAJd2hpbGUgKGRpZSA9PSAwKSB7CiAJCUZEX1NFVChT
+VERJTl9GSUxFTk8sICZyZWFkZmRzKTsKIAorCQllcnJubyA9IDA7CiAJCS8qIHdhaXQgZm9yIGlu
+cHV0IG9yIHNpZ25hbCAoaW5jbHVkaW5nIFNJR0NITEQpICovCiAJCWlmICgoY2MgPSBwc2VsZWN0
+KFNURElOX0ZJTEVOTyArIDEsICZyZWFkZmRzLCBOVUxMLCBOVUxMLCBOVUxMLAogCQkJJnVuYmxv
+Y2tfbWFzaykpID4gMCkgewpAQCAtMzQ5LDcgKzM1MCw3IEBAIGRvaW5wdXQodm9pZCkgewogCQkJ
+fQogCQkJcmVzaXplZCA9IDA7CiAKLQkJfSBlbHNlIGlmIChjYyA8PSAwKSB7CisJCX0gZWxzZSBp
+ZiAoY2MgPD0gMCAmJiBlcnJubyAhPSBFSU5UUikgewogCQkJZXJyc3YgPSBlcnJubzsKIAkJCWJy
+ZWFrOwogCQl9Ci0tIAoxLjguNS5yYzMuMi5nYzMwMjk0MQoK
+--001a11c2f4947b27d704fa982f95--
