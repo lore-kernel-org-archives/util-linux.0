@@ -1,45 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:60481 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754896AbaEKIV2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 11 May 2014 04:21:28 -0400
-Received: by mail-pd0-f175.google.com with SMTP id x10so5327177pdj.34
-        for <util-linux@vger.kernel.org>; Sun, 11 May 2014 01:21:27 -0700 (PDT)
-From: Shakur Shams Mullick <shakursmullick@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Shakur Shams Mullick <shakursmullick@gmail.com>
-Subject: [PATCH 5/8] libsmartcols/src/column.c: add function to set comparison function scols_column_set_sortcmp() sets the cell comparison function to use
-Date: Sun, 11 May 2014 14:20:35 +0600
-Message-Id: <1399796438-5495-5-git-send-email-shakursmullick@gmail.com>
-In-Reply-To: <1399796438-5495-1-git-send-email-shakursmullick@gmail.com>
-References: <1399796438-5495-1-git-send-email-shakursmullick@gmail.com>
+Received: from mout.gmx.net ([212.227.15.19]:49171 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756568AbaEaO0M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 31 May 2014 10:26:12 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Petr Uzel <petr.uzel@suse.cz>
+Subject: Re: [PATCH] sfdisk: suppress Linux-irrelevant warnings with -L
+Date: Sat, 31 May 2014 16:25:32 +0200
+Cc: "util-linux" <util-linux@vger.kernel.org>,
+        Roberto Angelino <rangelino@novell.com>,
+        Holger Hetterich <hhetter@suse.com>,
+        Stanislav Brabec <sbrabec@suse.cz>
+References: <1401121683-18503-1-git-send-email-petr.uzel@suse.cz>
+In-Reply-To: <1401121683-18503-1-git-send-email-petr.uzel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201405311625.33102.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
----
- libsmartcols/src/column.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+On Monday 26 May 2014, Petr Uzel wrote:
+> Sfdisk prints out a warning about extended partition not
+> starting at a cylinder boundary. Since this is irrelevant
+> for linux, the -L option should suppress this warning.
 
-diff --git a/libsmartcols/src/column.c b/libsmartcols/src/column.c
-index 4ee782f..f2ff0a7 100644
---- a/libsmartcols/src/column.c
-+++ b/libsmartcols/src/column.c
-@@ -313,3 +313,15 @@ int scols_column_is_noextremes(struct libscols_column *cl)
- 		return -EINVAL;
- 	return cl->flags & SCOLS_FL_NOEXTREMES;
- }
-+
-+int scols_column_set_sortcmp(struct libscols_column *cl, 
-+                             int (*compar)(struct libscols_cell *a, struct libscols_cell *b, void *data), 
-+                             void *data)
-+{
-+	assert(cl);
-+	if (!cl)
-+		return -EINVAL;
-+	cl->compar = compar;
-+	
-+	return 0;
-+}
--- 
-1.8.3.2
+I would really like to have -L enabled by default on linux. Project name
+is util-LINUX and if we even run it on linux, why being still bothered 
+per default?
 
+BTW we have some more warnings of this kind in libfdisk/src/dos.c
+where we don't have option -L:
+
+/* Same physical / logical beginning? */
+if (cxt->geom.cylinders <= 1024
+    && (pbc != lbc || pbh != lbh || pbs != lbs)) {
+       fdisk_warnx(cxt, _("Partition %zu: different physical/logical "
+               "beginnings (non-Linux?): "
+               "phys=(%d, %d, %d), logical=(%d, %d, %d)"),
+                partition + 1,
+                pbc, pbh, pbs,
+                lbc, lbh, lbs);
+}
+
+
+> Signed-off-by: Petr Uzel <petr.uzel@suse.cz>
+> ---
+>  disk-utils/sfdisk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+> index 3c55d5e..12162af 100644
+> --- a/disk-utils/sfdisk.c
+> +++ b/disk-utils/sfdisk.c
+> @@ -1383,7 +1383,7 @@ extended_partition(char *dev, int fd, struct
+> part_desc *ep, struct disk_desc *z) "from %lld to %lld\n"
+>  		      "(For listing purposes only. "
+>  		      "Do not change its contents.)"), ep->start, start);
+> -	} else {
+> +	} else if (!Linux) {
+>  	    warnx(_("Warning: extended partition does not start at a "
+>  		      "cylinder boundary.\n"
+>
