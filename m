@@ -1,45 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:44163 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750741AbaF0FRE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jun 2014 01:17:04 -0400
-Received: by mail-pb0-f53.google.com with SMTP id uo5so4091489pbc.12
-        for <util-linux@vger.kernel.org>; Thu, 26 Jun 2014 22:17:03 -0700 (PDT)
-From: "Eric Rannaud" <e@nanocritical.com>
+Received: from mout.gmx.net ([212.227.17.20]:58372 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752518AbaFBAeI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 1 Jun 2014 20:34:08 -0400
+Received: from brln-4db817cb.pool.mediaways.net ([77.184.23.203]) by
+ mail.gmx.com (mrgmx001) with ESMTPSA (Nemesis) id 0LoVvG-1WJbCW1pec-00gV3u
+ for <util-linux@vger.kernel.org>; Mon, 02 Jun 2014 02:34:06 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, Eric Rannaud <e@nanocritical.com>
-Subject: [PATCH 2/4] libmount: mnt_resolve_path: don't canonicalize fs->target for swap
-Date: Thu, 26 Jun 2014 22:17:17 -0700
-Message-Id: <bc63685a3d056044034ee5c78119313498ad46b1.1403845374.git.e@nanocritical.com>
-In-Reply-To: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
-References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
-In-Reply-To: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
-References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+Subject: Re: build-sys: minor issues
+Date: Mon, 2 Jun 2014 02:33:38 +0200
+References: <201406020056.17074.sweet_f_a@gmx.de>
+In-Reply-To: <201406020056.17074.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406020233.39094.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is how mnt_table_find_target() does it. It makes sense because
-@fs->target is "none" for swap and is never a sensible match for a
-user-specified target.
+On Monday 02 June 2014, Ruediger Meier wrote:
+> I have two minor issues with our build-sys:
 
-Signed-off-by: Eric Rannaud <e@nanocritical.com>
----
- libmount/src/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Another issue:
 
-diff --git a/libmount/src/fs.c b/libmount/src/fs.c
-index 949e718f4ca5..21ef0f7479fd 100644
---- a/libmount/src/fs.c
-+++ b/libmount/src/fs.c
-@@ -1437,7 +1437,7 @@ int mnt_fs_match_target(struct libmnt_fs *fs, const char *target,
- 		rc = (cn && mnt_fs_streq_target(fs, cn));
- 
- 		/* 3) - canonicalized and canonicalized */
--		if (!rc && cn && !mnt_fs_is_kernel(fs)) {
-+		if (!rc && cn && !mnt_fs_is_kernel(fs) && !mnt_fs_is_swaparea(fs)) {
- 			char *tcn = mnt_resolve_path(fs->target, cache);
- 			rc = (tcn && strcmp(cn, tcn) == 0);
- 		}
--- 
-2.0.1
+3. --enable-gtk-doc does not work in out-of-tree build:
 
+$ mkdir build 
+$ cd build
+$ ../configure --enable-gtk-doc 
+$ make V=1
+[...]
+gtkdoc-mkhtml --path="/home/rudi/devel/util-linux/build/libmount/docs:/home/rudi/devel/util-linux/build/libmount/docs/xml:/home/rudi/devel/util-linux/build/../libmount/docs" 
+\
+                 \
+                libmount \
+                /home/rudi/devel/util-linux/build/../libmount/docs/libmount-docs.xml
+/home/rudi/devel/util-linux/build/libmount/docs/version.xml:1: parser 
+error : Start tag expected, '<' not found
+2.24.900-7afc22
+^
+/home/rudi/devel/util-linux/build/../libmount/docs/libmount-docs.xml:59: 
+element include: XInclude error : could not 
+load /home/rudi/devel/util-linux/libmount/docs/xml/version.xml, and no 
+fallback was found
+make[2]: *** [html-build.stamp] Error 6
+make[2]: Leaving directory 
+`/home/rudi/devel/util-linux/build/libmount/docs'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/home/rudi/devel/util-linux/build'
+make: *** [all] Error 2
+
+
+BTW maybe we could consider about adding these docs to dist tarball to 
+not bother users with gtk-doc deps? (But I know then it's even more 
+complicated to rebuild cleanly in builddir when the existing one in 
+dist srcdir is outdated.)
+
+cu,
+Rudi
