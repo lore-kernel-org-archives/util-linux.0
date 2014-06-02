@@ -1,58 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f178.google.com ([74.125.82.178]:41523 "EHLO
-	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751577AbaFVKcM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 06:32:12 -0400
-Received: by mail-we0-f178.google.com with SMTP id x48so5506305wes.37
-        for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 03:32:11 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/6] rename: allow renaming in subdirectories
-Date: Sun, 22 Jun 2014 11:31:52 +0100
-Message-Id: <1403433117-32652-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
-References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] deadlock in script
+Date: Mon, 2 Jun 2014 12:03:22 +0200
+Cc: Csaba Kos <csaba.kos@gmail.com>, util-linux@vger.kernel.org
+References: <CADhtO=98eyzuDjbNgSzfdq17wxwWnuWp5H7-Go-Ut4SvMAQ7hw@mail.gmail.com> <201406021138.00417.sweet_f_a@gmx.de> <20140602095723.GO9000@x2.net.home>
+In-Reply-To: <20140602095723.GO9000@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406021203.22906.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier the rename(1) considered path as possible string to be renamed,
-could lead to an issue with none existing destination.  See below for
-demonstration of this issue.  After this change all directory elements
-are ignored when the match finding happens.
+On Monday 02 June 2014, Karel Zak wrote:
+> On Mon, Jun 02, 2014 at 11:37:59AM +0200, Ruediger Meier wrote:
+> > On Monday 02 June 2014, Karel Zak wrote:
+> > > On Fri, May 30, 2014 at 06:52:20PM +0900, Csaba Kos wrote:
+> > > > On Fri, May 30, 2014 at 6:15 PM, Karel Zak <kzak@redhat.com> wrote:
+> > > > > On Fri, May 30, 2014 at 03:30:45PM +0900, Csaba Kos wrote:
+> > > > >> diff --git a/term-utils/script.c b/term-utils/script.c
+> > > > >> index e5d239c..32906d0 100644
+> > > > >> --- a/term-utils/script.c
+> > > > >> +++ b/term-utils/script.c
+> > > > >> @@ -36,6 +36,9 @@
+> > > > >>   * - added Native Language Support
+> > > > >>   *
+> > > > >>   * 2000-07-30 Per Andreas Buer <per@linpro.no> - added
+> > > > >> "q"-option + *
+> > > > >> + * 2014-05-30 Csaba Kos <csaba.kos@gmail.com>
+> > > > >> + * - fixed a rare deadlock after child termination
+> > > > >>   */
+> > > > >>
+> > > > >>  /*
+> > > > >> @@ -114,6 +117,8 @@ int       tflg = 0;
+> > > > >>  int  forceflg = 0;
+> > > > >>  int  isterm;
+> > > > >>
+> > > > >> +sigset_t block_mask, unblock_mask;
+> > > > >
+> > > > >  This declaration shadows declaration in main() where is also
+> > > > > block_mask and unblock_mask -- I guess it's not expected.
+> > > >
+> > > > Sorry, I goofed when updating my patch to the current master.
+> > > > Thanks for the careful review! Updated patch attached.
+> > >
+> > >  All applied, thanks!
+> > >
+> > >     Karel
+> >
+> > Could this already fix the TODO in
+> > tests/ts/script/race (6cae66ea)?:
+>
+>  That's a good question, maybe, try it :-)
+>
+>  Locally I don't see any issue (although the test takes a lot of time
+>  due to count=1000, I'm still curious if we really need so many
+>  iterations in the test).
+>
 
-$ cd $(mktemp -d)
-$ mkdir aa ab
-$ touch a{a,b}/aa
-$ rename -v a x */aa
-rename: aa/aa: rename to xa/aa failed: No such file or directory
+Hm, I could still catch one again:
+--- tests/expected/script/race      2014-05-27 11:12:51.367615962 +0200
++++ tests/output/script/race  2014-06-02 11:34:54.509072271 +0200
+@@ -1 +1 @@
+-all bingos seen
++only 996 of 1000 bingos seen
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/rename.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Actually it seems to be easy to get it failed on NFS mount. But I've grepped
+a lot of my other build logs and couldn't find any script failure within the
+last weeks.
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index 9db85fb..b945aaa 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -46,9 +46,14 @@ static int do_rename(char *from, char *to, char *s, int verbose, int symtarget)
- 
- 		target[sb.st_size] = '\0';
- 		where = strstr(target, from);
--	} else
--		where = strstr(s, from);
-+	} else {
-+		char *file;
- 
-+		file = rindex(s, '/');
-+		if (file == NULL)
-+			file = s;
-+		where = strstr(file, from);
-+	}
- 	if (where == NULL) {
- 		free(target);
- 		return 0;
--- 
-2.0.0
-
+cu,
+Rudi
