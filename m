@@ -1,73 +1,51 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] deadlock in script
-Date: Mon, 2 Jun 2014 12:03:22 +0200
-Cc: Csaba Kos <csaba.kos@gmail.com>, util-linux@vger.kernel.org
-References: <CADhtO=98eyzuDjbNgSzfdq17wxwWnuWp5H7-Go-Ut4SvMAQ7hw@mail.gmail.com> <201406021138.00417.sweet_f_a@gmx.de> <20140602095723.GO9000@x2.net.home>
-In-Reply-To: <20140602095723.GO9000@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:61920 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751951AbaFBQmf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 2 Jun 2014 12:42:35 -0400
+Received: by mail-pb0-f53.google.com with SMTP id md12so4393747pbc.40
+        for <util-linux@vger.kernel.org>; Mon, 02 Jun 2014 09:42:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406021203.22906.sweet_f_a@gmx.de>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <201406020035.40358.sweet_f_a@gmx.de>
+References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi>
+	<201405291223.40734.sweet_f_a@gmx.de>
+	<CAG27Bk02R6UE4qqws=KOh5YKZ+hZJUyM1i8Z2dZ0h65a5Bpu2A@mail.gmail.com>
+	<201406020035.40358.sweet_f_a@gmx.de>
+Date: Mon, 2 Jun 2014 17:42:34 +0100
+Message-ID: <CAG27Bk09hbETdviRdWyQ6QrrUOj-VUxqUurWAMTZuWFF4k=H9Q@mail.gmail.com>
+Subject: Re: [PATCH 4/4] docs: setterm.1 clean up manual page groff style
+From: Sami Kerola <kerolasa@iki.fi>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 02 June 2014, Karel Zak wrote:
-> On Mon, Jun 02, 2014 at 11:37:59AM +0200, Ruediger Meier wrote:
-> > On Monday 02 June 2014, Karel Zak wrote:
-> > > On Fri, May 30, 2014 at 06:52:20PM +0900, Csaba Kos wrote:
-> > > > On Fri, May 30, 2014 at 6:15 PM, Karel Zak <kzak@redhat.com> wrote:
-> > > > > On Fri, May 30, 2014 at 03:30:45PM +0900, Csaba Kos wrote:
-> > > > >> diff --git a/term-utils/script.c b/term-utils/script.c
-> > > > >> index e5d239c..32906d0 100644
-> > > > >> --- a/term-utils/script.c
-> > > > >> +++ b/term-utils/script.c
-> > > > >> @@ -36,6 +36,9 @@
-> > > > >>   * - added Native Language Support
-> > > > >>   *
-> > > > >>   * 2000-07-30 Per Andreas Buer <per@linpro.no> - added
-> > > > >> "q"-option + *
-> > > > >> + * 2014-05-30 Csaba Kos <csaba.kos@gmail.com>
-> > > > >> + * - fixed a rare deadlock after child termination
-> > > > >>   */
-> > > > >>
-> > > > >>  /*
-> > > > >> @@ -114,6 +117,8 @@ int       tflg = 0;
-> > > > >>  int  forceflg = 0;
-> > > > >>  int  isterm;
-> > > > >>
-> > > > >> +sigset_t block_mask, unblock_mask;
-> > > > >
-> > > > >  This declaration shadows declaration in main() where is also
-> > > > > block_mask and unblock_mask -- I guess it's not expected.
-> > > >
-> > > > Sorry, I goofed when updating my patch to the current master.
-> > > > Thanks for the careful review! Updated patch attached.
-> > >
-> > >  All applied, thanks!
-> > >
-> > >     Karel
-> >
-> > Could this already fix the TODO in
-> > tests/ts/script/race (6cae66ea)?:
+On 1 June 2014 23:35, Ruediger Meier <sweet_f_a@gmx.de> wrote:
+>> > At least I would quote it
+>> >   cd "$TS_OUTDIR"
+>> > or even better
+>> >   cd "$TS_OUTDIR" || exit 1
+>>
+>> Hi Rudi,
+>>
+>> Good point. I changed my git to have the better change dir you
+>> proposed.
 >
->  That's a good question, maybe, try it :-)
->
->  Locally I don't see any issue (although the test takes a lot of time
->  due to count=1000, I'm still curious if we really need so many
->  iterations in the test).
->
+> BTW I just noticed that bash's
+> $ cd ''
+> does NOT return error. But
+> $ /usr/bin/cd ''
+> does like it should IMO.
 
-Hm, I could still catch one again:
---- tests/expected/script/race      2014-05-27 11:12:51.367615962 +0200
-+++ tests/output/script/race  2014-06-02 11:34:54.509072271 +0200
-@@ -1 +1 @@
--all bingos seen
-+only 996 of 1000 bingos seen
+Karel,
 
-Actually it seems to be easy to get it failed on NFS mount. But I've grepped
-a lot of my other build logs and couldn't find any script failure within the
-last weeks.
+Please drop the rename changes for now. They do not seem to be ready
+before v2.25. Lets see afterwards what could or should be done to
+rename, and others tests that change direcrory.
 
-cu,
-Rudi
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
