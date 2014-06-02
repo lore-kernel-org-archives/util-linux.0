@@ -1,35 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47484 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:13093 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754540AbaFYMMG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 25 Jun 2014 08:12:06 -0400
-Date: Wed, 25 Jun 2014 14:11:53 +0200
+	id S1752724AbaFBJ5a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Jun 2014 05:57:30 -0400
+Date: Mon, 2 Jun 2014 11:57:23 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 5/6] rename: continue despite something failed
-Message-ID: <20140625121153.GC30418@x2.net.home>
-References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
- <1403433117-32652-6-git-send-email-kerolasa@iki.fi>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Csaba Kos <csaba.kos@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] deadlock in script
+Message-ID: <20140602095723.GO9000@x2.net.home>
+References: <CADhtO=98eyzuDjbNgSzfdq17wxwWnuWp5H7-Go-Ut4SvMAQ7hw@mail.gmail.com>
+ <CADhtO=8Kj763OzRRSFgOXcD+h1QUeRn7uJXqCms0TBY8=RWEBA@mail.gmail.com>
+ <20140602090840.GL9000@x2.net.home>
+ <201406021138.00417.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1403433117-32652-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <201406021138.00417.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 22, 2014 at 11:31:56AM +0100, Sami Kerola wrote:
-> Try to do all file operations even when one or some of them fail.
+On Mon, Jun 02, 2014 at 11:37:59AM +0200, Ruediger Meier wrote:
+> On Monday 02 June 2014, Karel Zak wrote:
+> > On Fri, May 30, 2014 at 06:52:20PM +0900, Csaba Kos wrote:
+> > > On Fri, May 30, 2014 at 6:15 PM, Karel Zak <kzak@redhat.com> wrote:
+> > > > On Fri, May 30, 2014 at 03:30:45PM +0900, Csaba Kos wrote:
+> > > >> diff --git a/term-utils/script.c b/term-utils/script.c
+> > > >> index e5d239c..32906d0 100644
+> > > >> --- a/term-utils/script.c
+> > > >> +++ b/term-utils/script.c
+> > > >> @@ -36,6 +36,9 @@
+> > > >>   * - added Native Language Support
+> > > >>   *
+> > > >>   * 2000-07-30 Per Andreas Buer <per@linpro.no> - added
+> > > >> "q"-option + *
+> > > >> + * 2014-05-30 Csaba Kos <csaba.kos@gmail.com>
+> > > >> + * - fixed a rare deadlock after child termination
+> > > >>   */
+> > > >>
+> > > >>  /*
+> > > >> @@ -114,6 +117,8 @@ int       tflg = 0;
+> > > >>  int  forceflg = 0;
+> > > >>  int  isterm;
+> > > >>
+> > > >> +sigset_t block_mask, unblock_mask;
+> > > >
+> > > >  This declaration shadows declaration in main() where is also
+> > > > block_mask and unblock_mask -- I guess it's not expected.
+> > >
+> > > Sorry, I goofed when updating my patch to the current master.
+> > > Thanks for the careful review! Updated patch attached.
+> >
+> >  All applied, thanks!
+> >
+> >     Karel
+> 
+> Could this already fix the TODO in
+> tests/ts/script/race (6cae66ea)?:
 
- It would be nice to have a special return code for situation when
- something failed. See for example "mount -a" of kill(1) where we have 
+ That's a good question, maybe, try it :-)
 
-    #define KILL_EXIT_SOMEOK      64
-
- and add to man page:
-
-       0      success
-       1      failure
-       64     partial success
+ Locally I don't see any issue (although the test takes a lot of time
+ due to count=1000, I'm still curious if we really need so many
+ iterations in the test).
 
     Karel
 
