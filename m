@@ -1,60 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46592 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:65133 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751728AbaFDKV1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 4 Jun 2014 06:21:27 -0400
-Date: Wed, 4 Jun 2014 12:21:17 +0200
+	id S1751442AbaFBJsd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Jun 2014 05:48:33 -0400
+Date: Mon, 2 Jun 2014 11:48:26 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: build-sys: how to install pylibmount after libmount?
-Message-ID: <20140604102117.GU9000@x2.net.home>
-References: <201406031552.50670.sweet_f_a@gmx.de>
+Subject: Re: build-sys: minor issues
+Message-ID: <20140602094826.GN9000@x2.net.home>
+References: <201406020056.17074.sweet_f_a@gmx.de>
+ <201406020233.39094.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201406031552.50670.sweet_f_a@gmx.de>
+In-Reply-To: <201406020233.39094.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 03, 2014 at 03:52:50PM +0200, Ruediger Meier wrote:
-> Hi,
+On Mon, Jun 02, 2014 at 02:33:38AM +0200, Ruediger Meier wrote:
+> On Monday 02 June 2014, Ruediger Meier wrote:
+> > I have two minor issues with our build-sys:
 > 
-> This should be easy to reproduce if you don't have a global installed 
-> libmount.
+> Another issue:
 > 
-> $ sudo mkdir /usr/lib64/away
-> $ sudo mv /usr/lib64/libmount.* /usr/lib64/away
-> 
-> $ ./configure --disable-use-tty-group \
-> 	--prefix=/tmp/dest \
+> 3. --enable-gtk-doc does not work in out-of-tree build:
 
- Just note, it's usually bad idea to override the default prefix
- (especially for package like util-linux), it's better to use 
- standard prefix and use "make install  DESTDIR=/tmp/dest".
+ I'll try to fix it (it worked time ago if I good remember). Frankly,
+ the way how is gtk-doc designed to work with autotools sucks...
 
-> Unfortunately some systems set per default
->   link_all_deplibs=no
-> instead of "unknown" in ./libtool. Don't know whether this is a bug in 
-> libtool or automake macros. But we could work around this if we would 
-> make sure to install pylibmount always after libmount.
-> 
-> This is how it looks in Makefile.in:
-> install-exec-am: install-binPROGRAMS install-dist_usrbin_execSCRIPTS \
->         install-pylibmountexecLTLIBRARIES \
->         install-pylibmountexecSCRIPTS install-sbinPROGRAMS \
->         install-usrbin_execPROGRAMS install-usrlib_execLTLIBRARIES \
->         install-usrsbin_execPROGRAMS
->         @$(NORMAL_INSTALL)
->         $(MAKE) $(AM_MAKEFLAGS) install-exec-hook
-> 
-> How could we force to put
->   install-pylibmountexecLTLIBRARIES
-> after
->   install-usrlib_execLTLIBRARIES
+ BTW, our TODO:
 
-hmm.. I don't know, I think it's libtool job to generate the right order.
+   * use something better than gtk-doc for libmount and libblkid (doxyden?)
+
+  ;-)
+
+> BTW maybe we could consider about adding these docs to dist tarball to 
+> not bother users with gtk-doc deps? (But I know then it's even more 
+
+ Hmm... not sure, I guess the number of people who care about libs
+ docs is pretty small and for mainstream distros is the dependence on
+ gtk-doc no issue.
+
+> complicated to rebuild cleanly in builddir when the existing one in 
+> dist srcdir is outdated.)
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
