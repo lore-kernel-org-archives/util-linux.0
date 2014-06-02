@@ -1,70 +1,44 @@
 Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: build-sys: how to install pylibmount after libmount?
-Date: Wed, 4 Jun 2014 12:45:53 +0200
-Cc: util-linux@vger.kernel.org
-References: <201406031552.50670.sweet_f_a@gmx.de> <20140604102117.GU9000@x2.net.home>
-In-Reply-To: <20140604102117.GU9000@x2.net.home>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: Re: [PATCH 4/4] docs: setterm.1 clean up manual page groff style
+Date: Mon, 2 Jun 2014 23:35:27 +0200
+Cc: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>,
+        Benno Schulenberg <bensberg@justemail.net>,
+        "Util-Linux" <util-linux@vger.kernel.org>
+References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi> <CAG27Bk09hbETdviRdWyQ6QrrUOj-VUxqUurWAMTZuWFF4k=H9Q@mail.gmail.com> <538CEB62.4020102@bernhard-voelker.de>
+In-Reply-To: <538CEB62.4020102@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406041245.54088.sweet_f_a@gmx.de>
+  charset="utf-8"
+Message-Id: <201406022335.27518.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 04 June 2014, Karel Zak wrote:
-> On Tue, Jun 03, 2014 at 03:52:50PM +0200, Ruediger Meier wrote:
-> > Hi,
-> >
-> > This should be easy to reproduce if you don't have a global
-> > installed libmount.
-> >
-> > $ sudo mkdir /usr/lib64/away
-> > $ sudo mv /usr/lib64/libmount.* /usr/lib64/away
-> >
-> > $ ./configure --disable-use-tty-group \
-> > 	--prefix=/tmp/dest \
+On Monday 02 June 2014, Bernhard Voelker wrote:
+> > On 1 June 2014 23:35, Ruediger Meier <sweet_f_a@gmx.de> wrote:
+> > BTW I just noticed that bash's
+> > $ cd ''
+> > does NOT return error. But
+> > $ /usr/bin/cd ''
+> > does like it should IMO.
 >
->  Just note, it's usually bad idea to override the default prefix
->  (especially for package like util-linux), it's better to use
->  standard prefix and use "make install  DESTDIR=/tmp/dest".
-
-Yes, in this case I wanted to debug and reproduce "make distcheck"
-where --prefix is used.
-
-> > Unfortunately some systems set per default
-> >   link_all_deplibs=no
-> > instead of "unknown" in ./libtool. Don't know whether this is a bug
-> > in libtool or automake macros. But we could work around this if we
-> > would make sure to install pylibmount always after libmount.
-> >
-> > This is how it looks in Makefile.in:
-> > install-exec-am: install-binPROGRAMS
-> > install-dist_usrbin_execSCRIPTS \ install-pylibmountexecLTLIBRARIES
-> > \
-> >         install-pylibmountexecSCRIPTS install-sbinPROGRAMS \
-> >         install-usrbin_execPROGRAMS install-usrlib_execLTLIBRARIES
-> > \ install-usrsbin_execPROGRAMS
-> >         @$(NORMAL_INSTALL)
-> >         $(MAKE) $(AM_MAKEFLAGS) install-exec-hook
-> >
-> > How could we force to put
-> >   install-pylibmountexecLTLIBRARIES
-> > after
-> >   install-usrlib_execLTLIBRARIES
+> What is /usr/bin/cd? As this would do the chdir() in
+> a very-short-living sub-process, I'd consider this a
+> useless program (apart from checking whether chdir()ing
+> into the given directory would succeed).
 >
-> hmm.. I don't know, I think it's libtool job to generate the right
-> order.
+> Have a nice day,
+> Berny
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-I think too. libtool and automake can be assumed to be non-broken on 
-devel machines. I thought there is still a little chance that we have 
-incorrect pylibmount_la_DEPENDENCIES ot whatever. But I don't see it.
+Ooops :) Of course it does not exist. But the error
+looks (almost) plausible, lol
 
-Anyway, I will just add a workaround for travis.yml until they update 
-build-os:
-  ./autogen.sh
-  # workaround for broken pylibmount install relink
-  sed -i 's/\(link_all_deplibs\)=no/\1=unknown/' ./configure
+$ /usr/bin/cd ""
+sh: /usr/bin/cd: No such file or directory
 
 cu,
 Rudi
