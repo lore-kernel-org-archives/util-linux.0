@@ -1,63 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h31.telenor.se ([213.150.131.4]:51256 "EHLO
-	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750953AbaFUXgE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 21 Jun 2014 19:36:04 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-h31.telenor.se (Postfix) with ESMTP id EDE65C0DF
-	for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 01:03:13 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: James Hunt <james.hunt@ubuntu.com>, Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH] script: --quiet option is not quiet.
-Date: Sun, 22 Jun 2014 01:03:04 +0200
-Message-Id: <1403391784-9912-1-git-send-email-andreas@fatal.se>
+Received: from mout.gmx.net ([212.227.17.21]:58383 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750931AbaFBKd2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Jun 2014 06:33:28 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: build-sys: minor issues
+Date: Mon, 2 Jun 2014 12:33:23 +0200
+Cc: util-linux@vger.kernel.org
+References: <201406020056.17074.sweet_f_a@gmx.de> <20140602094243.GM9000@x2.net.home>
+In-Reply-To: <20140602094243.GM9000@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406021233.23463.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: James Hunt <james.hunt@ubuntu.com>
+On Monday 02 June 2014, Karel Zak wrote:
+> On Mon, Jun 02, 2014 at 12:56:16AM +0200, Ruediger Meier wrote:
+> > 1. ./configure --enable-all-programs
+> > also triggers --enable-deprecated-last. Would be nice to exclude
+> > this deprecated stuff somehow.
+>
+>  fixed, thanks for your report.
 
-Specifying 'script --quiet ...' still produces the 'Script started'
-message in the typescript file. The --quiet option implies that the
-script program should not log any of its output to the typescript file.
+Thanks! All the recent build-sys tweaks were really helpful!
 
-Originally reported at:
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=693966
+> > 2. make dist
+> > changes files in source dir, which makes the git clone dirty. Would
+> > be nice if we could avoid this somehow.
+>
+>  What files? I see po/ stuff modification and it's more political
+>  issue than technical. The reason is that I update po/ only once
+>  before release (to avoid many many huge commits with irrelevant
+>  changes).
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- term-utils/script.1 | 3 ++-
- term-utils/script.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+I have to admit that I'm not really familar with this translations.
+But IMO generally it's not nice that "make dist" pollutes the git
+clone.
 
-diff --git a/term-utils/script.1 b/term-utils/script.1
-index 60a0e53..67e1066 100644
---- a/term-utils/script.1
-+++ b/term-utils/script.1
-@@ -82,7 +82,8 @@ Allow the default output destination, i.e. the typescript file, to be a hard
- or symbolic link.  The command will follow a symbolic link.
- .TP
- \fB\-q\fR, \fB\-\-quiet\fR
--Be quiet.
-+Be quiet (do not write start and done messages to either standard output
-+or the typescript file).
- .TP
- \fB\-t\fR, \fB\-\-timing\fR[=\fIfile\fR]
- Output timing data to standard error, or to
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 1530e67..21fb5af 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -437,7 +437,8 @@ dooutput(void) {
- 
- 	tvec = time((time_t *)NULL);
- 	my_strftime(obuf, sizeof obuf, "%c\n", localtime(&tvec));
--	fprintf(fscript, _("Script started on %s"), obuf);
-+	if (!qflg)
-+		fprintf(fscript, _("Script started on %s"), obuf);
- 
- 	FD_ZERO(&readfds);
- 
--- 
-2.0.0
+I see 3 possibilities how to avoid this.
 
+1. Don't track these po files in git at all. Always generate in
+   builddir. Put them into dist only.
+2. Don't update them with "make dist". Add new target "make update-po".
+3. Keep them in srcdir but update to builddir. Add a script
+   "commit-po-updates" to manulally move them from builddir to
+   srcdir from time to time. 
+
+My use case is a cronjob like this
+  git pull origin
+  ./autogen.sh && ./configure && make dist
+  "push-tarball-to-build-host" 
+
+Because of the current git pollution I have to do always "git 
+reset --hard" before "autogen.sh" to not have "-dirty" suffixed version 
+numbers.
+
+cu,
+Rudi 
