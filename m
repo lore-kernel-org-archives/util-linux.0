@@ -1,45 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:46573 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752381AbaFXWDf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jun 2014 18:03:35 -0400
-Received: by mail-pb0-f49.google.com with SMTP id rr13so785374pbb.8
-        for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 15:03:35 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:61929 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752639AbaFBHtn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Jun 2014 03:49:43 -0400
+Date: Mon, 2 Jun 2014 09:49:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux <util-linux@vger.kernel.org>,
+        Roberto Angelino <rangelino@novell.com>,
+        Holger Hetterich <hhetter@suse.com>,
+        Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH] sfdisk: suppress Linux-irrelevant warnings with -L
+Message-ID: <20140602074931.GK9000@x2.net.home>
+References: <1401121683-18503-1-git-send-email-petr.uzel@suse.cz>
+ <201405311625.33102.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
-References: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
-Date: Tue, 24 Jun 2014 23:03:35 +0100
-Message-ID: <CAG27Bk2hnApV9tRw6u3Y0GvptHO+EW2ji7CoRd7fuzvyyws-KA@mail.gmail.com>
-Subject: Re: Enhancement request: logger should use FQDN
-From: Sami Kerola <kerolasa@iki.fi>
-To: Kodiak Firesmith <ksf@sei.cmu.edu>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201405311625.33102.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 24 June 2014 13:53, Kodiak Firesmith <ksf@sei.cmu.edu> wrote:
-> I noticed recently while using logger in some scripts that it is not
-> following RFC and choosing the FQDN first if available.  This stands out for
-> hosts with $PreserveFQDN in rsyslogd.conf as all other messages will use
-> FQDN and logger messages will use short hostname.
-> This behavior poses problems when wrangling syslog data in a correlator like
-> Splunk.
->
-> Sadly I'm no coder so I cannot sort out the problem and provide a patch, but
-> I'm hoping one of the logger maintainers/contributors might be able to help
-> out.
+On Sat, May 31, 2014 at 04:25:32PM +0200, Ruediger Meier wrote:
+> On Monday 26 May 2014, Petr Uzel wrote:
+> > Sfdisk prints out a warning about extended partition not
+> > starting at a cylinder boundary. Since this is irrelevant
+> > for linux, the -L option should suppress this warning.
+> 
+> I would really like to have -L enabled by default on linux. Project name
+> is util-LINUX and if we even run it on linux, why being still bothered 
+> per default?
 
-FYI
+sfdisk code sucks and it's necessary to rewrite it to use libfdisk
+(sfdisk is the last remaining fdisk), I'd like to do this change in
+v2.26.
 
-I started to look how to get fqdn, RFC 3164 and RFC 5424 supported. At
-the moment I am thinking logger should default to RFC 5424 in future.
-If someone is interested of sneak peak I keep backup laptop in github
-branch below.
+> BTW we have some more warnings of this kind in libfdisk/src/dos.c
+> where we don't have option -L:
+> 
+> /* Same physical / logical beginning? */
+> if (cxt->geom.cylinders <= 1024
+>     && (pbc != lbc || pbh != lbh || pbs != lbs)) {
+>        fdisk_warnx(cxt, _("Partition %zu: different physical/logical "
+>                "beginnings (non-Linux?): "
+>                "phys=(%d, %d, %d), logical=(%d, %d, %d)"),
+>                 partition + 1,
+>                 pbc, pbh, pbs,
+>                 lbc, lbh, lbs);
+> }
 
-https://github.com/kerolasa/lelux-utiliteetit/tree/logger
+this code is for DOS compatible mode which is disabled by default
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
