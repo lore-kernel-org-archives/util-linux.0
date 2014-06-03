@@ -1,63 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29091 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753336AbaFPN2U (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Jun 2014 09:28:20 -0400
-Date: Mon, 16 Jun 2014 15:28:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Eric Rannaud <eric.rannaud@gmail.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
-Subject: Re: Using findmnt in the presence of a stale NFS mount
-Message-ID: <20140616132816.GK30975@x2.net.home>
-References: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
+Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:60066 "EHLO
+	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753862AbaFCOCO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 3 Jun 2014 10:02:14 -0400
+From: Phillip Susi <psusi@ubuntu.com>
+To: util-linux@vger.kernel.org
+Cc: Phillip Susi <psusi@ubuntu.com>
+Subject: [PATCH] flock: document exit status of flock in man page
+Date: Tue,  3 Jun 2014 09:55:52 -0400
+Message-Id: <1401803752-17401-1-git-send-email-psusi@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 10, 2014 at 08:03:35AM -0700, Eric Rannaud wrote:
-> findmnt -snero fstype --tab-file '/etc/fstab' -T '/usr'
-> findmnt -s /boot
-> findmnt -s /usr
-> 
-> (note that on my system, /usr is not a mount point of any kind, while
-> /boot is ext4. /mnt is the stale NFS mount)
-> 
-> This older Arch bug https://bugs.archlinux.org/task/36629 refers to
-> the problem, but as far as I can tell the problem still exists in the
-> same form (at the time, the package maintainer added the -T option to
-> the command "findmnt -snero fstype --tab-file '/etc/fstab' -T '/usr'",
-> but I don't believe it changed anything).
-> 
-> In any case, from having a look at the code on the latest git (I can
-> reproduce the hang with 710ed55dcd), I believe the problem comes from
-> the following sequence.
-> 
-> When used with the -s|--fstab flag, findmnt goes through the list of
-> mount points in the tab file, and compares them with the target
-> specified, say '/usr'.
-> 
-> The comparison is done using mnt_fs_match_target() in
-> findmnt.c:match_func(). mnt_fs_match_target() uses mnt_resolve_path()
-> on both target ('/usr') and
-> fs->target, which uses canonicalize_path(fs->target), which uses
-> realpath(fs->target). As the fs->target is the stale NFS mount point,
-> this last call hangs in a lstat().
-> 
-> While it is clear that a system with a stale NFS mount point is a
-> minefield, would it be possible to avoid the call to
-> "realpath(fs->target)" (maybe controlled by a command line option)?
-> 
-> As it is, it is impossible to upgrade an Arch Linux install when there
-> is a stale NFS mount anywhere on the system (and listed in fstab).
+The man page did not indicate that the exit status of flock
+is actually that of the child command, when one is run.
+---
+ sys-utils/flock.1 | 3 +++
+ 1 file changed, 3 insertions(+)
 
- You can try to  exclude NFS at all by --types nonfs, but maybe we can
- add option --nocanonicalize. I'll try to play with that tomorrow. 
-
-    Karel
-
-
+diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
+index 99ae682..c245eda 100644
+--- a/sys-utils/flock.1
++++ b/sys-utils/flock.1
+@@ -159,6 +159,9 @@ or
+ which report a failure to acquire the lock with a return value given by the
+ .I \-E
+ option, or 1 by default.
++.PP
++When using the <command> variant, and executing the child worked, then
++the exit status is that of the child command.
+ .SH AUTHOR
+ .UR hpa@zytor.com
+ H. Peter Anvin
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.1
+
