@@ -1,37 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from rrcs-67-78-168-186.se.biz.rr.com ([67.78.168.186]:60066 "EHLO
-	iriserv.iradimed.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753862AbaFCOCO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 3 Jun 2014 10:02:14 -0400
-From: Phillip Susi <psusi@ubuntu.com>
-To: util-linux@vger.kernel.org
-Cc: Phillip Susi <psusi@ubuntu.com>
-Subject: [PATCH] flock: document exit status of flock in man page
-Date: Tue,  3 Jun 2014 09:55:52 -0400
-Message-Id: <1401803752-17401-1-git-send-email-psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53253 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750892AbaFCKmy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 3 Jun 2014 06:42:54 -0400
+Date: Tue, 3 Jun 2014 12:42:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: build-sys: minor issues
+Message-ID: <20140603104249.GQ9000@x2.net.home>
+References: <201406020056.17074.sweet_f_a@gmx.de>
+ <201406020233.39094.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201406020233.39094.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The man page did not indicate that the exit status of flock
-is actually that of the child command, when one is run.
----
- sys-utils/flock.1 | 3 +++
- 1 file changed, 3 insertions(+)
+On Mon, Jun 02, 2014 at 02:33:38AM +0200, Ruediger Meier wrote:
+> On Monday 02 June 2014, Ruediger Meier wrote:
+> > I have two minor issues with our build-sys:
+> 
+> Another issue:
+> 
+> 3. --enable-gtk-doc does not work in out-of-tree build:
+> 
+> $ mkdir build 
+> $ cd build
+> $ ../configure --enable-gtk-doc 
+> $ make V=1
+> [...]
+> gtkdoc-mkhtml --path="/home/rudi/devel/util-linux/build/libmount/docs:/home/rudi/devel/util-linux/build/libmount/docs/xml:/home/rudi/devel/util-linux/build/../libmount/docs" 
+> \
+>                  \
+>                 libmount \
+>                 /home/rudi/devel/util-linux/build/../libmount/docs/libmount-docs.xml
+> /home/rudi/devel/util-linux/build/libmount/docs/version.xml:1: parser 
+> error : Start tag expected, '<' not found
+> 2.24.900-7afc22
+> ^
+> /home/rudi/devel/util-linux/build/../libmount/docs/libmount-docs.xml:59: 
+> element include: XInclude error : could not 
+> load /home/rudi/devel/util-linux/libmount/docs/xml/version.xml, and no 
+> fallback was found
 
-diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
-index 99ae682..c245eda 100644
---- a/sys-utils/flock.1
-+++ b/sys-utils/flock.1
-@@ -159,6 +159,9 @@ or
- which report a failure to acquire the lock with a return value given by the
- .I \-E
- option, or 1 by default.
-+.PP
-+When using the <command> variant, and executing the child worked, then
-+the exit status is that of the child command.
- .SH AUTHOR
- .UR hpa@zytor.com
- H. Peter Anvin
+ Fixed.
+
 -- 
-1.9.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
