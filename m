@@ -1,77 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from top.free-electrons.com ([176.31.233.9]:42326 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751856AbaFLUKa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 12 Jun 2014 16:10:30 -0400
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Received: from mout.gmx.net ([212.227.15.19]:59085 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753862AbaFCNww (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 3 Jun 2014 09:52:52 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0LngRb-1WJrAa1EUh-00hwyD for
+ <util-linux@vger.kernel.org>; Tue, 03 Jun 2014 15:52:51 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH] Only move shared libraries to /lib if they exists
-Date: Thu, 12 Jun 2014 22:10:27 +0200
-Message-Id: <1402603827-29129-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Subject: build-sys: how to install pylibmount after libmount?
+Date: Tue, 3 Jun 2014 15:52:50 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201406031552.50670.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In several Makemodule.am, there is a install-exec-hook-<library>
-target whose role is to move the shared library from /usr/lib to /lib,
-while keeping a symbolic link /usr/lib/libuuid.so ->
-../../lib/<library>.so.<version>.
+Hi,
 
-However, when util-linux is built with --enable-static
---disable-shared (as is needed on noMMU platforms that don't support
-shared libraries), no <library>.so is built, but the
-install-exec-hook-libuuid creates an invalid /usr/lib/<library>.so
-symbolic link, pointing to ../../lib (yes, the directory). This causes
-troubles later one when other libraries/programs are compiled with
--l<library>, as gcc thinks a shared library is available because
-there's a file named /usr/lib/<library>.so.
+This should be easy to reproduce if you don't have a global installed 
+libmount.
 
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
- libblkid/src/Makemodule.am | 2 +-
- libmount/src/Makemodule.am | 2 +-
- libuuid/src/Makemodule.am  | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+$ sudo mkdir /usr/lib64/away
+$ sudo mv /usr/lib64/libmount.* /usr/lib64/away
 
-diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
-index 013877e..d9f9276 100644
---- a/libblkid/src/Makemodule.am
-+++ b/libblkid/src/Makemodule.am
-@@ -220,7 +220,7 @@ endif # BUILD_LIBBLKID_TESTS
- 
- # move lib from $(usrlib_execdir) to $(libdir) if needed
- install-exec-hook-libblkid:
--	if test "$(usrlib_execdir)" != "$(libdir)"; then \
-+	if test "$(usrlib_execdir)" != "$(libdir)" -a -f "$(DESTDIR)$(usrlib_execdir)/libblkid.so"; then \
- 		mkdir -p $(DESTDIR)$(libdir); \
- 		mv $(DESTDIR)$(usrlib_execdir)/libblkid.so.* $(DESTDIR)$(libdir); \
- 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libblkid.so); \
-diff --git a/libmount/src/Makemodule.am b/libmount/src/Makemodule.am
-index 9101811..54ab51d 100644
---- a/libmount/src/Makemodule.am
-+++ b/libmount/src/Makemodule.am
-@@ -123,7 +123,7 @@ endif # BUILD_LIBMOUNT_TESTS
- 
- # move lib from $(usrlib_execdir) to $(libdir) if needed
- install-exec-hook-libmount:
--	if test "$(usrlib_execdir)" != "$(libdir)"; then \
-+	if test "$(usrlib_execdir)" != "$(libdir)" -a -f "$(DESTDIR)$(usrlib_execdir)/libmount.so"; then \
- 		mkdir -p $(DESTDIR)$(libdir); \
- 		mv $(DESTDIR)$(usrlib_execdir)/libmount.so.* $(DESTDIR)$(libdir); \
- 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libmount.so); \
-diff --git a/libuuid/src/Makemodule.am b/libuuid/src/Makemodule.am
-index a20cb4c..a5fd561 100644
---- a/libuuid/src/Makemodule.am
-+++ b/libuuid/src/Makemodule.am
-@@ -44,7 +44,7 @@ EXTRA_DIST += libuuid/src/uuid.sym
- 
- # move lib from $(usrlib_execdir) to $(libdir) if needed
- install-exec-hook-libuuid:
--	if test "$(usrlib_execdir)" != "$(libdir)"; then \
-+	if test "$(usrlib_execdir)" != "$(libdir)" -a -f "$(DESTDIR)$(usrlib_execdir)/libuuid.so"; then \
- 		mkdir -p $(DESTDIR)$(libdir); \
- 		mv $(DESTDIR)$(usrlib_execdir)/libuuid.so.* $(DESTDIR)$(libdir); \
- 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libuuid.so); \
--- 
-2.0.0
+$ ./configure --disable-use-tty-group \
+	--prefix=/tmp/dest \
+	--with-python \
+	--without-systemd \
+	--enable-pylibmount \
+	--enable-libmount \
+	--enable-libblkid
+$ make
+$ sed -i 's/\(link_all_deplibs\)=.*/\1=no/' ./libtool
+$ rm -rf /tmp/dest
+$ make install
+ /usr/bin/mkdir -p '/tmp/dest/lib64/python2.7/site-packages/libmount'
+ /bin/sh ./libtool   --mode=install /usr/bin/install -c   
+pylibmount.la '/tmp/dest/lib64/python2.7/site-packages/libmount'
+libtool: install: warning: relinking `pylibmount.la'
+libtool: install: 
+(cd /tmp/util-linux; /bin/sh /tmp/util-linux/libtool  --silent --tag 
+CC --mode=relink 
+gcc -std=gnu99 -fsigned-char -fno-common -Wall -Werror=sequence-point -Wextra -Wmissing-declarations -Wmissing-parameter-type -Wmissing-prototypes -Wno-missing-field-initializers -Wredundant-decls -Wsign-compare -Wtype-limits -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-parameter -Wunused-result -Wunused-variable -Wnested-externs -Wpointer-arith -Wstrict-prototypes -I/usr/include/python2.7 -I./libmount/src -fno-strict-aliasing -g -O2 -avoid-version -module -shared -export-dynamic -o 
+pylibmount.la -rpath /tmp/dest/lib64/python2.7/site-packages/libmount 
+libmount/python/pylibmount_la-pylibmount.lo 
+libmount/python/pylibmount_la-fs.lo 
+libmount/python/pylibmount_la-tab.lo 
+libmount/python/pylibmount_la-context.lo libmount.la -lpython2.7 )
+/usr/lib64/gcc/x86_64-suse-linux/4.8/../../../../x86_64-suse-linux/bin/ld: 
+cannot find -lmount
+collect2: error: ld returned 1 exit status
+libtool: install: error: relink `pylibmount.la' with the above command 
+before installing it
+make[3]: *** [install-pylibmountexecLTLIBRARIES] Error 1
+make[3]: Leaving directory `/tmp/util-linux'
+make[2]: *** [install-am] Error 2
+make[2]: Leaving directory `/tmp/util-linux'
+make[1]: *** [install-recursive] Error 1
+make[1]: Leaving directory `/tmp/util-linux'
+make: *** [install] Error 2
+
+
+Unfortunately some systems set per default
+  link_all_deplibs=no
+instead of "unknown" in ./libtool. Don't know whether this is a bug in 
+libtool or automake macros. But we could work around this if we would 
+make sure to install pylibmount always after libmount.
+
+This is how it looks in Makefile.in:
+install-exec-am: install-binPROGRAMS install-dist_usrbin_execSCRIPTS \
+        install-pylibmountexecLTLIBRARIES \
+        install-pylibmountexecSCRIPTS install-sbinPROGRAMS \
+        install-usrbin_execPROGRAMS install-usrlib_execLTLIBRARIES \
+        install-usrsbin_execPROGRAMS
+        @$(NORMAL_INSTALL)
+        $(MAKE) $(AM_MAKEFLAGS) install-exec-hook
+
+How could we force to put
+  install-pylibmountexecLTLIBRARIES
+after
+  install-usrlib_execLTLIBRARIES
+
+Or could we force somehow to disable that relinking?
+
+cu,
+Rudi
 
