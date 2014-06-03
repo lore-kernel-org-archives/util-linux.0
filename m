@@ -1,167 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from shetland.sei.cmu.edu ([192.58.107.44]:51806 "EHLO
-	shetland.sei.cmu.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753143AbaFXMx0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jun 2014 08:53:26 -0400
-Received: from pawpaw.sei.cmu.edu (pawpaw.sei.cmu.edu [10.64.21.22])
-	by shetland.sei.cmu.edu (8.14.4/8.14.4/1408) with ESMTP id s5OCrPQv012928
-	for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 08:53:25 -0400
-Received: from CASCADE.ad.sei.cmu.edu (cascade.ad.sei.cmu.edu [10.64.28.248])
-	by pawpaw.sei.cmu.edu (8.14.4/8.14.4/1456) with ESMTP id s5OCrGvx010864
-	for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 08:53:16 -0400
-From: Kodiak Firesmith <ksf@sei.cmu.edu>
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Enhancement request: logger should use FQDN
-Date: Tue, 24 Jun 2014 12:53:04 +0000
-Message-ID: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
-	micalg=SHA1; boundary="----=_NextPart_000_078B_01CF8F89.B5A93310"
+Received: from mx1.redhat.com ([209.132.183.28]:65078 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753721AbaFCL1i (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 3 Jun 2014 07:27:38 -0400
+Date: Tue, 3 Jun 2014 13:27:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: build-sys: minor issues
+Message-ID: <20140603112732.GR9000@x2.net.home>
+References: <201406020056.17074.sweet_f_a@gmx.de>
+ <20140602094243.GM9000@x2.net.home>
+ <201406021233.23463.sweet_f_a@gmx.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201406021233.23463.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-------=_NextPart_000_078B_01CF8F89.B5A93310
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+On Mon, Jun 02, 2014 at 12:33:23PM +0200, Ruediger Meier wrote:
+> On Monday 02 June 2014, Karel Zak wrote:
+> > On Mon, Jun 02, 2014 at 12:56:16AM +0200, Ruediger Meier wrote:
+> > > 1. ./configure --enable-all-programs
+> > > also triggers --enable-deprecated-last. Would be nice to exclude
+> > > this deprecated stuff somehow.
+> >
+> >  fixed, thanks for your report.
+> 
+> Thanks! All the recent build-sys tweaks were really helpful!
+> 
+> > > 2. make dist
+> > > changes files in source dir, which makes the git clone dirty. Would
+> > > be nice if we could avoid this somehow.
+> >
+> >  What files? I see po/ stuff modification and it's more political
+> >  issue than technical. The reason is that I update po/ only once
+> >  before release (to avoid many many huge commits with irrelevant
+> >  changes).
+> 
+> I have to admit that I'm not really familar with this translations.
+> But IMO generally it's not nice that "make dist" pollutes the git
+> clone.
 
-Hello,
-I noticed recently while using logger in some scripts that it is not
-following RFC and choosing the FQDN first if available.  This stands out for
-hosts with $PreserveFQDN in rsyslogd.conf as all other messages will use
-FQDN and logger messages will use short hostname.  
-This behavior poses problems when wrangling syslog data in a correlator like
-Splunk.  
+ I see two issues with po/Makefile:
 
-Sadly I'm no coder so I cannot sort out the problem and provide a patch, but
-I'm hoping one of the logger maintainers/contributors might be able to help
-out.
+ * "make" generates po/*.gmo files into srcdir by
 
-http://tools.ietf.org/html/rfc5424#section-6.2.4
+     cd $(srcdir) && rm -f $${lang}.gmo && $(GMSGFMT) ...
 
-Thanks very much,
-- Kodiak Firesmith
+ * "make dist" updates po/*.po files in srcdir by
 
-Linux System Administrator
-Software Engineering Institute | CMU
-Office: 412.268.8771
-Email: ksf@cert.org | ksf@sei.cmu.edu
+     test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
+     echo "$${cdcmd}$(MSGMERGE_UPDATE) $(MSGMERGE_OPTIONS) 
 
 
-------=_NextPart_000_078B_01CF8F89.B5A93310
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
+ The problem is that we don't control this Makefile, it's created by 
+ autopoint and maintained by gettext upstream. 
+ 
+ Yes, it's mistake to modify $srcdir.
 
-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
-xCZU7wO94CTLVBowHQYDVR0OBBYEFImCZ33EnSZwAEu0UEh83j2uBG59MA4GA1UdDwEB/wQEAwIB
-BjAPBgNVHRMBAf8EBTADAQH/MBEGA1UdIAQKMAgwBgYEVR0gADBEBgNVHR8EPTA7MDmgN6A1hjNo
-dHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vQWRkVHJ1c3RFeHRlcm5hbENBUm9vdC5jcmwwNQYIKwYB
-BQUHAQEEKTAnMCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0GCSqGSIb3
-DQEBBQUAA4IBAQABvJzjYyiw8zEBwt973WKgAZ0jMQ+cknNTUeofTPrWn8TKL2d+eDMPdBa5kYeR
-9Yom+mRwANge+QsEYlCHk4HU2vUj2zS7hVa0cDRueIM3HoUcxREVkl+HF72sav3xwtHMiV+xfPA+
-UfI183zsYJhrOivg79+zfYbrtRv1W+yifJgT1wBQudEtc94DeHThBYUxXsuauZ2UxrmUN3Vy3ET7
-Z+jw+iUeUqfaJelH4KDHPKBOsQo2+3dIn++Xivu0/uOUFKiDvFwtP9JgcWDuwnGCDOmINuPaILSj
-oGyqlku4gI51ykkH9jsUut/cBdmf2+Cy5k2geCbn5y1uf1/GHogVMIIFGjCCBAKgAwIBAgIQbRnq
-pxlPajMi5iIyeqpx3jANBgkqhkiG9w0BAQUFADCBrjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVU
-MRcwFQYDVQQHEw5TYWx0IExha2UgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3Jr
-MSEwHwYDVQQLExhodHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xNjA0BgNVBAMTLVVUTi1VU0VSRmly
-c3QtQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBFbWFpbDAeFw0xMTA0MjgwMDAwMDBaFw0yMDA1
-MzAxMDQ4MzhaMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAw
-DgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE5MDcGA1UEAxMwQ09N
-T0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG
-9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkoSEW0tXmNReL4uk4UDIo1NYX2Zl8TJO958yfVXQeExVt0KU
-4PkncQfFxmmkuTLE8UAakMwnVmJ/F7Vxaa7lIBvky2NeYMqiQfZq4aP/uN8fSG1lQ4wqLitjOHff
-sReswtqCAtbUMmrUZ28gE49cNfrlVICv2HEKHTcKAlBTbJUdqRAUtJmVWRIx/wmi0kzcUtve4kAB
-W0ho3cVKtODtJB86r3FfB+OsvxQ7sCVxaD30D9YXWEYVgTxoi4uDD216IVfmNLDbMn7jSuGlUnJk
-JpFOpZIP/+CxYP0ab2hRmWONGoulzEKbm30iY9OpoPzOnpDfRBn0XFs1uhbzp5v/wQIDAQABo4IB
-SzCCAUcwHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4Ebn0wHQYDVR0OBBYEFHoTTgB0W8Z4
-Y2QnwS/ioFu8ecV7MA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQK
-MAgwBgYEVR0gADBYBgNVHR8EUTBPME2gS6BJhkdodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVVRO
-LVVTRVJGaXJzdC1DbGllbnRBdXRoZW50aWNhdGlvbmFuZEVtYWlsLmNybDB0BggrBgEFBQcBAQRo
-MGYwPQYIKwYBBQUHMAKGMWh0dHA6Ly9jcnQudXNlcnRydXN0LmNvbS9VVE5BZGRUcnVzdENsaWVu
-dF9DQS5jcnQwJQYIKwYBBQUHMAGGGWh0dHA6Ly9vY3NwLnVzZXJ0cnVzdC5jb20wDQYJKoZIhvcN
-AQEFBQADggEBAIXWvnhXVW0zf0RS/kLVBqgBA4CK+w2y/Uq/9q9BSfUbWsXSrRtzbj7pJnzmTJjB
-MCjfy/tCPKElPgp11tA9OYZm0aGbtU2bb68obB2v5ep0WqjascDxdXovnrqTecr+4pEeVnSy+I3T
-4ENyG+2P/WA5IEf7i686ZUg8mD2lJb+972DgSeUWyOs/Q4Pw4O4NwdPNM1+b0L1garM7/vrUyTo8
-H+2b/5tJM75CKTmD7jNpLoKdRU2oadqAGx490hpdfEeZpZsIbRKZhtZdVwcbpzC+S0lEuJB+ytF5
-OOu0M/qgOl0mWJ5hVRi0IdWZ1eBDQEIwvuql55TSsP7zdfl/bucwggXXMIIEv6ADAgECAhEA6txs
-3a2QomafPdQldvpTxjANBgkqhkiG9w0BAQUFADCBkzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdy
-ZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExp
-bWl0ZWQxOTA3BgNVBAMTMENPTU9ETyBDbGllbnQgQXV0aGVudGljYXRpb24gYW5kIFNlY3VyZSBF
-bWFpbCBDQTAeFw0xMTA4MTkwMDAwMDBaFw0xNjA4MTgyMzU5NTlaMIHsMQ4wDAYDVQQREwUxNTIx
-MzEnMCUGA1UECxMeU29mdHdhcmUgRW5naW5lZXJpbmcgSW5zdGl0dXRlMSMwIQYDVQQKExpDYXJu
-ZWdpZSBNZWxsb24gVW5pdmVyc2l0eTEYMBYGA1UECRMPNDUwMCBGaWZ0aCBBdmUuMRUwEwYDVQQI
-EwxQZW5uc3lsdmFuaWExEzARBgNVBAcTClBpdHRzYnVyZ2gxCzAJBgNVBAYTAlVTMRkwFwYDVQQD
-ExBLb2RpYWsgRmlyZXNtaXRoMR4wHAYJKoZIhvcNAQkBFg9rc2ZAc2VpLmNtdS5lZHUwggEiMA0G
-CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3PRHsmy6UDyEZZFoZiVJkcaQjO0ropb0oGwmp20m0
-5zRO/GxIT/liN7vL1P/vM5cRWiMNC9lSA9YDRt1SPnUXO24XpQPlSlvbZnBt2cvfz98SKJSeFm7Q
-8k/LJUieU3YZvbJk48e4zT3p25eepPPFs9hRh72jTz81pVUPOthwiGBFpRrQn9M4+0ZT47Je7qIU
-hPvks0EDjYelhAeHw0Uwu1IdF47IOGmpFoWpu71IY2gtmSnqhmRBErYs+EyCVF6m0XhrVCPCpCLN
-URZhjBrcqV+tZn/MuVV9p5BxMv7V8JxTOvENf8QV99imWzO1AfqLK7+82MHD8OMU9BQy6BshAgMB
-AAGjggHJMIIBxTAfBgNVHSMEGDAWgBR6E04AdFvGeGNkJ8Ev4qBbvHnFezAdBgNVHQ4EFgQUfn+E
-vJLxrhCiU8xLNXAWTSrryCowDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
-FAYIKwYBBQUHAwQGCCsGAQUFBwMCMEYGA1UdIAQ/MD0wOwYMKwYBBAGyMQECAQMFMCswKQYIKwYB
-BQUHAgEWHWh0dHBzOi8vc2VjdXJlLmNvbW9kby5uZXQvQ1BTMFcGA1UdHwRQME4wTKBKoEiGRmh0
-dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NPTU9ET0NsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJl
-RW1haWxDQS5jcmwwgYgGCCsGAQUFBwEBBHwwejBSBggrBgEFBQcwAoZGaHR0cDovL2NydC5jb21v
-ZG9jYS5jb20vQ09NT0RPQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAk
-BggrBgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMBoGA1UdEQQTMBGBD2tzZkBzZWku
-Y211LmVkdTANBgkqhkiG9w0BAQUFAAOCAQEAkZuZ/ZnokCPNBSNv+NNmEPY2ovZHI5IQo4qiZaB9
-K1jI018458FpX3LHNqd8Pfsp8DLozjdf8CWfiytndbFhj7YWqoXFoTvgzBfRzNLt/r2ordZwNo+o
-cSL89AbLIzVF2EP32OP5cg5S9U9v0yjsf/F7loTVKOt9uSPw7e1cDmE8sKMXMDDqlj1a7e1pMP0k
-jAY0jGQ7/FIS09wvfiJqrDYdp0g1PXp7r0ZmzRTvB0iCuDLCyYv1bjpTyAzSVTXS4KgeT/RZRtL/
-ViV8KX9p6csyFj9F1wziEcmoXoOJofQeth13oClcQa1x0RpPlH1HEgunG60N9ucsKWx5aqBSJzGC
-BFwwggRYAgEBMIGpMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
-MRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE5MDcGA1UEAxMw
-Q09NT0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA6txs3a2Q
-omafPdQldvpTxjAJBgUrDgMCGgUAoIIChzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0xNDA2MjQxMjUzMDNaMCMGCSqGSIb3DQEJBDEWBBT3D13IUytXzi+Z8hKKR+G+
-1Ex9eDCBqwYJKoZIhvcNAQkPMYGdMIGaMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCgYIKoZI
-hvcNAwcwCwYJYIZIAWUDBAECMA4GCCqGSIb3DQMCAgIAgDAHBgUrDgMCBzANBggqhkiG9w0DAgIB
-QDANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjALBglghkgBZQMEAgMwCwYJYIZIAWUDBAICMAsGCWCG
-SAFlAwQCATCBugYJKwYBBAGCNxAEMYGsMIGpMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
-YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGlt
-aXRlZDE5MDcGA1UEAxMwQ09NT0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVt
-YWlsIENBAhEA6txs3a2QomafPdQldvpTxjCBvAYLKoZIhvcNAQkQAgsxgayggakwgZMxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMTkwNwYDVQQDEzBDT01PRE8gQ2xpZW50IEF1dGhlbnRp
-Y2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDq3GzdrZCiZp891CV2+lPGMA0GCSqGSIb3DQEB
-AQUABIIBABecjM+r5geu9ZaqmSyENG/jfT6mxzN3FumJ0KTXlwiSbZwCbuMfP/KejdbcBuwrcTZD
-8V7Bgc/T6JJTb8zsw0KSsNOPb446GDAtJroAWQPWmDst2YhbrG0AECWZdVmHtLPaYWeGENKVXsCu
-z9iU88RelHcG1/PRipWUs/gchLWvg0A7Pib2mvvO5xW+fUaYY7PQeTnPwTLnAvnOhxGXgYYGeJ/P
-25Q66bnxMQpHwBKygwu7b5800B2Z2dolm5VQhkwjAMeCdGO76PIBSOW0CoS3gOwasQVK7OH30e9a
-qvdRKxx5u6adAfzYmoJMKLsjPqsIQ9mwupWz6VsvqijfSsEAAAAAAAA=
+> I see 3 possibilities how to avoid this.
+> 
+> 1. Don't track these po files in git at all. Always generate in
+>    builddir. Put them into dist only.
 
-------=_NextPart_000_078B_01CF8F89.B5A93310--
+ No, I'm sure we want to have .po files in the git, it's part of the package.
+
+> 2. Don't update them with "make dist". Add new target "make update-po".
+
+ Well, I use "make distcheck" to generate the final release tarballs
+ and it would be nice to keep it usable :-)
+
+> 3. Keep them in srcdir but update to builddir. Add a script
+>    "commit-po-updates" to manulally move them from builddir to
+>    srcdir from time to time. 
+> 
+> My use case is a cronjob like this
+>   git pull origin
+>   ./autogen.sh && ./configure && make dist
+>   "push-tarball-to-build-host" 
+> 
+> Because of the current git pollution I have to do always "git 
+> reset --hard" before "autogen.sh" to not have "-dirty" suffixed version 
+> numbers.
+
+ What about to improve ./tools/git-version-gen to not use -dirty suffix when
+ only po/*.po stuff is modified? 
+ 
+ Note that git-version-gen is our script, and it just for developers,
+ no problem to change it.
+ 
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
