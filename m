@@ -1,48 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:56998 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753105AbaFCTqU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 3 Jun 2014 15:46:20 -0400
-Message-Id: <1401824774.18762.124788753.6397C030@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>,
-        "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140603112732.GR9000@x2.net.home>
-References: <201406020056.17074.sweet_f_a@gmx.de>
- <20140602094243.GM9000@x2.net.home>
- <201406021233.23463.sweet_f_a@gmx.de>
- <20140603112732.GR9000@x2.net.home>
 Subject: Re: build-sys: minor issues
-Date: Tue, 03 Jun 2014 21:46:14 +0200
-Sender: util-linux-owner@vger.kernel.org
+Date: Wed, 4 Jun 2014 11:48:03 +0200
+Cc: util-linux@vger.kernel.org
+References: <201406020056.17074.sweet_f_a@gmx.de> <201406031509.24914.sweet_f_a@gmx.de> <20140604092600.GT9000@x2.net.home>
+In-Reply-To: <20140604092600.GT9000@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406041148.03629.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
+On Wednesday 04 June 2014, Karel Zak wrote:
+> On Tue, Jun 03, 2014 at 03:09:24PM +0200, Ruediger Meier wrote:
+> > On Monday 02 June 2014, Ruediger Meier wrote:
+> > > I have two minor issues with our build-sys:
+> >
+> > Another issue:
+> >
+> > 4. --disable-all-programs disables pylibmount forever
+> >
+> > --with-python   does not turn it on again
+> > --enable-pylibmount  does not exist
+>
+>  OK, I have added --enable-pylibmount, so you have to use:
+>
+>  ./configure --disable-all-programs \
+>              --enable-pylibmount \
+>              --enable-libmount \
+>              --enable-libblkid
+>
+>  to compile the binding.
 
-On Tue, Jun 3, 2014, at 13:27, Karel Zak wrote:
-> On Mon, Jun 02, 2014 at 12:33:23PM +0200, Ruediger Meier wrote:
-> > 1. Don't track these po files in git at all. Always generate in
-> >    builddir. Put them into dist only.
-> 
->  No, I'm sure we want to have .po files in the git, it's part of the package.
+Thanks!
 
-Well, I think it's nice to have copies of those files in many repos around the
-globe, but it's not really needed.  And thus several GNU packages (coreutils,
-grep, tar) have chosen to drop the PO files from their version control.  The
-files get fetched from the TP at release time.
+> > or do I miss something?
+>
+> note that we don't have --enable-* for all utils. It's probably
+> overkill for small utils or utils expected everywhere.
 
-> > 2. Don't update them with "make dist". Add new target "make update-po".
-> 
->  Well, I use "make distcheck" to generate the final release tarballs
->  and it would be nice to keep it usable :-)
+Ah, I thought you've had added --enable-* more generically for 
+everything lately.
 
-Easy: add another target, "make release", that does an update-po and
-then distcheck.  :)
+But no problem in doubt there is still
+$ ./configure --enable-all-programs
+$ make xyz
 
-Benno
-
--- 
-http://www.fastmail.fm - Send your email first class
-
+cu,
+Rudi
