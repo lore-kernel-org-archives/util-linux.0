@@ -1,49 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:59319 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751986AbaFDWc0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 4 Jun 2014 18:32:26 -0400
-Received: from brln-4dbc076b.pool.mediaways.net ([77.188.7.107]) by
- mail.gmx.com (mrgmx102) with ESMTPSA (Nemesis) id 0MbrR4-1X8KPn0DbS-00JIiA
- for <util-linux@vger.kernel.org>; Thu, 05 Jun 2014 00:32:25 +0200
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: tests: hwclock questions
-Date: Thu, 5 Jun 2014 00:32:24 +0200
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: build-sys: how to install pylibmount after libmount?
+Date: Wed, 4 Jun 2014 12:45:53 +0200
+Cc: util-linux@vger.kernel.org
+References: <201406031552.50670.sweet_f_a@gmx.de> <20140604102117.GU9000@x2.net.home>
+In-Reply-To: <20140604102117.GU9000@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201406050032.24233.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+  charset="iso-8859-1"
+Message-Id: <201406041245.54088.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Wednesday 04 June 2014, Karel Zak wrote:
+> On Tue, Jun 03, 2014 at 03:52:50PM +0200, Ruediger Meier wrote:
+> > Hi,
+> >
+> > This should be easy to reproduce if you don't have a global
+> > installed libmount.
+> >
+> > $ sudo mkdir /usr/lib64/away
+> > $ sudo mv /usr/lib64/libmount.* /usr/lib64/away
+> >
+> > $ ./configure --disable-use-tty-group \
+> > 	--prefix=/tmp/dest \
+>
+>  Just note, it's usually bad idea to override the default prefix
+>  (especially for package like util-linux), it's better to use
+>  standard prefix and use "make install  DESTDIR=/tmp/dest".
 
-The test hwclock/systohc needs some fixes because of the following 
-issues:
- - ntpdate return value checks ("$?" == "1") are wrong
- - actually ntpdate is deprecated and we should go with "ntpd -q"
- - variable OFFSET should be checked for being numeric to protect "bc"
-   and to avoid follow-up errors
- - hwclock loop should break and ts_failed if any hwclock call fails
- - We need to skip case "Cannot access the Hardware Clock via any
-   known method"
- - I think we have to protect the user from setting his clock to
-   un-wanted time zone (local or UTC).
+Yes, in this case I wanted to debug and reproduce "make distcheck"
+where --prefix is used.
 
-On travis build server this test succeds allthough neither ntpdate nor 
-hwclock works :)
+> > Unfortunately some systems set per default
+> >   link_all_deplibs=no
+> > instead of "unknown" in ./libtool. Don't know whether this is a bug
+> > in libtool or automake macros. But we could work around this if we
+> > would make sure to install pylibmount always after libmount.
+> >
+> > This is how it looks in Makefile.in:
+> > install-exec-am: install-binPROGRAMS
+> > install-dist_usrbin_execSCRIPTS \ install-pylibmountexecLTLIBRARIES
+> > \
+> >         install-pylibmountexecSCRIPTS install-sbinPROGRAMS \
+> >         install-usrbin_execPROGRAMS install-usrlib_execLTLIBRARIES
+> > \ install-usrsbin_execPROGRAMS
+> >         @$(NORMAL_INSTALL)
+> >         $(MAKE) $(AM_MAKEFLAGS) install-exec-hook
+> >
+> > How could we force to put
+> >   install-pylibmountexecLTLIBRARIES
+> > after
+> >   install-usrlib_execLTLIBRARIES
+>
+> hmm.. I don't know, I think it's libtool job to generate the right
+> order.
 
+I think too. libtool and automake can be assumed to be non-broken on 
+devel machines. I thought there is still a little chance that we have 
+incorrect pylibmount_la_DEPENDENCIES ot whatever. But I don't see it.
 
-But before doing this I have two questions.
-
-1. I wonder what is the original purpose of this test. Are we really 
-testing hwclock or the kernel or hardware? I mean setting and reading 
-cock 10 times ... could this really discover a bug in our hwclock code?
-
-2. Why do we _set_ the time from ntp server at the beginning? Wouldnt it 
-be enough to check whether the offset to ntp is the same before and 
-after the test?
+Anyway, I will just add a workaround for travis.yml until they update 
+build-os:
+  ./autogen.sh
+  # workaround for broken pylibmount install relink
+  sed -i 's/\(link_all_deplibs\)=no/\1=unknown/' ./configure
 
 cu,
 Rudi
