@@ -1,75 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cn.fujitsu.com ([59.151.112.132]:11480 "EHLO
-	heian.cn.fujitsu.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750730AbaFFGhg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Jun 2014 02:37:36 -0400
-Message-ID: <1402036359.17740.33.camel@localhost.localdomain>
-Subject: Re: [PATCH] mount: add btrfs to mount.8
-From: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
+Received: from mout.gmx.net ([212.227.15.18]:51604 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751463AbaFEMpf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 Jun 2014 08:45:35 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>
-Date: Fri, 6 Jun 2014 14:32:39 +0800
-In-Reply-To: <20140605080311.GW9000@x2.net.home>
-References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
-	 <20140605080311.GW9000@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: tests: hwclock questions
+Date: Thu, 5 Jun 2014 14:45:31 +0200
+Cc: util-linux@vger.kernel.org
+References: <201406050032.24233.sweet_f_a@gmx.de> <20140605074805.GV9000@x2.net.home>
+In-Reply-To: <20140605074805.GV9000@x2.net.home>
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406051445.31366.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 2014-06-05 at 10:03 +0200, Karel Zak wrote:
-> On Thu, Jun 05, 2014 at 10:05:19AM +0800, Gui Hecheng wrote:
-> > Based on Documentation/filesystems/btrfs.txt
-> > 
-> > Signed-off-by: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
-> > ---
-> >  sys-utils/mount.8 | 186 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 186 insertions(+)
-> 
->  Thanks, but I'm not sure this is the right way. It would be better to
->  create BTRFS specific btrfs.5 man page and maintain it together with
->  another BTRFS stuff rather then within util-linux. In the mount.8
->  should be only a note about btrfs.5.
-> 
->  My long time goal is to remove all FS specific sections (at least for
->  mainstream filesystems) from mount.8, because we duplicate effort
->  here. The primary and well maintained is usually kernel
->  Documentation/filesystems/ and unfortunately FS developers don't care
->  about mount.8 at all.
-> 
->  The ideal solution would be to generate the FS man pages from kernel
->  docs (for example from asciidoc etc.)
-> 
->  See 6 years old discussions: http://marc.info/?t=122767310200002&r=1&w=2
-> 
-Hi Karel,
+On Thursday 05 June 2014, Karel Zak wrote:
+> On Thu, Jun 05, 2014 at 12:32:24AM +0200, Ruediger Meier wrote:
+> > But before doing this I have two questions.
+>
+>  Maybe we can remove the test at all (or use --force to enable the
+> test). It was always very problematic test 
 
-Thanks your comments. I do agree that this is *not* the best way. I
-think that your long time goal is really exciting to the FS developers.
+I will try to make it a bit more robust and then see if we still should 
+make it optional. IMO these time sync problems are some kind of 
+science. Could be too much for being solved within one simple shell 
+script.
 
-But for now, there are btrfs *users* complaining that they cannot find
-any help by refering to the mount manpage when they want to mount their
-btrfs. Actually, not every btrfs user have the mood to check the
-Documentation/filesystems/btrfs.txt or anywhere else when they just want
-to use a simple mount cmd. 
+> and I have doubts it's
+> still necessary as relevant hwclock code is completely different and
+> more robust now.
 
-I think that adding the btrfs stuff into mount.8 do a certain help to
-the common btrfs users. By the way, I've checked the recent commmits of
-util-linux tree and found that there are still enthusiastic contributers
-making really meaningful changes to the mount.8.
+Ok, then I would do --systohc and --hctosys just one time instead of 10.
 
-So, If it does not bother you much... 
+BTW how could I get the offset between sys and hw clock? What does the 
+last "xxx seconds" in --show output mean? Obviously not the whole 
+offset:
 
-Our btrfs users are really looking forward to a more kind and helpful
-mount manpage for btrfs. And then they will feel really happy that they
-could mount their btrfs in various ways easily as they like *just as the
-ext4 users do*. And I think there are many btrfs developers who will be
-glad to continue helping correct the btrfs part.
+$ export LANG=C; export TZ=UTC
+$ date
+Thu Jun  5 12:38:21 UTC 2014
+$ hwclock --show --utc
+Thu Jun  5 13:07:28 2014  -0.062807 seconds
 
-Thanks
--Gui
+> > 1. I wonder what is the original purpose of this test. Are we
+> > really testing hwclock or the kernel or hardware? I mean setting
+> > and reading
+>
+>  The purpose is to test how precisely is able hwclock to set HW time.
+>  Long time ago we had problem that each iteration added extra 0.5s to
+>  the time.
 
->     Karel
-> 
+> > cock 10 times ... could this really discover a bug in our hwclock
+> > code?
+>
+>  Yes.
+>
+> > 2. Why do we _set_ the time from ntp server at the beginning?
+> > Wouldnt it be enough to check whether the offset to ntp is the same
+> > before and after the test?
+>
+>  Probably yes.
 
+Maybe getting sys vs. ntp offset like this:
 
+$ ntp_ip=$(dig 0.fedora.pool.ntp.org ANY +short | head -n 1)
+$ sntp -K /tmp/kod "$ntp_ip"
+ 5 Jun 13:00:38 sntp[6547]: Started sntp
+2014-06-05 13:00:38.263771 (-0100) -0.002546 +/- 0.022034 secs
+
+Note we have to use fixed IP to get comparable offsets.
+
+cu,
+Rudi
