@@ -1,65 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:51095 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752038AbaFDJdV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 4 Jun 2014 05:33:21 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: build-sys: minor issues
-Date: Wed, 4 Jun 2014 11:33:14 +0200
-Cc: util-linux@vger.kernel.org
-References: <201406020056.17074.sweet_f_a@gmx.de> <201406020233.39094.sweet_f_a@gmx.de> <20140603104249.GQ9000@x2.net.home>
-In-Reply-To: <20140603104249.GQ9000@x2.net.home>
+Return-Path: linux-btrfs-owner@vger.kernel.org
+Date: Thu, 5 Jun 2014 10:03:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
+Cc: util-linux@vger.kernel.org, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH] mount: add btrfs to mount.8
+Message-ID: <20140605080311.GW9000@x2.net.home>
+References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406041133.15174.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
+Sender: linux-btrfs-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 03 June 2014, Karel Zak wrote:
-> On Mon, Jun 02, 2014 at 02:33:38AM +0200, Ruediger Meier wrote:
-> >
-> > Another issue:
-> >
-> > 3. --enable-gtk-doc does not work in out-of-tree build:
-> > [...]
+On Thu, Jun 05, 2014 at 10:05:19AM +0800, Gui Hecheng wrote:
+> Based on Documentation/filesystems/btrfs.txt
+> 
+> Signed-off-by: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
+> ---
+>  sys-utils/mount.8 | 186 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 186 insertions(+)
 
->
->  Fixed.
+ Thanks, but I'm not sure this is the right way. It would be better to
+ create BTRFS specific btrfs.5 man page and maintain it together with
+ another BTRFS stuff rather then within util-linux. In the mount.8
+ should be only a note about btrfs.5.
 
-Thanks, it works.
+ My long time goal is to remove all FS specific sections (at least for
+ mainstream filesystems) from mount.8, because we duplicate effort
+ here. The primary and well maintained is usually kernel
+ Documentation/filesystems/ and unfortunately FS developers don't care
+ about mount.8 at all.
 
-For testing I've run it several times on travis farm from within 
-distcheck. Unfortunately docs still fail randomly in 1 of 10 runs.
+ The ideal solution would be to generate the FS man pages from kernel
+ docs (for example from asciidoc etc.)
 
-$ make distcheck
-[...]
-make[1]: Entering directory 
-`/home/travis/build/rudimeier/util-linux/libblkid/docs'
-make[1]: Circular scan-build.stamp <- libblkid-sections.txt dependency 
-dropped.
-  GEN    scan-build.stamp
-[...]
-Making all in libblkid/docs
-make[3]: Entering directory 
-`/home/travis/build/rudimeier/util-linux/util-linux-2.24.913-183e/_build/libblkid/docs'
-gtk-doc: Preparing build
-cp: cannot create regular file `./libblkid-sections.txt': Permission 
-denied
-make[3]: *** [scan-build.stamp] Error 1
-
-Note that this "Permission denied" also happens in successful runs.
-
-Here full logs of good and bad run:
-https://s3.amazonaws.com/archive.travis-ci.org/jobs/26722236/log.txt
-https://s3.amazonaws.com/archive.travis-ci.org/jobs/26722239/log.txt
+ See 6 years old discussions: http://marc.info/?t=122767310200002&r=1&w=2
 
 
-Don't know whether this happens only out-of-tree or because of parallel 
-build. "Permission denied" in distcheck always smells like writing to 
-srcdir. Maybe you have already an idea what it could be or I would just 
-add debug messages and watch it.
+    Karel
 
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
