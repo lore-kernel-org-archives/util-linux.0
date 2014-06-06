@@ -1,67 +1,132 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cn.fujitsu.com ([59.151.112.132]:18934 "EHLO
-	heian.cn.fujitsu.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750802AbaFFKHH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Jun 2014 06:07:07 -0400
-Message-ID: <1402048931.13997.10.camel@localhost.localdomain>
-Subject: Re: [PATCH] mount: add btrfs to mount.8
-From: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>
-Date: Fri, 6 Jun 2014 18:02:11 +0800
-In-Reply-To: <20140606094428.GA30975@x2.net.home>
-References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
-	 <20140605080311.GW9000@x2.net.home>
-	 <1402036359.17740.33.camel@localhost.localdomain>
-	 <20140606094428.GA30975@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] tests: hwclock questions
+Date: Fri, 6 Jun 2014 15:06:31 +0200
+Cc: util-linux@vger.kernel.org
+References: <201406050032.24233.sweet_f_a@gmx.de> <20140605074805.GV9000@x2.net.home> <201406051445.31366.sweet_f_a@gmx.de>
+In-Reply-To: <201406051445.31366.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406061506.31999.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 2014-06-06 at 11:44 +0200, Karel Zak wrote:
-> On Fri, Jun 06, 2014 at 02:32:39PM +0800, Gui Hecheng wrote:
-> > But for now, there are btrfs *users* complaining that they cannot find
-> > any help by refering to the mount manpage when they want to mount their
-> > btrfs. Actually, not every btrfs user have the mood to check the
-> > Documentation/filesystems/btrfs.txt or anywhere else when they just want
-> > to use a simple mount cmd. 
-> 
->  The kernel is the "ideal place", but it's more dream than anything
->  else... what we use for example for NFS is to maintain FS specific
->  man page in userspace FS package (e.g. nfs-utils).
-Ah, thanks for explaining so much to me, I can't agree more.
+On Thursday 05 June 2014, Ruediger Meier wrote:
+> On Thursday 05 June 2014, Karel Zak wrote:
+> > On Thu, Jun 05, 2014 at 12:32:24AM +0200, Ruediger Meier wrote:
+> > > But before doing this I have two questions.
+> >
+> >  Maybe we can remove the test at all (or use --force to enable the
+> > test). It was always very problematic test
+>
+> I will try to make it a bit more robust and then see if we still
+> should make it optional.
 
->  Wouldn't be possible to add the man page to btrfs-progs package? The
->  package is maintained by btrfs guys and I guess all btrfs users have
->  very probably installed the package.
-Actually, we just would like to see btrfs "staying with" ext4, xfs and
-other fs together. We feel a bit sad that ext4 and xfs both have stuff
-in mount.8 but btrfs doesn't.
+I've rewrote it and sent patch to github
+https://github.com/karelzak/util-linux/pull/94
 
-> > So, If it does not bother you much... 
-> 
->  I personally have no problem to maintain information about arbitrary
->  FS in mount.8, the problem are updates. Unfortunately, kernel FS developers
->  don't care about the man page at all and it's very often not up to date.
-> 
->  [My experience is very bad. Not sure why, but for many kernel devels
->   commit into Linus' tree is end of their work, they don't care if there
->   is usable userpsace util or docs for users, people like Eric Biederman
->   or Lukas Czerner are rare exception.]
-Thanks for sharing the story with me, I really get a lot.
+Below the full script (better to read than the patch in this case).
+Please comment.
 
-> > And I think there are many btrfs developers who will be
-> > glad to continue helping correct the btrfs part.
-> 
->  OK, we can try it, if you still prefer mount.8.
-Our guys will try our best to keep the mount.8 for btrfs up-to-date.
-At least, you have my promise.
+# tests/ts/hwclock/systohc:
 
-Thanks,
--Gui
+TS_TOPDIR="${0%/*}/../.."
+TS_DESC="system to hw"
+NTP_SERVER="0.fedora.pool.ntp.org"
 
->     Karel
-> 
+. $TS_TOPDIR/functions.sh
+ts_init "$*"
+
+ts_check_test_command "$TS_CMD_HWCLOCK"
+
+ts_skip_nonroot
+ts_check_prog "bc"
+ts_check_prog "sntp"
+
+function resolve_host
+{
+	local host="$1"
+	local tmp
+
+	# currently we just resolve default records (might be "A", ipv4 only)
+	if type "dig" >/dev/null 2>&1; then
+		tmp=$(dig "$host" +short 2>/dev/null) || return 1
+	elif type "nslookup" >/dev/null 2>&1; then
+		tmp=$(nslookup "$host" 2>/dev/null) || return 1
+		tmp=$(echo "$tmp"| grep -A1 "^Name:"| grep "^Address:"| cut -d" " -f2)
+	fi
+
+	# we return 1 if tmp is empty
+	test -n "$tmp" || return 1
+	echo "$tmp" | sort -R | head -n 1
+}
+
+function get_offset_sys_ntp
+{
+	local ips="$@"
+	local out
+
+	out=$(sntp -K "$SNTP_KOD" --timeout 1 "$ips") || return 1
+
+	# sed must deliver a signed float or empty string for sure
+	out=$(echo "$out" | \
+		sed -n 's/.* \(\(+\|-\)[0-9]\{1,\}\.*[0-9]*\) +\/-.*secs$/\1/p')
+
+	[ -n "$out" ] || return 1
+	echo "$out"
+}
+
+function check_diff_offset
+{
+	local a=${1#+}
+	local b=${2#+}
+	local max="$3"
+	local tmp
+
+	tmp=$(echo "$a - $b" | bc | tr -d '-')
+	echo "$tmp"
+
+	tmp=$(echo "$tmp < $max" | bc)
+	[ $tmp -eq 1 ]
+}
 
 
+# we need fixed ntp IP to get comparable offsets
+NTP_IP=$(resolve_host "$NTP_SERVER") \
+	|| ts_skip "can't resolve hostname $NTP_SERVER"
+
+# needed in get_offset_sys_ntp
+SNTP_KOD="$(mktemp "${TS_OUTDIR}/kod-XXXX")"
+
+OFFSET_A=$(get_offset_sys_ntp "$NTP_IP") \
+	|| ts_skip "can't get ntp offset 1st, $NTP_IP"
+OFFSET_B=$(get_offset_sys_ntp "$NTP_IP") \
+	|| ts_skip "can't get ntp offset 2nd, $NTP_IP"
+
+diff=$(check_diff_offset $OFFSET_A $OFFSET_B 0.02) \
+	|| ts_skip "unreliable ntp or sys clock offsets: $NTP_IP $OFFSET_A $OFFSET_B +/-$diff"
+
+# hwclock --show should work if we have a hw clock
+tmp=$($TS_CMD_HWCLOCK --show 2>&1)
+if [ $? != "0" ]; then
+	echo "$tmp" | grep -q "Cannot access the Hardware Clock via" \
+		&& ts_skip "no hardware clock found"
+	ts_failed "hwclock --show"
+fi
+
+# call hwclock
+# TODO - try to be nice, use --localtime if wanted
+for i in `seq 1 10`; do
+	# only skip on failure for now
+	$TS_CMD_HWCLOCK --systohc || ts_skip "--systohc, $i"
+	$TS_CMD_HWCLOCK --hctosys || ts_skip "--hctosys, $i"
+done
+
+OFFSET_C=$(get_offset_sys_ntp "$NTP_IP") \
+	|| ts_skip "can't get ntp offset 3rd, $NTP_IP"
+
+diff=$(check_diff_offset "$OFFSET_B" "$OFFSET_C" 1.0) \
+	|| ts_failed "offsets $NTP_IP: $OFFSET_B $OFFSET_C +/-$diff"
+
+ts_ok "offsets $NTP_IP: $OFFSET_B $OFFSET_C +/-$diff"
