@@ -1,63 +1,68 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Date: Mon, 9 Jun 2014 16:22:04 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Eric Sandeen <sandeen@redhat.com>, Gui Hecheng <guihc.fnst@cn.fujitsu.com>,
-        util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>
-Subject: Re: [PATCH] mount: add btrfs to mount.8
-Message-ID: <20140609142204.GF30975@x2.net.home>
-References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
- <20140605080311.GW9000@x2.net.home>
- <1402036359.17740.33.camel@localhost.localdomain>
- <20140606094428.GA30975@x2.net.home>
- <20140606100302.GB30975@x2.net.home>
- <5391E3D0.8050608@redhat.com>
- <20140607134150.GA22076@infradead.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:58282 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753313AbaFHMZQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 8 Jun 2014 08:25:16 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: util-linux breakage with v2.24.2 on Alpha
+Date: Sun, 8 Jun 2014 14:25:08 +0200
+Cc: Tobias Klausmann <klausman@schwarzvogel.de>
+References: <20140608104251.GA72528@skade.schwarzvogel.de>
+In-Reply-To: <20140608104251.GA72528@skade.schwarzvogel.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140607134150.GA22076@infradead.org>
-Sender: linux-btrfs-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201406081425.08453.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jun 07, 2014 at 06:41:50AM -0700, Christoph Hellwig wrote:
-> On Fri, Jun 06, 2014 at 10:52:48AM -0500, Eric Sandeen wrote:
-> > On 6/6/14, 5:03 AM, Karel Zak wrote:
-> > > On Fri, Jun 06, 2014 at 11:44:28AM +0200, Karel Zak wrote:
-> > >>  I personally have no problem to maintain information about arbitrary
-> > >>  FS in mount.8, the problem are updates. Unfortunately, kernel FS developers
-> > >>  don't care about the man page at all and it's very often not up to date.
-> > > 
-> > >  Hmm.. another possible way would be to create a script for util-linux
-> > >  that will analyze kernel Documentation/filesystems/<fsname>.txt and
-> > >  report changes that is necessary to make to mount.8. It should be
-> > >  relative simple with git. I'll try it..
-> > 
-> > I like that idea.  Maybe <fsname.txt> will need a defined format, though,
-> > right?  Maybe asciidoc?
-> > 
-> > I've still been meaning (in theory) to produce a mount manpage just for xfs.
-> > I'm still willing to do that if the above doesn't pan out.  I just need
-> > to get to it.  I'd be happy to do it for extN as well.
-> 
-> Autogenerating man pages from an adhoc format sounds like the wrong
-> approach.  I'd much rather have proper man paged for every filesystem.
-> With those we could also drop all that information from the kernel
-> Documentation directory, where users won't looks for them anyway.
-> 
-> Eric, if you take care of xfs an extN I'll get started on man pages
-> for the various "minor" filesystems that don't really have active
-> maintainers.
-> 
-> Not sure if we should go for mount.<fstype>.8 man pages or just improve
-> the <fstype>.5 pages, but I think the second one is more obvious.
+On Sunday 08 June 2014, Tobias Klausmann wrote:
+> Hey,
+>
+> I am one of the Gentoo maintainers for the Alpha arch. As of
+> util-linux 2.24, the build broke reliably:
+>
+>   CC       libfdisk/src/libfdisk_la-bsd.lo
+> libfdisk/src/bsd.c: In function bsd_translate_fstype:
+> libfdisk/src/bsd.c:790:10: error: BSD_FS_MSDOS undeclared (first use
+> in this function) return BSD_FS_MSDOS;
+>           ^
 
-I think <fstype>.5 provides opportunity to distribute more information
-about the filesystem than just mount options only. See for example
-nfs.5 where is complete overview about the filesystem.
+Looks like you have to ignore this case on alpha:
 
-    Karel
+diff --git a/libfdisk/src/bsd.c b/libfdisk/src/bsd.c
+index a81afd2..df0fc13 100644
+--- a/libfdisk/src/bsd.c
++++ b/libfdisk/src/bsd.c
+@@ -773,8 +773,10 @@ static int bsd_translate_fstype (int linux_type)
+        case 0x06: /* DOS 16-bit >=32M */
+        case 0xe1: /* DOS access       */
+        case 0xe3: /* DOS R/O          */
++#if !defined (__alpha__)
+        case 0xf2: /* DOS secondary    */
+                return BSD_FS_MSDOS;
++#endif
+        case 0x07: /* OS/2 HPFS        */
+                return BSD_FS_HPFS;
+        default
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> This is due to the this section in include/pt-bsd.h:
+>
+> /* this is annoying, but it's also the way it is :-( */
+> #ifdef __alpha__
+> #define BSD_FS_EXT2     8               /* ext2 file system */       
+>           #else #define BSD_FS_MSDOS    8               /* MS-DOS
+> file system */ #endif
+>
+> The problem is that libfdisk/src/bsd.c still uses that macro, even
+> when compiling util-linux on Alpha.
+>
+> Regards,
+> Tobias
+>
+> PS: I'm not susbscribed to the list, so please CC me on replies.
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
