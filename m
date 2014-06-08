@@ -1,29 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32567 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750775AbaFPMx5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Jun 2014 08:53:57 -0400
-Date: Mon, 16 Jun 2014 14:53:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Only move shared libraries to /lib if they exists
-Message-ID: <20140616125353.GJ30975@x2.net.home>
-References: <1402603827-29129-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Received: from skade.schwarzvogel.de ([144.76.18.87]:60174 "EHLO
+	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753341AbaFHLKB convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Jun 2014 07:10:01 -0400
+Received: from klausman by mail.schwarzvogel.de with local (Exim 4.83_RC1)
+	(envelope-from <klausman@schwarzvogel.de>)
+	id 1WtaYt-000Jei-L3
+	for util-linux@vger.kernel.org; Sun, 08 Jun 2014 12:42:51 +0200
+Date: Sun, 8 Jun 2014 12:42:51 +0200
+From: Tobias Klausmann <klausman@schwarzvogel.de>
+To: util-linux@vger.kernel.org
+Subject: util-linux breakage with v2.24.2 on Alpha
+Message-ID: <20140608104251.GA72528@skade.schwarzvogel.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1402603827-29129-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 12, 2014 at 10:10:27PM +0200, Thomas Petazzoni wrote:
->  libblkid/src/Makemodule.am | 2 +-
->  libmount/src/Makemodule.am | 2 +-
->  libuuid/src/Makemodule.am  | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+Hey,
 
- Applied, thanks.
+I am one of the Gentoo maintainers for the Alpha arch. As of
+util-linux 2.24, the build broke reliably:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  CC       libfdisk/src/libfdisk_la-bsd.lo
+libfdisk/src/bsd.c: In function ‘bsd_translate_fstype’:
+libfdisk/src/bsd.c:790:10: error: ‘BSD_FS_MSDOS’ undeclared (first use in this function)
+   return BSD_FS_MSDOS;
+          ^
+
+This is due to the this section in include/pt-bsd.h:
+
+/* this is annoying, but it's also the way it is :-( */                         
+#ifdef __alpha__                                                                
+#define BSD_FS_EXT2     8               /* ext2 file system */                  #else                                                                           
+#define BSD_FS_MSDOS    8               /* MS-DOS file system */                
+#endif                                                                          
+                                                                                
+The problem is that libfdisk/src/bsd.c still uses that macro, even
+when compiling util-linux on Alpha. 
+
+Regards,
+Tobias
+
+PS: I'm not susbscribed to the list, so please CC me on replies.
