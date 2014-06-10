@@ -1,39 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cn.fujitsu.com ([59.151.112.132]:37065 "EHLO
-	heian.cn.fujitsu.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750802AbaFFKId (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Jun 2014 06:08:33 -0400
-Message-ID: <1402049016.13997.11.camel@localhost.localdomain>
-Subject: Re: [PATCH] mount: add btrfs to mount.8
-From: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
+Received: from mout.gmx.net ([212.227.17.22]:59217 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750861AbaFJMEp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Jun 2014 08:04:45 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>
-Date: Fri, 6 Jun 2014 18:03:36 +0800
-In-Reply-To: <20140606100302.GB30975@x2.net.home>
-References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
-	 <20140605080311.GW9000@x2.net.home>
-	 <1402036359.17740.33.camel@localhost.localdomain>
-	 <20140606094428.GA30975@x2.net.home> <20140606100302.GB30975@x2.net.home>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] build-sys: use gettext 0.18.3 if possible
+Date: Tue, 10 Jun 2014 14:04:42 +0200
+Cc: util-linux@vger.kernel.org
+References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de> <1402394931-20416-2-git-send-email-sweet_f_a@gmx.de> <20140610115208.GG30975@x2.net.home>
+In-Reply-To: <20140610115208.GG30975@x2.net.home>
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406101404.42618.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 2014-06-06 at 12:03 +0200, Karel Zak wrote:
-> On Fri, Jun 06, 2014 at 11:44:28AM +0200, Karel Zak wrote:
-> >  I personally have no problem to maintain information about arbitrary
-> >  FS in mount.8, the problem are updates. Unfortunately, kernel FS developers
-> >  don't care about the man page at all and it's very often not up to date.
-> 
->  Hmm.. another possible way would be to create a script for util-linux
->  that will analyze kernel Documentation/filesystems/<fsname>.txt and
->  report changes that is necessary to make to mount.8. It should be
->  relative simple with git. I'll try it..
-Ah, if so, thanks very much!
+On Tuesday 10 June 2014, Karel Zak wrote:
+> On Tue, Jun 10, 2014 at 12:08:51PM +0200, Ruediger Meier wrote:
+> > We add a little hack for backward compatibility on systems with
+> > older gettext installed
+> >
+> > See 0576dbd3 and 81ed13ed.
+> >
+> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > ---
+> >  autogen.sh   | 31 ++++++++++++++++++++++++++++++-
+> >  configure.ac |  3 ++-
+> >  2 files changed, 32 insertions(+), 2 deletions(-)
+>
+>  Ah, I see, it seems like another pin for our gettext voodoo doll.
 
--Gui
+Hehe.
 
->     Karel
-> 
+>  Applied.
 
+Ooops, in the cover letter I've mentioned that the new function would 
+probably need some more small portability/safety fixes before final 
+patch. Anyway I'll send them later.
 
+One more thing. Since we have "0.18.3" now in configure.ac you should 
+take care to release it next time on a system where at least this 
+version is available. It wouldn't look nice if we ship files from 
+different version.
+
+cu,
+Rudi
