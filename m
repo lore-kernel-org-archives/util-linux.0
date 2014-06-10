@@ -1,34 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:20699 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53018 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757631AbaFSIdD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 19 Jun 2014 04:33:03 -0400
-Date: Thu, 19 Jun 2014 10:32:59 +0200
+	id S1750861AbaFJMQH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Jun 2014 08:16:07 -0400
+Date: Tue, 10 Jun 2014 14:16:00 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.25-rc1
-Message-ID: <20140619083259.GB25885@x2.net.home>
-References: <20140618134616.GA25885@x2.net.home>
- <53A1A9CA.7000108@gmail.com>
+Subject: Re: [PATCH] build-sys: use gettext 0.18.3 if possible
+Message-ID: <20140610121600.GH30975@x2.net.home>
+References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de>
+ <1402394931-20416-2-git-send-email-sweet_f_a@gmx.de>
+ <20140610115208.GG30975@x2.net.home>
+ <201406101404.42618.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53A1A9CA.7000108@gmail.com>
+In-Reply-To: <201406101404.42618.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 18, 2014 at 10:01:30AM -0500, Bruce Dubbs wrote:
-> It would be nice if we could set the adjtime path in configure.  Right now
-> we do:
+On Tue, Jun 10, 2014 at 02:04:42PM +0200, Ruediger Meier wrote:
+> On Tuesday 10 June 2014, Karel Zak wrote:
+> > On Tue, Jun 10, 2014 at 12:08:51PM +0200, Ruediger Meier wrote:
+> > > We add a little hack for backward compatibility on systems with
+> > > older gettext installed
+> > >
+> > > See 0576dbd3 and 81ed13ed.
+> > >
+> > > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > > ---
+> > >  autogen.sh   | 31 ++++++++++++++++++++++++++++++-
+> > >  configure.ac |  3 ++-
+> > >  2 files changed, 32 insertions(+), 2 deletions(-)
+> >
+> >  Ah, I see, it seems like another pin for our gettext voodoo doll.
 > 
-> sed -i -e 's@etc/adjtime@var/lib/hwclock/adjtime@g' \
->           $(grep -rl '/etc/adjtime' .)
+> Hehe.
+> 
+> >  Applied.
+> 
+> Ooops, in the cover letter I've mentioned that the new function would 
+> probably need some more small portability/safety fixes before final 
+> patch. Anyway I'll send them later.
 
- Ah, I forgot this old issue. Fixed now.
+Sorry, fingers were faster than brain...
 
-   ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime
+> One more thing. Since we have "0.18.3" now in configure.ac you should 
+> take care to release it next time on a system where at least this 
+> version is available. It wouldn't look nice if we ship files from 
+> different version.
 
- is the way how you can override the default in code and man pages.
+Sure, I always follow his rule.
+
+ $ gettext --version | head -1
+ gettext (GNU gettext-runtime) 0.18.3
+
 
     Karel
 
