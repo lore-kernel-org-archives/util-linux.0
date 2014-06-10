@@ -1,63 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53018 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.18]:53276 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750861AbaFJMQH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Jun 2014 08:16:07 -0400
-Date: Tue, 10 Jun 2014 14:16:00 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
+	id S1752440AbaFJRvK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Jun 2014 13:51:10 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: =?iso-8859-1?q?P=E1draig_Brady?= <P@draigbrady.com>
 Subject: Re: [PATCH] build-sys: use gettext 0.18.3 if possible
-Message-ID: <20140610121600.GH30975@x2.net.home>
-References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de>
- <1402394931-20416-2-git-send-email-sweet_f_a@gmx.de>
- <20140610115208.GG30975@x2.net.home>
- <201406101404.42618.sweet_f_a@gmx.de>
+Date: Tue, 10 Jun 2014 19:51:07 +0200
+Cc: util-linux@vger.kernel.org
+References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de> <53970EAF.4010801@draigBrady.com> <201406101725.22039.sweet_f_a@gmx.de>
+In-Reply-To: <201406101725.22039.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201406101404.42618.sweet_f_a@gmx.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406101951.07829.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 10, 2014 at 02:04:42PM +0200, Ruediger Meier wrote:
-> On Tuesday 10 June 2014, Karel Zak wrote:
-> > On Tue, Jun 10, 2014 at 12:08:51PM +0200, Ruediger Meier wrote:
-> > > We add a little hack for backward compatibility on systems with
-> > > older gettext installed
-> > >
-> > > See 0576dbd3 and 81ed13ed.
-> > >
-> > > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > > ---
-> > >  autogen.sh   | 31 ++++++++++++++++++++++++++++++-
-> > >  configure.ac |  3 ++-
-> > >  2 files changed, 32 insertions(+), 2 deletions(-)
+On Tuesday 10 June 2014, Ruediger Meier wrote:
+> On Tuesday 10 June 2014, Pdraig Brady wrote:
 > >
-> >  Ah, I see, it seems like another pin for our gettext voodoo doll.
-> 
-> Hehe.
-> 
-> >  Applied.
-> 
-> Ooops, in the cover letter I've mentioned that the new function would 
-> probably need some more small portability/safety fixes before final 
-> patch. Anyway I'll send them later.
+> > You seem to be relying on coreutils here, using sort -V and tail -n
+>
 
-Sorry, fingers were faster than brain...
+> Another possibility would be just to hardcode these few allowed
+> alternative versions:
+> [...]
+> Very short and portable but to be maintained when version is updated
+> in configure.ac
 
-> One more thing. Since we have "0.18.3" now in configure.ac you should 
-> take care to release it next time on a system where at least this 
-> version is available. It wouldn't look nice if we ship files from 
-> different version.
+Ok, now I've choosed this compromise, see the full function below or 
+patch here
+https://github.com/karelzak/util-linux/pull/97
 
-Sure, I always follow his rule.
+------------
+# provide simple gettext backward compatibility
+autopoint_fun ()
+{
+	# check against this hardcoded set of alternative gettext versions
+	gt_ver=`gettext --version |\
+		sed -n -e 's/.* \(0\.18\|0\.18\.[1-2]\)$/\1/p'`
 
- $ gettext --version | head -1
- gettext (GNU gettext-runtime) 0.18.3
+	if [ -n "$gt_ver" ]; then
+		echo "warning, force autopoint to use old gettext $gt_ver"
+		rm -f configure.ac.autogenbak
+		sed -i.autogenbak configure.ac \
+			-e "s/\(AM_GNU_GETTEXT_VERSION\).*/\1([$gt_ver])/"
+	fi
 
+	autopoint "$@" || ret=$?
+	ret=$?
 
-    Karel
+	if [ -n "$gt_ver" ]; then
+		mv configure.ac.autogenbak configure.ac
+	fi
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+	return $ret
+}
+---------
+
+Note, sed -i is also not portable but we are using it already at another 
+place.
+
+Also note that my first more generic solution with "sort --version-sort" 
+was almost useless anyway because autopoint itself can also only deal 
+with a few hardcoded versions, and it would not work for rc or beta 
+versions, see
+
+$ grep -A12 "Check whether the version" /usr/bin/autopoint
+# Check whether the version number is supported.
+case "$ver" in
+  0.10.35 | 0.10.36 | 0.10.37 | 0.10.38 | 0.10.39 | 0.10.40 | \
+  0.11 | 0.11.1 | 0.11.2 | 0.11.3 | 0.11.4 | 0.11.5 | \
+  0.12 | 0.12.1 | \
+  0.13 | 0.13.1 | \
+  0.14 | 0.14.1 | 0.14.2 | 0.14.3 | 0.14.4 | 0.14.5 | 0.14.6 | \
+  0.15 | \
+  0.16 | 0.16.1 | \
+  0.17 | \
+  0.18 | 0.18.1 | 0.18.2 | 0.18.3 )
+    ;;
+  *)
+
+For me this looks really stupid. By design it wouldn't be possible (or 
+at least no sense) to release 0.18.4 now since 0.19 is out already...
+
+IMO our autopoint_fun feature should be an option for autpoint if not 
+even the default behavior.
+
+cu,
+Rudi
