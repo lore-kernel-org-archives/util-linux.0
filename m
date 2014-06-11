@@ -1,33 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:27047 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51824 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751893AbaFIIoI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Jun 2014 04:44:08 -0400
-Date: Mon, 9 Jun 2014 10:43:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Tobias Klausmann <klausman@schwarzvogel.de>
-Subject: Re: [PATCH] libfdisk: fix bsd_translate_fstype() for alpha
-Message-ID: <20140609084355.GD30975@x2.net.home>
-References: <20140608104251.GA72528@skade.schwarzvogel.de>
- <1402234368-17174-1-git-send-email-sweet_f_a@gmx.de>
+	id S1751797AbaFKWKD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Jun 2014 18:10:03 -0400
+Message-ID: <5398D3A4.9090108@redhat.com>
+Date: Wed, 11 Jun 2014 17:09:40 -0500
+From: Eric Sandeen <sandeen@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1402234368-17174-1-git-send-email-sweet_f_a@gmx.de>
+To: Christoph Hellwig <hch@infradead.org>
+CC: Karel Zak <kzak@redhat.com>, Gui Hecheng <guihc.fnst@cn.fujitsu.com>,
+        util-linux@vger.kernel.org, linux-btrfs <linux-btrfs@vger.kernel.org>
+Subject: Re: [PATCH] mount: add btrfs to mount.8
+References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com> <20140605080311.GW9000@x2.net.home> <1402036359.17740.33.camel@localhost.localdomain> <20140606094428.GA30975@x2.net.home> <20140606100302.GB30975@x2.net.home> <5391E3D0.8050608@redhat.com> <20140607134150.GA22076@infradead.org>
+In-Reply-To: <20140607134150.GA22076@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 08, 2014 at 03:32:48PM +0200, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On 6/7/14, 8:41 AM, Christoph Hellwig wrote:
+> On Fri, Jun 06, 2014 at 10:52:48AM -0500, Eric Sandeen wrote:
+>> On 6/6/14, 5:03 AM, Karel Zak wrote:
+>>> On Fri, Jun 06, 2014 at 11:44:28AM +0200, Karel Zak wrote:
+>>>>  I personally have no problem to maintain information about arbitrary
+>>>>  FS in mount.8, the problem are updates. Unfortunately, kernel FS developers
+>>>>  don't care about the man page at all and it's very often not up to date.
+>>>
+>>>  Hmm.. another possible way would be to create a script for util-linux
+>>>  that will analyze kernel Documentation/filesystems/<fsname>.txt and
+>>>  report changes that is necessary to make to mount.8. It should be
+>>>  relative simple with git. I'll try it..
+>>
+>> I like that idea.  Maybe <fsname.txt> will need a defined format, though,
+>> right?  Maybe asciidoc?
+>>
+>> I've still been meaning (in theory) to produce a mount manpage just for xfs.
+>> I'm still willing to do that if the above doesn't pan out.  I just need
+>> to get to it.  I'd be happy to do it for extN as well.
 > 
-> Reported-by: Tobias Klausmann <klausman@schwarzvogel.de>
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  libfdisk/src/bsd.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Autogenerating man pages from an adhoc format sounds like the wrong
+> approach.  I'd much rather have proper man paged for every filesystem.
+> With those we could also drop all that information from the kernel
+> Documentation directory, where users won't looks for them anyway.
+> 
+> Eric, if you take care of xfs an extN I'll get started on man pages
+> for the various "minor" filesystems that don't really have active
+> maintainers.
 
- Applied, thanks.
+Ok, so I've sent xfs & extN and I am about to send btrfs.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+But I still have the nagging feeling that it would be better to have these
+mount-option manpages distributed with the kernel, which is ultimately what
+they must match.
+
+So although I've sent them all, I'm still feeling unsure about it.  :)
+
+-Eric
