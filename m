@@ -1,42 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oa0-f50.google.com ([209.85.219.50]:61576 "EHLO
-	mail-oa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750977AbaFRPBe (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Jun 2014 11:01:34 -0400
-Message-ID: <53A1A9CA.7000108@gmail.com>
-Date: Wed, 18 Jun 2014 10:01:30 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mout.gmx.net ([212.227.17.20]:57531 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752001AbaFKWSf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Jun 2014 18:18:35 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Re: [PATCH] next try to update gettext version
+Date: Thu, 12 Jun 2014 00:18:32 +0200
+Cc: util-linux@vger.kernel.org
+References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de> <53974319.7040608@gmail.com>
+In-Reply-To: <53974319.7040608@gmail.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.25-rc1
-References: <20140618134616.GA25885@x2.net.home>
-In-Reply-To: <20140618134616.GA25885@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201406120018.32418.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+On Tuesday 10 June 2014, Bruce Dubbs wrote:
+> Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> >
+> > This patch is just a proposal. Is it not too ugly to do it that
+> > way? For a final patch I would improve shell portability and error
+> > handling.
+> >
+> > Ruediger Meier (1):
+> >    build-sys: use gettext 0.18.3 if possible
 >
-> The util-linux release v2.25 is available at
+> gettext-0.19.1 was released a few hours ago.  It would be useful to
+> check against that release.
 >
->    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25
->
-> Feedback and bug reports, as always, are welcomed.
+>    -- Bruce
 
-In an LFS build environment, the configure, make, and make check are all 
-clean.  It is especially nice the way you tell us why some tests are not 
-run (mostly not root permissions).
+Thanks or reminding!
 
-In prior releases, the last/ipv6 and last/last tests did not pass in the 
-LFS environment, but they now do pass.
+Our discussed changes shouldn't break with 0.19.x as we still force
+<= 0.18.3. But I will check that in practice before next release.
 
-It would be nice if we could set the adjtime path in configure.  Right 
-now we do:
-
-sed -i -e 's@etc/adjtime@var/lib/hwclock/adjtime@g' \
-           $(grep -rl '/etc/adjtime' .)
-
-   -- Bruce
-
+cu,
+Rudi
