@@ -1,46 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41660 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:29091 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751654AbaFEHsN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 5 Jun 2014 03:48:13 -0400
-Date: Thu, 5 Jun 2014 09:48:05 +0200
+	id S1753336AbaFPN2U (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Jun 2014 09:28:20 -0400
+Date: Mon, 16 Jun 2014 15:28:16 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: tests: hwclock questions
-Message-ID: <20140605074805.GV9000@x2.net.home>
-References: <201406050032.24233.sweet_f_a@gmx.de>
+To: Eric Rannaud <eric.rannaud@gmail.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
+Subject: Re: Using findmnt in the presence of a stale NFS mount
+Message-ID: <20140616132816.GK30975@x2.net.home>
+References: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201406050032.24233.sweet_f_a@gmx.de>
+In-Reply-To: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 05, 2014 at 12:32:24AM +0200, Ruediger Meier wrote:
-> But before doing this I have two questions.
+On Tue, Jun 10, 2014 at 08:03:35AM -0700, Eric Rannaud wrote:
+> findmnt -snero fstype --tab-file '/etc/fstab' -T '/usr'
+> findmnt -s /boot
+> findmnt -s /usr
+> 
+> (note that on my system, /usr is not a mount point of any kind, while
+> /boot is ext4. /mnt is the stale NFS mount)
+> 
+> This older Arch bug https://bugs.archlinux.org/task/36629 refers to
+> the problem, but as far as I can tell the problem still exists in the
+> same form (at the time, the package maintainer added the -T option to
+> the command "findmnt -snero fstype --tab-file '/etc/fstab' -T '/usr'",
+> but I don't believe it changed anything).
+> 
+> In any case, from having a look at the code on the latest git (I can
+> reproduce the hang with 710ed55dcd), I believe the problem comes from
+> the following sequence.
+> 
+> When used with the -s|--fstab flag, findmnt goes through the list of
+> mount points in the tab file, and compares them with the target
+> specified, say '/usr'.
+> 
+> The comparison is done using mnt_fs_match_target() in
+> findmnt.c:match_func(). mnt_fs_match_target() uses mnt_resolve_path()
+> on both target ('/usr') and
+> fs->target, which uses canonicalize_path(fs->target), which uses
+> realpath(fs->target). As the fs->target is the stale NFS mount point,
+> this last call hangs in a lstat().
+> 
+> While it is clear that a system with a stale NFS mount point is a
+> minefield, would it be possible to avoid the call to
+> "realpath(fs->target)" (maybe controlled by a command line option)?
+> 
+> As it is, it is impossible to upgrade an Arch Linux install when there
+> is a stale NFS mount anywhere on the system (and listed in fstab).
 
- Maybe we can remove the test at all (or use --force to enable the test). It 
- was always very problematic test and I have doubts it's still necessary as 
- relevant hwclock code is completely different and more robust now.
-
-> 1. I wonder what is the original purpose of this test. Are we really 
-> testing hwclock or the kernel or hardware? I mean setting and reading
-
- The purpose is to test how precisely is able hwclock to set HW time.
- Long time ago we had problem that each iteration added extra 0.5s to
- the time.
-
-> cock 10 times ... could this really discover a bug in our hwclock code?
-
- Yes.
-
-> 2. Why do we _set_ the time from ntp server at the beginning? Wouldnt it 
-> be enough to check whether the offset to ntp is the same before and 
-> after the test?
-
- Probably yes.
+ You can try to  exclude NFS at all by --types nonfs, but maybe we can
+ add option --nocanonicalize. I'll try to play with that tomorrow. 
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
