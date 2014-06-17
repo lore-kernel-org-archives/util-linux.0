@@ -1,44 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from qmta03.westchester.pa.mail.comcast.net ([76.96.62.32]:42295
-	"EHLO qmta03.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754214AbaFYUlZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 25 Jun 2014 16:41:25 -0400
-Date: Wed, 25 Jun 2014 16:35:17 -0400
-Message-Id: <201406252035.s5PKZHnm001250@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: util-linux@vger.kernel.org
-In-reply-to: <53AB2E36.5060405@bernhard-voelker.de> (mail@bernhard-voelker.de)
-Subject: Re: fallocate: --punch option parsing error diagnostics irritating
-References: <53AB2E36.5060405@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:14338 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932697AbaFQMh7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Jun 2014 08:37:59 -0400
+Date: Tue, 17 Jun 2014 14:37:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Eric Rannaud <eric.rannaud@gmail.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
+Subject: Re: Using findmnt in the presence of a stale NFS mount
+Message-ID: <20140617123754.GM30975@x2.net.home>
+References: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
+ <20140616132816.GK30975@x2.net.home>
+ <20140616140047.GL30975@x2.net.home>
+ <CA+zRj8VZSxJ8dPYOY_wSS5zbxaue1Vy-gyCkYxfLVqA_3FjQfA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CA+zRj8VZSxJ8dPYOY_wSS5zbxaue1Vy-gyCkYxfLVqA_3FjQfA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Bernhard Voelker <mail@bernhard-voelker.de>
+On Mon, Jun 16, 2014 at 09:02:14AM -0700, Eric Rannaud wrote:
+> Another solution would be to change canonicalize_path(): before
+> calling realpath(fs->target), it would first check if fs->target is
+> otherwise listed in mtab (using the comparison
+> strcmp(from_mtab_fs->target, fs->target), not recursively using
+> mnt_fs_target_match()). If found in mtab, canonicalize_path() knows
+> that fs->target is not a symlink and it does not need to call
+> realpath(fs->target), and it won't blow up.
+> 
+> There is no need for a command line option: canonicalize_path() can do
+> this all the time, it will not change its semantics. However, findmnt
 
-> What does "punching" mean? Please explain without using the
-> word "punch".
+ I like the idea that we can rely on /proc/self/mountinfo and assume
+ that all the mountpoints are already canonicalized so we can skip the
+ extra canonicalize_path().
 
-It means to set the contents of a range of bytes in the file to zero,
-and then to de-allocate the disk pages that record that range of
-bytes, leaving a "hole" -- a region of the file that exists as far as
-read() calls is concerned, but does not occupy actual disk pages.  Of
-necessity, the bytes in a hole must be zero.
+ But it would be probably better to extend struct libmnt_cache than
+ change too low-level canonicalize_path().
 
-> And how would one specify a "range"? There's no option with
-> such a "range" argument.
+ We can add two functions:
 
-Ugh, that's badly written.  Without -p, fallocate forces the system to
-allocate blocks to a file which will appear to have zero contents.
-But for some filesystems, the disk blocks don't actually have to be
-set to zero, there's a way to mark them as "needs to be set to zero
-before the user can read it".  The part of the file that is allocated
-in this way starts at "offset" bytes and ends just before
-"offset+length" bytes.  That's the "range".
+    mnt_cache_set_targets(struct libmnt_cache *cache, struct libmnt_table *mtab);
+    mnt_resolve_target(char *path, struct libmnt_cache *cache);
 
-With -p, the specified region of the file is also effectively set to
-zeros, but the disk blocks aren't allocated.  And it appears that if
-the blocks are allocated now, they are deallocated. 
+ and check for @path in @mtab before canonicalize_path().
 
-Dale
+ Then we can use mnt_resolve_target() in mnt_fs_match_target() and
+ mnt_table_find_target().
+    
+ And in findmnt.c all you need is to parse /proc/self/mountinfo and call 
+ mnt_cache_set_targets() for the global cache when --target is specified
+ (or always?).
+
+> would have to systematically read /proc/mounts or mtab in an
+> additional secondary structure, even if --fstab is specified. That
+> requires changing findmnt's logic quite a bit, however, as currently
+> it doesn't read mtab if --fstab is specified.
+
+ We have to be very careful with /proc/mounts (and mountinfo), unfortunately 
+ it has horrible performance impact for kernel on huge servers to generate 
+ the /proc files.
+
+> If you wish, I can have a crack at writing such a patch.
+
+ Go ahead.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
