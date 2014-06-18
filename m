@@ -1,62 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58383 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750931AbaFBKd2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Jun 2014 06:33:28 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: build-sys: minor issues
-Date: Mon, 2 Jun 2014 12:33:23 +0200
-Cc: util-linux@vger.kernel.org
-References: <201406020056.17074.sweet_f_a@gmx.de> <20140602094243.GM9000@x2.net.home>
-In-Reply-To: <20140602094243.GM9000@x2.net.home>
+Received: from mail-oa0-f50.google.com ([209.85.219.50]:61576 "EHLO
+	mail-oa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977AbaFRPBe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Jun 2014 11:01:34 -0400
+Message-ID: <53A1A9CA.7000108@gmail.com>
+Date: Wed, 18 Jun 2014 10:01:30 -0500
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406021233.23463.sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.25-rc1
+References: <20140618134616.GA25885@x2.net.home>
+In-Reply-To: <20140618134616.GA25885@x2.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 02 June 2014, Karel Zak wrote:
-> On Mon, Jun 02, 2014 at 12:56:16AM +0200, Ruediger Meier wrote:
-> > 1. ./configure --enable-all-programs
-> > also triggers --enable-deprecated-last. Would be nice to exclude
-> > this deprecated stuff somehow.
+Karel Zak wrote:
 >
->  fixed, thanks for your report.
-
-Thanks! All the recent build-sys tweaks were really helpful!
-
-> > 2. make dist
-> > changes files in source dir, which makes the git clone dirty. Would
-> > be nice if we could avoid this somehow.
+> The util-linux release v2.25 is available at
 >
->  What files? I see po/ stuff modification and it's more political
->  issue than technical. The reason is that I update po/ only once
->  before release (to avoid many many huge commits with irrelevant
->  changes).
+>    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25
+>
+> Feedback and bug reports, as always, are welcomed.
 
-I have to admit that I'm not really familar with this translations.
-But IMO generally it's not nice that "make dist" pollutes the git
-clone.
+In an LFS build environment, the configure, make, and make check are all 
+clean.  It is especially nice the way you tell us why some tests are not 
+run (mostly not root permissions).
 
-I see 3 possibilities how to avoid this.
+In prior releases, the last/ipv6 and last/last tests did not pass in the 
+LFS environment, but they now do pass.
 
-1. Don't track these po files in git at all. Always generate in
-   builddir. Put them into dist only.
-2. Don't update them with "make dist". Add new target "make update-po".
-3. Keep them in srcdir but update to builddir. Add a script
-   "commit-po-updates" to manulally move them from builddir to
-   srcdir from time to time. 
+It would be nice if we could set the adjtime path in configure.  Right 
+now we do:
 
-My use case is a cronjob like this
-  git pull origin
-  ./autogen.sh && ./configure && make dist
-  "push-tarball-to-build-host" 
+sed -i -e 's@etc/adjtime@var/lib/hwclock/adjtime@g' \
+           $(grep -rl '/etc/adjtime' .)
 
-Because of the current git pollution I have to do always "git 
-reset --hard" before "autogen.sh" to not have "-dirty" suffixed version 
-numbers.
+   -- Bruce
 
-cu,
-Rudi 
