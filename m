@@ -1,43 +1,25 @@
-Return-Path: linux-btrfs-owner@vger.kernel.org
-Date: Thu, 5 Jun 2014 10:03:11 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:16577 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757696AbaFSIge (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 19 Jun 2014 04:36:34 -0400
+Date: Thu, 19 Jun 2014 10:36:28 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
-Cc: util-linux@vger.kernel.org, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH] mount: add btrfs to mount.8
-Message-ID: <20140605080311.GW9000@x2.net.home>
-References: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.25-rc1
+Message-ID: <20140619083628.GC25885@x2.net.home>
+References: <20140618134616.GA25885@x2.net.home>
+ <20140618181728.GI6076@type.youpi.perso.aquilenet.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1401933919-23608-1-git-send-email-guihc.fnst@cn.fujitsu.com>
-Sender: linux-btrfs-owner@vger.kernel.org
+In-Reply-To: <20140618181728.GI6076@type.youpi.perso.aquilenet.fr>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 05, 2014 at 10:05:19AM +0800, Gui Hecheng wrote:
-> Based on Documentation/filesystems/btrfs.txt
-> 
-> Signed-off-by: Gui Hecheng <guihc.fnst@cn.fujitsu.com>
-> ---
->  sys-utils/mount.8 | 186 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 186 insertions(+)
+On Wed, Jun 18, 2014 at 08:17:28PM +0200, Samuel Thibault wrote:
+> Here are some fixes for non-Linux systems
 
- Thanks, but I'm not sure this is the right way. It would be better to
- create BTRFS specific btrfs.5 man page and maintain it together with
- another BTRFS stuff rather then within util-linux. In the mount.8
- should be only a note about btrfs.5.
-
- My long time goal is to remove all FS specific sections (at least for
- mainstream filesystems) from mount.8, because we duplicate effort
- here. The primary and well maintained is usually kernel
- Documentation/filesystems/ and unfortunately FS developers don't care
- about mount.8 at all.
-
- The ideal solution would be to generate the FS man pages from kernel
- docs (for example from asciidoc etc.)
-
- See 6 years old discussions: http://marc.info/?t=122767310200002&r=1&w=2
-
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
