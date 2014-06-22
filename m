@@ -1,64 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14296 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753507AbaFWLQY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 23 Jun 2014 07:16:24 -0400
-Date: Mon, 23 Jun 2014 13:16:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: arnaud.mouiche@gmail.com
-Cc: util-linux@vger.kernel.org, Arnaud Mouiche <arnaud.mouiche@invoxia.com>
-Subject: Re: [PATCH] mkfs.cramfs: fix potential uid, gid or mode drop.
-Message-ID: <20140623111619.GJ25885@x2.net.home>
-References: <1403036214-13067-1-git-send-email-arnaud.mouiche@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1403036214-13067-1-git-send-email-arnaud.mouiche@gmail.com>
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:35922 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752027AbaFVTpk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 15:45:40 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-h31.telenor.se (Postfix) with ESMTP id EDCEAC241
+	for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 21:45:07 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] libmount: special treatment for auto in fstype pattern
+Date: Sun, 22 Jun 2014 21:44:50 +0200
+Message-Id: <1403466290-12880-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 17, 2014 at 10:16:54PM +0200, arnaud.mouiche@gmail.com wrote:
-> From: Arnaud Mouiche <arnaud.mouiche@invoxia.com>
-> 
-> find_identical_file() may squash files with identical contents, but
-> different uid/gid or mode.
-> 
-> here is a test script to show the problem (to run as root):
-> without this patch, the output is
-> 
->   -rw-r--r-- 1 root root 4 janv.  1  1970 a
->   -rw-r--r-- 1 root root 4 janv.  1  1970 b
->   -rw-r--r-- 1 root root 4 janv.  1  1970 c
-> 
-> whereas the expected result should be
-> 
->   -rw-r--r-- 1 root   root 4 janv.  1  1970 a
->   -rw------- 1 root   root 4 janv.  1  1970 b
->   -rw-r--r-- 1 daemon root 4 janv.  1  1970 c
+Quoting from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=506695 :
 
- Strange. 
+according to mount(8), mount tries to guess a filesystem type when given
+fstype `auto' and it tries multiple filesystems if a list of fstypes is
+given.
 
-> -	if (orig->size == new->size && orig->path) {
-> +	if (orig->size == new->size &&
-> +		orig->uid == new->uid &&
-> +		orig->gid == new->gid &&
-> +		orig->mode == new->mode &&
-> +		orig->path) {
->  		if (!orig->flags)
->  			mdfile(orig);
->  		if (!new->flags)
+A single fstype `auto' works as expected:
+	mount -t auto /dev/sde /media/stick
+mounts /dev/sde as vfat, which is correct.
+However, merging `auto' with other types doesn't work as expected:
+	mount -t ext2,auto /dev/sde /media/stick
+does not mount /dev/sde but returns:
+	mount: unknown filesystem type 'auto'
 
- I don't think this is right solution. The content de-duplication code
- has to be independent on file name, uid/gid and mode. The
- de-duplication does not mean that info about the file has been
- removed from the cramfs image.
+Trying multiple fstypes before allowing mount to guess makes sense in
+different scenarios, for example to prefer specific fstypes (ext2
+instead of ext3) or to try fstypes that mount doesn't guess (minix).
+I'm not sure if the Debian installer still sets CDROM fstab entries to
+`udf,iso9660,auto' but I remember it did once. This wouldn't work then
+either.
+
+Reported-by: "Mario 'BitKoenig' Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ libmount/src/context_mount.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index dcfdabf..d07fa02 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -782,6 +782,8 @@ static int do_mount_by_pattern(struct libmnt_context *cxt, const char *pattern)
+ 			char *end = strchr(p, ',');
+ 			if (end)
+ 				*end = '\0';
++			if (strcmp(p, "auto") == 0)
++				p = NULL;
+ 			rc = do_mount(cxt, p);
+ 			p = end ? end + 1 : NULL;
  
- The filesystem still contains file specific inode. So if you see a
- different filename then you have to see a different uid/gid too.
- (I guess.)
-
-
-    Karel
-
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.0.0
+
