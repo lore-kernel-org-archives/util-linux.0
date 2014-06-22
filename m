@@ -1,89 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:46972 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755121AbaF1SaT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Jun 2014 14:30:19 -0400
-Received: by mail-wi0-f180.google.com with SMTP id hi2so4202219wib.1
-        for <util-linux@vger.kernel.org>; Sat, 28 Jun 2014 11:30:18 -0700 (PDT)
+Received: from mail-we0-f179.google.com ([74.125.82.179]:52342 "EHLO
+	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751577AbaFVKcK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 06:32:10 -0400
+Received: by mail-we0-f179.google.com with SMTP id w62so5648185wes.10
+        for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 03:32:08 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 7/7] tests: add rename(1) return value check
-Date: Sat, 28 Jun 2014 19:30:09 +0100
-Message-Id: <1403980209-15694-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1403980209-15694-1-git-send-email-kerolasa@iki.fi>
-References: <1403980209-15694-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 0/6] pull: rename fixes
+Date: Sun, 22 Jun 2014 11:31:51 +0100
+Message-Id: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/expected/rename/exit_codes |  7 +++++++
- tests/ts/rename/exit_codes       | 41 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 48 insertions(+)
- create mode 100644 tests/expected/rename/exit_codes
- create mode 100755 tests/ts/rename/exit_codes
+Hello,
 
-diff --git a/tests/expected/rename/exit_codes b/tests/expected/rename/exit_codes
-new file mode 100644
-index 0000000..c577817
---- /dev/null
-+++ b/tests/expected/rename/exit_codes
-@@ -0,0 +1,7 @@
-+RENAME_EXIT_NOTHING: 4
-+`rename_exit_codes.1' -> `rename_exit_values.1'
-+`rename_exit_codes.2' -> `rename_exit_values.2'
-+EXIT_SUCCESS: 0
-+rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a directory
-+`rename_exit_values.1' -> `rename_exit_codes.1'
-+RENAME_EXIT_SOMEOK: 2
-diff --git a/tests/ts/rename/exit_codes b/tests/ts/rename/exit_codes
-new file mode 100755
-index 0000000..3702816
---- /dev/null
-+++ b/tests/ts/rename/exit_codes
-@@ -0,0 +1,41 @@
-+#!/bin/bash
-+
-+#
-+# Copyright (C) 2014 Sami Kerola <kerolasa@iki.fi>
-+#
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="exit codes"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_RENAME"
-+ts_cd "$TS_OUTDIR"
-+
-+touch rename_exit_codes.{1..2}
-+$TS_CMD_RENAME -v not_a_match impossible rename_exit_codes.? >> $TS_OUTPUT 2>&1
-+echo "RENAME_EXIT_NOTHING: $?" >> $TS_OUTPUT
-+
-+$TS_CMD_RENAME -v codes values rename_exit_codes.? >> $TS_OUTPUT 2>&1
-+echo "EXIT_SUCCESS: $?" >> $TS_OUTPUT
-+
-+mkdir rename_exit_codes.2
-+$TS_CMD_RENAME -v values codes rename_exit_values.? >> $TS_OUTPUT 2>&1
-+echo "RENAME_EXIT_SOMEOK: $?" >> $TS_OUTPUT
-+
-+rmdir rename_exit_codes.2
-+rm rename_exit_codes.? rename_exit_values.?
-+
-+ts_finalize
+Here are the rename(1) changes again.  Last time changing directory end
+up to make merging not preferred, so I added ts_cd() function that does
+everything I could think of ensuring directory change is successful.
+
+On top of the previous patch set there are also two new rename(1)
+changes.  Either the first four patches are merged now and the last two
+later, or the whole thing should wait until final v2.25 release is out. 
+My feeling later is the correct decision.
+
+
+The following changes since commit d121efdb6e7bfe57d91d7ac46c3a3e13e9506584:
+  cfdisk: add --zero command line option (2014-06-20 12:17:53 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git
+for you to fetch changes up to d14036b0793c8bdddb89680fcfbb80b19b49e6ca:
+  rename: use function pointer to select file or s
+
+Sami Kerola (6):
+  rename: allow renaming in subdirectories
+  tests: add function to change directory reliable way
+  tests: use ts_cd everywhere to change direcrory
+  tests: add rename(1) checks
+  rename: continue despite something failed
+  rename: use function pointer to select file or symlink operation
+
+ misc-utils/rename.c               | 124 ++++++++++++++++++++------------------
+ tests/commands.sh                 |   1 +
+ tests/expected/rename/basic       |   4 ++
+ tests/expected/rename/subdir      |  20 ++++++
+ tests/expected/rename/symlink     |   3 +
+ tests/functions.sh                |  14 +++++
+ tests/ts/build-sys/config         |   6 +-
+ tests/ts/column/fillrow           |   2 +-
+ tests/ts/column/invalid-multibyte |   2 +-
+ tests/ts/column/multi-file        |   2 +-
+ tests/ts/column/separator_table   |   2 +-
+ tests/ts/cramfs/mkfs              |   8 +--
+ tests/ts/namei/logic              |   2 +-
+ tests/ts/rename/basic             |  41 +++++++++++++
+ tests/ts/rename/subdir            |  42 +++++++++++++
+ tests/ts/rename/symlink           |  41 +++++++++++++
+ 16 files changed, 245 insertions(+), 69 deletions(-)
+ create mode 100644 tests/expected/rename/basic
+ create mode 100644 tests/expected/rename/subdir
+ create mode 100644 tests/expected/rename/symlink
+ create mode 100755 tests/ts/rename/basic
+ create mode 100755 tests/ts/rename/subdir
+ create mode 100755 tests/ts/rename/symlink
+
 -- 
-2.0.1
+2.0.0
 
