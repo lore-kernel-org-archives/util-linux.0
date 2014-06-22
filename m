@@ -1,70 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f179.google.com ([74.125.82.179]:52342 "EHLO
-	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751577AbaFVKcK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 06:32:10 -0400
-Received: by mail-we0-f179.google.com with SMTP id w62so5648185wes.10
-        for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 03:32:08 -0700 (PDT)
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:48843 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751645AbaFVKcP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 06:32:15 -0400
+Received: by mail-wi0-f172.google.com with SMTP id hi2so2677294wib.5
+        for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 03:32:13 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 0/6] pull: rename fixes
-Date: Sun, 22 Jun 2014 11:31:51 +0100
-Message-Id: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 2/6] tests: add function to change directory reliable way
+Date: Sun, 22 Jun 2014 11:31:53 +0100
+Message-Id: <1403433117-32652-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
+References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+Without arguments bash cd will move to $HOME. Ensure also that when
+directory is assumed to be changed the current directory and intented
+destination are the same location.
 
-Here are the rename(1) changes again.  Last time changing directory end
-up to make merging not preferred, so I added ts_cd() function that does
-everything I could think of ensuring directory change is successful.
+Reference: http://www.spinics.net/lists/util-linux-ng/msg09509.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/functions.sh | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-On top of the previous patch set there are also two new rename(1)
-changes.  Either the first four patches are merged now and the last two
-later, or the whole thing should wait until final v2.25 release is out. 
-My feeling later is the correct decision.
-
-
-The following changes since commit d121efdb6e7bfe57d91d7ac46c3a3e13e9506584:
-  cfdisk: add --zero command line option (2014-06-20 12:17:53 +0200)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git
-for you to fetch changes up to d14036b0793c8bdddb89680fcfbb80b19b49e6ca:
-  rename: use function pointer to select file or s
-
-Sami Kerola (6):
-  rename: allow renaming in subdirectories
-  tests: add function to change directory reliable way
-  tests: use ts_cd everywhere to change direcrory
-  tests: add rename(1) checks
-  rename: continue despite something failed
-  rename: use function pointer to select file or symlink operation
-
- misc-utils/rename.c               | 124 ++++++++++++++++++++------------------
- tests/commands.sh                 |   1 +
- tests/expected/rename/basic       |   4 ++
- tests/expected/rename/subdir      |  20 ++++++
- tests/expected/rename/symlink     |   3 +
- tests/functions.sh                |  14 +++++
- tests/ts/build-sys/config         |   6 +-
- tests/ts/column/fillrow           |   2 +-
- tests/ts/column/invalid-multibyte |   2 +-
- tests/ts/column/multi-file        |   2 +-
- tests/ts/column/separator_table   |   2 +-
- tests/ts/cramfs/mkfs              |   8 +--
- tests/ts/namei/logic              |   2 +-
- tests/ts/rename/basic             |  41 +++++++++++++
- tests/ts/rename/subdir            |  42 +++++++++++++
- tests/ts/rename/symlink           |  41 +++++++++++++
- 16 files changed, 245 insertions(+), 69 deletions(-)
- create mode 100644 tests/expected/rename/basic
- create mode 100644 tests/expected/rename/subdir
- create mode 100644 tests/expected/rename/symlink
- create mode 100755 tests/ts/rename/basic
- create mode 100755 tests/ts/rename/subdir
- create mode 100755 tests/ts/rename/symlink
-
+diff --git a/tests/functions.sh b/tests/functions.sh
+index 2a50de7..6998343 100644
+--- a/tests/functions.sh
++++ b/tests/functions.sh
+@@ -31,6 +31,20 @@ function ts_canonicalize {
+ 	fi
+ }
+ 
++function ts_cd {
++	if [ $# -eq 0 ]; then
++		ts_failed "ul_cd: not enough arguments"
++	fi
++	DEST=$(readlink -f "$1" 2>/dev/null)
++	if [ "x$DEST" = "x" ] || [ ! -d "$DEST" ]; then
++		ts_failed "ul_cd: $1: no such directory"
++	fi
++	cd "$DEST" 2>/dev/null || ts_failed "ul_cd: $1: cannot change directory"
++	if [ "$PWD" != "$DEST" ]; then
++		ts_failed "ul_cd: $PWD is not $DEST"
++	fi
++}
++
+ function ts_report {
+ 	if [ "$TS_PARALLEL" == "yes" ]; then
+ 		echo "$TS_TITLE $1"
 -- 
 2.0.0
 
