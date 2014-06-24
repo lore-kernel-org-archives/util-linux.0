@@ -1,45 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from skade.schwarzvogel.de ([144.76.18.87]:60174 "EHLO
-	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753341AbaFHLKB convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Jun 2014 07:10:01 -0400
-Received: from klausman by mail.schwarzvogel.de with local (Exim 4.83_RC1)
-	(envelope-from <klausman@schwarzvogel.de>)
-	id 1WtaYt-000Jei-L3
-	for util-linux@vger.kernel.org; Sun, 08 Jun 2014 12:42:51 +0200
-Date: Sun, 8 Jun 2014 12:42:51 +0200
-From: Tobias Klausmann <klausman@schwarzvogel.de>
-To: util-linux@vger.kernel.org
-Subject: util-linux breakage with v2.24.2 on Alpha
-Message-ID: <20140608104251.GA72528@skade.schwarzvogel.de>
+Received: from mail-pb0-f49.google.com ([209.85.160.49]:46573 "EHLO
+	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752381AbaFXWDf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jun 2014 18:03:35 -0400
+Received: by mail-pb0-f49.google.com with SMTP id rr13so785374pbb.8
+        for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 15:03:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
+References: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
+Date: Tue, 24 Jun 2014 23:03:35 +0100
+Message-ID: <CAG27Bk2hnApV9tRw6u3Y0GvptHO+EW2ji7CoRd7fuzvyyws-KA@mail.gmail.com>
+Subject: Re: Enhancement request: logger should use FQDN
+From: Sami Kerola <kerolasa@iki.fi>
+To: Kodiak Firesmith <ksf@sei.cmu.edu>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hey,
+On 24 June 2014 13:53, Kodiak Firesmith <ksf@sei.cmu.edu> wrote:
+> I noticed recently while using logger in some scripts that it is not
+> following RFC and choosing the FQDN first if available.  This stands out for
+> hosts with $PreserveFQDN in rsyslogd.conf as all other messages will use
+> FQDN and logger messages will use short hostname.
+> This behavior poses problems when wrangling syslog data in a correlator like
+> Splunk.
+>
+> Sadly I'm no coder so I cannot sort out the problem and provide a patch, but
+> I'm hoping one of the logger maintainers/contributors might be able to help
+> out.
 
-I am one of the Gentoo maintainers for the Alpha arch. As of
-util-linux 2.24, the build broke reliably:
+FYI
 
-  CC       libfdisk/src/libfdisk_la-bsd.lo
-libfdisk/src/bsd.c: In function ‘bsd_translate_fstype’:
-libfdisk/src/bsd.c:790:10: error: ‘BSD_FS_MSDOS’ undeclared (first use in this function)
-   return BSD_FS_MSDOS;
-          ^
+I started to look how to get fqdn, RFC 3164 and RFC 5424 supported. At
+the moment I am thinking logger should default to RFC 5424 in future.
+If someone is interested of sneak peak I keep backup laptop in github
+branch below.
 
-This is due to the this section in include/pt-bsd.h:
+https://github.com/kerolasa/lelux-utiliteetit/tree/logger
 
-/* this is annoying, but it's also the way it is :-( */                         
-#ifdef __alpha__                                                                
-#define BSD_FS_EXT2     8               /* ext2 file system */                  #else                                                                           
-#define BSD_FS_MSDOS    8               /* MS-DOS file system */                
-#endif                                                                          
-                                                                                
-The problem is that libfdisk/src/bsd.c still uses that macro, even
-when compiling util-linux on Alpha. 
-
-Regards,
-Tobias
-
-PS: I'm not susbscribed to the list, so please CC me on replies.
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
