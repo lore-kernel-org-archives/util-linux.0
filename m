@@ -1,127 +1,167 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:59859 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751645AbaFVKcW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Jun 2014 06:32:22 -0400
-Received: by mail-wi0-f173.google.com with SMTP id cc10so2674146wib.6
-        for <util-linux@vger.kernel.org>; Sun, 22 Jun 2014 03:32:20 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 5/6] rename: continue despite something failed
-Date: Sun, 22 Jun 2014 11:31:56 +0100
-Message-Id: <1403433117-32652-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
-References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
+Received: from shetland.sei.cmu.edu ([192.58.107.44]:51806 "EHLO
+	shetland.sei.cmu.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753143AbaFXMx0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Jun 2014 08:53:26 -0400
+Received: from pawpaw.sei.cmu.edu (pawpaw.sei.cmu.edu [10.64.21.22])
+	by shetland.sei.cmu.edu (8.14.4/8.14.4/1408) with ESMTP id s5OCrPQv012928
+	for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 08:53:25 -0400
+Received: from CASCADE.ad.sei.cmu.edu (cascade.ad.sei.cmu.edu [10.64.28.248])
+	by pawpaw.sei.cmu.edu (8.14.4/8.14.4/1456) with ESMTP id s5OCrGvx010864
+	for <util-linux@vger.kernel.org>; Tue, 24 Jun 2014 08:53:16 -0400
+From: Kodiak Firesmith <ksf@sei.cmu.edu>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Enhancement request: logger should use FQDN
+Date: Tue, 24 Jun 2014 12:53:04 +0000
+Message-ID: <6A8340D9D5097144961EEF98758D7089A47000C9@marathon>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
+	micalg=SHA1; boundary="----=_NextPart_000_078B_01CF8F89.B5A93310"
+MIME-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Try to do all file operations even when one or some of them fail.
+------=_NextPart_000_078B_01CF8F89.B5A93310
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/rename.c | 55 ++++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 35 insertions(+), 20 deletions(-)
+Hello,
+I noticed recently while using logger in some scripts that it is not
+following RFC and choosing the FQDN first if available.  This stands out for
+hosts with $PreserveFQDN in rsyslogd.conf as all other messages will use
+FQDN and logger messages will use short hostname.  
+This behavior poses problems when wrangling syslog data in a correlator like
+Splunk.  
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index b945aaa..250070b 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -29,20 +29,26 @@ for i in $@; do N=`echo "$i" | sed "s/$FROM/$TO/g"`; mv "$i" "$N"; done
- 
- static int do_rename(char *from, char *to, char *s, int verbose, int symtarget)
- {
--	char *newname, *where, *p, *q, *target = NULL;
--	int flen, tlen, slen;
-+	char *newname = NULL, *where, *p, *q, *target = NULL;
-+	int flen, tlen, slen, ret = 0;
- 	struct stat sb;
- 
- 	if (symtarget) {
--		if (lstat(s, &sb) == -1)
--			err(EXIT_FAILURE, _("%s: lstat failed"), s);
--
--		if (!S_ISLNK(sb.st_mode))
--			errx(EXIT_FAILURE, _("%s: not a symbolic link"), s);
-+		if (lstat(s, &sb) == -1) {
-+			warn(_("%s: lstat failed"), s);
-+			return 1;
-+		}
-+		if (!S_ISLNK(sb.st_mode)) {
-+			warnx(_("%s: not a symbolic link"), s);
-+			return 1;
-+		}
- 
- 		target = xmalloc(sb.st_size + 1);
--		if (readlink(s, target, sb.st_size + 1) < 0)
--			err(EXIT_FAILURE, _("%s: readlink failed"), s);
-+		if (readlink(s, target, sb.st_size + 1) < 0) {
-+			warn(_("%s: readlink failed"), s);
-+			ret = 1;
-+			goto out;
-+		}
- 
- 		target[sb.st_size] = '\0';
- 		where = strstr(target, from);
-@@ -82,22 +88,31 @@ static int do_rename(char *from, char *to, char *s, int verbose, int symtarget)
- 	*q = 0;
- 
- 	if (symtarget) {
--		if (0 > unlink(s))
--			err(EXIT_FAILURE, _("%s: unlink failed"), s);
--		if (symlink(newname, s) != 0)
--			err(EXIT_FAILURE, _("%s: symlinking to %s failed"), s, newname);
-+		if (0 > unlink(s)) {
-+			warn(_("%s: unlink failed"), s);
-+			ret = 1;
-+			goto out;
-+		}
-+		if (symlink(newname, s) != 0) {
-+			warn(_("%s: symlinking to %s failed"), s, newname);
-+			ret = 1;
-+			goto out;
-+		}
- 		if (verbose)
- 			printf("%s: `%s' -> `%s'\n", s, target, newname);
- 	} else {
--		if (rename(s, newname) != 0)
--			err(EXIT_FAILURE, _("%s: rename to %s failed"), s, newname);
-+		if (rename(s, newname) != 0) {
-+			warn(_("%s: rename to %s failed"), s, newname);
-+			ret = 1;
-+			goto out;
-+		}
- 		if (verbose)
- 			printf("`%s' -> `%s'\n", s, newname);
- 	}
--
-+ out:
- 	free(newname);
- 	free(target);
--	return 1;
-+	return ret;
- }
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
-@@ -119,7 +134,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- int main(int argc, char **argv)
- {
- 	char *from, *to;
--	int i, c, symtarget=0, verbose = 0;
-+	int i, c, ret = 0, symtarget = 0, verbose = 0;
- 
- 	static const struct option longopts[] = {
- 		{"verbose", no_argument, NULL, 'v'},
-@@ -163,7 +178,7 @@ int main(int argc, char **argv)
- 	to = argv[1];
- 
- 	for (i = 2; i < argc; i++)
--		do_rename(from, to, argv[i], verbose, symtarget);
-+		ret |= do_rename(from, to, argv[i], verbose, symtarget);
- 
--	return EXIT_SUCCESS;
-+	return ret;
- }
--- 
-2.0.0
+Sadly I'm no coder so I cannot sort out the problem and provide a patch, but
+I'm hoping one of the logger maintainers/contributors might be able to help
+out.
 
+http://tools.ietf.org/html/rfc5424#section-6.2.4
+
+Thanks very much,
+- Kodiak Firesmith
+
+Linux System Administrator
+Software Engineering Institute | CMU
+Office: 412.268.8771
+Email: ksf@cert.org | ksf@sei.cmu.edu
+
+
+------=_NextPart_000_078B_01CF8F89.B5A93310
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+
+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
+xCZU7wO94CTLVBowHQYDVR0OBBYEFImCZ33EnSZwAEu0UEh83j2uBG59MA4GA1UdDwEB/wQEAwIB
+BjAPBgNVHRMBAf8EBTADAQH/MBEGA1UdIAQKMAgwBgYEVR0gADBEBgNVHR8EPTA7MDmgN6A1hjNo
+dHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vQWRkVHJ1c3RFeHRlcm5hbENBUm9vdC5jcmwwNQYIKwYB
+BQUHAQEEKTAnMCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0GCSqGSIb3
+DQEBBQUAA4IBAQABvJzjYyiw8zEBwt973WKgAZ0jMQ+cknNTUeofTPrWn8TKL2d+eDMPdBa5kYeR
+9Yom+mRwANge+QsEYlCHk4HU2vUj2zS7hVa0cDRueIM3HoUcxREVkl+HF72sav3xwtHMiV+xfPA+
+UfI183zsYJhrOivg79+zfYbrtRv1W+yifJgT1wBQudEtc94DeHThBYUxXsuauZ2UxrmUN3Vy3ET7
+Z+jw+iUeUqfaJelH4KDHPKBOsQo2+3dIn++Xivu0/uOUFKiDvFwtP9JgcWDuwnGCDOmINuPaILSj
+oGyqlku4gI51ykkH9jsUut/cBdmf2+Cy5k2geCbn5y1uf1/GHogVMIIFGjCCBAKgAwIBAgIQbRnq
+pxlPajMi5iIyeqpx3jANBgkqhkiG9w0BAQUFADCBrjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVU
+MRcwFQYDVQQHEw5TYWx0IExha2UgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3Jr
+MSEwHwYDVQQLExhodHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xNjA0BgNVBAMTLVVUTi1VU0VSRmly
+c3QtQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBFbWFpbDAeFw0xMTA0MjgwMDAwMDBaFw0yMDA1
+MzAxMDQ4MzhaMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAw
+DgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE5MDcGA1UEAxMwQ09N
+T0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG
+9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkoSEW0tXmNReL4uk4UDIo1NYX2Zl8TJO958yfVXQeExVt0KU
+4PkncQfFxmmkuTLE8UAakMwnVmJ/F7Vxaa7lIBvky2NeYMqiQfZq4aP/uN8fSG1lQ4wqLitjOHff
+sReswtqCAtbUMmrUZ28gE49cNfrlVICv2HEKHTcKAlBTbJUdqRAUtJmVWRIx/wmi0kzcUtve4kAB
+W0ho3cVKtODtJB86r3FfB+OsvxQ7sCVxaD30D9YXWEYVgTxoi4uDD216IVfmNLDbMn7jSuGlUnJk
+JpFOpZIP/+CxYP0ab2hRmWONGoulzEKbm30iY9OpoPzOnpDfRBn0XFs1uhbzp5v/wQIDAQABo4IB
+SzCCAUcwHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4Ebn0wHQYDVR0OBBYEFHoTTgB0W8Z4
+Y2QnwS/ioFu8ecV7MA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQK
+MAgwBgYEVR0gADBYBgNVHR8EUTBPME2gS6BJhkdodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVVRO
+LVVTRVJGaXJzdC1DbGllbnRBdXRoZW50aWNhdGlvbmFuZEVtYWlsLmNybDB0BggrBgEFBQcBAQRo
+MGYwPQYIKwYBBQUHMAKGMWh0dHA6Ly9jcnQudXNlcnRydXN0LmNvbS9VVE5BZGRUcnVzdENsaWVu
+dF9DQS5jcnQwJQYIKwYBBQUHMAGGGWh0dHA6Ly9vY3NwLnVzZXJ0cnVzdC5jb20wDQYJKoZIhvcN
+AQEFBQADggEBAIXWvnhXVW0zf0RS/kLVBqgBA4CK+w2y/Uq/9q9BSfUbWsXSrRtzbj7pJnzmTJjB
+MCjfy/tCPKElPgp11tA9OYZm0aGbtU2bb68obB2v5ep0WqjascDxdXovnrqTecr+4pEeVnSy+I3T
+4ENyG+2P/WA5IEf7i686ZUg8mD2lJb+972DgSeUWyOs/Q4Pw4O4NwdPNM1+b0L1garM7/vrUyTo8
+H+2b/5tJM75CKTmD7jNpLoKdRU2oadqAGx490hpdfEeZpZsIbRKZhtZdVwcbpzC+S0lEuJB+ytF5
+OOu0M/qgOl0mWJ5hVRi0IdWZ1eBDQEIwvuql55TSsP7zdfl/bucwggXXMIIEv6ADAgECAhEA6txs
+3a2QomafPdQldvpTxjANBgkqhkiG9w0BAQUFADCBkzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdy
+ZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExp
+bWl0ZWQxOTA3BgNVBAMTMENPTU9ETyBDbGllbnQgQXV0aGVudGljYXRpb24gYW5kIFNlY3VyZSBF
+bWFpbCBDQTAeFw0xMTA4MTkwMDAwMDBaFw0xNjA4MTgyMzU5NTlaMIHsMQ4wDAYDVQQREwUxNTIx
+MzEnMCUGA1UECxMeU29mdHdhcmUgRW5naW5lZXJpbmcgSW5zdGl0dXRlMSMwIQYDVQQKExpDYXJu
+ZWdpZSBNZWxsb24gVW5pdmVyc2l0eTEYMBYGA1UECRMPNDUwMCBGaWZ0aCBBdmUuMRUwEwYDVQQI
+EwxQZW5uc3lsdmFuaWExEzARBgNVBAcTClBpdHRzYnVyZ2gxCzAJBgNVBAYTAlVTMRkwFwYDVQQD
+ExBLb2RpYWsgRmlyZXNtaXRoMR4wHAYJKoZIhvcNAQkBFg9rc2ZAc2VpLmNtdS5lZHUwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3PRHsmy6UDyEZZFoZiVJkcaQjO0ropb0oGwmp20m0
+5zRO/GxIT/liN7vL1P/vM5cRWiMNC9lSA9YDRt1SPnUXO24XpQPlSlvbZnBt2cvfz98SKJSeFm7Q
+8k/LJUieU3YZvbJk48e4zT3p25eepPPFs9hRh72jTz81pVUPOthwiGBFpRrQn9M4+0ZT47Je7qIU
+hPvks0EDjYelhAeHw0Uwu1IdF47IOGmpFoWpu71IY2gtmSnqhmRBErYs+EyCVF6m0XhrVCPCpCLN
+URZhjBrcqV+tZn/MuVV9p5BxMv7V8JxTOvENf8QV99imWzO1AfqLK7+82MHD8OMU9BQy6BshAgMB
+AAGjggHJMIIBxTAfBgNVHSMEGDAWgBR6E04AdFvGeGNkJ8Ev4qBbvHnFezAdBgNVHQ4EFgQUfn+E
+vJLxrhCiU8xLNXAWTSrryCowDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
+FAYIKwYBBQUHAwQGCCsGAQUFBwMCMEYGA1UdIAQ/MD0wOwYMKwYBBAGyMQECAQMFMCswKQYIKwYB
+BQUHAgEWHWh0dHBzOi8vc2VjdXJlLmNvbW9kby5uZXQvQ1BTMFcGA1UdHwRQME4wTKBKoEiGRmh0
+dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NPTU9ET0NsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJl
+RW1haWxDQS5jcmwwgYgGCCsGAQUFBwEBBHwwejBSBggrBgEFBQcwAoZGaHR0cDovL2NydC5jb21v
+ZG9jYS5jb20vQ09NT0RPQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFpbENBLmNydDAk
+BggrBgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMBoGA1UdEQQTMBGBD2tzZkBzZWku
+Y211LmVkdTANBgkqhkiG9w0BAQUFAAOCAQEAkZuZ/ZnokCPNBSNv+NNmEPY2ovZHI5IQo4qiZaB9
+K1jI018458FpX3LHNqd8Pfsp8DLozjdf8CWfiytndbFhj7YWqoXFoTvgzBfRzNLt/r2ordZwNo+o
+cSL89AbLIzVF2EP32OP5cg5S9U9v0yjsf/F7loTVKOt9uSPw7e1cDmE8sKMXMDDqlj1a7e1pMP0k
+jAY0jGQ7/FIS09wvfiJqrDYdp0g1PXp7r0ZmzRTvB0iCuDLCyYv1bjpTyAzSVTXS4KgeT/RZRtL/
+ViV8KX9p6csyFj9F1wziEcmoXoOJofQeth13oClcQa1x0RpPlH1HEgunG60N9ucsKWx5aqBSJzGC
+BFwwggRYAgEBMIGpMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVy
+MRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE5MDcGA1UEAxMw
+Q09NT0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA6txs3a2Q
+omafPdQldvpTxjAJBgUrDgMCGgUAoIIChzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0xNDA2MjQxMjUzMDNaMCMGCSqGSIb3DQEJBDEWBBT3D13IUytXzi+Z8hKKR+G+
+1Ex9eDCBqwYJKoZIhvcNAQkPMYGdMIGaMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCgYIKoZI
+hvcNAwcwCwYJYIZIAWUDBAECMA4GCCqGSIb3DQMCAgIAgDAHBgUrDgMCBzANBggqhkiG9w0DAgIB
+QDANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjALBglghkgBZQMEAgMwCwYJYIZIAWUDBAICMAsGCWCG
+SAFlAwQCATCBugYJKwYBBAGCNxAEMYGsMIGpMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
+YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGlt
+aXRlZDE5MDcGA1UEAxMwQ09NT0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVt
+YWlsIENBAhEA6txs3a2QomafPdQldvpTxjCBvAYLKoZIhvcNAQkQAgsxgayggakwgZMxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMTkwNwYDVQQDEzBDT01PRE8gQ2xpZW50IEF1dGhlbnRp
+Y2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDq3GzdrZCiZp891CV2+lPGMA0GCSqGSIb3DQEB
+AQUABIIBABecjM+r5geu9ZaqmSyENG/jfT6mxzN3FumJ0KTXlwiSbZwCbuMfP/KejdbcBuwrcTZD
+8V7Bgc/T6JJTb8zsw0KSsNOPb446GDAtJroAWQPWmDst2YhbrG0AECWZdVmHtLPaYWeGENKVXsCu
+z9iU88RelHcG1/PRipWUs/gchLWvg0A7Pib2mvvO5xW+fUaYY7PQeTnPwTLnAvnOhxGXgYYGeJ/P
+25Q66bnxMQpHwBKygwu7b5800B2Z2dolm5VQhkwjAMeCdGO76PIBSOW0CoS3gOwasQVK7OH30e9a
+qvdRKxx5u6adAfzYmoJMKLsjPqsIQ9mwupWz6VsvqijfSsEAAAAAAAA=
+
+------=_NextPart_000_078B_01CF8F89.B5A93310--
