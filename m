@@ -1,36 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:55227 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:31199 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751276AbaFJNlM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Jun 2014 09:41:12 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] build-sys: use gettext 0.18.3 if possible
-Date: Tue, 10 Jun 2014 15:41:05 +0200
+	id S1754205AbaFYMF7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Jun 2014 08:05:59 -0400
+Date: Wed, 25 Jun 2014 14:05:47 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-References: <1402394931-20416-1-git-send-email-sweet_f_a@gmx.de> <201406101404.42618.sweet_f_a@gmx.de> <20140610122300.GI30975@x2.net.home>
-In-Reply-To: <20140610122300.GI30975@x2.net.home>
+Subject: Re: [PATCH 0/6] pull: rename fixes
+Message-ID: <20140625120547.GB30418@x2.net.home>
+References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406101541.05880.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 10 June 2014, Karel Zak wrote:
-> On Tue, Jun 10, 2014 at 02:04:42PM +0200, Ruediger Meier wrote:
-> > Ooops, in the cover letter I've mentioned that the new function
-> > would probably need some more small portability/safety fixes before
-> > final patch. Anyway I'll send them later.
->
-> It seems travis does not like the patch.
+On Sun, Jun 22, 2014 at 11:31:51AM +0100, Sami Kerola wrote:
+>  misc-utils/rename.c               | 124 ++++++++++++++++++++------------------
+>  tests/commands.sh                 |   1 +
+>  tests/expected/rename/basic       |   4 ++
+>  tests/expected/rename/subdir      |  20 ++++++
+>  tests/expected/rename/symlink     |   3 +
+>  tests/functions.sh                |  14 +++++
+>  tests/ts/build-sys/config         |   6 +-
+>  tests/ts/column/fillrow           |   2 +-
+>  tests/ts/column/invalid-multibyte |   2 +-
+>  tests/ts/column/multi-file        |   2 +-
+>  tests/ts/column/separator_table   |   2 +-
+>  tests/ts/cramfs/mkfs              |   8 +--
+>  tests/ts/namei/logic              |   2 +-
+>  tests/ts/rename/basic             |  41 +++++++++++++
+>  tests/ts/rename/subdir            |  42 +++++++++++++
+>  tests/ts/rename/symlink           |  41 +++++++++++++
+>  16 files changed, 245 insertions(+), 69 deletions(-)
+>  create mode 100644 tests/expected/rename/basic
+>  create mode 100644 tests/expected/rename/subdir
+>  create mode 100644 tests/expected/rename/symlink
+>  create mode 100755 tests/ts/rename/basic
+>  create mode 100755 tests/ts/rename/subdir
+>  create mode 100755 tests/ts/rename/symlink
 
-Hehe, that's the shell portability I had guessed.
+ Note that I'm going to merge it after v2.25 release. Thanks.
 
-Looks like travis' /bin/sh does not have option "-e" for echo:
-  warning, force autopoint to use old gettext "-e 0.18"
-  ...
-  is older. Please upgrade to gettext-"-e 0.18" or newer.
+    Karel
 
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
