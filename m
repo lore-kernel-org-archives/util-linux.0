@@ -1,51 +1,38 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: build-sys: minor issues
-Date: Wed, 4 Jun 2014 11:48:03 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:47484 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754540AbaFYMMG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Jun 2014 08:12:06 -0400
+Date: Wed, 25 Jun 2014 14:11:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-References: <201406020056.17074.sweet_f_a@gmx.de> <201406031509.24914.sweet_f_a@gmx.de> <20140604092600.GT9000@x2.net.home>
-In-Reply-To: <20140604092600.GT9000@x2.net.home>
+Subject: Re: [PATCH 5/6] rename: continue despite something failed
+Message-ID: <20140625121153.GC30418@x2.net.home>
+References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
+ <1403433117-32652-6-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406041148.03629.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1403433117-32652-6-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 04 June 2014, Karel Zak wrote:
-> On Tue, Jun 03, 2014 at 03:09:24PM +0200, Ruediger Meier wrote:
-> > On Monday 02 June 2014, Ruediger Meier wrote:
-> > > I have two minor issues with our build-sys:
-> >
-> > Another issue:
-> >
-> > 4. --disable-all-programs disables pylibmount forever
-> >
-> > --with-python   does not turn it on again
-> > --enable-pylibmount  does not exist
->
->  OK, I have added --enable-pylibmount, so you have to use:
->
->  ./configure --disable-all-programs \
->              --enable-pylibmount \
->              --enable-libmount \
->              --enable-libblkid
->
->  to compile the binding.
+On Sun, Jun 22, 2014 at 11:31:56AM +0100, Sami Kerola wrote:
+> Try to do all file operations even when one or some of them fail.
 
-Thanks!
+ It would be nice to have a special return code for situation when
+ something failed. See for example "mount -a" of kill(1) where we have 
 
-> > or do I miss something?
->
-> note that we don't have --enable-* for all utils. It's probably
-> overkill for small utils or utils expected everywhere.
+    #define KILL_EXIT_SOMEOK      64
 
-Ah, I thought you've had added --enable-* more generically for 
-everything lately.
+ and add to man page:
 
-But no problem in doubt there is still
-$ ./configure --enable-all-programs
-$ make xyz
+       0      success
+       1      failure
+       64     partial success
 
-cu,
-Rudi
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
