@@ -1,66 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from skade.schwarzvogel.de ([144.76.18.87]:32916 "EHLO
-	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753153AbaFHOJi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Jun 2014 10:09:38 -0400
-Received: from klausman by mail.schwarzvogel.de with local (Exim 4.83_RC1)
-	(envelope-from <klausman@schwarzvogel.de>)
-	id 1Wtdmy-000TEx-CI
-	for util-linux@vger.kernel.org; Sun, 08 Jun 2014 16:09:36 +0200
-Date: Sun, 8 Jun 2014 16:09:36 +0200
-From: Tobias Klausmann <klausman@schwarzvogel.de>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libfdisk: fix bsd_translate_fstype() for alpha
-Message-ID: <20140608140936.GA110210@skade.schwarzvogel.de>
-References: <20140608104251.GA72528@skade.schwarzvogel.de>
- <1402234368-17174-1-git-send-email-sweet_f_a@gmx.de>
- <20140608134433.GC2336@rampage>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140608134433.GC2336@rampage>
+Received: from qmta03.westchester.pa.mail.comcast.net ([76.96.62.32]:42295
+	"EHLO qmta03.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754214AbaFYUlZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Jun 2014 16:41:25 -0400
+Date: Wed, 25 Jun 2014 16:35:17 -0400
+Message-Id: <201406252035.s5PKZHnm001250@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+CC: util-linux@vger.kernel.org
+In-reply-to: <53AB2E36.5060405@bernhard-voelker.de> (mail@bernhard-voelker.de)
+Subject: Re: fallocate: --punch option parsing error diagnostics irritating
+References: <53AB2E36.5060405@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi! 
+> From: Bernhard Voelker <mail@bernhard-voelker.de>
 
-On Sun, 08 Jun 2014, Dave Reisner wrote:
+> What does "punching" mean? Please explain without using the
+> word "punch".
 
-> On Sun, Jun 08, 2014 at 03:32:48PM +0200, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > 
-> > Reported-by: Tobias Klausmann <klausman@schwarzvogel.de>
-> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > ---
-> >  libfdisk/src/bsd.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/libfdisk/src/bsd.c b/libfdisk/src/bsd.c
-> > index a81afd2..df0fc13 100644
-> > --- a/libfdisk/src/bsd.c
-> > +++ b/libfdisk/src/bsd.c
-> > @@ -773,8 +773,10 @@ static int bsd_translate_fstype (int linux_type)
-> >  	case 0x06: /* DOS 16-bit >=32M */
-> >  	case 0xe1: /* DOS access       */
-> >  	case 0xe3: /* DOS R/O          */
-> > +#if !defined (__alpha__)
-> >  	case 0xf2: /* DOS secondary    */
-> >  		return BSD_FS_MSDOS;
-> > +#endif
-> 
-> What would be the harm on defining this for platforms which don't
-> include it? Why is a partition type excluded from this architecture?
+It means to set the contents of a range of bytes in the file to zero,
+and then to de-allocate the disk pages that record that range of
+bytes, leaving a "hole" -- a region of the file that exists as far as
+read() calls is concerned, but does not occupy actual disk pages.  Of
+necessity, the bytes in a hole must be zero.
 
-For some reason, 8 has two meanings: BSD_FS_MSDOS almost
-everywhere, but BSD_FS_EXT2 on Alpha. I'm not well-versed enough
-in the code to be sure whether the case above (0xf2) is a "can't
-happen" on Alpha).
+> And how would one specify a "range"? There's no option with
+> such a "range" argument.
 
-It may be that the better approach would be to return an error
-condition or something entirely different, including BSD_FS_EXT2. 
+Ugh, that's badly written.  Without -p, fallocate forces the system to
+allocate blocks to a file which will appear to have zero contents.
+But for some filesystems, the disk blocks don't actually have to be
+set to zero, there's a way to mark them as "needs to be set to zero
+before the user can read it".  The part of the file that is allocated
+in this way starts at "offset" bytes and ends just before
+"offset+length" bytes.  That's the "range".
 
-For the Alphas I have access to, the patch from Ruediger works
-just fine.
+With -p, the specified region of the file is also effectively set to
+zeros, but the disk blocks aren't allocated.  And it appears that if
+the blocks are allocated now, they are deallocated. 
 
-Regards,
-Tobias
-
+Dale
