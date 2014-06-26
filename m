@@ -1,71 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14338 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:28289 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932697AbaFQMh7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Jun 2014 08:37:59 -0400
-Date: Tue, 17 Jun 2014 14:37:54 +0200
+	id S1755233AbaFZMtp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jun 2014 08:49:45 -0400
+Date: Thu, 26 Jun 2014 14:49:37 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Eric Rannaud <eric.rannaud@gmail.com>
-Cc: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
-Subject: Re: Using findmnt in the presence of a stale NFS mount
-Message-ID: <20140617123754.GM30975@x2.net.home>
-References: <CA+zRj8Xs=A2sHp3DMD78u9Ak9v-xDSyZVtjB1JGJZ6Dx9t1z=w@mail.gmail.com>
- <20140616132816.GK30975@x2.net.home>
- <20140616140047.GL30975@x2.net.home>
- <CA+zRj8VZSxJ8dPYOY_wSS5zbxaue1Vy-gyCkYxfLVqA_3FjQfA@mail.gmail.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: fallocate: --punch option parsing error diagnostics irritating
+Message-ID: <20140626124937.GB750@x2.net.home>
+References: <53AB2E36.5060405@bernhard-voelker.de>
+ <20140626101009.GD30418@x2.net.home>
+ <53ABFB5A.9020005@draigBrady.com>
+ <20140626110702.GA750@x2.net.home>
+ <53AC0E89.4020300@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CA+zRj8VZSxJ8dPYOY_wSS5zbxaue1Vy-gyCkYxfLVqA_3FjQfA@mail.gmail.com>
+In-Reply-To: <53AC0E89.4020300@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 16, 2014 at 09:02:14AM -0700, Eric Rannaud wrote:
-> Another solution would be to change canonicalize_path(): before
-> calling realpath(fs->target), it would first check if fs->target is
-> otherwise listed in mtab (using the comparison
-> strcmp(from_mtab_fs->target, fs->target), not recursively using
-> mnt_fs_target_match()). If found in mtab, canonicalize_path() knows
-> that fs->target is not a symlink and it does not need to call
-> realpath(fs->target), and it won't blow up.
-> 
-> There is no need for a command line option: canonicalize_path() can do
-> this all the time, it will not change its semantics. However, findmnt
+On Thu, Jun 26, 2014 at 02:14:01PM +0200, Bernhard Voelker wrote:
+> The patch below fixes it.
 
- I like the idea that we can rely on /proc/self/mountinfo and assume
- that all the mountpoints are already canonicalized so we can skip the
- extra canonicalize_path().
+ Applied, thanks.
 
- But it would be probably better to extend struct libmnt_cache than
- change too low-level canonicalize_path().
+> BTW: I think fallocate(1) shouldn't open(...,O_CREAT)
+> with -d, -p, and maybe with -z, should it?
 
- We can add two functions:
+Good catch, I think O_CREAT makes sense only for the default
+fallocate(2) behavior when no mode is specified and new file is
+allocated. All another modes work with existing data/holes. 
 
-    mnt_cache_set_targets(struct libmnt_cache *cache, struct libmnt_table *mtab);
-    mnt_resolve_target(char *path, struct libmnt_cache *cache);
-
- and check for @path in @mtab before canonicalize_path().
-
- Then we can use mnt_resolve_target() in mnt_fs_match_target() and
- mnt_table_find_target().
-    
- And in findmnt.c all you need is to parse /proc/self/mountinfo and call 
- mnt_cache_set_targets() for the global cache when --target is specified
- (or always?).
-
-> would have to systematically read /proc/mounts or mtab in an
-> additional secondary structure, even if --fstab is specified. That
-> requires changing findmnt's logic quite a bit, however, as currently
-> it doesn't read mtab if --fstab is specified.
-
- We have to be very careful with /proc/mounts (and mountinfo), unfortunately 
- it has horrible performance impact for kernel on huge servers to generate 
- the /proc files.
-
-> If you wish, I can have a crack at writing such a patch.
-
- Go ahead.
+Fixed.
 
     Karel
+
+
+PS. I love this on-line development and brain storming, git & OSS is
+    the best :-)
 
 -- 
  Karel Zak  <kzak@redhat.com>
