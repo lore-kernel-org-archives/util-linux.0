@@ -1,45 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:34864 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753072AbaF2SMV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 29 Jun 2014 14:12:21 -0400
-Received: by mail-wi0-f176.google.com with SMTP id n3so4949705wiv.3
-        for <util-linux@vger.kernel.org>; Sun, 29 Jun 2014 11:12:20 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] swapon: align --summary fields
-Date: Sun, 29 Jun 2014 19:12:13 +0100
-Message-Id: <1404065533-7557-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:18282 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755011AbaFZKKQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Jun 2014 06:10:16 -0400
+Date: Thu, 26 Jun 2014 12:10:09 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: fallocate: --punch option parsing error diagnostics irritating
+Message-ID: <20140626101009.GD30418@x2.net.home>
+References: <53AB2E36.5060405@bernhard-voelker.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53AB2E36.5060405@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This commit makes  partitions and files to have remaining three columns
-aligned.  Below print out demonstrates earlier misalignment.
+On Wed, Jun 25, 2014 at 10:16:54PM +0200, Bernhard Voelker wrote:
+>   $ ./fallocate -p -l 10000 /tmp/x
+>   fallocate: only -n mode can be used with --zero-range
+> 
+> Huh? I didn't specify neither -n nor -z.
 
-$ swapon -s
-Filename                                Type            Size    Used    Priority
-/dev/sda2                               partition       4194300 0       3
-/home/src/util-linux/newswap            file    496     0       -1
+		case 'p':
+			mode |= FALLOC_FL_PUNCH_HOLE;
+			/* fall through */
+		case 'n':
+			mode |= FALLOC_FL_KEEP_SIZE;
+			break;
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/swapon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 8c36b2c..53cd6f9 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -209,7 +209,7 @@ static int display_summary(void)
- 	printf(_("%s\t\t\t\tType\t\tSize\tUsed\tPriority\n"), _("Filename"));
- 
- 	while (mnt_table_next_fs(st, itr, &fs) == 0) {
--		printf("%-39s\t%s\t%jd\t%jd\t%d\n",
-+		printf("%-39s\t%-8s\t%jd\t%jd\t%d\n",
- 			mnt_fs_get_source(fs),
- 			mnt_fs_get_swaptype(fs),
- 			mnt_fs_get_size(fs),
+unfortunately there is nothing about it in man page and usage(). It's
+described in fallocate(2) syscall man page only.
+
+Anyway, the code is wrong, it assumes that KEEP_SIZE is possible to use
+only with ZERO_RANGE. 
+
+Fixed in git tree, man page massively modified to be readable for
+humans (original text in the man page was from FS devels:-)
+
+> Finally, please add some examples to the man page.
+
+I think the new version of the man page is good enough without examples, but 
+if someone has something nice we can add EXAMPLES section.
+
+Thanks!
+
+    Karel
+
 -- 
-2.0.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
