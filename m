@@ -1,57 +1,67 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: build-sys: minor issues
-Date: Mon, 2 Jun 2014 13:05:08 +0200
-Cc: util-linux@vger.kernel.org
-References: <201406020056.17074.sweet_f_a@gmx.de> <201406020233.39094.sweet_f_a@gmx.de> <20140602094826.GN9000@x2.net.home>
-In-Reply-To: <20140602094826.GN9000@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:60999 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753990AbaF1S3w (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 28 Jun 2014 14:29:52 -0400
+Received: by mail-pd0-f170.google.com with SMTP id z10so6031170pdj.1
+        for <util-linux@vger.kernel.org>; Sat, 28 Jun 2014 11:29:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201406021305.08682.sweet_f_a@gmx.de>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140625121153.GC30418@x2.net.home>
+References: <1403433117-32652-1-git-send-email-kerolasa@iki.fi>
+	<1403433117-32652-6-git-send-email-kerolasa@iki.fi>
+	<20140625121153.GC30418@x2.net.home>
+Date: Sat, 28 Jun 2014 19:29:52 +0100
+Message-ID: <CAG27Bk39i4Jv7fKoTSNVWi=-Q=gATg_m+F9H3v_BNM9SX4srQA@mail.gmail.com>
+Subject: Re: [PATCH 5/6] rename: continue despite something failed
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 02 June 2014, Karel Zak wrote:
-> On Mon, Jun 02, 2014 at 02:33:38AM +0200, Ruediger Meier wrote:
-> > On Monday 02 June 2014, Ruediger Meier wrote:
-> > > I have two minor issues with our build-sys:
-> >
-> > Another issue:
-> >
-> > 3. --enable-gtk-doc does not work in out-of-tree build:
+On 25 June 2014 13:11, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Jun 22, 2014 at 11:31:56AM +0100, Sami Kerola wrote:
+>> Try to do all file operations even when one or some of them fail.
 >
->  I'll try to fix it (it worked time ago if I good remember). Frankly,
->  the way how is gtk-doc designed to work with autotools sucks...
-
-Thanks.
-
->  BTW, our TODO:
+>  It would be nice to have a special return code for situation when
+>  something failed. See for example "mount -a" of kill(1) where we have
 >
->    * use something better than gtk-doc for libmount and libblkid
-> (doxyden?)
+>     #define KILL_EXIT_SOMEOK      64
 >
->   ;-)
-
-So maybe we could re-think the point below when doxygen epoch will come.
-
-> > BTW maybe we could consider about adding these docs to dist tarball
-> > to not bother users with gtk-doc deps?
+>  and add to man page:
 >
->  Hmm... not sure, I guess the number of people who care about libs
->  docs is pretty small and for mainstream distros is the dependence on
->  gtk-doc no issue.
+>        0      success
+>        1      failure
+>        64     partial success
 
-I know it's debatable. Just in ideal world the lib interfaces (and docs) 
-are fixed for a certain release and do not depend on build host. This 
-is shown more clearly if you distribute the fixed documentations along 
-with the sources. It's like projects with help2man-man pages often 
-distribute these man pages too.
+Hi Karel,
 
-Another minor advantage is that users would be able to compare the docs 
-across serveral util-linux versions without need to build all the docs. 
-(Might be difficult if an old util-linux build-sys does not work 
-anymore on recent host).
+Good idea, and I extended it a little. I added four different exit values,
+that are hopefully useful.
 
-cu,
-Rudi
+  0    all requested rename operations were successful
+  1    all rename operations failed
+  2    some rename operations failed
+  4    nothing was renamed
+  64   unanticipated error occurred
+
+The changes can be found from my git repository below, and I will
+submit the patches 0005 and 0006 again to email list. There is also
+new change, 0007, that is a check the exit values are working as
+expected.
+
+--- snip
+The following changes since commit 575718a04aa0c053875041dc387e360f2dcaa70d:
+  fallocate: use O_CREAT only for the default behavior (2014-06-26
+14:45:02 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git
+for you to fetch changes up to 40cbaab8022ba9e0dfeb3358655c0631bd1143bc:
+  tests: add rename(1) return value check (2014-06-28 19:11:30 +0100)
+-- snip
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
