@@ -1,97 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:65078 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753721AbaFCL1i (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 3 Jun 2014 07:27:38 -0400
-Date: Tue, 3 Jun 2014 13:27:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: build-sys: minor issues
-Message-ID: <20140603112732.GR9000@x2.net.home>
-References: <201406020056.17074.sweet_f_a@gmx.de>
- <20140602094243.GM9000@x2.net.home>
- <201406021233.23463.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201406021233.23463.sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:50582 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751558AbaF2PuP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 29 Jun 2014 11:50:15 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/7] textual: improve the columns information of lslogins
+Date: Sun, 29 Jun 2014 17:49:40 +0200
+Message-Id: <1404056983-10119-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
+References: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 02, 2014 at 12:33:23PM +0200, Ruediger Meier wrote:
-> On Monday 02 June 2014, Karel Zak wrote:
-> > On Mon, Jun 02, 2014 at 12:56:16AM +0200, Ruediger Meier wrote:
-> > > 1. ./configure --enable-all-programs
-> > > also triggers --enable-deprecated-last. Would be nice to exclude
-> > > this deprecated stuff somehow.
-> >
-> >  fixed, thanks for your report.
-> 
-> Thanks! All the recent build-sys tweaks were really helpful!
-> 
-> > > 2. make dist
-> > > changes files in source dir, which makes the git clone dirty. Would
-> > > be nice if we could avoid this somehow.
-> >
-> >  What files? I see po/ stuff modification and it's more political
-> >  issue than technical. The reason is that I update po/ only once
-> >  before release (to avoid many many huge commits with irrelevant
-> >  changes).
-> 
-> I have to admit that I'm not really familar with this translations.
-> But IMO generally it's not nice that "make dist" pollutes the git
-> clone.
+Some fixes for typos, whitespace and wordings.
 
- I see two issues with po/Makefile:
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ login-utils/lslogins.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
- * "make" generates po/*.gmo files into srcdir by
-
-     cd $(srcdir) && rm -f $${lang}.gmo && $(GMSGFMT) ...
-
- * "make dist" updates po/*.po files in srcdir by
-
-     test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
-     echo "$${cdcmd}$(MSGMERGE_UPDATE) $(MSGMERGE_OPTIONS) 
-
-
- The problem is that we don't control this Makefile, it's created by 
- autopoint and maintained by gettext upstream. 
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 09cded7..4ade02c 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -216,13 +216,13 @@ static struct lslogins_coldesc coldescs[] =
+ {
+ 	[COL_USER]          = { "USER",		N_("user name"), N_("Username"), 0.1, SCOLS_FL_NOEXTREMES },
+ 	[COL_UID]           = { "UID",		N_("user ID"), "UID", 1, SCOLS_FL_RIGHT},
+-	[COL_PWDEMPTY]      = { "PWD-EMPTY",	N_("password not requiured"), N_("Password no required"), 1, SCOLS_FL_RIGHT },
++	[COL_PWDEMPTY]      = { "PWD-EMPTY",	N_("password not required"), N_("Password not required"), 1, SCOLS_FL_RIGHT },
+ 	[COL_PWDDENY]       = { "PWD-DENY",	N_("login by password disabled"), N_("Login by password disabled"), 1, SCOLS_FL_RIGHT },
+ 	[COL_PWDLOCK]       = { "PWD-LOCK",	N_("password defined, but locked"), N_("Password is locked"), 1, SCOLS_FL_RIGHT },
+ 	[COL_NOLOGIN]       = { "NOLOGIN",	N_("log in disabled by nologin(8) or pam_nologin(8)"), N_("No login"), 1, SCOLS_FL_RIGHT },
+-	[COL_GROUP]          = { "GROUP",	N_("primary group name"), N_("Primary group"), 0.1 },
+-	[COL_GID]          = { "GID",		N_("primary group ID"), "GID", 1, SCOLS_FL_RIGHT },
+-	[COL_SGROUPS]         = { "SUPP-GROUPS",	N_("supplementary group names"), N_("Supplementary groups"), 0.1 },
++	[COL_GROUP]         = { "GROUP",	N_("primary group name"), N_("Primary group"), 0.1 },
++	[COL_GID]           = { "GID",		N_("primary group ID"), "GID", 1, SCOLS_FL_RIGHT },
++	[COL_SGROUPS]       = { "SUPP-GROUPS",	N_("supplementary group names"), N_("Supplementary groups"), 0.1 },
+ 	[COL_SGIDS]         = { "SUPP-GIDS",    N_("supplementary group IDs"), N_("Supplementary group IDs"), 0.1 },
+ 	[COL_HOME]          = { "HOMEDIR",	N_("home directory"), N_("Home directory"), 0.1 },
+ 	[COL_SHELL]         = { "SHELL",	N_("login shell"), N_("Shell"), 0.1 },
+@@ -236,10 +236,10 @@ static struct lslogins_coldesc coldescs[] =
+ 	[COL_PWD_WARN]      = { "PWD-WARN",	N_("days user is warned of password expiration"), N_("Password expiration warn interval"), 0.1, SCOLS_FL_RIGHT },
+ 	[COL_PWD_EXPIR]     = { "PWD-EXPIR",	N_("password expiration date"), N_("Password expiration"), 0.1, SCOLS_FL_RIGHT },
+ 	[COL_PWD_CTIME]     = { "PWD-CHANGE",	N_("date of last password change"), N_("Password changed"), 0.1, SCOLS_FL_RIGHT},
+-	[COL_PWD_CTIME_MIN] = { "PWD-MIN",	N_("number of days required between changes"), N_("Minimal change time"), 0.1, SCOLS_FL_RIGHT },
+-	[COL_PWD_CTIME_MAX] = { "PWD-MAX",	N_("max number of days a password may remain unchanged"), N_("Maximal change time"), 0.1, SCOLS_FL_RIGHT },
++	[COL_PWD_CTIME_MIN] = { "PWD-MIN",	N_("number of days required between changes"), N_("Minimum change time"), 0.1, SCOLS_FL_RIGHT },
++	[COL_PWD_CTIME_MAX] = { "PWD-MAX",	N_("max number of days a password may remain unchanged"), N_("Maximum change time"), 0.1, SCOLS_FL_RIGHT },
+ 	[COL_SELINUX]       = { "CONTEXT",	N_("the user's security context"), N_("Selinux context"), 0.1 },
+-	[COL_NPROCS]        = { "PROC",         N_("number of processes run by the user"), N_("Running process"), 1, SCOLS_FL_RIGHT },
++	[COL_NPROCS]        = { "PROC",         N_("number of processes run by the user"), N_("Running processes"), 1, SCOLS_FL_RIGHT },
+ };
  
- Yes, it's mistake to modify $srcdir.
-
-> I see 3 possibilities how to avoid this.
-> 
-> 1. Don't track these po files in git at all. Always generate in
->    builddir. Put them into dist only.
-
- No, I'm sure we want to have .po files in the git, it's part of the package.
-
-> 2. Don't update them with "make dist". Add new target "make update-po".
-
- Well, I use "make distcheck" to generate the final release tarballs
- and it would be nice to keep it usable :-)
-
-> 3. Keep them in srcdir but update to builddir. Add a script
->    "commit-po-updates" to manulally move them from builddir to
->    srcdir from time to time. 
-> 
-> My use case is a cronjob like this
->   git pull origin
->   ./autogen.sh && ./configure && make dist
->   "push-tarball-to-build-host" 
-> 
-> Because of the current git pollution I have to do always "git 
-> reset --hard" before "autogen.sh" to not have "-dirty" suffixed version 
-> numbers.
-
- What about to improve ./tools/git-version-gen to not use -dirty suffix when
- only po/*.po stuff is modified? 
- 
- Note that git-version-gen is our script, and it just for developers,
- no problem to change it.
- 
-    Karel
-
+ struct lslogins_control {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
