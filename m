@@ -1,86 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from skade.schwarzvogel.de ([144.76.18.87]:60899 "EHLO
-	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753299AbaFHNQ2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Jun 2014 09:16:28 -0400
-Received: from klausman by mail.schwarzvogel.de with local (Exim 4.83_RC1)
-	(envelope-from <klausman@schwarzvogel.de>)
-	id 1WtcxW-000NXp-8z
-	for util-linux@vger.kernel.org; Sun, 08 Jun 2014 15:16:26 +0200
-Date: Sun, 8 Jun 2014 14:44:31 +0200
-From: Tobias Klausmann <klausman@schwarzvogel.de>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Subject: Re: util-linux breakage with v2.24.2 on Alpha
-Message-ID: <20140608124431.GA121104@skade.schwarzvogel.de>
-References: <20140608104251.GA72528@skade.schwarzvogel.de>
- <201406081425.08453.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201406081425.08453.sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:50646 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751558AbaF2PuW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 29 Jun 2014 11:50:22 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 6/7] textual: minimally improve wording of usage text of findmnt
+Date: Sun, 29 Jun 2014 17:49:42 +0200
+Message-Id: <1404056983-10119-6-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
+References: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi! 
+Also sort the options better and tweak whitespace.
 
-On Sun, 08 Jun 2014, Ruediger Meier wrote:
-> On Sunday 08 June 2014, Tobias Klausmann wrote:
-> > Hey,
-> >
-> > I am one of the Gentoo maintainers for the Alpha arch. As of
-> > util-linux 2.24, the build broke reliably:
-> >
-> >   CC       libfdisk/src/libfdisk_la-bsd.lo
-> > libfdisk/src/bsd.c: In function bsd_translate_fstype:
-> > libfdisk/src/bsd.c:790:10: error: BSD_FS_MSDOS undeclared (first use
-> > in this function) return BSD_FS_MSDOS;
-> >           ^
-> 
-> Looks like you have to ignore this case on alpha:
-> 
-> diff --git a/libfdisk/src/bsd.c b/libfdisk/src/bsd.c
-> index a81afd2..df0fc13 100644
-> --- a/libfdisk/src/bsd.c
-> +++ b/libfdisk/src/bsd.c
-> @@ -773,8 +773,10 @@ static int bsd_translate_fstype (int linux_type)
->         case 0x06: /* DOS 16-bit >=32M */
->         case 0xe1: /* DOS access       */
->         case 0xe3: /* DOS R/O          */
-> +#if !defined (__alpha__)
->         case 0xf2: /* DOS secondary    */
->                 return BSD_FS_MSDOS;
-> +#endif
->         case 0x07: /* OS/2 HPFS        */
->                 return BSD_FS_HPFS;
->         default
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ misc-utils/findmnt.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-This seems to work when used against
-404891fa9ea6a7ca86a838e809fc0b168169c286 aka tag v2.24.2:
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index 06fdd8f..445a9b3 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -1138,7 +1138,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -s, --fstab            search in static table of filesystems\n"), out);
+ 	fputs(_(" -m, --mtab             search in table of mounted filesystems\n"), out);
+ 	fputs(_(" -k, --kernel           search in kernel table of mounted\n"
+-              "                          filesystems (default)\n"), out);
++		"                          filesystems (default)\n"), out);
+ 	fputc('\n', out);
+ 	fputs(_(" -p, --poll[=<list>]    monitor changes in table of mounted filesystems\n"), out);
+ 	fputs(_(" -w, --timeout <num>    upper limit in milliseconds that --poll will block\n"), out);
+@@ -1147,8 +1147,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -A, --all              disable all built-in filters, print all filesystems\n"), out);
+ 	fputs(_(" -a, --ascii            use ASCII chars for tree formatting\n"), out);
+ 	fputs(_(" -b, --bytes            print sizes in bytes rather than in human readable format\n"), out);
++	fputs(_(" -C, --nocanonicalize   don't canonicalize when comparing paths\n"), out);
+ 	fputs(_(" -c, --canonicalize     canonicalize printed paths\n"), out);
+-	fputs(_(" -C, --nocanonicalize   don't canonicalize when compare paths\n"), out);
+ 	fputs(_(" -D, --df               imitate the output of df(1)\n"), out);
+ 	fputs(_(" -d, --direction <word> direction of search, 'forward' or 'backward'\n"), out);
+ 	fputs(_(" -e, --evaluate         convert tags (LABEL,UUID,PARTUUID,PARTLABEL) \n"
+@@ -1159,18 +1159,18 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -l, --list             use list format output\n"), out);
+ 	fputs(_(" -N, --task <tid>       use alternative namespace (/proc/<tid>/mountinfo file)\n"), out);
+ 	fputs(_(" -n, --noheadings       don't print column headings\n"), out);
+-	fputs(_(" -U, --uniq             ignore filesystems with duplicate target\n"), out);
+-	fputs(_(" -u, --notruncate       don't truncate text in columns\n"), out);
+ 	fputs(_(" -O, --options <list>   limit the set of filesystems by mount options\n"), out);
+ 	fputs(_(" -o, --output <list>    the output columns to be shown\n"), out);
+ 	fputs(_(" -P, --pairs            use key=\"value\" output format\n"), out);
+-	fputs(_(" -r, --raw              use raw output format\n"), out);
+-	fputs(_(" -t, --types <list>     limit the set of filesystems by FS types\n"), out);
+-	fputs(_(" -v, --nofsroot         don't print [/dir] for bind or btrfs mounts\n"), out);
+ 	fputs(_(" -R, --submounts        print all submounts for the matching filesystems\n"), out);
++	fputs(_(" -r, --raw              use raw output format\n"), out);
+ 	fputs(_(" -S, --source <string>  the device to mount (by name, maj:min, \n"
+ 	        "                          LABEL=, UUID=, PARTUUID=, PARTLABEL=)\n"), out);
+ 	fputs(_(" -T, --target <string>  the mountpoint to use\n"), out);
++	fputs(_(" -t, --types <list>     limit the set of filesystems by FS types\n"), out);
++	fputs(_(" -U, --uniq             ignore filesystems with duplicate target\n"), out);
++	fputs(_(" -u, --notruncate       don't truncate text in columns\n"), out);
++	fputs(_(" -v, --nofsroot         don't print [/dir] for bind or btrfs mounts\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+-- 
+1.7.0.4
 
-$ make -j4 fdisk
-[...]
-  CCLD     libcommon.la
-  CCLD     libuuid.la
-  CCLD     libblkid.la
-copying selected object files to avoid basename conflicts...
-  CCLD     libfdisk.la
-  CCLD     fdisk
-$ sudo ./fdisk -l sda
-Password: 
-Disk /dev/sda: 17 GiB, 18209320960 bytes, 35565080 sectors
-Geometry: 64 heads, 32 sectors/track, 17365 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: bsd
-partitions: 3
-
-#     Start       End      Size Type     fsize bsize cpg
-a      4096   1959935   1955840 swap                 
-b   1959936  35563519  33603584 ext2                 
-c         0  35563519  35563520 unused   0     0     
-
-I'll get the patch into our distro for now. I presume this will
-be picked up for one of the next versions of u-l?
-
-Regards,
-Tobias
