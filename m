@@ -1,44 +1,102 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: Re: [PATCH 4/4] docs: setterm.1 clean up manual page groff style
-Date: Mon, 2 Jun 2014 23:35:27 +0200
-Cc: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>,
-        Benno Schulenberg <bensberg@justemail.net>,
-        "Util-Linux" <util-linux@vger.kernel.org>
-References: <1400929696-12548-1-git-send-email-kerolasa@iki.fi> <CAG27Bk09hbETdviRdWyQ6QrrUOj-VUxqUurWAMTZuWFF4k=H9Q@mail.gmail.com> <538CEB62.4020102@bernhard-voelker.de>
-In-Reply-To: <538CEB62.4020102@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201406022335.27518.sweet_f_a@gmx.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:60409 "EHLO
+	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751558AbaF2Pzc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 29 Jun 2014 11:55:32 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 7/7] docs: slightly improve the man page of umount
+Date: Sun, 29 Jun 2014 17:49:43 +0200
+Message-Id: <1404056983-10119-7-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
+References: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 02 June 2014, Bernhard Voelker wrote:
-> > On 1 June 2014 23:35, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > BTW I just noticed that bash's
-> > $ cd ''
-> > does NOT return error. But
-> > $ /usr/bin/cd ''
-> > does like it should IMO.
->
-> What is /usr/bin/cd? As this would do the chdir() in
-> a very-short-living sub-process, I'd consider this a
-> useless program (apart from checking whether chdir()ing
-> into the given directory would succeed).
->
-> Have a nice day,
-> Berny
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Remove some stray words from option arguments.
 
-Ooops :) Of course it does not exist. But the error
-looks (almost) plausible, lol
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/umount.8 |   26 +++++++++++++-------------
+ 1 files changed, 13 insertions(+), 13 deletions(-)
 
-$ /usr/bin/cd ""
-sh: /usr/bin/cd: No such file or directory
+diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
+index c9e2aca..4128d2f 100644
+--- a/sys-utils/umount.8
++++ b/sys-utils/umount.8
+@@ -32,7 +32,7 @@ umount \- unmount file systems
+ .B umount \-a
+ .RB [ \-dflnrv ]
+ .RB [ \-t
+-.IR vfstype ]
++.IR fstype ]
+ .RB [ \-O
+ .IR options ]
+ .br
+@@ -42,7 +42,7 @@ umount \- unmount file systems
+ .SH DESCRIPTION
+ The
+ .B umount
+-command detaches the file system(s) mentioned from the file hierarchy.  A
++command detaches the mentioned file system(s) from the file hierarchy.  A
+ file system is specified by giving the directory where it has been
+ mounted.  Giving the special device on which the file system lives may
+ also work, but is obsolete, mainly because it will fail in case this
+@@ -58,7 +58,7 @@ files.  A lazy unmount avoids this problem.
+ .SH OPTIONS
+ .TP
+ \fB\-a\fR, \fB\-\-all\fR
+-All of the file systems described in
++All of the filesystems described in
+ .I /etc/mtab
+ are unmounted.  (With
+ .B umount
+@@ -108,11 +108,11 @@ Lazy unmount.  Detach the filesystem from the filesystem hierarchy now,
+ and cleanup all references to the filesystem as soon as it is not busy
+ anymore.  (Requires kernel 2.4.11 or later.)
+ .TP
+-\fB\-O\fR, \fB\-\-test\-opts\fR \fIoptions,list\fR
+-Indicate that the actions should only be taken on file systems with the
+-specified options in
++\fB\-O\fR, \fB\-\-test\-opts\fR \fIoption\fR
++Indicate that the actions should only be taken on filesystems with the
++specified option in
+ .IR /etc/fstab .
+-More than one option type may be specified in a comma separated list.
++More than one option may be specified in a comma-separated list.
+ Each option can be prefixed with
+ .B no
+ to specify options for which no action should be taken.
+@@ -127,14 +127,14 @@ is unsupported.
+ \fB\-r\fR, \fB\-\-read\-only\fR
+ In case unmounting fails, try to remount read-only.
+ .TP
+-\fB\-t\fR, \fB\-\-types\fR \fIvfstype,ext2,ext3\fR
+-Indicate that the actions should only be taken on file systems of the
++\fB\-t\fR, \fB\-\-types\fR \fItype\fR
++Indicate that the actions should only be taken on filesystems of the
+ specified
+ .IR type .
+-More than one type may be specified in a comma separated list.  The list
+-of file system types can be prefixed with
++More than one type may be specified in a comma-separated list.  The list
++of filesystem types can be prefixed with
+ .B no
+-to specify the file system types on which no action should be taken.
++to specify the types of filesystem on which no action should be taken.
+ .TP
+ \fB\-v\fR, \fB\-\-verbose\fR
+ Verbose mode.
+@@ -174,7 +174,7 @@ The helper= mount option redirects all umount requests to the
+ /sbin/umount.<helper> independently on UID.
+ .SH FILES
+ .I /etc/mtab
+-table of mounted file systems
++table of mounted filesystems
+ .SH ENVIRONMENT
+ .IP LIBMOUNT_FSTAB=<path>
+ overrides the default location of the fstab file
+-- 
+1.7.0.4
 
-cu,
-Rudi
