@@ -1,37 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:64664 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750741AbaF0FQ7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Jun 2014 01:16:59 -0400
-Received: by mail-pa0-f52.google.com with SMTP id eu11so4131717pac.39
-        for <util-linux@vger.kernel.org>; Thu, 26 Jun 2014 22:16:59 -0700 (PDT)
-From: "Eric Rannaud" <e@nanocritical.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, Eric Rannaud <e@nanocritical.com>
-Subject: [PATCH 1/4] libmount: mnt_resolve_path: use strcmp() only if both are canonical
-Date: Thu, 26 Jun 2014 22:17:16 -0700
-Message-Id: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+Received: from mx1.redhat.com ([209.132.183.28]:11449 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752182AbaF3I2G (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Jun 2014 04:28:06 -0400
+Date: Mon, 30 Jun 2014 10:28:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/7] docs: improve wording and formatting of the man page
+ of setterm
+Message-ID: <20140630082801.GD750@x2.net.home>
+References: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1404056983-10119-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Eric Rannaud <e@nanocritical.com>
----
- libmount/src/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Jun 29, 2014 at 05:49:37PM +0200, Benno Schulenberg wrote:
+>  term-utils/setterm.1 |  147 ++++++++++++++++++++++++++------------------------
+>  1 files changed, 76 insertions(+), 71 deletions(-)
 
-diff --git a/libmount/src/fs.c b/libmount/src/fs.c
-index cae7ce648c31..949e718f4ca5 100644
---- a/libmount/src/fs.c
-+++ b/libmount/src/fs.c
-@@ -1434,7 +1434,7 @@ int mnt_fs_match_target(struct libmnt_fs *fs, const char *target,
- 	if (!rc && cache) {
- 		/* 2) - canonicalized and non-canonicalized */
- 		char *cn = mnt_resolve_path(target, cache);
--		rc = (cn && strcmp(cn, fs->target) == 0);
-+		rc = (cn && mnt_fs_streq_target(fs, cn));
- 
- 		/* 3) - canonicalized and canonicalized */
- 		if (!rc && cn && !mnt_fs_is_kernel(fs)) {
+ All 7 patches applied. Thanks! (Nice to see regular git patches rather
+ than attachments!:-)
+
+    Karel
+
 -- 
-2.0.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
