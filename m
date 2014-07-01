@@ -1,52 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:57534 "EHLO
-	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752425AbaGGUek (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 7 Jul 2014 16:34:40 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] textual: fix the usage message of kill
-Date: Mon,  7 Jul 2014 22:34:28 +0200
-Message-Id: <1404765268-6616-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:55912 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755955AbaGAJC3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 1 Jul 2014 05:02:29 -0400
+Date: Tue, 1 Jul 2014 11:02:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Eric Rannaud <e@nanocritical.com>
+Cc: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
+Subject: Re: [PATCH 4/4] findmnt: use mnt_cache_set_targets() for non-kernel
+ table
+Message-ID: <20140701090225.GE24337@x2.net.home>
+References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+ <7f69c8fad1eed4faee033f1164f7481b10593413.1403845374.git.e@nanocritical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <7f69c8fad1eed4faee033f1164f7481b10593413.1403845374.git.e@nanocritical.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Using angular brackets around each individual argument, indenting a
-continuation line, not using a space before =, and the argument of
---queue is a number (an element of data), not a signal.
+On Thu, Jun 26, 2014 at 10:18:48PM -0700, Eric Rannaud wrote:
+> diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+> index 06fdd8f41074..37dd92a10a14 100644
+> --- a/misc-utils/findmnt.c
+> +++ b/misc-utils/findmnt.c
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- misc-utils/kill.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ Applied, thanks.
 
-diff --git a/misc-utils/kill.c b/misc-utils/kill.c
-index 5d2f27d..f1c734c 100644
---- a/misc-utils/kill.c
-+++ b/misc-utils/kill.c
-@@ -303,17 +303,17 @@ static int arg_to_signum(char *arg, int maskbit)
- static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
--	fprintf(out, _(" %s [options] <pid|name>...\n"), program_invocation_short_name);
-+	fprintf(out, _(" %s [options] <pid>|<name>...\n"), program_invocation_short_name);
- 
- 	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -a, --all              do not restrict the name-to-pid conversion to processes\n"
--		"                        with the same uid as the present process\n"), out);
--	fputs(_(" -s, --signal <sig>     send specified signal\n"), out);
-+		"                          with the same uid as the present process\n"), out);
-+	fputs(_(" -s, --signal <signal>  send this <signal> instead of SIGTERM\n"), out);
- #ifdef HAVE_SIGQUEUE
--	fputs(_(" -q, --queue <sig>      use sigqueue(2) rather than kill(2)\n"), out);
-+	fputs(_(" -q, --queue <number>   use sigqueue(2), not kill(2), and pass <number> as data\n"), out);
- #endif
- 	fputs(_(" -p, --pid              print pids without signaling them\n"), out);
--	fputs(_(" -l, --list [=<signal>] list signal names, or convert one to a name\n"), out);
-+	fputs(_(" -l, --list[=<signal>]  list signal names, or convert one to a name\n"), out);
- 	fputs(_(" -L, --table            list signal names and numbers\n"), out);
- 	fputs(_("     --verbose          print pids that will be signaled\n"), out);
- 
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
