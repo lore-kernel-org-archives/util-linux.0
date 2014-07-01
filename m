@@ -1,302 +1,98 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:63520 "EHLO
-	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751304AbaG0S7b (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 27 Jul 2014 14:59:31 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 6/6] docs: bring the runuser and su man pages closer to standard formatting
-Date: Sun, 27 Jul 2014 20:59:00 +0200
-Message-Id: <1406487540-10491-6-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
-References: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:9676 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757485AbaGAJCA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 1 Jul 2014 05:02:00 -0400
+Date: Tue, 1 Jul 2014 11:01:56 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Eric Rannaud <e@nanocritical.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/4] libmount: mnt_resolve_target: tiptoe around active
+ mount points
+Message-ID: <20140701090156.GD24337@x2.net.home>
+References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+ <7e7cf36d4dfbcd8785972819445df77c5da98bb9.1403845374.git.e@nanocritical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <7e7cf36d4dfbcd8785972819445df77c5da98bb9.1403845374.git.e@nanocritical.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- login-utils/runuser.1 |   77 +++++++++++++++++++++++-------------------------
- login-utils/su.1      |   49 +++++++++++++++----------------
- 2 files changed, 61 insertions(+), 65 deletions(-)
+On Thu, Jun 26, 2014 at 10:17:18PM -0700, Eric Rannaud wrote:
+>  libmount/src/cache.c       | 124 ++++++++++++++++++++++++++++++++++++++-------
+>  libmount/src/fs.c          |   6 ++-
+>  libmount/src/libmount.h.in |   4 ++
+>  libmount/src/libmount.sym  |   2 +
+>  libmount/src/tab.c         |   8 +--
+>  5 files changed, 121 insertions(+), 23 deletions(-)
 
-diff --git a/login-utils/runuser.1 b/login-utils/runuser.1
-index 34cc84d..3526c07 100644
---- a/login-utils/runuser.1
-+++ b/login-utils/runuser.1
-@@ -1,23 +1,19 @@
--.TH RUNUSER "1" "August 2012" "util-linux" "User Commands"
-+.TH RUNUSER 1 "July 2014" "util-linux" "User Commands"
- .SH NAME
- runuser \- run a command with substitute user and group ID
- .SH SYNOPSIS
--.B runuser
--[options] -u
--.IR user
-+.BR runuser " [options] " \-u
-+.I user
- .IR "command " [ argument ...]
- .LP
--.B runuser
--[options] [-]
--[
--.IR "user " [ argument ...]
--]
-+.BR runuser " [options] [" \- ]
-+.RI [ user " [" argument "...]]"
- .SH DESCRIPTION
- .B runuser
--allows to run commands with substitute user and group ID.
--If the option \fB\-u\fR is not given, falls back to
--.B su
--compatible semantics and a shell is executed.
-+allows to run commands with a substitute user and group ID.
-+If the option \fB\-u\fR is not given, it falls back to
-+.BR su -compatible
-+semantics and a shell is executed.
- The difference between the commands
- .B runuser
- and
-@@ -35,7 +31,7 @@ When called without arguments,
- defaults to running an interactive shell as
- .IR root .
- .PP
--For backward compatibility
-+For backward compatibility,
- .B runuser
- defaults to not change the current directory and to only set the
- environment variables
-@@ -54,32 +50,27 @@ This version of
- uses PAM for session management.
- .SH OPTIONS
- .TP
--\fB\-c\fR \fIcommand\fR, \fB\-\-command\fR=\fIcommand\fR
-+.BR \-c , " \-\-command" = \fIcommand
- Pass
- .I command
- to the shell with the
- .B \-c
- option.
- .TP
--\fB\-\-session\-command\fR=\fIcommand\fR
--Same as
--.B \-c ,
--but do not create a new session (discouraged).
--.TP
--\fB\-f\fR, \fB\-\-fast\fR
-+.BR \-f , " \-\-fast"
- Pass
- .B \-f
- to the shell, which may or may not be useful depending on the
- shell.
- .TP
--\fB\-g\fR, \fB\-\-group\fR=\fIgroup\fR\fR
--specify the primary group, this option is allowed to the root user only
-+.BR \-g , " \-\-group" = \fIgroup
-+The primary group to be used.  This option is allowed for the root user only.
- .TP
--\fB\-G\fR, \fB\-\-supp-group\fR=\fIgroup\fR\fR
--specify a supplemental group, this option is allowed to the root user only
-+.BR \-G , " \-\-supp-group" = \fIgroup
-+A supplemental group to be used.  This option is allowed for the root user only.
- .TP
--\fB\-\fR, \fB\-l\fR, \fB\-\-login\fR
--Starts the shell as a login shell with an environment similar to a real
-+.BR \- , " \-l" , " \-\-login"
-+Start the shell as a login shell with an environment similar to a real
- login:
- .RS 10
- .TP
-@@ -104,8 +95,8 @@ sets argv[0] of the shell to
- in order to make the shell a login shell
- .RE
- .TP
--\fB\-m\fR, \fB\-p\fR, \fB\-\-preserve-environment\fR
--Preserves the entire environment, i.e. does not set
-+.BR \-m , " \-p" , " \-\-preserve-environment"
-+Preserve the entire environment, i.e. it does not set
- .BR HOME ,
- .BR SHELL ,
- .B USER
-@@ -113,9 +104,9 @@ nor
- .BR LOGNAME .
- The option is ignored if the option \fB\-\-login\fR is specified.
- .TP
--\fB\-s\fR \fISHELL\fR, \fB\-\-shell\fR=\fISHELL\fR
--Runs the specified shell instead of the default.  The shell to run is
--selected according to the following rules in order:
-+.BR \-s , " \-\-shell" = \fIshell
-+Run the specified \fIshell\fR instead of the default.  The shell to run is
-+selected according to the following rules, in order:
- .RS 10
- .TP
- o
-@@ -123,11 +114,11 @@ the shell specified with
- .B \-\-shell
- .TP
- o
--The shell specified in the environment variable
-+the shell specified in the environment variable
- .B SHELL
- if the
- .B \-\-preserve-environment
--option is used.
-+option is used
- .TP
- o
- the shell listed in the passwd entry of the target user
-@@ -143,11 +134,16 @@ option and the
- .B SHELL
- environment variables are ignored unless the calling user is root.
- .TP
--\fB\-\-help\fR
--Display help text and exit.
-+.BI \-\-session\-command= command
-+Same as
-+.B \-c ,
-+but do not create a new session.  (Discouraged.)
- .TP
--\fB\-\-version\fR
-+.BR \-V , " \-\-version"
- Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
- .SH CONFIG FILES
- .B runuser
- reads the
-@@ -227,9 +223,10 @@ global logindef config file
- .BR shells (5),
- .BR login.defs (5),
- .BR su (1)
--.SH AUTHOR
--Derived from coreutils' su which was based on an implemenation by
--David MacKenzie and the Fedora runuser command by Dan Walsh.
-+.SH HISTORY
-+This \fB runuser\fR command was
-+derived from coreutils' \fBsu\fR, which was based on an implemenation by
-+David MacKenzie, and the Fedora \fBrunuser\fR command by Dan Walsh.
- .SH AVAILABILITY
- The runuser command is part of the util-linux package and is
- available from
-diff --git a/login-utils/su.1 b/login-utils/su.1
-index 723ba15..d063582 100644
---- a/login-utils/su.1
-+++ b/login-utils/su.1
-@@ -1,10 +1,8 @@
--.TH SU "1" "October 2013" "util-linux" "User Commands"
-+.TH SU 1 "July 2014" "util-linux" "User Commands"
- .SH NAME
- su \- run a command with substitute user and group ID
- .SH SYNOPSIS
--.B su
--.RI [ options ]
--.RB [ \- ]
-+.BR su " [options] [" \- ]
- .RI [ user " [" argument ...]]
- .SH DESCRIPTION
- .B su
-@@ -15,7 +13,7 @@ When called without arguments,
- defaults to running an interactive shell as
- .IR root .
- .PP
--For backward compatibility
-+For backward compatibility,
- .B su
- defaults to not change the current directory and to only set the
- environment variables
-@@ -43,31 +41,26 @@ implementations, such as support for a wheel group, have to be
- configured via PAM.
- .SH OPTIONS
- .TP
--\fB\-c\fR, \fB\-\-command\fR=\fIcommand\fR
-+.BR \-c , " \-\-command" = \fIcommand
- Pass
- .I command
- to the shell with the
- .B \-c
- option.
- .TP
--\fB\-\-session\-command\fR=\fIcommand\fR
--Same as
--.B \-c
--but do not create a new session (discouraged).
--.TP
--\fB\-f\fR, \fB\-\-fast\fR
-+.BR \-f , " \-\-fast"
- Pass
- .B \-f
- to the shell, which may or may not be useful, depending on the shell.
- .TP
--\fB\-g\fR, \fB\-\-group\fR=\fIgroup\fR\fR
-+.BR \-g , " \-\-group" = \fIgroup
- Specify the primary group.  This option is available to the root user only.
- .TP
--\fB\-G\fR, \fB\-\-supp-group\fR=\fIgroup\fR\fR
-+.BR \-G , " \-\-supp-group" = \fIgroup
- Specify a supplemental group.  This option is available to the root user only.
- .TP
--\fB\-\fR, \fB\-l\fR, \fB\-\-login\fR
--Starts the shell as a login shell with an environment similar to a real
-+.BR \- , " \-l" , " \-\-login"
-+Start the shell as a login shell with an environment similar to a real
- login:
- .RS 10
- .TP
-@@ -92,8 +85,8 @@ sets argv[0] of the shell to
- in order to make the shell a login shell
- .RE
- .TP
--\fB\-m\fR, \fB\-p\fR, \fB\-\-preserve-environment\fR
--Preserves the entire environment, i.e. it does not set
-+.BR \-m , " \-p" , " \-\-preserve-environment"
-+Preserve the entire environment, i.e. it does not set
- .BR HOME ,
- .BR SHELL ,
- .B USER
-@@ -101,8 +94,8 @@ nor
- .BR LOGNAME .
- This option is ignored if the option \fB\-\-login\fR is specified.
- .TP
--\fB\-s\fR, \fB\-\-shell\fR=\fIshell\fR
--Runs the specified \fIshell\fR instead of the default.  The shell to run is
-+.BR \-s , " \-\-shell" = \fIshell
-+Run the specified \fIshell\fR instead of the default.  The shell to run is
- selected according to the following rules, in order:
- .RS 10
- .TP
-@@ -131,11 +124,16 @@ option and the
- .B SHELL
- environment variables are ignored unless the calling user is root.
- .TP
--\fB\-\-help\fR
--Display help text and exit.
-+.BI \-\-session-command= command
-+Same as
-+.B \-c
-+but do not create a new session.  (Discouraged.)
- .TP
--\fB\-\-version\fR
-+.BR \-V , " \-\-version"
- Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
- .SH SIGNALS
- Upon receiving either
- .BR SIGINT ,
-@@ -245,8 +243,9 @@ session  required  pam_lastlog.so nowtmp
- .BR pam (8),
- .BR shells (5),
- .BR login.defs (5)
--.SH AUTHOR
--Derived from coreutils' su which was based on an implementation by
-+.SH HISTORY
-+This \fBsu\fR command was
-+derived from coreutils' \fBsu\fR, which was based on an implementation by
- David MacKenzie.
- .SH AVAILABILITY
- The su command is part of the util-linux package and is
+ Applied with small changes, thanks.
+
+> +int mnt_cache_set_targets(struct libmnt_cache *cache,
+> +				struct libmnt_table *mtab)
+
+ added docs.
+
+ [...]
+
+> +char *mnt_resolve_target(const char *path, struct libmnt_cache *cache)
+> +{
+> +	char *p = NULL;
+> +	struct libmnt_iter *itr = NULL;
+> +	struct libmnt_fs *fs = NULL;
+
+ added fallback to mnt_reolve_path() if no cache or cache->mtab no
+ specified.
+
+> +	if (!path)
+> +		return NULL;
+> +	if (cache)
+> +		p = (char *) cache_find_path(cache, path);
+> +
+> +	if (cache && cache->mtab) {
+> +		itr = mnt_new_iter(MNT_ITER_FORWARD);
+> +		if (!itr)
+> +			goto skip_mtab;
+
+ within libmount we don't allocate iterators, just use "struct
+ libmnt_iter" (no pointer) and mnt_reset_iter().
+
+ [...]
+
+> +> diff --git a/libmount/src/fs.c b/libmount/src/fs.c
+> index 21ef0f7479fd..82541083a792 100644
+> --- a/libmount/src/fs.c
+> +++ b/libmount/src/fs.c
+> @@ -1413,7 +1413,9 @@ int mnt_fs_append_comment(struct libmnt_fs *fs, const char *comm)
+>   *	1) compare @target with @fs->target
+>   *	2) realpath(@target) with @fs->target
+>   *	3) realpath(@target) with realpath(@fs->target) if @fs is not from
+> - *	   /proc/self/mountinfo.
+> + *	   /proc/self/mountinfo. However, if mnt_cache_set_targets(cache,
+> + *	   mtab) was called, and the path @fs->target is found in @mtab,
+> + *	   this comparison is not performed (see mnt_resolve_target()).
+>   *
+>   * The 2nd and 3rd attempts are not performed when @cache is NULL.
+>   *
+
+ I did small change here, it seems that we can use  mnt_resolve_target() also
+ for 2nd attempt to avoid canonicalization of the requested path. It
+ means that for example:
+
+     findmnt --fstab --target /mnt/nfs
+
+ where "/mnt/nfs" is mounted NFS mounpoint will not canonicalize the
+ path from fstab (@fs->target) as well as from command line (@target).
+
+ I have added a debug message to canonicalize_path_and_cache(), so
+ from
+
+    LIBMOUNT_DEBUG=0xffff ./findmnt ...
+
+ it's pretty obvious when we call realpath().
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
