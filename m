@@ -1,48 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.187]:60358 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932732AbaGXNbK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 24 Jul 2014 09:31:10 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mout.gmx.net ([212.227.15.15]:56394 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753592AbaGBOHN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Jul 2014 10:07:13 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0LjIit-1WVDYe2omt-00dUfl for
+ <util-linux@vger.kernel.org>; Wed, 02 Jul 2014 16:07:11 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] mcookie: avoid format warning
-Date: Thu, 24 Jul 2014 15:30:54 +0200
-Message-Id: <1406208654-7786-1-git-send-email-mail@bernhard-voelker.de>
+Subject: Re: [ANNOUNCE] util-linux v2.25-rc2
+Date: Wed, 2 Jul 2014 16:07:10 +0200
+References: <20140702101057.GB31066@x2.net.home>
+In-Reply-To: <20140702101057.GB31066@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201407021607.10915.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-"gcc (SUSE Linux) 4.8.1 20130909 [gcc-4_8-branch revision 202388]"
-issued the following warning:
+On Wednesday 02 July 2014, Karel Zak wrote:
+> The util-linux release v2.25-rc2 is available at
+>
+>    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25-rc2
+It's
+ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25/
 
-  warning: format ‘%zu’ expects argument of type ‘size_t’, \
-  but argument 3 has type ‘int’ [-Wformat=]
 
-* misc-utils/mcookie.c (main): Change format from %zu to %d.
-RAND_BYTES is an enum, thus of type int.
-
-Signed-off-by: Bernhard Voelker <mail@bernhard-voelker.de>
----
- misc-utils/mcookie.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/misc-utils/mcookie.c b/misc-utils/mcookie.c
-index a46ea0c..c370c2a 100644
---- a/misc-utils/mcookie.c
-+++ b/misc-utils/mcookie.c
-@@ -182,8 +182,8 @@ int main(int argc, char **argv)
- 	random_get_bytes(&buf, RAND_BYTES);
- 	MD5Update(&ctl.ctx, buf, RAND_BYTES);
- 	if (ctl.verbose)
--		fprintf(stderr, P_("Got %zu byte from %s\n",
--				   "Got %zu bytes from %s\n", RAND_BYTES),
-+		fprintf(stderr, P_("Got %d byte from %s\n",
-+				   "Got %d bytes from %s\n", RAND_BYTES),
- 				RAND_BYTES, random_tell_source());
- 
- 	MD5Final(digest, &ctl.ctx);
--- 
-1.8.4.2
-
+cu,
+Rudi
