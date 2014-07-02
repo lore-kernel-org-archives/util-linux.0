@@ -1,37 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:42522 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751483AbaGUCU5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 20 Jul 2014 22:20:57 -0400
-From: Phillip Susi <psusi@ubuntu.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix typeo in wipefs
-Date: Sun, 20 Jul 2014 22:19:33 -0400
-Message-Id: <1405909173-21826-1-git-send-email-psusi@ubuntu.com>
+Received: from mx1.redhat.com ([209.132.183.28]:26550 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753025AbaGBKK7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Jul 2014 06:10:59 -0400
+Date: Wed, 2 Jul 2014 12:10:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.25-rc2
+Message-ID: <20140702101057.GB31066@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The message said "ioclt" instead of "ioctl".
 
-Signed-off-by: Phillip Susi <psusi@ubuntu.com>
----
- misc-utils/wipefs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The util-linux release v2.25-rc2 is available at
+ 
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25-rc2
+    
+Feedback and bug reports, as always, are welcomed.
+     
+       Karel
 
-diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
-index 2c1ea59..ad7caa5 100644
---- a/misc-utils/wipefs.c
-+++ b/misc-utils/wipefs.c
-@@ -358,7 +358,7 @@ static void rereadpt(int fd, const char *devname)
- 
- 	errno = 0;
- 	ioctl(fd, BLKRRPART);
--	printf(_("%s: calling ioclt to re-read partition table: %m\n"), devname);
-+	printf(_("%s: calling ioctl to re-read partition table: %m\n"), devname);
- #endif
- }
- 
+
 -- 
-1.9.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
