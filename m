@@ -1,74 +1,171 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:57128 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751276AbaGSTMu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 19 Jul 2014 15:12:50 -0400
-Received: by mail-pd0-f169.google.com with SMTP id y10so6842585pdj.28
-        for <util-linux@vger.kernel.org>; Sat, 19 Jul 2014 12:12:49 -0700 (PDT)
+Received: from e28smtp07.in.ibm.com ([122.248.162.7]:34240 "EHLO
+	e28smtp07.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752080AbaGCM6k (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Jul 2014 08:58:40 -0400
+Received: from /spool/local
+	by e28smtp07.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <suzuki@in.ibm.com>;
+	Thu, 3 Jul 2014 18:28:37 +0530
+Received: from d28relay03.in.ibm.com (d28relay03.in.ibm.com [9.184.220.60])
+	by d28dlp03.in.ibm.com (Postfix) with ESMTP id 49FCC125804D
+	for <util-linux@vger.kernel.org>; Thu,  3 Jul 2014 18:28:14 +0530 (IST)
+Received: from d28av04.in.ibm.com (d28av04.in.ibm.com [9.184.220.66])
+	by d28relay03.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s63CxwZB8847656
+	for <util-linux@vger.kernel.org>; Thu, 3 Jul 2014 18:29:58 +0530
+Received: from d28av04.in.ibm.com (localhost [127.0.0.1])
+	by d28av04.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s63CwYun012416
+	for <util-linux@vger.kernel.org>; Thu, 3 Jul 2014 18:28:35 +0530
+Message-ID: <53B5537A.3080503@in.ibm.com>
+Date: Thu, 03 Jul 2014 18:28:34 +0530
+From: "Suzuki K. Poulose" <suzuki@in.ibm.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <53CAAAB6.6020607@gmail.com>
-References: <53CAAAB6.6020607@gmail.com>
-Date: Sat, 19 Jul 2014 20:12:49 +0100
-Message-ID: <CAG27Bk3aPD6zx+t1kPsUnF-70ZjuCrEqh77SPJNpi5cDgYSN_w@mail.gmail.com>
-Subject: Re: [RFC] Zram handle util
-From: Sami Kerola <kerolasa@iki.fi>
-To: Timofey Titovets <nefelim4ag@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: Ondrej Oprala <ooprala@redhat.com>,
+        Janani Venkataraman <jananive@linux.vnet.ibm.com>,
+        util-linux@vger.kernel.org
+CC: ananth@linux.vnet.ibm.com, Tarundeep Singh <tarundsk@linux.vnet.ibm.com>
+Subject: Re: Non disruptive application core dump infrastructure
+References: <53871D87.2070401@linux.vnet.ibm.com> <53871E15.1040209@redhat.com> <53872BF1.5030303@in.ibm.com> <53873365.7080405@redhat.com> <53877B30.30909@in.ibm.com> <53B530B2.9090402@in.ibm.com> <53B54E32.4060707@redhat.com>
+In-Reply-To: <53B54E32.4060707@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 19 July 2014 18:28, Timofey Titovets <nefelim4ag@gmail.com> wrote:
+On 07/03/2014 06:06 PM, Ondrej Oprala wrote:
+> On 07/03/2014 12:30 PM, Suzuki K. Poulose wrote:
+>> On 05/29/2014 11:53 PM, Suzuki K. Poulose wrote:
+>>> On 05/29/2014 06:47 PM, Ondrej Oprala wrote:
+>>>> On 05/29/2014 02:45 PM, Suzuki K. Poulose wrote:
+>>>>> On 05/29/2014 05:16 PM, Ondrej Oprala wrote:
+>>>>>> On 05/29/2014 01:44 PM, Janani Venkataraman wrote:
+>>>>>>> Hi,
+>>>>>>>
+>>>>>>> We have developed a tool called "gencore" which captures the core of
+>>>>>>> an application without
+>>>>>>> disrupting its process. The dump is collected non-disruptively and
+>>>>>>> this tool currently supports
+>>>>>>> s390, x86 and power systems.
+>>>>>>>
+>>>>>>> THE TOOL:
+>>>>>>>
+>>>>>>> The tool can perform non-disruptive third party dumps. The tool also
+>>>>>>> contains a library "libgencore"
+>>>>>>> which helps applicationsto trigger self dumps.
+>>>>>>>
+>>>>>>> The tool can perform:
+>>>>>>>
+>>>>>>> 1) Third party dump: The pid of the process to dumped is given along
+>>>>>>> with name of the core-file to
+>>>>>>> be created.
+>>>>>>>
+>>>>>>> eg.
+>>>>>>>
+>>>>>>> [janani@localhost]:gencore 6616 core.test
+>>>>>>>
+>>>>>>> 2) Self dump: The programs can request a self-dump using gencore()
+>>>>>>> API, provided throughlibgencore. This
+>>>>>>> is implemented through a daemon which listens on a UNIX
+>>>>>>> Filesocket for
+>>>>>>> such requests. The daemon is started
+>>>>>>> immediately post installation. The program which requires the dump
+>>>>>>> makes use of the gencore() API and provides
+>>>>>>> the name of the core-file as a parameter.
+>>>>>>>
+>>>>>>> eg.
+>>>>>>>
+>>>>>>> /* Opening the library, in this case the library is present in the
+>>>>>>> /usr/lib64 */
+>>>>>>> lib = dlopen("libgencore.so", RTLD_LAZY);
+>>>>>>>
+>>>>>>> gencore = dlsym(lib, "gencore");
+>>>>>>>
+>>>>>>> Call the API:
+>>>>>>> gencore("/home/janani/core_test").
+>>>>>>>
+>>>>>>> BASIC IDEA:
+>>>>>>>
+>>>>>>> The basic idea is that the threads of the process are held using
+>>>>>>> ptrace calls and the dump is generated in the
+>>>>>>> ELF format using the /proc/pid filesystem.
+>>>>>>>
+>>>>>>> PATCH SET:
+>>>>>>> We have designed this tool based on the discussions with linux
+>>>>>>> kernel
+>>>>>>> community. The patches have been posted
+>>>>>>> at:https://lkml.org/lkml/2014/3/20/138
+>>>>>>>
+>>>>>>> Do you think this can be part of the util-linux bundle? We can tweak
+>>>>>>> it to make it work as a package in util-linux.
+>>>>>>>
+>>>>>>> Let us know your reviews and comments.
+>>>>>>>
+>>>>>>> Thanks.
+>>>>>>> Janani
+>>>>>>>
+>>>>>>> -- 
+>>>>>>> To unsubscribe from this list: send the line "unsubscribe
+>>>>>>> util-linux" in
+>>>>>>> the body of a message tomajordomo@vger.kernel.org
+>>>>>>> More majordomo info athttp://vger.kernel.org/majordomo-info.html
+>>>>>> Interesting,
+>>>>>> but how is this different from attaching to a process with GDB and
+>>>>>> using
+>>>>>> the gcore command? Or to automate it more, using the gcore script
+>>>>>> that
+>>>>>> comes with GDB?
+>>>>>> Cheers,
+>>>>>> Ondrej
+>>>>>>
+>>>>> There are two major issues with that.
+>>>>>
+>>>>> 1) GDB uses PTRACE_ATTACH and hence the process gets a SIGSTOP.
+>>>> I fail to see the downside to that.
+>>>>> 2) A process cannot initiate the request to dump itself, say from a
+>>>>> signal handler. (since fork() is not signal safe)
+>>>> This should be possible using libgdb. Let's say forking while in a
+>>>> SIGSEGV
+>>>> handler and using the libgdb API to do the dump.
+>>> Thats exactly the problem. forking within a sighandler is not safe. You
+>>> could possibly deadlock with glibc locks.
+>> Ondrej,
+>>
+>> What are your thoughts about this ?
+>>
+>> Thanks
+>> Suzuki
+>>
+> Hi Suzuki,
+> 
+> from the LKML mailing list, I can see that the biggest criticism/confusion
+> related to gencore comes from your necessity claims around the daemon part.
+The daemon part was a shared philosophy from the CRIU project. There is
+no other reliable way of doing a self dump.
+> 
+> I'm not entirely sure what kind of programs is gencore going to be most
+> used/useful for..
+This can be used by huge applications, like, JAVA RUNTIME, to trigger a
+dump when it detects some issues, without actually bringing down the
+workload.
 
-Hi Timofey,
+> but isn't the signalfd API solving the problem of async-signal safety?
+> Using it, you should be able to catch the signal, safely fork
+> and happily exec gencore. 
 
-I'm not the util-linux maintainer, but since I've done few
-contributions perhaps I can give couple hints how to proceed.
+This imposes a lot of changes in the applications that may want to use
+the API and is prone to errors in attaining the same.
 
-> I want hear your opinions.
-> Several days ago, i writed zramctl util (on C++) for have useful app for
-> setup zrams..
+> No need for any other daemon running.
+> 
+The daemon doesn't add much overhead. With systemd, you could make use
+of the socket option to optimize the triggering of the gencore.
 
-Sounds potentially useful.
+Btw, here is the link to the discussion about fork async-signal safety.
+https://sourceware.org/bugzilla/show_bug.cgi?id=4737#c12
 
-> Code hosted her: https://github.com/Nefelim4ag/zramctl
->
-> Examples:
-> zramctl find # return name of first free device (zram0)
-> zramctl find 1024M lz4 4 # (i not implement -? options now)
->                          # 4 - threads
->                          # setup and return name of device (zram1)
-> zramctl reset zram0 zram1 ...
->
-> I want to port it on C and try include it in util-linux, like losetup.
-> It has a sense? What do you think?
 
-There are all sorts of small things each command in this package is
-expected to do. Good way to get introduced with them is to take the
-sample code below, and modify it to be the new command.
+> Please correct me, if I'm mistaken.
+> 
+> Thanks,
+> Ondrej
+> 
 
-https://github.com/karelzak/util-linux/blob/master/Documentation/boilerplate.c
-
-But before getting too excited about writing new tool it might be
-worth while to investigate related discussion.
-
-https://www.mail-archive.com/systemd-devel@lists.freedesktop.org/msg16342.html
-
-By glance it seems a good utility would be able to integrate with udev
-and systemd, it should have add, remove, and possibly modify method. I
-would prefer the command to list what is current status of zram
-devices when nothing else is instructed. And of course manual page is
-needed. See util-linux/Documentation/howto-man-page.txt file to get
-manual done.
-
-Without any investigation I have no idea what should be done with
-systemd integration. The zramctl might need a systemd service file,
-and possibly some sort of configuration file to setup the devices at
-boot desired way. Or something totally different. I am sure there is
-someone who knows what should be done, and with a bit of luck the mail
-archive discussion I pointed out has an answer to this already.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
