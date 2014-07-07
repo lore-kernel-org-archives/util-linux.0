@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47194 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:64760 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752022AbaG1Jd7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 28 Jul 2014 05:33:59 -0400
-Date: Mon, 28 Jul 2014 11:33:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/4] various: erase all traces of the long-obsolete xiafs
-Message-ID: <20140728093355.GG8533@x2.net.home>
-References: <1406292904-3956-1-git-send-email-bensberg@justemail.net>
- <1406292904-3956-3-git-send-email-bensberg@justemail.net>
+	id S1752563AbaGGMvQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Jul 2014 08:51:16 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: Re: fdisk -b segfaults
+Date: Mon, 7 Jul 2014 14:51:14 +0200
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+References: <53BA8537.2090504@bernhard-voelker.de>
+In-Reply-To: <53BA8537.2090504@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406292904-3956-3-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201407071451.14305.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 25, 2014 at 02:55:03PM +0200, Benno Schulenberg wrote:
-> diff --git a/bash-completion/mount b/bash-completion/mount
-> index db97a91..7ebcec3 100644
-> --- a/bash-completion/mount
-> +++ b/bash-completion/mount
-> @@ -20,7 +20,7 @@ devpts	  nodevpts	nfs4	  nonfs4	usbfs	  nousbfs
->  efs	  noefs		ntfs	  nontfs	vfat	  novfat
->  ext	  noext		proc	  noproc	xenix	  noxenix
->  ext2	  noext2	qnx4	  noqnx4	xfs	  noxfs
-> -ext3	  noext3	ramfs	  noramfs	xiafs	  noxiafs
-> +ext3	  noext3	ramfs	  noramfs
->  ext4	  noext4	reiserfs  noreiserfs
->  hfs	  nohfs		romfs	  noromfs
+On Monday 07 July 2014, Bernhard Voelker wrote:
+> Easy reproducer:
+>
+>    $ dd if=/dev/zero of=xxx bs=1M count=20
+>    20+0 records in
+>    20+0 records out
+>    20971520 bytes (21 MB) copied, 0.0275507 s, 761 MB/s
+>
+>    $ ~/util-linux/fdisk -b 4096 xxx
+>
+>    Welcome to fdisk (util-linux 2.25-rc2).
+>    Changes will remain in memory only, until you decide to write
+> them. Be careful before using the write command.
+>
+>    Device does not contain a recognized partition table.
+>    Segmentation fault
+>
+> I can't have a look myself right now, because UL's autogen.sh
+> doesn't work here on openSUSE-13.1 anymore.
 
- I have doubts that static list of the filesystems in the
- bash-completion/ is a good idea. It would be better to generate
- the list according to the current kernel features, something like
+What is the problem with autogen.sh on openSUSE-13.1?
 
- (awk '{ if ($0 ~ /^[[:blank:]]/) { print $1 } else { print $2 } }'
- /proc/filesystems; ls /lib/modules/$(uname -r)/kernel/fs) | sort -u
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
