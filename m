@@ -1,149 +1,211 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from p01c12o145.mxlogic.net ([208.65.145.68]:33793 "EHLO
-	p01c12o145.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753131AbaG2WuO (ORCPT
-	<rfc822;util-linux-ng@vger.kernel.org>);
-	Tue, 29 Jul 2014 18:50:14 -0400
-Date: Tue, 29 Jul 2014 18:42:47 -0400
-From: Joe Lawrence <joe.lawrence@stratus.com>
-To: <util-linux-ng@vger.kernel.org>
-CC: Karel Zak <kzak@redhat.com>, Joe Lawrence <joe.lawrence@stratus.com>,
-        Bill Kuzeja <william.kuzeja@stratus.com>
-Subject: [PATCH] libblkid: use sector size for GPT magic offset
-Message-ID: <alpine.DEB.2.02.1407291822460.5738@jlaw-desktop.mno.stratus.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Received: from thewalter.net ([94.75.203.101]:54879 "EHLO thewalter.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751227AbaGGHhp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Jul 2014 03:37:45 -0400
+From: Stef Walter <stefw@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: Stef Walter <stefw@redhat.com>
+Subject: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive SIGUSR1
+Date: Mon,  7 Jul 2014 09:31:24 +0200
+Message-Id: <1404718284-4192-1-git-send-email-stefw@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel & list,
+Several of the /etc/issue escape codes such as \4 and \S depend on
+variable data which can change after the agetty prompt is displayed.
+This can cause stale data to be displayed when a user looks at a VT,
+especially in cases of DHCP racing with system start up.
 
-Stratus encountered a problem recently when installing RHEL7 onto a 
-Seagate ST300MP0065 disk (4k native sector size).  This disk happened to 
-contain a GPT from a previous OS install and Anaconda hung when running 
-"wipefs -f -a /dev/sda" to try and clear the old GPT.
+This commit allows agetty to react a SIGUSR1 signal by reprinting
+its prompt including the reprocessing of /etc/issue.
 
-Tests running the same install (old GPT) with 512 sector size disks 
-succeeded.
+We never want this to occur once the user has started typing a
+user name. So we detect when the user starts typing, after which
+no further reprompting occurs even if SIGUSR1 is received.
 
-To manually reproduce with the latest upstream git util-linux and without 
-Anaconda we did the following:
-
- % lsscsi | grep /dev/sda                                                                                                 
- [3:0:1:0]    disk    SEAGATE  ST300MP0065      K001  /dev/sda                                                            
-                                                                                                                          
- % dmesg | grep '3:0:1:0'                                                                                                 
- scsi 3:0:1:0: Direct-Access     SEAGATE  ST300MP0065      K001 PQ: 0 ANSI: 6                                             
- scsi 3:0:1:0: SSP: handle(0x000a), sas_addr(0x5000c5007687000d), phy(4), device_name(0x5000c5007687000c)                 
- scsi 3:0:1:0: SSP: enclosure_logical_id(0x500605b006d3a670), slot(7)                                                     
- scsi 3:0:1:0: qdepth(254), tagged(1), simple(0), ordered(0), scsi_level(7), cmd_que(1)                                   
- sd 3:0:1:0: [sda] Spinning up disk...                                                                                    
- sd 3:0:1:0: Attached scsi generic sg6 type 0                                                                             
- sd 3:0:1:0: [sda] 73259046 4096-byte logical blocks: (300 GB/279 GiB)                                                    
- sd 3:0:1:0: [sda] Write Protect is off                                                                                   
- sd 3:0:1:0: [sda] Mode Sense: db 00 10 08                                                                                
- sd 3:0:1:0: [sda] Write cache: enabled, read cache: enabled, supports DPO and FUA                                        
- sd 3:0:1:0: [sda] 73259046 4096-byte logical blocks: (300 GB/279 GiB)                                                    
- sd 3:0:1:0: [sda] 73259046 4096-byte logical blocks: (300 GB/279 GiB)                                                    
- sd 3:0:1:0: [sda] Attached SCSI disk                                                                                     
-                                                                                                                          
- % dd if=/dev/zero of=/dev/sda bs=1M count=100                                                              
- 100+0 records in                                                                                                         
- 100+0 records out                                                                                                        
- 104857600 bytes (105 MB) copied, 0.688838 s, 152 MB/s                                                                    
- 
- % parted /dev/sda --script -- mklabel gpt                                                                  
- % parted /dev/sda --script -- mkpart linux 0 -1                                                            
- Warning: The resulting partition is not properly aligned for best performance.                                           
- % parted /dev/sda --script -- print                                                                        
- Model: SEAGATE ST300MP0065 (scsi)                                                                                        
- Disk /dev/sda: 300GB                                                                                                     
- Sector size (logical/physical): 4096B/4096B                                                                              
- Partition Table: gpt                                                                                                     
- Disk Flags:                                                                                                              
-                                                                                                                          
- Number  Start   End    Size   File system  Name   Flags                                                                  
-  1      24.6kB  300GB  300GB               linux                                                                         
-                                                                                                                          
- % wipefs -f -a /dev/sda                                                                                                  
- /dev/sda: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54                                        
- /dev/sda: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54                                        
- /dev/sda: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54                                        
- /dev/sda: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54                                        
- /dev/sda: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54
- ... endless loop ...
-
-The problem seemed to arise out of libblkid's probe_gpt_pt routine, where 
-it calls blkid_probe_set_magic with the "lba << 9".  That was fine for the 
-512 disk, but not the 4k disk -- wipefs would later clear the magic data @
-byte 512 (not 4096) and then rescan and find the magic again, looping 
-endlessly.
-
-See the patch below which moved us past this bug for 4k sector
-size disks.  I *think* it's the right approach, but I wasn't sure if
-further refactoring of code south of the blkid_partitions_need_typeonly 
-check would be necessary.  It's not called by wipefs (or blkid for 
-that matter), so I wasn't sure how to test it.
-
-Regards,
-
--- Joe
-
--->8-- -->8--  -->8-- -->8--  -->8-- -->8--  -->8-- -->8-- 
-
->From 0216cbd3ae407a1ca2dc50a32542c81181998fb4 Mon Sep 17 00:00:00 2001
-From: Joe Lawrence <joe.lawrence@stratus.com>
-Date: Wed, 23 Jul 2014 16:39:26 -0400
-Subject: [PATCH] libblkid: use sector size for GPT magic offset
-
-probe_gpt_pt should consider the sector size when setting the offset of
-the GPT magic, for it may be 512 or 4k.
-
-Signed-off-by: Joe Lawrence <joe.lawrence@stratus.com>
+Signed-off-by: Stef Walter <stefw@redhat.com>
 ---
- libblkid/src/partitions/gpt.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ term-utils/agetty.8 |  9 +++++-
+ term-utils/agetty.c | 86 +++++++++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 81 insertions(+), 14 deletions(-)
 
-diff --git a/libblkid/src/partitions/gpt.c b/libblkid/src/partitions/gpt.c
-index 7fccd51..0c4ce31 100644
---- a/libblkid/src/partitions/gpt.c
-+++ b/libblkid/src/partitions/gpt.c
-@@ -303,7 +303,7 @@ static int probe_gpt_pt(blkid_probe pr,
- 	blkid_parttable tab = NULL;
- 	blkid_partlist ls;
- 	uint64_t fu, lu;
--	uint32_t ssf, i;
-+	uint32_t ssz, ssf, i;
- 	efi_guid_t guid;
- 	int ret;
+diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
+index 27a0d1b..b11dd4b 100644
+--- a/term-utils/agetty.8
++++ b/term-utils/agetty.8
+@@ -385,7 +385,14 @@ displays as:
+ This is thingol.orcan.dk (Linux i386 1.1.9) 18:29:30
+ .fi
+ .RE
+-
++.SH SIGNALS
++Upon receiving
++.BR SIGUSR1
++.BR agetty
++will reprint the
++.B /etc/issue
++(if so configured) and login prompt. It will do this unless the
++user has started typing a login name.
+ .SH FILES
+ .na
+ .TP
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 2b5932d..3e38107 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -270,6 +270,7 @@ static char *get_logname(struct options *op,
+ 			 struct termios *tp, struct chardata *cp);
+ static void termio_final(struct options *op,
+ 			 struct termios *tp, struct chardata *cp);
++static void sig_usr1_handler(int sig);
+ static int caps_lock(char *s);
+ static speed_t bcode(char *s);
+ static void usage(FILE * out) __attribute__((__noreturn__));
+@@ -285,6 +286,9 @@ static int plymouth_command(const char* arg);
+ /* Fake hostname for ut_host specified on command line. */
+ static char *fakehost;
  
-@@ -329,7 +329,9 @@ static int probe_gpt_pt(blkid_probe pr,
- 
- 	blkid_probe_use_wiper(pr, lba * blkid_probe_get_size(pr), 8);
- 
--	if (blkid_probe_set_magic(pr, lba << 9,
-+	ssz = blkid_probe_get_sectorsize(pr);
++/* Indicates whether we've been asked (via a signal) to reprompt */
++static int reprompt_flag;
 +
-+	if (blkid_probe_set_magic(pr, ssz * lba,
- 			      sizeof(GPT_HEADER_SIGNATURE_STR) - 1,
- 			      (unsigned char *) GPT_HEADER_SIGNATURE_STR))
- 		goto err;
-@@ -348,13 +350,13 @@ static int probe_gpt_pt(blkid_probe pr,
- 	if (!ls)
- 		goto nothing;
+ #ifdef DEBUGGING
+ # include "closestream.h"
+ # ifndef DEBUG_OUTPUT
+@@ -309,7 +313,7 @@ int main(int argc, char **argv)
+ 	};
+ 	char *login_argv[LOGIN_ARGV_MAX + 1];
+ 	int login_argc = 0;
+-	struct sigaction sa, sa_hup, sa_quit, sa_int;
++	struct sigaction sa, sa_hup, sa_quit, sa_int, sa_usr1;
+ 	sigset_t set;
  
--	tab = blkid_partlist_new_parttable(ls, "gpt", lba << 9);
-+	tab = blkid_partlist_new_parttable(ls, "gpt", ssz * lba);
- 	if (!tab)
- 		goto err;
+ 	setlocale(LC_ALL, "");
+@@ -324,6 +328,12 @@ int main(int argc, char **argv)
+ 	sigaction(SIGQUIT, &sa, &sa_quit);
+ 	sigaction(SIGINT, &sa, &sa_int);
  
- 	blkid_parttable_set_uuid(tab, (const unsigned char *) &guid);
++	/* Signal to restart prompting */
++	memset(&sa_usr1, 0, sizeof (sa_usr1));
++	sa_usr1.sa_handler = sig_usr1_handler;
++	sigemptyset (&sa_usr1.sa_mask);
++	sigaction(SIGUSR1, &sa_usr1, NULL);
++
+ #ifdef DEBUGGING
+ 	dbf = fopen(DEBUG_OUTPUT, "w");
+ 	for (int i = 1; i < argc; i++) {
+@@ -824,6 +834,11 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 	debug("exiting parseargs\n");
+ }
  
--	ssf = blkid_probe_get_sectorsize(pr) / 512;
-+	ssf = ssz / 512;
++static void sig_usr1_handler(int sig)
++{
++	reprompt_flag = sig;
++}
++
+ /* Parse alternate baud rates. */
+ static void parse_speeds(struct options *op, char *arg)
+ {
+@@ -1114,6 +1129,21 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
+ }
  
- 	fu = le64_to_cpu(h->first_usable_lba);
- 	lu = le64_to_cpu(h->last_usable_lba);
+ /* Initialize termios settings. */
++static void termio_clear(int fd)
++{
++	/*
++	 * Do not write a full reset (ESC c) because this destroys
++	 * the unicode mode again if the terminal was in unicode
++	 * mode.  Also it clears the CONSOLE_MAGIC features which
++	 * are required for some languages/console-fonts.
++	 * Just put the cursor to the home position (ESC [ H),
++	 * erase everything below the cursor (ESC [ J), and set the
++	 * scrolling region to the full window (ESC [ r)
++	 */
++	write_all(fd, "\033[r\033[H\033[J", 9);
++}
++
++/* Initialize termios settings. */
+ static void termio_init(struct options *op, struct termios *tp)
+ {
+ 	speed_t ispeed, ospeed;
+@@ -1166,18 +1196,8 @@ static void termio_init(struct options *op, struct termios *tp)
+ 		if ((tp->c_cflag & (CS8|PARODD|PARENB)) == CS8)
+ 			op->flags |= F_EIGHTBITS;
+ 
+-		if ((op->flags & F_NOCLEAR) == 0) {
+-			/*
+-			 * Do not write a full reset (ESC c) because this destroys
+-			 * the unicode mode again if the terminal was in unicode
+-			 * mode.  Also it clears the CONSOLE_MAGIC features which
+-			 * are required for some languages/console-fonts.
+-			 * Just put the cursor to the home position (ESC [ H),
+-			 * erase everything below the cursor (ESC [ J), and set the
+-			 * scrolling region to the full window (ESC [ r)
+-			 */
+-			write_all(STDOUT_FILENO, "\033[r\033[H\033[J", 9);
+-		}
++		if ((op->flags & F_NOCLEAR) == 0)
++			termio_clear(STDOUT_FILENO);
+ 		return;
+ 	}
+ 
+@@ -1593,6 +1613,37 @@ static void next_speed(struct options *op, struct termios *tp)
+ 	tcsetattr(STDIN_FILENO, TCSANOW, tp);
+ }
+ 
++static int wait_for_term_input(int fd)
++{
++	struct termios orig, nonc;
++	char input[32];
++	int count;
++	int i;
++
++	/* Our aim here is to fall through if something fails
++         * and not be stuck waiting. On failure assume we have input */
++
++	if (tcgetattr(fd, &orig) != 0)
++		return 1;
++
++	memcpy(&nonc, &orig, sizeof (nonc));
++	nonc.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHOKE);
++	nonc.c_cc[VMIN] = 1;
++	nonc.c_cc[VTIME] = 0;
++
++	if (tcsetattr(fd, TCSANOW, &nonc) != 0)
++		return 1;
++
++	count = read(fd, input, sizeof (input));
++	tcsetattr(fd, TCSANOW, &orig);
++
++	/* Reinject the bytes we read back into the buffer */
++	for (i = 0; i < count; i++)
++		ioctl(fd, TIOCSTI, input + i);
++
++	return count > 0;
++}
++
+ /* Get user name, establish parity, speed, erase, kill & eol. */
+ static char *get_logname(struct options *op, struct termios *tp, struct chardata *cp)
+ {
+@@ -1625,9 +1676,18 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+ 
+ 	while (*logname == '\0') {
+ 
++		reprompt_flag = 0;
++
+ 		/* Write issue file and prompt */
+ 		do_prompt(op, tp);
+ 
++		/* If asked to reprompt *before* terminal input arrives, then do so */
++		if (!wait_for_term_input(STDIN_FILENO) && reprompt_flag != 0) {
++			if (op->flags & F_VCONSOLE)
++				termio_clear(STDOUT_FILENO);
++			continue;
++		}
++
+ 		cp->eol = '\0';
+ 
+ 		/* Read name, watch for break and end-of-line. */
 -- 
-1.7.10.4
+1.9.3
 
