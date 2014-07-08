@@ -1,42 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:62917 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751447AbaGZOsF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 10:48:05 -0400
-Received: by mail-pd0-f178.google.com with SMTP id w10so7335846pde.9
-        for <util-linux@vger.kernel.org>; Sat, 26 Jul 2014 07:48:04 -0700 (PDT)
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:62095 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753977AbaGHO65 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Jul 2014 10:58:57 -0400
+Received: by mail-wg0-f51.google.com with SMTP id y10so1330317wgg.22
+        for <util-linux@vger.kernel.org>; Tue, 08 Jul 2014 07:58:56 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1406378420.29449.145898149.3B1EDA38@webmail.messagingengine.com>
-References: <1406378420.29449.145898149.3B1EDA38@webmail.messagingengine.com>
-Date: Sat, 26 Jul 2014 15:48:04 +0100
-Message-ID: <CAG27Bk2SkstBkDGR9EiP0UENK1qag0VZ31tLZsjvgCxRss2bpw@mail.gmail.com>
-Subject: Re: hwclock --compare segfaults when run as normal user
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>,
-        Ondrej Oprala <ooprala@redhat.com>
+From: Rafael Ferreira <rafael.f.f1@gmail.com>
+Date: Tue, 8 Jul 2014 11:58:36 -0300
+Message-ID: <CALLTvwd4SPLWosR9ko1EXoP7pyTigof_0bQmhjUzLiR6EZDi_w@mail.gmail.com>
+Subject: bug report in lslogins strings
+To: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 26 July 2014 13:40, Benno Schulenberg <bensberg@justemail.net> wrote:
-> On my system there is no /etc/adjtime file, and then:
->
-> $ ./hwclock --compare
-> Segmentation fault
->
-> When run as root, it runs fine.
->
->
-> $ ./hwclock --version
-> hwclock from util-linux 2.25
+Hi there.
 
-Hi Benno,
 
-I tried to reproduce the issue without success. If you have core file
-could you try to gdb backtrace it?
+While translating util-linux, I found one typo (unsupported with two 's'):
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+In file login-utils/lslogins.c, line 332:
+"unssupported time type"
+
+
+Also, while not a bug, I think the below strings could be changed in
+order to have more consistence. Maybe line 1160 could be "users' last
+failed logins" ? See:
+
+In file login-utils/lslogins.c, line 1160:
+" -f, --failed             display data about the last users' failed logins\n"
+
+In file login-utils/lslogins.c, line 1163:
+" -L, --last               show info about the users' last login sessions\n"
+
+
+Cheers,
+Rafael Ferreira
