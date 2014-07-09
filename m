@@ -1,30 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29978 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753510AbaGAIwT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 1 Jul 2014 04:52:19 -0400
-Date: Tue, 1 Jul 2014 10:52:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Eric Rannaud <e@nanocritical.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] libmount: mnt_resolve_path: use strcmp() only if
- both are canonical
-Message-ID: <20140701085215.GB24337@x2.net.home>
-References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:33375 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753923AbaGINbQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jul 2014 09:31:16 -0400
+Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 00D9921322
+	for <util-linux@vger.kernel.org>; Wed,  9 Jul 2014 09:31:14 -0400 (EDT)
+Message-Id: <1404912673.2496.139744129.378B7AF6@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
+Content-Type: text/plain
+In-Reply-To: <1404765268-6616-1-git-send-email-bensberg@justemail.net>
+References: <1404765268-6616-1-git-send-email-bensberg@justemail.net>
+Subject: Re: [PATCH] textual: fix the usage message of kill
+Date: Wed, 09 Jul 2014 15:31:13 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 26, 2014 at 10:17:16PM -0700, Eric Rannaud wrote:
-> Signed-off-by: Eric Rannaud <e@nanocritical.com>
-> ---
->  libmount/src/fs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 
- Applied, thanks.
+On Mon, Jul 7, 2014, at 22:34, Benno Schulenberg wrote:
+>  misc-utils/kill.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
+
+Superseded by a later patch.
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - Or how I learned to stop worrying and
+                          love email again
+
