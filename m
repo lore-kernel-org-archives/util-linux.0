@@ -1,66 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39638 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756147AbaGNTXt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 15:23:49 -0400
-Received: from compute5.internal (compute5.nyi.mail.srv.osa [10.202.2.45])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id C46FE21E4A
-	for <util-linux@vger.kernel.org>; Mon, 14 Jul 2014 15:23:47 -0400 (EDT)
-Message-Id: <1405365827.25234.141562049.51FBADE7@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
-References: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
-Subject: some more comments about the new cfdisk
-Date: Mon, 14 Jul 2014 21:23:47 +0200
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:57414 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751472AbaGIUtL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jul 2014 16:49:11 -0400
+Received: by mail-wg0-f43.google.com with SMTP id b13so7940953wgh.2
+        for <util-linux@vger.kernel.org>; Wed, 09 Jul 2014 13:49:10 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] kill: use --queue option argument as sigval integer value
+Date: Wed,  9 Jul 2014 21:49:03 +0100
+Message-Id: <1404938943-2543-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1404938943-2543-1-git-send-email-kerolasa@iki.fi>
+References: <1404938943-2543-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The sigqueue(3) takes two values, signal and sigval.  Contents of the
+signal can be altered with --signal option argument, so the --queue
+argument should be reserved to affect sigval_int.
 
-My normal terminal emulator has 30 lines, and when in cfdisk typing H,
-the help screen ends like this:
+This is regression fix introduced by commit
+9e8dffd5cd29f03029b1ac99eecb129532ca5c0f.
 
- Note: All of the commands can be entered with either upper or lower
-                            *Press a key to continue.*
+Reference: http://man7.org/linux/man-pages/man3/sigqueue.3.html
+Reported-by: Benno Schulenberg <bensberg@justemail.net>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/kill.c     | 4 +---
+ tests/ts/kill/options | 4 ++--
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-One understands what is meant, of course, but it looks a bit unfinished.
-And one wonders whether there is still more missing.  And there might!
-After reducing the number of lines to twenty (stty rows 20), the help
-screen ends like this:
-
-                            *Press a key to continue.*
-              Since this might destroy data on the disk, you must
-
-:D
-
-Pressing a key does not show the rest of the help text, but it
-used to.
-
-The help text also shows this entry:
-
-   s          Fix partitions order
-
-But this item is not shown in the main menu.  Does it only
-appear when the partitions are out of order?  Then the help
-text might want to say so, e.g. "(only when in disarray)".
-
-Pressing s or S in the main menu does not give any feedback.
-(But one can deduce that it is somehow a valid command, because
-the help line at the bottom does not disappear when pressing it.)
-It would be nicer if it said "Everything is in order" or something
-similar.
-
-When creating a new partition, it accepts as a suffix for sizes both
-k and K, m and M, g and G.  But for sectors it only accepts S, not s.
-
-What is the reason that it accepts the j and k keys for moving
-the cursor down and up?
-
-Benno
-
+diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+index f2362c3..2f89427 100644
+--- a/misc-utils/kill.c
++++ b/misc-utils/kill.c
+@@ -412,9 +412,7 @@ static char **parse_arguments(int argc, char **argv, struct kill_control *ctl)
+ 				errx(EXIT_FAILURE, _("%s and %s are mutually exclusive"), "--pid", "--queue");
+ 			argc--, argv++;
+ 			arg = *argv;
+-			if ((ctl->numsig = arg_to_signum(arg, 0)) < 0)
+-				err_nosig(arg);
+-			ctl->sigdata.sival_int = ctl->numsig;
++			ctl->sigdata.sival_int = strtos32_or_err(arg, _("argument error"));
+ 			ctl->use_sigval = 1;
+ 			continue;
+ 		}
+diff --git a/tests/ts/kill/options b/tests/ts/kill/options
+index 6cdaa24..5af78d9 100755
+--- a/tests/ts/kill/options
++++ b/tests/ts/kill/options
+@@ -51,8 +51,8 @@ try_option -s 1
+ try_option --signal 1
+ try_option --signal HUP
+ try_option --signal SIGHUP
+-try_option -q HUP
+-try_option --queue HUP
++try_option -s 1 -q 42
++try_option -s 1 --queue 42
+ try_option -1
+ try_option -HUP
+ try_option -SIGHUP
 -- 
-http://www.fastmail.fm - The professional email service
+2.0.1
 
