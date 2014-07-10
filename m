@@ -1,29 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:21656 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755542AbaGNNv0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 09:51:26 -0400
-Date: Mon, 14 Jul 2014 15:51:14 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from bombadil.infradead.org ([198.137.202.9]:47463 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752391AbaGJObT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 10 Jul 2014 10:31:19 -0400
+Date: Thu, 10 Jul 2014 07:31:19 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] kill: use --queue option argument as sigval integer value
-Message-ID: <20140714135114.GD30288@x2.net.home>
-References: <1404938943-2543-1-git-send-email-kerolasa@iki.fi>
- <1404938943-2543-2-git-send-email-kerolasa@iki.fi>
+Subject: Re: Supporting human parsable journal_dev specifiers
+Message-ID: <20140710143119.GA13753@infradead.org>
+References: <20140710142824.GA20753@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1404938943-2543-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <20140710142824.GA20753@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 09, 2014 at 09:49:03PM +0100, Sami Kerola wrote:
->  misc-utils/kill.c     | 4 +---
->  tests/ts/kill/options | 4 ++--
->  2 files changed, 3 insertions(+), 5 deletions(-)
+On Thu, Jul 10, 2014 at 10:28:24AM -0400, Theodore Ts'o wrote:
+> I have a user request that mount be able to interpret the device
+> specifier for the journal_dev mount option, so that instead of having
+> to type something like
+> 
+>    mount -o journal_dev=0x0803 ....
+> 
+> they could unstead use: "journal_dev=/dev/sda3" or even
+> "journal_dev=LABEL=ext_journal".  I assume the right way to do this is
+> a mount helper?  Or is this something that you would be willing to
+> accept as a patch into util-linux?
 
- Applied, thanks.
+At least for the device name the best is to implement it in the kernel,
+take a look at what XFS is doing for the log device.  The open by dev_t
+functionality currently used by extN isn't something we like to see used
+anyway.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
