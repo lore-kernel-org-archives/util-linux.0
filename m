@@ -1,40 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:59721 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752575AbaGNJDd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 05:03:33 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-we0-f179.google.com ([74.125.82.179]:60163 "EHLO
+	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751797AbaGMUZi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jul 2014 16:25:38 -0400
+Received: by mail-we0-f179.google.com with SMTP id u57so1036049wes.24
+        for <util-linux@vger.kernel.org>; Sun, 13 Jul 2014 13:25:37 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] docs: fix name and URL of 2.25-rc1
-Date: Mon, 14 Jul 2014 11:03:01 +0200
-Message-Id: <1405328581-2202-5-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
-References: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 12/14] libfdisk: do not do the same thing twice in single if statement
+Date: Sun, 13 Jul 2014 21:24:51 +0100
+Message-Id: <1405283093-28182-13-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+References: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- NEWS |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+The second argument was very likely meant to be 'be->offset'.
+Maintainers review & sign-off will further verify this change being
+correct.
 
-diff --git a/NEWS b/NEWS
-index cfcc5ce..dbb7670 100644
---- a/NEWS
-+++ b/NEWS
-@@ -2,9 +2,9 @@ util-linux 2.25-rc2: Jul 2 2014
- * see Documentation/releases/v2.25-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25/v2.25-rc2-ChangeLog
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libfdisk/src/dos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libfdisk/src/dos.c b/libfdisk/src/dos.c
+index 5453eb3..aff9755 100644
+--- a/libfdisk/src/dos.c
++++ b/libfdisk/src/dos.c
+@@ -1736,7 +1736,7 @@ static int cmp_ebr_offsets(const void *a, const void *b)
+ 	struct pte *ae = (struct pte *) a,
+ 		   *be = (struct pte *) b;
  
--util-linux 2.25: Jun 18 2014
-+util-linux 2.25-rc1: Jun 18 2014
- * see Documentation/releases/v2.25-ReleaseNotes or complete changelog at
--  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25/v2.25-ChangeLog
-+  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25/v2.25-rc1-ChangeLog
- 
- util-linux 2.24: Oct 21 2013
- * see Documentation/releases/v2.24-ReleaseNotes or complete changelog at
+-	if (ae->offset == 0 && ae->offset == 0)
++	if (ae->offset == 0 && be->offset == 0)
+ 		return 0;
+ 	if (ae->offset == 0)
+ 		return 1;
 -- 
-1.7.0.4
+2.0.1
 
