@@ -1,34 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews08.kpnxchange.com ([213.75.39.13]:55597 "EHLO
-	cpsmtpb-ews08.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753305AbaGNJDN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 05:03:13 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:64189 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751797AbaGMUZb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jul 2014 16:25:31 -0400
+Received: by mail-wg0-f49.google.com with SMTP id k14so2531100wgh.8
+        for <util-linux@vger.kernel.org>; Sun, 13 Jul 2014 13:25:29 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/5] build-sys: exclude Documentation/ from looking for translatable strings
-Date: Mon, 14 Jul 2014 11:02:57 +0200
-Message-Id: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 09/14] dmesg: avoid unnecessary variable assignment
+Date: Sun, 13 Jul 2014 21:24:48 +0100
+Message-Id: <1405283093-28182-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+References: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- po/update-potfiles |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ sys-utils/dmesg.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/po/update-potfiles b/po/update-potfiles
-index 925f386..884e4d9 100755
---- a/po/update-potfiles
-+++ b/po/update-potfiles
-@@ -28,6 +28,7 @@ source_files=$(
- 		-e '/\(\.h\|\.c\)$/!d' \
- 		-e '/^tests\//d' \
- 		-e '/\/samples\//d' \
-+		-e '/^Documentation\//d' \
- )
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 147a3ff..f95609f 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -612,7 +612,7 @@ static void safe_fwrite(const char *buf, size_t size, FILE *out)
+ 	for (i = 0; i < size; i++) {
+ 		const char *p = buf + i;
+ 		int rc, hex = 0;
+-	        size_t len = 1;
++		size_t len;
  
- # throw away non-existing files (dirty git repo)
+ #ifdef HAVE_WIDECHAR
+ 		wchar_t wc;
+@@ -629,6 +629,7 @@ static void safe_fwrite(const char *buf, size_t size, FILE *out)
+ 		}
+ 		i += len - 1;
+ #else
++		len = 1;
+ 		if (!isprint((unsigned int) *p) &&
+ 			!isspace((unsigned int) *p))        /* non-printable */
+ 			hex = 1;
 -- 
-1.7.0.4
+2.0.1
 
