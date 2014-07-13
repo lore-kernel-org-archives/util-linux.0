@@ -1,37 +1,44 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1406487424.22794.146193409.16E8F3E3@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140721234936.GH17373@x2.net.home>
-References: <53CCADA9.3020703@bernhard-voelker.de>
- <20140721082859.GD17373@x2.net.home>
- <1405977369.18035.144118445.737362A9@webmail.messagingengine.com>
- <53CD86FC.7000808@bernhard-voelker.de>
- <1405981133.2561.144137253.6000B5B5@webmail.messagingengine.com>
- <20140721234936.GH17373@x2.net.home>
-Subject: Re: mount.8: mtab as symlink
-Date: Sun, 27 Jul 2014 20:57:04 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:36695 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751794AbaGMUZL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jul 2014 16:25:11 -0400
+Received: by mail-wg0-f45.google.com with SMTP id x12so3237006wgg.4
+        for <util-linux@vger.kernel.org>; Sun, 13 Jul 2014 13:25:10 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 03/14] setterm: remove unnecessary variable
+Date: Sun, 13 Jul 2014 21:24:42 +0100
+Message-Id: <1405283093-28182-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+References: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/setterm.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-On Tue, Jul 22, 2014, at 01:49, Karel Zak wrote:
-> On Tue, Jul 22, 2014 at 12:18:53AM +0200, Benno Schulenberg wrote:
-> > By the way, Karel, what are these 'helper=' and 'uhelper=' things
-> > that are mentioned in umount.8?  Shouldn't these be mentioned in
-> > mount.8 too, and more extensively? 
-> 
-> Not sure, it's implemented for very special purpose when udisks mount
-> a device that should be umounted again by udisks. I don't think we
-> want to do any advertisement for this functionality.
-
-So... should it be removed from the man page of umount too?
-If so, the third patch in the upcoming series does that.
-
-Benno
-
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index afbd274..f21466e 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -770,12 +770,11 @@ static void screendump(struct setterm_control *ctl)
+ 	size_t i, j;
+ 	ssize_t rc;
+ 	char *inbuf, *outbuf, *p, *q;
+-	char dump_default[] = "screen.dump";
+ 
+ 	/* open source and destination files */
+ 	fd = open_snapshot_device(ctl);
+ 	if (!ctl->opt_sn_name)
+-		ctl->opt_sn_name = dump_default;
++		ctl->opt_sn_name = "screen.dump";
+ 	out = fopen(ctl->opt_sn_name, ctl->opt_snap ? "w" : "a");
+ 	if (!out)
+ 		err(EXIT_DUMPFILE, _("can not open dump file %s for output"), ctl->opt_sn_name);
 -- 
-http://www.fastmail.fm - Access all of your messages and folders
-                          wherever you are
+2.0.1
+
