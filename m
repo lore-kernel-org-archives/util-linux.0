@@ -1,46 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:56462 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756387AbaGNUxw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 16:53:52 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/3] docs: mount -o nouser is not useful, be clearer about that
-Date: Mon, 14 Jul 2014 22:53:35 +0200
-Message-Id: <1405371216-7774-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1405371216-7774-1-git-send-email-bensberg@justemail.net>
-References: <1405371216-7774-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:14194 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754685AbaGNO0t (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Jul 2014 10:26:49 -0400
+Date: Mon, 14 Jul 2014 16:26:45 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/5] build-sys: exclude Documentation/ from looking for
+ translatable strings
+Message-ID: <20140714142645.GL30288@x2.net.home>
+References: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/mount.8 |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+On Mon, Jul 14, 2014 at 11:02:57AM +0200, Benno Schulenberg wrote:
+>  po/update-potfiles |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index fc8225a..ae29ea8 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -858,7 +858,7 @@ flag followed by a comma separated string of options. For example:
- .RS
- .RS
- .sp
--.B "mount LABEL=mydisk \-o noatime,nouser"
-+.B "mount LABEL=mydisk \-o noatime,nodev,nosuid"
- .sp
- .RE
- 
-@@ -1158,7 +1158,7 @@ This option implies the options
- .TP
- .B nouser
- Forbid an ordinary (i.e., non-root) user to mount the filesystem.
--This is the default.
-+This is the default; it does not imply any other options.
- .TP
- .B users
- Allow every user to mount and unmount the filesystem.
+ All 5 patches applied. Thanks!
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
