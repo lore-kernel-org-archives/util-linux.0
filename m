@@ -1,43 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g2t2354.austin.hp.com ([15.217.128.53]:48849 "EHLO
-	g2t2354.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753684AbaGTUgw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jul 2014 16:36:52 -0400
-Message-ID: <1405888608.11927.11.camel@buesod1.americas.hpqcorp.net>
-Subject: Re: [RFC] Zram handle util
-From: Davidlohr Bueso <davidlohr@hp.com>
-To: Timofey Titovets <nefelim4ag@gmail.com>
-Cc: util-linux@vger.kernel.org, Minchan Kim <minchan@kernel.org>
-Date: Sun, 20 Jul 2014 13:36:48 -0700
-In-Reply-To: <53CAAAB6.6020607@gmail.com>
-References: <53CAAAB6.6020607@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:51295 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756387AbaGNUx4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Jul 2014 16:53:56 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/3] cfdisk: restore the license that was lost in January
+Date: Mon, 14 Jul 2014 22:53:36 +0200
+Message-Id: <1405371216-7774-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1405371216-7774-1-git-send-email-bensberg@justemail.net>
+References: <1405371216-7774-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, 2014-07-19 at 20:28 +0300, Timofey Titovets wrote:
-> Good time of day.
-> I want hear your opinions.
-> Several days ago, i writed zramctl util (on C++) for have useful app for 
-> setup zrams..
-> Code hosted her: https://github.com/Nefelim4ag/zramctl
-> 
-> Examples:
-> zramctl find # return name of first free device (zram0)
-> zramctl find 1024M lz4 4 # (i not implement -? options now)
-> 			 # 4 - threads
-> 			 # setup and return name of device (zram1)
-> zramctl reset zram0 zram1 ...
-> 
-> 
-> I want to port it on C and try include it in util-linux, like losetup.
-> It has a sense? What do you think?
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
-Minchan, any thoughts in keeping this sort of utility in the kernel
-tree? Perhaps tools/zram/? No idea if the code is suitable to consider
-right away, but it kinda makes sense.
-
-Thanks,
-Davidlohr
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index fb089f5..544e87a 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1,3 +1,17 @@
++/*
++ * cfdisk.c - Display or manipulate a disk partition table.
++ *
++ *     Copyright (C) 2014 Karel Zak <kzak@redhat.com>
++ *     Copyright (C) 1994 Kevin E. Martin (martin@cs.unc.edu)
++ *
++ *     The original cfdisk was inspired by the fdisk program
++ *           by A. V. Le Blanc (leblanc@mcc.ac.uk.
++ *
++ * cfdisk is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <errno.h>
+-- 
+1.7.0.4
 
