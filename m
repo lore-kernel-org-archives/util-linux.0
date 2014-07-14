@@ -1,62 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2.vodafone.ie ([213.233.128.44]:1739 "EHLO
-	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751290AbaG0MgI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jul 2014 08:36:08 -0400
-Message-ID: <53D4F231.9020906@draigBrady.com>
-Date: Sun, 27 Jul 2014 13:36:01 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:41116 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754890AbaGNPHz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Jul 2014 11:07:55 -0400
+Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id ACCEF20EC1
+	for <util-linux@vger.kernel.org>; Mon, 14 Jul 2014 11:07:50 -0400 (EDT)
+Message-Id: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: Andreas Henriksson <andreas@fatal.se>
-CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: allow non-inotify tailf to keep up
-References: <1406407441-4872-1-git-send-email-andreas@fatal.se>
-In-Reply-To: <1406407441-4872-1-git-send-email-andreas@fatal.se>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
+Subject: some comments about the new cfdisk
+Date: Mon, 14 Jul 2014 17:07:50 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/26/2014 09:44 PM, Andreas Henriksson wrote:
-> When tailf is not using inotify, it seems to sleep for 0.25s between
-> checks. Just giving a 0.1s time window between update and removal of the
-> input file thus gives little chance for tailf to succeed.
-> Similar between startup and append to file, make sure initial
-> content is read before appending additional data by bumping the time.
-> 
-> This should possibly be bumped much larger to make sure that
-> the tailf process actually gets a chance to run at all in the
-> given time window. Otherwise it might fail on really slow/overloaded
-> machines.
-> The drawback would then ofcourse be to increase the time it takes
-> to run the testsuite.
-> 
-> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
-> ---
->  tests/ts/tailf/simple | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tests/ts/tailf/simple b/tests/ts/tailf/simple
-> index 955844d..d0a1c5c 100755
-> --- a/tests/ts/tailf/simple
-> +++ b/tests/ts/tailf/simple
-> @@ -27,9 +27,9 @@ echo {a..z} > $INPUT
->  
->  $TS_CMD_TAILF $INPUT > $TS_OUTPUT 2>&1 &
->  
-> -sleep 0.1
-> +sleep 0.5
->  echo {0..9} >> $INPUT
-> -sleep 0.1
-> +sleep 0.5
->  
->  rm -f $INPUT
 
-For such tests coreutils uses a helper function
-to apply a truncated exponential backoff,
-to run quickly in the common case, but also
-delay longer if necessary. See retry_delay_() at:
+Hi,
 
-http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=init.cfg;h=725ee121;hb=HEAD#l608
+Running cfdisk without an argument no longer works - it just
+blurts out the usage text, instead of picking the first and only
+hard drive in the system.
 
-cheers,
-Pádraig.
+When exiting from cfdisk without having changed anything and
+without having written the table to disk, it still writes to
+standard output "Syncing disks." (with a missing newline).
+To a novice that will be an alarming message.  I think that
+when the user did not ask to write anything to disk, cfdisk
+should not be syncing disks, there is no need to, or at least
+it should not show that message.
+
+When in the "Select partition type" submenu, it is not possible
+to exit from there with Esc.  Hitting ^C instead kills the entire
+cfdisk, which is kind of surprising and undesirable: any already
+made changes would be lost.
+
+I have two megabytes of free space at the tail of the disk.  If
+with the old cfdisk I delete the last partition, it will create
+a single expanse of free space.  But with the new cfdisk it will
+then have two free spaces:
+
+>>  `-Free space      282779648 312576704  29797057  14.2G                      
+    Free space        312578048 312581807      3760   1.9M
+
+It appears to be impossible to reuse that tailing free space.
+
+Benno
+
+-- 
+http://www.fastmail.fm - Accessible with your email software
+                          or over the web
+
