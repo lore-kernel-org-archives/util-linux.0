@@ -1,68 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2633 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36795 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932901AbaGXKLQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 Jul 2014 06:11:16 -0400
-Date: Thu, 24 Jul 2014 12:11:05 +0200
+	id S1754890AbaGNNhT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Jul 2014 09:37:19 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6EDbIOQ026189
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Mon, 14 Jul 2014 09:37:19 -0400
+Date: Mon, 14 Jul 2014 15:37:16 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+To: Stef Walter <stefw@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/10] logger: add process --id=parent optional argument
-Message-ID: <20140724101105.GL26781@x2.net.home>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
- <1406066459-4816-10-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
+ SIGUSR1
+Message-ID: <20140714133716.GB30288@x2.net.home>
+References: <1404718284-4192-1-git-send-email-stefw@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406066459-4816-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1404718284-4192-1-git-send-email-stefw@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 22, 2014 at 11:00:58PM +0100, Sami Kerola wrote:
+On Mon, Jul 07, 2014 at 09:31:24AM +0200, Stef Walter wrote:
+> Several of the /etc/issue escape codes such as \4 and \S depend on
+> variable data which can change after the agetty prompt is displayed.
+> This can cause stale data to be displayed when a user looks at a VT,
+> especially in cases of DHCP racing with system start up.
+> 
+> This commit allows agetty to react a SIGUSR1 signal by reprinting
+> its prompt including the reprocessing of /etc/issue.
+> 
+> We never want this to occur once the user has started typing a
+> user name. So we detect when the user starts typing, after which
+> no further reprompting occurs even if SIGUSR1 is received.
 
-> +	unsigned int	parent:1,
+ Good idea, interesting implementation, but it's too late for v2.25.
+ I'm going to apply the patch to the git tree after v2.25 release.
 
-  ppid : 1
-
-> +			rfc5424_time:1,
->  			rfc5424_tq:1,
->  			rfc5424_host:1;
->  };
-> @@ -281,15 +282,29 @@ static char *xgetlogin()
->  	return cp;
->  }
->  
-> +static pid_t get_process_id(struct logger_ctl *ctl)
-> +{
-> +	pid_t id = 0;
-> +
-> +	if (ctl->logflags & LOG_PID) {
-> +		if (ctl->parent)
-> +			id = getppid();
-> +		else
-> +			id = getpid();
-
-  id = ctl->ppid ? getppid() : getpid();
-
- :-)
-
-> -	fputs(_(" -i, --id              log the process ID too\n"), out);
-> +	fputs(_(" -i, --id[=parent]     log the [parent] process ID too\n"), out);
-
- what about:
-
-              -i, --id[=pid|ppid]   log PID or PPID (default is PID)
-
-
- I think it's more robust and readable when you can specify also
- default setting in scripts.
-
- And please, don't use "parent" in code and in the man page. It's
- confusing. It's PID and PPID. 
-
-
- (I personally don't like "process ID" too, "PID" is the term.)
-
+ Thanks.
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
