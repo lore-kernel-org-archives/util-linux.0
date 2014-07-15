@@ -1,35 +1,81 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1406573448.201539.146573889.3D4D553B@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:8414 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758038AbaGOK7Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 06:59:25 -0400
+Date: Tue, 15 Jul 2014 12:59:20 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: some comments about the new cfdisk
+Message-ID: <20140715105920.GS30288@x2.net.home>
+References: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140728111214.GI8533@x2.net.home>
-References: <1406378420.29449.145898149.3B1EDA38@webmail.messagingengine.com>
- <CAG27Bk2SkstBkDGR9EiP0UENK1qag0VZ31tLZsjvgCxRss2bpw@mail.gmail.com>
- <1406390709.8686.145937949.0F0BF57C@webmail.messagingengine.com>
- <20140728111214.GI8533@x2.net.home>
-Subject: Re: hwclock --compare segfaults when run as normal user
-Date: Mon, 28 Jul 2014 20:50:48 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Jul 14, 2014 at 05:07:50PM +0200, Benno Schulenberg wrote:
+> Running cfdisk without an argument no longer works - it just
+> blurts out the usage text, instead of picking the first and only
+> hard drive in the system.
 
-On Mon, Jul 28, 2014, at 13:12, Karel Zak wrote:
->  I have no way how to to test it, but can you try the patch below?
-> [...]
->  
-> +	if (ur->get_permissions())
-> +		return EX_NOPERM;
-> +
+Yes, this is expected change. I think it's better to force
+users to type the disk path than hardcode "sda" to the code,
+but I have no strong opinion about it... no problem to change it.
 
-Yes, looks better now:
+(The correct way is to scan /proc/partitions and use the first
+ whole-disk. The original solution with hardcoded /dev/sda and
+ /dev/hda is ugly.)
 
-$ ./hwclock --compare
-hwclock: unable to get I/O port access:  the iopl(3) call failed.: Operation not permitted
-hwclock: Probably you need root privileges.
+> When exiting from cfdisk without having changed anything and
+> without having written the table to disk, it still writes to
+> standard output "Syncing disks." (with a missing newline).
+> To a novice that will be an alarming message.  I think that
+> when the user did not ask to write anything to disk, cfdisk
+> should not be syncing disks, there is no need to, or at least
+> it should not show that message.
 
-Benno
+This is bug, fixed in git tree now.
+
+> When in the "Select partition type" submenu, it is not possible
+> to exit from there with Esc.  Hitting ^C instead kills the entire
+> cfdisk, which is kind of surprising and undesirable: any already
+> made changes would be lost.
+
+This is bug, fixed in git tree now. (All the menus is also sensitive
+to 'g' and 'Q'.)
+
+> I have two megabytes of free space at the tail of the disk.  If
+> with the old cfdisk I delete the last partition, it will create
+> a single expanse of free space.  But with the new cfdisk it will
+> then have two free spaces:
+> 
+> >>  `-Free space      282779648 312576704  29797057  14.2G                      
+>     Free space        312578048 312581807      3760   1.9M
+
+I guess the last partition is a logical partition. It's because
+the extended partition (container for logical partitions) has
+explicitly specified size and the new cfdisk does not change the 
+size. 
+
+The way how the new cfdisk works with free space is different, it
+follows the gaps between partition etc. So it does not magically 
+merge all free space to the one pool. This solution is more generic
+and usable for all disk labels.
+
+It would be possible to add some extra optimization for MBR to
+enlarge/reduce the extended partition if there is a free space behind
+the partition and no possibility to create another primary partition.
+Not sure... I'll think about it.
+
+> It appears to be impossible to reuse that tailing free space.
+
+.. because you already have allocated all primary partitions I guess.
+
+    Karel
 
 -- 
-http://www.fastmail.fm - Email service worth paying for. Try it for free
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
