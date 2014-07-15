@@ -1,235 +1,325 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-phx2.redhat.com ([209.132.183.24]:46902 "EHLO
-	mx3-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753170AbaGYP3v (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 25 Jul 2014 11:29:51 -0400
-Received: from zmail15.collab.prod.int.phx2.redhat.com (zmail15.collab.prod.int.phx2.redhat.com [10.5.83.17])
-	by mx3-phx2.redhat.com (8.13.8/8.13.8) with ESMTP id s6PFTokn029691
-	for <util-linux@vger.kernel.org>; Fri, 25 Jul 2014 11:29:50 -0400
-Date: Fri, 25 Jul 2014 11:29:49 -0400 (EDT)
-From: Jaromir Capik <jcapik@redhat.com>
-To: util-linux@vger.kernel.org
-Message-ID: <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com>
-In-Reply-To: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com>
-Subject: [PATCH] fdformat: Add new switches -f/--from, -t/--to, -r/--repair
+Received: from mx1.redhat.com ([209.132.183.28]:12686 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752738AbaGOQM6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 12:12:58 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6FGCu46028414
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 15 Jul 2014 12:12:57 -0400
+Message-ID: <53C55305.2050501@redhat.com>
+Date: Tue, 15 Jul 2014 18:12:53 +0200
+From: Stef Walter <stefw@redhat.com>
 MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
+ SIGUSR1
+References: <1404718284-4192-1-git-send-email-stefw@redhat.com> <20140715074717.GN30288@x2.net.home> <53C4DED8.2070706@redhat.com> <20140715091907.GQ30288@x2.net.home> <53C52149.6010301@redhat.com>
+In-Reply-To: <53C52149.6010301@redhat.com>
 Content-Type: multipart/mixed;
-	boundary="----=_Part_22662572_267211773.1406302189689"
+ boundary="------------040601050403050405030207"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-------=_Part_22662572_267211773.1406302189689
-Content-Type: text/plain; charset=utf-8
+This is a multi-part message in MIME format.
+--------------040601050403050405030207
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Hello everyone.
+On 15.07.2014 14:40, Stef Walter wrote:
+> On 15.07.2014 11:19, Karel Zak wrote:
+>>  Maybe the best would be to implement all within agetty, I mean add
+>>  a special command 
+>>
+>>    agetty --reload [<tty>]
+>>
+>>  to reload another already running agetty process(es). So rather than
+>>  "killall agetty" you have to use "agetty --reload".
+>>  
+>>  Then all the implementation will be a private thing and only the "--reload"
+>>  command line option will be a public API.
+> 
+> Okay. I'll work on this and keep you posted.
 
-The attached patch adds support for user configurable
-from/to track and a basic repair mode for broken floppies.
-It also fixes a recently introduced bug that causes
-line breakage when printing the track number.
+Attached is the updated patch.
 
-Please, review and share your feelings / merge.
+The current patch implements --reload. We use inotify on a path in /run
+to signal the process. We don't create the file initially until does a
+--reload.
 
-Thanks in advance,
-Jaromir.
+Note that I didn't implement the [<tty>] option. It seems like it would
+need inotify track multiple files, and as such be prone to races, when
+trying to signal all agetty processes.
 
---
-Jaromir Capik
-Red Hat Czech, s.r.o.
-Software Engineer / Secondary Arch
+What do you think?
 
-Email: jcapik@redhat.com
-Web: www.cz.redhat.com
-Red Hat Czech s.r.o., Purkynova 99/71, 612 45, Brno, Czech Republic
-IC: 27690016 
+Stef
 
-------=_Part_22662572_267211773.1406302189689
-Content-Type: text/x-patch; name=fdformat-from-to-repair.patch
-Content-Disposition: attachment; filename=fdformat-from-to-repair.patch
-Content-Transfer-Encoding: base64
 
-RnJvbSBkMzU0M2NlNTkxZmQzNGE3ODcxNzY5OTM5NTgyMzc4NjQwNDlmYmUwIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKYXJvbWlyIENhcGlrIDxqY2FwaWtAcmVkaGF0LmNvbT4KRGF0
-ZTogRnJpLCAyNSBKdWwgMjAxNCAxNzoxNjo1NiArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIGZkZm9y
-bWF0OiBBZGQgbmV3IHN3aXRjaGVzIC1mLy0tZnJvbSwgLXQvLS10bywgLXIvLS1yZXBhaXIKClRo
-aXMgY29tbWl0IGludHJvZHVjZXMgYSBzdXBwb3J0IGZvciB1c2VyIGNvbmZpZ3VyYWJsZQpmcm9t
-L3RvIHRyYWNrIGFuZCBhIGJhc2ljIHJlcGFpciBtb2RlIGZvciBicm9rZW4gZmxvcHBpZXMuCkl0
-IGFsc28gZml4ZXMgYSByZWNlbnRseSBpbnRyb2R1Y2VkIGJ1ZyB0aGF0IGNhdXNlcwphIGxpbmUg
-YnJlYWthZ2Ugd2hlbiBwcmludGluZyB0aGUgdHJhY2sgbnVtYmVyLgotLS0KIGRpc2stdXRpbHMv
-TWFrZW1vZHVsZS5hbSB8ICAgMSArCiBkaXNrLXV0aWxzL2ZkZm9ybWF0LjggICAgfCAgMTEgKyst
-CiBkaXNrLXV0aWxzL2ZkZm9ybWF0LmMgICAgfCAyMDYgKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrLS0tLS0tLS0tLS0tLS0KIDMgZmlsZXMgY2hhbmdlZCwgMTU3IGluc2VydGlvbnMo
-KyksIDYxIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2Rpc2stdXRpbHMvTWFrZW1vZHVsZS5h
-bSBiL2Rpc2stdXRpbHMvTWFrZW1vZHVsZS5hbQppbmRleCBjNjE4M2Y1Li45OTVlMDg1IDEwMDY0
-NAotLS0gYS9kaXNrLXV0aWxzL01ha2Vtb2R1bGUuYW0KKysrIGIvZGlzay11dGlscy9NYWtlbW9k
-dWxlLmFtCkBAIC0xMTAsNiArMTEwLDcgQEAgaWYgQlVJTERfRkRGT1JNQVQKIHVzcnNiaW5fZXhl
-Y19QUk9HUkFNUyArPSBmZGZvcm1hdAogZGlzdF9tYW5fTUFOUyArPSBkaXNrLXV0aWxzL2ZkZm9y
-bWF0LjgKIGZkZm9ybWF0X1NPVVJDRVMgPSBkaXNrLXV0aWxzL2ZkZm9ybWF0LmMKK2ZkZm9ybWF0
-X0xEQUREID0gJChMREFERCkgbGliY29tbW9uLmxhCiBlbmRpZgogCiBpZiBCVUlMRF9CTE9DS0RF
-VgpkaWZmIC0tZ2l0IGEvZGlzay11dGlscy9mZGZvcm1hdC44IGIvZGlzay11dGlscy9mZGZvcm1h
-dC44CmluZGV4IGRmNDE1M2YuLjc5N2Y1MGYgMTAwNjQ0Ci0tLSBhL2Rpc2stdXRpbHMvZmRmb3Jt
-YXQuOAorKysgYi9kaXNrLXV0aWxzL2ZkZm9ybWF0LjgKQEAgLTEsNiArMSw2IEBACiAuXCIgQ29w
-eXJpZ2h0IDE5OTIsIDE5OTMgUmlja2FyZCBFLiBGYWl0aCAoZmFpdGhAY3MudW5jLmVkdSkKIC5c
-IiBNYXkgYmUgZGlzdHJpYnV0ZWQgdW5kZXIgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNl
-Ci0uVEggRkRGT1JNQVQgOCAiSnVseSAyMDExIiAidXRpbC1saW51eCIgIlN5c3RlbSBBZG1pbmlz
-dHJhdGlvbiIKKy5USCBGREZPUk1BVCA4ICJKdWx5IDIwMTQiICJ1dGlsLWxpbnV4IiAiU3lzdGVt
-IEFkbWluaXN0cmF0aW9uIgogLlNIIE5BTUUKIGZkZm9ybWF0IFwtIGxvdy1sZXZlbCBmb3JtYXQg
-YSBmbG9wcHkgZGlzawogLlNIIFNZTk9QU0lTCkBAIC00NSw2ICs0NSwxNSBAQCBhdXRvZGV0ZWN0
-ZWQgZWFybGllci4gIEluIHRoaXMgY2FzZSwgdXNlCiB0byBsb2FkIHRoZSBkaXNrIHBhcmFtZXRl
-cnMuCiAuU0ggT1BUSU9OUwogLlRQCitcZkJcLWZcZlIsIFxmQlwtXC1mcm9tXGZSIFxmSU5cZlIK
-K1N0YXJ0IGF0IHRoZSB0cmFjayBcZklOXGZSIChkZWZhdWx0IGlzIDApLgorLlRQCitcZkJcLXRc
-ZlIsIFxmQlwtXC10b1xmUiBcZklOXGZSCitTdG9wIGF0IHRoZSB0cmFjayBcZklOXGZSIChkZWZh
-dWx0IGlzIDApLgorLlRQCitcZkJcLXJcZlIsIFxmQlwtXC1yZXBhaXJcZlIgXGZJTlxmUgorVHJ5
-IHRvIHJlcGFpciB0cmFja3MgZmFpbGVkIGR1cmluZyB0aGUgdmVyaWZpY2F0aW9uIChtYXggXGZJ
-TlxmUiByZXRyaWVzKS4KKy5UUAogXGZCXC1uXGZSLCBcZkJcLVwtbm8tdmVyaWZ5XGZSCiBTa2lw
-IHRoZSB2ZXJpZmljYXRpb24gdGhhdCBpcyBub3JtYWxseSBwZXJmb3JtZWQgYWZ0ZXIgdGhlIGZv
-cm1hdHRpbmcuCiAuVFAKZGlmZiAtLWdpdCBhL2Rpc2stdXRpbHMvZmRmb3JtYXQuYyBiL2Rpc2st
-dXRpbHMvZmRmb3JtYXQuYwppbmRleCBlNmFlOGU0Li5jOGIyYTgxIDEwMDY0NAotLS0gYS9kaXNr
-LXV0aWxzL2ZkZm9ybWF0LmMKKysrIGIvZGlzay11dGlscy9mZGZvcm1hdC5jCkBAIC0xMiw2ICsx
-Miw3IEBACiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAKICNpbmNsdWRlICJjLmgiCisjaW5jbHVkZSAi
-c3RydXRpbHMuaCIKICNpbmNsdWRlICJjbG9zZXN0cmVhbS5oIgogI2luY2x1ZGUgIm5scy5oIgog
-I2luY2x1ZGUgInhhbGxvYy5oIgpAQCAtMjAsNzQgKzIxLDExOSBAQCBzdHJ1Y3QgZmxvcHB5X3N0
-cnVjdCBwYXJhbTsKIAogI2RlZmluZSBTRUNUT1JfU0laRSA1MTIKIAotc3RhdGljIHZvaWQgZm9y
-bWF0X2Rpc2soaW50IGN0cmwpCisKK3N0YXRpYyB2b2lkIGZvcm1hdF9iZWdpbihpbnQgY3RybCkK
-K3sKKwlpZiAoaW9jdGwoY3RybCwgRkRGTVRCRUcsIE5VTEwpIDwgMCkKKwkJZXJyKEVYSVRfRkFJ
-TFVSRSwgImlvY3RsOiBGREZNVEJFRyIpOworfQorCitzdGF0aWMgdm9pZCBmb3JtYXRfZW5kKGlu
-dCBjdHJsKQoreworCWlmIChpb2N0bChjdHJsLCBGREZNVEVORCwgTlVMTCkgPCAwKQorCQllcnIo
-RVhJVF9GQUlMVVJFLCAiaW9jdGw6IEZERk1URU5EIik7Cit9CisKK3N0YXRpYyB2b2lkIGZvcm1h
-dF90cmFja19oZWFkKGludCBjdHJsLCB1bnNpZ25lZCBpbnQgdHJhY2ssIHVuc2lnbmVkIGludCBo
-ZWFkKQogewogCXN0cnVjdCBmb3JtYXRfZGVzY3IgZGVzY3I7Ci0JdW5zaWduZWQgaW50IHRyYWNr
-OworCisJZGVzY3IudHJhY2sgPSB0cmFjazsKKwlkZXNjci5oZWFkID0gaGVhZDsKKwlpZiAoaW9j
-dGwoY3RybCwgRkRGTVRUUkssIChsb25nKSAmZGVzY3IpIDwgMCkKKwkJZXJyKEVYSVRfRkFJTFVS
-RSwgImlvY3RsOiBGREZNVFRSSyIpOworfQorCitzdGF0aWMgdm9pZCBzZWVrX3RyYWNrX2hlYWQo
-aW50IGN0cmwsIHVuc2lnbmVkIGludCB0cmFjaywgdW5zaWduZWQgaW50IGhlYWQpCit7CisJbHNl
-ZWsoY3RybCwgKHRyYWNrICogcGFyYW0uaGVhZCArIGhlYWQpICogcGFyYW0uc2VjdCAqIFNFQ1RP
-Ul9TSVpFLCBTRUVLX1NFVCk7Cit9CisKK3N0YXRpYyB2b2lkIGZvcm1hdF9kaXNrKGludCBjdHJs
-LCB1bnNpZ25lZCBpbnQgdHJhY2tfZnJvbSwgdW5zaWduZWQgaW50IHRyYWNrX3RvKQoreworCXVu
-c2lnbmVkIGludCB0cmFjaywgaGVhZDsKIAogCXByaW50ZihfKCJGb3JtYXR0aW5nIC4uLiAiKSk7
-CiAJZmZsdXNoKHN0ZG91dCk7Ci0JaWYgKGlvY3RsKGN0cmwsIEZERk1UQkVHLCBOVUxMKSA8IDAp
-Ci0JCWVycihFWElUX0ZBSUxVUkUsICJpb2N0bDogRkRGTVRCRUciKTsKLQlmb3IgKHRyYWNrID0g
-MDsgdHJhY2sgPCBwYXJhbS50cmFjazsgdHJhY2srKykgewotCQlkZXNjci50cmFjayA9IHRyYWNr
-OwotCQlkZXNjci5oZWFkID0gMDsKLQkJaWYgKGlvY3RsKGN0cmwsIEZERk1UVFJLLCAobG9uZykg
-JmRlc2NyKSA8IDApCi0JCQllcnIoRVhJVF9GQUlMVVJFLCAiaW9jdGw6IEZERk1UVFJLIik7Ci0K
-LQkJcHJpbnRmKCIlM3VkXGJcYlxiIiwgdHJhY2spOwotCQlmZmx1c2goc3Rkb3V0KTsKLQkJaWYg
-KHBhcmFtLmhlYWQgPT0gMikgewotCQkJZGVzY3IuaGVhZCA9IDE7Ci0JCQlpZiAoaW9jdGwoY3Ry
-bCwgRkRGTVRUUkssIChsb25nKSZkZXNjcikgPCAwKQotCQkJCWVycihFWElUX0ZBSUxVUkUsICJp
-b2N0bDogRkRGTVRUUksiKTsKKworCWZvcm1hdF9iZWdpbihjdHJsKTsKKworCWZvciAodHJhY2sg
-PSB0cmFja19mcm9tOyB0cmFjayA8PSB0cmFja190bzsgdHJhY2srKykgeworCQlmb3IgKGhlYWQg
-PSAwOyBoZWFkIDwgcGFyYW0uaGVhZDsgaGVhZCsrKSB7CisJCQlwcmludGYoIiUzdS8ldVxiXGJc
-YlxiXGIiLCB0cmFjaywgaGVhZCk7CisJCQlmZmx1c2goc3Rkb3V0KTsKKwkJCWZvcm1hdF90cmFj
-a19oZWFkKGN0cmwsIHRyYWNrLCBoZWFkKTsKIAkJfQogCX0KLQlpZiAoaW9jdGwoY3RybCwgRkRG
-TVRFTkQsIE5VTEwpIDwgMCkKLQkJZXJyKEVYSVRfRkFJTFVSRSwgImlvY3RsOiBGREZNVEVORCIp
-OworCisJZm9ybWF0X2VuZChjdHJsKTsKKwogCXByaW50ZihfKCJkb25lXG4iKSk7CiB9CiAKLXN0
-YXRpYyB2b2lkIHZlcmlmeV9kaXNrKGNoYXIgKm5hbWUpCitzdGF0aWMgdm9pZCB2ZXJpZnlfZGlz
-ayhpbnQgY3RybCwgdW5zaWduZWQgaW50IHRyYWNrX2Zyb20sIHVuc2lnbmVkIGludCB0cmFja190
-bywgaW50IHJlcGFpcikKIHsKIAl1bnNpZ25lZCBjaGFyICpkYXRhOwotCXVuc2lnbmVkIGludCBj
-eWw7Ci0JaW50IGZkLCBjeWxfc2l6ZSwgY291bnQ7CisJdW5zaWduZWQgaW50IHRyYWNrLCBoZWFk
-OworCWludCB0cmFja19zaXplLCBjb3VudCwgcmV0cmllc19sZWZ0OwogCi0JY3lsX3NpemUgPSBw
-YXJhbS5zZWN0ICogcGFyYW0uaGVhZCAqIDUxMjsKLQlkYXRhID0geG1hbGxvYyhjeWxfc2l6ZSk7
-CisJdHJhY2tfc2l6ZSA9IHBhcmFtLnNlY3QgKiBTRUNUT1JfU0laRTsKKwlkYXRhID0geG1hbGxv
-Yyh0cmFja19zaXplKTsKIAlwcmludGYoXygiVmVyaWZ5aW5nIC4uLiAiKSk7CiAJZmZsdXNoKHN0
-ZG91dCk7Ci0JaWYgKChmZCA9IG9wZW4obmFtZSwgT19SRE9OTFkpKSA8IDApCi0JCWVycihFWElU
-X0ZBSUxVUkUsIF8oImNhbm5vdCBvcGVuICVzIiksIG5hbWUpOwotCWZvciAoY3lsID0gMDsgY3ls
-IDwgcGFyYW0udHJhY2s7IGN5bCsrKSB7Ci0JCWludCByZWFkX2J5dGVzOwotCi0JCXByaW50Zigi
-JXUzZFxiXGJcYiIsIGN5bCk7Ci0JCWZmbHVzaChzdGRvdXQpOwotCQlyZWFkX2J5dGVzID0gcmVh
-ZChmZCwgZGF0YSwgY3lsX3NpemUpOwotCQlpZiAocmVhZF9ieXRlcyAhPSBjeWxfc2l6ZSkgewot
-CQkJaWYgKHJlYWRfYnl0ZXMgPCAwKQotCQkJCXBlcnJvcihfKCJSZWFkOiAiKSk7Ci0JCQlmcHJp
-bnRmKHN0ZGVyciwKLQkJCQlfKCJQcm9ibGVtIHJlYWRpbmcgY3lsaW5kZXIgJWQsIgotCQkJCSAg
-IiBleHBlY3RlZCAlZCwgcmVhZCAlZFxuIiksCi0JCQkJY3lsLCBjeWxfc2l6ZSwgcmVhZF9ieXRl
-cyk7Ci0JCQlmcmVlKGRhdGEpOwotCQkJZXhpdChFWElUX0ZBSUxVUkUpOwotCQl9Ci0JCWZvciAo
-Y291bnQgPSAwOyBjb3VudCA8IGN5bF9zaXplOyBjb3VudCsrKQotCQkJaWYgKGRhdGFbY291bnRd
-ICE9IEZEX0ZJTExfQllURSkgewotCQkJCXByaW50ZihfKCJiYWQgZGF0YSBpbiBjeWwgJWRcbiIK
-LQkJCQkJICJDb250aW51aW5nIC4uLiAiKSwgY3lsKTsKLQkJCQlmZmx1c2goc3Rkb3V0KTsKKwor
-CXNlZWtfdHJhY2tfaGVhZCAoY3RybCwgdHJhY2tfZnJvbSwgMCk7CisKKwlmb3IgKHRyYWNrID0g
-dHJhY2tfZnJvbTsgdHJhY2sgPD0gdHJhY2tfdG87IHRyYWNrKyspIHsKKwkJZm9yIChoZWFkID0g
-MDsgaGVhZCA8IHBhcmFtLmhlYWQ7IGhlYWQrKykgeworCQkJaW50IHJlYWRfYnl0ZXM7CisKKwkJ
-CXByaW50ZigiJTN1XGJcYlxiIiwgdHJhY2spOworCQkJZmZsdXNoKHN0ZG91dCk7CisKKwkJCXJl
-dHJpZXNfbGVmdCA9IHJlcGFpcjsKKwkJCWRvIHsKKwkJCQlyZWFkX2J5dGVzID0gcmVhZChjdHJs
-LCBkYXRhLCB0cmFja19zaXplKTsKKwkJCQlpZiAocmVhZF9ieXRlcyAhPSB0cmFja19zaXplKSB7
-CisJCQkJCWlmIChyZXRyaWVzX2xlZnQpIHsKKwkJCQkJCWZvcm1hdF9iZWdpbihjdHJsKTsKKwkJ
-CQkJCWZvcm1hdF90cmFja19oZWFkKGN0cmwsIHRyYWNrLCBoZWFkKTsKKwkJCQkJCWZvcm1hdF9l
-bmQoY3RybCk7CisJCQkJCQlzZWVrX3RyYWNrX2hlYWQgKGN0cmwsIHRyYWNrLCBoZWFkKTsKKwkJ
-CQkJCXJldHJpZXNfbGVmdC0tOworCQkJCQkJaWYgKHJldHJpZXNfbGVmdCkgY29udGludWU7CisJ
-CQkJCX0KKwkJCQkJaWYgKHJlYWRfYnl0ZXMgPCAwKQorCQkJCQkJcGVycm9yKF8oIlJlYWQ6ICIp
-KTsKKwkJCQkJZnByaW50ZihzdGRlcnIsCisJCQkJCQlfKCJQcm9ibGVtIHJlYWRpbmcgdHJhY2sv
-aGVhZCAldS8ldSwiCisJCQkJCQkgICIgZXhwZWN0ZWQgJWQsIHJlYWQgJWRcbiIpLAorCQkJCQkJ
-dHJhY2ssIGhlYWQsIHRyYWNrX3NpemUsIHJlYWRfYnl0ZXMpOworCQkJCQlmcmVlKGRhdGEpOwor
-CQkJCQlleGl0KEVYSVRfRkFJTFVSRSk7CisJCQkJfQorCQkJCWZvciAoY291bnQgPSAwOyBjb3Vu
-dCA8IHRyYWNrX3NpemU7IGNvdW50KyspCisJCQkJCWlmIChkYXRhW2NvdW50XSAhPSBGRF9GSUxM
-X0JZVEUpIHsKKwkJCQkJCWlmIChyZXRyaWVzX2xlZnQpIHsKKwkJCQkJCQlmb3JtYXRfYmVnaW4o
-Y3RybCk7CisJCQkJCQkJZm9ybWF0X3RyYWNrX2hlYWQoY3RybCwgdHJhY2ssIGhlYWQpOworCQkJ
-CQkJCWZvcm1hdF9lbmQoY3RybCk7CisJCQkJCQkJc2Vla190cmFja19oZWFkIChjdHJsLCB0cmFj
-aywgaGVhZCk7CisJCQkJCQkJcmV0cmllc19sZWZ0LS07CisJCQkJCQkJaWYgKHJldHJpZXNfbGVm
-dCkgY29udGludWU7CisJCQkJCQl9CisJCQkJCQlwcmludGYoXygiYmFkIGRhdGEgaW4gdHJhY2sv
-aGVhZCAldS8ldVxuIgorCQkJCQkJCSAiQ29udGludWluZyAuLi4gIiksIHRyYWNrLCBoZWFkKTsK
-KwkJCQkJCWZmbHVzaChzdGRvdXQpOworCQkJCQkJYnJlYWs7CisJCQkJCX0KIAkJCQlicmVhazsK
-LQkJCX0KKwkJCX0gd2hpbGUgKHJldHJpZXNfbGVmdCk7CisJCX0KIAl9CisKIAlmcmVlKGRhdGEp
-OwogCXByaW50ZihfKCJkb25lXG4iKSk7Ci0JaWYgKGNsb3NlKGZkKSA8IDApCi0JCWVycihFWElU
-X0ZBSUxVUkUsICJjbG9zZSIpOwogfQogCiBzdGF0aWMgdm9pZCBfX2F0dHJpYnV0ZV9fICgoX19u
-b3JldHVybl9fKSkgdXNhZ2UoRklMRSAqIG91dCkKQEAgLTk2LDkgKzE0MiwxMyBAQCBzdGF0aWMg
-dm9pZCBfX2F0dHJpYnV0ZV9fICgoX19ub3JldHVybl9fKSkgdXNhZ2UoRklMRSAqIG91dCkKIAkJ
-cHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOwogCiAJZnByaW50ZihvdXQsIF8oIlxuT3B0
-aW9uczpcbiIKLQkJICAgICAgICIgLW4sIC0tbm8tdmVyaWZ5ICBkaXNhYmxlIHRoZSB2ZXJpZmlj
-YXRpb24gYWZ0ZXIgdGhlIGZvcm1hdFxuIgotCQkgICAgICAgIiAtViwgLS12ZXJzaW9uICAgIG91
-dHB1dCB2ZXJzaW9uIGluZm9ybWF0aW9uIGFuZCBleGl0XG4iCi0JCSAgICAgICAiIC1oLCAtLWhl
-bHAgICAgICAgZGlzcGxheSB0aGlzIGhlbHAgYW5kIGV4aXRcblxuIikpOworCQkgICAgICAgIiAt
-ZiwgLS1mcm9tIDxOPiAgICBzdGFydCBhdCB0aGUgdHJhY2sgTiAoZGVmYXVsdCAwKVxuIgorCQkg
-ICAgICAgIiAtdCwgLS10byA8Tj4gICAgICBzdG9wIGF0IHRoZSB0cmFjayBOXG4iCisJCSAgICAg
-ICAiIC1yLCAtLXJlcGFpciA8Tj4gIHRyeSB0byByZXBhaXIgdHJhY2tzIGZhaWxlZCBkdXJpbmdc
-biIKKwkJICAgICAgICIgICAgICAgICAgICAgICAgICAgdGhlIHZlcmlmaWNhdGlvbiAobWF4IE4g
-cmV0cmllcylcbiIKKwkJICAgICAgICIgLW4sIC0tbm8tdmVyaWZ5ICAgZGlzYWJsZSB0aGUgdmVy
-aWZpY2F0aW9uIGFmdGVyIHRoZSBmb3JtYXRcbiIKKwkJICAgICAgICIgLVYsIC0tdmVyc2lvbiAg
-ICAgb3V0cHV0IHZlcnNpb24gaW5mb3JtYXRpb24gYW5kIGV4aXRcbiIKKwkJICAgICAgICIgLWgs
-IC0taGVscCAgICAgICAgZGlzcGxheSB0aGlzIGhlbHAgYW5kIGV4aXRcblxuIikpOwogCiAJZXhp
-dChvdXQgPT0gc3RkZXJyID8gRVhJVF9GQUlMVVJFIDogRVhJVF9TVUNDRVNTKTsKIH0KQEAgLTEw
-OCwyMiArMTU4LDQ1IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKIAlpbnQgY2g7
-CiAJaW50IGN0cmw7CiAJaW50IHZlcmlmeSA9IDE7CisJaW50IHJlcGFpciA9IDA7CisJaW50IHRy
-YWNrX2Zyb20gPSAwOworCWludCB0cmFja190byA9IC0xOworCXVuc2lnbmVkIGxvbmcgYXJnOwog
-CXN0cnVjdCBzdGF0IHN0OwogCiAJc3RhdGljIGNvbnN0IHN0cnVjdCBvcHRpb24gbG9uZ29wdHNb
-XSA9IHsKKwkJeyJmcm9tIiwgcmVxdWlyZWRfYXJndW1lbnQsIE5VTEwsICdmJ30sCisJCXsidG8i
-LCByZXF1aXJlZF9hcmd1bWVudCwgTlVMTCwgJ3QnfSwKKwkJeyJyZXBhaXIiLCByZXF1aXJlZF9h
-cmd1bWVudCwgTlVMTCwgJ3InfSwKIAkJeyJuby12ZXJpZnkiLCBub19hcmd1bWVudCwgTlVMTCwg
-J24nfSwKIAkJeyJ2ZXJzaW9uIiwgbm9fYXJndW1lbnQsIE5VTEwsICdWJ30sCiAJCXsiaGVscCIs
-IG5vX2FyZ3VtZW50LCBOVUxMLCAnaCd9LAogCQl7TlVMTCwgMCwgTlVMTCwgMH0KIAl9OwogCisK
-IAlzZXRsb2NhbGUoTENfQUxMLCAiIik7CiAJYmluZHRleHRkb21haW4oUEFDS0FHRSwgTE9DQUxF
-RElSKTsKIAl0ZXh0ZG9tYWluKFBBQ0tBR0UpOwogCWF0ZXhpdChjbG9zZV9zdGRvdXQpOwogCi0J
-d2hpbGUgKChjaCA9IGdldG9wdF9sb25nKGFyZ2MsIGFyZ3YsICJuVmgiLCBsb25nb3B0cywgTlVM
-TCkpICE9IC0xKQorCXdoaWxlICgoY2ggPSBnZXRvcHRfbG9uZyhhcmdjLCBhcmd2LCAiZjp0OnI6
-blZoIiwgbG9uZ29wdHMsIE5VTEwpKSAhPSAtMSkKIAkJc3dpdGNoIChjaCkgeworCQljYXNlICdm
-JzoKKwkJCWFyZyA9IHN0cnRvdWxfb3JfZXJyKG9wdGFyZywgXygiaW52YWxpZCBhcmd1bWVudCAt
-IGZyb20iKSk7CisJCQlpZiAoYXJnID4gSU5UX01BWCkgZXJyKEVYSVRfRkFJTFVSRSwgXygiaW52
-YWxpZCBhcmd1bWVudCAtIGZyb20iKSk7CisJCQl0cmFja19mcm9tID0gYXJnOworCQkJYnJlYWs7
-CisJCWNhc2UgJ3QnOgorCQkJYXJnID0gc3RydG91bF9vcl9lcnIob3B0YXJnLCBfKCJpbnZhbGlk
-IGFyZ3VtZW50IC0gdG8iKSk7CisJCQlpZiAoYXJnID4gSU5UX01BWCkgZXJyKEVYSVRfRkFJTFVS
-RSwgXygiaW52YWxpZCBhcmd1bWVudCAtIHRvIikpOworCQkJdHJhY2tfdG8gPSBhcmc7CisJCQli
-cmVhazsKKwkJY2FzZSAncic6CisJCQlhcmcgPSBzdHJ0b3VsX29yX2VycihvcHRhcmcsIF8oImlu
-dmFsaWQgYXJndW1lbnQgLSByZXBhaXIiKSk7CisJCQlpZiAoYXJnID4gSU5UX01BWCkgZXJyKEVY
-SVRfRkFJTFVSRSwgXygiaW52YWxpZCBhcmd1bWVudCAtIHJlcGFpciIpKTsKKwkJCXJlcGFpciA9
-IGFyZzsKKwkJCWJyZWFrOwogCQljYXNlICduJzoKIAkJCXZlcmlmeSA9IDA7CiAJCQlicmVhazsK
-QEAgLTE0OSwyMCArMjIyLDMzIEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKIAlp
-ZiAoYWNjZXNzKGFyZ3ZbMF0sIFdfT0spIDwgMCkKIAkJZXJyKEVYSVRfRkFJTFVSRSwgXygiY2Fu
-bm90IGFjY2VzcyBmaWxlICVzIiksIGFyZ3ZbMF0pOwogCi0JY3RybCA9IG9wZW4oYXJndlswXSwg
-T19XUk9OTFkpOworCWN0cmwgPSBvcGVuKGFyZ3ZbMF0sIE9fUkRXUik7CiAJaWYgKGN0cmwgPCAw
-KQogCQllcnIoRVhJVF9GQUlMVVJFLCBfKCJjYW5ub3Qgb3BlbiAlcyIpLCBhcmd2WzBdKTsKIAlp
-ZiAoaW9jdGwoY3RybCwgRkRHRVRQUk0sIChsb25nKSZwYXJhbSkgPCAwKQogCQllcnIoRVhJVF9G
-QUlMVVJFLCBfKCJDb3VsZCBub3QgZGV0ZXJtaW5lIGN1cnJlbnQgZm9ybWF0IHR5cGUiKSk7CiAK
-IAlwcmludGYoXygiJXMtc2lkZWQsICVkIHRyYWNrcywgJWQgc2VjL3RyYWNrLiBUb3RhbCBjYXBh
-Y2l0eSAlZCBrQi5cbiIpLAotCSAgICAgICAocGFyYW0uaGVhZCA9PSAyKSA/IF8oIkRvdWJsZSIp
-IDogXygiU2luZ2xlIiksCi0JICAgICAgIHBhcmFtLnRyYWNrLCBwYXJhbS5zZWN0LCBwYXJhbS5z
-aXplID4+IDEpOwotCWZvcm1hdF9kaXNrKGN0cmwpOwotCWlmIChjbG9zZV9mZChjdHJsKSAhPSAw
-KQotCQllcnIoRVhJVF9GQUlMVVJFLCBfKCJ3cml0ZSBmYWlsZWQiKSk7CisJCShwYXJhbS5oZWFk
-ID09IDIpID8gXygiRG91YmxlIikgOiBfKCJTaW5nbGUiKSwKKwkJcGFyYW0udHJhY2ssIHBhcmFt
-LnNlY3QsIHBhcmFtLnNpemUgPj4gMSk7CisKKwlpZiAodHJhY2tfdG8gPT0gLTEpCisJCXRyYWNr
-X3RvID0gcGFyYW0udHJhY2sgLSAxOworCisJaWYgKCh1bnNpZ25lZCBpbnQpdHJhY2tfZnJvbSA+
-IHBhcmFtLnRyYWNrIC0gMSkKKwkJZXJyKEVYSVRfRkFJTFVSRSwgXygiJ2Zyb20nIGlzIG91dCBv
-ZiBhbGxvd2VkIHJhbmdlXG4iKSk7CisJaWYgKCh1bnNpZ25lZCBpbnQpdHJhY2tfdG8gPiBwYXJh
-bS50cmFjayAtIDEpCisJCWVycihFWElUX0ZBSUxVUkUsIF8oIid0bycgaXMgb3V0IG9mIGFsbG93
-ZWQgcmFuZ2VcbiIpKTsKKwlpZiAodHJhY2tfZnJvbSA+IHRyYWNrX3RvKQorCQllcnIoRVhJVF9G
-QUlMVVJFLCBfKCInZnJvbScgaXMgaGlnaGVyIHRoYW4gJ3RvJ1xuIikpOworCisJZm9ybWF0X2Rp
-c2soY3RybCwgdHJhY2tfZnJvbSwgdHJhY2tfdG8pOwogCiAJaWYgKHZlcmlmeSkKLQkJdmVyaWZ5
-X2Rpc2soYXJndlswXSk7CisJCXZlcmlmeV9kaXNrKGN0cmwsIHRyYWNrX2Zyb20sIHRyYWNrX3Rv
-LCByZXBhaXIpOworCisJaWYgKGNsb3NlX2ZkKGN0cmwpICE9IDApCisJCWVycihFWElUX0ZBSUxV
-UkUsIF8oImNsb3NlIGZhaWxlZCIpKTsKKwogCXJldHVybiBFWElUX1NVQ0NFU1M7CiB9Ci0tIAox
-LjkuMwoK
-------=_Part_22662572_267211773.1406302189689--
+--------------040601050403050405030207
+Content-Type: text/x-patch;
+ name="0001-agetty-Reprompt-and-reprint-etc-issue-when-asked.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-agetty-Reprompt-and-reprint-etc-issue-when-asked.patch"
+
+>From 33583bff1b4dfb3dcff582d1dec9f4005e8bdafd Mon Sep 17 00:00:00 2001
+From: Stef Walter <stefw@redhat.com>
+Date: Thu, 3 Jul 2014 17:44:41 +0200
+Subject: [PATCH] agetty: Reprompt and reprint /etc/issue when asked
+
+Add an 'agetty --reload' command which asks all running agetty
+commands to display their prompts again.
+
+Several of the /etc/issue escape codes such as \4 and \S depend on
+variable data which can change after the agetty prompt is displayed.
+This can cause stale data to be displayed when a user looks at a VT,
+especially in cases of DHCP racing with system start up.
+
+We never want this to occur once the user has started typing a
+user name. So we detect when the user starts typing, after which
+no further reprompting occurs after that point.
+
+Signed-off-by: Stef Walter <stefw@redhat.com>
+---
+ term-utils/agetty.8 |   5 +++
+ term-utils/agetty.c | 126 +++++++++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 119 insertions(+), 12 deletions(-)
+
+diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
+index 27a0d1b..c997129 100644
+--- a/term-utils/agetty.8
++++ b/term-utils/agetty.8
+@@ -252,6 +252,11 @@ Sleep seconds before open tty.
+ \-\-nice \fInumber\fP
+ Run login with this priority.
+ .TP
++\-\-reload
++Ask all running agetty instances to reload and update their displayed prompts,
++if the user has not yet commenced logging in. After doing so the command will
++exit.
++.TP
+ \-\-version
+ Display version information and exit.
+ .TP
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 2b5932d..d92da80 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -18,6 +18,7 @@
+ #include <signal.h>
+ #include <errno.h>
+ #include <sys/ioctl.h>
++#include <sys/inotify.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/wait.h>
+@@ -112,6 +113,9 @@
+ #define LOGIN		"login: "
+ #define LOGIN_ARGV_MAX	16		/* Numbers of args for login */
+ 
++/* Reload trigger file */
++#define GETTY_RELOAD_TRIGGER "/run/agetty.reload"
++
+ /*
+  * When multiple baud rates are specified on the command line, the first one
+  * we will try is the first one specified.
+@@ -281,10 +285,14 @@ static ssize_t append(char *dest, size_t len, const char  *sep, const char *src)
+ static void check_username (const char* nm);
+ static void login_options_to_argv(char *argv[], int *argc, char *str, char *username);
+ static int plymouth_command(const char* arg);
++static void reload_agettys(void);
+ 
+ /* Fake hostname for ut_host specified on command line. */
+ static char *fakehost;
+ 
++/* Indicates whether we've been asked (via a signal) to reprompt */
++static int inotify_fd = -1;
++
+ #ifdef DEBUGGING
+ # include "closestream.h"
+ # ifndef DEBUG_OUTPUT
+@@ -334,6 +342,10 @@ int main(int argc, char **argv)
+ 	debug("\n");
+ #endif				/* DEBUGGING */
+ 
++	inotify_fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
++	if (inotify_fd > 0)
++		inotify_add_watch (inotify_fd, GETTY_RELOAD_TRIGGER, IN_ATTRIB | IN_MODIFY);
++
+ 	/* Parse command-line arguments. */
+ 	parse_args(argc, argv, &options);
+ 
+@@ -587,6 +599,7 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 		HELP_OPTION,
+ 		ERASE_CHARS_OPTION,
+ 		KILL_CHARS_OPTION,
++		RELOAD_OPTION,
+ 	};
+ 	const struct option longopts[] = {
+ 		{  "8bits",	     no_argument,	 0,  '8'  },
+@@ -618,6 +631,7 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 		{  "nohints",        no_argument,        0,  NOHINTS_OPTION },
+ 		{  "nohostname",     no_argument,	 0,  NOHOSTNAME_OPTION },
+ 		{  "long-hostname",  no_argument,	 0,  LONGHOSTNAME_OPTION },
++		{  "reload",         no_argument,        0,  RELOAD_OPTION },
+ 		{  "version",	     no_argument,	 0,  VERSION_OPTION  },
+ 		{  "help",	     no_argument,	 0,  HELP_OPTION     },
+ 		{  "erase-chars",    required_argument,  0,  ERASE_CHARS_OPTION },
+@@ -736,6 +750,9 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 		case KILL_CHARS_OPTION:
+ 			op->killchars = optarg;
+ 			break;
++		case RELOAD_OPTION:
++			reload_agettys();
++			exit(EXIT_SUCCESS);
+ 		case VERSION_OPTION:
+ 			printf(_("%s from %s\n"), program_invocation_short_name,
+ 			       PACKAGE_STRING);
+@@ -1114,6 +1131,21 @@ static void open_tty(char *tty, struct termios *tp, struct options *op)
+ }
+ 
+ /* Initialize termios settings. */
++static void termio_clear(int fd)
++{
++	/*
++	 * Do not write a full reset (ESC c) because this destroys
++	 * the unicode mode again if the terminal was in unicode
++	 * mode.  Also it clears the CONSOLE_MAGIC features which
++	 * are required for some languages/console-fonts.
++	 * Just put the cursor to the home position (ESC [ H),
++	 * erase everything below the cursor (ESC [ J), and set the
++	 * scrolling region to the full window (ESC [ r)
++	 */
++	write_all(fd, "\033[r\033[H\033[J", 9);
++}
++
++/* Initialize termios settings. */
+ static void termio_init(struct options *op, struct termios *tp)
+ {
+ 	speed_t ispeed, ospeed;
+@@ -1166,18 +1198,8 @@ static void termio_init(struct options *op, struct termios *tp)
+ 		if ((tp->c_cflag & (CS8|PARODD|PARENB)) == CS8)
+ 			op->flags |= F_EIGHTBITS;
+ 
+-		if ((op->flags & F_NOCLEAR) == 0) {
+-			/*
+-			 * Do not write a full reset (ESC c) because this destroys
+-			 * the unicode mode again if the terminal was in unicode
+-			 * mode.  Also it clears the CONSOLE_MAGIC features which
+-			 * are required for some languages/console-fonts.
+-			 * Just put the cursor to the home position (ESC [ H),
+-			 * erase everything below the cursor (ESC [ J), and set the
+-			 * scrolling region to the full window (ESC [ r)
+-			 */
+-			write_all(STDOUT_FILENO, "\033[r\033[H\033[J", 9);
+-		}
++		if ((op->flags & F_NOCLEAR) == 0)
++			termio_clear(STDOUT_FILENO);
+ 		return;
+ 	}
+ 
+@@ -1593,6 +1615,60 @@ static void next_speed(struct options *op, struct termios *tp)
+ 	tcsetattr(STDIN_FILENO, TCSANOW, tp);
+ }
+ 
++static int wait_for_term_input(int fd)
++{
++	char buffer[sizeof(struct inotify_event) + NAME_MAX + 1];
++	struct termios orig, nonc;
++	fd_set rfds;
++	int count;
++	int i;
++
++	/* Our aim here is to fall through if something fails
++         * and not be stuck waiting. On failure assume we have input */
++
++	if (tcgetattr(fd, &orig) != 0)
++		return 1;
++
++	memcpy(&nonc, &orig, sizeof (nonc));
++	nonc.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHOKE);
++	nonc.c_cc[VMIN] = 1;
++	nonc.c_cc[VTIME] = 0;
++
++	if (tcsetattr(fd, TCSANOW, &nonc) != 0)
++		return 1;
++
++	FD_ZERO(&rfds);
++	FD_SET(fd, &rfds);
++	if (inotify_fd >= 0)
++		FD_SET(inotify_fd, &rfds);
++
++	/* If waiting fails, just fall through, presumably reading input will fail */
++	if (select (MAX(fd, inotify_fd) + 1, &rfds, NULL, NULL, NULL) < 0)
++		return 1;
++
++	if (FD_ISSET(fd, &rfds)) {
++		count = read(fd, buffer, sizeof (buffer));
++
++		tcsetattr(fd, TCSANOW, &orig);
++
++		/* Reinject the bytes we read back into the buffer, usually just one byte */
++		for (i = 0; i < count; i++)
++			ioctl(fd, TIOCSTI, buffer + i);
++
++		/* Have terminal input */
++		return 1;
++
++	} else {
++		tcsetattr(fd, TCSANOW, &orig);
++
++		/* Just drain the inotify buffer */
++		while (read(inotify_fd, buffer, sizeof (buffer)) > 0);
++
++		/* Need to reprompt */
++		return 0;
++	}
++}
++
+ /* Get user name, establish parity, speed, erase, kill & eol. */
+ static char *get_logname(struct options *op, struct termios *tp, struct chardata *cp)
+ {
+@@ -1628,6 +1704,13 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+ 		/* Write issue file and prompt */
+ 		do_prompt(op, tp);
+ 
++		/* If asked to reprompt *before* terminal input arrives, then do so */
++		if (!wait_for_term_input(STDIN_FILENO)) {
++			if (op->flags & F_VCONSOLE)
++				termio_clear(STDOUT_FILENO);
++			continue;
++		}
++
+ 		cp->eol = '\0';
+ 
+ 		/* Read name, watch for break and end-of-line. */
+@@ -2364,3 +2447,22 @@ static int plymouth_command(const char* arg)
+ 	}
+ 	return 1;
+ }
++
++static void reload_agettys(void)
++{
++	struct timeval tv[2];
++	int fd;
++
++	if (gettimeofday (tv, NULL) < 0)
++		err (1, "couldn't get current time");
++	memcpy (tv, tv + 1, sizeof (struct timeval));
++
++	fd = open(GETTY_RELOAD_TRIGGER, O_CREAT|O_CLOEXEC|O_WRONLY, 0700);
++	if (fd < 0)
++		err (1, "couldn't open: %s", GETTY_RELOAD_TRIGGER);
++
++	if (futimes (fd, tv) < 0 || close (fd) < 0)
++		err (1, "couldn't touch file: %s", GETTY_RELOAD_TRIGGER);
++
++	close (fd);
++}
+-- 
+1.9.3
+
+
+--------------040601050403050405030207--
