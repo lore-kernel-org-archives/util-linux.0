@@ -1,82 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50623 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751165AbaG2Tlb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Jul 2014 15:41:31 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by gateway1.nyi.internal (Postfix) with ESMTP id 691962108D
-	for <util-linux@vger.kernel.org>; Tue, 29 Jul 2014 15:41:30 -0400 (EDT)
-Message-Id: <1406662890.522051.146931049.1CA56A43@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:20360 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754441AbaGOHvn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 03:51:43 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6F7pgEP021489
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
+	for <util-linux@vger.kernel.org>; Tue, 15 Jul 2014 03:51:42 -0400
+Date: Tue, 15 Jul 2014 09:51:40 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stef Walter <stefw@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
+ SIGUSR1
+Message-ID: <20140715075140.GO30288@x2.net.home>
+References: <1404718284-4192-1-git-send-email-stefw@redhat.com>
+ <20140714133716.GB30288@x2.net.home>
+ <53C4D9DB.10703@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140729102122.GU8533@x2.net.home>
-References: <53CCADA9.3020703@bernhard-voelker.de>
- <20140721082859.GD17373@x2.net.home>
- <1405977369.18035.144118445.737362A9@webmail.messagingengine.com>
- <53CD86FC.7000808@bernhard-voelker.de>
- <1405981133.2561.144137253.6000B5B5@webmail.messagingengine.com>
- <20140721234936.GH17373@x2.net.home>
- <1406487424.22794.146193409.16E8F3E3@webmail.messagingengine.com>
- <20140729102122.GU8533@x2.net.home>
-Subject: helper= and uhelper=
-Date: Tue, 29 Jul 2014 21:41:30 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53C4D9DB.10703@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Tue, Jul 29, 2014, at 12:21, Karel Zak wrote:
-> On Sun, Jul 27, 2014 at 08:57:04PM +0200, Benno Schulenberg wrote:
-> > So... should it be removed from the man page of umount too?
-> > If so, the third patch in the upcoming series does that.
+On Tue, Jul 15, 2014 at 09:35:55AM +0200, Stef Walter wrote:
+> On 14.07.2014 15:37, Karel Zak wrote:
+> > On Mon, Jul 07, 2014 at 09:31:24AM +0200, Stef Walter wrote:
+> >> Several of the /etc/issue escape codes such as \4 and \S depend on
+> >> variable data which can change after the agetty prompt is displayed.
+> >> This can cause stale data to be displayed when a user looks at a VT,
+> >> especially in cases of DHCP racing with system start up.
+> >>
+> >> This commit allows agetty to react a SIGUSR1 signal by reprinting
+> >> its prompt including the reprocessing of /etc/issue.
+> >>
+> >> We never want this to occur once the user has started typing a
+> >> user name. So we detect when the user starts typing, after which
+> >> no further reprompting occurs even if SIGUSR1 is received.
+> > 
+> >  Good idea, interesting implementation, but it's too late for v2.25.
+> >  I'm going to apply the patch to the git tree after v2.25 release.
 > 
->  Please, no. It's described in the section where is description of the
->  API between umount(8) and external helpers. IMHO 'helper=' and
->  'uhelper=' makes sense there.
+> Nice. Thanks.
 
-Well, you applied the third patch in the series of six anyway, :)
-so the mention of those [u]helper markers was removed.  I'll submit
-a patch later to restore them, worded more clearly.  But first let's
-make sure that I understand what they mean.
+ I have never seen the idea with VMIN and TIOCSTI ioctl, that's
+ interesting thing.
 
-First there was commit f19c952b2fc07ddd7a698cf3a213a9a16d13e7ba
-"umount: use helper= for all UIDs", where 'phelper' is renamed
-to 'helper', because it serves not just for root.  But two weeks
-earlier there was commit c56226697342ddd663492f77768e7a7cb8e579a1
-"umount: call /sbin/umount.<uhelper> for root user too".
+> Lennart discovered an issue with this ...
+> 
+> That the exec'ing the login process might race with the SIGUSR1 signal.
+> The fix here would be to signal(SIGUSR1, SIG_IGN) before exec'ing, does
+> that sound appropriate? I can post a new patch.
+> 
+> By the way, more information about this use case here:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1110763
 
-So, if I understand well, uhelper= and helper= would behave
-exactly the same under all circumstances?
+ Yes, I read it yesterday evening. Lennart is right about the race.
 
-$ udisks --mount /dev/sda3
-Mounted /org/freedesktop/UDisks/devices/sda3 at /media/Mint Petra
-
-$ grep sda3 /etc/mtab
-/dev/sda3 /media/Mint\040Petra ext4 rw,nosuid,nodev,uhelper=udisks 0 0
-
-$ ./umount -v /dev/sda3
-
-(Oh, that last command is surprising: it doesn't say anything.  I would
-expect it to say that /dev/sda3 was successfully unmounted.  Oh, and
-why isn't sda3 'noexec' here although it was mounted by a user?)
-
-So when using udisks, a uhelper= marker will be put into the /etc/mtab
-file (the real one).  Is there any program that will put a helper= marker
-in the /etc/mtab file?  (I call it a 'marker' because it is not a mount
-option: putting it in /etc/fstab makes no sense, and using it on the
-command line does not work).
-
-$ ./mount -o uhelper=udisks /dev/sda3
-lt-mount: only root can use "--options" option
-
-$ sudo ./mount -o uhelper=udisks /dev/sda3
-lt-mount: can't find /dev/sda3 in /etc/fstab
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - Choose from over 50 domains or use your own
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
