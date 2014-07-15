@@ -1,188 +1,403 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e23smtp04.au.ibm.com ([202.81.31.146]:41773 "EHLO
-	e23smtp04.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751138AbaG3K2i (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Jul 2014 06:28:38 -0400
-Received: from /spool/local
-	by e23smtp04.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <suzuki@in.ibm.com>;
-	Wed, 30 Jul 2014 20:28:13 +1000
-Received: from d23relay04.au.ibm.com (d23relay04.au.ibm.com [9.190.234.120])
-	by d23dlp03.au.ibm.com (Postfix) with ESMTP id 309C03578047
-	for <util-linux@vger.kernel.org>; Wed, 30 Jul 2014 20:28:26 +1000 (EST)
-Received: from d23av02.au.ibm.com (d23av02.au.ibm.com [9.190.235.138])
-	by d23relay04.au.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s6UABJ6N44171270
-	for <util-linux@vger.kernel.org>; Wed, 30 Jul 2014 20:11:20 +1000
-Received: from d23av02.au.ibm.com (localhost [127.0.0.1])
-	by d23av02.au.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s6UASNxp000651
-	for <util-linux@vger.kernel.org>; Wed, 30 Jul 2014 20:28:24 +1000
-Message-ID: <53D8C8C4.7000002@in.ibm.com>
-Date: Wed, 30 Jul 2014 15:58:20 +0530
-From: "Suzuki K. Poulose" <suzuki@in.ibm.com>
-MIME-Version: 1.0
-To: Ondrej Oprala <ooprala@redhat.com>,
-        Janani Venkataraman <jananive@linux.vnet.ibm.com>,
-        util-linux@vger.kernel.org
-CC: ananth@linux.vnet.ibm.com, Tarundeep Singh <tarundsk@linux.vnet.ibm.com>
-Subject: Re: Non disruptive application core dump infrastructure
-References: <53871D87.2070401@linux.vnet.ibm.com> <53871E15.1040209@redhat.com> <53872BF1.5030303@in.ibm.com> <53873365.7080405@redhat.com> <53877B30.30909@in.ibm.com> <53B530B2.9090402@in.ibm.com> <53B54E32.4060707@redhat.com> <53B5537A.3080503@in.ibm.com> <53B69653.4020905@redhat.com>
-In-Reply-To: <53B69653.4020905@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:53670 "EHLO
+	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751576AbaGOVHt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 17:07:49 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/3] docs: bring some more man pages closer to standard formatting
+Date: Tue, 15 Jul 2014 23:07:38 +0200
+Message-Id: <1405458458-13966-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1405458458-13966-1-git-send-email-bensberg@justemail.net>
+References: <1405458458-13966-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/04/2014 05:26 PM, Ondrej Oprala wrote:
-> On 07/03/2014 02:58 PM, Suzuki K. Poulose wrote:
->> On 07/03/2014 06:06 PM, Ondrej Oprala wrote:
->>> On 07/03/2014 12:30 PM, Suzuki K. Poulose wrote:
->>>> On 05/29/2014 11:53 PM, Suzuki K. Poulose wrote:
->>>>> On 05/29/2014 06:47 PM, Ondrej Oprala wrote:
->>>>>> On 05/29/2014 02:45 PM, Suzuki K. Poulose wrote:
->>>>>>> On 05/29/2014 05:16 PM, Ondrej Oprala wrote:
->>>>>>>> On 05/29/2014 01:44 PM, Janani Venkataraman wrote:
->>>>>>>>> Hi,
->>>>>>>>>
->>>>>>>>> We have developed a tool called "gencore" which captures the
->>>>>>>>> core of
->>>>>>>>> an application without
->>>>>>>>> disrupting its process. The dump is collected non-disruptively and
->>>>>>>>> this tool currently supports
->>>>>>>>> s390, x86 and power systems.
->>>>>>>>>
->>>>>>>>> THE TOOL:
->>>>>>>>>
->>>>>>>>> The tool can perform non-disruptive third party dumps. The tool
->>>>>>>>> also
->>>>>>>>> contains a library "libgencore"
->>>>>>>>> which helps applicationsto trigger self dumps.
->>>>>>>>>
->>>>>>>>> The tool can perform:
->>>>>>>>>
->>>>>>>>> 1) Third party dump: The pid of the process to dumped is given
->>>>>>>>> along
->>>>>>>>> with name of the core-file to
->>>>>>>>> be created.
->>>>>>>>>
->>>>>>>>> eg.
->>>>>>>>>
->>>>>>>>> [janani@localhost]:gencore 6616 core.test
->>>>>>>>>
->>>>>>>>> 2) Self dump: The programs can request a self-dump using gencore()
->>>>>>>>> API, provided throughlibgencore. This
->>>>>>>>> is implemented through a daemon which listens on a UNIX
->>>>>>>>> Filesocket for
->>>>>>>>> such requests. The daemon is started
->>>>>>>>> immediately post installation. The program which requires the dump
->>>>>>>>> makes use of the gencore() API and provides
->>>>>>>>> the name of the core-file as a parameter.
->>>>>>>>>
->>>>>>>>> eg.
->>>>>>>>>
->>>>>>>>> /* Opening the library, in this case the library is present in the
->>>>>>>>> /usr/lib64 */
->>>>>>>>> lib = dlopen("libgencore.so", RTLD_LAZY);
->>>>>>>>>
->>>>>>>>> gencore = dlsym(lib, "gencore");
->>>>>>>>>
->>>>>>>>> Call the API:
->>>>>>>>> gencore("/home/janani/core_test").
->>>>>>>>>
->>>>>>>>> BASIC IDEA:
->>>>>>>>>
->>>>>>>>> The basic idea is that the threads of the process are held using
->>>>>>>>> ptrace calls and the dump is generated in the
->>>>>>>>> ELF format using the /proc/pid filesystem.
->>>>>>>>>
->>>>>>>>> PATCH SET:
->>>>>>>>> We have designed this tool based on the discussions with linux
->>>>>>>>> kernel
->>>>>>>>> community. The patches have been posted
->>>>>>>>> at:https://lkml.org/lkml/2014/3/20/138
->>>>>>>>>
->>>>>>>>> Do you think this can be part of the util-linux bundle? We can
->>>>>>>>> tweak
->>>>>>>>> it to make it work as a package in util-linux.
->>>>>>>>>
->>>>>>>>> Let us know your reviews and comments.
->>>>>>>>>
->>>>>>>>> Thanks.
->>>>>>>>> Janani
->>>>>>>>>
->>>>>>>>> -- 
->>>>>>>>> To unsubscribe from this list: send the line "unsubscribe
->>>>>>>>> util-linux" in
->>>>>>>>> the body of a messagetomajordomo@vger.kernel.org
->>>>>>>>> More majordomo info athttp://vger.kernel.org/majordomo-info.html
->>>>>>>> Interesting,
->>>>>>>> but how is this different from attaching to a process with GDB and
->>>>>>>> using
->>>>>>>> the gcore command? Or to automate it more, using the gcore script
->>>>>>>> that
->>>>>>>> comes with GDB?
->>>>>>>> Cheers,
->>>>>>>> Ondrej
->>>>>>>>
->>>>>>> There are two major issues with that.
->>>>>>>
->>>>>>> 1) GDB uses PTRACE_ATTACH and hence the process gets a SIGSTOP.
->>>>>> I fail to see the downside to that.
->>>>>>> 2) A process cannot initiate the request to dump itself, say from a
->>>>>>> signal handler. (since fork() is not signal safe)
->>>>>> This should be possible using libgdb. Let's say forking while in a
->>>>>> SIGSEGV
->>>>>> handler and using the libgdb API to do the dump.
->>>>> Thats exactly the problem. forking within a sighandler is not safe.
->>>>> You
->>>>> could possibly deadlock with glibc locks.
->>>> Ondrej,
->>>>
->>>> What are your thoughts about this ?
->>>>
->>>> Thanks
->>>> Suzuki
->>>>
->>> Hi Suzuki,
->>>
->>> from the LKML mailing list, I can see that the biggest
->>> criticism/confusion
->>> related to gencore comes from your necessity claims around the daemon
->>> part.
->> The daemon part was a shared philosophy from the CRIU project. There is
->> no other reliable way of doing a self dump.
-> Yes, I think that you explained the problem with self-ptrace
-> clearly enough on the LKML.
->>> I'm not entirely sure what kind of programs is gencore going to be most
->>> used/useful for..
->> This can be used by huge applications, like, JAVA RUNTIME, to trigger a
->> dump when it detects some issues, without actually bringing down the
->> workload.
-> Well, on 64-bit archs, huge programs may eat up terabytes of
-> virtual memory, so normal dumps are sometimes close to impossible
-> (though I'd really like to stress-test gdb with a massive 1TB coredump).
-> Do you somehow get the process' VM size before dumping?
-> To limit the mappings to be dumped, for example...
->>> but isn't the signalfd API solving the problem of async-signal safety?
->>> Using it, you should be able to catch the signal, safely fork
->>> and happily exec gencore.
->> This imposes a lot of changes in the applications that may want to use
->> the API and is prone to errors in attaining the same.
-> But see, now we've moved from "CAN'T be done in any other way"
-> to "CAN be done in other ways, although it might be non-trivial
-> for some projects". I'm not saying the daemon doesn't have its
-> usecases. I'm only trying to point out here, that there indeed ARE
-> other ways.
->>> No need for any other daemon running.
->>>
->> The daemon doesn't add much overhead. With systemd, you could make use
->> of the socket option to optimize the triggering of the gencore.
-> I still haven't had time to look at the code itself. Does the daemon
-> have to be running if I want to use the signalfd + fork + exec(gencore)
-> approach
-> mentioned above?
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/dmesg.1 |   52 +++++++++++++++++++++++++++---------------------
+ sys-utils/eject.1 |   56 +++++++++++++++++++++++++++-------------------------
+ sys-utils/flock.1 |   44 ++++++++++++++++++++++------------------
+ 3 files changed, 82 insertions(+), 70 deletions(-)
 
-Sorry, this one was lost in other emails.
-No we don't need a daemon if you can reliably invoke gencore
-
-Cheers
-Suzuki
+diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
+index c4c64df..86d35df 100644
+--- a/sys-utils/dmesg.1
++++ b/sys-utils/dmesg.1
+@@ -5,41 +5,47 @@
+ dmesg \- print or control the kernel ring buffer
+ .SH SYNOPSIS
+ .B dmesg
+-.RB [ options ]
++[options]
+ .sp
+-dmesg \-\-clear
++.B dmesg \-\-clear
+ .br
+-dmesg \-\-read-clear [options]
++.BR "dmesg \-\-read-clear " [options]
+ .br
+-dmesg \-\-console-level level
++.BI "dmesg \-\-console-level " level
+ .br
+-dmesg \-\-console-on
++.B dmesg \-\-console-on
+ .br
+-dmesg \-\-console-off
++.B dmesg \-\-console-off
+ .SH DESCRIPTION
+ .B dmesg
+ is used to examine or control the kernel ring buffer.
+ .PP
+ The default action is to read all messages from the kernel ring buffer.
+ .SH OPTIONS
+-The \-\-clear, \-\-read-clear, \-\-console-on, \-\-console-off and
+-\-\-console-level options are mutually exclusive.
++The
++.BR \-\-clear ,
++.BR \-\-read-clear ,
++.BR \-\-console-on ,
++.BR \-\-console-off ,
++and
++.B \-\-console-level
++options are mutually exclusive.
+ .PP
+ .IP "\fB\-C\fR, \fB\-\-clear\fR"
+ Clear the ring buffer.
+ .IP "\fB\-c\fR, \fB\-\-read-clear\fR"
+ Clear the ring buffer after first printing its contents.
+ .IP "\fB\-D\fR, \fB\-\-console-off\fR"
+-Disable printing messages to the console.
++Disable the printing of messages to the console.
+ .IP "\fB\-d\fR, \fB\-\-show-delta\fR"
+ Display the timestamp and the time delta spent between messages.  If used
+ together with
+ .B \-\-notime
+ then only the time delta without the timestamp is printed.
+-.IP "\fB\-e\fR, \fB\-\-reltime\fR"
+-Display the local time and the delta in human-readable format.
+ .IP "\fB\-E\fR, \fB\-\-console-on\fR"
+ Enable printing messages to the console.
++.IP "\fB\-e\fR, \fB\-\-reltime\fR"
++Display the local time and the delta in human-readable format.
+ .IP "\fB\-F\fR, \fB\-\-file \fIfile\fR"
+ Read the messages from the given
+ .IR file .
+@@ -49,12 +55,12 @@ Restrict output to the given (comma-separated)
+ of facilities.  For example:
+ .PP
+ .RS 14
+-dmesg \-\-facility=daemon
++.B dmesg \-\-facility=daemon
+ .RE
+ .IP
+ will print messages from system daemons only.  For all supported facilities
+-see
+-.B dmesg \-\-help
++see the
++.B \-\-help
+ output.
+ .IP "\fB\-H\fR, \fB\-\-human\fR"
+ Enable human-readable output.  See also \fB\-\-color\fR, \fB\-\-reltime\fR
+@@ -66,18 +72,18 @@ Print kernel messages.
+ .IP "\fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]"
+ Colorize important messages (enabled by default).  The optional argument \fIwhen\fP
+ can be \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is omitted,
+-then it defaults to \fBauto\fR.
++it defaults to \fBauto\fR.
+ .IP  "\fB\-l\fR, \fB\-\-level \fIlist\fR"
+ Restrict output to the given (comma-separated)
+ .I list
+ of levels.  For example:
+ .PP
+ .RS 14
+-dmesg \-\-level=err,warn
++.B dmesg \-\-level=err,warn
+ .RE
+ .IP
+-will print error and warning messages only.  For all supported levels see
+-.B dmesg \-\-help
++will print error and warning messages only.  For all supported levels see the
++.B \-\-help
+ output.
+ .IP "\fB\-n\fR, \fB\-\-console-level \fIlevel\fR
+ Set the
+@@ -85,8 +91,8 @@ Set the
+ at which printing of messages is done to the console.  The
+ .I level
+ is a level number or abbreviation of the level name.  For all supported
+-levels see
+-.B dmesg \-\-help
++levels see the
++.B \-\-help
+ output.
+ .sp
+ For example,
+@@ -179,11 +185,11 @@ format has the same issue as
+ the time may be inaccurate when a system is suspended and resumed.
+ .SH COLORS
+ Implicit coloring can be disabled by an empty file \fI/etc/terminal-colors.d/dmesg.disable\fR.
+-
+ See
+ .BR terminal-colors.d (5)
+-for more details about colorization configuration. The logical color names
+-support by
++for more details about colorization configuration.
++.PP
++The logical color names supported by
+ .B dmesg
+ are:
+ .TP
+diff --git a/sys-utils/eject.1 b/sys-utils/eject.1
+index 1acc3b3..c307c25 100644
+--- a/sys-utils/eject.1
++++ b/sys-utils/eject.1
+@@ -9,33 +9,33 @@
+ eject \- eject removable media
+ .SH SYNOPSIS
+ .B eject
+-.RB [ options ]
++[options]
+ .IR device | mountpoint
+ .SH DESCRIPTION
+-.B Eject
++.B eject
+ allows removable media (typically a CD-ROM, floppy disk, tape, JAZ, ZIP or USB
+ disk) to be ejected under software control.  The command can also control some
+ multi-disc CD-ROM changers, the auto-eject feature supported by some devices,
+ and close the disc tray of some CD-ROM drives.
+ .PP
+ The device corresponding to \fIdevice\fP or \fImountpoint\fP is ejected.  If no
+-name is specified, the default name /dev/cdrom is used. The device may be
++name is specified, the default name \fB/dev/cdrom\fR is used.  The device may be
+ addressed by device name (e.g. 'sda'), device path (e.g. '/dev/sda'),
+-UUID=<uuid> or LABEL=<label> tags.
++UUID=\fIuuid\fR or LABEL=\fIlabel\fR tags.
+ .PP
+ There are four different methods of ejecting, depending on whether the device
+-is a CD-ROM, SCSI device, removable floppy, or tape.  By default eject tries
++is a CD-ROM, SCSI device, removable floppy, or tape.  By default \fBeject\fR tries
+ all four methods in order until it succeeds.
+ .PP
+-If device partition is specified, the whole-disk device is used.  If the device
++If a device partition is specified, the whole-disk device is used.  If the device
+ or a device partition is currently mounted, it is unmounted before ejecting.
+ .SH OPTIONS
+-.IP "\fB\-a, \-\-auto \fIon|off\fP"
++.IP "\fB\-a\fR, \fB\-\-auto on\fR|\fBoff\fR"
+ This option controls the auto-eject mode, supported by some devices.  When
+ enabled, the drive automatically ejects when the device is closed.
+ .IP "\fB\-c, \-\-changerslot \fIslot\fP"
+ With this option a CD slot can be selected from an ATAPI/IDE CD-ROM changer.
+-Linux 2.0 or higher is required to use this feature. The CD-ROM drive can not
++Linux 2.0 or higher is required to use this feature.  The CD-ROM drive cannot
+ be in use (mounted data CD or playing a music CD) for a change request to work.
+ Please also note that the first slot of the changer is referred to as 0, not 1.
+ .IP "\fB\-d, \-\-default\fP"
+@@ -47,24 +47,24 @@ disk eject command.
+ Force eject, don't check device type.
+ .IP "\fB\-h, \-\-help\fP"
+ Display help text and exit.
+-.IP "\fB\-i, \-\-manualeject \fIon|off\fP"
++.IP "\fB\-i\fR, \fB\-\-manualeject on\fR|\fBoff\fR"
+ This option controls locking of the hardware eject button.  When enabled, the
+ drive will not be ejected when the button is pressed.  This is useful when you
+ are carrying a laptop in a bag or case and don't want it to eject if the button
+ is inadvertently pressed.
+ .IP "\fB\-p, \-\-proc\fP"
+-This option allow you to use /proc/mounts instead /etc/mtab. It also passes the
+-\-n option to \fBumount\fR(1).
++This option allows you to use /proc/mounts instead /etc/mtab.  It also passes the
++\fB\-n\fR option to \fBumount\fR(1).
+ .IP "\fB\-q, \-\-tape\fP"
+ This option specifies that the drive should be ejected using a tape drive
+ offline command.
+ .IP "\fB\-m, \-\-no-unmount\fP"
+ The option tells eject to not try to unmount at all.
+ .IP "\fB\-M, \-\-no-partitions-unmount\fP"
+-The option tells eject to not try to unmount another partitions on partitioned
+-devices. If another partition is mounted the program will not attempt to eject
+-the media. It will attempt to unmount only mountpoint or mounted device given
+-on eject command line.
++The option tells eject to not try to unmount other partitions on partitioned
++devices.  If another partition is still mounted, the program will not attempt
++to eject the media.  It will attempt to unmount only the device or mountpoint
++given on the command line.
+ .IP "\fB\-n, \-\-noop\fP"
+ With this option the selected device is displayed but no action is performed.
+ .IP "\fB\-t, \-\-trayclose\fP"
+@@ -84,24 +84,25 @@ Run in verbose mode; more information is displayed about what the command is
+ doing.
+ .IP "\fB\-V, \-\-version\fP"
+ Display version information and exit.
+-.IP "\fB\-x, \-\-cdspeed \fI<speed>\fP"
+-With this option the drive is given a CD-ROM select speed command.  The speed
++.IP "\fB\-x, \-\-cdspeed \fIspeed\fP"
++With this option the drive is given a CD-ROM select speed command.  The
++.I speed
+ argument is a number indicating the desired speed (e.g. 8 for 8X speed), or 0
+ for maximum data rate.  Not all devices support this command and you can only
+ specify speeds that the drive is capable of.  Every time the media is changed
+-this option is cleared.  This option can be used alone, or with the \-t and \-c
+-options.
++this option is cleared.  This option can be used alone, or with the
++\fB\-t\fR and \fB\-c\fR options.
+ .IP "\fB\-X, \-\-listspeed\fP" 
+ With this option the CD-ROM drive will be probed to detect the available
+ speeds.  The output is a list of speeds which can be used as an argument of the
+-\-x option.  This only works with Linux 2.6.13 or higher, on previous versions
+-solely the maximum speed will be reported.  Also note that some drive may not
++\fB\-x\fR option.  This only works with Linux 2.6.13 or higher, on previous versions
++solely the maximum speed will be reported.  Also note that some drives may not
+ correctly report the speed and therefore this option does not work with them.
+ .SH EXIT STATUS
+ Returns 0 if operation was successful, 1 if operation failed or command syntax
+ was not valid.
+ .SH NOTES
+-.B Eject
++.B eject
+ only works with devices that support one or more of the four methods of
+ ejecting.  This includes most CD-ROM drives (IDE, SCSI, and proprietary), some
+ SCSI tape drives, JAZ drives, ZIP drives (parallel port, SCSI, and IDE
+@@ -113,11 +114,12 @@ device and not the
+ .B eject
+ program itself.
+ .PP
+-The \-r, \-s, \-f, and \-q options allow controlling which methods are used to
++The \fB\-r\fR, \fB\-s\fR, \fB\-f\fR, and \fB\-q\fR options allow controlling
++which methods are used to
+ eject.  More than one method can be specified.  If none of these options are
+ specified, it tries all four (this works fine in most cases).
+ .PP
+-.B Eject
++.B eject
+ may not always be able to determine if the device is mounted (e.g. if it has
+ several names).  If the device name is a symbolic link,
+ .B eject
+@@ -126,9 +128,9 @@ will follow the link and use the device that it points to.
+ If
+ .B eject
+ determines that the device can have multiple partitions, it will attempt to
+-unmount all mounted partitions of the device before ejecting (see
+---no-partitions-unmount). If an unmount fails, the program will not attempt to
+-eject the media.
++unmount all mounted partitions of the device before ejecting (see also
++\fB--no-partitions-unmount\fR).  If an unmount fails, the program will not
++attempt to eject the media.
+ .PP
+ You can eject an audio CD.  Some CD-ROM drives will refuse to open the tray if
+ the drive is empty.  Some devices do not support the tray close command.
+diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
+index c245eda..6c28a35 100644
+--- a/sys-utils/flock.1
++++ b/sys-utils/flock.1
+@@ -24,37 +24,41 @@
+ .\"   OTHER DEALINGS IN THE SOFTWARE.
+ .\"
+ .\" -----------------------------------------------------------------------
+-.TH FLOCK 1 "September 2011" "util-linux" "User Commands"
++.TH FLOCK 1 "July 2014" "util-linux" "User Commands"
+ .SH NAME
+ flock \- manage locks from shell scripts
+ .SH SYNOPSIS
+ .B flock
+-[options] <file|directory> <command> [command args]
++[options]
++.IR file | "directory command " [ arguments ]
+ .br
+ .B flock
+-[options] <file|directory> -c <command>
++[options]
++.IR file | directory
++.BI \-c " command"
+ .br
+ .B flock
+-[options] <file descriptor number>
++.RI [options] " number"
+ .SH DESCRIPTION
+ .PP
+ This utility manages
+ .BR flock (2)
+-locks from within shell scripts or the command line.
++locks from within shell scripts or from the command line.
+ .PP
+-The first and second forms wrap the lock around the executing a command, in
+-a manner similar to
++The first and second of the above forms wrap the lock around the execution of a
++.IR command ,
++in a manner similar to
+ .BR su (1)
+ or
+ .BR newgrp (1).
+-It locks a specified file or directory, which is created (assuming
+-appropriate permissions), if it does not already exist.  By default, if the
++They lock a specified \fIfile\fR or \fIdirectory\fR, which is created (assuming
++appropriate permissions) if it does not already exist.  By default, if the
+ lock cannot be immediately acquired,
+ .B flock
+ waits until the lock is available.
+ .PP
+-The third form uses open file by file descriptor number.  See examples how
+-that can be used.
++The third form uses an open file by its file descriptor \fInumber\fR.
++See the examples below for how that can be used.
+ .SH OPTIONS
+ .TP
+ \fB\-s\fP, \fB\-\-shared\fP
+@@ -74,7 +78,7 @@ process which should not be holding the lock.
+ Fail rather than wait if the lock cannot be
+ immediately acquired.
+ See the
+-.I \-E
++.B \-E
+ option for the exit code used.
+ .TP
+ \fB\-w\fP, \fB\-\-wait\fP, \fB\-\-timeout\fP \fIseconds\fP
+@@ -82,20 +86,20 @@ Fail if the lock cannot be acquired within
+ .IR seconds .
+ Decimal fractional values are allowed.
+ See the
+-.I \-E
++.B \-E
+ option for the exit code used.
+ .TP
+ \fB\-o\fP, \fB\-\-close\fP
+ Close the file descriptor on which the lock is held before executing
+-.BR command\ .
++.IR command .
+ This is useful if
+-.B command
++.I command
+ spawns a child process which should not be holding the lock.
+ .TP
+ \fB\-E\fP, \fB\-\-conflict\-exit\-code\fP \fInumber\fP
+ The exit code used when the \fB\-n\fP option is in use, and the
+ conflicting lock exists, or the \fB\-w\fP option is in use,
+-and the timeout is reached. The default value is 1.
++and the timeout is reached.  The default value is 1.
+ .TP
+ \fB\-c\fP, \fB\-\-command\fP \fIcommand\fP
+ Pass a single
+@@ -153,14 +157,14 @@ also sets the FLOCKER env var to the right value so it doesn't run again.
+ The command uses
+ .B sysexits.h
+ return values for everything, except when using either of the options
+-.I \-n
++.B \-n
+ or
+-.I \-w
++.B \-w
+ which report a failure to acquire the lock with a return value given by the
+-.I \-E
++.B \-E
+ option, or 1 by default.
+ .PP
+-When using the <command> variant, and executing the child worked, then
++When using the \fIcommand\fR variant, and executing the child worked, then
+ the exit status is that of the child command.
+ .SH AUTHOR
+ .UR hpa@zytor.com
+-- 
+1.7.0.4
 
