@@ -1,74 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55688 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752301AbaGIN3Q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jul 2014 09:29:16 -0400
-Message-Id: <1404912546.1512.139736225.71C7CA63@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: kerolasa@gmail.com
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:15958 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758039AbaGOLwc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 07:52:32 -0400
+Date: Tue, 15 Jul 2014 13:52:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Supporting human parsable journal_dev specifiers
+Message-ID: <20140715115225.GY30288@x2.net.home>
+References: <20140710142824.GA20753@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <CAG27Bk3niwrfc1oW9DfSvxZ2tV3Y=ZXEi1Wb+61AXOBYS_jmWw@mail.gmail.com>
-References: <1404765295.16902.139036593.3B689FEB@webmail.messagingengine.com>
- <CAG27Bk3niwrfc1oW9DfSvxZ2tV3Y=ZXEi1Wb+61AXOBYS_jmWw@mail.gmail.com>
-Subject: Re: small problem with kill --queue
-Date: Wed, 09 Jul 2014 15:29:06 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140710142824.GA20753@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jul 10, 2014 at 10:28:24AM -0400, Theodore Ts'o wrote:
+> I have a user request that mount be able to interpret the device
+> specifier for the journal_dev mount option, so that instead of having
+> to type something like
+> 
+>    mount -o journal_dev=0x0803 ....
+> 
+> they could unstead use: "journal_dev=/dev/sda3" or even
+> "journal_dev=LABEL=ext_journal".  I assume the right way to do this is
+> a mount helper?  Or is this something that you would be willing to
+> accept as a patch into util-linux?
 
-Hi Sami,
+ I talked about it with Eric Sandeen year ago, and the decision was to
+ implement some generic FS independent solution based on variables in
+ mount options, something like
 
-On Tue, Jul 8, 2014, at 00:39, Sami Kerola wrote:
-> Right. I am not sure did I mess up or someone else earlier when
-> --queue was introduced.
+     mount -o journal_dev=$(LABEL:<ext_journal_label>)
 
-It looks like you made the mistaken change four months ago,
-in commit 9e8dffd5cd29f03029b1ac99eecb129532ca5c0f.
+ (or $LOGUUID for XFS log, etc).
 
-> Which way ever that was now when I look
-> sigqueue(3) manual page your change proposal makes sense. Please have
-> a look of the change below, that I hope to get reviewed before the
-> final v2.25 is out. [...]
->
-> +The
-> +.B \-\-queue
-> +should be combined with
-> +.BI \-\-signal " signal"
-> +when other than a SIGTERM is wanted to accompanied with
-> +.IR sigval .
+ It's not implemented yet, but I can try it if it's still necessary.
+ 
+> If it is a mount helper, what's the best way to do things?  Simply
 
-I don't think it's necessary to explain again that wanting to send any
-other signal than TERM requires the --signal option; this is already at
-the top of the page.
+ Please, do not use mount helpers (/sbin/mount.<type>), it sucks in
+ many ways... it will be better to have a generic solution within
+ mount(8).
 
-Also, thinking again, this word "sigval" looks far too similar to "signal",
-it would be much clearer to use the plain word "value" instead.  So my
-upcoming patches for the usage text and man page use that instead.
-
-> + ctl->sigdata.sival_int = strtos32_or_err(arg, _("argument error"));
-
-Maybe "argument of --queue must be an integer" instead?
-
-My patch to kill.c also improves the error message when the
-signal name or number cannot be interpreted.  Currently:
-
-./kill --sigmal HUP foobar
-kill: invalid sigval argument
-
-Huh?
-
-New:
-
-./kill --sigmal HUP foobar
-kill: invalid signal name or number: -sigmal
-
-Ah, typo.
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.fm - Access all of your messages and folders
-                          wherever you are
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
