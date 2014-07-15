@@ -1,55 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from g4t3426.houston.hp.com ([15.201.208.54]:25152 "EHLO
-	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750705AbaGZEWG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 00:22:06 -0400
-Message-ID: <1406348523.25428.1.camel@buesod1.americas.hpqcorp.net>
-Subject: Re: [PATCH 12/13] sfdisk: fix --unhide segfault
-From: Davidlohr Bueso <davidlohr@hp.com>
-To: kzak@redhat.com
-Cc: aswin@hp.com, util-linux@vger.kernel.org
-Date: Fri, 25 Jul 2014 21:22:03 -0700
-In-Reply-To: <1406072697-20912-13-git-send-email-davidlohr@hp.com>
-References: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
-	 <1406072697-20912-13-git-send-email-davidlohr@hp.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:34001 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758738AbaGOL2v (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 15 Jul 2014 07:28:51 -0400
+Date: Tue, 15 Jul 2014 13:28:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/3] cfdisk: restore the license that was lost in January
+Message-ID: <20140715112846.GU30288@x2.net.home>
+References: <1405371216-7774-1-git-send-email-bensberg@justemail.net>
+ <1405371216-7774-3-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1405371216-7774-3-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2014-07-22 at 16:44 -0700, Davidlohr Bueso wrote:
-> There's currently a NULL ptr dereference bug when calling asc_to_index()
-> via set_unhidden(). Fix this bug by checking the optarg value for null.
-> This is similar to how other options handle such calls.
-> 
-> Before:
-> Segmentation fault (core dumped)
-> 
-> After:
-> sfdisk: Done: Success
-> 
-> Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+On Mon, Jul 14, 2014 at 10:53:36PM +0200, Benno Schulenberg wrote:
+> Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 > ---
->  disk-utils/sfdisk.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+>  disk-utils/cfdisk.c |   14 ++++++++++++++
+>  1 files changed, 14 insertions(+), 0 deletions(-)
 > 
-> diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-> index 86ed112..f730504 100644
-> --- a/disk-utils/sfdisk.c
-> +++ b/disk-utils/sfdisk.c
-> @@ -2909,12 +2909,13 @@ static int do_activate(char **av, int ac, char *arg)
->  	return ret;
->  }
->  
-> -static void
-> -set_unhidden(struct disk_desc *z, char *pnam) {
-> +static void set_unhidden(struct disk_desc *z, char *pnam)
-> +{
->  	int pno;
->  	unsigned char id;
->  
->  	pno = asc_to_index(pnam, z);
-> +	printf("\t%s\n", pnam);
+> diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+> index fb089f5..544e87a 100644
+> --- a/disk-utils/cfdisk.c
+> +++ b/disk-utils/cfdisk.c
+> @@ -1,3 +1,17 @@
+> +/*
+> + * cfdisk.c - Display or manipulate a disk partition table.
+> + *
+> + *     Copyright (C) 2014 Karel Zak <kzak@redhat.com>
+> + *     Copyright (C) 1994 Kevin E. Martin (martin@cs.unc.edu)
 
-err, sorry... forgot to delete that one.
+ Well, not sure if it's correct to blame Kevin for the new fdisk if
+ all the new code is from scratch :-) ... but yes, all the details and
+ ideas are the same with Kevin's version.
 
+ Applied, thanks.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
