@@ -1,144 +1,259 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41328 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752862AbaG2LXO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Jul 2014 07:23:14 -0400
-Date: Tue, 29 Jul 2014 13:23:00 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: bobtfish@bobtfish.net, util-linux@vger.kernel.org,
-        Richard Weinberger <richard@nod.at>
-Subject: Re: [PATCH] Setting uid / gid is generally useful in nseneter
-Message-ID: <20140729112300.GV8533@x2.net.home>
-References: <1406406174-20938-1-git-send-email-bobtfish@bobtfish.net>
- <20140728115630.GJ8533@x2.net.home>
- <874my1xp4l.fsf@x220.int.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <874my1xp4l.fsf@x220.int.ebiederm.org>
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:53210 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753548AbaGPVJy (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Jul 2014 17:09:54 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] docs: bring four more man pages closer to standard formatting
+Date: Wed, 16 Jul 2014 23:09:50 +0200
+Message-Id: <1405544990-3438-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 28, 2014 at 12:24:58PM -0700, Eric W. Biederman wrote:
-> Thinking out loud.  Calling setuid(0) and setgid(0) in nsenter solves a
-> very practical problem of losing all capabilities on exec (because your
-> uid != 0).  Adding --setuid and --setgid is necessary because some
-> user namespaces do not have uid 0 or gid 0 mapped so switching to
-> those uids and gids would fail.
+In the IPC man pages strictly adhere to the memory, queue, semaphore
+order, to reduce disorientation.  And for 'ipcmk', the arguments for
+-M and -S and -p are not optional.  Add --version for 'mountpoint'.
 
- OK, I have improved --setuid and --setguid, so now it's usable for
- all namespaces (originally it was only for user namespaces). The
- default is still 0 for user namepaces..
- 
- The patch is below.
-
-> So the direction I could see this nsenter evolving is reading the
-> default uid and gid from the target process (A pain when in the case of
-
- That's nice idea, added to TODO.
-
-> user namespaces because the value uid and gid will need to be mapped
-> into the target user namespace).
-
- yep
-
-    Karel
-
->From 47f42c1d14901b8bc2eb477fb0082bcbdd5e79af Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Tue, 29 Jul 2014 13:07:44 +0200
-Subject: [PATCH] nsenter: allow to use --set{uid,gid} for all namespaces
-
-Now it's possible to set UID and GID for user namespaces only. This
-patch removes this restriction and allow to use --set{uid,gid} in all
-cases. The default for user namespaces is still GID=0, UID=0.
-
-Reported-by: Tomas Doran <bobtfish@bobtfish.net>
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- sys-utils/nsenter.1 |  9 +++++++--
- sys-utils/nsenter.c | 20 +++++++++++++-------
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ sys-utils/ipcmk.1      |   39 ++++++++++++++++++++-------------------
+ sys-utils/ipcrm.1      |   16 ++++++++--------
+ sys-utils/ipcs.1       |   26 ++++++++++++++------------
+ sys-utils/mountpoint.1 |   37 +++++++++++++++++++++++--------------
+ 4 files changed, 65 insertions(+), 53 deletions(-)
 
-diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-index 998fd0c..487f731 100644
---- a/sys-utils/nsenter.1
-+++ b/sys-utils/nsenter.1
-@@ -126,10 +126,15 @@ the target process.  If file is specified, enter the user namespace specified by
- file.  See also the \fB\-\-setuid\fR and \fB\-\-setgid\fR options.
+diff --git a/sys-utils/ipcmk.1 b/sys-utils/ipcmk.1
+index 0bac9a0..f79a717 100644
+--- a/sys-utils/ipcmk.1
++++ b/sys-utils/ipcmk.1
+@@ -1,41 +1,42 @@
+ .\" Copyright 2008 Hayden A. James (hayden.james@gmail.com)
+ .\" May be distributed under the GNU General Public License
+-.TH IPCMK "1" "September 2011" "util-linux" "User Commands"
++.TH IPCMK "1" "July 2014" "util-linux" "User Commands"
+ .SH "NAME"
+-ipcmk \- create various ipc resources
++ipcmk \- make various IPC resources
+ .SH "SYNOPSIS"
+ .B ipcmk
+-<resource options>
+-[additional options]
++[options]
+ .SH "DESCRIPTION"
+ .B ipcmk
+-allows you to create shared memory segments, message queues or semaphore arrays.
+-.SH "RESOURCE OPTIONS"
++allows you to create shared memory segments, message queues,
++and semaphore arrays.
++.SH "OPTIONS"
  .TP
- \fB\-G\fR, \fB\-\-setgid\fR \fIgid\fR
--Set the group ID which will be used in the entered user namespace.
-+Set the group ID which will be used in the entered namespace and drop
-+supplementary groups.
-+.BR nsenter (1)
-+always sets GID for user namespaces, the default is 0.
+-Resources may be specified as follows:
++Resources can be specified with these options:
  .TP
- \fB\-S\fR, \fB\-\-setuid\fR \fIuid\fR
--Set the user ID which will be used in the entered user namespace.
-+Set the user ID which will be used in the entered namespace.
-+.BR nsenter (1)
-+always sets UID for user namespaces, the default is 0.
+-\fB\-M\fR, \fB\-\-shmem\fR [\fIsize\fR]
+-Shared memory segment of
++.BR \-M , " \-\-shmem \fIsize\fR"
++Create a shared memory segment of
+ .I size
+ bytes.
  .TP
- \fB\-r\fR, \fB\-\-root\fR[=\fIdirectory\fR]
- Set the root directory.  If no directory is specified, set the root directory to
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index d57edc8..87c6549 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -73,8 +73,8 @@ static void usage(int status)
- 	fputs(_(" -n, --net   [=<file>]  enter network namespace\n"), out);
- 	fputs(_(" -p, --pid   [=<file>]  enter pid namespace\n"), out);
- 	fputs(_(" -U, --user  [=<file>]  enter user namespace\n"), out);
--	fputs(_(" -S, --setuid <uid>     set uid in user namespace\n"), out);
--	fputs(_(" -G, --setgid <gid>     set gid in user namespace\n"), out);
-+	fputs(_(" -S, --setuid <uid>     set uid in entered namespace\n"), out);
-+	fputs(_(" -G, --setgid <gid>     set gid in entered namespace\n"), out);
- 	fputs(_(" -r, --root  [=<dir>]   set the root directory\n"), out);
- 	fputs(_(" -w, --wd    [=<dir>]   set the working directory\n"), out);
- 	fputs(_(" -F, --no-fork          do not fork before exec'ing <program>\n"), out);
-@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
+-\fB\-S\fR, \fB\-\-semaphore\fR [\fInumber\fR]
+-Semaphore array with
++.BR \-Q , " \-\-queue"
++Create a message queue.
++.TP
++.BR \-S , " \-\-semaphore \fInumber\fR"
++Create a semaphore array with
+ .I number
+ of elements.
++.PP
++Other options are:
+ .TP
+-\fB\-Q\fR, \fB\-\-queue\fR
+-Message queue.
+-.SH "ADDITIONAL OPTIONS"
+-.TP
+-\fB\-p\fR, \fB\-\-mode\fR [\fImode\fR]
++.BR \-p , " \-\-mode \fImode\fR"
+ Access permissions for the resource.  Default is 0644.
+ .TP
+-\fB\-h\fR, \fB\-\-help\fR
+-Display help text and exit.
+-.TP
+ \fB\-V\fR, \fB\-\-version\fR
+ Display version information and exit.
++.TP
++\fB\-h\fR, \fB\-\-help\fR
++Display help text and exit.
+ .PP
+ .SH "SEE ALSO"
+ .BR ipcrm (1),
+diff --git a/sys-utils/ipcrm.1 b/sys-utils/ipcrm.1
+index 51ccd48..bdec3b8 100644
+--- a/sys-utils/ipcrm.1
++++ b/sys-utils/ipcrm.1
+@@ -1,14 +1,14 @@
+ .\" Copyright 2002 Andre C. Mazzone (linuxdev@karagee.com)
+ .\" May be distributed under the GNU General Public License
+-.TH IPCRM "1" "September 2011" "util-linux" "User Commands"
++.TH IPCRM "1" "July 2014" "util-linux" "User Commands"
+ .SH NAME
+-ipcrm \- remove a message queue, semaphore set or shared memory id
++ipcrm \- remove certain IPC resources
+ .SH SYNOPSIS
+ .B ipcrm
+-.RI [ options ]
+-.br
++[options]
++.sp
+ .B ipcrm
+-.RB { shm | msg | sem } 
++.RB { shm | msg | sem }
+ .IR id ...
+ .SH DESCRIPTION
+ .B ipcrm
+@@ -74,15 +74,15 @@ objects.  Some programs create these resources at startup and may not have
+ any code to deal with an unexpected disappearance.
+ .LP
+ The details of the removes are described in
+-.BR msgctl (2),
+ .BR shmctl (2),
++.BR msgctl (2),
+ and
+ .BR semctl (2).
+-The identifiers and keys may be found by using
++The identifiers and keys can be found by using
+ .BR ipcs (1).
+ .SH NOTES
+ In its first Linux implementation, \fBipcrm\fR used the deprecated syntax
+-shown in the
++shown in the second line of the
+ .BR SYNOPSIS .
+ Functionality present in other *nix implementations of \fBipcrm\fR has since
+ been added, namely the ability to delete resources by key (not just
+diff --git a/sys-utils/ipcs.1 b/sys-utils/ipcs.1
+index 453ce5c..6c92580 100644
+--- a/sys-utils/ipcs.1
++++ b/sys-utils/ipcs.1
+@@ -1,24 +1,26 @@
+ .\" Copyright 1993 Rickard E. Faith (faith@cs.unc.edu)
+ .\" May be distributed under the GNU General Public License
+-.TH IPCS "1" "January 2013" "util-linux" "User Commands"
++.TH IPCS "1" "July 2014" "util-linux" "User Commands"
+ .SH NAME
+-ipcs \- provide information on IPC facilities
++ipcs \- show information on IPC facilities
+ .SH SYNOPSIS
+ .B ipcs
+-.RB [ resource\-option "] [" output\-format ]
+-.br
+-.B ipcs
+-.RB [ resource\-option ]
+-.BI \-i " id"
++[options]
+ .SH DESCRIPTION
+ .B ipcs
+-provides information on the inter-process communication facilities
++shows information on the inter-process communication facilities
+ for which the calling process has read access.
++By default it shows information about all three resources:
++shared memory segments, message queues, and semaphore arrays.
+ .SH OPTIONS
+ .TP
+ \fB\-i\fR, \fB\-\-id\fR \fIid\fR
+-Print details only on the resource identified by
++Show full details on just the one resource element identified by
+ .IR id .
++This option needs to be combined with one of the three resource options:
++.BR \-m ,
++.BR \-q " or"
++.BR \-s .
+ .TP
+ \fB\-h\fR, \fB\-\-help\fR
+ Display help text and exit.
+@@ -27,12 +29,12 @@ Display help text and exit.
+ Display version information and exit.
+ .SS "Resource options"
+ .TP
+-\fB\-q\fR, \fB\-\-queues\fR
+-Write information about active message queues.
+-.TP
+ \fB\-m\fR, \fB\-\-shmems\fR
+ Write information about active shared memory segments.
+ .TP
++\fB\-q\fR, \fB\-\-queues\fR
++Write information about active message queues.
++.TP
+ \fB\-s\fR, \fB\-\-semaphores\fR
+ Write information about active semaphore sets.
+ .TP
+diff --git a/sys-utils/mountpoint.1 b/sys-utils/mountpoint.1
+index 6874624..29c153c 100644
+--- a/sys-utils/mountpoint.1
++++ b/sys-utils/mountpoint.1
+@@ -1,29 +1,38 @@
+ .\" -*- nroff -*-
+-.TH MOUNTPOINT 1 "June 2011" "util-linux" "User Commands"
++.TH MOUNTPOINT 1 "July 2014" "util-linux" "User Commands"
+ .SH NAME
+ mountpoint \- see if a directory is a mountpoint
+ .SH SYNOPSIS
+ .B mountpoint
+-.RB [ \-q ]
+-.RB [ \-d ]
++.RB [ \-d | \-q ]
+ .I directory
+-
++.sp
+ .B mountpoint
+-.RB \-x
++.B \-x
+ .I device
  
- 	struct namespace_file *nsfile;
- 	int c, namespaces = 0;
--	bool do_rd = false, do_wd = false;
-+	bool do_rd = false, do_wd = false, force_uid = false, force_gid = false;
- 	int do_fork = -1; /* unknown yet */
- 	uid_t uid = 0;
- 	gid_t gid = 0;
-@@ -243,9 +243,11 @@ int main(int argc, char *argv[])
- 			break;
- 		case 'S':
- 			uid = strtoul_or_err(optarg, _("failed to parse uid"));
-+			force_uid = true;
- 			break;
- 		case 'G':
- 			gid = strtoul_or_err(optarg, _("failed to parse gid"));
-+			force_gid = true;
- 			break;
- 		case 'F':
- 			do_fork = 0;
-@@ -328,12 +330,16 @@ int main(int argc, char *argv[])
- 	if (do_fork == 1)
- 		continue_as_child();
+ .SH DESCRIPTION
+ .B mountpoint
+-checks if the directory is mentioned in the /proc/self/mountinfo file.
++checks whether the given
++.I directory
++is mentioned in the /proc/self/mountinfo file.
+ .SH OPTIONS
+-.IP "\fB\-h, \-\-help\fP"
+-Display help text and exit.
+-.IP "\fB\-q, \-\-quiet\fP"
++.TP
++.BR \-d , " \-\-fs\-devno"
++Show the major/minor numbers of the device that is mounted on the given
++directory.
++.TP
++.BR \-q , " \-\-quiet"
+ Be quiet - don't print anything.
+-.IP "\fB\-d, \-\-fs\-devno\fP"
+-Print major/minor device number of the filesystem on stdout.
+-.IP "\fB\-x, \-\-devno\fP"
+-Print major/minor device number of the blockdevice on stdout.
++.TP
++.BR \-x , " \-\-devno"
++Show the major/minor numbers of the given blockdevice on standard output.
++.TP
++.BR \-V , " \-\-version"
++Display version information and exit.
++.TP
++.BR \-h , " \-\-help"
++Display help text and exit.
+ .SH EXIT STATUS
+ Zero if the directory is a mountpoint, non-zero if not.
+ .SH AUTHOR
+@@ -36,7 +45,7 @@ enables debug output.
+ .PP
+ The util-linux
+ .B mountpoint
+-implementation was written from scratch for libmount. The original version
++implementation was written from scratch for libmount.  The original version
+ for sysvinit suite was written by Miquel van Smoorenburg.
  
--	if (namespaces & CLONE_NEWUSER) {
--		if (setgroups(0, NULL))		/* drop supplementary groups */
-+	/* for user namespaces we always set UID and GID (default is 0) */
-+	if (namespaces & CLONE_NEWUSER)
-+		force_uid = true, force_gid = true;
-+
-+	if (force_uid || force_gid) {
-+		if (force_gid && setgroups(0, NULL))		/* drop supplementary groups */
- 			err(EXIT_FAILURE, _("setgroups failed"));
--		if (setgid(gid) < 0)
-+		if (force_gid && setgid(gid) < 0)		/* change GID */
- 			err(EXIT_FAILURE, _("setgid failed"));
--		if (setuid(uid) < 0)
-+		if (force_uid && setuid(uid) < 0)		/* change UID */
- 			err(EXIT_FAILURE, _("setuid failed"));
- 	}
- 
+ .SH SEE ALSO
 -- 
-1.9.3
+1.7.0.4
 
