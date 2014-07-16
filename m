@@ -1,42 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47746 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751361AbaGPKCR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Jul 2014 06:02:17 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6GA2Gwo007894
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Wed, 16 Jul 2014 06:02:17 -0400
-Date: Wed, 16 Jul 2014 12:02:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stef Walter <stefw@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
- SIGUSR1
-Message-ID: <20140716100215.GC4874@x2.net.home>
-References: <1404718284-4192-1-git-send-email-stefw@redhat.com>
- <20140715074717.GN30288@x2.net.home>
- <53C4DED8.2070706@redhat.com>
- <20140715091907.GQ30288@x2.net.home>
- <53C52149.6010301@redhat.com>
+Received: from elasmtp-curtail.atl.sa.earthlink.net ([209.86.89.64]:49833 "EHLO
+	elasmtp-curtail.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1760713AbaGPRtH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Jul 2014 13:49:07 -0400
+Received: from [24.144.107.77] (helo=[192.168.0.11])
+	by elasmtp-curtail.atl.sa.earthlink.net with esmtpa (Exim 4.67)
+	(envelope-from <mrmazda@earthlink.net>)
+	id 1X7TBS-0007eO-NB
+	for util-linux@vger.kernel.org; Wed, 16 Jul 2014 13:40:02 -0400
+Message-ID: <53C6B8F1.7000607@earthlink.net>
+Date: Wed, 16 Jul 2014 13:40:01 -0400
+From: Felix Miata <mrmazda@earthlink.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53C52149.6010301@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: Re: some comments about the new cfdisk
+References: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com> <20140715105920.GS30288@x2.net.home> <1405509773.32592.142240757.286353E5@webmail.messagingengine.com>
+In-Reply-To: <1405509773.32592.142240757.286353E5@webmail.messagingengine.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 15, 2014 at 02:40:41PM +0200, Stef Walter wrote:
-> On 15.07.2014 11:19, Karel Zak wrote:
-> >  Note that we does not control code of all login(1) implementations
-> >  and we have --login-program <path> to start arbitrary random thing
-> >  from agetty, so our solution have to be generic rather than rely 
-> >  on any login(1) change.
-> 
-> Well you don't need to modify login(1) (or other --login-program's) at
-> all. SIG_IGN is kept across an exec.
+On 2014-07-16 13:22 (GMT+0200) Benno Schulenberg composed:
 
- Sure, but it's little bit fragile way.
+> Karel Zak wrote:
 
+>> It would be possible to add some extra optimization for MBR to
+>> enlarge/reduce the extended partition if there is a free space behind
+>> the partition and no possibility to create another primary partition.
+>> Not sure... I'll think about it.
+
+> Don't bother for now.  Somehow the current way feels more
+> precise.
+
+Maybe I'm missing something in this discussion, but...
+
+I find it inexplicably confusing that any partitioning tool would ever 
+describe an extended to exclude any freespace contiguous to any logical 
+partition, regardless how actually defined in the tables. Making creation of 
+a logical in freespace adjoining any existing logical take more than one step 
+makes no sense.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+"The wise are known for their understanding, and pleasant
+words are persuasive." Proverbs 16:21 (New Living Translation)
+
+  Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+
+Felix Miata  ***  http://fm.no-ip.com/
