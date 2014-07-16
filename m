@@ -1,31 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:56394 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753592AbaGBOHN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Jul 2014 10:07:13 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0LjIit-1WVDYe2omt-00dUfl for
- <util-linux@vger.kernel.org>; Wed, 02 Jul 2014 16:07:11 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:55085 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751165AbaGPUzS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Jul 2014 16:55:18 -0400
+Received: by mail-wi0-f174.google.com with SMTP id d1so6926004wiv.1
+        for <util-linux@vger.kernel.org>; Wed, 16 Jul 2014 13:55:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.25-rc2
-Date: Wed, 2 Jul 2014 16:07:10 +0200
-References: <20140702101057.GB31066@x2.net.home>
-In-Reply-To: <20140702101057.GB31066@x2.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201407021607.10915.sweet_f_a@gmx.de>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/3] lib/colors: remove memory leak
+Date: Wed, 16 Jul 2014 21:54:56 +0100
+Message-Id: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 02 July 2014, Karel Zak wrote:
-> The util-linux release v2.25-rc2 is available at
->
->    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25-rc2
-It's
-ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25/
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ lib/colors.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/lib/colors.c b/lib/colors.c
+index cb342a0..8de1d2f 100644
+--- a/lib/colors.c
++++ b/lib/colors.c
+@@ -425,9 +425,9 @@ static int colors_add_scheme(struct ul_color_ctl *cc,
+ 		return -EINVAL;
+ 
+ 	rc = cn_sequence(seq0, &seq);
++	free(seq0);
+ 	if (rc)
+ 		return rc;
+-	free(seq0);
+ 
+ 	/* convert logical name (e.g. "red") to real ESC code */
+ 	if (isalpha(*seq)) {
+-- 
+2.0.1
 
-cu,
-Rudi
