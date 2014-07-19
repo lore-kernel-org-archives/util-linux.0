@@ -1,73 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:59773 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754866AbaGVWBI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:08 -0400
-Received: by mail-wg0-f43.google.com with SMTP id l18so275127wgh.26
-        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:06 -0700 (PDT)
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:57128 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751276AbaGSTMu (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 19 Jul 2014 15:12:50 -0400
+Received: by mail-pd0-f169.google.com with SMTP id y10so6842585pdj.28
+        for <util-linux@vger.kernel.org>; Sat, 19 Jul 2014 12:12:49 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <53CAAAB6.6020607@gmail.com>
+References: <53CAAAB6.6020607@gmail.com>
+Date: Sat, 19 Jul 2014 20:12:49 +0100
+Message-ID: <CAG27Bk3aPD6zx+t1kPsUnF-70ZjuCrEqh77SPJNpi5cDgYSN_w@mail.gmail.com>
+Subject: Re: [RFC] Zram handle util
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi, Kodiak Firesmith <ksf@sei.cmu.edu>
-Subject: [PATCH 00/10] pull: logger changes
-Date: Tue, 22 Jul 2014 23:00:49 +0100
-Message-Id: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+To: Timofey Titovets <nefelim4ag@gmail.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On 19 July 2014 18:28, Timofey Titovets <nefelim4ag@gmail.com> wrote:
 
-Couple weeks I wrote few logger(1) changes that has been lying in my git
-repo waiting release to happen.  Now when the v2.25 is out it's time to
-consider these changes.
+Hi Timofey,
 
-Some of the changes are inspired by request from Kodiak, who is CC'd with
-them.  He approached me after rc1 release that could I add fully
-qualified hostname to logger's remote server logging.  When I looked
-syslog related RFC's I realized the old BSD syslog protocol (rfc 3164)
-does not seem to cover the fqdn case.  So supporting more recent protocol
-(rfc 5424) felt like a good idea.  Here is a example of rfc 5424 logger
-line after syslog-ng received it.
+I'm not the util-linux maintainer, but since I've done few
+contributions perhaps I can give couple hints how to proceed.
 
-Jun 28 14:41:02 127.0.0.1 1 2014-06-28T14:41:02.762100+0100 kerolasa.example.com tag - [timeQuality tzKnown="1" isSynced="1" syncAccuracy="506435"] message
+> I want hear your opinions.
+> Several days ago, i writed zramctl util (on C++) for have useful app for
+> setup zrams..
 
-The additional ISO-8601 style time stamp and time quality markups are
-enabled by default.  Plus I am proposing to use the new format as default
-when logging to remote server, with an option --rfc3164 to revert to old
-format when needed.  Maybe that is a step too far, or maybe not.  Either
-way comments, opinions, request for further changes, and such would be
-nice to hear.
+Sounds potentially useful.
 
-Sami Kerola (10):
-  logger: ensure program writes everything to syslog file descriptor
-  logger: fix indentation issues
-  logger: do not rely only getlogin(3) telling who ran the command
-  logger: refactor long if clause
-  docs: make logger.1 facilities and levels easier to read
-  logger: add function pointer to choose how logging is done
-  logger: add rfc5424 support
-  docs: add logger protocol notes to manual page
-  logger: add process --id=parent optional argument
-  logger: make --stderr print remote server messages
+> Code hosted her: https://github.com/Nefelim4ag/zramctl
+>
+> Examples:
+> zramctl find # return name of first free device (zram0)
+> zramctl find 1024M lz4 4 # (i not implement -? options now)
+>                          # 4 - threads
+>                          # setup and return name of device (zram1)
+> zramctl reset zram0 zram1 ...
+>
+> I want to port it on C and try include it in util-linux, like losetup.
+> It has a sense? What do you think?
 
- audit_getloginuid      |   0
- bash-completion/logger |   2 +-
- misc-utils/logger.1    |  98 ++++++++++++----
- misc-utils/logger.c    | 300 ++++++++++++++++++++++++++++++++++++-------------
- 4 files changed, 295 insertions(+), 105 deletions(-)
- create mode 100644 audit_getloginuid
+There are all sorts of small things each command in this package is
+expected to do. Good way to get introduced with them is to take the
+sample code below, and modify it to be the new command.
 
-The following changes since commit a3c74d88e126552b457e964bfa288f39df8dd81a:
+https://github.com/karelzak/util-linux/blob/master/Documentation/boilerplate.c
 
-  swapon: don't print errors as data in smartcols table (2014-07-22 12:29:38 +0200)
+But before getting too excited about writing new tool it might be
+worth while to investigate related discussion.
 
-are available in the git repository at:
+https://www.mail-archive.com/systemd-devel@lists.freedesktop.org/msg16342.html
 
-  git://github.com/kerolasa/lelux-utiliteetit.git
+By glance it seems a good utility would be able to integrate with udev
+and systemd, it should have add, remove, and possibly modify method. I
+would prefer the command to list what is current status of zram
+devices when nothing else is instructed. And of course manual page is
+needed. See util-linux/Documentation/howto-man-page.txt file to get
+manual done.
 
-for you to fetch changes up to c1f7a32499b162a33433160cb5778a3b59840757:
-
-  logger: make --stderr print remote server messages (2014-07-22 22:29:04 +0100)
+Without any investigation I have no idea what should be done with
+systemd integration. The zramctl might need a systemd service file,
+and possibly some sort of configuration file to setup the devices at
+boot desired way. Or something totally different. I am sure there is
+someone who knows what should be done, and with a bit of luck the mail
+archive discussion I pointed out has an answer to this already.
 
 -- 
-2.0.2
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
