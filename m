@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41225 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754450AbaGNOIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 10:08:36 -0400
-Date: Mon, 14 Jul 2014 16:08:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/14] pull: some minor fixes
-Message-ID: <20140714140824.GJ30288@x2.net.home>
-References: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+Received: from g2t2354.austin.hp.com ([15.217.128.53]:48849 "EHLO
+	g2t2354.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753684AbaGTUgw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jul 2014 16:36:52 -0400
+Message-ID: <1405888608.11927.11.camel@buesod1.americas.hpqcorp.net>
+Subject: Re: [RFC] Zram handle util
+From: Davidlohr Bueso <davidlohr@hp.com>
+To: Timofey Titovets <nefelim4ag@gmail.com>
+Cc: util-linux@vger.kernel.org, Minchan Kim <minchan@kernel.org>
+Date: Sun, 20 Jul 2014 13:36:48 -0700
+In-Reply-To: <53CAAAB6.6020607@gmail.com>
+References: <53CAAAB6.6020607@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 13, 2014 at 09:24:39PM +0100, Sami Kerola wrote:
->  disk-utils/cfdisk.c        | 2 +-
->  disk-utils/fdformat.c      | 4 ++--
->  disk-utils/fdisk.c         | 9 ++++-----
->  disk-utils/mkfs.cramfs.c   | 6 ++----
->  lib/strutils.c             | 2 +-
->  libfdisk/src/dos.c         | 2 +-
->  libfdisk/src/partition.c   | 2 +-
->  libmount/src/tab.c         | 2 +-
->  libsmartcols/src/line.c    | 2 +-
->  libsmartcols/src/version.c | 2 +-
->  login-utils/last.c         | 2 +-
->  misc-utils/cal.c           | 5 -----
->  misc-utils/whereis.c       | 3 +--
->  sys-utils/dmesg.c          | 3 ++-
->  sys-utils/fstrim.c         | 2 +-
->  sys-utils/lscpu-dmi.c      | 2 +-
->  sys-utils/lscpu.c          | 2 +-
->  sys-utils/setpriv.c        | 4 +++-
->  term-utils/setterm.c       | 3 +--
->  19 files changed, 26 insertions(+), 33 deletions(-)
+On Sat, 2014-07-19 at 20:28 +0300, Timofey Titovets wrote:
+> Good time of day.
+> I want hear your opinions.
+> Several days ago, i writed zramctl util (on C++) for have useful app for 
+> setup zrams..
+> Code hosted her: https://github.com/Nefelim4ag/zramctl
+> 
+> Examples:
+> zramctl find # return name of first free device (zram0)
+> zramctl find 1024M lz4 4 # (i not implement -? options now)
+> 			 # 4 - threads
+> 			 # setup and return name of device (zram1)
+> zramctl reset zram0 zram1 ...
+> 
+> 
+> I want to port it on C and try include it in util-linux, like losetup.
+> It has a sense? What do you think?
 
- Applied, thanks!
+Minchan, any thoughts in keeping this sort of utility in the kernel
+tree? Perhaps tools/zram/? No idea if the code is suitable to consider
+right away, but it kinda makes sense.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks,
+Davidlohr
+
