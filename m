@@ -1,112 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:39095 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751716AbaGMUZG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Jul 2014 16:25:06 -0400
-Received: by mail-wi0-f179.google.com with SMTP id f8so659241wiw.0
-        for <util-linux@vger.kernel.org>; Sun, 13 Jul 2014 13:25:05 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 01/14] textual: fix some typos
-Date: Sun, 13 Jul 2014 21:24:40 +0100
-Message-Id: <1405283093-28182-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
-References: <1405283093-28182-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:57377 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751159AbaGTOpj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 20 Jul 2014 10:45:39 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hi2so2878899wib.11
+        for <util-linux@vger.kernel.org>; Sun, 20 Jul 2014 07:45:38 -0700 (PDT)
+MIME-Version: 1.0
+From: Timofey Titovets <nefelim4ag@gmail.com>
+Date: Sun, 20 Jul 2014 17:45:17 +0300
+Message-ID: <CAGqmi77q_9HV1v-aGi21EQ96-f4C-J06GqYNb-RA9UzkMJRm-w@mail.gmail.com>
+Subject: Re: [RFC] Zram handle util
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Found with misspell-check version 2.0d.
+(Sami Kerola sorry for spamming, i just can't catch this message in
+mailing list)
 
-Reference: https://github.com/lyda/misspell-check
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/strutils.c             | 2 +-
- libfdisk/src/partition.c   | 2 +-
- libmount/src/tab.c         | 2 +-
- libsmartcols/src/version.c | 2 +-
- login-utils/last.c         | 2 +-
- sys-utils/fstrim.c         | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+Thanks for comment and boilerplate.c file.
 
-diff --git a/lib/strutils.c b/lib/strutils.c
-index 31bf9e2..9fe9481 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -47,7 +47,7 @@ static int do_scale_by_power (uintmax_t *x, int base, int power)
-  * The optinal 'power' variable returns number associated with used suffix
-  * {K,M,G,T,P,E,Z,Y}  = {1,2,3,4,5,6,7,8}.
-  *
-- * The funtion also supports decimal point, for example:
-+ * The function also supports decimal point, for example:
-  *              0.5MB   = 500000
-  *              0.5MiB  = 512000
-  *
-diff --git a/libfdisk/src/partition.c b/libfdisk/src/partition.c
-index 70f707c..32473a3 100644
---- a/libfdisk/src/partition.c
-+++ b/libfdisk/src/partition.c
-@@ -303,7 +303,7 @@ int fdisk_partition_next_partno(
-  *
-  * Returns info about partition converted to printable string.
-  *
-- * For exmaple
-+ * For example
-  *
-  *      struct fdisk_parition *pa;
-  *
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index fd6a7d8..4094fb8 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -390,7 +390,7 @@ int mnt_table_append_trailing_comment(struct libmnt_table *tb, const char *comm)
-  * same cache between more threads -- currently the cache does not provide any
-  * locking method.
-  *
-- * This function increments cache refrence counter. It's recomented to use
-+ * This function increments cache reference counter. It's recomented to use
-  * mnt_unref_cache() after mnt_table_set_cache() if you want to keep the cache
-  * referenced by @tb only.
-  *
-diff --git a/libsmartcols/src/version.c b/libsmartcols/src/version.c
-index 9aa4e33..e592ccc 100644
---- a/libsmartcols/src/version.c
-+++ b/libsmartcols/src/version.c
-@@ -11,7 +11,7 @@
-  * @title: Version functions
-  * @short_description: functions to get the library version.
-  *
-- * Note that library version is not the same thing as SONAME verison. The
-+ * Note that library version is not the same thing as SONAME version. The
-  * libsmarcols uses symbols versioning and SONAME is not modified for releases.
-  *
-  * The library version and symbols version follow util-linux package versioning.
-diff --git a/login-utils/last.c b/login-utils/last.c
-index ba58c44..4c70eaa 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -401,7 +401,7 @@ static int list(const struct last_control *ctl, struct utmp *p, time_t t, int wh
- 		utline[4] = 0;
- 
- 	/*
--	 *	Is this something we wanna show?
-+	 *	Is this something we want to show?
- 	 */
- 	if (ctl->show) {
- 		char **walk;
-diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index c51c7a8..d52d831 100644
---- a/sys-utils/fstrim.c
-+++ b/sys-utils/fstrim.c
-@@ -118,7 +118,7 @@ static int has_discard(const char *devname, struct sysfs_cxt *wholedisk)
- 	 * This is tricky to read the info from sys/, because the queue
- 	 * atrributes are provided for whole devices (disk) only. We're trying
- 	 * to reuse the whole-disk sysfs context to optimize this stuff (as
--	 * system usualy have just one disk only).
-+	 * system usually have just one disk only).
- 	 */
- 	if (sysfs_devno_to_wholedisk(dev, NULL, 0, &disk) || !disk)
- 		return 1;
--- 
-2.0.1
+I think it can't be related to systemd or udev, because as i know zram
+configure and using with using many different scripts or through udev
+config files. May be in future i open discuss in systemd-devel about
+zramctl but now, i try to close several things in systemd todo, like
+readahead optimization.
 
+> By glance it seems a good utility would be able to integrate with udev
+> and systemd, it should have add, remove, and possibly modify method. I
+> would prefer the command to list what is current status of zram
+> devices when nothing else is instructed. And of course manual page is
+> needed. See util-linux/Documentation/howto-man-page.txt file to get
+> manual done.
+
+Also, kernel can't add or delete zram devices on demand, it hard coded
+in module. Yes, i can reload module every time, but it awkward.
+I write patch for correct this https://lkml.org/lkml/2014/7/17/664 ,
+but now it not merged(and will it?).
+
+I just want to make all acceptable generic solution (i can configure
+loop devices through sysfs, but i have losetup...).
+
+zramctl have status command:
+$ zramctl status
+ NAME     DISKSIZE       ORIG    COMPRES  ALG  THR
+ zram0  1073741824     401408              8101   lz4   4
+ zram1  1073741824              0                   0   lz4   4
+
+> Without any investigation I have no idea what should be done with
+> systemd integration. The zramctl might need a systemd service file,
+> and possibly some sort of configuration file to setup the devices at
+> boot desired way. Or something totally different. I am sure there is
+> someone who knows what should be done, and with a bit of luck the mail
+> archive discussion I pointed out has an answer to this already.
+> --
+> Sami Kerola
+> http://www.iki.fi/kerolasa/
+
+I also have custom systemd-swap script (handle swap device, zram
+swaps, file swaps), what depend on zramctl, and i think if systemd
+maintainers will want to expand various swap setting inside systemd, i
+implement can it.
