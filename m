@@ -1,45 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6287 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750821AbaGRK7T (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Jul 2014 06:59:19 -0400
-Date: Fri, 18 Jul 2014 12:59:13 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: some comments about the new cfdisk
-Message-ID: <20140718105913.GB17373@x2.net.home>
-References: <1405350470.21924.141447857.78268FC5@webmail.messagingengine.com>
- <20140715105920.GS30288@x2.net.home>
- <1405509773.32592.142240757.286353E5@webmail.messagingengine.com>
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:38892 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751030AbaGUHxh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 21 Jul 2014 03:53:37 -0400
+Received: by mail-pa0-f44.google.com with SMTP id eu11so9375299pac.31
+        for <util-linux@vger.kernel.org>; Mon, 21 Jul 2014 00:53:36 -0700 (PDT)
+Date: Mon, 21 Jul 2014 07:57:21 +0000
+From: Minchan Kim <minchan@kernel.org>
+To: Davidlohr Bueso <davidlohr@hp.com>
+Cc: Timofey Titovets <nefelim4ag@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [RFC] Zram handle util
+Message-ID: <20140721075721.GC8180@gmail.com>
+References: <53CAAAB6.6020607@gmail.com>
+ <1405888608.11927.11.camel@buesod1.americas.hpqcorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1405509773.32592.142240757.286353E5@webmail.messagingengine.com>
+In-Reply-To: <1405888608.11927.11.camel@buesod1.americas.hpqcorp.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 16, 2014 at 01:22:53PM +0200, Benno Schulenberg wrote:
-> 
-> On Tue, Jul 15, 2014, at 12:59, Karel Zak wrote:
-> > On Mon, Jul 14, 2014 at 05:07:50PM +0200, Benno Schulenberg wrote:
-> > > Running cfdisk without an argument no longer works - it just
-> > > blurts out the usage text, instead of picking the first and only
-> > > hard drive in the system.
+On Sun, Jul 20, 2014 at 01:36:48PM -0700, Davidlohr Bueso wrote:
+> On Sat, 2014-07-19 at 20:28 +0300, Timofey Titovets wrote:
+> > Good time of day.
+> > I want hear your opinions.
+> > Several days ago, i writed zramctl util (on C++) for have useful app for 
+> > setup zrams..
+> > Code hosted her: https://github.com/Nefelim4ag/zramctl
 > > 
-> > Yes, this is expected change. I think it's better to force
-> > users to type the disk path than hardcode "sda" to the code,
-> > but I have no strong opinion about it... no problem to change it.
+> > Examples:
+> > zramctl find # return name of first free device (zram0)
+> > zramctl find 1024M lz4 4 # (i not implement -? options now)
+> > 			 # 4 - threads
+> > 			 # setup and return name of device (zram1)
+> > zramctl reset zram0 zram1 ...
+> > 
+> > 
+> > I want to port it on C and try include it in util-linux, like losetup.
+> > It has a sense? What do you think?
 > 
-> It would be nice to have the old behaviour back.  Either that,
-> or show an error message saying "expecting a device argument"
-> instead of blasting out the entire usage text.
+> Minchan, any thoughts in keeping this sort of utility in the kernel
+> tree? Perhaps tools/zram/? No idea if the code is suitable to consider
+> right away, but it kinda makes sense.
 
- OK, fixed. For v2.25 we're going use the original solution from old
- cfdisk (default to /dev/sda). For v2.26 I'd like to implement dialog
- where you can select the disk (if you have more disks).
+First of all, Thanks for your effor, Timofey!
 
-    Karel
+Adding such userspace tool in kernel src directory doesn't make sense.
+If we wanted it, there are tons of user tools in kernel src directory
+so IMHO, util-linux is better place.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks.
+
+> 
+> Thanks,
+> Davidlohr
+> 
