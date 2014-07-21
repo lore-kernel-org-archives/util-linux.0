@@ -1,30 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.13]:60794 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755392AbaGaF5g (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Jul 2014 01:57:36 -0400
-Message-ID: <53D9DACD.8050902@bernhard-voelker.de>
-Date: Thu, 31 Jul 2014 07:57:33 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:27091 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753103AbaGUI3K (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Jul 2014 04:29:10 -0400
+Date: Mon, 21 Jul 2014 10:28:59 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>
+Subject: Re: mount.8: mtab as symlink
+Message-ID: <20140721082859.GD17373@x2.net.home>
+References: <53CCADA9.3020703@bernhard-voelker.de>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] tests: fix rename subdir check that was failing in
- travis
-References: <1406756671-26805-1-git-send-email-kerolasa@iki.fi> <1406756671-26805-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406756671-26805-2-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53CCADA9.3020703@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/30/2014 11:44 PM, Sami Kerola wrote:
-> +readlink: extra operand `rename_aa/sublink.2'
-> +Try `readlink --help' for more information.
+On Mon, Jul 21, 2014 at 08:05:29AM +0200, Bernhard Voelker wrote:
+>   It is  possible to replace /etc/mtab by a symbolic link to
+>   /proc/mounts, and especially when you have very large numbers
+>   of mounts things will be much faster with that symlink, but some
+>   information is lost that way, and in particular using the "user"
+>   option will fail.
 > 
-> The commit 0f85e0535bd4e6d19fadca182e4d57660b6bb57b introduced the travis
-> realpath issue to happen.
+> ... and is scared about the last sentence.
+> Is this still true? I don't have problems with mounting "user"
+ 
+  Oops, this is really obsolete info. Fixed. Thanks!
 
-s/realpath/readlink/
-These are different programs. ;-)
+    Karel
 
-Thanks & have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
