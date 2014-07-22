@@ -1,475 +1,773 @@
-Return-Path: nefelim4ag@gmail.com
-Message-ID: <53CFF0CC.4000608@gmail.com>
-Date: Wed, 23 Jul 2014 20:28:44 +0300
-From: Timofey Titovets <nefelim4ag@gmail.com>
-MIME-Version: 1.0
-To: Timofey Titovets <nefelim4ag@gmail.com>
-CC: util-linux@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
-        Karel Zak <kzak@redhat.com>
-Subject: [RFC] [Patch] Created zramctl
-References: <53CAAAB6.6020607@gmail.com>
-In-Reply-To: <53CAAAB6.6020607@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Return-Path: davidlohr@hp.com
+From: Davidlohr Bueso <davidlohr@hp.com>
+To: kzak@redhat.com
+Cc: davidlohr@hp.com, aswin@hp.com, util-linux@vger.kernel.org
+Subject: [PATCH 11/13] sfdisk: rework option handling
+Date: Tue, 22 Jul 2014 16:44:55 -0700
+Message-Id: <1406072697-20912-12-git-send-email-davidlohr@hp.com>
+In-Reply-To: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
+References: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Good time of day,
-I spend some time and rewrite zramctl for util-linux.
+One of the biggest characteristics of sfdisk is that it has an enormous amount
+of argument options. While the manpage classifies this has a bug, it does
+have its place, ie: user or (more likely) sysadmin scripts. Any reworking effort
+must maintain 100% backward compatibility, otherwise we can make users unhappy.
 
-Please review code and man pages, i think what i can do it better.
-If you have any suggestion, say it out.
+With that in mind, this patch proposes a fundamental general structuring of
+the program's UI. Just as cfdisk has ncurses and fdisk has those crazy character
+based menus, sfdisk uses the command line arguments as the main way of interaction.
+Specifically, there are 4 main types of options that will define the overall
+program logic -- each of these types are completely independent and keep a very
+particular order. It introduces a simple static 'struct sfdisk_option' type as a
+table that maps to the group-specific callback if enabled by the user.
+A few observations:
 
-Can be pulled from:
-https://github.com/Nefelim4ag/util-linux
+  * While this idea guarantees backward compatibility, it is possible for the
+    implementation to be missing a few corner cases. This patch is pretty well
+    tested, but still lacks 100% automation. So more testing is definitely
+    welcome!
 
-For detail see man pages zramctl.8
+  * For now, have a global array of options. However, as the sfdisk context
+    begins to be built, this array can be moved inside and have direct control
+    over it.
 
-----
-  sys-utils/Makemodule.am |   5 +
-  sys-utils/zramctl.8     |  92 ++++++++++++++
-  sys-utils/zramctl.c     | 319 
-++++++++++++++++++++++++++++++++++++++++++++++++
-  3 files changed, 416 insertions(+)
+While I doubt that there will ever be a need, adding a new group of options is
+quite trivial, as it is to change the internal interfaces (sfdisk_option_*).
+This last one will be more important as code matures.
 
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index 68fd030..5d70c51 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -172,6 +172,11 @@ eject_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
-  dist_man_MANS += sys-utils/eject.1
-  endif
+Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+---
+ disk-utils/sfdisk.c | 435 +++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 315 insertions(+), 120 deletions(-)
 
-+sbin_PROGRAMS += zramctl
-+dist_man_MANS += sys-utils/zramctl.8
-+zramctl_SOURCES = sys-utils/zramctl.c
-+zramctl_LDADD = $(LDADD) libcommon.la libsmartcols.la
-+zramctl_CFLAGS = $(AM_CFLAGS) -I$(ul_libsmartcols_incdir)
-
-  if BUILD_LOSETUP
-  sbin_PROGRAMS += losetup
-diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
-new file mode 100644
-index 0000000..4da209d
---- /dev/null
-+++ b/sys-utils/zramctl.8
-@@ -0,0 +1,92 @@
-+.TH ZRAMCTL 8 "July 2014" "util-linux" "System Administration"
-+.SH NAME
-+zramctl \- set up and control zram devices
-+.SH SYNOPSIS
-+.ad l
-+Get info:
-+.sp
-+.in +5
-+.B zramctl
-+.sp
-+.in -5
-+Reset zram:
-+.sp
-+.in +5
-+.B "zramctl \-r"
-+.IR zramdev
-+.sp
-+.in -5
-+Print name of first unused zram device:
-+.sp
-+.in +5
-+.B "zramctl \-f"
-+.sp
-+.in -5
-+Setup zram device:
-+.sp
-+.in +5
-+.B zramctl
-+.RB { \-f\ [ \-d\ \fIzramdev\fP] }
-+.RB [ \-s
-+.IR size ]
-+.RB \ [ \-t
-+.IR number ]
-+.in +8
-+.RB [ \-a
-+.IR algorithm ]
-+.sp
-+.in -13
-+.ad b
-+.SH DESCRIPTION
-+.B zramctl
-+is used to fast setup zram devices parametrs, to reset zram devices and to
-+query the status of a used zram devices.
-+If no option is given, all zram devices are shown.
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index a097c6e..86ed112 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -40,6 +40,7 @@
+ #include <sys/stat.h>
+ #include <sys/utsname.h>
+ #include <limits.h>
++#include <assert.h>
+ 
+ #include "c.h"
+ #include "nls.h"
+@@ -53,6 +54,9 @@
+ #include "strutils.h"
+ #include "sysfs.h"
+ 
++#define PRINT_ID 0400
++#define CHANGE_ID 01000
 +
-+
-+.SH OPTIONS
-+
-+.IP "\fB\-s, \-\-size\fP \fIsize\fP
-+force zram driver to reread size of the file associated with the 
-specified zram device
-++The \fIsize\fR arguments may be followed by the multiplicative
-++suffixes 128K 512M, 1G.
-+.IP "\fB\-r, \-\-reset\fP \fIzramdev\fP"
-+Reset options specified zram device(s). Zram device setting can be 
-changed only
-+after reset.
-+.IP "\fB\-f, \-\-find\fP"
-+find the first unused zram device. If a
-+.R \-s \fIsize\fR
-+argument is present, use this device.
-+.IP "\fB\-h, \-\-help\fP"
-+print help
-+.IP "\fB\-t, \-\-threads \fInumber\fP"
-+Set number of maximum compress streams what used for device.
-+.IP "\fB\-a, \-\-alg \fI{lzo|lz4}\fP""
-+Set compress algorithm used for compress data in zram device.
-+
-+.SH RETURN VALUE
-+.B zramctl
-+returns 0 on success, nonzero on failure.
-+
-+.SH FILES
-+.TP
-+.I /dev/zram[0..N]
-+zram block devices
-+
-+.SH EXAMPLE
-+The following commands can be used as an example of using the zram device.
-+.nf
-+.IP
-+# zramctl --find --size 1024M
-+/dev/zram0
-+# mkswap /dev/zram0
-+# swapon /dev/zram0
-+ ...
-+# swapoff /dev/zram0
-+# zramctl --reset /dev/zram0
-+.fi
-+.SH AUTHORS
-+Timofey Titovets <nefelim4ag@gmail.com>
-+.SH AVAILABILITY
-+The zramctl command is part of the util-linux package and is available from
-+ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
-new file mode 100644
-index 0000000..6ddee9b
---- /dev/null
-+++ b/sys-utils/zramctl.c
-@@ -0,0 +1,319 @@
-+/*
-+ * zramctl - purpose of it
-+ *
-+ * Copyright (c) 20nn  Example Commercial, Inc
-+ * Written by Timofey Titovets <Nefelim4ag@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it would be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ struct systypes {
+ 	unsigned char type;
+ 	char *name;
+@@ -63,6 +67,200 @@ static struct systypes i386_sys_types[] = {
+ };
+ 
+ /*
++ * sfdisk program command line handling internal API.
 + */
++enum {
++	/*
++	 * There are 4 independent, mutually exclusive types,
++	 * or groups, of options throughout sfdisk.
++	 *
++	 * Keep this particular order to maintain backward
++	 * option preference compatibility. Consider each group
++	 * call completely isolated to one another. Otherwise
++	 * existing scripts can be broken, ie:
++	 *
++	 * sfdisk -s -V /dev/sda
++	 * sfdisk -G -g -s /dev/sda
++	 */
++	SFDISK_OPT_OUT_GEOM = 0, /* list kernel's idea of the geometry */
++	SFDISK_OPT_OUT_PT_GEOM,  /* list the geometry by looking at the pt */
++	SFDISK_OPT_SIZE,         /* list size of the partition */
++	SFDISK_OPT_LIST,         /* list partitions of a device */
++	SFDISK_OPT_VERIFY,       /* check that listed partition is reasonable */
++#define SFDISK_OPT_GROUP1 SFDISK_OPT_VERIFY
 +
-+#include <getopt.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
++	SFDISK_OPT_ACTIVATE,     /* mark the indicated partitions active, the rest inactive */
++	SFDISK_OPT_UNHIDE,       /* mark various Microsoft partitions unhidden */
++#define SFDISK_OPT_GROUP2 SFDISK_OPT_UNHIDE
 +
-+#include "c.h"
-+#include "closestream.h"
-+#include "nls.h"
++	SFDISK_OPT_CHANGE_ID,    /* print or change partition IDs to a given value */
++#define SFDISK_OPT_GROUP3 SFDISK_OPT_CHANGE_ID
 +
-+static inline int zram_exist(char *name)
++	SFDISK_OPT_REREAD,      /* make the kernel re-read the partition table (BLKRRPART ioctl) */
++	SFDISK_OPT_RESTORE_SCT, /* restore filesystem/disk state backed-up by -O option  */
++#define SFDISK_OPT_GROUP4 SFDISK_OPT_RESTORE_SCT
++
++	N_SFDISK_OPTS,
++};
++
++struct sfdisk_option {
++	int active;
++
++	/*
++	 * Different different families of callbacks,
++	 * depending on the passed options. For each callback
++	 * type, there is a sfdisk_option_do_cb<N>() which
++	 * should be called only after successfully calling
++	 * sfdisk_option_is_cb<N>().
++	 */
++	int (*callback1)(char *, int, unsigned long long *);
++	int (*callback2)(char **, int, char *);
++	int (*callback3)(char *, char *, char *);
++	int (*callback4)(char *);
++};
++
++/* the different callbacks */
++static int do_geom(char *dev, int silent,
++		   unsigned long long *dummy  __attribute__((__unused__)));
++static int do_pt_geom(char *dev, int silent,
++		      unsigned long long *dummy __attribute__((__unused__)));
++static int do_size(char *dev, int silent, unsigned long long *total_size);
++static int do_verify(char *dev, int silent,
++		     unsigned long long *dummy __attribute__((__unused__)));
++static int do_list(char *dev, int silent,  unsigned long long *dummy __attribute__((__unused__)));
++static int do_activate(char **av, int ac, char *arg);
++static int do_unhide(char **av, int ac, char *arg);
++static int do_change_id(char *dev, char *pnam, char *id);
++static int do_reread(char *dev);
++static int do_restore_sectors(char *dev);
++
++static struct sfdisk_option opts[N_SFDISK_OPTS] = {
++		/* first group of options */
++		[SFDISK_OPT_OUT_GEOM]    = { 0,   do_geom,    NULL,        NULL },
++		[SFDISK_OPT_OUT_PT_GEOM] = { 0,   do_pt_geom, NULL,        NULL },
++		[SFDISK_OPT_SIZE]        = { 0,   do_size,    NULL,        NULL },
++		[SFDISK_OPT_VERIFY]      = { 0,   do_verify,  NULL,        NULL },
++		[SFDISK_OPT_LIST]        = { 0,   do_list,    NULL,        NULL },
++		/* second group of options */
++		[SFDISK_OPT_ACTIVATE]    = { 0,   NULL,       do_activate, NULL },
++		[SFDISK_OPT_UNHIDE]      = { 0,   NULL,       do_unhide,   NULL },
++		/* Third group of options */
++		[SFDISK_OPT_CHANGE_ID]   = { 0,   NULL,       NULL,        do_change_id, NULL},
++		/* fourth group of options */
++		[SFDISK_OPT_REREAD]      = { 0,   NULL,       NULL,        NULL,         do_reread },
++		[SFDISK_OPT_RESTORE_SCT] = { 0,   NULL,       NULL,        NULL,         do_restore_sectors },
++};
++
++static inline void sfdisk_option_checks(void)
 +{
-+	struct stat info;
-+	char path[16] = "/dev/";
-+	strncat(path, name, 8);
-+	if(stat(path, &info) != 0 )
-+		return 0;
-+	if (info.st_mode&S_IFBLK)
-+		return 1;
++	assert(N_SFDISK_OPTS - 1 == SFDISK_OPT_RESTORE_SCT);
++	assert((SFDISK_OPT_GROUP1 < SFDISK_OPT_GROUP2) &&
++	       (SFDISK_OPT_GROUP3 < SFDISK_OPT_GROUP4));
++}
++
++/* TYPE 1 option calls */
++static inline int sfdisk_option_is_cb1(struct sfdisk_option *opts)
++{
++	int i;
++
++	for (i = 0; i <= SFDISK_OPT_GROUP1; i++)
++		if (opts[i].active)
++			return 1;
 +	return 0;
 +}
 +
-+static inline int read_file(char *path, char *data)
++static int sfdisk_option_do_cb1(struct sfdisk_option *opts, char *dev,
++				int silent, unsigned long long *arg)
 +{
-+	FILE *file;
-+	unsigned i = 0;
-+	char ch = EOF;
-+	char *p;
-+	p = path; // hack for work fopen
-+	file = fopen(p, "r");
-+	if (file == NULL) {
-+		fprintf(stderr,_("can't open !%s!\n"), path);
-+		return -1;
-+	}
++	int i, ret = 0;
 +
-+	while (1) {
-+		ch = fgetc(file);
-+		if (ch == EOF || ch == '\n')
-+			break;
-+		else
-+			data[i]=ch;
-+		i++;
-+	}
-+	fclose(file);
++	for (i = 0; i <= SFDISK_OPT_GROUP1; i++)
++		if (opts[i].active)
++			ret = opts[i].callback1(dev, silent, arg);
++	return ret;
++}
++/* TYPE 2 option calls */
++static inline int sfdisk_option_is_cb2(struct sfdisk_option *opts)
++{
++	int i;
 +
++	for (i = SFDISK_OPT_GROUP1; i <= SFDISK_OPT_GROUP2; i++)
++		if (opts[i].active)
++			return 1;
 +	return 0;
 +}
 +
-+static inline int used(char *name)
++static int sfdisk_option_do_cb2(struct sfdisk_option *opts, char **av,
++				int ac, char *arg)
 +{
-+	char path_to_disksize[32] = "/sys/block/";
-+	char disksize[32]="";
-+	strncat(path_to_disksize, name, 8);
-+	strncat(path_to_disksize, "/disksize", 9);
-+	if(read_file(path_to_disksize, disksize) < 0)
-+		return -1;
++	int i;
 +
-+	if (disksize[0] == '0')
-+		return 0;
-+
-+	return 1;
-+}
-+
-+static inline int get_value(char *name, char *data, char *filename)
-+{
-+	char path[48] = "/sys/block/";
-+	strncat(path, name, 8);
-+	strncat(path,"/", 2);
-+	strncat(path, filename, 32);
-+	return read_file(path, data);
-+}
-+
-+static inline int write_file(char *path, char *data)
-+{
-+	FILE *file;
-+	char *p = path;
-+	file = fopen(p, "w");
-+	if (file == NULL) {
-+		fprintf(stderr,_("can't write to %s\n"), path);
-+		return -1;
-+	}
-+	fwrite(data, strlen(data), 1, file);
-+	if (fclose(file) != 0)
-+		return -1;
-+	return 1;
-+}
-+
-+static inline int value2devparm(char *name, char *data, char *filename)
-+{
-+	char path[48] = "/sys/block/";
-+	strncat(path, name, 8);
-+	strncat(path,"/", 2);
-+	strncat(path, filename, 32);
-+	return write_file(path, data);
-+}
-+
-+static inline int status(void)
-+{
-+	char disksize[32]="";
-+	char orig_data_size[32]="";
-+	char compr_data_size[32]="";
-+	char comp_algorithm[6]="";
-+	char max_comp_streams[12]="";
-+	unsigned i;
-+	char *table = "%6s %12s %10s %10s %4s %4s \n";
-+	printf(table, "NAME","DISKSIZE","ORIG","COMPRES","ALG","THR");
-+	for (i=0;;i++) {
-+		char name[8] = "zram";
-+		char num[4];
-+		char *pos;
-+		sprintf(num,"%i",i);
-+		strncat(name, num, 8);
-+		if(!zram_exist(name))
-+			break;
-+		if(!used(name))
++	for (i = SFDISK_OPT_GROUP1; i <= SFDISK_OPT_GROUP2; i++) {
++		if (!opts[i].active)
 +			continue;
-+		get_value(name, disksize, "disksize");
-+		get_value(name, orig_data_size, "orig_data_size");
-+		get_value(name, compr_data_size, "compr_data_size");
-+		get_value(name, comp_algorithm, "comp_algorithm");
-+		pos = strstr(comp_algorithm, "[lzo]");
-+		if (pos == NULL) {
-+			pos = strstr(comp_algorithm, "[lz4]");
-+			if (pos == NULL)
-+				strncpy(comp_algorithm,"-", 2);
-+			else
-+				strncpy(comp_algorithm, "lz4", 4);
-+		} else
-+			strncpy(comp_algorithm, "lzo", 4);
-+		get_value(name, max_comp_streams, "max_comp_streams");
-+		printf(table,
-+			name,
-+			disksize,
-+			orig_data_size,
-+			compr_data_size,
-+			comp_algorithm,
-+			max_comp_streams
-+		      );
-+	}
 +
++		return opts[i].callback2(av, ac, arg);
++	}
++	return 0; /* should never occur */
++}
++/* TYPE 3 option calls */
++static inline int sfdisk_option_is_cb3(struct sfdisk_option *opts)
++{
++	int i;
++
++	for (i = SFDISK_OPT_GROUP2; i <= SFDISK_OPT_GROUP3; i++)
++		if (opts[i].active)
++			return 1;
 +	return 0;
-+	goto fail;
-+fail:
-+	printf("Zram module not loaded");
-+	return -1;
 +}
 +
-+static inline char *find(void)
++static int sfdisk_option_do_cb3(struct sfdisk_option *opts,
++				int optind, int argc,
++				char *dev, char *pnam, char *id)
 +{
-+	char *ret = NULL;
-+	for (unsigned i=0;;i++) {
-+		char name[8] = "zram";
-+		char num[4];
++	int i;
 +
-+		sprintf(num,"%i",i);
-+		strncat(name, num, 4);
-+		if (!zram_exist(name))
-+			break;
-+		else	//if enough one dir founded -> module loaded
-+			ret = "USED";
++	for (i = SFDISK_OPT_GROUP2; i <= SFDISK_OPT_GROUP3; i++) {
++		int do_id = opts[SFDISK_OPT_CHANGE_ID].active;
 +
-+		if (used(name) == 0) {
-+			ret = name;
-+			break;
++		if (!opts[i].active)
++			continue;
++
++		if (i == SFDISK_OPT_CHANGE_ID && do_id) {
++			if ((do_id & PRINT_ID) != 0 && optind != argc - 2)
++				errx(EXIT_FAILURE, _("usage: sfdisk --print-id device partition-number"));
++			else if ((do_id & CHANGE_ID) != 0 && optind != argc - 3)
++				errx(EXIT_FAILURE, _("usage: sfdisk --change-id device partition-number Id"));
++			else if (optind != argc - 3 && optind != argc - 2)
++				errx(EXIT_FAILURE, _("usage: sfdisk --id device partition-number [Id]"));
 +		}
++		return opts[i].callback3(dev, pnam, id);
 +	}
++	return 0; /* should never occur */
++}
++/* TYPE 4 option calls */
++static inline int sfdisk_option_is_cb4(struct sfdisk_option *opts)
++{
++	int i;
 +
++	for (i = SFDISK_OPT_GROUP3; i <= SFDISK_OPT_GROUP4; i++)
++		if (opts[i].active)
++			return 1;
++	return 0;
++}
++
++static int sfdisk_option_do_cb4(struct sfdisk_option *opts, char *dev)
++
++{
++	int i;
++
++	for (i = SFDISK_OPT_GROUP3; i <= SFDISK_OPT_GROUP4; i++)
++		if (opts[i].active)
++			return opts[i].callback4(dev);
++	return 0;
++}
++
++/*
+  * Table of contents:
+  *  A. About seeking
+  *  B. About sectors
+@@ -79,15 +277,12 @@ int force = 0;			/* 1: do what I say, even if it is stupid ... */
+ int quiet = 0;			/* 1: suppress all warnings */
+ /* IA-64 gcc spec file currently does -DLinux... */
+ #undef Linux
+-int Linux = 0;			/* 1: suppress warnings irrelevant for Linux */
+ int DOS = 0;			/* 1: shift extended partitions by #sectors, not 1 */
+ int DOS_extended = 0;		/* 1: use starting cylinder boundary of extd partn */
+ int dump = 0;			/* 1: list in a format suitable for later input */
+-int verify = 0;			/* 1: check that listed partition is reasonable */
+ int no_write = 0;		/* 1: do not actually write to disk */
+ int no_reread = 0;		/* 1: skip the BLKRRPART ioctl test at startup */
+ int leave_last = 0;		/* 1: don't allocate the last cylinder */
+-int opt_list = 0;
+ char *save_sector_file = NULL;
+ char *restore_sector_file = NULL;
+ 
+@@ -303,8 +498,8 @@ err:
+ 
+ static int reread_disk_partition(char *dev, int fd);
+ 
+-static int
+-restore_sectors(char *dev) {
++static int do_restore_sectors(char *dev)
++{
+ 	int fdin = -1, fdout = -1;
+ 	int ct;
+ 	struct stat statbuf;
+@@ -450,8 +645,8 @@ get_geometry(char *dev, int fd, int silent) {
+ 	return R;
+ }
+ 
+-static void
+-get_cylindersize(char *dev, int fd, int silent) {
++static void get_cylindersize(char *dev, int fd, int silent)
++{
+ 	struct geometry R;
+ 
+ 	R = get_geometry(dev, fd, silent);
+@@ -1070,14 +1265,17 @@ out_partition(char *dev, int format, struct part_desc *p,
+ 	}
+ }
+ 
+-static void
+-out_partitions(char *dev, struct disk_desc *z) {
++static void out_partitions(char *dev, struct disk_desc *z)
++{
+ 	int pno, format = 0;
+ 
+ 	if (z->partno == 0) {
++		int opt_list = opts[SFDISK_OPT_LIST].active;
++
+ 		if (!opt_list)
+ 			warnx(_("No partitions found"));
+ 	} else {
++
+ 		if (get_fdisk_geometry(z) && !dump) {
+ 			warnx(_("Warning: The partition table looks like it was made\n"
+ 				"  for C/H/S=*/%ld/%ld (instead of %ld/%ld/%ld).\n"
+@@ -1554,8 +1752,10 @@ amiga_partition(char *dev __attribute__ ((__unused__)),
+ 	return 0;
+ }
+ 
+-static void
+-get_partitions(char *dev, int fd, struct disk_desc *z) {
++static void get_partitions(char *dev, int fd, struct disk_desc *z)
++{
++	int opt_list = opts[SFDISK_OPT_LIST].active;
++
+ 	z->partno = 0;
+ 
+ 	if (!msdos_partition(dev, fd, 0, z)
+@@ -2339,13 +2539,15 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+-static void
+-activate_usage(void) {
++static void activate_usage(void)
++{
+ 	char *p;
++
+ 	if (!strcmp(program_invocation_short_name, "activate"))
+ 		p = " ";
+ 	else
+ 		p = " --activate=";
++
+ 	fputs(USAGE_HEADER, stderr);
+ 	fputs(USAGE_SEPARATOR, stderr);
+ 	fprintf(stderr, _(" %s%sdevice            list active partitions on device\n"),
+@@ -2356,9 +2558,6 @@ activate_usage(void) {
+ 	exit(EXIT_FAILURE);
+ }
+ 
+-#define PRINT_ID 0400
+-#define CHANGE_ID 01000
+-
+ enum {
+ 	OPT_NO_REREAD = CHAR_MAX + 1,
+ 	OPT_LEAVE_LAST,
+@@ -2457,14 +2656,12 @@ static char *nextproc(FILE *f)
+ 	return NULL;
+ }
+ 
+-unsigned long long total_size;
+-
+ /*
+  *  H. Listing the current situation
+  */
+ 
+-static int
+-my_open(char *dev, int rw, int silent) {
++static int my_open(char *dev, int rw, int silent)
++{
+ 	int fd, mode;
+ 
+ 	mode = (rw ? O_RDWR : O_RDONLY);
+@@ -2478,7 +2675,8 @@ my_open(char *dev, int rw, int silent) {
+ 	return fd;
+ }
+ 
+-static int do_list(char *dev, int silent)
++static int do_list(char *dev, int silent,
++		   unsigned long long *dummy __attribute__((__unused__)))
+ {
+ 	int fd, ret = 0;
+ 	struct disk_desc *z;
+@@ -2490,31 +2688,51 @@ static int do_list(char *dev, int silent)
+ 	z = &oldp;
+ 
+ 	free_sectors();
+-	get_cylindersize(dev, fd, dump ? 1 : opt_list ? 0 : 1);
++	get_cylindersize(dev, fd, dump ? 1 : 0);
+ 	get_partitions(dev, fd, z);
+ 
+-	if (opt_list)
+-		out_partitions(dev, z);
++	out_partitions(dev, z);
+ 
+-	if (verify) {
+-		if (partitions_ok(fd, z))
+-			printf(_("%s: OK"), dev);
+-		else
+-			ret = 1;
+-	}
++	close(fd);
++	return ret;
++}
++
++static int do_verify(char *dev, int silent,
++		     unsigned long long *dummy __attribute__((__unused__)))
++{
++	int fd, ret = 0, opt_list = opts[SFDISK_OPT_LIST].active;
++	struct disk_desc *z;
++
++	fd = my_open(dev, 0, silent);
++	if (fd < 0)
 +		return ret;
-+}
 +
++	z = &oldp;
 +
++	free_sectors();
++	get_cylindersize(dev, fd, dump ? 1 :
++			 (opt_list && opts[SFDISK_OPT_SIZE].active) ? 0 : 1);
++	get_partitions(dev, fd, z);
 +
-+static inline void usage(FILE *out)
++	if (partitions_ok(fd, z))
++		printf(_("%s: OK"), dev);
++	else
++		ret = 1;
+ 
+ 	close(fd);
+ 	return ret;
+ }
+ 
+-static void
+-do_geom(char *dev, int silent) {
++static int do_geom(char *dev, int silent,
++		   unsigned long long *dummy  __attribute__((__unused__)))
++
 +{
-+	fputs(USAGE_HEADER, out);
-+	fprintf(out, _(" %s [-d zramX|-f] -s 64M -a lz4 -t 16\n"), "zramctl");
-+	fputs(USAGE_OPTIONS, out);
-+	fputs(_(" <no args>             return status of used devices\n"), out);
-+	fputs(_(" -f, --find            find free device\n"), out);
-+	fputs(_(" -d, --device [name]   specify device: zramX\n"), out);
-+	fputs(_(" -r, --reset  [name]   reset specified device\n"), out);
-+	fputs(_(" -s, --size [size]     device size: 131072, 1024M...\n"), out);
-+	fputs(_(" -a, --alg [lzo|lz4]   compress algorithm\n"), out);
-+	fputs(_(" -t, --threads [0<num] number of compress streams\n"), out);
-+	fputs(USAGE_SEPARATOR, out);
-+	fputs(USAGE_HELP, out);
-+	fputs(USAGE_VERSION, out);
-+	fprintf(out, USAGE_MAN_TAIL("zramctl(8)"));
-+	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-+}
-+
-+int main(int argc, char **argv)
+ 	int fd;
+ 	struct geometry R;
+ 
+ 	fd = my_open(dev, 0, silent);
+ 	if (fd < 0)
+-		return;
++		return 0;
+ 
+ 	R = get_geometry(dev, fd, silent);
+ 	if (R.cylinders)
+@@ -2522,17 +2740,19 @@ do_geom(char *dev, int silent) {
+ 		       dev, R.cylinders, R.heads, R.sectors);
+ 
+ 	close(fd);
++	return 0;
+ }
+ 
+-static void
+-do_pt_geom(char *dev, int silent) {
++static int do_pt_geom(char *dev, int silent,
++		      unsigned long long *dummy __attribute__((__unused__)))
 +{
-+	int c = 0;
-+	char *dev = NULL;
-+	char *size = NULL;
-+	char *alg = NULL;
-+	char threads[5] = "1";
-+	unsigned f = 0;
+ 	int fd;
+ 	struct disk_desc *z;
+ 	struct geometry R;
+ 
+ 	fd = my_open(dev, 0, silent);
+ 	if (fd < 0)
+-		return;
++		return 0;
+ 
+ 	z = &oldp;
+ 
+@@ -2554,17 +2774,18 @@ do_pt_geom(char *dev, int silent) {
+ 		       dev, R.cylinders, R.heads, R.sectors);
+ 
+ 	close(fd);
++	return 0;
+ }
+ 
+ /* for compatibility with earlier fdisk: provide option -s */
+-static void
+-do_size(char *dev, int silent) {
++static int do_size(char *dev, int silent, unsigned long long *total_size)
++{
+ 	int fd;
+ 	unsigned long long size;
+ 
+ 	fd = my_open(dev, 0, silent);
+ 	if (fd < 0)
+-		return;
++		return 0;
+ 
+ 	if (blkdev_get_sectors(fd, &size) == -1) {
+ 		if (!silent)
+@@ -2583,10 +2804,11 @@ do_size(char *dev, int silent) {
+ 	else
+ 		printf("%llu\n", size);
+ 
+-	total_size += size;
++	*total_size += size;
+ 
+ done:
+ 	close(fd);
++	return size;
+ }
+ 
+ /*
+@@ -2778,8 +3000,8 @@ done:
+ 	return ret;
+ }
+ 
+-static void
+-do_reread(char *dev) {
++static int do_reread(char *dev)
++{
+ 	int fd;
+ 
+ 	fd = my_open(dev, 0, 0);
+@@ -2789,6 +3011,7 @@ do_reread(char *dev) {
+ 	}
+ 
+ 	close(fd);
++	return 0;
+ }
+ 
+ /*
+@@ -2893,25 +3116,19 @@ static int do_fdisk(char *dev)
+ 
+ int main(int argc, char **argv)
+ {
+-	int c, ret = 0;
+-	char *dev;
+-	int opt_size = 0;
+-	int opt_out_geom = 0;
+-	int opt_out_pt_geom = 0;
+-	int opt_reread = 0;
+-	int activate = 0;
+-	int do_id = 0;
+-	int unhide = 0;
+-	char *activatearg = 0;
+-	char *unhidearg = 0;
++	int c, err = 0;
++	char *dev, *args = NULL;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
++	/* simple option size/order sanity check */
++	sfdisk_option_checks();
 +
-+	static const struct option longopts[] = {
-+		{"find", no_argument, NULL, 'f'},
-+		{"device", required_argument, NULL, 'd'},
-+		{"size", required_argument, NULL, 's'},
-+		{"alg", required_argument, NULL, 'a'},
-+		{"threads", required_argument, NULL, 't'},
-+		{"reset", required_argument, NULL, 'r'},
-+		{"version", no_argument, NULL, 'V'},
-+		{"help", no_argument, NULL, 'h'},
-+		{NULL, 0, NULL, 0}
-+	};
+ 	if (!strcmp(program_invocation_short_name, "activate"))
+-		activate = 1;		/* equivalent to `sfdisk -A' */
++		opts[SFDISK_OPT_ACTIVATE].active = 1; /* equivalent to `sfdisk -A' */
+ 
+ 	while ((c = getopt_long(argc, argv, "cdfghilnqsu:vx1A::C:DGH:I:LN:O:RS:TU::V",
+ 				long_opts, NULL)) != -1) {
+@@ -2920,10 +3137,10 @@ int main(int argc, char **argv)
+ 			force = 1;
+ 			break;		/* does not imply quiet */
+ 		case 'g':
+-			opt_out_geom = 1;
++			opts[SFDISK_OPT_OUT_GEOM].active = 1;
+ 			break;
+ 		case 'G':
+-			opt_out_pt_geom = 1;
++			opts[SFDISK_OPT_OUT_PT_GEOM].active = 1;
+ 			break;
+ 		case 'i':
+ 			increment = 1;
+@@ -2931,12 +3148,12 @@ int main(int argc, char **argv)
+ 		case 'c':
+ 		case 'c' + PRINT_ID:
+ 		case 'c' + CHANGE_ID:
+-			do_id = c;
++			opts[SFDISK_OPT_CHANGE_ID].active = c;
+ 			break;
+ 		case 'd':
+ 			dump = 1;		/* fall through */
+ 		case 'l':
+-			opt_list = 1;
++			opts[SFDISK_OPT_LIST].active = 1;
+ 			break;
+ 		case 'n':
+ 			no_write = 1;
+@@ -2945,7 +3162,7 @@ int main(int argc, char **argv)
+ 			quiet = 1;
+ 			break;
+ 		case 's':
+-			opt_size = 1;
++			opts[SFDISK_OPT_SIZE].active = 1;
+ 			break;
+ 		case 'u':
+ 			set_format(*optarg);
+@@ -2959,8 +3176,8 @@ int main(int argc, char **argv)
+ 			show_extended = 1;
+ 			break;
+ 		case 'A':
+-			activatearg = optarg;
+-			activate = 1;
++			args = optarg;
++			opts[SFDISK_OPT_ACTIVATE].active = 1;
+ 			break;
+ 		case 'C':
+ 			U.cylinders = strtoul_or_err(optarg, _("invalid cylinders argument"));
+@@ -2975,19 +3192,19 @@ int main(int argc, char **argv)
+ 			U.heads = strtoul_or_err(optarg, _("invalid heads argument"));
+ 			break;
+ 		case 'L':
+-			Linux = 1;
+ 			break;
+ 		case 'N':
+ 			one_only = strtol_or_err(optarg, _("invalid number of partitions argument"));
+ 			break;
+ 		case 'I':
+ 			restore_sector_file = optarg;
++			opts[SFDISK_OPT_RESTORE_SCT].active = 1;
+ 			break;
+ 		case 'O':
+ 			save_sector_file = optarg;
+ 			break;
+ 		case 'R':
+-			opt_reread = 1;
++			opts[SFDISK_OPT_REREAD].active = 1;
+ 			break;
+ 		case 'S':
+ 			U.sectors = strtoul_or_err(optarg, _("invalid sectors argument"));
+@@ -2996,11 +3213,11 @@ int main(int argc, char **argv)
+ 			list_types();
+ 			return EXIT_SUCCESS;
+ 		case 'U':
+-			unhidearg = optarg;
+-			unhide = 1;
++			args = optarg;
++			opts[SFDISK_OPT_UNHIDE].active = 1;
+ 			break;
+ 		case 'V':
+-			verify = 1;
++			opts[SFDISK_OPT_VERIFY].active = 1;
+ 			break;
+ 		default:
+ 			usage(stderr);
+@@ -3038,88 +3255,66 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if (optind == argc &&
+-	    (opt_list || opt_out_geom || opt_out_pt_geom || opt_size || verify)) {
++	if ((optind == argc) && sfdisk_option_is_cb1(opts)) { /* ie: sfdisk -V */
+ 		FILE *procf;
+-
+-		/* try all known devices */
+-		total_size = 0;
++		unsigned long long total_size = 0; /* try all known devices */
+ 
+ 		procf = fopen(_PATH_PROC_PARTITIONS, "r");
+ 		if (!procf)
+ 			fprintf(stderr, _("cannot open %s\n"), _PATH_PROC_PARTITIONS);
+ 		else {
+-			while ((dev = nextproc(procf)) != NULL) {
+-				if (!is_ide_cdrom_or_tape(dev)) {
+-					if (opt_out_geom)
+-						do_geom(dev, 1);
+-					if (opt_out_pt_geom)
+-						do_pt_geom(dev, 1);
+-					if (opt_size)
+-						do_size(dev, 1);
+-					if (opt_list || verify)
+-						ret = do_list(dev, 1);
+-				}
++			while ((dev = nextproc(procf))) {
++				if (!is_ide_cdrom_or_tape(dev))
++					err = sfdisk_option_do_cb1(opts, dev, 1, &total_size);
+ 				free(dev);
+ 			}
+ 			fclose(procf);
+ 		}
+ 
+-		if (opt_size)
+-			printf(_("total: %llu blocks\n"), total_size);
+-
++		if (opts[SFDISK_OPT_SIZE].active)
++				printf(_("total: %llu blocks\n"), total_size);
+ 		goto done;
+ 	}
+ 
+-	if (optind == argc) {
+-		if (activate)
++	if (optind == argc) { /* ie: sfdisk -A */
++		if (opts[SFDISK_OPT_ACTIVATE].active)
+ 			activate_usage();
+ 		else
+ 			usage(stderr);
++		/* neither usage-family functions returns to the caller */
+ 	}
+ 
+-	if (opt_list || opt_out_geom || opt_out_pt_geom || opt_size || verify) {
+-		while (optind < argc) {
+-			if (opt_out_geom)
+-				do_geom(argv[optind], 0);
+-			if (opt_out_pt_geom)
+-				do_pt_geom(argv[optind], 0);
+-			if (opt_size)
+-				do_size(argv[optind], 0);
+-			if (opt_list || verify)
+-				ret = do_list(argv[optind], 0);
+-			optind++;
+-		}
++	if (sfdisk_option_is_cb1(opts)) {
++		unsigned long long dummy = 0;
 +
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	atexit(close_stdout);
++		while (optind < argc)
++			err = sfdisk_option_do_cb1(opts, argv[optind++], 0, &dummy);
+ 		goto done;
+ 	}
+ 
+-	if (activate) {
+-		return do_activate(argv + optind, argc - optind, activatearg);
+-	}
+-	if (unhide) {
+-		return do_unhide(argv + optind, argc - optind, unhidearg);
++	if (sfdisk_option_is_cb2(opts)) { /* ie: sfdisk -A /dev/sda */
++		err = sfdisk_option_do_cb2(opts, argv + optind, argc - optind, args);
++		goto done;
+ 	}
+-	if (do_id) {
+-		if ((do_id & PRINT_ID) != 0 && optind != argc - 2)
+-			errx(EXIT_FAILURE, _("usage: sfdisk --print-id device partition-number"));
+-		else if ((do_id & CHANGE_ID) != 0 && optind != argc - 3)
+-			errx(EXIT_FAILURE, _("usage: sfdisk --change-id device partition-number Id"));
+-		else if (optind != argc - 3 && optind != argc - 2)
+-			errx(EXIT_FAILURE, _("usage: sfdisk --id device partition-number [Id]"));
+-		return do_change_id(argv[optind], argv[optind + 1],
+-				    (optind == argc - 2) ? 0 : argv[optind + 2]);
 +
-+	while ((c = getopt_long(argc, argv, "fd:s:a:t:r:Vh", longopts, NULL)) 
-!= -1) {
-+		switch (c) {
-+		case 'f':
-+			if (dev != NULL) {
-+				fprintf(stderr,_("-f || -d <name>\n"));
-+				return 1;
-+			}
-+			f = 1;
-+			dev = find();
-+			break;
-+		case 'd':
-+			if (dev != NULL) {
-+				fprintf(stderr,_("-f || -d <name>\n"));
-+				return 1;
-+			}
-+			dev = optarg;
-+			break;
-+		case 's':
-+			size = optarg;
-+			break;
-+		case 'a':
-+			if (!strcmp(optarg,"lzo") || !strcmp(optarg,"lz4"))
-+				alg = optarg;
-+			else {
-+				fprintf(stderr,_("%s != lzo|lz4\n"),alg );
-+				return 1;
-+			}
-+			break;
-+		case 't':
-+			strncpy(threads, optarg, 5);
-+			if (atoi(threads) < 1) {
-+				usage(stderr);
-+				return 1;
-+			}
-+			break;
-+		case 'r':
-+			dev = optarg;
-+			if (value2devparm(dev, "1", "reset") < 0)
-+				return 1;
-+			break;
-+		case 'V':
-+			printf(UTIL_LINUX_VERSION);
-+			return EXIT_SUCCESS;
-+		case 'h':
-+			usage(stdout);
-+		default:
-+			usage(stderr);
-+		}
++	if (sfdisk_option_is_cb3(opts)) { /* ie: sfdisk -c /dev/sda */
++		err = sfdisk_option_do_cb3(opts, optind, argc,
++					   argv[optind], argv[optind + 1],
++					   (optind == argc - 2) ? 0 : argv[optind + 2]);
++		goto done;
+ 	}
+ 
+ 	if (optind != argc - 1)
+ 		errx(EXIT_FAILURE, _("can specify only one device (except with -l or -s)"));
+ 	dev = argv[optind];
+ 
+-	if (opt_reread)
+-		do_reread(dev);
+-	else if (restore_sector_file)
+-		restore_sectors(dev);
+-	else
+-		ret = do_fdisk(dev);
++	if (sfdisk_option_is_cb4(opts)) { /* ie: sfdisk -R /dev/sda */
++		err = sfdisk_option_do_cb4(opts, dev);
++		goto done;
 +	}
-+	if (argc == 1) {
-+		status();
-+		return EXIT_SUCCESS;
-+	}
 +
-+	if (!strcmp(dev, "USED")) {
-+		fprintf(stderr,_("all device already used\n") );
-+		return 1;
-+	}
-+
-+	if (dev != NULL && size != NULL) {
-+		if (value2devparm(dev, "1", "reset") < 0)
-+			return 1;
-+		if (atoi(threads) > 1)
-+
-+			if (value2devparm(dev, threads, "max_comp_streams") < 0)
-+				return 1;
-+		if (alg != NULL)
-+			if (value2devparm(dev, alg, "comp_algorithm") < 0)
-+				return 1;
-+
-+		if (value2devparm(dev, size, "disksize") < 0)
-+			return 1;
-+	} else {
-+	}
-+
-+	if (dev != NULL && f > 0)
-+		fprintf(stdout,_("%s\n"), dev);
-+
-+	return EXIT_SUCCESS;
-+}
-\ No newline at end of file
++	/* ok ok, do the rest */
++	err = do_fdisk(dev);
+ done:
+-	return ret;
++	return err ? EXIT_FAILURE : EXIT_SUCCESS;
+ }
+-- 
+1.8.1.4
