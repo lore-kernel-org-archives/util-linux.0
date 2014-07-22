@@ -1,160 +1,178 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:43157 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756631AbaGNRwM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Jul 2014 13:52:12 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hi2so3004267wib.17
-        for <util-linux@vger.kernel.org>; Mon, 14 Jul 2014 10:52:11 -0700 (PDT)
+Received: from mail-we0-f173.google.com ([74.125.82.173]:64456 "EHLO
+	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756331AbaGVWBM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:12 -0400
+Received: by mail-we0-f173.google.com with SMTP id q58so290497wes.4
+        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:11 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: Re: [PATCH] tests: add kill --queue check
-Date: Mon, 14 Jul 2014 18:52:05 +0100
-Message-Id: <1405360325-6855-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1405359437-6288-1-git-send-email-kerolasa@iki.fi>
-References: <1405359437-6288-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 02/10] logger: fix indentation issues
+Date: Tue, 22 Jul 2014 23:00:51 +0100
+Message-Id: <1406066459-4816-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Correction.  The final failure to catch signal exit should not use
-exiter() function.
-
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 14 Jul 2014 18:35:56 +0100
-Subject: [PATCH] tests: add kill --queue check
-
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- tests/expected/kill/queue       |  1 +
- tests/helpers/test_sigreceive.c | 17 +++++++++----
- tests/ts/kill/options           |  2 --
- tests/ts/kill/queue             | 53 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 66 insertions(+), 7 deletions(-)
- create mode 100644 tests/expected/kill/queue
- create mode 100755 tests/ts/kill/queue
+ misc-utils/logger.c | 98 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 49 insertions(+), 49 deletions(-)
 
-diff --git a/tests/expected/kill/queue b/tests/expected/kill/queue
-new file mode 100644
-index 0000000..d48ce72
---- /dev/null
-+++ b/tests/expected/kill/queue
-@@ -0,0 +1 @@
-+all ok
-diff --git a/tests/helpers/test_sigreceive.c b/tests/helpers/test_sigreceive.c
-index 3f76f06..f1b9546 100644
---- a/tests/helpers/test_sigreceive.c
-+++ b/tests/helpers/test_sigreceive.c
-@@ -38,9 +38,16 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- }
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 6604d1a..204511d 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -76,8 +76,7 @@ enum {
+ 	OPT_JOURNALD
+ };
  
- static __attribute__((__noreturn__))
--void exiter(int sig)
-+void exiter(int signo __attribute__((__unused__)),
-+	    siginfo_t *info,
-+	    void *context __attribute__((__unused__)))
+-
+-static char* get_prio_prefix(char *msg, int *prio)
++static char *get_prio_prefix(char *msg, int *prio)
  {
--	_exit(sig);
-+	int ret = info->si_signo;
-+
-+	if (info)
-+		if (info->si_code == SI_QUEUE && info->si_value.sival_int != 0)
-+			ret = info->si_value.sival_int;
-+	_exit(ret);
- }
- 
- int main(int argc, char **argv)
-@@ -81,8 +88,8 @@ int main(int argc, char **argv)
+ 	int p;
+ 	char *end = NULL;
+@@ -133,8 +132,7 @@ static int pencode(char *s)
+ 		if (fac < 0)
+ 			errx(EXIT_FAILURE, _("unknown facility name: %s."), save);
+ 		*s++ = '.';
+-	}
+-	else {
++	} else {
+ 		fac = LOG_USER;
+ 		s = save;
  	}
+@@ -261,30 +259,30 @@ static int journald_entry(FILE *fp)
  
- 	sigemptyset(&sigact.sa_mask);
--	sigact.sa_flags = 0;
--	sigact.sa_handler = exiter;
-+	sigact.sa_flags = SA_SIGINFO;
-+	sigact.sa_sigaction = exiter;
- 	timeout.tv_sec = 5;
- 	timeout.tv_usec = 0;
- 
-@@ -171,5 +178,5 @@ int main(int argc, char **argv)
- 	FD_SET(STDIN_FILENO, &rfds);
- 	select(0, &rfds, NULL, NULL, &timeout);
- 
--	exiter(TEST_SIGRECEIVE_FAILURE);
-+	exit(TEST_SIGRECEIVE_FAILURE);
+ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
+ {
+-       char buf[1000], pid[30], *cp, *tp;
+-       time_t now;
+-
+-       if (fd > -1) {
+-               if (logflags & LOG_PID)
+-                       snprintf (pid, sizeof(pid), "[%d]", getpid());
+-	       else
+-		       pid[0] = 0;
+-               if (tag)
+-		       cp = tag;
+-	       else {
+-		       cp = getlogin();
+-		       if (!cp)
+-			       cp = "<someone>";
+-	       }
+-	       time(&now);
+-	       tp = ctime(&now)+4;
+-
+-               snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
+-			pri, tp, cp, pid, msg);
+-
+-	       if (write_all(fd, buf, strlen(buf)+1) < 0)
+-		       warn(_("write failed"));
+-       }
++	char buf[1000], pid[30], *cp, *tp;
++	time_t now;
++
++	if (fd > -1) {
++		if (logflags & LOG_PID)
++			snprintf(pid, sizeof(pid), "[%d]", getpid());
++		else
++			pid[0] = 0;
++		if (tag)
++			cp = tag;
++		else {
++			cp = getlogin();
++			if (!cp)
++				cp = "<someone>";
++		}
++		time(&now);
++		tp = ctime(&now) + 4;
++
++		snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
++			 pri, tp, cp, pid, msg);
++
++		if (write_all(fd, buf, strlen(buf) + 1) < 0)
++			warn(_("write failed"));
++	}
  }
-diff --git a/tests/ts/kill/options b/tests/ts/kill/options
-index 5af78d9..2c82bbc 100755
---- a/tests/ts/kill/options
-+++ b/tests/ts/kill/options
-@@ -51,8 +51,6 @@ try_option -s 1
- try_option --signal 1
- try_option --signal HUP
- try_option --signal SIGHUP
--try_option -s 1 -q 42
--try_option -s 1 --queue 42
- try_option -1
- try_option -HUP
- try_option -SIGHUP
-diff --git a/tests/ts/kill/queue b/tests/ts/kill/queue
-new file mode 100755
-index 0000000..992acf7
---- /dev/null
-+++ b/tests/ts/kill/queue
-@@ -0,0 +1,53 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="queue"
-+
-+. "$TS_TOPDIR/functions.sh"
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_KILL"
-+ts_check_test_command "$TS_HELPER_SIGRECEIVE"
-+
-+. "$TS_SELF/kill_functions.sh"
-+
-+all_ok=true
-+
-+HELPER_SYMLINK="$(mktemp "${TS_OUTDIR}/quXXXXXXXXXXXXX")"
-+ln -sf "$TS_HELPER_SIGRECEIVE" "$HELPER_SYMLINK"
-+
-+"$HELPER_SYMLINK" >> "$TS_OUTPUT" 2>&1 &
-+TEST_PID=$!
-+check_test_sigreceive $TEST_PID
-+[ $? -eq 1 ] || echo "${HELPER_SYMLINK##*/} helper did not start" >> "$TS_OUTPUT"
-+
-+"$TS_CMD_KILL" -1 --queue 42 $TEST_PID >> "$TS_OUTPUT" 2>&1
-+if [ $? -ne 0 ]; then
-+	echo "kill --queue 42 failed" >> "$TS_OUTPUT"
-+	all_ok=false
-+fi
-+wait $TEST_PID
-+if [ $? -ne 42 ]; then
-+	echo "wait $TEST_PID returned $? instead of 42" >> "$TS_OUTPUT"
-+	all_ok=false
-+fi
-+
-+if $all_ok; then
-+	echo 'all ok' >> "$TS_OUTPUT"
-+fi
-+
-+rm -f "$HELPER_SYMLINK"
-+
-+ts_finalize
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+@@ -450,17 +448,19 @@ int main(int argc, char **argv)
+ 		for (p = buf, endp = buf + sizeof(buf) - 2; *argv;) {
+ 			len = strlen(*argv);
+ 			if (p + len > endp && p > buf) {
+-			    if (!usock && !server)
+-				syslog(pri, "%s", buf);
+-			    else
+-				mysyslog(LogSock, logflags, pri, tag, buf);
++				if (!usock && !server)
++					syslog(pri, "%s", buf);
++				else
++					mysyslog(LogSock, logflags, pri, tag,
++						 buf);
+ 				p = buf;
+ 			}
+ 			if (len > sizeof(buf) - 1) {
+-			    if (!usock && !server)
+-				syslog(pri, "%s", *argv++);
+-			    else
+-				mysyslog(LogSock, logflags, pri, tag, *argv++);
++				if (!usock && !server)
++					syslog(pri, "%s", *argv++);
++				else
++					mysyslog(LogSock, logflags, pri, tag,
++						 *argv++);
+ 			} else {
+ 				if (p != buf)
+ 					*p++ = ' ';
+@@ -469,31 +469,31 @@ int main(int argc, char **argv)
+ 			}
+ 		}
+ 		if (p != buf) {
+-		    if (!usock && !server)
+-			syslog(pri, "%s", buf);
+-		    else
+-			mysyslog(LogSock, logflags, pri, tag, buf);
++			if (!usock && !server)
++				syslog(pri, "%s", buf);
++			else
++				mysyslog(LogSock, logflags, pri, tag, buf);
+ 		}
+ 	} else {
+ 		char *msg;
+ 		int default_priority = pri;
+ 		while (fgets(buf, sizeof(buf), stdin) != NULL) {
+-		    /* glibc is buggy and adds an additional newline,
+-		       so we have to remove it here until glibc is fixed */
+-		    int len = strlen(buf);
++			/* glibc is buggy and adds an additional newline,
++			   so we have to remove it here until glibc is fixed */
++			int len = strlen(buf);
+ 
+-		    if (len > 0 && buf[len - 1] == '\n')
+-			    buf[len - 1] = '\0';
++			if (len > 0 && buf[len - 1] == '\n')
++				buf[len - 1] = '\0';
+ 
+ 			msg = buf;
+ 			pri = default_priority;
+ 			if (prio_prefix && msg[0] == '<')
+ 				msg = get_prio_prefix(msg, &pri);
+ 
+-		    if (!usock && !server)
+-			syslog(pri, "%s", msg);
+-		    else
+-			mysyslog(LogSock, logflags, pri, tag, msg);
++			if (!usock && !server)
++				syslog(pri, "%s", msg);
++			else
++				mysyslog(LogSock, logflags, pri, tag, msg);
+ 		}
+ 	}
+ 	if (!usock && !server)
 -- 
-2.0.1
+2.0.2
 
