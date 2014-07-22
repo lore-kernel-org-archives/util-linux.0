@@ -1,59 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:53173 "EHLO
-	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751008AbaGaUnf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 31 Jul 2014 16:43:35 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:63835 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756331AbaGVWBS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:18 -0400
+Received: by mail-we0-f180.google.com with SMTP id w61so286831wes.11
+        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] docs: restore the mention of uhelper= and helper= in man page of umount
-Date: Thu, 31 Jul 2014 22:43:29 +0200
-Message-Id: <1406839409-2846-1-git-send-email-bensberg@justemail.net>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 04/10] logger: refactor long if clause
+Date: Tue, 22 Jul 2014 23:00:53 +0100
+Message-Id: <1406066459-4816-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/umount.8 |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+When if clause that continues throughout whole function it usually can be
+shorten to immediate action, e.g., in this case return on the spot not at
+end of the function.
 
-diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
-index 54fe7ae..8a640f4 100644
---- a/sys-utils/umount.8
-+++ b/sys-utils/umount.8
-@@ -162,20 +162,30 @@ The syntax of external unmount helpers is:
- .IR type . subtype ]
- .RE
- .PP
--where \fIsuffix\fR is the filesystem type.
-+where \fIsuffix\fR is the filesystem type (or the value from a
-+\fBuhelper=\fR or \fBhelper=\fR marker in the mtab file).
- The \fB\-t\fR option can be used for filesystems that
- have subtype support.  For example:
- .PP
- .RS
- .B umount.fuse \-t fuse.sshfs
- .RE
-+.PP
-+A \fBuhelper=\fIsomething\fR marker (unprivileged helper) can appear in
-+the \fI/etc/mtab\fR file when ordinary users need to be able to unmount
-+a mountpoint that is not defined in \fI/etc/fstab\fR
-+(for example for a device that was mounted by \fBudisks\fR(1)).
-+.PP
-+A \fBhelper=\fItype\fR marker in the mtab file will redirect
-+all unmount requests
-+to the \fB/sbin/umount.\fItype\fR helper independently of UID.
- .SH FILES
- .TP
- .B /etc/mtab
- table of mounted filesystems
- .TP
- .B /etc/fstab
--checked when option \fB\-O\fR is given
-+table of known filesystems
- .SH ENVIRONMENT
- .IP LIBMOUNT_FSTAB=<path>
- overrides the default location of the fstab file
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
+
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 65e468c..5506022 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -273,24 +273,22 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
+ 	char buf[1000], pid[30], *cp, *tp;
+ 	time_t now;
+ 
+-	if (fd > -1) {
+-		if (logflags & LOG_PID)
+-			snprintf(pid, sizeof(pid), "[%d]", getpid());
+-		else
+-			pid[0] = 0;
+-		if (tag)
+-			cp = tag;
+-		else
+-			cp = xgetlogin();
+-		time(&now);
+-		tp = ctime(&now) + 4;
+-
+-		snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
+-			 pri, tp, cp, pid, msg);
+-
+-		if (write_all(fd, buf, strlen(buf) + 1) < 0)
+-			warn(_("write failed"));
+-	}
++	if (fd < 0)
++		return;
++	if (logflags & LOG_PID)
++		snprintf(pid, sizeof(pid), "[%d]", getpid());
++	else
++		pid[0] = 0;
++	if (tag)
++		cp = tag;
++	else
++		cp = xgetlogin();
++	time(&now);
++	tp = ctime(&now) + 4;
++	snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
++		 pri, tp, cp, pid, msg);
++	if (write_all(fd, buf, strlen(buf) + 1) < 0)
++		warn(_("write failed"));
+ }
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
 -- 
-1.7.0.4
+2.0.2
 
