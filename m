@@ -1,29 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:17306 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755562AbaGAIwm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 1 Jul 2014 04:52:42 -0400
-Date: Tue, 1 Jul 2014 10:52:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Eric Rannaud <e@nanocritical.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] libmount: mnt_resolve_path: don't canonicalize
- fs->target for swap
-Message-ID: <20140701085239.GC24337@x2.net.home>
-References: <747e9f8de90dc1e906d2f84f3952a801e70ef3d0.1403845374.git.e@nanocritical.com>
- <bc63685a3d056044034ee5c78119313498ad46b1.1403845374.git.e@nanocritical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <bc63685a3d056044034ee5c78119313498ad46b1.1403845374.git.e@nanocritical.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: davidlohr@hp.com
+From: Davidlohr Bueso <davidlohr@hp.com>
+To: kzak@redhat.com
+Cc: davidlohr@hp.com, aswin@hp.com, util-linux@vger.kernel.org
+Subject: [PATCH 10/13] sfdisk: update [embarrassingly] old man-page
+Date: Tue, 22 Jul 2014 16:44:54 -0700
+Message-Id: <1406072697-20912-11-git-send-email-davidlohr@hp.com>
+In-Reply-To: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
+References: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 26, 2014 at 10:17:17PM -0700, Eric Rannaud wrote:
->  libmount/src/fs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+... sheeeeesh. A little dignity, please.
 
- Applied, thanks.
+Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+---
+ disk-utils/sfdisk.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+index 1e84a11..d9d9b3e 100644
+--- a/disk-utils/sfdisk.8
++++ b/disk-utils/sfdisk.8
+@@ -402,7 +402,7 @@ that are going to be overwritten to
+ .I file
+ (where hopefully
+ .I file
+-resides on another block device, or on a floppy).
++resides on another block device).
+ .TP
+ .BI \-I " file"
+ After destroying your filesystems with an unfortunate
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.1.4
