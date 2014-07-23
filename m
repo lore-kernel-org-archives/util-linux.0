@@ -1,57 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:38081 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751165AbaGPUzY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Jul 2014 16:55:24 -0400
-Received: by mail-wi0-f179.google.com with SMTP id f8so2013267wiw.12
-        for <util-linux@vger.kernel.org>; Wed, 16 Jul 2014 13:55:23 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from smtprelay-b32.telenor.se ([213.150.131.21]:59592 "EHLO
+	smtprelay-b32.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932289AbaGWRjR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 23 Jul 2014 13:39:17 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-b32.telenor.se (Postfix) with ESMTP id 34A59840C5
+	for <util-linux@vger.kernel.org>; Wed, 23 Jul 2014 19:39:14 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/3] fstrim: avoid TOCTOU race
-Date: Wed, 16 Jul 2014 21:54:58 +0100
-Message-Id: <1405544098-1740-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
-References: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] Fix switch_root/pivot_root cut-n-paste error in configure.ac
+Date: Wed, 23 Jul 2014 19:39:02 +0200
+Message-Id: <1406137142-15441-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/fstrim.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+The "linux only" check for pivot_root seems to suffer from
+a cut-n-paste problem from the earlier switch_root part.
 
-diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index d52d831..5a238c7 100644
---- a/sys-utils/fstrim.c
-+++ b/sys-utils/fstrim.c
-@@ -67,7 +67,12 @@ static int fstrim_filesystem(const char *path, struct fstrim_range *rangetpl,
- 	/* kernel modifies the range */
- 	memcpy(&range, rangetpl, sizeof(range));
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index db53dff..aae2456 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1193,7 +1193,7 @@ AC_ARG_ENABLE([pivot_root],
+   [], [UL_DEFAULT_ENABLE([pivot_root], [check])]
+ )
+ UL_BUILD_INIT([pivot_root])
+-UL_REQUIRES_LINUX([switch_root])
++UL_REQUIRES_LINUX([pivot_root])
+ UL_REQUIRES_SYSCALL_CHECK([pivot_root], [UL_CHECK_SYSCALL([pivot_root])])
+ AM_CONDITIONAL([BUILD_PIVOT_ROOT], [test "x$build_pivot_root" = xyes])
  
--	if (stat(path, &sb) == -1) {
-+	fd = open(path, O_RDONLY);
-+	if (fd < 0) {
-+		warn(_("cannot open %s"), path);
-+		return -1;
-+	}
-+	if (fstat(fd, &sb) == -1) {
- 		warn(_("stat failed %s"), path);
- 		return -1;
- 	}
-@@ -75,12 +80,6 @@ static int fstrim_filesystem(const char *path, struct fstrim_range *rangetpl,
- 		warnx(_("%s: not a directory"), path);
- 		return -1;
- 	}
--
--	fd = open(path, O_RDONLY);
--	if (fd < 0) {
--		warn(_("cannot open %s"), path);
--		return -1;
--	}
- 	errno = 0;
- 	if (ioctl(fd, FITRIM, &range)) {
- 		int rc = errno == EOPNOTSUPP || errno == ENOTTY ? 1 : -1;
 -- 
 2.0.1
 
