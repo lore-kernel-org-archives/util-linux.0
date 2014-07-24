@@ -1,39 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:55085 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751165AbaGPUzS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Jul 2014 16:55:18 -0400
-Received: by mail-wi0-f174.google.com with SMTP id d1so6926004wiv.1
-        for <util-linux@vger.kernel.org>; Wed, 16 Jul 2014 13:55:17 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/3] lib/colors: remove memory leak
-Date: Wed, 16 Jul 2014 21:54:56 +0100
-Message-Id: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:58636 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934045AbaGXH3y (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 Jul 2014 03:29:54 -0400
+Date: Thu, 24 Jul 2014 09:29:50 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Timofey Titovets <nefelim4ag@gmail.com>, util-linux@vger.kernel.org,
+        Minchan Kim <minchan@kernel.org>
+Subject: Re: [RFC] [Patch] Created zramctl
+Message-ID: <20140724072950.GH26781@x2.net.home>
+References: <53CAAAB6.6020607@gmail.com>
+ <53CFF0CC.4000608@gmail.com>
+ <20140723174348.GA519@rampage>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140723174348.GA519@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/colors.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Jul 23, 2014 at 01:43:48PM -0400, Dave Reisner wrote:
+> > +	char *table = "%6s %12s %10s %10s %4s %4s \n";
+> > +	printf(table, "NAME","DISKSIZE","ORIG","COMPRES","ALG","THR");
+> 
+> Not really extensible. You really ought to adopt the style used in utils
+> like lsblk or findmnt to make this dynamic.
 
-diff --git a/lib/colors.c b/lib/colors.c
-index cb342a0..8de1d2f 100644
---- a/lib/colors.c
-+++ b/lib/colors.c
-@@ -425,9 +425,9 @@ static int colors_add_scheme(struct ul_color_ctl *cc,
- 		return -EINVAL;
- 
- 	rc = cn_sequence(seq0, &seq);
-+	free(seq0);
- 	if (rc)
- 		return rc;
--	free(seq0);
- 
- 	/* convert logical name (e.g. "red") to real ESC code */
- 	if (isalpha(*seq)) {
+ Dave is talking about libsmartcols, see losetup.c: show_table(), it's
+ probably the most simple example for the same thing like zramctl.
+
+    Karel
+
+
 -- 
-2.0.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
