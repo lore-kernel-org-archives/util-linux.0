@@ -1,60 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-b32.telenor.se ([213.150.131.21]:33539 "EHLO
-	smtprelay-b32.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753123AbaGKNJV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Jul 2014 09:09:21 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b32.telenor.se (Postfix) with ESMTP id 7304184C09
-	for <util-linux@vger.kernel.org>; Fri, 11 Jul 2014 15:08:46 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 1/2] uuidd.rc: drop on-demand mode from script
-Date: Fri, 11 Jul 2014 15:08:40 +0200
-Message-Id: <1405084121-21915-1-git-send-email-andreas@fatal.se>
+Received: from mx1.redhat.com ([209.132.183.28]:20052 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751709AbaGXJpM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 Jul 2014 05:45:12 -0400
+Date: Thu, 24 Jul 2014 11:44:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org, Kodiak Firesmith <ksf@sei.cmu.edu>
+Subject: Re: [PATCH 06/10] logger: add function pointer to choose how logging
+ is done
+Message-ID: <20140724094454.GJ26781@x2.net.home>
+References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+ <1406066459-4816-7-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406066459-4816-7-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The on-demand mode was dropped from libuuid in
-commit ea4f8845f0241c7 "libuuid: don't exec uuidd"
+On Tue, Jul 22, 2014 at 11:00:55PM +0100, Sami Kerola wrote:
+> +	void (*syslogfp)(struct logger_ctl *ctl, char *msg);
 
-You now need systemd (socket activation) to use
-uuidd on demand.
+ What about to move it to the control struct too?
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- misc-utils/uuidd.rc.in | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+> +	if (server) {
+> +		ctl.fd = inet_socket(server, port, socket_type);
+> +		syslogfp = syslog_rfc3164;
+> +	} else if (usock) {
+> +		ctl.fd = unix_socket(usock, socket_type);
+> +		syslogfp = syslog_rfc3164;
+> +	} else {
+> +		openlog(ctl.tag ? ctl.tag : xgetlogin(), ctl.logflags, 0);
+> +		syslogfp = syslog_local;
+> +	}
 
-diff --git a/misc-utils/uuidd.rc.in b/misc-utils/uuidd.rc.in
-index 27b75c6..3c5528a 100644
---- a/misc-utils/uuidd.rc.in
-+++ b/misc-utils/uuidd.rc.in
-@@ -13,11 +13,6 @@
- #
- set -e
- 
--# libuuid is able to execute the uuid daemon on-demand -- in such a case
--# the daemon binary must be setuid to an unprivileged user (e.g. uuidd:uuidd).
--#                                                    [-- kzak Jun 2009]
--UUIDD_ON_DEMAND_ONLY="no"
--
- PATH=/bin:/usr/bin:/sbin:/usr/sbin
- DAEMON=/usr/sbin/uuidd
- UUIDD_USER=uuidd
-@@ -36,11 +31,7 @@ case "$1" in
- 		mkdir -p $UUIDD_DIR
- 		chown -R $UUIDD_USER:$UUIDD_GROUP $UUIDD_DIR
- 	fi
--	if test "$UUIDD_ON_DEMAND_ONLY" = yes; then
--		echo -n "(on demand only)"
--	else
--		start_daemon -p $PIDFILE $DAEMON
--	fi
-+	start_daemon -p $PIDFILE $DAEMON
- 	log_end_msg $?
-     ;;
-   stop)
+Maybe it would be better to create small functions
+
+  logger_open()
+  logger_log()
+  logger_close()
+
+to keep main() simple and readable and without all the details like
+"if (usock) ...".
+
+    Karel
+
 -- 
-2.0.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
