@@ -1,46 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-b32.telenor.se ([213.150.131.21]:33541 "EHLO
-	smtprelay-b32.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752892AbaGKNJV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 11 Jul 2014 09:09:21 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b32.telenor.se (Postfix) with ESMTP id 74DD084E3D
-	for <util-linux@vger.kernel.org>; Fri, 11 Jul 2014 15:08:46 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 2/2] uuidd.rc: Requires remote_fs
-Date: Fri, 11 Jul 2014 15:08:41 +0200
-Message-Id: <1405084121-21915-2-git-send-email-andreas@fatal.se>
-In-Reply-To: <1405084121-21915-1-git-send-email-andreas@fatal.se>
-References: <1405084121-21915-1-git-send-email-andreas@fatal.se>
+Received: from mail-qg0-f51.google.com ([209.85.192.51]:57721 "EHLO
+	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757795AbaGXQwb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 24 Jul 2014 12:52:31 -0400
+Received: by mail-qg0-f51.google.com with SMTP id a108so3491740qge.38
+        for <util-linux@vger.kernel.org>; Thu, 24 Jul 2014 09:52:30 -0700 (PDT)
+Date: Thu, 24 Jul 2014 12:52:26 -0400
+From: Dave Reisner <d@falconindy.com>
+To: Andreas Henriksson <andreas@fatal.se>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix switch_root/pivot_root cut-n-paste error in
+ configure.ac
+Message-ID: <20140724165226.GB519@rampage>
+References: <1406137142-15441-1-git-send-email-andreas@fatal.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406137142-15441-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The Debian package checking tool lintian thinks that the script is
-missing Requires on $remote_fs because it pokes at stuff under /usr
-and it's probably right.
+On Wed, Jul 23, 2014 at 07:39:02PM +0200, Andreas Henriksson wrote:
+> The "linux only" check for pivot_root seems to suffer from
+> a cut-n-paste problem from the earlier switch_root part.
+> 
+> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+> ---
+>  configure.ac | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/configure.ac b/configure.ac
+> index db53dff..aae2456 100644
+> --- a/configure.ac
+> +++ b/configure.ac
+> @@ -1193,7 +1193,7 @@ AC_ARG_ENABLE([pivot_root],
+>    [], [UL_DEFAULT_ENABLE([pivot_root], [check])]
+>  )
+>  UL_BUILD_INIT([pivot_root])
+> -UL_REQUIRES_LINUX([switch_root])
+> +UL_REQUIRES_LINUX([pivot_root])
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- misc-utils/uuidd.rc.in | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Is this really correct? Seems to me like the check should simply be
+removed. In sys-utils/pivot_root.c, we have the following:
 
-diff --git a/misc-utils/uuidd.rc.in b/misc-utils/uuidd.rc.in
-index 3c5528a..cebe228 100644
---- a/misc-utils/uuidd.rc.in
-+++ b/misc-utils/uuidd.rc.in
-@@ -1,8 +1,8 @@
- #! /bin/sh -e
- ### BEGIN INIT INFO
- # Provides:          uuidd
--# Required-Start:    $time $local_fs
--# Required-Stop:     $time $local_fs
-+# Required-Start:    $time $local_fs $remote_fs
-+# Required-Stop:     $time $local_fs $remote_fs
- # Default-Start:     2 3 4 5
- # Default-Stop:      0 1 6
- # Short-Description: uuidd daemon
--- 
-2.0.0
+  #define pivot_root(new_root,put_old) syscall(SYS_pivot_root,new_root,put_old)
 
+So, the subsequent check for the syscall seems like the only necessary
+check needed. As is, I think that u-l now fails to build in places where
+the pivot_root wrapper doesn't exist in the libc, but the syscall exists
+(does such a platform even exist?).
+
+Cheers,
+dave
+
+>  UL_REQUIRES_SYSCALL_CHECK([pivot_root], [UL_CHECK_SYSCALL([pivot_root])])
+>  AM_CONDITIONAL([BUILD_PIVOT_ROOT], [test "x$build_pivot_root" = xyes])
+>  
+> -- 
+> 2.0.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
