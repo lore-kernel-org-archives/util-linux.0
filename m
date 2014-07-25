@@ -1,59 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:8785 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753194AbaGOHf7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Jul 2014 03:35:59 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6F7Zv1p014860
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 15 Jul 2014 03:35:58 -0400
-Message-ID: <53C4D9DB.10703@redhat.com>
-Date: Tue, 15 Jul 2014 09:35:55 +0200
-From: Stef Walter <stefw@redhat.com>
+Return-Path: lkml@tlinx.org
+Message-ID: <53D20AD7.4070006@tlinx.org>
+Date: Fri, 25 Jul 2014 00:44:23 -0700
+From: "Linda A. Walsh" <lkml@tlinx.org>
 MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
 CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
- SIGUSR1
-References: <1404718284-4192-1-git-send-email-stefw@redhat.com> <20140714133716.GB30288@x2.net.home>
-In-Reply-To: <20140714133716.GB30288@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+Subject: Re: Q: (RFE?)  How do you specify the 'no-canonicalize' option in fstab?
+References: <53D08C77.6010500@tlinx.org> <20140724073222.GI26781@x2.net.home> <53D1BF03.9000201@tlinx.org> <20140725072143.GN26781@x2.net.home>
+In-Reply-To: <20140725072143.GN26781@x2.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On 14.07.2014 15:37, Karel Zak wrote:
-> On Mon, Jul 07, 2014 at 09:31:24AM +0200, Stef Walter wrote:
->> Several of the /etc/issue escape codes such as \4 and \S depend on
->> variable data which can change after the agetty prompt is displayed.
->> This can cause stale data to be displayed when a user looks at a VT,
->> especially in cases of DHCP racing with system start up.
->>
->> This commit allows agetty to react a SIGUSR1 signal by reprinting
->> its prompt including the reprocessing of /etc/issue.
->>
->> We never want this to occur once the user has started typing a
->> user name. So we detect when the user starts typing, after which
->> no further reprompting occurs even if SIGUSR1 is received.
-> 
->  Good idea, interesting implementation, but it's too late for v2.25.
->  I'm going to apply the patch to the git tree after v2.25 release.
+Karel Zak wrote:
+> Do you mean that you want to see kernel device names for DM when you
+> list all mountpoint by 'mount'?
+---
+That would be worse (I think).
+> /dev/dm-0 is internal format that is unexpected for users, DM guys
+----
+    The time it takes for a computer to translate between formats is
+negligible compared to the time it takes for users to find ways to work
+around the name mangling.
 
-Nice. Thanks.
+    What I'd like seems completely straight forward.  Use the names the user
+used in their /etc/fstab  or their mount line.  Don't convert it.  MS 
+has been
+doing this on Windows at least since Vista -- in regards to 'case' -- they
+preserve the case the user uses, but ignore it for looking up file names.
 
-Lennart discovered an issue with this ...
+    Here, if the user uses the suggested lvm names of /dev/VG/LV, then
+I would want to see those names when I type "mount".
 
-That the exec'ing the login process might race with the SIGUSR1 signal.
-The fix here would be to signal(SIGUSR1, SIG_IGN) before exec'ing, does
-that sound appropriate? I can post a new patch.
 
-By the way, more information about this use case here:
-https://bugzilla.redhat.com/show_bug.cgi?id=1110763
+    Example from "bash" and path following in presence of symlinks.
 
-Also, on the use of SIGUSR1 ... often linux daemons like to use SIGHUP
-as a 'reload' signal. But obviously this signal already has specific
-meaning in the agetty case, hence the choice of SIGUSR1.
+If I am in /home/user and cd to "work", where "work" is a symlink pointing
+to /Data/Work, if I type "cd .." in work, I want to be back in the directory
+I started from not "/Data".  
 
-Cheers,
+Honoring user-symbolic names has become the "default" case, because it's 
+user
+friendly -- it's what users expect to see.  I hold that doing the same thing
+in lvm volume names as in filesystem paths including symlinks, would be
+consistency -- using the "user's input" to generate and follow state.
 
-Stef
+Forcing users into some arbitrary nomenclature which changes over the 
+years as
+new features are implemented, isn't especially user friendly.
 
+So I want to be able to use "no-canonicalize" to KEEP the names I use -- the
+*preferred* names, I am told, for the product (lvm).
+
+Ask yourself this question, if you use bash, do you turn on physical
+path resolution (set -P in your .bashrc?) (the default is to emulate a
+symlinked-structure).  If you don't use -P there, why would you want to
+force a physical name on your logical volumes?
