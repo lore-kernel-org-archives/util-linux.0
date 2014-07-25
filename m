@@ -1,38 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36481 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754839AbaGIPQK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Jul 2014 11:16:10 -0400
-Received: from compute3.internal (compute3.nyi.mail.srv.osa [10.202.2.43])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id B6421214B0
-	for <util-linux@vger.kernel.org>; Wed,  9 Jul 2014 11:16:00 -0400 (EDT)
-Message-Id: <1404918960.4955.139784989.392310B8@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55789 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756912AbaGYIcW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jul 2014 04:32:22 -0400
+Date: Fri, 25 Jul 2014 10:32:16 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: when specifying multiple types, mount will mount
+Message-ID: <20140725083216.GO26781@x2.net.home>
+References: <1406233871.13212.145356397.0035B2A9@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1404763946.11261.139018425.3433757B@webmail.messagingengine.com>
-References: <1404763946.11261.139018425.3433757B@webmail.messagingengine.com>
-Subject: Re: 2.25-rc2: how to disable prlimit?
-Date: Wed, 09 Jul 2014 17:16:00 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406233871.13212.145356397.0035B2A9@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jul 24, 2014 at 10:31:11PM +0200, Benno Schulenberg wrote:
+> Current mount (2.25) will always mount a device when more
+> than one type is given in a comma-separated list.  Older mount
+> (2.17.2 for example) would not not do that but error out.
 
-On Mon, Jul 7, 2014, at 22:12, Benno Schulenberg wrote:
-> configure: WARNING: prlimit64 syscall not found; do not build prlimit
+ We want to support list-of-types in fstab and on command line.
 
-For me the build used to break when not passing things like
---disable-runuser and --disable-login to ./configure, but now
-programs that cannot be built get automatically disabled.
-Which is nice.  But the message could be a little clearer:
-"do not build" seems to say the user should do something.
-A simple "not building" would be better.  Upcoming patch
-makes that change.
+> For example, /dev/sda2 is of type ext4, but we are playing dumb,
+> to see what mount will say:
+> 
+> $ sudo ./mount /dev/sda2 /place -t btrfs
+> lt-mount: /dev/sda2: can't read superblock
+> 
+> $ sudo ./mount /dev/sda2 /place -t msdos
+> lt-mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+>        missing codepage or helper program, or other error
+> 
+>        In some cases useful info is found in syslog - try
+>        dmesg | tail or so.
+> 
+> $ sudo ./mount /dev/sda2 /place -t btrfs,msdos
 
-Benno
+this is bug, it continues with /{proc,etc}/filesystems when no found
+anything useful in the list.
+
+> $ ./mount | grep sda2
+> /dev/sda2 on /place type ext4 (rw)
+> 
+> I find this surprising.  If -t does not support a comma-separated
+> list, it should report an error.  If it does, it should, IMO, only
+> try the specified types and not any others.
+
+ yes, I'm just working on patch and regression test for all -t
+ use-cases.
+
+    Karel
+
 
 -- 
-http://www.fastmail.fm - Accessible with your email software
-                          or over the web
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
