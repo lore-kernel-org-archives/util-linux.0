@@ -1,68 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:58830 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752575AbaGNJDb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 05:03:31 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/5] libmount: adjust the ordering of a #define and tweak some comments
-Date: Mon, 14 Jul 2014 11:03:00 +0200
-Message-Id: <1405328581-2202-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
-References: <1405328581-2202-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:26391 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750699AbaGYIkG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jul 2014 04:40:06 -0400
+Date: Fri, 25 Jul 2014 10:39:59 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Andreas Henriksson <andreas@fatal.se>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix switch_root/pivot_root cut-n-paste error in
+ configure.ac
+Message-ID: <20140725083959.GP26781@x2.net.home>
+References: <1406137142-15441-1-git-send-email-andreas@fatal.se>
+ <20140724165226.GB519@rampage>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140724165226.GB519@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- libmount/src/libmount.h.in |   21 ++++++++++-----------
- 1 files changed, 10 insertions(+), 11 deletions(-)
+On Thu, Jul 24, 2014 at 12:52:26PM -0400, Dave Reisner wrote:
+> On Wed, Jul 23, 2014 at 07:39:02PM +0200, Andreas Henriksson wrote:
+> > The "linux only" check for pivot_root seems to suffer from
+> > a cut-n-paste problem from the earlier switch_root part.
+> > 
+> > Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+> > ---
+> >  configure.ac | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/configure.ac b/configure.ac
+> > index db53dff..aae2456 100644
+> > --- a/configure.ac
+> > +++ b/configure.ac
+> > @@ -1193,7 +1193,7 @@ AC_ARG_ENABLE([pivot_root],
+> >    [], [UL_DEFAULT_ENABLE([pivot_root], [check])]
+> >  )
+> >  UL_BUILD_INIT([pivot_root])
+> > -UL_REQUIRES_LINUX([switch_root])
+> > +UL_REQUIRES_LINUX([pivot_root])
+> 
+> Is this really correct? Seems to me like the check should simply be
+> removed. 
 
-diff --git a/libmount/src/libmount.h.in b/libmount/src/libmount.h.in
-index ac0c790..d54e876 100644
---- a/libmount/src/libmount.h.in
-+++ b/libmount/src/libmount.h.in
-@@ -773,29 +773,28 @@ extern int mnt_context_set_syscall_status(struct libmnt_context *cxt, int status
- #define MS_REC		0x4000	/* 16384: Recursive loopback */
- #endif
- #ifndef MS_SILENT
--#define MS_SILENT	0x8000	/* 32768 */
--#endif
--#ifndef MS_RELATIME
--#define MS_RELATIME	0x200000 /* 200000: Update access times relative
--                                  to mtime/ctime */
-+#define MS_SILENT	0x8000	/* 32768: Don't emit certain kernel messages */
- #endif
- #ifndef MS_UNBINDABLE
--#define MS_UNBINDABLE	(1<<17)	/* 131072 unbindable*/
-+#define MS_UNBINDABLE	(1<<17)	/* 131072: Make unbindable */
- #endif
- #ifndef MS_PRIVATE
--#define MS_PRIVATE	(1<<18)	/* 262144 Private*/
-+#define MS_PRIVATE	(1<<18)	/* 262144: Make private */
- #endif
- #ifndef MS_SLAVE
--#define MS_SLAVE	(1<<19)	/* 524288 Slave*/
-+#define MS_SLAVE	(1<<19)	/* 524288: Make slave */
- #endif
- #ifndef MS_SHARED
--#define MS_SHARED	(1<<20)	/* 1048576 Shared*/
-+#define MS_SHARED	(1<<20)	/* 1048576: Make shared */
-+#endif
-+#ifndef MS_RELATIME
-+#define MS_RELATIME	(1<<21) /* 2097152: Update atime relative to mtime/ctime */
- #endif
- #ifndef MS_I_VERSION
--#define MS_I_VERSION	(1<<23)	/* update inode I_version field */
-+#define MS_I_VERSION	(1<<23)	/* Update the inode I_version field */
- #endif
- #ifndef MS_STRICTATIME
--#define MS_STRICTATIME	(1<<24) /* strict atime semantics */
-+#define MS_STRICTATIME	(1<<24) /* Always perform atime updates */
- #endif
- 
- /*
+ It's definitely better to check that the system is Linux before you
+ start to check for something more complicated. There is logical "and"
+ between all UL_REQUIRES_*, so the first unsuccessful check disabled
+ the rest.
+
+> In sys-utils/pivot_root.c, we have the following:
+> 
+>   #define pivot_root(new_root,put_old) syscall(SYS_pivot_root,new_root,put_old)
+> 
+> So, the subsequent check for the syscall seems like the only necessary
+> check needed. As is, I think that u-l now fails to build in places where
+> the pivot_root wrapper doesn't exist in the libc, but the syscall exists
+> (does such a platform even exist?).
+
+ There is no glibc wrapper at all, in code we always call the syscall
+ and in configure.ac we check for SYS_pivot_root sycall on Linux.
+ Nowhere we care about libc.
+
+    Karel
+
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
