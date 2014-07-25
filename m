@@ -1,47 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:20052 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:28716 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751709AbaGXJpM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 Jul 2014 05:45:12 -0400
-Date: Thu, 24 Jul 2014 11:44:54 +0200
+	id S1759963AbaGYIpo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 25 Jul 2014 04:45:44 -0400
+Date: Fri, 25 Jul 2014 10:45:38 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Kodiak Firesmith <ksf@sei.cmu.edu>
-Subject: Re: [PATCH 06/10] logger: add function pointer to choose how logging
- is done
-Message-ID: <20140724094454.GJ26781@x2.net.home>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
- <1406066459-4816-7-git-send-email-kerolasa@iki.fi>
+To: Andreas Henriksson <andreas@fatal.se>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix switch_root/pivot_root cut-n-paste error in
+ configure.ac
+Message-ID: <20140725084538.GQ26781@x2.net.home>
+References: <1406137142-15441-1-git-send-email-andreas@fatal.se>
+ <20140724165226.GB519@rampage>
+ <20140724171924.GA21736@fatal.se>
+ <20140724172627.GC519@rampage>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406066459-4816-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <20140724172627.GC519@rampage>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 22, 2014 at 11:00:55PM +0100, Sami Kerola wrote:
-> +	void (*syslogfp)(struct logger_ctl *ctl, char *msg);
+On Thu, Jul 24, 2014 at 01:26:27PM -0400, Dave Reisner wrote:
+> Ah, I wrongly assumed what UL_REQUIRES_LINUX does. Makes more sense
+> having now read the .m4 file, and I agree with your fix.
 
- What about to move it to the control struct too?
-
-> +	if (server) {
-> +		ctl.fd = inet_socket(server, port, socket_type);
-> +		syslogfp = syslog_rfc3164;
-> +	} else if (usock) {
-> +		ctl.fd = unix_socket(usock, socket_type);
-> +		syslogfp = syslog_rfc3164;
-> +	} else {
-> +		openlog(ctl.tag ? ctl.tag : xgetlogin(), ctl.logflags, 0);
-> +		syslogfp = syslog_local;
-> +	}
-
-Maybe it would be better to create small functions
-
-  logger_open()
-  logger_log()
-  logger_close()
-
-to keep main() simple and readable and without all the details like
-"if (usock) ...".
+ Yep, I have created UL_REQUIRES_ to have an elegant way how to specify
+ dependences between --disable-* options, utils, libs (with in package) 
+ and external requirements. One day I'd like to write a blog about it ;-)
 
     Karel
 
