@@ -1,40 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qg0-f43.google.com ([209.85.192.43]:58876 "EHLO
-	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932239AbaGaIxH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Jul 2014 04:53:07 -0400
-Received: by mail-qg0-f43.google.com with SMTP id a108so3308435qge.2
-        for <util-linux@vger.kernel.org>; Thu, 31 Jul 2014 01:53:05 -0700 (PDT)
-From: Sergei Antonov <saproj@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, Sergei Antonov <saproj@gmail.com>
-Subject: [PATCH] libfdisk: (gpt) add Microsoft Storage Spaces GUID
-Date: Thu, 31 Jul 2014 12:51:37 +0200
-Message-Id: <1406803897-3913-1-git-send-email-saproj@gmail.com>
+Received: from mondschein.lichtvoll.de ([194.150.191.11]:43393 "EHLO
+	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751642AbaGYMsY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 25 Jul 2014 08:48:24 -0400
+From: Martin Steigerwald <Martin@lichtvoll.de>
+To: Andreas Henriksson <andreas@fatal.se>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] cfdisk: reenable cursor when quitting
+Date: Fri, 25 Jul 2014 14:40:07 +0200
+Message-ID: <20411543.z4pDo5dfJP@merkaba>
+In-Reply-To: <1406290922-25357-1-git-send-email-andreas@fatal.se>
+References: <1406290922-25357-1-git-send-email-andreas@fatal.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Storage Spaces is Microsoft's latest logical volume management.
-It has been around since Windows 8.
+Am Freitag, 25. Juli 2014, 14:22:01 schrieb Andreas Henriksson:
+> After quitting cfdisk (built with slang) the cursor would be
+> missing at the command prompt.
+> 
+> Reported-by: Martin Steigerwald <Martin@Lichtvoll.de>
+> Addresses-Debian-Bug: #755991
+> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+> ---
+>  disk-utils/cfdisk.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+> index 5a42ab1..dfdaaf0 100644
+> --- a/disk-utils/cfdisk.c
+> +++ b/disk-utils/cfdisk.c
+> @@ -1966,6 +1966,7 @@ static int ui_run(struct cfdisk *cf)
+> 
+>  	menu_pop(cf);
+> 
+> +	curs_set(1);
+>  	DBG(FRONTEND, ul_debug("ui: end"));
+> 
+>  	return 0;
 
-Cc: Karel Zak <kzak@redhat.com>
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
----
- libfdisk/src/gpt.c | 1 +
- 1 file changed, 1 insertion(+)
+Thanks Andreas!
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index 1b5ffb4..d5acf95 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -162,6 +162,7 @@ static struct fdisk_parttype gpt_parttypes[] =
- 	DEF_GUID("AF9B60A0-1431-4F62-BC68-3311714A69AD", N_("Microsoft LDM data")),
- 	DEF_GUID("DE94BBA4-06D1-4D40-A16A-BFD50179D6AC", N_("Windows recovery environment")),
- 	DEF_GUID("37AFFC90-EF7D-4E96-91C3-2D7AE055B174", N_("IBM General Parallel Fs")),
-+	DEF_GUID("E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D", N_("Microsoft Storage Spaces")),
- 
- 	/* HP-UX */
- 	DEF_GUID("75894C1E-3AEB-11D3-B7C1-7B03A0000000", N_("HP-UX data")),
+I will test this as soon as I have the systemd related build deps of newer 
+util-linux sorted.
+
 -- 
-1.9.0
-
+Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
+GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
