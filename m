@@ -1,27 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34711 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754888AbaGQMCb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Jul 2014 08:02:31 -0400
-Date: Thu, 17 Jul 2014 14:02:20 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] lib/colors: remove memory leak
-Message-ID: <20140717120220.GI4874@x2.net.home>
-References: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:56848 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750923AbaGZUoH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 16:44:07 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 31922EC358
+	for <util-linux@vger.kernel.org>; Sat, 26 Jul 2014 22:44:04 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] tests: allow non-inotify tailf to keep up
+Date: Sat, 26 Jul 2014 22:44:01 +0200
+Message-Id: <1406407441-4872-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 16, 2014 at 09:54:56PM +0100, Sami Kerola wrote:
->  lib/colors.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+When tailf is not using inotify, it seems to sleep for 0.25s between
+checks. Just giving a 0.1s time window between update and removal of the
+input file thus gives little chance for tailf to succeed.
+Similar between startup and append to file, make sure initial
+content is read before appending additional data by bumping the time.
 
- Applied all 3 patches, thanks. 
+This should possibly be bumped much larger to make sure that
+the tailf process actually gets a chance to run at all in the
+given time window. Otherwise it might fail on really slow/overloaded
+machines.
+The drawback would then ofcourse be to increase the time it takes
+to run the testsuite.
 
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ tests/ts/tailf/simple | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/ts/tailf/simple b/tests/ts/tailf/simple
+index 955844d..d0a1c5c 100755
+--- a/tests/ts/tailf/simple
++++ b/tests/ts/tailf/simple
+@@ -27,9 +27,9 @@ echo {a..z} > $INPUT
+ 
+ $TS_CMD_TAILF $INPUT > $TS_OUTPUT 2>&1 &
+ 
+-sleep 0.1
++sleep 0.5
+ echo {0..9} >> $INPUT
+-sleep 0.1
++sleep 0.5
+ 
+ rm -f $INPUT
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.0.1
+
