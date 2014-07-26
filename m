@@ -1,41 +1,56 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43867 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751976AbaG2IXa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Jul 2014 04:23:30 -0400
-Date: Tue, 29 Jul 2014 10:23:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 01/10] logger: ensure program writes everything to syslog
- file descriptor
-Message-ID: <20140729082319.GQ8533@x2.net.home>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
- <1406066459-4816-2-git-send-email-kerolasa@iki.fi>
- <20140729075250.GP8533@x2.net.home>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140729075250.GP8533@x2.net.home>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140724094454.GJ26781@x2.net.home>
+References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+	<1406066459-4816-7-git-send-email-kerolasa@iki.fi>
+	<20140724094454.GJ26781@x2.net.home>
+Date: Sat, 26 Jul 2014 15:54:13 +0100
+Message-ID: <CAG27Bk2j0ozDCp56o2_Tt5bi+yGZ6brnS7Z9O4dKwRbahHWYXQ@mail.gmail.com>
+Subject: Re: [PATCH 06/10] logger: add function pointer to choose how logging
+ is done
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Kodiak Firesmith <ksf@sei.cmu.edu>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 29, 2014 at 09:52:50AM +0200, Karel Zak wrote:
-> On Tue, Jul 22, 2014 at 11:00:50PM +0100, Sami Kerola wrote:
-> > @@ -281,8 +282,8 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
-> >                 snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
->                   ^^^^^^^^^^
-> >  			pri, tp, cp, pid, msg);
-> >  
-> > +	       if (write_all(fd, buf, strlen(buf)+1) < 0)
->                                   ^^^^^^^^^^
-> > +		       warn(_("write failed"));
-> 
->  Do we really need strlen() if there is snprintf(buf, ....)?
+On 24 July 2014 10:44, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Jul 22, 2014 at 11:00:55PM +0100, Sami Kerola wrote:
+>> +     void (*syslogfp)(struct logger_ctl *ctl, char *msg);
+>
+>  What about to move it to the control struct too?
 
- I'm going to improve this, you don't have send a new version.
+Oh, I see. Done, and that allows the later main() clean up.
 
-    Karel
+https://github.com/kerolasa/lelux-utiliteetit/commit/4d0dc65a487f7bc24899e622158b604fe95d1c4b
+
+>> +     if (server) {
+>> +             ctl.fd = inet_socket(server, port, socket_type);
+>> +             syslogfp = syslog_rfc3164;
+>> +     } else if (usock) {
+>> +             ctl.fd = unix_socket(usock, socket_type);
+>> +             syslogfp = syslog_rfc3164;
+>> +     } else {
+>> +             openlog(ctl.tag ? ctl.tag : xgetlogin(), ctl.logflags, 0);
+>> +             syslogfp = syslog_local;
+>> +     }
+>
+> Maybe it would be better to create small functions
+>
+>   logger_open()
+>   logger_log()
+>   logger_close()
+>
+> to keep main() simple and readable and without all the details like
+> "if (usock) ...".
+
+Done in new main() clean up commit.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/bb840ac3eb832f404f470f8933070f228a104b8e
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
