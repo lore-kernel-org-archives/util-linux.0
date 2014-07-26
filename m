@@ -1,66 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:48066 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752463AbaG0Rw0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jul 2014 13:52:26 -0400
-Received: by mail-wi0-f176.google.com with SMTP id bs8so3320639wib.15
-        for <util-linux@vger.kernel.org>; Sun, 27 Jul 2014 10:52:24 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:53308 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752268AbaGZU0R (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 16:26:17 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id BAB2EEC007
+	for <util-linux@vger.kernel.org>; Sat, 26 Jul 2014 22:26:15 +0200 (CEST)
+Date: Sat, 26 Jul 2014 22:26:13 +0200
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi, Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 2/2] logger: add hostname to rfc3164 message
-Date: Sun, 27 Jul 2014 18:52:15 +0100
-Message-Id: <1406483535-17461-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
-References: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] buildsys: make tailf linux-only (needs inotify)
+Message-ID: <20140726202613.GA4826@fatal.se>
+References: <1406394071-1499-1-git-send-email-andreas@fatal.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406394071-1499-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This makes the obsolete protocol a little bit more compliant with the
-internet standard, but few should care now when we have rfc5424 support,
-and rfc3164 feels broken.  For example it requires hostname to be not
-fully qualified, which is hard to understand, and should make users to
-prefer the new protocol.
+Hello all!
 
-Reported-by: Frank Thilo <thilo@unix-ag.org>
-Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=705217
-CC: Andreas Henriksson <andreas@fatal.se>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+On Sat, Jul 26, 2014 at 07:01:11PM +0200, Andreas Henriksson wrote:
+> While tailf builds fine on other architectures, it relies
+> on inotify to work properly. So for example on
+[...]
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index ac583fd..9da404d 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -298,7 +298,7 @@ static pid_t get_process_id(struct logger_ctl *ctl)
- 
- static void syslog_rfc3164(struct logger_ctl *ctl, char *msg)
- {
--	char buf[1000], pid[30], *cp, *tp;
-+	char buf[1000], pid[30], *cp, *tp, *hostname, *dot;
- 	time_t now;
- 	pid_t process;
- 
-@@ -312,10 +312,15 @@ static void syslog_rfc3164(struct logger_ctl *ctl, char *msg)
- 		cp = ctl->tag;
- 	else
- 		cp = xgetlogin();
-+	hostname = xgethostname();
-+	dot = strchr(hostname, '.');
-+	if (dot)
-+		*dot = '\0';
- 	time(&now);
- 	tp = ctime(&now) + 4;
--	snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
--		 ctl->pri, tp, cp, pid, msg);
-+	snprintf(buf, sizeof(buf), "<%d>%.15s %s %.200s%s: %.400s",
-+		 ctl->pri, tp, hostname, cp, pid, msg);
-+	free(hostname);
- 	if (write_all(ctl->fd, buf, strlen(buf) + 1) < 0)
- 		warn(_("write failed"));
- 	if (ctl->logflags & LOG_PERROR)
--- 
-2.0.3
+Please ignore this! I was to quick to judge. The program
+has non-inotify fallback code which does work... this is
+likely just a problem in the testsuite.
+I'll follow up shortly.
 
+Regards,
+Andreas Henriksson
