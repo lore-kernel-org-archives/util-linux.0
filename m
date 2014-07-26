@@ -1,53 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:61558 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752887AbaG3Voi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Jul 2014 17:44:38 -0400
-Received: by mail-we0-f169.google.com with SMTP id u56so1811975wes.28
-        for <util-linux@vger.kernel.org>; Wed, 30 Jul 2014 14:44:37 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/2] tests: fix rename subdir check that was failing in travis
-Date: Wed, 30 Jul 2014 22:44:31 +0100
-Message-Id: <1406756671-26805-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406756671-26805-1-git-send-email-kerolasa@iki.fi>
-References: <1406756671-26805-1-git-send-email-kerolasa@iki.fi>
+Received: from g4t3426.houston.hp.com ([15.201.208.54]:25152 "EHLO
+	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750705AbaGZEWG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 00:22:06 -0400
+Message-ID: <1406348523.25428.1.camel@buesod1.americas.hpqcorp.net>
+Subject: Re: [PATCH 12/13] sfdisk: fix --unhide segfault
+From: Davidlohr Bueso <davidlohr@hp.com>
+To: kzak@redhat.com
+Cc: aswin@hp.com, util-linux@vger.kernel.org
+Date: Fri, 25 Jul 2014 21:22:03 -0700
+In-Reply-To: <1406072697-20912-13-git-send-email-davidlohr@hp.com>
+References: <1406072697-20912-1-git-send-email-davidlohr@hp.com>
+	 <1406072697-20912-13-git-send-email-davidlohr@hp.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Apparently some or all travis build servers has a bit older coreutils
-version.  The coreutils v8.13 added a feature to readlink that allows
-user to specify multiple arguments.  Earlier versions gave exactly the
-type of error travis_script log has.
+On Tue, 2014-07-22 at 16:44 -0700, Davidlohr Bueso wrote:
+> There's currently a NULL ptr dereference bug when calling asc_to_index()
+> via set_unhidden(). Fix this bug by checking the optarg value for null.
+> This is similar to how other options handle such calls.
+> 
+> Before:
+> Segmentation fault (core dumped)
+> 
+> After:
+> sfdisk: Done: Success
+> 
+> Signed-off-by: Davidlohr Bueso <davidlohr@hp.com>
+> ---
+>  disk-utils/sfdisk.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+> index 86ed112..f730504 100644
+> --- a/disk-utils/sfdisk.c
+> +++ b/disk-utils/sfdisk.c
+> @@ -2909,12 +2909,13 @@ static int do_activate(char **av, int ac, char *arg)
+>  	return ret;
+>  }
+>  
+> -static void
+> -set_unhidden(struct disk_desc *z, char *pnam) {
+> +static void set_unhidden(struct disk_desc *z, char *pnam)
+> +{
+>  	int pno;
+>  	unsigned char id;
+>  
+>  	pno = asc_to_index(pnam, z);
+> +	printf("\t%s\n", pnam);
 
-+readlink: extra operand `rename_aa/sublink.2'
-+Try `readlink --help' for more information.
-
-The commit 0f85e0535bd4e6d19fadca182e4d57660b6bb57b introduced the travis
-realpath issue to happen.
-
-Reference: https://travis-ci.org/karelzak/util-linux/builds/30538376
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/ts/rename/subdir | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/tests/ts/rename/subdir b/tests/ts/rename/subdir
-index f83b2bf..4ae7005 100755
---- a/tests/ts/rename/subdir
-+++ b/tests/ts/rename/subdir
-@@ -35,7 +35,9 @@ for i in rename_a{a,b}/sublink.{1..3}; do
- 	ln -s rename/aa $i
- done
- $TS_CMD_RENAME -s -v a x rename_a{a,b}/sublink.? >> $TS_OUTPUT 2>&1
--readlink rename_a{a,b}/sublink.?  >> $TS_OUTPUT 2>&1
-+for i in rename_a{a,b}/sublink.?; do
-+	readlink $i >> $TS_OUTPUT 2>&1
-+done
- 
- rm -rf rename_a{a,b}
- 
--- 
-2.0.3
+err, sorry... forgot to delete that one.
 
