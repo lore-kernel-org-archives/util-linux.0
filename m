@@ -1,54 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:57217 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933693AbaGXRTk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 24 Jul 2014 13:19:40 -0400
-Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 0E5384420C
-	for <util-linux@vger.kernel.org>; Thu, 24 Jul 2014 19:19:37 +0200 (CEST)
-Date: Thu, 24 Jul 2014 19:19:24 +0200
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:37139 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751449AbaGZRBr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 13:01:47 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id C5C3C24694
+	for <util-linux@vger.kernel.org>; Sat, 26 Jul 2014 19:01:14 +0200 (CEST)
 From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org, Dave Reisner <d@falconindy.com>
-Subject: Re: [PATCH] Fix switch_root/pivot_root cut-n-paste error in
- configure.ac
-Message-ID: <20140724171924.GA21736@fatal.se>
-References: <1406137142-15441-1-git-send-email-andreas@fatal.se>
- <20140724165226.GB519@rampage>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140724165226.GB519@rampage>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] buildsys: make tailf linux-only (needs inotify)
+Date: Sat, 26 Jul 2014 19:01:11 +0200
+Message-Id: <1406394071-1499-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Dave Reisner!
+While tailf builds fine on other architectures, it relies
+on inotify to work properly. So for example on
+Debian architectures using Hurd or kFreeBSD tailf
+would work like a regular tail (with a non-functional
+-f option), which makes it quite redundant.
+This was caught by the util-linux testsuite.
 
-On Thu, Jul 24, 2014 at 12:52:26PM -0400, Dave Reisner wrote:
-> Is this really correct? Seems to me like the check should simply be
-> removed. In sys-utils/pivot_root.c, we have the following:
-> 
->   #define pivot_root(new_root,put_old) syscall(SYS_pivot_root,new_root,put_old)
-> 
-> So, the subsequent check for the syscall seems like the only necessary
-> check needed. As is, I think that u-l now fails to build in places where
-> the pivot_root wrapper doesn't exist in the libc, but the syscall exists
-> (does such a platform even exist?).
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ configure.ac | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-I cought this when trying to build on Debian GNU/kFreeBSD (with incorrect
-configure flags for that platform) where the SYS_pivot_root check
-failed the build.
-Not knowing anything about non-linux architectures myself it was not obvious
-to me why this was.
+diff --git a/configure.ac b/configure.ac
+index aae2456..eade79c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1272,7 +1272,8 @@ AM_CONDITIONAL([BUILD_HEXDUMP], [test "x$build_hexdump" = xyes])
+ UL_BUILD_INIT([rev], [yes])
+ AM_CONDITIONAL([BUILD_REV], [test "x$build_rev" = xyes])
+ 
+-UL_BUILD_INIT([tailf], [yes])
++UL_BUILD_INIT([tailf], [check])
++UL_REQUIRES_LINUX([tailf])
+ AM_CONDITIONAL([BUILD_TAILF], [test "x$build_tailf" = xyes])
+ 
+ 
+-- 
+2.0.1
 
-Passing --disable-pivot_root fixed the build and it would be more
-obvious that this is the correct thing to do if it was pointed out that
-this is only expected to work on Linux.
-I consider the UL_REQUIRES_LINUX check as a more obvious
-way to point out this error so people like myself doesn't need to
-spend so much time scratching their heads over this.
-
->From what I can tell, Linux is the only system offering this syscall anyway.
-Do you know of any non-linux system offering this?
-If not, then I think the check is still correct and helpful.
-
-Regards,
-Andreas Henriksson
