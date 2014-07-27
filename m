@@ -1,80 +1,159 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:2132 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754441AbaGOJTJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Jul 2014 05:19:09 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6F9J9Qm021574
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 15 Jul 2014 05:19:09 -0400
-Date: Tue, 15 Jul 2014 11:19:07 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stef Walter <stefw@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
- SIGUSR1
-Message-ID: <20140715091907.GQ30288@x2.net.home>
-References: <1404718284-4192-1-git-send-email-stefw@redhat.com>
- <20140715074717.GN30288@x2.net.home>
- <53C4DED8.2070706@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53C4DED8.2070706@redhat.com>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:56851 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751304AbaG0S70 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 27 Jul 2014 14:59:26 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/6] docs: improve the formatting of the chfn and chsh man pages
+Date: Sun, 27 Jul 2014 20:58:58 +0200
+Message-Id: <1406487540-10491-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
+References: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 15, 2014 at 09:57:12AM +0200, Stef Walter wrote:
-> On 15.07.2014 09:47, Karel Zak wrote:
-> >  Now when I think about it.. would be better to have this feature
-> >  optional? I think it's overkill to have it enabled on all machines. 
-> 
-> Sure.
-> 
-> >  The another story is the signal usage (and possible race with login(1) as 
-> >  discussed at https://bugzilla.redhat.com/show_bug.cgi?id=1110763). 
-> >  
-> >  What about  for example: 
-> > 
-> >    agetty --reload-trigger <file>
-> 
-> As I said in the above bugzilla bug, I don't mind doing this ... but in
-> my opinion unix signals are meant exactly for this use case, and are
-> used by many (most?) other linx processes as a reload trigger.
+Also fix a pasting mistake where the chfn man page suggested
+to use ypchsh or lchsh for non-local entries.
 
- Yes, it's pretty common classic solution, but I think that in this
- case it is not too robust solution.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ login-utils/chfn.1 |   38 +++++++++++++++++---------------------
+ login-utils/chsh.1 |   24 ++++++++++--------------
+ 2 files changed, 27 insertions(+), 35 deletions(-)
 
-> >  and use inotify for the <file>. I guess this way also allows to avoid
-> >  the ioctl() tty voodoo and you can use select() for the inotify and
-> >  tty file descriptors.
-> 
-> Unfortunately that's not how it works. When in canonical mode, the tty
-> file descriptor only becomes readable once a complete line has been
-> entered. I've verified that select() does not return until <enter> is
-> pressed.
-
- Ah.. good point, but with non-canonical mode it works as expected,
- right? So, we can use fd with VMIN=1 and inotify fd for the select().
+diff --git a/login-utils/chfn.1 b/login-utils/chfn.1
+index 3b44fb3..564fed3 100644
+--- a/login-utils/chfn.1
++++ b/login-utils/chfn.1
+@@ -2,15 +2,11 @@
+ .\"  chfn.1 -- change your finger information
+ .\"  (c) 1994 by salvatore valente <svalente@athena.mit.edu>
+ .\"
+-.\"  this program is free software.  you can redistribute it and
+-.\"  modify it under the terms of the gnu general public license.
+-.\"  there is no warranty.
++.\"  This program is free software.  You can redistribute it and
++.\"  modify it under the terms of the GNU General Public License.
++.\"  There is no warranty.
+ .\"
+-.\"  $Author: faith $
+-.\"  $Revision: 1.1 $
+-.\"  $Date: 1995/03/12 01:29:16 $
+-.\"
+-.TH CHFN 1 "July 2009" "util-linux" "User Commands"
++.TH CHFN 1 "July 2014" "util-linux" "User Commands"
+ .SH NAME
+ chfn \- change your finger information
+ .SH SYNOPSIS
+@@ -38,40 +34,40 @@ program.  The Linux
+ command will display four pieces of information that can be changed by
+ .BR chfn :
+ your real name, your work room and phone, and your home phone.
+-
+-.B chfn
+-supports non-local entries (kerberos, LDAP, etc.\&) if linked with libuser,
+-otherwise use ypchsh, lchsh or any other implementation for non-local
+-entries.
+-.SS COMMAND LINE
++.PP
+ Any of the four pieces of information can be specified on the command
+ line.  If no information is given on the command line,
+ .B chfn
+ enters interactive mode.
+-.SS INTERACTIVE MODE
++.PP
+ In interactive mode,
+ .B chfn
+ will prompt for each field.  At a prompt, you can enter the new information,
+ or just press return to leave the field unchanged.  Enter the keyword
+ "none" to make the field blank.
++.PP
++.B chfn
++supports non-local entries (kerberos, LDAP, etc.\&) if linked with libuser,
++otherwise use \fBypchfn\fR, \fBlchfn\fR or any other implementation for
++non-local entries.
+ .SH OPTIONS
+ .TP
+-.BI "\-f, \-\-full-name " full-name
++.BR \-f , " \-\-full-name " \fIfull-name
+ Specify your real name.
+ .TP
+-.BI "\-o, \-\-office " office
++.BR \-o , " \-\-office " \fIoffice
+ Specify your office room number.
+ .TP
+-.BI "\-p, \-\-office-phone " office-phone
++.BR \-p , " \-\-office-phone " \fIoffice-phone
+ Specify your office phone number.
+ .TP
+-.BI "\-h, \-\-home-phone " home-phone
++.BR \-h , " \-\-home-phone " \fIhome-phone
+ Specify your home phone number.
+ .TP
+-.B "\-u, \-\-help"
++.BR \-u , " \-\-help"
+ Display help text and exit.
+ .TP
+-.B "\-v, \-\-version"
++.BR \-v , " \-\-version"
+ Display version information and exit.
+ .SH "EXIT STATUS"
+ Returns 0 if operation was successful, 1 if operation failed or command syntax was not valid.
+diff --git a/login-utils/chsh.1 b/login-utils/chsh.1
+index 229f5e1..eb59c5c 100644
+--- a/login-utils/chsh.1
++++ b/login-utils/chsh.1
+@@ -2,15 +2,11 @@
+ .\"  chsh.1 -- change your login shell
+ .\"  (c) 1994 by salvatore valente <svalente@athena.mit.edu>
+ .\"
+-.\"  this program is free software.  you can redistribute it and
+-.\"  modify it under the terms of the gnu general public license.
+-.\"  there is no warranty.
++.\"  This program is free software.  You can redistribute it and
++.\"  modify it under the terms of the GNU General Public License.
++.\"  There is no warranty.
+ .\"
+-.\"  $Author: faith $
+-.\"  $Revision: 1.1 $
+-.\"  $Date: 1995/03/12 01:28:58 $
+-.\"
+-.TH CHSH 1 "July 2009" "util-linux" "User Commands"
++.TH CHSH 1 "July 2014" "util-linux" "User Commands"
+ .SH NAME
+ chsh \- change your login shell
+ .SH SYNOPSIS
+@@ -30,22 +26,22 @@ prompts for one.
  
- Maybe the best would be to implement all within agetty, I mean add
- a special command 
-
-   agetty --reload [<tty>]
-
- to reload another already running agetty process(es). So rather than
- "killall agetty" you have to use "agetty --reload".
- 
- Then all the implementation will be a private thing and only the "--reload"
- command line option will be a public API.
-
-
- Note that we does not control code of all login(1) implementations
- and we have --login-program <path> to start arbitrary random thing
- from agetty, so our solution have to be generic rather than rely 
- on any login(1) change.
-
-    Karel
-
+ .B chsh
+ supports non-local entries (kerberos, LDAP, etc.\&) if linked with libuser,
+-otherwise use ypchsh, lchsh or any other implementation for non-local
+-entries.
++otherwise use \fBypchsh\fR, \fBlchsh\fR or any other implementation for
++non-local entries.
+ .SH OPTIONS
+ .TP
+-.BI "\-s, \-\-shell " shell
++.BR \-s , " \-\-shell " \fIshell
+ Specify your login shell.
+ .TP
+-.B "\-l, \-\-list-shells"
++.BR \-l , " \-\-list-shells"
+ Print the list of shells listed in
+ .I /etc/shells
+ and exit.
+ .TP
+-.B "\-u, \-\-help"
++.BR \-u , " \-\-help"
+ Display help text and exit.
+ .TP
+-.B "\-v, \-\-version"
++.BR \-v , " \-\-version"
+ Display version information and exit.
+ .SH "VALID SHELLS"
+ .B chsh
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
