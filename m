@@ -1,62 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:15741 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758039AbaGOJ4I (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Jul 2014 05:56:08 -0400
-Date: Tue, 15 Jul 2014 11:56:03 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: umount: --types does not limit
-Message-ID: <20140715095603.GR30288@x2.net.home>
-References: <1405331864.10850.141333833.2F92BBFD@webmail.messagingengine.com>
- <20140714145759.GM30288@x2.net.home>
- <1405351467.26224.141460601.7C1F0818@webmail.messagingengine.com>
- <20140715080234.GP30288@x2.net.home>
- <1405414924.13201.141769101.02687AE4@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1405414924.13201.141769101.02687AE4@webmail.messagingengine.com>
+Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:53295 "EHLO
+	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751304AbaG0S72 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 27 Jul 2014 14:59:28 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 5/6] docs: give the man page of utmpdump the proper User Commands header
+Date: Sun, 27 Jul 2014 20:58:59 +0200
+Message-Id: <1406487540-10491-5-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
+References: <1406487540-10491-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 15, 2014 at 11:02:04AM +0200, Benno Schulenberg wrote:
-> 
-> On Tue, Jul 15, 2014, at 10:02, Karel Zak wrote:
-> >    umount -t <type>
-> > 
-> >  the <type> is filesystem type (so you can force umount to use for
-> >  example /sbin/umount.<type>).
-> 
-> Hmm.  But it's not working for me, the --types option does not limit
-> umount in any way.  In the man page it says: "Indicate  that the
-> actions should *only* be taken on filesystems of the specified type."
-> 
-> But, for example, here Suse is of type ext4 and gets mounted:
-> 
-> # ./mount -t ext4 /suse
-> # ./mount | grep suse
-> /dev/sda2 on /suse type ext4 (rw,noatime,noexec,nosuid,nodev,user)
-> 
-> Now I want to unmount all btrfs systems:
-> 
-> # ./umount -t btrfs /suse /zero /other
-> # ./mount | grep suse
-> 
-> It just unmounts everything that is mentioned, the -t has no
-> limiting effect.  So it is useful only with -a.
+Also bring the formatting closer to standard.
 
- grrr... you're right, I see.. libmount always overwrites the setting 
- by stuff from mtab.
- 
- IMHO it would be nice to restrict the all the umount actions (like
- --recursive, --all-targets or when more mountpoints specified) by the
- pattern. I'll add this to the TODO file for v2.26.
- 
- Thanks!
- 
-    Karel
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ login-utils/utmpdump.1 |   19 ++++++++++++-------
+ 1 files changed, 12 insertions(+), 7 deletions(-)
 
+diff --git a/login-utils/utmpdump.1 b/login-utils/utmpdump.1
+index 933a3c9..68516d8 100644
+--- a/login-utils/utmpdump.1
++++ b/login-utils/utmpdump.1
+@@ -14,7 +14,7 @@
+ .\" along with this program; if not, write to the Free Software
+ .\" Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ .\"
+-.TH UTMPDUMP "1" "July 2012" "util-linux" "System Administration"
++.TH UTMPDUMP 1 "July 2014" "util-linux" "User Commands"
+ .SH NAME
+ utmpdump \- dump UTMP and WTMP files in raw format
+ .SH SYNOPSIS
+@@ -29,16 +29,21 @@ reads from stdin unless a
+ .I filename
+ is passed.
+ .SH OPTIONS
+-.IP "\fB\-f\fR, \fB\-\-follow\fP"
++.TP
++.BR \-f , " \-\-follow"
+ Output appended data as the file grows.
+-.IP "\fB\-o\fR, \fB\-\-output\fP \fIfile\fR
++.TP
++.BR \-o , " \-\-output " \fIfile
+ Write command output to \fIfile\fR instead of standard output.
+-.IP "\fB\-r\fR, \fB\-\-reverse\fP
++.TP
++.BR \-r , " \-\-reverse"
+ Undump, write back edited login information into the utmp or wtmp files.
+-.IP "\fB\-h\fR, \fB\-\-help\fP"
+-Display help text and exit.
+-.IP "\fB\-V\fR, \fB\-\-version\fP"
++.TP
++.BR \-V , " \-\-version"
+ Display version information and exit.
++.TP
++.BR \-h , " \-\-help"
++Display help text and exit.
+ .SH NOTES
+ .B utmpdump
+ can be useful in cases of corrupted utmp or wtmp entries.  It can dump
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
