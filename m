@@ -1,104 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f182.google.com ([74.125.82.182]:40878 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756940AbaGVWBY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:24 -0400
-Received: by mail-we0-f182.google.com with SMTP id k48so280186wev.41
-        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:23 -0700 (PDT)
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:56254 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752086AbaG0RwX (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jul 2014 13:52:23 -0400
+Received: by mail-wg0-f41.google.com with SMTP id z12so6472280wgg.24
+        for <util-linux@vger.kernel.org>; Sun, 27 Jul 2014 10:52:22 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 05/10] docs: make logger.1 facilities and levels easier to read
-Date: Tue, 22 Jul 2014 23:00:54 +0100
-Message-Id: <1406066459-4816-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+Cc: kerolasa@iki.fi, Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 1/2] logger: warn when --file and command line message are combined
+Date: Sun, 27 Jul 2014 18:52:14 +0100
+Message-Id: <1406483535-17461-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
+References: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Most people read vertical list lot quicker than horizontal.
+When --file is combined with command line arguments the later has
+silently been ignored.  This commit makes user to be aware the logger
+will not use command line arguments when --file is specified.
 
+Reported-by: "Daniel 'DaB.' Baur" <debian@daniel.baur4.info>
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=467244
+CC: Andreas Henriksson <andreas@fatal.se>
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/logger.1 | 59 +++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 20 deletions(-)
+ misc-utils/logger.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
-index ea1e97d..3228196 100644
---- a/misc-utils/logger.1
-+++ b/misc-utils/logger.1
-@@ -160,32 +160,51 @@ to start with a hyphen (\-).
- Write this \fImessage\fR to the log; if not specified, and the
- .B \-f
- flag is not provided, standard input is logged.
--.PP
-+.SH RETURN VALUE
- The
- .B logger
- utility exits 0 on success, and >0 if an error occurs.
--.PP
-+.SH FACILITIES AND LEVELS
- Valid facility names are:
--.IR auth , \ authpriv
--(for security information of a sensitive nature),
--.IR cron , \ daemon , \ ftp , \ kern
--(can't be generated from user process),
--.IR lpr , \ mail , \ news , \ security
--(deprecated synonym for
--.IR auth ), \ syslog , \ user , \ uucp ,
--and
--.IR local0 \ to \ local7 ,
--inclusive.
-+.TS
-+tab(:);
-+left l l.
-+\fIauth\fR
-+\fIauthpriv\fR:for security information of a sensitive nature
-+\fIcron\fR
-+\fIdaemon\fR
-+\fIftp\fR
-+\fIkern\fR:cannot be generated from user process
-+\fIlpr\fR
-+\fImail\fR
-+\fInews\fR
-+\fIsyslog\fR
-+\fIuser\fR
-+\fIuucp\fR
-+\fIlocal0\fR
-+to
-+\fIlocal7\fR
-+\fIsecurity\fR:deprecated synonym for \fIauth\fR
-+.TE
- .PP
- Valid level names are:
--.IR alert , \ crit , \ debug , \ emerg , \ err , \ error
--(deprecated synonym for
--.IR err ), \ info , \ notice , \ panic
--(deprecated synonym for
--.IR  emerg ), \ warning , \ warn
--(deprecated synonym for
--.IR warning ).
--For the priority order and intended purposes of these levels, see
-+.TS
-+tab(:);
-+left l l.
-+\fIemerg\fR
-+\fIalert\fR
-+\fIcrit\fR
-+\fIerr\fR
-+\fIwarning\fR
-+\fInotice\fR
-+\fIinfo\fR
-+\fIdebug\fR
-+\fIpanic\fR:deprecated synonym for \fIemerg\fR
-+\fIerror\fR:deprecated synonym for \fIerr\fR
-+\fIwarn\fR:deprecated synonym for \fIwarning\fR
-+.TE
-+.PP
-+For the priority order and intended purposes of these facilities and levels, see
- .BR syslog (3).
- .SH EXAMPLES
- logger System rebooted
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index afd9371..ac583fd 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -535,6 +535,7 @@ int main(int argc, char **argv)
+ 		.rfc5424_host = 1,
+ 	};
+ 	int ch;
++	int stdout_reopened = 0;
+ #ifdef HAVE_LIBSYSTEMD
+ 	FILE *jfd = NULL;
+ #endif
+@@ -570,8 +571,8 @@ int main(int argc, char **argv)
+ 		switch (ch) {
+ 		case 'f':		/* file to log */
+ 			if (freopen(optarg, "r", stdin) == NULL)
+-				err(EXIT_FAILURE, _("file %s"),
+-				    optarg);
++				err(EXIT_FAILURE, _("file %s"), optarg);
++			stdout_reopened = 1;
+ 			break;
+ 		case 'i':		/* log process id also */
+ 			ctl.logflags |= LOG_PID;
+@@ -642,6 +643,8 @@ int main(int argc, char **argv)
+ 	}
+ 	argc -= optind;
+ 	argv += optind;
++	if (stdout_reopened && argc)
++		warnx(_("--file <file> and <message> are mutually exclusive, message is ignored"));
+ #ifdef HAVE_LIBSYSTEMD
+ 	if (jfd) {
+ 		int ret = journald_entry(jfd);
 -- 
-2.0.2
+2.0.3
 
