@@ -1,130 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp04.in.ibm.com ([122.248.162.4]:38533 "EHLO
-	e28smtp04.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750924AbaGCKaV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Jul 2014 06:30:21 -0400
-Received: from /spool/local
-	by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <suzuki@in.ibm.com>;
-	Thu, 3 Jul 2014 16:00:17 +0530
-Received: from d28relay04.in.ibm.com (d28relay04.in.ibm.com [9.184.220.61])
-	by d28dlp02.in.ibm.com (Postfix) with ESMTP id 97FFD3940049
-	for <util-linux@vger.kernel.org>; Thu,  3 Jul 2014 16:00:14 +0530 (IST)
-Received: from d28av04.in.ibm.com (d28av04.in.ibm.com [9.184.220.66])
-	by d28relay04.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s63AUS6219595434
-	for <util-linux@vger.kernel.org>; Thu, 3 Jul 2014 16:00:28 +0530
-Received: from d28av04.in.ibm.com (localhost [127.0.0.1])
-	by d28av04.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s63AUA7N022762
-	for <util-linux@vger.kernel.org>; Thu, 3 Jul 2014 16:00:11 +0530
-Message-ID: <53B530B2.9090402@in.ibm.com>
-Date: Thu, 03 Jul 2014 16:00:10 +0530
-From: "Suzuki K. Poulose" <suzuki@in.ibm.com>
+Received: from mail2.vodafone.ie ([213.233.128.44]:1739 "EHLO
+	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751290AbaG0MgI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jul 2014 08:36:08 -0400
+Message-ID: <53D4F231.9020906@draigBrady.com>
+Date: Sun, 27 Jul 2014 13:36:01 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-To: Ondrej Oprala <ooprala@redhat.com>,
-        Janani Venkataraman <jananive@linux.vnet.ibm.com>,
-        util-linux@vger.kernel.org
-CC: ananth@linux.vnet.ibm.com, Tarundeep Singh <tarundsk@linux.vnet.ibm.com>
-Subject: Re: Non disruptive application core dump infrastructure
-References: <53871D87.2070401@linux.vnet.ibm.com> <53871E15.1040209@redhat.com> <53872BF1.5030303@in.ibm.com> <53873365.7080405@redhat.com> <53877B30.30909@in.ibm.com>
-In-Reply-To: <53877B30.30909@in.ibm.com>
+To: Andreas Henriksson <andreas@fatal.se>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] tests: allow non-inotify tailf to keep up
+References: <1406407441-4872-1-git-send-email-andreas@fatal.se>
+In-Reply-To: <1406407441-4872-1-git-send-email-andreas@fatal.se>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/29/2014 11:53 PM, Suzuki K. Poulose wrote:
-> On 05/29/2014 06:47 PM, Ondrej Oprala wrote:
->> On 05/29/2014 02:45 PM, Suzuki K. Poulose wrote:
->>> On 05/29/2014 05:16 PM, Ondrej Oprala wrote:
->>>> On 05/29/2014 01:44 PM, Janani Venkataraman wrote:
->>>>> Hi,
->>>>>
->>>>> We have developed a tool called "gencore" which captures the core of
->>>>> an application without
->>>>> disrupting its process. The dump is collected non-disruptively and
->>>>> this tool currently supports
->>>>> s390, x86 and power systems.
->>>>>
->>>>> THE TOOL:
->>>>>
->>>>> The tool can perform non-disruptive third party dumps. The tool also
->>>>> contains a library "libgencore"
->>>>> which helps applicationsto trigger self dumps.
->>>>>
->>>>> The tool can perform:
->>>>>
->>>>> 1) Third party dump: The pid of the process to dumped is given along
->>>>> with name of the core-file to
->>>>> be created.
->>>>>
->>>>> eg.
->>>>>
->>>>> [janani@localhost]:gencore 6616 core.test
->>>>>
->>>>> 2) Self dump: The programs can request a self-dump using gencore()
->>>>> API, provided throughlibgencore. This
->>>>> is implemented through a daemon which listens on a UNIX Filesocket for
->>>>> such requests. The daemon is started
->>>>> immediately post installation. The program which requires the dump
->>>>> makes use of the gencore() API and provides
->>>>> the name of the core-file as a parameter.
->>>>>
->>>>> eg.
->>>>>
->>>>> /* Opening the library, in this case the library is present in the
->>>>> /usr/lib64 */
->>>>> lib = dlopen("libgencore.so", RTLD_LAZY);
->>>>>
->>>>> gencore = dlsym(lib, "gencore");
->>>>>
->>>>> Call the API:
->>>>> gencore("/home/janani/core_test").
->>>>>
->>>>> BASIC IDEA:
->>>>>
->>>>> The basic idea is that the threads of the process are held using
->>>>> ptrace calls and the dump is generated in the
->>>>> ELF format using the /proc/pid filesystem.
->>>>>
->>>>> PATCH SET:
->>>>> We have designed this tool based on the discussions with linux kernel
->>>>> community. The patches have been posted
->>>>> at: https://lkml.org/lkml/2014/3/20/138
->>>>>
->>>>> Do you think this can be part of the util-linux bundle? We can tweak
->>>>> it to make it work as a package in util-linux.
->>>>>
->>>>> Let us know your reviews and comments.
->>>>>
->>>>> Thanks.
->>>>> Janani
->>>>>
->>>>> -- 
->>>>> To unsubscribe from this list: send the line "unsubscribe
->>>>> util-linux" in
->>>>> the body of a message to majordomo@vger.kernel.org
->>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>> Interesting,
->>>> but how is this different from attaching to a process with GDB and using
->>>> the gcore command? Or to automate it more, using the gcore script that
->>>> comes with GDB?
->>>> Cheers,
->>>> Ondrej
->>>>
->>> There are two major issues with that.
->>>
->>> 1) GDB uses PTRACE_ATTACH and hence the process gets a SIGSTOP.
->> I fail to see the downside to that.
->>> 2) A process cannot initiate the request to dump itself, say from a
->>> signal handler. (since fork() is not signal safe)
->> This should be possible using libgdb. Let's say forking while in a SIGSEGV
->> handler and using the libgdb API to do the dump.
-> Thats exactly the problem. forking within a sighandler is not safe. You
-> could possibly deadlock with glibc locks.
+On 07/26/2014 09:44 PM, Andreas Henriksson wrote:
+> When tailf is not using inotify, it seems to sleep for 0.25s between
+> checks. Just giving a 0.1s time window between update and removal of the
+> input file thus gives little chance for tailf to succeed.
+> Similar between startup and append to file, make sure initial
+> content is read before appending additional data by bumping the time.
+> 
+> This should possibly be bumped much larger to make sure that
+> the tailf process actually gets a chance to run at all in the
+> given time window. Otherwise it might fail on really slow/overloaded
+> machines.
+> The drawback would then ofcourse be to increase the time it takes
+> to run the testsuite.
+> 
+> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+> ---
+>  tests/ts/tailf/simple | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tests/ts/tailf/simple b/tests/ts/tailf/simple
+> index 955844d..d0a1c5c 100755
+> --- a/tests/ts/tailf/simple
+> +++ b/tests/ts/tailf/simple
+> @@ -27,9 +27,9 @@ echo {a..z} > $INPUT
+>  
+>  $TS_CMD_TAILF $INPUT > $TS_OUTPUT 2>&1 &
+>  
+> -sleep 0.1
+> +sleep 0.5
+>  echo {0..9} >> $INPUT
+> -sleep 0.1
+> +sleep 0.5
+>  
+>  rm -f $INPUT
 
-Ondrej,
+For such tests coreutils uses a helper function
+to apply a truncated exponential backoff,
+to run quickly in the common case, but also
+delay longer if necessary. See retry_delay_() at:
 
-What are your thoughts about this ?
+http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=init.cfg;h=725ee121;hb=HEAD#l608
 
-Thanks
-Suzuki
-
+cheers,
+Pádraig.
