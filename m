@@ -1,113 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:57708 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751124AbaGZKxN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 26 Jul 2014 06:53:13 -0400
-Received: by mail-wg0-f51.google.com with SMTP id b13so5137555wgh.10
-        for <util-linux@vger.kernel.org>; Sat, 26 Jul 2014 03:53:12 -0700 (PDT)
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:48066 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752463AbaG0Rw0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 27 Jul 2014 13:52:26 -0400
+Received: by mail-wi0-f176.google.com with SMTP id bs8so3320639wib.15
+        for <util-linux@vger.kernel.org>; Sun, 27 Jul 2014 10:52:24 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] swaplabel: move swapon-common to include directory
-Date: Sat, 26 Jul 2014 11:53:06 +0100
-Message-Id: <1406371986-16508-1-git-send-email-kerolasa@iki.fi>
+Cc: kerolasa@iki.fi, Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 2/2] logger: add hostname to rfc3164 message
+Date: Sun, 27 Jul 2014 18:52:15 +0100
+Message-Id: <1406483535-17461-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
+References: <1406483535-17461-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This fixes the following compiler warning.
+This makes the obsolete protocol a little bit more compliant with the
+internet standard, but few should care now when we have rfc5424 support,
+and rfc3164 feels broken.  For example it requires hostname to be not
+fully qualified, which is hard to understand, and should make users to
+prefer the new protocol.
 
-disk-utils/swaplabel.c:175:2: warning: implicit declaration of function
-'get_swap_prober' [-Wimplicit-function-declaration]
-
+Reported-by: Frank Thilo <thilo@unix-ag.org>
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=705217
+CC: Andreas Henriksson <andreas@fatal.se>
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/swaplabel.c    |  1 +
- include/swapon-common.h   | 28 ++++++++++++++++++++++++++++
- sys-utils/swapon-common.h | 28 ----------------------------
- 3 files changed, 29 insertions(+), 28 deletions(-)
- create mode 100644 include/swapon-common.h
- delete mode 100644 sys-utils/swapon-common.h
+ misc-utils/logger.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/disk-utils/swaplabel.c b/disk-utils/swaplabel.c
-index 809c365..a7cccc4 100644
---- a/disk-utils/swaplabel.c
-+++ b/disk-utils/swaplabel.c
-@@ -29,6 +29,7 @@
- #include "closestream.h"
- #include "all-io.h"
- #include "swapheader.h"
-+#include "swapon-common.h"
- #include "strutils.h"
- #include "nls.h"
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index ac583fd..9da404d 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -298,7 +298,7 @@ static pid_t get_process_id(struct logger_ctl *ctl)
  
-diff --git a/include/swapon-common.h b/include/swapon-common.h
-new file mode 100644
-index 0000000..da58e19
---- /dev/null
-+++ b/include/swapon-common.h
-@@ -0,0 +1,28 @@
-+#ifndef UTIL_LINUX_SWAPON_COMMON_H
-+#define UTIL_LINUX_SWAPON_COMMON_H
-+
-+#include <blkid.h>
-+#include <libmount.h>
-+
-+extern struct libmnt_cache *mntcache;
-+
-+extern struct libmnt_table *get_fstab(void);
-+extern struct libmnt_table *get_swaps(void);
-+extern void free_tables(void);
-+
-+extern int match_swap(struct libmnt_fs *fs, void *data);
-+extern int is_active_swap(const char *filename);
-+
-+extern int cannot_find(const char *special);
-+
-+extern void add_label(const char *label);
-+extern const char *get_label(size_t i);
-+extern size_t numof_labels(void);
-+
-+extern void add_uuid(const char *uuid);
-+extern const char *get_uuid(size_t i);
-+extern size_t numof_uuids(void);
-+
-+blkid_probe get_swap_prober(const char *devname);
-+
-+#endif /* UTIL_LINUX_SWAPON_COMMON_H */
-diff --git a/sys-utils/swapon-common.h b/sys-utils/swapon-common.h
-deleted file mode 100644
-index da58e19..0000000
---- a/sys-utils/swapon-common.h
-+++ /dev/null
-@@ -1,28 +0,0 @@
--#ifndef UTIL_LINUX_SWAPON_COMMON_H
--#define UTIL_LINUX_SWAPON_COMMON_H
--
--#include <blkid.h>
--#include <libmount.h>
--
--extern struct libmnt_cache *mntcache;
--
--extern struct libmnt_table *get_fstab(void);
--extern struct libmnt_table *get_swaps(void);
--extern void free_tables(void);
--
--extern int match_swap(struct libmnt_fs *fs, void *data);
--extern int is_active_swap(const char *filename);
--
--extern int cannot_find(const char *special);
--
--extern void add_label(const char *label);
--extern const char *get_label(size_t i);
--extern size_t numof_labels(void);
--
--extern void add_uuid(const char *uuid);
--extern const char *get_uuid(size_t i);
--extern size_t numof_uuids(void);
--
--blkid_probe get_swap_prober(const char *devname);
--
--#endif /* UTIL_LINUX_SWAPON_COMMON_H */
+ static void syslog_rfc3164(struct logger_ctl *ctl, char *msg)
+ {
+-	char buf[1000], pid[30], *cp, *tp;
++	char buf[1000], pid[30], *cp, *tp, *hostname, *dot;
+ 	time_t now;
+ 	pid_t process;
+ 
+@@ -312,10 +312,15 @@ static void syslog_rfc3164(struct logger_ctl *ctl, char *msg)
+ 		cp = ctl->tag;
+ 	else
+ 		cp = xgetlogin();
++	hostname = xgethostname();
++	dot = strchr(hostname, '.');
++	if (dot)
++		*dot = '\0';
+ 	time(&now);
+ 	tp = ctime(&now) + 4;
+-	snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
+-		 ctl->pri, tp, cp, pid, msg);
++	snprintf(buf, sizeof(buf), "<%d>%.15s %s %.200s%s: %.400s",
++		 ctl->pri, tp, hostname, cp, pid, msg);
++	free(hostname);
+ 	if (write_all(ctl->fd, buf, strlen(buf) + 1) < 0)
+ 		warn(_("write failed"));
+ 	if (ctl->logflags & LOG_PERROR)
 -- 
 2.0.3
 
