@@ -1,64 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qg0-f51.google.com ([209.85.192.51]:57721 "EHLO
-	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757795AbaGXQwb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 24 Jul 2014 12:52:31 -0400
-Received: by mail-qg0-f51.google.com with SMTP id a108so3491740qge.38
-        for <util-linux@vger.kernel.org>; Thu, 24 Jul 2014 09:52:30 -0700 (PDT)
-Date: Thu, 24 Jul 2014 12:52:26 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Andreas Henriksson <andreas@fatal.se>
+Received: from mx1.redhat.com ([209.132.183.28]:47194 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752022AbaG1Jd7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jul 2014 05:33:59 -0400
+Date: Mon, 28 Jul 2014 11:33:55 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix switch_root/pivot_root cut-n-paste error in
- configure.ac
-Message-ID: <20140724165226.GB519@rampage>
-References: <1406137142-15441-1-git-send-email-andreas@fatal.se>
+Subject: Re: [PATCH 3/4] various: erase all traces of the long-obsolete xiafs
+Message-ID: <20140728093355.GG8533@x2.net.home>
+References: <1406292904-3956-1-git-send-email-bensberg@justemail.net>
+ <1406292904-3956-3-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406137142-15441-1-git-send-email-andreas@fatal.se>
+In-Reply-To: <1406292904-3956-3-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 23, 2014 at 07:39:02PM +0200, Andreas Henriksson wrote:
-> The "linux only" check for pivot_root seems to suffer from
-> a cut-n-paste problem from the earlier switch_root part.
-> 
-> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
-> ---
->  configure.ac | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/configure.ac b/configure.ac
-> index db53dff..aae2456 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -1193,7 +1193,7 @@ AC_ARG_ENABLE([pivot_root],
->    [], [UL_DEFAULT_ENABLE([pivot_root], [check])]
->  )
->  UL_BUILD_INIT([pivot_root])
-> -UL_REQUIRES_LINUX([switch_root])
-> +UL_REQUIRES_LINUX([pivot_root])
+On Fri, Jul 25, 2014 at 02:55:03PM +0200, Benno Schulenberg wrote:
+> diff --git a/bash-completion/mount b/bash-completion/mount
+> index db97a91..7ebcec3 100644
+> --- a/bash-completion/mount
+> +++ b/bash-completion/mount
+> @@ -20,7 +20,7 @@ devpts	  nodevpts	nfs4	  nonfs4	usbfs	  nousbfs
+>  efs	  noefs		ntfs	  nontfs	vfat	  novfat
+>  ext	  noext		proc	  noproc	xenix	  noxenix
+>  ext2	  noext2	qnx4	  noqnx4	xfs	  noxfs
+> -ext3	  noext3	ramfs	  noramfs	xiafs	  noxiafs
+> +ext3	  noext3	ramfs	  noramfs
+>  ext4	  noext4	reiserfs  noreiserfs
+>  hfs	  nohfs		romfs	  noromfs
 
-Is this really correct? Seems to me like the check should simply be
-removed. In sys-utils/pivot_root.c, we have the following:
+ I have doubts that static list of the filesystems in the
+ bash-completion/ is a good idea. It would be better to generate
+ the list according to the current kernel features, something like
 
-  #define pivot_root(new_root,put_old) syscall(SYS_pivot_root,new_root,put_old)
+ (awk '{ if ($0 ~ /^[[:blank:]]/) { print $1 } else { print $2 } }'
+ /proc/filesystems; ls /lib/modules/$(uname -r)/kernel/fs) | sort -u
 
-So, the subsequent check for the syscall seems like the only necessary
-check needed. As is, I think that u-l now fails to build in places where
-the pivot_root wrapper doesn't exist in the libc, but the syscall exists
-(does such a platform even exist?).
+    Karel
 
-Cheers,
-dave
-
->  UL_REQUIRES_SYSCALL_CHECK([pivot_root], [UL_CHECK_SYSCALL([pivot_root])])
->  AM_CONDITIONAL([BUILD_PIVOT_ROOT], [test "x$build_pivot_root" = xyes])
->  
-> -- 
-> 2.0.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
