@@ -1,46 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36795 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754890AbaGNNhT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Jul 2014 09:37:19 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s6EDbIOQ026189
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 14 Jul 2014 09:37:19 -0400
-Date: Mon, 14 Jul 2014 15:37:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stef Walter <stefw@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt and reprint /etc/issue if we receive
- SIGUSR1
-Message-ID: <20140714133716.GB30288@x2.net.home>
-References: <1404718284-4192-1-git-send-email-stefw@redhat.com>
+Received: from mx5-phx2.redhat.com ([209.132.183.37]:37518 "EHLO
+	mx5-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751478AbaG1QBO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 28 Jul 2014 12:01:14 -0400
+Date: Mon, 28 Jul 2014 12:01:11 -0400 (EDT)
+From: Jaromir Capik <jcapik@redhat.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Message-ID: <54850462.25033124.1406563271629.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20140728151034.GM8533@x2.net.home>
+References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com> <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com> <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com> <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com> <20140728151034.GM8533@x2.net.home>
+Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
+ -r/--repair
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1404718284-4192-1-git-send-email-stefw@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 07, 2014 at 09:31:24AM +0200, Stef Walter wrote:
-> Several of the /etc/issue escape codes such as \4 and \S depend on
-> variable data which can change after the agetty prompt is displayed.
-> This can cause stale data to be displayed when a user looks at a VT,
-> especially in cases of DHCP racing with system start up.
+
+Ahoj Karle.
+
+> > > > + if ((unsigned int)track_from > param.track - 1)
+> > > > + err(EXIT_FAILURE, _("'from' is out of allowed range\n"));
+> > > > + if ((unsigned int)track_to > param.track - 1)
+> > > > + err(EXIT_FAILURE, _("'to' is out of allowed range\n"));
+> > > > + if (track_from > track_to)
+> > > > + err(EXIT_FAILURE, _("'from' is higher than 'to'\n"));
+> > > 
+> > > The err() adds new line to print out, so the messages above will print
+> > > unexpected empty line.
+> > 
+> > This can be completely removed after the change to strtou32_or_err(),
+> > right?
 > 
-> This commit allows agetty to react a SIGUSR1 signal by reprinting
-> its prompt including the reprocessing of /etc/issue.
-> 
-> We never want this to occur once the user has started typing a
-> user name. So we detect when the user starts typing, after which
-> no further reprompting occurs even if SIGUSR1 is received.
+>  I guess you still want to check user's input against the hardware, so check
+>  if track_to is smaller than param.track is correct thing. Right?
 
- Good idea, interesting implementation, but it's too late for v2.25.
- I'm going to apply the patch to the git tree after v2.25 release.
-
- Thanks.
-    Karel
+The comparison with the param.track is done elsewhere as we don't know
+the disk parameters during the argument parsing yet.
+We get the parameters after finishing the argument parsing.
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>  Anyway, \n is unnecessary, errx() does not print error based on
+>  errno, err() follows errno.
+
+Sure, this was more of a copy'n'paste error.
+
+
+>  Thank, it's nice to see we have someone to test fdformat!
+
+Np. Can test any time.
+Going to rework the patch.
+
+Thx,
+Jaromir.
+
+--
+Jaromir Capik
+Red Hat Czech, s.r.o.
+Software Engineer / Secondary Arch
+
+Email: jcapik@redhat.com
+Web: www.cz.redhat.com
+Red Hat Czech s.r.o., Purkynova 99/71, 612 45, Brno, Czech Republic
+IC: 27690016
