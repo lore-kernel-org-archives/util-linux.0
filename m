@@ -1,40 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hzn01.notanisp.net ([88.198.64.134]:45992 "EHLO goatse.co.uk"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750923AbaGZUbS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 26 Jul 2014 16:31:18 -0400
-From: bobtfish@bobtfish.net
-To: util-linux@vger.kernel.org
-Cc: Tomas Doran <bobtfish@bobtfish.net>
-Subject: [PATCH] Setting uid / gid is generally useful in nseneter
-Date: Sat, 26 Jul 2014 13:22:54 -0700
-Message-Id: <1406406174-20938-1-git-send-email-bobtfish@bobtfish.net>
+Received: from mx1.redhat.com ([209.132.183.28]:51011 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751130AbaG1K3S (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jul 2014 06:29:18 -0400
+Date: Mon, 28 Jul 2014 12:29:06 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] swaplabel: move swapon-common to include directory
+Message-ID: <20140728102906.GH8533@x2.net.home>
+References: <1406371986-16508-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406371986-16508-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Tomas Doran <bobtfish@bobtfish.net>
+On Sat, Jul 26, 2014 at 11:53:06AM +0100, Sami Kerola wrote:
+> This fixes the following compiler warning.
+> 
+> disk-utils/swaplabel.c:175:2: warning: implicit declaration of function
+> 'get_swap_prober' [-Wimplicit-function-declaration]
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  disk-utils/swaplabel.c    |  1 +
+>  include/swapon-common.h   | 28 ++++++++++++++++++++++++++++
+>  sys-utils/swapon-common.h | 28 ----------------------------
 
-It's useful to be able to set the UID/GID even when not using user namespaces
-(for example when creating a non-root shell in a pre-existing docker container)
+ and modify include/Makemodule.ac :-)
 
-Signed-off-by: Tomas Doran <bobtfish@bobtfish.net>
----
- sys-utils/nsenter.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>  3 files changed, 29 insertions(+), 28 deletions(-)
+>  create mode 100644 include/swapon-common.h
+>  delete mode 100644 sys-utils/swapon-common.h
 
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index d57edc8..23798f9 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
- 	if (do_fork == 1)
- 		continue_as_child();
- 
--	if (namespaces & CLONE_NEWUSER) {
-+	if (uid > 0 || gid > 0) {
- 		if (setgroups(0, NULL))		/* drop supplementary groups */
- 			err(EXIT_FAILURE, _("setgroups failed"));
- 		if (setgid(gid) < 0)
+ Applied, thanks.
+
 -- 
-2.0.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
