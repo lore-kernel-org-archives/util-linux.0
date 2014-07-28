@@ -1,66 +1,52 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx5-phx2.redhat.com ([209.132.183.37]:37518 "EHLO
-	mx5-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751478AbaG1QBO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 28 Jul 2014 12:01:14 -0400
-Date: Mon, 28 Jul 2014 12:01:11 -0400 (EDT)
-From: Jaromir Capik <jcapik@redhat.com>
+Return-Path: ah@fatal.se
+Date: Mon, 28 Jul 2014 14:21:15 +0200
+From: Andreas Henriksson <andreas@fatal.se>
 To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Message-ID: <54850462.25033124.1406563271629.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20140728151034.GM8533@x2.net.home>
-References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com> <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com> <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com> <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com> <20140728151034.GM8533@x2.net.home>
-Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
- -r/--repair
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH] tests: allow non-inotify tailf to keep up
+Message-ID: <20140728122115.GA17573@fatal.se>
+References: <1406407441-4872-1-git-send-email-andreas@fatal.se>
+ <53D4F231.9020906@draigBrady.com>
+ <20140728115923.GK8533@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20140728115923.GK8533@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
+Hello!
 
-Ahoj Karle.
+On Mon, Jul 28, 2014 at 01:59:23PM +0200, Karel Zak wrote:
+> On Sun, Jul 27, 2014 at 01:36:01PM +0100, Pádraig Brady wrote:
+> > For such tests coreutils uses a helper function
+> > to apply a truncated exponential backoff,
+> > to run quickly in the common case, but also
+> > delay longer if necessary. See retry_delay_() at:
 
-> > > > + if ((unsigned int)track_from > param.track - 1)
-> > > > + err(EXIT_FAILURE, _("'from' is out of allowed range\n"));
-> > > > + if ((unsigned int)track_to > param.track - 1)
-> > > > + err(EXIT_FAILURE, _("'to' is out of allowed range\n"));
-> > > > + if (track_from > track_to)
-> > > > + err(EXIT_FAILURE, _("'from' is higher than 'to'\n"));
-> > > 
-> > > The err() adds new line to print out, so the messages above will print
-> > > unexpected empty line.
+Thanks for the pointer!
+
 > > 
-> > This can be completely removed after the change to strtou32_or_err(),
-> > right?
+> > http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=init.cfg;h=725ee121;hb=HEAD#l608
 > 
->  I guess you still want to check user's input against the hardware, so check
->  if track_to is smaller than param.track is correct thing. Right?
+>  Andreas? (hint: send a new patch :-))
 
-The comparison with the param.track is done elsewhere as we don't know
-the disk parameters during the argument parsing yet.
-We get the parameters after finishing the argument parsing.
+I fail to see how this is useful here. We either need a short delay (using
+inotify) or a longer delay (not using inotify). All other steps seems
+pointless to me, even harmful in non-inotify case!
+
+Having a too short delay before appending data could make the testcase
+succed even when tailf doesn't work properly (because it wakes up and
+reads all data in first go).
+And obviously having a too short delay before the file removal could
+cause the test case to fail, but I consider false-positives worse
+then false-negatives myself.
+
+My hope was that 2*0.5s delay would be both low and high enough
+to be good enough everywhere. Just wanted to warn about this maybe
+not being 100% fail-proof.
 
 
->  Anyway, \n is unnecessary, errx() does not print error based on
->  errno, err() follows errno.
+If anyone else want to propose a solution/patch here, feel free!
 
-Sure, this was more of a copy'n'paste error.
-
-
->  Thank, it's nice to see we have someone to test fdformat!
-
-Np. Can test any time.
-Going to rework the patch.
-
-Thx,
-Jaromir.
-
---
-Jaromir Capik
-Red Hat Czech, s.r.o.
-Software Engineer / Secondary Arch
-
-Email: jcapik@redhat.com
-Web: www.cz.redhat.com
-Red Hat Czech s.r.o., Purkynova 99/71, 612 45, Brno, Czech Republic
-IC: 27690016
+Regards,
+Andreas Henriksson
