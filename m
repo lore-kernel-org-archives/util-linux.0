@@ -1,83 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f182.google.com ([74.125.82.182]:60580 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756331AbaGVWBQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:16 -0400
-Received: by mail-we0-f182.google.com with SMTP id k48so283346wev.27
-        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:14 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 03/10] logger: do not rely only getlogin(3) telling who ran the command
-Date: Tue, 22 Jul 2014 23:00:52 +0100
-Message-Id: <1406066459-4816-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:45399 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752332AbaG1PKk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jul 2014 11:10:40 -0400
+Date: Mon, 28 Jul 2014 17:10:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jaromir Capik <jcapik@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
+ -r/--repair
+Message-ID: <20140728151034.GM8533@x2.net.home>
+References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com>
+ <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com>
+ <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com>
+ <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The getlogin(3) is known not to always work, and when that happens it is
-reasonable to try determine user of name by looking process owner and
-passwd information.
+On Mon, Jul 28, 2014 at 10:38:39AM -0400, Jaromir Capik wrote:
+> > Do you mean commit 18b1fcb9cc62f4dd26eccd1c35f612ac6db1cd9b or some other
+> > change? 
+... 
+> -		printf("%3d\b\b\b", track);
+> +		printf("%3ud\b\b\b", track);
 
-Reference: http://man7.org/linux/man-pages/man3/getlogin.3.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ This is obvious...
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 204511d..65e468c 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -50,6 +50,7 @@
- #include <arpa/inet.h>
- #include <netdb.h>
- #include <getopt.h>
-+#include <pwd.h>
- 
- #include "all-io.h"
- #include "c.h"
-@@ -257,6 +258,16 @@ static int journald_entry(FILE *fp)
- }
- #endif
- 
-+static char *xgetlogin()
-+{
-+	char *cp;
-+	struct passwd *pw;
-+
-+	if (!(cp = getlogin()) || !*cp)
-+		cp = (pw = getpwuid(geteuid()))? pw->pw_name : "<someone>";
-+	return cp;
-+}
-+
- static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
- {
- 	char buf[1000], pid[30], *cp, *tp;
-@@ -269,11 +280,8 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
- 			pid[0] = 0;
- 		if (tag)
- 			cp = tag;
--		else {
--			cp = getlogin();
--			if (!cp)
--				cp = "<someone>";
--		}
-+		else
-+			cp = xgetlogin();
- 		time(&now);
- 		tp = ctime(&now) + 4;
- 
-@@ -438,7 +446,7 @@ int main(int argc, char **argv)
- 	else if (usock)
- 		LogSock = unix_socket(usock, socket_type);
- 	else
--		openlog(tag ? tag : getlogin(), logflags, 0);
-+		openlog(tag ? tag : xgetlogin(), logflags, 0);
- 
- 	/* log input line if appropriate */
- 	if (argc > 0) {
+> >  The change you sent is rather long, and at
+> > least I cannot see where is the correction.  That said splitting the
+> > change to smaller chunks would be nice.
+> 
+> It has no sense to split that as I modified the code to support
+> heads and the format string had to be changed to a different one.
+
+ Perfect is the enemy of good. It's no so huge (all the original code 
+ has ~160 lines).
+
+> > The format_begin() and format_end() are not doing much, are they really
+> > needed?
+> 
+> They increase the code abstraction and readability.
+
+ +1
+
+> > > + if (retries_left) continue;
+> > 
+> > New line & indent step missing.
+> 
+> I usually don't indent if well readable and other lines are longer,
+> but no problem with that. Can be changed.
+
+ Please, change it.
+
+> > Use strtou32_or_err() and remove INT_MAX check.
+> 
+> Ok, had no idea it exists. Looked at few other tools and copied that.
+> This is a good candidate for a change.
+
+ Yep.
+
+> > > + if ((unsigned int)track_from > param.track - 1)
+> > > + err(EXIT_FAILURE, _("'from' is out of allowed range\n"));
+> > > + if ((unsigned int)track_to > param.track - 1)
+> > > + err(EXIT_FAILURE, _("'to' is out of allowed range\n"));
+> > > + if (track_from > track_to)
+> > > + err(EXIT_FAILURE, _("'from' is higher than 'to'\n"));
+> > 
+> > The err() adds new line to print out, so the messages above will print
+> > unexpected empty line.
+> 
+> This can be completely removed after the change to strtou32_or_err(), right?
+
+ I guess you still want to check user's input against the hardware, so check
+ if track_to is smaller than param.track is correct thing. Right?
+
+ Anyway, \n is unnecessary, errx() does not print error based on
+ errno, err() follows errno. 
+
+
+ Thank, it's nice to see we have someone to test fdformat!
+
+    Karel
+
 -- 
-2.0.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
