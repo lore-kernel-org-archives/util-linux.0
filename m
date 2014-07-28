@@ -1,45 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51575 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:25966 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751038AbaG2HoS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Jul 2014 03:44:18 -0400
-Date: Tue, 29 Jul 2014 09:44:08 +0200
+	id S1751982AbaG1MAx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 28 Jul 2014 08:00:53 -0400
+Date: Mon, 28 Jul 2014 14:00:42 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] wall: wrap message header when it exceeds 79 characters
-Message-ID: <20140729074408.GO8533@x2.net.home>
-References: <1406487666-19466-1-git-send-email-kerolasa@iki.fi>
+To: Andreas Henriksson <andreas@fatal.se>
+Cc: wolput@on.nl, 756177@bugs.debian.org, util-linux@vger.kernel.org
+Subject: Re: fdisk -l regression between v2.24.2 and v2.25
+Message-ID: <20140728120042.GL8533@x2.net.home>
+References: <53D4AA62.30501@openmailbox.org>
+ <20140727104806.GA11443@fatal.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406487666-19466-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <20140727104806.GA11443@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 27, 2014 at 08:01:06PM +0100, Sami Kerola wrote:
-> Header truncation started to happen more often after commit
-> d81c30553f4fb49173d38f69edff4b0b67a18b65 that made the header to be
-> longer.
+On Sun, Jul 27, 2014 at 12:48:06PM +0200, Andreas Henriksson wrote:
+> Hello Jos van Wolput!
+> 
+> Thanks for your bug report.
+> 
+> On Sun, Jul 27, 2014 at 03:29:38PM +0800, Jos van Wolput wrote:
+> [...]
+> > After upgrading util-linux 2.20.1-5.8 (sid) to version 2.25-3 (experimental) fdisk -l ends with
+> > the following error: cannot open /dev/sr0: No medium found
+> [...]
+> > fdisk: cannot open /dev/sr0: No medium found
+> > ---
+> > and the other devices /dev/sdb* are not shown.
+> > 
+> > Indeed I don't use the cdrom (sr0) but using fdisk -l from util-linux 2.20.1-5.8 (sid) there is no such issue, all disks are shown:
+> [...]
+> 
+> This seems to be a regression between 2.24.2 and 2.25 and git bisect tells
+> me the first bad commit is: a22c6eb206fb716fa4
+> 
+> Reverting a22c6eb206fb716fa4 and reviving wholedisk.h from 62acb047a625059e77
+> makes v2.25 fdisk -l work as expected for me.
+> 
+> I'm CCing the upstream developer mailing list to hopefully have some help
+> on finding the proper fix.
 
- Well, I did the change to be compatible with wall from sysvinit. The
- original (BSD) wall header format was
-
-  Broadcast Message from %s@%s
-           (%s) at %d:%02d ...
-
- it means two lines.
-
-> +		len = strlen(lbuf);
-> +		for (i = 0; 0 < len; i++)
-> +			len -= fprintf(fp, "%-*.*s\007\007\r\n", TERM_WIDTH, TERM_WIDTH,
-> +				       lbuf + (i * TERM_WIDTH)) + 4;
-
- Now you want to reintroduce the old behavior (more lines for the header),
- but with a completely random split... I don't think it's a good idea.
-
- If we don't want the sysvinit header then it would be better to
- compose nice proper header than depend on for (i = 0; 0 < len;
- i++)...
+ Already fixed in upstream tree. The patch will be in 2.25.1 (probably
+ at the end of the next month).
 
     Karel
 
