@@ -1,75 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:63835 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756331AbaGVWBS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Jul 2014 18:01:18 -0400
-Received: by mail-we0-f180.google.com with SMTP id w61so286831wes.11
-        for <util-linux@vger.kernel.org>; Tue, 22 Jul 2014 15:01:17 -0700 (PDT)
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:56272 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300AbaG2XOz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 29 Jul 2014 19:14:55 -0400
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 04/10] logger: refactor long if clause
-Date: Tue, 22 Jul 2014 23:00:53 +0100
-Message-Id: <1406066459-4816-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+To: util-linux@vger.kernel.org, Timofey Titovets <nefelim4ag@gmail.com>,
+        Karel Zak <kzak@redhat.com>, Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: kerolasa@iki.fi, linux-kernel@vger.kernel.org
+Subject: zram: device management utility needed
+Date: Wed, 30 Jul 2014 00:14:42 +0100
+Message-Id: <1406675682-8402-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When if clause that continues throughout whole function it usually can be
-shorten to immediate action, e.g., in this case return on the spot not at
-end of the function.
+Hello,
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+Not so long ago Timofey has reached both util-linux[1] and kernel[2]
+contributors with intention to make zram device management too.  I think
+the proposal is good, and there should be distribution independent tool
+like that.  Also such command fits fairly well to a scope of util-linux
+package.  But a tool is only as good as kernel support of it is.  This
+mail is a bit about both.
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 65e468c..5506022 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -273,24 +273,22 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
- 	char buf[1000], pid[30], *cp, *tp;
- 	time_t now;
- 
--	if (fd > -1) {
--		if (logflags & LOG_PID)
--			snprintf(pid, sizeof(pid), "[%d]", getpid());
--		else
--			pid[0] = 0;
--		if (tag)
--			cp = tag;
--		else
--			cp = xgetlogin();
--		time(&now);
--		tp = ctime(&now) + 4;
--
--		snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
--			 pri, tp, cp, pid, msg);
--
--		if (write_all(fd, buf, strlen(buf) + 1) < 0)
--			warn(_("write failed"));
--	}
-+	if (fd < 0)
-+		return;
-+	if (logflags & LOG_PID)
-+		snprintf(pid, sizeof(pid), "[%d]", getpid());
-+	else
-+		pid[0] = 0;
-+	if (tag)
-+		cp = tag;
-+	else
-+		cp = xgetlogin();
-+	time(&now);
-+	tp = ctime(&now) + 4;
-+	snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
-+		 pri, tp, cp, pid, msg);
-+	if (write_all(fd, buf, strlen(buf) + 1) < 0)
-+		warn(_("write failed"));
- }
- 
- static void __attribute__ ((__noreturn__)) usage(FILE *out)
+Existing proposal for zramctl[3], wrote by Timofey, does what I would
+call great starting point.  It can resize zram device, select algorithm,
+and set number of threads.  Unfortunately it cannot create or remove zram
+devices.
+
+The zram devices are not created by any sort of equipment appearing in a
+bus so an method of creating new or removing existing devices will be
+needed.  When the zram module is loaded it should create
+/dev/zram-control device, that responds to ioctl() calls[4].  The calls
+could be similar with /dev/loop-control[5], that allow adding or removing
+specified device, and discover adding a free device.
+
+This proposal would not affect the current initialization of the zram
+devices[6].  It would be an addition to manage zram devices after kernel
+module is loaded, of course each device separately and individually.  At
+the moment adding a device requires removing the existing devices[7],
+which can mean data loss, and at least unnecessary hassle when performing
+a device addition task.
+
+But before getting too exited and asking for ioctl() allocation, or
+thinking too much about code, does an overall plan like this make sense? 
+Is there an alternative that would be better than /dev/zram-control +
+ioctl()'s?  Any other comments, better proposal, and so on?
+
+Finally, Hats off to Timofey, you got the ball rolling getting the zram
+devices being dynamic someday in future.
+
+[1] http://www.spinics.net/lists/util-linux-ng/index.html#09781
+[2] https://lkml.org/lkml/2014/7/17/272
+[3] http://www.spinics.net/lists/util-linux-ng/msg09900.html
+[4] http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/ioctl/ioctl-number.txt?id=31dab719fa50cf56d56d3dc25980fecd336f6ca8
+[5] http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/block/loop.c?id=31dab719fa50cf56d56d3dc25980fecd336f6ca8#n1757
+[6] such as: modprobe zram num_devices=4
+[7] requires 'rmmod zram' which is not possible if any zram device is busy
+
 -- 
-2.0.2
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
