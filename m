@@ -1,79 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:46021 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751165AbaGPUzV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 16 Jul 2014 16:55:21 -0400
-Received: by mail-wg0-f45.google.com with SMTP id x12so1522438wgg.16
-        for <util-linux@vger.kernel.org>; Wed, 16 Jul 2014 13:55:19 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/3] fallocate: avoid unnecessary computation
-Date: Wed, 16 Jul 2014 21:54:57 +0100
-Message-Id: <1405544098-1740-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
-References: <1405544098-1740-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:43867 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751976AbaG2IXa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Jul 2014 04:23:30 -0400
+Date: Tue, 29 Jul 2014 10:23:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 01/10] logger: ensure program writes everything to syslog
+ file descriptor
+Message-ID: <20140729082319.GQ8533@x2.net.home>
+References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+ <1406066459-4816-2-git-send-email-kerolasa@iki.fi>
+ <20140729075250.GP8533@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140729075250.GP8533@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Where POSIX_FADV_SEQUENTIAL and HAVE_POSIX_FADVISE are not available it
-is waste of resources to have variables that are meaningful only for
-posix_fadvise().  Also initialize the variables immediately to correct
-values, and since cachesz is never changed mark it read only.
+On Tue, Jul 29, 2014 at 09:52:50AM +0200, Karel Zak wrote:
+> On Tue, Jul 22, 2014 at 11:00:50PM +0100, Sami Kerola wrote:
+> > @@ -281,8 +282,8 @@ static void mysyslog(int fd, int logflags, int pri, char *tag, char *msg)
+> >                 snprintf(buf, sizeof(buf), "<%d>%.15s %.200s%s: %.400s",
+>                   ^^^^^^^^^^
+> >  			pri, tp, cp, pid, msg);
+> >  
+> > +	       if (write_all(fd, buf, strlen(buf)+1) < 0)
+>                                   ^^^^^^^^^^
+> > +		       warn(_("write failed"));
+> 
+>  Do we really need strlen() if there is snprintf(buf, ....)?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/fallocate.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ I'm going to improve this, you don't have send a new version.
 
-diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
-index 93fd3b4..c619f64 100644
---- a/sys-utils/fallocate.c
-+++ b/sys-utils/fallocate.c
-@@ -174,17 +174,12 @@ static void dig_holes(int fd, off_t off, off_t len)
- {
- 	off_t end = len ? off + len : 0;
- 	off_t hole_start = 0, hole_sz = 0;
--	off_t cache_start = 0;
- 	uintmax_t ct = 0;
--	size_t bufsz, cachesz;
-+	size_t  bufsz;
- 	char *buf;
- 	struct stat st;
--
--	if (fstat(fd, &st) != 0)
--		err(EXIT_FAILURE, _("stat failed %s"), filename);
--
--	bufsz = st.st_blksize;
--
-+#if defined(POSIX_FADV_SEQUENTIAL) && defined(HAVE_POSIX_FADVISE)
-+	off_t cache_start = off;
- 	/*
- 	 * We don't want to call POSIX_FADV_DONTNEED to discard cached
- 	 * data in PAGE_SIZE steps. IMHO it's overkill (too many syscalls).
-@@ -193,15 +188,19 @@ static void dig_holes(int fd, off_t off, off_t len)
- 	 * a good compromise.
- 	 *					    -- kzak Feb-2014
- 	 */
--	cachesz = getpagesize() * 256;
-+	const size_t cachesz = getpagesize() * 256;
-+#endif
-+
-+	if (fstat(fd, &st) != 0)
-+		err(EXIT_FAILURE, _("stat failed %s"), filename);
-+
-+	bufsz = st.st_blksize;
- 
- 	if (lseek(fd, off, SEEK_SET) < 0)
- 		err(EXIT_FAILURE, _("seek on %s failed"), filename);
- 
- 	/* buffer + extra space for is_nul() sentinel */
- 	buf = xmalloc(bufsz + sizeof(uintptr_t));
--	cache_start = off;
--
- #if defined(POSIX_FADV_SEQUENTIAL) && defined(HAVE_POSIX_FADVISE)
- 	posix_fadvise(fd, off, 0, POSIX_FADV_SEQUENTIAL);
- #endif
+    Karel
+
 -- 
-2.0.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
