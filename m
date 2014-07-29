@@ -1,68 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:43968 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964AbaGSWok (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 19 Jul 2014 18:44:40 -0400
-Received: by mail-we0-f180.google.com with SMTP id w61so5844355wes.11
-        for <util-linux@vger.kernel.org>; Sat, 19 Jul 2014 15:44:38 -0700 (PDT)
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50623 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751165AbaG2Tlb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Jul 2014 15:41:31 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by gateway1.nyi.internal (Postfix) with ESMTP id 691962108D
+	for <util-linux@vger.kernel.org>; Tue, 29 Jul 2014 15:41:30 -0400 (EDT)
+Message-Id: <1406662890.522051.146931049.1CA56A43@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAGqmi765JkidXDpi6bP2qUk5U7Xry5nF7y0WY4Y6M_Fq8Eiqeg@mail.gmail.com>
-References: <53CAAAB6.6020607@gmail.com> <CAG27Bk3aPD6zx+t1kPsUnF-70ZjuCrEqh77SPJNpi5cDgYSN_w@mail.gmail.com>
- <CAGqmi765JkidXDpi6bP2qUk5U7Xry5nF7y0WY4Y6M_Fq8Eiqeg@mail.gmail.com>
-From: Timofey Titovets <nefelim4ag@gmail.com>
-Date: Sun, 20 Jul 2014 01:44:18 +0300
-Message-ID: <CAGqmi74L8jDKqA-sZR4GWjnvNkBowrUNdYsVGN43ApYaJUWc5w@mail.gmail.com>
-Subject: Fwd: [RFC] Zram handle util
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-To: unlisted-recipients:; (no To-header on input)@mail.corp.redhat.com
+Content-Type: text/plain
+In-Reply-To: <20140729102122.GU8533@x2.net.home>
+References: <53CCADA9.3020703@bernhard-voelker.de>
+ <20140721082859.GD17373@x2.net.home>
+ <1405977369.18035.144118445.737362A9@webmail.messagingengine.com>
+ <53CD86FC.7000808@bernhard-voelker.de>
+ <1405981133.2561.144137253.6000B5B5@webmail.messagingengine.com>
+ <20140721234936.GH17373@x2.net.home>
+ <1406487424.22794.146193409.16E8F3E3@webmail.messagingengine.com>
+ <20140729102122.GU8533@x2.net.home>
+Subject: helper= and uhelper=
+Date: Tue, 29 Jul 2014 21:41:30 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thanks for comment and boilerplate.c file.
 
-I think it can't be related to systemd or udev, because as i know zram
-configure and using with using many different scripts or through udev
-config files. May be in future i open discuss in systemd-devel about
-zramctl but now, i try to close several things in systemd todo, like
-readahead optimization.
+On Tue, Jul 29, 2014, at 12:21, Karel Zak wrote:
+> On Sun, Jul 27, 2014 at 08:57:04PM +0200, Benno Schulenberg wrote:
+> > So... should it be removed from the man page of umount too?
+> > If so, the third patch in the upcoming series does that.
+> 
+>  Please, no. It's described in the section where is description of the
+>  API between umount(8) and external helpers. IMHO 'helper=' and
+>  'uhelper=' makes sense there.
 
-> By glance it seems a good utility would be able to integrate with udev
-> and systemd, it should have add, remove, and possibly modify method. I
-> would prefer the command to list what is current status of zram
-> devices when nothing else is instructed. And of course manual page is
-> needed. See util-linux/Documentation/howto-man-page.txt file to get
-> manual done.
+Well, you applied the third patch in the series of six anyway, :)
+so the mention of those [u]helper markers was removed.  I'll submit
+a patch later to restore them, worded more clearly.  But first let's
+make sure that I understand what they mean.
 
-Also, kernel can't add or delete zram devices on demand, it hard coded
-in module. Yes, i can reload module every time, but it awkward.
-I write patch for correct this https://lkml.org/lkml/2014/7/17/664 ,
-but now it not merged(and will it?).
+First there was commit f19c952b2fc07ddd7a698cf3a213a9a16d13e7ba
+"umount: use helper= for all UIDs", where 'phelper' is renamed
+to 'helper', because it serves not just for root.  But two weeks
+earlier there was commit c56226697342ddd663492f77768e7a7cb8e579a1
+"umount: call /sbin/umount.<uhelper> for root user too".
 
-I just want to make all acceptable generic solution (i can configure
-loop devices through sysfs, but i have losetup...).
+So, if I understand well, uhelper= and helper= would behave
+exactly the same under all circumstances?
 
-zramctl have status command:
-$ zramctl status
- NAME     DISKSIZE       ORIG    COMPRES  ALG  THR
- zram0  1073741824     401408              8101   lz4   4
- zram1  1073741824              0                   0   lz4   4
+$ udisks --mount /dev/sda3
+Mounted /org/freedesktop/UDisks/devices/sda3 at /media/Mint Petra
 
-> Without any investigation I have no idea what should be done with
-> systemd integration. The zramctl might need a systemd service file,
-> and possibly some sort of configuration file to setup the devices at
-> boot desired way. Or something totally different. I am sure there is
-> someone who knows what should be done, and with a bit of luck the mail
-> archive discussion I pointed out has an answer to this already.
-> --
-> Sami Kerola
-> http://www.iki.fi/kerolasa/
+$ grep sda3 /etc/mtab
+/dev/sda3 /media/Mint\040Petra ext4 rw,nosuid,nodev,uhelper=udisks 0 0
 
-I also have custom systemd-swap script (handle swap device, zram
-swaps, file swaps), what depend on zramctl, and i think if systemd
-maintainers will want to expand various swap setting inside systemd, i
-implement can it.
+$ ./umount -v /dev/sda3
 
---
-Best regards,
-Timofey.
+(Oh, that last command is surprising: it doesn't say anything.  I would
+expect it to say that /dev/sda3 was successfully unmounted.  Oh, and
+why isn't sda3 'noexec' here although it was mounted by a user?)
+
+So when using udisks, a uhelper= marker will be put into the /etc/mtab
+file (the real one).  Is there any program that will put a helper= marker
+in the /etc/mtab file?  (I call it a 'marker' because it is not a mount
+option: putting it in /etc/fstab makes no sense, and using it on the
+command line does not work).
+
+$ ./mount -o uhelper=udisks /dev/sda3
+lt-mount: only root can use "--options" option
+
+$ sudo ./mount -o uhelper=udisks /dev/sda3
+lt-mount: can't find /dev/sda3 in /etc/fstab
+
+Benno
+
+-- 
+http://www.fastmail.fm - Choose from over 50 domains or use your own
+
