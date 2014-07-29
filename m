@@ -1,50 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:43393 "EHLO
-	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751642AbaGYMsY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 25 Jul 2014 08:48:24 -0400
-From: Martin Steigerwald <Martin@lichtvoll.de>
-To: Andreas Henriksson <andreas@fatal.se>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] cfdisk: reenable cursor when quitting
-Date: Fri, 25 Jul 2014 14:40:07 +0200
-Message-ID: <20411543.z4pDo5dfJP@merkaba>
-In-Reply-To: <1406290922-25357-1-git-send-email-andreas@fatal.se>
-References: <1406290922-25357-1-git-send-email-andreas@fatal.se>
+Received: from mx1.redhat.com ([209.132.183.28]:16158 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750867AbaG2LyF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 29 Jul 2014 07:54:05 -0400
+Date: Tue, 29 Jul 2014 13:53:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jaromir Capik <jcapik@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
+ -r/--repair
+Message-ID: <20140729115358.GW8533@x2.net.home>
+References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com>
+ <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com>
+ <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com>
+ <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com>
+ <20140728151034.GM8533@x2.net.home>
+ <1340617573.25924027.1406633523481.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1340617573.25924027.1406633523481.JavaMail.zimbra@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Am Freitag, 25. Juli 2014, 14:22:01 schrieb Andreas Henriksson:
-> After quitting cfdisk (built with slang) the cursor would be
-> missing at the command prompt.
-> 
-> Reported-by: Martin Steigerwald <Martin@Lichtvoll.de>
-> Addresses-Debian-Bug: #755991
-> Signed-off-by: Andreas Henriksson <andreas@fatal.se>
-> ---
->  disk-utils/cfdisk.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-> index 5a42ab1..dfdaaf0 100644
-> --- a/disk-utils/cfdisk.c
-> +++ b/disk-utils/cfdisk.c
-> @@ -1966,6 +1966,7 @@ static int ui_run(struct cfdisk *cf)
-> 
->  	menu_pop(cf);
-> 
-> +	curs_set(1);
->  	DBG(FRONTEND, ul_debug("ui: end"));
-> 
->  	return 0;
+On Tue, Jul 29, 2014 at 07:32:03AM -0400, Jaromir Capik wrote:
+>  disk-utils/Makemodule.am |   1 +
+>  disk-utils/fdformat.8    |  11 ++-
+>  disk-utils/fdformat.c    | 210 ++++++++++++++++++++++++++++++++---------------
+>  3 files changed, 157 insertions(+), 65 deletions(-)
 
-Thanks Andreas!
+ Applied, thanks!
 
-I will test this as soon as I have the systemd related build deps of newer 
-util-linux sorted.
+    Karel
 
 -- 
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
