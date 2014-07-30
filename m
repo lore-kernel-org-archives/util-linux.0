@@ -1,33 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46873 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753107AbaG2J4P (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 29 Jul 2014 05:56:15 -0400
-Date: Tue, 29 Jul 2014 11:55:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Kodiak Firesmith <ksf@sei.cmu.edu>
-Subject: Re: [PATCH 00/10] pull: logger changes
-Message-ID: <20140729095557.GR8533@x2.net.home>
-References: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406066459-4816-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-we0-f169.google.com ([74.125.82.169]:61558 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752887AbaG3Voi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 30 Jul 2014 17:44:38 -0400
+Received: by mail-we0-f169.google.com with SMTP id u56so1811975wes.28
+        for <util-linux@vger.kernel.org>; Wed, 30 Jul 2014 14:44:37 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/2] tests: fix rename subdir check that was failing in travis
+Date: Wed, 30 Jul 2014 22:44:31 +0100
+Message-Id: <1406756671-26805-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1406756671-26805-1-git-send-email-kerolasa@iki.fi>
+References: <1406756671-26805-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 22, 2014 at 11:00:49PM +0100, Sami Kerola wrote:
->  audit_getloginuid      |   0
->  bash-completion/logger |   2 +-
->  misc-utils/logger.1    |  98 ++++++++++++----
->  misc-utils/logger.c    | 300 ++++++++++++++++++++++++++++++++++++-------------
->  4 files changed, 295 insertions(+), 105 deletions(-)
->  create mode 100644 audit_getloginuid
+Apparently some or all travis build servers has a bit older coreutils
+version.  The coreutils v8.13 added a feature to readlink that allows
+user to specify multiple arguments.  Earlier versions gave exactly the
+type of error travis_script log has.
 
- Merged & modified. Thanks.
++readlink: extra operand `rename_aa/sublink.2'
++Try `readlink --help' for more information.
 
-  Karel
+The commit 0f85e0535bd4e6d19fadca182e4d57660b6bb57b introduced the travis
+realpath issue to happen.
 
+Reference: https://travis-ci.org/karelzak/util-linux/builds/30538376
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/ts/rename/subdir | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tests/ts/rename/subdir b/tests/ts/rename/subdir
+index f83b2bf..4ae7005 100755
+--- a/tests/ts/rename/subdir
++++ b/tests/ts/rename/subdir
+@@ -35,7 +35,9 @@ for i in rename_a{a,b}/sublink.{1..3}; do
+ 	ln -s rename/aa $i
+ done
+ $TS_CMD_RENAME -s -v a x rename_a{a,b}/sublink.? >> $TS_OUTPUT 2>&1
+-readlink rename_a{a,b}/sublink.?  >> $TS_OUTPUT 2>&1
++for i in rename_a{a,b}/sublink.?; do
++	readlink $i >> $TS_OUTPUT 2>&1
++done
+ 
+ rm -rf rename_a{a,b}
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.0.3
+
