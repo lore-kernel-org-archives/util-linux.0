@@ -1,40 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:34834 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751335AbaHCUXN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 16:23:13 -0400
-Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
-	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 0D0DA46093
-	for <util-linux@vger.kernel.org>; Sun,  3 Aug 2014 22:23:10 +0200 (CEST)
-Date: Sun, 3 Aug 2014 22:23:09 +0200
-From: Andreas Henriksson <andreas@fatal.se>
-To: Mike Frysinger <vapier@gentoo.org>, YunQiang Su <wzssyqa@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount/buildsys: move SELINUX_LIBS to LDFLAGS
-Message-ID: <20140803202309.GA26295@fatal.se>
-References: <1407010261-17305-1-git-send-email-andreas@fatal.se>
- <2625005.WTIbfJcupg@vapier>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2625005.WTIbfJcupg@vapier>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:62667 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750789AbaGaWFa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Jul 2014 18:05:30 -0400
+Received: by mail-wg0-f44.google.com with SMTP id m15so3301714wgh.15
+        for <util-linux@vger.kernel.org>; Thu, 31 Jul 2014 15:05:29 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] tests: kill output message change
+Date: Thu, 31 Jul 2014 23:05:25 +0100
+Message-Id: <1406844325-1611-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Mike Frysinger!
+Commit 09af3db48e01e5744f15fd8a2395e0fed36526ea changed how a missing
+process is reported, which caused kill test to fail when the test suite
+is ran as root.
 
-On Sun, Aug 03, 2014 at 09:34:25AM -0400, Mike Frysinger wrote:
-[...]
-> please post the full details here. 
+Reference: https://travis-ci.org/karelzak/util-linux/jobs/31312170
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/kill/all_processes | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I have no more details then those found in
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=721431
+diff --git a/tests/expected/kill/all_processes b/tests/expected/kill/all_processes
+index c428372..f14549f 100644
+--- a/tests/expected/kill/all_processes
++++ b/tests/expected/kill/all_processes
+@@ -1,5 +1,5 @@
+ test 1
+-kill: cannot find process "test_sigreceive".
++kill: cannot find process "test_sigreceive"
+ test 2
+ test 3
+-kill: cannot find process "test_sigreceive".
++kill: cannot find process "test_sigreceive"
+-- 
+2.0.3
 
-Maybe YunQiang Su can help out and provide some additional information
-here....
-
-> linkage (like -lselinux) are not ldflags.
-
-Works for me, but likely I got LIBADD/LDFLAGS/LDADD wrong (again).
-
-Regards,
-Andreas Henriksson
