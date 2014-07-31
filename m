@@ -1,43 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.130]:59829 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752134AbaGUGFd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 21 Jul 2014 02:05:33 -0400
-Message-ID: <53CCADA9.3020703@bernhard-voelker.de>
-Date: Mon, 21 Jul 2014 08:05:29 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-MIME-Version: 1.0
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-CC: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
-Subject: mount.8: mtab as symlink
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mail-qg0-f43.google.com ([209.85.192.43]:58876 "EHLO
+	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932239AbaGaIxH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 31 Jul 2014 04:53:07 -0400
+Received: by mail-qg0-f43.google.com with SMTP id a108so3308435qge.2
+        for <util-linux@vger.kernel.org>; Thu, 31 Jul 2014 01:53:05 -0700 (PDT)
+From: Sergei Antonov <saproj@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, Sergei Antonov <saproj@gmail.com>
+Subject: [PATCH] libfdisk: (gpt) add Microsoft Storage Spaces GUID
+Date: Thu, 31 Jul 2014 12:51:37 +0200
+Message-Id: <1406803897-3913-1-git-send-email-saproj@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+Storage Spaces is Microsoft's latest logical volume management.
+It has been around since Windows 8.
 
-on coreutils' mailing list, we regularly receive complaints about
-df(1) not working properly with bind mounts, and it turns out that
-the users' system still has /etc/mtab as a regular file.
-(There were recently a lot of attempts to fix issues with duplicate
-mounts and over-mounting - and thus eclipsing - of source or target.)
+Cc: Karel Zak <kzak@redhat.com>
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+---
+ libfdisk/src/gpt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Well, there might be a bug in df(1), anyway, we'd like to advise
-the user to switch to mtab as a symlink to /proc/mounts or
-/proc/self/mounts as it is common nowadays on many distros.
-But then the user reads "man 8 mount" ...
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index 1b5ffb4..d5acf95 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -162,6 +162,7 @@ static struct fdisk_parttype gpt_parttypes[] =
+ 	DEF_GUID("AF9B60A0-1431-4F62-BC68-3311714A69AD", N_("Microsoft LDM data")),
+ 	DEF_GUID("DE94BBA4-06D1-4D40-A16A-BFD50179D6AC", N_("Windows recovery environment")),
+ 	DEF_GUID("37AFFC90-EF7D-4E96-91C3-2D7AE055B174", N_("IBM General Parallel Fs")),
++	DEF_GUID("E75CAF8F-F680-4CEE-AFA3-B001E56EFC2D", N_("Microsoft Storage Spaces")),
+ 
+ 	/* HP-UX */
+ 	DEF_GUID("75894C1E-3AEB-11D3-B7C1-7B03A0000000", N_("HP-UX data")),
+-- 
+1.9.0
 
-  It is  possible to replace /etc/mtab by a symbolic link to
-  /proc/mounts, and especially when you have very large numbers
-  of mounts things will be much faster with that symlink, but some
-  information is lost that way, and in particular using the "user"
-  option will fail.
-
-... and is scared about the last sentence.
-Is this still true? I don't have problems with mounting "user"
-file systems (apart from ntfs-3g) here. What are the problems,
-and if they still exist, could the details be added to the man
-page, please?
-
-Thanks & have a nice day,
-Berny
