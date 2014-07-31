@@ -1,52 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e28smtp02.in.ibm.com ([122.248.162.2]:51911 "EHLO
-	e28smtp02.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752890AbaGCM70 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Jul 2014 08:59:26 -0400
-Received: from /spool/local
-	by e28smtp02.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <suzuki@in.ibm.com>;
-	Thu, 3 Jul 2014 18:29:24 +0530
-Message-ID: <53B553A4.6070407@in.ibm.com>
-Date: Thu, 03 Jul 2014 18:29:16 +0530
-From: "Suzuki K. Poulose" <suzuki@in.ibm.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45508 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750806AbaGaTrS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 31 Jul 2014 15:47:18 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by gateway1.nyi.internal (Postfix) with ESMTP id E796E227E5
+	for <util-linux@vger.kernel.org>; Thu, 31 Jul 2014 15:47:17 -0400 (EDT)
+Message-Id: <1406836037.1169899.147822646.1A465393@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: Phillip Susi <psusi@ubuntu.com>,
-        Janani Venkataraman <jananive@linux.vnet.ibm.com>,
-        Karel Zak <kzak@redhat.com>
-CC: amwang@redhat.com, rdunlap@xenotime.net, andi@firstfloor.org,
-        aravinda@linux.vnet.ibm.com, hch@lst.de, mhiramat@redhat.com,
-        jeremy.fitzhardinge@citrix.com, xemul@parallels.com,
-        suzuki@linux.vnet.ibm.com, kosaki.motohiro@jp.fujitsu.com,
-        adobriyan@gmail.com, tarundsk@linux.vnet.ibm.com, vapier@gentoo.org,
-        roland@hack.frob.com, tj@kernel.org, ananth@linux.vnet.ibm.com,
-        gorcunov@openvz.org, avagin@openvz.org, oleg@redhat.com,
-        eparis@redhat.com, d.hatayama@jp.fujitsu.com, james.hogan@imgtec.com,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        coreutils@gnu.org, procps@freelists.org, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/33] [RFC] Non disruptive application core dump infrastructure
-References: <20140320093040.14878.903.stgit@localhost.localdomain> <20140321080855.GE26374@x2.net.home> <532C54A3.3030903@ubuntu.com> <532FFE3A.9060002@linux.vnet.ibm.com> <53303927.1030004@ubuntu.com>
-In-Reply-To: <53303927.1030004@ubuntu.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
+In-Reply-To: <20140730072639.GY8533@x2.net.home>
+References: <53CCADA9.3020703@bernhard-voelker.de>
+ <20140721082859.GD17373@x2.net.home>
+ <1405977369.18035.144118445.737362A9@webmail.messagingengine.com>
+ <53CD86FC.7000808@bernhard-voelker.de>
+ <1405981133.2561.144137253.6000B5B5@webmail.messagingengine.com>
+ <20140721234936.GH17373@x2.net.home>
+ <1406487424.22794.146193409.16E8F3E3@webmail.messagingengine.com>
+ <20140729102122.GU8533@x2.net.home>
+ <1406662890.522051.146931049.1CA56A43@webmail.messagingengine.com>
+ <20140730072639.GY8533@x2.net.home>
+Subject: Re: helper= and uhelper=
+Date: Thu, 31 Jul 2014 21:47:17 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/24/2014 07:24 PM, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 3/24/2014 5:43 AM, Janani Venkataraman wrote:
->> Gcore attaches to the process using gdb and runs the gdb gcore
->> command and then detaches. In gcore the dump cannot be issued from
->> a signal handler context as fork() is not signal safe and moreover
->> it is disruptive in
-> 
-> You can fork+exec from a signal handler just fine.
-Please go through the bug, and especially the comment below :
 
-https://sourceware.org/bugzilla/show_bug.cgi?id=4737#c12
+On Wed, Jul 30, 2014, at 09:26, Karel Zak wrote:
+>  If you want to umount any filesystem and you have no root permissions
+>  then the filesystem has to be in fstab (and in mtab with 'user'
+>  option).
 
-Cheers
-Suzuki
+To be more precise, when wanting to unmount while not having
+superuser permissions, and there is no uhelper=somethingvalid
+marker in the mtab file, then the filesystem has to be in /etc/fstab
+with the option 'users' (and no marker needs to be present in mtab,
+and even if it is, it will be ignored), or the /etc/fstab file contains
+the option 'user' and the /etc/mtab file contains 'user=yourname'.
+Right?
+
+Benno
+
+-- 
+http://www.fastmail.fm - A fast, anti-spam email service.
 
