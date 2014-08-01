@@ -1,46 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:49397 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:20023 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758453AbaHZPJ7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 Aug 2014 11:09:59 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: kerolasa@gmail.com
-Subject: Re: Regression test failure - tests/ts/ipcs/limits2
-Date: Tue, 26 Aug 2014 17:09:49 +0200
-Cc: "util-linux" <util-linux@vger.kernel.org>, Karel Zak <kzak@redhat.com>
-References: <53F27C05.3090902@gmail.com> <201408191118.36928.sweet_f_a@gmx.de> <CAG27Bk1JU6u7QHzg7HWsqqrQ5a=SDp7PdymYX-F3D1PvCSWftQ@mail.gmail.com>
-In-Reply-To: <CAG27Bk1JU6u7QHzg7HWsqqrQ5a=SDp7PdymYX-F3D1PvCSWftQ@mail.gmail.com>
+	id S1753497AbaHAKhc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Aug 2014 06:37:32 -0400
+Date: Fri, 1 Aug 2014 12:37:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Timofey Titovets <nefelim4ag@gmail.com>
+Cc: util-linux@vger.kernel.org, Minchan Kim <minchan@kernel.org>
+Subject: Re: [RFC] [Patch v2] Created zramctl
+Message-ID: <20140801103725.GB8805@x2.net.home>
+References: <53CAAAB6.6020607@gmail.com>
+ <53D54D4D.5010905@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201408261709.49994.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53D54D4D.5010905@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 20 August 2014, Sami Kerola wrote:
-> On 19 August 2014 12:18, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > BTW, woud be nice to fix that TODO finally. Since "ipcs -m"
-> > internally converts all these sizes to bytes we have to use large
-> > integer arithmetics somehow to have correct output at all.
->
-> Hi Rudi and others,
->
-> I agree, it would be nice to be precise about sizes.  But should
-> util-linux have a lib/bigint.c or something similar to avoid
-> dependency to external infinite precision implementation[1]?
->
-> By glance there are some examples how to write bigint from scratch. 
-> And the examples are more or less directly advising against
-> re-inventing the wheel.  My feeling is that use of existing bigint
-> implementation would be good decision, but one has to be able to
-> disable the dependency when needed.  I am guessing distributors who
-> bootstrap systems would prefer that sort of setup.
->
-> Comments, opinions?
+On Sun, Jul 27, 2014 at 10:04:45PM +0300, Timofey Titovets wrote:
+> I spend some time and rewrite zramctl for util-linux.
 
-@Karel
-Maybe you could re-open the issue on github to not forget about it.
-https://github.com/karelzak/util-linux/issues/51
+ Thanks! Merged.
 
-cu,
-Rudi
+> sysfs.h powerful, but i can't understand how working sysfs.h and how i can
+> implement it(?), and i think what my helper function is easier now, than
+> sysfs.h realization
+
+ I have modified your code to use sysfs stuff and to use libsmartcols
+ in better way. So now it's more compatible with another ls-like utils
+ we have in util-linux. For example you can specify output columns by
+ --output, it makes it more friendly for scripts etc.
+
+ # /zramctl 
+ NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+ /dev/zram1               100M  44K  876B   44K         /mnt/test
+ /dev/zram2               123M   4K   78B    4K         [SWAP]
+ /dev/zram3                10M   0B    0B    0B         
+
+
+ Note that I have kernel 3.14, so things like number of compression
+ streams and compression algorithm are invisible for me (I going to
+ update and test it with new kernel this afternoon).
+
+
+ Anyway, zRam seems like nice project. I'll try to add support to
+ swapon next week. My idea is something like (in fstab):
+
+  /dev/zram0  swap  swap  x-zram.disksize=100M,x-zram.algorithm=lzo,auto
+
+
+ it means use x-* options (we use this notation for another things) to
+ specify zram setting. The controversial thing is that we have to call
+ mkswap from swapon, but it's already supported for swap
+ reinitialization (after system resume or on page size change etc.)
+
+ ... or is it over-engineering?
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
