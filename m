@@ -1,51 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:28070 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751471AbaHMJ1D (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Aug 2014 05:27:03 -0400
-Date: Wed, 13 Aug 2014 11:26:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-Message-ID: <20140813092655.GN17719@x2.net.home>
-References: <1407768431.5984.23.camel@oct.suse.cz>
- <1549603.ZWLTNRFnAF@vapier>
- <1407874531.5984.79.camel@oct.suse.cz>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:32798 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751252AbaHCSsW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 14:48:22 -0400
+Received: from mfilter16-d.gandi.net (mfilter16-d.gandi.net [217.70.178.144])
+	by relay4-d.mail.gandi.net (Postfix) with ESMTP id 8D241172055
+	for <util-linux@vger.kernel.org>; Sun,  3 Aug 2014 20:48:19 +0200 (CEST)
+Received: from relay4-d.mail.gandi.net ([217.70.183.196])
+	by mfilter16-d.gandi.net (mfilter16-d.gandi.net [10.0.15.180]) (amavisd-new, port 10024)
+	with ESMTP id AKkZWV0408a4 for <util-linux@vger.kernel.org>;
+	Sun,  3 Aug 2014 20:48:18 +0200 (CEST)
+Received: from thin (static-50-43-15-134.bvtn.or.frontiernet.net [50.43.15.134])
+	(Authenticated sender: josh@joshtriplett.org)
+	by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id AA78D17207C
+	for <util-linux@vger.kernel.org>; Sun,  3 Aug 2014 20:48:17 +0200 (CEST)
+Date: Sun, 3 Aug 2014 11:48:15 -0700
+From: Josh Triplett <josh@joshtriplett.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Link mkswap to mkfs.swap so mkfs -t swap works
+Message-ID: <20140803184813.GA20940@thin>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407874531.5984.79.camel@oct.suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 12, 2014 at 10:15:31PM +0200, Stanislav Brabec wrote:
-> Mike Frysinger wrote:
-> > On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
-> > > Solution 1:
-> > > 
-> > > Modify make system by adding:
-> > > --enable-build-stage-1: Distro bootstrap stage 1: Build only code
-> > >     without systemd and python dependencies.
-> > > --enable-build-stage-2: Distro bootstrap stage 2: Build code with
-> > >     systemd dependencies (even if they are optional). Use installed
-> > >     instances of libmount, libblkid, libsmartcols and libuuidd, do not
-> > >     build them in-tree.
-> > > --enable-build-stage-3: Distro bootstrap stage 3: Build python-libmount
-> > >     only. Use installed instance of libmount, do not build them in-tree.
-> > 
-> > how is this any different from just passing --without-{udev,python} ?
-> 
-> --without-systemd still builds the same set of binaries, just without
-> support of systemd. It does not allow to exclude lslogins, logger and
-> uuidd and build them later.
+This makes it easier to write generic code that deals with swap
+along with other filesystems.
 
- then you need --disable-lslogins --disable-logger ..etc.
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+---
+ disk-utils/Makemodule.am | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
- If any --disable-* is missing (it's currently not defined for all
- utils) then we can improve configure.ac and the the new option.
-
-    Karel
-
+diff --git a/disk-utils/Makemodule.am b/disk-utils/Makemodule.am
+index 995e085..3f8f96b 100644
+--- a/disk-utils/Makemodule.am
++++ b/disk-utils/Makemodule.am
+@@ -59,6 +59,16 @@ endif
+ if HAVE_SELINUX
+ mkswap_LDADD += -lselinux
+ endif
++
++install-exec-hook-mkswap:
++	ln -sf mkswap $(DESTDIR)$(sbindir)/mkfs.swap
++
++uninstall-hook-mkswap:
++	rm -f $(DESTDIR)$(sbindir)/mkfs.swap
++
++INSTALL_EXEC_HOOKS += install-exec-hook-mkswap
++UNINSTALL_HOOKS += uninstall-hook-mkswap
++
+ endif # BUILD_MKSWAP
+ 
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.0.1
+
