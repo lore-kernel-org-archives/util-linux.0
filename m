@@ -1,78 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:48727 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752760AbaHYSaF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 25 Aug 2014 14:30:05 -0400
-Date: Mon, 25 Aug 2014 20:29:46 +0200
-From: =?ISO-8859-2?B?TWljaGGzIEfzcm55?= <mgorny@gentoo.org>
-To: util-linux@vger.kernel.org
-Subject: cfdisk wipes out partition table when trying to replace a single
- logical partition
-Message-ID: <20140825202946.3d4fbaac@pomiot.lan>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:64410 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751603AbaHCUue (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 16:50:34 -0400
+Received: by mail-pa0-f42.google.com with SMTP id lf10so8842209pab.1
+        for <util-linux@vger.kernel.org>; Sun, 03 Aug 2014 13:50:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_/WUjTYnKk_w/maeAQBoAEe=="; protocol="application/pgp-signature"
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <2423860.9OdLEsNW7s@vapier>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+	<2423860.9OdLEsNW7s@vapier>
+Date: Sun, 3 Aug 2014 21:50:33 +0100
+Message-ID: <CAG27Bk2OosZoo=XAGy+2Ld-pxAbTzivhr=cXE4S8FJtVzPnwAA@mail.gmail.com>
+Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
+From: Sami Kerola <kerolasa@iki.fi>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---Sig_/WUjTYnKk_w/maeAQBoAEe==
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: quoted-printable
+On 3 August 2014 15:50, Mike Frysinger <vapier@gentoo.org> wrote:
+> On Sun 03 Aug 2014 15:17:37 Sami Kerola wrote:
+>> -static int zram_used(struct zram *z)
+>> +static int zram_used(struct zram *z, int find_unused)
+>
+> s/int/bool/ ?
 
-(please CC me on replies)
+There's only handful of boolean types in use in util-linux
 
-Hello,
+util-linux> git grep -l 'bool '
+lib/mbsalign.c
+login-utils/su-common.c
+sys-utils/hwclock-cmos.c
+sys-utils/hwclock.c
+sys-utils/nsenter.c
+tests/ts/login/logindefs
 
-I'm afraid I've hit a bug that has been introduced in 2.25 and still
-not fixed in current git.
+And question about bool is asked before.
 
-I start with the following disk layout:
+http://marc.info/?l=util-linux-ng&m=135817763904699&w=2
 
-  Device     Boot    Start       End   Sectors  Size Id Type
-  /dev/sdb1  *          63  93755339  93755277 44.7G  7 HPFS/NTFS/exFAT
-  /dev/sdb2       93755392 234439534 140684143 67.1G  5 Extended
-  /dev/sdb5       93757440 135700479  41943040   20G 83 Linux
+The question was never answered, but if I should guess the idea in
+util-linux is same as what Linus said should be done in kernel.
 
-Now I start cfdisk and remove sdb5, and create a larger partition on
-top of it. At this point, cfdisk shows correct disk layout (sdb1, sdb2
-and new sdb5), so I save it. However, the partition table written to
-disk is incorrect:
+https://lkml.org/lkml/2013/8/31/138
 
-  Device     Boot    Start       End  Sectors Size Id Type
-  /dev/sdb1       93757440 146186239 52428800  25G 83 Linux
+Please read the whole thread. It's full of good stuff.
 
-As far as I can see, cfdisk removed both the primary and extended
-partitions, and wrote my new logical partition as primary. As you can
-guess, this is rather unexpected and undesired.
-
-I can consistently reproduce the issue.
-
---=20
-Best regards,
-Micha=B3 G=F3rny
-
---Sig_/WUjTYnKk_w/maeAQBoAEe==
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQJ8BAEBCgBmBQJT+4CgXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
-ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQ2REJCMDdDQzRGMERBRDA2RUEwQUZFNDFC
-MDdBMUFFQUVGQjQ0NjRFAAoJELB6GurvtEZOGGAP/3/bRIycd2ZQlLHOUUHDKw4M
-ftJPSpAIrZD299mEI4GN84ftQRn9VMe36ZNHIU2XseOjiT24SD5Zvxxy5GYtSOaa
-gI7FQIM85fCw3y+hjXJ3Rhna1pny/GvFAm66F3cmyJ9E67i3oJl1M0XiTT7p18UX
-HmzfGzNWK0hzfALUzdFt+Xsqc09KlwgZbzEpBHklh/ePWzB27ejML50n+0bNbT7i
-ATQGicc3uM61eO98yzrSLM4DXppuQ1GFR4r9PXzOqeo+vDyt85wUsuLb46AaeNaE
-cMtJvq1yYWuHi1BY7TdUoHf7Z90F4AaUYn1fA2amHEtFP6ojfU6rvtKXd08bo8s3
-vG96XCc4y11R5Lblnucf9B5DoM7EZgsh1GQBTyhrNAB8tqn3d1liI1m3kKebCJYO
-AdcazgQU639iM1IKwQZ7bInPDVd9mufP9wgqUu2bCwRPYhuboNvtiOOkIcfaeWjd
-1e/Nv3W0RH/QgThk4IIbf4gyRMzrwON7t319M9mZBOuBfhDbjr7zdTWbZcQ/4ZVV
-CJit19Z+tJ8v4Ecm9o9D2D9VdNxR4rrIhjFoxGuDiz7nQR+RO1PHoIobYf9rQ0SH
-JuD/Yi19+XUDhiVmKr1oEIXtVE0gdRJ4nWJ6lt+9ux8Sg1B02gV/aC/kFZc2uYln
-iJ8lZtYvi5FAj1EYpEQu
-=uFSc
------END PGP SIGNATURE-----
-
---Sig_/WUjTYnKk_w/maeAQBoAEe==--
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
