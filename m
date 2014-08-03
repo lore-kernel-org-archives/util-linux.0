@@ -1,48 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:50971 "EHLO
-	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750760AbaHGTPU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Aug 2014 15:15:20 -0400
-Message-ID: <53E3D02F.5040300@tlinx.org>
-Date: Thu, 07 Aug 2014 12:14:55 -0700
-From: Linda Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-CC: util-linux@vger.kernel.org
-Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well as no-canonicalize.
-References: <53E2B27C.9020305@tlinx.org> <53E2B3FB.8050409@bernhard-voelker.de>
-In-Reply-To: <53E2B3FB.8050409@bernhard-voelker.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-we0-f174.google.com ([74.125.82.174]:43849 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752769AbaHCORv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 10:17:51 -0400
+Received: by mail-we0-f174.google.com with SMTP id x48so6427880wes.5
+        for <util-linux@vger.kernel.org>; Sun, 03 Aug 2014 07:17:50 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 2/7] docs: add details to zramctl --size option documentation
+Date: Sun,  3 Aug 2014 15:17:38 +0100
+Message-Id: <1407075463-19586-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Bernhard Voelker wrote:
-> On 08/07/2014 12:55 AM, Linda A. Walsh wrote:
->   
->> if "/usr/src" is a symlink pointing to /home/src,
->> and under /home/src, packages points to ../packages, then when I
->> switch to /usr/src/packages, I see my path listed as /usr/src/packages:
->>
->>     
->>>>  cd /usr/src/packages
->>>>         
->> /usr/src/packages> pwd
->> /usr/src/packages
->>
->> Only by asking an external util can I find the real name:
->>     
-> OT, but: no, "pwd -P" (pwd, the shell built-in) does.
->   
-Yeah... by asking the builtin for the physical path, I could see
-mount -p showing you the physical path.  But wouldn't
-that be "/dev/dm-x"?  Where is it coming up with /dev/mapper/<mangledname>?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/zramctl.8 | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-It's not the link the user gave, and it's not the real device, seems like
-those are "dm" internal names?
-
-maybe mount -d? for those?
-
-or put all of them under 1 mountop  -D{d|p|s}?
-
-
+diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
+index 74240a1..a308233 100644
+--- a/sys-utils/zramctl.8
++++ b/sys-utils/zramctl.8
+@@ -68,8 +68,15 @@ can be changed only after a reset.
+ .TP
+ .BR \-s , " \-\-size " \fIsize
+ Force the zram driver to reread the size of the file associated with
+-the specified zram device
+-
++the specified zram device.  When not specified the
++.I size
++unit is bytes.  The zram devices size is page size aligned.  When
++requested
++.I size
++does match with page size the device be large enough to hold the reqested
++.I size
++plus length to next page boundary.
++.IP
+ The \fIsize\fR argument may be followed by the multiplicative suffixes KiB (=1024),
+ MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB"
+ is optional, e.g., "K" has the same meaning as "KiB") or the suffixes
+-- 
+2.0.3
 
