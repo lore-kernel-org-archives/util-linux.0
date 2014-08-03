@@ -1,101 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5798 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:49661 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751472AbaHLJkA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 05:40:00 -0400
-Date: Tue, 12 Aug 2014 11:39:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
+	id S1752486AbaHCNeY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 3 Aug 2014 09:34:24 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Andreas Henriksson <andreas@fatal.se>
 Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-Message-ID: <20140812093955.GL17719@x2.net.home>
-References: <1407768431.5984.23.camel@oct.suse.cz>
+Subject: Re: [PATCH] libmount/buildsys: move SELINUX_LIBS to LDFLAGS
+Date: Sun, 03 Aug 2014 09:34:25 -0400
+Message-ID: <2625005.WTIbfJcupg@vapier>
+In-Reply-To: <1407010261-17305-1-git-send-email-andreas@fatal.se>
+References: <1407010261-17305-1-git-send-email-andreas@fatal.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407768431.5984.23.camel@oct.suse.cz>
+Content-Type: multipart/signed; boundary="nextPart1726248.YcNbZdjQm9"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 11, 2014 at 04:47:11PM +0200, Stanislav Brabec wrote:
-> The build cycle util-linux <-> python is far the largest build cycle. In
-> case of forthcoming SLES12 it triggers rebuild of 2921 packages!
 
-well, util-linux is source tarball, all depends what do you want to
-build from the tarball. You can rebuild and use only the binding and
-ignore everything else.
+--nextPart1726248.YcNbZdjQm9
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
 
-  ./configure --disable-all-programs --enable-libblkid --enable-libuuid
-              --enable-libmount --enable-pylibmount
+On Sat 02 Aug 2014 22:11:01 Andreas Henriksson wrote:
+> According to a bug report filed in the Debian bug tracking system
+> an unknown version of the package failed to cross-build because of
+> the -lfoo flags for SELinux being placed in LIBADD rather then LDFLAG=
+S.
+> The build system still looks similar in this regard so it's possible
+> the problem still remains and hopefully this change should make thing=
+s
+> more correct even if I still don't know if it solves the entire probl=
+em.
 
+please post the full details here.  linkage (like -lselinux) are not ld=
+flags.
+=2Dmike
+--nextPart1726248.YcNbZdjQm9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-I currently see only one disadvantage, we don't have "install-pylibmount" 
-Makefile target now, you can use
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-  make install-pylibmountexecPYTHON install-pylibmountexecLTLIBRARIES
+iQIcBAABAgAGBQJT3jphAAoJEEFjO5/oN/WBgoQQAOCfR9wBQY6JEGQenRly0owU
+f7+QlYiv3V6ga5c0NC98zUBMVfo+ccNphORj5OYY0+kO91w784lO3I7cCspUnqLY
+NlER2tDk6h/uVXwIGhew+/hjunnQl7RoZyC7MPw1OgJsXhcvVGHFX6ZuV8Lb6ELj
+Bh86DbFtuikppGQRPfSwquj+fIUEZ/dXVMxHLqbP+KRb6UpYVAoSGn/ZzjH95FN1
+jmeOM8Oe6UJT1JjsiDLiEx1wFAwsOwphY13RrNpcwRxEk6uAo2N/yKWKFp9NAHnf
+mFTDvzgccRMh0ddgebAlzMXSAe0IJH89pDiXvX6EQq2uRc21ou1DIW/XlTG04zUx
+XQ78SzEIKjSPrvN8nQIWvfVv9rnRhohayKuOUs6lTIX//JPjaxmDi99UC1JV8ZTc
+J9hmW05gSRYucmoY6/MVoAVj1DB5eUf7Vu2dT6eaBz1EF6lXnvExW+HO9BbjluG2
+L8XPZtmg/IbwF1MNHiNHAmBPrUHV7AsetkF661wGy9rrN7vXiojZsAS+sOOAcm2q
+zqXZ8/10/UKVqULak0DcpcbKzQxBKVrc6Ufpf1jJt2m/FExtZBV/ZAy/cRRzw4vo
+3YIe8geFjGqyBhJ7mmZ0X7MwW2+J/VbkfcLYLmF0lY3DYkdylPEdV6XZf369UBbU
+lPROhCN1Tnq9X/N0lx4s
+=5aiJ
+-----END PGP SIGNATURE-----
 
-but it sucks..
+--nextPart1726248.YcNbZdjQm9--
 
-
-Anyway, I don't understand why do you want to rebuild all recursively
-(so result is rebuild of 2921 packages).
-
-> I was asked to solve this problem, and I created a solution that makes
-> possible to build:
-> util-linux stage 1: Everything except stuff that supports systemd and
->   python-libmount
-> util-linux stage 2: Stuff that supports systemd (lslogins, logger, uuidd
->   and fstrim service files) using installed low level stage 1 stuff.
-> python-libmount: Python bindings only using installed stage 1 stuff.
-> 
-> This is now implemented by a set of sed scripts on top of .am and .ac
-> sources. But I would like to create more generic solution.
-
-Hmm.. modify build system is bad idea.
-
-> What do you think about one of the following solutions?:
-> 
-> Solution 1:
-> 
-> Modify make system by adding:
-> --enable-build-stage-1: Distro bootstrap stage 1: Build only code
->     without systemd and python dependencies.
-
- --without-systemd --without-python
-
-> --enable-build-stage-2: Distro bootstrap stage 2: Build code with
->     systemd dependencies (even if they are optional). Use installed
->     instances of libmount, libblkid, libsmartcols and libuuidd, do not
->     build them in-tree.
-
- Why do you do not want to use in-tree code? The libraries interfaces 
- are versioned, it's safe to build against in-tree code and the
- install..
-
- We can add --with-outtree-libs or so, but it will require check for
- many things and it will increase complexity etc. IMHO it's really bad
- idea.
-
-> --enable-build-stage-3: Distro bootstrap stage 3: Build python-libmount
->     only. Use installed instance of libmount, do not build them in-tree.
-
-> Solution 2:
-> 
-> --enable-build-stage-1 and --enable-build-stage-2 exactly as above.
-> 
-> Split python-libmount into a separate project.
-
-
- Solution 3:
-
- Fix your build system to use complete build roots.
- 
- You can use old version of your distro to build new complete
- util-linux (and another packages), then create new build root from
- the new set of the packages and rebuild again.
-
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
