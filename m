@@ -1,51 +1,39 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1407341083.485189.149814161.10AFC682@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>, Sami Kerola <kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: add one-line descriptions to each program usage()
-Date: Wed, 06 Aug 2014 18:04:43 +0200
-In-Reply-To: <20140806132727.GI19820@x2.net.home>
-References: <20140806132727.GI19820@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-we0-f171.google.com ([74.125.82.171]:57165 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751430AbaHCOR6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 10:17:58 -0400
+Received: by mail-we0-f171.google.com with SMTP id p10so6511422wes.30
+        for <util-linux@vger.kernel.org>; Sun, 03 Aug 2014 07:17:57 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 5/7] zramctl: improve error message
+Date: Sun,  3 Aug 2014 15:17:41 +0100
+Message-Id: <1407075463-19586-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/zramctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Wed, Aug 6, 2014, at 15:27, Karel Zak wrote:
-> https://github.com/stevenhoneyman/util-linux/commit/d5b828e418102b354025bbf7f91b2dcdfc1f4e66
-> 
-> the idea is to add one-line descriptions to each program usage().
-
-Yes, docstrings are a good idea.
-
->  Anyway, the patch is not ready. I don't like the command name in the
->  description -- it's redundant.
-
-Furthermore, each docstring should be a full, grammatical sentence, not
-the telegram style used in the NAME section of man pages.  And each of
-them should start with a capital and end with a period.  And, if needed,
-it may also cover two lines.
-
->  Maybe it would be better to move the description above Options
->  section.
-
-Yes, that is a better place for them.  That is where coreutils puts them,
-too.
-
-As an example, the docstring of the following three commands should
-probably be the same: "Display or manipulate a disk partition table.\n":
-
-> fputs(_("fdisk - manipulate disk partition table\n"), out);
-> fputs(_("sfdisk - partition table manipulator for Linux\n"), out);
-> fputs(_("cfdisk - display or manipulate a disk partition table\n"), out);
-
-Or if not, then the docstrings should make clear how these three differ.
-
-By the way, the scripted grabbing of the first line of the man page as
-a docstring has gone wrong for the swapoff command.
-
-Benno
-
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index 85dc30c..9c5b6ed 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -498,7 +498,7 @@ int main(int argc, char **argv)
+ 		act = find ? A_FINDONLY : A_STATUS;
+ 
+ 	if (act != A_RESET && optind + 1 < argc)
+-		usage(stderr);		/* only --reset holds more devices */
++		errx(EXIT_FAILURE, _("only one <device> at a time is allowed"));
+ 
+ 	switch (act) {
+ 	case A_STATUS:
 -- 
-http://www.fastmail.fm - Choose from over 50 domains or use your own
+2.0.3
+
