@@ -1,121 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:59871 "EHLO
-	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750876AbaHAMTT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 1 Aug 2014 08:19:19 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mondschein.lichtvoll.de ([194.150.191.11]:59527 "EHLO
+	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751181AbaHDLxg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 07:53:36 -0400
+From: Martin Steigerwald <Martin@lichtvoll.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] zramctl: fix the wording of some message strings
-Date: Fri,  1 Aug 2014 14:19:07 +0200
-Message-Id: <1406895548-2925-1-git-send-email-bensberg@justemail.net>
+Subject: Re: [PATCH] Fix re-enabling of cursor with slang also after pressing Ctrl-C
+Date: Mon, 04 Aug 2014 13:53:34 +0200
+Message-ID: <2432624.0NNcbHJWc6@merkaba>
+In-Reply-To: <1419379.tzkKhjxti9@merkaba>
+References: <1419379.tzkKhjxti9@merkaba>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart1472687.g4vGjlNesl"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/zramctl.c |   25 ++++++++++++-------------
- 1 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
-index 2215898..a26cd8e 100644
---- a/sys-utils/zramctl.c
-+++ b/sys-utils/zramctl.c
-@@ -1,5 +1,5 @@
- /*
-- * zramctl - purpose of it
-+ * zramctl - control compressed block devices in RAM
-  *
-  * Copyright (c) 2014 Timofey Titovets <Nefelim4ag@gmail.com>
-  * Copyright (C) 2014 Karel Zak <kzak@redhat.com>
-@@ -65,15 +65,14 @@ enum {
- 
- static const struct colinfo infos[] = {
- 	[COL_NAME]      = { "NAME",      0.25, 0, N_("zram device name") },
--	[COL_DISKSIZE]  = { "DISKSIZE",     5, SCOLS_FL_RIGHT, N_("limit on the uncompressed worth of data") },
-+	[COL_DISKSIZE]  = { "DISKSIZE",     5, SCOLS_FL_RIGHT, N_("limit on the uncompressed amount of data") },
- 	[COL_ORIG_SIZE] = { "DATA",         5, SCOLS_FL_RIGHT, N_("uncompressed size of stored data") },
- 	[COL_COMP_SIZE] = { "COMPR",        5, SCOLS_FL_RIGHT, N_("compressed size of stored data") },
--	[COL_ALGORITHM] = { "ALGORITHM",    3, 0, N_("selected compression algorithms") },
-+	[COL_ALGORITHM] = { "ALGORITHM",    3, 0, N_("the selected compression algorithm") },
- 	[COL_STREAMS]   = { "STREAMS",      3, SCOLS_FL_RIGHT, N_("number of concurrent compress operations") },
- 	[COL_ZEROPAGES] = { "ZERO-PAGES",   3, SCOLS_FL_RIGHT, N_("empty pages with no allocated memory") },
- 	[COL_MEMTOTAL]  = { "TOTAL",        5, SCOLS_FL_RIGHT, N_("all memory including allocator fragmentation and metadata overhead") },
- 	[COL_MOUNTPOINT]= { "MOUNTPOINT",0.10, SCOLS_FL_TRUNC, N_("where the device is mounted") },
--
- };
- 
- static int columns[ARRAY_SIZE(infos) * 2] = {-1};
-@@ -366,19 +365,19 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out, _(	" %1$s [options] <device>\n"
--			" %1$s -r <device> [...]\n" 
-+			" %1$s -r <device> [...]\n"
- 			" %1$s [options] -f | <device> -s <size>\n"),
- 			program_invocation_short_name);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -a, --algorithm <lzo|lz4> compression algorithm\n"), out);
-+	fputs(_(" -a, --algorithm lzo|lz4   compression algorithm to use\n"), out);
- 	fputs(_(" -b, --bytes               print sizes in bytes rather than in human readable format\n"), out);
--	fputs(_(" -f, --find                find free device\n"), out);
-+	fputs(_(" -f, --find                find a free device\n"), out);
- 	fputs(_(" -n, --noheadings          don't print headings\n"), out);
- 	fputs(_(" -o, --output <list>       columns to use for status output\n"), out);
-+	fputs(_("     --raw                 use raw status output format\n"), out);
- 	fputs(_(" -r, --reset               reset all specified devices\n"), out);
- 	fputs(_(" -s, --size <size>         device size\n"), out);
--	fputs(_("     --raw                 use raw status output format\n"), out);
- 	fputs(_(" -t, --streams <number>    number of compressoin streams\n\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
-@@ -413,9 +412,9 @@ int main(int argc, char **argv)
- 
- 	static const struct option longopts[] = {
- 		{ "algorithm", required_argument, NULL, 'a' },
-+		{ "bytes",     no_argument, NULL, 'b' },
- 		{ "find",      no_argument, NULL, 'f' },
- 		{ "help",      no_argument, NULL, 'h' },
--		{ "bytes",     no_argument, NULL, 'b' },
- 		{ "output",    required_argument, NULL, 'o' },
- 		{ "noheadings",no_argument, NULL, 'n' },
- 		{ "reset",     no_argument, NULL, 'r' },
-@@ -490,7 +489,7 @@ int main(int argc, char **argv)
- 
- 	if (find && optind < argc)
- 		errx(EXIT_FAILURE, _("option --find is mutually exclusive "
--				     "with <device>."));
-+				     "with <device>"));
- 	if (act == A_NONE)
- 		act = find ? A_FINDONLY : A_STATUS;
- 
-@@ -501,7 +500,7 @@ int main(int argc, char **argv)
- 	case A_STATUS:
- 		if (algorithm || find || nstreams)
- 			errx(EXIT_FAILURE, _("options --algorithm, --find and "
--					"--streams are mutually exclusive."));
-+					"--streams are mutually exclusive"));
- 		if (!ncolumns) {		/* default columns */
- 			columns[ncolumns++] = COL_NAME;
- 			columns[ncolumns++] = COL_ALGORITHM;
-@@ -533,7 +532,7 @@ int main(int argc, char **argv)
- 	case A_FINDONLY:
- 		zram = find_free_zram();
- 		if (!zram)
--			errx(EXIT_FAILURE, _("no found free zram device"));
-+			errx(EXIT_FAILURE, _("no free zram device found"));
- 		printf("%s\n", zram->devname);
- 		free_zram(zram);
- 		break;
-@@ -541,7 +540,7 @@ int main(int argc, char **argv)
- 		if (find) {
- 			zram = find_free_zram();
- 			if (!zram)
--				errx(EXIT_FAILURE, _("no found free zram device"));
-+				errx(EXIT_FAILURE, _("no free zram device found"));
- 		} else if (optind == argc)
- 			errx(EXIT_FAILURE, _("no device specified"));
- 		else
--- 
-1.7.0.4
+--nextPart1472687.g4vGjlNesl
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+
+Am Montag, 4. August 2014, 13:28:11 schrieben Sie:
+> According to curs_set(0) in ui_init() I think curs_set(1) belongs int=
+o
+> ui_end with in die_on_signal() also gets called on SIGINT or SIGTERM.=
+
+>=20
+> This should complete the fix made by Andreas in commit 4f4daf8f.
+>=20
+> I could not yet test the fix as building current git fails with:
+>=20
+> /usr/bin/ld: sys-utils/swapoff-swapon-common.o: undefined reference t=
+o
+> symbol 'blkid_probe_lookup_value@@BLKID_2.15'
+> //home/martin/Linux/util-linux/util-linux/.libs/libblkid.so.1: error =
+adding
+> symbols: DSO missing from command line
+>=20
+> Will test as soon as I found out how to fix this build issue. Benno
+> reported it already on mailing list.
+>=20
+> Addresses-Debian-Bug: #757000
+> BCC=B4d there for reference.
+
+Scratch that.
+
+Fix doesn=B4t work.
+
+Cursor is displayed on regular end, but not on Ctrl-C.
+
+Don=B4t get why tough.
+
+=2D-=20
+Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
+GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+--nextPart1472687.g4vGjlNesl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEABECAAYFAlPfdD4ACgkQmRvqrKWZhMeWygCghGqAWr/AX0y3vNKjaBvR3d2v
+qRMAoIkyRZwp+EjBEwofPy1HgVXigaxF
+=aNEf
+-----END PGP SIGNATURE-----
+
+--nextPart1472687.g4vGjlNesl--
 
