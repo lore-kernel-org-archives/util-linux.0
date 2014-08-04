@@ -1,52 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:46073 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753092AbaHXQFS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Aug 2014 12:05:18 -0400
-Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
-	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 3EA7E14275
-	for <util-linux@vger.kernel.org>; Sun, 24 Aug 2014 18:05:15 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 0/4] Patches for kFreeBSD support from Debian
-Date: Sun, 24 Aug 2014 18:04:40 +0200
-Message-Id: <1408896284-14467-1-git-send-email-andreas@fatal.se>
+Received: from mx1.redhat.com ([209.132.183.28]:46198 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751117AbaHDMP3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Aug 2014 08:15:29 -0400
+Date: Mon, 4 Aug 2014 14:15:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 6/7] zramctl: fix mount point printout
+Message-ID: <20140804121518.GC6923@x2.net.home>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+ <1407075463-19586-6-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1407075463-19586-6-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello!
+On Sun, Aug 03, 2014 at 03:17:42PM +0100, Sami Kerola wrote:
+> See sample belo how a device mount point was printed without and with
+> full <device> path.  This change adds the mount point markup to the short
+> device name printout.
+> 
+> $ zramctl zram3
+> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+> zram3 lz4             1M   4K   62B    4K       1
 
-This is the patch set that has been shipping since forever
-in Debian (minus the last one from me, which is new).
-The patches where against util-linux 2.20.x before
-I rebased them against current master.
+ This is bug, it would be better improve zram_set_devname() to make it
+ more robust and always convert the path to the full path. I don't think
+ that any variability makes it more easy to use.
 
-I've failed to get the original patch authors to sign off
-and submit their own patches, but as discussed on irc
-I'm forwarding them to you 'as is'.
+    Karel
 
-
-Andreas Henriksson (1):
-  kFreeBSD: add hacks in ipcrm to avoid FTBFS
-
-Aurelien Jarno (1):
-  remaining kFreeBSD hackery for building.
-
-Christoph Egger (1):
-  Fixing FTBFS on !linux (Debian util-linux 2.20.1-1.2)
-
-Robert Millan (1):
-  Report correct disk size on GNU/kFreeBSD. Thanks Tuco.
-
- include/ttyutils.h       | 40 ++++++++++++++++++++++++++++++++++++++++
- lib/blkdev.c             |  4 ++++
- sys-utils/ipcrm.c        |  7 +++++++
- sys-utils/ipcs.c         |  2 ++
- term-utils/Makemodule.am |  1 +
- term-utils/agetty.c      | 16 ++++++++++++++++
- 6 files changed, 70 insertions(+)
 
 -- 
-2.1.0.rc1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
