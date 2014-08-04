@@ -1,54 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:52628 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:14226 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751783AbaHCOuQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 3 Aug 2014 10:50:16 -0400
-From: Mike Frysinger <vapier@gentoo.org>
+	id S1751181AbaHDL4N (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Aug 2014 07:56:13 -0400
+Date: Mon, 4 Aug 2014 13:55:56 +0200
+From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
-Date: Sun, 03 Aug 2014 10:50:17 -0400
-Message-ID: <2423860.9OdLEsNW7s@vapier>
-In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
-References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
+Message-ID: <20140804115556.GA6923@x2.net.home>
+References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2007508.TPNrdW7FtL"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
+> Earlier the --algorithm and --streams had to be combined with --size.  To
+> user requirement to combine with --size was indirectly told using
+> following message.
 
---nextPart2007508.TPNrdW7FtL
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="us-ascii"
+And is it really supported by kernel? I see in
+Documentation/blockdev/zram.txt:
 
-On Sun 03 Aug 2014 15:17:37 Sami Kerola wrote:
-> -static int zram_used(struct zram *z)
-> +static int zram_used(struct zram *z, int find_unused)
+ In order to enable compression backend's multi stream support
+ max_comp_streams must be initially set to desired concurrency 
+ level before ZRAM device initialisation.
 
-s/int/bool/ ?
-=2Dmike
---nextPart2007508.TPNrdW7FtL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+I guess that when you set disksize the zram device is "locked" for
+setting changes. It means that modify already initialized (created)
+zram devices is impossible. You have to reset the device to "unlock"
+the device setting.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+    Karel
 
-iQIcBAABAgAGBQJT3kwpAAoJEEFjO5/oN/WBcwwP/0B8zIfV4tpMeXoBewn7+EyR
-zxnsxPpwaGxqa2aBwUJCIPBx39I03Hio/fRQ96HOoBq4FNp/1UjMxtWbhBC68Cr8
-n1nS4nlmRKF1/PL8sg79IsGcKjMDCI3w/IoGEdW1i0DZBZXp7lPCVJYZb/fW/Fsg
-nNMFBCghonr14RY4T0pG+vcfGvsImgH4Cz8G7ryDkr+GPX/NMaAeL21I6iRm2HtK
-BFOuPLtmrB6THnE6OoLl2Dgf7hc7gJdDVa6eq6EHZ2fzQR3sNOW1rSKSYmE7az+M
-9bBJD/P2dRBUp7GcdTg6EVMuBD7MF2A8rQJ+YCgzNs94vE8+MF2Z6+byilb7qdx+
-/WqwUHI9aX31Abc2pCWY1ec+ipjqFTDwZXW7ixCFMTAAuorTUVtibD6Z7YPDth9J
-XGP95yBo2A0dcyl+5Jwn/LPVkFDG12d0mD2430hO8NBfKeVldgkH2nbiajLciunw
-44JrPcqKBPSVyi9FIFvUir+OMmfybF7HJ6fggWPeBMLAV/YSZz1hOALSBhssDGJB
-qk6m9ZysPgt1Pvdig2jzA6sH1G3Z/YIY0kryDZHbyZlwENxAltzRJftc7whrK5Dk
-/dagjr4tD+Z5U5z94m7Kmy1Tr3ggZn2lHfBPzcrlA3giS0W5GisNzqUqrQNSDUli
-1GsHLPRfPj7ThkL9Xb9K
-=05D3
------END PGP SIGNATURE-----
 
---nextPart2007508.TPNrdW7FtL--
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
