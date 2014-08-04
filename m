@@ -1,54 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:46268 "EHLO mx2.suse.de"
+Received: from smtp.gentoo.org ([140.211.166.183]:59127 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754021AbaHLUPd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 16:15:33 -0400
-Message-ID: <1407874531.5984.79.camel@oct.suse.cz>
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Date: Tue, 12 Aug 2014 22:15:31 +0200
-In-Reply-To: <1549603.ZWLTNRFnAF@vapier>
-References: <1407768431.5984.23.camel@oct.suse.cz>
-	 <1549603.ZWLTNRFnAF@vapier>
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+	id S1750986AbaHDHbO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Aug 2014 03:31:14 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
+Date: Mon, 04 Aug 2014 03:31:13 -0400
+Message-ID: <1946062.6JF60ZCY1D@vapier>
+In-Reply-To: <CAG27Bk2OosZoo=XAGy+2Ld-pxAbTzivhr=cXE4S8FJtVzPnwAA@mail.gmail.com>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi> <2423860.9OdLEsNW7s@vapier> <CAG27Bk2OosZoo=XAGy+2Ld-pxAbTzivhr=cXE4S8FJtVzPnwAA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart7109256.osYeTcygvq"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
-> > Solution 1:
-> > 
-> > Modify make system by adding:
-> > --enable-build-stage-1: Distro bootstrap stage 1: Build only code
-> >     without systemd and python dependencies.
-> > --enable-build-stage-2: Distro bootstrap stage 2: Build code with
-> >     systemd dependencies (even if they are optional). Use installed
-> >     instances of libmount, libblkid, libsmartcols and libuuidd, do not
-> >     build them in-tree.
-> > --enable-build-stage-3: Distro bootstrap stage 3: Build python-libmount
-> >     only. Use installed instance of libmount, do not build them in-tree.
-> 
-> how is this any different from just passing --without-{udev,python} ?
 
---without-systemd still builds the same set of binaries, just without
-support of systemd. It does not allow to exclude lslogins, logger and
-uuidd and build them later.
+--nextPart7109256.osYeTcygvq
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
 
---with-python builds complete util-linux and libraries plus python
-bindings, not bindings only.
+On Sun 03 Aug 2014 21:50:33 Sami Kerola wrote:
+> On 3 August 2014 15:50, Mike Frysinger <vapier@gentoo.org> wrote:
+> > On Sun 03 Aug 2014 15:17:37 Sami Kerola wrote:
+> >> -static int zram_used(struct zram *z)
+> >> +static int zram_used(struct zram *z, int find_unused)
+> >=20
+> > s/int/bool/ ?
+>=20
+> There's only handful of boolean types in use in util-linux
 
--- 
-Best Regards / S pozdravem,
+i think there should be more.  i find them more readable, clearer inten=
+t, and=20
+harder to screw up.  whereas passing around 0/1 everywhere gets funky (=
+and i=20
+think the code looks funky already).
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+> util-linux> git grep -l 'bool '
+> lib/mbsalign.c
+> login-utils/su-common.c
+> sys-utils/hwclock-cmos.c
+> sys-utils/hwclock.c
+> sys-utils/nsenter.c
+> tests/ts/login/logindefs
+>=20
+> And question about bool is asked before.
+>=20
+> http://marc.info/?l=3Dutil-linux-ng&m=3D135817763904699&w=3D2
+
+it's a little hard to tell if it was meant generally or that specific c=
+ase. =20
+but if Karel prefers they not be used, then the codebase should reflect=
+ that.
+
+> The question was never answered, but if I should guess the idea in
+> util-linux is same as what Linus said should be done in kernel.
+>=20
+> https://lkml.org/lkml/2013/8/31/138
+>=20
+> Please read the whole thread. It's full of good stuff.
+
+i'm not really seeing anything applicable to us.
+=2Dmike
+--nextPart7109256.osYeTcygvq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABAgAGBQJT3zbBAAoJEEFjO5/oN/WB43UQANm7u9EZgVERPUVdlpOCKwgG
+ulxdQlWsBm4iyDHb7cyD7uAKF+mg4y6GQ6yTHVQHMy21uqtg7QRoVA8pH3bh4kv5
+l+peCv49nLpIe1ezxDRXhbKtVaZXcWlikt7TCpT+eOa3adgnqEbe5QaOVeRrf/Uf
+kfUOhmeFqOmshtH226pnZPnjyDcwSthUM2f7kboKcGtTP0KI+2SHnxe6fyyzR/+b
+4s8OKJzg0YKti1PAdrIQVfjaNjLSMUV9qcV+LLgyu+4lzqTKpshgVIQf3peBTXaz
+uurE3dnAFiEIVHjjjkx8UZ7TwkAMBVNUspwJBfQQMdC2xDtxXANOwlW8av2S1cEm
+axkL2aTMPVlsHVrjwWl3UVNj1+N6UokQDJSSx4fn/Lm/s5SlpjoV9S+3izFBGCcx
+kdM6DWQ1yvZeAUkL2jBZyZPQ36EAne7fOoqXMVioRoOTjj9JBNmQ/3xnu9cU59MT
+d1FJHVIbUOB7n1W+d9jUdLMSxqD4NG5hmS5CcVZKfPZ4DKeHH7jUKSQOgiybS9N9
+wW6zRrY12Z9y06nM++Fqo0eCGsABGtIZX75AesuU1y2wHVi2vBTnV4kDIKanFBxv
+DQhtP3OmIZ3OGcvmPyrCYERGDic8hzJClU5K0eIFSDlqGyT0EfCzsxmj0sDCU8oC
+ZhbueUQ8qxzlK2YgbDuO
+=up6h
+-----END PGP SIGNATURE-----
+
+--nextPart7109256.osYeTcygvq--
 
