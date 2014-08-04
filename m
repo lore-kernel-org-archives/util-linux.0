@@ -1,44 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f170.google.com ([74.125.82.170]:58858 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753900AbaHFWEh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Aug 2014 18:04:37 -0400
-Received: by mail-we0-f170.google.com with SMTP id w62so3295007wes.1
-        for <util-linux@vger.kernel.org>; Wed, 06 Aug 2014 15:04:36 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] tests: make ipcs limit calculations work when numbers are large
-Date: Wed,  6 Aug 2014 23:04:31 +0100
-Message-Id: <1407362671-18446-1-git-send-email-kerolasa@iki.fi>
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:33099 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750831AbaHDJtw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 05:49:52 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 86B48C059
+	for <util-linux@vger.kernel.org>; Mon,  4 Aug 2014 11:49:50 +0200 (CEST)
+Date: Mon, 4 Aug 2014 11:49:48 +0200
+From: Andreas Henriksson <andreas@fatal.se>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: YunQiang Su <wzssyqa@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount/buildsys: move SELINUX_LIBS to LDFLAGS
+Message-ID: <20140804094948.GA32065@fatal.se>
+References: <1407010261-17305-1-git-send-email-andreas@fatal.se>
+ <2625005.WTIbfJcupg@vapier>
+ <20140803202309.GA26295@fatal.se>
+ <7003188.HrNgjPCK9Z@vapier>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <7003188.HrNgjPCK9Z@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Test suite  failed when I ran it with kernel 3.16.  Error is the
-following.
+Version: 2.25-1
 
-tests/ts/ipcs/limits2: line 31: [: 18446744073692774399: integer expression expected
+Hello Mike!
 
-Reference: http://lkml.iu.edu/hypermail/linux/kernel/1406.0/01869.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/ts/ipcs/limits2 | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Thank you very much for the followup and for identifying the relevant
+commit for me!
+(BCCing the debian bug tracking system to close the bug report...)
 
-diff --git a/tests/ts/ipcs/limits2 b/tests/ts/ipcs/limits2
-index 2333198..1a49c46 100755
---- a/tests/ts/ipcs/limits2
-+++ b/tests/ts/ipcs/limits2
-@@ -28,7 +28,8 @@ ts_check_prog "bc"
- . $TS_SELF/functions.sh
- 
- # TODO https://github.com/karelzak/util-linux/issues/51
--if [ $(</proc/sys/kernel/shmall) -ge $(bc <<<"2^64 / $PAGE_SIZE") ]; then
-+SHMALL=$(</proc/sys/kernel/shmall)
-+if [ $(bc <<<"2^64 / $PAGE_SIZE < $SHMALL") -ne 1 ]; then
- 	TS_KNOWN_FAIL="yes"
- fi
- 
--- 
-2.0.4
+On Mon, Aug 04, 2014 at 03:40:56AM -0400, Mike Frysinger wrote:
+[...]
+> the problem is that libmount_la_DEPENDENCIES shows up in the Makefile like:
+> libmount.la: ... $(libmount_la_DEPENDENCIES) ...
+> 
+> which means make evaluates it like so:
+> libmount.la: ... -lselinux -lsepol ...
+> 
+> which triggers the builtin library path searching of make itself:
+> https://www.gnu.org/software/make/manual/make.html#Libraries_002fSearch
+> 
+> which means it'll rewrite -lselinux into /usr/lib/libselinux.so (if it can 
+> find it) which is bad for multilib and cross-compiling.
+> 
+> the easy answer is to not add LIBADD to DEPENDENCIES.  which has been done 
+> already -- see dbf7043ea1d090d283cfd36280bb14189d8e35b1.
+> 
+[...]
 
+
+Regards,
+Andreas Henriksson
