@@ -1,73 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:56239 "EHLO plane.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:38192 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933469AbaHYVSv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 25 Aug 2014 17:18:51 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1XM1f8-0000cF-2a
-	for util-linux@vger.kernel.org; Mon, 25 Aug 2014 23:18:50 +0200
-Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 25 Aug 2014 23:18:50 +0200
-Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 25 Aug 2014 23:18:50 +0200
-To: util-linux@vger.kernel.org
-From: jb <jb.1234abcd@gmail.com>
-Subject: Re: lsblk vice fdisk, etc
-Date: Mon, 25 Aug 2014 21:18:34 +0000 (UTC)
-Message-ID: <loom.20140825T225526-531@post.gmane.org>
-References: <loom.20140819T114407-592@post.gmane.org> <loom.20140825T160840-339@post.gmane.org> <loom.20140825T223105-992@post.gmane.org>
-Mime-Version: 1.0
+	id S1752589AbaHDMCs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 4 Aug 2014 08:02:48 -0400
+Date: Mon, 4 Aug 2014 14:02:38 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
+Message-ID: <20140804120238.GB6923@x2.net.home>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-jb <jb.1234abcd@...> writes:
+On Sun, Aug 03, 2014 at 03:17:37PM +0100, Sami Kerola wrote:
+> This commit makes the command to display information about all zram
+> devices when the command is ran without any arguments.  Listing includes
 
-> ... 
-> But the question "why for /dev/sda3 only ?" stands.
-> Actually, it should not be included in 'blkid' display at all.
-> According to BLKID(8), only option -p should display this field.
-> # blkid -p /dev/sda
-> /dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
+ I don't think it's a good idea do it by default. The current zramctl
+ follows the logic we use for losetup (or lsblk), it means "list all
+ used devices". I'm not sure if we really need to list empty devices,
+ such devices are /dev nodes only. Maybe we can add --all if you have
+ any use-case for this feature.
 
-This should be further qualified.
+    Karel
 
-# blkid /dev/sda
-/dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
-# blkid -p /dev/sda
-/dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
-
-and so I think that 'blkid' entry I referred previously to (with that
-PTTYPE="dos" in /dev/sda3 row, believed to be erroneously displayed there),
-should have the "/dev/sda: ..." line displayed at the top:
-# blkid
-/dev/sda: PTUUID="3db012b3" PTTYPE="dos"
-/dev/sda1: UUID="fb838405-607c-4723-9355-47ccbf1eb273" TYPE="ext4"
-PARTUUID="3db012b3-01" 
-...
-
-because BLKID(8) says:
-"       When  device is specified, tokens from only this device are
-        displayed.
-        It is possible to specify multiple device  arguments  on  the
-        command line.   If none is given, all devices which appear in
-        /proc/partitions are shown, if they are recognized."
-
-$ cat /proc/partitions 
-major minor  #blocks  name
-
-  11        0    1048575 sr0
-   8        0   39070080 sda
-   8        1   17825792 sda1
-   8        2    4647936 sda2
-   8        3   14076928 sda3
-   8        4          1 sda4
-   8        5    2518368 sda5
-
-jb
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
