@@ -1,39 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.13]:63764 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752475AbaHUT2q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Aug 2014 15:28:46 -0400
-Message-ID: <53F64865.4090706@bernhard-voelker.de>
-Date: Thu, 21 Aug 2014 21:28:37 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:16809 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752020AbaHENlO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Aug 2014 09:41:14 -0400
+Date: Tue, 5 Aug 2014 15:41:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] docs: restore the mention of uhelper= and helper= in man
+ page of umount
+Message-ID: <20140805134009.GC19820@x2.net.home>
+References: <1406839409-2846-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] mountpoint: symlinks are not mount points
-References: <1408644191-13523-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1408644191-13523-1-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406839409-2846-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/21/2014 08:03 PM, Sami Kerola wrote:
-> Earlier the mountpoint(1) followed symlinks
+On Thu, Jul 31, 2014 at 10:43:29PM +0200, Benno Schulenberg wrote:
+>  sys-utils/umount.8 |   14 ++++++++++++--
+>  1 files changed, 12 insertions(+), 2 deletions(-)
 
-IMO this is correct as symlinks only have to be treated
-as such when explicitly not de-referencing.
-As mountpoint(1) does not have a --no-dereference option,
-symlinks should always be transparent for this tool.
+ Applied, thanks.
 
-Furthermore, the patch would break scripts relying on existing
-behavior:
-
-  $ ln -s / slink
-
-  $ /usr/bin/mountpoint slink
-  slink is a mountpoint
-
-  $ # ~berny/util-linux/mountpoint slink
-  slink is not a mountpoint
-
-
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
