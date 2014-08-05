@@ -1,54 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:33099 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750831AbaHDJtw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 05:49:52 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 86B48C059
-	for <util-linux@vger.kernel.org>; Mon,  4 Aug 2014 11:49:50 +0200 (CEST)
-Date: Mon, 4 Aug 2014 11:49:48 +0200
-From: Andreas Henriksson <andreas@fatal.se>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: YunQiang Su <wzssyqa@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount/buildsys: move SELINUX_LIBS to LDFLAGS
-Message-ID: <20140804094948.GA32065@fatal.se>
-References: <1407010261-17305-1-git-send-email-andreas@fatal.se>
- <2625005.WTIbfJcupg@vapier>
- <20140803202309.GA26295@fatal.se>
- <7003188.HrNgjPCK9Z@vapier>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7003188.HrNgjPCK9Z@vapier>
+Received: from smtp.gentoo.org ([140.211.166.183]:58411 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753607AbaHEW7w (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 5 Aug 2014 18:59:52 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 2BE8F3401CF
+	for <util-linux@vger.kernel.org>; Tue,  5 Aug 2014 22:59:47 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] lscpu: clean up vmware inline asm
+Date: Tue,  5 Aug 2014 18:59:50 -0400
+Message-Id: <1407279590-4224-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Version: 2.25-1
+This code is not PIC clean which means it fails to build on hardened
+32bit x86 systems (i.e. building as PIE).
 
-Hello Mike!
+While here, optimize the existing cpuid logic slightly.
 
-Thank you very much for the followup and for identifying the relevant
-commit for me!
-(BCCing the debian bug tracking system to close the bug report...)
+URL: https://bugs.gentoo.org/518936
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ sys-utils/lscpu.c | 36 ++++++++++++++++++++++++++----------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
 
-On Mon, Aug 04, 2014 at 03:40:56AM -0400, Mike Frysinger wrote:
-[...]
-> the problem is that libmount_la_DEPENDENCIES shows up in the Makefile like:
-> libmount.la: ... $(libmount_la_DEPENDENCIES) ...
-> 
-> which means make evaluates it like so:
-> libmount.la: ... -lselinux -lsepol ...
-> 
-> which triggers the builtin library path searching of make itself:
-> https://www.gnu.org/software/make/manual/make.html#Libraries_002fSearch
-> 
-> which means it'll rewrite -lselinux into /usr/lib/libselinux.so (if it can 
-> find it) which is bad for multilib and cross-compiling.
-> 
-> the easy answer is to not add LIBADD to DEPENDENCIES.  which has been done 
-> already -- see dbf7043ea1d090d283cfd36280bb14189d8e35b1.
-> 
-[...]
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 062dff5..9965eeb 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -546,10 +546,9 @@ cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx,
+ 	__asm__(
+ #if defined(__PIC__) && defined(__i386__)
+ 		/* x86 PIC cannot clobber ebx -- gcc bitches */
+-		"pushl %%ebx;"
++		"xchg %%ebx, %%esi;"
+ 		"cpuid;"
+-		"movl %%ebx, %%esi;"
+-		"popl %%ebx;"
++		"xchg %%esi, %%ebx;"
+ 		: "=S" (*ebx),
+ #else
+ 		"cpuid;"
+@@ -656,12 +655,29 @@ read_hypervisor_powerpc(struct lscpu_desc *desc)
+ #define VMWARE_BDOOR_PORT           0x5658
+ #define VMWARE_BDOOR_CMD_GETVERSION 10
+ 
+-#define VMWARE_BDOOR(eax, ebx, ecx, edx)                                  \
+-        __asm__("inl (%%dx), %%eax" :                                     \
+-               "=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :               \
+-               "0"(VMWARE_BDOOR_MAGIC), "1"(VMWARE_BDOOR_CMD_GETVERSION), \
+-               "2"(VMWARE_BDOOR_PORT), "3"(0) :                           \
+-               "memory");
++static inline
++void vmware_bdoor(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
++{
++	__asm__(
++#if defined(__PIC__) && defined(__i386__)
++		/* x86 PIC cannot clobber ebx -- gcc bitches */
++		"xchg %%ebx, %%esi;"
++		"inl (%%dx), %%eax;"
++		"xchg %%esi, %%ebx;"
++		: "=S" (*ebx),
++#else
++		"inl (%%dx), %%eax;"
++		: "=b" (*ebx),
++#endif
++		  "=a" (*eax),
++		  "=c" (*ecx),
++		  "=d" (*edx)
++		: "0" (VMWARE_BDOOR_MAGIC),
++		  "1" (VMWARE_BDOOR_CMD_GETVERSION),
++		  "2" (VMWARE_BDOOR_PORT),
++		  "3" (0)
++		: "memory");
++}
+ 
+ static jmp_buf segv_handler_env;
+ 
+@@ -697,7 +713,7 @@ is_vmware_platform(void)
+ 	if (sigaction(SIGSEGV, &act, &oact))
+ 		err(EXIT_FAILURE, _("error: can not set signal handler"));
+ 
+-	VMWARE_BDOOR(eax, ebx, ecx, edx);
++	vmware_bdoor(&eax, &ebx, &ecx, &edx);
+ 
+ 	if (sigaction(SIGSEGV, &oact, NULL))
+ 		err(EXIT_FAILURE, _("error: can not restore signal handler"));
+-- 
+2.0.0
 
-
-Regards,
-Andreas Henriksson
