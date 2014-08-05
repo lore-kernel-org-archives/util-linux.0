@@ -1,41 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14226 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751181AbaHDL4N (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 4 Aug 2014 07:56:13 -0400
-Date: Mon, 4 Aug 2014 13:55:56 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
-Message-ID: <20140804115556.GA6923@x2.net.home>
-References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20140804121518.GC6923@x2.net.home>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
+	<1407075463-19586-6-git-send-email-kerolasa@iki.fi>
+	<20140804121518.GC6923@x2.net.home>
+Date: Wed, 6 Aug 2014 00:03:52 +0100
+Message-ID: <CAG27Bk3k96DQ+wHis5QkC0GDvH5Q-z=UY_jG0eB=K1Ghk2VeAw@mail.gmail.com>
+Subject: Re: [PATCH 6/7] zramctl: fix mount point printout
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
-> Earlier the --algorithm and --streams had to be combined with --size.  To
-> user requirement to combine with --size was indirectly told using
-> following message.
+On 4 August 2014 13:15, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Aug 03, 2014 at 03:17:42PM +0100, Sami Kerola wrote:
+>> See sample belo how a device mount point was printed without and with
+>> full <device> path.  This change adds the mount point markup to the short
+>> device name printout.
+>>
+>> $ zramctl zram3
+>> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+>> zram3 lz4             1M   4K   62B    4K       1
+>
+>  This is bug, it would be better improve zram_set_devname() to make it
+>  more robust and always convert the path to the full path. I don't think
+>  that any variability makes it more easy to use.
 
-And is it really supported by kernel? I see in
-Documentation/blockdev/zram.txt:
+The following make device path to be always absolute.
 
- In order to enable compression backend's multi stream support
- max_comp_streams must be initially set to desired concurrency 
- level before ZRAM device initialisation.
-
-I guess that when you set disksize the zram device is "locked" for
-setting changes. It means that modify already initialized (created)
-zram devices is impossible. You have to reset the device to "unlock"
-the device setting.
-
-    Karel
-
+https://github.com/kerolasa/lelux-utiliteetit/commit/5a093e4d11091c48580531fa88d1c64b564b57d3
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
