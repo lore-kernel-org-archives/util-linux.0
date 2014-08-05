@@ -1,62 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44652 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754080AbaHHII5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 8 Aug 2014 04:08:57 -0400
-Date: Fri, 8 Aug 2014 10:08:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
-Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well
- as no-canonicalize.
-Message-ID: <20140808080844.GA17719@x2.net.home>
-References: <53E2B27C.9020305@tlinx.org>
- <53E2B3FB.8050409@bernhard-voelker.de>
- <53E3D02F.5040300@tlinx.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:48790 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753438AbaHEWg7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Aug 2014 18:36:59 -0400
+Received: by mail-pa0-f53.google.com with SMTP id rd3so2206435pab.12
+        for <util-linux@vger.kernel.org>; Tue, 05 Aug 2014 15:36:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53E3D02F.5040300@tlinx.org>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140804115556.GA6923@x2.net.home>
+References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
+	<20140804115556.GA6923@x2.net.home>
+Date: Tue, 5 Aug 2014 23:36:59 +0100
+Message-ID: <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 07, 2014 at 12:14:55PM -0700, Linda Walsh wrote:
-> Bernhard Voelker wrote:
-> >On 08/07/2014 12:55 AM, Linda A. Walsh wrote:
-> >>if "/usr/src" is a symlink pointing to /home/src,
-> >>and under /home/src, packages points to ../packages, then when I
-> >>switch to /usr/src/packages, I see my path listed as /usr/src/packages:
-> >>
-> >>>> cd /usr/src/packages
-> >>/usr/src/packages> pwd
-> >>/usr/src/packages
-> >>
-> >>Only by asking an external util can I find the real name:
-> >OT, but: no, "pwd -P" (pwd, the shell built-in) does.
-> Yeah... by asking the builtin for the physical path, I could see
-> mount -p showing you the physical path.  But wouldn't
-> that be "/dev/dm-x"?
+On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
+>> Earlier the --algorithm and --streams had to be combined with --size.  To
+>> user requirement to combine with --size was indirectly told using
+>> following message.
+>
+> And is it really supported by kernel? I see in
+> Documentation/blockdev/zram.txt:
+>
+>  In order to enable compression backend's multi stream support
+>  max_comp_streams must be initially set to desired concurrency
+>  level before ZRAM device initialisation.
+>
+> I guess that when you set disksize the zram device is "locked" for
+> setting changes. It means that modify already initialized (created)
+> zram devices is impossible. You have to reset the device to "unlock"
+> the device setting.
 
-/dev/dm-N is *private* DM path and should be nowhere used in
-userspace. This is requirement from DM guys. 
+After playing with zramctl I found out --algorithm must be set before
+--size. The --streams can be set after --size, but not if device is in use.
+When device is in use none of the settings are allowed.
 
-> Where is it coming up with /dev/mapper/<mangledname>?
+$ ./zramctl
+NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+/dev/zram0 lzo           100K   4K   76B    4K       2 [SWAP]
+/dev/zram2 lzo            44K   0B    0B    0B       1
+/dev/zram3 lzo             1M  40K  796B   40K       1 /mnt
+$ ./zramctl zram1
+NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+zram1 lzo             0B   0B    0B    0B       1
 
-/sys/block/dm-N/dm/name
- 
-> It's not the link the user gave, and it's not the real device, seems like
-> those are "dm" internal names?
+$ ./zramctl --algorithm lz4 zram1 ; echo $?
+0
+$ ./zramctl --algorithm lz4 zram2 ; echo $?
+zramctl: zram2: failed to set algorithm: Device or resource busy
+1
+$ ./zramctl --algorithm lz4 zram3 ; echo $?
+zramctl: zram3: failed to set algorithm: Device or resource busy
+1
 
-it's official device name
+$ ./zramctl --stream 2 zram1 ; echo $?
+0
+$ ./zramctl --stream 2 zram2 ; echo $?
+0
+$ ./zramctl --stream 2 zram3 ; echo $?
+zramctl: zram3: failed to set number of streams: Invalid argument
+1
 
-> maybe mount -d? for those?
+Whether the case --streams 2 zram2 in above example is correct or a
+bug is a question to kernel developers (Sergey is CC'd). Looking the
+commit message
 
-I don't plan to do anything with mount(8) output. If you want more
-customized output then use findmnt(8), for long time I think about a
-new column KNAME (kernel device name of the mount source). We already
-have such column in lsblk(8), maybe it would be nice for findmnt(8) too.
+http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe8eb122c82b2049c460fc6df6e8583a2f935cff
 
-    Karel
+the device behavior might be bug.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
