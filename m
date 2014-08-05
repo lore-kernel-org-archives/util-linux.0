@@ -1,81 +1,74 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:48790 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753438AbaHEWg7 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Aug 2014 18:36:59 -0400
-Received: by mail-pa0-f53.google.com with SMTP id rd3so2206435pab.12
-        for <util-linux@vger.kernel.org>; Tue, 05 Aug 2014 15:36:59 -0700 (PDT)
+Return-Path: linux-kernel-owner@vger.kernel.org
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140804115556.GA6923@x2.net.home>
-References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
-	<20140804115556.GA6923@x2.net.home>
-Date: Tue, 5 Aug 2014 23:36:59 +0100
-Message-ID: <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
-Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
+In-Reply-To: <20140805081238.GA3700@gmail.com>
+References: <1406675682-8402-1-git-send-email-kerolasa@iki.fi>
+	<20140805020024.GB27993@bbox>
+	<20140805070716.GB12104@x2.net.home>
+	<20140805081238.GA3700@gmail.com>
+Date: Tue, 5 Aug 2014 09:26:04 +0100
+Message-ID: <CAG27Bk1CHT-0FdPpFok=k4OWZyo8F2ZdmkA7BhE5+3=WWQZtSw@mail.gmail.com>
+Subject: Re: zram: device management utility needed
 From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+To: Minchan Kim <minchan@kernel.org>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
+        Timofey Titovets <nefelim4ag@gmail.com>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
->> Earlier the --algorithm and --streams had to be combined with --size.  To
->> user requirement to combine with --size was indirectly told using
->> following message.
+On 5 August 2014 09:12, Minchan Kim <minchan@kernel.org> wrote:
+> On Tue, Aug 05, 2014 at 09:07:16AM +0200, Karel Zak wrote:
+>> On Tue, Aug 05, 2014 at 11:00:24AM +0900, Minchan Kim wrote:
+>> > On Wed, Jul 30, 2014 at 12:14:42AM +0100, Sami Kerola wrote:
+>> > > The zram devices are not created by any sort of equipment appearing in a
+>> > > bus so an method of creating new or removing existing devices will be
+>> > > needed.  When the zram module is loaded it should create
+>> > > /dev/zram-control device, that responds to ioctl() calls[4].  The calls
+>> > > could be similar with /dev/loop-control[5], that allow adding or removing
+>> > > specified device, and discover adding a free device.
+>> >
+>> > Normally, dynamic management is good to have, I think but I didn't hear
+>> > strong requirement for that until now.
+>>
+>> I guess that number of zram devices will be always relatively small
+>> compare to /dev/loopN devices. It is not unusual that people use
+>> systems with more than 256 loop devs, so /dev/loop-control makes a lot
+>> of sense to keep the device management effective and simple.
+>>
+>> > Why don't you change num_device param at module loading time?
+>>
+>> If you have really many loopN devices than create all the nodes at
+>> boot time means extra overhead (allocate nodes in kernel, events to
+>> udev, create /dev files etc.).  The ioctl LOOP_CTL_* API also provides
+>> LOOP_CTL_GET_FREE that returns unused device, so you don't have to
+>> scan all the /dev/loopN devices to detect a free device.
 >
-> And is it really supported by kernel? I see in
-> Documentation/blockdev/zram.txt:
+> Thanks for the info!
 >
->  In order to enable compression backend's multi stream support
->  max_comp_streams must be initially set to desired concurrency
->  level before ZRAM device initialisation.
+>>
+>> > I'd like to hear real scenario from whom are about to using that faeture
+>> > right now and what's the problem with num_device param.
+>>
+>> Again, I don't think it's so important for zram as for loop devices.
+>> All depends how people will use zram devices. We will see...
 >
-> I guess that when you set disksize the zram device is "locked" for
-> setting changes. It means that modify already initialized (created)
-> zram devices is impossible. You have to reset the device to "unlock"
-> the device setting.
+> Yeb and we can do it when we see.
 
-After playing with zramctl I found out --algorithm must be set before
---size. The --streams can be set after --size, but not if device is in use.
-When device is in use none of the settings are allowed.
+Hi all,
 
-$ ./zramctl
-NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
-/dev/zram0 lzo           100K   4K   76B    4K       2 [SWAP]
-/dev/zram2 lzo            44K   0B    0B    0B       1
-/dev/zram3 lzo             1M  40K  796B   40K       1 /mnt
-$ ./zramctl zram1
-NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
-zram1 lzo             0B   0B    0B    0B       1
+Good to hear, and I am glad coding time was not wasted propose the
+dynamic zram devices in form of patches.  And as it was said before who
+knows how the user kind will end up using these devices, which may mean
+in future reconsideration, but for now number of devices will only
+follow module load time instruction.
 
-$ ./zramctl --algorithm lz4 zram1 ; echo $?
-0
-$ ./zramctl --algorithm lz4 zram2 ; echo $?
-zramctl: zram2: failed to set algorithm: Device or resource busy
-1
-$ ./zramctl --algorithm lz4 zram3 ; echo $?
-zramctl: zram3: failed to set algorithm: Device or resource busy
-1
-
-$ ./zramctl --stream 2 zram1 ; echo $?
-0
-$ ./zramctl --stream 2 zram2 ; echo $?
-0
-$ ./zramctl --stream 2 zram3 ; echo $?
-zramctl: zram3: failed to set number of streams: Invalid argument
-1
-
-Whether the case --streams 2 zram2 in above example is correct or a
-bug is a question to kernel developers (Sergey is CC'd). Looking the
-commit message
-
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe8eb122c82b2049c460fc6df6e8583a2f935cff
-
-the device behavior might be bug.
+I think the reasonable thing to do is to adjust documentation a little
+bit.  Users should load number of devices they  need plus few spares to
+avoid getting corner by inability to foresee future device needs.
 
 -- 
 Sami Kerola
