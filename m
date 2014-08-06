@@ -1,38 +1,106 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56149 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751438AbaHKM5a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Aug 2014 08:57:30 -0400
-Date: Mon, 11 Aug 2014 14:57:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] textual: remove some inconsistent periods from error
- messages
-Message-ID: <20140811125725.GF17719@x2.net.home>
-References: <1407357306-3207-1-git-send-email-bensberg@justemail.net>
+Return-Path: sergey.senozhatsky@gmail.com
+Date: Wed, 6 Aug 2014 21:19:55 +0900
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+To: kerolasa@gmail.com
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Jerome Marchand <jmarchan@redhat.com>, Nitin Gupta <ngupta@vflare.org>,
+        Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
+Message-ID: <20140806121954.GA902@swordfish>
+References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
+ <20140804115556.GA6923@x2.net.home>
+ <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407357306-3207-1-git-send-email-bensberg@justemail.net>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 06, 2014 at 10:35:06PM +0200, Benno Schulenberg wrote:
->  disk-utils/sfdisk.c    |    6 +++---
->  include/optutils.h     |    8 ++++----
->  login-utils/lslogins.c |    2 +-
->  login-utils/sulogin.c  |    4 ++--
->  misc-utils/findmnt.c   |    2 +-
->  misc-utils/logger.c    |    2 +-
->  misc-utils/lsblk.c     |    4 ++--
->  sys-utils/fallocate.c  |    2 +-
->  sys-utils/fstrim.c     |    2 +-
->  term-utils/agetty.c    |    2 +-
->  text-utils/hexdump.c   |    2 +-
->  11 files changed, 18 insertions(+), 18 deletions(-)
+Cc Minchan Kim, Jerome Marchand, Nitin Gupta, linux-kernel
 
- Applied, thanks.
+On (08/05/14 23:36), Sami Kerola wrote:
+> On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
+> > On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
+> >> Earlier the --algorithm and --streams had to be combined with --size.  To
+> >> user requirement to combine with --size was indirectly told using
+> >> following message.
+> >
+> > And is it really supported by kernel? I see in
+> > Documentation/blockdev/zram.txt:
+> >
+> >  In order to enable compression backend's multi stream support
+> >  max_comp_streams must be initially set to desired concurrency
+> >  level before ZRAM device initialisation.
+> >
+> > I guess that when you set disksize the zram device is "locked" for
+> > setting changes. It means that modify already initialized (created)
+> > zram devices is impossible. You have to reset the device to "unlock"
+> > the device setting.
+> 
+> After playing with zramctl I found out --algorithm must be set before
+> --size
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+yes. historically, storing the `size' == full device initialisation.
+I believe, it used to be so since the beginning of zram. compression
+algorithm selection was just plugged in into the existing scheme of
+things.
+
+> The --streams can be set after --size, but not if device is in use.
+> When device is in use none of the settings are allowed.
+
+you can't change compression algorithm on initialised/being used
+device. obviously. if zram has X pages compressed with lz0 then
+zram is supposed to use lz0 for decompression.
+
+'streams' options is a little bit tricky. we have two different
+implementations for a single and multi stream backends. and there are
+reasons for that, to keep it short.
+
+if you create device with a single stream backend -- you can't change
+it any more.
+if you create device with a multi stream backend -- you can change the
+number of streams (though, it doesn't make a lot of sense to set streams
+to 1 in that case).
+
+iow, you can downgrade from multi stream to a multi stream device with
+only 1 stream (which is not identical to a single stream), but you can't
+upgrade a single stream device to a multi stream device.
+
+> $ ./zramctl
+> NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+> /dev/zram0 lzo           100K   4K   76B    4K       2 [SWAP]
+> /dev/zram2 lzo            44K   0B    0B    0B       1
+> /dev/zram3 lzo             1M  40K  796B   40K       1 /mnt
+> $ ./zramctl zram1
+> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+> zram1 lzo             0B   0B    0B    0B       1
+> 
+> $ ./zramctl --algorithm lz4 zram1 ; echo $?
+> 0
+> $ ./zramctl --algorithm lz4 zram2 ; echo $?
+> zramctl: zram2: failed to set algorithm: Device or resource busy
+> 1
+> $ ./zramctl --algorithm lz4 zram3 ; echo $?
+> zramctl: zram3: failed to set algorithm: Device or resource busy
+> 1
+> 
+> $ ./zramctl --stream 2 zram1 ; echo $?
+> 0
+> $ ./zramctl --stream 2 zram2 ; echo $?
+> 0
+> $ ./zramctl --stream 2 zram3 ; echo $?
+> zramctl: zram3: failed to set number of streams: Invalid argument
+> 1
+> 
+> Whether the case --streams 2 zram2 in above example is correct or a
+> bug is a question to kernel developers (Sergey is CC'd). Looking the
+> commit message
+> 
+> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe8eb122c82b2049c460fc6df6e8583a2f935cff
+> 
+> the device behavior might be bug.
+>
+
+where?
+
+	-ss
