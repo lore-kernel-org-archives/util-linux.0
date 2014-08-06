@@ -1,43 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37262 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756006AbaHEHKd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 Aug 2014 03:10:33 -0400
-Date: Tue, 5 Aug 2014 09:10:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Felix Miata <mrmazda@earthlink.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: ? fdisk -l bug: wrong devices listed ?
-Message-ID: <20140805071029.GC12104@x2.net.home>
-References: <53E04EE1.1090107@earthlink.net>
+Received: from mout.kundenserver.de ([212.227.126.131]:59456 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754005AbaHFXC1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Aug 2014 19:02:27 -0400
+Message-ID: <53E2B3FB.8050409@bernhard-voelker.de>
+Date: Thu, 07 Aug 2014 01:02:19 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53E04EE1.1090107@earthlink.net>
+To: "Linda A. Walsh" <lkml@tlinx.org>, util-linux@vger.kernel.org
+Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well
+ as no-canonicalize.
+References: <53E2B27C.9020305@tlinx.org>
+In-Reply-To: <53E2B27C.9020305@tlinx.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 04, 2014 at 11:26:25PM -0400, Felix Miata wrote:
-> fdisk: cannot open /dev/sr0: No medium found
+On 08/07/2014 12:55 AM, Linda A. Walsh wrote:
+> if "/usr/src" is a symlink pointing to /home/src,
+> 
+> and under /home/src, packages points to ../packages, then when I
+> switch to /usr/src/packages, I see my path listed as /usr/src/packages:
+> 
+>> >  cd /usr/src/packages
+> /usr/src/packages> pwd
+> /usr/src/packages
+> 
+> Only by asking an external util can I find the real name:
 
- Seems like already fixed bug:
+OT, but: no, "pwd -P" (pwd, the shell built-in) does.
 
-commit 52d92543ffb8efb56036f316a1072d8fbba62c38
-Author: Karel Zak <kzak@redhat.com>
-Date:   Mon Jul 28 11:57:10 2014 +0200
+Have a nice day,
+Berny
 
-    fdisk: fix -l [<device>]
-    
-     * don't use err(), but warn(), so don't stop after the first error
-    
-     * display all errors when "-l <device> ..." specified
-    
-     * display only EACCES errors when list whole disks from
-       /proc/partitions ("fdisk -l" )
-    
-    Reported-by: Boian Bonev <bbonev@ipacct.com>
-    Addresses: https://github.com/karelzak/util-linux/pull/106
-    Signed-off-by: Karel Zak <kzak@redhat.com>
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
