@@ -1,87 +1,167 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:58336 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752464AbaHLXtr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 19:49:47 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-Date: Tue, 12 Aug 2014 19:49:51 -0400
-Message-ID: <3379360.AxIdjXfpXR@vapier>
-In-Reply-To: <1407874531.5984.79.camel@oct.suse.cz>
-References: <1407768431.5984.23.camel@oct.suse.cz> <1549603.ZWLTNRFnAF@vapier> <1407874531.5984.79.camel@oct.suse.cz>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:33877 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753151AbaHFUsf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Aug 2014 16:48:35 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart5861103.KMAcMix7RU"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20140806121954.GA902@swordfish>
+References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
+	<20140804115556.GA6923@x2.net.home>
+	<CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+	<20140806121954.GA902@swordfish>
+Date: Wed, 6 Aug 2014 21:48:34 +0100
+Message-ID: <CAG27Bk24sUMQiL653y-HML7eBTdUBqSOPgT7t2MHFurqfeYpjQ@mail.gmail.com>
+Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
+From: Sami Kerola <kerolasa@iki.fi>
+To: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
+        Jerome Marchand <jmarchan@redhat.com>, Nitin Gupta <ngupta@vflare.org>,
+        Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 6 August 2014 13:19, Sergey Senozhatsky <sergey.senozhatsky@gmail.com> wrote:
+> Cc Minchan Kim, Jerome Marchand, Nitin Gupta, linux-kernel
+>
+> On (08/05/14 23:36), Sami Kerola wrote:
+>> On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
+>> > On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
+>> >> Earlier the --algorithm and --streams had to be combined with --size.  To
+>> >> user requirement to combine with --size was indirectly told using
+>> >> following message.
+>> >
+>> > And is it really supported by kernel? I see in
+>> > Documentation/blockdev/zram.txt:
+>> >
+>> >  In order to enable compression backend's multi stream support
+>> >  max_comp_streams must be initially set to desired concurrency
+>> >  level before ZRAM device initialisation.
+>> >
+>> > I guess that when you set disksize the zram device is "locked" for
+>> > setting changes. It means that modify already initialized (created)
+>> > zram devices is impossible. You have to reset the device to "unlock"
+>> > the device setting.
+>>
+>> After playing with zramctl I found out --algorithm must be set before
+>> --size
+>
+> yes. historically, storing the `size' == full device initialisation.
+> I believe, it used to be so since the beginning of zram. compression
+> algorithm selection was just plugged in into the existing scheme of
+> things.
+>
+>> The --streams can be set after --size, but not if device is in use.
+>> When device is in use none of the settings are allowed.
+>
+> you can't change compression algorithm on initialised/being used
+> device. obviously. if zram has X pages compressed with lz0 then
+> zram is supposed to use lz0 for decompression.
 
---nextPart5861103.KMAcMix7RU
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="us-ascii"
+Hi Sergey, and the others,
 
-On Tue 12 Aug 2014 22:15:31 Stanislav Brabec wrote:
-> Mike Frysinger wrote:
-> > On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
-> > > Solution 1:
-> > >=20
-> > > Modify make system by adding:
-> > > --enable-build-stage-1: Distro bootstrap stage 1: Build only code=
+I expected this to be the case.
 
-> > >     without systemd and python dependencies.
-> > > --enable-build-stage-2: Distro bootstrap stage 2: Build code with=
+> 'streams' options is a little bit tricky. we have two different
+> implementations for a single and multi stream backends. and there are
+> reasons for that, to keep it short.
+>
+> if you create device with a single stream backend -- you can't change
+> it any more.
+> if you create device with a multi stream backend -- you can change the
+> number of streams (though, it doesn't make a lot of sense to set streams
+> to 1 in that case).
+>
+> iow, you can downgrade from multi stream to a multi stream device with
+> only 1 stream (which is not identical to a single stream), but you can't
+> upgrade a single stream device to a multi stream device.
 
-> > >     systemd dependencies (even if they are optional). Use install=
-ed
-> > >     instances of libmount, libblkid, libsmartcols and libuuidd, d=
-o not
-> > >     build them in-tree.
-> > > --enable-build-stage-3: Distro bootstrap stage 3: Build python-li=
-bmount
-> > >     only. Use installed instance of libmount, do not build them i=
-n-tree.
-> >=20
-> > how is this any different from just passing --without-{udev,python}=
- ?
->=20
-> --without-systemd still builds the same set of binaries, just without=
+Thank you for explanation, I understand.  But as Karel mentioned in the
+previous message the zramctl will be kept simple, at least for now, which
+means support to change number of streams in cases when device is multi
+streaming capable will not be present.  At least for now.
 
-> support of systemd. It does not allow to exclude lslogins, logger and=
+Secondly the few updates to zramctl I wrote couple days ago are now ready
+for final review.  Most importantly the last one of the changes is
+modified to be a message change.  It was earlier the patch 8/8 in first
+message of this thread, that allowed algorithm and streams changes
+without reset.  Now it this modest improvement.
 
-> uuidd and build them later.
->=20
-> --with-python builds complete util-linux and libraries plus python
-> bindings, not bindings only.
+https://github.com/kerolasa/lelux-utiliteetit/commit/ba7340bd093828feac127c09e8c36e01640f6dcb
 
-i'm not seeing the problem.  disable both, and you've broken the circul=
-ar=20
-deps.  every day Gentoo is doing bootstraps of the distro and this isn'=
-t an=20
-issue for us.
-=2Dmike
---nextPart5861103.KMAcMix7RU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+And here are there reset.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+The following changes since commit cd8414f7a13aca0b3ea150b473b83f00819b312f:
 
-iQIcBAABAgAGBQJT6qgfAAoJEEFjO5/oN/WBxHkQALUo20CPGx/rwNBwCzQauykG
-UT2C+Y8Ajj8TNovln5DrG1hE7U0Ew+Bl/y9jxwRD+38BCmueyCgfVdTR7Q847fZG
-ZTkd4KimvrCg51tP5B0+7fyUp/MgbnOSsSZfA1PwUKDUZSV49U1XM4+49guoXcJ3
-Ne4DjY3Kva+iqtmj16n3VEd9O+EpkMeOUJEJGobGrwilZni3Pv+AM1IS/KyIXTl/
-xveOeb4bO70b0Vxz5V+NVc0U26Ey/3HCiwFAFP24sIcg+w+2F/WqFrq4Eg+RpuU5
-k99CgcUoJQGGvGhr3D2PjyWzIiuTTB3HOEPPS4GUIeNH/3UWh2hZ0ZGIcRVSse73
-ZyKRF40QKdV+CN5JMU3KKd6jnoY8oTyXfkHC3+/vEz5lY8Fc7SYfVyjsfID45utu
-dWhw3jkkfLdjqsn2y24x6I47ALojZaTrDSp45hzMDe02YPAeFVugv6omdokP4PjB
-BnV5j0cA1KyN+zEevPqmZ3VJEXxS1u52MMF/FUc5Y0AUct9irVieRTwiN0Stabqb
-2wiQOc9BdOlc5pKOoIwP6y/VGR0HcSAvF8jAr3BwX+/P5TwoLqScLpbfT7wim66a
-rwZIiee4GnOWPe5sIrs201DQWi5ReVcFjp9T1G84GWkdzzi8ZxBDJtCWGJvbEz/R
-EXJsgr+SJeJmGJeW/UHI
-=W9Zy
------END PGP SIGNATURE-----
+  cfdisk: move curs_set(1) to ui_end() (2014-08-06 15:39:27 +0200)
 
---nextPart5861103.KMAcMix7RU--
+are available in the git repository at:
 
+  git://github.com/kerolasa/lelux-utiliteetit.git zram
+
+for you to fetch changes up to ba7340bd093828feac127c09e8c36e01640f6dcb:
+
+  zramctl: improve option combination error messaging (2014-08-06
+20:46:23 +0100)
+
+----------------------------------------------------------------
+Sami Kerola (7):
+      docs: add details to zramctl --size option documentation
+      zramctl: mark --reset mutually exclusive with --algorithm and --streams
+      zramctl: fail status printout when device does not exist
+      zramctl: improve error message
+      zramctl: fix mount point printout
+      zramctl: add bash completion script
+      zramctl: improve option combination error messaging
+
+ bash-completion/Makemodule.am |  3 +++
+ bash-completion/zramctl       | 51
++++++++++++++++++++++++++++++++++++++++++++++++++++
+ sys-utils/zramctl.8           | 11 +++++++++--
+ sys-utils/zramctl.c           | 37 +++++++++++++++++++++++--------------
+ 4 files changed, 86 insertions(+), 16 deletions(-)
+ create mode 100644 bash-completion/zramctl
+
+>> $ ./zramctl
+>> NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+>> /dev/zram0 lzo           100K   4K   76B    4K       2 [SWAP]
+>> /dev/zram2 lzo            44K   0B    0B    0B       1
+>> /dev/zram3 lzo             1M  40K  796B   40K       1 /mnt
+>> $ ./zramctl zram1
+>> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
+>> zram1 lzo             0B   0B    0B    0B       1
+>>
+>> $ ./zramctl --algorithm lz4 zram1 ; echo $?
+>> 0
+>> $ ./zramctl --algorithm lz4 zram2 ; echo $?
+>> zramctl: zram2: failed to set algorithm: Device or resource busy
+>> 1
+>> $ ./zramctl --algorithm lz4 zram3 ; echo $?
+>> zramctl: zram3: failed to set algorithm: Device or resource busy
+>> 1
+>>
+>> $ ./zramctl --stream 2 zram1 ; echo $?
+>> 0
+>> $ ./zramctl --stream 2 zram2 ; echo $?
+>> 0
+>> $ ./zramctl --stream 2 zram3 ; echo $?
+>> zramctl: zram3: failed to set number of streams: Invalid argument
+>> 1
+>>
+>> Whether the case --streams 2 zram2 in above example is correct or a
+>> bug is a question to kernel developers (Sergey is CC'd). Looking the
+>> commit message
+>>
+>> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe8eb122c82b2049c460fc6df6e8583a2f935cff
+>>
+>> the device behavior might be bug.
+>
+> where?
+
+Reading your earlier message it is now clear to me the there never was
+a bug, but just lack of understanding how the zram is meant to work.
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
