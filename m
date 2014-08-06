@@ -1,84 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:53463 "EHLO
-	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751769AbaHDL2T (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 07:28:19 -0400
-From: Martin Steigerwald <Martin@lichtvoll.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix re-enabling of cursor with slang also after pressing Ctrl-C
-Date: Mon, 04 Aug 2014 13:28:11 +0200
-Message-ID: <1419379.tzkKhjxti9@merkaba>
+Return-Path: bensberg@justemail.net
+Message-Id: <1407341083.485189.149814161.10AFC682@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>, Sami Kerola <kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart6067617.Ml5GFPCtI9"; micalg="pgp-sha1"; protocol="application/pgp-signature"
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+Subject: Re: add one-line descriptions to each program usage()
+Date: Wed, 06 Aug 2014 18:04:43 +0200
+In-Reply-To: <20140806132727.GI19820@x2.net.home>
+References: <20140806132727.GI19820@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
 
---nextPart6067617.Ml5GFPCtI9
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+On Wed, Aug 6, 2014, at 15:27, Karel Zak wrote:
+> https://github.com/stevenhoneyman/util-linux/commit/d5b828e418102b354025bbf7f91b2dcdfc1f4e66
+> 
+> the idea is to add one-line descriptions to each program usage().
 
-According to curs_set(0) in ui_init() I think curs_set(1) belongs into
-ui_end with in die_on_signal() also gets called on SIGINT or SIGTERM.
+Yes, docstrings are a good idea.
 
-This should complete the fix made by Andreas in commit 4f4daf8f.
+>  Anyway, the patch is not ready. I don't like the command name in the
+>  description -- it's redundant.
 
-I could not yet test the fix as building current git fails with:
+Furthermore, each docstring should be a full, grammatical sentence, not
+the telegram style used in the NAME section of man pages.  And each of
+them should start with a capital and end with a period.  And, if needed,
+it may also cover two lines.
 
-/usr/bin/ld: sys-utils/swapoff-swapon-common.o: undefined reference to =
-symbol 'blkid_probe_lookup_value@@BLKID_2.15'
-//home/martin/Linux/util-linux/util-linux/.libs/libblkid.so.1: error ad=
-ding symbols: DSO missing from command line
+>  Maybe it would be better to move the description above Options
+>  section.
 
-Will test as soon as I found out how to fix this build issue. Benno
-reported it already on mailing list.
+Yes, that is a better place for them.  That is where coreutils puts them,
+too.
 
-Addresses-Debian-Bug: #757000
-BCC=B4d there for reference.
-=2D--
- disk-utils/cfdisk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+As an example, the docstring of the following three commands should
+probably be the same: "Display or manipulate a disk partition table.\n":
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index dfdaaf0..536132a 100644
-=2D-- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -525,6 +525,7 @@ static int ui_end(void)
- #else
-        mvcur(0, COLS - 1, LINES-1, 0);
- #endif
-+       curs_set(1);
-        nl();
-        endwin();
-        printf("\n");
-@@ -1966,7 +1967,6 @@ static int ui_run(struct cfdisk *cf)
-=20
-        menu_pop(cf);
-=20
-=2D       curs_set(1);
-        DBG(FRONTEND, ul_debug("ui: end"));
-=20
-        return 0;
-=2D-=20
-2.0.1
+> fputs(_("fdisk - manipulate disk partition table\n"), out);
+> fputs(_("sfdisk - partition table manipulator for Linux\n"), out);
+> fputs(_("cfdisk - display or manipulate a disk partition table\n"), out);
 
+Or if not, then the docstrings should make clear how these three differ.
 
-Thanks,
-=2D-=20
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
---nextPart6067617.Ml5GFPCtI9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+By the way, the scripted grabbing of the first line of the man page as
+a docstring has gone wrong for the swapoff command.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Benno
 
-iEYEABECAAYFAlPfbk8ACgkQmRvqrKWZhMdzvgCcD9FWVycvSDl77BQZtlyypc+q
-CeQAnj9J0VFqGBi1AEz38XycKUGYH9wD
-=EZkP
------END PGP SIGNATURE-----
-
---nextPart6067617.Ml5GFPCtI9--
-
+-- 
+http://www.fastmail.fm - Choose from over 50 domains or use your own
