@@ -1,38 +1,47 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from ishtar.tlinx.org ([173.164.175.65]:38824 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754533AbaHFWz7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Aug 2014 18:55:59 -0400
+Received: from [192.168.4.12] (athenae [192.168.4.12])
+	by Ishtar.hs.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id s76MtuaD034005
+	for <util-linux@vger.kernel.org>; Wed, 6 Aug 2014 15:55:59 -0700
+Message-ID: <53E2B27C.9020305@tlinx.org>
+Date: Wed, 06 Aug 2014 15:55:56 -0700
+From: "Linda A. Walsh" <lkml@tlinx.org>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20140804121518.GC6923@x2.net.home>
-References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
-	<1407075463-19586-6-git-send-email-kerolasa@iki.fi>
-	<20140804121518.GC6923@x2.net.home>
-Date: Wed, 6 Aug 2014 00:03:52 +0100
-Message-ID: <CAG27Bk3k96DQ+wHis5QkC0GDvH5Q-z=UY_jG0eB=K1Ghk2VeAw@mail.gmail.com>
-Subject: Re: [PATCH 6/7] zramctl: fix mount point printout
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: util-linux@vger.kernel.org
+Subject: Specifying a generic and per-fs mount line in /etc/fstab as well as no-canonicalize.
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4 August 2014 13:15, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Aug 03, 2014 at 03:17:42PM +0100, Sami Kerola wrote:
->> See sample belo how a device mount point was printed without and with
->> full <device> path.  This change adds the mount point markup to the short
->> device name printout.
->>
->> $ zramctl zram3
->> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
->> zram3 lz4             1M   4K   62B    4K       1
+
+Karel Zak wrote:
 >
->  This is bug, it would be better improve zram_set_devname() to make it
->  more robust and always convert the path to the full path. I don't think
->  that any variability makes it more easy to use.
+> Well, I'm trying to help you, so it would be nice to have more
+> information about your use-case...
+I think I explained that it was the default to follow user-specified
+symbolic link names in following and echoing a path -- notable in shells
+like bash.
 
-The following make device path to be always absolute.
+if "/usr/src" is a symlink pointing to /home/src,
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/5a093e4d11091c48580531fa88d1c64b564b57d3
+and under /home/src, packages points to ../packages, then when I
+switch to /usr/src/packages, I see my path listed as /usr/src/packages:
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+>  cd /usr/src/packages
+/usr/src/packages> pwd
+/usr/src/packages
+
+Only by asking an external util can I find the real name:
+>  /bin/pwd
+/home/packages
+
+It's a display choice for *user-convenience* that was made over
+years of feedback.
+
+Why not allow the same paradigm in /etc/fstab and allow nocanonicalize as
+an option with mounts in /etc/fstab?
+
+
