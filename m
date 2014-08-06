@@ -1,63 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:20023 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:14222 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753497AbaHAKhc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Aug 2014 06:37:32 -0400
-Date: Fri, 1 Aug 2014 12:37:25 +0200
+	id S1754756AbaHFNtX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Aug 2014 09:49:23 -0400
+Date: Wed, 6 Aug 2014 15:49:12 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Timofey Titovets <nefelim4ag@gmail.com>
-Cc: util-linux@vger.kernel.org, Minchan Kim <minchan@kernel.org>
-Subject: Re: [RFC] [Patch v2] Created zramctl
-Message-ID: <20140801103725.GB8805@x2.net.home>
-References: <53CAAAB6.6020607@gmail.com>
- <53D54D4D.5010905@gmail.com>
+To: Martin Steigerwald <Martin@lichtvoll.de>
+Cc: util-linux@vger.kernel.org, Andreas Henriksson <andreas@fatal.se>
+Subject: Re: [PATCH] Fix re-enabling of cursor with slang also after pressing
+ Ctrl-C
+Message-ID: <20140806134912.GK19820@x2.net.home>
+References: <1419379.tzkKhjxti9@merkaba>
+ <2432624.0NNcbHJWc6@merkaba>
+ <1469621.AbYYNxNq4q@merkaba>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53D54D4D.5010905@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1469621.AbYYNxNq4q@merkaba>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 27, 2014 at 10:04:45PM +0300, Timofey Titovets wrote:
-> I spend some time and rewrite zramctl for util-linux.
+On Mon, Aug 04, 2014 at 02:01:42PM +0200, Martin Steigerwald wrote:
+> > Scratch that.
+> > 
+> > Fix doesn´t work.
+> > 
+> > Cursor is displayed on regular end, but not on Ctrl-C.
+> > 
+> > Don´t get why tough.
+> 
+> Patch may still be correct, but SIGINT handler is broke:
 
- Thanks! Merged.
+hmm...
 
-> sysfs.h powerful, but i can't understand how working sysfs.h and how i can
-> implement it(?), and i think what my helper function is easier now, than
-> sysfs.h realization
+I have moved curs_set() to ui_end(), because you're right that the patch 
+seems correct (although it's unnecessary for ncurses).
 
- I have modified your code to use sysfs stuff and to use libsmartcols
- in better way. So now it's more compatible with another ls-like utils
- we have in util-linux. For example you can specify output columns by
- --output, it makes it more friendly for scripts etc.
-
- # /zramctl 
- NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
- /dev/zram1               100M  44K  876B   44K         /mnt/test
- /dev/zram2               123M   4K   78B    4K         [SWAP]
- /dev/zram3                10M   0B    0B    0B         
-
-
- Note that I have kernel 3.14, so things like number of compression
- streams and compression algorithm are invisible for me (I going to
- update and test it with new kernel this afternoon).
-
-
- Anyway, zRam seems like nice project. I'll try to add support to
- swapon next week. My idea is something like (in fstab):
-
-  /dev/zram0  swap  swap  x-zram.disksize=100M,x-zram.algorithm=lzo,auto
-
-
- it means use x-* options (we use this notation for another things) to
- specify zram setting. The controversial thing is that we have to call
- mkswap from swapon, but it's already supported for swap
- reinitialization (after system resume or on page size change etc.)
-
- ... or is it over-engineering?
+BTW, does it mean that Debian uses slang by default? Why? IMHO ncurses
+is better :-)
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
