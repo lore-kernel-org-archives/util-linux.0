@@ -1,72 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay0152.hostedemail.com ([216.40.44.152]:49426 "EHLO
-	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751258AbaHTTTN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 20 Aug 2014 15:19:13 -0400
-Received: from smtprelay.hostedemail.com (ff-bigip1 [10.5.19.254])
-	by smtpgrave04.hostedemail.com (Postfix) with ESMTP id BBD6EB1D34
-	for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 19:12:40 +0000 (UTC)
-Received: from filter.hostedemail.com (ff-bigip1 [10.5.19.254])
-	by smtprelay06.hostedemail.com (Postfix) with ESMTP id 6C8D39EA13
-	for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 19:12:04 +0000 (UTC)
-Received: from amanda.local.lan (pool-74-109-236-220.pitbpa.fios.verizon.net [74.109.236.220])
-	(Authenticated sender: r.bowers@onedingo.com)
-	by omf06.hostedemail.com (Postfix) with ESMTPA
-	for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 19:12:03 +0000 (UTC)
-Date: Wed, 20 Aug 2014 15:12:02 -0400
-From: Robert Bowers <r.bowers@onedingo.com>
+Received: from mx1.redhat.com ([209.132.183.28]:60309 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753925AbaHFN1q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Aug 2014 09:27:46 -0400
+Date: Wed, 6 Aug 2014 15:27:27 +0200
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Subject: fdisk interactive 'v' usage does not always work
-Message-ID: <20140820151202.79f70dc5@amanda.local.lan>
+Cc: Sami Kerola <kerolasa@iki.fi>, Benno Schulenberg <bensberg@justemail.net>
+Subject: add one-line descriptions to each program usage()
+Message-ID: <20140806132727.GI19820@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello.
 
-Using fdisk from util-linux 2.25 is doing what is best shown in an example.
+See commit:
 
-# truncate -s 16M bin
-# losetup -f bin
-(use this to find where it looped)
-# losetup -a
-/dev/loop0: [65024]:292804 (/root/bin)
-# fdisk /dev/loop0
+https://github.com/stevenhoneyman/util-linux/commit/d5b828e418102b354025bbf7f91b2dcdfc1f4e66
 
-Welcome to fdisk (util-linux 2.25).
-Changes will remain in memory only, until you decide to write them.
-Be careful before using the write command.
+the idea is to add one-line descriptions to each program usage().
 
-Device does not contain a recognized partition table.
-Created a new DOS disklabel with disk identifier 0x7235e130.
+Comments?
 
-Command (m for help): v
-Remaining 32767 unallocated 512-byte sectors.
+ IMHO it's not so bad idea, the description will be translated, and
+ --help output more informative. Note that for example coreutils use it
+ too.
 
-Command (m for help): n
+ Anyway, the patch is not ready. I don't like the command name in the
+ description -- it's redundant.
 
-(now just accept all the defaults)
-
-Partition type
-p primary (0 primary, 0 extended, 4 free)
-e extended (container for logical partitions)
-Select (default p):
-
-Using default response p.
-Partition number (1-4, default 1):
-First sector (2048-32767, default 2048):
-Last sector, +sectors or +size{K,M,G,T,P} (2048-32767, default 32767):
-
-Created a new partition 1 of type 'Linux' and of size 15 MiB.
-
-Command (m for help): v
-
-Command (m for help):
+ Maybe it would be better to move the description above Options
+ section. Something like
 
 ---
+ Usage:
+   fdisk [options] <disk>      change partition table
+   fdisk [options] -l [<disk>] list partition table(s)
 
-It used to print
-Remaining 2047 unallocated 512-byte sectors.
-for a layout like this but now prints nothing.
+ Manipulate and list disk partition table.       <---!
+
+ Options:
+    -b, --sector-size <size>      physical and logical sector size
+    ...
+---
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
