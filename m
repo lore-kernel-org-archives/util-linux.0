@@ -1,68 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56080 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755859AbaHVGez (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Aug 2014 02:34:55 -0400
-Date: Fri, 22 Aug 2014 08:34:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: Re: [PATCH] mountpoint: symlinks are not mount points
-Message-ID: <20140822063430.GG14708@x2.net.home>
-References: <1408644191-13523-1-git-send-email-kerolasa@iki.fi>
- <53F64865.4090706@bernhard-voelker.de>
- <1408656867-20472-1-git-send-email-kerolasa@iki.fi>
+Received: from ishtar.tlinx.org ([173.164.175.65]:50971 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750760AbaHGTPU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Aug 2014 15:15:20 -0400
+Message-ID: <53E3D02F.5040300@tlinx.org>
+Date: Thu, 07 Aug 2014 12:14:55 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1408656867-20472-1-git-send-email-kerolasa@iki.fi>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+CC: util-linux@vger.kernel.org
+Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well as no-canonicalize.
+References: <53E2B27C.9020305@tlinx.org> <53E2B3FB.8050409@bernhard-voelker.de>
+In-Reply-To: <53E2B3FB.8050409@bernhard-voelker.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Aug 22, 2014 at 12:34:27AM +0300, Sami Kerola wrote:
-> On 21 August 2014 22:28, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
-> > On 08/21/2014 08:03 PM, Sami Kerola wrote:
-> >> Earlier the mountpoint(1) followed symlinks
-> >
-> > IMO this is correct as symlinks only have to be treated
-> > as such when explicitly not de-referencing.
-> > As mountpoint(1) does not have a --no-dereference option,
-> > symlinks should always be transparent for this tool.
-> >
-> > Furthermore, the patch would break scripts relying on existing
-> > behavior:
-> >
-> >   $ ln -s / slink
-> >
-> >   $ /usr/bin/mountpoint slink
-> >   slink is a mountpoint
-> >
-> >   $ # ~berny/util-linux/mountpoint slink
-> >   slink is not a mountpoint
-> 
-> I don't share view symlinks are mount points.  In my mind they are
-> pointers, much like street signs, giving a direction to somewhere without
-> understanding what is there if anything at all.  But not breaking
-> existing behavior is good point, so I changed the patch and added
-> --no-dereference.
+Bernhard Voelker wrote:
+> On 08/07/2014 12:55 AM, Linda A. Walsh wrote:
+>   
+>> if "/usr/src" is a symlink pointing to /home/src,
+>> and under /home/src, packages points to ../packages, then when I
+>> switch to /usr/src/packages, I see my path listed as /usr/src/packages:
+>>
+>>     
+>>>>  cd /usr/src/packages
+>>>>         
+>> /usr/src/packages> pwd
+>> /usr/src/packages
+>>
+>> Only by asking an external util can I find the real name:
+>>     
+> OT, but: no, "pwd -P" (pwd, the shell built-in) does.
+>   
+Yeah... by asking the builtin for the physical path, I could see
+mount -p showing you the physical path.  But wouldn't
+that be "/dev/dm-x"?  Where is it coming up with /dev/mapper/<mangledname>?
 
- I don't think we need the patch, it does not resolve or improve
- anything. It's over-engineering. If you don't like symlinks then you
- can use
+It's not the link the user gave, and it's not the real device, seems like
+those are "dm" internal names?
 
-  if [ ! -L $dir ]; then
-     mountpoint $dir
-  fi
+maybe mount -d? for those?
 
-> -	if (stat(spec, &st)) {
-> +	if (lstat(spec, &st)) {
-
- btw, you want to use lstat() only when no_dereference is specified.
+or put all of them under 1 mountop  -D{d|p|s}?
 
 
- Anyway, NACK. Sorry.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
