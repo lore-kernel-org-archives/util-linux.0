@@ -1,27 +1,62 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1407874238.2452511.152002397.3B999479@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:44652 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754080AbaHHII5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 8 Aug 2014 04:08:57 -0400
+Date: Fri, 8 Aug 2014 10:08:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
+Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well
+ as no-canonicalize.
+Message-ID: <20140808080844.GA17719@x2.net.home>
+References: <53E2B27C.9020305@tlinx.org>
+ <53E2B3FB.8050409@bernhard-voelker.de>
+ <53E3D02F.5040300@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20140812123725.GM17719@x2.net.home>
-References: <1407788619-4298-1-git-send-email-bensberg@justemail.net>
- <1407789244.2112503.151580837.566CF6FE@webmail.messagingengine.com>
- <20140812123725.GM17719@x2.net.home>
-Subject: Re: [PATCH] docs: improve the description of --size in the man page of
- zramctl
-Date: Tue, 12 Aug 2014 22:10:38 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <53E3D02F.5040300@tlinx.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Aug 07, 2014 at 12:14:55PM -0700, Linda Walsh wrote:
+> Bernhard Voelker wrote:
+> >On 08/07/2014 12:55 AM, Linda A. Walsh wrote:
+> >>if "/usr/src" is a symlink pointing to /home/src,
+> >>and under /home/src, packages points to ../packages, then when I
+> >>switch to /usr/src/packages, I see my path listed as /usr/src/packages:
+> >>
+> >>>> cd /usr/src/packages
+> >>/usr/src/packages> pwd
+> >>/usr/src/packages
+> >>
+> >>Only by asking an external util can I find the real name:
+> >OT, but: no, "pwd -P" (pwd, the shell built-in) does.
+> Yeah... by asking the builtin for the physical path, I could see
+> mount -p showing you the physical path.  But wouldn't
+> that be "/dev/dm-x"?
 
-On Tue, Aug 12, 2014, at 14:37, Karel Zak wrote:
->  The kernel uses the aligned $size and nowhere is stored the original
->  size, so zramctl returns the aligned (rounded-up) number.
+/dev/dm-N is *private* DM path and should be nowhere used in
+userspace. This is requirement from DM guys. 
 
-Okay.  Then my replacement text is valid.
+> Where is it coming up with /dev/mapper/<mangledname>?
 
-Benno
+/sys/block/dm-N/dm/name
+ 
+> It's not the link the user gave, and it's not the real device, seems like
+> those are "dm" internal names?
+
+it's official device name
+
+> maybe mount -d? for those?
+
+I don't plan to do anything with mount(8) output. If you want more
+customized output then use findmnt(8), for long time I think about a
+new column KNAME (kernel device name of the mount source). We already
+have such column in lsblk(8), maybe it would be nice for findmnt(8) too.
+
+    Karel
 
 -- 
-http://www.fastmail.fm - A fast, anti-spam email service.
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
