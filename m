@@ -1,39 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qg0-f43.google.com ([209.85.192.43]:35455 "EHLO
-	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751238AbaHUPil (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Aug 2014 11:38:41 -0400
-Received: by mail-qg0-f43.google.com with SMTP id a108so8915843qge.16
-        for <util-linux@vger.kernel.org>; Thu, 21 Aug 2014 08:38:40 -0700 (PDT)
-Date: Thu, 21 Aug 2014 11:38:37 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Dave Reisner <dreisner@archlinux.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] mountpoint: drop S_ISDIR check
-Message-ID: <20140821153837.GG511@rampage>
-References: <1408625292-2445-1-git-send-email-dreisner@archlinux.org>
- <53F608BA.4080401@bernhard-voelker.de>
+Received: from mx1.redhat.com ([209.132.183.28]:54720 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752939AbaHHI01 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 8 Aug 2014 04:26:27 -0400
+Date: Fri, 8 Aug 2014 10:26:22 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Linda A. Walsh" <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Generic, per-fs and per-dev defaults in fstab?
+Message-ID: <20140808082622.GB17719@x2.net.home>
+References: <53E2B34F.6080601@tlinx.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53F608BA.4080401@bernhard-voelker.de>
+In-Reply-To: <53E2B34F.6080601@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 21, 2014 at 04:56:58PM +0200, Bernhard Voelker wrote:
-> On 08/21/2014 02:48 PM, Dave Reisner wrote:
-> > Files can be mountpoints, too.
+On Wed, Aug 06, 2014 at 03:59:27PM -0700, Linda A. Walsh wrote:
+> Split this off from previous note (different subject, though
+> forgot to change previous subject line fully! *arg*).
 > 
-> just out of curiosity - how?
 > 
->  $ touch /tmp/mountpoint
->  $ mount -t proc proc /tmp/mountpoint
->  mount: mount point /tmp/mountpoint is not a directory
+> As another matter of being user friendly, why can't specify a defaults
+> line for all mounts with the option of per-type defaults taking precedence:
 > 
-> Thanks & have a nice day,
-> Berny
+> default   *     defaults     defaults,x-'"mostly for completeness"'
+> default   xfs   defaults     logbsize=256k,largeio,nodiratime
+> /dev/sdf  xfs   defaults     su=64k,sw=256k
+> ...
+> -------------
+> 
+> fs-type specific mounts would be applied after global
+> defaults, and in the 3rd line, what I am trying
 
-You cannot mount a file on a directory, but you can mount a file on a
-file.
+Well, the problem is that fstab is de-facto standard. If you want to
+change semantic than you have to fix all programs that follow fstab
+setting. The file is no private mount(8) config file.
 
-Cheers,
-d
+The old idea is to use per-filesystem config files where you can
+specify default mount options. We use this concept for NFS. But again,
+such setting is invisible for many utils etc.
+
+IMHO the best is the extN way. It means to store the default setting to 
+filesystem superblock, see 
+
+ # tune2fs -l /dev/sda4 | grep 'Default mount options'
+ Default mount options:    user_xattr acl
+
+   Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
