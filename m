@@ -1,36 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49373 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754333AbaHZKvk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 Aug 2014 06:51:40 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s7QApe9x023619
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Tue, 26 Aug 2014 06:51:40 -0400
-Received: from localhost (vpn-226-39.phx2.redhat.com [10.3.226.39])
-	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id s7QApdxu012676
-	for <util-linux@vger.kernel.org>; Tue, 26 Aug 2014 06:51:40 -0400
-Date: Tue, 26 Aug 2014 11:51:39 +0100
-From: "Richard W.M. Jones" <rjones@redhat.com>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:38734 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751331AbaHJL4T (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Aug 2014 07:56:19 -0400
+Received: by mail-wg0-f45.google.com with SMTP id x12so7480260wgg.16
+        for <util-linux@vger.kernel.org>; Sun, 10 Aug 2014 04:56:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libfdisk: vary basic dump parsing functions
-Message-ID: <20140826105139.GA6903@redhat.com>
-References: <1409050232-8090-1-git-send-email-rjones@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1409050232-8090-1-git-send-email-rjones@redhat.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/5] logger: allow use of --id=ppid when logging locally
+Date: Sun, 10 Aug 2014 12:56:07 +0100
+Message-Id: <1407671771-29745-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1407671771-29745-1-git-send-email-kerolasa@iki.fi>
+References: <1407671771-29745-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+There is no obvious way to make syslog(3) to print both pid or ppid, so
+duplicate the libc syslog() to logger.  Making the ppid printing work
+using unix socket has side effect of local becoming capable to use both
+rfc format output, which is hopefully seen as good thing.  The
+syslog_local() is format wise one-to-one copy with glibc syslog(3)
+format.
 
-Sorry, I lose.  I was trying to submit my own patch, but
-accidentally chose the wrong commit.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 38 +++++++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
 
-Rich.
-
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 7b10df8..d1b93d0 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -418,7 +418,30 @@ static void parse_rfc5424_flags(struct logger_ctl *ctl, char *optarg)
+ 
+ static void syslog_local(struct logger_ctl *ctl, char *msg)
+ {
+-	syslog(ctl->pri, "%s", msg);
++	char *buf, *tag;
++	char time[32], pid[32];
++	struct timeval tv;
++	struct tm *tm;
++	pid_t process;
++	int len;
++
++	gettimeofday(&tv, NULL);
++	tm = localtime(&tv.tv_sec);
++	strftime(time, sizeof(time), "%h %e %T", tm);
++
++	tag = ctl->tag ? ctl->tag : program_invocation_short_name;
++
++	if ((process = get_process_id(ctl)))
++		snprintf(pid, sizeof(pid), "[%d]", process);
++	else
++		pid[0] = '\0';
++
++	len = xasprintf(&buf, "<%d>%s %s%s: %s", ctl->pri, time, tag, pid, msg);
++	if (write_all(ctl->fd, buf, len) < 0)
++		warn(_("write failed"));
++	if (ctl->logflags & LOG_PERROR)
++		fprintf(stderr, "%s\n", buf);
++	free(buf);
+ }
+ 
+ static void logger_open(struct logger_ctl *ctl)
+@@ -435,12 +458,7 @@ static void logger_open(struct logger_ctl *ctl)
+ 			ctl->syslogfp = syslog_rfc5424;
+ 		return;
+ 	}
+-
+-	if (ctl->syslogfp == syslog_rfc5424 || ctl->syslogfp == syslog_rfc3164)
+-		errx(EXIT_FAILURE, _("--server or --socket are required to "
+-				     "log by --rfc5424 or --rfc3164."));
+-
+-	openlog(ctl->tag ? ctl->tag : xgetlogin(), ctl->logflags, 0);
++	ctl->fd = unix_socket("/dev/log", ctl->socket_type);
+ 	ctl->syslogfp = syslog_local;
+ }
+ 
+@@ -493,10 +511,8 @@ static void logger_stdin(struct logger_ctl *ctl)
+ 
+ static void logger_close(struct logger_ctl *ctl)
+ {
+-	if (!ctl->unix_socket && !ctl->server)
+-		closelog();
+-	else
+-		close(ctl->fd);
++	if (close(ctl->fd) != 0)
++		err(EXIT_FAILURE, _("close failed"));
+ }
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
 -- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-Read my programming and virtualization blog: http://rwmj.wordpress.com
-virt-df lists disk usage of guests without needing to install any
-software inside the virtual machine.  Supports Linux and Windows.
-http://people.redhat.com/~rjones/virt-df/
+2.0.4
+
