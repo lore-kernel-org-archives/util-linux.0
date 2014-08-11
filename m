@@ -1,36 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:54036 "EHLO
-	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391AbaHQUyu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Aug 2014 16:54:50 -0400
-Message-ID: <53F11687.5060805@tlinx.org>
-Date: Sun, 17 Aug 2014 13:54:31 -0700
-From: Linda Walsh <lkml@tlinx.org>
+Received: from mx1.redhat.com ([209.132.183.28]:17298 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751485AbaHKMte (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Aug 2014 08:49:34 -0400
+Date: Mon, 11 Aug 2014 14:49:22 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
+Message-ID: <20140811124922.GD17719@x2.net.home>
+References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-CC: Steven Stewart-Gallus <sstewartgallus00@mylangara.bc.ca>
-Subject: Re: Utilities don't take into account capabilities
-References: <fbcec6cf5352.53efd3e4@langara.bc.ca>
-In-Reply-To: <fbcec6cf5352.53efd3e4@langara.bc.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Steven Stewart-Gallus wrote:
-> The utilities such as mount don't take into account capabilities and always fail
-> for non root users which is wrong.
->
-> This is really, really, really annoying when working in a sandboxed non root
-> shell with pseudo capabilities.
-----
-I was just going to ask what capabilities need to be set for mount to work.
+On Sun, Aug 03, 2014 at 03:17:37PM +0100, Sami Kerola wrote:
+>  sys-utils/zramctl.c | 23 ++++++++++++-----------
+>  1 file changed, 12 insertions(+), 11 deletions(-)
 
-Seriously... What capabilities does mount need in order to function?
+ Merged all set from github with some changes.
 
+    Karel
 
-If this is in the 'util-linux', shouldn't these be utilities for 
-linux?   I.e.
-the default linux kernel supports capabilities these days...no?
-
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
