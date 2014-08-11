@@ -1,51 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55552 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35925 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752258AbaHHIov (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 8 Aug 2014 04:44:51 -0400
-Date: Fri, 8 Aug 2014 10:44:46 +0200
+	id S1753335AbaHKNMM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Aug 2014 09:12:12 -0400
+Date: Mon, 11 Aug 2014 15:12:01 +0200
 From: Karel Zak <kzak@redhat.com>
-To: "Linda A. Walsh" <lkml@tlinx.org>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Specifying a generic and per-fs mount line in /etc/fstab as well
- as no-canonicalize.
-Message-ID: <20140808084446.GC17719@x2.net.home>
-References: <53E2B27C.9020305@tlinx.org>
+Subject: Re: [PATCH 3/5] logger: optimize string initializations
+Message-ID: <20140811131201.GK17719@x2.net.home>
+References: <1407671771-29745-1-git-send-email-kerolasa@iki.fi>
+ <1407671771-29745-4-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53E2B27C.9020305@tlinx.org>
+In-Reply-To: <1407671771-29745-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 06, 2014 at 03:55:56PM -0700, Linda A. Walsh wrote:
-> It's a display choice for *user-convenience* that was made over
-> years of feedback.
-> 
-> Why not allow the same paradigm in /etc/fstab and allow nocanonicalize as
-> an option with mounts in /etc/fstab?
+On Sun, Aug 10, 2014 at 12:56:09PM +0100, Sami Kerola wrote:
+> -	char pid[32] = { '\0' }, time[64] = { '\0' }, timeq[80] = { '\0' };
+> +	char pid[32], time[64], timeq[80];
 
- You can use symlinks in fstab, but mount(8) canonicalizes the path
- before mount(2) syscall, because: 
+ I agree that the original code is not elegant, but "else foo[0] =
+ '\0'" is also pretty ugly. It would be better to set all to the
+ default by one line
 
- * kernel canonicalizes the path as well and we (userspace) want to
-   be compatible with kernel to make it possible to compare paths in
-   mtab (or another in userspace cached files) with /proc/mounts
+   *pid = *time = *timeq = '\0';
 
- * you can think about mount table as about cache, how do you want
-   keep the mount table up to date if you remove or change the link?
+ at begin of the function.
 
-     mount /dev/foo /symlink
-     rm /symlink
 
-   note that "rmdir /mountpoint" (or rename) is very special situation 
-   for kernel (-EBUSY)
+>  	if ((process = get_process_id(ctl)))
+>  		snprintf(pid, sizeof(pid), " %d", process);
+> +	else
+> +		pid[0] = '\0';
 
- * it's also performance improvement to have canonical paths in the
-   mount table when you want search in the table
+ I really don't like hairy code like this.
 
- * etc..
+    Karel
 
-      Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
