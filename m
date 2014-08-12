@@ -1,60 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:59527 "EHLO
-	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751181AbaHDLxg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 07:53:36 -0400
-From: Martin Steigerwald <Martin@lichtvoll.de>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix re-enabling of cursor with slang also after pressing Ctrl-C
-Date: Mon, 04 Aug 2014 13:53:34 +0200
-Message-ID: <2432624.0NNcbHJWc6@merkaba>
-In-Reply-To: <1419379.tzkKhjxti9@merkaba>
-References: <1419379.tzkKhjxti9@merkaba>
+Received: from smtp.gentoo.org ([140.211.166.183]:58336 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752464AbaHLXtr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Aug 2014 19:49:47 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
+Date: Tue, 12 Aug 2014 19:49:51 -0400
+Message-ID: <3379360.AxIdjXfpXR@vapier>
+In-Reply-To: <1407874531.5984.79.camel@oct.suse.cz>
+References: <1407768431.5984.23.camel@oct.suse.cz> <1549603.ZWLTNRFnAF@vapier> <1407874531.5984.79.camel@oct.suse.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1472687.g4vGjlNesl"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; boundary="nextPart5861103.KMAcMix7RU"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
---nextPart1472687.g4vGjlNesl
+--nextPart5861103.KMAcMix7RU
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 
-Am Montag, 4. August 2014, 13:28:11 schrieben Sie:
-> According to curs_set(0) in ui_init() I think curs_set(1) belongs int=
-o
-> ui_end with in die_on_signal() also gets called on SIGINT or SIGTERM.=
+On Tue 12 Aug 2014 22:15:31 Stanislav Brabec wrote:
+> Mike Frysinger wrote:
+> > On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
+> > > Solution 1:
+> > >=20
+> > > Modify make system by adding:
+> > > --enable-build-stage-1: Distro bootstrap stage 1: Build only code=
 
+> > >     without systemd and python dependencies.
+> > > --enable-build-stage-2: Distro bootstrap stage 2: Build code with=
+
+> > >     systemd dependencies (even if they are optional). Use install=
+ed
+> > >     instances of libmount, libblkid, libsmartcols and libuuidd, d=
+o not
+> > >     build them in-tree.
+> > > --enable-build-stage-3: Distro bootstrap stage 3: Build python-li=
+bmount
+> > >     only. Use installed instance of libmount, do not build them i=
+n-tree.
+> >=20
+> > how is this any different from just passing --without-{udev,python}=
+ ?
 >=20
-> This should complete the fix made by Andreas in commit 4f4daf8f.
+> --without-systemd still builds the same set of binaries, just without=
+
+> support of systemd. It does not allow to exclude lslogins, logger and=
+
+> uuidd and build them later.
 >=20
-> I could not yet test the fix as building current git fails with:
->=20
-> /usr/bin/ld: sys-utils/swapoff-swapon-common.o: undefined reference t=
-o
-> symbol 'blkid_probe_lookup_value@@BLKID_2.15'
-> //home/martin/Linux/util-linux/util-linux/.libs/libblkid.so.1: error =
-adding
-> symbols: DSO missing from command line
->=20
-> Will test as soon as I found out how to fix this build issue. Benno
-> reported it already on mailing list.
->=20
-> Addresses-Debian-Bug: #757000
-> BCC=B4d there for reference.
+> --with-python builds complete util-linux and libraries plus python
+> bindings, not bindings only.
 
-Scratch that.
-
-Fix doesn=B4t work.
-
-Cursor is displayed on regular end, but not on Ctrl-C.
-
-Don=B4t get why tough.
-
-=2D-=20
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
---nextPart1472687.g4vGjlNesl
+i'm not seeing the problem.  disable both, and you've broken the circul=
+ar=20
+deps.  every day Gentoo is doing bootstraps of the distro and this isn'=
+t an=20
+issue for us.
+=2Dmike
+--nextPart5861103.KMAcMix7RU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part.
 Content-Transfer-Encoding: 7Bit
@@ -62,10 +68,20 @@ Content-Transfer-Encoding: 7Bit
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iEYEABECAAYFAlPfdD4ACgkQmRvqrKWZhMeWygCghGqAWr/AX0y3vNKjaBvR3d2v
-qRMAoIkyRZwp+EjBEwofPy1HgVXigaxF
-=aNEf
+iQIcBAABAgAGBQJT6qgfAAoJEEFjO5/oN/WBxHkQALUo20CPGx/rwNBwCzQauykG
+UT2C+Y8Ajj8TNovln5DrG1hE7U0Ew+Bl/y9jxwRD+38BCmueyCgfVdTR7Q847fZG
+ZTkd4KimvrCg51tP5B0+7fyUp/MgbnOSsSZfA1PwUKDUZSV49U1XM4+49guoXcJ3
+Ne4DjY3Kva+iqtmj16n3VEd9O+EpkMeOUJEJGobGrwilZni3Pv+AM1IS/KyIXTl/
+xveOeb4bO70b0Vxz5V+NVc0U26Ey/3HCiwFAFP24sIcg+w+2F/WqFrq4Eg+RpuU5
+k99CgcUoJQGGvGhr3D2PjyWzIiuTTB3HOEPPS4GUIeNH/3UWh2hZ0ZGIcRVSse73
+ZyKRF40QKdV+CN5JMU3KKd6jnoY8oTyXfkHC3+/vEz5lY8Fc7SYfVyjsfID45utu
+dWhw3jkkfLdjqsn2y24x6I47ALojZaTrDSp45hzMDe02YPAeFVugv6omdokP4PjB
+BnV5j0cA1KyN+zEevPqmZ3VJEXxS1u52MMF/FUc5Y0AUct9irVieRTwiN0Stabqb
+2wiQOc9BdOlc5pKOoIwP6y/VGR0HcSAvF8jAr3BwX+/P5TwoLqScLpbfT7wim66a
+rwZIiee4GnOWPe5sIrs201DQWi5ReVcFjp9T1G84GWkdzzi8ZxBDJtCWGJvbEz/R
+EXJsgr+SJeJmGJeW/UHI
+=W9Zy
 -----END PGP SIGNATURE-----
 
---nextPart1472687.g4vGjlNesl--
+--nextPart5861103.KMAcMix7RU--
 
