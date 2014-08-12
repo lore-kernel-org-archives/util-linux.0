@@ -1,37 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:41423 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752027AbaHFRvu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Aug 2014 13:51:50 -0400
-Date: Wed, 6 Aug 2014 10:51:46 -0700
-From: josh@joshtriplett.org
-To: Karel Zak <kzak@redhat.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:39980 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750939AbaHLBRE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Aug 2014 21:17:04 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Stanislav Brabec <sbrabec@suse.cz>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Link mkswap to mkfs.swap so mkfs -t swap works
-Message-ID: <20140806175146.GA27011@cloud>
-References: <20140803184813.GA20940@thin>
- <20140806133103.GJ19820@x2.net.home>
+Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
+Date: Mon, 11 Aug 2014 21:17:02 -0400
+Message-ID: <1549603.ZWLTNRFnAF@vapier>
+In-Reply-To: <1407768431.5984.23.camel@oct.suse.cz>
+References: <1407768431.5984.23.camel@oct.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20140806133103.GJ19820@x2.net.home>
+Content-Type: multipart/signed; boundary="nextPart6830290.cyzizNH9zj"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 06, 2014 at 03:31:03PM +0200, Karel Zak wrote:
-> On Sun, Aug 03, 2014 at 11:48:14AM -0700, Josh Triplett wrote:
-> > This makes it easier to write generic code that deals with swap
-> > along with other filesystems.
-> 
->  Hmm... mkfs wrapper is deprecated, it does not provide any
->  functionality and it seems better when people use directly the FS
->  specific tools to create filesystems.
 
-I've come across more than one script that takes a table of partition
-sizes/proportions and filesystem types, creates the partitions, and
-calls mkfs with the filesystem type.
+--nextPart6830290.cyzizNH9zj
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
 
-Some of those scripts directly call mkfs.$type instead, rather than
-mkfs -t $type, but either way this change would eliminate a special-case
-for swap.
+On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
+> Solution 1:
+>=20
+> Modify make system by adding:
+> --enable-build-stage-1: Distro bootstrap stage 1: Build only code
+>     without systemd and python dependencies.
+> --enable-build-stage-2: Distro bootstrap stage 2: Build code with
+>     systemd dependencies (even if they are optional). Use installed
+>     instances of libmount, libblkid, libsmartcols and libuuidd, do no=
+t
+>     build them in-tree.
+> --enable-build-stage-3: Distro bootstrap stage 3: Build python-libmou=
+nt
+>     only. Use installed instance of libmount, do not build them in-tr=
+ee.
 
-- Josh Triplett
+how is this any different from just passing --without-{udev,python} ?
+=2Dmike
+--nextPart6830290.cyzizNH9zj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABAgAGBQJT6WsUAAoJEEFjO5/oN/WB8CIQAKBvB3ZUQPwkVJCq29N5ZA/N
+D/PwYZrTJc2dytJ7JS3LvjrUwq8WZKapDVK5lSAbKi7KjECdwYpE85voaXRMJmgK
+kXTEjGW5FHgVa4X8EdIqBuwhsKnC8BnLhOcmynv8TrrQBFYFh+AxdDu4Ztx1h9Ip
+ysGscOrEl8gOTzx1bdzbLZeBRDP6lSGeIMf/9of2Ex3/8KcqRsDE8J/VBTGn+MCi
+p0XIy4SKUh63Suw/yEBeWFVWmrDcW3OHt6hgeHQ1Yi2+2Ajnb+rJtZtu5kRJCPDj
+JuKGeDRpGVqovQ251HlCJStz/EaKU+ulu+cos+3SytIW4LTSxp1wkcA/kjf2rbnn
+pqaB6HzDZrDslRtXRoITaVQOO/fElXZyu/zjZrOA9zt9BmzEVFZSTkoVN4lBBtbg
+wsofrR7iOKsZQXfrZLWvSl28Ig/5QDuPuIT5gJtBwNlPQA70eRopjTZa5dsyq4+c
+rG6riu6OOte8rPYWlXmY0PvR/RIFqBKR0RxQ3nyptTvYJLE3QTzXE4VzrsMDTI6N
+nEm51h9wqwG6ldvK6nm7v6IZOU43D9yQ/9JULyoVVBNNhumjUMMZ8wzd7GNluTWr
+wTwrCc5yo+6GC6wI8yWIMxVfwfF9cxBC3YjflYDFWfE8qrqJohlaAOqv5io2nsvs
+2yzWqt2LBnfQFgsguQ9Z
+=VO6l
+-----END PGP SIGNATURE-----
+
+--nextPart6830290.cyzizNH9zj--
+
