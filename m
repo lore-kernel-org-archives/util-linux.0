@@ -1,66 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:39980 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750939AbaHLBRE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Aug 2014 21:17:04 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-Date: Mon, 11 Aug 2014 21:17:02 -0400
-Message-ID: <1549603.ZWLTNRFnAF@vapier>
-In-Reply-To: <1407768431.5984.23.camel@oct.suse.cz>
-References: <1407768431.5984.23.camel@oct.suse.cz>
+Received: from ishtar.tlinx.org ([173.164.175.65]:55796 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752831AbaHMR0H (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Aug 2014 13:26:07 -0400
+Message-ID: <53EB9F9F.3020201@tlinx.org>
+Date: Wed, 13 Aug 2014 10:25:51 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart6830290.cyzizNH9zj"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+To: Stanislav Brabec <sbrabec@suse.cz>
+CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
+References: <1407768431.5984.23.camel@oct.suse.cz>	 <20140812093955.GL17719@x2.net.home> <1407874536.5984.80.camel@oct.suse.cz>	 <20140813101736.GO17719@x2.net.home> <1407941620.5984.134.camel@oct.suse.cz>
+In-Reply-To: <1407941620.5984.134.camel@oct.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Stanislav Brabec wrote:
+> Only base system changes (gcc, binutils, bash, util-linux,...) trigger
+> whole distro to rebuild. Updates of high level packages triggers only
+> dependent package.
+>   
+> This prevents any binary incompatibility when releasing rolling update
+> with a new library.
+>   
+----
+There are other ways of dealing with binary compatibility.
 
---nextPart6830290.cyzizNH9zj
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="us-ascii"
+As it is, if you want to update perl, python, ruby  for example, you need
+to rebuild the entire system.
 
-On Mon 11 Aug 2014 16:47:11 Stanislav Brabec wrote:
-> Solution 1:
->=20
-> Modify make system by adding:
-> --enable-build-stage-1: Distro bootstrap stage 1: Build only code
->     without systemd and python dependencies.
-> --enable-build-stage-2: Distro bootstrap stage 2: Build code with
->     systemd dependencies (even if they are optional). Use installed
->     instances of libmount, libblkid, libsmartcols and libuuidd, do no=
-t
->     build them in-tree.
-> --enable-build-stage-3: Distro bootstrap stage 3: Build python-libmou=
-nt
->     only. Use installed instance of libmount, do not build them in-tr=
-ee.
+Even vim/Gvim has dependencies on systemd because it supplies config files
+that systemd uses.  But worse, if you update perl/python or ruby, you can
+no longer edit. 
 
-how is this any different from just passing --without-{udev,python} ?
-=2Dmike
---nextPart6830290.cyzizNH9zj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+    It has been pointed to suse, multiple times, that they could build 
+most of their
+utils with less hard-coded dependencies (like have gvim dynamically load 
+script
+engines at run time on demand, when needed rather than having to load 
+all of them
+at load time in order for gvim to run.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
 
-iQIcBAABAgAGBQJT6WsUAAoJEEFjO5/oN/WB8CIQAKBvB3ZUQPwkVJCq29N5ZA/N
-D/PwYZrTJc2dytJ7JS3LvjrUwq8WZKapDVK5lSAbKi7KjECdwYpE85voaXRMJmgK
-kXTEjGW5FHgVa4X8EdIqBuwhsKnC8BnLhOcmynv8TrrQBFYFh+AxdDu4Ztx1h9Ip
-ysGscOrEl8gOTzx1bdzbLZeBRDP6lSGeIMf/9of2Ex3/8KcqRsDE8J/VBTGn+MCi
-p0XIy4SKUh63Suw/yEBeWFVWmrDcW3OHt6hgeHQ1Yi2+2Ajnb+rJtZtu5kRJCPDj
-JuKGeDRpGVqovQ251HlCJStz/EaKU+ulu+cos+3SytIW4LTSxp1wkcA/kjf2rbnn
-pqaB6HzDZrDslRtXRoITaVQOO/fElXZyu/zjZrOA9zt9BmzEVFZSTkoVN4lBBtbg
-wsofrR7iOKsZQXfrZLWvSl28Ig/5QDuPuIT5gJtBwNlPQA70eRopjTZa5dsyq4+c
-rG6riu6OOte8rPYWlXmY0PvR/RIFqBKR0RxQ3nyptTvYJLE3QTzXE4VzrsMDTI6N
-nEm51h9wqwG6ldvK6nm7v6IZOU43D9yQ/9JULyoVVBNNhumjUMMZ8wzd7GNluTWr
-wTwrCc5yo+6GC6wI8yWIMxVfwfF9cxBC3YjflYDFWfE8qrqJohlaAOqv5io2nsvs
-2yzWqt2LBnfQFgsguQ9Z
-=VO6l
------END PGP SIGNATURE-----
-
---nextPart6830290.cyzizNH9zj--
-
+    Even when no binary dependencies are  present, hard-coding versions 
+and labels into
+each of the binaries to only work with recognized components guarantees 
+failure on
+opensuse systems.  I have pushed for having a more robust system, but 
+the current
+mantra is "break everything" if the user changes anything ....
