@@ -1,106 +1,108 @@
-Return-Path: sergey.senozhatsky@gmail.com
-Date: Wed, 6 Aug 2014 21:19:55 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-To: kerolasa@gmail.com
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Jerome Marchand <jmarchan@redhat.com>, Nitin Gupta <ngupta@vflare.org>,
-        Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
-Message-ID: <20140806121954.GA902@swordfish>
-References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
- <20140804115556.GA6923@x2.net.home>
- <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:54935 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754497AbaHNItD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Aug 2014 04:49:03 -0400
+Date: Thu, 14 Aug 2014 10:48:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
+Message-ID: <20140814084858.GA9297@x2.net.home>
+References: <1407768431.5984.23.camel@oct.suse.cz>
+ <20140812093955.GL17719@x2.net.home>
+ <1407874536.5984.80.camel@oct.suse.cz>
+ <20140813101736.GO17719@x2.net.home>
+ <1407941620.5984.134.camel@oct.suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+In-Reply-To: <1407941620.5984.134.camel@oct.suse.cz>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Cc Minchan Kim, Jerome Marchand, Nitin Gupta, linux-kernel
-
-On (08/05/14 23:36), Sami Kerola wrote:
-> On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
-> > On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
-> >> Earlier the --algorithm and --streams had to be combined with --size.  To
-> >> user requirement to combine with --size was indirectly told using
-> >> following message.
-> >
-> > And is it really supported by kernel? I see in
-> > Documentation/blockdev/zram.txt:
-> >
-> >  In order to enable compression backend's multi stream support
-> >  max_comp_streams must be initially set to desired concurrency
-> >  level before ZRAM device initialisation.
-> >
-> > I guess that when you set disksize the zram device is "locked" for
-> > setting changes. It means that modify already initialized (created)
-> > zram devices is impossible. You have to reset the device to "unlock"
-> > the device setting.
+On Wed, Aug 13, 2014 at 04:53:40PM +0200, Stanislav Brabec wrote:
+> > What is wrong with in-tree libs? After "make install" all the binaries 
+> > is possible to use against out-of-tree libs. Problem solved.
 > 
-> After playing with zramctl I found out --algorithm must be set before
-> --size
+> There is nothing wrong with them. It is just a second build of the same
+> code, and not building them would save only few seconds of build. I
 
-yes. historically, storing the `size' == full device initialisation.
-I believe, it used to be so since the beginning of zram. compression
-algorithm selection was just plugged in into the existing scheme of
-things.
+ Hmm.. premature optimization? :-)
 
-> The --streams can be set after --size, but not if device is in use.
-> When device is in use none of the settings are allowed.
-
-you can't change compression algorithm on initialised/being used
-device. obviously. if zram has X pages compressed with lz0 then
-zram is supposed to use lz0 for decompression.
-
-'streams' options is a little bit tricky. we have two different
-implementations for a single and multi stream backends. and there are
-reasons for that, to keep it short.
-
-if you create device with a single stream backend -- you can't change
-it any more.
-if you create device with a multi stream backend -- you can change the
-number of streams (though, it doesn't make a lot of sense to set streams
-to 1 in that case).
-
-iow, you can downgrade from multi stream to a multi stream device with
-only 1 stream (which is not identical to a single stream), but you can't
-upgrade a single stream device to a multi stream device.
-
-> $ ./zramctl
-> NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
-> /dev/zram0 lzo           100K   4K   76B    4K       2 [SWAP]
-> /dev/zram2 lzo            44K   0B    0B    0B       1
-> /dev/zram3 lzo             1M  40K  796B   40K       1 /mnt
-> $ ./zramctl zram1
-> NAME  ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
-> zram1 lzo             0B   0B    0B    0B       1
+> consider it a bit cleaner: always link against library instances that
+> will actually appear in the installed system.
 > 
-> $ ./zramctl --algorithm lz4 zram1 ; echo $?
-> 0
-> $ ./zramctl --algorithm lz4 zram2 ; echo $?
-> zramctl: zram2: failed to set algorithm: Device or resource busy
-> 1
-> $ ./zramctl --algorithm lz4 zram3 ; echo $?
-> zramctl: zram3: failed to set algorithm: Device or resource busy
-> 1
+> However linking against an identical library with a different time stamp
+> than the installed one makes no problems in Linux, and no other
+> platforms are supported.
 > 
-> $ ./zramctl --stream 2 zram1 ; echo $?
-> 0
-> $ ./zramctl --stream 2 zram2 ; echo $?
-> 0
-> $ ./zramctl --stream 2 zram3 ; echo $?
-> zramctl: zram3: failed to set number of streams: Invalid argument
-> 1
+> > (Well, we can improve "make install" to not install .so libs when 
+> >  only python binding is wanted.)
 > 
-> Whether the case --streams 2 zram2 in above example is correct or a
-> bug is a question to kernel developers (Sergey is CC'd). Looking the
-> commit message
-> 
-> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe8eb122c82b2049c460fc6df6e8583a2f935cff
-> 
-> the device behavior might be bug.
->
+> What about adding just --use-installed-libxxx? It would fit multi-stage
 
-where?
+ Now, when I think about it.. it seem the extra option is unnecessary
 
-	-ss
+   --disable-libmount --enable-pylibmount
+
+ provides all necessary information. If the Py binding is explicitly
+ required, but the library is disabled then it's obvious that
+ out-of-tree libs are necessary. Now we use
+
+   UL_REQUIRES_BUILD([pylibmount], [libmount])
+
+ to define dependence between in-tree builds, maybe it would be
+ possible to add a new macro:
+
+   UL_REQUIRES_BUILD_OR_LIB([pylibmount], [libmount], [MOUNT])
+  
+ where 'MOUNT' will be used for
+
+   PKG_CHECK_MODULES([MOUNT])
+ 
+ if $build_libmount=no, see m4/ul.m4 for more details.
+
+
+ But again, it will increase configure complexity, IMHO it would be 
+ enough to improve "make install" to install only the Py binding and
+ always build against in-tree libs. If your distro build system
+ triggers so many rebuilds then save few seconds is a real detail :-)
+
+> SUSE does not rebuild all from scratch for standard packages.
+> 
+> openSUSE Build Service is a multi-repository system. Any change in low
+> level package will trigger all higher level packages in connected
+> repositories to rebuild, so the Build Service guarantees, that all high
+> level packages are build against the correct version of the low level
+> package.
+
+ You will see more and more problems with this concept. The border
+ between high-level and low-level is fragile and difficult to define.
+ The typical problem are interpreted languages or systemd.
+
+> util-linux is a part of the base build image, so its change (correctly)
+> triggers all packages to rebuild.
+
+ but why all packages? Why not packages which depend on util-linux libs
+ only?
+
+> If python-libmount is part of the util-linux package, any change in
+> python package or its dependencies would trigger util-linux to rebuild,
+> and the change in the binary image of python binding would trigger whole
+> distro to rebuild.
+
+ OK, this makes sense.
+
+> Only base system changes (gcc, binutils, bash, util-linux,...) trigger
+> whole distro to rebuild. Updates of high level packages triggers only
+> dependent package.
+
+ hmm.. we (fedora/rhel) also do mass rebuilds, but it's always
+ triggered manually and usually for some obvious issue which affect
+ all packages (gcc/libc bugs etc.).
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
