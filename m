@@ -1,61 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nymeria.archlinux.org ([89.238.67.251]:41358 "EHLO
-	nymeria.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750858AbaHUQRG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Aug 2014 12:17:06 -0400
-From: Dave Reisner <dreisner@archlinux.org>
-To: util-linux@vger.kernel.org
-Cc: Dave Reisner <dreisner@archlinux.org>
-Subject: [PATCH] mountpoint.1: clarify that it works on files
-Date: Thu, 21 Aug 2014 12:16:57 -0400
-Message-Id: <1408637817-29781-1-git-send-email-dreisner@archlinux.org>
-In-Reply-To: <y2aa96xc11t.fsf@cartman.at.offog.org>
-References: <y2aa96xc11t.fsf@cartman.at.offog.org>
+Received: from hall.aurel32.net ([195.154.112.97]:38035 "EHLO hall.aurel32.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752498AbaHNXGl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Aug 2014 19:06:41 -0400
+From: Aurelien Jarno <aurelien@aurel32.net>
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Cc: Aurelien Jarno <aurelien@aurel32.net>,
+        Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] tests: fix fdisk/bsd for the two possible sectors/offsets
+Date: Fri, 15 Aug 2014 00:26:24 +0200
+Message-Id: <1408055184-1988-1-git-send-email-aurelien@aurel32.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-fef4dfa174 removed the restriction that the argument must explicitly be
-a directory, so let's fix up the documentation to reflect that.
----
- sys-utils/mountpoint.1 | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+BSD disklabels depend on the endianess, but also on the architecture as
+one can see in include/pt-bsd.h with the BSD_LABELSECTOR and
+BSD_LABELOFFSET #define. This cause the testsuite to fail on the
+affected architectures as the disk image is not the same as the expected
+result.
 
-diff --git a/sys-utils/mountpoint.1 b/sys-utils/mountpoint.1
-index 29c153c..078ba25 100644
---- a/sys-utils/mountpoint.1
-+++ b/sys-utils/mountpoint.1
-@@ -1,11 +1,13 @@
- .\" -*- nroff -*-
- .TH MOUNTPOINT 1 "July 2014" "util-linux" "User Commands"
- .SH NAME
--mountpoint \- see if a directory is a mountpoint
-+mountpoint \- see if a directory or file is a mountpoint
- .SH SYNOPSIS
- .B mountpoint
- .RB [ \-d | \-q ]
- .I directory
-+|
-+.I file
- .sp
- .B mountpoint
- .B \-x
-@@ -15,6 +17,8 @@ mountpoint \- see if a directory is a mountpoint
- .B mountpoint
- checks whether the given
- .I directory
-+or
-+.I file
- is mentioned in the /proc/self/mountinfo file.
- .SH OPTIONS
- .TP
-@@ -34,7 +38,7 @@ Display version information and exit.
- .BR \-h , " \-\-help"
- Display help text and exit.
- .SH EXIT STATUS
--Zero if the directory is a mountpoint, non-zero if not.
-+Zero if the directory or file is a mountpoint, non-zero if not.
- .SH AUTHOR
- .PP
- Karel Zak <kzak@redhat.com>
+Commit 180b3a7e tried to fix the endianess, but the special PowerPC case
+has been chosen as a reference, so it still fails for example on MIPS BE
+or S/390.
+
+This patch fixes the testsuite by converting the md5sums to the expected
+values, still depending on the endianess, but also for the two possible
+sectors/offsets. This has been tested on Alpha, MIPS, PowerPC and x86-64,
+so this should cover all 4 cases.
+
+Cc: Andreas Henriksson <andreas@fatal.se>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+---
+ tests/ts/fdisk/bsd | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
+
+diff --git a/tests/ts/fdisk/bsd b/tests/ts/fdisk/bsd
+index be44b63..d5ec215 100755
+--- a/tests/ts/fdisk/bsd
++++ b/tests/ts/fdisk/bsd
+@@ -39,15 +39,32 @@ FDISK_CMD_BSD_LIST_TYPES="b\nl\nq\n"         # list supported PT types and quit
+ 
+ #set -x
+ 
+-# BSD disklabel depends on endianess
++# BSD disklabel depends on sector/offset and endianess. We convert the md5sums
++# into the most common values (little endian, BSD_LABELSECTOR = 1, 
++# BSD_LABELOFFSET = 0) so that they can be easily compared to the expected
++# ones.
+ BYTE_ORDER=$($TS_HELPER_SYSINFO byte-order)
+-function fdisk_bsd_byte_order_clean
++function fdisk_bsd_offset_and_byte_order_clean
+ {
+-	[ $BYTE_ORDER = "BE" ] || return
+-	sed -i \
+-	-e "s/c2273b52976351db75596c47c10b0725/2e1cee529cb59c9341afef0443f196a1/" \
+-	-e "s/9a234a5b99e37d2ce0d92b65437b93cd/b5c121c2091b2ff26b880551feac7112/" \
+-	"$TS_OUTPUT"
++        if [ $BYTE_ORDER = "BE" ] ; then
++		# BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64
++		sed -i \
++		-e "s/c2273b52976351db75596c47c10b0725/2e1cee529cb59c9341afef0443f196a1/" \
++		-e "s/9a234a5b99e37d2ce0d92b65437b93cd/b5c121c2091b2ff26b880551feac7112/" \
++		"$TS_OUTPUT"
++
++		# BSD_LABELSECTOR = 1, BSD_LABELOFFSET = 0
++		sed -i \
++		-e "s/e990c8a1c2106a4cd4b008f16d71aaa6/2e1cee529cb59c9341afef0443f196a1/" \
++		-e "s/187a48c26e83d146b866868addc93702/b5c121c2091b2ff26b880551feac7112/" \
++		"$TS_OUTPUT"
++	else
++		# BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64
++		sed -i \
++		-e "s/78a922a80361cb73049bced72e0f8f1d/2e1cee529cb59c9341afef0443f196a1/" \
++		-e "s/fc2803672a0643ffe46da325629616fc/b5c121c2091b2ff26b880551feac7112/" \
++		"$TS_OUTPUT"
++	fi
+ }
+ 
+ function print_layout {
+@@ -113,6 +130,6 @@ echo -e "${FDISK_CMD_BSD_LIST_TYPES}" | \
+ 	$TS_CMD_FDISK ${TEST_IMAGE_NAME} | \
+ 	sed 's/Reading .*//g; s/Welcome to fdisk .*//' >> $TS_OUTPUT 2>&1
+ 
+-fdisk_bsd_byte_order_clean
++fdisk_bsd_offset_and_byte_order_clean
+ ts_fdisk_clean ${TEST_IMAGE_NAME}
+ ts_finalize
 -- 
-2.1.0
+2.0.0
+
