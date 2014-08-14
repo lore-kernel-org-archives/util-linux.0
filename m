@@ -1,48 +1,108 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:43849 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752769AbaHCORv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Aug 2014 10:17:51 -0400
-Received: by mail-we0-f174.google.com with SMTP id x48so6427880wes.5
-        for <util-linux@vger.kernel.org>; Sun, 03 Aug 2014 07:17:50 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/7] docs: add details to zramctl --size option documentation
-Date: Sun,  3 Aug 2014 15:17:38 +0100
-Message-Id: <1407075463-19586-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
-References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sbrabec@suse.cz
+Message-ID: <1408032144.5984.179.camel@oct.suse.cz>
+Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Date: Thu, 14 Aug 2014 18:02:24 +0200
+In-Reply-To: <20140814084858.GA9297@x2.net.home>
+References: <1407768431.5984.23.camel@oct.suse.cz>
+	 <20140812093955.GL17719@x2.net.home> <1407874536.5984.80.camel@oct.suse.cz>
+	 <20140813101736.GO17719@x2.net.home>
+	 <1407941620.5984.134.camel@oct.suse.cz> <20140814084858.GA9297@x2.net.home>
+Content-Type: text/plain; charset="ISO-8859-2"
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/zramctl.8 | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Karel Zak wrote:
+> On Wed, Aug 13, 2014 at 04:53:40PM +0200, Stanislav Brabec wrote:
+>
+>  Now, when I think about it.. it seem the extra option is unnecessary
+> 
+>    --disable-libmount --enable-pylibmount
+> 
+>  provides all necessary information. If the Py binding is explicitly
+>  required, but the library is disabled then it's obvious that
+>  out-of-tree libs are necessary. Now we use
+> 
+>    UL_REQUIRES_BUILD([pylibmount], [libmount])
+> 
+>  to define dependence between in-tree builds, maybe it would be
+>  possible to add a new macro:
+> 
+>    UL_REQUIRES_BUILD_OR_LIB([pylibmount], [libmount], [MOUNT])
+>   
+>  where 'MOUNT' will be used for
+> 
+>    PKG_CHECK_MODULES([MOUNT])
 
-diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
-index 74240a1..a308233 100644
---- a/sys-utils/zramctl.8
-+++ b/sys-utils/zramctl.8
-@@ -68,8 +68,15 @@ can be changed only after a reset.
- .TP
- .BR \-s , " \-\-size " \fIsize
- Force the zram driver to reread the size of the file associated with
--the specified zram device
--
-+the specified zram device.  When not specified the
-+.I size
-+unit is bytes.  The zram devices size is page size aligned.  When
-+requested
-+.I size
-+does match with page size the device be large enough to hold the reqested
-+.I size
-+plus length to next page boundary.
-+.IP
- The \fIsize\fR argument may be followed by the multiplicative suffixes KiB (=1024),
- MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB"
- is optional, e.g., "K" has the same meaning as "KiB") or the suffixes
+Yes, it could work. I'll try to create a patch.
+
+libmount is not wanted + pylibmount is wanted
+  => check for external libmount
+
+> > util-linux is a part of the base build image, so its change (correctly)
+> > triggers all packages to rebuild.
+> 
+>  but why all packages? Why not packages which depend on util-linux libs
+>  only?
+
+util-linux is part of the base build image together with gcc binutils,
+glibc, sed and few other packages.
+=> Any package can be affected by util-linux change
+
+> > Only base system changes (gcc, binutils, bash, util-linux,...) trigger
+> > whole distro to rebuild. Updates of high level packages triggers only
+> > dependent package.
+> 
+>  hmm.. we (fedora/rhel) also do mass rebuilds, but it's always
+>  triggered manually and usually for some obvious issue which affect
+>  all packages (gcc/libc bugs etc.).
+
+I know. It may easily cause overseeing of newly introduced fulfilling:
+PKG_CHECK_MODULES([foo >= version])
+
+SUSE does no manual rebuilds. It depends on automatic rebuild triggers.
+Mass rebuilds happen automatically if somebody submits a package in the
+core build image. In all other cases, only part of the tree is
+triggered.
+
+There are several ways, how to automatically trigger rebuilds:
+- Trigger by any change in lower level packages.
+- Trigger by change in provided symbols (file list, version, SONAME,
+  library symbols).
+- Trigger by change apparently that apparently caused breakage (SONAME
+  change).
+
+openSUSE Build Service uses first two triggers. For example, Gentoo uses
+the third way.
+
+The first two triggers have to solve dependency loops. They introduce
+multiple triggering of rebuilds of the same package:
+new util-linux => rebuild python (it can change)
+new python => rebuild util-linux (as python-libmount will change)
+util-linux changed (exactly python-libmount changed) => rebuild python
+
+In most cases, package contents settles after two build cycles (If the
+resulting package is bit-equal to the previous one, rebuild trigger is
+not activated.)
+
+Large dependency loops are not wanted, as they affect distro build time.
+
+Note: Far the worst dependency cycle happens between maven (Java build
+system) and about 500 Java package that require maven to build, but they
+are required by maven to build maven. In this case, our package
+maintainer broken the dependency loop by using of binary images of
+dependent packages.
+
 -- 
-2.0.3
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
