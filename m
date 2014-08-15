@@ -1,55 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:53358 "EHLO
-	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753505AbaHLUPc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 16:15:32 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] docs: make the man-page licenses of chrt and taskset match their intent
-Date: Tue, 12 Aug 2014 22:15:16 +0200
-Message-Id: <1407874518-12776-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:36824 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750846AbaHOOac (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Aug 2014 10:30:32 -0400
+Date: Fri, 15 Aug 2014 16:30:21 +0200 (CEST)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+To: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org, xfs@oss.sgi.com,
+        linux-btrfs@vger.kernel.org, util-linux@vger.kernel.org
+cc: Ric Wheeler <rwheeler@redhat.com>, Hannes Reinecke <hare@suse.de>
+Subject: 2014 Linux Plumbers Call for File and Storage Systems Microconference
+ Proposals
+Message-ID: <alpine.LFD.2.00.1408151618160.2220@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- schedutils/chrt.1    |    5 ++---
- schedutils/taskset.1 |    5 ++---
- 2 files changed, 4 insertions(+), 6 deletions(-)
+Submission for Microconferences discussion topics and BOFs are now open [1]
+and as a File and Storage Systems [2] microconference leads we'd like to
+invite you to submit your proposals.
 
-diff --git a/schedutils/chrt.1 b/schedutils/chrt.1
-index 58c8911..6711fc6 100644
---- a/schedutils/chrt.1
-+++ b/schedutils/chrt.1
-@@ -3,9 +3,8 @@
- .\" Copyright (C) 2004 Robert Love
- .\"
- .\" This is free documentation; you can redistribute it and/or
--.\" modify it under the terms of the GNU General Public License as
--.\" published by the Free Software Foundation; either version 2 of
--.\" the License.
-+.\" modify it under the terms of the GNU General Public License,
-+.\" version 2, as published by the Free Software Foundation.
- .\"
- .\" The GNU General Public License's references to "object code"
- .\" and "executables" are to be interpreted as the output of any
-diff --git a/schedutils/taskset.1 b/schedutils/taskset.1
-index fb5738c..e6a5624 100644
---- a/schedutils/taskset.1
-+++ b/schedutils/taskset.1
-@@ -3,9 +3,8 @@
- .\" Copyright (C) 2004 Robert Love
- .\"
- .\" This is free documentation; you can redistribute it and/or
--.\" modify it under the terms of the GNU General Public License as
--.\" published by the Free Software Foundation; either version 2 of
--.\" the License.
-+.\" modify it under the terms of the GNU General Public License,
-+.\" version 2, as published by the Free Software Foundation.
- .\"
- .\" The GNU General Public License's references to "object code"
- .\" and "executables" are to be interpreted as the output of any
+You can find the instructions on how to propose a discussion topic here:
+
+http://www.linuxplumbersconf.org/2014/how-to-submit-microconference-discussions-topics/
+
+The Linux Plumbers Conference has officially sold out all of the places, so
+we encourage submissions for our file and storage microconference from people
+who have already registered.  We will work to get exceptionally compelling
+session leaders registered, but our ability is limited, so please submit your
+topics early.
+
+Deadline for submissions is Friday, August 30th at midnight and we will
+announce the topics on Monday, September 1st.
+
+If you have any questions, please let us know.
+
+Thanks!
+-Lukas
+
 -- 
-1.7.0.4
-
+[1] http://www.linuxplumbersconf.org/2014/submissions-for-microconferences-discussion-topics-and-bofs-are-now-open/
+[2] http://www.linuxplumbersconf.org/2014/ocw/events/LPC2014/tracks/303
+[3] http://www.linuxplumbersconf.org/2014/how-to-submit-microconference-discussions-topics/
+[4] http://wiki.linuxplumbersconf.org/2014:file_and_storage_systems
