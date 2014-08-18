@@ -1,28 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36036 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755847AbaHVGfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Aug 2014 02:35:25 -0400
-Date: Fri, 22 Aug 2014 08:35:18 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <dreisner@archlinux.org>
+Received: from message.langara.bc.ca ([142.35.159.25]:64627 "EHLO
+	message.langara.bc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751702AbaHRRkU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Aug 2014 13:40:20 -0400
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Received: from langara.bc.ca ([127.0.0.1])
+ by message.langara.bc.ca (Sun Java(tm) System Messaging Server 6.3-6.03 (built
+ Mar 14 2008; 32bit)) with ESMTP id <0NAI00LHYJR7Z640@message.langara.bc.ca>
+ for util-linux@vger.kernel.org; Mon, 18 Aug 2014 10:40:19 -0700 (PDT)
+From: Steven Stewart-Gallus <sstewartgallus00@mylangara.bc.ca>
+To: Mike Frysinger <vapier@gentoo.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mountpoint.1: clarify that it works on files
-Message-ID: <20140822063518.GH14708@x2.net.home>
-References: <y2aa96xc11t.fsf@cartman.at.offog.org>
- <1408637817-29781-1-git-send-email-dreisner@archlinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1408637817-29781-1-git-send-email-dreisner@archlinux.org>
+Message-id: <fb47b4bfaf39.53f23a83@langara.bc.ca>
+Date: Mon, 18 Aug 2014 17:40:19 +0000 (GMT)
+Subject: Re: Utilities don't take into account capabilities
+In-reply-to: <3715739.62j44Bg1Aj@vapier>
+References: <fbcec6cf5352.53efd3e4@langara.bc.ca> <3715739.62j44Bg1Aj@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 21, 2014 at 12:16:57PM -0400, Dave Reisner wrote:
->  sys-utils/mountpoint.1 | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+> guessing the sandbox isn't really meant for security purposes since 
+> CAP_SYS_ADMIN can easily be used to recover just about every other 
+> capability.	http://lwn.net/Articles/486306/
 
- Applied, thanks.
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+capabilities in a CLONE_NEW_USER sandbox only apply to the sandbox and not
+things outside of the sandbox such as devices.
