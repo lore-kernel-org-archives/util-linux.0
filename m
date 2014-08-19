@@ -1,108 +1,109 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54935 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:36535 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754497AbaHNItD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Aug 2014 04:49:03 -0400
-Date: Thu, 14 Aug 2014 10:48:58 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-Message-ID: <20140814084858.GA9297@x2.net.home>
-References: <1407768431.5984.23.camel@oct.suse.cz>
- <20140812093955.GL17719@x2.net.home>
- <1407874536.5984.80.camel@oct.suse.cz>
- <20140813101736.GO17719@x2.net.home>
- <1407941620.5984.134.camel@oct.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407941620.5984.134.camel@oct.suse.cz>
+	id S1750768AbaHSJzK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Aug 2014 05:55:10 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1XJg87-0002dw-RB
+	for util-linux@vger.kernel.org; Tue, 19 Aug 2014 11:55:04 +0200
+Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Aug 2014 11:55:03 +0200
+Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Aug 2014 11:55:03 +0200
+To: util-linux@vger.kernel.org
+From: jb <jb.1234abcd@gmail.com>
+Subject: lsblk vice fdisk, etc
+Date: Tue, 19 Aug 2014 09:51:35 +0000 (UTC)
+Message-ID: <loom.20140819T114407-592@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 13, 2014 at 04:53:40PM +0200, Stanislav Brabec wrote:
-> > What is wrong with in-tree libs? After "make install" all the binaries 
-> > is possible to use against out-of-tree libs. Problem solved.
-> 
-> There is nothing wrong with them. It is just a second build of the same
-> code, and not building them would save only few seconds of build. I
+Hi,
+I think there is a need to fix and reconcile lsblk with fdisk, cfdisk, etc,
+as demonstrated on example of usb flash drive, shown as /dev/sdb device.
 
- Hmm.. premature optimization? :-)
+$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0 37.3G  0 disk 
+├─sda1   8:1    0   20G  0 part 
+├─sda2   8:2    0  1.5G  0 part [SWAP]
+├─sda3   8:3    0 13.4G  0 part /
+├─sda4   8:4    0    1K  0 part 
+└─sda5   8:5    0  2.4G  0 part 
+sdb      8:16   1  7.3G  0 disk 
+└─sdb1   8:17   1  683M  0 part 
+sr0     11:0    1 1024M  0 rom  
+$
 
-> consider it a bit cleaner: always link against library instances that
-> will actually appear in the installed system.
-> 
-> However linking against an identical library with a different time stamp
-> than the installed one makes no problems in Linux, and no other
-> platforms are supported.
-> 
-> > (Well, we can improve "make install" to not install .so libs when 
-> >  only python binding is wanted.)
-> 
-> What about adding just --use-installed-libxxx? It would fit multi-stage
-
- Now, when I think about it.. it seem the extra option is unnecessary
-
-   --disable-libmount --enable-pylibmount
-
- provides all necessary information. If the Py binding is explicitly
- required, but the library is disabled then it's obvious that
- out-of-tree libs are necessary. Now we use
-
-   UL_REQUIRES_BUILD([pylibmount], [libmount])
-
- to define dependence between in-tree builds, maybe it would be
- possible to add a new macro:
-
-   UL_REQUIRES_BUILD_OR_LIB([pylibmount], [libmount], [MOUNT])
-  
- where 'MOUNT' will be used for
-
-   PKG_CHECK_MODULES([MOUNT])
+Where does sr0's size of 1024M come from ?
  
- if $build_libmount=no, see m4/ul.m4 for more details.
+$ lsblk -f
+NAME   FSTYPE  LABEL             UUID                                 MOUNTPOINT
+sda                                                                   
+├─sda1 ext4                      38b23ec9-4947-46ae-a2b2-d48f4582af3f 
+├─sda2 swap                      8074aa4f-489e-4adc-a356-ff09d633534f [SWAP]
+├─sda3 ext4                      d067602d-f15d-49c0-abad-865adab2cc8f /
+├─sda4                                                                
+└─sda5 ext4                      4f168c8f-ac1d-4048-ac3f-254fa4392c60 
+sdb    iso9660 Test
+                                 2014-07-22-17-24-48-12               
+└─sdb1 iso9660 Test
+                                 2014-07-22-17-24-48-12               
+sr0                                                                   
+$
+
+The line
+sdb    iso9660 Test
+should be consistent with sda and show
+sdb
+
+The line
+└─sdb1 iso9660 Test
+should be reconciled with what fdisk, etc show.
+
+# fdisk -l /dev/sdb
+...
+Device     Boot Start     End Sectors  Size Id Type
+/dev/sdb1  *        0 1398783 1398784  683M 17 Hidden HPFS/NTFS
+
+# cfdisk /dev/sdb
+...
+Device       Boot     Start       End   Sectors   Size  Id Type
+/dev/sdb1    *            0   1398783   1398784   683M  17 Hidden HPFS/NTFS 
+Free space          1398784  15356159  13957376   6.7G
+ 
+# parted -l
+...
+Number  Start   End     Size    Type      File system     Flags
+ 1      1049kB  21.4GB  21.4GB  primary   ext4            boot
+ 2      21.4GB  23.0GB  1578MB  primary   linux-swap(v1)
+ 3      23.0GB  37.4GB  14.4GB  primary   ext4
+ 4      37.4GB  40.0GB  2579MB  extended
+ 5      37.4GB  40.0GB  2579MB  logical   ext4
 
 
- But again, it will increase configure complexity, IMHO it would be 
- enough to improve "make install" to install only the Py binding and
- always build against in-tree libs. If your distro build system
- triggers so many rebuilds then save few seconds is a real detail :-)
+Error: Invalid partition table - recursive partition on /dev/sdb.
+Ignore/Cancel?
+#
 
-> SUSE does not rebuild all from scratch for standard packages.
-> 
-> openSUSE Build Service is a multi-repository system. Any change in low
-> level package will trigger all higher level packages in connected
-> repositories to rebuild, so the Build Service guarantees, that all high
-> level packages are build against the correct version of the low level
-> package.
+# partprobe 
+Error: Invalid partition table - recursive partition on /dev/sdb.
 
- You will see more and more problems with this concept. The border
- between high-level and low-level is fragile and difficult to define.
- The typical problem are interpreted languages or systemd.
+# partx -s /dev/sdb
+NR START     END SECTORS SIZE NAME UUID
+ 1     0 1398783 1398784 683M      3054920d-01
+# partx -o type,flags,scheme /dev/sdb
+TYPE FLAGS SCHEME
+0x17 0x80  dos
 
-> util-linux is a part of the base build image, so its change (correctly)
-> triggers all packages to rebuild.
+Note: TYPE shows 0x17, which represents "Hidden HPFS/NTFS"
 
- but why all packages? Why not packages which depend on util-linux libs
- only?
+jb
 
-> If python-libmount is part of the util-linux package, any change in
-> python package or its dependencies would trigger util-linux to rebuild,
-> and the change in the binary image of python binding would trigger whole
-> distro to rebuild.
 
- OK, this makes sense.
-
-> Only base system changes (gcc, binutils, bash, util-linux,...) trigger
-> whole distro to rebuild. Updates of high level packages triggers only
-> dependent package.
-
- hmm.. we (fedora/rhel) also do mass rebuilds, but it's always
- triggered manually and usually for some obvious issue which affect
- all packages (gcc/libc bugs etc.).
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
