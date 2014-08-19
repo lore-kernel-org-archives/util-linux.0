@@ -1,37 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:59499 "EHLO
-	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751464AbaHRBXk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Aug 2014 21:23:40 -0400
-Received: from [192.168.4.12] (athenae [192.168.4.12])
-	by Ishtar.hs.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id s7I1NZwY048693
-	for <util-linux@vger.kernel.org>; Sun, 17 Aug 2014 18:23:37 -0700
-Message-ID: <53F15592.9020403@tlinx.org>
-Date: Sun, 17 Aug 2014 18:23:30 -0700
-From: Linda Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
-To: util-linux@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:49187 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751753AbaHSJHo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Aug 2014 05:07:44 -0400
+Date: Tue, 19 Aug 2014 11:07:37 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Steven Stewart-Gallus <sstewartgallus00@mylangara.bc.ca>
+Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org
 Subject: Re: Utilities don't take into account capabilities
-References: <fbcec6cf5352.53efd3e4@langara.bc.ca> <53F11687.5060805@tlinx.org> <fb20984219ad.53f14f7a@langara.bc.ca>
-In-Reply-To: <fb20984219ad.53f14f7a@langara.bc.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Message-ID: <20140819090737.GA22187@x2.net.home>
+References: <fbcec6cf5352.53efd3e4@langara.bc.ca>
+ <3715739.62j44Bg1Aj@vapier>
+ <fb47b4bfaf39.53f23a83@langara.bc.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <fb47b4bfaf39.53f23a83@langara.bc.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Steven Stewart-Gallus wrote:
->> Seriously... What capabilities does mount need in order to function?
->>     
->
-> I can help out with this one.
->   
-----
-awesome... but, um... was hoping the author of mount could
-tell me what caps I needed to enable to use his program
-w/a non-root user... ;-)... oh well... um...now as to when we
-can get a version that doesn't check for UID & EUID==0?
+On Mon, Aug 18, 2014 at 05:40:19PM +0000, Steven Stewart-Gallus wrote:
+> > guessing the sandbox isn't really meant for security purposes since 
+> > CAP_SYS_ADMIN can easily be used to recover just about every other 
+> > capability.	http://lwn.net/Articles/486306/
 
-well... maybe in the works?
+ The currently supported scenario is that you can remove suid from
+ mount(8) and replace it with cap_dac_override,cap_sys_admin+ep. Note
+ that in this case mount(8) still requires 'user' in fstab of course.
+ 
+ The disadvantage is that mount(8) is not able to update for example
+ /etc/mtab (or /run/mount/utab), because cap_sys_admin is just subset
+ of the original suid privileges.
+ 
+> capabilities in a CLONE_NEW_USER sandbox only apply to the sandbox and not
+> things outside of the sandbox such as devices.
+
+ Well, user namespace is little bit different story and we already
+ talked about it (in May).
+ 
+   http://www.spinics.net/lists/util-linux-ng/msg09309.html
+ 
+ The idea is that we can drop privileges rather than exit with "only
+ root can..." error message. I'd like to try it during this release
+ cycle.
+
+    Karel
 
 
 
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
