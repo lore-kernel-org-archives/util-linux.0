@@ -1,51 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from qmta15.westchester.pa.mail.comcast.net ([76.96.59.228]:52736
-	"EHLO qmta15.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751372AbaHRPX6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Aug 2014 11:23:58 -0400
-Date: Mon, 18 Aug 2014 10:47:20 -0400
-Message-Id: <201408181447.s7IElKIT020343@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Linda Walsh <lkml@tlinx.org>
-CC: util-linux@vger.kernel.org
-In-reply-to: <53F15592.9020403@tlinx.org> (lkml@tlinx.org)
-Subject: Re: Utilities don't take into account capabilities
-References: <fbcec6cf5352.53efd3e4@langara.bc.ca> <53F11687.5060805@tlinx.org> <fb20984219ad.53f14f7a@langara.bc.ca> <53F15592.9020403@tlinx.org>
+Received: from plane.gmane.org ([80.91.229.3]:37361 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752931AbaHSSVV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Aug 2014 14:21:21 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1XJo22-0004oi-DN
+	for util-linux@vger.kernel.org; Tue, 19 Aug 2014 20:21:18 +0200
+Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Aug 2014 20:21:18 +0200
+Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Aug 2014 20:21:18 +0200
+To: util-linux@vger.kernel.org
+From: jb <jb.1234abcd@gmail.com>
+Subject: Re: lsblk vice fdisk, etc
+Date: Tue, 19 Aug 2014 18:21:06 +0000 (UTC)
+Message-ID: <loom.20140819T201609-326@post.gmane.org>
+References: <loom.20140819T114407-592@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Linda Walsh <lkml@tlinx.org>
-> 
-> Steven Stewart-Gallus wrote:
-> >> Seriously... What capabilities does mount need in order to function?
-> >>     
-> >
-> > I can help out with this one.
-> >   
-> ----
-> awesome... but, um... was hoping the author of mount could
-> tell me what caps I needed to enable to use his program
-> w/a non-root user... ;-)... oh well... um...now as to when we
-> can get a version that doesn't check for UID & EUID==0?
-> 
-> well... maybe in the works?
+jb <jb.1234abcd@...> writes:
 
-I believe there's a complication...  I'm no expert, but I vaguely
-recall from some previous thread that there are situations where
-'mount' isn't purely a front-end for the kernel mount() call.
-Instead, 'mount' wants to set up some things and then call mount().
+> ...
+> The line
+> └─sdb1 iso9660 Test
+> should be reconciled with what fdisk, etc show.
+> ...
 
-The example that comes to mind is setting up a file on a loopback
-device, then mounting the loopback device.  But I think there were
-other situations like this.
+The following display demonstrates it better.
 
-The problem being, that 'mount' wants to verify that the mount() call
-will succeed *first* before attempting the set-up operations.  And
-some of the setup operations require root capabilities.
+$ lsblk -o name,fstype,parttype,size
+NAME   FSTYPE  PARTTYPE  SIZE
+sda                     37.3G
+├─sda1 ext4    0x83       20G
+├─sda2 swap    0x82      1.5G
+├─sda3 ext4    0x83     13.4G
+└─sda5 ext4    0x83      2.4G
+sdb    iso9660           7.3G
+└─sdb1 iso9660 0x17      683M
+sr0                     1024M
+$
 
-There's also the complication of the "users" and "user=" options,
-which are to permit a user to do something he doesn't actually have
-the capabilities for.
+Note the sda device lines - they have proper "FSTYPE  PARTTYPE" translation.
 
-Dale
+This line
+└─sdb1 iso9660 0x17      683M
+is contradictory as 0x17 represents "Hidden HPFS/NTFS" elsewhere (fdisk, etc).
+
+jb
+
+
