@@ -1,128 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:46275 "EHLO mx2.suse.de"
+Received: from plane.gmane.org ([80.91.229.3]:47731 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754399AbaHLUPi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 16:15:38 -0400
-Message-ID: <1407874536.5984.80.camel@oct.suse.cz>
-Subject: Re: util-linux and distro bootstrap, dependencies and build cycles
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Date: Tue, 12 Aug 2014 22:15:36 +0200
-In-Reply-To: <20140812093955.GL17719@x2.net.home>
-References: <1407768431.5984.23.camel@oct.suse.cz>
-	 <20140812093955.GL17719@x2.net.home>
-Content-Type: text/plain; charset="ISO-8859-2"
+	id S1751676AbaHTJAy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 20 Aug 2014 05:00:54 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1XK1l0-0005Oc-Ue
+	for util-linux@vger.kernel.org; Wed, 20 Aug 2014 11:00:43 +0200
+Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 11:00:38 +0200
+Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 11:00:38 +0200
+To: util-linux@vger.kernel.org
+From: jb <jb.1234abcd@gmail.com>
+Subject: Re: lsblk vice fdisk, etc
+Date: Wed, 20 Aug 2014 09:00:29 +0000 (UTC)
+Message-ID: <loom.20140820T101248-582@post.gmane.org>
+References: <loom.20140819T114407-592@post.gmane.org> <loom.20140819T201609-326@post.gmane.org> <20140819200511.GA511@rampage>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Mon, Aug 11, 2014 at 04:47:11PM +0200, Stanislav Brabec wrote:
-> > The build cycle util-linux <-> python is far the largest build cycle. In
-> > case of forthcoming SLES12 it triggers rebuild of 2921 packages!
-> 
-> well, util-linux is source tarball, all depends what do you want to
-> build from the tarball. You can rebuild and use only the binding and
-> ignore everything else.
-> 
->   ./configure --disable-all-programs --enable-libblkid --enable-libuuid
->               --enable-libmount --enable-pylibmount
-> 
+Dave Reisner <d <at> falconindy.com> writes:
 
-This does not do what I need: It builds python bindings plus it builds
-and installs libblkid, libmount and libuuid (for the second time, as we
-already built and install them in the stage 1).
+> ...
+> Why do you think this is contradictory? The filesystem type and
+> partition type are two disparate types.
 
-I need to build util-linux with defined configure options, but do it in
-three stages with defined dependencies.
+Yes, you are right, technically.
 
-There is currently no way how to build python-libmount against
-system-installed instance of libmount and not the in-tree one. (It means
-that python-libmount forces to build libmount in-tree.)
+But I mentioned it because it bothers me, and confuses slightly.
+Let me explain why, and I reserve the right to be wrong if I miss some
+aspects of it.
+It is about the business of partition types and file system types, perhaps
+even partitions and file systems in general.
 
-> I currently see only one disadvantage, we don't have "install-pylibmount" 
-> Makefile target now, you can use
-> 
->   make install-pylibmountexecPYTHON install-pylibmountexecLTLIBRARIES
-> but it sucks..
+Example:
+# lsblk -o name,fstype,parttype,label,mountpoint /dev/sdb
+NAME   FSTYPE PARTTYPE LABEL MOUNTPOINT
+sdb                          
+├─sdb1 ntfs   0x83           
+└─sdb2 ext4   0x17           
+# fdisk -l /dev/sdb
+...
+Device     Boot   Start      End Sectors  Size Id Type
+/dev/sdb1  *       2048  7522303 7520256  3.6G 83 Linux
+/dev/sdb2       7522304 15356159 7833856  3.8G 17 Hidden HPFS/NTFS
+#
 
-My proposal is different: Use special configuration options, that will
-configure only part of util-linux to be built. Then use standard "make
-install". It can be done by setting BUILD_* properly and using variable
-instead of libxxx.la.
+This is what I mean, a mixture of partition types (with their type names
+suggesting something) and file system types, contradicting each other at
+least in descriptions.
 
-I think about using $(LIBMOUNT_LIBS) instead of libmount.la (and the
-same for other in-tree libraries). LIBMOUNT_LIBS will be libmount.la
-(use in-tree libmount) during normal build, and e. g. -lmount (use
-installed libmount) during multi-stage build.
+Somehow I have an impression that there was an intention at some time in the
+past to associate partition types with only certain file system types.
+But it never worked, or was misunderstood, or was abandoned.
+That's my guess.
 
-This will allow to build and install util-linux per-partes. All other
-configure options could be kept intact.
+There is some evidence to that assumption (note that they are actually
+contradictory in their wording):
 
-> Anyway, I don't understand why do you want to rebuild all recursively
-> (so result is rebuild of 2921 packages).
+http://en.wikipedia.org/wiki/Disk_partition
+"The partition type code for a primary partition can either correspond to a
+file system contained within (e.g. 0x07 means either an NTFS or an OS/2 HPFS
+file system) or indicate that the partition has a special use (e.g. code
+0x82 usually indicates a Linux swap partition). The FAT16 and FAT32 file
+systems have made use of a number of partition type codes due to the limits
+of various DOS and Windows OS versions. Though a Linux operating system may
+recognize a number of different file systems (ext4, ext3, ext2, ReiserFS,
+etc.), they have all consistently used the same partition type code: 0x83
+(Linux native file system)."
 
-Imagine that util-linux is updated and automatic system evaluates
-dependencies in a safe way:
+http://tldp.org/HOWTO/Partition/partition-types.html
+"A partition is labeled to host a certain kind of file system (...). Such a
+file system could be the linux standard ext2 file system or linux swap
+space, or even foreign file systems like (Microsoft) NTFS or (Sun) UFS."
 
-1) util-linux update is built
+I would like to get to the point here.
+Why not abandon the partition and file system dichotomy.
+Why not use just one term, let's call it fspart (file system partition),
+encompassing functionality of both partition and file system.
+For example, fspart would mean "none" for empty space (no fs), ext4, swap,
+NTFS, etc.
+Basically, let's eliminate partition and file system as known today.
 
-2) all high level packages are triggered to rebuild by util-linux
-   changes
-   systemd and python are two of triggered packages
+jb
 
-3) 2920 packages are rebuilt => all dependencies of systemd and python
-   are ready => python is rebuilt, systemd was rebuild as well
-
-4) python (and/or systemd) changes trigger util-linux to rebuild
-
-5) all high level packages are triggered to rebuild by util-linux
-   changes, including 2921 packages already rebuilt in 3)
-
-
-How it looks with multi stage util-linux build:
-
-1) util-linux stage 1 update is built
-
-2) all high level packages are triggered to rebuild by util-linux
-   changes
-   systemd and python are two of triggered packages
-
-3) all dependencies of systemd are ready => systemd is rebuilt => 
-   util-linux-systemd (= util-linux stage 2) update is built
-
-4) 2920 packages are rebuilt => python is rebuilt =>
-   python-libmount (= util-linux stage 3) update is built
-
-In case of openSUSE Build Service, multi-stage build saves one day of
-machine time of our build cluster.
-
-> > I was asked to solve this problem, and I created a solution that makes
-> > possible to build:
-> > util-linux stage 1: Everything except stuff that supports systemd and
-> >   python-libmount
-> > util-linux stage 2: Stuff that supports systemd (lslogins, logger, uuidd
-> >   and fstrim service files) using installed low level stage 1 stuff.
-> > python-libmount: Python bindings only using installed stage 1 stuff.
-> > 
-> > This is now implemented by a set of sed scripts on top of .am and .ac
-> > sources. But I would like to create more generic solution.
-> 
-> Hmm.. modify build system is bad idea.
-
-That is why I want to implement configure options and do it in a safe
-and upstream-acceptable way.
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarsk� 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
