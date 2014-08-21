@@ -1,54 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:23415 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753446AbaHFIU3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Aug 2014 04:20:29 -0400
-Date: Wed, 6 Aug 2014 10:20:26 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Subject: Re: [PATCH 8/8] zramctl: allow use of --algorithm and --streams alone
-Message-ID: <20140806082026.GH19820@x2.net.home>
-References: <1407107290-5806-1-git-send-email-kerolasa@iki.fi>
- <20140804115556.GA6923@x2.net.home>
- <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+Received: from b.b.painless.aa.net.uk ([81.187.30.62]:46799 "EHLO
+	b.b.painless.aa.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752526AbaHUQH6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Aug 2014 12:07:58 -0400
+Received: from cartman.offog.org ([2001:8b0:83b:b53f::a])
+	by b.painless.aa.net.uk with esmtps (TLSv1:AES128-SHA:128)
+	(Exim 4.72)
+	(envelope-from <ats@offog.org>)
+	id 1XKUKF-0005EZ-K3
+	for util-linux@vger.kernel.org; Thu, 21 Aug 2014 16:30:59 +0100
+Received: from ats by cartman.offog.org with local (Exim 4.83)
+	(envelope-from <ats@offog.org>)
+	id 1XKUKE-0008SJ-Np
+	for util-linux@vger.kernel.org; Thu, 21 Aug 2014 16:30:54 +0100
+From: Adam Sampson <ats@offog.org>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mountpoint: drop S_ISDIR check
+References: <1408625292-2445-1-git-send-email-dreisner@archlinux.org>
+	<53F608BA.4080401@bernhard-voelker.de>
+Date: Thu, 21 Aug 2014 16:30:54 +0100
+In-Reply-To: <53F608BA.4080401@bernhard-voelker.de> (Bernhard Voelker's
+	message of "Thu, 21 Aug 2014 16:56:58 +0200")
+Message-ID: <y2aa96xc11t.fsf@cartman.at.offog.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk29oWnsjQDHJJmvENsr9ghcnq0soOFCx3fzEJ1SYMmfFQ@mail.gmail.com>
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 05, 2014 at 11:36:59PM +0100, Sami Kerola wrote:
-> On 4 August 2014 12:55, Karel Zak <kzak@redhat.com> wrote:
-> > On Mon, Aug 04, 2014 at 12:08:10AM +0100, Sami Kerola wrote:
-> >> Earlier the --algorithm and --streams had to be combined with --size.  To
-> >> user requirement to combine with --size was indirectly told using
-> >> following message.
-> >
-> > And is it really supported by kernel? I see in
-> > Documentation/blockdev/zram.txt:
-> >
-> >  In order to enable compression backend's multi stream support
-> >  max_comp_streams must be initially set to desired concurrency
-> >  level before ZRAM device initialisation.
-> >
-> > I guess that when you set disksize the zram device is "locked" for
-> > setting changes. It means that modify already initialized (created)
-> > zram devices is impossible. You have to reset the device to "unlock"
-> > the device setting.
-> 
-> After playing with zramctl I found out --algorithm must be set before
-> --size. The --streams can be set after --size, but not if device is in use.
-> When device is in use none of the settings are allowed.
+Bernhard Voelker <mail@bernhard-voelker.de> writes:
 
- I'd like to keep the command line semantic simple and stupid and
- support --streams and --algorithm for device initialization (it means
- with --size) only. We don't have to export to command line all the
- crazy kernel implementation details.
+> just out of curiosity - how?
 
-    Karel
+It's certainly possible with bind mounts:
+
+  # touch /foo
+  # mount --bind /etc/hostname /foo
+  # mountpoint /foo
+  mountpoint: /foo: not a directory
+
+(whereas it works fine for a bind-mounted directory).
+
+However, the mountpoint(1) man page talks explicitly about the argument
+being a directory, so that should probably be updated as well if it now
+works on files too.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Adam Sampson <ats@offog.org>                         <http://offog.org/>
