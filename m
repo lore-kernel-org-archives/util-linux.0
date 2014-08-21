@@ -1,44 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45590 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753101AbaHXQFe (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Aug 2014 12:05:34 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 7C3D2140EB
-	for <util-linux@vger.kernel.org>; Sun, 24 Aug 2014 18:05:02 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
+Received: from nymeria.archlinux.org ([89.238.67.251]:38521 "EHLO
+	nymeria.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754537AbaHUMxh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Aug 2014 08:53:37 -0400
+From: Dave Reisner <dreisner@archlinux.org>
 To: util-linux@vger.kernel.org
-Cc: Robert Millan <rmh@debian.org>
-Subject: [PATCH 1/4] Report correct disk size on GNU/kFreeBSD. Thanks Tuco.
-Date: Sun, 24 Aug 2014 18:04:41 +0200
-Message-Id: <1408896284-14467-2-git-send-email-andreas@fatal.se>
-In-Reply-To: <1408896284-14467-1-git-send-email-andreas@fatal.se>
-References: <1408896284-14467-1-git-send-email-andreas@fatal.se>
+Cc: Dave Reisner <dreisner@archlinux.org>
+Subject: [PATCH] mountpoint: drop S_ISDIR check
+Date: Thu, 21 Aug 2014 08:48:12 -0400
+Message-Id: <1408625292-2445-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Robert Millan <rmh@debian.org>
-
-Addresses-Debian-Bug: 592292
+Files can be mountpoints, too.
 ---
- lib/blkdev.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I can't find any reason for this check -- it seems to have existed since
+mountpoint was added to the util-linux tree.
 
-diff --git a/lib/blkdev.c b/lib/blkdev.c
-index f8182c0..a293529 100644
---- a/lib/blkdev.c
-+++ b/lib/blkdev.c
-@@ -25,6 +25,10 @@
- #include <sys/disk.h>
- #endif
+ sys-utils/mountpoint.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+index cba5f01..3919ab7 100644
+--- a/sys-utils/mountpoint.c
++++ b/sys-utils/mountpoint.c
+@@ -192,12 +192,6 @@ int main(int argc, char **argv)
+ 	else {
+ 		dev_t src;
  
-+#ifdef __FreeBSD_kernel__
-+#include <sys/disk.h>
-+#endif
-+
- #include "blkdev.h"
- #include "c.h"
- #include "linux_version.h"
+-		if (!S_ISDIR(st.st_mode)) {
+-			if (!quiet)
+-				errx(EXIT_FAILURE, _("%s: not a directory"), spec);
+-			return EXIT_FAILURE;
+-		}
+-
+ 		if ( dir_to_device(spec, &src)) {
+ 			if (!quiet)
+ 				printf(_("%s is not a mountpoint\n"), spec);
 -- 
-2.1.0.rc1
-
+2.1.0
