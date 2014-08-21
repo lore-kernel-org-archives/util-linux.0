@@ -1,44 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f53.google.com ([209.85.215.53]:43516 "EHLO
-	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751618AbaHTTHD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Aug 2014 15:07:03 -0400
-Received: by mail-la0-f53.google.com with SMTP id gl10so7766502lab.12
-        for <util-linux@vger.kernel.org>; Wed, 20 Aug 2014 12:07:01 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH] tests: apply travis clang PATH workaround
-Date: Wed, 20 Aug 2014 22:06:58 +0300
-Message-Id: <1408561618-11277-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:36506 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754547AbaHUNKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 21 Aug 2014 09:10:22 -0400
+Date: Thu, 21 Aug 2014 15:10:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mountpoint: drop S_ISDIR check
+Message-ID: <20140821131015.GC14708@x2.net.home>
+References: <1408625292-2445-1-git-send-email-dreisner@archlinux.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1408625292-2445-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-As seen in Travis build log the clang is not found, causing one of the
-tests to fail.  This change adds a workaround from Travis issue 2607 to
-util-linux.
+On Thu, Aug 21, 2014 at 08:48:12AM -0400, Dave Reisner wrote:
+>  sys-utils/mountpoint.c | 6 ------
+>  1 file changed, 6 deletions(-)
 
-Reference: https://travis-ci.org/karelzak/util-linux/jobs/33056101#L3630
-Reference: https://github.com/travis-ci/travis-ci/issues/2607
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- .travis.yml | 6 ++++++
- 1 file changed, 6 insertions(+)
+ Applied, thanks.
 
-diff --git a/.travis.yml b/.travis.yml
-index a1a15e4..bc2b8b9 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -33,3 +33,9 @@ script:
- 
- after_script:
-   - travis_after_script
-+
-+before_install:
-+  - $CC --version
-+  - which $CC
-+  # workaround clang not system wide, fail on sudo make install
-+  - export CC=`which $CC`
 -- 
-2.1.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
