@@ -1,69 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:41617 "EHLO
-	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706AbaHDLbK convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 4 Aug 2014 07:31:10 -0400
-Received: from merkaba.localnet (host-188-174-201-193.customer.m-online.net [188.174.201.193])
-	by mail.lichtvoll.de (Postfix) with ESMTPSA id 5372B302
-	for <util-linux@vger.kernel.org>; Mon,  4 Aug 2014 13:31:09 +0200 (CEST)
-From: Martin Steigerwald <Martin@lichtvoll.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix re-enabling of cursor with slang also after pressing Ctrl-C
-Date: Mon, 04 Aug 2014 13:31:08 +0200
-Message-ID: <1500872.h8loxTy8eu@merkaba>
+Received: from mx1.redhat.com ([209.132.183.28]:36036 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755847AbaHVGfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 22 Aug 2014 02:35:25 -0400
+Date: Fri, 22 Aug 2014 08:35:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Dave Reisner <dreisner@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mountpoint.1: clarify that it works on files
+Message-ID: <20140822063518.GH14708@x2.net.home>
+References: <y2aa96xc11t.fsf@cartman.at.offog.org>
+ <1408637817-29781-1-git-send-email-dreisner@archlinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1408637817-29781-1-git-send-email-dreisner@archlinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hmmm, in case GPG signing messes up processing by git, here unsigned
+On Thu, Aug 21, 2014 at 12:16:57PM -0400, Dave Reisner wrote:
+>  sys-utils/mountpoint.1 | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 
-According to curs_set(0) in ui_init() I think curs_set(1) belongs into
-ui_end with in die_on_signal() also gets called on SIGINT or SIGTERM.
+ Applied, thanks.
 
-This should complete the fix made by Andreas in commit 4f4daf8f.
-
-I could not yet test the fix as building current git fails with:
-
-/usr/bin/ld: sys-utils/swapoff-swapon-common.o: undefined reference to symbol 
-'blkid_probe_lookup_value@@BLKID_2.15'
-//home/martin/Linux/util-linux/util-linux/.libs/libblkid.so.1: error adding 
-symbols: DSO missing from command line
-
-Will test as soon as I found out how to fix this build issue. Benno
-reported it already on mailing list.
-
-Addresses-Debian-Bug: #757000
-BCC´d there for reference.
----
- disk-utils/cfdisk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index dfdaaf0..536132a 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -525,6 +525,7 @@ static int ui_end(void)
- #else
-        mvcur(0, COLS - 1, LINES-1, 0);
- #endif
-+       curs_set(1);
-        nl();
-        endwin();
-        printf("\n");
-@@ -1966,7 +1967,6 @@ static int ui_run(struct cfdisk *cf)
- 
-        menu_pop(cf);
- 
--       curs_set(1);
-        DBG(FRONTEND, ul_debug("ui: end"));
- 
-        return 0;
 -- 
-2.0.1
-
-
-Thanks,
--- 
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
