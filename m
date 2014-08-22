@@ -1,28 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from message.langara.bc.ca ([142.35.159.25]:64627 "EHLO
-	message.langara.bc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751702AbaHRRkU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Aug 2014 13:40:20 -0400
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Received: from langara.bc.ca ([127.0.0.1])
- by message.langara.bc.ca (Sun Java(tm) System Messaging Server 6.3-6.03 (built
- Mar 14 2008; 32bit)) with ESMTP id <0NAI00LHYJR7Z640@message.langara.bc.ca>
- for util-linux@vger.kernel.org; Mon, 18 Aug 2014 10:40:19 -0700 (PDT)
-From: Steven Stewart-Gallus <sstewartgallus00@mylangara.bc.ca>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Message-id: <fb47b4bfaf39.53f23a83@langara.bc.ca>
-Date: Mon, 18 Aug 2014 17:40:19 +0000 (GMT)
-Subject: Re: Utilities don't take into account capabilities
-In-reply-to: <3715739.62j44Bg1Aj@vapier>
-References: <fbcec6cf5352.53efd3e4@langara.bc.ca> <3715739.62j44Bg1Aj@vapier>
+Received: from mx1.redhat.com ([209.132.183.28]:56080 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755859AbaHVGez (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 22 Aug 2014 02:34:55 -0400
+Date: Fri, 22 Aug 2014 08:34:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org, Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: Re: [PATCH] mountpoint: symlinks are not mount points
+Message-ID: <20140822063430.GG14708@x2.net.home>
+References: <1408644191-13523-1-git-send-email-kerolasa@iki.fi>
+ <53F64865.4090706@bernhard-voelker.de>
+ <1408656867-20472-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1408656867-20472-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> guessing the sandbox isn't really meant for security purposes since 
-> CAP_SYS_ADMIN can easily be used to recover just about every other 
-> capability.	http://lwn.net/Articles/486306/
+On Fri, Aug 22, 2014 at 12:34:27AM +0300, Sami Kerola wrote:
+> On 21 August 2014 22:28, Bernhard Voelker <mail@bernhard-voelker.de> wrote:
+> > On 08/21/2014 08:03 PM, Sami Kerola wrote:
+> >> Earlier the mountpoint(1) followed symlinks
+> >
+> > IMO this is correct as symlinks only have to be treated
+> > as such when explicitly not de-referencing.
+> > As mountpoint(1) does not have a --no-dereference option,
+> > symlinks should always be transparent for this tool.
+> >
+> > Furthermore, the patch would break scripts relying on existing
+> > behavior:
+> >
+> >   $ ln -s / slink
+> >
+> >   $ /usr/bin/mountpoint slink
+> >   slink is a mountpoint
+> >
+> >   $ # ~berny/util-linux/mountpoint slink
+> >   slink is not a mountpoint
+> 
+> I don't share view symlinks are mount points.  In my mind they are
+> pointers, much like street signs, giving a direction to somewhere without
+> understanding what is there if anything at all.  But not breaking
+> existing behavior is good point, so I changed the patch and added
+> --no-dereference.
 
-capabilities in a CLONE_NEW_USER sandbox only apply to the sandbox and not
-things outside of the sandbox such as devices.
+ I don't think we need the patch, it does not resolve or improve
+ anything. It's over-engineering. If you don't like symlinks then you
+ can use
+
+  if [ ! -L $dir ]; then
+     mountpoint $dir
+  fi
+
+> -	if (stat(spec, &st)) {
+> +	if (lstat(spec, &st)) {
+
+ btw, you want to use lstat() only when no_dereference is specified.
+
+
+ Anyway, NACK. Sorry.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
