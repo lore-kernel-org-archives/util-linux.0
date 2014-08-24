@@ -1,46 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:59280 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751429AbaHKUYK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Aug 2014 16:24:10 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45589 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753099AbaHXQFe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Aug 2014 12:05:34 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 7C36C140EA
+	for <util-linux@vger.kernel.org>; Sun, 24 Aug 2014 18:05:02 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] docs: improve the description of --size in the man page of zramctl
-Date: Mon, 11 Aug 2014 22:23:39 +0200
-Message-Id: <1407788619-4298-1-git-send-email-bensberg@justemail.net>
+Cc: Aurelien Jarno <aurel32@debian.org>, LaMont Jones <lamont@debian.org>
+Subject: [PATCH 2/4] remaining kFreeBSD hackery for building.
+Date: Sun, 24 Aug 2014 18:04:42 +0200
+Message-Id: <1408896284-14467-3-git-send-email-andreas@fatal.se>
+In-Reply-To: <1408896284-14467-1-git-send-email-andreas@fatal.se>
+References: <1408896284-14467-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/zramctl.8 |   13 ++++---------
- 1 files changed, 4 insertions(+), 9 deletions(-)
+From: Aurelien Jarno <aurel32@debian.org>
 
-diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
-index a308233..6f82ccf 100644
---- a/sys-utils/zramctl.8
-+++ b/sys-utils/zramctl.8
-@@ -67,15 +67,10 @@ Reset the options of the specified zram device(s).  Zram device settings
- can be changed only after a reset.
- .TP
- .BR \-s , " \-\-size " \fIsize
--Force the zram driver to reread the size of the file associated with
--the specified zram device.  When not specified the
--.I size
--unit is bytes.  The zram devices size is page size aligned.  When
--requested
--.I size
--does match with page size the device be large enough to hold the reqested
--.I size
--plus length to next page boundary.
-+Create a zram device of the specified \fIsize\fR.
-+Zram devices are aligned to memory pages; when the requested \fIsize\fR is
-+not a multiple of the page size, it will be rounded up to the next multiple.
-+When not otherwise specified, the unit of the \fIsize\fR parameter is bytes.
- .IP
- The \fIsize\fR argument may be followed by the multiplicative suffixes KiB (=1024),
- MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB"
+Addresses-Debian-Bug: #527384
+Signed-off-by: LaMont Jones <lamont@debian.org>
+---
+ sys-utils/ipcs.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
+index 8ed5698..9ce5366 100644
+--- a/sys-utils/ipcs.c
++++ b/sys-utils/ipcs.c
+@@ -461,8 +461,10 @@ static void do_msg (char format, int unit)
+ 			return;
+ 		}
+ 		printf (_("------ Messages Status --------\n"));
++#ifndef __FreeBSD_kernel__
+ 		printf (_("allocated queues = %d\n"), msginfo.msgpool);
+ 		printf (_("used headers = %d\n"), msginfo.msgmap);
++#endif
+ 		ipc_print_size(unit, _("used space"), msginfo.msgtql,
+ 			       unit == IPC_UNIT_DEFAULT ? _(" bytes\n") : "\n", 0);
+ 		return;
 -- 
-1.7.0.4
+2.1.0.rc1
 
