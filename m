@@ -1,31 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:14914 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932533AbaH1Glb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 28 Aug 2014 02:41:31 -0400
-Date: Thu, 28 Aug 2014 08:41:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Rafael Ferreira <rafael.f.f1@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Typo in util-linux 2.25.1-rc1
-Message-ID: <20140828064123.GG30359@x2.net.home>
-References: <CALLTvwfXQiTM8Y_ZH0C5+xf0C9_VJkKKuDugW4QdejH+gR6ZcA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALLTvwfXQiTM8Y_ZH0C5+xf0C9_VJkKKuDugW4QdejH+gR6ZcA@mail.gmail.com>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45590 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753101AbaHXQFe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Aug 2014 12:05:34 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 7C3D2140EB
+	for <util-linux@vger.kernel.org>; Sun, 24 Aug 2014 18:05:02 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Robert Millan <rmh@debian.org>
+Subject: [PATCH 1/4] Report correct disk size on GNU/kFreeBSD. Thanks Tuco.
+Date: Sun, 24 Aug 2014 18:04:41 +0200
+Message-Id: <1408896284-14467-2-git-send-email-andreas@fatal.se>
+In-Reply-To: <1408896284-14467-1-git-send-email-andreas@fatal.se>
+References: <1408896284-14467-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 27, 2014 at 10:38:55PM -0300, Rafael Ferreira wrote:
-> While translating, I found the following with a typo:
-> 
-> file include/optutils.h, line 81, string: "%s: these options
-> aremutually exclusive:"
+From: Robert Millan <rmh@debian.org>
 
- Thanks! Fixed in master branch (will be in 2.25.2 or/and 2.26).
+Addresses-Debian-Bug: 592292
+---
+ lib/blkdev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-    Karel
-
+diff --git a/lib/blkdev.c b/lib/blkdev.c
+index f8182c0..a293529 100644
+--- a/lib/blkdev.c
++++ b/lib/blkdev.c
+@@ -25,6 +25,10 @@
+ #include <sys/disk.h>
+ #endif
+ 
++#ifdef __FreeBSD_kernel__
++#include <sys/disk.h>
++#endif
++
+ #include "blkdev.h"
+ #include "c.h"
+ #include "linux_version.h"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.0.rc1
+
