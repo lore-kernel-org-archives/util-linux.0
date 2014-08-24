@@ -1,38 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:53687 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753145AbaHEWia (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Aug 2014 18:38:30 -0400
-Received: by mail-pd0-f173.google.com with SMTP id w10so2095434pde.18
-        for <util-linux@vger.kernel.org>; Tue, 05 Aug 2014 15:38:30 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20140804120238.GB6923@x2.net.home>
-References: <1407075463-19586-1-git-send-email-kerolasa@iki.fi>
-	<20140804120238.GB6923@x2.net.home>
-Date: Tue, 5 Aug 2014 23:38:29 +0100
-Message-ID: <CAG27Bk2TNvGiwABgbJP=UqBGxZ=qhZoXCXOHRnuo3JHw8mABsA@mail.gmail.com>
-Subject: Re: [PATCH 1/7] zramctl: print all devices as a default action
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45602 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752940AbaHXQFs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 24 Aug 2014 12:05:48 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 7EA5A140EF
+	for <util-linux@vger.kernel.org>; Sun, 24 Aug 2014 18:05:17 +0200 (CEST)
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 4/4] kFreeBSD: add hacks in ipcrm to avoid FTBFS
+Date: Sun, 24 Aug 2014 18:04:44 +0200
+Message-Id: <1408896284-14467-5-git-send-email-andreas@fatal.se>
+In-Reply-To: <1408896284-14467-1-git-send-email-andreas@fatal.se>
+References: <1408896284-14467-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4 August 2014 13:02, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Aug 03, 2014 at 03:17:37PM +0100, Sami Kerola wrote:
->> This commit makes the command to display information about all zram
->> devices when the command is ran without any arguments.  Listing includes
->
->  I don't think it's a good idea do it by default. The current zramctl
->  follows the logic we use for losetup (or lsblk), it means "list all
->  used devices". I'm not sure if we really need to list empty devices,
->  such devices are /dev nodes only. Maybe we can add --all if you have
->  any use-case for this feature.
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ sys-utils/ipcrm.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Sounds reasonable. I'll get rid of the commit by the time of next submission.
-
+diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
+index aa58172..6443f48 100644
+--- a/sys-utils/ipcrm.c
++++ b/sys-utils/ipcrm.c
+@@ -271,6 +271,13 @@ static int remove_all(type_id type)
+ 			ret |= remove_id(SEM, 0, rm_me);
+ 		}
+ 	}
++/* kFreeBSD hackery -- ah 20140723 */
++#ifndef MSG_STAT
++#define MSG_STAT 11
++#endif
++#ifndef MSG_INFO
++#define MSG_INFO 12
++#endif
+ 	if (type == MSG || type == ALL) {
+ 		maxid =
+ 		    msgctl(0, MSG_INFO, (struct msqid_ds *)(void *)&msginfo);
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.1.0.rc1
+
