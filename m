@@ -1,78 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:42268 "EHLO mx2.suse.de"
+Received: from plane.gmane.org ([80.91.229.3]:56239 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753465AbaHKOrN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Aug 2014 10:47:13 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id DC82DAC1F
-	for <util-linux@vger.kernel.org>; Mon, 11 Aug 2014 14:47:11 +0000 (UTC)
-Message-ID: <1407768431.5984.23.camel@oct.suse.cz>
-Subject: util-linux and distro bootstrap, dependencies and build cycles
-From: Stanislav Brabec <sbrabec@suse.cz>
+	id S933469AbaHYVSv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 25 Aug 2014 17:18:51 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1XM1f8-0000cF-2a
+	for util-linux@vger.kernel.org; Mon, 25 Aug 2014 23:18:50 +0200
+Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 25 Aug 2014 23:18:50 +0200
+Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 25 Aug 2014 23:18:50 +0200
 To: util-linux@vger.kernel.org
-Date: Mon, 11 Aug 2014 16:47:11 +0200
-Content-Type: text/plain; charset="ISO-8859-2"
+From: jb <jb.1234abcd@gmail.com>
+Subject: Re: lsblk vice fdisk, etc
+Date: Mon, 25 Aug 2014 21:18:34 +0000 (UTC)
+Message-ID: <loom.20140825T225526-531@post.gmane.org>
+References: <loom.20140819T114407-592@post.gmane.org> <loom.20140825T160840-339@post.gmane.org> <loom.20140825T223105-992@post.gmane.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hallo.
+jb <jb.1234abcd@...> writes:
 
-Our distro build team has problems with the new util-linux. util-linux
-is one of the low level packages. Now it depends on a two high level
-packages with lots of dependencies:
+> ... 
+> But the question "why for /dev/sda3 only ?" stands.
+> Actually, it should not be included in 'blkid' display at all.
+> According to BLKID(8), only option -p should display this field.
+> # blkid -p /dev/sda
+> /dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
 
-systemd
-python
+This should be further qualified.
 
-Complete safe bootstrap distro rebuild requires two rebuilds of all
-packages in the dependency cycle: one after initial util-linux rebuild
-and second after high level dependency rebuild and consequent second
-util-linux rebuild.
+# blkid /dev/sda
+/dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
+# blkid -p /dev/sda
+/dev/sda: PTUUID="3db012b3" PTTYPE="dos" 
 
-The build cycle util-linux <-> python is far the largest build cycle. In
-case of forthcoming SLES12 it triggers rebuild of 2921 packages!
+and so I think that 'blkid' entry I referred previously to (with that
+PTTYPE="dos" in /dev/sda3 row, believed to be erroneously displayed there),
+should have the "/dev/sda: ..." line displayed at the top:
+# blkid
+/dev/sda: PTUUID="3db012b3" PTTYPE="dos"
+/dev/sda1: UUID="fb838405-607c-4723-9355-47ccbf1eb273" TYPE="ext4"
+PARTUUID="3db012b3-01" 
+...
 
-I was asked to solve this problem, and I created a solution that makes
-possible to build:
-util-linux stage 1: Everything except stuff that supports systemd and
-  python-libmount
-util-linux stage 2: Stuff that supports systemd (lslogins, logger, uuidd
-  and fstrim service files) using installed low level stage 1 stuff.
-python-libmount: Python bindings only using installed stage 1 stuff.
+because BLKID(8) says:
+"       When  device is specified, tokens from only this device are
+        displayed.
+        It is possible to specify multiple device  arguments  on  the
+        command line.   If none is given, all devices which appear in
+        /proc/partitions are shown, if they are recognized."
 
-This is now implemented by a set of sed scripts on top of .am and .ac
-sources. But I would like to create more generic solution.
+$ cat /proc/partitions 
+major minor  #blocks  name
 
-What do you think about one of the following solutions?:
+  11        0    1048575 sr0
+   8        0   39070080 sda
+   8        1   17825792 sda1
+   8        2    4647936 sda2
+   8        3   14076928 sda3
+   8        4          1 sda4
+   8        5    2518368 sda5
 
-Solution 1:
+jb
 
-Modify make system by adding:
---enable-build-stage-1: Distro bootstrap stage 1: Build only code
-    without systemd and python dependencies.
---enable-build-stage-2: Distro bootstrap stage 2: Build code with
-    systemd dependencies (even if they are optional). Use installed
-    instances of libmount, libblkid, libsmartcols and libuuidd, do not
-    build them in-tree.
---enable-build-stage-3: Distro bootstrap stage 3: Build python-libmount
-    only. Use installed instance of libmount, do not build them in-tree.
-
-Solution 2:
-
---enable-build-stage-1 and --enable-build-stage-2 exactly as above.
-
-Split python-libmount into a separate project.
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
