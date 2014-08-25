@@ -1,55 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54720 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:48727 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752939AbaHHI01 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 8 Aug 2014 04:26:27 -0400
-Date: Fri, 8 Aug 2014 10:26:22 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Linda A. Walsh" <lkml@tlinx.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Generic, per-fs and per-dev defaults in fstab?
-Message-ID: <20140808082622.GB17719@x2.net.home>
-References: <53E2B34F.6080601@tlinx.org>
+	id S1752760AbaHYSaF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 25 Aug 2014 14:30:05 -0400
+Date: Mon, 25 Aug 2014 20:29:46 +0200
+From: =?ISO-8859-2?B?TWljaGGzIEfzcm55?= <mgorny@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: cfdisk wipes out partition table when trying to replace a single
+ logical partition
+Message-ID: <20140825202946.3d4fbaac@pomiot.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53E2B34F.6080601@tlinx.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ boundary="Sig_/WUjTYnKk_w/maeAQBoAEe=="; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 06, 2014 at 03:59:27PM -0700, Linda A. Walsh wrote:
-> Split this off from previous note (different subject, though
-> forgot to change previous subject line fully! *arg*).
-> 
-> 
-> As another matter of being user friendly, why can't specify a defaults
-> line for all mounts with the option of per-type defaults taking precedence:
-> 
-> default   *     defaults     defaults,x-'"mostly for completeness"'
-> default   xfs   defaults     logbsize=256k,largeio,nodiratime
-> /dev/sdf  xfs   defaults     su=64k,sw=256k
-> ...
-> -------------
-> 
-> fs-type specific mounts would be applied after global
-> defaults, and in the 3rd line, what I am trying
+--Sig_/WUjTYnKk_w/maeAQBoAEe==
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-Well, the problem is that fstab is de-facto standard. If you want to
-change semantic than you have to fix all programs that follow fstab
-setting. The file is no private mount(8) config file.
+(please CC me on replies)
 
-The old idea is to use per-filesystem config files where you can
-specify default mount options. We use this concept for NFS. But again,
-such setting is invisible for many utils etc.
+Hello,
 
-IMHO the best is the extN way. It means to store the default setting to 
-filesystem superblock, see 
+I'm afraid I've hit a bug that has been introduced in 2.25 and still
+not fixed in current git.
 
- # tune2fs -l /dev/sda4 | grep 'Default mount options'
- Default mount options:    user_xattr acl
+I start with the following disk layout:
 
-   Karel
+  Device     Boot    Start       End   Sectors  Size Id Type
+  /dev/sdb1  *          63  93755339  93755277 44.7G  7 HPFS/NTFS/exFAT
+  /dev/sdb2       93755392 234439534 140684143 67.1G  5 Extended
+  /dev/sdb5       93757440 135700479  41943040   20G 83 Linux
 
+Now I start cfdisk and remove sdb5, and create a larger partition on
+top of it. At this point, cfdisk shows correct disk layout (sdb1, sdb2
+and new sdb5), so I save it. However, the partition table written to
+disk is incorrect:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  Device     Boot    Start       End  Sectors Size Id Type
+  /dev/sdb1       93757440 146186239 52428800  25G 83 Linux
+
+As far as I can see, cfdisk removed both the primary and extended
+partitions, and wrote my new logical partition as primary. As you can
+guess, this is rather unexpected and undesired.
+
+I can consistently reproduce the issue.
+
+--=20
+Best regards,
+Micha=B3 G=F3rny
+
+--Sig_/WUjTYnKk_w/maeAQBoAEe==
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQJ8BAEBCgBmBQJT+4CgXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
+ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQ2REJCMDdDQzRGMERBRDA2RUEwQUZFNDFC
+MDdBMUFFQUVGQjQ0NjRFAAoJELB6GurvtEZOGGAP/3/bRIycd2ZQlLHOUUHDKw4M
+ftJPSpAIrZD299mEI4GN84ftQRn9VMe36ZNHIU2XseOjiT24SD5Zvxxy5GYtSOaa
+gI7FQIM85fCw3y+hjXJ3Rhna1pny/GvFAm66F3cmyJ9E67i3oJl1M0XiTT7p18UX
+HmzfGzNWK0hzfALUzdFt+Xsqc09KlwgZbzEpBHklh/ePWzB27ejML50n+0bNbT7i
+ATQGicc3uM61eO98yzrSLM4DXppuQ1GFR4r9PXzOqeo+vDyt85wUsuLb46AaeNaE
+cMtJvq1yYWuHi1BY7TdUoHf7Z90F4AaUYn1fA2amHEtFP6ojfU6rvtKXd08bo8s3
+vG96XCc4y11R5Lblnucf9B5DoM7EZgsh1GQBTyhrNAB8tqn3d1liI1m3kKebCJYO
+AdcazgQU639iM1IKwQZ7bInPDVd9mufP9wgqUu2bCwRPYhuboNvtiOOkIcfaeWjd
+1e/Nv3W0RH/QgThk4IIbf4gyRMzrwON7t319M9mZBOuBfhDbjr7zdTWbZcQ/4ZVV
+CJit19Z+tJ8v4Ecm9o9D2D9VdNxR4rrIhjFoxGuDiz7nQR+RO1PHoIobYf9rQ0SH
+JuD/Yi19+XUDhiVmKr1oEIXtVE0gdRJ4nWJ6lt+9ux8Sg1B02gV/aC/kFZc2uYln
+iJ8lZtYvi5FAj1EYpEQu
+=uFSc
+-----END PGP SIGNATURE-----
+
+--Sig_/WUjTYnKk_w/maeAQBoAEe==--
