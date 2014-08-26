@@ -1,92 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:58411 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753607AbaHEW7w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 Aug 2014 18:59:52 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id 2BE8F3401CF
-	for <util-linux@vger.kernel.org>; Tue,  5 Aug 2014 22:59:47 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] lscpu: clean up vmware inline asm
-Date: Tue,  5 Aug 2014 18:59:50 -0400
-Message-Id: <1407279590-4224-1-git-send-email-vapier@gentoo.org>
+Received: from edony.tuxfamily.net ([212.85.158.2]:50680 "EHLO
+	edony.tuxfamily.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754428AbaHZT2P (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 26 Aug 2014 15:28:15 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Tue, 26 Aug 2014 21:28:12 +0200
+From: tnut@nutyx.org
+To: Karel Zak <kzak@redhat.com>
+Cc: <util-linux@vger.kernel.org>
+Subject: Re: cfdisk, wrong interpretation of yes in non-english language
+In-Reply-To: <20140826175817.GA30359@x2.net.home>
+References: <d8263f3bc98929c82bbd0962ca77a159@nutyx.org>
+ <20140826175817.GA30359@x2.net.home>
+Message-ID: <f11615173dffb9bf932036b327450ed0@nutyx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This code is not PIC clean which means it fails to build on hardened
-32bit x86 systems (i.e. building as PIE).
+Le 2014-08-26 19:58, Karel Zak a écrit :
+> On Tue, Aug 26, 2014 at 11:18:09AM +0200, tnut@nutyx.org wrote:
+>> -               if (rc <= 0 || strcasecmp(buf, "yes") != 0
+>> -                           || strcasecmp(buf, _("yes")) != 0) {
+>> +               if (rc <= 0 ||  (strcasecmp(buf, "yes") != 0
+>> +                           && strcasecmp(buf, _("yes")) != 0)) {
+>
+>  Fixed, thanks!
+>
+>     Karel
 
-While here, optimize the existing cpuid logic slightly.
+Actually there is another problem with the NLS, but is it possible to 
+test the latest git or svn version ? as it could be allready fixed in 
+the latest version
 
-URL: https://bugs.gentoo.org/518936
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- sys-utils/lscpu.c | 36 ++++++++++++++++++++++++++----------
- 1 file changed, 26 insertions(+), 10 deletions(-)
+Thanks
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 062dff5..9965eeb 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -546,10 +546,9 @@ cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx,
- 	__asm__(
- #if defined(__PIC__) && defined(__i386__)
- 		/* x86 PIC cannot clobber ebx -- gcc bitches */
--		"pushl %%ebx;"
-+		"xchg %%ebx, %%esi;"
- 		"cpuid;"
--		"movl %%ebx, %%esi;"
--		"popl %%ebx;"
-+		"xchg %%esi, %%ebx;"
- 		: "=S" (*ebx),
- #else
- 		"cpuid;"
-@@ -656,12 +655,29 @@ read_hypervisor_powerpc(struct lscpu_desc *desc)
- #define VMWARE_BDOOR_PORT           0x5658
- #define VMWARE_BDOOR_CMD_GETVERSION 10
- 
--#define VMWARE_BDOOR(eax, ebx, ecx, edx)                                  \
--        __asm__("inl (%%dx), %%eax" :                                     \
--               "=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :               \
--               "0"(VMWARE_BDOOR_MAGIC), "1"(VMWARE_BDOOR_CMD_GETVERSION), \
--               "2"(VMWARE_BDOOR_PORT), "3"(0) :                           \
--               "memory");
-+static inline
-+void vmware_bdoor(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
-+{
-+	__asm__(
-+#if defined(__PIC__) && defined(__i386__)
-+		/* x86 PIC cannot clobber ebx -- gcc bitches */
-+		"xchg %%ebx, %%esi;"
-+		"inl (%%dx), %%eax;"
-+		"xchg %%esi, %%ebx;"
-+		: "=S" (*ebx),
-+#else
-+		"inl (%%dx), %%eax;"
-+		: "=b" (*ebx),
-+#endif
-+		  "=a" (*eax),
-+		  "=c" (*ecx),
-+		  "=d" (*edx)
-+		: "0" (VMWARE_BDOOR_MAGIC),
-+		  "1" (VMWARE_BDOOR_CMD_GETVERSION),
-+		  "2" (VMWARE_BDOOR_PORT),
-+		  "3" (0)
-+		: "memory");
-+}
- 
- static jmp_buf segv_handler_env;
- 
-@@ -697,7 +713,7 @@ is_vmware_platform(void)
- 	if (sigaction(SIGSEGV, &act, &oact))
- 		err(EXIT_FAILURE, _("error: can not set signal handler"));
- 
--	VMWARE_BDOOR(eax, ebx, ecx, edx);
-+	vmware_bdoor(&eax, &ebx, &ecx, &edx);
- 
- 	if (sigaction(SIGSEGV, &oact, NULL))
- 		err(EXIT_FAILURE, _("error: can not restore signal handler"));
--- 
-2.0.0
-
+Thierry
