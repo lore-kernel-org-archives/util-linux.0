@@ -1,82 +1,54 @@
-Return-Path: nefelim4ag@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-we0-f181.google.com ([74.125.82.181]:51966 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757463AbaHZKlh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 26 Aug 2014 06:41:37 -0400
+Received: by mail-we0-f181.google.com with SMTP id k48so14566663wev.40
+        for <util-linux@vger.kernel.org>; Tue, 26 Aug 2014 03:41:36 -0700 (PDT)
+Received: from [192.168.178.22] (adsl-62-167-25-217.adslplus.ch. [62.167.25.217])
+        by mx.google.com with ESMTPSA id lp1sm10739084wic.21.2014.08.26.03.41.34
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Tue, 26 Aug 2014 03:41:35 -0700 (PDT)
+Message-ID: <53FC645E.5090600@gmail.com>
+Date: Tue, 26 Aug 2014 12:41:34 +0200
+From: =?UTF-8?B?U3RlcGhhbiBNw7xsbGVy?= <fruktopus@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20140801103725.GB8805@x2.net.home>
-References: <53CAAAB6.6020607@gmail.com> <53D54D4D.5010905@gmail.com> <20140801103725.GB8805@x2.net.home>
-From: Timofey Titovets <nefelim4ag@gmail.com>
-Date: Sat, 2 Aug 2014 17:22:05 +0300
-Message-ID: <CAGqmi74krB7VPrxyX4b+hGOy-89X_sHDr_WVX7hevYdXdQcOSg@mail.gmail.com>
-Subject: Re: [RFC] [Patch v2] Created zramctl
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>, Minchan Kim <minchan@kernel.org>
+To: util-linux@vger.kernel.org
+Subject: Re: cfdisk, wrong interpretation of yes in non-english language
+References: <d8263f3bc98929c82bbd0962ca77a159@nutyx.org>
+In-Reply-To: <d8263f3bc98929c82bbd0962ca77a159@nutyx.org>
 Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-(i forget include util-linux to CC)
-First of all, big thanks Karel for your great work, you are C wizard =)
+Am 26.08.2014 11:18, schrieb tnut@nutyx.org:
+> I'm building a new installer for the NuTyX distribution.
+> 
+> If another language then english is choose as native language, some answer are wrong interpreted
+> 
+> I think you should check both cases are wrong instead of one of them or do the test in the opposite way
+> 
+> Here is a proposal of patch:
+> 
+> 
+> --- util-linux-2.25/disk-utils/cfdisk.c 2014-07-21 13:36:21.000000000 +0000
+> +++ util-linux-2.25-new/disk-utils/cfdisk.c     2014-08-25 18:52:17.000000000 +0000
+> @@ -1834,8 +1834,8 @@
+>                           buf, sizeof(buf));
+> 
+>                 ref = 1;
+> -               if (rc <= 0 || strcasecmp(buf, "yes") != 0
+> -                           || strcasecmp(buf, _("yes")) != 0) {
+> +               if (rc <= 0 ||  (strcasecmp(buf, "yes") != 0
+> +                           && strcasecmp(buf, _("yes")) != 0)) {
+>                         info = _("Did not write partition table to disk");
+>                         break;
+>                 }
+> 
 
-2014-08-01 13:37 GMT+03:00 Karel Zak <kzak@redhat.com>:
-> On Sun, Jul 27, 2014 at 10:04:45PM +0300, Timofey Titovets wrote:
->> I spend some time and rewrite zramctl for util-linux.
->
->  Thanks! Merged.
->
->> sysfs.h powerful, but i can't understand how working sysfs.h and how i can
->> implement it(?), and i think what my helper function is easier now, than
->> sysfs.h realization
->
->  I have modified your code to use sysfs stuff and to use libsmartcols
->  in better way. So now it's more compatible with another ls-like utils
->  we have in util-linux. For example you can specify output columns by
->  --output, it makes it more friendly for scripts etc.
->
->  # /zramctl
->  NAME       ALGORITHM DISKSIZE DATA COMPR TOTAL STREAMS MOUNTPOINT
->  /dev/zram1               100M  44K  876B   44K         /mnt/test
->  /dev/zram2               123M   4K   78B    4K         [SWAP]
->  /dev/zram3                10M   0B    0B    0B
->
-Looks nice, mount point it's cool column, very useful *_*
+Why are both tests necessary at all? If NLS is disabled, both tests agree. If it is enabled, we should test against the gettext translated version only (2nd strcasecmp).
 
->  Note that I have kernel 3.14, so things like number of compression
->  streams and compression algorithm are invisible for me (I going to
->  update and test it with new kernel this afternoon).
-I test recent build from util-linux git, and all working good (archlinux 3.15.8)
-I can't test it on 3.14, but on old kernels, what zramctl say if user
-try to setup compression algorithm or threads count?
-(may be on old kernel, zramctl must show warning and just ignore -a
-and -t option?)
+ regards
 
->
->  Anyway, zRam seems like nice project. I'll try to add support to
->  swapon next week. My idea is something like (in fstab):
->
->   /dev/zram0  swap  swap  x-zram.disksize=100M,x-zram.algorithm=lzo,auto
->
->
->  it means use x-* options (we use this notation for another things) to
->  specify zram setting. The controversial thing is that we have to call
->  mkswap from swapon, but it's already supported for swap
->  reinitialization (after system resume or on page size change etc.)
->
->  ... or is it over-engineering?
->
->     Karel
->
-Do mkswap in swapon it good feature, i think what it changes can
-simplify using zram in swap case, and not only for zram.
-As example in gentoo manual for zram
-(http://wiki.gentoo.org/wiki/Zram) this changes allow to clean several
-lines in code, for sh scripts and udev rules.
-Same true as for your idea with fstab.
-In several tools, what setup zram as swap it also allow to clean some
-part of code.
-This is a cool thing, and i vote for this feature.
-
-
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-
---
-Best regards,
-Timofey.
+ stephan
