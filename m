@@ -1,62 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:33125 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751331AbaHJL4Q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 10 Aug 2014 07:56:16 -0400
-Received: by mail-wg0-f43.google.com with SMTP id l18so7274385wgh.26
-        for <util-linux@vger.kernel.org>; Sun, 10 Aug 2014 04:56:15 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 0/5] logger: remove use of libc openlog and other small changes
-Date: Sun, 10 Aug 2014 12:56:06 +0100
-Message-Id: <1407671771-29745-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:40029 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934498AbaHZO6c (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Aug 2014 10:58:32 -0400
+Date: Tue, 26 Aug 2014 16:58:28 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?utf-8?B?TWljaGHFgiBHw7Nybnk=?= <mgorny@gentoo.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: cfdisk wipes out partition table when trying to replace a single
+ logical partition
+Message-ID: <20140826145828.GJ14708@x2.net.home>
+References: <20140825202946.3d4fbaac@pomiot.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20140825202946.3d4fbaac@pomiot.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Mon, Aug 25, 2014 at 08:29:46PM +0200, Michał Górny wrote:
+> I'm afraid I've hit a bug that has been introduced in 2.25 and still
+> not fixed in current git.
 
-In commit eea331abd7159432d8f45f978b2fbac19330ce48 I added an option to
-use ppid instead of pid in logger message.  That change worked only when
-logging remotely, because the libc syslog(3) call does not support ppid
-printing.  For a moment I thought it might be possible to change libc to
-have such feature, before realizing there are more than one libc
-implementation and making all of them work is hopeless.  So I decided to
-avoid the syslog(3) all together, and make syslog_local() to be as close
-copy of glibc syslog(3) format as possible with support for ppid
-printing.
+ Yep, it's pretty ugly bug. Fixed. We need 2.25.1 really ASAP.
 
-Rest of the changes in this series are not technically that interesting,
-and only remaining thing worth to mention is a small write out, requested
-by Karel, about logger changes.
-
-http://www.iki.fi/kerolasa/logger.html
-
-
-The following changes since commit cd8414f7a13aca0b3ea150b473b83f00819b312f:
-
-  cfdisk: move curs_set(1) to ui_end() (2014-08-06 15:39:27 +0200)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git logger
-
-for you to fetch changes up to f0757ac355b42baab1e477345690260db651e693:
-
-  docs: mentintion default udp and tcp ports logger is using (2014-08-09 09:13:25 +0100)
-
-----------------------------------------------------------------
-Sami Kerola (5):
-      logger: allow use of --id=ppid when logging locally
-      logger: remove openlog(3) options
-      logger: optimize string initializations
-      logger: set function arguments read-only when possible
-      docs: mentintion default udp and tcp ports logger is using
-
- misc-utils/logger.1 |  7 +++++
- misc-utils/logger.c | 84 +++++++++++++++++++++++++++++++++--------------------
- 2 files changed, 60 insertions(+), 31 deletions(-)
+    Karel
 
 -- 
-2.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
