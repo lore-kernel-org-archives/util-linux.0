@@ -1,66 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:60088 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754135AbaHLUPe (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Aug 2014 16:15:34 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/3] textual: make the license of chrt and taskset slightly more explicit
-Date: Tue, 12 Aug 2014 22:15:17 +0200
-Message-Id: <1407874518-12776-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1407874518-12776-1-git-send-email-bensberg@justemail.net>
-References: <1407874518-12776-1-git-send-email-bensberg@justemail.net>
+Received: from edony.tuxfamily.net ([212.85.158.2]:44747 "EHLO
+	edony.tuxfamily.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932467AbaHZJlJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 26 Aug 2014 05:41:09 -0400
+Received: from vodka.tf-data.net ([192.168.1.100] helo=webmail.tuxfamily.org)
+	by edony.tuxfamily.net with esmtp (Exim 4.80)
+	(envelope-from <tnut@nutyx.org>)
+	id 1XMCtF-0002IN-Nd
+	for util-linux@vger.kernel.org; Tue, 26 Aug 2014 11:18:09 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Tue, 26 Aug 2014 11:18:09 +0200
+From: tnut@nutyx.org
+To: <util-linux@vger.kernel.org>
+Subject: cfdisk, wrong interpretation of yes in non-english language
+Message-ID: <d8263f3bc98929c82bbd0962ca77a159@nutyx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This makes it match the license of the man pages.
-While there, also tweak some other comment lines.
+I'm building a new installer for the NuTyX distribution.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- schedutils/chrt.c    |   10 ++++------
- schedutils/taskset.c |    5 ++---
- 2 files changed, 6 insertions(+), 9 deletions(-)
+If another language then english is choose as native language, some 
+answer are wrong interpreted
 
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index e9af427..fec26fd 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -1,13 +1,11 @@
- /*
-- * chrt.c - chrt
-- * Command-line utility for manipulating a task's real-time attributes 
-+ * chrt.c - manipulate a task's real-time attributes
-  *
-- * Robert Love <rml@tech9.net>
-- * 27-Apr-2002: initial version
-- * 04-May-2011: make thread aware - Davidlohr Bueso <dave@gnu.org>
-+ * 27-Apr-2002: initial version - Robert Love <rml@tech9.net>
-+ * 04-May-2011: make it thread-aware - Davidlohr Bueso <dave@gnu.org>
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License, v2, as
-+ * it under the terms of the GNU General Public License, version 2, as
-  * published by the Free Software Foundation
-  *
-  * This program is distributed in the hope that it will be useful,
-diff --git a/schedutils/taskset.c b/schedutils/taskset.c
-index c2b9ab6..6ebca06 100644
---- a/schedutils/taskset.c
-+++ b/schedutils/taskset.c
-@@ -1,9 +1,8 @@
- /*
-- * taskset.c - command-line utility for setting and retrieving
-- *             a task's CPU affinity
-+ * taskset.c - set or retrieve a task's CPU affinity
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License, v2, as
-+ * it under the terms of the GNU General Public License, version 2, as
-  * published by the Free Software Foundation
-  *
-  * This program is distributed in the hope that it will be useful,
--- 
-1.7.0.4
+I think you should check both cases are wrong instead of one of them or 
+do the test in the opposite way
 
+Here is a proposal of patch:
+
+
+--- util-linux-2.25/disk-utils/cfdisk.c 2014-07-21 13:36:21.000000000 
++0000
++++ util-linux-2.25-new/disk-utils/cfdisk.c     2014-08-25 
+18:52:17.000000000 +0000
+@@ -1834,8 +1834,8 @@
+                           buf, sizeof(buf));
+
+                 ref = 1;
+-               if (rc <= 0 || strcasecmp(buf, "yes") != 0
+-                           || strcasecmp(buf, _("yes")) != 0) {
++               if (rc <= 0 ||  (strcasecmp(buf, "yes") != 0
++                           && strcasecmp(buf, _("yes")) != 0)) {
+                         info = _("Did not write partition table to 
+disk");
+                         break;
+                 }
+
+Regards
+
+
+Thierry Nuttens
