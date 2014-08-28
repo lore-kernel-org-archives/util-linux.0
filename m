@@ -1,45 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35925 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753335AbaHKNMM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Aug 2014 09:12:12 -0400
-Date: Mon, 11 Aug 2014 15:12:01 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/5] logger: optimize string initializations
-Message-ID: <20140811131201.GK17719@x2.net.home>
-References: <1407671771-29745-1-git-send-email-kerolasa@iki.fi>
- <1407671771-29745-4-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:40415 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932689AbaH1BjR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Aug 2014 21:39:17 -0400
+Received: by mail-wi0-f177.google.com with SMTP id cc10so88212wib.10
+        for <util-linux@vger.kernel.org>; Wed, 27 Aug 2014 18:39:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1407671771-29745-4-git-send-email-kerolasa@iki.fi>
+From: Rafael Ferreira <rafael.f.f1@gmail.com>
+Date: Wed, 27 Aug 2014 22:38:55 -0300
+Message-ID: <CALLTvwfXQiTM8Y_ZH0C5+xf0C9_VJkKKuDugW4QdejH+gR6ZcA@mail.gmail.com>
+Subject: Typo in util-linux 2.25.1-rc1
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 10, 2014 at 12:56:09PM +0100, Sami Kerola wrote:
-> -	char pid[32] = { '\0' }, time[64] = { '\0' }, timeq[80] = { '\0' };
-> +	char pid[32], time[64], timeq[80];
+Hi there,
 
- I agree that the original code is not elegant, but "else foo[0] =
- '\0'" is also pretty ugly. It would be better to set all to the
- default by one line
+While translating, I found the following with a typo:
 
-   *pid = *time = *timeq = '\0';
-
- at begin of the function.
+file include/optutils.h, line 81, string: "%s: these options
+aremutually exclusive:"
 
 
->  	if ((process = get_process_id(ctl)))
->  		snprintf(pid, sizeof(pid), " %d", process);
-> +	else
-> +		pid[0] = '\0';
-
- I really don't like hairy code like this.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Cheers,
+Rafael Ferreira
