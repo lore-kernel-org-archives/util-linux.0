@@ -1,42 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:63652 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753993AbaIPUur (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:50:47 -0400
-Received: by mail-wg0-f45.google.com with SMTP id z12so427081wgg.4
-        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:50:46 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:50:43 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 17/17] setarch: remove unreachable code
-In-Reply-To: <20140912095038.GW21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162139520.3712@kerolasa-home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi> <1410093785-17537-18-git-send-email-kerolasa@iki.fi> <20140912095038.GW21325@x2.net.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Received: from plane.gmane.org ([80.91.229.3]:47315 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751952AbaIAUFr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 1 Sep 2014 16:05:47 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1XOXrC-0005xt-Lc
+	for util-linux@vger.kernel.org; Mon, 01 Sep 2014 22:05:44 +0200
+Received: from 79-139-19-75.prenet.pl ([79.139.19.75])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 01 Sep 2014 22:05:42 +0200
+Received: from jb.1234abcd by 79-139-19-75.prenet.pl with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 01 Sep 2014 22:05:42 +0200
+To: util-linux@vger.kernel.org
+From: jb <jb.1234abcd@gmail.com>
+Subject: Re: mount errors on /dev/sr0 (cd-rw)
+Date: Mon, 1 Sep 2014 20:05:23 +0000 (UTC)
+Message-ID: <loom.20140901T215808-781@post.gmane.org>
+References: <loom.20140901T194119-339@post.gmane.org> <201409011936.s81Ja4ov004057@hobgoblin.ariadne.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
+Dale R. Worley <worley@...> writes:
 
-> On Sun, Sep 07, 2014 at 01:43:05PM +0100, Sami Kerola wrote:
->> Architectures are protected using '#if defined' clauses, making the code
->> in this removal to be impossible to reach.
->
-> Hmmm.. I guess the code tries to verify that the result architecture
-> after personality() matches with uname.machine (except to
-> i{486,586,...}), to be sure that our request has been correctly
-> interpreted by kernel.
->
-> IMHO it's correct.
+> 
+> > From: jb <jb.1234abcd@...>
+> 
+> > # mount -t auto /dev/sr0 /media/
+> > mount: /dev/sr0 is write-protected, mounting read-only
+> > mount: /dev/sr0: can't read superblock
+> > #
+> 
+> What condition was the CD in when you inserted it into the drive?
+> (You haven't told us the full sequence of actions you've taken, only
+> listed the output of some programs.)
+> 
+> Dale
 
-I removed the change from incoming pull request, and try to improve the 
-'Unrecognized architecture' message this week. Since the condition looks 
-impossible reach maybe the message should encourage to report to 
-util-linux maillist with which transitions[i].result_arch and un.machine 
-values one was able to see it.
+I just realized that wodim fooled me (it burned cd-rw without any indication
+of a problem, but actually the cd-rw is useless - there are multiple bug
+reports for wodim).
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+jb
+
+
