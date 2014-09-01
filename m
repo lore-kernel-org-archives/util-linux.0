@@ -1,98 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:49144 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754581AbaIBTJk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Sep 2014 15:09:40 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 079D1AAF1
-	for <util-linux@vger.kernel.org>; Tue,  2 Sep 2014 19:09:39 +0000 (UTC)
-Message-ID: <1409684978.14709.15.camel@oct.suse.cz>
-Subject: umount of unreachable NFS without -f [maybe PATCH]
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: util-linux@vger.kernel.org
-Date: Tue, 02 Sep 2014 21:09:38 +0200
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
+Received: from awesome.dsw2k3.info ([217.188.63.246]:59020 "EHLO
+	awesome.dsw2k3.info" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751426AbaIAHQK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Sep 2014 03:16:10 -0400
+Date: Mon, 1 Sep 2014 09:16:03 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Debugging why fstrim doesn't work
+Message-ID: <20140901071603.GA23478@citd.de>
+References: <20140829093522.GA32003@citd.de>
+ <54041383.2090700@bernhard-voelker.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <54041383.2090700@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I just analyzed causes of hang while calling umount without -f on an
-unreachable NFS.
+On 01.09.2014 08:34, Bernhard Voelker wrote:
+> On 08/29/2014 11:35 AM, Matthias Schniedermeyer wrote:
+> > $ fstrim -v /
+> > fstrim: /: discard operation not supported.
+> > 
+> > How can i debug why fstrim/the kernel thinks discard isn't supported?
+> 
+>   $ strace -v fstrim -v /
+>   ...
+>   ioctl(3, FITRIM, 0x7fff4d693590)        = -1 EOPNOTSUPP (Operation not supported)
+>   ...
+> 
+> Interestingly, fstrim's error message has changed from the more precise
+> 
+>   fstrim: /: FITRIM ioctl failed: Operation not supported
+> 
+> (e.g. in 2.23.2) to a probably more user-friendly
+> 
+>   fstrim: /: the discard operation is not supported
+> 
+> (in the current git version).
 
-The first hang happens on in lookup_umount_fs():
+I don't get 'Operation not supported".
 
-stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
+I get this error:
+open("/", O_RDONLY|O_LARGEFILE)         = 3
+fstat64(3, {st_dev=makedev(8, 2), st_ino=192, st_mode=S_IFDIR|0755, st_nlink=25, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2014/07/02-21:06:38, st_mtime=2014/07/19-23:54:25, st_ctime=2014/07/19-23:54:25}) = 0
+ioctl(3, FITRIM, 0xfffa6198)            = -1 ENOTTY (Inappropriate ioctl for device)
+close(3)                                = 0
 
-I don't exactly know, what its removal causes, but I tried it.
 
-I entered into next hang in mnt_resolve_path() inside has_utab_entry().
-We cannot prevent this hang in all cases, but preventing it in a
-standard situation is pretty straightforward: Try to match provided
-target name before trying to canonicalize.
 
-Now my umount without -f works well at least in the case, when the mount
-point is recorded in the utab.
-
-If it is not recorded in utab, it still hangs later in
-lookup_umount_fs() on:
-
-if (statfs(tgt, &vfs) == 0)
-
-Well, we can prevent even this hang, but it would be at cost of parsing
-mtab. I read your git comments and I see, that the whole purpose of the
-code is preventing of parsing of the generated mtab/mountinfo.
-
-Would be parsing of fstab a safe way without paying this cost?
-
-Here is my patch, which prevented at least part of these hangs. What do
-you think about it?
-
-Index: util-linux-2.25/libmount/src/context_umount.c
-===================================================================
---- util-linux-2.25.orig/libmount/src/context_umount.c
-+++ util-linux-2.25/libmount/src/context_umount.c
-@@ -216,6 +255,14 @@ static int has_utab_entry(struct libmnt_
- 
- 	/* paths in utab are canonicalized */
- 	cache = mnt_context_get_cache(cxt);
-+
-+	/* first search for target as it is - mnt_resolve_path() can fail on unreachable NFS */
-+	mnt_reset_iter(&itr, MNT_ITER_BACKWARD);
-+
-+	while (mnt_table_next_fs(cxt->utab, &itr, &fs) == 0) {
-+		if (mnt_fs_streq_target(fs, target))
-+			return 1;
-+	}
- 	cn = mnt_resolve_path(target, cache);
- 	mnt_reset_iter(&itr, MNT_ITER_BACKWARD);
- 
-@@ -232,7 +279,6 @@ static int has_utab_entry(struct libmnt_
- static int lookup_umount_fs(struct libmnt_context *cxt)
- {
- 	const char *tgt;
--	struct stat st;
- 	struct libmnt_fs *fs = NULL;
- 	int rc = 0;
- 
-@@ -262,7 +308,6 @@ static int lookup_umount_fs(struct libmn
- 	    && !mnt_context_mtab_writable(cxt)
- 	    && !mnt_context_is_force(cxt)
- 	    && !mnt_context_is_lazy(cxt)
--	    && stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
- 	    && !has_utab_entry(cxt, tgt)) {
- 
- 		const char *type = mnt_fs_get_fstype(cxt->fs);
 
 
 -- 
-Best Regards / S pozdravem,
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+Matthias
