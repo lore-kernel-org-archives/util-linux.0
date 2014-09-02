@@ -1,46 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx-aarh-1.stofanet.dk ([212.10.10.11]:35596 "EHLO
-	mx-aarh-1.stofanet.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754790AbaIZQvf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 26 Sep 2014 12:51:35 -0400
-Received: from 5634f347.rev.stofanet.dk ([86.52.243.71] helo=asrock)
-	by mx-aarh-5.stofanet.dk (envelope-from
-	<sgh@sgh.dk>)
-	with esmtp id 1XXYUW-00046l-1m
-	for util-linux@vger.kernel.org; Fri, 26 Sep 2014 18:35:32 +0200
-From: =?UTF-8?q?S=C3=B8ren=20Holm?= <sgh@sgh.dk>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?S=C3=B8ren=20Holm?= <sgh@sgh.dk>
-Subject: [PATCH] Don't return root if path contains // or ending /
-Date: Fri, 26 Sep 2014 18:35:11 +0200
-Message-Id: <1411749311-16666-1-git-send-email-sgh@sgh.dk>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:61782 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750722AbaIBGwA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Sep 2014 02:52:00 -0400
+Received: by mail-wi0-f181.google.com with SMTP id e4so7190191wiv.8
+        for <util-linux@vger.kernel.org>; Mon, 01 Sep 2014 23:51:58 -0700 (PDT)
+Message-ID: <540569A3.8090904@gmail.com>
+Date: Tue, 02 Sep 2014 08:54:27 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: "Dale R. Worley" <worley@alum.mit.edu>
+CC: util-linux@vger.kernel.org
+Subject: Re: Weird behaviour with lsblk and freshly created loop device
+References: <54049344.4010502@gmail.com> <201409011941.s81JfCZf004329@hobgoblin.ariadne.com>
+In-Reply-To: <201409011941.s81JfCZf004329@hobgoblin.ariadne.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If the path fx. is /foo/bar/ the initial stripoff will replace the last slash
-with \0 and return a pointer to that exact \0 character. The same thing will
-happen if the path contains // somewhere.
+On 09/01/2014 09:41 PM, Dale R. Worley wrote:
+>> From: Francis Moreau <francis.moro@gmail.com>
+> 
+>> Right after associating a loop device with a disk image file, I'm using
+>> lsblk to retrieve some info about the partitions.
+>>
+>> If I'm doing this as root:
+>>
+>>   $ losetup /dev/loop0 /tmp/installer-disks/disk0.img && lsblk -n --raw
+>> --paths -o NAME,PARTTYPE /dev/loop0 && losetup -d /dev/loop0
+>>
+>> then the output is missing the parttypes:
+>>
+>>   /dev/loop0
+>>   /dev/loop0p1
+>>   /dev/loop0p2
+>>
+>> However adding a sleep or 'udevadm settle' after setting the loop device
+>> the parttypes are correctly showed:
+> 
+> It looks like the process of determining the partitions is
+> asynchronous, and is not assured of being completed when losetup
+> returns.
 
-Signed-off-by: Søren Holm <sgh@sgh.dk>
----
- libmount/src/tab.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Still lsblk lists the partitions.
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 011ba54..2b0a343 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -864,7 +864,7 @@ struct libmnt_fs *mnt_table_find_mountpoint(struct libmnt_table *tb,
- 		}
- 
- 		p = stripoff_last_component(mnt);
--		if (!p || !*p)
-+		if (!p)
- 			break;
- 	} while (mnt && *(mnt + 1) != '\0');
- 
--- 
-2.1.0
+I'm not sure how lsblk works. It seems that it relies on udev to get
+certain information, parttype is an example but doesn't for listing
+partitions of  block devices.
 
+That seems to make the whole process racy.
+
+If this is correct, I'm wondering why lsblk relies on udev to retrieve
+block device metadata. Can't it find them out directly from the kernel ?
+
+> 
+> What happens when you add -P to losetup?  The manual page (for Fedora
+> 19) says "force kernel to scan partition table on newly created loop
+> device", which suggests that the partition scan will be completed by
+> the time losetup returns.
+
+Adding -P doesn't help. Actually the kernel correctly detected the
+partitions embedded in the loop device. But udev hasn't handled the
+associeted events yet when lsblk is called.
+
+Thanks
