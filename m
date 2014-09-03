@@ -1,46 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qc0-f175.google.com ([209.85.216.175]:36020 "EHLO
-	mail-qc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751613AbaI0TEc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Sep 2014 15:04:32 -0400
-Received: by mail-qc0-f175.google.com with SMTP id o8so8011101qcw.34
-        for <util-linux@vger.kernel.org>; Sat, 27 Sep 2014 12:04:31 -0700 (PDT)
-From: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
-Subject: [PATCH] su: print proper core dump message when killed
-Date: Sat, 27 Sep 2014 16:04:16 -0300
-Message-Id: <1411844656-13266-1-git-send-email-paulo.cesar.pereira.de.andrade@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53324 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750937AbaICHtT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 3 Sep 2014 03:49:19 -0400
+Date: Wed, 3 Sep 2014 09:49:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: umount of unreachable NFS without -f [maybe PATCH]
+Message-ID: <20140903074915.GE21325@x2.net.home>
+References: <1409684978.14709.15.camel@oct.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1409684978.14709.15.camel@oct.suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-An example is, in one terminal "sudo su -; echo $$", and in
-another terminal, "kill -9  $PID" (the pid of the su -). It
-should not print "(core dumped)", unless the kill signal
-specified so, e.g. kill -7 or kill -11.
+On Tue, Sep 02, 2014 at 09:09:38PM +0200, Stanislav Brabec wrote:
+> I just analyzed causes of hang while calling umount without -f on an
+> unreachable NFS.
+> 
+> The first hang happens on in lookup_umount_fs():
+> 
+> stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
+> 
+> I don't exactly know, what its removal causes, but I tried it.
 
-Signed-off-by: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
----
- login-utils/su-common.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+The stat() is there to detect situations when someone calls
 
-diff --git a/login-utils/su-common.c b/login-utils/su-common.c
-index db72826..eb3b844 100644
---- a/login-utils/su-common.c
-+++ b/login-utils/su-common.c
-@@ -363,10 +363,9 @@ create_watching_parent (void)
-         {
-           if (WIFSIGNALED (status))
-             {
-+              fprintf (stderr, "%s%s\n", strsignal (WTERMSIG (status)),
-+                       WCOREDUMP (status) ? _(" (core dumped)") : "");
-               status = WTERMSIG (status) + 128;
--              if (WCOREDUMP (status))
--                fprintf (stderr, _("%s (core dumped)\n"),
--                   strsignal (WTERMSIG (status)));
-             }
-           else
-             status = WEXITSTATUS (status);
+  umount /dev/sda1
+
+then you don't want to call statfs() to get fs type, because the
+device is not a mountpoint. Note that statfs() works with arbitrary
+file, so we have to be careful...
+
+    Karel
+
+
 -- 
-1.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
