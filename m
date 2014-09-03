@@ -1,46 +1,66 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <5426D4C2.4060403@gmx.com>
-Date: Sat, 27 Sep 2014 11:16:18 -0400
-From: JWP <elseifthen@gmx.com>
-MIME-Version: 1.0
+Return-Path: ats@offog.org
+Date: Wed, 3 Sep 2014 16:55:54 +0100
+From: Adam Sampson <ats@offog.org>
 To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH 0/7] hwclock patch cover letter.
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.25.1
+Message-ID: <20140903155554.GS885@cartman.at.offog.org>
+References: <20140903105427.GH21325@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="f0KYrhQ4vYSV2aJu"
+In-Reply-To: <20140903105427.GH21325@x2.net.home>
+Sender: Adam Sampson <ats@offog.org>
 List-ID: <util-linux.vger.kernel.org>
 
-This hwclock patch set includes three topics, one
-is needed functionality, the other two are bug
-fixes.
 
-The first also fixes three bugs as a side effect
-(See 'Part II' in its commit message).
+--f0KYrhQ4vYSV2aJu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The second fixes a complaint we receive regularly
-from users that keep their Hardware Clock set to
-the local timescale while running NTP.
+On Wed, Sep 03, 2014 at 12:54:27PM +0200, Karel Zak wrote:
+>    - make ipcs limit calculations work when numbers are large
 
-Note: to test this fix you will need a kernel >= 3.13,
-as 11 minute mode was broken from 3.0 ~ 3.13-rc1.
+That change isn't right -- it reverses the sense of the test, making the
+testcase fail on 3.16 again. Patch attached.
 
-The third involves the use of --systohc at
-shutdown. We need this with 11 minute mode to
-refresh the adjtime file's timestamps, but doing
-so clobbers the drift factor to near zero.  When
-not running NTP it causes drift factor creep by
-assuming that the System Clock is keeping perfect
-time. Of course, it is not.
+Thanks,
 
-J William Piggott (7):
-  hwclock: hctosys drift compensation II
-  hwclock: hctosys drift compensation II COMMENTS
-  hwclock: hctosys drift compensation II MAN
-  hwclock: persistent_clock_is_local
-  hwclock: persistent_clock_is_local MAN
-  hwclock: Add --update option
-  hwclock: Add --update option MAN
+-- 
+Adam Sampson <ats@offog.org>                         <http://offog.org/>
+
+--f0KYrhQ4vYSV2aJu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="0001-Fix-the-test-for-shmall-being-too-big-to-show.patch"
+
+>From 1269b6bb74727043c16852bc34727a0c8d0696c7 Mon Sep 17 00:00:00 2001
+From: Adam Sampson <ats@offog.org>
+Date: Wed, 3 Sep 2014 16:49:40 +0100
+Subject: [PATCH] Fix the test for shmall being too big to show.
+
+It was correct when originally introduced, but the shell overflow fix in
+3a9ec12d6664527fad9c56347c88f3447d6c0856 accidentally reversed the sense
+of the test.
+
+Signed-off-by: Adam Sampson <ats@offog.org>
+---
+ tests/ts/ipcs/limits2 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/ts/ipcs/limits2 b/tests/ts/ipcs/limits2
+index 1a49c46..19f49fb 100755
+--- a/tests/ts/ipcs/limits2
++++ b/tests/ts/ipcs/limits2
+@@ -29,7 +29,7 @@ ts_check_prog "bc"
+ 
+ # TODO https://github.com/karelzak/util-linux/issues/51
+ SHMALL=$(</proc/sys/kernel/shmall)
+-if [ $(bc <<<"2^64 / $PAGE_SIZE < $SHMALL") -ne 1 ]; then
++if [ $(bc <<<"2^64 / $PAGE_SIZE < $SHMALL") -eq 1 ]; then
+ 	TS_KNOWN_FAIL="yes"
+ fi
+ 
+-- 
+2.0.4
 
 
- sys-utils/hwclock.8.in | 145 +++++++++++++++------
- sys-utils/hwclock.c    | 337 ++++++++++++++++++++++++++-----------------------
- 2 files changed, 281 insertions(+), 201 deletions(-)
+--f0KYrhQ4vYSV2aJu--
