@@ -1,41 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:47097 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750901AbaIWN0m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 23 Sep 2014 09:26:42 -0400
-Received: by mail-pa0-f53.google.com with SMTP id hz1so6640891pad.40
-        for <util-linux@vger.kernel.org>; Tue, 23 Sep 2014 06:26:41 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:21588 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751114AbaICHxL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 3 Sep 2014 03:53:11 -0400
+Date: Wed, 3 Sep 2014 09:53:03 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Michael Marineau <michael.marineau@coreos.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] build-sys: create parent directory for $(PATHFILES)
+Message-ID: <20140903075303.GF21325@x2.net.home>
+References: <1409715568-24476-1-git-send-email-michael.marineau@coreos.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1411417110.2384317.170486897.6828935E@webmail.messagingengine.com>
-References: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
-	<1411417110.2384317.170486897.6828935E@webmail.messagingengine.com>
-Date: Tue, 23 Sep 2014 14:26:41 +0100
-Message-ID: <CAG27Bk3EgO9k6uN+nDWny2G0MMrn97Jd5sFMRvPBEHO-hZZSBg@mail.gmail.com>
-Subject: Re: [PATCH 01/10] textual: use angular brackets around each
- individual argument
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1409715568-24476-1-git-send-email-michael.marineau@coreos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 22 September 2014 21:18, Benno Schulenberg <bensberg@justemail.net> wrote:
->
-> On Mon, Sep 22, 2014, at 22:15, Benno Schulenberg wrote:
->> -     fputs(_(" -u, --user <name|id>   interpret argument as username or user ID\n"), out);
->> +     fputs(_(" -u, --user <name>|<id> interpret argument as username or user ID\n"), out);
->
-> Sami?  How come that this change, that you seemed to have applied,
-> wasn't propagated to the github branch that Karel pulled?
+On Tue, Sep 02, 2014 at 08:39:28PM -0700, Michael Marineau wrote:
+>  Makefile.am | 1 +
+>  1 file changed, 1 insertion(+)
 
-Hi Benno,
+ Applied (will be in 2.25.1 too), thanks!
 
-I don't know. Maybe Karel did not fetch the latest changes before
-merging. Well, at least
-writing a patch to correct the angle brackets is easy.
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
