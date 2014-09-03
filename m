@@ -1,41 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:60448 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753442AbaI1TxH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:53:07 -0400
-Received: by mail-we0-f180.google.com with SMTP id x48so1125314wes.25
-        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:53:06 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:40187 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753267AbaICDjw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Sep 2014 23:39:52 -0400
+Received: by mail-pd0-f174.google.com with SMTP id ft15so10156895pdb.33
+        for <util-linux@vger.kernel.org>; Tue, 02 Sep 2014 20:39:51 -0700 (PDT)
+From: Michael Marineau <michael.marineau@coreos.com>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 20/23] libsmartcols: add explicit column flags default
-Date: Sun, 28 Sep 2014 20:51:53 +0100
-Message-Id: <1411933916-30576-21-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+Cc: Michael Marineau <michael.marineau@coreos.com>
+Subject: [PATCH] build-sys: create parent directory for $(PATHFILES)
+Date: Tue,  2 Sep 2014 20:39:28 -0700
+Message-Id: <1409715568-24476-1-git-send-email-michael.marineau@coreos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Useful when initializing without any specific action in mind, or when
-reseting flags later on.
+When building outside the source tree there is nothing to guarantee the
+target directory exists before writing to it. Most of the time this just
+happens to work because something else creates the directory but not
+always. For example:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+    $ mkdir build
+    $ cd build
+    $ ../configure --disable-dependency-tracking
+    $ make libuuid/uuid.pc
+      GEN      libuuid/uuid.pc
+    /bin/sh: line 2: libuuid/uuid.pc.tmp: No such file or directory
+    make: *** [libuuid/uuid.pc] Error 1
 ---
- libsmartcols/src/libsmartcols.h.in | 1 +
+ Makefile.am | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/libsmartcols/src/libsmartcols.h.in b/libsmartcols/src/libsmartcols.h.in
-index e612560..1699a4a 100644
---- a/libsmartcols/src/libsmartcols.h.in
-+++ b/libsmartcols/src/libsmartcols.h.in
-@@ -78,6 +78,7 @@ enum {
-  * Column flags
-  */
- enum {
-+	SCOLS_FL_DEFAULT     = 0,	   /* use default functionality */
- 	SCOLS_FL_TRUNC       = (1 << 0),   /* truncate fields data if necessary */
- 	SCOLS_FL_TREE        = (1 << 1),   /* use tree "ascii art" */
- 	SCOLS_FL_RIGHT	     = (1 << 2),   /* align to the right */
+diff --git a/Makefile.am b/Makefile.am
+index 79b5aea..08269e2 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -128,6 +128,7 @@ EXTRA_DIST += $(PATHFILES:=.in)
+ 
+ $(PATHFILES): Makefile
+ 	@ rm -f $@ $@.tmp
++	$(AM_V_at) test -d $(dir $@) || mkdir -p $(dir $@)
+ 	$(AM_V_GEN) srcdir=''; \
+ 		test -f ./$@.in || srcdir=$(srcdir)/; \
+ 		$(edit_cmd) $${srcdir}$@.in >$@.tmp
 -- 
-2.1.1
+1.8.5.5
 
