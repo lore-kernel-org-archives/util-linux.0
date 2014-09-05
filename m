@@ -1,41 +1,46 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:49507 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751943AbaI1TwN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:13 -0400
-Received: by mail-wi0-f169.google.com with SMTP id hi2so3462923wib.2
-        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 05/23] flock: add error message to translations
-Date: Sun, 28 Sep 2014 20:51:38 +0100
-Message-Id: <1411933916-30576-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: francis.moro@gmail.com
+Message-ID: <54097099.4070505@gmail.com>
+Date: Fri, 05 Sep 2014 10:13:13 +0200
+From: Francis Moreau <francis.moro@gmail.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: Weird behaviour with lsblk and freshly created loop device
+References: <54049344.4010502@gmail.com> <20140901175609.GA21325@x2.net.home> <54056BD1.1080205@gmail.com> <20140902073020.GB21325@x2.net.home> <5405F446.2040202@gmail.com> <20140905074535.GI21325@x2.net.home>
+In-Reply-To: <20140905074535.GI21325@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-And remove type casting.
+On 09/05/2014 09:45 AM, Karel Zak wrote:
+> On Tue, Sep 02, 2014 at 06:45:58PM +0200, Francis Moreau wrote:
+>>> That's question, now (because it's not hardcoded to lsblk) everyone is
+>>> able to control this behavior, all you need is to add 'udevadm settle'
+>>> to your use-case. 
+>>
+>> The question is more why let the user do that ?
+> 
+>  because we're talking about small, simple command line util, not
+>  about complex high-level UI
+>  
+>> If lsblk reports the partitions, shouldn't it do that only when it's
+>> sure to fully have retrieve the partition's metadata ?
+> 
+>  if you do not have exclusive access to the device then you cannot be
+>  sure at all. All is asynchronous...
+> 
+>> BTW, is the user supposed to know that lsblk relies on udev or is this
+>> implementation detail ?
+> 
+>  This is very generic system feature, for example if you want to mount
+>  a device by /dev/disk/by-* symlinks then nowhere is guarantee that
+>  mount(8) is not faster than udev+blkid, etc.
+> 
+>  Yes, we can add "udevadm settle" functionality into all system utils,
+>  but it will increase complexity and degrade performance. So from my
+>  point of view it seems better to explain the problem in man page,
+>  keep lsblk simple and stupid and assume that users who really care
+>  will use "udevadm settle".
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/flock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Also you might want to add a new option for forcing lsblk to wait for udev ?
 
-diff --git a/sys-utils/flock.c b/sys-utils/flock.c
-index f160eac..810a061 100644
---- a/sys-utils/flock.c
-+++ b/sys-utils/flock.c
-@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
- 
- 	} else if (optind < argc) {
- 		/* Use provided file descriptor */
--		fd = (int)strtol_or_err(argv[optind], "bad number");
-+		fd = strtos32_or_err(argv[optind], _("bad file descriptor"));
- 	} else {
- 		/* Bad options */
- 		errx(EX_USAGE, _("requires file descriptor, file or directory"));
--- 
-2.1.1
-
+Thanks for your answers.
