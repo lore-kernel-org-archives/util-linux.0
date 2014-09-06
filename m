@@ -1,90 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39079 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753668AbaILJ0Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Sep 2014 05:26:16 -0400
-Date: Fri, 12 Sep 2014 11:26:04 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 12/17] eject: add struct eject_control to remove global
- variables
-Message-ID: <20140912092604.GV21325@x2.net.home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
- <1410093785-17537-13-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410093785-17537-13-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:50677 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750940AbaIFLZF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 6 Sep 2014 07:25:05 -0400
+Received: by mail-wi0-f181.google.com with SMTP id e4so548903wiv.14
+        for <util-linux@vger.kernel.org>; Sat, 06 Sep 2014 04:25:04 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/6] renice: disallow --priority <arg> without pid argument
+Date: Sat,  6 Sep 2014 12:24:50 +0100
+Message-Id: <1410002693-16540-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
+References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 07, 2014 at 01:43:00PM +0100, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  sys-utils/eject.c | 394 +++++++++++++++++++++++++++---------------------------
->  1 file changed, 198 insertions(+), 196 deletions(-)
-> 
-> diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-> index 03744c7..767ede7 100644
-> --- a/sys-utils/eject.c
-> +++ b/sys-utils/eject.c
-> @@ -81,31 +81,34 @@ static const char * const hotplug_subsystems[] = {
->  	"ccw"
->  };
->  
-> -/* Global Variables */
-> -static int a_option; /* command flags and arguments */
-> -static int c_option;
-> -static int d_option;
-> -static int f_option;
-> -static int F_option;
-> -static int n_option;
-> -static int q_option;
-> -static int r_option;
-> -static int s_option;
-> -static int t_option;
-> -static int T_option;
-> -static int X_option;
-> -static int v_option;
-> -static int x_option;
-> -static int p_option;
-> -static int m_option;
-> -static int M_option;
-> -static int i_option;
-> -static int a_arg;
-> -static int i_arg;
-> -static long int c_arg;
-> -static long int x_arg;
-> -
-> -struct libmnt_table *mtab;
-> +struct eject_control {
-> +	struct libmnt_table *mtab;
-> +	char *device;			/* device or mount point to be ejected */
-> +	int fd;				/* file descriptor for device */
-> +	uint32_t 			/* command flags and arguments */
+Earlier a lonely priority with an argument but without pid resulted to no
+action and success, when the invocation should have failed.
 
- Again, don't be creative, use "unsigned int". The reality is that
- you have zero control on the way how compiler pack the bits.
+$ renice --priority 42 ; echo $?
+0
 
-C99:
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/renice.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-An implementation may allocate any addressable storage unit large
-enough to hold a bit- field. If enough space remains, a bit-field that
-immediately follows another bit-field in a structure shall be packed
-into adjacent bits of the same unit. If insufficient space remains,
-whether a bit-field that does not fit is put into the next unit or
-overlaps adjacent units is implementation-defined. The order of
-allocation of bit-fields within a unit (high-order to low-order or
-low-order to high-order) is implementation-defined. The alignment of
-the addressable storage unit is unspecified.
-
-
- We usually use uintXX_t for on-disk data, to be sure with
- large numbers (uintmax_t) or for things that have any dependence on
- system. It's really unnecessary for any random control struct.
-
-        Karel
-
+diff --git a/sys-utils/renice.c b/sys-utils/renice.c
+index 0605680..2075d40 100644
+--- a/sys-utils/renice.c
++++ b/sys-utils/renice.c
+@@ -131,14 +131,14 @@ main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if (argc < 2)
+-		usage(stderr);
+-
+-	if (strcmp(*argv, "-n") == 0 || strcmp(*argv, "--priority") == 0) {
++	if (*argv && (strcmp(*argv, "-n") == 0 || strcmp(*argv, "--priority") == 0)) {
+ 		argc--;
+ 		argv++;
+ 	}
+ 
++	if (argc < 2)
++		usage(stderr);
++
+ 	prio = strtol(*argv, &endptr, 10);
+ 	if (*endptr)
+ 		usage(stderr);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.0
+
