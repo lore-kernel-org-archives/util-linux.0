@@ -1,143 +1,84 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:62969 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752096AbaIGMnL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:11 -0400
+Received: by mail-wg0-f41.google.com with SMTP id l18so13541453wgh.0
+        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:09 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:13:12 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/6] renice: avoid having same lines of code twice
-In-Reply-To: <20140912073504.GQ21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162106330.3712@kerolasa-home>
-References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi> <1410002693-16540-5-git-send-email-kerolasa@iki.fi> <20140912073504.GQ21325@x2.net.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/17] pull: miscellaneous changes
+Date: Sun,  7 Sep 2014 13:42:48 +0100
+Message-Id: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
+Hello,
 
-> On Sat, Sep 06, 2014 at 12:24:51PM +0100, Sami Kerola wrote:
->> +static int getprio(const int which, const int who, const char *idtype)
->> +{
->> +	int ret;
->> +
->> +	errno = 0;
->> +	ret = getpriority(which, who);
->> +	if (ret == -1 && errno) {
->> +		warn(_("failed to get priority for %d (%s)"), who, idtype);
->> +		return PRIO_MAX + 1;
->> +	}
->> +	return ret;
->> +}
->
-> This is exactly the situation when you want to use "return" only for 
-> function status rather than for any data.
->
-> static int getprio(const int which,
->                   const int who,
->                   const char *idtype,
->                   int *prio)                       <--------!
-> {
->    errno = 0;
->    *prio = getpriority(which, who);
->    if (*prio == -1 && errno) {
->        warn(_("failed to get priority for %d (%s)"), who, idtype);
->        return -errno;
->    }
->    return 0;
-> }
->
->
->> -	errno = 0;
->> -	newprio = getpriority(which, who);
->> -	if (newprio == -1 && errno) {
->> -		warn(_("failed to get priority for %d (%s)"), who, idtype);
->> +	if ((newprio = getprio(which, who, idtype)) == PRIO_MAX + 1)
->>  		return 1;
->> -	}
->
->   if (getprio(which, who, idtype, &newprio) != 0)
->        return 1;
->
-> .. so you don't need complicated things like PRIO_MAX + 1.
+This patch set is full of random small changes all around the util-linux
+code base.  I am pretty sure all changes are good, but it would be really
+good if someone could double check the last one of the changes, setarch:
+remove unreachable code, is correct.
 
-Hi Karel,
+While doing eject changes I noticed eject(1) executing umount(8).  That
+works, but shouldn't the code be changed to use libmount?  Or is that a
+pointless complication?
 
-That is a great improvement. Here is updated version of the change.
 
--->8---
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Fri, 5 Sep 2014 23:33:16 +0100
-Subject: [PATCH 4/7] renice: avoid having same lines of code twice
 
-Add getprio() function to avoid duplication of a simple task.
+The following changes since commit 3c2e64b0ca73b90b80365842e95abb2858217e60:
 
-Reviewed-by: Karel Zak <kzak@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
-  sys-utils/renice.c | 32 ++++++++++++++++----------------
-  1 file changed, 16 insertions(+), 16 deletions(-)
+  lsblk: add notes about udev to the man page (2014-09-05 10:02:45 +0200)
 
-diff --git a/sys-utils/renice.c b/sys-utils/renice.c
-index 2075d40..d83fc4a 100644
---- a/sys-utils/renice.c
-+++ b/sys-utils/renice.c
-@@ -67,8 +67,19 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
-  	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-  }
+are available in the git repository at:
 
--static int
--donice(int which, int who, int prio) {
-+static int getprio(const int which, const int who, const char *idtype, int *prio)
-+{
-+	errno = 0;
-+	*prio = getpriority(which, who);
-+	if (*prio == -1 && errno) {
-+		warn(_("failed to get priority for %d (%s)"), who, idtype);
-+		return -errno;
-+	}
-+	return 0;
-+}
-+
-+static int donice(int which, int who, int prio)
-+{
-  	int oldprio, newprio;
-  	const char *idtype = _("process ID");
+  git://github.com/kerolasa/lelux-utiliteetit.git misc
 
-@@ -76,24 +87,14 @@ donice(int which, int who, int prio) {
-  		idtype = _("user ID");
-  	else if (which == PRIO_PGRP)
-  		idtype = _("process group ID");
--
--	errno = 0;
--	oldprio = getpriority(which, who);
--	if (oldprio == -1 && errno) {
--		warn(_("failed to get priority for %d (%s)"), who, idtype);
-+	if (getprio(which, who, idtype, &oldprio) != 0)
-  		return 1;
--	}
-  	if (setpriority(which, who, prio) < 0) {
-  		warn(_("failed to set priority for %d (%s)"), who, idtype);
-  		return 1;
-  	}
--	errno = 0;
--	newprio = getpriority(which, who);
--	if (newprio == -1 && errno) {
--		warn(_("failed to get priority for %d (%s)"), who, idtype);
-+	if (getprio(which, who, idtype, &newprio) != 0)
-  		return 1;
--	}
--
-  	printf(_("%d (%s) old priority %d, new priority %d\n"),
-  	       who, idtype, oldprio, newprio);
-  	return 0;
-@@ -103,8 +104,7 @@ donice(int which, int who, int prio) {
-   * Change the priority (the nice value) of processes
-   * or groups of processes which are already running.
-   */
--int
--main(int argc, char **argv)
-+int main(int argc, char **argv)
-  {
-  	int which = PRIO_PROCESS;
-  	int who = 0, prio, errs = 0;
+for you to fetch changes up to 04ea258e5dcdf71cdb1137266151e06ce348ed80:
+
+  setarch: remove unreachable code (2014-09-07 13:30:14 +0100)
+
+
+Sami Kerola (17):
+  libuuid: add extern qualifiers to uuid/uuid.h system header
+  include: simplify fputc_careful() in carefulputc.h
+  lib: avoid use of obsolete getpass() function
+  lib: add function to remove string from memory
+  newgrp: use xgetpass() and memset_s() to group password validation
+  last: make is_phantom() when kernel config does not include audit
+    support
+  last: improve code readability by renaming variable names
+  zramctl: fix two format string warnings
+  mountpoint: add struct mountpoint_control
+  mkfs.minix: fix couple compiler warnings
+  mountpoint: simplify if statement
+  eject: add struct eject_control to remove global variables
+  eject: make open_device() and select_speed() to use struct
+    eject_control
+  hwclock: remove referal to deprecated keyboard interface
+  setarch: reindent code
+  setarch: use personality() system call when it is available
+  setarch: remove unreachable code
+
+ disk-utils/mkfs.minix.c |  16 +-
+ include/carefulputc.h   |  16 +-
+ include/xgetpass.h      |   3 +-
+ lib/xgetpass.c          |  68 ++++---
+ libuuid/src/uuid.h      |  30 +--
+ login-utils/last.c      |  53 +++--
+ login-utils/newgrp.c    |   3 +-
+ sys-utils/Makemodule.am |   3 +-
+ sys-utils/eject.c       | 422 ++++++++++++++++++++--------------------
+ sys-utils/hwclock-kd.c  | 180 -----------------
+ sys-utils/hwclock.c     |   3 -
+ sys-utils/hwclock.h     |   1 -
+ sys-utils/mountpoint.c  |  93 ++++-----
+ sys-utils/setarch.c     | 506 +++++++++++++++++++++++-------------------------
+ sys-utils/zramctl.c     |   4 +-
+ 15 files changed, 609 insertions(+), 792 deletions(-)
+ delete mode 100644 sys-utils/hwclock-kd.c
+
 -- 
 2.1.0
+
