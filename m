@@ -1,93 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:34668 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752329AbaIGMn0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:26 -0400
-Received: by mail-wi0-f177.google.com with SMTP id cc10so1374845wib.10
-        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:24 -0700 (PDT)
+Received: from mail-we0-f172.google.com ([74.125.82.172]:60430 "EHLO
+	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752317AbaIGMnW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:22 -0400
+Received: by mail-we0-f172.google.com with SMTP id w62so1251992wes.31
+        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:21 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 06/17] last: make is_phantom() when kernel config does not include audit support
-Date: Sun,  7 Sep 2014 13:42:54 +0100
-Message-Id: <1410093785-17537-7-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 05/17] newgrp: use xgetpass() and memset_s() to group password validation
+Date: Sun,  7 Sep 2014 13:42:53 +0100
+Message-Id: <1410093785-17537-6-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
 References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When kernel CONFIG_AUDIT is not set the /proc/<pid>/loginuid information
-is not present resulting live sessions to be marked 'gone - no logout' in
-last(1) print out.  To go-around this change makes last(1) to look
-/dev/<tty> device ownership as a substitute of loginuid.
-
-The go-around seems to work fairly well, but it has it short comings.
-For example after closing a X window session the /dev/ttyN file seems to
-be owned by root, not the user who had it before entering to the X
-session.  While that is suboptimal it is still better than an attmempt to
-determine uid_t by looking owner of the /proc/<struct utmp ut_pid>, that
-is a login(1) process running as root.
-
-The issue was found using Archlinux installation.
-
-$ pacman -Qi linux
-Name           : linux
-Version        : 3.16-2
-[...]
-Build Date     : Mon Aug 4 18:06:51 2014
-
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/last.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ login-utils/newgrp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/login-utils/last.c b/login-utils/last.c
-index f7a2576..fb82f31 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -582,8 +582,6 @@ static int is_phantom(const struct last_control *ctl, struct utmp *ut)
- {
- 	struct passwd *pw;
- 	char path[32];
--	FILE *f = NULL;
--	unsigned int loginuid;
- 	int ret = 0;
+diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
+index 55dad1b..84e20b0 100644
+--- a/login-utils/newgrp.c
++++ b/login-utils/newgrp.c
+@@ -99,9 +99,10 @@ static int allow_setgid(struct passwd *pe, struct group *ge)
+ 	if (!(pwd = get_gshadow_pwd(ge->gr_name)))
+ 		pwd = ge->gr_passwd;
  
- 	if (ut->UL_UT_TIME < ctl->boot_time.tv_sec)
-@@ -592,14 +590,26 @@ static int is_phantom(const struct last_control *ctl, struct utmp *ut)
- 	if (!pw)
- 		return 1;
- 	sprintf(path, "/proc/%u/loginuid", ut->ut_pid);
--	if (access(path, R_OK) != 0 || !(f = fopen(path, "r")))
--		return 1;
-+	if (access(path, R_OK) == 0) {
-+		unsigned int loginuid;
-+		FILE *f = NULL;
-+
-+		if (!(f = fopen(path, "r")))
-+			return 1;
-+		if (fscanf(f, "%u", &loginuid) != 1)
-+			ret = 1;
-+		fclose(f);
-+		if (!ret && pw->pw_uid != loginuid)
-+			return 1;
-+	} else {
-+		struct stat st;
+-	if (pwd && *pwd && (xpwd = getpass(_("Password: ")))) {
++	if (pwd && *pwd && (xpwd = xgetpass(_("Password: ")))) {
+ 		char *cbuf = crypt(xpwd, pwd);
  
--	if (fscanf(f, "%u", &loginuid) != 1)
--		ret = 1;
--	fclose(f);
--	if (!ret && pw->pw_uid != loginuid)
--		return 1;
-+		sprintf(path, "/dev/%s", ut->ut_line);
-+		if (stat(path, &st))
-+			return 1;
-+		if (pw->pw_uid != st.st_uid)
-+			return 1;
-+	}
- 	return ret;
- }
- 
++		memset_s(xpwd, strlen(xpwd), 0);
+ 		if (!cbuf)
+ 			warn(_("crypt() failed"));
+ 		else if (strcmp(pwd, cbuf) == 0)
 -- 
 2.1.0
 
