@@ -1,77 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f175.google.com ([74.125.82.175]:34201 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752364AbaIGMn2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:28 -0400
-Received: by mail-we0-f175.google.com with SMTP id k48so13722303wev.20
-        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:27 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 07/17] last: improve code readability by renaming variable names
-Date: Sun,  7 Sep 2014 13:42:55 +0100
-Message-Id: <1410093785-17537-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:44617 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751357AbaIJIrg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 10 Sep 2014 04:47:36 -0400
+Date: Wed, 10 Sep 2014 10:47:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: mount error message
+Message-ID: <20140910084732.GN21325@x2.net.home>
+References: <540CA199.8070307@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <540CA199.8070307@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/last.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+On Sun, Sep 07, 2014 at 01:19:05PM -0500, Bruce Dubbs wrote:
+> I have a user that complains that mount is giving an incorrect error message
+> under some circumstances.  For instance if mtab is symlinked to
+> /proc/self/mounts the command and /run is not in fstab:
+> 
+> $ mount /run
+> 
+> returns an error message:
+> 
+>   mount: /run: No such file or directory
+> 
+> However if mtab is a regular file, the error message is:
+> 
+>   mount: can't find /run in /etc/fstab
 
-diff --git a/login-utils/last.c b/login-utils/last.c
-index fb82f31..54d9e1f 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -376,9 +376,9 @@ static void trim_trailing_spaces(char *s)
- /*
-  *	Show one line of information on screen
-  */
--static int list(const struct last_control *ctl, struct utmp *p, time_t t, int what)
-+static int list(const struct last_control *ctl, struct utmp *p, time_t logout_time, int what)
- {
--	time_t		secs, tmp, epoch;
-+	time_t		secs, utmp_time, now;
- 	char		logintime[LAST_TIMESTAMP_LEN];
- 	char		logouttime[LAST_TIMESTAMP_LEN];
- 	char		length[LAST_TIMESTAMP_LEN];
-@@ -417,22 +417,25 @@ static int list(const struct last_control *ctl, struct utmp *p, time_t t, int wh
- 	/*
- 	 *	Calculate times
- 	 */
--	tmp = p->UL_UT_TIME;
-+	utmp_time = p->UL_UT_TIME;
- 
--	if (ctl->present && (ctl->present < tmp || (0 < t && t < ctl->present)))
--		return 0;
--
--	if (time_formatter(ctl, &logintime[0], sizeof(logintime), &tmp, 0) < 0 ||
--	    time_formatter(ctl, &logouttime[0], sizeof(logouttime), &t, 1) < 0)
-+	if (ctl->present) {
-+		if (ctl->present < utmp_time)
-+			return 0;
-+		if (0 < logout_time && logout_time < ctl->present)
-+			return 0;
-+	}
-+	if (time_formatter(ctl, &logintime[0], sizeof(logintime), &utmp_time, 0) < 0 ||
-+	    time_formatter(ctl, &logouttime[0], sizeof(logouttime), &logout_time, 1) < 0)
- 		errx(EXIT_FAILURE, _("preallocation size exceeded"));
- 
--	secs = t - p->UL_UT_TIME;
-+	secs  = logout_time - utmp_time;
- 	mins  = (secs / 60) % 60;
- 	hours = (secs / 3600) % 24;
- 	days  = secs / 86400;
- 
--	epoch = time(NULL);
--	if (t == epoch) {
-+	now = time(NULL);
-+	if (logout_time == now) {
- 		if (ctl->time_fmt > LAST_TIMEFTM_SHORT_CTIME) {
- 			sprintf(logouttime, "  still running");
- 			length[0] = 0;
+
+$ test -d /mnt/test && echo "yes" || echo "no"
+yes
+$ test -d /nothing && echo "yes" || echo "no"
+no
+
+
+$ ls -l  /etc/mtab 
+lrwxrwxrwx 1 root root 12 Jun 17 15:42 /etc/mtab -> /proc/mounts
+
+$ mount /mnt/test
+mount: can't find /mnt/test in /etc/fstab
+
+$ mount /nothing
+mount: /nothing: No such file or directory
+
+
+$ ls -l  /etc/mtab 
+-r--r--r-- 1 root root 2693 Sep 10 10:16 /etc/mtab
+
+$ mount /mnt/test
+mount: can't find /mnt/test in /etc/fstab
+$ mount /nothing 
+mount: /nothing: No such file or directory
+
+
+All works as expected.
+
+Note that mount(8) sanitize paths specified by non-root users on
+command line, so the message "No such file or directory" is really
+expected and it's far before libmount starts to evaluate things in
+mtab/fstab.
+
+    Karel
+
 -- 
-2.1.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
