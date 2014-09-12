@@ -1,44 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:46887 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751418AbaIRXhd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 18 Sep 2014 19:37:33 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 60A5DE161
-	for <util-linux@vger.kernel.org>; Fri, 19 Sep 2014 01:37:02 +0200 (CEST)
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 4/5] build-sys: swaplabel needs libmount
-Date: Fri, 19 Sep 2014 01:36:36 +0200
-Message-Id: <1411083397-8056-4-git-send-email-andreas@fatal.se>
-In-Reply-To: <1411083397-8056-1-git-send-email-andreas@fatal.se>
-References: <1411083397-8056-1-git-send-email-andreas@fatal.se>
+Received: from mx1.redhat.com ([209.132.183.28]:48890 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752791AbaILIEH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Sep 2014 04:04:07 -0400
+Date: Fri, 12 Sep 2014 10:03:54 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 5/6] renice: fix numeric uid argument parsing
+Message-ID: <20140912080354.GR21325@x2.net.home>
+References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
+ <1410002693-16540-6-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1410002693-16540-6-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The swaplabel utility uses libmount functionality and
-thus libmount has to be available if we want to build
-swaplabel. This change makes swaplabel be automatically
-disabled when we don't.
+On Sat, Sep 06, 2014 at 12:24:52PM +0100, Sami Kerola wrote:
+>  		if (which == PRIO_USER) {
+> -			register struct passwd *pwd = getpwnam(*argv);
+> +			struct passwd *pwd = getpwnam(*argv);
+>  
+> -			if (pwd == NULL) {
+> -				warnx(_("unknown user %s"), *argv);
+> -				errs = 1;
+> -				continue;
+> +			if (pwd != NULL)
+> +				who = pwd->pw_uid;
+> +			else {
+> +				error_msg = _("unknown user %s");
+> +				goto numeric_pid;
+>  			}
+> -			who = pwd->pw_uid;
+>  		} else {
+> +			error_msg = _("bad value %s");
+> + numeric_pid:
+>  			who = strtol(*argv, &endptr, 10);
+>  			if (who < 0 || *endptr) {
+> -				warnx(_("bad value %s"), *argv);
+> +				warnx(error_msg, *argv);
+>  				errs = 1;
+>  				continue;
+>  			}
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- configure.ac | 1 +
- 1 file changed, 1 insertion(+)
+ The goto is unnecessary. Just set who = -1 by default.
 
-diff --git a/configure.ac b/configure.ac
-index ed3a65d..f8b3397 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1143,6 +1143,7 @@ AM_CONDITIONAL([BUILD_WDCTL], [test "x$build_wdctl" = xyes])
- 
- UL_BUILD_INIT([swaplabel], [check])
- UL_REQUIRES_BUILD([swaplabel], [libblkid])
-+UL_REQUIRES_BUILD([swaplabel], [libmount])
- AM_CONDITIONAL([BUILD_SWAPLABEL], [test "x$build_swaplabel" = xyes])
- 
- 
+  who = -1;
+  if (which == PRIO_USER) {
+        ...
+        who = pwd->pw_uid;
+  }
+
+  if (who < 0) {
+        who = strtol(*argv, &endptr, 10);
+        ...
+        if (who < 0 || *endptr)
+            warnx(_("failed to parse %s argument"), idtype[which]);
+  }
+
+
+    Karel
+
 -- 
-2.1.0.rc1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
