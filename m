@@ -1,43 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58066 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:52190 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753421AbaIPNI3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Sep 2014 09:08:29 -0400
-Message-ID: <54183647.2080101@gmx.com>
-Date: Tue, 16 Sep 2014 09:08:23 -0400
-From: JWP <elseifthen@gmx.com>
+	id S1752087AbaILJuv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Sep 2014 05:50:51 -0400
+Date: Fri, 12 Sep 2014 11:50:38 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 17/17] setarch: remove unreachable code
+Message-ID: <20140912095038.GW21325@x2.net.home>
+References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+ <1410093785-17537-18-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: * RECALL * [PATCH 1/2] hwclock: hctosys drift compensation
-References: <5415EC97.4060305@gmx.com> <5416F1CC.2010007@gmx.com> <20140916093525.GG7867@x2.net.home>
-In-Reply-To: <20140916093525.GG7867@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1410093785-17537-18-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel,
+On Sun, Sep 07, 2014 at 01:43:05PM +0100, Sami Kerola wrote:
+> Architectures are protected using '#if defined' clauses, making the code
+> in this removal to be impossible to reach.
 
-On 09/16/2014 05:35 AM, Karel Zak wrote:  
->  See Documentation/TODO, the writable /etc/adjtime sucks, because in
->  many cases we want to keep /etc read-only. I see two possible ways:
+ Hmmm.. I guess the code tries to verify that the result architecture
+ after personality() matches with uname.machine (except to
+ i{486,586,...}), to be sure that our request has been correctly
+ interpreted by kernel.
 
-Yes, I saw that and have it on my todo list.  However, it is down my list a ways.
-I had not planned on attempting to integrate it into the hctosys/show patch.
+ IMHO it's correct.
 
->      -- the problem is that the file (specially last UTC/LOCAL line)
->         may be expected by another tools
-
-True, init scripts depend upon that information too. So it is an important
-consideration.
-
-My initial thought when I read u-l's todo list was that adjtimex [ -c | -a ]
-depend upon /etc/adjtime *drift* data.  Do we care about breaking that?
-
-BJH's hwclock uses /var/state/adjtime, that seems like a good choice as well. ?
-
-I have often thought that hwclock should have a separate 'configuration' file,
-for example, to allow specific init behavior customization without requiring
-system admins to modify the init scripts.
-
-Will
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
