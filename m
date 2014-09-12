@@ -1,62 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57065 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:63709 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751109AbaICHpW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 3 Sep 2014 03:45:22 -0400
-Date: Wed, 3 Sep 2014 09:45:17 +0200
+	id S1751131AbaILJOX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Sep 2014 05:14:23 -0400
+Date: Fri, 12 Sep 2014 11:14:11 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: umount of unreachable NFS without -f [maybe PATCH]
-Message-ID: <20140903074517.GD21325@x2.net.home>
-References: <1409684978.14709.15.camel@oct.suse.cz>
+Subject: Re: [PATCH 09/17] mountpoint: add struct mountpoint_control
+Message-ID: <20140912091411.GU21325@x2.net.home>
+References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+ <1410093785-17537-10-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1409684978.14709.15.camel@oct.suse.cz>
+In-Reply-To: <1410093785-17537-10-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 02, 2014 at 09:09:38PM +0200, Stanislav Brabec wrote:
-> I just analyzed causes of hang while calling umount without -f on an
-> unreachable NFS.
+On Sun, Sep 07, 2014 at 01:42:57PM +0100, Sami Kerola wrote:
+> This unifies variable names in different functions, and removes redundant
+> stat() calls.
 > 
-> The first hang happens on in lookup_umount_fs():
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/mountpoint.c | 86 ++++++++++++++++++++++++--------------------------
+>  1 file changed, 41 insertions(+), 45 deletions(-)
 > 
-> stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
-> 
-> I don't exactly know, what its removal causes, but I tried it.
-> 
-> I entered into next hang in mnt_resolve_path() inside has_utab_entry().
-> We cannot prevent this hang in all cases, but preventing it in a
-> standard situation is pretty straightforward: Try to match provided
-> target name before trying to canonicalize.
-> 
-> Now my umount without -f works well at least in the case, when the mount
-> point is recorded in the utab.
-> 
-> If it is not recorded in utab, it still hangs later in
-> lookup_umount_fs() on:
-> 
-> if (statfs(tgt, &vfs) == 0)
-> 
-> Well, we can prevent even this hang, but it would be at cost of parsing
-> mtab. I read your git comments and I see, that the whole purpose of the
-> code is preventing of parsing of the generated mtab/mountinfo.
-> 
-> Would be parsing of fstab a safe way without paying this cost?
+> diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+> index 3919ab7..3392cdd 100644
+> --- a/sys-utils/mountpoint.c
+> +++ b/sys-utils/mountpoint.c
+> @@ -40,9 +40,17 @@
+>  #include "closestream.h"
+>  #include "pathnames.h"
+>  
+> -static int quiet;
+> +struct mountpoint_control {
+> +	char *devname;
 
-How often do you have NFS mounts without entry within utab? I think it's
-pretty unusual (I guess you have mount.nfs linked with libmount).
+ This member name makes the code difficult to read, on many places it's
+ not device at all. Please, use "path" or "spec" rather then "devname".
 
-The change in has_utab_entry() is definitely good idea, but I'm not
-sure about the rest. Maybe it would be enough to call has_utab_entry()
-before
+> +	dev_t dev;
+> +	struct stat st;
+> +	uint8_t
+> +		dev_devno:1,
+> +		fs_devno:1,
+> +		quiet:1;
+> +};
 
-    stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
+ Use "unsigned int" for bit fields, it's compiler business to optimize
+ how the bits are packed in the struct.
 
 
-then it will be good enough for almost all NFS mounts (with utab
-entries).
+C99, 6.7.2.1 Structure and union specifiers
+
+ A bit-field shall have a type that is a qualified or unqualified
+ version of _Bool, signed int, unsigned int, or some other
+ implementation-defined type.
 
     Karel
 
