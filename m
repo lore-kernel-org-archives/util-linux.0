@@ -1,34 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52190 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752087AbaILJuv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Sep 2014 05:50:51 -0400
-Date: Fri, 12 Sep 2014 11:50:38 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:58120 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752465AbaINL5w (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Sep 2014 07:57:52 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 9F6E0241C2
+	for <util-linux@vger.kernel.org>; Sun, 14 Sep 2014 13:57:49 +0200 (CEST)
+Date: Sun, 14 Sep 2014 13:57:45 +0200
+From: Andreas Henriksson <andreas@fatal.se>
+To: Boris Egorov <egorov@linux.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 17/17] setarch: remove unreachable code
-Message-ID: <20140912095038.GW21325@x2.net.home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
- <1410093785-17537-18-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] lscpu: fix cppcheck warnings
+Message-ID: <20140914115745.GA20978@fatal.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410093785-17537-18-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 07, 2014 at 01:43:05PM +0100, Sami Kerola wrote:
-> Architectures are protected using '#if defined' clauses, making the code
-> in this removal to be impossible to reach.
+Hello Boris Egorov!
 
- Hmmm.. I guess the code tries to verify that the result architecture
- after personality() matches with uname.machine (except to
- i{486,586,...}), to be sure that our request has been correctly
- interpreted by kernel.
+I spotted something in your patch that doesn't look right to me.
 
- IMHO it's correct.
+[...]
+> --- a/sys-utils/lscpu-dmi.c
+> +++ b/sys-utils/lscpu-dmi.c
+> @@ -161,7 +161,7 @@ static int hypervisor_from_dmi_table(uint32_t base, uint16_t len,
+>  	else if (manufacturer && strstr(manufacturer, "HITACHI") &&
+>  					product && strstr(product, "LPAR"))
+>  		rc = HYPER_HITACHI;
+> -	else if (!vendor && strcmp(vendor, "Parallels"))
+> +	else if (vendor && strcmp(vendor, "Parallels"))
+                           ^
+Shouldn't the ! be here? --^
+(alternatively: vendor && 0 == strcmp...)
 
-    Karel
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>  		rc = HYPER_PARALLELS;
+>  done:
+>  	free(buf);
+[...]
+
+
+Regards,
+Andreas Henriksson
