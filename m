@@ -1,71 +1,48 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:39:39 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 12/17] eject: add struct eject_control to remove global
- variables
-In-Reply-To: <20140912092604.GV21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162137590.3712@kerolasa-home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi> <1410093785-17537-13-git-send-email-kerolasa@iki.fi> <20140912092604.GV21325@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41170 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752061AbaIOM5X (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 15 Sep 2014 08:57:23 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by gateway2.nyi.internal (Postfix) with ESMTP id A782920B9C
+	for <util-linux@vger.kernel.org>; Mon, 15 Sep 2014 08:57:22 -0400 (EDT)
+Message-Id: <1410785842.2933378.167623997.3BD2AF1B@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Marcin Kocur <marcin2006@gmail.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>,
+        Jakub Bogusz <qboosh@pld-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain
+In-Reply-To: <5416D9FC.50204@gmail.com>
+References: <5416D9FC.50204@gmail.com>
+Subject: Re: cfdisk 2.25 doesn't write partition table when using localized
+ version
+Date: Mon, 15 Sep 2014 14:57:22 +0200
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
 
-> On Sun, Sep 07, 2014 at 01:43:00PM +0100, Sami Kerola wrote:
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  sys-utils/eject.c | 394 +++++++++++++++++++++++++++---------------------------
->>  1 file changed, 198 insertions(+), 196 deletions(-)
->>
->> diff --git a/sys-utils/eject.c b/sys-utils/eject.c
->> index 03744c7..767ede7 100644
->> --- a/sys-utils/eject.c
->> +++ b/sys-utils/eject.c
->> @@ -81,31 +81,34 @@ static const char * const hotplug_subsystems[] = {
->>  	"ccw"
->>  };
->>
->> -/* Global Variables */
->> -static int a_option; /* command flags and arguments */
->> -static int c_option;
->> -static int d_option;
->> -static int f_option;
->> -static int F_option;
->> -static int n_option;
->> -static int q_option;
->> -static int r_option;
->> -static int s_option;
->> -static int t_option;
->> -static int T_option;
->> -static int X_option;
->> -static int v_option;
->> -static int x_option;
->> -static int p_option;
->> -static int m_option;
->> -static int M_option;
->> -static int i_option;
->> -static int a_arg;
->> -static int i_arg;
->> -static long int c_arg;
->> -static long int x_arg;
->> -
->> -struct libmnt_table *mtab;
->> +struct eject_control {
->> +	struct libmnt_table *mtab;
->> +	char *device;			/* device or mount point to be ejected */
->> +	int fd;				/* file descriptor for device */
->> +	uint32_t 			/* command flags and arguments */
->
-> Again, don't be creative, use "unsigned int". The reality is that
-> you have zero control on the way how compiler pack the bits.
+Hello Marcin,
 
-Corrected version is easiest to get from my github branch misc. I will 
-send update to pull request shortly.
+On Mon, Sep 15, 2014, at 14:22, Marcin Kocur wrote:
+> I'm using LANG=pl_PL.UTF-8, my cfdisk is translated into Polish. When 
+> trying to write the partition table, cfdisk tells me that the the 
+> partition table wasn't written, no matter if I type yes in English or 
+> "tak" in Polish.
+
+It was a mistake in cfdisk and has been fixed in git:
+https://github.com/karelzak/util-linux/commit/ce3134dfdd3a9feb614050cbf742cec4c97e984b
+https://github.com/karelzak/util-linux/commit/59af21c3f294b9fdec62914568de0455cf884623
+
+It should work correctly in util-linux-2.25.1.
+
+> I have briefly checked the pl.po file and it seems to 
+> be fine. When I set export LANG=en_US, then I was able to save the 
+> partition table on the device.
+
+Benno
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+http://www.fastmail.fm - A fast, anti-spam email service.
+
