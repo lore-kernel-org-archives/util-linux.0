@@ -1,81 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f178.google.com ([74.125.82.178]:38495 "EHLO
-	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752198AbaIGMnN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:13 -0400
-Received: by mail-we0-f178.google.com with SMTP id q58so1979179wes.37
-        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 01/17] libuuid: add extern qualifiers to uuid/uuid.h system header
-Date: Sun,  7 Sep 2014 13:42:49 +0100
-Message-Id: <1410093785-17537-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:25225 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752699AbaIPJS1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Sep 2014 05:18:27 -0400
+Date: Tue, 16 Sep 2014 11:18:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Boris Egorov <egorov@linux.com>
+Cc: Andreas Henriksson <andreas@fatal.se>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: fix cppcheck warnings
+Message-ID: <20140916091817.GF7867@x2.net.home>
+References: <20140914115745.GA20978@fatal.se>
+ <1410798797-23769-1-git-send-email-egorov@linux.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1410798797-23769-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libuuid/src/uuid.h | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+On Mon, Sep 15, 2014 at 11:33:17PM +0700, Boris Egorov wrote:
+>  sys-utils/lscpu-dmi.c | 2 +-
+>  sys-utils/lscpu.c     | 8 ++++----
+>  2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/libuuid/src/uuid.h b/libuuid/src/uuid.h
-index 874d65a..30bd4c0 100644
---- a/libuuid/src/uuid.h
-+++ b/libuuid/src/uuid.h
-@@ -67,35 +67,35 @@ extern "C" {
- #endif
- 
- /* clear.c */
--void uuid_clear(uuid_t uu);
-+extern void uuid_clear(uuid_t uu);
- 
- /* compare.c */
--int uuid_compare(const uuid_t uu1, const uuid_t uu2);
-+extern int uuid_compare(const uuid_t uu1, const uuid_t uu2);
- 
- /* copy.c */
--void uuid_copy(uuid_t dst, const uuid_t src);
-+extern void uuid_copy(uuid_t dst, const uuid_t src);
- 
- /* gen_uuid.c */
--void uuid_generate(uuid_t out);
--void uuid_generate_random(uuid_t out);
--void uuid_generate_time(uuid_t out);
--int uuid_generate_time_safe(uuid_t out);
-+extern void uuid_generate(uuid_t out);
-+extern void uuid_generate_random(uuid_t out);
-+extern void uuid_generate_time(uuid_t out);
-+extern int uuid_generate_time_safe(uuid_t out);
- 
- /* isnull.c */
--int uuid_is_null(const uuid_t uu);
-+extern int uuid_is_null(const uuid_t uu);
- 
- /* parse.c */
--int uuid_parse(const char *in, uuid_t uu);
-+extern int uuid_parse(const char *in, uuid_t uu);
- 
- /* unparse.c */
--void uuid_unparse(const uuid_t uu, char *out);
--void uuid_unparse_lower(const uuid_t uu, char *out);
--void uuid_unparse_upper(const uuid_t uu, char *out);
-+extern void uuid_unparse(const uuid_t uu, char *out);
-+extern void uuid_unparse_lower(const uuid_t uu, char *out);
-+extern void uuid_unparse_upper(const uuid_t uu, char *out);
- 
- /* uuid_time.c */
--time_t uuid_time(const uuid_t uu, struct timeval *ret_tv);
--int uuid_type(const uuid_t uu);
--int uuid_variant(const uuid_t uu);
-+extern time_t uuid_time(const uuid_t uu, struct timeval *ret_tv);
-+extern int uuid_type(const uuid_t uu);
-+extern int uuid_variant(const uuid_t uu);
- 
- #ifdef __cplusplus
- }
+ Good catch, thanks!
+
+    Karel
+
 -- 
-2.1.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
