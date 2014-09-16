@@ -1,35 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60300 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751517AbaIQH5Z (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Sep 2014 03:57:25 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by gateway2.nyi.internal (Postfix) with ESMTP id AC1082048B
-	for <util-linux@vger.kernel.org>; Wed, 17 Sep 2014 03:57:24 -0400 (EDT)
-Message-Id: <1410940644.3960867.168458609.5CBEB9EB@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:63652 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753993AbaIPUur (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:50:47 -0400
+Received: by mail-wg0-f45.google.com with SMTP id z12so427081wgg.4
+        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:50:46 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Tue, 16 Sep 2014 21:50:43 +0100 (BST)
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 17/17] setarch: remove unreachable code
+In-Reply-To: <20140912095038.GW21325@x2.net.home>
+Message-ID: <alpine.LNX.2.03.1409162139520.3712@kerolasa-home>
+References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi> <1410093785-17537-18-git-send-email-kerolasa@iki.fi> <20140912095038.GW21325@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 0/6] pull: renice changes
-Date: Wed, 17 Sep 2014 09:57:24 +0200
-In-Reply-To: <alpine.LNX.2.03.1409162118180.3712@kerolasa-home>
-References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
- <alpine.LNX.2.03.1409162118180.3712@kerolasa-home>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, 12 Sep 2014, Karel Zak wrote:
 
-On Tue, Sep 16, 2014, at 22:21, Sami Kerola wrote:
-> +	fputs(_(" -u, --user <name|id>   interpret argument as username or user ID\n"), out);
+> On Sun, Sep 07, 2014 at 01:43:05PM +0100, Sami Kerola wrote:
+>> Architectures are protected using '#if defined' clauses, making the code
+>> in this removal to be impossible to reach.
+>
+> Hmmm.. I guess the code tries to verify that the result architecture
+> after personality() matches with uname.machine (except to
+> i{486,586,...}), to be sure that our request has been correctly
+> interpreted by kernel.
+>
+> IMHO it's correct.
 
-The argument here should be <name>|<id>.
-(Think of <> as the // markers in email.)
-
-Benno
+I removed the change from incoming pull request, and try to improve the 
+'Unrecognized architecture' message this week. Since the condition looks 
+impossible reach maybe the message should encourage to report to 
+util-linux maillist with which transitions[i].result_arch and un.machine 
+values one was able to see it.
 
 -- 
-http://www.fastmail.fm - The way an email service should be
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
