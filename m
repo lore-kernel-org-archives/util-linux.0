@@ -1,102 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:42292 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752876AbaI1Twc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:32 -0400
-Received: by mail-wi0-f174.google.com with SMTP id hi2so2025575wib.13
-        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:31 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 10/23] include: fix compiler warnings
-Date: Sun, 28 Sep 2014 20:51:43 +0100
-Message-Id: <1411933916-30576-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:4748 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752706AbaIPJfg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Sep 2014 05:35:36 -0400
+Date: Tue, 16 Sep 2014 11:35:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: JWP <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: * RECALL * [PATCH 1/2] hwclock: hctosys drift compensation
+Message-ID: <20140916093525.GG7867@x2.net.home>
+References: <5415EC97.4060305@gmx.com>
+ <5416F1CC.2010007@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5416F1CC.2010007@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This change has motivation to make -Wall -pedantic compiler options to
-spit a little bit less noise, which with luck will increase change to
-notice real issues.
+On Mon, Sep 15, 2014 at 10:03:56AM -0400, JWP wrote:
+> So, also on my hwclock todo list is drift correcting --show.
+> I believe that doing them together will yield a more eloquent
+> patch, and streamline the code in general. Therefore, please
+> disregard this patch for the time being.  I apologize for 
+> submitting it prematurely.
 
-Multiple of these:
+ OK, the idea to read adjtime file when we apply HW clock to
+ sys time makes sense.
 
-warning: ISO C forbids braced-groups within expressions [-Wpedantic]
+> Of course, comments on the concepts or the code are welcome.
 
-And nearly 300 times reported:
+ Something else:
 
-include/c.h:75:41: warning: struct has no named members [-Wpedantic]
- #define UL_BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+ See Documentation/TODO, the writable /etc/adjtime sucks, because in
+ many cases we want to keep /etc read-only. I see two possible ways:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/c.h    | 10 +++++-----
- include/list.h |  2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+  1. move the file to /var/lib/hwclock/adjtime
+  
+     This is already possible by "./configure ADJTIME_PATH=/var/lib/hwclock/adjtime"
+     (used for example by Linux-from-scratch project).
 
-diff --git a/include/c.h b/include/c.h
-index e423e8b..0f6e5b2 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -37,7 +37,7 @@
- # define __must_be_array(a) \
- 	UL_BUILD_BUG_ON_ZERO(__builtin_types_compatible_p(__typeof__(a), __typeof__(&a[0])))
- 
--# define ignore_result(x) ({ \
-+# define ignore_result(x) __extension__ ({ \
- 	__typeof__(x) __dummy __attribute__((__unused__)) = (x); (void) __dummy; \
- })
- 
-@@ -72,7 +72,7 @@
-  * e.g. in a structure initializer (or wherever else comma expressions
-  * aren't permitted).
-  */
--#define UL_BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
-+#define UL_BUILD_BUG_ON_ZERO(e) __extension__ (sizeof(struct { int:-!!(e); }))
- #define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:-!!(e); }))
- 
- #ifndef ARRAY_SIZE
-@@ -92,7 +92,7 @@
- #endif
- 
- #ifndef min
--# define min(x, y) ({				\
-+# define min(x, y) __extension__ ({		\
- 	__typeof__(x) _min1 = (x);		\
- 	__typeof__(y) _min2 = (y);		\
- 	(void) (&_min1 == &_min2);		\
-@@ -100,7 +100,7 @@
- #endif
- 
- #ifndef max
--# define max(x, y) ({				\
-+# define max(x, y) __extension__ ({		\
- 	__typeof__(x) _max1 = (x);		\
- 	__typeof__(y) _max2 = (y);		\
- 	(void) (&_max1 == &_max2);		\
-@@ -112,7 +112,7 @@
- #endif
- 
- #ifndef container_of
--#define container_of(ptr, type, member) ({                       \
-+#define container_of(ptr, type, member) __extension__ ({	 \
- 	const __typeof__( ((type *)0)->member ) *__mptr = (ptr); \
- 	(type *)( (char *)__mptr - offsetof(type,member) );})
- #endif
-diff --git a/include/list.h b/include/list.h
-index cfbdb16..3c08aa5 100644
---- a/include/list.h
-+++ b/include/list.h
-@@ -166,7 +166,7 @@ _INLINE_ void list_splice(struct list_head *list, struct list_head *head)
-  * @type:	the type of the struct this is embedded in.
-  * @member:	the name of the list_struct within the struct.
-  */
--#define list_entry(ptr, type, member) ({              \
-+#define list_entry(ptr, type, member) __extension__ ({              \
- 	const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
- 	(type *)( (char *)__mptr - offsetof(type,member) );})
- 
+     -- the problem is that the file (specially last UTC/LOCAL line)
+        may be expected by another tools
+
+  2. create another independent /var/lib/hwclock/drift file with
+     info about HW clock drift numbers and keep only zeros and
+     and UTC/LOCAL setting in /etc/adjtime. 
+     
+     This could be implemented backwardly compatible, if there is no
+     /var/lib/hwclock then always use /etc/adjtime for drift numbers.
+
+  Karel
+
 -- 
-2.1.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
