@@ -1,89 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:48345 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751118AbaIFLZN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 6 Sep 2014 07:25:13 -0400
-Received: by mail-we0-f174.google.com with SMTP id w61so1425139wes.5
-        for <util-linux@vger.kernel.org>; Sat, 06 Sep 2014 04:25:11 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 6/6] rename: add getpriority() message lookup table
-Date: Sat,  6 Sep 2014 12:24:53 +0100
-Message-Id: <1410002693-16540-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
-References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.21]:58066 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753421AbaIPNI3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Sep 2014 09:08:29 -0400
+Message-ID: <54183647.2080101@gmx.com>
+Date: Tue, 16 Sep 2014 09:08:23 -0400
+From: JWP <elseifthen@gmx.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: * RECALL * [PATCH 1/2] hwclock: hctosys drift compensation
+References: <5415EC97.4060305@gmx.com> <5416F1CC.2010007@gmx.com> <20140916093525.GG7867@x2.net.home>
+In-Reply-To: <20140916093525.GG7867@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/renice.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+Hello Karel,
 
-diff --git a/sys-utils/renice.c b/sys-utils/renice.c
-index 1fef526..a5bf50b 100644
---- a/sys-utils/renice.c
-+++ b/sys-utils/renice.c
-@@ -48,6 +48,12 @@
- #include "c.h"
- #include "closestream.h"
- 
-+const char *idtype[] = {
-+	[PRIO_PROCESS]	= N_("process ID"),
-+	[PRIO_PGRP]	= N_("process group ID"),
-+	[PRIO_USER]	= N_("user ID"),
-+};
-+
- static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
-@@ -67,38 +73,33 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
--static int getprio(const int which, const int who, const char *idtype)
-+static int getprio(const int which, const int who)
- {
- 	int ret;
- 
- 	errno = 0;
- 	ret = getpriority(which, who);
- 	if (ret == -1 && errno) {
--		warn(_("failed to get priority for %d (%s)"), who, idtype);
-+		warn(_("failed to get priority for %d (%s)"), who, idtype[which]);
- 		return PRIO_MAX + 1;
- 	}
- 	return ret;
- }
- 
--static int donice(int which, int who, int prio)
-+static int donice(const int which, const int who, const int prio)
- {
- 	int oldprio, newprio;
--	const char *idtype = _("process ID");
- 
--	if (which == PRIO_USER)
--		idtype = _("user ID");
--	else if (which == PRIO_PGRP)
--		idtype = _("process group ID");
--	if ((oldprio = getprio(which, who, idtype)) == PRIO_MAX + 1)
-+	if ((oldprio = getprio(which, who)) == PRIO_MAX + 1)
- 		return 1;
- 	if (setpriority(which, who, prio) < 0) {
--		warn(_("failed to set priority for %d (%s)"), who, idtype);
-+		warn(_("failed to set priority for %d (%s)"), who, idtype[which]);
- 		return 1;
- 	}
--	if ((newprio = getprio(which, who, idtype)) == PRIO_MAX + 1)
-+	if ((newprio = getprio(which, who)) == PRIO_MAX + 1)
- 		return 1;
- 	printf(_("%d (%s) old priority %d, new priority %d\n"),
--	       who, idtype, oldprio, newprio);
-+	       who, idtype[which], oldprio, newprio);
- 	return 0;
- }
- 
--- 
-2.1.0
+On 09/16/2014 05:35 AM, Karel Zak wrote:  
+>  See Documentation/TODO, the writable /etc/adjtime sucks, because in
+>  many cases we want to keep /etc read-only. I see two possible ways:
 
+Yes, I saw that and have it on my todo list.  However, it is down my list a ways.
+I had not planned on attempting to integrate it into the hctosys/show patch.
+
+>      -- the problem is that the file (specially last UTC/LOCAL line)
+>         may be expected by another tools
+
+True, init scripts depend upon that information too. So it is an important
+consideration.
+
+My initial thought when I read u-l's todo list was that adjtimex [ -c | -a ]
+depend upon /etc/adjtime *drift* data.  Do we care about breaking that?
+
+BJH's hwclock uses /var/state/adjtime, that seems like a good choice as well. ?
+
+I have often thought that hwclock should have a separate 'configuration' file,
+for example, to allow specific init behavior customization without requiring
+system admins to modify the init scripts.
+
+Will
