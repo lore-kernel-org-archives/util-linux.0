@@ -1,47 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:61876 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754771AbaIVUPx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Sep 2014 16:15:53 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 01/10] textual: use angular brackets around each individual argument
-Date: Mon, 22 Sep 2014 22:15:31 +0200
-Message-Id: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:23608 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752026AbaIPJP2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Sep 2014 05:15:28 -0400
+Date: Tue, 16 Sep 2014 11:15:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jaromir Capik <jcapik@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
+ -r/--repair
+Message-ID: <20140916091523.GE7867@x2.net.home>
+References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com>
+ <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com>
+ <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com>
+ <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com>
+ <20140728151034.GM8533@x2.net.home>
+ <1340617573.25924027.1406633523481.JavaMail.zimbra@redhat.com>
+ <2108552981.7794894.1410198602679.JavaMail.zimbra@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <2108552981.7794894.1410198602679.JavaMail.zimbra@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In usage texts each word that is an argument should be marked
-separately with angular brackets.  Also add a translator comment.
+On Mon, Sep 08, 2014 at 01:50:02PM -0400, Jaromir Capik wrote:
+> The fix is attached.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/renice.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ Applied, thanks.
 
-diff --git a/sys-utils/renice.c b/sys-utils/renice.c
-index 100f6a5..c96e39a 100644
---- a/sys-utils/renice.c
-+++ b/sys-utils/renice.c
-@@ -66,7 +66,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -n, --priority <num>   specify the nice increment value\n"), out);
- 	fputs(_(" -p, --pid <id>         interpret argument as process ID (default)\n"), out);
- 	fputs(_(" -g, --pgrp <id>        interpret argument as process group ID\n"), out);
--	fputs(_(" -u, --user <name|id>   interpret argument as username or user ID\n"), out);
-+	fputs(_(" -u, --user <name>|<id> interpret argument as username or user ID\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
-@@ -176,6 +176,8 @@ int main(int argc, char **argv)
- 		} else {
- 			who = strtol(*argv, &endptr, 10);
- 			if (who < 0 || *endptr) {
-+				/* TRANSLATORS: The first %s is one of the above
-+				 * three ID names. Read: "bad value for %s: %s" */
- 				warnx(_("bad %s value: %s"), idtype[which], *argv);
- 				errs = 1;
- 				continue;
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
