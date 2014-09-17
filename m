@@ -1,39 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57598 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752263AbaILIpI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Sep 2014 04:45:08 -0400
-Date: Fri, 12 Sep 2014 10:44:51 +0200
-From: Karel Zak <kzak@redhat.com>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60300 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751517AbaIQH5Z (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 17 Sep 2014 03:57:25 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by gateway2.nyi.internal (Postfix) with ESMTP id AC1082048B
+	for <util-linux@vger.kernel.org>; Wed, 17 Sep 2014 03:57:24 -0400 (EDT)
+Message-Id: <1410940644.3960867.168458609.5CBEB9EB@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 05/17] newgrp: use xgetpass() and memset_s() to group
- password validation
-Message-ID: <20140912084451.GT21325@x2.net.home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
- <1410093785-17537-6-git-send-email-kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410093785-17537-6-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain
+Subject: Re: [PATCH 0/6] pull: renice changes
+Date: Wed, 17 Sep 2014 09:57:24 +0200
+In-Reply-To: <alpine.LNX.2.03.1409162118180.3712@kerolasa-home>
+References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
+ <alpine.LNX.2.03.1409162118180.3712@kerolasa-home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 07, 2014 at 01:42:53PM +0100, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  login-utils/newgrp.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
 
- If we really want to support passwords for groups then it would be
- better to add support for this to PAM. But it seems it's so crazy and
- unnecessary that nobody has been motivated to do this change in last
- 20 years.
- 
- It would be better to remove support for /etc/gshadow from newgrp at
- all.
+On Tue, Sep 16, 2014, at 22:21, Sami Kerola wrote:
+> +	fputs(_(" -u, --user <name|id>   interpret argument as username or user ID\n"), out);
 
-    Karel
+The argument here should be <name>|<id>.
+(Think of <> as the // markers in email.)
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.fm - The way an email service should be
+
