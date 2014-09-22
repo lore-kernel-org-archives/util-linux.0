@@ -1,38 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18641 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752122AbaILIbS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Sep 2014 04:31:18 -0400
-Date: Fri, 12 Sep 2014 10:31:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/17] lib: avoid use of obsolete getpass() function
-Message-ID: <20140912083106.GS21325@x2.net.home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
- <1410093785-17537-4-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410093785-17537-4-git-send-email-kerolasa@iki.fi>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:57711 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754851AbaIVUQM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Sep 2014 16:16:12 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 08/10] textual: grammarize another error message
+Date: Mon, 22 Sep 2014 22:15:38 +0200
+Message-Id: <1411416940-3249-8-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
+References: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 07, 2014 at 01:42:51PM +0100, Sami Kerola wrote:
-> Reference: http://man7.org/linux/man-pages/man3/getpass.3.html
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  include/xgetpass.h |  2 +-
->  lib/xgetpass.c     | 56 +++++++++++++++++++++++++-----------------------------
->  2 files changed, 27 insertions(+), 31 deletions(-)
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/hwclock-cmos.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- I have a better way how to fix it:
-
-   git rm lib/xgetpass.c include/xgetpass.h
-
- :-)
-
-    Karel
-
+diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
+index 7ffbf95..ca6ab1c 100644
+--- a/sys-utils/hwclock-cmos.c
++++ b/sys-utils/hwclock-cmos.c
+@@ -319,7 +319,7 @@ static inline unsigned long cmos_read(unsigned long reg)
+ 			       clock_ctl_addr);
+ 		lseek(dev_port_fd, clock_data_addr, 0);
+ 		if (read(dev_port_fd, &v, 1) == -1 && debug)
+-			warn(_("cmos_read(): read data address %X failed"),
++			warn(_("cmos_read(): read from data address %X failed"),
+ 			       clock_data_addr);
+ 		return v;
+ 	} else {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
