@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36824 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750846AbaHOOac (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Aug 2014 10:30:32 -0400
-Date: Fri, 15 Aug 2014 16:30:21 +0200 (CEST)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org, xfs@oss.sgi.com,
-        linux-btrfs@vger.kernel.org, util-linux@vger.kernel.org
-cc: Ric Wheeler <rwheeler@redhat.com>, Hannes Reinecke <hare@suse.de>
-Subject: 2014 Linux Plumbers Call for File and Storage Systems Microconference
- Proposals
-Message-ID: <alpine.LFD.2.00.1408151618160.2220@localhost.localdomain>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46819 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754519AbaIVToG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Sep 2014 15:44:06 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by gateway2.nyi.internal (Postfix) with ESMTP id 5DE3620970
+	for <util-linux@vger.kernel.org>; Mon, 22 Sep 2014 15:44:05 -0400 (EDT)
+Message-Id: <1411415045.2373997.170469709.45708397@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Subject: what precisely is partition_entry_lba?
+Date: Mon, 22 Sep 2014 21:44:05 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Submission for Microconferences discussion topics and BOFs are now open [1]
-and as a File and Storage Systems [2] microconference leads we'd like to
-invite you to submit your proposals.
 
-You can find the instructions on how to propose a discussion topic here:
+Hi,
 
-http://www.linuxplumbersconf.org/2014/how-to-submit-microconference-discussions-topics/
+In libfdisk/src/gpt.c the function gpt_list_disklabel() prints
+a GPT header, and one of the things it prints says:
 
-The Linux Plumbers Conference has officially sold out all of the places, so
-we encourage submissions for our file and storage microconference from people
-who have already registered.  We will work to get exceptionally compelling
-session leaders registered, but our ability is limited, so please submit your
-topics early.
+_("Partitions entries LBA: %ju"), h->partition_entry_lba
 
-Deadline for submissions is Friday, August 30th at midnight and we will
-announce the topics on Monday, September 1st.
+In the struct this variable is described as:
 
-If you have any questions, please let us know.
+uint64_t    partition_entry_lba; /* stat LBA of the partition entry array */
 
-Thanks!
--Lukas
+This doesn't make sense to me.  Shouldn't this say something
+like "Starting block of the array of partition entries" instead?
+
+All this use of 'lba' is confusing to me, as it stands for
+"logical block addressing", and what seems to be meant
+is simply "logical block" or "logical block number".  No?
+
+Benno
 
 -- 
-[1] http://www.linuxplumbersconf.org/2014/submissions-for-microconferences-discussion-topics-and-bofs-are-now-open/
-[2] http://www.linuxplumbersconf.org/2014/ocw/events/LPC2014/tracks/303
-[3] http://www.linuxplumbersconf.org/2014/how-to-submit-microconference-discussions-topics/
-[4] http://wiki.linuxplumbersconf.org/2014:file_and_storage_systems
+http://www.fastmail.fm - The way an email service should be
+
