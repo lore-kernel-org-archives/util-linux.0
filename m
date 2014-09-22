@@ -1,115 +1,51 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <5426D7EE.5010605@gmx.com>
-Date: Sat, 27 Sep 2014 11:29:50 -0400
-From: JWP <elseifthen@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:40679 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752688AbaIVLdw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Sep 2014 07:33:52 -0400
+Date: Mon, 22 Sep 2014 13:33:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Gennady Kovshenin <gennady@kovshenin.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Fwd: [util-linux] cal: add landscape layout for yearly views
+ (#117)
+Message-ID: <20140922113327.GI5366@x2.net.home>
+References: <karelzak/util-linux/pull/117@github.com>
+ <karelzak/util-linux/pull/117/c55868722@github.com>
+ <CAP0zEAb8y+P-McdLc23dJyqG3_=mFQw9PEmkaLLbzGzmWL7p-A@mail.gmail.com>
+ <CAP0zEAZhyOqM-VmBkGEA4sN2wC+YycOtP8h6AxytjTDXsw1K4A@mail.gmail.com>
+ <20140917131848.GA5366@x2.net.home>
+ <CAP0zEAZ9aMs-ky5ivweJoytTn7MvGcq0qyyDnFkk-5iMWRHz0w@mail.gmail.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH 5/7] hwclock: persistent_clock_is_local MAN
-References: <5426D4C2.4060403@gmx.com>
-In-Reply-To: <5426D4C2.4060403@gmx.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAP0zEAZ9aMs-ky5ivweJoytTn7MvGcq0qyyDnFkk-5iMWRHz0w@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Sep 17, 2014 at 09:52:36PM +0600, Gennady Kovshenin wrote:
+> I like the format=auto idea. But we can keep it to just the number of
+> columns instead of a full CxR format.
 
-Update hwclock man page for the
-hwclock: persistent_clock_is_local patch.
+ It would be the best to talk about number of months ;-)
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.8.in | 63 ++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 48 insertions(+), 15 deletions(-)
+> i.e. format=2 (2x6), format=3 (3x4), format=4 (4x3), and so on.
+> perhaps the parameter should be called --columns/-c instead of format.
+> We can either have an additional auto value to the format, or have it
+> be on by default.
+> Having auto on by default means breaking compatibility. Some users
+> might be parsing output expecting the default 3x4 view in place and if
+> we abruptly change this to be stretched automatically their scripts
+> might break.
+> 
+> Any thoughts on the above? --format vs. --columns? And the default
+> value thereof.
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 913da37..d04a429 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -84,7 +84,24 @@ The obsolete tz_dsttime field of the kernel's timezone value is set
- to DST_NONE.  (For details on what this field used to mean, see
- .BR settimeofday (2).)
- .PP
-+When used in a startup script, making it the first caller of
-+.BR settimeofday (2)
-+from boot, it will set the NTP 11 minute mode time scale via the
-+.I persistent_clock_is_local
-+kernel variable. See the discussion below, under
-+.B Automatic Hardware Clock Synchronization by the
-+.BR Kernel.
-+.PP
- This is a good option to use in one of the system startup scripts.
-+.PP
-+This option should never be used on a running system. Jumping system time
-+will cause problems, such as, corrupted file system timestamps.
-+Also, if NTP 11 minute mode is active then
-+.B --hctosys
-+will set the time incorrectly by
-+including drift compensation. Drift compensation can be inhibited by using the
-+.B --noadjfile
-+option.
- .TP
- .B \-\-set
- Set the Hardware Clock to the time given by the
-@@ -393,11 +410,16 @@ use the TZ environment variable and/or the
- .I /usr/share/zoneinfo
- directory, as explained in the man page for
- .BR tzset (3).
--However, some
--programs and fringe parts of the Linux kernel such as filesystems use
--the kernel timezone value.  An example is the vfat filesystem.  If the
--kernel timezone value is wrong, the vfat filesystem will report and
--set the wrong timestamps on files.
-+However, some programs and fringe parts of the Linux kernel such as filesystems
-+use the kernel timezone value.  An example is the vfat filesystem.  If the
-+kernel timezone value is wrong, the vfat filesystem will report and set the
-+wrong timestamps on files. Another example is the kernel's NTP 11 minute mode.
-+If the kernel's timezone value and/or the
-+.I persistent_clock_is_local
-+variable are wrong, then the Hardware Clock will be set incorrectly by 11 minute
-+mode.  See the discussion below, under
-+.B Automatic Hardware Clock Synchronization by the
-+.BR Kernel.
- .PP
- .B hwclock
- sets the kernel timezone to the value indicated by TZ and/or
-@@ -601,20 +623,31 @@ your System Time synchronized either to a time server somewhere on the
- network or to a radio clock hooked up to your system.  See RFC 1305.)
- .PP
- This mode (we'll call it "11 minute mode") is off until something
--turns it on.  The ntp daemon xntpd is one thing that turns it on.  You
-+turns it on.  The ntp daemon ntpd is one thing that turns it on.  You
- can turn it off by running anything, including
- .IR "hwclock \-\-hctosys" ,
--that sets the System Time the old fashioned way.
-+that sets the System Time the old fashioned way.  However, if the ntp daemon is
-+still running, it will turn 11 minute mode back on again the next time it
-+synchronizes the System Clock.
- .PP
--If your system runs with 11 minute mode on, don't use
--.I hwclock \-\-adjust
--or
--.IR "hwclock \-\-hctosys" .
--You'll just make a mess.  It is acceptable to use a
-+If your system runs with 11 minute mode on, it may need
-+.I hwclock \-\-hctosys
-+in a startup script, especially if the Hardware Clock is configured to to use
-+the local timescale.
-+
-+The first user space command to set the System Clock informs the
-+kernel what timescale the Hardware Clock is using. This happens via the
-+.I persistent_clock_is_local
-+kernel variable. If
- .I hwclock \-\-hctosys
--at startup time to get a reasonable System Time until your system is
--able to set the System Time from the external source and start 11
--minute mode.
-+is the first, it will set this variable according to the adjtime file or the
-+appropriate command line argument. Note that when using this capability and the
-+Hardware Clock timescale configuration is changed, then a reboot is required to
-+notify the kernel.
-+
-+Don't use
-+.I hwclock \-\-adjust
-+with 11 minute mode.  You'll just make a mess.
- 
- .SS ISA Hardware Clock Century value
- .PP
+Or something else --horizontal-months[=<num>|auto]
+
+and think we can support arbitrary <num> in range 1-12.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
