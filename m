@@ -1,57 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:49611 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753049AbaI1Twz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:55 -0400
-Received: by mail-wg0-f41.google.com with SMTP id k14so12133750wgh.12
-        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:54 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 15/23] cfdisk: add missing initializers to struct main_menuitems
-Date: Sun, 28 Sep 2014 20:51:48 +0100
-Message-Id: <1411933916-30576-16-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:27312 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752344AbaIVL1O (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Sep 2014 07:27:14 -0400
+Date: Mon, 22 Sep 2014 13:27:03 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Andreas Henriksson <andreas@fatal.se>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/5] build-sys: swaplabel needs libmount
+Message-ID: <20140922112703.GH5366@x2.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1411086439-8247-1-git-send-email-andreas@fatal.se>
+ <1411083397-8056-4-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-disk-utils/cfdisk.c:149:77: warning: missing field 'userdata' initializer [-Wmissing-field-initializers]
+On Fri, Sep 19, 2014 at 01:36:36AM +0200, Andreas Henriksson wrote:
+> The swaplabel utility uses libmount functionality and
+> thus libmount has to be available if we want to build
+> swaplabel. This change makes swaplabel be automatically
+> disabled when we don't.
+> ---
+>  configure.ac | 1 +
+>  1 file changed, 1 insertion(+)
+> 
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/cfdisk.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+On Fri, Sep 19, 2014 at 02:27:19AM +0200, Andreas Henriksson wrote:
+> The swapoff utility seems to need linking with libblkid otherwise
+> this build error occurs:
+> 
+> $ git describe
+> v2.25-180-g29607ed
+> $ ./autogen.sh && ./configure --without-python  && make
+> [....]
+>   CCLD     swapoff
+> /usr/bin/ld: sys-utils/swapoff-swapon-common.o: undefined reference to symbol 'blkid_probe_lookup_value@@BLKID_2.15'
+> //home/ah/opt/pkg-util-linux/util-linux/.libs/libblkid.so.1: error adding symbols: DSO missing from command line
+> collect2: error: ld returned 1 exit status
+> Makefile:5992: recipe for target 'swapoff' failed
+> make[2]: *** [swapoff] Error 1
+> make[2]: Leaving directory '/home/ah/opt/pkg-util-linux/util-linux'
+> Makefile:10220: recipe for target 'all-recursive' failed
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory '/home/ah/opt/pkg-util-linux/util-linux'
+> Makefile:4433: recipe for target 'all' failed
+> make: *** [all] Error 2
+> 
+> ---
+>  sys-utils/Makemodule.am | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index fabc397..0325acb 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -146,15 +146,15 @@ struct cfdisk_menu {
- 
- /* main menu */
- static struct cfdisk_menuitem main_menuitems[] = {
--	{ 'b', N_("Bootable"), N_("Toggle bootable flag of the current partition") },
--	{ 'd', N_("Delete"), N_("Delete the current partition") },
--	{ 'n', N_("New"), N_("Create new partition from free space") },
--	{ 'q', N_("Quit"), N_("Quit program without writing partition table") },
--	{ 't', N_("Type"), N_("Change the partition type") },
--	{ 'h', N_("Help"), N_("Print help screen") },
--	{ 's', N_("Sort"), N_("Fix partitions order") },
--	{ 'W', N_("Write"), N_("Write partition table to disk (this might destroy data)") },
--	{ 0, NULL, NULL }
-+	{ 'b', N_("Bootable"), N_("Toggle bootable flag of the current partition"), NULL },
-+	{ 'd', N_("Delete"), N_("Delete the current partition"), NULL },
-+	{ 'n', N_("New"), N_("Create new partition from free space"), NULL },
-+	{ 'q', N_("Quit"), N_("Quit program without writing partition table"), NULL },
-+	{ 't', N_("Type"), N_("Change the partition type"), NULL },
-+	{ 'h', N_("Help"), N_("Print help screen"), NULL },
-+	{ 's', N_("Sort"), N_("Fix partitions order"), NULL },
-+	{ 'W', N_("Write"), N_("Write partition table to disk (this might destroy data)"), NULL },
-+	{ 0, NULL, NULL, NULL }
- };
- 
- /* top level control struct */
+
+ I have modified swapoff, swapon and swaplabel to use separate file
+ lib/swapprobe.c for libblkid stuff. So now:
+
+    swapon    - requires libmount and libblkid
+    swapoff   - requires libmount
+    swaplabel - requires libblkid
+
+
+ link directly both libs everywhere is overkill. Please, test the
+ current git tree. Thanks!
+
+    Karel
+
+
 -- 
-2.1.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
