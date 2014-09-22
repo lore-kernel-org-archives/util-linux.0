@@ -1,121 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:38670 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755111AbaIPUR6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:17:58 -0400
-Received: by mail-wi0-f178.google.com with SMTP id ho1so34183wib.11
-        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:17:57 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:17:54 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 5/6] renice: fix numeric uid argument parsing
-In-Reply-To: <20140912080354.GR21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162114110.3712@kerolasa-home>
-References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi> <1410002693-16540-6-git-send-email-kerolasa@iki.fi> <20140912080354.GR21325@x2.net.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:60801 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754593AbaIVUQR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Sep 2014 16:16:17 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 10/10] textual: there may be no space between option and optional =arg
+Date: Mon, 22 Sep 2014 22:15:40 +0200
+Message-Id: <1411416940-3249-10-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
+References: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
-
-> On Sat, Sep 06, 2014 at 12:24:52PM +0100, Sami Kerola wrote:
->>  		if (which == PRIO_USER) {
->> -			register struct passwd *pwd = getpwnam(*argv);
->> +			struct passwd *pwd = getpwnam(*argv);
->>
->> -			if (pwd == NULL) {
->> -				warnx(_("unknown user %s"), *argv);
->> -				errs = 1;
->> -				continue;
->> +			if (pwd != NULL)
->> +				who = pwd->pw_uid;
->> +			else {
->> +				error_msg = _("unknown user %s");
->> +				goto numeric_pid;
->>  			}
->> -			who = pwd->pw_uid;
->>  		} else {
->> +			error_msg = _("bad value %s");
->> + numeric_pid:
->>  			who = strtol(*argv, &endptr, 10);
->>  			if (who < 0 || *endptr) {
->> -				warnx(_("bad value %s"), *argv);
->> +				warnx(error_msg, *argv);
->>  				errs = 1;
->>  				continue;
->>  			}
->
-> The goto is unnecessary. Just set who = -1 by default.
->
->  who = -1;
->  if (which == PRIO_USER) {
->        ...
->        who = pwd->pw_uid;
->  }
->
->  if (who < 0) {
->        who = strtol(*argv, &endptr, 10);
->        ...
->        if (who < 0 || *endptr)
->            warnx(_("failed to parse %s argument"), idtype[which]);
->  }
-
-Hi Karel,
-
-Oh yes, I clearly over complicated the previous version. This ought to be 
-a bit closer what one could consider acceptable.
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Fri, 5 Sep 2014 23:54:17 +0100
-Subject: [PATCH 5/7] renice: fix numeric uid argument parsing
-
-The following was inconflict with what usage() tells are valid option
-arguments.
-
-$ renice 1 -u 1000
-renice: unknown user 1000
-$ id
-uid=1000(kerolasa) ...
-
-Reviewed-by: Karel Zak <kzak@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
-  sys-utils/renice.c | 10 ++++++----
-  1 file changed, 6 insertions(+), 4 deletions(-)
+ sys-utils/nsenter.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/sys-utils/renice.c b/sys-utils/renice.c
-index d83fc4a..a123ed1 100644
---- a/sys-utils/renice.c
-+++ b/sys-utils/renice.c
-@@ -160,14 +160,17 @@ int main(int argc, char **argv)
-  			continue;
-  		}
-  		if (which == PRIO_USER) {
--			register struct passwd *pwd = getpwnam(*argv);
-+			struct passwd *pwd = getpwnam(*argv);
-
--			if (pwd == NULL) {
-+			if (pwd != NULL)
-+				who = pwd->pw_uid;
-+			else
-+				who = strtol(*argv, &endptr, 10);
-+			if (who < 0 || *endptr) {
-  				warnx(_("unknown user %s"), *argv);
-  				errs = 1;
-  				continue;
-  			}
--			who = pwd->pw_uid;
-  		} else {
-  			who = strtol(*argv, &endptr, 10);
-  			if (who < 0 || *endptr) {
-@@ -180,4 +183,3 @@ int main(int argc, char **argv)
-  	}
-  	return errs != 0 ? EXIT_FAILURE : EXIT_SUCCESS;
-  }
--
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index 7da44e7..c54d63f 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -67,16 +67,16 @@ static void usage(int status)
+ 
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -t, --target <pid>     target process to get namespaces from\n"), out);
+-	fputs(_(" -m, --mount [=<file>]  enter mount namespace\n"), out);
+-	fputs(_(" -u, --uts   [=<file>]  enter UTS namespace (hostname etc)\n"), out);
+-	fputs(_(" -i, --ipc   [=<file>]  enter System V IPC namespace\n"), out);
+-	fputs(_(" -n, --net   [=<file>]  enter network namespace\n"), out);
+-	fputs(_(" -p, --pid   [=<file>]  enter pid namespace\n"), out);
+-	fputs(_(" -U, --user  [=<file>]  enter user namespace\n"), out);
++	fputs(_(" -m, --mount[=<file>]   enter mount namespace\n"), out);
++	fputs(_(" -u, --uts[=<file>]     enter UTS namespace (hostname etc)\n"), out);
++	fputs(_(" -i, --ipc[=<file>]     enter System V IPC namespace\n"), out);
++	fputs(_(" -n, --net[=<file>]     enter network namespace\n"), out);
++	fputs(_(" -p, --pid[=<file>]     enter pid namespace\n"), out);
++	fputs(_(" -U, --user[=<file>]    enter user namespace\n"), out);
+ 	fputs(_(" -S, --setuid <uid>     set uid in entered namespace\n"), out);
+ 	fputs(_(" -G, --setgid <gid>     set gid in entered namespace\n"), out);
+-	fputs(_(" -r, --root  [=<dir>]   set the root directory\n"), out);
+-	fputs(_(" -w, --wd    [=<dir>]   set the working directory\n"), out);
++	fputs(_(" -r, --root[=<dir>]     set the root directory\n"), out);
++	fputs(_(" -w, --wd[=<dir>]       set the working directory\n"), out);
+ 	fputs(_(" -F, --no-fork          do not fork before exec'ing <program>\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
 -- 
-2.1.0
+1.7.0.4
 
