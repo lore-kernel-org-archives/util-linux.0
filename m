@@ -1,61 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:57184 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753049AbaI1TxG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:53:06 -0400
-Received: by mail-we0-f180.google.com with SMTP id x48so1136142wes.11
-        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:53:05 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 19/23] lscpu: add missing initializers to struct lscpu_coldesc
-Date: Sun, 28 Sep 2014 20:51:52 +0100
-Message-Id: <1411933916-30576-20-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
-References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-ig0-f182.google.com ([209.85.213.182]:52943 "EHLO
+	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753671AbaIVLi0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Sep 2014 07:38:26 -0400
+Received: by mail-ig0-f182.google.com with SMTP id hn15so2493762igb.9
+        for <util-linux@vger.kernel.org>; Mon, 22 Sep 2014 04:38:25 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20140922113327.GI5366@x2.net.home>
+References: <karelzak/util-linux/pull/117@github.com>
+	<karelzak/util-linux/pull/117/c55868722@github.com>
+	<CAP0zEAb8y+P-McdLc23dJyqG3_=mFQw9PEmkaLLbzGzmWL7p-A@mail.gmail.com>
+	<CAP0zEAZhyOqM-VmBkGEA4sN2wC+YycOtP8h6AxytjTDXsw1K4A@mail.gmail.com>
+	<20140917131848.GA5366@x2.net.home>
+	<CAP0zEAZ9aMs-ky5ivweJoytTn7MvGcq0qyyDnFkk-5iMWRHz0w@mail.gmail.com>
+	<20140922113327.GI5366@x2.net.home>
+Date: Mon, 22 Sep 2014 17:38:25 +0600
+Message-ID: <CAP0zEAbucyO55YyAhbUkcEB-+R8GQ1qv+XAdQYzp-bo2xB2wjQ@mail.gmail.com>
+Subject: Re: Fwd: [util-linux] cal: add landscape layout for yearly views (#117)
+From: Gennady Kovshenin <gennady@kovshenin.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-warning: missing field 'is_abbr' initializer [-Wmissing-field-initializers]
+Agreed. And the default would still be 3, right? For back compatibility.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/lscpu.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+What's the short version of the flag -z?
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index ef59410..30f2be6 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -300,17 +300,17 @@ struct lscpu_coldesc {
- static struct lscpu_coldesc coldescs[] =
- {
- 	[COL_CPU]          = { "CPU", N_("logical CPU number"), 1 },
--	[COL_CORE]         = { "CORE", N_("logical core number") },
--	[COL_SOCKET]       = { "SOCKET", N_("logical socket number") },
--	[COL_NODE]         = { "NODE", N_("logical NUMA node number") },
--	[COL_BOOK]         = { "BOOK", N_("logical book number") },
--	[COL_CACHE]        = { "CACHE", N_("shows how caches are shared between CPUs") },
--	[COL_POLARIZATION] = { "POLARIZATION", N_("CPU dispatching mode on virtual hardware") },
--	[COL_ADDRESS]      = { "ADDRESS", N_("physical address of a CPU") },
--	[COL_CONFIGURED]   = { "CONFIGURED", N_("shows if the hypervisor has allocated the CPU") },
--	[COL_ONLINE]       = { "ONLINE", N_("shows if Linux currently makes use of the CPU") },
--	[COL_MAXMHZ]	   = { "MAXMHZ", N_("shows the maximum MHz of the CPU") },
--	[COL_MINMHZ]	   = { "MINMHZ", N_("shows the minimum MHz of the CPU") }
-+	[COL_CORE]         = { "CORE", N_("logical core number"), 0 },
-+	[COL_SOCKET]       = { "SOCKET", N_("logical socket number"), 0 },
-+	[COL_NODE]         = { "NODE", N_("logical NUMA node number"), 0 },
-+	[COL_BOOK]         = { "BOOK", N_("logical book number"), 0 },
-+	[COL_CACHE]        = { "CACHE", N_("shows how caches are shared between CPUs"), 0 },
-+	[COL_POLARIZATION] = { "POLARIZATION", N_("CPU dispatching mode on virtual hardware"), 0 },
-+	[COL_ADDRESS]      = { "ADDRESS", N_("physical address of a CPU"), 0 },
-+	[COL_CONFIGURED]   = { "CONFIGURED", N_("shows if the hypervisor has allocated the CPU"), 0 },
-+	[COL_ONLINE]       = { "ONLINE", N_("shows if Linux currently makes use of the CPU"), 0 },
-+	[COL_MAXMHZ]	   = { "MAXMHZ", N_("shows the maximum MHz of the CPU"), 0 },
-+	[COL_MINMHZ]	   = { "MINMHZ", N_("shows the minimum MHz of the CPU"), 0 }
- };
- 
- static int
--- 
-2.1.1
+And would the auto mode try to still limit itself to a rectangle? Or
+stretch indefinitely?
 
+I appreciate your time brainstorming about this, Karel. Thank you.
+Regards,
+Gennady Kovshenin
+
+
+On Mon, Sep 22, 2014 at 5:33 PM, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Sep 17, 2014 at 09:52:36PM +0600, Gennady Kovshenin wrote:
+>> I like the format=auto idea. But we can keep it to just the number of
+>> columns instead of a full CxR format.
+>
+>  It would be the best to talk about number of months ;-)
+>
+>> i.e. format=2 (2x6), format=3 (3x4), format=4 (4x3), and so on.
+>> perhaps the parameter should be called --columns/-c instead of format.
+>> We can either have an additional auto value to the format, or have it
+>> be on by default.
+>> Having auto on by default means breaking compatibility. Some users
+>> might be parsing output expecting the default 3x4 view in place and if
+>> we abruptly change this to be stretched automatically their scripts
+>> might break.
+>>
+>> Any thoughts on the above? --format vs. --columns? And the default
+>> value thereof.
+>
+> Or something else --horizontal-months[=<num>|auto]
+>
+> and think we can support arbitrary <num> in range 1-12.
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
