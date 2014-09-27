@@ -1,113 +1,98 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:33353 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751687AbaIPUdL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:33:11 -0400
-Received: by mail-wg0-f41.google.com with SMTP id k14so409248wgh.12
-        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:33:10 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:33:07 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 05/17] newgrp: use xgetpass() and memset_s() to group
- password validation
-In-Reply-To: <20140912084451.GT21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162127010.3712@kerolasa-home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi> <1410093785-17537-6-git-send-email-kerolasa@iki.fi> <20140912084451.GT21325@x2.net.home>
+Return-Path: elseifthen@gmx.com
+Message-ID: <5426D7D1.8000008@gmx.com>
+Date: Sat, 27 Sep 2014 11:29:21 -0400
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 3/7] hwclock: hctosys drift compensation II MAN
+References: <5426D4C2.4060403@gmx.com>
+In-Reply-To: <5426D4C2.4060403@gmx.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
 
-> On Sun, Sep 07, 2014 at 01:42:53PM +0100, Sami Kerola wrote:
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  login-utils/newgrp.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> If we really want to support passwords for groups then it would be
-> better to add support for this to PAM. But it seems it's so crazy and
-> unnecessary that nobody has been motivated to do this change in last
-> 20 years.
->
-> It would be better to remove support for /etc/gshadow from newgrp at
-> all.
+Update hwclock man page for the
+hwclock: hctosys drift compensation II patch.
 
-Either PAM does not support group passwords, or I misread docs & git 
-checkout.  What comes to gshadow itself I do agree finding an example when 
-using them would be useful is hard. Then again the support for group 
-passwords has been around for long time and even opengroup mentions 
-authorizations.
-
-http://pubs.opengroup.org/onlinepubs/009695299/utilities/newgrp.html
-
-So that in mind I changed the newgrp change somewhat. Here is first 
-alteration.
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sun, 14 Sep 2014 17:29:54 +0100
-Subject: [PATCH 15/17] newgrp: use libc function to read gshadow if it is available
-
-The glib versionf of getsgnam() is using /etc/nsswitch.conf, allowing the
-group passwords to come from external database.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
-  configure.ac         |  1 +
-  login-utils/newgrp.c | 11 +++++++++++
-  2 files changed, 12 insertions(+)
+ sys-utils/hwclock.8.in | 50 +++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 17 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 5b558ec..c84814f 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -302,6 +302,7 @@ AC_CHECK_FUNCS([ \
-  	getexecname \
-  	getmntinfo \
-  	getrlimit \
-+	getsgnam \
-  	inotify_init \
-  	inotify_init1 \
-  	jrand48 \
-diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
-index 55dad1b..d492f23 100644
---- a/login-utils/newgrp.c
-+++ b/login-utils/newgrp.c
-@@ -28,6 +28,10 @@
-  # include <crypt.h>
-  #endif
-
-+#ifdef HAVE_GETSGNAM
-+# include <gshadow.h>
-+#endif
-+
-  #include "c.h"
-  #include "closestream.h"
-  #include "nls.h"
-@@ -37,6 +41,12 @@
-  /* try to read password from gshadow */
-  static char *get_gshadow_pwd(char *groupname)
-  {
-+#ifdef HAVE_GETSGNAM
-+	struct sgrp *sgrp;
-+
-+	sgrp = getsgnam(groupname);
-+	return sgrp ? xstrdup(sgrp->sg_passwd) : NULL;
-+#else
-  	char buf[BUFSIZ];
-  	char *pwd = NULL;
-  	FILE *f;
-@@ -69,6 +79,7 @@ static char *get_gshadow_pwd(char *groupname)
-  	}
-  	fclose(f);
-  	return pwd ? xstrdup(pwd) : NULL;
-+#endif	/* HAVE_GETSGNAM */
-  }
-
-  static int allow_setgid(struct passwd *pe, struct group *ge)
--- 
-2.1.0
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index b11b45c..913da37 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -61,8 +61,18 @@ in Coordinated Universal Time.  See the
+ option.
+ Showing the Hardware Clock time is the default when no function is specified.
+ .TP
++.B \-\-get
++Like
++.B --show
++only with drift correction applied to the time read. This is useful when the
++Hardware Clock is not being periodically updated by something such as NTP's
++11 minute mode or when not using
++.BR --adjust .
++.TP
+ .BR \-s , \ \-\-hctosys
+-Set the System Time from the Hardware Clock.
++Set the System Time from the Hardware Clock.  The time read from the Hardware
++Clock is compensated to account for systematic drift before using it to set the
++System Clock.  See the discussion below, under \fBThe Adjust Function\fR.
+ .PP
+ Also set the kernel's timezone value to the local timezone
+ as indicated by the TZ environment variable and/or
+@@ -484,8 +494,9 @@ The Hardware Clock is usually not very accurate.  However, much of its
+ inaccuracy is completely predictable - it gains or loses the same amount
+ of time every day.  This is called systematic drift.
+ .BR hwclock 's
+-"adjust" function lets you make systematic corrections to correct the
+-systematic drift.
++.I \-\-adjust
++function lets you apply systematic drift corrections to the
++Hardware Clock.
+ .PP
+ It works like this:
+ .B hwclock
+@@ -529,20 +540,25 @@ since the last calibration, how long it has been since the last
+ adjustment, what drift rate was assumed in any intervening
+ adjustments, and the amount by which the clock is presently off.
+ .PP
+-A small amount of error creeps in any time
+-.B hwclock
+-sets the clock, so it refrains from making an adjustment that would be
+-less than 1 second.  Later on, when you request an adjustment again,
+-the accumulated drift will be more than a second and
+-.B hwclock
+-will do the adjustment then.
+-.PP
+-It is good to do a
+-.I hwclock \-\-adjust
+-just before the
+-.I hwclock \-\-hctosys
+-at system startup time, and maybe periodically while the system is
+-running via cron.
++A small amount of error creeps in when
++the Hardware Clock is set, so
++.I \-\-adjust
++refrains from making any adjustment that is less
++than 1 second.  Later on, when you request an adjustment again, the accumulated
++drift will be more than 1 second and
++.I \-\-adjust
++will make the adjustment including any fractional amount.
++.PP
++.IR "hwclock \-\-hctosys"
++also uses the adjtime file data to compensate the value read from the Hardware
++Clock before using it to set the System Time.  It does not share the 1 second
++limitation of --adjust, and will correct sub-second drift values immediately.
++It does not change the Hardware Clock time or the adjtime file.  This may
++eliminate the need to use --adjust, unless something else on the system needs
++the Hardware Clock to be compensated. The drift compensation can be inhibited
++by using the
++.B --noadjfile
++option.
+ .PP
+ The adjtime file, while named for its historical purpose of controlling
+ adjustments only, actually contains other information for use by hwclock
