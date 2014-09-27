@@ -1,33 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:23608 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752026AbaIPJP2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Sep 2014 05:15:28 -0400
-Date: Tue, 16 Sep 2014 11:15:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jaromir Capik <jcapik@redhat.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] fdformat: Add new switches -f/--from, -t/--to,
- -r/--repair
-Message-ID: <20140916091523.GE7867@x2.net.home>
-References: <844628876.22654954.1406302034993.JavaMail.zimbra@redhat.com>
- <2139170067.22662578.1406302189694.JavaMail.zimbra@redhat.com>
- <CAG27Bk1hbE+WE7+CeMPv03YYR-78jGm8cG-kQNufgLfAU6f3qQ@mail.gmail.com>
- <969740755.24655086.1406558319251.JavaMail.zimbra@redhat.com>
- <20140728151034.GM8533@x2.net.home>
- <1340617573.25924027.1406633523481.JavaMail.zimbra@redhat.com>
- <2108552981.7794894.1410198602679.JavaMail.zimbra@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2108552981.7794894.1410198602679.JavaMail.zimbra@redhat.com>
+Received: from mail-qc0-f175.google.com ([209.85.216.175]:36020 "EHLO
+	mail-qc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751613AbaI0TEc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Sep 2014 15:04:32 -0400
+Received: by mail-qc0-f175.google.com with SMTP id o8so8011101qcw.34
+        for <util-linux@vger.kernel.org>; Sat, 27 Sep 2014 12:04:31 -0700 (PDT)
+From: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
+Subject: [PATCH] su: print proper core dump message when killed
+Date: Sat, 27 Sep 2014 16:04:16 -0300
+Message-Id: <1411844656-13266-1-git-send-email-paulo.cesar.pereira.de.andrade@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 08, 2014 at 01:50:02PM -0400, Jaromir Capik wrote:
-> The fix is attached.
+An example is, in one terminal "sudo su -; echo $$", and in
+another terminal, "kill -9  $PID" (the pid of the su -). It
+should not print "(core dumped)", unless the kill signal
+specified so, e.g. kill -7 or kill -11.
 
- Applied, thanks.
+Signed-off-by: pcpa <paulo.cesar.pereira.de.andrade@gmail.com>
+---
+ login-utils/su-common.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index db72826..eb3b844 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -363,10 +363,9 @@ create_watching_parent (void)
+         {
+           if (WIFSIGNALED (status))
+             {
++              fprintf (stderr, "%s%s\n", strsignal (WTERMSIG (status)),
++                       WCOREDUMP (status) ? _(" (core dumped)") : "");
+               status = WTERMSIG (status) + 128;
+-              if (WCOREDUMP (status))
+-                fprintf (stderr, _("%s (core dumped)\n"),
+-                   strsignal (WTERMSIG (status)));
+             }
+           else
+             status = WEXITSTATUS (status);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.3
+
