@@ -1,94 +1,81 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:35314 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756170AbaICNaQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 3 Sep 2014 09:30:16 -0400
-Message-ID: <1409751014.14709.24.camel@oct.suse.cz>
-Subject: Re: umount of unreachable NFS without -f [maybe PATCH]
-From: Stanislav Brabec <sbrabec@suse.cz>
+Return-Path: elseifthen@gmx.com
+Message-ID: <5426D808.5050502@gmx.com>
+Date: Sat, 27 Sep 2014 11:30:16 -0400
+From: JWP <elseifthen@gmx.com>
+MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Date: Wed, 03 Sep 2014 15:30:14 +0200
-In-Reply-To: <20140903074517.GD21325@x2.net.home>
-References: <1409684978.14709.15.camel@oct.suse.cz>
-	 <20140903074517.GD21325@x2.net.home>
-Content-Type: text/plain; charset="ISO-8859-2"
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 7/7] hwclock: Add --update option MAN
+References: <5426D4C2.4060403@gmx.com>
+In-Reply-To: <5426D4C2.4060403@gmx.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Tue, Sep 02, 2014 at 09:09:38PM +0200, Stanislav Brabec wrote:
-> > I just analyzed causes of hang while calling umount without -f on an
-> > unreachable NFS.
-> > 
-> > The first hang happens on in lookup_umount_fs():
-> > 
-> > stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
-> > 
-> > I don't exactly know, what its removal causes, but I tried it.
-> > 
-> > I entered into next hang in mnt_resolve_path() inside has_utab_entry().
-> > We cannot prevent this hang in all cases, but preventing it in a
-> > standard situation is pretty straightforward: Try to match provided
-> > target name before trying to canonicalize.
-> > 
-> > Now my umount without -f works well at least in the case, when the mount
-> > point is recorded in the utab.
-> > 
-> > If it is not recorded in utab, it still hangs later in
-> > lookup_umount_fs() on:
-> > 
-> > if (statfs(tgt, &vfs) == 0)
-> > 
-> > Well, we can prevent even this hang, but it would be at cost of parsing
-> > mtab. I read your git comments and I see, that the whole purpose of the
-> > code is preventing of parsing of the generated mtab/mountinfo.
-> > 
-> > Would be parsing of fstab a safe way without paying this cost?
-> 
-> How often do you have NFS mounts without entry within utab? I think it's
-> pretty unusual (I guess you have mount.nfs linked with libmount).
 
-I did it somehow. Guessing that it could have something with my
-experiments, killing hanging umount with signal 11 etc.
+Update hwclock man page for the
+hwclock: Add --update option patch.
 
-> The change in has_utab_entry() is definitely good idea, but I'm not
-> sure about the rest. Maybe it would be enough to call has_utab_entry()
-> before
-> 
->     stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)
-> 
-> 
-> then it will be good enough for almost all NFS mounts (with utab
-> entries).
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
-Yes, I just verified that it helps as well.
-
-But I found just another stat() call further in
-mnt_context_find_umount_fs():
-if (stat(tgt, &st) == 0 && S_ISDIR(st.st_mode)) {
-before cache lookups.
-
-And next there is:
-cn_tgt = mnt_resolve_path(tgt, cache);
-which will probably hang as well.
-
-I can imagine that we will not uses stat() here, but I cannot imagine,
-how to set filter correctly without canonicalization.
-
-I am just curious why one of my umount attempts of unresponsive NFS
-succeeded yesterday...
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index d04a429..1948251 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -342,7 +342,18 @@ with SRM console.
+ Do everything except actually updating the Hardware Clock or anything
+ else.  This is useful, especially in conjunction with
+ .BR \-\-debug ,
+-in learning about
++in learning about the internal operations of hwclock.
++
++.TP
++.B \-\-update
++Update the Hardware Clock's drift factor in
++.IR @ADJTIME_PATH@ .
++It is used with
++.BR --set\  or \ --systohc ,
++otherwise it is ignored.
++See the discussion below, under
++.B The Adjust
++.BR Function.
+ 
+ .TP
+ .BR \-u , \ \-\-utc
+@@ -532,8 +543,8 @@ command to set the Hardware Clock to the true current time.
+ .B hwclock
+ creates the adjtime file and records in it the current time as the
+ last time the clock was calibrated.
+-5 days later, the clock has gained 10 seconds, so you issue another
+-.I hwclock \-\-set
++5 days later, the clock has gained 10 seconds, so you issue the
++.I hwclock \-\-set \-\-update
+ command to set it back 10 seconds.
+ .B hwclock
+ updates the adjtime file to show the current time as the last time the
+@@ -552,15 +563,16 @@ Another 24 hours goes by and you issue another
+ does the same thing: subtracts 2 seconds and updates the adjtime file
+ with the current time as the last time the clock was adjusted.
+ .PP
+-Every time you calibrate (set) the clock (using
+-.I \-\-set
+-or
+-.IR \-\-systohc ),
+-.B hwclock
+-recalculates the systematic drift rate based on how long it has been
++When you use the
++.I \-\-update
++option with
++.IR \-\-set\  or \ \-\-systohc ,
++the systematic drift rate is (re)calculated based on how long it has been
+ since the last calibration, how long it has been since the last
+ adjustment, what drift rate was assumed in any intervening
+-adjustments, and the amount by which the clock is presently off.
++adjustments, and the amount by which the clock is presently off.  This updated
++drift factor is then saved in
++.IR @ADJTIME_PATH@ .
+ .PP
+ A small amount of error creeps in when
+ the Hardware Clock is set, so
