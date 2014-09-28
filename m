@@ -1,43 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:61702 "EHLO
-	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753658AbaIVUQB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Sep 2014 16:16:01 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:60448 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753442AbaI1TxH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:53:07 -0400
+Received: by mail-we0-f180.google.com with SMTP id x48so1125314wes.25
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:53:06 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 04/10] textual: add a comma for clarity, plus some other tweaks
-Date: Mon, 22 Sep 2014 22:15:34 +0200
-Message-Id: <1411416940-3249-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
-References: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 20/23] libsmartcols: add explicit column flags default
+Date: Sun, 28 Sep 2014 20:51:53 +0100
+Message-Id: <1411933916-30576-21-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- libfdisk/src/context.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Useful when initializing without any specific action in mind, or when
+reseting flags later on.
 
-diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
-index 4931145..4031f0b 100644
---- a/libfdisk/src/context.c
-+++ b/libfdisk/src/context.c
-@@ -363,10 +363,10 @@ static int warn_wipe(struct fdisk_context *cxt)
- 		if (blkid_probe_lookup_value(pr, "TYPE", &name, 0) == 0 ||
- 		    blkid_probe_lookup_value(pr, "PTTYPE", &name, 0) == 0) {
- 			fdisk_warnx(cxt, _(
--				"%s: device contains a valid '%s' signature, it's "
--				"strongly recommended to wipe the device by command wipefs(8) "
--				"if this setup is unexpected to avoid "
--				"possible collisions."), cxt->dev_path, name);
-+				"%s: device contains a valid '%s' signature; it is "
-+				"strongly recommended to wipe the device with "
-+				"wipefs(8) if this is unexpected, in order to "
-+				"avoid possible collisions"), cxt->dev_path, name);
- 			rc = 1;
- 		}
- 	}
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libsmartcols/src/libsmartcols.h.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libsmartcols/src/libsmartcols.h.in b/libsmartcols/src/libsmartcols.h.in
+index e612560..1699a4a 100644
+--- a/libsmartcols/src/libsmartcols.h.in
++++ b/libsmartcols/src/libsmartcols.h.in
+@@ -78,6 +78,7 @@ enum {
+  * Column flags
+  */
+ enum {
++	SCOLS_FL_DEFAULT     = 0,	   /* use default functionality */
+ 	SCOLS_FL_TRUNC       = (1 << 0),   /* truncate fields data if necessary */
+ 	SCOLS_FL_TREE        = (1 << 1),   /* use tree "ascii art" */
+ 	SCOLS_FL_RIGHT	     = (1 << 2),   /* align to the right */
 -- 
-1.7.0.4
+2.1.1
 
