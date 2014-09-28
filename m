@@ -1,40 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:40920 "EHLO
-	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752010AbaIGSTI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 14:19:08 -0400
-Received: by mail-oi0-f42.google.com with SMTP id e131so1879311oig.29
-        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 11:19:07 -0700 (PDT)
-Received: from [192.168.0.75] (cpe-72-178-123-130.satx.res.rr.com. [72.178.123.130])
-        by mx.google.com with ESMTPSA id c3sm5061319obf.14.2014.09.07.11.19.05
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Sun, 07 Sep 2014 11:19:06 -0700 (PDT)
-Message-ID: <540CA199.8070307@gmail.com>
-Date: Sun, 07 Sep 2014 13:19:05 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-MIME-Version: 1.0
+Received: from mail-we0-f172.google.com ([74.125.82.172]:51969 "EHLO
+	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751689AbaI1TwM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:12 -0400
+Received: by mail-we0-f172.google.com with SMTP id q58so3024863wes.17
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:11 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: mount error message
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 04/23] textual: fix couple typos in comments
+Date: Sun, 28 Sep 2014 20:51:37 +0100
+Message-Id: <1411933916-30576-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I have a user that complains that mount is giving an incorrect error 
-message under some circumstances.  For instance if mtab is symlinked to 
-/proc/self/mounts the command and /run is not in fstab:
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libfdisk/src/context.c         | 2 +-
+ libfdisk/src/script.c          | 2 +-
+ libsmartcols/src/table_print.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-$ mount /run
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index 4931145..e44cc14 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -644,7 +644,7 @@ int fdisk_use_cylinders(struct fdisk_context *cxt)
+  * fdisk_get_units_per_sector:
+  * @cxt: context
+  *
+- * This is neccessary only for brain dead situations when we use "cylinders";
++ * This is necessary only for brain dead situations when we use "cylinders";
+  *
+  * Returns: number of "units" per sector, default is 1 if display unit is sector.
+  */
+diff --git a/libfdisk/src/script.c b/libfdisk/src/script.c
+index bc92c82..d91cef9 100644
+--- a/libfdisk/src/script.c
++++ b/libfdisk/src/script.c
+@@ -344,7 +344,7 @@ int fdisk_script_read_context(struct fdisk_script *dp, struct fdisk_context *cxt
+  *
+  * Writes script @dp to the ile @f.
+  *
+- * Returns: 0 on sucess, <0 on error.
++ * Returns: 0 on success, <0 on error.
+  */
+ int fdisk_script_write_file(struct fdisk_script *dp, FILE *f)
+ {
+diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
+index c9f3d8f..4191515 100644
+--- a/libsmartcols/src/table_print.c
++++ b/libsmartcols/src/table_print.c
+@@ -100,7 +100,7 @@ static int buffer_set_data(struct libscols_buffer *buf, const char *str)
+ 	return rc ? rc : buffer_append_data(buf, str);
+ }
+ 
+-/* save the current buffer possition to art_idx */
++/* save the current buffer position to art_idx */
+ static void buffer_set_art_index(struct libscols_buffer *buf)
+ {
+ 	if (buf) {
+-- 
+2.1.1
 
-returns an error message:
-
-   mount: /run: No such file or directory
-
-However if mtab is a regular file, the error message is:
-
-   mount: can't find /run in /etc/fstab
-
-It would be appropriate if both situations could return the 2nd message.
-
-   -- Bruce Dubbs
-      linuxfromscratch.org
