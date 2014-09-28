@@ -1,101 +1,129 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f180.google.com ([74.125.82.180]:55184 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753280AbaIPU4c (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:56:32 -0400
-Received: by mail-we0-f180.google.com with SMTP id t60so445951wes.11
-        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:56:31 -0700 (PDT)
-Received: from kerolasa-home (host-84-13-170-68.opaltelecom.net. [84.13.170.68])
-        by mx.google.com with ESMTPSA id p1sm19656482wjy.22.2014.09.16.13.56.29
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 16 Sep 2014 13:56:30 -0700 (PDT)
+Received: from mail-we0-f176.google.com ([74.125.82.176]:43604 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750837AbaI1TwB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:01 -0400
+Received: by mail-we0-f176.google.com with SMTP id p10so405685wes.21
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:51:59 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:56:29 +0100 (BST)
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/17] pull: miscellaneous changes
-In-Reply-To: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
-Message-ID: <alpine.LNX.2.03.1409162150570.3712@kerolasa-home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Cc: kerolasa@iki.fi
+Subject: [PATCH 00/23] pull: mostly textual and compiler warning fix changes
+Date: Sun, 28 Sep 2014 20:51:33 +0100
+Message-Id: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 7 Sep 2014, Sami Kerola wrote:
+Hi,
 
-> This patch set is full of random small changes all around the util-linux
-> code base.  I am pretty sure all changes are good, but it would be really
-> good if someone could double check the last one of the changes, setarch:
-> remove unreachable code, is correct.
->
-> While doing eject changes I noticed eject(1) executing umount(8).  That
-> works, but shouldn't the code be changed to use libmount?  Or is that a
-> pointless complication?
+This should not be breath taking patch set for anyone.  The textual
+changes are pretty straight forward, and warning fixes are intented to
+make '-Wall -pedantic' compilations less noisy so that real issues are
+easier to spot.
 
-Hello,
+The change worth to mention separately are 0003 hexdump and 0023 tests
+fix.  I suppose it's OK by now to remove the 'GNU coreutils od' warning
+from hexdump.  The test fix is Adam Sampson's change, that Ruediger Meier
+further improved[1], and I've mostly been primarily guilty to make a mess
+with the ipcs/limits2 test.  Well, hopefully the test is now OK until big
+integer support is sorted out.
 
-Here is rebased and updated version of the pull request. Most of changes 
-are with newgrp(1). The command started to use getsgnam() to read gshadow, 
-and the xgetpass() stuff is removed from util-linux/lib.
+[1] http://www.spinics.net/lists/util-linux-ng/msg10141.html
 
 
-The following changes since commit a3b92242ad76a7468cf508e1d878d0815c7e031f:
+The following changes since commit 286f1e229bee68c2f2720407752bcb5ec95c9abc:
 
-   libmount: hide details about failed search in fstab/mtab (2014-09-16 15:30:03 +0200)
+  Merge branch 'misc' of git://github.com/kerolasa/lelux-utiliteetit (2014-09-22 14:55:37 +0200)
 
 are available in the git repository at:
 
-   git://github.com/kerolasa/lelux-utiliteetit.git misc
+  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk38
 
-for you to fetch changes up to fabf9766ddfb44f75165298928d3fcba44d01d5e:
+for you to fetch changes up to a642dd57eaf7ec1e106eebc0018eddc907a0fe79:
 
-   textual: share crypt() error message in sulogin and newgrp (2014-09-16 
-21:09:19 +0100)
+  tests: fix the ipcs test for shmall being too big to show (2014-09-28 19:22:50 +0100)
 
 ----------------------------------------------------------------
-Sami Kerola (17):
-       libuuid: add extern qualifiers to uuid/uuid.h system header
-       include: simplify fputc_careful() in carefulputc.h
-       lib: remove xgetpass()
-       last: make is_phantom() when kernel config does not include audit support
-       last: improve code readability by renaming variable names
-       zramctl: fix two format string warnings
-       mountpoint: add struct mountpoint_control
-       mkfs.minix: fix couple compiler warnings
-       mountpoint: simplify if statement
-       eject: add struct eject_control to remove global variables
-       eject: make open_device() and select_speed() to use struct eject_control
-       hwclock: remove referal to deprecated keyboard interface
-       setarch: reindent code
-       setarch: use personality() system call when it is available
-       newgrp: use libc function to read gshadow if it is available
-       newgrp: avoid use of obsolete getpass() function
-       textual: share crypt() error message in sulogin and newgrp
 
-  configure.ac            |   1 +
-  disk-utils/mkfs.minix.c |  16 +-
-  include/Makemodule.am   |   1 -
-  include/carefulputc.h   |  16 +-
-  include/xgetpass.h      |   6 -
-  lib/Makemodule.am       |   1 -
-  lib/xgetpass.c          |  46 -----
-  libuuid/src/uuid.h      |  30 +--
-  login-utils/last.c      |  53 +++--
-  login-utils/newgrp.c    |  61 +++++-
-  sys-utils/Makemodule.am |   3 +-
-  sys-utils/eject.c       | 422 ++++++++++++++++++++-------------------
-  sys-utils/hwclock-kd.c  | 180 -----------------
-  sys-utils/hwclock.c     |   3 -
-  sys-utils/hwclock.h     |   1 -
-  sys-utils/mountpoint.c  |  93 ++++-----
-  sys-utils/setarch.c     | 515 ++++++++++++++++++++++++------------------------
-  sys-utils/zramctl.c     |   4 +-
-  18 files changed, 633 insertions(+), 819 deletions(-)
-  delete mode 100644 include/xgetpass.h
-  delete mode 100644 lib/xgetpass.c
-  delete mode 100644 sys-utils/hwclock-kd.c
+Adam Sampson (1):
+  tests: fix the ipcs test for shmall being too big to show
+
+Sami Kerola (22):
+  swapon: align available columns section in usage()
+  docs: update deprecation banners
+  hexdump: remove deprecation message
+  textual: fix couple typos in comments
+  flock: add error message to translations
+  textual: use version printing macro everywhere
+  textual: use manual tail usage() macro
+  textual: use usage() text element macros
+  libuuid: remove _SVID_SOURCE pre-processor definition
+  include: fix compiler warnings
+  lsblk: fix compiler warning
+  libblkid: use pre-processor to optimize out code
+  libblkid: fix implicit constant conversion warning
+  include/debug: remove duplicate 'const' declaration warning
+  cfdisk: add missing initializers to struct main_menuitems
+  findmnt: add missing initializers to struct colinfo
+  lsblk: add missing initializers to struct colinfo
+  hwclock: use fabs() instead abs() when argument is double
+  lscpu: add missing initializers to struct lscpu_coldesc
+  libsmartcols: add explicit column flags default
+  lslogins: add missing initializers to struct lslogins_coldesc
+  lslogins: use more narrow layout when initializing struct members
+
+ disk-utils/cfdisk.c                |  21 ++--
+ disk-utils/mkfs.bfs.c              |   1 +
+ disk-utils/mkfs.c                  |  16 ++-
+ disk-utils/mkfs.minix.c            |   2 +-
+ include/c.h                        |  10 +-
+ include/debug.h                    |   2 +-
+ include/list.h                     |   2 +-
+ libblkid/src/superblocks/bcache.c  |   2 +-
+ libblkid/src/superblocks/zfs.c     |   6 +-
+ libfdisk/src/context.c             |   2 +-
+ libfdisk/src/script.c              |   2 +-
+ libsmartcols/src/libsmartcols.h.in |   1 +
+ libsmartcols/src/table_print.c     |   2 +-
+ libuuid/src/gen_uuid.c             |   6 --
+ login-utils/chfn.c                 |   4 +-
+ login-utils/lslogins.c             | 212 ++++++++++++++++++++++++++++++-------
+ login-utils/newgrp.c               |   9 --
+ login-utils/vipw.c                 |   9 --
+ misc-utils/findmnt.c               |  50 ++++-----
+ misc-utils/getopt.c                |  13 ++-
+ misc-utils/look.c                  |   6 +-
+ misc-utils/lsblk.c                 |  66 ++++++------
+ misc-utils/namei.c                 |   7 +-
+ misc-utils/uuidd.c                 |   4 +-
+ misc-utils/uuidgen.c               |   5 +-
+ misc-utils/wipefs.c                |   7 +-
+ schedutils/chrt.c                  |   4 +-
+ schedutils/taskset.c               |   5 +-
+ sys-utils/chcpu.c                  |   3 +-
+ sys-utils/dmesg.c                  |   3 +-
+ sys-utils/flock.c                  |   2 +-
+ sys-utils/hwclock.c                |  11 +-
+ sys-utils/lscpu.c                  |  27 +++--
+ sys-utils/rtcwake.c                |   3 +-
+ sys-utils/swapon.c                 |   2 +-
+ sys-utils/tunelp.c                 |  12 ++-
+ term-utils/agetty.c                |   3 +-
+ term-utils/script.c                |   8 +-
+ term-utils/scriptreplay.c          |   8 +-
+ term-utils/write.c                 |  13 ++-
+ tests/ts/ipcs/limits2              |   2 +-
+ text-utils/col.c                   |  13 ++-
+ text-utils/colcrt.c                |   5 +-
+ text-utils/colrm.c                 |  14 +--
+ text-utils/column.c                |   5 +-
+ text-utils/hexdump.c               |   7 +-
+ text-utils/pg.c                    |   9 ++
+ text-utils/rev.c                   |  13 +--
+ text-utils/tailf.c                 |   4 +-
+ text-utils/ul.c                    |   3 +-
+ 50 files changed, 383 insertions(+), 263 deletions(-)
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.1.1
+
