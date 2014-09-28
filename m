@@ -1,63 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:64165 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752382AbaIGMng (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Sep 2014 08:43:36 -0400
-Received: by mail-we0-f174.google.com with SMTP id w61so2240008wes.19
-        for <util-linux@vger.kernel.org>; Sun, 07 Sep 2014 05:43:35 -0700 (PDT)
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:56144 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049AbaI1Twm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:42 -0400
+Received: by mail-wi0-f177.google.com with SMTP id q5so2057798wiv.10
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:41 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: kerolasa@iki.fi
-Subject: [PATCH 10/17] mkfs.minix: fix couple compiler warnings
-Date: Sun,  7 Sep 2014 13:42:58 +0100
-Message-Id: <1410093785-17537-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 13/23] libblkid: fix implicit constant conversion warning
+Date: Sun, 28 Sep 2014 20:51:46 +0100
+Message-Id: <1411933916-30576-14-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-disk-utils/mkfs.minix.c:366:3: warning: ISO C forbids 'return' with
-expression, in function returning void [-Wpedantic]
+warning: overflow in implicit constant conversion [-Woverflow]
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/mkfs.minix.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ libblkid/src/superblocks/bcache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 9fdfc63..2dafc86 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -362,9 +362,11 @@ static void make_bad_inode_v2_v3 (void)
+diff --git a/libblkid/src/superblocks/bcache.c b/libblkid/src/superblocks/bcache.c
+index b3e397b..010866c 100644
+--- a/libblkid/src/superblocks/bcache.c
++++ b/libblkid/src/superblocks/bcache.c
+@@ -20,7 +20,7 @@
+ #define node(i, j)         ((i)->d + (j))
+ #define end(i)             node(i, (i)->keys)
  
- static void make_bad_inode(void)
- {
--	if (fs_version < 2)
--		return make_bad_inode_v1();
--	return make_bad_inode_v2_v3();
-+	if (fs_version < 2) {
-+		make_bad_inode_v1();
-+		return;
-+	}
-+	make_bad_inode_v2_v3();
- }
- 
- static void make_root_inode_v1(void) {
-@@ -412,9 +414,11 @@ static void make_root_inode_v2_v3 (void) {
- 
- static void make_root_inode(void)
- {
--	if (fs_version < 2)
--		return make_root_inode_v1();
--	return make_root_inode_v2_v3();
-+	if (fs_version < 2) {
-+		make_root_inode_v1();
-+		return;
-+	}
-+	make_root_inode_v2_v3();
- }
- 
- static void super_set_nzones(void)
+-static const char bcache_magic[] = {
++static const unsigned char bcache_magic[] = {
+ 	0xc6, 0x85, 0x73, 0xf6, 0x4e, 0x1a, 0x45, 0xca,
+ 	0x82, 0x65, 0xf5, 0x7f, 0x48, 0xba, 0x6d, 0x81
+ };
 -- 
-2.1.0
+2.1.1
 
