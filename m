@@ -1,31 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25225 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752699AbaIPJS1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 16 Sep 2014 05:18:27 -0400
-Date: Tue, 16 Sep 2014 11:18:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Boris Egorov <egorov@linux.com>
-Cc: Andreas Henriksson <andreas@fatal.se>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: fix cppcheck warnings
-Message-ID: <20140916091817.GF7867@x2.net.home>
-References: <20140914115745.GA20978@fatal.se>
- <1410798797-23769-1-git-send-email-egorov@linux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410798797-23769-1-git-send-email-egorov@linux.com>
+Received: from mail-we0-f173.google.com ([74.125.82.173]:52727 "EHLO
+	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750921AbaI1TwD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:03 -0400
+Received: by mail-we0-f173.google.com with SMTP id p10so2448859wes.18
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:01 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 01/23] swapon: align available columns section in usage()
+Date: Sun, 28 Sep 2014 20:51:34 +0100
+Message-Id: <1411933916-30576-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 15, 2014 at 11:33:17PM +0700, Boris Egorov wrote:
->  sys-utils/lscpu-dmi.c | 2 +-
->  sys-utils/lscpu.c     | 8 ++++----
->  2 files changed, 5 insertions(+), 5 deletions(-)
+Commit 5db57cfc469b45ada0162a64d627ce25a3d2431f missed doing this change.
 
- Good catch, thanks!
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/swapon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    Karel
-
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 976f87e..1170f9e 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -735,7 +735,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 
+ 	fputs(_("\nAvailable columns (for --show):\n"), out);
+ 	for (i = 0; i < ARRAY_SIZE(infos); i++)
+-		fprintf(out, " %4s  %s\n", infos[i].name, _(infos[i].help));
++		fprintf(out, " %-5s  %s\n", infos[i].name, _(infos[i].help));
+ 
+ 	fprintf(out, USAGE_MAN_TAIL("swapon(8)"));
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.1
+
