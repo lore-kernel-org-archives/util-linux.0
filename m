@@ -1,249 +1,346 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:34436 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750811AbaIPUgr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 16 Sep 2014 16:36:47 -0400
-Received: by mail-wg0-f51.google.com with SMTP id k14so410291wgh.10
-        for <util-linux@vger.kernel.org>; Tue, 16 Sep 2014 13:36:46 -0700 (PDT)
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:40841 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751943AbaI1TwU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:20 -0400
+Received: by mail-wg0-f46.google.com with SMTP id k14so1864070wgh.17
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:19 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 16 Sep 2014 21:36:43 +0100 (BST)
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/17] mountpoint: add struct mountpoint_control
-In-Reply-To: <20140912091411.GU21325@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1409162134140.3712@kerolasa-home>
-References: <1410093785-17537-1-git-send-email-kerolasa@iki.fi> <1410093785-17537-10-git-send-email-kerolasa@iki.fi> <20140912091411.GU21325@x2.net.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 06/23] textual: use version printing macro everywhere
+Date: Sun, 28 Sep 2014 20:51:39 +0100
+Message-Id: <1411933916-30576-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 12 Sep 2014, Karel Zak wrote:
-
-> On Sun, Sep 07, 2014 at 01:42:57PM +0100, Sami Kerola wrote:
->> This unifies variable names in different functions, and removes redundant
->> stat() calls.
->>
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  sys-utils/mountpoint.c | 86 ++++++++++++++++++++++++--------------------------
->>  1 file changed, 41 insertions(+), 45 deletions(-)
->>
->> diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
->> index 3919ab7..3392cdd 100644
->> --- a/sys-utils/mountpoint.c
->> +++ b/sys-utils/mountpoint.c
->> @@ -40,9 +40,17 @@
->>  #include "closestream.h"
->>  #include "pathnames.h"
->>
->> -static int quiet;
->> +struct mountpoint_control {
->> +	char *devname;
->
-> This member name makes the code difficult to read, on many places it's
-> not device at all. Please, use "path" or "spec" rather then "devname".
-
-Done.
-
->> +	dev_t dev;
->> +	struct stat st;
->> +	uint8_t
->> +		dev_devno:1,
->> +		fs_devno:1,
->> +		quiet:1;
->> +};
->
-> Use "unsigned int" for bit fields, it's compiler business to optimize
-> how the bits are packed in the struct.
->
->
-> C99, 6.7.2.1 Structure and union specifiers
->
-> A bit-field shall have a type that is a qualified or unqualified
-> version of _Bool, signed int, unsigned int, or some other
-> implementation-defined type.
-
-Thanks Karel. I'll stick to unsigned ints in future when doing bit fields.
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Fri, 22 Aug 2014 13:25:48 +0300
-Subject: [PATCH 07/17] mountpoint: add struct mountpoint_control
-
-This unifies variable names in different functions, and removes redundant
-stat() calls.
+Only mount, umount, and blkid remains not using the macro because they
+are print also library references.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
-  sys-utils/mountpoint.c | 86 ++++++++++++++++++++++++--------------------------
-  1 file changed, 41 insertions(+), 45 deletions(-)
+ disk-utils/cfdisk.c       | 3 +--
+ disk-utils/mkfs.minix.c   | 2 +-
+ schedutils/chrt.c         | 3 +--
+ schedutils/taskset.c      | 3 +--
+ sys-utils/chcpu.c         | 3 +--
+ sys-utils/dmesg.c         | 3 +--
+ sys-utils/hwclock.c       | 2 +-
+ sys-utils/lscpu.c         | 3 +--
+ sys-utils/rtcwake.c       | 3 +--
+ sys-utils/tunelp.c        | 3 +--
+ term-utils/agetty.c       | 3 +--
+ term-utils/script.c       | 3 +--
+ term-utils/scriptreplay.c | 3 +--
+ term-utils/write.c        | 4 +---
+ text-utils/col.c          | 3 +--
+ text-utils/colcrt.c       | 4 +---
+ text-utils/colrm.c        | 4 +---
+ text-utils/column.c       | 5 ++---
+ text-utils/rev.c          | 3 +--
+ text-utils/tailf.c        | 3 +--
+ text-utils/ul.c           | 3 +--
+ 21 files changed, 22 insertions(+), 44 deletions(-)
 
-diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
-index 3919ab7..4161d20 100644
---- a/sys-utils/mountpoint.c
-+++ b/sys-utils/mountpoint.c
-@@ -40,9 +40,17 @@
-  #include "closestream.h"
-  #include "pathnames.h"
-
--static int quiet;
-+struct mountpoint_control {
-+	char *path;
-+	dev_t dev;
-+	struct stat st;
-+	unsigned int
-+		dev_devno:1,
-+		fs_devno:1,
-+		quiet:1;
-+};
-
--static int dir_to_device(const char *spec, dev_t *dev)
-+static int dir_to_device(struct mountpoint_control *ctl)
-  {
-  	struct libmnt_table *tb = mnt_new_table_from_file(_PATH_PROC_MOUNTINFO);
-  	struct libmnt_fs *fs;
-@@ -54,16 +62,13 @@ static int dir_to_device(const char *spec, dev_t *dev)
-  		 * Fallback. Traditional way to detect mountpoints. This way
-  		 * is independent on /proc, but not able to detect bind mounts.
-  		 */
--		struct stat pst, st;
-+		struct stat pst;
-  		char buf[PATH_MAX], *cn;
-  		int len;
-
--		if (stat(spec, &st) != 0)
--			return -1;
--
--		cn = mnt_resolve_path(spec, NULL);	/* canonicalize */
-+		cn = mnt_resolve_path(ctl->path, NULL);	/* canonicalize */
-
--		len = snprintf(buf, sizeof(buf), "%s/..", cn ? cn : spec);
-+		len = snprintf(buf, sizeof(buf), "%s/..", cn ? cn : ctl->path);
-  		free(cn);
-
-  		if (len < 0 || (size_t) len + 1 > sizeof(buf))
-@@ -71,9 +76,9 @@ static int dir_to_device(const char *spec, dev_t *dev)
-  		if (stat(buf, &pst) !=0)
-  			return -1;
-
--		if ((st.st_dev != pst.st_dev) ||
--		    (st.st_dev == pst.st_dev && st.st_ino == pst.st_ino)) {
--			*dev = st.st_dev;
-+		if ((ctl->st.st_dev != pst.st_dev) ||
-+		    (ctl->st.st_dev == pst.st_dev && ctl->st.st_ino == pst.st_ino)) {
-+			ctl->dev = ctl->st.st_dev;
-  			return 0;
-  		}
-
-@@ -85,9 +90,9 @@ static int dir_to_device(const char *spec, dev_t *dev)
-  	mnt_table_set_cache(tb, cache);
-  	mnt_unref_cache(cache);
-
--	fs = mnt_table_find_target(tb, spec, MNT_ITER_BACKWARD);
-+	fs = mnt_table_find_target(tb, ctl->path, MNT_ITER_BACKWARD);
-  	if (fs && mnt_fs_get_target(fs)) {
--		*dev = mnt_fs_get_devno(fs);
-+		ctl->dev = mnt_fs_get_devno(fs);
-  		rc = 0;
-  	}
-
-@@ -95,20 +100,14 @@ static int dir_to_device(const char *spec, dev_t *dev)
-  	return rc;
-  }
-
--static int print_devno(const char *devname, struct stat *st)
-+static int print_devno(const struct mountpoint_control *ctl)
-  {
--	struct stat stbuf;
--
--	if (!st && stat(devname, &stbuf) == 0)
--		st = &stbuf;
--	if (!st)
--		return -1;
--	if (!S_ISBLK(st->st_mode)) {
--		if (!quiet)
--			warnx(_("%s: not a block device"), devname);
-+	if (!S_ISBLK(ctl->st.st_mode)) {
-+		if (!ctl->quiet)
-+			warnx(_("%s: not a block device"), ctl->path);
-  		return -1;
-  	}
--	printf("%u:%u\n", major(st->st_rdev), minor(st->st_rdev));
-+	printf("%u:%u\n", major(ctl->st.st_rdev), minor(ctl->st.st_rdev));
-  	return 0;
-  }
-
-@@ -133,9 +132,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
-
-  int main(int argc, char **argv)
-  {
--	int c, fs_devno = 0, dev_devno = 0, rc = 0;
--	char *spec;
--	struct stat st;
-+	int c, rc = 0;
-+	struct mountpoint_control ctl = { 0 };
-
-  	static const struct option longopts[] = {
-  		{ "quiet", 0, 0, 'q' },
-@@ -157,13 +155,13 @@ int main(int argc, char **argv)
-
-  		switch(c) {
-  		case 'q':
--			quiet = 1;
-+			ctl.quiet = 1;
-  			break;
-  		case 'd':
--			fs_devno = 1;
-+			ctl.fs_devno = 1;
-  			break;
-  		case 'x':
--			dev_devno = 1;
-+			ctl.dev_devno = 1;
-  			break;
-  		case 'h':
-  			usage(stdout);
-@@ -180,27 +178,25 @@ int main(int argc, char **argv)
-  	if (optind + 1 != argc)
-  		usage(stderr);
-
--	spec = argv[optind++];
-+	ctl.path = argv[optind];
-
--	if (stat(spec, &st)) {
--		if (!quiet)
--			err(EXIT_FAILURE, "%s", spec);
-+	if (stat(ctl.path, &ctl.st)) {
-+		if (!ctl.quiet)
-+			err(EXIT_FAILURE, "%s", ctl.path);
-  		return EXIT_FAILURE;
-  	}
--	if (dev_devno)
--		rc = print_devno(spec, &st);
-+	if (ctl.dev_devno)
-+		rc = print_devno(&ctl);
-  	else {
--		dev_t src;
--
--		if ( dir_to_device(spec, &src)) {
--			if (!quiet)
--				printf(_("%s is not a mountpoint\n"), spec);
-+		if (dir_to_device(&ctl)) {
-+			if (!ctl.quiet)
-+				printf(_("%s is not a mountpoint\n"), ctl.path);
-  			return EXIT_FAILURE;
-  		}
--		if (fs_devno)
--			printf("%u:%u\n", major(src), minor(src));
--		else if (!quiet)
--			printf(_("%s is a mountpoint\n"), spec);
-+		if (ctl.fs_devno)
-+			printf("%u:%u\n", major(ctl.dev), minor(ctl.dev));
-+		else if (!ctl.quiet)
-+			printf(_("%s is a mountpoint\n"), ctl.path);
-  	}
-
-  	return rc ? EXIT_FAILURE : EXIT_SUCCESS;
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index ef4e3ff..fabc397 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -2057,8 +2057,7 @@ int main(int argc, char *argv[])
+ 						_("unsupported color mode"));
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'z':
+ 			cf->zero_start = 1;
+diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
+index 2dafc86..81b7ae3 100644
+--- a/disk-utils/mkfs.minix.c
++++ b/disk-utils/mkfs.minix.c
+@@ -665,7 +665,7 @@ int main(int argc, char ** argv) {
+ 
+ 	if (argc == 2 &&
+ 	    (!strcmp(argv[1], "-V") || !strcmp(argv[1], "--version"))) {
+-		printf(_("%s (%s)\n"), program_name, PACKAGE_STRING);
++		printf(UTIL_LINUX_VERSION);
+ 		exit(MKFS_EX_OK);
+ 	}
+ 
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index fec26fd..df115aa 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -261,8 +261,7 @@ int main(int argc, char **argv)
+ 			verbose = 1;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'h':
+ 			ret = EXIT_SUCCESS;
+diff --git a/schedutils/taskset.c b/schedutils/taskset.c
+index 6ebca06..4cda2eb 100644
+--- a/schedutils/taskset.c
++++ b/schedutils/taskset.c
+@@ -162,8 +162,7 @@ int main(int argc, char **argv)
+ 			ts.use_list = 1;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/sys-utils/chcpu.c b/sys-utils/chcpu.c
+index ada0eaa..aba9d6b 100644
+--- a/sys-utils/chcpu.c
++++ b/sys-utils/chcpu.c
+@@ -327,8 +327,7 @@ int main(int argc, char *argv[])
+ 			cmd = CMD_CPU_RESCAN;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		default:
+ 			usage(stderr);
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index f95609f..53ac228 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -1332,8 +1332,7 @@ int main(int argc, char *argv[])
+ 				setbit(ctl.facilities, n);
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'w':
+ 			ctl.follow = 1;
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index d0d422d..9151d24 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1543,7 +1543,7 @@ static int compare_clock (const bool utc, const bool local_opt)
+ 
+ static void out_version(void)
+ {
+-	printf(_("%s from %s\n"), program_invocation_short_name, PACKAGE_STRING);
++	printf(UTIL_LINUX_VERSION);
+ }
+ 
+ /*
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 8827424..8ae7028 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1724,8 +1724,7 @@ int main(int argc, char *argv[])
+ 			mod->hex = 1;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		default:
+ 			usage(stderr);
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index 51ffb3c..e1cd41d 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -471,8 +471,7 @@ int main(int argc, char **argv)
+ 			break;
+ 
+ 		case 'V':
+-			printf(_("%s from %s\n"),
+-			       program_invocation_short_name, PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 
+ 		case 'h':
+diff --git a/sys-utils/tunelp.c b/sys-utils/tunelp.c
+index 7beb8a7..08cef5c 100644
+--- a/sys-utils/tunelp.c
++++ b/sys-utils/tunelp.c
+@@ -255,8 +255,7 @@ int main(int argc, char **argv)
+ #endif
+ 		case 'v':
+ 		case 'V':
+-			printf(_("%s from %s\n"),
+-			       program_invocation_short_name, PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		default:
+ 			print_usage(stderr);
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index a7044f0..5901228 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -770,8 +770,7 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 			reload_agettys();
+ 			exit(EXIT_SUCCESS);
+ 		case VERSION_OPTION:
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 		case HELP_OPTION:
+ 			usage(stdout);
+diff --git a/term-utils/script.c b/term-utils/script.c
+index b9f8738..ad16e74 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -217,8 +217,7 @@ main(int argc, char **argv) {
+ 			tflg = 1;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 			break;
+ 		case 'h':
+diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
+index ecea592..8e0cb97 100644
+--- a/term-utils/scriptreplay.c
++++ b/term-utils/scriptreplay.c
+@@ -174,8 +174,7 @@ main(int argc, char *argv[])
+ 			maxdelay = getnum(optarg);
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/term-utils/write.c b/term-utils/write.c
+index 146f4ba..4d217c4 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -110,9 +110,7 @@ int main(int argc, char **argv)
+ 	while ((c = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
+ 		switch (c) {
+ 		case 'V':
+-			printf(_("%s from %s\n"),
+-			       program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/text-utils/col.c b/text-utils/col.c
+index 997f87b..9b2f570 100644
+--- a/text-utils/col.c
++++ b/text-utils/col.c
+@@ -214,8 +214,7 @@ int main(int argc, char **argv)
+ 			compress_spaces = 0;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'H':
+ 			usage(stdout);
+diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
+index 6c7f636..a5d5977 100644
+--- a/text-utils/colcrt.c
++++ b/text-utils/colcrt.c
+@@ -115,9 +115,7 @@ int main(int argc, char **argv) {
+ 				printall = 1;
+ 				break;
+ 			case 'V':
+-				printf(_("%s from %s\n"),
+-					program_invocation_short_name,
+-					PACKAGE_STRING);
++				printf(UTIL_LINUX_VERSION);
+ 				return EXIT_SUCCESS;
+ 			case 'h':
+ 				usage(stdout);
+diff --git a/text-utils/colrm.c b/text-utils/colrm.c
+index 454085e..111033d 100644
+--- a/text-utils/colrm.c
++++ b/text-utils/colrm.c
+@@ -171,9 +171,7 @@ int main(int argc, char **argv)
+ 			    NULL)) != -1)
+ 		switch (opt) {
+ 		case 'V':
+-			printf(_("%s from %s\n"),
+-			       program_invocation_short_name,
+-			       PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/text-utils/column.c b/text-utils/column.c
+index 0ee5a9e..e583dba 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -149,9 +149,8 @@ int main(int argc, char **argv)
+ 			usage(EXIT_SUCCESS);
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-				 PACKAGE_STRING);
+-				 return EXIT_SUCCESS;
++			printf(UTIL_LINUX_VERSION);
++			return EXIT_SUCCESS;
+ 		case 'c':
+ 			termwidth = strtou32_or_err(optarg, _("invalid columns argument"));
+ 			break;
+diff --git a/text-utils/rev.c b/text-utils/rev.c
+index f1341cb..a661f0a 100644
+--- a/text-utils/rev.c
++++ b/text-utils/rev.c
+@@ -121,8 +121,7 @@ int main(int argc, char *argv[])
+ 	while ((ch = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
+ 		switch(ch) {
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index d2366a6..94f999e 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -261,8 +261,7 @@ int main(int argc, char **argv)
+ 					_("failed to parse number of lines"));
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			exit(EXIT_SUCCESS);
+ 		case 'h':
+ 			usage(stdout);
+diff --git a/text-utils/ul.c b/text-utils/ul.c
+index b3b3dc3..054f7b9 100644
+--- a/text-utils/ul.c
++++ b/text-utils/ul.c
+@@ -193,8 +193,7 @@ int main(int argc, char **argv)
+ 			iflag = 1;
+ 			break;
+ 		case 'V':
+-			printf(_("%s from %s\n"), program_invocation_short_name,
+-						  PACKAGE_STRING);
++			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+ 		case 'h':
+ 			usage(stdout);
 -- 
-2.1.0
+2.1.1
 
