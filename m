@@ -1,32 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16803 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753924AbaIVMsw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Sep 2014 08:48:52 -0400
-Date: Mon, 22 Sep 2014 14:48:38 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] pull: renice changes
-Message-ID: <20140922124838.GJ5366@x2.net.home>
-References: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1410002693-16540-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-we0-f172.google.com ([74.125.82.172]:37653 "EHLO
+	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049AbaI1Tws (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Sep 2014 15:52:48 -0400
+Received: by mail-we0-f172.google.com with SMTP id q58so3054406wes.31
+        for <util-linux@vger.kernel.org>; Sun, 28 Sep 2014 12:52:47 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 14/23] include/debug: remove duplicate 'const' declaration warning
+Date: Sun, 28 Sep 2014 20:51:47 +0100
+Message-Id: <1411933916-30576-15-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 06, 2014 at 12:24:47PM +0100, Sami Kerola wrote:
-> Sami Kerola (6):
->   renice: reorder functions to avoid need of function prototype
->   rename: use usage and version print out macros
->   renice: disallow --priority <arg> without pid argument
->   renice: avoid having same lines of code twice
->   renice: fix numeric uid argument parsing
->   rename: add getpriority() message lookup table
+./include/debug.h:89:55: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
 
- Applied, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/debug.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/include/debug.h b/include/debug.h
+index 25045aa..4dfc1eb 100644
+--- a/include/debug.h
++++ b/include/debug.h
+@@ -86,7 +86,7 @@ ul_debugobj(void *handler, const char *mesg, ...)
+ 	fputc('\n', stderr);
+ }
+ 
+-static inline int parse_envmask(const struct dbg_mask const flagnames[],
++static inline int parse_envmask(const struct dbg_mask flagnames[],
+ 				const char *mask)
+ {
+ 	int res;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.1
+
