@@ -1,31 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-08v.sys.comcast.net ([69.252.207.40]:53740 "EHLO
-	resqmta-ch2-08v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751372AbaJCT6e (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Oct 2014 15:58:34 -0400
-Date: Fri, 3 Oct 2014 15:58:29 -0400
-Message-Id: <201410031958.s93JwTuY026155@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: francis.moro@gmail.com, util-linux@vger.kernel.org
-In-reply-to: <201410031429.s93ET4wu014728@hobgoblin.ariadne.com>
-	(worley@alum.mit.edu)
-Subject: Re: losetup on a image file containing (GPT) partition doesn't create
- partition devices
-References: <542E7000.3040309@gmail.com> <201410031429.s93ET4wu014728@hobgoblin.ariadne.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44471 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750832AbaJALOg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Oct 2014 07:14:36 -0400
+Date: Wed, 1 Oct 2014 13:14:25 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/23] pull: mostly textual and compiler warning fix
+ changes
+Message-ID: <20141001111425.GP26272@x2.net.home>
+References: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1411933916-30576-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: worley@alum.mit.edu (Dale R. Worley)
+On Sun, Sep 28, 2014 at 08:51:33PM +0100, Sami Kerola wrote:
+>   libblkid: fix implicit constant conversion warning
+>   cfdisk: add missing initializers to struct main_menuitems
+>   findmnt: add missing initializers to struct colinfo
+>   lsblk: add missing initializers to struct colinfo
+>   lscpu: add missing initializers to struct lscpu_coldesc
+>   libsmartcols: add explicit column flags default
+>   lslogins: add missing initializers to struct lslogins_coldesc
+>   lslogins: use more narrow layout when initializing struct members
 
-> Then I detached the loopback device, re-attached it, and this time,
-> the partition devices were *not* created, and /var/log/messages did
-> not have the "loop0: p1 p2" message.
-> 
-> Given that the message starts "kernel:", I suspect that the udev
-> behavior is triggered by the kernel detecting the partition table, and
-> that is not happening.  So it looks like it's a kernel bug.
+ Rejected, the rest merged. Thanks.
 
-I tried that again, after updating to kernel 3.14.19-100.fc19.x86_64,
-and it worked this time.
+    Karel
 
-Dale
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
