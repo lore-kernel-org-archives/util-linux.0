@@ -1,97 +1,62 @@
-Return-Path: lczerner@redhat.com
-Date: Fri, 24 Oct 2014 11:50:37 +0200 (CEST)
-From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
-To: Federico Simoncelli <fsimonce@redhat.com>
-cc: util-linux@vger.kernel.org, kzak@redhat.com
-Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
-In-Reply-To: <1065283474.51295427.1414144024844.JavaMail.zimbra@redhat.com>
-Message-ID: <alpine.LFD.2.00.1410241149310.2242@localhost.localdomain>
-References: <1414078476-11007-1-git-send-email-fsimonce@redhat.com> <1414078476-11007-2-git-send-email-fsimonce@redhat.com> <alpine.LFD.2.00.1410241127260.2242@localhost.localdomain> <1065283474.51295427.1414144024844.JavaMail.zimbra@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:51838 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750780AbaJAIHB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Oct 2014 04:07:01 -0400
+Date: Wed, 1 Oct 2014 10:06:47 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: add one-line descriptions to each program usage()
+Message-ID: <20141001080647.GH26272@x2.net.home>
+References: <20140806132727.GI19820@x2.net.home>
+ <1407341083.485189.149814161.10AFC682@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1980263790-1414144239=:2242"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1407341083.485189.149814161.10AFC682@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---8323328-1980263790-1414144239=:2242
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-
-On Fri, 24 Oct 2014, Federico Simoncelli wrote:
-
-> Date: Fri, 24 Oct 2014 05:47:04 -0400 (EDT)
-> From: Federico Simoncelli <fsimonce@redhat.com>
-> To: Lukáš Czerner <lczerner@redhat.com>
-> Cc: util-linux@vger.kernel.org, kzak@redhat.com
-> Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
-> 
-> ----- Original Message -----
-> > From: "Lukáš Czerner" <lczerner@redhat.com>
-> > To: "Federico Simoncelli" <fsimonce@redhat.com>
-> > Cc: util-linux@vger.kernel.org, kzak@redhat.com
-> > Sent: Friday, October 24, 2014 11:37:33 AM
-> > Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
+On Wed, Aug 06, 2014 at 06:04:43PM +0200, Benno Schulenberg wrote:
+> On Wed, Aug 6, 2014, at 15:27, Karel Zak wrote:
+> > https://github.com/stevenhoneyman/util-linux/commit/d5b828e418102b354025bbf7f91b2dcdfc1f4e66
 > > 
-> > On Thu, 23 Oct 2014, Federico Simoncelli wrote:
-> > 
-> > > Date: Thu, 23 Oct 2014 15:34:36 +0000
-> > > From: Federico Simoncelli <fsimonce@redhat.com>
-> > > To: util-linux@vger.kernel.org
-> > > Cc: kzak@redhat.com, lczerner@redhat.com,
-> > >     Federico Simoncelli <fsimonce@redhat.com>
-> > > Subject: [PATCH 2/2] blkdiscard: fail on sector misalignment
-> > > 
-> > > ---
-> > >  sys-utils/blkdiscard.c            | 10 +++++++---
-> > >  tests/expected/blkdiscard/offsets | 12 ++++++------
-> > >  2 files changed, 13 insertions(+), 9 deletions(-)
-> > > 
-> > > diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
-> > > index 1eb2b285..76c72b8 100644
-> > > --- a/sys-utils/blkdiscard.c
-> > > +++ b/sys-utils/blkdiscard.c
-> > > @@ -144,9 +144,9 @@ int main(int argc, char **argv)
-> > >  	if (ioctl(fd, BLKSSZGET, &secsize))
-> > >  		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
-> > >  
-> > > -	/* align range to the sector size */
-> > > -	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
-> > > -	range[1] &= ~(secsize - 1);
-> > > +	/* check offset alignment to the sector size */
-> > > +	if (range[0] % secsize)
-> > > +		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned"), path,
-> > > range[0]);
-> > >  
-> > >  	/* is the range end behind the end of the device ?*/
-> > >  	if (range[0] > blksize)
-> > > @@ -155,6 +155,10 @@ int main(int argc, char **argv)
-> > >  	if (end < range[0] || end > blksize)
-> > >  		range[1] = blksize - range[0];
-> > >  
-> > > +	/* check length alignment to the sector size */
-> > > +	if (range[1] % secsize)
-> > > +		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned"), path,
-> > > range[1]);
-> > > +
-> > 
-> > Looks good, however remember that the tool is intended to be used by
-> > the end user, can we be a bit more helpful ? We already know the
-> > secsize it should be aligned to, so we can print that as well.
+> > the idea is to add one-line descriptions to each program usage().
 > 
-> I will update the error message.
+> Yes, docstrings are a good idea.
 > 
-> > However it just occurred to me that aligning it to secsize is not
-> > enough. It should be aligned to discard_granularity.
+> >  Anyway, the patch is not ready. I don't like the command name in the
+> >  description -- it's redundant.
 > 
-> Aligning to discard_granularity is an optimization, on the other hand
-> not aligning to secsize would result in the ioctl failing (EINVAL).
+> Furthermore, each docstring should be a full, grammatical sentence, not
+> the telegram style used in the NAME section of man pages.  And each of
+> them should start with a capital and end with a period.  And, if needed,
+> it may also cover two lines.
+> 
+> >  Maybe it would be better to move the description above Options
+> >  section.
+> 
+> Yes, that is a better place for them.  That is where coreutils puts them,
+> too.
+> 
+> As an example, the docstring of the following three commands should
+> probably be the same: "Display or manipulate a disk partition table.\n":
+> 
+> > fputs(_("fdisk - manipulate disk partition table\n"), out);
+> > fputs(_("sfdisk - partition table manipulator for Linux\n"), out);
+> > fputs(_("cfdisk - display or manipulate a disk partition table\n"), out);
+> 
+> Or if not, then the docstrings should make clear how these three differ.
+> 
+> By the way, the scripted grabbing of the first line of the man page as
+> a docstring has gone wrong for the swapoff command.
 
-Fair enough, but the unaligned part will be ignored and not
-'discarded'. But I guess that it really does not matter.
+ Benno, do you want to work on this task? It seems that the original
+ author is no motivated enough to refresh the patch :-) I think it's
+ good idea to provide more information in --help output.
 
--Lukas
+    Karel
 
-> 
-> 
---8323328-1980263790-1414144239=:2242--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
