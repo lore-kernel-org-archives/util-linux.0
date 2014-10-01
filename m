@@ -1,64 +1,56 @@
-Return-Path: rmilasan@suse.com
-Date: Tue, 21 Oct 2014 12:07:41 +0200
-From: Robert Milasan <rmilasan@suse.com>
-To: "Karel Zak" <kzak@redhat.com>
-Cc: <util-linux@vger.kernel.org>
-Subject: Re: swapon: fix -d short option
-Message-ID: <20141021120741.39f63265@viper.suse.cz>
-In-Reply-To: <20141021095525.GG8057@x2.net.home>
-References: <20141021100246.3e956b6d@viper.suse.cz>
-	<20141021095525.GG8057@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:13672 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750850AbaJAH7o (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Oct 2014 03:59:44 -0400
+Date: Wed, 1 Oct 2014 09:59:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: what precisely is partition_entry_lba?
+Message-ID: <20141001075939.GF26272@x2.net.home>
+References: <1411415045.2373997.170469709.45708397@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1411415045.2373997.170469709.45708397@webmail.messagingengine.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 21 Oct 2014 11:55:25 +0200
-"Karel Zak" <kzak@redhat.com> wrote:
+On Mon, Sep 22, 2014 at 09:44:05PM +0200, Benno Schulenberg wrote:
+> 
+> Hi,
+> 
+> In libfdisk/src/gpt.c the function gpt_list_disklabel() prints
+> a GPT header, and one of the things it prints says:
+> 
+> _("Partitions entries LBA: %ju"), h->partition_entry_lba
+> 
+> In the struct this variable is described as:
+> 
+> uint64_t    partition_entry_lba; /* stat LBA of the partition entry array */
+> 
+> This doesn't make sense to me.  Shouldn't this say something
+> like "Starting block of the array of partition entries" instead?
 
-> On Tue, Oct 21, 2014 at 10:02:46AM +0200, Robert Milasan wrote:
-> > When -d option is used with swapon, is expected that there is an
-> > equal '=' which at least according to the man page it doesn't make
-> > sense or it's not properly explained.
-> 
-> Well, in the man page there was incorrectly extra space between -d and
-> the optional argument. Fixed yesterday.
-> 
-> > If we use -d as we should, then swapon takes 'once' or 'pages' as an
-> > actual device:
-> > 
-> > dhcp33:~ # swapon -p -2 -d once /dev/sdb1
-> > swapon: stat failed once: No such file or directory
-> > 
-> > The short option -d, should be something like "swapon -d once ...."
-> > not "swapon -d=once ...."
-> 
-> What? The argument for -d is optional, it's reason why we care about
-> '='. I think it's obvious from the code.
-> 
->    swapon -p -2 -d /dev/sdb1 
-> 
-> is pretty valid.
-> 
-> Note that -d,--discard has been implemented in 2010, and extended by
-> 'once' and 'pages' later in 2013.
-> 
-> > I've attached the patch to fix this small issue.
-> 
-> Sorry, but the patch does not make sense.
-> 
->     Karel
-> 
+EFI standard:
 
-Sorry, but the option doesn't make sense eider. First is not documented
-properly or at all and with my patch -d option without any argument
-still works.
+"The start of the GPT Partition Entry Array is located at the LBA
+ indicated by the Partition Entry LBA field."
 
-Thanks anyway!
+> All this use of 'lba' is confusing to me, as it stands for
+> "logical block addressing", and what seems to be meant
+> is simply "logical block" or "logical block number".  No?
+
+Well, "LBA" is usually used as unit (especially in storage slang).
+Don't think about it as about abbreviation :-)
+
+
+IMHO the fdisk message "Partitions entries LBA: %ju" is fine, it's
+better to follow commonly terminology.
+
+    Karel
+
 
 -- 
-Robert Milasan
-
-L3 Support Engineer
-SUSE Linux (http://www.suse.com)
-email: rmilasan@suse.com
-GPG fingerprint: B6FE F4A8 0FA3 3040 3402  6FE7 2F64 167C 1909 6D1A
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
