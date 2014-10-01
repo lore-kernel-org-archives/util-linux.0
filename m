@@ -1,31 +1,29 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <5449BD44.2040408@gmx.com>
-Date: Thu, 23 Oct 2014 22:45:24 -0400
-From: JWP <elseifthen@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:41901 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751048AbaJAHlT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Oct 2014 03:41:19 -0400
+Date: Wed, 1 Oct 2014 09:41:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 01/10] textual: use angular brackets around each
+ individual argument
+Message-ID: <20141001074115.GE26272@x2.net.home>
+References: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH 1/5] hwclock: Remove newline from 'date' debug output
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1411416940-3249-1-git-send-email-bensberg@justemail.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The date command includes a newline.
+On Mon, Sep 22, 2014 at 10:15:31PM +0200, Benno Schulenberg wrote:
+> Also add a translator comment.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ All 10 patches applied. Thanks!
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 008b20a..ced1314 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -767,7 +767,7 @@ static int interpret_date_string(const char *date_opt, time_t * const time_p)
- 	if (!fgets(date_resp, sizeof(date_resp), date_child_fp))
- 		date_resp[0] = '\0';	/* in case fgets fails */
- 	if (debug)
--		printf(_("response from date command = %s\n"), date_resp);
-+		printf(_("response from date command = %s"), date_resp);
- 	if (strncmp(date_resp, magic, sizeof(magic) - 1) != 0) {
- 		warnx(_("The date command issued by %s returned "
- 				  "unexpected results.\n"
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
