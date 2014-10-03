@@ -1,49 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:45448 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756065AbaJXQ0O (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Oct 2014 12:26:14 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id E3BAF340366
-	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 16:26:13 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
+Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:56760 "EHLO
+	resqmta-ch2-02v.sys.comcast.net" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752224AbaJCOix (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Oct 2014 10:38:53 -0400
+Received: from hobgoblin.ariadne.com (hobgoblin.ariadne.com [127.0.0.1])
+	by hobgoblin.ariadne.com (8.14.7/8.14.7) with ESMTP id s93EUdA7014848
+	for <util-linux@vger.kernel.org>; Fri, 3 Oct 2014 10:30:39 -0400
+Date: Fri, 3 Oct 2014 10:30:39 -0400
+Message-Id: <201410031430.s93EUddT014847@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
 To: util-linux@vger.kernel.org
-Subject: [PATCH v2] bash-completion: fix runuser install
-Date: Fri, 24 Oct 2014 12:26:12 -0400
-Message-Id: <1414167972-16829-1-git-send-email-vapier@gentoo.org>
-In-Reply-To: <1414167178-29409-1-git-send-email-vapier@gentoo.org>
-References: <1414167178-29409-1-git-send-email-vapier@gentoo.org>
+Subject: Error in losetup man page
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The runuser symlink used to depend on su being enabled, but a refactoring
-broke that.  So if you build with runuser enabled but not su, you end up
-with a broken symlink.  Rework the logic so it works in both cases.
+On Fedora 19, the man page for losetup says:
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
-v2
-	- use srcdir to fix out-of-tree building
+       Delete all used loop devices:
 
- bash-completion/Makemodule.am | 4 ++++
- 1 file changed, 4 insertions(+)
+            losetup -D
 
-diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
-index 271a6db..d65cc8f 100644
---- a/bash-completion/Makemodule.am
-+++ b/bash-completion/Makemodule.am
-@@ -154,7 +154,11 @@ endif
- 
- if BUILD_RUNUSER
- install-data-hook-bashcomp-runuser::
-+if BUILD_SU
- 	ln -sf su $(DESTDIR)$(bashcompletiondir)/runuser
-+else
-+	cp $(top_srcdir)/bash-completion/su $(DESTDIR)$(bashcompletiondir)/runuser
-+endif
- INSTALL_DATA_HOOKS += install-data-hook-bashcomp-runuser
- endif
- 
--- 
-2.1.2
+That should be "Delete all *unused* loop devices:", I'm sure.
 
+Dale
