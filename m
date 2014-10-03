@@ -1,51 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:24753 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750750AbaJAHbd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 1 Oct 2014 03:31:33 -0400
-Date: Wed, 1 Oct 2014 09:31:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Gennady Kovshenin <gennady@kovshenin.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: Fwd: [util-linux] cal: add landscape layout for yearly views
- (#117)
-Message-ID: <20141001073128.GD26272@x2.net.home>
-References: <karelzak/util-linux/pull/117@github.com>
- <karelzak/util-linux/pull/117/c55868722@github.com>
- <CAP0zEAb8y+P-McdLc23dJyqG3_=mFQw9PEmkaLLbzGzmWL7p-A@mail.gmail.com>
- <CAP0zEAZhyOqM-VmBkGEA4sN2wC+YycOtP8h6AxytjTDXsw1K4A@mail.gmail.com>
- <20140917131848.GA5366@x2.net.home>
- <CAP0zEAZ9aMs-ky5ivweJoytTn7MvGcq0qyyDnFkk-5iMWRHz0w@mail.gmail.com>
- <20140922113327.GI5366@x2.net.home>
- <CAP0zEAbucyO55YyAhbUkcEB-+R8GQ1qv+XAdQYzp-bo2xB2wjQ@mail.gmail.com>
- <CAG27Bk0XXisYj9=d=RHtHSELc21=JVfyEzqSaTEwTqtLNv+szw@mail.gmail.com>
- <CAP0zEAazGfOpU-90KZNgMcyWs_RVv3QXHape-bRn_sW57sab-w@mail.gmail.com>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:54804 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750852AbaJCJmC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Oct 2014 05:42:02 -0400
+Received: by mail-wg0-f47.google.com with SMTP id x13so1005900wgg.30
+        for <util-linux@vger.kernel.org>; Fri, 03 Oct 2014 02:42:01 -0700 (PDT)
+Received: from [192.168.7.32] (au213-1-82-235-205-153.fbx.proxad.net. [82.235.205.153])
+        by mx.google.com with ESMTPSA id ny6sm1497607wic.22.2014.10.03.02.41.59
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 03 Oct 2014 02:42:00 -0700 (PDT)
+Message-ID: <542E7000.3040309@gmail.com>
+Date: Fri, 03 Oct 2014 11:44:32 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAP0zEAazGfOpU-90KZNgMcyWs_RVv3QXHape-bRn_sW57sab-w@mail.gmail.com>
+To: util-linux@vger.kernel.org
+Subject: losetup on a image file containing (GPT) partition doesn't create
+ partition devices
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 23, 2014 at 12:14:31PM +0600, Gennady Kovshenin wrote:
-> Karel, how do you feel about the --width -w option?
+Hello,
 
- --width seems like option with mandatory argument, command line
- without another argument (e.g. "cal --width") seems strange.
+I have a disk image file which is using GPT and embeds 2 partitions.
 
+I'm setting up a loop device with:
 
- --horizontal[=<months>] where default is "auto" seems better ;-)
+ $ losetup -P -f disk.img
 
-> > Then the default geometry 3xN should be applied, unless otherwise
-> > defined by user.
+and expect the partition devices (loop0p[12] for example) to be
+automatically created.
 
- 3xN should be be default when no --horizontal is specified.
+During the loop setup, udev reposrts:
 
- cal -y                  ==> 3 columns
- cal --horizontal        ==> depends on terminal width
- cal --horizontal=6      ==> 6 columns
+ $ udevadm monitor
+ KERNEL[88697.611649] change   /devices/virtual/block/loop0 (block)
+ UDEV  [88697.612488] change   /devices/virtual/block/loop0 (block)
+ KERNEL[88698.738369] change   /devices/virtual/block/loop0 (block)
+ UDEV  [88698.744727] change   /devices/virtual/block/loop0 (block)
 
-    Karel
+The loop kernel module was loaded with max_part=16
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+The weird thing is that if I'm setting up the loop device using a blank
+image file and create the partitions (using gdisk) on this loop dev, it
+works.
+
+I'm not sure if this is an issue to util-linux though and if it's not,
+sorry for the noise.
+
+Thanks.
