@@ -1,39 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f170.google.com ([209.85.217.170]:40958 "EHLO
-	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751343AbaJNJvc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Oct 2014 05:51:32 -0400
-Received: by mail-lb0-f170.google.com with SMTP id u10so7911968lbd.15
-        for <util-linux@vger.kernel.org>; Tue, 14 Oct 2014 02:51:30 -0700 (PDT)
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:59949 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750923AbaJDTdB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 4 Oct 2014 15:33:01 -0400
+Received: by mail-wg0-f45.google.com with SMTP id m15so3871379wgh.16
+        for <util-linux@vger.kernel.org>; Sat, 04 Oct 2014 12:33:00 -0700 (PDT)
+Message-ID: <54304C03.6020309@gmail.com>
+Date: Sat, 04 Oct 2014 21:35:31 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20141014090311.GM8057@x2.net.home>
-References: <5426D4C2.4060403@gmx.com>
-	<5426D7C0.50108@gmx.com>
-	<alpine.LNX.2.03.1409281829450.8884@iki.fi>
-	<54298D46.6010101@gmx.com>
-	<20141014090311.GM8057@x2.net.home>
-Date: Tue, 14 Oct 2014 10:51:30 +0100
-Message-ID: <CAG27Bk3x9YsB0sK+3ftPG4P_i8mK-en4BB=WoTjvPfpLvOLmOA@mail.gmail.com>
-Subject: Re: [PATCH 1/7] hwclock: hctosys drift compensation II
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: JWP <elseifthen@gmx.com>, util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
+Subject: Re: losetup on a image file containing (GPT) partition doesn't create
+ partition devices
+References: <542E7000.3040309@gmail.com> <201410031429.s93ET4wu014728@hobgoblin.ariadne.com> <201410031958.s93JwTuY026155@hobgoblin.ariadne.com> <542F065C.2080505@gmail.com>
+In-Reply-To: <542F065C.2080505@gmail.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 14 October 2014 10:03, Karel Zak <kzak@redhat.com> wrote:
-> Maybe it would be better to think about whole code refactoring as it's
-> horrible code. It's probably last so horrible code in util-linux.
+On 10/03/2014 10:26 PM, Francis Moreau wrote:
+> On 10/03/2014 09:58 PM, Dale R. Worley wrote:
+>>> From: worley@alum.mit.edu (Dale R. Worley)
+>>
+>>> Then I detached the loopback device, re-attached it, and this time,
+>>> the partition devices were *not* created, and /var/log/messages did
+>>> not have the "loop0: p1 p2" message.
+>>>
+>>> Given that the message starts "kernel:", I suspect that the udev
+>>> behavior is triggered by the kernel detecting the partition table, and
+>>> that is not happening.  So it looks like it's a kernel bug.
+>>
+>> I tried that again, after updating to kernel 3.14.19-100.fc19.x86_64,
+>> and it worked this time.
+> 
+> Well I'm already running 3.14.18, and the problem is still present but
+> not systematic.
+> 
+> Here's a script which should trigger the problem:
+> 
+> -----
+> while :; do
+> 
+>     losetup -P /dev/loop0 disk.raw ||
+>     exit
+> 
+>     test -e /dev/loop0p1 || {
+>         echo "missing loop partition"
+>         losetup -d /dev/loop0
+>         break
+>     }
+>     echo -n "losetup worked: "
+>     ls /dev/loop0*
+> 
+>     losetup -d /dev/loop0 ||
+>     exit
+> 
+>     sleep 1
+> done
+> ----
+> 
+> After looking at the kernel code, the kernel can silently fail to scan
+> the partition table. This can happen if another process is already using
+> the device and I think udev is the process that can interfere with
+> 'losetup -P'.
+> 
+> What do you think ?
 
-Along with more(1). I started to look this refactoring task, and it
-seems reimplementation would be best option. Does someone fancy a
-programming challenge?
+Ok, so IMHO I think that losetup(8) should issue its own
+ioctl(BLKRRPART) and shouldn't rely on the kernel during the loop setup
+since it can fail silently. This way it can check the return value of
+ioctl() and moght choose to do it again in case the return value is -EBUSY.
 
-Few disk utils, cramfs, bfs, and minix related, could also be improved
-or marked deprecated. I am hoping for later.
+Or indicates in the man page that the -P can fail silently.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Thanks
+
