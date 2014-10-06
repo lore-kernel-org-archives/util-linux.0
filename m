@@ -1,84 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:62611 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751610AbaJZWHP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Oct 2014 18:07:15 -0400
-Received: by mail-wg0-f48.google.com with SMTP id m15so2494158wgh.19
-        for <util-linux@vger.kernel.org>; Sun, 26 Oct 2014 15:07:14 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 0/4] pull: couple corrections and bash completion fixes
-Date: Sun, 26 Oct 2014 22:07:05 +0000
-Message-Id: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:38761 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753099AbaJFRkp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 6 Oct 2014 13:40:45 -0400
+Date: Mon, 6 Oct 2014 19:40:41 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Francis Moreau <francis.moro@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: losetup: failed to setup loop device > 1
+Message-ID: <20141006174041.GA8057@x2.net.home>
+References: <5432C4C8.30101@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5432C4C8.30101@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Mon, Oct 06, 2014 at 06:35:20PM +0200, Francis Moreau wrote:
+> One last details is that the system uses pretty old stuff: kernel
+> 3.4.50, util-linux 2.21.1.
 
-Weekends are too short.  When I were checking the bash completion for
-swapoff works as expected I found the completion part works, but the
-command does not, so the commit message is a little misleading; swap
-files still cannot be turned off using uuids or labels.
+$ git log --oneline v2.21.. -- lib/loopdev.c sys-utils/losetup.c | wc -l
+62
 
-# swapon --show=name,uuid,label
-NAME                           UUID                                 LABEL
-/dev/sda2                      37156738-8821-45cf-b3c2-4b884d58f08c foobar
-/home/src/util-linux/test-swap bf6237f4-db89-4761-a1a3-275cfc68b114 xyzzy
+> Could anybody give me some help ?
 
-# swapoff -U bf6237f4-db89-4761-a1a3-275cfc68b114 
-swapoff: cannot find the device for bf6237f4-db89-4761-a1a3-275cfc68b114
-# swapoff -L xyzzy 
-swapoff: cannot find the device for xyzzy
+update, this is upstream mailing list I have doubts anyone is ready
+to help you with code released 2 years ago.
 
-The problem seems to come from swapoff.c function do_swapoff() call to
-mnt_resolve_spec() that performs uuid and label matching only against
-block devices.  Unfortunately this was as far I got with an attempt to
-fix the issue.  Either someone else is quicker with the fix, or I'll have
-a look of this sometime after next 5 days.
-
-----------------------------------------------------------------
-The following changes since commit 819d9a2975de6869f2ae12d551881bb9b732f2e4:
-
-  include/debug: fix typo (2014-10-24 11:19:23 +0200)
-
-are available in the git repository at:
-
-  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk42
-
-for you to fetch changes up to 1502d7e71f3385f3e358dd26cd22c4cd3eb7b35e:
-
-  bash-completion: use swapon label and uuid listing support (2014-10-26 21:09:24 +0000)
-----------------------------------------------------------------
-Sami Kerola (4):
-  sfdisk: return deterministic value from sfdisk_deinit()
-  fstrim: initialize path variable
-  bash-completion: stop being clever when listing block devices
-  bash-completion: use swapon label and uuid listing support
-
- bash-completion/addpart    |  4 +---
- bash-completion/blkdiscard |  4 +---
- bash-completion/blkid      |  6 +-----
- bash-completion/blockdev   |  2 +-
- bash-completion/cfdisk     |  6 +-----
- bash-completion/delpart    |  6 +-----
- bash-completion/fdisk      | 12 ++----------
- bash-completion/fsck       |  3 +--
- bash-completion/fsck.minix |  3 +--
- bash-completion/lsblk      |  3 +--
- bash-completion/mkfs       |  3 +--
- bash-completion/mkfs.bfs   |  3 +--
- bash-completion/mkfs.minix |  3 +--
- bash-completion/partx      |  6 +-----
- bash-completion/resizepart |  6 +-----
- bash-completion/sfdisk     |  6 +-----
- bash-completion/swapoff    | 22 +++-------------------
- bash-completion/swapon     |  2 +-
- bash-completion/wipefs     |  4 +---
- disk-utils/sfdisk.c        |  3 +--
- sys-utils/fstrim.c         |  2 +-
- 21 files changed, 24 insertions(+), 85 deletions(-)
+    Karel
 
 -- 
-2.1.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
