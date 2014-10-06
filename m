@@ -1,67 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from auth.b.painless.aa.net.uk ([90.155.4.48]:51986 "EHLO
-	auth.b.painless.aa.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752790AbaJILYU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 9 Oct 2014 07:24:20 -0400
-From: Adam Sampson <ats@offog.org>
-To: Thorsten Glaser <tg@mirbsd.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: script from 2.25.1 may be broken (hangs)
-References: <loom.20141009T001730-172@post.gmane.org>
-Date: Thu, 09 Oct 2014 11:53:15 +0100
-In-Reply-To: <loom.20141009T001730-172@post.gmane.org> (Thorsten Glaser's
-	message of "Wed, 8 Oct 2014 22:25:38 +0000 (UTC)")
-Message-ID: <y2a7g09a50k.fsf@cartman.at.offog.org>
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:61009 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750720AbaJFU4c (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Oct 2014 16:56:32 -0400
+Received: by mail-wi0-f176.google.com with SMTP id hi2so5901840wib.9
+        for <util-linux@vger.kernel.org>; Mon, 06 Oct 2014 13:56:31 -0700 (PDT)
+Message-ID: <54330294.1090908@gmail.com>
+Date: Mon, 06 Oct 2014 22:59:00 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: losetup: failed to setup loop device > 1
+References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home>
+In-Reply-To: <20141006174041.GA8057@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thorsten Glaser <tg@mirbsd.org> writes:
+On 10/06/2014 07:40 PM, Karel Zak wrote:
+> On Mon, Oct 06, 2014 at 06:35:20PM +0200, Francis Moreau wrote:
+>> One last details is that the system uses pretty old stuff: kernel
+>> 3.4.50, util-linux 2.21.1.
+> 
+> $ git log --oneline v2.21.. -- lib/loopdev.c sys-utils/losetup.c | wc -l
+> 62
+> 
+>> Could anybody give me some help ?
+> 
+> update, this is upstream mailing list I have doubts anyone is ready
+> to help you with code released 2 years ago.
 
-> $ script -qc './test.sh -v' </dev/null 2>&1 | tee log
+well it looks like more a kernel issue since the sequence of syscalls
+done by losetup looks correct. Maybe someone here already encountered
+this...
 
-For me, this doesn't hang, but it does exit before test.sh is actually
-finished. Here's a simpler example that does the same thing:
+I just found that loop module was loaded with max_part=16 and
+CONFIG_BLK_DEV_LOOP_MIN_COUNT=8. If max_part is set to 0 then the issue
+is gone :-/
 
-$ cat simpler.sh
-#!/bin/sh
-echo one
-sleep 2
-echo two
-$ script -c './simpler.sh'
-Script started, file is typescript
-one
-two
-Script done, file is typescript
-$ script -c './simpler.sh' </dev/null
-Script started, file is typescript
-one
-Script done, file is typescript
 
-The "wait for children" code at the end of doinput looks suspicious to
-me -- finish() doesn't actually block, as the comment implies, just
-checks to see if any children have finished. Running Thorsten's command
-under strace -f reveals:
-
-[21180 is the script process running doinput, 21181 is running dooutput]
-21180 write(4, "\x04", 1 <unfinished ...>
-21180 <... write resumed> )             = 1
-21180 poll([{fd=4, events=POLLIN}], 1, 100 <unfinished ...>
-21180 <... poll resumed> )              = 1 ([{fd=4, revents=POLLIN}])
-21180 poll([{fd=4, events=POLLIN}], 1, 100) = 1 ([{fd=4, revents=POLLIN}])
-21180 poll([{fd=4, events=POLLIN}], 1, 100) = 1 ([{fd=4, revents=POLLIN}])
-21180 poll([{fd=4, events=POLLIN}], 1, 100 <unfinished ...>
-[lots more poll calls while other stuff happens in child processes]
-21180 <... poll resumed> )              = 0 (Timeout)
-21180 wait4(-1, 0x7fff47830c54, WNOHANG, NULL) = 0
-21180 kill(21181, SIGTERM)              = 0
-
-But at this point the child is still running. So it looks like doinput
-isn't waiting for the child to exit correctly, when stdin has hit EOF
-before the child has finished.
-
-Thanks,
-
--- 
-Adam Sampson <ats@offog.org>                         <http://offog.org/>
