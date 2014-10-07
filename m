@@ -1,49 +1,50 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45747 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932382AbaJUTll (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 21 Oct 2014 15:41:41 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by gateway2.nyi.internal (Postfix) with ESMTP id 7A14920B76
-	for <util-linux@vger.kernel.org>; Tue, 21 Oct 2014 15:41:40 -0400 (EDT)
-Message-Id: <1413920500.3703323.181688729.28BEAB7D@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: Robert Milasan <rmilasan@suse.com>,
-        "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: francis.moro@gmail.com
+Message-ID: <5433B316.30106@gmail.com>
+Date: Tue, 07 Oct 2014 11:32:06 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: swapon: fix -d short option
-Date: Tue, 21 Oct 2014 21:41:40 +0200
-In-Reply-To: <20141021103817.GH8057@x2.net.home>
-References: <20141021100246.3e956b6d@viper.suse.cz>
- <20141021095525.GG8057@x2.net.home>
- <20141021120741.39f63265@viper.suse.cz>
- <20141021103817.GH8057@x2.net.home>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: losetup: failed to setup loop device > 1
+References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home> <54330294.1090908@gmail.com> <20141007091711.GB8057@x2.net.home>
+In-Reply-To: <20141007091711.GB8057@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Tue, Oct 21, 2014, at 12:38, Karel Zak wrote:
-> Maybe we can add something like
+On 10/07/2014 11:17 AM, Karel Zak wrote:
+> On Mon, Oct 06, 2014 at 10:59:00PM +0200, Francis Moreau wrote:
+>> On 10/06/2014 07:40 PM, Karel Zak wrote:
+>>> On Mon, Oct 06, 2014 at 06:35:20PM +0200, Francis Moreau wrote:
+>>>> One last details is that the system uses pretty old stuff: kernel
+>>>> 3.4.50, util-linux 2.21.1.
+>>>
+>>> $ git log --oneline v2.21.. -- lib/loopdev.c sys-utils/losetup.c | wc -l
+>>> 62
+>>>
+>>>> Could anybody give me some help ?
+>>>
+>>> update, this is upstream mailing list I have doubts anyone is ready
+>>> to help you with code released 2 years ago.
+>>
+>> well it looks like more a kernel issue since the sequence of syscalls
+>> done by losetup looks correct. Maybe someone here already encountered
+>> this...
+>>
+>> I just found that loop module was loaded with max_part=16 and
+>> CONFIG_BLK_DEV_LOOP_MIN_COUNT=8. If max_part is set to 0 then the issue
+>> is gone :-/
 > 
->      Note that the optional policy argument cannot be separated from the -d option by a space, 
+> Well, if you have kernel that provides /dev/loop-control then you
+> don't have to set CONFIG_BLK_DEV_LOOP_MIN_COUNT at all. I guess 
+> "8" (kernel upstream default?) is mostly about backward compatibility.
+> 
+> For example fedora uses CONFIG_BLK_DEV_LOOP_MIN_COUNT=0. All is
+> dynamically allocated by kernel + udev.
 
-It shouldn't be needed to mention this.  It is just common sense that
-when an option argument is optional, you cannot separate it from the
-option itself by any whitespace because then the parsing cannot decide
-whether the thing is the optional option argument or simply another
-plain argument.
+You're right, CONFIG_BLK_DEV_LOOP_MIN_COUNT can be set to 0. But that
+doesnt explain my initial issue.
 
->      the correct form is for example '-d=pages'.
+I have to understand why setting up a loop dev fails if the number of
+loop used is > 1 and max_part != 0.
 
-Another correct form is '-dpages'.  For the short forms of the options
-the '=' is not required.
-
-Benno
-
--- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
-
+Thanks
