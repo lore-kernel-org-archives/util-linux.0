@@ -1,66 +1,49 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <544A4817.3070406@gmx.com>
-Date: Fri, 24 Oct 2014 08:37:43 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:54620 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754398AbaJGPTa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 7 Oct 2014 11:19:30 -0400
+Message-ID: <5434047C.9090807@gmx.com>
+Date: Tue, 07 Oct 2014 11:19:24 -0400
 From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-To: Benno Schulenberg <bensberg@justemail.net>
-CC: Karel Zak <kzak@redhat.com>, Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/5] hwclock: clean up message periods/full stops
-References: <5449BE57.9040203@gmx.com> <1414150431.840372.182833341.74402120@webmail.messagingengine.com>
-In-Reply-To: <1414150431.840372.182833341.74402120@webmail.messagingengine.com>
+To: =?ISO-8859-1?Q?No=E9_RUBINSTEIN?= <nrubinstein@aldebaran.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [RFC PATCH] hwclock: --offset: Use offset instead of writing
+ clock
+References: <1412673336-13299-1-git-send-email-nrubinstein@aldebaran.com> <5433CE48.7060507@gmx.com> <CAOJKDvKapctTsiybo6aVKv9w-VUppXnNfqcQ=Cr03S3uX4-c9Q@mail.gmail.com> <5433D8DD.3090505@gmx.com> <CAOJKDvLgeipyRqK8Kwf8=fuz3QQYuzJV_kCEvgA-BJD7p5m_fg@mail.gmail.com>
+In-Reply-To: <CAOJKDvLgeipyRqK8Kwf8=fuz3QQYuzJV_kCEvgA-BJD7p5m_fg@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 10/24/2014 07:33 AM, Benno Schulenberg wrote:
-> 
-> On Fri, Oct 24, 2014, at 04:49, JWP wrote:
->> 33% of message lines terminated with a period/full stop.
-> 
-> You mean 33% of hwclock messages, or 33% of util-linux messages?
+On 10/07/2014 08:48 AM, Noé RUBINSTEIN wrote:
+>> Sure, hwclock already has the ability to track the offset between the
+>> Hardware Clock and the System Clock(which presumably is the 'correct' time).
+> ...but this information is recorded only when setting the hardware
+> clock, which is impossible on some (arguably buggy) targets.
 
-hwclock
-
-> 
->> This is unsightly and difficult to read.
-> 
-> Ehm...  I would think the lack of periods would make things
-> more difficult to read.
-
-Agreed. However, having 2/3 of the messages without and 1/3 with
-makes no sense at all.  I am happy to use whatever the project
-chooses. Looking at existing hwclock code, boilerplate.c and 
-howto-usage-function.txt it would appear that not using periods
-is the current standard?
+I would think we should fix that. What hardware is it that hwclock cannot
+set the Hardware Clock?
 
 > 
->> -		      ("The value of the --date option is not a valid date.\n"
->> -		       "In particular, it contains quotation marks."));
->> +		      ("The value of the --date option is not a valid date\n"
->> +		       "In particular, it contains quotation marks"));
+>> With my patch, hctosys will include the offset when setting the System
+>> Clock. Which is the functionality you want, right?
+> Nearly.
 > 
-> This is ugly.  Two lines of text and it's unclear that the first
-> sentence ends at the end of the line.  If you absolutely want
-> to get rid of the period, put a semicolon after "valid date" and
-> lowercase "in particular".
+> I guess in order for the use-case I want to be possible we would need
+> an option for --systohc/--set to modify the adjtime file, but not to
+> touch the hardware clock.
 
-That would not make sense to me.  Either we use punctuation or we don't.
-I am no grammar expert, but if two sentences was originally correct then
-it should still be correct.
-
-> 
-> [...]
-> 
-> All just cosmetic changes, invalidating all the translations.
-> Not nice.
-
-My sincere oligopolies to translators, but hwclock is slated for refactoring
-and I expect many message changes will be included.  Hopefully, the changes
-will include improving things for translators.
+Well, we could (re)calculate the drift factor even if setting the Hardware
+Clock fails, or have an option to (re)calculate without setting the HW Clock.
+I am willing to write such a patch if Mr. Zak approves.
 
 
-
-> 
-> Benno
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
