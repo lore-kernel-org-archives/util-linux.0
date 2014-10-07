@@ -1,49 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:60896 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755887AbaJXLQE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Oct 2014 07:16:04 -0400
-Message-ID: <544A34EB.507@gmx.com>
-Date: Fri, 24 Oct 2014 07:15:55 -0400
-From: JWP <elseifthen@gmx.com>
-MIME-Version: 1.0
+Return-Path: worley@ariadne.com
+Date: Tue, 7 Oct 2014 09:34:35 -0400
+Message-Id: <201410071334.s97DYZa5021378@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+Sender: worley@alum.mit.edu (Dale R. Worley)
 To: Karel Zak <kzak@redhat.com>
 CC: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] hwclock: clean up messages
-References: <5449BD0F.2070906@gmx.com> <20141024110803.GB10134@x2.net.home>
-In-Reply-To: <20141024110803.GB10134@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: util-linux-owner@vger.kernel.org
+In-reply-to: <20141007095647.GD8057@x2.net.home> (kzak@redhat.com)
+Subject: Re: Error in losetup man page
+References: <201410031430.s93EUddT014847@hobgoblin.ariadne.com> <20141007095647.GD8057@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
+> From: Karel Zak <kzak@redhat.com>
+> 
+> On Fri, Oct 03, 2014 at 10:30:39AM -0400, Dale R. Worley wrote:
+> > On Fedora 19, the man page for losetup says:
+> > 
+> >        Delete all used loop devices:
+> > 
+> >             losetup -D
+> > 
+> > That should be "Delete all *unused* loop devices:", I'm sure.
+> 
+> "used" means loop devices that have backing file, I have replaced the
+> text with "Detach all associated loop devices:"
 
+Does it detach loop devices that are associated and also mounted or
+otherwise opened?  My test case does not attempt to do that.
 
-On 10/24/2014 07:08 AM, Karel Zak wrote:
-> On Thu, Oct 23, 2014 at 10:44:31PM -0400, JWP wrote:
->> This patch set cleans up various message output.
->> It contains cosmetic changes only.
->>
->> J William Piggott (5):
->>   hwclock: Remove newline from 'date' debug output
->>   hwclock: clean up message periods/full stops
->>   hwclock: add message line breaks
->>   hwclock: Fix --date debug messages
->>   hwclock: version prints out of order
-> 
-> I'm going to merge these patches, but as a long term solution it would
-> better to use include/debug.h stuff (see for example
-> misc-utils/whereis.c or libmount/src/init.c).
-> 
-> The debug.h provides more elegant way for debug messages. It's
-> possible to define mask to specify wanted messages and all is
-> controlled by <NAME>_DEBUG= env. variable etc. 
-> 
-> It's probably too verbose for hwclock --debug, but let's ignore this
-> problem for now. I'll make the output more user friendly ASAP.
+So the criterion is that the loop device has to be "used" in the sense
+of being associated but "not used" in the sense of being open.  Maybe
+"Delete all associated loop devices that are not opened"?  (Mounting
+is known to be a variety of opening.)
 
-Cool, I was not aware of debug.h. I will check it out and include it
-in my hwclock refactoring todo notes.
-
-> 
->     Karel
-> 
+Dale
