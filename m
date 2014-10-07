@@ -1,40 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5204 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:63716 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752350AbaJUJFX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 21 Oct 2014 05:05:23 -0400
-Date: Tue, 21 Oct 2014 11:05:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: the option --label-nested of sfdisk
-Message-ID: <20141021090517.GE8057@x2.net.home>
-References: <1413834738.3279286.181227401.682D2FFB@webmail.messagingengine.com>
+	id S1751334AbaJGMNY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 7 Oct 2014 08:13:24 -0400
+Message-ID: <5433D8DD.3090505@gmx.com>
+Date: Tue, 07 Oct 2014 08:13:17 -0400
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1413834738.3279286.181227401.682D2FFB@webmail.messagingengine.com>
+To: =?ISO-8859-1?Q?No=E9_RUBINSTEIN?= <nrubinstein@aldebaran.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [RFC PATCH] hwclock: --offset: Use offset instead of writing
+ clock
+References: <1412673336-13299-1-git-send-email-nrubinstein@aldebaran.com> <5433CE48.7060507@gmx.com> <CAOJKDvKapctTsiybo6aVKv9w-VUppXnNfqcQ=Cr03S3uX4-c9Q@mail.gmail.com>
+In-Reply-To: <CAOJKDvKapctTsiybo6aVKv9w-VUppXnNfqcQ=Cr03S3uX4-c9Q@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 20, 2014 at 09:52:18PM +0200, Benno Schulenberg wrote:
-> Recently the option --label-nested (to specify the type of a nested label
-> in a GPT) has been added to sfdisk.  But this name, --label-nested, it...
-> doesn't sound very English, it is not how one would say this in English.
+
+
+On 10/07/2014 07:52 AM, Noé RUBINSTEIN wrote:
+> Hi,
 > 
-> Upcoming patch changes it to --nested-label, also because when using
-> long options it is enough to use the first few letters of an option to
-> choose one unequivocally, but when having both --label and --label-nested
-> one can no longer do something like "--lab bsd".  After the patch one can
-> do that again, /and/ use "--nest bsd" too, which is short and very clear.
-                            ^^^^^^^^^^
-The problem is that the original sfdisk version had "--nested" option,
-the option is no more supported, but I'd like to avoid misinterpretation.
+>> I just submitted a patch on 14-09-27 that adds this functionality
+>> without creating a new state file.
+> 
+> Nice! I guess this is the patchset:
+> <http://thread.gmane.org/gmane.linux.utilities.util-linux-ng/9918>
+> 
+> However I am not sure how those patches adds the functionality I am
+> looking for. Can you explain how you would use hwclock to get and set
+> the time without a write access to the hardware clock?
 
-Anyway, you're right that --label-nested sounds strange.
+Sure, hwclock already has the ability to track the offset between the 
+Hardware Clock and the System Clock(which presumably is the 'correct' time).
+With my patch, hctosys will include the offset when setting the System 
+Clock. Which is the functionality you want, right?
 
-    Karel
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
+> 
+> Regards,
+> NoÃ©.
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
