@@ -1,68 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.alpinelinux.org ([74.117.189.114]:40908 "EHLO
-	mail.alpinelinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756043AbaJ2IRS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Oct 2014 04:17:18 -0400
-From: Natanael Copa <ncopa@alpinelinux.org>
-To: util-linux@vger.kernel.org
-Cc: Natanael Copa <ncopa@alpinelinux.org>
-Subject: [PATCH] hexdump: use 'll' format modifier instead of the non-standard 'q'.
-Date: Wed, 29 Oct 2014 08:07:31 +0000
-Message-Id: <1414570051-11374-1-git-send-email-ncopa@alpinelinux.org>
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:60363 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754601AbaJHKDR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 8 Oct 2014 06:03:17 -0400
+Received: by mail-lb0-f175.google.com with SMTP id u10so7689106lbd.6
+        for <util-linux@vger.kernel.org>; Wed, 08 Oct 2014 03:03:15 -0700 (PDT)
+Message-ID: <54350C79.3080208@gmail.com>
+Date: Wed, 08 Oct 2014 12:05:45 +0200
+From: Francis Moreau <francis.moro@gmail.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: losetup: failed to setup loop device > 1
+References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home> <54330294.1090908@gmail.com> <20141007091711.GB8057@x2.net.home> <5433B316.30106@gmail.com> <5434FC75.7060209@gmail.com> <20141008094453.GF8057@x2.net.home>
+In-Reply-To: <20141008094453.GF8057@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The printf(3) man page says about 'q':
-("quad". 4.4BSD and Linux libc5 only. Don't use.) This is a synonym for ll.
+On 10/08/2014 11:44 AM, Karel Zak wrote:
+> On Wed, Oct 08, 2014 at 10:57:25AM +0200, Francis Moreau wrote:
+>> In HEAD of the git tree, in file losetup.c, the return value of
+>> loopcxt_add_device() is not checked in main().
+>>
+>> Is this expected ?
+> 
+> Good question :-)
+> 
 
-This fixes hexdump with musl libc.
+At least one ;)
 
-Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
----
- text-utils/hexdump-parse.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+> The loop-control is optional (from the code point of view). If the system 
+> does not have control file (old kernels) and on command line specified loop
+> device does not exist then it will end with open() error later
+> (in loopcxt_setup_device()).
+> 
 
-diff --git a/text-utils/hexdump-parse.c b/text-utils/hexdump-parse.c
-index 8d14c5b..98e1972 100644
---- a/text-utils/hexdump-parse.c
-+++ b/text-utils/hexdump-parse.c
-@@ -226,7 +226,7 @@ void rewrite_rules(struct hexdump_fs *fs, struct hexdump *hex)
- 	struct hexdump_fu *fu;
- 	struct list_head *p, *q;
- 	char *p1, *p2, *fmtp;
--	char savech, cs[3];
-+	char savech, cs[4];
- 	int nconv, prec = 0;
- 
- 	list_for_each (p, &fs->fulist) {
-@@ -301,9 +301,10 @@ void rewrite_rules(struct hexdump_fs *fs, struct hexdump *hex)
- 				goto isint;
- 			} else if (first_letter(cs, "ouxX")) {
- 				pr->flags = F_UINT;
--isint:				cs[2] = '\0';
--				cs[1] = cs[0];
--				cs[0] = 'q';
-+isint:				cs[3] = '\0';
-+				cs[2] = cs[0];
-+				cs[1] = 'l'
-+				cs[0] = 'l';
- 				switch(fu->bcnt) {
- 					case 0:
- 						pr->bcnt = 4;
-@@ -355,9 +356,10 @@ isint:				cs[2] = '\0';
- 						pr->flags = F_ADDRESS;
- 						++p2;
- 						if (first_letter(p1 + 2, "dox")) {
--							cs[0] = 'q';
--							cs[1] = p1[2];
--							cs[2] = '\0';
-+							cs[0] = 'l';
-+							cs[1] = 'l';
-+							cs[2] = p1[2];
-+							cs[3] = '\0';
- 						} else {
- 							p1[3] = '\0';
- 							badconv(p1);
--- 
-2.1.2
+in losetup.c, line 638:
 
+		if (hasdev && !is_loopdev(loopcxt_get_device(&lc)))
+			loopcxt_add_device(&lc);
+
+I don't really see why having loop-control here or not matter: in both
+case you want to stop if loopcxt_add_device() fails, no ?
+
+If it fails then the loop device node, doesn't exist.
+
+Thanks
