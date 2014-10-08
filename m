@@ -1,55 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45500 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752778AbaJNK1r (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Oct 2014 06:27:47 -0400
-Date: Tue, 14 Oct 2014 12:27:37 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: JWP <elseifthen@gmx.com>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/7] hwclock: hctosys drift compensation II
-Message-ID: <20141014102737.GT8057@x2.net.home>
-References: <5426D4C2.4060403@gmx.com>
- <5426D7C0.50108@gmx.com>
- <alpine.LNX.2.03.1409281829450.8884@iki.fi>
- <54298D46.6010101@gmx.com>
- <20141014090311.GM8057@x2.net.home>
- <CAG27Bk3x9YsB0sK+3ftPG4P_i8mK-en4BB=WoTjvPfpLvOLmOA@mail.gmail.com>
+Return-Path: francis.moro@gmail.com
+Message-ID: <5434FC75.7060209@gmail.com>
+Date: Wed, 08 Oct 2014 10:57:25 +0200
+From: Francis Moreau <francis.moro@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3x9YsB0sK+3ftPG4P_i8mK-en4BB=WoTjvPfpLvOLmOA@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: losetup: failed to setup loop device > 1
+References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home> <54330294.1090908@gmail.com> <20141007091711.GB8057@x2.net.home> <5433B316.30106@gmail.com>
+In-Reply-To: <5433B316.30106@gmail.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 14, 2014 at 10:51:30AM +0100, Sami Kerola wrote:
-> On 14 October 2014 10:03, Karel Zak <kzak@redhat.com> wrote:
-> > Maybe it would be better to think about whole code refactoring as it's
-> > horrible code. It's probably last so horrible code in util-linux.
+On 10/07/2014 11:32 AM, Francis Moreau wrote:
+> On 10/07/2014 11:17 AM, Karel Zak wrote:
+>> On Mon, Oct 06, 2014 at 10:59:00PM +0200, Francis Moreau wrote:
+>>> On 10/06/2014 07:40 PM, Karel Zak wrote:
+>>>> On Mon, Oct 06, 2014 at 06:35:20PM +0200, Francis Moreau wrote:
+>>>>> One last details is that the system uses pretty old stuff: kernel
+>>>>> 3.4.50, util-linux 2.21.1.
+>>>>
+>>>> $ git log --oneline v2.21.. -- lib/loopdev.c sys-utils/losetup.c | wc -l
+>>>> 62
+>>>>
+>>>>> Could anybody give me some help ?
+>>>>
+>>>> update, this is upstream mailing list I have doubts anyone is ready
+>>>> to help you with code released 2 years ago.
+>>>
+>>> well it looks like more a kernel issue since the sequence of syscalls
+>>> done by losetup looks correct. Maybe someone here already encountered
+>>> this...
+>>>
+>>> I just found that loop module was loaded with max_part=16 and
+>>> CONFIG_BLK_DEV_LOOP_MIN_COUNT=8. If max_part is set to 0 then the issue
+>>> is gone :-/
+>>
+>> Well, if you have kernel that provides /dev/loop-control then you
+>> don't have to set CONFIG_BLK_DEV_LOOP_MIN_COUNT at all. I guess 
+>> "8" (kernel upstream default?) is mostly about backward compatibility.
+>>
+>> For example fedora uses CONFIG_BLK_DEV_LOOP_MIN_COUNT=0. All is
+>> dynamically allocated by kernel + udev.
 > 
-> Along with more(1). I started to look this refactoring task, and it
-> seems reimplementation would be best option. Does someone fancy a
-> programming challenge?
+> You're right, CONFIG_BLK_DEV_LOOP_MIN_COUNT can be set to 0. But that
+> doesnt explain my initial issue.
+> 
+> I have to understand why setting up a loop dev fails if the number of
+> loop used is > 1 and max_part != 0.
+> 
 
-I prefer refactoring if possible than write things from scratch. And
-for hwclock it's really critical to do the changes in small testable
-steps.
+In HEAD of the git tree, in file losetup.c, the return value of
+loopcxt_add_device() is not checked in main().
 
-Note that sfdisk and cfdisk are completely new because we have libfdisk that
-replaces all the original cfdisk and sfdisk partitioning code. The
-library itself is refactored and incrementally changed fdisk code.
+Is this expected ?
 
-> Few disk utils, cramfs, bfs, and minix related, could also be improved
-> or marked deprecated. I am hoping for later.
-
-Well, I don't think we can deprecated these tools and I don't think
-that cramfs, minix and bfs code is so bad. For example mkfs.minix
-has been clean upped by Davidlohr Bueso years ago. A few global
-variables don't not mean that the code is bad...
-
-Compare to hwclock it's like apples and oranges ;-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks
