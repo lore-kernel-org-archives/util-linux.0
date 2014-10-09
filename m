@@ -1,46 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57213 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932317AbaJaJcQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 31 Oct 2014 05:32:16 -0400
-Date: Fri, 31 Oct 2014 10:32:11 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/4] textual: slice up the usage text of swapon for ease
- of translation
-Message-ID: <20141031093211.GR10134@x2.net.home>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
- <1414444693-16407-3-git-send-email-bensberg@justemail.net>
- <1414445075.1871991.183947489.0B2FD4D2@webmail.messagingengine.com>
+Received: from mail-vc0-f181.google.com ([209.85.220.181]:57901 "EHLO
+	mail-vc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750873AbaJIIvc convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 Oct 2014 04:51:32 -0400
+Received: by mail-vc0-f181.google.com with SMTP id le20so582167vcb.40
+        for <util-linux@vger.kernel.org>; Thu, 09 Oct 2014 01:51:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1414445075.1871991.183947489.0B2FD4D2@webmail.messagingengine.com>
+In-Reply-To: <54340BDD.7080405@gmx.com>
+References: <1412673336-13299-1-git-send-email-nrubinstein@aldebaran.com>
+ <5433CE48.7060507@gmx.com> <CAOJKDvKapctTsiybo6aVKv9w-VUppXnNfqcQ=Cr03S3uX4-c9Q@mail.gmail.com>
+ <5433D8DD.3090505@gmx.com> <CAOJKDvLgeipyRqK8Kwf8=fuz3QQYuzJV_kCEvgA-BJD7p5m_fg@mail.gmail.com>
+ <54340BDD.7080405@gmx.com>
+From: =?UTF-8?Q?No=C3=A9_RUBINSTEIN?= <nrubinstein@aldebaran.com>
+Date: Thu, 9 Oct 2014 10:51:01 +0200
+Message-ID: <CAOJKDv+97LPMBJARpUSJ0en9NNDDuymSBWi_mJ+302AOSCdWaQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] hwclock: --offset: Use offset instead of writing clock
+To: JWP <elseifthen@gmx.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 27, 2014 at 10:24:35PM +0100, Benno Schulenberg wrote:
-> 
-> On Mon, Oct 27, 2014, at 22:18, Benno Schulenberg wrote:
-> > +	fputs(_(" -v, --verbose            verbose mode\n"), out);
-> >  
-> >  	fputs(USAGE_SEPARATOR, out);
-> >  	fputs(USAGE_HELP, out);
-> 
-> A bit further down in the usage text it says this:
-> 
->         fputs(_("\nAvailable discard policy types (for --discard):\n"
->                 " once    : only single-time area discards are issued. (swapon)\n"
->                 " pages   : discard freed pages before they are reused.\n"
->                 " * if no policy is selected both discard types are enabled. (default)\n"), out);
-> 
-> Why is this "(swapon)" there?  What does it mean?
+Hi J,
 
-Nothing, good catch, I'll remove it..
+I tried appplying your patches and got into some problems:
+> Applying: hwclock: hctosys drift compensation II
+> error: patch failed: sys-utils/hwclock.c:807
+> error: sys-utils/hwclock.c: patch does not apply
 
-    Karel
+I tried that both upon origin/master and upon fb2ba06, which you seem
+to have based your first patch on.
+
+Here's the list of patches I was trying to apply:
+> [PATCH 1/2] hwclock: hctosys drift compensation
+> [PATCH 2/2] hwclock: hctosys drift compensation man page
+> [PATCH 1/7] hwclock: hctosys drift compensation II
+> [PATCH 2/7] hwclock: hctosys drift compensation II COMMENTS
+> [PATCH 3/7] hwclock: hctosys drift compensation II MAN
+> [PATCH 4/7] hwclock: persistent_clock_is_local
+> [PATCH 5/7] hwclock: persistent_clock_is_local MAN
+> [PATCH 6/7] hwclock: Add --update option
+> [PATCH 7/7] hwclock: Add --update option MAN
+
+Did I overlook a patch somewhere?
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2014-10-07 17:50 GMT+02:00 JWP <elseifthen@gmx.com>:
+>
+> On 10/07/2014 08:48 AM, Noé RUBINSTEIN wrote:
+>>> Sure, hwclock already has the ability to track the offset between the
+>>> Hardware Clock and the System Clock(which presumably is the 'correct' time).
+>> ...but this information is recorded only when setting the hardware
+>> clock, which is impossible on some (arguably buggy) targets.
+>
+> Are you sure that drift factor (re)calculation does not happen if
+> writing the Hardware Clock fails? I just had a quick look at the
+> code and it seem that we do not test to see if write fails. So
+> (re)calculation might work as is?
