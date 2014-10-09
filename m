@@ -1,39 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:16245 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751119AbaJTMGP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Oct 2014 08:06:15 -0400
-Date: Mon, 20 Oct 2014 14:05:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] hwclock: hctosys drift compensation II
-Message-ID: <20141020120550.GB8057@x2.net.home>
-References: <5426D4C2.4060403@gmx.com>
- <5426D7C0.50108@gmx.com>
- <alpine.LNX.2.03.1409281829450.8884@iki.fi>
- <54298D46.6010101@gmx.com>
- <20141014090311.GM8057@x2.net.home>
- <544052E0.3080105@gmx.com>
+Received: from auth.b.painless.aa.net.uk ([90.155.4.48]:51986 "EHLO
+	auth.b.painless.aa.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752790AbaJILYU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 9 Oct 2014 07:24:20 -0400
+From: Adam Sampson <ats@offog.org>
+To: Thorsten Glaser <tg@mirbsd.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: script from 2.25.1 may be broken (hangs)
+References: <loom.20141009T001730-172@post.gmane.org>
+Date: Thu, 09 Oct 2014 11:53:15 +0100
+In-Reply-To: <loom.20141009T001730-172@post.gmane.org> (Thorsten Glaser's
+	message of "Wed, 8 Oct 2014 22:25:38 +0000 (UTC)")
+Message-ID: <y2a7g09a50k.fsf@cartman.at.offog.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <544052E0.3080105@gmx.com>
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 16, 2014 at 07:21:04PM -0400, JWP wrote:
-> Repository created at GitHub:
-> https://github.com/jwpi/util-linux
-> git@github.com:jwpi/util-linux.git
-> https://github.com/jwpi/util-linux.git
+Thorsten Glaser <tg@mirbsd.org> writes:
 
- Thanks, merged. I have also added some (I hope correct) notes to
- the begin of the hwclock man page.
+> $ script -qc './test.sh -v' </dev/null 2>&1 | tee log
 
-    Karel
+For me, this doesn't hang, but it does exit before test.sh is actually
+finished. Here's a simpler example that does the same thing:
 
-> 
+$ cat simpler.sh
+#!/bin/sh
+echo one
+sleep 2
+echo two
+$ script -c './simpler.sh'
+Script started, file is typescript
+one
+two
+Script done, file is typescript
+$ script -c './simpler.sh' </dev/null
+Script started, file is typescript
+one
+Script done, file is typescript
+
+The "wait for children" code at the end of doinput looks suspicious to
+me -- finish() doesn't actually block, as the comment implies, just
+checks to see if any children have finished. Running Thorsten's command
+under strace -f reveals:
+
+[21180 is the script process running doinput, 21181 is running dooutput]
+21180 write(4, "\x04", 1 <unfinished ...>
+21180 <... write resumed> )             = 1
+21180 poll([{fd=4, events=POLLIN}], 1, 100 <unfinished ...>
+21180 <... poll resumed> )              = 1 ([{fd=4, revents=POLLIN}])
+21180 poll([{fd=4, events=POLLIN}], 1, 100) = 1 ([{fd=4, revents=POLLIN}])
+21180 poll([{fd=4, events=POLLIN}], 1, 100) = 1 ([{fd=4, revents=POLLIN}])
+21180 poll([{fd=4, events=POLLIN}], 1, 100 <unfinished ...>
+[lots more poll calls while other stuff happens in child processes]
+21180 <... poll resumed> )              = 0 (Timeout)
+21180 wait4(-1, 0x7fff47830c54, WNOHANG, NULL) = 0
+21180 kill(21181, SIGTERM)              = 0
+
+But at this point the child is still running. So it looks like doinput
+isn't waiting for the child to exit correctly, when stdin has hit EOF
+before the child has finished.
+
+Thanks,
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Adam Sampson <ats@offog.org>                         <http://offog.org/>
