@@ -1,62 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:52615 "EHLO
-	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752346AbaJ0VSW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Oct 2014 17:18:22 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-qg0-f42.google.com ([209.85.192.42]:52998 "EHLO
+	mail-qg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751347AbaJIAqY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 8 Oct 2014 20:46:24 -0400
+Received: by mail-qg0-f42.google.com with SMTP id z60so172502qgd.29
+        for <util-linux@vger.kernel.org>; Wed, 08 Oct 2014 17:46:23 -0700 (PDT)
+From: "Raphael S. Carvalho" <raphaelsc@cloudius-systems.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/4] textual: slice up the usage text of swapon for ease of translation
-Date: Mon, 27 Oct 2014 22:18:12 +0100
-Message-Id: <1414444693-16407-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
+Cc: "Raphael S. Carvalho" <raphaelsc@cloudius-systems.com>
+Subject: [PATCH] blkdiscard: fix underflow when offset is greater than device size
+Date: Wed,  8 Oct 2014 21:46:07 -0300
+Message-Id: <1412815567-2565-1-git-send-email-raphael.scarv@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-A new option was added recently; seize this opportunity to cut the
-usage text into small and easily managed chunks.
+From: "Raphael S. Carvalho" <raphaelsc@cloudius-systems.com>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+If offset (range[0]) is greater than device size (blksize), the variable 'end'
+will be greater than blksize, and range[1] (length) will be recalculated.
+The underflow happens when subtracting range[0] (offset) from blksize, thus
+range[1] will be the result of an underflow. The bug leads to unwanted behavior
+from the program, where range[1] is likely to be a high number and then will
+discard a considerable amount of blocks from the device. The fix consists of
+exitting the program with an error message when the condition stated above is
+true. Spotted while auditing the code.
+
+Signed-off-by: Raphael S. Carvalho <raphaelsc@cloudius-systems.com>
 ---
- sys-utils/swapon.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ sys-utils/blkdiscard.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 8609ea2..f66461e 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -728,18 +728,18 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	fprintf(out, _(" %s [options] [<spec>]\n"), program_invocation_short_name);
+diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
+index 2ddcdb1..2f22af7 100644
+--- a/sys-utils/blkdiscard.c
++++ b/sys-utils/blkdiscard.c
+@@ -149,6 +149,8 @@ int main(int argc, char **argv)
+ 	range[1] &= ~(secsize - 1);
  
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -a, --all                enable all swaps from /etc/fstab\n"
--		" -d, --discard[=<policy>] enable swap discards, if supported by device\n"
--		" -e, --ifexists           silently skip devices that do not exist\n"
--		" -f, --fixpgsz            reinitialize the swap space if necessary\n"
--		" -o, --options <list>     comma-separated list of swap options\n"
--		" -p, --priority <prio>    specify the priority of the swap device\n"
--		" -s, --summary            display summary about used swap devices (DEPRECATED)\n"
--		"     --show[=<columns>]   display summary in definable table\n"
--		"     --noheadings         don't print headings, use with --show\n"
--		"     --raw                use the raw output format, use with --show\n"
--		"     --bytes              display swap size in bytes in --show output\n"
--		" -v, --verbose            verbose mode\n"), out);
-+	fputs(_(" -a, --all                enable all swaps from /etc/fstab\n"), out);
-+	fputs(_(" -d, --discard[=<policy>] enable swap discards, if supported by device\n"), out);
-+	fputs(_(" -e, --ifexists           silently skip devices that do not exist\n"), out);
-+	fputs(_(" -f, --fixpgsz            reinitialize the swap space if necessary\n"), out);
-+	fputs(_(" -o, --options <list>     comma-separated list of swap options\n"), out);
-+	fputs(_(" -p, --priority <prio>    specify the priority of the swap device\n"), out);
-+	fputs(_(" -s, --summary            display summary about used swap devices (DEPRECATED)\n"), out);
-+	fputs(_("     --show[=<columns>]   display summary in definable table\n"), out);
-+	fputs(_("     --noheadings         don't print table heading (with --show)\n"), out);
-+	fputs(_("     --raw                use the raw output format (with --show)\n"), out);
-+	fputs(_("     --bytes              display swap size in bytes in --show output\n"), out);
-+	fputs(_(" -v, --verbose            verbose mode\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
+ 	/* is the range end behind the end of the device ?*/
++	if (range[0] > blksize)
++		err(EXIT_FAILURE, _("%s: offset is greater than device size"), path);
+ 	end = range[0] + range[1];
+ 	if (end < range[0] || end > blksize)
+ 		range[1] = blksize - range[0];
 -- 
-1.7.0.4
+1.9.3
 
