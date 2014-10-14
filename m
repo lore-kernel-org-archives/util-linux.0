@@ -1,28 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from lekensteyn.nl ([178.21.112.251]:53493 "EHLO lekensteyn.nl"
+Received: from mx1.redhat.com ([209.132.183.28]:29027 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751268AbaJONbp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 15 Oct 2014 09:31:45 -0400
-From: Peter Wu <peter@lekensteyn.nl>
-To: linux-ide@vger.kernel.org, util-linux@vger.kernel.org
-Subject: blkdiscard vs hdparm for erasing a SSD?
-Date: Wed, 15 Oct 2014 15:12:42 +0200
-Message-ID: <2523736.cvg5kvG8qa@al>
+	id S1754690AbaJNKMc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Oct 2014 06:12:32 -0400
+Date: Tue, 14 Oct 2014 12:12:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Thorsten Glaser <tg@mirbsd.de>
+Cc: Adam Sampson <ats@offog.org>, util-linux@vger.kernel.org
+Subject: Re: Fwd: script from 2.25.1 may be broken (hangs)
+Message-ID: <20141014101213.GR8057@x2.net.home>
+References: <loom.20141009T001730-172@post.gmane.org>
+ <y2a7g09a50k.fsf@cartman.at.offog.org>
+ <20141009122123.GG8057@x2.net.home>
+ <Pine.BSM.4.64L.1410091324420.17740@herc.mirbsd.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.BSM.4.64L.1410091324420.17740@herc.mirbsd.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Thu, Oct 09, 2014 at 01:25:12PM +0000, Thorsten Glaser wrote:
+> diff --git a/term-utils/script.c b/term-utils/script.c
+> index b9f8738..b12b7fd 100644
+> --- a/term-utils/script.c
+> +++ b/term-utils/script.c
 
-Recent versions of util-linux have a blkdiscard program. How does this compare
-to the --security-erase option of hdparm? The goal is to erase the contents of
-an previously used SSD to improve performance.
+ Applied, thanks.
 
-Is the command `blkdiscard -s /dev/sdd` equivalent to the instructions listed on
-https://ata.wiki.kernel.org/index.php/ATA_Secure_Erase?
+ Please, don't use attachments for patches next time.
+
+    Karel
 -- 
-Kind regards,
-Peter
-https://lekensteyn.nl
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
