@@ -1,54 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:64051 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751605AbaJZWHS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Oct 2014 18:07:18 -0400
-Received: by mail-wg0-f46.google.com with SMTP id x13so36561wgg.17
-        for <util-linux@vger.kernel.org>; Sun, 26 Oct 2014 15:07:16 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/4] sfdisk: return deterministic value from sfdisk_deinit()
-Date: Sun, 26 Oct 2014 22:07:06 +0000
-Message-Id: <1414361229-23921-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
-References: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:44313 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755232AbaJNNLn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Oct 2014 09:11:43 -0400
+Date: Tue, 14 Oct 2014 15:11:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Fwd: Bug#764331: mount: "mount --bind -o remount" doesn't
+ preserve flags
+Message-ID: <20141014131139.GW8057@x2.net.home>
+References: <5433bec30004719200003ea0000046dea00002d646a1@amlmta037.auone-net.jp>
+ <5433F1AD.6070500@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5433F1AD.6070500@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-disk-utils/sfdisk.c:222:9: warning: variable 'rc' is uninitialized when
-used here [-Wuninitialized]
-        return rc;
-disk-utils/sfdisk.c:208:8: note: initialize the variable 'rc' to silence
-this warning
-        int rc;
+On Tue, Oct 07, 2014 at 09:59:09AM -0400, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> I thought that it had been established that the kernel did not support
+> any other flags with MS_BIND, but this bug report seems to show that
+> it did, and the new util-linux silently discards the flags.  Is this a
+> bug?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/sfdisk.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Seems like a bug, I'll try to play with that tomorrow. Thanks!
 
-diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-index b0332f2..f48d1c7 100644
---- a/disk-utils/sfdisk.c
-+++ b/disk-utils/sfdisk.c
-@@ -205,7 +205,6 @@ static void sfdisk_init(struct sfdisk *sf)
- static int sfdisk_deinit(struct sfdisk *sf)
- {
- 	struct fdisk_context *parent;
--	int rc;
- 
- 	assert(sf);
- 	assert(sf->cxt);
-@@ -219,7 +218,7 @@ static int sfdisk_deinit(struct sfdisk *sf)
- 	fdisk_unref_context(sf->cxt);
- 	memset(sf, 0, sizeof(*sf));
- 
--	return rc;
-+	return 0;
- }
- 
- static void backup_sectors(struct sfdisk *sf,
+    Karel
+
 -- 
-2.1.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
