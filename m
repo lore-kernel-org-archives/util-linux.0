@@ -1,86 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30316 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756996AbaJXPOH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Oct 2014 11:14:07 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s9OFE7fR010152
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 11:14:07 -0400
-From: Federico Simoncelli <fsimonce@redhat.com>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:47197 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750776AbaJOVT5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Oct 2014 17:19:57 -0400
+Received: by mail-wi0-f177.google.com with SMTP id fb4so3067480wid.16
+        for <util-linux@vger.kernel.org>; Wed, 15 Oct 2014 14:19:56 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com, lczerner@redhat.com,
-        Federico Simoncelli <fsimonce@redhat.com>
-Subject: [PATCH 2/3] blkdiscard: fail on sector misalignment
-Date: Fri, 24 Oct 2014 15:13:54 +0000
-Message-Id: <1414163635-3940-2-git-send-email-fsimonce@redhat.com>
-In-Reply-To: <1414163635-3940-1-git-send-email-fsimonce@redhat.com>
-References: <1414163635-3940-1-git-send-email-fsimonce@redhat.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 4/4] sfdisk: fix compiler warnings about uninitialized variables
+Date: Wed, 15 Oct 2014 22:19:28 +0100
+Message-Id: <1413407968-2289-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1413407968-2289-1-git-send-email-kerolasa@iki.fi>
+References: <1413407968-2289-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
----
- sys-utils/blkdiscard.c            | 12 +++++++++---
- tests/expected/blkdiscard/offsets | 12 ++++++------
- 2 files changed, 15 insertions(+), 9 deletions(-)
+warning: 'str' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
-diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
-index 1eb2b285..1504ee3 100644
---- a/sys-utils/blkdiscard.c
-+++ b/sys-utils/blkdiscard.c
-@@ -144,9 +144,10 @@ int main(int argc, char **argv)
- 	if (ioctl(fd, BLKSSZGET, &secsize))
- 		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/sfdisk.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index ad0e17e..49369bd 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -756,7 +756,7 @@ static int command_partuuid(struct sfdisk *sf, int argc, char **argv)
  
--	/* align range to the sector size */
--	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
--	range[1] &= ~(secsize - 1);
-+	/* check offset alignment to the sector size */
-+	if (range[0] % secsize)
-+		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned "
-+			 "to sector size %i"), path, range[0], secsize);
+ 	/* print partition uuid */
+ 	if (!uuid) {
+-		const char *str;
++		const char *str = NULL;
  
- 	/* is the range end behind the end of the device ?*/
- 	if (range[0] > blksize)
-@@ -155,6 +156,11 @@ int main(int argc, char **argv)
- 	if (end < range[0] || end > blksize)
- 		range[1] = blksize - range[0];
+ 		if (fdisk_get_partition(sf->cxt, partno - 1, &pa) == 0)
+ 			str = fdisk_partition_get_uuid(pa);
+@@ -811,7 +811,7 @@ static int command_partlabel(struct sfdisk *sf, int argc, char **argv)
  
-+	/* check length alignment to the sector size */
-+	if (range[1] % secsize)
-+		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned "
-+			 "to sector size %i"), path, range[1], secsize);
-+
- 	if (secure) {
- 		if (ioctl(fd, BLKSECDISCARD, &range))
- 			err(EXIT_FAILURE, _("%s: BLKSECDISCARD ioctl failed"), path);
-diff --git a/tests/expected/blkdiscard/offsets b/tests/expected/blkdiscard/offsets
-index 766c39d..8807878 100644
---- a/tests/expected/blkdiscard/offsets
-+++ b/tests/expected/blkdiscard/offsets
-@@ -1,16 +1,16 @@
- create loop device from image
- testing offsets with full block size
- Discarded 10485760 bytes from the offset 0
--Discarded 10485248 bytes from the offset 512
--Discarded 10485248 bytes from the offset 512
-+blkdiscard: offset 1 is not aligned to sector size 512
-+blkdiscard: offset 511 is not aligned to sector size 512
- Discarded 10485248 bytes from the offset 512
- Discarded 10484736 bytes from the offset 1024
- testing offsets with specific length
- Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 512
--Discarded 5242880 bytes from the offset 512
-+blkdiscard: length 5242881 is not aligned to sector size 512
-+blkdiscard: length 5243391 is not aligned to sector size 512
-+blkdiscard: offset 1 is not aligned to sector size 512
-+blkdiscard: offset 511 is not aligned to sector size 512
- Discarded 5242880 bytes from the offset 512
- Discarded 5242880 bytes from the offset 1024
- detach loop device from image
+ 	/* print partition name */
+ 	if (!name) {
+-		const char *str;
++		const char *str = NULL;
+ 
+ 		if (fdisk_get_partition(sf->cxt, partno - 1, &pa) == 0)
+ 			str = fdisk_partition_get_name(pa);
+@@ -867,7 +867,7 @@ static int command_partattrs(struct sfdisk *sf, int argc, char **argv)
+ 
+ 	/* print partition name */
+ 	if (!attrs) {
+-		const char *str;
++		const char *str = NULL;
+ 
+ 		if (fdisk_get_partition(sf->cxt, partno - 1, &pa) == 0)
+ 			str = fdisk_partition_get_attrs(pa);
 -- 
-1.9.3
+2.1.2
 
