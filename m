@@ -1,42 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:61009 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750720AbaJFU4c (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Oct 2014 16:56:32 -0400
-Received: by mail-wi0-f176.google.com with SMTP id hi2so5901840wib.9
-        for <util-linux@vger.kernel.org>; Mon, 06 Oct 2014 13:56:31 -0700 (PDT)
-Message-ID: <54330294.1090908@gmail.com>
-Date: Mon, 06 Oct 2014 22:59:00 +0200
-From: Francis Moreau <francis.moro@gmail.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: losetup: failed to setup loop device > 1
-References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home>
-In-Reply-To: <20141006174041.GA8057@x2.net.home>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:57324 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751020AbaJOVTh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Oct 2014 17:19:37 -0400
+Received: by mail-wi0-f179.google.com with SMTP id d1so3065716wiv.12
+        for <util-linux@vger.kernel.org>; Wed, 15 Oct 2014 14:19:36 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 1/4] eject: move unreachable code to preprocessor #else block [smatch scan]
+Date: Wed, 15 Oct 2014 22:19:25 +0100
+Message-Id: <1413407968-2289-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/06/2014 07:40 PM, Karel Zak wrote:
-> On Mon, Oct 06, 2014 at 06:35:20PM +0200, Francis Moreau wrote:
->> One last details is that the system uses pretty old stuff: kernel
->> 3.4.50, util-linux 2.21.1.
-> 
-> $ git log --oneline v2.21.. -- lib/loopdev.c sys-utils/losetup.c | wc -l
-> 62
-> 
->> Could anybody give me some help ?
-> 
-> update, this is upstream mailing list I have doubts anyone is ready
-> to help you with code released 2 years ago.
+eject.c:466 toggle_tray() info: ignoring unreachable code.
 
-well it looks like more a kernel issue since the sequence of syscalls
-done by losetup looks correct. Maybe someone here already encountered
-this...
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/eject.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-I just found that loop module was loaded with max_part=16 and
-CONFIG_BLK_DEV_LOOP_MIN_COUNT=8. If max_part is set to 0 then the issue
-is gone :-/
-
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index 91f1102..860610f 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -433,9 +433,6 @@ static int eject_cdrom(int fd)
+  */
+ static void toggle_tray(int fd)
+ {
+-	struct timeval time_start, time_stop;
+-	int time_elapsed;
+-
+ #ifdef CDROM_DRIVE_STATUS
+ 	/* First ask the CDROM for info, otherwise fall back to manual.  */
+ 	switch (ioctl(fd, CDROM_DRIVE_STATUS)) {
+@@ -457,7 +454,9 @@ static void toggle_tray(int fd)
+ 	default:
+ 		abort();
+ 	}
+-#endif
++#else
++	struct timeval time_start, time_stop;
++	int time_elapsed;
+ 
+ 	/* Try to open the CDROM tray and measure the time therefor
+ 	 * needed.  In my experience the function needs less than 0.05
+@@ -481,6 +480,7 @@ static void toggle_tray(int fd)
+ 	 * closed before. This would mean that we are done.  */
+ 	if (time_elapsed < TRAY_WAS_ALREADY_OPEN_USECS)
+ 		close_tray(fd);
++#endif
+ }
+ 
+ /*
+-- 
+2.1.2
 
