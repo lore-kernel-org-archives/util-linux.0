@@ -1,34 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:42672 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750794AbaIOMWY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 15 Sep 2014 08:22:24 -0400
-Received: by mail-lb0-f169.google.com with SMTP id p9so4352980lbv.14
-        for <util-linux@vger.kernel.org>; Mon, 15 Sep 2014 05:22:23 -0700 (PDT)
-Message-ID: <5416D9FC.50204@gmail.com>
-Date: Mon, 15 Sep 2014 14:22:20 +0200
-From: Marcin Kocur <marcin2006@gmail.com>
+Received: from relay1.allsecuredomains.com ([78.47.234.210]:37497 "EHLO
+	relay1.allsecuredomains.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751617AbaJOOxK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 15 Oct 2014 10:53:10 -0400
+Message-ID: <543E82DE.8070405@seoss.co.uk>
+Date: Wed, 15 Oct 2014 15:21:18 +0100
+From: Tim Small <tim@seoss.co.uk>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-CC: Jakub Bogusz <qboosh@pld-linux.org>
-Subject: cfdisk 2.25 doesn't write partition table when using localized version
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Peter Wu <peter@lekensteyn.nl>, linux-ide@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: Re: blkdiscard vs hdparm for erasing a SSD?
+References: <2523736.cvg5kvG8qa@al>
+In-Reply-To: <2523736.cvg5kvG8qa@al>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On 15/10/14 14:12, Peter Wu wrote:
+> [ blkdiscard vs hdparm --security-erase] How does this compare. The goal is to erase the contents of an previously used SSD to improve performance.
+>
 
-I'm using LANG=pl_PL.UTF-8, my cfdisk is translated into Polish. When 
-trying to write the partition table, cfdisk tells me that the the 
-partition table wasn't written, no matter if I type yes in English or 
-"tak" in Polish. I have briefly checked the pl.po file and it seems to 
-be fine. When I set export LANG=en_US, then I was able to save the 
-partition table on the device.
+When you use blkdiscard, the SSD (assuming a SATA SSD) will receive an
+ATA TRIM command, whereas hdparm --security-erase will issue an ATA
+SECURITY ERASE UNIT command.
 
-CC to the last translator.
+What the drive then actually does is dependant on the implementation
+details of that particular SSD's firmware.
 
--- 
-Pozdrawiam / Greetings
-Marcin Kocur █
-Dane kontaktowe / Contact details: http://koci.net.pl/email
+In general, I would expect the performance gain from TRIMing the entire
+drive to be either the same-as, or possibly less-than the gain from
+SECURITY ERASE.  For a sane firmware implementation I'd expect them to
+have the same effect on performance.  Firmware implementations are not
+always sane.
 
+Personally, unless I want to keep some of the data on the drive, I use
+hdparm --security-erase, as I feel that this is most likely to reset the
+drive to its as-new state (or at least close to it), but the real answer
+is that it depends on the drive, so if you really want to know, you'll
+have to do some performance tests on your drive(s).
+
+Tim.
