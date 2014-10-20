@@ -1,95 +1,54 @@
-Return-Path: vapier@gentoo.org
-Date: Mon, 27 Oct 2014 16:16:25 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Francis Moreau <francis.moro@gmail.com>
-Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org,
-        Karel Zak <kzak@redhat.com>, gabeblack@chromium.org,
-        gwendal@chromium.org
-Subject: Re: losetup on a image file containing (GPT) partition doesn't
- create partition devices
-Message-ID: <20141027201625.GA25833@vapier>
-References: <542E7000.3040309@gmail.com>
- <201410031429.s93ET4wu014728@hobgoblin.ariadne.com>
- <201410031958.s93JwTuY026155@hobgoblin.ariadne.com>
- <542F065C.2080505@gmail.com>
- <54304C03.6020309@gmail.com>
- <201410061547.s96Fl0sN021617@hobgoblin.ariadne.com>
- <5432BBB0.30701@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:55735 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752517AbaJTXfT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Oct 2014 19:35:19 -0400
+Message-ID: <54459C31.3060702@gmx.com>
+Date: Mon, 20 Oct 2014 19:35:13 -0400
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-In-Reply-To: <5432BBB0.30701@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+CC: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/7] hwclock: hctosys drift compensation II
+References: <5426D4C2.4060403@gmx.com> <5426D7C0.50108@gmx.com> <alpine.LNX.2.03.1409281829450.8884@iki.fi> <54298D46.6010101@gmx.com> <20141014090311.GM8057@x2.net.home> <544052E0.3080105@gmx.com> <20141020120550.GB8057@x2.net.home>
+In-Reply-To: <20141020120550.GB8057@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 06 Oct 2014 17:56, Francis Moreau wrote:
-> On 10/06/2014 05:47 PM, Dale R. Worley wrote:
-> > From: Francis Moreau <francis.moro@gmail.com>
-> >> Ok, so IMHO I think that losetup(8) should issue its own
-> >> ioctl(BLKRRPART) and shouldn't rely on the kernel during the loop setup
-> >> since it can fail silently. This way it can check the return value of
-> >> ioctl() and moght choose to do it again in case the return value is -E=
-BUSY.
->=20
-> Hm I was probably not clear, let me phase it again:
->=20
-> Ok, so IMHO I think that losetup(8) should issue its own
-> ioctl(BLKRRPART) and shouldn't rely on the kernel during the loop setup
-> since the kernel can fail silently. Using ioctl(BLKRRPART) allows
-> losetup(8) to check the return value of ioctl() and might choose to do
-> it again in case the return value is -EBUSY.
+On 10/20/2014 08:05 AM, Karel Zak wrote:
+> On Thu, Oct 16, 2014 at 07:21:04PM -0400, JWP wrote:
+>> Repository created at GitHub:
+>> https://github.com/jwpi/util-linux
+>> git@github.com:jwpi/util-linux.git
+>> https://github.com/jwpi/util-linux.git
+> 
+>  Thanks, merged. I have also added some (I hope correct) notes to
+>  the begin of the hwclock man page.
 
-we've been tracking the same bug in Chromium OS:
-  http://crbug.com/411693
-basically, under load, using `losetup -P` randomly fails to create the rele=
-vant=20
-partition nodes.  atm we have hacks in place to call `blockdev --rereadpt` =
-when=20
-it looks like the kernel has failed us.
+Hello Karel,
 
-it would be nice if the kernel didn't ignore the result of the ioctl thus=
-=20
-allowing all errors to go unnoticed.  you can see this in drivers/block/loo=
-p.c=20
-where it calls ioctl_by_bdev multiple times and doesn't check the return va=
-lue.
+Yes, what you wrote is correct. However, I think some of the wording
+could be misinterpreted, especially:
 
-since all current kernels are broken though, and might be for the foreseeab=
-le=20
-future, having losetup issue the ioctl itself might be a good tradeoff.  i=
-=20
-think it'd trigger unnecessary overhead (rescanning the device after it alr=
-eady=20
-worked), but seems better than having losetup try and check other sources (=
-like=20
-if arbitrary partition nodes were created).
--mike
+"hwclock automatically compensates Hardware Clock to account for 
+ systematic drift before using it to set the System Clock by --hctosys."
 
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Someone may think the Hardware Clock itself was being compensated.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+I have made a commit to change the wording slightly, I will send you a
+pull request after I send this email.
 
-iQIcBAEBAgAGBQJUTqgYAAoJEEFjO5/oN/WBXY8P/RiRemTb7lmurITMlt0V9oD2
-0TjNfQ/fltrP+Jg6toWbzx4BwrlosylkHu9V9pGci0WfkWasJCHMe0U3TtnzwMae
-RatsQz4+IP55B+4F0T0YmfwhaAnpHz0O75rerUzh6OlZ1Bmugrc5KBaZVbwUFdna
-KZbrf0ByM8YA67s8jSSY8KbEbfySZCriVysmh/8Ana4lntiZWW6R4W3vBts2/kU8
-LXw5EZQqamknoMW/o3MOw8wJ+Dl6OsJtoe+PeJKhC9chVklc4IGbxz5G0w1FMBnP
-iSiMSu1azCV/uuzg35MeeEwaKHUeCls1G7Fzv5VETBiUPqLSp++LB3DHyVOpIPTD
-/KzwHk7r0DjtHwBec5T5x7CF+8G4jYTuakMFmlqiJAgyKuzLubEXVKh9CE8O72W5
-JwK/wfI8WKIKc50nQOlDzbK+aTfpYIaiFXy+OPzl43wVOA4NoTJpHozvLVtLIH6h
-lA7m9PILW/sAnjPgmjgg2XnTZUcvT/5yT9l4bDNik1hGzFnU875dEF9ROdPVtevG
-AJxAwKibQ6QTEtgUMTfCUjXALPCmC5NV9jXCJ4fpK7FoaBsEXSxsCNYlb0FZwMNs
-wGuGMybJZrg/79aXR5h3bnHydpKlCVZ6d/ovS9AI4ArnHrBRlzGTpmS0E3gXs6yM
-w6m8QvPuwwmXk70K8f77
-=ntnA
------END PGP SIGNATURE-----
+Thank you for fixing hwclock's man page formatting! It was on my todo list.
 
---+HP7ph2BbKc20aGI--
+Thank you for taking time to review and merge my work, and allowing me to
+contribute to util-linux.
+
+I have some util-linux workflow questions:
+
+* Do you want pull requests sent to you via github?
+* If yes, what, if anything, should be posted to the mailing list?
+
+Will
