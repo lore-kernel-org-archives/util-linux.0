@@ -1,54 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43727 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751180AbaJ0K7l (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Oct 2014 06:59:41 -0400
-Date: Mon, 27 Oct 2014 11:59:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: JWP <elseifthen@gmx.com>, Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/5] hwclock: clean up message periods/full stops
-Message-ID: <20141027105934.GG10134@x2.net.home>
-References: <5449BE57.9040203@gmx.com>
- <1414150431.840372.182833341.74402120@webmail.messagingengine.com>
- <544A4817.3070406@gmx.com>
- <20141024125939.GD10134@x2.net.home>
- <544A795B.8090301@gmx.com>
- <1414184287.962524.183013401.569326CF@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1414184287.962524.183013401.569326CF@webmail.messagingengine.com>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:55792 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752598AbaJTT5t (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Oct 2014 15:57:49 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] sfdisk: change option --label-nested to --nested-label
+Date: Mon, 20 Oct 2014 21:57:43 +0200
+Message-Id: <1413835063-2819-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 24, 2014 at 10:58:07PM +0200, Benno Schulenberg wrote:
-> 
-> On Fri, Oct 24, 2014, at 18:07, JWP wrote:
-> > So what is the util-linux position on message punctuation in general, and
-> > line termination specifically?  The documentation seem to imply not using any.
-> 
-> The current situation is a mess.  And the documentation does not say
-> anything about what error messages, status reports, and imperatives
+Also improve the wording of the option description in the man page a bit.
 
-I don't think so, but it would be nice to have
-Documentation/howto-messages.txt.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/sfdisk.8 |   17 +++++++++--------
+ disk-utils/sfdisk.c |    6 +++---
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-> to the user should look like.  The general style seems to be:
-> 
-> 1) Error messages (anything that is preceded by the program name
-> followed by a colon and a space, in thise case "hwclock: ") start with
-> a lowercase letter and do not end in a period, nor use any period.
-
-The preferred way to print error and warning messages is err() and
-warn() (or errx() and warnx()). 
-
-> 2) Status reports and imperatives to the user use full sentences:
-> they start with a capital letter and end in a period.
-
-yep.
-
-    Karel
-
+diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+index 029083f..f4f2a1d 100644
+--- a/disk-utils/sfdisk.8
++++ b/disk-utils/sfdisk.8
+@@ -142,14 +142,15 @@ Deprecated option. The sector unit is supported only.
+ Deprecated and ignored option. Linux (and another moder OS) compatible
+ partitioning is the default.
+ .TP
+-.BR \-X , " \-\-label \fItype\fR
+-Specify disk label type (e.g. dos, gpt, ...). If no label specified then sfdisk
+-defaults to an existing label. If there is no label on the device than defaults
+-to "dos".
+-.TP
+-.BR \-Y , " \-\-label-nested \fItype\fR
+-Force sfdisk to edit nested disk label. The primary disk label has to already exist.
+-This option allows to edit for example hybrid/protective MBR on devices with GPT.
++.BR \-X , " \-\-label " \fItype
++Specify the disk label type (dos, bsd, gpt, ...).  If this option is not given,
++then the type defaults to that of the existing label.  If there is no label on
++the device yet, then the type defaults to "dos".
++.TP
++.BR \-Y , " \-\-nested-label " \fItype
++Force \fBsfdisk\fR to edit a nested disk label.  The primary disk label has to
++exist already.
++This option allows editing a hybrid or protective MBR on devices with a GPT.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 49369bd..43bcb1c 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -79,7 +79,7 @@ struct sfdisk {
+ 	int		act;		/* ACT_* */
+ 	int		partno;		/* -N <partno>, default -1 */
+ 	const char	*label;		/* --label <label> */
+-	const char	*label_nested;	/* --label-nested <label> */
++	const char	*label_nested;	/* --nested-label <label> */
+ 	const char	*backup_file;	/* -O <path> */
+ 
+ 	struct fdisk_context	*cxt;	/* libfdisk context */
+@@ -1337,7 +1337,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -O, --backup-file <path>  override default backout file name\n"), out);
+ 	fputs(_(" -N, --partno <num>        specify partition number\n"), out);
+ 	fputs(_(" -X, --label <name>        specify label type (dos, gpt, ...)\n"), out);
+-	fputs(_(" -Y, --label-nested <name> specify nested label type (dos, bsd)\n"), out);
++	fputs(_(" -Y, --nested-label <name> specify nested label type (dos, bsd)\n"), out);
+ 	fputs(_(" -q, --quiet               suppress extra info messages\n"), out);
+ 	fputs(_(" -n, --no-act              do everything except write to device\n"), out);
+ 	fputs(_("     --no-reread           do not check whether the device is in use\n"), out);
+@@ -1385,9 +1385,9 @@ int main(int argc, char *argv[])
+ 		{ "help",    no_argument,       NULL, 'h' },
+ 		{ "force",   no_argument,       NULL, 'f' },
+ 		{ "label",   required_argument, NULL, 'X' },
+-		{ "label-nested", required_argument, NULL, 'Y' },
+ 		{ "list",    no_argument,       NULL, 'l' },
+ 		{ "list-types", no_argument,	NULL, 'T' },
++		{ "nested-label", required_argument, NULL, 'Y' },
+ 		{ "no-act",  no_argument,       NULL, 'n' },
+ 		{ "no-reread", no_argument,     NULL, OPT_NOREREAD },
+ 		{ "output",  required_argument, NULL, 'o' },
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
