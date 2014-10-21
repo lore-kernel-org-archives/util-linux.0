@@ -1,44 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:41622 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750987AbaJATsT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 1 Oct 2014 15:48:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by gateway2.nyi.internal (Postfix) with ESMTP id C4BE92067E
-	for <util-linux@vger.kernel.org>; Wed,  1 Oct 2014 15:48:18 -0400 (EDT)
-Message-Id: <1412192898.2502806.174063613.6D7A90BE@webmail.messagingengine.com>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60703 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755026AbaJUTnO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 21 Oct 2014 15:43:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+	by gateway2.nyi.internal (Postfix) with ESMTP id 460B02051A
+	for <util-linux@vger.kernel.org>; Tue, 21 Oct 2014 15:43:13 -0400 (EDT)
+Message-Id: <1413920593.3703509.181691665.4864189E@webmail.messagingengine.com>
 From: Benno Schulenberg <bensberg@justemail.net>
 To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>, Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-In-Reply-To: <20141001080647.GH26272@x2.net.home>
-References: <20140806132727.GI19820@x2.net.home>
- <1407341083.485189.149814161.10AFC682@webmail.messagingengine.com>
- <20141001080647.GH26272@x2.net.home>
-Subject: Re: add one-line descriptions to each program usage()
-Date: Wed, 01 Oct 2014 21:48:18 +0200
+In-Reply-To: <20141021090517.GE8057@x2.net.home>
+References: <1413834738.3279286.181227401.682D2FFB@webmail.messagingengine.com>
+ <20141021090517.GE8057@x2.net.home>
+Subject: Re: the option --label-nested of sfdisk
+Date: Tue, 21 Oct 2014 21:43:13 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-On Wed, Oct 1, 2014, at 10:06, Karel Zak wrote:
-> On Wed, Aug 06, 2014 at 06:04:43PM +0200, Benno Schulenberg wrote:
-> > On Wed, Aug 6, 2014, at 15:27, Karel Zak wrote:
-> > > https://github.com/stevenhoneyman/util-linux/commit/d5b828e418102b354025bbf7f91b2dcdfc1f4e66
-> > > 
-> > > the idea is to add one-line descriptions to each program usage().
-> > 
-> > Yes, docstrings are a good idea.  [...]
-> 
->  Benno, do you want to work on this task?
+On Tue, Oct 21, 2014, at 11:05, Karel Zak wrote:
+> The problem is that the original sfdisk version had "--nested" option,
+> the option is no more supported, but I'd like to avoid misinterpretation.
 
-Okay, will do.  It may take, however, a week or two before I find
-enough time to do this.
+Okay.  I retract the patch.  I will post just the wording fixes later.
 
 Benno
 
 -- 
-http://www.fastmail.fm - Access all of your messages and folders
-                          wherever you are
+http://www.fastmail.fm - Does exactly what it says on the tin
 
