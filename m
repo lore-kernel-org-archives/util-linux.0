@@ -1,40 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from elasmtp-spurfowl.atl.sa.earthlink.net ([209.86.89.66]:58536
-	"EHLO elasmtp-spurfowl.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758135AbaJ1HtB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Oct 2014 03:49:01 -0400
-Received: from [24.144.107.77] (helo=[192.168.0.11])
-	by elasmtp-spurfowl.atl.sa.earthlink.net with esmtpa (Exim 4.67)
-	(envelope-from <mrmazda@earthlink.net>)
-	id 1Xj1WW-0005XE-Pi
-	for util-linux@vger.kernel.org; Tue, 28 Oct 2014 03:49:00 -0400
-Message-ID: <544F4A6C.808@earthlink.net>
-Date: Tue, 28 Oct 2014 03:49:00 -0400
-From: Felix Miata <mrmazda@earthlink.net>
+Received: from cantor2.suse.de ([195.135.220.15]:44158 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754415AbaJUICs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 21 Oct 2014 04:02:48 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id C159CABE6
+	for <util-linux@vger.kernel.org>; Tue, 21 Oct 2014 08:02:46 +0000 (UTC)
+Date: Tue, 21 Oct 2014 10:02:46 +0200
+From: Robert Milasan <rmilasan@suse.com>
+To: <util-linux@vger.kernel.org>
+Subject: swapon: fix -d short option
+Message-ID: <20141021100246.3e956b6d@viper.suse.cz>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: fdisk and 2048 sectors obsession.
-References: <544E923E.6050406@gmail.com> <544E97ED.7040406@earthlink.net> <544F0C88.1080807@gmail.com> <544F13CD.8000502@earthlink.net> <544F1BF2.3040203@gmail.com> <544F2F5A.5090608@earthlink.net> <20141028073208.GH10134@x2.net.home>
-In-Reply-To: <20141028073208.GH10134@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary="MP_/eV+7HmjwUJHW_yLMXPeOLwN"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak composed on 2014-10-28 08:32 (UTC+0100):
+--MP_/eV+7HmjwUJHW_yLMXPeOLwN
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->> The man page does fail to explain what dos mode actually means.
+When -d option is used with swapon, is expected that there is an equal
+'=' which at least according to the man page it doesn't make sense or
+it's not properly explained.
 
->  - start at sector 63
->  - care about CHS in partition table
->  - extra checks for alignment to be compatible with CHS addressing
+If we use -d as we should, then swapon takes 'once' or 'pages' as an
+actual device:
 
-Why isn't that in the man page? People trying to use a program aren't always
-able to Google an explanation of its man page minimalism.
+dhcp33:~ # swapon -p -2 -d once /dev/sdb1
+swapon: stat failed once: No such file or directory
+
+The short option -d, should be something like "swapon -d once ...." not
+"swapon -d=once ...."
+
+I've attached the patch to fix this small issue.
+
+
 -- 
-"The wise are known for their understanding, and pleasant
-words are persuasive." Proverbs 16:21 (New Living Translation)
+Robert Milasan
 
- Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+L3 Support Engineer
+SUSE Linux (http://www.suse.com)
+email: rmilasan@suse.com
+GPG fingerprint: B6FE F4A8 0FA3 3040 3402  6FE7 2F64 167C 1909 6D1A
 
-Felix Miata  ***  http://fm.no-ip.com/
+--MP_/eV+7HmjwUJHW_yLMXPeOLwN
+Content-Type: text/x-patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=swapon_fix-d-short-option.patch
+
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 8609ea2..20baea3 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -846,12 +846,9 @@ int main(int argc, char *argv[])
+ 		case 'd':
+ 			discard |= SWAP_FLAG_DISCARD;
+ 			if (optarg) {
+-				if (*optarg == '=')
+-					optarg++;
+-
+-				if (strcmp(optarg, "once") == 0)
++				if (strncmp(optarg, "once", 4) == 0)
+ 					discard |= SWAP_FLAG_DISCARD_ONCE;
+-				else if (strcmp(optarg, "pages") == 0)
++				else if (strncmp(optarg, "pages", 5) == 0)
+ 					discard |= SWAP_FLAG_DISCARD_PAGES;
+ 				else
+ 					errx(EXIT_FAILURE, _("unsupported discard policy: %s"), optarg);
+
+--MP_/eV+7HmjwUJHW_yLMXPeOLwN--
