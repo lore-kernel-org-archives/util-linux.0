@@ -1,52 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45129 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756114AbaJXLly (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Oct 2014 07:41:54 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id 03DAE20844
-	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 07:41:53 -0400 (EDT)
-Message-Id: <1414150913.842267.182835465.32A1CB8B@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: JWP <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <5449BF2E.7040604@gmx.com>
-References: <5449BF2E.7040604@gmx.com>
-Subject: Re: [PATCH 4/5] hwclock: Fix --date debug messages
-Date: Fri, 24 Oct 2014 13:41:53 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:47768 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755398AbaJWPep (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 23 Oct 2014 11:34:45 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s9NFYj1S014989
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+	for <util-linux@vger.kernel.org>; Thu, 23 Oct 2014 11:34:45 -0400
+From: Federico Simoncelli <fsimonce@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: kzak@redhat.com, lczerner@redhat.com,
+        Federico Simoncelli <fsimonce@redhat.com>
+Subject: [PATCH 2/2] blkdiscard: fail on sector misalignment
+Date: Thu, 23 Oct 2014 15:34:36 +0000
+Message-Id: <1414078476-11007-2-git-send-email-fsimonce@redhat.com>
+In-Reply-To: <1414078476-11007-1-git-send-email-fsimonce@redhat.com>
+References: <1414078476-11007-1-git-send-email-fsimonce@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+---
+ sys-utils/blkdiscard.c            | 10 +++++++---
+ tests/expected/blkdiscard/offsets | 12 ++++++------
+ 2 files changed, 13 insertions(+), 9 deletions(-)
 
-On Fri, Oct 24, 2014, at 04:53, JWP wrote:
->  	if (debug)
-> -		printf(_("response from date command = %s"), date_resp);
-> +		printf(_("The response was: %s"), date_resp);
->  	if (strncmp(date_resp, magic, sizeof(magic) - 1) != 0) {
->  		warnx(_("The date command issued by %s returned "
-> -				  "unexpected results\n"
-> -				  "The command was:\n  %s\n"
-> -				  "The response was:\n  %s"),
-> -			program_invocation_short_name, date_command, date_resp);
-> +			"unexpected results\nThe response was: %s"
-> +			"The command was: %s"),
-> +		      program_invocation_short_name, date_resp, date_command);
-
-Oh no.  If the user does not use --debug, hwclock will warn that
-a command gave an unexpected result and will print the command
-but not the actual result.  This is silly.
-
-By the way, the --debug flag is improperly named.  It should actually
-be called --verbose, because in all the rest of util-linux debug messages
-are never gettextized (using calls to _()).  The use of --debug is not
-meant to debug hwclock itself but to debug the user's use of hwclock.
-It should therefore be called --verbose.
-
-Benno
-
+diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
+index 1eb2b285..76c72b8 100644
+--- a/sys-utils/blkdiscard.c
++++ b/sys-utils/blkdiscard.c
+@@ -144,9 +144,9 @@ int main(int argc, char **argv)
+ 	if (ioctl(fd, BLKSSZGET, &secsize))
+ 		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
+ 
+-	/* align range to the sector size */
+-	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
+-	range[1] &= ~(secsize - 1);
++	/* check offset alignment to the sector size */
++	if (range[0] % secsize)
++		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned"), path, range[0]);
+ 
+ 	/* is the range end behind the end of the device ?*/
+ 	if (range[0] > blksize)
+@@ -155,6 +155,10 @@ int main(int argc, char **argv)
+ 	if (end < range[0] || end > blksize)
+ 		range[1] = blksize - range[0];
+ 
++	/* check length alignment to the sector size */
++	if (range[1] % secsize)
++		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned"), path, range[1]);
++
+ 	if (secure) {
+ 		if (ioctl(fd, BLKSECDISCARD, &range))
+ 			err(EXIT_FAILURE, _("%s: BLKSECDISCARD ioctl failed"), path);
+diff --git a/tests/expected/blkdiscard/offsets b/tests/expected/blkdiscard/offsets
+index 766c39d..abedb08 100644
+--- a/tests/expected/blkdiscard/offsets
++++ b/tests/expected/blkdiscard/offsets
+@@ -1,16 +1,16 @@
+ create loop device from image
+ testing offsets with full block size
+ Discarded 10485760 bytes from the offset 0
+-Discarded 10485248 bytes from the offset 512
+-Discarded 10485248 bytes from the offset 512
++blkdiscard: offset 1 is not aligned
++blkdiscard: offset 511 is not aligned
+ Discarded 10485248 bytes from the offset 512
+ Discarded 10484736 bytes from the offset 1024
+ testing offsets with specific length
+ Discarded 5242880 bytes from the offset 0
+-Discarded 5242880 bytes from the offset 0
+-Discarded 5242880 bytes from the offset 0
+-Discarded 5242880 bytes from the offset 512
+-Discarded 5242880 bytes from the offset 512
++blkdiscard: length 5242881 is not aligned
++blkdiscard: length 5243391 is not aligned
++blkdiscard: offset 1 is not aligned
++blkdiscard: offset 511 is not aligned
+ Discarded 5242880 bytes from the offset 512
+ Discarded 5242880 bytes from the offset 1024
+ detach loop device from image
 -- 
-http://www.fastmail.fm - A fast, anti-spam email service.
+1.9.3
 
