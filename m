@@ -1,32 +1,110 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39424 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:14872 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753443AbaJNIbU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Oct 2014 04:31:20 -0400
-Date: Tue, 14 Oct 2014 10:31:09 +0200
+	id S1756401AbaJXNT7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Oct 2014 09:19:59 -0400
+Date: Fri, 24 Oct 2014 15:19:55 +0200
 From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Patch status?
-Message-ID: <20141014083109.GL8057@x2.net.home>
-References: <543C5D0F.7060809@gmx.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.25.2
+Message-ID: <20141024131955.GE10134@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <543C5D0F.7060809@gmx.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 13, 2014 at 07:15:27PM -0400, JWP wrote:
-> Hello Mr Zak,
-> 
-> Could you please tell me the status of the patch set I submitted
-> on 09/27/2014 titled: "[PATCH 0/7] hwclock patch cover letter"
+The util-linux stable release v2.25.2 is available at
+ 
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.25
+    
+Feedback and bug reports, as always, are welcomed.
+     
+       Karel
 
- Sorry for the delay, I was busy with sfdisk and RHEL. I'm going to
- review it right now.
 
-    Karel
+Util-linux 2.25.2 Release Notes
+===============================
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+agetty:
+   - fixing FTBFS on !linux (Debian util-linux 2.20.1-1.2)  [Christoph Egger]
+blkdiscard:
+   - fix err->errx()  [Karel Zak]
+   - fix underflow when offset is greater than device size  [Raphael S. Carvalho]
+blkid:
+   - remove extra trailing spaces in output  [Karel Zak]
+build-sys:
+   - build libmount everywhere  [Andreas Henriksson]
+   - check for libtoolize rather than libtool  [Helmut Grohne]
+   - use -lutil for BSD only  [Karel Zak]
+cal:
+   - `color` option documentation should match actual behaviour  [Eugene Yunak]
+cfdisk:
+   - don't modify ncurses LINES and COLS  [Karel Zak]
+docs:
+   - fix mess in Release notes  [Karel Zak]
+   - remove obsolete READMEs for (s)fdisk  [Karel Zak]
+   - update AUTHORS file  [Karel Zak]
+fdisk:
+   - add section about sizes to the man page  [Karel Zak]
+flock:
+   - zero timeout is valid  [Karel Zak]
+hexdump:
+   - remove deprecation message  [Sami Kerola]
+hwclock:
+   - use fabs() instead abs() when argument is double  [Sami Kerola]
+ipcrm:
+   - add hacks to avoid FTBFS  [Andreas Henriksson]
+ipcs:
+   - remaining kFreeBSD hackery for building.  [Aurelien Jarno]
+last:
+   - make is_phantom() when kernel config does not include audit support  [Sami Kerola]
+lib/blkdev:
+   - report correct disk size on GNU/kFreeBSD. Thanks Tuco.  [Robert Millan]
+libblkid:
+   - zeroize errno on blkid_probe_get_buffer() success  [Karel Zak]
+libfdisk:
+   - fix add_logical() assert  [Karel Zak]
+   - make yes/no dialogs more robust  [Karel Zak]
+libmount:
+   - don't return root if path contains // or ending /  [Søren Holm]
+   - fix mnt_is_readonly() #ifdef  [Karel Zak]
+   - hide details about failed search in fstab/mtab  [Karel Zak]
+   - only include context on linux  [Andreas Henriksson]
+   - only invoke loopcxt on linux  [Andreas Henriksson]
+linfdisk:
+   - cleanup fsync usage  [Karel Zak]
+logger:
+   - gettimeofday needs <sys/time.h>  [Andreas Henriksson]
+losetup:
+   - improve man page -D docs  [Karel Zak]
+lsblk:
+   - add notes about udev to the man page  [Karel Zak]
+lscpu:
+   - fix cppcheck warnings  [Boris Egorov]
+lslogins:
+   - cleanup after error [coverity scan]  [Karel Zak]
+   - free after error [coverity scan]  [Karel Zak]
+mkfs.minix:
+   - fix couple compiler warnings  [Sami Kerola]
+mount:
+   - don't ignore mtab for --bind -o remount  [Karel Zak]
+   - improve --move docs  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update es.po (from translationproject.org)  [Antonio Ceballos Roa]
+script:
+   - may be hangs  [Andreas Henriksson]
+setterm:
+   - fix dubious one-bit signed bitfield [smatch scan]  [Sami Kerola]
+su:
+   - print proper core dump message when killed  [pcpa]
+terminal-colors.d:
+   - fix filter by name  [Karel Zak]
+tests:
+   - fix the ipcs test for shmall being too big to show  [Karel Zak]
+umount:
+   - read mountinfo if --detach-loop given  [Robert Schiele]
+whereis:
+   - cleanup debug stuff, fix argv[] usage  [Karel Zak]
+   - reset search mask more carefully  [Karel Zak]
