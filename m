@@ -1,56 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:13672 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750850AbaJAH7o (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 1 Oct 2014 03:59:44 -0400
-Date: Wed, 1 Oct 2014 09:59:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: what precisely is partition_entry_lba?
-Message-ID: <20141001075939.GF26272@x2.net.home>
-References: <1411415045.2373997.170469709.45708397@webmail.messagingengine.com>
+Return-Path: elseifthen@gmx.com
+Message-ID: <5449BF98.5020103@gmx.com>
+Date: Thu, 23 Oct 2014 22:55:20 -0400
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1411415045.2373997.170469709.45708397@webmail.messagingengine.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 5/5] hwclock: version prints out of order
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 22, 2014 at 09:44:05PM +0200, Benno Schulenberg wrote:
-> 
-> Hi,
-> 
-> In libfdisk/src/gpt.c the function gpt_list_disklabel() prints
-> a GPT header, and one of the things it prints says:
-> 
-> _("Partitions entries LBA: %ju"), h->partition_entry_lba
-> 
-> In the struct this variable is described as:
-> 
-> uint64_t    partition_entry_lba; /* stat LBA of the partition entry array */
-> 
-> This doesn't make sense to me.  Shouldn't this say something
-> like "Starting block of the array of partition entries" instead?
 
-EFI standard:
+The version string was printing after other
+messages, it should be the first thing to print.
 
-"The start of the GPT Partition Entry Array is located at the LBA
- indicated by the Partition Entry LBA field."
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> All this use of 'lba' is confusing to me, as it stands for
-> "logical block addressing", and what seems to be meant
-> is simply "logical block" or "logical block number".  No?
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 6d05d46..5ff5c70 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1879,6 +1879,9 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ #endif
++	if (debug)
++		out_version();
++
+ 	if (argc > 0) {
+ 		usage(_("%s takes no non-option arguments\n"
+ 			"You supplied %d\n"), program_invocation_short_name,
+@@ -1941,9 +1944,6 @@ int main(int argc, char **argv)
+ 	}
+ #endif
 
-Well, "LBA" is usually used as unit (especially in storage slang).
-Don't think about it as about abbreviation :-)
-
-
-IMHO the fdisk message "Partitions entries LBA: %ju" is fine, it's
-better to follow commonly terminology.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-	if (debug)
+-		out_version();
+-
+ 	if (!systz && !predict) {
+ 		determine_clock_access_method(directisa);
+ 		if (!ur) {
