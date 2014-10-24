@@ -1,35 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:34194 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751602AbaJ0Snf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 27 Oct 2014 14:43:35 -0400
-Received: by mail-pa0-f45.google.com with SMTP id lf10so3572008pab.18
-        for <util-linux@vger.kernel.org>; Mon, 27 Oct 2014 11:43:35 -0700 (PDT)
-Received: from [192.168.1.2] ([59.89.143.167])
-        by mx.google.com with ESMTPSA id fv4sm11489421pbd.47.2014.10.27.11.43.33
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 27 Oct 2014 11:43:34 -0700 (PDT)
-Message-ID: <544E923E.6050406@gmail.com>
-Date: Tue, 28 Oct 2014 00:13:10 +0530
-From: dE <de.techno@gmail.com>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42381 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756093AbaJXLse (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Oct 2014 07:48:34 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id 87E6820CFA
+	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 07:48:33 -0400 (EDT)
+Message-Id: <1414151313.843395.182838257.3685FB42@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: JWP <elseifthen@gmx.com>, "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: fdisk and 2048 sectors obsession.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
+In-Reply-To: <20141024110803.GB10134@x2.net.home>
+References: <5449BD0F.2070906@gmx.com> <20141024110803.GB10134@x2.net.home>
+Subject: Re: [PATCH 0/5] hwclock: clean up messages
+Date: Fri, 24 Oct 2014 13:48:33 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi!
 
-I was learning about GPT when I noticed this behavior of fdisk which I 
-never though about before.
+On Fri, Oct 24, 2014, at 13:08, Karel Zak wrote:
+> On Thu, Oct 23, 2014 at 10:44:31PM -0400, JWP wrote:
+> > This patch set cleans up various message output.
+> > It contains cosmetic changes only.
+> > 
+> > J William Piggott (5):
+> >   hwclock: Remove newline from 'date' debug output
+> >   hwclock: clean up message periods/full stops
+> >   hwclock: add message line breaks
+> >   hwclock: Fix --date debug messages
+> >   hwclock: version prints out of order
+> 
+> I'm going to merge these patches,
 
-Regardless of the partition table, fdisk always starts the first 
-partition at 2048. In reality, the maximum size required by the gap 
-between MBR and the 1st partition is a single sector, which's used by 
-GRUB 1.5. GPT doesn't need this space at all.
+Please no.  Not the mere period and linebreak changes.
 
-Then extended partitions too have a gap of 2048 sectors.
+> but as a long term solution it would
+> better to use include/debug.h stuff (see for example
+> misc-utils/whereis.c or libmount/src/init.c).
 
-Why this behavior?
+In hwclock the "debug" messages are gettextized, because in fact
+they are verbose messages to help the user understand what hwclock
+is doing.  They are not meant to find programming errors in hwclock;
+if that were the case, they wouldn't be gettextized, because a
+programmer needs to be able to read an write English anyway.
+
+Benno
+
+-- 
+http://www.fastmail.fm - Does exactly what it says on the tin
+
