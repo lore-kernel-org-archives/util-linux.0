@@ -1,44 +1,86 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <5449BF98.5020103@gmx.com>
-Date: Thu, 23 Oct 2014 22:55:20 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:61468 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750964AbaJXCxn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 23 Oct 2014 22:53:43 -0400
+Message-ID: <5449BF2E.7040604@gmx.com>
+Date: Thu, 23 Oct 2014 22:53:34 -0400
 From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
 CC: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] hwclock: version prints out of order
+Subject: [PATCH 4/5] hwclock: Fix --date debug messages
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-The version string was printing after other
-messages, it should be the first thing to print.
+Fix --date debug messages with:
+* Empty results for invalid arguments
+* Empty lines(superfluous line breaks)
+* Uncapitalized and missing words
+* Inconsistent language
+* Outdated message:
+  --date is now used for --predict so
+  'cannot set clock' makes no sense.
 
 Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- sys-utils/hwclock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sys-utils/hwclock.c | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
 diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 6d05d46..5ff5c70 100644
+index 3ad3791..6d05d46 100644
 --- a/sys-utils/hwclock.c
 +++ b/sys-utils/hwclock.c
-@@ -1879,6 +1879,9 @@ int main(int argc, char **argv)
+@@ -765,15 +765,14 @@ static int interpret_date_string(const char *date_opt, time_t * const time_p)
+ 	}
+
+ 	if (!fgets(date_resp, sizeof(date_resp), date_child_fp))
+-		date_resp[0] = '\0';	/* in case fgets fails */
++		strcpy(date_resp, "NULL\n");	/* in case fgets fails */
+ 	if (debug)
+-		printf(_("response from date command = %s"), date_resp);
++		printf(_("The response was: %s"), date_resp);
+ 	if (strncmp(date_resp, magic, sizeof(magic) - 1) != 0) {
+ 		warnx(_("The date command issued by %s returned "
+-				  "unexpected results\n"
+-				  "The command was:\n  %s\n"
+-				  "The response was:\n  %s"),
+-			program_invocation_short_name, date_command, date_resp);
++			"unexpected results\nThe response was: %s"
++			"The command was: %s"),
++		      program_invocation_short_name, date_resp, date_command);
+ 		retcode = 8;
+ 	} else {
+ 		long seconds_since_epoch;
+@@ -783,16 +782,14 @@ static int interpret_date_string(const char *date_opt, time_t * const time_p)
+ 			warnx(_("The date command issued by %s returned "
+ 				"something other\nthan an integer where the "
+ 				"converted time value was expected\n"
+-				"The command was:\n  %s\n"
+-				"The response was:\n %s\n"),
+-			      program_invocation_short_name, date_command,
+-			      date_resp);
++				"The response was: %sThe command was: %s"),
++			      program_invocation_short_name, date_resp, date_command);
+ 			retcode = 6;
+ 		} else {
+ 			retcode = 0;
+ 			*time_p = seconds_since_epoch;
+ 			if (debug)
+-				printf(_("date string %s equates to "
++				printf(_("The date string '%s' equates to:\n"
+ 					 "%ld seconds since 1969\n"),
+ 				       date_opt, (long)*time_p);
+ 		}
+@@ -1905,8 +1902,7 @@ int main(int argc, char **argv)
+ 		rc = interpret_date_string(date_opt, &set_time);
+ 		/* (time-consuming) */
+ 		if (rc != 0) {
+-			warnx(_("No usable set-to time,  "
+-				"cannot set clock"));
++			warnx(_("Invalid --date argument, see date(1)"));
+ 			hwclock_exit(EX_USAGE);
  		}
  	}
- #endif
-+	if (debug)
-+		out_version();
-+
- 	if (argc > 0) {
- 		usage(_("%s takes no non-option arguments\n"
- 			"You supplied %d\n"), program_invocation_short_name,
-@@ -1941,9 +1944,6 @@ int main(int argc, char **argv)
- 	}
- #endif
-
--	if (debug)
--		out_version();
--
- 	if (!systz && !predict) {
- 		determine_clock_access_method(directisa);
- 		if (!ur) {
