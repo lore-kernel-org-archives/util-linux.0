@@ -1,92 +1,97 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.alpinelinux.org ([74.117.189.114]:51850 "EHLO
-	mail.alpinelinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755468AbaJ2JEp (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Oct 2014 05:04:45 -0400
-From: Natanael Copa <ncopa@alpinelinux.org>
-To: util-linux@vger.kernel.org
-Cc: Natanael Copa <ncopa@alpinelinux.org>
-Subject: [PATCH v2] hexdump: use 'll' format modifier instead of the non-standard 'q'.
-Date: Wed, 29 Oct 2014 09:04:27 +0000
-Message-Id: <1414573467-15174-1-git-send-email-ncopa@alpinelinux.org>
-In-Reply-To: <1414570051-11374-1-git-send-email-ncopa@alpinelinux.org>
-References: <1414570051-11374-1-git-send-email-ncopa@alpinelinux.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: lczerner@redhat.com
+Date: Fri, 24 Oct 2014 11:50:37 +0200 (CEST)
+From: =?ISO-8859-15?Q?Luk=E1=A8_Czerner?= <lczerner@redhat.com>
+To: Federico Simoncelli <fsimonce@redhat.com>
+cc: util-linux@vger.kernel.org, kzak@redhat.com
+Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
+In-Reply-To: <1065283474.51295427.1414144024844.JavaMail.zimbra@redhat.com>
+Message-ID: <alpine.LFD.2.00.1410241149310.2242@localhost.localdomain>
+References: <1414078476-11007-1-git-send-email-fsimonce@redhat.com> <1414078476-11007-2-git-send-email-fsimonce@redhat.com> <alpine.LFD.2.00.1410241127260.2242@localhost.localdomain> <1065283474.51295427.1414144024844.JavaMail.zimbra@redhat.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1980263790-1414144239=:2242"
 List-ID: <util-linux.vger.kernel.org>
 
-The printf(3) man page says about 'q':
-("quad". 4.4BSD and Linux libc5 only. Don't use.) This is a synonym for ll.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-This fixes hexdump with musl libc.
+--8323328-1980263790-1414144239=:2242
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 
-Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
----
+On Fri, 24 Oct 2014, Federico Simoncelli wrote:
 
-Changes v1 -> v2:
+> Date: Fri, 24 Oct 2014 05:47:04 -0400 (EDT)
+> From: Federico Simoncelli <fsimonce@redhat.com>
+> To: Lukáš Czerner <lczerner@redhat.com>
+> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
+> 
+> ----- Original Message -----
+> > From: "Lukáš Czerner" <lczerner@redhat.com>
+> > To: "Federico Simoncelli" <fsimonce@redhat.com>
+> > Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> > Sent: Friday, October 24, 2014 11:37:33 AM
+> > Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
+> > 
+> > On Thu, 23 Oct 2014, Federico Simoncelli wrote:
+> > 
+> > > Date: Thu, 23 Oct 2014 15:34:36 +0000
+> > > From: Federico Simoncelli <fsimonce@redhat.com>
+> > > To: util-linux@vger.kernel.org
+> > > Cc: kzak@redhat.com, lczerner@redhat.com,
+> > >     Federico Simoncelli <fsimonce@redhat.com>
+> > > Subject: [PATCH 2/2] blkdiscard: fail on sector misalignment
+> > > 
+> > > ---
+> > >  sys-utils/blkdiscard.c            | 10 +++++++---
+> > >  tests/expected/blkdiscard/offsets | 12 ++++++------
+> > >  2 files changed, 13 insertions(+), 9 deletions(-)
+> > > 
+> > > diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
+> > > index 1eb2b285..76c72b8 100644
+> > > --- a/sys-utils/blkdiscard.c
+> > > +++ b/sys-utils/blkdiscard.c
+> > > @@ -144,9 +144,9 @@ int main(int argc, char **argv)
+> > >  	if (ioctl(fd, BLKSSZGET, &secsize))
+> > >  		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
+> > >  
+> > > -	/* align range to the sector size */
+> > > -	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
+> > > -	range[1] &= ~(secsize - 1);
+> > > +	/* check offset alignment to the sector size */
+> > > +	if (range[0] % secsize)
+> > > +		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned"), path,
+> > > range[0]);
+> > >  
+> > >  	/* is the range end behind the end of the device ?*/
+> > >  	if (range[0] > blksize)
+> > > @@ -155,6 +155,10 @@ int main(int argc, char **argv)
+> > >  	if (end < range[0] || end > blksize)
+> > >  		range[1] = blksize - range[0];
+> > >  
+> > > +	/* check length alignment to the sector size */
+> > > +	if (range[1] % secsize)
+> > > +		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned"), path,
+> > > range[1]);
+> > > +
+> > 
+> > Looks good, however remember that the tool is intended to be used by
+> > the end user, can we be a bit more helpful ? We already know the
+> > secsize it should be aligned to, so we can print that as well.
+> 
+> I will update the error message.
+> 
+> > However it just occurred to me that aligning it to secsize is not
+> > enough. It should be aligned to discard_granularity.
+> 
+> Aligning to discard_granularity is an optimization, on the other hand
+> not aligning to secsize would result in the ioctl failing (EINVAL).
 
-> @@ -301,9 +301,10 @@ void rewrite_rules(struct hexdump_fs *fs, struct hexdump *hex)
->                               goto isint;
->                       } else if (first_letter(cs, "ouxX")) {
->                               pr->flags = F_UINT;
-> -isint:                               cs[2] = '\0';
-> -                             cs[1] = cs[0];
-> -                             cs[0] = 'q';
-> +isint:                               cs[3] = '\0';
-> +                             cs[2] = cs[0];
-> +                             cs[1] = 'l'
-add missing ; above                       ^^^
+Fair enough, but the unaligned part will be ignored and not
+'discarded'. But I guess that it really does not matter.
 
+-Lukas
 
-I missed the ; when rebasing the patch. sorry.
-
-This patch have been used in Alpine Linux since May 2014:
-http://git.alpinelinux.org/cgit/aports/commit/main/util-linux?id=3c201cf3c1b78959444efa8cc2c49ecff7a6727c
-
-
- text-utils/hexdump-parse.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
-
-diff --git a/text-utils/hexdump-parse.c b/text-utils/hexdump-parse.c
-index 8d14c5b..9eb016d 100644
---- a/text-utils/hexdump-parse.c
-+++ b/text-utils/hexdump-parse.c
-@@ -226,7 +226,7 @@ void rewrite_rules(struct hexdump_fs *fs, struct hexdump *hex)
- 	struct hexdump_fu *fu;
- 	struct list_head *p, *q;
- 	char *p1, *p2, *fmtp;
--	char savech, cs[3];
-+	char savech, cs[4];
- 	int nconv, prec = 0;
- 
- 	list_for_each (p, &fs->fulist) {
-@@ -301,9 +301,10 @@ void rewrite_rules(struct hexdump_fs *fs, struct hexdump *hex)
- 				goto isint;
- 			} else if (first_letter(cs, "ouxX")) {
- 				pr->flags = F_UINT;
--isint:				cs[2] = '\0';
--				cs[1] = cs[0];
--				cs[0] = 'q';
-+isint:				cs[3] = '\0';
-+				cs[2] = cs[0];
-+				cs[1] = 'l';
-+				cs[0] = 'l';
- 				switch(fu->bcnt) {
- 					case 0:
- 						pr->bcnt = 4;
-@@ -355,9 +356,10 @@ isint:				cs[2] = '\0';
- 						pr->flags = F_ADDRESS;
- 						++p2;
- 						if (first_letter(p1 + 2, "dox")) {
--							cs[0] = 'q';
--							cs[1] = p1[2];
--							cs[2] = '\0';
-+							cs[0] = 'l';
-+							cs[1] = 'l';
-+							cs[2] = p1[2];
-+							cs[3] = '\0';
- 						} else {
- 							p1[3] = '\0';
- 							badconv(p1);
--- 
-2.1.2
-
+> 
+> 
+--8323328-1980263790-1414144239=:2242--
