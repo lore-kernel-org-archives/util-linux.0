@@ -1,25 +1,41 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:56760 "EHLO
-	resqmta-ch2-02v.sys.comcast.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752224AbaJCOix (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Oct 2014 10:38:53 -0400
-Received: from hobgoblin.ariadne.com (hobgoblin.ariadne.com [127.0.0.1])
-	by hobgoblin.ariadne.com (8.14.7/8.14.7) with ESMTP id s93EUdA7014848
-	for <util-linux@vger.kernel.org>; Fri, 3 Oct 2014 10:30:39 -0400
-Date: Fri, 3 Oct 2014 10:30:39 -0400
-Message-Id: <201410031430.s93EUddT014847@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: util-linux@vger.kernel.org
-Subject: Error in losetup man page
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Message-ID: <544A4497.3010203@gmx.com>
+Date: Fri, 24 Oct 2014 08:22:47 -0400
+From: JWP <elseifthen@gmx.com>
+MIME-Version: 1.0
+To: Benno Schulenberg <bensberg@justemail.net>, Karel Zak <kzak@redhat.com>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/5] hwclock: clean up messages
+References: <5449BD0F.2070906@gmx.com> <20141024110803.GB10134@x2.net.home> <1414151313.843395.182838257.3685FB42@webmail.messagingengine.com>
+In-Reply-To: <1414151313.843395.182838257.3685FB42@webmail.messagingengine.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Fedora 19, the man page for losetup says:
 
-       Delete all used loop devices:
 
-            losetup -D
+On 10/24/2014 07:48 AM, Benno Schulenberg wrote:
+> 
+> On Fri, Oct 24, 2014, at 13:08, Karel Zak wrote:
+>> On Thu, Oct 23, 2014 at 10:44:31PM -0400, JWP wrote:
+> 
+> In hwclock the "debug" messages are gettextized, because in fact
+> they are verbose messages to help the user understand what hwclock
+> is doing.  They are not meant to find programming errors in hwclock;
+> if that were the case, they wouldn't be gettextized, because a
+> programmer needs to be able to read an write English anyway.
 
-That should be "Delete all *unused* loop devices:", I'm sure.
+I would agree that it should have been named --verbose. However, I 
+have not suggested it because of Util-linux guidelines:
 
-Dale
+>From util-linux//Documentation/howto-usage-function.txt
+
+"The rule of thumb with other options is that once they exist, you may
+not change them, nor change how they work, nor remove them."
+
+The --debug output is useful for testing and debugging, as I have 
+used it as such many times.
+
+
+> 
+> Benno
+> 
