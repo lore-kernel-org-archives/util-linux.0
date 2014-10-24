@@ -1,60 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37853 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752037AbaJ1HxL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Oct 2014 03:53:11 -0400
-Date: Tue, 28 Oct 2014 08:53:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: dE <de.techno@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fdisk and 2048 sectors obsession.
-Message-ID: <20141028075308.GI10134@x2.net.home>
-References: <544E923E.6050406@gmail.com>
+Received: from mx3-phx2.redhat.com ([209.132.183.24]:43374 "EHLO
+	mx3-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752524AbaJXJrG convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Oct 2014 05:47:06 -0400
+Date: Fri, 24 Oct 2014 05:47:04 -0400 (EDT)
+From: Federico Simoncelli <fsimonce@redhat.com>
+To: =?utf-8?B?THVrw6HFoQ==?= Czerner <lczerner@redhat.com>
+Cc: util-linux@vger.kernel.org, kzak@redhat.com
+Message-ID: <1065283474.51295427.1414144024844.JavaMail.zimbra@redhat.com>
+In-Reply-To: <alpine.LFD.2.00.1410241127260.2242@localhost.localdomain>
+References: <1414078476-11007-1-git-send-email-fsimonce@redhat.com> <1414078476-11007-2-git-send-email-fsimonce@redhat.com> <alpine.LFD.2.00.1410241127260.2242@localhost.localdomain>
+Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <544E923E.6050406@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 28, 2014 at 12:13:10AM +0530, dE wrote:
-> Regardless of the partition table, fdisk always starts the first partition
-> at 2048. In reality, the maximum size required by the gap between MBR and
-> the 1st partition is a single sector, which's used by GRUB 1.5. GPT doesn't
-> need this space at all.
+----- Original Message -----
+> From: "Lukáš Czerner" <lczerner@redhat.com>
+> To: "Federico Simoncelli" <fsimonce@redhat.com>
+> Cc: util-linux@vger.kernel.org, kzak@redhat.com
+> Sent: Friday, October 24, 2014 11:37:33 AM
+> Subject: Re: [PATCH 2/2] blkdiscard: fail on sector misalignment
 > 
-> Then extended partitions too have a gap of 2048 sectors.
+> On Thu, 23 Oct 2014, Federico Simoncelli wrote:
 > 
-> Why this behavior?
+> > Date: Thu, 23 Oct 2014 15:34:36 +0000
+> > From: Federico Simoncelli <fsimonce@redhat.com>
+> > To: util-linux@vger.kernel.org
+> > Cc: kzak@redhat.com, lczerner@redhat.com,
+> >     Federico Simoncelli <fsimonce@redhat.com>
+> > Subject: [PATCH 2/2] blkdiscard: fail on sector misalignment
+> > 
+> > ---
+> >  sys-utils/blkdiscard.c            | 10 +++++++---
+> >  tests/expected/blkdiscard/offsets | 12 ++++++------
+> >  2 files changed, 13 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
+> > index 1eb2b285..76c72b8 100644
+> > --- a/sys-utils/blkdiscard.c
+> > +++ b/sys-utils/blkdiscard.c
+> > @@ -144,9 +144,9 @@ int main(int argc, char **argv)
+> >  	if (ioctl(fd, BLKSSZGET, &secsize))
+> >  		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
+> >  
+> > -	/* align range to the sector size */
+> > -	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
+> > -	range[1] &= ~(secsize - 1);
+> > +	/* check offset alignment to the sector size */
+> > +	if (range[0] % secsize)
+> > +		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned"), path,
+> > range[0]);
+> >  
+> >  	/* is the range end behind the end of the device ?*/
+> >  	if (range[0] > blksize)
+> > @@ -155,6 +155,10 @@ int main(int argc, char **argv)
+> >  	if (end < range[0] || end > blksize)
+> >  		range[1] = blksize - range[0];
+> >  
+> > +	/* check length alignment to the sector size */
+> > +	if (range[1] % secsize)
+> > +		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned"), path,
+> > range[1]);
+> > +
+> 
+> Looks good, however remember that the tool is intended to be used by
+> the end user, can we be a bit more helpful ? We already know the
+> secsize it should be aligned to, so we can print that as well.
 
-This is standard behavior for all modern partitioning tools.
+I will update the error message.
 
- # parted -s --align optimal /dev/sdb 'mkpart primary 1 10MiB'
+> However it just occurred to me that aligning it to secsize is not
+> enough. It should be aligned to discard_granularity.
 
- # fdisk -l /dev/sdb
- Device    Start          End Size Type
- /dev/sdb1  2048        20479   9M Microsoft basic data
-
-
-the goal is to start the first partition on offset which is the most
-portable and the most useful on all possible disk configurations. If
-you align partitions to 1MiB than it's good enough for all possible 
-I/O limits  (including 4K disks, RAIDs with huge optimal I/O etc). You
-can dd(1) partition table from 512-byte disk to 4K disk without care
-about alignment etc.
-
-The overhead (1MiB gap(s)) is minimal to compare to usual disk sizes.
-(Note that for very small disk we use grain based on real I/O limits.)
-
-The another advantage is that 1MiB offset also unifies all partition
-tables -- from users point of view all the partition table look very
-analogous.
-
-
-If you don't like it, then use fdisk expert menu and move the begin of
-the partition by command 'b'.
-
-    Karel
+Aligning to discard_granularity is an optimization, on the other hand
+not aligning to secsize would result in the ioctl failing (EINVAL).
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Federico
