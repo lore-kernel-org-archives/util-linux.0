@@ -1,49 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f175.google.com ([209.85.217.175]:60363 "EHLO
-	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754601AbaJHKDR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 8 Oct 2014 06:03:17 -0400
-Received: by mail-lb0-f175.google.com with SMTP id u10so7689106lbd.6
-        for <util-linux@vger.kernel.org>; Wed, 08 Oct 2014 03:03:15 -0700 (PDT)
-Message-ID: <54350C79.3080208@gmail.com>
-Date: Wed, 08 Oct 2014 12:05:45 +0200
-From: Francis Moreau <francis.moro@gmail.com>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:56017 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756094AbaJXLgf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Oct 2014 07:36:35 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailout.nyi.internal (Postfix) with ESMTP id 6967120859
+	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 07:36:34 -0400 (EDT)
+Message-Id: <1414150594.840980.182834749.2B446A18@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: JWP <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: losetup: failed to setup loop device > 1
-References: <5432C4C8.30101@gmail.com> <20141006174041.GA8057@x2.net.home> <54330294.1090908@gmail.com> <20141007091711.GB8057@x2.net.home> <5433B316.30106@gmail.com> <5434FC75.7060209@gmail.com> <20141008094453.GF8057@x2.net.home>
-In-Reply-To: <20141008094453.GF8057@x2.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain
+In-Reply-To: <5449BED0.9020103@gmx.com>
+References: <5449BED0.9020103@gmx.com>
+Subject: Re: [PATCH 3/5] hwclock: add message line breaks
+Date: Fri, 24 Oct 2014 13:36:34 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/08/2014 11:44 AM, Karel Zak wrote:
-> On Wed, Oct 08, 2014 at 10:57:25AM +0200, Francis Moreau wrote:
->> In HEAD of the git tree, in file losetup.c, the return value of
->> loopcxt_add_device() is not checked in main().
->>
->> Is this expected ?
-> 
-> Good question :-)
-> 
 
-At least one ;)
+On Fri, Oct 24, 2014, at 04:52, JWP wrote:
+>  		if (rc < 1) {
+>  			warnx(_("The date command issued by %s returned "
+> -				"something other than an integer where the "
+> +				"something other\nthan an integer where the "
+>  				"converted time value was expected\n"
+>  				"The command was:\n  %s\n"
+>  				"The response was:\n %s\n"),
 
-> The loop-control is optional (from the code point of view). If the system 
-> does not have control file (old kernels) and on command line specified loop
-> device does not exist then it will end with open() error later
-> (in loopcxt_setup_device()).
-> 
+Oof.  This is real ugly -- a /n in the middle of a text line.
 
-in losetup.c, line 638:
+Benno
 
-		if (hasdev && !is_loopdev(loopcxt_get_device(&lc)))
-			loopcxt_add_device(&lc);
+-- 
+http://www.fastmail.fm - Access all of your messages and folders
+                          wherever you are
 
-I don't really see why having loop-control here or not matter: in both
-case you want to stop if loopcxt_add_device() fails, no ?
-
-If it fails then the loop device node, doesn't exist.
-
-Thanks
