@@ -1,84 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47768 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755398AbaJWPep (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 23 Oct 2014 11:34:45 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s9NFYj1S014989
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-	for <util-linux@vger.kernel.org>; Thu, 23 Oct 2014 11:34:45 -0400
-From: Federico Simoncelli <fsimonce@redhat.com>
+Received: from mail-wg0-f52.google.com ([74.125.82.52]:51865 "EHLO
+	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751645AbaJZWH1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Oct 2014 18:07:27 -0400
+Received: by mail-wg0-f52.google.com with SMTP id y10so1837935wgg.11
+        for <util-linux@vger.kernel.org>; Sun, 26 Oct 2014 15:07:26 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com, lczerner@redhat.com,
-        Federico Simoncelli <fsimonce@redhat.com>
-Subject: [PATCH 2/2] blkdiscard: fail on sector misalignment
-Date: Thu, 23 Oct 2014 15:34:36 +0000
-Message-Id: <1414078476-11007-2-git-send-email-fsimonce@redhat.com>
-In-Reply-To: <1414078476-11007-1-git-send-email-fsimonce@redhat.com>
-References: <1414078476-11007-1-git-send-email-fsimonce@redhat.com>
+Cc: kerolasa@iki.fi
+Subject: [PATCH 4/4] bash-completion: use swapon label and uuid listing support
+Date: Sun, 26 Oct 2014 22:07:09 +0000
+Message-Id: <1414361229-23921-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
+References: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
----
- sys-utils/blkdiscard.c            | 10 +++++++---
- tests/expected/blkdiscard/offsets | 12 ++++++------
- 2 files changed, 13 insertions(+), 9 deletions(-)
+Simplifies the script, and makes swapoff to work for files when get
+requests by label or uuid.
 
-diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
-index 1eb2b285..76c72b8 100644
---- a/sys-utils/blkdiscard.c
-+++ b/sys-utils/blkdiscard.c
-@@ -144,9 +144,9 @@ int main(int argc, char **argv)
- 	if (ioctl(fd, BLKSSZGET, &secsize))
- 		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
- 
--	/* align range to the sector size */
--	range[0] = (range[0] + secsize - 1) & ~(secsize - 1);
--	range[1] &= ~(secsize - 1);
-+	/* check offset alignment to the sector size */
-+	if (range[0] % secsize)
-+		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned"), path, range[0]);
- 
- 	/* is the range end behind the end of the device ?*/
- 	if (range[0] > blksize)
-@@ -155,6 +155,10 @@ int main(int argc, char **argv)
- 	if (end < range[0] || end > blksize)
- 		range[1] = blksize - range[0];
- 
-+	/* check length alignment to the sector size */
-+	if (range[1] % secsize)
-+		errx(EXIT_FAILURE, _("%s: length %" PRIu64 " is not aligned"), path, range[1]);
-+
- 	if (secure) {
- 		if (ioctl(fd, BLKSECDISCARD, &range))
- 			err(EXIT_FAILURE, _("%s: BLKSECDISCARD ioctl failed"), path);
-diff --git a/tests/expected/blkdiscard/offsets b/tests/expected/blkdiscard/offsets
-index 766c39d..abedb08 100644
---- a/tests/expected/blkdiscard/offsets
-+++ b/tests/expected/blkdiscard/offsets
-@@ -1,16 +1,16 @@
- create loop device from image
- testing offsets with full block size
- Discarded 10485760 bytes from the offset 0
--Discarded 10485248 bytes from the offset 512
--Discarded 10485248 bytes from the offset 512
-+blkdiscard: offset 1 is not aligned
-+blkdiscard: offset 511 is not aligned
- Discarded 10485248 bytes from the offset 512
- Discarded 10484736 bytes from the offset 1024
- testing offsets with specific length
- Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 0
--Discarded 5242880 bytes from the offset 512
--Discarded 5242880 bytes from the offset 512
-+blkdiscard: length 5242881 is not aligned
-+blkdiscard: length 5243391 is not aligned
-+blkdiscard: offset 1 is not aligned
-+blkdiscard: offset 511 is not aligned
- Discarded 5242880 bytes from the offset 512
- Discarded 5242880 bytes from the offset 1024
- detach loop device from image
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/swapoff | 22 +++-------------------
+ bash-completion/swapon  |  2 +-
+ 2 files changed, 4 insertions(+), 20 deletions(-)
+
+diff --git a/bash-completion/swapoff b/bash-completion/swapoff
+index 60d8572..40dcf05 100644
+--- a/bash-completion/swapoff
++++ b/bash-completion/swapoff
+@@ -9,25 +9,11 @@ _swapoff_module()
+ 			return 0
+ 			;;
+ 		'-U'|'UUID=')
+-			# only works for block devices, i.e., not for swap files.
+-			local SWAPS
+-			SWAPS="$(swapon --show=TYPE,NAME --raw --noheading | \
+-				awk '$1 !~ /file/ { print $2 }')"
+-			[ -z "$SWAPS" ] && return 0
+-			local UUIDS
+-			UUIDS="$(lsblk -nrp -o UUID "$SWAPS")"
+-			COMPREPLY=( $(compgen -W "$UUIDS" -- $cur) )
++			COMPREPLY=( $(compgen -W "$(swapon --show=UUID --noheading)" -- $cur) )
+ 			return 0
+ 			;;
+ 		'-L'|'LABEL=')
+-			# only works for block devices, i.e., not for swap files.
+-			local SWAPS
+-			SWAPS="$(swapon --show=TYPE,NAME --raw --noheading | \
+-				awk '$1 !~ /file/ { print $2 }')"
+-			[ -z "$SWAPS" ] && return 0
+-			local LABELS
+-			LABELS="$(lsblk -nrp -o LABEL "$SWAPS")"
+-			COMPREPLY=( $(compgen -W "$LABELS" -- $cur) )
++			COMPREPLY=( $(compgen -W "$(swapon --show=LABEL --noheading)" -- $cur) )
+ 			return 0
+ 			;;
+ 		'-h'|'--help'|'-V'|'--version')
+@@ -46,9 +32,7 @@ _swapoff_module()
+ 			return 0
+ 			;;
+ 	esac
+-	local DEVS
+-	DEVS="$(swapon --show=NAME --raw --noheading)"
+-	COMPREPLY=( $(compgen -W "$DEVS" -- $cur) )
++	COMPREPLY=( $(compgen -W "$(swapon --show=NAME --raw --noheading)" -- $cur) )
+ 	return 0
+ }
+ complete -F _swapoff_module swapoff
+diff --git a/bash-completion/swapon b/bash-completion/swapon
+index 7656d4e..f471e07 100644
+--- a/bash-completion/swapon
++++ b/bash-completion/swapon
+@@ -14,7 +14,7 @@ _swapon_module()
+ 		'--show')
+ 			# FIXME: how to append to a string with compgen?
+ 			local OUTPUT
+-			OUTPUT="NAME TYPE SIZE USED PRIO"
++			OUTPUT="NAME TYPE SIZE USED PRIO UUID LABEL"
+ 			compopt -o nospace
+ 			COMPREPLY=( $(compgen -W "$OUTPUT" -S ',' -- $cur) )
+ 			return 0
 -- 
-1.9.3
+2.1.2
 
