@@ -1,59 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vc0-f181.google.com ([209.85.220.181]:57901 "EHLO
-	mail-vc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873AbaJIIvc convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 9 Oct 2014 04:51:32 -0400
-Received: by mail-vc0-f181.google.com with SMTP id le20so582167vcb.40
-        for <util-linux@vger.kernel.org>; Thu, 09 Oct 2014 01:51:31 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <54340BDD.7080405@gmx.com>
-References: <1412673336-13299-1-git-send-email-nrubinstein@aldebaran.com>
- <5433CE48.7060507@gmx.com> <CAOJKDvKapctTsiybo6aVKv9w-VUppXnNfqcQ=Cr03S3uX4-c9Q@mail.gmail.com>
- <5433D8DD.3090505@gmx.com> <CAOJKDvLgeipyRqK8Kwf8=fuz3QQYuzJV_kCEvgA-BJD7p5m_fg@mail.gmail.com>
- <54340BDD.7080405@gmx.com>
-From: =?UTF-8?Q?No=C3=A9_RUBINSTEIN?= <nrubinstein@aldebaran.com>
-Date: Thu, 9 Oct 2014 10:51:01 +0200
-Message-ID: <CAOJKDv+97LPMBJARpUSJ0en9NNDDuymSBWi_mJ+302AOSCdWaQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] hwclock: --offset: Use offset instead of writing clock
-To: JWP <elseifthen@gmx.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:62611 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751610AbaJZWHP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Oct 2014 18:07:15 -0400
+Received: by mail-wg0-f48.google.com with SMTP id m15so2494158wgh.19
+        for <util-linux@vger.kernel.org>; Sun, 26 Oct 2014 15:07:14 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 0/4] pull: couple corrections and bash completion fixes
+Date: Sun, 26 Oct 2014 22:07:05 +0000
+Message-Id: <1414361229-23921-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi J,
+Hello,
 
-I tried appplying your patches and got into some problems:
-> Applying: hwclock: hctosys drift compensation II
-> error: patch failed: sys-utils/hwclock.c:807
-> error: sys-utils/hwclock.c: patch does not apply
+Weekends are too short.  When I were checking the bash completion for
+swapoff works as expected I found the completion part works, but the
+command does not, so the commit message is a little misleading; swap
+files still cannot be turned off using uuids or labels.
 
-I tried that both upon origin/master and upon fb2ba06, which you seem
-to have based your first patch on.
+# swapon --show=name,uuid,label
+NAME                           UUID                                 LABEL
+/dev/sda2                      37156738-8821-45cf-b3c2-4b884d58f08c foobar
+/home/src/util-linux/test-swap bf6237f4-db89-4761-a1a3-275cfc68b114 xyzzy
 
-Here's the list of patches I was trying to apply:
-> [PATCH 1/2] hwclock: hctosys drift compensation
-> [PATCH 2/2] hwclock: hctosys drift compensation man page
-> [PATCH 1/7] hwclock: hctosys drift compensation II
-> [PATCH 2/7] hwclock: hctosys drift compensation II COMMENTS
-> [PATCH 3/7] hwclock: hctosys drift compensation II MAN
-> [PATCH 4/7] hwclock: persistent_clock_is_local
-> [PATCH 5/7] hwclock: persistent_clock_is_local MAN
-> [PATCH 6/7] hwclock: Add --update option
-> [PATCH 7/7] hwclock: Add --update option MAN
+# swapoff -U bf6237f4-db89-4761-a1a3-275cfc68b114 
+swapoff: cannot find the device for bf6237f4-db89-4761-a1a3-275cfc68b114
+# swapoff -L xyzzy 
+swapoff: cannot find the device for xyzzy
 
-Did I overlook a patch somewhere?
+The problem seems to come from swapoff.c function do_swapoff() call to
+mnt_resolve_spec() that performs uuid and label matching only against
+block devices.  Unfortunately this was as far I got with an attempt to
+fix the issue.  Either someone else is quicker with the fix, or I'll have
+a look of this sometime after next 5 days.
 
+----------------------------------------------------------------
+The following changes since commit 819d9a2975de6869f2ae12d551881bb9b732f2e4:
 
-2014-10-07 17:50 GMT+02:00 JWP <elseifthen@gmx.com>:
->
-> On 10/07/2014 08:48 AM, Noé RUBINSTEIN wrote:
->>> Sure, hwclock already has the ability to track the offset between the
->>> Hardware Clock and the System Clock(which presumably is the 'correct' time).
->> ...but this information is recorded only when setting the hardware
->> clock, which is impossible on some (arguably buggy) targets.
->
-> Are you sure that drift factor (re)calculation does not happen if
-> writing the Hardware Clock fails? I just had a quick look at the
-> code and it seem that we do not test to see if write fails. So
-> (re)calculation might work as is?
+  include/debug: fix typo (2014-10-24 11:19:23 +0200)
+
+are available in the git repository at:
+
+  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk42
+
+for you to fetch changes up to 1502d7e71f3385f3e358dd26cd22c4cd3eb7b35e:
+
+  bash-completion: use swapon label and uuid listing support (2014-10-26 21:09:24 +0000)
+----------------------------------------------------------------
+Sami Kerola (4):
+  sfdisk: return deterministic value from sfdisk_deinit()
+  fstrim: initialize path variable
+  bash-completion: stop being clever when listing block devices
+  bash-completion: use swapon label and uuid listing support
+
+ bash-completion/addpart    |  4 +---
+ bash-completion/blkdiscard |  4 +---
+ bash-completion/blkid      |  6 +-----
+ bash-completion/blockdev   |  2 +-
+ bash-completion/cfdisk     |  6 +-----
+ bash-completion/delpart    |  6 +-----
+ bash-completion/fdisk      | 12 ++----------
+ bash-completion/fsck       |  3 +--
+ bash-completion/fsck.minix |  3 +--
+ bash-completion/lsblk      |  3 +--
+ bash-completion/mkfs       |  3 +--
+ bash-completion/mkfs.bfs   |  3 +--
+ bash-completion/mkfs.minix |  3 +--
+ bash-completion/partx      |  6 +-----
+ bash-completion/resizepart |  6 +-----
+ bash-completion/sfdisk     |  6 +-----
+ bash-completion/swapoff    | 22 +++-------------------
+ bash-completion/swapon     |  2 +-
+ bash-completion/wipefs     |  4 +---
+ disk-utils/sfdisk.c        |  3 +--
+ sys-utils/fstrim.c         |  2 +-
+ 21 files changed, 24 insertions(+), 85 deletions(-)
+
+-- 
+2.1.2
+
