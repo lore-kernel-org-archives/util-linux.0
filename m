@@ -1,48 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-po-11v.sys.comcast.net ([96.114.154.170]:47079 "EHLO
-	resqmta-po-11v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752595AbaJCOhQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Oct 2014 10:37:16 -0400
-Date: Fri, 3 Oct 2014 10:29:04 -0400
-Message-Id: <201410031429.s93ET4wu014728@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Francis Moreau <francis.moro@gmail.com>
-CC: util-linux@vger.kernel.org
-In-reply-to: <542E7000.3040309@gmail.com> (francis.moro@gmail.com)
-Subject: Re: losetup on a image file containing (GPT) partition doesn't create
- partition devices
-References: <542E7000.3040309@gmail.com>
+Received: from mout.kundenserver.de ([212.227.126.187]:62163 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751286AbaJZRla (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 26 Oct 2014 13:41:30 -0400
+Received: from fungi.pizza.local (localhost [127.0.0.1])
+	by fungi.pizza.local (8.14.8/8.14.8) with ESMTP id s9QHfPEQ000518
+	for <util-linux@vger.kernel.org>; Sun, 26 Oct 2014 18:41:25 +0100 (CET)
+Received: (from tobias@localhost)
+	by fungi.pizza.local (8.14.8/8.14.8/Submit) id s9QHfOQU003440
+	for util-linux@vger.kernel.org; Sun, 26 Oct 2014 18:41:24 +0100 (CET)
+Date: Sun, 26 Oct 2014 18:41:24 +0100
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: util-linux@vger.kernel.org
+Subject: lscpu: theoretical buffer overflow
+Message-ID: <20141026174124.GA22563@fungi.pizza.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Francis Moreau <francis.moro@gmail.com>
-> 
-> I have a disk image file which is using GPT and embeds 2 partitions.
-> 
-> I'm setting up a loop device with:
-> 
->  $ losetup -P -f disk.img
-> 
-> and expect the partition devices (loop0p[12] for example) to be
-> automatically created.
+Hi,
 
-I tried to reproduce this problem myself (on Fedora 19 with a
-3.14.17-100.fc19.x86_64 kernel).
+there is a theoretical buffer overflow possible in the hypervisor
+parsing code of lscpu.  It would require a proc entry to return way more
+than expected so it's no high priority.  But better be safe than sorry.
 
-I created a disk image file and used gdisk to install two partitions
-on it, then detached the file from the loopback device.
+At first I thought about switching to fgets but there is another
+code file that adds a format specifier.  The diff is less intrusive
+that way, too.
 
-The first time I re-attached it, /dev/loop0p{1,2} were created, as
-expected.  The only message that shows up in /var/log/messages is:
 
-    Oct  3 10:20:03 hobgoblin kernel: [560334.624034]  loop0: p1 p2
+Tobias
 
-Then I detached the loopback device, re-attached it, and this time,
-the partition devices were *not* created, and /var/log/messages did
-not have the "loop0: p1 p2" message.
+---
+ sys-utils/lscpu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Given that the message starts "kernel:", I suspect that the udev
-behavior is triggered by the kernel detecting the partition table, and
-that is not happening.  So it looks like it's a kernel bug.
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index ef59410..c272dc2 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -621,7 +621,7 @@ read_hypervisor_powerpc(struct lscpu_desc *desc)
+ 		fd = path_fopen("r", 0, _PATH_PROC_DEVICETREE "/ibm,partition-name");
+ 		if (fd) {
+ 			char buf[256];
+-			if (fscanf(fd, "%s", buf) == 1 && !strcmp(buf, "full"))
++			if (fscanf(fd, "%255s", buf) == 1 && !strcmp(buf, "full"))
+ 				desc->virtype = VIRT_NONE;
+ 			fclose(fd);
+ 		}
+@@ -757,7 +757,7 @@ read_hypervisor(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 		if (fd) {
+ 			char buf[256];
+ 
+-			if (fscanf(fd, "%s", buf) == 1 &&
++			if (fscanf(fd, "%255s", buf) == 1 &&
+ 			    !strcmp(buf, "control_d"))
+ 				dom0 = 1;
+ 			fclose(fd);
+-- 
+2.1.1
 
-Dale
