@@ -1,111 +1,111 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qg0-f45.google.com ([209.85.192.45]:36857 "EHLO
-	mail-qg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751795AbaJGN7m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Oct 2014 09:59:42 -0400
-Received: by mail-qg0-f45.google.com with SMTP id q107so1835196qgd.18
-        for <util-linux@vger.kernel.org>; Tue, 07 Oct 2014 06:59:41 -0700 (PDT)
-Received: from [10.1.1.238] (fl-67-77-88-12.sta.embarqhsd.net. [67.77.88.12])
-        by mx.google.com with ESMTPSA id y13sm14888948qab.24.2014.10.07.06.59.40
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 07 Oct 2014 06:59:41 -0700 (PDT)
-Message-ID: <5433F1AD.6070500@ubuntu.com>
-Date: Tue, 07 Oct 2014 09:59:09 -0400
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
+Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:58008 "EHLO
+	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752287AbaJ0VST (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Oct 2014 17:18:19 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: Fwd: Bug#764331: mount: "mount --bind -o remount" doesn't preserve
- flags
-References: <5433bec30004719200003ea0000046dea00002d646a1@amlmta037.auone-net.jp>
-In-Reply-To: <5433bec30004719200003ea0000046dea00002d646a1@amlmta037.auone-net.jp>
-Content-Type: text/plain; charset=windows-1252
+Subject: [PATCH 1/4] docs: spelling, wording, and grammar fixes in the man page of whereis
+Date: Mon, 27 Oct 2014 22:18:10 +0100
+Message-Id: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ misc-utils/whereis.1 |   37 +++++++++++++++++++------------------
+ 1 files changed, 19 insertions(+), 18 deletions(-)
 
-I thought that it had been established that the kernel did not support
-any other flags with MS_BIND, but this bug report seems to show that
-it did, and the new util-linux silently discards the flags.  Is this a
-bug?
+diff --git a/misc-utils/whereis.1 b/misc-utils/whereis.1
+index e8e4327..243fc14 100644
+--- a/misc-utils/whereis.1
++++ b/misc-utils/whereis.1
+@@ -30,7 +30,7 @@
+ .\" SUCH DAMAGE.
+ .\"
+ .\" @(#)whereis.1 from UCB 4.2
+-.TH WHEREIS 1 "March 2013" "util-linux" "User Commands"
++.TH WHEREIS 1 "October 2014" "util-linux" "User Commands"
+ .SH NAME
+ whereis \- locate the binary, source, and manual page files for a command
+ .SH SYNOPSIS
+@@ -56,26 +56,27 @@ in the places specified by
+ .B $PATH
+ and
+ .BR $MANPATH .
+-
+-The search restrinctions (options \fB\-b\fP, \fB\-m\fP and \fB\-s\fP) are
+-cumulative and always applied for the next \fIname\fP patterns specified on
+-command line. The first search restrinction resets the search mask. For example
++.sp
++The search restrictions (options \fB\-b\fP, \fB\-m\fP and \fB\-s\fP)
++are cumulative and apply to the subsequent \fIname\fP patterns on
++the command line.  Any new search restriction resets the search mask.
++For example,
+ .RS
+ .sp
+ .B "whereis -bm ls tr -m gcc"
+ .sp
+ .RE
+-searchs for "ls" and "tr" binaries and man pages, and "gcc" man pages only.
+-
+-The options \fB\-B\fP, \fB\-M\fP and \fB\-S\fP resets search paths for the next
+-\fIname\fP patterns. For example
++searches for "ls" and "tr" binaries and man pages, and for "gcc" man pages only.
++.sp
++The options \fB\-B\fP, \fB\-M\fP and \fB\-S\fP reset search paths for the
++subsequent \fIname\fP patterns.  For example,
+ .RS
+ .sp
+ .B "whereis -m ls -M /usr/share/man/man1 -f cal"
+ .sp
+ .RE
+-searchs for "ls" man pages in all default paths, but for "cal" in
+-/usr/share/man/man1 directory only.
++searches for "ls" man pages in all default paths, but for "cal" in
++the /usr/share/man/man1 directory only.
+ 
+ .SH OPTIONS
+ .TP
+@@ -114,15 +115,15 @@ or
+ .BR \-S
+ options is used.
+ .IP "\fB\-l"
+-Output list of effective lookup paths the
++Output the list of effective lookup paths that
+ .B whereis
+-is using.  When non of
++is using.  When none of
+ .BR \-B ,
+ .BR \-M ,
+ or
+ .BR \-S
+-is specified the option will out hard coded paths that the command was able to
+-find on system.
++is specified, the option will output the hard-coded paths
++that the command was able to find on the system.
+ .SH EXAMPLE
+ To find all files in
+ .B /usr/\:bin
+@@ -132,14 +133,14 @@ in
+ or have no source in
+ .BR /usr/\:src :
+ .IP
+-.B $ cd /usr/bin
++.B cd /usr/bin
+ .br
+-.B $ whereis \-u \-ms \-M /usr/man/man1 \-S /usr/src \-f *
++.B whereis \-u \-ms \-M /usr/man/man1 \-S /usr/src \-f *
+ .SH "FILE SEARCH PATHS"
+ By default
+ .B whereis
+ tries to find files from hard-coded paths, which are defined with glob
+-patterns. The command attempst to use contents of
++patterns.  The command attempst to use contents of
+ .B $PATH
+ and
+ .B $MANPATH
+-- 
+1.7.0.4
 
-
-- -------- Forwarded Message --------
-Subject: Bug#764331: mount: "mount --bind -o remount" doesn't preserve
-flags
-Resent-Date: Tue, 07 Oct 2014 10:36:01 +0000
-Resent-From: Kusanagi Kouichi <slash@ac.auone-net.jp>
-Resent-To: debian-bugs-dist@lists.debian.org
-Resent-CC: Debian util-linux Maintainers <ah-util-linux@debian.org>
-Date: Tue, 07 Oct 2014 10:21:55 +0000
-From: Kusanagi Kouichi <slash@ac.auone-net.jp>
-Reply-To: Kusanagi Kouichi <slash@ac.auone-net.jp>, 764331@bugs.debian.org
-To: Debian Bug Tracking System <submit@bugs.debian.org>
-
-Package: mount
-Version: 2.25.1-3
-Severity: normal
-
-Since I upgraded mount from 2.20.1-5.11 to 2.25.1-3,
-"mount --bind -o remount" doesn't preserve flags anymore.
-
-# mount -V
-mount from util-linux 2.20.1 (with libblkid and selinux support)
-# grep /tmp /proc/self/mountinfo
-24 15 0:22 / /tmp rw,nosuid,nodev,relatime - tmpfs /tmp rw
-# strace -e trace=mount mount --bind -o remount,noexec /tmp
-mount("tmp", "/tmp", 0x4104a4,
-MS_MGC_VAL|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_REMOUNT|MS_BIND, NULL) = 0
-+++ exited with 0 +++
-# grep /tmp /proc/self/mountinfo
-24 15 0:22 / /tmp rw,nosuid,nodev,noexec,relatime - tmpfs /tmp rw
-
-# mount -V
-mount from util-linux 2.25.1 (libmount 2.25.0: selinux, assert, debug)
-# grep /tmp /proc/self/mountinfo
-24 15 0:22 / /tmp rw,nosuid,nodev,relatime - tmpfs /tmp rw
-# strace -e trace=mount mount --bind -o remount,noexec /tmp
-mount("none", "/tmp", 0x125a2f0,
-MS_MGC_VAL|MS_NOEXEC|MS_REMOUNT|MS_BIND, NULL) = 0
-+++ exited with 0 +++
-# grep /tmp /proc/self/mountinfo
-24 15 0:22 / /tmp rw,noexec,relatime - tmpfs /tmp rw
-
-- -- System Information:
-Debian Release: jessie/sid
-  APT prefers unstable
-  APT policy: (500, 'unstable'), (1, 'experimental')
-Architecture: amd64 (x86_64)
-
-Kernel: Linux 3.17.0-rc7 (SMP w/4 CPU cores)
-Locale: LANG=ja_JP.eucJP, LC_CTYPE=ja_JP.eucJP (charmap=EUC-JP)
-Shell: /bin/sh linked to /bin/dash
-
-Versions of packages mount depends on:
-ii  libc6          2.19-11
-ii  libmount1      2.25.1-3
-ii  libselinux1    2.3-2
-ii  libsmartcols1  2.25.1-3
-
-mount recommends no packages.
-
-Versions of packages mount suggests:
-pn  nfs-common  <none>
-
-- -- no debconf information
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-
-iQEcBAEBAgAGBQJUM/GtAAoJEI5FoCIzSKrwMt0IAJXE1nKf1Qul61ZGTp+8PrkP
-jECbRXXOAgzGniZc8M8ZoTLTbnPsbuvHjLNkhgBpha5o6a3lulEX4sOJq4uWp4wD
-zFLMKRIa4QxbKvvGlLUyulbmMju53GCZk2ZGXrP5YMMhlpQFhbbN1TTzpgbTrtSS
-7939KUTfDUZozm1MbauQqP8/yweOcRN88SHplRT5M+547Fw21/954a8nY2+XwZS4
-mNcUpgnz/X6dMje9w3pkAYq/vxNtdtQ61J1IVXionWzBFjp0kVp2f+QNdADgqt06
-UpFltonLCiAbHfIhCGEeDM48d5r9xEV/AroszeKq3Xlq2Blyk1CP2/nMmF9cqoM=
-=nO6i
------END PGP SIGNATURE-----
