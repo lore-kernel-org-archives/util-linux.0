@@ -1,49 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from isilmar-3.linta.de ([188.40.101.200]:56547 "EHLO linta.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753678AbaJGVOd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Oct 2014 17:14:33 -0400
-Date: Tue, 7 Oct 2014 23:07:19 +0200
-From: Helmut Grohne <helmut@subdivi.de>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:55451 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752287AbaJ0VSU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Oct 2014 17:18:20 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: 764387@bugs.debian.org
-Subject: [PATCH] autogen.sh: check for libtoolize rather than libtool
-Message-ID: <20141007210718.GA746@alf.mars>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 2/4] docs: fix some wording and formatting in man page of swapon
+Date: Mon, 27 Oct 2014 22:18:11 +0100
+Message-Id: <1414444693-16407-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
+References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The system libtool program has architecture dependent behaviour. It is
-therefore unavailable in cross build environments. The only place it was
-used in util-linux is autogen.sh to determine the availability of
-libtool. All other places correctly use libtoolize or
-$(top_builddir)/libtool.
-
-Signed-off-by: Helmut Grohne <helmut@subdivi.de>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- autogen.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sys-utils/swapon.8 |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
 
-This patch has been applied to Debian to ease cross compiling, because
-there libtool will be unavailable soon.
-
-Please CC me in replies.
-
-Helmut
-
-diff --git a/autogen.sh b/autogen.sh
-index d1a686c..d0b340f 100755
---- a/autogen.sh
-+++ b/autogen.sh
-@@ -66,7 +66,7 @@ test -f sys-utils/mount.c || {
- 	echo
- 	DIE=1
- }
--(libtool --version) < /dev/null > /dev/null 2>&1 || {
-+(libtoolize --version) < /dev/null > /dev/null 2>&1 || {
- 	echo
- 	echo "You must have libtool-2 installed to generate util-linux build system."
- 	echo
+diff --git a/sys-utils/swapon.8 b/sys-utils/swapon.8
+index e88e2f1..2aa6fe2 100644
+--- a/sys-utils/swapon.8
++++ b/sys-utils/swapon.8
+@@ -38,7 +38,7 @@
+ .\" Mon Sep 25 14:12:38 1995: Added -v and -p information
+ .\" Tue Apr 30 03:32:07 1996: Added some text from A. Koppenhoefer
+ .\"
+-.TH SWAPON 8 "July 2014" "util-linux" "System Administration"
++.TH SWAPON 8 "October 2014" "util-linux" "System Administration"
+ .SH NAME
+ swapon, swapoff \- enable/disable devices and files for paging and swapping
+ .SH SYNOPSIS
+@@ -131,14 +131,15 @@ Use the partition that has the specified
+ is needed.)
+ .TP
+ .BR \-o , " \-\-options " \fIopts\fP
+-Specify swap options by fstab compatible comma separated string. For example:
++Specify swap options by an fstab-compatible comma-separated string.
++For example:
+ .RS
+ .RS
+ .sp
+ .B "swapon -o pri=1,discard=pages,nofail /dev/sda2"
+ .sp
+ .RE
+-The \fIopts\fP string is evaluated as the last and overrides all another
++The \fIopts\fP string is evaluated last and overrides all other
+ options.
+ .RE
+ .TP
+@@ -154,15 +155,15 @@ to the option field of
+ .I /etc/fstab
+ for use with
+ .BR "swapon -a" .
+-When priority is not defined it defaults to \-1.
++When no priority is defined, it defaults to \-1.
+ .TP
+ .BR \-s , " \-\-summary"
+ Display swap usage summary by device.  Equivalent to "cat /proc/swaps".
+ Not available before Linux 2.1.25.  This output format is DEPRECATED in favour
+ of \fB\-\-show\fR that provides better control on output data.
+ .TP
+-.BR " \-\-show" [ =\fIcolumn\fR]
+-Display definable table of swap areas. See
++.BR \-\-show [ =\fIcolumn\fR ...]
++Display a definable table of swap areas.  See the
+ .B \-\-help
+ output for a list of available columns.
+ .TP
+@@ -185,10 +186,10 @@ output instead of in user-friendly units.
+ Use the partition that has the specified
+ .IR uuid .
+ .TP
+-.B "\-v, \-\-verbose"
++.BR \-v , " \-\-verbose"
+ Be verbose.
+ .TP
+-.B "\-V, \-\-version"
++.BR \-V , " \-\-version"
+ Display version information and exit.
+ .SH NOTES
+ You should not use
 -- 
-2.1.0
+1.7.0.4
+
