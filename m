@@ -1,67 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45303 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751141AbaJ1UCP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Oct 2014 16:02:15 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id DDD9A20D21
-	for <util-linux@vger.kernel.org>; Tue, 28 Oct 2014 16:02:12 -0400 (EDT)
-Message-Id: <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: JWP <elseifthen@gmx.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.22]:57861 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752946AbaJ1BJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Oct 2014 21:09:45 -0400
+Message-ID: <544EECC9.2000300@gmx.com>
+Date: Mon, 27 Oct 2014 21:09:29 -0400
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
 Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
  hwclock
-Date: Tue, 28 Oct 2014 21:02:12 +0100
-In-Reply-To: <544EECC9.2000300@gmx.com>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
- <1414444693-16407-4-git-send-email-bensberg@justemail.net>
- <544EECC9.2000300@gmx.com>
+References: <1414444693-16407-1-git-send-email-bensberg@justemail.net> <1414444693-16407-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1414444693-16407-4-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-On Tue, Oct 28, 2014, at 02:09, JWP wrote:
-> On 10/27/2014 05:18 PM, Benno Schulenberg wrote:
-> >  Since v2.26
-> >  .B hwclock
-> >  does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
-> > -It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
-> > +It is necessary to use the option \fB\-\-update-drift\fR, with \fB\-\-set\fR or
-> >  \fB\-\-systohc\fR, to force drift factor updates.
+
+On 10/27/2014 05:18 PM, Benno Schulenberg wrote:
+> Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+> ---
+>  sys-utils/hwclock.8.in |   73 +++++++++++++++++++++++-------------------------
+>  1 files changed, 35 insertions(+), 38 deletions(-)
 > 
-> The rest of the manual uses 'the --xxxx option'.
+> diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+> index 30f191b..9219218 100644
+> --- a/sys-utils/hwclock.8.in
+> +++ b/sys-utils/hwclock.8.in
+> @@ -1,4 +1,4 @@
+> -.TH HWCLOCK 8 "July 2014" "util-linux" "System Administration"
+> +.TH HWCLOCK 8 "October 2014" "util-linux" "System Administration"
+>  .SH NAME
+>  hwclock \- query or set the hardware clock (RTC)
+>  .SH SYNOPSIS
+> @@ -22,15 +22,16 @@ gains time at a certain rate when left to run).
+>  Since v2.26
+>  .B hwclock
+>  does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
+> -It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+> +It is necessary to use the option \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+>  \fB\-\-systohc\fR, to force drift factor updates.
 
-Well, I can't explain, but in this case "the option --xxxx" is better.
+The rest of the manual uses 'the --xxxx option'.
 
-> >  Since v2.26
-> >  .B hwclock \-\-hctosys
-> > -automatically compensates time read from the Hardware Clock to account for
-> > -systematic drift before using it to set the System Clock.  Therefore,
-> > -\fB\-\-adjust\fR is no longer necessary during boot. This functionality makes
-> > -hwclock usable early in the boot process when the root filesystem is read-only.
-> > +automatically takes a systematic drift of the Hardware Clock into account,
-> > +setting the System Clock to the drift-compensated time.  Therefore the option
-> > +\fB\-\-adjust\fR is no longer necessary during boot.  This feature makes
-> > +.B hwclock
-> > +usable early on in the boot process when the root filesystem is read-only.
-> 
-> "a systematic drift"? That entire phrase does not sound natural to me.
+>  
+>  Since v2.26
+>  .B hwclock \-\-hctosys
+> -automatically compensates time read from the Hardware Clock to account for
+> -systematic drift before using it to set the System Clock.  Therefore,
+> -\fB\-\-adjust\fR is no longer necessary during boot. This functionality makes
+> -hwclock usable early in the boot process when the root filesystem is read-only.
+> +automatically takes a systematic drift of the Hardware Clock into account,
+> +setting the System Clock to the drift-compensated time.  Therefore the option
+> +\fB\-\-adjust\fR is no longer necessary during boot.  This feature makes
+> +.B hwclock
+> +usable early on in the boot process when the root filesystem is read-only.
 
-:|
+"a systematic drift"? That entire phrase does not sound natural to me.
 
-> I think it is important to
-> stress that *the_time_read* from the Clock is what is being compensated as this is
-> a new behavior.
+You've re-injected the ambiguity of Karel's original sentence.  Hwclock has always
+compensated for drift by *setting* the Hardware Clock.  I think it is important to
+stress that *the_time_read* from the Clock is what is being compensated as this is
+a new behavior.  Other than setting hwclock to bold, I don't see any of this change
+as an improvement.
 
-Well, then suggest how exactly to phrase that.
+Thank you for fixing the other formatting issues.
 
-Benno
 
--- 
-http://www.fastmail.fm - Or how I learned to stop worrying and
-                          love email again
-
+ 
