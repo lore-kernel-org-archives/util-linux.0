@@ -1,52 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:10717 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755239AbaJNMyc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Oct 2014 08:54:32 -0400
-Date: Tue, 14 Oct 2014 14:54:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Dale R. Worley" <worley@alum.mit.edu>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Error in losetup man page
-Message-ID: <20141014125427.GV8057@x2.net.home>
-References: <201410031430.s93EUddT014847@hobgoblin.ariadne.com>
- <20141007095647.GD8057@x2.net.home>
- <201410071334.s97DYZa5021378@hobgoblin.ariadne.com>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:39391 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751511AbaJ1OyY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Oct 2014 10:54:24 -0400
+Received: by mail-pa0-f43.google.com with SMTP id eu11so905342pac.2
+        for <util-linux@vger.kernel.org>; Tue, 28 Oct 2014 07:54:24 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.82.149])
+        by mx.google.com with ESMTPSA id oq3sm1883320pbb.67.2014.10.28.07.54.22
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Tue, 28 Oct 2014 07:54:23 -0700 (PDT)
+Message-ID: <544FAE07.6080605@gmail.com>
+Date: Tue, 28 Oct 2014 20:23:59 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201410071334.s97DYZa5021378@hobgoblin.ariadne.com>
+To: util-linux@vger.kernel.org
+Subject: Re: fdisk and 2048 sectors obsession.
+References: <544E923E.6050406@gmail.com> <20141028075308.GI10134@x2.net.home> <yq138a8pdxh.fsf@sermon.lab.mkp.net>
+In-Reply-To: <yq138a8pdxh.fsf@sermon.lab.mkp.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 07, 2014 at 09:34:35AM -0400, Dale R. Worley wrote:
-> > From: Karel Zak <kzak@redhat.com>
-> > 
-> > On Fri, Oct 03, 2014 at 10:30:39AM -0400, Dale R. Worley wrote:
-> > > On Fedora 19, the man page for losetup says:
-> > > 
-> > >        Delete all used loop devices:
-> > > 
-> > >             losetup -D
-> > > 
-> > > That should be "Delete all *unused* loop devices:", I'm sure.
-> > 
-> > "used" means loop devices that have backing file, I have replaced the
-> > text with "Detach all associated loop devices:"
-> 
-> Does it detach loop devices that are associated and also mounted or
-> otherwise opened?  My test case does not attempt to do that.
-> 
-> So the criterion is that the loop device has to be "used" in the sense
-> of being associated but "not used" in the sense of being open.  Maybe
-> "Delete all associated loop devices that are not opened"?  (Mounting
-> is known to be a variety of opening.)
+On 10/28/14 18:08, Martin K. Petersen wrote:
+>>>>>> "Karel" == Karel Zak <kzak@redhat.com> writes:
+> Karel> This is standard behavior for all modern partitioning tools.
+>
+> Karel> the goal is to start the first partition on offset which is the
+> Karel> most portable and the most useful on all possible disk
+> Karel> configurations.
+>
+> Not only that. It was an explicit request from IDEMA. The disk drive and
+> RAID vendors asked all operating system vendors to ensure 1MB alignment
+> by default.
+>
 
- Well, I'd like to keep synopsis section brief. It would be better to
- add such details to --detach and --detach-all description where we
- can be more verbose. Any volunteer? :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Ok, it's an IDEMA recommendation. That's why.
