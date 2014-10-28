@@ -1,54 +1,28 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47002 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754664AbaJUJz3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 21 Oct 2014 05:55:29 -0400
-Date: Tue, 21 Oct 2014 11:55:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Robert Milasan <rmilasan@suse.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: swapon: fix -d short option
-Message-ID: <20141021095525.GG8057@x2.net.home>
-References: <20141021100246.3e956b6d@viper.suse.cz>
+Return-Path: martin.petersen@oracle.com
+To: Karel Zak <kzak@redhat.com>
+Cc: dE <de.techno@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: fdisk and 2048 sectors obsession.
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <544E923E.6050406@gmail.com> <20141028075308.GI10134@x2.net.home>
+Date: Tue, 28 Oct 2014 08:38:18 -0400
+In-Reply-To: <20141028075308.GI10134@x2.net.home> (Karel Zak's message of
+	"Tue, 28 Oct 2014 08:53:08 +0100")
+Message-ID: <yq138a8pdxh.fsf@sermon.lab.mkp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20141021100246.3e956b6d@viper.suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 21, 2014 at 10:02:46AM +0200, Robert Milasan wrote:
-> When -d option is used with swapon, is expected that there is an equal
-> '=' which at least according to the man page it doesn't make sense or
-> it's not properly explained.
+>>>>> "Karel" == Karel Zak <kzak@redhat.com> writes:
 
-Well, in the man page there was incorrectly extra space between -d and
-the optional argument. Fixed yesterday.
+Karel> This is standard behavior for all modern partitioning tools.
 
-> If we use -d as we should, then swapon takes 'once' or 'pages' as an
-> actual device:
-> 
-> dhcp33:~ # swapon -p -2 -d once /dev/sdb1
-> swapon: stat failed once: No such file or directory
-> 
-> The short option -d, should be something like "swapon -d once ...." not
-> "swapon -d=once ...."
+Karel> the goal is to start the first partition on offset which is the
+Karel> most portable and the most useful on all possible disk
+Karel> configurations.
 
-What? The argument for -d is optional, it's reason why we care about
-'='. I think it's obvious from the code.
-
-   swapon -p -2 -d /dev/sdb1 
-
-is pretty valid.
-
-Note that -d,--discard has been implemented in 2010, and extended by
-'once' and 'pages' later in 2013.
-
-> I've attached the patch to fix this small issue.
-
-Sorry, but the patch does not make sense.
-
-    Karel
+Not only that. It was an explicit request from IDEMA. The disk drive and
+RAID vendors asked all operating system vendors to ensure 1MB alignment
+by default.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Martin K. Petersen	Oracle Linux Engineering
