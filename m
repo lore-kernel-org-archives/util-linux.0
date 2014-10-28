@@ -1,54 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42381 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756093AbaJXLse (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Oct 2014 07:48:34 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id 87E6820CFA
-	for <util-linux@vger.kernel.org>; Fri, 24 Oct 2014 07:48:33 -0400 (EDT)
-Message-Id: <1414151313.843395.182838257.3685FB42@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: JWP <elseifthen@gmx.com>, "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37853 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752037AbaJ1HxL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Oct 2014 03:53:11 -0400
+Date: Tue, 28 Oct 2014 08:53:08 +0100
+From: Karel Zak <kzak@redhat.com>
+To: dE <de.techno@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk and 2048 sectors obsession.
+Message-ID: <20141028075308.GI10134@x2.net.home>
+References: <544E923E.6050406@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20141024110803.GB10134@x2.net.home>
-References: <5449BD0F.2070906@gmx.com> <20141024110803.GB10134@x2.net.home>
-Subject: Re: [PATCH 0/5] hwclock: clean up messages
-Date: Fri, 24 Oct 2014 13:48:33 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <544E923E.6050406@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Fri, Oct 24, 2014, at 13:08, Karel Zak wrote:
-> On Thu, Oct 23, 2014 at 10:44:31PM -0400, JWP wrote:
-> > This patch set cleans up various message output.
-> > It contains cosmetic changes only.
-> > 
-> > J William Piggott (5):
-> >   hwclock: Remove newline from 'date' debug output
-> >   hwclock: clean up message periods/full stops
-> >   hwclock: add message line breaks
-> >   hwclock: Fix --date debug messages
-> >   hwclock: version prints out of order
+On Tue, Oct 28, 2014 at 12:13:10AM +0530, dE wrote:
+> Regardless of the partition table, fdisk always starts the first partition
+> at 2048. In reality, the maximum size required by the gap between MBR and
+> the 1st partition is a single sector, which's used by GRUB 1.5. GPT doesn't
+> need this space at all.
 > 
-> I'm going to merge these patches,
+> Then extended partitions too have a gap of 2048 sectors.
+> 
+> Why this behavior?
 
-Please no.  Not the mere period and linebreak changes.
+This is standard behavior for all modern partitioning tools.
 
-> but as a long term solution it would
-> better to use include/debug.h stuff (see for example
-> misc-utils/whereis.c or libmount/src/init.c).
+ # parted -s --align optimal /dev/sdb 'mkpart primary 1 10MiB'
 
-In hwclock the "debug" messages are gettextized, because in fact
-they are verbose messages to help the user understand what hwclock
-is doing.  They are not meant to find programming errors in hwclock;
-if that were the case, they wouldn't be gettextized, because a
-programmer needs to be able to read an write English anyway.
+ # fdisk -l /dev/sdb
+ Device    Start          End Size Type
+ /dev/sdb1  2048        20479   9M Microsoft basic data
 
-Benno
+
+the goal is to start the first partition on offset which is the most
+portable and the most useful on all possible disk configurations. If
+you align partitions to 1MiB than it's good enough for all possible 
+I/O limits  (including 4K disks, RAIDs with huge optimal I/O etc). You
+can dd(1) partition table from 512-byte disk to 4K disk without care
+about alignment etc.
+
+The overhead (1MiB gap(s)) is minimal to compare to usual disk sizes.
+(Note that for very small disk we use grain based on real I/O limits.)
+
+The another advantage is that 1MiB offset also unifies all partition
+tables -- from users point of view all the partition table look very
+analogous.
+
+
+If you don't like it, then use fdisk expert menu and move the begin of
+the partition by command 'b'.
+
+    Karel
 
 -- 
-http://www.fastmail.fm - Does exactly what it says on the tin
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
