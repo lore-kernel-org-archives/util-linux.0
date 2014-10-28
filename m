@@ -1,77 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:59949 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750923AbaJDTdB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 4 Oct 2014 15:33:01 -0400
-Received: by mail-wg0-f45.google.com with SMTP id m15so3871379wgh.16
-        for <util-linux@vger.kernel.org>; Sat, 04 Oct 2014 12:33:00 -0700 (PDT)
-Message-ID: <54304C03.6020309@gmail.com>
-Date: Sat, 04 Oct 2014 21:35:31 +0200
-From: Francis Moreau <francis.moro@gmail.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45303 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751141AbaJ1UCP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Oct 2014 16:02:15 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id DDD9A20D21
+	for <util-linux@vger.kernel.org>; Tue, 28 Oct 2014 16:02:12 -0400 (EDT)
+Message-Id: <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: JWP <elseifthen@gmx.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
-Subject: Re: losetup on a image file containing (GPT) partition doesn't create
- partition devices
-References: <542E7000.3040309@gmail.com> <201410031429.s93ET4wu014728@hobgoblin.ariadne.com> <201410031958.s93JwTuY026155@hobgoblin.ariadne.com> <542F065C.2080505@gmail.com>
-In-Reply-To: <542F065C.2080505@gmail.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain
+Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
+ hwclock
+Date: Tue, 28 Oct 2014 21:02:12 +0100
+In-Reply-To: <544EECC9.2000300@gmx.com>
+References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
+ <1414444693-16407-4-git-send-email-bensberg@justemail.net>
+ <544EECC9.2000300@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/03/2014 10:26 PM, Francis Moreau wrote:
-> On 10/03/2014 09:58 PM, Dale R. Worley wrote:
->>> From: worley@alum.mit.edu (Dale R. Worley)
->>
->>> Then I detached the loopback device, re-attached it, and this time,
->>> the partition devices were *not* created, and /var/log/messages did
->>> not have the "loop0: p1 p2" message.
->>>
->>> Given that the message starts "kernel:", I suspect that the udev
->>> behavior is triggered by the kernel detecting the partition table, and
->>> that is not happening.  So it looks like it's a kernel bug.
->>
->> I tried that again, after updating to kernel 3.14.19-100.fc19.x86_64,
->> and it worked this time.
-> 
-> Well I'm already running 3.14.18, and the problem is still present but
-> not systematic.
-> 
-> Here's a script which should trigger the problem:
-> 
-> -----
-> while :; do
-> 
->     losetup -P /dev/loop0 disk.raw ||
->     exit
-> 
->     test -e /dev/loop0p1 || {
->         echo "missing loop partition"
->         losetup -d /dev/loop0
->         break
->     }
->     echo -n "losetup worked: "
->     ls /dev/loop0*
-> 
->     losetup -d /dev/loop0 ||
->     exit
-> 
->     sleep 1
-> done
-> ----
-> 
-> After looking at the kernel code, the kernel can silently fail to scan
-> the partition table. This can happen if another process is already using
-> the device and I think udev is the process that can interfere with
-> 'losetup -P'.
-> 
-> What do you think ?
 
-Ok, so IMHO I think that losetup(8) should issue its own
-ioctl(BLKRRPART) and shouldn't rely on the kernel during the loop setup
-since it can fail silently. This way it can check the return value of
-ioctl() and moght choose to do it again in case the return value is -EBUSY.
+On Tue, Oct 28, 2014, at 02:09, JWP wrote:
+> On 10/27/2014 05:18 PM, Benno Schulenberg wrote:
+> >  Since v2.26
+> >  .B hwclock
+> >  does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
+> > -It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+> > +It is necessary to use the option \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+> >  \fB\-\-systohc\fR, to force drift factor updates.
+> 
+> The rest of the manual uses 'the --xxxx option'.
 
-Or indicates in the man page that the -P can fail silently.
+Well, I can't explain, but in this case "the option --xxxx" is better.
 
-Thanks
+> >  Since v2.26
+> >  .B hwclock \-\-hctosys
+> > -automatically compensates time read from the Hardware Clock to account for
+> > -systematic drift before using it to set the System Clock.  Therefore,
+> > -\fB\-\-adjust\fR is no longer necessary during boot. This functionality makes
+> > -hwclock usable early in the boot process when the root filesystem is read-only.
+> > +automatically takes a systematic drift of the Hardware Clock into account,
+> > +setting the System Clock to the drift-compensated time.  Therefore the option
+> > +\fB\-\-adjust\fR is no longer necessary during boot.  This feature makes
+> > +.B hwclock
+> > +usable early on in the boot process when the root filesystem is read-only.
+> 
+> "a systematic drift"? That entire phrase does not sound natural to me.
+
+:|
+
+> I think it is important to
+> stress that *the_time_read* from the Clock is what is being compensated as this is
+> a new behavior.
+
+Well, then suggest how exactly to phrase that.
+
+Benno
+
+-- 
+http://www.fastmail.fm - Or how I learned to stop worrying and
+                          love email again
 
