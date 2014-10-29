@@ -1,68 +1,127 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:48410 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933959AbaJ2Qkw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Oct 2014 12:40:52 -0400
-Received: by mail-pd0-f179.google.com with SMTP id g10so3294138pdj.38
-        for <util-linux@vger.kernel.org>; Wed, 29 Oct 2014 09:40:52 -0700 (PDT)
-Received: from [192.168.1.2] ([117.208.69.53])
-        by mx.google.com with ESMTPSA id dx10sm4819106pab.38.2014.10.29.09.40.49
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Wed, 29 Oct 2014 09:40:51 -0700 (PDT)
-Message-ID: <5451187A.3000304@gmail.com>
-Date: Wed, 29 Oct 2014 22:10:26 +0530
-From: dE <de.techno@gmail.com>
-MIME-Version: 1.0
+Received: from smtp.gentoo.org ([140.211.166.183]:55295 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751838AbaJ2ETK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 29 Oct 2014 00:19:10 -0400
+Received: from vapier.wh0rd.info (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id CC741340309
+	for <util-linux@vger.kernel.org>; Wed, 29 Oct 2014 04:19:04 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
 To: util-linux@vger.kernel.org
-Subject: Re: fdisk and 2048 sectors obsession.
-References: <544E923E.6050406@gmail.com> <20141028075308.GI10134@x2.net.home> <yq138a8pdxh.fsf@sermon.lab.mkp.net> <544FAE07.6080605@gmail.com> <20141028153557.GA20378@thunk.org>
-In-Reply-To: <20141028153557.GA20378@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] libmount: improve kernel command line parsing
+Date: Wed, 29 Oct 2014 00:19:03 -0400
+Message-Id: <1414556343-10046-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10/28/14 21:05, Theodore Ts'o wrote:
-> On Tue, Oct 28, 2014 at 08:23:59PM +0530, dE wrote:
->>> Not only that. It was an explicit request from IDEMA. The disk drive and
->>> RAID vendors asked all operating system vendors to ensure 1MB alignment
->>> by default.
->>>
->> Ok, it's an IDEMA recommendation. That's why.
-> One additional reason why it's a good idea is for better compatibility
-> with drive-managed or host-aware SMR (Shingled Magnetic Recording)
-> disks, it's a really good idea if partitions are aligned on 256 MiB
-> boundaries.
->
-> And in the future, the hard drive vendors hope to promulgate 32k or
-> 64k native sector size.  If we adopted the suggestion to align new
-> partitions at 4k after the MBR, it would be disastrous for SMR disks
-> (some of which will be shipping soon, or may be shipping already but
-> you might know it, especially for some high-capacity USB attached
-> storage), and for these larger sector disks.
->
-> Or if you are using very low-end flash (i.e., on SD cards) which have
-> a very primitive FTL, if the partitions aren't aligned on the erase
-> block, you will also have terrible performance --- and this is true
-> today.
->
-> Given the painful history of how long it took to get OS vendors to
-> move off of a sector 63 offset (a decade, thanks to Windows XP), it's
-> not surprising IDEMA has requested that all OS vendors use a 1MB
-> alignment for partitions going forward.
->
-> So I don't think we want to change the default.  If you're so hard up
-> for space that clawing back that extra 1020k with of disks on a 2T or
-> 6T disk is significant, you can manually adjust the starting offset of
-> the partition.  But I really don't think it's worth it, at least for
-> myself....
->
-> Cheers,
->
-> 						- Ted
+The current command line parser will stop at the first occurrence of an
+option, however the kernel does the opposite.  So if you have:
+	root=/dev/sda1 root=/dev/sda2
+When you look for "root", the kernel will use /dev/sda2, but util-linux
+uses /dev/sda1.
 
-Thanks for all the answers everyone!
+Further, if args are passed to custom init programs, the parser will
+pick those up as kernel options.  So if you have:
+	root=/dev/sda1 -- /foo bar=yes
+The kernel will stop at the "--" and pass the rest to userland.  But if
+you look for "bar", util-linux will incorrectly return "yes".
 
-Now I get the point.
+Ultimately, there's no way for util-linux to exactly parse the command
+line the same way as the kernel -- we don't know exactly which ones the
+kernel picks up and which it passes on to userland (either as env vars
+or as command line args).  The kernel passes all unrecognized options.
+These updates are simple best effort.
 
-This conversation will get a lot of hits.
+URL: https://bugs.gentoo.org/526754
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ libmount/src/utils.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
+
+diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+index dc265c2..456a898 100644
+--- a/libmount/src/utils.c
++++ b/libmount/src/utils.c
+@@ -1034,24 +1034,28 @@ char *mnt_get_fs_root(const char *path, const char *mnt)
+  *
+  * Returns newly allocated string with a parameter argument if the @name is
+  * specified as "name=" or returns pointer to @name or returns NULL if not
+- * found.
++ * found.  If it is specified more than once, we grab the last copy.
+  *
+  * For example cmdline: "aaa bbb=BBB ccc"
+  *
+  *	@name is "aaa"	--returns--> "aaa" (pointer to @name)
+  *	@name is "bbb=" --returns--> "BBB" (allocated)
+  *	@name is "foo"  --returns--> NULL
++ *
++ * Note: It is not really feasible to parse the command line exactly the same
++ * as the kernel does since we don't know which options are valid.  We can use
++ * the -- marker though and not walk past that.
+  */
+ char *mnt_get_kernel_cmdline_option(const char *name)
+ {
+ 	FILE *f;
+ 	size_t len;
+ 	int val = 0;
+-	char *p, *res = NULL;
++	char *p, *res = NULL, *mem = NULL;
+ 	char buf[BUFSIZ];	/* see kernel include/asm-generic/setup.h: COMMAND_LINE_SIZE */
+ 	const char *path = _PATH_PROC_CMDLINE;
+ 
+-	if (!name)
++	if (!name || !name[0])
+ 		return NULL;
+ 
+ #ifdef TEST_PROGRAM
+@@ -1069,14 +1073,20 @@ char *mnt_get_kernel_cmdline_option(const char *name)
+ 	if (!p || !*p || *p == '\n')
+ 		return NULL;
+ 
+-	len = strlen(buf);
+-	*(buf + len - 1) = '\0';	/* remove last '\n' */
++	p = strstr(p, " -- ");
++	if (p) {
++		/* no more kernel args after this */
++		*p = '\0';
++	} else {
++		len = strlen(buf);
++		buf[len - 1] = '\0';	/* remove last '\n' */
++	}
+ 
+ 	len = strlen(name);
+-	if (len && *(name + len - 1) == '=')
++	if (name[len - 1] == '=')
+ 		val = 1;
+ 
+-	for ( ; p && *p; p++) {
++	for (p = buf; p && *p; p++) {
+ 		if (!(p = strstr(p, name)))
+ 			break;			/* not found the option */
+ 		if (p != buf && !isblank(*(p - 1)))
+@@ -1085,15 +1095,19 @@ char *mnt_get_kernel_cmdline_option(const char *name)
+ 			continue;		/* no space after the option */
+ 		if (val) {
+ 			char *v = p + len;
++			int end;
+ 
+ 			while (*p && !isblank(*p))	/* jump to the end of the argument */
+ 				p++;
++			end = (*p == '\0');
+ 			*p = '\0';
+-			res = strdup(v);
+-			break;
++			free(mem);
++			res = mem = strdup(v);
++			if (end)
++				break;
+ 		} else
+ 			res = (char *) name;	/* option without '=' */
+-		break;
++		/* don't break -- keep scanning for more options */
+ 	}
+ 
+ 	return res;
+-- 
+2.1.2
+
