@@ -1,38 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.187]:57281 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761087AbaJaHWQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 31 Oct 2014 03:22:16 -0400
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Received: from mail.alpinelinux.org ([74.117.189.114]:48474 "EHLO
+	mail.alpinelinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756181AbaJ2JJS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Oct 2014 05:09:18 -0400
+From: Natanael Copa <ncopa@alpinelinux.org>
 To: util-linux@vger.kernel.org
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: [PATCH] findmnt: document --uniq option in man page
-Date: Fri, 31 Oct 2014 08:22:00 +0100
-Message-Id: <1414740120-25928-1-git-send-email-mail@bernhard-voelker.de>
+Cc: Natanael Copa <ncopa@alpinelinux.org>
+Subject: [PATCH] switch_root: use typeof() instead of __SWORD_TYPE
+Date: Wed, 29 Oct 2014 09:09:05 +0000
+Message-Id: <1414573745-15664-1-git-send-email-ncopa@alpinelinux.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* misc-utils/findmnt.8: Add an entry for the -U, --uniq option
-added in commit v2.24-132-gbebdda3.
----
- misc-utils/findmnt.8 | 4 ++++
- 1 file changed, 4 insertions(+)
+Identifiers prefixed with __ are normally for internal use and should
+normally not be used outside libc.
 
-diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
-index ac5d908..a6318ed 100644
---- a/misc-utils/findmnt.8
-+++ b/misc-utils/findmnt.8
-@@ -198,6 +198,10 @@ to specify the filesystem types on which no action should be taken.  For
- more details see
- .BR mount (8).
- .TP
-+.BR \-U , " \-\-uniq"
-+Ignore filesystems with duplicate mount targets, thus effectively skipping
-+over-mounted mount points.
-+.TP
- .BR \-u , " \-\-notruncate"
- Do not truncate text in columns.  The default is to not truncate the
- .BR TARGET ,
+This fixes the following compile error with musl libc:
+sys-utils/switch_root.c:184:25: error: '__SWORD_TYPE' undeclared (first use in this function)
+        (stfs.f_type == (__SWORD_TYPE)STATFS_RAMFS_MAGIC ||
+                         ^
+
+Also, statfs(2) man page is also wrong on some systems, because f_type
+is not __SWORD_TYPE on some architecures.
+
+The following program:
+
+int main(int argc, char**argv)
+{
+        struct statfs s;
+        statfs(argv[1], &s);
+
+	printf("sizeof(f_type) = %d\n", sizeof(s.f_type));
+	printf("sizeof(__SWORD_TYPE) = %d\n", sizeof(__SWORD_TYPE));
+	printf("sizeof(long) = %d\n", sizeof(long));
+	printf("sizeof(int) = %d\n", sizeof(int));
+	if (sizeof(s.f_type) == sizeof(int)) {
+		printf("f_type = 0x%x\n", s.f_type);
+	} else {
+                printf("f_type = 0x%lx\n", s.f_type);
+	}
+        return 0;
+}
+
+executed on s390x gives for a btrfs:
+
+sizeof(f_type) = 4
+sizeof(__SWORD_TYPE) = 8
+sizeof(long) = 8
+sizeof(int) = 4
+f_type = 0x9123683e
+
+Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
+---
+This is similar to what they did in systemd:
+http://cgit.freedesktop.org/systemd/systemd/commit/?id=bdd29249a882e599e5e365536372d08dee398cd4
+
+ sys-utils/switch_root.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
+index 6822a5d..3fbecdd 100644
+--- a/sys-utils/switch_root.c
++++ b/sys-utils/switch_root.c
+@@ -181,8 +181,8 @@ static int switchroot(const char *newroot)
+ 		if (pid <= 0) {
+ 			struct statfs stfs;
+ 			if (fstatfs(cfd, &stfs) == 0 &&
+-			    (stfs.f_type == (__SWORD_TYPE)STATFS_RAMFS_MAGIC ||
+-			     stfs.f_type == (__SWORD_TYPE)STATFS_TMPFS_MAGIC))
++			    (stfs.f_type == (typeof(stfs.f_type))STATFS_RAMFS_MAGIC ||
++			     stfs.f_type == (typeof(stfs.f_type))STATFS_TMPFS_MAGIC))
+ 				recursiveRemove(cfd);
+ 			else
+ 				warn(_("old root filesystem is not an initramfs"));
 -- 
-1.8.4.5
+2.1.2
 
