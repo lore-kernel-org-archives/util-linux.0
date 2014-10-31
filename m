@@ -1,54 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:55735 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752517AbaJTXfT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Oct 2014 19:35:19 -0400
-Message-ID: <54459C31.3060702@gmx.com>
-Date: Mon, 20 Oct 2014 19:35:13 -0400
-From: JWP <elseifthen@gmx.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/7] hwclock: hctosys drift compensation II
-References: <5426D4C2.4060403@gmx.com> <5426D7C0.50108@gmx.com> <alpine.LNX.2.03.1409281829450.8884@iki.fi> <54298D46.6010101@gmx.com> <20141014090311.GM8057@x2.net.home> <544052E0.3080105@gmx.com> <20141020120550.GB8057@x2.net.home>
-In-Reply-To: <20141020120550.GB8057@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mout.kundenserver.de ([212.227.126.187]:57281 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761087AbaJaHWQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 31 Oct 2014 03:22:16 -0400
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+To: util-linux@vger.kernel.org
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: [PATCH] findmnt: document --uniq option in man page
+Date: Fri, 31 Oct 2014 08:22:00 +0100
+Message-Id: <1414740120-25928-1-git-send-email-mail@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+* misc-utils/findmnt.8: Add an entry for the -U, --uniq option
+added in commit v2.24-132-gbebdda3.
+---
+ misc-utils/findmnt.8 | 4 ++++
+ 1 file changed, 4 insertions(+)
 
+diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
+index ac5d908..a6318ed 100644
+--- a/misc-utils/findmnt.8
++++ b/misc-utils/findmnt.8
+@@ -198,6 +198,10 @@ to specify the filesystem types on which no action should be taken.  For
+ more details see
+ .BR mount (8).
+ .TP
++.BR \-U , " \-\-uniq"
++Ignore filesystems with duplicate mount targets, thus effectively skipping
++over-mounted mount points.
++.TP
+ .BR \-u , " \-\-notruncate"
+ Do not truncate text in columns.  The default is to not truncate the
+ .BR TARGET ,
+-- 
+1.8.4.5
 
-On 10/20/2014 08:05 AM, Karel Zak wrote:
-> On Thu, Oct 16, 2014 at 07:21:04PM -0400, JWP wrote:
->> Repository created at GitHub:
->> https://github.com/jwpi/util-linux
->> git@github.com:jwpi/util-linux.git
->> https://github.com/jwpi/util-linux.git
-> 
->  Thanks, merged. I have also added some (I hope correct) notes to
->  the begin of the hwclock man page.
-
-Hello Karel,
-
-Yes, what you wrote is correct. However, I think some of the wording
-could be misinterpreted, especially:
-
-"hwclock automatically compensates Hardware Clock to account for 
- systematic drift before using it to set the System Clock by --hctosys."
-
-Someone may think the Hardware Clock itself was being compensated.
-
-I have made a commit to change the wording slightly, I will send you a
-pull request after I send this email.
-
-Thank you for fixing hwclock's man page formatting! It was on my todo list.
-
-Thank you for taking time to review and merge my work, and allowing me to
-contribute to util-linux.
-
-I have some util-linux workflow questions:
-
-* Do you want pull requests sent to you via github?
-* If yes, what, if anything, should be posted to the mailing list?
-
-Will
