@@ -1,114 +1,126 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:57065 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753248AbaKLUuK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 12 Nov 2014 15:50:10 -0500
-Received: by mail-wg0-f53.google.com with SMTP id b13so15203316wgh.40
-        for <util-linux@vger.kernel.org>; Wed, 12 Nov 2014 12:50:08 -0800 (PST)
-Date: Wed, 12 Nov 2014 20:50:01 +0000 (GMT)
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:54097 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757832AbaJaX5R (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 31 Oct 2014 19:57:17 -0400
+Received: by mail-wi0-f182.google.com with SMTP id d1so2514744wiv.9
+        for <util-linux@vger.kernel.org>; Fri, 31 Oct 2014 16:57:16 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>,
-        Boris Egorov <egorov@linux.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-In-Reply-To: <20141112195131.GA3902@vapier.wh0rd.info>
-Message-ID: <alpine.LNX.2.03.1411122044080.18829@iki.fi>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi> <5461B803.4050707@linux.com> <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com> <alpine.LNX.2.03.1411112236560.23899@iki.fi> <20141112142500.GB5530@x2.net.home>
- <CAG27Bk2-c4_AsqCsBd+uBkkcvX0CSJPW+Q2+JndyGts=ZE1rmw@mail.gmail.com> <20141112195131.GA3902@vapier.wh0rd.info>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH] swapoff: make LABEL= and UUID= work when turning off swap files
+Date: Fri, 31 Oct 2014 23:57:08 +0000
+Message-Id: <1414799828-23380-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 12 Nov 2014, Mike Frysinger wrote:
+Before this commit the swapoff was unable to find swap files by UUID or
+LABEL.  For example if one had:
 
-> On 12 Nov 2014 15:02, Sami Kerola wrote:
->> On 12 November 2014 14:25, Karel Zak <kzak@redhat.com> wrote:
->>> On Tue, Nov 11, 2014 at 10:49:02PM +0000, Sami Kerola wrote:
->>>>       printf(_("Setting up swapspace version %d, size = %s (%ju bytes)\n"),
->>>>               version, strsz, sz);
->>>> +     free(strsz);
->>>
->>>  free-before-exit, you know what I think about it, right? :)
->>
->> Normally I would agree, but this case is bizarre. The mkswap will
->> return 1 when compiled with clang -fsanitize=address without any
->> message what is wrong. That's probably clang bug, which is a different
->> topic all together. Adding the free() calls seems to make the
->> immediate tests failure issue to go away, that is needed to automate
->> sanitize. In case travis && address sanitation is not needed at all
->> then these changes does not make sense.
->
-> i don't think adding a free to avoid a bug in clang is justified
->
-> at least gcc defines __SANITIZE_ADDRESS__ ... so you might be able to gate on
-> that with a comment pointing to an open bug report on the clang side
+$ swapon --show=name,uuid,label
+NAME      UUID                                 LABEL
+/swapfile bf6237f4-db89-4761-a1a3-275cfc68b114 xyzzy
 
-Hi Mike,
+then turning off the swap had issues:
 
-I like the idea, let me give a try to it.
+$ swapoff -U bf6237f4-db89-4761-a1a3-275cfc68b114
+swapoff: cannot find the device for bf6237f4-db89-4761-a1a3-275cfc68b114
+$ swapoff -L xyzzy
+swapoff: cannot find the device for xyzzy
 
-$ git diff
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index d34e2fd..895d1ec 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -347,7 +347,7 @@ static void write_header_to_device(struct mkswap_control *ctl)
-                         ctl->devname);
-  }
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/Makemodule.am | 13 ++++++++++---
+ sys-utils/swapoff.c     | 35 ++++++++++++++++++++++++-----------
+ 2 files changed, 34 insertions(+), 14 deletions(-)
 
--int main(int argc, char **argv)
-+int UL_ASAN_BLACKLIST main(int argc, char **argv)
-  {
-         struct mkswap_control ctl = { .fd = -1 };
-         int c;
-@@ -489,7 +489,6 @@ int main(int argc, char **argv)
-
-         printf(_("Setting up swapspace version %d, size = %s (%ju bytes)\n"),
-                 version, strsz, sz);
--       free(strsz);
-
-         set_signature(&ctl);
-         set_uuid_and_label(&ctl);
-diff --git a/include/c.h b/include/c.h
-index 0f6e5b2..c581d73 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -313,4 +313,21 @@ static inline int xusleep(useconds_t usec)
-  #define stringify_value(s) stringify(s)
-  #define stringify(s) #s
-
-+/*
-+ * UL_ASAN_BLACKLIST is a macro to tell AddressSanitizer (a compile-time
-+ * instrumentation shipped with Clang and GCC) to not instrument the
-+ * annotated function.  Furthermore, it will prevent the compiler from
-+ * inlining the function because inlining currently breaks the
-+ * blacklisting mechanism of AddressSanitizer.
-+ */
-+#if defined(__has_feature)
-+# if __has_feature(address_sanitizer)
-+#  define UL_ASAN_BLACKLIST __attribute__((no_sanitize_address))
-+# else
-+#  define UL_ASAN_BLACKLIST    /* nothing */
-+# endif
-+#else
-+# define UL_ASAN_BLACKLIST     /* nothing */
-+#endif
+diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+index f540d38..b256fda 100644
+--- a/sys-utils/Makemodule.am
++++ b/sys-utils/Makemodule.am
+@@ -279,9 +279,16 @@ swapon_LDADD = $(LDADD) \
+ swapoff_SOURCES = \
+ 	sys-utils/swapoff.c \
+ 	sys-utils/swapon-common.c \
+-	sys-utils/swapon-common.h
+-swapoff_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
+-swapoff_LDADD = $(LDADD) libmount.la
++	sys-utils/swapon-common.h \
++	lib/swapprober.c \
++	include/swapprober.h
++swapoff_CFLAGS = $(AM_CFLAGS) \
++	-I$(ul_libblkid_incdir) \
++	-I$(ul_libmount_incdir)
++swapoff_LDADD = $(LDADD) \
++	libblkid.la \
++	libcommon.la \
++	libmount.la
+ endif
+ 
+ if BUILD_LSCPU
+diff --git a/sys-utils/swapoff.c b/sys-utils/swapoff.c
+index 182ce95..83d84ca 100644
+--- a/sys-utils/swapoff.c
++++ b/sys-utils/swapoff.c
+@@ -9,6 +9,7 @@
+ #include "nls.h"
+ #include "c.h"
+ #include "closestream.h"
++#include "swapprober.h"
+ 
+ #include "swapon-common.h"
+ 
+@@ -49,16 +50,28 @@ static int do_swapoff(const char *orig_special, int quiet, int canonic)
+ 	return -1;
+ }
+ 
+-static int swapoff_by_label(const char *label, int quiet)
++static int swapoff_by(const char *type, const char *request, int quiet)
+ {
+-	const char *special = mnt_resolve_tag("LABEL", label, mntcache);
+-	return special ? do_swapoff(special, quiet, CANONIC) : cannot_find(label);
+-}
+-
+-static int swapoff_by_uuid(const char *uuid, int quiet)
+-{
+-	const char *special = mnt_resolve_tag("UUID", uuid, mntcache);
+-	return special ? do_swapoff(special, quiet, CANONIC) : cannot_find(uuid);
++	const char *special = mnt_resolve_tag(type, request, mntcache);
 +
-  #endif /* UTIL_LINUX_C_H */
-
-I borrowed the above from mozilla source.
-http://dxr.mozilla.org/mozilla-central/source/mfbt/Attributes.h
-
-There is just one catch.  After compiling with no_sanitize_address 
-instrumentation the return value issue is back.
-
-$ ./mkswap test ; echo $?
-lt-mkswap: test: warning: wiping old swap signature.
-Setting up swapspace version 1, size = 96 KiB (98304 bytes)
-no label, UUID=1aeb88e8-6442-4e0f-93a5-118271b026c0
-1	<--- is the issue
-
++	/* if not a block device, try to find swap file */
++	if (!special) {
++		struct libmnt_table *tb = get_swaps();
++		struct libmnt_iter *itr = mnt_new_iter(MNT_ITER_BACKWARD);
++		struct libmnt_fs *fs;
++
++		while (tb && mnt_table_find_next_fs(tb, itr, match_swap, NULL, &fs) == 0) {
++			const char *dev = mnt_fs_get_source(fs);
++			blkid_probe pr;
++			const char *data;
++
++			pr = get_swap_prober(dev);
++			blkid_probe_lookup_value(pr, type, &data, NULL);
++			if (!strcmp(request, data))
++				special = dev;
++		}
++	}
++	return special ? do_swapoff(special, quiet, CANONIC) : cannot_find(request);
+ }
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+@@ -178,10 +191,10 @@ int main(int argc, char *argv[])
+ 	mntcache = mnt_new_cache();
+ 
+ 	for (i = 0; i < numof_labels(); i++)
+-		status |= swapoff_by_label(get_label(i), !QUIET);
++		status |= swapoff_by("LABEL", get_label(i), !QUIET);
+ 
+ 	for (i = 0; i < numof_uuids(); i++)
+-		status |= swapoff_by_uuid(get_uuid(i), !QUIET);
++		status |= swapoff_by("UUID", get_uuid(i), !QUIET);
+ 
+ 	while (*argv != NULL)
+ 		status |= do_swapoff(*argv++, !QUIET, !CANONIC);
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.1.3
+
