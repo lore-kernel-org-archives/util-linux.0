@@ -1,43 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:51072 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753146AbaKJVuQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:16 -0500
-Received: by mail-wg0-f42.google.com with SMTP id k14so10013472wgh.1
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:15 -0800 (PST)
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:63957 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751184AbaKBUOb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:14:31 -0500
+Received: by mail-pd0-f169.google.com with SMTP id y10so10341485pdj.28
+        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:14:30 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1414799828-23380-1-git-send-email-kerolasa@iki.fi>
+References: <1414799828-23380-1-git-send-email-kerolasa@iki.fi>
+Date: Sun, 2 Nov 2014 20:14:30 +0000
+Message-ID: <CAG27Bk3zQCXR-nZX=t3epDoq-qXYFExFGYN9WXY__vNUDKeQOg@mail.gmail.com>
+Subject: Re: [PATCH] swapoff: make LABEL= and UUID= work when turning off swap files
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 5/6] tests: skip kill -SEGV test when running AddressSanitizer
-Date: Mon, 10 Nov 2014 21:49:54 +0000
-Message-Id: <1415656195-20458-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sending signal indicating invalid memory reference makes AddressSanitizer
-to report false positive test failure.
+On 31 October 2014 23:57, Sami Kerola <kerolasa@iki.fi> wrote:
+> Before this commit the swapoff was unable to find swap files by UUID or
+> LABEL.  For example if one had:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/ts/kill/name_to_number | 3 +++
- 1 file changed, 3 insertions(+)
+Karel, please ignore this change. This version is not good enough.
+I'll send new along with mkswap changes.
 
-diff --git a/tests/ts/kill/name_to_number b/tests/ts/kill/name_to_number
-index 9a370bb..cde55c9 100755
---- a/tests/ts/kill/name_to_number
-+++ b/tests/ts/kill/name_to_number
-@@ -33,6 +33,9 @@ for SIG in $($TS_CMD_KILL -L); do
- 		EXPECTED=$SIG
- 		continue
- 	fi
-+	if [ -f "$ASAN_SYMBOLIZER_PATH" ] && [ "x$SIG" = "xSEGV" ]; then
-+		continue
-+	fi
- 	if [ "x$SIG" = "xSTOP" ] || [ "x$SIG" = "xKILL" ]; then
- 		continue
- 	fi
 -- 
-2.1.3
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
