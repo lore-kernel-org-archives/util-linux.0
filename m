@@ -1,79 +1,132 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:50864 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753100AbaKLSwK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Nov 2014 13:52:10 -0500
-Date: Wed, 12 Nov 2014 14:51:31 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: kerolasa@gmail.com
-Cc: Karel Zak <kzak@redhat.com>, Boris Egorov <egorov@linux.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-Message-ID: <20141112195131.GA3902@vapier.wh0rd.info>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
- <5461B803.4050707@linux.com>
- <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
- <alpine.LNX.2.03.1411112236560.23899@iki.fi>
- <20141112142500.GB5530@x2.net.home>
- <CAG27Bk2-c4_AsqCsBd+uBkkcvX0CSJPW+Q2+JndyGts=ZE1rmw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-In-Reply-To: <CAG27Bk2-c4_AsqCsBd+uBkkcvX0CSJPW+Q2+JndyGts=ZE1rmw@mail.gmail.com>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:46534 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751760AbaKBUch (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:32:37 -0500
+Received: by mail-wi0-f177.google.com with SMTP id ex7so4900750wid.16
+        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:32:36 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 8/8] mkswap: various minor improvement
+Date: Sun,  2 Nov 2014 20:26:31 +0000
+Message-Id: <1414959991-8369-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
+References: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Use correct data type in page_bad(), and add information to error message
+how many bad pages were seen.
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In check_blocks() move initialization to variable introduction, fix typo,
+and avoid memset() when array initializer can do the job.
 
-On 12 Nov 2014 15:02, Sami Kerola wrote:
-> On 12 November 2014 14:25, Karel Zak <kzak@redhat.com> wrote:
-> > On Tue, Nov 11, 2014 at 10:49:02PM +0000, Sami Kerola wrote:
-> >>       printf(_("Setting up swapspace version %d, size =3D %s (%ju byte=
-s)\n"),
-> >>               version, strsz, sz);
-> >> +     free(strsz);
-> >
-> >  free-before-exit, you know what I think about it, right? :)
->=20
-> Normally I would agree, but this case is bizarre. The mkswap will
-> return 1 when compiled with clang -fsanitize=3Daddress without any
-> message what is wrong. That's probably clang bug, which is a different
-> topic all together. Adding the free() calls seems to make the
-> immediate tests failure issue to go away, that is needed to automate
-> sanitize. In case travis && address sanitation is not needed at all
-> then these changes does not make sense.
+In main() use correct initializer for pointer.  Move swap file specific
+actions to same location, and add warning when request too --check is
+dismissed by command.  At the end remove momory leak.
 
-i don't think adding a free to avoid a bug in clang is justified
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkswap.c | 33 +++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 16 deletions(-)
 
-at least gcc defines __SANITIZE_ADDRESS__ ... so you might be able to gate =
-on=20
-that with a comment pointing to an open bug report on the clang side
--mike
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index 280d890..71f62b4 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -167,13 +167,13 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ }
+ 
+ static void
+-page_bad(struct mkswap_control *ctl, int page)
++page_bad(struct mkswap_control *ctl, unsigned int page)
+ {
+ 	struct swap_header_v1_2 *p = (struct swap_header_v1_2 *)ctl->signature_page;
+ 	const unsigned long max_badpages = (ctl->pagesize - 1024 - 128 * sizeof(int) - 10) / sizeof(int);
+ 
+ 	if (ctl->badpages == max_badpages)
+-		errx(EXIT_FAILURE, _("too many bad pages"));
++		errx(EXIT_FAILURE, _("too many bad pages: %lu"), max_badpages);
+ 	p->badpages[ctl->badpages] = page;
+ 	ctl->badpages++;
+ }
+@@ -181,12 +181,11 @@ page_bad(struct mkswap_control *ctl, int page)
+ static void
+ check_blocks(struct mkswap_control *ctl)
+ {
+-	unsigned int current_page;
++	unsigned int current_page = 0;
+ 	int do_seek = 1;
+ 	char *buffer;
+ 
+ 	buffer = xmalloc(ctl->pagesize);
+-	current_page = 0;
+ 	while (current_page < ctl->nr_pages) {
+ 		ssize_t rc;
+ 
+@@ -265,14 +264,13 @@ wipe_device(struct mkswap_control *ctl)
+ 
+ 	if (zap) {
+ 		/*
+-		 * Wipe boodbits
++		 * Wipe bootbits
+ 		 */
+-		char buf[1024];
++		char buf[1024] = { '\0' };
+ 
+ 		if (lseek(ctl->fd, 0, SEEK_SET) != 0)
+ 			errx(EXIT_FAILURE, _("unable to rewind swap-device"));
+ 
+-		memset(buf, 0, sizeof(buf));
+ 		if (write_all(ctl->fd, buf, sizeof(buf)))
+ 			errx(EXIT_FAILURE, _("unable to erase bootbits sectors"));
+ #ifdef HAVE_LIBBLKID
+@@ -317,7 +315,7 @@ main(int argc, char **argv) {
+ 	unsigned long long sz;
+ 	off_t offset;
+ 	int version = SWAP_VERSION;
+-	char *block_count = 0;
++	char *block_count = NULL;
+ #ifdef HAVE_LIBUUID
+ 	const char *opt_uuid = NULL;
+ 	uuid_t uuid_dat;
+@@ -435,16 +433,19 @@ main(int argc, char **argv) {
+ 		err(EXIT_FAILURE, _("stat failed %s"), ctl.device_name);
+ 	if (S_ISBLK(statbuf.st_mode))
+ 		ctl.fd = open(ctl.device_name, O_RDWR | O_EXCL);
+-	else
++	else {
++		if (ctl.check) {
++			ctl.check = 0;
++			warnx(_("warning: checking bad blocks from swap file is not supported: %s"),
++				ctl.device_name);
++		}
+ 		ctl.fd = open(ctl.device_name, O_RDWR);
++	}
+ 	if (ctl.fd < 0)
+ 		err(EXIT_FAILURE, _("cannot open %s"), ctl.device_name);
+-
+-	if (!S_ISBLK(statbuf.st_mode))
+-		ctl.check = 0;
+-	else if (blkdev_is_misaligned(ctl.fd))
+-		warnx(_("warning: %s is misaligned"), ctl.device_name);
+-
++	if (S_ISBLK(statbuf.st_mode))
++		if (blkdev_is_misaligned(ctl.fd))
++			warnx(_("warning: %s is misaligned"), ctl.device_name);
+ 	if (ctl.check)
+ 		check_blocks(&ctl);
+ 
+@@ -473,7 +474,7 @@ main(int argc, char **argv) {
+ 		err(EXIT_FAILURE,
+ 			_("%s: unable to write signature page"),
+ 			ctl.device_name);
+-
++	free(ctl.signature_page);
+ #ifdef HAVE_LIBSELINUX
+ 	if (S_ISREG(statbuf.st_mode) && is_selinux_enabled() > 0) {
+ 		security_context_t context_string;
+-- 
+2.1.3
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUY7pCAAoJEEFjO5/oN/WBho4P/2WmRzEUp5om91jBJYW1a/9X
-+xboapgrqxTs0nUHY+MgDyVpPU8sb06Luun+Jrtx/08Id7hfgYYMx0LNbCadzguC
-pdmmyl8/DXqqcodFzTcggx8A1PU46M8/xa4ZXSJd/T+RwY8I3zAc8S9+QSTDLL1s
-5IlFCGPBgncA631C8d8nsXP1djp99XwUP5Mx5N0OYKjSbYYjzK+ES8Is1VwTdUSm
-3VKOtRaR0+LxGlFXGbwtE2v8bXfz/9PnrjTdUONgxi1Qe9zwRPd2GRfE8BvS5V+1
-ngqKU6tRbmJwGzoKDhmPKYm2kiJBplgTD0LPPDz29HYabarfqHvlYC81HfwaRF+Q
-+Nh36/PGuLumieRcporjOuts7G0RiPkuqyQ9I9EjKuhgihohj2XaWS1J6W0MjpgT
-FcJx1jZTdkehLL0gi9QgPK+Fihrm6bLmQC7gfJOyo0IcGkWiLwihshQ9nZJhNlS3
-7gb2b3KrKIITy6KHSdV/vAmCBLEZCiN/KB+HKLknFeYsEnbuSvTdWmTtE5CTIv0X
-TAdycbtfV9pn6S3vKJxXphl+3v2mKVDvjbLLwN3qkK0un50BUs+zyPF5H8G+mcVQ
-9ut4JlgSJum/pgOSRY2VCVRBzNLnfjQyPskZhMGvbq6h/3rr2a04+hToBwnkyXEB
-9glaliQuBqvsgFsWQtPC
-=NXyr
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
