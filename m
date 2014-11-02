@@ -1,32 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44257 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751088AbaKGIfW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 7 Nov 2014 03:35:22 -0500
-Date: Fri, 7 Nov 2014 09:35:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: sfdisk.8
-Message-ID: <20141107083516.GE6880@x2.net.home>
-References: <543C5D0F.7060809@gmx.com>
- <20141014083109.GL8057@x2.net.home>
- <545BC2B2.1010800@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <545BC2B2.1010800@gmx.com>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:36233 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093AbaKBU0m (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:26:42 -0500
+Received: by mail-wi0-f171.google.com with SMTP id q5so4940681wiv.16
+        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:26:41 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 0/8] pull: mostly mkswap and one swapoff chanage
+Date: Sun,  2 Nov 2014 20:26:23 +0000
+Message-Id: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 06, 2014 at 01:49:22PM -0500, JWP wrote:
-> Shouldn't the 'Since version 2.25' notes in sfdisk.8 be
-> 'Since version 2.26'?  It doesn't look like these changes
-> are in 2.25, or am I missing something?
+Hello,
 
-Ah... good catch, sure, you're right. Fixed. Thanks! 
+This pull request contains corrected version of swapoff(8) change, that was
+first sent at 31 October 2014 23:57 and had issues.
 
-    Karel
+Rest of the changes are to mkswap, that needed a bit dusting.  Pretty old
+sparc 32bit support for kernels about 15 years ago is removed.  The command
+got all familiar util-linux convention like 'struct mkswap_control', that
+made easier to see what exactly is the data functions are handling.  The
+rest of the changes are straight forward clarifications.
+
+----------------------------------------------------------------
+The following changes since commit 54f2e4563d6c7064df9f2a201ffe928709c29333:
+  swapon: remove extra word from usage (2014-10-31 10:58:27 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk43
+for you to fetch changes up to 9e55f54b2f1a740da508c5f192371f5df900680f:
+  mkswap: various minor improvement (2014-11-02 19:50:00 +0000)
+----------------------------------------------------------------
+Sami Kerola (8):
+  swapoff: make LABEL= and UUID= work when turning off swap files
+  mkswap: remove system architecture specific max swap size checks
+  mkswap: remove unnecessary size check
+  mkswap: use err() rather than perror() && exit()
+  mkswap: add struct mkswap_control to remove global variables
+  mkswap: make remaining functions to take control structure as argument
+  mkswap: set variable only when it's value is known
+  mkswap: various minor improvement
+
+ disk-utils/mkswap.c     | 435 ++++++++++++++++--------------------------------
+ include/swapheader.h    |   2 -
+ sys-utils/Makemodule.am |  13 +-
+ sys-utils/swapoff.c     |  34 ++--
+ 4 files changed, 177 insertions(+), 307 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
