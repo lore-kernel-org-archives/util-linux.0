@@ -1,59 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qc0-f177.google.com ([209.85.216.177]:34820 "EHLO
-	mail-qc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754559AbaKTQnR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 20 Nov 2014 11:43:17 -0500
-Received: by mail-qc0-f177.google.com with SMTP id x3so2382868qcv.36
-        for <util-linux@vger.kernel.org>; Thu, 20 Nov 2014 08:43:16 -0800 (PST)
-Message-ID: <546E1A16.6050102@ubuntu.com>
-Date: Thu, 20 Nov 2014 11:43:02 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mout.gmx.net ([212.227.17.21]:56217 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751244AbaKBRxV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 2 Nov 2014 12:53:21 -0500
+Message-ID: <54566F88.4040101@gmx.com>
+Date: Sun, 02 Nov 2014 12:53:12 -0500
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-To: "Dale R. Worley" <worley@alum.mit.edu>, 770211@bugs.debian.org,
-        Drake Wilson <drake@dasyatidae.net>
-CC: util-linux@vger.kernel.org
-Subject: Re: Bug#770211: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
-In-Reply-To: <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
-Content-Type: text/plain; charset=windows-1252
+To: Karel Zak <kzak@redhat.com>, Benno Schulenberg <bensberg@justemail.net>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
+ hwclock
+References: <1414444693-16407-1-git-send-email-bensberg@justemail.net> <1414444693-16407-4-git-send-email-bensberg@justemail.net> <544EECC9.2000300@gmx.com> <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com> <20141031095142.GX10134@x2.net.home>
+In-Reply-To: <20141031095142.GX10134@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On 11/19/2014 5:24 PM, Dale R. Worley wrote:
-> This raises the related question of whether there should be codes
-> to identify the partition type inside the LUKS partition.  That is,
-> the partition table code identifies the partition as a LUKS
-> partition, but once one has supplied the keys for LUKS encryption,
-> is there any way to tell the type of the encrypted partition
-> without testing for magic numbers (using "file" or the like)?
 
-Linux doesn't pay any attention to partition type codes anyhow and
-just uses blkid to identify the contents.
-
-> I suppose there aren't enough type codes in MBR to allow
-> separately identifying "ext4 inside LUKS", but with GPT it would be
-> possible, and even could be done systematically.  E.g., if the UUID
-> for a partition type is XXX, then the partition type for that type
-> inside of LUKS is MD5("LUKS" XXX)...
+On 10/31/2014 05:51 AM, Karel Zak wrote:
+> On Tue, Oct 28, 2014 at 09:02:12PM +0100, Benno Schulenberg wrote:
+>>
+>> On Tue, Oct 28, 2014, at 02:09, JWP wrote:
+>>> On 10/27/2014 05:18 PM, Benno Schulenberg wrote:
+>>>>  Since v2.26
+>>>>  .B hwclock
+>>>>  does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
+>>>> -It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+>>>> +It is necessary to use the option \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+>>>>  \fB\-\-systohc\fR, to force drift factor updates.
+>>>
+>>> The rest of the manual uses 'the --xxxx option'.
+>>
+>> Well, I can't explain, but in this case "the option --xxxx" is better.
+>>
+>>>>  Since v2.26
+>>>>  .B hwclock \-\-hctosys
+>>>> -automatically compensates time read from the Hardware Clock to account for
+>>>> -systematic drift before using it to set the System Clock.  Therefore,
+>>>> -\fB\-\-adjust\fR is no longer necessary during boot. This functionality makes
+>>>> -hwclock usable early in the boot process when the root filesystem is read-only.
+>>>> +automatically takes a systematic drift of the Hardware Clock into account,
+>>>> +setting the System Clock to the drift-compensated time.  Therefore the option
+>>>> +\fB\-\-adjust\fR is no longer necessary during boot.  This feature makes
+>>>> +.B hwclock
+>>>> +usable early on in the boot process when the root filesystem is read-only.
+>>>
+>>> "a systematic drift"? That entire phrase does not sound natural to me.
+>>
+>> :|
+>>
+>>> I think it is important to
+>>> stress that *the_time_read* from the Clock is what is being compensated as this is
+>>> a new behavior.
+>>
+>> Well, then suggest how exactly to phrase that.
 > 
-> Then again, perhaps you would not want to reveal the type of the 
-> encrypted partition.
+> I'll wait for the final patch :-)
+> 
+>     Karel
 
-That too.
+Karel and Benno,
 
+I did not intent to comment further on this, because I find discourse
+on human language illogical and frustrating. No doubt, that is why I
+am drawn to the language of machines, but there's no escaping strings;)
 
+I suppose it is impolite of me to leave the topic dangling though.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
+The first issue seems so trivial as to not justify any debate. I will
+however, expand on my original comment: if there is no grammar rule to
+decide a style choice, then the super-class style rule of 'be consistent'
+should be applied.  I do not find 'because I say so' to be a compelling
+argument.  
 
-iQEcBAEBAgAGBQJUbhoWAAoJEI5FoCIzSKrwfZAH/AnTDFG8Nes4Sa+cKebZs9D/
-Atf7SrWYQFy++p0o0sNKcSIrdjHghIGEzq8oTZ5pBgnEfu94/uTATUSGSFum7bqL
-3ZYPgKNGi7SOj/Oc03p+Tzadjk01gpHUQMcj8jcHJUbrJheLCssPyB558vA5Vqrz
-D8bLbOz9JmoDQ+zpWrachKv3+7XAfh0ri54tKsEmNFKN3LOhrxyoVfIGIJf+MFQK
-kssPT/ZKD3W/PEBTaI/pcwaCo1+vdR2JYiy4ODBQy7LMfvvw97N3aZEKgRGgLudF
-NWApQR7AZLxjD2YllE0NI2NBeq4/8DgLicwnnJSqdHvKFKlbwC0Iq5wIugNjSds=
-=s8LS
------END PGP SIGNATURE-----
+With regard to the second issue, I suggested 'how exactly to phrase that' 
+when I edited it the first time. Unless it can be rewritten in a way that 
+does not change its meaning, I feel it should remain as it is.
+
+So there you have my opinions; I will leave the matter in both of your hands 
+to make a good choice.
+
+Will
