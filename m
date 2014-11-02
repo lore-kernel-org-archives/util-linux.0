@@ -1,53 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46355 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751276AbaKXLks (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 24 Nov 2014 06:40:48 -0500
-Date: Mon, 24 Nov 2014 12:40:35 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Dave Reisner <d@falconindy.com>
-Cc: util-linux@vger.kernel.org,
-        Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
-Subject: Re: [PATCH] bash-completion: Invoke actual commands to be completed,
- not basenames
-Message-ID: <20141124114035.GD926@x2.net.home>
-References: <CA+mSPTjwXzTnMeRb+kBF1RGLCCE_LOXDTqPgZXjrdKWbm=y9qg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CA+mSPTjwXzTnMeRb+kBF1RGLCCE_LOXDTqPgZXjrdKWbm=y9qg@mail.gmail.com>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:50282 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751591AbaKBU10 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:27:26 -0500
+Received: by mail-wi0-f179.google.com with SMTP id h11so4888922wiw.12
+        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:27:25 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 7/8] mkswap: set variable only when it's value is known
+Date: Sun,  2 Nov 2014 20:26:30 +0000
+Message-Id: <1414959991-8369-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
+References: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 18, 2014 at 09:28:51AM -0500, Dave Reisner wrote:
-> On Nov 18, 2014 8:00 AM, "Karel Zak" <kzak@redhat.com> wrote:
-> >
-> > On Sat, Nov 15, 2014 at 10:36:04PM +0200, Ville Skyttä wrote:
-> > >  bash-completion/chsh    | 2 +-
-> > >  bash-completion/eject   | 2 +-
-> > >  bash-completion/findmnt | 8 ++++----
-> > >  bash-completion/losetup | 4 ++--
-> > >  bash-completion/lsblk   | 2 +-
-> > >  bash-completion/setarch | 2 +-
-> > >  bash-completion/setpriv | 2 +-
-> > >  7 files changed, 11 insertions(+), 11 deletions(-)
-> >
-> >  Applied, thanks!
-> >
-> >     Karel
-> >
-> 
-> I think this patch breaks completions when used with binaries from a build
-> root containing whitespace in the path. The use is probably rare, but fix
+Avoid updating ctl->pagesize twice when user does specify page size.
 
- For example?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkswap.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-> is simple -- quote the $1. The commands inside $() have their own separate
-> level of quoting, i.e. "$("$1" -X)" is what we want.
-
- Ville, any comment?
-
-    Karel
-
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index 7f60013..280d890 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -90,23 +90,21 @@ struct mkswap_control {
+ static void
+ init_signature_page(struct mkswap_control *ctl)
+ {
+-
+-	int kernel_pagesize = ctl->pagesize = getpagesize();
++	const int kernel_pagesize = getpagesize();
+ 
+ 	if (ctl->user_pagesize) {
+ 		if (ctl->user_pagesize < 0 || !is_power_of_2(ctl->user_pagesize) ||
+ 		    (size_t) ctl->user_pagesize < sizeof(struct swap_header_v1_2) + 10)
+ 			errx(EXIT_FAILURE,
+-				_("Bad user-specified page size %u"),
+-				ctl->user_pagesize);
+-		ctl->pagesize = ctl->user_pagesize;
+-	}
+-
+-	if (ctl->user_pagesize && ctl->user_pagesize != kernel_pagesize)
+-		warnx(_("Using user-specified page size %d, "
++			     _("Bad user-specified page size %u"),
++			       ctl->user_pagesize);
++		if (ctl->user_pagesize != kernel_pagesize)
++			warnx(_("Using user-specified page size %d, "
+ 				"instead of the system value %d"),
+ 				ctl->pagesize, kernel_pagesize);
+-
++		ctl->pagesize = ctl->user_pagesize;
++	} else
++		ctl->pagesize = kernel_pagesize;
+ 	ctl->signature_page = (unsigned long *) xcalloc(1, ctl->pagesize);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
