@@ -1,29 +1,20 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48123 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753020AbaKRKk5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 05:40:57 -0500
-Date: Tue, 18 Nov 2014 11:40:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: lscpu: theoretical buffer overflow
-Message-ID: <20141118104048.GF6704@x2.net.home>
-References: <20141026174124.GA22563@fungi.pizza.local>
+Return-Path: elseifthen@gmx.com
+Message-ID: <545BC2B2.1010800@gmx.com>
+Date: Thu, 06 Nov 2014 13:49:22 -0500
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20141026174124.GA22563@fungi.pizza.local>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: sfdisk.8
+References: <543C5D0F.7060809@gmx.com> <20141014083109.GL8057@x2.net.home>
+In-Reply-To: <20141014083109.GL8057@x2.net.home>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Oct 26, 2014 at 06:41:24PM +0100, Tobias Stoeckmann wrote:
->  sys-utils/lscpu.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Karel,
 
- Applied, thanks. Sorry for delay.
+Shouldn't the 'Since version 2.25' notes in sfdisk.8 be
+'Since version 2.26'?  It doesn't look like these changes
+are in 2.25, or am I missing something?
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Will
