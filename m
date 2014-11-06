@@ -1,111 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:62568 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751731AbaKKWIo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Nov 2014 17:08:44 -0500
-Received: by mail-pa0-f44.google.com with SMTP id bj1so11472653pad.17
-        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 14:08:44 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:59491 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750828AbaKFMBf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 6 Nov 2014 07:01:35 -0500
+Date: Thu, 6 Nov 2014 13:01:26 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Natanael Copa <ncopa@alpinelinux.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] switch_root: use typeof() instead of __SWORD_TYPE
+Message-ID: <20141106120126.GC6880@x2.net.home>
+References: <1414573745-15664-1-git-send-email-ncopa@alpinelinux.org>
+ <20141029193752.GA32734@vapier.wh0rd.info>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <5461B803.4050707@linux.com>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-	<5461B803.4050707@linux.com>
-Date: Tue, 11 Nov 2014 22:08:44 +0000
-Message-ID: <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-From: Sami Kerola <kerolasa@iki.fi>
-To: Boris Egorov <egorov@linux.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20141029193752.GA32734@vapier.wh0rd.info>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11 November 2014 07:17, Boris Egorov <egorov@linux.com> wrote:
-> On 11/11/2014 03:49 AM, Sami Kerola wrote:
->
->> The short description is: when the code is at very last line of mkswap at
->> 'return EXIT_SUCCESS;' somehow the EXIT_SUCCESS is 1.  If I change the
->> 'return EXIT_SUCCESS;' to 'exit(EXIT_SUCCESS);' the return value stays
->> expected.  Possible explanations include:
->
-> That's interesting.
->
->> 1. I'm doing something silly and/or wrong.
->
-> I doubt it.
->
->> 2. This happens only on my laptop (or imagination).  Please, let it not
->>     be this.
->
-> No, I can confirm: It works as you describe with clang-3.5.0 from Debian
-> Jessie. Returns 1 with ld.bfd too.
+On Wed, Oct 29, 2014 at 03:37:52PM -0400, Mike Frysinger wrote:
+> On 29 Oct 2014 09:09, Natanael Copa wrote:
+> > +			    (stfs.f_type == (typeof(stfs.f_type))STATFS_RAMFS_MAGIC ||
+> > +			     stfs.f_type == (typeof(stfs.f_type))STATFS_TMPFS_MAGIC))
+> 
+> typeof is a gcc extension and really should be __typeof__.  ignoring irony of 
+> replacing on unportable behavior with another ;).
 
-Hi Boris,
+:-)
 
-Excellent to hear the issue is reproducible.
+I have applied the patch below, please review. It is not perfect, but I
+hope good enough for usual cases (gcc, clang).
 
->> 3. This is a bug in clang, llvm, and/or AddressSanitizer.
->>     clang / llvm version 3.5.0 from Archlinux packages 3.5.0-2.1
->
-> Probably it is.
->
->> 4. With gcc 4.9.2 and the same CFLAGS the mkswap works.
->
-> Confirmed with gcc 4.9.1.
->
-> I found more info: problem connected with atexit(close_stdout). If I comment
-> this line, mkswap exits normally. Looks like close_stdout ends successfully
-> (I've made it not inline and checked it with gdb), but then program exits
-> with code 1.
+    Karel
 
-Good idea. Removal of the atexit(close_stdout) made a leak to appear.
-In wipe_device() the 'char *type' leaked. Unfortunately this
-correction did nothing to exit value issue.
 
-It's time to get a core.
+>From 8f806bb1ea30f15db7ca36d1cfa79349f8115302 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Thu, 6 Nov 2014 12:50:27 +0100
+Subject: [PATCH] switch_root: improve statfs->f_type portability
 
-$ ASAN_OPTIONS=abort_on_error=1 ./mkswap test ; echo $?
-lt-mkswap: test: warning: wiping old swap signature.
-Setting up swapspace version 1, size = 6.5 MiB (6819840 bytes)
-no label, UUID=0cd79d6a-4abc-4ce8-951a-308506e5a09e
-Aborted (core dumped)
-134
+__SWORD_TYPE is not available everywhere, for example it's not defined
+by musl libc. It also seems that __SWORD_TYPE is not used for f_type
+on some architectures (s390x).
 
-Almost good news.
+Reported-by: Natanael Copa <ncopa@alpinelinux.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ include/statfs_magic.h  | 11 +++++++++++
+ sys-utils/switch_root.c |  4 ++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-Nov 11 21:55:08 kerolasa-home systemd-coredump[4941]: Coredump of 4921
-(lt-mkswap) is larger than configured processing limit, refusing.
-Nov 11 21:55:09 kerolasa-home systemd-coredump[4941]: Process 4921
-(lt-mkswap) of user 1000 dumped core.
+diff --git a/include/statfs_magic.h b/include/statfs_magic.h
+index b5fde1a..d27be1c 100644
+--- a/include/statfs_magic.h
++++ b/include/statfs_magic.h
+@@ -1,6 +1,17 @@
+ #ifndef UTIL_LINUX_STATFS_MAGIC_H
+ #define UTIL_LINUX_STATFS_MAGIC_H
+ 
++#include <sys/statfs.h>
++
++/*
++ * If possible then don't depend on internal libc __SWORD_TYPE type.
++ */
++#ifdef __GNUC__
++typedef __typeof__( ((struct statfs *)0)->f_type )	ul_statfs_ftype_t;
++#else
++typedef __SWORD_TYPE	ul_statfs_ftype_t;
++#endif
++
+ /*
+  *  Unfortunately, Linux kernel hedeader file <linux/magic.h> is incomplete
+  *  mess and kernel returns by statfs f_type many numbers that are nowhere
+diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
+index 6822a5d..c6a2eff 100644
+--- a/sys-utils/switch_root.c
++++ b/sys-utils/switch_root.c
+@@ -181,8 +181,8 @@ static int switchroot(const char *newroot)
+ 		if (pid <= 0) {
+ 			struct statfs stfs;
+ 			if (fstatfs(cfd, &stfs) == 0 &&
+-			    (stfs.f_type == (__SWORD_TYPE)STATFS_RAMFS_MAGIC ||
+-			     stfs.f_type == (__SWORD_TYPE)STATFS_TMPFS_MAGIC))
++			    (stfs.f_type == (ul_statfs_ftype_t) STATFS_RAMFS_MAGIC ||
++			     stfs.f_type == (ul_statfs_ftype_t) STATFS_TMPFS_MAGIC))
+ 				recursiveRemove(cfd);
+ 			else
+ 				warn(_("old root filesystem is not an initramfs"));
+-- 
+1.9.3
 
-If I'm reading code right the core has to be more than 2 gigabytes
-before that happens.
 
-src/journal/coredump.c:#define PROCESS_SIZE_MAX ((off_t)
-(2LLU*1024LLU*1024LLU*1024LLU))
-
-I'm running out of ideas.
-
-> Also, there is a problem building mkswap with clang on my machine. autoconf
-> test for HAVE_SCANF_MS_MODIFIER is incomplete. clang/llvm have %m modifier
-> (I've checked it), but this test fails to detect it. Test for
-> HAVE_SCANF_AS_MODIFIER fails too, I suppose. So when I build mkswap I have
-> an error:
->
->     lib/colors.c:620:19: error: use of undeclared identifier 'UL_SCNsA'
->                     rc = sscanf(p,  UL_SCNsA" "     /* name */
->
-> So, we need to detect %m modifier with clang on build somehow.
-
-The scanf modifier detection fix is the first change in this  pull request.
-
-http://marc.info/?l=util-linux-ng&m=141565620610774&w=2
-
-> PS. Forgot to add mail list on reply, resending message. Sorry for the
-> duplicate, Sami.
-
-NP.
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
