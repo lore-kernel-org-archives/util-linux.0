@@ -1,31 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:63957 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751184AbaKBUOb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:14:31 -0500
-Received: by mail-pd0-f169.google.com with SMTP id y10so10341485pdj.28
-        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:14:30 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:44188 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751564AbaKGMMM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Nov 2014 07:12:12 -0500
+Date: Fri, 7 Nov 2014 13:12:08 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] docs: fix some wording, grammar and formatting in
+ man page of swapon
+Message-ID: <20141107121208.GK6880@x2.net.home>
+References: <1415049437-2301-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1414799828-23380-1-git-send-email-kerolasa@iki.fi>
-References: <1414799828-23380-1-git-send-email-kerolasa@iki.fi>
-Date: Sun, 2 Nov 2014 20:14:30 +0000
-Message-ID: <CAG27Bk3zQCXR-nZX=t3epDoq-qXYFExFGYN9WXY__vNUDKeQOg@mail.gmail.com>
-Subject: Re: [PATCH] swapoff: make LABEL= and UUID= work when turning off swap files
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux <util-linux@vger.kernel.org>
-Cc: Sami Kerola <kerolasa@iki.fi>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1415049437-2301-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 31 October 2014 23:57, Sami Kerola <kerolasa@iki.fi> wrote:
-> Before this commit the swapoff was unable to find swap files by UUID or
-> LABEL.  For example if one had:
+On Mon, Nov 03, 2014 at 10:17:16PM +0100, Benno Schulenberg wrote:
+>  disk-utils/fsck.8  |    2 +-
+>  sys-utils/swapon.8 |   26 +++++++++++++-------------
+>  2 files changed, 14 insertions(+), 14 deletions(-)
 
-Karel, please ignore this change. This version is not good enough.
-I'll send new along with mkswap changes.
+ both patches applied, thanks!
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
