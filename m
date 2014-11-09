@@ -1,38 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:62959 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751472AbaKJVuJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:09 -0500
-Received: by mail-wi0-f180.google.com with SMTP id hi2so11948475wib.7
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:06 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 2/6] tests: fix memory leak [AddressSanitizer]
-Date: Mon, 10 Nov 2014 21:49:51 +0000
-Message-Id: <1415656195-20458-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+Received: from domu-toccata.ens-lyon.fr ([140.77.166.138]:50606 "EHLO
+	sonata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750957AbaKICTG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Nov 2014 21:19:06 -0500
+Date: Sun, 9 Nov 2014 03:19:01 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: libfdisk: fdisk_read_firstsector should seek to offset 0
+Message-ID: <20141109021901.GA2799@type.youpi.perso.aquilenet.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/cpuset.c | 1 +
- 1 file changed, 1 insertion(+)
+The current offset of cxt->dev_fd may not be still 0, notably when
+blkdev_get_size has to resort to using blkdev_find_size
 
-diff --git a/lib/cpuset.c b/lib/cpuset.c
-index e5b6b9d..d715720 100644
---- a/lib/cpuset.c
-+++ b/lib/cpuset.c
-@@ -388,6 +388,7 @@ int main(int argc, char *argv[])
- 	printf("[%s]\n", cpulist_create(buf, buflen, set, setsize));
- 
- 	free(buf);
-+	free(mask);
- 	free(range);
- 	cpuset_free(set);
- 
--- 
-2.1.3
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org
 
+--- libfdisk/src/utils.c.original	2014-11-09 02:06:55.000000000 +0000
++++ libfdisk/src/utils.c	2014-11-09 02:07:58.000000000 +0000
+@@ -49,6 +49,13 @@ int fdisk_read_firstsector(struct fdisk_
+ 	DBG(CXT, ul_debugobj(cxt, "reading first sector "
+ 				"buffer [sector_size=%lu]", cxt->sector_size));
+ 
++	r = lseek(cxt->dev_fd, 0, SEEK_SET);
++	if (r == -1)
++	{
++		DBG(CXT, ul_debugobj(cxt, "failed to seek to first sector %m"));
++		return -errno;
++	}
++
+ 	r = read(cxt->dev_fd, cxt->firstsector, cxt->sector_size);
+ 
+ 	if (r != cxt->sector_size) {
