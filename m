@@ -1,51 +1,109 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f170.google.com ([209.85.214.170]:63232 "EHLO
-	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751587AbaKXT4z (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 14:56:55 -0500
-Received: by mail-ob0-f170.google.com with SMTP id wp18so7703194obc.15
-        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 11:56:54 -0800 (PST)
-Received: from [192.168.0.75] (cpe-70-123-211-202.satx.res.rr.com. [70.123.211.202])
-        by mx.google.com with ESMTPSA id e8sm5982529oev.4.2014.11.24.11.56.51
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Nov 2014 11:56:52 -0800 (PST)
-Message-ID: <54738D83.9010108@gmail.com>
-Date: Mon, 24 Nov 2014 13:56:51 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-MIME-Version: 1.0
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:63174 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753146AbaKJVuS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:18 -0500
+Received: by mail-wg0-f50.google.com with SMTP id z12so10077444wgg.37
+        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:17 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: Re: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <20141124113733.GC926@x2.net.home> <547343EA.6090606@ubuntu.com> <20141124154604.GA2610@x2.net.home>
-In-Reply-To: <20141124154604.GA2610@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: kerolasa@iki.fi
+Subject: [PATCH 6/6] tests: mark python libmount tests known to fail with AddressSanitizer
+Date: Mon, 10 Nov 2014 21:49:55 +0000
+Message-Id: <1415656195-20458-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Mon, Nov 24, 2014 at 09:42:50AM -0500, Phillip Susi wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> On 11/24/2014 6:37 AM, Karel Zak wrote:
->>> The current trend is to use partition type to define for what
->>> purpose we want to use the partition (for example "this is /home")
->>> independently on partition format.
->>
->> I wouldn't call this bone headed idea of redhat's a trend.  Using
->> partition table type codes to decide to auto mount in particular parts
->> of the filesystem is such a brain damaged idea, those who thought it
->> up need beaten with a clue-by-four and its use needs to be *strongly*
->> discouraged.
->
->   well, it's designed for auto-generated fstab-less systems like
->   containers/virt images, etc. I'm not big fan of this feature, but for
->   some use cases it makes sense. (And it's systemd upstream decision.)
->
->   Anyway, use partition type for "usage" makes more sense than for "fs-type".
+The tests fail with an error similar to this.
 
-Since when is systemd upstream of util-linux?
+Traceback (most recent call last):
+  File "/home/src/util-linux/libmount/python/test_mount_tab_update.py", line 7, in <module>
+    import pylibmount as mnt
+ImportError: /home/src/util-linux/.libs/libuuid.so.1: undefined symbol: __asan_option_detect_stack_use_after_return
 
-   -- Bruce
+It might be possible to build ASAN-DSO and set LD_PRELOAD, but this
+solution is not officially supported.  See the reference for details.
 
+Reference: https://code.google.com/p/address-sanitizer/wiki/AsanAsDso
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/ts/libmount/tabfiles-py      | 4 ++++
+ tests/ts/libmount/tabfiles-tags    | 4 ++++
+ tests/ts/libmount/tabfiles-tags-py | 4 ++++
+ tests/ts/libmount/update-py        | 6 +++++-
+ 4 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/tests/ts/libmount/tabfiles-py b/tests/ts/libmount/tabfiles-py
+index f0c4836..b157460 100755
+--- a/tests/ts/libmount/tabfiles-py
++++ b/tests/ts/libmount/tabfiles-py
+@@ -9,6 +9,10 @@ TS_DESC="tab files-py"
+ ts_init "$*"
+ ts_init_py libmount
+ 
++if [ -f "$ASAN_SYMBOLIZER_PATH" ]; then
++	TS_KNOWN_FAIL="yes"
++fi
++
+ PYDBG="$PYTHON -m pdb"
+ TESTPROG="$TS_HELPER_PYLIBMOUNT_TAB"
+ [ -x $TESTPROG ] || ts_die "test script missing"
+diff --git a/tests/ts/libmount/tabfiles-tags b/tests/ts/libmount/tabfiles-tags
+index 1d9534b..15696b0 100755
+--- a/tests/ts/libmount/tabfiles-tags
++++ b/tests/ts/libmount/tabfiles-tags
+@@ -7,6 +7,10 @@ TS_DESC="tags"
+ ts_init "$*"
+ ts_skip_nonroot
+ 
++if [ -f "$ASAN_SYMBOLIZER_PATH" ]; then
++	TS_KNOWN_FAIL="yes"
++fi
++
+ TESTPROG="$TS_HELPER_LIBMOUNT_TAB"
+ 
+ [ -x $TESTPROG ] || ts_skip "test not compiled"
+diff --git a/tests/ts/libmount/tabfiles-tags-py b/tests/ts/libmount/tabfiles-tags-py
+index 2f462a0..d6ca470 100755
+--- a/tests/ts/libmount/tabfiles-tags-py
++++ b/tests/ts/libmount/tabfiles-tags-py
+@@ -8,6 +8,10 @@ ts_init "$*"
+ ts_init_py libmount
+ ts_skip_nonroot
+ 
++if [ -f "$ASAN_SYMBOLIZER_PATH" ]; then
++	TS_KNOWN_FAIL="yes"
++fi
++
+ TESTPROG="$TS_HELPER_PYLIBMOUNT_TAB"
+ [ -x $TESTPROG ] || ts_die "test script missing"
+ 
+diff --git a/tests/ts/libmount/update-py b/tests/ts/libmount/update-py
+index 6493224..66f1754 100755
+--- a/tests/ts/libmount/update-py
++++ b/tests/ts/libmount/update-py
+@@ -10,6 +10,10 @@ ts_init "$*"
+ ts_init_py libmount
+ ts_skip_nonroot
+ 
++if [ -f "$ASAN_SYMBOLIZER_PATH" ]; then
++	TS_KNOWN_FAIL="yes"
++fi
++
+ TESTPROG="$TS_HELPER_PYLIBMOUNT_UPDATE"
+ [ -x $TESTPROG ] || ts_die "test script missing"
+ 
+@@ -21,7 +25,7 @@ rm -f $LIBMOUNT_FSTAB
+ cp "$TS_SELF/files/fstab.comment" $LIBMOUNT_FSTAB
+ 
+ ts_init_subtest "fstab-replace"
+-$PYTHON $TESTPROG --replace "LABEL=foo" "/mnt/foo"
++$PYTHON $TESTPROG --replace "LABEL=foo" "/mnt/foo" >/dev/null 2>&1
+ cp $LIBMOUNT_FSTAB $TS_OUTPUT	# save the fstab aside
+ ts_finalize_subtest		#checks the fstab
+ 
+-- 
+2.1.3
 
