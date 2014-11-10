@@ -1,38 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41001 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753650AbaKRNBA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 08:01:00 -0500
-Date: Tue, 18 Nov 2014 14:00:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Spelling fixes
-Message-ID: <20141118130048.GL6704@x2.net.home>
-References: <1416084103-15931-1-git-send-email-ville.skytta@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1416084103-15931-1-git-send-email-ville.skytta@iki.fi>
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:51072 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753146AbaKJVuQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:16 -0500
+Received: by mail-wg0-f42.google.com with SMTP id k14so10013472wgh.1
+        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:15 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 5/6] tests: skip kill -SEGV test when running AddressSanitizer
+Date: Mon, 10 Nov 2014 21:49:54 +0000
+Message-Id: <1415656195-20458-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Nov 15, 2014 at 10:41:43PM +0200, Ville Skyttä wrote:
-> Signed-off-by: Ville Skyttä <ville.skytta@iki.fi>
-> ---
->  AUTHORS                                   | 2 +-
->  Documentation/releases/v2.22-ReleaseNotes | 2 +-
->  Documentation/releases/v2.24-ReleaseNotes | 4 ++--
->  Documentation/releases/v2.25-ReleaseNotes | 2 +-
->  misc-utils/logger.1                       | 2 +-
->  sys-utils/mount.8                         | 2 +-
->  tests/functions.sh                        | 2 +-
->  tests/run.sh                              | 2 +-
->  8 files changed, 9 insertions(+), 9 deletions(-)
+Sending signal indicating invalid memory reference makes AddressSanitizer
+to report false positive test failure.
 
- Applied (except the changes in *ReleaseNotes), thanks!
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/ts/kill/name_to_number | 3 +++
+ 1 file changed, 3 insertions(+)
 
-    Karel
-
+diff --git a/tests/ts/kill/name_to_number b/tests/ts/kill/name_to_number
+index 9a370bb..cde55c9 100755
+--- a/tests/ts/kill/name_to_number
++++ b/tests/ts/kill/name_to_number
+@@ -33,6 +33,9 @@ for SIG in $($TS_CMD_KILL -L); do
+ 		EXPECTED=$SIG
+ 		continue
+ 	fi
++	if [ -f "$ASAN_SYMBOLIZER_PATH" ] && [ "x$SIG" = "xSEGV" ]; then
++		continue
++	fi
+ 	if [ "x$SIG" = "xSTOP" ] || [ "x$SIG" = "xKILL" ]; then
+ 		continue
+ 	fi
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
