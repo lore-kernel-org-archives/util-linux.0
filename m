@@ -1,53 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43041 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753542AbaKRNGH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 08:06:07 -0500
-Date: Tue, 18 Nov 2014 14:05:25 +0100
-From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
- hwclock
-Message-ID: <20141118130525.GM6704@x2.net.home>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
- <1414444693-16407-4-git-send-email-bensberg@justemail.net>
- <544EECC9.2000300@gmx.com>
- <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com>
- <20141031095142.GX10134@x2.net.home>
- <54566F88.4040101@gmx.com>
- <1415049315.2564297.186608257.366970B7@webmail.messagingengine.com>
- <5458D1A2.40106@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5458D1A2.40106@gmx.com>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:55294 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753146AbaKJVuK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:10 -0500
+Received: by mail-wi0-f181.google.com with SMTP id n3so12033958wiv.2
+        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:08 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 3/6] tests: add mkswap size printout to expected output
+Date: Mon, 10 Nov 2014 21:49:52 +0000
+Message-Id: <1415656195-20458-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 04, 2014 at 08:16:18AM -0500, JWP wrote:
-> I do not disagree with you here. I did not want to be heavy handed when
-> editing Karel's words, because it is his project and I am new here.
+The commit 9a83b03c changed mkswap final printout, that made test to
+fail.  This change updates test expectation with mentioned commit.
 
- Karel is not always right. Don't care who is author, bugs have to be
- fixed.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/misc/swaplabel | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > "Since v2.26 hwclock --hctosys does a better job at setting the System Clock:
-> > it no longer simply copies the time from the Hardware Clock to the System Clock,
-> > but it reads the Hardware Clock, applies a compensation for the systematic drift
-> > to this read time, and sets the System Clock to the resulting time.  Thus it is
-> > no longer necessary to run hwclock --adjust before doing hwclock --hctosys, and
-> > therefore hwclock can be used very early on in the boot process when the root
-> > filesystem is still read-only."
-> > 
-> > Any amendments?
-> 
-> Nope, that seems quite complete Benno!
-
- Benno, re-send a complete patch with this change. Please.
-
-    Karel
-
+diff --git a/tests/expected/misc/swaplabel b/tests/expected/misc/swaplabel
+index fd442af..d54d559 100644
+--- a/tests/expected/misc/swaplabel
++++ b/tests/expected/misc/swaplabel
+@@ -1,6 +1,6 @@
+ mkswap: error: swap area needs to be at least 10 pages
+ mkswap: Label was truncated.
+-Setting up swapspace version 1, size = 9 pages
++Setting up swapspace version 1, size = 9 pages (36864 bytes)
+ LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
+ LABEL: 1234567890abcde
+ UUID:  12345678-abcd-abcd-abcd-1234567890ab
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
