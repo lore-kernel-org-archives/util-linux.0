@@ -1,68 +1,88 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1415049315.2564297.186608257.366970B7@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: JWP <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <54566F88.4040101@gmx.com>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
- <1414444693-16407-4-git-send-email-bensberg@justemail.net>
- <544EECC9.2000300@gmx.com>
- <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com>
- <20141031095142.GX10134@x2.net.home> <54566F88.4040101@gmx.com>
-Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
- hwclock
-Date: Mon, 03 Nov 2014 22:15:15 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:59883 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751464AbaKJVuB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:01 -0500
+Received: by mail-wg0-f51.google.com with SMTP id l18so9915384wgh.24
+        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:00 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: kerolasa@iki.fi
+Subject: [PATCH 0/6] pull: almost working AddressSanitizer support
+Date: Mon, 10 Nov 2014 21:49:49 +0000
+Message-Id: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
-On Sun, Nov 2, 2014, at 18:53, JWP wrote:
-> The first issue seems so trivial as to not justify any debate. I will
-> however, expand on my original comment: if there is no grammar rule to
-> decide a style choice, then the super-class style rule of 'be consistent'
-> should be applied.  I do not find 'because I say so' to be a compelling
-> argument.  
+As said some time ago
 
-Fine.  But as you've said yourself: human language is illogical.  :)
+http://markmail.org/message/xfd6u2s53jlsjoc6
 
-> With regard to the second issue, I suggested 'how exactly to phrase that' 
-> when I edited it the first time.
+the more static analysis the better.  So I to heard about AddressSanitizer
+I thought why not to give it a go, to see if making it work would benefit
+this project.  This patch set fixes one real issue '4/6: libmount: fix
+memory overflow' and makes some noise to go away.  I am hoping to get the
+AddressSanitizer to run without issues so that it could be part of travis
+clang root build.
 
-Ah.  When I edited it I didn't realize the v2.26 notes had been changed
-after Karel had added them.  And now it took me a moment to realize that
-JWP is the same as J William Piggott.  ...  Okay, never mind.
+But it seems nothing is never that easy.  For some reason the mkswap(8)
+refuses to work when it is build with
 
-> Unless it can be rewritten in a way that 
-> does not change its meaning, I feel it should remain as it is.
+export CC=clang
+export CFLAGS='-O1 -g -fsanitize=address -fno-omit-frame-pointer'
+export ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
+export LD=ld.gold
 
-Well, there are several problems with your (and also Karels) version
-of the text.  First, "automatically".  The word suggests to me that
-there is/was a way to do this unautomatically, that is: by the use of
-an option.  But is was never possible to make hwclock set the System
-Clock to a drift-compensated time without touching the Hardware Clock
-nor the adjtime file.  Second, "compensates time [...] to account for".
-The expression in English is " to compensate something /for/ a deviance" --
-there should be no "to account".  But the interposing of "read from the
-Hardware Clock" makes the use of this expression difficult to grasp.
-So it's better to rewrite the whole thing.  Third, a "the" is needed
-before "time".  Fourth, the "This functionality" referring to --adjust
-no longer being necessary during boot is awkward; it's second word
-can simply de dropped.
+The short description is: when the code is at very last line of mkswap at
+'return EXIT_SUCCESS;' somehow the EXIT_SUCCESS is 1.  If I change the
+'return EXIT_SUCCESS;' to 'exit(EXIT_SUCCESS);' the return value stays
+expected.  Possible explanations include:
 
-So... my suggestion:
+1. I'm doing something silly and/or wrong.
 
-"Since v2.26 hwclock --hctosys does a better job at setting the System Clock:
-it no longer simply copies the time from the Hardware Clock to the System Clock,
-but it reads the Hardware Clock, applies a compensation for the systematic drift
-to this read time, and sets the System Clock to the resulting time.  Thus it is
-no longer necessary to run hwclock --adjust before doing hwclock --hctosys, and
-therefore hwclock can be used very early on in the boot process when the root
-filesystem is still read-only."
+2. This happens only on my laptop (or imagination).  Please, let it not
+   be this.
 
-Any amendments?
+3. This is a bug in clang, llvm, and/or AddressSanitizer.
+   clang / llvm version 3.5.0 from Archlinux packages 3.5.0-2.1
 
-Benno
+4. With gcc 4.9.2 and the same CFLAGS the mkswap works.
+
+Adding a AddressSanitizer travis build rules while having this sort of
+problem going on does not sound right thing to do.  Getting a hint what
+might be going on is highly appreciated.
+
+
+----------------------------------------------------------------
+The following changes since commit 9a83b03c7307715b45b143f203f9bf8b0bcf7a5d:
+  mkswap: make final report more human readable (2014-11-07 14:03:35 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git asan
+for you to fetch changes up to d07a5b79ec55bffceb6db994fc5a0ddadd8a1ca5:
+  tests: mark python libmount tests known to fail with AddressSanitizer (2014-11-10 20:02:53 +0000)
+----------------------------------------------------------------
+
+Sami Kerola (6):
+  build-sys: make scanf_cv_alloc_modifier to work [AddressSanitizer]
+  tests: fix memory leak [AddressSanitizer]
+  tests: add mkswap size printout to expected output
+  libmount: fix memory overflow [AddressSanitizer]
+  tests: skip kill -SEGV test when running AddressSanitizer
+  tests: mark python libmount tests known to fail with AddressSanitizer
+
+ configure.ac                       | 1 +
+ lib/cpuset.c                       | 1 +
+ libmount/src/utils.c               | 2 +-
+ tests/expected/misc/swaplabel      | 2 +-
+ tests/ts/kill/name_to_number       | 3 +++
+ tests/ts/libmount/tabfiles-py      | 4 ++++
+ tests/ts/libmount/tabfiles-tags    | 4 ++++
+ tests/ts/libmount/tabfiles-tags-py | 4 ++++
+ tests/ts/libmount/update-py        | 6 +++++-
+ 9 files changed, 24 insertions(+), 3 deletions(-)
 
 -- 
-http://www.fastmail.fm - Does exactly what it says on the tin
+2.1.3
+
