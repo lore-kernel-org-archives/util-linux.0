@@ -1,35 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:62877 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751626AbaKLFsR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 12 Nov 2014 00:48:17 -0500
-Received: by mail-lb0-f176.google.com with SMTP id 10so8604670lbg.7
-        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 21:48:15 -0800 (PST)
-Received: from [192.168.1.118] ([217.70.122.1])
-        by mx.google.com with ESMTPSA id o10sm6473176lal.37.2014.11.11.21.48.14
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Nov 2014 21:48:14 -0800 (PST)
-Message-ID: <5462F558.5000602@linux.com>
-Date: Wed, 12 Nov 2014 11:51:20 +0600
-From: Boris Egorov <egorov@linux.com>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:46142 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751933AbaKKWvl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Nov 2014 17:51:41 -0500
+Received: by mail-pd0-f176.google.com with SMTP id ft15so10884866pdb.7
+        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 14:51:41 -0800 (PST)
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Coverity Scan analysis report
-Content-Type: text/plain; charset=utf-8; format=flowed
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20141111021033.GF3652@vapier.wh0rd.info>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+	<1415656195-20458-2-git-send-email-kerolasa@iki.fi>
+	<20141111021033.GF3652@vapier.wh0rd.info>
+Date: Tue, 11 Nov 2014 22:51:41 +0000
+Message-ID: <CAG27Bk1i9rcU+c26YumioUHWmSL+AZqT=mop+rwEpErQaDDmgw@mail.gmail.com>
+Subject: Re: [PATCH 1/6] build-sys: make scanf_cv_alloc_modifier to work [AddressSanitizer]
+From: Sami Kerola <kerolasa@iki.fi>
+To: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello.
+On 11 November 2014 02:10, Mike Frysinger <vapier@gentoo.org> wrote:
+> On 10 Nov 2014 21:49, Sami Kerola wrote:
+>> The tests failed with following message in config.log
+>>
+>> ERROR: LeakSanitizer: detected memory leaks
+>
+> nit: the subject says ASAN but this is fixing an LSAN bug ;)
 
-It is possible to analyze project using Coverity Scan. I've created a 
-project on their website with my clone of util-linux on Github. You can 
-see it here: https://scan.coverity.com/projects/3469?tab=overview (I can 
-export report if you can't see it).
-So, it can be done for the main util-linux Github repo. Coupled with 
-Travis CI it can generate regular analysis reports.
+Thanks Mike,
+
+Message is reworded, and I added you as Reviewed-by.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/b29fbfdb3a83d6dd1215280c24422150baa8b477
 
 -- 
-Best Regards,
-Boris Egorov
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
