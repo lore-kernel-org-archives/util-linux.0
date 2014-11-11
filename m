@@ -1,95 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59491 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750828AbaKFMBf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 6 Nov 2014 07:01:35 -0500
-Date: Thu, 6 Nov 2014 13:01:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Natanael Copa <ncopa@alpinelinux.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] switch_root: use typeof() instead of __SWORD_TYPE
-Message-ID: <20141106120126.GC6880@x2.net.home>
-References: <1414573745-15664-1-git-send-email-ncopa@alpinelinux.org>
- <20141029193752.GA32734@vapier.wh0rd.info>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:48024 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752417AbaKKWtQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Nov 2014 17:49:16 -0500
+Received: by mail-wi0-f174.google.com with SMTP id d1so3166774wiv.1
+        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 14:49:15 -0800 (PST)
+Date: Tue, 11 Nov 2014 22:49:02 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: kerolasa@gmail.com
+cc: Boris Egorov <egorov@linux.com>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
+In-Reply-To: <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
+Message-ID: <alpine.LNX.2.03.1411112236560.23899@iki.fi>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi> <5461B803.4050707@linux.com> <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20141029193752.GA32734@vapier.wh0rd.info>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 29, 2014 at 03:37:52PM -0400, Mike Frysinger wrote:
-> On 29 Oct 2014 09:09, Natanael Copa wrote:
-> > +			    (stfs.f_type == (typeof(stfs.f_type))STATFS_RAMFS_MAGIC ||
-> > +			     stfs.f_type == (typeof(stfs.f_type))STATFS_TMPFS_MAGIC))
-> 
-> typeof is a gcc extension and really should be __typeof__.  ignoring irony of 
-> replacing on unportable behavior with another ;).
+On Tue, 11 Nov 2014, Sami Kerola wrote:
+> I'm running out of ideas.
 
-:-)
+That was a bit hasty comment. Without '-fsanitize=address' compiler 
+option, while keepign '-O0 -g -ggdb' valgrind was able to display another 
+leak.  When both leaks were fixed the mkswap started to return zero 
+expected way.
 
-I have applied the patch below, please review. It is not perfect, but I
-hope good enough for usual cases (gcc, clang).
+The second leak was caused by size_to_human_string() that is coming from 
+libcommon.la. Did the ASAN + clang fall over because of libtool static 
+library and atexit()? I don't know, and I guess this maillist is wrong 
+forum to investigate. I'm just happy if someone who has similar issue 
+finds this thread useful.
 
-    Karel
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Tue, 11 Nov 2014 21:34:30 +0000
+Subject: [PATCH v2] mkswap: remove memory leaks [LeakSanitizer] [valgrind]
 
+==18922==ERROR: LeakSanitizer: detected memory leaks
 
->From 8f806bb1ea30f15db7ca36d1cfa79349f8115302 Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Thu, 6 Nov 2014 12:50:27 +0100
-Subject: [PATCH] switch_root: improve statfs->f_type portability
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+     #0 0x49d12b in __interceptor_malloc (/home/src/util-linux/.libs/lt-mkswap+0x49d12b)
+     #1 0x7faf2a5069c9 in __GI___strdup (/usr/lib/libc.so.6+0x819c9)
+     #2 0xffff96e7e33 (<unknown module>)
 
-__SWORD_TYPE is not available everywhere, for example it's not defined
-by musl libc. It also seems that __SWORD_TYPE is not used for f_type
-on some architectures (s390x).
+SUMMARY: AddressSanitizer: 8 byte(s) leaked in 1 allocation(s).
 
-Reported-by: Natanael Copa <ncopa@alpinelinux.org>
-Signed-off-by: Karel Zak <kzak@redhat.com>
+And another one that valgrind found.
+
+==6316== 8 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==6316==    at 0x4C29F90: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6316==    by 0x5E3F9C9: strdup (in /usr/lib/libc-2.20.so)
+==6316==    by 0x43A25F: size_to_human_string (strutils.c:495)
+==6316==    by 0x42B35C: main (mkswap.c:488)
+
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- include/statfs_magic.h  | 11 +++++++++++
- sys-utils/switch_root.c |  4 ++--
- 2 files changed, 13 insertions(+), 2 deletions(-)
+  disk-utils/mkswap.c | 2 ++
+  1 file changed, 2 insertions(+)
 
-diff --git a/include/statfs_magic.h b/include/statfs_magic.h
-index b5fde1a..d27be1c 100644
---- a/include/statfs_magic.h
-+++ b/include/statfs_magic.h
-@@ -1,6 +1,17 @@
- #ifndef UTIL_LINUX_STATFS_MAGIC_H
- #define UTIL_LINUX_STATFS_MAGIC_H
- 
-+#include <sys/statfs.h>
-+
-+/*
-+ * If possible then don't depend on internal libc __SWORD_TYPE type.
-+ */
-+#ifdef __GNUC__
-+typedef __typeof__( ((struct statfs *)0)->f_type )	ul_statfs_ftype_t;
-+#else
-+typedef __SWORD_TYPE	ul_statfs_ftype_t;
-+#endif
-+
- /*
-  *  Unfortunately, Linux kernel hedeader file <linux/magic.h> is incomplete
-  *  mess and kernel returns by statfs f_type many numbers that are nowhere
-diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
-index 6822a5d..c6a2eff 100644
---- a/sys-utils/switch_root.c
-+++ b/sys-utils/switch_root.c
-@@ -181,8 +181,8 @@ static int switchroot(const char *newroot)
- 		if (pid <= 0) {
- 			struct statfs stfs;
- 			if (fstatfs(cfd, &stfs) == 0 &&
--			    (stfs.f_type == (__SWORD_TYPE)STATFS_RAMFS_MAGIC ||
--			     stfs.f_type == (__SWORD_TYPE)STATFS_TMPFS_MAGIC))
-+			    (stfs.f_type == (ul_statfs_ftype_t) STATFS_RAMFS_MAGIC ||
-+			     stfs.f_type == (ul_statfs_ftype_t) STATFS_TMPFS_MAGIC))
- 				recursiveRemove(cfd);
- 			else
- 				warn(_("old root filesystem is not an initramfs"));
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index c4fe8c9..d34e2fd 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -323,6 +323,7 @@ static void wipe_device(struct mkswap_control *ctl)
+  			fprintf(stderr, _("        (compiled without libblkid). "));
+  		fprintf(stderr, _("Use -f to force.\n"));
+  	}
++	free(type);
+  #ifdef HAVE_LIBBLKID
+  	blkid_free_probe(pr);
+  #endif
+@@ -488,6 +489,7 @@ int main(int argc, char **argv)
+
+  	printf(_("Setting up swapspace version %d, size = %s (%ju bytes)\n"),
+  		version, strsz, sz);
++	free(strsz);
+
+  	set_signature(&ctl);
+  	set_uuid_and_label(&ctl);
 -- 
-1.9.3
-
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
