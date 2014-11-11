@@ -1,35 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37647 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752532AbaKLOZP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 12 Nov 2014 09:25:15 -0500
-Date: Wed, 12 Nov 2014 15:25:00 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: kerolasa@gmail.com, Boris Egorov <egorov@linux.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-Message-ID: <20141112142500.GB5530@x2.net.home>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
- <5461B803.4050707@linux.com>
- <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
- <alpine.LNX.2.03.1411112236560.23899@iki.fi>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:57391 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751407AbaKKVQt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Nov 2014 16:16:49 -0500
+Received: by mail-pa0-f52.google.com with SMTP id fa1so11293352pad.25
+        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 13:16:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.03.1411112236560.23899@iki.fi>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20141111021250.GG3652@vapier.wh0rd.info>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+	<1415656195-20458-7-git-send-email-kerolasa@iki.fi>
+	<20141111021250.GG3652@vapier.wh0rd.info>
+Date: Tue, 11 Nov 2014 21:16:48 +0000
+Message-ID: <CAG27Bk0+saBoL=R0n_7CRBiC89J9JC+udoabTMFd1vN_W=e4Eg@mail.gmail.com>
+Subject: Re: [PATCH 6/6] tests: mark python libmount tests known to fail with AddressSanitizer
+From: Sami Kerola <kerolasa@iki.fi>
+To: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 11, 2014 at 10:49:02PM +0000, Sami Kerola wrote:
->  	printf(_("Setting up swapspace version %d, size = %s (%ju bytes)\n"),
->  		version, strsz, sz);
-> +	free(strsz);
+On 11 November 2014 02:12, Mike Frysinger <vapier@gentoo.org> wrote:
+> On 10 Nov 2014 21:49, Sami Kerola wrote:
+>> The tests fail with an error similar to this.
+>>
+>> Traceback (most recent call last):
+>>   File "/home/src/util-linux/libmount/python/test_mount_tab_update.py", line 7, in <module>
+>>     import pylibmount as mnt
+>> ImportError: /home/src/util-linux/.libs/libuuid.so.1: undefined symbol: __asan_option_detect_stack_use_after_return
+>
+> if libuuid.so is built with ASAN, it should be linked with it too.  that means
+> passing the ASAN flags at link time.  or maybe libtool is filtering them out
+> when it goes to link the library ?
 
- free-before-exit, you know what I think about it, right? :)
+Hi Mike,
 
-    Karel
+The documentation
 
+https://code.google.com/p/address-sanitizer/wiki/AsanAsDso
+
+gives a hint
+
+-- snip
+=ASAN and LD_PRELOAD=
+
+It is possible to use ASAN in this scenario (e.g. JVM+JNI, Python+SWIG):
+
+* There is third-party executable binary which can not be recompiled
+* It loads shared libraries that can be recompiled and we want to test
+them with ASAN
+
+A simple solution is to build ASAN-DSO and LD_PRELOAD it into the
+process, however the devil is in the detail.
+
+* If the process creates sub-processes, they will also have ASAN-DSO
+preloaded, which may be undesirable.
+* TODO (stay tuned)
+-- snip
+
+Making the python + libuuid should be possible, but I it seems to
+require a bit trying to get work. I feel it is acceptable to get most
+of the util-linux & travis to work with the asan first, and once the
+easy stuff is done one can/should concentrate on making the less
+trivial things to work.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
