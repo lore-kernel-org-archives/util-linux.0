@@ -1,139 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:33429 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751093AbaKBU0u (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:26:50 -0500
-Received: by mail-wg0-f47.google.com with SMTP id a1so9790026wgh.20
-        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:26:48 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/8] swapoff: make LABEL= and UUID= work when turning off swap files
-Date: Sun,  2 Nov 2014 20:26:24 +0000
-Message-Id: <1414959991-8369-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
-References: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:40886 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751218AbaKKCKj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 10 Nov 2014 21:10:39 -0500
+Date: Mon, 10 Nov 2014 21:10:33 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/6] build-sys: make scanf_cv_alloc_modifier to work
+ [AddressSanitizer]
+Message-ID: <20141111021033.GF3652@vapier.wh0rd.info>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+ <1415656195-20458-2-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5Mfx4RzfBqgnTE/w"
+In-Reply-To: <1415656195-20458-2-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Before this commit the swapoff was unable to find swap files by UUID or
-LABEL.  For example if one had:
 
-$ swapon --show=name,uuid,label
-NAME      UUID                                 LABEL
-/swapfile bf6237f4-db89-4761-a1a3-275cfc68b114 xyzzy
+--5Mfx4RzfBqgnTE/w
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-then turning off the swap had issues:
+On 10 Nov 2014 21:49, Sami Kerola wrote:
+> The tests failed with following message in config.log
+>=20
+> ERROR: LeakSanitizer: detected memory leaks
 
-$ swapoff -U bf6237f4-db89-4761-a1a3-275cfc68b114
-swapoff: cannot find the device for bf6237f4-db89-4761-a1a3-275cfc68b114
-$ swapoff -L xyzzy
-swapoff: cannot find the device for xyzzy
+nit: the subject says ASAN but this is fixing an LSAN bug ;)
+-mike
 
-This version of the swapoff is also capable to turn off multiple swap
-devices that share the same UUID or LABEL.  Earlier only the first found
-match was turned off.
+--5Mfx4RzfBqgnTE/w
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/Makemodule.am | 13 ++++++++++---
- sys-utils/swapoff.c     | 34 +++++++++++++++++++++++-----------
- 2 files changed, 33 insertions(+), 14 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index f540d38..b256fda 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -279,9 +279,16 @@ swapon_LDADD = $(LDADD) \
- swapoff_SOURCES = \
- 	sys-utils/swapoff.c \
- 	sys-utils/swapon-common.c \
--	sys-utils/swapon-common.h
--swapoff_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
--swapoff_LDADD = $(LDADD) libmount.la
-+	sys-utils/swapon-common.h \
-+	lib/swapprober.c \
-+	include/swapprober.h
-+swapoff_CFLAGS = $(AM_CFLAGS) \
-+	-I$(ul_libblkid_incdir) \
-+	-I$(ul_libmount_incdir)
-+swapoff_LDADD = $(LDADD) \
-+	libblkid.la \
-+	libcommon.la \
-+	libmount.la
- endif
- 
- if BUILD_LSCPU
-diff --git a/sys-utils/swapoff.c b/sys-utils/swapoff.c
-index 182ce95..20b9249 100644
---- a/sys-utils/swapoff.c
-+++ b/sys-utils/swapoff.c
-@@ -9,6 +9,7 @@
- #include "nls.h"
- #include "c.h"
- #include "closestream.h"
-+#include "swapprober.h"
- 
- #include "swapon-common.h"
- 
-@@ -49,16 +50,27 @@ static int do_swapoff(const char *orig_special, int quiet, int canonic)
- 	return -1;
- }
- 
--static int swapoff_by_label(const char *label, int quiet)
-+static int swapoff_by(const char *type, const char *request, int quiet)
- {
--	const char *special = mnt_resolve_tag("LABEL", label, mntcache);
--	return special ? do_swapoff(special, quiet, CANONIC) : cannot_find(label);
--}
-+	struct libmnt_table *tb = get_swaps();
-+	struct libmnt_iter *itr = mnt_new_iter(MNT_ITER_BACKWARD);
-+	struct libmnt_fs *fs;
-+	int ret = 0, notfound = -1;
- 
--static int swapoff_by_uuid(const char *uuid, int quiet)
--{
--	const char *special = mnt_resolve_tag("UUID", uuid, mntcache);
--	return special ? do_swapoff(special, quiet, CANONIC) : cannot_find(uuid);
-+	while (tb && mnt_table_find_next_fs(tb, itr, match_swap, NULL, &fs) == 0) {
-+		const char *dev = mnt_fs_get_source(fs);
-+		blkid_probe pr;
-+		const char *data;
-+
-+		pr = get_swap_prober(dev);
-+		blkid_probe_lookup_value(pr, type, &data, NULL);
-+		if (data && !strcmp(request, data)) {
-+			notfound = 0;
-+			ret |= do_swapoff(dev, quiet, CANONIC);
-+		}
-+	}
-+	ret += notfound;
-+	return !ret ? 0 : cannot_find(request);
- }
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
-@@ -118,7 +130,7 @@ static int swapoff_all(void)
- 
- 	while (tb && mnt_table_find_next_fs(tb, itr, match_swap, NULL, &fs) == 0) {
- 		if (!is_active_swap(mnt_fs_get_source(fs)))
--			do_swapoff(mnt_fs_get_source(fs), QUIET, !CANONIC);
-+			do_swapoff(mnt_fs_get_source(fs), QUIET, CANONIC);
- 	}
- 
- 	mnt_free_iter(itr);
-@@ -178,10 +190,10 @@ int main(int argc, char *argv[])
- 	mntcache = mnt_new_cache();
- 
- 	for (i = 0; i < numof_labels(); i++)
--		status |= swapoff_by_label(get_label(i), !QUIET);
-+		status |= swapoff_by("LABEL", get_label(i), !QUIET);
- 
- 	for (i = 0; i < numof_uuids(); i++)
--		status |= swapoff_by_uuid(get_uuid(i), !QUIET);
-+		status |= swapoff_by("UUID", get_uuid(i), !QUIET);
- 
- 	while (*argv != NULL)
- 		status |= do_swapoff(*argv++, !QUIET, !CANONIC);
--- 
-2.1.3
+iQIcBAEBAgAGBQJUYXAZAAoJEEFjO5/oN/WBWqoP/0vfCMprXFCz51xWoWs3XK5P
+NwNJczbMn0gHfbzZJEAJTkE1pViGPQGJ9xujUZOuv/ibU9sh/sIWYM9bsk5UvEcM
+8gSFMky9mI7JAFHSi0ZdXCfn4efEXfbDIDymlkCt8jy2bpkk5lYvel27AesduSwb
+Tz3dimdLulgzYNY/PNW/DvEZkDjO5XaFzA9pkP0Jd0J630QpMBWJ82IeYOxb3Q7x
+RfSqiBkVVkXk636R1xQjUsUBJ9lseNOdRUrEU4bVyPjP3nw/x+TMn0+9GIFUQBO4
+Loj3IDiDTSM4iBobFTSDngvPG3tONiuWb50bzqbGhOy1MWQvBchJ+is/oUfFyJiO
+7cdtkWiBlqPVe0/puvjhjlD70lS+69sMr7VQPESYg6E9we3WoOTDa9MwmrwLejLC
+ZrNjEZ/09ZKQDBakskrpSfrBifXeYaNvlPAJfG/7EocblmmQ+yVDPZuEhI9hHPSn
+rvonSenpo4PlAAfxlqOC6kBbmvk7vAN57mOCiCXqVjfzXJer5EyZpVAjiW25sUSJ
+PSnj9KhllvZ57jjKG6SBxY87cGwkPq8FGKiTMCIBMBdWTUBhQWg1cLpNLGYOY3BT
+72xQqg3TFgCzDrnwpWztoTAQDQ7VPZLDSe5eVMD9vHoPbHkSZiRD50L6GVfJAkaA
+tdilCfvAL7QMCFuTr8bv
+=8Xiw
+-----END PGP SIGNATURE-----
 
+--5Mfx4RzfBqgnTE/w--
