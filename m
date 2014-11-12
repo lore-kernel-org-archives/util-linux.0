@@ -1,48 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:46889 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750704AbaKWK1O (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 23 Nov 2014 05:27:14 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by mailout.nyi.internal (Postfix) with ESMTP id B714D20393
-	for <util-linux@vger.kernel.org>; Sun, 23 Nov 2014 05:27:13 -0500 (EST)
-Message-Id: <1416738433.2192551.194323673.28884C59@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: JWP <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, "util-linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37647 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752532AbaKLOZP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 12 Nov 2014 09:25:15 -0500
+Date: Wed, 12 Nov 2014 15:25:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: kerolasa@gmail.com, Boris Egorov <egorov@linux.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
+Message-ID: <20141112142500.GB5530@x2.net.home>
+References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+ <5461B803.4050707@linux.com>
+ <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
+ <alpine.LNX.2.03.1411112236560.23899@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <5470FE32.9030805@gmx.com>
-References: <5470FE32.9030805@gmx.com>
-Subject: Re: RFC hwclock: refactoring
-Date: Sun, 23 Nov 2014 11:27:13 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.03.1411112236560.23899@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Nov 11, 2014 at 10:49:02PM +0000, Sami Kerola wrote:
+>  	printf(_("Setting up swapspace version %d, size = %s (%ju bytes)\n"),
+>  		version, strsz, sz);
+> +	free(strsz);
 
-Hello JWP,
+ free-before-exit, you know what I think about it, right? :)
 
-On Sat, Nov 22, 2014, at 22:20, JWP wrote:
-> For example, do we need a workaround for the 1994 Award BIOS
-> bug?
+    Karel
 
-In my opinion machines with that BIOS are too old.  So no.
-Also because I wondered a few times about this phrase:
-
->               hwclock warns you that you probably need --badyear  whenever  it
->               finds your Hardware Clock set to 1994 or 1995.
-
-Nowhere in the source of hwclock can I find this warning.  But it
-has been there in 2000, because this user reports having gotten it:
-https://groups.google.com/d/msg/alt.lang.basic/ilp_6HwLvZE/sE1nBoiD_LcJ
-
-Since no one ever complained that the above phrase in the man page
-is incorrect, it most likely means that no one uses such machines
-any more.
-
-Benno
 
 -- 
-http://www.fastmail.com - Choose from over 50 domains or use your own
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
