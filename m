@@ -1,67 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:41036 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:37655 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751328AbaKKCMv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Nov 2014 21:12:51 -0500
-Date: Mon, 10 Nov 2014 21:12:50 -0500
-From: Mike Frysinger <vapier@gentoo.org>
+	id S932752AbaKMOst (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 13 Nov 2014 09:48:49 -0500
+Date: Thu, 13 Nov 2014 15:48:35 +0100
+From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 6/6] tests: mark python libmount tests known to fail with
- AddressSanitizer
-Message-ID: <20141111021250.GG3652@vapier.wh0rd.info>
+Cc: kerolasa@gmail.com, Boris Egorov <egorov@linux.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
+Message-ID: <20141113144835.GD6704@x2.net.home>
 References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
- <1415656195-20458-7-git-send-email-kerolasa@iki.fi>
+ <5461B803.4050707@linux.com>
+ <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
+ <alpine.LNX.2.03.1411112236560.23899@iki.fi>
+ <20141112142500.GB5530@x2.net.home>
+ <CAG27Bk2-c4_AsqCsBd+uBkkcvX0CSJPW+Q2+JndyGts=ZE1rmw@mail.gmail.com>
+ <20141112195131.GA3902@vapier.wh0rd.info>
+ <alpine.LNX.2.03.1411122044080.18829@iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Z0mFw3+mXTC5ycVe"
-In-Reply-To: <1415656195-20458-7-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.03.1411122044080.18829@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Nov 12, 2014 at 08:50:01PM +0000, Sami Kerola wrote:
+> +/*
+> + * UL_ASAN_BLACKLIST is a macro to tell AddressSanitizer (a compile-time
+> + * instrumentation shipped with Clang and GCC) to not instrument the
+> + * annotated function.  Furthermore, it will prevent the compiler from
+> + * inlining the function because inlining currently breaks the
+> + * blacklisting mechanism of AddressSanitizer.
+> + */
+> +#if defined(__has_feature)
+> +# if __has_feature(address_sanitizer)
+> +#  define UL_ASAN_BLACKLIST __attribute__((no_sanitize_address))
+> +# else
+> +#  define UL_ASAN_BLACKLIST    /* nothing */
+> +# endif
+> +#else
+> +# define UL_ASAN_BLACKLIST     /* nothing */
+> +#endif
+> +
 
---Z0mFw3+mXTC5ycVe
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+it would be better to follow our current manner and use directly
+__attribute__ in code than introduce extra layer of macros. All
+you need is define empty no_sanitize_address 
+if !__has_feature(address_sanitizer).
 
-On 10 Nov 2014 21:49, Sami Kerola wrote:
-> The tests fail with an error similar to this.
->=20
-> Traceback (most recent call last):
->   File "/home/src/util-linux/libmount/python/test_mount_tab_update.py", l=
-ine 7, in <module>
->     import pylibmount as mnt
-> ImportError: /home/src/util-linux/.libs/libuuid.so.1: undefined symbol: _=
-_asan_option_detect_stack_use_after_return
+    Karel
 
-if libuuid.so is built with ASAN, it should be linked with it too.  that me=
-ans=20
-passing the ASAN flags at link time.  or maybe libtool is filtering them ou=
-t=20
-when it goes to link the library ?
--mike
-
---Z0mFw3+mXTC5ycVe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUYXCiAAoJEEFjO5/oN/WBHsYP/2Tsk7e/f9jS9S1TG76Vcynz
-bM75TTom7wY9Z9phHw39eldAS+iX8H+yctPCnP4kAg/IEMaRGoZwUuHmmQMdbDGO
-4wB2eRacEZrnvspvkhQaczdFLkMCHIn546fmxa0AMaWdGWnYdlea6LzYzrOkRHN8
-7kPDaAdnijBsD8um5aqP+Pf8/gbY26LU2t0QEC8WwTlUwmk0DHk/x5p86DR9OHLk
-3nE0Zjzmgn0ae82NYRb9Yw/9cdihnPv/HizY5Wa0+ysheU4Ch67v4V9Lb69vcqol
-QvZsXU94Omo59ciEO4YN01y2HWHbpw+lsWPkASsDB+h2GXX2p8/3mEgILkdTNukL
-j/ki+E0rck0B9ltjQokMNbCh2aJQHFYnfn9yMEomSiDeQUqG6rWdT0pSdEBxIl8N
-yikOSSCVzD5jYREuVBNTeYIQ7Kh/hzxCGjgskW+OZkR26NuuU3aMt/AF1hkxt/+O
-aQGxByHoQmM8LqXVJA1keITBvHLyo3YVZe94yVLQ5jFAz1TlLuqNMU9OzEuIVVAF
-reC1Mn/JiiXM692s6LWPMiViKpLgXLdV6ilmNSUtdZctJR22bLJ++Xk3gR6zOZNf
-tscXhzPonhQwucRBUUrdyUojBU4c3Qgd+ugmKIQKmFU6bBx8DZKIwrqH0m0GZqOF
-+xKPiMAagnS52VlVSAVk
-=qVdS
------END PGP SIGNATURE-----
-
---Z0mFw3+mXTC5ycVe--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
