@@ -1,28 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45291 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38443 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753660AbaKRNQ1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 08:16:27 -0500
-Date: Tue, 18 Nov 2014 14:16:18 +0100
+	id S1754505AbaKNJLv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 14 Nov 2014 04:11:51 -0500
+Date: Fri, 14 Nov 2014 10:11:48 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Nikolay Sivov <nsivov@codeweavers.com>
+To: Boris Egorov <egorov@linux.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: misc-utils: Fixed a typo in daemon logging message
-Message-ID: <20141118131618.GN6704@x2.net.home>
-References: <546B440E.9010400@codeweavers.com>
+Subject: Re: [PATCH] libfdisk: fix get_partition_unused_primary()
+Message-ID: <20141114091148.GE6704@x2.net.home>
+References: <1415942836-1248-1-git-send-email-egorov@linux.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <546B440E.9010400@codeweavers.com>
+In-Reply-To: <1415942836-1248-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 18, 2014 at 04:05:18PM +0300, Nikolay Sivov wrote:
-> Anything wrong with this one?
+On Fri, Nov 14, 2014 at 11:27:16AM +0600, Boris Egorov wrote:
+> Now function takes address to variable and fills it with partition
+> number. Caller treats return value as int and use it appropriately.
 
- Nothing, applied. Sorry for delay.
+Yep, it's better. 
+
+>  static int get_partition_unused_primary(struct fdisk_context *cxt,
+...
+> +	*partno = rc == 0 ? n : rc;
+        ^^^^^^^^^^^
+I have replaced this line with
+
+ if (rc == 0)
+    *partno = n;
+
+it seems we don't have to mix partno and return codes here at all.
+
+> +	return 0;
+
+ return rc;
+
+
+ Applied, thanks!
 
     Karel
-
+    
 
 -- 
  Karel Zak  <kzak@redhat.com>
