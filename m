@@ -1,32 +1,33 @@
-Return-Path: worley@ariadne.com
-Date: Mon, 24 Nov 2014 10:48:26 -0500
-Message-Id: <201411241548.sAOFmQaI028880@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Phillip Susi <psusi@ubuntu.com>
-CC: kzak@redhat.com, drake@dasyatidae.net, util-linux@vger.kernel.org
-In-reply-to: <547343EA.6090606@ubuntu.com> (psusi@ubuntu.com)
-Subject: Re: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <20141124113733.GC926@x2.net.home> <547343EA.6090606@ubuntu.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:41301 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754966AbaKPL5b (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 16 Nov 2014 06:57:31 -0500
+Received: by mail-wg0-f47.google.com with SMTP id n12so527916wgh.20
+        for <util-linux@vger.kernel.org>; Sun, 16 Nov 2014 03:57:30 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1416138013.3540405.191555165.2F640DB3@webmail.messagingengine.com>
+References: <1416084103-15931-1-git-send-email-ville.skytta@iki.fi>
+	<1416138013.3540405.191555165.2F640DB3@webmail.messagingengine.com>
+Date: Sun, 16 Nov 2014 11:57:30 +0000
+Message-ID: <CAG27Bk0ZCMMnQy3ZiFX5XQZjyRY7fM7Ez=cpn1AGc6=36gJpsA@mail.gmail.com>
+Subject: Re: [PATCH] Spelling fixes
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: =?UTF-8?Q?Ville_Skytt=C3=A4?= <ville.skytta@iki.fi>,
+        Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Phillip Susi <psusi@ubuntu.com>
-> 
-> On 11/24/2014 6:37 AM, Karel Zak wrote:
-> > The current trend is to use partition type to define for what
-> > purpose we want to use the partition (for example "this is /home") 
-> > independently on partition format.
-> 
-> I wouldn't call this bone headed idea of redhat's a trend.  Using
-> partition table type codes to decide to auto mount in particular parts
-> of the filesystem is such a brain damaged idea, those who thought it
-> up need beaten with a clue-by-four and its use needs to be *strongly*
-> discouraged.
+On 16 November 2014 11:40, Benno Schulenberg <bensberg@justemail.net> wrote:
+> take week numbers into account/.  Many of Sami's commit lines
+> would need to be tweaked -- sorry, Sami.  :)
 
-I have to agree here.  Trying to use partition type codes to specify
-where partitions should be mounted has many flavors of fail.  Among
-others, it assumes that there is a small, fixed set of mount points
-that will *work for every installation*.  If you want to know what
-gets mounted where, look in /etc/fstab, like we've done for 40 years
-or so.
+No worries Benno. I know I don't care any human languages. It is
+nothing to be proud of but that's how my mind works.
 
-Dale
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
