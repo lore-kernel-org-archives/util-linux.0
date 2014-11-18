@@ -1,54 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:50450 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753146AbaKJVuE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:04 -0500
-Received: by mail-wg0-f52.google.com with SMTP id b13so9955830wgh.25
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:02 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 1/6] build-sys: make scanf_cv_alloc_modifier to work [AddressSanitizer]
-Date: Mon, 10 Nov 2014 21:49:50 +0000
-Message-Id: <1415656195-20458-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:37310 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753169AbaKRLDg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 18 Nov 2014 06:03:36 -0500
+Date: Tue, 18 Nov 2014 12:03:29 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Lutz Vieweg <lvml@5t9.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fstrim tries to discard data beyond the last sector of a device
+Message-ID: <20141118110329.GG6704@x2.net.home>
+References: <m3qnrg$5gc$1@ger.gmane.org>
+ <m4f77a$ivg$1@ger.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <m4f77a$ivg$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The tests failed with following message in config.log
+On Tue, Nov 18, 2014 at 11:32:10AM +0100, Lutz Vieweg wrote:
+> I'm kind of concerned that there was no reaction on my recent
+> post - maybe the subject I chose wasn't colorful enough to
+> draw attention on what I think is a real threat to data integrity
+> on persistent storage.
 
-ERROR: LeakSanitizer: detected memory leaks
+This is upstream development mailing list, it's better to report bugs
+to distribution specific mailing lists or bug tracking systems.
 
-Direct leak of 2 byte(s) in 1 object(s) allocated from:
-    #0 0x49a40e in realloc (/home/src/util-linux/conftest+0x49a40e)
-    #1 0x7fbe48633e69 in __GI__IO_vfscanf (/usr/lib/libc.so.6+0x56e69)
-    #2 0x7fbe48649786 in _IO_vsscanf (/usr/lib/libc.so.6+0x6c786)
+what is your fstrim command line, it would be nice to see strace
+output to verify the ioctl return code. 
 
-which knocked out libmount from build, and commands depending on it.
+> The "Logical block address out of range" error amongst the (cited below)
+> messages says no less than that fstrim issued a fitrim ioctl that
+> was asking the device to discard the content of sectors well beyond
+> the boundaries of the device. If it wasn't for the "end of the physical
+> device" making the SSD return an error, if instead there was another
+> partition behind a filesystem to trim, then valuable, live data
+> would have been discarded.
+> 
+> If email to this list is not a suitable form to report such issues,
+> please let me know where I can report this issue better.
 
-The reason this change makes sense is that AddressSanitizer seems like a
-good addition to set of tools that util-linux package can use, when and
-if needed.
+Maybe you can ask linux-fs mailing list. It really does not seem like
+fstrim command issue.
 
-Reference: https://code.google.com/p/address-sanitizer/wiki/AddressSanitizer
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- configure.ac | 1 +
- 1 file changed, 1 insertion(+)
+    Karel
 
-diff --git a/configure.ac b/configure.ac
-index 1336f8d..b8a6627 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -461,6 +461,7 @@ int main()
- 	int i;
- 	char *s;
- 	i = sscanf("x", $1, &s);
-+	free(s);
- 	if (i == 1)
- 		return 0;
- 	return 1;
+
 -- 
-2.1.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
