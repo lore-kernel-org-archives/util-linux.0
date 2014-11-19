@@ -1,50 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:56555 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752977AbaKLPtJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 12 Nov 2014 10:49:09 -0500
-Received: by mail-lb0-f169.google.com with SMTP id 10so9574976lbg.14
-        for <util-linux@vger.kernel.org>; Wed, 12 Nov 2014 07:49:08 -0800 (PST)
-From: Boris Egorov <egorov@linux.com>
-To: util-linux@vger.kernel.org
-Cc: Boris Egorov <egorov@linux.com>
-Subject: [PATCH] Minor fixes: typo, missing break in switch
-Date: Wed, 12 Nov 2014 21:49:01 +0600
-Message-Id: <1415807341-22405-1-git-send-email-egorov@linux.com>
+Received: from resqmta-po-07v.sys.comcast.net ([96.114.154.166]:56423 "EHLO
+	resqmta-po-07v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756971AbaKSWYr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 19 Nov 2014 17:24:47 -0500
+Date: Wed, 19 Nov 2014 17:24:43 -0500
+Message-Id: <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org, 770211@bugs.debian.org
+In-reply-to: <546D0495.2030803@dasyatidae.net> (drake@dasyatidae.net)
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Boris Egorov <egorov@linux.com>
----
- disk-utils/fdisk.c               | 1 +
- libblkid/src/superblocks/nilfs.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+> From: Drake Wilson <drake@dasyatidae.net>
+> 
+> Summary: I would like to reopen the suggestion to add LUKS partition
+> type codes for MBR and for GPT to util-linux's fdisk.
 
-diff --git a/disk-utils/fdisk.c b/disk-utils/fdisk.c
-index e5fe31b..7d6951d 100644
---- a/disk-utils/fdisk.c
-+++ b/disk-utils/fdisk.c
-@@ -779,6 +779,7 @@ int main(int argc, char **argv)
- 			if (!lb)
- 				errx(EXIT_FAILURE, _("unsupported disklabel: %s"), optarg);
- 			fdisk_label_set_disabled(lb, 0);
-+			break;
- 		}
- 		case 'u':
- 			if (optarg && *optarg == '=')
-diff --git a/libblkid/src/superblocks/nilfs.c b/libblkid/src/superblocks/nilfs.c
-index 7b87717..3f03901 100644
---- a/libblkid/src/superblocks/nilfs.c
-+++ b/libblkid/src/superblocks/nilfs.c
-@@ -97,7 +97,7 @@ static int probe_nilfs2(blkid_probe pr, const struct blkid_idmag *mag)
- 	/* backup */
- 	sbb = (struct nilfs_super_block *) blkid_probe_get_buffer(
- 			pr, ((pr->size / 0x200) - 8) * 0x200, sizeof(struct nilfs_super_block));
--	if (!sbp)
-+	if (!sbb)
- 		return errno ? -errno : 1;
- 
- 	/*
--- 
-2.1.3
+It certainly makes sense to me.
 
+This raises the related question of whether there should be codes to
+identify the partition type inside the LUKS partition.  That is, the
+partition table code identifies the partition as a LUKS partition, but
+once one has supplied the keys for LUKS encryption, is there any way
+to tell the type of the encrypted partition without testing for magic
+numbers (using "file" or the like)?
+
+I suppose there aren't enough type codes in MBR to allow separately
+identifying "ext4 inside LUKS", but with GPT it would be possible, and
+even could be done systematically.  E.g., if the UUID for a partition
+type is XXX, then the partition type for that type inside of LUKS is
+MD5("LUKS" XXX)...
+
+Then again, perhaps you would not want to reveal the type of the
+encrypted partition.
+
+Dale
