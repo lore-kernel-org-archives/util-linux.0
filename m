@@ -1,43 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56223 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750765AbaKXKOX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 24 Nov 2014 05:14:23 -0500
-Date: Mon, 24 Nov 2014 11:14:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: RFC hwclock: refactoring
-Message-ID: <20141124101415.GB926@x2.net.home>
-References: <5470FE32.9030805@gmx.com>
- <CAG27Bk3zu-8Qar_k44uM3_8_kOddJkqvb1be1_KmjkBGfBGcYA@mail.gmail.com>
- <CAG27Bk1cCo_S0txKeFtAb3+oEQn9k24h9Ty7+E++Oxg93pVeQA@mail.gmail.com>
- <54728FF3.2020600@gmx.com>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43939 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756847AbaKSWh2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 19 Nov 2014 17:37:28 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+	by mailout.nyi.internal (Postfix) with ESMTP id 095652118B
+	for <util-linux@vger.kernel.org>; Wed, 19 Nov 2014 17:37:27 -0500 (EST)
+Message-ID: <546D1BA7.9060501@dasyatidae.net>
+Date: Wed, 19 Nov 2014 16:37:27 -0600
+From: Drake Wilson <drake@dasyatidae.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <54728FF3.2020600@gmx.com>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+CC: util-linux@vger.kernel.org
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
+In-Reply-To: <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 23, 2014 at 08:54:59PM -0500, JWP wrote:
-> I intentionally did not include --directisa and hwclock-cmos.c in my
-> RFC, because my current position is that I2C access should remain in
-> hwclock for troubleshooting and testing purposes.
+Dale R. Worley wrote:
+> This raises the related question of whether there should be codes to
+> identify the partition type inside the LUKS partition.
 
-Sure, hwclock-cmos.c is still usable.
+(Dropping Debian bug from Cc for this.)
 
-> of the main development channel.  I wanted to see if the Alpha and 
-> Award code was somehow important to someone.  My opinion is to remove
-> it, but maybe there is something I am unaware of.
+I don't think that really matches up with the way disklabel types
+work any more than, say, identifying the type of data stored in a
+filesystem would.  There actually _are_ GPT types in fdisk for
+"Linux root (x86)", "Linux home" etc. but I consider these to be
+anomalous and never use them as there's an infinite number of possible
+nestings there.  If users want to mint their own GPT types for those
+purposes, they can, of course.
 
-I think we don't have to care about Award workarounds at all.
+My usual stance is that type identifiers should be shallow at each level
+(one reason piercing through LUKS to get a type code is semantically bad)
+and present at as many levels as necessary.  I might support an extension
+proposal to allow (but not require) a type for the underlying volume to
+be added as part of the _LUKS_ header, therefore (probably using a GPT
+type just for convenience).  However, I also think the argument that it's
+unnecessary because Linux wouldn't interpret it is much more valid there,
+because LUKS is more or less defined by its use in Linux, whereas GPT and
+MBR disklabels are not and have more stringent interop requirements with
+other tools and OSes.
 
-Linux kernel provides RTC layer for Alpha, the question is usability,
-but I think we can be optimistic and drop the alpha specific cmos code :-)
+Either way, I don't think that's nearly as important.
 
-    Karel
+   ---> Drake Wilson
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
