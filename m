@@ -1,55 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:56716 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751362AbaKBU1B (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:27:01 -0500
-Received: by mail-wi0-f170.google.com with SMTP id q5so4680748wiv.3
-        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:26:59 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:39885 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750757AbaKSLd3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 19 Nov 2014 06:33:29 -0500
+Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 980D0D95F
+	for <util-linux@vger.kernel.org>; Wed, 19 Nov 2014 12:03:48 +0100 (CET)
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 3/8] mkswap: remove unnecessary size check
-Date: Sun,  2 Nov 2014 20:26:26 +0000
-Message-Id: <1414959991-8369-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
-References: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] lib/colors: fix double free on error path
+Date: Wed, 19 Nov 2014 12:03:35 +0100
+Message-Id: <1416395016-17902-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/mkswap.c  | 6 ------
- include/swapheader.h | 2 --
- 2 files changed, 8 deletions(-)
+The error path was a bit unclear on the semantics. The seq argument
+would get freed but not the name argument. Then the caller frees
+them both when the function returns an error.
+This fixes the problem my making the function not touch the arguments
+unless we're going to return success. Also improve the description
+for this function to make it more obvious what the callers should expect.
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index a1b864d..b2713ab 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -115,12 +115,6 @@ write_uuid_and_label(unsigned char *uuid, char *volume_name)
- {
- 	struct swap_header_v1_2 *h;
+Addresses: CID#77487 (on scan.coverity.com for JIghtuse/util-linux)
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ lib/colors.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/lib/colors.c b/lib/colors.c
+index fb7d4b2..ab62c56 100644
+--- a/lib/colors.c
++++ b/lib/colors.c
+@@ -438,8 +438,9 @@ static int cn_sequence(const char *str, char **seq)
  
--	/* Sanity check */
--	if (sizeof(struct swap_header_v1_2) != SWAP_HEADER_SIZE) {
--		warnx(_("Bad swap header size, no label written."));
--		return;
--	}
--
- 	h = (struct swap_header_v1_2 *) signature_page;
- 	if (uuid)
- 		memcpy(h->uuid, uuid, sizeof(h->uuid));
-diff --git a/include/swapheader.h b/include/swapheader.h
-index 1d91e41..3fce0d0 100644
---- a/include/swapheader.h
-+++ b/include/swapheader.h
-@@ -20,6 +20,4 @@ struct swap_header_v1_2 {
- 	uint32_t      badpages[1];
- };
  
--#define SWAP_HEADER_SIZE (sizeof(struct swap_header_v1_2))
--
- #endif /* _SWAPHEADER_H */
+ /*
+- * Adds one color sequence to array with color scheme,
+- * @seq and @name have to be allocated strings
++ * Adds one color sequence to array with color scheme.
++ * When returning success (0) this function takes ownership of
++ * @seq and @name, which have to be allocated strings.
+  */
+ static int colors_add_scheme(struct ul_color_ctl *cc,
+ 			     char *name,
+@@ -455,7 +456,6 @@ static int colors_add_scheme(struct ul_color_ctl *cc,
+ 	DBG(SCHEME, ul_debug("add '%s'", name));
+ 
+ 	rc = cn_sequence(seq0, &seq);
+-	free(seq0);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -485,6 +485,8 @@ static int colors_add_scheme(struct ul_color_ctl *cc,
+ 		cc->schemes_sz = cc->nschemes + 10;
+ 	}
+ 
++	free(seq0);
++
+ 	/* add a new item */
+ 	cs = &cc->schemes[cc->nschemes++];
+ 	cs->name = name;
 -- 
 2.1.3
 
