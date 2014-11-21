@@ -1,64 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.codeweavers.com ([216.251.189.131]:33931 "EHLO
-	mail.codeweavers.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752154AbaKECCx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 4 Nov 2014 21:02:53 -0500
-Received: from ppp83-237-204-188.pppoe.mtu-net.ru ([83.237.204.188] helo=[192.168.10.200])
-	by mail.codeweavers.com with esmtpsa (TLS1.2:DHE_RSA_AES_128_CBC_SHA1:128)
-	(Exim 4.80)
-	(envelope-from <nsivov@codeweavers.com>)
-	id 1Xlpgi-0002P6-MT
-	for util-linux@vger.kernel.org; Tue, 04 Nov 2014 19:47:09 -0600
-Message-ID: <5459819A.8030601@codeweavers.com>
-Date: Wed, 05 Nov 2014 04:47:06 +0300
-From: Nikolay Sivov <nsivov@codeweavers.com>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:36447 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751701AbaKUHro (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Nov 2014 02:47:44 -0500
+Received: by mail-wg0-f48.google.com with SMTP id y19so5759132wgg.7
+        for <util-linux@vger.kernel.org>; Thu, 20 Nov 2014 23:47:42 -0800 (PST)
+Message-ID: <546EEE1C.102@gmail.com>
+Date: Fri, 21 Nov 2014 08:47:40 +0100
+From: Milan Broz <gmazyland@gmail.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] misc-utils: Fixed a typo in daemon logging message
-Content-Type: multipart/mixed;
- boundary="------------070308080201090005080202"
+To: "Dale R. Worley" <worley@alum.mit.edu>,
+        Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546D1BA7.9060501@dasyatidae.net> <201411202133.sAKLXSZP006667@hobgoblin.ariadne.com>
+In-Reply-To: <201411202133.sAKLXSZP006667@hobgoblin.ariadne.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------070308080201090005080202
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On 11/20/2014 10:33 PM, Dale R. Worley wrote:
+>> From: Drake Wilson <drake@dasyatidae.net>
+> 
+>> I might support an extension
+>> proposal to allow (but not require) a type for the underlying volume to
+>> be added as part of the _LUKS_ header, therefore (probably using a GPT
+>> type just for convenience).
+> 
+> That sounds like a better proposal to me.  But I have no idea whether
+> LUKS can support such an extension.
 
----
+If I understand it correctly, you want to duplicate some UUID stored
+in LUKS container payload to LUKS header?
 
---------------070308080201090005080202
-Content-Type: text/x-patch;
- name="0001-misc-utils-Fixed-a-typo-in-daemon-logging-message.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-misc-utils-Fixed-a-typo-in-daemon-logging-message.patch"
+LUKS will not support such extension. For two reasons:
 
->From 72c992e6b1e6b404c27fcab4f38cf9933cb1a560 Mon Sep 17 00:00:00 2001
-From: Nikolay Sivov <nsivov@codeweavers.com>
-Date: Wed, 5 Nov 2014 04:41:48 +0300
-Subject: [PATCH] misc-utils: Fixed a typo in daemon logging message
+- there is a clear layer separation, LUKS handle block layer encryption,
+treating container data as a block device. It doesn't care about any
+signatures or whatever is contained in data.
+This information can be stored elsewhere (UUID in fstab of underlying device,
+for example) but not in the LUKS header.
 
-Signed-off-by: Nikolay Sivov <nsivov@codeweavers.com>
----
- misc-utils/uuidd.rc.in | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+- for security reasons: if you add visible UUID of data inside container,
+now you have definitely at least part of plaintext/ciphertext pair
+available for attacker (UUID is stored on fixed offset).
 
-diff --git a/misc-utils/uuidd.rc.in b/misc-utils/uuidd.rc.in
-index cebe228..26273e5 100644
---- a/misc-utils/uuidd.rc.in
-+++ b/misc-utils/uuidd.rc.in
-@@ -35,7 +35,7 @@ case "$1" in
- 	log_end_msg $?
-     ;;
-   stop)
--	log_daemon_msg "Stopping uuidd generator" "uuidd"
-+	log_daemon_msg "Stopping uuid generator" "uuidd"
- 	killproc -p $PIDFILE $DAEMON
- 	log_end_msg $?
-     ;;
--- 
-2.1.1
+Not that it makes possible ciphertext modification attacks to devices without
+integrity protection much worse... but use this concept as a design decision
+in a security tool would be just ridiculous.
 
-
---------------070308080201090005080202--
+Milan
