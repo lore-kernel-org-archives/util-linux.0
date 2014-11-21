@@ -1,56 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:65530 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751014AbaKWNbF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 23 Nov 2014 08:31:05 -0500
-Received: by mail-wi0-f176.google.com with SMTP id ex7so3315930wid.3
-        for <util-linux@vger.kernel.org>; Sun, 23 Nov 2014 05:31:03 -0800 (PST)
+Return-Path: lvml@5t9.de
+Message-ID: <546F6C04.4060300@5t9.de>
+Date: Fri, 21 Nov 2014 17:44:52 +0100
+From: Lutz Vieweg <lvml@5t9.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <5470FE32.9030805@gmx.com>
-References: <5470FE32.9030805@gmx.com>
-Date: Sun, 23 Nov 2014 13:31:03 +0000
-Message-ID: <CAG27Bk3zu-8Qar_k44uM3_8_kOddJkqvb1be1_KmjkBGfBGcYA@mail.gmail.com>
-Subject: Re: RFC hwclock: refactoring
-From: Sami Kerola <kerolasa@iki.fi>
-To: JWP <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: fstrim tries to discard data beyond the last sector of a device
+References: <m3qnrg$5gc$1@ger.gmane.org> <m4f77a$ivg$1@ger.gmane.org> <20141118110329.GG6704@x2.net.home>
+In-Reply-To: <20141118110329.GG6704@x2.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On 22 November 2014 at 21:20, JWP <elseifthen@gmx.com> wrote:
-> So, I noticed when *fdisk were rewritten that some antiquated
-> code was dropped.  I would like some opinions on whether this
-> should be done when refactoring hwclock.
+On 11/18/2014 12:03 PM, Karel Zak wrote:
+> what is your fstrim command line, it would be nice to see strace
+> output to verify the ioctl return code.
+
+I will run the test again and post the relevant strace output.
+
+>> If email to this list is not a suitable form to report such issues,
+>> please let me know where I can report this issue better.
 >
-> For example, do we need a workaround for the 1994 Award BIOS
-> bug?
+> Maybe you can ask linux-fs mailing list. It really does not seem like
+> fstrim command issue.
 
-I agree with Benno, it is time to say goodbye to that code.
+Ok, I'll direct my next post on this issue to linux-fsdevel@vger.kernel.org
+(CC this mailing list, just in case...)
 
-> Do we need Alpha code?  Is there a Linux distro that
-> still officially supports Alpha machines?
+Thanks for the pointer!
 
-I'm not sure if there is any up to date distribution for Alpha. Kernel
-crew seems to still care alpha, so it is not completely dead.
+Regards,
 
-http://marc.info/?t=140518903000002&r=1&w=2
-
-Maybe the question should be rephrased. How about dropping the Alpha
-cmos support? It looks like Alpha has rtc support.
-
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/arch/alpha/kernel/rtc.c
-
-> Any other ideas regarding this topic are welcome.
-
-Removal of i386 references should be safe.
-
-http://news.softpedia.com/news/Linux-Kernel-3-8-Says-Goodbye-to-i386-314293.shtml
-
-Since there is no other than Alpha & i386 references to cmos code, all
-of it is subject for removal.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Lutz Vieweg
