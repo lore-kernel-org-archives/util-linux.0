@@ -1,60 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43139 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46355 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753803AbaKYL0S (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 25 Nov 2014 06:26:18 -0500
-Date: Tue, 25 Nov 2014 12:26:15 +0100
+	id S1751276AbaKXLks (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 24 Nov 2014 06:40:48 -0500
+Date: Mon, 24 Nov 2014 12:40:35 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: LUKS partition types, redux
-Message-ID: <20141125112615.GC2610@x2.net.home>
-References: <546D0495.2030803@dasyatidae.net>
- <20141124113733.GC926@x2.net.home>
- <547343EA.6090606@ubuntu.com>
- <20141124154604.GA2610@x2.net.home>
- <54738D83.9010108@gmail.com>
+To: Dave Reisner <d@falconindy.com>
+Cc: util-linux@vger.kernel.org,
+        Ville =?iso-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>
+Subject: Re: [PATCH] bash-completion: Invoke actual commands to be completed,
+ not basenames
+Message-ID: <20141124114035.GD926@x2.net.home>
+References: <CA+mSPTjwXzTnMeRb+kBF1RGLCCE_LOXDTqPgZXjrdKWbm=y9qg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <54738D83.9010108@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CA+mSPTjwXzTnMeRb+kBF1RGLCCE_LOXDTqPgZXjrdKWbm=y9qg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 24, 2014 at 01:56:51PM -0600, Bruce Dubbs wrote:
-> Karel Zak wrote:
-> >On Mon, Nov 24, 2014 at 09:42:50AM -0500, Phillip Susi wrote:
-> >>-----BEGIN PGP SIGNED MESSAGE-----
-> >>Hash: SHA1
-> >>
-> >>On 11/24/2014 6:37 AM, Karel Zak wrote:
-> >>>The current trend is to use partition type to define for what
-> >>>purpose we want to use the partition (for example "this is /home")
-> >>>independently on partition format.
-> >>
-> >>I wouldn't call this bone headed idea of redhat's a trend.  Using
-> >>partition table type codes to decide to auto mount in particular parts
-> >>of the filesystem is such a brain damaged idea, those who thought it
-> >>up need beaten with a clue-by-four and its use needs to be *strongly*
-> >>discouraged.
+On Tue, Nov 18, 2014 at 09:28:51AM -0500, Dave Reisner wrote:
+> On Nov 18, 2014 8:00 AM, "Karel Zak" <kzak@redhat.com> wrote:
 > >
-> >  well, it's designed for auto-generated fstab-less systems like
-> >  containers/virt images, etc. I'm not big fan of this feature, but for
-> >  some use cases it makes sense. (And it's systemd upstream decision.)
+> > On Sat, Nov 15, 2014 at 10:36:04PM +0200, Ville Skyttä wrote:
+> > >  bash-completion/chsh    | 2 +-
+> > >  bash-completion/eject   | 2 +-
+> > >  bash-completion/findmnt | 8 ++++----
+> > >  bash-completion/losetup | 4 ++--
+> > >  bash-completion/lsblk   | 2 +-
+> > >  bash-completion/setarch | 2 +-
+> > >  bash-completion/setpriv | 2 +-
+> > >  7 files changed, 11 insertions(+), 11 deletions(-)
 > >
-> >  Anyway, use partition type for "usage" makes more sense than for "fs-type".
+> >  Applied, thanks!
+> >
+> >     Karel
+> >
 > 
-> Since when is systemd upstream of util-linux?
+> I think this patch breaks completions when used with binaries from a build
+> root containing whitespace in the path. The use is probably rare, but fix
 
- Ah.. freedesktop guys introduced some new GUID and util-linux project
- has accepted these identifiers (rather than interpret these IDs as
- "unknown") ...  as well as we accepted partition IDs for Apple stuff,
- as well as we accepted Hurd patches, ports to freebsd, uClibc,
- not-perfect zram stuff from kernel, stuff from SysVinit, and many
- many many other things.
+ For example?
 
- I don't plan to be censor for another projects and apply any
- emotional criteria. The reason why this project still alive is that
- we are very friendly to arbitrary distributions and another projects. 
+> is simple -- quote the $1. The commands inside $() have their own separate
+> level of quoting, i.e. "$("$1" -X)" is what we want.
+
+ Ville, any comment?
 
     Karel
 
