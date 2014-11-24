@@ -1,148 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:54402 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751146AbaKNFYQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 14 Nov 2014 00:24:16 -0500
-Received: by mail-lb0-f173.google.com with SMTP id n15so12342902lbi.32
-        for <util-linux@vger.kernel.org>; Thu, 13 Nov 2014 21:24:14 -0800 (PST)
-From: Boris Egorov <egorov@linux.com>
-To: util-linux@vger.kernel.org
-Cc: Boris Egorov <egorov@linux.com>
-Subject: [PATCH] libfdisk: fix get_partition_unused_primary()
-Date: Fri, 14 Nov 2014 11:27:16 +0600
-Message-Id: <1415942836-1248-1-git-send-email-egorov@linux.com>
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:47789 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753998AbaKXOph (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 09:45:37 -0500
+Received: by mail-qc0-f174.google.com with SMTP id c9so6834539qcz.5
+        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 06:45:36 -0800 (PST)
+Message-ID: <5473446E.6040704@ubuntu.com>
+Date: Mon, 24 Nov 2014 09:45:02 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org
+Subject: Re: Bug#770211: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net> <547341AD.4020702@ubuntu.com> <547342B2.2060509@dasyatidae.net>
+In-Reply-To: <547342B2.2060509@dasyatidae.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Was:
-Mentioned function returns -1 if adding of primary partition is
-impossible. Caller treats this value as size_t (res variable) and then
-compares it for negative values, totally ignoring errors.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Becomes:
-Now function takes address to variable and fills it with partition
-number. Caller treats return value as int and use it appropriately.
+On 11/24/2014 9:37 AM, Drake Wilson wrote:
+> Which "normal" "Linux" type code are you talking about?  The one
+> that's marked "Linux filesystem"?  That sounds like it's simply
+> shifting the potential for trouble somewhere else.  The one for
+> "Linux reserved"? If that's the intent of that one, perhaps it
+> should be clearer that it's "reserved for user" rather than
+> "reserved for some unknown OS use".  If there were a "Linux
+> general/other" type code, then I agree that that would be fine, but
+> I don't see one in the list.
 
-Signed-off-by: Boris Egorov <egorov@linux.com>
----
- libfdisk/src/dos.c | 46 +++++++++++++++++++++++++---------------------
- 1 file changed, 25 insertions(+), 21 deletions(-)
+The one that fdisk identifies as "Linux", i.e. 83.
 
-diff --git a/libfdisk/src/dos.c b/libfdisk/src/dos.c
-index b4456a9..0edb5fd 100644
---- a/libfdisk/src/dos.c
-+++ b/libfdisk/src/dos.c
-@@ -186,24 +186,28 @@ static int is_cleared_partition(struct dos_partition *p)
- }
- 
- static int get_partition_unused_primary(struct fdisk_context *cxt,
--					struct fdisk_partition *pa)
-+					struct fdisk_partition *pa,
-+					size_t *partno)
- {
--	size_t org = cxt->label->nparts_max, n;
-+	size_t org, n;
- 	int rc;
- 
-+	assert(cxt);
-+	assert(cxt->label);
-+	assert(partno);
-+
-+	org = cxt->label->nparts_max;
-+
- 	cxt->label->nparts_max = 4;
- 	rc = fdisk_partition_next_partno(pa, cxt, &n);
- 	cxt->label->nparts_max = org;
- 
--	switch (rc) {
--	case 1:
-+	if (rc == 1) {
- 		fdisk_info(cxt, _("All primary partitions have been defined already."));
- 		return -1;
--	case 0:
--		return n;
--	default:
--		return rc;
- 	}
-+	*partno = rc == 0 ? n : rc;
-+	return 0;
- }
- 
- static int seek_sector(struct fdisk_context *cxt, sector_t secno)
-@@ -1464,8 +1468,8 @@ static int dos_add_partition(struct fdisk_context *cxt,
- 			fdisk_warnx(cxt, _("Extended partition already exists."));
- 			return -EINVAL;
- 		}
--		res = get_partition_unused_primary(cxt, pa);
--		if (res >= 0) {
-+		rc = get_partition_unused_primary(cxt, pa, &res);
-+		if (rc == 0) {
- 			rc = add_partition(cxt, res, pa);
- 			goto done;
- 		}
-@@ -1473,8 +1477,8 @@ static int dos_add_partition(struct fdisk_context *cxt,
- 	/* pa specifies start, but outside extended partition */
- 	} else if (pa && fdisk_partition_has_start(pa) && l->ext_offset) {
- 		DBG(LABEL, ul_debug("DOS: pa template %p: add primary", pa));
--		res = get_partition_unused_primary(cxt, pa);
--		if (res >= 0) {
-+		rc = get_partition_unused_primary(cxt, pa, &res);
-+		if (rc == 0) {
- 			rc = add_partition(cxt, res, pa);
- 			goto done;
- 		}
-@@ -1531,8 +1535,8 @@ static int dos_add_partition(struct fdisk_context *cxt,
- 	} else if (cxt->label->nparts_max >= MAXIMUM_PARTS) {
- 		fdisk_info(cxt, _("All logical partitions are in use. "
- 				  "Adding a primary partition."));
--		res = get_partition_unused_primary(cxt, pa);
--		if (res >= 0)
-+		rc = get_partition_unused_primary(cxt, pa, &res);
-+		if (rc == 0)
- 			rc = add_partition(cxt, res, pa);
- 	} else {
- 		char hint[BUFSIZ];
-@@ -1541,8 +1545,8 @@ static int dos_add_partition(struct fdisk_context *cxt,
- 
- 		/* the default layout for scripts is to create primary partitions */
- 		if (cxt->script) {
--			res = get_partition_unused_primary(cxt, pa);
--			if (res >= 0)
-+			rc = get_partition_unused_primary(cxt, pa, &res);
-+			if (rc == 0)
- 				rc = add_partition(cxt, res, pa);
- 			goto done;
- 		}
-@@ -1573,16 +1577,16 @@ static int dos_add_partition(struct fdisk_context *cxt,
- 		fdisk_free_ask(ask);
- 
- 		if (c == 'p') {
--			res = get_partition_unused_primary(cxt, pa);
--			if (res >= 0)
-+			rc = get_partition_unused_primary(cxt, pa, &res);
-+			if (rc == 0)
- 				rc = add_partition(cxt, res, pa);
- 			goto done;
- 		} else if (c == 'l' && l->ext_offset) {
- 			rc = add_logical(cxt, pa, &res);
- 			goto done;
- 		} else if (c == 'e' && !l->ext_offset) {
--			res = get_partition_unused_primary(cxt, pa);
--			if (res >= 0) {
-+			rc = get_partition_unused_primary(cxt, pa, &res);
-+			if (rc == 0) {
- 				struct fdisk_partition *xpa = NULL;
- 				struct fdisk_parttype *t;
- 
-@@ -1607,7 +1611,7 @@ static int dos_add_partition(struct fdisk_context *cxt,
- done:
- 	if (rc == 0) {
- 		cxt->label->nparts_cur++;
--		if (partno && res >= 0)
-+		if (partno)
- 			*partno = res;
- 	}
- 	return rc;
--- 
-2.1.1
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+
+iQEcBAEBAgAGBQJUc0RuAAoJEI5FoCIzSKrwiMEH/3Njqw51tHDH2Kg3EDKpHfzR
+tu5CyfSmuj7e+hnSykvto4zdUly+wCRzIs3ZfhLa/ym1ClJhbOtISagcbv3tc+/C
+S80SEU2Hv1uV96yTTo1hd5Hv2kKeWwBTXcPZRW76GddgrSnU6y5kv3yh4pnQNxEV
+/wE4TOqXIVa7hg6Yxm45UUP9jRzDm9kgYR+9bva5flqf0Dc+O3P51iKvtLjhuZvA
+/LbRIln5fpJeYpxuD/a/BGhGE7jlcTirTobUz/xEuALdDWdGrcIPh2I6DWdCWVh3
+aJjr9ZCU7Be1qvMMDOViaWNO6J7ef0AqhjVG/xqteqe3/BaB8srupEXbn62OI2s=
+=Un4V
+-----END PGP SIGNATURE-----
