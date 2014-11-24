@@ -1,70 +1,95 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:43265 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751277AbaKUVUp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 21 Nov 2014 16:20:45 -0500
-Date: Fri, 21 Nov 2014 16:20:44 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Lutz Vieweg <lvml@5t9.de>
-Cc: util-linux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-Subject: Re: fstrim on newly created filesystem tries to discard data beyond
- the last sector of a device
-Message-ID: <20141121212044.GB32316@vapier.wh0rd.info>
-References: <m3qnrg$5gc$1@ger.gmane.org>
- <m4f77a$ivg$1@ger.gmane.org>
- <m4nrjt$ghs$1@ger.gmane.org>
+Return-Path: elseifthen@gmx.com
+Message-ID: <54728FF3.2020600@gmx.com>
+Date: Sun, 23 Nov 2014 20:54:59 -0500
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
-In-Reply-To: <m4nrjt$ghs$1@ger.gmane.org>
-Sender: util-linux-owner@vger.kernel.org
+To: kerolasa@gmail.com
+CC: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: RFC hwclock: refactoring
+References: <5470FE32.9030805@gmx.com>	<CAG27Bk3zu-8Qar_k44uM3_8_kOddJkqvb1be1_KmjkBGfBGcYA@mail.gmail.com> <CAG27Bk1cCo_S0txKeFtAb3+oEQn9k24h9Ty7+E++Oxg93pVeQA@mail.gmail.com>
+In-Reply-To: <CAG27Bk1cCo_S0txKeFtAb3+oEQn9k24h9Ty7+E++Oxg93pVeQA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
+On 11/23/2014 10:32 AM, Sami Kerola wrote:
+>> On 23 November 2014 at 13:31, Sami Kerola <kerolasa@iki.fi> wrote:
+>>> On 22 November 2014 at 21:20, JWP <elseifthen@gmx.com> wrote:
+>>> So, I noticed when *fdisk were rewritten that some antiquated
+>>> code was dropped.  I would like some opinions on whether this
+>>> should be done when refactoring hwclock.
+>>>
+>>> For example, do we need a workaround for the 1994 Award BIOS
+>>> bug?
+>>
+>> I agree with Benno, it is time to say goodbye to that code.
+>>
+>>> Do we need Alpha code?  Is there a Linux distro that
+>>> still officially supports Alpha machines?
+>>
+>> I'm not sure if there is any up to date distribution for Alpha. Kernel
+>> crew seems to still care alpha, so it is not completely dead.
+>>
+>> http://marc.info/?t=140518903000002&r=1&w=2
+>>
+>> Maybe the question should be rephrased. How about dropping the Alpha
+>> cmos support? It looks like Alpha has rtc support.
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 21 Nov 2014 18:09, Lutz Vieweg wrote:
-> The relevant strace output of the above fstrim command:
-> > stat("/mnt/PFexp1", {st_mode=3DS_IFDIR|0755, st_size=3D6, ...}) =3D 0
-> > open("/mnt/PFexp1", O_RDONLY)           =3D 3
-> > ioctl(3, FITRIM, 0x7fff0733a4c0)        =3D -1 EIO (Input/output error)
+I intentionally did not include --directisa and hwclock-cmos.c in my
+RFC, because my current position is that I2C access should remain in
+hwclock for troubleshooting and testing purposes.
 
-that hasn't decoded the ioctl (send a patch for that), but guess is that yo=
-u're=20
-passing down the default:
-	range.start =3D 0;
-	range.minlen =3D 0;
-	range.len =3D UULONG_MAX;
+Your marc.info link seems to be broken.
 
-in which case the expectation is the kernel layers will take care of trimmi=
-ng=20
-everything and not die when it hits the end of the device.
--mike
+>>
+>> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/arch/alpha/kernel/rtc.c
+>>
+>>> Any other ideas regarding this topic are welcome.
+>>
+>> Removal of i386 references should be safe.
+>>
+>> http://news.softpedia.com/news/Linux-Kernel-3-8-Says-Goodbye-to-i386-314293.shtml
+>>
+>> Since there is no other than Alpha & i386 references to cmos code, all
+>> of it is subject for removal.
 
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+The __i386__ macro is set for all x86 platforms. They all support the ISA
+architecture and therefore can use direct access methods to the persistent
+clock.  That includes x86_64, even though the current iteration of hwclock
+does not allow it, which is one of many hwclock bugs I will be fixing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
 
-iQIcBAEBAgAGBQJUb6ysAAoJEEFjO5/oN/WBOh8P/1qcmhNrL1o7852I2fkKfjDD
-mxNYBbj9dpE4BX+bmFhzhtItFFc1X1AvVcGtGuthnspNCPAY5hBz8y/Aktn7jPE2
-IK7j8DW0NXwFr+urksWmxINrfRckrrCGDboeWA4tqkcOCqsFig9aj92yJA5UOyM0
-nLhhKklP04f25nPcrSeWcBpsWoDWiKH7h3p9LdGPFG9J/IY1vc6n4UjQUBuRO+d2
-e43AY9QpWUiKh6Jf+Efvvck6Kjyb4qGSpSlqyctjCJoC8NCp8kEaHqWmJflfr/Z4
-iThud7ARDKjyHndtXWu/ULef2cQWSrbHOlQpUXsFBpQwtQV8ubXagxJBSEbednpp
-Q0LXWJ4azP5FJKeJ7+Xt6UjphaoNk3fVYEqtymkG8JURqPL+MKPRoxFFLLFu8k++
-mhpPzqM+/aYMdOb0SMNxBMPRIfktfEHAoUBWbePSEL7YufyPmT+N5BqEGzRV6Of3
-1TlDuUlS+VSTPiUuF6pj/62/PYTjTAkecsAqBdn2NCe2VaM0YDJVDON9mYs1wlMD
-6oQsjCjM6DlEM0Zpybm2H4Wu91z02IEfllEsd2CPfOk1yzUL8e4f/vqqr3ce/dFP
-DsM2ga7ZYqKtTZ+mHEqSO9s2gXqmk/XSu7XOHTASbKhgrDRlDQ0RKHCmyCMZ7g+a
-mWvWsjIf8XdTJJXE9o4N
-=ChPN
------END PGP SIGNATURE-----
+> 
+> JWP,
+> 
+> It's a rainy day here, so I decided to make initial attempt to remove
+> cmos & --badyear. Maybe something like these are what you are thinking
+> of.
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/fa8825f77996dfad39bd09240729287706f6e72f
+> https://github.com/kerolasa/lelux-utiliteetit/commit/74edf1aa9c16d351e9fdb25a961ec1932c60c674
+> 
+> After a clean up like that there is still tons to do. For example this
+> snippet here
+> 
+> /*
+>  * struct rtc_time is present since 1.3.99.
+>  * Earlier (since 1.3.89), a struct tm was used.
+>  */
+> 
+> is screaming obsolete.
+> 
 
---3lcZGd9BuhuYXNfi--
+All of the code will be changing, Karel ask me to refactor it outside
+of the main development channel.  I wanted to see if the Alpha and 
+Award code was somehow important to someone.  My opinion is to remove
+it, but maybe there is something I am unaware of.
+
+Even the source for the aboot Alpha boot-loader, and the previous center
+of all things Linux-Alpha, alphalinux.org is gone.
+
+I do wonder why the kernel hasn't dropped it yet though.
+
+I'm curious as to what Mr. Z's thoughts are going to be.
+
+Thanks for your time and input Sami!
