@@ -1,43 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:57374 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753833AbaKCVRb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 3 Nov 2014 16:17:31 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] swapon: reword some usage strings
-Date: Mon,  3 Nov 2014 22:17:17 +0100
-Message-Id: <1415049437-2301-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1415049437-2301-1-git-send-email-bensberg@justemail.net>
-References: <1415049437-2301-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:55550 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750955AbaKXPqM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 24 Nov 2014 10:46:12 -0500
+Date: Mon, 24 Nov 2014 16:46:04 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: Drake Wilson <drake@dasyatidae.net>, util-linux@vger.kernel.org,
+        770211@bugs.debian.org
+Subject: Re: LUKS partition types, redux
+Message-ID: <20141124154604.GA2610@x2.net.home>
+References: <546D0495.2030803@dasyatidae.net>
+ <20141124113733.GC926@x2.net.home>
+ <547343EA.6090606@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <547343EA.6090606@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also remove some inconsistent periods and properly punctuate
-the closing sentence.
+On Mon, Nov 24, 2014 at 09:42:50AM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 11/24/2014 6:37 AM, Karel Zak wrote:
+> > The current trend is to use partition type to define for what
+> > purpose we want to use the partition (for example "this is /home") 
+> > independently on partition format.
+> 
+> I wouldn't call this bone headed idea of redhat's a trend.  Using
+> partition table type codes to decide to auto mount in particular parts
+> of the filesystem is such a brain damaged idea, those who thought it
+> up need beaten with a clue-by-four and its use needs to be *strongly*
+> discouraged.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/swapon.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ well, it's designed for auto-generated fstab-less systems like
+ containers/virt images, etc. I'm not big fan of this feature, but for
+ some use cases it makes sense. (And it's systemd upstream decision.)
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 8f7e918..a457607 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -756,9 +756,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 		" <file>                 name of file to be used\n"), out);
- 
- 	fputs(_("\nAvailable discard policy types (for --discard):\n"
--		" once	  : only single-time area discards are issued.\n"
--		" pages	  : discard freed pages before they are reused.\n"
--		" * if no policy is selected both discard types are enabled. (default)\n"), out);
-+		" once	  : only single-time area discards are issued\n"
-+		" pages	  : freed pages are discarded before they are reused\n"
-+		" If no policy is selected, both discard types are enabled (default).\n"), out);
- 
- 	fputs(_("\nAvailable columns (for --show):\n"), out);
- 	for (i = 0; i < ARRAY_SIZE(infos); i++)
+ Anyway, use partition type for "usage" makes more sense than for "fs-type".
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
