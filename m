@@ -1,51 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43939 "EHLO
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:58403 "EHLO
 	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756847AbaKSWh2 (ORCPT
+	by vger.kernel.org with ESMTP id S1750733AbaKXPEh (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Nov 2014 17:37:28 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id 095652118B
-	for <util-linux@vger.kernel.org>; Wed, 19 Nov 2014 17:37:27 -0500 (EST)
-Message-ID: <546D1BA7.9060501@dasyatidae.net>
-Date: Wed, 19 Nov 2014 16:37:27 -0600
+	Mon, 24 Nov 2014 10:04:37 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+	by mailout.nyi.internal (Postfix) with ESMTP id 9EBE320B6C
+	for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 10:04:36 -0500 (EST)
+Message-ID: <54734903.5080503@dasyatidae.net>
+Date: Mon, 24 Nov 2014 09:04:35 -0600
 From: Drake Wilson <drake@dasyatidae.net>
 MIME-Version: 1.0
-To: "Dale R. Worley" <worley@alum.mit.edu>
+To: Phillip Susi <psusi@ubuntu.com>
 CC: util-linux@vger.kernel.org
-Subject: Re: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
-In-Reply-To: <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
+Subject: Re: Bug#770211: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net> <547341AD.4020702@ubuntu.com> <547342B2.2060509@dasyatidae.net> <54734522.7010807@dasyatidae.net> <547347A1.7080402@ubuntu.com>
+In-Reply-To: <547347A1.7080402@ubuntu.com>
 Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dale R. Worley wrote:
-> This raises the related question of whether there should be codes to
-> identify the partition type inside the LUKS partition.
+Phillip Susi wrote:
+> Oh boy.  I hadn't noticed that util-linux had added so many silly type
+> codes now that it supports GPT.  This mess really needs cleaned up.
+> There should just be "Linux" and that's it.
 
-(Dropping Debian bug from Cc for this.)
+I'd be fine with everything getting merged into a single "Linux" type.
 
-I don't think that really matches up with the way disklabel types
-work any more than, say, identifying the type of data stored in a
-filesystem would.  There actually _are_ GPT types in fdisk for
-"Linux root (x86)", "Linux home" etc. but I consider these to be
-anomalous and never use them as there's an infinite number of possible
-nestings there.  If users want to mint their own GPT types for those
-purposes, they can, of course.
+If that happens, would it make sense to get rid of the listings for the
+other Linux types in MBR mode too and loosely standardize on all 0x83
+types there?  (Or interpret them for existing disklabels, and of course
+don't forbid setting them, but remove them from the actively-displayed
+list.)
 
-My usual stance is that type identifiers should be shallow at each level
-(one reason piercing through LUKS to get a type code is semantically bad)
-and present at as many levels as necessary.  I might support an extension
-proposal to allow (but not require) a type for the underlying volume to
-be added as part of the _LUKS_ header, therefore (probably using a GPT
-type just for convenience).  However, I also think the argument that it's
-unnecessary because Linux wouldn't interpret it is much more valid there,
-because LUKS is more or less defined by its use in Linux, whereas GPT and
-MBR disklabels are not and have more stringent interop requirements with
-other tools and OSes.
+> That's the only one we
+> have in parted and it is quite sufficient.
 
-Either way, I don't think that's nearly as important.
+In parted, really?  While I was chasing down the partman-lvm data flow
+involved, it seemed to me that it was libparted that was setting flags
+based on interpreting the LVM GPT type, which were later getting interpreted;
+it wasn't obvious to me where to break the logic chain.  Is that part of
+libparted a Debianism, or did you mean parted-the-tool as opposed to
+libparted-the-library, or... ?
 
    ---> Drake Wilson
-
