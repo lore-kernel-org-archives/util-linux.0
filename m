@@ -1,28 +1,31 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-po-01v.sys.comcast.net ([96.114.154.160]:34311 "EHLO
-	resqmta-po-01v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756873AbaKTVdb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 20 Nov 2014 16:33:31 -0500
-Date: Thu, 20 Nov 2014 16:33:28 -0500
-Message-Id: <201411202133.sAKLXSZP006667@hobgoblin.ariadne.com>
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Drake Wilson <drake@dasyatidae.net>
-CC: util-linux@vger.kernel.org
-In-reply-to: <546D1BA7.9060501@dasyatidae.net> (drake@dasyatidae.net)
-Subject: Re: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546D1BA7.9060501@dasyatidae.net>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Message-ID: <54738A6A.40906@fastmail.fm>
+Date: Mon, 24 Nov 2014 20:43:38 +0100
+From: Bernd Schubert <bernd.schubert@fastmail.fm>
+MIME-Version: 1.0
+To: Lutz Vieweg <lvml@5t9.de>, linux-fsdevel@vger.kernel.org
+CC: util-linux@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: fstrim on newly created filesystem tries to discard data beyond
+ the last sector of a device
+References: <m3qnrg$5gc$1@ger.gmane.org> <m4f77a$ivg$1@ger.gmane.org> <m4nrjt$ghs$1@ger.gmane.org> <alpine.LFD.2.00.1411241259280.10657@localhost.localdomain> <5473873E.1070101@5t9.de>
+In-Reply-To: <5473873E.1070101@5t9.de>
+Content-Type: text/plain; charset=utf-8
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: Drake Wilson <drake@dasyatidae.net>
+> Then there's another idea: The device is a SATA SSD, but attached
+> to a SAS2 expander chip on the backplane of the server (LSI SAS2X28)
+> which in turn is connected to a LSI SAS HBA 9207-4i4e.
+> could maybe, just maybe, the TRIM command be modified wrongly
+> on its way through these / their respective drivers?
+> 
 
-> I might support an extension
-> proposal to allow (but not require) a type for the underlying volume to
-> be added as part of the _LUKS_ header, therefore (probably using a GPT
-> type just for convenience).
+Yeah, it is a known issue with LSI firmware.
 
-That sounds like a better proposal to me.  But I have no idea whether
-LUKS can support such an extension.
+http://osdir.com/ml/dm-devel/2013-09/msg00126.html
 
-Dale
+Last time I checked (FWv19?) it was still not fixed.
+
+
+Cheers,
+Bernd
