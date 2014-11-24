@@ -1,59 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qa0-f50.google.com ([209.85.216.50]:34898 "EHLO
-	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753808AbaKXOdv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 09:33:51 -0500
-Received: by mail-qa0-f50.google.com with SMTP id w8so6305584qac.23
-        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 06:33:50 -0800 (PST)
-Message-ID: <547341AD.4020702@ubuntu.com>
-Date: Mon, 24 Nov 2014 09:33:17 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Message-ID: <547392AC.4050302@fastmail.fm>
+Date: Mon, 24 Nov 2014 21:18:52 +0100
+From: Bernd Schubert <bernd.schubert@fastmail.fm>
 MIME-Version: 1.0
-To: Drake Wilson <drake@dasyatidae.net>
-CC: util-linux@vger.kernel.org
-Subject: Re: Bug#770211: LUKS partition types, redux
-References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net>
-In-Reply-To: <5472B7E4.4040601@dasyatidae.net>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+To: Lutz Vieweg <lvml@5t9.de>, linux-fsdevel@vger.kernel.org
+CC: util-linux@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: fstrim on newly created filesystem tries to discard data beyond
+ the last sector of a device
+References: <m3qnrg$5gc$1@ger.gmane.org> <m4f77a$ivg$1@ger.gmane.org> <m4nrjt$ghs$1@ger.gmane.org> <alpine.LFD.2.00.1411241259280.10657@localhost.localdomain> <5473873E.1070101@5t9.de> <54738A6A.40906@fastmail.fm> <54738F2D.8000909@5t9.de>
+In-Reply-To: <54738F2D.8000909@5t9.de>
+Content-Type: text/plain; charset=utf-8
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On 11/23/2014 11:45 PM, Drake Wilson wrote:
-> So---entirely aside from the _other_ subthread about types _inside_
-> LUKS---do you still intend to provide this as a reason for not
-> adding GPT/MBR LUKS types to fdisk, even in light of the
-> destructive interaction I mentioned in my first post?  I'm worried
-> that my having said anything else while replying to Dale may have
-> been a mistake and given the impression that "no types inside LUKS"
-> answers my original concern, which it doesn't.
+
+On 11/24/2014 09:03 PM, Lutz Vieweg wrote:
+> On 11/24/2014 08:43 PM, Bernd Schubert wrote:
+>>> Then there's another idea: The device is a SATA SSD, but attached
+>>> to a SAS2 expander chip on the backplane of the server (LSI SAS2X28)
+>>> which in turn is connected to a LSI SAS HBA 9207-4i4e.
+>>> could maybe, just maybe, the TRIM command be modified wrongly
+>>> on its way through these / their respective drivers?
+>>
+>> Yeah, it is a known issue with LSI firmware.
+>>
+>> http://osdir.com/ml/dm-devel/2013-09/msg00126.html
 > 
-> As I mentioned, GPT and MBR have significant interop
-> characteristics with other tools, so I'm not convinced by the
-> "Linux only uses blkid" there.  If that's what you're truly going
-> with after having seen the practical results, I won't argue
-> further, but I'd like to know.
+> I must admit that I have difficulties understanding what this
+> email thread is ultimately telling: Does it mean LSI firmware
+> actually tampers with TRIM commands such that they would discard
+> other ranges than those intended? (In which case using TRIM
+> over any such LSI device would be very dangerous.)
+> Or does is mean the capabilities of some SSDs to discard data
+> are mis-reported? And if so, in the sense that the kernel might
+> not be able to discard data at all, or in the sense that data
+> is discarded, but the kernel sends additional commands that the
+> device cannot understand?
+> 
+> After all, if it's just an annoying error message that I can
+> ignore, I wouldn't mind. But if TRIM via LSI means "data loss",
+> I would of course have to take measures against this...
+> 
 
-I have to say that adding more type codes for no reason is something
-I'm against.  Like you said in your first post, the loss was caused by
-a bug in debian-installer coupled with the lvm type code.  If you
-simply use the normal "Linux" type code, then everything works out
-fine so I don't see any reason to add more complexity and confusion by
-introducing yet another type code.  Had the useless lvm type code
-never been introduced in a similar manner, you wouldn't have had the
-problem you did.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-
-iQEcBAEBAgAGBQJUc0GtAAoJEI5FoCIzSKrwEtkH/iCiZ1Hm4EaBs7btRWD5C0FW
-fC363eGKNCK4KsYMPpVv+MjdLy1kwonmmI9OFl+uROdnCaZ2/GzgmynlUtviYl3H
-MtXlWEvmJGCT43Qgm97H3OC/3ihJ2epxAP4J5L7gK7fofTq7iqxpk47J1bm2MjUI
-XgNMxx31OfQzOtHKZSolJ8wCIC76Zre8tvMjDuGx8AF8JvBnkHpTykWG0B4K3niD
-6B5pm/FnSV7t+YoZjkdrJMJsxoZFKU78A1cHeSRuKbXqJVrQXhJbxlcCg21DUGtD
-YniJM+W/Cy5KQAh2EfuwMQxkSOXnPTZvSTGdjTserDW5fmdUN2Z7PFlGFOlRZmA=
-=Xcjj
------END PGP SIGNATURE-----
+It just tries to trim one sector more than the device actually has. So
+as far as I can tell it is harmless.
