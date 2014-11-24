@@ -1,85 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:56217 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751244AbaKBRxV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 2 Nov 2014 12:53:21 -0500
-Message-ID: <54566F88.4040101@gmx.com>
-Date: Sun, 02 Nov 2014 12:53:12 -0500
-From: JWP <elseifthen@gmx.com>
+Received: from mail-qa0-f43.google.com ([209.85.216.43]:54991 "EHLO
+	mail-qa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752721AbaKXO7Q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 09:59:16 -0500
+Received: by mail-qa0-f43.google.com with SMTP id bm13so6387777qab.2
+        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 06:59:16 -0800 (PST)
+Message-ID: <547347A1.7080402@ubuntu.com>
+Date: Mon, 24 Nov 2014 09:58:41 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Benno Schulenberg <bensberg@justemail.net>
-CC: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
- hwclock
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net> <1414444693-16407-4-git-send-email-bensberg@justemail.net> <544EECC9.2000300@gmx.com> <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com> <20141031095142.GX10134@x2.net.home>
-In-Reply-To: <20141031095142.GX10134@x2.net.home>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org
+Subject: Re: Bug#770211: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net> <547341AD.4020702@ubuntu.com> <547342B2.2060509@dasyatidae.net> <54734522.7010807@dasyatidae.net>
+In-Reply-To: <54734522.7010807@dasyatidae.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 11/24/2014 9:48 AM, Drake Wilson wrote:
+> To clarify, that's in the GPT list, not the MBR one.  I see that
+> the MBR one names 0x83 "Linux", at least.  Does that mean that
+> {0FC63DAF-8483-4772-8E79-3D69D8477DE4} should also be named "Linux"
+> rather than "Linux filesystem"?
+
+Oh boy.  I hadn't noticed that util-linux had added so many silly type
+codes now that it supports GPT.  This mess really needs cleaned up.
+There should just be "Linux" and that's it.  That's the only one we
+have in parted and it is quite sufficient.
 
 
-On 10/31/2014 05:51 AM, Karel Zak wrote:
-> On Tue, Oct 28, 2014 at 09:02:12PM +0100, Benno Schulenberg wrote:
->>
->> On Tue, Oct 28, 2014, at 02:09, JWP wrote:
->>> On 10/27/2014 05:18 PM, Benno Schulenberg wrote:
->>>>  Since v2.26
->>>>  .B hwclock
->>>>  does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
->>>> -It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
->>>> +It is necessary to use the option \fB\-\-update-drift\fR, with \fB\-\-set\fR or
->>>>  \fB\-\-systohc\fR, to force drift factor updates.
->>>
->>> The rest of the manual uses 'the --xxxx option'.
->>
->> Well, I can't explain, but in this case "the option --xxxx" is better.
->>
->>>>  Since v2.26
->>>>  .B hwclock \-\-hctosys
->>>> -automatically compensates time read from the Hardware Clock to account for
->>>> -systematic drift before using it to set the System Clock.  Therefore,
->>>> -\fB\-\-adjust\fR is no longer necessary during boot. This functionality makes
->>>> -hwclock usable early in the boot process when the root filesystem is read-only.
->>>> +automatically takes a systematic drift of the Hardware Clock into account,
->>>> +setting the System Clock to the drift-compensated time.  Therefore the option
->>>> +\fB\-\-adjust\fR is no longer necessary during boot.  This feature makes
->>>> +.B hwclock
->>>> +usable early on in the boot process when the root filesystem is read-only.
->>>
->>> "a systematic drift"? That entire phrase does not sound natural to me.
->>
->> :|
->>
->>> I think it is important to
->>> stress that *the_time_read* from the Clock is what is being compensated as this is
->>> a new behavior.
->>
->> Well, then suggest how exactly to phrase that.
-> 
-> I'll wait for the final patch :-)
-> 
->     Karel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
 
-Karel and Benno,
-
-I did not intent to comment further on this, because I find discourse
-on human language illogical and frustrating. No doubt, that is why I
-am drawn to the language of machines, but there's no escaping strings;)
-
-I suppose it is impolite of me to leave the topic dangling though.
-
-The first issue seems so trivial as to not justify any debate. I will
-however, expand on my original comment: if there is no grammar rule to
-decide a style choice, then the super-class style rule of 'be consistent'
-should be applied.  I do not find 'because I say so' to be a compelling
-argument.  
-
-With regard to the second issue, I suggested 'how exactly to phrase that' 
-when I edited it the first time. Unless it can be rewritten in a way that 
-does not change its meaning, I feel it should remain as it is.
-
-So there you have my opinions; I will leave the matter in both of your hands 
-to make a good choice.
-
-Will
+iQEcBAEBAgAGBQJUc0ehAAoJEI5FoCIzSKrwiGoIAIksu6+umL4VfaE6UWr/5LCP
+Td+rMenz/IosGo1cn602SKbTewNyMzZ3T5RJnTY5dVHt7aWMJGtKMtZ4GavHnttL
+nV8yZvXcv7JGmvOtZiu0zK1V/WUxrQY0KaUd2wjtYUOkCpuHRaj5wkk7erarGZIt
+Z1OgVfXfOEfVjC4jf1rbnOQib53azceVgge6knI8uHAq7qONdzCX588xAypz2Vok
+t08LalysnVqckuhwsbFzWvUblMfelnI0qhGp/GwkT2s/cRuLlGf28yAyq73/bbaw
+zHDbZg8PbehyHwoBjPiVA1bNAg7sVrXQV4TJSrddo0UosgqpxXHE7B3+sEa3rOg=
+=3Gq7
+-----END PGP SIGNATURE-----
