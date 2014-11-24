@@ -1,52 +1,95 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:38652 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753146AbaKJVuO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Nov 2014 16:50:14 -0500
-Received: by mail-wg0-f45.google.com with SMTP id x12so10069142wgg.32
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 13:50:12 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/6] libmount: fix memory overflow [AddressSanitizer]
-Date: Mon, 10 Nov 2014 21:49:53 +0000
-Message-Id: <1415656195-20458-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: drake@dasyatidae.net
+Message-ID: <54731FDE.805@dasyatidae.net>
+Date: Mon, 24 Nov 2014 06:09:02 -0600
+From: Drake Wilson <drake@dasyatidae.net>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org, 770211@bugs.debian.org
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <20141124113733.GC926@x2.net.home>
+In-Reply-To: <20141124113733.GC926@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-==10918==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fffd795b680 at pc 0x0000004447c6 bp 0x7fffd795b3e0 sp 0x7fffd795ab78
-WRITE of size 129 at 0x7fffd795b680 thread T0
-    #0 0x4447c5 in scanf_common(void*, int, bool, char const*, __va_list_tag*) (/home/src/util-linux/.libs/lt-mount+0x4447c5)
-    #1 0x445892 in sscanf (/home/src/util-linux/.libs/lt-mount+0x445892)
-    #2 0x7fe78709a3d3 in get_filesystems /home/src/util-linux/libmount/src/utils.c:581:7
-    #3 0x7fe78709a1ba in mnt_get_filesystems /home/src/util-linux/libmount/src/utils.c:622:7
-    #4 0x7fe7870aa78f in do_mount_by_pattern /home/src/util-linux/libmount/src/context_mount.c:833:7
-    #5 0x7fe7870a9534 in mnt_context_do_mount /home/src/util-linux/libmount/src/context_mount.c:951:9
-    #6 0x7fe7870aab2b in mnt_context_mount /home/src/util-linux/libmount/src/context_mount.c:1051:8
-    #7 0x4ba9f5 in main /home/src/util-linux/sys-utils/mount.c:1107:7
-    #8 0x7fe785caa03f in __libc_start_main (/usr/lib/libc.so.6+0x2003f)
-    #9 0x4b9f9c in _start (/home/src/util-linux/.libs/lt-mount+0x4b9f9c)
+Firstly: thank you very much for engaging in a reasonable discussion about this.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libmount/src/utils.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Karel Zak wrote:
+> On Wed, Nov 19, 2014 at 02:59:01PM -0600, Drake Wilson wrote:
+>> Summary: I would like to reopen the suggestion to add LUKS partition type codes
+>> for MBR and for GPT to util-linux's fdisk.  In a previous discussion, it was
+>> said that since Linux does not interpret partition types, there is no need for
+>> this, but concrete data loss has now occurred as a result of a related bug in
+>> other software combined with the lack of a user-visible LUKS type in a similar
+>> partitioning program, and I believe that warrants re-examination of the situation.
+> 
+>  But it seems that the problem is what details partitioning tools
+>  provide to end-users rather than problem with data within disk
+>  labels. I don't see problem to add FS type column to fdisk(s) (it's
+>  already linked with libblkid).
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 456a898..33e2c5b 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -578,7 +578,7 @@ static int get_filesystems(const char *filename, char ***filesystems, const char
- 
- 		if (*line == '#' || strncmp(line, "nodev", 5) == 0)
- 			continue;
--		if (sscanf(line, " %128[^\n ]\n", name) != 1)
-+		if (sscanf(line, " %" stringify(sizeof(line) - 1)  "[^\n ]\n", name) != 1)
- 			continue;
- 		if (strcmp(name, "*") == 0) {
- 			rc = 1;
--- 
-2.1.3
+I don't quite understand the relation of this paragraph to what I was talking
+about.  The case of data loss via partman-lvm wasn't related to what fdisk
+would have presented to me, but what the disklabel presented to partman-lvm
+as a result of the choices fdisk would have presented.
 
+>  You want to make a connection between partition type and partition
+>  format (FS, LUKS, LVM...). This idea is more than 30years old and it
+>  has been always fragile and introduced for poorly designed systems
+>  (kernels and boot loaders). 
+
+It's not quite that I _want_ to make such a connection, more that I think it
+has already been made and the current interop situation is suboptimal; see
+below.  I would be quite happy as well with a single "Linux other" type
+instead of a LUKS-specific type.
+
+>  The current trend is to use partition type to define for what purpose
+>  we want to use the partition (for example "this is /home")
+>  independently on partition format. 
+
+I can see some of that, yes.  I've only recently encountered this.  This can
+somewhat conflict with the purpose of disk encryption, incidentally, which
+tends to want to keep those subdivisions hidden if possible (thus LUKS+LVM
+being a common setup).  I'm not opposed to the idea being around; _requiring_
+it would conflict with my goals, but I don't see any evidence of that, so
+let's put that away.
+
+>  Anyway, I'd like to minimize number of situations when we depend
+>  on GPT/MBR partition types at all.
+
+So, my more concrete concern here is not in places where Linux or util-linux
+read partition type codes; it is where fdisk or a similar utility writes them,
+and some other program entirely reads them.  In the bad case I ran into, the
+"some other system" happened to be partman-lvm from Debian, but it could just
+as well be something else.
+
+Here's the specific scenario: imagine I'm a Linux sysadmin who is writing a
+disklabel for a new disk which will contain a LUKS volume.  (The volume does
+not necessarily correspond to any of the "usage" types you mentioned, and I
+may not want to expose that information anyway.)  The type code field in MBR
+or GPT exists already; I cannot simply remove it, and there is no null value.
+What value do I type in for that field?
+
+The likely chain of events, if I'm using fdisk or a similar tool, is that I
+look up the list of type codes included in that tool and pick the "closest"
+one.  If there is no LUKS type, and no "Linux other" or "other" type in
+general, I'm likely to wind up picking one of the existing Linux types.
+This risks the disk being plugged into a system that misinterprets the type,
+because those other types are _notionally_ meaningful even if the core Linux
+kernel and utilities don't care much.
+
+Adding a LUKS type to the table means I can pick that, and if Linux, cryptsetup,
+etc. never read it, that's fine---the point is that no _other_ system will read
+it as something it wasn't meant to be either.  A "Linux other" or "generic /
+unspecified" type would also satisfy this, but more weakly because it wouldn't
+be as visible (and I would actually love to have all three, honestly).
+
+So it's a combined interop and UI problem, and is related to the disklabel data
+itself.  And my main goal in participating here is to help avoid other users
+running into similar problems to what I did if they write disklabels using fdisk,
+by reducing the risk of accidentally encouraging the user to trigger aggressive
+interpretation by other software, even if that other software should not have
+made such assumptions in the first place.
+
+Does that help at all?
+
+   ---> Drake Wilson
