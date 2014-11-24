@@ -1,53 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:39043 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754558AbaKRTsC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 14:48:02 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id F2FBC207CF
-	for <util-linux@vger.kernel.org>; Tue, 18 Nov 2014 14:48:00 -0500 (EST)
-Message-Id: <1416340080.416604.192572333.19260660@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: JWP <elseifthen@gmx.com>, "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:37441 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752416AbaKXQ2A (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 11:28:00 -0500
+Received: by mail-qa0-f46.google.com with SMTP id u7so6552739qaz.5
+        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 08:27:59 -0800 (PST)
+Message-ID: <54735C6B.9070703@ubuntu.com>
+Date: Mon, 24 Nov 2014 11:27:23 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20141118130525.GM6704@x2.net.home>
-References: <1414444693-16407-1-git-send-email-bensberg@justemail.net>
- <1414444693-16407-4-git-send-email-bensberg@justemail.net>
- <544EECC9.2000300@gmx.com>
- <1414526532.495299.184374637.2BF00A99@webmail.messagingengine.com>
- <20141031095142.GX10134@x2.net.home> <54566F88.4040101@gmx.com>
- <1415049315.2564297.186608257.366970B7@webmail.messagingengine.com>
- <5458D1A2.40106@gmx.com> <20141118130525.GM6704@x2.net.home>
-Subject: Re: [PATCH 4/4] docs: improve wording and formattin of man page of
- hwclock
-Date: Tue, 18 Nov 2014 20:48:00 +0100
+To: Karel Zak <kzak@redhat.com>
+CC: Drake Wilson <drake@dasyatidae.net>, util-linux@vger.kernel.org
+Subject: Re: Bug#770211: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net> <547341AD.4020702@ubuntu.com> <547342B2.2060509@dasyatidae.net> <54734522.7010807@dasyatidae.net> <547347A1.7080402@ubuntu.com> <20141124161036.GB2610@x2.net.home>
+In-Reply-To: <20141124161036.GB2610@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, Nov 18, 2014, at 14:05, Karel Zak wrote:
->  Karel is not always right. Don't care who is author, bugs have to be
->  fixed.
+On 11/24/2014 11:10 AM, Karel Zak wrote:
+> and extended by stuff from free desktop 
+> http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec/
+
+Yes...
 > 
-> [...]
-> 
->  Benno, re-send a complete patch with this change. Please.
-
-But, but... you have already applied it.  :)
-
-(commit df48a721613f30a607d8616f5d8808d11ebfab25)
+that spec is awful and needs to die in a fire.
 
 
-Or was it your intention to give a live demonstration of
-"Karel is sometimes confused and mistaken"?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
 
-:)
-
-Benno
-
--- 
-http://www.fastmail.com - IMAP accessible web-mail
-
+iQEcBAEBAgAGBQJUc1xrAAoJEI5FoCIzSKrw7tQH/2V08mrXE702aFdMQSwaJd9q
+z1QxTuKExES5z7tKW2KhIAhHj7aDCwnNf2596acifwDBzYnoiDKMXOEnM8jxPJUa
+sDFblmWtVw5DTpkhtxcoZGxPgm72io6fas/2EobK3T8hFqHSMnzhwKpUvj41Svbu
+NwBX43EMcLBxKWwpcCgxQmW5Lz4ceC+NTqGCsY8nKxgeyG6Xzs7Og7DsQ59DJ1wd
+si+k3spJVOYj5H/9ccwMA+7+UjnRgVeNUJ4AQl1lXSpXcabFxTRSI2nloU8HGxma
+N+GrS7yoZrNAwc41ggMqzDw29qSYPDhJkxUN93GdW55I0GgT7mMtUXgxOY+88ec=
+=+y7Q
+-----END PGP SIGNATURE-----
