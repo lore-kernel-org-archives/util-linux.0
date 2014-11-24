@@ -1,37 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60485 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753266AbaKRMBY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 18 Nov 2014 07:01:24 -0500
-Date: Tue, 18 Nov 2014 13:01:10 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-Message-ID: <20141118120110.GH6704@x2.net.home>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: worley@ariadne.com
+Date: Mon, 24 Nov 2014 10:48:26 -0500
+Message-Id: <201411241548.sAOFmQaI028880@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Phillip Susi <psusi@ubuntu.com>
+CC: kzak@redhat.com, drake@dasyatidae.net, util-linux@vger.kernel.org
+In-reply-to: <547343EA.6090606@ubuntu.com> (psusi@ubuntu.com)
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <20141124113733.GC926@x2.net.home> <547343EA.6090606@ubuntu.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 10, 2014 at 09:49:49PM +0000, Sami Kerola wrote:
->  configure.ac                       | 1 +
->  lib/cpuset.c                       | 1 +
->  libmount/src/utils.c               | 2 +-
->  tests/expected/misc/swaplabel      | 2 +-
->  tests/ts/kill/name_to_number       | 3 +++
->  tests/ts/libmount/tabfiles-py      | 4 ++++
->  tests/ts/libmount/tabfiles-tags    | 4 ++++
->  tests/ts/libmount/tabfiles-tags-py | 4 ++++
->  tests/ts/libmount/update-py        | 6 +++++-
->  9 files changed, 24 insertions(+), 3 deletions(-)
+> From: Phillip Susi <psusi@ubuntu.com>
+> 
+> On 11/24/2014 6:37 AM, Karel Zak wrote:
+> > The current trend is to use partition type to define for what
+> > purpose we want to use the partition (for example "this is /home") 
+> > independently on partition format.
+> 
+> I wouldn't call this bone headed idea of redhat's a trend.  Using
+> partition table type codes to decide to auto mount in particular parts
+> of the filesystem is such a brain damaged idea, those who thought it
+> up need beaten with a clue-by-four and its use needs to be *strongly*
+> discouraged.
 
-Merged (with one change) from github.
+I have to agree here.  Trying to use partition type codes to specify
+where partitions should be mounted has many flavors of fail.  Among
+others, it assumes that there is a small, fixed set of mount points
+that will *work for every installation*.  If you want to know what
+gets mounted where, look in /etc/fstab, like we've done for 40 years
+or so.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Dale
