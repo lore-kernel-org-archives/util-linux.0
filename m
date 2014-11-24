@@ -1,69 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:57391 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751407AbaKKVQt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 11 Nov 2014 16:16:49 -0500
-Received: by mail-pa0-f52.google.com with SMTP id fa1so11293352pad.25
-        for <util-linux@vger.kernel.org>; Tue, 11 Nov 2014 13:16:49 -0800 (PST)
+Received: from mail-qa0-f50.google.com ([209.85.216.50]:34898 "EHLO
+	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753808AbaKXOdv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 09:33:51 -0500
+Received: by mail-qa0-f50.google.com with SMTP id w8so6305584qac.23
+        for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 06:33:50 -0800 (PST)
+Message-ID: <547341AD.4020702@ubuntu.com>
+Date: Mon, 24 Nov 2014 09:33:17 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20141111021250.GG3652@vapier.wh0rd.info>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
-	<1415656195-20458-7-git-send-email-kerolasa@iki.fi>
-	<20141111021250.GG3652@vapier.wh0rd.info>
-Date: Tue, 11 Nov 2014 21:16:48 +0000
-Message-ID: <CAG27Bk0+saBoL=R0n_7CRBiC89J9JC+udoabTMFd1vN_W=e4Eg@mail.gmail.com>
-Subject: Re: [PATCH 6/6] tests: mark python libmount tests known to fail with AddressSanitizer
-From: Sami Kerola <kerolasa@iki.fi>
-To: Sami Kerola <kerolasa@iki.fi>, util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org
+Subject: Re: Bug#770211: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com> <546E1A16.6050102@ubuntu.com> <5472B7E4.4040601@dasyatidae.net>
+In-Reply-To: <5472B7E4.4040601@dasyatidae.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 11 November 2014 02:12, Mike Frysinger <vapier@gentoo.org> wrote:
-> On 10 Nov 2014 21:49, Sami Kerola wrote:
->> The tests fail with an error similar to this.
->>
->> Traceback (most recent call last):
->>   File "/home/src/util-linux/libmount/python/test_mount_tab_update.py", line 7, in <module>
->>     import pylibmount as mnt
->> ImportError: /home/src/util-linux/.libs/libuuid.so.1: undefined symbol: __asan_option_detect_stack_use_after_return
->
-> if libuuid.so is built with ASAN, it should be linked with it too.  that means
-> passing the ASAN flags at link time.  or maybe libtool is filtering them out
-> when it goes to link the library ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi Mike,
+On 11/23/2014 11:45 PM, Drake Wilson wrote:
+> So---entirely aside from the _other_ subthread about types _inside_
+> LUKS---do you still intend to provide this as a reason for not
+> adding GPT/MBR LUKS types to fdisk, even in light of the
+> destructive interaction I mentioned in my first post?  I'm worried
+> that my having said anything else while replying to Dale may have
+> been a mistake and given the impression that "no types inside LUKS"
+> answers my original concern, which it doesn't.
+> 
+> As I mentioned, GPT and MBR have significant interop
+> characteristics with other tools, so I'm not convinced by the
+> "Linux only uses blkid" there.  If that's what you're truly going
+> with after having seen the practical results, I won't argue
+> further, but I'd like to know.
 
-The documentation
+I have to say that adding more type codes for no reason is something
+I'm against.  Like you said in your first post, the loss was caused by
+a bug in debian-installer coupled with the lvm type code.  If you
+simply use the normal "Linux" type code, then everything works out
+fine so I don't see any reason to add more complexity and confusion by
+introducing yet another type code.  Had the useless lvm type code
+never been introduced in a similar manner, you wouldn't have had the
+problem you did.
 
-https://code.google.com/p/address-sanitizer/wiki/AsanAsDso
 
-gives a hint
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
 
--- snip
-=ASAN and LD_PRELOAD=
-
-It is possible to use ASAN in this scenario (e.g. JVM+JNI, Python+SWIG):
-
-* There is third-party executable binary which can not be recompiled
-* It loads shared libraries that can be recompiled and we want to test
-them with ASAN
-
-A simple solution is to build ASAN-DSO and LD_PRELOAD it into the
-process, however the devil is in the detail.
-
-* If the process creates sub-processes, they will also have ASAN-DSO
-preloaded, which may be undesirable.
-* TODO (stay tuned)
--- snip
-
-Making the python + libuuid should be possible, but I it seems to
-require a bit trying to get work. I feel it is acceptable to get most
-of the util-linux & travis to work with the asan first, and once the
-easy stuff is done one can/should concentrate on making the less
-trivial things to work.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+iQEcBAEBAgAGBQJUc0GtAAoJEI5FoCIzSKrwEtkH/iCiZ1Hm4EaBs7btRWD5C0FW
+fC363eGKNCK4KsYMPpVv+MjdLy1kwonmmI9OFl+uROdnCaZ2/GzgmynlUtviYl3H
+MtXlWEvmJGCT43Qgm97H3OC/3ihJ2epxAP4J5L7gK7fofTq7iqxpk47J1bm2MjUI
+XgNMxx31OfQzOtHKZSolJ8wCIC76Zre8tvMjDuGx8AF8JvBnkHpTykWG0B4K3niD
+6B5pm/FnSV7t+YoZjkdrJMJsxoZFKU78A1cHeSRuKbXqJVrQXhJbxlcCg21DUGtD
+YniJM+W/Cy5KQAh2EfuwMQxkSOXnPTZvSTGdjTserDW5fmdUN2Z7PFlGFOlRZmA=
+=Xcjj
+-----END PGP SIGNATURE-----
