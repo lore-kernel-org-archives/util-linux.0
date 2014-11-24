@@ -1,28 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45417 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752950AbaKSNTf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 19 Nov 2014 08:19:35 -0500
-Date: Wed, 19 Nov 2014 14:19:27 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andreas Henriksson <andreas@fatal.se>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lib/colors: fix double free on error path
-Message-ID: <20141119131927.GR6704@x2.net.home>
-References: <1416395016-17902-1-git-send-email-andreas@fatal.se>
+Return-Path: phillsusi@gmail.com
+Sender: Phillip Susi <phillsusi@gmail.com>
+Message-ID: <547343EA.6090606@ubuntu.com>
+Date: Mon, 24 Nov 2014 09:42:50 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1416395016-17902-1-git-send-email-andreas@fatal.se>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Drake Wilson <drake@dasyatidae.net>
+CC: util-linux@vger.kernel.org, 770211@bugs.debian.org
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net> <20141124113733.GC926@x2.net.home>
+In-Reply-To: <20141124113733.GC926@x2.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 19, 2014 at 12:03:35PM +0100, Andreas Henriksson wrote:
->  lib/colors.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- Applied, thanks!
+On 11/24/2014 6:37 AM, Karel Zak wrote:
+> The current trend is to use partition type to define for what
+> purpose we want to use the partition (for example "this is /home") 
+> independently on partition format.
 
-    Karel
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I wouldn't call this bone headed idea of redhat's a trend.  Using
+partition table type codes to decide to auto mount in particular parts
+of the filesystem is such a brain damaged idea, those who thought it
+up need beaten with a clue-by-four and its use needs to be *strongly*
+discouraged.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+
+iQEcBAEBAgAGBQJUc0PqAAoJEI5FoCIzSKrwF3AIAKsduxIzyXOqSlCf0emWc/m3
+r/QmAMqyFG5ua1msWmAQaeTTnSFYqwyf4xubIQay8PTd0ruT7Hq/rusu4DCS1aQ1
+fecZQhTQi/HHBbZ3mM8w472IB2PM5qDNEDDwZkgbOCpBoEByeZUZFqq+stFSakoD
+CHc4sVqHj5FPA3HRq+XuCfqhawc3TcGaO40J0qr0c+7vMm1cAHLIAjifRR8WNrnf
+UNk+kDfZJwixaL45t/YcHx001FNJO9Aitj42KV5k4cHke2wAmcmSVj4T9k0NgoCE
+TfeDbJrhuQPtJ/V1/oE7q3aH9agppucuEcIjW5Y4ICnqgCeydwlfVfx+FMlVLTk=
+=xHEg
+-----END PGP SIGNATURE-----
