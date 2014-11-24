@@ -1,52 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37655 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39789 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932752AbaKMOst (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 13 Nov 2014 09:48:49 -0500
-Date: Thu, 13 Nov 2014 15:48:35 +0100
+	id S1750955AbaKXQKn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 24 Nov 2014 11:10:43 -0500
+Date: Mon, 24 Nov 2014 17:10:36 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: kerolasa@gmail.com, Boris Egorov <egorov@linux.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/6] pull: almost working AddressSanitizer support
-Message-ID: <20141113144835.GD6704@x2.net.home>
-References: <1415656195-20458-1-git-send-email-kerolasa@iki.fi>
- <5461B803.4050707@linux.com>
- <CAG27Bk1cDZUtAm26VpY5bugUWchzY7cjqfEDQYxdDJMYZo-q1w@mail.gmail.com>
- <alpine.LNX.2.03.1411112236560.23899@iki.fi>
- <20141112142500.GB5530@x2.net.home>
- <CAG27Bk2-c4_AsqCsBd+uBkkcvX0CSJPW+Q2+JndyGts=ZE1rmw@mail.gmail.com>
- <20141112195131.GA3902@vapier.wh0rd.info>
- <alpine.LNX.2.03.1411122044080.18829@iki.fi>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: Drake Wilson <drake@dasyatidae.net>, util-linux@vger.kernel.org
+Subject: Re: Bug#770211: LUKS partition types, redux
+Message-ID: <20141124161036.GB2610@x2.net.home>
+References: <546D0495.2030803@dasyatidae.net>
+ <201411192224.sAJMOhTi010782@hobgoblin.ariadne.com>
+ <546E1A16.6050102@ubuntu.com>
+ <5472B7E4.4040601@dasyatidae.net>
+ <547341AD.4020702@ubuntu.com>
+ <547342B2.2060509@dasyatidae.net>
+ <54734522.7010807@dasyatidae.net>
+ <547347A1.7080402@ubuntu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.03.1411122044080.18829@iki.fi>
+In-Reply-To: <547347A1.7080402@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 12, 2014 at 08:50:01PM +0000, Sami Kerola wrote:
-> +/*
-> + * UL_ASAN_BLACKLIST is a macro to tell AddressSanitizer (a compile-time
-> + * instrumentation shipped with Clang and GCC) to not instrument the
-> + * annotated function.  Furthermore, it will prevent the compiler from
-> + * inlining the function because inlining currently breaks the
-> + * blacklisting mechanism of AddressSanitizer.
-> + */
-> +#if defined(__has_feature)
-> +# if __has_feature(address_sanitizer)
-> +#  define UL_ASAN_BLACKLIST __attribute__((no_sanitize_address))
-> +# else
-> +#  define UL_ASAN_BLACKLIST    /* nothing */
-> +# endif
-> +#else
-> +# define UL_ASAN_BLACKLIST     /* nothing */
-> +#endif
-> +
+On Mon, Nov 24, 2014 at 09:58:41AM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 11/24/2014 9:48 AM, Drake Wilson wrote:
+> > To clarify, that's in the GPT list, not the MBR one.  I see that
+> > the MBR one names 0x83 "Linux", at least.  Does that mean that
+> > {0FC63DAF-8483-4772-8E79-3D69D8477DE4} should also be named "Linux"
+> > rather than "Linux filesystem"?
+> 
+> Oh boy.  I hadn't noticed that util-linux had added so many silly type
+> codes now that it supports GPT.  This mess really needs cleaned up.
 
-it would be better to follow our current manner and use directly
-__attribute__ in code than introduce extra layer of macros. All
-you need is define empty no_sanitize_address 
-if !__has_feature(address_sanitizer).
+ Well, UEFI standard defines only 3 partition type GUIDs, the rest is vendor 
+ specific ..  so there is huge area for human creativity :-) 
+ 
+ The initial source for fdisk was
+    http://en.wikipedia.org/wiki/GUID_Partition_Table
+ and extended by stuff from free desktop
+    http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec/
+
+ (Hmm.. someone already added dm-crypt and LUKS specific GUIDs to
+  wikipedia.)
+
+> There should just be "Linux" and that's it.  That's the only one we
+> have in parted and it is quite sufficient.
+
+ and also RAID and LVM ;-)
+
 
     Karel
 
