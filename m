@@ -1,73 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:52338 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752858AbaKJQKG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 10 Nov 2014 11:10:06 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1XnrXY-0007S7-NL
-	for util-linux@vger.kernel.org; Mon, 10 Nov 2014 17:10:04 +0100
-Received: from barriere.frankfurter-softwarefabrik.de ([217.11.197.1])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 17:10:04 +0100
-Received: from lvml by barriere.frankfurter-softwarefabrik.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 10 Nov 2014 17:10:04 +0100
-To: util-linux@vger.kernel.org
-From: Lutz Vieweg <lvml@5t9.de>
-Subject: fstrim: "fitrim ioctl failed: input/output error" -> "Logical block
- address out of range"
-Date: Mon, 10 Nov 2014 17:07:12 +0100
-Message-ID: <m3qnrg$5gc$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from resqmta-po-06v.sys.comcast.net ([96.114.154.165]:37297 "EHLO
+	resqmta-po-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750864AbaKYPUm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 25 Nov 2014 10:20:42 -0500
+Date: Tue, 25 Nov 2014 10:20:40 -0500
+Message-Id: <201411251520.sAPFKeID013159@hobgoblin.ariadne.com>
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Karel Zak <kzak@redhat.com>
+CC: psusi@ubuntu.com, drake@dasyatidae.net, util-linux@vger.kernel.org,
+        770211@bugs.debian.org
+In-reply-to: <20141124154604.GA2610@x2.net.home> (kzak@redhat.com)
+Subject: Re: LUKS partition types, redux
+References: <546D0495.2030803@dasyatidae.net>
+ <20141124113733.GC926@x2.net.home>
+ <547343EA.6090606@ubuntu.com> <20141124154604.GA2610@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+> From: Karel Zak <kzak@redhat.com>
 
-when I use "fstrim" on a just newly "mkfs.xfs /dev/sdb"-ed
-filesystem on a newly mounted SSD (Crucial_CT1024M550SSD1,
-firmware MU01), I get (after some activity on the device)
-this error message:
+>  well, it's designed for auto-generated fstab-less systems like
+>  containers/virt images, etc. I'm not big fan of this feature, but for
+>  some use cases it makes sense.
 
-> fitrim ioctl failed: input/output error
+I thought that's what filesystem "label" values were for.
 
-Looking into the dmesg output reveals:
+>  (And it's systemd upstream decision.)
 
-> [1039455.530947] sd 0:0:1:0: [sdb]
-> [1039455.533192] Result: hostbyte=DID_OK driverbyte=DRIVER_SENSE
-> [1039455.535369] sd 0:0:1:0: [sdb]
-> [1039455.537521] Sense Key : Illegal Request [current]
-> [1039455.539684] Info fld=0x772cdab0
-> [1039455.541802] sd 0:0:1:0: [sdb]
-> [1039455.543877] Add. Sense: Logical block address out of range
-> [1039455.545966] sd 0:0:1:0: [sdb] CDB:
-> [1039455.548008] Unmap/Read sub-channel: 42 00 00 00 00 00 00 00 18 00
-> [1039455.550080] end_request: critical target error, dev sdb, sector 1999428272
+I've never run into something from systemd that I didn't consider
+bizarre and horrible, designed to solve problems I don't have at the
+cost of making my life worse.
 
-(I bought 4 of the same SSD model, and the error occurs the same
-with the other exemplars, so I assume this is not some hardware issue.)
-
-According to smartctl, the capacity of this SSD is:
-> User Capacity:    1,024,209,543,168 bytes [1.02 TB]
-> Sector Sizes:     512 bytes logical, 4096 bytes physical
-
-And cat /proc/partitions tells:
->    major minor  #blocks  name
->    8       16 1000204632 sdb
-
-Kernel is mainline linux-3.17.1
-
-fstrim --version says:
-> fstrim from util-linux 2.23.2
-
-(Distribution is CentOS 7, if that matters.)
-
-Does anyone have a clue what's going wrong, here?
-
-Regards,
-
-Lutz Vieweg
-
+Dale
