@@ -1,56 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from frodol.xs4all.nl ([212.238.236.230]:50680 "EHLO
-	morannon.frodo.site" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753679AbaKXOXb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 24 Nov 2014 09:23:31 -0500
-Received: from forochel.frodo.site (a80-127-247-41.mobile.xs4all.nl [80.127.247.41])
-	by morannon.frodo.site (8.14.4/8.14.4/Debian-4) with ESMTP id sAOEAPXR004985
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 15:10:29 +0100
-Received: from forochel.frodo.site (localhost [127.0.0.1])
-	by forochel.frodo.site (8.14.4/8.14.4/Debian-4) with ESMTP id sAOEAMjW031917
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <util-linux@vger.kernel.org>; Mon, 24 Nov 2014 15:10:23 +0100
-Received: (from frodo@localhost)
-	by forochel.frodo.site (8.14.4/8.14.4/Submit) id sAOEALC2031916
-	for util-linux@vger.kernel.org; Mon, 24 Nov 2014 15:10:21 +0100
-Date: Mon, 24 Nov 2014 15:10:21 +0100
-From: Frodo Looijaard <frodo@frodo.looijaard.name>
-To: util-linux@vger.kernel.org
-Subject: Getopt 1.1.6 released
-Message-ID: <20141124141021.GA29970@localhost.localdomain>
+Received: from mail-qc0-f169.google.com ([209.85.216.169]:53496 "EHLO
+	mail-qc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782AbaKYQQL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 25 Nov 2014 11:16:11 -0500
+Received: by mail-qc0-f169.google.com with SMTP id w7so667104qcr.28
+        for <util-linux@vger.kernel.org>; Tue, 25 Nov 2014 08:16:10 -0800 (PST)
+Date: Tue, 25 Nov 2014 11:16:08 -0500
+From: "SGT. Garcia" <darwinskernel@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: login: <Enter>/newline acting strange
+Message-ID: <20141125161608.GB3174@vpn.5665sherbrooke.house>
+References: <20141125021704.GC2488@vpn.5665sherbrooke.house>
+ <20141125113610.GD2610@x2.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20141125113610.GD2610@x2.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi all,
+On Nov 25  12:36 +0100, Karel Zak wrote:
+> On Mon, Nov 24, 2014 at 09:17:04PM -0500, SGT. Garcia wrote:
+> > i can bisect this @2.24.2 on gentoo; anything after that, including
+> > building from git, has the same problem. 
+> > tested with fish (the shell).
+> 
+>  Are you talking about login(8) or agetty(8)? (It's agetty who asks for
+>  username, login asks only after failed authentication.)
+> 
+>  I'm also not sure what does it mean <Enter>/newline. And what does it
+>  mean strange?
+> 
+>     Karel
 
-I just released version 1.1.6 of getopt. It can be downloaded from
-http://frodo.looijaard.name/project/getopt . A subversion repository 
-is available at svn://svn.frodo.looijaard.name/public/getopt .
-
->From the release notes:
-
-Major bug fixes in this version:
-  * Properly quote backslashes for tcsh
-  * Detect ambiguous long options properly (thanks to Klaus Wulff <dinw.klswlff@dfgh.net>)
-Other changes:
-  * Create test harness and tests
-  * Sync with util-linux (git 20141120)): translations, manual page and code
-
-Note that there are (still) a few slight changes between these getopt sources
-and the util-linux version in getopt.c:
-  * Includes are slightly different
-  * Util-linux has removed a free(BUFFER) and added an atexit(close_stdout)
-    call.
-Please be aware of this when merging the other changes.
-
-Kind regards,
-  Frodo Looijaard (getopt author)
-
--- 
-Frodo Looijaard <frodo@frodo.looijaard.name> (See http://frodo.looijaard.name/)
-Defenestration n. (formal or joc.):
-  The act of removing Windows from your computer in disgust, usually followed
-  by the installation of Linux or some other Unix-like operating system.
+sorry for the poor explanation. login and agetty, both i guess. but culprit
+seems to be kmscon and the way it handles unicode; had the same problem in
+the past with vim. was there any change(s) regarding utf-8 with 2.24.2?
+because that would explain it.
