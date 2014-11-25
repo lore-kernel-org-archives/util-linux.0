@@ -1,70 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:50527 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751362AbaKBU1I (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Nov 2014 15:27:08 -0500
-Received: by mail-wi0-f172.google.com with SMTP id bs8so4940305wib.17
-        for <util-linux@vger.kernel.org>; Sun, 02 Nov 2014 12:27:07 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: kerolasa@iki.fi
-Subject: [PATCH 4/8] mkswap: use err() rather than perror() && exit()
-Date: Sun,  2 Nov 2014 20:26:27 +0000
-Message-Id: <1414959991-8369-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
-References: <1414959991-8369-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:43139 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753803AbaKYL0S (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 25 Nov 2014 06:26:18 -0500
+Date: Tue, 25 Nov 2014 12:26:15 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: LUKS partition types, redux
+Message-ID: <20141125112615.GC2610@x2.net.home>
+References: <546D0495.2030803@dasyatidae.net>
+ <20141124113733.GC926@x2.net.home>
+ <547343EA.6090606@ubuntu.com>
+ <20141124154604.GA2610@x2.net.home>
+ <54738D83.9010108@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <54738D83.9010108@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The messsages in err() are verified from po/util-linux.pot to be already
-part of translations.
+On Mon, Nov 24, 2014 at 01:56:51PM -0600, Bruce Dubbs wrote:
+> Karel Zak wrote:
+> >On Mon, Nov 24, 2014 at 09:42:50AM -0500, Phillip Susi wrote:
+> >>-----BEGIN PGP SIGNED MESSAGE-----
+> >>Hash: SHA1
+> >>
+> >>On 11/24/2014 6:37 AM, Karel Zak wrote:
+> >>>The current trend is to use partition type to define for what
+> >>>purpose we want to use the partition (for example "this is /home")
+> >>>independently on partition format.
+> >>
+> >>I wouldn't call this bone headed idea of redhat's a trend.  Using
+> >>partition table type codes to decide to auto mount in particular parts
+> >>of the filesystem is such a brain damaged idea, those who thought it
+> >>up need beaten with a clue-by-four and its use needs to be *strongly*
+> >>discouraged.
+> >
+> >  well, it's designed for auto-generated fstab-less systems like
+> >  containers/virt images, etc. I'm not big fan of this feature, but for
+> >  some use cases it makes sense. (And it's systemd upstream decision.)
+> >
+> >  Anyway, use partition type for "usage" makes more sense than for "fs-type".
+> 
+> Since when is systemd upstream of util-linux?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/mkswap.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ Ah.. freedesktop guys introduced some new GUID and util-linux project
+ has accepted these identifiers (rather than interpret these IDs as
+ "unknown") ...  as well as we accepted partition IDs for Apple stuff,
+ as well as we accepted Hurd patches, ports to freebsd, uClibc,
+ not-perfect zram stuff from kernel, stuff from SysVinit, and many
+ many many other things.
 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index b2713ab..14adf0f 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -209,10 +209,8 @@ get_size(const char *file)
- 	unsigned long long size;
- 
- 	fd = open(file, O_RDONLY);
--	if (fd < 0) {
--		perror(file);
--		exit(EXIT_FAILURE);
--	}
-+	if (fd < 0)
-+		err(EXIT_FAILURE, _("cannot open %s"), file);
- 	if (blkdev_get_size(fd, &size) == 0)
- 		size /= pagesize;
- 
-@@ -434,19 +432,14 @@ main(int argc, char **argv) {
- 			"%s is mounted; will not make swapspace"),
- 			device_name);
- 
--	if (stat(device_name, &statbuf) < 0) {
--		perror(device_name);
--		exit(EXIT_FAILURE);
--	}
-+	if (stat(device_name, &statbuf) < 0)
-+		err(EXIT_FAILURE, _("stat failed %s"), device_name);
- 	if (S_ISBLK(statbuf.st_mode))
- 		DEV = open(device_name, O_RDWR | O_EXCL);
- 	else
- 		DEV = open(device_name, O_RDWR);
--
--	if (DEV < 0) {
--		perror(device_name);
--		exit(EXIT_FAILURE);
--	}
-+	if (DEV < 0)
-+		err(EXIT_FAILURE, _("cannot open %s"), device_name);
- 
- 	if (!S_ISBLK(statbuf.st_mode))
- 		check=0;
+ I don't plan to be censor for another projects and apply any
+ emotional criteria. The reason why this project still alive is that
+ we are very friendly to arbitrary distributions and another projects. 
+
+    Karel
+
 -- 
-2.1.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
