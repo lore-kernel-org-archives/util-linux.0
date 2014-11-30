@@ -1,70 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41175 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755105AbaLHLAa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Dec 2014 06:00:30 -0500
-Date: Mon, 8 Dec 2014 12:00:21 +0100
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 01/10] lib/mbalign: fix unsigned integer overflow
- [AddressSanitizer]
-Message-ID: <20141208110021.GB19904@x2.net.home>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:64471 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752140AbaK3N6L (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Nov 2014 08:58:11 -0500
+Received: by mail-wi0-f181.google.com with SMTP id r20so14905050wiv.14
+        for <util-linux@vger.kernel.org>; Sun, 30 Nov 2014 05:58:10 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 06/10] strutils: fix unsigned integer overflows [AddressSanitizer]
+Date: Sun, 30 Nov 2014 13:57:38 +0000
+Message-Id: <1417355862-16935-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
 References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
- <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
- <547FA265.6040806@draigBrady.com>
- <CAG27Bk0SOOXzB2aJC66AO2pBeicRYHAosmAsd5kdUx8W3meiCg@mail.gmail.com>
- <54844055.7030602@draigBrady.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <54844055.7030602@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 07, 2014 at 11:56:05AM +0000, Pádraig Brady wrote:
-> On 04/12/14 20:14, Sami Kerola wrote:
-> > On 3 December 2014 at 23:53, Pádraig Brady <P@draigbrady.com> wrote:
-> >> On 30/11/14 13:57, Sami Kerola wrote:
-> >>> This error was reported 155 times.
-> >>>
-> >>> lib/mbsalign.c:322:18: runtime error: unsigned integer overflow: 0 - 1
-> >>> cannot be represented in type 'size_t' (aka 'unsigned long')
-> >>
-> >> What compiler and version are you using for this?
-> >> I don't get the error with gcc 4.9.2 with -fsanitize=undefined
-> >> Note the error is incorrect I think as the variable is not read
-> >> after the overflow.
-> > 
-> > Hi Pádraig,
-> > 
-> > Sorry it took ages to reply to a trivial question.
-> > 
-> > $ clang --version
-> > clang version 3.5.0 (tags/RELEASE_350/final)
-> > Target: x86_64-unknown-linux-gnu
-> > Thread model: posix
-> > 
-> > I have not done sanitation runs with gcc.
-> > 
-> > The system is archlinux with testing repos enabled with daily updates,
-> > that should mean a lot of libraries and such are fairly recent.
-> 
-> Thanks for the info.
-> BTW I don't see it with clang 3.4.2.
-> This seems like a too problematic warning TBH,
-> as unsigned overflow is defined,
-> the overflow value is not used in this case,
-> this seems like a very common idiom.
+include/strutils.h:174:10: runtime error: unsigned integer overflow: 0 -
+1 cannot be represented in type 'size_t' (aka 'unsigned long')
 
- Yes, the question is if this is a good idiom ;-) IMHO it would be
- better to have robust and more explicit code where unsigned numbers
- never overflow. You're right the code is correct for now, but maybe
- one day someone will edit the code and introduce unexpected bug with
- unsigned...
+include/strutils.h:178:6: runtime error: unsigned integer overflow:
+18446744073709551615 + 1 cannot be represented in type 'size_t' (aka
+'unsigned long')
 
-    Karel
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/strutils.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-
+diff --git a/include/strutils.h b/include/strutils.h
+index cfe8a95..4d8463a 100644
+--- a/include/strutils.h
++++ b/include/strutils.h
+@@ -171,11 +171,14 @@ static inline size_t rtrim_whitespace(unsigned char *str)
+ {
+ 	size_t i = strlen((char *) str);
+ 
+-	while (i--) {
+-		if (!isspace(str[i]))
++	while (i) {
++		i--;
++		if (!isspace(str[i])) {
++			i++;
+ 			break;
++		}
+ 	}
+-	str[++i] = '\0';
++	str[i] = '\0';
+ 	return i;
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
