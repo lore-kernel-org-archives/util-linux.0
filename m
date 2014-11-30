@@ -1,28 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-05v.sys.comcast.net ([69.252.207.37]:46000 "EHLO
-	resqmta-ch2-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751838AbaLECJO convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 4 Dec 2014 21:09:14 -0500
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
-In-Reply-To: <201412042042.06702@pali> (pali.rohar@gmail.com)
-Date: Thu, 04 Dec 2014 21:09:11 -0500
-Message-ID: <87oaric0fs.fsf@hobgoblin.ariadne.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:61579 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752121AbaK3N6O (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Nov 2014 08:58:14 -0500
+Received: by mail-wg0-f50.google.com with SMTP id k14so11978572wgh.23
+        for <util-linux@vger.kernel.org>; Sun, 30 Nov 2014 05:58:13 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 09/10] lscpu: blacklist vmware_bdoor() AddressSanitizer check
+Date: Sun, 30 Nov 2014 13:57:41 +0000
+Message-Id: <1417355862-16935-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Pali Rohár <pali.rohar@gmail.com> writes:
->> So I think that it is better to use LogicalVolumeIdentifier
->> for libblkid LABEL. And not current VolumeIdentifier.
->> 
->> What do you think?
+AddressSanitizer is identifying the __asm__ segment as suspicious.
 
-If you change how the LABEL value is read from the disk, every user will
-see different LABEL values than they saw in the past.
+==1215==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000
+(pc 0x0000004ccffd bp 0x7fff9b7184f0 sp 0x7fff9b7184e0 T0)
+    #0 0x4ccffc in vmware_bdoor /home/src/util-linux/sys-utils/lscpu.c:660
 
-Dale
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/lscpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index c272dc2..c7d6f9f 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -655,7 +655,7 @@ read_hypervisor_powerpc(struct lscpu_desc *desc)
+ #define VMWARE_BDOOR_PORT           0x5658
+ #define VMWARE_BDOOR_CMD_GETVERSION 10
+ 
+-static inline
++static inline UL_ASAN_BLACKLIST
+ void vmware_bdoor(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
+ {
+ 	__asm__(
+-- 
+2.1.3
+
