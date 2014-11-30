@@ -1,52 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48786 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751220AbaLNTuZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Dec 2014 14:50:25 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id 50339208BB
-	for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 14:50:25 -0500 (EST)
-Message-Id: <1418586625.3874895.202769741.4D89E480@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1418586333-5342-5-git-send-email-bensberg@justemail.net>
-References: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
- <1418586333-5342-5-git-send-email-bensberg@justemail.net>
-Subject: Re: [PATCH 5/8] docs: adjust the grammar, text,
- sorting and formatting of logger man page
-Date: Sun, 14 Dec 2014 20:50:25 +0100
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:36393 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752121AbaK3N6U (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Nov 2014 08:58:20 -0500
+Received: by mail-wi0-f175.google.com with SMTP id l15so22207126wiw.14
+        for <util-linux@vger.kernel.org>; Sun, 30 Nov 2014 05:58:19 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 10/10] ipcs: fix two data type errors [AddressSanitizer]
+Date: Sun, 30 Nov 2014 13:57:42 +0000
+Message-Id: <1417355862-16935-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+==3218==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fffa577e2b0 at pc 0x4501f9 bp 0x7fffa577e130 sp 0x7fffa577e108
+WRITE of size 112 at 0x7fffa577e2b0 thread T0
+    #0 0x4501f8 in shmctl /home/users/aadgrand/LLVM/releases/ubuntu/final/llvm.src/projects/compiler-rt/lib/sanitizer_common/sanitizer_common_interceptors.inc:2502
+    #1 0x48bd13 in ipc_shm_get_info /home/travis/build/kerolasa/lelux-utiliteetit/sys-utils/ipcutils.c:157
+    #2 0x488884 in do_shm /home/travis/build/kerolasa/lelux-utiliteetit/sys-utils/ipcs.c:279
+    #3 0x4844a8 in main /home/travis/build/kerolasa/lelux-utiliteetit/sys-utils/ipcs.c:175
+    #4 0x2afb3f8c176c (/lib/x86_64-linux-gnu/libc.so.6+0x2176c)
+    #5 0x48408c in _start (/home/travis/build/kerolasa/lelux-utiliteetit/ipcs+0x48408c)
 
-Hi Sami,
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/ipcutils.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Could you please verify that the rewritten description of --rfc5424 is correct?
-I had some doubts about what the original text tried to say.  :)
-
-> +.TP
-> +.BR \-\-rfc5424 [ =\fIwithout ]
-> +Use the RFC 5424 syslog protocol to submit messages to a remote server.
-> +The optional \fIwithout\fR argument can be a comma-separated list of
-> +the following values: \fBnotq\fR, \fBnotime\fR, \fBnohost\fR.
-> +The \fBnotq\fR value suppresses the time-quality structured data
-> +from the submitted message.  (The time-quality information shows whether
-> +the local clock was syncronized plus the maximum number of microseconds
-> +the timestamp might be off.)  The \fBnotime\fR value (which implies
-> +\fBnotq\fR) suppresses the complete sender timestamp that is in
-> +ISO-8601 format, including microseconds and timezone.
-> +The \fBnohost\fR value suppresses
-> +.BR gethostname (2)
-> +information from the message header.
-
-Regards,
-
-Benno
-
+diff --git a/sys-utils/ipcutils.c b/sys-utils/ipcutils.c
+index c45162a..3d5249c 100644
+--- a/sys-utils/ipcutils.c
++++ b/sys-utils/ipcutils.c
+@@ -98,7 +98,7 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
+ 	FILE *f;
+ 	int i = 0, maxid;
+ 	struct shm_data *p;
+-	struct shm_info dummy;
++	struct shmid_ds dummy;
+ 
+ 	p = *shmds = xcalloc(1, sizeof(struct shm_data));
+ 	p->next = NULL;
+@@ -154,7 +154,7 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
+ 
+ 	/* Fallback; /proc or /sys file(s) missing. */
+ shm_fallback:
+-	maxid = shmctl(0, SHM_INFO, (struct shmid_ds *) &dummy);
++	maxid = shmctl(0, SHM_INFO, &dummy);
+ 
+ 	for (int j = 0; j <= maxid; j++) {
+ 		int shmid;
 -- 
-http://www.fastmail.com - Send your email first class
+2.1.3
 
