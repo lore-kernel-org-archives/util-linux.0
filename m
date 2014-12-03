@@ -1,71 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:50223 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751104AbaLNTp4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Dec 2014 14:45:56 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/8] docs: improve the sorting of the options in the man page of getopt
-Date: Sun, 14 Dec 2014 20:45:28 +0100
-Message-Id: <1418586333-5342-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
-References: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
+Received: from mail3.vodafone.ie ([213.233.128.45]:8126 "EHLO
+	mail3.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754776AbaLDXxy (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 4 Dec 2014 18:53:54 -0500
+Message-ID: <547FA265.6040806@draigBrady.com>
+Date: Wed, 03 Dec 2014 23:53:09 +0000
+From: =?windows-1252?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 01/10] lib/mbalign: fix unsigned integer overflow [AddressSanitizer]
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- misc-utils/getopt.1 |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+On 30/11/14 13:57, Sami Kerola wrote:
+> This error was reported 155 times.
+> 
+> lib/mbsalign.c:322:18: runtime error: unsigned integer overflow: 0 - 1
+> cannot be represented in type 'size_t' (aka 'unsigned long')
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  lib/mbsalign.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/lib/mbsalign.c b/lib/mbsalign.c
+> index b307d19..052fec6 100644
+> --- a/lib/mbsalign.c
+> +++ b/lib/mbsalign.c
+> @@ -319,7 +319,7 @@ mbs_align_pad (char *dest, const char* dest_end, size_t n_spaces)
+>  {
+>    /* FIXME: Should we pad with "figure space" (\u2007)
+>       if non ascii data present?  */
+> -  while (n_spaces-- && (dest < dest_end))
+> +  for (/* nothing */; n_spaces && (dest < dest_end); n_spaces--)
+>      *dest++ = ' ';
+>    *dest = '\0';
+>    return dest;
+> 
 
-diff --git a/misc-utils/getopt.1 b/misc-utils/getopt.1
-index 7fd8720..6758d27 100644
---- a/misc-utils/getopt.1
-+++ b/misc-utils/getopt.1
-@@ -1,4 +1,4 @@
--.TH GETOPT "1" "June 2012" "util-linux" "User Commands"
-+.TH GETOPT "1" "December 2014" "util-linux" "User Commands"
- .SH NAME
- getopt \- parse command options (enhanced)
- .SH SYNOPSIS
-@@ -69,7 +69,7 @@ for more information).
- .PP
- Traditional implementations of
- .BR getopt (1)
--are unable to cope with whitespace and other (shell\-specific)
-+are unable to cope with whitespace and other (shell-specific)
- special characters in arguments and non\-option parameters.  To solve
- this problem, this implementation can generate quoted output which
- must once again be interpreted by the shell (usually by using the
-@@ -151,13 +151,6 @@ conventions are used.  Valid arguments are currently
- and
- .RB ' tcsh '.
- .TP
--.BR \-u , " \-\-unquoted"
--Do not quote the output.  Note that whitespace and special
--(shell\-dependent) characters can cause havoc in this mode (like they
--do with other
--.BR getopt (1)
--implementations).
--.TP
- .BR \-T , " \-\-test"
- Test if your
- .BR getopt (1)
-@@ -170,6 +163,13 @@ is set, will return
- .RB ' \-\- '
- and error status 0.
- .TP
-+.BR \-u , " \-\-unquoted"
-+Do not quote the output.  Note that whitespace and special
-+(shell-dependent) characters can cause havoc in this mode (like they
-+do with other
-+.BR getopt (1)
-+implementations).
-+.TP
- .BR \-V , " \-\-version"
- Display version information and exit.  No other output is generated.
- .SH PARSING
--- 
-1.7.0.4
+What compiler and version are you using for this?
+I don't get the error with gcc 4.9.2 with -fsanitize=undefined
+Note the error is incorrect I think as the variable is not read
+after the overflow.
 
+thanks,
+Pádraig.
