@@ -1,56 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60459 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40845 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750970AbaLOJ3D (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Dec 2014 04:29:03 -0500
-Date: Mon, 15 Dec 2014 10:28:52 +0100
+	id S1753543AbaLDNAs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 4 Dec 2014 08:00:48 -0500
+Date: Thu, 4 Dec 2014 14:00:44 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+To: Matthew Eaton <m.eaton82@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 05/16] lslogins: reject unknown time format arguments
-Message-ID: <20141215092852.GX19904@x2.net.home>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
- <1418579052-29386-6-git-send-email-kerolasa@iki.fi>
+Subject: Re: fdisk units size
+Message-ID: <20141204130044.GH1994@x2.net.home>
+References: <CAF+0mvmE_i0P350hT4E4a-ZTTuuS5PdZ2vw1siQ2HowpB2Xn-g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1418579052-29386-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <CAF+0mvmE_i0P350hT4E4a-ZTTuuS5PdZ2vw1siQ2HowpB2Xn-g@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 14, 2014 at 05:44:01PM +0000, Sami Kerola wrote:
-> @@ -1398,8 +1388,18 @@ int main(int argc, char *argv[])
->  			break;
->  		case OPT_TIME_FMT:
->  			{
-> +				struct lslogins_timefmt {
-> +					const char *name;
-> +					const int val;
-> +				};
-> +				const struct lslogins_timefmt timefmts[] = {
+On Tue, Nov 25, 2014 at 04:19:25PM -0800, Matthew Eaton wrote:
+> Hello, I have a quick question regarding recent fdisk.
+> 
+> I noticed fdisk -l now uses base 2 (GiB) instead of base 10 (GB) to
+> calculate device size.  This is good, but sometimes it is nice to see
 
- static const ....
+ when sometimes?
 
-> +					{ "iso", TIME_ISO },
-> +					{ "full", TIME_FULL },
-> +					{ "short", TIME_SHORT },
-> +				};
->  				size_t i;
->  
-> +				ctl->time_mode = TIME_INVALID;
->  				for (i = 0; i < ARRAY_SIZE(timefmts); i++) {
->  					if (strcmp(timefmts[i].name, optarg) == 0) {
->  						ctl->time_mode = timefmts[i].val;
-> @@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
->  					}
->  				}
->  				if (ctl->time_mode == TIME_INVALID)
-> -					usage(stderr);
-> +					errx(EXIT_FAILURE, _("unknown time format: %s"), optarg);
+> the base 10 calculation, can this be toggled with a switch?  I can't
+> find a recent man page for fdisk.
 
-This is not elegant solution, it would be better to move all the code
-to small function parse_time_mode() and keep the main() less "crowded".
+ Frankly, use 10 based calculation in IT is ugly thing, we are not 
+ hard disk device marketing guys...
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
