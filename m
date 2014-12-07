@@ -1,50 +1,128 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail3.vodafone.ie ([213.233.128.45]:8126 "EHLO
-	mail3.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754776AbaLDXxy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 4 Dec 2014 18:53:54 -0500
-Message-ID: <547FA265.6040806@draigBrady.com>
-Date: Wed, 03 Dec 2014 23:53:09 +0000
-From: =?windows-1252?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 01/10] lib/mbalign: fix unsigned integer overflow [AddressSanitizer]
-References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:51913 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753009AbaLGKOM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Dec 2014 05:14:12 -0500
+Received: by mail-wi0-f181.google.com with SMTP id r20so2317094wiv.14
+        for <util-linux@vger.kernel.org>; Sun, 07 Dec 2014 02:14:11 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>,
+        Frodo Looijaard <frodo@frodo.looijaard.name>
+Subject: [PATCH 09/11] getopt: prefer switch-case rather than long if statement
+Date: Sun,  7 Dec 2014 10:13:53 +0000
+Message-Id: <1417947235-24229-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
+References: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 30/11/14 13:57, Sami Kerola wrote:
-> This error was reported 155 times.
-> 
-> lib/mbsalign.c:322:18: runtime error: unsigned integer overflow: 0 - 1
-> cannot be represented in type 'size_t' (aka 'unsigned long')
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  lib/mbsalign.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/mbsalign.c b/lib/mbsalign.c
-> index b307d19..052fec6 100644
-> --- a/lib/mbsalign.c
-> +++ b/lib/mbsalign.c
-> @@ -319,7 +319,7 @@ mbs_align_pad (char *dest, const char* dest_end, size_t n_spaces)
->  {
->    /* FIXME: Should we pad with "figure space" (\u2007)
->       if non ascii data present?  */
-> -  while (n_spaces-- && (dest < dest_end))
-> +  for (/* nothing */; n_spaces && (dest < dest_end); n_spaces--)
->      *dest++ = ' ';
->    *dest = '\0';
->    return dest;
-> 
+And avoid testing same thing time after time.
 
-What compiler and version are you using for this?
-I don't get the error with gcc 4.9.2 with -fsanitize=undefined
-Note the error is incorrect I think as the variable is not read
-after the overflow.
+CC: Frodo Looijaard <frodo@frodo.looijaard.name>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/getopt.c | 64 +++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 37 insertions(+), 27 deletions(-)
 
-thanks,
-Pádraig.
+diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
+index 67603b5..8134558 100644
+--- a/misc-utils/getopt.c
++++ b/misc-utils/getopt.c
+@@ -122,42 +122,49 @@ static void normalize(const struct getopt_control *ctl, const char *arg)
+ 	 * quote, and one extra character for '\0'.
+ 	 */
+ 	buf = xmalloc(strlen(arg) * 4 + 3);
+-
+ 	bufptr = buf;
+-	*bufptr++ = '\'';
+ 
+-	while (*argptr) {
++	for (*bufptr++ = '\''; *argptr; argptr++) {
++		if (ctl->shell == TCSH) {
++			switch (*argptr) {
++			case '\\':
++				/* Backslash: replace it with: '\\' */
++				*bufptr++ = '\\';
++				*bufptr++ = '\\';
++				continue;
++			case '!':
++				/* Exclamation mark: replace it with: \! */
++				*bufptr++ = '\'';
++				*bufptr++ = '\\';
++				*bufptr++ = '!';
++				*bufptr++ = '\'';
++				continue;
++			case '\n':
++				/* Newline: replace it with: \n */
++				*bufptr++ = '\\';
++				*bufptr++ = 'n';
++				continue;
++			}
++			if (isspace(*argptr)) {
++				/* Non-newline whitespace: replace it with \<ws> */
++				*bufptr++ = '\'';
++				*bufptr++ = '\\';
++				*bufptr++ = *argptr;
++				*bufptr++ = '\'';
++				continue;
++			}
++		}
+ 		if (*argptr == '\'') {
+ 			/* Quote: replace it with: '\'' */
+ 			*bufptr++ = '\'';
+ 			*bufptr++ = '\\';
+ 			*bufptr++ = '\'';
+ 			*bufptr++ = '\'';
+-		} else if (ctl->shell == TCSH && *argptr == '\\') {
+-			/* Backslash: replace it with: '\\' */
+-			*bufptr++ = '\\';
+-			*bufptr++ = '\\';
+-		} else if (ctl->shell == TCSH && *argptr == '!') {
+-			/* Exclamation mark: replace it with: \! */
+-			*bufptr++ = '\'';
+-			*bufptr++ = '\\';
+-			*bufptr++ = '!';
+-			*bufptr++ = '\'';
+-		} else if (ctl->shell == TCSH && *argptr == '\n') {
+-			/* Newline: replace it with: \n */
+-			*bufptr++ = '\\';
+-			*bufptr++ = 'n';
+-		} else if (ctl->shell == TCSH && isspace(*argptr)) {
+-			/* Non-newline whitespace: replace it with \<ws> */
+-			*bufptr++ = '\'';
+-			*bufptr++ = '\\';
+-			*bufptr++ = *argptr;
+-			*bufptr++ = '\'';
+ 		} else
+ 			/* Just copy */
+ 			*bufptr++ = *argptr;
+-		argptr++;
+ 	}
++
+ 	*bufptr++ = '\'';
+ 	*bufptr++ = '\0';
+ 	printf(" %s", buf);
+@@ -190,13 +197,16 @@ static int generate_output(const struct getopt_control *ctl, char *argv[], int a
+ 		if (opt == '?' || opt == ':')
+ 			exit_code = GETOPT_EXIT_CODE;
+ 		else if (!ctl->quiet_output) {
+-			if (opt == LONG_OPT) {
++			switch (opt) {
++			case LONG_OPT:
+ 				printf(" --%s", ctl->long_options[longindex].name);
+ 				if (ctl->long_options[longindex].has_arg)
+ 					normalize(ctl, optarg ? optarg : "");
+-			} else if (opt == NON_OPT)
++				break;
++			case NON_OPT:
+ 				normalize(ctl, optarg ? optarg : "");
+-			else {
++				break;
++			default:
+ 				printf(" -%c", opt);
+ 				charptr = strchr(ctl->optstr, opt);
+ 				if (charptr != NULL && *++charptr == ':')
+-- 
+2.1.3
+
