@@ -1,128 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43634 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751156AbaLOJpY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Dec 2014 04:45:24 -0500
-Date: Mon, 15 Dec 2014 10:45:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 14/16] chfn: clean up parse_argv()
-Message-ID: <20141215094513.GY19904@x2.net.home>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
- <1418579052-29386-15-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1418579052-29386-15-git-send-email-kerolasa@iki.fi>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:36787 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753152AbaLGKON (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Dec 2014 05:14:13 -0500
+Received: by mail-wg0-f48.google.com with SMTP id y19so4064516wgg.21
+        for <util-linux@vger.kernel.org>; Sun, 07 Dec 2014 02:14:12 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>,
+        Frodo Looijaard <frodo@frodo.looijaard.name>
+Subject: [PATCH 10/11] getopt: change --shell argument parsing function
+Date: Sun,  7 Dec 2014 10:13:54 +0000
+Message-Id: <1417947235-24229-10-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
+References: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 14, 2014 at 05:44:10PM +0000, Sami Kerola wrote:
-> Use switch() case ?: for all option parsing, as in most of the other
-> source files.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  login-utils/chfn.c | 48 ++++++++++++++++++------------------------------
->  1 file changed, 18 insertions(+), 30 deletions(-)
-> 
-> diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-> index 81abd11..0d37a32 100644
-> --- a/login-utils/chfn.c
-> +++ b/login-utils/chfn.c
-> @@ -121,11 +121,11 @@ static int check_gecos_string(const char *msg, char *gecos)
->   *	parse the command line arguments.
->   *	returns true if no information beyond the username was given.
->   */
-> -static void parse_argv(struct chfn_control *ctl, int argc, char *argv[], struct finfo *pinfo)
-> +static void parse_argv(struct chfn_control *ctl, int argc, char *argv[],
-> +		       struct finfo *pinfo)
->  {
-> -	int index, c, status;
-> -
-> -	static struct option long_options[] = {
-^^^^^^^^^^^^
-> +	int index, c, status = 0;
-> +	const struct option long_options[] = {
+Avoid passing getopt_control stucture in when returning a value is enough.
 
-static
+CC: Frodo Looijaard <frodo@frodo.looijaard.name>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/getopt.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
->  		{"full-name", required_argument, 0, 'f'},
->  		{"office", required_argument, 0, 'o'},
->  		{"office-phone", required_argument, 0, 'p'},
-> @@ -135,49 +135,37 @@ static void parse_argv(struct chfn_control *ctl, int argc, char *argv[], struct
->  		{NULL, no_argument, 0, '0'},
->  	};
->  
-> -	optind = 0;
-> -	while (true) {
-> -		c = getopt_long(argc, argv, "f:r:p:h:o:uv", long_options,
-> -				&index);
-> -		if (c == -1)
-> -			break;
-> -		/* version?  output version and exit. */
-> -		if (c == 'v') {
-> -			printf(UTIL_LINUX_VERSION);
-> -			exit(EXIT_SUCCESS);
-> -		}
-> -		if (c == 'u')
-> -			usage(stdout);
-> -		/* all other options must have an argument. */
-> -		if (!optarg)
-> -			usage(stderr);
-> -		/* ok, we were given an argument */
-> -		ctl->interactive = 0;
-> -
-> -		/* now store the argument */
-> +	while ((c = getopt_long(argc, argv, "f:r:p:h:o:uv", long_options,
-> +				&index)) != -1) {
->  		switch (c) {
->  		case 'f':
->  			pinfo->full_name = optarg;
-> -			status = check_gecos_string(_("Name"), optarg);
-> +			status += check_gecos_string(_("Name"), optarg);
->  			break;
->  		case 'o':
->  			pinfo->office = optarg;
-> -			status = check_gecos_string(_("Office"), optarg);
-> +			status += check_gecos_string(_("Office"), optarg);
->  			break;
->  		case 'p':
->  			pinfo->office_phone = optarg;
-> -			status = check_gecos_string(_("Office Phone"), optarg);
-> +			status += check_gecos_string(_("Office Phone"), optarg);
->  			break;
->  		case 'h':
->  			pinfo->home_phone = optarg;
-> -			status = check_gecos_string(_("Home Phone"), optarg);
-> +			status += check_gecos_string(_("Home Phone"), optarg);
->  			break;
-> +		case 'v':
-> +			printf(UTIL_LINUX_VERSION);
-> +			exit(EXIT_SUCCESS);
-> +		case 'u':
-> +			usage(stdout);
->  		default:
->  			usage(stderr);
->  		}
-> -		if (status != 0)
-> -			exit(EXIT_FAILURE);
-> +		ctl->interactive = 0;
->  	}
-> +	if (status != 0)
-> +		exit(EXIT_FAILURE);
->  	/* done parsing arguments.  check for a username. */
->  	if (optind < argc) {
->  		if (optind + 1 < argc)
-> -- 
-> 2.1.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
+index 8134558..2940a7d 100644
+--- a/misc-utils/getopt.c
++++ b/misc-utils/getopt.c
+@@ -295,19 +295,17 @@ static void add_long_options(struct getopt_control *ctl, char *options)
+ 	}
+ }
+ 
+-static void set_shell(struct getopt_control *ctl, const char *new_shell)
++static shell_t shell_type(const char *new_shell)
+ {
+ 	if (!strcmp(new_shell, "bash"))
+-		ctl->shell = BASH;
+-	else if (!strcmp(new_shell, "tcsh"))
+-		ctl->shell = TCSH;
+-	else if (!strcmp(new_shell, "sh"))
+-		ctl->shell = BASH;
+-	else if (!strcmp(new_shell, "csh"))
+-		ctl->shell = TCSH;
+-	else
+-		parse_error(_
+-			    ("unknown shell after -s or --shell argument"));
++		return BASH;
++	if (!strcmp(new_shell, "sh"))
++		return BASH;
++	if (!strcmp(new_shell, "tcsh"))
++		return TCSH;
++	if (!strcmp(new_shell, "csh"))
++		return TCSH;
++	parse_error(_("unknown shell after -s or --shell argument"));
+ }
+ 
+ static void __attribute__ ((__noreturn__)) print_help(void)
+@@ -419,7 +417,7 @@ int main(int argc, char *argv[])
+ 			ctl.quiet_output = 1;
+ 			break;
+ 		case 's':
+-			set_shell(&ctl, optarg);
++			ctl.shell = shell_type(optarg);
+ 			break;
+ 		case 'T':
+ 			return TEST_EXIT_CODE;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
