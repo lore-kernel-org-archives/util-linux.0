@@ -1,52 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42425 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751403AbaLCQKl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 3 Dec 2014 11:10:41 -0500
-Date: Wed, 3 Dec 2014 17:10:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: Francis Moreau <francis.moro@gmail.com>,
-        "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org,
-        gabeblack@chromium.org, gwendal@chromium.org
-Subject: Re: losetup on a image file containing (GPT) partition doesn't
- create partition devices
-Message-ID: <20141203161029.GF1994@x2.net.home>
-References: <201410031429.s93ET4wu014728@hobgoblin.ariadne.com>
- <201410031958.s93JwTuY026155@hobgoblin.ariadne.com>
- <542F065C.2080505@gmail.com>
- <54304C03.6020309@gmail.com>
- <201410061547.s96Fl0sN021617@hobgoblin.ariadne.com>
- <5432BBB0.30701@gmail.com>
- <20141027201625.GA25833@vapier>
- <547E1337.1080702@ubuntu.com>
- <20141203083617.GD1994@x2.net.home>
- <547F22F7.30008@ubuntu.com>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:40164 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754533AbaLHUFn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Dec 2014 15:05:43 -0500
+Received: by mail-wi0-f173.google.com with SMTP id r20so5779298wiv.12
+        for <util-linux@vger.kernel.org>; Mon, 08 Dec 2014 12:05:42 -0800 (PST)
+Date: Mon, 8 Dec 2014 20:05:30 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux <util-linux@vger.kernel.org>
+cc: Frodo Looijaard <frodo@frodo.looijaard.name>
+Subject: Re: [PATCH 11/11] getopt: avoid re-terminating long_option list at
+ every update
+In-Reply-To: <CAG27Bk2KiL7C04p3ALBVNhKdks=idyiGiJ3gPzQhT10txUTM3g@mail.gmail.com>
+Message-ID: <alpine.LNX.2.03.1412082004001.8079@iki.fi>
+References: <1417947235-24229-1-git-send-email-kerolasa@iki.fi> <1417947235-24229-11-git-send-email-kerolasa@iki.fi> <CAG27Bk2KiL7C04p3ALBVNhKdks=idyiGiJ3gPzQhT10txUTM3g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <547F22F7.30008@ubuntu.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 03, 2014 at 09:49:27AM -0500, Phillip Susi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 12/3/2014 3:36 AM, Karel Zak wrote:
-> > Yes, I don't like the idea with the ioctl workaround in losetup.
-> > It's fine to use such workarounds in stable branches or in distro
-> > specific patches, but I really don't want to use workarounds for
-> > bugs in regular releases (master branch).
-> 
-> Then again, maybe the whole idea of the kernel handling the partition
-> table should be abandoned ( and the feature removed from the kernel )
-> and losetup should just call partx and be done with it.
+On Mon, 8 Dec 2014, Sami Kerola wrote:
+> Sorry Karel, the submission was incorrect. With the change I sent 
+> add_long_options() could overflow. Here is fix to the issue.
+[snip]
+> or if you want I can re-submit the patch when I am not in office
 
-That's another story :-) And yes, I mostly agree.
+Here is the resubmission I promised.
 
-    Karel
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 7 Dec 2014 09:55:08 +0000
+Subject: [PATCH] getopt: avoid re-terminating long_option list at every update
+
+Terminating the ctl->long_options list once when adding options is
+completed is enough.  This also allows moving ctl->long_options_nr
+increment to more appropriate location.
+
+CC: Frodo Looijaard <frodo@frodo.looijaard.name>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+  misc-utils/getopt.c | 21 ++++++++++-----------
+  1 file changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
+index 2940a7d..7f26792 100644
+--- a/misc-utils/getopt.c
++++ b/misc-utils/getopt.c
+@@ -248,20 +248,13 @@ static void add_longopt(struct getopt_control *ctl, const char *name, int has_ar
+  					     sizeof(struct option) *
+  					     ctl->long_options_length);
+  	}
+-
+-	ctl->long_options[ctl->long_options_nr].name = NULL;
+-	ctl->long_options[ctl->long_options_nr].has_arg = 0;
+-	ctl->long_options[ctl->long_options_nr].flag = NULL;
+-	ctl->long_options[ctl->long_options_nr].val = 0;
+-
+  	if (name) {
+  		/* Not for init! */
+-		ctl->long_options[ctl->long_options_nr - 1].has_arg = has_arg;
+-		ctl->long_options[ctl->long_options_nr - 1].flag = &flag;
+-		ctl->long_options[ctl->long_options_nr - 1].val = ctl->long_options_nr;
+-		ctl->long_options[ctl->long_options_nr - 1].name = xstrdup(name);
++		ctl->long_options[ctl->long_options_nr].has_arg = has_arg;
++		ctl->long_options[ctl->long_options_nr].flag = &flag;
++		ctl->long_options[ctl->long_options_nr].val = ctl->long_options_nr;
++		ctl->long_options[ctl->long_options_nr].name = xstrdup(name);
+  	}
+-	ctl->long_options_nr++;
+  }
 
 
+@@ -290,9 +283,15 @@ static void add_long_options(struct getopt_control *ctl, char *options)
+  						     "-l or --long argument"));
+  			}
+  			add_longopt(ctl, tokptr, arg_opt);
++			ctl->long_options_nr++;
+  		}
+  		tokptr = strtok(NULL, ", \t\n");
+  	}
++	add_longopt(&ctl, NULL, 0);	/* ensure long_options[] is not full */
++	ctl->long_options[ctl->long_options_nr].name = NULL;
++	ctl->long_options[ctl->long_options_nr].has_arg = 0;
++	ctl->long_options[ctl->long_options_nr].flag = NULL;
++	ctl->long_options[ctl->long_options_nr].val = 0;
+  }
+
+  static shell_t shell_type(const char *new_shell)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
