@@ -1,47 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48482 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751125AbaLRU3t (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Dec 2014 15:29:49 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailout.nyi.internal (Postfix) with ESMTP id E8D11209A9
-	for <util-linux@vger.kernel.org>; Thu, 18 Dec 2014 15:29:48 -0500 (EST)
-Message-Id: <1418934588.1961521.204580073.2E7DAA16@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Adam Sampson <ats@offog.org>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:47421 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755040AbaLHLHz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Dec 2014 06:07:55 -0500
+Date: Mon, 8 Dec 2014 12:07:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 02/10] cal: fix signed integer overflow [AddressSanitizer]
+Message-ID: <20141208110744.GC19904@x2.net.home>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
+ <1417355862-16935-3-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: RFC [patch] adding docstrings
-Date: Thu, 18 Dec 2014 21:29:48 +0100
-In-Reply-To: <y2ah9wtwbz9.fsf@cartman.at.offog.org>
-References: <1418847631-8317-1-git-send-email-bensberg@justemail.net>
- <y2ah9wtwbz9.fsf@cartman.at.offog.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1417355862-16935-3-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Nov 30, 2014 at 01:57:34PM +0000, Sami Kerola wrote:
+>   November 2147483646   December 2147483646   January 2147483647 
+>  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
+> - 1  2  3  4  5  6  7   1  2  3  4  5  6  7   1  2  3  4  5  6  7 
+> - 8  9 10 11 12 13 14   8  9 10 11 12 13 14   8  9 10 11 12 13 14 
+> -15 16 17 18 19 20 21  15 16 17 18 19 20 21  15 16 17 18 19 20 21 
+> -22 23 24 25 26 27 28  22 23 24 25 26 27 28  22 23 24 25 26 27 28 
+> -29 30                 29 30 31              29 30 31
 
-On Thu, Dec 18, 2014, at 10:20, Adam Sampson wrote:
-> Benno Schulenberg <bensberg@justemail.net> writes:
-> > This patch adds a docstring (a one-line description) to each of the
-> > utilities.
-> 
-> Is it worth synchronising these descriptions with the one-liners in the
-> "NAME" sections of the man pages (i.e. what apropos shows)?
+All months start at Sunday? Nice. 
 
-I think so.  In a later, different patch we can do that.
+It means that we had regression tests, but nobody reviewed that
+the output from cal(1) in the tests makes any sense :-((((
 
-> I think the
-> one you've come up with for addpart is clearer than the existing one in
-> the man page, for example...
-
-Thanks.  At first, like Steven, I just yanked (by script) the description
-from the man page into the usage text, and then tried to improve those
-descriptions.  But I soon ran out of ideas and therefore asked for help.
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.com - Access your email from home and the web
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
