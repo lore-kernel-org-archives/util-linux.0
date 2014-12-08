@@ -1,115 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:48918 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752933AbaLGKNU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Dec 2014 05:13:20 -0500
-Received: by mail-wi0-f169.google.com with SMTP id r20so4842349wiv.4
-        for <util-linux@vger.kernel.org>; Sun, 07 Dec 2014 02:13:19 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from ishtar.tlinx.org ([173.164.175.65]:48788 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752696AbaLHWEE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Dec 2014 17:04:04 -0500
+Message-ID: <548619AF.5070900@tlinx.org>
+Date: Mon, 08 Dec 2014 13:35:43 -0800
+From: Linda Walsh <lkml@tlinx.org>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 3/3] line: use util-linux conventions
-Date: Sun,  7 Dec 2014 10:13:04 +0000
-Message-Id: <1417947184-24178-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1417947184-24178-1-git-send-email-kerolasa@iki.fi>
-References: <1417947184-24178-1-git-send-email-kerolasa@iki.fi>
+CC: Matthew Eaton <m.eaton82@gmail.com>, Karel Zak <kzak@redhat.com>
+Subject: Re: fdisk units size & disk manufacturers buying the standard
+References: <CAF+0mvmE_i0P350hT4E4a-ZTTuuS5PdZ2vw1siQ2HowpB2Xn-g@mail.gmail.com>	<20141204130044.GH1994@x2.net.home> <CAF+0mvm-fGvf3BOL6f8SsJgp75a3CP1xsVwkdD+_zP4hg06npQ@mail.gmail.com>
+In-Reply-To: <CAF+0mvm-fGvf3BOL6f8SsJgp75a3CP1xsVwkdD+_zP4hg06npQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This change add --help and --version print outs, checking at exit the
-stdout write was successful, and as a minor thing the command is made to
-use wide char functions to read and write inputs.
+Matthew Eaton wrote:
+>>  Frankly, use 10 based calculation in IT is ugly thing, we are not
+>>  hard disk device marketing guys...
+>>     
+>
+> I work for a SSD manufacturer! :)
+>
+> Actually, I agree with you.  But sometimes it's easier for me to see
+> 240 GB in fdisk output and know that I have a 240 GB drive plugged in,
+> rather than see 223.5 GiB.
+>   
+----
+  The corporations told consumers how it would be so they could better sell
+disks -- they bought the standard committee, and it's been screwed since.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/line.c | 64 ++++++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 49 insertions(+), 15 deletions(-)
+They may a fundamental error that any engineer or mathematician could 
+point out:
 
-diff --git a/text-utils/line.c b/text-utils/line.c
-index 636122e..80daa34 100644
---- a/text-utils/line.c
-+++ b/text-utils/line.c
-@@ -15,31 +15,65 @@
-  * See Documentation/deprecated.txt for more information.
-  */
- 
--#include	<stdio.h>
--#include	<unistd.h>
-+#include <getopt.h>
-+#include <stdio.h>
-+#include <unistd.h>
- 
--static int	status;		/* exit status */
-+#include "c.h"
-+#include "closestream.h"
-+#include "nls.h"
-+#include "widechar.h"
- 
--static void
--doline(int fd)
-+static void __attribute__((__noreturn__)) usage(FILE *out)
- {
--	char c;
-+	fputs(USAGE_HEADER, out);
-+	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
-+	fputs(USAGE_OPTIONS, out);
-+	fputs(USAGE_HELP, out);
-+	fputs(USAGE_VERSION, out);
-+	fprintf(out, USAGE_MAN_TAIL("line(1)"));
-+	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	wint_t c;
-+	int opt;
-+	int status = EXIT_SUCCESS;
-+
-+	static const struct option longopts[] = {
-+		{"version", no_argument, NULL, 'V'},
-+		{"help", no_argument, NULL, 'h'},
-+		{NULL, 0, NULL, 0}
-+	};
-+
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	atexit(close_stdout);
-+
-+	while ((opt = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
-+		switch (opt) {
-+		case 'V':
-+			printf(UTIL_LINUX_VERSION);
-+			return EXIT_SUCCESS;
-+		case 'h':
-+			usage(stdout);
-+		default:
-+			usage(stderr);
-+		}
- 
- 	for (;;) {
--		if (read(fd, &c, 1) <= 0) {
--			status = 1;
-+		c = getwchar();
-+		if (c == WEOF) {
-+			status = EXIT_FAILURE;
- 			break;
- 		}
- 		if (c == '\n')
- 			break;
--		putchar(c);
-+		putwchar(c);
- 	}
--	putchar('\n');
--}
-+	putwchar(L'\n');
- 
--int
--main(void)
--{
--	doline(0);
- 	return status;
- }
--- 
-2.1.3
+'B' == a prefix meaning 2^3bits.  I.e 'B' is a base-2 measurement.  In 
+science
+and engineering, you just don't mix units like that unless want to prove 
+you don't
+know what you are talking about.
+
+NOTE:   saying 24000Gb is fine.  A bit is unit. 
+
+But a Byte, (today), is defined as 2^3 bits.   (Unless someone want's to 
+argue
+that disk manufacturers really mean to use 10-12 bit bytes... *cough*).
+
+So it becomes obvious -- in telecom, speeds are usually quoted in 
+bits/time,
+so decimal units make sense.  In most *physical sciences* decimal makes
+sense.
+
+Computers don't count in decimal but use binary (Show me 1 memory or
+computer-cache description that tells me 16K = 16,000.
+
+Also, disk manufacturers are lying.  Disk space is allocated in 2^9 (512 
+Bytes or 2^12 bits)
+or 2^12 Bytes (2^15 bits).   They ***CANNOT*** accurate quote disk space 
+using
+base 10.  I.e. 1MB = 2048 sectors.  But 1MBd = 1954.125 sectors -- and 
+you cannot
+use 1/8th of a sector.  So ANY figure they give will be a lie as 10 
+doesn't divide into
+a power of 2 which is how computer space is allocated and used.
+
+Nice the way corporations can buy definitions... just like about 
+anything else... ;-(
+
+Another argument.  SI prefixes are applied to physical units (meter, 
+gram, liter...etc).
+A bit isn't a physical unit, so their argument that physical prefixes 
+should apply to
+virtual base-2 quantities becomes even more nonsensical.
+
+But hey, what are science math and engineering to the power of ignorant 
+consumer
+powered corporations?
+
+But SI overstepped their bounds, unless they want to define the 'bit' 
+and the 'Byte' as
+metric units and keep a representation of them in some clean room in 
+Paris (or
+the modern equivalent).
+
+
+
 
