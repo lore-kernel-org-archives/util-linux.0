@@ -1,74 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:45208 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752023AbaLNRoo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:44:44 -0500
-Received: by mail-wi0-f177.google.com with SMTP id l15so6948148wiw.4
-        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:44:43 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 01/16] lslogins: allow changing password changed and expiration time formats
-Date: Sun, 14 Dec 2014 17:43:57 +0000
-Message-Id: <1418579052-29386-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:41175 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755105AbaLHLAa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Dec 2014 06:00:30 -0500
+Date: Mon, 8 Dec 2014 12:00:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 01/10] lib/mbalign: fix unsigned integer overflow
+ [AddressSanitizer]
+Message-ID: <20141208110021.GB19904@x2.net.home>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
+ <1417355862-16935-2-git-send-email-kerolasa@iki.fi>
+ <547FA265.6040806@draigBrady.com>
+ <CAG27Bk0SOOXzB2aJC66AO2pBeicRYHAosmAsd5kdUx8W3meiCg@mail.gmail.com>
+ <54844055.7030602@draigBrady.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <54844055.7030602@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The password change and expiry has are marked with resolution of a day,
-so add a new short iso-8601 format.  With this system admins can easily
-find users has not updated their password lately
+On Sun, Dec 07, 2014 at 11:56:05AM +0000, Pádraig Brady wrote:
+> On 04/12/14 20:14, Sami Kerola wrote:
+> > On 3 December 2014 at 23:53, Pádraig Brady <P@draigbrady.com> wrote:
+> >> On 30/11/14 13:57, Sami Kerola wrote:
+> >>> This error was reported 155 times.
+> >>>
+> >>> lib/mbsalign.c:322:18: runtime error: unsigned integer overflow: 0 - 1
+> >>> cannot be represented in type 'size_t' (aka 'unsigned long')
+> >>
+> >> What compiler and version are you using for this?
+> >> I don't get the error with gcc 4.9.2 with -fsanitize=undefined
+> >> Note the error is incorrect I think as the variable is not read
+> >> after the overflow.
+> > 
+> > Hi Pádraig,
+> > 
+> > Sorry it took ages to reply to a trivial question.
+> > 
+> > $ clang --version
+> > clang version 3.5.0 (tags/RELEASE_350/final)
+> > Target: x86_64-unknown-linux-gnu
+> > Thread model: posix
+> > 
+> > I have not done sanitation runs with gcc.
+> > 
+> > The system is archlinux with testing repos enabled with daily updates,
+> > that should mean a lot of libraries and such are fairly recent.
+> 
+> Thanks for the info.
+> BTW I don't see it with clang 3.4.2.
+> This seems like a too problematic warning TBH,
+> as unsigned overflow is defined,
+> the overflow value is not used in this case,
+> this seems like a very common idiom.
 
-$ lslogins --time-format=iso --user --output=pwd-change,user | sort -n
+ Yes, the question is if this is a good idiom ;-) IMHO it would be
+ better to have robust and more explicit code where unsigned numbers
+ never overflow. You're right the code is correct for now, but maybe
+ one day someone will edit the code and introduce unexpected bug with
+ unsigned...
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/lslogins.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+    Karel
 
-diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
-index 9929b14..f050595 100644
---- a/login-utils/lslogins.c
-+++ b/login-utils/lslogins.c
-@@ -143,6 +143,7 @@ enum {
- 	TIME_SHORT,
- 	TIME_FULL,
- 	TIME_ISO,
-+	TIME_ISO_SHORT,
- };
- 
- /*
-@@ -349,6 +350,9 @@ static char *make_time(int mode, time_t time)
- 	case TIME_ISO:
- 		strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S%z", &tm);
- 		break;
-+	case TIME_ISO_SHORT:
-+		strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-+		break;
- 	default:
- 		errx(EXIT_FAILURE, _("unsupported time type"));
- 	}
-@@ -693,7 +697,8 @@ static struct lslogins_user *get_user_info(struct lslogins_control *ctl, const c
- 			break;
- 		case COL_PWD_EXPIR:
- 			if (shadow && shadow->sp_expire >= 0)
--				user->pwd_expire = make_time(TIME_SHORT,
-+				user->pwd_expire = make_time(ctl->time_mode == TIME_ISO ?
-+						TIME_ISO_SHORT : ctl->time_mode,
- 						shadow->sp_expire * 86400);
- 			break;
- 		case COL_PWD_CTIME:
-@@ -701,7 +706,8 @@ static struct lslogins_user *get_user_info(struct lslogins_control *ctl, const c
- 			 * (especially in non-GMT timezones) would only serve
- 			 * to confuse */
- 			if (shadow)
--				user->pwd_ctime = make_time(TIME_SHORT,
-+				user->pwd_ctime = make_time(ctl->time_mode == TIME_ISO ?
-+						TIME_ISO_SHORT : ctl->time_mode,
- 						shadow->sp_lstchg * 86400);
- 			break;
- 		case COL_PWD_CTIME_MIN:
+
 -- 
-2.1.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
