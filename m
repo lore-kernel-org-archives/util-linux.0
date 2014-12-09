@@ -1,47 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:34610 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751370AbaLSJwl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Dec 2014 04:52:41 -0500
-Received: by mail-wi0-f173.google.com with SMTP id r20so1317379wiv.6
-        for <util-linux@vger.kernel.org>; Fri, 19 Dec 2014 01:52:39 -0800 (PST)
-Date: Fri, 19 Dec 2014 09:52:38 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux <util-linux@vger.kernel.org>
-cc: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 00/10] pull: AddressSanitizer round II
-In-Reply-To: <CAG27Bk1K3_aXM5KCVkT5SJE_vLsx+vBE=VF9PYY04QbYQ+-=eQ@mail.gmail.com>
-Message-ID: <alpine.LNX.2.03.1412190950570.8955@iki.fi>
-References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <20141215091540.GV19904@x2.net.home> <CAG27Bk1K3_aXM5KCVkT5SJE_vLsx+vBE=VF9PYY04QbYQ+-=eQ@mail.gmail.com>
+Received: from resqmta-po-08v.sys.comcast.net ([96.114.154.167]:52216 "EHLO
+	resqmta-po-08v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751689AbaLIVQ1 convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Dec 2014 16:16:27 -0500
+Received: from hobgoblin.ariadne.com (hobgoblin.ariadne.com [127.0.0.1])
+	by hobgoblin.ariadne.com (8.14.7/8.14.7) with ESMTP id sB9L89Ds013284
+	for <util-linux@vger.kernel.org>; Tue, 9 Dec 2014 16:08:09 -0500
+From: worley@alum.mit.edu (Dale R. Worley)
+To: util-linux@vger.kernel.org
+Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
+In-Reply-To: <201412091211.01584@pali> (pali.rohar@gmail.com)
+Date: Tue, 09 Dec 2014 16:08:03 -0500
+Message-ID: <87iohk8rbg.fsf@hobgoblin.ariadne.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 15 Dec 2014, Sami Kerola wrote:
+Pali Rohár <pali.rohar@gmail.com> writes:
+> [...] All other 
+> implementations which I saw are using LogicalVolumeIdentifier for 
+> LABEL (it is also written in specification). And more... grub2 
+> read LABEL from LogicalVolumeIdentifier, so you cannot specify 
+> UDF disk by its LABEL from linux for grub2. I think this is bug 
+> in util-linux which needs to be fixed. I understand that there 
+> could be regressions, but current implementation is not correct 
+> (it show wrong labels "555e3160"; show different as other 
+> systems; is not correct according to specification).
 
-> On 15 December 2014 at 09:15, Karel Zak <kzak@redhat.com> wrote:
->> On Sun, Nov 30, 2014 at 01:57:32PM +0000, Sami Kerola wrote:
->>> Here comes the second set of changes to enable AddressSanitizer one day
->>> in future.  These changed does not include update to travis-functions, as
->>> demonstrated below, due reason explained later.  The environment changes
->>> in the diff are useful for other who want to try ASAN compilations.
->>
->> Hi Sami, do you plan to update these patches? I'd like to release -rc1
->> this month :-)
->
-> Hi Karel,
->
-> Sorry, I have been a bit lazy with ASAN patch series. I'll try to do
-> the required small fixes in beginning part of the week, and send
-> replies what was changed.
+This is a messy problem to handle correctly, and I think that to bring
+about a good solution will take a considerable amount of research.  The
+ultimate goal is to make things work as well as possible.  So it would
+be quite helpful to accumulate information:
 
-Hi Karel and others,
+1) Talk to people who work on various Un*x kernels to identify what they
+use for the LABEL value of UDF partitions.  This includes auxiliary
+programs like Grub which function as their own kernel.
 
-I think I replied to all feedback. Please inform if I missed something. 
-And especially if after the new updates the changes are still wrong, 
-incomplete, broken, ...
+2) Start conversations with users and system packagers to identify how
+much disruption would be caused by changing the util-linux behavior.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+3) Start conversations to find out what would be the ideal behavior if
+we were not constrained by history -- We want to move toward ideal
+behavior rather than away from it.
+
+In many situations, conversations like this gradually come to a
+consensus as to what is the best direction of progress.
+
+Dale
