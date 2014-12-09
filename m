@@ -1,51 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-po-08v.sys.comcast.net ([96.114.154.167]:52216 "EHLO
-	resqmta-po-08v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751689AbaLIVQ1 convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Dec 2014 16:16:27 -0500
-Received: from hobgoblin.ariadne.com (hobgoblin.ariadne.com [127.0.0.1])
-	by hobgoblin.ariadne.com (8.14.7/8.14.7) with ESMTP id sB9L89Ds013284
-	for <util-linux@vger.kernel.org>; Tue, 9 Dec 2014 16:08:09 -0500
-From: worley@alum.mit.edu (Dale R. Worley)
-To: util-linux@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:57115 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755114AbaLIKfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Dec 2014 05:35:25 -0500
+Date: Tue, 9 Dec 2014 11:35:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
 Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
-In-Reply-To: <201412091211.01584@pali> (pali.rohar@gmail.com)
-Date: Tue, 09 Dec 2014 16:08:03 -0500
-Message-ID: <87iohk8rbg.fsf@hobgoblin.ariadne.com>
+Message-ID: <20141209103520.GK19904@x2.net.home>
+References: <87oaric0fs.fsf@hobgoblin.ariadne.com>
+ <201412050325.06569@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <201412050325.06569@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Pali Roh√°r <pali.rohar@gmail.com> writes:
-> [...] All other 
-> implementations which I saw are using LogicalVolumeIdentifier for 
-> LABEL (it is also written in specification). And more... grub2 
-> read LABEL from LogicalVolumeIdentifier, so you cannot specify 
-> UDF disk by its LABEL from linux for grub2. I think this is bug 
-> in util-linux which needs to be fixed. I understand that there 
-> could be regressions, but current implementation is not correct 
-> (it show wrong labels "555e3160"; show different as other 
-> systems; is not correct according to specification).
+On Fri, Dec 05, 2014 at 03:25:06AM +0100, Pali Roh·r wrote:
+> On Friday 05 December 2014 03:09:11 Dale R. Worley wrote:
+> > Pali Roh·r <pali.rohar@gmail.com> writes:
+> > >> So I think that it is better to use LogicalVolumeIdentifier
+> > >> for libblkid LABEL. And not current VolumeIdentifier.
+> > >> 
+> > >> What do you think?
+> > 
+> > If you change how the LABEL value is read from the disk, every
+> > user will see different LABEL values than they saw in the
+> > past.
+> > 
+> > Dale
+> 
+> Yes, but apparently other systems are using LABEL from 
+> LogicalVolumeIdentifier. So now you see different labels on 
+> different systems which is not good too.
+> 
+> Also that bsd project UDFclient (which is working on Linux too!) 
+> is using LogicalVolumeIdentifier as volume/disk name in newfs_udf 
+> tool.
+> 
+> I looked into grub2 code and it is identifying UDF label also 
+> from LogicalVolumeIdentifier. So if you want to boot something 
+> from UDF FS via grub you probably see label problems...
+> 
+> So I think that rather than using broken linux implementation is 
+> better to fix it (which could bring problems with different label 
+> names in new version). And I would like to see human readable 
+> label as "555e3160".
 
-This is a messy problem to handle correctly, and I think that to bring
-about a good solution will take a considerable amount of research.  The
-ultimate goal is to make things work as well as possible.  So it would
-be quite helpful to accumulate information:
+It's more important to not introduce regression, if you have LABEL= in
+your fstab then you don't want to see that after util-linux update
+your setting is obsolete and filesystem unmounted.
 
-1) Talk to people who work on various Un*x kernels to identify what they
-use for the LABEL value of UDF partitions.  This includes auxiliary
-programs like Grub which function as their own kernel.
+It would be possible use another header field (LogicalVolumeIdentifier) for 
+LABEL= only if the currently used field is empty.
 
-2) Start conversations with users and system packagers to identify how
-much disruption would be caused by changing the util-linux behavior.
+    Karel
 
-3) Start conversations to find out what would be the ideal behavior if
-we were not constrained by history -- We want to move toward ideal
-behavior rather than away from it.
 
-In many situations, conversations like this gradually come to a
-consensus as to what is the best direction of progress.
-
-Dale
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
