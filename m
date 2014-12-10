@@ -1,72 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:36787 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753152AbaLGKON (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Dec 2014 05:14:13 -0500
-Received: by mail-wg0-f48.google.com with SMTP id y19so4064516wgg.21
-        for <util-linux@vger.kernel.org>; Sun, 07 Dec 2014 02:14:12 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:48828 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753440AbaLJCkm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 9 Dec 2014 21:40:42 -0500
+Received: by mail-pa0-f43.google.com with SMTP id kx10so1822073pab.16
+        for <util-linux@vger.kernel.org>; Tue, 09 Dec 2014 18:40:41 -0800 (PST)
+Received: from madrid.europa ([73.162.159.24])
+        by mx.google.com with ESMTPSA id oy7sm2600376pbc.88.2014.12.09.18.40.40
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Dec 2014 18:40:40 -0800 (PST)
+From: Will Johansson <will.johansson@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>,
-        Frodo Looijaard <frodo@frodo.looijaard.name>
-Subject: [PATCH 10/11] getopt: change --shell argument parsing function
-Date: Sun,  7 Dec 2014 10:13:54 +0000
-Message-Id: <1417947235-24229-10-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
-References: <1417947235-24229-1-git-send-email-kerolasa@iki.fi>
+Subject: login-utils: Enable building util-linux against OpenPAM 
+Date: Tue,  9 Dec 2014 18:40:30 -0800
+Message-Id: <1418179231-21326-1-git-send-email-will.johansson@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Avoid passing getopt_control stucture in when returning a value is enough.
+Hello,
 
-CC: Frodo Looijaard <frodo@frodo.looijaard.name>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/getopt.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+I recently experimented with cross-compiling for embedded devices, and
+sought to try out util-linux with OpenPAM instead of Linux-PAM because
+OpenPAM was simpler to cross-compile. Unfortunately for me, it did not
+work out of the box, so I decided to try to patch util-linux to support
+compiling against OpenPAM. Turned out to be a fairly simple exercise.
 
-diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
-index 8134558..2940a7d 100644
---- a/misc-utils/getopt.c
-+++ b/misc-utils/getopt.c
-@@ -295,19 +295,17 @@ static void add_long_options(struct getopt_control *ctl, char *options)
- 	}
- }
- 
--static void set_shell(struct getopt_control *ctl, const char *new_shell)
-+static shell_t shell_type(const char *new_shell)
- {
- 	if (!strcmp(new_shell, "bash"))
--		ctl->shell = BASH;
--	else if (!strcmp(new_shell, "tcsh"))
--		ctl->shell = TCSH;
--	else if (!strcmp(new_shell, "sh"))
--		ctl->shell = BASH;
--	else if (!strcmp(new_shell, "csh"))
--		ctl->shell = TCSH;
--	else
--		parse_error(_
--			    ("unknown shell after -s or --shell argument"));
-+		return BASH;
-+	if (!strcmp(new_shell, "sh"))
-+		return BASH;
-+	if (!strcmp(new_shell, "tcsh"))
-+		return TCSH;
-+	if (!strcmp(new_shell, "csh"))
-+		return TCSH;
-+	parse_error(_("unknown shell after -s or --shell argument"));
- }
- 
- static void __attribute__ ((__noreturn__)) print_help(void)
-@@ -419,7 +417,7 @@ int main(int argc, char *argv[])
- 			ctl.quiet_output = 1;
- 			break;
- 		case 's':
--			set_shell(&ctl, optarg);
-+			ctl.shell = shell_type(optarg);
- 			break;
- 		case 'T':
- 			return TEST_EXIT_CODE;
--- 
-2.1.3
+This is the fruit of my efforts. There is a caveat, which I will
+be happy to address if it's a problem. The patch's configuration does
+not support building if you happen to have both Linux-PAM and OpenPAM
+in your build paths. I could update it to prefer Linux-PAM by default.
+I'm not sure how it'd would work if OpenPAM libraries is also in the
+search path, as -lpam is used by both Linux-PAM and OpenPAM (probably
+undefined behavior).
+
+Either way, it should compile fine against Linux-PAM and OpenPAM.
+There are some unused variables in login.c, but seems to have to do
+with _HAVE_UT_TV, which is not the case in my configuration. I'm
+more than happy to provide a separate patch to wrap the unused
+variables with an #ifdef _HAVE_UT_TV.
+
+Warm regards,
+
+Will Johansson
 
