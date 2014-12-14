@@ -1,70 +1,74 @@
-Return-Path: pali.rohar@gmail.com
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
-Date: Mon, 22 Dec 2014 11:53:18 +0100
-Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
-References: <87oaric0fs.fsf@hobgoblin.ariadne.com> <20141209103520.GK19904@x2.net.home> <20141219135608.GN19904@x2.net.home>
-In-Reply-To: <20141219135608.GN19904@x2.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2547787.BM4lkZvmo1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201412221153.18431@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:45208 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752023AbaLNRoo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:44:44 -0500
+Received: by mail-wi0-f177.google.com with SMTP id l15so6948148wiw.4
+        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:44:43 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 01/16] lslogins: allow changing password changed and expiration time formats
+Date: Sun, 14 Dec 2014 17:43:57 +0000
+Message-Id: <1418579052-29386-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart2547787.BM4lkZvmo1
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+The password change and expiry has are marked with resolution of a day,
+so add a new short iso-8601 format.  With this system admins can easily
+find users has not updated their password lately
 
-On Friday 19 December 2014 14:56:08 Karel Zak wrote:
-> On Tue, Dec 09, 2014 at 11:35:20AM +0100, Karel Zak wrote:
-> > > I looked into grub2 code and it is identifying UDF label
-> > > also from LogicalVolumeIdentifier. So if you want to boot
-> > > something from UDF FS via grub you probably see label
-> > > problems...
-> > >=20
-> > > So I think that rather than using broken linux
-> > > implementation is better to fix it (which could bring
-> > > problems with different label names in new version). And
-> > > I would like to see human readable label as "555e3160".
-> >=20
-> > It's more important to not introduce regression, if you have
-> > LABEL=3D in your fstab then you don't want to see that after
-> > util-linux update your setting is obsolete and filesystem
-> > unmounted.
->=20
-> You have convinced me that fix the problem (and improve
-> compatibility) with UDF LABEL=3D is a good idea.
->=20
-> Not sure, but I guess that for many users the change will be
-> invisible because preferred way is to read the LABEL from
-> ISO9660 header and UDF specific LABEL is just fallback
-> solution only.
->=20
-> The latest Pali's patches are at:
-> https://github.com/karelzak/util-linux/pull/135
->=20
->     Karel
+$ lslogins --time-format=iso --user --output=pwd-change,user | sort -n
 
-Karel, can you review last version of my patch?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/lslogins.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 9929b14..f050595 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -143,6 +143,7 @@ enum {
+ 	TIME_SHORT,
+ 	TIME_FULL,
+ 	TIME_ISO,
++	TIME_ISO_SHORT,
+ };
+ 
+ /*
+@@ -349,6 +350,9 @@ static char *make_time(int mode, time_t time)
+ 	case TIME_ISO:
+ 		strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S%z", &tm);
+ 		break;
++	case TIME_ISO_SHORT:
++		strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
++		break;
+ 	default:
+ 		errx(EXIT_FAILURE, _("unsupported time type"));
+ 	}
+@@ -693,7 +697,8 @@ static struct lslogins_user *get_user_info(struct lslogins_control *ctl, const c
+ 			break;
+ 		case COL_PWD_EXPIR:
+ 			if (shadow && shadow->sp_expire >= 0)
+-				user->pwd_expire = make_time(TIME_SHORT,
++				user->pwd_expire = make_time(ctl->time_mode == TIME_ISO ?
++						TIME_ISO_SHORT : ctl->time_mode,
+ 						shadow->sp_expire * 86400);
+ 			break;
+ 		case COL_PWD_CTIME:
+@@ -701,7 +706,8 @@ static struct lslogins_user *get_user_info(struct lslogins_control *ctl, const c
+ 			 * (especially in non-GMT timezones) would only serve
+ 			 * to confuse */
+ 			if (shadow)
+-				user->pwd_ctime = make_time(TIME_SHORT,
++				user->pwd_ctime = make_time(ctl->time_mode == TIME_ISO ?
++						TIME_ISO_SHORT : ctl->time_mode,
+ 						shadow->sp_lstchg * 86400);
+ 			break;
+ 		case COL_PWD_CTIME_MIN:
+-- 
+2.1.3
 
---nextPart2547787.BM4lkZvmo1
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlSX+B4ACgkQi/DJPQPkQ1JMegCfY5d5oRJuraIrM88dFxNg3gbi
-0oYAn15S6MPdXChM8d/nCijuNrGVCjmR
-=en89
------END PGP SIGNATURE-----
-
---nextPart2547787.BM4lkZvmo1--
