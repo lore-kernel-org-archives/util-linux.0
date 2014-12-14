@@ -1,38 +1,52 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-Date: Fri, 19 Dec 2014 09:26:55 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 10/10] ipcs: fix two data type errors
- [AddressSanitizer]
-In-Reply-To: <20141208122102.GF19904@x2.net.home>
-Message-ID: <alpine.LNX.2.03.1412190924490.8955@iki.fi>
-References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <1417355862-16935-11-git-send-email-kerolasa@iki.fi> <20141208122102.GF19904@x2.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48786 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751220AbaLNTuZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 14 Dec 2014 14:50:25 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id 50339208BB
+	for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 14:50:25 -0500 (EST)
+Message-Id: <1418586625.3874895.202769741.4D89E480@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain
+In-Reply-To: <1418586333-5342-5-git-send-email-bensberg@justemail.net>
+References: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
+ <1418586333-5342-5-git-send-email-bensberg@justemail.net>
+Subject: Re: [PATCH 5/8] docs: adjust the grammar, text,
+ sorting and formatting of logger man page
+Date: Sun, 14 Dec 2014 20:50:25 +0100
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 8 Dec 2014, Karel Zak wrote:
 
-> ipc_shm_get_limits() is also broken
->
-> The function shmctl() has to be always called with "struct shmid_ds"
-> and then cast to linux specific shmid_info struct.
->
-> It would be nice to check that all the shm/sem/msgctl functions are
-> really called with proper arguments.
->
-> (Or we can define any union and use it as buffer to make sure that
->  the argument is large enough.)
+Hi Sami,
 
-How about doing further corrections later?
+Could you please verify that the rewritten description of --rfc5424 is correct?
+I had some doubts about what the original text tried to say.  :)
 
-> BTW, horrible API (or I need more coffee to understand this art).
+> +.TP
+> +.BR \-\-rfc5424 [ =\fIwithout ]
+> +Use the RFC 5424 syslog protocol to submit messages to a remote server.
+> +The optional \fIwithout\fR argument can be a comma-separated list of
+> +the following values: \fBnotq\fR, \fBnotime\fR, \fBnohost\fR.
+> +The \fBnotq\fR value suppresses the time-quality structured data
+> +from the submitted message.  (The time-quality information shows whether
+> +the local clock was syncronized plus the maximum number of microseconds
+> +the timestamp might be off.)  The \fBnotime\fR value (which implies
+> +\fBnotq\fR) suppresses the complete sender timestamp that is in
+> +ISO-8601 format, including microseconds and timezone.
+> +The \fBnohost\fR value suppresses
+> +.BR gethostname (2)
+> +information from the message header.
 
-Mostly because of I share the view above. Getting ipc api usage right is 
-not quite as easy task as one might hope.
+Regards,
+
+Benno
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+http://www.fastmail.com - Send your email first class
+
