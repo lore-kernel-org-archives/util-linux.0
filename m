@@ -1,34 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38012 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754052AbaLVKLM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Dec 2014 05:11:12 -0500
-Date: Mon, 22 Dec 2014 11:11:06 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: RFC [patch] adding docstrings
-Message-ID: <20141222101106.GA7668@x2.net.home>
-References: <1418847631-8317-1-git-send-email-bensberg@justemail.net>
- <20141219090925.GI19904@x2.net.home>
- <1419086574.2592978.205177769.60905F6A@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1419086574.2592978.205177769.60905F6A@webmail.messagingengine.com>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:57876 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752093AbaLNRo4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:44:56 -0500
+Received: by mail-wi0-f178.google.com with SMTP id em10so6896738wid.11
+        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:44:55 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 03/16] lslogins: tell why command failed
+Date: Sun, 14 Dec 2014 17:43:59 +0000
+Message-Id: <1418579052-29386-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Dec 20, 2014 at 03:42:54PM +0100, Benno Schulenberg wrote:
-> By the way, there was some talk of obsoleting / scrapping / deleting
-> some of the utils.  Are there still such plans?  If so, it is maybe
+Printing usage() without hint what is wrong does not help an user.
 
- Documentation/deprecated.txt
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/lslogins.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- but I don't think anything is planned for the next release(s), so it's
- probably fine to add docscript everywhere.
-
-    Karel
-
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 85fd7c8..7fe6599 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1437,7 +1437,7 @@ int main(int argc, char *argv[])
+ 		logins = argv[optind];
+ 		outmode = OUT_PRETTY;
+ 	} else if (argc != optind)
+-		usage(stderr);
++		errx(EXIT_FAILURE, _("Only one user may be specified. Use -l for multiple users."));
+ 
+ 	scols_init_debug(0);
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
