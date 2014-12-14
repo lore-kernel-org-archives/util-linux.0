@@ -1,75 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:43113 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751838AbaLECZJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 4 Dec 2014 21:25:09 -0500
-Received: by mail-wi0-f178.google.com with SMTP id em10so5437wid.11
-        for <util-linux@vger.kernel.org>; Thu, 04 Dec 2014 18:25:08 -0800 (PST)
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-To: "Dale R. Worley" <worley@alum.mit.edu>
-Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
-Date: Fri, 5 Dec 2014 03:25:06 +0100
-Cc: util-linux@vger.kernel.org
-References: <87oaric0fs.fsf@hobgoblin.ariadne.com>
-In-Reply-To: <87oaric0fs.fsf@hobgoblin.ariadne.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1579508.6HPngyuVWt";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201412050325.06569@pali>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:65112 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752074AbaLNRou (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:44:50 -0500
+Received: by mail-wg0-f48.google.com with SMTP id y19so12891780wgg.35
+        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:44:49 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 02/16] lslogins: make journald last logs time stamps to honor --time-format
+Date: Sun, 14 Dec 2014 17:43:58 +0000
+Message-Id: <1418579052-29386-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart1579508.6HPngyuVWt
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+This makes by default the last logs to have year in output when necessary.
 
-On Friday 05 December 2014 03:09:11 Dale R. Worley wrote:
-> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> >> So I think that it is better to use LogicalVolumeIdentifier
-> >> for libblkid LABEL. And not current VolumeIdentifier.
-> >>=20
-> >> What do you think?
->=20
-> If you change how the LABEL value is read from the disk, every
-> user will see different LABEL values than they saw in the
-> past.
->=20
-> Dale
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/lslogins.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-Yes, but apparently other systems are using LABEL from=20
-LogicalVolumeIdentifier. So now you see different labels on=20
-different systems which is not good too.
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index f050595..85fd7c8 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1055,7 +1055,7 @@ static void fill_table(const void *u, const VISIT which, const int depth __attri
+ 	return;
+ }
+ #ifdef HAVE_LIBSYSTEMD
+-static void print_journal_tail(const char *journal_path, uid_t uid, size_t len)
++static void print_journal_tail(const char *journal_path, uid_t uid, size_t len, int time_mode)
+ {
+ 	sd_journal *j;
+ 	char *match, *buf;
+@@ -1069,7 +1069,6 @@ static void print_journal_tail(const char *journal_path, uid_t uid, size_t len)
+ 	else
+ 		sd_journal_open(&j, SD_JOURNAL_LOCAL_ONLY);
+ 
+-	buf = xmalloc(sizeof(char) * 16);
+ 	xasprintf(&match, "_UID=%d", uid);
+ 
+ 	sd_journal_add_match(j, match, 0);
+@@ -1089,7 +1088,7 @@ static void print_journal_tail(const char *journal_path, uid_t uid, size_t len)
+ 
+ 		sd_journal_get_realtime_usec(j, &x);
+ 		t = x / 1000000;
+-		strftime(buf, 16, "%b %d %H:%M:%S", localtime(&t));
++		buf = make_time(time_mode, t);
+ 
+ 		fprintf(stdout, "%s", buf);
+ 
+@@ -1148,7 +1147,7 @@ static int print_user_table(struct lslogins_control *ctl)
+ 		print_pretty(tb);
+ #ifdef HAVE_LIBSYSTEMD
+ 		fprintf(stdout, _("\nLast logs:\n"));
+-		print_journal_tail(ctl->journal_path, ctl->uid, 3);
++		print_journal_tail(ctl->journal_path, ctl->uid, 3, ctl->time_mode);
+ 		fputc('\n', stdout);
+ #endif
+ 	} else
+-- 
+2.1.3
 
-Also that bsd project UDFclient (which is working on Linux too!)=20
-is using LogicalVolumeIdentifier as volume/disk name in newfs_udf=20
-tool.
-
-I looked into grub2 code and it is identifying UDF label also=20
-from LogicalVolumeIdentifier. So if you want to boot something=20
-from UDF FS via grub you probably see label problems...
-
-So I think that rather than using broken linux implementation is=20
-better to fix it (which could bring problems with different label=20
-names in new version). And I would like to see human readable=20
-label as "555e3160".
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart1579508.6HPngyuVWt
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlSBF4IACgkQi/DJPQPkQ1IK8ACfSMhVJlDygQv5SmWeiNfgkL59
-aEgAoK7l+7B1fEIvv//ZgPNmg9tU48Lq
-=f5Lz
------END PGP SIGNATURE-----
-
---nextPart1579508.6HPngyuVWt--
