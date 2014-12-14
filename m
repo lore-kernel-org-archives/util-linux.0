@@ -1,43 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:41686 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873AbaLOLvl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 15 Dec 2014 06:51:41 -0500
-Received: by mail-pd0-f172.google.com with SMTP id y13so11536256pdi.31
-        for <util-linux@vger.kernel.org>; Mon, 15 Dec 2014 03:51:41 -0800 (PST)
-From: Will Johansson <will.johansson@gmail.com>
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:45998 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752102AbaLNRpK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:45:10 -0500
+Received: by mail-wg0-f43.google.com with SMTP id l18so12948712wgh.16
+        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:45:08 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Will Johansson <will.johansson@gmail.com>
-Subject: [PATCH] login-utils: Fix unused variables in login.c if _HAVE_UT_TV isn't defined
-Date: Mon, 15 Dec 2014 03:51:29 -0800
-Message-Id: <1418644289-46965-1-git-send-email-will.johansson@gmail.com>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 05/16] lslogins: reject unknown time format arguments
+Date: Sun, 14 Dec 2014 17:44:01 +0000
+Message-Id: <1418579052-29386-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Wrap around the variable declaration for `tv' with ifdef so the compilers
-don't warn about unused variables if we're compiling without UT_TV. This
-happens with the musl libc, since it doesn't define _HAVE_UT_TV, even
-though it _does_ have the ut_tv field in the utmp struct.
-
-Signed-off-by: Will Johansson <will.johansson@gmail.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/login.c | 2 ++
- 1 file changed, 2 insertions(+)
+ login-utils/lslogins.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 540554e..f07358f 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -429,7 +429,9 @@ static void init_tty(struct login_context *cxt)
- static void log_btmp(struct login_context *cxt)
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index cacf83c..4b07636 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1180,16 +1180,6 @@ static void free_user(void *f)
+ 	free(u);
+ }
+ 
+-struct lslogins_timefmt {
+-	const char *name;
+-	int val;
+-};
+-
+-static struct lslogins_timefmt timefmts[] = {
+-	{ "short", TIME_SHORT },
+-	{ "full", TIME_FULL },
+-	{ "iso", TIME_ISO },
+-};
+ 
+ static void __attribute__((__noreturn__)) usage(FILE *out)
  {
- 	struct utmp ut;
-+#if defined(_HAVE_UT_TV)        /* in <utmpbits.h> included by <utmp.h> */
- 	struct timeval tv;
-+#endif
+@@ -1398,8 +1388,18 @@ int main(int argc, char *argv[])
+ 			break;
+ 		case OPT_TIME_FMT:
+ 			{
++				struct lslogins_timefmt {
++					const char *name;
++					const int val;
++				};
++				const struct lslogins_timefmt timefmts[] = {
++					{ "iso", TIME_ISO },
++					{ "full", TIME_FULL },
++					{ "short", TIME_SHORT },
++				};
+ 				size_t i;
  
- 	memset(&ut, 0, sizeof(ut));
- 
++				ctl->time_mode = TIME_INVALID;
+ 				for (i = 0; i < ARRAY_SIZE(timefmts); i++) {
+ 					if (strcmp(timefmts[i].name, optarg) == 0) {
+ 						ctl->time_mode = timefmts[i].val;
+@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
+ 					}
+ 				}
+ 				if (ctl->time_mode == TIME_INVALID)
+-					usage(stderr);
++					errx(EXIT_FAILURE, _("unknown time format: %s"), optarg);
+ 			}
+ 			break;
+ 		case 'V':
 -- 
-1.8.3.1
+2.1.3
 
