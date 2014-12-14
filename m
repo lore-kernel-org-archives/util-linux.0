@@ -1,44 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58587 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751370AbaLSNaT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 19 Dec 2014 08:30:19 -0500
-Date: Fri, 19 Dec 2014 14:30:09 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/16] pull: updates to lslogins and chfn
-Message-ID: <20141219133009.GM19904@x2.net.home>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:52931 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752172AbaLNRp0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:45:26 -0500
+Received: by mail-wi0-f172.google.com with SMTP id n3so6801140wiv.17
+        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:45:25 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 11/16] chfn: fix usage() regression
+Date: Sun, 14 Dec 2014 17:44:07 +0000
+Message-Id: <1418579052-29386-12-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 14, 2014 at 05:43:56PM +0000, Sami Kerola wrote:
-> Sami Kerola (16):
->   lslogins: allow changing password changed and expiration time formats
->   lslogins: make journald last logs time stamps to honor --time-format
->   lslogins: tell why command failed
->   lslogins: fix short options
->   lslogins: reject unknown time format arguments
->   lslogins: add space to systemd journal header and message
->   lslogins: use hardcoded paths from pathnames.h
->   chfn: remove function prototypes
->   chfn: rewrite prompt() to use strutils
->   chfn: use xasprintf() rather than bunch of strlen() and malloc() calls
->   chfn: fix usage() regression
->   chfn: simplify parse_passwd() by using strsep()
->   chfn: add minimalistic struct chfn_control
->   chfn: clean up parse_argv()
->   chfn: move new and old finger structs to chfn control struct
->   chfn: make command to obey login.defs CHFN_RESTRICT instructions
+Commit db433bf737a5fd4e1c7cca5e3603934743eebd1c changed -u for --help to
+-h, that is not true.  The -h is short hand for --home-phone.  And the
+--version is accompanied with -v not -V.
 
- Applied from github, thanks. I th ink we can cleanup chfn later.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/chfn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-    Karel
-
+diff --git a/login-utils/chfn.c b/login-utils/chfn.c
+index 4746927..9833591 100644
+--- a/login-utils/chfn.c
++++ b/login-utils/chfn.c
+@@ -77,8 +77,8 @@ static void __attribute__((__noreturn__)) usage(FILE *fp)
+ 	fputs(_(" -p, --office-phone <phone>   office phone number\n"), fp);
+ 	fputs(_(" -h, --home-phone <phone>     home phone number\n"), fp);
+ 	fputs(USAGE_SEPARATOR, fp);
+-	fputs(USAGE_HELP, fp);
+-	fputs(USAGE_VERSION, fp);
++	fputs(_(" -u, --help     display this help and exit\n"), fp);
++	fputs(_(" -v, --version  output version information and exit\n"), fp);
+ 	fprintf(fp, USAGE_MAN_TAIL("chfn(1)"));
+ 	exit(fp == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.3
+
