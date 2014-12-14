@@ -1,63 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57115 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755114AbaLIKfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 9 Dec 2014 05:35:25 -0500
-Date: Tue, 9 Dec 2014 11:35:20 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
-Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
-Message-ID: <20141209103520.GK19904@x2.net.home>
-References: <87oaric0fs.fsf@hobgoblin.ariadne.com>
- <201412050325.06569@pali>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201412050325.06569@pali>
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:53939 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751138AbaLNTqH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 14 Dec 2014 14:46:07 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 8/8] sfdisk: in the usage text show -v for --version instead of -V
+Date: Sun, 14 Dec 2014 20:45:33 +0100
+Message-Id: <1418586333-5342-8-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
+References: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 05, 2014 at 03:25:06AM +0100, Pali Rohár wrote:
-> On Friday 05 December 2014 03:09:11 Dale R. Worley wrote:
-> > Pali Rohár <pali.rohar@gmail.com> writes:
-> > >> So I think that it is better to use LogicalVolumeIdentifier
-> > >> for libblkid LABEL. And not current VolumeIdentifier.
-> > >> 
-> > >> What do you think?
-> > 
-> > If you change how the LABEL value is read from the disk, every
-> > user will see different LABEL values than they saw in the
-> > past.
-> > 
-> > Dale
-> 
-> Yes, but apparently other systems are using LABEL from 
-> LogicalVolumeIdentifier. So now you see different labels on 
-> different systems which is not good too.
-> 
-> Also that bsd project UDFclient (which is working on Linux too!) 
-> is using LogicalVolumeIdentifier as volume/disk name in newfs_udf 
-> tool.
-> 
-> I looked into grub2 code and it is identifying UDF label also 
-> from LogicalVolumeIdentifier. So if you want to boot something 
-> from UDF FS via grub you probably see label problems...
-> 
-> So I think that rather than using broken linux implementation is 
-> better to fix it (which could bring problems with different label 
-> names in new version). And I would like to see human readable 
-> label as "555e3160".
+In sfdisk -V is taken by --verify.  Use for the description of --version
+the same indentation as for --help, not that of the other options.
 
-It's more important to not introduce regression, if you have LABEL= in
-your fstab then you don't want to see that after util-linux update
-your setting is obsolete and filesystem unmounted.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/sfdisk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-It would be possible use another header field (LogicalVolumeIdentifier) for 
-LABEL= only if the currently used field is empty.
-
-    Karel
-
-
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index cff8664..73a1331 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -1348,7 +1348,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(USAGE_HELP, out);
+-	fputs(USAGE_VERSION, out);
++	fputs(_(" -v, --version  output version information and exit\n"), out);
+ 
+ 	list_available_columns(out);
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
