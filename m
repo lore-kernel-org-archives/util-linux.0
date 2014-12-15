@@ -1,54 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:41784 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752102AbaLNRpW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:45:22 -0500
-Received: by mail-wg0-f43.google.com with SMTP id l18so12961413wgh.2
-        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:45:21 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 07/16] lslogins: use hardcoded paths from pathnames.h
-Date: Sun, 14 Dec 2014 17:44:03 +0000
-Message-Id: <1418579052-29386-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:41004 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751309AbaLOKHr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 15 Dec 2014 05:07:47 -0500
+Date: Mon, 15 Dec 2014 11:07:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 15/16] chfn: move new and old finger structs to chfn
+ control struct
+Message-ID: <20141215100735.GZ19904@x2.net.home>
 References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+ <1418579052-29386-16-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1418579052-29386-16-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/pathnames.h    | 1 +
- login-utils/lslogins.c | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+On Sun, Dec 14, 2014 at 05:44:11PM +0000, Sami Kerola wrote:
+> +	ctl->newf.full_name = prompt(_("Name"), ctl->oldf.full_name);
+> +	ctl->newf.office = prompt(_("Office"), ctl->oldf.office);
+> +	ctl->newf.office_phone = prompt(_("Office Phone"), ctl->oldf.office_phone);
+> +	ctl->newf.home_phone = prompt(_("Home Phone"), ctl->oldf.home_phone);
 
-diff --git a/include/pathnames.h b/include/pathnames.h
-index 1cc4e15..0d21b98 100644
---- a/include/pathnames.h
-+++ b/include/pathnames.h
-@@ -38,6 +38,7 @@
- #endif
- #define	_PATH_MOTDFILE		"/etc/motd"
- #define	_PATH_NOLOGIN		"/etc/nologin"
-+#define	_PATH_VAR_NOLOGIN	"/var/run/nologin"
- 
- #define _PATH_LOGIN		"/bin/login"
- #define _PATH_INITTAB		"/etc/inittab"
-diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
-index 14a0749..85ae8f5 100644
---- a/login-utils/lslogins.c
-+++ b/login-utils/lslogins.c
-@@ -688,8 +688,8 @@ static struct lslogins_user *get_user_info(struct lslogins_control *ctl, const c
- 			if (strstr(pwd->pw_shell, "nologin"))
- 				user->nologin = 1;
- 			else if (pwd->pw_uid)
--				user->nologin = access("/etc/nologin", F_OK) == 0 ||
--						access("/var/run/nologin", F_OK) == 0;
-+				user->nologin = access(_PATH_NOLOGIN, F_OK) == 0 ||
-+						access(_PATH_VAR_NOLOGIN, F_OK) == 0;
- 			break;
- 		case COL_PWD_WARN:
- 			if (shadow && shadow->sp_warn >= 0)
+it would be better to rename prompt() to ask_new_field() or so.
+
+> -static int set_changed_data(struct finfo *oldfp, struct finfo *newfp)
+> +static int set_changed_data(struct chfn_control *ctl)
+>  {
+>  	int changed = false;
+>  
+> -	if (newfp->full_name) {
+> -		oldfp->full_name = newfp->full_name;
+> +	if (ctl->newf.full_name)
+>  		changed = true;
+> -	}
+> -	if (newfp->office) {
+> -		oldfp->office = newfp->office;
+> +	else
+> +		ctl->newf.full_name = ctl->oldf.full_name;
+> +	if (ctl->newf.office)
+>  		changed = true;
+> -	}
+> -	if (newfp->office_phone) {
+> -		oldfp->office_phone = newfp->office_phone;
+> +	else
+> +		ctl->newf.office = ctl->oldf.office;
+> +	if (ctl->newf.office_phone)
+>  		changed = true;
+> -	}
+> -	if (newfp->home_phone) {
+> -		oldfp->home_phone = newfp->home_phone;
+> +	else
+> +		ctl->newf.office_phone = ctl->oldf.office_phone;
+> +	if (ctl->newf.home_phone)
+>  		changed = true;
+> -	}
+> -
+> +	else
+> +		ctl->newf.home_phone = ctl->oldf.home_phone;
+>  	return changed;
+>  }
+
+this is ugly and unnecessary function, all you need is to return
+usable data from prompt() and maintain ctl->changed with in the
+function. The prompt() knows all the detains.
+
+>  	/* create the new gecos string */
+> -	len = xasprintf(&gecos, "%s,%s,%s,%s,%s", pinfo->full_name, pinfo->office,
+> -		  pinfo->office_phone, pinfo->home_phone, pinfo->other);
+> +	len = xasprintf(&gecos, "%s,%s,%s,%s,%s", ctl->newf.full_name, ctl->newf.office,
+> +		  ctl->newf.office_phone, ctl->newf.home_phone, ctl->newf.other);
+
+Maybe
+
+  len = xasprintf(&gecos, "%s,%s,%s,%s,%s", 
+        ctl->newf.full_name ? ctl->newf.full_name : "",
+        ...
+        );
+
+would be better than set the empty strings to newf (now you mix ""
+and strdup() results in newf).
+
+    Karel
+
 -- 
-2.1.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
