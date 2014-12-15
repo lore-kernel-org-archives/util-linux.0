@@ -1,66 +1,140 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:43931 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752023AbaLNRoi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:44:38 -0500
-Received: by mail-wi0-f178.google.com with SMTP id em10so6866090wid.17
-        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:44:37 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/16] pull: updates to lslogins and chfn
-Date: Sun, 14 Dec 2014 17:43:56 +0000
-Message-Id: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: will.johansson@gmail.com
+MIME-Version: 1.0
+In-Reply-To: <20141215091931.GW19904@x2.net.home>
+References: <1418179231-21326-1-git-send-email-will.johansson@gmail.com>
+	<20141215091931.GW19904@x2.net.home>
+Date: Mon, 15 Dec 2014 03:45:58 -0800
+Message-ID: <CAE83jyx=WxCNb-J99zG4jsrzZMBjomEsXFHNCdY+jofzvNhoVg@mail.gmail.com>
+Subject: Re: login-utils: Enable building util-linux against OpenPAM
+From: Will Johansson <will.johansson@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: multipart/alternative; boundary=047d7bdc87823d8e96050a3fc934
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+--047d7bdc87823d8e96050a3fc934
+Content-Type: text/plain; charset=UTF-8
 
-While using lslogins earlier the week I noticed --time-format not being
-honored in all instances.  There is also another fix to option handling,
-that is relatively important for anyone who cares user interface.
+Hi Karel,
 
-The chfn changes are my attempt to make the code a little bit easier to
-read, and modify.  That said I came a cross with login.defs CHFN_RESTRICT
-so I decided to make it work.  The login.defs(5) is also talking about
-CHFN_AUTH, but I don't think it combines well with libuser so I did not
-bother trying to spend time with it.
+Thanks for applying. I have a small patch for _HAVE_UT_TV incoming in a few
+minutes.
 
-Now when the chfn is bit more OK, see the chsh could be better.  I'll try
-to send patches about chsh sometime before holidays.
+Turns out it was because musl-libc doesn't define _HAVE_UT_TV, even though
+musl-libc's utmp struct does have a ut_tv field. There are two options: 1.)
+I could patch upstream musl-libc to define _HAVE_UT_TV or 2.) detect
+musl-libc somehow. I think I prefer the first option.
 
+Thanks again,
 
-The following changes since commit 0d75c73d4fc9f638b9fbcab142002acadca9e603:
-  lslogins: fix -l -g logic (2014-12-12 15:17:19 +0100)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git 2014wk49
-for you to fetch changes up to 7de7c6819d44c9052e3bee50990f37b6d75f3bcb:
-  chfn: make command to obey login.defs CHFN_RESTRICT instructions (2014-12-14 17:27:08 +0000)
+Will
 
-Sami Kerola (16):
-  lslogins: allow changing password changed and expiration time formats
-  lslogins: make journald last logs time stamps to honor --time-format
-  lslogins: tell why command failed
-  lslogins: fix short options
-  lslogins: reject unknown time format arguments
-  lslogins: add space to systemd journal header and message
-  lslogins: use hardcoded paths from pathnames.h
-  chfn: remove function prototypes
-  chfn: rewrite prompt() to use strutils
-  chfn: use xasprintf() rather than bunch of strlen() and malloc() calls
-  chfn: fix usage() regression
-  chfn: simplify parse_passwd() by using strsep()
-  chfn: add minimalistic struct chfn_control
-  chfn: clean up parse_argv()
-  chfn: move new and old finger structs to chfn control struct
-  chfn: make command to obey login.defs CHFN_RESTRICT instructions
+On Mon, Dec 15, 2014 at 1:19 AM, Karel Zak <kzak@redhat.com> wrote:
+>
+> On Tue, Dec 09, 2014 at 06:40:30PM -0800, Will Johansson wrote:
+> > I recently experimented with cross-compiling for embedded devices, and
+> > sought to try out util-linux with OpenPAM instead of Linux-PAM because
+> > OpenPAM was simpler to cross-compile. Unfortunately for me, it did not
+> > work out of the box, so I decided to try to patch util-linux to support
+> > compiling against OpenPAM. Turned out to be a fairly simple exercise.
+> >
+> > This is the fruit of my efforts. There is a caveat, which I will
+>
+>  Applied, thanks.
+>
+> > be happy to address if it's a problem. The patch's configuration does
+> > not support building if you happen to have both Linux-PAM and OpenPAM
+> > in your build paths. I could update it to prefer Linux-PAM by default.
+> > I'm not sure how it'd would work if OpenPAM libraries is also in the
+> > search path, as -lpam is used by both Linux-PAM and OpenPAM (probably
+> > undefined behavior).
+> >
+> > Either way, it should compile fine against Linux-PAM and OpenPAM.
+> > There are some unused variables in login.c, but seems to have to do
+> > with _HAVE_UT_TV, which is not the case in my configuration. I'm
+> > more than happy to provide a separate patch to wrap the unused
+> > variables with an #ifdef _HAVE_UT_TV.
+>
+>  I don't have OpenPAM, so I'm not able to verify usability, but it
+>  would be nice to have build without warnings.
+>
+>     Karel
+>
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
 
- include/pathnames.h       |   1 +
- login-utils/Makemodule.am |   6 +-
- login-utils/chfn.c        | 548 +++++++++++++++++++++++-----------------------
- login-utils/lslogins.c    |  65 +++---
- 4 files changed, 312 insertions(+), 308 deletions(-)
 
 -- 
-2.1.3
+Will Johansson
 
+--047d7bdc87823d8e96050a3fc934
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi Karel,<br><br>Thanks for applying. I have a small =
+patch for _HAVE_UT_TV incoming in a few minutes.<br><br>Turns out it was be=
+cause musl-libc doesn&#39;t define _HAVE_UT_TV, even though musl-libc&#39;s=
+ utmp struct does have a ut_tv field. There are two options: 1.) I could pa=
+tch upstream musl-libc to define _HAVE_UT_TV or 2.) detect musl-libc someho=
+w. I think I prefer the first option.<br><br></div>Thanks again,<br><br>Wil=
+l<br></div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Mon=
+, Dec 15, 2014 at 1:19 AM, Karel Zak <span dir=3D"ltr">&lt;<a href=3D"mailt=
+o:kzak@redhat.com" target=3D"_blank">kzak@redhat.com</a>&gt;</span> wrote:<=
+blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px=
+ #ccc solid;padding-left:1ex"><span class=3D"">On Tue, Dec 09, 2014 at 06:4=
+0:30PM -0800, Will Johansson wrote:<br>
+&gt; I recently experimented with cross-compiling for embedded devices, and=
+<br>
+&gt; sought to try out util-linux with OpenPAM instead of Linux-PAM because=
+<br>
+&gt; OpenPAM was simpler to cross-compile. Unfortunately for me, it did not=
+<br>
+&gt; work out of the box, so I decided to try to patch util-linux to suppor=
+t<br>
+&gt; compiling against OpenPAM. Turned out to be a fairly simple exercise.<=
+br>
+&gt;<br>
+&gt; This is the fruit of my efforts. There is a caveat, which I will<br>
+<br>
+</span>=C2=A0Applied, thanks.<br>
+<span class=3D""><br>
+&gt; be happy to address if it&#39;s a problem. The patch&#39;s configurati=
+on does<br>
+&gt; not support building if you happen to have both Linux-PAM and OpenPAM<=
+br>
+&gt; in your build paths. I could update it to prefer Linux-PAM by default.=
+<br>
+&gt; I&#39;m not sure how it&#39;d would work if OpenPAM libraries is also =
+in the<br>
+&gt; search path, as -lpam is used by both Linux-PAM and OpenPAM (probably<=
+br>
+&gt; undefined behavior).<br>
+&gt;<br>
+&gt; Either way, it should compile fine against Linux-PAM and OpenPAM.<br>
+&gt; There are some unused variables in login.c, but seems to have to do<br=
+>
+&gt; with _HAVE_UT_TV, which is not the case in my configuration. I&#39;m<b=
+r>
+&gt; more than happy to provide a separate patch to wrap the unused<br>
+&gt; variables with an #ifdef _HAVE_UT_TV.<br>
+<br>
+</span>=C2=A0I don&#39;t have OpenPAM, so I&#39;m not able to verify usabil=
+ity, but it<br>
+=C2=A0would be nice to have build without warnings.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+=C2=A0 =C2=A0 Karel<br>
+<br>
+<br>
+--<br>
+=C2=A0Karel Zak=C2=A0 &lt;<a href=3D"mailto:kzak@redhat.com">kzak@redhat.co=
+m</a>&gt;<br>
+=C2=A0<a href=3D"http://karelzak.blogspot.com" target=3D"_blank">http://kar=
+elzak.blogspot.com</a><br>
+</font></span></blockquote></div><br clear=3D"all"><br>-- <br><div class=3D=
+"gmail_signature">Will Johansson</div>
+</div>
+
+--047d7bdc87823d8e96050a3fc934--
