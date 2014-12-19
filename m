@@ -1,40 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35228 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750782AbaLOMri (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Dec 2014 07:47:38 -0500
-Date: Mon, 15 Dec 2014 13:47:35 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Will Johansson <will.johansson@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: login-utils: Enable building util-linux against OpenPAM
-Message-ID: <20141215124735.GB19904@x2.net.home>
-References: <1418179231-21326-1-git-send-email-will.johansson@gmail.com>
- <20141215091931.GW19904@x2.net.home>
- <CAE83jyxVG_CKR6rzmdO==rJB7aA8kWasXvXyK_PW8C6SAbzLAg@mail.gmail.com>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:61766 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752052AbaLSJuI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Dec 2014 04:50:08 -0500
+Received: by mail-wi0-f177.google.com with SMTP id l15so1144844wiw.10
+        for <util-linux@vger.kernel.org>; Fri, 19 Dec 2014 01:50:07 -0800 (PST)
+Date: Fri, 19 Dec 2014 09:50:04 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 08/10] include/c: define UL_ASAN_BLACKLIST address_sanitizer
+ function attribute
+In-Reply-To: <1417365732.1298240.196969401.607516E2@webmail.messagingengine.com>
+Message-ID: <alpine.LNX.2.03.1412190944470.8955@iki.fi>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <1417355862-16935-9-git-send-email-kerolasa@iki.fi> <1417365732.1298240.196969401.607516E2@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAE83jyxVG_CKR6rzmdO==rJB7aA8kWasXvXyK_PW8C6SAbzLAg@mail.gmail.com>
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 15, 2014 at 03:46:55AM -0800, Will Johansson wrote:
-> Hi Karel,
-> 
-> Thanks for applying. I have a small patch for _HAVE_UT_TV incoming in
-> a few minutes.
-> 
-> Turns out it was because musl-libc doesn't define _HAVE_UT_TV, even
-> though musl-libc's utmp struct does have a ut_tv field. There are two
-> options: 1.) I could patch upstream musl-libc to define _HAVE_UT_TV or
-> 2.) detect musl-libc somehow. I think I prefer the first option.
+On Sun, 30 Nov 2014, Benno Schulenberg wrote:
 
-Well, you have to care about already released musl-libc -- it's easy to detect 
-that by AC_CHECK_MEMBERS() in configure.ac. It would be nice to fix
-the problem in util-linux code independently on your item 1).
+> On Sun, Nov 30, 2014, at 14:57, Sami Kerola wrote:
+>> The UL_ASAN_BLACKLIST allows AddressSanitizer to be set off for functions
+>> that cannot be checked.
+>
+> s/set/switched/
 
-    Karel
+Thanks Benno.
+
+Fixed in
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/03caf13f09b1224aa7bd296ed223785b61ca4c7e
+
+> (Because "set off" means "triggered", which means "run" -- but
+> the intention is to say "not run".)
+>
+>> + *   Furthermore, it will prevent the compiler from
+>> + * inlining the function because inlining currently breaks the blacklisting
+>> + * mechanism of AddressSanitizer.
+>
+> Ow...  Could uninlining something in some rare cases not break
+> the function of that something?
+
+We shall see? I don't have anything better to offer as a fix to a concern.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
