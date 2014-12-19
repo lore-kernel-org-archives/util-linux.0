@@ -1,179 +1,133 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:52033 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751871AbaLNRp6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:45:58 -0500
-Received: by mail-wg0-f45.google.com with SMTP id b13so12839270wgh.32
-        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:45:57 -0800 (PST)
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:63848 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752177AbaLSJa0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Dec 2014 04:30:26 -0500
+Received: by mail-wg0-f43.google.com with SMTP id l18so801330wgh.2
+        for <util-linux@vger.kernel.org>; Fri, 19 Dec 2014 01:30:24 -0800 (PST)
+Date: Fri, 19 Dec 2014 09:30:23 +0000 (GMT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 16/16] chfn: make command to obey login.defs CHFN_RESTRICT instructions
-Date: Sun, 14 Dec 2014 17:44:12 +0000
-Message-Id: <1418579052-29386-17-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 05/16] lslogins: reject unknown time format arguments
+In-Reply-To: <20141215092852.GX19904@x2.net.home>
+Message-ID: <alpine.LNX.2.03.1412190927340.8955@iki.fi>
+References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi> <1418579052-29386-6-git-send-email-kerolasa@iki.fi> <20141215092852.GX19904@x2.net.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reference: http://man7.org/linux/man-pages/man5/login.defs.5.html
-Addresses: https://bugzilla.redhat.com/show_bug.cgi?id=138519
+On Mon, 15 Dec 2014, Karel Zak wrote:
+
+> On Sun, Dec 14, 2014 at 05:44:01PM +0000, Sami Kerola wrote:
+>> @@ -1398,8 +1388,18 @@ int main(int argc, char *argv[])
+>>  			break;
+>>  		case OPT_TIME_FMT:
+>>  			{
+>> +				struct lslogins_timefmt {
+>> +					const char *name;
+>> +					const int val;
+>> +				};
+>> +				const struct lslogins_timefmt timefmts[] = {
+>
+> static const ....
+
+Corrected.
+
+>> +					{ "iso", TIME_ISO },
+>> +					{ "full", TIME_FULL },
+>> +					{ "short", TIME_SHORT },
+>> +				};
+>>  				size_t i;
+>>
+>> +				ctl->time_mode = TIME_INVALID;
+>>  				for (i = 0; i < ARRAY_SIZE(timefmts); i++) {
+>>  					if (strcmp(timefmts[i].name, optarg) == 0) {
+>>  						ctl->time_mode = timefmts[i].val;
+>> @@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
+>>  					}
+>>  				}
+>>  				if (ctl->time_mode == TIME_INVALID)
+>> -					usage(stderr);
+>> +					errx(EXIT_FAILURE, _("unknown time format: %s"), optarg);
+>
+> This is not elegant solution, it would be better to move all the code
+> to small function parse_time_mode() and keep the main() less "crowded".
+
+Good idea. Here is updated version of the change.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/cdf3896a0502b2773323ec293ccb4dfdbfc87cf8
+
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sat, 13 Dec 2014 17:11:04 +0000
+Subject: [PATCH 05/18] lslogins: reject unknown time format arguments
+
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/Makemodule.am |  6 +++-
- login-utils/chfn.c        | 77 ++++++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 78 insertions(+), 5 deletions(-)
+  login-utils/lslogins.c | 40 +++++++++++++++++++---------------------
+  1 file changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
-index 34c5fb4..bdf03ad 100644
---- a/login-utils/Makemodule.am
-+++ b/login-utils/Makemodule.am
-@@ -113,7 +113,11 @@ chfn_chsh_sources += \
- chfn_chsh_ldadd += -lselinux
- endif
- 
--chfn_SOURCES = login-utils/chfn.c $(chfn_chsh_sources)
-+chfn_SOURCES = \
-+	login-utils/chfn.c \
-+	login-utils/logindefs.c \
-+	login-utils/logindefs.h \
-+	$(chfn_chsh_sources)
- chfn_CFLAGS = $(chfn_chsh_cflags)
- chfn_LDFLAGS = $(chfn_chsh_ldflags)
- chfn_LDADD = $(LDADD) $(chfn_chsh_ldadd)
-diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-index 2a06fec..c81dbd5 100644
---- a/login-utils/chfn.c
-+++ b/login-utils/chfn.c
-@@ -40,6 +40,7 @@
- #include "setpwnam.h"
- #include "strutils.h"
- #include "xalloc.h"
-+#include "logindefs.h"
- 
- #ifdef HAVE_LIBSELINUX
- # include <selinux/selinux.h>
-@@ -71,6 +72,10 @@ struct chfn_control {
- 	 *  In the end, "newf" is folded into "oldf".  */
- 	struct finfo oldf, newf;
- 	unsigned int
-+		allow_fullname:1,	/* The login.defs restriction */
-+		allow_room:1,		   /* see: man login.defs(5) */
-+		allow_work:1,		   /* and look for CHFN_RESTRICT */
-+		allow_home:1,		   /* keyword for these four. */
- 		interactive:1;		/* whether to prompt for fields or not */
- };
- 
-@@ -143,18 +148,26 @@ static void parse_argv(struct chfn_control *ctl, int argc, char **argv)
- 				&index)) != -1) {
- 		switch (c) {
- 		case 'f':
-+			if (!ctl->allow_fullname)
-+				errx(EXIT_FAILURE, _("login.defs forbids setting %s"), _("Name"));
- 			ctl->newf.full_name = optarg;
- 			status += check_gecos_string(_("Name"), optarg);
- 			break;
- 		case 'o':
-+			if (!ctl->allow_room)
-+				errx(EXIT_FAILURE, _("login.defs forbids setting %s"), _("Office"));
- 			ctl->newf.office = optarg;
- 			status += check_gecos_string(_("Office"), optarg);
- 			break;
- 		case 'p':
-+			if (!ctl->allow_work)
-+				errx(EXIT_FAILURE, _("login.defs forbids setting %s"), _("Office Phone"));
- 			ctl->newf.office_phone = optarg;
- 			status += check_gecos_string(_("Office Phone"), optarg);
- 			break;
- 		case 'h':
-+			if (!ctl->allow_home)
-+				errx(EXIT_FAILURE, _("login.defs forbids setting %s"), _("Home Phone"));
- 			ctl->newf.home_phone = optarg;
- 			status += check_gecos_string(_("Home Phone"), optarg);
- 			break;
-@@ -233,15 +246,68 @@ static char *prompt(const char *question, char *def_val)
- }
- 
- /*
-+ *  get_login_defs()
-+ *	find /etc/login.defs CHFN_RESTRICT and save restrictions to run time
-+ */
-+static void get_login_defs(struct chfn_control *ctl)
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index cacf83c..5e1ef17 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1180,16 +1180,25 @@ static void free_user(void *f)
+  	free(u);
+  }
+
+-struct lslogins_timefmt {
+-	const char *name;
+-	int val;
+-};
++static int parse_time_mode(const char *optarg)
 +{
-+	const char *s;
++	struct lslogins_timefmt {
++		const char *name;
++		const int val;
++	};
++	static const struct lslogins_timefmt timefmts[] = {
++		{"iso", TIME_ISO},
++		{"full", TIME_FULL},
++		{"short", TIME_SHORT},
++	};
 +	size_t i;
-+	int broken = 0;
-+
-+	/* real root does not have restrictions */
-+	if (geteuid() == getuid() && getuid() == 0) {
-+		ctl->allow_fullname = ctl->allow_room = ctl->allow_work = ctl->allow_home = 1;
-+		return;
+
+-static struct lslogins_timefmt timefmts[] = {
+-	{ "short", TIME_SHORT },
+-	{ "full", TIME_FULL },
+-	{ "iso", TIME_ISO },
+-};
++	for (i = 0; i < ARRAY_SIZE(timefmts); i++) {
++		if (strcmp(timefmts[i].name, optarg) == 0)
++			return timefmts[i].val;
 +	}
-+	s = getlogindefs_str("CHFN_RESTRICT", "");
-+	if (!strcmp(s, "yes")) {
-+		ctl->allow_room = ctl->allow_work = ctl->allow_home = 1;
-+		return;
-+	}
-+	if (!strcmp(s, "no")) {
-+		ctl->allow_fullname = ctl->allow_room = ctl->allow_work = ctl->allow_home = 1;
-+		return;
-+	}
-+	for (i = 0; s[i]; i++) {
-+		switch (s[i]) {
-+		case 'f':
-+			ctl->allow_fullname = 1;
-+			break;
-+		case 'r':
-+			ctl->allow_room = 1;
-+			break;
-+		case 'w':
-+			ctl->allow_work = 1;
-+			break;
-+		case 'h':
-+			ctl->allow_home = 1;
-+			break;
-+		default:
-+			broken = 1;
-+		}
-+	}
-+	if (broken)
-+		warnx(_("%s: CHFN_RESTRICT has unexpected value: %s"), _PATH_LOGINDEFS, s);
-+	if (!ctl->allow_fullname && !ctl->allow_room && !ctl->allow_work && !ctl->allow_home)
-+		errx(EXIT_FAILURE, _("%s: CHFN_RESTRICT does not allow any changes"), _PATH_LOGINDEFS);
-+	return;
++	errx(EXIT_FAILURE, _("unknown time format: %s"), optarg);
 +}
-+
-+/*
-  *  ask_info () --
-  *	prompt the user for the finger information and store it.
-  */
- static void ask_info(struct chfn_control *ctl)
- {
--	ctl->newf.full_name = prompt(_("Name"), ctl->oldf.full_name);
--	ctl->newf.office = prompt(_("Office"), ctl->oldf.office);
--	ctl->newf.office_phone = prompt(_("Office Phone"), ctl->oldf.office_phone);
--	ctl->newf.home_phone = prompt(_("Home Phone"), ctl->oldf.home_phone);
-+	if (ctl->allow_fullname)
-+		ctl->newf.full_name = prompt(_("Name"), ctl->oldf.full_name);
-+	if (ctl->allow_room)
-+		ctl->newf.office = prompt(_("Office"), ctl->oldf.office);
-+	if (ctl->allow_work)
-+		ctl->newf.office_phone = prompt(_("Office Phone"), ctl->oldf.office_phone);
-+	if (ctl->allow_home)
-+		ctl->newf.home_phone = prompt(_("Home Phone"), ctl->oldf.home_phone);
- 	printf("\n");
- }
- 
-@@ -337,6 +403,9 @@ int main(int argc, char **argv)
- 	atexit(close_stdout);
- 	uid = getuid();
- 
-+	/* check /etc/login.defs CHFN_RESTRICT */
-+	get_login_defs(&ctl);
-+
- 	parse_argv(&ctl, argc, argv);
- 	if (!ctl.username) {
- 		ctl.pw = getpwuid(uid);
+
+  static void __attribute__((__noreturn__)) usage(FILE *out)
+  {
+@@ -1397,18 +1406,7 @@ int main(int argc, char *argv[])
+  			ctl->noheadings = 1;
+  			break;
+  		case OPT_TIME_FMT:
+-			{
+-				size_t i;
+-
+-				for (i = 0; i < ARRAY_SIZE(timefmts); i++) {
+-					if (strcmp(timefmts[i].name, optarg) == 0) {
+-						ctl->time_mode = timefmts[i].val;
+-						break;
+-					}
+-				}
+-				if (ctl->time_mode == TIME_INVALID)
+-					usage(stderr);
+-			}
++			ctl->time_mode = parse_time_mode(optarg);
+  			break;
+  		case 'V':
+  			printf(UTIL_LINUX_VERSION);
 -- 
-2.1.3
+2.2.0
 
