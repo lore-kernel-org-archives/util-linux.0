@@ -1,56 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:39652 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752140AbaK3N6N (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 30 Nov 2014 08:58:13 -0500
-Received: by mail-wg0-f47.google.com with SMTP id n12so12118462wgh.20
-        for <util-linux@vger.kernel.org>; Sun, 30 Nov 2014 05:58:12 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 08/10] include/c: define UL_ASAN_BLACKLIST address_sanitizer function attribute
-Date: Sun, 30 Nov 2014 13:57:40 +0000
-Message-Id: <1417355862-16935-9-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
-References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:38325 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751696AbaLSKHz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 19 Dec 2014 05:07:55 -0500
+Date: Fri, 19 Dec 2014 11:07:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: util-linux@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+Subject: Re: [RFC][PATCH] unshare: Fix --map-root-user to work on new kernels
+Message-ID: <20141219100749.GJ19904@x2.net.home>
+References: <87zjalkhb8.fsf@x220.int.ebiederm.org>
+ <87sigdkglg.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87sigdkglg.fsf@x220.int.ebiederm.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The UL_ASAN_BLACKLIST allows AddressSanitizer to be set off for functions
-that cannot be checked.
+On Wed, Dec 17, 2014 at 05:21:31PM -0600, Eric W. Biederman wrote:
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+> 
+> > I have just merged a security fix into the linux kernel that corrects an
+> > oversight in the permission checks of /proc/self/gid_map.
+> >
+> > The root of the issue is that unix allows anyone to specify permissions
+> > such like: --rwx---rwx on a file, and setgroups call at login time
+> > allows seting groups that even setgid exectuables don't drop.  Which
+> > results in the ability to assign a process fewer privileges just because
+> > it is in a specified group, and this makes dropping groups an unsafe
+> > operation.
+> >
+> > Therefore unprivileged writing of /proc/self/gid_map has been disabled
+> > unless /proc/self/setgroups is written first to permanently disable the
+> > ability to call setgroups in that user namespace.
 
-Reference: http://dxr.mozilla.org/mozilla-central/source/mfbt/Attributes.h
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/c.h | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-diff --git a/include/c.h b/include/c.h
-index 0f6e5b2..223f3a7 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -313,4 +313,21 @@ static inline int xusleep(useconds_t usec)
- #define stringify_value(s) stringify(s)
- #define stringify(s) #s
+ What does it mean "allow" in /proc/self/setgroups? 
  
-+/*
-+ * UL_ASAN_BLACKLIST is a macro to tell AddressSanitizer (a compile-time
-+ * instrumentation shipped with Clang and GCC) to not instrument the
-+ * annotated function.  Furthermore, it will prevent the compiler from
-+ * inlining the function because inlining currently breaks the blacklisting
-+ * mechanism of AddressSanitizer.
-+ */
-+#if defined(__has_feature)
-+# if __has_feature(address_sanitizer)
-+#  define UL_ASAN_BLACKLIST __attribute__((noinline)) __attribute__((no_sanitize_memory)) __attribute__((no_sanitize_address))
-+# else
-+#  define UL_ASAN_BLACKLIST	/* nothing */
-+# endif
-+#else
-+# define UL_ASAN_BLACKLIST	/* nothing */
-+#endif
-+
- #endif /* UTIL_LINUX_C_H */
--- 
-2.1.3
+ If I good understand than /proc/self/gid_map is unwritable until the
+ setgroups file is set to "deny", and "allow" means that gid_map is
+ disabled at all, but setgroup() syscall is possible to use in the
+ user namespace. Right?
 
+> > In part this design was chosen so that applications that are affected
+> > will break early instead of late, and in part to make it clear to
+> > everyone what is going on.
+> >
+> > I think for the experimental tool that is unshare --make-root-user we
+> > just want to flip the bit and be done with it (patch below).
+> >
+> > However we may want to require an additional option to clear setgroups,
+> > if there loging type applications running that call setgroups and having
+> > explicit breakage up front instead of more silent stealthy breakage
+> > when the application runs is desired.
+> >
+> > If we don't want any extra options working tested code is below.
+
+ Do you mean "unshare --setgroups-allow"?
+
+ (And it has to be mutually exclusive to --map-root-user.)
+
+ IMHO it's good idea to make it possible to control this feature by
+ unshare util.
+
+> This may also have some affect on the setgroups(0, NULL) case of
+> nsenter as well.
+
+ Definitely yes, if I good understand then the best way is to read
+ /proc/self/setgroups to check for "allow" before we call setgroups().
+ Now we call it all time (for --setguid).
+
+ I can write the patches.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
