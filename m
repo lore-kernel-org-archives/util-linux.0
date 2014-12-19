@@ -1,31 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:1718 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750865AbaLOKLq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Dec 2014 05:11:46 -0500
-Date: Mon, 15 Dec 2014 11:11:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 16/16] chfn: make command to obey login.defs
- CHFN_RESTRICT instructions
-Message-ID: <20141215101134.GA19904@x2.net.home>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
- <1418579052-29386-17-git-send-email-kerolasa@iki.fi>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Fri, 19 Dec 2014 09:26:55 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 10/10] ipcs: fix two data type errors
+ [AddressSanitizer]
+In-Reply-To: <20141208122102.GF19904@x2.net.home>
+Message-ID: <alpine.LNX.2.03.1412190924490.8955@iki.fi>
+References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi> <1417355862-16935-11-git-send-email-kerolasa@iki.fi> <20141208122102.GF19904@x2.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1418579052-29386-17-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 14, 2014 at 05:44:12PM +0000, Sami Kerola wrote:
-> Reference: http://man7.org/linux/man-pages/man5/login.defs.5.html
-> Addresses: https://bugzilla.redhat.com/show_bug.cgi?id=138519
+On Mon, 8 Dec 2014, Karel Zak wrote:
 
- Good idea, thanks!
+> ipc_shm_get_limits() is also broken
+>
+> The function shmctl() has to be always called with "struct shmid_ds"
+> and then cast to linux specific shmid_info struct.
+>
+> It would be nice to check that all the shm/sem/msgctl functions are
+> really called with proper arguments.
+>
+> (Or we can define any union and use it as buffer to make sure that
+>  the argument is large enough.)
 
-    Karel
+How about doing further corrections later?
+
+> BTW, horrible API (or I need more coffee to understand this art).
+
+Mostly because of I share the view above. Getting ipc api usage right is 
+not quite as easy task as one might hope.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
