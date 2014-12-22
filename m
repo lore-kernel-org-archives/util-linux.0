@@ -1,493 +1,1579 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:52322 "EHLO
-	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751129AbaLNTqD (ORCPT
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:52167 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755135AbaLVV51 (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 14 Dec 2014 14:46:03 -0500
+	Mon, 22 Dec 2014 16:57:27 -0500
 From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 6/8] docs: adjust some formatting and wordings in a handful of man pages
-Date: Sun, 14 Dec 2014 20:45:31 +0100
-Message-Id: <1418586333-5342-6-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
-References: <1418586333-5342-1-git-send-email-bensberg@justemail.net>
+Subject: [PATCH V2] textual: add a docstring to most of the utilities
+Date: Mon, 22 Dec 2014 22:57:17 +0100
+Message-Id: <1419285437-15357-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This adds a concise description of a tool to its usage text.
+
+A first form of this patch was proposed by Steven Honeyman
+(see http://www.spinics.net/lists/util-linux-ng/msg09994.html).
+
 Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- disk-utils/partx.8   |  129 +++++++++++++++++++++++++++-----------------------
- misc-utils/look.1    |   14 +++--
- misc-utils/lslocks.8 |   33 +++++-------
- misc-utils/mcookie.1 |   36 +++++++-------
- misc-utils/namei.1   |   36 +++++++++-----
- misc-utils/rename.1  |   14 +++---
- 6 files changed, 137 insertions(+), 125 deletions(-)
+ disk-utils/addpart.c      |    4 ++++
+ disk-utils/cfdisk.c       |    4 +++-
+ disk-utils/delpart.c      |    4 ++++
+ disk-utils/fdformat.c     |    3 +++
+ disk-utils/fdisk.c        |    3 +++
+ disk-utils/fsck.c         |    3 +++
+ disk-utils/fsck.cramfs.c  |    4 ++++
+ disk-utils/fsck.minix.c   |    4 ++++
+ disk-utils/isosize.c      |    4 ++++
+ disk-utils/mkfs.bfs.c     |    4 ++++
+ disk-utils/mkfs.c         |    4 ++++
+ disk-utils/mkswap.c       |    3 +++
+ disk-utils/partx.c        |    3 +++
+ disk-utils/raw.c          |    4 ++++
+ disk-utils/resizepart.c   |    4 ++++
+ disk-utils/sfdisk.c       |    3 +++
+ disk-utils/swaplabel.c    |    4 ++++
+ login-utils/chfn.c        |    4 ++++
+ login-utils/chsh.c        |    4 ++++
+ login-utils/last.c        |    3 +++
+ login-utils/login.c       |    2 ++
+ login-utils/lslogins.c    |    3 +++
+ login-utils/newgrp.c      |    4 ++++
+ login-utils/nologin.c     |    4 +++-
+ login-utils/sulogin.c     |    3 +++
+ login-utils/utmpdump.c    |    3 +++
+ login-utils/vipw.c        |    4 ++++
+ misc-utils/findfs.c       |    4 ++++
+ misc-utils/findmnt.c      |    3 +++
+ misc-utils/getopt.c       |    3 +++
+ misc-utils/kill.c         |    3 +++
+ misc-utils/logger.c       |    3 +++
+ misc-utils/look.c         |    4 ++++
+ misc-utils/lsblk.c        |    4 ++++
+ misc-utils/lslocks.c      |    3 +++
+ misc-utils/mcookie.c      |    3 +++
+ misc-utils/namei.c        |    4 ++++
+ misc-utils/rename.c       |    4 ++++
+ misc-utils/uuidd.c        |    3 +++
+ misc-utils/uuidgen.c      |    3 +++
+ misc-utils/whereis.c      |    3 +++
+ misc-utils/wipefs.c       |    4 ++++
+ schedutils/chrt.c         |    2 +-
+ schedutils/ionice.c       |    3 +++
+ schedutils/taskset.c      |    4 ++++
+ sys-utils/blkdiscard.c    |    4 ++++
+ sys-utils/chcpu.c         |    3 +++
+ sys-utils/ctrlaltdel.c    |    4 ++++
+ sys-utils/dmesg.c         |    4 ++++
+ sys-utils/eject.c         |    4 +++-
+ sys-utils/fallocate.c     |    5 ++++-
+ sys-utils/flock.c         |    4 ++++
+ sys-utils/fsfreeze.c      |    4 ++++
+ sys-utils/fstrim.c        |    4 ++++
+ sys-utils/hwclock.c       |    3 +++
+ sys-utils/ipcmk.c         |    5 ++++-
+ sys-utils/ipcrm.c         |    6 +++++-
+ sys-utils/ipcs.c          |    6 +++++-
+ sys-utils/ldattach.c      |    5 ++++-
+ sys-utils/losetup.c       |    3 +++
+ sys-utils/lscpu.c         |    3 +++
+ sys-utils/mount.c         |    3 +++
+ sys-utils/mountpoint.c    |    3 +++
+ sys-utils/nsenter.c       |    3 +++
+ sys-utils/pivot_root.c    |    4 ++++
+ sys-utils/prlimit.c       |    3 +++
+ sys-utils/readprofile.c   |    5 ++++-
+ sys-utils/renice.c        |    4 ++++
+ sys-utils/rtcwake.c       |    3 +++
+ sys-utils/setarch.c       |    4 ++++
+ sys-utils/setpriv.c       |    3 +++
+ sys-utils/setsid.c        |    3 +++
+ sys-utils/swapoff.c       |    4 +++-
+ sys-utils/swapon.c        |    4 +++-
+ sys-utils/switch_root.c   |    4 ++++
+ sys-utils/tunelp.c        |    3 +++
+ sys-utils/umount.c        |    3 +++
+ sys-utils/unshare.c       |    3 +++
+ sys-utils/wdctl.c         |    4 +++-
+ sys-utils/zramctl.c       |    3 +++
+ term-utils/agetty.c       |    4 ++++
+ term-utils/mesg.c         |    4 ++++
+ term-utils/script.c       |    3 +++
+ term-utils/scriptreplay.c |    3 +++
+ term-utils/setterm.c      |    4 ++++
+ term-utils/wall.c         |    4 ++++
+ term-utils/write.c        |    3 +++
+ text-utils/col.c          |    3 +++
+ text-utils/colcrt.c       |    4 ++++
+ text-utils/colrm.c        |    4 ++++
+ text-utils/column.c       |    4 ++++
+ text-utils/hexdump.c      |    4 ++++
+ text-utils/line.c         |    4 ++++
+ text-utils/more.c         |    4 ++++
+ text-utils/pg.c           |    4 ++++
+ text-utils/rev.c          |    4 ++++
+ text-utils/tailf.c        |    3 +++
+ text-utils/ul.c           |    5 ++++-
+ 98 files changed, 343 insertions(+), 14 deletions(-)
 
-diff --git a/disk-utils/partx.8 b/disk-utils/partx.8
-index 005fe66..fb0fe38 100644
---- a/disk-utils/partx.8
-+++ b/disk-utils/partx.8
-@@ -3,7 +3,8 @@
- .\" Copyright 2007 Red Hat, Inc.
- .\" Copyright 2010 Davidlohr Bueso <dave@gnu.org>
- .\" May be distributed under the GNU General Public License
--.TH PARTX "8" "June 2012" "util-linux" "System Administration"
-+.\"
-+.TH PARTX "8" "December 2014" "util-linux" "System Administration"
- .SH NAME
- partx \- tell the Linux kernel about the presence and numbering of on-disk partitions
- .SH SYNOPSIS
-@@ -43,24 +44,49 @@ The
- tells the kernel about the presence and numbering of on-disk
- partitions.
- .SH OPTIONS
--.IP "\fB\-a\fR, \fB\-\-add\fP"
-+.TP
-+.BR \-a , " \-\-add"
- Add the specified partitions, or read the disk and add all partitions.
--.IP "\fB\-b\fR, \fB\-\-bytes\fP"
-+.TP
-+.BR \-b , " \-\-bytes"
- Print the SIZE column in bytes rather than in human-readable format.
--.IP "\fB\-d\fR, \fB\-\-delete\fP"
-+.TP
-+.BR \-d , " \-\-delete"
- Delete the specified partitions or all partitions.
--.IP "\fB\-u\fR, \fB\-\-update\fP"
--Update the specified partitions.
--.IP "\fB\-g\fR, \fB\-\-noheadings\fP"
-+.TP
-+.BR \-g , " \-\-noheadings"
- Do not print a header line.
--.IP "\fB\-h\fR, \fB\-\-help\fP"
--Display help text and exit.
--.IP "\fB\-l\fR, \fB\-\-list\fP"
-+.TP
-+.BR \-l , " \-\-list"
- List the partitions.  Note that all numbers are in 512-byte sectors.
- This output format is DEPRECATED in favour of
- .BR \-\-show .
- Do not use it in newly written scripts.
--.IP "\fB\-o\fR, \fB\-\-output \fIlist\fP"
-+.TP
-+.BR \-n , " \-\-nr " \fIM : \fIN
-+Specify the range of partitions.  For backward compatibility also the
-+format \fIM\fB\-\fIN\fR is supported.
-+The range may contain negative numbers, for example
-+.B \-\-nr :\-1
-+means the last partition, and
-+.B \-\-nr \-2:\-1
-+means the last two partitions.  Supported range specifications are:
-+.RS 14
-+.TP
-+.I M
-+Specifies just one partition (e.g.\& \fB\-\-nr 3\fR).
-+.TP
-+.IB M :
-+Specifies the lower limit only (e.g.\& \fB\-\-nr 2:\fR).
-+.TP
-+.BI : N
-+Specifies the upper limit only (e.g.\& \fB\-\-nr :4\fR).
-+.TP
-+.IB M : N
-+Specifies the lower and upper limits (e.g.\& \fB\-\-nr 2:4\fR).
-+.RE
-+.TP
-+.BR \-o , " \-\-output " \fIlist
- Define the output columns to use for
- .B \-\-show
- and
-@@ -70,66 +96,49 @@ used.  Use
- .B \-\-help
- to get
- .I list
--of all supported columns.  This option cannot be combined with
-+of all supported columns.  This option cannot be combined with the
- .BR \-\-add ,
- .BR \-\-delete ,
- or
- .B \-\-list
- options.
--.IP "\fB\-P\fR, \fB\-\-pairs\fP"
--Output using key="value" format.
--.IP "\fB\-n\fR, \fB\-\-nr \fIM:N\fP"
--Specify the range of partitions.  For backward compatibility also the
--format
--.I M\(enN
--is supported.  The range may contain negative numbers, for example
--.BI \-\-nr \ :\-1
--means the last partition, and
--.BI \-\-nr \ \-2:\-1
--means the last two partitions.  Supported range specifications are:
--.RS 14
- .TP
--.I M
--Specifies just one partition (e.g.\& \fB\-\-nr\fR
--.IR 3 ).
-+.BR \-P , " \-\-pairs"
-+Output using key="value" format.
- .TP
--.I M:
--Specifies lower limit only (e.g.\& \fB\-\-nr\fR
--.IR 2: ).
-+.BR \-r , " \-\-raw"
-+Use the raw output format.
- .TP
--.I :N
--Specifies upper limit only (e.g.\& \fB\-\-nr\fR
--.IR :4 ).
-+.BR \-s , "\-\-show"
-+List the partitions.  All numbers (except SIZE) are in 512-byte sectors.
-+The output columns can be rearranged with the \fB\-\-output\fR option.
- .TP
--.IR M:N \ or
--.TQ
--.I M\(enN
--Specifies lower and upper limits (e.g.\& \fB\-\-nr\fR
--.IR 2:4 ).
--.RE
--.IP "\fB\-r\fR, \fB\-\-raw\fP"
--Use the raw output format.
--.IP "\fB\-s\fR, \fB\-\-show\fP"
--List the partitions.  All numbers (except SIZE) are in 512-byte
--sectors.  The output columns can be rearranged with the
--.B \-\-output
--option.
--.IP "\fB\-t\fR, \fB\-\-type \fItype\fP"
--Specify the partition table type
--.IR aix ,
--.IR bsd ,
--.IR dos ,
--.IR gpt ,
--.IR mac ,
--.IR minix ,
--.IR sgi ,
--.IR solaris_x86 ,
--.IR sun ,
--.IR ultrix ,
-+.BR \-t , " \-\-type " \fItype
-+Specify the partition table type, which can be one of
-+.BR aix ,
-+.BR bsd ,
-+.BR dos ,
-+.BR gpt ,
-+.BR mac ,
-+.BR minix ,
-+.BR sgi ,
-+.BR solaris_x86 ,
-+.BR sun ,
-+.BR ultrix ,
- or
--.IR unixware .
--.IP "\fB\-v\fR, \fB\-\-verbose\fP"
-+.BR unixware .
-+.TP
-+.BR \-u , " \-\-update"
-+Update the specified partitions.
-+.TP
-+.BR \-v , " \-\-verbose"
- Verbose mode.
-+.TP
-+.BR \-V , " \-\-version"
-+Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
- .SH EXAMPLES
- .TP
- partx \-\-show /dev/sdb3
-diff --git a/misc-utils/look.1 b/misc-utils/look.1
-index 21edb66..d54751c 100644
---- a/misc-utils/look.1
-+++ b/misc-utils/look.1
-@@ -49,7 +49,9 @@ As
- .B look
- performs a binary search, the lines in
- .I file
--must be sorted (where sort(1) got the same options
-+must be sorted (where
-+.BR sort (1)
-+was given the same options
- .BR "\-d " and/or " \-f " that
- .B look
- is invoked with).
-@@ -78,11 +80,11 @@ Specify a string termination character, i.e. only the characters
- in \fIstring\fR up to and including the first occurrence of \fIcharacter\fR
- are compared.
- .TP
--.BR \-h , " \-\-help"
--Display help text and exit.
--.TP
- .BR \-V , " \-\-version"
- Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
- .PP
- The
- .B look
-@@ -106,8 +108,8 @@ the alternative dictionary
- .BR sort (1)
- .SH COMPATIBILITY
- The original manual page stated that tabs and blank characters participated
--in comparisons when the alphanum option was specified.  This was incorrect,
--and the current man page matches the historic implementation.
-+in comparisons when the \fB\-\-alphanum\fR option was specified.  This was
-+incorrect, and the current man page matches the historic implementation.
- .SH HISTORY
- The
- .B look
-diff --git a/misc-utils/lslocks.8 b/misc-utils/lslocks.8
-index 70a5638..83c7585 100644
---- a/misc-utils/lslocks.8
-+++ b/misc-utils/lslocks.8
-@@ -3,7 +3,7 @@
- .\" Copyright 2012 Davidlohr Bueso <dave@gnu.org>
- .\" May be distributed under the GNU General Public License
+diff --git a/disk-utils/addpart.c b/disk-utils/addpart.c
+index c0f25a5..73fd1ff 100644
+--- a/disk-utils/addpart.c
++++ b/disk-utils/addpart.c
+@@ -13,6 +13,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s <disk device> <partition number> <start> <length>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Tell the kernel about the existence of a specified partition.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 14a75c5..bc3f4f2 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -2156,10 +2156,12 @@ static int ui_run(struct cfdisk *cf)
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+-
+ 	fprintf(out,
+ 	      _(" %1$s [options] <disk>\n"), program_invocation_short_name);
  
--.TH LSLOCKS 8 "February 2012" "util-linux" "System Administration"
-+.TH LSLOCKS 8 "December 2014" "util-linux" "System Administration"
- .SH NAME
- lslocks \- list local system locks
- .SH SYNOPSIS
-@@ -16,9 +16,6 @@ lists information about all the currently held file locks in a Linux system.
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display or manipulate a disk partition table.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -L --color[=<when>]     colorize output (auto, always or never)\n"), out);
+ 	fputs(_(" -z --zero               start with zeroed partition table\n"), out);
+diff --git a/disk-utils/delpart.c b/disk-utils/delpart.c
+index e940e3b..efa7a70 100644
+--- a/disk-utils/delpart.c
++++ b/disk-utils/delpart.c
+@@ -13,6 +13,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s <disk device> <partition number>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Tell the kernel to forget about a specified partition.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/disk-utils/fdformat.c b/disk-utils/fdformat.c
+index c6a98e1..ad9a863 100644
+--- a/disk-utils/fdformat.c
++++ b/disk-utils/fdformat.c
+@@ -143,6 +143,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out, _(" %s [options] <device>\n"),
+ 		program_invocation_short_name);
  
- .SH OPTIONS
- .TP
--.BR \-h , " \-\-help"
--Display help text and exit.
--.TP
- .BR \-n , " \-\-noheadings"
- Do not print a header line.
- .TP
-@@ -38,47 +35,45 @@ Use the raw output format.
- .TP
- .BR \-u , " \-\-notruncate"
- Do not truncate text in columns.
-+.TP
-+.BR \-V , " \-\-version"
-+Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Do a low-level formatting of a floppy disk.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --from <N>    start at the track N (default 0)\n"), out);
+ 	fputs(_(" -t, --to <N>      stop at the track N\n"), out);
+diff --git a/disk-utils/fdisk.c b/disk-utils/fdisk.c
+index cf86281..9c3e103 100644
+--- a/disk-utils/fdisk.c
++++ b/disk-utils/fdisk.c
+@@ -636,6 +636,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	        " %1$s [options] -l [<disk>] list partition table(s)\n"),
+ 	       program_invocation_short_name);
  
- .SH OUTPUT
- .IP "COMMAND"
- The command name of the process holding the lock.
--
- .IP "PID"
- The process ID of the process which holds the lock.
--
- .IP "TYPE"
--The type of lock; can be FLOCK (created with flock(2)) or POSIX (created with fcntl(2) and lockf(3)).
--
-+The type of lock; can be FLOCK (created with \fBflock\fR(2)) or POSIX
-+(created with \fBfcntl\fR(2) and \fBlockf\fR(3)).
- .IP "SIZE"
- Size of the locked file.
--
- .IP "MODE"
- The lock's access permissions (read, write).  If the process is blocked and waiting for the lock,
- then the mode is postfixed with an '*' (asterisk).
--
- .IP "M"
- Whether the lock is mandatory; 0 means no (meaning the lock is only advisory), 1 means yes.
--(See fcntl(2)).
--
-+(See \fBfcntl\fR(2).)
- .IP "START"
- Relative byte offset of the lock.
--
- .IP "END"
- Ending offset of the lock.
--
- .IP "PATH"
- Full path of the lock.  If none is found, or there are no permissions to read the path,
- it will fall back to the device's mountpoint.  The path might be truncated; use
--.B "--notruncate"
--to get the full path.
--
-+\fB\-\-notruncate\fR to get the full path.
- .IP "BLOCKER"
- The PID of the process which blocks the lock.
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display or manipulate a disk partition table.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -b, --sector-size <size>      physical and logical sector size\n"), out);
+ 	fputs(_(" -c, --compatibility[=<mode>]  mode is 'dos' or 'nondos' (default)\n"), out);
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index a0f9db1..535184e 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -1355,6 +1355,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out, _(" %s [options] -- [fs-options] [<filesystem> ...]\n"),
+ 			 program_invocation_short_name);
  
- .SH NOTES
- .nf
--The lslocks command is meant to replace the lslk(8) command, originally written by
--Victor A. Abell <abe@purdue.edu> and unmaintained since 2001.
-+The \fBlslocks\fR command is meant to replace the \fBlslk\fR(8) command,
-+originally written by Victor A. Abell <abe@purdue.edu> and unmaintained
-+since 2001.
- .fi
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Check and repair a Linux filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -A         check all filesystems\n"), out);
+ 	fputs(_(" -C [<fd>]  display progress bar; file descriptor is for GUIs\n"), out);
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 0a1c6f2..6b4b69e 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -106,6 +106,10 @@ static void __attribute__((__noreturn__)) usage(int status)
+ 	fputs(USAGE_HEADER, stream);
+ 	fprintf(stream,
+ 		_(" %s [options] <file>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, stream);
++	fputs(_("Check and repair a compressed ROM filesystem.\n"), stream);
++
+ 	fputs(USAGE_OPTIONS, stream);
+ 	fputs(_(" -a                       for compatibility only, ignored\n"), stream);
+ 	fputs(_(" -v, --verbose            be more verbose\n"), stream);
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index c0ed017..9d47548 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -193,6 +193,10 @@ usage(void) {
+ 	fputs(USAGE_HEADER, stderr);
+ 	fprintf(stderr,
+ 		_(" %s [options] <device>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, stderr);
++	fputs(_("Check the consistency of a Minix filesystem.\n"), stderr);
++
+ 	fputs(USAGE_OPTIONS, stderr);
+ 	fputs(_(" -l  list all filenames\n"), stderr);
+ 	fputs(_(" -a  automatic repair\n"), stderr);
+diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
+index 5030a50..43569ae 100644
+--- a/disk-utils/isosize.c
++++ b/disk-utils/isosize.c
+@@ -169,6 +169,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out,
+ 		_(" %s [options] <iso9660_image_file>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show the length of an ISO-9660 filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -d, --divisor=<number>  divide the amount of bytes by <number>\n"), out);
+ 	fputs(_(" -x, --sectors           show sector count and size\n"), out);
+diff --git a/disk-utils/mkfs.bfs.c b/disk-utils/mkfs.bfs.c
+index c2c2389..98e4b05 100644
+--- a/disk-utils/mkfs.bfs.c
++++ b/disk-utils/mkfs.bfs.c
+@@ -72,6 +72,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 		_("Usage: %s [options] device [block-count]\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Make an SCO bfs filesystem.\n"), out);
++
+ 	fprintf(out, _("\nOptions:\n"
+ 		       " -N, --inodes=NUM    specify desired number of inodes\n"
+ 		       " -V, --vname=NAME    specify volume name\n"
+diff --git a/disk-utils/mkfs.c b/disk-utils/mkfs.c
+index 8ad6065..08c4ef0 100644
+--- a/disk-utils/mkfs.c
++++ b/disk-utils/mkfs.c
+@@ -47,6 +47,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] [-t <type>] [fs-options] <device> [<size>]\n"),
+ 		     program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Make a Linux filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fprintf(out, _(" -t, --type=<type>  filesystem type; when unspecified, ext2 is used\n"));
+ 	fprintf(out, _("     fs-options     parameters for the real filesystem builder\n"));
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index d34e2fd..b22c73f 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -149,6 +149,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 		  " %s [options] device [size]\n"),
+ 		program_invocation_short_name);
  
- .SH AUTHORS
-diff --git a/misc-utils/mcookie.1 b/misc-utils/mcookie.1
-index 6587c57..5863821 100644
---- a/misc-utils/mcookie.1
-+++ b/misc-utils/mcookie.1
-@@ -1,6 +1,6 @@
- .\" mcookie.1 --
- .\" Public Domain 1995 Rickard E. Faith (faith@cs.unc.edu)
--.TH MCOOKIE 1 "March 2014" "util-linux" "User Commands"
-+.TH MCOOKIE 1 "December 2014" "util-linux" "User Commands"
- .SH NAME
- mcookie \- generate magic cookies for xauth
- .SH SYNOPSIS
-@@ -10,30 +10,28 @@ mcookie \- generate magic cookies for xauth
- .B mcookie
- generates a 128-bit random hexadecimal number for use with the X authority
- system.  Typical usage:
-+.sp
- .RS
--xauth add :0 . `mcookie`
-+.B xauth add :0 . `mcookie`
- .RE
- .PP
--The "random" number generated is actually the output of the MD5 message
--digest fed with random information from one of the sources
-+The "random" number generated is actually the MD5 message
-+digest of random information coming from one of the sources
- .IR /dev/urandom ,
- .IR /dev/random ,
--or
--.I "libc pseudo-random functions"
-+or the
-+.IR "libc pseudo-random functions" ,
- in this preference order.
- .SH OPTIONS
- .TP
--\fB\-f\fR, \fB\-\-file\fR=\fIFILE\fR
--Use additional file as a macig cookie random seed.  When file is defined
--as '-' character input is read from stdin.
-+.BR \-f , " \-\-file " \fIfile
-+Use this \fIfile\fR as an additional source of randomness.
-+When \fIfile\fR is '-', characters are read from standard input.
- .TP
--\fB\-m\fR, \fB\-\-max\-size\fR=\fInumber\fR
--Read form
--.I FILE
--only
--.I number
--of bytes.  This option is meant to be used when reading additional
--randomness from a device.
-+.BR \-m , " \-\-max\-size " \fInumber
-+Read from \fIfile\fR only this \fInumber\fR of bytes.
-+This option is meant to be used when reading additional
-+randomness from a file or device.
- .IP
- The
- .I number
-@@ -42,14 +40,14 @@ MiB=1024*1024, and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB" is
- optional, e.g., "K" has the same meaning as "KiB") or the suffixes
- KB=1000, MB=1000*1000, and so on for GB, TB, PB, EB, ZB and YB.
- .TP
--\fB\-v\fR, \fB\-\-verbose\fR
-+.BR \-v , " \-\-verbose"
- Inform where randomness originated, with amount of entropy read from each
- source.
- .TP
--\fB\-V\fR, \fB\-\-version\fR
-+.BR \-V , " \-\-version"
- Display version information and exit.
- .TP
--\fB\-h\fR, \fB\-\-help\fR
-+.BR \-h , " \-\-help"
- Display help text and exit.
- .SH BUGS
- It is assumed that none of the randomness sources will block.
-diff --git a/misc-utils/namei.1 b/misc-utils/namei.1
-index 610d97c..c19ac46 100644
---- a/misc-utils/namei.1
-+++ b/misc-utils/namei.1
-@@ -10,7 +10,7 @@ namei \- follow a pathname until a terminal point is found
- .IR pathname ...
- .SH DESCRIPTION
- .B namei
--uses its arguments as pathnames to any type
-+interprets its arguments as pathnames to any type
- of Unix file (symlinks, files, directories, and so forth).
- .B namei
- then follows each pathname until an endpoint
-@@ -41,29 +41,37 @@ uses the following characters to identify the file type found:
- prints an informative message when
- the maximum number of symbolic links this system can have has been exceeded.
- .SH OPTIONS
--.IP "\fB\-l, \-\-long\fP"
--Use the long listing format (same as -m -o -v).
--.IP "\fB\-m, \-\-modes\fP"
-+.TP
-+.BR \-l , " \-\-long"
-+Use the long listing format (same as \fB\-m \-o \-v\fR).
-+.TP
-+.BR \-m , " \-\-modes"
- Show the mode bits of each file type in the style of ls(1),
- for example 'rwxr-xr-x'.
--.IP "\fB\-o, \-\-owners\fP"
--Show owner and group name of each file.
--.IP "\fB\-n, \-\-nosymlinks\fP"
-+.TP
-+.BR \-n , " \-\-nosymlinks"
- Don't follow symlinks.
--.IP "\fB\-v, \-\-vertical\fP"
-+.TP
-+.BR \-o , " \-\-owners"
-+Show owner and group name of each file.
-+.TP
-+.BR \-v , " \-\-vertical"
- Vertically align the modes and owners.
--.IP "\fB\-x, \-\-mountpoints\fP"
-+.TP
-+.BR \-x , " \-\-mountpoints"
- Show mountpoint directories with a 'D' rather than a 'd'.
--.IP "\fB\-h\fR, \fB\-\-help\fR"
--Display help text and exit.
--.IP "\fB\-V\fR, \fB\-\-version\fR"
-+.TP
-+.BR \-V , " \-\-version"
- Display version information and exit.
-+.TP
-+.BR \-h , " \-\-help"
-+Display help text and exit.
- .SH AUTHOR
- The original
- .B namei
- program was written by Roger Southwick <rogers@amadeus.wr.tek.com>.
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set up a Linux swap area.\n"), out);
++
+ 	fprintf(out, _(
+ 		"\nOptions:\n"
+ 		" -c, --check               check bad blocks before creating the swap area\n"
+diff --git a/disk-utils/partx.c b/disk-utils/partx.c
+index bf5a4ab..00c2631 100644
+--- a/disk-utils/partx.c
++++ b/disk-utils/partx.c
+@@ -713,6 +713,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	      _(" %s [-a|-d|-s|-u] [--nr <n:m> | <partition>] <disk>\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Tell the kernel about the presence and numbering of partitions.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --add            add specified partitions or all of them\n"), out);
+ 	fputs(_(" -d, --delete         delete specified partitions or all of them\n"), out);
+diff --git a/disk-utils/raw.c b/disk-utils/raw.c
+index 2adbf00..cc66901 100644
+--- a/disk-utils/raw.c
++++ b/disk-utils/raw.c
+@@ -54,6 +54,10 @@ static void __attribute__ ((__noreturn__)) usage(int err)
+ 		  " %1$s -q %2$srawN\n"
+ 		  " %1$s -qa\n"), program_invocation_short_name,
+ 		_PATH_RAWDEVDIR);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Bind a raw character device to a block device.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -q, --query    set query mode\n"), out);
+ 	fputs(_(" -a, --all      query all raw devices\n"), out);
+diff --git a/disk-utils/resizepart.c b/disk-utils/resizepart.c
+index 765e3a4..9a6235b 100644
+--- a/disk-utils/resizepart.c
++++ b/disk-utils/resizepart.c
+@@ -18,6 +18,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s <disk device> <partition number> <length>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Tell the kernel about the new size of a partition.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 73a1331..499dd8f 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -1310,6 +1310,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	      _(" %1$s [options] <dev> [[-N] <part>]\n"
+ 		" %1$s [options] <command>\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display or manipulate a disk partition table.\n"), out);
++
+ 	fputs(_("\nCommands:\n"), out);
+ 	fputs(_(" -a, --activate <dev> [<part> ...] list or set bootable MBR partitions\n"), out);
+ 	fputs(_(" -d, --dump <dev>                  dump partition table (usable for later input)\n"), out);
+diff --git a/disk-utils/swaplabel.c b/disk-utils/swaplabel.c
+index a7498a4..89be2ae 100644
+--- a/disk-utils/swaplabel.c
++++ b/disk-utils/swaplabel.c
+@@ -116,6 +116,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <device>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display or change the label or UUID of a swap area.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -L, --label <label> specify a new label\n"
+ 		" -U, --uuid <uuid>   specify a new uuid\n"), out);
+diff --git a/login-utils/chfn.c b/login-utils/chfn.c
+index 15f897c..02a009c 100644
+--- a/login-utils/chfn.c
++++ b/login-utils/chfn.c
+@@ -87,6 +87,10 @@ static void __attribute__((__noreturn__)) usage(FILE *fp)
+ {
+ 	fputs(USAGE_HEADER, fp);
+ 	fprintf(fp, _(" %s [options] [<username>]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, fp);
++	fputs(_("Change your finger information.\n"), fp);
++
+ 	fputs(USAGE_OPTIONS, fp);
+ 	fputs(_(" -f, --full-name <full-name>  real name\n"), fp);
+ 	fputs(_(" -o, --office <office>        office number\n"), fp);
+diff --git a/login-utils/chsh.c b/login-utils/chsh.c
+index 76c3d21..cba21a8 100644
+--- a/login-utils/chsh.c
++++ b/login-utils/chsh.c
+@@ -70,6 +70,10 @@ static void __attribute__((__noreturn__)) usage (FILE *fp)
+ {
+ 	fputs(USAGE_HEADER, fp);
+ 	fprintf(fp, _(" %s [options] [<username>]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, fp);
++	fputs(_("Change your login shell.\n"), fp);
++
+ 	fputs(USAGE_OPTIONS, fp);
+ 	fputs(_(" -s, --shell <shell>  specify login shell\n"), fp);
+ 	fputs(_(" -l, --list-shells    print list of shells and exit\n"), fp);
+diff --git a/login-utils/last.c b/login-utils/last.c
+index bf2c2da..e646cab 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -555,6 +555,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out, _(
+ 		" %s [options] [<username>...] [<tty>...]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show a listing of last logged in users.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -<number>            how many lines to show\n"), out);
+ 	fputs(_(" -a, --hostlast       display hostnames in the last column\n"), out);
+diff --git a/login-utils/login.c b/login-utils/login.c
+index f07358f..8772068 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1190,6 +1190,8 @@ int main(int argc, char **argv)
+ 		case '?':
+ 		default:
+ 			fprintf(stderr, _("Usage: login [-p] [-h <host>] [-H] [[-f] <username>]\n"));
++			fputs(USAGE_SEPARATOR, stderr);
++			fputs(_("Begin a session on the system.\n"), stderr);
+ 			exit(EXIT_FAILURE);
+ 		}
+ 	argc -= optind;
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 0e99529..ef7096a 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1204,6 +1204,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display information about known users in the system.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --acc-expiration     display info about passwords expiration\n"), out);
+ 	fputs(_(" -c, --colon-separate     display data in a format similar to /etc/passwd\n"), out);
+diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
+index 58c9078..7403f5c 100644
+--- a/login-utils/newgrp.c
++++ b/login-utils/newgrp.c
+@@ -164,6 +164,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, _(" %s <group>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Log in to a new group.\n"), out);
++
+ 	fprintf(out, USAGE_OPTIONS);
+ 	fprintf(out, USAGE_HELP);
+ 	fprintf(out, USAGE_VERSION);
+diff --git a/login-utils/nologin.c b/login-utils/nologin.c
+index a4fb82d..3be50ca 100644
+--- a/login-utils/nologin.c
++++ b/login-utils/nologin.c
+@@ -21,10 +21,12 @@
+ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
 -
--The program was re-written by Karel Zak <kzak@redhat.com>.
-+.sp
-+The program was rewritten by Karel Zak <kzak@redhat.com>.
- .SH BUGS
- To be discovered.
- .SH "SEE ALSO"
-diff --git a/misc-utils/rename.1 b/misc-utils/rename.1
-index c166c51..f63d2f2 100644
---- a/misc-utils/rename.1
-+++ b/misc-utils/rename.1
-@@ -16,16 +16,16 @@ in their name by
- .IR replacement .
- .SH OPTIONS
- .TP
--\fB\-v\fR, \fB\-\-verbose\fR
--Give visual feedback which files where renamed, if any.
-+.BR \-s , " \-\-symlink"
-+Do not rename a symlink but its target.
- .TP
--\fB\-V\fR, \fB\-\-version\fR
--Display version information and exit.
-+.BR \-v , " \-\-verbose"
-+Show which files where renamed, if any.
- .TP
--\fB\-s\fR, \fB\-\-symlink\fR
--Peform rename on symlink target
-+.BR \-V , " \-\-version"
-+Display version information and exit.
- .TP
--\fB\-h\fR, \fB\-\-help\fR
-+.BR \-h , " \-\-help"
- Display help text and exit.
- .SH EXAMPLES
- Given the files
+ 	fprintf(out,
+ 		_(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Politely refuse a login.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index f0e88a4..f4d68c4 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -821,6 +821,9 @@ static void usage(FILE *out)
+ 	fprintf(out, _(
+ 		" %s [options] [tty device]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Single-user login.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -p, --login-shell        start a login shell\n"
+ 		" -t, --timeout <seconds>  max time to wait for a password (default: no limit)\n"
+diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
+index e1fefc6..79bdf33 100644
+--- a/login-utils/utmpdump.c
++++ b/login-utils/utmpdump.c
+@@ -297,6 +297,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out,
+ 		_(" %s [options] [filename]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Dump UTMP and WTMP files in raw format.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --follow         output appended data as the file grows\n"), out);
+ 	fputs(_(" -r, --reverse        write back dumped data into utmp file\n"), out);
+diff --git a/login-utils/vipw.c b/login-utils/vipw.c
+index ca90f65..668f4d8 100644
+--- a/login-utils/vipw.c
++++ b/login-utils/vipw.c
+@@ -297,6 +297,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, " %s\n", program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Edit the password or group file.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
+index 59f9ce0..e260541 100644
+--- a/misc-utils/findfs.c
++++ b/misc-utils/findfs.c
+@@ -27,6 +27,10 @@ static void __attribute__((__noreturn__)) usage(int rc)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] {LABEL,UUID,PARTUUID,PARTLABEL}=<value>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Find a filesystem by label or UUID.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index 75099d9..153ea45 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -1176,6 +1176,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	" %1$s [options] [--source <device>] [--target <mountpoint>]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Find a (mounted) filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -s, --fstab            search in static table of filesystems\n"), out);
+ 	fputs(_(" -m, --mtab             search in table of mounted filesystems\n"), out);
+diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
+index 85cac32..c166fd7 100644
+--- a/misc-utils/getopt.c
++++ b/misc-utils/getopt.c
+@@ -319,6 +319,9 @@ static void __attribute__ ((__noreturn__)) print_help(void)
+ 		" %1$s [options] -o|--options <optstring> [options] [--] <parameters>\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, stderr);
++	fputs(_("Parse command options.\n"), stderr);
++
+ 	fputs(USAGE_OPTIONS, stderr);
+ 	fputs(_(" -a, --alternative             allow long options starting with single -\n"), stderr);
+ 	fputs(_(" -l, --longoptions <longopts>  the long options to be recognized\n"), stderr);
+diff --git a/misc-utils/kill.c b/misc-utils/kill.c
+index f8cb7dd..01730db 100644
+--- a/misc-utils/kill.c
++++ b/misc-utils/kill.c
+@@ -305,6 +305,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <pid>|<name>...\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Forcibly terminate a process.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all              do not restrict the name-to-pid conversion to processes\n"
+ 		"                          with the same uid as the present process\n"), out);
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 2994dc0..35caf9d 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -510,6 +510,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] [<message>]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Enter messages into the system log.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -i, --id[=<id>]       log <id> (default is PID)\n"), out);
+ 	fputs(_(" -f, --file <file>     log the contents of this file\n"), out);
+diff --git a/misc-utils/look.c b/misc-utils/look.c
+index 51938f2..50bc4f4 100644
+--- a/misc-utils/look.c
++++ b/misc-utils/look.c
+@@ -366,6 +366,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] string [file]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display lines beginning with a specified string.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --alternative      use alternative dictionary\n"
+ 		" -d, --alphanum         compare only alphanumeric characters\n"
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index e29901f..8a38b9e 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -1523,6 +1523,10 @@ static void __attribute__((__noreturn__)) help(FILE *out)
+ 
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] [<device> ...]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("List information about block devices.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all            print all devices\n"), out);
+ 	fputs(_(" -b, --bytes          print SIZE in bytes rather than in human readable format\n"), out);
+diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
+index 83d7b90..045186a 100644
+--- a/misc-utils/lslocks.c
++++ b/misc-utils/lslocks.c
+@@ -506,6 +506,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 		_(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("List local system locks.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -p, --pid <pid>        process id\n"
+ 		" -o, --output <list>    define which output columns to use\n"
+diff --git a/misc-utils/mcookie.c b/misc-utils/mcookie.c
+index c370c2a..ee8ec38 100644
+--- a/misc-utils/mcookie.c
++++ b/misc-utils/mcookie.c
+@@ -81,6 +81,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Generate magic cookies for xauth.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --file <file>     use file as a cookie seed\n"), out);
+ 	fputs(_(" -m, --max-size <num>  limit how much is read from seed files\n"), out);
+diff --git a/misc-utils/namei.c b/misc-utils/namei.c
+index ff58c9b..3af0380 100644
+--- a/misc-utils/namei.c
++++ b/misc-utils/namei.c
+@@ -427,6 +427,10 @@ static void usage(int rc)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] <pathname>...\n"), p);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Follow a pathname until a terminal point is found.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -h, --help          displays this help text\n"
+ 		" -V, --version       output version information and exit\n"
+diff --git a/misc-utils/rename.c b/misc-utils/rename.c
+index 1bb23cd..5ecf86c 100644
+--- a/misc-utils/rename.c
++++ b/misc-utils/rename.c
+@@ -116,6 +116,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 	      _(" %s [options] <expression> <replacement> <file>...\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Rename files.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -v, --verbose    explain what is being done\n"), out);
+ 	fputs(_(" -s, --symlink    act on the target of symlinks\n"), out);
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 55aac35..1cbdeef 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -72,6 +72,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 	      _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("A daemon for generating UUIDs.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -p, --pid <path>        path to pid file\n"
+ 		" -s, --socket <path>     path to socket\n"
+diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
+index 48c6562..54c5773 100644
+--- a/misc-utils/uuidgen.c
++++ b/misc-utils/uuidgen.c
+@@ -32,6 +32,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 	      _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Create a new UUID value.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -r, --random     generate random-based uuid\n"
+ 		" -t, --time       generate time-based uuid\n"
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 5ae6de1..da809a1 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -187,6 +187,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <file>\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Locate the binary, source, and manual-page files for a command.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -b         search only for binaries\n"), out);
+ 	fputs(_(" -B <dirs>  define binaries lookup path\n"), out);
+diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
+index 70c3f23..0daa87a 100644
+--- a/misc-utils/wipefs.c
++++ b/misc-utils/wipefs.c
+@@ -451,6 +451,10 @@ usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] <device>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Wipe signatures from a device.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all           wipe all magic strings (BE CAREFUL!)\n"
+ 		" -b, --backup        create a signature backup in $HOME\n"
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 7988b2a..fe4c179 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -57,8 +57,8 @@ static void __attribute__((__noreturn__)) show_usage(int rc)
+ {
+ 	FILE *out = rc == EXIT_SUCCESS ? stdout : stderr;
+ 
++	fputs(_("Show or change the real-time scheduling attributes of a process.\n"), out);
+ 	fprintf(out, _(
+-	"\nchrt - manipulate real-time attributes of a process\n"
+ 	"\nSet policy:\n"
+ 	"  chrt [options] [<policy>] <priority> [-p <pid> | <command> [<arg>...]]\n"
+ 	"\nGet policy:\n"
+diff --git a/schedutils/ionice.c b/schedutils/ionice.c
+index fa43e48..fb5d04a 100644
+--- a/schedutils/ionice.c
++++ b/schedutils/ionice.c
+@@ -108,6 +108,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 			" %1$s [options] -u <uid>...\n"
+ 			" %1$s [options] <command>\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show or change the I/O-scheduling class and priority of a process.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -c, --class <class>    name or number of scheduling class,\n"
+ 		"                          0: none, 1: realtime, 2: best-effort, 3: idle\n"), out);
+diff --git a/schedutils/taskset.c b/schedutils/taskset.c
+index 1bf1291..d6b21e4 100644
+--- a/schedutils/taskset.c
++++ b/schedutils/taskset.c
+@@ -51,6 +51,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		_("Usage: %s [options] [mask | cpu-list] [pid|cmd [args...]]\n\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show or change the CPU affinity of a process.\n"), out);
++	fputs(USAGE_SEPARATOR, out);
++
+ 	fprintf(out, _(
+ 		"Options:\n"
+ 		" -a, --all-tasks         operate on all the tasks (threads) for a given pid\n"
+diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
+index 6075d86..e33f9b9 100644
+--- a/sys-utils/blkdiscard.c
++++ b/sys-utils/blkdiscard.c
+@@ -61,6 +61,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] <device>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Discard the content of sectors on a device.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -o, --offset <num>  offset in bytes to discard from\n"
+ 		" -l, --length <num>  length of bytes to discard from the offset\n"
+diff --git a/sys-utils/chcpu.c b/sys-utils/chcpu.c
+index aba9d6b..428fdc2 100644
+--- a/sys-utils/chcpu.c
++++ b/sys-utils/chcpu.c
+@@ -238,6 +238,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		"\nUsage:\n"
+ 		" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Configure CPUs in a multi-processor system.\n"), out);
++
+ 	puts(_(	"\nOptions:\n"
+ 		"  -h, --help                    print this help\n"
+ 		"  -e, --enable <cpu-list>       enable cpus\n"
+diff --git a/sys-utils/ctrlaltdel.c b/sys-utils/ctrlaltdel.c
+index 863632f..8f646e5 100644
+--- a/sys-utils/ctrlaltdel.c
++++ b/sys-utils/ctrlaltdel.c
+@@ -19,6 +19,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, _(" %s hard|soft\n"), program_invocation_short_name);
++
++	fprintf(out, USAGE_SEPARATOR);
++	fprintf(out, "Set the function of the Ctrl-Alt-Del combination.\n");
++
+ 	fprintf(out, USAGE_OPTIONS);
+ 	fprintf(out, USAGE_HELP);
+ 	fprintf(out, USAGE_VERSION);
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index c6152d4..267e546 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -261,6 +261,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display or control the kernel ring buffer.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -C, --clear                 clear the kernel ring buffer\n"), out);
+ 	fputs(_(" -c, --read-clear            read and clear all messages\n"), out);
+diff --git a/sys-utils/eject.c b/sys-utils/eject.c
+index a816b20..2114780 100644
+--- a/sys-utils/eject.c
++++ b/sys-utils/eject.c
+@@ -130,10 +130,12 @@ static inline void info(const char *fmt, ...)
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fputs(USAGE_HEADER, out);
+-
+ 	fprintf(out,
+ 		_(" %s [options] [<device>|<mountpoint>]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Eject removable media.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --auto <on|off>         turn auto-eject feature on or off\n"
+ 		" -c, --changerslot <slot>    switch discs on a CD-ROM changer\n"
+diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
+index 0e06524..0e4eb49 100644
+--- a/sys-utils/fallocate.c
++++ b/sys-utils/fallocate.c
+@@ -76,8 +76,11 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] <filename>\n"), program_invocation_short_name);
+-	fputs(USAGE_OPTIONS, out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Preallocate space to, or deallocate space from a file.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -c, --collapse-range remove a range from the file\n"), out);
+ 	fputs(_(" -d, --dig-holes      detect zeroes and replace with holes\n"), out);
+ 	fputs(_(" -l, --length <num>   length for range operations, in bytes\n"), out);
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index 2550a5b..3828155 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -53,6 +53,10 @@ static void __attribute__((__noreturn__)) usage(int ex)
+ 		  " %1$s [options] <file>|<directory> -c <command>\n"
+ 		  " %1$s [options] <file descriptor number>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, stderr);
++	fputs(_("Manage file locks from shell scripts.\n"), stderr);
++
+ 	fputs(USAGE_OPTIONS, stderr);
+ 	fputs(_(  " -s, --shared             get a shared lock\n"), stderr);
+ 	fputs(_(  " -x, --exclusive          get an exclusive lock (default)\n"), stderr);
+diff --git a/sys-utils/fsfreeze.c b/sys-utils/fsfreeze.c
+index 961f8c1..d8b0a68 100644
+--- a/sys-utils/fsfreeze.c
++++ b/sys-utils/fsfreeze.c
+@@ -48,6 +48,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out,
+ 	      _(" %s [options] <mountpoint>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Suspend access to a filesystem (ext3/4, ReiserFS, JFS, XFS).\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --freeze      freeze the filesystem\n"), out);
+ 	fputs(_(" -u, --unfreeze    unfreeze the filesystem\n"), out);
+diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+index b18cdb2..fca7482 100644
+--- a/sys-utils/fstrim.c
++++ b/sys-utils/fstrim.c
+@@ -228,6 +228,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] <mount point>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Discard unused blocks on a mounted filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all           trim all mounted filesystems that are supported\n"), out);
+ 	fputs(_(" -o, --offset <num>  the offset in bytes to start discarding from\n"), out);
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 008b20a..c236b03 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1566,6 +1566,9 @@ static void usage(const char *fmt, ...)
+ 	fputs(USAGE_HEADER, usageto);
+ 	fputs(_(" hwclock [function] [option...]\n"), usageto);
+ 
++	fputs(USAGE_SEPARATOR, usageto);
++	fputs(_("Query or set the hardware clock.\n"), usageto);
++
+ 	fputs(_("\nFunctions:\n"), usageto);
+ 	fputs(_(" -h, --help           show this help text and exit\n"
+ 		" -r, --show           read hardware clock and print result\n"
+diff --git a/sys-utils/ipcmk.c b/sys-utils/ipcmk.c
+index 3ff021e..eae4935 100644
+--- a/sys-utils/ipcmk.c
++++ b/sys-utils/ipcmk.c
+@@ -64,8 +64,11 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
+-	fprintf(out, USAGE_OPTIONS);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Create various IPC resources.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -M, --shmem <size>       create shared memory segment of size <size>\n"), out);
+ 	fputs(_(" -S, --semaphore <nsems>  create semaphore array with <nsems> elements\n"), out);
+ 	fputs(_(" -Q, --queue              create message queue\n"), out);
+diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
+index 5fe3df8..6702631 100644
+--- a/sys-utils/ipcrm.c
++++ b/sys-utils/ipcrm.c
+@@ -49,7 +49,11 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, " %s [options]\n", program_invocation_short_name);
+ 	fprintf(out, " %s shm|msg|sem <id>...\n", program_invocation_short_name);
+-	fprintf(out, USAGE_OPTIONS);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Remove certain IPC resources.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -m, --shmem-id <id>        remove shared memory segment by id\n"), out);
+ 	fputs(_(" -M, --shmem-key <key>      remove shared memory segment by key\n"), out);
+ 	fputs(_(" -q, --queue-id <id>        remove message queue by id\n"), out);
+diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
+index a2d7f12..3bfba0a 100644
+--- a/sys-utils/ipcs.c
++++ b/sys-utils/ipcs.c
+@@ -52,7 +52,11 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, " %s [resource ...] [output-format]\n", program_invocation_short_name);
+ 	fprintf(out, " %s [resource] -i <id>\n", program_invocation_short_name);
+-	fprintf(out, USAGE_OPTIONS);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show information on IPC facilities.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -i, --id <id>  print details on resource identified by <id>\n"), out);
+ 	fprintf(out, USAGE_HELP);
+ 	fprintf(out, USAGE_VERSION);
+diff --git a/sys-utils/ldattach.c b/sys-utils/ldattach.c
+index 853a3ed..33c7aa2 100644
+--- a/sys-utils/ldattach.c
++++ b/sys-utils/ldattach.c
+@@ -193,8 +193,11 @@ static void __attribute__ ((__noreturn__)) usage(int exitcode)
+ 
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <ldisc> <device>\n"), program_invocation_short_name);
+-	fputs(USAGE_OPTIONS, out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Attach a line discipline to a serial line.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -d, --debug             print verbose messages to stderr\n"), out);
+ 	fputs(_(" -s, --speed <value>     set serial line speed\n"), out);
+ 	fputs(_(" -c, --intro-command <string> intro sent before ldattach\n"), out);
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index 95e99bb..29084ea 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -368,6 +368,9 @@ static void usage(FILE *out)
+ 		" %1$s [options] -f | <loopdev> <file>\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set up and control loop devices.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all                     list all used devices\n"), out);
+ 	fputs(_(" -d, --detach <loopdev>...     detach one or more devices\n"), out);
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 2a50325..9b3adbc 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1629,6 +1629,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display information about the CPU architecture.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all               print both online and offline CPUs (default for -e)\n"), out);
+ 	fputs(_(" -b, --online            print online CPUs only (default for -p)\n"), out);
+diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+index 14a5e5c..1410985 100644
+--- a/sys-utils/mount.c
++++ b/sys-utils/mount.c
+@@ -718,6 +718,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		" %1$s <operation> <mountpoint> [<target>]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Mount a filesystem.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fprintf(out, _(
+ 	" -a, --all               mount all filesystems mentioned in fstab\n"
+diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+index 0aaa290..a43bfd6 100644
+--- a/sys-utils/mountpoint.c
++++ b/sys-utils/mountpoint.c
+@@ -118,6 +118,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	      _(" %1$s [-qd] /path/to/directory\n"
+ 		" %1$s -x /dev/device\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Check whether a directory or file is a mountpoint.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -q, --quiet        quiet mode - don't print anything\n"
+ 		" -d, --fs-devno     print maj:min device number of the filesystem\n"
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index c54d63f..e00a3e4 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -65,6 +65,9 @@ static void usage(int status)
+ 	fprintf(out, _(" %s [options] <program> [<argument>...]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Run a program with namespaces of other processes.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -t, --target <pid>     target process to get namespaces from\n"), out);
+ 	fputs(_(" -m, --mount[=<file>]   enter mount namespace\n"), out);
+diff --git a/sys-utils/pivot_root.c b/sys-utils/pivot_root.c
+index 31ceabb..a7b28bf 100644
+--- a/sys-utils/pivot_root.c
++++ b/sys-utils/pivot_root.c
+@@ -32,6 +32,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out, USAGE_HEADER);
+ 	fprintf(out, _(" %s [options] new_root put_old\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Change the root filesystem.\n"), out);
++
+ 	fprintf(out, USAGE_OPTIONS);
+ 	fprintf(out, USAGE_HELP);
+ 	fprintf(out, USAGE_VERSION);
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index 8d0a110..ddab76e 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -162,6 +162,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out,
+ 		_(" %s [options] COMMAND\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show or change the resource limits of a process.\n"), out);
++
+ 	fputs(_("\nGeneral Options:\n"), out);
+ 	fputs(_(" -p, --pid <pid>        process id\n"
+ 		" -o, --output <list>    define which output columns to use\n"
+diff --git a/sys-utils/readprofile.c b/sys-utils/readprofile.c
+index 79de7c2..eb6b8ec 100644
+--- a/sys-utils/readprofile.c
++++ b/sys-utils/readprofile.c
+@@ -102,8 +102,11 @@ static void __attribute__ ((__noreturn__))
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
+-	fputs(USAGE_OPTIONS, out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display kernel profiling information.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fprintf(out,
+ 	      _(" -m, --mapfile <mapfile>   (defaults: \"%s\" and\n"), defaultmap);
+ 	fprintf(out,
+diff --git a/sys-utils/renice.c b/sys-utils/renice.c
+index c96e39a..656a111 100644
+--- a/sys-utils/renice.c
++++ b/sys-utils/renice.c
+@@ -62,6 +62,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		" %1$s [-n] <priority>  -g|--pgrp <pgid>...\n"
+ 		" %1$s [-n] <priority>  -u|--user <user>...\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Alter the priority of running processes.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -n, --priority <num>   specify the nice increment value\n"), out);
+ 	fputs(_(" -p, --pid <id>         interpret argument as process ID (default)\n"), out);
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index e1cd41d..35ca7e8 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -71,6 +71,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out,
+ 	      _(" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Enter a system sleep state until a specified wakeup time.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --auto               reads the clock mode from adjust file (default)\n"), out);
+ 	fprintf(out,
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index ed2a6a6..0943038 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -94,6 +94,10 @@ static void __attribute__((__noreturn__)) show_help(void)
+ 	printf(_(" %s%s [options] [program [program arguments]]\n"),
+ 	       program_invocation_short_name,
+ 	       !strcmp(program_invocation_short_name, "setarch") ? " <arch>" : "");
++
++	fputs(USAGE_SEPARATOR, stdout);
++	fputs(_("Change the reported architecture and set personality flags.\n"), stdout);
++
+ 	fputs(USAGE_OPTIONS, stdout);
+ 	fputs(_(" -v, --verbose            says what options are being switched on\n"), stdout);
+ 	fputs(_(" -R, --addr-no-randomize  disables randomization of the virtual address space\n"), stdout);
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index 06d9fe4..1630122 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -93,6 +93,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out, _(" %s [options] <program> [<argument>...]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Run a program with different privilege settings.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -d, --dump               show current state (and do not exec anything)\n"), out);
+ 	fputs(_(" --nnp, --no-new-privs    disallow granting new privileges\n"), out);
+diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
+index 782de82..adc34ec 100644
+--- a/sys-utils/setsid.c
++++ b/sys-utils/setsid.c
+@@ -32,6 +32,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 		" %s [options] <program> [arguments ...]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Run a program in a new session.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -c, --ctty     set the controlling terminal to the current one\n"), out);
+ 	fputs(_(" -w, --wait     wait program to exit, and use the same return\n"), out);
+diff --git a/sys-utils/swapoff.c b/sys-utils/swapoff.c
+index b725462..168d10f 100644
+--- a/sys-utils/swapoff.c
++++ b/sys-utils/swapoff.c
+@@ -116,9 +116,11 @@ static int swapoff_by(const char *name, const char *value, int quiet)
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fputs(USAGE_HEADER, out);
+-
+ 	fprintf(out, _(" %s [options] [<spec>]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Disable devices and files for paging and swapping.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all              disable all swaps from /proc/swaps\n"
+ 		" -v, --verbose          verbose mode\n"), out);
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index a457607..8a3a217 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -724,9 +724,11 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	size_t i;
+ 	fputs(USAGE_HEADER, out);
+-
+ 	fprintf(out, _(" %s [options] [<spec>]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Enable devices and files for paging and swapping.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all                enable all swaps from /etc/fstab\n"), out);
+ 	fputs(_(" -d, --discard[=<policy>] enable swap discards, if supported by device\n"), out);
+diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
+index 534d44a..be23fd8 100644
+--- a/sys-utils/switch_root.c
++++ b/sys-utils/switch_root.c
+@@ -200,6 +200,10 @@ static void __attribute__((__noreturn__)) usage(FILE *output)
+ 	fputs(USAGE_HEADER, output);
+ 	fprintf(output, _(" %s [options] <newrootdir> <init> <args to init>\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, output);
++	fputs(_("Switch to another filesystem as the root of the mount tree.\n"), output);
++
+ 	fputs(USAGE_OPTIONS, output);
+ 	fputs(USAGE_HELP, output);
+ 	fputs(USAGE_VERSION, output);
+diff --git a/sys-utils/tunelp.c b/sys-utils/tunelp.c
+index 08cef5c..b132d7a 100644
+--- a/sys-utils/tunelp.c
++++ b/sys-utils/tunelp.c
+@@ -88,6 +88,9 @@ static void __attribute__((__noreturn__)) print_usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <device>\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set various parameters for the line printer.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -i, --irq <num>              specify parallel port irq\n"), out);
+ 	fputs(_(" -t, --time <ms>              driver wait time in milliseconds\n"), out);
+diff --git a/sys-utils/umount.c b/sys-utils/umount.c
+index 8bc6655..464c4c8 100644
+--- a/sys-utils/umount.c
++++ b/sys-utils/umount.c
+@@ -78,6 +78,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		" %1$s [options] <source> | <directory>\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Unmount filesystems.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --all               unmount all filesystems\n"), out);
+ 	fputs(_(" -A, --all-targets       unmount all mountpoints for the given device in the\n"
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 933f621..fccdba2 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -63,6 +63,9 @@ static void usage(int status)
+ 	fprintf(out, _(" %s [options] <program> [<argument>...]\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Run a program with some namespaces unshared from the parent.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -m, --mount               unshare mounts namespace\n"), out);
+ 	fputs(_(" -u, --uts                 unshare UTS namespace (hostname etc)\n"), out);
+diff --git a/sys-utils/wdctl.c b/sys-utils/wdctl.c
+index 0628c8e..095d8ed 100644
+--- a/sys-utils/wdctl.c
++++ b/sys-utils/wdctl.c
+@@ -173,8 +173,10 @@ static void usage(FILE *out)
+ 	fprintf(out,
+ 	      _(" %s [options] [<device> ...]\n"), program_invocation_short_name);
+ 
+-	fputs(USAGE_OPTIONS, out);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show the status of the hardware watchdog.\n"), out);
+ 
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --flags <list>     print selected flags only\n"
+ 		" -F, --noflags          don't print information about flags\n"
+ 		" -I, --noident          don't print watchdog identity information\n"
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index 786be06..4abc587 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -378,6 +378,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 			" %1$s [options] -f | <device> -s <size>\n"),
+ 			program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set up and control zram devices.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --algorithm lzo|lz4   compression algorithm to use\n"), out);
+ 	fputs(_(" -b, --bytes               print sizes in bytes rather than in human readable format\n"), out);
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 9871a36..2ac0644 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1982,6 +1982,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %1$s [options] <line> [<baud_rate>,...] [<termtype>]\n"
+ 		       " %1$s [options] <baud_rate>,... <line> [<termtype>]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Open a terminal and set its mode.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -8, --8bits                assume 8-bit tty\n"), out);
+ 	fputs(_(" -a, --autologin <user>     login the specified user automatically\n"), out);
+diff --git a/term-utils/mesg.c b/term-utils/mesg.c
+index 12e4e0e..a389287 100644
+--- a/term-utils/mesg.c
++++ b/term-utils/mesg.c
+@@ -73,6 +73,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	 * which means they can be translated.  */
+ 	fprintf(out,
+ 	      _(" %s [options] [y | n]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Control write access of other users to your terminal.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -v, --verbose  explain what is being done\n"), out);
+ 	fputs(USAGE_HELP, out);
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 78d7a30..548334c 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -143,6 +143,9 @@ usage(FILE *out)
+ 	fprintf(out,
+ 	      _(" %s [options] [file]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Make a typescript of a terminal session.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -a, --append            append the output\n"
+ 		" -c, --command <command> run command rather than interactive shell\n"
+diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
+index fb5ded3..1724663 100644
+--- a/term-utils/scriptreplay.c
++++ b/term-utils/scriptreplay.c
+@@ -42,6 +42,9 @@ usage(FILE *out)
+ 	      _(" %s [-t] timingfile [typescript] [divisor]\n"),
+ 	      program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Play back terminal typescripts, using timing information.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -t, --timing <file>     script timing output file\n"
+ 		" -s, --typescript <file> script terminal session output file\n"
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index fefb0a9..76fedba 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -402,6 +402,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set the attributes of a terminal.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" --term          <terminal_name>   override TERM environment variable\n"), out);
+ 	fputs(_(" --reset                           reset terminal to power-on state\n"), out);
+diff --git a/term-utils/wall.c b/term-utils/wall.c
+index 598e9f2..387594c 100644
+--- a/term-utils/wall.c
++++ b/term-utils/wall.c
+@@ -81,6 +81,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+ 	      _(" %s [options] [<file> | <message>]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Write a message to all users.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -n, --nobanner          do not print banner, works only for root\n"), out);
+ 	fputs(_(" -t, --timeout <timeout> write timeout in seconds\n"), out);
+diff --git a/term-utils/write.c b/term-utils/write.c
+index ca40354..238040b 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -82,6 +82,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	      _(" %s [options] <user> [<ttyname>]\n"),
+ 	      program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Send a message to another user.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/text-utils/col.c b/text-utils/col.c
+index 1218f25..53f0556 100644
+--- a/text-utils/col.c
++++ b/text-utils/col.c
+@@ -130,6 +130,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 		"\nUsage:\n"
+ 		" %s [options]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Filter out reverse line feeds.\n"), out);
++
+ 	fprintf(out, _(
+ 		"\nOptions:\n"
+ 		" -b, --no-backspaces    do not output backspaces\n"
+diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
+index c39c8b6..31ce52a 100644
+--- a/text-utils/colcrt.c
++++ b/text-utils/colcrt.c
+@@ -313,6 +313,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 		_("\nUsage:\n"
+ 		  " %s [options] [file ...]\n"), program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Filter nroff output for CRT previewing.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fprintf(out,
+ 		_(" -,  --no-underlining  suppress all underlining\n"
+ 		  " -2, --half-lines      print all half-lines\n"
+diff --git a/text-utils/colrm.c b/text-utils/colrm.c
+index 4264fe6..431eae0 100644
+--- a/text-utils/colrm.c
++++ b/text-utils/colrm.c
+@@ -59,6 +59,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fprintf(out, _("\nUsage:\n"
+ 		       " %s [startcol [endcol]]\n"),
+ 		       program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Filter out the specified columns.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/text-utils/column.c b/text-utils/column.c
+index e583dba..60d1231 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -90,6 +90,10 @@ static void __attribute__((__noreturn__)) usage(int rc)
+ 
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] [<file>...]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Columnate lists.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -c, --columns <width>    width of output in number of characters\n"), out);
+ 	fputs(_(" -t, --table              create a table\n"), out);
+diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
+index afae334..9ee5cb7 100644
+--- a/text-utils/hexdump.c
++++ b/text-utils/hexdump.c
+@@ -153,6 +153,10 @@ void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <file>...\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Display file contents in hexadecimal, decimal, octal, or ascii.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -b, --one-byte-octal      one-byte octal display\n"), out);
+ 	fputs(_(" -c, --one-byte-char       one-byte character display\n"), out);
+diff --git a/text-utils/line.c b/text-utils/line.c
+index 80daa34..9384b5c 100644
+--- a/text-utils/line.c
++++ b/text-utils/line.c
+@@ -28,6 +28,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options]\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Read one line.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 5c48457..74148a7 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -317,6 +317,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] <file>...\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("A file perusal filter for CRT viewing.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -d          display help instead of ringing bell\n"), out);
+ 	fputs(_(" -f          count logical rather than screen lines\n"), out);
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 9ada00c..998010a 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -222,6 +222,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fprintf(out,
+ 		_(" %s [options] [+line] [+/pattern/] [files]\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Browse pagewise through text files.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -number      lines per page\n"), out);
+ 	fputs(_(" -c           clear screen before displaying\n"), out);
+diff --git a/text-utils/rev.c b/text-utils/rev.c
+index bda31d2..cb38482 100644
+--- a/text-utils/rev.c
++++ b/text-utils/rev.c
+@@ -76,6 +76,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fprintf(out, _("Usage: %s [options] [file ...]\n"),
+ 		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Reverse lines characterwise.\n"), out);
++
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index bd38da2..cf22a1e 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -198,6 +198,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ 		  " %s [option] file\n"),
+ 		program_invocation_short_name);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Follow the growth of a log file.\n"), out);
++
+ 	fprintf(out, _(
+ 		"\nOptions:\n"
+ 		" -n, --lines NUMBER  output the last NUMBER lines\n"
+diff --git a/text-utils/ul.c b/text-utils/ul.c
+index 20a0551..30cad79 100644
+--- a/text-utils/ul.c
++++ b/text-utils/ul.c
+@@ -134,8 +134,11 @@ usage(FILE *out)
+ {
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out, _(" %s [options] [<file> ...]\n"), program_invocation_short_name);
+-	fputs(USAGE_OPTIONS, out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Do underlining.\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -t, -T, --terminal TERMINAL  override the TERM environment variable\n"), out);
+ 	fputs(_(" -i, --indicated              underlining is indicated via a separate line\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
 -- 
 1.7.0.4
 
