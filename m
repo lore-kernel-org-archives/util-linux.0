@@ -1,54 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2.vodafone.ie ([213.233.128.44]:16989 "EHLO
-	mail2.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751283AbaLGL4I (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 7 Dec 2014 06:56:08 -0500
-Message-ID: <54844055.7030602@draigBrady.com>
-Date: Sun, 07 Dec 2014 11:56:05 +0000
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: kerolasa@gmail.com
-CC: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 01/10] lib/mbalign: fix unsigned integer overflow [AddressSanitizer]
-References: <1417355862-16935-1-git-send-email-kerolasa@iki.fi>	<1417355862-16935-2-git-send-email-kerolasa@iki.fi>	<547FA265.6040806@draigBrady.com> <CAG27Bk0SOOXzB2aJC66AO2pBeicRYHAosmAsd5kdUx8W3meiCg@mail.gmail.com>
-In-Reply-To: <CAG27Bk0SOOXzB2aJC66AO2pBeicRYHAosmAsd5kdUx8W3meiCg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:62005 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754558AbaLVLra (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Dec 2014 06:47:30 -0500
+Received: by mail-wi0-f180.google.com with SMTP id n3so7683215wiv.7
+        for <util-linux@vger.kernel.org>; Mon, 22 Dec 2014 03:47:29 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 03/14] chsh: use getline() to support arbitrarily long lines
+Date: Mon, 22 Dec 2014 11:47:06 +0000
+Message-Id: <1419248837-4619-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1419248837-4619-1-git-send-email-kerolasa@iki.fi>
+References: <1419248837-4619-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/12/14 20:14, Sami Kerola wrote:
-> On 3 December 2014 at 23:53, Pádraig Brady <P@draigbrady.com> wrote:
->> On 30/11/14 13:57, Sami Kerola wrote:
->>> This error was reported 155 times.
->>>
->>> lib/mbsalign.c:322:18: runtime error: unsigned integer overflow: 0 - 1
->>> cannot be represented in type 'size_t' (aka 'unsigned long')
->>
->> What compiler and version are you using for this?
->> I don't get the error with gcc 4.9.2 with -fsanitize=undefined
->> Note the error is incorrect I think as the variable is not read
->> after the overflow.
-> 
-> Hi Pádraig,
-> 
-> Sorry it took ages to reply to a trivial question.
-> 
-> $ clang --version
-> clang version 3.5.0 (tags/RELEASE_350/final)
-> Target: x86_64-unknown-linux-gnu
-> Thread model: posix
-> 
-> I have not done sanitation runs with gcc.
-> 
-> The system is archlinux with testing repos enabled with daily updates,
-> that should mean a lot of libraries and such are fairly recent.
+Use of fgets() can make a single long line to be understood as two
+entries, and someone could play tricks with the remainder part of the
+buffer.
 
-Thanks for the info.
-BTW I don't see it with clang 3.4.2.
-This seems like a too problematic warning TBH,
-as unsigned overflow is defined,
-the overflow value is not used in this case,
-this seems like a very common idiom.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/chsh.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-thanks,
-Pádraig.
+diff --git a/login-utils/chsh.c b/login-utils/chsh.c
+index 2245f41..9ed4d06 100644
+--- a/login-utils/chsh.c
++++ b/login-utils/chsh.c
+@@ -87,8 +87,8 @@ static int get_shell_list(char *shell_name)
+ {
+ 	FILE *fp;
+ 	int found;
+-	int len;
+-	char buf[PATH_MAX];
++	char *buf = NULL;
++	size_t sz = 0, len;
+ 
+ 	found = false;
+ 	fp = fopen(_PATH_SHELLS, "r");
+@@ -97,17 +97,17 @@ static int get_shell_list(char *shell_name)
+ 			warnx(_("No known shells."));
+ 		return true;
+ 	}
+-	while (fgets(buf, sizeof(buf), fp) != NULL) {
++	while (getline(&buf, &sz, fp) != -1) {
++		len = strlen(buf);
+ 		/* ignore comments */
+ 		if (*buf == '#')
+ 			continue;
+-		len = strlen(buf);
++		/* skip blank lines*/
++		if (len < 2)
++			continue;
+ 		/* strip the ending newline */
+ 		if (buf[len - 1] == '\n')
+ 			buf[len - 1] = 0;
+-		/* ignore lines that are too damn long */
+-		else
+-			continue;
+ 		/* check or output the shell */
+ 		if (shell_name) {
+ 			if (!strcmp(shell_name, buf)) {
+@@ -118,6 +118,7 @@ static int get_shell_list(char *shell_name)
+ 			printf("%s\n", buf);
+ 	}
+ 	fclose(fp);
++	free(buf);
+ 	return found;
+ }
+ 
+-- 
+2.2.1
+
