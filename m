@@ -1,45 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:52931 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752172AbaLNRp0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Dec 2014 12:45:26 -0500
-Received: by mail-wi0-f172.google.com with SMTP id n3so6801140wiv.17
-        for <util-linux@vger.kernel.org>; Sun, 14 Dec 2014 09:45:25 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 11/16] chfn: fix usage() regression
-Date: Sun, 14 Dec 2014 17:44:07 +0000
-Message-Id: <1418579052-29386-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-References: <1418579052-29386-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: pali.rohar@gmail.com
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: Fwd: Re: util-linux: libblkid: UDF superblock
+Date: Mon, 22 Dec 2014 11:53:18 +0100
+Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
+References: <87oaric0fs.fsf@hobgoblin.ariadne.com> <20141209103520.GK19904@x2.net.home> <20141219135608.GN19904@x2.net.home>
+In-Reply-To: <20141219135608.GN19904@x2.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2547787.BM4lkZvmo1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201412221153.18431@pali>
 List-ID: <util-linux.vger.kernel.org>
 
-Commit db433bf737a5fd4e1c7cca5e3603934743eebd1c changed -u for --help to
--h, that is not true.  The -h is short hand for --home-phone.  And the
---version is accompanied with -v not -V.
+--nextPart2547787.BM4lkZvmo1
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/chfn.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Friday 19 December 2014 14:56:08 Karel Zak wrote:
+> On Tue, Dec 09, 2014 at 11:35:20AM +0100, Karel Zak wrote:
+> > > I looked into grub2 code and it is identifying UDF label
+> > > also from LogicalVolumeIdentifier. So if you want to boot
+> > > something from UDF FS via grub you probably see label
+> > > problems...
+> > >=20
+> > > So I think that rather than using broken linux
+> > > implementation is better to fix it (which could bring
+> > > problems with different label names in new version). And
+> > > I would like to see human readable label as "555e3160".
+> >=20
+> > It's more important to not introduce regression, if you have
+> > LABEL=3D in your fstab then you don't want to see that after
+> > util-linux update your setting is obsolete and filesystem
+> > unmounted.
+>=20
+> You have convinced me that fix the problem (and improve
+> compatibility) with UDF LABEL=3D is a good idea.
+>=20
+> Not sure, but I guess that for many users the change will be
+> invisible because preferred way is to read the LABEL from
+> ISO9660 header and UDF specific LABEL is just fallback
+> solution only.
+>=20
+> The latest Pali's patches are at:
+> https://github.com/karelzak/util-linux/pull/135
+>=20
+>     Karel
 
-diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-index 4746927..9833591 100644
---- a/login-utils/chfn.c
-+++ b/login-utils/chfn.c
-@@ -77,8 +77,8 @@ static void __attribute__((__noreturn__)) usage(FILE *fp)
- 	fputs(_(" -p, --office-phone <phone>   office phone number\n"), fp);
- 	fputs(_(" -h, --home-phone <phone>     home phone number\n"), fp);
- 	fputs(USAGE_SEPARATOR, fp);
--	fputs(USAGE_HELP, fp);
--	fputs(USAGE_VERSION, fp);
-+	fputs(_(" -u, --help     display this help and exit\n"), fp);
-+	fputs(_(" -v, --version  output version information and exit\n"), fp);
- 	fprintf(fp, USAGE_MAN_TAIL("chfn(1)"));
- 	exit(fp == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
--- 
-2.1.3
+Karel, can you review last version of my patch?
 
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart2547787.BM4lkZvmo1
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlSX+B4ACgkQi/DJPQPkQ1JMegCfY5d5oRJuraIrM88dFxNg3gbi
+0oYAn15S6MPdXChM8d/nCijuNrGVCjmR
+=en89
+-----END PGP SIGNATURE-----
+
+--nextPart2547787.BM4lkZvmo1--
