@@ -1,40 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:33651 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751995AbaL2KJ7 (ORCPT
+Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:54872 "EHLO
+	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751627AbaLXQ4c (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 29 Dec 2014 05:09:59 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id C8846207C2
-	for <util-linux@vger.kernel.org>; Mon, 29 Dec 2014 05:09:58 -0500 (EST)
-Message-Id: <1419847798.2518197.207547701.6852BB36@webmail.messagingengine.com>
+	Wed, 24 Dec 2014 11:56:32 -0500
 From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 02/10] ipcs: in usage show resource option as nonoptional
- when used with -i
-Date: Mon, 29 Dec 2014 11:09:58 +0100
-In-Reply-To: <1419440170-10850-2-git-send-email-bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 07/10] colcrt: slice up the usage text for ease of translation
+Date: Wed, 24 Dec 2014 17:56:07 +0100
+Message-Id: <1419440170-10850-7-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
 References: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
- <1419440170-10850-2-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Also use the standard macros for outputting it.
 
-On Wed, Dec 24, 2014, at 17:56, Benno Schulenberg wrote:
->  	fprintf(out, USAGE_HEADER);
-> -	fprintf(out, " %s [resource ...] [output-format]\n", program_invocation_short_name);
-> -	fprintf(out, " %s [resource] -i <id>\n", program_invocation_short_name);
-> +	fprintf(out, _(" %1$s [resource-option...] [output-option]\n"
-> +		       " %1$s -m|-q|-s -i <id>\n"), program_invocation_short_name);
->  	fprintf(out, USAGE_OPTIONS);
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ text-utils/colcrt.c |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
 
-Ow...  Most of these patching will need rebasing when the docstring
-patch has been applied.  Have done that locally and will resubmit.
-
-Benno
-
+diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
+index c39c8b6..21013ea 100644
+--- a/text-utils/colcrt.c
++++ b/text-utils/colcrt.c
+@@ -309,16 +309,17 @@ void move(int l, int m)
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+-	fprintf(out,
+-		_("\nUsage:\n"
+-		  " %s [options] [file ...]\n"), program_invocation_short_name);
++	fputs(USAGE_HEADER, out);
++	fprintf(out, _(" %s [options] [<file>...]\n"), program_invocation_short_name);
+ 
+-	fprintf(out,
+-		_(" -,  --no-underlining  suppress all underlining\n"
+-		  " -2, --half-lines      print all half-lines\n"
+-		  " -V, --version         output version information and exit\n"
+-		  " -h, --help            display this help and exit\n\n"));
++	fputs(USAGE_OPTIONS, out);
++	fputs(_(" -,  --no-underlining    suppress all underlining\n"), out);
++	fputs(_(" -2, --half-lines        print all half-lines\n"), out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_HELP, out);
++	fputs(USAGE_VERSION, out);
+ 	fprintf(out, USAGE_MAN_TAIL("colcrt(1)"));
++
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
 -- 
-http://www.fastmail.com - Same, same, but different...
+1.7.0.4
 
