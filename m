@@ -1,55 +1,63 @@
-Return-Path: kerolasa@gmail.com
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20150106133044.GI18528@x2.net.home>
-References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
-	<20150106131322.GH18528@x2.net.home>
-	<CAG27Bk02NPEZukdCbVDTugCcqRk7ieg+S+85q0yJRkPdDPmBfQ@mail.gmail.com>
-	<20150106133044.GI18528@x2.net.home>
-Date: Tue, 6 Jan 2015 22:51:33 +0000
-Message-ID: <CAG27Bk2rJaa8b-Xqu-Hte6mANkfg5T-AtUbQSm+_zBnK4As8Zw@mail.gmail.com>
-Subject: Re: [PATCH 02/11] docs: improve some wordings on the man page of wipefs
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:59815 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751611AbaLXQ4a (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Dec 2014 11:56:30 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 06/10] textual: list the options of setarch in a more alphabetical order
+Date: Wed, 24 Dec 2014 17:56:06 +0100
+Message-Id: <1419440170-10850-6-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
+References: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 January 2015 at 13:30, Karel Zak <kzak@redhat.com> wrote:
-> On Tue, Jan 06, 2015 at 01:26:44PM +0000, Sami Kerola wrote:
->> On 6 January 2015 at 13:13, Karel Zak <kzak@redhat.com> wrote:
->> > On Mon, Dec 29, 2014 at 11:16:57AM +0100, Benno Schulenberg wrote:
->> >>  misc-utils/wipefs.8 |   33 +++++++++++++++++----------------
->> >>  1 files changed, 17 insertions(+), 16 deletions(-)
->> >
->> >  Grrr... I see you resent the patches :-)
->> >
->> >  Please, please, use --in-reply-to= or at least "V2" in subject
->> >  next time when you re-send patches. I thought it's another set of
->> >  patches.
->> >
->> >  Or ideally use github to keep your patches up to date in some task
->> >  specific branch, then I can merge all by one git-pull command. In
->> >  this case is enough to send to mailing list info that you have
->> >  updated the patches. (Ask Sami for more details, he uses this way :-)
->>
->> I rather send update to Documentation/howto-contribute.txt how to sent
->> remote branch requests. The description will be technically OK, and
->> Benno will end up fixing the engrish again ;-)
->
-> It would be nice to have description for all the work flow and how to
-> use git in this case (which git commands and how) for people who are
-> not familiar with git and github.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/setarch.c |   15 +++++++++------
+ 1 files changed, 9 insertions(+), 6 deletions(-)
 
-How about something like
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/bfb8a529360f4396259e24dc9d986076ebd5f091
-
-p.s. Benno, you don't need to use github. Any internet reachable git
-server should work just fine.
-
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index e00198c..73329a4 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -95,25 +95,28 @@ static void __attribute__((__noreturn__)) show_help(void)
+ 		printf(_(" %s <arch> [options] [<program> [<argument>...]]\n"), program_invocation_short_name);
+ 	else
+ 		printf(_(" %s [options] [<program> [<argument>...]]\n"), program_invocation_short_name);
++
+ 	fputs(USAGE_OPTIONS, stdout);
+-	fputs(_(" -v, --verbose            says what options are being switched on\n"), stdout);
+-	fputs(_(" -R, --addr-no-randomize  disables randomization of the virtual address space\n"), stdout);
+-	fputs(_(" -F, --fdpic-funcptrs     makes function pointers point to descriptors\n"), stdout);
+-	fputs(_(" -Z, --mmap-page-zero     turns on MMAP_PAGE_ZERO\n"), stdout);
+-	fputs(_(" -L, --addr-compat-layout changes the way virtual memory is allocated\n"), stdout);
+-	fputs(_(" -X, --read-implies-exec  turns on READ_IMPLIES_EXEC\n"), stdout);
+ 	fputs(_(" -B, --32bit              turns on ADDR_LIMIT_32BIT\n"), stdout);
++	fputs(_(" -F, --fdpic-funcptrs     makes function pointers point to descriptors\n"), stdout);
+ 	fputs(_(" -I, --short-inode        turns on SHORT_INODE\n"), stdout);
++	fputs(_(" -L, --addr-compat-layout changes the way virtual memory is allocated\n"), stdout);
++	fputs(_(" -R, --addr-no-randomize  disables randomization of the virtual address space\n"), stdout);
+ 	fputs(_(" -S, --whole-seconds      turns on WHOLE_SECONDS\n"), stdout);
+ 	fputs(_(" -T, --sticky-timeouts    turns on STICKY_TIMEOUTS\n"), stdout);
++	fputs(_(" -X, --read-implies-exec  turns on READ_IMPLIES_EXEC\n"), stdout);
++	fputs(_(" -Z, --mmap-page-zero     turns on MMAP_PAGE_ZERO\n"), stdout);
+ 	fputs(_(" -3, --3gb                limits the used address space to a maximum of 3 GB\n"), stdout);
+ 	fputs(_("     --4gb                ignored (for backward compatibility only)\n"), stdout);
+ 	fputs(_("     --uname-2.6          turns on UNAME26\n"), stdout);
++	fputs(_(" -v, --verbose            say what options are being switched on\n"), stdout);
+ 	fputs(_("     --list               list settable architectures, and exit\n"), stdout);
++
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fputs(USAGE_HELP, stdout);
+ 	fputs(USAGE_VERSION, stdout);
+ 	printf(USAGE_MAN_TAIL("setarch(8)"));
++
+ 	exit(EXIT_SUCCESS);
+ }
+ 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+1.7.0.4
+
