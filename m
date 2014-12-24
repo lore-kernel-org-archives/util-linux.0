@@ -1,207 +1,117 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44053 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755241AbbAFNDw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Jan 2015 08:03:52 -0500
-Date: Tue, 6 Jan 2015 14:03:43 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: util-linux@vger.kernel.org, Mikhail Gusarov <dottedmag@dottedmag.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 2/2] unshare: allow persisting namespaces
-Message-ID: <20150106130343.GG18528@x2.net.home>
-References: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
- <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:49700 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751380AbaLXQ4R (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Dec 2014 11:56:17 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 01/10] docs: improve some wordings on the man page of wipefs
+Date: Wed, 24 Dec 2014 17:56:01 +0100
+Message-Id: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 28, 2014 at 09:23:38PM +0100, Lubomir Rintel wrote:
-> Bind mount the namespace file to a given location after creating it if
-> requested (analogously to what "ip netns" and other tools do). This makes
-> it possible for a namespace to survive with no processes running while
-> processes can enter it with nsenter(1):
-> 
->   # unshare --uts=utsns hostname behemoth
->   # nsenter --uts=utsns hostname
->   behemoth
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ misc-utils/wipefs.8 |   33 +++++++++++++++++----------------
+ 1 files changed, 17 insertions(+), 16 deletions(-)
 
-Nice, especially when we already supports the same concept in nsenter.
-
-But I guess that "empty namespace" (without any running process) is
-impossible for PID namespaces, right? It would be nice to add a note
-about it to the man page.
-
-It would be also nice to add example with --mount-proc, because in
-this case you need to specify --mount=<file> too
-
- # unshare --pid=ns-bind-pid --mount=ns-bind-mnt --mount-proc 
-
-another session:
-
- # nsenter --pid=ns-bind-pid --mount=ns-bind-mnt
-
-> The ugly bit about this patch is the clone(2) call, arguably not our
-
-Please, can you a little elaborate why need clone() and what's wrong
-with fork()+unshare()? I'd like to have some comment in code.
-
-> +static void persist_ns(pid_t pid)
-> +{
-> +	struct namespace_file *nsfile;
-> +
-> +	for (nsfile = namespace_files; nsfile->nstype; nsfile++) {
-> +		char pathbuf[PATH_MAX];
-> +
-> +		if (!nsfile->target_name)
-> +			continue;
-> +
-> +		snprintf(pathbuf, sizeof(pathbuf), "/proc/%u/%s", pid,
-> +			nsfile->proc_name);
-> +
-> +		umount(nsfile->target_name);
-> +		unlink(nsfile->target_name);
-> +
-> +		if (-1 == mknod(nsfile->target_name, 0666, 0)) {
-> +			warn(_("failed to create %s"), nsfile->target_name);
-> +			continue;
-> +		}
-> +
-> +		if (-1 == mount(pathbuf, nsfile->target_name, NULL, MS_BIND, NULL)) {
-> +			warn(_("mount %s failed"), nsfile->target_name);
-> +			unlink(nsfile->target_name);
-> +		}
-> +	}
-> +}
-
- would be better to use err() that warn()? It's strange to continue
- and ignore errors in this case. The current result on errors is mess.
-
-    Karel
-
-> +static int in_child (void *arg)
-> +{
-> +	jmp_buf *child = arg;
-> +
-> +	longjmp(*child, 1);
-> +}
-> +
-> +#define STACK_SIZE 0x100000
-> +static pid_t unshare_fork(int unshare_flags)
-> +{
-> +	/* Twice the size, as we might be running of parisc
-> +	 * or metag where stack grows the other way. *sigh* */
-> +	static char stack[2*STACK_SIZE];
-> +	static jmp_buf child;
-> +	pid_t pid;
-> +
-> +	if (setjmp (child))
-> +		return 0;
-> +
-> +	pid = clone(in_child, &stack[STACK_SIZE],
-> +		SIGCHLD | unshare_flags, &child);
-> +	if (pid != -1)
-> +		persist_ns(pid);
-> +
-> +	return pid;
-> +}
-> +
->  int main(int argc, char *argv[])
->  {
->  	enum {
-> @@ -90,12 +183,12 @@ int main(int argc, char *argv[])
->  	static const struct option longopts[] = {
->  		{ "help", no_argument, 0, 'h' },
->  		{ "version", no_argument, 0, 'V'},
-> -		{ "mount", no_argument, 0, 'm' },
-> -		{ "uts", no_argument, 0, 'u' },
-> -		{ "ipc", no_argument, 0, 'i' },
-> -		{ "net", no_argument, 0, 'n' },
-> -		{ "pid", no_argument, 0, 'p' },
-> -		{ "user", no_argument, 0, 'U' },
-> +		{ "mount", optional_argument, 0, 'm' },
-> +		{ "uts", optional_argument, 0, 'u' },
-> +		{ "ipc", optional_argument, 0, 'i' },
-> +		{ "net", optional_argument, 0, 'n' },
-> +		{ "pid", optional_argument, 0, 'p' },
-> +		{ "user", optional_argument, 0, 'U' },
->  		{ "fork", no_argument, 0, 'f' },
->  		{ "mount-proc", optional_argument, 0, OPT_MOUNTPROC },
->  		{ "map-root-user", no_argument, 0, 'r' },
-> @@ -103,8 +196,6 @@ int main(int argc, char *argv[])
->  	};
->  
->  	int unshare_flags = 0;
-> -	int c, forkit = 0, maproot = 0;
-> -	const char *procmnt = NULL;
->  	uid_t real_euid = geteuid();
->  	gid_t real_egid = getegid();;
->  
-> @@ -125,21 +216,28 @@ int main(int argc, char *argv[])
->  			return EXIT_SUCCESS;
->  		case 'm':
->  			unshare_flags |= CLONE_NEWNS;
-> +			if (ns_path(CLONE_NEWNS, optarg))
-> +				forkit = 1;
->  			break;
->  		case 'u':
->  			unshare_flags |= CLONE_NEWUTS;
-> +			ns_path(CLONE_NEWUTS, optarg);
->  			break;
->  		case 'i':
->  			unshare_flags |= CLONE_NEWIPC;
-> +			ns_path(CLONE_NEWIPC, optarg);
->  			break;
->  		case 'n':
->  			unshare_flags |= CLONE_NEWNET;
-> +			ns_path(CLONE_NEWNET, optarg);
->  			break;
->  		case 'p':
->  			unshare_flags |= CLONE_NEWPID;
-> +			ns_path(CLONE_NEWPID, optarg);
->  			break;
->  		case 'U':
->  			unshare_flags |= CLONE_NEWUSER;
-> +			ns_path(CLONE_NEWUSER, optarg);
->  			break;
->  		case OPT_MOUNTPROC:
->  			unshare_flags |= CLONE_NEWNS;
-> @@ -154,12 +252,9 @@ int main(int argc, char *argv[])
->  		}
->  	}
->  
-> -	if (-1 == unshare(unshare_flags))
-> -		err(EXIT_FAILURE, _("unshare failed"));
-> -
->  	if (forkit) {
->  		int status;
-> -		pid_t pid = fork();
-> +		pid_t pid = unshare_fork(unshare_flags);
->  
->  		switch(pid) {
->  		case -1:
-> @@ -175,6 +270,10 @@ int main(int argc, char *argv[])
->  				kill(getpid(), WTERMSIG(status));
->  			err(EXIT_FAILURE, _("child exit failed"));
->  		}
-> +	} else {
-> +		if (-1 == unshare(unshare_flags))
-> +			err(EXIT_FAILURE, _("unshare failed"));
-> +		persist_ns(getpid());
->  	}
->  
->  	if (maproot) {
-> -- 
-> 2.1.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
+index 13cadb4..c4addef 100644
+--- a/misc-utils/wipefs.8
++++ b/misc-utils/wipefs.8
+@@ -2,7 +2,7 @@
+ .\" Copyright 2009 by Karel Zak.  All Rights Reserved.
+ .\" This file may be copied under the terms of the GNU Public License.
+ .\"
+-.TH WIPEFS 8 "October 2009" "util-linux" "System Administration"
++.TH WIPEFS 8 "December 2014" "util-linux" "System Administration"
+ .SH NAME
+ wipefs \- wipe a signature from a device
+ .SH SYNOPSIS
+@@ -20,41 +20,42 @@ to make the signatures invisible for libblkid.
+ 
+ .B wipefs
+ does not erase the filesystem itself nor any other data from the device.
+-When used without options \fB-a\fR or \fB-o\fR, it lists all visible filesystems
++When used without any options, \fBwipefs\fR lists all visible filesystems
+ and the offsets of their basic signatures.
+ 
+ .B wipefs
+-calls BLKRRPART ioctl when erase partition table to inform kernel about the change.
++calls the BLKRRPART ioctl when it has erased a partition-table signature
++to inform the kernel about the change.
+ 
+-Note that some filesystems or some partition tables store more magic strings on
+-the devices.  The
++Note that some filesystems and some partition tables store more magic strings on
++the device.  The
+ .B wipefs
+ command lists only the first offset where a magic string has been detected.  The device
+ is not scanned for additional magic strings for the same filesystem.  It is possible
+-that after \fBwipefs -o \fIoffset\fR the same filesystem or partition
+-table will still be visible by another magic string on another offset.
++that after a \fBwipefs -o \fIoffset\fR the same filesystem or partition
++table will still be visible because of another magic string on another offset.
+ 
+-When used with option \fB-a\fR, all magic strings that are visible for libblkid are
++When option \fB-a\fR is used, all magic strings that are visible for libblkid are
+ erased.
+ 
+ Note that by default
+ .B wipefs
+-does not erase nested partition tables on non-whole disk devices. The option 
+-\-\-force is required.
++does not erase nested partition tables on non-whole disk devices.
++For this the option \fB\-\-force\fR is required.
+ 
+ .SH OPTIONS
+ .TP
+ .BR \-a , " \-\-all"
+ Erase all available signatures.  The set of erased signatures can be
+-restricted with the \fB\-t\fP \fIlist\fP option.
++restricted with the \fB\-t\fR option.
+ .TP
+ .BR \-b , " \-\-backup"
+ Create a signature backup to the file $HOME/wipefs-<devname>-<offset>.bak.
+-For more details see EXAMPLES section.
++For more details see the \fBEXAMPLES\fR section.
+ .TP
+ .BR \-f , " \-\-force"
+ Force erasure, even if the filesystem is mounted.  This is required in
+-order to erase the partition table on a block device.
++order to erase a partition-table signature on a block device.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
+@@ -66,7 +67,7 @@ Causes everything to be done except for the write() call.
+ Specify the location (in bytes) of the signature which should be erased from the
+ device.  The \fIoffset\fR number may include a "0x" prefix; then the number will be
+ interpreted as a hex value.  It is possible to specify multiple \fB-o\fR options.
+-
++.sp
+ The \fIoffset\fR argument may be followed by the multiplicative
+ suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB
+ (the "iB" is optional, e.g. "K" has the same meaning as "KiB"), or the suffixes
+@@ -77,7 +78,7 @@ Print out in parsable instead of printable format.  Encode all potentially unsaf
+ characters of a string to the corresponding hex value prefixed by '\\x'.
+ .TP
+ .BR \-q , " \-\-quiet"
+-Suppress output messages after successful signature wipe.
++Suppress any messages after a successful signature wipe.
+ .TP
+ .BR \-t , " \-\-types " \fIlist\fP
+ Limit the set of printed or erased signatures.  More than one type may
+@@ -94,7 +95,7 @@ Erases all signatures from the device /dev/sdb and creates a signature backup
+ file ~/wipefs-sdb-<offset>.bak for each signature.
+ .TP
+ .BR "dd if=~/wipefs-sdb-0x00000438.bak of=/dev/sdb seek=$((0x00000438)) bs=1 conv=notrunc"
+-Restores ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
++Restores an ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
+ .SH AUTHOR
+ Karel Zak <kzak@redhat.com>
+ .SH ENVIRONMENT
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
