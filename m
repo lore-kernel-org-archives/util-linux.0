@@ -1,62 +1,172 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34206 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752922AbbALKlV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Jan 2015 05:41:21 -0500
-Date: Mon, 12 Jan 2015 11:41:11 +0100
-From: karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/4] docs: mention that setarch may not be able to set
- all listed architectures
-Message-ID: <20150112104111.GE20899@x2.net.home>
-References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
- <1420897295-17573-2-git-send-email-bensberg@justemail.net>
- <54B2A27A.50401@gmx.com>
- <1420996041.3944497.212461717.015CE843@webmail.messagingengine.com>
- <54B2C449.8010206@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <54B2C449.8010206@gmx.com>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:40367 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751555AbaL0RRm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:42 -0500
+Received: by mail-wg0-f47.google.com with SMTP id n12so15964291wgh.6
+        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:39 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>, Wolfgang Richter <wolf@cs.cmu.edu>,
+        Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: [PATCH 15/22] script: use signalfd() to catch signals
+Date: Sat, 27 Dec 2014 17:17:28 +0000
+Message-Id: <1419700655-19107-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 11, 2015 at 01:43:21PM -0500, JWP wrote:
-> On 01/11/2015 12:07 PM, Benno Schulenberg wrote:
-> > 
-> > On Sun, Jan 11, 2015, at 17:19, JWP wrote:
-> >> On 01/10/2015 08:41 AM, Benno Schulenberg wrote:
-> >>> -\fB\-\-uname\-2.6\fR
-> >>> -Causes the program to see a kernel version number beginning with 2.6.
-> >>> +.B \-\-uname-2.6
-> >>
-> >> This is incorrect. Options are always constructed with minus signs never a hyphens.
-> >> The only time a hyphen should be used in man-pages is for normally hyphenated 
-> >> dictionary words. Commands, options, variables, paths, urls, etc. all use the
-> >> minus sign character.
-> > 
-> > You are right.  However, on a terminal both hyphen and minus sign render
-> > to 0x2d.  When printed, the characters are rendered differently, and then
-> > I prefer to see a tiny hyphen instead of a minus sign in hyphenated options.
-> > And since you cannot copy and paste from a printed document, it doesn't
-> > matter that the more readable hyphen is used instead of the correct minus
-> > sign.
-> 
-> The world is going paperless, favoring print manuals over online is going the
-> wrong direction. Just because it uses the same glyph on your terminal does not
-> mean the same will be true for every application that renders a man-page.
-> 
-> However, the more important point is not what glyph is printed, but how troff 
-> formats a hyphen vs a minus sign. We do not want line breaks made mid: command,
+This is incomplete change.  Working command requires the subsequent
+select() to poll() change as well.
 
- For me is important to use in man pages the same option names (same
- chars) like we have in source code where I see 0x2d, and I'd like
- like to minimize variability in the man pages, it's better to be
- consistent than be perfect.
+Addresses: https://github.com/karelzak/util-linux/pull/62
+CC: Wolfgang Richter <wolf@cs.cmu.edu>
+CC: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/script.c | 47 ++++++++++++++---------------------------------
+ 1 file changed, 14 insertions(+), 33 deletions(-)
 
-    Karel
-
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 8f59fe8..315c46b 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -63,6 +63,8 @@
+ #include <stddef.h>
+ #include <sys/wait.h>
+ #include <poll.h>
++#include <sys/signalfd.h>
++#include <assert.h>
+ 
+ #include "closestream.h"
+ #include "nls.h"
+@@ -106,8 +108,8 @@ struct script_control {
+ 	 isterm:1,		/* is child process running as terminal */
+ 	 resized:1,		/* has terminal been resized */
+ 	 die:1;			/* terminate program */
+-	sigset_t block_mask;	/* signals that are blocked */
+-	sigset_t unblock_mask;	/* original signal mask */
++	sigset_t sigset;	/* catch SIGCHLD and SIGWINCH with signalfd() */
++	int sigfd;		/* file descriptor for signalfd() */
+ };
+ struct script_control *gctl;	/* global control structure, used in signal handlers */
+ 
+@@ -245,16 +247,13 @@ static void doinput(struct script_control *ctl)
+ 
+ 	FD_ZERO(&readfds);
+ 
+-	/* block SIGCHLD */
+-	sigprocmask(SIG_SETMASK, &ctl->block_mask, &ctl->unblock_mask);
+-
+ 	while (!ctl->die) {
+ 		FD_SET(STDIN_FILENO, &readfds);
+ 
+ 		errno = 0;
+ 		/* wait for input or signal (including SIGCHLD) */
+ 		if ((cc = pselect(STDIN_FILENO + 1, &readfds, NULL, NULL, NULL,
+-				  &ctl->unblock_mask)) > 0) {
++				  NULL)) > 0) {
+ 
+ 			if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
+ 				if (write_all(ctl->master, ibuf, cc)) {
+@@ -278,9 +277,6 @@ static void doinput(struct script_control *ctl)
+ 		}
+ 	}
+ 
+-	/* unblock SIGCHLD */
+-	sigprocmask(SIG_SETMASK, &ctl->unblock_mask, NULL);
+-
+ 	/* To be sure that we don't miss any data */
+ 	wait_for_empty_fd(ctl, ctl->slave);
+ 	wait_for_empty_fd(ctl, ctl->master);
+@@ -349,29 +345,24 @@ static void dooutput(struct script_control *ctl)
+ 	do {
+ 		if (ctl->die || errsv == EINTR) {
+ 			struct pollfd fds[] = {
++				{.fd = ctl->sigfd, .events = POLLIN | POLLERR | POLLHUP},
+ 				{.fd = ctl->master, .events = POLLIN}
+ 			};
+ 			if (poll(fds, 1, 50) <= 0)
+ 				break;
+ 		}
+ 
+-		/* block SIGCHLD */
+-		sigprocmask(SIG_SETMASK, &ctl->block_mask, &ctl->unblock_mask);
+-
+ 		FD_SET(ctl->master, &readfds);
+ 		errno = 0;
+ 
+ 		/* wait for input or signal (including SIGCHLD) */
+ 		if ((cc = pselect(ctl->master + 1, &readfds, NULL, NULL, NULL,
+-				  &ctl->unblock_mask)) > 0) {
++				  NULL)) > 0) {
+ 
+ 			cc = read(ctl->master, obuf, sizeof(obuf));
+ 		}
+ 		errsv = errno;
+ 
+-		/* unblock SIGCHLD */
+-		sigprocmask(SIG_SETMASK, &ctl->unblock_mask, NULL);
+-
+ 		if (ctl->tflg)
+ 			gettimeofday(&tv, NULL);
+ 
+@@ -562,7 +553,6 @@ int main(int argc, char **argv)
+ 		.master = -1,
+ 		0
+ 	};
+-	struct sigaction sa;
+ 	int ch;
+ 
+ 	enum { FORCE_OPTION = CHAR_MAX + 1 };
+@@ -650,19 +640,15 @@ int main(int argc, char **argv)
+ #ifdef HAVE_LIBUTEMPTER
+ 	utempter_add_record(master, NULL);
+ #endif
+-	/* setup SIGCHLD handler */
+-	sigemptyset(&sa.sa_mask);
+-	sa.sa_flags = 0;
+-	sa.sa_handler = sig_finish;
+-	sigaction(SIGCHLD, &sa, NULL);
+-
+-	/* init mask for SIGCHLD */
+-	sigprocmask(SIG_SETMASK, NULL, &ctl.block_mask);
+-	sigaddset(&ctl.block_mask, SIGCHLD);
++	/* setup signal handler */
++	assert(sigemptyset(&ctl.sigset) == 0);
++	assert(sigaddset(&ctl.sigset, SIGCHLD) == 0);
++	assert(sigaddset(&ctl.sigset, SIGWINCH) == 0);
++	assert(sigprocmask(SIG_BLOCK, &ctl.sigset, NULL) == 0);
++	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, 0)) < 0)
++		err(EXIT_FAILURE, _("cannot set signal handler"));
+ 
+-	sigprocmask(SIG_SETMASK, &ctl.block_mask, &ctl.unblock_mask);
+ 	ctl.child = fork();
+-	sigprocmask(SIG_SETMASK, &ctl.unblock_mask, NULL);
+ 
+ 	if (ctl.child < 0) {
+ 		warn(_("fork failed"));
+@@ -670,9 +656,7 @@ int main(int argc, char **argv)
+ 	}
+ 	if (ctl.child == 0) {
+ 
+-		sigprocmask(SIG_SETMASK, &ctl.block_mask, NULL);
+ 		ctl.subchild = ctl.child = fork();
+-		sigprocmask(SIG_SETMASK, &ctl.unblock_mask, NULL);
+ 
+ 		if (ctl.child < 0) {
+ 			warn(_("fork failed"));
+@@ -682,9 +666,6 @@ int main(int argc, char **argv)
+ 			dooutput(&ctl);
+ 		else
+ 			doshell(&ctl);
+-	} else {
+-		sa.sa_handler = resize;
+-		sigaction(SIGWINCH, &sa, NULL);
+ 	}
+ 	doinput(&ctl);
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.2.1
+
