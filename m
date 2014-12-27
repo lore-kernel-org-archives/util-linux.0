@@ -1,46 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59436 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751969AbbALJhW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Jan 2015 04:37:22 -0500
-Date: Mon, 12 Jan 2015 10:37:11 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: JWP <elseifthen@gmx.com>, Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/4] hwclock: update man page for v2.26 rc
-Message-ID: <20150112093711.GA20899@x2.net.home>
-References: <54AE031C.30907@gmx.com>
- <54AE052C.6050202@gmx.com>
- <1420893866.3537848.212162497.2B990B0E@webmail.messagingengine.com>
- <54B16A8A.3090605@gmx.com>
- <1420976675.3854707.212394769.57AD68B2@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1420976675.3854707.212394769.57AD68B2@webmail.messagingengine.com>
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:38296 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751573AbaL0RRx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:53 -0500
+Received: by mail-wg0-f43.google.com with SMTP id l18so16090730wgh.30
+        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:51 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 22/22] script: use correct input type, move comment, and so on
+Date: Sat, 27 Dec 2014 17:17:35 +0000
+Message-Id: <1419700655-19107-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 11, 2015 at 12:44:35PM +0100, Benno Schulenberg wrote:
-> BTW, Karel, where are the older versions of util-linux stored
-> (the ones before 2.13)?  I can't find them on kernel.org, but did find them
-> on http://ftp.europeonline.com/pub/linux/utils/util-linux/ .
+Minor corrections.
 
-Well, all known history has been ported to git (see git tag -l), but I
-can push it to kernel.org ftp too (OK, added to may TODO).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/script.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-> (Also BTW, Karel, where has the homepage of util-linux gone?
-> It is no longer http://userweb.kernel.org/~kzak/util-linux/ .)
-
-Yes, after the kernel.org hack the user web pages are no more
-supported and I think that
-
- https://en.wikipedia.org/wiki/Util-linux
-
-is enough, it's better to keep all important information there, than 
-create another extra page.
-
-    Karel
-
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 7a992da..c784f8a 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -179,7 +179,7 @@ static void finish(struct script_control *ctl, int wait)
+ 	pid_t pid;
+ 	int options = wait ? 0 : WNOHANG;
+ 
+-	while ((pid = wait3(&status, options, 0)) > 0)
++	while ((pid = wait3(&status, options, NULL)) > 0)
+ 		if (pid == ctl->child)
+ 			ctl->childstatus = status;
+ }
+@@ -458,14 +458,6 @@ static void getmaster(struct script_control *ctl)
+ #endif				/* not HAVE_LIBUTIL */
+ }
+ 
+-/*
+- * script -t prints time delays as floating point numbers
+- * The example program (scriptreplay) that we provide to handle this
+- * timing output is a perl script, and does not handle numbers in
+- * locale format (not even when "use locale;" is added).
+- * So, since these numbers are not for human consumption, it seems
+- * easiest to set LC_NUMERIC here.
+- */
+ int main(int argc, char **argv)
+ {
+ 	struct script_control ctl = {
+@@ -494,7 +486,14 @@ int main(int argc, char **argv)
+ 	};
+ 
+ 	setlocale(LC_ALL, "");
+-	setlocale(LC_NUMERIC, "C");	/* see comment above */
++	/*
++	 * script -t prints time delays as floating point numbers.  The example
++	 * program (scriptreplay) that we provide to handle this timing output
++	 * is a perl script, and does not handle numbers in locale format (not
++	 * even when "use locale;" is added).  So, since these numbers are not
++	 * for human consumption, it seems easiest to set LC_NUMERIC here.
++	 */
++	setlocale(LC_NUMERIC, "C");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+@@ -531,7 +530,6 @@ int main(int argc, char **argv)
+ 		case 'h':
+ 			usage(stdout);
+ 			break;
+-		case '?':
+ 		default:
+ 			usage(stderr);
+ 		}
+@@ -579,6 +577,6 @@ int main(int argc, char **argv)
+ 	if (ctl.child == 0)
+ 		doshell(&ctl);
+ 	do_io(&ctl);
+-
+-	return EXIT_SUCCESS;
++	/* should not happen, do_io() calls done() */
++	return EXIT_FAILURE;
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.2.1
+
