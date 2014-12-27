@@ -1,155 +1,316 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:62429 "EHLO
-	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751609AbbASVIz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 Jan 2015 16:08:55 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:54277 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751553AbaL0RRl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:41 -0500
+Received: by mail-wg0-f41.google.com with SMTP id y19so16164318wgg.28
+        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:40 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH V3] docs: fix grammar and punctuation and typos in 2.26 release notes
-Date: Mon, 19 Jan 2015 22:08:23 +0100
-Message-Id: <1421701703-2129-1-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
-References: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
+Cc: Sami Kerola <kerolasa@iki.fi>, Wolfgang Richter <wolf@cs.cmu.edu>,
+        Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: [PATCH 16/22] script: use poll() rather than select()
+Date: Sat, 27 Dec 2014 17:17:29 +0000
+Message-Id: <1419700655-19107-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also trim some trailing whitespace.
+Finalize the signalfd() change by adding file descriptors to poll() loop.
 
-Reviewed-by: Peter Cordes <peter@cordes.ca>
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Addresses: https://github.com/karelzak/util-linux/pull/62
+CC: Wolfgang Richter <wolf@cs.cmu.edu>
+CC: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- Documentation/releases/v2.26-ReleaseNotes |   74 ++++++++++++++--------------
- 1 files changed, 37 insertions(+), 37 deletions(-)
+ term-utils/script.c | 202 +++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 114 insertions(+), 88 deletions(-)
 
-diff --git a/Documentation/releases/v2.26-ReleaseNotes b/Documentation/releases/v2.26-ReleaseNotes
-index b7712f7..655aebe 100644
---- a/Documentation/releases/v2.26-ReleaseNotes
-+++ b/Documentation/releases/v2.26-ReleaseNotes
-@@ -1,29 +1,29 @@
- Util-linux 2.26 Release Notes
- =============================
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 315c46b..456355e 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -82,6 +82,8 @@
  
-- This version provides completely new sfdisk(8) command, the new version is
-- based on libfdisk. If your use-cases depend on sfdisk(8) then it is strongly
-+ This version provides a completely new sfdisk(8) command; the new version is
-+ based on libfdisk. If your use cases depend on sfdisk(8), then it is strongly
-  recommended to be careful and re-test your scripts. The new version supports
-- MBR and GPT disk labels (SGI and SUN are also supported but no well tested).
-- The new version does no more support some obscure MBR specific command line
-- options and legacy CHS addressing.
-+ MBR and GPT disk labels (SGI and SUN are also supported but not well tested).
-+ The new version no longer supports some obscure MBR-specific command-line
-+ options nor legacy CHS addressing.
+ #define DEFAULT_OUTPUT "typescript"
  
++enum { POLLFDS = 2 };
++
+ struct script_control {
+ 	char *shell;		/* shell to be executed */
+ 	char *cflg;		/* command to be executed */
+@@ -106,12 +108,10 @@ struct script_control {
+ 	 tflg:1,		/* include timing file */
+ 	 forceflg:1,		/* write output to links */
+ 	 isterm:1,		/* is child process running as terminal */
+-	 resized:1,		/* has terminal been resized */
+ 	 die:1;			/* terminate program */
+ 	sigset_t sigset;	/* catch SIGCHLD and SIGWINCH with signalfd() */
+ 	int sigfd;		/* file descriptor for signalfd() */
+ };
+-struct script_control *gctl;	/* global control structure, used in signal handlers */
  
-- The library libblkid (and blkid(8) on command line) now uses the same UDF
-- fields like Windows and another operations systems to get human readable
-- UDF volume identifiers (LABEL= tag). This change maybe backwardly incompatible 
-+ The library libblkid (and blkid(8) on the command line) now uses the same UDF
-+ fields as Windows and other operating systems in order to get human-readable
-+ UDF volume identifiers (LABEL= tag). This change may be backwardly incompatible
-  for some UDF volumes.
+ static void __attribute__((__noreturn__)) usage(FILE *out)
+ {
+@@ -233,10 +233,10 @@ static void finish(struct script_control *ctl, int wait)
  
+ static void doinput(struct script_control *ctl)
+ {
+-	int errsv = 0;
+-	ssize_t cc = 0;
+ 	char ibuf[BUFSIZ];
+-	fd_set readfds;
++	struct pollfd pfd[POLLFDS];
++	int ret, i;
++	ssize_t bytes;
  
-  The command hwclock(8) uses the drift correction for all relevant operations
-- and it is unnecessary to specify --adjuts on hwclock command line now.
-+ and it is unnecessary to specify --adjust on the hwclock command line now.
+ 	/* close things irrelevant for this process */
+ 	if (ctl->typescriptfp)
+@@ -245,35 +245,49 @@ static void doinput(struct script_control *ctl)
+ 		fclose(ctl->timingfp);
+ 	ctl->typescriptfp = ctl->timingfp = NULL;
  
-- The command hwclock(8) does not automatically (re)calculate drift factor on
-- --systohc to avoid several problem (ntpd with an '11 minute mode', etc.), but
-- new command line option --update-drift has to be explicitly used to force
-- hwclock(8) to update /etc/adjtime. 
-+ The command hwclock(8) does not automatically (re)calculate the drift factor on
-+ --systohc to avoid several problems (ntpd with '11 minute mode', for example),
-+ but the new command-line option --update-drift has to be explicitly used to
-+ force hwclock(8) to update /etc/adjtime.
+-	FD_ZERO(&readfds);
++	pfd[0].fd = STDIN_FILENO;
++	pfd[0].events = POLLIN;
++	pfd[1].fd = ctl->sigfd;
++	pfd[1].events = POLLIN | POLLERR | POLLHUP;
  
-- For more details see hwclock(8) man page.
-+ For more details see the hwclock(8) man page.
+ 	while (!ctl->die) {
+-		FD_SET(STDIN_FILENO, &readfds);
+-
+-		errno = 0;
+-		/* wait for input or signal (including SIGCHLD) */
+-		if ((cc = pselect(STDIN_FILENO + 1, &readfds, NULL, NULL, NULL,
+-				  NULL)) > 0) {
+-
+-			if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
+-				if (write_all(ctl->master, ibuf, cc)) {
++		/* wait for input or signal */
++		ret = poll(pfd, POLLFDS, -1);
++		if (ret < 0) {
++			if (errno == EAGAIN)
++				continue;
++			warn(_("poll failed"));
++			fail(ctl);
++		}
++		for (i = 0; i < POLLFDS; i++) {
++			if (pfd[i].revents == 0)
++				continue;
++			if (i == 0 && (bytes = read(pfd[i].fd, ibuf, BUFSIZ)) > 0) {
++				if (write_all(ctl->master, ibuf, bytes)) {
+ 					warn(_("write failed"));
+ 					fail(ctl);
+ 				}
+ 			}
+-		}
+-
+-		if (cc < 0 && errno == EINTR && ctl->resized) {
+-			/* transmit window change information to the child */
+-			if (ctl->isterm) {
+-				ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
+-				ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
++			if (i == 1) {
++				struct signalfd_siginfo info;
++				ssize_t bytes;
++
++				bytes = read(pfd[i].fd, &info, sizeof(info));
++				assert(bytes == sizeof(info));
++				switch (info.ssi_signo) {
++				case SIGCHLD:
++					finish(ctl, 0);
++					break;
++				case SIGWINCH:
++					if (ctl->isterm) {
++						ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
++						ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
++					}
++					break;
++				default:
++					abort();
++				}
+ 			}
+-			ctl->resized = 0;
+-
+-		} else if (cc <= 0 && errno != EINTR) {
+-			errsv = errno;
+-			break;
+ 		}
+ 	}
  
+@@ -281,7 +295,7 @@ static void doinput(struct script_control *ctl)
+ 	wait_for_empty_fd(ctl, ctl->slave);
+ 	wait_for_empty_fd(ctl, ctl->master);
  
- Release highlights
-@@ -33,56 +33,56 @@ zramctl(8):
-  - this NEW COMMAND allows to control /dev/zramN devices
+-	if (ctl->die == 0 && cc == 0 && errsv == 0) {
++	if (ctl->die == 0) {
+ 		/*
+ 		 * Forward EOF from stdin (detected by read() above) to slave
+ 		 * (shell) to correctly terminate the session. It seems we have
+@@ -308,24 +322,41 @@ static void doinput(struct script_control *ctl)
+ 	done(ctl);
+ }
  
- agetty(8):
-- - supports new options --reload to force already running agetty processes to
--   reprint /etc/issue file. 
-+ - supports new option --reload to force already running agetty processes to
-+   reprint the /etc/issue file
+-static void sig_finish(int dummy __attribute__((__unused__)))
++static void write_output(struct script_control *ctl, char *obuf,
++			    ssize_t bytes, double *oldtime)
+ {
+-	finish(gctl, 0);
+-}
  
- cfdisk(8), sfdisk(8) and fdisk(8):
-- - supports sfdisk compatible scripts, it's possible to save your partitioning 
--   layout to text files and (re)use it in all fdisks.
-+ - support sfdisk-compatible scripts; it's possible to save your partitioning
-+   layout to text files and (re)use it in all fdisks
+-static void resize(int dummy __attribute__((__unused__)))
+-{
+-	gctl->resized = 1;
++	if (ctl->tflg && ctl->timingfp) {
++		struct timeval tv;
++		double newtime;
++
++		gettimeofday(&tv, NULL);
++		newtime = tv.tv_sec + (double)tv.tv_usec / 1000000;
++		fprintf(ctl->timingfp, "%f %zd\n", newtime - *oldtime, bytes);
++		if (ctl->fflg)
++			fflush(ctl->timingfp);
++		*oldtime = newtime;
++	}
++	if (fwrite_all(obuf, 1, bytes, ctl->typescriptfp)) {
++		warn(_("cannot write script file"));
++		fail(ctl);
++	}
++	if (ctl->fflg)
++		fflush(ctl->typescriptfp);
++	if (write_all(STDOUT_FILENO, obuf, bytes)) {
++		warn(_("write failed"));
++		fail(ctl);
++	}
+ }
  
- fdisk(8), sfdisk(8):
-- - support new command line option "--output <list>" to specify output columns
--   for --list or print commands.
-+ - support new command-line option "--output <list>" to specify output columns
-+   for --list or print commands
++
+ static void dooutput(struct script_control *ctl)
+ {
+-	ssize_t cc;
+ 	char obuf[BUFSIZ];
+-	struct timeval tv;
+-	double oldtime = time(NULL), newtime;
+-	int errsv = 0;
+-	fd_set readfds;
++	struct pollfd pfd[POLLFDS];
++	int ret, i;
++	ssize_t bytes;
++	double oldtime = time(NULL);
  
- nsenter(1):
-  - has been updated to work with the latest kernel changes in user namespaces
-- - supports new command line option --preserve-credentials
-+ - supports new command-line option --preserve-credentials
+ 	close(STDIN_FILENO);
+ #ifdef HAVE_LIBUTIL
+@@ -340,57 +371,53 @@ static void dooutput(struct script_control *ctl)
+ 		fprintf(ctl->typescriptfp, _("Script started on %s"), obuf);
+ 	}
  
- unshare(1):
-  - has been updated to work with the latest kernel changes in user namespaces
-- - suuports new command line option "--setgroups=<deny|allow>"
-+ - supports new command-line option "--setgroups=<deny|allow>"
+-	FD_ZERO(&readfds);
+-
+-	do {
+-		if (ctl->die || errsv == EINTR) {
+-			struct pollfd fds[] = {
+-				{.fd = ctl->sigfd, .events = POLLIN | POLLERR | POLLHUP},
+-				{.fd = ctl->master, .events = POLLIN}
+-			};
+-			if (poll(fds, 1, 50) <= 0)
+-				break;
+-		}
+-
+-		FD_SET(ctl->master, &readfds);
+-		errno = 0;
+-
+-		/* wait for input or signal (including SIGCHLD) */
+-		if ((cc = pselect(ctl->master + 1, &readfds, NULL, NULL, NULL,
+-				  NULL)) > 0) {
+-
+-			cc = read(ctl->master, obuf, sizeof(obuf));
+-		}
+-		errsv = errno;
+-
+-		if (ctl->tflg)
+-			gettimeofday(&tv, NULL);
+-
+-		if (errsv == EINTR && cc <= 0)
+-			continue;	/* try it again */
+-		if (cc <= 0)
+-			break;
+-		if (ctl->tflg && ctl->timingfp) {
+-			newtime = tv.tv_sec + (double)tv.tv_usec / 1000000;
+-			fprintf(ctl->timingfp, "%f %zd\n", newtime - oldtime, cc);
+-			oldtime = newtime;
+-		}
+-		if (fwrite_all(obuf, 1, cc, ctl->typescriptfp)) {
+-			warn(_("cannot write script file"));
++	pfd[0].fd = ctl->master;
++	pfd[0].events = POLLIN;
++	pfd[1].fd = ctl->sigfd;
++	pfd[1].events = POLLIN | POLLERR | POLLHUP;
++
++	while (1) {
++		/* wait for input or signal */
++		ret = poll(pfd, POLLFDS, -1);
++		if (ret < 0) {
++			if (errno == EAGAIN)
++				continue;
++			warn(_("poll failed"));
+ 			fail(ctl);
+ 		}
+-		if (ctl->fflg) {
+-			fflush(ctl->typescriptfp);
+-			if (ctl->tflg && ctl->timingfp)
+-				fflush(ctl->timingfp);
+-		}
+-		if (write_all(STDOUT_FILENO, obuf, cc)) {
+-			warn(_("write failed"));
+-			fail(ctl);
++		for (i = 0; i < POLLFDS; i++) {
++			if (pfd[i].revents == 0)
++				continue;
++			if (i == 0) {
++				bytes = read(pfd[i].fd, obuf, BUFSIZ);
++				if (bytes < 0) {
++					if (errno == EAGAIN)
++						continue;
++					fail(ctl);
++				}
++				write_output(ctl, obuf, bytes, &oldtime);
++				continue;
++			}
++			if (i == 1) {
++				struct signalfd_siginfo info;
++				ssize_t bytes;
++
++				bytes = read(pfd[i].fd, &info, sizeof(info));
++				assert(bytes == sizeof(info));
++				switch (info.ssi_signo) {
++				case SIGCHLD:
++					done(ctl);
++					break;
++				case SIGWINCH:
++					/* nothing */
++					break;
++				default:
++					abort();
++				}
++			}
+ 		}
+-	} while (1);
+-
+-	done(ctl);
++	}
++	abort();
+ }
  
- swapon(8):
-- - supports new command line option "-o <list>" with the same semantic like
--   -o for mount(8); now it's possible to specify swap options on command line
--   by the same string like in fstab 
-+ - supports new command-line option "-o <list>" with the same semantics as
-+   -o for mount(8); it's now possible to specify swap options on the command
-+   line by the same string as in fstab
+ static void getslave(struct script_control *ctl)
+@@ -575,7 +602,6 @@ int main(int argc, char **argv)
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+-	gctl = &ctl;
  
- fdformat(8):
-- - supports new command line options --from/to to specify tracks and --repear
--   for broken floppies.
-+ - supports new command-line options --from and --to to specify tracks and
-+   --repair for broken floppies
- 
- getopt(1):
-- - has been updated to the latest version (originally maintained out of
--   util-linux) and refactored.
-+ - has been updated to the latest version (originally maintained outside of
-+   util-linux) and refactored
- 
- ldattach(8):
-- - has been improved to support GSM0710 and intro modem commands 
-+ - has been improved to support GSM0710 and intro modem commands
- 
- logger(1):
-- - supports new command line option --id= to specify PID (or another ID)
-+ - supports new command-line option --id= to specify PID (or another ID)
-  - allows to specify --rfc3164 or --rfc5424 syslog protocols
- 
- libfdisk:
-- - the library is distributed as shared library with stable API and standard
--   header file.
-+ - the library is distributed as a shared library with a stable API and a
-+   standard header file
- 
- libmount:
-- - provides new simple API to monitor mount table changes (including
--   changes in userspace mount options).
-+ - provides a new simple API to monitor mount-table changes (including
-+   changes in userspace mount options)
- 
- 
--The debug infrastructure in libraries libmount, libsmartcolsm, libfdisk and
--libblkid allows to specify debug options by human readable strings too. For
-+The debug infrastructure in the libraries libmount, libsmartcolsm, libfdisk and
-+libblkid allows to specify debug options by human-readable strings too. For
- example "LIBMOUNT_DEBUG=all mount /mnt".
- 
- 
+ 	while ((ch = getopt_long(argc, argv, "ac:efqt::Vh", longopts, NULL)) != -1)
+ 		switch (ch) {
 -- 
-1.7.0.4
+2.2.1
 
