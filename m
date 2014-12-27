@@ -1,172 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:40367 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751555AbaL0RRm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:42 -0500
-Received: by mail-wg0-f47.google.com with SMTP id n12so15964291wgh.6
-        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:39 -0800 (PST)
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:35298 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751553AbaL0RRo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:44 -0500
+Received: by mail-wi0-f169.google.com with SMTP id r20so20760533wiv.2
+        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:43 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>, Wolfgang Richter <wolf@cs.cmu.edu>,
-        Ruediger Meier <ruediger.meier@ga-group.nl>
-Subject: [PATCH 15/22] script: use signalfd() to catch signals
-Date: Sat, 27 Dec 2014 17:17:28 +0000
-Message-Id: <1419700655-19107-2-git-send-email-kerolasa@iki.fi>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 19/22] script: add 'Script started' line always to capture file
+Date: Sat, 27 Dec 2014 17:17:32 +0000
+Message-Id: <1419700655-19107-6-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
 References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is incomplete change.  Working command requires the subsequent
-select() to poll() change as well.
+The scriptreplay(1) will expect the capture file to have a header that is
+omited.  Before this change the --quiet option together with timing
+caused following replay error.
 
-Addresses: https://github.com/karelzak/util-linux/pull/62
-CC: Wolfgang Richter <wolf@cs.cmu.edu>
-CC: Ruediger Meier <ruediger.meier@ga-group.nl>
+$ script --quiet --timing=timing
+[...]
+$ scriptreplay timing typescript
+[...]
+scriptreplay: unexpected end of file on typescript
+
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- term-utils/script.c | 47 ++++++++++++++---------------------------------
- 1 file changed, 14 insertions(+), 33 deletions(-)
+ term-utils/script.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/term-utils/script.c b/term-utils/script.c
-index 8f59fe8..315c46b 100644
+index 2def44a..6e11fa3 100644
 --- a/term-utils/script.c
 +++ b/term-utils/script.c
-@@ -63,6 +63,8 @@
- #include <stddef.h>
- #include <sys/wait.h>
- #include <poll.h>
-+#include <sys/signalfd.h>
-+#include <assert.h>
+@@ -227,6 +227,7 @@ static void do_io(struct script_control *ctl)
+ 	int ret, i;
+ 	ssize_t bytes;
+ 	double oldtime = time(NULL);
++	time_t tvec = time((time_t *)NULL);
  
- #include "closestream.h"
- #include "nls.h"
-@@ -106,8 +108,8 @@ struct script_control {
- 	 isterm:1,		/* is child process running as terminal */
- 	 resized:1,		/* has terminal been resized */
- 	 die:1;			/* terminate program */
--	sigset_t block_mask;	/* signals that are blocked */
--	sigset_t unblock_mask;	/* original signal mask */
-+	sigset_t sigset;	/* catch SIGCHLD and SIGWINCH with signalfd() */
-+	int sigfd;		/* file descriptor for signalfd() */
- };
- struct script_control *gctl;	/* global control structure, used in signal handlers */
+ 	if (ctl->tflg && !ctl->timingfp)
+ 		ctl->timingfp = fdopen(STDERR_FILENO, "w");
+@@ -238,11 +239,8 @@ static void do_io(struct script_control *ctl)
+ 	pfd[2].fd = ctl->sigfd;
+ 	pfd[2].events = POLLIN | POLLERR | POLLHUP;
  
-@@ -245,16 +247,13 @@ static void doinput(struct script_control *ctl)
+-	if (!ctl->qflg) {
+-		time_t tvec = time((time_t *)NULL);
+-		my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
+-		fprintf(ctl->typescriptfp, _("Script started on %s"), buf);
+-	}
++	my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
++	fprintf(ctl->typescriptfp, _("Script started on %s"), buf);
  
- 	FD_ZERO(&readfds);
- 
--	/* block SIGCHLD */
--	sigprocmask(SIG_SETMASK, &ctl->block_mask, &ctl->unblock_mask);
--
  	while (!ctl->die) {
- 		FD_SET(STDIN_FILENO, &readfds);
- 
- 		errno = 0;
- 		/* wait for input or signal (including SIGCHLD) */
- 		if ((cc = pselect(STDIN_FILENO + 1, &readfds, NULL, NULL, NULL,
--				  &ctl->unblock_mask)) > 0) {
-+				  NULL)) > 0) {
- 
- 			if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
- 				if (write_all(ctl->master, ibuf, cc)) {
-@@ -278,9 +277,6 @@ static void doinput(struct script_control *ctl)
- 		}
- 	}
- 
--	/* unblock SIGCHLD */
--	sigprocmask(SIG_SETMASK, &ctl->unblock_mask, NULL);
--
- 	/* To be sure that we don't miss any data */
- 	wait_for_empty_fd(ctl, ctl->slave);
- 	wait_for_empty_fd(ctl, ctl->master);
-@@ -349,29 +345,24 @@ static void dooutput(struct script_control *ctl)
- 	do {
- 		if (ctl->die || errsv == EINTR) {
- 			struct pollfd fds[] = {
-+				{.fd = ctl->sigfd, .events = POLLIN | POLLERR | POLLHUP},
- 				{.fd = ctl->master, .events = POLLIN}
- 			};
- 			if (poll(fds, 1, 50) <= 0)
- 				break;
- 		}
- 
--		/* block SIGCHLD */
--		sigprocmask(SIG_SETMASK, &ctl->block_mask, &ctl->unblock_mask);
--
- 		FD_SET(ctl->master, &readfds);
- 		errno = 0;
- 
- 		/* wait for input or signal (including SIGCHLD) */
- 		if ((cc = pselect(ctl->master + 1, &readfds, NULL, NULL, NULL,
--				  &ctl->unblock_mask)) > 0) {
-+				  NULL)) > 0) {
- 
- 			cc = read(ctl->master, obuf, sizeof(obuf));
- 		}
- 		errsv = errno;
- 
--		/* unblock SIGCHLD */
--		sigprocmask(SIG_SETMASK, &ctl->unblock_mask, NULL);
--
- 		if (ctl->tflg)
- 			gettimeofday(&tv, NULL);
- 
-@@ -562,7 +553,6 @@ int main(int argc, char **argv)
- 		.master = -1,
- 		0
- 	};
--	struct sigaction sa;
- 	int ch;
- 
- 	enum { FORCE_OPTION = CHAR_MAX + 1 };
-@@ -650,19 +640,15 @@ int main(int argc, char **argv)
- #ifdef HAVE_LIBUTEMPTER
- 	utempter_add_record(master, NULL);
- #endif
--	/* setup SIGCHLD handler */
--	sigemptyset(&sa.sa_mask);
--	sa.sa_flags = 0;
--	sa.sa_handler = sig_finish;
--	sigaction(SIGCHLD, &sa, NULL);
--
--	/* init mask for SIGCHLD */
--	sigprocmask(SIG_SETMASK, NULL, &ctl.block_mask);
--	sigaddset(&ctl.block_mask, SIGCHLD);
-+	/* setup signal handler */
-+	assert(sigemptyset(&ctl.sigset) == 0);
-+	assert(sigaddset(&ctl.sigset, SIGCHLD) == 0);
-+	assert(sigaddset(&ctl.sigset, SIGWINCH) == 0);
-+	assert(sigprocmask(SIG_BLOCK, &ctl.sigset, NULL) == 0);
-+	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, 0)) < 0)
-+		err(EXIT_FAILURE, _("cannot set signal handler"));
- 
--	sigprocmask(SIG_SETMASK, &ctl.block_mask, &ctl.unblock_mask);
- 	ctl.child = fork();
--	sigprocmask(SIG_SETMASK, &ctl.unblock_mask, NULL);
- 
- 	if (ctl.child < 0) {
- 		warn(_("fork failed"));
-@@ -670,9 +656,7 @@ int main(int argc, char **argv)
- 	}
- 	if (ctl.child == 0) {
- 
--		sigprocmask(SIG_SETMASK, &ctl.block_mask, NULL);
- 		ctl.subchild = ctl.child = fork();
--		sigprocmask(SIG_SETMASK, &ctl.unblock_mask, NULL);
- 
- 		if (ctl.child < 0) {
- 			warn(_("fork failed"));
-@@ -682,9 +666,6 @@ int main(int argc, char **argv)
- 			dooutput(&ctl);
- 		else
- 			doshell(&ctl);
--	} else {
--		sa.sa_handler = resize;
--		sigaction(SIGWINCH, &sa, NULL);
- 	}
- 	doinput(&ctl);
- 
+ 		/* wait for input or signal */
 -- 
 2.2.1
 
