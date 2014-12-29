@@ -1,203 +1,117 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f50.google.com ([74.125.82.50]:42936 "EHLO
-	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751322AbbAXHTE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 24 Jan 2015 02:19:04 -0500
-Received: by mail-wg0-f50.google.com with SMTP id b13so1125200wgh.9
-        for <util-linux@vger.kernel.org>; Fri, 23 Jan 2015 23:19:03 -0800 (PST)
-From: Yuri Chornoivan <yurchor@gmail.com>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:51247 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751551AbaL2KRT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Dec 2014 05:17:19 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Yuri Chornoivan <yurchor@ukr.net>
-Subject: [PATCH] Fix various minor typos
-Date: Sat, 24 Jan 2015 09:18:51 +0200
-Message-Id: <1422083931-24410-1-git-send-email-yurchor@ukr.net>
+Subject: [PATCH 02/11] docs: improve some wordings on the man page of wipefs
+Date: Mon, 29 Dec 2014 11:16:57 +0100
+Message-Id: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- Documentation/releases/v2.25-ReleaseNotes |  2 +-
- disk-utils/fdisk-list.c                   |  6 +++---
- disk-utils/sfdisk.c                       | 24 ++++++++++++------------
- libfdisk/src/gpt.c                        |  2 +-
- misc-utils/whereis.c                      |  2 +-
- 5 files changed, 18 insertions(+), 18 deletions(-)
+ misc-utils/wipefs.8 |   33 +++++++++++++++++----------------
+ 1 files changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/Documentation/releases/v2.25-ReleaseNotes b/Documentation/releases/v2.25-ReleaseNotes
-index f4faf7a..d9b9ce4 100644
---- a/Documentation/releases/v2.25-ReleaseNotes
-+++ b/Documentation/releases/v2.25-ReleaseNotes
-@@ -203,7 +203,7 @@ cal:
-    - mention where Gregorian reformation happen in September 1752  [Sami Kerola]
-    - remove optional from short arg -w  [Tommi Kyntola]
-    - remove unnecessary static variables  [Sami Kerola]
--   - remove unnused structure and definition  [Sami Kerola]
-+   - remove unused structure and definition  [Sami Kerola]
-    - rename ascii_wnum() to ascii_weeknum()  [Sami Kerola]
-    - simplify ascii_weeknum() function  [Sami Kerola]
-    - use control structure for run time configuration  [Sami Kerola]
-diff --git a/disk-utils/fdisk-list.c b/disk-utils/fdisk-list.c
-index 824eb48..c65b8b4 100644
---- a/disk-utils/fdisk-list.c
-+++ b/disk-utils/fdisk-list.c
-@@ -104,13 +104,13 @@ void list_disklabel(struct fdisk_context *cxt)
+diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
+index 13cadb4..c4addef 100644
+--- a/misc-utils/wipefs.8
++++ b/misc-utils/wipefs.8
+@@ -2,7 +2,7 @@
+ .\" Copyright 2009 by Karel Zak.  All Rights Reserved.
+ .\" This file may be copied under the terms of the GNU Public License.
+ .\"
+-.TH WIPEFS 8 "October 2009" "util-linux" "System Administration"
++.TH WIPEFS 8 "December 2014" "util-linux" "System Administration"
+ .SH NAME
+ wipefs \- wipe a signature from a device
+ .SH SYNOPSIS
+@@ -20,41 +20,42 @@ to make the signatures invisible for libblkid.
  
- 	itr = fdisk_new_iter(FDISK_ITER_FORWARD);
- 	if (!itr) {
--		fdisk_warn(cxt, _("faild to allocate iterator"));
-+		fdisk_warn(cxt, _("failed to allocate iterator"));
- 		goto done;
- 	}
+ .B wipefs
+ does not erase the filesystem itself nor any other data from the device.
+-When used without options \fB-a\fR or \fB-o\fR, it lists all visible filesystems
++When used without any options, \fBwipefs\fR lists all visible filesystems
+ and the offsets of their basic signatures.
  
- 	out = scols_new_table();
- 	if (!out) {
--		fdisk_warn(cxt, _("faild to allocate output table"));
-+		fdisk_warn(cxt, _("failed to allocate output table"));
- 		goto done;
- 	}
+ .B wipefs
+-calls BLKRRPART ioctl when erase partition table to inform kernel about the change.
++calls the BLKRRPART ioctl when it has erased a partition-table signature
++to inform the kernel about the change.
  
-@@ -151,7 +151,7 @@ void list_disklabel(struct fdisk_context *cxt)
- 		struct libscols_line *ln = scols_table_new_line(out, NULL);
+-Note that some filesystems or some partition tables store more magic strings on
+-the devices.  The
++Note that some filesystems and some partition tables store more magic strings on
++the device.  The
+ .B wipefs
+ command lists only the first offset where a magic string has been detected.  The device
+ is not scanned for additional magic strings for the same filesystem.  It is possible
+-that after \fBwipefs -o \fIoffset\fR the same filesystem or partition
+-table will still be visible by another magic string on another offset.
++that after a \fBwipefs -o \fIoffset\fR the same filesystem or partition
++table will still be visible because of another magic string on another offset.
  
- 		if (!ln) {
--			fdisk_warn(cxt, _("faild to allocate output line"));
-+			fdisk_warn(cxt, _("failed to allocate output line"));
- 			goto done;
- 		}
+-When used with option \fB-a\fR, all magic strings that are visible for libblkid are
++When option \fB-a\fR is used, all magic strings that are visible for libblkid are
+ erased.
  
-diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-index 4142181..599e010 100644
---- a/disk-utils/sfdisk.c
-+++ b/disk-utils/sfdisk.c
-@@ -659,7 +659,7 @@ static void assign_device_partition(struct sfdisk *sf,
- 		errx(EXIT_FAILURE, _("%s: partition %zu: partition table contains %zu "
- 				     "partitions only."), devname, partno, n);
- 	if (!fdisk_is_partition_used(sf->cxt, partno - 1))
--		errx(EXIT_FAILURE, _("%s: partition %zu: partition unnused"),
-+		errx(EXIT_FAILURE, _("%s: partition %zu: partition unused"),
- 				devname, partno);
- }
+ Note that by default
+ .B wipefs
+-does not erase nested partition tables on non-whole disk devices. The option 
+-\-\-force is required.
++does not erase nested partition tables on non-whole disk devices.
++For this the option \fB\-\-force\fR is required.
  
-@@ -684,7 +684,7 @@ static int command_parttype(struct sfdisk *sf, int argc, char **argv)
- 	if (argc == 3)
- 		typestr = argv[2];
- 	else if (argc > 3)
--		errx(EXIT_FAILURE, _("uneexpected arguments"));
-+		errx(EXIT_FAILURE, _("unexpected arguments"));
- 
- 	/* read-only when a new <type> undefined */
- 	assign_device_partition(sf, devname, partno, !typestr);
-@@ -748,7 +748,7 @@ static int command_partuuid(struct sfdisk *sf, int argc, char **argv)
- 	if (argc == 3)
- 		uuid = argv[2];
- 	else if (argc > 3)
--		errx(EXIT_FAILURE, _("uneexpected arguments"));
-+		errx(EXIT_FAILURE, _("unexpected arguments"));
- 
- 	/* read-only if uuid not given */
- 	assign_device_partition(sf, devname, partno, !uuid);
-@@ -803,7 +803,7 @@ static int command_partlabel(struct sfdisk *sf, int argc, char **argv)
- 	if (argc == 3)
- 		name = argv[2];
- 	else if (argc > 3)
--		errx(EXIT_FAILURE, _("uneexpected arguments"));
-+		errx(EXIT_FAILURE, _("unexpected arguments"));
- 
- 	/* read-only if name not given */
- 	assign_device_partition(sf, devname, partno, !name);
-@@ -859,7 +859,7 @@ static int command_partattrs(struct sfdisk *sf, int argc, char **argv)
- 	if (argc == 3)
- 		attrs = argv[2];
- 	else if (argc > 3)
--		errx(EXIT_FAILURE, _("uneexpected arguments"));
-+		errx(EXIT_FAILURE, _("unexpected arguments"));
- 
- 	/* read-only if name not given */
- 	assign_device_partition(sf, devname, partno, !attrs);
-@@ -932,7 +932,7 @@ static void command_fdisk_help(void)
- 	fputs(_(" Commands:\n"), stdout);
- 	color_disable();
- 	fputs(_("   write    write table to disk and exit\n"), stdout);
--	fputs(_("   quit     show new situation and wait for user's feedbadk before write\n"), stdout);
-+	fputs(_("   quit     show new situation and wait for user's feedback before write\n"), stdout);
- 	fputs(_("   abort    exit sfdisk shell\n"), stdout);
- 	fputs(_("   print    print partition table.\n"), stdout);
- 	fputs(_("   help     this help.\n"), stdout);
-@@ -943,7 +943,7 @@ static void command_fdisk_help(void)
- 	color_scheme_enable("help-title", UL_COLOR_BOLD);
- 	fputs(_(" Input format:\n"), stdout);
- 	color_disable();
--	fputs(_("   <start>, <size>, <typy>, <bootable>\n"), stdout);
-+	fputs(_("   <start>, <size>, <type>, <bootable>\n"), stdout);
- 
- 	fputc('\n', stdout);
- 	fputs(_("   <start>  begin of the partition in sectors or bytes if specified\n"
-@@ -1340,7 +1340,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -b, --backup              backup partition table sectors (see -O)\n"), out);
- 	fputs(_(" -f, --force               disable all consistency checking\n"), out);
- 	fputs(_(" -o, --output <list>       output columns\n"), out);
--	fputs(_(" -O, --backup-file <path>  override default backout file name\n"), out);
-+	fputs(_(" -O, --backup-file <path>  override default backup file name\n"), out);
- 	fputs(_(" -N, --partno <num>        specify partition number\n"), out);
- 	fputs(_(" -X, --label <name>        specify label type (dos, gpt, ...)\n"), out);
- 	fputs(_(" -Y, --label-nested <name> specify nested label type (dos, bsd)\n"), out);
-@@ -1349,7 +1349,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
- 	fputs(_("     --no-reread           do not check whether the device is in use\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" -u, --unit S              deprecated, only sector unit is supported\n"), out);
--	fputs(_(" -L, --Linux               deprecated, only for backward copatibility\n"), out);
-+	fputs(_(" -L, --Linux               deprecated, only for backward compatibility\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
-@@ -1441,11 +1441,11 @@ int main(int argc, char *argv[])
- 		case OPT_CHANGE_ID:
- 		case OPT_PRINT_ID:
- 		case OPT_ID:
--			warnx(_("%s is deprecated in favour of ---part-type"),
-+			warnx(_("%s is deprecated in favour of --part-type"),
- 				longopts[longidx].name);
- 			sf->act = ACT_PARTTYPE;
- 		case 'c':
--			warnx(_("--id s deprecated in favour of ---part-type"));
-+			warnx(_("--id is deprecated in favour of --part-type"));
- 			sf->act = ACT_PARTTYPE;
- 			break;
- 		case 'd':
-@@ -1490,7 +1490,7 @@ int main(int argc, char *argv[])
- 			break;
- 		case 'u':
- 			if (*optarg != 'S')
--				errx(EXIT_FAILURE, _("unssupported unit '%c'"), *optarg);
-+				errx(EXIT_FAILURE, _("unsupported unit '%c'"), *optarg);
- 			break;
- 		case 'v':
- 			printf(_("%s from %s\n"), program_invocation_short_name,
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index f6e1741..7867a30 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -1447,7 +1447,7 @@ static int gpt_entry_attrs_from_string(
- 		}
- 
- 		if (bit < 0) {
--			fdisk_warnx(cxt, _("unssuported GPT attribute bit '%s'"), p);
-+			fdisk_warnx(cxt, _("unsuported GPT attribute bit '%s'"), p);
- 			return -EINVAL;
- 		}
- 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index da809a1..e6f5b41 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -600,7 +600,7 @@ int main(int argc, char **argv)
- 				usage(stderr);
- 			}
- 
--			if (arg_i < i)		/* moved the the next argv[] item */
-+			if (arg_i < i)		/* moved to the next argv[] item */
- 				break;
- 		}
- 	}
+ .SH OPTIONS
+ .TP
+ .BR \-a , " \-\-all"
+ Erase all available signatures.  The set of erased signatures can be
+-restricted with the \fB\-t\fP \fIlist\fP option.
++restricted with the \fB\-t\fR option.
+ .TP
+ .BR \-b , " \-\-backup"
+ Create a signature backup to the file $HOME/wipefs-<devname>-<offset>.bak.
+-For more details see EXAMPLES section.
++For more details see the \fBEXAMPLES\fR section.
+ .TP
+ .BR \-f , " \-\-force"
+ Force erasure, even if the filesystem is mounted.  This is required in
+-order to erase the partition table on a block device.
++order to erase a partition-table signature on a block device.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
+@@ -66,7 +67,7 @@ Causes everything to be done except for the write() call.
+ Specify the location (in bytes) of the signature which should be erased from the
+ device.  The \fIoffset\fR number may include a "0x" prefix; then the number will be
+ interpreted as a hex value.  It is possible to specify multiple \fB-o\fR options.
+-
++.sp
+ The \fIoffset\fR argument may be followed by the multiplicative
+ suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB
+ (the "iB" is optional, e.g. "K" has the same meaning as "KiB"), or the suffixes
+@@ -77,7 +78,7 @@ Print out in parsable instead of printable format.  Encode all potentially unsaf
+ characters of a string to the corresponding hex value prefixed by '\\x'.
+ .TP
+ .BR \-q , " \-\-quiet"
+-Suppress output messages after successful signature wipe.
++Suppress any messages after a successful signature wipe.
+ .TP
+ .BR \-t , " \-\-types " \fIlist\fP
+ Limit the set of printed or erased signatures.  More than one type may
+@@ -94,7 +95,7 @@ Erases all signatures from the device /dev/sdb and creates a signature backup
+ file ~/wipefs-sdb-<offset>.bak for each signature.
+ .TP
+ .BR "dd if=~/wipefs-sdb-0x00000438.bak of=/dev/sdb seek=$((0x00000438)) bs=1 conv=notrunc"
+-Restores ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
++Restores an ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
+ .SH AUTHOR
+ Karel Zak <kzak@redhat.com>
+ .SH ENVIRONMENT
 -- 
-1.8.5.6
+1.7.0.4
 
