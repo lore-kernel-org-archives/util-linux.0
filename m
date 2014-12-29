@@ -1,63 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:55446 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751949AbbAMTAE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 13 Jan 2015 14:00:04 -0500
-Message-ID: <54B56B23.7080305@gmx.com>
-Date: Tue, 13 Jan 2015 13:59:47 -0500
-From: JWP <elseifthen@gmx.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 3/4] tools: checkmans.sh clean up 'let'
-References: <54B56822.40805@gmx.com>
-In-Reply-To: <54B56822.40805@gmx.com>
-Content-Type: text/plain; charset=utf-8
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:51207 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751665AbaL2KRk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Dec 2014 05:17:40 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 06/11] setarch: make the usage synopsis comprehensible for translators
+Date: Mon, 29 Dec 2014 11:17:01 +0100
+Message-Id: <1419848226-2533-5-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Clean up 'let' issues and loop iteration.
+Use two separate strings for the two different forms of setarch,
+instead of filling in an untranslated word into a single string.
+Also use the standard angular brackets for nonliteral arguments.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- tools/checkmans.sh | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ sys-utils/setarch.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/checkmans.sh b/tools/checkmans.sh
-index 513a750..bd2bc43 100755
---- a/tools/checkmans.sh
-+++ b/tools/checkmans.sh
-@@ -42,7 +42,8 @@ done
- # Try to find missing manuals matching build targets with manual files.
- declare -A MAN_LIST BIN_LIST
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index 0943038..518eaca 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -91,9 +91,10 @@ enum {
+ static void __attribute__((__noreturn__)) show_help(void)
+ {
+ 	fputs(USAGE_HEADER, stdout);
+-	printf(_(" %s%s [options] [program [program arguments]]\n"),
+-	       program_invocation_short_name,
+-	       !strcmp(program_invocation_short_name, "setarch") ? " <arch>" : "");
++	if (!strcmp(program_invocation_short_name, "setarch"))
++		printf(_(" %s <arch> [options] [<program> [<argument>...]]\n"), program_invocation_short_name);
++	else
++		printf(_(" %s [options] [<program> [<argument>...]]\n"), program_invocation_short_name);
  
--COUNT_ERRORS=0
-+declare -i ITER
-+declare -i COUNT_ERRORS=0
- declare -a REPEATS
- declare -A KNOWN_REPEATS
- KNOWN_REPEATS[mount.8]='foo'
-@@ -111,21 +112,14 @@ for I in $(
- 		sed  -e 's/\s\+/\n/g; /^$/d' |
- 		awk 'BEGIN { p="" } { if (0 < length($0)) { if (p == $0) { print } } p = $0 }') )
- 	if [ 0 -lt "${#REPEATS[@]}" ]; then
--		ITER=${#REPEATS[@]}
--		while [ -1 -lt ${ITER} ]; do
-+		ITER=${#REPEATS[@]}+1
-+		while ((ITER--)); do
- 			remove_repeats ${ITER}
--			# The 'let' may cause exit on error.
--			# When ITER == 0 -> let returns 1, bash bug?
--			let ITER=${ITER}-1 || true
- 		done
- 		if [ 0 -lt "${#REPEATS[@]}" ]; then
- 			echo "warning: ${I} has repeating words: ${REPEATS[@]}"
- 		fi
- 	fi
--	# The 'let' may cause exit on error.
--	# COUNT_ERRORS=0; let COUNT_ERRORS=$COUNT_ERRORS+0; echo $?
--	# Is this a bash bug?
--	let COUNT_ERRORS=$COUNT_ERRORS+$I_ERR || true
- done
- 
- # Create a list of build targets.
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fputs(_("Change the reported architecture and set personality flags.\n"), stdout);
+-- 
+1.7.0.4
+
