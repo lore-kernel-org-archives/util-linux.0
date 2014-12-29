@@ -1,33 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46564 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752793AbbAZLBj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 06:01:39 -0500
-Date: Mon, 26 Jan 2015 12:01:23 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Samuel Thibault <sthibault@debian.org>, Sami Kerola <kerolasa@iki.fi>,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-Message-ID: <20150126110123.GL6354@x2.net.home>
-References: <20150118191015.GI2957@type.youpi.perso.aquilenet.fr>
- <alpine.LNX.2.03.1501182158270.18731@iki.fi>
- <20150118221306.GD19649@type.youpi.perso.aquilenet.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150118221306.GD19649@type.youpi.perso.aquilenet.fr>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:51167 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751665AbaL2KRj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Dec 2014 05:17:39 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 05/11] docs: restore the alternative form of setarch in its man page
+Date: Mon, 29 Dec 2014 11:17:00 +0100
+Message-Id: <1419848226-2533-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 18, 2015 at 11:13:06PM +0100, Samuel Thibault wrote:
-> Sami Kerola, le Sun 18 Jan 2015 22:03:06 +0000, a écrit :
-> > And here is the altered version of it for public display.  IMHO if 
-> > ntp_gettime() is not available the time quality stuff can still work, and 
-> > tell there is no way knowing if time is syncronized.
-> 
-> Indeed, thanks.
+Commit c372860ddb4a768f7f6c50cd26d60119370d5cd accidentally removed
+the alternative form of setarch in which the command name specifies
+the architecture to be set.  Also improve some formatting.
 
- Applied, thanks.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/setarch.8 |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
+diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
+index ad9d4c2..a9a126a 100644
+--- a/sys-utils/setarch.8
++++ b/sys-utils/setarch.8
+@@ -1,4 +1,4 @@
+-.TH SETARCH 8 "July 2014" "util-linux" "System Administration"
++.TH SETARCH 8 "December 2014" "util-linux" "System Administration"
+ .SH NAME
+ setarch \- change reported architecture in new program environment and set personality flags
+ .SH SYNOPSIS
+@@ -6,21 +6,22 @@ setarch \- change reported architecture in new program environment and set perso
+ .I arch
+ [options]
+ .RI [ program
+-.RI [ arguments ]]
++.RI [ argument ...]]
++.sp
++.B arch
++[options]
++.RI [ program
++.RI [ argument ...]]
+ .sp
+ .B setarch
+ .BR \-\-list | \-h | \-V
+ .SH DESCRIPTION
+ .B setarch
+ currently only affects the output of \fBuname -m\fR.
+-For example, on an AMD64 system, running 'setarch i386 program' will cause 'program' to see
+-.IR i686
+-instead of
+-.IR x86_64
+-as the machine type.  It also allows to set various personality options.
+-The default
+-.B program
+-is /bin/sh.
++For example, on an AMD64 system, running \fBsetarch i386 \fIprogram\fR
++will cause \fIprogram\fR to see i686 instead of x86_64 as the machine type.
++It also allows to set various personality options.
++The default \fIprogram\fR is \fB/bin/sh\fR.
+ .SH OPTIONS
+ .TP
+ \fB\-\-list\fR
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
