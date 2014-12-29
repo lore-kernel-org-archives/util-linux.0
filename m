@@ -1,316 +1,167 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:54277 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751553AbaL0RRl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:41 -0500
-Received: by mail-wg0-f41.google.com with SMTP id y19so16164318wgg.28
-        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:40 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>, Wolfgang Richter <wolf@cs.cmu.edu>,
-        Ruediger Meier <ruediger.meier@ga-group.nl>
-Subject: [PATCH 16/22] script: use poll() rather than select()
-Date: Sat, 27 Dec 2014 17:17:29 +0000
-Message-Id: <1419700655-19107-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
-References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.226]:18480 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751631AbaL2BaC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 28 Dec 2014 20:30:02 -0500
+Message-ID: <54A0AE98.70503@ubuntu.com>
+Date: Sun, 28 Dec 2014 20:30:00 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: util-linux <util-linux@vger.kernel.org>
+Subject: libsmartcols patch
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="hHkqQeEfS8TSbdLcUh2PStN78ugEGb52C"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Finalize the signalfd() change by adding file descriptors to poll() loop.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--hHkqQeEfS8TSbdLcUh2PStN78ugEGb52C
+Content-Type: multipart/mixed;
+ boundary="------------060501000801040802070904"
 
-Addresses: https://github.com/karelzak/util-linux/pull/62
-CC: Wolfgang Richter <wolf@cs.cmu.edu>
-CC: Ruediger Meier <ruediger.meier@ga-group.nl>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 202 +++++++++++++++++++++++++++++-----------------------
- 1 file changed, 114 insertions(+), 88 deletions(-)
+This is a multi-part message in MIME format.
+--------------060501000801040802070904
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 315c46b..456355e 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -82,6 +82,8 @@
- 
- #define DEFAULT_OUTPUT "typescript"
- 
-+enum { POLLFDS = 2 };
+Forwarding patch from https://launchpad.net/bugs/1406133:
+
+
+--------------060501000801040802070904
+Content-Type: text/x-patch;
+ name="libsmartcols-art-fix.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="libsmartcols-art-fix.diff"
+
+--- libsmartcols/src/table_print.c	2014-12-24 23:59:55.780110296 +0200
++++ libsmartcols/src/table_print.c	2014-12-28 22:45:20.347285226 +0200
+@@ -151,6 +151,32 @@
+ 	return bytes;
+ }
+=20
++/* returns pointer to the end of used data */
++static int line_ascii_art_to_buffer(struct libscols_table *tb,
++				    struct libscols_line *ln,
++				    struct libscols_buffer *buf)
++{
++	const char *art;
++	int rc;
 +
- struct script_control {
- 	char *shell;		/* shell to be executed */
- 	char *cflg;		/* command to be executed */
-@@ -106,12 +108,10 @@ struct script_control {
- 	 tflg:1,		/* include timing file */
- 	 forceflg:1,		/* write output to links */
- 	 isterm:1,		/* is child process running as terminal */
--	 resized:1,		/* has terminal been resized */
- 	 die:1;			/* terminate program */
- 	sigset_t sigset;	/* catch SIGCHLD and SIGWINCH with signalfd() */
- 	int sigfd;		/* file descriptor for signalfd() */
- };
--struct script_control *gctl;	/* global control structure, used in signal handlers */
- 
- static void __attribute__((__noreturn__)) usage(FILE *out)
- {
-@@ -233,10 +233,10 @@ static void finish(struct script_control *ctl, int wait)
- 
- static void doinput(struct script_control *ctl)
- {
--	int errsv = 0;
--	ssize_t cc = 0;
- 	char ibuf[BUFSIZ];
--	fd_set readfds;
-+	struct pollfd pfd[POLLFDS];
-+	int ret, i;
-+	ssize_t bytes;
- 
- 	/* close things irrelevant for this process */
- 	if (ctl->typescriptfp)
-@@ -245,35 +245,49 @@ static void doinput(struct script_control *ctl)
- 		fclose(ctl->timingfp);
- 	ctl->typescriptfp = ctl->timingfp = NULL;
- 
--	FD_ZERO(&readfds);
-+	pfd[0].fd = STDIN_FILENO;
-+	pfd[0].events = POLLIN;
-+	pfd[1].fd = ctl->sigfd;
-+	pfd[1].events = POLLIN | POLLERR | POLLHUP;
- 
- 	while (!ctl->die) {
--		FD_SET(STDIN_FILENO, &readfds);
--
--		errno = 0;
--		/* wait for input or signal (including SIGCHLD) */
--		if ((cc = pselect(STDIN_FILENO + 1, &readfds, NULL, NULL, NULL,
--				  NULL)) > 0) {
--
--			if ((cc = read(STDIN_FILENO, ibuf, BUFSIZ)) > 0) {
--				if (write_all(ctl->master, ibuf, cc)) {
-+		/* wait for input or signal */
-+		ret = poll(pfd, POLLFDS, -1);
-+		if (ret < 0) {
-+			if (errno == EAGAIN)
-+				continue;
-+			warn(_("poll failed"));
-+			fail(ctl);
-+		}
-+		for (i = 0; i < POLLFDS; i++) {
-+			if (pfd[i].revents == 0)
-+				continue;
-+			if (i == 0 && (bytes = read(pfd[i].fd, ibuf, BUFSIZ)) > 0) {
-+				if (write_all(ctl->master, ibuf, bytes)) {
- 					warn(_("write failed"));
- 					fail(ctl);
- 				}
- 			}
--		}
--
--		if (cc < 0 && errno == EINTR && ctl->resized) {
--			/* transmit window change information to the child */
--			if (ctl->isterm) {
--				ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
--				ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
-+			if (i == 1) {
-+				struct signalfd_siginfo info;
-+				ssize_t bytes;
++	assert(ln);
++	assert(buf);
 +
-+				bytes = read(pfd[i].fd, &info, sizeof(info));
-+				assert(bytes == sizeof(info));
-+				switch (info.ssi_signo) {
-+				case SIGCHLD:
-+					finish(ctl, 0);
-+					break;
-+				case SIGWINCH:
-+					if (ctl->isterm) {
-+						ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
-+						ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
++	if (!ln->parent)
++		return 0;
++
++	rc =3D line_ascii_art_to_buffer(tb, ln->parent, buf);
++	if (rc)
++		return rc;
++
++	if (list_entry_is_last(&ln->ln_children, &ln->parent->ln_branch))
++		art =3D "  ";
++	else
++		art =3D tb->symbols->vert;
++
++	return buffer_append_data(buf, art);
++}
++
+ #define is_last_column(_tb, _cl) \
+ 		list_entry_is_last(&(_cl)->cl_columns, &(_tb)->tb_columns)
+=20
+@@ -258,8 +284,33 @@
+ 		if (len > width && !scols_column_is_trunc(cl)) {
+ 			fputs(linesep(tb), tb->out);
+ 			for (i =3D 0; i <=3D (size_t) cl->seqnum; i++) {
+-				struct libscols_column *x =3D scols_table_get_column(tb, i);
+-				fprintf(tb->out, "%*s ", -((int)x->width), " ");
++				size_t len_pad =3D 0;	/* in screen cells as opposed to bytes */
++				struct libscols_column* cl_pad =3D scols_table_get_column(tb, i);
++				if(ln && scols_column_is_tree(cl_pad)) {
++					if (!ln->parent) {	/* Root cell needs special treatment. */
++						if (!list_empty(&ln->ln_branch)) {	/* only print symbols->vert if =
+followed by something */
++							fputs(tb->symbols->vert, tb->out);
++							len_pad =3D mbs_safe_width(tb->symbols->vert);
++						}
++					} else {	/* use the same draw function as though we were intending =
+to draw an L-shape */
++						struct libscols_buffer* b_art =3D new_buffer(1024);	/* TODO: FIXME=
+ proper size */
++						char* data =3D 0;
++
++						if(b_art) {
++							line_ascii_art_to_buffer(tb, ln, b_art);	/* whatever the rc, len_=
+pad will be sensible */
++							data =3D buffer_get_safe_data(b_art, &len_pad);
++							if(data && len_pad) {
++								fputs(data, tb->out);
++							}
++
++							free_buffer(b_art);
++						}
 +					}
-+					break;
-+				default:
-+					abort();
++				}
++				for(; len_pad <=3D cl_pad->width; ++len_pad)
++				{
++					fputc(' ', tb->out);
 +				}
  			}
--			ctl->resized = 0;
--
--		} else if (cc <= 0 && errno != EINTR) {
--			errsv = errno;
--			break;
- 		}
- 	}
- 
-@@ -281,7 +295,7 @@ static void doinput(struct script_control *ctl)
- 	wait_for_empty_fd(ctl, ctl->slave);
- 	wait_for_empty_fd(ctl, ctl->master);
- 
--	if (ctl->die == 0 && cc == 0 && errsv == 0) {
-+	if (ctl->die == 0) {
- 		/*
- 		 * Forward EOF from stdin (detected by read() above) to slave
- 		 * (shell) to correctly terminate the session. It seems we have
-@@ -308,24 +322,41 @@ static void doinput(struct script_control *ctl)
- 	done(ctl);
+ 		} else
+ 			fputs(colsep(tb), tb->out);	/* columns separator */
+@@ -268,32 +319,6 @@
+ 	return 0;
  }
- 
--static void sig_finish(int dummy __attribute__((__unused__)))
-+static void write_output(struct script_control *ctl, char *obuf,
-+			    ssize_t bytes, double *oldtime)
- {
--	finish(gctl, 0);
--}
- 
--static void resize(int dummy __attribute__((__unused__)))
+=20
+-/* returns pointer to the end of used data */
+-static int line_ascii_art_to_buffer(struct libscols_table *tb,
+-				    struct libscols_line *ln,
+-				    struct libscols_buffer *buf)
 -{
--	gctl->resized = 1;
-+	if (ctl->tflg && ctl->timingfp) {
-+		struct timeval tv;
-+		double newtime;
-+
-+		gettimeofday(&tv, NULL);
-+		newtime = tv.tv_sec + (double)tv.tv_usec / 1000000;
-+		fprintf(ctl->timingfp, "%f %zd\n", newtime - *oldtime, bytes);
-+		if (ctl->fflg)
-+			fflush(ctl->timingfp);
-+		*oldtime = newtime;
-+	}
-+	if (fwrite_all(obuf, 1, bytes, ctl->typescriptfp)) {
-+		warn(_("cannot write script file"));
-+		fail(ctl);
-+	}
-+	if (ctl->fflg)
-+		fflush(ctl->typescriptfp);
-+	if (write_all(STDOUT_FILENO, obuf, bytes)) {
-+		warn(_("write failed"));
-+		fail(ctl);
-+	}
- }
- 
-+
- static void dooutput(struct script_control *ctl)
- {
--	ssize_t cc;
- 	char obuf[BUFSIZ];
--	struct timeval tv;
--	double oldtime = time(NULL), newtime;
--	int errsv = 0;
--	fd_set readfds;
-+	struct pollfd pfd[POLLFDS];
-+	int ret, i;
-+	ssize_t bytes;
-+	double oldtime = time(NULL);
- 
- 	close(STDIN_FILENO);
- #ifdef HAVE_LIBUTIL
-@@ -340,57 +371,53 @@ static void dooutput(struct script_control *ctl)
- 		fprintf(ctl->typescriptfp, _("Script started on %s"), obuf);
- 	}
- 
--	FD_ZERO(&readfds);
+-	const char *art;
+-	int rc;
 -
--	do {
--		if (ctl->die || errsv == EINTR) {
--			struct pollfd fds[] = {
--				{.fd = ctl->sigfd, .events = POLLIN | POLLERR | POLLHUP},
--				{.fd = ctl->master, .events = POLLIN}
--			};
--			if (poll(fds, 1, 50) <= 0)
--				break;
--		}
+-	assert(ln);
+-	assert(buf);
 -
--		FD_SET(ctl->master, &readfds);
--		errno = 0;
+-	if (!ln->parent)
+-		return 0;
 -
--		/* wait for input or signal (including SIGCHLD) */
--		if ((cc = pselect(ctl->master + 1, &readfds, NULL, NULL, NULL,
--				  NULL)) > 0) {
+-	rc =3D line_ascii_art_to_buffer(tb, ln->parent, buf);
+-	if (rc)
+-		return rc;
 -
--			cc = read(ctl->master, obuf, sizeof(obuf));
--		}
--		errsv = errno;
+-	if (list_entry_is_last(&ln->ln_children, &ln->parent->ln_branch))
+-		art =3D "  ";
+-	else
+-		art =3D tb->symbols->vert;
 -
--		if (ctl->tflg)
--			gettimeofday(&tv, NULL);
+-	return buffer_append_data(buf, art);
+-}
 -
--		if (errsv == EINTR && cc <= 0)
--			continue;	/* try it again */
--		if (cc <= 0)
--			break;
--		if (ctl->tflg && ctl->timingfp) {
--			newtime = tv.tv_sec + (double)tv.tv_usec / 1000000;
--			fprintf(ctl->timingfp, "%f %zd\n", newtime - oldtime, cc);
--			oldtime = newtime;
--		}
--		if (fwrite_all(obuf, 1, cc, ctl->typescriptfp)) {
--			warn(_("cannot write script file"));
-+	pfd[0].fd = ctl->master;
-+	pfd[0].events = POLLIN;
-+	pfd[1].fd = ctl->sigfd;
-+	pfd[1].events = POLLIN | POLLERR | POLLHUP;
-+
-+	while (1) {
-+		/* wait for input or signal */
-+		ret = poll(pfd, POLLFDS, -1);
-+		if (ret < 0) {
-+			if (errno == EAGAIN)
-+				continue;
-+			warn(_("poll failed"));
- 			fail(ctl);
- 		}
--		if (ctl->fflg) {
--			fflush(ctl->typescriptfp);
--			if (ctl->tflg && ctl->timingfp)
--				fflush(ctl->timingfp);
--		}
--		if (write_all(STDOUT_FILENO, obuf, cc)) {
--			warn(_("write failed"));
--			fail(ctl);
-+		for (i = 0; i < POLLFDS; i++) {
-+			if (pfd[i].revents == 0)
-+				continue;
-+			if (i == 0) {
-+				bytes = read(pfd[i].fd, obuf, BUFSIZ);
-+				if (bytes < 0) {
-+					if (errno == EAGAIN)
-+						continue;
-+					fail(ctl);
-+				}
-+				write_output(ctl, obuf, bytes, &oldtime);
-+				continue;
-+			}
-+			if (i == 1) {
-+				struct signalfd_siginfo info;
-+				ssize_t bytes;
-+
-+				bytes = read(pfd[i].fd, &info, sizeof(info));
-+				assert(bytes == sizeof(info));
-+				switch (info.ssi_signo) {
-+				case SIGCHLD:
-+					done(ctl);
-+					break;
-+				case SIGWINCH:
-+					/* nothing */
-+					break;
-+				default:
-+					abort();
-+				}
-+			}
- 		}
--	} while (1);
--
--	done(ctl);
-+	}
-+	abort();
- }
- 
- static void getslave(struct script_control *ctl)
-@@ -575,7 +602,6 @@ int main(int argc, char **argv)
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
--	gctl = &ctl;
- 
- 	while ((ch = getopt_long(argc, argv, "ac:efqt::Vh", longopts, NULL)) != -1)
- 		switch (ch) {
--- 
-2.2.1
+ static int cell_to_buffer(struct libscols_table *tb,
+ 			  struct libscols_line *ln,
+ 			  struct libscols_column *cl,
 
+--------------060501000801040802070904--
+
+--hHkqQeEfS8TSbdLcUh2PStN78ugEGb52C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBCgAGBQJUoK6YAAoJENRVrw2cjl5R9ckH/1UUOiCiMTygU4oAM+wQl8ZO
+GZcDdaOdWunbPgQHPvTZvgh9ixChPlfeITzTsrt6w0I4hpJ8v77G7rptiKfy1m10
+io+y7eT1GrtCVQzpgvSuSt1kqNI9Wm8A3PsCNViW8IKMkZlb6KBjysBakdDO28xR
+Kk2kUvBCUjsn+AFPDFqi2w8bkbvTpBgFwdEKzrusekezdsuDxGSYpoMsCrCnEQjn
+OGshwwZka15iBqFgqhrk3oYmUJIICb0aKKYXhw8w6xIqpra/MUQrll3SnGgmCOfW
+Y7P0fPWVBT/QIim0HAHvfcbgsXCPv3oUxtO+BXwOcC0dl/x8UqF03Y9vsHfyseY=
+=KJRk
+-----END PGP SIGNATURE-----
+
+--hHkqQeEfS8TSbdLcUh2PStN78ugEGb52C--
