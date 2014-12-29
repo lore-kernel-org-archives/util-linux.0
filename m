@@ -1,29 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53612 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752263AbbA2BIX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 28 Jan 2015 20:08:23 -0500
-Date: Wed, 28 Jan 2015 08:43:59 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] fix tests ppc
-Message-ID: <20150128074359.GU6354@x2.net.home>
-References: <1422279556-8846-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1422279556-8846-1-git-send-email-sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:57050 "EHLO
+	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751665AbaL2KRs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Dec 2014 05:17:48 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 10/11] tailf: slice up the usage text for ease of translation
+Date: Mon, 29 Dec 2014 11:17:05 +0100
+Message-Id: <1419848226-2533-9-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 26, 2015 at 02:39:13PM +0100, Ruediger Meier wrote:
-> This is pull request #147 on github
-> https://github.com/karelzak/util-linux/pull/147
+Also use the standard macros and angular brackets for presenting it.
 
- Applied, thanks!
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ text-utils/tailf.c |   19 +++++++++----------
+ 1 files changed, 9 insertions(+), 10 deletions(-)
 
-    Karel
-
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index cf22a1e..6adb050 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -193,22 +193,21 @@ watch_file_inotify(const char *filename, off_t *size)
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+ {
+-	fprintf(out,
+-		_("\nUsage:\n"
+-		  " %s [option] file\n"),
+-		program_invocation_short_name);
++	fputs(USAGE_HEADER, out);
++	fprintf(out, _(" %s [option] <file>\n"), program_invocation_short_name);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(_("Follow the growth of a log file.\n"), out);
+ 
+-	fprintf(out, _(
+-		"\nOptions:\n"
+-		" -n, --lines NUMBER  output the last NUMBER lines\n"
+-		" -NUMBER             same as `-n NUMBER'\n"
+-		" -V, --version       output version information and exit\n"
+-		" -h, --help          display this help and exit\n\n"));
++	fputs(USAGE_OPTIONS, out);
++	fputs(_(" -n, --lines <number>   output the last <number> lines\n"), out);
++	fputs(_(" -<number>              same as '-n <number>'\n"), out);
+ 
++	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_HELP, out);
++	fputs(USAGE_VERSION, out);
+ 	fprintf(out, USAGE_MAN_TAIL("tailf(1)"));
++
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
