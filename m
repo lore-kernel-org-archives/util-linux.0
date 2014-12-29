@@ -1,51 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38848 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753606AbbAZL3R (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 06:29:17 -0500
-Date: Mon, 26 Jan 2015 12:29:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-Message-ID: <20150126112913.GM6354@x2.net.home>
-References: <20150114194608.GF28019@x2.net.home>
- <1421786901.3565769.216421909.377E2720@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1421786901.3565769.216421909.377E2720@webmail.messagingengine.com>
+Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:56948 "EHLO
+	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751665AbaL2KRn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Dec 2014 05:17:43 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 07/11] textual: list the options of setarch in a more alphabetical order
+Date: Mon, 29 Dec 2014 11:17:02 +0100
+Message-Id: <1419848226-2533-6-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 20, 2015 at 09:48:21PM +0100, Benno Schulenberg wrote:
-> 
-> On Wed, Jan 14, 2015, at 20:46, Karel Zak wrote:
-> > Feedback and bug reports, as always, are welcomed.
-> 
-> During compilation I get this:
-> 
-> libmount/src/lock.c: In function 'mnt_wait_mtab_lock':
-> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 4 has type '__time_t'
-> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 5 has type 'time_t'
-> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 6 has type 'long int'
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/setarch.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
- fixed
-
->   CC       disk-utils/fdisk-fdisk-list.o
-> In file included from disk-utils/fdisk-list.c:1:
-> ./libfdisk/src/libfdisk.h:279: error: expected declaration specifiers or '...' before 'off_t'
-> make[2]: *** [disk-utils/fdisk-fdisk-list.o] Error 1
-> make[2]: Leaving directory `/home/ben/Programoj/util-linux-2.26-rc1'
-> make[1]: *** [all-recursive] Error 1
-> make[1]: Leaving directory `/home/ben/Programoj/util-linux-2.26-rc1'
-> make: *** [all] Error 2
-
- fixed
-
-Thanks!
-    Karel
-
-
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index 518eaca..8e52179 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -100,24 +100,26 @@ static void __attribute__((__noreturn__)) show_help(void)
+ 	fputs(_("Change the reported architecture and set personality flags.\n"), stdout);
+ 
+ 	fputs(USAGE_OPTIONS, stdout);
+-	fputs(_(" -v, --verbose            says what options are being switched on\n"), stdout);
+-	fputs(_(" -R, --addr-no-randomize  disables randomization of the virtual address space\n"), stdout);
+-	fputs(_(" -F, --fdpic-funcptrs     makes function pointers point to descriptors\n"), stdout);
+-	fputs(_(" -Z, --mmap-page-zero     turns on MMAP_PAGE_ZERO\n"), stdout);
+-	fputs(_(" -L, --addr-compat-layout changes the way virtual memory is allocated\n"), stdout);
+-	fputs(_(" -X, --read-implies-exec  turns on READ_IMPLIES_EXEC\n"), stdout);
+ 	fputs(_(" -B, --32bit              turns on ADDR_LIMIT_32BIT\n"), stdout);
++	fputs(_(" -F, --fdpic-funcptrs     makes function pointers point to descriptors\n"), stdout);
+ 	fputs(_(" -I, --short-inode        turns on SHORT_INODE\n"), stdout);
++	fputs(_(" -L, --addr-compat-layout changes the way virtual memory is allocated\n"), stdout);
++	fputs(_(" -R, --addr-no-randomize  disables randomization of the virtual address space\n"), stdout);
+ 	fputs(_(" -S, --whole-seconds      turns on WHOLE_SECONDS\n"), stdout);
+ 	fputs(_(" -T, --sticky-timeouts    turns on STICKY_TIMEOUTS\n"), stdout);
++	fputs(_(" -X, --read-implies-exec  turns on READ_IMPLIES_EXEC\n"), stdout);
++	fputs(_(" -Z, --mmap-page-zero     turns on MMAP_PAGE_ZERO\n"), stdout);
+ 	fputs(_(" -3, --3gb                limits the used address space to a maximum of 3 GB\n"), stdout);
+ 	fputs(_("     --4gb                ignored (for backward compatibility only)\n"), stdout);
+ 	fputs(_("     --uname-2.6          turns on UNAME26\n"), stdout);
++	fputs(_(" -v, --verbose            say what options are being switched on\n"), stdout);
+ 	fputs(_("     --list               list settable architectures, and exit\n"), stdout);
++
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fputs(USAGE_HELP, stdout);
+ 	fputs(USAGE_VERSION, stdout);
+ 	printf(USAGE_MAN_TAIL("setarch(8)"));
++
+ 	exit(EXIT_SUCCESS);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
