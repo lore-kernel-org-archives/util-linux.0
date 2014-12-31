@@ -1,154 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:51238 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752419AbbAKV2I (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 11 Jan 2015 16:28:08 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/4] docs: sync the docstring of addpart, delpart and resizepart to the man page
-Date: Sun, 11 Jan 2015 22:27:55 +0100
-Message-Id: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
+Received: from smtp.gentoo.org ([140.211.166.183]:43297 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751429AbaLaJX4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 31 Dec 2014 04:23:56 -0500
+Date: Wed, 31 Dec 2014 04:23:54 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: setarch cannot set all listed architectures
+Message-ID: <20141231092354.GG3906@vapier.wh0rd.info>
+References: <1419438949.242820.206484249.1D540D03@webmail.messagingengine.com>
+ <20141231083046.GF3906@vapier.wh0rd.info>
+ <1420017348.3190622.208236865.6FAABC76@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4eRLI4hEmsdu6Npr"
+In-Reply-To: <1420017348.3190622.208236865.6FAABC76@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also tweak the wording of those man pages a bit.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/addpart.8    |   19 ++++++++++---------
- disk-utils/delpart.8    |   18 ++++++------------
- disk-utils/resizepart.8 |   17 +++++++++--------
- 3 files changed, 25 insertions(+), 29 deletions(-)
+--4eRLI4hEmsdu6Npr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/disk-utils/addpart.8 b/disk-utils/addpart.8
-index dc7e203..867d53f 100644
---- a/disk-utils/addpart.8
-+++ b/disk-utils/addpart.8
-@@ -1,32 +1,33 @@
--.\" addpart.8 --
-+.\" addpart.8 -- man page for addpart
- .\" Copyright 2007 Karel Zak <kzak@redhat.com>
- .\" Copyright 2007 Red Hat, Inc.
- .\" May be distributed under the GNU General Public License
--.TH ADDPART 8 "January 2007" "util-linux" "System Administration"
-+.TH ADDPART 8 "January 2015" "util-linux" "System Administration"
- .SH NAME
--addpart \- a simple wrapper around the "add partition" ioctl
-+addpart \- tell the kernel about the existence of a partition
- .SH SYNOPSIS
- .B addpart
- .I device partition start length
- .SH DESCRIPTION
- .B addpart
--is a program that informs the Linux kernel of a new partition.
-+tells the Linux kernel about the existence of the specified partition.
-+The command is a simple wrapper around the "add partition" ioctl.
- 
--This command doesn't manipulate partitions on the hard drive.
-+This command doesn't manipulate partitions on a hard drive.
- 
- .SH PARAMETERS
- .TP
- .I device
--Specify the disk device.
-+The disk device.
- .TP
- .I partition
--Specify the partition number.
-+The partition number.
- .TP
- .I start
--Specify the beginning of the partition (in 512-byte sectors).
-+The beginning of the partition (in 512-byte sectors).
- .TP
- .I length
--Specify the length of the partition (in 512-byte sectors).
-+The length of the partition (in 512-byte sectors).
- 
- .SH SEE ALSO
- .BR delpart (8),
-diff --git a/disk-utils/delpart.8 b/disk-utils/delpart.8
-index a818153..8c17678 100644
---- a/disk-utils/delpart.8
-+++ b/disk-utils/delpart.8
-@@ -1,27 +1,21 @@
--.\" delpart.8 --
-+.\" delpart.8 -- man page for delpart
- .\" Copyright 2007 Karel Zak <kzak@redhat.com>
- .\" Copyright 2007 Red Hat, Inc.
- .\" May be distributed under the GNU General Public License
--.TH DELPART 8 "January 2007" "util-linux" "System Administration"
-+.TH DELPART 8 "January 2015" "util-linux" "System Administration"
- .SH NAME
--delpart \- simple wrapper around the "del partition" ioctl
-+delpart \- tell the kernel to forget about a partition
- .SH SYNOPSIS
- .B delpart
- .I device partition
- .SH DESCRIPTION
- .B delpart
--is a program that asks the Linux kernel to remove a partition.
-+asks the Linux kernel to forget about the specified \fIpartition\fR
-+(a number) on the specified \fIdevice\fR.
-+The command is a simple wrapper around the "del partition" ioctl.
- 
- This command doesn't manipulate partitions on a hard drive.
- 
--.SH OPTIONS
--.TP
--.I device
--Specify the disk device.
--.TP
--.I partition
--Specify the partition number.
--
- .SH SEE ALSO
- .BR addpart (8),
- .BR fdisk (8),
-diff --git a/disk-utils/resizepart.8 b/disk-utils/resizepart.8
-index d4f35be..b6efe7e 100644
---- a/disk-utils/resizepart.8
-+++ b/disk-utils/resizepart.8
-@@ -1,29 +1,30 @@
--.\" resizepart.8 --
-+.\" resizepart.8 -- man page for resizepart
- .\" Copyright 2012 Vivek Goyal <vgoyal@redhat.com>
- .\" Copyright 2012 Red Hat, Inc.
- .\" May be distributed under the GNU General Public License
--.TH RESIZEPART 8 "February 2012" "util-linux" "System Administration"
-+.TH RESIZEPART 8 "January 2015" "util-linux" "System Administration"
- .SH NAME
--resizepart \- simple wrapper around the "resize partition" ioctl
-+resizepart \- tell the kernel about the new size of a partition
- .SH SYNOPSIS
- .B resizepart
- .I device partition length
- .SH DESCRIPTION
- .B resizepart
--is a program that informs the Linux kernel of new partition size.
-+tells the Linux kernel about the new size of the specified partition.
-+The command is a simple wrapper around the "resize partition" ioctl.
- 
--This command doesn't manipulate partitions on hard drive.
-+This command doesn't manipulate partitions on a hard drive.
- 
- .SH PARAMETERS
- .TP
- .I device
--Specify the disk device.
-+The disk device.
- .TP
- .I partition
--Specify the partition number.
-+The partition number.
- .TP
- .I length
--Specify the length of the partition (in 512-byte sectors).
-+The new length of the partition (in 512-byte sectors).
- 
- .SH SEE ALSO
- .BR addpart (8),
--- 
-1.7.0.4
+On 31 Dec 2014 10:15, Benno Schulenberg wrote:
+> On Wed, Dec 31, 2014, at 09:30, Mike Frysinger wrote:
+> > On 24 Dec 2014 17:35, Benno Schulenberg wrote:
+> > > The man page of setarch says for the option --list: "List the archite=
+ctures
+> > > that can be set."  However...
+> > >=20
+> > > $ ./setarch --list  =20
+> > > [...]
+> > > i686
+> > > athlon
+> > > x86_64
+> > > ia64
+> > >=20
+> > > $ ./setarch x86_64 uname -m
+> > > setarch: x86_64: Unrecognized architecture
+> > >=20
+> > > [...]
+> > >=20
+> > > Maybe --list should not be listing x86_64 and ia64 on this machine?
+> > > Or maybe the error message in these cases should say "Cannot set
+> > > the requested architecture" instead?
+> >=20
+> > are you running a 32bit or 64bit kernel ?  is your compiled setarch 32b=
+it or=20
+> > 64bit ?  i'm going to guess both are 32bit.
+>=20
+> You guessed correctly.  :)
+>=20
+> $ getconf LONG_BIT
+> 32
+>=20
+> $ grep " lm" /proc/cpuinfo || echo no
+> no
+>=20
+> $ file ./setarch=20
+> ./setarch: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dyna=
+mically linked (uses shared libs), for GNU/Linux 2.6.24, BuildID[sha1]=3D0x=
+830fc9635dbe83defa4db7b0b5db241093d4c86d, not stripped
+>=20
+> So... setarch --list shouldn't be mentioning x86_64 nor ia64 here?
 
+maybe, but is it really worth the effort ?
+
+if you took that exact 32bit binary and booted a 64bit kernel, i imagine it=
+'d=20
+work fine.
+-mike
+
+--4eRLI4hEmsdu6Npr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJUo8CqAAoJEEFjO5/oN/WB3YwP/1C79QlnqgIlOZMvdb2a06lN
+ulpd0RQA4GyGo5oZ1GlHnJhM5hbDv2ml8ZSskLm2muEgGY6i88Q0J9jrl0BDGU6Q
+WAzHirpcMlnak2Yelt7UBgl9rE4PUBUvIno3+wklEdd0+BWZ8yVNtMdkNhBsn+oy
+eimGaBqpaCb5kPfQWoDza7pOdpBf3471hr8hHXyHlZiCXS7pRs0MowVRXVFU4p9q
+J6BBdLBdW3OcRqtyXiLJDkGLkufYAZwwemD1yMDNO8S4T56WZGN+OCqSEhq30oUD
+cFNcwQA7z+RLphHuH/gVaxR050NvVoxzMiMezwyr39zbJX5AhrYf1cKDUPmzZgQj
+166csVk/z2B5lPZuhPSwjBlwDYAYEZBk/cRwcEFWheUVOzENVyta5KUn/IpXrRB5
+kLKk+EEh+U0hh04jJYZSZgz+YfA7b2wvROTxk2+Hor4Cql3xyMEQKMWpMsn/s4rM
+WCgth1ERpCJIpRrAXE2LpWNqRmsCT7LoEMfuQQ38RXg49HHsBhzJpyEx+eaLpw8A
+e5BUIEReIzekT3c/MnO20FhB2XDEt0B6PTPAJnxVEps6IDUJEkh4O1ol0y7UqKV+
+i+WKX4IVWXEDOIZBHm7jz2D1+xSyIo7CJigIyf3gm+CRzRd0SYqPaoh7xA39bbXx
+yu2tpLrMLFware4/zTq6
+=k2iu
+-----END PGP SIGNATURE-----
+
+--4eRLI4hEmsdu6Npr--
