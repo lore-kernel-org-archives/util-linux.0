@@ -1,57 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f171.google.com ([209.85.214.171]:52998 "EHLO
-	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751317AbbASUmE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 19 Jan 2015 15:42:04 -0500
-Received: by mail-ob0-f171.google.com with SMTP id va2so20837409obc.2
-        for <util-linux@vger.kernel.org>; Mon, 19 Jan 2015 12:42:03 -0800 (PST)
-Message-ID: <54BD6C18.1080308@gmail.com>
-Date: Mon, 19 Jan 2015 14:42:00 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-References: <20150114194608.GF28019@x2.net.home>
-In-Reply-To: <20150114194608.GF28019@x2.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:57539 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750917AbbACJVC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 Jan 2015 04:21:02 -0500
+Received: by mail-wi0-f178.google.com with SMTP id em10so608034wid.17
+        for <util-linux@vger.kernel.org>; Sat, 03 Jan 2015 01:21:00 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/2] lslocks: fix type warning
+Date: Sat,  3 Jan 2015 09:20:04 +0000
+Message-Id: <1420276805-3154-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
->
-> The util-linux release v2.26-rc1 is available at
->
->     ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26/
->
-> Feedback and bug reports, as always, are welcomed.
+misc-utils/lslocks.c:229:2: warning: format '%x' expects argument of type
+'unsigned int *', but argument 3 has type 'int *' [-Wformat=]
 
-Just wanted to give feedback on the build in an LFS environment:
+Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/locks.c?id=5e0f872c7d7e371fbdf09e864eddd24bddfda8fe#n2533
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/lslocks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-./configure ADJTIME_PATH=/var/lib/hwclock \
-    --disable-chfn-chsh  \
-    --disable-login      \
-    --disable-su         \
-    --disable-setpriv    \
-    --disable-runuser    \
-    --disable-pylibmount \
-    --without-python     \
-    --without-systemd    \
-    --without-systemdsystemunitdir
+diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
+index abc6a16..d351d7c 100644
+--- a/misc-utils/lslocks.c
++++ b/misc-utils/lslocks.c
+@@ -223,7 +223,7 @@ out:
+  */
+ static ino_t get_dev_inode(char *str, dev_t *dev)
+ {
+-	int maj = 0, min = 0;
++	unsigned int maj = 0, min = 0;
+ 	ino_t inum = 0;
+ 
+ 	sscanf(str, "%02x:%02x:%ju", &maj, &min, &inum);
+-- 
+2.2.1
 
-make
-
-chown -Rv nobody .
-su nobody -s /bin/bash -c "PATH=$PATH make -k check"
-
-----------
-
-The build process is excellent.  No errors or warnings during build.  No 
-failures during 'make check'.
-
-All 155 tests PASSED
-One KNOWN FAILED (ipcs/limits2)
-66 IGNORE due to non-root permissions or missing/omitted programs in the 
-limited LFS environment.
-
-   -- Bruce Dubbs
-      linuxfromscratch.org
