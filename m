@@ -1,54 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:49691 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753737AbbAMSrF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 13 Jan 2015 13:47:05 -0500
-Message-ID: <54B56822.40805@gmx.com>
-Date: Tue, 13 Jan 2015 13:46:58 -0500
-From: JWP <elseifthen@gmx.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/4] tools: checkman.sh portability
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:62192 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750917AbbACJ2J (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 3 Jan 2015 04:28:09 -0500
+Received: by mail-wi0-f172.google.com with SMTP id n3so634874wiv.5
+        for <util-linux@vger.kernel.org>; Sat, 03 Jan 2015 01:28:08 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/2] fsck.minix: fix segmentation fault
+Date: Sat,  3 Jan 2015 09:20:05 +0000
+Message-Id: <1420276805-3154-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1420276805-3154-1-git-send-email-kerolasa@iki.fi>
+References: <1420276805-3154-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-So, Sami Kerola's checkmans.sh tool caught me stuttering in
-hwclock.8 and I had to find out why checkmans did not work
-on my system:
+Return from check_file() and check_file2() functions when maximum name
+depth is reached.  The use unsafe strncpy() is also removed just to be on
+safe side.
 
- 1) Any test file with 'git' or 'lib' in its path fails.
-    Including my entire repo under $PATH/github/util-linux
-    and the ./lib/terminal-colors.d.5 man-page.
+Addresses: https://bugs.debian.org/773892
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/fsck.minix.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
- 2) It depends on the man-db package.
-
-The changes seem to be an improvement as it detected 4 new
-man-page problems (see separate patch).
-
-I did alter the behavior slightly, previously failed pages
-required checking them again manually. Now it shows the troff
-parsing errors in progress. When grog fails there is nothing
-more to check, and when lexgrog fails I left the old behavior
-telling the caller to rerun the command, because I did not
-bother to install man-db to see what lexgrog actually does.
-
-
-The following changes since commit 2e5bf10e32b00c92a3f7fb8b38d793ea6fc1dff2:
-
-  build-sys: add sfdisk.static (2015-01-13 16:59:03 +0100)
-
-are available in the git repository at:
-
-  git@github.com:jwpi/util-linux.git checkman
-
-J William Piggott (4):
-  tools: checkman.sh portability
-  tools: checkman.sh portability lexgrog
-  tools: checkmans.sh clean up 'let'
-  tools: checkmans.sh add stats
-
- tools/checkmans.sh | 85 +++++++++++++++++++++++++++++++++---------------------
- 1 file changed, 52 insertions(+), 33 deletions(-)
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index c0ed017..5ab19bb 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -112,6 +112,7 @@
+ #include "all-io.h"
+ #include "closestream.h"
+ #include "rpmatch.h"
++#include "strutils.h"
+ 
+ #define ROOT_INO 1
+ #define YESNO_LENGTH 64
+@@ -952,7 +953,9 @@ check_file(struct minix_inode *dir, unsigned int offset) {
+ 		ino = 0;
+ 	}
+ 	if (name_depth < MAX_DEPTH)
+-		strncpy(name_list[name_depth], name, namelen);
++		xstrncpy(name_list[name_depth], name, namelen);
++	else
++		return;
+ 	name_depth++;
+ 	inode = get_inode(ino);
+ 	name_depth--;
+@@ -977,7 +980,9 @@ check_file(struct minix_inode *dir, unsigned int offset) {
+ 	if (!inode)
+ 		return;
+ 	if (name_depth < MAX_DEPTH)
+-		strncpy(name_list[name_depth], name, namelen);
++		xstrncpy(name_list[name_depth], name, namelen);
++	else
++		return;
+ 	name_depth++;
+ 	if (list) {
+ 		if (verbose)
+@@ -1020,7 +1025,9 @@ check_file2(struct minix2_inode *dir, unsigned int offset) {
+ 		ino = 0;
+ 	}
+ 	if (name_depth < MAX_DEPTH)
+-		strncpy(name_list[name_depth], name, namelen);
++		xstrncpy(name_list[name_depth], name, namelen);
++	else
++		return;
+ 	name_depth++;
+ 	inode = get_inode2(ino);
+ 	name_depth--;
+-- 
+2.2.1
 
