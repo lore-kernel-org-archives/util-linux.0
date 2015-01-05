@@ -1,58 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:32946 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752467AbbAXRXi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 24 Jan 2015 12:23:38 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailout.nyi.internal (Postfix) with ESMTP id 5D6C92068F
-	for <util-linux@vger.kernel.org>; Sat, 24 Jan 2015 12:23:35 -0500 (EST)
-Message-Id: <1422120215.1322663.218300697.5A4C9C5F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Yuri Chornoivan <yurchor@gmail.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>,
-        Yuri Chornoivan <yurchor@ukr.net>
+Received: from mail-we0-f173.google.com ([74.125.82.173]:54239 "EHLO
+	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753287AbbAEKLs (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Jan 2015 05:11:48 -0500
+Received: by mail-we0-f173.google.com with SMTP id q58so7566472wes.32
+        for <util-linux@vger.kernel.org>; Mon, 05 Jan 2015 02:11:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1422083931-24410-1-git-send-email-yurchor@ukr.net>
-References: <1422083931-24410-1-git-send-email-yurchor@ukr.net>
-Subject: Re: [PATCH] Fix various minor typos
-Date: Sat, 24 Jan 2015 18:23:35 +0100
+Date: Mon, 5 Jan 2015 11:11:47 +0100
+Message-ID: <CAO7R9g8opv3Z3aW73xJ-d3ZBwi5_f4td9Xeqk=QBUCqz13fGhw@mail.gmail.com>
+Subject: questions on util-linux translation
+From: Antonio Ceballos <aceballos@gmail.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi util-linux team,
 
-Hello Yuri,
+I am the Spanish translator of util-linux, and I would like to ask you
+a couple of questions. I am working on the translation of util-linux
+2.25.1-rc1.
 
-On Sat, Jan 24, 2015, at 08:18, Yuri Chornoivan wrote:
-> --- a/Documentation/releases/v2.25-ReleaseNotes
-> +++ b/Documentation/releases/v2.25-ReleaseNotes
-> @@ -203,7 +203,7 @@ cal:
->     - mention where Gregorian reformation happen in September 1752  [Sami Kerola]
->     - remove optional from short arg -w  [Tommi Kyntola]
->     - remove unnecessary static variables  [Sami Kerola]
-> -   - remove unnused structure and definition  [Sami Kerola]
-> +   - remove unused structure and definition  [Sami Kerola]
+1. In the following piece of the .pot file:
 
-These lines were automatically generated from commit messages;
-if you change them in the release notes, they cannot be used
-anymore to find the corresponding commit.
+#: disk-utils/mkfs.c:47
+#, c-format
+msgid ""
+" -V, --verbose      explain what is being done;\n"
+"                      specifying -V more than once will cause a dry-run\n"
+msgstr ""
 
-All the other changes are good, except for this one:
+#: disk-utils/mkfs.c:49
+#, c-format
+msgid ""
+" -V, --version      display version information and exit;\n"
+"                      -V as --version must be the only option\n"
+msgstr ""
 
-> -			fdisk_warnx(cxt, _("unssuported GPT attribute bit '%s'"), p);
-> +			fdisk_warnx(cxt, _("unsuported GPT attribute bit '%s'"), p);
+You can see '-V' (uppercase) for both --verbose and --version. Is that correct?
 
-You missed the single that should be a double p.
-But I think you caught all the other typos.  :)
+2. Could the English wording be improved in the following sentence?
 
-Some of them I already corrected in this patch:
-http://www.spinics.net/lists/util-linux-ng/msg10888.html
-If you exclude those from your patch, it will then apply after
-mine without conflict.
+#: disk-utils/partx.c:312
+#, fuzzy, c-format
+#| msgid "This partition already exists.\n"
+msgid "%s: partition #%d already doesn't exist\n"
+msgstr ""
 
-Benno
+I would suggest something like:
+msgid "%s: partition #%d doesn't exist\n"
+msgid "%s: partition #%d no longer exists\n"
 
--- 
-http://www.fastmail.com - Email service worth paying for. Try it for free
-
+Regards,
+Antonio Ceballos
