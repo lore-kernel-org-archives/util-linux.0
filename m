@@ -1,47 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:46771 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751999AbbANSFI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 14 Jan 2015 13:05:08 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1YBSJU-0004aD-4g
-	for util-linux@vger.kernel.org; Wed, 14 Jan 2015 19:05:04 +0100
-Received: from dynamic-adsl-84-223-98-34.clienti.tiscali.it ([84.223.98.34])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 14 Jan 2015 19:05:04 +0100
-Received: from lucio by dynamic-adsl-84-223-98-34.clienti.tiscali.it with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 14 Jan 2015 19:05:04 +0100
-To: util-linux@vger.kernel.org
-From: Lucio Crusca <lucio@sulweb.org>
-Subject: [BUG] losetup: support for physical devices
-Date: Wed, 14 Jan 2015 18:59:58 +0100
-Message-ID: <m96ard$qu8$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Received: from mail-qc0-f176.google.com ([209.85.216.176]:36361 "EHLO
+	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753071AbbAEW0F (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 5 Jan 2015 17:26:05 -0500
+Received: by mail-qc0-f176.google.com with SMTP id i17so16039713qcy.7
+        for <util-linux@vger.kernel.org>; Mon, 05 Jan 2015 14:26:04 -0800 (PST)
+Message-ID: <54AB0F5C.7020206@ubuntu.com>
+Date: Mon, 05 Jan 2015 17:25:32 -0500
+From: Phillip Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: JPT <j-p-t@gmx.net>, util-linux@vger.kernel.org
+Subject: Re: [BUG] Mount: codepage mapping does not work for msdos fs
+References: <m7riin$iuv$1@ger.gmane.org>
+In-Reply-To: <m7riin$iuv$1@ger.gmane.org>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-During a disaster recovery I found that losetup either 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-1. does not support creating loop devices that target physical devices. In 
-this case I think there exists a compelling reason to support them 
-(http://serverfault.com/questions/659484) and this bug report is a wishlist 
-bug 
+On 12/29/2014 7:48 AM, JPT wrote:
+> Hi,
+> 
+> I want to mount a DOS 5.0 partition without messing it up with
+> LFNs.
+> 
+> According to man page this only works if I use the MSDOS fs instead
+> of VFAT.
+> 
+> But using MSDOS fails on converting non ASCII chars.
 
-or 
+This doesn't really have anything to do with util-linux; the kernel
+msdos driver simply lacks the ability to use the iocharset option.
 
-2. it does support physical devices, but it is an undocumented feature (at 
-least in the manpage) and the warning it issues is misleading beacuse it 
-makes you think it doesn't support them ("losetup: /dev/sdc2: warning: file 
-smaller than 512 bytes, the loop device maybe be useless or invisible for 
-system tools"). In this case this could be a documentation bug.
 
-I haven't tested which of the two possibilities is the real situation, but 
-I'm pretty sure you already know.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
 
-Thanks for your attention,
-Lucio.
-
+iQEcBAEBAgAGBQJUqw9cAAoJENRVrw2cjl5RDukH/00LPDgvnNNL1PownJTGJxwv
+948PxDwypSRO1pJO1yoh5ldc8jfJ9vNZCpv/cbbJ5y6P/uro4+aLQcCRNLbhPHRZ
+OEKnlatYbHJcG09rDwJj8K7sDch87hWGmCKytyCuBixq5aPZc47dYQ2sqgScqCJG
+R3ZQmiFZQLyV+I98SJEhh0w3Ur8a5oMlI3d3qj/y0ZUuMsbHr1bFTo5P+0y2kISW
+wXnASUOI6C1x71LYpWnitNZzO8lc+9Gnx3DVUE2PrxioJmeUohFI16I49Wr5NGb/
+edUzk7S06QfVWZgvIhm/BK3VMjRUt6qYZ4sH0mm79fgQSKydRNNKqW569lA4u6o=
+=aH4e
+-----END PGP SIGNATURE-----
