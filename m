@@ -1,98 +1,207 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:59700 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:44053 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761552AbbA1UoE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 28 Jan 2015 15:44:04 -0500
-From: Jan Kara <jack@suse.cz>
-To: kzak@redhat.com
-Cc: util-linux@vger.kernel.org, Jan Kara <jack@suse.cz>
-Subject: [PATCH] mount: Further FAT mount option update
-Date: Wed, 28 Jan 2015 10:50:53 +0100
-Message-Id: <1422438653-26499-1-git-send-email-jack@suse.cz>
+	id S1755241AbbAFNDw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 Jan 2015 08:03:52 -0500
+Date: Tue, 6 Jan 2015 14:03:43 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Lubomir Rintel <lkundrak@v3.sk>
+Cc: util-linux@vger.kernel.org, Mikhail Gusarov <dottedmag@dottedmag.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 2/2] unshare: allow persisting namespaces
+Message-ID: <20150106130343.GG18528@x2.net.home>
+References: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
+ <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add some mount options mentioned in Documentation/filesystems/vfat.txt.
+On Sun, Dec 28, 2014 at 09:23:38PM +0100, Lubomir Rintel wrote:
+> Bind mount the namespace file to a given location after creating it if
+> requested (analogously to what "ip netns" and other tools do). This makes
+> it possible for a namespace to survive with no processes running while
+> processes can enter it with nsenter(1):
+> 
+>   # unshare --uts=utsns hostname behemoth
+>   # nsenter --uts=utsns hostname
+>   behemoth
 
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- sys-utils/mount.8 | 49 ++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 44 insertions(+), 5 deletions(-)
+Nice, especially when we already supports the same concept in nsenter.
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index bfa82a0d7635..fac4b0c9b517 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -1989,7 +1989,16 @@ If set, causes discard/TRIM commands to be issued to the block device
- when blocks are freed.  This is useful for SSD devices and
- sparse/thinly-provisioned LUNs.
- .TP
--.BR fat= {12 | 16 | 32 }
-+.B dos1xfloppy
-+If set, use a fallback default BIOS Parameter Block configuration, determined
-+by backing device size. These static parameters match defaults assumed by DOS
-+1.x for 160 kiB, 180 kiB, 320 kiB, and 360 kiB floppies and floppy images.
-+.TP
-+.BR errors= { panic | continue | remount-ro }
-+Specify FAT behavior on critical errors: panic, continue without doing
-+anything, or remount the partition in read-only mode (default behavior).
-+.TP
-+.BR fat= { 12 | 16 | 32 }
- Specify a 12, 16 or 32 bit fat.  This overrides
- the automatic FAT type detection routine.  Use with caution!
- .TP
-@@ -1998,10 +2007,32 @@ Character set to use for converting between 8 bit characters
- and 16 bit Unicode characters.  The default is iso8859-1.
- Long filenames are stored on disk in Unicode format.
- .TP
--.B nfs
--If set, enables in-memory indexing of directory inodes to reduce the
--frequency of ESTALE errors in NFS client operations.  Useful only when
--the filesystem is exported via NFS.
-+.BR nfs= { stale_rw | nostale_ro }
-+Enable this only if you want to export the FAT filesystem over NFS.
-+
-+.BR stale_rw :
-+This option maintains an index (cache) of directory inodes which is used by the
-+nfs-related code to improve look-ups. Full file operations (read/write) over
-+NFS are supported but with cache eviction at NFS server, this could result in
-+spurious
-+.B ESTALE
-+errors.
-+
-+.BR nostale_ro :
-+This option bases the inode number and filehandle
-+on the on-disk location of a file in the FAT directory entry.
-+This ensures that
-+.B ESTALE
-+will not be returned after a file is
-+evicted from the inode cache. However, it means that operations
-+such as rename, create and unlink could cause filehandles that
-+previously pointed at one file to point at a different file,
-+potentially causing data corruption. For this reason, this
-+option also mounts the filesystem readonly.
-+
-+To maintain backward compatibility, '-o nfs' is also accepted,
-+defaulting to
-+.BR stale_rw .
- .TP
- .BI tz=UTC
- This option disables the conversion of timestamps
-@@ -2029,6 +2060,14 @@ Turn on the
- flag.  Attempts to chown or chmod files do not return errors,
- although they fail.  Use with caution!
- .TP
-+.B rodir
-+FAT has the ATTR_RO (read-only) attribute. On Windows, the ATTR_RO of the
-+directory will just be ignored, and is used only by applications as a flag
-+(e.g. it's set for the customized folder).
-+
-+If you want to use ATTR_RO as read-only flag even for the directory, set this
-+option.
-+.TP
- .B showexec
- If set, the execute permission bits of the file will be allowed only if
- the extension part of the name is \&.EXE, \&.COM, or \&.BAT.  Not set by default.
+But I guess that "empty namespace" (without any running process) is
+impossible for PID namespaces, right? It would be nice to add a note
+about it to the man page.
+
+It would be also nice to add example with --mount-proc, because in
+this case you need to specify --mount=<file> too
+
+ # unshare --pid=ns-bind-pid --mount=ns-bind-mnt --mount-proc 
+
+another session:
+
+ # nsenter --pid=ns-bind-pid --mount=ns-bind-mnt
+
+> The ugly bit about this patch is the clone(2) call, arguably not our
+
+Please, can you a little elaborate why need clone() and what's wrong
+with fork()+unshare()? I'd like to have some comment in code.
+
+> +static void persist_ns(pid_t pid)
+> +{
+> +	struct namespace_file *nsfile;
+> +
+> +	for (nsfile = namespace_files; nsfile->nstype; nsfile++) {
+> +		char pathbuf[PATH_MAX];
+> +
+> +		if (!nsfile->target_name)
+> +			continue;
+> +
+> +		snprintf(pathbuf, sizeof(pathbuf), "/proc/%u/%s", pid,
+> +			nsfile->proc_name);
+> +
+> +		umount(nsfile->target_name);
+> +		unlink(nsfile->target_name);
+> +
+> +		if (-1 == mknod(nsfile->target_name, 0666, 0)) {
+> +			warn(_("failed to create %s"), nsfile->target_name);
+> +			continue;
+> +		}
+> +
+> +		if (-1 == mount(pathbuf, nsfile->target_name, NULL, MS_BIND, NULL)) {
+> +			warn(_("mount %s failed"), nsfile->target_name);
+> +			unlink(nsfile->target_name);
+> +		}
+> +	}
+> +}
+
+ would be better to use err() that warn()? It's strange to continue
+ and ignore errors in this case. The current result on errors is mess.
+
+    Karel
+
+> +static int in_child (void *arg)
+> +{
+> +	jmp_buf *child = arg;
+> +
+> +	longjmp(*child, 1);
+> +}
+> +
+> +#define STACK_SIZE 0x100000
+> +static pid_t unshare_fork(int unshare_flags)
+> +{
+> +	/* Twice the size, as we might be running of parisc
+> +	 * or metag where stack grows the other way. *sigh* */
+> +	static char stack[2*STACK_SIZE];
+> +	static jmp_buf child;
+> +	pid_t pid;
+> +
+> +	if (setjmp (child))
+> +		return 0;
+> +
+> +	pid = clone(in_child, &stack[STACK_SIZE],
+> +		SIGCHLD | unshare_flags, &child);
+> +	if (pid != -1)
+> +		persist_ns(pid);
+> +
+> +	return pid;
+> +}
+> +
+>  int main(int argc, char *argv[])
+>  {
+>  	enum {
+> @@ -90,12 +183,12 @@ int main(int argc, char *argv[])
+>  	static const struct option longopts[] = {
+>  		{ "help", no_argument, 0, 'h' },
+>  		{ "version", no_argument, 0, 'V'},
+> -		{ "mount", no_argument, 0, 'm' },
+> -		{ "uts", no_argument, 0, 'u' },
+> -		{ "ipc", no_argument, 0, 'i' },
+> -		{ "net", no_argument, 0, 'n' },
+> -		{ "pid", no_argument, 0, 'p' },
+> -		{ "user", no_argument, 0, 'U' },
+> +		{ "mount", optional_argument, 0, 'm' },
+> +		{ "uts", optional_argument, 0, 'u' },
+> +		{ "ipc", optional_argument, 0, 'i' },
+> +		{ "net", optional_argument, 0, 'n' },
+> +		{ "pid", optional_argument, 0, 'p' },
+> +		{ "user", optional_argument, 0, 'U' },
+>  		{ "fork", no_argument, 0, 'f' },
+>  		{ "mount-proc", optional_argument, 0, OPT_MOUNTPROC },
+>  		{ "map-root-user", no_argument, 0, 'r' },
+> @@ -103,8 +196,6 @@ int main(int argc, char *argv[])
+>  	};
+>  
+>  	int unshare_flags = 0;
+> -	int c, forkit = 0, maproot = 0;
+> -	const char *procmnt = NULL;
+>  	uid_t real_euid = geteuid();
+>  	gid_t real_egid = getegid();;
+>  
+> @@ -125,21 +216,28 @@ int main(int argc, char *argv[])
+>  			return EXIT_SUCCESS;
+>  		case 'm':
+>  			unshare_flags |= CLONE_NEWNS;
+> +			if (ns_path(CLONE_NEWNS, optarg))
+> +				forkit = 1;
+>  			break;
+>  		case 'u':
+>  			unshare_flags |= CLONE_NEWUTS;
+> +			ns_path(CLONE_NEWUTS, optarg);
+>  			break;
+>  		case 'i':
+>  			unshare_flags |= CLONE_NEWIPC;
+> +			ns_path(CLONE_NEWIPC, optarg);
+>  			break;
+>  		case 'n':
+>  			unshare_flags |= CLONE_NEWNET;
+> +			ns_path(CLONE_NEWNET, optarg);
+>  			break;
+>  		case 'p':
+>  			unshare_flags |= CLONE_NEWPID;
+> +			ns_path(CLONE_NEWPID, optarg);
+>  			break;
+>  		case 'U':
+>  			unshare_flags |= CLONE_NEWUSER;
+> +			ns_path(CLONE_NEWUSER, optarg);
+>  			break;
+>  		case OPT_MOUNTPROC:
+>  			unshare_flags |= CLONE_NEWNS;
+> @@ -154,12 +252,9 @@ int main(int argc, char *argv[])
+>  		}
+>  	}
+>  
+> -	if (-1 == unshare(unshare_flags))
+> -		err(EXIT_FAILURE, _("unshare failed"));
+> -
+>  	if (forkit) {
+>  		int status;
+> -		pid_t pid = fork();
+> +		pid_t pid = unshare_fork(unshare_flags);
+>  
+>  		switch(pid) {
+>  		case -1:
+> @@ -175,6 +270,10 @@ int main(int argc, char *argv[])
+>  				kill(getpid(), WTERMSIG(status));
+>  			err(EXIT_FAILURE, _("child exit failed"));
+>  		}
+> +	} else {
+> +		if (-1 == unshare(unshare_flags))
+> +			err(EXIT_FAILURE, _("unshare failed"));
+> +		persist_ns(getpid());
+>  	}
+>  
+>  	if (maproot) {
+> -- 
+> 2.1.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
 -- 
-2.1.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
