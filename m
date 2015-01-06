@@ -1,77 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:58615 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752364AbbARQVy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 18 Jan 2015 11:21:54 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] cfdisk: shorten the help screen to make it fit within 25 lines
-Date: Sun, 18 Jan 2015 17:21:25 +0100
-Message-Id: <1421598085-4394-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
-References: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:45980 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754435AbbAFJmq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 Jan 2015 04:42:46 -0500
+Date: Tue, 6 Jan 2015 10:42:33 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/14] pull: chsh, newgrp, and script changes
+Message-ID: <20150106094233.GA18528@x2.net.home>
+References: <1419248837-4619-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1419248837-4619-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When the terminal has less than 32 lines, the new cfdisk ignored the
-fact that the help-screen text was longer and just skipped printing
-the remaining lines.  Instead of introducing a minipager for the help
-screen, just condense its text and remove unneeded lines.  Now the
-text occupies just 25 lines, which should fit on most terminals.
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |   21 +++++++--------------
- 1 files changed, 7 insertions(+), 14 deletions(-)
+ Hi,
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index b461b21..bad8681 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1797,14 +1797,8 @@ static int ui_help(void)
- {
- 	size_t i;
- 	static const char *help[] = {
--		N_("Help Screen for cfdisk"),
--		"  ",
--		N_("This is cfdisk, a curses based disk partitioning program, which"),
--		N_("allows you to create, delete and modify partitions on your hard"),
--		N_("disk drive."),
--		"  ",
--		N_("Copyright (C) 2014 Karel Zak <kzak@redhat.com> "),
--		N_("Based on the original cfdisk from Kevin E. Martin & aeb."),
-+		N_("This is cfdisk, a curses-based disk partitioning program."),
-+		N_("It lets you create, delete, and modify partitions on a block device."),
- 		"  ",
- 		N_("Command      Meaning"),
- 		N_("-------      -------"),
-@@ -1813,20 +1807,19 @@ static int ui_help(void)
- 		N_("  h          Print this screen"),
- 		N_("  n          Create new partition from free space"),
- 		N_("  q          Quit program without writing partition table"),
--		N_("  t          Change the partition type"),
- 		N_("  s          Fix partitions order (only when in disarray)"),
-+		N_("  t          Change the partition type"),
- 		N_("  u          Dump disk layout to sfdisk compatible script file"),
--		N_("  W          Write partition table to disk (must enter upper case W)"),
--		N_("             Since this might destroy data on the disk, you must"),
--		N_("             either confirm or deny the write by entering `yes' or"),
--		N_("             `no'"),
-+		N_("  W          Write partition table to disk (you must enter uppercase W);"),
-+		N_("               since this might destroy data on the disk, you must either"),
-+		N_("               confirm or deny the write by entering 'yes' or 'no'"),
- 		N_("Up Arrow     Move cursor to the previous partition"),
- 		N_("Down Arrow   Move cursor to the next partition"),
- 		N_("Left Arrow   Move cursor to the previous menu item"),
- 		N_("Right Arrow  Move cursor to the next menu item"),
- 		"  ",
- 		N_("Note: All of the commands can be entered with either upper or lower"),
--		N_("case letters (except for Writes)."),
-+		N_("case letters (except for Write)."),
- 		"  ",
- 		N_("Use lsblk(8) or partx(8) to see more details about the device.")
- 	};
+On Mon, Dec 22, 2014 at 11:47:03AM +0000, Sami Kerola wrote:
+>   chsh: remove function prototypes
+>   chfn, chsh: share illegal_passwd_chars() function
+>   chsh: use getline() to support arbitrarily long lines
+>   chsh: set few variables read-only and rename one of them
+>   chsh: allow user to set shell to /bin/sh if none is set
+>   chsh: clean up parse_argv()
+>   chsh: rewrite function interacting with user to get path to new shell
+>   chsh: simplify check_shell()
+>   chsh: fail get_shell_list() check when /etc/shells cannot be opened
+>   newgrp: simplify if else clauses
+>   newgrp: move shell determination closer where it is used
+>   newgrp: set function arguments read-only when possible
+
+I have merged 'chsh' and 'newgrp' branches from github.
+
+>   script: remove function prototypes
+>   script: add struct script_control and remove global variables
+
+I'm going to merge this together with another changes from 'script' branch.
+
+ Thanks!
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
