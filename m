@@ -1,25 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45373 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44399 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751098AbbAFKcn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Jan 2015 05:32:43 -0500
-Date: Tue, 6 Jan 2015 11:32:38 +0100
+	id S1755256AbbAFLLq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 6 Jan 2015 06:11:46 -0500
+Date: Tue, 6 Jan 2015 12:11:35 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH V2] textual: add a docstring to most of the utilities
-Message-ID: <20150106103238.GB18528@x2.net.home>
-References: <1419285437-15357-1-git-send-email-bensberg@justemail.net>
+Subject: Re: [PATCH 22/22] script: use correct input type, move comment, and
+ so on
+Message-ID: <20150106111135.GF18528@x2.net.home>
+References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+ <1419700655-19107-9-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1419285437-15357-1-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1419700655-19107-9-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 22, 2014 at 10:57:17PM +0100, Benno Schulenberg wrote:
-> This adds a concise description of a tool to its usage text.
+On Sat, Dec 27, 2014 at 05:17:35PM +0000, Sami Kerola wrote:
+> +	/*
+> +	 * script -t prints time delays as floating point numbers.  The example
+> +	 * program (scriptreplay) that we provide to handle this timing output
 
- Applied, thanks.
+..pretty obsolete information, scriptreplay is in C since 2008:-)
+
+I'll merge the script(1) changes later this week, I need to play with
+that little bit more.
 
     Karel
 
