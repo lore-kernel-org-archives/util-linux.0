@@ -1,48 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34598 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753148AbbAFRWB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 6 Jan 2015 12:22:01 -0500
-Date: Tue, 6 Jan 2015 18:21:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Lubomir Rintel <lkundrak@v3.sk>, util-linux@vger.kernel.org,
-        Mikhail Gusarov <dottedmag@dottedmag.net>
-Subject: Re: [PATCH 2/2] unshare: allow persisting namespaces
-Message-ID: <20150106172134.GJ18528@x2.net.home>
-References: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
- <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
- <20150106130343.GG18528@x2.net.home>
- <87y4pfomui.fsf@x220.int.ebiederm.org>
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:65310 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753633AbbAFKel (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Jan 2015 05:34:41 -0500
+Received: by mail-wg0-f49.google.com with SMTP id n12so28937270wgh.22
+        for <util-linux@vger.kernel.org>; Tue, 06 Jan 2015 02:34:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87y4pfomui.fsf@x220.int.ebiederm.org>
+In-Reply-To: <1420490268.1408121.209893057.48A620D9@webmail.messagingengine.com>
+References: <CAO7R9g8opv3Z3aW73xJ-d3ZBwi5_f4td9Xeqk=QBUCqz13fGhw@mail.gmail.com>
+	<1420490268.1408121.209893057.48A620D9@webmail.messagingengine.com>
+Date: Tue, 6 Jan 2015 11:34:40 +0100
+Message-ID: <CAO7R9g8aGM48RzU-ed-cYyAdUEPbX7B4QSsVTdLx90poPtKwhQ@mail.gmail.com>
+Subject: Re: questions on util-linux translation
+From: Antonio Ceballos <aceballos@gmail.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 06, 2015 at 11:11:49AM -0600, Eric W. Biederman wrote:
-> No.  An empty pid namespace is valid.   An empty pid namespace is one
-> in which an init process has not entered the pid namespace, or one in
+Hi Benno,
 
-but if I create a PID namespace (unshare/clone) then then I'm the init
-process.... how I can create empty PID namespace (from userspace)?
+Nice to see you here too. :)
 
-> which the init process has exited (and thus no more processes are
-> allowed).
+1. Understood. I think I read too quickly the second line for --version.
 
-yes, this makes sense
+2. My first suggestion is "too neutral" for that context. Your
+suggestion probably sounds better. I presume that something
+more explicit but longer is worse, such as:
 
-> So an empty pid namespace is a little weird but valid.
-> 
-> The implementation details of the patch completely baffle me.  I can't
-> see a reason for things being implemented with clone for example.
+"partition #7 cannot be removed, as it doesn't exist"
 
-Yes, this part of the patch is strange, but I like the basic idea
-of the patch -- so make it possible to create an empty namespace and 
-then later enter by nsenter.
+Antonio
 
-    Karel
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On Mon, Jan 5, 2015 at 9:37 PM, Benno Schulenberg
+<bensberg@justemail.net> wrote:
+>
+> Hi Antonio,  :)
+>
+> On Mon, Jan 5, 2015, at 11:11, Antonio Ceballos wrote:
+>> msgid ""
+>> " -V, --verbose      explain what is being done;\n"
+>> "                      specifying -V more than once will cause a dry-run\n"
+>>
+>> msgid ""
+>> " -V, --version      display version information and exit;\n"
+>> "                      -V as --version must be the only option\n"
+>>
+>> You can see '-V' (uppercase) for both --verbose and --version. Is that correct?
+>
+> It is.  As the second line for --version tries to explain, -V *only* means
+> --version when no other option is specified.  -V together with other options
+> means --verbose.
+>
+>> 2. Could the English wording be improved in the following sentence?
+>> msgid "%s: partition #%d already doesn't exist\n"
+>
+> Hmm, yes, it should.  In Dutch I have translated it to the equivalent
+> of "partition #%d doesn't even exist" -- which sounds a tiny bit like:
+> "you're stupid".  So I'd better change that.  :|
+>
+>> I would suggest something like:
+>> msgid "%s: partition #%d doesn't exist\n"
+>> msgid "%s: partition #%d no longer exists\n"
+>
+> The latter one does not seem correct -- maybe the partition never
+> existed at all.  The verbose message was introduced with commit
+> ab025087f91b66ee8e23a16bc49eb0d9bd421d65 -- when a range of
+> partitions is specified for removal, say 5 to 9, and partition 7
+> does not exist, then, when --verbose is specified, partx would
+> mention that "partition #7 already doesn't exist".  Probably it is
+> better so say something like "skipping nonexistent partition #7"?
+> What do you think?
+>
+> Benno
+>
+> --
+> http://www.fastmail.com - Faster than the air-speed velocity of an
+>                           unladen european swallow
+>
