@@ -1,50 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:65264 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751596AbbARUgb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 18 Jan 2015 15:36:31 -0500
-Message-ID: <54BC1947.6060107@gmx.com>
-Date: Sun, 18 Jan 2015 15:36:23 -0500
-From: JWP <elseifthen@gmx.com>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-To: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] textual: fix spellos and inconsistencies in several program
- messages
-References: <1421612229-5535-1-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1421612229-5535-1-git-send-email-bensberg@justemail.net>
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20150106131322.GH18528@x2.net.home>
+References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+	<20150106131322.GH18528@x2.net.home>
+Date: Tue, 6 Jan 2015 13:26:44 +0000
+Message-ID: <CAG27Bk02NPEZukdCbVDTugCcqRk7ieg+S+85q0yJRkPdDPmBfQ@mail.gmail.com>
+Subject: Re: [PATCH 02/11] docs: improve some wordings on the man page of wipefs
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-> -		ui_warn(_("Cannot open: %s"), buf);
-> +		ui_warn(_("Cannot open %s"), buf);
+On 6 January 2015 at 13:13, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Dec 29, 2014 at 11:16:57AM +0100, Benno Schulenberg wrote:
+>>  misc-utils/wipefs.8 |   33 +++++++++++++++++----------------
+>>  1 files changed, 17 insertions(+), 16 deletions(-)
+>
+>  Grrr... I see you resent the patches :-)
+>
+>  Please, please, use --in-reply-to= or at least "V2" in subject
+>  next time when you re-send patches. I thought it's another set of
+>  patches.
+>
+>  Or ideally use github to keep your patches up to date in some task
+>  specific branch, then I can merge all by one git-pull command. In
+>  this case is enough to send to mailing list info that you have
+>  updated the patches. (Ask Sami for more details, he uses this way :-)
 
-> -		ui_warn(_("Cannot open: %s"), buf);
-> +		ui_warn(_("Cannot open %s"), buf);
+I rather send update to Documentation/howto-contribute.txt how to sent
+remote branch requests. The description will be technically OK, and
+Benno will end up fixing the engrish again ;-)
 
-> -		fdisk_warn(cxt, _("Cannot open: %s"), filename);
-> +		fdisk_warn(cxt, _("Cannot open %s"), filename);
-
-> -		fdisk_warn(cxt, _("Cannot open: %s"), filename);
-> +		fdisk_warn(cxt, _("Cannot open %s"), filename);
-
-> -		warn(_("cannot open: %s"), devname);
-> +		warn(_("cannot open %s"), devname);
-
-> -			warn(_("cannot open: %s"), dev);
-> +			warn(_("cannot open %s"), dev);
-
-> -		warn(_("cannot open: %s"), devname);
-> +		warn(_("cannot open %s"), devname);
-
-> -					"--map-root-user are mutually exclusive."));
-> +					"--map-root-user are mutually exclusive"));
-
-> -			log_warn(_("cannot open: %s: %m"), _PATH_OS_RELEASE);
-> +			log_warn(_("cannot open %s: %m"), _PATH_OS_RELEASE);
-
-> -		err(EXIT_FAILURE, _("cannot open: %s"), AGETTY_RELOAD_FILENAME);
-> +		err(EXIT_FAILURE, _("cannot open %s"), AGETTY_RELOAD_FILENAME);
-
-Hey Benno, I thought we weren't allowed to make changes for punctuation only!
-
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
