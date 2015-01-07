@@ -1,44 +1,37 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1421874316.196312.217065457.6F95655D@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:34929 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752228AbbAGJKC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 7 Jan 2015 04:10:02 -0500
+Date: Wed, 7 Jan 2015 10:09:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] maint: fix shadow declaration
+Message-ID: <20150107090949.GB15715@x2.net.home>
+References: <1420066881-16797-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-Date: Wed, 21 Jan 2015 22:05:16 +0100
-In-Reply-To: <54BF57B5.1000505@gmail.com>
-References: <20150114194608.GF28019@x2.net.home>
- <1421786901.3565769.216421909.377E2720@webmail.messagingengine.com>
- <54BF57B5.1000505@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1420066881-16797-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Dec 31, 2014 at 11:01:21PM +0000, Sami Kerola wrote:
+>  disk-utils/cfdisk.c            |  6 +++---
+>  disk-utils/fsck.cramfs.c       | 40 ++++++++++++++++++++--------------------
+>  libfdisk/src/sun.c             |  8 +++++---
+>  libfdisk/src/table.c           |  6 +++---
+>  libmount/src/tab_parse.c       |  6 +++---
+>  libsmartcols/src/table_print.c |  6 +++---
+>  login-utils/lslogins.c         | 32 ++++++++++++++++----------------
+>  misc-utils/findmnt.c           |  4 ++--
+>  misc-utils/lslocks.c           |  4 ++--
+>  sys-utils/swapon.c             | 14 +++++++-------
+>  sys-utils/zramctl.c            |  2 +-
+>  11 files changed, 65 insertions(+), 63 deletions(-)
 
-On Wed, Jan 21, 2015, at 08:39, Bruce Dubbs wrote:
-> Benno Schulenberg wrote:
-> > $ gcc --version | head -1
-> > gcc (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
-> 
-> I don't know how far back you want to go, but that version of gcc was 
-> released 21-Jan-2010, fully 5 years ago.
-
-I'm not wanting to go anywhere; it's simply the gcc that's installed
-on my system.  And I'm merely providing the solicited feedback.
-
-However, if this util-linux can't be compiled with such an old gcc,
-it would be nice if ./configure would report that.  The same for a
-minimum required kernel version.
-
-> 2.6.32 was 14-Dec-2009 and I don't see any nano versions beyond 
-> linux-2.6.32.27 from 09-Dec-2010
-
-$ uname -rv
-2.6.32-71-generic #138-Ubuntu SMP Thu Dec 18 17:38:32 UTC 2014
-
-Ubuntu Lucid is supported until April this year.  Is it so strange to
-try and compile a new util-linux on such a system?
-
-Benno
+ Applied, thanks.
 
 -- 
-http://www.fastmail.com - The professional email service
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
