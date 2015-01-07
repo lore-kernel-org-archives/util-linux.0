@@ -1,90 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mta03.eastlink.ca ([24.224.136.9]:54855 "EHLO mta03.eastlink.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751491AbbAHGbk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 8 Jan 2015 01:31:40 -0500
-Received: from cmgw04.eastlink.ca ([71.7.199.170])
- by mta03.eastlink.ca (Oracle Communications Messaging Exchange Server
- 7u4-21.01 64bit (built Feb 16 2011))
- with ESMTP id <0NHU00D5EGJ15RV0@mta03.eastlink.ca> for
- util-linux@vger.kernel.org; Thu, 08 Jan 2015 02:31:39 -0400 (AST)
-Received: from peter by llama.cordes.ca with local (Exim 3.36 #1 (Debian))
-	id 1Y96d8-0002cz-00	for <util-linux@vger.kernel.org>; Thu,
- 08 Jan 2015 02:31:38 -0400
-Date: Thu, 08 Jan 2015 02:31:37 -0400
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:35120 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754121AbbAGTZp (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 7 Jan 2015 14:25:45 -0500
+Received: by mail-wi0-f169.google.com with SMTP id r20so8746212wiv.0
+        for <util-linux@vger.kernel.org>; Wed, 07 Jan 2015 11:25:44 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: Re: fdisk units size & disk manufacturers buying the standard
-Message-id: <20150108063136.GU29504@cordes.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-In-reply-to: <54AE0005.9070502@ubuntu.com>
-From: Peter Cordes <peter@cordes.ca>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/2] docs: small improvements to howto-contribute.txt
+Date: Wed,  7 Jan 2015 19:25:38 +0000
+Message-Id: <1420658739-2713-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 07, 2015 at 10:56:53PM -0500, Phillip Susi wrote:
-> 
-> > Basically, using base 10 prefixes to describe something that only 
-> > comes in sizes of base-2 is a setup for miscommunication as well as
-> > inherently being *unable* to accurately describe the quantities 
-> > used in the computer field.
-> 
-> The reason base 2 is convenient for ram is because that is how it
-> naturally aligns due to the way it is addressed, and they don't have
-> physical constraints in the manufacturing process, not because there
-> are 8 bits in a byte.  Bytes easily could have been defined to be 10
-> or 12 bits and it would still make sense for ram to be built in power
-> of 2 units of bytes.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ Documentation/howto-contribute.txt | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
- ECC RAM does in fact store 9 bits per byte, so there's an extra chip
-on each stick.  It presents itself as an addressable container storing
-64bit words, since the 72bit data + ECC is handled by the controller.
-http://en.wikipedia.org/wiki/Synchronous_dynamic_random-access_memory#SDRAM_construction_and_operation
-Point being, the natural word size of common (DDRwhatever) SDRAM isn't
-8bits, but the convention of using bytes as the smallest logically
-(not physically) addressable unit is so widespread that we measure
-everything in bytes.
-
- And hard drives are most logically viewed as an array of sectors, of
-size = 512B * 8 b/B.  Playing with the C/H/S geometry, or whatever you
-did with scsi devices, just allowed access to more of fewer sectors.
-You still use the device as a linear array of sectors, so it doesn't
-matter how you go about translating linear sector addresses to
-whatever addressing mode the hardware actually uses internally.
-
- There's huge inertia resisting any change to a convention with
-smaller numbers, for marketting reasons.  This is probably also why
-wire and wireless transmission protocols measure bits / sec.  (baud is
-symbols / sec, BTW, which isn't bits or bytes per sec, in case anyone
-needed reminding about that.)
-
- What are we arguing about here, anyway?  MB vs MiB?  Yeah it's
-annoying that HD manufacturers used MB even before MiB was a thing,
-and everyone else meant what we now call MiB.  Water under the bridge,
-it's just how things are done, and I'd assume we're stuck with it.  It
-only bites you when you forget to do the conversion when thinking
-about if a 1TB hard drive will hold a directory with 950 GiB of data,
-according to du output.  Filesystem overhead eats up space, too,
-depending on the FS.
-
- But it's usually clear what's what.  Printing out storage device
-sizes in TB and TiB together seems like a good idea, to make sure
-people remember that the conversion is needed, until our wishes come
-true and storage hardware is sold with sizes measured with power-of-2
-prefixes, maybe by the year 2100.  Or maybe not until an alien
-invasion forces the US to drop the ridiculous non-metric system, too.
-
- These days, everything is logically an array of bits, (almost always
-a whole number of bytes), and any funky addressing is hidden behind a
-hardware or at least software translation layer.
-
- PS, are we supposed to reply-all instead of just the list, on
-util-linux?
-
+diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
+index d9151d9..554d6b3 100644
+--- a/Documentation/howto-contribute.txt
++++ b/Documentation/howto-contribute.txt
+@@ -1,9 +1,7 @@
+ Patches
+ 
+ 	* send your patches to the mailing list or to the upstream maintainer
+-	  (see the AUTHORS and README files)
+-
+-	* diff -u
++	  (see the README file in project root directory).
+ 
+ 	* don't include generated (autotools) stuff to your patches (hint:
+ 	  use git clean -Xd)
+@@ -17,12 +15,16 @@ Patches
+ 
+ 	* one patch per email, with the changelog in the body of the email.
+ 
++	* mail attachments are difficult. Tip:
++	  git send-email --to util-linux@vger.kernel.org origin/master..yourbranch
++
+ 	* many small patches are favoured over one big. Break down is done on
+ 	  basis of logical functionality; for example #endif mark ups,
+ 	  compiler warning and exit codes fixes all should be individual
+ 	  small patches.
+ 
+-	* Subject: [PATCH] subsystem: description
++	* 'Subject: [PATCH] subsystem: description'. See also 'Patching
++	  process'.
+ 
+ 	* if someone else wrote the patch, they should be credited (and
+ 	  blamed) for it. To communicate this, add a line:
+@@ -74,8 +76,8 @@ Before sending a patch
+ 	  errors.
+ 
+ 	* test that previously existed program behavior is not
+-	  unintentionally alterred. If you alter the behavior tell about in
+-	  commit message.
++	  unintentionally alterred. If you alter the behavior tell about
++	  it in commit message.
+ 
+ Coding style
+ 
+@@ -86,7 +88,7 @@ Coding style
+ 
+ 	* Use `FIXME:' and a good description if want to inform others
+ 	  something is not quite right, and you are unwilling to fix the
+-	  issue.
++	  issue in the submitted change.
+ 
+ Patching process
+ 
+@@ -107,6 +109,9 @@ Patching process
+ 	  are needed here and there resubmit particular patches.  When
+ 	  comments cause greater effect resubmit everything again.
+ 
++	* Mark resubmission with [PATCH v2]. Hint:
++	  git format-patch origin/master..yourbranch --subject-prefix='PATCH v2'
++
+ 	* All patch submissions, big or small, are either commented, reject,
+ 	  or merge.  When maintainer rejects a patch (series) it is pointless
+ 	  to resubmit.
 -- 
-#define X(x,y) x##y
-Peter Cordes ;  e-mail: X(peter@cor , des.ca)
+2.2.1
 
-"The gods confound the man who first found out how to distinguish the hours!
- Confound him, too, who in this place set up a sundial, to cut and hack
- my day so wretchedly into small pieces!" -- Plautus, 200 BC
