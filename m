@@ -1,29 +1,225 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57839 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752588AbbAZKzs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 05:55:48 -0500
-Date: Mon, 26 Jan 2015 11:55:44 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] cfdisk: don't mess up the help screen by printing
- the PO file header
-Message-ID: <20150126105544.GJ6354@x2.net.home>
-References: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
+Received: from out02.mta.xmission.com ([166.70.13.232]:35416 "EHLO
+	out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756169AbbAHQPb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 8 Jan 2015 11:15:31 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+References: <87zjalkhb8.fsf@x220.int.ebiederm.org>
+	<87sigdkglg.fsf@x220.int.ebiederm.org>
+	<20141219100749.GJ19904@x2.net.home>
+	<87a92j4yde.fsf@x220.int.ebiederm.org>
+	<20150108111354.GJ15715@x2.net.home>
+Date: Thu, 08 Jan 2015 10:12:47 -0600
+In-Reply-To: <20150108111354.GJ15715@x2.net.home> (Karel Zak's message of
+	"Thu, 8 Jan 2015 12:13:54 +0100")
+Message-ID: <87d26pz1xc.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain
+Subject: Re: [RFC][PATCH] unshare: Fix --map-root-user to work on new kernels
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 18, 2015 at 05:21:24PM +0100, Benno Schulenberg wrote:
->  disk-utils/cfdisk.c |   11 +++++------
->  1 files changed, 5 insertions(+), 6 deletions(-)
+Karel Zak <kzak@redhat.com> writes:
 
- All 2 patches applied.
+> On Fri, Dec 19, 2014 at 06:28:45AM -0600, Eric W. Biederman wrote:
+>> >  IMHO it's good idea to make it possible to control this feature by
+>> >  unshare util.
+>> 
+>> Fair enough.  A general control is reasonable, and not hard to support.
+>> Call it --setgroups=[allow|deny].
+>
+> Implemented. Please, review. 
+>
+> Note that I'm not sure if the description in the man page is good enough for 
+> end users (it's mostly copy & past from previous Eric's email:-).
 
-    Karel
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+A few caveats below.
+
+The basic logic looks solid.
+
+Eric
+
+
+
+>     Karel
+>
+>
+> From 0226ca0734065fe29cb9dbc4a48ed6a9b5640995 Mon Sep 17 00:00:00 2001
+> From: Karel Zak <kzak@redhat.com>
+> Date: Thu, 8 Jan 2015 11:51:58 +0100
+> Subject: [PATCH] unshare: add --setgroups=deny|allow
+>
+> Since Linux 3.19 the file /proc/self/setgroups controls setgroups(2)
+> syscall usage in user namespaces. This patch provides command line knob
+> for this feature.
+>
+> The new --setgroups does not automatically implies --user to avoid
+> complexity, it's user's responsibility to use it in right context. The
+> exception is --map-root-user which is mutually exclusive to
+> --setgroups=allow.
+>
+> CC: "Eric W. Biederman" <ebiederm@xmission.com>
+> Signed-off-by: Karel Zak <kzak@redhat.com>
+> ---
+>  sys-utils/unshare.1 | 17 ++++++++++++++++-
+>  sys-utils/unshare.c | 55 +++++++++++++++++++++++++++++++++++++++++++++++------
+>  2 files changed, 65 insertions(+), 7 deletions(-)
+>
+> diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+> index 1aa9bcb..f9626fc 100644
+> --- a/sys-utils/unshare.1
+> +++ b/sys-utils/unshare.1
+> @@ -83,8 +83,23 @@ Run the program only after the current effective user and group IDs have been ma
+>  the superuser UID and GID in the newly created user namespace.  This makes it possible to
+>  conveniently gain capabilities needed to manage various aspects of the newly created
+>  namespaces (such as configuring interfaces in the network namespace or mounting filesystems in
+> -the mount namespace) even when run unprivileged.  As a mere convenience feature, it does not support
+> +the mount namespace) even when run unprivileged.  As a more convenience feature, it does not support
+                                                          ^^^^
+mere is the correct word.  The point is that --map-root is there merely for
+convinience and does not handle the general case.
+I can see rewording that.
+
+>  more sophisticated use cases, such as mapping multiple ranges of UIDs and GIDs.
+> +This option implies --setgroups=deny.
+> +.TP
+> +.BR \-s , " \-\-setgroups \fIallow|deny\fP"
+> +Allow or deny
+> +.BR setgroups (2)
+> +syscall in user namespaces.
+> +
+> +.BR setgroups(2)
+> +is only callable with CAP_SETGID and CAP_SETGID in a user
+> +namespace (since Linux 3.19) does not give you permission to call setgroups(2)
+> +until after GID map has been set. The GID map is writable by root when
+> +.BR setgroups(2)
+> +is enabled and GID map becomes writable by unprivileged processes when
+> +.BR setgroups(2)
+> +is permamently disabled.
+>  .TP
+>  .BR \-V , " \-\-version"
+>  Display version information and exit.
+> diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+> index 9fdce93..11e2e6b 100644
+> --- a/sys-utils/unshare.c
+> +++ b/sys-utils/unshare.c
+> @@ -39,12 +39,39 @@
+>  #include "pathnames.h"
+>  #include "all-io.h"
+>  
+> -static void disable_setgroups(void)
+> +enum {
+> +	SETGROUPS_NONE = -1,
+> +	SETGROUPS_DENY = 0,
+> +	SETGROUPS_ALLOW = 1,
+> +};
+> +
+> +static const char *setgroups_strings[] =
+> +{
+> +	[SETGROUPS_DENY] = "deny",
+> +	[SETGROUPS_ALLOW] = "allow"
+> +};
+> +
+> +static int setgroups_str2id(const char *str)
+> +{
+> +	size_t i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(setgroups_strings); i++)
+> +		if (strcmp(str, setgroups_strings[i]) == 0)
+> +			return i;
+> +
+> +	errx(EXIT_FAILURE, _("unsupported --setgroups argument '%s'"), str);
+> +}
+> +
+> +static void setgroups_control(int action)
+>  {
+>  	const char *file = _PATH_PROC_SETGROUPS;
+> -	const char *deny = "deny";
+> +	const char *cmd;
+>  	int fd;
+>  
+> +	if (action < 0 || (size_t) action >= ARRAY_SIZE(setgroups_strings))
+> +		return;
+> +	cmd = setgroups_strings[action];
+> +
+>  	fd = open(file, O_WRONLY);
+>  	if (fd < 0) {
+>  		if (errno == ENOENT)
+> @@ -52,7 +79,7 @@ static void disable_setgroups(void)
+>  		 err(EXIT_FAILURE, _("cannot open %s"), file);
+>  	}
+>  
+> -	if (write_all(fd, deny, strlen(deny)))
+> +	if (write_all(fd, cmd, strlen(cmd)))
+>  		err(EXIT_FAILURE, _("write failed %s"), file);
+>  	close(fd);
+>  }
+> @@ -94,6 +121,7 @@ static void usage(int status)
+>  	fputs(_(" -f, --fork                fork before launching <program>\n"), out);
+>  	fputs(_("     --mount-proc[=<dir>]  mount proc filesystem first (implies --mount)\n"), out);
+>  	fputs(_(" -r, --map-root-user       map current user to root (implies --user)\n"), out);
+> +	fputs(_(" -s, --setgroups <allow|deny>  control setgroups syscall in user namespaces\n"), out);
+>  
+>  	fputs(USAGE_SEPARATOR, out);
+>  	fputs(USAGE_HELP, out);
+> @@ -120,9 +148,11 @@ int main(int argc, char *argv[])
+>  		{ "fork", no_argument, 0, 'f' },
+>  		{ "mount-proc", optional_argument, 0, OPT_MOUNTPROC },
+>  		{ "map-root-user", no_argument, 0, 'r' },
+> +		{ "setgroups", required_argument, 0, 's' },
+
+Do we really want a short option?  I can't imagine this being common
+enough to want a short option, and and I expect a short option would tend to be
+confusing.  
+
+>  		{ NULL, 0, 0, 0 }
+>  	};
+>  
+> +	int setgrpcmd = SETGROUPS_NONE;
+>  	int unshare_flags = 0;
+>  	int c, forkit = 0, maproot = 0;
+>  	const char *procmnt = NULL;
+> @@ -134,7 +164,7 @@ int main(int argc, char *argv[])
+>  	textdomain(PACKAGE);
+>  	atexit(close_stdout);
+>  
+> -	while ((c = getopt_long(argc, argv, "+fhVmuinpUr", longopts, NULL)) != -1) {
+> +	while ((c = getopt_long(argc, argv, "+fhVmuinpUrs:", longopts, NULL)) != -1) {
+>  		switch (c) {
+>  		case 'f':
+>  			forkit = 1;
+> @@ -170,6 +200,9 @@ int main(int argc, char *argv[])
+>  			unshare_flags |= CLONE_NEWUSER;
+>  			maproot = 1;
+>  			break;
+> +		case 's':
+> +			setgrpcmd = setgroups_str2id(optarg);
+> +			break;
+>  		default:
+>  			usage(EXIT_FAILURE);
+>  		}
+> @@ -199,10 +232,20 @@ int main(int argc, char *argv[])
+>  	}
+>  
+>  	if (maproot) {
+> -		disable_setgroups();
+> +		if (setgrpcmd == SETGROUPS_ALLOW)
+> +			errx(EXIT_FAILURE, _("options --setgroups=allow and "
+> +					"--map-root-user are mutually exclusive."));
+> +
+> +		/* since Linux 3.19 unprivileged writing of /proc/self/gid_map
+> +		 * has s been disabled unless /proc/self/setgroups is written
+> +		 * first to permanently disable the ability to call setgroups
+> +		 * in that user namespace. */
+> +		setgroups_control(SETGROUPS_DENY);
+>  		map_id(_PATH_PROC_UIDMAP, 0, real_euid);
+>  		map_id(_PATH_PROC_GIDMAP, 0, real_egid);
+> -	}
+> +
+> +	} else if (setgrpcmd != SETGROUPS_NONE)
+> +		setgroups_control(setgrpcmd);
+>  
+>  	if (procmnt &&
+>  	    (mount("none", procmnt, NULL, MS_PRIVATE|MS_REC, NULL) != 0 ||
