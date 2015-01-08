@@ -1,46 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:39436 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751999AbbAKVZC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 11 Jan 2015 16:25:02 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id 19ADF2043D
-	for <util-linux@vger.kernel.org>; Sun, 11 Jan 2015 16:25:01 -0500 (EST)
-Message-Id: <1421011500.3996453.212533857.5E69F442@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: partx does not seem able to combine showing with updating
-Date: Sun, 11 Jan 2015 22:25:00 +0100
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: peter@cordes.ca
+Date: Thu, 08 Jan 2015 14:26:35 -0400
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fallocate: create mode 0666, that's what umask is for
+Message-id: <20150108182635.GV29504@cordes.ca>
+References: <1419915737-27310-1-git-send-email-peter@cordes.ca>
+ <20150107090354.GA15715@x2.net.home> <20150107224626.GS29504@cordes.ca>
+ <20150108091302.GI15715@x2.net.home>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+In-reply-to: <20150108091302.GI15715@x2.net.home>
+From: Peter Cordes <peter@cordes.ca>
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jan 08, 2015 at 10:13:02AM +0100, Karel Zak wrote:
+> On Wed, Jan 07, 2015 at 06:46:26PM -0400, Peter Cordes wrote:
+> >  Thanks for taking a look at my patches.  I haven't had any new ideas
+> > for my fallocate --dig-holes patch.  My local copy does what I want it
+> 
+>  I didn't look at your second patch yet. I'd like to finalize stuff for 
+>  v2.26-rc1 and it seems that with some invasive and large changes we
+>  can wait for v2.27.
 
-# ./partx --update --pairs -n 2 -o SIZE /dev/sda
-SIZE="14.9G"
+ Sure, no rush.  Agree it's not something that's ready to go in for a
+release you're already finalizing.
 
-# ./partx --pairs --update -n 2 -o SIZE /dev/sda
+  I only just subscribed to the mailing list to post my patches.
+Thanks for the heads up on release-schedule issues, so I can stop
+worrying that you missed it or something.  :)
 
-
-# ./partx --verbose --update --pairs -n 2 -o SIZE /dev/sda
-partition: none, disk: /dev/sda, lower: 2, upper: 2
-/dev/sda: partition table type 'dos' detected
-SIZE="14.9G"
-
-# ./partx --verbose --pairs --update -n 2 -o SIZE /dev/sda
-partition: none, disk: /dev/sda, lower: 2, upper: 2
-/dev/sda: partition table type 'dos' detected
-/dev/sda: partition #2 added
-
-
-In my opinion the output should be the same in both cases,
-either both updating and showing the partition, or saying
-that the two options cannot be combined.
-
-Benno
+  If anyone has any thoughts about the design, esp. from the point of
+view of a different use-case for --dig-holes (like maybe for VM
+images?), that would be useful.  I could maybe revise my patch and
+have something closer to ready for inclusion into 2.27.
 
 -- 
-http://www.fastmail.com - The way an email service should be
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
 
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
