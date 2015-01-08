@@ -1,56 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:51496 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753393AbbAJNlv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 10 Jan 2015 08:41:51 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/4] setarch: accept the option --list in any position
-Date: Sat, 10 Jan 2015 14:41:34 +0100
-Message-Id: <1420897295-17573-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
-References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Message-ID: <54AE05E9.8010305@gmx.com>
+Date: Wed, 07 Jan 2015 23:22:01 -0500
+From: JWP <elseifthen@gmx.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 4/4] hwclock: man page 'Since v2.26' notes
+References: <54AE031C.30907@gmx.com>
+In-Reply-To: <54AE031C.30907@gmx.com>
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Clean up the 'Since v2.26' man page notes.
+They were redundant of information already
+in the manual, and became too verbose.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- sys-utils/setarch.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
+ sys-utils/hwclock.8.in | 24 +++++-------------------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
 
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index a09625c..a60d2b0 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -44,7 +44,8 @@
- /* Options without equivalent short options */
- enum {
- 	OPT_4GB = CHAR_MAX + 1,
--	OPT_UNAME26
-+	OPT_UNAME26,
-+	OPT_LIST
- };
- 
- #define turn_on(_flag, _opts) \
-@@ -277,6 +278,7 @@ int main(int argc, char *argv[])
- 		{"3gb",			no_argument,	NULL,	'3'},
- 		{"4gb",			no_argument,	NULL,	OPT_4GB},
- 		{"uname-2.6",		no_argument,	NULL,	OPT_UNAME26},
-+		{"list",		no_argument,	NULL,	OPT_LIST},
- 		{NULL,			0,		NULL,	0}
- 	};
- 
-@@ -360,6 +362,9 @@ int main(int argc, char *argv[])
- 		case OPT_UNAME26:
- 			turn_on(UNAME26, options);
- 			break;
-+		case OPT_LIST:
-+			set_arch(argv[0], 0L, 1);
-+			return EXIT_SUCCESS;
- 		default:
- 			show_usage(NULL);
- 		}
--- 
-1.7.0.4
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 505ff65..20a8dd0 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -36,25 +36,11 @@ Clock timescale; set the kernel's timezone, NTP timescale, and epoch
+ (Alpha only); compare the System and Hardware Clocks; and predict future
+ Hardware Clock values based on its drift rate.
+ .PP
+-Since v2.26
+-.B hwclock
+-does not update the Hardware Clock's drift factor in @ADJTIME_PATH@ by default.
+-It is necessary to use \fB\-\-update-drift\fR, with \fB\-\-set\fR or
+-\fB\-\-systohc\fR, to force drift factor updates.
+-See the \fB\-\-update\-drift\fR option below for details.
+-.PP
+-Since v2.26
+-.B hwclock \-\-hctosys
+-does a better job at setting the System Clock: it no longer simply copies
+-the time from the Hardware Clock to the System Clock, but sets the System
+-Clock to a drift-compensated time.  (That is: it reads the Hardware Clock,
+-applies a compensation for the systematic drift to this read time, and
+-then sets the System Clock to the resulting value.)
+-Therefore it is no longer necessary to run \fBhwclock --adjust\fR before
+-doing \fBhwclock --hctosys\fR, and thus \fBhwclock\fR can be used very
+-early on in the boot process when the root filesystem is still read-only.
+-See the \fB\-\-hctosys\fR function below for information on inhibiting
+-this new behavior.
++Since v2.26 important changes were made to the
++.B \-\-hctosys
++function, and the new option
++.B \-\-update\-drift
++was added. See their respective sections below.
+ .
+ .SH FUNCTIONS
+ The following functions are mutually exclusive, only one can be given at
