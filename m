@@ -1,88 +1,58 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:41440 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751487AbaLaIaw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 31 Dec 2014 03:30:52 -0500
-Date: Wed, 31 Dec 2014 03:30:46 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: setarch cannot set all listed architectures
-Message-ID: <20141231083046.GF3906@vapier.wh0rd.info>
-References: <1419438949.242820.206484249.1D540D03@webmail.messagingengine.com>
+Return-Path: elseifthen@gmx.com
+Message-ID: <54AE031C.30907@gmx.com>
+Date: Wed, 07 Jan 2015 23:10:04 -0500
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4VrXvz3cwkc87Wze"
-In-Reply-To: <1419438949.242820.206484249.1D540D03@webmail.messagingengine.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 0/4] hwclock: x86_64 -- UTC Defaults -- v2.26 man updates
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
+I think I heard Mr. Zak say RC1 is coming, so I
+wanted to add some more documentation details for
+the hwclock v2.26 changes.
 
---4VrXvz3cwkc87Wze
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+While testing to make sure what I wrote was
+correct, I found 2 new minor bugs.  I want to slip
+the patches in for them this release so the manual
+will make sense.
 
-On 24 Dec 2014 17:35, Benno Schulenberg wrote:
-> The man page of setarch says for the option --list: "List the architectur=
-es
-> that can be set."  However...
->=20
-> $ ./setarch --list  =20
-> uname26
-> linux32
-> linux64
-> i386
-> i486
-> i586
-> i686
-> athlon
-> x86_64
-> ia64
->=20
-> $ ./setarch x86_64 uname -m
-> setarch: x86_64: Unrecognized architecture
->=20
-> Huh?
->=20
-> $ ./setarch ia64 uname -m
-> setarch: ia64: Unrecognized architecture
->=20
-> $ ./setarch linux64 uname -m
-> i686
->=20
-> $ ./setarch --version
-> setarch from util-linux 2.25.548-fe2c9
->=20
-> Maybe --list should not be listing x86_64 and ia64 on this machine?
-> Or maybe the error message in these cases should say "Cannot set
-> the requested architecture" instead?
+Then I decided to do some man page errata and drop
+some outdated language... and then I authored a
+new configuration section... well it ended up
+being a more sizable patch then I intended. I 
+apologize for that, but it's not code so I hope it
+will be okay. A rewrite of the man page is on my 
+todo list after hwclock refactoring is finished; 
+this patch puts a good scratch in some of what I 
+intended todo.
 
-are you running a 32bit or 64bit kernel ?  is your compiled setarch 32bit o=
-r=20
-64bit ?  i'm going to guess both are 32bit.
--mike
+If the POSIX vs 'RIGHT' section sounds vaguely
+familiar, you're probably recalling this commit:
+d53f8ecfbf036eddb2aef737dc0973a613d80ced
+Which should never have been accepted.
 
---4VrXvz3cwkc87Wze
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+>From his email, Mr. Parmelee appears to be seriously confused.
+http://marc.info/?l=util-linux-ng&m=136543342327830&w=2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+But I'll bring this discussion up in a hwclock
+refactoring RFC later on.
 
-iQIcBAEBAgAGBQJUo7Q2AAoJEEFjO5/oN/WBxV4QANlTn1Qja8S8hLsIktTtTEKh
-I7plzBtP5Xk9yyJWZMhUg0ZYnw/RqOVcZnoRV07bk6jSZfhgWQAMhBqyY3VbANW9
-Qq8RV1H0j8EKLLSMiJInnUIkLP++iR1Tx1fImhcBv0PLW/xWSpsnZ6Kp5CVV2t2x
-XqniwGp7JQ/Uq7hI1yI7Pw+jPMWWauMRuscKxzCjJ2w5eELWFgsnLmIDIOilxvKl
-LTpRDpISiYzO1uSCvP56ANKZVbJJCmT+svAxHBnef7MxSRnzzEDdICUtHRgAtbXC
-5b/wwj1HmtMrR+/Jgl3pUysiuiLR11MovWqAQTn6VbSmVM5vt0TwPCgRCcER6Dl5
-mLV3f36J884cASK8UpVaYtDzUQ0rctJcihPT/u+lzzZYZh8N1ufOfn63OLEckjbR
-pOxYVfEu0d165xBCS6eKZlWdh4uSPbKYrubdkidehaIAApln6O4DeMyxrSqg5tpN
-Y2v/XYlIlQUHN6/4k525H0gp5PpO80iKeSL3IBbcvPk8cu/odqiR2/zk8VM8beEZ
-wBYTKL4JuXZScPW5T+sTz3UE36ZhZ8ItCkL3Iu0DGkklEXNCY8i6N4LBcu8RPQIr
-1hWejGy/cjJo0FCGZdB7VXxsaG0YTAXGXQQd5e4q4C4N5bUMAWAI/o0CbWkRXbIp
-L07vsgaVnvZoQR6IDH6n
-=hbPd
------END PGP SIGNATURE-----
+I made the final man page patch separate so it can
+be rejected easily. We've already visited that
+subject a few times now and perhaps Karel doesn't
+want to mess with it anymore.
 
---4VrXvz3cwkc87Wze--
+I wish everyone here a Happy New Year!
+
+J William Piggott (4):
+  hwclock: enable --directisa for x86_64
+  hwclock: Incorrect UTC defaults
+  hwclock: update man page for v2.26 rc
+  hwclock: man page 'Since v2.26' notes
+
+ sys-utils/hwclock-cmos.c |    9 +-
+ sys-utils/hwclock.8.in   | 1148 ++++++++++++++++++++++++++++++----------------
+ sys-utils/hwclock.c      |    4 +-
+ 3 files changed, 759 insertions(+), 402 deletions(-)
