@@ -1,27 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from domu-toccata.ens-lyon.fr ([140.77.166.138]:57868 "EHLO
-	sonata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751061AbbARWNL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 Jan 2015 17:13:11 -0500
-Date: Sun, 18 Jan 2015 23:13:06 +0100
-From: Samuel Thibault <sthibault@debian.org>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-Message-ID: <20150118221306.GD19649@type.youpi.perso.aquilenet.fr>
-References: <20150118191015.GI2957@type.youpi.perso.aquilenet.fr>
- <alpine.LNX.2.03.1501182158270.18731@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:52619 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752904AbbAIJjI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Jan 2015 04:39:08 -0500
+Date: Fri, 9 Jan 2015 10:39:02 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: util-linux@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+Subject: Re: [RFC][PATCH] unshare: Fix --map-root-user to work on new kernels
+Message-ID: <20150109093902.GA1314@x2.net.home>
+References: <87zjalkhb8.fsf@x220.int.ebiederm.org>
+ <87sigdkglg.fsf@x220.int.ebiederm.org>
+ <20141219100749.GJ19904@x2.net.home>
+ <87a92j4yde.fsf@x220.int.ebiederm.org>
+ <20150108111354.GJ15715@x2.net.home>
+ <87d26pz1xc.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <alpine.LNX.2.03.1501182158270.18731@iki.fi>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87d26pz1xc.fsf@x220.int.ebiederm.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sami Kerola, le Sun 18 Jan 2015 22:03:06 +0000, a écrit :
-> And here is the altered version of it for public display.  IMHO if 
-> ntp_gettime() is not available the time quality stuff can still work, and 
-> tell there is no way knowing if time is syncronized.
+On Thu, Jan 08, 2015 at 10:12:47AM -0600, Eric W. Biederman wrote:
+> A few caveats below.
 
-Indeed, thanks.
+ Fixed and both patches merged to master branch.
 
-Samuel
+ Thanks Eric!
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
