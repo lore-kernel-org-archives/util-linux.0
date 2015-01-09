@@ -1,40 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:35151 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756086AbbA2Clj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 28 Jan 2015 21:41:39 -0500
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id C44B1C0D2
-	for <util-linux@vger.kernel.org>; Wed, 28 Jan 2015 14:31:27 +0100 (CET)
-Date: Wed, 28 Jan 2015 14:31:19 +0100
-From: Andreas Henriksson <andreas@fatal.se>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>
-Subject: Re: test fdisk/bsd on exotic archs
-Message-ID: <20150128133119.GA11744@fatal.se>
-References: <201501281145.21775.sweet_f_a@gmx.de>
+Received: from mx1.redhat.com ([209.132.183.28]:47112 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932671AbbAILQu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Jan 2015 06:16:50 -0500
+Date: Fri, 9 Jan 2015 12:16:48 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Kay Sievers <kay@vrfy.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: cfdisk created GPT tables are not recognized by the Windows 8.1
+ installer
+Message-ID: <20150109111648.GC1314@x2.net.home>
+References: <CAPXgP1300xmdYHCbBpdbRiFDAKvab4w33Jt5ZEGdkrQ4_9tj_A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201501281145.21775.sweet_f_a@gmx.de>
+In-Reply-To: <CAPXgP1300xmdYHCbBpdbRiFDAKvab4w33Jt5ZEGdkrQ4_9tj_A@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Ruediger Meier.
+On Thu, Dec 25, 2014 at 11:57:56PM +0100, Kay Sievers wrote:
+> the Windows 8.1 installer does not recognize the GPT partition tables
+> created with cfdisk. It claims it will need to initialize the entire
+> disk to install Windows.
 
-Thanks for your interest in fixing remaining test failures.
+hmm... the difference which I see is that libparted uses HeaderSize=92
+and libfdisk HeaderSize=512. In libfdisk we count reserved area at the 
+end of the first sector to header. The both solutions are pretty
+valid according to standard, but I guess that Windows installer does
+not real all the sector so crazy things may happen (crc, ...).
 
-On Wed, Jan 28, 2015 at 11:45:20AM +0100, Ruediger Meier wrote:
-[...]
-> Aurelien or Andreas, do you still have such a system for this case?
-[...]
+> Reading-in the cfdisk-created table and writing-back the very same
+> table with parted, makes the Windows installer recognizes it, and
+> Windows just its two additional partitions.
+> 
+> I've installed Windows on that box now and don't want to try this
+> again
 
-I never had any other access then what is provided as Debian porter boxes.
-(That is also why I patched the build system to output more information
-about the failure and the diff between expected and output so I could
-debug it via build logs.)
-My interest in exotic architectures is also limited. I was very happy
-to get Aureliens help with similar issues in the past. He's the man you
-want to talk to rather then me.....
+Sure, Christmas time with Windows 8... seems like Santa Claus hates
+you; be better this year :-))
 
-Regards,
-Andreas Henriksson
+> but maybe looking at the difference what parted will change in
+> the cfdisk created table is sufficient to find the bug.
+
+Yep, thanks!
+
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
