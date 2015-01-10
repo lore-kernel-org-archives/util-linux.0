@@ -1,30 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55672 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756260AbbAIJvi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 9 Jan 2015 04:51:38 -0500
-Date: Fri, 9 Jan 2015 10:51:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: JWP <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] hwclock: enable --directisa for x86_64
-Message-ID: <20150109095129.GB1314@x2.net.home>
-References: <54AE031C.30907@gmx.com>
- <54AE03E1.7020103@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <54AE03E1.7020103@gmx.com>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:51360 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752709AbbAJNlm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 10 Jan 2015 08:41:42 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/4] setarch: differentiate between "unrecognized" and "cannot set"
+Date: Sat, 10 Jan 2015 14:41:32 +0100
+Message-Id: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 07, 2015 at 11:13:21PM -0500, JWP wrote:
->  sys-utils/hwclock-cmos.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+When the provided string does not match any architecture that
+setarch knows about, the response stays "Unrecognized architecture",
+but when trying to set the specified architecture does not have any
+effect, then respond with "Kernel cannot set architecture to...".
 
- All 4 patches applied. Thanks.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/setarch.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-    Karel
-
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index 8e52179..a09625c 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -247,7 +247,7 @@ static int set_arch(const char *pers, unsigned long options, int list)
+ 			&& strcmp(un.machine, "i586")
+ 			&& strcmp(un.machine, "i686")
+ 			&& strcmp(un.machine, "athlon")))
+-			errx(EXIT_FAILURE, _("%s: Unrecognized architecture"), pers);
++			errx(EXIT_FAILURE, _("Kernel cannot set architecture to %s"), pers);
+ 	}
+ 	return 0;
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
