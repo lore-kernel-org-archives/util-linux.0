@@ -1,72 +1,66 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:44338 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751551AbaL0RRj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:39 -0500
-Received: by mail-wg0-f53.google.com with SMTP id l18so15902166wgh.26
-        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:38 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/22] pull: follow-up to chsh, newgrp, and script changes
-Date: Sat, 27 Dec 2014 17:17:27 +0000
-Message-Id: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: bensberg@justemail.net
+Message-Id: <1420897225.3552783.212170605.63B41B62@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: setarch cannot set all listed architectures
+Date: Sat, 10 Jan 2015 14:40:25 +0100
+In-Reply-To: <20150106103514.GC18528@x2.net.home>
+References: <1419438949.242820.206484249.1D540D03@webmail.messagingengine.com>
+ <20141231083046.GF3906@vapier.wh0rd.info>
+ <1420017348.3190622.208236865.6FAABC76@webmail.messagingengine.com>
+ <20141231092354.GG3906@vapier.wh0rd.info>
+ <20150106103514.GC18528@x2.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-As I mentioned in
+On Tue, Jan 6, 2015, at 11:35, Karel Zak wrote:
+>  I think it would be enough to add a note into man page that 
+>  things are not perfect and supported features depends on kernel.
 
-http://comments.gmane.org/gmane.linux.utilities.util-linux-ng/10390
-
-the previous patch set was not complete.  The script(1) had signals and
-io-streams race that is now fixed with changes 0015 to 0018.
-
-The patches below can be also found from my github repository branch
-'script'.
-
-https://github.com/kerolasa/lelux-utiliteetit/tree/script
+Okay.  Patch coming up.
 
 
-Sami Kerola (22):
-  chsh: remove function prototypes
-  chfn, chsh: share illegal_passwd_chars() function
-  chsh: use getline() to support arbitrarily long lines
-  chsh: set few variables read-only and rename one of them
-  chsh: allow user to set shell to /bin/sh if none is set
-  chsh: clean up parse_argv()
-  chsh: rewrite function interacting with user to get path to new shell
-  chsh: simplify check_shell()
-  chsh: fail get_shell_list() check when /etc/shells cannot be opened
-  newgrp: simplify if else clauses
-  newgrp: move shell determination closer where it is used
-  newgrp: set function arguments read-only when possible
-  script: remove function prototypes
-  script: add struct script_control and remove global variables
-=== end of earlier submission ===
-  script: use signalfd() to catch signals
-  script: use poll() rather than select()
-  script: merge doinput() and output() functions to do_io()
-  script: remove io vs signal race
-  script: add 'Script started' line always to capture file
-  script: move do_io() content to small functions
-  script: replace strftime() workaround with CFLAGS = -Wno-format-y2k
-  script: use correct input type, move comment, and so on
+I think it would also be nice if setarch differentiated between not
+recognizing any architecture in the provided string and not being
+able to set the architecture to the recognized one.  On my machine:
 
- login-utils/Makemodule.am |   4 +-
- login-utils/ch-common.c   |  34 ++
- login-utils/ch-common.h   |   6 +
- login-utils/chfn.c        |  16 +-
- login-utils/chsh.c        | 365 +++++++++----------
- login-utils/newgrp.c      |  25 +-
- term-utils/Makemodule.am  |   1 +
- term-utils/script.c       | 866 ++++++++++++++++++++--------------------------
- tests/ts/script/race      |   4 -
- 9 files changed, 594 insertions(+), 727 deletions(-)
- create mode 100644 login-utils/ch-common.c
- create mode 100644 login-utils/ch-common.h
+$ ./setarch sometypo uname -m
+setarch: sometypo: Unrecognized architecture
+
+$ ./setarch ia64 uname -m
+setarch: Kernel cannot set architecture to ia64
+
+This change is included in the upcoming patches, but I have no
+idea whether this is correct.
+
+
+Another thing:
+
+$ ./setarch -BRF --help | tail -1
+For more details see setarch(8).
+
+$ ./setarch -BRF --version
+setarch from util-linux 2.25.634-8501-dirty
+
+$ ./setarch -BRF --list
+./setarch: unrecognized option '--list'
+setarch: Try `setarch --help' for more information.
+
+Nowhere does it say that --list cannot be combined with other
+options. Instead of adding such a remark, upcoming patch makes
+it be accepted in combinations, just like --help and --version.
+
+
+By the way, in setarch.c there are two occurrences of:
+    if (argc < 1)
+        show_usage(_("Not enough arguments"));
+Isn't the first one superfluous?  I cannot trigger it.
+
+
+Benno
 
 -- 
-2.2.1
-
+http://www.fastmail.com - mmm... Fastmail...
