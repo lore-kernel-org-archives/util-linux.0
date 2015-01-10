@@ -1,366 +1,262 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from shell.v3.sk ([195.168.3.45]:52630 "EHLO shell.v3.sk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751776AbaL1UfA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 28 Dec 2014 15:35:00 -0500
-From: Lubomir Rintel <lkundrak@v3.sk>
-To: util-linux@vger.kernel.org
-Cc: Mikhail Gusarov <dottedmag@dottedmag.net>, Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 2/2] unshare: allow persisting namespaces
-Date: Sun, 28 Dec 2014 21:23:38 +0100
-Message-Id: <1419798218-3174-2-git-send-email-lkundrak@v3.sk>
-In-Reply-To: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
-References: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
+Received: from ishtar.tlinx.org ([173.164.175.65]:52896 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753872AbbAJA3X (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Jan 2015 19:29:23 -0500
+Message-ID: <54B0725A.2030704@tlinx.org>
+Date: Fri, 09 Jan 2015 16:29:14 -0800
+From: Linda Walsh <lkml@tlinx.org>
+MIME-Version: 1.0
+To: Phillip Susi <psusi@ubuntu.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: fdisk units size & disk manufacturers buying the standard
+References: <CAF+0mvmE_i0P350hT4E4a-ZTTuuS5PdZ2vw1siQ2HowpB2Xn-g@mail.gmail.com>	<20141204130044.GH1994@x2.net.home> <CAF+0mvm-fGvf3BOL6f8SsJgp75a3CP1xsVwkdD+_zP4hg06npQ@mail.gmail.com> <548619AF.5070900@tlinx.org> <54AB0D8F.2010100@ubuntu.com> <54ADCD95.4010903@tlinx.org> <54AE0005.9070502@ubuntu.com> <54AF3ED8.2030508@tlinx.org> <54AFECE2.1050407@ubuntu.com>
+In-Reply-To: <54AFECE2.1050407@ubuntu.com>
+Content-Type: multipart/mixed;
+ boundary="------------030500000807090407040102"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Bind mount the namespace file to a given location after creating it if
-requested (analogously to what "ip netns" and other tools do). This makes
-it possible for a namespace to survive with no processes running while
-processes can enter it with nsenter(1):
+This is a multi-part message in MIME format.
+--------------030500000807090407040102
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-  # unshare --uts=utsns hostname behemoth
-  # nsenter --uts=utsns hostname
-  behemoth
-  # umount utsns; rm utsns
-  #
+Phillip Susi wrote:
+> Umm... yea.. you said bytes are not SI, I'm saying watt-hours aren't
+> either.  You said that means the kilo prefix should be base 2 since a
+> byte is 2^3 bits.  I'm saying by the same silly logic, a
+> killowatt-hour should be 3600 watt-hours since a watt-hour is 60^2
+> joules.  Are you getting it now?
+>   
+====
+    I was hoping you'd ask that.
+    The 'kilo' applies to the 'watt', not the hour.  If you had
+1000 kWHr, you wouldn't see normal usage calling it 1 MWHr.  It's ok
+to use Metric prefixes with metric units. Multiplying a metric
+quantity by a non-metric value doesn't change that -- but you
+won't see power plants rated that way, nor will you see
+that on your power bill.
 
-The ugly bit about this patch is the clone(2) call, arguably not our
-fault. The stack size glibc requires for its clone(2) wrapper is not
-documented anywhere and its semantics (stack growth direction) is arch
-dependent. We could figure it out by comparing a return value of a helper
-function that would return an address of its local variable with caller's
-local variable address, but I guess that would be even more messed-up.
+    You will see articles talking about hard disk technologies speaking
+of density in 'bits'/area (where either bit OR area can have an SI
+quantity), since a bit requires no conversion constant to go from
+flux-changes/area. HD-densities (in the US) are expressed in
+<metric-prefix>-bits/in².  Again, with the metric prefix applying to
+the unit that requires no conversion constant (the bit) to be expressed
+as some combination of SI units.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+    This is a great point here -- concerning the HD industry.
+If they were so concerned about using the metric system, why wouldn't
+they specify density in <prfx>-bits/cm².  Snort.
+ 
+
+>   
+>> See kernel messages for a 10b-T ethernet.
+>>
+>> [   21.224641] ixgbe 0000:05:00.0: PCI Express bandwidth of 32GT/s 
+>> available [   21.224644] ixgbe 0000:05:00.0: (Speed:5.0GT/s, Width:
+>> x8, Encoding Loss:20%)
+>>     
+>
+> That message is referring to the encoding loss on the pci express gen
+> 2 bus, not ethernet.
+>   
 ---
- sys-utils/unshare.1 |  58 +++++++++++++++-------
- sys-utils/unshare.c | 135 +++++++++++++++++++++++++++++++++++++++++++++-------
- 2 files changed, 159 insertions(+), 34 deletions(-)
+    Thank you.  I didn't know that.  Now I know I need a HW upgrade... ;-)
 
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index 3f9eccd..625a03a 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -11,8 +11,15 @@ unshare \- run program with some namespaces unshared from parent
- .RI [ arguments ]
- .SH DESCRIPTION
- Unshares the indicated namespaces from the parent process and then executes
--the specified \fIprogram\fR.  The namespaces to be unshared are indicated via
--options.  Unshareable namespaces are:
-+the specified \fIprogram\fR.
-+.PP
-+The namespaces can optionally be persisted by mounting to a file system path
-+and entered with \fBnsenter\fR even after \fIprogram\fR terminates.  Once a
-+persistent namespace is no longer needed it can be unpersisted with \fBumount\fR
-+and the name can be removed with \fBrm\fR.
-+.PP
-+The namespaces to be unshared are indicated via options.  Unshareable namespaces
-+are:
- .TP
- .BR "mount namespace"
- Mounting and unmounting filesystems will not affect the rest of the system
-@@ -48,24 +55,31 @@ The process will have a distinct set of UIDs, GIDs and capabilities.
- See \fBclone\fR(2) for the exact semantics of the flags.
- .SH OPTIONS
- .TP
--.BR \-i , " \-\-ipc"
--Unshare the IPC namespace.
-+\fB\-i\fR, \fB\-\-ipc\fR[=\fIfile\fR]
-+Unshare the IPC namespace.  If file is specified, persist the IPC namespace at
-+the given path.
- .TP
--.BR \-m , " \-\-mount"
--Unshare the mount namespace.
-+\fB\-m\fR, \fB\-\-mount\fR[=\fIfile\fR]
-+Unshare the mount namespace.  If file is specified, fork (as if \fB\-\-fork\fR was
-+specified) and persist the mount namespace at the given path in the parent's mount
-+namespace.
- .TP
--.BR \-n , " \-\-net"
--Unshare the network namespace.
-+\fB\-n\fR, \fB\-\-net\fR[=\fIfile\fR]
-+Unshare the network namespace.  If file is specified, persist the network namespace at
-+the given path.
- .TP
--.BR \-p , " \-\-pid"
--Unshare the pid namespace.
-+\fB\-p\fR, \fB\-\-pid\fR[=\fIfile\fR]
-+Unshare the pid namespace.  If file is specified, persist the pid namespace at
-+the given path.
- See also the \fB--fork\fP and \fB--mount-proc\fP options.
- .TP
--.BR \-u , " \-\-uts"
--Unshare the UTS namespace.
-+\fB\-u\fR, \fB\-\-uts\fR[=\fIfile\fR]
-+Unshare the UTS namespace.  If file is specified, persist the UTS namespace at
-+the given path.
- .TP
--.BR \-U , " \-\-user"
--Unshare the user namespace.
-+\fB\-U\fR, \fB\-\-user\fR[=\fIfile\fR]
-+Unshare the user namespace.  If file is specified, persist the user namespace at
-+the given path.
- .TP
- .BR \-f , " \-\-fork"
- Fork the specified \fIprogram\fR as a child process of \fBunshare\fR rather than
-@@ -105,14 +119,26 @@ procfs instance.
- root
- .br
- Establish a user namespace as an unprivileged user with a root user within it.
-+.TP
-+.B # unshare --uts=utsns hostname behemoth
-+.TQ
-+.B # nsenter --uts=utsns hostname
-+.TQ
-+behemoth
-+.TQ
-+.B # umount utsns; rm utsns
-+.br
-+Create a persistent UTS namespace and tear it down.
- .SH SEE ALSO
- .BR unshare (2),
- .BR clone (2),
--.BR mount (8)
-+.BR mount (8),
-+.BR umount (8)
- .SH BUGS
- None known so far.
- .SH AUTHOR
--Mikhail Gusarov <dottedmag@dottedmag.net>
-+Mikhail Gusarov <dottedmag@dottedmag.net>,
-+Lubomir Rintel <lkundrak@v3.sk>
- .SH AVAILABILITY
- The unshare command is part of the util-linux package and is available from
- ftp://ftp.kernel.org/pub/linux/utils/util-linux/.
-diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index 933f621..a8569b9 100644
---- a/sys-utils/unshare.c
-+++ b/sys-utils/unshare.c
-@@ -2,6 +2,7 @@
-  * unshare(1) - command-line interface for unshare(2)
-  *
-  * Copyright (C) 2009 Mikhail Gusarov <dottedmag@dottedmag.net>
-+ * Copyright (C) 2013,2014 Lubomir Rintel <lkundrak@v3.sk>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License as published by the
-@@ -24,8 +25,10 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <unistd.h>
-+#include <setjmp.h>
- #include <sys/wait.h>
- #include <sys/mount.h>
-+#include <sys/stat.h>
- 
- /* we only need some defines missing in sys/mount.h, no libmount linkage */
- #include <libmount.h>
-@@ -39,6 +42,41 @@
- #include "pathnames.h"
- #include "all-io.h"
- 
-+static struct namespace_file {
-+	int nstype;
-+	const char *proc_name;
-+	const char *target_name;
-+} namespace_files[] = {
-+	{ .nstype = CLONE_NEWUSER, .proc_name = "ns/user", .target_name = NULL },
-+	{ .nstype = CLONE_NEWIPC,  .proc_name = "ns/ipc",  .target_name = NULL },
-+	{ .nstype = CLONE_NEWUTS,  .proc_name = "ns/uts",  .target_name = NULL },
-+	{ .nstype = CLONE_NEWNET,  .proc_name = "ns/net",  .target_name = NULL },
-+	{ .nstype = CLONE_NEWPID,  .proc_name = "ns/pid",  .target_name = NULL },
-+	{ .nstype = CLONE_NEWNS,   .proc_name = "ns/mnt",  .target_name = NULL },
-+	{ .nstype = 0, .proc_name = NULL, .target_name = NULL }
-+};
-+
-+int c, forkit = 0, maproot = 0;
-+const char *procmnt = NULL;
-+
-+static int ns_path(int nstype, const char *path)
-+{
-+	struct namespace_file *nsfile;
-+
-+	if (path == NULL)
-+		return 0;
-+
-+	for (nsfile = namespace_files; nsfile->nstype; nsfile++) {
-+		if (nstype != nsfile->nstype)
-+			continue;
-+
-+		nsfile->target_name = path;
-+		break;
-+	}
-+
-+	return 1;
-+}
-+
- static void map_id(const char *file, uint32_t from, uint32_t to)
- {
- 	char *buf;
-@@ -64,12 +102,12 @@ static void usage(int status)
- 		program_invocation_short_name);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -m, --mount               unshare mounts namespace\n"), out);
--	fputs(_(" -u, --uts                 unshare UTS namespace (hostname etc)\n"), out);
--	fputs(_(" -i, --ipc                 unshare System V IPC namespace\n"), out);
--	fputs(_(" -n, --net                 unshare network namespace\n"), out);
--	fputs(_(" -p, --pid                 unshare pid namespace\n"), out);
--	fputs(_(" -U, --user                unshare user namespace\n"), out);
-+	fputs(_(" -m, --mount[=<file>]      unshare mounts namespace\n"), out);
-+	fputs(_(" -u, --uts[=<file>]        unshare UTS namespace (hostname etc)\n"), out);
-+	fputs(_(" -i, --ipc[=<file>]        unshare System V IPC namespace\n"), out);
-+	fputs(_(" -n, --net[=<file>]        unshare network namespace\n"), out);
-+	fputs(_(" -p, --pid[=<file>]        unshare pid namespace\n"), out);
-+	fputs(_(" -U, --user[=<file>]       unshare user namespace\n"), out);
- 	fputs(_(" -f, --fork                fork before launching <program>\n"), out);
- 	fputs(_("     --mount-proc[=<dir>]  mount proc filesystem first (implies --mount)\n"), out);
- 	fputs(_(" -r, --map-root-user       map current user to root (implies --user)\n"), out);
-@@ -82,6 +120,61 @@ static void usage(int status)
- 	exit(status);
- }
- 
-+static void persist_ns(pid_t pid)
-+{
-+	struct namespace_file *nsfile;
-+
-+	for (nsfile = namespace_files; nsfile->nstype; nsfile++) {
-+		char pathbuf[PATH_MAX];
-+
-+		if (!nsfile->target_name)
-+			continue;
-+
-+		snprintf(pathbuf, sizeof(pathbuf), "/proc/%u/%s", pid,
-+			nsfile->proc_name);
-+
-+		umount(nsfile->target_name);
-+		unlink(nsfile->target_name);
-+
-+		if (-1 == mknod(nsfile->target_name, 0666, 0)) {
-+			warn(_("failed to create %s"), nsfile->target_name);
-+			continue;
-+		}
-+
-+		if (-1 == mount(pathbuf, nsfile->target_name, NULL, MS_BIND, NULL)) {
-+			warn(_("mount %s failed"), nsfile->target_name);
-+			unlink(nsfile->target_name);
-+		}
-+	}
-+}
-+
-+static int in_child (void *arg)
-+{
-+	jmp_buf *child = arg;
-+
-+	longjmp(*child, 1);
-+}
-+
-+#define STACK_SIZE 0x100000
-+static pid_t unshare_fork(int unshare_flags)
-+{
-+	/* Twice the size, as we might be running of parisc
-+	 * or metag where stack grows the other way. *sigh* */
-+	static char stack[2*STACK_SIZE];
-+	static jmp_buf child;
-+	pid_t pid;
-+
-+	if (setjmp (child))
-+		return 0;
-+
-+	pid = clone(in_child, &stack[STACK_SIZE],
-+		SIGCHLD | unshare_flags, &child);
-+	if (pid != -1)
-+		persist_ns(pid);
-+
-+	return pid;
-+}
-+
- int main(int argc, char *argv[])
- {
- 	enum {
-@@ -90,12 +183,12 @@ int main(int argc, char *argv[])
- 	static const struct option longopts[] = {
- 		{ "help", no_argument, 0, 'h' },
- 		{ "version", no_argument, 0, 'V'},
--		{ "mount", no_argument, 0, 'm' },
--		{ "uts", no_argument, 0, 'u' },
--		{ "ipc", no_argument, 0, 'i' },
--		{ "net", no_argument, 0, 'n' },
--		{ "pid", no_argument, 0, 'p' },
--		{ "user", no_argument, 0, 'U' },
-+		{ "mount", optional_argument, 0, 'm' },
-+		{ "uts", optional_argument, 0, 'u' },
-+		{ "ipc", optional_argument, 0, 'i' },
-+		{ "net", optional_argument, 0, 'n' },
-+		{ "pid", optional_argument, 0, 'p' },
-+		{ "user", optional_argument, 0, 'U' },
- 		{ "fork", no_argument, 0, 'f' },
- 		{ "mount-proc", optional_argument, 0, OPT_MOUNTPROC },
- 		{ "map-root-user", no_argument, 0, 'r' },
-@@ -103,8 +196,6 @@ int main(int argc, char *argv[])
- 	};
- 
- 	int unshare_flags = 0;
--	int c, forkit = 0, maproot = 0;
--	const char *procmnt = NULL;
- 	uid_t real_euid = geteuid();
- 	gid_t real_egid = getegid();;
- 
-@@ -125,21 +216,28 @@ int main(int argc, char *argv[])
- 			return EXIT_SUCCESS;
- 		case 'm':
- 			unshare_flags |= CLONE_NEWNS;
-+			if (ns_path(CLONE_NEWNS, optarg))
-+				forkit = 1;
- 			break;
- 		case 'u':
- 			unshare_flags |= CLONE_NEWUTS;
-+			ns_path(CLONE_NEWUTS, optarg);
- 			break;
- 		case 'i':
- 			unshare_flags |= CLONE_NEWIPC;
-+			ns_path(CLONE_NEWIPC, optarg);
- 			break;
- 		case 'n':
- 			unshare_flags |= CLONE_NEWNET;
-+			ns_path(CLONE_NEWNET, optarg);
- 			break;
- 		case 'p':
- 			unshare_flags |= CLONE_NEWPID;
-+			ns_path(CLONE_NEWPID, optarg);
- 			break;
- 		case 'U':
- 			unshare_flags |= CLONE_NEWUSER;
-+			ns_path(CLONE_NEWUSER, optarg);
- 			break;
- 		case OPT_MOUNTPROC:
- 			unshare_flags |= CLONE_NEWNS;
-@@ -154,12 +252,9 @@ int main(int argc, char *argv[])
- 		}
- 	}
- 
--	if (-1 == unshare(unshare_flags))
--		err(EXIT_FAILURE, _("unshare failed"));
--
- 	if (forkit) {
- 		int status;
--		pid_t pid = fork();
-+		pid_t pid = unshare_fork(unshare_flags);
- 
- 		switch(pid) {
- 		case -1:
-@@ -175,6 +270,10 @@ int main(int argc, char *argv[])
- 				kill(getpid(), WTERMSIG(status));
- 			err(EXIT_FAILURE, _("child exit failed"));
- 		}
-+	} else {
-+		if (-1 == unshare(unshare_flags))
-+			err(EXIT_FAILURE, _("unshare failed"));
-+		persist_ns(getpid());
- 	}
- 
- 	if (maproot) {
--- 
-2.1.0
 
+>   
+>> excludes optional protocols.  The 125MB/s is a max theoretical rate
+>> and is in base 2.
+>>     
+>
+> No, as I said, that is base 10, not base 2.  1,000,000,000 bps / 8
+> bits per byte = 125,000,000 bytes / second, not 131,072,000 bytes.
+>   
+---
+    My bad... you're right.  I *thought* it was the other way
+around at one point, but later realized that the output of 'dd'
+was in decimal prefixes (regardless of user input).  My test
+script even tries to convert units back to base2... ;-)
+>   
+>> In practice, 125 millionBytes for writes and 119 millionBytes are
+>> a benchmark maximum that includes headers (SMB/CIFS for the test I
+>> most frequently run).
+>>     
+>
+> Nope, not possible.
+>   
+===
+    Maybe not, but it is repeatable by myself and other people.
+Do you have samba and a 1Gb connection?  It's fairly easy to setup.
+I'll even attach the primitive test script (bash) -- easy to use
+once you get the files setup in a server-dir. 
+
+I'm on an internal network (so no encryption on the link).  Client
+is Win7SP1, linux flavor = opensuse, but kernel is vanilla,
+currently at 3.17.3. 
+Measuring line speeds only, I use the following files in my home
+directory on the server:
+
+>  cd
+>  ll zero null
+crwxrw-rw- 1 1, 3 Jan  9 13:55 null
+crwxrw-rw- 1 1, 5 May  7  2013 zero
+---
+Using cygwin 'dd', for client writes I read from /dev/zero and write
+to 'null' oflag=direct conv=notrunc,nocreat, BS=16M, total size=4GB
+for client reads: if=zero of=/dev/null.
+
+Note -- if you make them regular files, at least defrag them.
+Using 'xfs', you can use "xfs_fsr" to make a file contiguous.
+
+Other people on the samba list report similar results, though
+it is definitely a minority who have tuned their systems for that.
+Besides what I can do on windows, I have also used a fair number
+of large or insane parameters on the linux networking stack.
+
+Maybe it's your hardware?  For my fastest results, I've been using
+Intel dual-port cards:
+
+Intel Corporation 82571EB Gigabit Ethernet Controller (rev 06)
+Intel Corporation Ethernet Controller 10 Gigabit X540-AT2 (rev 01)
+
+Identical cards on server and client -- though my client only uses the
+10Gb card now...(300-650MB/s transfer tops... varies widely).
+
+I also use 9kB (9000) byte packets and whatever offload features I
+find yield a positive effect.  You aren't going to get those speeds
+out of the box... it does take a bit of performance tuning.
+
+>   
+>> I.e. 125millionBytes/s -- the base10 number IS a benchmark maximum 
+>> that includes protocol headers (specifically for SMB).
+>>     
+>
+> Nope.
+>   
+---
+I've seen it multiple times -- others have reproduced it.
+Vs. the max ranges for 10Gb (8Gb on my setup), have been in the
+600's (usually lower) (smb protocol is cpu bound and usually w/1 user
+connection -- though newer smb (win8+) seems to have some beginnings
+for support for using parallelism in the processors.
+>   
+>> But their core unit 'bit' like the 'second', is based on a minimal
+>> distinct magnetic flux variation on the media.  It is directly
+>> usable with SI prefixes.
+>>     
+>
+> No, it isn't.
+Reality disagrees: See:
+
+   http://en.wikipedia.org/wiki/Bit_cell
+   http://www.softpres.org/?id=glossary:bit_cell
+
+  Specifically: (quote)
+
+This is essentially the distance along the track allocated for the 
+recording of an area of Flux. That is, in each “cell” there are magnetic 
+particles that together indicate a detectable magnetic polarity of set 
+length. Note that bit cells are not read as bits of data directly, they 
+are used to form the flux transitions used to make up the Encoding. 
+Every bit cell contains either a change of polarity (1) or not (0).
+
+--endquote--
+
+Perhaps you have some references that would convince me that the
+above terminology isn't both common and standard in this field?
+
+
+Only when you get into marketing speak (getting away from tech speak),
+will you see things like $$$/[MGT]B, where the prefix applies
+to 'Byte'.  But again, that's marketing speak.
+
+Disk manufacturers describe and talk about "bits"/area when describing
+disk technologies.
+
+
+>   
+>> You can't get the correct number of bytes transfered over 1 300bps
+>> modem by dividing by 8.
+>>     
+>
+> Umm, yes, that is exactly what you do.  It kind of follows from the
+> definition of bits and bytes.  Of course, there weren't 1,300 bps
+> modems, but still.
+>   
+---
+    That's "one" 300bps modem.  And no, you don't divide by 8
+since 300bps modems only had a 30cps throughput -- not 37.5 as you
+would seem to indicate.
+
+
+>   
+
+
+--------------030500000807090407040102
+Content-Type: text/plain;
+ name="iotest"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="iotest"
+
+IyEvYmluL2Jhc2ggLXUKIyBpb3Rlc3QgdjAuMSAtIGxhd2Fsc2g6IG9wZW4gdXNhZ2UgYWxs
+b3dlZAoKX3ByZ3B0aD0iJHswOj99IjsgX3ByZz0iJHtfcHJncHRoIyMqL30iOyBfcHJnZHI9
+IiR7X3ByZ3B0aCUvJF9wcmd9IgpbWyAteiAkX3ByZ2RyIHx8ICRfcHJnID09ICRfcHJnZHIg
+XV0gJiYgJF9wcmdkcj0iJFBXRCIKZXhwb3J0IFBBVEg9IiRfcHJnZHI6JF9wcmdkci9saWI6
+JFBBVEgiCnNob3B0IC1zIGV4cGFuZF9hbGlhc2VzIGV4dGdsb2Igc291cmNlcGF0aCA7IHNl
+dCAtbyBwaXBlZmFpbAoKI2luY2x1ZGUgc3RkYWxpYXMKCkRkPSQodHlwZSAtUCBkZCkKCltb
+ICREZCBdXSB8fCB7IGVjaG8gIkNhbm5vdCBmaW5kIGRkLiAgQ2Fubm90IHByb2NlZWQuIjsg
+IGV4aXQgMTsgfQoKYWxpYXMgaW50Q29uc3Q9ZGVjbGFyZVwgLWl4IGludD1kZWNsYXJlXCAt
+aSBteT1kZWNsYXJlCmFsaWFzIHN0cmluZz1kZWNsYXJlIHN1Yj1mdW5jdGlvbiBhcnJheT1k
+ZWNsYXJlXCAtYQojIDEgbnVtID0gYmxvY2sgc2l6ZQojIG51bS1udW0gPSByYW5nZSBvZiBi
+bG9jayBzaXplcyB0byB0ZXN0OyB3L2luY3JlbWVudCA9ICIyeCIsIHNvCiMgNE0tMTZNIHRl
+c3RzIDRNLCA4TSwgMTZNCiMgNE0tMTJNIHRlc3QgNE0sIDhNLCAxMk0KIyBjb3VudCBhZGp1
+c3RlZCB0byB4ZmVyIDRHLCByb3VuZGluZyB1cAojLS0tLQoKI2FsbCB4ZmVycyBhcmUgdXNp
+bmcgJ2RldmljZXMnICgvZGV2L3plcm8gZm9yIHNvdXJjZSwgL2Rldi9udWxsIGZvciB0YXJn
+ZXQpCiMgcmVtb3RlIGZpbGVuYW1lcyAiemVybyIgYW5kICJudWxsIiBzaG91bGQgYmUgc2V0
+dXAgdG8gYmUgcmVtb3RlIGRldmljZXMKCmludENvbnN0IEs9MTAyNAppbnRDb25zdCBNPSRb
+SypLXQppbnRDb25zdCBHPSRbTSpLXQppbnRDb25zdCBUPSRbRypLXQoKaW50IEJTPSRbMTYq
+TV0KaW50IGNvdW50PTI1NgppbnQgSU9TSVpFPSR7SU9TSVpFOi00Kkd9CgojCQlkZXN1ZmZp
+eCAJMXN0IGFyZyA9IG51bStzdWZmaXggLT4gY29udmVydCB0byBpbnQKIwkJCQkJCQkybmQg
+YXJnID0gb3B0aW9uYWwgYnVmZiBuYW1lIChlbHNlIHByaW50IHRvIHN0ZG91dCkKIwkJCQkJ
+CQlyZXR1cm4gMCBpZiBubyBlcnJvcgoKc3ViIGRlc3VmZml4IHsJCQkJCQkjY29udmVydCBu
+dW0rU3VmZiA9PiBpbnQgc3RvcmUgaW4gb3B0aW9uYWwgQnVmZgoJc3RyaW5nIHN0cj0iJHsx
+Oj99IiA7IHNoaWZ0CglzdHJpbmcgYnVmbmFtPSIiOyAoKCQjKSkgJiYgYnVmbmFtPSQxCglp
+ZiBbWyAkcCA9fiBeKFswLTldKykoW0tNR1RdKSQgXV07IHRoZW4gCgkJaW50IG51bT0ke0JB
+U0hfUkVNQVRDSFsxXX0qJHtCQVNIX1JFTUFUQ0hbMl19CgkJKChudW0pKSB8fCByZXR1cm4g
+MQoJCWlmIFtbICRidWZuYW0gXV0gOyB0aGVuIHByaW50ZiAtdiAkYnVmbmFtICIlZCIgIiRu
+dW0iCgkJZWxzZSBwcmludGYgIiVkIiAiJG51bSIgOyBmaQoJZWxzZSAKCQlyZXR1cm4gMQoJ
+ZmkKfQoKCgoKc3ViIGhkaXNwIHsKCWludCBudW09JHsxOj99OyBzaGlmdAoJc3RyaW5nIGJ1
+Zm5hbT0iIjsgKCgkIykpICYmIGJ1Zm5hbT0kMQoJc3RyaW5nIHN1Zj0iIgoJaW50IGFucz1u
+dW0KCWFycmF5IHBvd3M9KCdLJyAnTScgJ0cnICdUJykKCWZvciBzIGluICR7cG93c1tAXX07
+ZG8KCQlpbnQgc2k9JHMKCQlpZiAoKChudW0vc2kpKnNpPT1udW0pKTsgdGhlbgoJCQlhbnM9
+bnVtL3NpO3N1Zj0iJHMiCgkJZmkKCWRvbmUKfQoKc3ViIGNoZWNrX3BhcmFtcyB7CglpbnQg
+bnVtPTAKCWlmICgoJCMpKSA7IHRoZW4gCgkJc3RyaW5nIHA9IiQxIjsgc2hpZnQ7CgkJaWYg
+W1sgJHAgPX4gKFswLTldKykoW0tNR1RdKSBdXTsgdGhlbiAKCQkJbnVtPSR7QkFTSF9SRU1B
+VENIWzFdfSoke0JBU0hfUkVNQVRDSFsyXX0KCQlmaQoJZmkKCSgobnVtKSkgJiYgewoJCUJT
+PW51bQoJCWNvdW50PUlPU0laRS9CUwoJfQp9CgooKCQjKSkgJiYgY2hlY2tfcGFyYW1zICIk
+QCIKCmFycmF5IHJlYWRhPSgvaC96ZXJvIC9kZXYvbnVsbCkKYXJyYXkgd3JpdGVhPSgvZGV2
+L3plcm8gL2gvbnVsbCBjb252PW5vY3JlYXQsbm90cnVuYykKCnN1YiBkZF9uZWVkX2lvICB7
+Cglsb2NhbCBpZj0iJDEiIG9mPSIkMiI7IHNoaWZ0IDIKCW5pY2UgLS0xOSAkRGQgaWY9IiRp
+ZiIgb2Y9IiRvZiIgYnM9IiRCUyIgY291bnQ9IiRjb3VudCJcCgkgCQlvZmxhZz1kaXJlY3Qg
+aWZsYWc9ZGlyZWN0IGNvbnY9bm9jcmVhdCAiJEAiCn0KCnN1YiBkZCB7Cglsb2NhbCBpZj0i
+JDEiIG9mPSIkMiIgO3NoaWZ0IDIKCSNlY2hvICRkZCBpZj0iJGlmIiBvZj0iJG9mIiBicz0i
+JEJTIiBjb3VudD0iJGNvdW50IiAiJEAiID4mMgoJYXJyYXkgb3V0IGVycgoJcmVhZGFycmF5
+IGVyciA8IDwoIFwKCQlyZWFkYXJyYXkgb3V0IDwgPChkZF9uZWVkX2lvICIkaWYiICIkb2Yi
+ICIkQCI7aW50IHM9JD87IAoJCQkJCQkJCQkJCSgocykpICYmIGVjaG8gInN0YXQ6JHMiPiYy
+ICApIDI+JjEgKQoJIwoJaWYgKCgkeyNlcnJbQF19KSkgO3RoZW4gZWNobyAiJHtlcnJbQF19
+IjsgZXhpdCAxOyBmaQoJcmV0dXJuIDAKfQoJCmZ1bmN0aW9uIGRkX2Zvcm1hdCB7IG15IGxu
+Cgl3aGlsZSByZWFkIGxuO2RvCgkJZWNobyAkbG4gfCB3aGlsZSByZWFkIGJ5dGVzIGJ0eHQg
+cG51bSBzdWZmcCBcCgkJCQkJCQkJCQkJY29wdCB0aW1lIHVuaXRjIHJhdGUgcmFfdW5pdDsg
+ZG8KCQkJW1sgJGJ5dGVzID09IHJlY29yZHMgXV0gJiYgY29udGludWUKCQkJW1sgJHtwbnVt
+OjA6MX0gIT0gXCggfHwgJHtzdWZmcDowLTE6MX0gIT0gXCkgXV0gJiYgY29udGludWUKCQkJ
+bnVtPSIke3BudW06MX0iIAoJCQlzdWZmPSIke3N1ZmZwJT99IiAKCQkJdW5pdD0iJHt1bml0
+YyU/fSIKCQkJcHJpbnRmICIlczolczolczolczolczolczpcbiIJIiRudW0iICIkc3VmZiIg
+IiR0aW1lIiAiJHVuaXQiICIkcmF0ZSIgIiRyYV91bml0IgoJCWRvbmUKCWRvbmUKfQoKc3Vi
+IG9uZWN5Y2xlIHsKCWVjaG8gLW4gIlI6IjsgeyBkZCAiJHtyZWFkYVtAXX0ifHwgZXhpdCAk
+PzsgfSB8IGRkX2Zvcm1hdCAKCWVjaG8gLW4gIlc6IjsJeyBkZCAiJHt3cml0ZWFbQF19IiB8
+fCBleGl0ICQ/OyB9IHwgZGRfZm9ybWF0IAp9CgpvbmVjeWNsZQo=
+--------------030500000807090407040102--
