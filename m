@@ -1,52 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:57226 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752339AbbAUSC7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 21 Jan 2015 13:02:59 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
- with ESMTPSA (Nemesis) id 0LzKyn-1Xih7o0VtZ-014Py2 for
- <util-linux@vger.kernel.org>; Wed, 21 Jan 2015 19:02:57 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:64030 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753393AbbAJNls (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 10 Jan 2015 08:41:48 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 4/5] build-sys: fix UL_SCANF_TYPE_MODIFIER for icc
-Date: Wed, 21 Jan 2015 19:02:53 +0100
-Message-Id: <1421863374-9953-5-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1421863374-9953-1-git-send-email-sweet_f_a@gmx.de>
-References: <1421863374-9953-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 2/4] docs: mention that setarch may not be able to set all listed architectures
+Date: Sat, 10 Jan 2015 14:41:33 +0100
+Message-Id: <1420897295-17573-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
+References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-icc needs -Werror to let %m fail and to avoid this:
-../libmount/src/tab_parse.c(61): warning #269: invalid format string conversion
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- configure.ac | 3 +++
- 1 file changed, 3 insertions(+)
+ sys-utils/setarch.8 |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index de299d3..a0d5763 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -492,6 +492,8 @@ int main()
- 	return 1;
- }])
- 
-+ul_save_CPPFLAGS="$CPPFLAGS"
-+CPPFLAGS="-Werror ${CPPFLAGS}"
- AC_CACHE_VAL([scanf_cv_alloc_modifier],
-   AC_RUN_IFELSE([AC_LANG_SOURCE([UL_SCANF_TYPE_MODIFIER(["%ms"])])],
-     [scanf_cv_alloc_modifier=ms],
-@@ -525,6 +527,7 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
-     [scanf_cv_alloc_modifier=no])]
-   )
- )
-+CPPFLAGS="$ul_save_CPPFLAGS"
- 
- AC_MSG_CHECKING([scanf string alloc modifiers])
- AS_CASE([$scanf_cv_alloc_modifier],
+diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
+index a9a126a..d0f1cba 100644
+--- a/sys-utils/setarch.8
++++ b/sys-utils/setarch.8
+@@ -24,11 +24,12 @@ It also allows to set various personality options.
+ The default \fIprogram\fR is \fB/bin/sh\fR.
+ .SH OPTIONS
+ .TP
+-\fB\-\-list\fR
+-List the architectures that can be set.
++.B \-\-list
++List the architectures that \fBsetarch\fR knows about.  Whether \fBsetarch\fR
++can actually set each of these architectures depends on the running kernel.
+ .TP
+-\fB\-\-uname\-2.6\fR
+-Causes the program to see a kernel version number beginning with 2.6.
++.B \-\-uname-2.6
++Causes the \fIprogram\fR to see a kernel version number beginning with 2.6.
+ .TP
+ .BR \-v , " \-\-verbose"
+ Be verbose.
 -- 
-1.8.4.5
+1.7.0.4
 
