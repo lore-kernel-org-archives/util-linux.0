@@ -1,104 +1,154 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:59544 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752537AbbA3IyO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 30 Jan 2015 03:54:14 -0500
-Received: by mail-wg0-f44.google.com with SMTP id z12so25663184wgg.3
-        for <util-linux@vger.kernel.org>; Fri, 30 Jan 2015 00:54:13 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:51238 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752419AbbAKV2I (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 11 Jan 2015 16:28:08 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] more: fix control character display bug
-Date: Fri, 30 Jan 2015 09:54:10 +0100
-Message-Id: <1422608050-28600-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 1/4] docs: sync the docstring of addpart, delpart and resizepart to the man page
+Date: Sun, 11 Jan 2015 22:27:55 +0100
+Message-Id: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This removes isprint(c) column++ from get_line() that made underlining,
-bold, and other control characters to cause more display to wrap lines
-incorrectly.  Easiest way to see the difference is to run following
-before and after compiling this change.
+Also tweak the wording of those man pages a bit.
 
-PAGER=./more man man
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- text-utils/more.c | 59 +++++++++++++++++++++++++------------------------------
- 1 file changed, 27 insertions(+), 32 deletions(-)
+ disk-utils/addpart.8    |   19 ++++++++++---------
+ disk-utils/delpart.8    |   18 ++++++------------
+ disk-utils/resizepart.8 |   17 +++++++++--------
+ 3 files changed, 25 insertions(+), 29 deletions(-)
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 94b0455..a8e9254 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -997,41 +997,36 @@ int get_line(register FILE *f, int *length)
- 		} else if (c == EOF) {
- 			*length = p - Line;
- 			return (column);
--		} else {
-+		}
- #ifdef HAVE_WIDECHAR
--			if (fold_opt && MB_CUR_MAX > 1) {
--				memset(mbc, '\0', MB_LEN_MAX);
--				mbc_pos = 0;
--				mbc[mbc_pos++] = c;
--				state_bak = state;
--
--				mblength = mbrtowc(&wc, mbc, mbc_pos, &state);
--				/* The value of mblength is always less than 2 here. */
--				switch (mblength) {
--				case (size_t)-2:
--					p--;
--					file_pos_bak = Ftell(f) - 1;
--					state = state_bak;
--					use_mbc_buffer_flag = 1;
--					break;
--
--				case (size_t)-1:
--					state = state_bak;
--					column++;
--					break;
--
--				default:
--					wc_width = wcwidth(wc);
--					if (wc_width > 0)
--						column += wc_width;
--				}
--			} else
--#endif	/* HAVE_WIDECHAR */
--			{
--				if (isprint(c))
--					column++;
-+		else if (fold_opt && MB_CUR_MAX > 1) {
-+			memset(mbc, '\0', MB_LEN_MAX);
-+			mbc_pos = 0;
-+			mbc[mbc_pos++] = c;
-+			state_bak = state;
-+
-+			mblength = mbrtowc(&wc, mbc, mbc_pos, &state);
-+			/* The value of mblength is always less than 2 here. */
-+			switch (mblength) {
-+			case (size_t)-2:
-+				p--;
-+				file_pos_bak = Ftell(f) - 1;
-+				state = state_bak;
-+				use_mbc_buffer_flag = 1;
-+				break;
-+
-+			case (size_t)-1:
-+				state = state_bak;
-+				column++;
-+				break;
-+
-+			default:
-+				wc_width = wcwidth(wc);
-+				if (wc_width > 0)
-+					column += wc_width;
- 			}
- 		}
-+#endif	/* HAVE_WIDECHAR */
+diff --git a/disk-utils/addpart.8 b/disk-utils/addpart.8
+index dc7e203..867d53f 100644
+--- a/disk-utils/addpart.8
++++ b/disk-utils/addpart.8
+@@ -1,32 +1,33 @@
+-.\" addpart.8 --
++.\" addpart.8 -- man page for addpart
+ .\" Copyright 2007 Karel Zak <kzak@redhat.com>
+ .\" Copyright 2007 Red Hat, Inc.
+ .\" May be distributed under the GNU General Public License
+-.TH ADDPART 8 "January 2007" "util-linux" "System Administration"
++.TH ADDPART 8 "January 2015" "util-linux" "System Administration"
+ .SH NAME
+-addpart \- a simple wrapper around the "add partition" ioctl
++addpart \- tell the kernel about the existence of a partition
+ .SH SYNOPSIS
+ .B addpart
+ .I device partition start length
+ .SH DESCRIPTION
+ .B addpart
+-is a program that informs the Linux kernel of a new partition.
++tells the Linux kernel about the existence of the specified partition.
++The command is a simple wrapper around the "add partition" ioctl.
  
- 		if (column >= Mcol && fold_opt)
- 			break;
+-This command doesn't manipulate partitions on the hard drive.
++This command doesn't manipulate partitions on a hard drive.
+ 
+ .SH PARAMETERS
+ .TP
+ .I device
+-Specify the disk device.
++The disk device.
+ .TP
+ .I partition
+-Specify the partition number.
++The partition number.
+ .TP
+ .I start
+-Specify the beginning of the partition (in 512-byte sectors).
++The beginning of the partition (in 512-byte sectors).
+ .TP
+ .I length
+-Specify the length of the partition (in 512-byte sectors).
++The length of the partition (in 512-byte sectors).
+ 
+ .SH SEE ALSO
+ .BR delpart (8),
+diff --git a/disk-utils/delpart.8 b/disk-utils/delpart.8
+index a818153..8c17678 100644
+--- a/disk-utils/delpart.8
++++ b/disk-utils/delpart.8
+@@ -1,27 +1,21 @@
+-.\" delpart.8 --
++.\" delpart.8 -- man page for delpart
+ .\" Copyright 2007 Karel Zak <kzak@redhat.com>
+ .\" Copyright 2007 Red Hat, Inc.
+ .\" May be distributed under the GNU General Public License
+-.TH DELPART 8 "January 2007" "util-linux" "System Administration"
++.TH DELPART 8 "January 2015" "util-linux" "System Administration"
+ .SH NAME
+-delpart \- simple wrapper around the "del partition" ioctl
++delpart \- tell the kernel to forget about a partition
+ .SH SYNOPSIS
+ .B delpart
+ .I device partition
+ .SH DESCRIPTION
+ .B delpart
+-is a program that asks the Linux kernel to remove a partition.
++asks the Linux kernel to forget about the specified \fIpartition\fR
++(a number) on the specified \fIdevice\fR.
++The command is a simple wrapper around the "del partition" ioctl.
+ 
+ This command doesn't manipulate partitions on a hard drive.
+ 
+-.SH OPTIONS
+-.TP
+-.I device
+-Specify the disk device.
+-.TP
+-.I partition
+-Specify the partition number.
+-
+ .SH SEE ALSO
+ .BR addpart (8),
+ .BR fdisk (8),
+diff --git a/disk-utils/resizepart.8 b/disk-utils/resizepart.8
+index d4f35be..b6efe7e 100644
+--- a/disk-utils/resizepart.8
++++ b/disk-utils/resizepart.8
+@@ -1,29 +1,30 @@
+-.\" resizepart.8 --
++.\" resizepart.8 -- man page for resizepart
+ .\" Copyright 2012 Vivek Goyal <vgoyal@redhat.com>
+ .\" Copyright 2012 Red Hat, Inc.
+ .\" May be distributed under the GNU General Public License
+-.TH RESIZEPART 8 "February 2012" "util-linux" "System Administration"
++.TH RESIZEPART 8 "January 2015" "util-linux" "System Administration"
+ .SH NAME
+-resizepart \- simple wrapper around the "resize partition" ioctl
++resizepart \- tell the kernel about the new size of a partition
+ .SH SYNOPSIS
+ .B resizepart
+ .I device partition length
+ .SH DESCRIPTION
+ .B resizepart
+-is a program that informs the Linux kernel of new partition size.
++tells the Linux kernel about the new size of the specified partition.
++The command is a simple wrapper around the "resize partition" ioctl.
+ 
+-This command doesn't manipulate partitions on hard drive.
++This command doesn't manipulate partitions on a hard drive.
+ 
+ .SH PARAMETERS
+ .TP
+ .I device
+-Specify the disk device.
++The disk device.
+ .TP
+ .I partition
+-Specify the partition number.
++The partition number.
+ .TP
+ .I length
+-Specify the length of the partition (in 512-byte sectors).
++The new length of the partition (in 512-byte sectors).
+ 
+ .SH SEE ALSO
+ .BR addpart (8),
 -- 
-2.2.2
+1.7.0.4
 
