@@ -1,28 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52910 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750909AbbALLXU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Jan 2015 06:23:20 -0500
-Date: Mon, 12 Jan 2015 12:23:15 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] setarch: differentiate between "unrecognized" and
- "cannot set"
-Message-ID: <20150112112315.GF20899@x2.net.home>
-References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:39436 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751999AbbAKVZC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 11 Jan 2015 16:25:02 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+	by mailout.nyi.internal (Postfix) with ESMTP id 19ADF2043D
+	for <util-linux@vger.kernel.org>; Sun, 11 Jan 2015 16:25:01 -0500 (EST)
+Message-Id: <1421011500.3996453.212533857.5E69F442@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain
+Subject: partx does not seem able to combine showing with updating
+Date: Sun, 11 Jan 2015 22:25:00 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 10, 2015 at 02:41:32PM +0100, Benno Schulenberg wrote:
->  sys-utils/setarch.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
 
- Applied, thanks.
+# ./partx --update --pairs -n 2 -o SIZE /dev/sda
+SIZE="14.9G"
+
+# ./partx --pairs --update -n 2 -o SIZE /dev/sda
+
+
+# ./partx --verbose --update --pairs -n 2 -o SIZE /dev/sda
+partition: none, disk: /dev/sda, lower: 2, upper: 2
+/dev/sda: partition table type 'dos' detected
+SIZE="14.9G"
+
+# ./partx --verbose --pairs --update -n 2 -o SIZE /dev/sda
+partition: none, disk: /dev/sda, lower: 2, upper: 2
+/dev/sda: partition table type 'dos' detected
+/dev/sda: partition #2 added
+
+
+In my opinion the output should be the same in both cases,
+either both updating and showing the partition, or saying
+that the two options cannot be combined.
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - The way an email service should be
+
