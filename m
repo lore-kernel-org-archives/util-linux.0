@@ -1,62 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:53827 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:55986 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755038AbbAZOQd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 09:16:33 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx003)
- with ESMTPSA (Nemesis) id 0MHX0m-1YGprG3lcq-003JLp for
- <util-linux@vger.kernel.org>; Mon, 26 Jan 2015 15:16:30 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/3] tests: fix swaplabel test for 9a83b03c
-Date: Mon, 26 Jan 2015 15:16:29 +0100
-References: <1422279556-8846-1-git-send-email-sweet_f_a@gmx.de> <1422279556-8846-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1422279556-8846-3-git-send-email-sweet_f_a@gmx.de>
+	id S1752377AbbALKRd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 Jan 2015 05:17:33 -0500
+Date: Mon, 12 Jan 2015 11:17:29 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/4] docs: sync the docstring of addpart, delpart and
+ resizepart to the man page
+Message-ID: <20150112101729.GC20899@x2.net.home>
+References: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201501261516.29883.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 26 January 2015, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  tests/expected/misc/swaplabel | 2 +-
->  tests/ts/misc/swaplabel       | 3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/tests/expected/misc/swaplabel
-> b/tests/expected/misc/swaplabel index fd442af..623139e 100644
-> --- a/tests/expected/misc/swaplabel
-> +++ b/tests/expected/misc/swaplabel
-> @@ -1,6 +1,6 @@
->  mkswap: error: swap area needs to be at least 10 pages
->  mkswap: Label was truncated.
-> -Setting up swapspace version 1, size = 9 pages
-> +Setting up swapspace version 1, size = 9 pages (9xPGSZ bytes)
->  LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
->  LABEL: 1234567890abcde
->  UUID:  12345678-abcd-abcd-abcd-1234567890ab
-> diff --git a/tests/ts/misc/swaplabel b/tests/ts/misc/swaplabel
-> index 052ee18..8f29360 100755
-> --- a/tests/ts/misc/swaplabel
-> +++ b/tests/ts/misc/swaplabel
-> @@ -51,7 +51,8 @@ $TS_CMD_MKSWAP \
->  	--label 1234567890abcdef \
->  	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
->  	$IMAGE 2>&1 |\
-> -	sed "s/ $(( $MIN_SWAP_SIZE_KB - $PAGE_SIZE_KB )) KiB/ 9 pages/" \
-> +	sed -e "s/ $(( $MIN_SWAP_SIZE_KB - $PAGE_SIZE_KB )) KiB/ 9 pages/" \
-> +	    -e "s/($((9 * $PAGE_SIZE)) bytes)/(9xPGSZ bytes)/" \ 
+On Sun, Jan 11, 2015 at 10:27:55PM +0100, Benno Schulenberg wrote:
+>  disk-utils/addpart.8    |   19 ++++++++++---------
+>  disk-utils/delpart.8    |   18 ++++++------------
+>  disk-utils/resizepart.8 |   17 +++++++++--------
+>  3 files changed, 25 insertions(+), 29 deletions(-)
 
-... just updated this line to
-+	    -e "s/($(( $MIN_SWAP_SIZE - $PAGE_SIZE)) bytes)/(9xPGSZ bytes)/" \
-(github pull request #147)
+ All 4 patches applied. Thanks.
 
->
->  	>> $TS_OUTPUT 2>&1
->
->  $TS_CMD_SWAPLABEL $IMAGE >> $TS_OUTPUT 2>&1
+> -This command doesn't manipulate partitions on the hard drive.
+> +This command doesn't manipulate partitions on a hard drive.
+
+ This is not too precise, "hard drive" seems like a legacy. All the
+ utils (including fdisks) works with "block devices". It's not 
+ strictly about hard drives. Fixed.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
