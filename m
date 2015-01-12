@@ -1,73 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:54223 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:36974 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752292AbbAZNjT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 08:39:19 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0MeMOx-1Y3K6k2CcB-00Q973 for
- <util-linux@vger.kernel.org>; Mon, 26 Jan 2015 14:39:17 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] Revert "tests: simplify and update swaplabel test"
-Date: Mon, 26 Jan 2015 14:39:14 +0100
-Message-Id: <1422279556-8846-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1422279556-8846-1-git-send-email-sweet_f_a@gmx.de>
-References: <1422279556-8846-1-git-send-email-sweet_f_a@gmx.de>
+	id S1750910AbbALLdX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 Jan 2015 06:33:23 -0500
+Date: Mon, 12 Jan 2015 12:33:18 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/4] setarch: in the usage text only mention options that
+ actually do something
+Message-ID: <20150112113318.GI20899@x2.net.home>
+References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
+ <1420897295-17573-4-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1420897295-17573-4-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Sat, Jan 10, 2015 at 02:41:35PM +0100, Benno Schulenberg wrote:
+> It is enough that --4gb is mentioned in the man page.
+...
+> -	fputs(_("     --4gb                ignored (for backward compatibility only)\n"), stdout);
 
-After mkswap refactoring we have still a "minimal swap size"
-wich depend on PAGE_SIZE. Next commit will fix the test for
-output changes made in 9a83b03c.
+I'm not sure about this kind of change. If I good remember than for
+example in RH we have some QA tests to compare man page and --help.
 
-This reverts commit b4d27255f24cddbdf3480ca0988dada340abe2d3.
+IMHO if we have any feature/option than it's better to keep it
+documented on all places.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/expected/misc/swaplabel | 4 ++--
- tests/ts/misc/swaplabel       | 8 ++++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+    Karel
 
-diff --git a/tests/expected/misc/swaplabel b/tests/expected/misc/swaplabel
-index 17c9a6f..fd442af 100644
---- a/tests/expected/misc/swaplabel
-+++ b/tests/expected/misc/swaplabel
-@@ -1,6 +1,6 @@
--mkswap: error: swap area needs to be at least 40 KiB
-+mkswap: error: swap area needs to be at least 10 pages
- mkswap: Label was truncated.
--Setting up swapspace version 1, size = 36 KiB (36864 bytes)
-+Setting up swapspace version 1, size = 9 pages
- LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
- LABEL: 1234567890abcde
- UUID:  12345678-abcd-abcd-abcd-1234567890ab
-diff --git a/tests/ts/misc/swaplabel b/tests/ts/misc/swaplabel
-index 45f3bb9..052ee18 100755
---- a/tests/ts/misc/swaplabel
-+++ b/tests/ts/misc/swaplabel
-@@ -41,14 +41,18 @@ fallocate_or_skip $(( $MIN_SWAP_SIZE - 1 )) $IMAGE
- $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
--	$IMAGE >> $TS_OUTPUT 2>&1
-+	$IMAGE 2>&1 |\
-+	sed "s/ $MIN_SWAP_SIZE_KB KiB/ 10 pages/" \
-+	>> $TS_OUTPUT 2>&1
- 
- rm -f $IMAGE
- fallocate_or_skip $MIN_SWAP_SIZE $IMAGE
- $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
--	$IMAGE >> $TS_OUTPUT 2>&1
-+	$IMAGE 2>&1 |\
-+	sed "s/ $(( $MIN_SWAP_SIZE_KB - $PAGE_SIZE_KB )) KiB/ 9 pages/" \
-+	>> $TS_OUTPUT 2>&1
- $TS_CMD_SWAPLABEL $IMAGE >> $TS_OUTPUT 2>&1
- 
- #rm -f $IMAGE
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
