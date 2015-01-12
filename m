@@ -1,62 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:35298 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751553AbaL0RRo (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Dec 2014 12:17:44 -0500
-Received: by mail-wi0-f169.google.com with SMTP id r20so20760533wiv.2
-        for <util-linux@vger.kernel.org>; Sat, 27 Dec 2014 09:17:43 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 19/22] script: add 'Script started' line always to capture file
-Date: Sat, 27 Dec 2014 17:17:32 +0000
-Message-Id: <1419700655-19107-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
-References: <1419700655-19107-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:60847 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750860AbbALLZv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 Jan 2015 06:25:51 -0500
+Date: Mon, 12 Jan 2015 12:25:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/4] setarch: accept the option --list in any position
+Message-ID: <20150112112547.GH20899@x2.net.home>
+References: <1420897295-17573-1-git-send-email-bensberg@justemail.net>
+ <1420897295-17573-3-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1420897295-17573-3-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The scriptreplay(1) will expect the capture file to have a header that is
-omited.  Before this change the --quiet option together with timing
-caused following replay error.
+On Sat, Jan 10, 2015 at 02:41:34PM +0100, Benno Schulenberg wrote:
+>  sys-utils/setarch.c |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletions(-)
 
-$ script --quiet --timing=timing
-[...]
-$ scriptreplay timing typescript
-[...]
-scriptreplay: unexpected end of file on typescript
+ I have applied a little different version with some additional
+ cleanups. Note that I think --list should be available only for
+ "setarch" but no for arch specific symlinks.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+    Karel
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 2def44a..6e11fa3 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -227,6 +227,7 @@ static void do_io(struct script_control *ctl)
- 	int ret, i;
- 	ssize_t bytes;
- 	double oldtime = time(NULL);
-+	time_t tvec = time((time_t *)NULL);
- 
- 	if (ctl->tflg && !ctl->timingfp)
- 		ctl->timingfp = fdopen(STDERR_FILENO, "w");
-@@ -238,11 +239,8 @@ static void do_io(struct script_control *ctl)
- 	pfd[2].fd = ctl->sigfd;
- 	pfd[2].events = POLLIN | POLLERR | POLLHUP;
- 
--	if (!ctl->qflg) {
--		time_t tvec = time((time_t *)NULL);
--		my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
--		fprintf(ctl->typescriptfp, _("Script started on %s"), buf);
--	}
-+	my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
-+	fprintf(ctl->typescriptfp, _("Script started on %s"), buf);
- 
- 	while (!ctl->die) {
- 		/* wait for input or signal */
 -- 
-2.2.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
