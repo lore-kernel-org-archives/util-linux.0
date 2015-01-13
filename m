@@ -1,124 +1,63 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <54B56BBC.5000602@gmx.com>
-Date: Tue, 13 Jan 2015 14:02:20 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.22]:55446 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751949AbbAMTAE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 13 Jan 2015 14:00:04 -0500
+Message-ID: <54B56B23.7080305@gmx.com>
+Date: Tue, 13 Jan 2015 13:59:47 -0500
 From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
 To: Karel Zak <kzak@redhat.com>
 CC: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/4] tools: checkmans.sh add stats
+Subject: [PATCH 3/4] tools: checkmans.sh clean up 'let'
 References: <54B56822.40805@gmx.com>
 In-Reply-To: <54B56822.40805@gmx.com>
 Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add test results statistics.
-Fix-up 'KNOWN_REPEATS'.
-Version bump.
+Clean up 'let' issues and loop iteration.
 
 Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- tools/checkmans.sh | 33 ++++++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ tools/checkmans.sh | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
 diff --git a/tools/checkmans.sh b/tools/checkmans.sh
-index bd2bc43..618f8ba 100755
+index 513a750..bd2bc43 100755
 --- a/tools/checkmans.sh
 +++ b/tools/checkmans.sh
-@@ -26,7 +26,7 @@ while getopts vVh OPTIONS; do
- 			VERBOSE='true'
- 			;;
- 		V)
--			echo "util-linux: ${SCRIPT_INVOCATION_SHORT_NAME}: 2"
-+			echo "util-linux: ${SCRIPT_INVOCATION_SHORT_NAME}: v2.1"
- 			exit 0
- 			;;
- 		h)
-@@ -43,11 +43,13 @@ done
+@@ -42,7 +42,8 @@ done
+ # Try to find missing manuals matching build targets with manual files.
  declare -A MAN_LIST BIN_LIST
  
- declare -i ITER
--declare -i COUNT_ERRORS=0
-+declare -i COUNT_GROG=0
-+declare -i COUNT_TROFF=0
-+declare -i COUNT_REPEATS=0
+-COUNT_ERRORS=0
++declare -i ITER
++declare -i COUNT_ERRORS=0
  declare -a REPEATS
  declare -A KNOWN_REPEATS
--KNOWN_REPEATS[mount.8]='foo'
--KNOWN_REPEATS[sfdisk.8]="0 <c,h,s>"
-+KNOWN_REPEATS[mount.8]='foo l2 l c'
-+KNOWN_REPEATS[hexdump.1]='l'
- KNOWN_REPEATS[flock.1]='"$0"'
- KNOWN_REPEATS[switch_root.8]='$DIR'
- 
-@@ -81,7 +83,6 @@ for I in $(
- 		fi
- 		continue
- 	fi
--	I_ERR=0
- 	if ${VERBOSE}; then
- 		echo "testing: ${I}"
- 	fi
-@@ -90,22 +91,23 @@ for I in $(
- 	if [ $RET = 0 ]; then
- 	echo "From: cat ${I} | troff -mandoc -ww -z"
- 	echo "=================================================="
-+	((++COUNT_TROFF))
- 	fi
- 	GROG=1
- 	if command -v lexgrog &> /dev/null; then
- 		if ! lexgrog ${I} >/dev/null; then
- 			echo "error: run: lexgrog ${I}"
- 			echo "=================================================="
--			((++COUNT_ERRORS))
-+			((++COUNT_GROG))
- 		fi
- 	elif command -v grog &> /dev/null; then
- 		if ! grog ${I} | grep man >/dev/null; then
- 			echo "error: grog ${I} is not a man file"
- 			echo "=================================================="
--			((++COUNT_ERRORS))
-+			((++COUNT_GROG))
- 		fi
- 	else
--	GROG=0
-+		GROG=0
- 	fi
- 	REPEATS=( $(cat ${I} | troff -mandoc -Tascii 2>/dev/null | grotty |
- 		col -b |
-@@ -118,6 +120,8 @@ for I in $(
+ KNOWN_REPEATS[mount.8]='foo'
+@@ -111,21 +112,14 @@ for I in $(
+ 		sed  -e 's/\s\+/\n/g; /^$/d' |
+ 		awk 'BEGIN { p="" } { if (0 < length($0)) { if (p == $0) { print } } p = $0 }') )
+ 	if [ 0 -lt "${#REPEATS[@]}" ]; then
+-		ITER=${#REPEATS[@]}
+-		while [ -1 -lt ${ITER} ]; do
++		ITER=${#REPEATS[@]}+1
++		while ((ITER--)); do
+ 			remove_repeats ${ITER}
+-			# The 'let' may cause exit on error.
+-			# When ITER == 0 -> let returns 1, bash bug?
+-			let ITER=${ITER}-1 || true
  		done
  		if [ 0 -lt "${#REPEATS[@]}" ]; then
  			echo "warning: ${I} has repeating words: ${REPEATS[@]}"
-+			echo "=================================================="
-+			((++COUNT_REPEATS))
  		fi
  	fi
+-	# The 'let' may cause exit on error.
+-	# COUNT_ERRORS=0; let COUNT_ERRORS=$COUNT_ERRORS+0; echo $?
+-	# Is this a bash bug?
+-	let COUNT_ERRORS=$COUNT_ERRORS+$I_ERR || true
  done
-@@ -148,17 +152,24 @@ done
- set +u
- for I in ${!BIN_LIST[@]}; do
- 	if [ -v ${MAN_LIST[$I]} ]; then
--		echo "warning: ${I} does not have man page"
-+		echo "warning: ${SCRIPT_INVOCATION_SHORT_NAME}: ${I} does not have man page"
- 	fi
- done
- set -u
  
-+echo "${SCRIPT_INVOCATION_SHORT_NAME}: ${#BIN_LIST[*]} build targets were found"
-+echo "${SCRIPT_INVOCATION_SHORT_NAME}: ${#MAN_LIST[*]} files were tested"
-+
- if [ ${GROG} = 0 ]; then
- echo "warning: neither grog nor lexgrog commands were found"
- fi
- 
--if [ ${COUNT_ERRORS} -ne 0 ]; then
--	echo "error: ${SCRIPT_INVOCATION_SHORT_NAME}: ${COUNT_ERRORS} manuals failed"
-+if [ ${COUNT_GROG} -ne 0 -o ${COUNT_TROFF} -ne 0 -o ${COUNT_REPEATS} -ne 0 ]; then
-+	echo "error: ${SCRIPT_INVOCATION_SHORT_NAME}: ${COUNT_GROG} files failed (lex)grog man-page test"
-+	echo "error: ${SCRIPT_INVOCATION_SHORT_NAME}: ${COUNT_TROFF} files failed troff parsing test"
-+	echo "error: ${SCRIPT_INVOCATION_SHORT_NAME}: ${COUNT_REPEATS} files have repeating words"
-+	ITER=${#MAN_LIST[*]}-${COUNT_GROG}-${COUNT_TROFF}-${COUNT_REPEATS}
-+	echo "${SCRIPT_INVOCATION_SHORT_NAME}: ${ITER} man-pages approved"
- 	exit 1
- fi
- 
+ # Create a list of build targets.
