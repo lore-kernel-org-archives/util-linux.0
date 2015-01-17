@@ -1,61 +1,108 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45982 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753567AbbAFUst (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 6 Jan 2015 15:48:49 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by mailout.nyi.internal (Postfix) with ESMTP id A5E2520C3E
-	for <util-linux@vger.kernel.org>; Tue,  6 Jan 2015 15:48:48 -0500 (EST)
-Message-Id: <1420577328.1786767.210387085.321E0759@webmail.messagingengine.com>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59724 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752371AbbAQR4o (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 17 Jan 2015 12:56:44 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id 43269204D1
+	for <util-linux@vger.kernel.org>; Sat, 17 Jan 2015 12:56:44 -0500 (EST)
+Message-Id: <1421517403.2403892.215153577.6B12EB93@webmail.messagingengine.com>
 From: Benno Schulenberg <bensberg@justemail.net>
-To: Antonio Ceballos <aceballos@gmail.com>
+To: Peter Cordes <peter@cordes.ca>
 Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-In-Reply-To: <CAO7R9g8aGM48RzU-ed-cYyAdUEPbX7B4QSsVTdLx90poPtKwhQ@mail.gmail.com>
-References: <CAO7R9g8opv3Z3aW73xJ-d3ZBwi5_f4td9Xeqk=QBUCqz13fGhw@mail.gmail.com>
- <1420490268.1408121.209893057.48A620D9@webmail.messagingengine.com>
- <CAO7R9g8aGM48RzU-ed-cYyAdUEPbX7B4QSsVTdLx90poPtKwhQ@mail.gmail.com>
-Subject: Re: questions on util-linux translation
-Date: Tue, 06 Jan 2015 21:48:48 +0100
+Subject: Re: [PATCH] docs: fix grammar and punctuation of 2.26 release notes
+Date: Sat, 17 Jan 2015 18:56:43 +0100
+In-Reply-To: <20150116031559.GW29504@cordes.ca>
+References: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
+ <20150116031559.GW29504@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-On Tue, Jan 6, 2015, at 11:34, Antonio Ceballos wrote:
-> 2. My first suggestion is "too neutral" for that context. Your
-> suggestion probably sounds better. I presume that something
-> more explicit but longer is worse, such as:
+On Fri, Jan 16, 2015, at 04:15, Peter Cordes wrote:
+> > + based on libfdisk. If your use cases depend on sfdisk(8) then it is strongly
 > 
-> "partition #7 cannot be removed, as it doesn't exist"
+>  Should put a comma after "sfdisk(8)".
 
-Yeah, that is rather oververbose.  The message is not a contextless
-error message, but gets produced only when --verbose is used.  The
-previously mentioned example of deleting partitions 5 to 9 (with 7
-not existing), the command would be:
+True.  Will be in V2.
 
-partx --delete --verbose -n 5:9 /dev/sda
+> > + The new version no longer supports some obscure MBR-specific command-line
+> >   options and legacy CHS addressing.
+> 
+>  s/and/or/ in the last line.  "no longer supports x or y" is the proper
+> usage here.
 
-and it currently would print the following progress messages:
+Hmm.   I would tend to use "nor" here.  It may not be grammatical or
+proper usage, but I think it is the most clear.  ("No longer foo or bar"
+works fine, but "no longer foo-foo-baz-foo-baz or bar" is unclear to me --
+the negation has been mostly forgotten when the eye arrives at "or bar".
+The "nor" is then a nice reminder.)
 
-dev/sda: partition #5 removed
-dev/sda: partition #6 removed
-dev/sda: partition #7 already doesn't exist
-dev/sda: partition #8 removed
-dev/sda: partition #9 removed
+> > + The command hwclock(8) does not automatically (re)calculate the drift factor on
+> > + --systohc to avoid several problems (ntpd with '11 minute mode', for example),
+> > + but the new command-line option --update-drift has to be explicitly used to
+> > + force hwclock(8) to update /etc/adjtime.
+> 
+>  Can we just start the sentence "hwclock(8) ...", instead of "The
+> command hwclock(8)"?  I don't think there's any ambiguity that you
+> might actually be talking about the man page.
 
-In fact I think the message for #7 is quite good,
-and I don't think that my proposal is any better:
+True.  But it's what Karel wrote, and it's fine, it works.
 
-dev/sda: partition #5 removed
-dev/sda: partition #6 removed
-dev/sda: skipping nonexistent partition #7
-dev/sda: partition #8 removed
-dev/sda: partition #9 removed
+> >   - supports new options --reload to force already running agetty processes to
+> > -   reprint /etc/issue file. 
+> > +   reprint the /etc/issue file
+> 
+>  "reprint /etc/issue" would work, and be shorter.
+
+Same comment as above.
+
+> > - - supports sfdisk compatible scripts, it's possible to save your partitioning 
+> > -   layout to text files and (re)use it in all fdisks.
+> > + - supports sfdisk compatible scripts; it's possible to save your partitioning
+> > +   layout to text files and (re)use it in all fdisks
+> 
+>  Kudos for good use of a semicolon.  I always like a good semicolon. :)
+
+:)
+
+> > + - supports new command-line option "-o <list>" with the same semantic as
+> 
+>  semantics, not semantic.
+
+Right.  Will be in V2.
+
+> > +   -o for mount(8); it's now possible to specify swap options on the command
+> > +   line by the same string as in fstab
+> 
+>  I think "with the same string", rather than "by the same string".
+
+Well, "is specified by" gives me many more google hits than "is specified with".
+This comparison may not be valid, but I think "by" is okay here.  And even if
+most native speakers would prefer "with" here, I think it's fine to let some of
+the foreignness of Karel's tongue sound through in his text.
+ 
+> > +The debug infrastructure in the libraries libmount, libsmartcolsm, libfdisk and
+> > +libblkid allows to specify debug options by human-readable strings too. For
+> >  example "LIBMOUNT_DEBUG=all mount /mnt".
+> 
+> "libblkid allows specifying debug options with human-readable strings, too. For"
+> 
+>  would read a bit better.
+
+To a native speaker probably yes.  But I'm trying to make the minimum
+amount of changes, fixing just the things where my comprehension is
+hindered.  There's no need to make this text into "English English";
+"understandable and acceptable foreigner English" seems good enough.
+
+Thanks for the review.
+Shall I add a Reviewed-by tag to V2?  Or an Acked-by?
 
 Benno
 
 -- 
-http://www.fastmail.com - Or how I learned to stop worrying and
-                          love email again
+http://www.fastmail.com - Does exactly what it says on the tin
 
