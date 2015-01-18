@@ -1,117 +1,154 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:49700 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751380AbaLXQ4R (ORCPT
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:50055 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751593AbbARUqp (ORCPT
 	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 24 Dec 2014 11:56:17 -0500
+	Sun, 18 Jan 2015 15:46:45 -0500
 From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 01/10] docs: improve some wordings on the man page of wipefs
-Date: Wed, 24 Dec 2014 17:56:01 +0100
-Message-Id: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
+Subject: [PATCH V2] docs: fix grammar and punctuation and typos in 2.26 release notes
+Date: Sun, 18 Jan 2015 21:46:28 +0100
+Message-Id: <1421613988-5872-1-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
+References: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Also trim some trailing whitespace.
+
 Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- misc-utils/wipefs.8 |   33 +++++++++++++++++----------------
- 1 files changed, 17 insertions(+), 16 deletions(-)
+ Documentation/releases/v2.26-ReleaseNotes |   74 ++++++++++++++--------------
+ 1 files changed, 37 insertions(+), 37 deletions(-)
 
-diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
-index 13cadb4..c4addef 100644
---- a/misc-utils/wipefs.8
-+++ b/misc-utils/wipefs.8
-@@ -2,7 +2,7 @@
- .\" Copyright 2009 by Karel Zak.  All Rights Reserved.
- .\" This file may be copied under the terms of the GNU Public License.
- .\"
--.TH WIPEFS 8 "October 2009" "util-linux" "System Administration"
-+.TH WIPEFS 8 "December 2014" "util-linux" "System Administration"
- .SH NAME
- wipefs \- wipe a signature from a device
- .SH SYNOPSIS
-@@ -20,41 +20,42 @@ to make the signatures invisible for libblkid.
+diff --git a/Documentation/releases/v2.26-ReleaseNotes b/Documentation/releases/v2.26-ReleaseNotes
+index b7712f7..655aebe 100644
+--- a/Documentation/releases/v2.26-ReleaseNotes
++++ b/Documentation/releases/v2.26-ReleaseNotes
+@@ -1,29 +1,29 @@
+ Util-linux 2.26 Release Notes
+ =============================
  
- .B wipefs
- does not erase the filesystem itself nor any other data from the device.
--When used without options \fB-a\fR or \fB-o\fR, it lists all visible filesystems
-+When used without any options, \fBwipefs\fR lists all visible filesystems
- and the offsets of their basic signatures.
+- This version provides completely new sfdisk(8) command, the new version is
+- based on libfdisk. If your use-cases depend on sfdisk(8) then it is strongly
++ This version provides a completely new sfdisk(8) command; the new version is
++ based on libfdisk. If your use cases depend on sfdisk(8), then it is strongly
+  recommended to be careful and re-test your scripts. The new version supports
+- MBR and GPT disk labels (SGI and SUN are also supported but no well tested).
+- The new version does no more support some obscure MBR specific command line
+- options and legacy CHS addressing.
++ MBR and GPT disk labels (SGI and SUN are also supported but not well tested).
++ The new version no longer supports some obscure MBR-specific command-line
++ options nor legacy CHS addressing.
  
- .B wipefs
--calls BLKRRPART ioctl when erase partition table to inform kernel about the change.
-+calls the BLKRRPART ioctl when it has erased a partition-table signature
-+to inform the kernel about the change.
  
--Note that some filesystems or some partition tables store more magic strings on
--the devices.  The
-+Note that some filesystems and some partition tables store more magic strings on
-+the device.  The
- .B wipefs
- command lists only the first offset where a magic string has been detected.  The device
- is not scanned for additional magic strings for the same filesystem.  It is possible
--that after \fBwipefs -o \fIoffset\fR the same filesystem or partition
--table will still be visible by another magic string on another offset.
-+that after a \fBwipefs -o \fIoffset\fR the same filesystem or partition
-+table will still be visible because of another magic string on another offset.
+- The library libblkid (and blkid(8) on command line) now uses the same UDF
+- fields like Windows and another operations systems to get human readable
+- UDF volume identifiers (LABEL= tag). This change maybe backwardly incompatible 
++ The library libblkid (and blkid(8) on the command line) now uses the same UDF
++ fields as Windows and other operating systems in order to get human-readable
++ UDF volume identifiers (LABEL= tag). This change may be backwardly incompatible
+  for some UDF volumes.
  
--When used with option \fB-a\fR, all magic strings that are visible for libblkid are
-+When option \fB-a\fR is used, all magic strings that are visible for libblkid are
- erased.
  
- Note that by default
- .B wipefs
--does not erase nested partition tables on non-whole disk devices. The option 
--\-\-force is required.
-+does not erase nested partition tables on non-whole disk devices.
-+For this the option \fB\-\-force\fR is required.
+  The command hwclock(8) uses the drift correction for all relevant operations
+- and it is unnecessary to specify --adjuts on hwclock command line now.
++ and it is unnecessary to specify --adjust on the hwclock command line now.
  
- .SH OPTIONS
- .TP
- .BR \-a , " \-\-all"
- Erase all available signatures.  The set of erased signatures can be
--restricted with the \fB\-t\fP \fIlist\fP option.
-+restricted with the \fB\-t\fR option.
- .TP
- .BR \-b , " \-\-backup"
- Create a signature backup to the file $HOME/wipefs-<devname>-<offset>.bak.
--For more details see EXAMPLES section.
-+For more details see the \fBEXAMPLES\fR section.
- .TP
- .BR \-f , " \-\-force"
- Force erasure, even if the filesystem is mounted.  This is required in
--order to erase the partition table on a block device.
-+order to erase a partition-table signature on a block device.
- .TP
- .BR \-h , " \-\-help"
- Display help text and exit.
-@@ -66,7 +67,7 @@ Causes everything to be done except for the write() call.
- Specify the location (in bytes) of the signature which should be erased from the
- device.  The \fIoffset\fR number may include a "0x" prefix; then the number will be
- interpreted as a hex value.  It is possible to specify multiple \fB-o\fR options.
--
-+.sp
- The \fIoffset\fR argument may be followed by the multiplicative
- suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB
- (the "iB" is optional, e.g. "K" has the same meaning as "KiB"), or the suffixes
-@@ -77,7 +78,7 @@ Print out in parsable instead of printable format.  Encode all potentially unsaf
- characters of a string to the corresponding hex value prefixed by '\\x'.
- .TP
- .BR \-q , " \-\-quiet"
--Suppress output messages after successful signature wipe.
-+Suppress any messages after a successful signature wipe.
- .TP
- .BR \-t , " \-\-types " \fIlist\fP
- Limit the set of printed or erased signatures.  More than one type may
-@@ -94,7 +95,7 @@ Erases all signatures from the device /dev/sdb and creates a signature backup
- file ~/wipefs-sdb-<offset>.bak for each signature.
- .TP
- .BR "dd if=~/wipefs-sdb-0x00000438.bak of=/dev/sdb seek=$((0x00000438)) bs=1 conv=notrunc"
--Restores ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
-+Restores an ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
- .SH AUTHOR
- Karel Zak <kzak@redhat.com>
- .SH ENVIRONMENT
+- The command hwclock(8) does not automatically (re)calculate drift factor on
+- --systohc to avoid several problem (ntpd with an '11 minute mode', etc.), but
+- new command line option --update-drift has to be explicitly used to force
+- hwclock(8) to update /etc/adjtime. 
++ The command hwclock(8) does not automatically (re)calculate the drift factor on
++ --systohc to avoid several problems (ntpd with '11 minute mode', for example),
++ but the new command-line option --update-drift has to be explicitly used to
++ force hwclock(8) to update /etc/adjtime.
+ 
+- For more details see hwclock(8) man page.
++ For more details see the hwclock(8) man page.
+ 
+ 
+ Release highlights
+@@ -33,56 +33,56 @@ zramctl(8):
+  - this NEW COMMAND allows to control /dev/zramN devices
+ 
+ agetty(8):
+- - supports new options --reload to force already running agetty processes to
+-   reprint /etc/issue file. 
++ - supports new option --reload to force already running agetty processes to
++   reprint the /etc/issue file
+ 
+ cfdisk(8), sfdisk(8) and fdisk(8):
+- - supports sfdisk compatible scripts, it's possible to save your partitioning 
+-   layout to text files and (re)use it in all fdisks.
++ - support sfdisk-compatible scripts; it's possible to save your partitioning
++   layout to text files and (re)use it in all fdisks
+ 
+ fdisk(8), sfdisk(8):
+- - support new command line option "--output <list>" to specify output columns
+-   for --list or print commands.
++ - support new command-line option "--output <list>" to specify output columns
++   for --list or print commands
+ 
+ nsenter(1):
+  - has been updated to work with the latest kernel changes in user namespaces
+- - supports new command line option --preserve-credentials
++ - supports new command-line option --preserve-credentials
+ 
+ unshare(1):
+  - has been updated to work with the latest kernel changes in user namespaces
+- - suuports new command line option "--setgroups=<deny|allow>"
++ - supports new command-line option "--setgroups=<deny|allow>"
+ 
+ swapon(8):
+- - supports new command line option "-o <list>" with the same semantic like
+-   -o for mount(8); now it's possible to specify swap options on command line
+-   by the same string like in fstab 
++ - supports new command-line option "-o <list>" with the same semantics as
++   -o for mount(8); it's now possible to specify swap options on the command
++   line by the same string as in fstab
+ 
+ fdformat(8):
+- - supports new command line options --from/to to specify tracks and --repear
+-   for broken floppies.
++ - supports new command-line options --from and --to to specify tracks and
++   --repair for broken floppies
+ 
+ getopt(1):
+- - has been updated to the latest version (originally maintained out of
+-   util-linux) and refactored.
++ - has been updated to the latest version (originally maintained outside of
++   util-linux) and refactored
+ 
+ ldattach(8):
+- - has been improved to support GSM0710 and intro modem commands 
++ - has been improved to support GSM0710 and intro modem commands
+ 
+ logger(1):
+- - supports new command line option --id= to specify PID (or another ID)
++ - supports new command-line option --id= to specify PID (or another ID)
+  - allows to specify --rfc3164 or --rfc5424 syslog protocols
+ 
+ libfdisk:
+- - the library is distributed as shared library with stable API and standard
+-   header file.
++ - the library is distributed as a shared library with a stable API and a
++   standard header file
+ 
+ libmount:
+- - provides new simple API to monitor mount table changes (including
+-   changes in userspace mount options).
++ - provides a new simple API to monitor mount-table changes (including
++   changes in userspace mount options)
+ 
+ 
+-The debug infrastructure in libraries libmount, libsmartcolsm, libfdisk and
+-libblkid allows to specify debug options by human readable strings too. For
++The debug infrastructure in the libraries libmount, libsmartcolsm, libfdisk and
++libblkid allows to specify debug options by human-readable strings too. For
+ example "LIBMOUNT_DEBUG=all mount /mnt".
+ 
+ 
 -- 
 1.7.0.4
 
