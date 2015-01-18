@@ -1,38 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:51372 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751695AbbAKV2W (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 11 Jan 2015 16:28:22 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/4] partx: simplify a --verbose progress message
-Date: Sun, 11 Jan 2015 22:27:57 +0100
-Message-Id: <1421011678-5890-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
-References: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
+Received: from mout.gmx.net ([212.227.17.22]:49163 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751484AbbARVCz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 18 Jan 2015 16:02:55 -0500
+Message-ID: <54BC1F79.1030706@gmx.com>
+Date: Sun, 18 Jan 2015 16:02:49 -0500
+From: JWP <elseifthen@gmx.com>
+MIME-Version: 1.0
+To: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/3] textual: put option and its description into a single
+ translatable string
+References: <1421613631-5732-1-git-send-email-bensberg@justemail.net> <1421613631-5732-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1421613631-5732-3-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reported-by: Antonio Ceballos <aceballos@gmail.com>
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/partx.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On 01/18/2015 03:40 PM, Benno Schulenberg wrote:
+> Also improve the description: notime, notq, and nohost are literals,
+> not things to be replaced by something else -- so no angular brackets.
+> 
+> Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+> ---
+>  misc-utils/logger.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+> index 35caf9d..296f7f0 100644
+> --- a/misc-utils/logger.c
+> +++ b/misc-utils/logger.c
+> @@ -525,8 +525,8 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+>  	fputs(_(" -T, --tcp             use TCP only\n"), out);
+>  	fputs(_(" -d, --udp             use UDP only\n"), out);
+>  	fputs(_("     --rfc3164         use the obsolete BSD syslog protocol\n"), out);
+> -	fputs(_("     --rfc5424[=<notime,notq,nohost>]\n"), out);
+> -	fputs(_("                       use the syslog protocol (default)\n"), out);
+> +	fputs(_("     --rfc5424[=<cut>] use the syslog protocol (the default);\n"
+> +		"                         <cut> can be notime, or notq, and/or nohost\n"), out);
 
-diff --git a/disk-utils/partx.c b/disk-utils/partx.c
-index 00c2631..d1dc6f1 100644
---- a/disk-utils/partx.c
-+++ b/disk-utils/partx.c
-@@ -309,7 +309,7 @@ static int del_parts(int fd, const char *device, dev_t devno,
- 			continue;
- 		} else if (errno == ENXIO) {
- 			if (verbose)
--				printf(_("%s: partition #%d already doesn't exist\n"), device, i);
-+				printf(_("%s: partition #%d doesn't exist\n"), device, i);
- 			continue;
- 		}
- 		rc = -1;
--- 
-1.7.0.4
+I have never see that done before, it seems confusing.
+Isn't the commonly used term 'snip'?
 
+
+
+>  	fputs(_(" -u, --socket <socket> write to this Unix socket\n"), out);
+>  #ifdef HAVE_LIBSYSTEMD
+>  	fputs(_("     --journald[=<file>]  write journald entry\n"), out);
+> 
