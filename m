@@ -1,46 +1,50 @@
-Return-Path: ebiederm@xmission.com
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Karel Zak <kzak@redhat.com>
-Cc: Lubomir Rintel <lkundrak@v3.sk>, util-linux@vger.kernel.org,
-        Mikhail Gusarov <dottedmag@dottedmag.net>
-References: <1419798218-3174-1-git-send-email-lkundrak@v3.sk>
-	<1419798218-3174-2-git-send-email-lkundrak@v3.sk>
-	<20150106130343.GG18528@x2.net.home>
-Date: Tue, 06 Jan 2015 11:11:49 -0600
-In-Reply-To: <20150106130343.GG18528@x2.net.home> (Karel Zak's message of
-	"Tue, 6 Jan 2015 14:03:43 +0100")
-Message-ID: <87y4pfomui.fsf@x220.int.ebiederm.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:65264 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751596AbbARUgb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 18 Jan 2015 15:36:31 -0500
+Message-ID: <54BC1947.6060107@gmx.com>
+Date: Sun, 18 Jan 2015 15:36:23 -0500
+From: JWP <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 2/2] unshare: allow persisting namespaces
+To: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] textual: fix spellos and inconsistencies in several program
+ messages
+References: <1421612229-5535-1-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1421612229-5535-1-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@redhat.com> writes:
+> -		ui_warn(_("Cannot open: %s"), buf);
+> +		ui_warn(_("Cannot open %s"), buf);
 
-> On Sun, Dec 28, 2014 at 09:23:38PM +0100, Lubomir Rintel wrote:
->> Bind mount the namespace file to a given location after creating it if
->> requested (analogously to what "ip netns" and other tools do). This makes
->> it possible for a namespace to survive with no processes running while
->> processes can enter it with nsenter(1):
->> 
->>   # unshare --uts=utsns hostname behemoth
->>   # nsenter --uts=utsns hostname
->>   behemoth
->
-> Nice, especially when we already supports the same concept in nsenter.
->
-> But I guess that "empty namespace" (without any running process) is
-> impossible for PID namespaces, right? It would be nice to add a note
-> about it to the man page.
+> -		ui_warn(_("Cannot open: %s"), buf);
+> +		ui_warn(_("Cannot open %s"), buf);
 
-No.  An empty pid namespace is valid.   An empty pid namespace is one
-in which an init process has not entered the pid namespace, or one in
-which the init process has exited (and thus no more processes are
-allowed).
+> -		fdisk_warn(cxt, _("Cannot open: %s"), filename);
+> +		fdisk_warn(cxt, _("Cannot open %s"), filename);
 
-So an empty pid namespace is a little weird but valid.
+> -		fdisk_warn(cxt, _("Cannot open: %s"), filename);
+> +		fdisk_warn(cxt, _("Cannot open %s"), filename);
 
-The implementation details of the patch completely baffle me.  I can't
-see a reason for things being implemented with clone for example.
+> -		warn(_("cannot open: %s"), devname);
+> +		warn(_("cannot open %s"), devname);
 
-Eric
+> -			warn(_("cannot open: %s"), dev);
+> +			warn(_("cannot open %s"), dev);
+
+> -		warn(_("cannot open: %s"), devname);
+> +		warn(_("cannot open %s"), devname);
+
+> -					"--map-root-user are mutually exclusive."));
+> +					"--map-root-user are mutually exclusive"));
+
+> -			log_warn(_("cannot open: %s: %m"), _PATH_OS_RELEASE);
+> +			log_warn(_("cannot open %s: %m"), _PATH_OS_RELEASE);
+
+> -		err(EXIT_FAILURE, _("cannot open: %s"), AGETTY_RELOAD_FILENAME);
+> +		err(EXIT_FAILURE, _("cannot open %s"), AGETTY_RELOAD_FILENAME);
+
+Hey Benno, I thought we weren't allowed to make changes for punctuation only!
+
