@@ -1,58 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50990 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751107AbbAGJwf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 7 Jan 2015 04:52:35 -0500
-Date: Wed, 7 Jan 2015 10:52:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Andreas Henriksson <andreas@fatal.se>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkid: exit 2 when no specified tags match
-Message-ID: <20150107095228.GF15715@x2.net.home>
-References: <1420150414-7628-1-git-send-email-andreas@fatal.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1420150414-7628-1-git-send-email-andreas@fatal.se>
+Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:58388 "EHLO
+	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751899AbbARQVe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 18 Jan 2015 11:21:34 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/2] cfdisk: don't mess up the help screen by printing the PO file header
+Date: Sun, 18 Jan 2015 17:21:24 +0100
+Message-Id: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 01, 2015 at 11:13:34PM +0100, Andreas Henriksson wrote:
-> ,---- [ man blkid ]
-> | RETURN CODE
-> |        If the specified token was found, or if any tags were shown from (specified) devices, 0 is returned.
-> |        If the specified token was not found, or no (specified) devices could be identified, an exit code of 2 is returned.
-> |        For usage or other errors, an exit code of 4 is returned.
-> |        If the ambivalent low-level probing result was detected, an exit code of 8 is returned.
-> `----
-> 
-> The code doesn't seem to work like described in the (first part of the)
-> second sentence. The exit code is only 2 if *no* tokens was identified,
-> 0 if tokens was found but none matched the filter.
+Asking for the translation of the empty string ("") produces the header
+of the PO file corresponding to the current locale, which messes up the
+help screen.  So, don't use empty strings in the array of help strings
+but (arbitrary) double spaces.
 
-IMHO it works as expected
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
 
- $ blkid -t TYPE=ext4 &> /dev/null; echo $?
- 0
-
- $ blkid -t TYPE=foo &> /dev/null; echo $?
- 2
-
-the return code is no affected by output tags, it means by -s <tag>
-
- $ blkid -t TYPE=ext4 -s DUMMY;  echo $?
- 0
-
- $ blkid -t TYPE=ext4 -s LABEL;  echo $?
- /dev/sda2: LABEL="boot"
- 0
-
-
-maybe we need to improve the man page to make the description more
-precise, but code works as expected. It differentiates between device
-identification and output stuff.
-
-    Karel
-
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 1d4e2d5..b461b21 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1798,14 +1798,14 @@ static int ui_help(void)
+ 	size_t i;
+ 	static const char *help[] = {
+ 		N_("Help Screen for cfdisk"),
+-		"",
++		"  ",
+ 		N_("This is cfdisk, a curses based disk partitioning program, which"),
+ 		N_("allows you to create, delete and modify partitions on your hard"),
+ 		N_("disk drive."),
+-		"",
++		"  ",
+ 		N_("Copyright (C) 2014 Karel Zak <kzak@redhat.com> "),
+ 		N_("Based on the original cfdisk from Kevin E. Martin & aeb."),
+-		"",
++		"  ",
+ 		N_("Command      Meaning"),
+ 		N_("-------      -------"),
+ 		N_("  b          Toggle bootable flag of the current partition"),
+@@ -1824,11 +1824,10 @@ static int ui_help(void)
+ 		N_("Down Arrow   Move cursor to the next partition"),
+ 		N_("Left Arrow   Move cursor to the previous menu item"),
+ 		N_("Right Arrow  Move cursor to the next menu item"),
+-
+-		"",
++		"  ",
+ 		N_("Note: All of the commands can be entered with either upper or lower"),
+ 		N_("case letters (except for Writes)."),
+-		"",
++		"  ",
+ 		N_("Use lsblk(8) or partx(8) to see more details about the device.")
+ 	};
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
