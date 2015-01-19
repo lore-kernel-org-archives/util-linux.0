@@ -1,31 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33169 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754616AbbAZKH5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 26 Jan 2015 05:07:57 -0500
-Date: Mon, 26 Jan 2015 11:07:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ingo =?iso-8859-1?Q?Br=FCckl?= <ib@wupperonline.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] dmesg: Enable proper indent for messages containing line
- breaks
-Message-ID: <20150126100755.GB6354@x2.net.home>
-References: <54b6b75c.0b36989b.bm000@wupperonline.de>
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:52998 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751317AbbASUmE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 19 Jan 2015 15:42:04 -0500
+Received: by mail-ob0-f171.google.com with SMTP id va2so20837409obc.2
+        for <util-linux@vger.kernel.org>; Mon, 19 Jan 2015 12:42:03 -0800 (PST)
+Message-ID: <54BD6C18.1080308@gmail.com>
+Date: Mon, 19 Jan 2015 14:42:00 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <54b6b75c.0b36989b.bm000@wupperonline.de>
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
+References: <20150114194608.GF28019@x2.net.home>
+In-Reply-To: <20150114194608.GF28019@x2.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 14, 2015 at 07:36:55PM +0100, Ingo Brückl wrote:
-> Messages containing line breaks somehow look broken when additional time,
-> facility or level information is displayed, because they partly appear in
-> time/facility/level column.
+Karel Zak wrote:
+>
+> The util-linux release v2.26-rc1 is available at
+>
+>     ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26/
+>
+> Feedback and bug reports, as always, are welcomed.
 
- Nice. Applied, thanks.
+Just wanted to give feedback on the build in an LFS environment:
 
-    Karel
+./configure ADJTIME_PATH=/var/lib/hwclock \
+    --disable-chfn-chsh  \
+    --disable-login      \
+    --disable-su         \
+    --disable-setpriv    \
+    --disable-runuser    \
+    --disable-pylibmount \
+    --without-python     \
+    --without-systemd    \
+    --without-systemdsystemunitdir
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+make
+
+chown -Rv nobody .
+su nobody -s /bin/bash -c "PATH=$PATH make -k check"
+
+----------
+
+The build process is excellent.  No errors or warnings during build.  No 
+failures during 'make check'.
+
+All 155 tests PASSED
+One KNOWN FAILED (ipcs/limits2)
+66 IGNORE due to non-root permissions or missing/omitted programs in the 
+limited LFS environment.
+
+   -- Bruce Dubbs
+      linuxfromscratch.org
