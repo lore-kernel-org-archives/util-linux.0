@@ -1,70 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:64724 "EHLO
-	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751590AbaLXQ4Y (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 24 Dec 2014 11:56:24 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mout.gmx.net ([212.227.15.19]:49418 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752015AbbAUSC5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 21 Jan 2015 13:02:57 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
+ with ESMTPSA (Nemesis) id 0MYOkT-1YI1x03fn7-00V59K for
+ <util-linux@vger.kernel.org>; Wed, 21 Jan 2015 19:02:56 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 04/10] docs: restore the alternative form of setarch in its man page
-Date: Wed, 24 Dec 2014 17:56:04 +0100
-Message-Id: <1419440170-10850-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
-References: <1419440170-10850-1-git-send-email-bensberg@justemail.net>
+Subject: [PATCH 0/5] some build fixes, noticed with icc
+Date: Wed, 21 Jan 2015 19:02:49 +0100
+Message-Id: <1421863374-9953-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Commit c372860ddb4a768f7f6c50cd26d60119370d5cd accidentally removed
-the alternative form of setarch in which the command name specifies
-the architecture to be set.  Also improve some formatting.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/setarch.8 |   21 +++++++++++----------
- 1 files changed, 11 insertions(+), 10 deletions(-)
+This is pull request #146 on github
+https://github.com/karelzak/util-linux/pull/146 
 
-diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
-index ad9d4c2..a9a126a 100644
---- a/sys-utils/setarch.8
-+++ b/sys-utils/setarch.8
-@@ -1,4 +1,4 @@
--.TH SETARCH 8 "July 2014" "util-linux" "System Administration"
-+.TH SETARCH 8 "December 2014" "util-linux" "System Administration"
- .SH NAME
- setarch \- change reported architecture in new program environment and set personality flags
- .SH SYNOPSIS
-@@ -6,21 +6,22 @@ setarch \- change reported architecture in new program environment and set perso
- .I arch
- [options]
- .RI [ program
--.RI [ arguments ]]
-+.RI [ argument ...]]
-+.sp
-+.B arch
-+[options]
-+.RI [ program
-+.RI [ argument ...]]
- .sp
- .B setarch
- .BR \-\-list | \-h | \-V
- .SH DESCRIPTION
- .B setarch
- currently only affects the output of \fBuname -m\fR.
--For example, on an AMD64 system, running 'setarch i386 program' will cause 'program' to see
--.IR i686
--instead of
--.IR x86_64
--as the machine type.  It also allows to set various personality options.
--The default
--.B program
--is /bin/sh.
-+For example, on an AMD64 system, running \fBsetarch i386 \fIprogram\fR
-+will cause \fIprogram\fR to see i686 instead of x86_64 as the machine type.
-+It also allows to set various personality options.
-+The default \fIprogram\fR is \fB/bin/sh\fR.
- .SH OPTIONS
- .TP
- \fB\-\-list\fR
+Ruediger Meier (5):
+  tests: python tests should not remove user's LD_LIBRARY_PATH
+  build-sys: avoid icc warnings "ignoring unknown option"
+  build-sys: free() needs stdlib.h
+  build-sys: fix UL_SCANF_TYPE_MODIFIER for icc
+  build: fix printf warnings for icc (-Wformat-security)
+
+ configure.ac        | 4 ++++
+ m4/compiler.m4      | 7 +++++++
+ sys-utils/ipcrm.c   | 2 +-
+ sys-utils/lscpu.c   | 8 ++++----
+ sys-utils/rtcwake.c | 2 +-
+ tests/functions.sh  | 4 ++--
+ 6 files changed, 19 insertions(+), 8 deletions(-)
+
 -- 
-1.7.0.4
+1.8.4.5
 
