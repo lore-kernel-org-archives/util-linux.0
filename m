@@ -1,59 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56765 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751063AbbAKQT1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 11 Jan 2015 11:19:27 -0500
-Message-ID: <54B2A27A.50401@gmx.com>
-Date: Sun, 11 Jan 2015 11:19:06 -0500
-From: JWP <elseifthen@gmx.com>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:32946 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752467AbbAXRXi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 24 Jan 2015 12:23:38 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id 5D6C92068F
+	for <util-linux@vger.kernel.org>; Sat, 24 Jan 2015 12:23:35 -0500 (EST)
+Message-Id: <1422120215.1322663.218300697.5A4C9C5F@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Yuri Chornoivan <yurchor@gmail.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>,
+        Yuri Chornoivan <yurchor@ukr.net>
 MIME-Version: 1.0
-To: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
-CC: karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 2/4] docs: mention that setarch may not be able to set
- all listed architectures
-References: <1420897295-17573-1-git-send-email-bensberg@justemail.net> <1420897295-17573-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1420897295-17573-2-git-send-email-bensberg@justemail.net>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
+In-Reply-To: <1422083931-24410-1-git-send-email-yurchor@ukr.net>
+References: <1422083931-24410-1-git-send-email-yurchor@ukr.net>
+Subject: Re: [PATCH] Fix various minor typos
+Date: Sat, 24 Jan 2015 18:23:35 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+Hello Yuri,
 
-On 01/10/2015 08:41 AM, Benno Schulenberg wrote:
-> Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
-> ---
->  sys-utils/setarch.8 |    9 +++++----
->  1 files changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
-> index a9a126a..d0f1cba 100644
-> --- a/sys-utils/setarch.8
-> +++ b/sys-utils/setarch.8
-> @@ -24,11 +24,12 @@ It also allows to set various personality options.
->  The default \fIprogram\fR is \fB/bin/sh\fR.
->  .SH OPTIONS
->  .TP
-> -\fB\-\-list\fR
-> -List the architectures that can be set.
-> +.B \-\-list
-> +List the architectures that \fBsetarch\fR knows about.  Whether \fBsetarch\fR
-> +can actually set each of these architectures depends on the running kernel.
->  .TP
-> -\fB\-\-uname\-2.6\fR
-> -Causes the program to see a kernel version number beginning with 2.6.
-> +.B \-\-uname-2.6
+On Sat, Jan 24, 2015, at 08:18, Yuri Chornoivan wrote:
+> --- a/Documentation/releases/v2.25-ReleaseNotes
+> +++ b/Documentation/releases/v2.25-ReleaseNotes
+> @@ -203,7 +203,7 @@ cal:
+>     - mention where Gregorian reformation happen in September 1752  [Sami Kerola]
+>     - remove optional from short arg -w  [Tommi Kyntola]
+>     - remove unnecessary static variables  [Sami Kerola]
+> -   - remove unnused structure and definition  [Sami Kerola]
+> +   - remove unused structure and definition  [Sami Kerola]
 
-This is incorrect. Options are always constructed with minus signs never a hyphens.
-The only time a hyphen should be used in man-pages is for normally hyphenated 
-dictionary words. Commands, options, variables, paths, urls, etc. all use the
-minus sign character. For troff that is \-.
+These lines were automatically generated from commit messages;
+if you change them in the release notes, they cannot be used
+anymore to find the corresponding commit.
 
-groff(7)
-       \-     The - (minus) sign in the current font.
+All the other changes are good, except for this one:
 
+> -			fdisk_warnx(cxt, _("unssuported GPT attribute bit '%s'"), p);
+> +			fdisk_warnx(cxt, _("unsuported GPT attribute bit '%s'"), p);
 
-> +Causes the \fIprogram\fR to see a kernel version number beginning with 2.6.
->  .TP
->  .BR \-v , " \-\-verbose"
->  Be verbose.
-> 
+You missed the single that should be a double p.
+But I think you caught all the other typos.  :)
+
+Some of them I already corrected in this patch:
+http://www.spinics.net/lists/util-linux-ng/msg10888.html
+If you exclude those from your patch, it will then apply after
+mine without conflict.
+
+Benno
+
+-- 
+http://www.fastmail.com - Email service worth paying for. Try it for free
+
