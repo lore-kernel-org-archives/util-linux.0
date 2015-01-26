@@ -1,27 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53612 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43679 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752273AbbA2BIY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 28 Jan 2015 20:08:24 -0500
-Date: Wed, 28 Jan 2015 08:28:58 +0100
+	id S1754537AbbAZKSe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 26 Jan 2015 05:18:34 -0500
+Date: Mon, 26 Jan 2015 11:18:30 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: ./setarch --list complains
-Message-ID: <20150128072858.GS6354@x2.net.home>
-References: <1422392997.3305312.219689461.6A470ED7@webmail.messagingengine.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH V3] docs: fix grammar and punctuation and typos in 2.26
+ release notes
+Message-ID: <20150126101830.GD6354@x2.net.home>
+References: <1421348945-2329-1-git-send-email-bensberg@justemail.net>
+ <1421701703-2129-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1422392997.3305312.219689461.6A470ED7@webmail.messagingengine.com>
+In-Reply-To: <1421701703-2129-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 27, 2015 at 10:09:57PM +0100, Benno Schulenberg wrote:
-> setarch: no architecture argument specified
+On Mon, Jan 19, 2015 at 10:08:23PM +0100, Benno Schulenberg wrote:
+>  Documentation/releases/v2.26-ReleaseNotes |   74 ++++++++++++++--------------
+>  1 files changed, 37 insertions(+), 37 deletions(-)
 
- Fixed, thanks!
-
-    Karel
+ Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
