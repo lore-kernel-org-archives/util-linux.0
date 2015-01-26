@@ -1,50 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f175.google.com ([74.125.82.175]:50012 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933106AbbA0W26 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Jan 2015 17:28:58 -0500
-Received: by mail-we0-f175.google.com with SMTP id p10so17566795wes.6
-        for <util-linux@vger.kernel.org>; Tue, 27 Jan 2015 14:28:57 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] more: fix repeat search crash
-Date: Tue, 27 Jan 2015 22:28:57 +0000
-Message-Id: <1422397737-9151-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:57839 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752588AbbAZKzs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 26 Jan 2015 05:55:48 -0500
+Date: Mon, 26 Jan 2015 11:55:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] cfdisk: don't mess up the help screen by printing
+ the PO file header
+Message-ID: <20150126105544.GJ6354@x2.net.home>
+References: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1421598085-4394-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Repeating a search for a pattern that did not found made more(1) to
-crash.  To reproduce 'more /etc/services' and search for 'doom'; you will
-find a service in port 666 - pressing '.' after that result used to cause
-core dump.
+On Sun, Jan 18, 2015 at 05:21:24PM +0100, Benno Schulenberg wrote:
+>  disk-utils/cfdisk.c |   11 +++++------
+>  1 files changed, 5 insertions(+), 6 deletions(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.c | 3 +++
- 1 file changed, 3 insertions(+)
+ All 2 patches applied.
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 74148a7..94b0455 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -1605,6 +1605,8 @@ void search(char buf[], FILE *file, register int n)
- 	context.line = saveln = Currline;
- 	context.chrctr = startline;
- 	lncount = 0;
-+	if (!buf)
-+		goto notfound;
- 	if ((rc = regcomp(&re, buf, REG_NOSUB)) != 0) {
- 		char s[REGERR_BUF];
- 		regerror(rc, &re, s, sizeof s);
-@@ -1661,6 +1663,7 @@ void search(char buf[], FILE *file, register int n)
- 		}
- 		free(previousre);
- 		previousre = NULL;
-+notfound:
- 		more_error(_("Pattern not found"));
- 	}
- }
+    Karel
 -- 
-2.2.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
