@@ -1,39 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:53381 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751686AbaL2KRh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 29 Dec 2014 05:17:37 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 04/11] ipcrm: gettextize the command synopsis of the usage text
-Date: Mon, 29 Dec 2014 11:16:59 +0100
-Message-Id: <1419848226-2533-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
-References: <1419848226-2533-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:38848 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753606AbbAZL3R (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 26 Jan 2015 06:29:17 -0500
+Date: Mon, 26 Jan 2015 12:29:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
+Message-ID: <20150126112913.GM6354@x2.net.home>
+References: <20150114194608.GF28019@x2.net.home>
+ <1421786901.3565769.216421909.377E2720@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1421786901.3565769.216421909.377E2720@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/ipcrm.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+On Tue, Jan 20, 2015 at 09:48:21PM +0100, Benno Schulenberg wrote:
+> 
+> On Wed, Jan 14, 2015, at 20:46, Karel Zak wrote:
+> > Feedback and bug reports, as always, are welcomed.
+> 
+> During compilation I get this:
+> 
+> libmount/src/lock.c: In function 'mnt_wait_mtab_lock':
+> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 4 has type '__time_t'
+> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 5 has type 'time_t'
+> libmount/src/lock.c:263: warning: format '%ju' expects type 'uintmax_t', but argument 6 has type 'long int'
 
-diff --git a/sys-utils/ipcrm.c b/sys-utils/ipcrm.c
-index 6702631..a877f0c 100644
---- a/sys-utils/ipcrm.c
-+++ b/sys-utils/ipcrm.c
-@@ -47,8 +47,8 @@ static int verbose = 0;
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
- 	fprintf(out, USAGE_HEADER);
--	fprintf(out, " %s [options]\n", program_invocation_short_name);
--	fprintf(out, " %s shm|msg|sem <id>...\n", program_invocation_short_name);
-+	fprintf(out, _(" %s [options]\n"
-+		       " %s shm|msg|sem <id>...\n"), program_invocation_short_name);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Remove certain IPC resources.\n"), out);
+ fixed
+
+>   CC       disk-utils/fdisk-fdisk-list.o
+> In file included from disk-utils/fdisk-list.c:1:
+> ./libfdisk/src/libfdisk.h:279: error: expected declaration specifiers or '...' before 'off_t'
+> make[2]: *** [disk-utils/fdisk-fdisk-list.o] Error 1
+> make[2]: Leaving directory `/home/ben/Programoj/util-linux-2.26-rc1'
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory `/home/ben/Programoj/util-linux-2.26-rc1'
+> make: *** [all] Error 2
+
+ fixed
+
+Thanks!
+    Karel
+
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
