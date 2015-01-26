@@ -1,113 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f50.google.com ([74.125.82.50]:59402 "EHLO
-	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751061AbbARWDW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 18 Jan 2015 17:03:22 -0500
-Received: by mail-wg0-f50.google.com with SMTP id b13so368835wgh.9
-        for <util-linux@vger.kernel.org>; Sun, 18 Jan 2015 14:03:20 -0800 (PST)
-Date: Sun, 18 Jan 2015 22:03:06 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Samuel Thibault <sthibault@debian.org>, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc1
-In-Reply-To: <20150118191015.GI2957@type.youpi.perso.aquilenet.fr>
-Message-ID: <alpine.LNX.2.03.1501182158270.18731@iki.fi>
-References: <20150118191015.GI2957@type.youpi.perso.aquilenet.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mta04.eastlink.ca ([24.224.136.10]:54703 "EHLO
+	mta04.eastlink.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750949AbbAZFG7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 26 Jan 2015 00:06:59 -0500
+Received: from cmgw05.eastlink.ca ([71.7.199.171])
+ by mta04.eastlink.ca (Oracle Communications Messaging Exchange Server
+ 7u4-21.01 64bit (built Feb 16 2011))
+ with ESMTP id <0NIR00LZ2PSQS1P0@mta04.eastlink.ca> for
+ util-linux@vger.kernel.org; Mon, 26 Jan 2015 01:06:57 -0400 (AST)
+Date: Mon, 26 Jan 2015 01:06:55 -0400
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: Lucio Crusca <lucio@sulweb.org>, util-linux@vger.kernel.org
+Subject: Re: [BUG] losetup: support for physical devices
+Message-id: <20150126050655.GG29504@cordes.ca>
+References: <m96ard$qu8$1@ger.gmane.org> <87mw56jkgq.fsf@hobgoblin.ariadne.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+In-reply-to: <87mw56jkgq.fsf@hobgoblin.ariadne.com>
+From: Peter Cordes <peter@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 18 Jan 2015, Samuel Thibault wrote:
+On Sun, Jan 25, 2015 at 10:21:09PM -0500, Dale R. Worley wrote:
+> Lucio Crusca <lucio@sulweb.org> writes:
+> > During a disaster recovery I found that losetup either 
+> >
+> > 1. does not support creating loop devices that target physical devices. In 
+> > this case I think there exists a compelling reason to support them 
+> > (http://serverfault.com/questions/659484) and this bug report is a wishlist 
+> > bug 
+> >
+> > or 
+> >
+> > 2. it does support physical devices, but it is an undocumented feature (at 
+> > least in the manpage) and the warning it issues is misleading beacuse it 
+> > makes you think it doesn't support them ("losetup: /dev/sdc2: warning: file 
+> > smaller than 512 bytes, the loop device maybe be useless or invisible for 
+> > system tools"). In this case this could be a documentation bug.
+> >
+> > I haven't tested which of the two possibilities is the real situation, but 
+> > I'm pretty sure you already know.
+> 
+> I don't recall what I've done that convinced me, but I'm *sure* that you
+> can do
+> 
+>     losetup -o [offset] {-f[--show]|loopdev} /dev/sdXXX
 
-> Here is a fix for systems which don't have sys/timex.h and its 
-> ntp_gettime().
+ Yup, it works for me.  I posted an answer on
+http://serverfault.com/questions/659484, gist of it is that 
 
-Hi Samuel,
+sudo losetup -o 32256 -f /dev/sdb3
+ sets up a loopback dev.  Test with:
+sudo tail -c 32257 /dev/sdb3 | sudo cmp - /dev/loop5 
 
-I took liberty to move patch you sent to git
+ If you leave out -f or a specific arg like /dev/loop0, then the
+command fails because  losetup /dev/sdb3  means you're asking losetup
+to print info on a loopback device called /dev/sdb3.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/e64274deb47714c81df149a019d60d650558ca2a
+loop: can't get info on device /dev/sdb3: Inappropriate ioctl for device
 
-And here is the altered version of it for public display.  IMHO if 
-ntp_gettime() is not available the time quality stuff can still work, and 
-tell there is no way knowing if time is syncronized.
 
---->8----
-From: Samuel Thibault <sthibault@debian.org>
-Date: Sun, 18 Jan 2015 21:44:54 +0000
-Subject: logger: check availability of ntp_gettime()
-
-Make compilation to work in systems which don't have sys/timex.h and its
-ntp_gettime().
-
-[Sami: make #ifdef scope near 'if (ctl->rfc5424_tq)' tighter]
-
-Reviewed-by: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Samuel Thibault <sthibault@debian.org>
----
- configure.ac        | 1 +
- misc-utils/logger.c | 9 ++++++++-
- 2 files changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/configure.ac b/configure.ac
-index 3d77307..fce7e0e 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -230,6 +230,7 @@ AC_CHECK_HEADERS([ \
- 	sys/swap.h \
- 	sys/syscall.h \
- 	sys/time.h \
-+	sys/timex.h \
- 	sys/ttydefaults.h \
- 	sys/types.h \
- 	sys/un.h \
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 35caf9d..03031da 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -44,7 +44,6 @@
- #include <stdio.h>
- #include <ctype.h>
- #include <string.h>
--#include <sys/timex.h>
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <sys/un.h>
-@@ -67,6 +66,10 @@
- # include <systemd/sd-journal.h>
- #endif
+ IDK how you got it to print
  
-+#ifdef HAVE_SYS_TIMEX_H
-+# include <sys/timex.h>
-+#endif
-+
- enum {
- 	TYPE_UDP = (1 << 1),
- 	TYPE_TCP = (1 << 2),
-@@ -325,7 +328,9 @@ static void syslog_rfc5424(const  struct logger_ctl *ctl, const char *msg)
- {
- 	char *buf, *tag = NULL, *hostname = NULL;
- 	char pid[32], time[64], timeq[80];
-+#ifdef HAVE_SYS_TIMEX_H
- 	struct ntptimeval ntptv;
-+#endif
- 	struct timeval tv;
- 	struct tm *tm;
- 	int len;
-@@ -364,11 +369,13 @@ static void syslog_rfc5424(const  struct logger_ctl *ctl, const char *msg)
- 		snprintf(pid, sizeof(pid), " %d", ctl->pid);
- 
- 	if (ctl->rfc5424_tq) {
-+#ifdef HAVE_SYS_TIMEX_H
- 		if (ntp_gettime(&ntptv) == TIME_OK)
- 			snprintf(timeq, sizeof(timeq),
- 				 " [timeQuality tzKnown=\"1\" isSynced=\"1\" syncAccuracy=\"%ld\"]",
- 				 ntptv.maxerror);
- 		else
-+#endif
- 			snprintf(timeq, sizeof(timeq),
- 				 " [timeQuality tzKnown=\"1\" isSynced=\"0\"]");
- 	}
+losetup: /dev/sdc2: warning: file smaller than 512 bytes, the loop
+device maybe be useless or invisible for system tools
+
+
+
 -- 
-2.2.2
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
 
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
