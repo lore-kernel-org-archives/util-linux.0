@@ -1,39 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55986 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752377AbbALKRd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 12 Jan 2015 05:17:33 -0500
-Date: Mon, 12 Jan 2015 11:17:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] docs: sync the docstring of addpart, delpart and
- resizepart to the man page
-Message-ID: <20150112101729.GC20899@x2.net.home>
-References: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1421011678-5890-1-git-send-email-bensberg@justemail.net>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:50012 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933106AbbA0W26 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 27 Jan 2015 17:28:58 -0500
+Received: by mail-we0-f175.google.com with SMTP id p10so17566795wes.6
+        for <util-linux@vger.kernel.org>; Tue, 27 Jan 2015 14:28:57 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] more: fix repeat search crash
+Date: Tue, 27 Jan 2015 22:28:57 +0000
+Message-Id: <1422397737-9151-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 11, 2015 at 10:27:55PM +0100, Benno Schulenberg wrote:
->  disk-utils/addpart.8    |   19 ++++++++++---------
->  disk-utils/delpart.8    |   18 ++++++------------
->  disk-utils/resizepart.8 |   17 +++++++++--------
->  3 files changed, 25 insertions(+), 29 deletions(-)
+Repeating a search for a pattern that did not found made more(1) to
+crash.  To reproduce 'more /etc/services' and search for 'doom'; you will
+find a service in port 666 - pressing '.' after that result used to cause
+core dump.
 
- All 4 patches applied. Thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/more.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> -This command doesn't manipulate partitions on the hard drive.
-> +This command doesn't manipulate partitions on a hard drive.
-
- This is not too precise, "hard drive" seems like a legacy. All the
- utils (including fdisks) works with "block devices". It's not 
- strictly about hard drives. Fixed.
-
-    Karel
-
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 74148a7..94b0455 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -1605,6 +1605,8 @@ void search(char buf[], FILE *file, register int n)
+ 	context.line = saveln = Currline;
+ 	context.chrctr = startline;
+ 	lncount = 0;
++	if (!buf)
++		goto notfound;
+ 	if ((rc = regcomp(&re, buf, REG_NOSUB)) != 0) {
+ 		char s[REGERR_BUF];
+ 		regerror(rc, &re, s, sizeof s);
+@@ -1661,6 +1663,7 @@ void search(char buf[], FILE *file, register int n)
+ 		}
+ 		free(previousre);
+ 		previousre = NULL;
++notfound:
+ 		more_error(_("Pattern not found"));
+ 	}
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.2.2
+
