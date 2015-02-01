@@ -1,60 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46050 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751032AbbBJMUb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Feb 2015 07:20:31 -0500
-Date: Tue, 10 Feb 2015 13:20:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: more nits in cfdisk
-Message-ID: <20150210122026.GA11158@ws.net.home>
-References: <1423426808.1949360.224667813.2ED36110@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1423426808.1949360.224667813.2ED36110@webmail.messagingengine.com>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:61114 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751605AbbBAOBH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:01:07 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/8] cfdisk: punctuate the bottombar messages consistently
+Date: Sun,  1 Feb 2015 15:00:08 +0100
+Message-Id: <1422799213-16717-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+References: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 08, 2015 at 09:20:08PM +0100, Benno Schulenberg wrote:
-> "Device does not contain a recognized partition table."
-> This is most likely not an accurate message in this situation,
-> so an upcoming patch suggests to differentiate between an
-> invocation with --zero and a normal invocation.
-> 
-> A second patch will suggest to also accept a lowercase 'l'
-> for loading a script file.  The Load command isn't dangerous,
-> as is the Write command, so there is no need to make it
-> somewhat more difficult to enter.
+Also adjust the style of two comments and add another.
 
- Applied, thanks.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-> When cfdisk prompts for a script file name, the line that says
-> "Select a type..." should probably be cleared.  And maybe also
-> the menu of label types?
-
- Improved.
-
-
-> When the user enters a wrong name or some other error occurs,
-> probably the line that says "The script file will be applied..."
-> should be cleared.
-
- Improved.
-
-> When starting cfdisk with --zero and choosing the sun label type,
-> a bottombar message says: "Note that partition table entries are
-> not in disk order now."  The menu item "Sort" is present, but
-> using it has no effect.  Probably things have to be this way and
-> the message shouldn't be given for a Sun label?
-
- Yes, fixed. (Note that Sun/SGI/BSD are not well tested with cfdisk.)
-
-
- I'm going to check/fix the rest from your list tomorrow. Thanks!
-
-    Karel
-
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index f414f55..eb3141b 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1923,7 +1923,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
+ 			info = _("Partition %zu has been deleted.");
+ 		ref = 1;
+ 		break;
+-	case 'h': /* help */
++	case 'h': /* Help */
+ 		ui_help();
+ 		ref = 1;
+ 		break;
+@@ -1989,13 +1989,13 @@ static int main_menu_action(struct cfdisk *cf, int key)
+ 			info = _("The type of partition %zu is unchanged.");
+ 		break;
+ 	}
+-	case 's': /* fix order */
++	case 's': /* Sort */
+ 		if (cf->wrong_order) {
+ 			fdisk_reorder_partitions(cf->cxt);
+ 			ref = 1;
+ 		}
+ 		break;
+-	case 'u':
++	case 'u': /* dUmp */
+ 		ui_script_write(cf);
+ 		break;
+ 	case 'W': /* Write */
+@@ -2003,7 +2003,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
+ 		char buf[64] = { 0 };
+ 
+ 		if (fdisk_is_readonly(cf->cxt)) {
+-			warn = _("Device open in read-only mode");
++			warn = _("Device is open in read-only mode.");
+ 			break;
+ 		}
+ 
+@@ -2016,12 +2016,12 @@ static int main_menu_action(struct cfdisk *cf, int key)
+ 		ref = 1;
+ 		if (rc <= 0 || (strcasecmp(buf, "yes") != 0 &&
+ 				strcasecmp(buf, _("yes")) != 0)) {
+-			info = _("Did not write partition table to disk");
++			info = _("Did not write partition table to disk.");
+ 			break;
+ 		}
+ 		rc = fdisk_write_disklabel(cf->cxt);
+ 		if (rc)
+-			warn = _("Failed to write disklabel");
++			warn = _("Failed to write disklabel.");
+ 		else {
+ 			fdisk_reread_partition_table(cf->cxt);
+ 			info = _("The partition table has been altered.");
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
