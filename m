@@ -1,50 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:49007 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755204AbbBOUkY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 15 Feb 2015 15:40:24 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailout.nyi.internal (Postfix) with ESMTP id 7E13E20856
-	for <util-linux@vger.kernel.org>; Sun, 15 Feb 2015 15:40:23 -0500 (EST)
-Message-Id: <1424032823.1090725.227824713.20C2D28B@webmail.messagingengine.com>
-From: grantksupport@operamail.com
+Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:51203 "EHLO
+	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751605AbbBAOBT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:01:19 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: blikid reports gdisk-created Bios Boot Partition, created with NO fs,
- has fs TYPE=ext4. Bug/why?
-Date: Sun, 15 Feb 2015 12:40:23 -0800
+Subject: [PATCH 5/8] lib/strutils: accept not just 'B' but also lowercase 'b' in a size suffix
+Date: Sun,  1 Feb 2015 15:00:10 +0100
+Message-Id: <1422799213-16717-5-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+References: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I'd originally posted this to linux-ext4, got redirected here ...
+Just line 'M' and 'm' are accepted for mega, 'G' and 'g' for giga,
+'S' and 's' for sectors, and so on.
 
-I create a GPT Bios Boot Partition on a clean disk
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ lib/strutils.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-	sgdisk -z /dev/sdc
-	sgdisk -o /dev/sdc
-	sgdisk -n 1:2048:+1M    -t 1:ef02  -c 1:"BIOS Boot"           /dev/sdc
+diff --git a/lib/strutils.c b/lib/strutils.c
+index 9fe9481..c4f9600 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -101,9 +101,9 @@ int parse_size(const char *str, uintmax_t *res, int *power)
+ 	 * Check size suffixes
+ 	 */
+ check_suffix:
+-	if (*(p + 1) == 'i' && *(p + 2) == 'B' && !*(p + 3))
++	if (*(p + 1) == 'i' && (*(p + 2) == 'B' || *(p + 2) == 'b') && !*(p + 3))
+ 		base = 1024;			/* XiB, 2^N */
+-	else if (*(p + 1) == 'B' && !*(p + 2))
++	else if ((*(p + 1) == 'B' || *(p + 1) == 'b') && !*(p + 2))
+ 		base = 1000;			/* XB, 10^N */
+ 	else if (*(p + 1)) {
+ 		struct lconv const *l = localeconv();
+-- 
+1.7.0.4
 
-IIUC, at this point, the partition should exist with NO filesystem.
-
-But, if I check with blkid
-
-	blkid /dev/sdc1
-		/dev/sdc1: LABEL="RAID_BOOT" UUID="8a828baa-f315-4456-88d2-ff14849eb705" TYPE="ext4" PARTLABEL="BIOS Boot" PARTUUID="2b3b10b1-a458-481e-872c-bada7d244b13" 
-
-Note that it IDs the filesystem type as
-
-	TYPE="ext4"
-
-Why?
-
-Bios Boot Partition should have NO filesystem.
-
-Is blkid correct?  Is there, or isn't there a fs on that partition?
-
-if there isn't, what's causint the 'false' report?
-
-If there IS, how do I make sure there isn't?
-
-grant
