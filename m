@@ -1,614 +1,100 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:45225 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751906AbbBVOm6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:58 -0500
-Received: by mail-wi0-f170.google.com with SMTP id hi2so14687104wib.1
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:57 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:60947 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751605AbbBAOBh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:01:37 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 01/12] script: remove function prototypes
-Date: Sun, 22 Feb 2015 14:42:38 +0000
-Message-Id: <1424616169-693-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
-References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 8/8] docs: add the Sort command to the man page of cfdisk
+Date: Sun,  1 Feb 2015 15:00:13 +0100
+Message-Id: <1422799213-16717-8-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+References: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 499 +++++++++++++++++++++++++---------------------------
- 1 file changed, 243 insertions(+), 256 deletions(-)
+Also sort T into its proper position, improve the wording of U,
+and add the Left and Right arrow keys.
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 02ba596..41beecd 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -80,18 +80,6 @@
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.8 |   38 +++++++++++++++++++++++---------------
+ 1 files changed, 23 insertions(+), 15 deletions(-)
+
+diff --git a/disk-utils/cfdisk.8 b/disk-utils/cfdisk.8
+index dc30b70..e4577d5 100644
+--- a/disk-utils/cfdisk.8
++++ b/disk-utils/cfdisk.8
+@@ -66,9 +66,8 @@ Display version information and exit.
+ .BR \-z , " \-\-zero"
+ Start with an in-memory zeroed partition table.  This option does not zero the
+ partition table on the disk; rather, it simply starts the program without
+-reading the existing partition table.  This option allows to a create new
+-partition table from scratch or create a new partition table according to
+-a sfdisk compatible script.
++reading the existing partition table.  This option allows you to create a new
++partition table from scratch or from an sfdisk-compatible script.
  
- #define DEFAULT_OUTPUT "typescript"
+ .SH COMMANDS
+ The commands for
+@@ -107,22 +106,27 @@ MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB
+ Quit the program.  This will exit the program without writing any data to
+ the disk.
+ .TP
+-.B u
+-Dump the current in-memory partition table to the sfdisk compatible file.
+-.sp
+-The script files are compatible between cfdisk, sfdisk, fdisk and another
+-libfdisk applications. For more details see
+-.BR sfdisk (8).
+-.sp
+-It is also possible to load sfdisk script to cfdisk if there is no partition
+-table on the device or when you start cfdisk with \fI--zero\fR command line
+-option.
++.B s
++Sort the partitions in ascending start-sector order.  When deleting and
++adding partitions, it is likely that the numbering of the partitions will
++no longer match their order on the disk.  This command restores that match.
+ .TP
+ .B t
+ Change the partition type.  By default, new partitions are created as
+ .I Linux
+ partitions.
+ .TP
++.B u
++Dump the current in-memory partition table to an sfdisk-compatible script file.
++.sp
++The script files are compatible between \fBcfdisk\fR, \fBfdisk\fR, \fBsfdisk\fR
++and other libfdisk applications.  For more details see
++.BR sfdisk (8).
++.sp
++It is also possible to load an sfdisk-script into \fBcfdisk\fR if there is
++no partition table on the device or when you start \fBcfdisk\fR with the
++\fB--zero\fR command-line option.
++.TP
+ .B W
+ Write the partition table to disk (you must enter an uppercase W).  Since
+ this might destroy data on the disk, you must either confirm or deny
+@@ -143,13 +147,17 @@ Move the cursor to the previous or next partition.  If there are more
+ partitions than can be displayed on a screen, you can display the next
+ (previous) set of partitions by moving down (up) at the last (first)
+ partition displayed on the screen.
++.TP
++.IR "Left Arrow" , " Right Arrow"
++Select the preceding or the next menu item.  Hitting \fIEnter\fR will
++execute the currently selected item.
  
--void sig_finish(int);
--void finish(int);
--void done(void);
--void fail(void);
--void resize(int);
--void fixtty(void);
--void getmaster(void);
--void getslave(void);
--void doinput(void);
--void dooutput(void);
--void doshell(void);
--
- char	*shell;
- FILE	*fscript;
- FILE	*timingfd;
-@@ -123,21 +111,7 @@ sigset_t block_mask, unblock_mask;
- int die;
- int resized;
+ .PP
+ All commands can be entered with either uppercase or lowercase
+ letters (except for
+ .BR W rite).
+-When in a submenu or at a prompt for entering a size, you can hit the
+-.I ESC
++When in a submenu or at a prompt, you can hit the
++.I Esc
+ key to return to the main menu.
  
--static void
--die_if_link(char *fn) {
--	struct stat s;
--
--	if (forceflg)
--		return;
--	if (lstat(fn, &s) == 0 && (S_ISLNK(s.st_mode) || s.st_nlink > 1))
--		errx(EXIT_FAILURE,
--		     _("output file `%s' is a link\n"
--		       "Use --force if you really want to use it.\n"
--		       "Program not started."), fn);
--}
--
--static void __attribute__((__noreturn__))
--usage(FILE *out)
-+static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out,
-@@ -161,146 +135,81 @@ usage(FILE *out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
--/*
-- * script -t prints time delays as floating point numbers
-- * The example program (scriptreplay) that we provide to handle this
-- * timing output is a perl script, and does not handle numbers in
-- * locale format (not even when "use locale;" is added).
-- * So, since these numbers are not for human consumption, it seems
-- * easiest to set LC_NUMERIC here.
-- */
--
--int
--main(int argc, char **argv) {
--	struct sigaction sa;
--	int ch;
-+static void die_if_link(char *fn)
-+{
-+	struct stat s;
- 
--	enum { FORCE_OPTION = CHAR_MAX + 1 };
-+	if (forceflg)
-+		return;
-+	if (lstat(fn, &s) == 0 && (S_ISLNK(s.st_mode) || s.st_nlink > 1))
-+		errx(EXIT_FAILURE,
-+		     _("output file `%s' is a link\n"
-+		       "Use --force if you really want to use it.\n"
-+		       "Program not started."), fn);
-+}
- 
--	static const struct option longopts[] = {
--		{ "append",	no_argument,	   NULL, 'a' },
--		{ "command",	required_argument, NULL, 'c' },
--		{ "return",	no_argument,	   NULL, 'e' },
--		{ "flush",	no_argument,	   NULL, 'f' },
--		{ "force",	no_argument,	   NULL, FORCE_OPTION, },
--		{ "quiet",	no_argument,	   NULL, 'q' },
--		{ "timing",	optional_argument, NULL, 't' },
--		{ "version",	no_argument,	   NULL, 'V' },
--		{ "help",	no_argument,	   NULL, 'h' },
--		{ NULL,		0, NULL, 0 }
--	};
-+/*
-+ * Stop extremely silly gcc complaint on %c:
-+ *  warning: `%c' yields only last 2 digits of year in some locales
-+ */
-+static void my_strftime(char *buf, size_t len, const char *fmt, const struct tm *tm)
-+{
-+	strftime(buf, len, fmt, tm);
-+}
- 
--	setlocale(LC_ALL, "");
--	setlocale(LC_NUMERIC, "C");	/* see comment above */
--	bindtextdomain(PACKAGE, LOCALEDIR);
--	textdomain(PACKAGE);
--	atexit(close_stdout);
-+static void __attribute__((__noreturn__)) done(void)
-+{
-+	time_t tvec;
- 
--	while ((ch = getopt_long(argc, argv, "ac:efqt::Vh", longopts, NULL)) != -1)
--		switch(ch) {
--		case 'a':
--			aflg = 1;
--			break;
--		case 'c':
--			cflg = optarg;
--			break;
--		case 'e':
--			eflg = 1;
--			break;
--		case 'f':
--			fflg = 1;
--			break;
--		case FORCE_OPTION:
--			forceflg = 1;
--			break;
--		case 'q':
--			qflg = 1;
--			break;
--		case 't':
--			if (optarg && !(timingfd = fopen(optarg, "w")))
--				err(EXIT_FAILURE, _("cannot open %s"), optarg);
--			tflg = 1;
--			break;
--		case 'V':
--			printf(UTIL_LINUX_VERSION);
--			exit(EXIT_SUCCESS);
--			break;
--		case 'h':
--			usage(stdout);
--			break;
--		case '?':
--		default:
--			usage(stderr);
-+	if (subchild) {
-+		/* output process */
-+		if (fscript) {
-+			if (!qflg) {
-+				char buf[BUFSIZ];
-+				tvec = time((time_t *)NULL);
-+				my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
-+				fprintf(fscript, _("\nScript done on %s"), buf);
-+			}
-+			if (close_stream(fscript) != 0)
-+				errx(EXIT_FAILURE, _("write error"));
-+			fscript = NULL;
- 		}
--	argc -= optind;
--	argv += optind;
--
--	if (argc > 0)
--		fname = argv[0];
--	else {
--		fname = DEFAULT_OUTPUT;
--		die_if_link(fname);
--	}
--
--	if ((fscript = fopen(fname, aflg ? "a" : "w")) == NULL) {
--		warn(_("cannot open %s"), fname);
--		fail();
--	}
--
--	shell = getenv("SHELL");
--	if (shell == NULL)
--		shell = _PATH_BSHELL;
--
--	getmaster();
--	if (!qflg)
--		printf(_("Script started, file is %s\n"), fname);
--	fixtty();
-+		if (timingfd && close_stream(timingfd) != 0)
-+			errx(EXIT_FAILURE, _("write error"));
-+		timingfd = NULL;
- 
-+		close(master);
-+		master = -1;
-+	} else {
-+		/* input process */
-+		if (isterm)
-+			tcsetattr(STDIN_FILENO, TCSADRAIN, &tt);
-+		if (!qflg)
-+			printf(_("Script done, file is %s\n"), fname);
- #ifdef HAVE_LIBUTEMPTER
--	utempter_add_record(master, NULL);
-+		if (master >= 0)
-+			utempter_remove_record(master);
- #endif
--	/* setup SIGCHLD handler */
--	sigemptyset(&sa.sa_mask);
--	sa.sa_flags = 0;
--	sa.sa_handler = sig_finish;
--	sigaction(SIGCHLD, &sa, NULL);
--
--	/* init mask for SIGCHLD */
--	sigprocmask(SIG_SETMASK, NULL, &block_mask);
--	sigaddset(&block_mask, SIGCHLD);
--
--	fflush(stdout);
--	sigprocmask(SIG_SETMASK, &block_mask, &unblock_mask);
--	child = fork();
--	sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
--
--	if (child < 0) {
--		warn(_("fork failed"));
--		fail();
-+		kill(child, SIGTERM);	/* make sure we don't create orphans */
- 	}
--	if (child == 0) {
--
--		sigprocmask(SIG_SETMASK, &block_mask, NULL);
--		subchild = child = fork();
--		sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
- 
--		if (child < 0) {
--			warn(_("fork failed"));
--			fail();
--		}
--		if (child)
--			dooutput();
-+	if(eflg) {
-+		if (WIFSIGNALED(childstatus))
-+			exit(WTERMSIG(childstatus) + 0x80);
- 		else
--			doshell();
--	} else {
--		sa.sa_handler = resize;
--		sigaction(SIGWINCH, &sa, NULL);
-+			exit(WEXITSTATUS(childstatus));
- 	}
--	doinput();
-+	exit(EXIT_SUCCESS);
-+}
- 
--	return EXIT_SUCCESS;
-+static void
-+fail(void) {
-+
-+	kill(0, SIGTERM);
-+	done();
- }
- 
-+
- static void wait_for_empty_fd(int fd)
- {
- 	struct pollfd fds[] = {
-@@ -310,8 +219,24 @@ static void wait_for_empty_fd(int fd)
- 	while (die == 0 && poll(fds, 1, 100) == 1);
- }
- 
--void
--doinput(void) {
-+static void finish(int wait)
-+{
-+	int status;
-+	pid_t pid;
-+	int errsv = errno;
-+	int options = wait ? 0 : WNOHANG;
-+
-+	while ((pid = wait3(&status, options, 0)) > 0)
-+		if (pid == child) {
-+			childstatus = status;
-+			die = 1;
-+		}
-+
-+	errno = errsv;
-+}
-+
-+static void doinput(void)
-+{
- 	int errsv = 0;
- 	ssize_t cc = 0;
- 	char ibuf[BUFSIZ];
-@@ -394,43 +319,18 @@ doinput(void) {
- 	done();
- }
- 
--void
--finish(int wait) {
--	int status;
--	pid_t pid;
--	int errsv = errno;
--	int options = wait ? 0 : WNOHANG;
--
--	while ((pid = wait3(&status, options, 0)) > 0)
--		if (pid == child) {
--			childstatus = status;
--			die = 1;
--		}
--
--	errno = errsv;
--}
--
--void
--sig_finish(int dummy __attribute__ ((__unused__))) {
-+static void sig_finish(int dummy __attribute__ ((__unused__)))
-+{
- 	finish(0);
- }
- 
--void
--resize(int dummy __attribute__ ((__unused__))) {
-+static void resize(int dummy __attribute__ ((__unused__)))
-+{
- 	resized = 1;
- }
- 
--/*
-- * Stop extremely silly gcc complaint on %c:
-- *  warning: `%c' yields only last 2 digits of year in some locales
-- */
--static void
--my_strftime(char *buf, size_t len, const char *fmt, const struct tm *tm) {
--	strftime(buf, len, fmt, tm);
--}
--
--void
--dooutput(void) {
-+static void dooutput(void)
-+{
- 	ssize_t cc;
- 	char obuf[BUFSIZ];
- 	struct timeval tv;
-@@ -507,8 +407,26 @@ dooutput(void) {
- 	done();
- }
- 
--void
--doshell(void) {
-+static void getslave(void)
-+{
-+#ifndef HAVE_LIBUTIL
-+	line[strlen("/dev/")] = 't';
-+	slave = open(line, O_RDWR);
-+	if (slave < 0) {
-+		warn(_("cannot open %s"), line);
-+		fail();
-+	}
-+	if (isterm) {
-+		tcsetattr(slave, TCSANOW, &tt);
-+		ioctl(slave, TIOCSWINSZ, (char *)&win);
-+	}
-+#endif
-+	setsid();
-+	ioctl(slave, TIOCSCTTY, 0);
-+}
-+
-+static void doshell(void)
-+{
- 	char *shname;
- 
- 	getslave();
-@@ -559,8 +477,8 @@ doshell(void) {
- 	fail();
- }
- 
--void
--fixtty(void) {
-+static void fixtty(void)
-+{
- 	struct termios rtt;
- 
- 	if (!isterm)
-@@ -572,60 +490,8 @@ fixtty(void) {
- 	tcsetattr(STDIN_FILENO, TCSANOW, &rtt);
- }
- 
--void
--fail(void) {
--
--	kill(0, SIGTERM);
--	done();
--}
--
--void __attribute__((__noreturn__))
--done(void) {
--	time_t tvec;
--
--	if (subchild) {
--		/* output process */
--		if (fscript) {
--			if (!qflg) {
--				char buf[BUFSIZ];
--				tvec = time((time_t *)NULL);
--				my_strftime(buf, sizeof buf, "%c\n", localtime(&tvec));
--				fprintf(fscript, _("\nScript done on %s"), buf);
--			}
--			if (close_stream(fscript) != 0)
--				errx(EXIT_FAILURE, _("write error"));
--			fscript = NULL;
--		}
--		if (timingfd && close_stream(timingfd) != 0)
--			errx(EXIT_FAILURE, _("write error"));
--		timingfd = NULL;
--
--		close(master);
--		master = -1;
--	} else {
--		/* input process */
--		if (isterm)
--			tcsetattr(STDIN_FILENO, TCSADRAIN, &tt);
--		if (!qflg)
--			printf(_("Script done, file is %s\n"), fname);
--#ifdef HAVE_LIBUTEMPTER
--		if (master >= 0)
--			utempter_remove_record(master);
--#endif
--		kill(child, SIGTERM);	/* make sure we don't create orphans */
--	}
--
--	if(eflg) {
--		if (WIFSIGNALED(childstatus))
--			exit(WTERMSIG(childstatus) + 0x80);
--		else
--			exit(WEXITSTATUS(childstatus));
--	}
--	exit(EXIT_SUCCESS);
--}
--
--void
--getmaster(void) {
-+static void getmaster(void)
-+{
- #if defined(HAVE_LIBUTIL) && defined(HAVE_PTY_H)
- 	int rc;
- 
-@@ -685,20 +551,141 @@ getmaster(void) {
- #endif /* not HAVE_LIBUTIL */
- }
- 
--void
--getslave(void) {
--#ifndef HAVE_LIBUTIL
--	line[strlen("/dev/")] = 't';
--	slave = open(line, O_RDWR);
--	if (slave < 0) {
--		warn(_("cannot open %s"), line);
--		fail();
-+/*
-+ * script -t prints time delays as floating point numbers
-+ * The example program (scriptreplay) that we provide to handle this
-+ * timing output is a perl script, and does not handle numbers in
-+ * locale format (not even when "use locale;" is added).
-+ * So, since these numbers are not for human consumption, it seems
-+ * easiest to set LC_NUMERIC here.
-+ */
-+int main(int argc, char **argv)
-+{
-+	struct sigaction sa;
-+	int ch;
-+
-+	enum { FORCE_OPTION = CHAR_MAX + 1 };
-+
-+	static const struct option longopts[] = {
-+		{ "append",	no_argument,	   NULL, 'a' },
-+		{ "command",	required_argument, NULL, 'c' },
-+		{ "return",	no_argument,	   NULL, 'e' },
-+		{ "flush",	no_argument,	   NULL, 'f' },
-+		{ "force",	no_argument,	   NULL, FORCE_OPTION, },
-+		{ "quiet",	no_argument,	   NULL, 'q' },
-+		{ "timing",	optional_argument, NULL, 't' },
-+		{ "version",	no_argument,	   NULL, 'V' },
-+		{ "help",	no_argument,	   NULL, 'h' },
-+		{ NULL,		0, NULL, 0 }
-+	};
-+
-+	setlocale(LC_ALL, "");
-+	setlocale(LC_NUMERIC, "C");	/* see comment above */
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	atexit(close_stdout);
-+
-+	while ((ch = getopt_long(argc, argv, "ac:efqt::Vh", longopts, NULL)) != -1)
-+		switch(ch) {
-+		case 'a':
-+			aflg = 1;
-+			break;
-+		case 'c':
-+			cflg = optarg;
-+			break;
-+		case 'e':
-+			eflg = 1;
-+			break;
-+		case 'f':
-+			fflg = 1;
-+			break;
-+		case FORCE_OPTION:
-+			forceflg = 1;
-+			break;
-+		case 'q':
-+			qflg = 1;
-+			break;
-+		case 't':
-+			if (optarg && !(timingfd = fopen(optarg, "w")))
-+				err(EXIT_FAILURE, _("cannot open %s"), optarg);
-+			tflg = 1;
-+			break;
-+		case 'V':
-+			printf(UTIL_LINUX_VERSION);
-+			exit(EXIT_SUCCESS);
-+			break;
-+		case 'h':
-+			usage(stdout);
-+			break;
-+		case '?':
-+		default:
-+			usage(stderr);
-+		}
-+	argc -= optind;
-+	argv += optind;
-+
-+	if (argc > 0)
-+		fname = argv[0];
-+	else {
-+		fname = DEFAULT_OUTPUT;
-+		die_if_link(fname);
- 	}
--	if (isterm) {
--		tcsetattr(slave, TCSANOW, &tt);
--		ioctl(slave, TIOCSWINSZ, (char *)&win);
-+
-+	if ((fscript = fopen(fname, aflg ? "a" : "w")) == NULL) {
-+		warn(_("cannot open %s"), fname);
-+		fail();
- 	}
-+
-+	shell = getenv("SHELL");
-+	if (shell == NULL)
-+		shell = _PATH_BSHELL;
-+
-+	getmaster();
-+	if (!qflg)
-+		printf(_("Script started, file is %s\n"), fname);
-+	fixtty();
-+
-+#ifdef HAVE_LIBUTEMPTER
-+	utempter_add_record(master, NULL);
- #endif
--	setsid();
--	ioctl(slave, TIOCSCTTY, 0);
-+	/* setup SIGCHLD handler */
-+	sigemptyset(&sa.sa_mask);
-+	sa.sa_flags = 0;
-+	sa.sa_handler = sig_finish;
-+	sigaction(SIGCHLD, &sa, NULL);
-+
-+	/* init mask for SIGCHLD */
-+	sigprocmask(SIG_SETMASK, NULL, &block_mask);
-+	sigaddset(&block_mask, SIGCHLD);
-+
-+	fflush(stdout);
-+	sigprocmask(SIG_SETMASK, &block_mask, &unblock_mask);
-+	child = fork();
-+	sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
-+
-+	if (child < 0) {
-+		warn(_("fork failed"));
-+		fail();
-+	}
-+	if (child == 0) {
-+
-+		sigprocmask(SIG_SETMASK, &block_mask, NULL);
-+		subchild = child = fork();
-+		sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
-+
-+		if (child < 0) {
-+			warn(_("fork failed"));
-+			fail();
-+		}
-+		if (child)
-+			dooutput();
-+		else
-+			doshell();
-+	} else {
-+		sa.sa_handler = resize;
-+		sigaction(SIGWINCH, &sa, NULL);
-+	}
-+	doinput();
-+
-+	return EXIT_SUCCESS;
- }
+ .SH COLORS
 -- 
-2.3.0
+1.7.0.4
 
