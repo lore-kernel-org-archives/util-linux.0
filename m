@@ -1,163 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:59211 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751982AbbBVOnS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:43:18 -0500
-Received: by mail-wi0-f175.google.com with SMTP id r20so11865430wiv.2
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:43:17 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 08/12] script: move do_io() content to small functions
-Date: Sun, 22 Feb 2015 14:42:45 +0000
-Message-Id: <1424616169-693-9-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
-References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: peter@cordes.ca
+Date: Mon, 02 Feb 2015 08:49:25 -0400
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: cfdisk's input fields behave awkwardly (in utf8 locale)
+Message-id: <20150202124925.GC3933@cordes.ca>
+References: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com>
+ <20150202121126.GL16162@ws.net.home> <20150202122923.GA3933@cordes.ca>
+ <20150202123736.GN16162@ws.net.home>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+In-reply-to: <20150202123736.GN16162@ws.net.home>
+From: Peter Cordes <peter@cordes.ca>
 List-ID: <util-linux.vger.kernel.org>
 
-The do_io() got to be a bit long with relatively deep indentation.
+On Mon, Feb 02, 2015 at 01:37:36PM +0100, Karel Zak wrote:
+> On Mon, Feb 02, 2015 at 08:29:23AM -0400, Peter Cordes wrote:
+> >
+> >  Maybe link with GNU readline, to avoid reinventing the wheel.
+> 
+> yep, and maybe for all fdisks, but it would be probably nice to have
+> it optional (--with-readline), and without readline keep it simple and
+> stupid.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 108 ++++++++++++++++++++++++++++------------------------
- 1 file changed, 58 insertions(+), 50 deletions(-)
+ Yeah, I think that's the behaviour I've seen from other packages.
+When built without readline, they just leave the tty in cooked mode,
+so a line of input becomes read(2)able when the user presses return.
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index a7242e7..08bd922 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -223,14 +223,63 @@ static void write_output(struct script_control *ctl, char *obuf,
- 	}
- }
- 
--static void do_io(struct script_control *ctl)
-+static void handle_io(struct script_control *ctl, int fd, double *oldtime, int i)
- {
- 	char buf[BUFSIZ];
-+	ssize_t bytes;
-+
-+	bytes = read(fd, buf, sizeof(buf));
-+	if (bytes < 0) {
-+		if (errno == EAGAIN)
-+			return;
-+		fail(ctl);
-+	}
-+	if (i == 0) {
-+		if (write_all(ctl->master, buf, bytes)) {
-+			warn(_("write failed"));
-+			fail(ctl);
-+		}
-+		/* without sync write_output() will write both input &
-+		 * shell output that looks like double echoing */
-+		fdatasync(ctl->master);
-+		if (!ctl->isterm && !feof(stdin)) {
-+			int c = DEF_EOF;
-+			write_all(ctl->master, &c, 1);
-+		}
-+	} else
-+		write_output(ctl, buf, bytes, oldtime);
-+}
-+
-+static void handle_signal(struct script_control *ctl, int fd)
-+{
-+	struct signalfd_siginfo info;
-+	ssize_t bytes;
-+
-+	bytes = read(fd, &info, sizeof(info));
-+	assert(bytes == sizeof(info));
-+	switch (info.ssi_signo) {
-+	case SIGCHLD:
-+		finish(ctl, 0);
-+		ctl->poll_timeout = 10;
-+		return;
-+	case SIGWINCH:
-+		if (ctl->isterm) {
-+			ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
-+			ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
-+		}
-+		break;
-+	default:
-+		abort();
-+	}
-+}
-+
-+static void do_io(struct script_control *ctl)
-+{
- 	struct pollfd pfd[POLLFDS];
- 	int ret, i;
--	ssize_t bytes;
- 	double oldtime = time(NULL);
- 	time_t tvec = time((time_t *)NULL);
-+	char buf[128];
- 
- 	if (ctl->tflg && !ctl->timingfp)
- 		ctl->timingfp = fdopen(STDERR_FILENO, "w");
-@@ -260,57 +309,16 @@ static void do_io(struct script_control *ctl)
- 			if (pfd[i].revents == 0)
- 				continue;
- 			if (i < 2) {
--				bytes = read(pfd[i].fd, buf, BUFSIZ);
--				if (bytes < 0) {
--					if (errno == EAGAIN)
--						continue;
--					fail(ctl);
--				}
--				if (i == 0) {
--					if (write_all(ctl->master, buf, bytes)) {
--						warn(_("write failed"));
--						fail(ctl);
--					} else
--
--						/* without sync write_output()
--						 * will write both input &
--						 * shell output that looks like
--						 * double echoing */
--						fdatasync(ctl->master);
--					if (!ctl->isterm && !feof(stdin)) {
--						int c = DEF_EOF;
--						write_all(ctl->master, &c, 1);
--					}
--				} else
--					write_output(ctl, buf, bytes, &oldtime);
-+				handle_io(ctl, pfd[i].fd, &oldtime, i);
- 				continue;
- 			}
- 			if (i == 2) {
--				struct signalfd_siginfo info;
--				ssize_t bytes;
--
--				bytes = read(pfd[i].fd, &info, sizeof(info));
--				assert(bytes == sizeof(info));
--				switch (info.ssi_signo) {
--				case SIGCHLD:
--					finish(ctl, 0);
--					ctl->poll_timeout = 10;
--					if (!ctl->isterm)
--						/* In situation such as 'date' in
--						* $ echo date | ./script
--						* ignore input when shell has
--						* exited.  */
--						pfd[0].fd = -1;
--					break;
--				case SIGWINCH:
--					if (ctl->isterm) {
--						ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&ctl->win);
--						ioctl(ctl->slave, TIOCSWINSZ, (char *)&ctl->win);
--					}
--					break;
--				default:
--					abort();
--				}
-+				handle_signal(ctl, pfd[i].fd);
-+				if (!ctl->isterm && -1 < ctl->poll_timeout)
-+					/* In situation such as 'date' in
-+					* $ echo date | ./script
-+					* ignore input when shell has exited.  */
-+					pfd[0].fd = -1;
- 			}
- 		}
- 	}
+ I guess cfdisk already has an arrow-key driven UI, so the wrapper
+for readline (that compiles to a fallback #ifndef HAVE_READLINE) would
+have to put the tty in/out of cooked mode.
+
 -- 
-2.3.0
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
 
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
