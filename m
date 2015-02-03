@@ -1,108 +1,99 @@
-Return-Path: vapier@gentoo.org
-Date: Mon, 16 Feb 2015 04:35:33 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
-        =?utf-8?Q?P=C3=A1draig?= Brady <P@draigbrady.com>,
-        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-Message-ID: <20150216093533.GJ4075@vapier>
-References: <54DC88BF.5040702@draigBrady.com>
- <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
- <20150213092131.GM32318@ws.net.home>
- <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
- <20150213112523.GP32318@ws.net.home>
- <20150215111238.GG32251@vapier>
- <20150216091043.GA11948@ws.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
-In-Reply-To: <20150216091043.GA11948@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:40426 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753118AbbBCSvL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 3 Feb 2015 13:51:11 -0500
+Received: by mail-wg0-f48.google.com with SMTP id x12so46236491wgg.7
+        for <util-linux@vger.kernel.org>; Tue, 03 Feb 2015 10:51:09 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] fsck: use monotonic time to fsck run time measurement
+Date: Tue,  3 Feb 2015 18:51:03 +0000
+Message-Id: <1422989463-906-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Earlier use of gettimeofday() resulted to wrong measurement if system
+administrator did manual time changes, or NTP or adjtime(3) adjusment
+happen during fsck run.
 
---BEa57a89OpeoUzGD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/Makemodule.am |  4 ++--
+ disk-utils/fsck.c        | 14 +++++++-------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-On 16 Feb 2015 10:10, Karel Zak wrote:
-> On Sun, Feb 15, 2015 at 06:12:38AM -0500, Mike Frysinger wrote:
-> > On 13 Feb 2015 12:25, Karel Zak wrote:
-> > > On Fri, Feb 13, 2015 at 10:33:23AM +0000, Sami Kerola wrote:
-> > > > On 13 February 2015 at 09:21, Karel Zak <kzak@redhat.com> wrote:
-> > > > > On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
-> > > > >> I don't particularly like colorization.  But technically, it see=
-ms to me
-> > > > >> that what is needed is a systematic way for the user to indicate=
- his
-> > > > >> colorization preferences to *all* utilities.  And a correspondin=
-g way
-> > > > >> for the system to provide defaults for those user preferences.
-> > > > >>
-> > > > >>
-> > > > >> Only when there is a systematic framework for colorization will =
-all the
-> > > > >> programs allow colorizing to be configured.
-> > > > >
-> > > > > It would be possible to create a shared library from our lib/colo=
-rs.c
-> > > > > to support terminal-colors.d/... :-)
-> > > >=20
-> > > > Or add the needed to ncurses. Isn't that better than adding a new
-> > > > library?
-> > >=20
-> > > you want to link programs like dmesg, gcc or ls with ncurses monster?
-> > >=20
-> > > The another story is that ncurses provides completely abstract layer
-> > > for colors and I didn't found a way how to use it together with color=
-=20
-> > > escape sequences. This is reason why for example cfdisk supports only
-> > > enable/disable terminal-colors.d feature, but no schemes to specify
-> > > colors.
-> >=20
-> > this is why ncurses has the ability to split its lib into a smaller lib=
-tinfo. =20
-> > you get all the logic for detecting terminal capabilities without all t=
-he rest=20
-> > of the ncurses layers.  for people who do want to kill colors across th=
-e board,=20
-> > they can use a different TERM that does not support them.  forcing peop=
-le to=20
-> > duplicate that in a new database seems wrong to me.
->=20
->  What we want to duplicate? What exactly in lib/colors.c is duplicate?
->  The code evaluates filenames and parses files with "name colorcode".
+diff --git a/disk-utils/Makemodule.am b/disk-utils/Makemodule.am
+index 2280b9d..b4606a1 100644
+--- a/disk-utils/Makemodule.am
++++ b/disk-utils/Makemodule.am
+@@ -83,8 +83,8 @@ endif #BUILD_SWAPLABEL
+ if BUILD_FSCK
+ sbin_PROGRAMS += fsck
+ dist_man_MANS += disk-utils/fsck.8
+-fsck_SOURCES = disk-utils/fsck.c
+-fsck_LDADD = $(LDADD) libmount.la libblkid.la libcommon.la
++fsck_SOURCES = disk-utils/fsck.c lib/monotonic.c
++fsck_LDADD = $(LDADD) libmount.la libblkid.la libcommon.la $(CLOCKGETTIME_LIBS)
+ fsck_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir) -I$(ul_libblkid_incdir)
+ endif
+ 
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 277d041..78ad43e 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -54,6 +54,7 @@
+ #include "c.h"
+ #include "closestream.h"
+ #include "fileutils.h"
++#include "monotonic.h"
+ 
+ #define XALLOC_EXIT_CODE	FSCK_EX_ERROR
+ #include "xalloc.h"
+@@ -577,20 +578,19 @@ static int progress_active(void)
+  */
+ static void print_stats(struct fsck_instance *inst)
+ {
+-	double time_diff;
++	struct timeval delta;
+ 
+ 	if (!inst || !report_stats || noexecute)
+ 		return;
+ 
+-	time_diff = (inst->end_time.tv_sec  - inst->start_time.tv_sec)
+-		  + (inst->end_time.tv_usec - inst->start_time.tv_usec) / 1E6;
++	timersub(&inst->end_time, &inst->start_time, &delta);
+ 
+ 	fprintf(stdout, "%s: status %d, rss %ld, "
+-			"real %f, user %d.%06d, sys %d.%06d\n",
++			"real %ld.%06ld, user %d.%06d, sys %d.%06d\n",
+ 		fs_get_device(inst->fs),
+ 		inst->exit_status,
+ 		inst->rusage.ru_maxrss,
+-		time_diff,
++		delta.tv_sec, delta.tv_usec,
+ 		(int)inst->rusage.ru_utime.tv_sec,
+ 		(int)inst->rusage.ru_utime.tv_usec,
+ 		(int)inst->rusage.ru_stime.tv_sec,
+@@ -676,7 +676,7 @@ static int execute(const char *progname, const char *progpath,
+ 	inst->pid = pid;
+ 	inst->prog = xstrdup(progname);
+ 	inst->type = xstrdup(type);
+-	gettimeofday(&inst->start_time, NULL);
++	gettime_monotonic(&inst->start_time);
+ 	inst->next = NULL;
+ 
+ 	/*
+@@ -789,7 +789,7 @@ static struct fsck_instance *wait_one(int flags)
+ 
+ 	inst->exit_status = status;
+ 	inst->flags |= FLAG_DONE;
+-	gettimeofday(&inst->end_time, NULL);
++	gettime_monotonic(&inst->end_time);
+ 	memcpy(&inst->rusage, &rusage, sizeof(struct rusage));
+ 
+ 	if (progress && (inst->flags & FLAG_PROGRESS) &&
+-- 
+2.2.2
 
-whether the terminal even supports color in the first place.  if i picked a=
-=20
-terminal that doesn't support color so i didn't have to worry about it, it'=
-s a=20
-bit crazy i also have to go to multiple config files and also tell them i d=
-on't=20
-want color otherwise i get corrupted output.
--mike
-
---BEa57a89OpeoUzGD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJU4bnlAAoJEEFjO5/oN/WBoJYQAJCxZ+evwKmIApSAxzucWlMG
-sVSGQ1N0u0W5UZ5LCDemM9dLN7HEvxoiIkwpZ5A/1adgtKf5wPInwEMraAyRw8YH
-Ws5/OHpOQrC4zAugFCRU4RzA4BdznlenXwR5Y9j/858Jkp6t30ZpbtdgNbQHt1Bs
-wfxanU7KXxqa7bOvjHNX30ZT1S7UYCVlYcQ684+IQTvPj2hhbPsS8sc8iaRri4jG
-CesL6AupilH5eAWE9nUwFOlOWP8VJPoQZrREMZoWu31I+pQi2ZZJw3b14SLA4TAL
-UZ/vs0l9HLkaPI0tqEXgTqBZcT+TgIjCtVtBMxNcGTn/PgkGkjeSabdUGtwt9fRM
-7d7KXQtT0hFdRDwm7ltZDMJ+LURHeiH+OFyhg4uTE4LQsPOzxQ/0PX2nZ31/z5A1
-iq5JGbspeb/nKmSrETu8k4ZERIfuvGb7RoF310MVcIzSN55FEVrMmy4qA9S4jIm8
-RP1ccpqKkI223E+YcbMEwMjfV0XvwLdnNgbwu3eHUvmhTk4Hnu4RIrlftCkUdP6X
-LeBC4ZVYO5c51NtGRl7umG1S+L8q3/IzOocnjhIxHI5UzJljGS/LS/56oMXiVyhg
-49E2GGfMmNUJhZ8tNKCLTf8YkwvQ23P6+eSMOrn+lU02QRkSps4g9ZEce9sUMAd4
-JWixGI7b9ubFJwfA1vdn
-=gC14
------END PGP SIGNATURE-----
-
---BEa57a89OpeoUzGD--
