@@ -1,27 +1,39 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57138 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932909AbbBBK3N (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Feb 2015 05:29:13 -0500
-Date: Mon, 2 Feb 2015 11:29:09 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mount: Add documentation of FAT mount option time_offset
-Message-ID: <20150202102909.GF16162@ws.net.home>
-References: <1422435625-25101-1-git-send-email-jack@suse.cz>
+Return-Path: ooprala@redhat.com
+Message-ID: <54D0E7AF.7010601@redhat.com>
+Date: Tue, 03 Feb 2015 16:22:23 +0100
+From: Ondrej Oprala <ooprala@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1422435625-25101-1-git-send-email-jack@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Peter Cordes <peter@cordes.ca>
+CC: Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: cfdisk's input fields behave awkwardly (in utf8 locale)
+References: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com> <20150202121126.GL16162@ws.net.home> <20150202122923.GA3933@cordes.ca> <20150202123736.GN16162@ws.net.home>
+In-Reply-To: <20150202123736.GN16162@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 28, 2015 at 10:00:25AM +0100, Jan Kara wrote:
->  sys-utils/mount.8 | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
 
- Applied, thanks.
+On 02/02/2015 01:37 PM, Karel Zak wrote:
+> On Mon, Feb 02, 2015 at 08:29:23AM -0400, Peter Cordes wrote:
+>> On Mon, Feb 02, 2015 at 01:11:26PM +0100, Karel Zak wrote:
+>>> On Sun, Feb 01, 2015 at 03:02:06PM +0100, Benno Schulenberg wrote:
+>>>> [...cfdisk...]
+>>>> prompted for a partition size, would put the cursor at the start
+>>>> of the suggested value, and hitting any other key than Enter
+>>>> would erase this value. That is nice and desirable behaviour.
+>>>> Could that be restored?
+>>>   It would be better to implement full one line editor with support for
+>>>   all basic keys and with ability to insert and erase chars on
+>>>   arbitrary position with in the string... v2.27 :-)
+>>   Maybe link with GNU readline, to avoid reinventing the wheel.
+> yep, and maybe for all fdisks, but it would be probably nice to have
+> it optional (--with-readline), and without readline keep it simple and
+> stupid.
+>
+>      Karel
+>
+Working on it,
+got {s,}fdisk already readline-d
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Cheers,
+Ondrej
