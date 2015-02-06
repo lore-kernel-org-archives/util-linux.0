@@ -1,30 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:45367 "EHLO
-	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755282AbbBLN4v (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Feb 2015 08:56:51 -0500
-Date: Thu, 12 Feb 2015 14:56:49 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Felix Miata <mrmazda@earthlink.net>, util-linux@vger.kernel.org
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-Message-ID: <20150212135649.GD3876@type.bordeaux.inria.fr>
-References: <54DC762E.2090404@earthlink.net>
- <20150212132110.GE32318@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150212132110.GE32318@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:57327 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757134AbbBFOzY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 6 Feb 2015 09:55:24 -0500
+Message-ID: <1423234521.24479.9.camel@redhat.com>
+Subject: libmount: MNT_OMODE_FORCE usage
+From: Fridolin Pokorny <fpokorny@redhat.com>
+To: util-linux@vger.kernel.org
+Date: Fri, 06 Feb 2015 15:55:21 +0100
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak, le Thu 12 Feb 2015 14:21:10 +0100, a écrit :
-> For example for fedora I will keep the colors enabled, because it's
-> current distribution policy.
+Hi,
 
-But all distributions need to be accessible.  It is a per-user
-preference, not a per-task or per-distribution preference.  So upstream
-at least needs to provide ways to configure it per user, and downstream
-provide a uniform way to configure the various shipped tools.
+I have found out that libmount does not respect MNT_OMODE_FORCE mode.
+I don't see any usage in sources and libmount does not respect this mode
+when calling library functions. I'm proposing a patch to fix this.
 
-Samuel
+Have a nice day!
+Fridolin Pokorny
+
+
+diff --git a/libmount/src/context.c b/libmount/src/context.c
+index c902f39..1c288e5 100644
+--- a/libmount/src/context.c
++++ b/libmount/src/context.c
+@@ -2077,6 +2077,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
+ 	}
+ 
+ 	if (!src && tgt
++	    && !(cxt->optsmode & MNT_OMODE_FORCE)
+ 	    && !(cxt->optsmode & MNT_OMODE_FSTAB)
+ 	    && !(cxt->optsmode & MNT_OMODE_MTAB)) {
+ 		DBG(CXT, ul_debugobj(cxt, "only target; fstab/mtab not required "
+@@ -2088,7 +2089,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
+ 	ignore_result( mnt_context_get_fs(cxt) );
+ 
+ 	/* try fstab */
+-	if (cxt->optsmode & MNT_OMODE_FSTAB) {
++	if (cxt->optsmode & (MNT_OMODE_FSTAB | MNT_OMODE_FORCE)) {
+ 		DBG(CXT, ul_debugobj(cxt, "trying to apply fstab (src=%s, target=%s)", src, tgt));
+ 		rc = mnt_context_get_fstab(cxt, &tab);
+ 		if (!rc)
+@@ -2096,7 +2097,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
+ 	}
+ 
+ 	/* try mtab */
+-	if (rc < 0 && (cxt->optsmode & MNT_OMODE_MTAB)) {
++	if (rc < 0 && (cxt->optsmode & (MNT_OMODE_MTAB | MNT_OMODE_FORCE))) {
+ 		DBG(CXT, ul_debugobj(cxt, "trying to apply mtab (src=%s, target=%s)", src, tgt));
+ 		if (tgt)
+ 			rc = mnt_context_get_mtab_for_target(cxt, &tab, tgt);
+
+
