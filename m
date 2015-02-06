@@ -1,29 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50960 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754756AbbBJK3m (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Feb 2015 05:29:42 -0500
-Date: Tue, 10 Feb 2015 11:29:33 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] some ppc fixes for 2.26-rc2
-Message-ID: <20150210102933.GD19845@ws.net.home>
-References: <1423494662-2658-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1423494662-2658-1-git-send-email-sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:57019 "EHLO
+	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751168AbbBFLoi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Feb 2015 06:44:38 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/4] docs: fix two paths of the v2.20-ReleaseNotes
+Date: Fri,  6 Feb 2015 12:44:02 +0100
+Message-Id: <1423223042-2189-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
+References: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 09, 2015 at 04:11:00PM +0100, Ruediger Meier wrote:
-> Ruediger Meier (2):
->   cal: use int64_t instead of long
->   setarch: fix typo (missing braces) for ppcle
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ NEWS |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- Applied, thanks.
-
-
+diff --git a/NEWS b/NEWS
+index 1f8a82f..a4186a0 100644
+--- a/NEWS
++++ b/NEWS
+@@ -67,11 +67,11 @@ util-linux 2.21-rc1: Jan 18 2012
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21/v2.21-rc1-ChangeLog
+ 
+ util-linux 2.20: Aug 29 2011
+-* see docs/v2.20-ReleaseNotes or the complete changelog at
++* see Documentation/releases/v2.20-ReleaseNotes or the complete changelog at
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.20/v2.20-ChangeLog
+ 
+ util-linux 2.20-rc2: Aug 17 2011
+-* see docs/v2.20-ReleaseNotes or the complete changelog at
++* see Documentation/releases/v2.20-ReleaseNotes or the complete changelog at
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.20/v2.20-rc2-ChangeLog
+ 
+ util-linux 2.20-rc1: Jul 29 2011
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
