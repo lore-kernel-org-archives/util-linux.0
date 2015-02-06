@@ -1,61 +1,60 @@
-Return-Path: bruce.dubbs@gmail.com
-Message-ID: <54D406A0.2060904@gmail.com>
-Date: Thu, 05 Feb 2015 18:11:12 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cantor2.suse.de ([195.135.220.15]:40334 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753666AbbBFS7Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 6 Feb 2015 13:59:16 -0500
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id BAB28ABE1
+	for <util-linux@vger.kernel.org>; Fri,  6 Feb 2015 18:59:14 +0000 (UTC)
+Message-ID: <54D50F02.4000709@suse.cz>
+Date: Fri, 06 Feb 2015 19:59:14 +0100
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-To: Benno Schulenberg <bensberg@justemail.net>, Karel Zak <kzak@redhat.com>
-CC: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
-References: <20150204115353.GC1238@ws.net.home> <1423172910.109711.223698217.4EC40FCF@webmail.messagingengine.com>
-In-Reply-To: <1423172910.109711.223698217.4EC40FCF@webmail.messagingengine.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Util-Linux <util-linux@vger.kernel.org>
+Subject: [PATCH] Fix "Script started" buffering race
+Content-Type: text/plain; charset=iso-8859-2
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Benno Schulenberg wrote:
->
-> On Wed, Feb 4, 2015, at 12:53, Karel Zak wrote:
->>
->> The util-linux release v2.26-rc2 is available at
->>
->>    ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26
->
-> It compiles without error, but shows these warnings along the way:
->
-> libfdisk/src/dos.c: In function 'add_partition':
-> libfdisk/src/dos.c:1204: warning: format '%ju' expects type 'uintmax_t', but argument 4 has type 'long unsigned int'
->
-> sys-utils/ipcs.c: In function ‘do_shm’:
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-> sys-utils/ipcs.c:223: note: initialized from here
->
-> sys-utils/ipcutils.c: In function ‘ipc_shm_get_limits’:
-> sys-utils/ipcutils.c:92: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-> sys-utils/ipcutils.c:91: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-> sys-utils/ipcutils.c:90: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-> sys-utils/ipcutils.c:89: note: initialized from here
+script -c "echo Hallo World" </dev/null >script.log ; cat script.log
 
-You do not say what compiler or architecture you are using.  I am using 
-gcc-4.9.2 and both sys-utils/ipcs.c and sys-utils/ipcutils.c build for 
-me without any warnings.
+Before:
+Hallo World
+Script started, file is typescript
+Script started, file is typescript
+Script done, file is typescript
 
-My build of dos.c is done with:
+After:
+Script started, file is typescript
+Hallo World
+Script done, file is typescript
+---
+ term-utils/script.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-/bin/sh ./libtool  --tag=CC   --mode=compile gcc -std=gnu99 
--DHAVE_CONFIG_H -I.  -include config.h -I./include 
--DLOCALEDIR=\"/usr/share/locale\" -D_PATH_LOCALSTATEDIR=\"/run\" 
--I./libuuid/src -I./libfdisk/src -I./libfdisk/src -I./libblkid/src -g 
--O2 -MT libfdisk/src/libfdisk_la-dos.lo -MD -MP -MF 
-libfdisk/src/.deps/libfdisk_la-dos.Tpo -c -o 
-libfdisk/src/libfdisk_la-dos.lo `test -f 'libfdisk/src/dos.c' || echo 
-'./'`libfdisk/src/dos.c
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 548334c..02ba596 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -269,6 +269,7 @@ main(int argc, char **argv) {
+ 	sigprocmask(SIG_SETMASK, NULL, &block_mask);
+ 	sigaddset(&block_mask, SIGCHLD);
+ 
++	fflush(stdout);
+ 	sigprocmask(SIG_SETMASK, &block_mask, &unblock_mask);
+ 	child = fork();
+ 	sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
+-- 
+2.2.2
 
-and it does not provide any warnings either.
+-- 
+Best Regards / S pozdravem,
 
-My host is a Intel(R) Core(TM) i7.
-
-   -- Bruce
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarsk� 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
