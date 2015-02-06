@@ -1,46 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:53087 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760527AbbBIPLG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Feb 2015 10:11:06 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from elasmtp-kukur.atl.sa.earthlink.net ([209.86.89.65]:52822 "EHLO
+	elasmtp-kukur.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753990AbbBFTh5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Feb 2015 14:37:57 -0500
+Received: from [69.22.67.43] (helo=[192.168.0.11])
+	by elasmtp-kukur.atl.sa.earthlink.net with esmtpa (Exim 4.67)
+	(envelope-from <mrmazda@earthlink.net>)
+	id 1YJoLb-0004Eu-22
+	for util-linux@vger.kernel.org; Fri, 06 Feb 2015 14:13:47 -0500
+Message-ID: <54D5126A.3020308@earthlink.net>
+Date: Fri, 06 Feb 2015 14:13:46 -0500
+From: Felix Miata <mrmazda@earthlink.net>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/2] setarch: fix typo (missing braces) for ppcle
-Date: Mon,  9 Feb 2015 16:11:02 +0100
-Message-Id: <1423494662-2658-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1423494662-2658-1-git-send-email-sweet_f_a@gmx.de>
-References: <1423494662-2658-1-git-send-email-sweet_f_a@gmx.de>
+Subject: fdisk -l hits floppy drive
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+util-linux-2.25.1-5.2.x86_64 on openSUSE
+kernels 3.16.6 and 3.18.3
 
-Introduced in 77eb13b9, noticed on ppc64le.
-
-CC: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/setarch.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index c8ca5f8..76892ab 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -160,9 +160,9 @@ static int set_arch(const char *pers, unsigned long options, int list)
- 		{PER_LINUX,	"ppc64pseries",	"ppc64"},
- 		{PER_LINUX,	"ppc64iseries",	"ppc64"},
- # else
--		PER_LINUX32,	"ppc32le",	"ppcle"},
--		PER_LINUX32,	"ppcle",	"ppcle"},
--		PER_LINUX,	"ppc64le",	"ppc64le"},
-+		{PER_LINUX32,	"ppc32le",	"ppcle"},
-+		{PER_LINUX32,	"ppcle",	"ppcle"},
-+		{PER_LINUX,	"ppc64le",	"ppc64le"},
- # endif
- #endif
- #if defined(__x86_64__) || defined(__i386__) || defined(__ia64__)
+fdisk -l is causing the floppy drive to get hit, which reflects the 4 kernel
+messages onto the tty running fdisk. Is this expected or intended?
 -- 
-1.8.4.5
+"The wise are known for their understanding, and pleasant
+words are persuasive." Proverbs 16:21 (New Living Translation)
 
+ Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+
+Felix Miata  ***  http://fm.no-ip.com/
