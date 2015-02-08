@@ -1,31 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34323 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752470AbbB0Nx1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Feb 2015 08:53:27 -0500
-Date: Fri, 27 Feb 2015 14:53:11 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Peter Cordes <peter@cordes.ca>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] docs: fstab(5) grammar / English fixes, and some other
-	updates
-Message-ID: <20150227135311.GD8046@ws.net.home>
-References: <1424689834-29236-1-git-send-email-peter@cordes.ca>
- <1424812009.4081464.231923961.72455B01@webmail.messagingengine.com>
- <20150225024505.GS3933@cordes.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150225024505.GS3933@cordes.ca>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:47898 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751352AbbBHUor (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Feb 2015 15:44:47 -0500
+Received: by mail-wi0-f169.google.com with SMTP id z2so1815284wiv.0
+        for <util-linux@vger.kernel.org>; Sun, 08 Feb 2015 12:44:45 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/2] rename: use strrchr() instead of rindex()
+Date: Sun,  8 Feb 2015 20:44:40 +0000
+Message-Id: <1423428281-12040-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 24, 2015 at 10:45:05PM -0400, Peter Cordes wrote:
->  sys-utils/fstab.5 | 99 ++++++++++++++++++++++++++++++++-----------------------
->  1 file changed, 58 insertions(+), 41 deletions(-)
+The rindex() is marked legacy in POSIX.1-2001, and apparently Androids
+bionic libc does not even have it so it is best not to use the legacy
+interface.
 
- Applied, thanks.
+Reference: https://lists.gnu.org/archive/html/weechat-dev/2014-02/msg00004.html
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/rename.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/misc-utils/rename.c b/misc-utils/rename.c
+index f9cc3a5..7ac068d 100644
+--- a/misc-utils/rename.c
++++ b/misc-utils/rename.c
+@@ -95,7 +95,7 @@ static int do_file(char *from, char *to, char *s, int verbose)
+ 	char *newname = NULL, *file;
+ 	int ret = 1;
+ 
+-	file = rindex(s, '/');
++	file = strrchr(s, '/');
+ 	if (file == NULL)
+ 		file = s;
+ 	if (string_replace(from, to, file, s, &newname))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
