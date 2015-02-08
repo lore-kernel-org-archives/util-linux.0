@@ -1,34 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:56979 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753662AbbBAVMZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 16:12:25 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] sfdisk: actually translate the table headers by calling gettext()
-Date: Sun,  1 Feb 2015 22:12:14 +0100
-Message-Id: <1422825134-18539-1-git-send-email-bensberg@justemail.net>
+Received: from resqmta-po-07v.sys.comcast.net ([96.114.154.166]:43306 "EHLO
+	resqmta-po-07v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750747AbbBHChl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 7 Feb 2015 21:37:41 -0500
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Felix Miata <mrmazda@earthlink.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk -l hits floppy drive
+In-Reply-To: <54D5126A.3020308@earthlink.net> (mrmazda@earthlink.net)
+Date: Sat, 07 Feb 2015 21:37:39 -0500
+Message-ID: <87zj8pm8lo.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/fdisk-list.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Felix Miata <mrmazda@earthlink.net> writes:
+> fdisk -l is causing the floppy drive to get hit, which reflects the 4 kernel
+> messages onto the tty running fdisk. Is this expected or intended?
 
-diff --git a/disk-utils/fdisk-list.c b/disk-utils/fdisk-list.c
-index c65b8b4..e8a0596 100644
---- a/disk-utils/fdisk-list.c
-+++ b/disk-utils/fdisk-list.c
-@@ -136,7 +136,7 @@ void list_disklabel(struct fdisk_context *cxt)
- 			fl |= SCOLS_FL_TRUNC;
- 
- 		co = scols_table_new_column(out,
--				fdisk_field_get_name(field),
-+				_(fdisk_field_get_name(field)),
- 				fdisk_field_get_width(field), fl);
- 		if (!co)
- 			goto done;
--- 
-1.7.0.4
+I see in the manual page:
 
+       -l     List the partition tables for the  specified  devices  and  then
+              exit.   If no devices are given, those mentioned in /proc/parti-
+              tions (if that exists) are used.
+
+Is the floppy listed in /proc/partitions?
+
+Dale
