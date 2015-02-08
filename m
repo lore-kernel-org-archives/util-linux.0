@@ -1,40 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:64194 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751982AbbBVOmA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:00 -0500
-Received: by mail-wg0-f51.google.com with SMTP id y19so21178700wgg.10
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:41:59 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 04/16] prlimit: tell in --verbose output which pid got the new limit
-Date: Sun, 22 Feb 2015 14:41:34 +0000
-Message-Id: <1424616106-580-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40450 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758233AbbBHUUJ convert rfc822-to-8bit
+	(ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 8 Feb 2015 15:20:09 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+	by mailout.nyi.internal (Postfix) with ESMTP id A3AFB20B76
+	for <util-linux@vger.kernel.org>; Sun,  8 Feb 2015 15:20:08 -0500 (EST)
+Message-Id: <1423426808.1949360.224667813.2ED36110@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Subject: more nits in cfdisk
+Date: Sun, 08 Feb 2015 21:20:08 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/prlimit.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
-index ddab76e..0fa5d57 100644
---- a/sys-utils/prlimit.c
-+++ b/sys-utils/prlimit.c
-@@ -360,7 +360,8 @@ static void do_prlimit(struct list_head *lims)
- 			old = &lim->rlim;
- 
- 		if (verbose && new) {
--			printf(_("New %s limit: "), lim->desc->name);
-+			printf(_("New %s limit for pid %d: "), lim->desc->name,
-+				pid ? pid : getpid());
- 			if (new->rlim_cur == RLIM_INFINITY)
- 				printf("<%s", _("unlimited"));
- 			else
+Hi,
+
+Starting cfdisk with --zero, a message on the bottom bar says:
+"Device does not contain a recognized partition table."
+This is most likely not an accurate message in this situation,
+so an upcoming patch suggests to differentiate between an
+invocation with --zero and a normal invocation.
+
+A second patch will suggest to also accept a lowercase 'l'
+for loading a script file.  The Load command isn't dangerous,
+as is the Write command, so there is no need to make it
+somewhat more difficult to enter.
+
+
+When cfdisk prompts for a script file name, the line that says
+"Select a type..." should probably be cleared.  And maybe also
+the menu of label types?
+
+When the user enters a wrong name or some other error occurs,
+probably the line that says "The script file will be applied..."
+should be cleared.
+
+
+When starting cfdisk with --zero and choosing the sun label type,
+a bottombar message says: "Note that partition table entries are
+not in disk order now."  The menu item "Sort" is present, but
+using it has no effect.  Probably things have to be this way and
+the message shouldn't be given for a Sun label?
+
+
+When on my disk I recreate the extended partition sda4, and
+then make two partitions of 11G and 12G (sda5 and sda6), and
+then delete the first, things look like this:
+
+    /dev/sda4               93755392  312581807  218826416  104,4G   5 Extended
+>>  ├─Free space            93757440  116828160   23070721     11G              
+    ├─/dev/sda5            116828160  141993983   25165824     12G  83 Linux
+    └─Free space           141996032  312581807  170585776   81,3G
+
+When I then recreate the 11G partition, things suddenly look like this:
+
+    /dev/sda4               93755392  312581807  218826416  104,4G   5 Extended
+>>  ├─/dev/sda5            116828160  141993983   25165824     12G  83 Linux    
+    ├─Free space           141996032  312581807  170585776   81,3G
+    └─/dev/sda6             93757440  116828159   23070720     11G  83 Linux
+
+The newly created partition is listed at the end, and the cursor
+is no longer pointing at the same part of the disk (the one with
+start sector 93757440).  I find this confusing.  Why does cfdisk
+not auto-sort the partitions so that they are always in disk order?
+
+When I then create a third partition (sda7) of 13G, things look thus:
+
+    /dev/sda4               93755392  312581807  218826416  104,4G   5 Extended
+    ├─/dev/sda5            116828160  141993983   25165824     12G  83 Linux
+>>  ├─/dev/sda6             93757440  116828159   23070720     11G  83 Linux    
+    ├─/dev/sda7            141996032  169259007   27262976     13G  83 Linux
+    └─Free space           169261056  312581807  143320752   68,3G
+
+Now suddenly sda6 is not listed at the end any more.  There is
+some sense to this, but it is not user-friendly.  For one thing: the
+cursor should always point at the space/partition that was just
+created, never at a different one.  And if there is free space
+that stretches till the end of the disk, then never any partition
+should be listed after it (as occurs in the above middle example).
+
+Benno
+
 -- 
-2.3.0
+http://www.fastmail.com - IMAP accessible web-mail
 
