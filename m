@@ -1,76 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35180 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751832AbbBXLhj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 06:37:39 -0500
-Date: Tue, 24 Feb 2015 12:37:27 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/16] eject: use parse_switch()
-Message-ID: <20150224113727.GK19430@ws.net.home>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
- <1424616106-580-10-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616106-580-10-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:38609 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751690AbbBHUos (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Feb 2015 15:44:48 -0500
+Received: by mail-wi0-f169.google.com with SMTP id z2so1815373wiv.0
+        for <util-linux@vger.kernel.org>; Sun, 08 Feb 2015 12:44:47 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/2] sulogin, hwclock: use xusleep() instead of usleep()
+Date: Sun,  8 Feb 2015 20:44:41 +0000
+Message-Id: <1423428281-12040-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1423428281-12040-1-git-send-email-kerolasa@iki.fi>
+References: <1423428281-12040-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:41:39PM +0000, Sami Kerola wrote:
->  		case 'a':
->  			ctl->a_option = 1;
-> -			if (!strcmp(optarg, "0") || !strcmp(optarg, "off"))
-> -				ctl->a_arg = 0;
-> -			else if (!strcmp(optarg, "1") || !strcmp(optarg, "on"))
-> -				ctl->a_arg = 1;
-> -			else
-> -				errx(EXIT_FAILURE, _("invalid argument to --auto/-a option"));
-> +			ctl->a_arg = parse_switch(optarg, "on", "off");
+As said in include/c.h the usleep() is marked as obsolete, so do the same
+that most of the other util-linux calls do with this interface.
 
-I have extended parse_switch() to accept arbitrary number of 1|0 pairs
-and also error message, so:
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/sulogin.c | 2 +-
+ sys-utils/hwclock.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-  ctl->a_arg = parse_switch(optarg, _("argument error"),
-                        "on", "off",  "1", "0",  NULL);
-
-
-Idea: maybe we can remove all the _("argument error") strings from all
-strtoxxx_ functions and use some global function to generate proper user 
-friendly error messages from longopts[], something like:
-
-
-while ((c = getopt_long(argc, argv, "a:b:", longopts, NULL)) != -1) {
-
-    err_strtoxxx_set_options(c, longopts);       <--- !!!
-
-    switch (c) {
-    case 'a':
-        foo = strtol_or_err(optarg);
-        break;
-    case 'b':
-        bar = parse_switch(optarg, "on", "off", NULL);
-        break;
-    }
-}
-
-
-where err_strtoxxx_set_options() sets in strutils.c static
-
-        ul_cur_option = c;
-        ul_lonfopts = longopts;
-
-then on error strtol_or_err() and parse_switch() will use the ul_
-variables to print
-
-     "invalid argument to --auto/-a: %s", optarg
-
-and if ul_* are not initialized then something generic ("argument
-error"). The result will be less code in main(), better error messages,
-and code independent on the names of the options.
-
-    Karel
-
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index f4d68c4..51bc582 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -1066,7 +1066,7 @@ int main(int argc, char **argv)
+ 			if (*usemask & (1<<con->id))
+ 				continue;
+ 			kill(con->pid, SIGHUP);
+-			usleep(50000);
++			xusleep(50000);
+ 			kill(con->pid, SIGKILL);
+ 		}
+ 	}
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 9000c95..52a7874 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -609,7 +609,7 @@ set_hardware_clock_exact(const time_t sethwtime,
+ 		if (debug >= 10) {
+ 			int usec = random() % 1000000;
+ 			printf(_("sleeping ~%d usec\n"), usec);
+-			usleep(usec);
++			xusleep(usec);
+ 		}
+ 
+ 		gettimeofday(&nowsystime, NULL);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
