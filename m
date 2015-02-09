@@ -1,51 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40211 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753731AbbBTKlJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Feb 2015 05:41:09 -0500
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t1KAf8lr030410
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-	for <util-linux@vger.kernel.org>; Fri, 20 Feb 2015 05:41:08 -0500
-Received: from ws (ovpn-113-26.phx2.redhat.com [10.3.113.26])
-	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id t1KAf7fX013254
-	for <util-linux@vger.kernel.org>; Fri, 20 Feb 2015 05:41:08 -0500
-Date: Fri, 20 Feb 2015 11:41:06 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: Re: [bug] logger 2.26: regression, option -i not combinable with
- other options
-Message-ID: <20150220104106.GB19430@ws.net.home>
-References: <20150220100647.GA2624@jue.netz>
+Received: from mail-qg0-f54.google.com ([209.85.192.54]:61170 "EHLO
+	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760310AbbBIOqR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 Feb 2015 09:46:17 -0500
+Received: by mail-qg0-f54.google.com with SMTP id z60so21080507qgd.13
+        for <util-linux@vger.kernel.org>; Mon, 09 Feb 2015 06:46:16 -0800 (PST)
+Message-ID: <54D8C81C.30804@ubuntu.com>
+Date: Mon, 09 Feb 2015 09:45:48 -0500
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150220100647.GA2624@jue.netz>
+To: Felix Miata <mrmazda@earthlink.net>, util-linux@vger.kernel.org
+Subject: Re: fdisk -l hits floppy drive
+References: <54D5126A.3020308@earthlink.net>
+In-Reply-To: <54D5126A.3020308@earthlink.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 20, 2015 at 11:06:47AM +0100, Juergen Daubert wrote:
-> with logger from util-linux 2.25.x it's possible to combine the option
-> -i with other options like:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 2/6/2015 2:13 PM, Felix Miata wrote:
+> util-linux-2.25.1-5.2.x86_64 on openSUSE kernels 3.16.6 and 3.18.3
 > 
->  logger -is
-> 
-> with 2.26 I get the following error message:
-> 
->  $:~> logger -is
->  logger: failed to parse id: 's'
-> 
-> The changed behaviour breaks existing scripts like dhcpcd-run-hooks [1]
-> from dhcpcd [2].
+> fdisk -l is causing the floppy drive to get hit, which reflects the
+> 4 kernel messages onto the tty running fdisk. Is this expected or
+> intended?
 
-Hmm... stupid regression, next time it would be probably better to
-introduce optional arguments for long options only.
-
-Anyway, always use long options in scripts. It's more robust and more
-readable.
-
-    Karel
+I'm guessing you don't actually have a floppy, in which case, your
+bios is misconfigured to think you do and you should fix that.
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (MingW32)
+
+iQEcBAEBAgAGBQJU2MgcAAoJENRVrw2cjl5RAWIH/R6n+VbEfKcUhbjlbUR0wSzo
+E6fqw+3G+MCUH6O0L/e+MvbME8WrJagtzgfvBcTMLjZUihOamcyZ8icQncybDp13
+60lsaTosvrwWwt3lNTQvEVAVTnJem5Yj987zTDY4tHpmZushL2a6oeVLCmy5s8WU
+zN4CBlJnWJ+xZd+OWe11s5owacxrasty4nUIAwrQKmH75+hdS7z3BRV3YUJ7YVkl
+XDGprm5g/XOgu+QlS2VRFW7n/OS0Jp0Hx0cHY3KBVokI/i4+gqSn5yIbA+qqSSok
+KlBDtHQG1uNfif+00aoLBNb/8RfDjZ9IYzY6qIIhvlKlIJW7rgWiDD19+ysPDm8=
+=Q8uE
+-----END PGP SIGNATURE-----
