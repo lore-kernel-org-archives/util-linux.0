@@ -1,29 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43066 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751281AbbBXMTX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 07:19:23 -0500
-Date: Tue, 24 Feb 2015 13:19:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 15/16] logger: move /dev/log to pathnames.h
-Message-ID: <20150224121913.GP19430@ws.net.home>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
- <1424616106-580-16-git-send-email-kerolasa@iki.fi>
+Received: from elasmtp-junco.atl.sa.earthlink.net ([209.86.89.63]:38088 "EHLO
+	elasmtp-junco.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752354AbbBJO74 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 Feb 2015 09:59:56 -0500
+Received: from [69.22.67.43] (helo=[192.168.0.11])
+	by elasmtp-junco.atl.sa.earthlink.net with esmtpa (Exim 4.67)
+	(envelope-from <mrmazda@earthlink.net>)
+	id 1YLCI7-0003L5-AU
+	for util-linux@vger.kernel.org; Tue, 10 Feb 2015 09:59:55 -0500
+Message-ID: <54DA1CEA.1000802@earthlink.net>
+Date: Tue, 10 Feb 2015 09:59:54 -0500
+From: Felix Miata <mrmazda@earthlink.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616106-580-16-git-send-email-kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Subject: Re: fdisk -l hits floppy drive
+References: <54D5126A.3020308@earthlink.net> <54D8C81C.30804@ubuntu.com>
+In-Reply-To: <54D8C81C.30804@ubuntu.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:41:45PM +0000, Sami Kerola wrote:
->  include/pathnames.h | 3 +++
->  misc-utils/logger.c | 3 ++-
->  2 files changed, 5 insertions(+), 1 deletion(-)
+Phillip Susi composed on 2015-02-09 09:45 (UTC-0500):
 
- Applied, thanks.
+> On 2/6/2015 2:13 PM, Felix Miata wrote:
 
+>> util-linux-2.25.1-5.2.x86_64 on openSUSE kernels 3.16.6 and 3.18.3
+
+>> fdisk -l is causing the floppy drive to get hit, which reflects the
+>> 4 kernel messages onto the tty running fdisk. Is this expected or
+>> intended?
+
+> I'm guessing you don't actually have a floppy, in which case, your
+> bios is misconfigured to think you do and you should fix that.
+
+You guessed wrong:
+https://bugzilla.opensuse.org/show_bug.cgi?id=773058
+https://bugzilla.opensuse.org/show_bug.cgi?id=916773
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+"The wise are known for their understanding, and pleasant
+words are persuasive." Proverbs 16:21 (New Living Translation)
+
+ Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+
+Felix Miata  ***  http://fm.no-ip.com/
