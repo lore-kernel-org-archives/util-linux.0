@@ -1,94 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:49636 "EHLO
-	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751605AbbBAOBb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:01:31 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 7/8] build-sys: improve wording and punctuation of several messages
-Date: Sun,  1 Feb 2015 15:00:12 +0100
-Message-Id: <1422799213-16717-7-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
-References: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+Received: from cantor2.suse.de ([195.135.220.15]:49284 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751829AbbBKOHy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Feb 2015 09:07:54 -0500
+Message-ID: <54DB6238.5080306@suse.cz>
+Date: Wed, 11 Feb 2015 15:07:52 +0100
+From: Stanislav Brabec <sbrabec@suse.cz>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/3] script: no logging for non-interactive shells
+References: <54DA787B.4090205@suse.cz> <20150211100528.GA32133@ws.net.home>
+In-Reply-To: <20150211100528.GA32133@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Karel Zak wrote:
+
+> Would be better to learn people to fix their shell initialization
+> files to not call script(1) for non-interactive sessions?
+
+It makes sense.
+
+>From 8fff32e65399ae07f70e12568d4d5278725673a7 Mon Sep 17 00:00:00 2001
+From: Stanislav Brabec <sbrabec@suse.cz>
+Date: Wed, 11 Feb 2015 15:02:10 +0100
+Subject: [PATCH] script.1: Document behavior in non-interactive shells
+
+And discourage users from such use.
 ---
- autogen.sh |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+ term-utils/script.1 | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/autogen.sh b/autogen.sh
-index d0b340f..546d468 100755
---- a/autogen.sh
-+++ b/autogen.sh
-@@ -24,7 +24,7 @@ autopoint_fun ()
- 		sed -n -e 's/.* \(0\.18\|0\.18\.[1-2]\)$/\1/p'`
- 
- 	if [ -n "$gt_ver" ]; then
--		echo "warning, force autopoint to use old gettext $gt_ver"
-+		echo "warning: forcing autopoint to use old gettext $gt_ver"
- 		rm -f configure.ac.autogenbak
- 		sed -i.autogenbak configure.ac \
- 			-e "s/\(AM_GNU_GETTEXT_VERSION\).*/\1([$gt_ver])/"
-@@ -41,41 +41,41 @@ autopoint_fun ()
- 
- test -f sys-utils/mount.c || {
- 	echo
--	echo "You must run this script in the top-level util-linux directory"
-+	echo "You must run this script in the top-level util-linux directory."
- 	echo
- 	DIE=1
- }
- 
- (autopoint --version) < /dev/null > /dev/null 2>&1 || {
-         echo
--        echo "You must have autopoint installed to generate util-linux build system."
-+        echo "You must have autopoint installed to generate the util-linux build system."
-         echo "The autopoint command is part of the GNU gettext package."
- 	echo
-         DIE=1
- }
- (autoconf --version) < /dev/null > /dev/null 2>&1 || {
- 	echo
--	echo "You must have autoconf installed to generate util-linux build system."
-+	echo "You must have autoconf installed to generate the util-linux build system."
- 	echo
- 	DIE=1
- }
- (autoheader --version) < /dev/null > /dev/null 2>&1 || {
- 	echo
--	echo "You must have autoheader installed to generate util-linux build system."
-+	echo "You must have autoheader installed to generate the util-linux build system."
- 	echo "The autoheader command is part of the GNU autoconf package."
- 	echo
- 	DIE=1
- }
- (libtoolize --version) < /dev/null > /dev/null 2>&1 || {
- 	echo
--	echo "You must have libtool-2 installed to generate util-linux build system."
-+	echo "You must have libtool-2 installed to generate the util-linux build system."
- 	echo
- 	DIE=1
- }
- (automake --version) < /dev/null > /dev/null 2>&1 || {
- 	echo
--	echo "You must have automake installed to generate util-linux build system."
--	echo 
-+	echo "You must have automake installed to generate the util-linux build system."
-+	echo
- 	DIE=1
- }
- 
-@@ -91,7 +91,7 @@ if test "$DIE" -eq 1; then
- fi
- 
- echo
--echo "Generate build-system by:"
-+echo "Generating build-system with:"
- echo "   autopoint:  $(autopoint --version | head -1)"
- echo "   aclocal:    $(aclocal --version | head -1)"
- echo "   autoconf:   $(autoconf --version | head -1)"
+diff --git a/term-utils/script.1 b/term-utils/script.1
+index 4573f07..f32030c 100644
+--- a/term-utils/script.1
++++ b/term-utils/script.1
+@@ -121,6 +121,26 @@ create garbage in the typescript file.
+ .B script
+ works best with commands that do not manipulate the screen, the results are
+ meant to emulate a hardcopy terminal.
++.PP
++It is not recommended to run
++.B script
++in non-interactive shells. The inner shell of
++.B script
++is always interactive, and this could lead to unexpected results. If you use
++.B script
++in the shell initialization file (profile), you should use e. g.
++.RS
++.RE
++.sp
++.na
++.RS
++.nf
++if test -t 0 ; then
++    script
++fi
++.fi
++.RE
++.PP
+ .SH ENVIRONMENT
+ The following environment variable is utilized by
+ .BR script :
 -- 
-1.7.0.4
+2.2.2
 
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
