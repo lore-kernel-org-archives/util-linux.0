@@ -1,39 +1,28 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:59805 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751616AbbBKKrF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 Feb 2015 05:47:05 -0500
+Date: Wed, 11 Feb 2015 11:47:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benjamin Romer <benjamin.romer@unisys.com>
+Cc: util-linux@vger.kernel.org, sparmaintainer@unisys.com
+Subject: Re: [PATCH] lscpu: add s-Par support
+Message-ID: <20150211104701.GB32133@ws.net.home>
+References: <1423602249-24664-1-git-send-email-benjamin.romer@unisys.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20150213092131.GM32318@ws.net.home>
-References: <54DC88BF.5040702@draigBrady.com>
-	<87h9uqv6lv.fsf@hobgoblin.ariadne.com>
-	<20150213092131.GM32318@ws.net.home>
-Date: Fri, 13 Feb 2015 10:33:23 +0000
-Message-ID: <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Dale R. Worley" <worley@alum.mit.edu>,
-        =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>,
-        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1423602249-24664-1-git-send-email-benjamin.romer@unisys.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 13 February 2015 at 09:21, Karel Zak <kzak@redhat.com> wrote:
-> On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
->> I don't particularly like colorization.  But technically, it seems to me
->> that what is needed is a systematic way for the user to indicate his
->> colorization preferences to *all* utilities.  And a corresponding way
->> for the system to provide defaults for those user preferences.
->>
->>
->> Only when there is a systematic framework for colorization will all the
->> programs allow colorizing to be configured.
->
-> It would be possible to create a shared library from our lib/colors.c
-> to support terminal-colors.d/... :-)
+On Tue, Feb 10, 2015 at 04:04:09PM -0500, Benjamin Romer wrote:
+>  sys-utils/lscpu.c | 3 +++
+>  sys-utils/lscpu.h | 1 +
+>  2 files changed, 4 insertions(+)
 
-Or add the needed to ncurses. Isn't that better than adding a new
-library?
+ Applied, thanks.
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
