@@ -1,79 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:64444 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751810AbbBVOl5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:41:57 -0500
-Received: by mail-wi0-f176.google.com with SMTP id h11so11808045wiw.3
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:41:56 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 01/16] whereis: tell when mandatory option is missing
-Date: Sun, 22 Feb 2015 14:41:31 +0000
-Message-Id: <1424616106-580-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+Received: from mail1.vodafone.ie ([213.233.128.43]:50024 "EHLO
+	mail1.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755658AbbBLLOP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 12 Feb 2015 06:14:15 -0500
+Message-ID: <54DC88BF.5040702@draigBrady.com>
+Date: Thu, 12 Feb 2015 11:04:31 +0000
+From: =?windows-1252?Q?P=E1draig_Brady?= <P@draigBrady.com>
+MIME-Version: 1.0
+To: Felix Miata <mrmazda@earthlink.net>, util-linux@vger.kernel.org
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+References: <54DC762E.2090404@earthlink.net>
+In-Reply-To: <54DC762E.2090404@earthlink.net>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/whereis.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On 12/02/15 09:45, Felix Miata wrote:
+> Red, blue and green in particular produce poor contrast on the black
+> background of a typical framebuffer screen.
 
-diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 9fc5ee7..c47e122 100644
---- a/misc-utils/whereis.c
-+++ b/misc-utils/whereis.c
-@@ -495,7 +495,7 @@ int main(int argc, char **argv)
- {
- 	struct wh_dirlist *ls = NULL;
- 	int want = ALL_DIRS;
--	int i, want_resetable = 0;
-+	int i, want_resetable = 0, opt_f_missing = 0;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -540,6 +540,7 @@ int main(int argc, char **argv)
- 
- 			switch (*arg) {
- 			case 'f':
-+				opt_f_missing = 0;
- 				break;
- 			case 'u':
- 				uflag = 1;
-@@ -551,6 +552,7 @@ int main(int argc, char **argv)
- 				free_dirlist(&ls, BIN_DIR);
- 				construct_dirlist_from_argv(
- 					&ls, &i, argc, argv, BIN_DIR);
-+				opt_f_missing = 1;
- 				break;
- 			case 'M':
- 				if (*(arg + 1))
-@@ -559,6 +561,7 @@ int main(int argc, char **argv)
- 				free_dirlist(&ls, MAN_DIR);
- 				construct_dirlist_from_argv(
- 					&ls, &i, argc, argv, MAN_DIR);
-+				opt_f_missing = 1;
- 				break;
- 			case 'S':
- 				if (*(arg + 1))
-@@ -567,6 +570,7 @@ int main(int argc, char **argv)
- 				free_dirlist(&ls, SRC_DIR);
- 				construct_dirlist_from_argv(
- 					&ls, &i, argc, argv, SRC_DIR);
-+				opt_f_missing = 1;
- 				break;
- 			case 'b':
- 				if (want_resetable) {
-@@ -607,5 +611,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	free_dirlist(&ls, ALL_DIRS);
-+	if (opt_f_missing)
-+		errx(EXIT_FAILURE, _("option -f missing"));
- 	return EXIT_SUCCESS;
- }
--- 
-2.3.0
+Agreed, though the bold variants are better.
+Better again are 256 color variants.
+The Linux console lagged xterms in support, but does support it now.
+
+> As these screens are configured
+> as functional twins of those modes we find ourselves in at rescue time, it
+> amounts to an unfortunate and unnecessary accessibility/usability obstacle
+> that is IMO is a subset of a larger general problem found under the moniker
+> A11Y[1].
+> 
+> A very good, very recent article discusses the mindset that leads to default
+> settings that thwart use by the disadvantaged[2], however slight that
+> impediment may be.
+
+I agree completely. color is useful but one has to be very careful
+in how it's used. ls --color for example is too aggressive IMHO,
+and I adjust to highlight rather than color with:
+  http://www.pixelbeat.org/scripts/l
+I've been pusing back upstream against adding new color combinations.
+
+> With util-linux >= 2.25 we can turn colors off via
+> 
+> 	# touch /etc/terminal-colors.d/disable [3]
+> 
+> for some commands, but far too few. It should apply to all, including many
+> outside the purview of util-linux, and more importantly, do so by default.
+
+coreutils will keep this scheme in mind too.
+
+thanks,
+Pádraig.
 
