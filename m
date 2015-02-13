@@ -1,47 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qa0-f50.google.com ([209.85.216.50]:46724 "EHLO
-	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751159AbbBET7u (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 5 Feb 2015 14:59:50 -0500
-Received: by mail-qa0-f50.google.com with SMTP id k15so7498981qaq.9
-        for <util-linux@vger.kernel.org>; Thu, 05 Feb 2015 11:59:49 -0800 (PST)
-Message-ID: <54D3CBAE.2000402@ubuntu.com>
-Date: Thu, 05 Feb 2015 14:59:42 -0500
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from cantor2.suse.de ([195.135.220.15]:45005 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751476AbbBMS7Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Feb 2015 13:59:25 -0500
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 86564AC7B
+	for <util-linux@vger.kernel.org>; Fri, 13 Feb 2015 18:59:23 +0000 (UTC)
+Message-ID: <54DE498A.80604@suse.cz>
+Date: Fri, 13 Feb 2015 19:59:22 +0100
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-To: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: cfdisk will happily create a partition of size zero
-References: <1422698319.1391339.221285309.35047434@webmail.messagingengine.com>
-In-Reply-To: <1422698319.1391339.221285309.35047434@webmail.messagingengine.com>
-Content-Type: text/plain; charset=windows-1252
+To: util-linux@vger.kernel.org
+Subject: [PATCH] script.1: Improve documentation of non-interactive behavior
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+- use exit in .profile to avoid non-logged session after typing "exit"
+- document that script can read more from stdin than the command inside:
 
-On 1/31/2015 4:58 AM, Benno Schulenberg wrote:
-> /dev/sda4               93755392  312581807  218826416  104.4G   5
-> Extended |-/dev/sda5             93757440   93757440          0
-> 0B  83 Linux `-Free space            93759488  312581807  218822320
-> 104.4G
-> 
-> Strange.  Start and end of sda5 are on the same sector?
+echo -e 'script -c "read a b ; echo a=\$a b=\$b >defs.sh"\n1 2\necho Done' | sh
+Script started, file is typescript
+1 2
+echo Done
+Script done, file is typescript
+---
+ term-utils/script.1 | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Looks like there is also an off by one error in the size calculation
-since a partition that starts and ends on the same sector does still
-occupy that one sector, so its size can not be zero.
+diff --git a/term-utils/script.1 b/term-utils/script.1
+index e130c77..6b566fe 100644
+--- a/term-utils/script.1
++++ b/term-utils/script.1
+@@ -128,7 +128,8 @@ in non-interactive shells. The inner shell of
+ .B script
+ is always interactive, and this could lead to unexpected results. If you use
+ .B script
+-in the shell initialization file (profile), you should use e. g.
++in the shell initialization file, you have to avoid entering an infinite
++loop. Use e. g. profile file, which is read by login shells only:
+ .RS
+ .RE
+ .sp
+@@ -137,10 +138,15 @@ in the shell initialization file (profile), you should use e. g.
+ .nf
+ if test -t 0 ; then
+     script
++    exit
+ fi
+ .fi
+ .RE
+ .PP
++You should also avoid use of script in command pipes, as
++.B script
++can read more input than you would expect.
++.PP
+ .SH ENVIRONMENT
+ The following environment variable is utilized by
+ .BR script :
+-- 
+2.2.2
 
+-- 
+Best Regards / S pozdravem,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (MingW32)
-
-iQEcBAEBAgAGBQJU08uuAAoJENRVrw2cjl5RBSEIAJ9h1JTD0rVEx+/veyLN+Rz1
-ZfjWQI2hQBgxszdFv1ZxQlJRT9xWOgjru2Cn/n/XGBqhXzRc3naUjKvsTlemNKlQ
-d+8hgBv/3dxe80+Wh1BbVAfhjVggmMI+ak5ABlAuKwQm+VD8X2dXA7CpC0o3+9Iu
-kRyVtp1tTKHZSOW7SV9kFk/yCgurmA4kskxyfG3RpjPD6+STRsAm2f//m1H3nfdP
-ele1aDnvPtb6z85XDAeFNXWY++5Bhk7swgNO+Ad/jmEIaej4kxjItRti0jEjIMK+
-nOZ6m/lK4+ATeVwku2aJ7GxPd1YPmhu4MgllDLoelDRBMESC4fh/iCWtND8Vr2A=
-=Llf2
------END PGP SIGNATURE-----
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
