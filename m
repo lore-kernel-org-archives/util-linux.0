@@ -1,30 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56076 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:54551 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751436AbbBXPdT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 10:33:19 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0Lbi2Z-1XgnVm2Sol-00lAgm for
- <util-linux@vger.kernel.org>; Tue, 24 Feb 2015 16:33:17 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] build fix
-Date: Tue, 24 Feb 2015 16:33:14 +0100
-Message-Id: <1424791995-690-1-git-send-email-sweet_f_a@gmx.de>
+	id S1752153AbbBMJWK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Feb 2015 04:22:10 -0500
+Date: Fri, 13 Feb 2015 10:21:31 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>, mrmazda@earthlink.net,
+        util-linux@vger.kernel.org
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+Message-ID: <20150213092131.GM32318@ws.net.home>
+References: <54DC88BF.5040702@draigBrady.com>
+ <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
+> I don't particularly like colorization.  But technically, it seems to me
+> that what is needed is a systematic way for the user to indicate his
+> colorization preferences to *all* utilities.  And a corresponding way
+> for the system to provide defaults for those user preferences.
+>
+> 
+> Only when there is a systematic framework for colorization will all the
+> programs allow colorizing to be configured.
 
-This is pull request #154 on github
-https://github.com/karelzak/util-linux/pull/154
+It would be possible to create a shared library from our lib/colors.c
+to support terminal-colors.d/... :-)
 
-Ruediger Meier (1):
-  logger: link libsystemd-daemon.so
-
- misc-utils/Makemodule.am | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+    Karel
 
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
