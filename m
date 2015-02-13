@@ -1,109 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53378 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:34147 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750850AbbBXMem (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 07:34:42 -0500
-Date: Tue, 24 Feb 2015 13:34:30 +0100
+	id S1752137AbbBMLZe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Feb 2015 06:25:34 -0500
+Date: Fri, 13 Feb 2015 12:25:23 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 02/13] rtcwake: enumerate constant mode strings
-Message-ID: <20150224123430.GQ19430@ws.net.home>
-References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
- <1424616139-638-3-git-send-email-kerolasa@iki.fi>
+To: kerolasa@gmail.com
+Cc: "Dale R. Worley" <worley@alum.mit.edu>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
+        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+Message-ID: <20150213112523.GP32318@ws.net.home>
+References: <54DC88BF.5040702@draigBrady.com>
+ <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
+ <20150213092131.GM32318@ws.net.home>
+ <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616139-638-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:42:08PM +0000, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  sys-utils/rtcwake.c | 126 ++++++++++++++++++++++++++++++++--------------------
->  1 file changed, 78 insertions(+), 48 deletions(-)
+On Fri, Feb 13, 2015 at 10:33:23AM +0000, Sami Kerola wrote:
+> On 13 February 2015 at 09:21, Karel Zak <kzak@redhat.com> wrote:
+> > On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
+> >> I don't particularly like colorization.  But technically, it seems to me
+> >> that what is needed is a systematic way for the user to indicate his
+> >> colorization preferences to *all* utilities.  And a corresponding way
+> >> for the system to provide defaults for those user preferences.
+> >>
+> >>
+> >> Only when there is a systematic framework for colorization will all the
+> >> programs allow colorizing to be configured.
+> >
+> > It would be possible to create a shared library from our lib/colors.c
+> > to support terminal-colors.d/... :-)
 > 
-> diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
-> index 8b5f69c..372e620 100644
-> --- a/sys-utils/rtcwake.c
-> +++ b/sys-utils/rtcwake.c
-> @@ -52,7 +52,37 @@
->  #define RTC_PATH		"/sys/class/rtc/%s/device/power/wakeup"
->  #define SYS_POWER_STATE_PATH	"/sys/power/state"
->  #define DEFAULT_DEVICE		"/dev/rtc0"
-> -#define DEFAULT_MODE		"standby"
-> +
-> +enum rtc_modes {	/* manual page --mode option explains these. */
-> +	STANDBY_MODE = 0,
-> +	MEM_MODE,
-> +	FREEZE_MODE,
-> +	DISK_MODE,	/* end of Documentation/power/states.txt modes  */
-> +	OFF_MODE,
-> +	NO_MODE,
-> +	ON_MODE,	/* smaller <- read the code */
-> +	DISABLE_MODE,	/* greater <- to understand */
-> +	SHOW_MODE,
-> +	ERROR_MODE	/* invalid user input */
-> +};
+> Or add the needed to ncurses. Isn't that better than adding a new
+> library?
 
-Please, don't use ERROR_MODE or so, just return -EINVAL from the
-parser.
+you want to link programs like dmesg, gcc or ls with ncurses monster?
 
-> +static int get_mode(const char *optarg)
-> +{
-> +	if (!strcmp(optarg, mode_str[STANDBY_MODE]))
-> +		return STANDBY_MODE;
-> +	if (!strcmp(optarg, mode_str[MEM_MODE]))
-> +		return MEM_MODE;
-> +	if (!strcmp(optarg, mode_str[DISK_MODE]))
-> +		return DISK_MODE;
-> +	if (!strcmp(optarg, mode_str[ON_MODE]))
-> +		return ON_MODE;
-> +	if (!strcmp(optarg, mode_str[NO_MODE]))
-> +		return NO_MODE;
-> +	if (!strcmp(optarg, mode_str[OFF_MODE]))
-> +		return OFF_MODE;
-> +	if (!strcmp(optarg, mode_str[FREEZE_MODE]))
-> +		return FREEZE_MODE;
-> +	if (!strcmp(optarg, mode_str[DISABLE_MODE]))
-> +		return DISABLE_MODE;
-> +	if (!strcmp(optarg, mode_str[SHOW_MODE]))
-> +		return SHOW_MODE;
-
- {
-    for (i = 0; i < ARRAY_SIZE(mode_str); i++)
-         if (strcmp(optarg, mode_str[i])
-             return i;
-
-    return -EINVAL;
- }
-
-> -	if (!alarm && !seconds && strcmp(suspend,"disable") &&
-> -				  strcmp(suspend,"show")) {
-> -
-> +	if (!alarm && !seconds && suspend < DISABLE_MODE) {
-
- this ("<") is pretty fragile, use
-
-         && (suspend != DISABLE_MODE || suspend != SHOW_MODE)
-
->  		warnx(_("must provide wake time (see -t and -s options)"));
->  		usage(stderr);
-
-...
-
-> -	if (strcmp(suspend, "show") && strcmp(suspend, "disable")) {
-> -		if (strcmp(suspend, "no") && strcmp(suspend, "on") &&
-> -		    strcmp(suspend, "off") && is_suspend_available(suspend) <= 0) {
-> -			errx(EXIT_FAILURE, _("suspend to \"%s\" unavailable"), suspend);
-> +	if (suspend < DISABLE_MODE) {
-> +		if (suspend < OFF_MODE && is_suspend_available(suspend) <= 0) {
-> +			errx(EXIT_FAILURE, _("suspend to \"%s\" unavailable"),
-> +			     mode_str[suspend]);
-  		}
-
- the same situation
-
+The another story is that ncurses provides completely abstract layer
+for colors and I didn't found a way how to use it together with color 
+escape sequences. This is reason why for example cfdisk supports only
+enable/disable terminal-colors.d feature, but no schemes to specify
+colors.
+    
     Karel
 
 -- 
