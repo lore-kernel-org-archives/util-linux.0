@@ -1,48 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from wp221.webpack.hosteurope.de ([80.237.132.228]:57171 "EHLO
-	wp221.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754214AbbBTKZ1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Feb 2015 05:25:27 -0500
-Received: by jue.netz (masqmail 0.3.5, from userid 500)
-	id 1YOkTv-0gP-00
-	for <util-linux@vger.kernel.org>; Fri, 20 Feb 2015 11:06:47 +0100
-Date: Fri, 20 Feb 2015 11:06:47 +0100
-From: Juergen Daubert <jue@jue.li>
+Received: from mout.gmx.net ([212.227.15.18]:55530 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754218AbbBNSMe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 14 Feb 2015 13:12:34 -0500
+Received: from tenfore.ga-group.nl ([77.12.225.240]) by mail.gmx.com
+ (mrgmx003) with ESMTPSA (Nemesis) id 0MBWTO-1YTt141Gas-00AVkH for
+ <util-linux@vger.kernel.org>; Sat, 14 Feb 2015 19:12:32 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [bug] logger 2.26: regression, option -i not combinable with other
- options
-Message-ID: <20150220100647.GA2624@jue.netz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH] fsck: fix warning, gcc 5.0
+Date: Sat, 14 Feb 2015 19:12:30 +0100
+Message-Id: <1423937550-2035-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1423937550-2035-1-git-send-email-sweet_f_a@gmx.de>
+References: <1423937550-2035-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-with logger from util-linux 2.25.x it's possible to combine the option
--i with other options like:
+disk-utils/fsck.c:1474:37: warning: logical not is only applied to
+the left hand side of comparison [-Wlogical-not-parentheses]
+         !strncmp(argv[i+1], "-", 1) == 0) {
+                                     ^
 
- logger -is
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ disk-utils/fsck.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-with 2.26 I get the following error message:
-
- $:~> logger -is
- logger: failed to parse id: 's'
-
-The changed behaviour breaks existing scripts like dhcpcd-run-hooks [1]
-from dhcpcd [2].
-
-
-Posible solution:
-- don't combine the -i and --id options but keep the behaviour of -i and
-  make --id a long-form only option. 
-
-
-Thanks and best regards
-Juergen
-
-
-[1] http://roy.marples.name/projects/dhcpcd/artifact/953bd27
-[2] http://roy.marples.name/projects/dhcpcd/index
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 78ad43e..8825f0e 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -1471,7 +1471,7 @@ static void parse_argv(int argc, char *argv[])
+ 					else
+ 						goto next_arg;
+ 				} else if ((i+1) < argc &&
+-					   !strncmp(argv[i+1], "-", 1) == 0) {
++					   strncmp(argv[i+1], "-", 1) != 0) {
+ 					progress_fd = string_to_int(argv[i]);
+ 					if (progress_fd < 0)
+ 						progress_fd = 0;
+-- 
+1.8.4.5
 
