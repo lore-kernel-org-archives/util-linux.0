@@ -1,63 +1,143 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43217 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754955AbbBPNqd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Feb 2015 08:46:33 -0500
-Date: Mon, 16 Feb 2015 14:46:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: libsmartcols patch
-Message-ID: <20150216134628.GI11948@ws.net.home>
-References: <54A0AE98.70503@ubuntu.com>
- <20150216050053.GA4075@vapier>
- <20150216102726.GH11948@ws.net.home>
- <20150216104848.GK4075@vapier>
+Received: from mail-ob0-f179.google.com ([209.85.214.179]:36478 "EHLO
+	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755241AbbBOVUY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Feb 2015 16:20:24 -0500
+Received: by mail-ob0-f179.google.com with SMTP id wp4so36405259obc.10
+        for <util-linux@vger.kernel.org>; Sun, 15 Feb 2015 13:20:24 -0800 (PST)
+Message-ID: <54E10D95.2030100@gmail.com>
+Date: Sun, 15 Feb 2015 15:20:21 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150216104848.GK4075@vapier>
+To: Benno Schulenberg <bensberg@justemail.net>, Karel Zak <kzak@redhat.com>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
+References: <20150204115353.GC1238@ws.net.home> <1424030549.2886406.227807181.7F9CF45A@webmail.messagingengine.com>
+In-Reply-To: <1424030549.2886406.227807181.7F9CF45A@webmail.messagingengine.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 16, 2015 at 05:48:48AM -0500, Mike Frysinger wrote:
-> > > general note: libraries should never assert/abort/exit.
-> > 
-> >  what about segfault?
-> 
-> that's a red herring.  you can't guarantee your codebase is bug free, but that 
-> doesn't mean encouraging a policy of committing suicide is a good thing.
+Benno Schulenberg wrote:
+>
+> Running 'make check' here reports the following failures:
+>
+>            cal: Year 2147483646                ...  FAILED (cal/bigyear)
+>          blkid: low-level superblocks probing  ...
+>                  : ext3                        ...  OK
+>            cal: Year 2147483646 with week numbers ...  FAILED (cal/bigyearw)
+>
+> ipcs: id 917526 not found
+> ipcs: id 950294 not found
+>           ipcs: mk-rm-shm                      ...  FAILED (ipcs/mk-rm-shm)
+>
+>           misc: fallocate                      ...  FAILED (misc/fallocate)
+>
+>           misc: getopt2                        ...
+>                  : long_option_ambiguous_1     ...  FAILED (misc/getopt2-long_option_ambiguous_1)
+>
+>           misc: getopt2                        ...
+>                  : quiet_output_option_long    ...  FAILED (misc/getopt2-quiet_output_option_long)
+>           misc: getopt2                        ...
+>                  : quiet_output_option_short   ...  FAILED (misc/getopt2-quiet_output_option_short)
+>
+>           misc: getopt2                        ...
+>                  : weird_quoting_tcsh          ...  OK
+>             ...         misc: getopt2                        ...
+>                  : weird_quoting_tcsh          ...  FAILED (3 from 23 sub-tests)
+>
+>
+>           misc: swaplabel                      ...  FAILED (misc/swaplabel)
+>           misc: ul                             ...  FAILED (misc/ul)
+>
+> ---------------------------------------------------------------------
+>    7 tests of 155 FAILED
+> ---------------------------------------------------------------------
+>
+>
+> When there are subtests, something goes wrong in the alignment and
+> in the messages of the summary line.  For example:
+>
+>
+>           misc: getopt3                        ...
+>                  : non-option                  ...  OK
+>             ...         misc: getopt3                        ...
+>                  : non-option                  ...  OK (all 6 sub-tests PASSED)
+>
+>
+> Also, the complete testsuite summary is printed before the tests
+> are even run, which I find odd:
+>
+> ============================================================================
+> Testsuite summary for util-linux 2.26-rc2
+> ============================================================================
+> # TOTAL: 0
+> # PASS:  0
+> # SKIP:  0
+> # XFAIL: 0
+> # FAIL:  0
+> # XPASS: 0
+> # ERROR: 0
+> ============================================================================
 
-suicide + usable message is better than segfault
+This only seems to be before the actual tests and is meaningless.  The only 
+thing that is really meaningful is the line at the end,  In my case:
 
-> >  We use assert to detect fatal internal library bugs, for mistakes in
-> >  applications (e.g. incomplete arguments) it returns -EINVAL.
-> 
-> libsmartcols/src/table_print.c:
-> int scols_print_table(struct libscols_table *tb)
-> {
-> ...
->     assert(tb);
->     if (!tb)
->         return -1;
+---------------------------------------------------------------------
+   2 tests of 155 FAILED
+---------------------------------------------------------------------
 
-this is mistake, fixed in libsmartcols and libmount, I'll later fix it
-in libfdisk too.
+I only has the following failures:
 
-> >  Its' possible to remove CONFIG_LIBSMARTCOLS_ASSERT from smartcolsP.h,
-> >  but I don't think the library is already well tested.
-> 
-> odd ... why is that reimplementing the wheel ?  the standard assert.h already 
-> supports NDEBUG for turning off asserts.
-> 
-> i see there's a bunch of such knobs in the codebase.  time for a 
-> --{en,dis}able-asserts configure flag ?  you could delete all the existing 
-> CONFIG_xxx_ASSERT defines and simply rely on configure adding -DNDEBUG to 
-> CPPFLAGS.
+cal: Year 2147483646                   ...  FAILED (cal/bigyear)
+cal: Year 2147483646 with week numbers ...  FAILED (cal/bigyearw)
 
-Maybe, the idea has been to keep it in our hands and force people to
-use asserts for the "not yet well tested" libs.
+The others passed for me:
 
-    Karel
+hwclock: system to hw                   ...  IGNORE (not root permissions)
+    ipcs: headers                        ...  OK
+    ipcs: limits overflow                ...  IGNORE (not root permissions)
+    ipcs: basic limits                   ...  OK
+    ipcs: mk-rm-msg                      ...  OK
+    ipcs: mk-rm-sem                      ...  OK
+    ipcs: mk-rm-shm                      ...  OK
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+misc: fallocate                      ...  IGNORE ('ext3' not supported)
+
+   Perhaps this is something special about ubuntu, because I think
+   ext3 does not support fallocate by default.
+
+misc: getopt2                        ...
+        : long_option_ambiguous_1     ...  OK
+
+misc: getopt2                        ...
+        : quiet_output_option_long    ...  OK
+
+misc: getopt2                        ...
+        : quiet_output_option_short   ...  OK
+
+misc: getopt2                        ...
+        : weird_quoting_tcsh          ...  OK
+   ...         misc: getopt2                        ...
+        : weird_quoting_tcsh          ...  OK (all 23 sub-tests PASSED)
+
+misc: swaplabel                      ...  OK
+misc: ul                             ...  OK
+
+> $ gcc --version | head -1
+> gcc (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
+>
+> $ uname -rvm
+> 2.6.32-72-generic #139-Ubuntu SMP Wed Jan 14 21:19:14 UTC 2015 i686
+
+$  gcc --version | head -1
+gcc (GCC) 4.7.0
+
+$ uname -a
+Linux lfs6 3.4.1-LFS-4 #2 SMP PREEMPT Thu Oct 9 23:02:58 CDT 2014 i686 GNU/Linux
+
+Note: On x86_64, linux-3.18.3, and gcc-4.9.2, all tests either passed or were 
+ignored for me.
+
+   -- Bruce
+
