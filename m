@@ -1,40 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58968 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1760693AbbA3VeV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Jan 2015 16:34:21 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by mailout.nyi.internal (Postfix) with ESMTP id E019220915
-	for <util-linux@vger.kernel.org>; Fri, 30 Jan 2015 16:34:20 -0500 (EST)
-Message-Id: <1422653660.1205461.221145325.78FCAC9D@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: elseifthen@gmx.com
+Message-ID: <54E0E69C.6020907@gmx.com>
+Date: Sun, 15 Feb 2015 13:34:04 -0500
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: deleting an extended partition with cfdisk leaves its contained
- partitions in existence
-Date: Fri, 30 Jan 2015 22:34:20 +0100
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH] hwclock: man-page errata
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
+Professor Eggert, maintainer of the tz database, reviewed
+the new POSIX vs 'RIGHT' man-page section and suggested
+the following corrections.
 
-On my disk, /dev/sda4 is an extended partition that contains four
-partitions.  If I use cfdisk and delete /dev/sda4, the contained
-four partitions also seem to have been deleted.  But after an
-extended partition sda4 has been recreated, trying to create a
-new partition in its free space results in a red message on the
-bottombar: "Partition 5 is already defined.  Delete it before
-re-adding it."  But there is no way to delete partition 5 other
-than restarting cfdisk.
+Correct the subdirectory names and remove IANA from the
+name of the Time Zone Database.
 
-Deleting an extended partition should either delete also all the
-partitions it contains, or it should refuse the deletion before all
-the contained partitions have been deleted.  Probably the first
-option is the most user-friendly.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Benno
-
--- 
-http://www.fastmail.com - A no graphics, no pop-ups email service
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 9512690..7ddd2b1 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -993,10 +993,10 @@ A discussion on date-time configuration would be incomplete without
+ addressing timezones, this is mostly well covered by
+ .BR tzset (3).
+ One area that seems to have no documentation is the 'right'
+-directory of the IANA Time Zone Database, aka tz, aka zoneinfo.
++directory of the Time Zone Database, aka tz, aka zoneinfo.
+ .PP
+ There are two separate databases in the zoneinfo system, posix
+-and 'right'. 'Right' (now named leaps) includes leap seconds and posix
++and 'right'. 'Right' (now named zoneinfo\-leaps) includes leap seconds and posix
+ does not. To use the 'right' database the System Clock must be kept in
+ \%UTC\ +\ leap_seconds, i.e., \%TAI\ \-\ 10. This allows calculating the
+ exact number of seconds between two dates that cross a leap second
+@@ -1013,13 +1013,13 @@ Files are never used directly from the posix or 'right' subdirectories, e.g.,
+ This habit was becoming so common that the upstream zoneinfo project
+ restructured the system's file tree by moving the posix and 'right'
+ subdirectories out of the zoneinfo directory and into sibling directories:
+-.br
++.PP
+ .in +2
+ .I /usr/share/zoneinfo
+ .br
+-.I /usr/share/posix
++.I /usr/share/zoneinfo\-posix
+ .br
+-.I /usr/share/leaps
++.I /usr/share/zoneinfo\-leaps
+ .PP
+ Unfortunately, some Linux distributions are changing it back to the old
+ tree structure in their packages. So the problem of system
