@@ -1,61 +1,85 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail1.bemta12.messagelabs.com ([216.82.251.12]:50104 "EHLO
-	mail1.bemta12.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751439AbbBJVMb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Feb 2015 16:12:31 -0500
-From: Benjamin Romer <benjamin.romer@unisys.com>
-To: <util-linux@vger.kernel.org>
-CC: <sparmaintainer@unisys.com>, Benjamin Romer <benjamin.romer@unisys.com>
-Subject: [PATCH] lscpu: add s-Par support
-Date: Tue, 10 Feb 2015 16:04:09 -0500
-Message-ID: <1423602249-24664-1-git-send-email-benjamin.romer@unisys.com>
+Return-Path: bensberg@justemail.net
+Message-Id: <1424030549.2886406.227807181.7F9CF45A@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-Sender: util-linux-owner@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
+Date: Sun, 15 Feb 2015 21:02:29 +0100
+In-Reply-To: <20150204115353.GC1238@ws.net.home>
+References: <20150204115353.GC1238@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-Adds support for the s-Par firmware's hypervisor leaf.
 
-Signed-off-by: Benjamin Romer <benjamin.romer@unisys.com>
----
- sys-utils/lscpu.c | 3 +++
- sys-utils/lscpu.h | 1 +
- 2 files changed, 4 insertions(+)
+Running 'make check' here reports the following failures:
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index c272dc2..6af49d6 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -107,6 +107,7 @@ const char *hv_vendors[] = {
- 	[HYPER_VBOX]	= "Oracle",
- 	[HYPER_OS400]	= "OS/400",
- 	[HYPER_PHYP]	= "pHyp",
-+	[HYPER_SPAR]	= "Unisys s-Par"
- };
- 
- const int hv_vendor_pci[] = {
-@@ -585,6 +586,8 @@ read_hypervisor_cpuid(struct lscpu_desc *desc)
- 		desc->hyper = HYPER_MSHV;
- 	else if (!strncmp("VMwareVMware", hyper_vendor_id, 12))
- 		desc->hyper = HYPER_VMWARE;
-+	else if (!strncmp("UnisysSpar64", hyper_vendor_id, 12))
-+		desc->hyper = HYPER_SPAR;
- }
- 
- #else /* ! (__x86_64__ || __i386__) */
-diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-index e340291..b9aa255 100644
---- a/sys-utils/lscpu.h
-+++ b/sys-utils/lscpu.h
-@@ -17,6 +17,7 @@ enum {
- 	HYPER_VBOX,
- 	HYPER_OS400,
- 	HYPER_PHYP,
-+	HYPER_SPAR,
- };
- 
- extern int read_hypervisor_dmi(void);
+          cal: Year 2147483646                ...  FAILED (cal/bigyear)
+        blkid: low-level superblocks probing  ...
+                : ext3                        ...  OK
+          cal: Year 2147483646 with week numbers ...  FAILED (cal/bigyearw)
+
+ipcs: id 917526 not found
+ipcs: id 950294 not found
+         ipcs: mk-rm-shm                      ...  FAILED (ipcs/mk-rm-shm)
+
+         misc: fallocate                      ...  FAILED (misc/fallocate)
+
+         misc: getopt2                        ...
+                : long_option_ambiguous_1     ...  FAILED (misc/getopt2-long_option_ambiguous_1)
+
+         misc: getopt2                        ...
+                : quiet_output_option_long    ...  FAILED (misc/getopt2-quiet_output_option_long)
+         misc: getopt2                        ...
+                : quiet_output_option_short   ...  FAILED (misc/getopt2-quiet_output_option_short)
+
+         misc: getopt2                        ...
+                : weird_quoting_tcsh          ...  OK
+           ...         misc: getopt2                        ...
+                : weird_quoting_tcsh          ...  FAILED (3 from 23 sub-tests)
+
+
+         misc: swaplabel                      ...  FAILED (misc/swaplabel)
+         misc: ul                             ...  FAILED (misc/ul)
+
+---------------------------------------------------------------------
+  7 tests of 155 FAILED
+---------------------------------------------------------------------
+
+
+When there are subtests, something goes wrong in the alignment and
+in the messages of the summary line.  For example:
+
+
+         misc: getopt3                        ...
+                : non-option                  ...  OK
+           ...         misc: getopt3                        ...
+                : non-option                  ...  OK (all 6 sub-tests PASSED)
+
+
+Also, the complete testsuite summary is printed before the tests
+are even run, which I find odd:
+
+============================================================================
+Testsuite summary for util-linux 2.26-rc2
+============================================================================
+# TOTAL: 0
+# PASS:  0
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+============================================================================
+
+
+$ gcc --version | head -1
+gcc (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
+
+$ uname -rvm
+2.6.32-72-generic #139-Ubuntu SMP Wed Jan 14 21:19:14 UTC 2015 i686
+
+Benno
+
 -- 
-2.1.0
-
+http://www.fastmail.com - Choose from over 50 domains or use your own
