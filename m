@@ -1,67 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:33326 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754360AbbBTUMN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 20 Feb 2015 15:12:13 -0500
-Received: by mail-wi0-f174.google.com with SMTP id em10so5405432wid.1
-        for <util-linux@vger.kernel.org>; Fri, 20 Feb 2015 12:12:12 -0800 (PST)
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:34879 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755210AbbBOV1R (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Feb 2015 16:27:17 -0500
+Received: by mail-ob0-f171.google.com with SMTP id gq1so36483876obb.2
+        for <util-linux@vger.kernel.org>; Sun, 15 Feb 2015 13:27:16 -0800 (PST)
+Message-ID: <54E10F31.4060004@gmail.com>
+Date: Sun, 15 Feb 2015 15:27:13 -0600
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20150220124436.GA18236@jue.netz>
-References: <20150220100647.GA2624@jue.netz>
-	<20150220104106.GB19430@ws.net.home>
-	<20150220124436.GA18236@jue.netz>
-Date: Fri, 20 Feb 2015 20:12:12 +0000
-Message-ID: <CAG27Bk0UnAhjfyw+EoXZmXXLG+egVFJrDY0cvkGmhFKezY78dQ@mail.gmail.com>
-Subject: Re: [bug] logger 2.26: regression, option -i not combinable with
- other options
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: Ruediger Meier <sweet_f_a@gmx.de>,
+        Benno Schulenberg <bensberg@justemail.net>
+CC: Karel Zak <kzak@redhat.com>, Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
+References: <20150204115353.GC1238@ws.net.home> <1424030549.2886406.227807181.7F9CF45A@webmail.messagingengine.com> <201502152150.03592.sweet_f_a@gmx.de>
+In-Reply-To: <201502152150.03592.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 20 February 2015 at 12:44, Juergen Daubert <jue@jue.li> wrote:
-> On Fri, Feb 20, 2015 at 11:41:06AM +0100, Karel Zak wrote:
->> On Fri, Feb 20, 2015 at 11:06:47AM +0100, Juergen Daubert wrote:
->> > with logger from util-linux 2.25.x it's possible to combine the option
->> > -i with other options like:
->> >
->> >  logger -is
->> >
->> > with 2.26 I get the following error message:
->> >
->> >  $:~> logger -is
->> >  logger: failed to parse id: 's'
->> >
->> > The changed behaviour breaks existing scripts like dhcpcd-run-hooks [1]
->> > from dhcpcd [2].
->>
->> Hmm... stupid regression, next time it would be probably better to
->> introduce optional arguments for long options only.
-
-I agree about both; stupid regression and the --id should not be mixed
-with -i option.
-
->> Anyway, always use long options in scripts. It's more robust and more
->> readable.
+Ruediger Meier wrote:
 >
-> here's the response from dhcpcd's author:
 >
->  The original BSD sources from which logger is clearly based don't support
->  long options .... and dhcpcd needs to work with them.
+> On Sunday 15 February 2015, Benno Schulenberg wrote:
+>> Running 'make check' here reports the following failures:
+>
+> A few of them might be fixed already in latest HEAD.
+>
+> And could you please also show us the test diffs:
+> $ find tests/diff/ -type f | xargs -r cat
 
-Technically speaking assigning short options is against POSIX.
+On my 686, there appears to be an off-by-one error.  Example:
 
-http://pubs.opengroup.org/onlinepubs/9699919799/utilities/logger.html
+--- /sources/util-linux-2.26-rc2/tests/expected/cal/bigyear     2015-01-06 09:19:600
++++ /sources/util-linux-2.26-rc2/tests/output/cal/bigyear       2015-02-15 14:38:600
+@@ -2,248 +2,248 @@
+  Gregorian - Monday-based month
+   December 2147483646
+  Mo Tu We Th Fr Sa Su
+-                1  2
+- 3  4  5  6  7  8  9
+-10 11 12 13 14 15 16
+-17 18 19 20 21 22 23
+-24 25 26 27 28 29 30
+-31
+-Gregorian - Sunday-based month
+- December 2147483646
+-Su Mo Tu We Th Fr Sa
+                     1
+   2  3  4  5  6  7  8
+   9 10 11 12 13 14 15
+  16 17 18 19 20 21 22
+  23 24 25 26 27 28 29
+  30 31
++Gregorian - Sunday-based month
++ December 2147483646
++Su Mo Tu We Th Fr Sa
++ 1  2  3  4  5  6  7
++ 8  9 10 11 12 13 14
++15 16 17 18 19 20 21
++22 23 24 25 26 27 28
++29 30 31
++
 
-But removing short options would be so user unfriendly that proposing
-such change would lead to immediate tosspot of the year nomination.
-Clearly the 'logger -is' should keep on working the same way it always
-has. Here's my proposal how regression could be fixed.
+   -- Bruce
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/bfe6c5d2381b510a4a0330c1c809a63e49b26840
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
