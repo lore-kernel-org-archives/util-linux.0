@@ -1,39 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:63170 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751605AbbBAOAs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:00:48 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/8] cfdisk: remove the mistaken B from the explanation of size suffixes
-Date: Sun,  1 Feb 2015 15:00:06 +0100
-Message-Id: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+Received: from resqmta-ch2-06v.sys.comcast.net ([69.252.207.38]:49454 "EHLO
+	resqmta-ch2-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752893AbbBORqq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 15 Feb 2015 12:46:46 -0500
+From: worley@alum.mit.edu (Dale R. Worley)
+To: kerolasa@gmail.com
+Cc: kzak@redhat.com, P@draigbrady.com, mrmazda@earthlink.net,
+        util-linux@vger.kernel.org
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+In-Reply-To: <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com> (kerolasa@iki.fi)
+Date: Sun, 15 Feb 2015 12:38:32 -0500
+Message-ID: <87h9unt6qv.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also reword the explanation to be clearer.  It is not necessary to
-be complete -- that is what the man page is for.
+Sami Kerola <kerolasa@iki.fi> writes:
+> Or add the needed to ncurses. Isn't that better than adding a new
+> library?
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+That would work, but only for utilities that use ncurses.  OTOH, it
+would be good if ncurses understood and provided information from the
+general color configuration to programs that use it.
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index 9455910..f1d4745 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1507,8 +1507,8 @@ static int ui_get_size(struct cfdisk *cf, const char *prompt, uintmax_t *res,
- 
- 		snprintf(buf, sizeof(buf), "%s", dflt);
- 		rc = ui_get_string(cf, prompt,
--				_("May be followed by {M,B,G,T}iB "
--				  "(the \"iB\" is optional) or S for sectors."),
-+				_("May be followed by M for MiB, G for GiB, "
-+				  "T for TiB, or S for sectors."),
- 				buf, sizeof(buf));
- 		if (rc == 0) {
- 			ui_warnx(_("Please, specify size."));
--- 
-1.7.0.4
+Bruce Dubbs <bruce.dubbs@gmail.com> writes:
+> Why not use the LS_COLORS environment variable used by coreutils' dircolors? 
+> Does util-linux need to create something different?
 
+Using an environment variable is the standard Unix way of configuring
+the user-oriented behavior of programs.  But the "definition" of
+LS_COLORS seems to be very specific to "ls".
+
+The /etc/terminal-colors.d system seems a bit oversized (all those
+files!), but it seems unlikely that anything simpler would work for a
+large set of utilities, each of which the user may want to customize.
+
+The main deficiency of terminal-colors.d is that it's system-wide.  But
+I see this in a blog:
+
+    $HOME/.config/terminal-colors.d overrides the global setting
+
+so that is taken care of.
+
+You also want to define an environment variable to override *that*,
+e.g., files in $UTIL_LINUX_TERMINAL_COLORS override the ones in
+$HOME/.config/terminal-colors.d -- that allows you to set up custom
+environments for particular trees of processes by creating a suitable
+colors directory and setting UTIL_LINUX_TERMINAL_COLORS.
+
+Dale
