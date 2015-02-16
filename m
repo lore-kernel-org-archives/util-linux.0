@@ -1,40 +1,34 @@
-Return-Path: peter@cordes.ca
-Date: Mon, 02 Feb 2015 08:49:25 -0400
-To: Karel Zak <kzak@redhat.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: cfdisk's input fields behave awkwardly (in utf8 locale)
-Message-id: <20150202124925.GC3933@cordes.ca>
-References: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com>
- <20150202121126.GL16162@ws.net.home> <20150202122923.GA3933@cordes.ca>
- <20150202123736.GN16162@ws.net.home>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-In-reply-to: <20150202123736.GN16162@ws.net.home>
-From: Peter Cordes <peter@cordes.ca>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:60186 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755646AbbBPKMB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Feb 2015 05:12:01 -0500
+Date: Mon, 16 Feb 2015 11:11:46 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org, Gabriele Balducci <balducci@units.it>
+Subject: Re: [PATCH] logger: add --socket-errors compatibility option
+Message-ID: <20150216101146.GE11948@ws.net.home>
+References: <1423993823-13551-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1423993823-13551-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 02, 2015 at 01:37:36PM +0100, Karel Zak wrote:
-> On Mon, Feb 02, 2015 at 08:29:23AM -0400, Peter Cordes wrote:
-> >
-> >  Maybe link with GNU readline, to avoid reinventing the wheel.
-> 
-> yep, and maybe for all fdisks, but it would be probably nice to have
-> it optional (--with-readline), and without readline keep it simple and
-> stupid.
+On Sun, Feb 15, 2015 at 09:50:23AM +0000, Sami Kerola wrote:
+> Reference: 1d57503378bdcd838365d625f6d2d0a09da9c29d
+> Reported-by: Gabriele Balducci <balducci@units.it>
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/logger.1 | 17 ++++++++++++
+>  misc-utils/logger.c | 75 ++++++++++++++++++++++++++++++++++++++++++++---------
+>  2 files changed, 80 insertions(+), 12 deletions(-)
 
- Yeah, I think that's the behaviour I've seen from other packages.
-When built without readline, they just leave the tty in cooked mode,
-so a line of input becomes read(2)able when the user presses return.
+ Applied, thanks.
 
- I guess cfdisk already has an arrow-key driven UI, so the wrapper
-for readline (that compiles to a fallback #ifndef HAVE_READLINE) would
-have to put the tty in/out of cooked mode.
+    Karel
 
 -- 
-#define X(x,y) x##y
-Peter Cordes ;  e-mail: X(peter@cor , des.ca)
-
-"The gods confound the man who first found out how to distinguish the hours!
- Confound him, too, who in this place set up a sundial, to cut and hack
- my day so wretchedly into small pieces!" -- Plautus, 200 BC
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
