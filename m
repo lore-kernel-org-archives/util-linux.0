@@ -1,45 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:47917 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752089AbbBQWbw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Feb 2015 17:31:52 -0500
-Received: by mail-wg0-f46.google.com with SMTP id a1so38941821wgh.5
-        for <util-linux@vger.kernel.org>; Tue, 17 Feb 2015 14:31:51 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] setarch: print error when command runs without arguments
-Date: Tue, 17 Feb 2015 22:31:48 +0000
-Message-Id: <1424212308-10034-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:54567 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932238AbbBPJsC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Feb 2015 04:48:02 -0500
+Date: Mon, 16 Feb 2015 10:47:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
+        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+Message-ID: <20150216094747.GC11948@ws.net.home>
+References: <54DC88BF.5040702@draigBrady.com>
+ <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
+ <20150213092131.GM32318@ws.net.home>
+ <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
+ <20150213112523.GP32318@ws.net.home>
+ <20150215111238.GG32251@vapier>
+ <20150216091043.GA11948@ws.net.home>
+ <20150216093533.GJ4075@vapier>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150216093533.GJ4075@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-$ ./setarch
-Segmentation fault (core dumped)
-$ coredumpctl gdb
-...
-Program terminated with signal SIGSEGV, Segmentation fault.
-301                     if (*argv[1] != '-') {
+On Mon, Feb 16, 2015 at 04:35:33AM -0500, Mike Frysinger wrote:
+> On 16 Feb 2015 10:10, Karel Zak wrote:
+> >  What we want to duplicate? What exactly in lib/colors.c is duplicate?
+> >  The code evaluates filenames and parses files with "name colorcode".
+> 
+> whether the terminal even supports color in the first place.  if i picked a 
+> terminal that doesn't support color so i didn't have to worry about it, it's a 
+> bit crazy i also have to go to multiple config files and also tell them i don't 
+> want color otherwise i get corrupted output.
 
-Reference: 5edb0ea6bbd57dd916417737f98c9109dc1ecb5b
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/setarch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+For now it checks isatty() and nothing else, it would be possible to
+check number of supported colors in terminfo too, or is there any
+other way?
 
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index 76892ab..337f8fb 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
- 	if (archwrapper)
- 		arch = program_invocation_short_name;	/* symlinks to setarch */
- 	else {
--		if (*argv[1] != '-') {
-+		if (1 < argc && *argv[1] != '-') {
- 			arch = argv[1];
- 			argv[1] = argv[0];	/* for getopt_long() to get the program name */
- 			argv++;
+Anyway, we don't want to create (duplicate) any database, all it
+provides are knobs for customization and enable/disable.
+
+    Karel
+
 -- 
-2.3.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
