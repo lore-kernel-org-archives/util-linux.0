@@ -1,54 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:38361 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750903AbbBEVsb convert rfc822-to-8bit
-	(ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 5 Feb 2015 16:48:31 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-	by mailout.nyi.internal (Postfix) with ESMTP id 37EC920830
-	for <util-linux@vger.kernel.org>; Thu,  5 Feb 2015 16:48:31 -0500 (EST)
-Message-Id: <1423172910.109711.223698217.4EC40FCF@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.21]:65367 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755837AbbBPMzj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Feb 2015 07:55:39 -0500
+Message-ID: <54E1E8C3.30704@gmx.com>
+Date: Mon, 16 Feb 2015 07:55:31 -0500
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-In-Reply-To: <20150204115353.GC1238@ws.net.home>
-References: <20150204115353.GC1238@ws.net.home>
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
-Date: Thu, 05 Feb 2015 22:48:30 +0100
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH] hwclock: improve man-page language
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-On Wed, Feb 4, 2015, at 12:53, Karel Zak wrote:
-> 
-> The util-linux release v2.26-rc2 is available at
-> 
->   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26
-
-It compiles without error, but shows these warnings along the way:
-
-libfdisk/src/dos.c: In function 'add_partition':
-libfdisk/src/dos.c:1204: warning: format '%ju' expects type 'uintmax_t', but argument 4 has type 'long unsigned int'
-
-sys-utils/ipcs.c: In function ‘do_shm’:
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:241: warning: dereferencing pointer ‘shm_info’ does break strict-aliasing rules
-sys-utils/ipcs.c:223: note: initialized from here
-
-sys-utils/ipcutils.c: In function ‘ipc_shm_get_limits’:
-sys-utils/ipcutils.c:92: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-sys-utils/ipcutils.c:91: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-sys-utils/ipcutils.c:90: warning: dereferencing pointer ‘shminfo’ does break strict-aliasing rules
-sys-utils/ipcutils.c:89: note: initialized from here
-
-Benno
-
--- 
-http://www.fastmail.com - Access your email from home and the web
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 7ddd2b1..b13be31 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -993,12 +993,13 @@ A discussion on date-time configuration would be incomplete without
+ addressing timezones, this is mostly well covered by
+ .BR tzset (3).
+ One area that seems to have no documentation is the 'right'
+-directory of the Time Zone Database, aka tz, aka zoneinfo.
++directory of the Time Zone Database, sometimes called tz or zoneinfo.
+ .PP
+ There are two separate databases in the zoneinfo system, posix
+ and 'right'. 'Right' (now named zoneinfo\-leaps) includes leap seconds and posix
+-does not. To use the 'right' database the System Clock must be kept in
+-\%UTC\ +\ leap_seconds, i.e., \%TAI\ \-\ 10. This allows calculating the
++does not. To use the 'right' database the System Clock must be set to
++\%(UTC\ +\ leap seconds), which is equivalent to \%(TAI\ \-\ 10). This
++allows calculating the
+ exact number of seconds between two dates that cross a leap second
+ epoch. The System Clock is then converted to the correct civil time,
+ including UTC, by using the 'right' timezone files which subtract the
