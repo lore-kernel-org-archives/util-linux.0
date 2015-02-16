@@ -1,113 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:34067 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753865AbbBAWmI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 17:42:08 -0500
-Received: by mail-wi0-f175.google.com with SMTP id fb4so13103206wid.2
-        for <util-linux@vger.kernel.org>; Sun, 01 Feb 2015 14:42:06 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/2] more: fix get_line() indentation
-Date: Sun,  1 Feb 2015 22:41:54 +0000
-Message-Id: <1422830524-4483-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1422649129.1189198.221115417.2D352E5C@webmail.messagingengine.com>
-References: <1422649129.1189198.221115417.2D352E5C@webmail.messagingengine.com>
+Received: from mx1.redhat.com ([209.132.183.28]:40820 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754269AbbBPJKy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Feb 2015 04:10:54 -0500
+Date: Mon, 16 Feb 2015 10:10:43 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
+        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+Message-ID: <20150216091043.GA11948@ws.net.home>
+References: <54DC88BF.5040702@draigBrady.com>
+ <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
+ <20150213092131.GM32318@ws.net.home>
+ <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
+ <20150213112523.GP32318@ws.net.home>
+ <20150215111238.GG32251@vapier>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150215111238.GG32251@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.c | 72 +++++++++++++++++++++++++++----------------------------
- 1 file changed, 35 insertions(+), 37 deletions(-)
+On Sun, Feb 15, 2015 at 06:12:38AM -0500, Mike Frysinger wrote:
+> On 13 Feb 2015 12:25, Karel Zak wrote:
+> > On Fri, Feb 13, 2015 at 10:33:23AM +0000, Sami Kerola wrote:
+> > > On 13 February 2015 at 09:21, Karel Zak <kzak@redhat.com> wrote:
+> > > > On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
+> > > >> I don't particularly like colorization.  But technically, it seems to me
+> > > >> that what is needed is a systematic way for the user to indicate his
+> > > >> colorization preferences to *all* utilities.  And a corresponding way
+> > > >> for the system to provide defaults for those user preferences.
+> > > >>
+> > > >>
+> > > >> Only when there is a systematic framework for colorization will all the
+> > > >> programs allow colorizing to be configured.
+> > > >
+> > > > It would be possible to create a shared library from our lib/colors.c
+> > > > to support terminal-colors.d/... :-)
+> > > 
+> > > Or add the needed to ncurses. Isn't that better than adding a new
+> > > library?
+> > 
+> > you want to link programs like dmesg, gcc or ls with ncurses monster?
+> > 
+> > The another story is that ncurses provides completely abstract layer
+> > for colors and I didn't found a way how to use it together with color 
+> > escape sequences. This is reason why for example cfdisk supports only
+> > enable/disable terminal-colors.d feature, but no schemes to specify
+> > colors.
+> 
+> this is why ncurses has the ability to split its lib into a smaller libtinfo.  
+> you get all the logic for detecting terminal capabilities without all the rest 
+> of the ncurses layers.  for people who do want to kill colors across the board, 
+> they can use a different TERM that does not support them.  forcing people to 
+> duplicate that in a new database seems wrong to me.
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 75426e9..15ebb91 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -997,47 +997,45 @@ int get_line(register FILE *f, int *length)
- 		} else if (c == EOF) {
- 			*length = p - Line;
- 			return (column);
--		} else {
-+		}
- #ifdef HAVE_WIDECHAR
--			if (fold_opt && MB_CUR_MAX > 1) {
--				memset(mbc, '\0', MB_LEN_MAX);
--				mbc_pos = 0;
--				mbc[mbc_pos++] = c;
--				state_bak = state;
--
--				mblength = mbrtowc(&wc, mbc, mbc_pos, &state);
--				/* The value of mblength is always less than 2 here. */
--				switch (mblength) {
--				case (size_t)-2:
--					p--;
--					file_pos_bak = Ftell(f) - 1;
--					state = state_bak;
--					use_mbc_buffer_flag = 1;
--					break;
--
--				case (size_t)-1:
--					state = state_bak;
--					column++;
--					break;
--
--				default:
--					wc_width = wcwidth(wc);
--					if (wc_width > 0)
--						column += wc_width;
--				}
--			} else
-+		else if (fold_opt && MB_CUR_MAX > 1) {
-+			memset(mbc, '\0', MB_LEN_MAX);
-+			mbc_pos = 0;
-+			mbc[mbc_pos++] = c;
-+			state_bak = state;
-+
-+			mblength = mbrtowc(&wc, mbc, mbc_pos, &state);
-+			/* The value of mblength is always less than 2 here. */
-+			switch (mblength) {
-+			case (size_t)-2:
-+				p--;
-+				file_pos_bak = Ftell(f) - 1;
-+				state = state_bak;
-+				use_mbc_buffer_flag = 1;
-+				break;
-+
-+			case (size_t)-1:
-+				state = state_bak;
-+				column++;
-+				break;
-+
-+			default:
-+				wc_width = wcwidth(wc);
-+				if (wc_width > 0)
-+					column += wc_width;
-+			}
-+		}
- #endif	/* HAVE_WIDECHAR */
--			{
--				if (isprint(c))
--					column++;
--				else {
--					column -= 4;
--					if (column < 0)
--						column = 0;
--				}
-+		else {
-+			if (isprint(c))
-+				column++;
-+			else {
-+				column -= 4;
-+				if (column < 0)
-+					column = 0;
- 			}
- 		}
--
- 		if (column >= Mcol && fold_opt)
- 			break;
- #ifdef HAVE_WIDECHAR
+ What we want to duplicate? What exactly in lib/colors.c is duplicate?
+ The code evaluates filenames and parses files with "name colorcode".
+
+ Anyway, the core of the terminal-colors.d/ is enable/disable feature,
+ for this purpose is unnecessary any library.
+
+    Karel
+
+> -mike
+
+
+
 -- 
-2.2.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
