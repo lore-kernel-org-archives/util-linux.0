@@ -1,84 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:64375 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752006AbbBVOmD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:03 -0500
-Received: by mail-wi0-f178.google.com with SMTP id em10so11683266wid.5
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:02 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:40075 "EHLO
+	elasmtp-banded.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752135AbbBQIcd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Feb 2015 03:32:33 -0500
+Received: from [69.22.67.43] (helo=[192.168.0.11])
+	by elasmtp-banded.atl.sa.earthlink.net with esmtpa (Exim 4.67)
+	(envelope-from <mrmazda@earthlink.net>)
+	id 1YNda4-0002Nx-9O
+	for util-linux@vger.kernel.org; Tue, 17 Feb 2015 03:32:32 -0500
+Message-ID: <54E2FC9F.9060607@earthlink.net>
+Date: Tue, 17 Feb 2015 03:32:31 -0500
+From: Felix Miata <mrmazda@earthlink.net>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 06/16] tunelp: remove unnecessary preprocessor directives
-Date: Sun, 22 Feb 2015 14:41:36 +0000
-Message-Id: <1424616106-580-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: fdisk -l hits floppy drive
+References: <87r3tpqngz.fsf@hobgoblin.ariadne.com>
+In-Reply-To: <87r3tpqngz.fsf@hobgoblin.ariadne.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The lp.h included earlier in the tunelp.c has the definitions that were
-checked, so these statements could have not been false and such
-impossible conditions does not need to be checked.
+worley@alum.mit.edu (Dale R. Worley) composed on 2015-02-16 21:30 (UTC-0500):
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/tunelp.c | 8 --------
- 1 file changed, 8 deletions(-)
+> Felix Miata wrote:
 
-diff --git a/sys-utils/tunelp.c b/sys-utils/tunelp.c
-index 197b093..8c70268 100644
---- a/sys-utils/tunelp.c
-+++ b/sys-utils/tunelp.c
-@@ -205,7 +205,6 @@ int main(int argc, char **argv)
- 				show_irq = 0;
- 			}
- 			break;
--#ifdef LPGETSTATUS
- 		case 'o':
- 			cmds->op = LPABORTOPEN;
- 			cmds->val = get_onoff(optarg);
-@@ -228,8 +227,6 @@ int main(int argc, char **argv)
- 			cmds = cmds->next;
- 			cmds->next = 0;
- 			break;
--#endif
--#ifdef LPRESET
- 		case 'r':
- 			cmds->op = LPRESET;
- 			cmds->val = 0;
-@@ -237,8 +234,6 @@ int main(int argc, char **argv)
- 			cmds = cmds->next;
- 			cmds->next = 0;
- 			break;
--#endif
--#ifdef LPTRUSTIRQ
- 		case 'T':
- 			/* Note: this will do the wrong thing on
- 			 * 2.0.36 when compiled under 2.2.x
-@@ -249,7 +244,6 @@ int main(int argc, char **argv)
- 			cmds = cmds->next;
- 			cmds->next = 0;
- 			break;
--#endif
- 		case 'v':
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
-@@ -290,7 +284,6 @@ int main(int argc, char **argv)
- 
- 	cmds = cmdst;
- 	while (cmds->next) {
--#ifdef LPGETSTATUS
- 		if (cmds->op == LPGETSTATUS) {
- 			status = 0xdeadbeef;
- 			retval = ioctl(fd, LPGETSTATUS - offset, &status);
-@@ -314,7 +307,6 @@ int main(int argc, char **argv)
- 				printf("\n");
- 			}
- 		} else
--#endif /* LPGETSTATUS */
- 		if (ioctl(fd, cmds->op - offset, cmds->val) < 0)
- 			warn(_("ioctl failed"));
- 		cmdst = cmds;
+>> Dale R. Worley composed on 2015-02-07 21:37 (UTC-0500):
+
+>>> Felix Miata wrote:
+
+>>>> fdisk -l is causing the floppy drive to get hit, which reflects the 4 kernel
+>>>> messages onto the tty running fdisk. Is this expected or intended?
+
+>>> I see in the manual page:
+
+>>>        -l     List the partition tables for the  specified  devices  and  then
+>>>               exit.   If no devices are given, those mentioned in /proc/parti-
+>>>               tions (if that exists) are used.
+
+>>> Is the floppy listed in /proc/partitions?
+
+>> Yes, as is the OM drive:
+>>...
+>>    2        0          4 fd0
+>>...
+
+> Then the answer to your question is, "Yes, it is expected and intended."
+
+Why?
+
+> Are you saying that you find this undesirable? 
+
+Based on my understanding of the meaning of partition, yes. From the man page:
+
+	fdisk is a dialog-driven program for creation and manipulation of
+	partition tables.
+
+sr0 and fd0 don't have partition tables. Are sr0 and fd0 not always invalid
+targets for fdisk? If yes, what reason is there for /proc/partitions to
+contain them?
+
+> If so, do you have a
+> proposal for how "fdisk -l" should determine the list of devices that it
+> should list?
+
+AFAICT, it should list all items in /proc/partitions, which should contain
+only devices that are partitionable. Including /dev/md* in /proc/partitions
+also seems wrong.
+
+How fdisk does what it does doesn't really matter to me. What matters is not
+hearing unexpected attempts to access an old floppy drive that I expect to
+work when I need it instead of being worn out by unwanted and useless access
+attempts; and not seeing floppy access failure messages appear in the middle
+of other activity.
 -- 
-2.3.0
+"The wise are known for their understanding, and pleasant
+words are persuasive." Proverbs 16:21 (New Living Translation)
 
+ Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+
+Felix Miata  ***  http://fm.no-ip.com/
