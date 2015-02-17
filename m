@@ -1,78 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:61114 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751605AbbBAOBH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Feb 2015 09:01:07 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:47917 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752089AbbBQWbw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Feb 2015 17:31:52 -0500
+Received: by mail-wg0-f46.google.com with SMTP id a1so38941821wgh.5
+        for <util-linux@vger.kernel.org>; Tue, 17 Feb 2015 14:31:51 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/8] cfdisk: punctuate the bottombar messages consistently
-Date: Sun,  1 Feb 2015 15:00:08 +0100
-Message-Id: <1422799213-16717-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
-References: <1422799213-16717-1-git-send-email-bensberg@justemail.net>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] setarch: print error when command runs without arguments
+Date: Tue, 17 Feb 2015 22:31:48 +0000
+Message-Id: <1424212308-10034-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also adjust the style of two comments and add another.
+$ ./setarch
+Segmentation fault (core dumped)
+$ coredumpctl gdb
+...
+Program terminated with signal SIGSEGV, Segmentation fault.
+301                     if (*argv[1] != '-') {
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Reference: 5edb0ea6bbd57dd916417737f98c9109dc1ecb5b
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/cfdisk.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ sys-utils/setarch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index f414f55..eb3141b 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1923,7 +1923,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
- 			info = _("Partition %zu has been deleted.");
- 		ref = 1;
- 		break;
--	case 'h': /* help */
-+	case 'h': /* Help */
- 		ui_help();
- 		ref = 1;
- 		break;
-@@ -1989,13 +1989,13 @@ static int main_menu_action(struct cfdisk *cf, int key)
- 			info = _("The type of partition %zu is unchanged.");
- 		break;
- 	}
--	case 's': /* fix order */
-+	case 's': /* Sort */
- 		if (cf->wrong_order) {
- 			fdisk_reorder_partitions(cf->cxt);
- 			ref = 1;
- 		}
- 		break;
--	case 'u':
-+	case 'u': /* dUmp */
- 		ui_script_write(cf);
- 		break;
- 	case 'W': /* Write */
-@@ -2003,7 +2003,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
- 		char buf[64] = { 0 };
- 
- 		if (fdisk_is_readonly(cf->cxt)) {
--			warn = _("Device open in read-only mode");
-+			warn = _("Device is open in read-only mode.");
- 			break;
- 		}
- 
-@@ -2016,12 +2016,12 @@ static int main_menu_action(struct cfdisk *cf, int key)
- 		ref = 1;
- 		if (rc <= 0 || (strcasecmp(buf, "yes") != 0 &&
- 				strcasecmp(buf, _("yes")) != 0)) {
--			info = _("Did not write partition table to disk");
-+			info = _("Did not write partition table to disk.");
- 			break;
- 		}
- 		rc = fdisk_write_disklabel(cf->cxt);
- 		if (rc)
--			warn = _("Failed to write disklabel");
-+			warn = _("Failed to write disklabel.");
- 		else {
- 			fdisk_reread_partition_table(cf->cxt);
- 			info = _("The partition table has been altered.");
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index 76892ab..337f8fb 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
+ 	if (archwrapper)
+ 		arch = program_invocation_short_name;	/* symlinks to setarch */
+ 	else {
+-		if (*argv[1] != '-') {
++		if (1 < argc && *argv[1] != '-') {
+ 			arch = argv[1];
+ 			argv[1] = argv[0];	/* for getopt_long() to get the program name */
+ 			argv++;
 -- 
-1.7.0.4
+2.3.0
 
