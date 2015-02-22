@@ -1,66 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59952 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751612AbbB0NsS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Feb 2015 08:48:18 -0500
-Date: Fri, 27 Feb 2015 14:48:05 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, kerolasa@gmail.com,
-        "Dale R. Worley" <worley@alum.mit.edu>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
-        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-Message-ID: <20150227134805.GB8046@ws.net.home>
-References: <54DC88BF.5040702@draigBrady.com>
- <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
- <20150213092131.GM32318@ws.net.home>
- <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
- <20150213112523.GP32318@ws.net.home>
- <20150215111238.GG32251@vapier>
- <20150216091043.GA11948@ws.net.home>
- <20150216093533.GJ4075@vapier>
- <20150216094747.GC11948@ws.net.home>
- <20150216103241.GD3926@type.bordeaux.inria.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150216103241.GD3926@type.bordeaux.inria.fr>
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:56442 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752034AbbBVOmL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:11 -0500
+Received: by mail-wg0-f46.google.com with SMTP id a1so21253981wgh.5
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:10 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 14/16] tailf: ensure file argument really is a file
+Date: Sun, 22 Feb 2015 14:41:44 +0000
+Message-Id: <1424616106-580-15-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 16, 2015 at 11:32:41AM +0100, Samuel Thibault wrote:
-> Karel Zak, le Mon 16 Feb 2015 10:47:47 +0100, a écrit :
-> > On Mon, Feb 16, 2015 at 04:35:33AM -0500, Mike Frysinger wrote:
-> > > On 16 Feb 2015 10:10, Karel Zak wrote:
-> > > >  What we want to duplicate? What exactly in lib/colors.c is duplicate?
-> > > >  The code evaluates filenames and parses files with "name colorcode".
-> > > 
-> > > whether the terminal even supports color in the first place.  if i picked a 
-> > > terminal that doesn't support color so i didn't have to worry about it, it's a 
-> > > bit crazy i also have to go to multiple config files and also tell them i don't 
-> > > want color otherwise i get corrupted output.
-> > 
-> > For now it checks isatty() and nothing else, it would be possible to
-> > check number of supported colors in terminfo too, or is there any
-> > other way?
-> 
-> It should also check how to change the colors. Not all terminals will
-> support the ANSI way.
+The tailf(1) never worked very well with block or character devices,
+sockets, fifos and such.  Now after mmap() is used to find last lines
+even the little command used to work is broken, so test the tailf is
+asked to follow a file and when not fail.  That said symlinks are OK, as
+long they point to a file.
 
- OK, linked with libtinfo, now it checks if the current terminal supports 
- colors ("colors" from tinfo) and all the stuff is disabled for terminals
- like vt100.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/tailf.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-> > Anyway, we don't want to create (duplicate) any database, all it
-> > provides are knobs for customization and enable/disable.
-> 
-> It provides only that because the source code currently hardcodes the
-> \033[%sm sequence, but it really should not, and use terminfo instead.
-
- This is not implemented yet, I (or any volunteer?) will try to add to code 
- an extra layer to avoid the hardcoded sequences and read the colors from terminfo.
-
-    Karel
-
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index d856203..7f053a4 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -233,6 +233,28 @@ static long old_style_option(int *argc, char **argv, unsigned long *lines)
+ 	return ret;
+ }
+ 
++static int is_file(const char *filename, const struct stat sb)
++{
++	switch (sb.st_mode & S_IFMT) {
++	case S_IFREG:
++		return 0;
++	case S_IFLNK:
++		{
++			char *resolved_path = NULL;
++			struct stat follow;
++			int ret;
++
++			if (realpath(filename, resolved_path)) {
++				stat(resolved_path, &follow);
++				ret = is_file(resolved_path, follow);
++				free(resolved_path);
++				return ret;
++			}
++		}
++	}
++	return 1;
++}
++
+ int main(int argc, char **argv)
+ {
+ 	const char *filename;
+@@ -281,6 +303,8 @@ int main(int argc, char **argv)
+ 
+ 	if (stat(filename, &old) != 0)
+ 		err(EXIT_FAILURE, _("stat of %s failed"), filename);
++	if (is_file(filename, old))
++		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
+ 	if (lines && old.st_size)
+ 		tailf(filename, lines, &old);
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
