@@ -1,46 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47892 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932911AbbBBKYi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Feb 2015 05:24:38 -0500
-Date: Mon, 2 Feb 2015 11:24:30 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Brandon Vincent <Brandon.Vincent@asu.edu>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: whereis search path
-Message-ID: <20150202102430.GE16162@ws.net.home>
-References: <CAJm42388wcQx0TgFEVxNXJCjKQPywO+65osLagn9_Wm=+5FB8g@mail.gmail.com>
- <CAG27Bk07WVef-+xq3QdA6UeQgKkKzv-Oz9R-kqQdT34m996uag@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAG27Bk07WVef-+xq3QdA6UeQgKkKzv-Oz9R-kqQdT34m996uag@mail.gmail.com>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:61501 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752270AbbBVOot (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:49 -0500
+Received: by mail-wg0-f48.google.com with SMTP id l18so21217900wgh.7
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:48 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 30/31] more: remove TIOCGWINSZ preprocessor #ifdef checks
+Date: Sun, 22 Feb 2015 14:43:26 +0000
+Message-Id: <1424616207-747-31-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 27, 2015 at 09:56:04AM +0000, Sami Kerola wrote:
-> > Was the inclusion of /usr/share/info ever considered?
-> 
-> As far I can tell inclusion of the info directory has not been
-> considered. I recon the /usr/share/info is closest to manuals category
-> from the three options, and it feels like reasonable addition.
-> 
-> Any other opinions? And should this change be done before or after
-> release v2.25?
+The change_window_sz(), that used to be chgwinsz(), has done assumption
+TIOCGWINSZ without check for long time.  It is time to remove the rest of
+the #ifdefs.
 
- Fixed.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/more.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
- old version:
-
-    $ whereis parted
-    parted: /usr/sbin/parted /usr/share/man/man8/parted.8.gz
-
- new version:
-    $ whereis parted
-    parted: /usr/sbin/parted /usr/share/man/man8/parted.8.gz /usr/share/info/parted.info.gz
-
-
-
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 449f9cd..f349109 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -1793,9 +1793,7 @@ static void initterm(struct more_control *ctl)
+ {
+ 	int ret, tmp;
+ 	char *term;
+-#ifdef TIOCGWINSZ
+ 	struct winsize win;
+-#endif
+ 
+ #ifndef NON_INTERACTIVE_MORE
+ 	ctl->no_tty = tcgetattr(STDOUT_FILENO, &ctl->otty);
+@@ -1812,19 +1810,15 @@ static void initterm(struct more_control *ctl)
+ 			ctl->dumb = 1;
+ 			ctl->ul_opt = 0;
+ 		} else {
+-#ifdef TIOCGWINSZ
+ 			if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &win) < 0) {
+-#endif
+ 				ctl->lines_per_page = my_tgetnum(TERM_LINES);
+ 				ctl->ncolumns = my_tgetnum(TERM_COLS);
+-#ifdef TIOCGWINSZ
+ 			} else {
+ 				if ((ctl->lines_per_page = win.ws_row) == 0)
+ 					ctl->lines_per_page = my_tgetnum(TERM_LINES);
+ 				if ((ctl->ncolumns = win.ws_col) == 0)
+ 					ctl->ncolumns = my_tgetnum(TERM_COLS);
+ 			}
+-#endif
+ 			if ((ctl->lines_per_page <= 0) || my_tgetflag(TERM_HARD_COPY)) {
+ 				ctl->hard_term = 1;
+ 				ctl->lines_per_page = LINES_PER_PAGE;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
