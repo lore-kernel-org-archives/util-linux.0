@@ -1,76 +1,104 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50423 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751407AbbBXNAO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 08:00:14 -0500
-Date: Tue, 24 Feb 2015 14:00:02 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 09/13] rtcwake: do not overwrite device name
-Message-ID: <20150224130002.GR19430@ws.net.home>
-References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
- <1424616139-638-10-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616139-638-10-git-send-email-kerolasa@iki.fi>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:52099 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751982AbbBVOmC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:02 -0500
+Received: by mail-wi0-f182.google.com with SMTP id l15so11674745wiw.3
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:01 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 05/16] tunelp: remove get_val() in favour of strtol_or_err()
+Date: Sun, 22 Feb 2015 14:41:35 +0000
+Message-Id: <1424616106-580-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:42:15PM +0000, Sami Kerola wrote:
-> This improves error messaging, and allows freeing path to device when it
-> is not needed.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  sys-utils/rtcwake.c | 44 +++++++++++++++++++++++---------------------
->  1 file changed, 23 insertions(+), 21 deletions(-)
-> 
-> diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
-> index f951c9c..7f1e351 100644
-> --- a/sys-utils/rtcwake.c
-> +++ b/sys-utils/rtcwake.c
-> @@ -49,7 +49,7 @@
->  
->  #define RTC_PATH		"/sys/class/rtc/%s/device/power/wakeup"
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/Makemodule.am |  1 +
+ sys-utils/tunelp.c      | 22 ++++++++--------------
+ 2 files changed, 9 insertions(+), 14 deletions(-)
 
-This is really bad name, what about SYS_WAKEUP_PATH_TEMPLATE ?
-
-> +static int open_dev_rtc(const char *devname)
-> +{
-> +	int fd;
-> +	char *devpath;
-> +	size_t len = strlen(devname);
-> +
-> +	devpath = xmalloc(sizeof "/dev/" + len);
-> +	memcpy(devpath, "/dev/", sizeof "/dev/");
-> +	memcpy(devpath + strlen("/dev/"), devname, len + 1);
-
- if (startswith(devname, "/dev"))
-    devpath = devname;
- else
-    xasprintf(&devpath, "/dev/%s", devname);  
-
-> +#ifdef O_CLOEXEC
-> +	fd = open(devpath, O_RDONLY | O_CLOEXEC);
-> +#else
-> +	fd = open(devpath, O_RDONLY);
-> +#endif
-
- we use O_CLOEXEC everywhere, #ifdef is unecessary
-
-> +	if (fd < 0)
-> +		err(EXIT_FAILURE, _("%s: unable to find device"), devpath);
-
- if (devname != devpath)
-    free(devpath);
-
-> +	free(devpath);
-> +	return fd;
-> +}
-
-    Karel
-
+diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+index 14d0773..c8f1c42 100644
+--- a/sys-utils/Makemodule.am
++++ b/sys-utils/Makemodule.am
+@@ -50,6 +50,7 @@ if BUILD_TUNELP
+ usrsbin_exec_PROGRAMS += tunelp
+ dist_man_MANS += sys-utils/tunelp.8
+ tunelp_SOURCES = sys-utils/tunelp.c sys-utils/lp.h
++tunelp_LDADD = $(LDADD) libcommon.la
+ endif
+ 
+ if BUILD_FSTRIM
+diff --git a/sys-utils/tunelp.c b/sys-utils/tunelp.c
+index b132d7a..197b093 100644
+--- a/sys-utils/tunelp.c
++++ b/sys-utils/tunelp.c
+@@ -74,8 +74,10 @@
+ #include "xalloc.h"
+ #include "closestream.h"
+ 
+-#define EXIT_BAD_VALUE	3
+-#define EXIT_LP_IO_ERR	4
++#define STRTOXX_EXIT_CODE	3
++#define EXIT_LP_IO_ERR		4
++
++#include "strutils.h"
+ 
+ struct command {
+ 	long op;
+@@ -114,14 +116,6 @@ static void __attribute__((__noreturn__)) print_usage(FILE *out)
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+-static long get_val(char *val)
+-{
+-	long ret;
+-	if (!(sscanf(val, "%ld", &ret) == 1))
+-		errx(EXIT_BAD_VALUE, _("bad value"));
+-	return ret;
+-}
+-
+ static long get_onoff(char *val)
+ {
+ 	if (!strncasecmp("on", val, 2))
+@@ -171,28 +165,28 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'i':
+ 			cmds->op = LPSETIRQ;
+-			cmds->val = get_val(optarg);
++			cmds->val = strtol_or_err(optarg, _("argument error"));
+ 			cmds->next = xmalloc(sizeof(struct command));
+ 			cmds = cmds->next;
+ 			cmds->next = 0;
+ 			break;
+ 		case 't':
+ 			cmds->op = LPTIME;
+-			cmds->val = get_val(optarg);
++			cmds->val = strtol_or_err(optarg, _("argument error"));
+ 			cmds->next = xmalloc(sizeof(struct command));
+ 			cmds = cmds->next;
+ 			cmds->next = 0;
+ 			break;
+ 		case 'c':
+ 			cmds->op = LPCHAR;
+-			cmds->val = get_val(optarg);
++			cmds->val = strtol_or_err(optarg, _("argument error"));
+ 			cmds->next = xmalloc(sizeof(struct command));
+ 			cmds = cmds->next;
+ 			cmds->next = 0;
+ 			break;
+ 		case 'w':
+ 			cmds->op = LPWAIT;
+-			cmds->val = get_val(optarg);
++			cmds->val = strtol_or_err(optarg, _("argument error"));
+ 			cmds->next = xmalloc(sizeof(struct command));
+ 			cmds = cmds->next;
+ 			cmds->next = 0;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
