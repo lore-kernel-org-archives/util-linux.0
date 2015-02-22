@@ -1,92 +1,104 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44959 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751627AbbBXVGw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 16:06:52 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id 9ABDA21169
-	for <util-linux@vger.kernel.org>; Tue, 24 Feb 2015 16:06:48 -0500 (EST)
-Message-Id: <1424812009.4081464.231923961.72455B01@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Peter Cordes <peter@cordes.ca>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1424689834-29236-1-git-send-email-peter@cordes.ca>
-References: <1424689834-29236-1-git-send-email-peter@cordes.ca>
-Subject: Re: [PATCH] docs: fstab(5) grammar / English fixes,
- and some other updates
-Date: Tue, 24 Feb 2015 22:06:49 +0100
+Received: from mail-we0-f177.google.com ([74.125.82.177]:37287 "EHLO
+	mail-we0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752034AbbBVOoQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:16 -0500
+Received: by wesw55 with SMTP id w55so13660259wes.4
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:15 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 11/31] more: move runtime usage output away from command()
+Date: Sun, 22 Feb 2015 14:43:07 +0000
+Message-Id: <1424616207-747-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The command() function is too long.
 
-On Mon, Feb 23, 2015, at 12:10, Peter Cordes wrote:
-> -spaces.  Lines starting with '#' are comments, blank lines are ignored. The
-> +spaces.  Lines starting with '#' are comments.  Blank lines are ignored. The
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/more.c | 58 ++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 30 insertions(+), 28 deletions(-)
 
-When changing a line, please also fix a single space after a period: ".  The".
-I would have changed the comma to semicolon, by the way.  :)
-
-> +This is a typical example of an [...]
-
-Please add a .PP instead of a blank line before this line.  And
-replace "This" with "The following", because when starting
-to read the sentence, it is completely unclear what "This"
-refers to.
-
-> +.B fstab
-> +entry:
-> +.sp 1
-
-A plain ".sp" is enough.
-
-> +LABEL=t-home2   /home      ext4    defaults,auto_da_alloc      0 2
-
-Please add a ".RS 7" before and a ".RE" after it.
-And for clarity maybe doublespace the "0 2".
-
-> -For ordinary mounts it will hold (a link to) a block special
-> +For ordinary mounts, it will hold (a link to) a block special
-
-I don't agree with this comma.  For me it hinders comprehension
-a bit rather than helping.  When speaking the phrase aloud, the
-pause between "mounts" and "it" is negligible, even inaudible.
-A comma makes me think something parenthetic is getting said.
-But... matter of taste.
-
-> +This is the recommended method, as device names are often a coincidence
-> +of hardware detection order, and can change when other disks are added or removed.
-> +(cf.
-
-The period after "removed" shouldn't be there.
-And when replacing "e.g." with the better "for example",
-please also replace "cf." with a clearer "compare" or "see also".
-
-> +This field describes the type of the filesystem.  Linux supports many
-> +filesystem types, including ext4, xfs, btrfs, vfat, ntfs, hfsplus,
-> +tmpfs, sysfs, proc, iso9660, udf, nfs, cifs, and many more. [...]
-
-Ah, no, you can't say "including", name some, and then add
-"and many more".  It's either "including", name some, and period,
-or replace "including" with a colon, name some, and finish with
-"and many more".  So, it was fine the way it was.
-
-> +It is formatted as a comma separated list of options.
+diff --git a/text-utils/more.c b/text-utils/more.c
+index c8b28a1..6b07d95 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -1341,6 +1341,35 @@ notfound:
+ 	}
+ }
  
-comma-separated
-
-> -Basic file system independent options are:
-> +Basic filesystem independent options are:
-
-filesystem-independent
-
-
-The other changes are good.
-
-Benno
-
++static void runtime_usage(void)
++{
++	fputs(_("\n"
++		"Most commands optionally preceded by integer argument k.  "
++		"Defaults in brackets.\n"
++		"Star (*) indicates argument becomes new default.\n"), stdout);
++	fputs(	"-------------------------------------------------------------------------------", stdout);
++	fputs(_("<space>                 Display next k lines of text [current screen size]\n"
++		"z                       Display next k lines of text [current screen size]*\n"
++		"<return>                Display next k lines of text [1]*\n"
++		"d or ctrl-D             Scroll k lines [current scroll size, initially 11]*\n"
++		"q or Q or <interrupt>   Exit from more\n"
++		"s                       Skip forward k lines of text [1]\n"
++		"f                       Skip forward k screenfuls of text [1]\n"
++		"b or ctrl-B             Skip backwards k screenfuls of text [1]\n"
++		"'                       Go to place where previous search started\n"
++		"=                       Display current line number\n"
++		"/<regular expression>   Search for kth occurrence of regular expression [1]\n"
++		"n                       Search for kth occurrence of last r.e [1]\n"
++		"!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"
++		"v                       Start up /usr/bin/vi at current line\n"
++		"ctrl-L                  Redraw screen\n"
++		":n                      Go to kth next file [1]\n"
++		":p                      Go to kth previous file [1]\n"
++		":f                      Display current file name and line number\n"
++		".                       Repeat previous command\n"), stdout);
++	fputs(	"-------------------------------------------------------------------------------", stdout);
++}
++
+ /* Read a command and do it.  A command consists of an optional integer
+  * argument followed by the command character.  Return the number of
+  * lines to display in the next screenful.  If there is nothing more to
+@@ -1545,34 +1574,7 @@ static int command(struct more_control *ctl, char *filename, FILE *f)
+ 		case 'h':
+ 			if (ctl->noscroll)
+ 				doclear(ctl);
+-			fputs(_("\n"
+-				  "Most commands optionally preceded by integer argument k.  "
+-				  "Defaults in brackets.\n"
+-				  "Star (*) indicates argument becomes new default.\n"), stdout);
+-			fputs("---------------------------------------"
+-			     "----------------------------------------", stdout);
+-			fputs(_
+-				("<space>                 Display next k lines of text [current screen size]\n"
+-				 "z                       Display next k lines of text [current screen size]*\n"
+-				 "<return>                Display next k lines of text [1]*\n"
+-				 "d or ctrl-D             Scroll k lines [current scroll size, initially 11]*\n"
+-				 "q or Q or <interrupt>   Exit from more\n"
+-				 "s                       Skip forward k lines of text [1]\n"
+-				 "f                       Skip forward k screenfuls of text [1]\n"
+-				 "b or ctrl-B             Skip backwards k screenfuls of text [1]\n"
+-				 "'                       Go to place where previous search started\n"
+-				 "=                       Display current line number\n"
+-				 "/<regular expression>   Search for kth occurrence of regular expression [1]\n"
+-				 "n                       Search for kth occurrence of last r.e [1]\n"
+-				 "!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"
+-				 "v                       Start up /usr/bin/vi at current line\n"
+-				 "ctrl-L                  Redraw screen\n"
+-				 ":n                      Go to kth next file [1]\n"
+-				 ":p                      Go to kth previous file [1]\n"
+-				 ":f                      Display current file name and line number\n"
+-				 ".                       Repeat previous command\n"), stdout);
+-			fputs("---------------------------------------"
+-			      "----------------------------------------", stdout);
++			runtime_usage();
+ 			prompt(ctl, filename);
+ 			break;
+ 		case 'v':	/* This case should go right before default */
 -- 
-http://www.fastmail.com - Choose from over 50 domains or use your own
+2.3.0
 
