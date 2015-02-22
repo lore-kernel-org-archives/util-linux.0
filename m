@@ -1,34 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60439 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751270AbbB0NtZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Feb 2015 08:49:25 -0500
-Date: Fri, 27 Feb 2015 14:49:23 +0100
-From: Karel Zak <kzak@redhat.com>
-To: wfp5p@worldbroken.com
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] docs: fix some spelling errors and typos in man pages
-Message-ID: <20150227134923.GC8046@ws.net.home>
-References: <1424873279-12250-1-git-send-email-wfp5p@worldbroken.com>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:40158 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752070AbbBVRhq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Feb 2015 12:37:46 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailout.nyi.internal (Postfix) with ESMTP id A40C92060F
+	for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 12:37:45 -0500 (EST)
+Message-Id: <1424626666.3148362.230854957.0A7EA051@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424873279-12250-1-git-send-email-wfp5p@worldbroken.com>
+Content-Type: text/plain
+In-Reply-To: <1424616106-580-2-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-2-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 01/16] whereis: tell when mandatory option is missing
+Date: Sun, 22 Feb 2015 18:37:46 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 25, 2015 at 09:07:59AM -0500, wfp5p@worldbroken.com wrote:
->  login-utils/last.1        | 2 +-
->  login-utils/lslogins.1    | 2 +-
->  login-utils/runuser.1     | 2 +-
->  sys-utils/hwclock.8.in    | 2 +-
->  sys-utils/prlimit.1       | 2 +-
->  sys-utils/unshare.1       | 2 +-
->  term-utils/agetty.8       | 2 +-
->  term-utils/scriptreplay.1 | 2 +-
->  8 files changed, 8 insertions(+), 8 deletions(-)
 
-Applied, thanks.
+On Sun, Feb 22, 2015, at 15:41, Sami Kerola wrote:
+>  misc-utils/whereis.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+
+But whereis works fine with a missing -f when some
+other option is given after -B or -M or -S.  Example:
+
+$ whereis  -B /crap  -bm  when where whereis
+when:
+where:
+whereis: /usr/share/man/man1/whereis.1.gz
+
+To break that with a complaint about a missing -f...
+Better not.
+
+But when there's no intervening option, then it's good
+to report a missing -f -- at least, when there is more
+than one argument after the -B or -M or -S.
+
+> +	if (opt_f_missing)
+> +		errx(EXIT_FAILURE, _("option -f missing"));
+
+s/missing/is missing/
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Send your email first class
+
