@@ -1,61 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:41816 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752561AbbAaJ6k (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 31 Jan 2015 04:58:40 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailout.nyi.internal (Postfix) with ESMTP id 5A6E0206B0
-	for <util-linux@vger.kernel.org>; Sat, 31 Jan 2015 04:58:39 -0500 (EST)
-Message-Id: <1422698319.1391339.221285309.35047434@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: cfdisk will happily create a partition of size zero
-Date: Sat, 31 Jan 2015 10:58:39 +0100
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:48968 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752090AbbBVOm0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:26 -0500
+Received: by mail-wg0-f41.google.com with SMTP id b13so21270007wgh.0
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:25 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 03/13] rtcwake: replace long if else statement with switch case
+Date: Sun, 22 Feb 2015 14:42:09 +0000
+Message-Id: <1424616139-638-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/rtcwake.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-Hi,
-
-My disk is configured like this:
-
-                                 Disk: /dev/sda
-             Size: 149.1 GiB, 160041885696 bytes, 312581808 sectors
-                       Label: dos, identifier: 0x5ef35ef3
-
-    Device      Boot     Start       End   Sectors   Size Id Type
-    /dev/sda1             2048  31262489  31260442  14.9G 83 Linux
-    /dev/sda2   *     31262490  62508914  31246425  14.9G 83 Linux
-    /dev/sda3         62508915  93755339  31246425  14.9G 83 Linux
-    /dev/sda4         93755401 312576704 218821304 104.4G  5 Extended           
-    |-/dev/sda5       93755403  94767434   1012032 494.2M 82 Linux swap / Solari
-    |-/dev/sda6       94767498 252975554 158208057  75.5G 83 Linux
-    |-/dev/sda7      252975618 282776129  29800512  14.2G 83 Linux
-    `-/dev/sda8      282776193 312576704  29800512  14.2G 83 Linux
-    Free space       312578048 312581807      3760   1.9M
-
-When I delete sda5 to sda8 and then sda4, and then recreate sda4,
-and then in the free space create a partition of 1 sector, things
-look like this:
-
-    /dev/sda4               93755392  312581807  218826416  104.4G   5 Extended
-    |-/dev/sda5             93757440   93757440          0      0B  83 Linux    
-    `-Free space            93759488  312581807  218822320  104.4G
-
-Strange.  Start and end of sda5 are on the same sector?
-
-Anyway, if I then in the free space try to create a partition of
-say 123M, the response on the bottombar is (in red):
-
-Start sector 93759488 out of range.
-
-??
-
-Benno
-
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index 372e620..5f4b602 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -602,12 +602,15 @@ int main(int argc, char **argv)
+ 		xusleep(10 * 1000);
+ 	}
+ 
+-	if (suspend == NO_MODE) {
++	switch (suspend) {
++	case NO_MODE:
+ 		if (ctl.verbose)
+ 			printf(_("suspend mode: no; leaving\n"));
+ 		ctl.dryrun = 1;	/* to skip disabling alarm at the end */
++		break;
+ 
+-	} else if (suspend == OFF_MODE) {
++	case OFF_MODE:
++	{
+ 		char *arg[5];
+ 		int i = 0;
+ 
+@@ -626,8 +629,10 @@ int main(int argc, char **argv)
+ 			warn(_("failed to execute %s"), _PATH_SHUTDOWN);
+ 			rc = EXIT_FAILURE;
+ 		}
+-
+-	} else if (suspend == ON_MODE) {
++		break;
++	}
++	case ON_MODE:
++	{
+ 		unsigned long data;
+ 
+ 		if (ctl.verbose)
+@@ -644,20 +649,23 @@ int main(int argc, char **argv)
+ 					printf("... %s: %03lx\n", devname, data);
+ 			} while (!(data & RTC_AF));
+ 		}
+-
+-	} else if (suspend == DISABLE_MODE) {
++		break;
++	}
++	case DISABLE_MODE:
+ 		/* just break, alarm gets disabled in the end */
+ 		if (ctl.verbose)
+ 			printf(_("suspend mode: disable; disabling alarm\n"));
++		break;
+ 
+-	} else if (suspend == SHOW_MODE) {
++	case SHOW_MODE:
+ 		if (ctl.verbose)
+ 			printf(_("suspend mode: show; printing alarm info\n"));
+ 		if (print_alarm(&ctl, fd))
+ 			rc = EXIT_FAILURE;
+ 		ctl.dryrun = 1;	/* don't really disable alarm in the end, just show */
++		break;
+ 
+-	} else {
++	default:
+ 		if (ctl.verbose)
+ 			printf(_("suspend mode: %s; suspending system\n"), mode_str[suspend]);
+ 		sync();
 -- 
-http://www.fastmail.com - Access your email from home and the web
+2.3.0
 
