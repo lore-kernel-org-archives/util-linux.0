@@ -1,58 +1,133 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53379 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751282AbbBBMLb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Feb 2015 07:11:31 -0500
-Date: Mon, 2 Feb 2015 13:11:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: cfdisk's input fields behave awkwardly (in utf8 locale)
-Message-ID: <20150202121126.GL16162@ws.net.home>
-References: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com>
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:64245 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752243AbbBVOoe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:34 -0500
+Received: by mail-wg0-f51.google.com with SMTP id y19so21185181wgg.10
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:33 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 22/31] more: init function variables at declaration
+Date: Sun, 22 Feb 2015 14:43:18 +0000
+Message-Id: <1424616207-747-23-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 01, 2015 at 03:02:06PM +0100, Benno Schulenberg wrote:
-> To reproduce:  # LC_ALL=en_US.utf8 ./cfdisk
-> 
-> Anyway, if the cursor keys would not produce weird characters,
-> and they can't be made to work normally (that is: to go left and
-> right), then the only way to change the suggested value is to use
-> the Backspace key.  This is awkward.  The older cfdisk, when it
+Two lines expressions, such as example below, is more readable when
+done with a single line that combines declaration and init.
 
- "Fixed" .. I just disable some keys (like left, right...).
+int i;
+i = 0;
 
-> prompted for a partition size, would put the cursor at the start
-> of the suggested value, and hitting any other key than Enter
-> would erase this value. That is nice and desirable behaviour.
-> Could that be restored?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/more.c | 24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
 
- It would be better to implement full one line editor with support for
- all basic keys and with ability to insert and erase chars on
- arbitrary position with in the string... v2.27 :-)
-
-> Also, upon startup the old cfdisk would put the cursor on the
-> menu item "Quit", showing the user the most important thing
-> right at the start: how to get out.  This is extra useful when
-> cfdisk is localized to another language where the word for quit
-> doesn't start with a Q.  Could this initial menu-item selection
-> be restored?
-
- Fixed.
-
-> Something quite different: the man page of cfdisk says that it
-> is possible to load an sfdisk-compatible script into cfdisk.
-> But how?
-
- "cfdisk --zero" asks for new disk label or for the script.
-
-    Karel
-
-
+diff --git a/text-utils/more.c b/text-utils/more.c
+index 9a3d96b..e9c123c 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -372,8 +372,8 @@ static void prepare_line_buffer(struct more_control *ctl)
+ static int get_line(struct more_control *ctl, FILE *f, int *length)
+ {
+ 	int c;
+-	char *p;
+-	int column;
++	char *p = ctl->Line;
++	int column = 0;
+ 	static int colflg;
+ 
+ #ifdef HAVE_WIDECHAR
+@@ -392,8 +392,6 @@ static int get_line(struct more_control *ctl, FILE *f, int *length)
+ #endif
+ 	prepare_line_buffer(ctl);
+ 
+-	p = ctl->Line;
+-	column = 0;
+ 	c = more_getc(ctl, f);
+ 	if (colflg && c == '\n') {
+ 		ctl->Currline++;
+@@ -749,10 +747,9 @@ static int readch(struct more_control *ctl)
+  * which terminates the number. */
+ static int number(struct more_control *ctl, char *cmd)
+ {
+-	int i;
++	int i = 0;
+ 	char ch;
+ 
+-	i = 0;
+ 	for (;;) {
+ 		ch = readch(ctl);
+ 		if (isdigit(ch))
+@@ -833,13 +830,11 @@ static void erase_one_column(struct more_control *ctl)
+ 
+ static void ttyin(struct more_control *ctl, char buf[], int nmax, char pchar)
+ {
+-	char *sp;
++	char *sp = buf;
+ 	int c;
+ 	int slash = 0;
+-	int maxlen;
++	int maxlen = 0;
+ 
+-	sp = buf;
+-	maxlen = 0;
+ 	while (sp - buf < nmax) {
+ 		if (ctl->promptlen > maxlen)
+ 			maxlen = ctl->promptlen;
+@@ -957,7 +952,7 @@ static void ttyin(struct more_control *ctl, char buf[], int nmax, char pchar)
+ 
+ static int expand(struct more_control *ctl, char **outbuf, char *inbuf)
+ {
+-	char *inpstr;
++	char *inpstr = inbuf;
+ 	char *outstr;
+ 	char c;
+ 	char *temp;
+@@ -967,7 +962,6 @@ static int expand(struct more_control *ctl, char **outbuf, char *inbuf)
+ 	xtra = strlen(ctl->fnames[ctl->fnum]) + strlen(ctl->shell_line) + 1;
+ 	tempsz = 200 + xtra;
+ 	temp = xmalloc(tempsz);
+-	inpstr = inbuf;
+ 	outstr = temp;
+ 	while ((c = *inpstr++) != '\0') {
+ 		offset = outstr - temp;
+@@ -1098,7 +1092,7 @@ static void do_shell(struct more_control *ctl, char *filename)
+ {
+ 	char cmdbuf[COMMAND_BUF];
+ 	int rc;
+-	char *expanded;
++	char *expanded = NULL;
+ 
+ 	kill_line(ctl);
+ 	putchar('!');
+@@ -1108,7 +1102,6 @@ static void do_shell(struct more_control *ctl, char *filename)
+ 		fputs(ctl->shell_line, stdout);
+ 	else {
+ 		ttyin(ctl, cmdbuf, sizeof(cmdbuf) - 2, '!');
+-		expanded = 0;
+ 		rc = expand(ctl, &expanded, cmdbuf);
+ 		if (expanded) {
+ 			if (strlen(expanded) < sizeof(ctl->shell_line))
+@@ -1257,13 +1250,12 @@ static void search(struct more_control *ctl, char buf[], FILE *file, int n)
+ 	long line1 = startline;
+ 	long line2 = startline;
+ 	long line3;
+-	int lncount;
++	int lncount = 0;
+ 	int saveln, rc;
+ 	regex_t re;
+ 
+ 	ctl->context.line = saveln = ctl->Currline;
+ 	ctl->context.chrctr = startline;
+-	lncount = 0;
+ 	if (!buf)
+ 		goto notfound;
+ 	if ((rc = regcomp(&re, buf, REG_NOSUB)) != 0) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.0
+
