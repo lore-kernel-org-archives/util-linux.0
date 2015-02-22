@@ -1,70 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:57729 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751168AbbBFLoZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Feb 2015 06:44:25 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:36318 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752090AbbBVOmd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:33 -0500
+Received: by mail-wg0-f42.google.com with SMTP id n12so21296034wgh.1
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:32 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/4] docs: retrofit the dates on some old release announcements
-Date: Fri,  6 Feb 2015 12:44:00 +0100
-Message-Id: <1423223042-2189-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
-References: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 05/13] rtcwake: improve read_clock_mode()
+Date: Sun, 22 Feb 2015 14:42:11 +0000
+Message-Id: <1424616139-638-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- NEWS |   18 +++++++-----------
- 1 files changed, 7 insertions(+), 11 deletions(-)
+Make skipping two lines more robust, and add message about unexpected
+adjfile contents when running with --verbose.
 
-diff --git a/NEWS b/NEWS
-index 7fa3483..81161e2 100644
---- a/NEWS
-+++ b/NEWS
-@@ -150,35 +150,31 @@ util-linux-ng 2.14: Jun 9 2008
- * see Documentation/releases/v2.14-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.14/v2.14-ChangeLog
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/rtcwake.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
+
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index a0e3151..790863f 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -47,8 +47,6 @@
+ #define	RTC_AF	0x20
+ #define	RTC_UF	0x10
  
--util-linux-ng 2.14-rc3
-+util-linux-ng 2.14-rc3: May 19 2008
- * see Documentation/releases/v2.14-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.14/v2.14-rc3-ChangeLog
- 
--util-linux-ng 2.14-rc2
-+util-linux-ng 2.14-rc2: Apr 28 2008
- * see Documentation/releases/v2.14-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.14/v2.14-rc2-ChangeLog
- 
--util-linux-ng 2.14-rc1
-+util-linux-ng 2.14-rc1: Apr 16 2008
- * see Documentation/releases/v2.14-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.14/v2.14-rc1-ChangeLog
- 
--util-linux-ng 2.13
+-#define MAX_LINE		1024
 -
-+util-linux-ng 2.13: Aug 28 2007
- * see Documentation/releases/v2.13-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.13/v2.13-ChangeLog
+ #define RTC_PATH		"/sys/class/rtc/%s/device/power/wakeup"
+ #define SYS_POWER_STATE_PATH	"/sys/power/state"
+ #define DEFAULT_DEVICE		"/dev/rtc0"
+@@ -299,26 +297,25 @@ static void suspend_system(struct rtcwake_control *ctl, int suspend)
+ static int read_clock_mode(struct rtcwake_control *ctl)
+ {
+ 	FILE *fp;
+-	char linebuf[MAX_LINE];
++	char ch, linebuf[8];
++	int lines = 2, give_up = 0xffff;
  
--util-linux-ng 2.13-rc3
--
-+util-linux-ng 2.13-rc3: Aug 8 2007
- * see Documentation/releases/v2.13-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.13/v2.13-rc3-ChangeLog
+ 	fp = fopen(ctl->adjfile, "r");
+ 	if (!fp)
+ 		return -1;
  
--util-linux-ng 2.13-rc2
+-	/* skip first line */
+-	if (!fgets(linebuf, MAX_LINE, fp)) {
+-		fclose(fp);
+-		return -1;
+-	}
 -
-+util-linux-ng 2.13-rc2: Jul 17 2007
- * see Documentation/releases/v2.13-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.13/v2.13-rc2-ChangeLog
+-	/* skip second line */
+-	if (!fgets(linebuf, MAX_LINE, fp)) {
+-		fclose(fp);
+-		return -1;
+-	}
++	/* skip lines */
++	do {
++		if ((ch = fgetc(fp)) == EOF || 0 < give_up--) {
++			fclose(fp);
++			return -1;
++		}
++		if (ch == '\n' && --lines == 0)
++			break;
++	} while (1);
  
--util-linux-ng 2.13-rc1
--
-+util-linux-ng 2.13-rc1: Jul 4 2007
- * see Documentation/releases/v2.13-ReleaseNotes or complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.13/v2.13-rc1-ChangeLog
+ 	/* read third line */
+-	if (!fgets(linebuf, MAX_LINE, fp)) {
++	if (!fgets(linebuf, sizeof linebuf, fp)) {
+ 		fclose(fp);
+ 		return -1;
+ 	}
+@@ -327,6 +324,8 @@ static int read_clock_mode(struct rtcwake_control *ctl)
+ 		ctl->clock_mode = CM_UTC;
+ 	else if (strncmp(linebuf, "LOCAL", 5) == 0)
+ 		ctl->clock_mode = CM_LOCAL;
++	else if (ctl->verbose)
++		warnx(_("unexpected third line in: %s: %s"), ctl->adjfile, linebuf);
+ 
+ 	fclose(fp);
  
 -- 
-1.7.0.4
+2.3.0
 
