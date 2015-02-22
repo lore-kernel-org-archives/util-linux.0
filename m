@@ -1,189 +1,219 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:51233 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751934AbbBVOn6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:43:58 -0500
-Received: by mail-wi0-f178.google.com with SMTP id em10so11688522wid.5
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:43:57 -0800 (PST)
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:52497 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752257AbbBVOou (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:50 -0500
+Received: by mail-wg0-f46.google.com with SMTP id a1so21260874wgh.5
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:49 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 05/31] more: return is statement, not a function
-Date: Sun, 22 Feb 2015 14:43:01 +0000
-Message-Id: <1424616207-747-6-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 31/31] more: simplify initterm()
+Date: Sun, 22 Feb 2015 14:43:27 +0000
+Message-Id: <1424616207-747-32-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
 References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+If cases without else's does not need nesting.
+
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- text-utils/more.c | 42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ text-utils/more.c | 167 +++++++++++++++++++++++++-----------------------------
+ 1 file changed, 76 insertions(+), 91 deletions(-)
 
 diff --git a/text-utils/more.c b/text-utils/more.c
-index 7743570..940d429 100644
+index f349109..0ab4ade 100644
 --- a/text-utils/more.c
 +++ b/text-utils/more.c
-@@ -334,20 +334,20 @@ static FILE *checkf(struct more_control *ctl, register char *fs, int *clearfirst
- 		if (ctl->clreol)
- 			cleareol(ctl);
- 		warn(_("stat of %s failed"), fs);
--		return ((FILE *)NULL);
-+		return NULL;
+@@ -1791,103 +1791,13 @@ static void copy_file(FILE *f)
+ 
+ static void initterm(struct more_control *ctl)
+ {
+-	int ret, tmp;
++	int ret;
+ 	char *term;
+ 	struct winsize win;
+ 
+ #ifndef NON_INTERACTIVE_MORE
+ 	ctl->no_tty = tcgetattr(STDOUT_FILENO, &ctl->otty);
+ #endif
+-	if (!ctl->no_tty) {
+-		ctl->docrterase = (ctl->otty.c_cc[VERASE] != 255);
+-		ctl->docrtkill = (ctl->otty.c_cc[VKILL] != 255);
+-		if ((term = getenv("TERM")) == NULL) {
+-			ctl->dumb = 1;
+-			ctl->ul_opt = 0;
+-		}
+-		my_setupterm(term, 1, &ret);
+-		if (ret <= 0) {
+-			ctl->dumb = 1;
+-			ctl->ul_opt = 0;
+-		} else {
+-			if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &win) < 0) {
+-				ctl->lines_per_page = my_tgetnum(TERM_LINES);
+-				ctl->ncolumns = my_tgetnum(TERM_COLS);
+-			} else {
+-				if ((ctl->lines_per_page = win.ws_row) == 0)
+-					ctl->lines_per_page = my_tgetnum(TERM_LINES);
+-				if ((ctl->ncolumns = win.ws_col) == 0)
+-					ctl->ncolumns = my_tgetnum(TERM_COLS);
+-			}
+-			if ((ctl->lines_per_page <= 0) || my_tgetflag(TERM_HARD_COPY)) {
+-				ctl->hard_term = 1;
+-				ctl->lines_per_page = LINES_PER_PAGE;
+-			}
+-
+-			if (my_tgetflag(TERM_EAT_NEW_LINE))
+-				/* Eat newline at last column + 1; dec, concept */
+-				ctl->eatnl = 1;
+-			if (ctl->ncolumns <= 0)
+-				ctl->ncolumns = NUM_COLUMNS;
+-
+-			ctl->wrap_margin = my_tgetflag(TERM_AUTO_RIGHT_MARGIN);
+-			ctl->bad_so = my_tgetflag(TERM_CEOL);
+-			ctl->eraseln = my_tgetstr(TERM_CLEAR_TO_LINE_END);
+-			ctl->clear = my_tgetstr(TERM_CLEAR);
+-			ctl->std_enter = my_tgetstr(TERM_STANDARD_MODE);
+-			ctl->std_exit = my_tgetstr(TERM_EXIT_STANDARD_MODE);
+-			tmp = my_tgetnum(TERM_STD_MODE_GLITCH);
+-			if (tmp < 0)
+-				ctl->stdout_glitch = 0;
+-			else if (0 < tmp)
+-				ctl->stdout_glitch = 1;
+-
+-			/* Set up for underlining:  some terminals don't
+-			 * need it; others have start/stop sequences,
+-			 * still others have an underline char sequence
+-			 * which is assumed to move the cursor forward
+-			 * one character.  If underline sequence isn't
+-			 * available, settle for standout sequence. */
+-			if (my_tgetflag(TERM_UNDERLINE)
+-			    || my_tgetflag(TERM_OVER_STRIKE))
+-				ctl->ul_opt = 0;
+-			if ((ctl->underlining_char = my_tgetstr(TERM_UNDERLINE_CHAR)) == NULL)
+-				ctl->underlining_char = "";
+-			if (((ctl->underline_enter =
+-			      my_tgetstr(TERM_ENTER_UNDERLINE)) == NULL
+-			     || (ctl->underline_exit =
+-				 my_tgetstr(TERM_EXIT_UNDERLINE)) == NULL)
+-			    && !*ctl->underlining_char) {
+-				if ((ctl->underline_enter = ctl->std_enter) == NULL
+-				    || (ctl->underline_exit = ctl->std_exit) == NULL) {
+-					ctl->underline_enter = "";
+-					ctl->underline_exit = "";
+-				} else
+-					ctl->ul_glitch = ctl->stdout_glitch;
+-			} else {
+-				ctl->ul_glitch = 0;
+-			}
+-
+-			ctl->go_home = my_tgetstr(TERM_HOME);
+-			if (ctl->go_home == NULL || *ctl->go_home == '\0') {
+-				if ((ctl->cursorm =
+-				     my_tgetstr(TERM_CURSOR_ADDRESS)) != NULL) {
+-					const char *t =
+-					    (const char *)my_tgoto(ctl->cursorm, 0,
+-								   0);
+-					xstrncpy(ctl->cursorhome, t,
+-						 sizeof(ctl->cursorhome));
+-					ctl->go_home = ctl->cursorhome;
+-				}
+-			}
+-			ctl->end_clear = my_tgetstr(TERM_CLEAR_TO_SCREEN_END);
+-			if ((ctl->backspace_char = my_tgetstr(TERM_LINE_DOWN)) == NULL)
+-				ctl->backspace_char = "\b";
+-
+-		}
+-		if ((ctl->shell = getenv("SHELL")) == NULL)
+-			ctl->shell = _PATH_BSHELL;
+-	}
+ 	ctl->no_intty = tcgetattr(STDIN_FILENO, &ctl->otty);
+ 	tcgetattr(STDERR_FILENO, &ctl->otty);
+ 	ctl->orig_tty = ctl->otty;
+@@ -1897,6 +1807,81 @@ static void initterm(struct more_control *ctl)
+ 		ctl->otty.c_cc[VMIN] = 1;
+ 		ctl->otty.c_cc[VTIME] = 0;
  	}
- 	if ((stbuf.st_mode & S_IFMT) == S_IFDIR) {
- 		printf(_("\n*** %s: directory ***\n\n"), fs);
--		return ((FILE *)NULL);
-+		return NULL;
- 	}
- 	if ((f = Fopen(fs, "r")) == NULL) {
- 		fflush(stdout);
- 		warn(_("cannot open %s"), fs);
--		return ((FILE *)NULL);
-+		return NULL;
- 	}
- 	if (magic(f, fs)) {
- 		fclose(f);
--		return ((FILE *)NULL);
-+		return NULL;
- 	}
- 	fcntl(fileno(f), F_SETFD, FD_CLOEXEC);
- 	c = Getc(f);
-@@ -355,7 +355,7 @@ static FILE *checkf(struct more_control *ctl, register char *fs, int *clearfirst
- 	Ungetc(c, f);
- 	if ((ctl->file_size = stbuf.st_size) == 0)
- 		ctl->file_size = LONG_MAX;
--	return (f);
-+	return f;
++	if (ctl->no_tty)
++		return;
++	ctl->docrterase = (ctl->otty.c_cc[VERASE] != 255);
++	ctl->docrtkill = (ctl->otty.c_cc[VKILL] != 255);
++	if ((term = getenv("TERM")) == NULL) {
++		ctl->dumb = 1;
++		ctl->ul_opt = 0;
++	}
++	if ((ctl->shell = getenv("SHELL")) == NULL)
++		ctl->shell = _PATH_BSHELL;
++	my_setupterm(term, 1, &ret);
++	if (ret < 1) {
++		ctl->dumb = 1;
++		ctl->ul_opt = 0;
++		return;
++	}
++	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &win) < 0) {
++		ctl->lines_per_page = my_tgetnum(TERM_LINES);
++		ctl->ncolumns = my_tgetnum(TERM_COLS);
++	} else {
++		if ((ctl->lines_per_page = win.ws_row) == 0)
++			ctl->lines_per_page = my_tgetnum(TERM_LINES);
++		if ((ctl->ncolumns = win.ws_col) == 0)
++			ctl->ncolumns = my_tgetnum(TERM_COLS);
++	}
++	if ((ctl->lines_per_page < 1) || my_tgetflag(TERM_HARD_COPY)) {
++		ctl->hard_term = 1;
++		ctl->lines_per_page = LINES_PER_PAGE;
++	}
++	if (ctl->ncolumns < 1)
++		ctl->ncolumns = NUM_COLUMNS;
++	if (my_tgetflag(TERM_EAT_NEW_LINE))
++		/* Eat newline at last column + 1; dec, concept */
++		ctl->eatnl = 1;
++	ctl->wrap_margin = my_tgetflag(TERM_AUTO_RIGHT_MARGIN);
++	ctl->bad_so = my_tgetflag(TERM_CEOL);
++	ctl->eraseln = my_tgetstr(TERM_CLEAR_TO_LINE_END);
++	ctl->clear = my_tgetstr(TERM_CLEAR);
++	ctl->std_enter = my_tgetstr(TERM_STANDARD_MODE);
++	ctl->std_exit = my_tgetstr(TERM_EXIT_STANDARD_MODE);
++	if (0 < my_tgetnum(TERM_STD_MODE_GLITCH))
++		ctl->stdout_glitch = 1;
++	/* Set up for underlining:  some terminals don't need it; others have
++	 * start/stop sequences, still others have an underline char sequence
++	 * which is assumed to move the cursor forward one character.  If
++	 * underline sequence isn't available, settle for standout sequence.
++	 */
++	if (my_tgetflag(TERM_UNDERLINE)
++	    || my_tgetflag(TERM_OVER_STRIKE))
++		ctl->ul_opt = 0;
++	if ((ctl->underlining_char = my_tgetstr(TERM_UNDERLINE_CHAR)) == NULL)
++		ctl->underlining_char = "";
++	if (((ctl->underline_enter = my_tgetstr(TERM_ENTER_UNDERLINE)) == NULL
++	     || (ctl->underline_exit = my_tgetstr(TERM_EXIT_UNDERLINE)) == NULL)
++	    && !*ctl->underlining_char) {
++		if ((ctl->underline_enter = ctl->std_enter) == NULL
++		    || (ctl->underline_exit = ctl->std_exit) == NULL) {
++			ctl->underline_enter = "";
++			ctl->underline_exit = "";
++		} else
++			ctl->ul_glitch = ctl->stdout_glitch;
++	} else {
++		ctl->ul_glitch = 0;
++	}
++	ctl->go_home = my_tgetstr(TERM_HOME);
++	if (ctl->go_home == NULL || *ctl->go_home == '\0') {
++		if ((ctl->cursorm = my_tgetstr(TERM_CURSOR_ADDRESS)) != NULL) {
++			const char *t = my_tgoto(ctl->cursorm, 0, 0);
++			xstrncpy(ctl->cursorhome, t, sizeof(ctl->cursorhome));
++			ctl->go_home = ctl->cursorhome;
++		}
++	}
++	ctl->end_clear = my_tgetstr(TERM_CLEAR_TO_SCREEN_END);
++	if ((ctl->backspace_char = my_tgetstr(TERM_LINE_DOWN)) == NULL)
++		ctl->backspace_char = "\b";
  }
  
- static void prepare_line_buffer(struct more_control *ctl)
-@@ -462,10 +462,10 @@ static int get_line(struct more_control *ctl, register FILE *f, int *length)
- 			if (p > ctl->Line) {
- 				*p = '\0';
- 				*length = p - ctl->Line;
--				return (column);
-+				return column;
- 			}
- 			*length = p - ctl->Line;
--			return (EOF);
-+			return EOF;
- 		}
- 		if (c == '\n') {
- 			ctl->Currline++;
-@@ -508,7 +508,7 @@ static int get_line(struct more_control *ctl, register FILE *f, int *length)
- 			ctl->Pause = 1;
- 		} else if (c == EOF) {
- 			*length = p - ctl->Line;
--			return (column);
-+			return column;
- 		} else {
- #ifdef HAVE_WIDECHAR
- 			if (ctl->fold_opt && MB_CUR_MAX > 1) {
-@@ -566,7 +566,7 @@ static int get_line(struct more_control *ctl, register FILE *f, int *length)
- 	}
- 	*length = p - ctl->Line;
- 	*p = 0;
--	return (column);
-+	return column;
- }
- 
- /* Erase the rest of the prompt, assuming we are starting at column col. */
-@@ -751,7 +751,7 @@ static int readch(struct more_control *ctl)
- 		else
- 			c = ctl->otty.c_cc[VKILL];
- 	}
--	return (c);
-+	return c;
- }
- 
- /* Read a decimal number from the terminal.  Set cmd to the non-digit
-@@ -773,7 +773,7 @@ static int number(struct more_control *ctl, char *cmd)
- 			break;
- 		}
- 	}
--	return (i);
-+	return i;
- }
- 
- /* Skip nskip files in the file list (from the command line).  Nskip may
-@@ -1003,7 +1003,7 @@ static int expand(struct more_control *ctl, char **outbuf, char *inbuf)
- 	}
- 	*outstr++ = '\0';
- 	*outbuf = temp;
--	return (changed);
-+	return changed;
- }
- 
- static void set_tty(struct more_control *ctl)
-@@ -1183,7 +1183,7 @@ static int colon(struct more_control *ctl, char *filename, int cmd, int nlines)
- 		else
- 			ctl->promptlen = printf(_("[Not a file] line %d"), ctl->Currline);
- 		fflush(stdout);
--		return (-1);
-+		return -1;
- 	case 'n':
- 		if (nlines == 0) {
- 			if (ctl->fnum >= ctl->nfiles - 1)
-@@ -1193,27 +1193,27 @@ static int colon(struct more_control *ctl, char *filename, int cmd, int nlines)
- 		putchar('\r');
- 		erasep(ctl, 0);
- 		skipf(ctl, nlines);
--		return (0);
-+		return 0;
- 	case 'p':
- 		if (ctl->no_intty) {
- 			ringbell();
--			return (-1);
-+			return -1;
- 		}
- 		putchar('\r');
- 		erasep(ctl, 0);
- 		if (nlines == 0)
- 			nlines++;
- 		skipf(ctl, -nlines);
--		return (0);
-+		return 0;
- 	case '!':
- 		do_shell(ctl, filename);
--		return (-1);
-+		return -1;
- 	case 'q':
- 	case 'Q':
- 		end_it(0);
- 	default:
- 		ringbell();
--		return (-1);
-+		return -1;
- 	}
- }
- 
-@@ -1393,7 +1393,7 @@ static int command(struct more_control *ctl, char *filename, register FILE *f)
- 
- 				if (ctl->no_intty) {
- 					ringbell();
--					return (-1);
-+					return -1;
- 				}
- 
- 				if (nlines == 0)
-@@ -1633,7 +1633,7 @@ static int command(struct more_control *ctl, char *filename, register FILE *f)
-  endsw:
- 	ctl->inwait = 0;
- 	ctl->notell = 1;
--	return (retval);
-+	return retval;
- }
- 
- /* Print out the contents of the file f, one screenful at a time. */
-@@ -2051,5 +2051,5 @@ int main(int argc, char **argv)
- 	free(initbuf);
- 	free(ctl.Line);
- 	reset_tty(&ctl);
--	exit(EXIT_SUCCESS);
-+	return EXIT_SUCCESS;
- }
+ static void display_file(struct more_control *ctl, FILE *f, char *initbuf, int left)
 -- 
 2.3.0
 
