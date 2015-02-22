@@ -1,54 +1,116 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:61216
-	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755386AbbBPKcn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Feb 2015 05:32:43 -0500
-Date: Mon, 16 Feb 2015 11:32:41 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
-        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-Message-ID: <20150216103241.GD3926@type.bordeaux.inria.fr>
-References: <54DC88BF.5040702@draigBrady.com>
- <87h9uqv6lv.fsf@hobgoblin.ariadne.com>
- <20150213092131.GM32318@ws.net.home>
- <CAG27Bk0JrVSbKEBqeEr63O4cz3B5zyDmGw_MFVzXYTbWjZ2URQ@mail.gmail.com>
- <20150213112523.GP32318@ws.net.home>
- <20150215111238.GG32251@vapier>
- <20150216091043.GA11948@ws.net.home>
- <20150216093533.GJ4075@vapier>
- <20150216094747.GC11948@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150216094747.GC11948@ws.net.home>
+Received: from mail-we0-f181.google.com ([74.125.82.181]:42543 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752034AbbBVOmJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:09 -0500
+Received: by wesw62 with SMTP id w62so13565039wes.9
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:08 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 12/16] tailf: count last lines correctly at initial print out
+Date: Sun, 22 Feb 2015 14:41:42 +0000
+Message-Id: <1424616106-580-13-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak, le Mon 16 Feb 2015 10:47:47 +0100, a écrit :
-> On Mon, Feb 16, 2015 at 04:35:33AM -0500, Mike Frysinger wrote:
-> > On 16 Feb 2015 10:10, Karel Zak wrote:
-> > >  What we want to duplicate? What exactly in lib/colors.c is duplicate?
-> > >  The code evaluates filenames and parses files with "name colorcode".
-> > 
-> > whether the terminal even supports color in the first place.  if i picked a 
-> > terminal that doesn't support color so i didn't have to worry about it, it's a 
-> > bit crazy i also have to go to multiple config files and also tell them i don't 
-> > want color otherwise i get corrupted output.
-> 
-> For now it checks isatty() and nothing else, it would be possible to
-> check number of supported colors in terminfo too, or is there any
-> other way?
+When last lines happen to be greater than string buffer size for fgets()
+the number of printed lines resulted to too few.
 
-It should also check how to change the colors. Not all terminals will
-support the ANSI way.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ text-utils/tailf.c | 56 +++++++++++++++++++++++++-----------------------------
+ 1 file changed, 26 insertions(+), 30 deletions(-)
 
-> Anyway, we don't want to create (duplicate) any database, all it
-> provides are knobs for customization and enable/disable.
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index 0c477ad..b5ea4c2 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -36,6 +36,8 @@
+ #include <ctype.h>
+ #include <errno.h>
+ #include <getopt.h>
++#include <sys/mman.h>
++
+ #ifdef HAVE_INOTIFY_INIT
+ #include <sys/inotify.h>
+ #endif
+@@ -49,40 +51,34 @@
+ #define DEFAULT_LINES  10
+ 
+ static void
+-tailf(const char *filename, int lines)
++tailf(const char *filename, unsigned long lines, struct stat *old)
+ {
+-	char *buf, *p;
+-	int  head = 0;
+-	int  tail = 0;
+-	FILE *str;
+-	int  i;
++	int fd;
++	size_t i;
++	char *data;
+ 
+-	if (!(str = fopen(filename, "r")))
++	if (!(fd = open(filename, O_RDONLY)))
+ 		err(EXIT_FAILURE, _("cannot open %s"), filename);
+-
+-	buf = xmalloc((lines ? lines : 1) * BUFSIZ);
+-	p = buf;
+-	while (fgets(p, BUFSIZ, str)) {
+-		if (++tail >= lines) {
+-			tail = 0;
+-			head = 1;
++	data = mmap(0, old->st_size, PROT_READ, MAP_SHARED, fd, 0);
++	i = (size_t)old->st_size - 1;
++	/* humans do not think last new line in a file should be counted,
++	 * in that case do off by one from counter point of view */
++	if (data[i] == '\n')
++		lines++;
++	while (i) {
++		if (data[i] == '\n') {
++			if (--lines == 0) {
++				i++;
++				break;
++			}
+ 		}
+-		p = buf + (tail * BUFSIZ);
++		i--;
+ 	}
+-
+-	if (head) {
+-		for (i = tail; i < lines; i++)
+-			fputs(buf + (i * BUFSIZ), stdout);
+-		for (i = 0; i < tail; i++)
+-			fputs(buf + (i * BUFSIZ), stdout);
+-	} else {
+-		for (i = head; i < tail; i++)
+-			fputs(buf + (i * BUFSIZ), stdout);
+-	}
+-
++	while (i < (size_t)old->st_size)
++		putchar(data[i++]);
++	munmap(data, old->st_size);
++	close(fd);
+ 	fflush(stdout);
+-	free(buf);
+-	fclose(str);
+ }
+ 
+ static void
+@@ -283,8 +279,8 @@ int main(int argc, char **argv)
+ 
+ 	if (stat(filename, &old) != 0)
+ 		err(EXIT_FAILURE, _("stat of %s failed"), filename);
+-
+-	tailf(filename, lines);
++	if (lines && old.st_size)
++		tailf(filename, lines, &old);
+ 
+ #ifdef HAVE_INOTIFY_INIT
+ 	if (!watch_file_inotify(filename, &old))
+-- 
+2.3.0
 
-It provides only that because the source code currently hardcodes the
-\033[%sm sequence, but it really should not, and use terminfo instead.
-
-Samuel
