@@ -1,57 +1,87 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <54E0E69C.6020907@gmx.com>
-Date: Sun, 15 Feb 2015 13:34:04 -0500
-From: J William Piggott <elseifthen@gmx.com>
-MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH] hwclock: man-page errata
-Content-Type: text/plain; charset=utf-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:49133 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752025AbbBVOmE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:04 -0500
+Received: by mail-wg0-f51.google.com with SMTP id y19so21178837wgg.10
+        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:03 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 07/16] lib/strutils: move parse_switch() from setterm(1) to library
+Date: Sun, 22 Feb 2015 14:41:37 +0000
+Message-Id: <1424616106-580-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Professor Eggert, maintainer of the tz database, reviewed
-the new POSIX vs 'RIGHT' man-page section and suggested
-the following corrections.
+To allow sharing the code with other utilities.
 
-Correct the subdirectory names and remove IANA from the
-name of the Time Zone Database.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/hwclock.8.in | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/strutils.h   |  2 ++
+ lib/strutils.c       |  8 ++++++++
+ term-utils/setterm.c | 14 --------------
+ 3 files changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 9512690..7ddd2b1 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -993,10 +993,10 @@ A discussion on date-time configuration would be incomplete without
- addressing timezones, this is mostly well covered by
- .BR tzset (3).
- One area that seems to have no documentation is the 'right'
--directory of the IANA Time Zone Database, aka tz, aka zoneinfo.
-+directory of the Time Zone Database, aka tz, aka zoneinfo.
- .PP
- There are two separate databases in the zoneinfo system, posix
--and 'right'. 'Right' (now named leaps) includes leap seconds and posix
-+and 'right'. 'Right' (now named zoneinfo\-leaps) includes leap seconds and posix
- does not. To use the 'right' database the System Clock must be kept in
- \%UTC\ +\ leap_seconds, i.e., \%TAI\ \-\ 10. This allows calculating the
- exact number of seconds between two dates that cross a leap second
-@@ -1013,13 +1013,13 @@ Files are never used directly from the posix or 'right' subdirectories, e.g.,
- This habit was becoming so common that the upstream zoneinfo project
- restructured the system's file tree by moving the posix and 'right'
- subdirectories out of the zoneinfo directory and into sibling directories:
--.br
-+.PP
- .in +2
- .I /usr/share/zoneinfo
- .br
--.I /usr/share/posix
-+.I /usr/share/zoneinfo\-posix
- .br
--.I /usr/share/leaps
-+.I /usr/share/zoneinfo\-leaps
- .PP
- Unfortunately, some Linux distributions are changing it back to the old
- tree structure in their packages. So the problem of system
+diff --git a/include/strutils.h b/include/strutils.h
+index 4d8463a..ee8c7cb 100644
+--- a/include/strutils.h
++++ b/include/strutils.h
+@@ -36,6 +36,8 @@ extern void strtotimeval_or_err(const char *str, struct timeval *tv,
+ 
+ extern int isdigit_string(const char *str);
+ 
++extern int parse_switch(const char *arg, const char *a, const char *b);
++
+ #ifndef HAVE_MEMPCPY
+ extern void *mempcpy(void *restrict dest, const void *restrict src, size_t n);
+ #endif
+diff --git a/lib/strutils.c b/lib/strutils.c
+index c4f9600..f6154aa 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -181,6 +181,14 @@ int isdigit_string(const char *str)
+ 	return p && p > str && !*p;
+ }
+ 
++int parse_switch(const char *arg, const char *a, const char *b)
++{
++	if (strcmp(arg, a) == 0)
++		return 1;
++	else if (strcmp(arg, b) == 0)
++		return 0;
++	errx(STRTOXX_EXIT_CODE, _("argument error: %s"), arg);
++}
+ 
+ #ifndef HAVE_MEMPCPY
+ void *mempcpy(void *restrict dest, const void *restrict src, size_t n)
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 76fedba..253f84f 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -178,20 +178,6 @@ struct setterm_control {
+ 	    opt_powerdown:1, opt_blength:1, opt_bfreq:1;
+ };
+ 
+-/* Command line parsing routines.
+- *
+- * Note that it is an error for a given option to be invoked more than once.
+- */
+-
+-static int parse_switch(const char *arg, const char *t, const char *f)
+-{
+-	if (strcmp(arg, t) == 0)
+-		return 1;
+-	else if (strcmp(arg, f) == 0)
+-		return 0;
+-	errx(EXIT_FAILURE, _("argument error: %s"), arg);
+-}
+-
+ static int parse_febg_color(const char *arg)
+ {
+ 	int color;
+-- 
+2.3.0
+
