@@ -1,30 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46136 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752600AbbBXKkW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Feb 2015 05:40:22 -0500
-Date: Tue, 24 Feb 2015 11:40:11 +0100
-From: Karel Zak <kzak@redhat.com>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:49348 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751980AbbBVRVE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Feb 2015 12:21:04 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+	by mailout.nyi.internal (Postfix) with ESMTP id AD5BC209FF
+	for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 12:21:03 -0500 (EST)
+Message-Id: <1424625664.3145324.230850161.4C47C348@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 08/16] tunelp: use parse_switch()
-Message-ID: <20150224104011.GJ19430@ws.net.home>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
- <1424616106-580-9-git-send-email-kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616106-580-9-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain
+In-Reply-To: <1424616106-580-17-git-send-email-kerolasa@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-17-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 16/16] logger: fix -i argument parsing regression
+Date: Sun, 22 Feb 2015 18:21:04 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:41:38PM +0000, Sami Kerola wrote:
->  sys-utils/tunelp.c | 21 +++++----------------
->  1 file changed, 5 insertions(+), 16 deletions(-)
 
- Applied, thanks.
+On Sun, Feb 22, 2015, at 15:41, Sami Kerola wrote:
+> Reviewed-by: Benno Schulenberg <benno@vertaalt.nl>
 
-    Karel
+Please use my justemail address (the current one) here instead.
+The vertaalt one I use just for translations.
+
+> +.BR \-i
+
+s/BR/B/    (since there is just one argument)
+
+> +.BR "\-\-id" [ = \fIid ]
+
+s/= /=/    (to fix my own mistake)
+
+> -	fputs(_(" -i, --id[=<id>]          log <id> (default is PID)\n"), out);
+> +	fputs(_(" -i                       log logger command PID\n"), out);
+
+Better: "log the logger command's PID" -- there is room enough to
+avoid telegram style.
+
+> +	fputs(_("     --id[=<id>]          log <id> (default is PID)\n"), out);
+
+Better: "log the given <id>, or otherwise the PID"
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Access all of your messages and folders
+                          wherever you are
+
