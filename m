@@ -1,118 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:44349 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752197AbbBVOoR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:17 -0500
-Received: by mail-wi0-f173.google.com with SMTP id bs8so11858549wib.0
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:16 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 12/31] more: move editor execution to a function from command()
-Date: Sun, 22 Feb 2015 14:43:08 +0000
-Message-Id: <1424616207-747-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:48834 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752021AbbBVVDH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Feb 2015 16:03:07 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id A3C1020551
+	for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 16:03:06 -0500 (EST)
+Message-Id: <1424638987.3185993.230906669.39E662B2@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+In-Reply-To: <1424616207-747-19-git-send-email-kerolasa@iki.fi>
 References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+ <1424616207-747-19-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 18/31] more: split run time help screen to multiple
+ translatable lines
+Date: Sun, 22 Feb 2015 22:03:07 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The command() function is too long.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.c | 72 ++++++++++++++++++++++++++-----------------------------
- 1 file changed, 34 insertions(+), 38 deletions(-)
+On Sun, Feb 22, 2015, at 15:43, Sami Kerola wrote:
+> -	fputs(_("\n"
+> -		"Most commands optionally preceded by integer argument k.  "
+> -		"Defaults in brackets.\n"
+> -		"Star (*) indicates argument becomes new default.\n"), stdout);
+> [...]
+> +	fputs(  "\n", stdout);
+> +	fputs(_("Most commands optionally preceded by integer argument k.\n"), stdout);
+> +	fputs(_("Defaults in brackets.\n"), stdout);
+> +	fputs(_("Star (*) indicates argument becomes new default.\n"), stdout);
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 6b07d95..0825cdb 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -1370,6 +1370,39 @@ static void runtime_usage(void)
- 	fputs(	"-------------------------------------------------------------------------------", stdout);
- }
- 
-+static void execute_editor(struct more_control *ctl, char *cmdbuf, char *filename)
-+{
-+	char *editor, *p;
-+	int n = (ctl->Currline - ctl->dlines <= 0 ? 1 : ctl->Currline - (ctl->dlines + 1) / 2);
-+	int split = 0;
-+
-+	editor = getenv("VISUAL");
-+	if (editor == NULL || *editor == '\0')
-+		editor = getenv("EDITOR");
-+	if (editor == NULL || *editor == '\0')
-+		editor = _PATH_VI;
-+	p = strrchr(editor, '/');
-+	if (p)
-+		p++;
-+	else
-+		p = editor;
-+	/* Earlier: call vi +n file.  This also works for emacs.  POSIX:
-+	 * call vi -c n file (when editor is vi or ex).  */
-+	if (!strcmp(p, "vi") || !strcmp(p, "ex")) {
-+		sprintf(cmdbuf, "-c %d", n);
-+		split = 1;
-+	} else
-+		sprintf(cmdbuf, "+%d", n);
-+	kill_line(ctl);
-+	printf("%s %s %s", editor, cmdbuf, ctl->fnames[ctl->fnum]);
-+	if (split) {
-+		cmdbuf[2] = 0;
-+		execute(ctl, filename, editor, editor,
-+			cmdbuf, cmdbuf + 3, ctl->fnames[ctl->fnum], (char *)0);
-+	} else
-+		execute(ctl, filename, editor, editor, cmdbuf, ctl->fnames[ctl->fnum], (char *)0);
-+}
-+
- /* Read a command and do it.  A command consists of an optional integer
-  * argument followed by the command character.  Return the number of
-  * lines to display in the next screenful.  If there is nothing more to
-@@ -1579,44 +1612,7 @@ static int command(struct more_control *ctl, char *filename, FILE *f)
- 			break;
- 		case 'v':	/* This case should go right before default */
- 			if (!ctl->no_intty) {
--				/* Earlier: call vi +n file. This also
--				 * works for emacs.  POSIX: call vi -c n
--				 * file (when editor is vi or ex). */
--				char *editor, *p;
--				int n = (ctl->Currline - ctl->dlines <= 0 ? 1 :
--					 ctl->Currline - (ctl->dlines + 1) / 2);
--				int split = 0;
--
--				editor = getenv("VISUAL");
--				if (editor == NULL || *editor == '\0')
--					editor = getenv("EDITOR");
--				if (editor == NULL || *editor == '\0')
--					editor = _PATH_VI;
--
--				p = strrchr(editor, '/');
--				if (p)
--					p++;
--				else
--					p = editor;
--				if (!strcmp(p, "vi") || !strcmp(p, "ex")) {
--					sprintf(cmdbuf, "-c %d", n);
--					split = 1;
--				} else {
--					sprintf(cmdbuf, "+%d", n);
--				}
--
--				kill_line(ctl);
--				printf("%s %s %s", editor, cmdbuf,
--				       ctl->fnames[ctl->fnum]);
--				if (split) {
--					cmdbuf[2] = 0;
--					execute(ctl, filename, editor, editor,
--						cmdbuf, cmdbuf + 3,
--						ctl->fnames[ctl->fnum], (char *)0);
--				} else
--					execute(ctl, filename, editor, editor,
--						cmdbuf, ctl->fnames[ctl->fnum],
--						(char *)0);
-+				execute_editor(ctl, cmdbuf, filename);
- 				break;
- 			}
- 			/* fall through */
+These three sentences are somewhat interrelated, so it is better to keep
+them in a single translatable string, as it was.  It would have been nice
+to take out the leading newline, but it's not worth invalidating all the
+existing translations.  So I suggest keeping the first fputs() unchanged.
+Splitting up all the other lines is fine.
+
+> +	fputs(_("q or Q or <interrupt>   Exit from more\n"), stdout);
+
+Interrupt is always ctrl-C, no?  If so, then better use that, as
+it matches the representation of the other ctrl combos.
+
+> +	fputs(_("/<regular expression>   Search for kth occurrence of regular expression [1]\n"), stdout);
+
+In order to be able to reduce the amount of whitespace between
+key name and explanation in the whole help screen, I would
+suggest replacing <regular expression> with <regexp>, which
+is a very common abbreviation.
+
+> +	fputs(_("n                       Search for kth occurrence of last r.e [1]\n"), stdout);
+
+s/r.e/regexp/
+
+> +	fputs(_("!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"), stdout);
+
+Hmm...  Are there certain circumstances where ! doesn't work and
+:! is needed?  If not, I would suggest dropping the second form,
+to reduce the space between keys and explanations.  A help screen
+doesn't have to tell everything, that's what the man page is for.
+
+> +	fputs(_("ctrl-L                  Redraw screen\n"), stdout);
+
+For all key explanations: start them with a lowercase letter, as they
+don't end in a period either.
+
+Benno
+
 -- 
-2.3.0
+http://www.fastmail.com - Choose from over 50 domains or use your own
 
