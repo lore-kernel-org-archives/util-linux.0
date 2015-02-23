@@ -1,74 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45005 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751476AbbBMS7Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 13 Feb 2015 13:59:25 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 86564AC7B
-	for <util-linux@vger.kernel.org>; Fri, 13 Feb 2015 18:59:23 +0000 (UTC)
-Message-ID: <54DE498A.80604@suse.cz>
-Date: Fri, 13 Feb 2015 19:59:22 +0100
-From: Stanislav Brabec <sbrabec@suse.cz>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42993 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751959AbbBWUch (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Feb 2015 15:32:37 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+	by mailout.nyi.internal (Postfix) with ESMTP id C2BDC20915
+	for <util-linux@vger.kernel.org>; Mon, 23 Feb 2015 15:32:33 -0500 (EST)
+Message-Id: <1424723554.3616066.231389761.392C999E@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] script.1: Improve documentation of non-interactive behavior
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain
+In-Reply-To: <1424616139-638-7-git-send-email-kerolasa@iki.fi>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+ <1424616139-638-7-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 06/13] rtcwake: add human readable --date timestamp format
+Date: Mon, 23 Feb 2015 21:32:34 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-- use exit in .profile to avoid non-logged session after typing "exit"
-- document that script can read more from stdin than the command inside:
 
-echo -e 'script -c "read a b ; echo a=\$a b=\$b >defs.sh"\n1 2\necho Done' | sh
-Script started, file is typescript
-1 2
-echo Done
-Script done, file is typescript
----
- term-utils/script.1 | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On Sun, Feb 22, 2015, at 15:42, Sami Kerola wrote:
+> +.BR \-\-date " \fItimestamp"
 
-diff --git a/term-utils/script.1 b/term-utils/script.1
-index e130c77..6b566fe 100644
---- a/term-utils/script.1
-+++ b/term-utils/script.1
-@@ -128,7 +128,8 @@ in non-interactive shells. The inner shell of
- .B script
- is always interactive, and this could lead to unexpected results. If you use
- .B script
--in the shell initialization file (profile), you should use e. g.
-+in the shell initialization file, you have to avoid entering an infinite
-+loop. Use e. g. profile file, which is read by login shells only:
- .RS
- .RE
- .sp
-@@ -137,10 +138,15 @@ in the shell initialization file (profile), you should use e. g.
- .nf
- if test -t 0 ; then
-     script
-+    exit
- fi
- .fi
- .RE
- .PP
-+You should also avoid use of script in command pipes, as
-+.B script
-+can read more input than you would expect.
-+.PP
- .SH ENVIRONMENT
- The following environment variable is utilized by
- .BR script :
--- 
-2.2.2
+.BI \-\-date " timestamp"
+
+> +Set the wakeup time to the value of the timestamp.  Format of the
+> +timestmap can be any of the following:
+
+s/the timestamp.  Format of the timestmap/
+  \fItimestamp\fR.  The format of \fItimestamp\fR/
+
+> +	fputs(_("     --date <timestamp>   date time of timestamp to wake\n"), out);
+
+s:date time of timestamp to wake:date and/or time to wake:
+
+> +				errx(EXIT_FAILURE, _("invalid time value \"%s\""), optarg);
+
+s:time:date/time:
+
+Benno
 
 -- 
-Best Regards / S pozdravem,
+http://www.fastmail.com - IMAP accessible web-mail
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
