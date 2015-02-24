@@ -1,45 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35016 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752331AbbBBMhn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Feb 2015 07:37:43 -0500
-Date: Mon, 2 Feb 2015 13:37:36 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Peter Cordes <peter@cordes.ca>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: cfdisk's input fields behave awkwardly (in utf8 locale)
-Message-ID: <20150202123736.GN16162@ws.net.home>
-References: <1422799326.1853638.221575473.7DCCA1B0@webmail.messagingengine.com>
- <20150202121126.GL16162@ws.net.home>
- <20150202122923.GA3933@cordes.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150202122923.GA3933@cordes.ca>
+Received: from cthulhu.worldbroken.com ([173.230.133.178]:46241 "EHLO
+	cthulhu.worldbroken.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752791AbbBXRYe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Feb 2015 12:24:34 -0500
+From: wfp5p@worldbroken.com
+To: util-linux@vger.kernel.org
+Subject: [PATCH 6/8] hwclock.8.in: fix spelling transfered -> transferred
+Date: Tue, 24 Feb 2015 12:15:21 -0500
+Message-Id: <1424798123-11044-7-git-send-email-wfp5p@worldbroken.com>
+In-Reply-To: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
+References: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 02, 2015 at 08:29:23AM -0400, Peter Cordes wrote:
-> On Mon, Feb 02, 2015 at 01:11:26PM +0100, Karel Zak wrote:
-> > On Sun, Feb 01, 2015 at 03:02:06PM +0100, Benno Schulenberg wrote:
-> > > [...cfdisk...]
-> > > prompted for a partition size, would put the cursor at the start
-> > > of the suggested value, and hitting any other key than Enter
-> > > would erase this value. That is nice and desirable behaviour.
-> > > Could that be restored?
-> > 
-> >  It would be better to implement full one line editor with support for
-> >  all basic keys and with ability to insert and erase chars on
-> >  arbitrary position with in the string... v2.27 :-)
-> 
->  Maybe link with GNU readline, to avoid reinventing the wheel.
+From: Bill Pemberton <wfp5p@worldbroken.com>
 
-yep, and maybe for all fdisks, but it would be probably nice to have
-it optional (--with-readline), and without readline keep it simple and
-stupid.
+Signed-off-by: Bill Pemberton <wfp5p@worldbroken.com>
+---
+ sys-utils/hwclock.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    Karel
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index b13be31a2cd9..fbc10caa34cc 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -854,7 +854,7 @@ running at their own speed and drifting away from the 'correct' time at
+ their own rates.  The methods and software for drift correction are
+ different for each of them.  However, most systems are configured to
+ exchange values between these two clocks at startup and shutdown.  Now
+-the individual device's time keeping errors are transfered back and
++the individual device's time keeping errors are transferred back and
+ forth between each other.  Attempt to configure drift correction for only
+ one of them, and the other's drift will be overlaid upon it.  If the big
+ picture is not kept in mind, confusion will soon ensue.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.0
+
