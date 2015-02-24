@@ -1,74 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:56636 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:40613 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752827AbbBJVbL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 10 Feb 2015 16:31:11 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 9FFFDAC27
-	for <util-linux@vger.kernel.org>; Tue, 10 Feb 2015 21:31:10 +0000 (UTC)
-Message-ID: <54DA789E.201@suse.cz>
-Date: Tue, 10 Feb 2015 22:31:10 +0100
-From: Stanislav Brabec <sbrabec@suse.cz>
+	id S1753591AbbBXK37 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 05:29:59 -0500
+Date: Tue, 24 Feb 2015 11:29:48 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 05/16] tunelp: remove get_val() in favour of
+ strtol_or_err()
+Message-ID: <20150224102948.GH19430@ws.net.home>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-6-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/3] script: Initialize isterm and shell earlier in main()
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616106-580-6-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-isterm and shell initialized early in main() will be needed by --interactive.
----
- term-utils/script.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+On Sun, Feb 22, 2015 at 02:41:35PM +0000, Sami Kerola wrote:
+>  sys-utils/Makemodule.am |  1 +
+>  sys-utils/tunelp.c      | 22 ++++++++--------------
+>  2 files changed, 9 insertions(+), 14 deletions(-)
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 14a44e1..ed8e83d 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -236,6 +236,12 @@ main(int argc, char **argv) {
- 	argc -= optind;
- 	argv += optind;
- 
-+	shell = getenv("SHELL");
-+	if (shell == NULL)
-+		shell = _PATH_BSHELL;
-+
-+	isterm = isatty(STDIN_FILENO);
-+
- 	if (argc > 0)
- 		fname = argv[0];
- 	else {
-@@ -248,10 +254,6 @@ main(int argc, char **argv) {
- 		fail();
- 	}
- 
--	shell = getenv("SHELL");
--	if (shell == NULL)
--		shell = _PATH_BSHELL;
--
- 	getmaster();
- 	if (!qflg)
- 		printf(_("Script started, file is %s\n"), fname);
-@@ -635,8 +637,6 @@ getmaster(void) {
- #if defined(HAVE_LIBUTIL) && defined(HAVE_PTY_H)
- 	int rc;
- 
--	isterm = isatty(STDIN_FILENO);
--
- 	if (isterm) {
- 		if (tcgetattr(STDIN_FILENO, &tt) != 0)
- 			err(EXIT_FAILURE, _("failed to get terminal attributes"));
--- 
-2.2.2
+ Applied, thanks.
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
