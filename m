@@ -1,85 +1,70 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1424030549.2886406.227807181.7F9CF45A@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:45773 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752323AbbBXMSL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 07:18:11 -0500
+Date: Tue, 24 Feb 2015 13:18:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 14/16] tailf: ensure file argument really is a file
+Message-ID: <20150224121800.GO19430@ws.net.home>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-15-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [ANNOUNCE] util-linux v2.26-rc2
-Date: Sun, 15 Feb 2015 21:02:29 +0100
-In-Reply-To: <20150204115353.GC1238@ws.net.home>
-References: <20150204115353.GC1238@ws.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616106-580-15-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Feb 22, 2015 at 02:41:44PM +0000, Sami Kerola wrote:
+>  text-utils/tailf.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+> index d856203..7f053a4 100644
+> --- a/text-utils/tailf.c
+> +++ b/text-utils/tailf.c
+> @@ -233,6 +233,28 @@ static long old_style_option(int *argc, char **argv, unsigned long *lines)
+>  	return ret;
+>  }
+>  
+> +static int is_file(const char *filename, const struct stat sb)
+> +{
+> +	switch (sb.st_mode & S_IFMT) {
+> +	case S_IFREG:
+> +		return 0;
+> +	case S_IFLNK:
+> +		{
+> +			char *resolved_path = NULL;
+> +			struct stat follow;
+> +			int ret;
+> +
+> +			if (realpath(filename, resolved_path)) {
+> +				stat(resolved_path, &follow);
+> +				ret = is_file(resolved_path, follow);
+> +				free(resolved_path);
+> +				return ret;
+> +			}
+> +		}
 
-Running 'make check' here reports the following failures:
+ but you use stat() and no lstat(), so you don't have to care about
+ symlinks, right? :-)
 
-          cal: Year 2147483646                ...  FAILED (cal/bigyear)
-        blkid: low-level superblocks probing  ...
-                : ext3                        ...  OK
-          cal: Year 2147483646 with week numbers ...  FAILED (cal/bigyearw)
+>  	if (stat(filename, &old) != 0)
+>  		err(EXIT_FAILURE, _("stat of %s failed"), filename);
 
-ipcs: id 917526 not found
-ipcs: id 950294 not found
-         ipcs: mk-rm-shm                      ...  FAILED (ipcs/mk-rm-shm)
+ if (IS_REG(old.st_mode))
+        errx(EXIT_FAILURE, _("%s: is not a file"), filename);
 
-         misc: fallocate                      ...  FAILED (misc/fallocate)
+> +	if (is_file(filename, old))
+> +		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
+>  	if (lines && old.st_size)
+>  		tailf(filename, lines, &old);
 
-         misc: getopt2                        ...
-                : long_option_ambiguous_1     ...  FAILED (misc/getopt2-long_option_ambiguous_1)
+   Karel
 
-         misc: getopt2                        ...
-                : quiet_output_option_long    ...  FAILED (misc/getopt2-quiet_output_option_long)
-         misc: getopt2                        ...
-                : quiet_output_option_short   ...  FAILED (misc/getopt2-quiet_output_option_short)
-
-         misc: getopt2                        ...
-                : weird_quoting_tcsh          ...  OK
-           ...         misc: getopt2                        ...
-                : weird_quoting_tcsh          ...  FAILED (3 from 23 sub-tests)
-
-
-         misc: swaplabel                      ...  FAILED (misc/swaplabel)
-         misc: ul                             ...  FAILED (misc/ul)
-
----------------------------------------------------------------------
-  7 tests of 155 FAILED
----------------------------------------------------------------------
-
-
-When there are subtests, something goes wrong in the alignment and
-in the messages of the summary line.  For example:
-
-
-         misc: getopt3                        ...
-                : non-option                  ...  OK
-           ...         misc: getopt3                        ...
-                : non-option                  ...  OK (all 6 sub-tests PASSED)
-
-
-Also, the complete testsuite summary is printed before the tests
-are even run, which I find odd:
-
-============================================================================
-Testsuite summary for util-linux 2.26-rc2
-============================================================================
-# TOTAL: 0
-# PASS:  0
-# SKIP:  0
-# XFAIL: 0
-# FAIL:  0
-# XPASS: 0
-# ERROR: 0
-============================================================================
-
-
-$ gcc --version | head -1
-gcc (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
-
-$ uname -rvm
-2.6.32-72-generic #139-Ubuntu SMP Wed Jan 14 21:19:14 UTC 2015 i686
-
-Benno
 
 -- 
-http://www.fastmail.com - Choose from over 50 domains or use your own
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
