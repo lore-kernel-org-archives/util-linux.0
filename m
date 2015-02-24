@@ -1,57 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57327 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38682 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757134AbbBFOzY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 6 Feb 2015 09:55:24 -0500
-Message-ID: <1423234521.24479.9.camel@redhat.com>
-Subject: libmount: MNT_OMODE_FORCE usage
-From: Fridolin Pokorny <fpokorny@redhat.com>
-To: util-linux@vger.kernel.org
-Date: Fri, 06 Feb 2015 15:55:21 +0100
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	id S1751281AbbBXLxd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 06:53:33 -0500
+Date: Tue, 24 Feb 2015 12:53:22 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 11/16] tailf: check printing criteria more carefully
+Message-ID: <20150224115322.GM19430@ws.net.home>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-12-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616106-580-12-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Sun, Feb 22, 2015 at 02:41:41PM +0000, Sami Kerola wrote:
+> -	if (lseek(fd, *size, SEEK_SET) != (off_t)-1) {
+> +	if (st.st_ino != old->st_ino || st.st_dev != old->st_dev
+> +	    || (old->st_mtime < st.st_mtime && st.st_size <= old->st_size))
+> +		old->st_size = 0;
 
-I have found out that libmount does not respect MNT_OMODE_FORCE mode.
-I don't see any usage in sources and libmount does not respect this mode
-when calling library functions. I'm proposing a patch to fix this.
+ So.. if I remove (truncate) last line from 1GiB file then tailf will 
+ print all the file *again*? Would be better to reset to st.st_size if the
+ size is smaller than old->st_size?
 
-Have a nice day!
-Fridolin Pokorny
+ Or maybe if you want to support "echo 1 >| file" use case than add a
+ new option (--rewind) or so.
 
+> +	if (lseek(fd, old->st_size, SEEK_SET) != (off_t)-1) {
+>  		ssize_t rc, wc;
+>  
+>  		while ((rc = read(fd, buf, sizeof(buf))) > 0) {
+> @@ -123,16 +128,16 @@ roll_file(const char *filename, off_t *size)
+>  	 * avoids data duplication. If we read nothing or hit an error, reset
+>  	 * to the reported size, this handles truncated files.
+>  	 */
+> -	*size = (pos != -1 && pos != *size) ? pos : st.st_size;
+> +	old->st_size = (pos != -1 && pos != old->st_size) ? pos : 0;
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index c902f39..1c288e5 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -2077,6 +2077,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
- 	}
- 
- 	if (!src && tgt
-+	    && !(cxt->optsmode & MNT_OMODE_FORCE)
- 	    && !(cxt->optsmode & MNT_OMODE_FSTAB)
- 	    && !(cxt->optsmode & MNT_OMODE_MTAB)) {
- 		DBG(CXT, ul_debugobj(cxt, "only target; fstab/mtab not required "
-@@ -2088,7 +2089,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
- 	ignore_result( mnt_context_get_fs(cxt) );
- 
- 	/* try fstab */
--	if (cxt->optsmode & MNT_OMODE_FSTAB) {
-+	if (cxt->optsmode & (MNT_OMODE_FSTAB | MNT_OMODE_FORCE)) {
- 		DBG(CXT, ul_debugobj(cxt, "trying to apply fstab (src=%s, target=%s)", src, tgt));
- 		rc = mnt_context_get_fstab(cxt, &tab);
- 		if (!rc)
-@@ -2096,7 +2097,7 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
- 	}
- 
- 	/* try mtab */
--	if (rc < 0 && (cxt->optsmode & MNT_OMODE_MTAB)) {
-+	if (rc < 0 && (cxt->optsmode & (MNT_OMODE_MTAB | MNT_OMODE_FORCE))) {
- 		DBG(CXT, ul_debugobj(cxt, "trying to apply mtab (src=%s, target=%s)", src, tgt));
- 		if (tgt)
- 			rc = mnt_context_get_mtab_for_target(cxt, &tab, tgt);
+ This way how to reset seems better.
+
+    Karel
 
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
