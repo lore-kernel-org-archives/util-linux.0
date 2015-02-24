@@ -1,63 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:65483 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752255AbbBVOos (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:48 -0500
-Received: by mail-wg0-f53.google.com with SMTP id a1so21139860wgh.12
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:47 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cthulhu.worldbroken.com ([173.230.133.178]:46238 "EHLO
+	cthulhu.worldbroken.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752600AbbBXRYe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Feb 2015 12:24:34 -0500
+From: wfp5p@worldbroken.com
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 29/31] more: remove unnecessary variable
-Date: Sun, 22 Feb 2015 14:43:25 +0000
-Message-Id: <1424616207-747-30-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
-References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 7/8] prlimit.1: fix typo umlimited -> unlimited
+Date: Tue, 24 Feb 2015 12:15:22 -0500
+Message-Id: <1424798123-11044-8-git-send-email-wfp5p@worldbroken.com>
+In-Reply-To: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
+References: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-No longer needed when siglongjmp() magic is gone.
+From: Bill Pemberton <wfp5p@worldbroken.com>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- text-utils/more.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ sys-utils/prlimit.1 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 84c2108..449f9cd 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -181,7 +181,6 @@ struct more_control {
- 		ul_glitch:1,		/* terminal is underlining in glitch mode */
- 		ul_opt:1,		/* underline as best we can */
- 		underlining:1,		/* is underlining going on */
--		within:1,		/* true if we are within a file, false if we are between files */
- 		wrap_margin:1;		/* set if automargins */
- };
+diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
+index e5c2071569f4..600c706fcb32 100644
+--- a/sys-utils/prlimit.1
++++ b/sys-utils/prlimit.1
+@@ -99,7 +99,7 @@ of open files to 1024 and 4095, respectively.
+ Modify only the soft limit for the number of processes.
+ .IP "\fBprlimit \-\-pid $$ --nproc=unlimited\fP"
+ Set for the current process both the soft and ceiling values for the number of
+-processes to umlimited.
++processes to unlimited.
+ .IP "\fBprlimit --cpu=10 sort -u hugefile\fP"
+ Set both the soft and hard CPU time limit to ten seconds and run 'sort'.
  
-@@ -791,8 +790,7 @@ static void change_file(struct more_control *ctl, int nskip)
- 	if (nskip > 0) {
- 		if (ctl->argv_position + nskip > ctl->nfiles - 1)
- 			nskip = ctl->nfiles - ctl->argv_position - 1;
--	} else if (ctl->within)
--		ctl->argv_position++;
-+	}
- 	ctl->argv_position += nskip;
- 	if (ctl->argv_position < 0)
- 		ctl->argv_position = 0;
-@@ -1952,11 +1950,8 @@ static void display_file(struct more_control *ctl, FILE *f, char *initbuf, int l
- 		}
- 		if (ctl->no_tty)
- 			copy_file(f);
--		else {
--			ctl->within = 1;
-+		else
- 			screen(ctl, f, left);
--			ctl->within = 0;
--		}
- 	}
- 	fflush(stdout);
- 	fclose(f);
 -- 
-2.3.0
+2.1.0
 
