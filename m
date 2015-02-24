@@ -1,41 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:57019 "EHLO
-	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751168AbbBFLoi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Feb 2015 06:44:38 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/4] docs: fix two paths of the v2.20-ReleaseNotes
-Date: Fri,  6 Feb 2015 12:44:02 +0100
-Message-Id: <1423223042-2189-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
-References: <1423223042-2189-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:39030 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751613AbbBXNBr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 08:01:47 -0500
+Date: Tue, 24 Feb 2015 14:01:37 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 10/13] bash-completion: add freeze mode to rtcwake
+Message-ID: <20150224130137.GS19430@ws.net.home>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+ <1424616139-638-11-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616139-638-11-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- NEWS |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+On Sun, Feb 22, 2015 at 02:42:16PM +0000, Sami Kerola wrote:
+> Missed when commit ece44f19f423408f576f348fed2845c876d72c6e added support
+> to freeze.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  bash-completion/rtcwake | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/bash-completion/rtcwake b/bash-completion/rtcwake
+> index 51566a2..70ae743 100644
+> --- a/bash-completion/rtcwake
+> +++ b/bash-completion/rtcwake
+> @@ -12,7 +12,7 @@ _rtcwake_module()
+>  			return 0
+>  			;;
+>  		'-m'|'--mode')
+> -			COMPREPLY=( $(compgen -W "standby mem disk off no on disable show" -- $cur) )
+> +			COMPREPLY=( $(compgen -W "standby freeze mem disk off no on disable show" -- $cur) )
 
-diff --git a/NEWS b/NEWS
-index 1f8a82f..a4186a0 100644
---- a/NEWS
-+++ b/NEWS
-@@ -67,11 +67,11 @@ util-linux 2.21-rc1: Jan 18 2012
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.21/v2.21-rc1-ChangeLog
- 
- util-linux 2.20: Aug 29 2011
--* see docs/v2.20-ReleaseNotes or the complete changelog at
-+* see Documentation/releases/v2.20-ReleaseNotes or the complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.20/v2.20-ChangeLog
- 
- util-linux 2.20-rc2: Aug 17 2011
--* see docs/v2.20-ReleaseNotes or the complete changelog at
-+* see Documentation/releases/v2.20-ReleaseNotes or the complete changelog at
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.20/v2.20-rc2-ChangeLog
- 
- util-linux 2.20-rc1: Jul 29 2011
+ would be possible to ask rtcwake(8) for all supported modes rather
+ than hard code it to the bash-completion script?
+
+    Karel
+
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
