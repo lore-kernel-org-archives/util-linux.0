@@ -1,55 +1,111 @@
-Return-Path: vapier@gentoo.org
-Date: Mon, 16 Feb 2015 04:02:26 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: kerolasa@gmail.com
-Cc: JWP <elseifthen@gmx.com>, Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: RFC hwclock: refactoring
-Message-ID: <20150216090226.GG4075@vapier>
-References: <5470FE32.9030805@gmx.com>
- <CAG27Bk3zu-8Qar_k44uM3_8_kOddJkqvb1be1_KmjkBGfBGcYA@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:53378 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750850AbbBXMem (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 07:34:42 -0500
+Date: Tue, 24 Feb 2015 13:34:30 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 02/13] rtcwake: enumerate constant mode strings
+Message-ID: <20150224123430.GQ19430@ws.net.home>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+ <1424616139-638-3-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="64j1qyTOoGvYcHb1"
-In-Reply-To: <CAG27Bk3zu-8Qar_k44uM3_8_kOddJkqvb1be1_KmjkBGfBGcYA@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616139-638-3-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Feb 22, 2015 at 02:42:08PM +0000, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/rtcwake.c | 126 ++++++++++++++++++++++++++++++++--------------------
+>  1 file changed, 78 insertions(+), 48 deletions(-)
+> 
+> diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+> index 8b5f69c..372e620 100644
+> --- a/sys-utils/rtcwake.c
+> +++ b/sys-utils/rtcwake.c
+> @@ -52,7 +52,37 @@
+>  #define RTC_PATH		"/sys/class/rtc/%s/device/power/wakeup"
+>  #define SYS_POWER_STATE_PATH	"/sys/power/state"
+>  #define DEFAULT_DEVICE		"/dev/rtc0"
+> -#define DEFAULT_MODE		"standby"
+> +
+> +enum rtc_modes {	/* manual page --mode option explains these. */
+> +	STANDBY_MODE = 0,
+> +	MEM_MODE,
+> +	FREEZE_MODE,
+> +	DISK_MODE,	/* end of Documentation/power/states.txt modes  */
+> +	OFF_MODE,
+> +	NO_MODE,
+> +	ON_MODE,	/* smaller <- read the code */
+> +	DISABLE_MODE,	/* greater <- to understand */
+> +	SHOW_MODE,
+> +	ERROR_MODE	/* invalid user input */
+> +};
 
---64j1qyTOoGvYcHb1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please, don't use ERROR_MODE or so, just return -EINVAL from the
+parser.
 
-On 23 Nov 2014 13:31, Sami Kerola wrote:
-> On 22 November 2014 at 21:20, JWP wrote:
-> > Do we need Alpha code?  Is there a Linux distro that
-> > still officially supports Alpha machines?
->=20
-> I'm not sure if there is any up to date distribution for Alpha.
+> +static int get_mode(const char *optarg)
+> +{
+> +	if (!strcmp(optarg, mode_str[STANDBY_MODE]))
+> +		return STANDBY_MODE;
+> +	if (!strcmp(optarg, mode_str[MEM_MODE]))
+> +		return MEM_MODE;
+> +	if (!strcmp(optarg, mode_str[DISK_MODE]))
+> +		return DISK_MODE;
+> +	if (!strcmp(optarg, mode_str[ON_MODE]))
+> +		return ON_MODE;
+> +	if (!strcmp(optarg, mode_str[NO_MODE]))
+> +		return NO_MODE;
+> +	if (!strcmp(optarg, mode_str[OFF_MODE]))
+> +		return OFF_MODE;
+> +	if (!strcmp(optarg, mode_str[FREEZE_MODE]))
+> +		return FREEZE_MODE;
+> +	if (!strcmp(optarg, mode_str[DISABLE_MODE]))
+> +		return DISABLE_MODE;
+> +	if (!strcmp(optarg, mode_str[SHOW_MODE]))
+> +		return SHOW_MODE;
 
-Gentoo still produces up-to-date releases
--mike
+ {
+    for (i = 0; i < ARRAY_SIZE(mode_str); i++)
+         if (strcmp(optarg, mode_str[i])
+             return i;
 
---64j1qyTOoGvYcHb1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+    return -EINVAL;
+ }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+> -	if (!alarm && !seconds && strcmp(suspend,"disable") &&
+> -				  strcmp(suspend,"show")) {
+> -
+> +	if (!alarm && !seconds && suspend < DISABLE_MODE) {
 
-iQIcBAEBAgAGBQJU4bIiAAoJEEFjO5/oN/WBzIkQAINZdb1qCoaBiyxDFaX3BSYA
-KWGuAzAv+7LWdL5bQLKSBrrVaMBWgR153qNwf/ToLWtDV6sFr/sYU3MATLK+qluA
-06gvnRlEv/aUi1Gq+YeuLZnzbsX3Gc9GvIjsfqG79ImySd/GEFi7HQm3FOgG1iLC
-+CTA65YD7ck5xzNqD4Tn/a4i+PGygVcffWxJe7cr9N6EqY6YhCqJlZA63ifqUG0E
-eiKuZ6N/ccjy1sMn0M4q2sckQ2iaNRWZ2ANi45sjJ8haUKiutd4r9X6X4TXtClFn
-PlueCrQc9lTjCmzGAf1RYCTYJ9DBDZpeNXh7Ypzi0PVPeQXbFf1ydVby2mNCmh4y
-JKxk3gos202YICF6Rcvu2Cx6oC9tpddZWuvY+HUdVYLVrtefaIcR6Ij54Q91m1bm
-GSVDrGglE4ck0qNaN/dwVPX2IdyplbNrR+qMZp9GZqvmVGwBg9dTp0YSHp9OI89f
-lfVQ/gR/xTUEo3hIfhR+U+71TjLHWSnlmbb32DnKRlo9g3+Pq8nyceqHW4Jy0oM4
-VZZBrlybYlY9Saiafh8a/5/h5JqlDeJ8B0wFFwDkXPN6wLyDaYEaGteaDk98Eh45
-1AxkFA3P/+SeWwNmc8TOpk4BmBlRdX4UYSlaNLRenyvqPcFM/R/7ex8TE92rJW4I
-Be4bKA3kah6qMum9q0G9
-=FVUg
------END PGP SIGNATURE-----
+ this ("<") is pretty fragile, use
 
---64j1qyTOoGvYcHb1--
+         && (suspend != DISABLE_MODE || suspend != SHOW_MODE)
+
+>  		warnx(_("must provide wake time (see -t and -s options)"));
+>  		usage(stderr);
+
+...
+
+> -	if (strcmp(suspend, "show") && strcmp(suspend, "disable")) {
+> -		if (strcmp(suspend, "no") && strcmp(suspend, "on") &&
+> -		    strcmp(suspend, "off") && is_suspend_available(suspend) <= 0) {
+> -			errx(EXIT_FAILURE, _("suspend to \"%s\" unavailable"), suspend);
+> +	if (suspend < DISABLE_MODE) {
+> +		if (suspend < OFF_MODE && is_suspend_available(suspend) <= 0) {
+> +			errx(EXIT_FAILURE, _("suspend to \"%s\" unavailable"),
+> +			     mode_str[suspend]);
+  		}
+
+ the same situation
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
