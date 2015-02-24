@@ -1,33 +1,44 @@
-Return-Path: bruce.dubbs@gmail.com
-Message-ID: <54DE3AAE.2010906@gmail.com>
-Date: Fri, 13 Feb 2015 11:55:58 -0600
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48279 "EHLO
+	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751383AbbBXVNb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Feb 2015 16:13:31 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id 28D2120C5D
+	for <util-linux@vger.kernel.org>; Tue, 24 Feb 2015 16:13:30 -0500 (EST)
+Message-Id: <1424812410.4082705.231939245.08843DF4@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: wfp5p@worldbroken.com
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, "Dale R. Worley"
- <worley@alum.mit.edu>
-CC: =?UTF-8?Q?P=c3=a1draig_Brady?= <P@draigBrady.com>, mrmazda@earthlink.net,
-        util-linux@vger.kernel.org
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-References: <54DC88BF.5040702@draigBrady.com> <87h9uqv6lv.fsf@hobgoblin.ariadne.com> <20150213092131.GM32318@ws.net.home>
-In-Reply-To: <20150213092131.GM32318@ws.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
+Subject: Re: [PATCH 0/8] fix spelling/typos in man pages
+Date: Tue, 24 Feb 2015 22:13:30 +0100
+In-Reply-To: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
+References: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Thu, Feb 12, 2015 at 10:21:48PM -0500, Dale R. Worley wrote:
->> I don't particularly like colorization.  But technically, it seems to me
->> that what is needed is a systematic way for the user to indicate his
->> colorization preferences to *all* utilities.  And a corresponding way
->> for the system to provide defaults for those user preferences.
->>
->>
->> Only when there is a systematic framework for colorization will all the
->> programs allow colorizing to be configured.
->
-> It would be possible to create a shared library from our lib/colors.c
-> to support terminal-colors.d/... :-)
 
-Why not use the LS_COLORS environment variable used by coreutils' dircolors? 
-Does util-linux need to create something different?
+On Tue, Feb 24, 2015, at 18:15, wfp5p@worldbroken.com wrote:
+>   runuser.1: fix spelling implemenation -> implementation
+>   scriptreplay.1: fix spelling overide -> override
+>   unshare.1: fix spelling permamently -> permanently
+>   last.1: fix spelling preferrable -> preferable
+>   lslogins.1: fix spelling priviliges -> privileges
+>   hwclock.8.in: fix spelling transfered -> transferred
+>   prlimit.1: fix typo umlimited -> unlimited
+>   agetty.8: fix typo unnsupported -> unsupported
 
-   -- Bruce
+It would be better to do this in a single patch instead, with subject:
+
+docs: fix some spellos/typos in man pages
+
+And then put the above eight lines in the commit message.
+
+Benno
+
+-- 
+http://www.fastmail.com - Email service worth paying for. Try it for free
+
