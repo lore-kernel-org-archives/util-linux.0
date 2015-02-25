@@ -1,52 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from wp221.webpack.hosteurope.de ([80.237.132.228]:59867 "EHLO
-	wp221.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754086AbbBTMov (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 Feb 2015 07:44:51 -0500
-Received: by jue.netz (masqmail 0.3.5, from userid 500)
-	id 1YOmwe-4kC-00
-	for <util-linux@vger.kernel.org>; Fri, 20 Feb 2015 13:44:36 +0100
-Date: Fri, 20 Feb 2015 13:44:36 +0100
-From: Juergen Daubert <jue@jue.li>
-To: util-linux@vger.kernel.org
-Subject: Re: [bug] logger 2.26: regression, option -i not combinable with
- other options
-Message-ID: <20150220124436.GA18236@jue.netz>
-References: <20150220100647.GA2624@jue.netz>
- <20150220104106.GB19430@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150220104106.GB19430@ws.net.home>
+Received: from mta04.eastlink.ca ([24.224.136.10]:45469 "EHLO
+	mta04.eastlink.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751226AbbBYCtf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 24 Feb 2015 21:49:35 -0500
+Received: from cmgw05.eastlink.ca ([71.7.199.171])
+ by mta04.eastlink.ca (Oracle Communications Messaging Exchange Server
+ 7u4-21.01 64bit (built Feb 16 2011))
+ with ESMTP id <0NKA00LM989FQV30@mta04.eastlink.ca> for
+ util-linux@vger.kernel.org; Tue, 24 Feb 2015 22:49:33 -0400 (AST)
+Date: Tue, 24 Feb 2015 22:49:33 -0400
+To: Bill Pemberton <wfp5p@worldbroken.com>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/8] fix spelling/typos in man pages
+Message-id: <20150225024933.GT3933@cordes.ca>
+References: <1424798123-11044-1-git-send-email-wfp5p@worldbroken.com>
+ <1424812410.4082705.231939245.08843DF4@webmail.messagingengine.com>
+ <54ECFEC0.3050702@worldbroken.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+In-reply-to: <54ECFEC0.3050702@worldbroken.com>
+From: Peter Cordes <peter@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 20, 2015 at 11:41:06AM +0100, Karel Zak wrote:
-> On Fri, Feb 20, 2015 at 11:06:47AM +0100, Juergen Daubert wrote:
-> > with logger from util-linux 2.25.x it's possible to combine the option
-> > -i with other options like:
-> > 
-> >  logger -is
-> > 
-> > with 2.26 I get the following error message:
-> > 
-> >  $:~> logger -is
-> >  logger: failed to parse id: 's'
-> > 
-> > The changed behaviour breaks existing scripts like dhcpcd-run-hooks [1]
-> > from dhcpcd [2].
-> 
-> Hmm... stupid regression, next time it would be probably better to
-> introduce optional arguments for long options only.
-> 
-> Anyway, always use long options in scripts. It's more robust and more
-> readable.
+On Tue, Feb 24, 2015 at 05:44:16PM -0500, Bill Pemberton wrote:
+> Ok, I'm used to 1 patch 1 fix.  While they're all spelling/typos they're  
+> not the same word/typo.
 
-here's the response from dhcpcd's author:
+ That makes sense for code, esp. to make regressions bisectable.  It
+just bloats the revision history for docs.  Single-word fixes, even
+scattered across multiple files, would be easier to look at as one
+commit in the git log.
 
- The original BSD sources from which logger is clearly based don't support
- long options .... and dhcpcd needs to work with them. 
+-- 
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
 
-
-Greetings
-Juergen
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
