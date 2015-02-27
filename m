@@ -1,58 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f174.google.com ([74.125.82.174]:40656 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752120AbbBVOmm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:42:42 -0500
-Received: by wesx3 with SMTP id x3so13586111wes.7
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:42:41 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 12/13] rtcwake: make some command line options mutually exclusive
-Date: Sun, 22 Feb 2015 14:42:18 +0000
-Message-Id: <1424616139-638-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
-References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:60439 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751270AbbB0NtZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Feb 2015 08:49:25 -0500
+Date: Fri, 27 Feb 2015 14:49:23 +0100
+From: Karel Zak <kzak@redhat.com>
+To: wfp5p@worldbroken.com
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2] docs: fix some spelling errors and typos in man pages
+Message-ID: <20150227134923.GC8046@ws.net.home>
+References: <1424873279-12250-1-git-send-email-wfp5p@worldbroken.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424873279-12250-1-git-send-email-wfp5p@worldbroken.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/rtcwake.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+On Wed, Feb 25, 2015 at 09:07:59AM -0500, wfp5p@worldbroken.com wrote:
+>  login-utils/last.1        | 2 +-
+>  login-utils/lslogins.1    | 2 +-
+>  login-utils/runuser.1     | 2 +-
+>  sys-utils/hwclock.8.in    | 2 +-
+>  sys-utils/prlimit.1       | 2 +-
+>  sys-utils/unshare.1       | 2 +-
+>  term-utils/agetty.8       | 2 +-
+>  term-utils/scriptreplay.1 | 2 +-
+>  8 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
-index e6f2170..32a0ba0 100644
---- a/sys-utils/rtcwake.c
-+++ b/sys-utils/rtcwake.c
-@@ -36,6 +36,7 @@
- #include "c.h"
- #include "closestream.h"
- #include "nls.h"
-+#include "optutils.h"
- #include "pathnames.h"
- #include "strutils.h"
- #include "timeutils.h"
-@@ -411,6 +412,11 @@ int main(int argc, char **argv)
- 		{"date",	required_argument,	0, OPT_DATE},
- 		{0,		0,			0, 0  }
- 	};
-+	static const ul_excl_t excl[] = {
-+		{ 'a', 'l', 'u' },
-+		{ 's', 't', OPT_DATE },
-+	};
-+	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -418,6 +424,7 @@ int main(int argc, char **argv)
- 	atexit(close_stdout);
- 	while ((t = getopt_long(argc, argv, "A:ahd:lm:ns:t:uVv",
- 					long_options, NULL)) != EOF) {
-+		err_exclusive_options(t, long_options, excl, excl_st);
- 		switch (t) {
- 		case 'A':
- 			/* for better compatibility with hwclock */
+Applied, thanks.
+
 -- 
-2.3.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
