@@ -1,57 +1,51 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <550339DA.1060408@gmx.com>
-Date: Fri, 13 Mar 2015 15:26:18 -0400
-From: J William Piggott <elseifthen@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-we0-f170.google.com ([74.125.82.170]:41968 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752614AbbCALdv (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Mar 2015 06:33:51 -0500
+Received: by wevm14 with SMTP id m14so28201421wev.8
+        for <util-linux@vger.kernel.org>; Sun, 01 Mar 2015 03:33:50 -0800 (PST)
+Date: Sun, 1 Mar 2015 11:33:42 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 11/13] rtcwake: improve coding style
+In-Reply-To: <1424724011.3617363.231394013.6C35BC75@webmail.messagingengine.com>
+Message-ID: <alpine.LNX.2.03.1503011128500.822@iki.fi>
+References: <1424616139-638-1-git-send-email-kerolasa@iki.fi> <1424616139-638-12-git-send-email-kerolasa@iki.fi> <1424724011.3617363.231394013.6C35BC75@webmail.messagingengine.com>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] hwclock: man-page errata
-References: <5503364E.6010302@gmx.com>
-In-Reply-To: <5503364E.6010302@gmx.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The information I wrote regarding clock crystals was not
-only incomplete, it was wrong. The characteristics of
-quartz crystals is beyond the scope of this man-page. It
-was misguided to attempt to include it. This commit
-removes said information.
+On Mon, 23 Feb 2015, Benno Schulenberg wrote:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.8.in | 22 ----------------------
- 1 file changed, 22 deletions(-)
+> On Sun, Feb 22, 2015, at 15:42, Sami Kerola wrote:
+> > -	/* this process works in RTC time, except when working
+> > -	 * with the system clock (which always uses UTC).
+> > -	 */
+> > +	/* this process works in RTC time, except when working with the
+> > +	 * system clock (which always uses UTC). */
+> 
+> Since this and the other comments ends with a period, it really
+> should start with a capital.  When changing the line anyway...
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 8cf86a3..79c7907 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -938,28 +938,6 @@ Clock is corrected properly at startup.  To check this, first make sure
- that the System Time is correct before shutdown and then use
- .BR \%sntp ", or " \%date\ \-Ins
- and a precision timepiece, immediately after startup.
--.PP
--Both clocks typically use a quartz crystal oscillator.  Crystals are
--used for reference oscillators in electronics because by most measures
--they produce a very clean and stable sine wave.  Their greatest
--shortcoming is that they have a Positive Temperature Coefficient;
--meaning that their frequency increases as the temperature increases and
--vise versa. Therefore, both the Hardware and System Clock's drift rate
--changes with intrinsic and extrinsic machine temperatures.  These
--characteristics will vary by machine depending upon its design.
--.PP
--Drift correction strategies are many, but as a general guide the goal
--would be to find a longterm average.  A year long average to take into
--account seasonal ambient temperature shifts may be a good target period.
--So perhaps the date-time advances a bit in the summer and declines a bit
--in the winter, but at the end of a year it balances to zero.
--.PP
--If this is beginning to sound futile, it is not.  Left on its own a
--machine can lose 3 seconds per day or more.  Accumulated drift over a
--year may easily exceed half an hour.  Using carefully crafted drift
--corrections can make a significant improvement in a machine's ability to
--keep reasonably good date-time.
--.
- .SS LOCAL vs UTC
- Keeping the Hardware Clock in a local timescale causes inconsistent
- daylight saving time results:
+Oopps. I fixed the commits as part of other commit.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/021378dd2baae75e42014b5e1cc595e8c1ab96bc
+
+And missed the few time/date improvements you mentioned in mail:
+
+Date: Mon, 23 Feb 2015 21:32:34 +0100
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 06/13] rtcwake: add human readable --date timestamp format
+
+Perhaps string improvements can be done later with corrections to last(1) 
+as well. If I remember right I copied the messages from last(1) pretty 
+much as-is.
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
