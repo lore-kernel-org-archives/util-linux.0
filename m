@@ -1,56 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56368 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752705AbbCBJNu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Mar 2015 04:13:50 -0500
-Date: Mon, 2 Mar 2015 10:13:38 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/16] flock: improve timeout handling
-Message-ID: <20150302091338.GH8046@ws.net.home>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
- <1424616106-580-4-git-send-email-kerolasa@iki.fi>
- <20150224102128.GF19430@ws.net.home>
- <alpine.LNX.2.03.1503011134070.822@iki.fi>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:39780 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750928AbbCALTq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Mar 2015 06:19:46 -0500
+Received: by wggx12 with SMTP id x12so28243402wgg.6
+        for <util-linux@vger.kernel.org>; Sun, 01 Mar 2015 03:19:45 -0800 (PST)
+Date: Sun, 1 Mar 2015 11:19:43 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 19/31] more: tell in run time help what the 'v' will
+ execute as editor
+In-Reply-To: <1424639262.3186882.230911425.0FF04135@webmail.messagingengine.com>
+Message-ID: <alpine.LNX.2.03.1503011111420.822@iki.fi>
+References: <1424616207-747-1-git-send-email-kerolasa@iki.fi> <1424616207-747-20-git-send-email-kerolasa@iki.fi> <1424639262.3186882.230911425.0FF04135@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.03.1503011134070.822@iki.fi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 01, 2015 at 11:46:11AM +0000, Sami Kerola wrote:
-> Moving to monotonic sounds good to me. Notice that there is linking change 
-> in configure.ac making monotonic.c to be linked with -lrt even when 
-> clock_gettime() would not require it. The timer_create() requires -lrt at 
-> last for now.
+On Sun, 22 Feb 2015, Benno Schulenberg wrote:
+
+> On Sun, Feb 22, 2015, at 15:43, Sami Kerola wrote:
+> > -	fputs(_("!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"), stdout);
+> > -	fputs(_("v                       Start up /usr/bin/vi at current line\n"), stdout);
+> > +	fputs(_("!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"), stdout);	fprintf(stdout, _(
+> > +		"v                       Start up '%s' at current line\n"), find_editor());
 > 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/50425160a825986abb4e9c22ef8acee8e7b34834
+> Forgot a newline after the semicolon before the fprinf()?
 
-OK.
+Thanks Benno,
 
-> s/CLOCKGETTIME_LIBS/UL_REALTIME_LIBS/
-> 
-> Better?
+I tried to make print out block to be continuous, but that broke style as 
+you pointed out. Updated version tries to combine style and overall print 
+out block readability - while still taking tiny indentation liberties.
 
- Yeah.
-
-> Correct. After the change flock(1) cannot be forced to timeout by sending 
-> an ALRM signal. Is that good, bad, or possible regression is debatable. I 
-> think allowing external signals to cause timeout is unintented behavior. 
-
- I think it's better to split signals and timers.
-
-> Function pointer is added.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/50425160a825986abb4e9c22ef8acee8e7b34834
-
- You forgot to update commit message ("This code is moved ...").
-
- Anyway, looks good.
-
-    Karel
+https://github.com/kerolasa/lelux-utiliteetit/commit/1e5b8bd88200bc0c7454030b99ad91482131f3a9
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
