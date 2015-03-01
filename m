@@ -1,29 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47451 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750815AbbCYIfm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 25 Mar 2015 04:35:42 -0400
-Date: Wed, 25 Mar 2015 09:35:38 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] hwclock: increase debug output precision
-Message-ID: <20150325083538.GG1749@ws.net.home>
-References: <55085554.5040409@gmx.com>
+Received: from mail-we0-f171.google.com ([74.125.82.171]:40130 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750794AbbCALGQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Mar 2015 06:06:16 -0500
+Received: by wesx3 with SMTP id x3so28127990wes.7
+        for <util-linux@vger.kernel.org>; Sun, 01 Mar 2015 03:06:14 -0800 (PST)
+Date: Sun, 1 Mar 2015 11:06:13 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Benno Schulenberg <bensberg@justemail.net>
+cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 16/16] logger: fix -i argument parsing regression
+In-Reply-To: <1424625664.3145324.230850161.4C47C348@webmail.messagingengine.com>
+Message-ID: <alpine.LNX.2.03.1503011102280.822@iki.fi>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi> <1424616106-580-17-git-send-email-kerolasa@iki.fi> <1424625664.3145324.230850161.4C47C348@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55085554.5040409@gmx.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 17, 2015 at 12:24:52PM -0400, J William Piggott wrote:
->  sys-utils/hwclock.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Sun, 22 Feb 2015, Benno Schulenberg wrote:
 
- Applied both patches (week ago:-), thanks 
+> On Sun, Feb 22, 2015, at 15:41, Sami Kerola wrote:
+> > Reviewed-by: Benno Schulenberg <benno@vertaalt.nl>
+> 
+> Please use my justemail address (the current one) here instead.
+> The vertaalt one I use just for translations.
+> 
+> > +.BR \-i
+> 
+> s/BR/B/    (since there is just one argument)
+> 
+> > +.BR "\-\-id" [ = \fIid ]
+> 
+> s/= /=/    (to fix my own mistake)
+> 
+> > -	fputs(_(" -i, --id[=<id>]          log <id> (default is PID)\n"), out);
+> > +	fputs(_(" -i                       log logger command PID\n"), out);
+> 
+> Better: "log the logger command's PID" -- there is room enough to
+> avoid telegram style.
 
-    Karel
+Nalime Benno,
+
+> > +	fputs(_("     --id[=<id>]          log <id> (default is PID)\n"), out);
+> 
+> Better: "log the given <id>, or otherwise the PID"
+
+Here is updated version of the change.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/7dbe2082a9d87316d7aed7d1c8a7f94a8a80b1f0
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
