@@ -1,58 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43424 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56368 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753338AbbCLLFf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Mar 2015 07:05:35 -0400
-Date: Thu, 12 Mar 2015 12:05:28 +0100
+	id S1752705AbbCBJNu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Mar 2015 04:13:50 -0500
+Date: Mon, 2 Mar 2015 10:13:38 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Petr Gajdos <pgajdos@suse.cz>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: prevent cal segfault
-Message-ID: <20150312110528.GA4637@ws.net.home>
-References: <20150312084639.GC9756@laura.suse.cz>
+Subject: Re: [PATCH 03/16] flock: improve timeout handling
+Message-ID: <20150302091338.GH8046@ws.net.home>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
+ <1424616106-580-4-git-send-email-kerolasa@iki.fi>
+ <20150224102128.GF19430@ws.net.home>
+ <alpine.LNX.2.03.1503011134070.822@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150312084639.GC9756@laura.suse.cz>
+In-Reply-To: <alpine.LNX.2.03.1503011134070.822@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 12, 2015 at 09:46:39AM +0100, Petr Gajdos wrote:
-> cal utility segfaults in putp() when setupterm() fails as cal
-> insufficiently checks for setupterm() failure.
+On Sun, Mar 01, 2015 at 11:46:11AM +0000, Sami Kerola wrote:
+> Moving to monotonic sounds good to me. Notice that there is linking change 
+> in configure.ac making monotonic.c to be linked with -lrt even when 
+> clock_gettime() would not require it. The timer_create() requires -lrt at 
+> last for now.
 > 
-> $ TERM= cal
-> Segmentation fault
+> https://github.com/kerolasa/lelux-utiliteetit/commit/50425160a825986abb4e9c22ef8acee8e7b34834
 
-I'm not able to reproduce this problem. Anyway you're right that the
-current code is pretty fragile and ignore setupterm() return code is
-bad idea.
+OK.
 
-I have applied a little bit different patch, please test it in your
-environment. The patch is also in stable/v2.26 (for v2.26.1).
+> s/CLOCKGETTIME_LIBS/UL_REALTIME_LIBS/
+> 
+> Better?
 
-https://github.com/karelzak/util-linux/commit/2a4b073e8b2d34dfadd8306f7d71957687923bdd
+ Yeah.
 
+> Correct. After the change flock(1) cannot be forced to timeout by sending 
+> an ALRM signal. Is that good, bad, or possible regression is debatable. I 
+> think allowing external signals to cause timeout is unintented behavior. 
 
-Note that I have doubts we really need so many fallbacks in cal(1)
-code. IMHO it would be enough to support two ways: ncurses or just
-without any extra terminal support (so stdio.h only). I'll probably 
-cleanup this for v2.27 to make the code more maintainable. 
+ I think it's better to split signals and timers.
 
-> --- misc-utils/cal.c.orig	2014-08-26 16:48:45.132654654 +0200
-> +++ misc-utils/cal.c	2015-03-11 14:16:06.075064939 +0100
-> @@ -81,14 +81,22 @@
->  # endif
->  # include <term.h>
->  
-> -static void my_setupterm(const char *term, int fildes, int *errret)
-> +#if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_LIBTERMCAP)
-> +static const char	*term="";
-> +#endif
+> Function pointer is added.
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/50425160a825986abb4e9c22ef8acee8e7b34834
 
-This seems incorrect, you have moved "#if defined" into another "#if".
+ You forgot to update commit message ("This code is moved ...").
+
+ Anyway, looks good.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
