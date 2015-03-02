@@ -1,45 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:35938 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752606AbbCPATR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Mar 2015 20:19:17 -0400
-Received: by padcy3 with SMTP id cy3so47324956pad.3
-        for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 17:19:16 -0700 (PDT)
-Received: from Sparta ([50.0.225.244])
-        by mx.google.com with ESMTPSA id sg4sm14098821pac.11.2015.03.15.17.19.15
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 15 Mar 2015 17:19:16 -0700 (PDT)
-Date: Mon, 16 Mar 2015 00:19:14 +0000
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/5] hwclock: remove depreciated ntpdate
-Message-ID: <20150316001913.GB1722@Sparta>
-References: <5503364E.6010302@gmx.com>
- <550337F0.3050100@gmx.com>
- <1426433205.3225343.240610937.5D55876F@webmail.messagingengine.com>
+Received: from mx1.redhat.com ([209.132.183.28]:50640 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751117AbbCBLDY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Mar 2015 06:03:24 -0500
+Date: Mon, 2 Mar 2015 12:03:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
+        kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
+        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
+Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
+Message-ID: <20150302110309.GJ8046@ws.net.home>
+References: <20150213112523.GP32318@ws.net.home>
+ <20150215111238.GG32251@vapier>
+ <20150216091043.GA11948@ws.net.home>
+ <20150216093533.GJ4075@vapier>
+ <20150216094747.GC11948@ws.net.home>
+ <20150216103241.GD3926@type.bordeaux.inria.fr>
+ <20150227134805.GB8046@ws.net.home>
+ <54F314D1.2080003@draigBrady.com>
+ <20150302085929.GG8046@ws.net.home>
+ <20150302093146.GV3404@type.bordeaux.inria.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1426433205.3225343.240610937.5D55876F@webmail.messagingengine.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20150302093146.GV3404@type.bordeaux.inria.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 15, 2015 at 04:26:45PM +0100, Benno Schulenberg wrote:
+On Mon, Mar 02, 2015 at 10:31:46AM +0100, Samuel Thibault wrote:
+> Karel Zak, le Mon 02 Mar 2015 09:59:29 +0100, a écrit :
+> > On Sun, Mar 01, 2015 at 01:32:01PM +0000, Pádraig Brady wrote:
+> > > and I've not heard specific complaints about it.
+> > > What terminals are not catered for here?
+> > 
+> > I don't know, my plan is to do some research to better understand what
+> > Samuel is talking about.
 > 
-> On Fri, Mar 13, 2015, at 20:18, J William Piggott wrote:
-> > Replace references to the depreciated ntpdate with sntp.
+> Mmm, I thought it was well-known, but apparently not :/
 > 
-> s/depreciated/deprecated/
+> I mean using this (see terminfo(5) for the details):
 > 
-> > -.BR \%ntpdate\ \-q " , or " \%date\ \-Ins
-> > +.BR \%sntp ", or " \%date\ \-Ins
+> #include <term.h>
+> #include <stdio.h>
+> #include <unistd.h>
 > 
-> Hmm, maybe it's a bit to early to delete the mention of ntpdate?
-> My fairly recent Linux Mint doesn't have sntp yet.  Maybe add
-> sntp to the list instead of replacing ntpdate?
+> int main(void) {
+>   int my_bg_color = 0;
+>   int my_fg_color = 4;
+> 
+>   setupterm(NULL, STDOUT_FILENO, NULL);
+>   tputs(enter_bold_mode, 1, putchar);
+>   tputs(enter_italics_mode, 1, putchar);
+>   tputs(enter_underline_mode, 1, putchar);
+>   tputs(enter_blink_mode, 1, putchar);
+>   tputs(enter_reverse_mode, 1, putchar);
+>   tputs(tparm(set_a_foreground, my_fg_color), 1, putchar);
+>   tputs(tparm(set_a_background, my_bg_color), 1, putchar);
+>   printf("Hello, world!\n");
+>   tputs(exit_attribute_mode, 1, putchar);
+>   return 0;
+> }
+> 
+> On terminals which support it, you can even get rgb colors by using
+> initialize_color or initialize_pair. If you want a more complete
+> example, see lstopo-text.c inside the hwloc package, we include ncurses,
+> but we don't actually need it for this kind of code. 
 
-On Debian Jessie, there's ntpdate, no sntp, and apt-cache search sntp only
-shows rdate (which can use the SNTP protocol).
+This is misunderstanding, I know about tputs :)
 
-Thanks,
-Isaac Dunham
+The question is how often the harcoded sequences are problem, which
+terminals? how often people use it? Would be enough to detect these
+terminals and use things without colors there?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
