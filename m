@@ -1,40 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:36252 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750928AbbCALYN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Mar 2015 06:24:13 -0500
-Received: by wghk14 with SMTP id k14so28313244wgh.3
-        for <util-linux@vger.kernel.org>; Sun, 01 Mar 2015 03:24:12 -0800 (PST)
-Date: Sun, 1 Mar 2015 11:24:10 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 04/13] rtcwake: remove RTC_ALM_READ and RTC_ALM_SET
- compatibility
-In-Reply-To: <1424723839.3617007.231392809.42CA471C@webmail.messagingengine.com>
-Message-ID: <alpine.LNX.2.03.1503011122440.822@iki.fi>
-References: <1424616139-638-1-git-send-email-kerolasa@iki.fi> <1424616139-638-5-git-send-email-kerolasa@iki.fi> <1424723839.3617007.231392809.42CA471C@webmail.messagingengine.com>
+Received: from mx1.redhat.com ([209.132.183.28]:45685 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751937AbbCBUNR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Mar 2015 15:13:17 -0500
+Date: Mon, 2 Mar 2015 21:13:11 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Peter Cordes <peter@cordes.ca>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: sfdisk problem with a partition starting early on a GPT disk
+Message-ID: <20150302201311.GM8046@ws.net.home>
+References: <20150301155610.GW3933@cordes.ca>
+ <20150302100652.GI8046@ws.net.home>
+ <20150302161932.GX3933@cordes.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150302161932.GX3933@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 23 Feb 2015, Benno Schulenberg wrote:
+On Mon, Mar 02, 2015 at 12:19:32PM -0400, Peter Cordes wrote:
+>  If libfdisk doesn't actually store anything after sector 33, it would
+> be nice if it wrote a GPT to disk that that has sector 34 as the
+> first-usable. 
 
-> On Sun, Feb 22, 2015, at 15:42, Sami Kerola wrote:
-> > The RTC_WKALM_RD and RTC_WKALM_SET have avaRilable since 2.6.17, and
-> > preferred way since 2007.  Keeping the availability to old interface is
-> > no longer needed.
-> 
-> s/have avaRilable/have been available/
-> s/the availability to old interface/the fallbacks to the old interface/
+ I'm not sure, the common consensus is to use 1MiB offset for the
+ first partition -- then it does not make sense to define
+ FirstUsableLBA smaller, because the extra space between the first
+ partition may be interpreted as gap and later (inadvertently)
+ partitioned.
 
-Thanks Benno,
+ Note the I'm talking about default layout, your example with 
+ --dump and restore is different -- sfdisk has to be able to 
+ copy existing partition tables.
+ 
+ BTW, the problem should be fixed in git tree, you have to --dump with
+ new sfdisk and then it will add "first-lba" number to scrit header.
+ You can also use 
 
-Here's updated commit message.
+  label: gpt
+  first-lba: 34
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/d14020f743a3d4dd5f1e4a7d4df4db5535ed0111
+ lines to manually create a GPT header by sfdisk.
+
+> That way, I could use gdisk to add a boot partition on
+> each disk after copying the layout of the other partitions with
+> sfdisk.  (That would be a minimal fix that isn't as nice as actually
+> supporting copying arbitrary valid GPT partition tables.  But it
+
+ It would be better to learn partitioning tools to modify
+ FirstUsableLBA in GPT header. I'll probably implement it for v2.27
+ fdisk, so creative users like you will be able to tune up their
+ partition tables :-)
+
+    Karel
+
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
