@@ -1,42 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43372 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53796 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751221AbbCPLNh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Mar 2015 07:13:37 -0400
-Date: Mon, 16 Mar 2015 12:13:35 +0100
+	id S1754262AbbCCMFa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 3 Mar 2015 07:05:30 -0500
+Date: Tue, 3 Mar 2015 13:05:18 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Rainer Gerhards <rgerhards@hq.adiscon.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org,
-        Rainer Gerhards <rgerhards@adiscon.com>
-Subject: Re: [PATCH 5/8] logger: fix rfc5424 format crash
-Message-ID: <20150316111335.GJ28925@ws.net.home>
-References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
- <1426424094-25451-6-git-send-email-kerolasa@iki.fi>
- <20150316104954.GE28925@ws.net.home>
- <CADk+mPA+R1PGGpA6=Aj0JB6RZSzS4NG-s9oSKEN35ff4SFZChA@mail.gmail.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/12] pull: script(1) changes
+Message-ID: <20150303120518.GR8046@ws.net.home>
+References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CADk+mPA+R1PGGpA6=Aj0JB6RZSzS4NG-s9oSKEN35ff4SFZChA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 16, 2015 at 11:55:36AM +0100, Rainer Gerhards wrote:
-> The best thing to do is use
+On Sun, Feb 22, 2015 at 02:42:37PM +0000, Sami Kerola wrote:
+> Hello,
 > 
-> = xstrdup(NILVALUE)
+> The following changes are clean ups and improvements to script(1)
+> command.  These changes are also available from my github remote
+> repository.
 
-Yeah,
-https://github.com/karelzak/util-linux/commit/773df0fa2f6c12581cc8649a08b9d825456a247c
+ Seems no tested with HAVE_LIBUTEMPTER...
 
-> 
-> I defined NILVALUE exactly for those cases (see rest of code).
-> 
-> Rainer
-> 
-> PS: I've been silent for a couple of days because my main projects demand
-> attention. Will soon post more again here.
+ term-utils/script.c: In function ‘main’:
+ term-utils/script.c:564:22: error: ‘master’ undeclared (first use in  this function)
+ term-utils/script.c:564:22: note: each undeclared identifier is  reported only once for each function it appears in
+ Makefile:9216: recipe for target 'term-utils/script-script.o' failed
+ make: *** [term-utils/script-script.o] Error 1
 
-No problem.
 
     Karel
 
