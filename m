@@ -1,61 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:50969 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:34921 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752908AbbCQPJB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 11:09:01 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0LymHf-1ZdviO1wCl-0165A5 for
- <util-linux@vger.kernel.org>; Tue, 17 Mar 2015 16:08:59 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: question about findmnt --target
-Date: Tue, 17 Mar 2015 16:08:58 +0100
+	id S932337AbbCEKRI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 Mar 2015 05:17:08 -0500
+Date: Thu, 5 Mar 2015 11:16:57 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/16] pull: changes to various utils
+Message-ID: <20150305101657.GV8046@ws.net.home>
+References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201503171608.58423.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Sun, Feb 22, 2015 at 02:41:30PM +0000, Sami Kerola wrote:
+>  git://github.com/kerolasa/lelux-utiliteetit.git various
 
-I wonder what is the correct way to find a mount which is mounted to a 
-certain target directory. findmnt --target will also find a mount if 
-you specify a subdirectory of a mountpoint:
+Merged (various2), thanks.
 
-$ mkdir /tmp/bla
-$ findmnt --target /tmp/bla
-TARGET SOURCE                        FSTYPE OPTIONS
-/tmp   /dev/mapper/vg0-tmpdirs[/tmp] ext4 ....
+Look forward to see regression tests for flock, logger and whereis.
 
-The man page let me think that --target should not find the parent 
-directory.
+    Karel
 
-man findmnt:
-  [...]
-  findmnt [options] device|mountpoint
-  findmnt [options] [--source] device [--target] mountpoint
-  [...]
-  The device may be specified by [...].  Note that a device name may be
-  interpreted as a mountpoint (and vice versa) if the --target
-  or --source options are not specified.
-  [...]
-  -T, --target dir
-         Explicitly define the mount target (mountpoint directory).
-
-
-I'm asking because even our test-suite is using findmnt wrong, for 
-example tests/ts/mount/move:
-[...]
-# move
-$TS_CMD_MOUNT --move $DIR_A $DIR_B
-
-# check the move
-$TS_CMD_FINDMNT --kernel --target "$DIR_B" &> /dev/null
-[ "$?" == "0" ] || ts_die "Cannot find binded $DIR_B"
-[...]
-
-This findmnt line will never fail I guess.
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
