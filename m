@@ -1,109 +1,55 @@
-Return-Path: sergey.senozhatsky@gmail.com
-Date: Thu, 5 Mar 2015 21:03:51 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-To: Timofey Titovets <nefelim4ag@gmail.com>, Karel Zak <kzak@redhat.com>,
-        Sami Kerola <kerolasa@gmail.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nitin Gupta <ngupta@vflare.org>, linux-kernel@vger.kernel.org,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Jerome Marchand <jmarchan@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] make automatic device_id generation possible
-Message-ID: <20150305120351.GB623@swordfish>
-References: <1425478601-19141-1-git-send-email-sergey.senozhatsky@gmail.com>
- <20150305001954.GA9563@blaptop>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:46196 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751220AbbCEVMN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 5 Mar 2015 16:12:13 -0500
+Received: by wggy19 with SMTP id y19so56010955wgg.13
+        for <util-linux@vger.kernel.org>; Thu, 05 Mar 2015 13:12:12 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>, Rainer Gerhards <rgerhards@adiscon.com>
+Subject: [PATCH] logger: make unix socket logging to use syslog_local format by default
+Date: Thu,  5 Mar 2015 21:12:00 +0000
+Message-Id: <1425589920-850-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150305001954.GA9563@blaptop>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Cc Sami Kerola, Timofey Titovets, Karel Zak, util-linux
-(don't have Jóhann B. Guðmundsson's email). also published on google+.
+The message format when writing to local sockets were inconsistent since
+commit 4de2e8a, for example:
 
-On (03/05/15 09:20), Minchan Kim wrote:
-> > Make zram-contol/zram_add interface easier to use. Extend it to support
-> > read and write operations.
-> > 
-> > Write operation remains the same:
-> > 
-> > 	echo X > /sys/class/zram-control/zram_add
-> > 
-> > will add /dev/zramX (or return error).
-> > 
-> > 
-> > Read operation is treated as 'pick up available device_id, add new
-> > device and return device_id'.
-> > 
-> > Example:
-> > 	 cat /sys/class/zram-control/zram_add
-> > 	2
-> > 	 cat /sys/class/zram-control/zram_add
-> > 	3
-> 
-> Thanks for handling my concern quickly and sorry for not sending
-> active feedback in realtime. Maybe I should turn on CONFIG_PREEMPT
-> in my brain.
-> 
-> I'm not against but I want to know why we should support
-> user-defined device id. What usecase do you have in mind?
-> 
-> Could we support automatic id support only at this moment?
-> Then, if some user complains about that in future, we could turn
-> on user-defined device id easily and we could know the usecase.
-> 
-> In summary, I want to support only "cat /sys/class/zram-control/zram_add"
-> unless you have feasible usecase.
-> 
-> What do you think about it?
+$ ./logger --stderr test
+<5>MÃ¤r  4 11:03:30 logger: test
 
-Hello guys,
+$ ./logger --socket /dev/log --stderr test
+<5>1 2015-03-04T11:03:31.699841+0100 ubuntu1404esp rger - [timeQuality ...
 
-call for opinions.
+This change makes the --socket  format to default use the same format as
+the first message, as what used to be the case earlier.  Notice that
+full-blown RFC format on the log socket causes problems with receivers
+who do not expect such format, like rsyslog.
 
-we currently discuss on-demand device creation/removal (you can find
-mail thread here https://lkml.org/lkml/2015/3/4/1414) and we want to hear
-some opinions.
+Addresses: https://github.com/karelzak/util-linux/issues/157
+Reported-by: Rainer Gerhards <rgerhards@adiscon.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-to add a new device, zram implements two modes (schematically):
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 1e7e2dc..04d2453 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -484,7 +484,7 @@ static void logger_open(struct logger_ctl *ctl)
+ 	if (ctl->unix_socket) {
+ 		ctl->fd = unix_socket(ctl, ctl->unix_socket, ctl->socket_type);
+ 		if (!ctl->syslogfp)
+-			ctl->syslogfp = syslog_rfc5424;
++			ctl->syslogfp = syslog_local;
+ 		return;
+ 	}
+ 	ctl->fd = unix_socket(ctl, _PATH_DEVLOG, ctl->socket_type);
+-- 
+2.3.1
 
--- forced mode
-
-which is "add device /dev/zram<id>".
-user must provide new device id. here we expect user to ensure that devide_id
-uniqueness and to handle errors if it's not. (zram will return -EEXIST if
-device_id is already in use).
-
-I can think of... a build server with tons of users and /dev/zram$(id -u)
-devices being created for every user during login (and destroyed during
-logout). so users don't pressure hdd, they have zram devices to play with,
-these devices have predictable names, which also makes admin's life a bit
-easier -- he can find out device user by simply checking its name (to
-remove abandoned devices, for example. anyway). there might be other more
-or less real life use-cases.
-
-usage example:
-        echo `id -u` > /sys/class/zram-control/zram_add
-
-
--- automatic mode
-
-which is 
-"pick device_id automatically, add device /dev/zram<id>,
-and return <id> back to user".
-
-usage example:
-        cat /sys/class/zram-control/zram_add
-        7
-        cat /sys/class/zram-control/zram_add
-        8
-
-
-we tend to ditch `forced' mode and leave `automatic' mode only. before we
-do that we'd like to see how many guys will be pissed off and... basically,
-if 'forced' mode is of any actual use.
-
-
-so the question is: should there be two modes or one is just enough?
-
-	-ss
