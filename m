@@ -1,38 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:59882 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:59205 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932593AbbCPOPi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Mar 2015 10:15:38 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0M0smx-1ZOvrz1nbT-00vC2t for
- <util-linux@vger.kernel.org>; Mon, 16 Mar 2015 15:15:36 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] tests: remove warning from test output
-Date: Mon, 16 Mar 2015 15:15:35 +0100
-Message-Id: <1426515335-21539-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <201503161514.16813.sweet_f_a@gmx.de>
-References: <201503161514.16813.sweet_f_a@gmx.de>
+	id S1753007AbbCIUNC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 9 Mar 2015 16:13:02 -0400
+Date: Mon, 9 Mar 2015 21:12:59 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: agetty --reload
+Message-ID: <20150309201259.GC26473@ws.net.home>
+References: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
+ <20150309115259.GB26473@ws.net.home>
+ <CALjAwxhefTrWEcxo+P4X98N5W12y2U5Jycj=1sjHju4WsA8ORA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CALjAwxhefTrWEcxo+P4X98N5W12y2U5Jycj=1sjHju4WsA8ORA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Mar 09, 2015 at 02:38:23PM +0000, Sitsofe Wheeler wrote:
+> On 9 March 2015 at 11:52, Karel Zak <kzak@redhat.com> wrote:
+> > On Sun, Mar 08, 2015 at 09:02:11PM +0000, Sitsofe Wheeler wrote:
+> >> The main issue seems to be that /etc/issue isn't reparsed when agetty
+> >> --reload is done unless /run/agetty.reload exists before the original
+> >> agetty is started. Is this the intended behaviour?
+> >
+> > No, this is a bug, fixed by commit c9f5ec0faa2b2d9cf7fc162baf99499457b8b909.
+> >
+> >> The second issue occurs when --autologin and --login-pause are being
+> >> used and a reload happens even when the above is done. Since the login
+> >> program hasn't actually been started (as we are waiting for the user
+> >> to press enter) I expected the reload to cause agetty to reload
+> >> /etc/issue and start waiting again but this does not currently happen.
+> >> Is this also intentional?
+> >
+> > Well, it wasn't implemented, improved by commit c2ef308bbfdc9fb9a0053e258828f5bd6fbb0c5d.
+> >
+> > The changes will be in v2.26.1.
+> 
+> Phew, that was fast! I've found with your patches the first issue is
+> fixed but when waiting at the [press ENTER to login] prompt agetty
+> --reload still has no effect...
 
-This was added in 3f8478a7 but it's only printed in --help.
+ It works for me.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/expected/tailf/simple | 1 -
- 1 file changed, 1 deletion(-)
+ # grep autologin /etc/systemd/system/getty@.service 
+ ExecStart=-/sbin/agetty --autologin kzak --login-pause --noclear %I $TERM
 
-diff --git a/tests/expected/tailf/simple b/tests/expected/tailf/simple
-index 5edc76b..ddf72de 100644
---- a/tests/expected/tailf/simple
-+++ b/tests/expected/tailf/simple
-@@ -1,3 +1,2 @@
--tailf: warning: use of 'tailf' is deprecated, use 'tail -f' instead
- a b c d e f g h i j k l m n o p q r s t u v w x y z
- 0 1 2 3 4 5 6 7 8 9
+ # echo "Hello world!" >> /etc/issue
+ # agetty --reload
+
+ .. then I see the "Hello..." line before [press ENTER to login].
+
+    Karel
+
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
