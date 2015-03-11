@@ -1,64 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47230 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752436AbbC3MM2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 30 Mar 2015 08:12:28 -0400
-Date: Mon, 30 Mar 2015 14:12:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jann Horn <jann@thejh.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux: wall security issue: unprivileged users can suppress
- banner
-Message-ID: <20150330121223.GT1749@ws.net.home>
-References: <20150327182707.GA9561@pc.thejh.net>
- <20150330094447.GR1749@ws.net.home>
- <20150330112129.GA24751@pc.thejh.net>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:37936 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751218AbbCKJ4m (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 11 Mar 2015 05:56:42 -0400
+Received: by widex7 with SMTP id ex7so36695711wid.3
+        for <util-linux@vger.kernel.org>; Wed, 11 Mar 2015 02:56:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150330112129.GA24751@pc.thejh.net>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <CAP-up9B=PYfQaYe6qi8bCYCkbPQJq3_3qoaHPxrki1_nF2J4_Q@mail.gmail.com>
+References: <CAP-up9B=PYfQaYe6qi8bCYCkbPQJq3_3qoaHPxrki1_nF2J4_Q@mail.gmail.com>
+Date: Wed, 11 Mar 2015 09:56:41 +0000
+Message-ID: <CAG27Bk2-7N=dFfFYEnC2yudasyg1v3mLLQ6mN4uOFzOOLSAHdA@mail.gmail.com>
+Subject: Re: logger --tag
+From: Sami Kerola <kerolasa@iki.fi>
+To: Rainer Gerhards <rgerhards@gmail.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 30, 2015 at 01:21:29PM +0200, Jann Horn wrote:
-> On Mon, Mar 30, 2015 at 11:44:47AM +0200, Karel Zak wrote:
-> > > +static void buf_append(char *data, char **buf, size_t *size, size_t *used)
-> > > +{
-> > > +	size_t data_len = strlen(data);
-> > > +	while (data_len > *size - *used) {
-> > > +		*size = 2 * *size;
-> > 
-> >  How do you know that "2 * size" is enough for data_len?
-> 
-> I don't. It probably usually is, but if it's not, the while loop is going
-> to increase the size again and again until it fits.
+On 10 March 2015 at 17:32, Rainer Gerhards <rgerhards@gmail.com> wrote:
+> I have been working on some fixes to logger the past days (issues are
+> available on github). While I am almost done with that,
 
-Ah... not sure why, but I have read "while() as "if ()". Sorry.
+Hi Rainer,
 
-> > if you replace xfmkstemp() with open_memstream() than you don't need
-> > all the buf_append() changes. libc is able to use FILE as in memory
-> > buffer for fprintf-like function :-)
-> 
-> Which libcs? The manpage for open_memstream() says something about "not
-> widely available on other systems". Is that acceptable? The wall code
+How I wish I would have contacted rsyslog maillist after first sweep of
+major changes with logger.  Great job various issues are fixed but
+pity they end up to release.  Sorry for the problems caused, there
+are lessons to be learned;
 
-This is good question, we already use mem-streams in libsmartcols (and
-cfdisk depends on this functionality since v2.25) and nobody complains. 
+1) add tests when making major changes
 
-uClibc supports mem-streams, not sure if people use util-linux with
-about another non-glibc alternatives.
+2) try to find people who know better and ask if they would have
+time and interest to test Newer, Better, Improved, More Broken,
+version of the software
 
-It does not mean that your solution is bad, it was just hint. I have
-no problem to accept your solution.
+> I just noticed a problem that seems to exist for rather long (at
+> least it is present in 2.20):
+>
+> logger accepts spaces in the tag name, e.g.
+>
+> logger -t "tag with spaces" test
+>
+> This will lead to a tag "tag with spaces:" being written. Actually, in
+> 2.20 this is a problem of syslog(3), which should not accept spaces.
+>
+> Spaces are invalid inside a tag value (rfc 3164, rfc5424 and
+> traditional log socket format). The lead to misinterpretation. In the
+> case of rsyslog, the problem is not easily visible to the casual
+> observer, but can cause problems e.g. when writing logs to databases
+> or other tabular frontends.
+>
+> When the new --rfc5424 option is used, a space inside the tag
+> invalidates the message (5424 is strict in contrary to 3164).
+>
+> As the bug seems to be present for a long time, probably ever since, I
+> am unsure how to handle that. Options are (among others):
+>
+> 1) be to be strict by default, and emit an error message if a space is
+> contained inside a tag value. But that could potentially break
+> existing scripts.
+>
+> 2) be strict if and only if --rfc5424 is selected, but keep lazy in
+> all other cases
+>
+> 3) be strict if any rfc format is specified, but keep lazy in all other cases.
+>
+> 4) add a new option --strict (or whatever) and emit an error if it
+> either --rfc3164, --rfc5424 *or* --strict is given (--strict would
+> only affect system log socket format).
+>
+> Options 2 to 4 would not break existing scripts, as these are new 2.26
+> options. I tend to option 4, which has the only downside that we still
+> permit invalid format to the local log socket.
+>
+> What is the opinion here on this list?
 
-> even avoids the use of snprintf because it "is not always available".
+The option 2 sounds good, but I'm worried existing use might still be
+affected if the tag strictness is enforced immediately.  The logger is
+after all using rfc5424 format as default when communicating with a
+remote server.
 
-snprintf() is absolutely fine, we use it in util-linux everywhere. The
-note in the code is pretty obsolete.
+How about adding a check, and a warning something like
 
-I'm going to review more carefully the patch later this week. Thanks!
+warnx(_("invalid tag formats are not allowed after 2018, see man logger(1)"));
 
-    Karel
+And of course there should be section in manual page telling what
+characters are allowed in tags, is that isalnum() with "C" locale?  The
+'after 2018' should also be clarified to mean first release in that
+year.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
