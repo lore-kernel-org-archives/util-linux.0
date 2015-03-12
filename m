@@ -1,90 +1,101 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:50693 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752246AbbBVOoh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Feb 2015 09:44:37 -0500
-Received: by mail-wg0-f49.google.com with SMTP id l18so21239207wgh.8
-        for <util-linux@vger.kernel.org>; Sun, 22 Feb 2015 06:44:36 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:51716 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753856AbbCLLWC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 12 Mar 2015 07:22:02 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t2CBM2cC016514
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 07:22:02 -0400
+Received: from ws ([10.40.204.58])
+	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id t2CBM0Cu032553
+	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 07:22:01 -0400
+Date: Thu, 12 Mar 2015 12:22:00 +0100
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 24/31] more: add -i ignore-case posix compliance option
-Date: Sun, 22 Feb 2015 14:43:20 +0000
-Message-Id: <1424616207-747-25-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
-References: <1424616207-747-1-git-send-email-kerolasa@iki.fi>
+Subject: v2.26.1 patches
+Message-ID: <20150312112200.GB4637@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reference: http://pubs.opengroup.org/onlinepubs/7908799/xcu/more.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.1 |  3 +++
- text-utils/more.c | 10 +++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/text-utils/more.1 b/text-utils/more.1
-index af1fdd4..e109e18 100644
---- a/text-utils/more.1
-+++ b/text-utils/more.1
-@@ -85,6 +85,9 @@ Squeeze multiple blank lines into one.
- .B \-u
- Suppress underlining.
- .TP
-+.B \-i
-+Ignore case distinctions in the pattern searches.
-+.TP
- .BI \- number
- The screen size to use, in
- .I number
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 15fd3a0..d83d5e3 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -163,6 +163,7 @@ struct more_control {
- 		fold_opt:1,		/* fold long lines */
- 		hard_term:1,		/* is this hard copy terminal */
- 		hardtabs:1,		/* print spaces instead of '\t' */
-+		ignore_case_opt:1,	/* case insensitive pattern search */
- 		jumpopt:1,		/* is jumpline defined */
- 		no_bell:1,		/* suppress bell */
- 		no_intty:1,		/* is input in interactive mode */
-@@ -200,6 +201,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -p          do not scroll, clean screen and display text\n"), out);
- 	fputs(_(" -s          squeeze multiple blank lines into one\n"), out);
- 	fputs(_(" -u          suppress underlining\n"), out);
-+	fputs(_(" -i          ignore case when searching\n"), out);
- 	fputs(_(" -<number>   the number of lines per screenful\n"), out);
- 	fputs(_(" +<number>   display file beginning from line number\n"), out);
- 	fputs(_(" +/<string>  display file beginning from search string match\n"), out);
-@@ -251,6 +253,9 @@ static void argscan(struct more_control *ctl, char *s)
- 		case 'u':
- 			ctl->ul_opt = 0;
- 			break;
-+		case 'i':
-+			ctl->ignore_case_opt = 1;
-+			break;
- 		case '-':
- 		case ' ':
- 		case '\t':
-@@ -1252,13 +1257,16 @@ static void search(struct more_control *ctl, char buf[], FILE *file, int n)
- 	long line3;
- 	int lncount = 0;
- 	int saveln, rc;
-+	int flags = REG_NOSUB;
- 	regex_t re;
+I'd like to release v2.26.1 as soon as possible (probably tomorrow :-)
+
+All is ready in stable/v2.26 branch.
+https://github.com/karelzak/util-linux/commits/stable/v2.26
+
+Please, review, comment, etc.
+
+The list of the patches proposed for the stable release also includes
+some new logger(1) command line options. It's unusual for stable
+release, but the changes are mostly result of refactoring and
+regressions fixing and for better backward compatibility as well as
+compatibility with RFCs and syslogs. I don't want to postpone such
+changes for v2.27 and force people to use incompatible/broken version
+from v2.26.
+
+    Karel
+
  
- 	ctl->context.line = saveln = ctl->current_line;
- 	ctl->context.nrow = startline;
-+	if (ctl->ignore_case_opt)
-+		flags |= REG_ICASE;
- 	if (!buf)
- 		goto notfound;
--	if ((rc = regcomp(&re, buf, REG_NOSUB)) != 0) {
-+	if ((rc = regcomp(&re, buf, flags)) != 0) {
- 		char s[REGERR_BUF];
- 		regerror(rc, &re, s, sizeof s);
- 		more_error(ctl, s);
--- 
-2.3.0
+Bill Pemberton (1):
+      docs: fix some spelling errors and typos in man pages
 
+Karel Zak (20):
+      build-sys: add --disable-colors-default
+      lib/colors: add USAGE_COLORS_DEFAULT
+      sfdisk: add missing --color
+      colors: cleanup man pages, add hint to usage()
+      libfdisk: add {first,last}-lba header to sfdisk scritps
+      agetty: support /usr/lib/os-release too
+      logger: add comment
+      logger: fix whitespace and compiler warning [-Wunused-variable]
+      logger: remove "interface to syslog(3)" from man page
+      logger: use username as the default tag
+      agetty: make sure that reload file exists
+      agetty: reload issue on --autologin --login-pause too
+      logger: check for ntp_gettime() rather than for timex.h
+      findmnt: don't rely on st_dev for --target
+      libmount: cleanup fs root detection code
+      logger: small change in usage()
+      tests: update sfdisk --dump test
+      libmount: add mnt_table_get_fs_root() to header file
+      libmount: mark overlay as pseudo-FS
+      cal: care about setuprterm() result
+
+Peter Cordes (1):
+      docs: fstab(5) grammar / English fixes, and some other updates
+
+Rainer Gerhards (18):
+      logger: fix invalid timestamp in rfc5425 format
+      logger: fix inconsistent format regression when logging locally
+      logger: fix invalid timestamp regression in local format
+      logger: messages are logged with kern.* priority by default
+      logger: fix -p kern.* priority is accepted regression
+      logger: refactor the way output is written
+      logger: bugfix: tcp syslog framing is broken, -T unusable
+      logger man page: fix some "syslog(3) routine" remnants
+      logger man page: bump man page date to current
+      logger: permit to send messages larger than 1024 characters
+      logger: refactor message generation
+      logger: bugfix: missing sanity checks with --prio-prefix option
+      logger man page: update --size doc
+      logger: add --skip-empty to prevent logging empty lines
+      silence compiler warning
+      logger: fix multiple format bugs in rfc5424 formatter
+      logger: add --msgid option, permits to set RFC5424 MSGID field
+      logger man page: fix typo
+
+Ruediger Meier (1):
+      logger: link libsystemd-daemon.so
+
+Sami Kerola (2):
+      logger: move /dev/log to pathnames.h
+      logger: fix -i argument parsing regression
+
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
