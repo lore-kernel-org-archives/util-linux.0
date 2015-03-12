@@ -1,44 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:36166 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752455AbbCOP0q (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 15 Mar 2015 11:26:46 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailout.nyi.internal (Postfix) with ESMTP id 4B57F207D2
-	for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 11:26:44 -0400 (EDT)
-Message-Id: <1426433205.3225343.240610937.5D55876F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
+Return-Path: sitsofe@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <550337F0.3050100@gmx.com>
-References: <5503364E.6010302@gmx.com> <550337F0.3050100@gmx.com>
-Subject: Re: [PATCH 3/5] hwclock: remove depreciated ntpdate
-Date: Sun, 15 Mar 2015 16:26:45 +0100
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20150309201259.GC26473@ws.net.home>
+References: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
+	<20150309115259.GB26473@ws.net.home>
+	<CALjAwxhefTrWEcxo+P4X98N5W12y2U5Jycj=1sjHju4WsA8ORA@mail.gmail.com>
+	<20150309201259.GC26473@ws.net.home>
+Date: Thu, 12 Mar 2015 02:10:44 +0000
+Message-ID: <CALjAwxgNkt3jgiHe5R63SFkoQOr-BsZ8QTOs-4xkfw_A4dBt4Q@mail.gmail.com>
+Subject: Re: agetty --reload
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
+On 9 March 2015 at 20:12, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Mar 09, 2015 at 02:38:23PM +0000, Sitsofe Wheeler wrote:
+>>
+>> Phew, that was fast! I've found with your patches the first issue is
+>> fixed but when waiting at the [press ENTER to login] prompt agetty
+>> --reload still has no effect...
+>
+>  It works for me.
+>
+>  # grep autologin /etc/systemd/system/getty@.service
+>  ExecStart=-/sbin/agetty --autologin kzak --login-pause --noclear %I $TERM
+>
+>  # echo "Hello world!" >> /etc/issue
+>  # agetty --reload
+>
+>  .. then I see the "Hello..." line before [press ENTER to login].
 
-On Fri, Mar 13, 2015, at 20:18, J William Piggott wrote:
-> Replace references to the depreciated ntpdate with sntp.
+You're right - I was mistaken and it all works.
 
-s/depreciated/deprecated/
+Just for the record, the reason I was testing this is because I wanted
+agetty to update its display of /etc/issue whenever the networking
+changed so IP addresses would be updated. My setup is using networkd
+and I have the following systemd units:
 
-> -.BR \%ntpdate\ \-q " , or " \%date\ \-Ins
-> +.BR \%sntp ", or " \%date\ \-Ins
+/etc/systemd/system/multi-user.target.wants/systemd-networkd-change.path:
+[Unit]
+Description=Update getty on network changes
+DefaultDependencies=no
+Requisite=systemd-networkd.service
+Before=systemd-networkd.service
 
-Hmm, maybe it's a bit to early to delete the mention of ntpdate?
-My fairly recent Linux Mint doesn't have sntp yet.  Maybe add
-sntp to the list instead of replacing ntpdate?
+[Path]
+PathChanged=/run/systemd/netif/state
 
-Oh, in the previous patch you used an inconsistent capital in
-the subject line.  And the same s/system/system's/ applies.
+[Install]
+WantedBy=multi-user.target
 
-Benno
+/etc/systemd/system/systemd-networkd-change.service:
+[Unit]
+Description=Update getty on network changes
+DefaultDependencies=no
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+# sleep is needed if watching the state file because it changes too soon
+ExecStartPre=/usr/bin/sleep 0.5s
+ExecStart=/usr/local/sbin/agetty --reload
+
+The only snag is that the display goes weird when the console is
+blanked and an update happens but that could be a VMware bug.
 
 -- 
-http://www.fastmail.com - Accessible with your email software
-                          or over the web
-
+Sitsofe | http://sucs.org/~sits/
