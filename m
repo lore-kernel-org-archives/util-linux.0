@@ -1,118 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35532 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:59891 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753764AbbCQTZ7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 15:25:59 -0400
-Date: Tue, 17 Mar 2015 20:25:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: question about findmnt --target
-Message-ID: <20150317192552.GY28925@ws.net.home>
-References: <201503171608.58423.sweet_f_a@gmx.de>
- <20150317163426.GW28925@ws.net.home>
- <201503171814.00580.sweet_f_a@gmx.de>
+	id S1754192AbbCMTW3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Mar 2015 15:22:29 -0400
+Message-ID: <550338F2.2000908@gmx.com>
+Date: Fri, 13 Mar 2015 15:22:26 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201503171814.00580.sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 4/5] hwclock: add '11 minute mode' information
+References: <5503364E.6010302@gmx.com>
+In-Reply-To: <5503364E.6010302@gmx.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 17, 2015 at 06:14:00PM +0100, Ruediger Meier wrote:
-> On Tuesday 17 March 2015, Karel Zak wrote:
-> > On Tue, Mar 17, 2015 at 04:08:58PM +0100, Ruediger Meier wrote:
-> > > Hi,
-> > >
-> > > I wonder what is the correct way to find a mount which is mounted
-> > > to a certain target directory. findmnt --target will also find a
-> > > mount if you specify a subdirectory of a mountpoint:
-> > >
-> > > $ mkdir /tmp/bla
-> > > $ findmnt --target /tmp/bla
-> > > TARGET SOURCE                        FSTYPE OPTIONS
-> > > /tmp   /dev/mapper/vg0-tmpdirs[/tmp] ext4 ....
-> > >
-> > > The man page let me think that --target should not find the parent
-> > > directory.
-> >
-> > No, it's expected behavior since:
-> >
-> >     commit b215d8e9a71ca8d22df6111ddc9d28bd896febb1
-> >     Author: Dave Reisner <dreisner@archlinux.org>
-> >     Date:   Wed Apr 25 20:30:52 2012 -0400
-> 
-> Ok, but this was a regression for a common use case. I guess to late to 
-> revert. Even you liked this old behavior:
+Add that '11 minute mode' is a kernel compile time
+option. Add details regarding its activation and
+how to check its status.
 
-Well, the common use-case is to not use --target :-) But I agree that
-the feature is questionable. The mistake is that the original (non-df)
-behavior has not been covered by test. 
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-> commit 1f42e1089aadbe537bb59143502ebd1767d3f7ea
-> Author: Karel Zak <kzak@redhat.com>
-> Date:   Sun Jan 2 22:56:31 2011 +0100
-> 
->     tests: use findmnt(8) for mount --move test
-> 
-> 
-> > and the current git tree contains:
-> >
-> >        -T, --target path
-> >              Explicitly define the mount target (mountpoint
-> >              directory). If the path is not a  mountpoint file
-> >              or directory than findmnt checks path elements in
-> >              reverse order for get the mountpoint (this
-> >              feature is supported only if search in kernel
-> >              files and unsupported for --fstab).
-> 
-> Ah ok, but IMO because of this regression we should make it even more 
-> clear. Probably the first sentence should not contain "mount target" 
-> and "mountpoint" without also using the term "parent directory" or 
-> similar. 
-> 
-> I think for df(1) it's written nicely:
-> 
->   df [OPTION]... [FILE]...
->   Show information about the file system on which each FILE resides, or
->   all file systems by default.
-
-OK.
-
-> > > $TS_CMD_MOUNT --move $DIR_A $DIR_B
-> > >
-> > > # check the move
-> > > $TS_CMD_FINDMNT --kernel --target "$DIR_B" &> /dev/null
-> > > [ "$?" == "0" ] || ts_die "Cannot find binded $DIR_B"
-> > > [...]
-> > >
-> > > This findmnt line will never fail I guess.
-> >
-> > Right, this is mistake, solution is to remove --target:
-> >
-> >     TS_CMD_FINDMNT --kernel "$DIR_B" &> /dev/null
-> 
-> >
-> > The disadvantage is that without --source/target findmnt(8) tries
-> > to use the path as source and then as target. It's bad in same cases.
-> >
-> > Maybe we need a new option to disable the evaluation of the target
-> > path elements. (--strict-target)
-> 
-> What about "findmnt --target /bla/xyz --no-parents" instead 
-> of --strict-target?
-
-No problem.
-
-> I have to admint that I don't really like the current behavior 
-> of --target and the default case without --source/target. Of course we 
-> can't change it anymore.
-
-Yes, after 3 years it's better to keep the current behavior and
-provide an option to disable the "smart" target evaluation. Do you
-want to send a patch? (or I can do that tomorrow.)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 0c294af..8cf86a3 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -758,25 +758,30 @@ You can use an adjtime file that was previously used with the
+ .PP
+ You should be aware of another way that the Hardware Clock is kept
+ synchronized in some systems.  The Linux kernel has a mode wherein it
+-copies the System Time to the Hardware Clock every 11 minutes.
++copies the System Time to the Hardware Clock every 11 minutes. This mode
++is a compile time option, so not all kernels will have this capability.
+ This is a good mode to use when you are using something sophisticated
+ like NTP to keep your System Clock synchronized. (NTP is a way to keep
+ your System Time synchronized either to a time server somewhere on the
+ network or to a radio clock hooked up to your system.  See RFC 1305.)
+ .PP
+-This mode (we'll call it \%'11\ minute\ mode') is off until something
+-turns it on.  The NTP daemon ntpd is one thing that turns it on.  You
+-can turn it off by running anything, including
++If the kernel is compiled with the \%'11\ minute\ mode' option it will
++be active when the kernel's clock discipline is in a synchronized state.
++When in this state the binary 64's bit of the kernel's
++.I \%time_status
++variable is unset (10111111). This value is output as the 'status' line of the
++.BR \%adjtimex\ --print " or " \%ntptime " commands."
++.PP
++It takes an outside influence, like the NTP daemon
++.BR ntpd (1),
++to put the kernel's clock discipline into a synchronized state, and
++therefore turn on \%'11\ minute\ mode'.
++It can be turned off by running anything, including
+ .BR \%hwclock\ \-\-hctosys ,
+ that sets the System Clock the old fashioned way.  However, if the NTP daemon is
+-still running, it will turn 11 minute mode back on again the next time it
++still running, it will turn \%'11\ minute\ mode' back on again the next time it
+ synchronizes the System Clock.
+ .PP
+-When \%'11\ minute\ mode' is active the 64 bit of the kernel's
+-.I time_status
+-variable is unset. The status variable can be checked with the
+-.BR \%adjtimex\ --print " or " \%ntptime " commands."
+-.PP
+ If your system runs with \%'11\ minute\ mode' on, it may need to use either
+ .BR \%\-\-hctosys " or " \%\-\-systz
+ in a startup script, especially if the Hardware Clock is configured to use
