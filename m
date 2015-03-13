@@ -1,79 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50640 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:52553 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751117AbbCBLDY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Mar 2015 06:03:24 -0500
-Date: Mon, 2 Mar 2015 12:03:09 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        =?iso-8859-1?Q?P=E1draig?= Brady <P@draigbrady.com>,
-        kerolasa@gmail.com, "Dale R. Worley" <worley@alum.mit.edu>,
-        mrmazda@earthlink.net, util-linux <util-linux@vger.kernel.org>
-Subject: Re: tty[1-6]: colors a negative accessibility/usability trend
-Message-ID: <20150302110309.GJ8046@ws.net.home>
-References: <20150213112523.GP32318@ws.net.home>
- <20150215111238.GG32251@vapier>
- <20150216091043.GA11948@ws.net.home>
- <20150216093533.GJ4075@vapier>
- <20150216094747.GC11948@ws.net.home>
- <20150216103241.GD3926@type.bordeaux.inria.fr>
- <20150227134805.GB8046@ws.net.home>
- <54F314D1.2080003@draigBrady.com>
- <20150302085929.GG8046@ws.net.home>
- <20150302093146.GV3404@type.bordeaux.inria.fr>
+	id S1752930AbbCMTPZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Mar 2015 15:15:25 -0400
+Message-ID: <55033747.5040305@gmx.com>
+Date: Fri, 13 Mar 2015 15:15:19 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150302093146.GV3404@type.bordeaux.inria.fr>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: [PATCH 2/5] hwclock: Improve FILES section
+References: <5503364E.6010302@gmx.com>
+In-Reply-To: <5503364E.6010302@gmx.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 02, 2015 at 10:31:46AM +0100, Samuel Thibault wrote:
-> Karel Zak, le Mon 02 Mar 2015 09:59:29 +0100, a écrit :
-> > On Sun, Mar 01, 2015 at 01:32:01PM +0000, Pádraig Brady wrote:
-> > > and I've not heard specific complaints about it.
-> > > What terminals are not catered for here?
-> > 
-> > I don't know, my plan is to do some research to better understand what
-> > Samuel is talking about.
-> 
-> Mmm, I thought it was well-known, but apparently not :/
-> 
-> I mean using this (see terminfo(5) for the details):
-> 
-> #include <term.h>
-> #include <stdio.h>
-> #include <unistd.h>
-> 
-> int main(void) {
->   int my_bg_color = 0;
->   int my_fg_color = 4;
-> 
->   setupterm(NULL, STDOUT_FILENO, NULL);
->   tputs(enter_bold_mode, 1, putchar);
->   tputs(enter_italics_mode, 1, putchar);
->   tputs(enter_underline_mode, 1, putchar);
->   tputs(enter_blink_mode, 1, putchar);
->   tputs(enter_reverse_mode, 1, putchar);
->   tputs(tparm(set_a_foreground, my_fg_color), 1, putchar);
->   tputs(tparm(set_a_background, my_bg_color), 1, putchar);
->   printf("Hello, world!\n");
->   tputs(exit_attribute_mode, 1, putchar);
->   return 0;
-> }
-> 
-> On terminals which support it, you can even get rgb colors by using
-> initialize_color or initialize_pair. If you want a more complete
-> example, see lstopo-text.c inside the hwloc package, we include ncurses,
-> but we don't actually need it for this kind of code. 
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-This is misunderstanding, I know about tputs :)
-
-The question is how often the harcoded sequences are problem, which
-terminals? how often people use it? Would be enough to detect these
-terminals and use things without colors there?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 65ab99a..51367a4 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -1052,10 +1052,19 @@ configured timezone.
+ If this variable is set its value takes precedence over the system
+ configured timezone database directory path.
+ .SH FILES
+-.br
++.TP
+ .I @ADJTIME_PATH@
+-.br
++The configuration and state file for hwclock.
++.TP
+ .I /etc/localtime
++The system timezone file.
++.TP
++.I /usr/share/zoneinfo/
++The system timezone database directory.
++.PP
++Device files
++.B hwclock
++may try for Hardware Clock access:
+ .br
+ .I /dev/rtc
+ .br
+@@ -1070,9 +1079,6 @@ configured timezone database directory path.
+ .I /dev/port
+ .br
+ .I /dev/tty1
+-.br
+-.I /proc/cpuinfo
+-.
+ .SH "SEE ALSO"
+ .BR date (1),
+ .BR adjtimex (8),
