@@ -1,27 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52777 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36834 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932539AbbCQJQd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 05:16:33 -0400
-Date: Tue, 17 Mar 2015 10:16:22 +0100
+	id S1751337AbbCMOcW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 13 Mar 2015 10:32:22 -0400
+Date: Fri, 13 Mar 2015 15:32:18 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libblkid: fix compiler warnings
-Message-ID: <20150317091622.GR28925@ws.net.home>
-References: <1426550147-24964-1-git-send-email-kerolasa@iki.fi>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.26.1
+Message-ID: <20150313143218.GC19161@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1426550147-24964-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 16, 2015 at 11:55:47PM +0000, Sami Kerola wrote:
->  libblkid/src/superblocks/bcache.c | 2 +-
->  libblkid/src/superblocks/minix.c  | 9 +++++----
->  2 files changed, 6 insertions(+), 5 deletions(-)
 
- Applied, thanks.
+The util-linux release v2.26.1 is available at
+ 
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26/
+    
+Feedback and bug reports, as always, are welcomed.
+     
+       Karel
+
+
+
+
+Util-linux 2.26.1 Release Notes
+===============================
+
+agetty:
+   - make sure that reload file exists  [Karel Zak]
+   - reload issue on --autologin --login-pause too  [Karel Zak]
+   - support /usr/lib/os-release too  [Karel Zak]
+build-sys:
+   - add --disable-colors-default  [Karel Zak]
+cal:
+   - care about setuprterm() result  [Karel Zak]
+colors:
+   - cleanup man pages, add hint to usage()  [Karel Zak]
+docs:
+   - fix some spelling errors and typos in man pages  [Bill Pemberton]
+   - fstab(5) grammar / English fixes, and some other updates  [Peter Cordes]
+   - update AUTHORS file  [Karel Zak]
+findmnt:
+   - don't rely on st_dev for --target  [Karel Zak]
+last:
+   - fix utmplist usage  [Karel Zak]
+lib/colors:
+   - add USAGE_COLORS_DEFAULT  [Karel Zak]
+libfdisk:
+   - add {first,last}-lba header to sfdisk scritps  [Karel Zak]
+libmount:
+   - add mnt_table_get_fs_root() to header file  [Karel Zak]
+   - cleanup fs root detection code  [Karel Zak]
+   - mark overlay as pseudo-FS  [Karel Zak]
+logger:
+   - add --msgid option, permits to set RFC5424 MSGID field  [Rainer Gerhards]
+   - add --skip-empty to prevent logging empty lines  [Rainer Gerhards]
+   - add comment  [Karel Zak]
+   - bugfix  missing sanity checks with --prio-prefix option  [Rainer Gerhards]
+   - bugfix  tcp syslog framing is broken, -T unusable  [Rainer Gerhards]
+   - check for ntp_gettime() rather than for timex.h  [Karel Zak]
+   - fix -i argument parsing regression  [Sami Kerola]
+   - fix -p kern.* priority is accepted regression  [Rainer Gerhards]
+   - fix inconsistent format regression when logging locally  [Rainer Gerhards]
+   - fix invalid timestamp in rfc5425 format  [Rainer Gerhards]
+   - fix invalid timestamp regression in local format  [Rainer Gerhards]
+   - fix multiple format bugs in rfc5424 formatter  [Rainer Gerhards]
+   - fix whitespace and compiler warning [-Wunused-variable]  [Karel Zak]
+   - link libsystemd-daemon.so  [Ruediger Meier]
+   - messages are logged with kern.* priority by default  [Rainer Gerhards]
+   - move /dev/log to pathnames.h  [Sami Kerola]
+   - permit to send messages larger than 1024 characters  [Rainer Gerhards]
+   - refactor message generation  [Rainer Gerhards]
+   - refactor the way output is written  [Rainer Gerhards]
+   - remove "interface to syslog(3)" from man page  [Karel Zak]
+   - small change in usage()  [Karel Zak]
+   - use username as the default tag  [Karel Zak]
+   - use xstrdup()  [Karel Zak]
+logger man page:
+   - bump man page date to current  [Rainer Gerhards]
+   - fix some "syslog(3) routine" remnants  [Rainer Gerhards]
+   - fix typo  [Rainer Gerhards]
+   - update --size doc  [Rainer Gerhards]
+po:
+   - merge changes  [Karel Zak]
+sfdisk:
+   - add missing --color  [Karel Zak]
+tests:
+   - fix fdisk/bsd for ppc64le  [Ruediger Meier]
+   - improve readability for fdisk/bsd  [Ruediger Meier]
+   - update sfdisk --dump test  [Karel Zak]
+
+- silence compiler warning  [Rainer Gerhards]
 
 -- 
  Karel Zak  <kzak@redhat.com>
