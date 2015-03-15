@@ -1,67 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36998 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750936AbbCPK5T (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 Mar 2015 06:57:19 -0400
-Date: Mon, 16 Mar 2015 11:57:07 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/8] tests: add test_logger helper command
-Message-ID: <20150316105707.GI28925@ws.net.home>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:38772 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751856AbbCOMzG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Mar 2015 08:55:06 -0400
+Received: by wifj2 with SMTP id j2so21671922wif.1
+        for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 05:55:05 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/8] logger: check xgethostname() return value
+Date: Sun, 15 Mar 2015 12:54:48 +0000
+Message-Id: <1426424094-25451-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
 References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
- <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 15, 2015 at 12:54:49PM +0000, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  misc-utils/Makemodule.am |  4 ++++
->  misc-utils/logger.c      | 36 ++++++++++++++++++++++++++++++++++++
->  tests/commands.sh        |  1 +
->  3 files changed, 41 insertions(+)
-> 
-> diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
-> index f7485c9..309727b 100644
-> --- a/misc-utils/Makemodule.am
-> +++ b/misc-utils/Makemodule.am
-> @@ -26,6 +26,10 @@ if HAVE_SYSTEMD
->  logger_LDADD = $(SYSTEMD_LIBS) $(SYSTEMD_DAEMON_LIBS) $(SYSTEMD_JOURNAL_LIBS)
->  logger_CFLAGS = $(SYSTEMD_CFLAGS) $(SYSTEMD_DAEMON_CFLAGS) $(SYSTEMD_JOURNAL_CFLAGS)
->  endif
-> +check_PROGRAMS += test_logger
-> +test_logger_SOURCES = $(logger_SOURCES)
-> +test_logger_LDADD = $(logger_LDADD)
-> +test_logger_CFLAGS = -DTEST_LOGGER $(logger_CFLAGS)
->  endif # BUILD_LOGGER
->  
->  
-> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-> index 2e37d14..838d225 100644
-> --- a/misc-utils/logger.c
-> +++ b/misc-utils/logger.c
-> @@ -310,7 +310,12 @@ static const char *rfc3164_current_time(void)
->  		"Sep", "Oct", "Nov", "Dec"
->  	};
->  
-> +#ifndef TEST_LOGGER
->  	gettimeofday(&tv, NULL);
-> +#else
-> +	tv.tv_sec = 1234567890;
-> +	tv.tv_usec = 123456;
-> +#endif
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
- Hmm... this (many #ifdefs and hardcoded constants) is really not
- elegant solution. I'll try to implement it in another way. Thanks for
- the tests.
-
-    Karel
-
-
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index e3fc248..2e37d14 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -342,9 +342,10 @@ static void write_output(const struct logger_ctl *ctl, const char *const msg)
+ 		fprintf(stderr, "%s\n", buf);
+ }
+ 
++#define NILVALUE "-"
+ static void syslog_rfc3164_header(struct logger_ctl *const ctl)
+ {
+-	char pid[30], *hostname, *dot;
++	char pid[30], *hostname;
+ 
+ 	*pid = '\0';
+ 	if (ctl->fd < 0)
+@@ -352,10 +353,12 @@ static void syslog_rfc3164_header(struct logger_ctl *const ctl)
+ 	if (ctl->pid)
+ 		snprintf(pid, sizeof(pid), "[%d]", ctl->pid);
+ 
+-	hostname = xgethostname();
+-	dot = strchr(hostname, '.');
+-	if (dot)
+-		*dot = '\0';
++	if ((hostname = xgethostname())) {
++		char *dot = strchr(hostname, '.');
++		if (dot)
++			*dot = '\0';
++	} else
++		hostname = xstrdup(NILVALUE);
+ 
+ 	xasprintf(&ctl->hdr, "<%d>%.15s %s %.200s%s: ",
+ 		 ctl->pri, rfc3164_current_time(), hostname, ctl->tag, pid);
+@@ -383,7 +386,6 @@ static void syslog_rfc3164_header(struct logger_ctl *const ctl)
+  * specified RFC5424. The rest of the field mappings should be
+  * pretty clear from RFC5424. -- Rainer Gerhards, 2015-03-10
+  */
+-#define NILVALUE "-"
+ static void syslog_rfc5424_header(struct logger_ctl *const ctl)
+ {
+ 	char *time;
+@@ -416,7 +418,8 @@ static void syslog_rfc5424_header(struct logger_ctl *const ctl)
+ 		time = xstrdup(NILVALUE);
+ 
+ 	if (ctl->rfc5424_host) {
+-		hostname = xgethostname();
++		if (!(hostname = xgethostname()))
++			hostname = xstrdup(NILVALUE);
+ 		/* Arbitrary looking 'if (var < strlen()) checks originate from
+ 		 * RFC 5424 - 6 Syslog Message Format definition.  */
+ 		if (255 < strlen(hostname))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.2
+
