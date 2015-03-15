@@ -1,34 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58611 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932085AbbCQJGM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 05:06:12 -0400
-Date: Tue, 17 Mar 2015 10:06:10 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: Rainer Gerhards <rgerhards@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/8] pull: logger: add tests and fix couple issues
-Message-ID: <20150317090610.GQ28925@ws.net.home>
-References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
- <CAP-up9AJwjQU8Mq5fT0wYZgv2noqz845EtVt-CiYjN=F0J8R5A@mail.gmail.com>
- <20150316120631.GL28925@ws.net.home>
- <alpine.LNX.2.03.1503162348580.24769@iki.fi>
+Return-Path: bensberg@justemail.net
+Message-Id: <1426434447.3228874.240611693.0EF4BF24@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.03.1503162348580.24769@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+Subject: Re: [PATCH 4/5] hwclock: add '11 minute mode' information
+Date: Sun, 15 Mar 2015 16:47:27 +0100
+In-Reply-To: <550338F2.2000908@gmx.com>
+References: <5503364E.6010302@gmx.com> <550338F2.2000908@gmx.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 16, 2015 at 11:55:05PM +0000, Sami Kerola wrote:
-> are updated in my remote repo.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/b3d4c9862c1c12c1f1e5db5e72fe010b192ca106
-> https://github.com/kerolasa/lelux-utiliteetit/commit/660d2e44e5d75d98cfeb8971c7229f2c4b1d03d9
 
-Merged, thanks.
+On Fri, Mar 13, 2015, at 20:22, J William Piggott wrote:
+> +If the kernel is compiled with the \%'11\ minute\ mode' option it will
+> +be active when the kernel's clock discipline is in a synchronized state.
+> +When in this state the binary 64's bit of the kernel's [...]
 
-    Karel
+s/state the/state, the/
+
+This comma really is needed, because without it I start to read
+the sentence as "When in this state the binary... explodes, you
+are in deep shit."
+
+About the "binary 64's bit"...  As explained in our private conversation,
+I think this is an absurd and incomprehensible way of referring to bit 6
+(with the least-significant bit being bit 0) of a value.  Please think of
+something else.
+
+> +.I \%time_status
+> +variable is unset (10111111).
+
+Ow.  That is puzzling.  As if all the other bits have to be set in
+order for bit 6 to be unset.  I would instead say something like:
+
+"When in this state, bit 6 (the bit that is set in the mask 0x0040)
+of the kernel's time_status variable is *unset*."
+
+> +It can be turned off by running anything, including
+>  .BR \%hwclock\ \-\-hctosys ,
+>  that sets the System Clock the old fashioned way.
+
+I would move the "including..." phrase to the end of the sentence,
+as now one at first thinks that really *anything* can turn 11-minute
+mode off.
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Email service worth paying for. Try it for free
