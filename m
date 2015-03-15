@@ -1,66 +1,163 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56636 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751540AbbCLSIa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Mar 2015 14:08:30 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0LpPg1-1ZANxe3DhF-00f9Qj for
- <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 19:08:27 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:36702 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751856AbbCOMzP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Mar 2015 08:55:15 -0400
+Received: by wetk59 with SMTP id k59so20841327wet.3
+        for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 05:55:13 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] tests: improve readability for fdisk/bsd
-Date: Thu, 12 Mar 2015 19:08:25 +0100
-Message-Id: <1426183706-30366-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1426183706-30366-1-git-send-email-sweet_f_a@gmx.de>
-References: <1426183706-30366-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 8/8] tests: add logger(1) error condition tests
+Date: Sun, 15 Mar 2015 12:54:54 +0000
+Message-Id: <1426424094-25451-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- tests/ts/fdisk/bsd | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ tests/expected/logger/errors                       |  0
+ tests/expected/logger/errors-id_with_space         |  2 +
+ tests/expected/logger/errors-invalid_prio          |  1 +
+ tests/expected/logger/errors-kern_priority         |  1 +
+ tests/expected/logger/errors-kern_priority_numeric |  1 +
+ tests/expected/logger/errors-rfc5424_exceed_size   |  1 +
+ .../logger/errors-rfc5424_msgid_with_space         |  1 +
+ tests/expected/logger/errors-tag_with_space        |  2 +
+ tests/ts/logger/errors                             | 60 ++++++++++++++++++++++
+ 9 files changed, 69 insertions(+)
+ create mode 100644 tests/expected/logger/errors
+ create mode 100644 tests/expected/logger/errors-id_with_space
+ create mode 100644 tests/expected/logger/errors-invalid_prio
+ create mode 100644 tests/expected/logger/errors-kern_priority
+ create mode 100644 tests/expected/logger/errors-kern_priority_numeric
+ create mode 100644 tests/expected/logger/errors-rfc5424_exceed_size
+ create mode 100644 tests/expected/logger/errors-rfc5424_msgid_with_space
+ create mode 100644 tests/expected/logger/errors-tag_with_space
+ create mode 100755 tests/ts/logger/errors
 
-diff --git a/tests/ts/fdisk/bsd b/tests/ts/fdisk/bsd
-index 381f228..dcad115 100755
---- a/tests/ts/fdisk/bsd
-+++ b/tests/ts/fdisk/bsd
-@@ -47,23 +47,27 @@ FDISK_CMD_BSD_LIST_TYPES="b\nl\nq\n"         # list supported PT types and quit
- BYTE_ORDER=$($TS_HELPER_SYSINFO byte-order)
- function fdisk_bsd_offset_and_byte_order_clean
- {
-+		# expected md5sums are from x86 systems
-+		local md5_bsdimg1_LE_0_64="2e1cee529cb59c9341afef0443f196a1"
-+		local md5_bsdimg2_LE_0_64="b5c121c2091b2ff26b880551feac7112"
+diff --git a/tests/expected/logger/errors b/tests/expected/logger/errors
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/expected/logger/errors-id_with_space b/tests/expected/logger/errors-id_with_space
+new file mode 100644
+index 0000000..081efac
+--- /dev/null
++++ b/tests/expected/logger/errors-id_with_space
+@@ -0,0 +1,2 @@
++test_logger: failed to parse id: 'A B'
++test_logger: failed to parse id: 'A B'
+diff --git a/tests/expected/logger/errors-invalid_prio b/tests/expected/logger/errors-invalid_prio
+new file mode 100644
+index 0000000..cf79cf3
+--- /dev/null
++++ b/tests/expected/logger/errors-invalid_prio
+@@ -0,0 +1 @@
++test_logger: unknown priority name: 8
+diff --git a/tests/expected/logger/errors-kern_priority b/tests/expected/logger/errors-kern_priority
+new file mode 100644
+index 0000000..6656db0
+--- /dev/null
++++ b/tests/expected/logger/errors-kern_priority
+@@ -0,0 +1 @@
++<8>Feb 13 23:31:30 prio: message
+diff --git a/tests/expected/logger/errors-kern_priority_numeric b/tests/expected/logger/errors-kern_priority_numeric
+new file mode 100644
+index 0000000..6656db0
+--- /dev/null
++++ b/tests/expected/logger/errors-kern_priority_numeric
+@@ -0,0 +1 @@
++<8>Feb 13 23:31:30 prio: message
+diff --git a/tests/expected/logger/errors-rfc5424_exceed_size b/tests/expected/logger/errors-rfc5424_exceed_size
+new file mode 100644
+index 0000000..35750b7
+--- /dev/null
++++ b/tests/expected/logger/errors-rfc5424_exceed_size
+@@ -0,0 +1 @@
++<13>1 2009-02-13T23:31:30.123456+00:00 test-hostname rfc5424_exceed_size - - [timeQuality tzKnown="1" isSynced="1" syncAccuracy="123456"] abc
+diff --git a/tests/expected/logger/errors-rfc5424_msgid_with_space b/tests/expected/logger/errors-rfc5424_msgid_with_space
+new file mode 100644
+index 0000000..273bc9b
+--- /dev/null
++++ b/tests/expected/logger/errors-rfc5424_msgid_with_space
+@@ -0,0 +1 @@
++test_logger: --msgid cannot contain space
+diff --git a/tests/expected/logger/errors-tag_with_space b/tests/expected/logger/errors-tag_with_space
+new file mode 100644
+index 0000000..31a86af
+--- /dev/null
++++ b/tests/expected/logger/errors-tag_with_space
+@@ -0,0 +1,2 @@
++<13>Feb 13 23:31:30 A B: tag_with_space
++<13>1 2009-02-13T23:31:30.123456+00:00 test-hostname A B - - [timeQuality tzKnown="1" isSynced="1" syncAccuracy="123456"] tag_with_space_rfc5424
+diff --git a/tests/ts/logger/errors b/tests/ts/logger/errors
+new file mode 100755
+index 0000000..1051b55
+--- /dev/null
++++ b/tests/ts/logger/errors
+@@ -0,0 +1,60 @@
++#!/bin/bash
 +
-         if [ $BYTE_ORDER = "BE" ] ; then
- 		# BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64
- 		sed -i \
--		-e "s/c2273b52976351db75596c47c10b0725/2e1cee529cb59c9341afef0443f196a1/" \
--		-e "s/9a234a5b99e37d2ce0d92b65437b93cd/b5c121c2091b2ff26b880551feac7112/" \
-+		-e "s/c2273b52976351db75596c47c10b0725/$md5_bsdimg1_LE_0_64/" \
-+		-e "s/9a234a5b99e37d2ce0d92b65437b93cd/$md5_bsdimg2_LE_0_64/" \
- 		"$TS_OUTPUT"
- 
- 		# BSD_LABELSECTOR = 1, BSD_LABELOFFSET = 0
- 		sed -i \
--		-e "s/e990c8a1c2106a4cd4b008f16d71aaa6/2e1cee529cb59c9341afef0443f196a1/" \
--		-e "s/187a48c26e83d146b866868addc93702/b5c121c2091b2ff26b880551feac7112/" \
-+		-e "s/e990c8a1c2106a4cd4b008f16d71aaa6/$md5_bsdimg1_LE_0_64/" \
-+		-e "s/187a48c26e83d146b866868addc93702/$md5_bsdimg2_LE_0_64/" \
- 		"$TS_OUTPUT"
- 	else
- 		# BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64
- 		sed -i \
--		-e "s/78a922a80361cb73049bced72e0f8f1d/2e1cee529cb59c9341afef0443f196a1/" \
--		-e "s/fc2803672a0643ffe46da325629616fc/b5c121c2091b2ff26b880551feac7112/" \
-+		-e "s/78a922a80361cb73049bced72e0f8f1d/$md5_bsdimg1_LE_0_64/" \
-+		-e "s/fc2803672a0643ffe46da325629616fc/$md5_bsdimg2_LE_0_64/" \
- 		"$TS_OUTPUT"
- 	fi
- }
++#
++# Copyright (C) 2015 Sami Kerola <kerolasa@iki.fi>
++#
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="errors"
++
++. $TS_TOPDIR/functions.sh
++
++ts_init "$*"
++
++ts_check_test_command "$TS_HELPER_LOGGER"
++
++ts_init_subtest "kern_priority"
++$TS_HELPER_LOGGER -s -t "prio" -p kern.emerg "message" > "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "kern_priority_numeric"
++$TS_HELPER_LOGGER -s -t "prio" -p 0 "message" > "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "invalid_prio"
++$TS_HELPER_LOGGER -s -t "prio" -p 8 "message" > "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++# should truncate
++ts_init_subtest "rfc5424_exceed_size"
++$TS_HELPER_LOGGER -s -t "rfc5424_exceed_size" --rfc5424 --size 3 "abcd" > "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "id_with_space"
++$TS_HELPER_LOGGER -s -t "id_with_space" --id="A B" "message" > "$TS_OUTPUT" 2>&1
++$TS_HELPER_LOGGER -s -t "rfc5424_id_with_space" --rfc5424 --id="A B" "message" >> "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++# should not fail
++ts_init_subtest "tag_with_space"
++$TS_HELPER_LOGGER -s -t "A B" "tag_with_space" > "$TS_OUTPUT" 2>&1
++$TS_HELPER_LOGGER -s -t "A B" --rfc5424 "tag_with_space_rfc5424" >> "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++ts_init_subtest "rfc5424_msgid_with_space"
++$TS_HELPER_LOGGER -s -t "rfc5424_msgid_with_space" --rfc5424 --msgid="A B" "message" > "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
++
++ts_finalize
 -- 
-1.8.4.5
+2.3.2
 
