@@ -1,41 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46277 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751424AbbCILxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Mar 2015 07:53:05 -0400
-Date: Mon, 9 Mar 2015 12:52:59 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: agetty --reload
-Message-ID: <20150309115259.GB26473@ws.net.home>
-References: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:36166 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752455AbbCOP0q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 15 Mar 2015 11:26:46 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id 4B57F207D2
+	for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 11:26:44 -0400 (EDT)
+Message-Id: <1426433205.3225343.240610937.5D55876F@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
+Content-Type: text/plain
+In-Reply-To: <550337F0.3050100@gmx.com>
+References: <5503364E.6010302@gmx.com> <550337F0.3050100@gmx.com>
+Subject: Re: [PATCH 3/5] hwclock: remove depreciated ntpdate
+Date: Sun, 15 Mar 2015 16:26:45 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 08, 2015 at 09:02:11PM +0000, Sitsofe Wheeler wrote:
-> The main issue seems to be that /etc/issue isn't reparsed when agetty
-> --reload is done unless /run/agetty.reload exists before the original
-> agetty is started. Is this the intended behaviour?
 
-No, this is a bug, fixed by commit c9f5ec0faa2b2d9cf7fc162baf99499457b8b909.
+On Fri, Mar 13, 2015, at 20:18, J William Piggott wrote:
+> Replace references to the depreciated ntpdate with sntp.
 
-> The second issue occurs when --autologin and --login-pause are being
-> used and a reload happens even when the above is done. Since the login
-> program hasn't actually been started (as we are waiting for the user
-> to press enter) I expected the reload to cause agetty to reload
-> /etc/issue and start waiting again but this does not currently happen.
-> Is this also intentional?
+s/depreciated/deprecated/
 
-Well, it wasn't implemented, improved by commit c2ef308bbfdc9fb9a0053e258828f5bd6fbb0c5d.
+> -.BR \%ntpdate\ \-q " , or " \%date\ \-Ins
+> +.BR \%sntp ", or " \%date\ \-Ins
 
-The changes will be in v2.26.1.
+Hmm, maybe it's a bit to early to delete the mention of ntpdate?
+My fairly recent Linux Mint doesn't have sntp yet.  Maybe add
+sntp to the list instead of replacing ntpdate?
 
-    Karel
+Oh, in the previous patch you used an inconsistent capital in
+the subject line.  And the same s/system/system's/ applies.
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Accessible with your email software
+                          or over the web
+
