@@ -1,55 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f171.google.com ([74.125.82.171]:40130 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750794AbbCALGQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 Mar 2015 06:06:16 -0500
-Received: by wesx3 with SMTP id x3so28127990wes.7
-        for <util-linux@vger.kernel.org>; Sun, 01 Mar 2015 03:06:14 -0800 (PST)
-Date: Sun, 1 Mar 2015 11:06:13 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 16/16] logger: fix -i argument parsing regression
-In-Reply-To: <1424625664.3145324.230850161.4C47C348@webmail.messagingengine.com>
-Message-ID: <alpine.LNX.2.03.1503011102280.822@iki.fi>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi> <1424616106-580-17-git-send-email-kerolasa@iki.fi> <1424625664.3145324.230850161.4C47C348@webmail.messagingengine.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39740 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751221AbbCPNUB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 09:20:01 -0400
+Date: Mon, 16 Mar 2015 14:19:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/8] tests: add test_logger helper command
+Message-ID: <20150316131947.GM28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 22 Feb 2015, Benno Schulenberg wrote:
+On Sun, Mar 15, 2015 at 12:54:49PM +0000, Sami Kerola wrote:
+> +#ifndef TEST_LOGGER
+>  	gettimeofday(&tv, NULL);
+> +#else
+> +	tv.tv_sec = 1234567890;
+> +	tv.tv_usec = 123456;
+> +#endif
 
-> On Sun, Feb 22, 2015, at 15:41, Sami Kerola wrote:
-> > Reviewed-by: Benno Schulenberg <benno@vertaalt.nl>
-> 
-> Please use my justemail address (the current one) here instead.
-> The vertaalt one I use just for translations.
-> 
-> > +.BR \-i
-> 
-> s/BR/B/    (since there is just one argument)
-> 
-> > +.BR "\-\-id" [ = \fIid ]
-> 
-> s/= /=/    (to fix my own mistake)
-> 
-> > -	fputs(_(" -i, --id[=<id>]          log <id> (default is PID)\n"), out);
-> > +	fputs(_(" -i                       log logger command PID\n"), out);
-> 
-> Better: "log the logger command's PID" -- there is room enough to
-> avoid telegram style.
+I have replaced this with logger_gettimeofday() macro and read the
+value for the tests from LOGGER_TEST_TIMEOFDAY env.variable (and so on
+for hostname and pid), for example to be compatible with your tests:
 
-Nalime Benno,
+export TZ="GMT"
+export LOGGER_TEST_TIMEOFDAY="1234567890.123456"
+export LOGGER_TEST_HOSTNAME="test-hostname"
+export LOGGER_TEST_GETPID="98765"
 
-> > +	fputs(_("     --id[=<id>]          log <id> (default is PID)\n"), out);
-> 
-> Better: "log the given <id>, or otherwise the PID"
+I have applied your test without a change (except the environment):
 
-Here is updated version of the change.
+./run.sh logger
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/7dbe2082a9d87316d7aed7d1c8a7f94a8a80b1f0
+-------------------- util-linux regression tests --------------------
+
+                    For development purpose only.                    
+                 Don't execute on production system!                 
+
+       logger: options                        ...
+                : simple                      ... OK
+                : log_pid                     ... OK
+                : log_pid_long                ... OK
+                : log_pid_define              ... OK
+                : log_pid_no_arg              ... OK
+                : input_file_simple           ... OK
+                : input_file_empty_line       ... OK
+                : input_file_skip_empty       ... OK
+                : input_file_prio_prefix      ... OK
+           ... OK (all 9 sub-tests PASSED)
+
+
+It would be also nice to have tests for --rfc5424[=...] messages formatting.
+
+   Karel
+
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
