@@ -1,55 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:46196 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751220AbbCEVMN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 5 Mar 2015 16:12:13 -0500
-Received: by wggy19 with SMTP id y19so56010955wgg.13
-        for <util-linux@vger.kernel.org>; Thu, 05 Mar 2015 13:12:12 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>, Rainer Gerhards <rgerhards@adiscon.com>
-Subject: [PATCH] logger: make unix socket logging to use syslog_local format by default
-Date: Thu,  5 Mar 2015 21:12:00 +0000
-Message-Id: <1425589920-850-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:43372 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751221AbbCPLNh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 07:13:37 -0400
+Date: Mon, 16 Mar 2015 12:13:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Rainer Gerhards <rgerhards@hq.adiscon.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org,
+        Rainer Gerhards <rgerhards@adiscon.com>
+Subject: Re: [PATCH 5/8] logger: fix rfc5424 format crash
+Message-ID: <20150316111335.GJ28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <1426424094-25451-6-git-send-email-kerolasa@iki.fi>
+ <20150316104954.GE28925@ws.net.home>
+ <CADk+mPA+R1PGGpA6=Aj0JB6RZSzS4NG-s9oSKEN35ff4SFZChA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CADk+mPA+R1PGGpA6=Aj0JB6RZSzS4NG-s9oSKEN35ff4SFZChA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The message format when writing to local sockets were inconsistent since
-commit 4de2e8a, for example:
+On Mon, Mar 16, 2015 at 11:55:36AM +0100, Rainer Gerhards wrote:
+> The best thing to do is use
+> 
+> = xstrdup(NILVALUE)
 
-$ ./logger --stderr test
-<5>Mär  4 11:03:30 logger: test
+Yeah,
+https://github.com/karelzak/util-linux/commit/773df0fa2f6c12581cc8649a08b9d825456a247c
 
-$ ./logger --socket /dev/log --stderr test
-<5>1 2015-03-04T11:03:31.699841+0100 ubuntu1404esp rger - [timeQuality ...
+> 
+> I defined NILVALUE exactly for those cases (see rest of code).
+> 
+> Rainer
+> 
+> PS: I've been silent for a couple of days because my main projects demand
+> attention. Will soon post more again here.
 
-This change makes the --socket  format to default use the same format as
-the first message, as what used to be the case earlier.  Notice that
-full-blown RFC format on the log socket causes problems with receivers
-who do not expect such format, like rsyslog.
+No problem.
 
-Addresses: https://github.com/karelzak/util-linux/issues/157
-Reported-by: Rainer Gerhards <rgerhards@adiscon.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    Karel
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 1e7e2dc..04d2453 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -484,7 +484,7 @@ static void logger_open(struct logger_ctl *ctl)
- 	if (ctl->unix_socket) {
- 		ctl->fd = unix_socket(ctl, ctl->unix_socket, ctl->socket_type);
- 		if (!ctl->syslogfp)
--			ctl->syslogfp = syslog_rfc5424;
-+			ctl->syslogfp = syslog_local;
- 		return;
- 	}
- 	ctl->fd = unix_socket(ctl, _PATH_DEVLOG, ctl->socket_type);
 -- 
-2.3.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
