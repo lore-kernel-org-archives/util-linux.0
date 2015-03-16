@@ -1,51 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:60205 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:47617 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751086AbbCLSI3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Mar 2015 14:08:29 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0MZwYd-1YrEFY3wQp-00LrDz for
- <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 19:08:28 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] tests: fix fdisk/bsd for ppc64le
-Date: Thu, 12 Mar 2015 19:08:26 +0100
-Message-Id: <1426183706-30366-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1426183706-30366-1-git-send-email-sweet_f_a@gmx.de>
-References: <1426183706-30366-1-git-send-email-sweet_f_a@gmx.de>
+	id S1753985AbbCPUXs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 16:23:48 -0400
+Date: Mon, 16 Mar 2015 21:23:43 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Isaac Dunham <ibid.ag@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Trying to avoid incompatability on a mount enhancement
+Message-ID: <20150316202343.GO28925@ws.net.home>
+References: <20150314220249.GC1808@Sparta>
+ <20150316102233.GA28925@ws.net.home>
+ <20150316171958.GA13750@newbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150316171958.GA13750@newbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Mar 16, 2015 at 05:19:59PM +0000, Isaac Dunham wrote:
+> On Mon, Mar 16, 2015 at 11:22:33AM +0100, Karel Zak wrote:
+> >  x-mount.mkdir[=mode]
+> > 
+> >         Allow  to  make  a target directory (mountpoint).  The
+> >         optional argument mode specifies the filesystem access mode
+> >         used for mkdir(2) in octal notation.   The default  mode  is
+> >         0755.  This functionality is supported only for root users.
+> > 
+> > 
+> >  ... so:
+> > 
+> >         mount /dev/sda1 /mnt/foo -o x-mount.mkdir
+> > 
+> 
+> Thank you for responding.
+> I read about that some time after I sent the email; now comes the question
+> of whether Busybox will accept it.
+> 
+> I've already gotten a comment to the effect that x-mount.mkdir is "ugly"
 
-Actually Aurelien's patch a80886e9 should have addressed this already
-because it's the case LE, BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64.
+ Well, x-* prefixes are generic solution for userspace mount options,
+ we already use it for more things (for example systemd).
 
-I've asked about this on mailing list but couldn't get more
-informations.
-Thread "test fdisk/bsd on exotic archs":
-http://comments.gmane.org/gmane.linux.utilities.util-linux-ng/10621
+> (no clarifications provided), and that it's lacking the ability to set
+> owner/group for the mountpoint.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/fdisk/bsd | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Good point, it would be possible to extend it for example to
 
-diff --git a/tests/ts/fdisk/bsd b/tests/ts/fdisk/bsd
-index dcad115..b76852c 100755
---- a/tests/ts/fdisk/bsd
-+++ b/tests/ts/fdisk/bsd
-@@ -66,8 +66,8 @@ function fdisk_bsd_offset_and_byte_order_clean
- 	else
- 		# BSD_LABELSECTOR = 0, BSD_LABELOFFSET = 64
- 		sed -i \
--		-e "s/78a922a80361cb73049bced72e0f8f1d/$md5_bsdimg1_LE_0_64/" \
--		-e "s/fc2803672a0643ffe46da325629616fc/$md5_bsdimg2_LE_0_64/" \
-+		-e "s/6d760d7a8ef33b27cc6e27f1e8807d48/$md5_bsdimg1_LE_0_64/" \
-+		-e "s/3739c7959adb42693a69edb7a99914e8/$md5_bsdimg2_LE_0_64/" \
- 		"$TS_OUTPUT"
- 	fi
- }
+   x-mount.mkdir[=mode:user:group]
+
+ where :user and :group are optional and may be specified by UID/GID
+ or by username/groupname. 
+
+> (The individual who opposes this is arguing in favor of adding a similar
+> but more expanded capability to mdev, the Busybox hotplugger.)
+
+ I have no clue about busybox hotplugger, for standard udev we 
+ usually don't want to do things like "mount" in udev context.
+
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
