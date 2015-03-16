@@ -1,64 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:34717 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752337AbbCJRce (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 10 Mar 2015 13:32:34 -0400
-Received: by iecsl2 with SMTP id sl2so23292753iec.1
-        for <util-linux@vger.kernel.org>; Tue, 10 Mar 2015 10:32:33 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:36998 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750936AbbCPK5T (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 06:57:19 -0400
+Date: Mon, 16 Mar 2015 11:57:07 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/8] tests: add test_logger helper command
+Message-ID: <20150316105707.GI28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Date: Tue, 10 Mar 2015 18:32:33 +0100
-Message-ID: <CAP-up9B=PYfQaYe6qi8bCYCkbPQJq3_3qoaHPxrki1_nF2J4_Q@mail.gmail.com>
-Subject: logger --tag
-From: Rainer Gerhards <rgerhards@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1426424094-25451-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi all,
+On Sun, Mar 15, 2015 at 12:54:49PM +0000, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/Makemodule.am |  4 ++++
+>  misc-utils/logger.c      | 36 ++++++++++++++++++++++++++++++++++++
+>  tests/commands.sh        |  1 +
+>  3 files changed, 41 insertions(+)
+> 
+> diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
+> index f7485c9..309727b 100644
+> --- a/misc-utils/Makemodule.am
+> +++ b/misc-utils/Makemodule.am
+> @@ -26,6 +26,10 @@ if HAVE_SYSTEMD
+>  logger_LDADD = $(SYSTEMD_LIBS) $(SYSTEMD_DAEMON_LIBS) $(SYSTEMD_JOURNAL_LIBS)
+>  logger_CFLAGS = $(SYSTEMD_CFLAGS) $(SYSTEMD_DAEMON_CFLAGS) $(SYSTEMD_JOURNAL_CFLAGS)
+>  endif
+> +check_PROGRAMS += test_logger
+> +test_logger_SOURCES = $(logger_SOURCES)
+> +test_logger_LDADD = $(logger_LDADD)
+> +test_logger_CFLAGS = -DTEST_LOGGER $(logger_CFLAGS)
+>  endif # BUILD_LOGGER
+>  
+>  
+> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+> index 2e37d14..838d225 100644
+> --- a/misc-utils/logger.c
+> +++ b/misc-utils/logger.c
+> @@ -310,7 +310,12 @@ static const char *rfc3164_current_time(void)
+>  		"Sep", "Oct", "Nov", "Dec"
+>  	};
+>  
+> +#ifndef TEST_LOGGER
+>  	gettimeofday(&tv, NULL);
+> +#else
+> +	tv.tv_sec = 1234567890;
+> +	tv.tv_usec = 123456;
+> +#endif
 
-I have been working on some fixes to logger the past days (issues are
-available on github). While I am almost done with that, I just noticed
-a problem that seems to exist for rather long (at least it is present
-in 2.20):
+ Hmm... this (many #ifdefs and hardcoded constants) is really not
+ elegant solution. I'll try to implement it in another way. Thanks for
+ the tests.
 
-logger accepts spaces in the tag name, e.g.
+    Karel
 
-logger -t "tag with spaces" test
 
-This will lead to a tag "tag with spaces:" being written. Actually, in
-2.20 this is a problem of syslog(3), which should not accept spaces.
-
-Spaces are invalid inside a tag value (rfc 3164, rfc5424 and
-traditional log socket format). The lead to misinterpretation. In the
-case of rsyslog, the problem is not easily visible to the casual
-observer, but can cause problems e.g. when writing logs to databases
-or other tabular frontends.
-
-When the new --rfc5424 option is used, a space inside the tag
-invalidates the message (5424 is strict in contrary to 3164).
-
-As the bug seems to be present for a long time, probably ever since, I
-am unsure how to handle that. Options are (among others):
-
-1) be to be strict by default, and emit an error message if a space is
-contained inside a tag value. But that could potentially break
-existing scripts.
-
-2) be strict if and only if --rfc5424 is selected, but keep lazy in
-all other cases
-
-3) be strict if any rfc format is specified, but keep lazy in all other cases.
-
-4) add a new option --strict (or whatever) and emit an error if it
-either --rfc3164, --rfc5424 *or* --strict is given (--strict would
-only affect system log socket format).
-
-Options 2 to 4 would not break existing scripts, as these are new 2.26
-options. I tend to option 4, which has the only downside that we still
-permit invalid format to the local log socket.
-
-What is the opinion here on this list?
-
-Thanks,
-Rainer
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
