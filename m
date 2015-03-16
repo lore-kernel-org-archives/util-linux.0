@@ -1,47 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out03.mta.xmission.com ([166.70.13.233]:33353 "EHLO
-	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755576AbbCRQDG convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Mar 2015 12:03:06 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Karel Zak <kzak@redhat.com>
-Cc: =?utf-8?Q?J=C3=B6rg?= Thalheim <joerg@higgsboson.tk>,
-        util-linux@vger.kernel.org
-References: <20150318105319.2c6bab99@turingmachine>
-	<20150318111313.GC28925@ws.net.home>
-Date: Wed, 18 Mar 2015 10:59:16 -0500
-In-Reply-To: <20150318111313.GC28925@ws.net.home> (Karel Zak's message of
-	"Wed, 18 Mar 2015 12:13:13 +0100")
-Message-ID: <87y4muguuj.fsf@x220.int.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] nsenter: add support for pty
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:34212 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932461AbbCPXz4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 16 Mar 2015 19:55:56 -0400
+Received: by wggv3 with SMTP id v3so52525532wgg.1
+        for <util-linux@vger.kernel.org>; Mon, 16 Mar 2015 16:55:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] libblkid: fix compiler warnings
+Date: Mon, 16 Mar 2015 23:55:47 +0000
+Message-Id: <1426550147-24964-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@redhat.com> writes:
+warning: extra ';' outside of a function [-Wextra-semi]
 
-> On Wed, Mar 18, 2015 at 10:53:19AM +0100, Jörg Thalheim wrote:
->> If mount namespaces are used, the issued command, will not have access to the
->> tty device attached to its stdin/stdout/stderr. This patch adds an option to
->> allocate a new pseudo tty in the entered mount namespace and bridge between the
->> origin standard file descriptors and the standard file descriptors of the
->> executed command.
->
-> The original nsenter(1) purpose is to have command line interface to
-> setns(2) syscall. Your patch is trying to push us to something more
-> complex. Not sure if we really want it. Eric, any comment?
+warning: embedding a directive within macro arguments has undefined
+behavior [-Wembedded-directive]
 
-I certainly would not want it to be the default.
-After seeing the ptsname() and gpg I see what is driving it.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libblkid/src/superblocks/bcache.c | 2 +-
+ libblkid/src/superblocks/minix.c  | 9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-However playing the pty games gets us smack dab in the middle of sending
-and receiving trusted input.  I don't know that I want nsenter to be on
-the trusted path for entering in passwords for unlocking gpg keys.
+diff --git a/libblkid/src/superblocks/bcache.c b/libblkid/src/superblocks/bcache.c
+index 4fb16bd..ba9cf32 100644
+--- a/libblkid/src/superblocks/bcache.c
++++ b/libblkid/src/superblocks/bcache.c
+@@ -117,7 +117,7 @@ static int probe_bcache (blkid_probe pr, const struct blkid_idmag *mag)
+ 		return BLKID_PROBE_NONE;
+ 
+ 	return BLKID_PROBE_OK;
+-};
++}
+ 
+ const struct blkid_idinfo bcache_idinfo =
+ {
+diff --git a/libblkid/src/superblocks/minix.c b/libblkid/src/superblocks/minix.c
+index 9ea49fe..d6d45bd 100644
+--- a/libblkid/src/superblocks/minix.c
++++ b/libblkid/src/superblocks/minix.c
+@@ -21,6 +21,7 @@ static int get_minix_version(const unsigned char *data, int *other_endian)
+ 	struct minix_super_block *sb = (struct minix_super_block *) data;
+ 	struct minix3_super_block *sb3 = (struct minix3_super_block *) data;
+ 	int version = 0;
++	char *endian;
+ 
+ 	*other_endian = 0;
+ 
+@@ -60,13 +61,13 @@ static int get_minix_version(const unsigned char *data, int *other_endian)
+ 	if (!version)
+ 		return -1;
+ 
+-	DBG(LOWPROBE, ul_debug("minix version %d detected [%s]", version,
+ #if defined(WORDS_BIGENDIAN)
+-	*other_endian ? "LE" : "BE"
++	endian = *other_endian ? "LE" : "BE";
+ #else
+-	*other_endian ? "BE" : "LE"
++	endian = *other_endian ? "BE" : "LE";
+ #endif
+-	));
++	DBG(LOWPROBE, ul_debug("minix version %d detected [%s]", version,
++			       endian));
+ 	return version;
+ }
+ 
+-- 
+2.3.3
 
-If gpg is the driving use case I don't think it is wise to add pty
-support.  All of a sudden nsenter has to become robust from side channel
-attacks when you are entering in passwords and I at least have no
-interest in maintaining nsenter in that way.
-
-Eric
