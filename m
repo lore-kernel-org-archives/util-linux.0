@@ -1,113 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f169.google.com ([74.125.82.169]:32774 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751856AbbCOMzE (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Mar 2015 08:55:04 -0400
-Received: by wejb47 with SMTP id b47so20857278wej.0
-        for <util-linux@vger.kernel.org>; Sun, 15 Mar 2015 05:55:03 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/8] pull: logger: add tests and fix couple issues
-Date: Sun, 15 Mar 2015 12:54:46 +0000
-Message-Id: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:48120 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750862AbbCPLuQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 07:50:16 -0400
+Date: Mon, 16 Mar 2015 12:50:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Rainer Gerhards <rgerhards@gmail.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/8] logger: tidy few indentation issues
+Message-ID: <20150316115014.GK28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <1426424094-25451-2-git-send-email-kerolasa@iki.fi>
+ <CAP-up9DHpM8Xye6y7LptG4bNUeW_Kx22R80Q6nAgv0v8kzi+VQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAP-up9DHpM8Xye6y7LptG4bNUeW_Kx22R80Q6nAgv0v8kzi+VQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Mon, Mar 16, 2015 at 12:22:51PM +0100, Rainer Gerhards wrote:
+> On Sun, Mar 15, 2015 at 1:54 PM, Sami Kerola <kerolasa@iki.fi> wrote:
+> 
+> Quick question on this (especially for future work):
+> 
+> > @@ -387,29 +386,35 @@ static void syslog_rfc3164_header(struct logger_ctl *const ctl)
+> >  #define NILVALUE "-"
+> >  static void syslog_rfc5424_header(struct logger_ctl *const ctl)
+> >  {
+> > +       char *time;
+> > +       char *hostname;
+> > +       char *const app_name = ctl->tag;
+> > +       char *procid;
+> > +       char *const msgid = xstrdup(ctl->msgid ? ctl->msgid : NILVALUE);
+> > +       char *structured_data;
+> 
+> Is it project policy to always define variables at the beginning of
+> the function? I ask because I used to do that as well, before I got
 
-Coverage of these tests is not magnificent.  None of the communications
-to external systems using tcp, udp, or to journald are tested, but at
-least some aspects of the logger(1) functionality gets to be checked -
-that is message formats and input validation.
+ at beginning of the { block }, for example:
 
+ if (foo) {
+    char *foostr = strdup(whatever);
 
-----------------------------------------------------------------
-The following changes since commit 7ff6948e59172c1942544c9a064708e5666ba20d:
-  logger: use xstrdup() (2015-03-13 15:36:39 +0100)
-are available in the git repository at:
-   tests_logger 
-for you to fetch changes up to e3f7951113a68b171b5cea52ae0d36609faf4438:
-  tests: add logger(1) error condition tests (2015-03-15 12:46:30 +0000)
-----------------------------------------------------------------
+    do_foo(foostr);
+    free(foostr);
+ }
 
-Sami Kerola (8):
-  logger: tidy few indentation issues
-  logger: check xgethostname() return value
-  tests: add test_logger helper command
-  tests: add logger(1) command line options tests
-  logger: fix rfc5424 format crash
-  tests: add logger(1) message format tests
-  logger: use errx() when checking user input
-  tests: add logger(1) error condition tests
+ is fine.
 
- misc-utils/Makemodule.am                           |   4 +
- misc-utils/logger.c                                | 173 +++++++++++++--------
- tests/commands.sh                                  |   1 +
- tests/expected/logger/errors                       |   0
- tests/expected/logger/errors-id_with_space         |   2 +
- tests/expected/logger/errors-invalid_prio          |   1 +
- tests/expected/logger/errors-kern_priority         |   1 +
- tests/expected/logger/errors-kern_priority_numeric |   1 +
- tests/expected/logger/errors-rfc5424_exceed_size   |   1 +
- .../logger/errors-rfc5424_msgid_with_space         |   1 +
- tests/expected/logger/errors-tag_with_space        |   2 +
- tests/expected/logger/formats                      |   0
- tests/expected/logger/formats-priorities           | 152 ++++++++++++++++++
- tests/expected/logger/formats-rfc3164              |   1 +
- tests/expected/logger/formats-rfc5424_msgid        |   1 +
- tests/expected/logger/formats-rfc5424_nohost       |   1 +
- tests/expected/logger/formats-rfc5424_notime       |   1 +
- tests/expected/logger/formats-rfc5424_simple       |   1 +
- tests/expected/logger/input_empty_line             |   3 +
- tests/expected/logger/input_prio_prefix            |   1 +
- tests/expected/logger/input_simple                 |   1 +
- tests/expected/logger/options                      |   0
- .../expected/logger/options-input_file_empty_line  |   3 +
- .../expected/logger/options-input_file_prio_prefix |   1 +
- tests/expected/logger/options-input_file_simple    |   1 +
- .../expected/logger/options-input_file_skip_empty  |   2 +
- tests/expected/logger/options-log_pid              |   1 +
- tests/expected/logger/options-log_pid_define       |   1 +
- tests/expected/logger/options-log_pid_long         |   1 +
- tests/expected/logger/options-log_pid_no_arg       |   1 +
- tests/expected/logger/options-simple               |   1 +
- tests/ts/logger/errors                             |  60 +++++++
- tests/ts/logger/formats                            |  53 +++++++
- tests/ts/logger/options                            |  57 +++++++
- 34 files changed, 465 insertions(+), 66 deletions(-)
- create mode 100644 tests/expected/logger/errors
- create mode 100644 tests/expected/logger/errors-id_with_space
- create mode 100644 tests/expected/logger/errors-invalid_prio
- create mode 100644 tests/expected/logger/errors-kern_priority
- create mode 100644 tests/expected/logger/errors-kern_priority_numeric
- create mode 100644 tests/expected/logger/errors-rfc5424_exceed_size
- create mode 100644 tests/expected/logger/errors-rfc5424_msgid_with_space
- create mode 100644 tests/expected/logger/errors-tag_with_space
- create mode 100644 tests/expected/logger/formats
- create mode 100644 tests/expected/logger/formats-priorities
- create mode 100644 tests/expected/logger/formats-rfc3164
- create mode 100644 tests/expected/logger/formats-rfc5424_msgid
- create mode 100644 tests/expected/logger/formats-rfc5424_nohost
- create mode 100644 tests/expected/logger/formats-rfc5424_notime
- create mode 100644 tests/expected/logger/formats-rfc5424_simple
- create mode 100644 tests/expected/logger/input_empty_line
- create mode 100644 tests/expected/logger/input_prio_prefix
- create mode 100644 tests/expected/logger/input_simple
- create mode 100644 tests/expected/logger/options
- create mode 100644 tests/expected/logger/options-input_file_empty_line
- create mode 100644 tests/expected/logger/options-input_file_prio_prefix
- create mode 100644 tests/expected/logger/options-input_file_simple
- create mode 100644 tests/expected/logger/options-input_file_skip_empty
- create mode 100644 tests/expected/logger/options-log_pid
- create mode 100644 tests/expected/logger/options-log_pid_define
- create mode 100644 tests/expected/logger/options-log_pid_long
- create mode 100644 tests/expected/logger/options-log_pid_no_arg
- create mode 100644 tests/expected/logger/options-simple
- create mode 100755 tests/ts/logger/errors
- create mode 100755 tests/ts/logger/formats
- create mode 100755 tests/ts/logger/options
+> Also on the idention: I assume indention via tabs with tabwidth 4. Is
+> there a style document I an look at?
+
+ If possible (e.g. new/refactored stuff) then we usually follow kernel:
+ https://www.kernel.org/doc/Documentation/CodingStyle
+
+ ... but there are many old utils where it's better to follow already
+ used codding style than mix more styles together.
+
+> Thanks and sorry for the extra effort.
+
+ Ah, this is a real detail...
+
+    Karel
 
 -- 
-2.3.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
