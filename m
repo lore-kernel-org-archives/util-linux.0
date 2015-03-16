@@ -1,83 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:57808 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:58317 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752663AbbCLMAH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Mar 2015 08:00:07 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 18E68AC70
-	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 12:00:06 +0000 (UTC)
-Date: Thu, 12 Mar 2015 13:00:05 +0100
-From: Petr Gajdos <pgajdos@suse.cz>
-To: util-linux@vger.kernel.org
-Subject: Re: prevent cal segfault
-Message-ID: <20150312120005.GA10879@laura.suse.cz>
-References: <20150312084639.GC9756@laura.suse.cz>
- <20150312110528.GA4637@ws.net.home>
+	id S1753842AbbCPMGn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 08:06:43 -0400
+Date: Mon, 16 Mar 2015 13:06:31 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Rainer Gerhards <rgerhards@gmail.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/8] pull: logger: add tests and fix couple issues
+Message-ID: <20150316120631.GL28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <CAP-up9AJwjQU8Mq5fT0wYZgv2noqz845EtVt-CiYjN=F0J8R5A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
-In-Reply-To: <20150312110528.GA4637@ws.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAP-up9AJwjQU8Mq5fT0wYZgv2noqz845EtVt-CiYjN=F0J8R5A@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Mar 16, 2015 at 12:28:19PM +0100, Rainer Gerhards wrote:
+> On Sun, Mar 15, 2015 at 1:54 PM, Sami Kerola <kerolasa@iki.fi> wrote:
+> > Hello,
+> >
+> > Coverage of these tests is not magnificent.  None of the communications
+> > to external systems using tcp, udp, or to journald are tested, but at
+> > least some aspects of the logger(1) functionality gets to be checked -
+> > that is message formats and input validation.
+> 
+> 
+> ah! excellent. I'll also have a look to understand the nature of how
+> tests work for util-linux. Regarding tcp and udp: I guess a simple way
+> would be to use netcat? Or is that considered bad practice for
+> util-linux (as versions may differ and may interfere with test
+> results?
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ We have no any strict policy for tests, it's fine to check all
+ necessary environment and versions and skip (ts_skip function) all
+ the test if necessary. 
+ 
+ We have two basic modes:
+ 
+ * "non-root" (make check) - this is usually for simple tests where you
+   don't need root permissions and where is it safe to call the test
+   on arbitrary machine (to make it usable for example from spec
+   files on build machines, etc.)
 
-On Thu, Mar 12, 2015 at 12:05:28PM +0100, Karel Zak wrote:
-> On Thu, Mar 12, 2015 at 09:46:39AM +0100, Petr Gajdos wrote:
-> > cal utility segfaults in putp() when setupterm() fails as cal
-> > insufficiently checks for setupterm() failure.
-> >=20
-> > $ TERM=3D cal
-> > Segmentation fault
->=20
-> I'm not able to reproduce this problem. Anyway you're right that the
-> current code is pretty fragile and ignore setupterm() return code is
-> bad idea.
->=20
-> I have applied a little bit different patch, please test it in your
-> environment. The patch is also in stable/v2.26 (for v2.26.1).
->=20
-> https://github.com/karelzak/util-linux/commit/2a4b073e8b2d34dfadd8306f7d7=
-1957687923bdd
-
-Yes, that works with my original testcase. has_term is better then
-*term misuse.
-
-> > --- misc-utils/cal.c.orig	2014-08-26 16:48:45.132654654 +0200
-> > +++ misc-utils/cal.c	2015-03-11 14:16:06.075064939 +0100
-> > @@ -81,14 +81,22 @@
-> >  # endif
-> >  # include <term.h>
-> > =20
-> > -static void my_setupterm(const char *term, int fildes, int *errret)
-> > +#if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(H=
-AVE_LIBTERMCAP)
-> > +static const char	*term=3D"";
-> > +#endif
->=20
-> This seems incorrect, you have moved "#if defined" into another "#if".
-
-Ugh, sure. I have sent you older version of the patch, not the one
-=66rom comment 6 of referenced bug.
-
-Thanks!
-Petr
+ * "root" - this is for dangerous tests you never want to call on
+   production system, it's never executed by build system and you
+   have to manually "cd tests; ./run.sh". This is for example for
+   mount(8), some fdisk tests etc. These tests are for developers
+   only.
 
 
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+ Note I have just committed a new --no-act logger command line option
+ to make it possible to check messages formatting without spam in
+ system logs, for example:
 
-iEYEARECAAYFAlUBf8IACgkQGevYtT2kPwNf2ACgmOukQUROYhEt5ZLbAaUdlqNE
-LkEAnRAymplnuU97Pts12++yUY/Rg7uM
-=wgDu
------END PGP SIGNATURE-----
+   $ logger --no-act --stderr --rfc5424 "This is message"
 
---VS++wcV0S1rZb1Fb--
+ I guess we can use it for messages formatting tests (as the tests
+ suggested by Sami).
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
