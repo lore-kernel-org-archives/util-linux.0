@@ -1,41 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:50132 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754746AbbCBUsF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 2 Mar 2015 15:48:05 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailout.nyi.internal (Postfix) with ESMTP id 905AB2079A
-	for <util-linux@vger.kernel.org>; Mon,  2 Mar 2015 15:48:03 -0500 (EST)
-Message-Id: <1425329284.2638202.234532213.44B76D79@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:52598 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751430AbbCPKxk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 06:53:40 -0400
+Date: Mon, 16 Mar 2015 11:53:28 +0100
+From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/8] logger: check xgethostname() return value
+Message-ID: <20150316105328.GG28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <1426424094-25451-3-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <alpine.LNX.2.03.1503011128500.822@iki.fi>
-References: <1424616139-638-1-git-send-email-kerolasa@iki.fi>
- <1424616139-638-12-git-send-email-kerolasa@iki.fi>
- <1424724011.3617363.231394013.6C35BC75@webmail.messagingengine.com>
- <alpine.LNX.2.03.1503011128500.822@iki.fi>
-Subject: Re: [PATCH 11/13] rtcwake: improve coding style
-Date: Mon, 02 Mar 2015 21:48:04 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1426424094-25451-3-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Mar 15, 2015 at 12:54:48PM +0000, Sami Kerola wrote:
+>  misc-utils/logger.c | 17 ++++++++++-------
+>  1 file changed, 10 insertions(+), 7 deletions(-)
 
-On Sun, Mar 1, 2015, at 12:33, Sami Kerola wrote:
-> Oopps. I fixed the commits as part of other commit.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/021378dd2baae75e42014b5e1cc595e8c1ab96bc
+ Applied, thanks.
 
-Hmm.  Can't you undo that?  And then do them right in the
-"improve coding style" changeset?  And then improve the
-"human-readable" changeset with the suggested changes?
-
-If it's too much trouble, I'll supply a patch later.
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.com - mmm... Fastmail...
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
