@@ -1,43 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:52925 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752018AbbCMPJl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 13 Mar 2015 11:09:41 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0Lip2P-1Z93h009pF-00cz2o for
- <util-linux@vger.kernel.org>; Fri, 13 Mar 2015 16:09:39 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] tests: disarm tailf test
-Date: Fri, 13 Mar 2015 16:09:37 +0100
-Message-Id: <1426259377-15288-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1426259377-15288-1-git-send-email-sweet_f_a@gmx.de>
-References: <1426259377-15288-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:36333 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933064AbbCPRUC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 16 Mar 2015 13:20:02 -0400
+Received: by padcy3 with SMTP id cy3so70467436pad.3
+        for <util-linux@vger.kernel.org>; Mon, 16 Mar 2015 10:20:02 -0700 (PDT)
+Date: Mon, 16 Mar 2015 17:19:59 +0000
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Trying to avoid incompatability on a mount enhancement
+Message-ID: <20150316171958.GA13750@newbook>
+References: <20150314220249.GC1808@Sparta>
+ <20150316102233.GA28925@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150316102233.GA28925@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Mar 16, 2015 at 11:22:33AM +0100, Karel Zak wrote:
+> On Sat, Mar 14, 2015 at 10:02:50PM +0000, Isaac Dunham wrote:
+> > Hello,
+> > I've been thinking about adding a feature to Busybox mount, but I'd
+> > like to check on options that are already claimed in util-linux so I
+> > don't cause a major incompatability.
+> > 
+> > The feature I'm thinking about is roughly analogous to "mkdir -p" or
+> > "cpio -d":
+> > it creates the mountpoints if needed.
+> 
+>  man mount:
+> 
+>  x-mount.mkdir[=mode]
+> 
+>         Allow  to  make  a target directory (mountpoint).  The
+>         optional argument mode specifies the filesystem access mode
+>         used for mkdir(2) in octal notation.   The default  mode  is
+>         0755.  This functionality is supported only for root users.
+> 
+> 
+>  ... so:
+> 
+>         mount /dev/sda1 /mnt/foo -o x-mount.mkdir
+> 
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/tailf/simple | 4 ++++
- 1 file changed, 4 insertions(+)
+Thank you for responding.
+I read about that some time after I sent the email; now comes the question
+of whether Busybox will accept it.
 
-diff --git a/tests/ts/tailf/simple b/tests/ts/tailf/simple
-index d0a1c5c..35d10f3 100755
---- a/tests/ts/tailf/simple
-+++ b/tests/ts/tailf/simple
-@@ -20,6 +20,10 @@ ts_init "$*"
- 
- ts_check_test_command "$TS_CMD_TAILF"
- 
-+# This test is unsafe for some filesystems and for case non-inotify. We don't
-+# fix it since tailf is deprecated. Just keep this test for the test log.
-+TS_KNOWN_FAIL="yes"
-+
- INPUT=$TS_OUTDIR/$TS_TESTNAME.input
- 
- rm -f $INPUT
--- 
-1.8.4.5
+I've already gotten a comment to the effect that x-mount.mkdir is "ugly"
+(no clarifications provided), and that it's lacking the ability to set
+owner/group for the mountpoint.
+(The individual who opposes this is arguing in favor of adding a similar
+but more expanded capability to mdev, the Busybox hotplugger.)
+
+Thanks,
+Isaac Dunham
 
