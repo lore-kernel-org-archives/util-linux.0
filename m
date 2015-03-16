@@ -1,60 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45685 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:50136 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751937AbbCBUNR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 Mar 2015 15:13:17 -0500
-Date: Mon, 2 Mar 2015 21:13:11 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Peter Cordes <peter@cordes.ca>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: sfdisk problem with a partition starting early on a GPT disk
-Message-ID: <20150302201311.GM8046@ws.net.home>
-References: <20150301155610.GW3933@cordes.ca>
- <20150302100652.GI8046@ws.net.home>
- <20150302161932.GX3933@cordes.ca>
+	id S932431AbbCPOOT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 10:14:19 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0Mchyv-1YpJeK1OWf-00Hsbr for
+ <util-linux@vger.kernel.org>; Mon, 16 Mar 2015 15:14:17 +0100
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] tailf: deprecated
+From: Ruediger Meier <sweet_f_a@gmx.de>
+Date: Mon, 16 Mar 2015 15:14:16 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150302161932.GX3933@cordes.ca>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201503161514.16813.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 02, 2015 at 12:19:32PM -0400, Peter Cordes wrote:
->  If libfdisk doesn't actually store anything after sector 33, it would
-> be nice if it wrote a GPT to disk that that has sector 34 as the
-> first-usable. 
+On Monday 16 March 2015 at 14:32, you wrote:
+> On Fri, Mar 13, 2015 at 04:09:36PM +0100, Ruediger Meier wrote:
+> >  Documentation/deprecated.txt |  5 +++++
+> >  tests/expected/tailf/simple  |  1 +
+> >  text-utils/tailf.1           |  6 ++++++
+> >  text-utils/tailf.c           | 16 ++++++++++++----
+> >  4 files changed, 24 insertions(+), 4 deletions(-)
+>
+> Boys you're so bad.. I use tailf! Well, both patches applied :-)
+>
+> >  #include <stdio.h>
+> >  #include <stdlib.h>
+> >  #include <unistd.h>
+> > @@ -246,6 +251,9 @@ int main(int argc, char **argv)
+> >  	textdomain(PACKAGE);
+> >  	atexit(close_stdout);
+> >
+> > +	warnx(_("warning: "
+> > +		"use of 'tailf' is deprecated, use 'tail -f' instead"));
+>
+> moved to usage() to avoid regression in output.
 
- I'm not sure, the common consensus is to use 1MiB offset for the
- first partition -- then it does not make sense to define
- FirstUsableLBA smaller, because the extra space between the first
- partition may be interpreted as gap and later (inadvertently)
- partitioned.
+Ok, then we can also remove it from test output again.
 
- Note the I'm talking about default layout, your example with 
- --dump and restore is different -- sfdisk has to be able to 
- copy existing partition tables.
- 
- BTW, the problem should be fixed in git tree, you have to --dump with
- new sfdisk and then it will add "first-lba" number to scrit header.
- You can also use 
-
-  label: gpt
-  first-lba: 34
-
- lines to manually create a GPT header by sfdisk.
-
-> That way, I could use gdisk to add a boot partition on
-> each disk after copying the layout of the other partitions with
-> sfdisk.  (That would be a minimal fix that isn't as nice as actually
-> supporting copying arbitrary valid GPT partition tables.  But it
-
- It would be better to learn partitioning tools to modify
- FirstUsableLBA in GPT header. I'll probably implement it for v2.27
- fdisk, so creative users like you will be able to tune up their
- partition tables :-)
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
