@@ -1,35 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f49.google.com ([209.85.215.49]:43944 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751735AbbCHVCN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Mar 2015 17:02:13 -0400
-Received: by labgf13 with SMTP id gf13so42605358lab.10
-        for <util-linux@vger.kernel.org>; Sun, 08 Mar 2015 14:02:11 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:58611 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932085AbbCQJGM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Mar 2015 05:06:12 -0400
+Date: Tue, 17 Mar 2015 10:06:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Rainer Gerhards <rgerhards@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/8] pull: logger: add tests and fix couple issues
+Message-ID: <20150317090610.GQ28925@ws.net.home>
+References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
+ <CAP-up9AJwjQU8Mq5fT0wYZgv2noqz845EtVt-CiYjN=F0J8R5A@mail.gmail.com>
+ <20150316120631.GL28925@ws.net.home>
+ <alpine.LNX.2.03.1503162348580.24769@iki.fi>
 MIME-Version: 1.0
-Date: Sun, 8 Mar 2015 21:02:11 +0000
-Message-ID: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
-Subject: agetty --reload
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.03.1503162348580.24769@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Mon, Mar 16, 2015 at 11:55:05PM +0000, Sami Kerola wrote:
+> are updated in my remote repo.
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/b3d4c9862c1c12c1f1e5db5e72fe010b192ca106
+> https://github.com/kerolasa/lelux-utiliteetit/commit/660d2e44e5d75d98cfeb8971c7229f2c4b1d03d9
 
-I've been trying to use agetty --reload from util-linux 2.26 but I've
-been running into problems.
+Merged, thanks.
 
-The main issue seems to be that /etc/issue isn't reparsed when agetty
---reload is done unless /run/agetty.reload exists before the original
-agetty is started. Is this the intended behaviour?
-
-The second issue occurs when --autologin and --login-pause are being
-used and a reload happens even when the above is done. Since the login
-program hasn't actually been started (as we are waiting for the user
-to press enter) I expected the reload to cause agetty to reload
-/etc/issue and start waiting again but this does not currently happen.
-Is this also intentional?
+    Karel
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
