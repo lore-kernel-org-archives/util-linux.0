@@ -1,148 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60794 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756983AbbCRUO0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 Mar 2015 16:14:26 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailout.nyi.internal (Postfix) with ESMTP id D885A20E24
-	for <util-linux@vger.kernel.org>; Wed, 18 Mar 2015 16:14:23 -0400 (EDT)
-Message-Id: <1426709665.931918.242192665.7F1A1D3A@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.22]:55275 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751719AbbCQDiA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 16 Mar 2015 23:38:00 -0400
+Message-ID: <5507A187.2020303@gmx.com>
+Date: Mon, 16 Mar 2015 23:37:43 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <5508C704.1060500@gmx.com>
-References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
- <1426624493-2464-3-git-send-email-bensberg@justemail.net>
- <5508C704.1060500@gmx.com>
-Subject: Re: [PATCH 3/3] hwclock: fix spelling,
- punctuation and formatting mistakes in the man page
-Date: Wed, 18 Mar 2015 21:14:25 +0100
+To: Karel Zak <kzak@redhat.com>, Benno Schulenberg <bensberg@justemail.net>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/5] hwclock: remove depreciated ntpdate
+References: <5503364E.6010302@gmx.com> <550337F0.3050100@gmx.com> <1426433205.3225343.240610937.5D55876F@webmail.messagingengine.com> <20150316103342.GD28925@ws.net.home>
+In-Reply-To: <20150316103342.GD28925@ws.net.home>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-On Wed, Mar 18, 2015, at 01:29, J William Piggott wrote:
-> On 03/17/2015 04:34 PM, Benno Schulenberg wrote:
-> >  Since v2.26 important changes were made to the
-> >  .B \-\-hctosys
-> > -function, the
-> > +function and the
-> >  .B \-\-directisa
-> >  option, and a new option
-> >  .B \-\-update\-drift
-> > -was added. See their respective sections below.
-> > +was added.  See their respective descriptions below.
+On 03/16/2015 06:33 AM, Karel Zak wrote:
+> On Sun, Mar 15, 2015 at 04:26:45PM +0100, Benno Schulenberg wrote:
+>>
+>> On Fri, Mar 13, 2015, at 20:18, J William Piggott wrote:
+>>> Replace references to the depreciated ntpdate with sntp.
+>>
+>> s/depreciated/deprecated/
+>>
+>>> -.BR \%ntpdate\ \-q " , or " \%date\ \-Ins
+>>> +.BR \%sntp ", or " \%date\ \-Ins
+>>
+>> Hmm, maybe it's a bit to early to delete the mention of ntpdate?
+>> My fairly recent Linux Mint doesn't have sntp yet.  Maybe add
+>> sntp to the list instead of replacing ntpdate?
 > 
-> What guide says this is the proper style for an inline list?
+>  Good point, it would be better to use something like "ntpdate or more
+>  recent sntp".
 
-Pfff...  It's better.  The two commas seem to suggest that
-also changes were made to the third item, --update-drift,
-but three words into that phrase that appears not to be
-the case.  So... keep the two things that were changed
-together, and mention the addition in a second phrase.
+No, it is not a good point.  I assume he means *too* early, that's the
+funniest thing I've heard all day. No wait, "doesn't have sntp yet",
+that's the funniest thing I've heard all day.
 
-> > -The set function requires using the
-> > +The \fB\%\-\-setepoch\fR function requires using the
-> >  .B \%\-\-epoch
-> > -option.
-> > +option to specify the year.
+The sntp client and ntpdate are both from the same project and
+approximately the same age. Nobody was interested in maintaining ntpdate
+so it *depreciated* over many years before being officially *deprecated*
+by the project.
+
+The sntp client is in the ntp package for Mint/Debian/Ubuntu. Try
+opening a terminal and typing 'sntp' or 'man sntp'.
+
+Before I added ntpdate two months ago, the hwclock man-page had gone 20
+years without it. Now there's concern over removing it?
+
+>From the ntpdate man-page:
+
+   Disclaimer: This program has known bugs and deficiencies and nobody has
+   volunteered to fix them in a long time. The good news is the
+   functionality originally intended for this program is available in the
+   ntpd and sntp programs. See the [2]Deprecating ntpdate topic in the NTP
+   Support wiki for a thorough discussion and analysis of the issues. See
+   the -q command line option in the [3]ntpd - Network Time Protocol (NTP)
+   daemon page and/or the [4]sntp - Simple Network Time Protocol (SNTP)
+   Client page. After a suitable period of mourning, the ntpdate program
+   will be retired from this distribution.
+
+
 > 
-> This is completely unnecessary verbosity.
-
-No.  It took me three readings to get that with "set"
---setepoch was meant.
-
-> > -.BI "\%hwclock\ \-\-set\ \-\-date='" 2011-08-14\ 16:45:05 '
-> > +.B "hwclock\ \-\-set\ \-\-date='2011-08-14\ 16:45:05'
+>     Karel
 > 
-> It is common practice for option arguments to be in italic.
-
-No.  They are in italics when they are fill-in arguments: something
-has to be filled in instead of the word in italics.  When giving actual,
-literal values, they are in bold.
-
-> I've already
-> explained to you that the soft hyphen prevents this command structure
-> from wrapping on narrow windows when multitasking.
-
-The word is at the start of a line here -- there is no need to
-prevent wrapping.
-
-> > -.BI \%\-\-epoch= 1980
-> > +.B \%\-\-epoch=1980
-> 
-> Option arguments should be in italic.
-
-No.  Why the repetition?  Once is enough.
-
-> > -the Hardware Clock to detect a time transition.  "Toy" in the option
->> +the Hardware Clock to detect a time transition.  The "toy" in the option
-> 
-> What style guide is this from?
-
-Again, it's better.
-
-> > -.BI \%adjtimex\ \-\-tick \ <value>\  \-\-frequency \ <value>
-> > +.BI \%adjtimex\ \-\-tick \ value\  \-\-frequency \ value
-> 
-> How does the reader know they do not literally enter 'value'?
-
-Because it's in italics.  (The angular brackets are a convention
-of usage texts.)
-
-> >  Attempt to configure drift correction for only
-> > -one of them, and the other's drift will be overlaid upon it.  If the big
-> > -picture is not kept in mind, confusion will soon ensue.
-> > +one of them, and the other's drift will be overlaid upon it.
-> 
-> This is true and valuable information. I know from experience.
-
-The sentence was removed because it's repetitious, but mainly
-so that it's clear what "This problem" below refers to -- not to
-losing the big picture, but to the other drift getting overlaid.
-
-> >  The System Clock drift is corrected with the
-> >  .BR \%adjtimex "(8) command's " \-\-tick " and " \%\-\-frequency
-> > -options.  These two work together, tick is the course adjustment and
-> > -frequency is the fine adjustment. (For system that do not have an
-> > +options.  These two work together; tick is the coarse adjustment and
-> > +frequency is the fine adjustment.  (For systems that do not have an
-> 
-> Improper use of a semicolon, "These two work together" is incomplete.
-
-Aaah, but no nice word about the spell correction from "course" to "coarse".
-
-:)
-
-Anyway, a comma wasn't right either.  Better make it a colon then.
-
-> > -.RB "Confirm that " ntpd "(1) will not be launched at startup."
-> > +.RB "Ensure that " ntpd "(1) will not be launched at startup."
-> 
-> They were instructed at the beginning of the section to do this. There
-> is nothing wrong with 'confirm'.
-
-Okay, I forgot about that, the explanations being so long...
-
-> > -Shutdown the system.
-> > +Shut down the system.
-> 
-> This is wrong.
-
-No, it isn't: "shutdown" is the noun, "shut down" the verb.
-
-https://www.wordnik.com/words/shutdown
-https://www.wordnik.com/words/shut%20down
-
-> http://www.merriam-webster.com/dictionary/shutdown
-> http://www.merriam-webster.com/dictionary/shut%20down
-
-Benno
-
--- 
-http://www.fastmail.com - Accessible with your email software
-                          or over the web
-
