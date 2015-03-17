@@ -1,30 +1,48 @@
-Return-Path: bensberg@justemail.net
-Message-Id: <1426434716.3230057.240616189.3072926F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <550339DA.1060408@gmx.com>
-References: <5503364E.6010302@gmx.com> <550339DA.1060408@gmx.com>
-Subject: Re: [PATCH 5/5] hwclock: man-page errata
-Date: Sun, 15 Mar 2015 16:51:56 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.19]:53630 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933344AbbCQKio (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Mar 2015 06:38:44 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] tests: skip when logger --journald is not supported
+Date: Tue, 17 Mar 2015 11:38:41 +0100
+Message-Id: <1426588721-32688-1-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-On Fri, Mar 13, 2015, at 20:26, J William Piggott wrote:
-> The information I wrote regarding clock crystals was not
-> only incomplete, it was wrong. The characteristics of
-> quartz crystals is beyond the scope of this man-page. It
-> was misguided to attempt to include it. This commit
-> removes said information.
+Followup a0fd24e0. "SKIP" instead of "KNOWN FAIL" to avoid ugly test
+diff in case we don't have --journald.
 
-Hmm... "man-page errata" is a really vague description of
-this patch.  Better: "docs: snip section about crystals from
-man page of hwclock".  When so, the above two last sentences
-become superfluous.  Oh, and s/is beyond/are beyond/.
+CC: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/logger/journald | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-Benno
-
+diff --git a/tests/ts/logger/journald b/tests/ts/logger/journald
+index 155aeae..cdc800c 100755
+--- a/tests/ts/logger/journald
++++ b/tests/ts/logger/journald
+@@ -25,8 +25,13 @@ ts_init "$*"
+ 
+ ts_check_test_command "$TS_HELPER_LOGGER"
+ 
+-if ! $TS_HELPER_LOGGER --help | grep -q journald; then
+-	TS_KNOWN_FAIL="yes"
++
++# --help works and --journald is supported
++if ! $TS_HELPER_LOGGER --help | grep -q -- "--version"; then
++	ts_failed "logger --help"
++fi
++if ! $TS_HELPER_LOGGER --help | grep -q -- "--journald"; then
++	ts_skip "option --journald not supported"
+ fi
+ 
+ printf "%s\n%s\n%s\n" MESSAGE_ID=b8f74e14bc714bfc8040a5106dc9376a MESSAGE="a b c 1 2 3" |
 -- 
-http://www.fastmail.com - mmm... Fastmail...
+1.8.4.5
+
