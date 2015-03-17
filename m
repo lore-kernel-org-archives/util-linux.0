@@ -1,60 +1,96 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59205 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753007AbbCIUNC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Mar 2015 16:13:02 -0400
-Date: Mon, 9 Mar 2015 21:12:59 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: question about findmnt --target
+Date: Tue, 17 Mar 2015 18:14:00 +0100
 Cc: util-linux@vger.kernel.org
-Subject: Re: agetty --reload
-Message-ID: <20150309201259.GC26473@ws.net.home>
-References: <CALjAwxjTo=krFxHht2029Sh-h3maEvGK1Xa0fXUOScsamG_=Eg@mail.gmail.com>
- <20150309115259.GB26473@ws.net.home>
- <CALjAwxhefTrWEcxo+P4X98N5W12y2U5Jycj=1sjHju4WsA8ORA@mail.gmail.com>
+References: <201503171608.58423.sweet_f_a@gmx.de> <20150317163426.GW28925@ws.net.home>
+In-Reply-To: <20150317163426.GW28925@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALjAwxhefTrWEcxo+P4X98N5W12y2U5Jycj=1sjHju4WsA8ORA@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201503171814.00580.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 09, 2015 at 02:38:23PM +0000, Sitsofe Wheeler wrote:
-> On 9 March 2015 at 11:52, Karel Zak <kzak@redhat.com> wrote:
-> > On Sun, Mar 08, 2015 at 09:02:11PM +0000, Sitsofe Wheeler wrote:
-> >> The main issue seems to be that /etc/issue isn't reparsed when agetty
-> >> --reload is done unless /run/agetty.reload exists before the original
-> >> agetty is started. Is this the intended behaviour?
+On Tuesday 17 March 2015, Karel Zak wrote:
+> On Tue, Mar 17, 2015 at 04:08:58PM +0100, Ruediger Meier wrote:
+> > Hi,
 > >
-> > No, this is a bug, fixed by commit c9f5ec0faa2b2d9cf7fc162baf99499457b8b909.
+> > I wonder what is the correct way to find a mount which is mounted
+> > to a certain target directory. findmnt --target will also find a
+> > mount if you specify a subdirectory of a mountpoint:
 > >
-> >> The second issue occurs when --autologin and --login-pause are being
-> >> used and a reload happens even when the above is done. Since the login
-> >> program hasn't actually been started (as we are waiting for the user
-> >> to press enter) I expected the reload to cause agetty to reload
-> >> /etc/issue and start waiting again but this does not currently happen.
-> >> Is this also intentional?
+> > $ mkdir /tmp/bla
+> > $ findmnt --target /tmp/bla
+> > TARGET SOURCE                        FSTYPE OPTIONS
+> > /tmp   /dev/mapper/vg0-tmpdirs[/tmp] ext4 ....
 > >
-> > Well, it wasn't implemented, improved by commit c2ef308bbfdc9fb9a0053e258828f5bd6fbb0c5d.
+> > The man page let me think that --target should not find the parent
+> > directory.
+>
+> No, it's expected behavior since:
+>
+>     commit b215d8e9a71ca8d22df6111ddc9d28bd896febb1
+>     Author: Dave Reisner <dreisner@archlinux.org>
+>     Date:   Wed Apr 25 20:30:52 2012 -0400
+
+Ok, but this was a regression for a common use case. I guess to late to 
+revert. Even you liked this old behavior:
+
+commit 1f42e1089aadbe537bb59143502ebd1767d3f7ea
+Author: Karel Zak <kzak@redhat.com>
+Date:   Sun Jan 2 22:56:31 2011 +0100
+
+    tests: use findmnt(8) for mount --move test
+
+
+> and the current git tree contains:
+>
+>        -T, --target path
+>              Explicitly define the mount target (mountpoint
+>              directory). If the path is not a  mountpoint file
+>              or directory than findmnt checks path elements in
+>              reverse order for get the mountpoint (this
+>              feature is supported only if search in kernel
+>              files and unsupported for --fstab).
+
+Ah ok, but IMO because of this regression we should make it even more 
+clear. Probably the first sentence should not contain "mount target" 
+and "mountpoint" without also using the term "parent directory" or 
+similar. 
+
+I think for df(1) it's written nicely:
+
+  df [OPTION]... [FILE]...
+  Show information about the file system on which each FILE resides, or
+  all file systems by default.
+
+> > $TS_CMD_MOUNT --move $DIR_A $DIR_B
 > >
-> > The changes will be in v2.26.1.
-> 
-> Phew, that was fast! I've found with your patches the first issue is
-> fixed but when waiting at the [press ENTER to login] prompt agetty
-> --reload still has no effect...
+> > # check the move
+> > $TS_CMD_FINDMNT --kernel --target "$DIR_B" &> /dev/null
+> > [ "$?" == "0" ] || ts_die "Cannot find binded $DIR_B"
+> > [...]
+> >
+> > This findmnt line will never fail I guess.
+>
+> Right, this is mistake, solution is to remove --target:
+>
+>     TS_CMD_FINDMNT --kernel "$DIR_B" &> /dev/null
 
- It works for me.
+>
+> The disadvantage is that without --source/target findmnt(8) tries
+> to use the path as source and then as target. It's bad in same cases.
+>
+> Maybe we need a new option to disable the evaluation of the target
+> path elements. (--strict-target)
 
- # grep autologin /etc/systemd/system/getty@.service 
- ExecStart=-/sbin/agetty --autologin kzak --login-pause --noclear %I $TERM
+What about "findmnt --target /bla/xyz --no-parents" instead 
+of --strict-target?
 
- # echo "Hello world!" >> /etc/issue
- # agetty --reload
+I have to admint that I don't really like the current behavior 
+of --target and the default case without --source/target. Of course we 
+can't change it anymore.
 
- .. then I see the "Hello..." line before [press ENTER to login].
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
