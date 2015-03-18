@@ -1,153 +1,58 @@
-Return-Path: rgerhards@hq.adiscon.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:46114 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755404AbbCRLWy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Mar 2015 07:22:54 -0400
+Date: Wed, 18 Mar 2015 12:22:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
+Subject: Re: question about findmnt --target
+Message-ID: <20150318112252.GD28925@ws.net.home>
+References: <201503171608.58423.sweet_f_a@gmx.de>
+ <20150317163426.GW28925@ws.net.home>
+ <55092A36.7060004@bernhard-voelker.de>
+ <201503181139.46639.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20150316104954.GE28925@ws.net.home>
-References: <1426424094-25451-1-git-send-email-kerolasa@iki.fi>
-	<1426424094-25451-6-git-send-email-kerolasa@iki.fi>
-	<20150316104954.GE28925@ws.net.home>
-Date: Mon, 16 Mar 2015 11:55:36 +0100
-Message-ID: <CADk+mPA+R1PGGpA6=Aj0JB6RZSzS4NG-s9oSKEN35ff4SFZChA@mail.gmail.com>
-Subject: Re: [PATCH 5/8] logger: fix rfc5424 format crash
-From: Rainer Gerhards <rgerhards@hq.adiscon.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org,
-        Rainer Gerhards <rgerhards@adiscon.com>
-Content-Type: multipart/alternative; boundary=f46d043c7ccca0a581051165b0f3
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201503181139.46639.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---f46d043c7ccca0a581051165b0f3
-Content-Type: text/plain; charset=UTF-8
-
-2015-03-16 11:49 GMT+01:00 Karel Zak <kzak@redhat.com>:
-
-> On Sun, Mar 15, 2015 at 12:54:51PM +0000, Sami Kerola wrote:
-> > $ logger --rfc5424=notq message
-> > Segmentation fault (core dumped)
->
-> Not sure if Rainer is subscribed to the list, so please keep him in CC.
->
-
-I am since a couple of day (but via a gmail alias for easier filtering).
-
-
->
-> > Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> > ---
-> >  misc-utils/logger.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
+On Wed, Mar 18, 2015 at 11:39:45AM +0100, Ruediger Meier wrote:
+> On Wednesday 18 March 2015, Bernhard Voelker wrote:
+> > On 03/17/2015 05:34 PM, Karel Zak wrote:
+> > > Maybe we need a new option to disable the evaluation of the target
+> > > path elements. (--strict-target)
 > >
-> > diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-> > index 838d225..b007377 100644
-> > --- a/misc-utils/logger.c
-> > +++ b/misc-utils/logger.c
-> > @@ -476,7 +476,8 @@ static void syslog_rfc5424_header(struct logger_ctl
-> *const ctl)
-> >  #endif
-> >                       xasprintf(&structured_data,
-> >                                "[timeQuality tzKnown=\"1\"
-> isSynced=\"0\"]");
-> > -     }
-> > +     } else
-> > +             structured_data = xstrdup("");
->
-> RFC5424:
->
->     STRUCTURED-DATA = NILVALUE / 1*SD-ELEMENT
->
->     NILVALUE        = "-"
->
->
-> ... so I guess "" is bad idea. I'll fix it before commit.
->
+> > Hey, we already have a tool for that: 'mountpoint' ;-)
+> >
+> > What's wrong with
+> >
+> >   mountpoint "$DIR_B" >/dev/null \
+> >     && findmnt --target "$DIR_B" \
+> >     && ...
+> 
+> Yeah! In context of that tests/ts/mount/move snippet this should be 
+> enough:
+> 
+> [...]
+> # move
+> $TS_CMD_MOUNT --move $DIR_A $DIR_B
+> 
+> # check the move
+> $TS_CMD_MOUNTPOINT -q $DIR_B || ts_failed "Cannot find binded $DIR_B"
+> [...]
+> 
+> I still wonder why we don't check mount's return value too. Here it 
+> should always return 0, right?
 
-yeah, I overlooked that case. I should really find time to work on "make
-check"...
+ check return code is good idea, but please still check the mountpoint
+ too. It's mount(8) test - we need an independent verification.
 
-The best thing to do is use
 
-= xstrdup(NILVALUE)
+    Karel
 
-I defined NILVALUE exactly for those cases (see rest of code).
-
-Rainer
-
-PS: I've been silent for a couple of days because my main projects demand
-attention. Will soon post more again here.
-
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
-
---f46d043c7ccca0a581051165b0f3
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">2015=
--03-16 11:49 GMT+01:00 Karel Zak <span dir=3D"ltr">&lt;<a href=3D"mailto:kz=
-ak@redhat.com" target=3D"_blank">kzak@redhat.com</a>&gt;</span>:<br><blockq=
-uote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc =
-solid;padding-left:1ex">On Sun, Mar 15, 2015 at 12:54:51PM +0000, Sami Kero=
-la wrote:<br>
-&gt; $ logger --rfc5424=3Dnotq message<br>
-&gt; Segmentation fault (core dumped)<br>
-<br>
-Not sure if Rainer is subscribed to the list, so please keep him in CC.<br>=
-</blockquote><div><br></div><div>I am since a couple of day (but via a gmai=
-l alias for easier filtering).</div><div>=C2=A0</div><blockquote class=3D"g=
-mail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-l=
-eft:1ex">
-<br>
-&gt; Signed-off-by: Sami Kerola &lt;<a href=3D"mailto:kerolasa@iki.fi">kero=
-lasa@iki.fi</a>&gt;<br>
-&gt; ---<br>
-&gt;=C2=A0 misc-utils/logger.c | 3 ++-<br>
-&gt;=C2=A0 1 file changed, 2 insertions(+), 1 deletion(-)<br>
-&gt;<br>
-&gt; diff --git a/misc-utils/logger.c b/misc-utils/logger.c<br>
-&gt; index 838d225..b007377 100644<br>
-&gt; --- a/misc-utils/logger.c<br>
-&gt; +++ b/misc-utils/logger.c<br>
-&gt; @@ -476,7 +476,8 @@ static void syslog_rfc5424_header(struct logger_ct=
-l *const ctl)<br>
-&gt;=C2=A0 #endif<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0xasprintf(&amp;structured_data,<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 &quot;[timeQuality tzKnown=3D\&qu=
-ot;1\&quot; isSynced=3D\&quot;0\&quot;]&quot;);<br>
-&gt; -=C2=A0 =C2=A0 =C2=A0}<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0} else<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0structured_data =3D x=
-strdup(&quot;&quot;);<br>
-<br>
-RFC5424:<br>
-<br>
-=C2=A0 =C2=A0 STRUCTURED-DATA =3D NILVALUE / 1*SD-ELEMENT<br>
-<br>
-=C2=A0 =C2=A0 NILVALUE=C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D &quot;-&quot;<br>
-<br>
-<br>
-... so I guess &quot;&quot; is bad idea. I&#39;ll fix it before commit.<br>=
-</blockquote><div><br></div><div>yeah, I overlooked that case. I should rea=
-lly find time to work on &quot;make check&quot;...</div><div><br></div><div=
->The best thing to do is use</div><div><br></div><div>=3D xstrdup(NILVALUE)=
-</div><div><br></div><div>I defined NILVALUE exactly for those cases (see r=
-est of code).</div><div><br></div><div>Rainer</div><div><br></div><div>PS: =
-I&#39;ve been silent for a couple of days because my main projects demand a=
-ttention. Will soon post more again here.</div><blockquote class=3D"gmail_q=
-uote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1e=
-x">
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
-=C2=A0 =C2=A0 Karel<br>
-<br>
---<br>
-=C2=A0Karel Zak=C2=A0 &lt;<a href=3D"mailto:kzak@redhat.com">kzak@redhat.co=
-m</a>&gt;<br>
-=C2=A0<a href=3D"http://karelzak.blogspot.com" target=3D"_blank">http://kar=
-elzak.blogspot.com</a><br>
-</font></span></blockquote></div><br></div></div>
-
---f46d043c7ccca0a581051165b0f3--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
