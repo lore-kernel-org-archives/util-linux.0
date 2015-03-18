@@ -1,96 +1,164 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:37936 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751218AbbCKJ4m (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 11 Mar 2015 05:56:42 -0400
-Received: by widex7 with SMTP id ex7so36695711wid.3
-        for <util-linux@vger.kernel.org>; Wed, 11 Mar 2015 02:56:41 -0700 (PDT)
+Received: from mout.gmx.net ([212.227.17.22]:54635 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755466AbbCRNuv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Mar 2015 09:50:51 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: question about findmnt --target
+Date: Wed, 18 Mar 2015 14:50:41 +0100
+Cc: util-linux@vger.kernel.org
+References: <201503171608.58423.sweet_f_a@gmx.de> <201503171814.00580.sweet_f_a@gmx.de> <20150317192552.GY28925@ws.net.home>
+In-Reply-To: <20150317192552.GY28925@ws.net.home>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CAP-up9B=PYfQaYe6qi8bCYCkbPQJq3_3qoaHPxrki1_nF2J4_Q@mail.gmail.com>
-References: <CAP-up9B=PYfQaYe6qi8bCYCkbPQJq3_3qoaHPxrki1_nF2J4_Q@mail.gmail.com>
-Date: Wed, 11 Mar 2015 09:56:41 +0000
-Message-ID: <CAG27Bk2-7N=dFfFYEnC2yudasyg1v3mLLQ6mN4uOFzOOLSAHdA@mail.gmail.com>
-Subject: Re: logger --tag
-From: Sami Kerola <kerolasa@iki.fi>
-To: Rainer Gerhards <rgerhards@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201503181450.41872.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10 March 2015 at 17:32, Rainer Gerhards <rgerhards@gmail.com> wrote:
-> I have been working on some fixes to logger the past days (issues are
-> available on github). While I am almost done with that,
+On Tuesday 17 March 2015, Karel Zak wrote:
+> On Tue, Mar 17, 2015 at 06:14:00PM +0100, Ruediger Meier wrote:
+> > On Tuesday 17 March 2015, Karel Zak wrote:
+> > > On Tue, Mar 17, 2015 at 04:08:58PM +0100, Ruediger Meier wrote:
+> > > > Hi,
+> > > >
+> > > > I wonder what is the correct way to find a mount which is
+> > > > mounted to a certain target directory. findmnt --target will
+> > > > also find a mount if you specify a subdirectory of a
+> > > > mountpoint:
+> > > >
+> > > > $ mkdir /tmp/bla
+> > > > $ findmnt --target /tmp/bla
+> > > > TARGET SOURCE                        FSTYPE OPTIONS
+> > > > /tmp   /dev/mapper/vg0-tmpdirs[/tmp] ext4 ....
+> > > >
+> > > > The man page let me think that --target should not find the
+> > > > parent directory.
+> > >
+> > > No, it's expected behavior since:
+> > >
+> > >     commit b215d8e9a71ca8d22df6111ddc9d28bd896febb1
+> > >     Author: Dave Reisner <dreisner@archlinux.org>
+> > >     Date:   Wed Apr 25 20:30:52 2012 -0400
+> >
+> > Ok, but this was a regression for a common use case. I guess to
+> > late to revert. Even you liked this old behavior:
+>
+> Well, the common use-case is to not use --target :-)
 
-Hi Rainer,
+Yes, but somehow I find the default mix of source and target
+odd. For arbitrary unknown files I would never use it without
+--target or --source.
 
-How I wish I would have contacted rsyslog maillist after first sweep of
-major changes with logger.  Great job various issues are fixed but
-pity they end up to release.  Sorry for the problems caused, there
-are lessons to be learned;
+BTW this kind of smart interpretation of input arguments
+is something I really hate. I just played around with file names
+like "253:0" or "LABEL=bla" as device nodes or mountpoints. IMO
+it's horrible ... maybe even a security issue ... thinking about
+placing such files or (symlinks!) into /tmp and wait until root
+is there when he invokes findmnt.
 
-1) add tests when making major changes
+Example:
+$ touch  "253:0"
+$ truncate -s 10 bla
+$ sudo mount --bind bla "253:0"
+$ findmnt --target "253:0"
+TARGET                                  SOURCE                                                FSTYPE OPTIONS
+/home/rudi/devel/util-linux/build/253:0 glaukos:/exports/home/rudi/devel/util-linux/build/bla nfs4   rw,...
+$ findmnt "253:0"
+TARGET SOURCE               FSTYPE OPTIONS
+/      /dev/mapper/vg0-root ext4   rw,relatime,data=ordered
 
-2) try to find people who know better and ask if they would have
-time and interest to test Newer, Better, Improved, More Broken,
-version of the software
+Shouldn't the last command also find all mounts with
+mountpoint "./253:0"?
 
-> I just noticed a problem that seems to exist for rather long (at
-> least it is present in 2.20):
+> But I agree that 
+> the feature is questionable. The mistake is that the original
+> (non-df) behavior has not been covered by test.
 >
-> logger accepts spaces in the tag name, e.g.
+> > commit 1f42e1089aadbe537bb59143502ebd1767d3f7ea
+> > Author: Karel Zak <kzak@redhat.com>
+> > Date:   Sun Jan 2 22:56:31 2011 +0100
+> >
+> >     tests: use findmnt(8) for mount --move test
+> >
+> > > and the current git tree contains:
+> > >
+> > >        -T, --target path
+> > >              Explicitly define the mount target (mountpoint
+> > >              directory). If the path is not a  mountpoint file
+> > >              or directory than findmnt checks path elements in
+> > >              reverse order for get the mountpoint (this
+> > >              feature is supported only if search in kernel
+> > >              files and unsupported for --fstab).
+> >
+> > Ah ok, but IMO because of this regression we should make it even
+> > more clear. Probably the first sentence should not contain "mount
+> > target" and "mountpoint" without also using the term "parent
+> > directory" or similar.
+> >
+> > I think for df(1) it's written nicely:
+> >
+> >   df [OPTION]... [FILE]...
+> >   Show information about the file system on which each FILE
+> > resides, or all file systems by default.
 >
-> logger -t "tag with spaces" test
+> OK.
 >
-> This will lead to a tag "tag with spaces:" being written. Actually, in
-> 2.20 this is a problem of syslog(3), which should not accept spaces.
+> > > > $TS_CMD_MOUNT --move $DIR_A $DIR_B
+> > > >
+> > > > # check the move
+> > > > $TS_CMD_FINDMNT --kernel --target "$DIR_B" &> /dev/null
+> > > > [ "$?" == "0" ] || ts_die "Cannot find binded $DIR_B"
+> > > > [...]
+> > > >
+> > > > This findmnt line will never fail I guess.
+> > >
+> > > Right, this is mistake, solution is to remove --target:
+> > >
+> > >     TS_CMD_FINDMNT --kernel "$DIR_B" &> /dev/null
+> > >
+> > >
+> > > The disadvantage is that without --source/target findmnt(8) tries
+> > > to use the path as source and then as target. It's bad in same
+> > > cases.
+> > >
+> > > Maybe we need a new option to disable the evaluation of the
+> > > target path elements. (--strict-target)
+> >
+> > What about "findmnt --target /bla/xyz --no-parents" instead
+> > of --strict-target?
 >
-> Spaces are invalid inside a tag value (rfc 3164, rfc5424 and
-> traditional log socket format). The lead to misinterpretation. In the
-> case of rsyslog, the problem is not easily visible to the casual
-> observer, but can cause problems e.g. when writing logs to databases
-> or other tabular frontends.
->
-> When the new --rfc5424 option is used, a space inside the tag
-> invalidates the message (5424 is strict in contrary to 3164).
->
-> As the bug seems to be present for a long time, probably ever since, I
-> am unsure how to handle that. Options are (among others):
->
-> 1) be to be strict by default, and emit an error message if a space is
-> contained inside a tag value. But that could potentially break
-> existing scripts.
->
-> 2) be strict if and only if --rfc5424 is selected, but keep lazy in
-> all other cases
->
-> 3) be strict if any rfc format is specified, but keep lazy in all other cases.
->
-> 4) add a new option --strict (or whatever) and emit an error if it
-> either --rfc3164, --rfc5424 *or* --strict is given (--strict would
-> only affect system log socket format).
->
-> Options 2 to 4 would not break existing scripts, as these are new 2.26
-> options. I tend to option 4, which has the only downside that we still
-> permit invalid format to the local log socket.
->
-> What is the opinion here on this list?
+> No problem.
 
-The option 2 sounds good, but I'm worried existing use might still be
-affected if the tag strictness is enforced immediately.  The logger is
-after all using rfc5424 format as default when communicating with a
-remote server.
+I'm still not 100% sure. Now I think --mountpoint could be nice
+to change the current short usage from this:
 
-How about adding a check, and a warning something like
+ findmnt [options] <device> | <mountpoint>
+ findmnt [options] [--source <device>] [--target <mountpoint>]
 
-warnx(_("invalid tag formats are not allowed after 2018, see man logger(1)"));
+to this:
 
-And of course there should be section in manual page telling what
-characters are allowed in tags, is that isalnum() with "C" locale?  The
-'after 2018' should also be clarified to mean first release in that
-year.
+ findmnt [options] <source> | <mountpoint>
+ findmnt [options] [--source <source>] [--target <file>] [--mountpoint <mountpoint>]
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+... without changing current behavior.
+
+Moreover we could add "--parent" so that "--mountpoint --parent"
+would do the same like "--target" does now. Just keeping --target for
+compatibility. Maybe even set --target deprecated and remove it from
+short usage documentation.
+
+
+> > I have to admint that I don't really like the current behavior
+> > of --target and the default case without --source/target. Of course
+> > we can't change it anymore.
+>
+> Yes, after 3 years it's better to keep the current behavior and
+> provide an option to disable the "smart" target evaluation. Do you
+> want to send a patch? (or I can do that tomorrow.)
+
+Please go ahead, I guess I would need much more time for this.
+
+cu,
+Rudi 
