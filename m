@@ -1,47 +1,80 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43266 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933178AbbCRJ4J (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 Mar 2015 05:56:09 -0400
-Date: Wed, 18 Mar 2015 10:55:57 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/3] hwclock: remove unneeded stuff from the man-page
- header
-Message-ID: <20150318095557.GA28925@ws.net.home>
-References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
- <1426624493-2464-2-git-send-email-bensberg@justemail.net>
- <5508C836.1070702@gmx.com>
+Return-Path: elseifthen@gmx.com
+Message-ID: <5508D1E0.205@gmx.com>
+Date: Tue, 17 Mar 2015 21:16:16 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5508C836.1070702@gmx.com>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>, Benno Schulenberg <bensberg@justemail.net>
+CC: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 4/5] hwclock: add '11 minute mode' information
+References: <5503364E.6010302@gmx.com> <550338F2.2000908@gmx.com> <1426434447.3228874.240611693.0EF4BF24@webmail.messagingengine.com> <20150317095745.GT28925@ws.net.home>
+In-Reply-To: <20150317095745.GT28925@ws.net.home>
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 17, 2015 at 08:35:02PM -0400, J William Piggott wrote: 
-> First, you have no right to assign my name to anything, let alone a
-> legal notice.
 
-This is valid point, but it would be also nice if you guys will be able
-to keep our discussions in friendly climate. This is not lkml, right? ;-)
 
-> Second, we've already been through this. The decision was left to Karel
-> and he accepted it as is. There is nothing wrong with a man-page having
-> some top comments.
+On 03/17/2015 05:57 AM, Karel Zak wrote:
+> On Sun, Mar 15, 2015 at 04:47:27PM +0100, Benno Schulenberg wrote:
+>> "When in this state, bit 6 (the bit that is set in the mask 0x0040)
+>> of the kernel's time_status variable is *unset*."
+> 
+> Yes, this is more readable (at least for me:-).
 
-Well, I miss the header. It's fine (and it's recommended) to add your
-copyright to header. I personally prefer git to record history than
-use file header for this purpose, but I have no strong opinion for
-this. More important is to have nice man pages with usable content.
+I explained to Mr Schulenbuerg that I wrote it that way for layman users. 
+Are they going to understand 'the bit that is set in the mask 0x0040'?
+What does that even mean? What does 'mask' have to do with it? It could
+simply say "the bit that is set by binary 0x0040"
+How does that differ from saying the binary 64's bit?
 
-Note that in code I sometimes add my name and date to the comment
-before some important code block. Maybe you can use the same in man
-pages.  For example add a comment before man page section rather than
-use man page header for this purpose.
+Using hex will help the average user how?
 
-    Karel
+I used decimal because adjtimex displays the status variable as a decimal
+number:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+adjtimex -p
+status: 8193
+
+adjtimex -p
+status: 8257
+
+Which one is synchronized?
+
+The adjtimex man-page says:
+
+"status" gives the value of the time_status variable in the kernel.
+64	clock unsynchronized
+
+The average user will likely have trouble with this.
+
+By saying 'the binary 64 bit' it will allow average users to understand
+the relationship.  When Bryan originally wrote this section (it was
+removed because of the adjtimex issue), he used the same language 'the 64
+bit'. I suspect he did it for the same reasons. I added the binary
+number example to help people that do not understand binary to visualize 
+exactly where the the unset bit would be. Then if they manage to convert
+the adjtimex output from decimal to binary it should be clear to them.
+
+Calling it bit 6 will likely cause average users to make an off-by-one
+error. There is no ambiguity with the binary 64 bit.
+
+Karel, it makes good sense to you because you have a clear understanding of
+binary bit masks. Does the rest of the world have the same
+understanding?
+
+What I wrote is far from optimum, but I do not think this is an
+improvement.
+
+> 
+>>> +It can be turned off by running anything, including
+>>>  .BR \%hwclock\ \-\-hctosys ,
+>>>  that sets the System Clock the old fashioned way.
+>>
+>> I would move the "including..." phrase to the end of the sentence,
+>> as now one at first thinks that really *anything* can turn 11-minute
+>> mode off.
+> 
+> I have applied this two changes.
+> 
+>     Karel
+> 
+> 
