@@ -1,57 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.aswsp.com ([193.34.35.150]:40239 "EHLO mail.aswsp.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45064 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752212AbbCXNyj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 24 Mar 2015 09:54:39 -0400
-Message-ID: <55116CA9.3040402@parrot.com>
-Date: Tue, 24 Mar 2015 14:54:49 +0100
-From: Ronan CHAUVIN <ronan.chauvin@parrot.com>
+	id S1753067AbbCRWFY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Mar 2015 18:05:24 -0400
+Date: Wed, 18 Mar 2015 23:05:22 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: question about findmnt --target
+Message-ID: <20150318220522.GF28925@ws.net.home>
+References: <201503171608.58423.sweet_f_a@gmx.de>
+ <201503171814.00580.sweet_f_a@gmx.de>
+ <20150317192552.GY28925@ws.net.home>
+ <201503181450.41872.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: "Dale R. Worley" <worley@alum.mit.edu>
-CC: <util-linux@vger.kernel.org>, matthieu CASTET <matthieu.castet@parrot.com>,
-        Alexandre Dilly <alexandre.dilly@parrot.com>
-Subject: Re: [libfdisk]: gpt_write_disklabel function robustness to sudden
- power off
-References: <87384vyt4y.fsf@hobgoblin.ariadne.com>
-In-Reply-To: <87384vyt4y.fsf@hobgoblin.ariadne.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201503181450.41872.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thank you for your answer.
+On Wed, Mar 18, 2015 at 02:50:41PM +0100, Ruediger Meier wrote:
+> On Tuesday 17 March 2015, Karel Zak wrote:
+> > On Tue, Mar 17, 2015 at 06:14:00PM +0100, Ruediger Meier wrote:
+> > > On Tuesday 17 March 2015, Karel Zak wrote:
+> > > > On Tue, Mar 17, 2015 at 04:08:58PM +0100, Ruediger Meier wrote:
+> > > > > Hi,
+> > > > >
+> > > > > I wonder what is the correct way to find a mount which is
+> > > > > mounted to a certain target directory. findmnt --target will
+> > > > > also find a mount if you specify a subdirectory of a
+> > > > > mountpoint:
+> > > > >
+> > > > > $ mkdir /tmp/bla
+> > > > > $ findmnt --target /tmp/bla
+> > > > > TARGET SOURCE                        FSTYPE OPTIONS
+> > > > > /tmp   /dev/mapper/vg0-tmpdirs[/tmp] ext4 ....
+> > > > >
+> > > > > The man page let me think that --target should not find the
+> > > > > parent directory.
+> > > >
+> > > > No, it's expected behavior since:
+> > > >
+> > > >     commit b215d8e9a71ca8d22df6111ddc9d28bd896febb1
+> > > >     Author: Dave Reisner <dreisner@archlinux.org>
+> > > >     Date:   Wed Apr 25 20:30:52 2012 -0400
+> > >
+> > > Ok, but this was a regression for a common use case. I guess to
+> > > late to revert. Even you liked this old behavior:
+> >
+> > Well, the common use-case is to not use --target :-)
+> 
+> Yes, but somehow I find the default mix of source and target
+> odd. 
 
-If we are not resizing/adding but just renaming a partition, we want to 
-be sure that at least the primary or the backup GPT header/GPT partition 
-array will not be corrupted in the case of a sudden power-off. If the 
-write order is not guaranty, then the primary and backup GPT headers can 
-be written to the emmc without the corresponding partition array and the 
-system will not be consistent.
+ The idea has be to follow mount(8) behavior:
 
-For example, if we have this effective write operation order on the disk:
+      mount /dev/sda1
+      mount /mnt
 
-1) backup GPT header
-2) primary GPT header
---> power-off <--
-3) primary partition tables
-4) backup partition tables
-5) protective MBR
+ that's all the story. Yes, for serious usage (e.g. in scripts) it's
+ better to use --source and --target. Now we have the options also
+ for mount(8) to avoid the "smart" behavior.
 
-then, CRC of partition array present in both GPT headers will be incorrect.
+>  findmnt [options] <source> | <mountpoint>
+>  findmnt [options] [--source <source>] [--target <file>] [--mountpoint <mountpoint>]
 
-On 03/24/2015 04:24 AM, Dale R. Worley wrote:
-> But it seems to me that there is
-> no such consistent state -- what condition would you want that
-> information to be in?  The old information is irretrevably lost during
-> the operation;
+ Yes, exactly. I have thought about it too. It seems like a more
+ transparent solution.
+
+> Please go ahead, I guess I would need much more time for this.
+
+ OK.
+
+    Karel
 
 -- 
-Ronan CHAUVIN
-Embedded Software Engineer
-ASIC team
---------------------------------
-Parrot
-174, quai de Jemmapes
-75010 Paris  France
---------------------------------
-www.parrot.com
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
