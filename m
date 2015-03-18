@@ -1,48 +1,29 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:53630 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933344AbbCQKio (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 06:38:44 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] tests: skip when logger --journald is not supported
-Date: Tue, 17 Mar 2015 11:38:41 +0100
-Message-Id: <1426588721-32688-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: mail@bernhard-voelker.de
+Message-ID: <55092A36.7060004@bernhard-voelker.de>
+Date: Wed, 18 Mar 2015 08:33:10 +0100
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>
+CC: util-linux@vger.kernel.org
+Subject: Re: question about findmnt --target
+References: <201503171608.58423.sweet_f_a@gmx.de> <20150317163426.GW28925@ws.net.home>
+In-Reply-To: <20150317163426.GW28925@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On 03/17/2015 05:34 PM, Karel Zak wrote:
+> Maybe we need a new option to disable the evaluation of the target
+> path elements. (--strict-target)
 
-Followup a0fd24e0. "SKIP" instead of "KNOWN FAIL" to avoid ugly test
-diff in case we don't have --journald.
+Hey, we already have a tool for that: 'mountpoint' ;-)
 
-CC: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/logger/journald | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+What's wrong with
 
-diff --git a/tests/ts/logger/journald b/tests/ts/logger/journald
-index 155aeae..cdc800c 100755
---- a/tests/ts/logger/journald
-+++ b/tests/ts/logger/journald
-@@ -25,8 +25,13 @@ ts_init "$*"
- 
- ts_check_test_command "$TS_HELPER_LOGGER"
- 
--if ! $TS_HELPER_LOGGER --help | grep -q journald; then
--	TS_KNOWN_FAIL="yes"
-+
-+# --help works and --journald is supported
-+if ! $TS_HELPER_LOGGER --help | grep -q -- "--version"; then
-+	ts_failed "logger --help"
-+fi
-+if ! $TS_HELPER_LOGGER --help | grep -q -- "--journald"; then
-+	ts_skip "option --journald not supported"
- fi
- 
- printf "%s\n%s\n%s\n" MESSAGE_ID=b8f74e14bc714bfc8040a5106dc9376a MESSAGE="a b c 1 2 3" |
--- 
-1.8.4.5
+  mountpoint "$DIR_B" >/dev/null \
+    && findmnt --target "$DIR_B" \
+    && ...
 
+?
+
+Have a nice day,
+Berny
