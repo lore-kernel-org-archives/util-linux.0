@@ -1,52 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52122 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43266 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751873AbbCWLQn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 23 Mar 2015 07:16:43 -0400
-Date: Mon, 23 Mar 2015 12:16:40 +0100
+	id S933178AbbCRJ4J (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Mar 2015 05:56:09 -0400
+Date: Wed, 18 Mar 2015 10:55:57 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Otto Visser <work@otvi.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [libfdisk] incorrect GPT header leads to segfault
-Message-ID: <20150323111640.GE1749@ws.net.home>
-References: <550C1E49.3000509@otvi.nl>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/3] hwclock: remove unneeded stuff from the man-page
+ header
+Message-ID: <20150318095557.GA28925@ws.net.home>
+References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
+ <1426624493-2464-2-git-send-email-bensberg@justemail.net>
+ <5508C836.1070702@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <550C1E49.3000509@otvi.nl>
+In-Reply-To: <5508C836.1070702@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 20, 2015 at 02:19:05PM +0100, Otto Visser wrote:
-> I then made the following (ordering) change in libfdisk/src/gpt.c:
-> 
-> 956a957,961
-> >       /* make sure header size is between 92 and sector size bytes */
-> >       hsz = le32_to_cpu(header->size);
-> >       if (hsz < GPT_HEADER_MINSZ || hsz > cxt->sector_size)
-> >               goto invalid;
-> >
-> 973,977d977
-> <               goto invalid;
-> <
-> <       /* make sure header size is between 92 and sector size bytes */
-> <       hsz = le32_to_cpu(header->size);
-> <       if (hsz < GPT_HEADER_MINSZ || hsz > cxt->sector_size)
+On Tue, Mar 17, 2015 at 08:35:02PM -0400, J William Piggott wrote: 
+> First, you have no right to assign my name to anything, let alone a
+> legal notice.
 
-Thanks. Fixed.
+This is valid point, but it would be also nice if you guys will be able
+to keep our discussions in friendly climate. This is not lkml, right? ;-)
 
-> Although this fixes getting the segfault, it still means that fdisk
-> concludes there is no GPT label, despite that the signature is clearly
-> there; hence I wouldn't want to call this an actual patch.
+> Second, we've already been through this. The decision was left to Karel
+> and he accepted it as is. There is nothing wrong with a man-page having
+> some top comments.
 
-Well, be able to work with broken GPT header means that we have to
-implement something like fsck for GPT -- analyze each field in the
-header and try to fix it. I'm going to add this to TODO.
+Well, I miss the header. It's fine (and it's recommended) to add your
+copyright to header. I personally prefer git to record history than
+use file header for this purpose, but I have no strong opinion for
+this. More important is to have nice man pages with usable content.
 
-I don't think something like GPT fsck should be within regular GPT
-probing code. It's very special use-case.
+Note that in code I sometimes add my name and date to the comment
+before some important code block. Maybe you can use the same in man
+pages.  For example add a comment before man page section rather than
+use man page header for this purpose.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
