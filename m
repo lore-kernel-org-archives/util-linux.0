@@ -1,37 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34404 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752683AbbCCL44 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 3 Mar 2015 06:56:56 -0500
-Date: Tue, 3 Mar 2015 12:56:45 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 02/12] script: add struct script_control and remove
- global variables
-Message-ID: <20150303115645.GQ8046@ws.net.home>
-References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
- <1424616169-693-3-git-send-email-kerolasa@iki.fi>
+Return-Path: vapier@gentoo.org
+Date: Sun, 22 Mar 2015 02:24:37 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: unshare(1) --propagation
+Message-ID: <20150322062437.GK4504@vapier>
+References: <20150318172603.GE28925@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616169-693-3-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="96dIhm/ZjrNld+BP"
+In-Reply-To: <20150318172603.GE28925@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:42:39PM +0000, Sami Kerola wrote:
->  int main(int argc, char **argv)
-...
-> +	if (optarg && !(ctl.timingfp = fopen(optarg, "w")))
-...
 
-> +	if ((ctl.typescriptfp = fopen(ctl.fname, ctl.aflg ? "a" : "w")) == NULL) {
+--96dIhm/ZjrNld+BP
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Does it make sense to open the files in main() and then later close
- it in doshell()? What about add "typescrip" and "timing" filenames
- to the control structs and open the files later in do_io() ?
+On 18 Mar 2015 18:26, Karel Zak wrote:
+> Comments, objections?
 
-    Karel
+i was looking for exactly this sort of feature recently :) -- namely to uns=
+hare=20
+& mark everything private w/out having to write my own dummy wrapper.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+i just worry about the next request where people want to mark everything pr=
+ivate=20
+except that one special mount ...
+
+> +static unsigned long parse_propagation(const char *str)
+> +{
+> +	size_t i;
+> +	struct prop_opts {
+> +		const char *name;
+> +		unsigned long flag;
+> +	} opts[] =3D {
+> +		{ "slave",	MS_REC | MS_SLAVE },
+> +		{ "private",	MS_REC | MS_PRIVATE },
+> +		{ "shared",     MS_REC | MS_SHARED },
+> +		{ "off",        0 }
+> +	};
+
+static/const ?
+-mike
+
+--96dIhm/ZjrNld+BP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJVDmAlAAoJEEFjO5/oN/WBbx8P/ApJH8MLZPW5F+sqKWSAUnbE
+/nASQGP2K16ckMcB4FJGIBmORfVJOhRLImEjeG5P+I/9uIbHT8ot6K5nQpl0+Ecp
+JLLezbw6GVFhxzTg7PWyKvbJfm73a7OKBK+drnafzYrKyoGz2B2KmvhCDz+hipDe
+iUDSzdaPEvqMeX2Hq7szBkcyVCPv3vemZmKzQevnkCwXmyNiPPqD2qOvYR1Frk6r
+EYU1seMhlVer4sFjTMIEFvmQqUnY7Qf9FpSU+Kijc7tjXT2g+aFVxRMuVwXS7Uft
+nIi2k3RC9GlFBCW7GzjZQbp7WVBRy8c7MsKE+8giwU1KFC1w4Ll3o8VCSPYYcX0Y
+gCJJA1KoJ0KWnYgS+FpoNuPzoxS7HF+ZIxuQ+9ZxKSYlq8hftk36+0CDnSKTJk9C
+dqEoDm9RX2e3P77x3+WDxngy/EYEKgbluXi9glyFYhdDTXrabSsmIpbEt81f17t0
+7z8Gx0362rGJJaq91rtN2wrzNJFmkKKER8LSi3T+1r/mW4REihWoor0CCmpdpnWR
+rq4hF6hHMgRK1SZ5wTBwsS2QWSNzgKbYPgLWWe/nFuw+vDr4lE2QSDOAlyVJUb06
+xPoIEq+lRDTHHReDLyAR+9SLP+pn8MYsDkLLGzeohYcKnFolBdLhNqvkkEgwDgbg
+C9koY62Y+cUgByicX5ry
+=kBcW
+-----END PGP SIGNATURE-----
+
+--96dIhm/ZjrNld+BP--
