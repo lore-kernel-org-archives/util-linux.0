@@ -1,72 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50858 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754923AbbCRJnN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 Mar 2015 05:43:13 -0400
-Date: Wed, 18 Mar 2015 10:43:07 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 4/5] hwclock: add '11 minute mode' information
-Message-ID: <20150318094307.GZ28925@ws.net.home>
-References: <5503364E.6010302@gmx.com>
- <550338F2.2000908@gmx.com>
- <1426434447.3228874.240611693.0EF4BF24@webmail.messagingengine.com>
- <20150317095745.GT28925@ws.net.home>
- <5508D1E0.205@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5508D1E0.205@gmx.com>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:37557 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751907AbbCVXFd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Mar 2015 19:05:33 -0400
+Received: by wixw10 with SMTP id w10so44945944wix.0
+        for <util-linux@vger.kernel.org>; Sun, 22 Mar 2015 16:05:32 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/5] pull: one dmesg compiler warning fix and bunch of tests
+Date: Sun, 22 Mar 2015 23:05:25 +0000
+Message-Id: <1427065530-10695-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 17, 2015 at 09:16:16PM -0400, J William Piggott wrote:
-> 
-> 
-> On 03/17/2015 05:57 AM, Karel Zak wrote:
-> > On Sun, Mar 15, 2015 at 04:47:27PM +0100, Benno Schulenberg wrote:
-> >> "When in this state, bit 6 (the bit that is set in the mask 0x0040)
-> >> of the kernel's time_status variable is *unset*."
-> > 
-> > Yes, this is more readable (at least for me:-).
-> 
-> I explained to Mr Schulenbuerg that I wrote it that way for layman users. 
-> Are they going to understand 'the bit that is set in the mask 0x0040'?
+Hello,
 
-I have doubts it will be readable for layman users at all
-independently on used words :-) Now it's at least readable for
-advanced users. If you want to make it really readable for layman
-users than add and example to the man page.
+I noticed a variable shadowing warning, that lead to paying again
+attention to dmesg.  While recent logger lessons are still fresh in mind
+the obvious thing to do with the dmesg was to add more tests, and that's
+what this pull is about.
 
-> What does that even mean? What does 'mask' have to do with it? It could
-> simply say "the bit that is set by binary 0x0040"
-> How does that differ from saying the binary 64's bit?
-> 
-> Using hex will help the average user how?
-> 
-> I used decimal because adjtimex displays the status variable as a decimal
-> number:
-> 
-> adjtimex -p
-> status: 8193
-> 
-> adjtimex -p
-> status: 8257
-> 
-> Which one is synchronized?
+----------------------------------------------------------------
+The following changes since commit bb3df8218b4f8f145e345ab59828a9b3d6d70c4b:
+  tests: some more mount error handling (2015-03-19 17:12:15 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git test_dmesg
+for you to fetch changes up to 29c7d18d92b393c0f87be09bdfee03c93a09e61b:
+  tests: check dmesg message coloring (2015-03-22 22:56:27 +0000)
+----------------------------------------------------------------
 
-$ echo $((8193 & 0x0040))
-0
+Sami Kerola (5):
+  dmesg: fix shadow declaration
+  tests: add dmesg multiline message check
+  tests: add test_dmesg that has fixed boot time
+  tests: check timestamp formats
+  tests: check dmesg message coloring
 
-$ echo $((8257 & 0x0040))
-64
-
-and frankly it's adjtimex mistake that it does not provide the
-information in more human readable way. 
-
-    Karel
+ sys-utils/Makemodule.am          |   4 ++
+ sys-utils/dmesg.c                |  16 +++---
+ tests/commands.sh                |   2 +-
+ tests/expected/dmesg/colors      | 105 +++++++++++++++++++++++++++++++++++++++
+ tests/expected/dmesg/indentation |  35 +++++++++++++
+ tests/ts/dmesg/colors            |  25 ++++++++++
+ tests/ts/dmesg/console-levels    |   4 +-
+ tests/ts/dmesg/decode            |   4 +-
+ tests/ts/dmesg/delta             |   4 +-
+ tests/ts/dmesg/facilities        |   4 +-
+ tests/ts/dmesg/indentation       |  37 ++++++++++++++
+ tests/ts/dmesg/newlines          |   5 ++
+ 12 files changed, 228 insertions(+), 17 deletions(-)
+ create mode 100644 tests/expected/dmesg/colors
+ create mode 100644 tests/expected/dmesg/indentation
+ create mode 100755 tests/ts/dmesg/colors
+ create mode 100755 tests/ts/dmesg/indentation
+ create mode 100644 tests/ts/dmesg/newlines
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.3
+
