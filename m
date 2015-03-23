@@ -1,39 +1,36 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-Date: Sun, 1 Mar 2015 11:55:27 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 11/16] tailf: check printing criteria more carefully
-In-Reply-To: <20150224115322.GM19430@ws.net.home>
-Message-ID: <alpine.LNX.2.03.1503011149370.822@iki.fi>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi> <1424616106-580-12-git-send-email-kerolasa@iki.fi> <20150224115322.GM19430@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:54889 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751935AbbCWKoQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Mar 2015 06:44:16 -0400
+Date: Mon, 23 Mar 2015 11:44:04 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/5] pull: one dmesg compiler warning fix and bunch of
+ tests
+Message-ID: <20150323104404.GD1749@ws.net.home>
+References: <1427065530-10695-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1427065530-10695-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 24 Feb 2015, Karel Zak wrote:
+On Sun, Mar 22, 2015 at 11:05:25PM +0000, Sami Kerola wrote:
+> Sami Kerola (5):
+>   dmesg: fix shadow declaration
+>   tests: add dmesg multiline message check
+>   tests: add test_dmesg that has fixed boot time
+>   tests: check timestamp formats
+>   tests: check dmesg message coloring
 
-> On Sun, Feb 22, 2015 at 02:41:41PM +0000, Sami Kerola wrote:
-> > -	if (lseek(fd, *size, SEEK_SET) != (off_t)-1) {
-> > +	if (st.st_ino != old->st_ino || st.st_dev != old->st_dev
-> > +	    || (old->st_mtime < st.st_mtime && st.st_size <= old->st_size))
-> > +		old->st_size = 0;
-> 
->  So.. if I remove (truncate) last line from 1GiB file then tailf will 
->  print all the file *again*? Would be better to reset to st.st_size if the
->  size is smaller than old->st_size?
-> 
->  Or maybe if you want to support "echo 1 >| file" use case than add a
->  new option (--rewind) or so.
+ Applied, thanks. I have changed the test program to use
+ DMESG_TEST_BOOTIME env. variable rather than hardcode anything to the
+ code. It's also necessary to use TZ=GMT to make the tests portable.
 
-Thanks Karel,
-
-The 1GiB file last line truncation is such strong argument against the 
-change that I removed it from my remote branch. Maybe the tailf.1 manual 
-page should mention truncations are not handled always correctly, and 
-that's as good the command is ever going to be.
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
