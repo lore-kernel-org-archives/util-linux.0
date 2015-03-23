@@ -1,171 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-we0-f170.google.com ([74.125.82.170]:34217 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751911AbbCVXFl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 22 Mar 2015 19:05:41 -0400
-Received: by wegp1 with SMTP id p1so124278844weg.1
-        for <util-linux@vger.kernel.org>; Sun, 22 Mar 2015 16:05:40 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/5] tests: check dmesg message coloring
-Date: Sun, 22 Mar 2015 23:05:30 +0000
-Message-Id: <1427065530-10695-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1427065530-10695-1-git-send-email-kerolasa@iki.fi>
-References: <1427065530-10695-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:46005 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752091AbbCWJUJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 Mar 2015 05:20:09 -0400
+Date: Mon, 23 Mar 2015 10:20:06 +0100
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: unshare(1) --propagation
+Message-ID: <20150323091618.GB1749@ws.net.home>
+References: <20150318172603.GE28925@ws.net.home>
+ <20150322062437.GK4504@vapier>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150322062437.GK4504@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/expected/dmesg/colors | 105 ++++++++++++++++++++++++++++++++++++++++++++
- tests/ts/dmesg/colors       |  25 +++++++++++
- 2 files changed, 130 insertions(+)
- create mode 100644 tests/expected/dmesg/colors
- create mode 100755 tests/ts/dmesg/colors
+On Sun, Mar 22, 2015 at 02:24:37AM -0400, Mike Frysinger wrote:
+> On 18 Mar 2015 18:26, Karel Zak wrote:
+> > Comments, objections?
+> 
+> i was looking for exactly this sort of feature recently :) -- namely to unshare 
+> & mark everything private w/out having to write my own dummy wrapper.
+> 
+> i just worry about the next request where people want to mark everything private 
+> except that one special mount ...
 
-diff --git a/tests/expected/dmesg/colors b/tests/expected/dmesg/colors
-new file mode 100644
-index 0000000..40aca73
---- /dev/null
-+++ b/tests/expected/dmesg/colors
-@@ -0,0 +1,105 @@
-+kern  :emerg : [32m[    0.000000] [0mexample[0]
-+kern  :alert : [32m[    1.000000] [0m[7m[31mexample[1][0m
-+kern  :crit  : [32m[    8.000000] [0m[1m[31mexample[2][0m
-+kern  :err   : [32m[   27.000000] [0m[31mexample[3][0m
-+kern  :warn  : [32m[   64.000000] [0m[1mexample[4][0m
-+kern  :notice: [32m[  125.000000] [0mexample[5]
-+kern  :info  : [32m[  216.000000] [0mexample[6]
-+kern  :debug : [32m[  343.000000] [0mexample[7]
-+user  :emerg : [32m[  512.000000] [0mexample[8]
-+user  :alert : [32m[  729.000000] [0m[7m[31mexample[9][0m
-+user  :crit  : [32m[ 1000.000000] [0m[1m[31mexample[10][0m
-+user  :err   : [32m[ 1331.000000] [0m[31mexample[11][0m
-+user  :warn  : [32m[ 1728.000000] [0m[1mexample[12][0m
-+user  :notice: [32m[ 2197.000000] [0mexample[13]
-+user  :info  : [32m[ 2744.000000] [0mexample[14]
-+user  :debug : [32m[ 3375.000000] [0mexample[15]
-+mail  :emerg : [32m[ 4096.000000] [0mexample[16]
-+mail  :alert : [32m[ 4913.000000] [0m[7m[31mexample[17][0m
-+mail  :crit  : [32m[ 5832.000000] [0m[1m[31mexample[18][0m
-+mail  :err   : [32m[ 6859.000000] [0m[31mexample[19][0m
-+mail  :warn  : [32m[ 8000.000000] [0m[1mexample[20][0m
-+mail  :notice: [32m[ 9261.000000] [0mexample[21]
-+mail  :info  : [32m[10648.000000] [0mexample[22]
-+mail  :debug : [32m[12167.000000] [0mexample[23]
-+daemon:emerg : [32m[13824.000000] [0mexample[24]
-+daemon:alert : [32m[15625.000000] [0m[7m[31mexample[25][0m
-+daemon:crit  : [32m[17576.000000] [0m[1m[31mexample[26][0m
-+daemon:err   : [32m[19683.000000] [0m[31mexample[27][0m
-+daemon:warn  : [32m[21952.000000] [0m[1mexample[28][0m
-+daemon:notice: [32m[24389.000000] [0mexample[29]
-+daemon:info  : [32m[27000.000000] [0mexample[30]
-+daemon:debug : [32m[29791.000000] [0mexample[31]
-+auth  :emerg : [32m[32768.000000] [0mexample[32]
-+auth  :alert : [32m[35937.000000] [0m[7m[31mexample[33][0m
-+auth  :crit  : [32m[39304.000000] [0m[1m[31mexample[34][0m
-+auth  :err   : [32m[42875.000000] [0m[31mexample[35][0m
-+auth  :warn  : [32m[46656.000000] [0m[1mexample[36][0m
-+auth  :notice: [32m[50653.000000] [0mexample[37]
-+auth  :info  : [32m[54872.000000] [0mexample[38]
-+auth  :debug : [32m[59319.000000] [0mexample[39]
-+syslog:emerg : [32m[64000.000000] [0mexample[40]
-+syslog:alert : [32m[68921.000000] [0m[7m[31mexample[41][0m
-+syslog:crit  : [32m[74088.000000] [0m[1m[31mexample[42][0m
-+syslog:err   : [32m[79507.000000] [0m[31mexample[43][0m
-+syslog:warn  : [32m[85184.000000] [0m[1mexample[44][0m
-+syslog:notice: [32m[91125.000000] [0mexample[45]
-+syslog:info  : [32m[97336.000000] [0mexample[46]
-+syslog:debug : [32m[103823.000000] [0mexample[47]
-+lpr   :emerg : [32m[110592.000000] [0mexample[48]
-+lpr   :alert : [32m[117649.000000] [0m[7m[31mexample[49][0m
-+lpr   :crit  : [32m[125000.000000] [0m[1m[31mexample[50][0m
-+lpr   :err   : [32m[132651.000000] [0m[31mexample[51][0m
-+lpr   :warn  : [32m[140608.000000] [0m[1mexample[52][0m
-+lpr   :notice: [32m[148877.000000] [0mexample[53]
-+lpr   :info  : [32m[157464.000000] [0mexample[54]
-+lpr   :debug : [32m[166375.000000] [0mexample[55]
-+news  :emerg : [32m[175616.000000] [0mexample[56]
-+news  :alert : [32m[185193.000000] [0m[7m[31mexample[57][0m
-+news  :crit  : [32m[195112.000000] [0m[1m[31mexample[58][0m
-+news  :err   : [32m[205379.000000] [0m[31mexample[59][0m
-+news  :warn  : [32m[216000.000000] [0m[1mexample[60][0m
-+news  :notice: [32m[226981.000000] [0mexample[61]
-+news  :info  : [32m[238328.000000] [0mexample[62]
-+news  :debug : [32m[250047.000000] [0mexample[63]
-+uucp  :emerg : [32m[262144.000000] [0mexample[64]
-+uucp  :alert : [32m[274625.000000] [0m[7m[31mexample[65][0m
-+uucp  :crit  : [32m[287496.000000] [0m[1m[31mexample[66][0m
-+uucp  :err   : [32m[300763.000000] [0m[31mexample[67][0m
-+uucp  :warn  : [32m[314432.000000] [0m[1mexample[68][0m
-+uucp  :notice: [32m[328509.000000] [0mexample[69]
-+uucp  :info  : [32m[343000.000000] [0mexample[70]
-+uucp  :debug : [32m[357911.000000] [0mexample[71]
-+cron  :emerg : [32m[373248.000000] [0mexample[72]
-+cron  :alert : [32m[389017.000000] [0m[7m[31mexample[73][0m
-+cron  :crit  : [32m[405224.000000] [0m[1m[31mexample[74][0m
-+cron  :err   : [32m[421875.000000] [0m[31mexample[75][0m
-+cron  :warn  : [32m[438976.000000] [0m[1mexample[76][0m
-+cron  :notice: [32m[456533.000000] [0mexample[77]
-+cron  :info  : [32m[474552.000000] [0mexample[78]
-+cron  :debug : [32m[493039.000000] [0mexample[79]
-+authpriv:emerg : [32m[512000.000000] [0mexample[80]
-+authpriv:alert : [32m[531441.000000] [0m[7m[31mexample[81][0m
-+authpriv:crit  : [32m[551368.000000] [0m[1m[31mexample[82][0m
-+authpriv:err   : [32m[571787.000000] [0m[31mexample[83][0m
-+authpriv:warn  : [32m[592704.000000] [0m[1mexample[84][0m
-+authpriv:notice: [32m[614125.000000] [0mexample[85]
-+authpriv:info  : [32m[636056.000000] [0mexample[86]
-+authpriv:debug : [32m[658503.000000] [0mexample[87]
-+ftp   :emerg : [32m[681472.000000] [0mexample[88]
-+ftp   :alert : [32m[704969.000000] [0m[7m[31mexample[89][0m
-+ftp   :crit  : [32m[729000.000000] [0m[1m[31mexample[90][0m
-+ftp   :err   : [32m[753571.000000] [0m[31mexample[91][0m
-+ftp   :warn  : [32m[778688.000000] [0m[1mexample[92][0m
-+ftp   :notice: [32m[804357.000000] [0mexample[93]
-+ftp   :info  : [32m[830584.000000] [0mexample[94]
-+ftp   :debug : [32m[857375.000000] [0mexample[95]
-+[32m[884736.000000] [0mexample[96]
-+[32m[912673.000000] [0m[7m[31mexample[97][0m
-+[32m[941192.000000] [0m[1m[31mexample[98][0m
-+[32m[970299.000000] [0m[31mexample[99][0m
-+[32m[1000000.000000] [0m[1mexample[100][0m
-+[32m[1030301.000000] [0mexample[101]
-+[32m[1061208.000000] [0mexample[102]
-+[32m[1092727.000000] [0mexample[103]
-+[32m[1124864.000000] [0mexample[104]
-diff --git a/tests/ts/dmesg/colors b/tests/ts/dmesg/colors
-new file mode 100755
-index 0000000..2dfc937
---- /dev/null
-+++ b/tests/ts/dmesg/colors
-@@ -0,0 +1,25 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="colors"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+$TS_HELPER_DMESG --color=always -F $TS_SELF/input -x >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
+:-)
+
+> > +static unsigned long parse_propagation(const char *str)
+> > +{
+> > +	size_t i;
+> > +	struct prop_opts {
+> > +		const char *name;
+> > +		unsigned long flag;
+> > +	} opts[] = {
+> > +		{ "slave",	MS_REC | MS_SLAVE },
+> > +		{ "private",	MS_REC | MS_PRIVATE },
+> > +		{ "shared",     MS_REC | MS_SHARED },
+> > +		{ "off",        0 }
+> > +	};
+> 
+> static/const ?
+
+ Fixed.
+
 -- 
-2.3.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
