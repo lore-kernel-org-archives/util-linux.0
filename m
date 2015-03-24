@@ -1,148 +1,74 @@
-Return-Path: kerolasa@gmail.com
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <CAG27Bk0MbRfsQtAwZx7bjrP-HwoYV6798-2MS7yDuwBazUO-HA@mail.gmail.com>
-References: <1424616106-580-1-git-send-email-kerolasa@iki.fi>
-	<1424616106-580-2-git-send-email-kerolasa@iki.fi>
-	<20150224094007.GE19430@ws.net.home>
-	<alpine.LNX.2.03.1503011106350.822@iki.fi>
-	<20150303113250.GP8046@ws.net.home>
-	<CAG27Bk0MbRfsQtAwZx7bjrP-HwoYV6798-2MS7yDuwBazUO-HA@mail.gmail.com>
-Date: Tue, 3 Mar 2015 23:07:52 +0000
-Message-ID: <CAG27Bk3F6Bhdz4i5M+LQAY2yPU7+EfxWxGr=WJf7Cm-PfFBadA@mail.gmail.com>
-Subject: Re: [PATCH 01/16] whereis: tell when mandatory option is missing
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: peter@cordes.ca
+Date: Tue, 24 Mar 2015 11:25:15 -0300
+To: Ronan CHAUVIN <ronan.chauvin@parrot.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        matthieu CASTET <matthieu.castet@parrot.com>,
+        Alexandre Dilly <alexandre.dilly@parrot.com>
+Subject: Re: [libfdisk]: gpt_write_disklabel function robustness to sudden
+	power off
+Message-id: <20150324142515.GW3933@cordes.ca>
+References: <550BF3A9.8080508@parrot.com> <20150320111812.GG28925@ws.net.home>
+ <20150323183142.GU3933@cordes.ca> <55116F30.3080204@parrot.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+In-reply-to: <55116F30.3080204@parrot.com>
+From: Peter Cordes <peter@cordes.ca>
 List-ID: <util-linux.vger.kernel.org>
 
-On 3 March 2015 at 12:59, Sami Kerola <kerolasa@iki.fi> wrote:
-> On 3 March 2015 at 11:32, Karel Zak <kzak@redhat.com> wrote:
->>  Did you update your "various" branch? I still see old patches on
->>  github. (And I'd like to "git pull" :-)
+On Tue, Mar 24, 2015 at 03:05:36PM +0100, Ronan CHAUVIN wrote:
 >
-> I left the original branches as-is. Now when all has had enough time
-> to have look of my github commits I'll rewrite the history where
-> needed, and send update pull as various2, script2, more2, and so on
-> branches. Since that's not a lot of work I assume to do the submission
-> at evening (work is distracting hobbies).
+> On 03/23/2015 07:31 PM, Peter Cordes wrote:
+>> On Fri, Mar 20, 2015 at 12:18:12PM +0100, Karel Zak wrote:
+>>> Conclusion: be pessimistic and verify all you read from disk and be
+>>> optimistic when you write to the disk, and when when someone is talking
+>>> about write guaranty and run far away. That's all the story.
+>> The whole GPT is what, 16kiB or so?  On most storage, you could
+>> force data to persistent storage with a granularity of 4kiB, with
+>> fdatasync(2) (assuming that works on block devices, not just files).
 
-The second versions of the four branches are available.
+> The whole GPT is 16kiB (MBR+GPT header+partition array). There is two  
+> GPT systems, one at the beginning and another one at the end. The  
+> bootloader verifies the integrity of the header and the partition array  
+> with a CRC32.
 
-Fix to comment Benno mentioned is here. And of course I removed the
-earlier mistake addition to unrelated commit.
+>>    write() everything, then fsync() so it all hits the disk in
+>>
+>>   So I'd agree with Karel that the current method is probably
+>> ideal.  write() everything, then fsync() so it all hits the disk in
+>> one multi-sector write op.  Not necessarily atomic, but probably.
+> As the block will not be consecutive (primary and backup), the operation  
+> cannot be done in one write operation....
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/fc5097c31b7e5eb43e92e577b2b66c6fe66de240
+So at least one of the four 4kiB sectors doesn't get written at all?
+Because if all the sectors are getting written, regardless of order,
+Linux will merge the IOs into one write request to send over the SATA
+(or whatever) wire.  Write request merging is useful even on SSDs, so
+Linux does it.
 
-Karel, your proposal to avoid unnecessary fopen() && fclose() pairs
-resulted to new commit
+ Even if there is a sector that doesn't get written, it's probably
+still academic.  Sending a request in a single write OP doesn't make
+it atomic.  On a magnetic disk, the data will still probably all
+hit the platter on the same rotation, just by powering down the write
+head as it flies over the sector you aren't writing, so the window for
+a power failure to cause a problem is quite small.  I'm sure SSDs are
+far more complicated.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/2a6f4ec60281bf69f1ac2d72d06752c376b78053
+> I agree that we should wait confirmation of a storage expert but the  
+> fsync() and sleep() combination should guaranty the operation order on  
+> most hardware.
 
-that is also below, but does not make the script2 branch quite ready.
-The HAVE_LIBUTEMPTER problem is still present.
+ Probably 1/10th of a second is long enough, but still short enough to
+not be annoying.  If you're editting the partition table of a disk
+that isn't idle (in which case even 1 sec might not be long enough for
+the write to hit disk after fdatasync()), and you don't have the
+system on a UPS, I think we maybe don't need to waste 0.9 seconds of
+everyone's time just for this hypothetical user.
 
-Summary: the following two branches ought to be ready for merge:
-  git://github.com/kerolasa/lelux-utiliteetit.git rtcwake2
-  git://github.com/kerolasa/lelux-utiliteetit.git various2
 
-p.s. Here's mail list review copy of commit 2a6f4ec6.
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 3 Mar 2015 22:06:01 +0000
-Subject: [PATCH] script: move timing file opening close to use of it
-
-This allows removing almost immediate closure of file handle in the
-doshell() function that does not use the file.
-
-Proposed-by: Karel Zak <kzak@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-diff --git a/term-utils/script.c b/term-utils/script.c
-index e15ea38..6812548 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -90,6 +90,7 @@ struct script_control {
-     char *cflg;        /* command to be executed */
-     char *fname;        /* output file path */
-     FILE *typescriptfp;    /* output file pointer */
-+    char *tname;        /* timing file path */
-     FILE *timingfp;        /* timing file pointer */
-     struct timeval oldtime;    /* previous write or command start time */
-     int master;        /* pseudoterminal master file descriptor */
-@@ -169,6 +170,9 @@ static void __attribute__((__noreturn__))
-done(struct script_control *ctl)
-         else
-             exit(WEXITSTATUS(ctl->childstatus));
-     }
-+    if (ctl->timingfp)
-+        fclose(ctl->timingfp);
-+    fclose(ctl->typescriptfp);
-     exit(EXIT_SUCCESS);
- }
-
-@@ -271,8 +275,17 @@ static void do_io(struct script_control *ctl)
-     time_t tvec = time((time_t *)NULL);
-     char buf[128];
-
--    if (ctl->tflg && !ctl->timingfp)
--        ctl->timingfp = fdopen(STDERR_FILENO, "w");
-+    if ((ctl->typescriptfp = fopen(ctl->fname, ctl->aflg ? "a" :
-"w")) == NULL) {
-+        warn(_("cannot open %s"), ctl->fname);
-+        fail(ctl);
-+    }
-+    if (ctl->tflg) {
-+        if (!ctl->tname) {
-+            if (!(ctl->timingfp = fopen("/dev/stderr", "w")))
-+                err(EXIT_FAILURE, _("cannot open %s"), "/dev/stderr");
-+        } else if (!(ctl->timingfp = fopen(ctl->tname, "w")))
-+            err(EXIT_FAILURE, _("cannot open %s"), ctl->tname);
-+    }
-
-     pfd[0].fd = STDIN_FILENO;
-     pfd[0].events = POLLIN;
-@@ -344,11 +357,6 @@ static void __attribute__((__noreturn__))
-doshell(struct script_control *ctl)
-
-     /* close things irrelevant for this process */
-     close(ctl->master);
--    if (ctl->typescriptfp)
--        fclose(ctl->typescriptfp);
--    if (ctl->timingfp)
--        fclose(ctl->timingfp);
--    ctl->typescriptfp = ctl->timingfp = NULL;
-
-     dup2(ctl->slave, STDIN_FILENO);
-     dup2(ctl->slave, STDOUT_FILENO);
-@@ -522,8 +530,8 @@ int main(int argc, char **argv)
-             ctl.qflg = 1;
-             break;
-         case 't':
--            if (optarg && !(ctl.timingfp = fopen(optarg, "w")))
--                err(EXIT_FAILURE, _("cannot open %s"), optarg);
-+            if (optarg)
-+                ctl.tname = optarg;
-             ctl.tflg = 1;
-             break;
-         case 'V':
-@@ -546,11 +554,6 @@ int main(int argc, char **argv)
-         die_if_link(&ctl);
-     }
-
--    if ((ctl.typescriptfp = fopen(ctl.fname, ctl.aflg ? "a" : "w")) == NULL) {
--        warn(_("cannot open %s"), ctl.fname);
--        fail(&ctl);
--    }
--
-     ctl.shell = getenv("SHELL");
-     if (ctl.shell == NULL)
-         ctl.shell = _PATH_BSHELL;
 -- 
-2.3.1
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
+
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
