@@ -1,50 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60066 "EHLO mx1.redhat.com"
+Received: from mail.aswsp.com ([193.34.35.150]:40239 "EHLO mail.aswsp.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932365AbbCEKVC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 5 Mar 2015 05:21:02 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t25AL1oK031852
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-	for <util-linux@vger.kernel.org>; Thu, 5 Mar 2015 05:21:01 -0500
-Received: from ws ([10.40.204.58])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id t25AL0iE008096
-	for <util-linux@vger.kernel.org>; Thu, 5 Mar 2015 05:21:01 -0500
-Date: Thu, 5 Mar 2015 11:21:00 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: Re: [bug] logger 2.26: regression, option -i not combinable with
- other options
-Message-ID: <20150305102100.GW8046@ws.net.home>
-References: <20150220100647.GA2624@jue.netz>
+	id S1752212AbbCXNyj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Mar 2015 09:54:39 -0400
+Message-ID: <55116CA9.3040402@parrot.com>
+Date: Tue, 24 Mar 2015 14:54:49 +0100
+From: Ronan CHAUVIN <ronan.chauvin@parrot.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150220100647.GA2624@jue.netz>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+CC: <util-linux@vger.kernel.org>, matthieu CASTET <matthieu.castet@parrot.com>,
+        Alexandre Dilly <alexandre.dilly@parrot.com>
+Subject: Re: [libfdisk]: gpt_write_disklabel function robustness to sudden
+ power off
+References: <87384vyt4y.fsf@hobgoblin.ariadne.com>
+In-Reply-To: <87384vyt4y.fsf@hobgoblin.ariadne.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 20, 2015 at 11:06:47AM +0100, Juergen Daubert wrote:
-> Hello,
-> 
-> with logger from util-linux 2.25.x it's possible to combine the option
-> -i with other options like:
-> 
->  logger -is
-> 
-> with 2.26 I get the following error message:
-> 
->  $:~> logger -is
->  logger: failed to parse id: 's'
-> 
-> The changed behaviour breaks existing scripts like dhcpcd-run-hooks [1]
-> from dhcpcd [2].
+Thank you for your answer.
 
- Fixed in git tree, the bugfix will be in v2.26.1 (probably last week
- this month or early).
+If we are not resizing/adding but just renaming a partition, we want to 
+be sure that at least the primary or the backup GPT header/GPT partition 
+array will not be corrupted in the case of a sudden power-off. If the 
+write order is not guaranty, then the primary and backup GPT headers can 
+be written to the emmc without the corresponding partition array and the 
+system will not be consistent.
 
-    Karel
+For example, if we have this effective write operation order on the disk:
 
+1) backup GPT header
+2) primary GPT header
+--> power-off <--
+3) primary partition tables
+4) backup partition tables
+5) protective MBR
+
+then, CRC of partition array present in both GPT headers will be incorrect.
+
+On 03/24/2015 04:24 AM, Dale R. Worley wrote:
+> But it seems to me that there is
+> no such consistent state -- what condition would you want that
+> information to be in?  The old information is irretrevably lost during
+> the operation;
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Ronan CHAUVIN
+Embedded Software Engineer
+ASIC team
+--------------------------------
+Parrot
+174, quai de Jemmapes
+75010 Paris  France
+--------------------------------
+www.parrot.com
+
