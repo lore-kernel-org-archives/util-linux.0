@@ -1,148 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:46460 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.17.22]:54416 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753057AbbCLIql (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 Mar 2015 04:46:41 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 0E50AAC77
-	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2015 08:46:40 +0000 (UTC)
-Date: Thu, 12 Mar 2015 09:46:39 +0100
-From: Petr Gajdos <pgajdos@suse.cz>
+	id S1752203AbbCYSoG convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Mar 2015 14:44:06 -0400
+Received: from md.localnet ([176.198.153.195]) by mail.gmx.com (mrgmx102) with
+ ESMTPSA (Nemesis) id 0MdXSC-1YrRKJ0Nrg-00PPqF for
+ <util-linux@vger.kernel.org>; Wed, 25 Mar 2015 19:44:03 +0100
+From: =?iso-8859-1?q?J=F6rg_Jenderek?= <joerg.jen.der.ek@gmx.net>
+Reply-To: joerg.jen.der.ek@gmx.net
 To: util-linux@vger.kernel.org
-Subject: prevent cal segfault
-Message-ID: <20150312084639.GC9756@laura.suse.cz>
+Subject: [PATCH] fdisk: to recognize FAT32 partitions hidden by Acronis software
+Date: Wed, 25 Mar 2015 20:44:01 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5gxpn/Q6ypwruk0T"
+Message-Id: <201503251944.01461.joerg.jen.der.ek@gmx.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Dear util-linux maintainer,
+i used a partitioning backup product of 
+http://www.acronis.de/products/trueimage/
+This software creates an extra partition named "ACRONIS Secure Zone " with 
+the Recovery program and/or boot selector.
 
---5gxpn/Q6ypwruk0T
-Content-Type: multipart/mixed; boundary="69pVuxX8awAiJ7fD"
-Content-Disposition: inline
+After some examination i found out that the partition contains a standard 
+FAT32 file system with a special initial program loader in boot sector, 
+which tries to load Acronis loader F11.SYS or BOOTWIZ.SYS  in older 
+versions)
+To avoid that an user or a virus can compromise the restore software the 
+partition is hidden by adding 0xb0=176 to partition number.
+So an FAT32 LBA (0x0c=12) gets number 0xbc=188.
+Maybe also partition with ids 01, 04, 06, 07, 0b, 0c, 0e are hidden in this 
+way. See List of partition identifiers for PCs at
+http://www.win.tue.nl/~aeb/partitions/partition_types-1.html
+Unfortunately the software fdisk (util-linux-ng 2.13-rc2 and 
+util-linux-ng-2.14-rc3 and util-linux-2.26) can not classify that 
+partition.
+I send for the fdisk program my 2 patches so that fdisk recognize the Acronis partitions.
 
+pt-mbr-acronis.diff
+--- util-linux-2.26/include/pt-mbr.h.old	2015-02-10 10:49:46.000000000 +0100
++++ util-linux-2.26/include/pt-mbr.h	2015-03-25 19:30:49.000000000 +0100
+@@ -150,2 +150,3 @@
+ 	MBR_BOOTWIZARD_HIDDEN_PARTITION	= 0xbb,
++	MBR_ACRONIS_FAT32LBA_PARTITION  = 0xbc, /* Acronis Secure Zone with ipl for loader F11.SYS */
+ 	MBR_SOLARIS_BOOT_PARTITION	= 0xbe,
 
---69pVuxX8awAiJ7fD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+pt-mbr-partnames-acronis.diff
+--- util-linux-2.26/include/pt-mbr-partnames.h.old	2015-02-10 10:49:46.000000000 +0100
++++ util-linux-2.26/include/pt-mbr-partnames.h	2015-03-25 19:18:53.000000000 +0100
+@@ -73,2 +73,6 @@
+ 	{0xbb, N_("Boot Wizard hidden")},
++	{0xbc, N_("Acronis FAT32 LBA")},/* hidden (+0xb0) FAT32 LBA with 
++					   ipl for Acronis loader F11.SYS 
++					   by Acronis partition backup software
++					   is called Acronis Secure Zone */
+ 	{0xbe, N_("Solaris boot")},
+Signed-off-by: Jörg Jenderek <joerg.jen.der.ek@gmx.net>
+Sorry that i do this way, but i have no knowledge about git toys.
 
-Hello,
+Hope you can apply my patches in a future version of  the fdisk program.
 
-cal utility segfaults in putp() when setupterm() fails as cal
-insufficiently checks for setupterm() failure.
-
-$ TERM=3D cal
-Segmentation fault
-
-Please find details in=20
-
-https://bugzilla.suse.com/show_bug.cgi?id=3D903440
-
-especially in comment 4.
-
-Petr
-
-
---69pVuxX8awAiJ7fD
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="util-linux-cal-no-terminal.patch"
-Content-Transfer-Encoding: quoted-printable
-
-Index: misc-utils/cal.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- misc-utils/cal.c.orig	2014-08-26 16:48:45.132654654 +0200
-+++ misc-utils/cal.c	2015-03-11 14:16:06.075064939 +0100
-@@ -81,14 +81,22 @@
- # endif
- # include <term.h>
-=20
--static void my_setupterm(const char *term, int fildes, int *errret)
-+#if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_=
-LIBTERMCAP)
-+static const char	*term=3D"";
-+#endif
-+
-+static int my_setupterm(const char *term, int fildes)
- {
--	setupterm((char *)term, fildes, errret);
-+        int errret; /* unused */
-+	return setupterm((char *)term, fildes, &errret) =3D=3D OK;
- }
-=20
- static void my_putstring(char *s)
- {
--	putp(s);
-+	if (term)
-+		putp(s);
-+	else
-+		fputs(s, stdout);
- }
-=20
- static const char *my_tgetstr(char *s __attribute__((__unused__)), char *s=
-s)
-@@ -107,9 +115,9 @@
- static char tcbuffer[4096];
- static char *strbuf =3D termbuffer;
-=20
--static void my_setupterm(const char *term, int fildes __attribute__((__unu=
-sed__)), int *errret)
-+static int my_setupterm(const char *term, int fildes __attribute__((__unus=
-ed__)))
- {
--	*errret =3D tgetent(tcbuffer, term);
-+	return tgetent(tcbuffer, term) =3D=3D 1;
- }
-=20
- static void my_putstring(char *s)
-@@ -135,10 +143,6 @@
-=20
- #endif	/* end of LIBTERMCAP / NCURSES */
-=20
--#if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_=
-LIBTERMCAP)
--static const char	*term=3D"";
--#endif
--
- static const char	*Senter=3D"", *Sexit=3D"";/* enter and exit standout mod=
-e */
-=20
- #include "widechar.h"
-@@ -293,12 +297,14 @@
-=20
- #if defined(HAVE_LIBNCURSES) || defined(HAVE_LIBNCURSESW) || defined(HAVE_=
-LIBTERMCAP)
- 	if ((term =3D getenv("TERM"))) {
--		int ret;
--		my_setupterm(term, STDOUT_FILENO, &ret);
--		if (ret > 0) {
-+		if (my_setupterm(term, STDOUT_FILENO)) {
- 			Senter =3D my_tgetstr("so","smso");
- 			Sexit =3D my_tgetstr("se","rmso");
- 		}
-+		else
-+		{
-+			term =3D NULL;
-+		}
- 	}
- #endif
-=20
-
---69pVuxX8awAiJ7fD--
-
---5gxpn/Q6ypwruk0T
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iEYEARECAAYFAlUBUmwACgkQGevYtT2kPwOyEACfZR1+XYOF6OfIJPAJH4NOrjMI
-dAIAoKB4mw465Zf/Q1iJySTwA/yldOw4
-=3Gj0
------END PGP SIGNATURE-----
-
---5gxpn/Q6ypwruk0T--
+thanks,
+joerg jenderek
+-- 
+Jörg Jenderek	email:	joerg.jen.der.ek (at) gmx.net
+Germany
