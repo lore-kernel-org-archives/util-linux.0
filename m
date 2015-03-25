@@ -1,40 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender1.zohomail.com ([74.201.84.158]:34610 "EHLO
-	sender1.zohomail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750774AbbCMUhf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 13 Mar 2015 16:37:35 -0400
-Message-ID: <550346FA.3060006@zoho.com>
-Date: Fri, 13 Mar 2015 21:22:18 +0100
-From: =?windows-1252?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-MIME-Version: 1.0
-To: Ruediger Meier <sweet_f_a@gmx.de>
-CC: =?windows-1252?Q?P=E1draig_Brady?= <P@draigbrady.com>,
-        util-linux@vger.kernel.org
-Subject: Re: tailf, really needed?
-References: <201503131000.29307.sweet_f_a@gmx.de> <5502CBFF.6090405@draigBrady.com> <201503131402.30431.sweet_f_a@gmx.de>
-In-Reply-To: <201503131402.30431.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from mout.gmx.net ([212.227.17.22]:59965 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752055AbbCYJkO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Mar 2015 05:40:14 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0LsgvV-1ZckfC3QIz-012G2e for
+ <util-linux@vger.kernel.org>; Wed, 25 Mar 2015 10:40:12 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] last, fix race when comparing time stamps
+Date: Wed, 25 Mar 2015 10:40:10 +0100
+Message-Id: <1427276410-25271-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1427276410-25271-1-git-send-email-sweet_f_a@gmx.de>
+References: <1427276410-25271-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 13/03/15 14:02, Ruediger Meier wrote:
-> BTW I think there could be a minor improvement for coreutils tail for
-> the cases "file is empty" or "-n 0". Maybe we could skip opening the
-> file one time at the beginning. So that "tail -n0 -f logfile" would
-> really never access the file unless it grows.
->
-> cu,
-> Rudi
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I suspect that might break filesystems lying about the file size, such 
-as proc or some compressed fs. There may also be issues with some 
-network fs.
+It is just luck if two time() calls happen within the same
+second. Introduced in 31d28e09.
 
-A tail <file> with <file> of len 0, would usually be empty. However, it 
-would be a problem not to provide an output for tail /proc/$$/status
+Actually I don't like adding another global variable but this
+way we avoid bigger refactoring. IMO it's questionable why
+lastdate, lastdown, etc. are initialized with current time() at
+all. It looks unsafe to print "still running" always when
+logout_time = now.
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ login-utils/last.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-
-PS: tail -f already acts a bit funny in that case, as it tails the end 
-of the file, then thinks it has been truncated and shows it in full.
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 4a165c2..8d82c10 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -138,6 +138,7 @@ static struct last_timefmt timefmts[] = {
+ /* Global variables */
+ static unsigned int recsdone;	/* Number of records listed */
+ static time_t lastdate;		/* Last date we've seen */
++static time_t currentdate;	/* date when we started processing the file */
+ 
+ /* --time-format=option parser */
+ static int which_time_format(const char *optarg)
+@@ -372,7 +373,7 @@ static void trim_trailing_spaces(char *s)
+  */
+ static int list(const struct last_control *ctl, struct utmp *p, time_t logout_time, int what)
+ {
+-	time_t		secs, utmp_time, now;
++	time_t		secs, utmp_time;
+ 	char		logintime[LAST_TIMESTAMP_LEN];
+ 	char		logouttime[LAST_TIMESTAMP_LEN];
+ 	char		length[LAST_TIMESTAMP_LEN];
+@@ -428,8 +429,7 @@ static int list(const struct last_control *ctl, struct utmp *p, time_t logout_ti
+ 	hours = (secs / 3600) % 24;
+ 	days  = secs / 86400;
+ 
+-	now = time(NULL);
+-	if (logout_time == now) {
++	if (logout_time == currentdate) {
+ 		if (ctl->time_fmt > LAST_TIMEFTM_SHORT_CTIME) {
+ 			sprintf(logouttime, "  still running");
+ 			length[0] = 0;
+@@ -638,7 +638,7 @@ static void process_wtmp_file(const struct last_control *ctl,
+ 	/*
+ 	 * Fill in 'lastdate'
+ 	 */
+-	lastdate = lastrch = lastdown;
++	lastdate = currentdate = lastrch = lastdown;
+ 
+ 	/*
+ 	 * Install signal handlers
+-- 
+1.8.4.5
 
