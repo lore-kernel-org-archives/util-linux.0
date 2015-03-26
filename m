@@ -1,31 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-02v.sys.comcast.net ([69.252.207.34]:50719 "EHLO
-	resqmta-ch2-02v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752175AbbCXDYu (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 23 Mar 2015 23:24:50 -0400
-From: worley@alum.mit.edu (Dale R. Worley)
-To: Ronan CHAUVIN <ronan.chauvin@parrot.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [libfdisk]: gpt_write_disklabel function robustness to sudden power
- off
-In-Reply-To: <550BF3A9.8080508@parrot.com> (ronan.chauvin@parrot.com)
-Date: Mon, 23 Mar 2015 23:24:45 -0400
-Message-ID: <87384vyt4y.fsf@hobgoblin.ariadne.com>
+Received: from mout.gmx.net ([212.227.17.20]:49811 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751896AbbCZNuh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 26 Mar 2015 09:50:37 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0Lpxdr-1Z5npt3IYh-00fiei for
+ <util-linux@vger.kernel.org>; Thu, 26 Mar 2015 14:50:34 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: question about logger tests
+Date: Thu, 26 Mar 2015 14:50:33 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201503261450.33545.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ronan CHAUVIN <ronan.chauvin@parrot.com> writes:
-> I was wondering if the gpt_write_disklabel function was robust to sudden 
-> power-off.
+Hi,
 
-gpt_write_disklabel can only be "robust to sudden power-off" if there is
-some expectation that the partition tables, etc. can be in some sort of
-"consistent" state if power is lost.  But it seems to me that there is
-no such consistent state -- what condition would you want that
-information to be in?  The old information is irretrevably lost during
-the operation; the only problem that can be caused by sudden power-off
-is that you have to enter the new information into fdisk again before
-the disk has a valid structure.
+Our logger tests fail if it can't connect to /dev/log. I'd like to fix 
+that case for the test-suite but have some questions:
 
-Dale
+1. It was confusing for me to figure out the actual
+   problem. Maybe --no-act and/or --stderr should imply
+   that --socket-errors=auto turns error printing on?
+
+2. Alternatively we could use --socket-errors=on for all tests.
+
+3. Couldn't we fix --no-act to not need an open /dev/log at all?
+
+cu,
+Rudi
