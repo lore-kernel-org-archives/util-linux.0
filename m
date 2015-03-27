@@ -1,38 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:61312 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753211AbbCQUfC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Mar 2015 16:35:02 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:34270 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750931AbbC0TDr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Mar 2015 15:03:47 -0400
+Received: by obbgh1 with SMTP id gh1so16199903obb.1
+        for <util-linux@vger.kernel.org>; Fri, 27 Mar 2015 12:03:47 -0700 (PDT)
+Received: from mail-oi0-f43.google.com (mail-oi0-f43.google.com. [209.85.218.43])
+        by mx.google.com with ESMTPSA id ut10sm1474564obc.20.2015.03.27.12.03.46
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 27 Mar 2015 12:03:46 -0700 (PDT)
+Received: by oicf142 with SMTP id f142so74762924oic.3
+        for <util-linux@vger.kernel.org>; Fri, 27 Mar 2015 12:03:46 -0700 (PDT)
+MIME-Version: 1.0
+From: Alex Deymo <deymo@chromium.org>
+Date: Fri, 27 Mar 2015 12:03:26 -0700
+Message-ID: <CAGd9gwi86agrHS3HgFixjZGD3bYjoFabai3G856qw9Rwfo7W-A@mail.gmail.com>
+Subject: umount --detach-loop fails but fs is unmounted
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] hwclock: remove an untrue phrase from the man page
-Date: Tue, 17 Mar 2015 21:34:51 +0100
-Message-Id: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/hwclock.8.in |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+Hi,
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 96c57d4..9682244 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -298,11 +298,6 @@ the true year.  That way, the Hardware Clock inserts leap days where
- they belong.  Again, if you let the Hardware Clock run for more than a
- year without setting it, this scheme could be defeated and you could
- end up losing a day.
--.sp
--.B \%hwclock
--warns you that you probably need
--.B \%\-\-badyear
--whenever it finds your Hardware Clock set to 1994 or 1995.
- .
- .TP
- .BI \%\-\-date= date_string
--- 
-1.7.0.4
+I'm running into a problem when using -d in umount. I'm using
+util-linux 2.25.1, but didn't see changes in that code in ToT. When
+calling "umount -d" if the passed argument is *not* a loop device (for
+example /dev/loopX or /mnt/foo/bar), it will umount it, but the
+command will fail (return != 0) and print EINVAL error (22).
+Documentation says:
 
+  -d, --detach-loop
+    When the unmounted device was a loop device, also free this loop device.
+
+So the command shouldn't fail if you didn't pass a loop device but
+still used -d; right? Is this a problem in the documentation or the
+code?
+
+* Examples: if you mount your ${image} (an ext4 fs, but whatever) in
+${mount_point} this way:
+
+  loop_device=$(sudo losetup --find --show ${image})
+  sudo mount -o rw ${loop_device} ${mount_point}
+
+
+The following command fails (error code 1) and does NOT remove the
+loop device, but unmounts the fs properly:
+  sudo umount -d ${mount_point}
+umount: ${mount_point}: filesystem was unmounted, but mount(8) failed:
+Invalid argument
+
+On the other hand, if you run this command instead, it succeeds and
+removes the loop device:
+  sudo umount -d ${loop_device}
+
+
+If your loop device has AUTOCLEAN=1 (see "losetup --list --all") the
+loop device is removed either way, but the command still fails when
+using ${mount_point}:
+  sudo mount -o loop,rw ${image} ${mount_point}
+
+This command fails but loop is removed due to the autoclean.
+  sudo umount -d ${mount_point}
+
+Thanks,
+deymo.
