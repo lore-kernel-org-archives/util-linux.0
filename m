@@ -1,44 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:56719 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752673AbbDGBFJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Apr 2015 21:05:09 -0400
-Message-ID: <55232CF8.4090805@ubuntu.com>
-Date: Mon, 06 Apr 2015 21:03:52 -0400
-From: Phillip Susi <psusi@ubuntu.com>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:33335 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752117AbbDANim (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 1 Apr 2015 09:38:42 -0400
+Received: by pacgg7 with SMTP id gg7so52634109pac.0
+        for <util-linux@vger.kernel.org>; Wed, 01 Apr 2015 06:38:42 -0700 (PDT)
+Received: from newbook ([50.0.225.244])
+        by mx.google.com with ESMTPSA id qm6sm2230378pac.14.2015.04.01.06.38.40
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 01 Apr 2015 06:38:41 -0700 (PDT)
+Date: Wed, 1 Apr 2015 06:38:43 -0700
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: Re: question about hardcoded binary paths (swapon / mkswap)
+Message-ID: <20150401133842.GA1800@newbook>
+References: <201504011342.56546.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: Felix Miata <mrmazda@earthlink.net>, util-linux@vger.kernel.org
-Subject: Re: fdisk -l hits floppy drive
-References: <54D5126A.3020308@earthlink.net> <54D8C81C.30804@ubuntu.com> <54DA1CEA.1000802@earthlink.net>
-In-Reply-To: <54DA1CEA.1000802@earthlink.net>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201504011342.56546.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-On 02/10/2015 09:59 AM, Felix Miata wrote:
->> I'm guessing you don't actually have a floppy, in which case,
->> your bios is misconfigured to think you do and you should fix
->> that.
+On Wed, Apr 01, 2015 at 01:42:56PM +0200, Ruediger Meier wrote:
+> Hi,
 > 
-> You guessed wrong: 
-> https://bugzilla.opensuse.org/show_bug.cgi?id=773058 
-> https://bugzilla.opensuse.org/show_bug.cgi?id=916773
+> I wonder about some hardcoded binary paths.
+> 
+> Example swapon.c:
+> 
+> #define PATH_MKSWAP    "/sbin/mkswap"
+> 
+> There are a two problems.
+> 1. It's wrong. We should use $sbindir from configure.
+> 2. When called from our test-suite it will use a wrong (or
+>    non-existend, broken) binary. This happens in test swapon/fixpgsz.
+> 
+> The question is how to fix this.
+> 
+> I would prefer to use "mkwsap" from the same directory like swapon or to 
+> simply execvp "mkswap" from PATH. But don't know if we want this. If we 
+> really want to keep a hardcoded sbindir then we would need "#ifdef 
+> TEST_PROGRAM".
+> 
+> Any comments?
 
-Huh?  That bug report echos exactly what I said: the bios is
-misconfigured to think there is a floppy when in fact, there is not.
+The approach that seems obvious to me (assuming you want to keep the
+hardcoded path) is:
+-add -DSBINDIR="$sbindir" to CFLAGS
+-in the testsuite, run tests in a private mount namespace, where you can
+bind-mount $sbindir.
 
+However, I'm guessing this would have to be done with a union mount, 
+and there are probably problems like what to do if sbindir is 
+non-existent down to / (eg, sbindir=/util-linux/rootcommmands on a 
+standard Linux) -- creating a union mount over / may be a Bad Thing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Thanks,
+Isaac Dunham
 
-iQEcBAEBCgAGBQJVIyz4AAoJENRVrw2cjl5RIvsH/A6h5V9R9yTQtNZv4RPQFU9I
-XRG7RZORiB25EXbunKQ9Ry+HqG0WucOC/fM5LJIKQCnl1c1osy3bpdg6Vy5UceiZ
-le9Awn7fH6+naOpdPIJjdT3FXTaL0oqXpAuHG839PqcHO0QxWFWOujHJX1op1cUw
-oXTLDlP6KN3+z/5M4SZoLxtqas6nqtyWFp64jqARhI6ry6wjTbO+IgKYjKa9PXBe
-O1Y1dOBiHkrCmFfPIVCoIrX4Zs0PVFZfozOk5v8bU62hmCG0bv7joxJgAAS3G8uu
-7UoZjPZwF9UHFBX/5qT2MfrPjfgPxu6QopXrmqmaGCxaPXEvWem+/YZPCUGlYWg=
-=65/7
------END PGP SIGNATURE-----
