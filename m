@@ -1,77 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wg0-f50.google.com ([74.125.82.50]:34378 "EHLO
-	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751435AbbDCMAl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 3 Apr 2015 08:00:41 -0400
-Received: by wgbdm7 with SMTP id dm7so109606515wgb.1
-        for <util-linux@vger.kernel.org>; Fri, 03 Apr 2015 05:00:40 -0700 (PDT)
-Received: from clippix.lab.lse.epita.fr (lse.epita.fr. [163.5.55.17])
-        by mx.google.com with ESMTPSA id fo9sm2446462wib.16.2015.04.03.05.00.39
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Apr 2015 05:00:39 -0700 (PDT)
-Date: Fri, 3 Apr 2015 14:00:33 +0200
-From: "Jean-Loup 'clippix' Bogalho" <clippix@lse.epita.fr>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] dos: copy previous bootsector in dos_create_disklabel
-Message-ID: <20150403120033.GA12844@clippix.lab.lse.epita.fr>
+Received: from mail1.vodafone.ie ([213.233.128.43]:23626 "EHLO
+	mail1.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750765AbbDBLgh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 2 Apr 2015 07:36:37 -0400
+Message-ID: <551D29C1.1010107@draigBrady.com>
+Date: Thu, 02 Apr 2015 12:36:33 +0100
+From: =?windows-1252?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Karel Zak <kzak@redhat.com>
+CC: Bernhard Voelker <mail@bernhard-voelker.de>, Coreutils <coreutils@gnu.org>,
+        bug-gnulib <bug-gnulib@gnu.org>,
+        util-linux <util-linux@vger.kernel.org>,
+        Fridolin Pokorny <fpokorny@redhat.com>
+Subject: Re: large overhead in libmount
+References: <54A321DC.4020300@bernhard-voelker.de> <54BDB6E9.4070500@draigBrady.com> <20150402100546.GE2097@ws.net.home>
+In-Reply-To: <20150402100546.GE2097@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Copy the previous (if existing) bootsector for dos mbr after
-fdisk_init_firstsector_buffer zeroed it.
+On 02/04/15 11:05, Karel Zak wrote:
+> On Tue, Jan 20, 2015 at 02:01:13AM +0000, Pádraig Brady wrote:
+>> On 30/12/14 22:06, Bernhard Voelker wrote:
+>>> I just pulled the recent gnulib update, and now the above, expensive
+>>> test fails:
+>>>
+>>>    + ulimit -v 40000
+>>>    + du -sh d
+>>>    du: fts_read failed: d: Cannot allocate memory
+>>>    + fail=1
+>>>
+>>> I guess this due to the inclusion of libmount?
+>>
+>> Yes I get the same issue in that test:
+>> http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=tests/rm/many-dir-entries-vs-OOM.sh
+>>
+>> Indeed there is significant overhead in using libmount as shown below.
+>> This is a crazy amount of overhead just to read /proc/self/mountinfo,
+>> and is the sort of creeping dependencies I hate.  The proposed solution
+>> in the attached gnulib patch, is to require ./configure --with-libmount
+>> to enable this feature. I.E. it's disabled by default.
+>>
+>> cheers,
+>> Pádraig
+>>
+>> ======= without =========
+>> $ (ulimit -v 5380; du -s .)
+>>
+>> $ ldd /usr/bin/du
+>> linux-vdso.so.1 =>  (0x00007fff0d7fe000)
+>> libc.so.6 => /lib64/libc.so.6 (0x00007fd414a32000)
+>> /lib64/ld-linux-x86-64.so.2 (0x00007fd414e0b000)
+>>
+>> $ time du -s src/du.c >/dev/null
+>> real    0m0.003s
+>> user    0m0.000s
+>> sys     0m0.003s
+>>
+>> ======= with =========
+>> $ (ulimit -v 23250; src/du -s .)
+>>
+>> $ ldd src/du
+>> linux-vdso.so.1 =>  (0x00007fff76ca8000)
+>> libc.so.6 => /lib64/libc.so.6 (0x00007f2a1f742000)
+>> /lib64/ld-linux-x86-64.so.2 (0x00007f2a1fd61000)
+>>  libmount.so.1 => /lib64/libmount.so.1 (0x00007f2a1faff000)
+>>   libblkid.so.1 => /lib64/libblkid.so.1 (0x00007f2a1f501000)
+>>   libuuid.so.1 => /lib64/libuuid.so.1 (0x00007f2a1f2fc000)
+>>   libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f2a1f0d7000)
+>>   libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f2a1ee69000)
+>>   liblzma.so.5 => /lib64/liblzma.so.5 (0x00007f2a1ec44000)
+>>   libdl.so.2 => /lib64/libdl.so.2 (0x00007f2a1ea40000)
+>>   libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f2a1e823000)
+> 
+> The problem is libselinux, but on selinux based system you have all the
+> libraries already in memory for many another tools...
 
-Signed-off-by: Jean-Loup 'clippix' Bogalho <clippix@lse.epita.fr>
----
- libfdisk/src/dos.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+Indeed.
 
-diff --git a/libfdisk/src/dos.c b/libfdisk/src/dos.c
-index dce9829..91471cc 100644
---- a/libfdisk/src/dos.c
-+++ b/libfdisk/src/dos.c
-@@ -18,6 +18,7 @@
- 
- #define MAXIMUM_PARTS	60
- #define ACTIVE_FLAG     0x80
-+#define BOOTSECTOR_SIZE	446
- 
- /**
-  * SECTION: dos
-@@ -636,6 +637,7 @@ static int dos_create_disklabel(struct fdisk_context *cxt)
- 	unsigned int id = 0;
- 	int rc, has_id = 0;
- 	struct fdisk_dos_label *l;
-+	unsigned char *bootsector;
- 
- 	assert(cxt);
- 	assert(cxt->label);
-@@ -659,9 +661,19 @@ static int dos_create_disklabel(struct fdisk_context *cxt)
- 	if (!has_id)
- 		random_get_bytes(&id, sizeof(id));
- 
--	rc = fdisk_init_firstsector_buffer(cxt);
--	if (rc)
--		return rc;
-+	bootsector = malloc(sizeof(char) * BOOTSECTOR_SIZE);
-+	if (cxt->firstsector && cxt->firstsector_bufsz == cxt->sector_size &&
-+	    bootsector) {
-+		memcpy(bootsector, cxt->firstsector, BOOTSECTOR_SIZE);
-+		rc = fdisk_init_firstsector_buffer(cxt);
-+		memcpy(cxt->firstsector, bootsector, BOOTSECTOR_SIZE);
-+		free(bootsector);
-+	}
-+	else {
-+		rc = fdisk_init_firstsector_buffer(cxt);
-+		if (rc)
-+			return rc;
-+	}
- 	dos_init(cxt);
- 
- 	l = self_label(cxt);
+I see libmount links with libselinux to use selinux_trans_to_raw_context()
+for the context= mount options etc.  I suppose one could split libmount
+to avoid that dependency, though it's probably not worth it for this case at least?
 
--- 
-Jean-Loup 'clippix' Bogalho
-LSE 2016
+I still think it's worth avoiding the dependencies here though
+with the little extra code.  I'll add a comment to the patch about libselinux
+as the source of these deps.
+
+thanks!
+Pádraig
