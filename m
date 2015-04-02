@@ -1,91 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:44142 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:35429 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752324AbbDCBPX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 2 Apr 2015 21:15:23 -0400
-Date: Thu, 2 Apr 2015 21:15:22 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org,
-        Isaac Dunham <ibid.ag@gmail.com>
-Subject: Re: question about hardcoded binary paths (swapon / mkswap)
-Message-ID: <20150403011522.GH22171@vapier>
-References: <201504011342.56546.sweet_f_a@gmx.de>
- <201504011817.48428.sweet_f_a@gmx.de>
- <20150401201051.GP25224@vapier>
- <201504012306.52737.sweet_f_a@gmx.de>
- <20150401213800.GB2097@ws.net.home>
- <20150402011230.GA22171@vapier>
- <20150402082000.GC2097@ws.net.home>
- <20150402161952.GB22171@vapier>
- <20150402191530.GG2097@ws.net.home>
+	id S1751360AbbDBKF5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 2 Apr 2015 06:05:57 -0400
+Date: Thu, 2 Apr 2015 12:05:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, Coreutils <coreutils@gnu.org>,
+        bug-gnulib <bug-gnulib@gnu.org>,
+        util-linux <util-linux@vger.kernel.org>,
+        Fridolin Pokorny <fpokorny@redhat.com>
+Subject: Re: large overhead in libmount
+Message-ID: <20150402100546.GE2097@ws.net.home>
+References: <54A321DC.4020300@bernhard-voelker.de>
+ <54BDB6E9.4070500@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="2xzXx3ruJf7hsAzo"
-In-Reply-To: <20150402191530.GG2097@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <54BDB6E9.4070500@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jan 20, 2015 at 02:01:13AM +0000, Pádraig Brady wrote:
+> On 30/12/14 22:06, Bernhard Voelker wrote:
+> > I just pulled the recent gnulib update, and now the above, expensive
+> > test fails:
+> > 
+> >    + ulimit -v 40000
+> >    + du -sh d
+> >    du: fts_read failed: d: Cannot allocate memory
+> >    + fail=1
+> > 
+> > I guess this due to the inclusion of libmount?
+> 
+> Yes I get the same issue in that test:
+> http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=tests/rm/many-dir-entries-vs-OOM.sh
+> 
+> Indeed there is significant overhead in using libmount as shown below.
+> This is a crazy amount of overhead just to read /proc/self/mountinfo,
+> and is the sort of creeping dependencies I hate.  The proposed solution
+> in the attached gnulib patch, is to require ./configure --with-libmount
+> to enable this feature. I.E. it's disabled by default.
+> 
+> cheers,
+> Pádraig
+> 
+> ======= without =========
+> $ (ulimit -v 5380; du -s .)
+> 
+> $ ldd /usr/bin/du
+> linux-vdso.so.1 =>  (0x00007fff0d7fe000)
+> libc.so.6 => /lib64/libc.so.6 (0x00007fd414a32000)
+> /lib64/ld-linux-x86-64.so.2 (0x00007fd414e0b000)
+> 
+> $ time du -s src/du.c >/dev/null
+> real    0m0.003s
+> user    0m0.000s
+> sys     0m0.003s
+> 
+> ======= with =========
+> $ (ulimit -v 23250; src/du -s .)
+> 
+> $ ldd src/du
+> linux-vdso.so.1 =>  (0x00007fff76ca8000)
+> libc.so.6 => /lib64/libc.so.6 (0x00007f2a1f742000)
+> /lib64/ld-linux-x86-64.so.2 (0x00007f2a1fd61000)
+>  libmount.so.1 => /lib64/libmount.so.1 (0x00007f2a1faff000)
+>   libblkid.so.1 => /lib64/libblkid.so.1 (0x00007f2a1f501000)
+>   libuuid.so.1 => /lib64/libuuid.so.1 (0x00007f2a1f2fc000)
+>   libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f2a1f0d7000)
+>   libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f2a1ee69000)
+>   liblzma.so.5 => /lib64/liblzma.so.5 (0x00007f2a1ec44000)
+>   libdl.so.2 => /lib64/libdl.so.2 (0x00007f2a1ea40000)
+>   libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f2a1e823000)
 
---2xzXx3ruJf7hsAzo
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The problem is libselinux, but on selinux based system you have all the
+libraries already in memory for many another tools...
 
-On 02 Apr 2015 21:15, Karel Zak wrote:
-> On Thu, Apr 02, 2015 at 12:19:52PM -0400, Mike Frysinger wrote:
-> > On 02 Apr 2015 10:20, Karel Zak wrote:
-> > > If I good remember then the reason is that the helpers does not have
-> > > to be installed in standard PATH. Well, you're author of this thing
-> > > :-)
-> >=20
-> > i wrote the code to make it a configure option, but the actual behavior=
- predates=20
-> > me.  i'm interested more in the behavior, not the exact configure optio=
-n.
->=20
->  So, the basis question is if we really need to support non-standard
->  paths for the helpers. IMHO it's unnecessary legacy and I don't see a
->  problem to drop this feature and require $PATH, and for critical
->  things like fsck fallback to /sbin if $PATH is undefined.
-
-the reason for adding that configure option was to support packages that in=
-stall=20
-both into /bin and /usr/bin.  i understand some distros will override those=
-=20
-settings of upstream packages, but Gentoo has opted not to since there's no=
-=20
-reason at all to force them all into /sbin (and even existing tools in /sbi=
-n are=20
-pretty pointless).  although it mattered more when the code was only search=
-ing=20
-that list and not $PATH at all.
-
-my preference would be just to do execvp() and be done so we can stop these=
-=20
-distro bikesheddings (/bin & /usr-merge and such).
--mike
-
---2xzXx3ruJf7hsAzo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJVHemqAAoJEEFjO5/oN/WBDKYP/AhIQBsAhcid21zLL2U6w7TS
-wYh5CGub7YhG7Xa3wqu05Fng1+TT5ETydUIomfoc5ZRgb8oJBQlIJbiO57xwP9Bg
-OWUpwXQhjeU3YccCLlN58cMGR51d3ULtwCkrWqNDeQH5UsjlsOEZXrRmvEC+UpKj
-4DogczjMXPeKD9XFxwlAHQt/ICHylnAX02bEtTSmXdzkUTe+PGHn2j/XMBSRjHXm
-Kiq8Y8BMS7bsJuxDubrT0y+/DbOLY0V/o4wpDd0NVsxvHJaA/X3XB0w3fvwz6oU3
-gaKvKHQ2iYMPRStPBjMkamx3RhvySy7Y/Qksj89TUsz5LlCQYylJ8eXKb7Bfok+O
-3jPcyRizs+ogh7M+eEpy8Mc8lxkDt2ttUEXqlNlcCXKXYfYH5feKBdDeKFBjKW9T
-g7l8dnvT0i3w0GpmlK0rQxbWpK6wk0Z2O4JsUDxyIMc7J7Lci2yivMgp+Mc7dQwb
-mEuyzOtHKH1Lh3A6qt0i+bKkhrBPpiVsVlI8Bvb1bY0RdbYue+WrZBheu6XAqbuc
-iQ7ZrKbSnPqxACXjtfcuEMspnKpsdqr68YE6rCEmj8o8jIY3wk3YY31nLlRTqjOj
-hQRgdozCZEu3bvm5Nn3Ejq3l2t6yzfaqdBn1FMpzND59HgNVJjqI6wMDZMODlSW9
-0HtO2vT1XtefOLV3lyll
-=o4gh
------END PGP SIGNATURE-----
-
---2xzXx3ruJf7hsAzo--
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
