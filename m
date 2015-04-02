@@ -1,38 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f169.google.com ([209.85.220.169]:35347 "EHLO
-	mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754288AbbDJS6M (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 10 Apr 2015 14:58:12 -0400
-Received: by qkhg7 with SMTP id g7so41496042qkh.2
-        for <util-linux@vger.kernel.org>; Fri, 10 Apr 2015 11:58:11 -0700 (PDT)
-From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
-Subject: [PATCH] lib/sysfs.c: use fcntl(..F_DUPFD_CLOEXEC) instead of dup(2)
-Date: Fri, 10 Apr 2015 15:57:58 -0300
-Message-Id: <1428692278-5226-1-git-send-email-crrodriguez@opensuse.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60067 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752719AbbDBTPc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 2 Apr 2015 15:15:32 -0400
+Date: Thu, 2 Apr 2015 21:15:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org,
+        Isaac Dunham <ibid.ag@gmail.com>
+Subject: Re: question about hardcoded binary paths (swapon / mkswap)
+Message-ID: <20150402191530.GG2097@ws.net.home>
+References: <201504011342.56546.sweet_f_a@gmx.de>
+ <201504011817.48428.sweet_f_a@gmx.de>
+ <20150401201051.GP25224@vapier>
+ <201504012306.52737.sweet_f_a@gmx.de>
+ <20150401213800.GB2097@ws.net.home>
+ <20150402011230.GA22171@vapier>
+ <20150402082000.GC2097@ws.net.home>
+ <20150402161952.GB22171@vapier>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150402161952.GB22171@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-"The two descriptors do not share file descriptor flags (the
-close-on-exec flag).  The close-on-exec flag  for the duplicate descriptor is off"
----
- lib/sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, Apr 02, 2015 at 12:19:52PM -0400, Mike Frysinger wrote:
+> On 02 Apr 2015 10:20, Karel Zak wrote:
+> > If I good remember then the reason is that the helpers does not have
+> > to be installed in standard PATH. Well, you're author of this thing
+> > :-)
+> 
+> i wrote the code to make it a configure option, but the actual behavior predates 
+> me.  i'm interested more in the behavior, not the exact configure option.
 
-diff --git a/lib/sysfs.c b/lib/sysfs.c
-index ac35596..1b20191 100644
---- a/lib/sysfs.c
-+++ b/lib/sysfs.c
-@@ -246,7 +246,7 @@ DIR *sysfs_opendir(struct sysfs_cxt *cxt, const char *attr)
- 		 * -- we cannot use cxt->sysfs_fd directly, because closedir()
- 		 * will close this our persistent file descriptor.
- 		 */
--		fd = dup(cxt->dir_fd);
-+		fd = fcntl(cxt->dir_fd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
- 
- 	if (fd < 0)
- 		return NULL;
+ So, the basis question is if we really need to support non-standard
+ paths for the helpers. IMHO it's unnecessary legacy and I don't see a
+ problem to drop this feature and require $PATH, and for critical
+ things like fsck fallback to /sbin if $PATH is undefined.
+
+ Comments?
+
+> looks like mkfs added it during the 2.2->2.5 transition, but otherwise no 
+> details in the bundled NEWS that i saw.  oh well.
+
+ mkfs is deprecated, the right way is to call directly mkfs.<type>.
+
+> mount makes sense as it's set*id and we can't trust users to not be evil :)
+
+ It does not execute anything with root rights, but yes, hardcoded
+ paths make sense there (just to avoid complexity and external
+ dependencies on environment).
+
+    Karel
+
+
 -- 
-2.3.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
