@@ -1,62 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36501 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:34180 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751162AbbDGK3k (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Apr 2015 06:29:40 -0400
-Date: Tue, 7 Apr 2015 12:29:21 +0200
+	id S1751173AbbDCKGt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 3 Apr 2015 06:06:49 -0400
+Date: Fri, 3 Apr 2015 12:06:47 +0200
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: Fridolin Pokorny <fpokorny@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>,
-        Bernhard Voelker <mail@bernhard-voelker.de>,
-        bug-gnulib <bug-gnulib@gnu.org>, Coreutils <coreutils@gnu.org>,
-        Dan Walsh <dwalsh@redhat.com>
-Subject: Re: large overhead in libmount
-Message-ID: <20150407102921.GH3923@ws.net.home>
-References: <54A321DC.4020300@bernhard-voelker.de>
- <54BDB6E9.4070500@draigBrady.com>
- <20150402100546.GE2097@ws.net.home>
- <551D29C1.1010107@draigBrady.com>
+To: Alex Deymo <deymo@chromium.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: umount --detach-loop fails but fs is unmounted
+Message-ID: <20150403100647.GC3923@ws.net.home>
+References: <CAGd9gwi86agrHS3HgFixjZGD3bYjoFabai3G856qw9Rwfo7W-A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <551D29C1.1010107@draigBrady.com>
+In-Reply-To: <CAGd9gwi86agrHS3HgFixjZGD3bYjoFabai3G856qw9Rwfo7W-A@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 02, 2015 at 12:36:33PM +0100, Pádraig Brady wrote:
-> >> $ ldd src/du
-> >> linux-vdso.so.1 =>  (0x00007fff76ca8000)
-> >> libc.so.6 => /lib64/libc.so.6 (0x00007f2a1f742000)
-> >> /lib64/ld-linux-x86-64.so.2 (0x00007f2a1fd61000)
-> >>  libmount.so.1 => /lib64/libmount.so.1 (0x00007f2a1faff000)
-> >>   libblkid.so.1 => /lib64/libblkid.so.1 (0x00007f2a1f501000)
-> >>   libuuid.so.1 => /lib64/libuuid.so.1 (0x00007f2a1f2fc000)
-> >>   libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f2a1f0d7000)
-> >>   libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f2a1ee69000)
-> >>   liblzma.so.5 => /lib64/liblzma.so.5 (0x00007f2a1ec44000)
-> >>   libdl.so.2 => /lib64/libdl.so.2 (0x00007f2a1ea40000)
-> >>   libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f2a1e823000)
-> > 
-> > The problem is libselinux, but on selinux based system you have all the
-> > libraries already in memory for many another tools...
+On Fri, Mar 27, 2015 at 12:03:26PM -0700, Alex Deymo wrote:
+> I'm running into a problem when using -d in umount. I'm using
+> util-linux 2.25.1, but didn't see changes in that code in ToT. When
+> calling "umount -d" if the passed argument is *not* a loop device (for
+> example /dev/loopX or /mnt/foo/bar), it will umount it, but the
+> command will fail (return != 0) and print EINVAL error (22).
+> Documentation says:
 > 
-> Indeed.
+>   -d, --detach-loop
+>     When the unmounted device was a loop device, also free this loop device.
 > 
-> I see libmount links with libselinux to use selinux_trans_to_raw_context()
-> for the context= mount options etc.
+> So the command shouldn't fail if you didn't pass a loop device but
+> still used -d; right? Is this a problem in the documentation or the
+> code?
+> 
+> * Examples: if you mount your ${image} (an ext4 fs, but whatever) in
+> ${mount_point} this way:
+> 
+>   loop_device=$(sudo losetup --find --show ${image})
+>   sudo mount -o rw ${loop_device} ${mount_point}
+> 
+> 
+> The following command fails (error code 1) and does NOT remove the
+> loop device, but unmounts the fs properly:
+>   sudo umount -d ${mount_point}
+> umount: ${mount_point}: filesystem was unmounted, but mount(8) failed:
+> Invalid argument
 
-The ideal solution would be to avoid this selinux context translation
-at all. It would be nice to make it possible to send context= to kernel 
-as specified on command line. Dan, any comment? (dwalsh added to CC:)
+I'm not able to reproduce this problem.
 
-It's also painful that so generic (often used) library like selinux
-has so many additional dependencies.
+        # rpm -q util-linux
+        util-linux-2.25.2-2.fc21.x86_64
 
-> I suppose one could split libmount
-> to avoid that dependency, though it's probably not worth it for this case at least?
+        # losetup --find --show /home/archive/fs-images/filesystems/ext2.img
+        /dev/loop0
 
-Well, I can create a fallback for this stuff and move the translation code to
-mount(8) only... then libmount will be without the dependence.
+        # mount /dev/loop0 /mnt/test
+
+        # losetup 
+        NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE
+        /dev/loop0         0      0         0  0 /home/archive/fs-images/filesystems/ext2.img
+
+        # findmnt /mnt/test
+        TARGET    SOURCE     FSTYPE OPTIONS
+        /mnt/test /dev/loop0 ext3   rw,relatime,seclabel,data=ordered
+
+        # umount -d /mnt/test
+        # echo $?
+        0
+
+Please, try
+
+   LIBMOUNT_DEBUG=0xffff umount -d ${mount_point}
+
+or/and strace output would be also nice.
 
     Karel
 
