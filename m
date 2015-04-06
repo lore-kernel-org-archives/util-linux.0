@@ -1,58 +1,49 @@
-Return-Path: elseifthen@gmx.com
-Message-ID: <55398616.5020004@gmx.com>
-Date: Thu, 23 Apr 2015 19:53:58 -0400
-From: J William Piggott <elseifthen@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:35537 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751204AbbDFQG3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Apr 2015 12:06:29 -0400
+Received: by lbbuc2 with SMTP id uc2so19487217lbb.2
+        for <util-linux@vger.kernel.org>; Mon, 06 Apr 2015 09:06:28 -0700 (PDT)
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Isaac Dunham <ibid.ag@gmail.com>
-CC: util-linux@vger.kernel.org
-Subject: [PATCH 1/1] hwclock: Remove TZUTC
-References: <1429764592-15947-1-git-send-email-ibid.ag@gmail.com> <55398435.4090504@gmx.com>
-In-Reply-To: <55398435.4090504@gmx.com>
-Content-Type: text/plain; charset=utf-8
+Date: Mon, 6 Apr 2015 10:06:27 -0600
+Message-ID: <CAD+u3WZHehAaJu-T5d55ExFhCf3V0J5WHpo8SJ-Ln1PKqjgp0g@mail.gmail.com>
+Subject: [PATCH] Trivial spelling and grammar fix
+From: Mike Place <mp@saltstack.com>
+To: util-linux@vger.kernel.org
+Content-Type: multipart/mixed; boundary=089e011772050665f80513107b0a
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+--089e011772050665f80513107b0a
+Content-Type: text/plain; charset=UTF-8
 
-commit d53f8ecfbf036eddb2aef737dc0973a613d80ced
-introduced the TZUTC environment variable to
-facilitate use of the zoneinfo 'right' database.
-This was incorrect. Either the TZDIR environment
-variable should be used or a system-wide
-configuration for the 'right' database should be
-used.
+Hello,
 
-See hwclock(8) POSIX vs 'RIGHT' for more details.
+Attached is a trivial patch which fixes very minor spelling and
+grammatical errors found in the man page for 'whereis'.
 
-TZUTC was undocumented and should be safe to remove.
+Thanks!
 
-The commit also caused a regression when using
-musl libc, because when TZUTC is unset getenv()
-returns a NULL pointer.
-Reported-by: Isaac Dunham <ibid.ag@gmail.com>
+-Mike Place
+mp@saltstack.com
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+--089e011772050665f80513107b0a
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i862lhys0
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index e1e5816..f4784a1 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -400,15 +400,8 @@ mktime_tz(struct tm tm, const bool universal,
- 	 */
- 	zone = getenv("TZ");	/* remember original time zone */
- 	if (universal) {
--		/* Set timezone to UTC as defined by the environment
--		 * variable TZUTC.  TZUTC undefined gives the default UTC
--		 * zonefile which usually does not take into account leap
--		 * seconds.  Define TZUTC to select your UTC zonefile which
--		 * does include leap seconds.  For example, with recent GNU
--		 * libc's:
--		 *    TZUTC=:/usr/share/zoneinfo/right/UTC
--		 */
--		setenv("TZ", getenv("TZUTC"), TRUE);
-+		/* Set timezone to UTC */
-+		setenv("TZ", "", TRUE);
- 		/*
- 		 * Note: tzset() gets called implicitly by the time code,
- 		 * but only the first time. When changing the environment
+LS0tIHdoZXJlaXMuMS5vcmlnCTIwMTUtMDQtMDYgMDk6NTI6NTcuOTE4MDE2Mjk5IC0wNjAwCisr
+KyB3aGVyZWlzLjEJMjAxNS0wNC0wNiAwOTo1Mjo1NC4xMjEzNDk2NzEgLTA2MDAKQEAgLTE0MSwx
+OSArMTQxLDE5IEBAIG9yIGhhdmUgbm8gc291cmNlIGluCiBCeSBkZWZhdWx0CiAuQiB3aGVyZWlz
+CiB0cmllcyB0byBmaW5kIGZpbGVzIGZyb20gaGFyZC1jb2RlZCBwYXRocywgd2hpY2ggYXJlIGRl
+ZmluZWQgd2l0aCBnbG9iCi1wYXR0ZXJucy4gIFRoZSBjb21tYW5kIGF0dGVtcHN0IHRvIHVzZSBj
+b250ZW50cyBvZgorcGF0dGVybnMuICBUaGUgY29tbWFuZCBhdHRlbXB0cyB0byB1c2UgdGhlIGNv
+bnRlbnRzIG9mCiAuQiAkUEFUSAogYW5kCiAuQiAkTUFOUEFUSAogZW52aXJvbm1lbnQgdmFyaWFi
+bGVzIGFzIGRlZmF1bHQgc2VhcmNoIHBhdGguICBUaGUgZWFzaWVzdCB3YXkgdG8ga25vdwotd2hh
+dCBwYXRocyBhcmUgaW4gdXNlIGlzIHRvIGFkZAord2hhdCBwYXRocyBhcmUgaW4gdXNlIGlzIHRv
+IGFkZCB0aGUKIC5CIFwtbAogbGlzdGluZyBvcHRpb24uICBFZmZlY3RzIG9mIHRoZQogLkJSIFwt
+QiAsCiAuQlIgXC1NICwKIGFuZAogLkJSIFwtUwotYXJlIGRpc3BsYXkgd2l0aAorYXJlIGRpc3Bs
+YXllZCB3aXRoCiAuQlIgXC1sIC4KIC5QUAogLlNIIEVOVklST05NRU5UCg==
+--089e011772050665f80513107b0a--
