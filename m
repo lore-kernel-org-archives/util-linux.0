@@ -1,46 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:36846 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754108AbbDTH21 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Apr 2015 03:28:27 -0400
-Received: by wizk4 with SMTP id k4so87449658wiz.1
-        for <util-linux@vger.kernel.org>; Mon, 20 Apr 2015 00:28:26 -0700 (PDT)
-Date: Mon, 20 Apr 2015 09:28:24 +0200
-From: Alexey Galakhov <agalakhov@gmail.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
-Message-ID: <20150420092824.13611c6b@aga-ws-01>
-In-Reply-To: <5534498B.4080803@gmx.com>
-References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
-	<5534498B.4080803@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail-qk0-f169.google.com ([209.85.220.169]:35347 "EHLO
+	mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754288AbbDJS6M (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 10 Apr 2015 14:58:12 -0400
+Received: by qkhg7 with SMTP id g7so41496042qkh.2
+        for <util-linux@vger.kernel.org>; Fri, 10 Apr 2015 11:58:11 -0700 (PDT)
+From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Subject: [PATCH] lib/sysfs.c: use fcntl(..F_DUPFD_CLOEXEC) instead of dup(2)
+Date: Fri, 10 Apr 2015 15:57:58 -0300
+Message-Id: <1428692278-5226-1-git-send-email-crrodriguez@opensuse.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello William,
+"The two descriptors do not share file descriptor flags (the
+close-on-exec flag).  The close-on-exec flag  for the duplicate descriptor is off"
+---
+ lib/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Am Sun, 19 Apr 2015 20:34:19 -0400
-schrieb J William Piggott <elseifthen@gmx.com>:
+diff --git a/lib/sysfs.c b/lib/sysfs.c
+index ac35596..1b20191 100644
+--- a/lib/sysfs.c
++++ b/lib/sysfs.c
+@@ -246,7 +246,7 @@ DIR *sysfs_opendir(struct sysfs_cxt *cxt, const char *attr)
+ 		 * -- we cannot use cxt->sysfs_fd directly, because closedir()
+ 		 * will close this our persistent file descriptor.
+ 		 */
+-		fd = dup(cxt->dir_fd);
++		fd = fcntl(cxt->dir_fd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
+ 
+ 	if (fd < 0)
+ 		return NULL;
+-- 
+2.3.4
 
->  I've been advocating for the removal of the compare function. One of
-> my justifications for doing so is that it has been broken from day
-> one and therefore nobody can be using for anything.
-> 
->  So could you tell me how you are using it, and what useful purpose
-> it is serving for you?
-
-We use it in an automated test of the Linux system time on an embedded
-system. Recently we fixed a kernel bug introduced by one of the 3rd
-party patches that caused a huge (0.01%-0.1%) drift of the
-CLOCK_REALTIME due to incorrect PLL initialization. The corresponding
-test based on hwclock's compare is now added to our automated test
-system. The test runs hwclock -c forever and fails if any drift
-anomality is discovered.
-
-Looks like hwclock -c works correctly at least in our case. I think it
-could be rewritten using clock_gettime() instead of gettimeofday().
-
-Regards,
-Alexey
