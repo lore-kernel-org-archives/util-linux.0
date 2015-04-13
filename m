@@ -1,43 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:56264 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:59656 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965244AbbD1L1N (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Apr 2015 07:27:13 -0400
-Message-ID: <553F6E87.8030303@gmx.com>
-Date: Tue, 28 Apr 2015 07:27:03 -0400
-From: J William Piggott <elseifthen@gmx.com>
+	id S1753489AbbDMKbS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Apr 2015 06:31:18 -0400
+Date: Mon, 13 Apr 2015 12:31:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sergey Zolotarev <szx@live.ru>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: Fix partition order killed my hard drive (twice)
+Message-ID: <20150413103115.GO3923@ws.net.home>
+References: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
 MIME-Version: 1.0
-To: Alexey Galakhov <agalakhov@gmail.com>
-CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
-References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>	<20150427082729.GK27969@ws.net.home>	<553EA9AB.1000608@gmx.com> <20150427234218.587e5435.agalakhov@gmail.com>
-In-Reply-To: <20150427234218.587e5435.agalakhov@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Apr 13, 2015 at 04:11:05PM +0600, Sergey Zolotarev wrote:
+> Is it possible that fdisk could damage / kill a hard drive after
+> using the "Fix partition order" command? It seems that that is
+> exactly what happened to me two times already, with two different
+> hard drives. 
 
+Do you really believe that write some bytes to HDD may destroy the
+device? I don't think so. 
 
-On 04/27/2015 05:42 PM, Alexey Galakhov wrote:
-> On Mon, 27 Apr 2015 17:27:07 -0400
-> J William Piggott <elseifthen@gmx.com> wrote:
-> 
->> I do not understand what this patch accomplishes. stdout is line
->> buffered. All of hwclock -c output ends with \n, which flushes
->> the buffer. Then we flush it again with fflush? What am I missing?
-> 
-> stdout is line buffered only if it is not redirected.
+fdisks-like utils just write some data to the device, nothing else.
+You can replace it by dd(1) or "echo 'something' > /dev/sda"...
 
-Thanks for the explanation, I wasn't aware of that.
+    Karel
 
-> Using the pipe
-> symbol in shell to redirect the output i.e. to awk results in not
-> flushing the buffer until it's full.
-> 
-> A quick test:
-> $ hwclock -c | cat
-> 
-> 
-> Regards,
-> Alexey
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
