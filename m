@@ -1,75 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:65347 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:51926 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752590AbbDBWuc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 2 Apr 2015 18:50:32 -0400
+	id S1751708AbbDMMB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Apr 2015 08:01:57 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
+ with ESMTPSA (Nemesis) id 0LaoMe-1Z5fGm1NDk-00kS5B for
+ <util-linux@vger.kernel.org>; Mon, 13 Apr 2015 14:01:56 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: question about hardcoded binary paths (swapon / mkswap)
-Date: Thu, 2 Apr 2015 23:50:20 +0100
-Cc: util-linux@vger.kernel.org, Isaac Dunham <ibid.ag@gmail.com>
-References: <201504011342.56546.sweet_f_a@gmx.de> <20150402161952.GB22171@vapier> <20150402191530.GG2097@ws.net.home>
-In-Reply-To: <20150402191530.GG2097@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201504030050.21386.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH v2 5/7] tests: logger/errors does not use --no-act
+Date: Mon, 13 Apr 2015 14:01:51 +0200
+Message-Id: <1428926513-25449-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
+References: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 02 April 2015, Karel Zak wrote:
-> On Thu, Apr 02, 2015 at 12:19:52PM -0400, Mike Frysinger wrote:
-> > On 02 Apr 2015 10:20, Karel Zak wrote:
-> > > If I good remember then the reason is that the helpers does not
-> > > have to be installed in standard PATH. Well, you're author of
-> > > this thing
-> > >
-> > > :-)
-> >
-> > i wrote the code to make it a configure option, but the actual
-> > behavior predates me.  i'm interested more in the behavior, not the
-> > exact configure option.
->
->  So, the basis question is if we really need to support non-standard
->  paths for the helpers. IMHO it's unnecessary legacy and I don't see
-> a problem to drop this feature and require $PATH, and for critical
-> things like fsck fallback to /sbin if $PATH is undefined.
->
->  Comments?
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I would like to use PATH too but also fallback if PATH is defined. That 
-means we just need to append our fallback path to PATH always.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/expected/logger/errors-check_socket | 18 ++++++++++++++++++
+ tests/ts/logger/errors                    |  5 ++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-The fallback path(s) may depend on what we are looking for.
-
-In case we search an ul binary we should add the conigured and the 
-default path (which is just one path in default case):
-
-"$PATH:$sbindir:/sbin"   for sbin_PROGRAMS like "fsck" or "mkswap"
-"$PATH:$bindir:/bin"     for bin_PROGRAMS like "mount/umount"
-"$PATH:$usrsbin_execdir:/usr/sbin"  for usrsbin_exec_PROGRAMS
-"$PATH:$usrbin_execdir:/usr/bin"    for usrbin_exec_PROGRAMS
-
-For non-ul programs we should not add any fallback path unless there is 
-a POSIX or other well-known one. "/bin/sh" might be the only real 
-special case.
-
-> > looks like mkfs added it during the 2.2->2.5 transition, but
-> > otherwise no details in the bundled NEWS that i saw.  oh well.
->
->  mkfs is deprecated, the right way is to call directly mkfs.<type>.
->
-> > mount makes sense as it's set*id and we can't trust users to not be
-> > evil :)
->
->  It does not execute anything with root rights, but yes, hardcoded
->  paths make sense there (just to avoid complexity and external
->  dependencies on environment).
-
-Even for mount I would like "$PATH:$bindir:/bin" too. If PATH is really 
-a security issue then at least "$bindir:/bin". configure --prefix=xyz 
-should install consistent usable util-linux progs.
-
-cu,
-Rudi
+diff --git a/tests/expected/logger/errors-check_socket b/tests/expected/logger/errors-check_socket
+index fa36c4e..76a877f 100644
+--- a/tests/expected/logger/errors-check_socket
++++ b/tests/expected/logger/errors-check_socket
+@@ -1 +1,19 @@
+ Check written socket data of all subtests.
++socket data, kern_priority:
++<8>Feb 13 23:31:30 prio: message
++socket data, kern_priority_numeric:
++<8>Feb 13 23:31:30 prio: message
++socket data, invalid_prio:
++
++socket data, rfc5424_exceed_size:
++<13>1 2009-02-13T23:31:30.123456+00:00 test-hostname rfc5424_exceed_size - - [timeQuality tzKnown="1" isSynced="0"] abc
++socket data, id_with_space:
++
++socket data, id_with_space:
++
++socket data, tag_with_space:
++<13>Feb 13 23:31:30 A B: tag_with_space
++socket data, tag_with_space:
++<13>1 2009-02-13T23:31:30.123456+00:00 test-hostname A B - - [timeQuality tzKnown="1" isSynced="0"] tag_with_space_rfc5424
++socket data, rfc5424_msgid_with_space:
++
+diff --git a/tests/ts/logger/errors b/tests/ts/logger/errors
+index 8df97c8..e0a02dc 100755
+--- a/tests/ts/logger/errors
++++ b/tests/ts/logger/errors
+@@ -36,8 +36,11 @@ ts_init_socket_to_file $DEVLOG $SOCKIN
+ SOCAT_PID="$!"
+ 
+ function logger_fun {
+-	$TS_HELPER_LOGGER -u $DEVLOG -s --no-act "$@" >> "$TS_OUTPUT" 2>&1
++	# logger without --no-act to write all data to the socket
++	echo "socket data, ${TS_SUBNAME}:" |socat -u - UNIX-CONNECT:$DEVLOG
++	$TS_HELPER_LOGGER -u $DEVLOG --stderr "$@" >> "$TS_OUTPUT" 2>&1
+ 	echo "ret: $?" >> "$TS_OUTPUT"
++	echo |socat -u - UNIX-CONNECT:$DEVLOG
+ }
+ 
+ ts_init_subtest "kern_priority"
+-- 
+1.8.4.5
 
