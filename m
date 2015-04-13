@@ -1,16 +1,16 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:60764 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:54922 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752184AbbDMMB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Apr 2015 08:01:57 -0400
+	id S1751820AbbDMMB6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Apr 2015 08:01:58 -0400
 Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0MHXd2-1YgXfM28Sq-003NZd for
+ with ESMTPSA (Nemesis) id 0LaXmV-1Z5wmi3h8h-00mN5q for
  <util-linux@vger.kernel.org>; Mon, 13 Apr 2015 14:01:56 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH v2 6/7] tests: add subtests for invalid logger devive
-Date: Mon, 13 Apr 2015 14:01:52 +0200
-Message-Id: <1428926513-25449-7-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH v2 4/7] tests: logger, validate written socket data
+Date: Mon, 13 Apr 2015 14:01:50 +0200
+Message-Id: <1428926513-25449-5-git-send-email-sweet_f_a@gmx.de>
 In-Reply-To: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
 References: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
@@ -18,61 +18,93 @@ List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Note --journald should not complain about invalid sockets.
+Actually there should be no data written to the socket because
+we are always using --no-act.
 
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- tests/expected/logger/errors-check_socket   | 2 ++
- tests/expected/logger/errors-invalid_socket | 2 ++
- tests/ts/logger/errors                      | 4 ++++
- tests/ts/logger/journald                    | 2 +-
- 4 files changed, 9 insertions(+), 1 deletion(-)
- create mode 100644 tests/expected/logger/errors-invalid_socket
+ tests/expected/logger/errors-check_socket  | 1 +
+ tests/expected/logger/formats-check_socket | 1 +
+ tests/expected/logger/options-check_socket | 1 +
+ tests/ts/logger/errors                     | 5 +++++
+ tests/ts/logger/formats                    | 5 +++++
+ tests/ts/logger/options                    | 5 +++++
+ 6 files changed, 18 insertions(+)
+ create mode 100644 tests/expected/logger/errors-check_socket
+ create mode 100644 tests/expected/logger/formats-check_socket
+ create mode 100644 tests/expected/logger/options-check_socket
 
 diff --git a/tests/expected/logger/errors-check_socket b/tests/expected/logger/errors-check_socket
-index 76a877f..7367dc0 100644
---- a/tests/expected/logger/errors-check_socket
-+++ b/tests/expected/logger/errors-check_socket
-@@ -17,3 +17,5 @@ socket data, tag_with_space:
- <13>1 2009-02-13T23:31:30.123456+00:00 test-hostname A B - - [timeQuality tzKnown="1" isSynced="0"] tag_with_space_rfc5424
- socket data, rfc5424_msgid_with_space:
- 
-+socket data, invalid_socket:
-+
-diff --git a/tests/expected/logger/errors-invalid_socket b/tests/expected/logger/errors-invalid_socket
 new file mode 100644
-index 0000000..5720afa
+index 0000000..fa36c4e
 --- /dev/null
-+++ b/tests/expected/logger/errors-invalid_socket
-@@ -0,0 +1,2 @@
-+test_logger: socket /bad/boy: No such file or directory
-+ret: 1
++++ b/tests/expected/logger/errors-check_socket
+@@ -0,0 +1 @@
++Check written socket data of all subtests.
+diff --git a/tests/expected/logger/formats-check_socket b/tests/expected/logger/formats-check_socket
+new file mode 100644
+index 0000000..fa36c4e
+--- /dev/null
++++ b/tests/expected/logger/formats-check_socket
+@@ -0,0 +1 @@
++Check written socket data of all subtests.
+diff --git a/tests/expected/logger/options-check_socket b/tests/expected/logger/options-check_socket
+new file mode 100644
+index 0000000..fa36c4e
+--- /dev/null
++++ b/tests/expected/logger/options-check_socket
+@@ -0,0 +1 @@
++Check written socket data of all subtests.
 diff --git a/tests/ts/logger/errors b/tests/ts/logger/errors
-index e0a02dc..0b232ec 100755
+index 2dfb410..8df97c8 100755
 --- a/tests/ts/logger/errors
 +++ b/tests/ts/logger/errors
-@@ -75,6 +75,10 @@ ts_init_subtest "rfc5424_msgid_with_space"
+@@ -72,7 +72,12 @@ ts_init_subtest "rfc5424_msgid_with_space"
  logger_fun -t "rfc5424_msgid_with_space" --rfc5424 --msgid="A B" "message"
  ts_finalize_subtest
  
-+ts_init_subtest "invalid_socket"
-+logger_fun -u /bad/boy -t "invalid_socket" "message"
-+ts_finalize_subtest
-+
- ts_init_subtest "check_socket"
- ts_log "Check written socket data of all subtests."
++ts_init_subtest "check_socket"
++ts_log "Check written socket data of all subtests."
  sleep 1
-diff --git a/tests/ts/logger/journald b/tests/ts/logger/journald
-index 81296f7..c10824c 100755
---- a/tests/ts/logger/journald
-+++ b/tests/ts/logger/journald
-@@ -30,6 +30,6 @@ if ! $TS_HELPER_LOGGER --help | grep -q journald; then
- fi
+ kill $SOCAT_PID
++wait $SOCAT_PID &>/dev/null
++cat "$SOCKIN" >> "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
  
- printf "%s\n%s\n%s\n" MESSAGE_ID=b8f74e14bc714bfc8040a5106dc9376a MESSAGE="a b c 1 2 3" |
--$TS_HELPER_LOGGER --no-act --journald --stderr > "$TS_OUTPUT" 2>&1
-+$TS_HELPER_LOGGER -u /bad/boy --no-act --journald --stderr > "$TS_OUTPUT" 2>&1
- echo "ret: $?" >> "$TS_OUTPUT"
+ ts_finalize
+diff --git a/tests/ts/logger/formats b/tests/ts/logger/formats
+index 203c4d6..5957fea 100755
+--- a/tests/ts/logger/formats
++++ b/tests/ts/logger/formats
+@@ -68,7 +68,12 @@ for facility in auth authpriv cron daemon ftp lpr mail news syslog user uucp loc
+ done
+ ts_finalize_subtest
+ 
++ts_init_subtest "check_socket"
++ts_log "Check written socket data of all subtests."
+ sleep 1
+ kill $SOCAT_PID
++wait $SOCAT_PID &>/dev/null
++cat "$SOCKIN" >> "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
+ 
+ ts_finalize
+diff --git a/tests/ts/logger/options b/tests/ts/logger/options
+index c77c655..afcf5f8 100755
+--- a/tests/ts/logger/options
++++ b/tests/ts/logger/options
+@@ -69,7 +69,12 @@ for i in "${tests_array[@]}"; do
+ 	ts_finalize_subtest
+ done
+ 
++ts_init_subtest "check_socket"
++ts_log "Check written socket data of all subtests."
+ sleep 1
+ kill $SOCAT_PID
++wait $SOCAT_PID &>/dev/null
++cat "$SOCKIN" >> "$TS_OUTPUT" 2>&1
++ts_finalize_subtest
+ 
  ts_finalize
 -- 
 1.8.4.5
