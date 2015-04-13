@@ -1,80 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:52514 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.15]:62552 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751136AbbDAQRv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 1 Apr 2015 12:17:51 -0400
+	id S1753621AbbDMK1t (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 13 Apr 2015 06:27:49 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: question about hardcoded binary paths (swapon / mkswap)
-Date: Wed, 1 Apr 2015 18:17:48 +0200
-References: <201504011342.56546.sweet_f_a@gmx.de> <20150401133842.GA1800@newbook>
-In-Reply-To: <20150401133842.GA1800@newbook>
-Cc: Isaac Dunham <ibid.ag@gmail.com>
+To: Sergey Zolotarev <szx@live.ru>
+Subject: Re: Fix partition order killed my hard drive (twice)
+Date: Mon, 13 Apr 2015 12:27:44 +0200
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+References: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
+In-Reply-To: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201504011817.48428.sweet_f_a@gmx.de>
+  charset="koi8-r"
+Message-Id: <201504131227.45506.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 01 April 2015, Isaac Dunham wrote:
-> On Wed, Apr 01, 2015 at 01:42:56PM +0200, Ruediger Meier wrote:
-> > Hi,
-> >
-> > I wonder about some hardcoded binary paths.
-> >
-> > Example swapon.c:
-> >
-> > #define PATH_MKSWAP    "/sbin/mkswap"
-> >
-> > There are a two problems.
-> > 1. It's wrong. We should use $sbindir from configure.
-> > 2. When called from our test-suite it will use a wrong (or
-> >    non-existend, broken) binary. This happens in test
-> > swapon/fixpgsz.
-> >
-> > The question is how to fix this.
-> >
-> > I would prefer to use "mkwsap" from the same directory like swapon
-> > or to simply execvp "mkswap" from PATH. But don't know if we want
-> > this. If we really want to keep a hardcoded sbindir then we would
-> > need "#ifdef TEST_PROGRAM".
-> >
-> > Any comments?
+On Monday 13 April 2015, Sergey Zolotarev wrote:
+> Hello,
 >
-> The approach that seems obvious to me (assuming you want to keep the
-> hardcoded path) is:
-> -add -DSBINDIR="$sbindir" to CFLAGS
+> Is it possible that fdisk could damage / kill a hard drive after
+> using the "Fix partition order" command?
 
-Yes, this would be easy. But my preferred logic would be like this
+I remember there was such bug in past. Which version are you using?
+$ fdisk -V
 
-If "swapon" was called from PATH then just take mkswap from PATH too.
-If "/whatever/path/swapon" was called then look for mkswap in the same 
-path.
-
-Maybe both cases also with or without fallback $sbindir, /sbin or $PATH.
-
-I guess we should agree how somthing like this should be handeled in 
-general. "eject" is also using hardcoded "/bin/umount". 
-
-> -in the testsuite, run tests in a private mount namespace, where you
-> can bind-mount $sbindir.
+> It seems that that is 
+> exactly what happened to me two times already, with two different
+> hard drives.
 >
-> However, I'm guessing this would have to be done with a union mount,
-> and there are probably problems like what to do if sbindir is
-> non-existent down to / (eg, sbindir=/util-linux/rootcommmands on a
-> standard Linux) -- creating a union mount over / may be a Bad Thing.
+> First time I thought that it was my hard drive's fault as it was
+> pretty old and cheap, So I bought a new not-so-cheap one and was
+> quite happy with until today, when I used that evil command again!
+>
+> Both of HDDs seem unrecoverable. When either is plugged BIOS gets
+> stuck at initial screen (can't even enter setup). Using a USB adapter
+> didn't help either... I'm not an expert in hard drives, but could it
+> be the result of a corrupted / bad sector in the place where the
+> partition table is stored?
 
-Ah interesting, somthing like this would be nice to run all the tests 
-for a real installtion!
-
-Instead of "union mount over /" you could do it over a bind mount of /.
-Then "make install DESTDIR=/mnt/union_mount/" and 
-chroot /mnt/union_mount/ to run the tests there.
-
-But usually I run the tests on virtual machines anyway where a 
-real "make install" is possible. Just our test-suite would need the 
-feature to use the installed binarys only. Should be simple to add.
+First I would try to boot via rescue CD or similar. 
+Then check how the partitiontable looks now (fdisk -l) and try to mout 
+partitions manually. If you are missing partitions or if you just can't 
+mount them then you may try to repair/recover the partition table.  
 
 cu,
 Rudi
