@@ -1,76 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.infotech.no ([82.134.31.41]:42544 "EHLO smtp.infotech.no"
+Received: from mout.gmx.net ([212.227.17.21]:53012 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753102AbbDFPGK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 Apr 2015 11:06:10 -0400
-Message-ID: <5522A0C5.9030804@interlog.com>
-Date: Mon, 06 Apr 2015 11:05:41 -0400
-From: Douglas Gilbert <dgilbert@interlog.com>
-Reply-To: dgilbert@interlog.com
+	id S1757223AbbDPLv3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Apr 2015 07:51:29 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Thomas Bechtold <tbechtold@suse.com>
+Subject: Re: sfdisk input parsing broken with 2.26.1
+Date: Thu, 16 Apr 2015 13:51:22 +0200
+Cc: util-linux@vger.kernel.org
+References: <552F87E5.5010507@suse.com>
+In-Reply-To: <552F87E5.5010507@suse.com>
 MIME-Version: 1.0
-To: SCSI development list <linux-scsi@vger.kernel.org>, jbottomley@odin.com
-CC: util-linux@vger.kernel.org, sweet_f_a@gmx.de
-Subject: [PATCH] scsi_debug: fix prevent_allow+verify regressions
-Content-Type: multipart/mixed;
- boundary="------------060601020804080505090706"
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201504161351.23675.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------060601020804080505090706
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thursday 16 April 2015, Thomas Bechtold wrote:
+> [please CC me - I'm not subscribed to the list]
+>
+> Hi,
+>
+> the following worked fine with 2.20 (tested on Ubuntu):
+>
+> sfdisk $IMAGE_BLOCK_DEVICE << EOF
+> 1 - - *
+> 0 0;
+> 0 0;
+> 0 0;
+> EOF
 
-Ruediger Meier observed a regression with the PREVENT ALLOW
-MEDIUM REMOVAL command in lk 3.19:
-   http://www.spinics.net/lists/util-linux-ng/msg11448.html
 
-Inspection indicated the same regression with VERIFY(10).
+BTW I've noticed that since 2.26 --dump produces incompatible dump 
+files. Shouldn't we have at least backward compatibility, i.e. old 
+dumps still work with new sfdisk?
 
-The patch is against lk 3.19.3 and also works with lk 4.0.0-rc6.
-With this patch both commands are accepted and do nothing.
-VERIFY(10) could be implemented since it shares logic with
-COMPARE AND WRITE which is implemented; however that would
-be an enhancement.
+If you dump the above example with sfdisk 2.23.2 then 2.26 cant't use 
+it.
 
-ChangeLog:
-   - fix the lk 3.19 regression so that the PREVENT ALLOW
-     MEDIUM REMOVAL command is supported once again
-   - same fix for VERIFY(10)
+## Dump with old sfdisk:
 
-Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
+$ sfdisk -d /tmp/image > /tmp/p1
+$ cat /tmp/p1
+# partition table of /tmp/image
+unit: sectors
 
---------------060601020804080505090706
-Content-Type: text/x-patch;
- name="sdebug319regr1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="sdebug319regr1.patch"
+/tmp/image1 : start=    16065, size=209696445, Id=83, bootable
+/tmp/image2 : start=        0, size=        0, Id= 0
+/tmp/image3 : start=        0, size=        0, Id= 0
+/tmp/image4 : start=        0, size=        0, Id= 0
+----------------
 
---- a/drivers/scsi/scsi_debug.c	2015-02-11 17:47:09.276206425 -0500
-+++ b/drivers/scsi/scsi_debug.c	2015-04-03 22:42:36.343971372 -0400
-@@ -455,8 +455,9 @@ static const struct opcode_info_t opcode
- 	     0} },
- 	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* MAINT OUT */
- 	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
--	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* VERIFY */
--	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
-+	{0, 0x2f, 0, F_D_OUT_MAYBE | FF_DIRECT_IO, NULL, NULL, /* VERIFY(10) */
-+	    {10,  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xc7,
-+	     0, 0, 0, 0, 0, 0} },
- 	{1, 0x7f, 0x9, F_SA_HIGH | F_D_IN | FF_DIRECT_IO, resp_read_dt0,
- 	    vl_iarr, {32,  0xc7, 0, 0, 0, 0, 0x1f, 0x18, 0x0, 0x9, 0xfe, 0,
- 		      0xff, 0xff, 0xff, 0xff} },/* VARIABLE LENGTH, READ(32) */
-@@ -467,8 +468,8 @@ static const struct opcode_info_t opcode
- 	    {10,  0x13, 0xff, 0xff, 0, 0, 0, 0xff, 0xff, 0xc7, 0, 0, 0, 0, 0,
- 	     0} },
- /* 20 */
--	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* ALLOW REMOVAL */
--	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
-+	{0, 0x1e, 0, 0, NULL, NULL, /* ALLOW REMOVAL */
-+	    {6,  0, 0, 0, 0x3, 0xc7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
- 	{0, 0x1, 0, 0, resp_start_stop, NULL, /* REWIND ?? */
- 	    {6,  0x1, 0, 0, 0, 0xc7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
- 	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* ATA_PT */
+## Write back with new sfdisk:
 
---------------060601020804080505090706--
+$ ./sfdisk /tmp/image < /tmp/p1
+Checking that no-one is using this disk right now ... OK
+
+Disk /tmp/image: 100 GiB, 107374182400 bytes, 209715200 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Old situation:
+
+Device      Boot Start       End   Sectors  Size Id Type
+/tmp/image1 *    16065 209712509 209696445  100G 83 Linux
+
+>>> Script header accepted.
+>>> Created a new DOS disklabel with disk identifier 0xdf10c8b1.
+Created a new partition 1 of type 'Linux' and of size 100 GiB.
+Start sector 0 out of range.
+Failed to add partition: Numerical result out of range
+/tmp/image2: Leaving.
+-------------
+
+cu,
+Rudi
