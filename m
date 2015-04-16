@@ -1,55 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mta03.eastlink.ca ([24.224.136.9]:58377 "EHLO mta03.eastlink.ca"
+Received: from mx1.redhat.com ([209.132.183.28]:43214 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932507AbbDMN6S (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Apr 2015 09:58:18 -0400
-Received: from cmgw05.eastlink.ca ([71.7.199.171])
- by mta03.eastlink.ca (Oracle Communications Messaging Exchange Server
- 7u4-21.01 64bit (built Feb 16 2011))
- with ESMTP id <0NMQ0071ETI76100@mta03.eastlink.ca> for
- util-linux@vger.kernel.org; Mon, 13 Apr 2015 10:58:16 -0300 (ADT)
-Date: Mon, 13 Apr 2015 10:58:15 -0300
-To: Sergey Zolotarev <szx@live.ru>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: Fix partition order killed my hard drive (twice)
-Message-id: <20150413135815.GC3933@cordes.ca>
-References: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-In-reply-to: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
-From: Peter Cordes <peter@cordes.ca>
+	id S1753502AbbDPLYU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Apr 2015 07:24:20 -0400
+Date: Thu, 16 Apr 2015 13:24:18 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Thomas Bechtold <tbechtold@suse.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: sfdisk input parsing broken with 2.26.1
+Message-ID: <20150416112418.GD6757@ws.net.home>
+References: <552F87E5.5010507@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <552F87E5.5010507@suse.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 13, 2015 at 04:11:05PM +0600, Sergey Zolotarev wrote:
-> Hello,
+On Thu, Apr 16, 2015 at 11:59:01AM +0200, Thomas Bechtold wrote:
+> [please CC me - I'm not subscribed to the list]
 > 
-> Is it possible that fdisk could damage / kill a hard drive after using the "Fix partition order" command?
-> [...]
-> Both of HDDs seem unrecoverable.
+> Hi,
+> 
+> the following worked fine with 2.20 (tested on Ubuntu):
+> 
+> sfdisk $IMAGE_BLOCK_DEVICE << EOF
+> 1 - - *
+> 0 0;
+> 0 0;
+> 0 0;
+> EOF
 
- It's probably not the drive that's bad, it's just that your BIOS
-won't boot when it's attached.  So boot without, THEN connect it via a
-USB adapter.  Or via SATA.  (SATA is electrically safe to hotplug,
-thanks to having the ground pins longer than any others, and Linux
-handles it just as well as USB.  I never reboot to swap hard drives.
-I only reboot to check that my system still boots if I've done
-anything that might put that in doubt :P)
+I have doubts that '-' is documented somewhere, but you're right that
+this feature is supported by the old version. I'll fix the problem in
+v2.26.2.
 
- Or set your BIOS to not even look at USB devices while booting.
+If the goal is to set bootable flag then you can use
 
-> could it be the result of a corrupted / bad sector in the place where the partition table is stored?
+ echo ",,,*' | sfdisk -N1 $IMAGE_BLOCK_DEVICE
 
- A badly-written BIOS could certainly have it's boot-sector detection
-code get stuck in an infinite loop with unexpected inputs.  There's no
-reason to believe the data read from the sector is anything other than
-what fdisk wrote to it.  You can check with smartctl -a /dev/sdX once
-you get it connected to a booted-up computer.
+or 
+ 
+ sfdisk --activate ...
+
+
+Note that there was another problem with boot flag if you resize
+partition (commit 4d156d92eb538f9dbc077a2dd181a48d8fdc65cd), will be
+also in 2.26.2.
+
+
+    Karel
 
 -- 
-#define X(x,y) x##y
-Peter Cordes ;  e-mail: X(peter@cor , des.ca)
-
-"The gods confound the man who first found out how to distinguish the hours!
- Confound him, too, who in this place set up a sundial, to cut and hack
- my day so wretchedly into small pieces!" -- Plautus, 200 BC
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
