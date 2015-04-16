@@ -1,67 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx4-phx2.redhat.com ([209.132.183.25]:34026 "EHLO
-	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753424AbbDXNVf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Apr 2015 09:21:35 -0400
-Date: Fri, 24 Apr 2015 09:21:33 -0400 (EDT)
-From: Federico Simoncelli <fsimonce@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Message-ID: <817604936.6367490.1429881692238.JavaMail.zimbra@redhat.com>
-In-Reply-To: <201504221943.06644.sweet_f_a@gmx.de>
-References: <201504221943.06644.sweet_f_a@gmx.de>
-Subject: Re: blkdiscard progress breakes test
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51755 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753602AbbDPHt3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 16 Apr 2015 03:49:29 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id E9A2820976
+	for <util-linux@vger.kernel.org>; Thu, 16 Apr 2015 03:49:28 -0400 (EDT)
+Message-Id: <1429170568.810691.254479493.7B9E1224@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
+Subject: Re: [PATCH v2] hwclock: fix spelling,
+ punctuation and formatting mistakes in the man page
+Date: Thu, 16 Apr 2015 09:49:28 +0200
+In-Reply-To: <1428481363-2885-1-git-send-email-bensberg@justemail.net>
+References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
+ <1428481363-2885-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------ Original Message -----
-> From: "Ruediger Meier" <sweet_f_a@gmx.de>
-> To: util-linux@vger.kernel.org
-> Cc: "Federico Simoncelli" <fsimonce@redhat.com>
-> Sent: Wednesday, April 22, 2015 7:43:06 PM
-> Subject: blkdiscard progress breakes test
-> 
-> Hi,
-> 
-> Commit c472a7e3 introduced progress messages. This randomly
-> breaks the test-suite like this:
-> 
-> 
->    blkdiscard: offsets                        ... FAILED (blkdiscard/offsets)
-> ....
-> ---
-> /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/expected/blkdiscard/offsets
-> 2014-10-28 06:53:35.483698330 +0000
-> +++
-> /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/output/blkdiscard/offsets
-> 2015-04-22 15:41:45.748155291 +0000
-> @@ -21,7 +21,8 @@
->  blkdiscard: offset 1 is not aligned to sector size 512
->  blkdiscard: offset 1 is not aligned to sector size 512
->  blkdiscard: offset 511 is not aligned to sector size 512
-> -Discarded 1536 bytes from the offset 512
-> +Discarded 1024 bytes from the offset 512
-> +Discarded 512 bytes from the offset 1536
->  Discarded 1024 bytes from the offset 1024
->  testing misaligned steps full device
->  blkdiscard: length 1 is not aligned to sector size 512
-> 
-> 
-> It's because we ignore timeval's tv_usec here:
->   if (last.tv_sec < now.tv_sec) {
->       print_stats(path, stats);
-> 
-> We could make it better if we also compare tv_usec but IMO it would be fine
 
-+1 to fix it (rather easy).
+On Wed, Apr 8, 2015, at 10:22, Benno Schulenberg wrote:
+>  sys-utils/hwclock.8.in |   78 +++++++++++++++++++++++------------------------
+>  1 files changed, 38 insertions(+), 40 deletions(-)
 
-> to print the stats only one time at the end. Maybe
->  -v   prints stats one time only
->  -vv  report progress
+Ping?
 
-But then -vv needs to be tested anyway.
 
 -- 
-Federico
+http://www.fastmail.com - mmm... Fastmail...
+
