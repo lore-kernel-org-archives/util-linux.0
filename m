@@ -1,157 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42871 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750768AbbD3Ks3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 30 Apr 2015 06:48:29 -0400
-Date: Thu, 30 Apr 2015 12:48:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.26.2
-Message-ID: <20150430104827.GA27969@ws.net.home>
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:36846 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754108AbbDTH21 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Apr 2015 03:28:27 -0400
+Received: by wizk4 with SMTP id k4so87449658wiz.1
+        for <util-linux@vger.kernel.org>; Mon, 20 Apr 2015 00:28:26 -0700 (PDT)
+Date: Mon, 20 Apr 2015 09:28:24 +0200
+From: Alexey Galakhov <agalakhov@gmail.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
+Message-ID: <20150420092824.13611c6b@aga-ws-01>
+In-Reply-To: <5534498B.4080803@gmx.com>
+References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
+	<5534498B.4080803@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello William,
 
-The util-linux release v2.26.2 is available at
- 
-   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26/
-    
-Feedback and bug reports, as always, are welcomed.
-     
-      Karel
+Am Sun, 19 Apr 2015 20:34:19 -0400
+schrieb J William Piggott <elseifthen@gmx.com>:
 
+>  I've been advocating for the removal of the compare function. One of
+> my justifications for doing so is that it has been broken from day
+> one and therefore nobody can be using for anything.
+> 
+>  So could you tell me how you are using it, and what useful purpose
+> it is serving for you?
 
+We use it in an automated test of the Linux system time on an embedded
+system. Recently we fixed a kernel bug introduced by one of the 3rd
+party patches that caused a huge (0.01%-0.1%) drift of the
+CLOCK_REALTIME due to incorrect PLL initialization. The corresponding
+test based on hwclock's compare is now added to our automated test
+system. The test runs hwclock -c forever and fails if any drift
+anomality is discovered.
 
-util-linux 2.26.2 Release Notes
-===============================
+Looks like hwclock -c works correctly at least in our case. I think it
+could be rewritten using clock_gettime() instead of gettimeofday().
 
-blockdev:
-   - fix whole-disk start sector usage  [Karel Zak]
-build-sys:
-   - add new compiler warnings  [Karel Zak]
-   - define cfdisk dependence on open_memstream  [Karel Zak]
-   - ncurses is optional, don't fail when missing  [Karel Zak]
-   - python is optional, don't fail when missing  [Karel Zak]
-dmesg:
-   - fix shadow declaration  [Sami Kerola]
-docs:
-   - update AUTHORS file  [Karel Zak]
-fdisk, sfdisk:
-   - fix -o <list> backend  [Karel Zak]
-fsck:
-   - fix fsck -C {fd} parsing  [Stanislav Brabec]
-hwclock:
-   - Remove TZUTC  [J William Piggott]
-   - flush stdout in hwclock -c  [Alexey Galakhov]
-   - regression fix  [J William Piggott]
-last:
-   - fix first (current) runlevel line  [Ruediger Meier]
-lib/strutils:
-   - fix string_add_to_idarray() int vs. size_t  [Karel Zak]
-lib/sysfs.c:
-   - use fcntl(..F_DUPFD_CLOEXEC) instead of dup(2)  [Cristian Rodríguez]
-libblkid:
-   - fix compiler warnings  [Sami Kerola]
-libfdisk:
-   - (dos)  retain existing boot flag when resizing a partition  [Karel Zak, awilliam@redhat.co]
-   - (gpt) add extra check for First/Last LBA  [Karel Zak]
-   - (gpt) check header size before verify CRC  [Karel Zak]
-   - (gpt) fix LE usage  [Karel Zak]
-   - (gpt) fix end sector calculation on resize  [Karel Zak]
-   - add fdisk_table_get_partition_by_partno()  [Karel Zak]
-   - add warning to resize function  [Karel Zak]
-   - allow to move start to first usable LBA  [Karel Zak]
-   - don't resize in label drivers  [Karel Zak]
-   - don't return empty strings from fdisk_partition_to_string()  [Karel Zak]
-   - fix script parser to support resize operations  [Karel Zak]
-   - fix scriptk parser to support alone signs  [Karel Zak]
-   - fix symbols versioning script  [Karel Zak]
-   - recognize FAT32 partitions hidden by Acronis software  [Jörg Jenderek]
-   - support bootbits protection from (p)MBR  [Karel Zak]
-   - support resize operation in fdisk_set_partition()  [Karel Zak]
-libmount:
-   - add note about flock() to docs  [Karel Zak]
-   - add support for MS_LAZYTIME  [Karel Zak]
-logger:
-   - --stderr and --no-act turn "auto-errors" on  [Ruediger Meier]
-   - Fix use of errno after strtol() without zeroing first  [Stef Walter]
-   - add --no-act for testing  [Karel Zak]
-   - add -DTEST_LOGGER  [Karel Zak]
-   - check xgethostname() return value  [Sami Kerola]
-   - fix LOGGER_TEST_TIMEOFDAY check  [Karel Zak]
-   - fix memory leaks  [Sami Kerola]
-   - fix rfc5424 format crash  [Karel Zak]
-   - generate header when reading message from stdin  [Patrick Plagwitz]
-   - tidy few indentation issues  [Sami Kerola]
-   - use errx() when checking user input  [Sami Kerola]
-lsblk:
-   - add debug support  [Karel Zak]
-   - don't ignore dependences for partitioned devies  [Karel Zak]
-   - follow kernel for inverse tree  [Karel Zak]
-mount:
-   - don't remount read-only on --bind  [Karel Zak]
-   - fix lazytime docs  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update da.po (from translationproject.org)  [Joe Hansen]
-   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
-setarch:
-   - fix regression for sparc builds  [Waldemar Brodkorb]
-sfdisk:
-   - accept empty partitions from dump  [Karel Zak]
-   - don't use BLKRRPART to check loopdev usage  [Karel Zak]
-   - enable bootbits protection  [Karel Zak]
-   - fix -a vs. -A bug  [Karel Zak]
-   - improve -N warnings  [Karel Zak]
-tests:
-   - add --skip-loopdevs  [Karel Zak]
-   - add logger(1) command line options tests  [Sami Kerola]
-   - add logger(1) error condition tests  [Sami Kerola]
-   - add logger(1) journald test  [Sami Kerola]
-   - add logger(1) message format tests  [Sami Kerola]
-   - add old dump for sfdisk  [Karel Zak]
-   - add sfdisk resize regression tests for MBR  [Karel Zak]
-   - add sfdisk resize tests  [Karel Zak]
-   - add sfdisk resize tests for GPT  [Karel Zak]
-   - add subtests for invalid logger devive  [Ruediger Meier]
-   - avoid &>> for bash compatibility  [Ruediger Meier]
-   - config.h lives in build directory  [Ruediger Meier]
-   - fix cramfs/mkfs for BE and different pagesizes  [Ruediger Meier]
-   - fix getopt for old glibc  [Ruediger Meier]
-   - fix logger device pathname too long  [Ruediger Meier]
-   - fix sfdisk GPT test  [Karel Zak]
-   - fix, don't call ts_die from subshell  [Ruediger Meier]
-   - introduce TS_LOOP_DEVS for cleanup  [Ruediger Meier]
-   - introduce ts_cleanup_on_exit()  [Ruediger Meier]
-   - logger with socat device  [Ruediger Meier]
-   - logger, validate written socket data  [Ruediger Meier]
-   - logger/errors does not use --no-act  [Ruediger Meier]
-   - loop tests, don't call ts_die() with DEVICE parameter  [Ruediger Meier]
-   - make libmount context tests sensitive to USE_LIBMOUNT_FORCE_MOUNTINFO  [Karel Zak]
-   - make libmount python context tests sensitive to USE_LIBMOUNT_FORCE_MOUNTINFO  [Karel Zak]
-   - more(1) depends on terminal, force to TERM=linux  [Karel Zak]
-   - mount/rlimit tries to restore mtab  [Ruediger Meier]
-   - never use -o pipefail  [Ruediger Meier]
-   - optionally skip tests where loop support is needed  [Ruediger Meier]
-   - require wipefs for sfdisk/gpt  [Karel Zak]
-   - scsi_debug tests, don't call ts_die() with DEVICE parameter  [Ruediger Meier]
-   - simplify common logger options  [Ruediger Meier]
-   - start script/race test only when --force specified  [Karel Zak]
-   - ts_scsi_debug_init() sleeps a bit earlier  [Ruediger Meier]
-   - use --no-act for logger tests  [Karel Zak]
-   - use ts_skip for logger/journald  [Karel Zak]
-   - verify logger return value  [Ruediger Meier]
-travis:
-   - add MAKE_CHECK_OPTS  [Karel Zak]
-   - install socat >= 1.7.2  [Ruediger Meier]
-   - move install script to .travis-functions.sh  [Ruediger Meier]
-   - whitelist travis* branches  [Ruediger Meier]
-whereis:
-   - trivial spelling and grammar fix  [Mike Place]
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Regards,
+Alexey
