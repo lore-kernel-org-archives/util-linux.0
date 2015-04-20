@@ -1,51 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:52447 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:55814 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753220AbbDVRnT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 22 Apr 2015 13:43:19 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: blkdiscard progress breakes test
-Date: Wed, 22 Apr 2015 19:43:06 +0200
-Cc: Federico Simoncelli <fsimonce@redhat.com>
+	id S1750939AbbDTAeY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 19 Apr 2015 20:34:24 -0400
+Message-ID: <5534498B.4080803@gmx.com>
+Date: Sun, 19 Apr 2015 20:34:19 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201504221943.06644.sweet_f_a@gmx.de>
+To: Alexey Galakhov <agalakhov@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
+References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
+In-Reply-To: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-Commit c472a7e3 introduced progress messages. This randomly
-breaks the test-suite like this:
+Hello Alexey,
 
+ I've been advocating for the removal of the compare function. One of my
+ justifications for doing so is that it has been broken from day one and
+ therefore nobody can be using for anything.
 
-   blkdiscard: offsets                        ... FAILED (blkdiscard/offsets)
-....
---- /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/expected/blkdiscard/offsets   2014-10-28 06:53:35.483698330 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/output/blkdiscard/offsets     2015-04-22 15:41:45.748155291 +0000
-@@ -21,7 +21,8 @@
- blkdiscard: offset 1 is not aligned to sector size 512
- blkdiscard: offset 1 is not aligned to sector size 512
- blkdiscard: offset 511 is not aligned to sector size 512
--Discarded 1536 bytes from the offset 512
-+Discarded 1024 bytes from the offset 512
-+Discarded 512 bytes from the offset 1536
- Discarded 1024 bytes from the offset 1024
- testing misaligned steps full device
- blkdiscard: length 1 is not aligned to sector size 512
+ So could you tell me how you are using it, and what useful purpose it is
+ serving for you?
 
+Thanks
+ William
 
-It's because we ignore timeval's tv_usec here:
-  if (last.tv_sec < now.tv_sec) {
-      print_stats(path, stats);
-
-We could make it better if we also compare tv_usec but IMO it would be fine
-to print the stats only one time at the end. Maybe
- -v   prints stats one time only
- -vv  report progress
-
-
-cu,
-Rudi
+On 04/16/2015 11:26 AM, Alexey Galakhov wrote:
+> This allows using hwclock -c in automated test scripts that parse
+> its output line-by-line. The standard output is flushed before
+> each 10 second delay.
+> 
+> Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
+> ---
+>  sys-utils/hwclock.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index e1e5816..4cdb2ea 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1532,6 +1532,7 @@ static int compare_clock (const bool utc, const bool local_opt)
+>  			printf("hw-time      system-time         freq-offset-ppm   tick\n");
+>  			printf("%10.0f   %10.6f\n", (double) time1_hw, time1_sys);
+>  		}
+> +		fflush(stdout);
+>  		sleep(10);
+>  	}
+>  
+> 
