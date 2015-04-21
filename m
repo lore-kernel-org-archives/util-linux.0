@@ -1,71 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41033 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:63554 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751534AbbDCIwM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 3 Apr 2015 04:52:12 -0400
-Date: Fri, 3 Apr 2015 10:52:03 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org,
-        Isaac Dunham <ibid.ag@gmail.com>
-Subject: Re: question about hardcoded binary paths (swapon / mkswap)
-Message-ID: <20150403085203.GA3923@ws.net.home>
-References: <201504011342.56546.sweet_f_a@gmx.de>
- <201504011817.48428.sweet_f_a@gmx.de>
- <20150401201051.GP25224@vapier>
- <201504012306.52737.sweet_f_a@gmx.de>
- <20150401213800.GB2097@ws.net.home>
- <20150402011230.GA22171@vapier>
- <20150402082000.GC2097@ws.net.home>
- <20150402161952.GB22171@vapier>
- <20150402191530.GG2097@ws.net.home>
- <20150403011522.GH22171@vapier>
+	id S1750960AbbDUKeb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 21 Apr 2015 06:34:31 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0LaooK-1ZDDTw3Y9A-00kLGe for
+ <util-linux@vger.kernel.org>; Tue, 21 Apr 2015 12:34:28 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: sfdisk, latest fixes break ppc64
+Date: Tue, 21 Apr 2015 12:34:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150403011522.GH22171@vapier>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201504211234.27649.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 02, 2015 at 09:15:22PM -0400, Mike Frysinger wrote:
-> On 02 Apr 2015 21:15, Karel Zak wrote:
-> > On Thu, Apr 02, 2015 at 12:19:52PM -0400, Mike Frysinger wrote:
-> > > On 02 Apr 2015 10:20, Karel Zak wrote:
-> > > > If I good remember then the reason is that the helpers does not have
-> > > > to be installed in standard PATH. Well, you're author of this thing
-> > > > :-)
-> > > 
-> > > i wrote the code to make it a configure option, but the actual behavior predates 
-> > > me.  i'm interested more in the behavior, not the exact configure option.
-> > 
-> >  So, the basis question is if we really need to support non-standard
-> >  paths for the helpers. IMHO it's unnecessary legacy and I don't see a
-> >  problem to drop this feature and require $PATH, and for critical
-> >  things like fsck fallback to /sbin if $PATH is undefined.
-> 
-> the reason for adding that configure option was to support packages that install 
-> both into /bin and /usr/bin.  i understand some distros will override those 
+Hi,
 
-I have talked about crazy things like /sbin/fs.d or /sbin/fs. The standard
-paths like [/usr]/bin, [/usr]/sbin are not problem.
+the latest sfdisk fixes 2928068a..a53e37f9 seem to break ppc64
 
-> settings of upstream packages, but Gentoo has opted not to since there's no 
-> reason at all to force them all into /sbin (and even existing tools in /sbin are 
-> pretty pointless).  although it mattered more when the code was only searching 
-> that list and not $PATH at all.
-> 
-> my preference would be just to do execvp() and be done so we can stop these 
-> distro bikesheddings (/bin & /usr-merge and such).
+test sfdisk/gpt:
+[  431s]                 : read-dump                   .../home/abuild/rpmbuild/BUILD/util-linux-2.26.git227.2cb28/tests/ts/sfdisk/gpt: line 96: 15657 Aborted                 
+$TS_CMD_SFDISK --list -o START,END,SIZE,UUID,TYPE,NAME ${TS_DEVICE} >> $TS_OUTPUT 2>&1
+[  431s]                 : write-dump                  ... FAILED (sfdisk/gpt-write-dump)
+....
+[  438s] --- /home/abuild/rpmbuild/BUILD/util-linux-2.26.git227.2cb28/tests/expected/sfdisk/gpt-read-dump       2015-04-21 09:37:08.855755828 +0000
+[  438s] +++ /home/abuild/rpmbuild/BUILD/util-linux-2.26.git227.2cb28/tests/output/sfdisk/gpt-read-dump 2015-04-21 10:02:53.610000012 +0000
+[  438s] @@ -25,15 +25,4 @@
+[  438s]  The partition table has been altered.
+[  438s]  Calling ioctl() to re-read partition table.
+[  438s]  Syncing disks.
+[  438s] -Disk <removed>: 50 MiB, 52428800 bytes, 102400 sectors
+[  438s] -Units: sectors of 1 * 512 = 512 bytes
+[  438s] -Sector size (logical/physical): 512 bytes / 4096 bytes
+[  438s] -I/O size (minimum/optimal): 4096 bytes / 32768 bytes
+[  438s] -Disklabel type: gpt
+[  438s] -Disk identifier: <removed>
+[  438s] -
+[  438s] -Start    End Size UUID                                 Type             Name
+[  438s] - 2048   8191   3M 4DD6948A-44F8-4E6C-8BDC-064F740704F8 Linux root (x86)
+[  438s] - 8192  14335   3M 44B51DEF-5F04-465A-91AA-2889A62D8E49 Linux filesystem
+[  438s] -14336  20479   3M 643E1D0D-BC02-4CED-B83B-86121062858F Linux filesystem
+[  438s] -20480 102399  40M D2A29B0A-FDEE-40C3-9BAE-B9FA782C986C Linux filesystem GPT is the best
+[  438s] +sfdisk: libfdisk/src/label.c:175: fdisk_label_get_field: Assertion `id > 0' failed.
+[  438s] --- /home/abuild/rpmbuild/BUILD/util-linux-2.26.git227.2cb28/tests/expected/sfdisk/gpt-write-dump      2015-04-21 09:37:08.869755975 +0000
+[  438s] +++ /home/abuild/rpmbuild/BUILD/util-linux-2.26.git227.2cb28/tests/output/sfdisk/gpt-write-dump        2015-04-21 10:02:53.680000012 +0000
+[  438s] @@ -2,8 +2,8 @@
+[  438s]  label-id: 3B8559DB-33AF-43E9-BEFC-C331D829B539
+[  438s]  device: <removed>
+[  438s]  unit: sectors
+[  438s] -first-lba: 2048
+[  438s] -last-lba: 102366
+[  438s] +first-lba: 2251799813685248
+[  438s] +last-lba: 16037037897601253376
+[  438s]
+[  438s]  <removed>1 : start=        2048, size=        6144, type=44479540-F297-41B2-9AF7-D131D5F0458A, uuid=4DD6948A-44F8-4E6C-8BDC-064F740704F8
+[  438s]  <removed>2 : start=        8192, size=        6144, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=44B51DEF-5F04-465A-91AA-2889A62D8E49
+[  438s] + sudo -E ./mount
+[  438s] + sudo -E cat /proc/mounts
+[  438s] + sudo -E cat /etc/mtab
+[  438s] + sudo -E ./losetup --all
+[  438s] + md5sum /tmp/mount2_mount /tmp/mount2_proc /tmp/mount2_etc
+[  438s] e692b5dd6e7daa7ac1fc6e43d2d8d7b0  /tmp/mount2_mount
+[  438s] 5ea7870d46476a3d72a8ee2c26a50842  /tmp/mount2_proc
+[  438s] b6abaf8ac1486439f8418d2b2c8c7c5c  /tmp/mount2_etc
+[  438s] + diff -u /tmp/mount1_mount /tmp/mount2_mount
+[  438s] + diff -u /tmp/mount1_etc /tmp/mount2_etc
+[  438s] + diff -u /tmp/mount1_proc /tmp/mount2_proc
+[  438s] + diff -u /tmp/losetup1 /tmp/losetup2
+[  438s] + exit 1
+[  438s] error: Bad exit status from /var/tmp/rpm-tmp.M8JOAg (%check)
+[  438s]
+[  438s]
+[  438s] RPM build errors:
+[  438s]     Bad exit status from /var/tmp/rpm-tmp.M8JOAg (%check)
+[  438s] ### WATCHDOG MARKER START ###
+[  440s] reboot: Power down
+[  440s] ### WATCHDOG MARKER END ###
 
-Yes, I thought about it too... just move the problem with PATH to libc ;-)
 
-For example mkfs already uses execvp(), I guess we can do the same in
-fsck. For mount(8) it would be better to follow the current behaviour, 
-but remove nonsenses from FS_SEARCH_PATH (and rename to LIBMOUNT_HELPERS_PATH).
-
-Volunteers? ;-)
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
