@@ -1,49 +1,155 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:62552 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:59891 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753621AbbDMK1t (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Apr 2015 06:27:49 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Sergey Zolotarev <szx@live.ru>
-Subject: Re: Fix partition order killed my hard drive (twice)
-Date: Mon, 13 Apr 2015 12:27:44 +0200
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-References: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
-In-Reply-To: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
+	id S1752917AbbDUCuT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Apr 2015 22:50:19 -0400
+Message-ID: <5535BADC.1020700@gmx.com>
+Date: Mon, 20 Apr 2015 22:50:04 -0400
+From: J William Piggott <elseifthen@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Message-Id: <201504131227.45506.sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+CC: Andreas Henriksson <andreas@fatal.se>, util-linux@vger.kernel.org,
+        Serge Schneider <serge@raspberrypi.org>
+Subject: Re: hwclock's synchronize_to_clock_tick_rtc returns inconsistent
+ values
+References: <20150416203604.GA6523@fatal.se> <55344548.6050102@gmx.com> <20150420122132.GB27969@ws.net.home>
+In-Reply-To: <20150420122132.GB27969@ws.net.home>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 13 April 2015, Sergey Zolotarev wrote:
-> Hello,
->
-> Is it possible that fdisk could damage / kill a hard drive after
-> using the "Fix partition order" command?
 
-I remember there was such bug in past. Which version are you using?
-$ fdisk -V
 
-> It seems that that is 
-> exactly what happened to me two times already, with two different
-> hard drives.
->
-> First time I thought that it was my hard drive's fault as it was
-> pretty old and cheap, So I bought a new not-so-cheap one and was
-> quite happy with until today, when I used that evil command again!
->
-> Both of HDDs seem unrecoverable. When either is plugged BIOS gets
-> stuck at initial screen (can't even enter setup). Using a USB adapter
-> didn't help either... I'm not an expert in hard drives, but could it
-> be the result of a corrupted / bad sector in the place where the
-> partition table is stored?
+On 04/20/2015 08:21 AM, Karel Zak wrote:
+> On Sun, Apr 19, 2015 at 08:16:08PM -0400, J William Piggott wrote:
+>>>                         rc = select(rtc_fd + 1, &rfds, NULL, NULL, &tv);
+>>>                         ret = 1;
+>>>                         if (rc == -1)
+>>>                                 warn(_("select() to %s to wait for clock tick
+>>> failed"),
+>>>                                      rtc_dev_name);
+>>>                         else if (rc == 0 && debug)
+>>>                                 printf(_("select() to %s to wait for clock
+>>> tick timed out"),
+>>>                                      rtc_dev_name);
+>>>                         else
+>>>                                 ret = 0;
+>>>
+>>
+>> Karel,
+>>
+>> The select time out still needs to return 1, so the debug test should
+>> have been a separate statement.
+> 
+> Yes, the debug (-D) should bot affect how this code works, but it
+> seems that hwclock.c:manipulate_clock() assumes return 2 after 
+> time out and we already use "2" in busy wait version of the
+> synchronization. 
+> 
 
-First I would try to boot via rescue CD or similar. 
-Then check how the partitiontable looks now (fdisk -l) and try to mout 
-partitions manually. If you are missing partitions or if you just can't 
-mount them then you may try to repair/recover the partition table.  
+Returning 2 will not fix this bug. When select times out, we need to
+error out on everything except set functions (even that exception has
+issues, because we need to also inhibit updating the drift factor then.
+Nobody has complained about that so it is not a priority to fix. I will
+look at it when refactoring).
 
-cu,
-Rudi
+hwclock.c:1326 should not be testing for "rc != 2", but that is for
+Alpha so I am concerned about changing it now either.
+
+Previous to the commit that caused this regression, the behavior was to
+return 1, that was correct.
+
+Removing the 'dead' code should be a separate commit from this
+regression fix, IMHO.
+
+I do not think two message strings justify using a switch, it is
+inconsistent with the style of the rest of the code. I would just
+separate the debug test for now:
+
+diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
+index 78f42aa..b5ecc5a 100644
+--- a/sys-utils/hwclock-rtc.c
++++ b/sys-utils/hwclock-rtc.c
+@@ -313,10 +313,11 @@ static int synchronize_to_clock_tick_rtc(void)
+                        if (rc == -1)
+                                warn(_("select() to %s to wait for clock tick failed"),
+                                     rtc_dev_name);
+-                       else if (rc == 0 && debug)
+-                               printf(_("select() to %s to wait for clock tick timed out"),
+-                                    rtc_dev_name);
+-                       else
++                       else if (rc == 0) {
++                               if (debug)
++                                       printf(_("select() to %s to wait for clock tick timed out"),
++                                              rtc_dev_name);
++                       } else
+                                ret = 0;
+ #endif
+ 
+
+
+I did some basic hwclock testing with the above patch, but I didn't come
+up with a quick way to force the select time out to test this specific
+change.
+
+
+>> I don't have time to patch and test this right now, but I can do it
+>> later if you want?
+> 
+> See the patch below (note that patch also remove never used #ifdef
+> dead code).
+> 
+> 
+> diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
+> index 78f42aa..3173591 100644
+> --- a/sys-utils/hwclock-rtc.c
+> +++ b/sys-utils/hwclock-rtc.c
+> @@ -280,18 +280,6 @@ static int synchronize_to_clock_tick_rtc(void)
+>  				       rtc_dev_name);
+>  			ret = busywait_for_rtc_clock_tick(rtc_fd);
+>  		} else if (rc == 0) {
+> -#ifdef Wait_until_update_interrupt
+> -			unsigned long dummy;
+> -
+> -			/* this blocks until the next update interrupt */
+> -			rc = read(rtc_fd, &dummy, sizeof(dummy));
+> -			ret = 1;
+> -			if (rc == -1)
+> -				warn(_("read() to %s to wait for clock tick failed"),
+> -				     rtc_dev_name);
+> -			else
+> -				ret = 0;
+> -#else
+>  			/*
+>  			 * Just reading rtc_fd fails on broken hardware: no
+>  			 * update interrupt comes and a bootscript with a
+> @@ -310,15 +298,22 @@ static int synchronize_to_clock_tick_rtc(void)
+>  			tv.tv_usec = 0;
+>  			rc = select(rtc_fd + 1, &rfds, NULL, NULL, &tv);
+>  			ret = 1;
+> -			if (rc == -1)
+> +
+> +			switch (rc) {
+> +			case -1: /* error */
+>  				warn(_("select() to %s to wait for clock tick failed"),
+>  				     rtc_dev_name);
+> -			else if (rc == 0 && debug)
+> -				printf(_("select() to %s to wait for clock tick timed out"),
+> -				     rtc_dev_name);
+> -			else
+> +				break;
+> +			case 0: /* timeout */
+> +				if (debug)
+> +					printf(_("select() to %s to wait for clock tick timed out"),
+> +					     rtc_dev_name);
+> +				ret = 2;
+> +				break;
+> +			default: /* success */
+>  				ret = 0;
+> -#endif
+> +				break;
+> +			}
+>  
+>  			/* Turn off update interrupts */
+>  			rc = ioctl(rtc_fd, RTC_UIE_OFF, 0);
+> 
