@@ -1,31 +1,42 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.13]:63193 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753739AbbD1GvI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Apr 2015 02:51:08 -0400
-Message-ID: <553F2DD2.1070400@bernhard-voelker.de>
-Date: Tue, 28 Apr 2015 08:50:58 +0200
-From: Bernhard Voelker <mail@bernhard-voelker.de>
+Return-Path: ah@fatal.se
+Date: Wed, 22 Apr 2015 20:07:03 +0200
+From: Andreas Henriksson <andreas@fatal.se>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Serge Schneider <serge@raspberrypi.org>
+Subject: Re: hwclock's synchronize_to_clock_tick_rtc returns inconsistent
+ values
+Message-ID: <20150422180703.GA26733@fatal.se>
+References: <20150416203604.GA6523@fatal.se>
+ <55344548.6050102@gmx.com>
+ <20150420122132.GB27969@ws.net.home>
+ <5535BADC.1020700@gmx.com>
+ <553704DC.70400@gmx.com>
+ <20150422074648.GD27969@ws.net.home>
+ <5537D03B.3010700@gmx.com>
 MIME-Version: 1.0
-To: Alexey Galakhov <agalakhov@gmail.com>,
-        J William Piggott <elseifthen@gmx.com>
-CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
-References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>	<20150427082729.GK27969@ws.net.home>	<553EA9AB.1000608@gmx.com> <20150427234218.587e5435.agalakhov@gmail.com>
-In-Reply-To: <20150427234218.587e5435.agalakhov@gmail.com>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5537D03B.3010700@gmx.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/27/2015 11:42 PM, Alexey Galakhov wrote:
-> $ hwclock -c | cat
+Hello!
 
-You can change the behavior of the buffer:  ;-)
+On Wed, Apr 22, 2015 at 12:45:47PM -0400, J William Piggott wrote:
+> I forgot to give Reported-by credit to:
+>  Andreas Henriksson <andreas@fatal.se>
+>  Serge Schneider <serge@raspberrypi.org>
+> 
+> In commit efc4eaf4229f78f14430d8739ddef2c5101f05cc
+> 
+> My apologies to you, Andreas, and Serge for forgetting.
 
-  $ stdbuf -oL  hwclock -c | cat
+No problem! Doesn't matter to me. Thanks to Serge
+for originally reporting the issue to me (Debian).
 
-OTOH, I don't see a problem with just one another fflush()
-every few seconds.
+> 
+> Thank you both for reporting it.
 
-Have a nice day,
-Berny
+Thank you for making sure it got fixed!
+
+Regards,
+Andreas Henriksson
