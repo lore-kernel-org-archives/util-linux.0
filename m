@@ -1,35 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40980 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752696AbbD0I1e (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Apr 2015 04:27:34 -0400
-Date: Mon, 27 Apr 2015 10:27:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Alexey Galakhov <agalakhov@gmail.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: sfdisk, latest fixes break ppc64
+Date: Wed, 22 Apr 2015 12:42:18 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
-Message-ID: <20150427082729.GK27969@ws.net.home>
-References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
+References: <201504211234.27649.sweet_f_a@gmx.de> <20150422101333.GE27969@ws.net.home>
+In-Reply-To: <20150422101333.GE27969@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201504221242.18521.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 16, 2015 at 05:26:27PM +0200, Alexey Galakhov wrote:
-> This allows using hwclock -c in automated test scripts that parse
-> its output line-by-line. The standard output is flushed before
-> each 10 second delay.
-> 
-> Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
-> ---
->  sys-utils/hwclock.c | 1 +
->  1 file changed, 1 insertion(+)
+On Wednesday 22 April 2015, Karel Zak wrote:
+> On Tue, Apr 21, 2015 at 12:34:26PM +0200, Ruediger Meier wrote:
+> > the latest sfdisk fixes 2928068a..a53e37f9 seem to break ppc64
+>
+> The latest changes in sfdisk only shows stupid LE/BE bugs we have in
+> GPT code. The problem should be fixed now.
 
- Applied, thanks. We will see shat happen in future...
+Thanks!
 
-    Karel
+> It seems I have to compile and tests on Big Endian (ppc and s390)
+> more often, because we have no enough users who test it.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Hehe I've set up the next build farm already (no auto push yet):
+https://build.opensuse.org/package/show/home:rudi_m:ul-all/ul-plain
+
+These are very different (sometimes strange) hosts. Xen, kvm, real
+machines ... with or without sudo, module support, etc. The build
+hosts may even change between rebuilds. Sometimes they are under heavy
+load. Most issues are fixed now so I guess 2.26.2 will be a good one :)
+
+There are still some random failures sometimes like this:
+
+             : resize                      ... FAILED (sfdisk/gpt-resize)
+....
+[  604s] --- /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/expected/sfdisk/gpt-resize	2015-04-22 06:40:45.002363998 +0000
+[  604s] +++ /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/output/sfdisk/gpt-resize	2015-04-22 10:22:27.514581956 +0000
+[  604s] @@ -1,3 +1,4 @@
+[  604s] +Re-reading the partition table failed.: Device or resource busy
+[  604s]  Checking that no-one is using this disk right now ... OK
+[  604s]  
+[  604s]  Disk <removed>: 50 MiB, 52428800 bytes, 102400 sectors
+[  604s] @@ -20,4 +21,5 @@
+[  604s]  
+[  604s]  The partition table has been altered.
+[  604s]  Calling ioctl() to re-read partition table.
+[  604s] +The kernel still uses the old table. The new table will be used at the next reboot or after you run partprobe(8) or kpartx(8).
+[  604s]  Syncing disks.
+
+
+cu,
+Rudi
