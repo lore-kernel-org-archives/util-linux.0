@@ -1,44 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38750 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753664AbbDNKEk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Apr 2015 06:04:40 -0400
-Date: Tue, 14 Apr 2015 12:04:38 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 0/7] logger tests do not need /dev/log but socat
-Message-ID: <20150414100438.GV3923@ws.net.home>
-References: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:36471 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753945AbbDWEuD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Apr 2015 00:50:03 -0400
+Received: by pdea3 with SMTP id a3so7901950pde.3
+        for <util-linux@vger.kernel.org>; Wed, 22 Apr 2015 21:50:02 -0700 (PDT)
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Isaac Dunham <ibid.ag@gmail.com>
+Subject: [PATCH] hwclock: avoid UB if TZUTC is unset; include sys/time.h for timeval
+Date: Wed, 22 Apr 2015 21:49:52 -0700
+Message-Id: <1429764592-15947-1-git-send-email-ibid.ag@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 13, 2015 at 02:01:46PM +0200, Ruediger Meier wrote:
-> Now we require socat for logger tests. We should NOT add fallback to
-> netcat-like tools. I have tried this but there are too many different
-> and broken netcat versions out there.
+Fix a crash reported by Jean-Marc Pigeon on the musl mailing list.
 
-I think dependence on socat in the tests is fine, it's unnecessary to
-have fallbacks for everything. It's test suite (mostly for developers)
-not just some random environment on some random system.
+If TZUTC is unset, setenv() will be called with value = NULL,
+which invokes undefined behavior.
+With musl libc, this causes a crash.
+On uclibc and glibc, this currently happens to act like the long form
+here, but glibc will make this an error:
+ https://sourceware.org/ml/libc-alpha/2015-03/threads.html#00449
 
-> Ruediger Meier (7):
->   logger: --stderr and --no-act turn "auto-errors" on
->   tests: simplify common logger options
->   tests: logger with socat device
->   tests: logger, validate written socket data
->   tests: logger/errors does not use --no-act
->   tests: add subtests for invalid logger devive
->   travis: install socat
+Additionally, include <sys/time.h> to define struct timeval.
+---
+ sys-utils/hwclock.c | 5 ++++-
+ sys-utils/hwclock.h | 1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-Applied, thanks! It's perfect that we really test sockets now
-(--stderr --no-act is poor man solution:-).
-
-    Karel
-
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index e1e5816..67971f0 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -408,7 +408,10 @@ mktime_tz(struct tm tm, const bool universal,
+ 		 * libc's:
+ 		 *    TZUTC=:/usr/share/zoneinfo/right/UTC
+ 		 */
+-		setenv("TZ", getenv("TZUTC"), TRUE);
++		char *tzutc;
++
++		tzutc = getenv("TZUTC");
++		setenv("TZ", tzutc ? tzutc : "", TRUE);
+ 		/*
+ 		 * Note: tzset() gets called implicitly by the time code,
+ 		 * but only the first time. When changing the environment
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index 974d96a..7f19c39 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -6,6 +6,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <time.h>
++#include <sys/time.h>
+ 
+ #include "c.h"
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.3.5
+
