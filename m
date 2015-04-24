@@ -1,53 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:55814 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750939AbbDTAeY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 19 Apr 2015 20:34:24 -0400
-Message-ID: <5534498B.4080803@gmx.com>
-Date: Sun, 19 Apr 2015 20:34:19 -0400
-From: J William Piggott <elseifthen@gmx.com>
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:36726 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750891AbbDXE0C (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Apr 2015 00:26:02 -0400
+Received: by pdea3 with SMTP id a3so37555412pde.3
+        for <util-linux@vger.kernel.org>; Thu, 23 Apr 2015 21:26:01 -0700 (PDT)
+Date: Thu, 23 Apr 2015 21:26:04 -0700
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/1] hwclock: Remove TZUTC
+Message-ID: <20150424042603.GB1841@newbook>
+References: <1429764592-15947-1-git-send-email-ibid.ag@gmail.com>
+ <55398435.4090504@gmx.com>
 MIME-Version: 1.0
-To: Alexey Galakhov <agalakhov@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
-References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
-In-Reply-To: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55398435.4090504@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-Hello Alexey,
-
- I've been advocating for the removal of the compare function. One of my
- justifications for doing so is that it has been broken from day one and
- therefore nobody can be using for anything.
-
- So could you tell me how you are using it, and what useful purpose it is
- serving for you?
-
-Thanks
- William
-
-On 04/16/2015 11:26 AM, Alexey Galakhov wrote:
-> This allows using hwclock -c in automated test scripts that parse
-> its output line-by-line. The standard output is flushed before
-> each 10 second delay.
+On Thu, Apr 23, 2015 at 07:45:57PM -0400, J William Piggott wrote:
 > 
-> Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
-> ---
->  sys-utils/hwclock.c | 1 +
->  1 file changed, 1 insertion(+)
+> The patch that introduced TZUTC should have been rejected.
+> Mr. Parmelee misunderstood how to use and configure the
+> zoneinfo 'right' database. This was likely due to the 'right'
+> database being undocumented. I added information about the
+> database to the hwclock(8) man-page, and intended to remove
+> the TZUTC environment variable from hwclock when refactoring.
+> Since this regression needs to be addressed, it might as well
+> be removed now.
+
+> TZUTC is undocumented and should be safe to remove.
 > 
-> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-> index e1e5816..4cdb2ea 100644
-> --- a/sys-utils/hwclock.c
-> +++ b/sys-utils/hwclock.c
-> @@ -1532,6 +1532,7 @@ static int compare_clock (const bool utc, const bool local_opt)
->  			printf("hw-time      system-time         freq-offset-ppm   tick\n");
->  			printf("%10.0f   %10.6f\n", (double) time1_hw, time1_sys);
->  		}
-> +		fflush(stdout);
->  		sleep(10);
->  	}
->  
-> 
+
+Thanks.
+This seems like the better fix.
+
+Thank you,
+Isaac Dunham
