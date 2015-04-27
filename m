@@ -1,82 +1,137 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35429 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58196 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751360AbbDBKF5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 2 Apr 2015 06:05:57 -0400
-Date: Thu, 2 Apr 2015 12:05:46 +0200
+	id S932196AbbD0JDJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Apr 2015 05:03:09 -0400
+Date: Mon, 27 Apr 2015 11:03:06 +0200
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, Coreutils <coreutils@gnu.org>,
-        bug-gnulib <bug-gnulib@gnu.org>,
-        util-linux <util-linux@vger.kernel.org>,
-        Fridolin Pokorny <fpokorny@redhat.com>
-Subject: Re: large overhead in libmount
-Message-ID: <20150402100546.GE2097@ws.net.home>
-References: <54A321DC.4020300@bernhard-voelker.de>
- <54BDB6E9.4070500@draigBrady.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/3] fsck: drop hardcoded search path
+Message-ID: <20150427090306.GN27969@ws.net.home>
+References: <1428829613-30423-1-git-send-email-vapier@gentoo.org>
+ <1428829613-30423-3-git-send-email-vapier@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <54BDB6E9.4070500@draigBrady.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1428829613-30423-3-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 20, 2015 at 02:01:13AM +0000, Pádraig Brady wrote:
-> On 30/12/14 22:06, Bernhard Voelker wrote:
-> > I just pulled the recent gnulib update, and now the above, expensive
-> > test fails:
-> > 
-> >    + ulimit -v 40000
-> >    + du -sh d
-> >    du: fts_read failed: d: Cannot allocate memory
-> >    + fail=1
-> > 
-> > I guess this due to the inclusion of libmount?
-> 
-> Yes I get the same issue in that test:
-> http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=blob;f=tests/rm/many-dir-entries-vs-OOM.sh
-> 
-> Indeed there is significant overhead in using libmount as shown below.
-> This is a crazy amount of overhead just to read /proc/self/mountinfo,
-> and is the sort of creeping dependencies I hate.  The proposed solution
-> in the attached gnulib patch, is to require ./configure --with-libmount
-> to enable this feature. I.E. it's disabled by default.
-> 
-> cheers,
-> Pádraig
-> 
-> ======= without =========
-> $ (ulimit -v 5380; du -s .)
-> 
-> $ ldd /usr/bin/du
-> linux-vdso.so.1 =>  (0x00007fff0d7fe000)
-> libc.so.6 => /lib64/libc.so.6 (0x00007fd414a32000)
-> /lib64/ld-linux-x86-64.so.2 (0x00007fd414e0b000)
-> 
-> $ time du -s src/du.c >/dev/null
-> real    0m0.003s
-> user    0m0.000s
-> sys     0m0.003s
-> 
-> ======= with =========
-> $ (ulimit -v 23250; src/du -s .)
-> 
-> $ ldd src/du
-> linux-vdso.so.1 =>  (0x00007fff76ca8000)
-> libc.so.6 => /lib64/libc.so.6 (0x00007f2a1f742000)
-> /lib64/ld-linux-x86-64.so.2 (0x00007f2a1fd61000)
->  libmount.so.1 => /lib64/libmount.so.1 (0x00007f2a1faff000)
->   libblkid.so.1 => /lib64/libblkid.so.1 (0x00007f2a1f501000)
->   libuuid.so.1 => /lib64/libuuid.so.1 (0x00007f2a1f2fc000)
->   libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f2a1f0d7000)
->   libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f2a1ee69000)
->   liblzma.so.5 => /lib64/liblzma.so.5 (0x00007f2a1ec44000)
->   libdl.so.2 => /lib64/libdl.so.2 (0x00007f2a1ea40000)
->   libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f2a1e823000)
+On Sun, Apr 12, 2015 at 05:06:53AM -0400, Mike Frysinger wrote:
+>  disk-utils/fsck.8 |  23 +++---------
+>  disk-utils/fsck.c | 103 ++++++------------------------------------------------
+>  2 files changed, 14 insertions(+), 112 deletions(-)
 
-The problem is libselinux, but on selinux based system you have all the
-libraries already in memory for many another tools...
+ I have applied a little bit less invasive patch to keep the current
+ semantic with required/optional checkers.
 
     Karel
+
+>From a03bdbcd2029ed1b002d45a028f6e706845fa566 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Mon, 27 Apr 2015 10:51:33 +0200
+Subject: [PATCH] fsck: use PATH or fallback to /sbin
+
+It's overkill to support all the obscure paths like /sbin/fs.d. We
+have PATH for customization, that's enough.
+
+It still seems like a good idea to keep fsck robust, because it's used
+by boot scripts/systemd. For this reason fsck fallbacks to "/sbin" if
+PATH is undefined or empty.
+
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ disk-utils/fsck.8 | 25 ++++++-------------------
+ disk-utils/fsck.c | 16 ++++------------
+ 2 files changed, 10 insertions(+), 31 deletions(-)
+
+diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
+index c60eef2..c2bb7bf 100644
+--- a/disk-utils/fsck.8
++++ b/disk-utils/fsck.8
+@@ -80,14 +80,11 @@ In actuality,
+ .B fsck
+ is simply a front-end for the various filesystem checkers
+ (\fBfsck\fR.\fIfstype\fR) available under Linux.  The
+-filesystem-specific checker is searched for in
+-.I /sbin
+-first, then in
+-.I /etc/fs
+-and
+-.IR /etc ,
+-and finally in the directories listed in the PATH environment
+-variable.  Please see the filesystem-specific checker manual pages for
++filesystem-specific checker is searched for in the
++PATH environment variable. If the PATH is undefined then
++fallback to "/sbin".
++.PP
++Please see the filesystem-specific checker manual pages for
+ further details.
+ .SH OPTIONS
+ .TP
+@@ -416,17 +413,7 @@ be run based on gathering accounting data from the operating system.
+ .B PATH
+ The
+ .B PATH
+-environment variable is used to find filesystem checkers.  A set of
+-system directories are searched first:
+-.BR /sbin ,
+-.BR /sbin/fs.d ,
+-.BR /sbin/fs ,
+-.BR /etc/fs ,
+-and
+-.BR /etc .
+-Then the set of directories found in the
+-.B PATH
+-environment are searched.
++environment variable is used to find filesystem checkers.
+ .TP
+ .B FSTAB_FILE
+ This environment variable allows the system administrator
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 817be97..299a775 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -150,9 +150,10 @@ static int kill_sent;
+ static char *fstype;
+ static struct fsck_instance *instance_list;
+ 
+-static const char fsck_prefix_path[] = FS_SEARCH_PATH;
++#define FSCK_DEFAULT_PATH "/sbin"
+ static char *fsck_path;
+ 
++
+ /* parsed fstab and mtab */
+ static struct libmnt_table *fstab, *mtab;
+ static struct libmnt_cache *mntcache;
+@@ -1551,8 +1552,8 @@ int main(int argc, char *argv[])
+ {
+ 	int i, status = 0;
+ 	int interactive = 0;
+-	char *oldpath = getenv("PATH");
+ 	struct libmnt_fs *fs;
++	const char *path = getenv("PATH");
+ 
+ 	setvbuf(stdout, NULL, _IONBF, BUFSIZ);
+ 	setvbuf(stderr, NULL, _IONBF, BUFSIZ);
+@@ -1573,16 +1574,7 @@ int main(int argc, char *argv[])
+ 
+ 	load_fs_info();
+ 
+-	/* Update our search path to include uncommon directories. */
+-	if (oldpath) {
+-		fsck_path = xmalloc (strlen (fsck_prefix_path) + 1 +
+-				    strlen (oldpath) + 1);
+-		strcpy (fsck_path, fsck_prefix_path);
+-		strcat (fsck_path, ":");
+-		strcat (fsck_path, oldpath);
+-	} else {
+-		fsck_path = xstrdup(fsck_prefix_path);
+-	}
++	fsck_path = xstrdup(path && *path ? path : FSCK_DEFAULT_PATH);
+ 
+ 	if ((num_devices == 1) || (serialize))
+ 		interactive = 1;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.0
+
