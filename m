@@ -1,61 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:33335 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752117AbbDANim (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 1 Apr 2015 09:38:42 -0400
-Received: by pacgg7 with SMTP id gg7so52634109pac.0
-        for <util-linux@vger.kernel.org>; Wed, 01 Apr 2015 06:38:42 -0700 (PDT)
-Received: from newbook ([50.0.225.244])
-        by mx.google.com with ESMTPSA id qm6sm2230378pac.14.2015.04.01.06.38.40
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 01 Apr 2015 06:38:41 -0700 (PDT)
-Date: Wed, 1 Apr 2015 06:38:43 -0700
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: Re: question about hardcoded binary paths (swapon / mkswap)
-Message-ID: <20150401133842.GA1800@newbook>
-References: <201504011342.56546.sweet_f_a@gmx.de>
+Received: from mx1.redhat.com ([209.132.183.28]:45115 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751915AbbD0IYU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Apr 2015 04:24:20 -0400
+Date: Mon, 27 Apr 2015 10:24:11 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org, Federico Simoncelli <fsimonce@redhat.com>
+Subject: Re: blkdiscard progress breakes test
+Message-ID: <20150427082411.GJ27969@ws.net.home>
+References: <201504221943.06644.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201504011342.56546.sweet_f_a@gmx.de>
+In-Reply-To: <201504221943.06644.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 01, 2015 at 01:42:56PM +0200, Ruediger Meier wrote:
-> Hi,
+On Wed, Apr 22, 2015 at 07:43:06PM +0200, Ruediger Meier wrote:
+> Commit c472a7e3 introduced progress messages. This randomly
+> breaks the test-suite like this:
 > 
-> I wonder about some hardcoded binary paths.
 > 
-> Example swapon.c:
+>    blkdiscard: offsets                        ... FAILED (blkdiscard/offsets)
+> ....
+> --- /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/expected/blkdiscard/offsets   2014-10-28 06:53:35.483698330 +0000
+> +++ /home/abuild/rpmbuild/BUILD/util-linux-2.26.git233.01aa/tests/output/blkdiscard/offsets     2015-04-22 15:41:45.748155291 +0000
+> @@ -21,7 +21,8 @@
+>  blkdiscard: offset 1 is not aligned to sector size 512
+>  blkdiscard: offset 1 is not aligned to sector size 512
+>  blkdiscard: offset 511 is not aligned to sector size 512
+> -Discarded 1536 bytes from the offset 512
+> +Discarded 1024 bytes from the offset 512
+> +Discarded 512 bytes from the offset 1536
+>  Discarded 1024 bytes from the offset 1024
+>  testing misaligned steps full device
+>  blkdiscard: length 1 is not aligned to sector size 512
 > 
-> #define PATH_MKSWAP    "/sbin/mkswap"
 > 
-> There are a two problems.
-> 1. It's wrong. We should use $sbindir from configure.
-> 2. When called from our test-suite it will use a wrong (or
->    non-existend, broken) binary. This happens in test swapon/fixpgsz.
+> It's because we ignore timeval's tv_usec here:
+>   if (last.tv_sec < now.tv_sec) {
+>       print_stats(path, stats);
 > 
-> The question is how to fix this.
-> 
-> I would prefer to use "mkwsap" from the same directory like swapon or to 
-> simply execvp "mkswap" from PATH. But don't know if we want this. If we 
-> really want to keep a hardcoded sbindir then we would need "#ifdef 
-> TEST_PROGRAM".
-> 
-> Any comments?
+> We could make it better if we also compare tv_usec
 
-The approach that seems obvious to me (assuming you want to keep the
-hardcoded path) is:
--add -DSBINDIR="$sbindir" to CFLAGS
--in the testsuite, run tests in a private mount namespace, where you can
-bind-mount $sbindir.
+I have doubts you can fix it, the progress reporting is based fixed
+time intervals (60sec), but the number of the discarded chunks within
+the interval depends on system and HW performance. IMHO the regression
+test will be always fragile.
 
-However, I'm guessing this would have to be done with a union mount, 
-and there are probably problems like what to do if sbindir is 
-non-existent down to / (eg, sbindir=/util-linux/rootcommmands on a 
-standard Linux) -- creating a union mount over / may be a Bad Thing.
+> but IMO it would be fine
+> to print the stats only one time at the end. Maybe
+>  -v   prints stats one time only
+>  -vv  report progress
 
-Thanks,
-Isaac Dunham
+-vv is unnecessary, the progress is reported only when you specify 
+-v together with -s.
 
+I also guess that "-vs" is already used in applications, it would be
+better to not change the behaviors.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
