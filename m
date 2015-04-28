@@ -1,43 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:34877 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753747AbbDPLGd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 16 Apr 2015 07:06:33 -0400
-Received: by pdbqd1 with SMTP id qd1so88335729pdb.2
-        for <util-linux@vger.kernel.org>; Thu, 16 Apr 2015 04:06:33 -0700 (PDT)
-Received: from Sihnon (c-71-238-70-108.hsd1.or.comcast.net. [71.238.70.108])
-        by mx.google.com with ESMTPSA id np6sm6818309pdb.80.2015.04.16.04.06.32
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Apr 2015 04:06:32 -0700 (PDT)
-Message-ID: <1429182391.15041.2.camel@gmail.com>
-Subject: sfdisk: failure to write partition layout to loopback devices
-From: Unknown <ben.kero@gmail.com>
-To: util-linux@vger.kernel.org
-Date: Thu, 16 Apr 2015 04:06:31 -0700
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:55359 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964975AbbD1LwM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Apr 2015 07:52:12 -0400
+Date: Tue, 28 Apr 2015 13:52:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fsck: implement fsck -r {fd}
+Message-ID: <20150428115210.GW27969@ws.net.home>
+References: <553E53D7.8020800@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <553E53D7.8020800@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In util-linux 2.26 and onward a check is done to see if there are any
-open filehandles on the device that is being updated. Specifically,
-this check is being done in 'is_device_used': disk-utils/sfdisk.c:1055
 
-For loopback devices the ioctl(fd, BLKRRPART) will always fail with
-return code -1. Checking errno will yield error '22'. This is
-"expected" and parted has considered making exceptions for this in the
-past [1]. I would propose that instead of having to iss ue a '--force'
-flag for basic loopback device operation, an exception should be
-included in the is_device_used function.
+ Applied, thanks. See notes below.
 
-It could be as simple as:
+On Mon, Apr 27, 2015 at 05:20:55PM +0200, Stanislav Brabec wrote:
+> Note: Code in if and else is intentionally partially duplicated. Current
+> human readable output of floats does not conform to locale conventions,
+> and may be changed in future. But we want to keep machine readable output
+> exactly same as it is now.
 
-+    // If we are dealing with a loopback device this will fail, but
-shouldn't
-+    if (!strncmp("/dev/loop", fdisk_get_devname(sf->cxt), 9)) {
-+        return 0;
-+    }
+The question is if we can change the human readable output. It was
+requested by Google and I guess they parse the output.
 
+> +static int report_stats_fd;
+> +static FILE *report_stats_file;
 
-[1] http://comments.gmane.org/gmane.comp.gnu.parted.devel/2254
+It seems that report_stats_fd does not have to be global variable,
+code depends on report_stats_file. Fixed.
+
+>  			case 'r':
+>  				report_stats = 1;
+> +				if (arg[j+1]) {					/* -r<fd> */
+> +					report_stats_fd = string_to_int(arg+j+1);
+> +					if (report_stats_fd < 0)
+> +						report_stats_fd = 0;
+> +					else
+> +						goto next_arg;
+> +				} else if (i+1 < argc && *argv[i+1] != '-') {	/* -r <fd> */
+> +					report_stats_fd = string_to_int(argv[i+1]);
+> +					if (report_stats_fd < 0)
+> +						report_stats_fd = 0;
+> +					else {
+> +						++i;
+> +						goto next_arg;
+> +					}
+> +				}
+>  				break;
+
+...you have copied code from -C, right?
+
+The -C code interprets errors or missing fd as 0, it's probably
+because fsck.extN requires file descriptor for -C, but fsck(8) has the
+fd as optional argument.
+
+I don't think we need this behavior for -r too. It would be better to
+report all possible mistakes. Fixed.
+
+> +	/* Validate the report stats file descriptor to avoid disasters */
+> +	if (report_stats_fd) {
+> +		report_stats_file = fdopen(report_stats_fd, "w");
+> +		if (!report_stats_file)
+> +			err(FSCK_EX_ERROR,
+> +				_("invalid argument -r %d"),
+> +				report_stats_fd);
+> +	}
+> +
+
+It means that "-r 0" is unsupported, why? I have fixed this.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
