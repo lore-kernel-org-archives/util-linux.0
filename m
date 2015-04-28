@@ -1,79 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34180 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:37975 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751173AbbDCKGt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 3 Apr 2015 06:06:49 -0400
-Date: Fri, 3 Apr 2015 12:06:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Alex Deymo <deymo@chromium.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: umount --detach-loop fails but fs is unmounted
-Message-ID: <20150403100647.GC3923@ws.net.home>
-References: <CAGd9gwi86agrHS3HgFixjZGD3bYjoFabai3G856qw9Rwfo7W-A@mail.gmail.com>
+	id S1030593AbbD1SaJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Apr 2015 14:30:09 -0400
+Message-ID: <553FD1AD.4050609@suse.cz>
+Date: Tue, 28 Apr 2015 20:30:05 +0200
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAGd9gwi86agrHS3HgFixjZGD3bYjoFabai3G856qw9Rwfo7W-A@mail.gmail.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Vitezslav Cizek <vcizek@suse.cz>
+Subject: Re: [PATCH] fsck: implement fsck -r {fd}
+References: <553E53D7.8020800@suse.cz> <20150428115210.GW27969@ws.net.home> <20150428141558.GA2569@thunk.org> <553FAD98.5070202@suse.cz> <20150428171302.GA11351@thunk.org>
+In-Reply-To: <20150428171302.GA11351@thunk.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 27, 2015 at 12:03:26PM -0700, Alex Deymo wrote:
-> I'm running into a problem when using -d in umount. I'm using
-> util-linux 2.25.1, but didn't see changes in that code in ToT. When
-> calling "umount -d" if the passed argument is *not* a loop device (for
-> example /dev/loopX or /mnt/foo/bar), it will umount it, but the
-> command will fail (return != 0) and print EINVAL error (22).
-> Documentation says:
-> 
->   -d, --detach-loop
->     When the unmounted device was a loop device, also free this loop device.
-> 
-> So the command shouldn't fail if you didn't pass a loop device but
-> still used -d; right? Is this a problem in the documentation or the
-> code?
-> 
-> * Examples: if you mount your ${image} (an ext4 fs, but whatever) in
-> ${mount_point} this way:
-> 
->   loop_device=$(sudo losetup --find --show ${image})
->   sudo mount -o rw ${loop_device} ${mount_point}
-> 
-> 
-> The following command fails (error code 1) and does NOT remove the
-> loop device, but unmounts the fs properly:
->   sudo umount -d ${mount_point}
-> umount: ${mount_point}: filesystem was unmounted, but mount(8) failed:
-> Invalid argument
+Theodore Ts'o wrote:
 
-I'm not able to reproduce this problem.
+> Actually, what of the one-line statistics do you need?  Is it just
+> "we're done checking /dev/sdXX", so you can activate quotas for
+> /dev/sdXX?
 
-        # rpm -q util-linux
-        util-linux-2.25.2-2.fc21.x86_64
+Yes, I think that it is only the device name.
 
-        # losetup --find --show /home/archive/fs-images/filesystems/ext2.img
-        /dev/loop0
+> If so, one of the other patches which Frank Mayhar (one of
+> my collegaues) implemented the ability for fsck to run a "completion
+> handler" which was a program/shell script that would get executed for
+> each file system the check was completed -- and which would pass the
+> exit status for each specific file system along to the completion
+> handler.  That allowed us to take specific action on a per-file system
+> basis if a file system couldn't be repaired, without having to parse
+> any of the log outputs to determine which file system had
+> uncorrectable file system problems.
+>
+> I wonder if something like that would be useful for SuSE?
+>
 
-        # mount /dev/loop0 /mnt/test
+This sounds interesting.
 
-        # losetup 
-        NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE
-        /dev/loop0         0      0         0  0 /home/archive/fs-images/filesystems/ext2.img
 
-        # findmnt /mnt/test
-        TARGET    SOURCE     FSTYPE OPTIONS
-        /mnt/test /dev/loop0 ext3   rw,relatime,seclabel,data=ordered
+>From the systemd perspective, I can imagine a completely different 
+solution. systemd does not use a completion handlers, but it uses 
+dependencies: When one task has fulfilled all its dependencies, then it 
+could be run.
 
-        # umount -d /mnt/test
-        # echo $?
-        0
+- fsck depends on presence of device
+- mount depends on presence of the device, presence of mount point and
+   fsck being complete.
 
-Please, try
 
-   LIBMOUNT_DEBUG=0xffff umount -d ${mount_point}
+There can be one fsck service per volume instead of one central fsck 
+service.
 
-or/and strace output would be also nice.
+But it is not a task for util-linux developers.
 
-    Karel
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
