@@ -1,26 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hotei.ga-group.nl ([148.251.146.68]:46936 "EHLO
-	hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750703AbbDBKrc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 2 Apr 2015 06:47:32 -0400
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: about test mount/rlimit
-Date: Thu, 2 Apr 2015 12:41:18 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:59327 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933028AbbD1Kqr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Apr 2015 06:46:47 -0400
+Date: Tue, 28 Apr 2015 12:46:43 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-References: <201504011404.27321.sweet_f_a@gmx.de> <20150402083349.GD2097@ws.net.home> <201504021205.21264.sweet_f_a@gmx.de>
-In-Reply-To: <201504021205.21264.sweet_f_a@gmx.de>
+Subject: Re: [PATCH 2/3] hwclock: remove unneeded stuff from the man-page
+ header
+Message-ID: <20150428104643.GU27969@ws.net.home>
+References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
+ <1426624493-2464-2-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201504021241.18648.ruediger.meier@ga-group.nl>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1426624493-2464-2-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 02 April 2015, Ruediger Meier wrote:
-> Ah that's good. I'll send a patch with some other fixes later.
+On Tue, Mar 17, 2015 at 09:34:52PM +0100, Benno Schulenberg wrote:
+> -.\" -------------------------------
+> -.\" Included for troff portability.
+> -.\" Continuation line for .TP header.
+> -.de TQ
+> -.  br
+> -.  ns
+> -.  TP \\$1\" no doublequotes around argument!
+> -..
 
-https://github.com/karelzak/util-linux/pull/188
+I have little bit clean upped the man header and removed the TQ
+fallback. We already use TQ on another places for years and nobody
+complains, so I guess it's unnecessary (or we have to fix all the man
+page rather than hwclock.8 only).
 
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
