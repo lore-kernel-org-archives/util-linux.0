@@ -1,62 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:36471 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753945AbbDWEuD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Apr 2015 00:50:03 -0400
-Received: by pdea3 with SMTP id a3so7901950pde.3
-        for <util-linux@vger.kernel.org>; Wed, 22 Apr 2015 21:50:02 -0700 (PDT)
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Isaac Dunham <ibid.ag@gmail.com>
-Subject: [PATCH] hwclock: avoid UB if TZUTC is unset; include sys/time.h for timeval
-Date: Wed, 22 Apr 2015 21:49:52 -0700
-Message-Id: <1429764592-15947-1-git-send-email-ibid.ag@gmail.com>
+Received: from mout.kundenserver.de ([212.227.17.13]:63193 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753739AbbD1GvI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 28 Apr 2015 02:51:08 -0400
+Message-ID: <553F2DD2.1070400@bernhard-voelker.de>
+Date: Tue, 28 Apr 2015 08:50:58 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+MIME-Version: 1.0
+To: Alexey Galakhov <agalakhov@gmail.com>,
+        J William Piggott <elseifthen@gmx.com>
+CC: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] hwclock: flush stdout in hwclock -c
+References: <1429197987-8751-1-git-send-email-agalakhov@gmail.com>	<20150427082729.GK27969@ws.net.home>	<553EA9AB.1000608@gmx.com> <20150427234218.587e5435.agalakhov@gmail.com>
+In-Reply-To: <20150427234218.587e5435.agalakhov@gmail.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fix a crash reported by Jean-Marc Pigeon on the musl mailing list.
+On 04/27/2015 11:42 PM, Alexey Galakhov wrote:
+> $ hwclock -c | cat
 
-If TZUTC is unset, setenv() will be called with value = NULL,
-which invokes undefined behavior.
-With musl libc, this causes a crash.
-On uclibc and glibc, this currently happens to act like the long form
-here, but glibc will make this an error:
- https://sourceware.org/ml/libc-alpha/2015-03/threads.html#00449
+You can change the behavior of the buffer:  ;-)
 
-Additionally, include <sys/time.h> to define struct timeval.
----
- sys-utils/hwclock.c | 5 ++++-
- sys-utils/hwclock.h | 1 +
- 2 files changed, 5 insertions(+), 1 deletion(-)
+  $ stdbuf -oL  hwclock -c | cat
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index e1e5816..67971f0 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -408,7 +408,10 @@ mktime_tz(struct tm tm, const bool universal,
- 		 * libc's:
- 		 *    TZUTC=:/usr/share/zoneinfo/right/UTC
- 		 */
--		setenv("TZ", getenv("TZUTC"), TRUE);
-+		char *tzutc;
-+
-+		tzutc = getenv("TZUTC");
-+		setenv("TZ", tzutc ? tzutc : "", TRUE);
- 		/*
- 		 * Note: tzset() gets called implicitly by the time code,
- 		 * but only the first time. When changing the environment
-diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
-index 974d96a..7f19c39 100644
---- a/sys-utils/hwclock.h
-+++ b/sys-utils/hwclock.h
-@@ -6,6 +6,7 @@
- #include <stdlib.h>
- #include <string.h>
- #include <time.h>
-+#include <sys/time.h>
- 
- #include "c.h"
- 
--- 
-2.3.5
+OTOH, I don't see a problem with just one another fflush()
+every few seconds.
 
+Have a nice day,
+Berny
