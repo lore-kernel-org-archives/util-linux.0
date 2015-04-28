@@ -1,30 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36261 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59873 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753038AbbDNJrJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 14 Apr 2015 05:47:09 -0400
-Date: Tue, 14 Apr 2015 11:47:07 +0200
+	id S932686AbbD1Kto (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 28 Apr 2015 06:49:44 -0400
+Date: Tue, 28 Apr 2015 12:49:40 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Cristian =?iso-8859-1?Q?Rodr=EDguez?= <crrodriguez@opensuse.org>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lib/sysfs.c: use fcntl(..F_DUPFD_CLOEXEC) instead of
- dup(2)
-Message-ID: <20150414094707.GU3923@ws.net.home>
-References: <1428692278-5226-1-git-send-email-crrodriguez@opensuse.org>
+Subject: Re: [PATCH v2] hwclock: fix spelling, punctuation and formatting
+ mistakes in the man page
+Message-ID: <20150428104940.GV27969@ws.net.home>
+References: <1426624493-2464-1-git-send-email-bensberg@justemail.net>
+ <1428481363-2885-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1428692278-5226-1-git-send-email-crrodriguez@opensuse.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1428481363-2885-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Apr 10, 2015 at 03:57:58PM -0300, Cristian Rodríguez wrote:
-> "The two descriptors do not share file descriptor flags (the
-> close-on-exec flag).  The close-on-exec flag  for the duplicate descriptor is off"
+On Wed, Apr 08, 2015 at 10:22:43AM +0200, Benno Schulenberg wrote:
+> Also improve some wordings.
+> 
+> Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 > ---
->  lib/sysfs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  sys-utils/hwclock.8.in |   78 +++++++++++++++++++++++------------------------
+>  1 files changed, 38 insertions(+), 40 deletions(-)
 
- Excellent catch. Thanks.
+ Applied, thanks. Note that we use the same manners (e.g. \fB for
+ options and \fI for arguments, etc) in another man pages.
 
     Karel
 
