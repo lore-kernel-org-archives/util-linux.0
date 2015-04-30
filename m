@@ -1,22 +1,157 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from dub004-omc2s6.hotmail.com ([157.55.1.145]:58776 "EHLO
-	DUB004-OMC2S6.hotmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752950AbbDMKQK convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 13 Apr 2015 06:16:10 -0400
-Message-ID: <DUB119-W10D0E142F9CF92AA8A3436B4E70@phx.gbl>
-From: Sergey Zolotarev <szx@live.ru>
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Fix partition order killed my hard drive (twice)
-Date: Mon, 13 Apr 2015 16:11:05 +0600
-Content-Type: text/plain; charset="koi8-r"
+Received: from mx1.redhat.com ([209.132.183.28]:42871 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750768AbbD3Ks3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 30 Apr 2015 06:48:29 -0400
+Date: Thu, 30 Apr 2015 12:48:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.26.2
+Message-ID: <20150430104827.GA27969@ws.net.home>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
 
-Is it possible that fdisk could damage / kill a hard drive after using the "Fix partition order" command? It seems that that is exactly what happened to me two times already, with two different hard drives.š
+The util-linux release v2.26.2 is available at
+ 
+   ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.26/
+    
+Feedback and bug reports, as always, are welcomed.
+     
+      Karel
 
-First time I thought that it was my hard drive's fault as it was pretty old and cheap, So I bought a new not-so-cheap one and was quite happy with until today, when I used that evil command again!
 
-Both of HDDs seem unrecoverable. When either is plugged BIOS gets stuck at initial screen (can't even enter setup). Using a USB adapter didn't help either... I'm not an expert in hard drives, but could it be the result of a corrupted / bad sector in the place where the partition table is stored? 		 	   		  
+
+util-linux 2.26.2 Release Notes
+===============================
+
+blockdev:
+   - fix whole-disk start sector usage  [Karel Zak]
+build-sys:
+   - add new compiler warnings  [Karel Zak]
+   - define cfdisk dependence on open_memstream  [Karel Zak]
+   - ncurses is optional, don't fail when missing  [Karel Zak]
+   - python is optional, don't fail when missing  [Karel Zak]
+dmesg:
+   - fix shadow declaration  [Sami Kerola]
+docs:
+   - update AUTHORS file  [Karel Zak]
+fdisk, sfdisk:
+   - fix -o <list> backend  [Karel Zak]
+fsck:
+   - fix fsck -C {fd} parsing  [Stanislav Brabec]
+hwclock:
+   - Remove TZUTC  [J William Piggott]
+   - flush stdout in hwclock -c  [Alexey Galakhov]
+   - regression fix  [J William Piggott]
+last:
+   - fix first (current) runlevel line  [Ruediger Meier]
+lib/strutils:
+   - fix string_add_to_idarray() int vs. size_t  [Karel Zak]
+lib/sysfs.c:
+   - use fcntl(..F_DUPFD_CLOEXEC) instead of dup(2)  [Cristian Rodríguez]
+libblkid:
+   - fix compiler warnings  [Sami Kerola]
+libfdisk:
+   - (dos)  retain existing boot flag when resizing a partition  [Karel Zak, awilliam@redhat.co]
+   - (gpt) add extra check for First/Last LBA  [Karel Zak]
+   - (gpt) check header size before verify CRC  [Karel Zak]
+   - (gpt) fix LE usage  [Karel Zak]
+   - (gpt) fix end sector calculation on resize  [Karel Zak]
+   - add fdisk_table_get_partition_by_partno()  [Karel Zak]
+   - add warning to resize function  [Karel Zak]
+   - allow to move start to first usable LBA  [Karel Zak]
+   - don't resize in label drivers  [Karel Zak]
+   - don't return empty strings from fdisk_partition_to_string()  [Karel Zak]
+   - fix script parser to support resize operations  [Karel Zak]
+   - fix scriptk parser to support alone signs  [Karel Zak]
+   - fix symbols versioning script  [Karel Zak]
+   - recognize FAT32 partitions hidden by Acronis software  [Jörg Jenderek]
+   - support bootbits protection from (p)MBR  [Karel Zak]
+   - support resize operation in fdisk_set_partition()  [Karel Zak]
+libmount:
+   - add note about flock() to docs  [Karel Zak]
+   - add support for MS_LAZYTIME  [Karel Zak]
+logger:
+   - --stderr and --no-act turn "auto-errors" on  [Ruediger Meier]
+   - Fix use of errno after strtol() without zeroing first  [Stef Walter]
+   - add --no-act for testing  [Karel Zak]
+   - add -DTEST_LOGGER  [Karel Zak]
+   - check xgethostname() return value  [Sami Kerola]
+   - fix LOGGER_TEST_TIMEOFDAY check  [Karel Zak]
+   - fix memory leaks  [Sami Kerola]
+   - fix rfc5424 format crash  [Karel Zak]
+   - generate header when reading message from stdin  [Patrick Plagwitz]
+   - tidy few indentation issues  [Sami Kerola]
+   - use errx() when checking user input  [Sami Kerola]
+lsblk:
+   - add debug support  [Karel Zak]
+   - don't ignore dependences for partitioned devies  [Karel Zak]
+   - follow kernel for inverse tree  [Karel Zak]
+mount:
+   - don't remount read-only on --bind  [Karel Zak]
+   - fix lazytime docs  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update da.po (from translationproject.org)  [Joe Hansen]
+   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
+setarch:
+   - fix regression for sparc builds  [Waldemar Brodkorb]
+sfdisk:
+   - accept empty partitions from dump  [Karel Zak]
+   - don't use BLKRRPART to check loopdev usage  [Karel Zak]
+   - enable bootbits protection  [Karel Zak]
+   - fix -a vs. -A bug  [Karel Zak]
+   - improve -N warnings  [Karel Zak]
+tests:
+   - add --skip-loopdevs  [Karel Zak]
+   - add logger(1) command line options tests  [Sami Kerola]
+   - add logger(1) error condition tests  [Sami Kerola]
+   - add logger(1) journald test  [Sami Kerola]
+   - add logger(1) message format tests  [Sami Kerola]
+   - add old dump for sfdisk  [Karel Zak]
+   - add sfdisk resize regression tests for MBR  [Karel Zak]
+   - add sfdisk resize tests  [Karel Zak]
+   - add sfdisk resize tests for GPT  [Karel Zak]
+   - add subtests for invalid logger devive  [Ruediger Meier]
+   - avoid &>> for bash compatibility  [Ruediger Meier]
+   - config.h lives in build directory  [Ruediger Meier]
+   - fix cramfs/mkfs for BE and different pagesizes  [Ruediger Meier]
+   - fix getopt for old glibc  [Ruediger Meier]
+   - fix logger device pathname too long  [Ruediger Meier]
+   - fix sfdisk GPT test  [Karel Zak]
+   - fix, don't call ts_die from subshell  [Ruediger Meier]
+   - introduce TS_LOOP_DEVS for cleanup  [Ruediger Meier]
+   - introduce ts_cleanup_on_exit()  [Ruediger Meier]
+   - logger with socat device  [Ruediger Meier]
+   - logger, validate written socket data  [Ruediger Meier]
+   - logger/errors does not use --no-act  [Ruediger Meier]
+   - loop tests, don't call ts_die() with DEVICE parameter  [Ruediger Meier]
+   - make libmount context tests sensitive to USE_LIBMOUNT_FORCE_MOUNTINFO  [Karel Zak]
+   - make libmount python context tests sensitive to USE_LIBMOUNT_FORCE_MOUNTINFO  [Karel Zak]
+   - more(1) depends on terminal, force to TERM=linux  [Karel Zak]
+   - mount/rlimit tries to restore mtab  [Ruediger Meier]
+   - never use -o pipefail  [Ruediger Meier]
+   - optionally skip tests where loop support is needed  [Ruediger Meier]
+   - require wipefs for sfdisk/gpt  [Karel Zak]
+   - scsi_debug tests, don't call ts_die() with DEVICE parameter  [Ruediger Meier]
+   - simplify common logger options  [Ruediger Meier]
+   - start script/race test only when --force specified  [Karel Zak]
+   - ts_scsi_debug_init() sleeps a bit earlier  [Ruediger Meier]
+   - use --no-act for logger tests  [Karel Zak]
+   - use ts_skip for logger/journald  [Karel Zak]
+   - verify logger return value  [Ruediger Meier]
+travis:
+   - add MAKE_CHECK_OPTS  [Karel Zak]
+   - install socat >= 1.7.2  [Ruediger Meier]
+   - move install script to .travis-functions.sh  [Ruediger Meier]
+   - whitelist travis* branches  [Ruediger Meier]
+whereis:
+   - trivial spelling and grammar fix  [Mike Place]
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
