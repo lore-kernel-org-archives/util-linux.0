@@ -1,145 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:50837 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751917AbbDMMB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 13 Apr 2015 08:01:57 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0LikyX-1ZFKSE2ExR-00czRM for
- <util-linux@vger.kernel.org>; Mon, 13 Apr 2015 14:01:55 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35643 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750785AbbEBEpd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 2 May 2015 00:45:33 -0400
+Received: by pabtp1 with SMTP id tp1so108913674pab.2
+        for <util-linux@vger.kernel.org>; Fri, 01 May 2015 21:45:32 -0700 (PDT)
+From: Michael Marineau <michael.marineau@coreos.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH v2 2/7] tests: simplify common logger options
-Date: Mon, 13 Apr 2015 14:01:48 +0200
-Message-Id: <1428926513-25449-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
-References: <1428926513-25449-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Michael Marineau <michael.marineau@coreos.com>
+Subject: [PATCH] libfdisk: (gpt) fix check for beginning of protective partition
+Date: Fri,  1 May 2015 21:44:33 -0700
+Message-Id: <1430541873-27791-1-git-send-email-michael.marineau@coreos.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Search for the protective partition before attempting to validate that
+it covers the GPT header. Some hybrid MBRs list partitions out of order.
+For example, CoreOS images ship with a hybrid MBR that lists the boot
+partition first and the protective partition second in order to maintain
+compatibility with old versions of Xen's PV-GRUB.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Michael Marineau <michael.marineau@coreos.com>
 ---
- tests/ts/logger/errors  | 32 ++++++++++++++------------------
- tests/ts/logger/formats | 26 ++++++++++++++------------
- 2 files changed, 28 insertions(+), 30 deletions(-)
+ libfdisk/src/gpt.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tests/ts/logger/errors b/tests/ts/logger/errors
-index c50b3e5..debce7e 100755
---- a/tests/ts/logger/errors
-+++ b/tests/ts/logger/errors
-@@ -30,45 +30,41 @@ export LOGGER_TEST_TIMEOFDAY="1234567890.123456"
- export LOGGER_TEST_HOSTNAME="test-hostname"
- export LOGGER_TEST_GETPID="98765"
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index a7766da..989fd75 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -678,11 +678,6 @@ static int valid_pmbr(struct fdisk_context *cxt)
+ 	if (le16_to_cpu(pmbr->signature) != MSDOS_MBR_SIGNATURE)
+ 		goto done;
  
-+function logger_fun {
-+	$TS_HELPER_LOGGER -s --no-act "$@" >> "$TS_OUTPUT" 2>&1
-+	echo "ret: $?" >> "$TS_OUTPUT"
-+}
+-	/* LBA of the GPT partition header */
+-	if (pmbr->partition_record[0].starting_lba !=
+-	    cpu_to_le32(GPT_PRIMARY_PARTITION_TABLE_LBA))
+-		goto done;
+-
+ 	/* seems like a valid MBR was found, check DOS primary partitions */
+ 	for (i = 0; i < 4; i++) {
+ 		if (pmbr->partition_record[i].os_type == EFI_PMBR_OSTYPE) {
+@@ -693,13 +688,18 @@ static int valid_pmbr(struct fdisk_context *cxt)
+ 			 */
+ 			part = i;
+ 			ret = GPT_MBR_PROTECTIVE;
+-			goto check_hybrid;
++			break;
+ 		}
+ 	}
+ 
+ 	if (ret != GPT_MBR_PROTECTIVE)
+ 		goto done;
+-check_hybrid:
 +
- ts_init_subtest "kern_priority"
--$TS_HELPER_LOGGER --no-act -s -t "prio" -p kern.emerg "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "prio" -p kern.emerg "message"
- ts_finalize_subtest
- 
- ts_init_subtest "kern_priority_numeric"
--$TS_HELPER_LOGGER --no-act -s -t "prio" -p 0 "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "prio" -p 0 "message"
- ts_finalize_subtest
- 
- ts_init_subtest "invalid_prio"
--$TS_HELPER_LOGGER --no-act -s -t "prio" -p 8 "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "prio" -p 8 "message"
- ts_finalize_subtest
- 
- # should truncate
- ts_init_subtest "rfc5424_exceed_size"
--$TS_HELPER_LOGGER --no-act -s -t "rfc5424_exceed_size" --rfc5424 --size 3 "abcd" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424_exceed_size" --rfc5424 --size 3 "abcd"
- ts_finalize_subtest
- 
- ts_init_subtest "id_with_space"
--$TS_HELPER_LOGGER --no-act -s -t "id_with_space" --id="A B" "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
--$TS_HELPER_LOGGER --no-act -s -t "rfc5424_id_with_space" --rfc5424 --id="A B" "message" >> "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "id_with_space" --id="A B" "message"
-+logger_fun -t "rfc5424_id_with_space" --rfc5424 --id="A B" "message"
- ts_finalize_subtest
- 
- # should not fail
- ts_init_subtest "tag_with_space"
--$TS_HELPER_LOGGER --no-act -s -t "A B" "tag_with_space" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
--$TS_HELPER_LOGGER --no-act -s -t "A B" --rfc5424 "tag_with_space_rfc5424" >> "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "A B" "tag_with_space"
-+logger_fun -t "A B" --rfc5424 "tag_with_space_rfc5424"
- ts_finalize_subtest
- 
- ts_init_subtest "rfc5424_msgid_with_space"
--$TS_HELPER_LOGGER --no-act -s -t "rfc5424_msgid_with_space" --rfc5424 --msgid="A B" "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424_msgid_with_space" --rfc5424 --msgid="A B" "message"
- ts_finalize_subtest
- 
- ts_finalize
-diff --git a/tests/ts/logger/formats b/tests/ts/logger/formats
-index a647b81..d0e9d5c 100755
---- a/tests/ts/logger/formats
-+++ b/tests/ts/logger/formats
-@@ -30,33 +30,35 @@ export LOGGER_TEST_TIMEOFDAY="1234567890.123456"
- export LOGGER_TEST_HOSTNAME="test-hostname"
- export LOGGER_TEST_GETPID="98765"
- 
-+function logger_fun {
-+	$TS_HELPER_LOGGER -s --no-act "$@" >> "$TS_OUTPUT" 2>&1
-+	echo "ret: $?" >> "$TS_OUTPUT"
-+}
++	/* LBA of the GPT partition header */
++	if (pmbr->partition_record[part].starting_lba !=
++	    cpu_to_le32(GPT_PRIMARY_PARTITION_TABLE_LBA))
++		goto done;
 +
- ts_init_subtest "rfc3164"
--$TS_HELPER_LOGGER -s --no-act -t "rfc3164" --rfc3164 "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc3164" --rfc3164 "message"
- ts_finalize_subtest
- 
- ts_init_subtest "rfc5424_simple"
--$TS_HELPER_LOGGER -s --no-act -t "rfc5424" --rfc5424 "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424" --rfc5424 "message"
- ts_finalize_subtest
-+
- ts_init_subtest "rfc5424_notime"
--$TS_HELPER_LOGGER -s --no-act -t "rfc5424" --rfc5424=notime "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424" --rfc5424=notime "message"
- ts_finalize_subtest
-+
- ts_init_subtest "rfc5424_nohost"
--$TS_HELPER_LOGGER -s --no-act -t "rfc5424" --rfc5424=nohost "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424" --rfc5424=nohost "message"
- ts_finalize_subtest
-+
- ts_init_subtest "rfc5424_msgid"
--$TS_HELPER_LOGGER -s --no-act -t "rfc5424" --rfc5424 --msgid "MSGID" "message" > "$TS_OUTPUT" 2>&1
--echo "ret: $?" >> "$TS_OUTPUT"
-+logger_fun -t "rfc5424" --rfc5424 --msgid "MSGID" "message"
- ts_finalize_subtest
- 
- ts_init_subtest "priorities"
- for facility in auth authpriv cron daemon ftp lpr mail news syslog user uucp local{0..7}; do
- 	for level in emerg alert crit err warning notice info debug; do
--		$TS_HELPER_LOGGER -s --no-act -t "prio" -p "$facility.$level" "$facility.$level" >> "$TS_OUTPUT" 2>&1
--		echo "ret: $?" >> "$TS_OUTPUT"
-+		logger_fun -t "prio" -p "$facility.$level" "$facility.$level"
- 	done
- done
- ts_finalize_subtest
+ 	for (i = 0 ; i < 4; i++) {
+ 		if ((pmbr->partition_record[i].os_type != EFI_PMBR_OSTYPE) &&
+ 		    (pmbr->partition_record[i].os_type != 0x00))
 -- 
-1.8.4.5
+2.0.5
 
