@@ -1,26 +1,24 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36381 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752532AbbEEKrM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 May 2015 06:47:12 -0400
-Date: Tue, 5 May 2015 12:47:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] build-sys: fix parallel builds w/setarch links
-Message-ID: <20150505104709.GD27969@ws.net.home>
-References: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
+Return-Path: bensberg@justemail.net
+Message-Id: <1430927102.4150203.263516893.495F1D32@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Jean-Loup 'clippix' Bogalho" <clippix@lse.epita.fr>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>, Karel Zak <kzak@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+In-Reply-To: <20150506142143.GA27359@clippix.lab.lse.epita.fr>
+References: <20150506142143.GA27359@clippix.lab.lse.epita.fr>
+Subject: Re: [PATCH v2] fdisk: add the 'i'nfo command
+Date: Wed, 06 May 2015 17:45:02 +0200
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 03, 2015 at 11:51:04PM -0400, Mike Frysinger wrote:
->  sys-utils/Makemodule.am | 1 +
->  1 file changed, 1 insertion(+)
 
- Applied, thanks.
+On Wed, May 6, 2015, at 16:21, Jean-Loup 'clippix' Bogalho wrote:
+> +		MENU_ENT  ('i', N_("print informations about a partition")),
 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+s/informations/information/
+In unjoking English it doesn't have a plural.
+
+Benno
+
+-- 
+http://www.fastmail.com - Same, same, but different...
