@@ -1,78 +1,87 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from [82.195.75.110] ([82.195.75.110]:59731 "EHLO master.debian.org"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751237AbbEZEu3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 May 2015 00:50:29 -0400
-Message-ID: <1432614096.2154.33.camel@debian.org>
-Subject: Re: when would blkid success but not filesystem type?
-From: Paul Wise <pabs@debian.org>
-Reply-To: 784709@bugs.debian.org, util-linux <util-linux@vger.kernel.org>
-To: 784709@bugs.debian.org, util-linux <util-linux@vger.kernel.org>
-Date: Tue, 26 May 2015 12:21:36 +0800
-References: <20150520145904.3e4645dd@patagonia>
- <1432196678.28686.58.camel@debian.org>
- <20150521110735.GA4730@ws.net.home>
-In-Reply-To: <20150521110735.GA4730@ws.net.home>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-U+guNthIX2Ud7JjZJUzt"
-Mime-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Fri, 8 May 2015 08:20:50 +1000
+From: Dave Chinner <david@fromorbit.com>
+To: Ming Lei <ming.lei@canonical.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>, Jens Axboe <axboe@kernel.dk>,
+        Zach Brown <zab@zabbo.net>, Maxim Patlasov <mpatlasov@parallels.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Tejun Heo <tj@kernel.org>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH v3 4/4] block: loop: support DIO & AIO
+Message-ID: <20150507222050.GA16689@dastard>
+References: <1430932106-17451-1-git-send-email-ming.lei@canonical.com>
+ <1430932106-17451-5-git-send-email-ming.lei@canonical.com>
+ <20150507072400.GC7595@infradead.org>
+ <CACVXFVMN9EuPP+m0HWjatrXKufB4qokk7qRYQjhEz87ZjL53iQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CACVXFVMN9EuPP+m0HWjatrXKufB4qokk7qRYQjhEz87ZjL53iQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, May 07, 2015 at 08:32:39PM +0800, Ming Lei wrote:
+> On Thu, May 7, 2015 at 3:24 PM, Christoph Hellwig <hch@infradead.org> wrote:
+> >> @@ -441,6 +500,12 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
+> >>               mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
+> >>       lo->old_gfp_mask = mapping_gfp_mask(mapping);
+> >>       mapping_set_gfp_mask(mapping, lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+> >> +
+> >> +     lo->support_dio = mapping->a_ops && mapping->a_ops->direct_IO;
+> >> +     if (lo->support_dio)
+> >> +             lo->use_aio = true;
+> >> +     else
+> >> +             lo->use_aio = false;
+> >
+> > We need an explicit userspace op-in for this.  For one direct I/O can't
+> 
+> Actually this patch is one simplified version, and my old version
+> has exported two sysfs files(use_aio, use_dio) which can control
+> if direct IO or AIO is used but only AIO is enabled if DIO is set. Finally
+> I think it isn't necessary because dio/aio works well from the tests,
+> and userspace shouldn't care if it is AIO or not if the performance
+> is good.
 
---=-U+guNthIX2Ud7JjZJUzt
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Performance won't always be good.
 
-On Thu, 21 May 2015 13:07:35 +0200 Karel Zak wrote:
+It looks to me that this has an unbound queue depth for AIO.  What
+throttles the amount of IO userspace can throw at an aio-enabled
+loop device? If it's unbound, then userspace can throw gigabytes of
+random write at the loop device and rather thanbe throttled at 128
+outstanding IOs, the queue will just keep growing. That will have
+adverse affects on dirty memory throttling, memory reclaim
+algorithms, read and write latency, etc.
 
-> The option '-s' does not affect return code ...  we have information
-> about all (including empty) partitions!
+I suspect that if we are going to make the loop device use AIO, it
+will needs a proper queue depth limit (i.e.
+/sys/block/loop0/queue/nr_requests) enforced to avoid this sort of
+problem...
 
-Ok, I see. Sounds like the proposed patch is appropriate then.
+> > handle sub-sector size access and people use the loop device as a
+> > workaround for that.
+> 
+> Yes, user can do that, could you explain a bit what the problem is?
 
-https://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D12;filename=3D0001-Fix-=
-by-forcing-fs-type-to-not-detected-if-not-named.patch;att=3D1;bug=3D784709
+I have a 4k sector backing device and a 512 byte sector filesystem
+image. I can't do 512 byte direct IO to the filesystem image, so I
+can't run tools that handle fs images in files using direct Io on
+that file. Create a loop device with the filesystem image, and now I
+can do 512 byte direct IO to the filesystem image, because all that
+direct IO to the filesystem image is now buffered by the loop
+device.
 
->  Note that my recommendation is to use lsblk, for example:
+If the loop device does direct io in this situation, the backing
+filesystem rejects direct IO from the loop device because it is not
+sector (4k) sized/aligned. User now swears, shouts and curses you
+from afar.
 
-That has the same issue:
+DIO and AIO behaviour needs to be configurable through losetup, and
+most definitely not the default behaviour.
 
-$ sudo lsblk --noheading --output FSTYPE /dev/sda2 ; echo $?
+Cheers,
 
-0
-
-I think for our purposes we would need --nodeps too.
-
---=20
-bye,
-pabs
-
-https://wiki.debian.org/PaulWise
-
-
---=-U+guNthIX2Ud7JjZJUzt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCgAGBQJVY/TUAAoJEDEWul6f+mmjXCYP/Rm4VNnylqGiIC0nch8JiJUP
-nIPk47KmM8XtGauFucPFMJZ9umVBQG0uJOSrpLorVvBm29HnSeOnh5HgZ+zFOI97
-o0uhrE242AWL41i1imcJ/5f+mT92AfVXtdVQ9+8Fs9PAJHO7yOc4qhE/VVeJTZ5s
-uF6GWik4s3ZH5pTspV1MQVb6/IjxsgueDIafcySNrblWk531DKvb7x73Xy+1d9p1
-7ASytjD0pk59gfxfiEbLd5uTF88fGtnyjq7kqxBN6d23FYhUL6Y49U0ufjGVopx1
-37R6KL1fu4QcVJZbV5g1wpEFpygMpdSDykb09CPUWcZ/PChmUbaiVKKlOvAWgCnf
-NlDO45MxA9GQLbazkfJ03Jakg85doo2Zks2K2QJLk/4ANYH3sD+x9LNDK1B320hq
-ZKHMA+QeRnrhishj/eC8BdY4KT+Zs159KPkdoBezpjCkLltMRRC9BPBAeB1spJFA
-UWs+BXLtMRHRBAyLoaktnedqW3kgMFmXMhAx48XLdUcgFZxEgnt+ZcS8nmReUwlf
-XvjeZVXqHzZgrja3374kP/rAtNMagaIQZ63NzLy+MfttDgJ2aoUm7tS2XmvUc0O0
-UsfBgGibCZcc6A2Y/4+9qs2QChPoEe5fICxoZPEeKmh67dmTVCPWcG6H7YLzx9n4
-U3tpUezNpY9ZA1Y8+7Sm
-=QdCh
------END PGP SIGNATURE-----
-
---=-U+guNthIX2Ud7JjZJUzt--
-
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
