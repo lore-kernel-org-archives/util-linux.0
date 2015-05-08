@@ -1,49 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ob0-f172.google.com ([209.85.214.172]:36261 "EHLO
-	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750722AbbEYQG5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 25 May 2015 12:06:57 -0400
-Received: by obbea2 with SMTP id ea2so56536129obb.3
-        for <util-linux@vger.kernel.org>; Mon, 25 May 2015 09:06:57 -0700 (PDT)
-Message-ID: <556348A0.9020206@gmail.com>
-Date: Mon, 25 May 2015 11:06:56 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mout.gmx.net ([212.227.17.21]:61797 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753768AbbEHNoY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 8 May 2015 09:44:24 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libfdisk: (gpt) fix attributes endianess
+Date: Fri, 8 May 2015 15:44:20 +0200
+Cc: Michael Marineau <michael.marineau@coreos.com>
+References: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Martin Pitt <martin.pitt@ubuntu.com>
-CC: util-linux@vger.kernel.org, Werner Fink <werner@suse.de>
-Subject: Re: sulogin: Don't ask for password when it is locked/disabled
-References: <20150525140117.GA9697@ws.net.home>
-In-Reply-To: <20150525140117.GA9697@ws.net.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201505081544.20751.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+On Friday 08 May 2015, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
 >
-> Hi all,
->
-> https://github.com/karelzak/util-linux/pull/200
-> this is Martin's request for a change to sulogin.
->
-> It seems that Debian for last 10 years uses modified sulogin to
-> don't ask for password when /etc/shadow contains '!' or '*' as
-> root password.
->
->>From my point of view the request makes sense, because otherwise it's
-> impossible to enter shell in emergency more. BUT it also means that
-> systems with locked root accounts are less secure.
->
-> (Note that bootloader maybe password protected and access to console
->   does not always mean physical access to machine in all situations (locked
->   racks, console exported over network, virtual machines, etc.))
->
-> Any security objections, comments?
->
-> Do we want this feature enabled by default or do we need extra
-> command line/compile option?
+> The new libfdisk/gpt test (4a4a0927) discovered that we read and
+> write partition attributes wrongly on BE systems.
 
-Perhaps it's security by obscurity, but doesn't this tell a malicious user 
-immediately that the account is locked and to move on to another user id to try?
+To be more clear ... this does not mean that 4a4a0927 is broken but the 
+test shows that sfdisk (and fdisk) is.
 
-   -- Bruce Dubbs
-      linuxfromscratch.org
+Introduced at least since 01086b80 (2014-03-13) and c77ba531 
+(2014-10-02).
+
+Some notes how to reproduce.
+
+## create gpt image
+$ truncate -s 10M img
+$ ./sfdisk --unit S img <<EOF
+label: gpt
+size=5M, attrs=""
+EOF
+
+## Both commands should do the same
+$ ./sfdisk --part-attrs img 1 RequiredPartiton
+$ ./test_fdisk_gpt --setattr img 1 "0x0000000000000001"
+
+## So that for both cases and any endianess we should get
+$ ./sfdisk --part-attrs img 1
+RequiredPartiton
+## and
+$ ./test_fdisk_gpt --getattr img 1
+1: 0x0000000000000001
+## on disk it's always little endian
+$ hexdump -C img  | grep 009fbe30
+009fbe30  01 00 00 00 00 00 00 00  ....
+
+
+cu,
+Rudi
