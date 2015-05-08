@@ -1,36 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51595 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:63020 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757449AbbEELDe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 May 2015 07:03:34 -0400
-Date: Tue, 5 May 2015 13:03:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Michael Marineau <michael.marineau@coreos.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libfdisk: (gpt) fix check for beginning of protective
- partition
-Message-ID: <20150505110331.GF27969@ws.net.home>
-References: <1430541873-27791-1-git-send-email-michael.marineau@coreos.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1430541873-27791-1-git-send-email-michael.marineau@coreos.com>
+	id S1751167AbbEHLj6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 8 May 2015 07:39:58 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Michael Marineau <michael.marineau@coreos.com>
+Subject: [PATCH] libfdisk: (gpt) fix attributes endianess
+Date: Fri,  8 May 2015 13:39:53 +0200
+Message-Id: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 01, 2015 at 09:44:33PM -0700, Michael Marineau wrote:
-> Search for the protective partition before attempting to validate that
-> it covers the GPT header. Some hybrid MBRs list partitions out of order.
-> For example, CoreOS images ship with a hybrid MBR that lists the boot
-> partition first and the protective partition second in order to maintain
-> compatibility with old versions of Xen's PV-GRUB.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
- IMHO is better to say "sorry, this is unsupported use-case", than
- really on bad thing like hybrid GPT.
+The new libfdisk/gpt test (4a4a0927) discovered that we read and write
+partition attributes wrongly on BE systems.
 
- Anyway applied, with your patch the code seems more robust, thanks.
+Our temporarily used char[8] bits are always LE and do not need to be
+converted.
 
-    Karel
+CC: Michael Marineau <michael.marineau@coreos.com>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libfdisk/src/gpt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index a7ec539..3db81be 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -1415,7 +1415,7 @@ static int gpt_entry_attrs_to_string(struct gpt_entry *e, char **res)
+ 	assert(res);
+ 
+ 	*res = NULL;
+-	attrs = le64_to_cpu(e->attrs);
++	attrs = e->attrs;
+ 	if (!attrs)
+ 		return 0;	/* no attributes at all */
+ 
+@@ -1530,7 +1530,7 @@ static int gpt_entry_attrs_from_string(
+ 			p++;
+ 	}
+ 
+-	e->attrs = cpu_to_le64(attrs);
++	e->attrs = attrs;
+ 	return 0;
+ }
+ 
+@@ -2517,7 +2517,7 @@ static int gpt_toggle_partition_flag(
+ 	if ((uint32_t) i >= le32_to_cpu(gpt->pheader->npartition_entries))
+ 		return -EINVAL;
+ 
+-	attrs = le64_to_cpu(gpt->ents[i].attrs);
++	attrs = gpt->ents[i].attrs;
+ 	bits = (char *) &attrs;
+ 
+ 	switch (flag) {
+@@ -2558,7 +2558,7 @@ static int gpt_toggle_partition_flag(
+ 	else
+ 		clrbit(bits, bit);
+ 
+-	gpt->ents[i].attrs = cpu_to_le64(attrs);
++	gpt->ents[i].attrs = attrs;
+ 
+ 	if (flag == GPT_FLAG_GUIDSPECIFIC)
+ 		fdisk_info(cxt, isset(bits, bit) ?
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
