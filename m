@@ -1,59 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:60410 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754120AbbE1Plm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 28 May 2015 11:41:42 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 24C58AAC1
-	for <util-linux@vger.kernel.org>; Thu, 28 May 2015 15:41:40 +0000 (UTC)
-Message-ID: <55673733.2000409@suse.cz>
-Date: Thu, 28 May 2015 17:41:39 +0200
-From: Stanislav Brabec <sbrabec@suse.cz>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:35938 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751571AbbEJUiD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 10 May 2015 16:38:03 -0400
+Received: by pabsx10 with SMTP id sx10so93245677pab.3
+        for <util-linux@vger.kernel.org>; Sun, 10 May 2015 13:38:02 -0700 (PDT)
+Date: Sun, 10 May 2015 13:38:08 -0700
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] build-sys: fix parallel builds w/setarch links
+Message-ID: <20150510203807.GA1832@newbook>
+References: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
+ <55489D6D.9010303@draigBrady.com>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] lsblk.8: Fix description of output format
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <55489D6D.9010303@draigBrady.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- misc-utils/lsblk.8 | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Tue, May 05, 2015 at 11:37:33AM +0100, Pádraig Brady wrote:
+> On 04/05/15 04:51, Mike Frysinger wrote:
+> > From: Mike Frysinger <vapier@chromium.org>
+> > 
+> > The symlink generation tries to write to the sys-utils/ subdir but does
+> > not make sure that dir exists.  This can sometimes lead to parallel build
+> > failures when building out-of-tree
+> 
+> >  $(SETARCH_MAN_LINKS):
+> > +	$(AM_V_at) test -d $(dir $@) || mkdir -p $(dir $@)
+> >  	$(AM_V_GEN)echo ".so man8/setarch.8" > $@
+> >  
+> >  install-exec-hook-setarch:
+> 
+> The `test -d ... ||` bit is racy and redundant I think
 
-diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
-index 89e1ddd..eac86ac 100644
---- a/misc-utils/lsblk.8
-+++ b/misc-utils/lsblk.8
-@@ -60,7 +60,7 @@ top-level devices only.
- .TP
- .BR \-f , " \-\-fs"
- Output info about filesystems.  This option is equivalent to
--.BR -o\ NAME,FSTYPE,LABEL,MOUNTPOINT .
-+.BR -o\ NAME,FSTYPE,LABEL,UUID,MOUNTPOINT .
- The authoritative information about filesystems and raids is provided by the
- .BR blkid (8)
- command.
-@@ -116,7 +116,7 @@ Print dependencies in inverse order.
- .BR \-t , " \-\-topology"
- Output info about block-device topology.
- This option is equivalent to
--.BR -o\ NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE,WSAME .
-+.BR -o\ NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE,RA,WSAME .
- .TP
- .BR \-V , " \-\-version"
- Display version information and exit.
--- 
-2.4.1
+Racy, yes, but no more so than "mkdir -p $DIR && install $FILE $DIR":
+it's an inherent limitation of shell scripts.
 
--- 
-Best Regards / S pozdravem,
+Redundant, certainly: mkdir -p $DIR is required to succeed if $DIR is
+a preexisting directory (though it will fail if part of the path is a
+regular file).
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Thanks,
+Isaac Dunham
