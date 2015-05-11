@@ -1,57 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52935 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51605 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751978AbbENGae (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 May 2015 02:30:34 -0400
-Date: Thu, 14 May 2015 08:30:31 +0200
+	id S1752722AbbEKKw5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 May 2015 06:52:57 -0400
+Date: Mon, 11 May 2015 12:52:55 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ron <ron@debian.org>
-Cc: Andreas Henriksson <andreas@fatal.se>, 785116@bugs.debian.org,
-        util-linux@vger.kernel.org
-Subject: Re: Bug#785116: util-linux: blkid -s returns too much information
-Message-ID: <20150514063031.GG4834@ws.net.home>
-References: <20150512132634.1127.8640.reportbug@hex.shelbyville.oz>
- <20150513063604.GA466@fatal.se>
- <20150513103706.GE4834@ws.net.home>
- <20150513212052.GM27477@hex.shelbyville.oz>
+To: jean-loup.bogalho@clippix.eu
+Cc: util-linux@vger.kernel.org, bensberg@justemail.net
+Subject: Re: [PATCH v3] fdisk: add the 'i'nfo command
+Message-ID: <20150511105255.GN27969@ws.net.home>
+References: <20150509211523.GA5207@clippix.lab.lse.epita.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150513212052.GM27477@hex.shelbyville.oz>
+In-Reply-To: <20150509211523.GA5207@clippix.lab.lse.epita.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 14, 2015 at 06:50:52AM +0930, Ron wrote:
-> Right, in the situation where you *do* want multiple values, caring
-> about the order should be less of a problem, since you'd just access
-> the variables being set rather than trying to parse or interpret
-> them literally.  If for some reason you did care about the order,
-> you'd run that multiple times with one value for each invocation.
+On Sat, May 09, 2015 at 11:15:23PM +0200, Jean-Loup 'clippix' Bogalho wrote:
+> This version is modified following the comments of Karel Zak and
+> Benno Schuleberg in the review of the previous patch.
 > 
-> Which, right now if you do that, you'll end up with something like:
-> 
->  # blkid -s UUID -o export /dev/sda2; blkid -s TYPE -o export /dev/sda2
->  DEVNAME=/dev/sda2
->  UUID=9621a7e3-14a1-4d03-8250-b4fbeb79999b
->  DEVNAME=/dev/sda2
->  TYPE=ext4
-> 
-> I guess the other case where that might bite you is if you were already
-> using DEVNAME as a local variable for something else ...
+>  disk-utils/fdisk-menu.c |  4 ++++
+>  disk-utils/fdisk.c      | 44 ++++++++++++++++++++++++++++++++++++++++++++
+>  disk-utils/fdisk.h      |  2 ++
+>  3 files changed, 50 insertions(+)
 
-I'd like to keep blkid as very basic command line interface to
-libblkid and as the library test program. For standard use cases 
-and scripts it's better to use lsblk(8) command which provides 
-more information and better control on output format:
+ Excellent. Thanks.
 
-        # lsblk --pairs -o FSTYPE,UUID /dev/sda2
-        FSTYPE="ext4" UUID="c5490147-2a6c-4c8a-aa1b-33492034f927"
-
-        # lsblk --pairs -o UUID,FSTYPE /dev/sda2
-        UUID="c5490147-2a6c-4c8a-aa1b-33492034f927" FSTYPE="ext4"
-
-and it reads information from udev db or from libblkid.
+ Note, I have added fdisk_label_get_fields_ids_all() to the library to
+ provide the output fields independently on output mode. This change
+ makes your fdisk code more simple and output more rich.
 
     Karel
+
+
+Command (m for help): i
+Partition number (1-6, default 6): 1
+
+         Device: /dev/sda1
+          Start: 2048
+            End: 411647
+        Sectors: 409600
+           Size: 200M
+           Type: EFI System
+      Type-UUID: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+           UUID: 2062335E-51B6-49E8-BC3C-4C6D449E6805
+           Name: EFI System Partition
+
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
