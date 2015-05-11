@@ -1,67 +1,61 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:35643 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750785AbbEBEpd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 2 May 2015 00:45:33 -0400
-Received: by pabtp1 with SMTP id tp1so108913674pab.2
-        for <util-linux@vger.kernel.org>; Fri, 01 May 2015 21:45:32 -0700 (PDT)
-From: Michael Marineau <michael.marineau@coreos.com>
-To: util-linux@vger.kernel.org
-Cc: Michael Marineau <michael.marineau@coreos.com>
-Subject: [PATCH] libfdisk: (gpt) fix check for beginning of protective partition
-Date: Fri,  1 May 2015 21:44:33 -0700
-Message-Id: <1430541873-27791-1-git-send-email-michael.marineau@coreos.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 11 May 2015 13:38:33 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: what's cooking in zram for 4.1
+Message-ID: <20150511113833.GO27969@ws.net.home>
+References: <20150509042148.GA514@swordfish>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150509042148.GA514@swordfish>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Search for the protective partition before attempting to validate that
-it covers the GPT header. Some hybrid MBRs list partitions out of order.
-For example, CoreOS images ship with a hybrid MBR that lists the boot
-partition first and the protective partition second in order to maintain
-compatibility with old versions of Xen's PV-GRUB.
+On Sat, May 09, 2015 at 01:21:48PM +0900, Sergey Senozhatsky wrote:
+> There will be some user-space visible changes in zram 4.1 we'd love to let you know
+> about.
 
-Signed-off-by: Michael Marineau <michael.marineau@coreos.com>
----
- libfdisk/src/gpt.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Thanks.
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index a7766da..989fd75 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -678,11 +678,6 @@ static int valid_pmbr(struct fdisk_context *cxt)
- 	if (le16_to_cpu(pmbr->signature) != MSDOS_MBR_SIGNATURE)
- 		goto done;
- 
--	/* LBA of the GPT partition header */
--	if (pmbr->partition_record[0].starting_lba !=
--	    cpu_to_le32(GPT_PRIMARY_PARTITION_TABLE_LBA))
--		goto done;
--
- 	/* seems like a valid MBR was found, check DOS primary partitions */
- 	for (i = 0; i < 4; i++) {
- 		if (pmbr->partition_record[i].os_type == EFI_PMBR_OSTYPE) {
-@@ -693,13 +688,18 @@ static int valid_pmbr(struct fdisk_context *cxt)
- 			 */
- 			part = i;
- 			ret = GPT_MBR_PROTECTIVE;
--			goto check_hybrid;
-+			break;
- 		}
- 	}
- 
- 	if (ret != GPT_MBR_PROTECTIVE)
- 		goto done;
--check_hybrid:
-+
-+	/* LBA of the GPT partition header */
-+	if (pmbr->partition_record[part].starting_lba !=
-+	    cpu_to_le32(GPT_PRIMARY_PARTITION_TABLE_LBA))
-+		goto done;
-+
- 	for (i = 0 ; i < 4; i++) {
- 		if ((pmbr->partition_record[i].os_type != EFI_PMBR_OSTYPE) &&
- 		    (pmbr->partition_record[i].os_type != 0x00))
+> 2) zram has deprecated some of the existing stat sysfs attributes. we will
+> consolidate zramX device's stats in 3 files, rather than having N files (per-stat).
+
+sysfs attributes used by zramctl(8) are:
+
+    disksize
+    orig_data_size
+    compr_data_size
+    comp_algorithm
+    max_comp_streams
+    mem_used_total
+    reset
+
+> -- /sys/block/zram<id>/mm_stat
+> 
+> The stat file represents device's mm statistics. It consists of a single
+> line of text and contains the following stats separated by whitespace:
+
+hmm... frankly, the reason why I love /sys and why hate /proc is
+value-per-file. You do not need special parsers to read from /sys
+(usually).
+
+>         orig_data_size
+>         compr_data_size
+>         mem_used_total
+>         mem_limit
+>         mem_used_max
+>         zero_pages
+>         num_migrated
+
+Why do you need all in one file? ... to provide consistent statistics?
+
+
+    Karel
+
+
 -- 
-2.0.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
