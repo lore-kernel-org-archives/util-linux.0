@@ -1,38 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vn0-f41.google.com ([209.85.216.41]:45215 "EHLO
-	mail-vn0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753580AbbE3Sv4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 30 May 2015 14:51:56 -0400
-Received: by vnbg7 with SMTP id g7so11836156vnb.12
-        for <util-linux@vger.kernel.org>; Sat, 30 May 2015 11:51:53 -0700 (PDT)
-From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
-Subject: [PATCH] sys-utils: lscpu segfaults when built with -fsanitize=address
-Date: Sat, 30 May 2015 15:51:41 -0300
-Message-Id: <1433011901-113397-1-git-send-email-crrodriguez@opensuse.org>
+Received: from mx1.redhat.com ([209.132.183.28]:35029 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751771AbbEKIFf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 May 2015 04:05:35 -0400
+Date: Mon, 11 May 2015 10:05:28 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Isaac Dunham <ibid.ag@gmail.com>
+Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+        Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] build-sys: fix parallel builds w/setarch links
+Message-ID: <20150511080528.GK27969@ws.net.home>
+References: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
+ <55489D6D.9010303@draigBrady.com>
+ <20150510203807.GA1832@newbook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20150510203807.GA1832@newbook>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is expected and a false positive, exclude the vmware detection
-trick when __SANITIZE_ADDRESS__ is defined.
----
- sys-utils/lscpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, May 10, 2015 at 01:38:08PM -0700, Isaac Dunham wrote:
+> On Tue, May 05, 2015 at 11:37:33AM +0100, Pádraig Brady wrote:
+> > On 04/05/15 04:51, Mike Frysinger wrote:
+> > > From: Mike Frysinger <vapier@chromium.org>
+> > > 
+> > > The symlink generation tries to write to the sys-utils/ subdir but does
+> > > not make sure that dir exists.  This can sometimes lead to parallel build
+> > > failures when building out-of-tree
+> > 
+> > >  $(SETARCH_MAN_LINKS):
+> > > +	$(AM_V_at) test -d $(dir $@) || mkdir -p $(dir $@)
+> > >  	$(AM_V_GEN)echo ".so man8/setarch.8" > $@
+> > >  
+> > >  install-exec-hook-setarch:
+> > 
+> > The `test -d ... ||` bit is racy and redundant I think
+> 
+> Racy, yes, but no more so than "mkdir -p $DIR && install $FILE $DIR":
+> it's an inherent limitation of shell scripts.
+> 
+> Redundant, certainly: mkdir -p $DIR is required to succeed if $DIR is
+> a preexisting directory (though it will fail if part of the path is a
+> regular file).
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index b36d1da..f695a32 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -34,7 +34,7 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- 
--#if defined(__x86_64__) || defined(__i386__)
-+#if (defined(__x86_64__) || defined(__i386__)) && !defined(__SANITIZE_ADDRESS__)
- # define INCLUDE_VMWARE_BDOOR
- #endif
- 
+ It seems that 'test || mkdir' is nothing unusual in makefiles. The
+ problem is "mkdir -p" portability (at least from autotools point of
+ view :-), it seems that the proper way is to use 
+
+    @$(MKDIR_P) $(dir $@)
+
+ rather than directly call mkdir.
+
+
+    Karel
+
+
 -- 
-2.4.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
