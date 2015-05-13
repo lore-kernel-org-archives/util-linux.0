@@ -1,149 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:39907 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753919AbbERTbg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 May 2015 15:31:36 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 903DCABB3
-	for <util-linux@vger.kernel.org>; Mon, 18 May 2015 19:31:34 +0000 (UTC)
-Message-ID: <555A3E16.6090003@suse.cz>
-Date: Mon, 18 May 2015 21:31:34 +0200
-From: Stanislav Brabec <sbrabec@suse.cz>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] libfdisk: (gpt) fix attributes endianess
+Date: Wed, 13 May 2015 11:58:05 +0200
+Cc: util-linux@vger.kernel.org, Michael Marineau <michael.marineau@coreos.com>
+References: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de> <201505120847.40612.sweet_f_a@gmx.de> <20150513091700.GC4834@ws.net.home>
+In-Reply-To: <20150513091700.GC4834@ws.net.home>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix /sys to /dev node name translation
-Content-Type: text/plain; charset=iso-8859-2
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201505131158.06032.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-linux/drivers/base/core.c: device_get_devnode() defines a translation of
-'!' in sysfs nodes to '/' in /dev nodes. The same translation has to be
-done to properly support device nodes with slash (e. g. device nodes of
-cciss driver and several other drivers).
+On Wednesday 13 May 2015, Karel Zak wrote:
+> On Tue, May 12, 2015 at 08:47:40AM +0200, Ruediger Meier wrote:
+> > On Monday 11 May 2015, Karel Zak wrote:
+> > > On Fri, May 08, 2015 at 01:39:53PM +0200, Ruediger Meier wrote:
+> > > > The new libfdisk/gpt test (4a4a0927) discovered that we read
+> > > > and write partition attributes wrongly on BE systems.
+> > >
+> > > It was pretty hidden bug (as the problem was in the both set/get
+> > > functions).
+> >
+> > BTW maybe we could add the new raw attributes interface to sfdisk
+> > too. Like
+> > $ ./sfdisk --part-attrs img 1 "0x0000000000000001"
+> > (and also for stdin text input)
+> >
+> > This would make sfdisk forward compatible (in case they invent new
+> > attributes) and we could remove test_fdisk_gpt helper again.
+>
+>  Send patch :-)
 
-Replace '!' by '/' in sysfs_devno_to_devpath() exactly like kernel does.
+Ok, but still two questions.
 
-The problem is spread across more places of the code.
+1.
+Like the example above I'd like to simply interprete hex numbers as 
+bitsets. But because of strtol() hex numbers are working already now. 
+This does the same:
+$ ./sfdisk --part-attrs img 1 "56"
+$ ./sfdisk --part-attrs img 1 "0x38"
 
-One of the chunks fixes lsblk -f, other chunks fixes code that apparently
-assumes that /sys/block and /dev node names are the same, however I do
-not have any reproducer for them. I fixed all places I found, but it is
-possible that there are even more occurrences.
+I guess nobody ever used hexnumbers for GUID so far but the dumps from 
+the future sfdisk would behave strange with sfdisk-2.26. So should we 
+use a new prefix "bitset:0x..." or "raw:0x..."? 
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- lib/sysfs.c          | 14 ++++++++++++--
- libblkid/src/devno.c |  7 ++++++-
- misc-utils/lsblk.c   |  7 +++++++
- 3 files changed, 25 insertions(+), 3 deletions(-)
+2.
+Rather than suporting whole bitsets only we could simply allow "any bit" 
+to let this just work:
+$ ./sfdisk --part-attrs img 1 "23"
+unsupported GPT attribute bit '23'
 
-diff --git a/lib/sysfs.c b/lib/sysfs.c
-index 759d97b..ffdc8a1 100644
---- a/lib/sysfs.c
-+++ b/lib/sysfs.c
-@@ -112,7 +112,7 @@ dev_t sysfs_devname_to_devno(const char *name, const char *parent)
- char *sysfs_devno_to_devpath(dev_t devno, char *buf, size_t bufsiz)
- {
- 	struct sysfs_cxt cxt;
--	char *name;
-+	char *name, *s;
- 	size_t sz;
- 	struct stat st;
- 
-@@ -130,6 +130,11 @@ char *sysfs_devno_to_devpath(dev_t devno, char *buf, size_t bufsiz)
- 	if (sz + sizeof("/dev/") > bufsiz)
- 		return NULL;
- 
-+	/* replace '!' in the name with '/', see
-+	 * linux/drivers/base/core.c: device_get_devnode() */
-+	while ((s = strchr(name, '!')))
-+		s[0] = '/';
-+
- 	/* create the final "/dev/<name>" string */
- 	memmove(buf + 5, name, sz + 1);
- 	memcpy(buf, "/dev/", 5);
-@@ -776,7 +781,7 @@ int sysfs_devno_to_wholedisk(dev_t dev, char *diskname,
-          *  - basename ../../block/sda      = sda
-          */
-         char linkpath[PATH_MAX];
--        char *name;
-+        char *name, *s;
- 	ssize_t	linklen;
- 
- 	linklen = sysfs_readlink(&cxt, NULL, linkpath, sizeof(linkpath) - 1);
-@@ -789,6 +794,11 @@ int sysfs_devno_to_wholedisk(dev_t dev, char *diskname,
-         if (!name)
-             goto err;
- 
-+	/* replace '!' in the name with '/', see
-+	 * linux/drivers/base/core.c: device_get_devnode() */
-+	while ((s = strchr(name, '!')))
-+		s[0] = '/';
-+
-         if (diskname && len) {
-             strncpy(diskname, name, len);
-             diskname[len - 1] = '\0';
-diff --git a/libblkid/src/devno.c b/libblkid/src/devno.c
-index f4a36e4..cedd2db 100644
---- a/libblkid/src/devno.c
-+++ b/libblkid/src/devno.c
-@@ -179,7 +179,7 @@ static const char *devdirs[] = { "/devices", "/devfs", "/dev", NULL };
- static char *scandev_devno_to_devpath(dev_t devno)
- {
- 	struct dir_list *list = NULL, *new_list = NULL;
--	char *devname = NULL;
-+	char *devname = NULL, *s;
- 	const char **dir;
- 
- 	/*
-@@ -208,6 +208,11 @@ static char *scandev_devno_to_devpath(dev_t devno)
- 			new_list = NULL;
- 		}
- 	}
-+	/* replace '!' in the name with '/', see
-+	 * linux/drivers/base/core.c: device_get_devnode() */
-+	if (devname)
-+		while ((s = strchr(devname, '!')))
-+			s[0] = '/';
- 	free_dirlist(&list);
- 	free_dirlist(&new_list);
- 
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index 1b4ffc1..5cdae7d 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -413,6 +413,7 @@ static struct dirent *xreaddir(DIR *dp)
- static char *get_device_path(struct blkdev_cxt *cxt)
- {
- 	char path[PATH_MAX];
-+	char *s;
- 
- 	assert(cxt);
- 	assert(cxt->name);
-@@ -421,6 +422,12 @@ static char *get_device_path(struct blkdev_cxt *cxt)
- 		return canonicalize_dm_name(cxt->name);
- 
- 	snprintf(path, sizeof(path), "/dev/%s", cxt->name);
-+
-+	/* replace '!' in the name with '/', see
-+	 * linux/drivers/base/core.c: device_get_devnode() */
-+	while ((s = strchr(path, '!')))
-+		s[0] = '/';
-+
- 	return xstrdup(path);
- }
- 
--- 
-2.4.1
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+cu,
+Rudi
