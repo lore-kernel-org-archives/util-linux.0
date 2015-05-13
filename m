@@ -1,27 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38460 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38653 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757876AbbEELEz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 May 2015 07:04:55 -0400
-Date: Tue, 5 May 2015 13:04:53 +0200
+	id S1753843AbbEMJcK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 May 2015 05:32:10 -0400
+Date: Wed, 13 May 2015 11:32:07 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
+To: WANG Chao <wcwxyz@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fsck: Fix parsing of -r
-Message-ID: <20150505110453.GG27969@ws.net.home>
-References: <55410BAB.4030009@suse.cz>
+Subject: Re: [PATCH] lscpu: add cpu flags entry to summary output
+Message-ID: <20150513093207.GD4834@ws.net.home>
+References: <1431486905-63291-1-git-send-email-wcwxyz@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55410BAB.4030009@suse.cz>
+In-Reply-To: <1431486905-63291-1-git-send-email-wcwxyz@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 29, 2015 at 06:49:47PM +0200, Stanislav Brabec wrote:
->  disk-utils/fsck.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, May 13, 2015 at 11:15:05AM +0800, WANG Chao wrote:
+>  sys-utils/lscpu.c | 3 +++
+>  1 file changed, 3 insertions(+)
 
  Applied, thanks.
 
--- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
