@@ -1,126 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:33547 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750992AbbEQR1u (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 17 May 2015 13:27:50 -0400
-Received: by wicmx19 with SMTP id mx19so72988782wic.0
-        for <util-linux@vger.kernel.org>; Sun, 17 May 2015 10:27:49 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cantor2.suse.de ([195.135.220.15]:45823 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161032AbbENPz6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 May 2015 11:55:58 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 26BE1AC5D
+	for <util-linux@vger.kernel.org>; Thu, 14 May 2015 15:55:57 +0000 (UTC)
+Message-ID: <5554C58C.5080004@suse.cz>
+Date: Thu, 14 May 2015 17:55:56 +0200
+From: Stanislav Brabec <sbrabec@suse.cz>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] cal: fix January 1753 week number printout
-Date: Sun, 17 May 2015 18:27:42 +0100
-Message-Id: <1431883662-9121-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] script: Fix mangled EOF and hang on big endian
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier output was clearly broken.
+On s390 and other big endian machines, doinput() sends NUL instead of
+EOF to the tty master. NUL does not even reach the slave, and it is
+waiting for more data forever.
 
-$ cal -w 1 1753
-      January 1753
-   Su Mo Tu We Th Fr Sa
-51     1  2  3  4  5  6
-52  7  8  9 10 11 12 13
-52 14 15 16 17 18 19 20
-52 21 22 23 24 25 26 27
-52 28 29 30 31
+If STDIN is not a tty, the bug caused "^@" being into the log, and since
+commit 032228c it also causes hang.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- misc-utils/cal.c           |  2 +-
- tests/expected/cal/jan1753 | 19 +++++++++++++++++++
- tests/ts/cal/jan1753       | 43 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 63 insertions(+), 1 deletion(-)
- create mode 100644 tests/expected/cal/jan1753
- create mode 100755 tests/ts/cal/jan1753
+ term-utils/script.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index f1df759..548e567 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -609,7 +609,7 @@ static void cal_fill_month(struct cal_month *month, const struct cal_control *ct
- 			else
- 				month->weeks[i] = SPACE;
- 			weeklines--;
--			if (52 < weeknum && i == 0)
-+			if (i == 0 && (52 < weeknum || (month->year == 1753 && 51 < weeknum)))
- 				weeknum = week_number(month->days[DAYS_IN_WEEK * (i + 1)], 1, month->year, ctl);
- 			else if (52 < weeknum)
- 				weeknum = week_number(31, 12, month->year, ctl);
-diff --git a/tests/expected/cal/jan1753 b/tests/expected/cal/jan1753
-new file mode 100644
-index 0000000..d25ce9b
---- /dev/null
-+++ b/tests/expected/cal/jan1753
-@@ -0,0 +1,19 @@
-+
-+Monday-based 1753 week numbers
-+     December 1752             January 1753            February 1753     
-+   Mo Tu We Th Fr Sa Su     Mo Tu We Th Fr Sa Su     Mo Tu We Th Fr Sa Su
-+47              1  2  3   1  1  2  3  4  5  6  7   5           1  2  3  4 
-+48  4  5  6  7  8  9 10   2  8  9 10 11 12 13 14   6  5  6  7  8  9 10 11 
-+49 11 12 13 14 15 16 17   3 15 16 17 18 19 20 21   7 12 13 14 15 16 17 18 
-+50 18 19 20 21 22 23 24   4 22 23 24 25 26 27 28   8 19 20 21 22 23 24 25 
-+51 25 26 27 28 29 30 31   5 29 30 31               9 26 27 28             
-+                                                                          
-+Sunday-based 1753 week numbers
-+     December 1752             January 1753            February 1753     
-+   Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa
-+46                 1  2  51     1  2  3  4  5  6   4              1  2  3 
-+47  3  4  5  6  7  8  9   1  7  8  9 10 11 12 13   5  4  5  6  7  8  9 10 
-+48 10 11 12 13 14 15 16   2 14 15 16 17 18 19 20   6 11 12 13 14 15 16 17 
-+49 17 18 19 20 21 22 23   3 21 22 23 24 25 26 27   7 18 19 20 21 22 23 24 
-+50 24 25 26 27 28 29 30   4 28 29 30 31            8 25 26 27 28          
-+51 31                                                                     
-diff --git a/tests/ts/cal/jan1753 b/tests/ts/cal/jan1753
-new file mode 100755
-index 0000000..85dbf35
---- /dev/null
-+++ b/tests/ts/cal/jan1753
-@@ -0,0 +1,43 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="January 1753"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_CAL"
-+
-+export TERM=linux
-+
-+USETERM=$( ts_has_option "useterm" "$*" )
-+MYMONTH="1 1753"
-+
-+[ "$USETERM" == "yes" ] && TS_VERBOSE="yes"
-+ts_log ""
-+
-+ts_log "Monday-based 1753 week numbers"
-+if [ "$USETERM" == "yes" ]; then
-+	$TS_CMD_CAL -m3w $MYMONTH
-+fi
-+$TS_CMD_CAL -m3w $MYMONTH >> $TS_OUTPUT
-+
-+ts_log "Sunday-based 1753 week numbers"
-+if [ "$USETERM" == "yes" ]; then
-+	$TS_CMD_CAL -3w $MYMONTH
-+fi
-+$TS_CMD_CAL -3w $MYMONTH >> $TS_OUTPUT
-+
-+ts_finalize
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 02ba596..e0083f2 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -377,9 +377,9 @@ doinput(void) {
+ 		 * We usually use this when stdin is not a tty, for example:
+ 		 * echo "ps" | script
+ 		 */
+-		int c = DEF_EOF;
++		char c = DEF_EOF;
+ 
+-		if (write_all(master, &c, 1)) {
++		if (write_all(master, &c, sizeof(char))) {
+ 			warn (_("write failed"));
+ 			fail();
+ 		}
 -- 
-2.4.1
+2.3.7
 
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
