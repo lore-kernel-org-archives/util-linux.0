@@ -1,70 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from master.debian.org ([82.195.75.110]:34702 "EHLO
-	master.debian.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751140AbbEUIjb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 21 May 2015 04:39:31 -0400
-Message-ID: <1432196678.28686.58.camel@debian.org>
-Subject: when would blkid success but not filesystem type?
-From: Paul Wise <pabs@debian.org>
-Reply-To: 784709@bugs.debian.org, util-linux@vger.kernel.org
-To: 784709@bugs.debian.org, util-linux@vger.kernel.org
-Date: Thu, 21 May 2015 16:24:38 +0800
-References: <20150520145904.3e4645dd@patagonia>
-In-Reply-To: <20150520145904.3e4645dd@patagonia>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-+SWuL+3UdU2Pb6LUpbqQ"
-Mime-Version: 1.0
+Received: from e06smtp17.uk.ibm.com ([195.75.94.113]:46544 "EHLO
+	e06smtp17.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934286AbbEOMku (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 15 May 2015 08:40:50 -0400
+Received: from /spool/local
+	by e06smtp17.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+	Fri, 15 May 2015 13:40:48 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+	by d06dlp01.portsmouth.uk.ibm.com (Postfix) with ESMTP id D322617D8042
+	for <util-linux@vger.kernel.org>; Fri, 15 May 2015 13:41:33 +0100 (BST)
+Received: from d06av04.portsmouth.uk.ibm.com (d06av04.portsmouth.uk.ibm.com [9.149.37.216])
+	by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t4FCeid043712666
+	for <util-linux@vger.kernel.org>; Fri, 15 May 2015 12:40:44 GMT
+Received: from d06av04.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av04.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t4FCegFr004463
+	for <util-linux@vger.kernel.org>; Fri, 15 May 2015 06:40:43 -0600
+Date: Fri, 15 May 2015 14:40:42 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: WANG Chao <wcwxyz@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: add cpu flags entry to summary output
+Message-ID: <20150515124042.GC4280@osiris>
+References: <1431486905-63291-1-git-send-email-wcwxyz@gmail.com>
+ <20150513093207.GD4834@ws.net.home>
+ <20150515073747.GB4280@osiris>
+ <20150515105402.GI4834@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150515105402.GI4834@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, May 15, 2015 at 12:54:02PM +0200, Karel Zak wrote:
+> On Fri, May 15, 2015 at 09:37:48AM +0200, Heiko Carstens wrote:
+> > On Wed, May 13, 2015 at 11:32:07AM +0200, Karel Zak wrote:
+> > > On Wed, May 13, 2015 at 11:15:05AM +0800, WANG Chao wrote:
+> > > >  sys-utils/lscpu.c | 3 +++
+> > > >  1 file changed, 3 insertions(+)
+> > > 
+> > >  Applied, thanks.
+> > 
+> > Hello Karel,
+> > 
+> > just a general question, from my understanding the the summary output
+> > is supposed to be human readable. I'm not sure how a 500+ character
+> > line fits into this.
+> 
+> It's last line printed by lscpu, so terminal wraps it and from my
+> point of view it's still pretty human readable.
+> 
+> > At least it doesn't fit to the current layout of the summary output,
+> > but maybe that's just my impression.
+> 
+> Any suggestion how to improve it?
+> 
+> I think that provide incomplete info and force people to read also
+> /proc/cpuinfo is bad idea.
 
---=-+SWuL+3UdU2Pb6LUpbqQ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Ok, I was just wondering what the general "guide line" for stuff like
+this is.
+When I applied the patch and saw the output it looked strange to me
+and it didn't fit to the rest of the output. However that's probably
+just my personal taste ;)
 
-In https://bugs.debian.org/784709 J=C3=A9r=C3=B4me Kieffer wrote:
-
-> Here is the answer for the 3.16 kernel:
->=20
-> jerome@patagonia:~$ sudo blkid -o value -s TYPE /dev/sdb4
-> jerome@patagonia:~$ echo $?
-> 0
-...
->=20
-> The output is the same on 3.2, as you can see on attached images.
-
-Anyone know when blkid would return success but not the filesystem type?
-This is util-linux 2.25.2-6 with Linux 3.16/3.2 and an extended partition.
-
---=20
-bye,
-pabs
-
-https://wiki.debian.org/PaulWise
-
-
---=-+SWuL+3UdU2Pb6LUpbqQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCgAGBQJVXZZLAAoJEDEWul6f+mmjEeoQALLECyHTml5PW7dN/SI2adB5
-k2HDDyx92TwEGLczVpZBZhyuAS2m6hA6Drx/WlVaQyiTur9rPjxp1bH1zR1EKHMD
-sIniAsutRS5yRge/hnSGIs6WutVWygtyEHHJQqYqfk2wjdD454H0FUa4vNRgdmUC
-+g+W4QtVbK1oUnrTM90MuLnrAipbQgr+TWjx+kUrmUKvW9cHVBPoKuCQKWx5UFsK
-kHPRX6EmM4bLNGCvAMlSnO0VjosEo99eNN0pd1Wzvsfl7k3uZyx5qkZ4OB/fsXva
-9s7HYKvHFlo64dYVd4pBlRj+yL4uM8Z96kK468UuOhqiFb2yh7Cg8vlVoXMX/tqM
-2O6k+WmOjSCZ0cx1mQ/NHFcURxHaFwp8iVeGRTXdaLH9V8g00m8P2aHQOI9cKlhI
-bbrtyGCTcMt5BbpKOQv7/cG7xlJWCCPeQsqZkXRy67HxgMBGpwNGcqK8es07fgDy
-4PtsUXCEZ4gyPcfOyecpa6eSzdCKqZALMlVpC9YebVlfOHzjD4NJ+8iNcRWDto8e
-enpv9NB2ESAthzuAaOnWA69e/XfafQUSBX6UHy7ZulD/Tqm0tjBx+dXSL/Xw5hYh
-yWQW99IBSz7Qm4e6SaeMCdYR9W6q1hIiqwXVemeMNDycsmO4tzJ2T9cmCksV4nJ0
-49aH1SvHYiz/mqTE2T6m
-=Nadu
------END PGP SIGNATURE-----
-
---=-+SWuL+3UdU2Pb6LUpbqQ--
+Anyway, no further objections.
 
