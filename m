@@ -1,71 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:63020 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:36320 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751167AbbEHLj6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 8 May 2015 07:39:58 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Michael Marineau <michael.marineau@coreos.com>
-Subject: [PATCH] libfdisk: (gpt) fix attributes endianess
-Date: Fri,  8 May 2015 13:39:53 +0200
-Message-Id: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de>
+	id S1753430AbbEOK6F (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 May 2015 06:58:05 -0400
+Date: Fri, 15 May 2015 12:58:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] script: Fix mangled EOF and hang on big endian
+Message-ID: <20150515105801.GJ4834@ws.net.home>
+References: <5554C58C.5080004@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5554C58C.5080004@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, May 14, 2015 at 05:55:56PM +0200, Stanislav Brabec wrote:
+> -		int c = DEF_EOF;
+> +		char c = DEF_EOF;
 
-The new libfdisk/gpt test (4a4a0927) discovered that we read and write
-partition attributes wrongly on BE systems.
+ Ah... so nice ;-) Applied, thanks.
 
-Our temporarily used char[8] bits are always LE and do not need to be
-converted.
-
-CC: Michael Marineau <michael.marineau@coreos.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- libfdisk/src/gpt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index a7ec539..3db81be 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -1415,7 +1415,7 @@ static int gpt_entry_attrs_to_string(struct gpt_entry *e, char **res)
- 	assert(res);
- 
- 	*res = NULL;
--	attrs = le64_to_cpu(e->attrs);
-+	attrs = e->attrs;
- 	if (!attrs)
- 		return 0;	/* no attributes at all */
- 
-@@ -1530,7 +1530,7 @@ static int gpt_entry_attrs_from_string(
- 			p++;
- 	}
- 
--	e->attrs = cpu_to_le64(attrs);
-+	e->attrs = attrs;
- 	return 0;
- }
- 
-@@ -2517,7 +2517,7 @@ static int gpt_toggle_partition_flag(
- 	if ((uint32_t) i >= le32_to_cpu(gpt->pheader->npartition_entries))
- 		return -EINVAL;
- 
--	attrs = le64_to_cpu(gpt->ents[i].attrs);
-+	attrs = gpt->ents[i].attrs;
- 	bits = (char *) &attrs;
- 
- 	switch (flag) {
-@@ -2558,7 +2558,7 @@ static int gpt_toggle_partition_flag(
- 	else
- 		clrbit(bits, bit);
- 
--	gpt->ents[i].attrs = cpu_to_le64(attrs);
-+	gpt->ents[i].attrs = attrs;
- 
- 	if (flag == GPT_FLAG_GUIDSPECIFIC)
- 		fdisk_info(cxt, isset(bits, bit) ?
+    Karel
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
