@@ -1,51 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:34176 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753604AbbERJ43 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 May 2015 05:56:29 -0400
-Date: Mon, 18 May 2015 18:56:49 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: what's cooking in zram for 4.1
-Message-ID: <20150518095649.GB2330@swordfish>
-References: <20150509042148.GA514@swordfish>
- <20150518093645.GL4834@ws.net.home>
+Received: from smtp.gentoo.org ([140.211.166.183]:38382 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752053AbbEQFxD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 17 May 2015 01:53:03 -0400
+Date: Sun, 17 May 2015 01:53:02 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Peter Cordes <peter@cordes.ca>
+Cc: Karel Zak <kzak@redhat.com>, Isaac Dunham <ibid.ag@gmail.com>,
+        =?utf-8?Q?P=C3=A1draig?= Brady <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH] build-sys: fix parallel builds w/setarch links
+Message-ID: <20150517055302.GC12010@vapier>
+References: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
+ <55489D6D.9010303@draigBrady.com>
+ <20150510203807.GA1832@newbook>
+ <20150511080528.GK27969@ws.net.home>
+ <20150516175038.GG3933@cordes.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150518093645.GL4834@ws.net.home>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
+In-Reply-To: <20150516175038.GG3933@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On (05/18/15 11:36), Karel Zak wrote:
-> On Sat, May 09, 2015 at 01:21:48PM +0900, Sergey Senozhatsky wrote:
-> > There will be some user-space visible changes in zram 4.1 we'd love to let you know
-> > about.
-> 
-> ...
-> 
-> > -- /sys/block/zram<id>/mm_stat
-> > 
-> > The stat file represents device's mm statistics. It consists of a single
-> > line of text and contains the following stats separated by whitespace:
-> >         orig_data_size
-> >         compr_data_size
-> >         mem_used_total
-> >         mem_limit
-> >         mem_used_max
-> >         zero_pages
-> >         num_migrated
-> 
-> OK, zramctl(8) code in util-linux git tree supports mm_stat file now.
-> It's able to fallback to the original /sys/block/zram<id>/<attr> if
-> mm_stat does not exist. The change will be available in v2.27 (~Aug 2015).
-> 
-> I have also added support for MEM-LIMIT, MEM-USED and MIGRATED columns.
-> 
 
-great, thanks!
+--V88s5gaDVPzZ0KCq
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	-ss
+On 16 May 2015 14:50, Peter Cordes wrote:
+> On Mon, May 11, 2015 at 10:05:28AM +0200, Karel Zak wrote:
+> > On Sun, May 10, 2015 at 01:38:08PM -0700, Isaac Dunham wrote:
+> > > On Tue, May 05, 2015 at 11:37:33AM +0100, P=C3=A1draig Brady wrote:
+> > > > On 04/05/15 04:51, Mike Frysinger wrote:
+> > > > > From: Mike Frysinger <vapier@chromium.org>
+> > > > >=20
+> > > > > The symlink generation tries to write to the sys-utils/ subdir bu=
+t does
+> > > > > not make sure that dir exists.  This can sometimes lead to parall=
+el build
+> > > > > failures when building out-of-tree
+> > > >=20
+> > > > >  $(SETARCH_MAN_LINKS):
+> > > > > +	$(AM_V_at) test -d $(dir $@) || mkdir -p $(dir $@)
+> > > > >  	$(AM_V_GEN)echo ".so man8/setarch.8" > $@
+> > > > > =20
+> > > > >  install-exec-hook-setarch:
+> > > >=20
+> > > > The `test -d ... ||` bit is racy and redundant I think
+> > >=20
+> > > Racy, yes, but no more so than "mkdir -p $DIR && install $FILE $DIR":
+> > > it's an inherent limitation of shell scripts.
+>=20
+>  You mean racy as in multiple mkdir -p invocations could happen?  A C
+> implementation could shorten the window for the race (because mkdir(2)
+> would directly follow stat(2), rather than delayed by
+> fork/exec/dynamic linker startup).  Or handle EEXISTS specially and
+> test again for existance.  You could do most of that in shell, but it
+> would make the code a mess.
+
+shortening the window isn't interesting.  it's either race-free, or racy.  =
+the=20
+incident rate is irrelevant.
+-mike
+
+--V88s5gaDVPzZ0KCq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJVWCy+AAoJEEFjO5/oN/WBWCIQAIQI+R+vsWS/dKRp/K0nsuDl
+fGVLM9a3uE3BZpbmGgilar00pcx1uBoL7TGjrxNT2Q/uvi/YydFAY2XcKR+03cy1
+H8rsnOWiMuNapf3LqDYW+ukj6NTDE98fIoqJ6OvBNw/mHLCvXUPs5UG3Q8nHbAVv
+/fgb07xzL/otmp6QMTFwhzkhxBZaU1lgPKwPEpHBfgMe/7uGPC52Q/+ca+EhHwhM
+OmWWmLOY7+XB0fcF/JUq/IGj1RJN735JBeTRVG63cxz13JsWyT8v1viRN9jvfLAm
+3tFZbqK9cgBOk3maOK7At3XsR9PvFL4tEqyMA/0j2PBjenO3bK4UlgC7mmVPDWwm
+8eQD5BuU9q4L3pqFvAk76vgLnkNUrgk6Q2tje+W5ZTMJSGAp9DaBce4FtG663Gih
+CjQjBAGHGnkW3ZatQlttZHReMPlfF5SkYtf7odgODQ/Ozay0M5qOfSo7ktyX9cxo
+X4UyfcfbqXvoeJAkWjDUT/AKj7jWW5KcOUnE+E+PYDvfFzBIT2i4pmIdc76Y8+aL
+Gq+YPvOv+25ts+WmVueQt8/eJPsIUrlaljvBz2X3maRDTYkZ9mQFeD2ByaCiVNaS
+bcpQI36M2hKe0wjJvOFdP2rBB4mR7nDzKoAH65CqxrXatIG8W104jNs7PAo4vbMz
+TskBQYRIjaF8fgJvEM8y
+=0aah
+-----END PGP SIGNATURE-----
+
+--V88s5gaDVPzZ0KCq--
