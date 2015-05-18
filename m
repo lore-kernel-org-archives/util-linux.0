@@ -1,62 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hofr.at ([212.69.189.236]:46638 "EHLO mail.hofr.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933129AbbEELTw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 5 May 2015 07:19:52 -0400
-Date: Tue, 5 May 2015 13:19:51 +0200
-From: Georg Schiesser <georg.schiesser@opentech.at>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] build-sys: support unshare.static
-Message-ID: <20150505111951.GA17943@opentech.at>
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:34176 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753604AbbERJ43 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 May 2015 05:56:29 -0400
+Date: Mon, 18 May 2015 18:56:49 +0900
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: what's cooking in zram for 4.1
+Message-ID: <20150518095649.GB2330@swordfish>
+References: <20150509042148.GA514@swordfish>
+ <20150518093645.GL4834@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150518093645.GL4834@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch adds support for building a static version of unshare.
-We need to add unshare to the list of possible static programs, and
-provide build flags for the compiler and linker, which are equivalent to
-the flags of the non-static program, except additional static linking.
-See also: commit 2fa60c5 build-sys: support nsenter.static
+On (05/18/15 11:36), Karel Zak wrote:
+> On Sat, May 09, 2015 at 01:21:48PM +0900, Sergey Senozhatsky wrote:
+> > There will be some user-space visible changes in zram 4.1 we'd love to let you know
+> > about.
+> 
+> ...
+> 
+> > -- /sys/block/zram<id>/mm_stat
+> > 
+> > The stat file represents device's mm statistics. It consists of a single
+> > line of text and contains the following stats separated by whitespace:
+> >         orig_data_size
+> >         compr_data_size
+> >         mem_used_total
+> >         mem_limit
+> >         mem_used_max
+> >         zero_pages
+> >         num_migrated
+> 
+> OK, zramctl(8) code in util-linux git tree supports mm_stat file now.
+> It's able to fallback to the original /sys/block/zram<id>/<attr> if
+> mm_stat does not exist. The change will be available in v2.27 (~Aug 2015).
+> 
+> I have also added support for MEM-LIMIT, MEM-USED and MIGRATED columns.
+> 
 
-Signed-off-by: Georg Schiesser <georg.schiesser@opentech.at>
----
- configure.ac            | 2 +-
- sys-utils/Makemodule.am | 8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+great, thanks!
 
-diff --git a/configure.ac b/configure.ac
-index 6bc9efd..52c531e 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -442,7 +442,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([extern char *__progname;],
- 	   AC_MSG_RESULT([no]))
- 
- dnl Static compilation
--m4_define([UL_STATIC_PROGRAMS], [losetup, mount, umount, fdisk, sfdisk, blkid, nsenter])
-+m4_define([UL_STATIC_PROGRAMS], [losetup, mount, umount, fdisk, sfdisk, blkid, nsenter, unshare])
- 
- AC_ARG_ENABLE([static-programs],
-   [AS_HELP_STRING([--enable-static-programs=LIST],
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index 15d0a95..93b1644 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -350,6 +350,14 @@ dist_man_MANS += sys-utils/unshare.1
- unshare_SOURCES = sys-utils/unshare.c
- unshare_LDADD = $(LDADD) libcommon.la
- unshare_CFLAGS = $(AM_CFLAGS) -I$(ul_libmount_incdir)
-+
-+if HAVE_STATIC_UNSHARE
-+usrbin_exec_PROGRAMS += unshare.static
-+unshare_static_SOURCES = $(unshare_SOURCES)
-+unshare_static_LDFLAGS = -all-static
-+unshare_static_LDADD = $(unshare_LDADD)
-+unshare_static_CFLAGS = $(unshare_CFLAGS)
-+endif
- endif
- 
- if BUILD_NSENTER
--- 
-2.1.4
-
+	-ss
