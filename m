@@ -1,66 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52621 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41720 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754536AbbEULLg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 May 2015 07:11:36 -0400
-Date: Thu, 21 May 2015 13:11:34 +0200
+	id S1751569AbbEULHj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 21 May 2015 07:07:39 -0400
+Date: Thu, 21 May 2015 13:07:35 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix /sys to /dev node name translation
-Message-ID: <20150521111134.GB4730@ws.net.home>
-References: <555A3E16.6090003@suse.cz>
- <20150519080829.GO4834@ws.net.home>
- <555B2E2A.6000003@suse.cz>
+To: 784709@bugs.debian.org, util-linux@vger.kernel.org
+Subject: Re: when would blkid success but not filesystem type?
+Message-ID: <20150521110735.GA4730@ws.net.home>
+References: <20150520145904.3e4645dd@patagonia>
+ <1432196678.28686.58.camel@debian.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <555B2E2A.6000003@suse.cz>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1432196678.28686.58.camel@debian.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 19, 2015 at 02:35:54PM +0200, Stanislav Brabec wrote:
-> Karel Zak wrote:
-> >On Mon, May 18, 2015 at 09:31:34PM +0200, Stanislav Brabec wrote:
-> >>linux/drivers/base/core.c: device_get_devnode() defines a translation of
-> >>'!' in sysfs nodes to '/' in /dev nodes. The same translation has to be
-> >>done to properly support device nodes with slash (e. g. device nodes of
-> >>cciss driver and several other drivers).
-> >
-> >Strange feature.
+On Thu, May 21, 2015 at 04:24:38PM +0800, Paul Wise wrote:
+> In https://bugs.debian.org/784709 Jérôme Kieffer wrote:
 > 
-> It was probably introduced to support drivers that already used /dev
-> sub-directories in time of introduction /sys.
+> > Here is the answer for the 3.16 kernel:
+> > 
+> > jerome@patagonia:~$ sudo blkid -o value -s TYPE /dev/sdb4
+> > jerome@patagonia:~$ echo $?
+> > 0
+> ...
+> > 
+> > The output is the same on 3.2, as you can see on attached images.
 > 
-> >>+	/* replace '!' in the name with '/', see
-> >>+	 * linux/drivers/base/core.c: device_get_devnode() */
-> >>+	while ((s = strchr(name, '!')))
-> >>+		s[0] = '/';
-> >
-> >
-> >  What about to add small inline function sysfs_fix_devname() to
-> >  include/sysfs.h ?
-> 
-> Yes, it makes sense.
-> 
-> Do you have an idea how to locate all parts of code that make assumptions
-> basename (sysfs_block_path) == basename (dev_path).
+> Anyone know when blkid would return success but not the filesystem type?
 
-I hope we use lib/sysfs.c code always when possible. It should be
-possible to detect all /sys code by 
+ The option '-s' does not affect return code, this option controls 
+ output filter only. I have improved the description in the man page 
+ to make it more obvious.
 
-    git grep _PATH_SYS_
+ blkid returns success always when it's possible to gather any
+ information about the device. The important detail is that the recent
+ versions provide also PARTUUID=, so we have information about all
+ (including empty) partitions!
 
-so
+ For example (very very old version from e2fsprogs):
 
-    disk-utils/partx.c
-    lib/loopdev.c
-    lib/sysfs.c
-    libblkid/src/devname.c
-    misc-utils/lsblk.c
+    # blkid /dev/sdc1; echo $?
+    2
 
- the rest is irrelevant lscpu..
+ but the current util-linux upstream:
 
-    Karel
+    #blkid /dev/sdc1; echo $?
+    /dev/sdc1: PARTUUID="4b6f59ea-01"
+    0
+
+
+ And yes, we have PARTUUID also for MBR partitions, the method used to
+ generate the UUID is the same like kernel uses for root= command
+ line option.
+
+ Note that my recommendation is to use lsblk, for example:
+
+    # lsblk --noheading --output FSTYPE /dev/sda1
+    vfat
+
+ it reads info from udev db (libblkid is only fallback here), and it
+ provides better way how to control output.
+
+
+  Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
