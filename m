@@ -1,59 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35029 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52621 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751771AbbEKIFf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 May 2015 04:05:35 -0400
-Date: Mon, 11 May 2015 10:05:28 +0200
+	id S1754536AbbEULLg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 21 May 2015 07:11:36 -0400
+Date: Thu, 21 May 2015 13:11:34 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Isaac Dunham <ibid.ag@gmail.com>
-Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-        Mike Frysinger <vapier@gentoo.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] build-sys: fix parallel builds w/setarch links
-Message-ID: <20150511080528.GK27969@ws.net.home>
-References: <1430711464-4943-1-git-send-email-vapier@gentoo.org>
- <55489D6D.9010303@draigBrady.com>
- <20150510203807.GA1832@newbook>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix /sys to /dev node name translation
+Message-ID: <20150521111134.GB4730@ws.net.home>
+References: <555A3E16.6090003@suse.cz>
+ <20150519080829.GO4834@ws.net.home>
+ <555B2E2A.6000003@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150510203807.GA1832@newbook>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <555B2E2A.6000003@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 10, 2015 at 01:38:08PM -0700, Isaac Dunham wrote:
-> On Tue, May 05, 2015 at 11:37:33AM +0100, Pádraig Brady wrote:
-> > On 04/05/15 04:51, Mike Frysinger wrote:
-> > > From: Mike Frysinger <vapier@chromium.org>
-> > > 
-> > > The symlink generation tries to write to the sys-utils/ subdir but does
-> > > not make sure that dir exists.  This can sometimes lead to parallel build
-> > > failures when building out-of-tree
-> > 
-> > >  $(SETARCH_MAN_LINKS):
-> > > +	$(AM_V_at) test -d $(dir $@) || mkdir -p $(dir $@)
-> > >  	$(AM_V_GEN)echo ".so man8/setarch.8" > $@
-> > >  
-> > >  install-exec-hook-setarch:
-> > 
-> > The `test -d ... ||` bit is racy and redundant I think
+On Tue, May 19, 2015 at 02:35:54PM +0200, Stanislav Brabec wrote:
+> Karel Zak wrote:
+> >On Mon, May 18, 2015 at 09:31:34PM +0200, Stanislav Brabec wrote:
+> >>linux/drivers/base/core.c: device_get_devnode() defines a translation of
+> >>'!' in sysfs nodes to '/' in /dev nodes. The same translation has to be
+> >>done to properly support device nodes with slash (e. g. device nodes of
+> >>cciss driver and several other drivers).
+> >
+> >Strange feature.
 > 
-> Racy, yes, but no more so than "mkdir -p $DIR && install $FILE $DIR":
-> it's an inherent limitation of shell scripts.
+> It was probably introduced to support drivers that already used /dev
+> sub-directories in time of introduction /sys.
 > 
-> Redundant, certainly: mkdir -p $DIR is required to succeed if $DIR is
-> a preexisting directory (though it will fail if part of the path is a
-> regular file).
+> >>+	/* replace '!' in the name with '/', see
+> >>+	 * linux/drivers/base/core.c: device_get_devnode() */
+> >>+	while ((s = strchr(name, '!')))
+> >>+		s[0] = '/';
+> >
+> >
+> >  What about to add small inline function sysfs_fix_devname() to
+> >  include/sysfs.h ?
+> 
+> Yes, it makes sense.
+> 
+> Do you have an idea how to locate all parts of code that make assumptions
+> basename (sysfs_block_path) == basename (dev_path).
 
- It seems that 'test || mkdir' is nothing unusual in makefiles. The
- problem is "mkdir -p" portability (at least from autotools point of
- view :-), it seems that the proper way is to use 
+I hope we use lib/sysfs.c code always when possible. It should be
+possible to detect all /sys code by 
 
-    @$(MKDIR_P) $(dir $@)
+    git grep _PATH_SYS_
 
- rather than directly call mkdir.
+so
 
+    disk-utils/partx.c
+    lib/loopdev.c
+    lib/sysfs.c
+    libblkid/src/devname.c
+    misc-utils/lsblk.c
+
+ the rest is irrelevant lscpu..
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
