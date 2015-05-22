@@ -1,52 +1,47 @@
-Return-Path: minchan.kim@gmail.com
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date: Mon, 18 May 2015 22:55:52 +0900
-From: Minchan Kim <minchan@kernel.org>
-To: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: what's cooking in zram for 4.1
-Message-ID: <20150518135552.GA3270@blaptop>
-References: <20150509042148.GA514@swordfish>
- <20150511113833.GO27969@ws.net.home>
- <20150511115602.GA483@swordfish>
+Return-Path: sbrabec@suse.cz
+Message-ID: <555F349D.7080706@suse.cz>
+Date: Fri, 22 May 2015 15:52:29 +0200
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150511115602.GA483@swordfish>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix /sys to /dev node name translation
+References: <555A3E16.6090003@suse.cz> <20150519080829.GO4834@ws.net.home> <555B2E2A.6000003@suse.cz> <20150521111134.GB4730@ws.net.home>
+In-Reply-To: <20150521111134.GB4730@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Hello
+Karel Zak wrote:
+> I hope we use lib/sysfs.c code always when possible. It should be
+> possible to detect all /sys code by
+>
+>      git grep _PATH_SYS_
+>
+> so
+>
+>      disk-utils/partx.c
+>      lib/loopdev.c
+>      lib/sysfs.c
+>      libblkid/src/devname.c
+>      misc-utils/lsblk.c
+>
+I went through these files and none of them seems to do such conversion.
 
-On Mon, May 11, 2015 at 08:56:02PM +0900, Sergey Senozhatsky wrote:
-> On (05/11/15 13:38), Karel Zak wrote:
-> > hmm... frankly, the reason why I love /sys and why hate /proc is
-> > value-per-file. You do not need special parsers to read from /sys
-> > (usually).
-> > 
-> > >         orig_data_size
-> > >         compr_data_size
-> > >         mem_used_total
-> > >         mem_limit
-> > >         mem_used_max
-> > >         zero_pages
-> > >         num_migrated
-> > 
-> > Why do you need all in one file? ... to provide consistent statistics?
-> > 
-> 
-> yes, that's the main reason.
+So only the three places in the last patch needs to be fixed.
 
-In my side, other main reason was to reduce the number of system call
-to see statistics. It is not only syscall overhead itself but also
-causes slightly high-order allocation for kernel internal data structure
-via slab allocation which is bad on low memory situation where is
-frequent in zram-swap. Slab allocation could be fallback with 0-order
-pages but it could cause excessive page reclaim seriously since compaction
-didn't work.
-Yes, it's a one of problem of current VM but there is no reason to hesitate
-if we can avoid such problems and support consistent statistic as well.
+I already have a new patch introducing static inline void 
+sysfs_devname_to_dev_name (char *name) helper for in-place conversion of 
+'!' to '/', but I am waiting for a chance to make a test on a real 
+hardware next week.
 
 -- 
-Kind regards,
-Minchan Kim
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
