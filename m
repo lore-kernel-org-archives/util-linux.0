@@ -1,29 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from fallback1.mail.ru ([94.100.181.184]:37356 "EHLO
-	fallback1.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750995AbbEHLtm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 8 May 2015 07:49:42 -0400
-Received: from f337.i.mail.ru (f337.i.mail.ru [217.69.140.233])
-	by fallback1.mail.ru (mPOP.Fallback_MX) with ESMTP id 942285868F7F
-	for <util-linux@vger.kernel.org>; Fri,  8 May 2015 14:37:00 +0300 (MSK)
-Received: from [46.117.69.120] (ident=mail)
-	by f337.i.mail.ru with local (envelope-from <hypsurus@mail.ru>)
-	id 1YqgaQ-0005KS-Kv
-	for util-linux@vger.kernel.org; Fri, 08 May 2015 14:36:58 +0300
-From: =?UTF-8?B?SHlwc3VydXM=?= <hypsurus@mail.ru>
-To: util-linux@vger.kernel.org
-Subject: =?UTF-8?B?TmV3IGxpbnV4IGNvbW1hbmQgImhleGVkIg==?=
+Received: from cantor2.suse.de ([195.135.220.15]:43007 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750903AbbEYTRy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 25 May 2015 15:17:54 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 2DE09AC50
+	for <util-linux@vger.kernel.org>; Mon, 25 May 2015 19:17:53 +0000 (UTC)
+Message-ID: <55637560.4060207@suse.cz>
+Date: Mon, 25 May 2015 21:17:52 +0200
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-Date: Fri, 08 May 2015 14:36:58 +0300
-Reply-To: =?UTF-8?B?SHlwc3VydXM=?= <hypsurus@mail.ru>
-Message-ID: <1431085018.447503889@m.mail.ru>
-Content-Type: text/plain; charset=utf-8
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Use correct partition names for /dev/mapper
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-aSB3cm90ZSBhIG5ldyBMaW51eCBjb21tYW5kIGNhbGxlZCBoZXhlZAoKdG8gZW5jb2RlIGFuZCBk
-ZWNvZGUgaGV4IHN0cmluZyBmcm9tIHRoZSBjb21tYW5kIGxpbmUuCgphbmQgaSB3YW50IHRvIGFk
-ZCBpdCB0byB1dGlsIGxpbnV4LgoKaG93IGNhbiBoZWxwIG1lIHRvIGRvIHRoaXM/IGFuZCB3aGF0
-IGkgbmVlZCB0byBkbz8KaSBhbHJlYWR5IGNoZWNrZWQgdGhlIERvY3MgaW4gZ2l0aHViIGJ1dCBp
-J20gbm90IHN1cmUgd2hhdCB0byBkby4KClNvdXJjZSBjb2RlOgpodHRwczovL2dpdGh1Yi5jb20v
-SHlwc3VydXMvaGV4ZWQKCnRoYW5rcyEKLS0gCmh5cHN1cnVzCg==
+The default configuration of multipath-tools appends "-partN" to
+partition nodes. Follow this conventions and do the same.
+
+It fixes for example fdisk -l /dev/mapper/name_of_the_device.
+
+Note that the current implementation only partially fixes the problem. It
+does not reflect any udev configuration changes, as udev does not provide
+any function to return names of future (or current) partitions of a
+particular device. It also does not fix fdisk -l /dev/dm-0.
+
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libfdisk/src/utils.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/libfdisk/src/utils.c b/libfdisk/src/utils.c
+index cc470d9..928c59b 100644
+--- a/libfdisk/src/utils.c
++++ b/libfdisk/src/utils.c
+@@ -139,9 +139,11 @@ char *fdisk_partname(const char *dev, size_t partno)
+ 	}
+ 
+ 	/* udev names partitions by appending -partN
+-	   e.g. ata-SAMSUNG_SV8004H_0357J1FT712448-part1 */
++	   e.g. ata-SAMSUNG_SV8004H_0357J1FT712448-part1
++	   multipath-tools kpartx.rules also append -partN */
+ 	if ((strncmp(dev, _PATH_DEV_BYID, sizeof(_PATH_DEV_BYID) - 1) == 0) ||
+-	     strncmp(dev, _PATH_DEV_BYPATH, sizeof(_PATH_DEV_BYPATH) - 1) == 0) {
++	     strncmp(dev, _PATH_DEV_BYPATH, sizeof(_PATH_DEV_BYPATH) - 1) == 0 ||
++	     strncmp(dev, "/dev/mapper", sizeof("/dev/mapper") - 1) == 0) {
+ 	       p = "-part";
+ 	}
+ 
+-- 
+2.4.1
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
