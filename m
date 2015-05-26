@@ -1,41 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38512 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754780AbbESItQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 May 2015 04:49:16 -0400
-Date: Tue, 19 May 2015 10:08:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix /sys to /dev node name translation
-Message-ID: <20150519080829.GO4834@ws.net.home>
-References: <555A3E16.6090003@suse.cz>
+Received: from buxtehude.debian.org ([140.211.166.26]:34548 "EHLO
+	buxtehude.debian.org" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751118AbbEZGVd convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 26 May 2015 02:21:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <555A3E16.6090003@suse.cz>
+Content-Type: text/plain; charset=utf-8
+From: owner@bugs.debian.org (Debian Bug Tracking System)
+To: 784709@bugs.debian.org, util-linux <util-linux@vger.kernel.org>
+Subject: Bug#784709: Info received (when would blkid success but not
+ filesystem type?)
+Message-ID: <handler.784709.B784709.143261579011848.ackinfo@bugs.debian.org>
+References: <1432614096.2154.33.camel@debian.org>
+Reply-To: 784709@bugs.debian.org
+Date: Tue, 26 May 2015 04:51:08 +0000
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 18, 2015 at 09:31:34PM +0200, Stanislav Brabec wrote:
-> linux/drivers/base/core.c: device_get_devnode() defines a translation of
-> '!' in sysfs nodes to '/' in /dev nodes. The same translation has to be
-> done to properly support device nodes with slash (e. g. device nodes of
-> cciss driver and several other drivers).
+Thank you for the additional information you have supplied regarding
+this Bug report.
 
-Strange feature.
+This is an automatically generated reply to let you know your message
+has been received.
 
-> +	/* replace '!' in the name with '/', see
-> +	 * linux/drivers/base/core.c: device_get_devnode() */
-> +	while ((s = strchr(name, '!')))
-> +		s[0] = '/';
+Your message is being forwarded to the package maintainers and other
+interested parties for their attention; they will reply in due course.
 
+Your message has been sent to the package maintainer(s):
+ Debian Install System Team <debian-boot@lists.debian.org>
 
- What about to add small inline function sysfs_fix_devname() to
- include/sysfs.h ?
+If you wish to submit further information on this problem, please
+send it to 784709@bugs.debian.org.
 
-    Karel
-
+Please do not send mail to owner@bugs.debian.org unless you wish
+to report a problem with the Bug-tracking system.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+784709: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=784709
+Debian Bug Tracking System
+Contact owner@bugs.debian.org with problems
