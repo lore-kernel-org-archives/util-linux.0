@@ -1,37 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:62797 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752354AbbELGsH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 May 2015 02:48:07 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] libfdisk: (gpt) fix attributes endianess
-Date: Tue, 12 May 2015 08:47:40 +0200
-Cc: util-linux@vger.kernel.org, Michael Marineau <michael.marineau@coreos.com>
-References: <1431085193-1509-1-git-send-email-sweet_f_a@gmx.de> <20150511102545.GM27969@ws.net.home>
-In-Reply-To: <20150511102545.GM27969@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201505120847.40612.sweet_f_a@gmx.de>
+Received: from [82.195.75.110] ([82.195.75.110]:59656 "EHLO master.debian.org"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751142AbbEZEqM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 May 2015 00:46:12 -0400
+Message-ID: <1432615401.2154.37.camel@debian.org>
+Subject: Re: when would blkid success but not filesystem type?
+From: Paul Wise <pabs@debian.org>
+To: 784709@bugs.debian.org, util-linux <util-linux@vger.kernel.org>
+Date: Tue, 26 May 2015 12:43:21 +0800
+In-Reply-To: <1432614096.2154.33.camel@debian.org>
+References: <20150520145904.3e4645dd@patagonia>
+	  <1432196678.28686.58.camel@debian.org>
+	  <20150521110735.GA4730@ws.net.home> <1432614096.2154.33.camel@debian.org>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-b0viTVbfLXklvPTQkGyE"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 11 May 2015, Karel Zak wrote:
-> On Fri, May 08, 2015 at 01:39:53PM +0200, Ruediger Meier wrote:
-> > The new libfdisk/gpt test (4a4a0927) discovered that we read and
-> > write partition attributes wrongly on BE systems.
->
-> It was pretty hidden bug (as the problem was in the both set/get
-> functions).
 
-BTW maybe we could add the new raw attributes interface to sfdisk too. 
-Like
-$ ./sfdisk --part-attrs img 1 "0x0000000000000001"
-(and also for stdin text input)
+--=-b0viTVbfLXklvPTQkGyE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This would make sfdisk forward compatible (in case they invent new 
-attributes) and we could remove test_fdisk_gpt helper again.
+On Tue, 2015-05-26 at 12:21 +0800, Paul Wise wrote:
+> On Thu, 21 May 2015 13:07:35 +0200 Karel Zak wrote:
+>=20
+> > The option '-s' does not affect return code ...  we have information
+> > about all (including empty) partitions!
+>=20
+> Ok, I see. Sounds like the proposed patch is appropriate then.
+>=20
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D12;filename=3D0001-Fi=
+x-by-forcing-fs-type-to-not-detected-if-not-named.patch;att=3D1;bug=3D78470=
+9
 
-cu,
-Rudi
+Actually the code in question already contains a code path for when
+blkid returns success but an empty string. Needs more investigation.
+
+--=20
+bye,
+pabs
+
+https://wiki.debian.org/PaulWise
+
+
+--=-b0viTVbfLXklvPTQkGyE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCgAGBQJVY/nsAAoJEDEWul6f+mmjZ7UP/05iYweoZRUR47sJfQuk4XkZ
+r6qnkNHgoCR3hUJ2Ii6Iuk9nhPhgZW5lWxAdUtzniERjMQGN7wko8ljgGoLe+Z8s
+mpit9v08+n9+08JHG1vj6z+IuZbhzJs8l04L+0S1IPdUIckJ2IqfVGv9V9Zn5yL3
++JERabsoIArB2dLNXtO1Rn1fLhCODk/jagAxCgPzT3gQE/YS371nxUWUgdQqzm98
+bsnQAZV8PadtkX0XkwSb7aidVUAZuZmLjg55q/OM0bA39A/vkmgUInI+qARyV7w1
+6l41vLUyOGbDHlBAmWZKQ2Bg3EA5CABQx90cam1KyUn7fdwIVnshBWreLwl4e+cG
+FqK4c9zzxGsOGBQDAtLx5ddhb3QHw/P1pM7TAsPIgHlcXogPN1AvmaLtIQSRsDPu
+ZsGa23DFWGfB11G5ootMwu4W1mzHH6/r9WHya+Ei8iA4KeLy2k2j0aLa54HNWAje
+XMmZrIF2uFOdoa1k65GmUb8gqbOlG0iSHI5HOzueAq4AJLezo+VZFjD0OOfBkMPm
+jtLcDv9AQwUR3ILCSEQMPQmd97tEU8vfCCj4T5MBIhrGVTEYpJMMuNz92fvsvjTp
+q/uf8H+GuCbLGhmD3txDQEObbtE2XLgFXeHOdsD9TozdTEdUPM1iAtQ07mq+pKtB
+H3TEcnoJW0dZMO1LswBN
+=ZD0g
+-----END PGP SIGNATURE-----
+
+--=-b0viTVbfLXklvPTQkGyE--
+
