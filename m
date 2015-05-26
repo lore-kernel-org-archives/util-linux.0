@@ -1,90 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:52784 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:48534 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753928AbbEZP7a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 May 2015 11:59:30 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 52930AD21
-	for <util-linux@vger.kernel.org>; Tue, 26 May 2015 15:59:29 +0000 (UTC)
-Message-ID: <55649861.7030501@suse.cz>
-Date: Tue, 26 May 2015 17:59:29 +0200
-From: Stanislav Brabec <sbrabec@suse.cz>
+	id S1751806AbbEZNwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 May 2015 09:52:16 -0400
+Date: Tue, 26 May 2015 11:40:40 +0200
+From: Karel Zak <kzak@redhat.com>
+To: 784709@bugs.debian.org, util-linux <util-linux@vger.kernel.org>
+Subject: Re: when would blkid success but not filesystem type?
+Message-ID: <20150526094040.GA11308@ws.net.home>
+References: <20150520145904.3e4645dd@patagonia>
+ <1432196678.28686.58.camel@debian.org>
+ <20150521110735.GA4730@ws.net.home>
+ <1432614096.2154.33.camel@debian.org>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Use predictable /dev/mapper partition names for /dev/dm-N
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1432614096.2154.33.camel@debian.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-It is impossible to predict /dev/dm-N partition names. Use predictable
-and better readable /dev/mapper names instead.
+On Tue, May 26, 2015 at 12:21:36PM +0800, Paul Wise wrote:
+> On Thu, 21 May 2015 13:07:35 +0200 Karel Zak wrote:
+> 
+> > The option '-s' does not affect return code ...  we have information
+> > about all (including empty) partitions!
+> 
+> Ok, I see. Sounds like the proposed patch is appropriate then.
+> 
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?msg=12;filename=0001-Fix-by-forcing-fs-type-to-not-detected-if-not-named.patch;att=1;bug=784709
+> 
+> >  Note that my recommendation is to use lsblk, for example:
+> 
+> That has the same issue:
+> 
+> $ sudo lsblk --noheading --output FSTYPE /dev/sda2 ; echo $?
+> 
+> 0
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- libfdisk/src/utils.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ Why do you want rely on return code? It is not error when 
+ FS type is undefined/unknown. All you need is to check result.
 
-diff --git a/libfdisk/src/utils.c b/libfdisk/src/utils.c
-index 4789dbd..569ee50 100644
---- a/libfdisk/src/utils.c
-+++ b/libfdisk/src/utils.c
-@@ -1,6 +1,7 @@
- 
- #include "fdiskP.h"
- #include "pathnames.h"
-+#include "canonicalize.h"
- 
- #include <ctype.h>
- 
-@@ -115,6 +116,7 @@ char *fdisk_partname(const char *dev, size_t partno)
- {
- 	char *res = NULL;
- 	const char *p = "";
-+	char *dev_mapped = NULL;
- 	int w = 0;
- 
- 	if (!dev || !*dev) {
-@@ -123,6 +125,13 @@ char *fdisk_partname(const char *dev, size_t partno)
- 		return NULL;
- 	}
- 
-+	/* It is impossible to predict /dev/dm-N partition names. */
-+	if (strncmp(dev, "/dev/dm-", sizeof("/dev/dm-") - 1) == 0) {
-+		dev_mapped = canonicalize_dm_name (dev + 5);
-+		if (dev_mapped)
-+			dev = dev_mapped;
-+	}
-+
- 	w = strlen(dev);
- 	if (isdigit(dev[w - 1]))
- #ifdef __GNU__
-@@ -147,10 +156,13 @@ char *fdisk_partname(const char *dev, size_t partno)
- 	       p = "-part";
- 	}
- 
--	if (asprintf(&res, "%.*s%s%zu", w, dev, p, partno) > 0)
--		return res;
-+	if (asprintf(&res, "%.*s%s%zu", w, dev, p, partno) <= 0)
-+		res = NULL;
-+
-+	if (dev_mapped)
-+		free(dev_mapped);
- 
--	return NULL;
-+	return res;
- }
- 
- #ifdef TEST_PROGRAM
+  FSTYPE=$(lsblk --nodeps --noheading --output FSTYPE /dev/sda2)
+  [ -n "$FSTYPE" ] && echo $FSTYPE
+
+> I think for our purposes we would need --nodeps too.
+
+ Yes.
+
+    Karel
+
 -- 
-2.4.1
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
