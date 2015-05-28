@@ -1,119 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33739 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:60410 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753124AbbEGKBy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 7 May 2015 06:01:54 -0400
-Date: Thu, 7 May 2015 12:01:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Jean-Loup 'clippix' Bogalho" <clippix@lse.epita.fr>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] fdisk: add the 'i'nfo command
-Message-ID: <20150507100147.GI27969@ws.net.home>
-References: <20150506142143.GA27359@clippix.lab.lse.epita.fr>
+	id S1754120AbbE1Plm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 28 May 2015 11:41:42 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 24C58AAC1
+	for <util-linux@vger.kernel.org>; Thu, 28 May 2015 15:41:40 +0000 (UTC)
+Message-ID: <55673733.2000409@suse.cz>
+Date: Thu, 28 May 2015 17:41:39 +0200
+From: Stanislav Brabec <sbrabec@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150506142143.GA27359@clippix.lab.lse.epita.fr>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] lsblk.8: Fix description of output format
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 06, 2015 at 04:21:43PM +0200, Jean-Loup 'clippix' Bogalho wrote:
-> +#define NB_INFO_FIELDS	6
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ misc-utils/lsblk.8 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-This is bad manner (as it makes code fragile), the better solution is:
-
-    int foo[] = { 10, 9, 8 };
-
-and then
-
-    for (i = 0; i < ARRAY_SIZE(foo); i++) {
-       ...
-    }
-
-> +int print_partition_infos(struct fdisk_context *cxt)
-> +{
-> +	struct fdisk_partition *pa = NULL;
-> +	char *data = NULL;
-> +	int rc = 0;
-> +	size_t i;
-> +	static int info_ids[NB_INFO_FIELDS] = {
-> +		FDISK_FIELD_NAME, FDISK_FIELD_START, FDISK_FIELD_SIZE,
-> +		FDISK_FIELD_UUID, FDISK_FIELD_TYPE, FDISK_FIELD_CYLINDERS
-> +	};
-
- FDISK_FIELD_CYLINDERS means size in cylinders, IMHO it's unnecessary
-
- FDISK_FIELD_SADDR is start address and FDISK_FIELD_EADDR is end
- address in CHS notation
-
- Anyway, you don't have to hardcode the IDs, see function
-
-   fdisk_label_get_fields_ids()
-
- it returns (allocated) array with the IDs, you need something like:
-
-   size_t nfields;
-   int *fields = NULL;
-   int details;
-   struct fdisk_label *lb = fdisk_get_label(cxt);
-
-   details = fdisk_is_details(cxt);
-   fdisk_enable_details(cxt, 1);
-   fdisk_label_get_fields_ids(lb, cxt, &fields, &nfields);
-   fdisk_enable_details(cxt, details);
-
- for more see code in disk-utils/fdisk-list.c
-
-> +	static char *fields[NB_INFO_FIELDS] = {
-> +		"name", "start", "size", "uuid", "type", "C/H/S"
-> +	};
-
- This is unnecessary, libfdisk already contains the names of the
- fields. See below.
-
-> +
-> +	if ((rc = fdisk_ask_partnum(cxt, &i, FALSE)))
-> +		return rc;
-> +
-> +	if ((rc = fdisk_get_partition(cxt, i, &pa))) {
-> +		fdisk_warnx(cxt, _("Partition %zu does not exist yet!"), i + 1);
-> +		return rc;
-> +	}
-> +	for (i = 0; i < NB_INFO_FIELDS - 1; ++i) {
-
-        int id = info_ids[i];
-        struct fdisk_field *field = fdisk_label_get_field(lb, id);
-
-        if (!field)
-            continue;   /* not supported by the current label */
-
-> +		rc = fdisk_partition_to_string(pa, cxt, info_ids[i], &data);
-> +		if (rc < 0)
-> +			goto clean_data;
-> +		fdisk_info(cxt, _("%s:\t%s"), fields[i], data);
-
-        fdisk_info(cxt, "%15s: %s\n", fdisk_field_get_name(fd), data);
-
-> +		free(data);
-> +	}
-> +	if ((rc = fdisk_partition_to_string(pa, cxt, info_ids[i], &data)) < 0)
-> +		goto clean_data;
-> +	fdisk_info(cxt, _("%s:\t%s/%d/%s"), fields[i], data, 1, data);
-
- _SADDR and _EADDR returns complete CHS, you don't have to compose it here.
-
- The stuff in the for() should be enough.
-
-> +
-> +clean_data:
-> +	fdisk_unref_partition(pa);
-> +	free(data);
-> +	return rc;
-> +}
-
- Thanks, the next version will be perfect :-)
-
-    Karel
+diff --git a/misc-utils/lsblk.8 b/misc-utils/lsblk.8
+index 89e1ddd..eac86ac 100644
+--- a/misc-utils/lsblk.8
++++ b/misc-utils/lsblk.8
+@@ -60,7 +60,7 @@ top-level devices only.
+ .TP
+ .BR \-f , " \-\-fs"
+ Output info about filesystems.  This option is equivalent to
+-.BR -o\ NAME,FSTYPE,LABEL,MOUNTPOINT .
++.BR -o\ NAME,FSTYPE,LABEL,UUID,MOUNTPOINT .
+ The authoritative information about filesystems and raids is provided by the
+ .BR blkid (8)
+ command.
+@@ -116,7 +116,7 @@ Print dependencies in inverse order.
+ .BR \-t , " \-\-topology"
+ Output info about block-device topology.
+ This option is equivalent to
+-.BR -o\ NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE,WSAME .
++.BR -o\ NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC,LOG-SEC,ROTA,SCHED,RQ-SIZE,RA,WSAME .
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+-- 
+2.4.1
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
