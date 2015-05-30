@@ -1,60 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cantor2.suse.de ([195.135.220.15]:45823 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161032AbbENPz6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 May 2015 11:55:58 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 26BE1AC5D
-	for <util-linux@vger.kernel.org>; Thu, 14 May 2015 15:55:57 +0000 (UTC)
-Message-ID: <5554C58C.5080004@suse.cz>
-Date: Thu, 14 May 2015 17:55:56 +0200
-From: Stanislav Brabec <sbrabec@suse.cz>
-MIME-Version: 1.0
+Received: from mail-vn0-f41.google.com ([209.85.216.41]:45215 "EHLO
+	mail-vn0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753580AbbE3Sv4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 30 May 2015 14:51:56 -0400
+Received: by vnbg7 with SMTP id g7so11836156vnb.12
+        for <util-linux@vger.kernel.org>; Sat, 30 May 2015 11:51:53 -0700 (PDT)
+From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] script: Fix mangled EOF and hang on big endian
-Content-Type: text/plain; charset=iso-8859-2
+Cc: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Subject: [PATCH] sys-utils: lscpu segfaults when built with -fsanitize=address
+Date: Sat, 30 May 2015 15:51:41 -0300
+Message-Id: <1433011901-113397-1-git-send-email-crrodriguez@opensuse.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On s390 and other big endian machines, doinput() sends NUL instead of
-EOF to the tty master. NUL does not even reach the slave, and it is
-waiting for more data forever.
-
-If STDIN is not a tty, the bug caused "^@" being into the log, and since
-commit 032228c it also causes hang.
-
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+This is expected and a false positive, exclude the vmware detection
+trick when __SANITIZE_ADDRESS__ is defined.
 ---
- term-utils/script.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/lscpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 02ba596..e0083f2 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -377,9 +377,9 @@ doinput(void) {
- 		 * We usually use this when stdin is not a tty, for example:
- 		 * echo "ps" | script
- 		 */
--		int c = DEF_EOF;
-+		char c = DEF_EOF;
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index b36d1da..f695a32 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -34,7 +34,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
  
--		if (write_all(master, &c, 1)) {
-+		if (write_all(master, &c, sizeof(char))) {
- 			warn (_("write failed"));
- 			fail();
- 		}
+-#if defined(__x86_64__) || defined(__i386__)
++#if (defined(__x86_64__) || defined(__i386__)) && !defined(__SANITIZE_ADDRESS__)
+ # define INCLUDE_VMWARE_BDOOR
+ #endif
+ 
 -- 
-2.3.7
+2.4.1
 
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
