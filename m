@@ -1,48 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:33337 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751257AbbEXTHh (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 24 May 2015 15:07:37 -0400
-Received: by wicmx19 with SMTP id mx19so25980923wic.0
-        for <util-linux@vger.kernel.org>; Sun, 24 May 2015 12:07:35 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20150521111301.GC4730@ws.net.home>
-References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
-	<20150521111301.GC4730@ws.net.home>
-Date: Sun, 24 May 2015 20:07:35 +0100
-Message-ID: <CAG27Bk3OdumQ0rJJUnVSHnks6TwHSokSySYHcqWHmCRTrfRDcw@mail.gmail.com>
-Subject: Re: [PATCH 00/12] pull: script(1) changes
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-lb0-f171.google.com ([209.85.217.171]:33680 "EHLO
+	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755756AbbE3SB2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 30 May 2015 14:01:28 -0400
+Received: by lbcue7 with SMTP id ue7so64965750lbc.0
+        for <util-linux@vger.kernel.org>; Sat, 30 May 2015 11:01:26 -0700 (PDT)
+From: Boris Egorov <egorov@linux.com>
+To: util-linux@vger.kernel.org
+Cc: Boris Egorov <egorov@linux.com>
+Subject: [PATCH] bash-completion: handle comma-separated options in findmnt
+Date: Sun, 31 May 2015 00:01:16 +0600
+Message-Id: <1433008876-8622-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 21 May 2015 at 12:13, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Feb 22, 2015 at 02:42:37PM +0000, Sami Kerola wrote:
->> The following changes are clean ups and improvements to script(1)
->> command.  These changes are also available from my github remote
->> repository.
->>
->>  git://github.com/kerolasa/lelux-utiliteetit.git script
->
-> I'd like to merge this patch set, any idea how to really test it? ;-)
+So, I discovered a way to complete comma-separated options. This
+solution can become messy when you have too many values listed.
 
-Hi Karel,
+Similar fixes for other utils follow if this one will be merged.
 
-I added some tests to my 'script2' branch.
+Signed-off-by: Boris Egorov <egorov@linux.com>
+---
+ bash-completion/findmnt | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/c7adcdde3ada54c1ede04c37ac44173e9b2e7ba4
-https://github.com/kerolasa/lelux-utiliteetit/commit/4f692ce1c11a02fb7f636a79dd1758ffc08f0b30
-
-The above tests are based on git log entries about old bugs and
-regressions. I am sure tests could have greater coverage, but even
-with these few I found a stupid error in earlier pull request -
-'Script done on <timestamp>' line was not printed to typescript file.
-That is now corrected.
-
+diff --git a/bash-completion/findmnt b/bash-completion/findmnt
+index cf66565..3ad9147 100644
+--- a/bash-completion/findmnt
++++ b/bash-completion/findmnt
+@@ -43,15 +43,23 @@ _findmnt_module()
+ 			return 0
+ 			;;
+ 		'-o'|'--output')
+-			# FIXME: how to append to a string with compgen?
+-			local OUTPUT
+-			OUTPUT="SOURCE TARGET FSTYPE OPTIONS VFS-OPTIONS
++			local prefix realcur OUTPUT_ALL OUTPUT
++			realcur="${cur##*,}"
++			prefix="${cur%$realcur}"
++
++			OUTPUT_ALL="SOURCE TARGET FSTYPE OPTIONS VFS-OPTIONS
+ 				FS-OPTIONS LABEL UUID PARTLABEL PARTUUID
+ 				MAJ\:MIN ACTION OLD-TARGET OLD-OPTIONS
+ 				SIZE AVAIL USED USE% FSROOT TID ID
+ 				OPT-FIELDS PROPAGATION FREQ PASSNO"
++
++			for WORD in $OUTPUT_ALL; do
++				if ! [[ $prefix == *"$WORD"* ]]; then
++					OUTPUT="$WORD $OUTPUT"
++				fi
++			done
+ 			compopt -o nospace
+-			COMPREPLY=( $(compgen -W "$OUTPUT" -S ',' -- $cur) )
++			COMPREPLY=( $(compgen -P "$prefix" -W "$OUTPUT" -S ',' -- $realcur) )
+ 			return 0
+ 			;;
+ 		'-t'|'--types')
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.1.4
+
