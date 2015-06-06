@@ -1,38 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:48228
-	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750874AbbFVR33 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 13:29:29 -0400
-Date: Mon, 22 Jun 2015 19:29:28 +0200
-From: Andreas Henriksson <andreas@fatal.se>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] rename: allow full-path renames
-Message-ID: <20150622172928.GA20786@fatal.se>
-References: <1434990185-19883-1-git-send-email-andreas@fatal.se>
- <CAG27Bk353ASGr0hyDe4oQvAZ3Swf_HbgonENtkOPFE_qcjE7MQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk353ASGr0hyDe4oQvAZ3Swf_HbgonENtkOPFE_qcjE7MQ@mail.gmail.com>
+Received: from smtp2.ono.com ([62.42.230.179]:33897 "EHLO smtp2.ono.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750746AbbFFETl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 6 Jun 2015 00:19:41 -0400
+From: Guillem Jover <guillem@hadrons.org>
+To: util-linux@vger.kernel.org
+Cc: Steven Chamberlain <steven@pyro.eu.org>
+Subject: [PATCH 1/3] lib/fileutils: Add new dup_fd_cloexec function
+Date: Sat,  6 Jun 2015 06:19:05 +0200
+Message-Id: <1433564347-9515-2-git-send-email-guillem@hadrons.org>
+In-Reply-To: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
+References: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Sami Kerola.
+This function duplicates and marks a file descriptor as close-on-exec.
+Takes care of build and run-time support for the fcntl F_DUPFD_CLOEXEC
+command, and other errors.
 
-On Mon, Jun 22, 2015 at 06:08:53PM +0100, Sami Kerola wrote:
-> Hi Andreas,
-> 
-> Change looks good, but I would add a test to avoid same regression
-> happening in future.  The same change with test can be found from
-> my git.
+Signed-off-by: Guillem Jover <guillem@hadrons.org>
+---
+ include/fileutils.h |  1 +
+ lib/fileutils.c     | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
-Thanks for your quick review. I was just about to send out the tests
-I was writing which should now be in your inbox with hopefully a bit
-more coverage...
+diff --git a/include/fileutils.h b/include/fileutils.h
+index 3353f69..e0e2ece 100644
+--- a/include/fileutils.h
++++ b/include/fileutils.h
+@@ -25,6 +25,7 @@ static inline FILE *xfmkstemp(char **tmpname, char *dir)
+ 	return ret;
+ }
+ 
++extern int dup_fd_cloexec(int oldfd, int lowfd);
+ extern int get_fd_tabsize(void);
+ 
+ extern int mkdir_p(const char *path, mode_t mode);
+diff --git a/lib/fileutils.c b/lib/fileutils.c
+index bffa8ff..81b38ad 100644
+--- a/lib/fileutils.c
++++ b/lib/fileutils.c
+@@ -50,6 +50,36 @@ int xmkstemp(char **tmpname, char *dir)
+ 	return fd;
+ }
+ 
++int dup_fd_cloexec(int oldfd, int lowfd)
++{
++	int fd, flags, errno_save;
++
++#ifdef F_DUPFD_CLOEXEC
++	fd = fcntl(oldfd, F_DUPFD_CLOEXEC, lowfd);
++	if (fd >= 0)
++		return fd;
++#endif
++
++	fd = dup(oldfd);
++	if (fd < 0)
++		return fd;
++
++	flags = fcntl(fd, F_GETFD);
++	if (flags < 0)
++		goto unwind;
++	if (fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0)
++		goto unwind;
++
++	return fd;
++
++unwind:
++	errno_save = errno;
++	close(fd);
++	errno = errno_save;
++
++	return -1;
++}
++
+ /*
+  * portable getdtablesize()
+  */
+-- 
+2.2.1.209.g41e5f3a
 
-Also submitted patch v2 with your Reviewed-by added.
-
-Regards,
-Andreas Henriksson
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
