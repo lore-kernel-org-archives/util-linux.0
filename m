@@ -1,43 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:36418 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751710AbbFVOsw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 10:48:52 -0400
-Received: by paceq1 with SMTP id eq1so111044529pac.3
-        for <util-linux@vger.kernel.org>; Mon, 22 Jun 2015 07:48:51 -0700 (PDT)
-Date: Mon, 22 Jun 2015 07:49:03 -0700
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: mount existing tmpfs mounts a new tmpfs
-Message-ID: <20150622144903.GA1595@localhost>
-References: <55876C53.7030505@ubuntu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55876C53.7030505@ubuntu.com>
+Received: from smtp2.ono.com ([62.42.230.179]:27541 "EHLO smtp2.ono.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750780AbbFFETn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 6 Jun 2015 00:19:43 -0400
+From: Guillem Jover <guillem@hadrons.org>
+To: util-linux@vger.kernel.org
+Cc: Steven Chamberlain <steven@pyro.eu.org>
+Subject: [PATCH 2/3] lib/sysfs: Use dup_fd_cloexec instead of direct call to fcntl
+Date: Sat,  6 Jun 2015 06:19:06 +0200
+Message-Id: <1433564347-9515-3-git-send-email-guillem@hadrons.org>
+In-Reply-To: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
+References: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
+Signed-off-by: Guillem Jover <guillem@hadrons.org>
+---
+ lib/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Forwarding this from debian bug #772419: Run mount /run, and it mounts
-> a new tmpfs over top of the existing one in /run ( even if /run isn't
-> listed in /etc/fstab ), hiding the existing files.  It should say that
-> it is already mounted.
+diff --git a/lib/sysfs.c b/lib/sysfs.c
+index 07b6b56..caf89bf 100644
+--- a/lib/sysfs.c
++++ b/lib/sysfs.c
+@@ -267,7 +267,7 @@ DIR *sysfs_opendir(struct sysfs_cxt *cxt, const char *attr)
+ 		 * -- we cannot use cxt->sysfs_fd directly, because closedir()
+ 		 * will close this our persistent file descriptor.
+ 		 */
+-		fd = fcntl(cxt->dir_fd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
++		fd = dup_fd_cloexec(cxt->dir_fd, STDERR_FILENO + 1);
+ 
+ 	if (fd < 0)
+ 		return NULL;
+-- 
+2.2.1.209.g41e5f3a
 
-Devuan Jessie, mount 2.26.2-6+devuan1, only says that /run is not in
-/etc/fstab unless I use:
- mount -t tmpfs tmpfs /run
-
-The "filesystem mounted or mountpoint busy" stuff should be from
-getting errno == EBUSY; this won't happen if you use a virtual filesystem
-that supports multiple instances.
-
-*As far as I know*, the only way mount with a single argument is
-able to determine the correct filesystem or mountpoint without reading
-/etc/fstab is if you add the "remount" option.
-
-HTH,
-Isaac Dunham
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
