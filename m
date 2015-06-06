@@ -1,36 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews08.kpnxchange.com ([213.75.39.13]:58977 "EHLO
-	cpsmtpb-ews08.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751232AbbFKJRR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Jun 2015 05:17:17 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from smtp1.ono.com ([62.42.230.162]:20677 "EHLO smtp1.ono.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750780AbbFFEZn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 6 Jun 2015 00:25:43 -0400
+From: Guillem Jover <guillem@hadrons.org>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] chrt: make the usage synopsis clearer
-Date: Thu, 11 Jun 2015 11:04:01 +0200
-Message-Id: <1434013442-2674-1-git-send-email-bensberg@justemail.net>
+Cc: Steven Chamberlain <steven@pyro.eu.org>
+Subject: [PATCH 0/3] Handle lack of F_DUPFD_CLOEXEC support
+Date: Sat,  6 Jun 2015 06:19:04 +0200
+Message-Id: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- schedutils/chrt.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+Hi!
 
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index 9b451ff..b6923b2 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -60,7 +60,8 @@ static void __attribute__((__noreturn__)) show_usage(int rc)
- 	fputs(_("Show or change the real-time scheduling attributes of a process.\n"), out);
- 	fprintf(out, _(
- 	"\nSet policy:\n"
--	"  chrt [options] [-p] [<policy>] <priority> [<pid> | <command> [<arg>...]]\n"
-+	"  chrt [options] <priority> <command> [<arg>...]\n"
-+	"  chrt [options] -p <priority> <pid>\n"
- 	"\nGet policy:\n"
- 	"  chrt [options] -p <pid>\n"));
- 
+These patches make the code gracefully handle missing F_DUPFD_CLOEXEC
+support at build and run-time. This affects at least current GNU/kFreeBSD
+systems. I've included the last patch so that GNU/kFreeBSD systems can
+immediately benefit from F_DUPFD_CLOEXEC before glibc is updated there,
+but if you prefer to omit that one out of disgust, that would be fine I
+guess.
+
+While the actual problem is that sysfs code is being built and used on
+non-Linux systems, it is too entrenched to get rid of it w/o substantial
+amounts of work. Also GNU/kFreeBSD does have limited sysfs support via
+the compat linsysfs, so it might not be entirely useless there. But it
+certainly is not useful on GNU/Hurd though, at least not currently.
+
+The patches were tested by Steven Chamberlain.
+
+Thanks,
+Guillem
+
+Guillem Jover (3):
+  lib/fileutils: Add new dup_fd_cloexec function
+  lib/sysfs: Use dup_fd_cloexec instead of direct call to fcntl
+  include/c: Define F_DUPFD_CLOEXEC on kFreeBSD systems if missing
+
+ include/c.h         |  6 ++++++
+ include/fileutils.h |  1 +
+ lib/fileutils.c     | 30 ++++++++++++++++++++++++++++++
+ lib/sysfs.c         |  2 +-
+ 4 files changed, 38 insertions(+), 1 deletion(-)
+
 -- 
-1.7.0.4
+2.2.1.209.g41e5f3a
 
