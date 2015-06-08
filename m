@@ -1,113 +1,408 @@
-Return-Path: tom.ty89@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qg0-f48.google.com ([209.85.192.48]:35577 "EHLO
+	mail-qg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752141AbbFHHmx (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 8 Jun 2015 03:42:53 -0400
+Received: by qgg3 with SMTP id 3so21306598qgg.2
+        for <util-linux@vger.kernel.org>; Mon, 08 Jun 2015 00:42:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20150615133154.GV1992@ws.net.home>
-References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
-	<20150615133154.GV1992@ws.net.home>
-Date: Tue, 16 Jun 2015 13:20:37 +0800
-Message-ID: <CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
-Subject: Re: optimal io size / custom alignment
+Date: Mon, 8 Jun 2015 15:42:52 +0800
+Message-ID: <CAGnHSE=QDqKbOKGrBH=4J_mv85V5ZumVmjoQ3Jpqig4CN4MU4Q@mail.gmail.com>
+Subject: multiple alignment bugs / inconsistencies of fdisk
 From: Tom Yan <tom.ty89@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
+To: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-http://www.spinics.net/lists/linux-usb/msg125988.html
+So I have a disk with weird "optimal i/o size" of 33553920 bytes
+(actually I think it's because of the usb/sata converter):
 
-This optimal i/o size is derived from a "Optimal transfer length"
-provided by the hardware through "VPD". The issue might not have
-seemed common because not all drive provide VPDs and not all driver
-reads them.
+    [tom@localhost ~]$ sudo fdisk -l /dev/sdb
+    Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 33553920 bytes
 
->From the adapter/drive I have, it is the same as the "Maximum transfer
-length" and they seem to be simply limits of SCSI "WRITE SAME (10/16)"
-command:
+and fdisk make use of that to determine its alignment. I don't
+consider that a problem yet, but the inconsistency of fdisk alignment
+policy:
 
-[tom@localhost ~]$ sudo sg_inq -p 0xb0 /dev/sdb
-VPD INQUIRY: Block limits page (SBC)
-  Maximum compare and write length: 0 blocks
-  Optimal transfer length granularity: 1 blocks
-  Maximum transfer length: 65535 blocks
-  Optimal transfer length: 65535 blocks
-  Maximum prefetch, xdread, xdwrite transfer length: 65535 blocks
-  Maximum unmap LBA count: 0
-  Maximum unmap block descriptor count: 0
-  Optimal unmap granularity: 0
-  Unmap granularity alignment valid: 0
-  Unmap granularity alignment: 0
-  Maximum write same length: 0x0 blocks
-  Maximum atomic transfer length: 0
-  Atomic alignment: 0
-  Atomic transfer length granularity: 0
+    [tom@localhost ~]$ sudo fdisk /dev/sdb
 
-[tom@localhost ~]$ sudo sg_inq -p 0xb0 /dev/sdc
-VPD INQUIRY: Block limits page (SBC)
-  Maximum compare and write length: 0 blocks
-  Optimal transfer length granularity: 0 blocks
-  Maximum transfer length: 8388607 blocks
-  Optimal transfer length: 8388607 blocks
-  Maximum prefetch, xdread, xdwrite transfer length: 0 blocks
+    Welcome to fdisk (util-linux 2.26.2).
+    Changes will remain in memory only, until you decide to write them.
+    Be careful before using the write command.
 
-The thing is, why any io/transfer size/length should be considered
-when it comes to partition alignment? From what I understand,
-partition alignment is only to make sure partition starts at physical
-boundaries of the disk because of the mismatch between logicial sector
-(512 bytes) and physical sectors (4096 bytes) or pages/erase blocks of
-SSDs.
+    Device does not contain a recognized partition table.
+    Created a new DOS disklabel with disk identifier 0x604d5491.
 
-On 15 June 2015 at 21:31, Karel Zak <kzak@redhat.com> wrote:
-> On Sat, Jun 13, 2015 at 10:52:04PM +0800, Tom Yan wrote:
->> As I have mentioned in previous mails, I have an sata/usb3 adapter
->> which could work in uas mode, and when it does, it has a weird optimal
->> i/o size:
->>
->> Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
->> Units: sectors of 1 * 512 = 512 bytes
->> Sector size (logical/physical): 512 bytes / 512 bytes
->> I/O size (minimum/optimal): 512 bytes / 33553920 bytes
->
-> This is no problem (33553920 % 512 = 0) with the current kernel and
-> the current util-linux git tree where we support non power of 2
-> alignment.
->
->> http://www.linuxquestions.org/questions/linux-newbie-8/how-to-foramt-2tb-external-hard-drive-4175529792/
->>
->> In the above link, there shows another similar case of an external
->> drive with 4k physical sector.
->
-> from the link:
->
->     Sector size (logical/physical): 512 bytes / 4096 bytes
->     I/O size (minimum/optimal): 4096 bytes / 33553920 bytes
->
-> this is problem (33553920 % 4096 != 0) and frankly it seems like
-> pretty strange thing, maybe kernel guys can comment it (CC: to
-> Martin).
->
->> I am not sure if there's anything wrong with the device(s) or the
->> kernel, but anyway I doubt if fdisk should determine alignment with
->> this size. As you can calculate, it may not necessarily be a multiple
->> of the size of physical sectors, or that of common erase block of SSDs
->> (which is not reported anywhere AFAIK).
->>
->> Perhaps this I/O size does matter on alignment for certain cases, but
->> shouldn't physical sector or erase block be at least of higher
->> priority when it comes to alignment?
->
-> I think we can test "optimal_io_size % physical_sector_size" and use physical
-> sector size as the granularity if the optimal_io_size is a strange number.
->
->> In any case, it would be nice if fdisk can allow customize alignment
->> (like gdisk does), so that users can at least decide how partitions
->> should be aligned in weird cases like this. With that, the long-time
->> deprecated "dos compatibility" might be able to go as well.
->
-> I'll think about it...
->
->     Karel
->
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (65535-156301487, default 65535):
+    Last sector, +sectors or +size{K,M,G,T,P} (65535-156301487,
+default 156301487): +500m
+
+    Created a new partition 1 of type 'Linux' and of size 512 MiB.
+
+    Command (m for help): p
+    Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+    Disklabel type: dos
+    Disk identifier: 0x604d5491
+
+    Device     Boot Start     End Sectors  Size Id Type
+    /dev/sdb1       65535 1114094 1048560  512M 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x77cb1fd6.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (65535-156301487, default 65535):
+    Last sector, +sectors or +size{K,M,G,T,P} (65535-156301487,
+default 156301487): +512m
+
+    Created a new partition 1 of type 'Linux' and of size 512 MiB.
+
+    Command (m for help): p
+    Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+    Disklabel type: dos
+    Disk identifier: 0x77cb1fd6
+
+    Device     Boot Start     End Sectors  Size Id Type
+    /dev/sdb1       65535 1114110 1048576  512M 83 Linux
+
+    Command (m for help): q
+
+
+As you can see/calculate, when I try to make a 500MiB partition, fdisk
+try to round the size up so that the partition end at the alignment
+boundary, yet when I try to add a 512MiB partition, it doesn't do any
+rounding up or down. This happen for both msdos and gpt. Then I try to
+add a 1MiB partition, more weird things happened:
+
+    [tom@localhost ~]$ sudo fdisk /dev/sdb
+
+    Welcome to fdisk (util-linux 2.26.2).
+    Changes will remain in memory only, until you decide to write them.
+    Be careful before using the write command.
+
+    Device does not contain a recognized partition table.
+    Created a new DOS disklabel with disk identifier 0xe6e360c0.
+
+    Command (m for help): g
+    Created a new GPT disklabel (GUID: 09418DB1-FB4B-4CC5-9259-60561C0A352B).
+
+    Command (m for help): n
+    Partition number (1-128, default 1):
+    First sector (65535-156301454, default 65535):
+    Last sector, +sectors or +size{K,M,G,T,P} (65535-156301454,
+default 156301454): +15m
+    Last sector, +sectors or +size{K,M,G,T,P} (65535-156301454,
+default 156301454): +16m
+
+    Created a new partition 1 of type 'Linux filesystem' and of size 32 MiB.
+
+    Command (m for help): p
+    Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+    Disklabel type: gpt
+    Disk identifier: 09418DB1-FB4B-4CC5-9259-60561C0A352B
+
+    Device     Start    End Sectors Size Type
+    /dev/sdb1  65535 131069   65535  32M Linux filesystem
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x7bbf0050.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (65535-156301487, default 65535):
+    Last sector, +sectors or +size{K,M,G,T,P} (65535-156301487,
+default 156301487): +1m
+
+    Created a new partition 1 of type 'Linux' and of size 1 MiB.
+
+    Command (m for help): p
+    Disk /dev/sdb: 74.5 GiB, 80026361856 bytes, 156301488 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+    Disklabel type: dos
+    Disk identifier: 0x7bbf0050
+
+    Device     Boot Start   End Sectors Size Id Type
+    /dev/sdb1       65535 67583    2049   1M 83 Linux
+
+    Command (m for help): q
+
+
+As you can see, for gpt it only creates a "end-aligned" partition of
+32MiB until the number I enter reach 16, but for msdos it creates a
+weird partition of 2049 sectors (instead of 2048).
+
+Then I move on testing with a disk of "normal" sector and i/o sizes:
+
+    [tom@localhost ~]$ sudo fdisk -l /dev/sda
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+when I try to create a 1MiB partition, it creates one of 2048 sectors
+for both msdos and gpt, but then when I try to create smaller
+partitions which doesn't naturally "end-align", the result become
+ugly:
+
+    [tom@localhost ~]$ sudo fdisk /dev/sda
+
+    Welcome to fdisk (util-linux 2.26.2).
+    Changes will remain in memory only, until you decide to write them.
+    Be careful before using the write command.
+
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0xb84f3480.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +1k
+
+    Created a new partition 1 of type 'Linux' and of size 1.5 KiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0xb84f3480
+
+    Device     Boot Start   End Sectors  Size Id Type
+    /dev/sda1        2048  2050       3  1.5K 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x6f4977c6.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +1023k
+
+    Created a new partition 1 of type 'Linux' and of size 1023.5 KiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x6f4977c6
+
+    Device     Boot Start   End Sectors    Size Id Type
+    /dev/sda1        2048  4094    2047 1023.5K 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x7e1a99b9.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +1024k
+
+    Created a new partition 1 of type 'Linux' and of size 1 MiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x7e1a99b9
+
+    Device     Boot Start   End Sectors Size Id Type
+    /dev/sda1        2048  4095    2048   1M 83 Linux
+
+    Command (m for help): q
+
+Before it reach 1MiB, it creates ".5 KiB" partitions of odd numbers of
+sectors. This happens for msdos only; for gpt it doesn't allow
+partition smaller than 1MiB and round it up once the number reach 512.
+
+The issue(s) seems to be related to how fdisk handle +0/+1 sector:
+
+    [tom@localhost ~]$ sudo fdisk /dev/sda
+
+    Welcome to fdisk (util-linux 2.26.2).
+    Changes will remain in memory only, until you decide to write them.
+    Be careful before using the write command.
+
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x6473db40.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +0
+
+    Created a new partition 1 of type 'Linux' and of size 512 B.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x6473db40
+
+    Device     Boot Start   End Sectors  Size Id Type
+    /dev/sda1        2048  2048       1  512B 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x344a2daa.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +1
+
+    Created a new partition 1 of type 'Linux' and of size 1 KiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x344a2daa
+
+    Device     Boot Start   End Sectors Size Id Type
+    /dev/sda1        2048  2049       2   1K 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0xc29ce8ba.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +2
+
+    Created a new partition 1 of type 'Linux' and of size 1.5 KiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0xc29ce8ba
+
+    Device     Boot Start   End Sectors  Size Id Type
+    /dev/sda1        2048  2050       3  1.5K 83 Linux
+
+    Command (m for help): o
+    Created a new DOS disklabel with disk identifier 0x67872ede.
+
+    Command (m for help): n
+    Partition type
+       p   primary (0 primary, 0 extended, 4 free)
+       e   extended (container for logical partitions)
+    Select (default p):
+
+    Using default response p.
+    Partition number (1-4, default 1):
+    First sector (2048-468862127, default 2048):
+    Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
+468862127): +2048
+
+    Created a new partition 1 of type 'Linux' and of size 1 MiB.
+
+    Command (m for help): p
+    Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x67872ede
+
+    Device     Boot Start   End Sectors Size Id Type
+    /dev/sda1        2048  4096    2049   1M 83 Linux
+
+    Command (m for help): q
+
+As you can see, it consider "+0" as 1 sector, "+1" as 2 sectors, and
+so on. IMHO this also cause inconvenience when someone actually try to
+create partitions by entering number of sectors (one always need to
+"minus one" for that). It's the same case for gpt, except you can't do
+"+0" for it.
