@@ -1,46 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from aserp1040.oracle.com ([141.146.126.69]:44131 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751091AbbFRVB3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 18 Jun 2015 17:01:29 -0400
-To: Tom Yan <tom.ty89@gmail.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: optimal io size / custom alignment
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
-	<20150615133154.GV1992@ws.net.home>
-	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
-	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
-	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
-	<yq1d20vfimj.fsf@sermon.lab.mkp.net>
-	<CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
-Date: Thu, 18 Jun 2015 17:01:19 -0400
-In-Reply-To: <CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
-	(Tom Yan's message of "Wed, 17 Jun 2015 17:49:51 +0800")
-Message-ID: <yq1a8vwenog.fsf@sermon.lab.mkp.net>
+Received: from mx1.redhat.com ([209.132.183.28]:58429 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752684AbbFIJYP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Jun 2015 05:24:15 -0400
+Date: Tue, 9 Jun 2015 11:24:12 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Martin Steigerwald <ms@teamix.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: chrt: inconsistency in --help
+Message-ID: <20150609092412.GG1992@ws.net.home>
+References: <716925135.onXIMLDpa0@merkaba>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <716925135.onXIMLDpa0@merkaba>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
+On Tue, Jun 09, 2015 at 10:37:46AM +0200, Martin Steigerwald wrote:
+> Suggestion:
+> 
+> 1) Either make chrt command parsing more flexible (preffered)
 
-Tom> No I put it in the wrong way. What I meant was "sd vs md". For
-Tom> example, couldn't the scsi disk driver bind the value it reads from
-Tom> the VPD to another variable instead of "optimal i/o size", so that
-Tom> this value would be exclusively for RAID (and other virtual
-Tom> devices)?
+ Unfortunately we have to care about backward compatibility...
 
-Who says that RAID is a virtual device? Hardware RAID controllers as
-well as SAS, iSCSI and Fibre Channel disk arrays all use the Block
-Limits VPD to communicate their preferred I/O size and alignment to
-us. As do enterprise disk drives.
+> 2) or or even and change set policy to
+> 
+> Set policy:
+>   chrt [options] [-p] [<policy>] <priority> [<pid> | <command> [<arg>...]]
 
-We deal with broken devices by blacklisting them. I suggest you try to
-find a way we can reliably identify your UAS devices. If there is a
-common pattern, we can entertain adding a workaround.
+ Yes, I have modified --help output to this
+
+> But well second option separates -p from pid. So maybe option 1 is the way 
+> to go.
+
+ It's not elegant, but unfortunately used for years and I don't think
+ we want to make it more complex by any improvement.
+
+    Karel
 
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
