@@ -1,48 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp1.ono.com ([62.42.230.162]:20677 "EHLO smtp1.ono.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750780AbbFFEZn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 6 Jun 2015 00:25:43 -0400
-From: Guillem Jover <guillem@hadrons.org>
+Received: from mail-qg0-f54.google.com ([209.85.192.54]:35135 "EHLO
+	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964792AbbFJHX5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 10 Jun 2015 03:23:57 -0400
+Received: by qgg3 with SMTP id 3so13292650qgg.2
+        for <util-linux@vger.kernel.org>; Wed, 10 Jun 2015 00:23:56 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAGnHSEksSynfOvBMuPAMdFxgdip8=wfUFKhVM5ZeYjiP7x102w@mail.gmail.com>
+References: <CAGnHSEksSynfOvBMuPAMdFxgdip8=wfUFKhVM5ZeYjiP7x102w@mail.gmail.com>
+Date: Wed, 10 Jun 2015 15:23:56 +0800
+Message-ID: <CAGnHSEmnn5z-=x4V6dkh1hK3Gq2_v2Hn9HxqT4rC5n1fGAdkbA@mail.gmail.com>
+Subject: Re: making `blkid -lt NAME=value -o device` equivalent to `findfs`
+ for PART{UUID,LABEL}
+From: Tom Yan <tom.ty89@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: Steven Chamberlain <steven@pyro.eu.org>
-Subject: [PATCH 0/3] Handle lack of F_DUPFD_CLOEXEC support
-Date: Sat,  6 Jun 2015 06:19:04 +0200
-Message-Id: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi!
+By the way, according to the blkid(8):
 
-These patches make the code gracefully handle missing F_DUPFD_CLOEXEC
-support at build and run-time. This affects at least current GNU/kFreeBSD
-systems. I've included the last patch so that GNU/kFreeBSD systems can
-immediately benefit from F_DUPFD_CLOEXEC before glibc is updated there,
-but if you prefer to omit that one out of disgust, that would be fine I
-guess.
+       -l     Look up only one device that matches the search
+parameter specified with the -t option.  If there are multiple devices
+that match the specified search parameter,  then  the  device  with
+the
+              highest  priority  is  returned,  and/or the first
+device found at a given priority...
 
-While the actual problem is that sysfs code is being built and used on
-non-Linux systems, it is too entrenched to get rid of it w/o substantial
-amounts of work. Also GNU/kFreeBSD does have limited sysfs support via
-the compat linsysfs, so it might not be entirely useless there. But it
-certainly is not useful on GNU/Hurd though, at least not currently.
+However, as you can see in my last email, blkid_evaluate_tag() doesn't
+seem to return the first device. Only `blkid -lt PARTLABEL="EFI
+System" -o device`, which doesn't use the function, output the
+"/dev/sda1".
 
-The patches were tested by Steven Chamberlain.
-
-Thanks,
-Guillem
-
-Guillem Jover (3):
-  lib/fileutils: Add new dup_fd_cloexec function
-  lib/sysfs: Use dup_fd_cloexec instead of direct call to fcntl
-  include/c: Define F_DUPFD_CLOEXEC on kFreeBSD systems if missing
-
- include/c.h         |  6 ++++++
- include/fileutils.h |  1 +
- lib/fileutils.c     | 30 ++++++++++++++++++++++++++++++
- lib/sysfs.c         |  2 +-
- 4 files changed, 38 insertions(+), 1 deletion(-)
-
--- 
-2.2.1.209.g41e5f3a
-
+On 10 June 2015 at 14:38, Tom Yan <tom.ty89@gmail.com> wrote:
+> In commit c48508c2, findfs was given ability to work with PARTUUID and
+> PARTLABEL. It works on all four types with blkid_evaluate_tag().
+>
+> When blkid is run in form of `blkid -lt NAME=value -o device` for UUID
+> and LABEL, it works the same way as findfs:
+>
+>     /* convert LABEL/UUID lookup to evaluate request */
+>     if (lookup && output_format == OUTPUT_DEVICE_ONLY && search_type &&
+>         (!strcmp(search_type, "LABEL") || !strcmp(search_type, "UUID"))) {
+>         eval++;
+>         lookup = 0;
+>     }
+>
+> but not always for PARTUUID and PARTLABEL.
+>
+> Would it be a good idea to add them in the test as well, so that
+> `findfs` can be considered an equivalence/shortcut as blkid in that
+> form?
+>
+> [tom@localhost ~]$ blkid -t PARTLABEL="EFI System" -o device
+> /dev/sda1
+> /dev/sdb1
+> [tom@localhost ~]$ blkid -t LABEL=TEST -o device
+> /dev/sda1
+> /dev/sdb1
+> [tom@localhost ~]$ blkid -lt PARTLABEL="EFI System" -o device
+> /dev/sda1
+> [tom@localhost ~]$ findfs PARTLABEL="EFI System"
+> /dev/sdb1
+> [tom@localhost ~]$ blkid -lt LABEL=TEST -o device
+> /dev/sdb1
+> [tom@localhost ~]$ findfs LABEL=TEST
+> /dev/sdb1
