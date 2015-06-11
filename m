@@ -1,46 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35569 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755649AbbFOJDu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 15 Jun 2015 05:03:50 -0400
-Date: Mon, 15 Jun 2015 11:03:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Felipe Franciosi <felipe.franciosi@citrix.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: losetup race on -f file
-Message-ID: <20150615090347.GR1992@ws.net.home>
-References: <9F2C4E7DFB7839489C89757A66C5AD62BA1A0C@AMSPEX01CL03.citrite.net>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47947 "EHLO
+	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751218AbbFKJDt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 11 Jun 2015 05:03:49 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id B5B5720847
+	for <util-linux@vger.kernel.org>; Thu, 11 Jun 2015 05:03:48 -0400 (EDT)
+Message-Id: <1434013428.75585.292665745.17FBFAD5@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: Martin Steigerwald <ms@teamix.de>,
+        "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <9F2C4E7DFB7839489C89757A66C5AD62BA1A0C@AMSPEX01CL03.citrite.net>
+Content-Type: text/plain
+In-Reply-To: <20150609092412.GG1992@ws.net.home>
+References: <716925135.onXIMLDpa0@merkaba> <20150609092412.GG1992@ws.net.home>
+Subject: Re: chrt: inconsistency in --help
+Date: Thu, 11 Jun 2015 11:03:48 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 12, 2015 at 09:44:03AM +0000, Felipe Franciosi wrote:
-> Hi All,
+
+On Tue, Jun 9, 2015, at 11:24, Karel Zak wrote:
+> On Tue, Jun 09, 2015 at 10:37:46AM +0200, Martin Steigerwald wrote:
+> > Set policy:
+> >   chrt [options] [-p] [<policy>] <priority> [<pid> | <command> [<arg>...]]
 > 
-> I'm seeing a race when using "losetup -f file". Some research
-> pointed me to a 2007 path that introduced a "retry" mechanism if the
-> module returned EBUSY. At some point before the project went into
-> git.kernel.org this commit went away.
+>  Yes, I have modified --help output to this
 
-I still see EBUSY sensitivity:
+Well, -p is just one of the possible options, so it could be simply
+subsumed under [options].  Also, the brackets around "<pid> | <command>
+[<arg>..." seem to say that both <pid> and <command> are optional,
+but they are not when the <priority> is given.  Furthermore, <policy>
+seems to suggest it is something like "WORD" or "name" or "12345",
+but in fact it is a certain type of option, starting with a dash.
+So I think the current synopsis is rather confusing.
 
-  https://github.com/karelzak/util-linux/blob/master/sys-utils/losetup.c#L684
+The man page summarizes the command as follows:
+    chrt [options] priority command [argument...]
+    chrt [options] -p [priority] pid
 
-the problem is probably loopcxt_setup_device() where we does not save
-errno and does not set proper return value.
+The first line shows how to run a command with certain attributes,
+the second how to query or modify the attributes of an existing process.
+Quite clear.
 
-I'll try to fix it. Thanks for you report!
+So, to make usage synopsis clearer and correct I would suggest
+rewriting it as:
 
-> Can anyone clarify? I'm currently flock()ing /var/lock/losetup outside calls to losetup.
-> Objections to a losetup patch to do that internally?
+Set policy:
+    chrt [options] <priority> <command> [<arg>...]
+    chrt [options] -p <priority> <pid>
 
-Do you mean flock() within losetup? I'd like to avoid such thing.
+The first of the upcoming two patches makes this change.
 
-    Karel
-
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Accessible with your email software
+                          or over the web
+
