@@ -1,43 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50065 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750821AbbF2J1Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 29 Jun 2015 05:27:25 -0400
-Date: Mon, 29 Jun 2015 11:27:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Dave Rutherford <dave@evilpettingzoo.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] wall: Print time and date (rather than just time) in
- wall banner
-Message-ID: <20150629092723.GU1992@ws.net.home>
-References: <E1Z8e57-0003js-1r@bb>
- <CAG27Bk1qdxbFJNGVbPezFeKJME2pLHpAgDzOkDkGzT82CtE6kg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1qdxbFJNGVbPezFeKJME2pLHpAgDzOkDkGzT82CtE6kg@mail.gmail.com>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:53911 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751526AbbFKJRc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 11 Jun 2015 05:17:32 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] chrt: slice up the usage text and normalize its layout
+Date: Thu, 11 Jun 2015 11:04:02 +0200
+Message-Id: <1434013442-2674-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1434013442-2674-1-git-send-email-bensberg@justemail.net>
+References: <1434013442-2674-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jun 27, 2015 at 09:20:58AM +0100, Sami Kerola wrote:
-> That said now when everything is turning to json, maybe header and
-> message should be json as well.  Something like:
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ schedutils/chrt.c |   51 +++++++++++++++++++++++++++------------------------
+ 1 files changed, 27 insertions(+), 24 deletions(-)
 
- For humans? Why?
-
-> {
->   "title": "Broadcast message"
->   "from": "foobar@example.com"
->   "tty": "pts/2"
->   "date": "2015-06-27T09:18:36+0100"
->   "message": "the stuff users write"
-> }
-
-Anyway, I don't think the current output is so bad that we have to
-change it.
-
-    Karel
-
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index b6923b2..b1189e0 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -58,34 +58,37 @@ static void __attribute__((__noreturn__)) show_usage(int rc)
+ 	FILE *out = rc == EXIT_SUCCESS ? stdout : stderr;
+ 
+ 	fputs(_("Show or change the real-time scheduling attributes of a process.\n"), out);
+-	fprintf(out, _(
+-	"\nSet policy:\n"
+-	"  chrt [options] <priority> <command> [<arg>...]\n"
+-	"  chrt [options] -p <priority> <pid>\n"
+-	"\nGet policy:\n"
+-	"  chrt [options] -p <pid>\n"));
+-
+-	fprintf(out, _(
+-	"\nScheduling policies:\n"
+-	"  -b | --batch         set policy to SCHED_BATCH\n"
+-	"  -f | --fifo          set policy to SCHED_FIFO\n"
+-	"  -i | --idle          set policy to SCHED_IDLE\n"
+-	"  -o | --other         set policy to SCHED_OTHER\n"
+-	"  -r | --rr            set policy to SCHED_RR (default)\n"));
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Set policy:\n"
++	" chrt [options] <priority> <command> [<arg>...]\n"
++	" chrt [options] -p <priority> <pid>\n"), out);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Get policy:\n"
++	" chrt [options] -p <pid>\n"), out);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Policy options:\n"), out);
++	fputs(_(" -b, --batch          set policy to SCHED_BATCH\n"), out);
++	fputs(_(" -f, --fifo           set policy to SCHED_FIFO\n"), out);
++	fputs(_(" -i, --idle           set policy to SCHED_IDLE\n"), out);
++	fputs(_(" -o, --other          set policy to SCHED_OTHER\n"), out);
++	fputs(_(" -r, --rr             set policy to SCHED_RR (default)\n"), out);
+ 
+ #ifdef SCHED_RESET_ON_FORK
+-	fprintf(out, _(
+-	"\nScheduling flags:\n"
+-	"  -R | --reset-on-fork set SCHED_RESET_ON_FORK for FIFO or RR\n"));
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Scheduling flag:\n"), out);
++	fputs(_(" -R, --reset-on-fork  set SCHED_RESET_ON_FORK for FIFO or RR\n"), out);
+ #endif
+-	fprintf(out, _(
+-	"\nOptions:\n"
+-	"  -a | --all-tasks     operate on all the tasks (threads) for a given pid\n"
+-	"  -h | --help          display this help\n"
+-	"  -m | --max           show min and max valid priorities\n"
+-	"  -p | --pid           operate on existing given pid\n"
+-	"  -v | --verbose       display status information\n"
+-	"  -V | --version       output version information\n\n"));
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Other options:\n"), out);
++	fputs(_(" -a, --all-tasks      operate on all the tasks (threads) for a given pid\n"), out);
++	fputs(_(" -m, --max            show min and max valid priorities\n"), out);
++	fputs(_(" -p, --pid            operate on existing given pid\n"), out);
++	fputs(_(" -v, --verbose        display status information\n"), out);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_HELP, out);
++	fputs(USAGE_VERSION, out);
+ 
+ 	fprintf(out, USAGE_MAN_TAIL("chrt(1)"));
+ 	exit(rc);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
