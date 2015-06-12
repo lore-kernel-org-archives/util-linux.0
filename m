@@ -1,53 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:48227
-	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932159AbbFVR0j (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 13:26:39 -0400
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>, Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH v2] rename: allow full-path renames
-Date: Mon, 22 Jun 2015 19:26:22 +0200
-Message-Id: <1434993982-20741-1-git-send-email-andreas@fatal.se>
-In-Reply-To: <CAG27Bk353ASGr0hyDe4oQvAZ3Swf_HbgonENtkOPFE_qcjE7MQ@mail.gmail.com>
-References: <CAG27Bk353ASGr0hyDe4oQvAZ3Swf_HbgonENtkOPFE_qcjE7MQ@mail.gmail.com>
+Received: from smtp.eu.citrix.com ([185.25.65.24]:52043 "EHLO
+	SMTP.EU.CITRIX.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932516AbbFLJoQ convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 12 Jun 2015 05:44:16 -0400
+From: Felipe Franciosi <felipe.franciosi@citrix.com>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: losetup race on -f file
+Date: Fri, 12 Jun 2015 09:44:03 +0000
+Message-ID: <9F2C4E7DFB7839489C89757A66C5AD62BA1A0C@AMSPEX01CL03.citrite.net>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The command "touch b0;rename.ul -v ./b0 ./b1 ./b0" used to work
-before "allow renaming in subdirectories" change.
-(regression in commit bd9ced628bb86)
+Hi All,
 
-Addresses: https://bugs.debian.org/789240
-Reported-by: gregrwm <bug-grub@whitleymott.net>
-Reviewed-by: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- misc-utils/rename.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+I'm seeing a race when using "losetup -f file". Some research pointed me to a 2007 path that introduced a "retry" mechanism if the module returned EBUSY. At some point before the project went into git.kernel.org this commit went away.
 
-v2: fixed my email address, add reviewed by.
+Can anyone clarify? I'm currently flock()ing /var/lock/losetup outside calls to losetup.
+Objections to a losetup patch to do that internally?
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index 7ac068d..c8a4f8c 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -92,10 +92,11 @@ static int do_symlink(char *from, char *to, char *s, int verbose)
- 
- static int do_file(char *from, char *to, char *s, int verbose)
- {
--	char *newname = NULL, *file;
-+	char *newname = NULL, *file=NULL;
- 	int ret = 1;
- 
--	file = strrchr(s, '/');
-+	if (strchr(from, '/') == NULL && strchr(to, '/') == NULL)
-+		file = strrchr(s, '/');
- 	if (file == NULL)
- 		file = s;
- 	if (string_replace(from, to, file, s, &newname))
--- 
-2.1.4
+Easy repro: for i in {1..100}; do losetup -f image & done
+Then check out the output of "losetup -a"
 
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
+Thanks,
+Felipe
