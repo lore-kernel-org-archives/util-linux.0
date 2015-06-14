@@ -1,62 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47947 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751218AbbFKJDt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Jun 2015 05:03:49 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id B5B5720847
-	for <util-linux@vger.kernel.org>; Thu, 11 Jun 2015 05:03:48 -0400 (EDT)
-Message-Id: <1434013428.75585.292665745.17FBFAD5@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: Martin Steigerwald <ms@teamix.de>,
-        "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:35931 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752339AbbFNUuK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Jun 2015 16:50:10 -0400
+Received: by lbbqq2 with SMTP id qq2so42601314lbb.3
+        for <util-linux@vger.kernel.org>; Sun, 14 Jun 2015 13:50:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20150609092412.GG1992@ws.net.home>
-References: <716925135.onXIMLDpa0@merkaba> <20150609092412.GG1992@ws.net.home>
-Subject: Re: chrt: inconsistency in --help
-Date: Thu, 11 Jun 2015 11:03:48 +0200
+Date: Sun, 14 Jun 2015 16:50:09 -0400
+Message-ID: <CA+X5Wn71btX_teX7AF-RJjo_2te5_VEZABAQSa6uWuYCtna1+g@mail.gmail.com>
+Subject: Mount doesn't show subvol option for btrfs
+From: james harvey <jamespharvey20@gmail.com>
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Not sure if this could be a linux-unionfs (btrfs) bug instead...
 
-On Tue, Jun 9, 2015, at 11:24, Karel Zak wrote:
-> On Tue, Jun 09, 2015 at 10:37:46AM +0200, Martin Steigerwald wrote:
-> > Set policy:
-> >   chrt [options] [-p] [<policy>] <priority> [<pid> | <command> [<arg>...]]
-> 
->  Yes, I have modified --help output to this
+On arch, /etc/fstab includes:
 
-Well, -p is just one of the possible options, so it could be simply
-subsumed under [options].  Also, the brackets around "<pid> | <command>
-[<arg>..." seem to say that both <pid> and <command> are optional,
-but they are not when the <priority> is given.  Furthermore, <policy>
-seems to suggest it is something like "WORD" or "name" or "12345",
-but in fact it is a certain type of option, starting with a dash.
-So I think the current synopsis is rather confusing.
+/dev/sda1   /.snapshots   btrfs
+rw,noatime,compress=lzo,ssd,discard,space_cache,subvol=.snapshots   0
+ 0
 
-The man page summarizes the command as follows:
-    chrt [options] priority command [argument...]
-    chrt [options] -p [priority] pid
+But mount includes:
 
-The first line shows how to run a command with certain attributes,
-the second how to query or modify the attributes of an existing process.
-Quite clear.
+/dev/sda1 on /.snapshots type btrfs
+(rw,noatime,compress=lzo,ssd,discard,space_cache)
 
-So, to make usage synopsis clearer and correct I would suggest
-rewriting it as:
+The subvol option isn't reported in mount.
 
-Set policy:
-    chrt [options] <priority> <command> [<arg>...]
-    chrt [options] -p <priority> <pid>
-
-The first of the upcoming two patches makes this change.
-
-Benno
-
--- 
-http://www.fastmail.com - Accessible with your email software
-                          or over the web
-
+This happens on all of my btrfs mounts, not just .snapshots.
