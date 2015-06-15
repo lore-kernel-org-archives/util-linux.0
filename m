@@ -1,55 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from iolanthe.rowland.org ([192.131.102.54]:33945 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751017AbbFVOcq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 10:32:46 -0400
-Date: Mon, 22 Jun 2015 10:32:45 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-To: Tom Yan <tom.ty89@gmail.com>
-cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        <linux-scsi@vger.kernel.org>, Karel Zak <kzak@redhat.com>,
-        <util-linux@vger.kernel.org>, <linux-usb@vger.kernel.org>
-Subject: Re: optimal io size / custom alignment
-In-Reply-To: <CAGnHSE=DGa24TPox8wp4k264jnXjMOq7kzf-tCRf1eJt9kN0ZQ@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44L0.1506221029260.1799-100000@iolanthe.rowland.org>
+Received: from mx1.redhat.com ([209.132.183.28]:39042 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754046AbbFOL23 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 15 Jun 2015 07:28:29 -0400
+Date: Mon, 15 Jun 2015 13:28:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: james harvey <jamespharvey20@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Mount doesn't show subvol option for btrfs
+Message-ID: <20150615112827.GS1992@ws.net.home>
+References: <CA+X5Wn71btX_teX7AF-RJjo_2te5_VEZABAQSa6uWuYCtna1+g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CA+X5Wn71btX_teX7AF-RJjo_2te5_VEZABAQSa6uWuYCtna1+g@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, 21 Jun 2015, Tom Yan wrote:
-
-> I was not saying RAIDs are virtual devices. I just mentioned it
-> because I saw things like virtio-blk or zram use blk_queue_io_opt().
+On Sun, Jun 14, 2015 at 04:50:09PM -0400, james harvey wrote:
+> Not sure if this could be a linux-unionfs (btrfs) bug instead...
 > 
-> I know they all use VPDs, but the main point is whether those hardware
-> RAIDs or so are handled by sd_mod, and whether those "transfer
-> lengths" info are still important when it's just a simple drive. To me
-> they look like to be of different nature. That's why I think it's
-> inappropraite that they use the same "variable" / "file" to report
-> because that makes tools like fdisk have trouble determining when does
-> those values really matters.
+> On arch, /etc/fstab includes:
 > 
-> In fact, (maybe I am just unlucky :P) VPDs of all my devices are to
-> some extent broken. I just found out today my Intel 530 SSD connecting
-> directly to SATA also reports totally garbage values for TRIM : (
+> /dev/sda1   /.snapshots   btrfs
+> rw,noatime,compress=lzo,ssd,discard,space_cache,subvol=.snapshots   0
+>  0
 > 
-> To be honest the UAS thing doesn't really affect me a lot, I mostly
-> use gdisk now (which doesn't care about i/o size AFAIK). I can also
-> disable uas with the quirk so that VPDs are skipped when I really need
-> fdisk for msdos/mbr. It's just I think that it kind of reveal a
-> problem that has to be dealt with sooner or later, though you can
-> optimistically think that vendors would do better on VPDs in the
-> future.
+> But mount includes:
+> 
+> /dev/sda1 on /.snapshots type btrfs
+> (rw,noatime,compress=lzo,ssd,discard,space_cache)
+> 
+> The subvol option isn't reported in mount.
 
-Regardless of all these issues, it is clear that a lot of devices don't 
-implement the VPD data correctly.  Therefore the information in the 
-kernel will often be wrong.
 
-And consequently, fdisk needs to offer the user an option to override 
-the default partition-alignment setting.
+ mount(8) uses /proc/self/mountinfo as source, do you see the subvol=
+ mount option there?
 
-Alan Stern
+ (well, I guess you have system without mtab and recent util-linux.)
 
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
