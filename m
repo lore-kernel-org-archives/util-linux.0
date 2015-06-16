@@ -1,39 +1,32 @@
-Return-Path: sweet_f_a@gmx.de
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.19]:52732 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755010AbbFPO1C (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Jun 2015 10:27:02 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx003)
+ with ESMTPSA (Nemesis) id 0MZTP3-1ZQ7jz2OnV-00LBx7 for
+ <util-linux@vger.kernel.org>; Tue, 16 Jun 2015 16:26:58 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 0/7] pull: various small changes
-Date: Mon, 29 Jun 2015 12:14:04 +0200
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-References: <1435520605-4296-1-git-send-email-kerolasa@iki.fi> <20150629094913.GV1992@ws.net.home>
-In-Reply-To: <20150629094913.GV1992@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201506291214.04794.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 0/2] 2 minor misc fixes
+Date: Tue, 16 Jun 2015 16:26:55 +0200
+Message-Id: <1434464817-8851-1-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 29 June 2015, Karel Zak wrote:
-> On Sun, Jun 28, 2015 at 08:43:18PM +0100, Sami Kerola wrote:
-> > But deprecations can be tricky, so it would be great to hear if I
-> > assumptions about reset(1) and the last-deprecated are right or
-> > wrong.
->
->  The old last(1) implementation deprecation is expected and planned,
->  so it's fine and I think it's also fine to add the reset script
->  between deprecated stuff.
->
->  Applied, thanks.
->
-> >   build-sys: add minimal whitespace build directory support
->
->  I don't like this patch. I don't think it's good idea to add warning
->  about libtools limitations to the all build systems. If we really
-> need such warning than it has to be in the LT_INIT.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-BTW even worse than whitespaces are colons within the path because the 
-build may work but then no *PATH, LD_LIBRARY_PATH", etc. will work. IMO 
-they should already warn in mkdir(1) about such stupid directory 
-names ;)
+This is pull request 202 on github
+https://github.com/karelzak/util-linux/pull/202
 
-cu,
-Rudi
+Ruediger Meier (2):
+  procutils: reset errno before readdir
+  tests: always kill helper
+
+ lib/procutils.c         |  1 +
+ tests/ts/kill/print_pid | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
+-- 
+1.8.4.5
+
