@@ -1,33 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f175.google.com ([209.85.217.175]:35931 "EHLO
-	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752339AbbFNUuK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 14 Jun 2015 16:50:10 -0400
-Received: by lbbqq2 with SMTP id qq2so42601314lbb.3
-        for <util-linux@vger.kernel.org>; Sun, 14 Jun 2015 13:50:09 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:34128 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932309AbbFPI7V (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Jun 2015 04:59:21 -0400
+Date: Tue, 16 Jun 2015 10:59:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Tom Yan <tom.ty89@gmail.com>
+Cc: james harvey <jamespharvey20@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: Mount doesn't show subvol option for btrfs
+Message-ID: <20150616085919.GW1992@ws.net.home>
+References: <CA+X5Wn71btX_teX7AF-RJjo_2te5_VEZABAQSa6uWuYCtna1+g@mail.gmail.com>
+ <20150615112827.GS1992@ws.net.home>
+ <CAGnHSEntiMk3f1PPLj8RUJU+T0EeVP0-KqsVLwVWpPVPkzgDhQ@mail.gmail.com>
 MIME-Version: 1.0
-Date: Sun, 14 Jun 2015 16:50:09 -0400
-Message-ID: <CA+X5Wn71btX_teX7AF-RJjo_2te5_VEZABAQSa6uWuYCtna1+g@mail.gmail.com>
-Subject: Mount doesn't show subvol option for btrfs
-From: james harvey <jamespharvey20@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAGnHSEntiMk3f1PPLj8RUJU+T0EeVP0-KqsVLwVWpPVPkzgDhQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Not sure if this could be a linux-unionfs (btrfs) bug instead...
+On Tue, Jun 16, 2015 at 01:42:54PM +0800, Tom Yan wrote:
+> [tom@localhost ~]$ mount | grep sda2
+> /dev/sda2 on / type btrfs (rw,relatime,ssd,space_cache)
+> 
+> [tom@localhost ~]$ cat /proc/self/mountinfo | grep sda2
+> 19 0 0:17 /arch / rw,relatime shared:1 - btrfs /dev/sda2 rw,ssd,space_cache
+> 
+> [tom@localhost ~]$ findmnt /dev/sda2
+> TARGET SOURCE           FSTYPE OPTIONS
+> /      /dev/sda2[/arch] btrfs  rw,relatime,ssd,space_cache
+> 
+> It won't be shown as a mount option.
 
-On arch, /etc/fstab includes:
+Ah, good point. Yes, the subvolume directory is interpreted as FS
+mount root, I forgot this btrfs feature.
 
-/dev/sda1   /.snapshots   btrfs
-rw,noatime,compress=lzo,ssd,discard,space_cache,subvol=.snapshots   0
- 0
+    Karel
 
-But mount includes:
-
-/dev/sda1 on /.snapshots type btrfs
-(rw,noatime,compress=lzo,ssd,discard,space_cache)
-
-The subvol option isn't reported in mount.
-
-This happens on all of my btrfs mounts, not just .snapshots.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
