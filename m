@@ -1,49 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:56149 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752448AbbFQG2x (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Jun 2015 02:28:53 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] sfdisk: show that the command --verify optionally takes device names
-Date: Wed, 17 Jun 2015 08:28:32 +0200
-Message-Id: <1434522513-2124-1-git-send-email-bensberg@justemail.net>
+Received: from aserp1040.oracle.com ([141.146.126.69]:44131 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751091AbbFRVB3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 18 Jun 2015 17:01:29 -0400
+To: Tom Yan <tom.ty89@gmail.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
+Subject: Re: optimal io size / custom alignment
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
+	<20150615133154.GV1992@ws.net.home>
+	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
+	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
+	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
+	<yq1d20vfimj.fsf@sermon.lab.mkp.net>
+	<CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
+Date: Thu, 18 Jun 2015 17:01:19 -0400
+In-Reply-To: <CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
+	(Tom Yan's message of "Wed, 17 Jun 2015 17:49:51 +0800")
+Message-ID: <yq1a8vwenog.fsf@sermon.lab.mkp.net>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/sfdisk.8 |    2 +-
- disk-utils/sfdisk.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+>>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
 
-diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
-index 7a89791..91cba72 100644
---- a/disk-utils/sfdisk.8
-+++ b/disk-utils/sfdisk.8
-@@ -113,7 +113,7 @@ List the sizes of all or the specified devices.
- Print all supported types for the current disk label or the label specified by
- \fB\-\-label\fR.
- .TP
--.BR \-V , " \-\-verify
-+.BR \-V , " \-\-verify " [ \fIdevice ...]
- Test whether the partition table and partitions seem correct.
- 
- .SH OPTIONS
-diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-index 2c56e34..a126943 100644
---- a/disk-utils/sfdisk.c
-+++ b/disk-utils/sfdisk.c
-@@ -1413,7 +1413,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
- 	fputs(_(" -l, --list [<dev> ...]            list partitions of each device\n"), out);
- 	fputs(_(" -s, --show-size [<dev> ...]       list sizes of all or specified devices\n"), out);
- 	fputs(_(" -T, --list-types                  print the recognized types (see -X)\n"), out);
--	fputs(_(" -V, --verify                      test whether partitions seem correct\n"), out);
-+	fputs(_(" -V, --verify [<dev> ...]          test whether partitions seem correct\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" --part-label <dev> <part> [<str>] print or change partition label\n"), out);
+Tom> No I put it in the wrong way. What I meant was "sd vs md". For
+Tom> example, couldn't the scsi disk driver bind the value it reads from
+Tom> the VPD to another variable instead of "optimal i/o size", so that
+Tom> this value would be exclusively for RAID (and other virtual
+Tom> devices)?
+
+Who says that RAID is a virtual device? Hardware RAID controllers as
+well as SAS, iSCSI and Fibre Channel disk arrays all use the Block
+Limits VPD to communicate their preferred I/O size and alignment to
+us. As do enterprise disk drives.
+
+We deal with broken devices by blacklisting them. I suggest you try to
+find a way we can reliably identify your UAS devices. If there is a
+common pattern, we can entertain adding a workaround.
+
 -- 
-1.7.0.4
-
+Martin K. Petersen	Oracle Linux Engineering
