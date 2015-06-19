@@ -1,42 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52607 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754551AbbFBMFT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Jun 2015 08:05:19 -0400
-Date: Tue, 2 Jun 2015 14:05:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/12] pull: script(1) changes
-Message-ID: <20150602120517.GK7285@ws.net.home>
-References: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1424616169-693-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-lb0-f170.google.com ([209.85.217.170]:33166 "EHLO
+	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752424AbbFSTlK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Jun 2015 15:41:10 -0400
+Received: by lbbvz5 with SMTP id vz5so30042822lbb.0
+        for <util-linux@vger.kernel.org>; Fri, 19 Jun 2015 12:41:09 -0700 (PDT)
+From: Boris Egorov <egorov@linux.com>
+To: util-linux@vger.kernel.org
+Cc: Boris Egorov <egorov@linux.com>
+Subject: [PATCH 0/3] cppcheck warnings fixes
+Date: Sat, 20 Jun 2015 01:40:58 +0600
+Message-Id: <1434742861-11704-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Feb 22, 2015 at 02:42:37PM +0000, Sami Kerola wrote:
-> Hello,
-> 
-> The following changes are clean ups and improvements to script(1)
-> command.  These changes are also available from my github remote
-> repository.
-> 
->  git://github.com/kerolasa/lelux-utiliteetit.git script
+Following patches fix some cppcheck (version 1.70 dev) warnings.
 
- script2
+Boris Egorov (3):
+  sys-utils/disk-utils/lib: fix printf format types [cppcheck]
+  libblkid/whereis: simplify some conditions [cppcheck]
+  cfdisk: fix condition logic [cppcheck]
 
-  - the branch contains also rtcwake changes!
-  - the "script: replay" test hangs :-(
-  - no tested with HAVE_LIBUTEMPTER, you need:
-
-          -       utempter_add_record(master, NULL);
-          +       utempter_add_record(ctl.master, NULL);
-
- 
-    Karel
+ disk-utils/cfdisk.c      |  2 +-
+ disk-utils/fsck.cramfs.c |  6 +++---
+ disk-utils/mkfs.bfs.c    |  6 +++---
+ lib/cpuset.c             |  6 +++---
+ libblkid/src/tag.c       |  2 +-
+ misc-utils/whereis.c     |  2 +-
+ sys-utils/chcpu.c        | 38 +++++++++++++++++++-------------------
+ sys-utils/hwclock-rtc.c  |  2 +-
+ sys-utils/ipcs.c         |  4 ++--
+ sys-utils/readprofile.c  | 12 ++++++------
+ 10 files changed, 40 insertions(+), 40 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
