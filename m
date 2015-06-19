@@ -1,55 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57252 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753814AbbFJLHc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 10 Jun 2015 07:07:32 -0400
-Date: Wed, 10 Jun 2015 13:07:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Tom Yan <tom.ty89@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: multiple alignment bugs / inconsistencies of fdisk
-Message-ID: <20150610110730.GL1992@ws.net.home>
-References: <CAGnHSE=QDqKbOKGrBH=4J_mv85V5ZumVmjoQ3Jpqig4CN4MU4Q@mail.gmail.com>
- <20150608153535.GE1992@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150608153535.GE1992@ws.net.home>
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:33195 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753435AbbFSTlO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Jun 2015 15:41:14 -0400
+Received: by lbbvz5 with SMTP id vz5so30043598lbb.0
+        for <util-linux@vger.kernel.org>; Fri, 19 Jun 2015 12:41:12 -0700 (PDT)
+From: Boris Egorov <egorov@linux.com>
+To: util-linux@vger.kernel.org
+Cc: Boris Egorov <egorov@linux.com>
+Subject: [PATCH 2/3] libblkid/whereis: simplify some conditions [cppcheck]
+Date: Sat, 20 Jun 2015 01:41:00 +0600
+Message-Id: <1434742861-11704-3-git-send-email-egorov@linux.com>
+In-Reply-To: <1434742861-11704-1-git-send-email-egorov@linux.com>
+References: <1434742861-11704-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 08, 2015 at 05:35:35PM +0200, Karel Zak wrote:
-> >     Using default response p.
-> >     Partition number (1-4, default 1):
-> >     First sector (2048-468862127, default 2048):
-> >     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> > 468862127): +1
-> > 
-> >     Created a new partition 1 of type 'Linux' and of size 1 KiB.
-> > 
-> >     Command (m for help): p
-> >     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
-> >     Units: sectors of 1 * 512 = 512 bytes
-> >     Sector size (logical/physical): 512 bytes / 512 bytes
-> >     I/O size (minimum/optimal): 512 bytes / 512 bytes
-> >     Disklabel type: dos
-> >     Disk identifier: 0x344a2daa
-> > 
-> >     Device     Boot Start   End Sectors Size Id Type
-> >     /dev/sda1        2048  2049       2   1K 83 Linux
-> 
-> Fixed, now:
-> 
->       Device     Boot Start   End Sectors  Size Id Type
->       /dev/sdc1        2048  2048       1  512B 83 Linux
+[misc-utils/whereis.c:466]: (style) Redundant condition: uflag.
+'A && (!A || B)' is equivalent to 'A || B'
+[libblkid/src/tag.c:373]: (style) Redundant condition: dev.
+'A && (!A || B)' is equivalent to 'A || B'
 
- I have reverted this small change, it's nonsense. The convention +<sectors>
- specifies Last sector relatively to the First sector.
+Signed-off-by: Boris Egorov <egorov@linux.com>
+---
+ libblkid/src/tag.c   | 2 +-
+ misc-utils/whereis.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-  +0  means   start=2048  end=2048  size=1
-  +1  means   start=2048  end=2049  size=2
-
-    Karel
-
+diff --git a/libblkid/src/tag.c b/libblkid/src/tag.c
+index 6af8062..281612a 100644
+--- a/libblkid/src/tag.c
++++ b/libblkid/src/tag.c
+@@ -370,7 +370,7 @@ try_again:
+ 	}
+ 	if (dev && !(dev->bid_flags & BLKID_BID_FL_VERIFIED)) {
+ 		dev = blkid_verify(cache, dev);
+-		if (!dev || (dev && (dev->bid_flags & BLKID_BID_FL_VERIFIED)))
++		if (!dev || dev->bid_flags & BLKID_BID_FL_VERIFIED)
+ 			goto try_again;
+ 	}
+ 
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index 96a930e..697d666 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -463,7 +463,7 @@ static void lookup(const char *pattern, struct wh_dirlist *ls, int want)
+ 
+ 	free(wait);
+ 
+-	if (!uflag || (uflag && count > 1))
++	if (!uflag || count > 1)
+ 		putchar('\n');
+ 	return;
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
