@@ -1,47 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from oceania.blizzart.net ([212.83.174.218]:34744 "EHLO
-	oceania.blizzart.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757180AbbFQQFm convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 17 Jun 2015 12:05:42 -0400
-Received: from webmail.alteroot.org (localhost [IPv6:::1])
-	by oceania.blizzart.net (Postfix) with ESMTPSA id 6313A5F79E
-	for <util-linux@vger.kernel.org>; Wed, 17 Jun 2015 17:59:18 +0200 (CEST)
-Mime-Version: 1.0
-Date: Wed, 17 Jun 2015 15:59:18 +0000
-Content-Type: text/plain; charset="utf-8"
-Message-ID: <361341ee5502b6112bc452c27c15ea9f@webmail.alteroot.org>
-From: "Romain Bouvier" <skunnyk@alteroot.org>
-Subject: [PATCH] Return correct value for uuid_generate_time_safe
+Received: from mail-la0-f48.google.com ([209.85.215.48]:36696 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752424AbbFSTlP (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Jun 2015 15:41:15 -0400
+Received: by lacny3 with SMTP id ny3so80091628lac.3
+        for <util-linux@vger.kernel.org>; Fri, 19 Jun 2015 12:41:14 -0700 (PDT)
+From: Boris Egorov <egorov@linux.com>
 To: util-linux@vger.kernel.org
+Cc: Boris Egorov <egorov@linux.com>
+Subject: [PATCH 3/3] cfdisk: fix condition logic [cppcheck]
+Date: Sat, 20 Jun 2015 01:41:01 +0600
+Message-Id: <1434742861-11704-4-git-send-email-egorov@linux.com>
+In-Reply-To: <1434742861-11704-1-git-send-email-egorov@linux.com>
+References: <1434742861-11704-1-git-send-email-egorov@linux.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Make return value consistent for consecutive calls.
-If you call uuid_generate_time_safe, it should always
-return -1 if it can't guarantee uniqueness.
-Without this patch, on consecutive calls where it can't guarantee
-uniqueness, the first call returns -1, but later calls return 0.
+[disk-utils/cfdisk.c:1181] -> [disk-utils/cfdisk.c:1181]: (warning)
+Possible null pointer dereference: data - otherwise it is redundant to
+check it against null.
 
-Reported-by: Romain Bouvier <skunnyk@alteroot.org>
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
-
+Signed-off-by: Boris Egorov <egorov@linux.com>
 ---
- libuuid/src/gen_uuid.c | 3 +++
- 1 file changed, 3 insertions(+)
+ disk-utils/cfdisk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index eb79339..2c5b955 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -227,6 +227,9 @@ static int get_clock(uint32_t *clock_high, uint32_t *clock_low,
-        int                             len;
-        int                             ret = 0;
-
-+       if (state_fd == -1)
-+               ret = -1;
-+
-        if (state_fd == -2) {
-                save_umask = umask(0);
-                state_fd = open(LIBUUID_CLOCK_FILE, O_RDWR|O_CREAT|O_CLOEXEC, 0660);
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 6f26a3d..4627107 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1178,7 +1178,7 @@ inline static int extra_insert_pair(struct cfdisk_line *l, const char *name, con
+ 
+ 	assert(l);
+ 
+-	if (!data && !*data)
++	if (!data || !*data)
+ 		return 0;
+ 
+ 	lsl = scols_table_new_line(l->extra, NULL);
 -- 
-2.4.3
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
