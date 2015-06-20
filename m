@@ -1,110 +1,64 @@
 Return-Path: tom.ty89@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <yq1zj3zfuna.fsf@sermon.lab.mkp.net>
+In-Reply-To: <yq1a8vwenog.fsf@sermon.lab.mkp.net>
 References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
 	<20150615133154.GV1992@ws.net.home>
 	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
 	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
-Date: Wed, 17 Jun 2015 03:26:20 +0800
-Message-ID: <CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
+	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
+	<yq1d20vfimj.fsf@sermon.lab.mkp.net>
+	<CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
+	<yq1a8vwenog.fsf@sermon.lab.mkp.net>
+Date: Sun, 21 Jun 2015 00:01:34 +0800
+Message-ID: <CAGnHSE=DGa24TPox8wp4k264jnXjMOq7kzf-tCRf1eJt9kN0ZQ@mail.gmail.com>
 Subject: Re: optimal io size / custom alignment
 From: Tom Yan <tom.ty89@gmail.com>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        linux-usb@vger.kernel.org
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On 17 June 2015 at 01:08, Martin K. Petersen <martin.petersen@oracle.com> wrote:
-> The two values have nothing to do with each other. They just happen to
-> be the same in your case (65535 is the maximum block count for the WRITE
-> SAME(10) command).
->
-> Your device sets the transfer length granularity to 1 logical block and
-> the optimal transfer length to 65535 logical blocks. If it then reports
-> a 4096-byte physical block size in response to READ CAPACITY(16) then
-> it's clearly on crack.
->
-> There's only so much we can do about devices that report garbage.
+I was not saying RAIDs are virtual devices. I just mentioned it
+because I saw things like virtio-blk or zram use blk_queue_io_opt().
 
-All drives I have are flash drives so none of them reports 4k physical
-sectors. But it does seems possible in the case I linked. The thing is
-these VPDs/transfer lengths are probably provided by the USB to
-ATA(/SCSI?) bridges. I can't judge if they are wrong to set the
-lengths that way but it seem to be a common practice. I have two USB
-devices provide the SBC-2 (Block limit VPD), one is a SanDisk Extreme
-USB (SDCZ80), another an Intel X25-M Gen1 on an ASMedia SATA adapter,
-and both of them set the Optimal transfer length. The usb-storage
-driver does not read vpd so it won't be a thing, but the the uas
-driver does.
+I know they all use VPDs, but the main point is whether those hardware
+RAIDs or so are handled by sd_mod, and whether those "transfer
+lengths" info are still important when it's just a simple drive. To me
+they look like to be of different nature. That's why I think it's
+inappropraite that they use the same "variable" / "file" to report
+because that makes tools like fdisk have trouble determining when does
+those values really matters.
 
-> Also, the kernel only reports things. It is up to Karel to decide
-> whether to sanity check the values before he uses them.
+In fact, (maybe I am just unlucky :P) VPDs of all my devices are to
+some extent broken. I just found out today my Intel 530 SSD connecting
+directly to SATA also reports totally garbage values for TRIM : (
 
-I just feel like the kernel shouldn't bind values from totally
-different source (raid stripe vs vpd limit) to the same variable. I
-don't know if what else would make use of this variable but by only
-considering the fdisk case, it seems the scsi disk driver should be
-the one who should stop binding.
+To be honest the UAS thing doesn't really affect me a lot, I mostly
+use gdisk now (which doesn't care about i/o size AFAIK). I can also
+disable uas with the quirk so that VPDs are skipped when I really need
+fdisk for msdos/mbr. It's just I think that it kind of reveal a
+problem that has to be dealt with sooner or later, though you can
+optimistically think that vendors would do better on VPDs in the
+future.
 
-> The best fix, of course, is to complain to the manufacturer of your
-> broken widget and hope for a firmware upgrade.
-
-This is simply too idealistic especially when it seems that this issue
-mostly happens on USB bridges. I am not even sure if the SCSI
-standards has anything to say about this practice.
-
-> Failing that, adjust your partitions manually.
-
-Yeah that's why I said fdisk should allow custom alignment.
-
-On 17 June 2015 at 01:08, Martin K. Petersen <martin.petersen@oracle.com> wrote:
+On 19 June 2015 at 05:01, Martin K. Petersen <martin.petersen@oracle.com> wrote:
 >>>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
 >
-> Tom> From the adapter/drive I have, it is the same as the "Maximum
-> Tom> transfer length" and they seem to be simply limits of SCSI "WRITE
-> Tom> SAME (10/16)" command:
+> Tom> No I put it in the wrong way. What I meant was "sd vs md". For
+> Tom> example, couldn't the scsi disk driver bind the value it reads from
+> Tom> the VPD to another variable instead of "optimal i/o size", so that
+> Tom> this value would be exclusively for RAID (and other virtual
+> Tom> devices)?
 >
-> The two values have nothing to do with each other. They just happen to
-> be the same in your case (65535 is the maximum block count for the WRITE
-> SAME(10) command).
+> Who says that RAID is a virtual device? Hardware RAID controllers as
+> well as SAS, iSCSI and Fibre Channel disk arrays all use the Block
+> Limits VPD to communicate their preferred I/O size and alignment to
+> us. As do enterprise disk drives.
 >
-> Tom> [tom@localhost ~]$ sudo sg_inq -p 0xb0 /dev/sdb VPD INQUIRY: Block
-> Tom> limits page (SBC) Maximum compare and write length: 0 blocks
-> Tom> Optimal transfer length granularity: 1 blocks Maximum transfer
-> Tom> length: 65535 blocks Optimal transfer length: 65535 blocks
->
-> Your device sets the transfer length granularity to 1 logical block and
-> the optimal transfer length to 65535 logical blocks. If it then reports
-> a 4096-byte physical block size in response to READ CAPACITY(16) then
-> it's clearly on crack.
->
-> There's only so much we can do about devices that report garbage.
->
-> Also, the kernel only reports things. It is up to Karel to decide
-> whether to sanity check the values before he uses them.
->
-> I would probably err on the side of trusting the physical block size
-> reporting more than anything seeded from the Block Limits VPD. And in
-> this case, assuming the alignment offset is reported to be 0, I guess
-> one could entertain aligning to the nearest 4K boundary. But on the
-> other hand it'll quickly get hairy to have to maintain this kind of
-> heuristics.
->
-> The best fix, of course, is to complain to the manufacturer of your
-> broken widget and hope for a firmware upgrade. Failing that, adjust your
-> partitions manually.
->
-> Tom> The thing is, why any io/transfer size/length should be considered
-> Tom> when it comes to partition alignment? From what I understand,
-> Tom> partition alignment is only to make sure partition starts at
-> Tom> physical boundaries of the disk because of the mismatch between
-> Tom> logicial sector (512 bytes) and physical sectors (4096 bytes) or
-> Tom> pages/erase blocks of SSDs.
->
-> For RAID it makes a big difference to ensure the partition is aligned on
-> a stripe boundary.
+> We deal with broken devices by blacklisting them. I suggest you try to
+> find a way we can reliably identify your UAS devices. If there is a
+> common pattern, we can entertain adding a workaround.
 >
 > --
 > Martin K. Petersen      Oracle Linux Engineering
