@@ -1,36 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32898 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754532AbbFVIUK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Jun 2015 04:20:10 -0400
-Date: Mon, 22 Jun 2015 10:20:08 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Phillip Susi <psusi@ubuntu.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: mount existing tmpfs mounts a new tmpfs
-Message-ID: <20150622082008.GH1992@ws.net.home>
-References: <55876C53.7030505@ubuntu.com>
+Return-Path: martin.petersen@oracle.com
+To: Tom Yan <tom.ty89@gmail.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
+Subject: Re: optimal io size / custom alignment
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
+	<20150615133154.GV1992@ws.net.home>
+	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
+	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
+	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
+	<yq1d20vfimj.fsf@sermon.lab.mkp.net>
+	<CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
+	<yq1a8vwenog.fsf@sermon.lab.mkp.net>
+	<CAGnHSE=DGa24TPox8wp4k264jnXjMOq7kzf-tCRf1eJt9kN0ZQ@mail.gmail.com>
+Date: Sat, 20 Jun 2015 20:12:43 -0400
+In-Reply-To: <CAGnHSE=DGa24TPox8wp4k264jnXjMOq7kzf-tCRf1eJt9kN0ZQ@mail.gmail.com>
+	(Tom Yan's message of "Sun, 21 Jun 2015 00:01:34 +0800")
+Message-ID: <yq1k2ux9ax0.fsf@sermon.lab.mkp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55876C53.7030505@ubuntu.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
-> Forwarding this from debian bug #772419: Run mount /run, and it mounts
-> a new tmpfs over top of the existing one in /run ( even if /run isn't
-> listed in /etc/fstab ), hiding the existing files.  It should say that
-> it is already mounted.
+>>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
 
-We usually don't play any policy games in userspace (exception is
-mount -a).  If it's supported by kernel then it's correct behaviour.
-And IMHO it's really correct behaviour because it creates a *new*
-filesystem.
+Tom> I know they all use VPDs, but the main point is whether those
+Tom> hardware RAIDs or so are handled by sd_mod, and whether those
+Tom> "transfer lengths" info are still important when it's just a simple
+Tom> drive. To me they look like to be of different nature.
 
-    Karel
+We don't know whether a discovered device is "a simple drive".
+
+And once again: The whole point of the queue limit is to have an common
+abstraction for all block devices.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
+Martin K. Petersen	Oracle Linux Engineering
