@@ -1,44 +1,58 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:36229 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751469AbbFYP3W (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 25 Jun 2015 11:29:22 -0400
-Received: by wicnd19 with SMTP id nd19so167552939wic.1
-        for <util-linux@vger.kernel.org>; Thu, 25 Jun 2015 08:29:21 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] script: fix variable initialization warning
-Date: Thu, 25 Jun 2015 16:29:18 +0100
-Message-Id: <1435246158-32445-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: ruediger.meier@ga-group.nl
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: mount existing tmpfs mounts a new tmpfs
+Date: Mon, 22 Jun 2015 14:55:37 +0200
+Cc: Phillip Susi <psusi@ubuntu.com>, "util-linux" <util-linux@vger.kernel.org>
+References: <55876C53.7030505@ubuntu.com> <20150622082008.GH1992@ws.net.home>
+In-Reply-To: <20150622082008.GH1992@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201506221455.46930.ruediger.meier@ga-group.nl>
 List-ID: <util-linux.vger.kernel.org>
 
-term-utils/script.c:402:19: warning: obsolete use of designated
-initializer without '=' [-Wpedantic]
+On Monday 22 June 2015, Karel Zak wrote:
+> On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
+> > Forwarding this from debian bug #772419: Run mount /run, and it
+> > mounts a new tmpfs over top of the existing one in /run ( even if
+> > /run isn't listed in /etc/fstab ), hiding the existing files.  It
+> > should say that it is already mounted.
+>
+> We usually don't play any policy games in userspace (exception is
+> mount -a).  If it's supported by kernel then it's correct behaviour.
+> And IMHO it's really correct behaviour because it creates a *new*
+> filesystem.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Is it really the kernel who does not mount again other filesystems?
+For me tmpfs behavior looks different for no reason:
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 769b771..990b4a1 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -399,9 +399,9 @@ static void do_io(struct script_control *ctl)
- 
- 	};
- 	struct pollfd pfd[] = {
--		[POLLFD_SIGNAL]	{ .fd = ctl->sigfd,   .events = POLLIN | POLLERR | POLLHUP },
--		[POLLFD_MASTER]	{ .fd = ctl->master,  .events = POLLIN | POLLERR | POLLHUP },
--		[POLLFD_STDIN]	{ .fd = STDIN_FILENO, .events = POLLIN | POLLERR | POLLHUP }
-+		[POLLFD_SIGNAL] = { .fd = ctl->sigfd,   .events = POLLIN | POLLERR | POLLHUP },
-+		[POLLFD_MASTER] = { .fd = ctl->master,  .events = POLLIN | POLLERR | POLLHUP },
-+		[POLLFD_STDIN]	= { .fd = STDIN_FILENO, .events = POLLIN | POLLERR | POLLHUP }
- 	};
- 
- 
--- 
-2.4.4
+$ cat /etc/fstab
+/dev/sda1                  /boot       ext2   defaults  0 0
+glaukos:/exports/opt/intel /opt/intel  nfs    defaults  0 0
+proc                       /tmp/proc   proc   defaults  0 0
+none                       /tmp/tmpfs  tmpfs  defaults  0 0
 
+When everything is mounted already I get:
+
+$ mount /boot
+mount: /dev/sda1 is already mounted or /boot busy
+       /dev/sda1 is already mounted on /boot
+
+$ mount /opt/intel/
+mount.nfs: /opt/intel is busy or already mounted
+
+$ mount /tmp/proc/
+mount: proc is already mounted or /tmp/proc busy
+       proc is already mounted on /proc
+       proc is already mounted on /tmp/proc
+
+Only tmpfs would be mounted again and again
+$ mount /tmp/tmpfs/
+$ mount | grep /tmp/tmpfs
+none on /tmp/tmpfs type tmpfs (rw,relatime)
+none on /tmp/tmpfs type tmpfs (rw,relatime)
+
+
+cu,
+Rudi
