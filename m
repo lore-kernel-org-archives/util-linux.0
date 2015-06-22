@@ -1,82 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp2.ono.com ([62.42.230.179]:33897 "EHLO smtp2.ono.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750746AbbFFETl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 6 Jun 2015 00:19:41 -0400
-From: Guillem Jover <guillem@hadrons.org>
-To: util-linux@vger.kernel.org
-Cc: Steven Chamberlain <steven@pyro.eu.org>
-Subject: [PATCH 1/3] lib/fileutils: Add new dup_fd_cloexec function
-Date: Sat,  6 Jun 2015 06:19:05 +0200
-Message-Id: <1433564347-9515-2-git-send-email-guillem@hadrons.org>
-In-Reply-To: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
-References: <1433564347-9515-1-git-send-email-guillem@hadrons.org>
+Received: from mail-yk0-f181.google.com ([209.85.160.181]:33320 "EHLO
+	mail-yk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751116AbbFVSqN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 14:46:13 -0400
+Message-ID: <558857AF.40707@ubuntu.com>
+Date: Mon, 22 Jun 2015 14:45:03 -0400
+From: Phil Susi <psusi@ubuntu.com>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>, Ruediger Meier <ruediger.meier@ga-group.nl>
+CC: util-linux <util-linux@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: mount existing tmpfs mounts a new tmpfs
+References: <55876C53.7030505@ubuntu.com> <20150622082008.GH1992@ws.net.home> <201506221455.46930.ruediger.meier@ga-group.nl> <20150622141551.GK1992@ws.net.home>
+In-Reply-To: <20150622141551.GK1992@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This function duplicates and marks a file descriptor as close-on-exec.
-Takes care of build and run-time support for the fcntl F_DUPFD_CLOEXEC
-command, and other errors.
+Ccing linux-fsdevel.  To catch up if you are just tuning in, the 
+original problem is that "mount /run" mounts a new instance of tmpfs 
+over top of the existing one, hiding the existing files, rather than 
+reporting that it is already mounted.  The question is, is this a bug in 
+mount, or the kernel?
 
-Signed-off-by: Guillem Jover <guillem@hadrons.org>
----
- include/fileutils.h |  1 +
- lib/fileutils.c     | 30 ++++++++++++++++++++++++++++++
- 2 files changed, 31 insertions(+)
+On 6/22/2015 10:15 AM, Karel Zak wrote:
+> # strace -e mount mount /boot
+> mount("/dev/sda2", "/boot", "ext4", MS_MGC_VAL, NULL) = -1 EBUSY
+> (Device or resource busy)
 
-diff --git a/include/fileutils.h b/include/fileutils.h
-index 3353f69..e0e2ece 100644
---- a/include/fileutils.h
-+++ b/include/fileutils.h
-@@ -25,6 +25,7 @@ static inline FILE *xfmkstemp(char **tmpname, char *dir)
- 	return ret;
- }
- 
-+extern int dup_fd_cloexec(int oldfd, int lowfd);
- extern int get_fd_tabsize(void);
- 
- extern int mkdir_p(const char *path, mode_t mode);
-diff --git a/lib/fileutils.c b/lib/fileutils.c
-index bffa8ff..81b38ad 100644
---- a/lib/fileutils.c
-+++ b/lib/fileutils.c
-@@ -50,6 +50,36 @@ int xmkstemp(char **tmpname, char *dir)
- 	return fd;
- }
- 
-+int dup_fd_cloexec(int oldfd, int lowfd)
-+{
-+	int fd, flags, errno_save;
-+
-+#ifdef F_DUPFD_CLOEXEC
-+	fd = fcntl(oldfd, F_DUPFD_CLOEXEC, lowfd);
-+	if (fd >= 0)
-+		return fd;
-+#endif
-+
-+	fd = dup(oldfd);
-+	if (fd < 0)
-+		return fd;
-+
-+	flags = fcntl(fd, F_GETFD);
-+	if (flags < 0)
-+		goto unwind;
-+	if (fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0)
-+		goto unwind;
-+
-+	return fd;
-+
-+unwind:
-+	errno_save = errno;
-+	close(fd);
-+	errno = errno_save;
-+
-+	return -1;
-+}
-+
- /*
-  * portable getdtablesize()
-  */
--- 
-2.2.1.209.g41e5f3a
+Why on earth is the kernel still returning EBUSY here?  It *does* 
+support mounting the same block device multiple times these days so it 
+should not be doing this.  It looks like it has some check to see if 
+that device is already mounted somewhere in the current filesystem 
+namespace and returns EBUSY if it is, otherwise, just bind mounts the 
+existing mount if it is mounted in a different filesystem namespace. 
+Not only does this check seem pointless, but it simply makes no sense at 
+all for any filesystem that isn't backed by a block device, such as 
+tmpfs, procfs, network filesystems, etc.
 
+>> $ mount /tmp/proc/
+>> mount: proc is already mounted or /tmp/proc busy
+>>         proc is already mounted on /proc
+>>         proc is already mounted on /tmp/proc
+>
+> strace -e mount mount -t proc none /proc
+> mount("none", "/proc", "proc", MS_MGC_VAL, NULL) = -1 EBUSY (Device or
+> resource busy)
+
+Now *what* is this nonsense?  You can mount proc any time, anywhere you 
+want to.  This EBUSY seems to be a special case hack that you only get 
+if you try to mount procfs inside procfs.  You can mount any other fs 
+over top of /proc, and you can mount /proc over top of any other fs. 
+Why the one off check for mounting proc on top of proc?  And is tmpfs 
+and any other virtual filesystem supposed to do this same check?
+
+What if you really *want* to mount a new tmpfs over the old one?  The 
+kernel shouldn't be denying that request ( really, same goes for proc ). 
+  It therefore, should be the responsibility of mount ( single argument 
+form ) to notice when you have requested mounting of an already mounted 
+filesystem listed in /fstab, and it certainly should not be treating 
+/etc/mtab as if it were /etc/fstab and trying to mount the same thing a 
+second time; the single argument form of mount should only consult 
+fstab, not mtab too.
+
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
