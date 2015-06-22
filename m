@@ -1,64 +1,41 @@
-Return-Path: tom.ty89@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-yk0-f169.google.com ([209.85.160.169]:35709 "EHLO
+	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754453AbbFVNdE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Jun 2015 09:33:04 -0400
+Received: by ykdy1 with SMTP id y1so22395676ykd.2
+        for <util-linux@vger.kernel.org>; Mon, 22 Jun 2015 06:33:04 -0700 (PDT)
+Message-ID: <55880E4D.2020701@ubuntu.com>
+Date: Mon, 22 Jun 2015 09:31:57 -0400
+From: Phil Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-In-Reply-To: <yq1a8vwenog.fsf@sermon.lab.mkp.net>
-References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
-	<20150615133154.GV1992@ws.net.home>
-	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
-	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
-	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
-	<yq1d20vfimj.fsf@sermon.lab.mkp.net>
-	<CAGnHSEnMgivXU_0gDaOkHFkbc=Ve8PaPR0ho8+VhdcUuNu89Gw@mail.gmail.com>
-	<yq1a8vwenog.fsf@sermon.lab.mkp.net>
-Date: Sun, 21 Jun 2015 00:01:34 +0800
-Message-ID: <CAGnHSE=DGa24TPox8wp4k264jnXjMOq7kzf-tCRf1eJt9kN0ZQ@mail.gmail.com>
-Subject: Re: optimal io size / custom alignment
-From: Tom Yan <tom.ty89@gmail.com>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux <util-linux@vger.kernel.org>
+Subject: Re: mount existing tmpfs mounts a new tmpfs
+References: <55876C53.7030505@ubuntu.com> <20150622082008.GH1992@ws.net.home>
+In-Reply-To: <20150622082008.GH1992@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I was not saying RAIDs are virtual devices. I just mentioned it
-because I saw things like virtio-blk or zram use blk_queue_io_opt().
-
-I know they all use VPDs, but the main point is whether those hardware
-RAIDs or so are handled by sd_mod, and whether those "transfer
-lengths" info are still important when it's just a simple drive. To me
-they look like to be of different nature. That's why I think it's
-inappropraite that they use the same "variable" / "file" to report
-because that makes tools like fdisk have trouble determining when does
-those values really matters.
-
-In fact, (maybe I am just unlucky :P) VPDs of all my devices are to
-some extent broken. I just found out today my Intel 530 SSD connecting
-directly to SATA also reports totally garbage values for TRIM : (
-
-To be honest the UAS thing doesn't really affect me a lot, I mostly
-use gdisk now (which doesn't care about i/o size AFAIK). I can also
-disable uas with the quirk so that VPDs are skipped when I really need
-fdisk for msdos/mbr. It's just I think that it kind of reveal a
-problem that has to be dealt with sooner or later, though you can
-optimistically think that vendors would do better on VPDs in the
-future.
-
-On 19 June 2015 at 05:01, Martin K. Petersen <martin.petersen@oracle.com> wrote:
->>>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
+On 6/22/2015 4:20 AM, Karel Zak wrote:
+> On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
+>> Forwarding this from debian bug #772419: Run mount /run, and it mounts
+>> a new tmpfs over top of the existing one in /run ( even if /run isn't
+>> listed in /etc/fstab ), hiding the existing files.  It should say that
+>> it is already mounted.
 >
-> Tom> No I put it in the wrong way. What I meant was "sd vs md". For
-> Tom> example, couldn't the scsi disk driver bind the value it reads from
-> Tom> the VPD to another variable instead of "optimal i/o size", so that
-> Tom> this value would be exclusively for RAID (and other virtual
-> Tom> devices)?
->
-> Who says that RAID is a virtual device? Hardware RAID controllers as
-> well as SAS, iSCSI and Fibre Channel disk arrays all use the Block
-> Limits VPD to communicate their preferred I/O size and alignment to
-> us. As do enterprise disk drives.
->
-> We deal with broken devices by blacklisting them. I suggest you try to
-> find a way we can reliably identify your UAS devices. If there is a
-> common pattern, we can entertain adding a workaround.
->
-> --
-> Martin K. Petersen      Oracle Linux Engineering
+> We usually don't play any policy games in userspace (exception is
+> mount -a).  If it's supported by kernel then it's correct behaviour.
+> And IMHO it's really correct behaviour because it creates a *new*
+> filesystem.
+
+The single argument form of mount isn't *supposed* to create a new 
+filesystem.  It is supposed to mount one described by /etc/fstab if it 
+is not already mounted.  It should not be looking up /proc/mounts and 
+treating what it finds there as if it was an /etc/fstab entry, and then 
+blindly trying to remount the already mounted filesystem.  Only the two 
+argument form of mount should do this.
+
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
