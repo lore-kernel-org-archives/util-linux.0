@@ -1,35 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34322 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758610AbbFBKxW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Jun 2015 06:53:22 -0400
-Date: Tue, 2 Jun 2015 12:53:20 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Cristian =?iso-8859-1?Q?Rodr=EDguez?= <crrodriguez@opensuse.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sys-utils: lscpu segfaults when built with
- -fsanitize=address
-Message-ID: <20150602105320.GI7285@ws.net.home>
-References: <1433011901-113397-1-git-send-email-crrodriguez@opensuse.org>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.231]:12255 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751531AbbFVCA5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 21 Jun 2015 22:00:57 -0400
+Message-ID: <55876C53.7030505@ubuntu.com>
+Date: Sun, 21 Jun 2015 22:00:51 -0400
+From: Phillip Susi <psusi@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1433011901-113397-1-git-send-email-crrodriguez@opensuse.org>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: mount existing tmpfs mounts a new tmpfs
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, May 30, 2015 at 03:51:41PM -0300, Cristian Rodríguez wrote:
-> This is expected and a false positive, exclude the vmware detection
-> trick when __SANITIZE_ADDRESS__ is defined.
-> ---
->  sys-utils/lscpu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
- Applied, but I have added a preprocessor warning when the detection
- is disabled by -fsanitize=address. Thanks!
+Forwarding this from debian bug #772419: Run mount /run, and it mounts
+a new tmpfs over top of the existing one in /run ( even if /run isn't
+listed in /etc/fstab ), hiding the existing files.  It should say that
+it is already mounted.
 
-    Karel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBCgAGBQJVh2xSAAoJENRVrw2cjl5RnisH/1wvRqqlgckjp1sRdo/zGfHX
+Wpw5vIYxefXvKrQsyI64DMLV6MNNnFdGNIj8QxnBJwMpzFq0+p08u0AWmThNg35Q
+H1as8PA8+RkM7e7vzPXFId7QMjL+Lx09TE4Tg0y6HERF834FnL3QDwYna5AcJbVg
+wvADB7CTEAK3SHv1F1HHVOcKb6DFw0ur/JIM93+P6rohu7jhUOWq+SVcDNZgA/JQ
+dzEzBgFv1+yJPHYP4J8lKTddq+TOGzhamlusfz/6feSKzyvFKSxaPWDrLTNk5hu3
+dj3bHoiWlGB7meo3NCDqKLH6nLeOUhlXgaGh0vm72fwM7Ip4DkO0Ovy4dloxokA=
+=Umj1
+-----END PGP SIGNATURE-----
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
