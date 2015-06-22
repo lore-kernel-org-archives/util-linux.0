@@ -1,46 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from que31.charter.net ([209.225.8.23]:43884 "EHLO que31.charter.net"
+Received: from mx1.redhat.com ([209.132.183.28]:42167 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751249AbbF0AvJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 26 Jun 2015 20:51:09 -0400
-To: util-linux@vger.kernel.org
-Subject: [PATCH] wall: Print time and date (rather than just time) in wall banner
-Message-Id: <E1Z8e57-0003js-1r@bb>
-From: Dave Rutherford <dave@evilpettingzoo.com>
-Date: Fri, 26 Jun 2015 20:34:53 -0400
+	id S1752076AbbFVOPx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Jun 2015 10:15:53 -0400
+Date: Mon, 22 Jun 2015 16:15:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <ruediger.meier@ga-group.nl>
+Cc: Phillip Susi <psusi@ubuntu.com>, util-linux <util-linux@vger.kernel.org>
+Subject: Re: mount existing tmpfs mounts a new tmpfs
+Message-ID: <20150622141551.GK1992@ws.net.home>
+References: <55876C53.7030505@ubuntu.com>
+ <20150622082008.GH1992@ws.net.home>
+ <201506221455.46930.ruediger.meier@ga-group.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201506221455.46930.ruediger.meier@ga-group.nl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Mon, Jun 22, 2015 at 02:55:37PM +0200, Ruediger Meier wrote:
+> On Monday 22 June 2015, Karel Zak wrote:
+> > On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
+> > > Forwarding this from debian bug #772419: Run mount /run, and it
+> > > mounts a new tmpfs over top of the existing one in /run ( even if
+> > > /run isn't listed in /etc/fstab ), hiding the existing files.  It
+> > > should say that it is already mounted.
+> >
+> > We usually don't play any policy games in userspace (exception is
+> > mount -a).  If it's supported by kernel then it's correct behaviour.
+> > And IMHO it's really correct behaviour because it creates a *new*
+> > filesystem.
+> 
+> Is it really the kernel who does not mount again other filesystems?
 
-This is a simple change to print the date and time in the wall banner.
-Previously just the time was printed.  This made more sense during the era
-of scarce and/or real terminals with interactive sessions of brief usage,
-when a terminal was likely to be attended, but makes less sense in the era
-of long-lived x-terminals, screen sessions, and so forth.  The latter may
-be left open for days or weeks at a time, and returning to one it may no
-longer be obvious just when a wall message was sent.  This can be relevant.
+Sure, use strace to see more:
 
-This adds the seconds and the date (locale-appropriate format) to the
-wall banner, if any.
+> For me tmpfs behavior looks different for no reason:
+> 
+> $ cat /etc/fstab
+> /dev/sda1                  /boot       ext2   defaults  0 0
+> glaukos:/exports/opt/intel /opt/intel  nfs    defaults  0 0
+> proc                       /tmp/proc   proc   defaults  0 0
+> none                       /tmp/tmpfs  tmpfs  defaults  0 0
+> 
+> When everything is mounted already I get:
+> 
+> $ mount /boot
+> mount: /dev/sda1 is already mounted or /boot busy
+>        /dev/sda1 is already mounted on /boot
 
-Regards,
-   Dave Rutherford <dave@evilpettingzoo.com>
+# strace -e mount mount /boot
+mount("/dev/sda2", "/boot", "ext4", MS_MGC_VAL, NULL) = -1 EBUSY
+(Device or resource busy)
 
+> $ mount /opt/intel/
+> mount.nfs: /opt/intel is busy or already mounted
 
-$ diff -u term-utils/wall.c.orig term-utils/wall.c
---- term-utils/wall.c.orig      2015-06-25 04:31:10.957160529 -0400
-+++ term-utils/wall.c   2015-06-26 01:45:04.150729302 -0400
-@@ -238,8 +238,9 @@
-                sprintf(lbuf, _("Broadcast Message from %s@%s"),
-                              whom, hostname);
-                fprintf(fp, "%-79.79s\007\007\r\n", lbuf);
--               sprintf(lbuf, "        (%s) at %d:%02d ...",
--                             where, lt->tm_hour, lt->tm_min);
-+               cnt = sprintf(lbuf, "        (%s) at ", where);
-+               mbuf = lbuf + cnt;
-+               strftime(mbuf, 79-cnt, "%T %x ...", lt);
-                fprintf(fp, "%-79.79s\r\n", lbuf);
-        }
-        fprintf(fp, "%79s\r\n", " ");
+# strace -fe mount mount /mnt/backup
+Process 27674 attached
+[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
+"nfs", 0, "vers=4.2,addr=192.168.111.1,clie"...) = -1 EPROTONOSUPPORT
+(Protocol not supported)
+[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
+"nfs", 0, "vers=4.1,addr=192.168.111.1,clie"...) = -1 EPROTONOSUPPORT
+(Protocol not supported)
+[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
+"nfs", 0, "vers=4.0,addr=192.168.111.1,clie"...) = -1 EBUSY (Device or
+resource busy)
 
+> $ mount /tmp/proc/
+> mount: proc is already mounted or /tmp/proc busy
+>        proc is already mounted on /proc
+>        proc is already mounted on /tmp/proc
+
+strace -e mount mount -t proc none /proc
+mount("none", "/proc", "proc", MS_MGC_VAL, NULL) = -1 EBUSY (Device or
+resource busy)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
