@@ -1,45 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:36197 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759705AbbFBR7R (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Jun 2015 13:59:17 -0400
-Received: by lbbqq2 with SMTP id qq2so109571457lbb.3
-        for <util-linux@vger.kernel.org>; Tue, 02 Jun 2015 10:59:15 -0700 (PDT)
-From: Boris Egorov <egorov@linux.com>
-To: util-linux@vger.kernel.org
-Cc: Boris Egorov <egorov@linux.com>
-Subject: [PATCH 0/3] bash-completion: handle comma-separated options, sync with code, cleanup
-Date: Tue,  2 Jun 2015 23:59:00 +0600
-Message-Id: <1433267943-2276-1-git-send-email-egorov@linux.com>
+Received: from mx1.redhat.com ([209.132.183.28]:23471 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753580AbbFVImu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 22 Jun 2015 04:42:50 -0400
+Date: Mon, 22 Jun 2015 10:42:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: Manual sections vs. /bin or /sbin location
+Message-ID: <20150622084248.GI1992@ws.net.home>
+References: <558768CB.8090209@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <558768CB.8090209@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Boris Egorov (3):
-  bash-completion: handle comma-separated options
-  bash-completion: sync lscpu completion with code
-  bash-completion: remove unused variables [shellcheck]
+On Sun, Jun 21, 2015 at 09:45:47PM -0400, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA512
+> 
+> I came across a bug report in Debian noting that findmnt is in /bin,
+> not /sbin, but its manual page is in section 8.  Should one or the
+> other be moved so they line up?
 
- bash-completion/addpart    |  2 +-
- bash-completion/chcpu      | 32 ++++++++++++++++++++++----------
- bash-completion/findmnt    | 16 ++++++++++++----
- bash-completion/fsck       |  2 +-
- bash-completion/fsck.minix |  2 +-
- bash-completion/losetup    | 14 ++++++++++----
- bash-completion/lsblk      | 31 +++++++++++++++++++++----------
- bash-completion/lscpu      | 33 ++++++++++++++++-----------------
- bash-completion/lslocks    | 14 ++++++++++----
- bash-completion/mkfs       |  2 +-
- bash-completion/mkfs.bfs   |  2 +-
- bash-completion/mkfs.minix |  1 -
- bash-completion/partx      | 15 +++++++++++----
- bash-completion/prlimit    | 14 ++++++++++----
- bash-completion/setpriv    | 28 ++++++++++++++++++++--------
- bash-completion/swapon     | 14 ++++++++++----
- bash-completion/taskset    | 16 +++++++++++-----
- bash-completion/wdctl      | 14 ++++++++++----
- bash-completion/zramctl    | 14 ++++++++++----
- 19 files changed, 178 insertions(+), 88 deletions(-)
+Good point, although I don't think that everything in section 8 has to
+be in /sbin.
+
+findmnt, lsblk and lslocks have been originally designed as
+administrator's tools so we have selected section 8, but now it's
+pretty usable for non-root users and the tools are commonly used, so
+maybe move it to the section 1 makes sense.
+
+I don't have any strong opinion about it, if you want to move the man
+pages to the section 1 then send a patch. The paths should be
+unchanged.
+
+
+    Karel
 
 -- 
-2.1.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+--
+To unsubscribe from this list: send the line "unsubscribe util-linux" in
