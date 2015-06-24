@@ -1,39 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:34945 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752478AbbF1IaZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Jun 2015 04:30:25 -0400
-Received: by wiga1 with SMTP id a1so47555174wig.0
-        for <util-linux@vger.kernel.org>; Sun, 28 Jun 2015 01:30:23 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CA+jjjYSw=pO-Rk9LfyUSPqYc35kwc0xwGX2iQ5g9Z9t8cishsg@mail.gmail.com>
-References: <CA+jjjYT6T0A=bY5=Kbga+WhR0FZse1LdHLmDCxFqhRspvS-gdw@mail.gmail.com>
-	<alpine.LNX.2.03.1506211326540.3757@iki.fi>
-	<CA+jjjYSw=pO-Rk9LfyUSPqYc35kwc0xwGX2iQ5g9Z9t8cishsg@mail.gmail.com>
-Date: Sun, 28 Jun 2015 09:30:23 +0100
-Message-ID: <CAG27Bk0sT6=7RT6BkbWA5os24VNT7mM8QANmE31puqFw9+1Eog@mail.gmail.com>
-Subject: Re: mkfs.minix misbehaves on 4GB filesystems
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:38382 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751070AbbFXIPc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 24 Jun 2015 04:15:32 -0400
+Received: by wibdq8 with SMTP id dq8so38721685wib.1
+        for <util-linux@vger.kernel.org>; Wed, 24 Jun 2015 01:15:31 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-To: Joshua Hudson <joshudson@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 03/12] mkfs.minix: use is_mounted() from libcommon
+Date: Wed, 24 Jun 2015 09:15:10 +0100
+Message-Id: <1435133719-2971-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
+References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 28 June 2015 at 01:11, Joshua Hudson <joshudson@gmail.com> wrote:
-> +       if (BLOCKS > MINIX_MAX_INODES * BITS_PER_BLOCK)
-> +               BLOCKS = MINIX_MAX_INODES * BITS_PER_BLOCK;     /*
-> Utter maximum: Clip. */
->
-> Adjustment was not quite correct. The limit constant here is 5 smaller
-> than the multiplication would lead you to guess (boot, super, imap,
-> inode, overflow).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/mkfs.minix.c | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
 
-Magic number 4 is added back to the commit.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/20db4e07f75145c1eca7e8209efe0e246f480f51#diff-4c9bda8f12f6b5bb40a2181cb7bf0b89L794
-
+diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
+index 9e4212f..a198e5a 100644
+--- a/disk-utils/mkfs.minix.c
++++ b/disk-utils/mkfs.minix.c
+@@ -77,6 +77,7 @@
+ #include "strutils.h"
+ #include "all-io.h"
+ #include "closestream.h"
++#include "ismounted.h"
+ 
+ #define MINIX_ROOT_INO 1
+ #define MINIX_BAD_INO 2
+@@ -152,28 +153,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	exit(out == stderr ? MKFS_EX_USAGE : MKFS_EX_OK);
+ }
+ 
+-/*
+- * Check to make certain that our new filesystem won't be created on
+- * an already mounted partition.  Code adapted from mke2fs, Copyright
+- * (C) 1994 Theodore Ts'o.  Also licensed under GPL.
+- */
+-static void check_mount(void) {
+-	FILE * f;
+-	struct mntent * mnt;
+-
+-	if ((f = setmntent (_PATH_MOUNTED, "r")) == NULL)
+-		return;
+-	while ((mnt = getmntent (f)) != NULL)
+-		if (strcmp (device_name, mnt->mnt_fsname) == 0)
+-			break;
+-	endmntent (f);
+-	if (!mnt)
+-		return;
+-
+-	errx(MKFS_EX_ERROR, _("%s is mounted; will not make a filesystem here!"),
+-			device_name);
+-}
+-
+ static void super_set_state(void)
+ {
+ 	switch (fs_version) {
+@@ -743,7 +722,9 @@ int main(int argc, char ** argv) {
+ 	if (!device_name) {
+ 		usage(stderr);
+ 	}
+-	check_mount();		/* is it already mounted? */
++	if (is_mounted(device_name))
++		errx(MKFS_EX_ERROR, _("%s is mounted; will not make a filesystem here!"),
++			device_name);
+ 	tmp = root_block;
+ 	if (fs_version == 3) {
+ 		*(uint32_t *)tmp = 1;
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.4.4
+
