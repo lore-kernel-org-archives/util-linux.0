@@ -1,267 +1,324 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53622 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751532AbbFHPfh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 8 Jun 2015 11:35:37 -0400
-Date: Mon, 8 Jun 2015 17:35:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Tom Yan <tom.ty89@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: multiple alignment bugs / inconsistencies of fdisk
-Message-ID: <20150608153535.GE1992@ws.net.home>
-References: <CAGnHSE=QDqKbOKGrBH=4J_mv85V5ZumVmjoQ3Jpqig4CN4MU4Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGnHSE=QDqKbOKGrBH=4J_mv85V5ZumVmjoQ3Jpqig4CN4MU4Q@mail.gmail.com>
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:34515 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751671AbbFXIPm (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 24 Jun 2015 04:15:42 -0400
+Received: by wicnd19 with SMTP id nd19so127223475wic.1
+        for <util-linux@vger.kernel.org>; Wed, 24 Jun 2015 01:15:41 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 11/12] fsck.minix: introduce long options to the command
+Date: Wed, 24 Jun 2015 09:15:18 +0100
+Message-Id: <1435133719-2971-12-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
+References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 08, 2015 at 03:42:52PM +0800, Tom Yan wrote:
-> So I have a disk with weird "optimal i/o size" of 33553920 bytes
-> (actually I think it's because of the usb/sata converter):
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/fsck.minix |  12 ++--
+ disk-utils/fsck.minix.8    |  29 +++++----
+ disk-utils/fsck.minix.c    | 150 ++++++++++++++++++++++-----------------------
+ 3 files changed, 96 insertions(+), 95 deletions(-)
 
-Nice, the number is not power of 2, that's the problem :-)
-
-It's possible to reproduce by:
-
-  # modprobe scsi_debug dev_size_mb=1000 opt_blks=65535
-
-I have fixed the code, so now:
-
->     Last sector, +sectors or +size{K,M,G,T,P} (65535-156301487, default 156301487): +500m
-... 
->     Device     Boot Start     End Sectors  Size Id Type
->     /dev/sdb1       65535 1114094 1048560  512M 83 Linux
-
-...
->     Last sector, +sectors or +size{K,M,G,T,P} (65535-156301487, default 156301487): +512m
-...
->     Device     Boot Start     End Sectors  Size Id Type
->     /dev/sdb1       65535 1114110 1048576  512M 83 Linux
-
-
-fixed version:
-
-   Device     Boot Start     End Sectors  Size Id Type
-   /dev/sdc1       65535 1114094 1048560  512M 83 Linux
-
-for +500m as well as +512m.
-
-> 
->     Command (m for help): n
->     Partition number (1-128, default 1):
->     First sector (65535-156301454, default 65535):
->     Last sector, +sectors or +size{K,M,G,T,P} (65535-156301454,
-> default 156301454): +15m
->     Last sector, +sectors or +size{K,M,G,T,P} (65535-156301454,
-> default 156301454): +16m
-
- I have improved the code to not align end of the partition if the
- size is smaller than grain (33553920 bytes in your case).
-
-fixed version:
-
-  Last sector, +sectors or +size{K,M,G,T,P} (65535-2047966, default 2047966): +15m
-
-  Created a new partition 1 of type 'Linux filesystem' and of size 15 MiB.
-  ...
-  Device     Start   End Sectors Size Type
-  /dev/sdc1  65535 96254   30720  15M Linux filesystem
-
-
-> when I try to create a 1MiB partition, it creates one of 2048 sectors
-> for both msdos and gpt, but then when I try to create smaller
-> partitions which doesn't naturally "end-align", the result become
-> ugly:
-...
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default 468862127): +1k
-...
->     Device     Boot Start   End Sectors  Size Id Type
->     /dev/sda1        2048  2050       3  1.5K 83 Linux
-
-Fixed, now:
-
-    Device     Boot Start   End Sectors Size Id Type
-    /dev/sdc1        2048  2049       2   1K 83 Linux
-
->     Command (m for help): o
->     Created a new DOS disklabel with disk identifier 0x6f4977c6.
-> 
->     Command (m for help): n
->     Partition type
->        p   primary (0 primary, 0 extended, 4 free)
->        e   extended (container for logical partitions)
->     Select (default p):
-> 
->     Using default response p.
->     Partition number (1-4, default 1):
->     First sector (2048-468862127, default 2048):
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> 468862127): +1023k
-> 
->     Created a new partition 1 of type 'Linux' and of size 1023.5 KiB.
-> 
->     Command (m for help): p
->     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
->     Units: sectors of 1 * 512 = 512 bytes
->     Sector size (logical/physical): 512 bytes / 512 bytes
->     I/O size (minimum/optimal): 512 bytes / 512 bytes
->     Disklabel type: dos
->     Disk identifier: 0x6f4977c6
-> 
->     Device     Boot Start   End Sectors    Size Id Type
->     /dev/sda1        2048  4094    2047 1023.5K 83 Linux
-
-Fixed, now:
-
-    Device     Boot Start   End Sectors  Size Id Type
-    /dev/sdc1        2048  4093    2046 1023K 83 Linux
-
-> The issue(s) seems to be related to how fdisk handle +0/+1 sector:
-> 
->     [tom@localhost ~]$ sudo fdisk /dev/sda
-> 
->     Welcome to fdisk (util-linux 2.26.2).
->     Changes will remain in memory only, until you decide to write them.
->     Be careful before using the write command.
-> 
-> 
->     Command (m for help): o
->     Created a new DOS disklabel with disk identifier 0x6473db40.
-> 
->     Command (m for help): n
->     Partition type
->        p   primary (0 primary, 0 extended, 4 free)
->        e   extended (container for logical partitions)
->     Select (default p):
-> 
->     Using default response p.
->     Partition number (1-4, default 1):
->     First sector (2048-468862127, default 2048):
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> 468862127): +0
-
- Now it returns "Value out of range".
-
->     Created a new partition 1 of type 'Linux' and of size 512 B.
-> 
->     Command (m for help): p
->     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
->     Units: sectors of 1 * 512 = 512 bytes
->     Sector size (logical/physical): 512 bytes / 512 bytes
->     I/O size (minimum/optimal): 512 bytes / 512 bytes
->     Disklabel type: dos
->     Disk identifier: 0x6473db40
-> 
->     Device     Boot Start   End Sectors  Size Id Type
->     /dev/sda1        2048  2048       1  512B 83 Linux
-> 
->     Command (m for help): o
->     Created a new DOS disklabel with disk identifier 0x344a2daa.
-> 
->     Command (m for help): n
->     Partition type
->        p   primary (0 primary, 0 extended, 4 free)
->        e   extended (container for logical partitions)
->     Select (default p):
-> 
->     Using default response p.
->     Partition number (1-4, default 1):
->     First sector (2048-468862127, default 2048):
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> 468862127): +1
-> 
->     Created a new partition 1 of type 'Linux' and of size 1 KiB.
-> 
->     Command (m for help): p
->     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
->     Units: sectors of 1 * 512 = 512 bytes
->     Sector size (logical/physical): 512 bytes / 512 bytes
->     I/O size (minimum/optimal): 512 bytes / 512 bytes
->     Disklabel type: dos
->     Disk identifier: 0x344a2daa
-> 
->     Device     Boot Start   End Sectors Size Id Type
->     /dev/sda1        2048  2049       2   1K 83 Linux
-
-Fixed, now:
-
-      Device     Boot Start   End Sectors  Size Id Type
-      /dev/sdc1        2048  2048       1  512B 83 Linux
-
-
->     Command (m for help): o
->     Created a new DOS disklabel with disk identifier 0xc29ce8ba.
-> 
->     Command (m for help): n
->     Partition type
->        p   primary (0 primary, 0 extended, 4 free)
->        e   extended (container for logical partitions)
->     Select (default p):
-> 
->     Using default response p.
->     Partition number (1-4, default 1):
->     First sector (2048-468862127, default 2048):
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> 468862127): +2
-> 
->     Created a new partition 1 of type 'Linux' and of size 1.5 KiB.
-> 
->     Command (m for help): p
->     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
->     Units: sectors of 1 * 512 = 512 bytes
->     Sector size (logical/physical): 512 bytes / 512 bytes
->     I/O size (minimum/optimal): 512 bytes / 512 bytes
->     Disklabel type: dos
->     Disk identifier: 0xc29ce8ba
-> 
->     Device     Boot Start   End Sectors  Size Id Type
->     /dev/sda1        2048  2050       3  1.5K 83 Linux
-
-
-Fixed, now:
-
-     Device     Boot Start   End Sectors Size Id Type
-     /dev/sdc1        2048  2049       2   1K 83 Linux
-
->     Command (m for help): o
->     Created a new DOS disklabel with disk identifier 0x67872ede.
-> 
->     Command (m for help): n
->     Partition type
->        p   primary (0 primary, 0 extended, 4 free)
->        e   extended (container for logical partitions)
->     Select (default p):
-> 
->     Using default response p.
->     Partition number (1-4, default 1):
->     First sector (2048-468862127, default 2048):
->     Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default
-> 468862127): +2048
-> 
->     Created a new partition 1 of type 'Linux' and of size 1 MiB.
-> 
->     Command (m for help): p
->     Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
->     Units: sectors of 1 * 512 = 512 bytes
->     Sector size (logical/physical): 512 bytes / 512 bytes
->     I/O size (minimum/optimal): 512 bytes / 512 bytes
->     Disklabel type: dos
->     Disk identifier: 0x67872ede
-> 
->     Device     Boot Start   End Sectors Size Id Type
->     /dev/sda1        2048  4096    2049   1M 83 Linux
-
-Fixed, now:
-
-      Device     Boot Start   End Sectors Size Id Type
-      /dev/sdc1        2048  4095    2048   1M 83 Linux
-
-
-Thanks!
-
-   Karel
-
+diff --git a/bash-completion/fsck.minix b/bash-completion/fsck.minix
+index b2b2860..ac4571e 100644
+--- a/bash-completion/fsck.minix
++++ b/bash-completion/fsck.minix
+@@ -1,16 +1,16 @@
+ _fsck.minix_module()
+ {
+-	local cur prev OPTS
++	local cur OPTS
+ 	COMPREPLY=()
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+-	prev="${COMP_WORDS[COMP_CWORD-1]}"
+-	case $prev in
+-		'-V'|'--version')
++	case $cur in
++		-*)
++			OPTS="--list --auto --repair --verbose --super --uncleared --force --help --version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+ 			return 0
+ 			;;
+ 	esac
+-	OPTS="-l -a -r -v -s -m -f --version"
+-	COMPREPLY=( $(compgen -W "${OPTS[*]} $(lsblk -pnro name)" -- $cur) )
++	COMPREPLY=( $(compgen -W "$(lsblk -pnro name)" -- $cur) )
+ 	return 0
+ }
+ complete -F _fsck.minix_module fsck.minix
+diff --git a/disk-utils/fsck.minix.8 b/disk-utils/fsck.minix.8
+index b672ab7..84d54bb 100644
+--- a/disk-utils/fsck.minix.8
++++ b/disk-utils/fsck.minix.8
+@@ -1,16 +1,15 @@
+ .\" Copyright 1992, 1993, 1994 Rickard E. Faith (faith@cs.unc.edu)
+ .\" May be freely distributed.
+-.TH FSCK.MINIX 8 "July 1996" "util-linux" "System Administration"
++.TH FSCK.MINIX 8 "June 2015" "util-linux" "System Administration"
+ .SH NAME
+ fsck.minix \- check consistency of Minix filesystem
+ .SH SYNOPSIS
+ .B fsck.minix
+-.RB [ \-larvsmf ]
++[options]
+ .I device
+ .SH DESCRIPTION
+ .B fsck.minix
+-performs a consistency check for the Linux MINIX filesystem.  The current
+-version supports the 14 character and 30 character filename options.
++performs a consistency check for the Linux MINIX filesystem.
+ 
+ The program
+ assumes the filesystem is quiescent.
+@@ -51,31 +50,37 @@ on a mounted filesystem (i.e., the root filesystem), make sure nothing is
+ writing to the disk, and that no files are "zombies" waiting for deletion.
+ .SH OPTIONS
+ .TP
+-.B \-l
++\fB\-l\fR, \fB\-\-list\fR
+ List all filenames.
+ .TP
+-.B \-r
++\fB\-r\fR, \fB\-\-repair\fR
+ Perform interactive repairs.
+ .TP
+-.B \-a
++\fB\-a\fR, \fB\-\-auto\fR
+ Perform automatic repairs.  (This option implies
+-.B \-r
++.B \-\-repair
+ and serves to answer all of the questions asked with the default.)  Note
+ that this can be extremely dangerous in the case of extensive filesystem
+ damage.
+ .TP
+-.B \-v
++\fB\-v\fR, \fB\-\-verbose\fR
+ Be verbose.
+ .TP
+-.B \-s
++\fB\-s\fR, \fB\-\-super\fR
+ Output super-block information.
+ .TP
+-.B \-m
++\fB\-m\fR, \fB\-\-uncleared\fR
+ Activate MINIX-like "mode not cleared" warnings.
+ .TP
+-.B \-f
++\fB\-f\fR, \fB\-\-force\fR
+ Force a filesystem check even if the filesystem was marked as valid (this
+ marking is done by the kernel when the filesystem is unmounted).
++.TP
++\fB\-V\fR, \fB\-\-version\fR
++Display version information and exit.
++.TP
++\fB\-h\fR, \fB\-\-help\fR
++Display help text and exit.
+ .SH "SEE ALSO"
+ .BR fsck (8),
+ .BR fsck.ext2 (8),
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index 57e5be9..f73ac4a 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -76,17 +76,6 @@
+  * unless you can be sure nobody is writing to it (and remember that the
+  * kernel can write to it when it searches for files).
+  *
+- * Usuage: fsck [-larvsm] device
+- *	-l for a listing of all the filenames
+- *	-a for automatic repairs (not implemented)
+- *	-r for repairs (interactive) (not implemented)
+- *	-v for verbose (tells how many files)
+- *	-s for super-block info
+- *	-m for minix-like "mode not cleared" warnings
+- *	-f force filesystem check even if filesystem marked as valid
+- *
+- * The device may be a block device or a image of one, but this isn't
+- * enforced (but it's not much fun on a character device :-).
+  */
+ 
+ #include <stdio.h>
+@@ -101,6 +90,7 @@
+ #include <mntent.h>
+ #include <sys/stat.h>
+ #include <signal.h>
++#include <getopt.h>
+ 
+ #include "c.h"
+ #include "exitcodes.h"
+@@ -181,33 +171,31 @@ fatalsig(int sig) {
+ 	raise(sig);
+ }
+ 
+-static void
++static void __attribute__((__noreturn__))
+ leave(int status) {
+ 	reset();
+ 	exit(status);
+ }
+ 
+ static void
+-usage(void) {
+-	fputs(USAGE_HEADER, stderr);
+-	fprintf(stderr,
+-		_(" %s [options] <device>\n"), program_invocation_short_name);
+-
+-	fputs(USAGE_SEPARATOR, stderr);
+-	fputs(_("Check the consistency of a Minix filesystem.\n"), stderr);
+-
+-	fputs(USAGE_OPTIONS, stderr);
+-	fputs(_(" -l  list all filenames\n"), stderr);
+-	fputs(_(" -a  automatic repair\n"), stderr);
+-	fputs(_(" -r  interactive repair\n"), stderr);
+-	fputs(_(" -v  be verbose\n"), stderr);
+-	fputs(_(" -s  output super-block information\n"), stderr);
+-	fputs(_(" -m  activate mode not cleared warnings\n"), stderr);
+-	fputs(_(" -f  force check\n"), stderr);
+-	fputs(USAGE_SEPARATOR, stderr);
+-	fputs(USAGE_VERSION, stderr);
+-	fprintf(stderr, USAGE_MAN_TAIL("fsck.minix(8)"));
+-	leave(FSCK_EX_USAGE);
++usage(FILE *out) {
++	fputs(USAGE_HEADER, out);
++	fprintf(out, _(" %s [options] <device>\n"), program_invocation_short_name);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Check the consistency of a Minix filesystem.\n"), out);
++	fputs(USAGE_OPTIONS, out);
++	fputs(_(" -l, --list       list all filenames\n"), out);
++	fputs(_(" -a, --auto       automatic repair\n"), out);
++	fputs(_(" -r, --repair     interactive repair\n"), out);
++	fputs(_(" -v, --verbose    be verbose\n"), out);
++	fputs(_(" -s, --super      output super-block information\n"), out);
++	fputs(_(" -m, --uncleared  activate mode not cleared warnings\n"), out);
++	fputs(_(" -f, --force      force check\n"), out);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_HELP, out);
++	fputs(USAGE_VERSION, out);
++	fprintf(out, USAGE_MAN_TAIL("fsck.minix(8)"));
++	leave(out == stderr ? FSCK_EX_USAGE : FSCK_EX_OK);
+ }
+ 
+ static void die(const char *fmt, ...)
+@@ -1259,62 +1247,70 @@ main(int argc, char **argv) {
+ 	struct termios tmp;
+ 	int count;
+ 	int retcode = FSCK_EX_OK;
++	int i;
++	static const struct option longopts[] = {
++		{"list", no_argument, NULL, 'l'},
++		{"auto", no_argument, NULL, 'a'},
++		{"repair", no_argument, NULL, 'r'},
++		{"verbose", no_argument, NULL, 'v'},
++		{"super", no_argument, NULL, 's'},
++		{"uncleared", no_argument, NULL, 'm'},
++		{"force", no_argument, NULL, 'f'},
++		{"version", no_argument, NULL, 'V'},
++		{"help", no_argument, NULL, 'h'},
++		{NULL, 0, NULL, 0}
++	};
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	if (argc == 2 &&
+-	    (!strcmp(argv[1], "-V") || !strcmp(argv[1], "--version"))) {
+-		printf(UTIL_LINUX_VERSION);
+-		exit(FSCK_EX_OK);
+-	}
+-
+ 	if (INODE_SIZE * MINIX_INODES_PER_BLOCK != MINIX_BLOCK_SIZE)
+ 		die(_("bad inode size"));
+ 	if (INODE2_SIZE * MINIX2_INODES_PER_BLOCK != MINIX_BLOCK_SIZE)
+ 		die(_("bad v2 inode size"));
+ 
+-	while (argc-- > 1) {
+-		argv++;
+-		if (argv[0][0] != '-') {
+-			if (device_name)
+-				usage();
+-			else
+-				device_name = argv[0];
+-		} else
+-			while (*++argv[0])
+-				switch (argv[0][0]) {
+-				case 'l':
+-					list = 1;
+-					break;
+-				case 'a':
+-					automatic = 1;
+-					repair = 1;
+-					break;
+-				case 'r':
+-					automatic = 0;
+-					repair = 1;
+-					break;
+-				case 'v':
+-					verbose = 1;
+-					break;
+-				case 's':
+-					show = 1;
+-					break;
+-				case 'm':
+-					warn_mode = 1;
+-					break;
+-				case 'f':
+-					force = 1;
+-					break;
+-				default:
+-					usage();
+-				}
+-	}
+-	if (!device_name)
+-		usage();
++	while ((i = getopt_long(argc, argv, "larvsmfVh", longopts, NULL)) != -1)
++		switch (i) {
++		case 'l':
++			list = 1;
++			break;
++		case 'a':
++			automatic = 1;
++			repair = 1;
++			break;
++		case 'r':
++			automatic = 0;
++			repair = 1;
++			break;
++		case 'v':
++			verbose = 1;
++			break;
++		case 's':
++			show = 1;
++			break;
++		case 'm':
++			warn_mode = 1;
++			break;
++		case 'f':
++			force = 1;
++			break;
++		case 'V':
++			printf(UTIL_LINUX_VERSION);
++			return FSCK_EX_OK;
++		case 'h':
++			usage(stdout);
++		default:
++			usage(stderr);
++		}
++	argc -= optind;
++	argv += optind;
++	if (0 < argc) {
++		device_name = argv[0];
++	} else
++		usage(stderr);
++
+ 	check_mount();		/* trying to check a mounted filesystem? */
+ 	if (repair && !automatic) {
+ 		if (!isatty(STDIN_FILENO) || !isatty(STDOUT_FILENO))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.4.4
+
