@@ -1,86 +1,140 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42167 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752076AbbFVOPx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Jun 2015 10:15:53 -0400
-Date: Mon, 22 Jun 2015 16:15:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <ruediger.meier@ga-group.nl>
-Cc: Phillip Susi <psusi@ubuntu.com>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: mount existing tmpfs mounts a new tmpfs
-Message-ID: <20150622141551.GK1992@ws.net.home>
-References: <55876C53.7030505@ubuntu.com>
- <20150622082008.GH1992@ws.net.home>
- <201506221455.46930.ruediger.meier@ga-group.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201506221455.46930.ruediger.meier@ga-group.nl>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:35301 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751207AbbFXIPl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 24 Jun 2015 04:15:41 -0400
+Received: by wiga1 with SMTP id a1so127959722wig.0
+        for <util-linux@vger.kernel.org>; Wed, 24 Jun 2015 01:15:40 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 10/12] fsck.minix: add minix v3 support
+Date: Wed, 24 Jun 2015 09:15:17 +0100
+Message-Id: <1435133719-2971-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
+References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 22, 2015 at 02:55:37PM +0200, Ruediger Meier wrote:
-> On Monday 22 June 2015, Karel Zak wrote:
-> > On Sun, Jun 21, 2015 at 10:00:51PM -0400, Phillip Susi wrote:
-> > > Forwarding this from debian bug #772419: Run mount /run, and it
-> > > mounts a new tmpfs over top of the existing one in /run ( even if
-> > > /run isn't listed in /etc/fstab ), hiding the existing files.  It
-> > > should say that it is already mounted.
-> >
-> > We usually don't play any policy games in userspace (exception is
-> > mount -a).  If it's supported by kernel then it's correct behaviour.
-> > And IMHO it's really correct behaviour because it creates a *new*
-> > filesystem.
-> 
-> Is it really the kernel who does not mount again other filesystems?
+Relates-to: a2657ae3ffb56616ac9c921886bcca8ef242499f
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/fsck.minix.c | 33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
-Sure, use strace to see more:
-
-> For me tmpfs behavior looks different for no reason:
-> 
-> $ cat /etc/fstab
-> /dev/sda1                  /boot       ext2   defaults  0 0
-> glaukos:/exports/opt/intel /opt/intel  nfs    defaults  0 0
-> proc                       /tmp/proc   proc   defaults  0 0
-> none                       /tmp/tmpfs  tmpfs  defaults  0 0
-> 
-> When everything is mounted already I get:
-> 
-> $ mount /boot
-> mount: /dev/sda1 is already mounted or /boot busy
->        /dev/sda1 is already mounted on /boot
-
-# strace -e mount mount /boot
-mount("/dev/sda2", "/boot", "ext4", MS_MGC_VAL, NULL) = -1 EBUSY
-(Device or resource busy)
-
-> $ mount /opt/intel/
-> mount.nfs: /opt/intel is busy or already mounted
-
-# strace -fe mount mount /mnt/backup
-Process 27674 attached
-[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
-"nfs", 0, "vers=4.2,addr=192.168.111.1,clie"...) = -1 EPROTONOSUPPORT
-(Protocol not supported)
-[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
-"nfs", 0, "vers=4.1,addr=192.168.111.1,clie"...) = -1 EPROTONOSUPPORT
-(Protocol not supported)
-[pid 27674] mount("sr.net.home:/mnt/store/backup", "/mnt/backup",
-"nfs", 0, "vers=4.0,addr=192.168.111.1,clie"...) = -1 EBUSY (Device or
-resource busy)
-
-> $ mount /tmp/proc/
-> mount: proc is already mounted or /tmp/proc busy
->        proc is already mounted on /proc
->        proc is already mounted on /tmp/proc
-
-strace -e mount mount -t proc none /proc
-mount("none", "/proc", "proc", MS_MGC_VAL, NULL) = -1 EBUSY (Device or
-resource busy)
-
-    Karel
-
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index 3c3faf0..57e5be9 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -147,8 +147,6 @@ static char name_list[MAX_DEPTH][MINIX_NAME_MAX + 1];
+  * is a waste of 12kB or so.  */
+ static char current_name[MAX_DEPTH * (MINIX_NAME_MAX + 1) + 1];
+ 
+-#define MAGIC (Super.s_magic)
+-
+ static unsigned char *inode_count = NULL;
+ static unsigned char *zone_count = NULL;
+ 
+@@ -494,6 +492,9 @@ map_block2(struct minix2_inode *inode, unsigned int blknr) {
+ 
+ static void
+ write_super_block(void) {
++	/* v3 super block does not track state */
++	if (fs_version == 3)
++		return;
+ 	/* Set the state of the filesystem based on whether or not there are
+ 	 * uncorrected errors.  The filesystem valid flag is unconditionally
+ 	 * set if we get this far.  */
+@@ -534,7 +535,7 @@ get_dirsize(void) {
+ 	char blk[MINIX_BLOCK_SIZE];
+ 	size_t size;
+ 
+-	if (fs_version == 2)
++	if (fs_version == 2 || fs_version == 3)
+ 		block = Inode2[ROOT_INO].i_zone[0];
+ 	else
+ 		block = Inode[ROOT_INO].i_zone[0];
+@@ -561,22 +562,26 @@ read_superblock(void) {
+ 
+ 	if (MINIX_BLOCK_SIZE != read(device_fd, super_block_buffer, MINIX_BLOCK_SIZE))
+ 		die(_("unable to read super block"));
+-	if (MAGIC == MINIX_SUPER_MAGIC) {
++	if (Super.s_magic == MINIX_SUPER_MAGIC) {
+ 		namelen = 14;
+ 		dirsize = 16;
+ 		fs_version = 1;
+-	} else if (MAGIC == MINIX_SUPER_MAGIC2) {
++	} else if (Super.s_magic == MINIX_SUPER_MAGIC2) {
+ 		namelen = 30;
+ 		dirsize = 32;
+ 		fs_version = 1;
+-	} else if (MAGIC == MINIX2_SUPER_MAGIC) {
++	} else if (Super.s_magic == MINIX2_SUPER_MAGIC) {
+ 		namelen = 14;
+ 		dirsize = 16;
+ 		fs_version = 2;
+-	} else if (MAGIC == MINIX2_SUPER_MAGIC2) {
++	} else if (Super.s_magic == MINIX2_SUPER_MAGIC2) {
+ 		namelen = 30;
+ 		dirsize = 32;
+ 		fs_version = 2;
++	} else if (Super3.s_magic == MINIX3_SUPER_MAGIC) {
++		namelen = 60;
++		dirsize = 64;
++		fs_version = 3;
+ 	} else
+ 		die(_("bad magic number in super-block"));
+ 	if (get_zone_size() != 0 || MINIX_BLOCK_SIZE != 1024)
+@@ -637,7 +642,8 @@ read_tables(void) {
+ 		printf(_("Firstdatazone=%jd (%jd)\n"), first_zone, norm_first_zone);
+ 		printf(_("Zonesize=%d\n"), MINIX_BLOCK_SIZE << get_zone_size());
+ 		printf(_("Maxsize=%zu\n"), get_max_size());
+-		printf(_("Filesystem state=%d\n"), Super.s_state);
++		if (fs_version < 3)
++			printf(_("Filesystem state=%d\n"), Super.s_state);
+ 		printf(_("namelen=%zd\n\n"), namelen);
+ 	}
+ }
+@@ -1013,17 +1019,18 @@ check_file2(struct minix2_inode *dir, unsigned int offset) {
+ 	ino_t ino;
+ 	char *name;
+ 	int block;
++	const int version_offset = fs_version == 3 ? 4 : 2;
+ 
+ 	block = map_block2(dir, offset / MINIX_BLOCK_SIZE);
+ 	read_block(block, blk);
+-	name = blk + (offset % MINIX_BLOCK_SIZE) + 2;
+-	ino = *(unsigned short *)(name - 2);
++	name = blk + (offset % MINIX_BLOCK_SIZE) + version_offset;
++	ino = *(unsigned short *)(name - version_offset);
+ 	if (ino > get_ninodes()) {
+ 		get_current_name();
+ 		printf(_("The directory '%s' contains a bad inode number "
+ 			 "for file '%.*s'."), current_name, (int)namelen, name);
+ 		if (ask(_(" Remove"), 1)) {
+-			*(unsigned short *)(name - 2) = 0;
++			*(unsigned short *)(name - version_offset) = 0;
+ 			write_block(block, blk);
+ 		}
+ 		ino = 0;
+@@ -1323,7 +1330,7 @@ main(int argc, char **argv) {
+ 	/* Determine whether or not we should continue with the checking.  This
+ 	 * is based on the status of the filesystem valid and error flags and
+ 	 * whether or not the -f switch was specified on the command line.  */
+-	if (!(Super.s_state & MINIX_ERROR_FS) &&
++	if (fs_version < 3 && !(Super.s_state & MINIX_ERROR_FS) &&
+ 	    (Super.s_state & MINIX_VALID_FS) && !force) {
+ 		if (repair)
+ 			printf(_("%s is clean, no check.\n"), device_name);
+@@ -1350,7 +1357,7 @@ main(int argc, char **argv) {
+ 		termios_set = 1;
+ 	}
+ 
+-	if (fs_version == 2) {
++	if (fs_version == 2 || fs_version == 3) {
+ 		check_root2();
+ 		check2();
+ 	} else {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
+2.4.4
+
