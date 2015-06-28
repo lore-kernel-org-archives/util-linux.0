@@ -1,95 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:36803 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751587AbbFXIPj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 24 Jun 2015 04:15:39 -0400
-Received: by wicnd19 with SMTP id nd19so127676874wic.1
-        for <util-linux@vger.kernel.org>; Wed, 24 Jun 2015 01:15:37 -0700 (PDT)
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:37282 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752192AbbF1Tne (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Jun 2015 15:43:34 -0400
+Received: by wicgi11 with SMTP id gi11so55414990wic.0
+        for <util-linux@vger.kernel.org>; Sun, 28 Jun 2015 12:43:33 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 08/12] mkfs.minix: refactor root block content creation
-Date: Wed, 24 Jun 2015 09:15:15 +0100
-Message-Id: <1435133719-2971-9-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
-References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 4/7] docs: unify mkswap(8) with swapon(8) about holes warning
+Date: Sun, 28 Jun 2015 20:43:22 +0100
+Message-Id: <1435520605-4296-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
+References: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This does not belong to main() function.
-
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/mkfs.minix.c | 42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ disk-utils/mkswap.8 | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index c2ab664..16305b2 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -390,6 +390,27 @@ static void make_root_inode_v2_v3 (struct fs_control *ctl) {
+diff --git a/disk-utils/mkswap.8 b/disk-utils/mkswap.8
+index 0a0b715..815c23d 100644
+--- a/disk-utils/mkswap.8
++++ b/disk-utils/mkswap.8
+@@ -128,9 +128,19 @@ e.g.\& using a command like
+ .RE
+ .fi
  
- static void make_root_inode(struct fs_control *ctl)
- {
-+	char *tmp = root_block;
-+
-+	if (fs_version == 3) {
-+		*(uint32_t *) tmp = 1;
-+		strcpy(tmp + 4, ".");
-+		tmp += ctl->fs_dirsize;
-+		*(uint32_t *) tmp = 1;
-+		strcpy(tmp + 4, "..");
-+		tmp += ctl->fs_dirsize;
-+		*(uint32_t *) tmp = 2;
-+		strcpy(tmp + 4, ".badblocks");
-+	} else {
-+		*(uint16_t *) tmp = 1;
-+		strcpy(tmp + 2, ".");
-+		tmp += ctl->fs_dirsize;
-+		*(uint16_t *) tmp = 1;
-+		strcpy(tmp + 2, "..");
-+		tmp += ctl->fs_dirsize;
-+		*(uint16_t *) tmp = 2;
-+		strcpy(tmp + 2, ".badblocks");
-+	}
- 	if (fs_version < 2) {
- 		make_root_inode_v1(ctl);
- 		return;
-@@ -718,7 +739,6 @@ int main(int argc, char ** argv)
- 		0
- 	};
- 	int i;
--	char * tmp;
- 	struct stat statbuf;
- 	char * listfile = NULL;
- 	static const struct option longopts[] = {
-@@ -789,26 +809,6 @@ int main(int argc, char ** argv)
- 	if (is_mounted(ctl.device_name))
- 		errx(MKFS_EX_ERROR, _("%s is mounted; will not make a filesystem here!"),
- 			ctl.device_name);
--	tmp = root_block;
--	if (fs_version == 3) {
--		*(uint32_t *)tmp = 1;
--		strcpy(tmp+4,".");
--		tmp += ctl.fs_dirsize;
--		*(uint32_t *)tmp = 1;
--		strcpy(tmp+4,"..");
--		tmp += ctl.fs_dirsize;
--		*(uint32_t *)tmp = 2;
--		strcpy(tmp+4, ".badblocks");
--	} else {
--		*(uint16_t *)tmp = 1;
--		strcpy(tmp+2,".");
--		tmp += ctl.fs_dirsize;
--		*(uint16_t *)tmp = 1;
--		strcpy(tmp+2,"..");
--		tmp += ctl.fs_dirsize;
--		*(uint16_t *)tmp = 2;
--		strcpy(tmp+2, ".badblocks");
--	}
- 	if (stat(ctl.device_name, &statbuf) < 0)
- 		err(MKFS_EX_ERROR, _("stat of %s failed"), ctl.device_name);
- 	if (S_ISBLK(statbuf.st_mode))
+-Note that a swap file must not contain any holes (so, using
++Note that a swap file must not contain any holes.  Using
+ .BR cp (1)
+-to create the file is not acceptable).
++to create the file is not acceptable.  Neither is use of
++.BR fallocate (1)
++on file systems that support preallocated files, such as
++.BR XFS " or " ext4 ,
++or on copy-on-write filesystems like
++.BR btrfs .
++It is recommended to use
++.BR dd (1)
++and /dev/zero to in these cases.  Please read notes from
++.BR swapon (8)
++before adding a swap file to copy-on-write filesystems.
+ 
+ .SH ENVIRONMENT
+ .IP LIBBLKID_DEBUG=all
 -- 
 2.4.4
 
