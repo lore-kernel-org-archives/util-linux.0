@@ -1,36 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.230]:7366 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751540AbbFVBpx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sun, 21 Jun 2015 21:45:53 -0400
-Message-ID: <558768CB.8090209@ubuntu.com>
-Date: Sun, 21 Jun 2015 21:45:47 -0400
-From: Phillip Susi <psusi@ubuntu.com>
-MIME-Version: 1.0
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Manual sections vs. /bin or /sbin location
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:33125 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752600AbbF1Tng (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 28 Jun 2015 15:43:36 -0400
+Received: by wiwl6 with SMTP id l6so82590247wiw.0
+        for <util-linux@vger.kernel.org>; Sun, 28 Jun 2015 12:43:35 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 6/7] getopt: use $(...) command substitution in example script [shellcheck]
+Date: Sun, 28 Jun 2015 20:43:24 +0100
+Message-Id: <1435520605-4296-7-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
+References: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+Reference: https://github.com/koalaman/shellcheck/wiki/SC2006
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/getopt-parse.bash | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I came across a bug report in Debian noting that findmnt is in /bin,
-not /sbin, but its manual page is in section 8.  Should one or the
-other be moved so they line up?
+diff --git a/misc-utils/getopt-parse.bash b/misc-utils/getopt-parse.bash
+index 29e7f6f..aab8c62 100644
+--- a/misc-utils/getopt-parse.bash
++++ b/misc-utils/getopt-parse.bash
+@@ -19,8 +19,8 @@
+ # Note that we use `"$@"' to let each command-line parameter expand to a
+ # separate word. The quotes around `$@' are essential!
+ # We need TEMP as the `eval set --' would nuke the return value of getopt.
+-TEMP=`getopt -o ab:c:: --long a-long,b-long:,c-long:: \
+-     -n 'example.bash' -- "$@"`
++TEMP=$(getopt -o ab:c:: --long a-long,b-long:,c-long:: \
++     -n 'example.bash' -- "$@")
+ 
+ if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+ 
+-- 
+2.4.4
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBCgAGBQJVh2jLAAoJENRVrw2cjl5RpNoH/0LbBCNB2JX3duiRzW7giKl/
-PEwsI9qqnkSa6YLQTt3+mkhZEceDYmk6+cteOEWTi0iywL/OP4OaDwvbZCENQJ2P
-jWUk024XbWry8TCB5sDq5ntF83ikFWVrvbdQFbRJG+gC0zktJ7RM98rLULO7AUHc
-9CarDMWKZx6BSL7g0SI9PCVVLROVk7rqcfsJj4BpRJi4TC1iONdxz6BExE2eF0/B
-p6sg6y7NB6FO0NnpqUmCil5XodJZ6kZxs2+ZB0ilk2Z2G31aPjlAtNo8X435XFNB
-z2ZSi4H0+AEXTFiMeTtLuusiue68jWrWoGzbF5xSwKROZZ039MAv2OCID9vgvkA=
-=vNLd
------END PGP SIGNATURE-----
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
