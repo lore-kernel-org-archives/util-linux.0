@@ -1,45 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f48.google.com ([209.85.215.48]:36696 "EHLO
-	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752424AbbFSTlP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Jun 2015 15:41:15 -0400
-Received: by lacny3 with SMTP id ny3so80091628lac.3
-        for <util-linux@vger.kernel.org>; Fri, 19 Jun 2015 12:41:14 -0700 (PDT)
-From: Boris Egorov <egorov@linux.com>
-To: util-linux@vger.kernel.org
-Cc: Boris Egorov <egorov@linux.com>
-Subject: [PATCH 3/3] cfdisk: fix condition logic [cppcheck]
-Date: Sat, 20 Jun 2015 01:41:01 +0600
-Message-Id: <1434742861-11704-4-git-send-email-egorov@linux.com>
-In-Reply-To: <1434742861-11704-1-git-send-email-egorov@linux.com>
-References: <1434742861-11704-1-git-send-email-egorov@linux.com>
+Received: from mx1.redhat.com ([209.132.183.28]:50065 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750821AbbF2J1Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Jun 2015 05:27:25 -0400
+Date: Mon, 29 Jun 2015 11:27:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Dave Rutherford <dave@evilpettingzoo.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] wall: Print time and date (rather than just time) in
+ wall banner
+Message-ID: <20150629092723.GU1992@ws.net.home>
+References: <E1Z8e57-0003js-1r@bb>
+ <CAG27Bk1qdxbFJNGVbPezFeKJME2pLHpAgDzOkDkGzT82CtE6kg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk1qdxbFJNGVbPezFeKJME2pLHpAgDzOkDkGzT82CtE6kg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-[disk-utils/cfdisk.c:1181] -> [disk-utils/cfdisk.c:1181]: (warning)
-Possible null pointer dereference: data - otherwise it is redundant to
-check it against null.
+On Sat, Jun 27, 2015 at 09:20:58AM +0100, Sami Kerola wrote:
+> That said now when everything is turning to json, maybe header and
+> message should be json as well.  Something like:
 
-Signed-off-by: Boris Egorov <egorov@linux.com>
----
- disk-utils/cfdisk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ For humans? Why?
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index 6f26a3d..4627107 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1178,7 +1178,7 @@ inline static int extra_insert_pair(struct cfdisk_line *l, const char *name, con
- 
- 	assert(l);
- 
--	if (!data && !*data)
-+	if (!data || !*data)
- 		return 0;
- 
- 	lsl = scols_table_new_line(l->extra, NULL);
+> {
+>   "title": "Broadcast message"
+>   "from": "foobar@example.com"
+>   "tty": "pts/2"
+>   "date": "2015-06-27T09:18:36+0100"
+>   "message": "the stuff users write"
+> }
+
+Anyway, I don't think the current output is so bad that we have to
+change it.
+
+    Karel
+
 -- 
-2.1.4
-
---
-To unsubscribe from this list: send the line "unsubscribe util-linux" in
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
