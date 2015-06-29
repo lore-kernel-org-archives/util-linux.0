@@ -1,44 +1,39 @@
-Return-Path: martin.petersen@oracle.com
-To: Tom Yan <tom.ty89@gmail.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: optimal io size / custom alignment
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com>
-	<20150615133154.GV1992@ws.net.home>
-	<CAGnHSEm6wDq_EjJXYwqV2Tt2868DbR0bNRYvevhN1AM4qJpaPw@mail.gmail.com>
-	<yq1zj3zfuna.fsf@sermon.lab.mkp.net>
-	<CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
-Date: Tue, 16 Jun 2015 17:28:20 -0400
-In-Reply-To: <CAGnHSEkBXevNmrL7NFO=nKekZdZE6KtzjGvA8sM=onjUfd8KHQ@mail.gmail.com>
-	(Tom Yan's message of "Wed, 17 Jun 2015 03:26:20 +0800")
-Message-ID: <yq1d20vfimj.fsf@sermon.lab.mkp.net>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:41653 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752547AbbF2JtP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 29 Jun 2015 05:49:15 -0400
+Date: Mon, 29 Jun 2015 11:49:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/7] pull: various small changes
+Message-ID: <20150629094913.GV1992@ws.net.home>
+References: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1435520605-4296-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->>>>> "Tom" == Tom Yan <tom.ty89@gmail.com> writes:
+On Sun, Jun 28, 2015 at 08:43:18PM +0100, Sami Kerola wrote:
+> But deprecations can be tricky, so it would be great to hear if I
+> assumptions about reset(1) and the last-deprecated are right or wrong.
 
-Tom> All drives I have are flash drives so none of them reports 4k
-Tom> physical sectors.
+ The old last(1) implementation deprecation is expected and planned,
+ so it's fine and I think it's also fine to add the reset script
+ between deprecated stuff.
 
-There are plenty of SSDs that report 4K physical sectors, fwiw.
+ Applied, thanks.
 
-Tom> The usb-storage driver does not read vpd so it won't be a thing,
-Tom> but the the uas driver does.
+>   build-sys: add minimal whitespace build directory support
 
-We gave up on USB-SATA bridges long ago. Their designers appear to have
-a pretty comprehensive misunderstanding of both the ATA and SCSI
-protocols.
+ I don't like this patch. I don't think it's good idea to add warning
+ about libtools limitations to the all build systems. If we really need
+ such warning than it has to be in the LT_INIT.
 
-We had higher hopes for UAS since it provided a clean slate. So far,
-however, the results are equally discouraging.
-
-Tom> I just feel like the kernel shouldn't bind values from totally
-Tom> different source (raid stripe vs vpd limit) to the same variable.
-
-RAID devices communicate the stripe width through the Block Limits VPD.
+    Karel
 
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
