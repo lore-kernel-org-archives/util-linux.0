@@ -1,43 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-la0-f49.google.com ([209.85.215.49]:34381 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751272AbbGMH70 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 13 Jul 2015 03:59:26 -0400
-MIME-Version: 1.0
-Date: Mon, 13 Jul 2015 10:59:24 +0300
-Message-ID: <CAK13fG4CfFQCWLidruBfZ786ri9B_ov8C60q7it9NfgURvuc=w@mail.gmail.com>
-Subject: fdisk - mistyping in gpt type table (one character)
-From: =?UTF-8?B?0JDQvdC00YDQtdC5INCT0LDQstGA0LjQu9C40L0=?=
-	<gaal.dev@gmail.com>
-To: majordomo@vger.kernel.org, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from mout.gmx.net ([212.227.15.15]:52047 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751497AbbGBKKV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 2 Jul 2015 06:10:21 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0MVvi4-1ZYuhf1uNE-00X312 for
+ <util-linux@vger.kernel.org>; Thu, 02 Jul 2015 12:10:19 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] script: evaluate errno only if read() sets it
+Date: Thu,  2 Jul 2015 12:10:17 +0200
+Message-Id: <1435831817-13227-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <201507021206.47499.sweet_f_a@gmx.de>
+References: <201507021206.47499.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-GUID Partition Table: MidnightBSD
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-85D5E45E-237C-11E1-B4B3-E89A8F7FC3A7    Boot partition
-85D5E45A-237C-11E1-B4B3-E89A8F7FC3A7    Data partition
-85D5E45B-237C-11E1-B4B3-E89A8F7FC3A7    Swap partition
-0394EF8B-237E-11E1-B4B3-E89A8F7FC3A7    Unix File System (UFS) partition
-85D5E45C-237C-11E1-B4B3-E89A8F7FC3A7    Vinum volume manager partition
-85D5E45D-237C-11E1-B4B3-E89A8F7FC3A7    ZFS partition
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ term-utils/script.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-util-linux-2.26/libfdisk/src/gpt.c:235
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 9fdef2e..75881a6 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -322,7 +322,6 @@ static void handle_io(struct script_control *ctl, int fd, int *eof)
+ 
+ 	DBG(IO, ul_debug("%d FD active", fd));
+ 	*eof = 0;
+-	errno = 0;
+ 
+ 	/* read from active FD */
+ 	bytes = read(fd, buf, sizeof(buf));
+@@ -334,8 +333,7 @@ static void handle_io(struct script_control *ctl, int fd, int *eof)
+ 	}
+ 
+ 	if (bytes == 0) {
+-		if (errno == 0)
+-			*eof = 1;
++		*eof = 1;
+ 		return;
+ 	}
+ 
+@@ -367,7 +365,7 @@ static void handle_signal(struct script_control *ctl, int fd)
+ 
+ 	bytes = read(fd, &info, sizeof(info));
+ 	if (bytes != sizeof(info)) {
+-		if (errno == EAGAIN)
++		if (bytes < 0 && errno == EAGAIN)
+ 			return;
+ 		fail(ctl);
+ 	}
+@@ -463,7 +461,7 @@ static void do_io(struct script_control *ctl)
+ 					handle_io(ctl, pfd[i].fd, &eof);
+ 				/* EOF maybe detected by two ways:
+ 				 *	A) poll() return POLLHUP event after close()
+-				 *	B) read() returns no error and no data */
++				 *	B) read() returns 0 (no data) */
+ 				if ((pfd[i].revents & POLLHUP) || eof) {
+ 					DBG(POLL, ul_debug(" ignore FD"));
+ 					pfd[i].fd = -1;
+-- 
+1.8.4.5
 
-Original code:
-
-        DEF_GUID("85D5E45A-237C-11E1-B4B3-E89A8F7FC3A7",
-N_("MidnightBSD data")),
-        DEF_GUID("85D5E45E-237C-11E1-B4B3-E89A8F7FC3A7",
-N_("MidnightBSD boot")),
-        DEF_GUID("85D5E45B-237C-11E1-B4B3-E89A8F7FC3A7",
-N_("MidnightBSD swap")),
-        DEF_GUID("0394Ef8B-237C-11E1-B4B3-E89A8F7FC3A7", N_("MidnightBSD UFS")),
-        DEF_GUID("85D5E45D-237C-11E1-B4B3-E89A8F7FC3A7", N_("MidnightBSD ZFS")),
-        DEF_GUID("85D5E45C-237C-11E1-B4B3-E89A8F7FC3A7",
-N_("MidnightBSD Vinum")),
-
-One string has to be replaced.
-
-        DEF_GUID("0394EF8B-237E-11E1-B4B3-E89A8F7FC3A7", N_("MidnightBSD UFS")),
