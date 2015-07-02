@@ -1,27 +1,26 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47418 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752455AbbGONvc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 15 Jul 2015 09:51:32 -0400
-Date: Wed, 15 Jul 2015 15:51:30 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: script, broken test options/return
+Date: Thu, 2 Jul 2015 12:06:45 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] bash-completion: cal: add --twelve and --color options
-Message-ID: <20150715135130.GE31997@ws.net.home>
-References: <1435946588-895-1-git-send-email-kerolasa@iki.fi>
+References: <201507020203.21632.sweet_f_a@gmx.de> <20150702083227.GE26962@ws.net.home>
+In-Reply-To: <20150702083227.GE26962@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1435946588-895-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201507021206.47499.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 03, 2015 at 07:03:08PM +0100, Sami Kerola wrote:
->  bash-completion/cal | 21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
+On Thursday 02 July 2015, Karel Zak wrote:
 
- Applied, thanks.
+> It seems that handle_io() is not able to detect EOF, I have pushed a
+> commit that makes sure errno is zero (I guess it's the problem).
+>
+> Please, try it. Thanks.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks, this works now. But I'm going to push another patch which is IMO 
+a bit cleaner and to address another potential issue.
+
+cu,
+Rudi
