@@ -1,37 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:64529 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754954AbbGYPSd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 25 Jul 2015 11:18:33 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mout.gmx.net ([212.227.17.21]:65415 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753382AbbGBADY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 1 Jul 2015 20:03:24 -0400
+Received: from xd9ba0d5e.dyn.telefonica.de ([217.186.13.94]) by mail.gmx.com
+ (mrgmx101) with ESMTPSA (Nemesis) id 0M6O1v-1YrW0v2OMt-00yRl1 for
+ <util-linux@vger.kernel.org>; Thu, 02 Jul 2015 02:03:22 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/5] cfdisk: allow an uppercase X to toggle the extra info
-Date: Sat, 25 Jul 2015 17:18:14 +0200
-Message-Id: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Subject: script, broken test options/return
+Date: Thu, 2 Jul 2015 02:03:21 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201507020203.21632.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-To make true the help text line that says that all commands
-can be entered with either upper or lower case.
+Hi,
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+on my system (interactive bash on openSUSE 13.1) the "return" subtest 
+of "script/options" is broken since 54c6611d.
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index 11a087e..ac07bb5 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -2519,6 +2519,7 @@ static int ui_run(struct cfdisk *cf)
- 		case '\r':
- 			rc = main_menu_action(cf, 0);
- 			break;
-+		case 'X':
- 		case 'x': /* Extra */
- 			toggle_show_extra(cf);
- 			break;
--- 
-1.7.0.4
+Seems that input from /dev/null makes the difference. Reproduce like
+this:
 
+$ export SCRIPT_DEBUG=all 
+$ ./script --command "exit 1" out_good >/dev/null            2>dbg_good
+$ ./script --command "exit 1" out_bad  >/dev/null </dev/null 2>dbg_bad
+^C <abort ctrl-C>
+
+$ head -n 20 dbg_good dbg_bad
+==> dbg_good <==
+25703: script:       IO: master fd: 3
+25703: script:   SIGNAL: signal fd=5
+25703: script:     POLL: calling poll()
+25703: script:     POLL: poll() rc=1
+25703: script:     POLL:  active pfd[signal].fd=5 POLLIN
+25703: script:   SIGNAL: signal FD 5 active
+25703: script:     MISC: waiting for child
+25703: script:     POLL: calling poll()
+25703: script:     POLL: poll() rc=0
+25703: script:     POLL: setting die=1
+25703: script:     POLL: poll() done
+25703: script:     MISC: done!
+
+==> dbg_bad <==
+25708: script:       IO: master fd: 3
+25708: script:   SIGNAL: signal fd=5
+25708: script:     POLL: calling poll()
+25708: script:     POLL: poll() rc=1
+25708: script:     POLL:  active pfd[stdin].fd=0 POLLIN
+25708: script:       IO: 0 FD active
+25708: script:     POLL: calling poll()
+25708: script:     POLL: poll() rc=1
+25708: script:     POLL:  active pfd[stdin].fd=0 POLLIN
+25708: script:       IO: 0 FD active
+25708: script:     POLL: calling poll()
+25708: script:     POLL: poll() rc=1
+25708: script:     POLL:  active pfd[stdin].fd=0 POLLIN
+25708: script:       IO: 0 FD active
+25708: script:     POLL: calling poll()
+25708: script:     POLL: poll() rc=1
+25708: script:     POLL:  active pfd[stdin].fd=0 POLLIN
+25708: script:       IO: 0 FD active
+25708: script:     POLL: calling poll()
+25708: script:     POLL: poll() rc=1
+...
+
+cu,
+Rudi
