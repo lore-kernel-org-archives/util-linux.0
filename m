@@ -1,53 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:51159 "EHLO
-	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754963AbbGYPTQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 25 Jul 2015 11:19:16 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/5] cfdisk: keep the extra info block separate from menu and partitions
-Date: Sat, 25 Jul 2015 17:18:17 +0200
-Message-Id: <1437837498-23833-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
-References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:44111 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754788AbbGCIE2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 3 Jul 2015 04:04:28 -0400
+Date: Fri, 3 Jul 2015 10:04:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] script: evaluate errno only if read() sets it
+Message-ID: <20150703080426.GH26962@ws.net.home>
+References: <201507021206.47499.sweet_f_a@gmx.de>
+ <1435831817-13227-1-git-send-email-sweet_f_a@gmx.de>
+ <201507021221.02981.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201507021221.02981.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-By adding a blank line between them.  Also, keep the top of the info
-block in a fixed position close to the partition list, so that it is
-clearer that it belongs to a partition and not to the menu.
+On Thu, Jul 02, 2015 at 12:21:02PM +0200, Ruediger Meier wrote:
+> I have a question and a comment about my own patch :)
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ :-)
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index ddec7f4..bf865d9 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1394,8 +1394,8 @@ static int ui_draw_extra(struct cfdisk *cf)
- 	ndatalines = fdisk_table_get_nents(cf->table) + 1;
- 
- 	/* nents + header + one free line */
--	win_ex_start_line = TABLE_START_LINE + ndatalines;
--	win_height = MENU_START_LINE - win_ex_start_line;
-+	win_ex_start_line = TABLE_START_LINE + ndatalines + 1;
-+	win_height = MENU_START_LINE - win_ex_start_line - 1;
- 	tblen = scols_table_get_nlines(ln->extra);
- 
- 	/* we can't get a single line of data under the partlist*/
-@@ -1405,9 +1405,6 @@ static int ui_draw_extra(struct cfdisk *cf)
- 	/* number of data lines + 2 for top/bottom lines */
- 	win_height = win_height < tblen + 2 ? win_height : tblen + 2;
- 
--	if ((size_t) win_ex_start_line + win_height + 1 < MENU_START_LINE)
--		win_ex_start_line = MENU_START_LINE - win_height;
--
- 	win_ex = subwin(stdscr, win_height, ui_cols - 2, win_ex_start_line, 1);
- 
- 	scols_table_reduce_termwidth(ln->extra, 4);
+I have applied the patch with some small changes:
+
+> On Thursday 02 July 2015, Ruediger Meier wrote:
+> 
+> > @@ -367,7 +365,7 @@ static void handle_signal(struct script_control
+> > *ctl, int fd)
+> >
+> >  	bytes = read(fd, &info, sizeof(info));
+> >  	if (bytes != sizeof(info)) {
+> > -		if (errno == EAGAIN)
+> > +		if (bytes < 0 && errno == EAGAIN)
+> >  			return;
+> 
+> Should we also return on EINTR here like we do in handle_io()?
+
+It's probably more robust, Fixed.
+
+> And I see some more potential problems. For example see this snippet 
+> from handle_io();
+> 
+> 	bytes = read(fd, buf, sizeof(buf));
+> 	if (bytes < 0) {
+> 		DBG(IO, ul_debug(" read failed"));
+> 		if (errno == EAGAIN || errno == EINTR)
+> 			return;
+> 		fail(ctl);
+> 	}
+> 
+> We are using errno after DBG(). But in theory printf() or whatever we do 
+> in DBG() could change errno. Wouldn't it be a good idea to write 
+> generally all DBG macros errno-invariant?
+
+It seems like overkill solution to modify DBG() and always save errno
+on all places. I think it's better to care about this locally on place
+where you use DBG(). Fixed in script(1).
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
