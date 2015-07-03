@@ -1,73 +1,193 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.pxnet.com ([89.1.7.7]:37261 "EHLO mail.pxnet.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52126 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751803AbbGINbi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 9 Jul 2015 09:31:38 -0400
-Message-Id: <309a90194b08d5c512dce7638564bcb31ed23c51.1436438005.git.tilman@imap.cc>
-In-Reply-To: <cover.1436438005.git.tilman@imap.cc>
-References: <cover.1436438005.git.tilman@imap.cc>
-From: Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 2/3] ldattach: order line disciplines canonically
+	id S1755077AbbGCM60 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 3 Jul 2015 08:58:26 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (Postfix) with ESMTPS id E50BAC2309
+	for <util-linux@vger.kernel.org>; Fri,  3 Jul 2015 12:58:25 +0000 (UTC)
+From: Stef Walter <stefw@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, Tilman Schmidt <tilman@imap.cc>,
-        Paul Bolle <pebolle@tiscali.nl>, Sami Kerola <kerolasa@iki.fi>
-Date: Thu,  9 Jul 2015 15:22:32 +0200 (CEST)
+Cc: Stef Walter <stefw@redhat.com>
+Subject: [PATCH] agetty: Reprompt once the network addresses change if address displayed
+Date: Fri,  3 Jul 2015 14:58:08 +0200
+Message-Id: <1435928288-25644-1-git-send-email-stefw@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-List line disciplines in numerical order and put official names
-before convenience aliases.
+Several of the /etc/issue escape codes such as \4 and \6 depend on
+the current addresses of the system that can change after the agetty
+prompt is displayed.  This can cause stale data to be displayed
+when a user looks at a VT, especially in cases of DHCP racing with
+system start up.
 
-Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+Similar to the --reload mechanism, if we're displaying an address
+in the issue output, and the user hasn't typed anything yet: then
+redisplay the prompt with the new address.
+
+We use netlink to watch for address changes. We only open the netlink
+socket if we display an address in the issue file.
 ---
- sys-utils/ldattach.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ term-utils/agetty.c | 113 +++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 95 insertions(+), 18 deletions(-)
 
-diff --git a/sys-utils/ldattach.c b/sys-utils/ldattach.c
-index 5317d22..bd4fadd 100644
---- a/sys-utils/ldattach.c
-+++ b/sys-utils/ldattach.c
-@@ -62,14 +62,15 @@ struct gsm_config
- #ifndef N_GIGASET_M101
- # define N_GIGASET_M101 16
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 122959f..fc36488 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -129,9 +129,12 @@
+  */
+ #ifdef AGETTY_RELOAD
+ # include <sys/inotify.h>
++# include <linux/netlink.h>
++# include <linux/rtnetlink.h>
+ # define AGETTY_RELOAD_FILENAME "/run/agetty.reload"	/* trigger file */
+ # define AGETTY_RELOAD_FDNONE	-2			/* uninitialized fd */
+ static int inotify_fd = AGETTY_RELOAD_FDNONE;
++static int netlink_fd = AGETTY_RELOAD_FDNONE;
  #endif
--#ifndef N_GSM0710
--# define N_GSM0710 21
--#endif
  
- #ifndef N_PPS
- # define N_PPS 18
- #endif
+ /*
+@@ -1516,6 +1519,68 @@ done:
+ }
  
-+#ifndef N_GSM0710
-+# define N_GSM0710 21
+ #ifdef AGETTY_RELOAD
++static void open_netlink(void)
++{
++	struct sockaddr_nl addr = { 0, };
++	int sock;
++
++	if (netlink_fd != AGETTY_RELOAD_FDNONE)
++		return;
++
++	sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
++	if (sock >= 0) {
++		addr.nl_family = AF_NETLINK;
++		addr.nl_pid = getpid();
++		addr.nl_groups = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR;
++		if (bind(sock,(struct sockaddr *)&addr, sizeof(addr)) < 0)
++			close (sock);
++		else
++			netlink_fd = sock;
++	}
++}
++
++static int process_netlink_msg(int *changed)
++{
++	char buf[4096];
++	struct sockaddr_nl snl;
++	struct iovec iov = { buf, sizeof buf };
++	struct msghdr msg = { (void*)&snl, sizeof (snl), &iov, 1, NULL, 0, 0 };
++	struct nlmsghdr *h;
++	int rc;
++
++	rc = recvmsg(netlink_fd, &msg, MSG_DONTWAIT);
++	if (rc < 0) {
++		if (errno == EWOULDBLOCK || errno == EAGAIN)
++			return 0;
++
++		/* Failure, just stop listening for changes */
++		close (netlink_fd);
++		netlink_fd = AGETTY_RELOAD_FDNONE;
++		return 0;
++	}
++
++	for (h = (struct nlmsghdr *)buf; NLMSG_OK(h, (unsigned int)rc); h = NLMSG_NEXT(h, rc)) {
++		if (h->nlmsg_type == NLMSG_DONE ||
++		    h->nlmsg_type == NLMSG_ERROR) {
++			close (netlink_fd);
++			netlink_fd = AGETTY_RELOAD_FDNONE;
++			return 0;
++		}
++
++		*changed = 1;
++		break;
++	}
++
++	return 1;
++}
++
++static int process_netlink(void)
++{
++	int changed = 0;
++	while (process_netlink_msg (&changed));
++	return changed;
++}
++
+ static int wait_for_term_input(int fd)
+ {
+ 	char buffer[sizeof(struct inotify_event) + NAME_MAX + 1];
+@@ -1556,33 +1621,41 @@ static int wait_for_term_input(int fd)
+ 					AGETTY_RELOAD_FILENAME);
+ 	}
+ 
+-	FD_ZERO(&rfds);
+-	FD_SET(fd, &rfds);
++	for (;;) {
++		FD_ZERO(&rfds);
++		FD_SET(fd, &rfds);
+ 
+-	if (inotify_fd >= 0)
+-		FD_SET(inotify_fd, &rfds);
++		if (inotify_fd >= 0)
++			FD_SET(inotify_fd, &rfds);
++		if (netlink_fd >= 0)
++			FD_SET(netlink_fd, &rfds);
+ 
+-	/* If waiting fails, just fall through, presumably reading input will fail */
+-	if (select(max(fd, inotify_fd) + 1, &rfds, NULL, NULL, NULL) < 0)
+-		return 1;
++		/* If waiting fails, just fall through, presumably reading input will fail */
++		if (select(max(fd, inotify_fd) + 1, &rfds, NULL, NULL, NULL) < 0)
++			return 1;
+ 
+-	if (FD_ISSET(fd, &rfds)) {
+-		count = read(fd, buffer, sizeof (buffer));
++		if (FD_ISSET(fd, &rfds)) {
++			count = read(fd, buffer, sizeof (buffer));
+ 
+-		tcsetattr(fd, TCSANOW, &orig);
++			tcsetattr(fd, TCSANOW, &orig);
+ 
+-		/* Reinject the bytes we read back into the buffer, usually just one byte */
+-		for (i = 0; i < count; i++)
+-			ioctl(fd, TIOCSTI, buffer + i);
++			/* Reinject the bytes we read back into the buffer, usually just one byte */
++			for (i = 0; i < count; i++)
++				ioctl(fd, TIOCSTI, buffer + i);
+ 
+-		/* Have terminal input */
+-		return 1;
++			/* Have terminal input */
++			return 1;
+ 
+-	} else {
+-		tcsetattr(fd, TCSANOW, &orig);
++		} else if (netlink_fd >= 0 && FD_ISSET (netlink_fd, &rfds)) {
++			if (!process_netlink())
++				continue;
+ 
+ 		/* Just drain the inotify buffer */
+-		while (read(inotify_fd, buffer, sizeof (buffer)) > 0);
++		} else if (inotify_fd >= 0 && FD_ISSET (inotify_fd, &rfds)) {
++			while (read(inotify_fd, buffer, sizeof (buffer)) > 0);
++		}
++
++		tcsetattr(fd, TCSANOW, &orig);
+ 
+ 		/* Need to reprompt */
+ 		return 0;
+@@ -2371,6 +2444,10 @@ static void output_special_char(unsigned char c, struct options *op,
+ 		struct ifaddrs *addrs = NULL;
+ 		char iface[128];
+ 
++#ifdef AGETTY_RELOAD
++		open_netlink();
 +#endif
 +
- #define MAXINTROPARMLEN 32
- 
- /* attach a line discipline ioctl */
-@@ -86,7 +87,6 @@ struct ld_table {
- 
- /* currently supported line disciplines, plus some aliases */
- static const struct ld_table ld_discs[] = {
--	{ "GSM0710",		N_GSM0710},
- 	{ "TTY",		N_TTY },
- 	{ "SLIP",		N_SLIP },
- 	{ "MOUSE",		N_MOUSE },
-@@ -101,10 +101,11 @@ static const struct ld_table ld_discs[] = {
- 	{ "SYNC_PPP",		N_SYNC_PPP },
- 	{ "SYNCPPP",		N_SYNC_PPP },
- 	{ "HCI",		N_HCI },
--	{ "PPS",		N_PPS },
-+	{ "GIGASET_M101",	N_GIGASET_M101 },
- 	{ "M101",		N_GIGASET_M101 },
- 	{ "GIGASET",		N_GIGASET_M101 },
--	{ "GIGASET_M101",	N_GIGASET_M101 },
-+	{ "PPS",		N_PPS },
-+	{ "GSM0710",		N_GSM0710},
- 	{ NULL,	0 }
- };
+ 		if (getifaddrs(&addrs))
+ 			break;
  
 -- 
-1.9.2.459.g68773ac
+2.4.3
 
