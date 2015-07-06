@@ -1,29 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37333 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755936AbbGTIz6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 20 Jul 2015 04:55:58 -0400
-Date: Mon, 20 Jul 2015 10:55:56 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] logger: do not exit when socket errors are not enforced
-Message-ID: <20150720085556.GE11633@ws.net.home>
-References: <1437337152-947-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-oi0-f48.google.com ([209.85.218.48]:35255 "EHLO
+	mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753492AbbGFS6N (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jul 2015 14:58:13 -0400
+Received: by oihr66 with SMTP id r66so68884759oih.2
+        for <util-linux@vger.kernel.org>; Mon, 06 Jul 2015 11:58:12 -0700 (PDT)
+Received: from [192.168.0.75] (cpe-70-123-244-133.satx.res.rr.com. [70.123.244.133])
+        by mx.google.com with ESMTPSA id y5sm10440920oes.15.2015.07.06.11.58.11
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Jul 2015 11:58:12 -0700 (PDT)
+Message-ID: <559ACFC3.6050303@gmail.com>
+Date: Mon, 06 Jul 2015 13:58:11 -0500
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437337152-947-1-git-send-email-kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Reprompt once the network addresses
+ change if address displayed
+References: <1435928288-25644-1-git-send-email-stefw@redhat.com> <20150706140711.GF17734@vapier>
+In-Reply-To: <20150706140711.GF17734@vapier>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 19, 2015 at 09:19:12PM +0100, Sami Kerola wrote:
-> The libc openlog(3) does not have error detection whether unix socket
-> could be opened.  As a side effect that made it possible to use logger
-> even if syslogd was not running.  Of course user message in these cases
-> were lost.  This change makes the logger do behave similar way again, so
-> that sysvinit scripts can successfully pipe messages to logger when ever.
+Mike Frysinger wrote:
+> On 03 Jul 2015 14:58, Stef Walter wrote:
+>    #ifdef AGETTY_RELOAD
+>>   # include <sys/inotify.h>
+>> +# include <linux/netlink.h>
+>> +# include <linux/rtnetlink.h>
+>
+> why not use libmnl instead ?
+> 	http://netfilter.org/projects/libmnl
 
-Applied, thanks 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+That would not work for the LinuxFromScratch project.  At the time 
+util-linux is built, libmnl is not available.
+
+   -- Bruce
+
+
