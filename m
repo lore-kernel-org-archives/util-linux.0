@@ -1,67 +1,57 @@
-Return-Path: vadim4j@gmail.com
-Date: Wed, 15 Jul 2015 18:09:49 +0300
-From: Vadim Kochan <vadim4j@gmail.com>
-To: Scott Moser <smoser@ubuntu.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: GPT writing of unknown partition uuids
-Message-ID: <20150715150949.GA28525@angus-think.wlc.globallogic.com>
-References: <alpine.DEB.2.02.1507141610310.21273@brickies>
- <20150715134234.GC31997@ws.net.home>
- <alpine.DEB.2.02.1507151055540.30147@brickies>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:35437 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750760AbbGGFFl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Jul 2015 01:05:41 -0400
+Received: by oihr66 with SMTP id r66so77674502oih.2
+        for <util-linux@vger.kernel.org>; Mon, 06 Jul 2015 22:05:40 -0700 (PDT)
+Received: from [192.168.0.75] (cpe-70-123-244-133.satx.res.rr.com. [70.123.244.133])
+        by mx.google.com with ESMTPSA id p205sm11371959oia.23.2015.07.06.22.05.39
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Jul 2015 22:05:39 -0700 (PDT)
+Message-ID: <559B5E22.2050902@gmail.com>
+Date: Tue, 07 Jul 2015 00:05:38 -0500
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.DEB.2.02.1507151055540.30147@brickies>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Reprompt once the network addresses
+ change if address displayed
+References: <1435928288-25644-1-git-send-email-stefw@redhat.com> <20150706140711.GF17734@vapier> <559ACFC3.6050303@gmail.com> <20150707042512.GI17734@vapier>
+In-Reply-To: <20150707042512.GI17734@vapier>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 15, 2015 at 10:56:48AM -0400, Scott Moser wrote:
-> On Wed, 15 Jul 2015, Karel Zak wrote:
-> 
-> > On Tue, Jul 14, 2015 at 04:16:56PM -0400, Scott Moser wrote:
-> > > It seems like if the user provided you with a GUID, sfdisk should trust
-> > > them, or at very least exit failure if it refuses to use the provided
-> > > GUID.
-> > >
-> > > Thoughts?
-> >
-> > It's bug, the "unknown" partition type is expected. Fixed in git tree:
-> >
-> > # sfdisk -ql /dev/sdc
-> > Device     Start     End Sectors  Size Type
-> > /dev/sdc1   2048 1023966 1021919  499M Linux filesystem
-> >
-> >
-> > # sfdisk --part-type /dev/sdc 1 $(uuidgen)
-> > ...
-> >
-> >
-> > # sfdisk -ql /dev/sdc
-> > Device     Start     End Sectors  Size Type
-> > /dev/sdc1   2048 1023966 1021919  499M unknown
-> >
-> >
-> > Thanks for your report!
-> Thanks for the quick fix.
-> 
-> Is it sane for me to assume this is fixed in any version of
->   util-linux > 2.26.2 ?
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Would you please test a following fix ?
+Mike Frysinger wrote:
+> On 06 Jul 2015 13:58, Bruce Dubbs wrote:
+>> Mike Frysinger wrote:
+>>> On 03 Jul 2015 14:58, Stef Walter wrote:
+>>>     #ifdef AGETTY_RELOAD
+>>>>    # include <sys/inotify.h>
+>>>> +# include <linux/netlink.h>
+>>>> +# include <linux/rtnetlink.h>
+>>>
+>>> why not use libmnl instead ?
+>>> 	http://netfilter.org/projects/libmnl
+>>
+>> That would not work for the LinuxFromScratch project.  At the time
+>> util-linux is built, libmnl is not available.
+>
+> then update the LFS insns to include libmnl, or build util-linux with the
+> reload option disabled.  i don't see how LFS's decisions are relevant here.
+> -mike
 
-diff --git a/misc/ss.c b/misc/ss.c
-index 03f92fa..3a826e4 100644
---- a/misc/ss.c
-+++ b/misc/ss.c
-@@ -683,8 +683,8 @@ static inline void sock_addr_set_str(inet_prefix *prefix, char **ptr)
- 
- static inline char *sock_addr_get_str(const inet_prefix *prefix)
- {
--    char *tmp ;
--    memcpy(&tmp, prefix->data, sizeof(char *));
-+    char *tmp;
-+    memcpy(&tmp, &prefix->data[0], sizeof(char *));
-     return tmp;
- }
- 
+Yes, we can do either, but it seems like a lot of overhead to add a new 
+package for 95 lines of code that are already written.
+
+We already manage about 1000 packages and are volunteers. Many of my 
+users would call adding a new library for one minor function bloat.
+None of the packages we support now use that library although that could 
+change in the future if others start to use it.
+
+Yes, our decisions are only a minor input to upstream packages, but 
+there may be others that have similar concerns that don't monitor this list.
+
+   -- Bruce
+
