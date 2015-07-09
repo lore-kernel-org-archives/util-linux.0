@@ -1,56 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:32993 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751981AbbGON2s (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2015 09:28:48 -0400
-Received: by iggp10 with SMTP id p10so121087481igg.0
-        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2015 06:28:48 -0700 (PDT)
-Date: Wed, 15 Jul 2015 09:28:32 -0400 (EDT)
-From: Scott Moser <smoser@ubuntu.com>
-To: "Dale R. Worley" <worley@alum.mit.edu>
-cc: util-linux@vger.kernel.org
-Subject: Re: GPT writing of unknown partition uuids
-In-Reply-To: <87mvyymf1p.fsf@hobgoblin.ariadne.com>
-Message-ID: <alpine.DEB.2.02.1507150920190.30147@brickies>
-References: <87mvyymf1p.fsf@hobgoblin.ariadne.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mail.pxnet.com ([89.1.7.7]:37261 "EHLO mail.pxnet.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751803AbbGINbg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 9 Jul 2015 09:31:36 -0400
+Message-Id: <cover.1436438005.git.tilman@imap.cc>
+From: Tilman Schmidt <tilman@imap.cc>
+Subject: [PATCH 0/3] ldattach updates
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, Tilman Schmidt <tilman@imap.cc>,
+        Paul Bolle <pebolle@tiscali.nl>, Sami Kerola <kerolasa@iki.fi>
+Date: Thu,  9 Jul 2015 15:22:32 +0200 (CEST)
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 14 Jul 2015, Dale R. Worley wrote:
+Please merge the following three patches for ldattach.
 
-> Scott Moser <smoser@ubuntu.com> writes:
-> > If sfdisk does not know the uuid provided, it silently falls back to
-> > 0FC63DAF-8483-4772-8E79-3D69D8477DE4 (Linux filesystem).
-> >
-> > It seems like if the user provided you with a GUID, sfdisk should trust
-> > them, or at very least exit failure if it refuses to use the provided
-> > GUID.
->
-> Ugh, you're right!  Silent disobedience is pernicious.
+Thanks,
+Tilman
 
-My hack / "will this work" to fdisk_label_parse_parttype seemed to get a
-functional fdisk_new_unknown_parttype that would be used.
+Tilman Schmidt (3):
+  ldattach: adapt print_table column width to widest entry
+  ldattach: order line disciplines canonically
+  ldattach: always set line speed and format for N_GIGASET_M101
 
-diff --git a/libfdisk/src/parttype.c b/libfdisk/src/parttype.c
-index aedf4e8..bda850a 100644
---- a/libfdisk/src/parttype.c
-+++ b/libfdisk/src/parttype.c
-@@ -335,6 +335,7 @@ struct fdisk_parttype *fdisk_label_parse_parttype(
- 		if (ret)
- 			goto done;
+ sys-utils/ldattach.c | 29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-+		typestr = str;
- 		/* maybe specified by order number */
- 		errno = 0;
- 		i = strtol(str, &end, 0);
-@@ -347,7 +348,7 @@ struct fdisk_parttype *fdisk_label_parse_parttype(
-
- 	ret = fdisk_new_unknown_parttype(code, typestr);
- done:
--	DBG(PARTTYPE, ul_debugobj(ret, "returns parsed '%s' partition type", ret->name));
-+	DBG(PARTTYPE, ul_debugobj(ret, "returns parsed '%s' partition type (%s)", ret->name, ret->typestr));
- 	return ret;
- }
+-- 
+1.9.2.459.g68773ac
 
