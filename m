@@ -1,79 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from b.painless.aa.net.uk ([81.187.30.52]:44488 "EHLO
-	b.painless.aa.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752562AbbGXSm4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2015 14:42:56 -0400
-Message-ID: <55B276F1.5070706@airwebreathe.org.uk>
-Date: Fri, 24 Jul 2015 18:33:37 +0100
-From: Joel Holdsworth <joel@airwebreathe.org.uk>
+Received: from ishtar.tlinx.org ([173.164.175.65]:55833 "EHLO
+	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750731AbbGLEkl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 12 Jul 2015 00:40:41 -0400
+Message-ID: <55A1EAB5.1030108@tlinx.org>
+Date: Sat, 11 Jul 2015 21:19:01 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>, Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org
-CC: Joel Holdsworth <joel.holdsworth@vcatechnology.com>
-Subject: Re: [PATCH] build-sys: cal requires both ncurses and tinfo
-References: <1437692199-7557-1-git-send-email-joel.holdsworth@vcatechnology.com> <55B1D9F7.4040109@bernhard-voelker.de> <20150724075612.GE3432@ws.net.home>
-In-Reply-To: <20150724075612.GE3432@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+To: Karel Zak <kzak@redhat.com>
+CC: Tom Yan <tom.ty89@gmail.com>, util-linux@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: optimal io size / custom alignment -- caution on custom aligns
+References: <CAGnHSE=gtd2WVcxOBoyfqnp3QtT4RHfK356GHastBbiK5mtmFA@mail.gmail.com> <20150615133154.GV1992@ws.net.home>
+In-Reply-To: <20150615133154.GV1992@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 24/07/15 08:56, Karel Zak wrote:
-> On Fri, Jul 24, 2015 at 08:23:51AM +0200, Bernhard Voelker wrote:
->> On 07/24/2015 12:56 AM, Joel Holdsworth wrote:
->>> This fixes a bug in the build system when building without ncurses
->>> and tinfo. When cal is linked, it depends on both these libraries
->>> and will fail to link if either of them is not available.
->>>
->>> This patch resolves the issue by explicitly declaring these
->>> dependencies in the confgure.ac.
->>
->> wouldn't this invalidate configure's --without-ncurses option?
-> 
-> No, from this point of view the patch is correct
-> 
->  UL_BUILD_INIT([cal], [check])
-> 
-> specifies the util as optional, so
-> 
->  UL_REQUIRES_HAVE([cal], [ncurses], [ncurses library])
-> 
-> checks for the library and if not found then print WARNING and disable
-> the util. 
-> 
->  UL_BUILD_INIT([cal], [yes]) 
->  
-> specifies that the util is strictly required.
-> 
-> 
-> Anyway from my point of view the patch is unnecessary as cal.c should
-> be possible to compile without curses and tinfo at all.
-> 
+Karel Zak wrote:
+> On Sat, Jun 13, 2015 at 10:52:04PM +0800, Tom Yan wrote
+>
+> I think we can test "optimal_io_size % physical_sector_size" and use physical
+> sector size as the granularity if the optimal_io_size is a strange number.
+>
+>> In any case, it would be nice if fdisk can allow customize alignment
+>> (like gdisk does), so that users can at least decide how partitions
+>> should be aligned in weird cases like this. With that, the long-time
+>> deprecated "dos compatibility" might be able to go as well.
+>
+> I'll think about it...
+>
 >     Karel
-> 
+> ---------------------
+>   
+I know it's been a while since the above note was written, but just
+saw it reviewing old messages and thought I'd pass on a warning.
 
-Ok, so cal can build without ncurses and/or tinfo - fine ok.
 
-The problem I have is with misc-utils/Makemodule.am:14
+Warning...if your stripe size  (the strip on 1 disk x # data disks)
+is not a power of 2, don't bother trying to make perl.
 
-https://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/misc-utils/Makemodule.am?h=stable%2Fv2.26#n14
+It uses the gnu DB libraries that choke on non-power-of-two
+"optimal" I/O sizes (had a RAID 50 that I took 3, 4-data-spindle RAIDS
+and striped them.  strip=64k, stripe=256k, optimal with 3 stripes was
+listed @ 768k.  Several of the gnu libs used assumptions that the optimal
+size would be a power of 2.  If not, the DB would become corrupt --
+of course it was only my machine -- not until I read the code and saw
+the power of 2 assumption....ARG!  Took almost a year for that, since first
+version of perl I found it in was 5.14.  Wasn't fixed for 5.16 or 5.18...
+dunnow about now.
 
-...this is making it link with -ltinfo, which fails because I'm not
-providing it. Would it be more correct to make NCURSES_LIBS and
-TINFO_LIBS become empty when they're not available? Is this how it's
-meant to work? Did it ever work this way previously?
+Just a random caution...the bug was in the gdbm/ndbm code.  Sometime
+later I needed a disk replacement.  went to a RAID10 -- 2 mirrors,
+stripped.  The old bug hasn't cropped up since.   I recommended to
+the perl folk that they should test for that case.  They didn't think
+it would be a problem, given I was the only reportee... But others
+may  have run into that or not used db's... but, the p5p teamm
+didn't want the extra work so they closed the bug as invalid....
+invalid?!
 
-I'm slightly suspicious of my cross-build setup if configure is picking
-up "-ltinfo" dependencies from the host system, but even with
-'--disable-tinfo', TINFO_LIBS is still not set to "".
 
-Also having UL_BUILD_INIT([cal], [yes]) to force cal to always be built
-seem ridiculous; in fact why should any of the tools be forced? The user
-should be able to mix and match whatever programs they want to have.
 
-Another related issue is that I was hoping to be able to do
-'--disable-all-programs', then '--enable-XXX' the ones I need one by one
-- but the disable-all flag seems to take precedence right now.
-
-Can someone suggest what a patch to fix this should be like?
-
-Joel
