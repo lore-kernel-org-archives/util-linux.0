@@ -1,40 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51101 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751117AbbGaN2A (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 31 Jul 2015 09:28:00 -0400
-Date: Fri, 31 Jul 2015 15:27:58 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.27-rc1
-Message-ID: <20150731132758.GC2619@ws.net.home>
-References: <20150731112832.GB2619@ws.net.home>
- <20150731121402.GL3164@type.bordeaux.inria.fr>
+Received: from mail-ie0-f179.google.com ([209.85.223.179]:34777 "EHLO
+	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752736AbbGNUQ6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2015 16:16:58 -0400
+Received: by iebmu5 with SMTP id mu5so19357988ieb.1
+        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2015 13:16:58 -0700 (PDT)
+Received: from brickies-eth0.mosers.us (d149-67-16-30.nap.wideopenwest.com. [67.149.30.16])
+        by smtp.gmail.com with ESMTPSA id g81sm1260969ioi.20.2015.07.14.13.16.57
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Jul 2015 13:16:57 -0700 (PDT)
+Date: Tue, 14 Jul 2015 16:16:56 -0400 (EDT)
+From: Scott Moser <smoser@ubuntu.com>
+To: util-linux@vger.kernel.org
+Subject: GPT writing of unknown partition uuids
+Message-ID: <alpine.DEB.2.02.1507141610310.21273@brickies>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20150731121402.GL3164@type.bordeaux.inria.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 31, 2015 at 02:14:02PM +0200, Samuel Thibault wrote:
-> Hello,
-> 
-> Karel Zak, le Fri 31 Jul 2015 13:28:32 +0200, a écrit :
-> > The util-linux release v2.27-rc1 is available
-> 
-> This fails to build on non-Linux systems on the use of signalfd in
-> term-utils/script.c, introduced by
-> 
-> cc1a88fb59474642fe848491f404890eff1fa5ab
-> Author: Sami Kerola <kerolasa@iki.fi>
-> Date:   Fri Dec 26 11:51:00 2014 +0000
-> 
->     script: use signalfd() to catch signals
+Hi,
 
-Good point, I have marked script as Linux only for now.
+I came to send the previous patch after realizing that the following is a
+lossy operation if the GUID type for the partition is not known to sfdisk.
 
-    Karel
+$ img="/tmp/my.img"
+$ size="100M"
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+$ rm -f "$img"
+$ truncate --size "$size" "$img"
+$ GPT_PREP="9E1A2D38-C612-4316-AA26-8B49521E5A8B"
+$ PT1_UUID="7EB5EBCA-1611-431B-9C80-D87300B41B3B"
+$ LABEL_UUID="3C5AD185-CFBF-480D-B80C-AD089E073AC9"
+
+$ sfdisk "$img" <<EOF
+label: gpt
+label-id: $LABEL_UUID
+unit: sectors
+1 : start=2048, size=16384, type=$GPT_PREP, uuid=$PT1_UUID
+EOF
+
+If sfdisk does not know the uuid provided, it silently falls back to
+0FC63DAF-8483-4772-8E79-3D69D8477DE4 (Linux filesystem).
+
+It seems like if the user provided you with a GUID, sfdisk should trust
+them, or at very least exit failure if it refuses to use the provided
+GUID.
+
+Thoughts?
+Scott
