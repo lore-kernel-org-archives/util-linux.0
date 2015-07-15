@@ -1,32 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from dna.y42.org ([176.9.161.194]:48243 "EHLO dna.y42.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750819AbbG2ACv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Jul 2015 20:02:51 -0400
-Subject: Re: Feature request: write out buffer to typescript on SIGTERM
-To: Karel Zak <kzak@redhat.com>
-References: <55B6B370.5020602@unix-beratung.de>
- <20150728083932.GG6865@ws.net.home> <55B7DA01.6080204@unix-beratung.de>
- <20150728234948.GH6865@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: Robert Urban <urban@unix-beratung.de>
-Message-ID: <55B81827.9080600@unix-beratung.de>
-Date: Wed, 29 Jul 2015 02:02:47 +0200
+Return-Path: vadim4j@gmail.com
+Date: Wed, 15 Jul 2015 18:09:49 +0300
+From: Vadim Kochan <vadim4j@gmail.com>
+To: Scott Moser <smoser@ubuntu.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re: GPT writing of unknown partition uuids
+Message-ID: <20150715150949.GA28525@angus-think.wlc.globallogic.com>
+References: <alpine.DEB.2.02.1507141610310.21273@brickies>
+ <20150715134234.GC31997@ws.net.home>
+ <alpine.DEB.2.02.1507151055540.30147@brickies>
 MIME-Version: 1.0
-In-Reply-To: <20150728234948.GH6865@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.DEB.2.02.1507151055540.30147@brickies>
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+On Wed, Jul 15, 2015 at 10:56:48AM -0400, Scott Moser wrote:
+> On Wed, 15 Jul 2015, Karel Zak wrote:
+> 
+> > On Tue, Jul 14, 2015 at 04:16:56PM -0400, Scott Moser wrote:
+> > > It seems like if the user provided you with a GUID, sfdisk should trust
+> > > them, or at very least exit failure if it refuses to use the provided
+> > > GUID.
+> > >
+> > > Thoughts?
+> >
+> > It's bug, the "unknown" partition type is expected. Fixed in git tree:
+> >
+> > # sfdisk -ql /dev/sdc
+> > Device     Start     End Sectors  Size Type
+> > /dev/sdc1   2048 1023966 1021919  499M Linux filesystem
+> >
+> >
+> > # sfdisk --part-type /dev/sdc 1 $(uuidgen)
+> > ...
+> >
+> >
+> > # sfdisk -ql /dev/sdc
+> > Device     Start     End Sectors  Size Type
+> > /dev/sdc1   2048 1023966 1021919  499M unknown
+> >
+> >
+> > Thanks for your report!
+> Thanks for the quick fix.
+> 
+> Is it sane for me to assume this is fixed in any version of
+>   util-linux > 2.26.2 ?
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Would you please test a following fix ?
 
-On 07/29/2015 01:49 AM, Karel Zak wrote:
-> On Tue, Jul 28, 2015 at 09:37:37PM +0200, Robert Urban wrote:
->> Um, I cloned git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
->> yesterday, built it, and tested it. If I send it SIGTERM, it prints "Terminated"
->> and disappears. The typescript file is empty.
-> Try it again :-)
-wow! Thank you very much. That was the fastest response I've ever seen from anyone.
-
-cheers,
-Rob
+diff --git a/misc/ss.c b/misc/ss.c
+index 03f92fa..3a826e4 100644
+--- a/misc/ss.c
++++ b/misc/ss.c
+@@ -683,8 +683,8 @@ static inline void sock_addr_set_str(inet_prefix *prefix, char **ptr)
+ 
+ static inline char *sock_addr_get_str(const inet_prefix *prefix)
+ {
+-    char *tmp ;
+-    memcpy(&tmp, prefix->data, sizeof(char *));
++    char *tmp;
++    memcpy(&tmp, &prefix->data[0], sizeof(char *));
+     return tmp;
+ }
+ 
