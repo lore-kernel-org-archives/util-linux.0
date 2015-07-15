@@ -1,55 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41046 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754564AbbGXUJa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Jul 2015 16:09:30 -0400
-Date: Fri, 24 Jul 2015 22:09:26 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Joel Holdsworth <joel@airwebreathe.org.uk>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org,
-        Joel Holdsworth <joel.holdsworth@vcatechnology.com>
-Subject: Re: [PATCH] build-sys: cal requires both ncurses and tinfo
-Message-ID: <20150724200926.GF3432@ws.net.home>
-References: <1437692199-7557-1-git-send-email-joel.holdsworth@vcatechnology.com>
- <55B1D9F7.4040109@bernhard-voelker.de>
- <20150724075612.GE3432@ws.net.home>
- <55B276F1.5070706@airwebreathe.org.uk>
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:32993 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751981AbbGON2s (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2015 09:28:48 -0400
+Received: by iggp10 with SMTP id p10so121087481igg.0
+        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2015 06:28:48 -0700 (PDT)
+Date: Wed, 15 Jul 2015 09:28:32 -0400 (EDT)
+From: Scott Moser <smoser@ubuntu.com>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+cc: util-linux@vger.kernel.org
+Subject: Re: GPT writing of unknown partition uuids
+In-Reply-To: <87mvyymf1p.fsf@hobgoblin.ariadne.com>
+Message-ID: <alpine.DEB.2.02.1507150920190.30147@brickies>
+References: <87mvyymf1p.fsf@hobgoblin.ariadne.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55B276F1.5070706@airwebreathe.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jul 24, 2015 at 06:33:37PM +0100, Joel Holdsworth wrote:
-> Ok, so cal can build without ncurses and/or tinfo - fine ok.
-> 
-> The problem I have is with misc-utils/Makemodule.am:14
-> 
-> https://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/misc-utils/Makemodule.am?h=stable%2Fv2.26#n14
-> 
-> ...this is making it link with -ltinfo, which fails because I'm not
-> providing it. Would it be more correct to make NCURSES_LIBS and
-> TINFO_LIBS become empty when they're not available? Is this how it's
-> meant to work? Did it ever work this way previously?
-> 
-> I'm slightly suspicious of my cross-build setup if configure is picking
-> up "-ltinfo" dependencies from the host system, but even with
-> '--disable-tinfo', TINFO_LIBS is still not set to "".
-> 
-> Also having UL_BUILD_INIT([cal], [yes]) to force cal to always be built
-> seem ridiculous; in fact why should any of the tools be forced? The user
-> should be able to mix and match whatever programs they want to have.
-> 
-> Another related issue is that I was hoping to be able to do
-> '--disable-all-programs', then '--enable-XXX' the ones I need one by one
-> - but the disable-all flag seems to take precedence right now.
-> 
-> Can someone suggest what a patch to fix this should be like?
+On Tue, 14 Jul 2015, Dale R. Worley wrote:
 
-I'll try to improve it next week, thanks!
+> Scott Moser <smoser@ubuntu.com> writes:
+> > If sfdisk does not know the uuid provided, it silently falls back to
+> > 0FC63DAF-8483-4772-8E79-3D69D8477DE4 (Linux filesystem).
+> >
+> > It seems like if the user provided you with a GUID, sfdisk should trust
+> > them, or at very least exit failure if it refuses to use the provided
+> > GUID.
+>
+> Ugh, you're right!  Silent disobedience is pernicious.
 
-    Karel
+My hack / "will this work" to fdisk_label_parse_parttype seemed to get a
+functional fdisk_new_unknown_parttype that would be used.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/libfdisk/src/parttype.c b/libfdisk/src/parttype.c
+index aedf4e8..bda850a 100644
+--- a/libfdisk/src/parttype.c
++++ b/libfdisk/src/parttype.c
+@@ -335,6 +335,7 @@ struct fdisk_parttype *fdisk_label_parse_parttype(
+ 		if (ret)
+ 			goto done;
+
++		typestr = str;
+ 		/* maybe specified by order number */
+ 		errno = 0;
+ 		i = strtol(str, &end, 0);
+@@ -347,7 +348,7 @@ struct fdisk_parttype *fdisk_label_parse_parttype(
+
+ 	ret = fdisk_new_unknown_parttype(code, typestr);
+ done:
+-	DBG(PARTTYPE, ul_debugobj(ret, "returns parsed '%s' partition type", ret->name));
++	DBG(PARTTYPE, ul_debugobj(ret, "returns parsed '%s' partition type (%s)", ret->name, ret->typestr));
+ 	return ret;
+ }
+
