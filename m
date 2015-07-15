@@ -1,64 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews08.kpnxchange.com ([213.75.39.13]:56167 "EHLO
-	cpsmtpb-ews08.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754963AbbGYPT2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 25 Jul 2015 11:19:28 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] cfdisk: when moving inside the menu, always redraw it completely
-Date: Sat, 25 Jul 2015 17:18:18 +0200
-Message-Id: <1437837498-23833-5-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
-References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:47418 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752455AbbGONvc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 15 Jul 2015 09:51:32 -0400
+Date: Wed, 15 Jul 2015 15:51:30 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] bash-completion: cal: add --twelve and --color options
+Message-ID: <20150715135130.GE31997@ws.net.home>
+References: <1435946588-895-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1435946588-895-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-To restore it in case it was partially overwritten by the info line.
+On Fri, Jul 03, 2015 at 07:03:08PM +0100, Sami Kerola wrote:
+>  bash-completion/cal | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |   18 +-----------------
- 1 files changed, 1 insertions(+), 17 deletions(-)
+ Applied, thanks.
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index bf865d9..7dc7e65 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1436,9 +1436,6 @@ static int ui_draw_extra(struct cfdisk *cf)
- 
- static void ui_menu_goto(struct cfdisk *cf, int where)
- {
--	struct cfdisk_menuitem *d;
--	size_t old;
--
- 	/* stop and begin/end for vertical menus */
- 	if (cf->menu->vertical) {
- 		if (where < 0)
-@@ -1455,22 +1452,9 @@ static void ui_menu_goto(struct cfdisk *cf, int where)
- 	if ((size_t) where == cf->menu->idx)
- 		return;
- 
--	ui_clean_info();
--
--	old = cf->menu->idx;
- 	cf->menu->idx = where;
- 
--	if (!menuitem_on_page(cf, old)) {
--		ui_draw_menu(cf);
--		return;
--	}
--
--	d = menu_get_menuitem(cf, old);
--	ui_draw_menuitem(cf, d, old);
--
--	d = menu_get_menuitem(cf, where);
--	ui_draw_menuitem(cf, d, where);
--
-+	ui_draw_menu(cf);
- }
- 
- static int ui_menu_move(struct cfdisk *cf, int key)
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
