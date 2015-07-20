@@ -1,193 +1,160 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52126 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33689 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755077AbbGCM60 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 3 Jul 2015 08:58:26 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (Postfix) with ESMTPS id E50BAC2309
-	for <util-linux@vger.kernel.org>; Fri,  3 Jul 2015 12:58:25 +0000 (UTC)
-From: Stef Walter <stefw@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: Stef Walter <stefw@redhat.com>
-Subject: [PATCH] agetty: Reprompt once the network addresses change if address displayed
-Date: Fri,  3 Jul 2015 14:58:08 +0200
-Message-Id: <1435928288-25644-1-git-send-email-stefw@redhat.com>
+	id S1753878AbbGTJcI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 20 Jul 2015 05:32:08 -0400
+Date: Mon, 20 Jul 2015 11:32:06 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Alex Bligh <alex@alex.org.uk>
+Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: Re: [PATCH] Add support to logger for RFC6587 octet counting
+Message-ID: <20150720093206.GG11633@ws.net.home>
+References: <1436983308-14944-1-git-send-email-alex@alex.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1436983308-14944-1-git-send-email-alex@alex.org.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Several of the /etc/issue escape codes such as \4 and \6 depend on
-the current addresses of the system that can change after the agetty
-prompt is displayed.  This can cause stale data to be displayed
-when a user looks at a VT, especially in cases of DHCP racing with
-system start up.
+On Wed, Jul 15, 2015 at 07:01:48PM +0100, Alex Bligh wrote:
+> This patch adds support to logger for RFC6587 octet counting.
+> RFC6587 provides support for two sorts of framing:
 
-Similar to the --reload mechanism, if we're displaying an address
-in the issue output, and the user hasn't typed anything yet: then
-redisplay the prompt with the new address.
+ Rudi, any objection? (if I good remember you have also talked about
+ framing stuff ;-)
 
-We use netlink to watch for address changes. We only open the netlink
-socket if we display an address in the issue file.
----
- term-utils/agetty.c | 113 +++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 95 insertions(+), 18 deletions(-)
+    Karel
 
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 122959f..fc36488 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -129,9 +129,12 @@
-  */
- #ifdef AGETTY_RELOAD
- # include <sys/inotify.h>
-+# include <linux/netlink.h>
-+# include <linux/rtnetlink.h>
- # define AGETTY_RELOAD_FILENAME "/run/agetty.reload"	/* trigger file */
- # define AGETTY_RELOAD_FDNONE	-2			/* uninitialized fd */
- static int inotify_fd = AGETTY_RELOAD_FDNONE;
-+static int netlink_fd = AGETTY_RELOAD_FDNONE;
- #endif
- 
- /*
-@@ -1516,6 +1519,68 @@ done:
- }
- 
- #ifdef AGETTY_RELOAD
-+static void open_netlink(void)
-+{
-+	struct sockaddr_nl addr = { 0, };
-+	int sock;
-+
-+	if (netlink_fd != AGETTY_RELOAD_FDNONE)
-+		return;
-+
-+	sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-+	if (sock >= 0) {
-+		addr.nl_family = AF_NETLINK;
-+		addr.nl_pid = getpid();
-+		addr.nl_groups = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR;
-+		if (bind(sock,(struct sockaddr *)&addr, sizeof(addr)) < 0)
-+			close (sock);
-+		else
-+			netlink_fd = sock;
-+	}
-+}
-+
-+static int process_netlink_msg(int *changed)
-+{
-+	char buf[4096];
-+	struct sockaddr_nl snl;
-+	struct iovec iov = { buf, sizeof buf };
-+	struct msghdr msg = { (void*)&snl, sizeof (snl), &iov, 1, NULL, 0, 0 };
-+	struct nlmsghdr *h;
-+	int rc;
-+
-+	rc = recvmsg(netlink_fd, &msg, MSG_DONTWAIT);
-+	if (rc < 0) {
-+		if (errno == EWOULDBLOCK || errno == EAGAIN)
-+			return 0;
-+
-+		/* Failure, just stop listening for changes */
-+		close (netlink_fd);
-+		netlink_fd = AGETTY_RELOAD_FDNONE;
-+		return 0;
-+	}
-+
-+	for (h = (struct nlmsghdr *)buf; NLMSG_OK(h, (unsigned int)rc); h = NLMSG_NEXT(h, rc)) {
-+		if (h->nlmsg_type == NLMSG_DONE ||
-+		    h->nlmsg_type == NLMSG_ERROR) {
-+			close (netlink_fd);
-+			netlink_fd = AGETTY_RELOAD_FDNONE;
-+			return 0;
-+		}
-+
-+		*changed = 1;
-+		break;
-+	}
-+
-+	return 1;
-+}
-+
-+static int process_netlink(void)
-+{
-+	int changed = 0;
-+	while (process_netlink_msg (&changed));
-+	return changed;
-+}
-+
- static int wait_for_term_input(int fd)
- {
- 	char buffer[sizeof(struct inotify_event) + NAME_MAX + 1];
-@@ -1556,33 +1621,41 @@ static int wait_for_term_input(int fd)
- 					AGETTY_RELOAD_FILENAME);
- 	}
- 
--	FD_ZERO(&rfds);
--	FD_SET(fd, &rfds);
-+	for (;;) {
-+		FD_ZERO(&rfds);
-+		FD_SET(fd, &rfds);
- 
--	if (inotify_fd >= 0)
--		FD_SET(inotify_fd, &rfds);
-+		if (inotify_fd >= 0)
-+			FD_SET(inotify_fd, &rfds);
-+		if (netlink_fd >= 0)
-+			FD_SET(netlink_fd, &rfds);
- 
--	/* If waiting fails, just fall through, presumably reading input will fail */
--	if (select(max(fd, inotify_fd) + 1, &rfds, NULL, NULL, NULL) < 0)
--		return 1;
-+		/* If waiting fails, just fall through, presumably reading input will fail */
-+		if (select(max(fd, inotify_fd) + 1, &rfds, NULL, NULL, NULL) < 0)
-+			return 1;
- 
--	if (FD_ISSET(fd, &rfds)) {
--		count = read(fd, buffer, sizeof (buffer));
-+		if (FD_ISSET(fd, &rfds)) {
-+			count = read(fd, buffer, sizeof (buffer));
- 
--		tcsetattr(fd, TCSANOW, &orig);
-+			tcsetattr(fd, TCSANOW, &orig);
- 
--		/* Reinject the bytes we read back into the buffer, usually just one byte */
--		for (i = 0; i < count; i++)
--			ioctl(fd, TIOCSTI, buffer + i);
-+			/* Reinject the bytes we read back into the buffer, usually just one byte */
-+			for (i = 0; i < count; i++)
-+				ioctl(fd, TIOCSTI, buffer + i);
- 
--		/* Have terminal input */
--		return 1;
-+			/* Have terminal input */
-+			return 1;
- 
--	} else {
--		tcsetattr(fd, TCSANOW, &orig);
-+		} else if (netlink_fd >= 0 && FD_ISSET (netlink_fd, &rfds)) {
-+			if (!process_netlink())
-+				continue;
- 
- 		/* Just drain the inotify buffer */
--		while (read(inotify_fd, buffer, sizeof (buffer)) > 0);
-+		} else if (inotify_fd >= 0 && FD_ISSET (inotify_fd, &rfds)) {
-+			while (read(inotify_fd, buffer, sizeof (buffer)) > 0);
-+		}
-+
-+		tcsetattr(fd, TCSANOW, &orig);
- 
- 		/* Need to reprompt */
- 		return 0;
-@@ -2371,6 +2444,10 @@ static void output_special_char(unsigned char c, struct options *op,
- 		struct ifaddrs *addrs = NULL;
- 		char iface[128];
- 
-+#ifdef AGETTY_RELOAD
-+		open_netlink();
-+#endif
-+
- 		if (getifaddrs(&addrs))
- 			break;
- 
+> 
+> 1. Octet counting (at RFC6587 s3.4.1)
+> 
+>    In essence each frame is preceded by a decimal length and a
+>    space.
+> 
+> 2. Non-transparent framing (at RFC6587 s3.4.2), also called
+>    'octet stuffing'
+> 
+>    In essence each frame is terminated by a `\n`
+> 
+> Prior to this patch, logger used option 2 (non-transparent framing)
+> on TCP, and used no framing on UDP. After this patch, the default
+> behaviour is unchanged, but if the '--octet-count' option is supplied,
+> option 1 is used for both TCP and UDP. Arguably octet count framing
+> makes little sense on UDP, but some servers provide it and this
+> allows testing of those servers.
+> 
+> Signed-off-by: Alex Bligh <alex@alex.org.uk>
+> ---
+>  misc-utils/logger.1 |  5 +++++
+>  misc-utils/logger.c | 24 +++++++++++++++++-------
+>  2 files changed, 22 insertions(+), 7 deletions(-)
+> 
+> **** Please keep me in the CC for any replies as I am not subscribed
+> to this list ****
+> 
+> diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+> index bb81295..36c923d 100644
+> --- a/misc-utils/logger.1
+> +++ b/misc-utils/logger.1
+> @@ -179,6 +179,11 @@ The RFC 5424 protocol has been the default for
+>  .B logger
+>  since version 2.26.
+>  .TP
+> +.B \-\-octet\-count
+> +Use the RFC 6587 octet counting framing method for sending messages. When
+> +this option is not used, the default is no framing on UDP, and RFC6587
+> +non-transparent-framing (also known as octet stuffing) on TCP.
+> +.TP
+>  .BR \-s , " \-\-stderr"
+>  Output the message to standard error as well as to the system log.
+>  .TP
+> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+> index 8908dfc..c5cba69 100644
+> --- a/misc-utils/logger.c
+> +++ b/misc-utils/logger.c
+> @@ -92,7 +92,8 @@ enum {
+>  	OPT_SOCKET_ERRORS,
+>  	OPT_MSGID,
+>  	OPT_NOACT,
+> -	OPT_ID
+> +	OPT_ID,
+> +	OPT_OCTET_COUNT
+>  };
+>  
+>  struct logger_ctl {
+> @@ -116,7 +117,8 @@ struct logger_ctl {
+>  			rfc5424_time:1,		/* include time stamp */
+>  			rfc5424_tq:1,		/* include time quality markup */
+>  			rfc5424_host:1,		/* include hostname */
+> -			skip_empty_lines:1; /* do not send empty lines when processing files */
+> +			skip_empty_lines:1,	/* do not send empty lines when processing files */
+> +			octet_count:1;		/* use RFC6587 octet counting */
+>  };
+>  
+>  /*
+> @@ -372,19 +374,22 @@ static const char *rfc3164_current_time(void)
+>  }
+>  
+>  /* writes generated buffer to desired destination. For TCP syslog,
+> - * we use RFC6587 octet-stuffing. This is not great, but doing
+> - * full blown RFC5425 (TLS) looks like it is too much for the
+> - * logger utility.
+> + * we use RFC6587 octet-stuffing (unless octet-counting is selected).
+> + * This is not great, but doing full blown RFC5425 (TLS) looks like
+> + * it is too much for the logger utility. If octet-counting is
+> + * selected, we use that.
+>   */
+>  static void write_output(const struct logger_ctl *ctl, const char *const msg)
+>  {
+>  	char *buf;
+> -	const size_t len = xasprintf(&buf, "%s%s", ctl->hdr, msg);
+> +	const size_t len = ctl->octet_count ?
+> +		xasprintf(&buf, "%zu %s%s", strlen(ctl->hdr)+strlen(msg), ctl->hdr, msg):
+> +		xasprintf(&buf, "%s%s", ctl->hdr, msg);
+>  
+>  	if (!ctl->noact) {
+>  		if (write_all(ctl->fd, buf, len) < 0)
+>  			warn(_("write failed"));
+> -		else if (ctl->socket_type == TYPE_TCP) {
+> +		else if ((ctl->socket_type == TYPE_TCP) && !ctl->octet_count) {
+>  			/* using an additional write seems like the best compromise:
+>  			 * - writev() is not yet supported by framework
+>  			 * - adding the \n to the buffer in formatters violates layers
+> @@ -705,6 +710,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE *out)
+>  	fputs(_(" -e, --skip-empty         do not log empty lines when processing files\n"), out);
+>  	fputs(_("     --no-act             do everything except the write the log\n"), out);
+>  	fputs(_(" -p, --priority <prio>    mark given message with this priority\n"), out);
+> +	fputs(_("     --octet-count        use rfc6587 octet counting\n"), out);
+>  	fputs(_("     --prio-prefix        look for a prefix on every line read from stdin\n"), out);
+>  	fputs(_(" -s, --stderr             output message to standard error as well\n"), out);
+>  	fputs(_(" -S, --size <size>        maximum size for a single message\n"), out);
+> @@ -780,6 +786,7 @@ int main(int argc, char **argv)
+>  		{ "port",	   required_argument, 0, 'P'		   },
+>  		{ "version",	   no_argument,	      0, 'V'		   },
+>  		{ "help",	   no_argument,	      0, 'h'		   },
+> +		{ "octet-count",   no_argument,	      0, OPT_OCTET_COUNT   },
+>  		{ "prio-prefix",   no_argument,	      0, OPT_PRIO_PREFIX   },
+>  		{ "rfc3164",	   no_argument,	      0, OPT_RFC3164	   },
+>  		{ "rfc5424",	   optional_argument, 0, OPT_RFC5424	   },
+> @@ -854,6 +861,9 @@ int main(int argc, char **argv)
+>  			exit(EXIT_SUCCESS);
+>  		case 'h':
+>  			usage(stdout);
+> +		case OPT_OCTET_COUNT:
+> +			ctl.octet_count = 1;
+> +			break;
+>  		case OPT_PRIO_PREFIX:
+>  			ctl.prio_prefix = 1;
+>  			break;
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
 -- 
-2.4.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
