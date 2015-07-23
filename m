@@ -1,28 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47404 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752942AbbG0K2g (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Jul 2015 06:28:36 -0400
-Date: Mon, 27 Jul 2015 12:28:34 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/5] cfdisk: allow an uppercase X to toggle the extra info
-Message-ID: <20150727102834.GB6865@ws.net.home>
-References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Received: from auth.a.painless.aa.net.uk ([90.155.4.51]:52537 "EHLO
+	auth.a.painless.aa.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753642AbbGWXUq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 23 Jul 2015 19:20:46 -0400
+From: Joel Holdsworth <joel.holdsworth@vcatechnology.com>
+To: util-linux@vger.kernel.org
+Cc: Joel Holdsworth <joel@airwebreathe.org.uk>
+Subject: [PATCH] build-sys: cal requires both ncurses and tinfo
+Date: Thu, 23 Jul 2015 23:56:39 +0100
+Message-Id: <1437692199-7557-1-git-send-email-joel.holdsworth@vcatechnology.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jul 25, 2015 at 05:18:14PM +0200, Benno Schulenberg wrote:
->  disk-utils/cfdisk.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+From: Joel Holdsworth <joel@airwebreathe.org.uk>
 
- Applied, thanks.
+This fixes a bug in the build system when building without ncurses
+and tinfo. When cal is linked, it depends on both these libraries
+and will fail to link if either of them is not available.
 
+This patch resolves the issue by explicitly declaring these
+dependencies in the confgure.ac.
+---
+ configure.ac | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/configure.ac b/configure.ac
+index 6bc9efd..76ba349 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1232,7 +1232,9 @@ AS_IF([test "x$build_mkswap" = xyes -a "x$build_libuuid" != xyes], [
+   AC_MSG_WARN([uuid library is not found; mkswap(8) will not generate UUIDs])
+ ])
+ 
+-UL_BUILD_INIT([cal], [yes])
++UL_BUILD_INIT([cal], [check])
++UL_REQUIRES_HAVE([cal], [ncurses], [ncurses library])
++UL_REQUIRES_HAVE([cal], [tinfo], [tinfo library])
+ AM_CONDITIONAL([BUILD_CAL], [test "x$build_cal" = xyes])
+ 
+ UL_BUILD_INIT([logger], [yes])
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.1
+
