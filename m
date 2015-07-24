@@ -1,39 +1,31 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([212.227.126.131]:58887 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751053AbbGXGYE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2015 02:24:04 -0400
+Message-ID: <55B1D9F7.4040109@bernhard-voelker.de>
+Date: Fri, 24 Jul 2015 08:23:51 +0200
+From: Bernhard Voelker <mail@bernhard-voelker.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20150730095542.GK6865@ws.net.home>
-References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
-	<20150730095542.GK6865@ws.net.home>
-Date: Thu, 30 Jul 2015 11:31:10 +0100
-Message-ID: <CAG27Bk2vPWETKVkXMs7qM0_rFGsMZbvNpMaiDkQi80QPAhZd1w@mail.gmail.com>
-Subject: Re: [PATCH 00/12] pull: minix updates
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: Joel Holdsworth <joel.holdsworth@vcatechnology.com>,
+        util-linux@vger.kernel.org
+CC: Joel Holdsworth <joel@airwebreathe.org.uk>
+Subject: Re: [PATCH] build-sys: cal requires both ncurses and tinfo
+References: <1437692199-7557-1-git-send-email-joel.holdsworth@vcatechnology.com>
+In-Reply-To: <1437692199-7557-1-git-send-email-joel.holdsworth@vcatechnology.com>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 30 July 2015 at 10:55, Karel Zak <kzak@redhat.com> wrote:
-> On Wed, Jun 24, 2015 at 09:15:07AM +0100, Sami Kerola wrote:
->> The patch 0001 is not re-submitted.  It is the change Joshua Hudson sent
->> to mail list couple days ago.  The rest are new changes, and they are
->> also available from my remote branch 'minix'.
->
-> Merged from inbox (the stuff on github seems broken, see
-> https://github.com/kerolasa/lelux-utiliteetit/commit/8f15af61755fd0f2ee03f34f20ee8dccfd6f529a
-> where is also some bus-server.c ...).
+On 07/24/2015 12:56 AM, Joel Holdsworth wrote:
+> This fixes a bug in the build system when building without ncurses
+> and tinfo. When cal is linked, it depends on both these libraries
+> and will fail to link if either of them is not available.
+> 
+> This patch resolves the issue by explicitly declaring these
+> dependencies in the confgure.ac.
 
-Oh garbage. Well, thank you for applying from mail list.
+wouldn't this invalidate configure's --without-ncurses option?
 
-> It would be really really nice to have regression tests before
-> v2.27-rc2, I guess we need to test all versions (1,2,3) and all
-> possible namelens with mkfs.minix, fsck.minix and mount(8).
-
-I started work to add tests last evening. I'm sure minix checks
-are done within week, or two if paid work is causing me be too
-tired at evenings.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Have a nice day,
+Berny
