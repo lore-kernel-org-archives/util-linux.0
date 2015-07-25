@@ -1,46 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57269 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752553AbbG0Nvt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 27 Jul 2015 09:51:49 -0400
-Date: Mon, 27 Jul 2015 15:51:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: cfdisk: partition type wraps to next line on small screens
-Message-ID: <20150727135146.GF6865@ws.net.home>
-References: <1437837442.451484.332903777.1A436FE4@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437837442.451484.332903777.1A436FE4@webmail.messagingengine.com>
+Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:50882 "EHLO
+	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754961AbbGYPS4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 25 Jul 2015 11:18:56 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/5] cfdisk: spell "label" in lower case
+Date: Sat, 25 Jul 2015 17:18:15 +0200
+Message-Id: <1437837498-23833-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jul 25, 2015 at 05:17:22PM +0200, Benno Schulenberg wrote:
-> Do for example:
-> 
-> stty cols 64
-> ./cfdisk
-> 
-> Press <Down> several times; then <Up> several times.
-> See how fragments of the partition type remain at the
-> start of each line.
+To be less shouty.  It is not an abbreviation like "UUID".
 
-Fixed.
- 
-> Something else.  The extra info block contains two lines
-> giving the Start C/H/S and End C/H/S.  But on my system
-> all of them say "1023/63/254" (except for the first
-> partition), so that seems to me pointless information.
-> Maybe show them only when the Start and End values differ?
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-I have remove both CHS at all. It does not provides any useful
-information.
-
-Thanks!
-
-    Karel
-
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index ac07bb5..5e46136 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1338,7 +1338,7 @@ static void extra_prepare_data(struct cfdisk *cf)
+ 			if (!blkid_probe_lookup_value(pr, "TYPE", &bdata, NULL))
+ 				extra_insert_pair(l, _("Filesystem:"), bdata);
+ 			if (!blkid_probe_lookup_value(pr, "LABEL", &bdata, NULL)) {
+-				extra_insert_pair(l, _("Filesystem LABEL:"), bdata);
++				extra_insert_pair(l, _("Filesystem label:"), bdata);
+ 				devlabel = xstrdup(bdata);
+ 			}
+ 			if (!blkid_probe_lookup_value(pr, "UUID", &bdata, NULL)) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
