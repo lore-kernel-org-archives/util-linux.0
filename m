@@ -1,36 +1,39 @@
-Return-Path: urban@unix-beratung.de
-Subject: Re: Feature request: write out buffer to typescript on SIGTERM
-To: Karel Zak <kzak@redhat.com>
-References: <55B6B370.5020602@unix-beratung.de>
- <20150728083932.GG6865@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: Robert Urban <urban@unix-beratung.de>
-Message-ID: <55B7DA01.6080204@unix-beratung.de>
-Date: Tue, 28 Jul 2015 21:37:37 +0200
-MIME-Version: 1.0
-In-Reply-To: <20150728083932.GG6865@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:49560 "EHLO
+	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754883AbbGYPTG (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sat, 25 Jul 2015 11:19:06 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/5] cfdisk: bring the hint line closer to the menu line
+Date: Sat, 25 Jul 2015 17:18:16 +0200
+Message-Id: <1437837498-23833-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Um, I cloned git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-yesterday, built it, and tested it. If I send it SIGTERM, it prints "Terminated"
-and disappears. The typescript file is empty.
+To make it clearer that they belong together.
 
-Or do you mean something else?
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Rob
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 5e46136..ddec7f4 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -94,7 +94,7 @@
+ #define MENU_H_POSTSTR_SZ	(sizeof(MENU_H_POSTSTR) - 1)
+ 
+ #define TABLE_START_LINE	4
+-#define MENU_START_LINE		(ui_lines - 5)
++#define MENU_START_LINE		(ui_lines - 3)
+ #define INFO_LINE		(ui_lines - 2)
+ #define WARN_LINE		INFO_LINE
+ #define HINT_LINE		(ui_lines - 1)
+-- 
+1.7.0.4
 
-On 07/28/2015 10:39 AM, Karel Zak wrote:
-> On Tue, Jul 28, 2015 at 12:40:48AM +0200, Robert Urban wrote:
->> is there a good reason why script does not flush it's typescript buffer when it
->> gets a signal such as SIGTERM?
-> Not sure if you're talking about the current script(1) in git tree
-> (it's a new version) or about the original version.
->
-> I have improved sensitivity to the SIG{TERM,INT,QUIT}, now it properly
-> terminates the session and close the files. Previously it called
-> abort() (the version in git).
->
->     Karel
->
->
