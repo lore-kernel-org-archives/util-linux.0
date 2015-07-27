@@ -1,35 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52936 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40050 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751175AbbG1Ijf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 28 Jul 2015 04:39:35 -0400
-Date: Tue, 28 Jul 2015 10:39:32 +0200
+	id S1752992AbbG0K3U (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jul 2015 06:29:20 -0400
+Date: Mon, 27 Jul 2015 12:29:18 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Robert Urban <urban@unix-beratung.de>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Feature request: write out buffer to typescript on SIGTERM
-Message-ID: <20150728083932.GG6865@ws.net.home>
-References: <55B6B370.5020602@unix-beratung.de>
+Subject: Re: [PATCH 2/5] cfdisk: spell "label" in lower case
+Message-ID: <20150727102918.GC6865@ws.net.home>
+References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+ <1437837498-23833-2-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55B6B370.5020602@unix-beratung.de>
+In-Reply-To: <1437837498-23833-2-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 28, 2015 at 12:40:48AM +0200, Robert Urban wrote:
-> is there a good reason why script does not flush it's typescript buffer when it
-> gets a signal such as SIGTERM?
+On Sat, Jul 25, 2015 at 05:18:15PM +0200, Benno Schulenberg wrote:
+> To be less shouty.  It is not an abbreviation like "UUID".
 
-Not sure if you're talking about the current script(1) in git tree
-(it's a new version) or about the original version.
+You're right.
 
-I have improved sensitivity to the SIG{TERM,INT,QUIT}, now it properly
-terminates the session and close the files. Previously it called
-abort() (the version in git).
+>  disk-utils/cfdisk.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-    Karel
-
-
+Applied, thanks.
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
