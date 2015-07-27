@@ -1,30 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50510 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43010 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751863AbbGOPCc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 15 Jul 2015 11:02:32 -0400
-Date: Wed, 15 Jul 2015 17:02:30 +0200
+	id S1750883AbbG0LVO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jul 2015 07:21:14 -0400
+Date: Mon, 27 Jul 2015 13:21:12 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Scott Moser <smoser@ubuntu.com>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: GPT writing of unknown partition uuids
-Message-ID: <20150715150230.GH31997@ws.net.home>
-References: <alpine.DEB.2.02.1507141610310.21273@brickies>
- <20150715134234.GC31997@ws.net.home>
- <alpine.DEB.2.02.1507151055540.30147@brickies>
+Subject: Re: [PATCH 4/5] cfdisk: keep the extra info block separate from menu
+ and partitions
+Message-ID: <20150727112112.GE6865@ws.net.home>
+References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+ <1437837498-23833-4-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.DEB.2.02.1507151055540.30147@brickies>
+In-Reply-To: <1437837498-23833-4-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 15, 2015 at 10:56:48AM -0400, Scott Moser wrote:
-> Is it sane for me to assume this is fixed in any version of
->   util-linux > 2.26.2 ?
+On Sat, Jul 25, 2015 at 05:18:17PM +0200, Benno Schulenberg wrote:
+> -	if ((size_t) win_ex_start_line + win_height + 1 < MENU_START_LINE)
+> -		win_ex_start_line = MENU_START_LINE - win_height;
+> -
+>  	win_ex = subwin(stdscr, win_height, ui_cols - 2, win_ex_start_line, 1);
 
- Sure, I'd like to release v2.27 in Aug.
+ I have made small survey between colleagues in the office and result is "down".
 
-    Karel
+    http://people.redhat.com/kzak/cfdisk-down.png
+    http://people.redhat.com/kzak/cfdisk-up.png
+
+ Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
