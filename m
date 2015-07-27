@@ -1,55 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42974 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47404 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752586AbbGOOXq convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2015 10:23:46 -0400
-Date: Wed, 15 Jul 2015 16:23:44 +0200
+	id S1752942AbbG0K2g (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 27 Jul 2015 06:28:36 -0400
+Date: Mon, 27 Jul 2015 12:28:34 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Mantas =?utf-8?Q?Mikul=C4=97nas?= <grawity@gmail.com>
+To: Benno Schulenberg <bensberg@justemail.net>
 Cc: util-linux@vger.kernel.org
-Subject: Re: lslogins --user-accs
-Message-ID: <20150715142344.GF31997@ws.net.home>
-References: <mnesfe$veu$1@ger.gmane.org>
+Subject: Re: [PATCH 1/5] cfdisk: allow an uppercase X to toggle the extra info
+Message-ID: <20150727102834.GB6865@ws.net.home>
+References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <mnesfe$veu$1@ger.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 07, 2015 at 12:37:49AM +0300, Mantas Mikulėnas wrote:
-> Trying out `lslogins`, noticed two problems (?) with the --user-accs option:
-> 
-> 1) The manpage documents --user-accs[=threshold] to override the
-> "hardcoded" minimum of 1000, but the code doesn't actually /accept/ a
-> parameter (it reads the actual threshold from login.defs).
-> 
-> 2) While not documented, --user-accs also applies the /maximum/ uid
-> limit. I noticed this on a system that has "UID_MAX 19999" because
-> LDAP-based accounts start at 20000, which means `lslogins -u` will show
-> local users but not LDAP ones.
- 
-For now I have fixed the man page and removed [=threshold] and added
-hint about uids ranges specified by /etc/login.defs.
+On Sat, Jul 25, 2015 at 05:18:14PM +0200, Benno Schulenberg wrote:
+>  disk-utils/cfdisk.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 
-Maybe the ideal solution would be to add optional parameter
+ Applied, thanks.
 
-    --user-accs[=min:max]
-    --system-accs[=min:max]
-
-
-> Also the "Last logs:" output seems to have ^A / 0x01 in random places:
-> 
->   00:35:14 krenew<^A>[1295]: renewing credentials
-> 
-> On another system:
-> 
->   Feb07/00:05 sshd[3009657]: Received disconnect from 78.60.211.195: 11:
-> disconnected by user<^A>
-
-Hmm... we read this from systemd journal by sd_journal_get_data() and
-print it without any change.
-
-    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
