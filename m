@@ -1,39 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews02.kpnxchange.com ([213.75.39.5]:50882 "EHLO
-	cpsmtpb-ews02.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754961AbbGYPS4 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Sat, 25 Jul 2015 11:18:56 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from vhrz24.HRZ.Uni-Marburg.DE ([137.248.1.34]:49871 "EHLO
+	vhrz24.HRZ.Uni-Marburg.DE" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751706AbbG2PFN convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 29 Jul 2015 11:05:13 -0400
+Received: from ma15106.chemie.uni-marburg.de (ma15106.Chemie.Uni-Marburg.DE [137.248.150.142])
+	(authenticated bits=0)
+	by vhrz24.HRZ.Uni-Marburg.DE (8.14.3/8.14.3/Debian-9.4) with ESMTP id t6TEscQj025438
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <util-linux@vger.kernel.org>; Wed, 29 Jul 2015 16:54:39 +0200
+From: Reuti <reuti@staff.uni-marburg.de>
+Content-Type: text/plain; charset=us-ascii
+Subject: hexdump: default output format is not -x
+Message-Id: <BC43BDB2-1CA2-4A85-A919-0C905AF00E41@staff.uni-marburg.de>
+Date: Wed, 29 Jul 2015 16:54:38 +0200
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/5] cfdisk: spell "label" in lower case
-Date: Sat, 25 Jul 2015 17:18:15 +0200
-Message-Id: <1437837498-23833-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
-References: <1437837498-23833-1-git-send-email-bensberg@justemail.net>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-To be less shouty.  It is not an abbreviation like "UUID".
+Hi,
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/cfdisk.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+the man page of the actual version 2.26.2 states:
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index ac07bb5..5e46136 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -1338,7 +1338,7 @@ static void extra_prepare_data(struct cfdisk *cf)
- 			if (!blkid_probe_lookup_value(pr, "TYPE", &bdata, NULL))
- 				extra_insert_pair(l, _("Filesystem:"), bdata);
- 			if (!blkid_probe_lookup_value(pr, "LABEL", &bdata, NULL)) {
--				extra_insert_pair(l, _("Filesystem LABEL:"), bdata);
-+				extra_insert_pair(l, _("Filesystem label:"), bdata);
- 				devlabel = xstrdup(bdata);
- 			}
- 			if (!blkid_probe_lookup_value(pr, "UUID", &bdata, NULL)) {
--- 
-1.7.0.4
+"If no format strings are specified, the default display is equivalent to specifying the -x option."
 
+
+But:
+
+The format for -x in the source: add_fmt("\"%07.7_ax \" 8/2 \"   %04x \" \"\\n\"", hex);
+
+The format without given option: add_fmt("\"%07.7_ax \" 8/2 \"%04x \" \"\\n\"", hex);
+
+
+Although they are very alike, the different spacing can confuse users when reading the man page and trying to understand the different options. I suggest to either update the man page, or fix the source hexdump.c line 146, so that the default output is really -x or vice versa.
+
+Personally I dislike the many spaces one gets with -x and would prefer the default format string also for -x.
+
+-- Reuti
