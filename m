@@ -1,49 +1,56 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] script: evaluate errno only if read() sets it
-Date: Fri, 3 Jul 2015 12:33:47 +0200
-Cc: util-linux@vger.kernel.org
-References: <201507021206.47499.sweet_f_a@gmx.de> <201507021221.02981.sweet_f_a@gmx.de> <20150703080426.GH26962@ws.net.home>
-In-Reply-To: <20150703080426.GH26962@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:37217 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751287AbbG3OSi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 30 Jul 2015 10:18:38 -0400
+Received: by wibud3 with SMTP id ud3so70544600wib.0
+        for <util-linux@vger.kernel.org>; Thu, 30 Jul 2015 07:18:37 -0700 (PDT)
+From: Milan Broz <gmazyland@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Milan Broz <gmazyland@gmail.com>
+Subject: [PATCH] lsblk: Display mountpoint even for top-level device
+Date: Thu, 30 Jul 2015 16:18:28 +0200
+Message-Id: <1438265908-4603-1-git-send-email-gmazyland@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201507031233.47481.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 03 July 2015, Karel Zak wrote:
-> On Thu, Jul 02, 2015 at 12:21:02PM +0200, Ruediger Meier wrote:
-> > I have a question and a comment about my own patch :)
-> >
->  :-)
->
-> I have applied the patch with some small changes:
-> > On Thursday 02 July 2015, Ruediger Meier wrote:
-> > > @@ -367,7 +365,7 @@ static void handle_signal(struct
-> > > script_control *ctl, int fd)
-> > >
-> > >  	bytes = read(fd, &info, sizeof(info));
-> > >  	if (bytes != sizeof(info)) {
-> > > -		if (errno == EAGAIN)
-> > > +		if (bytes < 0 && errno == EAGAIN)
-> > >  			return;
-> >
-> > Should we also return on EINTR here like we do in handle_io()?
->
-> It's probably more robust, Fixed.
+If a filesystem is mounted on top-level block device
+with existing partitions, the mountpoint is not displayed
+in the lsblk output.
 
-BTW there is another potential issue for systems where EAGAIN != 
-EWOULDBLOCK. These systems might be seldom but who knows exactly? If we 
-don't want to care about EWOULDBLOCK in whole util-linux then we 
-should maybe abort configure if both are not equal ... and wait for 
-complaining users.
+This situation can happen by a configuration mistake
+and lsblk could be used to detect such a mistake.
 
-see
-http://stackoverflow.com/questions/7003234/which-systems-define-eagain-and-ewouldblock-as-different-values
+This patch allows searching for a mountpoint for all displayed
+devices, not only for leaf nodes.
+(It should be pretty cheap operation, mtab is parsed only once.)
 
-I've tested on AIX but when using gcc and/or the right defines I've
-got EAGAIN == EWOULDBLOCK there too.
+For example: lsblk /dev/loop1
+NAME      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+loop1       7:1    0  128M  0 loop /mnt/tst
+└─loop1p1 259:0    0  127M  0 loop
 
-cu,
-Rudi
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+---
+ misc-utils/lsblk.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index cfd304a..4cfeef8 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -916,8 +916,7 @@ static void set_scols_data(struct blkdev_cxt *cxt, int col, int id, struct libsc
+ 			str = xstrdup(cxt->fstype);
+ 		break;
+ 	case COL_TARGET:
+-		if (!(cxt->nholders + cxt->npartitions))
+-			str = get_device_mountpoint(cxt);
++		str = get_device_mountpoint(cxt);
+ 		break;
+ 	case COL_LABEL:
+ 		probe_device(cxt);
+-- 
+2.5.0
+
