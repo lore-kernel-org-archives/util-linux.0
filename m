@@ -1,51 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:59891 "EHLO plane.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:37971 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753509AbbGFVh7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 6 Jul 2015 17:37:59 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1ZCE5N-0001S9-Sj
-	for util-linux@vger.kernel.org; Mon, 06 Jul 2015 23:37:58 +0200
-Received: from 78-60-211-195.static.zebra.lt ([78.60.211.195])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 06 Jul 2015 23:37:57 +0200
-Received: from grawity by 78-60-211-195.static.zebra.lt with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 06 Jul 2015 23:37:57 +0200
-To: util-linux@vger.kernel.org
-From: =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>
-Subject: lslogins --user-accs
-Date: Tue, 7 Jul 2015 00:37:49 +0300
-Message-ID: <mnesfe$veu$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	id S1751527AbbG3Jzo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 30 Jul 2015 05:55:44 -0400
+Date: Thu, 30 Jul 2015 11:55:42 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/12] pull: minix updates
+Message-ID: <20150730095542.GK6865@ws.net.home>
+References: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1435133719-2971-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Trying out `lslogins`, noticed two problems (?) with the --user-accs option:
+On Wed, Jun 24, 2015 at 09:15:07AM +0100, Sami Kerola wrote:
+> The patch 0001 is not re-submitted.  It is the change Joshua Hudson sent
+> to mail list couple days ago.  The rest are new changes, and they are
+> also available from my remote branch 'minix'.
 
-1) The manpage documents --user-accs[=threshold] to override the
-"hardcoded" minimum of 1000, but the code doesn't actually /accept/ a
-parameter (it reads the actual threshold from login.defs).
+Merged from inbox (the stuff on github seems broken, see
+https://github.com/kerolasa/lelux-utiliteetit/commit/8f15af61755fd0f2ee03f34f20ee8dccfd6f529a
+where is also some bus-server.c ...).
 
-2) While not documented, --user-accs also applies the /maximum/ uid
-limit. I noticed this on a system that has "UID_MAX 19999" because
-LDAP-based accounts start at 20000, which means `lslogins -u` will show
-local users but not LDAP ones.
+It would be really really nice to have regression tests before
+v2.27-rc2, I guess we need to test all versions (1,2,3) and all
+possible namelens with mkfs.minix, fsck.minix and mount(8).
 
-~
-
-Also the "Last logs:" output seems to have ^A / 0x01 in random places:
-
-  00:35:14 krenew<^A>[1295]: renewing credentials
-
-On another system:
-
-  Feb07/00:05 sshd[3009657]: Received disconnect from 78.60.211.195: 11:
-disconnected by user<^A>
+    Karel
 
 -- 
-Mantas Mikulėnas <grawity@gmail.com>
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
