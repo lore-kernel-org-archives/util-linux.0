@@ -1,43 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.pxnet.com ([89.1.7.7]:37261 "EHLO mail.pxnet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751803AbbGINbh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 9 Jul 2015 09:31:37 -0400
-Message-Id: <b3afb81b26f958beb642f09c0481a9149335ed73.1436438005.git.tilman@imap.cc>
-In-Reply-To: <cover.1436438005.git.tilman@imap.cc>
-References: <cover.1436438005.git.tilman@imap.cc>
-From: Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 1/3] ldattach: adapt print_table column width to widest entry
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, Tilman Schmidt <tilman@imap.cc>,
-        Paul Bolle <pebolle@tiscali.nl>, Sami Kerola <kerolasa@iki.fi>
-Date: Thu,  9 Jul 2015 15:22:32 +0200 (CEST)
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:24752
+	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751518AbbGaMOE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 31 Jul 2015 08:14:04 -0400
+Date: Fri, 31 Jul 2015 14:14:02 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.27-rc1
+Message-ID: <20150731121402.GL3164@type.bordeaux.inria.fr>
+References: <20150731112832.GB2619@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20150731112832.GB2619@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The hardcoded column width of 10 in print_table() is not enough, as
-the currently longest table entry to be printed has 12 characters.
+Hello,
 
-Signed-off-by: Tilman Schmidt <tilman@imap.cc>
----
- sys-utils/ldattach.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Karel Zak, le Fri 31 Jul 2015 13:28:32 +0200, a écrit :
+> The util-linux release v2.27-rc1 is available
 
-diff --git a/sys-utils/ldattach.c b/sys-utils/ldattach.c
-index 33c7aa2..5317d22 100644
---- a/sys-utils/ldattach.c
-+++ b/sys-utils/ldattach.c
-@@ -161,8 +161,8 @@ static void print_table(FILE * out, const struct ld_table *tab)
- 	int i;
- 
- 	for (t = tab, i = 1; t && t->name; t++, i++) {
--		fprintf(out, "  %-10s", t->name);
--		if (!(i % 6))
-+		fprintf(out, "  %-12s", t->name);
-+		if (!(i % 5))
- 			fputc('\n', out);
- 	}
- }
--- 
-1.9.2.459.g68773ac
+This fails to build on non-Linux systems on the use of signalfd in
+term-utils/script.c, introduced by
 
+cc1a88fb59474642fe848491f404890eff1fa5ab
+Author: Sami Kerola <kerolasa@iki.fi>
+Date:   Fri Dec 26 11:51:00 2014 +0000
+
+    script: use signalfd() to catch signals
+
+Samuel
