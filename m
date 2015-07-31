@@ -1,57 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:35437 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750760AbbGGFFl (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 7 Jul 2015 01:05:41 -0400
-Received: by oihr66 with SMTP id r66so77674502oih.2
-        for <util-linux@vger.kernel.org>; Mon, 06 Jul 2015 22:05:40 -0700 (PDT)
-Received: from [192.168.0.75] (cpe-70-123-244-133.satx.res.rr.com. [70.123.244.133])
-        by mx.google.com with ESMTPSA id p205sm11371959oia.23.2015.07.06.22.05.39
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 Jul 2015 22:05:39 -0700 (PDT)
-Message-ID: <559B5E22.2050902@gmail.com>
-Date: Tue, 07 Jul 2015 00:05:38 -0500
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51101 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751117AbbGaN2A (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 31 Jul 2015 09:28:00 -0400
+Date: Fri, 31 Jul 2015 15:27:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.27-rc1
+Message-ID: <20150731132758.GC2619@ws.net.home>
+References: <20150731112832.GB2619@ws.net.home>
+ <20150731121402.GL3164@type.bordeaux.inria.fr>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt once the network addresses
- change if address displayed
-References: <1435928288-25644-1-git-send-email-stefw@redhat.com> <20150706140711.GF17734@vapier> <559ACFC3.6050303@gmail.com> <20150707042512.GI17734@vapier>
-In-Reply-To: <20150707042512.GI17734@vapier>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20150731121402.GL3164@type.bordeaux.inria.fr>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> On 06 Jul 2015 13:58, Bruce Dubbs wrote:
->> Mike Frysinger wrote:
->>> On 03 Jul 2015 14:58, Stef Walter wrote:
->>>     #ifdef AGETTY_RELOAD
->>>>    # include <sys/inotify.h>
->>>> +# include <linux/netlink.h>
->>>> +# include <linux/rtnetlink.h>
->>>
->>> why not use libmnl instead ?
->>> 	http://netfilter.org/projects/libmnl
->>
->> That would not work for the LinuxFromScratch project.  At the time
->> util-linux is built, libmnl is not available.
->
-> then update the LFS insns to include libmnl, or build util-linux with the
-> reload option disabled.  i don't see how LFS's decisions are relevant here.
-> -mike
+On Fri, Jul 31, 2015 at 02:14:02PM +0200, Samuel Thibault wrote:
+> Hello,
+> 
+> Karel Zak, le Fri 31 Jul 2015 13:28:32 +0200, a écrit :
+> > The util-linux release v2.27-rc1 is available
+> 
+> This fails to build on non-Linux systems on the use of signalfd in
+> term-utils/script.c, introduced by
+> 
+> cc1a88fb59474642fe848491f404890eff1fa5ab
+> Author: Sami Kerola <kerolasa@iki.fi>
+> Date:   Fri Dec 26 11:51:00 2014 +0000
+> 
+>     script: use signalfd() to catch signals
 
-Yes, we can do either, but it seems like a lot of overhead to add a new 
-package for 95 lines of code that are already written.
+Good point, I have marked script as Linux only for now.
 
-We already manage about 1000 packages and are volunteers. Many of my 
-users would call adding a new library for one minor function bloat.
-None of the packages we support now use that library although that could 
-change in the future if others start to use it.
+    Karel
 
-Yes, our decisions are only a minor input to upstream packages, but 
-there may be others that have similar concerns that don't monitor this list.
-
-   -- Bruce
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
