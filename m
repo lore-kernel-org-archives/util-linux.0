@@ -1,48 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52971 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751883AbbHaKGu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 31 Aug 2015 06:06:50 -0400
-Date: Mon, 31 Aug 2015 12:06:48 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fdisk
-Message-ID: <20150831100648.GG2726@ws.net.home>
-References: <55E3B640.2060606@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55E3B640.2060606@gmail.com>
+Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:60145 "EHLO
+	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751066AbbHAIYi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 1 Aug 2015 04:24:38 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 7/7] unshare: remove angular brackets from literal argument in usage text
+Date: Sat,  1 Aug 2015 10:23:11 +0200
+Message-Id: <1438417391-2269-5-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1438417391-2269-1-git-send-email-bensberg@justemail.net>
+References: <1438417391-2269-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 30, 2015 at 09:04:48PM -0500, Bruce Dubbs wrote:
-> I have a question about (or a enhancement request) running fdisk.  When
-> asking to list known partition types, I get about 70 lines of output.
-> Generally that would not be a problem, but I was running in a Debian
-> install/rescue iso that uses busybox in a 25 line terminal.  I do not have a
-> way to scroll up and thus cannot see the first 40 or so partition types.
-> 
-> Is there a way to use a pager for this?  In this situation 'more' is
-> available but 'less' is not.  Otherwise I think an automatic pause every 20
-> lines or so would be appropriate to build into the partition type listing.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/unshare.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-We have lib/pager.c and setup_pager(), but it assumes that the pager
-is running all time and maintain stdout until parent process
-terminate.
-
-Maybe we can implement something like
-
- pid = setup_temporary_pager();
-    <list partition types>
- close_pager(pid);
-
-as I don't think we want to use pager all time for fdisk. 
-
-Volunteers?:-)
-
-    Karel
-
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index b01500c..47dda94 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -245,7 +245,7 @@ static void usage(int status)
+ 	fputs(_(" -f, --fork                fork before launching <program>\n"), out);
+ 	fputs(_("     --mount-proc[=<dir>]  mount proc filesystem first (implies --mount)\n"), out);
+ 	fputs(_(" -r, --map-root-user       map current user to root (implies --user)\n"), out);
+-	fputs(_("     --propagation <slave|shared|private|unchanged>\n"
++	fputs(_("     --propagation slave|shared|private|unchanged\n"
+ 	        "                           modify mount propagation in mount namespace\n"), out);
+ 	fputs(_(" -s, --setgroups allow|deny  control the setgroups syscall in user namespaces\n"), out);
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
