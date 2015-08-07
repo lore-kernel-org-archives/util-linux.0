@@ -1,134 +1,193 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.outflux.net ([198.145.64.163]:36106 "EHLO smtp.outflux.net"
+Received: from mout.gmx.net ([212.227.17.21]:63595 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752831AbbHZWtZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Aug 2015 18:49:25 -0400
-Date: Wed, 26 Aug 2015 15:49:23 -0700
-From: Kees Cook <keescook@chromium.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
-Message-ID: <20150826224923.GA11884@www.outflux.net>
+	id S1756282AbbHGHUx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 7 Aug 2015 03:20:53 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Sami Kerola <kerolasa@iki.fi>
+Subject: Re: [PATCH 2/2] tests: add fsck.minix checks
+Date: Fri, 7 Aug 2015 09:20:45 +0200
+Cc: util-linux@vger.kernel.org
+References: <1438540140-959-1-git-send-email-kerolasa@iki.fi> <1438540140-959-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1438540140-959-2-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201508070920.46201.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The kernel's maximum path length is PATH_MAX (4096). The use of BUFSIZ
-(8192) would seem sufficient for reading mountinfo files, but it's
-not. Paths may contain escaped characters (requiring 4x as many bytes
-to read), and filesystem options are of unknown length. To avoid mounts
-being either intentionally or unintentionally hidden from libmount and
-its users, we must accept arbitrary length lines when parsing.
+On Sunday 02 August 2015, Sami Kerola wrote:
+> The debian bug was fixed in commit 730ae9c89971, and the rest are
+> about having test coverity for various file name lenghts and minix fs
+> versions.
+>
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  tests/expected/minix/fsck-images-auto-fix     |  31 ++++++++++++
+>  tests/expected/minix/fsck-images-broken-root  |   7 +++
+>  tests/expected/minix/fsck-images-bug.773892   |   1 +
+>  tests/expected/minix/fsck-images-check-blocks |   9 ++++
+>  tests/expected/minix/fsck-images-v1c14        |   9 ++++
+>  tests/expected/minix/fsck-images-v1c30        |   9 ++++
+>  tests/expected/minix/fsck-images-v2c14        |   9 ++++
+>  tests/expected/minix/fsck-images-v2c30        |   9 ++++
+>  tests/expected/minix/fsck-images-v3c60        |   9 ++++
+>  tests/ts/minix/broken-root                    | Bin 0 -> 5120 bytes
+>  tests/ts/minix/debian.bug.773892              | Bin 0 -> 16384 bytes
+>  tests/ts/minix/fsck-images                    |  67
+> ++++++++++++++++++++++++++ 12 files changed, 160 insertions(+)
+>  create mode 100644 tests/expected/minix/fsck-images-auto-fix
+>  create mode 100644 tests/expected/minix/fsck-images-broken-root
+>  create mode 100644 tests/expected/minix/fsck-images-bug.773892
+>  create mode 100644 tests/expected/minix/fsck-images-check-blocks
+>  create mode 100644 tests/expected/minix/fsck-images-v1c14
+>  create mode 100644 tests/expected/minix/fsck-images-v1c30
+>  create mode 100644 tests/expected/minix/fsck-images-v2c14
+>  create mode 100644 tests/expected/minix/fsck-images-v2c30
+>  create mode 100644 tests/expected/minix/fsck-images-v3c60
+>  create mode 100644 tests/ts/minix/broken-root
+>  create mode 100644 tests/ts/minix/debian.bug.773892
+>  create mode 100755 tests/ts/minix/fsck-images
 
-Long valid entries are currently ignored, with warnings like this:
-mount: /proc/self/mountinfo: parse error: ignore entry at line 11.
-mount: /proc/self/mountinfo: parse error: ignore entry at line 12.
+These tests fail on big endian systems, see below. We could fix most of them by
+adding BE md5sum like we did for other tests. Unfortunately I don't have time to
+do that before 2.27.
 
-Instead of using a malloc on every line parsed from mount files, do it
-once per mount file context, growing it as needed. The general case will
-never grow it.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
-v2:
-- use getline, duh. thanks vapier!
----
- libmount/src/mountP.h    |  2 ++
- libmount/src/tab.c       |  1 +
- libmount/src/tab_parse.c | 19 +++++++++----------
- 3 files changed, 12 insertions(+), 10 deletions(-)
-
-diff --git a/libmount/src/mountP.h b/libmount/src/mountP.h
-index 660e0ad..cd02785 100644
---- a/libmount/src/mountP.h
-+++ b/libmount/src/mountP.h
-@@ -212,6 +212,8 @@ struct libmnt_table {
- 	int		comms;		/* enable/disable comment parsing */
- 	char		*comm_intro;	/* First comment in file */
- 	char		*comm_tail;	/* Last comment in file */
-+	char		*buf;		/* Memory for reading lines */
-+	size_t		buf_size;	/* Size of line-reading buffer */
- 
- 	struct libmnt_cache *cache;		/* canonicalized paths/tags cache */
- 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 0df8d49..5e3069d 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -166,6 +166,7 @@ void mnt_free_table(struct libmnt_table *tb)
- 	mnt_unref_cache(tb->cache);
- 	free(tb->comm_intro);
- 	free(tb->comm_tail);
-+	free(tb->buf);
- 	free(tb);
- }
- 
-diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
-index ca8a618..1af8e6a 100644
---- a/libmount/src/tab_parse.c
-+++ b/libmount/src/tab_parse.c
-@@ -424,7 +424,6 @@ static int mnt_table_parse_next(struct libmnt_table *tb, FILE *f,
- 				struct libmnt_fs *fs,
- 				const char *filename, int *nlines)
- {
--	char buf[BUFSIZ];
- 	char *s;
- 	int rc;
- 
-@@ -435,17 +434,17 @@ static int mnt_table_parse_next(struct libmnt_table *tb, FILE *f,
- 	/* read the next non-blank non-comment line */
- next_line:
- 	do {
--		if (fgets(buf, sizeof(buf), f) == NULL)
-+		if (getline(&tb->buf, &tb->buf_size, f) < 0)
- 			return -EINVAL;
- 		++*nlines;
--		s = strchr (buf, '\n');
-+		s = strchr(tb->buf, '\n');
- 		if (!s) {
- 			/* Missing final newline?  Otherwise an extremely */
- 			/* long line - assume file was corrupted */
- 			if (feof(f)) {
- 				DBG(TAB, ul_debugobj(tb,
- 					"%s: no final newline",	filename));
--				s = strchr (buf, '\0');
-+				s = strchr(tb->buf, '\0');
- 			} else {
- 				DBG(TAB, ul_debugobj(tb,
- 					"%s:%d: missing newline at line",
-@@ -457,12 +456,12 @@ next_line:
- 		/* comments parser */
- 		if (tb->comms
- 		    && (tb->fmt == MNT_FMT_GUESS || tb->fmt == MNT_FMT_FSTAB)
--		    && is_comment_line(buf)) {
-+		    && is_comment_line(tb->buf)) {
- 			do {
--				rc = append_comment(tb, fs, buf, feof(f));
-+				rc = append_comment(tb, fs, tb->buf, feof(f));
- 				if (!rc)
--					rc = next_comment_line(buf,
--							sizeof(buf),
-+					rc = next_comment_line(tb->buf,
-+							tb->buf_size,
- 							f, &s, nlines);
- 			} while (rc == 0);
- 
-@@ -474,9 +473,9 @@ next_line:
- 		}
- 
- 		*s = '\0';
--		if (--s >= buf && *s == '\r')
-+		if (--s >= tb->buf && *s == '\r')
- 			*s = '\0';
--		s = (char *) skip_blank(buf);
-+		s = (char *) skip_blank(tb->buf);
- 	} while (*s == '\0' || *s == '#');
- 
- 	if (tb->fmt == MNT_FMT_GUESS) {
--- 
-1.9.1
+BTW I think a better solution would be to compare hexdumps instead of md5sums
+anyway. Maybe it's possible to write a shell function which produces
+"endianess-invariant hexdumps" of minix images?
 
 
--- 
-Kees Cook
-Chrome OS Security
+Test failures:
+
+        minix: mkfs checksums                 ... OK
+        minix: fsck images                    ...
+                : v1c14                       ... FAILED (minix/fsck-images-v1c14)
+                : v1c30                       ... FAILED (minix/fsck-images-v1c30)
+                : v2c14                       ... FAILED (minix/fsck-images-v2c14)
+                : v2c30                       ... FAILED (minix/fsck-images-v2c30)
+                : v3c60                       ... FAILED (minix/fsck-images-v3c60)
+                : auto-fix                    ...fsck.minix from util-linux 2.27.rc1-45-41e55
+bad magic number in super-block
+ FAILED (minix/fsck-images-auto-fix)
+                : bug.773892                  ... FAILED (minix/fsck-images-bug.773892)
+                : broken-root                 ... FAILED (minix/fsck-images-broken-root)
+                : check-blocks                ... FAILED (minix/fsck-images-check-blocks)
+           ... FAILED (9 from 9 sub-tests)
+        minix: mkfs                           ...
+                : v1c14                       ... OK
+                : v1c30                       ... OK
+                : v2c14                       ... OK
+                : v2c30                       ... OK
+                : v3c60                       ... OK
+           ... OK (all 5 sub-tests PASSED)
+[...]
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-auto-fix       2015-08-06 21:28:12.906048709 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-auto-fix 2015-08-06 21:45:54.950000003 +0000
+@@ -1,31 +1,2 @@
+-Filesystem auto-fix is dirty, needs checking.
+-Read error: bad block in file '/'
+-16 inodes
+-16 blocks
+-Firstdatazone=5 (5)
+-Zonesize=1024
+-Maxsize=2147483647
+-namelen=60
+-
+-Read error: bad block in file '/'
+-/: bad directory: '.' isn't first
+-Read error: bad block in file '/'
+-/: bad directory: '..' isn't second
+-Inode 1 not used, marked used in the bitmap.
+-
+-     0 inodes used (0%)
+-     6 zones used (37%)
+-
+-     0 regular files
+-     0 directories
+-     0 character device files
+-     0 block device files
+-     1 links
+-     0 symbolic links
+-------
+-     1 files
+-----------------------------
+-FILE SYSTEM HAS BEEN CHANGED
+-----------------------------
+ 0
+-29f0edbcb7e405bbc56e614af3c3cb7c auto-fix.img
++346e041d9a762fc6be2feb97904c1a4a auto-fix.img
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-broken-root    2015-08-06 21:28:12.906048709 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-broken-root      2015-08-06 21:45:55.090000003 +0000
+@@ -1,7 +1,3 @@
+-Read error: bad block in file '/'
+-Read error: bad block in file '/'
+-/: bad directory: '.' isn't first
+-Read error: bad block in file '/'
+-/: bad directory: '..' isn't second
+-Inode 1 not used, marked used in the bitmap.
+-4
++fsck.minix from util-linux 2.27.rc1-45-41e55
++bad magic number in super-block
++8
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-bug.773892     2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-bug.773892       2015-08-06 21:45:55.020000003 +0000
+@@ -1 +1,3 @@
+-0
++fsck.minix from util-linux 2.27.rc1-45-41e55
++bad magic number in super-block
++8
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-check-blocks   2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-check-blocks     2015-08-06 21:45:55.180000003 +0000
+@@ -6,4 +6,4 @@
+
+ mkfs return value: 0
+ fsck return value: 0
+-9336eb47979f61e934c3aec3434333d7
++ffa06ab882e916a42abea58342256830
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-v1c14  2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-v1c14    2015-08-06 21:45:54.650000003 +0000
+@@ -6,4 +6,4 @@
+
+ mkfs return value: 0
+ fsck return value: 0
+-663e1fb18fc074fc15bdb698b0fd0fda
++c9122b1cbfc311669752aef8fc94cd7b
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-v1c30  2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-v1c30    2015-08-06 21:45:54.700000003 +0000
+@@ -6,4 +6,4 @@
+
+ mkfs return value: 0
+ fsck return value: 0
+-9336eb47979f61e934c3aec3434333d7
++ffa06ab882e916a42abea58342256830
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-v2c14  2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-v2c14    2015-08-06 21:45:54.780000003 +0000
+@@ -6,4 +6,4 @@
+
+ mkfs return value: 0
+ fsck return value: 0
+-acfd4cae9ccfc3bc1a12d3c4a39f95c9
++3059480cac68cf9dfadff824fbddf435
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-v2c30  2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-v2c30    2015-08-06 21:45:54.840000003 +0000
+@@ -6,4 +6,4 @@
+
+ mkfs return value: 0
+ fsck return value: 0
+-1277a1e3a3cefa6afc63a9e38e4cfdf8
++ed40ea6abe47d1e26f7039bf8c044075
+--- /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/expected/minix/fsck-images-v3c60  2015-08-06 21:28:12.917048708 +0000
++++ /home/abuild/rpmbuild/BUILD/util-linux-2.27.rc1.git45.41e55/tests/output/minix/fsck-images-v3c60    2015-08-06 21:45:54.900000003 +0000
+@@ -5,5 +5,8 @@
+ Maxsize=2147483647
+
+ mkfs return value: 0
+-fsck return value: 0
+-ca57b3604ed9476108ac41d1bdb1e1d5
++/: bad directory: '.' isn't first
++/: bad directory: '..' isn't second
++Inode 1 not used, marked used in the bitmap.
++fsck return value: 4
++907a34f3659b546a87ce10580c8f53cb
