@@ -1,42 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f177.google.com ([209.85.223.177]:34760 "EHLO
-	mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751124AbbH0ApA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Aug 2015 20:45:00 -0400
-Received: by iodb91 with SMTP id b91so39618272iod.1
-        for <util-linux@vger.kernel.org>; Wed, 26 Aug 2015 17:44:59 -0700 (PDT)
+Received: from mail-yk0-f171.google.com ([209.85.160.171]:36308 "EHLO
+	mail-yk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751003AbbHGCfA (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 6 Aug 2015 22:35:00 -0400
+Received: by ykeo23 with SMTP id o23so78505567yke.3
+        for <util-linux@vger.kernel.org>; Thu, 06 Aug 2015 19:35:00 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20150827001634.GJ3116@vapier>
-References: <20150826224923.GA11884@www.outflux.net>
-	<20150827001634.GJ3116@vapier>
-Date: Wed, 26 Aug 2015 17:44:59 -0700
-Message-ID: <CAGXu5jLL6zSbPT7cFYkEshvhELb6A+-Z-rYwFdxVq1ZNahs5Xw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
-From: Kees Cook <keescook@chromium.org>
-To: Kees Cook <keescook@chromium.org>, util-linux@vger.kernel.org
+From: Matt Turner <mattst88@gmail.com>
+Date: Thu, 6 Aug 2015 19:34:40 -0700
+Message-ID: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
+Subject: fdisk BSD disklabel support?
+To: util-linux@vger.kernel.org
+Cc: alpha@gentoo.org
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 26, 2015 at 5:16 PM, Mike Frysinger <vapier@gentoo.org> wrote:
-> On 26 Aug 2015 15:49, Kees Cook wrote:
->> --- a/libmount/src/mountP.h
->> +++ b/libmount/src/mountP.h
->> @@ -212,6 +212,8 @@ struct libmnt_table {
->>       int             comms;          /* enable/disable comment parsing */
->>       char            *comm_intro;    /* First comment in file */
->>       char            *comm_tail;     /* Last comment in file */
->> +     char            *buf;           /* Memory for reading lines */
->> +     size_t          buf_size;       /* Size of line-reading buffer */
->
-> just to be clear, this structure is zero-allocated right ?  getline
-> needs the first call to have buf==NULL in order for everything to
-> fall into place.
+I'm not able to figure out how to make a BSD disklabel in fdisk since v2.23.
 
-It is, yes. See mnt_new_table()'s calloc usage.
+Gentoo's installation guide describes the process of partitioning a
+disk for SRM/Alpha [1]. How should one do this now?
 
--Kees
+With my distro's util-linux-2.25 I don't see any option that resembles
+BSD disklabels -- I see only
 
--- 
-Kees Cook
-Chrome OS Security
+  Create a new label
+   g   create a new empty GPT partition table
+   G   create a new empty SGI (IRIX) partition table
+   o   create a new empty DOS partition table
+   s   create a new empty Sun partition table
+
+What am I missing?
+
+[1] https://wiki.gentoo.org/wiki/Handbook:Alpha/Installation/Disks#Deleting_all_slices
