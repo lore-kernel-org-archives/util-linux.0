@@ -1,118 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:35469 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751685AbbHBS3J (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 2 Aug 2015 14:29:09 -0400
-Received: by wibxm9 with SMTP id xm9so93675706wib.0
-        for <util-linux@vger.kernel.org>; Sun, 02 Aug 2015 11:29:08 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/2] tests: add way to control mkfs.minix time stamps
-Date: Sun,  2 Aug 2015 19:28:59 +0100
-Message-Id: <1438540140-959-1-git-send-email-kerolasa@iki.fi>
+Received: from skade.schwarzvogel.de ([144.76.18.87]:34087 "EHLO
+	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750856AbbHGIuW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Aug 2015 04:50:22 -0400
+Date: Fri, 7 Aug 2015 10:18:13 +0200
+From: Tobias Klausmann <klausman@gentoo.org>
+To: Matt Turner <mattst88@gmail.com>
+Cc: util-linux@vger.kernel.org, alpha@gentoo.org
+Subject: Re: fdisk BSD disklabel support?
+Message-ID: <20150807081812.GA91885@skade.schwarzvogel.de>
+References: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Needed in order to create reproducable file systems image files, so that
-out come of mkfs.minix can be checksum'ed.
+Hi! 
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/Makemodule.am |  5 +++++
- disk-utils/mkfs.minix.c  | 22 ++++++++++++++++++----
- tests/commands.sh        |  1 +
- 3 files changed, 24 insertions(+), 4 deletions(-)
+On Thu, 06 Aug 2015, Matt Turner wrote:
+> I'm not able to figure out how to make a BSD disklabel in fdisk since v2.23.
+> 
+> Gentoo's installation guide describes the process of partitioning a
+> disk for SRM/Alpha [1]. How should one do this now?
+> 
+> With my distro's util-linux-2.25 I don't see any option that resembles
+> BSD disklabels -- I see only
+> 
+>   Create a new label
+>    g   create a new empty GPT partition table
+>    G   create a new empty SGI (IRIX) partition table
+>    o   create a new empty DOS partition table
+>    s   create a new empty Sun partition table
+> 
+> What am I missing?
+> 
+> [1] https://wiki.gentoo.org/wiki/Handbook:Alpha/Installation/Disks#Deleting_all_slices
+ 
+It seems like disklabel _editing_ still works:
 
-diff --git a/disk-utils/Makemodule.am b/disk-utils/Makemodule.am
-index 3a2b36d..a2e1994 100644
---- a/disk-utils/Makemodule.am
-+++ b/disk-utils/Makemodule.am
-@@ -13,6 +13,11 @@ mkfs_minix_SOURCES = \
- 	disk-utils/minix_programs.h \
- 	disk-utils/mkfs.minix.c
- mkfs_minix_LDADD = $(LDADD) libcommon.la
-+
-+check_PROGRAMS += test_mkfs_minix
-+test_mkfs_minix_SOURCES = $(mkfs_minix_SOURCES)
-+test_mkfs_minix_LDADD = $(mkfs_minix_LDADD)
-+test_mkfs_minix_CFLAGS = -DTEST_SCRIPT
- endif
- 
- 
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 2da0e68..94ffacb 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -148,6 +148,20 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	exit(out == stderr ? MKFS_EX_USAGE : MKFS_EX_OK);
- }
- 
-+#ifdef TEST_SCRIPT
-+static inline time_t mkfs_minix_time(time_t *t)
-+{
-+	const char *str = getenv("MKFS_MINIX_TEST_SECOND_SINCE_EPOCH");
-+	time_t sec;
-+
-+	if (str && sscanf(str, "%ld", &sec) == 1)
-+		return sec;
-+	return time(t);
-+}
-+#else				/* !TEST_SCRIPT */
-+# define mkfs_minix_time(x) time(x)
-+#endif
-+
- static void super_set_state(void)
- {
- 	switch (fs_version) {
-@@ -251,7 +265,7 @@ static void make_bad_inode_v1(struct fs_control *ctl)
- 		return;
- 	mark_inode(MINIX_BAD_INO);
- 	inode->i_nlinks = 1;
--	inode->i_time = time(NULL);
-+	inode->i_time = mkfs_minix_time(NULL);
- 	inode->i_mode = S_IFREG + 0000;
- 	inode->i_size = ctl->fs_bad_blocks * MINIX_BLOCK_SIZE;
- 	zone = next(0);
-@@ -299,7 +313,7 @@ static void make_bad_inode_v2_v3 (struct fs_control *ctl)
- 		return;
- 	mark_inode (MINIX_BAD_INO);
- 	inode->i_nlinks = 1;
--	inode->i_atime = inode->i_mtime = inode->i_ctime = time (NULL);
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = mkfs_minix_time(NULL);
- 	inode->i_mode = S_IFREG + 0000;
- 	inode->i_size = ctl->fs_bad_blocks * MINIX_BLOCK_SIZE;
- 	zone = next (0);
-@@ -351,7 +365,7 @@ static void make_root_inode_v1(struct fs_control *ctl) {
- 	mark_inode(MINIX_ROOT_INO);
- 	inode->i_zone[0] = get_free_block(ctl);
- 	inode->i_nlinks = 2;
--	inode->i_time = time(NULL);
-+	inode->i_time = mkfs_minix_time(NULL);
- 	if (ctl->fs_bad_blocks)
- 		inode->i_size = 3 * ctl->fs_dirsize;
- 	else {
-@@ -372,7 +386,7 @@ static void make_root_inode_v2_v3 (struct fs_control *ctl) {
- 	mark_inode (MINIX_ROOT_INO);
- 	inode->i_zone[0] = get_free_block (ctl);
- 	inode->i_nlinks = 2;
--	inode->i_atime = inode->i_mtime = inode->i_ctime = time (NULL);
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = mkfs_minix_time(NULL);
- 
- 	if (ctl->fs_bad_blocks)
- 		inode->i_size = 3 * ctl->fs_dirsize;
-diff --git a/tests/commands.sh b/tests/commands.sh
-index b5098c8..bb985c7 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -22,6 +22,7 @@ TS_HELPER_PYLIBMOUNT_UPDATE="$top_srcdir/libmount/python/test_mount_tab_update.p
- TS_HELPER_LOGGER="$top_builddir/test_logger"
- TS_HELPER_LOGINDEFS="$top_builddir/test_logindefs"
- TS_HELPER_MD5="$top_builddir/test_md5"
-+TS_HELPER_MKFS_MINIX="$top_builddir/test_mkfs_minix"
- TS_HELPER_MORE=${TS_HELPER_MORE-"$top_builddir/test_more"}
- TS_HELPER_PARTITIONS="$top_builddir/sample-partitions"
- TS_HELPER_PATHS="$top_builddir/test_pathnames"
+monolith ~ # fdisk /dev/sda
+
+Welcome to fdisk (util-linux 2.26.2).
+[...]
+Disk /dev/sda: 17 GiB, 18209320960 bytes, 35565080 sectors
+Geometry: 64 heads, 32 sectors/track, 17365 cylinders
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: bsd
+partitions: 3
+
+Slice   Start      End  Sectors  Size Type     Fsize Bsize Cpg
+a        4096  1959935  1955840  955M swap         0     0   0
+b     1959936 35563519 33603584   16G ext2         0     0   0
+c           0 35563519 35563520   17G unused       0     0   0
+
+Maybe generating a BSD disklabel is just not wired up?
+
+Regards,
+Tobias
+
+
 -- 
-2.5.0
-
+Should array indices start at 0 or 1? My compromise of 0.5 was rejected
+without, I thought, proper consideration.
+	-- Stan Kelly-Bootle
