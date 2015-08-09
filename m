@@ -1,59 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56594
-	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753583AbbHUOWO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Aug 2015 10:22:14 -0400
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 1/3] hwclock: fix signed/unsigned comparison warning on alpha
-Date: Fri, 21 Aug 2015 16:13:27 +0200
-Message-Id: <1440166409-32215-1-git-send-email-andreas@fatal.se>
+Received: from zproxy02.unex.es ([158.49.17.43]:50358 "EHLO zproxy02.unex.es"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933165AbbHITLh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 9 Aug 2015 15:11:37 -0400
+Date: Sun, 9 Aug 2015 21:11:19 +0200
+From: Santiago Vila <sanvila@unex.es>
+To: kerolasa@gmail.com
+Cc: Reuti <reuti@staff.uni-marburg.de>,
+        util-linux <util-linux@vger.kernel.org>, ah-util-linux@debian.org,
+        794727@bugs.debian.org
+Subject: Re: "mesg n" exits with error, even if the command is successful
+Message-ID: <20150809191119.GA29884@cantor.unex.es>
+References: <alpine.DEB.2.11.1508091638320.23243@cantor.unex.es>
+ <7302EB7B-64A1-44E7-B2C2-E28D22FDED7D@staff.uni-marburg.de>
+ <20150809171906.GA27138@cantor.unex.es>
+ <CAG27Bk2LoBzp122dkL7npkMSa0iEEVajE3EqMVFYnPbn5zDBHA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAG27Bk2LoBzp122dkL7npkMSa0iEEVajE3EqMVFYnPbn5zDBHA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Fixes the following warning:
-sys-utils/hwclock.c: In function 'manipulate_epoch':
-sys-utils/hwclock.c:1465:17: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-   if (epoch_opt == -1)
+On Sun, Aug 09, 2015 at 06:58:15PM +0100, Sami Kerola wrote:
+> On 9 August 2015 at 18:19, Santiago Vila <sanvila@unex.es> wrote:
+> > On Sun, Aug 09, 2015 at 07:14:30PM +0200, Reuti wrote:
+> >> The profile is usually sourced. How does the error show up at the login prompt on Debian?
+> >
+> > The problem only happens in Debian testing and unstable, which I am not using yet.
+> > This is the original report which I received against base-files:
+> >
+> > https://bugs.debian.org/794727
+> 
+> Please notice the mesg(1) exit behavior is defined in POSIX
+> 
+> http://pubs.opengroup.org/onlinepubs/9699919799/utilities/mesg.html
+> 
+> Unfortunately the standard does not appear to be explicit whether the
+> exit value should be set only when requesting write permissions
+> (running without arguments), or if also when setting the permissions.
 
-Full build log available on:
-https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=alpha&ver=2.26.2-9&stamp=1440078034
+So if the standard is not explicit about this, there is some room for
+interpretation. Would not be possible to interpret the standard in a
+sensible way?
 
-Detected by/via:
-https://qa.debian.org/bls/packages/u/util-linux.html
+Moreover: Would not be possible to ask for the standard to be clarified?
 
-Please note that this has never actually been (build-)tested on alpha,
-but should hopefully resolve the warning. Note also that limits.h is
-already included.
+> IMHO the reasonable thing to do is to leave the return codes as they
+> are to avoid breakage in existing usage. If someone needs messaging
+> setting not to report exit codes [...]
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- sys-utils/hwclock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hmm, but who does really need message *setting* to report exit codes?
+They make more harm than help.
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index f04cf2b..bdb98e2 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -137,7 +137,7 @@ int debug;
- bool badyear;
- 
- /* User-specified epoch, used when rtc fails to return epoch. */
--unsigned long epoch_option = -1;
-+unsigned long epoch_option = ULONG_MAX;
- 
- /*
-  * Almost all Award BIOS's made between 04/26/94 and 05/31/95 have a nasty
-@@ -1452,7 +1452,7 @@ manipulate_epoch(const bool getepoch,
- 			printf(_("Kernel is assuming an epoch value of %lu\n"),
- 			       epoch);
- 	} else if (setepoch) {
--		if (epoch_opt == -1)
-+		if (epoch_opt == ULONG_MAX)
- 			warnx(_
- 			      ("To set the epoch value, you must use the 'epoch' "
- 			       "option to tell to what value to set it."));
--- 
-2.1.4
+As explained before, if I do "mesg y" I can reasonably think that
+messages will be enabled after that, and if I do "mesg n" I can
+reasonably think that messages will be disabled after that.
 
+I don't need an exit code for that, unless I don't trust the program
+to do its job, and this is why I think there is no need to interpret
+the standard so strictly.
