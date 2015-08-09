@@ -1,62 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56593
-	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753539AbbHUOWO (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Aug 2015 10:22:14 -0400
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH 2/3] hwclock: fix fgets unchecked return value warning on alpha
-Date: Fri, 21 Aug 2015 16:13:28 +0200
-Message-Id: <1440166409-32215-2-git-send-email-andreas@fatal.se>
-In-Reply-To: <1440166409-32215-1-git-send-email-andreas@fatal.se>
-References: <1440166409-32215-1-git-send-email-andreas@fatal.se>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:35549 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933105AbbHIR6Q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Aug 2015 13:58:16 -0400
+Received: by wibxm9 with SMTP id xm9so114399547wib.0
+        for <util-linux@vger.kernel.org>; Sun, 09 Aug 2015 10:58:15 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20150809171906.GA27138@cantor.unex.es>
+References: <alpine.DEB.2.11.1508091638320.23243@cantor.unex.es>
+	<7302EB7B-64A1-44E7-B2C2-E28D22FDED7D@staff.uni-marburg.de>
+	<20150809171906.GA27138@cantor.unex.es>
+Date: Sun, 9 Aug 2015 18:58:15 +0100
+Message-ID: <CAG27Bk2LoBzp122dkL7npkMSa0iEEVajE3EqMVFYnPbn5zDBHA@mail.gmail.com>
+Subject: Re: "mesg n" exits with error, even if the command is successful
+From: Sami Kerola <kerolasa@iki.fi>
+To: Santiago Vila <sanvila@unex.es>
+Cc: Reuti <reuti@staff.uni-marburg.de>,
+        util-linux <util-linux@vger.kernel.org>, ah-util-linux@debian.org,
+        794727@bugs.debian.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Build warning:
-sys-utils/hwclock-cmos.c: In function 'is_in_cpuinfo':
-sys-utils/hwclock-cmos.c:162:4: warning: ignoring return value of 'fgets', declared with attribute warn_unused_result [-Wunused-result]
-    fgets(field, 256, cpuinfo);
+On 9 August 2015 at 18:19, Santiago Vila <sanvila@unex.es> wrote:
+> On Sun, Aug 09, 2015 at 07:14:30PM +0200, Reuti wrote:
+>> The profile is usually sourced. How does the error show up at the login prompt on Debian?
+>
+> The problem only happens in Debian testing and unstable, which I am not using yet.
+> This is the original report which I received against base-files:
+>
+> https://bugs.debian.org/794727
 
-Full build log:
-https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=alpha&ver=2.26.2-9&stamp=1440078034
+Please notice the mesg(1) exit behavior is defined in POSIX
 
-Detected by/via:
-https://qa.debian.org/bls/packages/u/util-linux.html
+http://pubs.opengroup.org/onlinepubs/9699919799/utilities/mesg.html
 
-This change has never actually been (build-)tested on alpha, but
-hopefully the change should fix the warning.
+Unfortunately the standard does not appear to be explicit whether the
+exit value should be set only when requesting write permissions
+(running without arguments), or if also when setting the permissions.
+IMHO the reasonable thing to do is to leave the return codes as they
+are to avoid breakage in existing usage. If someone needs messaging
+setting not to report exit codes then this functionality is safest to
+introduce with new option, such as --no-exit-code-status
 
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- sys-utils/hwclock-cmos.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
-index 8d68808..de678ab 100644
---- a/sys-utils/hwclock-cmos.c
-+++ b/sys-utils/hwclock-cmos.c
-@@ -152,15 +152,15 @@ static int is_in_cpuinfo(char *fmt, char *str)
- 
- 	sprintf(format, "%s : %s", fmt, "%255s");
- 
--	if ((cpuinfo = fopen("/proc/cpuinfo", "r")) != NULL) {
--		while (!feof(cpuinfo)) {
-+	cpuinfo = fopen("/proc/cpuinfo", "r");
-+	if (cpuinfo) {
-+		do {
- 			if (fscanf(cpuinfo, format, field) == 1) {
- 				if (strncmp(field, str, strlen(str)) == 0)
- 					found = 1;
- 				break;
- 			}
--			fgets(field, 256, cpuinfo);
--		}
-+		} while (fgets(field, 256, cpuinfo));
- 		fclose(cpuinfo);
- 	}
- 	return found;
 -- 
-2.1.4
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
