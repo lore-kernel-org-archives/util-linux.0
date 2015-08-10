@@ -1,235 +1,511 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36912 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752735AbbHaLV6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 31 Aug 2015 07:21:58 -0400
-Date: Mon, 31 Aug 2015 13:21:56 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Matt Turner <mattst88@gmail.com>
-Cc: util-linux@vger.kernel.org, alpha@gentoo.org
-Subject: Re: fdisk BSD disklabel support?
-Message-ID: <20150831112156.GH2726@ws.net.home>
-References: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
- <20150807195408.GA18302@ws.net.home>
- <CAEdQ38HMOG+dWU5CwLrQ+nGKe8n=p4WJ_RMF5NGcSX3C-jt6jg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAEdQ38HMOG+dWU5CwLrQ+nGKe8n=p4WJ_RMF5NGcSX3C-jt6jg@mail.gmail.com>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:34733 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932726AbbHJVOI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 10 Aug 2015 17:14:08 -0400
+Received: by wicne3 with SMTP id ne3so151909361wic.1
+        for <util-linux@vger.kernel.org>; Mon, 10 Aug 2015 14:14:05 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 4/4] tests: add colcrt regression tests
+Date: Mon, 10 Aug 2015 22:13:54 +0100
+Message-Id: <1439241234-2527-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Aug 28, 2015 at 10:14:11PM -0700, Matt Turner wrote:
-> Thanks for the reply.
-> 
-> We have a user reporting that this is not sufficient to make a
-> bootable disk layout for DEC Alpha/SRM. Please see
-> https://forums.gentoo.org/viewtopic-t-1025044.html
+Thanks to Alaa Mubaied for providing crash1 input file making colcrt to
+crash.  The crash2 was generated using American Fuzzy Lop.
 
-It would be nice to discuss with the user at util-linux@vger.kernel.org, 
-he does not have to subscribe, the list is open.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/commands.sh                        |   1 +
+ tests/expected/colcrt/regressions-crash1 |   1 +
+ tests/expected/colcrt/regressions-crash2 | 386 +++++++++++++++++++++++++++++++
+ tests/ts/colcrt/crash1                   | Bin 0 -> 314 bytes
+ tests/ts/colcrt/crash2                   | Bin 0 -> 776 bytes
+ tests/ts/colcrt/regressions              |  34 +++
+ 6 files changed, 422 insertions(+)
+ create mode 100644 tests/expected/colcrt/regressions-crash1
+ create mode 100644 tests/expected/colcrt/regressions-crash2
+ create mode 100644 tests/ts/colcrt/crash1
+ create mode 100644 tests/ts/colcrt/crash2
+ create mode 100755 tests/ts/colcrt/regressions
 
-It would be also nice to know how he uses fdisk v2.12 (copy & past) so
-we can improve the current version.
+diff --git a/tests/commands.sh b/tests/commands.sh
+index bb985c7..737918f 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -37,6 +37,7 @@ TS_CMD_DELPART=${TS_CMD_DELPART:-"$top_builddir/delpart"}
+ TS_CMD_BLKDISCARD=${TS_CMD_BLKID-"$top_builddir/blkdiscard"}
+ TS_CMD_BLKID=${TS_CMD_BLKID-"$top_builddir/blkid"}
+ TS_CMD_CAL=${TS_CMD_CAL-"$top_builddir/cal"}
++TS_CMD_COLCRT=${TS_CMD_COLCRT:-"$top_builddir/colcrt"}
+ TS_CMD_COLRM=${TS_CMD_COLRM:-"$top_builddir/colrm"}
+ TS_CMD_COL=${TS_CMD_COL:-"$top_builddir/col"}
+ TS_CMD_COLUMN=${TS_CMD_COLUMN:-"$top_builddir/column"}
+diff --git a/tests/expected/colcrt/regressions-crash1 b/tests/expected/colcrt/regressions-crash1
+new file mode 100644
+index 0000000..a221b56
+--- /dev/null
++++ b/tests/expected/colcrt/regressions-crash1
+@@ -0,0 +1 @@
++return value: 0
+diff --git a/tests/expected/colcrt/regressions-crash2 b/tests/expected/colcrt/regressions-crash2
+new file mode 100644
+index 0000000..a4472fa
+--- /dev/null
++++ b/tests/expected/colcrt/regressions-crash2
+@@ -0,0 +1,386 @@
++        
++
++FGHIKIJKN\|
++
++MN9|    
++XYZRnT RnTUV|   NXP:w|  
++
++MN
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++'QRnTUVWXYZQRnTU|
++
++MN9|    
++|       
++
++return value: 0
+diff --git a/tests/ts/colcrt/crash1 b/tests/ts/colcrt/crash1
+new file mode 100644
+index 0000000000000000000000000000000000000000..668118134ef6a76439c0741e0f4cfa8514da02b9
+GIT binary patch
+literal 314
+zcmazS#|{_-u#1x?8cv=zB6RT+p$1(Es-E~z>v$jlkuLG^X$S^T5G(+s?c(DV6yhDi
+P<KtuNfL!nR_$hS&Rqrbz
 
-> I take it that this is unexpected?
+literal 0
+HcmV?d00001
 
-I have fixed (or improved) the issue with 'w', now it warns if you
-write BSD disklabel, but parental DOS label is still in memory only.
+diff --git a/tests/ts/colcrt/crash2 b/tests/ts/colcrt/crash2
+new file mode 100644
+index 0000000000000000000000000000000000000000..0843cb677a52068f453b6aa3705cbb75a5333f55
+GIT binary patch
+literal 776
+zcmZQzWMbyv<Z^TO@MQ4z^zvr#ixCrNVUUux6kw<UN^$x6L0Oz!5s^_rc_9iw92y3e
+z<n)UOuqsDU&k58Z%SB%xLSO3!t8KDW0P5tM5eQBf;lM-!X5mUf@x-Jc{{Rek=wXOZ
+IQQ)jB08vdz82|tP
 
-Now about the partitions, the concept of the nested disklabel is not
-our invention. For example Linux kernel does not accept another way
-for {Free,Open,Net}BSD, Minix and Unixware partitions.
+literal 0
+HcmV?d00001
 
-The important detail is that the BSD partitions (slices) has to be
-marked as used (fdisk default is unused) and the size of the partition
-has to be different than the parental DOS partition otherwise it's
-ignored by Linux kernel.
-
-You do not have to reboot and install extra hard disk to play with
-fdisk -- all you need is scsi_debug kernel module to create virtual
-disk (it uses RAM, so be careful with the disk size).
-
-# modprobe scsi_debug dev_size_mb=500
-# fdisk /dev/sdc
-
- ------ prepare parental DOS partition:
-
-Welcome to fdisk (util-linux 2.27.rc2-19-1b766).
-Changes will remain in memory only, until you decide to write them.
-Be careful before using the write command.
-
-Device does not contain a recognized partition table.
-Created a new DOS disklabel with disk identifier 0x3682a876.
-
-Command (m for help): n
-Partition type
-   p   primary (0 primary, 0 extended, 4 free)
-   e   extended (container for logical partitions)
-Select (default p): 
-
-Using default response p.
-Partition number (1-4, default 1): 
-First sector (2048-1023999, default 2048): 
-Last sector, +sectors or +size{K,M,G,T,P} (2048-1023999, default 1023999): 
-
-Created a new partition 1 of type 'Linux' and of size 499 MiB.
-
-Command (m for help): t
-Selected partition 1
-Partition type (type L to list all types): a5
-Changed type of partition 'Linux' to 'FreeBSD'.
-
-
-  ------ create two ('a' and 'b') nested BSD partitions:
-
-Command (m for help): b
-The device /dev/sdc1 does not contain BSD disklabel.
-
-Do you want to create a BSD disklabel? [Y]es/[N]o: Y
-
-Entering nested BSD disklabel.
-
-Command (m for help): p
-Disk /dev/sdc1: 500 MiB, 524288000 bytes, 1024000 sectors
-Geometry: 17 heads, 59 sectors/track, 1020 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 32768 bytes
-Disklabel type: bsd
-
-Slice Start     End Sectors   Size Type     Fsize Bsize Cpg
-c      2048 1023999 1021952   499M unused       0     0   0
-d         0 1023059 1023060 499.6M unused       0     0   0
-
-Partition table entries are not in disk order.
-
-Command (m for help): n
-Partition number (a,b,e-p, default a): 
-First sector (2048-1023999, default 2048): 
-Last sector, +sectors or +size{K,M,G,T,P} (2048-1023999, default 1023999): +50M
-
-Command (m for help): p
-
-Disk /dev/sdc1: 500 MiB, 524288000 bytes, 1024000 sectors
-Geometry: 17 heads, 59 sectors/track, 1020 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 32768 bytes
-Disklabel type: bsd
-
-Slice Start     End Sectors   Size Type     Fsize Bsize Cpg
-a      2048  104448  102401    50M unused       0     0   0
-c      2048 1023999 1021952   499M unused       0     0   0
-d         0 1023059 1023060 499.6M unused       0     0   0
-
-Partition table entries are not in disk order.
-
-Command (m for help): n
-Partition number (b,e-p, default b): 
-First sector (2048-1023999, default 2048): 104449
-                                           ^^^^^^
-    ----> note that the default is useless in this case, you have 
-          to specify sector after 'a' partition.
-
-Last sector, +sectors or +size{K,M,G,T,P} (104449-1023999, default 1023999): 
-
-Command (m for help): p
-
-Disk /dev/sdc1: 500 MiB, 524288000 bytes, 1024000 sectors
-Geometry: 17 heads, 59 sectors/track, 1020 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 32768 bytes
-Disklabel type: bsd
-
-Slice  Start     End Sectors   Size Type     Fsize Bsize Cpg
-a       2048  104448  102401    50M unused       0     0   0
-b     104449 1023999  919551   449M unused       0     0   0
-c       2048 1023999 1021952   499M unused       0     0   0
-d          0 1023059 1023060 499.6M unused       0     0   0
-
-Partition table entries are not in disk order.
-
-   ------- unset "unused" flag!
-
-Command (m for help): t
-Partition number (a-d, default d): a
-Partition type (type L to list all types): 7
-
-Changed type of partition 'unused' to '4.2BSD'.
-
-Command (m for help): t
-Partition number (a-d, default d): b
-Partition type (type L to list all types): 7
-
-Changed type of partition 'unused' to '4.2BSD'.
-
-Command (m for help): p
-Disk /dev/sdc1: 500 MiB, 524288000 bytes, 1024000 sectors
-Geometry: 17 heads, 59 sectors/track, 1020 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 32768 bytes
-Disklabel type: bsd
-
-Slice  Start     End Sectors   Size Type     Fsize Bsize Cpg
-a       2048  104448  102401    50M 4.2BSD       0     0   0
-b     104449 1023999  919551   449M 4.2BSD       0     0   0
-c       2048 1023999 1021952   499M unused       0     0   0
-d          0 1023059 1023060 499.6M unused       0     0   0
-
-Partition table entries are not in disk order.
-
-Command (m for help): w
-Syncing disks.
-Disklabel written to /dev/sdc1 (don't forget to write /dev/sdc disklable too).
-
-Command (m for help): r
-Leaving nested disklabel.
-
-Command (m for help): w
-The partition table has been altered.
-Calling ioctl() to re-read partition table.
-Syncing disks.
-
-   ------- see what kernel thinks about the partitions:
-
-#  dmesg | tail -1
-      sdc1: <bsd: sdc5 sdc6 >
-
-
-# lsblk /dev/sdc
-NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-sdc      8:32   0  500M  0 disk 
-├─sdc1   8:33   0  499M  0 part 
-├─sdc5   8:37   0   50M  0 part 
-└─sdc6   8:38   0  449M  0 part 
-
-# mkfs.ext4 /dev/sdc5
-mke2fs 1.42.12 (29-Aug-2014)
-Creating filesystem with 51200 1k blocks and 12824 inodes
-Filesystem UUID: 02a2bf04-d021-47fe-90b9-b411908c82b3
-Superblock backups stored on blocks: 
-	8193, 24577, 40961
-
-Allocating group tables: done                            
-Writing inode tables: done                            
-Creating journal (4096 blocks): done
-Writing superblocks and filesystem accounting information: done
-
-# mount /dev/sdc5 /mnt/test
-# ll /mnt/test
-total 12
-drwx------ 2 root root 12288 Aug 31 12:59 lost+found
-
-
-... it's really no perfect and use-freindly, but I'm able to create BDS
-partitions that are compatible with parser in Linux kernel. Well, I'm 
-not sure about another OS, but it's another story :-)
-
-	Karel
-
-
+diff --git a/tests/ts/colcrt/regressions b/tests/ts/colcrt/regressions
+new file mode 100755
+index 0000000..067523f
+--- /dev/null
++++ b/tests/ts/colcrt/regressions
+@@ -0,0 +1,34 @@
++#!/bin/bash
++
++#
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="regressions"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++ts_check_test_command "$TS_CMD_COLCRT"
++
++check_input_file() {
++	ts_init_subtest ${1##*/}
++	$TS_CMD_COLCRT < $1 > $TS_OUTPUT 2>&1
++	echo "return value: $?" >> $TS_OUTPUT
++	ts_finalize_subtest
++}
++
++check_input_file "$TS_SELF/crash1"
++check_input_file "$TS_SELF/crash2"
++
++ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.5.0
+
