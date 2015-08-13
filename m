@@ -1,58 +1,53 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:58000 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757165AbbHZWiY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Aug 2015 18:38:24 -0400
-Date: Wed, 26 Aug 2015 18:38:23 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] libmount: handle arbitrary line length for mounts
-Message-ID: <20150826223823.GH3116@vapier>
-References: <20150826220230.GA8599@www.outflux.net>
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Thu, 13 Aug 2015 09:58:12 +0900
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        linux-kernel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: what's cooking in zram for 4.2
+Message-ID: <20150813005812.GA17958@swordfish>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="64j1qyTOoGvYcHb1"
-In-Reply-To: <20150826220230.GA8599@www.outflux.net>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello Karel,
 
---64j1qyTOoGvYcHb1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+... planned to write this earlier.
 
-On 26 Aug 2015 15:02, Kees Cook wrote:
-> + * Read a line with fgets. If it doesn't fit in the existing buffer,
-> + * allocate more heap memory for storage until it does fit.
 
-why not just use getline then ?
+zram will see some user-space visible improvements in 4.2 we'd love
+to let you know about -- on-demand device creation/removal.
 
-> +		if (fgets (current, remaining, f) == NULL) {
+For that purpose we introduce zram control sysfs class, which has two
+sysfs attrs:
+ - hot_add      -- add a new zram device
+ - hot_remove   -- remove a specific (device_id) zram device
 
-style omits space before the (.  comes up a few times in this patch.
--mike
 
---64j1qyTOoGvYcHb1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+-- hot_add sysfs attr is read-only and has only automatic device id
+assignment mode.  Read operation performed on this attr creates a
+new zram device and returns back its device_id (or error (ret < 0)).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Usage example:
+  # add a new zram device
+  cat /sys/class/zram-control/hot_add
+  2
 
-iQIcBAEBCAAGBQJV3j/fAAoJEEFjO5/oN/WB6H8QANaLX2Ofl5ffZE6Z5wg7Ihz5
-EcUK5ek3fxuJOUFFA9Shwlpq2N4hzUOTpcaidKD7oyisqfP+CihqAch4XVDObuas
-4Uq3OAaICC9Z5TrAWbY0a9eZhmM7J66jLeAaFid/H79zVUIJPpYjgN3Iimst2H/V
-aLD3BrMo+VPV+bZvIwOOzWh1M2HN4U+VhS+1Zbk3EPYxeAidT4U6LfHhMved0pqO
-6mXxx5sA9TvowsC8Ek3nD1gLD5teny5zuN2ZhpNy3aQpOINB0noIG3jx/ZgO10QM
-hrNU7J1dOcz0RNt6Ow9V264tuYCtPKum30RJiBx9DrwXQkG5752+a3LNxM5u+7KG
-Whskc2sYEBGltIPtr2t5ZJyuI4ALrp2rsKDt2QKgt4XUBKEc7MX6yxJGVmFSD1C7
-gaMsXAfnrMgkA6KelpsOW3uOKWlmLfkf4Tdfct8VF924gofegQ+3yFRDBfNIAZKF
-W4UGhLeOlEKCTBkYycyF9dTlhUI/yhGHEQWksvQlNkuJNpK6VoCW+k5uNAxj6sI4
-SwAR4HI5x7YRBiF9DhsqktiVEt6VHOYviDzx7+2hsJPDVdbLkGN9jn/MbC8/9scX
-xVIuilFLBL2nkjHzy6f2nP2c/T86H5RsU23iUePPvgn3ORKIplYjcJTDAwmDd8RE
-lk54TZnx8BV11r4sHWTV
-=dRpX
------END PGP SIGNATURE-----
+an example of returning error code (-ENOMEM in this case)
 
---64j1qyTOoGvYcHb1--
+  cat /sys/class/zram-control/hot_add
+  cat: /sys/class/zram-control/hot_add: Cannot allocate memory
+
+
+
+-- hot_remove is write only and requires a valid zram device_id as
+its input parameter:
+
+  # remove a specific zram device
+  echo 4 > /sys/class/zram-control/hot_remove
+
+
+	-ss
