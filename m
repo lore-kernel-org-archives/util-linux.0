@@ -1,58 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36800 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751322AbbHaJho (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 31 Aug 2015 05:37:44 -0400
-Date: Mon, 31 Aug 2015 11:37:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Chen Qi <Qi.Chen@windriver.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: replace siginterrupt with sigaction
-Message-ID: <20150831093743.GE2726@ws.net.home>
-References: <1441009426-13799-1-git-send-email-Qi.Chen@windriver.com>
- <1441009426-13799-3-git-send-email-Qi.Chen@windriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1441009426-13799-3-git-send-email-Qi.Chen@windriver.com>
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56594
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753583AbbHUOWO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Aug 2015 10:22:14 -0400
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 1/3] hwclock: fix signed/unsigned comparison warning on alpha
+Date: Fri, 21 Aug 2015 16:13:27 +0200
+Message-Id: <1440166409-32215-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 31, 2015 at 04:23:46PM +0800, Chen Qi wrote:
-> Signed-off-by: Chen Qi <Qi.Chen@windriver.com>
-> ---
->  login-utils/login.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/login-utils/login.c b/login-utils/login.c
-> index ebb76f5..38c881b 100644
-> --- a/login-utils/login.c
-> +++ b/login-utils/login.c
-> @@ -1110,6 +1110,7 @@ int main(int argc, char **argv)
->  	char *buff;
->  	int childArgc = 0;
->  	int retcode;
-> +	struct sigaction act;
->  
->  	char *pwdbuf = NULL;
->  	struct passwd *pwd = NULL, _pwd;
-> @@ -1123,7 +1124,9 @@ int main(int argc, char **argv)
->  	timeout = (unsigned int)getlogindefs_num("LOGIN_TIMEOUT", LOGIN_TIMEOUT);
->  
->  	signal(SIGALRM, timedout);
-> -	siginterrupt(SIGALRM, 1);	/* we have to interrupt syscalls like ioctl() */
-> +	(void) sigaction(SIGALRM, NULL, &act);
-> +	act.sa_flags &= ~SA_RESTART;
-> +	sigaction(SIGALRM, &act, NULL);
+Fixes the following warning:
+sys-utils/hwclock.c: In function 'manipulate_epoch':
+sys-utils/hwclock.c:1465:17: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   if (epoch_opt == -1)
 
+Full build log available on:
+https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=alpha&ver=2.26.2-9&stamp=1440078034
 
- Applied, thanks.
+Detected by/via:
+https://qa.debian.org/bls/packages/u/util-linux.html
+
+Please note that this has never actually been (build-)tested on alpha,
+but should hopefully resolve the warning. Note also that limits.h is
+already included.
+
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ sys-utils/hwclock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index f04cf2b..bdb98e2 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -137,7 +137,7 @@ int debug;
+ bool badyear;
  
- (Please, next time be more verbose in commit message why you want to
- do the change -- I have added a note that siginterrupt is obsolete). 
-
-    Karel
-
-
+ /* User-specified epoch, used when rtc fails to return epoch. */
+-unsigned long epoch_option = -1;
++unsigned long epoch_option = ULONG_MAX;
+ 
+ /*
+  * Almost all Award BIOS's made between 04/26/94 and 05/31/95 have a nasty
+@@ -1452,7 +1452,7 @@ manipulate_epoch(const bool getepoch,
+ 			printf(_("Kernel is assuming an epoch value of %lu\n"),
+ 			       epoch);
+ 	} else if (setepoch) {
+-		if (epoch_opt == -1)
++		if (epoch_opt == ULONG_MAX)
+ 			warnx(_
+ 			      ("To set the epoch value, you must use the 'epoch' "
+ 			       "option to tell to what value to set it."));
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.4
+
