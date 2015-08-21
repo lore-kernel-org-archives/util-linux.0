@@ -1,34 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40995 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752489AbbHZXek (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 26 Aug 2015 19:34:40 -0400
-Date: Thu, 27 Aug 2015 01:34:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
-Message-ID: <20150826233439.GC2410@ws.net.home>
-References: <20150826224923.GA11884@www.outflux.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150826224923.GA11884@www.outflux.net>
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56593
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753539AbbHUOWO (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 21 Aug 2015 10:22:14 -0400
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 2/3] hwclock: fix fgets unchecked return value warning on alpha
+Date: Fri, 21 Aug 2015 16:13:28 +0200
+Message-Id: <1440166409-32215-2-git-send-email-andreas@fatal.se>
+In-Reply-To: <1440166409-32215-1-git-send-email-andreas@fatal.se>
+References: <1440166409-32215-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 26, 2015 at 03:49:23PM -0700, Kees Cook wrote:
-> @@ -212,6 +212,8 @@ struct libmnt_table {
->  	int		comms;		/* enable/disable comment parsing */
->  	char		*comm_intro;	/* First comment in file */
->  	char		*comm_tail;	/* Last comment in file */
-> +	char		*buf;		/* Memory for reading lines */
-> +	size_t		buf_size;	/* Size of line-reading buffer */
+Build warning:
+sys-utils/hwclock-cmos.c: In function 'is_in_cpuinfo':
+sys-utils/hwclock-cmos.c:162:4: warning: ignoring return value of 'fgets', declared with attribute warn_unused_result [-Wunused-result]
+    fgets(field, 256, cpuinfo);
 
-It's overkill to add the buffer to the struct, it's necessary 
-only in mnt_table_parse_next().
+Full build log:
+https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=alpha&ver=2.26.2-9&stamp=1440078034
 
-    Karel
+Detected by/via:
+https://qa.debian.org/bls/packages/u/util-linux.html
 
+This change has never actually been (build-)tested on alpha, but
+hopefully the change should fix the warning.
+
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ sys-utils/hwclock-cmos.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
+index 8d68808..de678ab 100644
+--- a/sys-utils/hwclock-cmos.c
++++ b/sys-utils/hwclock-cmos.c
+@@ -152,15 +152,15 @@ static int is_in_cpuinfo(char *fmt, char *str)
+ 
+ 	sprintf(format, "%s : %s", fmt, "%255s");
+ 
+-	if ((cpuinfo = fopen("/proc/cpuinfo", "r")) != NULL) {
+-		while (!feof(cpuinfo)) {
++	cpuinfo = fopen("/proc/cpuinfo", "r");
++	if (cpuinfo) {
++		do {
+ 			if (fscanf(cpuinfo, format, field) == 1) {
+ 				if (strncmp(field, str, strlen(str)) == 0)
+ 					found = 1;
+ 				break;
+ 			}
+-			fgets(field, 256, cpuinfo);
+-		}
++		} while (fgets(field, 256, cpuinfo));
+ 		fclose(cpuinfo);
+ 	}
+ 	return found;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.4
+
