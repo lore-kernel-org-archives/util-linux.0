@@ -1,52 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:33121 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933120AbbHISTJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Aug 2015 14:19:09 -0400
-Received: by wijp15 with SMTP id p15so111085340wij.0
-        for <util-linux@vger.kernel.org>; Sun, 09 Aug 2015 11:19:08 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56617
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755188AbbHYQ1v (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 25 Aug 2015 12:27:51 -0400
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/3] pull: colcrt crash fixes
-Date: Sun,  9 Aug 2015 19:19:03 +0100
-Message-Id: <1439144346-5647-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <CAFG+y4GYgtnKwHW5wQfWiHVym8NXv-SzzBSmDGuPQLvdPG_OCA@mail.gmail.com>
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 2/2] lsblk: fix resource leak [coverity scan]
+Date: Tue, 25 Aug 2015 18:27:41 +0200
+Message-Id: <1440520061-23922-2-git-send-email-andreas@fatal.se>
+In-Reply-To: <1440520061-23922-1-git-send-email-andreas@fatal.se>
+References: <1440520061-23922-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Alaa,
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ misc-utils/lsblk.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thank you for bug report.  The gdb output was pretty useful but
-unfortunately without knowing what you used as input I had to resort to
-American Fuzzy Lop to reproduce the issue, which is not necessarily a bad
-thing.  AFL found another issue in same go.  It would be nice to get
-confirmation if the change 0002 corrects the problem for you.
-
-That said after the util-linux is released the next version, that is
-2.29, will deserve completely rewrote colcrt(1) command.  Current version
-with it's global variables and array arithmetics does not feel right.
-
-Three patches to colcrt, and couple other changes I send earlier the
-weekend, can also be found from my remote git repository.
-
-----------------------------------------------------------------
-The following changes since commit 41e554e303e63c7051fda5783af2462066c43e4d:
-  libmount: fix typo in mnt_optstr_prepend_option() (2015-08-05 13:39:06 +0200)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git colcrt
-for you to fetch changes up to f137f3e2fca7f7d367114dcd39eca2953a5081f5:
-  colcrt: allocate enough space for data moves [afl & asan] (2015-08-09 19:02:59 +0100)
-----------------------------------------------------------------
-
-Sami Kerola (3):
-  colcrt: use #define in place of magic constants
-  colcrt: avoid writing beyond array bound [afl & asan]
-  colcrt: allocate enough space for data moves [afl & asan]
-
- text-utils/colcrt.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
-
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 4cfeef8..d1bb13a 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -762,8 +762,10 @@ static char *get_subsystems(struct blkdev_cxt *cxt)
+ 		size_t sz;
+ 
+ 		/* don't create "block:scsi:scsi", but "block:scsi" */
+-		if (len && strcmp(res + last, sub) == 0)
++		if (len && strcmp(res + last, sub) == 0) {
++			free(sub);
+ 			continue;
++		}
+ 
+ 		sz = strlen(sub);
+ 		res = xrealloc(res, len + sz + 2);
 -- 
-2.5.0
+2.1.4
 
