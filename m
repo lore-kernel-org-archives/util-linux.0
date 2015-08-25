@@ -1,35 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yk0-f171.google.com ([209.85.160.171]:36308 "EHLO
-	mail-yk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751003AbbHGCfA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 6 Aug 2015 22:35:00 -0400
-Received: by ykeo23 with SMTP id o23so78505567yke.3
-        for <util-linux@vger.kernel.org>; Thu, 06 Aug 2015 19:35:00 -0700 (PDT)
-MIME-Version: 1.0
-From: Matt Turner <mattst88@gmail.com>
-Date: Thu, 6 Aug 2015 19:34:40 -0700
-Message-ID: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
-Subject: fdisk BSD disklabel support?
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56616
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755533AbbHYQ1v (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 25 Aug 2015 12:27:51 -0400
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Cc: alpha@gentoo.org
-Content-Type: text/plain; charset=UTF-8
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH 1/2] lib/strutil: fix parse_switch resource leak [coverity scan]
+Date: Tue, 25 Aug 2015 18:27:40 +0200
+Message-Id: <1440520061-23922-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I'm not able to figure out how to make a BSD disklabel in fdisk since v2.23.
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ lib/strutils.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Gentoo's installation guide describes the process of partitioning a
-disk for SRM/Alpha [1]. How should one do this now?
+diff --git a/lib/strutils.c b/lib/strutils.c
+index b033f75..30dc090 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -198,10 +198,13 @@ int parse_switch(const char *arg, const char *errmesg, ...)
+ 		if (!b)
+ 			break;
+ 
+-		if (strcmp(arg, a) == 0)
++		if (strcmp(arg, a) == 0) {
++			va_end(ap);
+ 			return 1;
+-		else if (strcmp(arg, b) == 0)
++		} else if (strcmp(arg, b) == 0) {
++			va_end(ap);
+ 			return 0;
++		}
+ 	} while (1);
+ 	va_end(ap);
+ 
+-- 
+2.1.4
 
-With my distro's util-linux-2.25 I don't see any option that resembles
-BSD disklabels -- I see only
-
-  Create a new label
-   g   create a new empty GPT partition table
-   G   create a new empty SGI (IRIX) partition table
-   o   create a new empty DOS partition table
-   s   create a new empty Sun partition table
-
-What am I missing?
-
-[1] https://wiki.gentoo.org/wiki/Handbook:Alpha/Installation/Disks#Deleting_all_slices
