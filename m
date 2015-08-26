@@ -1,136 +1,134 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:48135 "EHLO
-	Ishtar.hs.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750980AbbHIXXr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Aug 2015 19:23:47 -0400
-Received: from [192.168.4.12] (Athenae [192.168.4.12])
-	by Ishtar.hs.tlinx.org (8.14.9/8.14.4/SuSE Linux 0.8) with ESMTP id t79NNhSV041109
-	for <util-linux@vger.kernel.org>; Sun, 9 Aug 2015 16:23:45 -0700
-Message-ID: <55C7E0FF.7010004@tlinx.org>
-Date: Sun, 09 Aug 2015 16:23:43 -0700
-From: Linda Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
+Received: from smtp.outflux.net ([198.145.64.163]:36106 "EHLO smtp.outflux.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752831AbbHZWtZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Aug 2015 18:49:25 -0400
+Date: Wed, 26 Aug 2015 15:49:23 -0700
+From: Kees Cook <keescook@chromium.org>
 To: util-linux@vger.kernel.org
-Subject: question on 'symlink' permissions
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
+Message-ID: <20150826224923.GA11884@www.outflux.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I noticed in kernel V4.1.0,
-I seem to be, reliably, (and this is *way* cool, BTW!)
-getting the contents of remote links
-(whether they are 'symlinkd's or 'junctions'), but the
-perms show differently on these links than they do natively.
+The kernel's maximum path length is PATH_MAX (4096). The use of BUFSIZ
+(8192) would seem sufficient for reading mountinfo files, but it's
+not. Paths may contain escaped characters (requiring 4x as many bytes
+to read), and filesystem options are of unknown length. To avoid mounts
+being either intentionally or unintentionally hidden from libmount and
+its users, we must accept arbitrary length lines when parsing.
 
->  uname -a
-Linux Ishtar 4.1.0-Isht-Van #2 SMP PREEMPT Tue Jun 23 07:52:09 PDT 2015 
-x86_64 x86_64 x86_64 GNU/Linux
->  ll /athenae |grep -- '->'|sed 's/           //'
-l--------- 1 0 Jul 16  2013 D -> /??/UNC/Ishtar/Documents/
-l--------- 1 0 Jun  5 12:52 FolderChanger -> /??/M:/FolderChanger/
-l--------- 1 0 Feb 28 16:38 M -> /??/UNC/Bliss/Music/
-l--------- 1 0 Feb 28 16:10 P -> /??/UNC/Bliss/Pictures/
-l--------- 1 0 Mar 28  2013 Share -> /??/UNC/Bliss/Share/
-l--------- 1 0 Mar 21  2014 bin -> /??/C:/windows/system32/cygwin/bin/
-l--------- 1 0 Feb 28 15:34 etc -> /??/C:/Windows/System32/cygwin/etc/
-l--------- 1 0 Mar  5 14:32 lib -> /??/C:/Windows/System32/cygwin/lib/
-l--------- 1 0 May 14 07:15 opt -> /??/C:/Windows/System32/cygwin/opt/
-l--------- 1 0 Apr 21  2013 prog64 -> Program Files/
-l--------- 1 0 Mar  5 14:33 sbin -> /??/C:/Windows/System32/cygwin/sbin/
-l--------- 1 0 Jan 12  2014 temp -> tmp/
-l--------- 1 0 Mar  5 14:35 usr -> /??/C:/Windows/System32/cygwin/usr/
-l--------- 1 0 Mar  5 14:35 var -> /??/C:/Windows/System32/cygwin/var/
+Long valid entries are currently ignored, with warnings like this:
+mount: /proc/self/mountinfo: parse error: ignore entry at line 11.
+mount: /proc/self/mountinfo: parse error: ignore entry at line 12.
 
- From the Windows side using cmd+dir, I see -- noting that anything
-that is a 'junction' doesn't show up remotely (Windows called them
-mounts in their early literature).
+Instead of using a malloc on every line parsed from mount files, do it
+once per mount file context, growing it as needed. The general case will
+never grow it.
 
-03/21 03:31 AM    <SYMLINKD>     bin [C:\windows\system32\cygwin\bin]
-05/14 07:11 AM    <JUNCTION>     cyg32 
-[\??\Volume{578b2172-f917-11e4-b3d9-a0369f15ce28}\]
-05/14 07:11 AM    <JUNCTION>     cyg64 
-[\??\Volume{578b2176-f917-11e4-b3d9-a0369f15ce28}\]
-07/16 04:47 AM    <SYMLINKD>     D [\\Ishtar\Documents]
-02/28 04:34 PM    <SYMLINKD>     etc [C:\Windows\System32\cygwin\etc]
-06/05 12:52 PM    <SYMLINKD>     FolderChanger [M:\FolderChanger]
-03/05 03:32 PM    <SYMLINKD>     lib [C:\Windows\System32\cygwin\lib]
-02/28 05:38 PM    <SYMLINKD>     M [\\Bliss\Music]
-05/14 07:15 AM    <SYMLINKD>     opt [C:\Windows\System32\cygwin\opt]
-02/28 05:10 PM    <SYMLINKD>     P [\\Bliss\Pictures]
-11/06 08:45 PM    <JUNCTION>     Prog [C:\Program Files (x86)]
-04/21 11:53 PM    <SYMLINKD>     prog64 [Program Files]
-08/09 04:05 PM    <JUNCTION>     ProgD [C:\ProgramData]
-03/05 03:33 PM    <SYMLINKD>     sbin [C:\Windows\System32\cygwin\sbin]
-03/28 03:21 PM    <SYMLINKD>     Share [\\Bliss\Share]
-01/12 03:07 PM    <SYMLINKD>     temp [tmp]
-03/05 03:35 PM    <SYMLINKD>     usr [C:\Windows\System32\cygwin\usr]
-03/05 03:35 PM    <SYMLINKD>     var [C:\Windows\System32\cygwin\var]
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+v2:
+- use getline, duh. thanks vapier!
+---
+ libmount/src/mountP.h    |  2 ++
+ libmount/src/tab.c       |  1 +
+ libmount/src/tab_parse.c | 19 +++++++++----------
+ 3 files changed, 12 insertions(+), 10 deletions(-)
 
-Under cygwin, they they show some junctions as normal dirs and
-some as symlinks (see Progd shows up as  symlink), but cyg32/64
-show up as ordinary directories  -- the reason for the difference --
-the cygXX are volume mount points, vs. names like Progd are dir-mount
-points.
-
-lrwxrwxrwx   1           16 Jun  5 12:52 FolderChanger -> /m/FolderChanger/
-lrwxrwxrwx   1           20 Nov  6  2014 Prog -> /Program Files (x86)/
-lrwxrwxrwx   1           12 Aug  9 16:05 ProgD -> /ProgramData/
-lrwxrwxrwx   1           13 Mar 28  2013 Share -> //Bliss/Share/
-lrwxrwxrwx   1           28 Mar 21  2014 bin -> 
-/windows/system32/cygwin/bin/
-lrwxrwxrwx   1           28 Feb 28 15:34 etc -> 
-/Windows/System32/cygwin/etc/
-lrwxrwxrwx   1           28 Mar  5 14:32 lib -> 
-/Windows/System32/cygwin/lib/
-lrwxrwxrwx   1           28 May 14 07:15 opt -> 
-/Windows/System32/cygwin/opt/
-lrwxrwxrwx   1           13 Apr 21  2013 prog64 -> Program Files/
-lrwxrwxrwx   1           29 Mar  5 14:33 sbin -> 
-/Windows/System32/cygwin/sbin/
-lrwxrwxrwx   1            3 Jan 12  2014 temp -> tmp/
-lrwxrwxrwx   1           28 Mar  5 14:35 usr -> 
-/Windows/System32/cygwin/usr/
-lrwxrwxrwx   1           28 Mar  5 14:35 var -> 
-/Windows/System32/cygwin/var/
-
-But the main difference I notice here -- (besides the difference in the
-path formats) is the links all have permissions 777 vs. 000 as seen
-from linux using CIFS -- not that it seems to make a *functional*
-difference.
-
-I hope the links working under CIFS aren't an accident... they are
-quite useful!
-
-Note -- the lines as shown don't just "work automatically" -- i.e.
-I created some links on my linux machine so they'd point to the
-right places on server machine, with 'athenae' mounted @ /athenae,
-something like /??/C: just points back to the root of athenae.
-
-
->  tree -F '/??'
-/??
-├── C: -> ../athenae/
-├── M: -> /Share/Music/         ## athenae's M: points to server 
-/share/music
-├── UNC/
-│   ├── Bliss -> Ishtar/
-│   ├── Ishtar/
-│   │   ├── Documents -> /home/Bliss/Documents/law/
-│   │   ├── Music -> /Share/Music/
-│   │   ├── Pictures -> /home/law/Pictures/
-│   │   └── Share -> /Share/
-│   └── ishtar -> Ishtar/
-└── x -> ../Athenae/
-----
-
-Anyway -- I just wanted to comment that this was very COOL -- (the
-version of the kernel before this, they were not readable.
-
-I still have more work to do on getting the permissions
-to work, but another day...
-
-Cheers,
-Linda
-
+diff --git a/libmount/src/mountP.h b/libmount/src/mountP.h
+index 660e0ad..cd02785 100644
+--- a/libmount/src/mountP.h
++++ b/libmount/src/mountP.h
+@@ -212,6 +212,8 @@ struct libmnt_table {
+ 	int		comms;		/* enable/disable comment parsing */
+ 	char		*comm_intro;	/* First comment in file */
+ 	char		*comm_tail;	/* Last comment in file */
++	char		*buf;		/* Memory for reading lines */
++	size_t		buf_size;	/* Size of line-reading buffer */
+ 
+ 	struct libmnt_cache *cache;		/* canonicalized paths/tags cache */
+ 
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 0df8d49..5e3069d 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -166,6 +166,7 @@ void mnt_free_table(struct libmnt_table *tb)
+ 	mnt_unref_cache(tb->cache);
+ 	free(tb->comm_intro);
+ 	free(tb->comm_tail);
++	free(tb->buf);
+ 	free(tb);
+ }
+ 
+diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+index ca8a618..1af8e6a 100644
+--- a/libmount/src/tab_parse.c
++++ b/libmount/src/tab_parse.c
+@@ -424,7 +424,6 @@ static int mnt_table_parse_next(struct libmnt_table *tb, FILE *f,
+ 				struct libmnt_fs *fs,
+ 				const char *filename, int *nlines)
+ {
+-	char buf[BUFSIZ];
+ 	char *s;
+ 	int rc;
+ 
+@@ -435,17 +434,17 @@ static int mnt_table_parse_next(struct libmnt_table *tb, FILE *f,
+ 	/* read the next non-blank non-comment line */
+ next_line:
+ 	do {
+-		if (fgets(buf, sizeof(buf), f) == NULL)
++		if (getline(&tb->buf, &tb->buf_size, f) < 0)
+ 			return -EINVAL;
+ 		++*nlines;
+-		s = strchr (buf, '\n');
++		s = strchr(tb->buf, '\n');
+ 		if (!s) {
+ 			/* Missing final newline?  Otherwise an extremely */
+ 			/* long line - assume file was corrupted */
+ 			if (feof(f)) {
+ 				DBG(TAB, ul_debugobj(tb,
+ 					"%s: no final newline",	filename));
+-				s = strchr (buf, '\0');
++				s = strchr(tb->buf, '\0');
+ 			} else {
+ 				DBG(TAB, ul_debugobj(tb,
+ 					"%s:%d: missing newline at line",
+@@ -457,12 +456,12 @@ next_line:
+ 		/* comments parser */
+ 		if (tb->comms
+ 		    && (tb->fmt == MNT_FMT_GUESS || tb->fmt == MNT_FMT_FSTAB)
+-		    && is_comment_line(buf)) {
++		    && is_comment_line(tb->buf)) {
+ 			do {
+-				rc = append_comment(tb, fs, buf, feof(f));
++				rc = append_comment(tb, fs, tb->buf, feof(f));
+ 				if (!rc)
+-					rc = next_comment_line(buf,
+-							sizeof(buf),
++					rc = next_comment_line(tb->buf,
++							tb->buf_size,
+ 							f, &s, nlines);
+ 			} while (rc == 0);
+ 
+@@ -474,9 +473,9 @@ next_line:
+ 		}
+ 
+ 		*s = '\0';
+-		if (--s >= buf && *s == '\r')
++		if (--s >= tb->buf && *s == '\r')
+ 			*s = '\0';
+-		s = (char *) skip_blank(buf);
++		s = (char *) skip_blank(tb->buf);
+ 	} while (*s == '\0' || *s == '#');
+ 
+ 	if (tb->fmt == MNT_FMT_GUESS) {
+-- 
+1.9.1
 
 
+-- 
+Kees Cook
+Chrome OS Security
