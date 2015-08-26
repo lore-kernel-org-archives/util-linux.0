@@ -1,68 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from skade.schwarzvogel.de ([144.76.18.87]:34087 "EHLO
-	mail.schwarzvogel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750856AbbHGIuW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 7 Aug 2015 04:50:22 -0400
-Date: Fri, 7 Aug 2015 10:18:13 +0200
-From: Tobias Klausmann <klausman@gentoo.org>
-To: Matt Turner <mattst88@gmail.com>
-Cc: util-linux@vger.kernel.org, alpha@gentoo.org
-Subject: Re: fdisk BSD disklabel support?
-Message-ID: <20150807081812.GA91885@skade.schwarzvogel.de>
-References: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
+Received: from mail-io0-f181.google.com ([209.85.223.181]:34686 "EHLO
+	mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751769AbbHZWoR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Aug 2015 18:44:17 -0400
+Received: by iodb91 with SMTP id b91so37150461iod.1
+        for <util-linux@vger.kernel.org>; Wed, 26 Aug 2015 15:44:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
+In-Reply-To: <20150826223823.GH3116@vapier>
+References: <20150826220230.GA8599@www.outflux.net>
+	<20150826223823.GH3116@vapier>
+Date: Wed, 26 Aug 2015 15:44:16 -0700
+Message-ID: <CAGXu5jK1fGRG4rQWBYgfjb9ffPEL1=qTWDzW1gsn6DUBF3d=fg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libmount: handle arbitrary line length for mounts
+From: Kees Cook <keescook@chromium.org>
+To: Kees Cook <keescook@chromium.org>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi! 
+On Wed, Aug 26, 2015 at 3:38 PM, Mike Frysinger <vapier@gentoo.org> wrote:
+> On 26 Aug 2015 15:02, Kees Cook wrote:
+>> + * Read a line with fgets. If it doesn't fit in the existing buffer,
+>> + * allocate more heap memory for storage until it does fit.
+>
+> why not just use getline then ?
 
-On Thu, 06 Aug 2015, Matt Turner wrote:
-> I'm not able to figure out how to make a BSD disklabel in fdisk since v2.23.
-> 
-> Gentoo's installation guide describes the process of partitioning a
-> disk for SRM/Alpha [1]. How should one do this now?
-> 
-> With my distro's util-linux-2.25 I don't see any option that resembles
-> BSD disklabels -- I see only
-> 
->   Create a new label
->    g   create a new empty GPT partition table
->    G   create a new empty SGI (IRIX) partition table
->    o   create a new empty DOS partition table
->    s   create a new empty Sun partition table
-> 
-> What am I missing?
-> 
-> [1] https://wiki.gentoo.org/wiki/Handbook:Alpha/Installation/Disks#Deleting_all_slices
- 
-It seems like disklabel _editing_ still works:
+It's not often I get to discover new functions in libc. How did I ever
+miss this? If it behaves the same as fgets on EOF, it'll be perfect.
 
-monolith ~ # fdisk /dev/sda
+>> +             if (fgets (current, remaining, f) == NULL) {
+>
+> style omits space before the (.  comes up a few times in this patch.
 
-Welcome to fdisk (util-linux 2.26.2).
-[...]
-Disk /dev/sda: 17 GiB, 18209320960 bytes, 35565080 sectors
-Geometry: 64 heads, 32 sectors/track, 17365 cylinders
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: bsd
-partitions: 3
+Noted. I saw the use of strchr and didn't look much more. :)
 
-Slice   Start      End  Sectors  Size Type     Fsize Bsize Cpg
-a        4096  1959935  1955840  955M swap         0     0   0
-b     1959936 35563519 33603584   16G ext2         0     0   0
-c           0 35563519 35563520   17G unused       0     0   0
-
-Maybe generating a BSD disklabel is just not wired up?
-
-Regards,
-Tobias
-
+-Kees
 
 -- 
-Should array indices start at 0 or 1? My compromise of 0.5 was rejected
-without, I thought, proper consideration.
-	-- Stan Kelly-Bootle
+Kees Cook
+Chrome OS Security
