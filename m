@@ -1,69 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:57984 "EHLO smtp.gentoo.org"
+Received: from smtp.gentoo.org ([140.211.166.183]:58000 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751619AbbGGEZO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Jul 2015 00:25:14 -0400
-Date: Tue, 7 Jul 2015 00:25:12 -0400
+	id S1757165AbbHZWiY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Aug 2015 18:38:24 -0400
+Date: Wed, 26 Aug 2015 18:38:23 -0400
 From: Mike Frysinger <vapier@gentoo.org>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
+To: Kees Cook <keescook@chromium.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Reprompt once the network addresses change if
- address displayed
-Message-ID: <20150707042512.GI17734@vapier>
-References: <1435928288-25644-1-git-send-email-stefw@redhat.com>
- <20150706140711.GF17734@vapier>
- <559ACFC3.6050303@gmail.com>
+Subject: Re: [PATCH 2/2] libmount: handle arbitrary line length for mounts
+Message-ID: <20150826223823.GH3116@vapier>
+References: <20150826220230.GA8599@www.outflux.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="YZa61AII3s1sGKYx"
-In-Reply-To: <559ACFC3.6050303@gmail.com>
+	protocol="application/pgp-signature"; boundary="64j1qyTOoGvYcHb1"
+In-Reply-To: <20150826220230.GA8599@www.outflux.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
---YZa61AII3s1sGKYx
+--64j1qyTOoGvYcHb1
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 06 Jul 2015 13:58, Bruce Dubbs wrote:
-> Mike Frysinger wrote:
-> > On 03 Jul 2015 14:58, Stef Walter wrote:
-> >    #ifdef AGETTY_RELOAD
-> >>   # include <sys/inotify.h>
-> >> +# include <linux/netlink.h>
-> >> +# include <linux/rtnetlink.h>
-> >
-> > why not use libmnl instead ?
-> > 	http://netfilter.org/projects/libmnl
->=20
-> That would not work for the LinuxFromScratch project.  At the time=20
-> util-linux is built, libmnl is not available.
+On 26 Aug 2015 15:02, Kees Cook wrote:
+> + * Read a line with fgets. If it doesn't fit in the existing buffer,
+> + * allocate more heap memory for storage until it does fit.
 
-then update the LFS insns to include libmnl, or build util-linux with the
-reload option disabled.  i don't see how LFS's decisions are relevant here.
+why not just use getline then ?
+
+> +		if (fgets (current, remaining, f) == NULL) {
+
+style omits space before the (.  comes up a few times in this patch.
 -mike
 
---YZa61AII3s1sGKYx
+--64j1qyTOoGvYcHb1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJVm1SoAAoJEEFjO5/oN/WBc+MP/0TcV9p4IQisWEkhnDvwQNUi
-6b75FN2STfBnM1sQZLx3ZUZDJv07PvkvxjWC1/dKrpZ/+fx71EQUyeAnjo7QCKh9
-jSSXcUBnNHFuG6ygaqbGcSKQ/wRjGvd7KSJunAEiNGvEb+j1MnwVBDLqatfxEIE/
-I5WNJ9I6gzZTruDZQMZGjb3L0IgaCu3Gw+2qtQ+28aSn9LJDMla0ci8n53+BF+lk
-WZ0ZPYcELSz0gOgVfSB8LaH91T9Jka6ivoR3eS5IwPwNQ/R1Y1g0/IrfW2jr+PLg
-WDN+JYGK7p6dYT5GenmAu8FyNRfGKpdetuAJurDOFsXaGKw80LUVReslMj0DthTq
-kSMvqhPvc8a03BOjeSNiTX6qF/qZybSvIuhSRq1SPHtCiH8iTiNB7Y3autdOL7Dg
-jD9N//b963PMXMcD62IWVvcEAJwku0b/nLcz0ZenAsNHSfKNF1ZrpVzLfcba2//O
-tG9eepT/JTx5Gb/XdTL6AqSEUmn2E+CFZCiV5BPuoizQpJJOtUmk93l9G4r5pOF6
-SdFd6jX3NZyL/wYO9MAIxu8JYCb3t8yp75n8cvlced7SDZauIh5duLuf5XLHOnyc
-1iePw3WbQrPQvmWMoc7npglVqEwY3CkWocUbl65D3BohBEga9/l/3Rh1kGl6ggKc
-tT9RYqpkrzwM1O8vG2tm
-=GcPo
+iQIcBAEBCAAGBQJV3j/fAAoJEEFjO5/oN/WB6H8QANaLX2Ofl5ffZE6Z5wg7Ihz5
+EcUK5ek3fxuJOUFFA9Shwlpq2N4hzUOTpcaidKD7oyisqfP+CihqAch4XVDObuas
+4Uq3OAaICC9Z5TrAWbY0a9eZhmM7J66jLeAaFid/H79zVUIJPpYjgN3Iimst2H/V
+aLD3BrMo+VPV+bZvIwOOzWh1M2HN4U+VhS+1Zbk3EPYxeAidT4U6LfHhMved0pqO
+6mXxx5sA9TvowsC8Ek3nD1gLD5teny5zuN2ZhpNy3aQpOINB0noIG3jx/ZgO10QM
+hrNU7J1dOcz0RNt6Ow9V264tuYCtPKum30RJiBx9DrwXQkG5752+a3LNxM5u+7KG
+Whskc2sYEBGltIPtr2t5ZJyuI4ALrp2rsKDt2QKgt4XUBKEc7MX6yxJGVmFSD1C7
+gaMsXAfnrMgkA6KelpsOW3uOKWlmLfkf4Tdfct8VF924gofegQ+3yFRDBfNIAZKF
+W4UGhLeOlEKCTBkYycyF9dTlhUI/yhGHEQWksvQlNkuJNpK6VoCW+k5uNAxj6sI4
+SwAR4HI5x7YRBiF9DhsqktiVEt6VHOYviDzx7+2hsJPDVdbLkGN9jn/MbC8/9scX
+xVIuilFLBL2nkjHzy6f2nP2c/T86H5RsU23iUePPvgn3ORKIplYjcJTDAwmDd8RE
+lk54TZnx8BV11r4sHWTV
+=dRpX
 -----END PGP SIGNATURE-----
 
---YZa61AII3s1sGKYx--
+--64j1qyTOoGvYcHb1--
