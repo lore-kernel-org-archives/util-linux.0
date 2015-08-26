@@ -1,42 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45766 "EHLO
-	out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751096AbbHAI1k (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 1 Aug 2015 04:27:40 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id BAB9F20A4C
-	for <util-linux@vger.kernel.org>; Sat,  1 Aug 2015 04:27:39 -0400 (EDT)
-Message-Id: <1438417659.181169.344954537.5780777A@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40995 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752489AbbHZXek (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Aug 2015 19:34:40 -0400
+Date: Thu, 27 Aug 2015 01:34:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
+Message-ID: <20150826233439.GC2410@ws.net.home>
+References: <20150826224923.GA11884@www.outflux.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 1/7] textual: adjust grammar and punctuation of some messages
-Date: Sat, 01 Aug 2015 10:27:39 +0200
-In-Reply-To: <1438417391-2269-1-git-send-email-bensberg@justemail.net>
-References: <1438417391-2269-1-git-send-email-bensberg@justemail.net>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150826224923.GA11884@www.outflux.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Aug 26, 2015 at 03:49:23PM -0700, Kees Cook wrote:
+> @@ -212,6 +212,8 @@ struct libmnt_table {
+>  	int		comms;		/* enable/disable comment parsing */
+>  	char		*comm_intro;	/* First comment in file */
+>  	char		*comm_tail;	/* Last comment in file */
+> +	char		*buf;		/* Memory for reading lines */
+> +	size_t		buf_size;	/* Size of line-reading buffer */
 
-On Sat, Aug 1, 2015, at 10:23, Benno Schulenberg wrote:
->  disk-utils/cfdisk.c     |    2 +-
->  disk-utils/fdisk-menu.c |    2 +-
->  disk-utils/fdisk.c      |    2 +-
->  disk-utils/fsck.c       |    6 +++---
->  disk-utils/sfdisk.c     |   28 ++++++++++++++--------------
->  include/colors.h        |    6 +++---
->  sys-utils/flock.c       |    2 +-
->  sys-utils/lsipc.c       |   10 +++++-----
->  8 files changed, 29 insertions(+), 29 deletions(-)
+It's overkill to add the buffer to the struct, it's necessary 
+only in mnt_table_parse_next().
 
-I can split this one up, if you wish.
-
-Patch 3 and 4 I've dropped; they should have been submitted
-for 2.26.
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.com - Email service worth paying for. Try it for free
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
