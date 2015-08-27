@@ -1,38 +1,31 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f181.google.com ([209.85.223.181]:34686 "EHLO
-	mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751769AbbHZWoR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 26 Aug 2015 18:44:17 -0400
-Received: by iodb91 with SMTP id b91so37150461iod.1
-        for <util-linux@vger.kernel.org>; Wed, 26 Aug 2015 15:44:16 -0700 (PDT)
+Return-Path: keescook@google.com
 MIME-Version: 1.0
-In-Reply-To: <20150826223823.GH3116@vapier>
-References: <20150826220230.GA8599@www.outflux.net>
-	<20150826223823.GH3116@vapier>
-Date: Wed, 26 Aug 2015 15:44:16 -0700
-Message-ID: <CAGXu5jK1fGRG4rQWBYgfjb9ffPEL1=qTWDzW1gsn6DUBF3d=fg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libmount: handle arbitrary line length for mounts
+Sender: keescook@google.com
+In-Reply-To: <20150827092646.GF2410@ws.net.home>
+References: <20150826224923.GA11884@www.outflux.net>
+	<20150827092646.GF2410@ws.net.home>
+Date: Thu, 27 Aug 2015 10:01:57 -0700
+Message-ID: <CAGXu5jLUVLu1awkSGQ2NLNpmzYJ9xo5H1zjzwC19Wo2o6d8FLQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
 From: Kees Cook <keescook@chromium.org>
-To: Kees Cook <keescook@chromium.org>, util-linux@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 26, 2015 at 3:38 PM, Mike Frysinger <vapier@gentoo.org> wrote:
-> On 26 Aug 2015 15:02, Kees Cook wrote:
->> + * Read a line with fgets. If it doesn't fit in the existing buffer,
->> + * allocate more heap memory for storage until it does fit.
+On Thu, Aug 27, 2015 at 2:26 AM, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Aug 26, 2015 at 03:49:23PM -0700, Kees Cook wrote:
+>>  libmount/src/mountP.h    |  2 ++
+>>  libmount/src/tab.c       |  1 +
+>>  libmount/src/tab_parse.c | 19 +++++++++----------
+>>  3 files changed, 12 insertions(+), 10 deletions(-)
 >
-> why not just use getline then ?
-
-It's not often I get to discover new functions in libc. How did I ever
-miss this? If it behaves the same as fgets on EOF, it'll be perfect.
-
->> +             if (fgets (current, remaining, f) == NULL) {
+> I have applied a different version of the patch. See below. Thanks!
 >
-> style omits space before the (.  comes up a few times in this patch.
+> It would be possible to use the new libmnt_parser on more places in
+> the code, but we are in -rc2, so I don't want to be so invasive now.
 
-Noted. I saw the use of strchr and didn't look much more. :)
+This looks great, thanks!
 
 -Kees
 
