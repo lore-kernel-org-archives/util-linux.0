@@ -1,77 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f173.google.com ([209.85.223.173]:34332 "EHLO
-	mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751549AbbH0RID (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 27 Aug 2015 13:08:03 -0400
-Received: by iodb91 with SMTP id b91so64479542iod.1
-        for <util-linux@vger.kernel.org>; Thu, 27 Aug 2015 10:08:02 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150827092254.GE2410@ws.net.home>
-References: <20150826220141.GA8579@www.outflux.net>
-	<20150827092254.GE2410@ws.net.home>
-Date: Thu, 27 Aug 2015 10:08:02 -0700
-Message-ID: <CAGXu5j+4LUNRb-5-KtwoM8pu7jScTFA2yKZ3KhJSLORpzCz+UQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] tests: add very long mount line to libmount mtab
-From: Kees Cook <keescook@chromium.org>
-To: Karel Zak <kzak@redhat.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:34680 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752330AbbH0AQf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 26 Aug 2015 20:16:35 -0400
+Date: Wed, 26 Aug 2015 20:16:34 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Kees Cook <keescook@chromium.org>
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
+Message-ID: <20150827001634.GJ3116@vapier>
+References: <20150826224923.GA11884@www.outflux.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="nO3oAMapP4dBpMZi"
+In-Reply-To: <20150826224923.GA11884@www.outflux.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Aug 27, 2015 at 2:22 AM, Karel Zak <kzak@redhat.com> wrote:
->
->  Hi Kees,
->
-> On Wed, Aug 26, 2015 at 03:01:41PM -0700, Kees Cook wrote:
->>  tests/expected/libmount/tabfiles-parse-mtab    | 7 +++++++
->>  tests/expected/libmount/tabfiles-py-parse-mtab | 7 +++++++
->>  tests/ts/libmount/files/mtab                   | 1 +
->>  3 files changed, 15 insertions(+)
->
-> I have problem to apply the patch
->
-> $ git am -i ...
->
-> Applying: tests: add very long mount line to libmount mtab
-> fatal: corrupt patch at line 28
-> Patch failed at 0001 tests: add very long mount line to libmount mtab
-> The copy of the patch that failed is found in:
->    /home/projects/util-linux/util-linux/.git/rebase-apply/patch
-> When you have resolved this problem, run "git am --continue".
-> If you prefer to skip this patch, run "git am --skip" instead.
-> To restore the original branch and stop patching, run "git am --abort".
->
-> ...
->
-> # patch -p1 < /home/projects/util-linux/util-linux/.git/rebase-apply/patch
-> patching file tests/expected/libmount/tabfiles-parse-mtab
-> patch: **** malformed patch at line 18
->
->
-> ... etc.
->
-> It would be probably better to publish the patch on github or send it
-> as gzip.
 
-Hhehe. My test broke everything! :)
+--nO3oAMapP4dBpMZi
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Here it is on github:
-https://github.com/karelzak/util-linux/pull/217
+On 26 Aug 2015 15:49, Kees Cook wrote:
+> --- a/libmount/src/mountP.h
+> +++ b/libmount/src/mountP.h
+> @@ -212,6 +212,8 @@ struct libmnt_table {
+>  	int		comms;		/* enable/disable comment parsing */
+>  	char		*comm_intro;	/* First comment in file */
+>  	char		*comm_tail;	/* Last comment in file */
+> +	char		*buf;		/* Memory for reading lines */
+> +	size_t		buf_size;	/* Size of line-reading buffer */
 
-Thanks!
+just to be clear, this structure is zero-allocated right ?  getline
+needs the first call to have buf==NULL in order for everything to
+fall into place.
+-mike
 
--Kees
+--nO3oAMapP4dBpMZi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
+iQIcBAEBCAAGBQJV3lbiAAoJEEFjO5/oN/WBZyEP/1nx8poPHZNd+AROW9zPzA5o
+SiNH+SK3DywBahx85grh4macvfceoVTNyOEkWkoKRfLxiBdo09IWVckkdf0Iz3hJ
+dXf8yogOKW6gnFTlLD/CyYkYhPPBXG5Iz3ihCdbRPw2q+ll5YKgQhFyfDj1QFUOm
+SojajfnDJ/CiTxkGWDM/0A1RwPXMlEKNoUPFfcBOAHgM01eSohiy17nP+jSMwm9p
+QzzihNiZMEkz4uuufzXLMKMrCBMlxIX2AvOj6gdGtPP8CFhRgrVl0VBx2OaJNcSr
+RFb/vHZuyWi+qerF6YYjK5l8JOOB7VQF/U75hF6FarR89u4/iBLZLUQkU4zpdc0f
+/nW1kski2DYtexLjmP/8I7xNAldf58ttx1twsfulVZS1nUVkNGBHYmsntNWAkFuA
+d5RBUXOIgfKydSCGeILvh4tzkfrsbrhf1A7JDvaa42ZYvtw+5X/KUPr/aZQvwfwl
+G6iFJSYWSx7v34pAxlLD9bB0Jvk5vYo+vlgawLfUPtUCQuVYWZkKdAzakJqfDjXy
+AzXBXK/bkmRgmkrxrmrMnAXCXFxTMwJmTQ2jCWE3tMBAyF9MGvgWzrh7naod0uWu
+uD5VFlcwBP8NlHC/eu4b8y02Z+rKIcm9AlcoyDIfJ+ddkozJZqHvSWzyc0OHHeLA
+lGGvd/N22zmJ9Phk/CLC
+=nDv7
+-----END PGP SIGNATURE-----
 
-
--- 
-Kees Cook
-Chrome OS Security
+--nO3oAMapP4dBpMZi--
