@@ -1,108 +1,265 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:38348 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753410AbbH0NVm (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 27 Aug 2015 09:21:42 -0400
-Received: by wicgk12 with SMTP id gk12so9236372wic.1
-        for <util-linux@vger.kernel.org>; Thu, 27 Aug 2015 06:21:41 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/4] cal: check biggest week number correctly when highlighting
-Date: Thu, 27 Aug 2015 14:21:29 +0100
-Message-Id: <1440681689-2708-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1440681689-2708-1-git-send-email-kerolasa@iki.fi>
-References: <1440681689-2708-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:55321 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750809AbbH0J0s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 27 Aug 2015 05:26:48 -0400
+Date: Thu, 27 Aug 2015 11:26:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] libmount: handle arbitrary line length for mounts
+Message-ID: <20150827092646.GF2410@ws.net.home>
+References: <20150826224923.GA11884@www.outflux.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150826224923.GA11884@www.outflux.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This allows Sunday based week 54 be highlighted, and deny week 54 for
-Monday based weeks when year has only 52 weeks.
+On Wed, Aug 26, 2015 at 03:49:23PM -0700, Kees Cook wrote:
+>  libmount/src/mountP.h    |  2 ++
+>  libmount/src/tab.c       |  1 +
+>  libmount/src/tab_parse.c | 19 +++++++++----------
+>  3 files changed, 12 insertions(+), 10 deletions(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+I have applied a different version of the patch. See below. Thanks!
+
+It would be possible to use the new libmnt_parser on more places in
+the code, but we are in -rc2, so I don't want to be so invasive now.
+
+    Karel
+
+
+>From d92b8c3ba138f07a7432b367feb599141ce76121 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Thu, 27 Aug 2015 10:49:39 +0200
+Subject: [PATCH] libmount: handle arbitrary line length for mounts
+
+Based on patch from Kees Cook, he wrote:
+> The kernel's maximum path length is PATH_MAX (4096). The use of BUFSIZ
+> (8192) would seem sufficient for reading mountinfo files, but it's
+> not. Paths may contain escaped characters (requiring 4x as many bytes
+> to read), and filesystem options are of unknown length. To avoid
+> mounts being either intentionally or unintentionally hidden from
+> libmount and its users, we must accept arbitrary length lines when
+> parsing.
+>
+> Long valid entries are currently ignored, with warnings like this:
+> mount: /proc/self/mountinfo: parse error: ignore entry at line 11.
+> mount: /proc/self/mountinfo: parse error: ignore entry at line 12.
+>
+> Instead of using a malloc on every line parsed from mount files, do it
+> once per mount file context, growing it as needed. The general case
+> will never grow it.
+
+I have moved the parser stuff to the new struct libmnt_parser, maybe
+we can move more things (e.g. libmnt_table->fmt) to this struct later.
+
+Reported-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Karel Zak <kzak@redhat.com>
 ---
- misc-utils/cal.c           |  2 +-
- tests/expected/cal/weekarg | 20 ++++++++++++++++++++
- tests/ts/cal/weekarg       | 26 ++++++++++++++++++++++++++
- 3 files changed, 47 insertions(+), 1 deletion(-)
+ libmount/src/tab_parse.c | 81 +++++++++++++++++++++++++++++-------------------
+ 1 file changed, 49 insertions(+), 32 deletions(-)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index dd26532..6faac5c 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -484,7 +484,7 @@ int main(int argc, char **argv)
- 					ctl.req.year, ctl.req.week);
- 		while (m <= DECEMBER && yday > days_in_month[leap][m])
- 			yday -= days_in_month[leap][m++];
--		if (m > DECEMBER) {
-+		if (DECEMBER < m && ctl.weektype & WEEK_NUM_ISO) {
- 			/* In some years (e.g. 2010 in ISO mode) it's possible
- 			 * to have a remnant of week 53 starting the year yet
- 			 * the year in question ends during 52, in this case
-diff --git a/tests/expected/cal/weekarg b/tests/expected/cal/weekarg
-index 18e560e..37fc53c 100644
---- a/tests/expected/cal/weekarg
-+++ b/tests/expected/cal/weekarg
-@@ -125,3 +125,23 @@ Julian - Monday-based, week 40 with colors, 3 month
- 38 259 260 261 262 263 264 265  43 294 295 296 297 298 299 300  47 322 323 324 325 326 327 328 
- 39 266 267 268 269 270 271 272  44 301 302 303 304              48 329 330 331 332 333 334     
- [7m40[27m 273                                                                                         
-+Gregorian - Sunday-based, week 54 with colors, 3 month 
-+     November 2000            December 2000             January 2001     
-+   Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa
-+45           1  2  3  4  49                 1  2   1     1  2  3  4  5  6 
-+46  5  6  7  8  9 10 11  50  3  4  5  6  7  8  9   2  7  8  9 10 11 12 13 
-+47 12 13 14 15 16 17 18  51 10 11 12 13 14 15 16   3 14 15 16 17 18 19 20 
-+48 19 20 21 22 23 24 25  52 17 18 19 20 21 22 23   4 21 22 23 24 25 26 27 
-+49 26 27 28 29 30        53 24 25 26 27 28 29 30   5 28 29 30 31          
-+                         [7m54[27m [7m31[27m                                            
-+Gregorian - Monday-based, week 53 with colors, 3 month 
-+cal: illegal week value: year 2000 doesn't have week 53
-+Gregorian - Monday-based, week 52 with colors, 3 month 
-+     November 2000            December 2000             January 2001     
-+   Mo Tu We Th Fr Sa Su     Mo Tu We Th Fr Sa Su     Mo Tu We Th Fr Sa Su
-+44        1  2  3  4  5  48              1  2  3   1  1  2  3  4  5  6  7 
-+45  6  7  8  9 10 11 12  49  4  5  6  7  8  9 10   2  8  9 10 11 12 13 14 
-+46 13 14 15 16 17 18 19  50 11 12 13 14 15 16 17   3 15 16 17 18 19 20 21 
-+47 20 21 22 23 24 25 26  51 18 19 20 21 22 23 24   4 22 23 24 25 26 27 28 
-+48 27 28 29 30           [7m52[27m 25 26 27 28 29 30 [7m31[27m   5 29 30 31             
-+                                                                          
-diff --git a/tests/ts/cal/weekarg b/tests/ts/cal/weekarg
-index 55dc327..19f58c1 100755
---- a/tests/ts/cal/weekarg
-+++ b/tests/ts/cal/weekarg
-@@ -129,5 +129,31 @@ if [ "$USETERM" == "yes" ]; then
- fi
- $TS_CMD_CAL -3mj $WEEK $MYTIME >> $TS_OUTPUT
+diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+index ca8a618..2e55500 100644
+--- a/libmount/src/tab_parse.c
++++ b/libmount/src/tab_parse.c
+@@ -22,6 +22,22 @@
+ #include "pathnames.h"
+ #include "strutils.h"
  
-+MYTIME="31 12 2000"
-+PWEEK="week 54 with colors"
-+WEEK="--week=54 --color=always"
-+ts_log "Gregorian - Sunday-based, $PWEEK, 3 month $x"
-+if [ "$USETERM" == "yes" ]; then
-+	$TS_CMD_CAL --three --sunday $WEEK $MYTIME
-+fi
-+$TS_CMD_CAL --three --sunday $WEEK $MYTIME >> $TS_OUTPUT
++struct libmnt_parser {
++	FILE	*f;		/* fstab, mtab, swaps or mountinfo ... */
++	char	*filename;	/* file name or NULL */
++	char	*buf;		/* buffer (the current line content) */
++	size_t	bufsiz;		/* size of the buffer */
++	size_t	line;		/* current line */
++};
 +
-+PWEEK="week 53 with colors"
-+WEEK="--week=53 --color=always"
-+ts_log "Gregorian - Monday-based, $PWEEK, 3 month $x"
-+if [ "$USETERM" == "yes" ]; then
-+	$TS_CMD_CAL --three --monday $WEEK $MYTIME
-+fi
-+$TS_CMD_CAL --three --monday $WEEK $MYTIME >> $TS_OUTPUT 2>&1
++static void parser_cleanup(struct libmnt_parser *pa)
++{
++	if (!pa)
++		return;
++	free(pa->buf);
++	memset(pa, 0, sizeof(*pa));
++}
 +
-+PWEEK="week 52 with colors"
-+WEEK="--week=52 --color=always"
-+ts_log "Gregorian - Monday-based, $PWEEK, 3 month $x"
-+if [ "$USETERM" == "yes" ]; then
-+	$TS_CMD_CAL --three --monday $WEEK $MYTIME
-+fi
-+$TS_CMD_CAL --three --monday $WEEK $MYTIME >> $TS_OUTPUT 2>&1
+ static int next_number(char **s, int *num)
+ {
+ 	char *end = NULL;
+@@ -378,16 +394,15 @@ static int is_terminated_by_blank(const char *str)
+  *         1 if the line is not a comment
+  *        <0 on error
+  */
+-static int next_comment_line(char *buf, size_t bufsz,
+-			     FILE *f, char **last, int *nlines)
++static int next_comment_line(struct libmnt_parser *pa, char **last)
+ {
+-	if (fgets(buf, bufsz, f) == NULL)
+-		return feof(f) ? 1 : -EINVAL;
++	if (getline(&pa->buf, &pa->bufsiz, pa->f) < 0)
++		return feof(pa->f) ? 1 : -errno;
+ 
+-	++*nlines;
+-	*last = strchr(buf, '\n');
++	pa->line++;
++	*last = strchr(pa->buf, '\n');
+ 
+-	return is_comment_line(buf) ? 0 : 1;
++	return is_comment_line(pa->buf) ? 0 : 1;
+ }
+ 
+ static int append_comment(struct libmnt_table *tb,
+@@ -420,36 +435,35 @@ static int append_comment(struct libmnt_table *tb,
+ /*
+  * Read and parse the next line from {fs,m}tab or mountinfo
+  */
+-static int mnt_table_parse_next(struct libmnt_table *tb, FILE *f,
+-				struct libmnt_fs *fs,
+-				const char *filename, int *nlines)
++static int mnt_table_parse_next(struct libmnt_parser *pa,
++				struct libmnt_table *tb,
++				struct libmnt_fs *fs)
+ {
+-	char buf[BUFSIZ];
+ 	char *s;
+ 	int rc;
+ 
+ 	assert(tb);
+-	assert(f);
++	assert(pa);
+ 	assert(fs);
+ 
+ 	/* read the next non-blank non-comment line */
+ next_line:
+ 	do {
+-		if (fgets(buf, sizeof(buf), f) == NULL)
++		if (getline(&pa->buf, &pa->bufsiz, pa->f) < 0)
+ 			return -EINVAL;
+-		++*nlines;
+-		s = strchr (buf, '\n');
++		pa->line++;
++		s = strchr(pa->buf, '\n');
+ 		if (!s) {
+ 			/* Missing final newline?  Otherwise an extremely */
+ 			/* long line - assume file was corrupted */
+-			if (feof(f)) {
++			if (feof(pa->f)) {
+ 				DBG(TAB, ul_debugobj(tb,
+-					"%s: no final newline",	filename));
+-				s = strchr (buf, '\0');
++					"%s: no final newline",	pa->filename));
++				s = strchr(pa->buf, '\0');
+ 			} else {
+ 				DBG(TAB, ul_debugobj(tb,
+-					"%s:%d: missing newline at line",
+-					filename, *nlines));
++					"%s:%zu: missing newline at line",
++					pa->filename, pa->line));
+ 				goto err;
+ 			}
+ 		}
+@@ -457,16 +471,14 @@ next_line:
+ 		/* comments parser */
+ 		if (tb->comms
+ 		    && (tb->fmt == MNT_FMT_GUESS || tb->fmt == MNT_FMT_FSTAB)
+-		    && is_comment_line(buf)) {
++		    && is_comment_line(pa->buf)) {
+ 			do {
+-				rc = append_comment(tb, fs, buf, feof(f));
++				rc = append_comment(tb, fs, pa->buf, feof(pa->f));
+ 				if (!rc)
+-					rc = next_comment_line(buf,
+-							sizeof(buf),
+-							f, &s, nlines);
++					rc = next_comment_line(pa, &s);
+ 			} while (rc == 0);
+ 
+-			if (rc == 1 && feof(f))
++			if (rc == 1 && feof(pa->f))
+ 				rc = append_comment(tb, fs, NULL, 1);
+ 			if (rc < 0)
+ 				return rc;
+@@ -474,9 +486,9 @@ next_line:
+ 		}
+ 
+ 		*s = '\0';
+-		if (--s >= buf && *s == '\r')
++		if (--s >= pa->buf && *s == '\r')
+ 			*s = '\0';
+-		s = (char *) skip_blank(buf);
++		s = (char *) skip_blank(pa->buf);
+ 	} while (*s == '\0' || *s == '#');
+ 
+ 	if (tb->fmt == MNT_FMT_GUESS) {
+@@ -508,7 +520,7 @@ next_line:
+ 	if (rc == 0)
+ 		return 0;
+ err:
+-	DBG(TAB, ul_debugobj(tb, "%s:%d: %s parse error", filename, *nlines,
++	DBG(TAB, ul_debugobj(tb, "%s:%zu: %s parse error", pa->filename, pa->line,
+ 				tb->fmt == MNT_FMT_MOUNTINFO ? "mountinfo" :
+ 				tb->fmt == MNT_FMT_SWAPS ? "swaps" :
+ 				tb->fmt == MNT_FMT_FSTAB ? "tab" : "utab"));
+@@ -516,7 +528,7 @@ err:
+ 	/* by default all errors are recoverable, otherwise behavior depends on
+ 	 * the errcb() function. See mnt_table_set_parser_errcb().
+ 	 */
+-	return tb->errcb ? tb->errcb(tb, filename, *nlines) : 1;
++	return tb->errcb ? tb->errcb(tb, pa->filename, pa->line) : 1;
+ }
+ 
+ static pid_t path_to_tid(const char *filename)
+@@ -595,11 +607,11 @@ static int kernel_fs_postparse(struct libmnt_table *tb,
+  */
+ int mnt_table_parse_stream(struct libmnt_table *tb, FILE *f, const char *filename)
+ {
+-	int nlines = 0;
+ 	int rc = -1;
+ 	int flags = 0;
+ 	pid_t tid = -1;
+ 	struct libmnt_fs *fs = NULL;
++	struct libmnt_parser pa = { .line = 0 };
+ 
+ 	assert(tb);
+ 	assert(f);
+@@ -609,6 +621,9 @@ int mnt_table_parse_stream(struct libmnt_table *tb, FILE *f, const char *filenam
+ 				filename, mnt_table_get_nents(tb),
+ 				tb->fltrcb ? "yes" : "not"));
+ 
++	pa.filename = filename;
++	pa.f = f;
 +
-+
- ts_finalize
+ 	/* necessary for /proc/mounts only, the /proc/self/mountinfo
+ 	 * parser sets the flag properly
+ 	 */
+@@ -622,7 +637,7 @@ int mnt_table_parse_stream(struct libmnt_table *tb, FILE *f, const char *filenam
+ 				goto err;
+ 		}
+ 
+-		rc = mnt_table_parse_next(tb, f, fs, filename, &nlines);
++		rc = mnt_table_parse_next(&pa, tb, fs);
+ 
+ 		if (!rc && tb->fltrcb && tb->fltrcb(fs, tb->fltrcb_data))
+ 			rc = 1;	/* filtered out by callback... */
+@@ -653,9 +668,11 @@ int mnt_table_parse_stream(struct libmnt_table *tb, FILE *f, const char *filenam
+ 
+ 	DBG(TAB, ul_debugobj(tb, "%s: stop parsing (%d entries)",
+ 				filename, mnt_table_get_nents(tb)));
++	parser_cleanup(&pa);
+ 	return 0;
+ err:
+ 	DBG(TAB, ul_debugobj(tb, "%s: parse error (rc=%d)", filename, rc));
++	parser_cleanup(&pa);
+ 	return rc;
+ }
  
 -- 
-2.5.0
+2.4.3
 
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
