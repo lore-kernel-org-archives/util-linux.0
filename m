@@ -1,104 +1,94 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:38374 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933120AbbHISTL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 9 Aug 2015 14:19:11 -0400
-Received: by wibxm9 with SMTP id xm9so123360991wib.1
-        for <util-linux@vger.kernel.org>; Sun, 09 Aug 2015 11:19:10 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/3] colcrt: use #define in place of magic constants
-Date: Sun,  9 Aug 2015 19:19:04 +0100
-Message-Id: <1439144346-5647-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1439144346-5647-1-git-send-email-kerolasa@iki.fi>
-References: <1439144346-5647-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-yk0-f175.google.com ([209.85.160.175]:33624 "EHLO
+	mail-yk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752332AbbH2FOb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 29 Aug 2015 01:14:31 -0400
+Received: by ykdz80 with SMTP id z80so34871680ykd.0
+        for <util-linux@vger.kernel.org>; Fri, 28 Aug 2015 22:14:31 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20150807195408.GA18302@ws.net.home>
+References: <CAEdQ38F9RxBHgA+zKdwLKxdQncMUyqzowGcGidf-Vc1xbsXQOg@mail.gmail.com>
+ <20150807195408.GA18302@ws.net.home>
+From: Matt Turner <mattst88@gmail.com>
+Date: Fri, 28 Aug 2015 22:14:11 -0700
+Message-ID: <CAEdQ38HMOG+dWU5CwLrQ+nGKe8n=p4WJ_RMF5NGcSX3C-jt6jg@mail.gmail.com>
+Subject: Re: fdisk BSD disklabel support?
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, alpha@gentoo.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/colcrt.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+On Fri, Aug 7, 2015 at 12:54 PM, Karel Zak <kzak@redhat.com> wrote:
+> On Thu, Aug 06, 2015 at 07:34:40PM -0700, Matt Turner wrote:
+>> I'm not able to figure out how to make a BSD disklabel in fdisk since v2.23.
+>>
+>> Gentoo's installation guide describes the process of partitioning a
+>> disk for SRM/Alpha [1]. How should one do this now?
+>>
+>> With my distro's util-linux-2.25 I don't see any option that resembles
+>> BSD disklabels -- I see only
+>>
+>>   Create a new label
+>>    g   create a new empty GPT partition table
+>>    G   create a new empty SGI (IRIX) partition table
+>>    o   create a new empty DOS partition table
+>>    s   create a new empty Sun partition table
+>>
+>> What am I missing?
+>
+>  You have to create a DOS (MBR) label first, and then there is
+>
+>    DOS (MBR)
+>       a   toggle a bootable flag
+>       b   edit nested BSD disklabel
+>       c   toggle the dos compatibility flag
+>
+>
+>  For example:
+>
+>  # fdisk /dev/sdc
+>  ...
+>  Command (m for help): n
+>  Partition type
+>     p   primary (0 primary, 0 extended, 4 free)
+>     e   extended (container for logical partitions)
+>  Select (default p): p
+>  Partition number (1-4, default 1):
+>  First sector (2048-1023999, default 2048):
+>  Last sector, +sectors or +size{K,M,G,T,P} (2048-1023999, default 1023999):
+>
+>  Created a new partition 1 of type 'Linux' and of size 499 MiB.
+>  ...
+>  Command (m for help): t                           <----!!!
+>  Partition type (type L to list all types): a5
+>  Changed type of partition 'Linux' to 'FreeBSD'.
+>  ...
+>  Command (m for help): b                           <----!!!
+>  The device /dev/sdc1 does not contain BSD disklabel.
+>
+>  Do you want to create a BSD disklabel? [Y]es/[N]o: y
+>  ...
+>  Command (m for help): p
+>  ...
+>  Slice Start     End Sectors   Size Type     Fsize Bsize Cpg
+>  c      2048 1023999 1021952   499M unused       0     0   0
+>  d         0 1023059 1023060 499.6M unused       0     0   0
+>
+>
+>   Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
 
-diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
-index 567e7b5..cf630c4 100644
---- a/text-utils/colcrt.c
-+++ b/text-utils/colcrt.c
-@@ -68,7 +68,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out);
-  * Option -2 forces printing of all half lines.
-  */
- 
--wchar_t	page[267][132];
-+#define FLUSH_SIZE 62
-+#define PAGE_ARRAY_ROWS 267
-+#define PAGE_ARRAY_COLS 132
-+wchar_t	page[PAGE_ARRAY_ROWS][PAGE_ARRAY_COLS];
- 
- int	outline = 1;
- int	outcol;
-@@ -158,8 +161,8 @@ void colcrt(FILE *f) {
- 		}
- 		switch (c) {
- 		case '\n':
--			if (outline >= 265)
--				pflush(62);
-+			if (outline >= (PAGE_ARRAY_ROWS - 2))
-+				pflush(FLUSH_SIZE);
- 			outline += 2;
- 			outcol = 0;
- 			continue;
-@@ -170,8 +173,8 @@ void colcrt(FILE *f) {
- 			c = getwc(f);
- 			switch (c) {
- 			case '9':
--				if (outline >= 266)
--					pflush(62);
-+				if (outline >= (PAGE_ARRAY_ROWS - 1))
-+					pflush(FLUSH_SIZE);
- 				outline++;
- 				continue;
- 			case '8':
-@@ -198,7 +201,7 @@ void colcrt(FILE *f) {
- 			/* fallthrough */
- 		default:
- 			w = wcwidth(c);
--			if (outcol + w > 132) {
-+			if (outcol + w > PAGE_ARRAY_COLS) {
- 				outcol++;
- 				continue;
- 			}
-@@ -207,7 +210,7 @@ void colcrt(FILE *f) {
- 			if (c == '_') {
- 				if (suppresul)
- 					continue;
--				cp += 132;
-+				cp += PAGE_ARRAY_COLS;
- 				c = '-';
- 			}
- 			if (*cp == 0) {
-@@ -250,8 +253,8 @@ void pflush(int ol)
- 
- 	l = ol;
- 	lastomit = 0;
--	if (l > 266)
--		l = 266;
-+	if (l > (PAGE_ARRAY_ROWS - 1))
-+		l = PAGE_ARRAY_ROWS - 1;
- 	else
- 		l |= 1;
- 	for (i = first | 1; i < l; i++) {
-@@ -274,8 +277,8 @@ void pflush(int ol)
- 		}
- 		putwchar('\n');
- 	}
--	memmove(page, page[ol], (267 - ol) * 132 * sizeof(wchar_t));
--	memset(page[267 - ol], '\0', ol * 132 * sizeof(wchar_t));
-+	memmove(page, page[ol], (PAGE_ARRAY_ROWS - ol) * PAGE_ARRAY_COLS * sizeof(wchar_t));
-+	memset(page[PAGE_ARRAY_ROWS - ol], '\0', ol * PAGE_ARRAY_COLS * sizeof(wchar_t));
- 	outline -= ol;
- 	outcol = 0;
- 	first = 1;
--- 
-2.5.0
+Thanks for the reply.
 
+We have a user reporting that this is not sufficient to make a
+bootable disk layout for DEC Alpha/SRM. Please see
+https://forums.gentoo.org/viewtopic-t-1025044.html
+
+I take it that this is unexpected?
+
+Thanks,
+Matt
