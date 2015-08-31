@@ -1,99 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from zproxy01.unex.es ([158.49.17.42]:48356 "EHLO zproxy01.unex.es"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933039AbbHIPOI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 9 Aug 2015 11:14:08 -0400
-Date: Sun, 9 Aug 2015 17:04:42 +0200 (CEST)
-From: Santiago Vila <sanvila@unex.es>
-To: util-linux@vger.kernel.org, ah-util-linux@debian.org,
-        794727@bugs.debian.org
-cc: 794727-forwarded@bugs.debian.org
-Subject: "mesg n" exits with error, even if the command is successful
-Message-ID: <alpine.DEB.2.11.1508091638320.23243@cantor.unex.es>
+Received: from mout.kundenserver.de ([212.227.126.130]:63652 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750934AbbHaG4p (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 31 Aug 2015 02:56:45 -0400
+Subject: Re: fdisk
+To: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
+References: <55E3B640.2060606@gmail.com>
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <55E3FAA9.5060204@bernhard-voelker.de>
+Date: Mon, 31 Aug 2015 08:56:41 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <55E3B640.2060606@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello.
+On 08/31/2015 04:04 AM, Bruce Dubbs wrote:
+> I have a question about (or a enhancement request) running fdisk.  When 
+> asking to list known partition types, I get about 70 lines of output. 
+> Generally that would not be a problem, but I was running in a Debian 
+> install/rescue iso that uses busybox in a 25 line terminal.  I do not 
+> have a way to scroll up and thus cannot see the first 40 or so partition 
+> types.
+> 
+> Is there a way to use a pager for this?  In this situation 'more' is 
+> available but 'less' is not.  Otherwise I think an automatic pause every 
+> 20 lines or so would be appropriate to build into the partition type 
+> listing.
 
-[ Apologies if this is a FAQ ].
+hmm, I'm getting 27 lines (at a maximum line length of 79 characters) as
+output of the 'l' command  here - even if I resize the xterm to 20x80
+characters.
+OTOH, the main help output via the 'm' command uses 38 lines.  Shouldn't
+you also have issues with that one in your environment?
 
-Debian has recently switched the "mesg" implementation from
-the one in sysvinit to the one in util-linux.
-
-We have found a subtle issue: The old mesg didn't have any error codes
-at all. The new mesg (from util-linux) has the following error codes:
-
-            0     Messages are allowed.
-
-            1     Messages are not allowed.
-
-           >1     An error has occurred.
-
-The problem is that those error codes are in effect not only when
-the mesg command is invoked alone:
-
-mesg
-
-but also when it's used with an argument:
-
-mesg y
-mesg n
-
-This breaks the default /root/.profile which has a simple "mesg n" at
-the end, so we will probably have to hide the error like this:
-
-mesg n || true
-
-but this is a little bit weird and I wonder how much people will have
-to do this as well.
-
-In Unix, usually, whenever I tell a command to do something, there is
-only an error when the command is not able to do what I ask it to do.
-
-In this case, however, the "mesg n" is succesful, as it is actually
-able to disable write to the terminal, and yet it exits with an error.
-
-I think this does not make much sense and would humbly propose that
-the behaviour is changed so that error codes are only used when
-the mesg is used alone, without any arguments.
-
-Surely that a change like this might in theory break some scripts,
-but let's see what kind of breakage we could expect:
-
-* People who write this:
-
-mesg y
-
-will not need to change anything.
-
-* People who write this:
-
-mesg n || true
-
-will finally be able to remove the "|| true" part. If they don't
-remove the "|| true" part, nothing really bad will happen.
-
-In fact, this could even improve things a little bit, as "mesg" alone
-will fail if the mesg does not exist.
-
-* People writing things like this:
-
-if mesg 2> /dev/null; then
-  echo mesg is y
-else
-  echo mesg is n
-fi
-
-which is where exit codes are actually useful, will not be affected at
-all.
-
-Of course one can always create a complex use case where a change in
-exit codes would break the script, but I think those would be a very
-small minority.
-
-So: Would you please consider a change in mesg behaviour regarding
-exit codes, so that "mesg n" does not gratuitously fail?
-
-Thanks.
+Have a nice day,
+Berny
