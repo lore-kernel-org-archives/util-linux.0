@@ -1,44 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37986 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46442 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751825AbbHCJVS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 3 Aug 2015 05:21:18 -0400
-Date: Mon, 3 Aug 2015 11:21:16 +0200
+	id S1750812AbbHaJdI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 31 Aug 2015 05:33:08 -0400
+Date: Mon, 31 Aug 2015 11:33:06 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/7] textual: adjust grammar and punctuation of some
- messages
-Message-ID: <20150803092116.GE2619@ws.net.home>
-References: <1438417391-2269-1-git-send-email-bensberg@justemail.net>
- <1438417659.181169.344954537.5780777A@webmail.messagingengine.com>
+To: Chen Qi <Qi.Chen@windriver.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: include errno.h instead of argp.h
+Message-ID: <20150831093306.GD2726@ws.net.home>
+References: <1441009426-13799-1-git-send-email-Qi.Chen@windriver.com>
+ <1441009426-13799-2-git-send-email-Qi.Chen@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1438417659.181169.344954537.5780777A@webmail.messagingengine.com>
+In-Reply-To: <1441009426-13799-2-git-send-email-Qi.Chen@windriver.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Aug 01, 2015 at 10:27:39AM +0200, Benno Schulenberg wrote:
-> 
-> On Sat, Aug 1, 2015, at 10:23, Benno Schulenberg wrote:
-> >  disk-utils/cfdisk.c     |    2 +-
-> >  disk-utils/fdisk-menu.c |    2 +-
-> >  disk-utils/fdisk.c      |    2 +-
-> >  disk-utils/fsck.c       |    6 +++---
-> >  disk-utils/sfdisk.c     |   28 ++++++++++++++--------------
-> >  include/colors.h        |    6 +++---
-> >  sys-utils/flock.c       |    2 +-
-> >  sys-utils/lsipc.c       |   10 +++++-----
-> >  8 files changed, 29 insertions(+), 29 deletions(-)
-> 
-> I can split this one up, if you wish.
+On Mon, Aug 31, 2015 at 04:23:45PM +0800, Chen Qi wrote:
+> Index: util-linux-2.22.1/configure.ac
 
-That's fine.
+We're just working on v2.27 :-)
 
-> Patch 3 and 4 I've dropped; they should have been submitted
-> for 2.26.
+> ===================================================================
+> --- util-linux-2.22.1.orig/configure.ac
+> +++ util-linux-2.22.1/configure.ac
+> @@ -372,7 +372,7 @@ esac
+>  
+>  AC_MSG_CHECKING([whether program_invocation_short_name is defined])
+>  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+> -	#include <argp.h>
+> +	#include <errno.h>
 
-OK. Applied all 5 patches, thanks!
+anyway, you're probably right.
+
+It seems that our original AC_COMPILE_IFELSE() is copy & past from gnulib, but 
+gnulib checks for errno.h and then it uses the result by #ifdefs in the private
+copy of the argp.h. The original author probably miss this detail.
+
+Applied, thanks!
 
     Karel
 
