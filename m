@@ -1,41 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:35397 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751139AbbHHHOk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 8 Aug 2015 03:14:40 -0400
-Received: by wibxm9 with SMTP id xm9so84334518wib.0
-        for <util-linux@vger.kernel.org>; Sat, 08 Aug 2015 00:14:39 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/2] tools: stop checkmans.sh validating libtool builds
-Date: Sat,  8 Aug 2015 08:14:32 +0100
-Message-Id: <1439018073-5592-1-git-send-email-kerolasa@iki.fi>
+Received: from mail.windriver.com ([147.11.1.11]:55834 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752971AbbHaIc4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 31 Aug 2015 04:32:56 -0400
+Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com [147.11.189.40])
+	by mail.windriver.com (8.15.2/8.15.1) with ESMTPS id t7V8WuMq013043
+	(version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <util-linux@vger.kernel.org>; Mon, 31 Aug 2015 01:32:56 -0700 (PDT)
+From: Chen Qi <Qi.Chen@windriver.com>
+To: <util-linux@vger.kernel.org>
+Subject: replace siginterrupt with sigaction
+Date: Mon, 31 Aug 2015 16:23:46 +0800
+Message-ID: <1441009426-13799-3-git-send-email-Qi.Chen@windriver.com>
+In-Reply-To: <1441009426-13799-1-git-send-email-Qi.Chen@windriver.com>
+References: <1441009426-13799-1-git-send-email-Qi.Chen@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The checkmans.sh tried to validate shared libraries, such as
-./.libs/libsmartcols.so.1, causing the check output to a have
-lot of pointless garbage.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Chen Qi <Qi.Chen@windriver.com>
 ---
- tools/checkmans.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ login-utils/login.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/checkmans.sh b/tools/checkmans.sh
-index 618f8ba..9a13778 100755
---- a/tools/checkmans.sh
-+++ b/tools/checkmans.sh
-@@ -70,7 +70,7 @@ remove_repeats()
- cd $(git rev-parse --show-toplevel)
+diff --git a/login-utils/login.c b/login-utils/login.c
+index ebb76f5..38c881b 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1110,6 +1110,7 @@ int main(int argc, char **argv)
+ 	char *buff;
+ 	int childArgc = 0;
+ 	int retcode;
++	struct sigaction act;
  
- for I in $(
--	find -path './autom4te.cache' -prune -o -name '*[[:alpha:]].[1-8]' -print
-+	find -path './autom4te.cache' -prune -o -path './.libs' -prune -o -name '*[[:alpha:]].[1-8]' -print
- ); do
- 	MAN_FILE=${I##*/}
- 	MAN_LIST[${MAN_FILE%%.[0-9]}]=1
+ 	char *pwdbuf = NULL;
+ 	struct passwd *pwd = NULL, _pwd;
+@@ -1123,7 +1124,9 @@ int main(int argc, char **argv)
+ 	timeout = (unsigned int)getlogindefs_num("LOGIN_TIMEOUT", LOGIN_TIMEOUT);
+ 
+ 	signal(SIGALRM, timedout);
+-	siginterrupt(SIGALRM, 1);	/* we have to interrupt syscalls like ioctl() */
++	(void) sigaction(SIGALRM, NULL, &act);
++	act.sa_flags &= ~SA_RESTART;
++	sigaction(SIGALRM, &act, NULL);
+ 	alarm(timeout);
+ 	signal(SIGQUIT, SIG_IGN);
+ 	signal(SIGINT, SIG_IGN);
 -- 
-2.5.0
+1.9.1
 
