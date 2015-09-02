@@ -1,58 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45946 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752814AbbICLlU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 Sep 2015 07:41:20 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
-	by mx1.redhat.com (Postfix) with ESMTPS id 8909C8E3E5
-	for <util-linux@vger.kernel.org>; Thu,  3 Sep 2015 11:41:20 +0000 (UTC)
-Received: from hp.brq.redhat.com (dhcp-27-139.brq.redhat.com [10.34.27.139])
-	by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id t83BfJlb016424
-	for <util-linux@vger.kernel.org>; Thu, 3 Sep 2015 07:41:20 -0400
-From: Michal Schmidt <mschmidt@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] logger man page: improve logger --journald example
-Date: Thu,  3 Sep 2015 13:41:19 +0200
-Message-Id: <1441280479-7251-1-git-send-email-mschmidt@redhat.com>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:33951 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751680AbbIBB3w (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 1 Sep 2015 21:29:52 -0400
+Received: by padhy1 with SMTP id hy1so13806954pad.1
+        for <util-linux@vger.kernel.org>; Tue, 01 Sep 2015 18:29:51 -0700 (PDT)
+Date: Tue, 1 Sep 2015 18:29:51 -0700
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
+Subject: Re: fdisk
+Message-ID: <20150902012950.GA1910@newbook>
+References: <55E3B640.2060606@gmail.com>
+ <55E3FAA9.5060204@bernhard-voelker.de>
+ <55E47EC8.1030904@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55E47EC8.1030904@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The example use of logger --journald in the man page has a couple of flaws:
- - It's missing a "MESSAGE=" field. This is supposed to be the primary
-   human readable text. Without it the log entry is invisible in a
-   plain "journalctl" output.
- - The MESSAGE_ID is supposed to be a 128-bit hexadecimal string that
-   globally uniquely identifies the message type.
-   One can generate such an id with "journalctl --new-id".
+On Mon, Aug 31, 2015 at 11:20:24AM -0500, Bruce Dubbs wrote:
+> Bernhard Voelker wrote:
+> >On 08/31/2015 04:04 AM, Bruce Dubbs wrote:
+> >>I have a question about (or a enhancement request) running fdisk.  When
+> >>asking to list known partition types, I get about 70 lines of output.
+> >>Generally that would not be a problem, but I was running in a Debian
+> >>install/rescue iso that uses busybox in a 25 line terminal.  I do not
+> >>have a way to scroll up and thus cannot see the first 40 or so partition
+> >>types.
+> >>
+> >>Is there a way to use a pager for this?  In this situation 'more' is
+> >>available but 'less' is not.  Otherwise I think an automatic pause every
+> >>20 lines or so would be appropriate to build into the partition type
+> >>listing.
+> >
+> >hmm, I'm getting 27 lines (at a maximum line length of 79 characters) as
+> >output of the 'l' command  here - even if I resize the xterm to 20x80
+> >characters.
+> >OTOH, the main help output via the 'm' command uses 38 lines.  Shouldn't
+> >you also have issues with that one in your environment?
+> 
+> In a konsole terminal resized to
+> 
+> # echo $LINES
+> 25
+> # fdisk --version
+> fdisk from util-linux 2.26.2
+> 
+> Yes, the main menu scrolls off the top do the topmost line is:
+> 
+> n   add a new partition
+> 
+> but that is not a big problem in konsole because I can scroll back the
+> buffer.  The l command lists the partition types and the topmost line of the
+> screen is entry number 44.
+> 
+> The difficult problem is in busybox where there is no scroll back
+> capability.
 
-This patches fixes the above and also changes the example to use a
-here-document instead of printf. In my opinion it makes the expected
-multi-line data format more obvious.
+If you do not switch VTs, the Linux kernel has a limited "scroll back"
+capability:
+use <Shift>+<PgUp> or <Shift>+<PgDn>.
 
-Signed-off-by: Michal Schmidt <mschmidt@redhat.com>
----
- misc-utils/logger.1 | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+There are serious enough limitations to this that it's not really viable
+except as a workaround:
+-only things that have been on-screen after you last switched to the
+current VT will be visible
+-switch VTs, and you lose history
 
-diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
-index 36c923d52c..5deb3f0a1f 100644
---- a/misc-utils/logger.1
-+++ b/misc-utils/logger.1
-@@ -81,7 +81,13 @@ for details.  The use of a MESSAGE_ID field is generally a good idea, as it
- makes finding entries easy.  Examples:
- .IP
- .nf
--\fB    printf \(dq%s\\n%s\\n%s\\n\(dq MESSAGE_ID=42 DOGS=bark \(dqCARAVAN=goes on\(dq | logger --journald
-+\fB    logger --journald <<end
-+\fB    MESSAGE_ID=67feb6ffbaf24c5cbec13c008dd72309
-+\fB    MESSAGE=The dogs bark, but the caravan goes on.
-+\fB    DOGS=bark
-+\fB    CARAVAN=goes on
-+\fB    end
-+.IP
- \fB    logger --journald=entry.txt
- .fi
- .IP
--- 
-2.4.3
+But it may be useful to you.
 
+HTH,
+Isaac Dunham
