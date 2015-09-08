@@ -1,64 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f169.google.com ([209.85.223.169]:36071 "EHLO
-	mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751646AbbIIMkd (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Sep 2015 08:40:33 -0400
+Received: from mail-io0-f173.google.com ([209.85.223.173]:36498 "EHLO
+	mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753367AbbIHM41 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Sep 2015 08:56:27 -0400
 Subject: Re: mkfs.btrfs cannot find rotational file for SSD detection for a
  pmem device
-To: Boaz Harrosh <boaz@plexistor.com>,
-        "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>,
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>,
         "dan.j.williams@intel.com" <dan.j.williams@intel.com>
 References: <94D0CD8314A33A4D9D801C0FE68B40295BD1BF1F@G4W3202.americas.hpqcorp.net>
- <55EEDAE8.1060905@gmail.com>
- <94D0CD8314A33A4D9D801C0FE68B40295BD1EB13@G4W3202.americas.hpqcorp.net>
- <55F017CE.1090505@gmail.com> <55F02239.3090809@plexistor.com>
-Cc: "Knippers, Linda" <linda.knippers@hpe.com>,
+Cc: "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>,
+        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
         "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
         "Kani, Toshimitsu" <toshi.kani@hpe.com>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>
+        "Knippers, Linda" <linda.knippers@hpe.com>
 From: Austin S Hemmelgarn <ahferroin7@gmail.com>
-Message-ID: <55F028B7.9080707@gmail.com>
-Date: Wed, 9 Sep 2015 08:40:23 -0400
+Message-ID: <55EEDAE8.1060905@gmail.com>
+Date: Tue, 8 Sep 2015 08:56:08 -0400
 MIME-Version: 1.0
-In-Reply-To: <55F02239.3090809@plexistor.com>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-512; boundary="------------ms060300090808010408050400"
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295BD1BF1F@G4W3202.americas.hpqcorp.net>
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-512; boundary="------------ms070103030706090507060402"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 This is a cryptographically signed message in MIME format.
 
---------------ms060300090808010408050400
-Content-Type: text/plain; charset=utf-8; format=flowed
+--------------ms070103030706090507060402
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 2015-09-09 08:12, Boaz Harrosh wrote:
-> On 09/09/2015 02:28 PM, Austin S Hemmelgarn wrote:
->> On 2015-09-08 16:00, Elliott, Robert (Persistent Memory) wrote:
-> <>
+On 2015-09-06 13:51, Elliott, Robert (Persistent Memory) wrote:
+> mkfs.btrfs does not detect pmem devices as being SSDs in kernel 4.2.
 >
->> this may actually make things slower (the particular effect of SSD mod=
-e
->> is that it tries to spread allocations out as much as possible, as thi=
-s
->> helps with wear-leveling on many SSD's).
->>
+> Label:              (null)
+> UUID:               46603efe-728c-43fe-8241-ffc125e1a7ed
+> Node size:          16384
+> Sector size:        4096
+> Filesystem size:    8.00GiB
+> Block group profiles:
+>    Data:             single            8.00MiB
+>    Metadata:         DUP             417.56MiB
+>    System:           DUP              12.00MiB
+> SSD detected:       no
+> Incompat features:  extref, skinny-metadata
+> Number of devices:  1
+> Devices:
+>     ID        SIZE  PATH
+>      1     8.00GiB  /dev/pmem0
 >
-> For DRAM based NvDIMM it matters not at all. For Flash based or the new=
+> mkfs.btrfs opens "/sys/block/%s/queue/rotational" and looks for
+> 0 (non-rotational - an SSD) or non-zero (rotational - a HDD).
+While not directly related in this case, it's worth pointing out that=20
+there are lots of things that are not SSD's that get listed as=20
+non-rotational by default (and you can in fact change the value of this=20
+file from userspace), such as: virtualized block storage (xvdb and=20
+virtio at least, not sure about vmware or hyperv), and some networked=20
+block devices (NBD may or may not, depends on server side configuration, =
 
-> 3d Xpoint it is a plus, so no harm in leaving it in
+ATAoE did at least at one point, RBD gets listed as non-rotational, DRBD =
+
+tracks underlying storage on the local node).
 >
-Looking at it from another perspective however, a lot of modern RAM=20
-modules will stripe the bits across multiple chips to improve=20
-performance.  In such a situation, BTRFS making the effort to spread out =
+> However, strace shows it is having trouble creating that path.
+> The blkid_devno_to_wholedisk function from libblkid leads it to
+> this path:
+> 	/sys/block/LNXSY/queue/rotational
+> which doesn't exist.
+>
+> That is based on:
+> $ realpath /sys/block/pmem0
+> /sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0012:00/ndbus1/region0/namespa=
+ce0.0/block/pmem0
+>
+> $ realpath /sys/dev/block/259:0
+> /sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0012:00/ndbus1/region0/namespa=
+ce0.0/block/pmem0
+>
+> The impact looks limited to the print and causing it to not
+> automatically disable "metadata duplication on a single device."
+This is an issue inherent in the current pmem driver however, it should=20
+be fixed there and not in mkfs.btrfs, as other filesystems make=20
+decisions based on this file also, as does the I/O scheduler, and some=20
+block storage servers.  This gets tricky though because pmem isn't=20
+technically a block device at the low level, and doesn't use some parts=20
+of the block layer that most other block devices do.
 
-the allocation as much as possible may have an impact because that=20
-allocation path is slower than the regular one (not by much, but even a=20
-few microseconds can make a difference when it is getting called a lot).
+On that note however, if the pmem device is backed by actual RAM and not =
+
+flash storage (and most of them are from what I've seen), then the only=20
+advantage of using single metadata mode over dup is space savings, as=20
+RAM is not (usually) write limited.
 
 
-
---------------ms060300090808010408050400
+--------------ms070103030706090507060402
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -100,9 +133,9 @@ w2KjaupjpAHfFjv5kGnZXN87UvvlwzIZiKXwa3vTDwK+rrKn/sHPkfDZPSiyt/ZBIK6lX83P
 BM0CAQEwgYAweTEQMA4GA1UEChMHUm9vdCBDQTEeMBwGA1UECxMVaHR0cDovL3d3dy5jYWNl
 cnQub3JnMSIwIAYDVQQDExlDQSBDZXJ0IFNpZ25pbmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcN
 AQkBFhJzdXBwb3J0QGNhY2VydC5vcmcCAxBuVTANBglghkgBZQMEAgMFAKCCAiEwGAYJKoZI
-hvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTUwOTA5MTI0MDIzWjBPBgkq
-hkiG9w0BCQQxQgRAZkDMzo7WfvNZ/okWJ9PiSOhpLTfeQvMisbH/xPRijff+BQmP0T3Uviha
-LgJolOA9WPV9yoX+e7rbtsxAUdL1pTBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjAL
+hvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTUwOTA4MTI1NjA4WjBPBgkq
+hkiG9w0BCQQxQgRAoJpHF/879Qo46j8xZoxs/HYQ+CKOVq4xCVtodLKe60xAcUOwyq0OVDAP
+Zvkw0+W2bea0jJoC6M8dW4jd50nT7jBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjAL
 BglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFA
 MAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGRBgkrBgEEAYI3EAQxgYMwgYAweTEQMA4GA1UE
 ChMHUm9vdCBDQTEeMBwGA1UECxMVaHR0cDovL3d3dy5jYWNlcnQub3JnMSIwIAYDVQQDExlD
@@ -110,14 +143,14 @@ QSBDZXJ0IFNpZ25pbmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcNAQkBFhJzdXBwb3J0QGNhY2Vy
 dC5vcmcCAxBuVTCBkwYLKoZIhvcNAQkQAgsxgYOggYAweTEQMA4GA1UEChMHUm9vdCBDQTEe
 MBwGA1UECxMVaHR0cDovL3d3dy5jYWNlcnQub3JnMSIwIAYDVQQDExlDQSBDZXJ0IFNpZ25p
 bmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcNAQkBFhJzdXBwb3J0QGNhY2VydC5vcmcCAxBuVTAN
-BgkqhkiG9w0BAQEFAASCAgA3Le3I9phDsihc0IJI82ED5/wTIn5BtbEe096G6fZ8WajdCX8B
-dbektg8ZcvURMftBsZDpv5WZrycI+xXkV9DmnlIFQQA1cBeTLhuIQu8yN+/cbbQdddT1mIm1
-wCsVasoehRJuB7Fban2eXmOy5w68coZvq5yaY/RzhnupO65rqfNWN7B5uB3sHvLpUP7K3eCe
-GnxCDC9F0/ayMGT+BuIlzoXajA+u7d+G3pOimehkD/AxGjiUHVqpq1iJDaAU2XRsIYg4Q2rb
-QuTGRQdYQscm5bmt4E8sDB7VC1holIXKJagfpfBGFVVkzU7HJx3+fXvTcBRhplIx4Spl6ApZ
-0DJ7CKEk86mchM5U+AKOOvhzuKafZPZwvX5XDKPvP5A5RWbt4HH87NAYtrXnMO+53OoC/vPK
-tjOVP8umqVORsqkBvVsgbnH67LCmhKOu5b0d0tfcJ6CYKOkIZrJtHen+uL4c8rmGtDtg2oNd
-xMZ+nX+o02GznZEx8caGwgivKiMToVDETp4oVaDndktM2tduDU3S5AGcpjx3SVhMTenva+35
-fFCKAIPkErHS2hHkn4t9/YMqeCWRx2LwuRnOPpbSX5JJElSZAHwaz20Zv9DIG4uFwY7Qh9px
-HrYuVDGeDR21pQY4aWQYM3q0iOXe29+kUc6k71JNXkXge4xxAW2UnTT88gAAAAAAAA==
---------------ms060300090808010408050400--
+BgkqhkiG9w0BAQEFAASCAgArTUig6jm5D1SHwTrJNKXVGARR5zrBtnjpYDcJr5tc+fafCmY4
+6wTOnQdoPVhKrqzWdaHhu8XW5S07ZpbBwNPwFt/KwKz0JrrB1kF7Nfbvf6ywF3/7TzEdoMRs
+WKG6vCpbbWwnThhbmMGW4Xz1gBD5amDPhd6w9k69E59JX0SPYtBX5PEz0mTjuMi7gQPYFF68
+tlFq5jVPxY8n876peYEy4n1gA6hSi9+2fesq2Ad4nfyluMCMMP4rJzaduR4LF4Rb/KjKkl8+
+25gqXL4G6KYCA4I3vomcsDU6NXi7PRKXvYxwzgysEu88NxVCxqen5JZ6FZO3mzqDnjpC+Nbl
+PSBxe/gnNH5JFMnF2Z+KSTlRKjeJXchtQ7jTTITS4jInH4zkdSAL8t5uO9HoplvZPdY3aHm9
+tXuixzGAR5IBcbsAboX2yKyCUvuQuBbx/y0ORifmeyR33xFaf6E6NpIkwx30GaGa+cfFTrt3
+y0aCXHVRZIBPL76My7h8Pc0N3KKObgu0F/XSq0JGz7/G3Xw671TuWYRZfDYsTXmjO5/+mjNW
+u9YowQ3h16na0wn/FsWAdJau6A3dDQX5ErFhOJTNQH8YI23FUccOApAvxe2stCwfCmYoMZcG
+YdyNZBFEpwqsJT0dcqLuuv2AtW/4xXhwCGGgfy6jqrPxeK/9QxQYyv3J8gAAAAAAAA==
+--------------ms070103030706090507060402--
