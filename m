@@ -1,74 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from g9t5008.houston.hp.com ([15.240.92.66]:47952 "EHLO
-	g9t5008.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751885AbbIHUC2 convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Sep 2015 16:02:28 -0400
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Return-Path: linux-btrfs-owner@vger.kernel.org
+Message-ID: <55F02F07.3090805@plexistor.com>
+Date: Wed, 09 Sep 2015 16:07:19 +0300
+From: Boaz Harrosh <boaz@plexistor.com>
+MIME-Version: 1.0
 To: Austin S Hemmelgarn <ahferroin7@gmail.com>,
+        "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>,
         "dan.j.williams@intel.com" <dan.j.williams@intel.com>
-CC: "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+CC: "Knippers, Linda" <linda.knippers@hpe.com>,
         "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
         "Kani, Toshimitsu" <toshi.kani@hpe.com>,
-        "Knippers, Linda" <linda.knippers@hpe.com>
-Subject: RE: mkfs.btrfs cannot find rotational file for SSD detection for a
- pmem device
-Date: Tue, 8 Sep 2015 20:00:02 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295BD1EB13@G4W3202.americas.hpqcorp.net>
-References: <94D0CD8314A33A4D9D801C0FE68B40295BD1BF1F@G4W3202.americas.hpqcorp.net>
- <55EEDAE8.1060905@gmail.com>
-In-Reply-To: <55EEDAE8.1060905@gmail.com>
-Content-Type: text/plain; charset="Windows-1252"
-MIME-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>
+Subject: Re: mkfs.btrfs cannot find rotational file for SSD detection for
+ a pmem device
+References: <94D0CD8314A33A4D9D801C0FE68B40295BD1BF1F@G4W3202.americas.hpqcorp.net> <55EEDAE8.1060905@gmail.com> <94D0CD8314A33A4D9D801C0FE68B40295BD1EB13@G4W3202.americas.hpqcorp.net> <55F017CE.1090505@gmail.com> <55F02239.3090809@plexistor.com> <55F028B7.9080707@gmail.com>
+In-Reply-To: <55F028B7.9080707@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Sender: linux-btrfs-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-> -----Original Message-----
-> From: Austin S Hemmelgarn [mailto:ahferroin7@gmail.com]
-> Sent: Tuesday, September 8, 2015 7:56 AM
-> Subject: Re: mkfs.btrfs cannot find rotational file for SSD detection for
-> a pmem device
+On 09/09/2015 03:40 PM, Austin S Hemmelgarn wrote:
+> On 2015-09-09 08:12, Boaz Harrosh wrote:
+>> On 09/09/2015 02:28 PM, Austin S Hemmelgarn wrote:
+>>> On 2015-09-08 16:00, Elliott, Robert (Persistent Memory) wrote:
+>> <>
+>>
+>>> this may actually make things slower (the particular effect of SSD mode
+>>> is that it tries to spread allocations out as much as possible, as this
+>>> helps with wear-leveling on many SSD's).
+>>>
+>>
+>> For DRAM based NvDIMM it matters not at all. For Flash based or the new
+>> 3d Xpoint it is a plus, so no harm in leaving it in
+>>
+> Looking at it from another perspective however, a lot of modern RAM 
+> modules will stripe the bits across multiple chips to improve 
+> performance.  In such a situation, BTRFS making the effort to spread out 
+> the allocation as much as possible may have an impact because that 
+> allocation path is slower than the regular one (not by much, but even a 
+> few microseconds can make a difference when it is getting called a lot).
 > 
-> On 2015-09-06 13:51, Elliott, Robert (Persistent Memory) wrote:
-...
-> > The impact looks limited to the print and causing it to not
-> > automatically disable "metadata duplication on a single device."
-> This is an issue inherent in the current pmem driver however, it should
-> be fixed there and not in mkfs.btrfs, as other filesystems make
-> decisions based on this file also, as does the I/O scheduler, and some
-> block storage servers.  
-> ...
-
-The rotational file does exist, at:
-/sys/devices/LNXSYSTM\:00/LNXSYBUS\:00/ACPI0012\:00/ndbus1/region0/namespace0.0/block/pmem0/queue/rotational
-
-One or more functions are having trouble parsing that 108-byte string
-... mkfs.btrfs's is_ssd, libblkid's blkid_devno_to_wholedisk, or
-libblkid's sysfs_devno_to_wholedisk.  I'm not sure where the
-breakdown occurs.
-
-This is reminiscent of an issue that numactl has parsing the path to
-get to .../device/numa_node (rather than .../queue/rotational).  It
-was confused by not finding "/devices/pci" in a path for a storage
-device.
-
-> This gets tricky though because pmem isn't
-> technically a block device at the low level, and doesn't use some parts
-> of the block layer that most other block devices do.
 > 
-> On that note however, if the pmem device is backed by actual RAM and not
-> flash storage (and most of them are from what I've seen), then the only
-> advantage of using single metadata mode over dup is space savings, as
-> RAM is not (usually) write limited.
 
-pmem devices will be a mix ranging from flash-backed DRAM to new
-technologies like 3D Crosspoint, usually offering high performance
-and good wearout characteristics.
+It is pointless to argue about this, but the allocations are 4k aligned
+any which way, which means you are right at the beginning of the striping,
+the RAM striping is a cacheline (64 bytes) granularity.
 
-The btrfs driver does detect it as SSD after mkfs.btrfs did not:
-kernel: BTRFS info (device pmem0): disk space caching is enabled
-kernel: BTRFS: has skinny extents
-kernel: BTRFS: flagging fs with big metadata feature
-kernel: BTRFS: detected SSD devices, enabling SSD mode
+I think you will never find a single micro benchmark that will ever produce
+a difference.
+
+Cheers
+Boaz
 
