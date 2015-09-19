@@ -1,129 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vk0-f41.google.com ([209.85.213.41]:35855 "EHLO
-	mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756525AbbIVLHL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Sep 2015 07:07:11 -0400
-Received: by vkfp126 with SMTP id p126so3619493vkf.3
-        for <util-linux@vger.kernel.org>; Tue, 22 Sep 2015 04:07:11 -0700 (PDT)
+Received: from mail-vk0-f52.google.com ([209.85.213.52]:33006 "EHLO
+	mail-vk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753778AbbISIug (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 19 Sep 2015 04:50:36 -0400
+Received: by vkgd64 with SMTP id d64so42271952vkg.0
+        for <util-linux@vger.kernel.org>; Sat, 19 Sep 2015 01:50:35 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-In-Reply-To: <1948574.mCKV7sP6Yb@merkaba>
-References: <1948574.mCKV7sP6Yb@merkaba>
-Date: Tue, 22 Sep 2015 12:07:10 +0100
-Message-ID: <CAG27Bk3=gCmdsekNc9ZXYz1h-gz0VfNpRz23zMvx7-RqM+Qqdg@mail.gmail.com>
-Subject: Re: chrt permission denied with kernel 4.3-rc2
+In-Reply-To: <CAGQyBevyqMbq6KuRi5=E_QnXmjE4BK7P=sK4awostLf5uNiYuA@mail.gmail.com>
+References: <CAGQyBevyqMbq6KuRi5=E_QnXmjE4BK7P=sK4awostLf5uNiYuA@mail.gmail.com>
+Date: Sat, 19 Sep 2015 09:50:35 +0100
+Message-ID: <CAG27Bk1+WHUEpyn53pGeSyE0bCVgRFnZ0sD17M3MS0p11P8-Pw@mail.gmail.com>
+Subject: Re: Custom structured data from logger utility
 From: Sami Kerola <kerolasa@iki.fi>
-To: Martin Steigerwald <martin@lichtvoll.de>
+To: Priya Ahuja <priahuja321@gmail.com>
 Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 22 September 2015 at 11:19, Martin Steigerwald <martin@lichtvoll.de> wrote:
-> with 4.3-rc2 kernel (self-compiled) I get:
->
-> merkaba:~> LANG=C chrt -r -p 5 $$
-> chrt: failed to set pid 3464's policy: Operation not permitted
->
-> called with root rights (either su shell or even a direct tty)
->
-> strace reports:
->
-> sched_setscheduler(3464, SCHED_RR, { 5 }) = -1 EPERM (Operation not permitted)
->
->
-> With 4.1 standard Debian kernel it works.
->
->
-> Any idea?
->
-> I know I can use setcap to check file capabilities. But I am not sure how to
-> see the capabilities of a running process.
->
-> Is it /proc/$$/status?
->
-> On 4.3-rc2 kernel it tells me:
->
-> CapInh: 0000000000000000
-> CapPrm: 0000003fffffffff
-> CapEff: 0000003fffffffff
-> CapBnd: 0000003fffffffff
-> CapAmb: 0000000000000000
->
-> On 4.1 Debian kernel on a different machine it tells me:
->
-> CapInh: 0000000000000000
-> CapPrm: 0000003fffffffff
-> CapEff: 0000003fffffffff
-> CapBnd: 0000003fffffffff
->
-> (there is no CapAmb there)
->
-> as well, when logged in via SSH, yet chrt -r -p 5 $$ works there as well.
->
-> Is there a command displaying available capabilities of a process in clear
-> text?
->
->
->
->> xzgrep SCHED config-4.3.0-rc2-tp520.xz
-> CONFIG_HAVE_UNSTABLE_SCHED_CLOCK=y
-> CONFIG_CGROUP_SCHED=y
-> CONFIG_FAIR_GROUP_SCHED=y
-> CONFIG_RT_GROUP_SCHED=y
-> CONFIG_SCHED_AUTOGROUP=y
-> CONFIG_IOSCHED_NOOP=y
-> CONFIG_IOSCHED_DEADLINE=y
-> CONFIG_IOSCHED_CFQ=y
-> CONFIG_CFQ_GROUP_IOSCHED=y
-> CONFIG_DEFAULT_IOSCHED="cfq"
-> CONFIG_SCHED_OMIT_FRAME_POINTER=y
-> CONFIG_SCHED_SMT=y
-> CONFIG_SCHED_MC=y
-> CONFIG_SCHED_HRTICK=y
-> CONFIG_NET_SCHED=y
-> CONFIG_USB_EHCI_TT_NEWSCHED=y
-> CONFIG_SCHED_DEBUG=y
-> CONFIG_SCHED_INFO=y
-> CONFIG_SCHEDSTATS=y
-> # CONFIG_SCHED_STACK_END_CHECK is not set
-> # CONFIG_SCHED_TRACER is not set
->
->
-> mango:~# grep SCHED /boot/config-4.1.0-2-amd64
-> CONFIG_HAVE_UNSTABLE_SCHED_CLOCK=y
-> CONFIG_CGROUP_SCHED=y
-> CONFIG_FAIR_GROUP_SCHED=y
-> # CONFIG_RT_GROUP_SCHED is not set
-> CONFIG_SCHED_AUTOGROUP=y
-> CONFIG_IOSCHED_NOOP=y
-> CONFIG_IOSCHED_DEADLINE=y
-> CONFIG_IOSCHED_CFQ=y
-> CONFIG_CFQ_GROUP_IOSCHED=y
-> CONFIG_DEFAULT_IOSCHED="cfq"
-> CONFIG_SCHED_OMIT_FRAME_POINTER=y
-> CONFIG_SCHED_SMT=y
-> CONFIG_SCHED_MC=y
-> CONFIG_SCHED_HRTICK=y
-> CONFIG_NET_SCHED=y
-> CONFIG_USB_EHCI_TT_NEWSCHED=y
-> CONFIG_SCHED_DEBUG=y
-> # CONFIG_SCHEDSTATS is not set
-> # CONFIG_SCHED_STACK_END_CHECK is not set
-> # CONFIG_SCHED_TRACER is not set
->
->
-> Both Debian Sid systems use systemd 226-3.
+On 19 September 2015 at 00:25, Priya Ahuja <priahuja321@gmail.com> wrote:
+> I am using version 2.20.1 logger utility to send logs to rsyslogd from
+> bash scripts. I want to send logs in RFC5424 format with custom
+> structured data fields, example: [sdid@enterprise-number level=INFO
+> id=1234]. I understand 2.20.1 does not support 5424 format but I
+> looked at the logger.c code in the latest version and seems structured
+> data fields are set to [timeQuality tzKnown=\"1\" isSynced=\"1\"
+> syncAccuracy=\"%ld\"]. Is there a way/plan to format custom structured
+> data?
 
-Hi Martin,
+Hi Priya,
 
-You might be hitting branch CONFIG_RT_GROUP_SCHED enabled.
+I am in favor of more control for structured data items.
 
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/sched/core.c#n3863
-
-See also.
-
-http://cateee.net/lkddb/web-lkddb/RT_GROUP_SCHED.html
+I guess custom data could be implemented the same way as it's done with
+journal, e.g., with io vectors.  I have not had a look of the code what sort
+of changes would be needed in order to achieve that nice way.  Quite frankly
+my time has been lately taken by various other things than contributions.
+Perhaps someone else could take the lead doing in writing these changes,
+would you for example fancy doing that?
 
 -- 
 Sami Kerola
