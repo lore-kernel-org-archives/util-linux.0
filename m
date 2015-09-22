@@ -1,53 +1,130 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43589 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753280AbbIBIB6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Sep 2015 04:01:58 -0400
-Date: Wed, 2 Sep 2015 10:01:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Isaac Dunham <ibid.ag@gmail.com>
-Cc: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: fdisk
-Message-ID: <20150902080157.GL2726@ws.net.home>
-References: <55E3B640.2060606@gmail.com>
- <20150831100648.GG2726@ws.net.home>
- <20150902020733.GB1910@newbook>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:35855 "EHLO
+	mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756525AbbIVLHL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 22 Sep 2015 07:07:11 -0400
+Received: by vkfp126 with SMTP id p126so3619493vkf.3
+        for <util-linux@vger.kernel.org>; Tue, 22 Sep 2015 04:07:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150902020733.GB1910@newbook>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1948574.mCKV7sP6Yb@merkaba>
+References: <1948574.mCKV7sP6Yb@merkaba>
+Date: Tue, 22 Sep 2015 12:07:10 +0100
+Message-ID: <CAG27Bk3=gCmdsekNc9ZXYz1h-gz0VfNpRz23zMvx7-RqM+Qqdg@mail.gmail.com>
+Subject: Re: chrt permission denied with kernel 4.3-rc2
+From: Sami Kerola <kerolasa@iki.fi>
+To: Martin Steigerwald <martin@lichtvoll.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 01, 2015 at 07:07:34PM -0700, Isaac Dunham wrote:
-> Thus, I'm thinking that the following prototypes would be better:
-> 
-> /* create a pipe, spawn a temporary pager,
->  * dup()s fd 1 and possibly fd 2 before redirecting to the pipe
->  * if an fd is not dup()'d, set the corresponding duplicate to -1
->  */
-> pid_t setup_temporary_pager(int *dupout, int *duperr);
-> 
-> /* close the pipe, dup2() the saved fds back over fds 1/2,
->  * close the duplicates, and wait for the temporary pager to exit
->  * if either fd is -1, skip it.
->  */
-> void close_pager(pid, int dupout, int duperr);
-> 
-> 
-> setup_temporary_pager will return -1 if it does not spawn the pager
-> (whether by failure or by PAGER=cat), or if there are problems during
-> the redirection dance.
-> It will refuse to spawn a pager if (!isatty(STDOUT_FILENO)).
+On 22 September 2015 at 11:19, Martin Steigerwald <martin@lichtvoll.de> wrote:
+> with 4.3-rc2 kernel (self-compiled) I get:
+>
+> merkaba:~> LANG=C chrt -r -p 5 $$
+> chrt: failed to set pid 3464's policy: Operation not permitted
+>
+> called with root rights (either su shell or even a direct tty)
+>
+> strace reports:
+>
+> sched_setscheduler(3464, SCHED_RR, { 5 }) = -1 EPERM (Operation not permitted)
+>
+>
+> With 4.1 standard Debian kernel it works.
+>
+>
+> Any idea?
+>
+> I know I can use setcap to check file capabilities. But I am not sure how to
+> see the capabilities of a running process.
+>
+> Is it /proc/$$/status?
+>
+> On 4.3-rc2 kernel it tells me:
+>
+> CapInh: 0000000000000000
+> CapPrm: 0000003fffffffff
+> CapEff: 0000003fffffffff
+> CapBnd: 0000003fffffffff
+> CapAmb: 0000000000000000
+>
+> On 4.1 Debian kernel on a different machine it tells me:
+>
+> CapInh: 0000000000000000
+> CapPrm: 0000003fffffffff
+> CapEff: 0000003fffffffff
+> CapBnd: 0000003fffffffff
+>
+> (there is no CapAmb there)
+>
+> as well, when logged in via SSH, yet chrt -r -p 5 $$ works there as well.
+>
+> Is there a command displaying available capabilities of a process in clear
+> text?
+>
+>
+>
+>> xzgrep SCHED config-4.3.0-rc2-tp520.xz
+> CONFIG_HAVE_UNSTABLE_SCHED_CLOCK=y
+> CONFIG_CGROUP_SCHED=y
+> CONFIG_FAIR_GROUP_SCHED=y
+> CONFIG_RT_GROUP_SCHED=y
+> CONFIG_SCHED_AUTOGROUP=y
+> CONFIG_IOSCHED_NOOP=y
+> CONFIG_IOSCHED_DEADLINE=y
+> CONFIG_IOSCHED_CFQ=y
+> CONFIG_CFQ_GROUP_IOSCHED=y
+> CONFIG_DEFAULT_IOSCHED="cfq"
+> CONFIG_SCHED_OMIT_FRAME_POINTER=y
+> CONFIG_SCHED_SMT=y
+> CONFIG_SCHED_MC=y
+> CONFIG_SCHED_HRTICK=y
+> CONFIG_NET_SCHED=y
+> CONFIG_USB_EHCI_TT_NEWSCHED=y
+> CONFIG_SCHED_DEBUG=y
+> CONFIG_SCHED_INFO=y
+> CONFIG_SCHEDSTATS=y
+> # CONFIG_SCHED_STACK_END_CHECK is not set
+> # CONFIG_SCHED_TRACER is not set
+>
+>
+> mango:~# grep SCHED /boot/config-4.1.0-2-amd64
+> CONFIG_HAVE_UNSTABLE_SCHED_CLOCK=y
+> CONFIG_CGROUP_SCHED=y
+> CONFIG_FAIR_GROUP_SCHED=y
+> # CONFIG_RT_GROUP_SCHED is not set
+> CONFIG_SCHED_AUTOGROUP=y
+> CONFIG_IOSCHED_NOOP=y
+> CONFIG_IOSCHED_DEADLINE=y
+> CONFIG_IOSCHED_CFQ=y
+> CONFIG_CFQ_GROUP_IOSCHED=y
+> CONFIG_DEFAULT_IOSCHED="cfq"
+> CONFIG_SCHED_OMIT_FRAME_POINTER=y
+> CONFIG_SCHED_SMT=y
+> CONFIG_SCHED_MC=y
+> CONFIG_SCHED_HRTICK=y
+> CONFIG_NET_SCHED=y
+> CONFIG_USB_EHCI_TT_NEWSCHED=y
+> CONFIG_SCHED_DEBUG=y
+> # CONFIG_SCHEDSTATS is not set
+> # CONFIG_SCHED_STACK_END_CHECK is not set
+> # CONFIG_SCHED_TRACER is not set
+>
+>
+> Both Debian Sid systems use systemd 226-3.
 
-Yes, on non-tty stdout the both functions have to do nothing.
+Hi Martin,
 
-> Does this sound sensible?
+You might be hitting branch CONFIG_RT_GROUP_SCHED enabled.
 
-Yes, go ahead.
+http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/sched/core.c#n3863
 
+See also.
 
-    Karel
+http://cateee.net/lkddb/web-lkddb/RT_GROUP_SCHED.html
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
