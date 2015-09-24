@@ -1,39 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49015 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40283 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752380AbbIXLRE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 24 Sep 2015 07:17:04 -0400
-Date: Thu, 24 Sep 2015 13:17:02 +0200
+	id S1751238AbbIXKte (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 24 Sep 2015 06:49:34 -0400
+Date: Thu, 24 Sep 2015 12:49:32 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Priya Ahuja <priahuja321@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: Custom structured data from logger utility
-Message-ID: <20150924111702.GD1787@ws.net.home>
-References: <CAGQyBevyqMbq6KuRi5=E_QnXmjE4BK7P=sK4awostLf5uNiYuA@mail.gmail.com>
- <CAG27Bk1+WHUEpyn53pGeSyE0bCVgRFnZ0sD17M3MS0p11P8-Pw@mail.gmail.com>
+To: Oliver Freyermuth <o.freyermuth@googlemail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [Regression] util-linux-2.27: zramctl lists same info for all
+ devices (DATA COMPR TOTAL)
+Message-ID: <20150924104932.GC1787@ws.net.home>
+References: <55EDD791.30606@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1+WHUEpyn53pGeSyE0bCVgRFnZ0sD17M3MS0p11P8-Pw@mail.gmail.com>
+In-Reply-To: <55EDD791.30606@googlemail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 19, 2015 at 09:50:35AM +0100, Sami Kerola wrote:
-> I guess custom data could be implemented the same way as it's done with
-> journal, e.g., with io vectors.
+On Mon, Sep 07, 2015 at 08:29:37PM +0200, Oliver Freyermuth wrote:
+> I guess it is related to commit
+> 5388c862607ec4f25f3e7ad23ab858b696bde1a1 .  It parses mmstat and
+> fills in z->mm_stat and z->mm_stat_probed only the first time
+> get_mm_stat is called. Since the codes reuses the very same
+> zram-struct "z" afterwards and z->mm_stat is never freed (and
+> z->mm_stat_probed is never reset), only the first device is every
+> queried. 
 
-Well, for --journal we read the data from stdin. I'm not sure if this
-is the right way for rfc5424 where we already use stdin to read the
-message body. Maybe we can add extra option 
-
-    --structured-data name=value
-
-where you can specify the option more than once.
-
-> Perhaps someone else could take the lead doing in writing these changes,
-> would you for example fancy doing that?
-
-I'll try it... ;-)
+Yes, fixed (will be in v2.27.1). Thanks for your report!
 
     Karel
 
