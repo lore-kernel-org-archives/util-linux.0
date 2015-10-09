@@ -1,44 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:55569 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:37691 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750774AbbJONGG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 15 Oct 2015 09:06:06 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 945ADACA0
-	for <util-linux@vger.kernel.org>; Thu, 15 Oct 2015 13:06:03 +0000 (UTC)
-From: Andreas Schwab <schwab@suse.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] script: don't assume time_t is compatible with long
-Date: Thu, 15 Oct 2015 15:06:04 +0200
-Message-ID: <mvm37xcs2mb.fsf@hawking.suse.de>
+	id S1756027AbbJILO5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 9 Oct 2015 07:14:57 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (Postfix) with ESMTPS id EB7CE8F2E4
+	for <util-linux@vger.kernel.org>; Fri,  9 Oct 2015 11:14:56 +0000 (UTC)
+Date: Fri, 9 Oct 2015 13:14:55 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ian Wienand <iwienand@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libfdisk: Detect out-of-space when adding new primary
+ partition
+Message-ID: <20151009111455.GD2356@ws.net.home>
+References: <5615EA6C.8000801@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5615EA6C.8000801@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Andreas Schwab <schwab@suse.de>
----
- term-utils/script.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, Oct 08, 2015 at 03:00:44PM +1100, Ian Wienand wrote:
+>  libfdisk/src/dos.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index eb4ddc3..ad252a3 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -141,7 +141,7 @@ static void script_init_debug(void)
- static inline time_t script_time(time_t *t)
- {
- 	const char *str = getenv("SCRIPT_TEST_SECOND_SINCE_EPOCH");
--	time_t sec;
-+	long sec;
- 
- 	if (str && sscanf(str, "%ld", &sec) == 1)
- 		return sec;
--- 
-2.6.1
-
+ Applied, thanks.
 
 -- 
-Andreas Schwab, SUSE Labs, schwab@suse.de
-GPG Key fingerprint = 0196 BAD8 1CE9 1970 F4BE  1748 E4D4 88E3 0EEA B9D7
-"And now for something completely different."
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
