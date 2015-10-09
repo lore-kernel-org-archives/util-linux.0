@@ -1,27 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41059 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750953AbbJBKf0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 2 Oct 2015 06:35:26 -0400
-Date: Fri, 2 Oct 2015 12:35:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?J=F6rg?= Jenderek <joerg.jen.der.ek@gmx.net>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fdisk: to recognize partition type 0xEA (Rufus)
-Message-ID: <20151002103524.GH1787@ws.net.home>
-References: <201509260258.07189.joerg.jen.der.ek@gmx.net>
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.161]:56397 "EHLO
+	mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933911AbbJIIbp (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 9 Oct 2015 04:31:45 -0400
+Received: from probook.fritz.box ([2001:a62:87:fc01:f9dc:1083:91c1:86d1])
+	by smtp.strato.de (RZmta 37.13 AUTH)
+	with ESMTPSA id q040e5r998PgSTU
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
+	(Client did not present a certificate)
+	for <util-linux@vger.kernel.org>;
+	Fri, 9 Oct 2015 10:25:42 +0200 (CEST)
+Date: Fri, 9 Oct 2015 10:25:41 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: util-linux@vger.kernel.org
+Subject: regression in logger output to syslog
+Message-ID: <20151009082541.GA9068@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201509260258.07189.joerg.jen.der.ek@gmx.net>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 26, 2015 at 02:58:06AM +0200, Jörg Jenderek wrote:
-> I send for the fdisk program my 2 patches so that fdisk recognize this 
-> partition type.
+I used a script with openSUSE 11.4 which called logger like this:
+# logger -t "$l[$PPID] $i" "`sed -n ${c}p < $t`"
 
-Applied, thanks.
+The tag was something like "me[123] foo: blah", and the number remained
+stable for a single run.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Now with systemd and util-linux-2.26.2 the number does always change. If
+I understand the man page correctly this is supposed to achieve the
+same, but the $PPID never made it into journalctl -f outout:
+
+logger -t "me"  --id=$PPID "foo: blah"
+
+Instead the pid of the logger processs is used.
+How can I restore the old behaviour?
+
+Olaf
