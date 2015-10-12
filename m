@@ -1,59 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:34461 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932110AbbJML3Y (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:24 -0400
-Received: by wicgb1 with SMTP id gb1so85150850wic.1
-        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:23 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/8] nologin: require /etc/nologin.txt to be file
-Date: Tue, 13 Oct 2015 12:29:08 +0100
-Message-Id: <1444735754-18976-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
-References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:52015 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751173AbbJLKAx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 12 Oct 2015 06:00:53 -0400
+Date: Mon, 12 Oct 2015 12:00:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Andreas Henriksson <andreas@fatal.se>
+Cc: Anthony DeRobertis <anthony@derobert.net>, 801527@bugs.debian.org,
+        util-linux@vger.kernel.org
+Subject: Re: Bug#801527: mount believes correctly-formatted UDF uid=forget
+ option is in error
+Message-ID: <20151012100049.GE2356@ws.net.home>
+References: <20151011172712.28932.10676.reportbug@Watt.home>
+ <20151011205848.GA16027@fatal.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151011205848.GA16027@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This makes silly practical jokes impossible, like for example symlinking
-/dev/null or dev/random to /etc/nologin.txt
+On Sun, Oct 11, 2015 at 10:58:48PM +0200, Andreas Henriksson wrote:
+> Using LIBMOUNT_DEBUG=all mount -t udf -o uid=ignore,gid=forget ...
+> shows the following message (among others):
+> 
+> 24171: libmount:    UTILS: cannot convert 'ignore' username to UID
+> 
+> ... and according to the following code you seem to be very right
+> that except an actual uid you can also pass 'uid=ignore' or
+> 'uid=forget' explicitly:
+> 
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/udf/super.c#n352
+> 
+> I see several possible options for implementing this in the future:
+>  - special-case 'ignore' and 'forget' and pass those as is.
+>  - if uid-lookup fails, try the above.
+>  - (assuming different filesystems have different special options)
+>    let any fs-option through as-is if 'smart lookup' fails.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/nologin.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+This is the way how the original mount(8) has worked. Fixed:
 
-diff --git a/login-utils/nologin.c b/login-utils/nologin.c
-index 3be50ca..0a06ef8 100644
---- a/login-utils/nologin.c
-+++ b/login-utils/nologin.c
-@@ -3,6 +3,7 @@
-  */
- 
- #include <stdio.h>
-+#include <sys/stat.h>
- #include <sys/types.h>
- #include <fcntl.h>
- #include <string.h>
-@@ -38,6 +39,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- int main(int argc, char *argv[])
- {
- 	int c, fd;
-+	struct stat st;
- 	static const struct option longopts[] = {
- 		{ "help",    0, 0, 'h' },
- 		{ "version", 0, 0, 'V' },
-@@ -63,7 +65,8 @@ int main(int argc, char *argv[])
- 	}
- 
- 	fd = open(_PATH_NOLOGIN_TXT, O_RDONLY);
--	if (fd >= 0) {
-+	c = fstat(fd, &st);
-+	if (fd >= 0 && !c && S_ISREG(st.st_mode)) {
- 		char buf[BUFSIZ];
- 		ssize_t rd;
- 
+ https://github.com/karelzak/util-linux/commit/440a355a3d3934d99f7ef82adf02342e6f2f7983
+
+will be in v2.27.1.
+
+Thanks!
+    Karel
+
 -- 
-2.6.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
