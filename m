@@ -1,213 +1,204 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:37189 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585AbbJYQFM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 25 Oct 2015 12:05:12 -0400
-Received: by wicfv8 with SMTP id fv8so86044894wic.0
-        for <util-linux@vger.kernel.org>; Sun, 25 Oct 2015 09:05:11 -0700 (PDT)
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:37260 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932136AbbJML31 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:27 -0400
+Received: by wijq8 with SMTP id q8so27289193wij.0
+        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:25 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/4] tests: make test_uuid_parser to read files
-Date: Sun, 25 Oct 2015 16:04:58 +0000
-Message-Id: <1445789100-1781-3-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1445789100-1781-1-git-send-email-kerolasa@iki.fi>
-References: <1445789100-1781-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 4/8] tests: add uuidgen check
+Date: Tue, 13 Oct 2015 12:29:10 +0100
+Message-Id: <1444735754-18976-5-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=yes
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This allows using the command to check uuidgen and uuidd are generating
-valid outputs.
+This check will try functionality of uuidgen, leaving out the validation
+uuid's are truly unique.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libuuid/src/test_uuid.c | 156 ++++++++++++++----------------------------------
- 1 file changed, 45 insertions(+), 111 deletions(-)
+ misc-utils/Makemodule.am    |   5 +++++
+ misc-utils/uuidgen.c        |  24 ++++++++++++++++++++++++
+ tests/commands.sh           |   1 +
+ tests/expected/uuid/uuidgen |   6 ++++++
+ tests/ts/uuid/0x00000000    | Bin 0 -> 16 bytes
+ tests/ts/uuid/0xdeadbeef    |   1 +
+ tests/ts/uuid/0xffffffff    |   1 +
+ tests/ts/uuid/uuidgen       |  30 ++++++++++++++++++++++++++++++
+ 8 files changed, 68 insertions(+)
+ create mode 100644 tests/expected/uuid/uuidgen
+ create mode 100644 tests/ts/uuid/0x00000000
+ create mode 100644 tests/ts/uuid/0xdeadbeef
+ create mode 100644 tests/ts/uuid/0xffffffff
+ create mode 100755 tests/ts/uuid/uuidgen
 
-diff --git a/libuuid/src/test_uuid.c b/libuuid/src/test_uuid.c
-index e8f0703..4d155b5 100644
---- a/libuuid/src/test_uuid.c
-+++ b/libuuid/src/test_uuid.c
-@@ -38,9 +38,13 @@
- #define UUID MYUUID
- #endif
+diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
+index e7949d0..2fbaa01 100644
+--- a/misc-utils/Makemodule.am
++++ b/misc-utils/Makemodule.am
+@@ -85,6 +85,11 @@ dist_man_MANS += misc-utils/uuidgen.1
+ uuidgen_SOURCES = misc-utils/uuidgen.c
+ uuidgen_LDADD = $(LDADD) libuuid.la
+ uuidgen_CFLAGS = $(AM_CFLAGS) -I$(ul_libuuid_incdir)
++
++check_PROGRAMS += test_uuidgen
++test_uuidgen_SOURCES = $(uuidgen_SOURCES)
++test_uuidgen_LDADD = $(uuidgen_LDADD)
++test_uuidgen_CFLAGS = -DTEST_UUIDGEN $(uuidgen_CFLAGS)
+ endif
  
-+#include <ctype.h>
-+#include <fcntl.h>
- #include <stdio.h>
- #include <stdlib.h>
-+#include <sys/stat.h>
+ if BUILD_UUIDD
+diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
+index 40b00ff..912b4a9 100644
+--- a/misc-utils/uuidgen.c
++++ b/misc-utils/uuidgen.c
+@@ -28,6 +28,9 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	fputs(_("Create a new UUID value.\n"), out);
  
-+#include "c.h"
- #include "uuid.h"
+ 	fputs(USAGE_OPTIONS, out);
++#ifdef TEST_UUIDGEN
++	fputs(  "     --file <file>  generate <file> based uuid", out);
++#endif
+ 	fputs(_(" -r, --random     generate random-based uuid\n"
+ 		" -t, --time       generate time-based uuid\n"
+ 		" -V, --version    output version information and exit\n"
+@@ -44,8 +47,17 @@ main (int argc, char *argv[])
+ 	int    do_type = 0;
+ 	char   str[37];
+ 	uuid_t uu;
++#ifdef TEST_UUIDGEN
++	char   *file;
  
- static int test_uuid(const char * uuid, int isValid)
-@@ -60,124 +64,54 @@ static int test_uuid(const char * uuid, int isValid)
- 	return 0;
- }
++	enum {
++		OPT_FILE = CHAR_MAX + 1
++	};
++#endif
+ 	static const struct option longopts[] = {
++#ifdef TEST_UUIDGEN
++		{"file", required_argument, NULL, OPT_FILE},
++#endif
+ 		{"random", no_argument, NULL, 'r'},
+ 		{"time", no_argument, NULL, 't'},
+ 		{"version", no_argument, NULL, 'V'},
+@@ -60,6 +72,12 @@ main (int argc, char *argv[])
  
--#ifdef __GNUC__
--#define ATTR(x) __attribute__(x)
--#else
--#define ATTR(x)
--#endif
--
--int
--main(int argc ATTR((unused)) , char **argv ATTR((unused)))
-+static int check_uuids_in_file(const char *file)
- {
--	int failed = 0;
--/* Code commented out will print random uuid's that are unsuitable output
-- * for test suite.
--	uuid_t		buf, tst;
--	char		str[100];
--	struct timeval	tv;
--	time_t		time_reg;
--	unsigned char	*cp;
--	int i;
--	int type, variant;
-+	int fd, ret = 0;
-+	size_t sz;
-+	char str[sizeof("01234567-89ab-cdef-0134-567890abcedf")];
-+	uuid_t uuidBits;
+ 	while ((c = getopt_long(argc, argv, "rtVh", longopts, NULL)) != -1)
+ 		switch (c) {
++#ifdef TEST_UUIDGEN
++		case OPT_FILE:
++			do_type = UUID_TYPE_DCE_FILE;
++			file = optarg;
++			break;
++#endif
+ 		case 't':
+ 			do_type = UUID_TYPE_DCE_TIME;
+ 			break;
+@@ -76,6 +94,12 @@ main (int argc, char *argv[])
+ 		}
  
--	uuid_generate(buf);
--	uuid_unparse(buf, str);
--	printf("UUID generate = %s\n", str);
--	printf("UUID: ");
--	for (i=0, cp = (unsigned char *) &buf; i < 16; i++) {
--		printf("%02x", *cp++);
-+	if ((fd = open(file, O_RDONLY)) < 0) {
-+		warn("%s", file);
-+		return 1;
- 	}
--	printf("\n");
--	type = uuid_type(buf); 	variant = uuid_variant(buf);
--	printf("UUID type = %d, UUID variant = %d\n", type, variant);
--	if (variant != UUID_VARIANT_DCE) {
--		printf("Incorrect UUID Variant; was expecting DCE!\n");
--		failed++;
-+	while ((sz = read(fd, str, sizeof(str))) != 0) {
-+		if (isspace(str[sizeof(str) - 1]))
-+			str[sizeof(str) - 1] = '\0';
-+		if (uuid_parse(str, uuidBits)) {
-+			warnx("%s: %s", file, str);
-+			ret++;
-+		}
- 	}
--	printf("\n");
-+	return ret;
-+}
+ 	switch (do_type) {
++#ifdef TEST_UUIDGEN
++	case UUID_TYPE_DCE_FILE:
++		if (uuid_generate_file(uu, file))
++			err(EXIT_FAILURE, "%s", file);
++		break;
++#endif
+ 	case UUID_TYPE_DCE_TIME:
+ 		uuid_generate_time(uu);
+ 		break;
+diff --git a/tests/commands.sh b/tests/commands.sh
+index 737918f..6878650 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -30,6 +30,7 @@ TS_HELPER_SCRIPT="$top_builddir/test_script"
+ TS_HELPER_SIGRECEIVE="$top_builddir/test_sigreceive"
+ TS_HELPER_STRUTILS="$top_builddir/test_strutils"
+ TS_HELPER_SYSINFO="$top_builddir/test_sysinfo"
++TS_HELPER_UUIDGEN="$top_builddir/test_uuidgen"
  
--	uuid_generate_random(buf);
--	uuid_unparse(buf, str);
--	printf("UUID random string = %s\n", str);
--	printf("UUID: ");
--	for (i=0, cp = (unsigned char *) &buf; i < 16; i++) {
--		printf("%02x", *cp++);
--	}
--	printf("\n");
--	type = uuid_type(buf); 	variant = uuid_variant(buf);
--	printf("UUID type = %d, UUID variant = %d\n", type, variant);
--	if (variant != UUID_VARIANT_DCE) {
--		printf("Incorrect UUID Variant; was expecting DCE!\n");
--		failed++;
--	}
--	if (type != 4) {
--		printf("Incorrect UUID type; was expecting "
--		       "4 (random type)!\n");
--		failed++;
--	}
--	printf("\n");
-+int
-+main(int argc, char **argv)
-+{
-+	int failed = 0;
- 
--	uuid_generate_time(buf);
--	uuid_unparse(buf, str);
--	printf("UUID string = %s\n", str);
--	printf("UUID time: ");
--	for (i=0, cp = (unsigned char *) &buf; i < 16; i++) {
--		printf("%02x", *cp++);
--	}
--	printf("\n");
--	type = uuid_type(buf); 	variant = uuid_variant(buf);
--	printf("UUID type = %d, UUID variant = %d\n", type, variant);
--	if (variant != UUID_VARIANT_DCE) {
--		printf("Incorrect UUID Variant; was expecting DCE!\n");
--		failed++;
--	}
--	if (type != 1) {
--		printf("Incorrect UUID type; was expecting "
--		       "1 (time-based type)!\\n");
--		failed++;
--	}
--	tv.tv_sec = 0;
--	tv.tv_usec = 0;
--	time_reg = uuid_time(buf, &tv);
--	printf("UUID time is: (%ld, %ld): %s\n", tv.tv_sec, tv.tv_usec,
--	       ctime(&time_reg));
--	uuid_parse(str, tst);
--	if (!uuid_compare(buf, tst))
--		printf("UUID parse and compare succeeded.\n");
--	else {
--		printf("UUID parse and compare failed!\n");
--		failed++;
--	}
--	uuid_clear(tst);
--	if (uuid_is_null(tst))
--		printf("UUID clear and is null succeeded.\n");
--	else {
--		printf("UUID clear and is null failed!\n");
--		failed++;
--	}
--	uuid_copy(buf, tst);
--	if (!uuid_compare(buf, tst))
--		printf("UUID copy and compare succeeded.\n");
--	else {
--		printf("UUID copy and compare failed!\n");
--		failed++;
--	}
--*/
--	failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981b", 1);
--	failed += test_uuid("84949CC5-4701-4A84-895B-354C584A981B", 1);
--	failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981bc", 0);
--	failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981", 0);
--	failed += test_uuid("84949cc5x4701-4a84-895b-354c584a981b", 0);
--	failed += test_uuid("84949cc504701-4a84-895b-354c584a981b", 0);
--	failed += test_uuid("84949cc5-470104a84-895b-354c584a981b", 0);
--	failed += test_uuid("84949cc5-4701-4a840895b-354c584a981b", 0);
--	failed += test_uuid("84949cc5-4701-4a84-895b0354c584a981b", 0);
--	failed += test_uuid("g4949cc5-4701-4a84-895b-354c584a981b", 0);
--	failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981g", 0);
--	failed += test_uuid("00000000-0000-0000-0000-000000000000", 1);
--	failed += test_uuid("01234567-89ab-cdef-0134-567890abcedf", 1);
--	failed += test_uuid("ffffffff-ffff-ffff-ffff-ffffffffffff", 1);
-+	if (argc < 2) {
-+		failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981b", 1);
-+		failed += test_uuid("84949CC5-4701-4A84-895B-354C584A981B", 1);
-+		failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981bc", 0);
-+		failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981", 0);
-+		failed += test_uuid("84949cc5x4701-4a84-895b-354c584a981b", 0);
-+		failed += test_uuid("84949cc504701-4a84-895b-354c584a981b", 0);
-+		failed += test_uuid("84949cc5-470104a84-895b-354c584a981b", 0);
-+		failed += test_uuid("84949cc5-4701-4a840895b-354c584a981b", 0);
-+		failed += test_uuid("84949cc5-4701-4a84-895b0354c584a981b", 0);
-+		failed += test_uuid("g4949cc5-4701-4a84-895b-354c584a981b", 0);
-+		failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981g", 0);
-+		failed += test_uuid("00000000-0000-0000-0000-000000000000", 1);
-+		failed += test_uuid("01234567-89ab-cdef-0134-567890abcedf", 1);
-+		failed += test_uuid("ffffffff-ffff-ffff-ffff-ffffffffffff", 1);
-+	} else {
-+		int i;
- 
-+		for (i = 1; i < argc; i++)
-+			failed += check_uuids_in_file(argv[i]);
-+	}
- 	if (failed) {
- 		printf("%d failures.\n", failed);
- 		exit(1);
+ # paths to commands
+ TS_CMD_ADDPART=${TS_CMD_ADDPART:-"$top_builddir/addpart"}
+diff --git a/tests/expected/uuid/uuidgen b/tests/expected/uuid/uuidgen
+new file mode 100644
+index 0000000..257e4df
+--- /dev/null
++++ b/tests/expected/uuid/uuidgen
+@@ -0,0 +1,6 @@
++00000000-0000-0000-0000-000000000000
++return value: 0
++deadface-cafe-babe-feed-baadbeeff00d
++return value: 0
++ffffffff-ffff-ffff-ffff-ffffffffffff
++return value: 0
+diff --git a/tests/ts/uuid/0x00000000 b/tests/ts/uuid/0x00000000
+new file mode 100644
+index 0000000000000000000000000000000000000000..01d633b27e8ea9b17084fc911d0c8cc43a4170a9
+GIT binary patch
+literal 16
+KcmZQzKm`B*5C8!H
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/ts/uuid/0xdeadbeef b/tests/ts/uuid/0xdeadbeef
+new file mode 100644
+index 0000000..11c64c5
+--- /dev/null
++++ b/tests/ts/uuid/0xdeadbeef
+@@ -0,0 +1 @@
++Þ­úÎÊþº¾þíº­¾ïð
+*••*
+\ No newline at end of file
+diff --git a/tests/ts/uuid/0xffffffff b/tests/ts/uuid/0xffffffff
+new file mode 100644
+index 0000000..13ff23b
+--- /dev/null
++++ b/tests/ts/uuid/0xffffffff
+@@ -0,0 +1 @@
++ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+\ No newline at end of file
+diff --git a/tests/ts/uuid/uuidgen b/tests/ts/uuid/uuidgen
+new file mode 100755
+index 0000000..ec1fcaf
+--- /dev/null
++++ b/tests/ts/uuid/uuidgen
+@@ -0,0 +1,30 @@
++#!/bin/bash
++
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="uuidgen"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++ts_check_test_command "$TS_HELPER_UUIDGEN"
++
++$TS_HELPER_UUIDGEN --file $TS_SELF/0x00000000 > $TS_OUTPUT 2>&1
++echo "return value: $?" >> $TS_OUTPUT
++$TS_HELPER_UUIDGEN --file $TS_SELF/0xdeadbeef >> $TS_OUTPUT 2>&1
++echo "return value: $?" >> $TS_OUTPUT
++$TS_HELPER_UUIDGEN --file $TS_SELF/0xffffffff >> $TS_OUTPUT 2>&1
++echo "return value: $?" >> $TS_OUTPUT
++
++ts_finalize
 -- 
-2.6.2
+2.6.1
 
