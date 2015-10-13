@@ -1,157 +1,135 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:38337 "EHLO
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:37225 "EHLO
 	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932099AbbJML3b (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:31 -0400
-Received: by wieq12 with SMTP id q12so27504353wie.1
-        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:30 -0700 (PDT)
+	with ESMTP id S932079AbbJML3Z (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:25 -0400
+Received: by wijq8 with SMTP id q8so27288329wij.0
+        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:24 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 8/8] ctrlaltdel: display setting when ran without arguments
-Date: Tue, 13 Oct 2015 12:29:14 +0100
-Message-Id: <1444735754-18976-9-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 3/8] libuuid: add uuid_generate_file() function
+Date: Tue, 13 Oct 2015 12:29:09 +0100
+Message-Id: <1444735754-18976-4-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
 References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is more useful than printing an error.
+The uuid_generate_file() allows generating UUID using input file, and thus
+leading to stable output.  Purpose of this function is to have a facility
+that allows tests to be wrote.
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- include/pathnames.h    |  3 +++
- sys-utils/ctrlaltdel.8 |  5 +++-
- sys-utils/ctrlaltdel.c | 70 +++++++++++++++++++++++++++++++++++++++-----------
- 3 files changed, 62 insertions(+), 16 deletions(-)
+ libuuid/man/uuid_generate.3 | 11 +++++++++++
+ libuuid/src/gen_uuid.c      | 21 +++++++++++++++++++++
+ libuuid/src/libuuid.sym     |  8 ++++++++
+ libuuid/src/uuid.h          |  2 ++
+ 4 files changed, 42 insertions(+)
 
-diff --git a/include/pathnames.h b/include/pathnames.h
-index e68ac7d..81efcfa 100644
---- a/include/pathnames.h
-+++ b/include/pathnames.h
-@@ -208,5 +208,8 @@
- /* logger paths */
- #define _PATH_DEVLOG		"/dev/log"
- 
-+/* ctrlaltdel paths */
-+#define _PATH_PROC_CTRL_ALT_DEL	"/proc/sys/kernel/ctrl-alt-del"
-+
- #endif /* PATHNAMES_H */
- 
-diff --git a/sys-utils/ctrlaltdel.8 b/sys-utils/ctrlaltdel.8
-index 4be6513..170597f 100644
---- a/sys-utils/ctrlaltdel.8
-+++ b/sys-utils/ctrlaltdel.8
-@@ -27,8 +27,11 @@ program must support this feature.  Since there are now several
- programs in the Linux community, please consult the documentation for the
- version that you are currently using.
- .PP
-+When command is ran without arguments it will display current function in
-+use.
-+.PP
- .B ctrlaltdel
--is usually used in the
-+function is usually set in the
- .I /etc/rc.local
- file.
- .SH OPTIONS
-diff --git a/sys-utils/ctrlaltdel.c b/sys-utils/ctrlaltdel.c
-index 64de94f..ffdad6a 100644
---- a/sys-utils/ctrlaltdel.c
-+++ b/sys-utils/ctrlaltdel.c
-@@ -14,6 +14,7 @@
- #include "nls.h"
- #include "c.h"
- #include "closestream.h"
-+#include "pathnames.h"
- 
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
- {
-@@ -30,10 +31,59 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
- 
--int main(int argc, char **argv)
-+static int get_cad(void)
-+{
-+	FILE *fp;
-+	int val;
-+
-+	if (!(fp = fopen(_PATH_PROC_CTRL_ALT_DEL, "r"))) {
-+		warn("%s", _PATH_PROC_CTRL_ALT_DEL);
-+		return EXIT_FAILURE;
-+	}
-+	if (fscanf(fp, "%d", &val) != 1)
-+		val = -1;
-+	fclose(fp);
-+	switch (val) {
-+	case 0:
-+		fputs("soft\n", stdout);
-+		break;
-+	case 1:
-+		fputs("hard\n", stdout);
-+		break;
-+	default:
-+		printf("%s hard\n", _("implicit"));
-+		warnx(_("unexpected value in %s: %d"), _PATH_PROC_CTRL_ALT_DEL, val);
-+		return EXIT_FAILURE;
-+	}
-+	return EXIT_SUCCESS;
-+}
-+
-+static int set_cad(const char *arg)
- {
--	int ch;
- 	unsigned int cmd;
-+
-+	if (geteuid()) {
-+		warnx(_("You must be root to set the Ctrl-Alt-Del behavior"));
-+		return EXIT_FAILURE;
-+	}
-+	if (!strcmp("hard", arg))
-+		cmd = LINUX_REBOOT_CMD_CAD_ON;
-+	else if (!strcmp("soft", arg))
-+		cmd = LINUX_REBOOT_CMD_CAD_OFF;
-+	else {
-+		warnx(_("unknown argument: %s"), arg);
-+		return EXIT_FAILURE;
-+	}
-+	if (my_reboot(cmd) < 0) {
-+		warnx("reboot");
-+		return EXIT_FAILURE;
-+	}
-+	return EXIT_SUCCESS;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int ch, ret;
- 	static const struct option longopts[] = {
- 		{"version", no_argument, NULL, 'V'},
- 		{"help", no_argument, NULL, 'h'},
-@@ -56,19 +106,9 @@ int main(int argc, char **argv)
- 			usage(stderr);
- 		}
- 
--	if (geteuid())
--		errx(EXIT_FAILURE,
--		     _("You must be root to set the Ctrl-Alt-Del behavior"));
--
- 	if (argc < 2)
--		errx(EXIT_FAILURE, _("not enough arguments"));
--	if (!strcmp("hard", argv[1]))
--		cmd = LINUX_REBOOT_CMD_CAD_ON;
--	else if (!strcmp("soft", argv[1]))
--		cmd = LINUX_REBOOT_CMD_CAD_OFF;
-+		ret = get_cad();
+diff --git a/libuuid/man/uuid_generate.3 b/libuuid/man/uuid_generate.3
+index 19904d7..53045c0 100644
+--- a/libuuid/man/uuid_generate.3
++++ b/libuuid/man/uuid_generate.3
+@@ -41,6 +41,7 @@ uuid_generate_time_safe \- create a new unique UUID value
+ .BI "void uuid_generate_random(uuid_t " out );
+ .BI "void uuid_generate_time(uuid_t " out );
+ .BI "int uuid_generate_time_safe(uuid_t " out );
++.BI "int uuid_generate_file(uuid_t " out ", const char " *path ");"
+ .fi
+ .SH DESCRIPTION
+ The
+@@ -100,11 +101,21 @@ the universe according to Carl Sagan's
+ The new UUID can reasonably be considered unique among all UUIDs created
+ on the local system, and among UUIDs created on other systems in the past
+ and in the future.
++.sp
++The
++.B uuid_generate_file
++function will read up to 16 bytes from beginning of a file as a not-random
++source of UUID.  Purpose of this function is to provide a facility that will
++always return the same UUID, and thus is ideal for testing.
+ .SH RETURN VALUE
+ The newly created UUID is returned in the memory location pointed to by
+ .IR out .
+ .B uuid_generate_time_safe
+ returns zero if the UUID has been generated in a safe manner, \-1 otherwise.
++The
++.B uuid_generate_file
++will return zero for success, or 1 when errno indicates an error with file
++defined by path.
+ .SH "CONFORMING TO"
+ OSF DCE 1.1
+ .SH AUTHOR
+diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+index 4d60997..cf164fb 100644
+--- a/libuuid/src/gen_uuid.c
++++ b/libuuid/src/gen_uuid.c
+@@ -551,3 +551,24 @@ void uuid_generate(uuid_t out)
  	else
--		errx(EXIT_FAILURE, _("unknown argument: %s"), argv[1]);
--	if (my_reboot(cmd) < 0)
--		err(EXIT_FAILURE, "reboot");
--	return EXIT_SUCCESS;
-+		ret = set_cad(argv[1]);
-+	return ret;
+ 		uuid_generate_time(out);
  }
++
++/*
++ * Generate file-based UUID and store it to @out.  Useful for testing.
++ *
++ */
++int uuid_generate_file(uuid_t out, const char *path)
++{
++	int fd;
++	uuid_t buf = { 0 };
++	struct uuid uu = { 0 };
++
++	fd = open(path, O_RDONLY);
++	if (fd < 0)
++		return 1;
++	if ((read(fd, &buf, sizeof(buf))) < 0)
++		return 1;
++	close(fd);
++	uuid_unpack(buf, &uu);
++	uuid_pack(&uu, out);
++	return 0;
++}
+diff --git a/libuuid/src/libuuid.sym b/libuuid/src/libuuid.sym
+index 28a2076..ead4046 100644
+--- a/libuuid/src/libuuid.sym
++++ b/libuuid/src/libuuid.sym
+@@ -34,6 +34,14 @@ global:
+ 	uuid_generate_time_safe;
+ } UUID_1.0;
+ 
++/*
++ * version(s) since util-linux 2.28
++ */
++UUID_2.28 {
++global:
++	uuid_generate_file;
++} UUID_2.20;
++
+ 
+ /*
+  * __uuid_* this is not part of the official API, this is
+diff --git a/libuuid/src/uuid.h b/libuuid/src/uuid.h
+index 30bd4c0..f3f117a 100644
+--- a/libuuid/src/uuid.h
++++ b/libuuid/src/uuid.h
+@@ -52,6 +52,7 @@ typedef unsigned char uuid_t[16];
+ /* UUID Type definitions */
+ #define UUID_TYPE_DCE_TIME   1
+ #define UUID_TYPE_DCE_RANDOM 4
++#define UUID_TYPE_DCE_FILE   8
+ 
+ /* Allow UUID constants to be defined */
+ #ifdef __GNUC__
+@@ -80,6 +81,7 @@ extern void uuid_generate(uuid_t out);
+ extern void uuid_generate_random(uuid_t out);
+ extern void uuid_generate_time(uuid_t out);
+ extern int uuid_generate_time_safe(uuid_t out);
++extern int uuid_generate_file(uuid_t out, const char *path);
+ 
+ /* isnull.c */
+ extern int uuid_is_null(const uuid_t uu);
 -- 
 2.6.1
 
