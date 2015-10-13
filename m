@@ -1,52 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50882 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030758AbbJ3KSA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Oct 2015 06:18:00 -0400
-Date: Fri, 30 Oct 2015 11:17:58 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tom Yan <tom.ty89@gmail.com>
-Cc: util-linux@vger.kernel.org, linux-btrfs@vger.kernel.org, elliott@hpe.com,
-        ahferroin7@gmail.com
-Subject: Re: bad handling of unpartitioned device in
- sysfs_devno_to_wholedisk() (which breaks mkfs.btrfs)
-Message-ID: <20151030101758.GE19508@ws.net.home>
-References: <CAGnHSEm4UND4aUuFMDesXQYiTGWFzv+tk1OEvMOj+6KRHC-MPw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGnHSEm4UND4aUuFMDesXQYiTGWFzv+tk1OEvMOj+6KRHC-MPw@mail.gmail.com>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:34461 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932110AbbJML3Y (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:24 -0400
+Received: by wicgb1 with SMTP id gb1so85150850wic.1
+        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:23 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/8] nologin: require /etc/nologin.txt to be file
+Date: Tue, 13 Oct 2015 12:29:08 +0100
+Message-Id: <1444735754-18976-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 30, 2015 at 09:43:28AM +0800, Tom Yan wrote:
-> So I noticed that SSD detection does work on unpartitioned devices in
-> mkfs.btrfs somehow:
-> https://bugzilla.kernel.org/show_bug.cgi?id=102921
-> 
-> Later I found out that it breaks at blkid_devno_to_wholedisk() in is_ssd():
-> http://git.kernel.org/cgit/linux/kernel/git/kdave/btrfs-progs.git/tree/mkfs.c?h=v4.2.3#n1103
-> 
-> which Elliot had shown an example with strace:
-> https://lists.01.org/pipermail/linux-nvdimm/2015-September/002109.html
-> 
-> And I think the problem occurs in the sysfs_get_devname() here:
-> https://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/lib/sysfs.c?h=v2.27#n785
-> 
-> Since sysfs_get_devname() has to call sysfs_readlink() later, which
-> output a long full device path in /sys, I don't think we should call
-> it directly with the buffer "diskname", which people won't expect that
-> it has to be large enough to carry the path in the middle of the
-> process. For example in is_sdd(), a char array of size 32 is used
-> ("wholedisk").
+This makes silly practical jokes impossible, like for example symlinking
+/dev/null or dev/random to /etc/nologin.txt
 
-You're right. The function sysfs_get_devname() is not too elegant as
-it uses devname buffer for readlink. Fixed, the bugfix will be in
-v2.27.1.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/nologin.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Thanks!
-
-    Karel
-
+diff --git a/login-utils/nologin.c b/login-utils/nologin.c
+index 3be50ca..0a06ef8 100644
+--- a/login-utils/nologin.c
++++ b/login-utils/nologin.c
+@@ -3,6 +3,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <sys/stat.h>
+ #include <sys/types.h>
+ #include <fcntl.h>
+ #include <string.h>
+@@ -38,6 +39,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ int main(int argc, char *argv[])
+ {
+ 	int c, fd;
++	struct stat st;
+ 	static const struct option longopts[] = {
+ 		{ "help",    0, 0, 'h' },
+ 		{ "version", 0, 0, 'V' },
+@@ -63,7 +65,8 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	fd = open(_PATH_NOLOGIN_TXT, O_RDONLY);
+-	if (fd >= 0) {
++	c = fstat(fd, &st);
++	if (fd >= 0 && !c && S_ISREG(st.st_mode)) {
+ 		char buf[BUFSIZ];
+ 		ssize_t rd;
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.6.1
+
