@@ -1,74 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:49951 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:56203 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752810AbbJGJlK convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 7 Oct 2015 05:41:10 -0400
-Received: from md.localnet ([5.146.248.95]) by mail.gmx.com (mrgmx103) with
- ESMTPSA (Nemesis) id 0LpKY5-1aDcO63xqf-00f9sf for
- <util-linux@vger.kernel.org>; Wed, 07 Oct 2015 11:41:07 +0200
-From: =?iso-8859-1?q?J=F6rg_Jenderek?= <joerg.jen.der.ek@gmx.net>
-Reply-To: joerg.jen.der.ek@gmx.net
-To: util-linux@vger.kernel.org
-Subject: [PATCH] fdisk: to recognize Intel Rapid Start hibernation partition
-Date: Wed, 7 Oct 2015 11:41:23 +0200
+	id S1753391AbbJPJS5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 16 Oct 2015 05:18:57 -0400
+Date: Fri, 16 Oct 2015 11:18:55 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/8] libuuid: add uuid_generate_file() function
+Message-ID: <20151016091855.GA2990@ws.net.home>
+References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+ <1444735754-18976-4-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Message-Id: <201510071141.23757.joerg.jen.der.ek@gmx.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1444735754-18976-4-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dear util-linux maintainer,
-i use Intel Rapid Start Technology on my PC. According to their 
-User Guide "Rapid_Start_Technology_User_Guide_v1.4.pdf"
- i create a partition with id=84 for hibernation by this Technology.
+On Tue, Oct 13, 2015 at 12:29:09PM +0100, Sami Kerola wrote:
+> The uuid_generate_file() allows generating UUID using input file, and thus
+> leading to stable output.  Purpose of this function is to have a facility
+> that allows tests to be wrote.
 
-Unfortunately the software fdisk (util-linux-2.27) classifies that partition 
-as "OS/2 hidden C:".  That is not wrong, but 
-on website https://en.wikipedia.org/wiki/Partition_type is written, that id 0x84
-beside using for hiding drive C: this type is a also used as hibernation partition
-for Microsoft  APM and also for Intel Rapid Start
+Well, if you want to generate non-random stuff then it seems enough
+to modify __uuid_generate_random() and  __uuid_generate_time()
+to return non-random stuff on -DLIBUUID_ENABLE_TEST.
 
-So i patched 2 header files so that fdisk recognize this partition type variation
-
-pt-mbr-intel-hibernation.diff
---- util-linux-2.27/include/pt-mbr.h.old	2015-06-29 13:13:14.670847471 +0200
-+++ util-linux-2.27/include/pt-mbr.h	2015-10-05 19:18:44.948641032 +0200
-@@ -129,7 +129,8 @@
- 	MBR_LINUX_SWAP_PARTITION	= 0x82,
- 	MBR_SOLARIS_X86_PARTITION	= MBR_LINUX_SWAP_PARTITION,
- 	MBR_LINUX_DATA_PARTITION	= 0x83,
--	MBR_OS2_HIDDEN_DRIVE_PARTITION	= 0x84,
-+	MBR_OS2_HIDDEN_DRIVE_PARTITION	= 0x84, /* also hibernation MS APM, Intel Rapid Start */
-+	MBR_INTEL_HIBERNATION_PARTITION	= MBR_OS2_HIDDEN_DRIVE_PARTITION,
- 	MBR_LINUX_EXTENDED_PARTITION	= 0x85,
- 	MBR_NTFS_VOL_SET1_PARTITION	= 0x86,
- 	MBR_NTFS_VOL_SET2_PARTITION	= 0x87,
-
-pt-mbr-partnames-intel-hibernation.diff
---- util-linux-2.27/include/pt-mbr-partnames.h.old	2015-06-29 13:13:14.669847478 +0200
-+++ util-linux-2.27/include/pt-mbr-partnames.h	2015-10-05 19:23:02.997989894 +0200
-@@ -51,7 +51,9 @@
- 	{0x81, N_("Minix / old Linux")},/* Minix 1.4b and later */
- 	{0x82, N_("Linux swap / Solaris")},
- 	{0x83, N_("Linux")},
--	{0x84, N_("OS/2 hidden C: drive")},
-+	{0x84, N_("OS/2 h. C:|Intel hibernation")},/* OS/2 hidden C: drive,
-+					   hibernation type Microsoft APM
-+					   or hibernation Intel Rapid Start */
- 	{0x85, N_("Linux extended")},
- 	{0x86, N_("NTFS volume set")},
- 	{0x87, N_("NTFS volume set")},
+The problem is that things like get_clock(), pack, unpack, parse and
+unparse functions will be still untested.
 
 
-Signed-off-by: Jörg Jenderek <joerg.jen.der.ek@gmx.net>
-Sorry that i do this way, but i have no knowledge about git toys.
+What about to support random UUIDs in our tests and modify 
+the __uuid_generate functions to copy unpacked raw result to any
+file? Something like:
 
-Hope you can apply my patches in a future version of  the fdisk program.
+int __uuid_generate_time(uuid_t out, int *num)
+{
+    ... generate struct uu as usually ...
 
-thanks,
-Jörg Jenderek
+#ifdef LIBUUID_ENABLE_TEST
+    ts_path = genenv("LIBUUID_TEST_PATH");
+    if (ts_path)
+        write_raw_uuid(uu, ts_path);
+#endif
+
+    return ret;
+
+}
+
+where write_uraw_uuid() is function to write struct uuid to the
+<ts_path>/<pid>.
+
+Then we can write
+
+    test_uuid --random|--time <file>
+
+this program
+
+ 1/ ask libuuid for a new UUID
+ 2/ unparse and unpack to get struct uuid
+ 3/ write struct uuid to the <file> by write_uraw_uuid()
+
+and in the shell script we can by diff -u compare $LIBUUID_TEST_PATH/<pid>
+with <file>.
+
+The <pid> is also possible to use to check if UUID has been really
+generated by uuidd. (It would be nice to have two sub-tests, one with
+uuidd and one without uuid.)
+
+Note that uuid_unpack() is not exported by library API, so you have to
+link libuuid/src/unpack.c directly to the test_uuid.c.
+
+(It would be also possible to analyze struct uuid from
+$LIBUUID_TEST_PATH to make sure that for example get_node_id() works
+as expected, etc... but this is not urgent.)
+
+    Karel
+
 -- 
-Jörg Jenderek	email:	joerg.jen.der.ek (at) gmx.net
-Germany
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
