@@ -1,59 +1,103 @@
-Return-Path: lennart@poettering.net
-Date: Thu, 29 Oct 2015 15:36:16 +0100
-From: Lennart Poettering <lennart@poettering.net>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: regression in logger output to syslog
-Message-ID: <20151029143615.GA27684@gardel-login>
-References: <20151009082541.GA9068@aepfle.de>
- <20151012104414.GF2356@ws.net.home>
- <20151012133451.GA6825@aepfle.de>
- <20151021093743.GA6552@aepfle.de>
- <20151029103532.GC19508@ws.net.home>
- <20151029142021.GA9487@aepfle.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:38343 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752001AbbJSBIt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 18 Oct 2015 21:08:49 -0400
+From: Neil Brown <neilb@suse.com>
+To: util-linux@vger.kernel.org, linux-nfs@vger.kernel.org
+Date: Mon, 19 Oct 2015 12:08:41 +1100
+Subject: mount does not accurately identify existing NFS mounts, and shouldn't try.
+Message-ID: <87twpnll5y.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151029142021.GA9487@aepfle.de>
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 29.10.15 15:20, Olaf Hering (olaf@aepfle.de) wrote:
+--=-=-=
+Content-Type: text/plain
 
-> On Thu, Oct 29, Karel Zak wrote:
-> 
-> > On Wed, Oct 21, 2015 at 11:37:43AM +0200, Olaf Hering wrote:
-> > > On Mon, Oct 12, Olaf Hering wrote:
-> > > 
-> > > > So, its "systemd" who eats the required info.
-> > > 
-> > > In case you miss it:
-> > > 
-> > > ...
-> > > We do not allow faking syslog PID fields, for security reasons, it
-> > > will always be set to what the kernel passed to journald.
-> > > 
-> > > If this is something to support, then "logger" needs to to be patched so
-> > > that it can fake the SCM_CREDENTIALS metadata of the messages sent.
-> > > This requires privileges, but is not hard to do. Please file a bug
-> > > against util-linux and ask for for this to be added.
-> > 
-> >  Implemented, try logger(1) from util-linux git tree, please. 
-> 
-> Not sure what the "We" above refers to, but this change from 27a9eb5
-> may still not work for me:
-> 
-> +                   && geteuid() == 0 && kill(ctl->pid, 0) == 0) {
-> 
-> For me its required to run logger as non-root and still get the
-> specified number, like it used to do it years ago.
 
-Sorry, but this is something we are unlikely to support in
-systemd. Allowing unprivileged processes to fake arbitrary UIDs is
-a security problem, and it's really nothing we should provide support
-for.
+When I run "mount -a" (and possibly in other circumstances) mount
+attempts to determine if the requested filesystem is already mounted.
+It seems to have some handling for various special cases, but doesn't
+handle all cases properly.
 
-Sorry,
+For example, if I have
+  server:/export /import nfs ....
+  192.168.1.1:/private private nfs ....
 
-Lennart
+in /etc/fstab and the IP address of 'server' is 192.168.1.1,
+then both entries will appear in /proc/mounts with the same host name
+(depending on which order there were mounted).
 
--- 
-Lennart Poettering, Red Hat
+When I run "mount -a" a second time it will detect that one of these is
+already correctly mounted, and will ignore it.
+The other will not be detected as already being mounted (as the hostname
+appears different) and "mount -a" will try to mount it again.
+
+This will fail with "EBUSY" and mount will report an error
+   .... is busy or already mounted.
+
+So while both filesystems are already mounted, we only get an error for
+one of them.
+
+The irony here is that while it is hard for user-space to determine
+if the mounted filesystem matches the requested filesystem it is trivial
+for the kernel.
+For NFS we could try canonicalizing the server name, but undoubtedly
+other issues would arrive.  I believe there are similar issues with
+btrfs and submount, though I have looked closely.
+
+For the kernel, it is as simple as
+
+	/* Refuse the same filesystem on the same mount point */
+	err = -EBUSY;
+	if (path->mnt->mnt_sb == newmnt->mnt.mnt_sb &&
+	    path->mnt->mnt_root == path->dentry)
+		goto unlock;
+
+This is the *only* time that the kernel returns EBUSY for a "mount a new
+filesystem" request (remount can return EBUSY for other reasons I
+think).
+
+So in the case where "mount" thinks it should check if the filesystem is
+already mounted and ignore the request if it is, the best thing it can
+do is to just try the mount and ignore any "EBUSY" error status - treat
+that the same as success.
+
+So all that code for "is this the same mountpoint" can probably be
+discarded.
+
+Did I miss any important consideration there?
+
+Unfortunately this change could be awkward to implement as /sbin/mount
+decides whether to try the mount and (for NFS), /sbin/mount.nfs gives an
+error message if EBUSY is returned.  Would we need to pass a "noebusy"
+flag, but only if mount.nfs were willing to accept it....
+
+Any suggestions?
+
+NeilBrown
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWJEKZAAoJEDnsnt1WYoG5Dd4QAKMlLVdfC7ndMIAMc4Rob442
+bmBFgu3wuoQSG6JlxXTJZEQp7qpJ6G33BTA1U4lkYgdLaXB9l4EtE5THaQHNEzZv
+ulVU/m/ZPn7swezA+HtK/ShhEOlIOtMKFGsSGuxDw9H8IB5TYQw9oEm031y7fE2o
+ffLYOCec922/JYv+Don6efL/QA0ue0nkEOxghN6N2Wq14/i5SqZvMEwEuO3uFiR0
+OeTB+krwc9wdbJlr183EVxh01OIY6Pf6THQe4EFVuHS6Gj0rqUjD971jGTxj1Hyo
+9PHmhCXFBOsFTVLb6bO4M5kkp6QsMGlmct+KTb0QyevNVyBYpgmIVYBEeTLhrDvV
+hdSD/ncsG+liir75t+MvwBjhMMK/ouERtg16yCgvO9s6Gb/8X8LT1r2VBRQwIfzs
+0QMS+O2xV9LgyDrwQnuML8XB+EPfi0LBJIajB9qXUlDynVB+lgmH4jmgBz1pD9P/
+f+VAINL/lElU5YSOEHEwNYGn+WYrZRZ2Hd/Nrr6jHy7gQ9Q+8X99RwqunTOClqMm
+yQBsY+XLOxhsvXvLt8sIxk/T6a1v/VrO4JyEYe9Pf2py+V4rcZvpgmkI+9ZiMaGW
+WY6xLUt3ErVzLFZGxhp+cCpcKRxHxhnuXp+r8xsJuV9x1Su1h9W3QA1kz94D5zfZ
+74oKZkBAn5nCC5oVyDdG
+=JepF
+-----END PGP SIGNATURE-----
+--=-=-=--
