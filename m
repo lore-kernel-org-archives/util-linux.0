@@ -1,58 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43577 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756952AbbJ3KWu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 30 Oct 2015 06:22:50 -0400
-Date: Fri, 30 Oct 2015 11:22:47 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "U.Mutlu" <for-gmane@mutluit.com>
+Return-Path: olaf@aepfle.de
+Date: Wed, 21 Oct 2015 11:37:43 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: unshare -m for non-root user
-Message-ID: <20151030102247.GF19508@ws.net.home>
-References: <n0ujgc$tll$1@ger.gmane.org>
+Subject: Re: regression in logger output to syslog
+Message-ID: <20151021093743.GA6552@aepfle.de>
+References: <20151009082541.GA9068@aepfle.de>
+ <20151012104414.GF2356@ws.net.home>
+ <20151012133451.GA6825@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <n0ujgc$tll$1@ger.gmane.org>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20151012133451.GA6825@aepfle.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 30, 2015 at 03:09:15AM +0100, U.Mutlu wrote:
-> Hi,
-> I wonder why "unshare -m" doesn't work for an unpriviledged user:
-> 
-> $ unshare -m /bin/bash
-> unshare: unshare failed: Operation not permitted
-> $ echo $?
-> 1
-> $ ls -l `which unshare`
-> -rwxr-xr-x 1 root root 14640 Mar 30  2015 /usr/bin/unshare
-> 
-> Funny thing: when making the binary setuid then it works.
-> But I would prefer a working original version in the OS repository.
-> 
-> OS: Debian 8
-> 
-> # dpkg -l | grep -i util-linux
-> ii  util-linux                                 2.25.2-6            amd64
-> Miscellaneous system utilities
-> 
-> Is this a bug, or is it not supposed to work for non-root users?
+On Mon, Oct 12, Olaf Hering wrote:
 
-man 2 unshare:
+> So, its "systemd" who eats the required info.
 
-CLONE_NEWNS
+In case you miss it:
 
-This  flag has the same effect as the clone(2) CLONE_NEWNS flag.
-Unshare the mount namespace, so that the calling process has a private
-copy of its namespace which is not shared with any other process.
-Specifying this flag automatically implies CLONE_FS as well.  Use of
-CLONE_NEWNS requires the CAP_SYS_ADMIN capability.
-                         ^^^^^^^^^^^^
+...
+We do not allow faking syslog PID fields, for security reasons, it
+will always be set to what the kernel passed to journald.
 
-.. so yes, it's expected behavior.
+If this is something to support, then "logger" needs to to be patched so
+that it can fake the SCM_CREDENTIALS metadata of the messages sent.
+This requires privileges, but is not hard to do. Please file a bug
+against util-linux and ask for for this to be added.
 
-    Karel
+Lennart
+...
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Olaf
