@@ -1,74 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43039 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757953AbbJIK4R (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 9 Oct 2015 06:56:17 -0400
-Date: Fri, 9 Oct 2015 12:56:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Alexander Kuleshov <kuleshovmail@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] partx: introduce INIT_BLGPG macro
-Message-ID: <20151009105615.GB2356@ws.net.home>
-References: <1444153856-14210-1-git-send-email-kuleshovmail@gmail.com>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:34455 "EHLO
+	mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757275AbbJ3Bn3 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 29 Oct 2015 21:43:29 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1444153856-14210-1-git-send-email-kuleshovmail@gmail.com>
+Date: Fri, 30 Oct 2015 09:43:28 +0800
+Message-ID: <CAGnHSEm4UND4aUuFMDesXQYiTGWFzv+tk1OEvMOj+6KRHC-MPw@mail.gmail.com>
+Subject: bad handling of unpartitioned device in sysfs_devno_to_wholedisk()
+ (which breaks mkfs.btrfs)
+From: Tom Yan <tom.ty89@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: linux-btrfs@vger.kernel.org, elliott@hpe.com, ahferroin7@gmail.com
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 06, 2015 at 11:50:56PM +0600, Alexander Kuleshov wrote:
-> The disk-utils/partx.h provides three functions:
-> partx_{del,add,resize}_partition() that contain almost the same code
-> - initialization of the blkpg_partition and blkpg_ioctl_arg structs.
+So I noticed that SSD detection does work on unpartitioned devices in
+mkfs.btrfs somehow:
+https://bugzilla.kernel.org/show_bug.cgi?id=102921
 
-Good point,
+Later I found out that it breaks at blkid_devno_to_wholedisk() in is_ssd():
+http://git.kernel.org/cgit/linux/kernel/git/kdave/btrfs-progs.git/tree/mkfs.c?h=v4.2.3#n1103
 
-> Let's provide INIT_PKG macro that will do all work to prevent code
-> duplication.
+which Elliot had shown an example with strace:
+https://lists.01.org/pipermail/linux-nvdimm/2015-September/002109.html
 
-but I don't like the implementation :-)
+And I think the problem occurs in the sysfs_get_devname() here:
+https://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/lib/sysfs.c?h=v2.27#n785
 
-> +#define INIT_BLKPG(ioctl_arg, action, partno, start, size) do {	\
-> +	struct blkpg_partition p;		\
-
-It's bad manner to hide any struct declaration within a macro if you
-expect a valid reference to the struct outside the macro scope. My
-solution (already in git tree):
-
-#define INIT_BLKPG_PARTITION(_partno, _start, _size) {	\
-		.pno    = (_partno),			\
-		.start  = (_start) << 9,		\
-		.length = (_size) << 9,			\
-		.devname[0] = 0,			\
-		.volname[0] = 0				\
-}
-
-#define INIT_BLKPG_ARG(_action, _part) {		\
-		.op      = (_action),			\
-		.flags   = 0,				\
-		.datalen = sizeof(*(_part)),		\
-		.data = (_part)				\
-}
-
-
-static inline int partx_add_partition(int fd, int partno,
-			uint64_t start, uint64_t size)
-{
-	struct blkpg_partition p = INIT_BLKPG_PARTITION(partno, start, size);
-	struct blkpg_ioctl_arg a = INIT_BLKPG_ARG(BLKPG_ADD_PARTITION, &p);
-
-	return ioctl(fd, BLKPG, &a);
-}
-
-
-IMHO it's more readable and it does not hide struct blkpg_partition.
-
-
-Hmm.. .devname[0] = 0 and .volname[0] = 0 initialization is unnecessary,
-unspecified struct members should be automatically zeroized.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Since sysfs_get_devname() has to call sysfs_readlink() later, which
+output a long full device path in /sys, I don't think we should call
+it directly with the buffer "diskname", which people won't expect that
+it has to be large enough to carry the path in the middle of the
+process. For example in is_sdd(), a char array of size 32 is used
+("wholedisk").
