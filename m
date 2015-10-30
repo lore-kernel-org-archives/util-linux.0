@@ -1,76 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:37351 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932079AbbJML3a (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 13 Oct 2015 07:29:30 -0400
-Received: by wijq8 with SMTP id q8so27291446wij.0
-        for <util-linux@vger.kernel.org>; Tue, 13 Oct 2015 04:29:29 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 7/8] docs: update ctrlaltdel.8 man page
-Date: Tue, 13 Oct 2015 12:29:13 +0100
-Message-Id: <1444735754-18976-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
-References: <1444735754-18976-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:39062 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759271AbbJ3KzL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Oct 2015 06:55:11 -0400
+Date: Fri, 30 Oct 2015 11:55:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Neil Brown <neilb@suse.com>
+Cc: util-linux@vger.kernel.org, linux-nfs@vger.kernel.org
+Subject: Re: mount does not accurately identify existing NFS mounts, and
+ shouldn't try.
+Message-ID: <20151030105509.GG19508@ws.net.home>
+References: <87twpnll5y.fsf@notabene.neil.brown.name>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87twpnll5y.fsf@notabene.neil.brown.name>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Most significant clarification is to tell hard C_A_D is the default in linux
-kernel.  Update also kernel reference, and improve readability.
+On Mon, Oct 19, 2015 at 12:08:41PM +1100, Neil Brown wrote:
+> 	/* Refuse the same filesystem on the same mount point */
+> 	err = -EBUSY;
+> 	if (path->mnt->mnt_sb == newmnt->mnt.mnt_sb &&
+> 	    path->mnt->mnt_root == path->dentry)
+> 		goto unlock;
+> 
+> This is the *only* time that the kernel returns EBUSY for a "mount a new
+> filesystem" request (remount can return EBUSY for other reasons I
+> think).
+> 
+> So in the case where "mount" thinks it should check if the filesystem is
+> already mounted and ignore the request if it is, the best thing it can
+> do is to just try the mount and ignore any "EBUSY" error status - treat
+> that the same as success.
+> 
+> So all that code for "is this the same mountpoint" can probably be
+> discarded.
 
-Reference: http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/reboot.c
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/ctrlaltdel.8 | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+Well, we have many situations (another than mount -a) when you want to
+know if the FS is mounted, but you have not permissions for mount(2)
+or you don't want to try it (because mount(2) may trigger many another
+things in userspace).
 
-diff --git a/sys-utils/ctrlaltdel.8 b/sys-utils/ctrlaltdel.8
-index 30bbae4..4be6513 100644
---- a/sys-utils/ctrlaltdel.8
-+++ b/sys-utils/ctrlaltdel.8
-@@ -1,21 +1,23 @@
- .\" Copyright 1992, 1993 Rickard E. Faith (faith@cs.unc.edu)
- .\" May be distributed under the GNU General Public License
--.TH CTRLALTDEL 8 "August 2011" "util-linux" "System Administration"
-+.TH CTRLALTDEL 8 "October 2015" "util-linux" "System Administration"
- .SH NAME
- ctrlaltdel \- set the function of the Ctrl-Alt-Del combination
- .SH SYNOPSIS
- .BR "ctrlaltdel hard" | soft
- .SH DESCRIPTION
- Based on examination of the
--.I linux/kernel/sys.c
-+.I linux/kernel/reboot.c
- code, it is clear that there are two supported functions that the
--Ctrl-Alt-Del sequence can perform: a
--.I hard
--reset, which immediately reboots the computer without calling
-+Ctrl-Alt-Del sequence can perform.
-+.TP
-+.B hard
-+Immediately reboot the computer without calling
- .BR sync (2)
--and without any other preparation; and a
--.I soft
--reset, which sends the SIGINT (interrupt) signal to the
-+and without any other preparation.  This is the default.
-+.TP
-+.B soft
-+Will make kernel to send the SIGINT (interrupt) signal to the
- .B init
- process (this is always the process with PID 1).  If this option is used,
- the
-@@ -39,7 +41,8 @@ Display help text and exit.
- .SH FILES
- .I /etc/rc.local
- .SH "SEE ALSO"
--.BR init (8)
-+.BR init (8),
-+.BR systemd (1)
- .SH AUTHOR
- .UR poe@daimi.aau.dk
- Peter Orbaek
+> Did I miss any important consideration there?
+
+The problem is that the way between fstab entry and mount(2) is
+sometimes pretty complex (mount.<type> helpers, loop devices,
+UUID/LABEL translation, etc).
+
+So, compare fstab with /proc/mounts is usually good compromise...
+
+Your suggestion seems usable for mount -a, but it's one small use-case
+(and for example systemd don't use "mount -a" during boot).
+
+> Unfortunately this change could be awkward to implement as /sbin/mount
+> decides whether to try the mount and (for NFS), /sbin/mount.nfs gives an
+> error message if EBUSY is returned.  Would we need to pass a "noebusy"
+> flag, but only if mount.nfs were willing to accept it....
+> 
+> Any suggestions?
+
+We have kill(PID, 0) to detect if the PID is valid, you don't have to
+parse all /proc. It would be nice to have the same for filesystems,
+something like
+
+    mount("/dev/sda1, "/mnt", "ext4", MS_NOMOUNT, NULL)
+
+   Karel 
+
 -- 
-2.6.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
