@@ -1,75 +1,101 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:33951 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751680AbbIBB3w (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 1 Sep 2015 21:29:52 -0400
-Received: by padhy1 with SMTP id hy1so13806954pad.1
-        for <util-linux@vger.kernel.org>; Tue, 01 Sep 2015 18:29:51 -0700 (PDT)
-Date: Tue, 1 Sep 2015 18:29:51 -0700
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
-Subject: Re: fdisk
-Message-ID: <20150902012950.GA1910@newbook>
-References: <55E3B640.2060606@gmail.com>
- <55E3FAA9.5060204@bernhard-voelker.de>
- <55E47EC8.1030904@gmail.com>
+Return-Path: linux-nfs-owner@vger.kernel.org
+From: Neil Brown <neilb@suse.com>
+To: Karel Zak <kzak@redhat.com>
+Date: Sat, 31 Oct 2015 09:46:10 +1100
+Cc: util-linux@vger.kernel.org, linux-nfs@vger.kernel.org
+Subject: Re: mount does not accurately identify existing NFS mounts, and shouldn't try.
+In-Reply-To: <20151030105509.GG19508@ws.net.home>
+References: <87twpnll5y.fsf@notabene.neil.brown.name> <20151030105509.GG19508@ws.net.home>
+Message-ID: <871tccvutp.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55E47EC8.1030904@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
+Sender: linux-nfs-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 31, 2015 at 11:20:24AM -0500, Bruce Dubbs wrote:
-> Bernhard Voelker wrote:
-> >On 08/31/2015 04:04 AM, Bruce Dubbs wrote:
-> >>I have a question about (or a enhancement request) running fdisk.  When
-> >>asking to list known partition types, I get about 70 lines of output.
-> >>Generally that would not be a problem, but I was running in a Debian
-> >>install/rescue iso that uses busybox in a 25 line terminal.  I do not
-> >>have a way to scroll up and thus cannot see the first 40 or so partition
-> >>types.
-> >>
-> >>Is there a way to use a pager for this?  In this situation 'more' is
-> >>available but 'less' is not.  Otherwise I think an automatic pause every
-> >>20 lines or so would be appropriate to build into the partition type
-> >>listing.
-> >
-> >hmm, I'm getting 27 lines (at a maximum line length of 79 characters) as
-> >output of the 'l' command  here - even if I resize the xterm to 20x80
-> >characters.
-> >OTOH, the main help output via the 'm' command uses 38 lines.  Shouldn't
-> >you also have issues with that one in your environment?
-> 
-> In a konsole terminal resized to
-> 
-> # echo $LINES
-> 25
-> # fdisk --version
-> fdisk from util-linux 2.26.2
-> 
-> Yes, the main menu scrolls off the top do the topmost line is:
-> 
-> n   add a new partition
-> 
-> but that is not a big problem in konsole because I can scroll back the
-> buffer.  The l command lists the partition types and the topmost line of the
-> screen is entry number 44.
-> 
-> The difficult problem is in busybox where there is no scroll back
-> capability.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If you do not switch VTs, the Linux kernel has a limited "scroll back"
-capability:
-use <Shift>+<PgUp> or <Shift>+<PgDn>.
+On Fri, Oct 30 2015, Karel Zak wrote:
 
-There are serious enough limitations to this that it's not really viable
-except as a workaround:
--only things that have been on-screen after you last switched to the
-current VT will be visible
--switch VTs, and you lose history
+> On Mon, Oct 19, 2015 at 12:08:41PM +1100, Neil Brown wrote:
+>> 	/* Refuse the same filesystem on the same mount point */
+>> 	err =3D -EBUSY;
+>> 	if (path->mnt->mnt_sb =3D=3D newmnt->mnt.mnt_sb &&
+>> 	    path->mnt->mnt_root =3D=3D path->dentry)
+>> 		goto unlock;
+>>=20
+>> This is the *only* time that the kernel returns EBUSY for a "mount a new
+>> filesystem" request (remount can return EBUSY for other reasons I
+>> think).
+>>=20
+>> So in the case where "mount" thinks it should check if the filesystem is
+>> already mounted and ignore the request if it is, the best thing it can
+>> do is to just try the mount and ignore any "EBUSY" error status - treat
+>> that the same as success.
+>>=20
+>> So all that code for "is this the same mountpoint" can probably be
+>> discarded.
+>
+> Well, we have many situations (another than mount -a) when you want to
+> know if the FS is mounted, but you have not permissions for mount(2)
+> or you don't want to try it (because mount(2) may trigger many another
+> things in userspace).
+>
+>> Did I miss any important consideration there?
+>
+> The problem is that the way between fstab entry and mount(2) is
+> sometimes pretty complex (mount.<type> helpers, loop devices,
+> UUID/LABEL translation, etc).
+>
+> So, compare fstab with /proc/mounts is usually good compromise...
+>
+> Your suggestion seems usable for mount -a, but it's one small use-case
+> (and for example systemd don't use "mount -a" during boot).
+>
+>> Unfortunately this change could be awkward to implement as /sbin/mount
+>> decides whether to try the mount and (for NFS), /sbin/mount.nfs gives an
+>> error message if EBUSY is returned.  Would we need to pass a "noebusy"
+>> flag, but only if mount.nfs were willing to accept it....
+>>=20
+>> Any suggestions?
+>
+> We have kill(PID, 0) to detect if the PID is valid, you don't have to
+> parse all /proc. It would be nice to have the same for filesystems,
+> something like
+>
+>     mount("/dev/sda1, "/mnt", "ext4", MS_NOMOUNT, NULL)
 
-But it may be useful to you.
+I like that!  I really do.  It returns the same error as mount would if
+run by a privileged uses, or returns success without actually changing
+anything.
+MS_NOMOUNT is incompatible with MS_REMOUNT, MS_MOVE and several others.
 
-HTH,
-Isaac Dunham
+I won't be providing a kernel patch straight away, but I would like to
+see this happen.
+
+Thanks,
+NeilBrown
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWM/MyAAoJEDnsnt1WYoG57N8QAIhTN3k3rNznyVETOU1/MKef
+iUFAjXd0T3GRuZlFBm3h+8sY6YPD0XOOSJsUtsWtGEZ3CyGXINtIwuZ1DyeukTvR
+waY12fV77LPpev/8mjfIp5ZQ4D4sMoxDFVFYgpw+dfT4FU6Us0teo9B+UOqVVfY0
+hfRUm3jMEPberBL6VaCVb8OwXro03Z6X5aI6iNAEcM//hxxXpG1wKZ0MGuhmSghN
+MWwI1w8JCCU47W6MDB1U2pm4XjtHNRUiv7xHNBX3xlRwwyP2mBJi1lO4B5MyJJuY
+Kgka6sL/PiGSHi47psyVYGkrJ8HFg5CI73NNR1rW/A4Lct5ksJCnXHGJhhChU9Vq
+KETlld3XD5UEyTMy+26OYuEeGTmQF8eKnC5H1eW4KuRCvFq046I98gfhpnVoMMlY
+IijvKeM09hClMXaMWqTHgOTk78Cj3/z4RGn8OpgfauOQlwoEaDXJH8qIObJNi/EI
+jmmMUPfVs614cK8KwpsBw8daPBejJrHkSKTuwqdZ+jtdjrCCx8/nAHzgK9jeIyfb
+tY/S8C1WETO+6Tmy+b+aGm0O0NjH9s0TExrSpPq8Ti2rs8adzW2wcBC2dv9YBEma
+QGKKacHSDpXLCpfpbNTkOz5L3sWglGWEOVQNEjqtRhWVb86zYFd7Fq4FPiX35M/d
+yl5XGzv9JysYsvt7XyAp
+=nwYz
+-----END PGP SIGNATURE-----
+--=-=-=--
