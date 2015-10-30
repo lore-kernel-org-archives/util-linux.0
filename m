@@ -1,33 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from elasmtp-dupuy.atl.sa.earthlink.net ([209.86.89.62]:35318 "EHLO
-	elasmtp-dupuy.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751560AbbJSWts (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 19 Oct 2015 18:49:48 -0400
-Received: from [69.22.67.58] (helo=[192.168.0.11])
-	by elasmtp-dupuy.atl.sa.earthlink.net with esmtpa (Exim 4.67)
-	(envelope-from <mrmazda@earthlink.net>)
-	id 1ZoJ4r-0004ly-Tf
-	for util-linux@vger.kernel.org; Mon, 19 Oct 2015 18:38:49 -0400
-To: util-linux@vger.kernel.org
-From: Felix Miata <mrmazda@earthlink.net>
-Subject: what does "drive" mean in mlable man page?
-Message-ID: <562570F9.40401@earthlink.net>
-Date: Mon, 19 Oct 2015 18:38:49 -0400
+Received: from smtp.gentoo.org ([140.211.166.183]:59819 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751704AbbJ3QtU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 30 Oct 2015 12:49:20 -0400
+Date: Fri, 30 Oct 2015 12:49:18 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: unshare -m for non-root user
+Message-ID: <20151030164918.GL5154@vapier.lan>
+References: <n0ujgc$tll$1@ger.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="+HmK7y6O+lKZIGkr"
+In-Reply-To: <n0ujgc$tll$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Like in most man pages, examples that would explain ambiguous term meanings
-are absent. blkid doesn't say what the existing "drive" is. How does one find
-out? Can "drive" be a synonym for device name? The mtools man page is
-ambiguous by lack of adequate example as well. I wish to change the labels on
-/dev/sdc3, /dev/sdc5 and /dev/sdc6.
--- 
-"The wise are known for their understanding, and pleasant
-words are persuasive." Proverbs 16:21 (New Living Translation)
 
- Team OS/2 ** Reg. Linux User #211409 ** a11y rocks!
+--+HmK7y6O+lKZIGkr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Felix Miata  ***  http://fm.no-ip.com/
+On 30 Oct 2015 03:09, U.Mutlu wrote:
+> I wonder why "unshare -m" doesn't work for an unpriviledged user:
+
+look into the -U flag if you want to use these features as non-root
+-mike
+
+--+HmK7y6O+lKZIGkr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWM5+OAAoJEEFjO5/oN/WBvqkQAMNfUte4GIOny10FsKE6YCds
+FhFC8UKdqQ9Fc5dbdvp1PbWCDgGr4/U3DAcwI87Taf6pYDZRbZ+iS1d5r0l0X20m
+UOw4YpSyZ7giJhrOHTsg6iIZAjEY2n/ff/wB24cfLeMyOuo6M5ZCiDRMYS6JW4Iq
+YoOI/VcXtDTuCDXUcewgsLFVYE9YQWhJZLDHqwUtFHnLvhkn0ovQfcMftFwUXaU4
+tNi4Uf48keBTfenAkCGiZV1ki1soY1At4hX6zBHePBHEJRx/xBX5YJCTf5DEgU7p
+WEgl7MhcmP1e5/HmIXQtVtquxAGmSkfeK8TkIQiSB7ojPZzXz6z4Bl67X29cqM7R
+j0a1nazMuO2RzL3R3DQQDDVLVDEKmNvOGAW6zi5W+SlG5ef1s2yQZV+9lz+ccE1i
+dcIXkEmyUnXn9b5/fU4rZD2NBT5WjvCjNBLAEwuN5MyxotwXIR1TWadEKc/nDDBP
+Y4tmf2lm3AgbbVeRtNay55QAa1x0h0caK/3GHrmmL9dnq4+VPDSSod43rD+LW7zB
+1B2QRWAM8zNuZn5t6YR205RgxeSCqnJsTiJ1hrhJbWxljHWzR8MZYrbHX3RW7JQJ
+m+sigfDW4jWEe6WWiDe47wW0nHlruQp7Kqv8LIHx68zqDYDvutT+XmT1LeVNpA3m
+HgY/niottvW3egxedH0m
+=uXHn
+-----END PGP SIGNATURE-----
+
+--+HmK7y6O+lKZIGkr--
