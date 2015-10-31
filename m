@@ -1,58 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59896 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753142AbbKIK3d (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Nov 2015 05:29:33 -0500
-Date: Mon, 9 Nov 2015 11:29:31 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ming Lei <tom.leiming@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] losetup: support direct-IO to backing file
-Message-ID: <20151109102931.GU19508@ws.net.home>
-References: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:37795 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751200AbbJaTVk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:40 -0400
+Received: by wmff134 with SMTP id f134so33207579wmf.0
+        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:39 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 07/12] include/blkdev: add open_blkdev_or_file() function
+Date: Sat, 31 Oct 2015 19:21:19 +0000
+Message-Id: <1446319284-24778-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Nov 07, 2015 at 08:40:16AM +0800, Ming Lei wrote:
-> The loop direct I/O patches[1] have been merged to linus kernel tree
-> and will be released in v4.4.
-> 
-> So the two patches provide interfaces for using direct IO/AIO
-> in losetup.
+Purpose of this function is to open a path that is potentially pointing to a
+block device or file without races, and checking ensuring block device is
+not busy when path points to such.
 
-Thanks!
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/blkdev.h |  3 +++
+ lib/blkdev.c     | 27 +++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
->  include/loopdev.h   |  4 ++++
->  lib/loopdev.c       | 40 ++++++++++++++++++++++++++++++++++++++++
->  sys-utils/losetup.c | 30 +++++++++++++++++++++++++++---
->  3 files changed, 71 insertions(+), 3 deletions(-)
-> 
-> [1] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=bc07c10a3603a5ab3ef01ba42b3d41f9ac63d1b6
-
-If I read correctly the kernel code than LO_FLAGS_DIRECT_IO is not
-possible to use when initialize loop device by LOOP_SET_FD ioctl. I
-need extra LOOP_SET_DIRECT_IO ioctl. Why?
-
-Why kernel function loop_set_fd() does not initialize lo->use_dio
-according to "lo_flags & LO_FLAGS_DIRECT_IO" as we use for another
-loopdev stuff? See for example LO_FLAGS_PARTSCAN. Would be possible 
-to improve kernel a little bit?
-
-
-Now you have to use two commands (ioctls):
-
- # losetup /dev/loop0 file.img
- # losetup --direct-io 1 /dev/loop0
-
-It's fine to use --direct-io as toggle, but it would be nice to
-support it also when initialize the device.
-
-    Karel
-
-
+diff --git a/include/blkdev.h b/include/blkdev.h
+index c994795..fde2dbf 100644
+--- a/include/blkdev.h
++++ b/include/blkdev.h
+@@ -97,6 +97,9 @@ struct hd_geometry {
+ /* are we working with block device? */
+ int is_blkdev(int fd);
+ 
++/* open block device or file */
++int open_blkdev_or_file(const char *name, const int oflag);
++
+ /* Determine size in bytes */
+ off_t blkdev_find_size (int fd);
+ 
+diff --git a/lib/blkdev.c b/lib/blkdev.c
+index 5f49582..da8d835 100644
+--- a/lib/blkdev.c
++++ b/lib/blkdev.c
+@@ -25,9 +25,15 @@
+ # include <sys/disk.h>
+ #endif
+ 
++#ifndef EBADFD
++# define EBADFD 77		/* File descriptor in bad state */
++#endif
++
+ #include "blkdev.h"
+ #include "c.h"
+ #include "linux_version.h"
++#include "fileutils.h"
++#include "nls.h"
+ 
+ static long
+ blkdev_valid_offset (int fd, off_t offset) {
+@@ -254,6 +260,27 @@ int blkdev_is_misaligned(int fd)
+ #endif
+ }
+ 
++int open_blkdev_or_file(const char *name, const int oflag)
++{
++	int fd;
++	struct stat ftype;
++
++	if (stat(name, &ftype) < 0)
++		return -1;
++	if (S_ISBLK(ftype.st_mode)) {
++		fd = open(name, oflag | O_EXCL);
++	} else
++		fd = open(name, oflag);
++	if (-1 < fd && !is_same_inode(fd, name)) {
++		close(fd);
++		errno = EBADFD;
++		return -1;
++	}
++	if (-1 < fd && S_ISBLK(ftype.st_mode) && blkdev_is_misaligned(fd))
++		warnx(_("warning: %s is misaligned"), name);
++	return fd;
++}
++
+ int blkdev_is_cdrom(int fd)
+ {
+ #ifdef CDROM_GET_CAPABILITY
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.6.2
+
