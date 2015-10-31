@@ -1,61 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:57912 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751533AbbKOBYT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Nov 2015 20:24:19 -0500
-Date: Sat, 14 Nov 2015 20:24:18 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: "U.Mutlu" <for-gmane@mutluit.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: unshare -m for non-root user
-Message-ID: <20151115012418.GC31395@vapier.lan>
-References: <n0ujgc$tll$1@ger.gmane.org>
- <20151030102247.GF19508@ws.net.home>
- <n2674p$ulm$1@ger.gmane.org>
- <87si49p771.fsf@x220.int.ebiederm.org>
- <n26nkm$13l$1@ger.gmane.org>
- <20151114181716.GA3839@newbook>
- <n287q4$efd$1@ger.gmane.org>
- <n28krj$8i0$1@ger.gmane.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
-In-Reply-To: <n28krj$8i0$1@ger.gmane.org>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:34617 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750941AbbJaTVa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:30 -0400
+Received: by wikq8 with SMTP id q8so29535639wik.1
+        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:28 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 00/12] pull: race fixes
+Date: Sat, 31 Oct 2015 19:21:12 +0000
+Message-Id: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+I had a look of all chmod(3), chown(3), and stat(3) calls in executables if
+there are file operation, preceeded by open(3) in unsafe manner.  The
+changes in this pull request attempsts to correct these TACTOU cases.
 
-On 15 Nov 2015 01:49, U.Mutlu wrote:
-> So, then the question remains: how to give non-root user a secure mount
+The pull request has also few improvements, such as checking block device
+correct way when ever opening them to write in them and replacements stat(3)
+with access(3) when applicable.
 
-no, it doesn't.  at least two people have already told you how to do it:
-use the usernamespace (-U) option that unshare already supports.
--mike
 
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+----------------------------------------------------------------
+The following changes since commit 4419ffb9eff5801fdbd385a4a6199b3877f802ad:
+  lib/sysfs: make sysfs_get_devname()/blkid_devno_to_wholedisk() more robust (2015-10-30 11:08:32 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git races
+for you to fetch changes up to 09acbb45083e37f112f3d0558f4875f94db457d4:
+  fdformat: fix block device open race (2015-10-31 19:00:09 +0000)
+----------------------------------------------------------------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Sami Kerola (12):
+  login: fix stat(2) race
+  swapon: fix stat(3) and open(3) race
+  fsck: retire stat(3) when access(3) does better job
+  agetty: fix chown(3), chmod(3) and open(3) race
+  script, hwclock: check file exist with access(3) rather than stat(3)
+  lib/fileutils: add is_same_inode() check
+  include/blkdev: add open_blkdev_or_file() function
+  mkfs.bfs: fix block device open race
+  mkfs.minix: fix block device open race
+  mkswap: fix block device open race
+  mesg: fix multiple races
+  fdformat: fix block device open race
 
-iQIcBAEBCAAGBQJWR97CAAoJEEFjO5/oN/WBOsMQAJcUzbLN7ZMo5qkoArsx3xxn
-V+RH6aA1rhE0jYc54NeQm6X/jnBaCUNk8W+Dr31hqFmpl7CvLuLRKvhSX+/+xGiq
-dIWjY7dCZeB8mv8+7eceUsx3P+KFl3Sv+k8ebu/YFBr2BRWe5Ypui0kyDEBFqtCd
-pMbaASf6ODOKCaDzZ5HbM/r4cglyuyOVKQhn2ZMMUeG8jwOWhwbYzwLU4C9TKqzf
-ZLO0BoDZrxeRx9ZD/2bfNnUPUD1CLOC/NsdyGx+15a9eTaaXr1NILHwxYjaDntE9
-ISymsK9awB1dMFQH2wlzcaFApVHhuBjcLj3ZNvfSWa0SDdvw+oYNby31o5v7la05
-WAE2GNe20CSnj0hDq+bOdG1Gcp1VJX/FasAd4ReSN5WmKlfpBk0dczBKdPVZ1h/q
-GxIlq6zU4oopltEz06ko+gZPeXOZuzajWwUkBgSuGPhU2QN0eTRw4hDUpkexDSNP
-aQ+XCQFmjA2pfLbWCeG/eRX7m+JHy8lggH4UNiUOProlto2bxO8x9NnuFSdZaWKw
-qwix6Vpolew3ixPH7+/tiuLatxW9SiDUfzkNbVeW+giFC4o28oTcyKpj5d5WlUy/
-SiKMMza1IBmindWFitNOhb0cf2Nk57kVLaw1TSWx+1buXPqyEAShNbrKll9AIIAK
-jnnTRQpHI4851/SR8EaX
-=LoTl
------END PGP SIGNATURE-----
+ disk-utils/fdformat.c   | 11 ++++-------
+ disk-utils/fsck.c       |  3 +--
+ disk-utils/mkfs.bfs.c   |  2 +-
+ disk-utils/mkfs.minix.c |  9 +++------
+ disk-utils/mkswap.c     | 25 ++++++++-----------------
+ include/blkdev.h        |  3 +++
+ include/fileutils.h     | 14 ++++++++++++++
+ lib/blkdev.c            | 27 +++++++++++++++++++++++++++
+ login-utils/login.c     |  6 ++----
+ sys-utils/hwclock.c     |  5 +----
+ sys-utils/swapon.c      | 14 +++++++-------
+ term-utils/agetty.c     | 10 +++++-----
+ term-utils/mesg.c       | 25 +++++++++++++++++--------
+ term-utils/script.c     |  3 +--
+ 14 files changed, 94 insertions(+), 63 deletions(-)
 
---da4uJneut+ArUgXk--
+-- 
+2.6.2
+
