@@ -1,97 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from e37.co.us.ibm.com ([32.97.110.158]:34146 "EHLO
-	e37.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751563AbbKYUJt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Nov 2015 15:09:49 -0500
-Received: from localhost
-	by e37.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <util-linux@vger.kernel.org> from <sukadev@linux.vnet.ibm.com>;
-	Wed, 25 Nov 2015 13:09:49 -0700
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-	by d03dlp03.boulder.ibm.com (Postfix) with ESMTP id 60E8F19D8048
-	for <util-linux@vger.kernel.org>; Wed, 25 Nov 2015 12:57:54 -0700 (MST)
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id tAPK9l2O20644066
-	for <util-linux@vger.kernel.org>; Wed, 25 Nov 2015 13:09:47 -0700
-Received: from d03av03.boulder.ibm.com (localhost [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id tAPK9ldB018702
-	for <util-linux@vger.kernel.org>; Wed, 25 Nov 2015 13:09:47 -0700
-Date: Wed, 25 Nov 2015 12:09:45 -0800
-From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: nacc@linux.vnet.ibm.com, util-linux@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/1] lscpu: Print physical cpu information
-Message-ID: <20151125200945.GA16551@us.ibm.com>
-References: <1448402285-15621-1-git-send-email-sukadev@linux.vnet.ibm.com>
- <20151125091715.GE4955@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:40168 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752066AbbKBLIt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 2 Nov 2015 06:08:49 -0500
+Date: Mon, 2 Nov 2015 12:08:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.27.1
+Message-ID: <20151102110754.GH19508@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151125091715.GE4955@ws.net.home>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak [kzak@redhat.com] wrote:
-| On Tue, Nov 24, 2015 at 01:58:05PM -0800, Sukadev Bhattiprolu wrote:
-| > Appreciate comments on the proposal including following:
-| > 
-| > 	- Should we instead display the physical information unconditionally?
-| 
-| yes
+The util-linux release v2.27.1 is available at
 
-Ok. I have made it unconditional now.
+  ftp://ftp.kernel.org/pub/linux/utils/util-linux/v2.27
 
-| 
-| > 	  Maybe add '--system' or '--no-physical' to suppress the physical
-| > 	  topology info?
-| > 
-| > 	- Should we ignore (as this patch does) or fail if '--physical'
-| > 	  is specified on yet unsupported architectures?
-| 
-| I have originally thought that --physical will overwrite the current
-| output (e.g. "Sockets:"). If we add information from librtas as
-| additional fields (e.g. "Physical sockets:") than maybe we don't need
-| the option --physical at all, and all we need is to describe all
-| (difference between system/physical) in docs.
+Feedback and bug reports, as always, are welcomed.
 
-Ok. I have updated the man page.
+    Karel
 
-| 
-| > +static void read_physical_info_powerpc(struct lscpu_desc *desc)
-| > +{
-| > +	char buf[4096];
-| 
-|   buf[BUFSIZ]
 
-Yes,
+util-linux 2.27.1 Release Notes
+===============================
 
-| 
-| ...
-| 
-| >  static void
-| >  read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
-| >  {
-| > @@ -506,6 +555,9 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
-| >  		desc->dispatching = path_read_s32(_PATH_SYS_CPU "/dispatching");
-| >  	else
-| >  		desc->dispatching = -1;
-| >
-| 
-| you should not read information from rtas when lscpu is running in
-| shapshot mode ("snapshot" means that we read info from /sys and /proc
-| dump rather than from a real system; we use it for regression tests).
-| 
-|    if (mod->system == SYSTEM_ALIVE)
-|         read_physical_info_powerpc(desc);
+bash-completion:
+   - curly brace missed for findmnt  [Alexander Kuleshov]
+docs:
+   - update AUTHORS file  [Karel Zak]
+fdisk:
+   - fix -N internal return code  [Karel Zak]
+   - to recognize Intel Rapid Start hibernation partition  [Jörg Jenderek]
+   - to recognize partition type 0xEA (Rufus)  [Jörg Jenderek]
+include/pt-mbr-partnames:
+   - remove '|' from partition type name  [Karel Zak]
+ipcs:
+   - fix ipc_sem_get_limits()  [Karel Zak]
+lib/sysfs:
+   - make sysfs_get_devname()/blkid_devno_to_wholedisk() more robust  [Karel Zak]
+libblkid:
+   - (promise raid) cleanup code  [Karel Zak]
+   - make XFS Log visible for wipefs  [Karel Zak]
+libfdisk:
+   - (gpt) control ranges in set_partition  [Karel Zak]
+   - add more debug message to resize code  [Karel Zak]
+   - fix partition move/resize code  [Karel Zak]
+libmount:
+   - (monitor) don't check for regular mtab  [Karel Zak]
+   - (monitor) remove unnecessary epoll EPOLLPRI  [Karel Zak]
+   - fix uid= and gid= translation  [Karel Zak]
+   - follow docs with parse-error callback return code  [Karel Zak]
+libuuid:
+   - fix buffer overflow with long paths  [Karel Zak]
+logger:
+   - fix messages separation on UNIX socket  [Karel Zak]
+mount, umount, swapon, fsck, lsblk, findmnt:
+   - ignore malformed lines  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update cs.po (from translationproject.org)  [Petr Písař]
+   - update de.po (from translationproject.org)  [Philipp Thomas]
+   - update pt_BR.po (from translationproject.org)  [Rafael Ferreira]
+   - update ru.po (from translationproject.org)  [Evgeniy Yakushev]
+   - update zh_CN.po (from translationproject.org)  [Wylmer Wang]
+script:
+   - be pedantic and use "%"SCNi64  [Karel Zak]
+   - don't assume that time_t is compatible with long  [Isaac Dunham]
+tests:
+   - add missing files  [Karel Zak]
+   - replace username with tag in logger test  [Karel Zak]
+   - update and extend logger tests  [Karel Zak]
+uuidd:
+   - improve socket activation error messaging  [Sami Kerola]
+zramctl:
+   - fix lists of the all devices  [Karel Zak]
 
-OK.
 
-| 
-| and mod->physical will be  probably unnecessary if the physical information
-| will be printed unconditionally ;-)
-| 
-| > +	if (mod->physical)
-| > +		read_physical_info_powerpc(desc);
-| >  }
-
-Sukadev
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
