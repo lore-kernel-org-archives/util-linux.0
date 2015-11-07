@@ -1,88 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:51837 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750948AbbKNHZ1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 14 Nov 2015 02:25:27 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1ZxVD8-0000D9-9w
-	for util-linux@vger.kernel.org; Sat, 14 Nov 2015 08:25:22 +0100
-Received: from ip4d14b390.dynamic.kabel-deutschland.de ([77.20.179.144])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 14 Nov 2015 08:25:22 +0100
-Received: from for-gmane by ip4d14b390.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 14 Nov 2015 08:25:22 +0100
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:36613 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753326AbbKGAkj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 6 Nov 2015 19:40:39 -0500
+Received: by igdg1 with SMTP id g1so49575533igd.1
+        for <util-linux@vger.kernel.org>; Fri, 06 Nov 2015 16:40:38 -0800 (PST)
+From: Ming Lei <tom.leiming@gmail.com>
 To: util-linux@vger.kernel.org
-From: "U.Mutlu" <for-gmane@mutluit.com>
-Subject: Re: unshare -m for non-root user
-Date: Sat, 14 Nov 2015 08:25:10 +0100
-Message-ID: <n26nkm$13l$1@ger.gmane.org>
-References: <n0ujgc$tll$1@ger.gmane.org> <20151030102247.GF19508@ws.net.home>
- <n2674p$ulm$1@ger.gmane.org> <87si49p771.fsf@x220.int.ebiederm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-In-Reply-To: <87si49p771.fsf@x220.int.ebiederm.org>
+Cc: Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH 2/2] losetup: support list direct io
+Date: Sat,  7 Nov 2015 08:40:18 +0800
+Message-Id: <1446856818-26532-3-git-send-email-tom.leiming@gmail.com>
+In-Reply-To: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
+References: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Eric W. Biederman wrote on 11/14/2015 04:53 AM:
-> "U.Mutlu" <for-gmane@mutluit.com> writes:
->
->> Karel Zak wrote on 10/30/2015 11:22 AM:
->>> On Fri, Oct 30, 2015 at 03:09:15AM +0100, U.Mutlu wrote:
->>>> Hi,
->>>> I wonder why "unshare -m" doesn't work for an unpriviledged user:
->>>>
->>>> $ unshare -m /bin/bash
->>>> unshare: unshare failed: Operation not permitted
->>>> $ echo $?
->>>> 1
->>>> $ ls -l `which unshare`
->>>> -rwxr-xr-x 1 root root 14640 Mar 30  2015 /usr/bin/unshare
->>>>
->>>> Funny thing: when making the binary setuid then it works.
->>>> But I would prefer a working original version in the OS repository.
->>>>
->>>> OS: Debian 8
->>>>
->>>> # dpkg -l | grep -i util-linux
->>>> ii  util-linux                                 2.25.2-6            amd64
->>>> Miscellaneous system utilities
->>>>
->>>> Is this a bug, or is it not supposed to work for non-root users?
->>>
->>> man 2 unshare:
->>>
->>> CLONE_NEWNS
->>>
->>> This  flag has the same effect as the clone(2) CLONE_NEWNS flag.
->>> Unshare the mount namespace, so that the calling process has a private
->>> copy of its namespace which is not shared with any other process.
->>> Specifying this flag automatically implies CLONE_FS as well.  Use of
->>> CLONE_NEWNS requires the CAP_SYS_ADMIN capability.
->>>                            ^^^^^^^^^^^^
->>>
->>> .. so yes, it's expected behavior.
->>>
->>>       Karel
->>
->> I would say that the bug lies in the wrong file permissions.
->> chmod u+s fixes the bug, and I suggest that this should be the default.
->> Then non-root users can use it too.
->
-> There is no bug.  There are real dangers in creating a new mount
-> namespace as you can fool suid root applications like passwd.
+So that user can see if DIO is set for current loop device.
 
-Any links to further info on that?
+Signed-off-by: Ming Lei <tom.leiming@gmail.com>
+---
+ include/loopdev.h   |  2 ++
+ lib/loopdev.c       | 22 ++++++++++++++++++++++
+ sys-utils/losetup.c |  6 ++++++
+ 3 files changed, 30 insertions(+)
 
-> You can safely use new mount namespaces after creating a new user
-> namespace, and that does not require any special permissions on unshare.
-
-Is that creating a new user namespace and therein being root and then using 
-unshare?
-If yes, then this is not what I need. I need unshare for a non-root user.
-
-
+diff --git a/include/loopdev.h b/include/loopdev.h
+index 9a7f6ba..18ca41f 100644
+--- a/include/loopdev.h
++++ b/include/loopdev.h
+@@ -40,6 +40,7 @@ enum {
+ 	LO_FLAGS_USE_AOPS   = 2,
+ 	LO_FLAGS_AUTOCLEAR  = 4,	/* kernel >= 2.6.25 */
+ 	LO_FLAGS_PARTSCAN   = 8,	/* kernel >= 3.2 */
++	LO_FLAGS_DIRECT_IO  = 16,	/* kernel >= 4.2 */
+ };
+ 
+ #define LO_NAME_SIZE	64
+@@ -181,6 +182,7 @@ extern int loopcxt_get_encrypt_type(struct loopdev_cxt *lc, uint32_t *type);
+ extern const char *loopcxt_get_crypt_name(struct loopdev_cxt *lc);
+ extern int loopcxt_is_autoclear(struct loopdev_cxt *lc);
+ extern int loopcxt_is_readonly(struct loopdev_cxt *lc);
++extern int loopcxt_is_dio(struct loopdev_cxt *lc);
+ extern int loopcxt_is_partscan(struct loopdev_cxt *lc);
+ extern int loopcxt_find_by_backing_file(struct loopdev_cxt *lc,
+ 				const char *filename,
+diff --git a/lib/loopdev.c b/lib/loopdev.c
+index ff99dd4..54c6200 100644
+--- a/lib/loopdev.c
++++ b/lib/loopdev.c
+@@ -955,6 +955,28 @@ int loopcxt_is_readonly(struct loopdev_cxt *lc)
+ 
+ /*
+  * @lc: context
++ *
++ * Returns: 1 if the dio flags is set.
++ */
++int loopcxt_is_dio(struct loopdev_cxt *lc)
++{
++	struct sysfs_cxt *sysfs = loopcxt_get_sysfs(lc);
++
++	if (sysfs) {
++		int fl;
++		if (sysfs_read_int(sysfs, "loop/dio", &fl) == 0)
++			return fl;
++	}
++	if (loopcxt_ioctl_enabled(lc)) {
++		struct loop_info64 *lo = loopcxt_get_info(lc);
++		if (lo)
++			return lo->lo_flags & LO_FLAGS_DIRECT_IO;
++	}
++	return 0;
++}
++
++/*
++ * @lc: context
+  * @st: backing file stat or NULL
+  * @backing_file: filename
+  * @offset: offset
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index 8403621..f4c9213 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -49,6 +49,7 @@ enum {
+ 	COL_PARTSCAN,
+ 	COL_RO,
+ 	COL_SIZELIMIT,
++	COL_DIO,
+ };
+ 
+ /* basic output flags */
+@@ -74,6 +75,7 @@ static struct colinfo infos[] = {
+ 	[COL_RO]          = { "RO",           1, SCOLS_FL_RIGHT, N_("read-only device")},
+ 	[COL_SIZELIMIT]   = { "SIZELIMIT",    5, SCOLS_FL_RIGHT, N_("size limit of the file in bytes")},
+ 	[COL_MAJMIN]      = { "MAJ:MIN",      3, 0, N_("loop device major:minor number")},
++	[COL_DIO]         = { "DIO",          1, SCOLS_FL_RIGHT, N_("access backing file with direct-io")},
+ };
+ 
+ static int columns[ARRAY_SIZE(infos) * 2] = {-1};
+@@ -271,6 +273,9 @@ static int set_scols_data(struct loopdev_cxt *lc, struct libscols_line *ln)
+ 		case COL_RO:
+ 			p = loopcxt_is_readonly(lc) ? "1" : "0";
+ 			break;
++		case COL_DIO:
++			p = loopcxt_is_dio(lc) ? "1" : "0";
++			break;
+ 		case COL_PARTSCAN:
+ 			p = loopcxt_is_partscan(lc) ? "1" : "0";
+ 			break;
+@@ -599,6 +604,7 @@ int main(int argc, char **argv)
+ 		columns[ncolumns++] = COL_AUTOCLR;
+ 		columns[ncolumns++] = COL_RO;
+ 		columns[ncolumns++] = COL_BACK_FILE;
++		columns[ncolumns++] = COL_DIO;
+ 	}
+ 
+ 	if (act == A_FIND_FREE && optind < argc) {
+-- 
+1.9.1
 
