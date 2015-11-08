@@ -1,79 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:47586 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751955AbbKPETc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 15 Nov 2015 23:19:32 -0500
-Date: Sun, 15 Nov 2015 23:19:31 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: "U.Mutlu" <for-gmane@mutluit.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: unshare -m should not be a privileged option
-Message-ID: <20151116041931.GC5949@vapier.lan>
-References: <n2besp$j56$1@ger.gmane.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
-In-Reply-To: <n2besp$j56$1@ger.gmane.org>
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:63886 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750823AbbKHLIY (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Nov 2015 06:08:24 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/6] hexdump: fix a typo and tweak some wordings in the manpage
+Date: Sun,  8 Nov 2015 11:54:13 +0100
+Message-Id: <1446980055-2749-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
+References: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ text-utils/hexdump.1 |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
---Pd0ReVV5GZGQvF3a
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
+index c7d7599..af8433d 100644
+--- a/text-utils/hexdump.1
++++ b/text-utils/hexdump.1
+@@ -84,8 +84,9 @@ are ignored.
+ \fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]
+ Accept color units for the output.  The optional argument \fIwhen\fP
+ can be \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is omitted,
+-it defaults to \fBauto\fR.  The colors can be disabled, for the current built-in default 
+-see \fB\-\-help\fR output. See also the COLORS section.
++it defaults to \fBauto\fR.  The colors can be disabled; for the current built-in default
++see the \fB\-\-help\fR output.  See also the \fBColors\fR subsection and
++the \fBCOLORS\fR section below.
+ .TP
+ \fB\-n\fR, \fB\-\-length\fR \fIlength\fR
+ Interpret only
+@@ -335,9 +336,9 @@ conversion character or conversion string but with any
+ .RB ' \&# '
+ conversion flag characters removed, and referencing a NULL string.
+ .PP
+-If no format strings are specified, the default display is very simular to the
+-\fB\-x\fR
+-output format (the \fB\-x\fR uses more space between format units than the default output).
++If no format strings are specified, the default display is very similar to
++the \fB\-x\fR output format (the \fB\-x\fR option causes more space to be
++used between format units than in the default output).
+ .SH "EXIT STATUS"
+ .B hexdump
+ exits 0 on success and >0 if an error occurred.
+-- 
+1.7.0.4
 
-On 16 Nov 2015 03:26, U.Mutlu wrote:
-> I'm proposing that "unshare -m" should not be a privileged option,
-
-what you're asking for is not coming from util-linux.  unshare is merely an
-interface to the unshare() syscall.  if you dislike the security semantics
-there, you can post to the namespace mailing list:
-https://lists.linuxfoundation.org/mailman/listinfo/containers
-
-> Therefore the -m option (and maybe even most of the other options) of uns=
-hare
-> should be made to work for users, without needing root permission.
-
-they do already -- with user namespaces.  if you give people the ability to
-mount anything in the existing mount namespace, you open up attacks:
-- create an ext2 fs as the user with some setuid programs
-- create a new mount namespace
-- mount that image
-- instant root
-
-> The other solution via user namespace is IMHO overkill and in my case=20
-> impractical and irritating because user gets a root-prompt (#)
-> eventhough it is only inside the user namespace.
-
-so remap it to your own user instead of to root
-
-> As said in previous postings of mine: "chmod u+s unshare" does what I nee=
-d,
-
-i would like shell access to your systems please.  free root is fun.
--mike
-
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJWSVlTAAoJEEFjO5/oN/WBNGcP/j1ooJ6/TQlYZVeiUvgoK5z8
-xfV+TPDViH99SzaI7GupC0eIAiRvGyILwTCkLaJ6Xy2BTKO/z09bNh7PvW8iG80J
-Aj7IN3mV3eK+thr4IWSueXIptQKL8VRDqg9pZlt4K+VptkP82TcvstJrFbJeN7/H
-FnIZSfm8/cnbvV4ScFpc89vUxT3Nkp+F949hLYxKxem23lVrbrdK/5rIgNVrjsmL
-KQQfC0VboTEno9CWbSkG11M5MjuqcruQMKqd1pm7R/2vgw2IcR94JbtHquSrBc35
-maupT0WHChpdPV4EK2TWBlXprIbe9gNXNdikVa+ChIljCY9E14WVqLeoZC4QGAXp
-+ZJcWz/yGvZKUEyePVgSx6czCdjmXyy92TOde3blsXG1jbDB8d8vps1e1xEkOmRM
-a0mxPsUpLuDLaZtaTsM9djYG2UD4NDHSEU9T8BxI13Hxein8ET3JJgXlO7hw21Jf
-wLyWWrw0U918eGNH8iNMKcfc/rNveklQ1kjxcmYNIucjZT6pTkEdt/ilrhQJlVVd
-8A2WxCisW19JYLnIrxuVnbFD8YSVPYDUok/m1w/jfoqLAyVvTpZa0N3U+9i7sYQY
-hTc/SCx2X2L00NNEttxGJaWXYmpp2cH+BN2HHLvmlADIW0o766ICCUlt2hjpHpoj
-aqcnA9o8oksEp8AVRzJA
-=YQhU
------END PGP SIGNATURE-----
-
---Pd0ReVV5GZGQvF3a--
