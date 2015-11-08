@@ -1,93 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:37795 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751200AbbJaTVk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:40 -0400
-Received: by wmff134 with SMTP id f134so33207579wmf.0
-        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:39 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:64644 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751577AbbKHLIJ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Nov 2015 06:08:09 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 07/12] include/blkdev: add open_blkdev_or_file() function
-Date: Sat, 31 Oct 2015 19:21:19 +0000
-Message-Id: <1446319284-24778-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
-References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 3/6] dmseg: slightly improve punctuation and formatting of the manpage
+Date: Sun,  8 Nov 2015 11:54:12 +0100
+Message-Id: <1446980055-2749-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
+References: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Purpose of this function is to open a path that is potentially pointing to a
-block device or file without races, and checking ensuring block device is
-not busy when path points to such.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- include/blkdev.h |  3 +++
- lib/blkdev.c     | 27 +++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+)
+ sys-utils/dmesg.1 |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/blkdev.h b/include/blkdev.h
-index c994795..fde2dbf 100644
---- a/include/blkdev.h
-+++ b/include/blkdev.h
-@@ -97,6 +97,9 @@ struct hd_geometry {
- /* are we working with block device? */
- int is_blkdev(int fd);
- 
-+/* open block device or file */
-+int open_blkdev_or_file(const char *name, const int oflag);
-+
- /* Determine size in bytes */
- off_t blkdev_find_size (int fd);
- 
-diff --git a/lib/blkdev.c b/lib/blkdev.c
-index 5f49582..da8d835 100644
---- a/lib/blkdev.c
-+++ b/lib/blkdev.c
-@@ -25,9 +25,15 @@
- # include <sys/disk.h>
- #endif
- 
-+#ifndef EBADFD
-+# define EBADFD 77		/* File descriptor in bad state */
-+#endif
-+
- #include "blkdev.h"
- #include "c.h"
- #include "linux_version.h"
-+#include "fileutils.h"
-+#include "nls.h"
- 
- static long
- blkdev_valid_offset (int fd, off_t offset) {
-@@ -254,6 +260,27 @@ int blkdev_is_misaligned(int fd)
- #endif
- }
- 
-+int open_blkdev_or_file(const char *name, const int oflag)
-+{
-+	int fd;
-+	struct stat ftype;
-+
-+	if (stat(name, &ftype) < 0)
-+		return -1;
-+	if (S_ISBLK(ftype.st_mode)) {
-+		fd = open(name, oflag | O_EXCL);
-+	} else
-+		fd = open(name, oflag);
-+	if (-1 < fd && !is_same_inode(fd, name)) {
-+		close(fd);
-+		errno = EBADFD;
-+		return -1;
-+	}
-+	if (-1 < fd && S_ISBLK(ftype.st_mode) && blkdev_is_misaligned(fd))
-+		warnx(_("warning: %s is misaligned"), name);
-+	return fd;
-+}
-+
- int blkdev_is_cdrom(int fd)
- {
- #ifdef CDROM_GET_CAPABILITY
+diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
+index b3eb281..199eacb 100644
+--- a/sys-utils/dmesg.1
++++ b/sys-utils/dmesg.1
+@@ -45,9 +45,9 @@ then only the time delta without the timestamp is printed.
+ .IP "\fB\-E\fR, \fB\-\-console\-on\fR"
+ Enable printing messages to the console.
+ .IP "\fB\-e\fR, \fB\-\-reltime\fR"
+-Display the local time and the delta in human-readable format. Be aware that
+-conversion to the local time could be inaccurate (see \fB\-T\fR) for more
+-details.
++Display the local time and the delta in human-readable format.  Be aware that
++conversion to the local time could be inaccurate (see \fB\-T\fR for more
++details).
+ .IP "\fB\-F\fR, \fB\-\-file \fIfile\fR"
+ Read the messages from the given
+ .IR file .
+@@ -72,8 +72,8 @@ Print kernel messages.
+ .IP "\fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]"
+ Colorize the output.  The optional argument \fIwhen\fP
+ can be \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is omitted,
+-it defaults to \fBauto\fR.  The colors can be disabled, for the current built-in default 
+-see \fB\-\-help\fR output. See also the COLORS section.
++it defaults to \fBauto\fR.  The colors can be disabled; for the current built-in default
++see the \fB\-\-help\fR output.  See also the \fBCOLORS\fR section below.
+ .IP  "\fB\-l\fR, \fB\-\-level \fIlist\fR"
+ Restrict output to the given (comma-separated)
+ .I list
 -- 
-2.6.2
+1.7.0.4
 
