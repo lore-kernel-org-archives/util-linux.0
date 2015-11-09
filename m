@@ -1,52 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:63886 "EHLO
-	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750823AbbKHLIY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Nov 2015 06:08:24 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 4/6] hexdump: fix a typo and tweak some wordings in the manpage
-Date: Sun,  8 Nov 2015 11:54:13 +0100
-Message-Id: <1446980055-2749-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
-References: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:59896 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753142AbbKIK3d (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 9 Nov 2015 05:29:33 -0500
+Date: Mon, 9 Nov 2015 11:29:31 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ming Lei <tom.leiming@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/2] losetup: support direct-IO to backing file
+Message-ID: <20151109102931.GU19508@ws.net.home>
+References: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- text-utils/hexdump.1 |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+On Sat, Nov 07, 2015 at 08:40:16AM +0800, Ming Lei wrote:
+> The loop direct I/O patches[1] have been merged to linus kernel tree
+> and will be released in v4.4.
+> 
+> So the two patches provide interfaces for using direct IO/AIO
+> in losetup.
 
-diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
-index c7d7599..af8433d 100644
---- a/text-utils/hexdump.1
-+++ b/text-utils/hexdump.1
-@@ -84,8 +84,9 @@ are ignored.
- \fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]
- Accept color units for the output.  The optional argument \fIwhen\fP
- can be \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is omitted,
--it defaults to \fBauto\fR.  The colors can be disabled, for the current built-in default 
--see \fB\-\-help\fR output. See also the COLORS section.
-+it defaults to \fBauto\fR.  The colors can be disabled; for the current built-in default
-+see the \fB\-\-help\fR output.  See also the \fBColors\fR subsection and
-+the \fBCOLORS\fR section below.
- .TP
- \fB\-n\fR, \fB\-\-length\fR \fIlength\fR
- Interpret only
-@@ -335,9 +336,9 @@ conversion character or conversion string but with any
- .RB ' \&# '
- conversion flag characters removed, and referencing a NULL string.
- .PP
--If no format strings are specified, the default display is very simular to the
--\fB\-x\fR
--output format (the \fB\-x\fR uses more space between format units than the default output).
-+If no format strings are specified, the default display is very similar to
-+the \fB\-x\fR output format (the \fB\-x\fR option causes more space to be
-+used between format units than in the default output).
- .SH "EXIT STATUS"
- .B hexdump
- exits 0 on success and >0 if an error occurred.
+Thanks!
+
+>  include/loopdev.h   |  4 ++++
+>  lib/loopdev.c       | 40 ++++++++++++++++++++++++++++++++++++++++
+>  sys-utils/losetup.c | 30 +++++++++++++++++++++++++++---
+>  3 files changed, 71 insertions(+), 3 deletions(-)
+> 
+> [1] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=bc07c10a3603a5ab3ef01ba42b3d41f9ac63d1b6
+
+If I read correctly the kernel code than LO_FLAGS_DIRECT_IO is not
+possible to use when initialize loop device by LOOP_SET_FD ioctl. I
+need extra LOOP_SET_DIRECT_IO ioctl. Why?
+
+Why kernel function loop_set_fd() does not initialize lo->use_dio
+according to "lo_flags & LO_FLAGS_DIRECT_IO" as we use for another
+loopdev stuff? See for example LO_FLAGS_PARTSCAN. Would be possible 
+to improve kernel a little bit?
+
+
+Now you have to use two commands (ioctls):
+
+ # losetup /dev/loop0 file.img
+ # losetup --direct-io 1 /dev/loop0
+
+It's fine to use --direct-io as toggle, but it would be nice to
+support it also when initialize the device.
+
+    Karel
+
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
