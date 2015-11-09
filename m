@@ -1,72 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out03.mta.xmission.com ([166.70.13.233]:42454 "EHLO
-	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751399AbbKNECn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 13 Nov 2015 23:02:43 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "U.Mutlu" <for-gmane@mutluit.com>
+Received: from resqmta-ch2-06v.sys.comcast.net ([69.252.207.38]:53863 "EHLO
+	resqmta-ch2-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751863AbbKIT7I (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 Nov 2015 14:59:08 -0500
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Felix Miata <mrmazda@earthlink.net>
 Cc: util-linux@vger.kernel.org
-References: <n0ujgc$tll$1@ger.gmane.org> <20151030102247.GF19508@ws.net.home>
-	<n2674p$ulm$1@ger.gmane.org>
-Date: Fri, 13 Nov 2015 21:53:54 -0600
-In-Reply-To: <n2674p$ulm$1@ger.gmane.org> (U. Mutlu's message of "Sat, 14 Nov
-	2015 03:43:37 +0100")
-Message-ID: <87si49p771.fsf@x220.int.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: unshare -m for non-root user
+Subject: Re: what does "drive" mean in mlable man page?
+In-Reply-To: <562570F9.40401@earthlink.net> (mrmazda@earthlink.net)
+Date: Mon, 09 Nov 2015 14:59:06 -0500
+Message-ID: <871tbz0ws5.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-"U.Mutlu" <for-gmane@mutluit.com> writes:
+Felix Miata <mrmazda@earthlink.net> writes:
+> Like in most man pages, examples that would explain ambiguous term meanings
+> are absent. blkid [mlabel?] doesn't say what the existing "drive" is. How does one find
+> out? Can "drive" be a synonym for device name? The mtools man page is
+> ambiguous by lack of adequate example as well. I wish to change the labels on
+> /dev/sdc3, /dev/sdc5 and /dev/sdc6.
 
-> Karel Zak wrote on 10/30/2015 11:22 AM:
->> On Fri, Oct 30, 2015 at 03:09:15AM +0100, U.Mutlu wrote:
->>> Hi,
->>> I wonder why "unshare -m" doesn't work for an unpriviledged user:
->>>
->>> $ unshare -m /bin/bash
->>> unshare: unshare failed: Operation not permitted
->>> $ echo $?
->>> 1
->>> $ ls -l `which unshare`
->>> -rwxr-xr-x 1 root root 14640 Mar 30  2015 /usr/bin/unshare
->>>
->>> Funny thing: when making the binary setuid then it works.
->>> But I would prefer a working original version in the OS repository.
->>>
->>> OS: Debian 8
->>>
->>> # dpkg -l | grep -i util-linux
->>> ii  util-linux                                 2.25.2-6            amd64
->>> Miscellaneous system utilities
->>>
->>> Is this a bug, or is it not supposed to work for non-root users?
->>
->> man 2 unshare:
->>
->> CLONE_NEWNS
->>
->> This  flag has the same effect as the clone(2) CLONE_NEWNS flag.
->> Unshare the mount namespace, so that the calling process has a private
->> copy of its namespace which is not shared with any other process.
->> Specifying this flag automatically implies CLONE_FS as well.  Use of
->> CLONE_NEWNS requires the CAP_SYS_ADMIN capability.
->>                           ^^^^^^^^^^^^
->>
->> .. so yes, it's expected behavior.
->>
->>      Karel
->
-> I would say that the bug lies in the wrong file permissions.
-> chmod u+s fixes the bug, and I suggest that this should be the default.
-> Then non-root users can use it too.
+You're right, an example would help.  But if you read closely, the page
+says that mlabel is part of the mtools suite, which means that "drive"
+is a single-letter simulated MS-DOS drive name, which is mapped into
+/dev/... via /etc/mtools.conf (which is not mentioned in the "drive
+letters" section of the mtools man page, but rather in the 2nd paragraph
+of the introduction).
 
-There is no bug.  There are real dangers in creating a new mount
-namespace as you can fool suid root applications like passwd.
+IIRC, there's an mtools mailing list.
 
-You can safely use new mount namespaces after creating a new user
-namespace, and that does not require any special permissions on unshare.
-
-Eric
-
+Dale
