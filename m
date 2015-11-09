@@ -1,46 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:38367 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751024AbbJaTVb (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:31 -0400
-Received: by wmeg8 with SMTP id g8so33290316wme.1
-        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:30 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 01/12] login: fix stat(2) race
-Date: Sat, 31 Oct 2015 19:21:13 +0000
-Message-Id: <1446319284-24778-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:49210 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751549AbbKII6u (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 9 Nov 2015 03:58:50 -0500
+Date: Mon, 9 Nov 2015 09:58:48 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/12] pull: race fixes
+Message-ID: <20151109085848.GR19508@ws.net.home>
 References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/login.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+On Sat, Oct 31, 2015 at 07:21:12PM +0000, Sami Kerola wrote:
+>   login: fix stat(2) race
+>   swapon: fix stat(3) and open(3) race
+>   fsck: retire stat(3) when access(3) does better job
+>   agetty: fix chown(3), chmod(3) and open(3) race
+>   script, hwclock: check file exist with access(3) rather than stat(3)
 
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 0e45de7..b708467 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -256,13 +256,11 @@ static void motd(void)
- 		struct stat st;
- 		int fd;
- 
--		if (stat(motdfile, &st) || !st.st_size)
--			continue;
- 		fd = open(motdfile, O_RDONLY, 0);
- 		if (fd < 0)
- 			continue;
--
--		sendfile(fileno(stdout), fd, NULL, st.st_size);
-+		if (!fstat(fd, &st) && st.st_size)
-+			sendfile(fileno(stdout), fd, NULL, st.st_size);
- 		close(fd);
- 	}
- 
+ Applied, thanks.
+
+>   lib/fileutils: add is_same_inode() check
+>   include/blkdev: add open_blkdev_or_file() function
+>   mkfs.bfs: fix block device open race
+>   mkfs.minix: fix block device open race
+>   mkswap: fix block device open race
+>   mesg: fix multiple races
+>   fdformat: fix block device open race
+
+ Here I don't like the pattern
+
+  open_blkdev_or_file()
+  fstat()
+
+ IMHO it would be enough to use is_same_inode() to avoid race.
+
+    Karel
+
 -- 
-2.6.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
