@@ -1,55 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:37820 "EHLO
-	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751200AbbJaTVr (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:47 -0400
-Received: by wmff134 with SMTP id f134so33208505wmf.0
-        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:46 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 12/12] fdformat: fix block device open race
-Date: Sat, 31 Oct 2015 19:21:24 +0000
-Message-Id: <1446319284-24778-13-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
-References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+Received: from out03.mta.xmission.com ([166.70.13.233]:42454 "EHLO
+	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399AbbKNECn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 13 Nov 2015 23:02:43 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+References: <n0ujgc$tll$1@ger.gmane.org> <20151030102247.GF19508@ws.net.home>
+	<n2674p$ulm$1@ger.gmane.org>
+Date: Fri, 13 Nov 2015 21:53:54 -0600
+In-Reply-To: <n2674p$ulm$1@ger.gmane.org> (U. Mutlu's message of "Sat, 14 Nov
+	2015 03:43:37 +0100")
+Message-ID: <87si49p771.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: unshare -m for non-root user
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This fix makes fdformat also to detect if block device is busy, and warn if
-the device is misaligned.
+"U.Mutlu" <for-gmane@mutluit.com> writes:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/fdformat.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+> Karel Zak wrote on 10/30/2015 11:22 AM:
+>> On Fri, Oct 30, 2015 at 03:09:15AM +0100, U.Mutlu wrote:
+>>> Hi,
+>>> I wonder why "unshare -m" doesn't work for an unpriviledged user:
+>>>
+>>> $ unshare -m /bin/bash
+>>> unshare: unshare failed: Operation not permitted
+>>> $ echo $?
+>>> 1
+>>> $ ls -l `which unshare`
+>>> -rwxr-xr-x 1 root root 14640 Mar 30  2015 /usr/bin/unshare
+>>>
+>>> Funny thing: when making the binary setuid then it works.
+>>> But I would prefer a working original version in the OS repository.
+>>>
+>>> OS: Debian 8
+>>>
+>>> # dpkg -l | grep -i util-linux
+>>> ii  util-linux                                 2.25.2-6            amd64
+>>> Miscellaneous system utilities
+>>>
+>>> Is this a bug, or is it not supposed to work for non-root users?
+>>
+>> man 2 unshare:
+>>
+>> CLONE_NEWNS
+>>
+>> This  flag has the same effect as the clone(2) CLONE_NEWNS flag.
+>> Unshare the mount namespace, so that the calling process has a private
+>> copy of its namespace which is not shared with any other process.
+>> Specifying this flag automatically implies CLONE_FS as well.  Use of
+>> CLONE_NEWNS requires the CAP_SYS_ADMIN capability.
+>>                           ^^^^^^^^^^^^
+>>
+>> .. so yes, it's expected behavior.
+>>
+>>      Karel
+>
+> I would say that the bug lies in the wrong file permissions.
+> chmod u+s fixes the bug, and I suggest that this should be the default.
+> Then non-root users can use it too.
 
-diff --git a/disk-utils/fdformat.c b/disk-utils/fdformat.c
-index e7d43da..086ad55 100644
---- a/disk-utils/fdformat.c
-+++ b/disk-utils/fdformat.c
-@@ -216,17 +216,14 @@ int main(int argc, char **argv)
- 
- 	if (argc < 1)
- 		usage(stderr);
--	if (stat(argv[0], &st) < 0)
-+	ctrl = open_blkdev_or_file(argv[0], O_RDWR);
-+	if (ctrl < 0)
-+		err(EXIT_FAILURE, _("cannot open %s"), argv[0]);
-+	if (fstat(ctrl, &st) < 0)
- 		err(EXIT_FAILURE, _("stat of %s failed"), argv[0]);
- 	if (!S_ISBLK(st.st_mode))
- 		/* do not test major - perhaps this was an USB floppy */
- 		errx(EXIT_FAILURE, _("%s: not a block device"), argv[0]);
--	if (access(argv[0], W_OK) < 0)
--		err(EXIT_FAILURE, _("cannot access file %s"), argv[0]);
--
--	ctrl = open(argv[0], O_RDWR);
--	if (ctrl < 0)
--		err(EXIT_FAILURE, _("cannot open %s"), argv[0]);
- 	if (ioctl(ctrl, FDGETPRM, (long) &param) < 0)
- 		err(EXIT_FAILURE, _("could not determine current format type"));
- 
--- 
-2.6.2
+There is no bug.  There are real dangers in creating a new mount
+namespace as you can fool suid root applications like passwd.
+
+You can safely use new mount namespaces after creating a new user
+namespace, and that does not require any special permissions on unshare.
+
+Eric
 
