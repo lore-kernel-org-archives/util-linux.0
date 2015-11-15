@@ -1,61 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f180.google.com ([209.85.223.180]:35568 "EHLO
-	mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686AbbKQMNj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 17 Nov 2015 07:13:39 -0500
-Received: by ioc74 with SMTP id 74so16096702ioc.2
-        for <util-linux@vger.kernel.org>; Tue, 17 Nov 2015 04:13:38 -0800 (PST)
-Received: from localhost ([2001:cc0:201e:102:3e97:eff:fea9:6aa7])
-        by smtp.gmail.com with ESMTPSA id b81sm13572372ioj.30.2015.11.17.04.13.36
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Nov 2015 04:13:37 -0800 (PST)
-From: "Casper Ti. Vector" <caspervector@gmail.com>
-Message-Id: <3122dea1b0bbfab174b9e1cc70aec72676568f52.1447762216.git.CasperVector@gmail.com>
-Date: Tue, 17 Nov 2015 16:54:15 +0800
-Subject: [PATCH 1/2] linux_reboot.h: support 1-argument reboot() from
- alternative libc.
-To: util-linux@vger.kernel.org
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:55790 "EHLO
+	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751817AbbKOPHh (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Sun, 15 Nov 2015 10:07:37 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailout.nyi.internal (Postfix) with ESMTP id 3253F201E0
+	for <util-linux@vger.kernel.org>; Sun, 15 Nov 2015 10:07:34 -0500 (EST)
+Message-Id: <1447600053.449482.440244641.57DFABF2@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Barry Vos <barryvos@gmail.com>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+In-Reply-To: <CACZ46+5V8coLvm=9VnfM2aDRXZB_Hv4idSTsESLC6Ee9zGeBdw@mail.gmail.com>
+References: <CACZ46+5V8coLvm=9VnfM2aDRXZB_Hv4idSTsESLC6Ee9zGeBdw@mail.gmail.com>
+Subject: Re: Typo man-page mkfs(8)
+Date: Sun, 15 Nov 2015 16:07:33 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Original code assumes 1-argument reboot() is only provided by glibc 2.x
-and later; but as far as the patch author knows, at least the following
-alternative C libraries for linux also provide the 1-argument variant:
 
-* uclibc: all public releases.
-* dietlibc: 0.7.2 and all later releases; reboot() was not provided in
-            0.7.1 and earlier versions.
-* musl: all public releases.
-* klibc: all public releases.
-* bionic: all public releases.
+On Fri, Nov 13, 2015, at 23:24, Barry Vos wrote:
+> The man-page mkfs(8) mentions that the option -V equates to --verbose.
+> I think this should be -v instead.
 
-... which should already cover most use cases.
----
- include/linux_reboot.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Well, no.  A leading -V gets consumed by the mkfs program itself;
+a -v gets passed on to the filesystem-specific helper program.
 
-diff --git a/include/linux_reboot.h b/include/linux_reboot.h
-index 9cebc67..7ba4bca 100644
---- a/include/linux_reboot.h
-+++ b/include/linux_reboot.h
-@@ -39,12 +39,12 @@
- #ifdef USE_LIBC
- 
- /* libc version */
--#if defined __GLIBC__ && __GLIBC__ >= 2
--#  include <sys/reboot.h>
--#  define REBOOT(cmd) reboot(cmd)
--#else
-+#if defined __GLIBC__ && __GLIBC__ < 2
- extern int reboot(int, int, int);
- #  define REBOOT(cmd) reboot(LINUX_REBOOT_MAGIC1,LINUX_REBOOT_MAGIC2,(cmd))
-+#else
-+#  include <sys/reboot.h>
-+#  define REBOOT(cmd) reboot(cmd)
- #endif
- static inline int my_reboot(int cmd) {
- 	return REBOOT(cmd);
+Try it:
+
+mkfs -V  somefile
+mkfs -V -v  somefile
+mkfs -v  somefile
+mkfs -v -V  somefile
+
+Benno
+
 -- 
-2.6.3
+http://www.fastmail.com - The professional email service
 
