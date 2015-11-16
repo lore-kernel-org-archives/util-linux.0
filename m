@@ -1,48 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54010 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:54737 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752121AbbKIIsz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Nov 2015 03:48:55 -0500
-Date: Mon, 9 Nov 2015 09:48:54 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 08/12] mkfs.bfs: fix block device open race
-Message-ID: <20151109084854.GO19508@ws.net.home>
-References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
- <1446319284-24778-9-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1446319284-24778-9-git-send-email-kerolasa@iki.fi>
+	id S1751393AbbKPCCF convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 Nov 2015 21:02:05 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1Zy97J-0005L9-An
+	for util-linux@vger.kernel.org; Mon, 16 Nov 2015 03:02:01 +0100
+Received: from ip4d14b390.dynamic.kabel-deutschland.de ([77.20.179.144])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 16 Nov 2015 03:02:01 +0100
+Received: from for-gmane by ip4d14b390.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Mon, 16 Nov 2015 03:02:01 +0100
+To: util-linux@vger.kernel.org
+From: "U.Mutlu" <for-gmane@mutluit.com>
+Subject: Re: unshare -m for non-root user
+Date: Mon, 16 Nov 2015 03:01:54 +0100
+Message-ID: <n2bdei$vhf$1@ger.gmane.org>
+References: <n2674p$ulm$1@ger.gmane.org>
+ <87si49p771.fsf@x220.int.ebiederm.org> <n26nkm$13l$1@ger.gmane.org>
+ <20151114181716.GA3839@newbook> <n287q4$efd$1@ger.gmane.org>
+ <n28krj$8i0$1@ger.gmane.org> <20151115012418.GC31395@vapier.lan>
+ <n28pis$6uv$1@ger.gmane.org> <20151115062819.GD31395@vapier.lan>
+ <n29sg5$15j$1@ger.gmane.org> <20151115124211.GA5949@vapier.lan>
+ <n2a9uv$313$1@ger.gmane.org> <5648EA26.2080804@zoho.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <5648EA26.2080804@zoho.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Oct 31, 2015 at 07:21:20PM +0000, Sami Kerola wrote:
-> This fix makes mkfs.bfs also to detect if block device is busy, and warn if
-> the device is misaligned.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  disk-utils/mkfs.bfs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/disk-utils/mkfs.bfs.c b/disk-utils/mkfs.bfs.c
-> index 7057194..139130e 100644
-> --- a/disk-utils/mkfs.bfs.c
-> +++ b/disk-utils/mkfs.bfs.c
-> @@ -187,7 +187,7 @@ int main(int argc, char **argv)
->  	if (!S_ISBLK(statbuf.st_mode))
->  		errx(EXIT_FAILURE, _("%s is not a block special device"), device);
->  
-> -	fd = open(device, O_RDWR | O_EXCL);
-> +	fd = open_blkdev_or_file(device, O_RDWR);
+Ángel González wrote on 11/15/2015 09:25 PM:
+>>> complain to Debian. iirc, they break their kernels on purpose by adding
+>>> non-standard caps which disallow userns usage.
+>>
+>> Ok, I found out that on Debian one needs to make the follwing entry in
+>> /etc/sysctl.conf:
+>> kernel.unprivileged_userns_clone = 1
+>> and reboot, or do sysctl -p /etc/sysctl.conf, or equivalently
+>> echo 1 > /proc/sys/kernel/unprivileged_userns_clone
+>
+> The kernel will neded to be compiled with CONFIG_USER_NS
 
- It seems code assumes block devices only, why we need _or_file()
- here? It would be enough to check statbuf and fstat(fd) for inode
- number if you want to avoid races.
+True, but the stock Debian 8 kernel has it already enabled,
+as the following tool (belongs to lxc) reports:
 
-    Karel
+#######
+$ lxc-checkconfig
+Kernel configuration not found at /proc/config.gz; searching...
+Kernel configuration found at /boot/config-3.16.0-4-amd64
+--- Namespaces ---
+Namespaces: enabled
+Utsname namespace: enabled
+Ipc namespace: enabled
+Pid namespace: enabled
+User namespace: enabled
+Network namespace: enabled
+Multiple /dev/pts instances: enabled
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--- Control groups ---
+Cgroup: enabled
+Cgroup clone_children flag: enabled
+Cgroup device: enabled
+Cgroup sched: enabled
+Cgroup cpu account: enabled
+Cgroup memory controller: enabled
+Cgroup cpuset: enabled
+
+--- Misc ---
+Veth pair device: enabled
+Macvlan: enabled
+Vlan: enabled
+File capabilities: enabled
+
+Note : Before booting a new kernel, you can check its configuration
+usage : CONFIG=/path/to/config /usr/bin/lxc-checkconfig
+#######
+
+Another method to see it is this one:
+$ grep CONFIG_USER_NS /boot/config-`uname -r`
+CONFIG_USER_NS=y
+
+
+
+
