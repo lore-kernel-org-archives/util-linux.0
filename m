@@ -1,78 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:32938 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750758AbbKJGFk (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 10 Nov 2015 01:05:40 -0500
-Received: by igvi2 with SMTP id i2so91147964igv.0
-        for <util-linux@vger.kernel.org>; Mon, 09 Nov 2015 22:05:40 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20151109114613.GV19508@ws.net.home>
-References: <1446856818-26532-1-git-send-email-tom.leiming@gmail.com>
-	<20151109102931.GU19508@ws.net.home>
-	<CACVXFVOGZzGtpPBbVfYDd1=3rcZ__x-ggkvtQMx9T0+VJYfSrw@mail.gmail.com>
-	<20151109114613.GV19508@ws.net.home>
-Date: Tue, 10 Nov 2015 14:05:39 +0800
-Message-ID: <CACVXFVPRBwe3H101=cUVG6CsDT3z-WvAX_wOanaNa+HbTdfoUw@mail.gmail.com>
-Subject: Re: [PATCH 0/2] losetup: support direct-IO to backing file
-From: Ming Lei <tom.leiming@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from plane.gmane.org ([80.91.229.3]:50297 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751151AbbKQGzI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 17 Nov 2015 01:55:08 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1ZyaAU-0000XP-Jb
+	for util-linux@vger.kernel.org; Tue, 17 Nov 2015 07:55:06 +0100
+Received: from ip4d14b390.dynamic.kabel-deutschland.de ([77.20.179.144])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 17 Nov 2015 07:55:06 +0100
+Received: from for-gmane by ip4d14b390.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 17 Nov 2015 07:55:06 +0100
+To: util-linux@vger.kernel.org
+From: "U.Mutlu" <for-gmane@mutluit.com>
+Subject: Re: unshare -m should not be a privileged option
+Date: Tue, 17 Nov 2015 07:54:57 +0100
+Message-ID: <n2ej02$10r$1@ger.gmane.org>
+References: <n2besp$j56$1@ger.gmane.org> <20151116041931.GC5949@vapier.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20151116041931.GC5949@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 9, 2015 at 7:46 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Nov 09, 2015 at 07:29:21PM +0800, Ming Lei wrote:
->> > It's fine to use --direct-io as toggle, but it would be nice to
->> > support it also when initialize the device.
->>
->> OK, looks a good idea, but we still need to support the standalone
->> command for direct-io for the case of 'mount -o loop'.
+Mike Frysinger wrote on 11/16/2015 05:19 AM:
+> On 16 Nov 2015 03:26, U.Mutlu wrote:
+>> I'm proposing that "unshare -m" should not be a privileged option,
 >
-> Sure, I understand this use-case. I have talked bout loop_set_fd(),
-> maybe all we need is:
+> what you're asking for is not coming from util-linux.  unshare is merely an
+> interface to the unshare() syscall.  if you dislike the security semantics
+> there, you can post to the namespace mailing list:
+> https://lists.linuxfoundation.org/mailman/listinfo/containers
 >
+>> Therefore the -m option (and maybe even most of the other options) of unshare
+>> should be made to work for users, without needing root permission.
 >
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index 423f4ca..22642a0 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -925,7 +925,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
->
->         set_device_ro(bdev, (lo_flags & LO_FLAGS_READ_ONLY) != 0);
->
-> -       lo->use_dio = false;
-> +       lo->use_dio = (lo_flags & LO_FLAGS_DIRECT_IO);
->         lo->lo_blocksize = lo_blocksize;
->         lo->lo_device = bdev;
->         lo->lo_flags = lo_flags;
+> they do already -- with user namespaces.  if you give people the ability to
+> mount anything in the existing mount namespace, you open up attacks:
+> - create an ext2 fs as the user with some setuid programs
+> - create a new mount namespace
+> - mount that image
+> - instant root
 
-I don't think this change is doable because lo_flags is always started
-as zero from loop_set_fd().
+I think there is a 'misunderstanding': it happens earlier, ie. when doing
+"unshare -m bash" then you already become root in the new shell.
+It has nothing to do with ext2 or the mount.
 
->
->
-> then we can a little bit modify your losetup.c patches and support
-> --direct-io also for A_CREATE.
+As I already said: solution to this problem is:
+chmod u+s unshare
+and starting the unshare cmd unpriviledged (ie. as user) and directly (ie. not 
+via sudo).
 
-That makes sense, and I will submit V1 to support creating one device
-with direct io.
-
-thanks,
-Ming
-
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+But the bind-mount danger (vuln) still remains.
 
 
-
--- 
-Ming Lei
