@@ -1,47 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49210 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:33874 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751549AbbKII6u (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 Nov 2015 03:58:50 -0500
-Date: Mon, 9 Nov 2015 09:58:48 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/12] pull: race fixes
-Message-ID: <20151109085848.GR19508@ws.net.home>
-References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+	id S1754495AbbKRRR3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 18 Nov 2015 12:17:29 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1Zz6MH-0004YW-8i
+	for util-linux@vger.kernel.org; Wed, 18 Nov 2015 18:17:25 +0100
+Received: from ip4d14b390.dynamic.kabel-deutschland.de ([77.20.179.144])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 18 Nov 2015 18:17:25 +0100
+Received: from for-gmane by ip4d14b390.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Wed, 18 Nov 2015 18:17:25 +0100
+To: util-linux@vger.kernel.org
+From: "U.Mutlu" <for-gmane@mutluit.com>
+Subject: RFC: usermount - a secure mount for unpriviledged users
+Date: Wed, 18 Nov 2015 18:17:12 +0100
+Message-ID: <n2ibqp$ui6$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Oct 31, 2015 at 07:21:12PM +0000, Sami Kerola wrote:
->   login: fix stat(2) race
->   swapon: fix stat(3) and open(3) race
->   fsck: retire stat(3) when access(3) does better job
->   agetty: fix chown(3), chmod(3) and open(3) race
->   script, hwclock: check file exist with access(3) rather than stat(3)
+Currently no responsible admin can grant permission to the mount pgm
+to his users, because of the dangers inherent with bind-mounting etc.
 
- Applied, thanks.
+I suggest there should be an additional mount program destined for
+unpriviledged users (to be used via sudo).
 
->   lib/fileutils: add is_same_inode() check
->   include/blkdev: add open_blkdev_or_file() function
->   mkfs.bfs: fix block device open race
->   mkfs.minix: fix block device open race
->   mkswap: fix block device open race
->   mesg: fix multiple races
->   fdformat: fix block device open race
+It should be a stripped down version of the mount pgm, with only some
+basic options for mounting, but without the dangerous options like bind-mount.
 
- Here I don't like the pattern
+The new program should of course have a different name, for example "usermount".
 
-  open_blkdev_or_file()
-  fstat()
+I think this is the most clean solution to this problem.
 
- IMHO it would be enough to use is_same_inode() to avoid race.
+Users are intessted in mounting their own filesystems into
+their own mountpoints, ie. they don't neccesserily need fstab or mtab etc.:
+   $ mkdir mymnt1 mymnt2
+   $ sudo usermount myfs.img ./mymnt1
+   $ sudo usermount my.iso   ./mymnt2
 
-    Karel
+I think the current author(s)/maintainer(s) of the mount pgm (Karel?)
+should make and add such a stripped down usermount pgm to util-linux,
+since they know mount the best.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
