@@ -1,53 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:55774 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752642AbbKPC0o (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 15 Nov 2015 21:26:44 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1Zy9VB-0005Ml-MV
-	for util-linux@vger.kernel.org; Mon, 16 Nov 2015 03:26:41 +0100
-Received: from ip4d14b390.dynamic.kabel-deutschland.de ([77.20.179.144])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 16 Nov 2015 03:26:41 +0100
-Received: from for-gmane by ip4d14b390.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 16 Nov 2015 03:26:41 +0100
+Received: from mail-io0-f176.google.com ([209.85.223.176]:35475 "EHLO
+	mail-io0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750815AbbKSLiV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 19 Nov 2015 06:38:21 -0500
+Received: by ioc74 with SMTP id 74so85526275ioc.2
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2015 03:38:18 -0800 (PST)
+Received: from localhost ([2001:cc0:201e:102:3e97:eff:fea9:6aa7])
+        by smtp.gmail.com with ESMTPSA id 187sm2615432iof.26.2015.11.19.03.38.16
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Nov 2015 03:38:17 -0800 (PST)
+From: "Casper Ti. Vector" <caspervector@gmail.com>
+Date: Thu, 19 Nov 2015 19:38:13 +0800
 To: util-linux@vger.kernel.org
-From: "U.Mutlu" <for-gmane@mutluit.com>
-Subject: unshare -m should not be a privileged option
-Date: Mon, 16 Nov 2015 03:26:33 +0100
-Message-ID: <n2besp$j56$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH v2 1/2] ctrlaltdel: use reboot() provided by libc,
+ assuming it is 1-adic.
+Message-ID: <20151119113813.GA25392@CasperVector>
+References: <b320213b725bc4b3e0f56b907dc963e28da74d13.1447902109.git.CasperVector@gmail.com>
+ <9594740cc5f37047f0447904b539c3c54b278a3f.1447902109.git.CasperVector@gmail.com>
+ <20151119111245.GC4955@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20151119111245.GC4955@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I'm proposing that "unshare -m" should not be a privileged option,
-because in practice it is IMO used like this:
+:)
 
-unshare -m /bin/bash
-now user can do his mounts (mostly via sudo)
+On Thu, Nov 19, 2015 at 12:12:45PM +0100, Karel Zak wrote:
+> 75 deletions, cool :-) Applied, thanks.
 
-The user should need the root permission (or CAP_ADMIN or whatever
-caps it needs) only for the mount and unmount cmds, but not for "unshare -m".
-
-Therefore the -m option (and maybe even most of the other options) of unshare
-should be made to work for users, without needing root permission.
-
-Maybe even better would be to define the users in a new conf file 
-/etc/unshare.conf or so.
-
-The other solution via user namespace is IMHO overkill and in my case 
-impractical and irritating because user gets a root-prompt (#)
-eventhough it is only inside the user namespace.
-
-I like "unshare -m", but it should work also for unprivileged users without 
-needing sudo.
-
-As said in previous postings of mine: "chmod u+s unshare" does what I need,
-but I don't know if that solution will continue working in newer versions.
-
-...just my .02 cents from the field as admin and user
+-- 
+My current OpenPGP key:
+RSA4096/0x227E8CAAB7AA186C (expires: 2020.10.19)
+7077 7781 B859 5166 AE07 0286 227E 8CAA B7AA 186C
 
