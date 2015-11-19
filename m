@@ -1,67 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:52886 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752009AbbKQU6w (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 17 Nov 2015 15:58:52 -0500
-Date: Tue, 17 Nov 2015 15:58:51 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: "U.Mutlu" <for-gmane@mutluit.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: user namespaces: user mapping
-Message-ID: <20151117205851.GL31395@vapier.lan>
-References: <n2besp$j56$1@ger.gmane.org>
- <20151116041931.GC5949@vapier.lan>
- <n2ctjg$1d0$1@ger.gmane.org>
- <n2dpk4$p47$1@ger.gmane.org>
- <20151117043229.GH31395@vapier.lan>
- <n2edon$mfu$1@ger.gmane.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="yQDbd2FCF2Yhw41T"
-In-Reply-To: <n2edon$mfu$1@ger.gmane.org>
+Received: from mail-ig0-f175.google.com ([209.85.213.175]:38177 "EHLO
+	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756539AbbKSDDl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 18 Nov 2015 22:03:41 -0500
+Received: by igbxm8 with SMTP id xm8so54172879igb.1
+        for <util-linux@vger.kernel.org>; Wed, 18 Nov 2015 19:03:40 -0800 (PST)
+Received: from localhost ([2001:cc0:201e:102:3e97:eff:fea9:6aa7])
+        by smtp.gmail.com with ESMTPSA id c21sm2557410ioc.24.2015.11.18.19.03.39
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Nov 2015 19:03:40 -0800 (PST)
+From: "Casper Ti. Vector" <caspervector@gmail.com>
+Message-Id: <b320213b725bc4b3e0f56b907dc963e28da74d13.1447902109.git.CasperVector@gmail.com>
+In-Reply-To: <3122dea1b0bbfab174b9e1cc70aec72676568f52.1447762216.git.CasperVector@gmail.com>
+References: <3122dea1b0bbfab174b9e1cc70aec72676568f52.1447762216.git.CasperVector@gmail.com>
+Date: Thu, 19 Nov 2015 10:56:34 +0800
+Subject: [PATCH v2 2/2] Remove now useless linux_reboot.h.
+To: util-linux@vger.kernel.org
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+---
+ include/Makemodule.am  |  1 -
+ include/linux_reboot.h | 72 --------------------------------------------------
+ 2 files changed, 73 deletions(-)
+ delete mode 100644 include/linux_reboot.h
 
---yQDbd2FCF2Yhw41T
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+diff --git a/include/Makemodule.am b/include/Makemodule.am
+index f0bb898..fcda908 100644
+--- a/include/Makemodule.am
++++ b/include/Makemodule.am
+@@ -19,7 +19,6 @@ dist_noinst_HEADERS += \
+ 	include/exitcodes.h \
+ 	include/fileutils.h \
+ 	include/ismounted.h \
+-	include/linux_reboot.h \
+ 	include/linux_version.h \
+ 	include/list.h \
+ 	include/loopdev.h \
+diff --git a/include/linux_reboot.h b/include/linux_reboot.h
+deleted file mode 100644
+index 9cebc67..0000000
+--- a/include/linux_reboot.h
++++ /dev/null
+@@ -1,72 +0,0 @@
+-#ifndef _LINUX_REBOOT_H
+-#define _LINUX_REBOOT_H
+-
+-/*
+- * Magic values required to use _reboot() system call.
+- */
+-
+-#define	LINUX_REBOOT_MAGIC1	0xfee1dead
+-#define	LINUX_REBOOT_MAGIC2	672274793
+-#define	LINUX_REBOOT_MAGIC2A	85072278
+-#define	LINUX_REBOOT_MAGIC2B	369367448
+-
+-
+-/*
+- * Commands accepted by the _reboot() system call.
+- *
+- * RESTART     Restart system using default command and mode.
+- * HALT        Stop OS and give system control to ROM monitor, if any.
+- * CAD_ON      Ctrl-Alt-Del sequence causes RESTART command.
+- * CAD_OFF     Ctrl-Alt-Del sequence sends SIGINT to init task.
+- * POWER_OFF   Stop OS and remove all power from system, if possible.
+- * RESTART2    Restart system using given command string.
+- */
+-
+-#define	LINUX_REBOOT_CMD_RESTART	0x01234567
+-#define	LINUX_REBOOT_CMD_HALT		0xCDEF0123
+-#define	LINUX_REBOOT_CMD_CAD_ON		0x89ABCDEF
+-#define	LINUX_REBOOT_CMD_CAD_OFF	0x00000000
+-#define	LINUX_REBOOT_CMD_POWER_OFF	0x4321FEDC
+-#define	LINUX_REBOOT_CMD_RESTART2	0xA1B2C3D4
+-
+-/* Including <unistd.h> makes sure that on a glibc system
+-   <features.h> is included, which again defines __GLIBC__ */
+-#include <unistd.h>
+-#include "linux_reboot.h"
+-
+-#define USE_LIBC
+-
+-#ifdef USE_LIBC
+-
+-/* libc version */
+-#if defined __GLIBC__ && __GLIBC__ >= 2
+-#  include <sys/reboot.h>
+-#  define REBOOT(cmd) reboot(cmd)
+-#else
+-extern int reboot(int, int, int);
+-#  define REBOOT(cmd) reboot(LINUX_REBOOT_MAGIC1,LINUX_REBOOT_MAGIC2,(cmd))
+-#endif
+-static inline int my_reboot(int cmd) {
+-	return REBOOT(cmd);
+-}
+-
+-#else /* no USE_LIBC */
+-
+-/* direct syscall version */
+-#include <linux/unistd.h>
+-
+-#ifdef _syscall3
+-_syscall3(int,  reboot,  int,  magic, int, magic_too, int, cmd);
+-#else
+-/* Let us hope we have a 3-argument reboot here */
+-extern int reboot(int, int, int);
+-#endif
+-
+-static inline int my_reboot(int cmd) {
+-	return reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, cmd);
+-}
+-
+-#endif
+-
+-
+-#endif /*  _LINUX_REBOOT_H  */
+-- 
+2.6.3
 
-this really isn't the place for logical fallacies.  it is impossible to prove
-any code is entirely bug free (let's ignore the theoretical proof based systems
-as they're entirely irrelevant to this discussion).  if you have any actual bugs
-to report, then do so.  otherwise, you're wasting everyone's time.
-
-i think we've all been pretty clear that making unshare, as-is, setuid is
-completely wrong and, frankly, stupid.  it's trivial to leverage privilege
-escalation after that point.
-
-as for enhancing unshare to be aware that it's setuid and thus drop root back
-once it's done making the unshare calls, i don't see the point.  user namespaces
-work already and don't require setuid and are widely available.  if you don't
-like userns, that's your choice, but not our problem.
--mike
-
---yQDbd2FCF2Yhw41T
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJWS5ULAAoJEEFjO5/oN/WBgh0P/RAEGxWDvD9YlMAK9gfuZlJD
-v/zung4MmLPGwfLLH0r1EmzTVUpsNrtOw/o+0l4quH6KcBgrXgs18dOEU3ew4ZXm
-/erkOnPQ5DxKI3R/p9b1qQMkvz9SeG7Z8T/l2EGne0e9i3tHKWBL/HSswwDz1q3m
-2mnK8fkCXTRoOoM4M7XVNC4JzGIa0zavzQ28Eb35KpDFEsSIpFz82uMSQ1NfKTH0
-OVGp5NHVTu1PCm54vqwYokZnDD38xX6aLmpzGj8r5zPGYxZfjh4gRTCn8XR70a7c
-M3hhmUXW5qopWfwgCWvUCJSQxFGNYS34rGcUHIEUGqQJ5DMzoqw+yjjO2Oji8qa/
-BWbugtd+RUFWeOqUYEsPLgNLyfq4sZcBxVOoCR49Xhr44wz5Ir77B0/ybeyX5cJG
-7kifKu6HWw6vwLw/7SNo/3nZnFheEixo8+6A0pq3KjnL+99UztfoZNa0BA0NIZDS
-RZYvtzZTQ/uEjruYWEG4HJhVeWJDhHj2E/UeLnk2XCUjtSDtiT9+7axopfo7A+/6
-G6gfIkCML4Ro0Xrwts/tAay/ZSSHV0h1PEj+VuW3/WtLC3z/toE7EUqQkG5Mz7HX
-WEkBrURblG2G4qsl/exAmhJnVRZal/ZLaHbLpbDLvnCn4kVnM8o3YGJz38wuFK4x
-/m9Td3ec+BsphmqS+mfz
-=kAcq
------END PGP SIGNATURE-----
-
---yQDbd2FCF2Yhw41T--
