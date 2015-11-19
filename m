@@ -1,31 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56858 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45943 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751320AbbK1AP5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Nov 2015 19:15:57 -0500
-Date: Sat, 28 Nov 2015 01:15:55 +0100
+	id S1752892AbbKSLFP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 19 Nov 2015 06:05:15 -0500
+Date: Thu, 19 Nov 2015 12:05:11 +0100
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?=C1ngel_Gonz=E1lez?= <ingenit@zoho.com>
-Cc: Evgenii Sovetkin <e.sovetkin@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: bug in the cal
-Message-ID: <20151128001550.GG4955@ws.net.home>
-References: <20151127142227.GA28400@bigbear.stochastik.rwth-aachen.de>
- <56589098.1080209@zoho.com>
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: RFC: usermount - a secure mount for unpriviledged users
+Message-ID: <20151119110511.GB4955@ws.net.home>
+References: <n2ibqp$ui6$1@ger.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <56589098.1080209@zoho.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <n2ibqp$ui6$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 27, 2015 at 06:19:20PM +0100, Ángel González wrote:
-> So the problem is that
-> > cal -n 3
-> > cal --months 3
-> 
-> is acting as
-> > cal -3
+On Wed, Nov 18, 2015 at 06:17:12PM +0100, U.Mutlu wrote:
+> Currently no responsible admin can grant permission to the mount pgm
+> to his users, because of the dangers inherent with bind-mounting etc.
 
- Already fixed in git three.
+man mount, "The non-superuser mounts." section.
 
     Karel
 
