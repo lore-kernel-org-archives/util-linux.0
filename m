@@ -1,67 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:56072 "EHLO
-	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751354AbbKHLHv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 8 Nov 2015 06:07:51 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 5/6] chfn: improve formatting and wording of the manpage
-Date: Sun,  8 Nov 2015 11:54:14 +0100
-Message-Id: <1446980055-2749-5-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
-References: <1446980055-2749-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:60720 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756263AbbKSLMq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 19 Nov 2015 06:12:46 -0500
+Date: Thu, 19 Nov 2015 12:12:45 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Casper Ti. Vector" <caspervector@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] ctrlaltdel: use reboot() provided by libc,
+ assuming it is 1-adic.
+Message-ID: <20151119111245.GC4955@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <b320213b725bc4b3e0f56b907dc963e28da74d13.1447902109.git.CasperVector@gmail.com>
+ <9594740cc5f37047f0447904b539c3c54b278a3f.1447902109.git.CasperVector@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- login-utils/chfn.1 |   21 ++++++++++-----------
- 1 files changed, 10 insertions(+), 11 deletions(-)
+On Thu, Nov 19, 2015 at 10:52:14AM +0800, Casper Ti. Vector wrote:
+>  2 files changed, 12 insertions(+), 2 deletions(-)
+>  2 files changed, 73 deletions(-)
 
-diff --git a/login-utils/chfn.1 b/login-utils/chfn.1
-index d5210b1..0cb5f28 100644
---- a/login-utils/chfn.1
-+++ b/login-utils/chfn.1
-@@ -6,7 +6,7 @@
- .\"  modify it under the terms of the GNU General Public License.
- .\"  There is no warranty.
- .\"
--.TH CHFN 1 "July 2014" "util-linux" "User Commands"
-+.TH CHFN 1 "November 2015" "util-linux" "User Commands"
- .SH NAME
- chfn \- change your finger information
- .SH SYNOPSIS
-@@ -78,21 +78,20 @@ distributed with another package (e.g. shadow-utils).  The following
- configuration items are relevant for
- .BR chfn (1):
- .PP
--.B CHFN_RESTRICT
--(string)
-+.BI CHFN_RESTRICT " string"
- .RS 4
- Indicate which fields are changeable by \fBchfn\fR.
- 
--The boolean setting "yes" means that Office, Office Phone and Home Phone items
--are changeable and boolean setting "no" means that Full Name, Office, Office
--Phone and Home Phone are changeable.
-+The boolean setting \fB"yes"\fR means that only the Office, Office Phone and
-+Home Phone fields are changeable, and boolean setting \fB"no"\fR means that
-+also the Full Name is changeable.
- 
--The another way is to specify changeable fields by abbreviations, f =
--Full Name, r = Office (room), w = Office (work) Phone, h = Home Phone. For
--example CHFN_RESTRICT "wh" allows to change work and home phone numbers.
-+Another way to specify changeable fields is by abbreviations: f = Full Name,
-+r = Office (room), w = Office (work) Phone, h = Home Phone.  For example,
-+\fBCHFN_RESTRICT "wh"\fR allows changing work and home phone numbers.
- 
--If the CHFN_RESTRICT is undefined then all finger information are read-only.
--This is default.
-+If CHFN_RESTRICT is undefined, then all finger information is read-only.
-+This is the default.
- .RE
- .PP
- .SH "EXIT STATUS"
+75 deletions, cool :-) Applied, thanks.
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
