@@ -1,37 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from aserp1040.oracle.com ([141.146.126.69]:50565 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750734AbbKZCOf (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Nov 2015 21:14:35 -0500
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
+Received: from smtp.infotech.no ([82.134.31.41]:60264 "EHLO smtp.infotech.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752149AbbKVRQw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 22 Nov 2015 12:16:52 -0500
+Reply-To: dgilbert@interlog.com
+To: "Martin K. Petersen" <martin.petersen@ORACLE.COM>,
         "James E.J. Bottomley" <jbottomley@odin.com>,
-        SCSI development list <linux-scsi@vger.kernel.org>, sweet_f_a@gmx.de,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH RESEND] scsi_debug: fix prevent_allow+verify regressions
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <5651F740.3010707@interlog.com>
-	<yq1k2p7kuvd.fsf@sermon.lab.mkp.net>
-	<CAHp75VfpMdjmoipaJg7f4fR=6Mbyf1J_qmdoRm=zJ1ZWUW8EwA@mail.gmail.com>
-Date: Wed, 25 Nov 2015 21:14:20 -0500
-In-Reply-To: <CAHp75VfpMdjmoipaJg7f4fR=6Mbyf1J_qmdoRm=zJ1ZWUW8EwA@mail.gmail.com>
-	(Andy Shevchenko's message of "Wed, 25 Nov 2015 22:51:03 +0200")
-Message-ID: <yq1fuztjymb.fsf@sermon.lab.mkp.net>
+        SCSI development list <linux-scsi@vger.kernel.org>
+Cc: sweet_f_a@gmx.de, util-linux@vger.kernel.org
+From: Douglas Gilbert <dgilbert@interlog.com>
+Subject: [PATCH RESEND] scsi_debug: fix prevent_allow+verify regressions
+Message-ID: <5651F740.3010707@interlog.com>
+Date: Sun, 22 Nov 2015 12:11:28 -0500
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/mixed;
+ boundary="------------060507090407030308070706"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->>>>> "Andy" == Andy Shevchenko <andy.shevchenko@gmail.com> writes:
+This is a multi-part message in MIME format.
+--------------060507090407030308070706
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Andy,
+Ruediger Meier observed a regression with the PREVENT ALLOW
+MEDIUM REMOVAL command in lk 3.19:
+   http://www.spinics.net/lists/util-linux-ng/msg11448.html
 
-Andy> but can you pay a little attention to
-Andy> http://www.spinics.net/lists/linux-scsi/msg81778.html ? It seems
-Andy> it wasn't applied.
+Inspection indicated the same regression with VERIFY(10).
 
-Please resubmit to linux-scsi. We'll take a look.
+The patch is against lk 3.19.3 and also works with lk 4.3.0 .
+With this patch both commands are accepted and do nothing.
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+ChangeLog:
+   - fix the lk 3.19 regression so that the PREVENT ALLOW
+     MEDIUM REMOVAL command is supported once again
+   - same fix for VERIFY(10)
+
+Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
+
+--------------060507090407030308070706
+Content-Type: text/x-patch;
+ name="sdebug319regr1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="sdebug319regr1.patch"
+
+--- a/drivers/scsi/scsi_debug.c	2015-02-11 17:47:09.276206425 -0500
++++ b/drivers/scsi/scsi_debug.c	2015-04-03 22:42:36.343971372 -0400
+@@ -455,8 +455,9 @@ static const struct opcode_info_t opcode
+ 	     0} },
+ 	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* MAINT OUT */
+ 	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+-	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* VERIFY */
+-	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
++	{0, 0x2f, 0, F_D_OUT_MAYBE | FF_DIRECT_IO, NULL, NULL, /* VERIFY(10) */
++	    {10,  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xc7,
++	     0, 0, 0, 0, 0, 0} },
+ 	{1, 0x7f, 0x9, F_SA_HIGH | F_D_IN | FF_DIRECT_IO, resp_read_dt0,
+ 	    vl_iarr, {32,  0xc7, 0, 0, 0, 0, 0x1f, 0x18, 0x0, 0x9, 0xfe, 0,
+ 		      0xff, 0xff, 0xff, 0xff} },/* VARIABLE LENGTH, READ(32) */
+@@ -467,8 +468,8 @@ static const struct opcode_info_t opcode
+ 	    {10,  0x13, 0xff, 0xff, 0, 0, 0, 0xff, 0xff, 0xc7, 0, 0, 0, 0, 0,
+ 	     0} },
+ /* 20 */
+-	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* ALLOW REMOVAL */
+-	    {0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
++	{0, 0x1e, 0, 0, NULL, NULL, /* ALLOW REMOVAL */
++	    {6,  0, 0, 0, 0x3, 0xc7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+ 	{0, 0x1, 0, 0, resp_start_stop, NULL, /* REWIND ?? */
+ 	    {6,  0x1, 0, 0, 0, 0xc7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+ 	{0, 0, 0, F_INV_OP | FF_RESPOND, NULL, NULL, /* ATA_PT */
+
+--------------060507090407030308070706--
