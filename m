@@ -1,43 +1,42 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.227]:20529 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750840AbbK0XU6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 27 Nov 2015 18:20:58 -0500
-Subject: Re: Can not move tmpfs mounts
-To: Karel Zak <kzak@redhat.com>
-References: <56552586.2040007@ubuntu.com> <20151125093935.GF4955@ws.net.home>
-Cc: util-linux <util-linux@vger.kernel.org>
-From: Phillip Susi <psusi@ubuntu.com>
-Message-ID: <5658E558.2010204@ubuntu.com>
-Date: Fri, 27 Nov 2015 18:20:56 -0500
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <20151125093935.GF4955@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20151109084854.GO19508@ws.net.home>
+References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+	<1446319284-24778-9-git-send-email-kerolasa@iki.fi>
+	<20151109084854.GO19508@ws.net.home>
+Date: Sun, 22 Nov 2015 21:24:28 +0000
+Message-ID: <CAG27Bk1OwvwEUGJVU54ORTHOsirDPS9Wqyg7K5npjtvtmX-rKQ@mail.gmail.com>
+Subject: Re: [PATCH 08/12] mkfs.bfs: fix block device open race
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On 9 November 2015 at 08:48, Karel Zak <kzak@redhat.com> wrote:
+> On Sat, Oct 31, 2015 at 07:21:20PM +0000, Sami Kerola wrote:
+>> This fix makes mkfs.bfs also to detect if block device is busy, and warn if
+>> the device is misaligned.
+>
+>  It seems code assumes block devices only, why we need _or_file()
+>  here?
 
-On 11/25/2015 04:39 AM, Karel Zak wrote:
-> Are you sure the problem is tmpfs? I guess you have problem with 
-> propagation flags (shared vs. private), probably systemd based
-> system where all is shared by default.
+Assumption file systems is only created to a block device does not
+seem right. The following changes that.
 
-I could have sworn it worked with an ext4 fs, but yea, you are
-right... it is the shared flag.  Why can't you move a mount point when
-it is in a shared namespace?
+https://github.com/kerolasa/lelux-utiliteetit/commit/98b4f74e1f8f5735e29b6ac37cf4d3dcd77be701
 
+> It would be enough to check statbuf and fstat(fd) for inode
+>  number if you want to avoid races.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Maybe yes to avoid races, but the open_blkdev_or_file() does couple
+things one always wants when creating file systems, or doing similar
+operations. 1) use open(3) flag O_EXCL when opening block device to
+ensure nothing else has it open already 2) check for TOCTOU race 3)
+warn if device is misaligned.
 
-iQEcBAEBCgAGBQJWWOVRAAoJEBB5UWFcu6UWRTgH/A8+RAOWPp5unIbUrWGZcLtv
-g1aFe8+KZ9Ggpn7P3H3qg0eNh2S0SSqNQxz5XgJ4dw50SawdulBAqMx4rl4XmTaQ
-260nE3ZRMF6r65k61DKh5m0baqP4duWtIB9uDBPWg4p/hx7fgZghHHqCbfm5o3Ig
-Z2EqXZ/XIj+2n5JwpRiH4JNj3ahFUIGto3rCrlyIDEJ1G9C39ASNtu1YydvI/f+T
-x04o19+Kp0elUM/HNfdinKBYPq4IR8tPSImjw4sC8VhFYx+hJTHznC6pzwJyzEN0
-KKaQfn9bzEn33UMrytLIHC7S5mamU9EHAUx3xSj9i1soTqKwSVcIELMXOYq+V1Q=
-=VtA4
------END PGP SIGNATURE-----
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
