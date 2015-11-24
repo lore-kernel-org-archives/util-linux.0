@@ -1,37 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f176.google.com ([209.85.223.176]:35475 "EHLO
-	mail-io0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750815AbbKSLiV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 19 Nov 2015 06:38:21 -0500
-Received: by ioc74 with SMTP id 74so85526275ioc.2
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2015 03:38:18 -0800 (PST)
-Received: from localhost ([2001:cc0:201e:102:3e97:eff:fea9:6aa7])
-        by smtp.gmail.com with ESMTPSA id 187sm2615432iof.26.2015.11.19.03.38.16
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2015 03:38:17 -0800 (PST)
-From: "Casper Ti. Vector" <caspervector@gmail.com>
-Date: Thu, 19 Nov 2015 19:38:13 +0800
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] ctrlaltdel: use reboot() provided by libc,
- assuming it is 1-adic.
-Message-ID: <20151119113813.GA25392@CasperVector>
-References: <b320213b725bc4b3e0f56b907dc963e28da74d13.1447902109.git.CasperVector@gmail.com>
- <9594740cc5f37047f0447904b539c3c54b278a3f.1447902109.git.CasperVector@gmail.com>
- <20151119111245.GC4955@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20151119111245.GC4955@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:56700 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754084AbbKXPZm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 24 Nov 2015 10:25:42 -0500
+Subject: Re: [PATCH RESEND] scsi_debug: fix prevent_allow+verify regressions
+From: Ewan Milne <emilne@redhat.com>
+Reply-To: emilne@redhat.com
+To: dgilbert@interlog.com
+Cc: "Martin K. Petersen" <martin.petersen@ORACLE.COM>,
+        "James E.J. Bottomley" <jbottomley@odin.com>,
+        SCSI development list <linux-scsi@vger.kernel.org>, sweet_f_a@gmx.de,
+        util-linux@vger.kernel.org
+In-Reply-To: <5651F740.3010707@interlog.com>
+References: <5651F740.3010707@interlog.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 24 Nov 2015 10:25:41 -0500
+Message-ID: <1448378741.4067.74.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-:)
+On Sun, 2015-11-22 at 12:11 -0500, Douglas Gilbert wrote:
+> Ruediger Meier observed a regression with the PREVENT ALLOW
+> MEDIUM REMOVAL command in lk 3.19:
+>    http://www.spinics.net/lists/util-linux-ng/msg11448.html
+> 
+> Inspection indicated the same regression with VERIFY(10).
+> 
+> The patch is against lk 3.19.3 and also works with lk 4.3.0 .
+> With this patch both commands are accepted and do nothing.
+> 
+> ChangeLog:
+>    - fix the lk 3.19 regression so that the PREVENT ALLOW
+>      MEDIUM REMOVAL command is supported once again
+>    - same fix for VERIFY(10)
+> 
+> Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
 
-On Thu, Nov 19, 2015 at 12:12:45PM +0100, Karel Zak wrote:
-> 75 deletions, cool :-) Applied, thanks.
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
 
--- 
-My current OpenPGP key:
-RSA4096/0x227E8CAAB7AA186C (expires: 2020.10.19)
-7077 7781 B859 5166 AE07 0286 227E 8CAA B7AA 186C
 
