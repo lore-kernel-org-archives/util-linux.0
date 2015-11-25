@@ -1,98 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:36433 "EHLO
-	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751217AbbKYWgS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Nov 2015 17:36:18 -0500
-Received: by vkay187 with SMTP id y187so43489008vka.3
-        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2015 14:36:17 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CAJ5Duc7znhFzXK7yoWNTd6-PjjAKjahD1LUhW71p+g8zhatj-g@mail.gmail.com>
-References: <CAJ5Duc7znhFzXK7yoWNTd6-PjjAKjahD1LUhW71p+g8zhatj-g@mail.gmail.com>
-Date: Wed, 25 Nov 2015 22:36:17 +0000
-Message-ID: <CAG27Bk29MT7E_vJg86pKxeMHWx6cQM22wOsazAe5WLGdzJnHHg@mail.gmail.com>
-Subject: Re: [Possible bug?] column command not ignoring escape sequences.
-From: Sami Kerola <kerolasa@iki.fi>
-To: Michael Heyns <mike.bean.heyns@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:41832 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750708AbbKYJjh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Nov 2015 04:39:37 -0500
+Date: Wed, 25 Nov 2015 10:39:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Phillip Susi <psusi@ubuntu.com>
 Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: Can not move tmpfs mounts
+Message-ID: <20151125093935.GF4955@ws.net.home>
+References: <56552586.2040007@ubuntu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56552586.2040007@ubuntu.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 25 November 2015 at 22:11, Michael Heyns <mike.bean.heyns@gmail.com> wrote:
-> Greetings,
->
-> I have a working script checking mimetypes i.e. `text/x-diff`;
-> `image/svg+xml` etc.
->
-> =================================
->   1   #!/bin/bash
->   2
->   3   _Bold="\e[1m"
->   4   _unBold="\e[22m"
->   5   _Blue="\e[34m"
->   6   _uC="\e[39m"
->   7
->   8   mimetype="$1"
->   9   output="${_Bold}Testing MimeType${_unBold}:\t${mimetype}\n\t-------------"
->  10
->  11   get_default()
->  12   {
->  13       xdg-mime query default "$1"
->  14   }
->  15
->  16   alias_of=`grep "^$mimetype " /usr/share/mime/aliases | cut -d' ' -f2`
->  17   if [ -n "$alias_of" ]; then
->  18       default=`get_default $alias_of`
->  19       output="$output\nWhich is an alias of:\t$alias_of\t->
-> ${default:-"none"}"
->  20   else
->  21       output="$output\nWhich is not an alias."
->  22       alias_of=$mimetype
->  23   fi
->  24
->  25   while : ; do
->  26       subclass_of=`grep "^$alias_of " /usr/share/mime/subclasses |
-> cut -d' ' -f2`
->  27       if [ -n "$subclass_of" ]; then
->  28         default=`get_default $subclass_of`
->  29         output="$output\nWhich is a subclass of:\t$subclass_of\t->
-> ${default:-"none"}"
->  30
->  31         alias_of=$subclass_of
->  32       else
->  33         output="$output\nWhich is not a subclass"
->  34         break
->  35       fi
->  36   done
->  37
->  38   echo -e $output | column -t -s $'\t'
-> =================================
->
-> Output without bold (line 8) is as expected but with bold, the column
-> is widened/broken.
->
-> I have removed the rest of the formatting in my example, but with
-> colors added it gets much worse.
->
-> I think I have narrowed it down to the `column` somehow including the
-> escape sequences in its spacing calculation? The same thing happens in
-> xterm, gnome-terminal and urxvt.
->
-> Is this expected behaviour? I'm learning a lot but sometimes I get a
-> headscratcher like this one.
+On Tue, Nov 24, 2015 at 10:05:42PM -0500, Phillip Susi wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA512
+> 
+> mount --move fails with -EINVAL on tmpfs mounts.  Is there some reason
+> for this, or is it a long standing kernel bug?
 
-Hi Michael,
+Are you sure the problem is tmpfs? I guess you have problem with
+propagation flags (shared vs. private), probably systemd based system
+where all is shared by default.
 
-I think you are onto something. The issue feels like the same what is
-skewing more output, and that I fixed in my upcoming pull request.
+# mount -t tmpfs tmpfs  /mnt/test
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/eeaa3eede07830c80540ab3b4e31ff348bbc1c65
+# strace -e mount mount --move /mnt/test /mnt/test2
+mount("/mnt/test", "/mnt/test2", 0x563e27385f00, MS_MGC_VAL|MS_MOVE, NULL) = -1 EINVAL (Invalid argument)
+mount: bad option. Note that moving a mount residing under a shared
+       mount is unsupported.
 
-But since the issue is with two utilities the fix really should be
-wrote once. Trouble is that what I did with more is no where near
-being an universal stream filter that is clearly needed.
+See the mount(8) output message (it's also in mount(8) man page),
+let's fix it:
+
+# findmnt -o TARGET,PROPAGATION /mnt
+TARGET PROPAGATION
+/mnt   shared
+
+# mount --make-private /mnt
+
+# strace -e mount mount --move /mnt/test /mnt/test2 
+mount("/mnt/test", "/mnt/test2", 0x55a092f54f00, MS_MGC_VAL|MS_MOVE, NULL) = 0
+
+
+Note that the problem is not with the mountpoint (/mnt/test in my
+example), but with parent -- unfortunately usually "/" ("/mnt" in my
+example).
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
