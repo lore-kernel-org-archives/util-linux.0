@@ -1,69 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:34617 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750941AbbJaTVa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:30 -0400
-Received: by wikq8 with SMTP id q8so29535639wik.1
-        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:28 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/12] pull: race fixes
-Date: Sat, 31 Oct 2015 19:21:12 +0000
-Message-Id: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:46254 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755134AbbKYJRR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 25 Nov 2015 04:17:17 -0500
+Date: Wed, 25 Nov 2015 10:17:15 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Cc: nacc@linux.vnet.ibm.com, util-linux@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/1] lscpu: Print physical cpu information
+Message-ID: <20151125091715.GE4955@ws.net.home>
+References: <1448402285-15621-1-git-send-email-sukadev@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1448402285-15621-1-git-send-email-sukadev@linux.vnet.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Tue, Nov 24, 2015 at 01:58:05PM -0800, Sukadev Bhattiprolu wrote:
+> Appreciate comments on the proposal including following:
+> 
+> 	- Should we instead display the physical information unconditionally?
 
-I had a look of all chmod(3), chown(3), and stat(3) calls in executables if
-there are file operation, preceeded by open(3) in unsafe manner.  The
-changes in this pull request attempsts to correct these TACTOU cases.
+yes
 
-The pull request has also few improvements, such as checking block device
-correct way when ever opening them to write in them and replacements stat(3)
-with access(3) when applicable.
+> 	  Maybe add '--system' or '--no-physical' to suppress the physical
+> 	  topology info?
+> 
+> 	- Should we ignore (as this patch does) or fail if '--physical'
+> 	  is specified on yet unsupported architectures?
+
+I have originally thought that --physical will overwrite the current
+output (e.g. "Sockets:"). If we add information from librtas as
+additional fields (e.g. "Physical sockets:") than maybe we don't need
+the option --physical at all, and all we need is to describe all
+(difference between system/physical) in docs.
+
+> +static void read_physical_info_powerpc(struct lscpu_desc *desc)
+> +{
+> +	char buf[4096];
+
+  buf[BUFSIZ]
+
+...
+
+>  static void
+>  read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+>  {
+> @@ -506,6 +555,9 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+>  		desc->dispatching = path_read_s32(_PATH_SYS_CPU "/dispatching");
+>  	else
+>  		desc->dispatching = -1;
+>
+
+you should not read information from rtas when lscpu is running in
+shapshot mode ("snapshot" means that we read info from /sys and /proc
+dump rather than from a real system; we use it for regression tests).
+
+   if (mod->system == SYSTEM_ALIVE)
+        read_physical_info_powerpc(desc);
+
+and mod->physical will be  probably unnecessary if the physical information
+will be printed unconditionally ;-)
+
+> +	if (mod->physical)
+> +		read_physical_info_powerpc(desc);
+>  }
 
 
-----------------------------------------------------------------
-The following changes since commit 4419ffb9eff5801fdbd385a4a6199b3877f802ad:
-  lib/sysfs: make sysfs_get_devname()/blkid_devno_to_wholedisk() more robust (2015-10-30 11:08:32 +0100)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git races
-for you to fetch changes up to 09acbb45083e37f112f3d0558f4875f94db457d4:
-  fdformat: fix block device open race (2015-10-31 19:00:09 +0000)
-----------------------------------------------------------------
+ Thanks!
 
-Sami Kerola (12):
-  login: fix stat(2) race
-  swapon: fix stat(3) and open(3) race
-  fsck: retire stat(3) when access(3) does better job
-  agetty: fix chown(3), chmod(3) and open(3) race
-  script, hwclock: check file exist with access(3) rather than stat(3)
-  lib/fileutils: add is_same_inode() check
-  include/blkdev: add open_blkdev_or_file() function
-  mkfs.bfs: fix block device open race
-  mkfs.minix: fix block device open race
-  mkswap: fix block device open race
-  mesg: fix multiple races
-  fdformat: fix block device open race
-
- disk-utils/fdformat.c   | 11 ++++-------
- disk-utils/fsck.c       |  3 +--
- disk-utils/mkfs.bfs.c   |  2 +-
- disk-utils/mkfs.minix.c |  9 +++------
- disk-utils/mkswap.c     | 25 ++++++++-----------------
- include/blkdev.h        |  3 +++
- include/fileutils.h     | 14 ++++++++++++++
- lib/blkdev.c            | 27 +++++++++++++++++++++++++++
- login-utils/login.c     |  6 ++----
- sys-utils/hwclock.c     |  5 +----
- sys-utils/swapon.c      | 14 +++++++-------
- term-utils/agetty.c     | 10 +++++-----
- term-utils/mesg.c       | 25 +++++++++++++++++--------
- term-utils/script.c     |  3 +--
- 14 files changed, 94 insertions(+), 63 deletions(-)
+    Karel
 
 -- 
-2.6.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
