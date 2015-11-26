@@ -1,83 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:33572 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380AbbKYWLi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Nov 2015 17:11:38 -0500
-Received: by pabfh17 with SMTP id fh17so71384603pab.0
-        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2015 14:11:38 -0800 (PST)
+Received: from cluster-d.mailcontrol.com ([85.115.60.190]:35077 "EHLO
+	cluster-d.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751455AbbKZRzR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 26 Nov 2015 12:55:17 -0500
+To: util-linux <util-linux@vger.kernel.org>
+From: Stanislav Brabec <sbrabec@suse.com>
+Subject: [PATCH?] fix mount -a on btrfs bind mount
+CC: David Sterba <dsterba@suse.cz>, =?UTF-8?Q?S=c3=b8ren_Holm?= <sgh@sgh.dk>
+Message-ID: <56573A99.9060009@suse.com>
+Date: Thu, 26 Nov 2015 18:00:09 +0100
 MIME-Version: 1.0
-Date: Thu, 26 Nov 2015 11:11:38 +1300
-Message-ID: <CAJ5Duc7znhFzXK7yoWNTd6-PjjAKjahD1LUhW71p+g8zhatj-g@mail.gmail.com>
-Subject: [Possible bug?] column command not ignoring escape sequences.
-From: Michael Heyns <mike.bean.heyns@gmail.com>
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="iso-8859-2"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Greetings,
+If I have a fstab that contains:
 
-I have a working script checking mimetypes i.e. `text/x-diff`;
-`image/svg+xml` etc.
+UUID=1f976144-6c23-4622-bf6c-cd9821acc49d /var/log             btrfs      subvol=@/var/log      0 0
+/var/log                /local/nfsv4/log                none    bind,private
 
-=================================
-  1   #!/bin/bash
-  2
-  3   _Bold="\e[1m"
-  4   _unBold="\e[22m"
-  5   _Blue="\e[34m"
-  6   _uC="\e[39m"
-  7
-  8   mimetype="$1"
-  9   output="${_Bold}Testing MimeType${_unBold}:\t${mimetype}\n\t-------------"
- 10
- 11   get_default()
- 12   {
- 13       xdg-mime query default "$1"
- 14   }
- 15
- 16   alias_of=`grep "^$mimetype " /usr/share/mime/aliases | cut -d' ' -f2`
- 17   if [ -n "$alias_of" ]; then
- 18       default=`get_default $alias_of`
- 19       output="$output\nWhich is an alias of:\t$alias_of\t->
-${default:-"none"}"
- 20   else
- 21       output="$output\nWhich is not an alias."
- 22       alias_of=$mimetype
- 23   fi
- 24
- 25   while : ; do
- 26       subclass_of=`grep "^$alias_of " /usr/share/mime/subclasses |
-cut -d' ' -f2`
- 27       if [ -n "$subclass_of" ]; then
- 28         default=`get_default $subclass_of`
- 29         output="$output\nWhich is a subclass of:\t$subclass_of\t->
-${default:-"none"}"
- 30
- 31         alias_of=$subclass_of
- 32       else
- 33         output="$output\nWhich is not a subclass"
- 34         break
- 35       fi
- 36   done
- 37
- 38   echo -e $output | column -t -s $'\t'
-=================================
+When calling "mount -a" multiple times, it mounts the bind
+mount again and again.
 
-Output without bold (line 8) is as expected but with bold, the column
-is widened/broken.
+Here are related mountinfo entries with my kernel:
+44 34 0:30 /@/var/log /var/log rw,relatime shared:27 - btrfs /dev/vda2 rw,space_cache,subvolid=269,subvol=/@/var/log
+95 34 0:30 /@/var/log /local/nfsv4/log rw,relatime - btrfs /dev/vda2 rw,space_cache,subvolid=269,subvol=/@/var/log
 
-I have removed the rest of the formatting in my example, but with
-colors added it gets much worse.
+Debugging this case, I found that the btrfs specific code in
+mnt_table_get_fs_root() returns bad value:
 
-I think I have narrowed it down to the `column` somehow including the
-escape sequences in its spacing calculation? The same thing happens in
-xterm, gnome-terminal and urxvt.
+after remove_mountpoint_from_path() root is "/"
+mnt_table_find_target(tb, "/var/log", MNT_ITER_BACKWARD)
+returns src_root set to "/@/var/log".
+startswith() does not match and the snprintf() attempts to
+construct the final root value by concatenating of both
+strings:
 
-Is this expected behaviour? I'm learning a lot but sometimes I get a
-headscratcher like this one.
+FS root result: /@/var/log/
 
-Thank you for your time.
+It looks strange, and it does not work:
 
-Sincerely,
-Michael Heyns
+Then it returns to mnt_table_is_fs_mounted(), and the iterator
+while (mnt_table_next_fs(tb, &itr, &fs) == 0)
+could never get a match.
+In section starting with if (root)
+and mnt_fs_get_root(fs) returns "/@/var/log"
+This is compared with "/@/var/log/" above, and match is never
+got.
+
+Here is a possible easy fix. If it is correct, the code should
+be simplified to remove string copying there.
+
+I am not sure whether it has any side effect, but it helps in
+my case.
+
+Note that 41510d26ddd9a4c83f8589dded539e2985535dcf added a
+patch to "else if" part of this if, that is also a bit
+suspicious: btrfs path should not contain "//" instead of
+"/{subvolume}/", at least not in a correct use.
+
+---
+ libmount/src/tab.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 0df8d49..44894e9 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -1252,7 +1252,7 @@ struct libmnt_fs *mnt_table_get_fs_root(struct libmnt_table *tb,
+ 
+ 			if (!tmp)
+ 				goto err;
+-			snprintf(tmp, sz, "%s%s", src_root, root);
++			snprintf(tmp, sz, "%s", src_root);
+ 			free(root);
+ 			root = tmp;
+ 		}
+-- 
+2.6.3
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
