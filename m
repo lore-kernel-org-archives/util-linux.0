@@ -1,61 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35726 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751200AbbJaTVi (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 31 Oct 2015 15:21:38 -0400
-Received: by wmll128 with SMTP id l128so33768577wml.0
-        for <util-linux@vger.kernel.org>; Sat, 31 Oct 2015 12:21:37 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 06/12] lib/fileutils: add is_same_inode() check
-Date: Sat, 31 Oct 2015 19:21:18 +0000
-Message-Id: <1446319284-24778-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
-References: <1446319284-24778-1-git-send-email-kerolasa@iki.fi>
+Received: from aserp1040.oracle.com ([141.146.126.69]:50565 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750734AbbKZCOf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 25 Nov 2015 21:14:35 -0500
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "James E.J. Bottomley" <jbottomley@odin.com>,
+        SCSI development list <linux-scsi@vger.kernel.org>, sweet_f_a@gmx.de,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH RESEND] scsi_debug: fix prevent_allow+verify regressions
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <5651F740.3010707@interlog.com>
+	<yq1k2p7kuvd.fsf@sermon.lab.mkp.net>
+	<CAHp75VfpMdjmoipaJg7f4fR=6Mbyf1J_qmdoRm=zJ1ZWUW8EwA@mail.gmail.com>
+Date: Wed, 25 Nov 2015 21:14:20 -0500
+In-Reply-To: <CAHp75VfpMdjmoipaJg7f4fR=6Mbyf1J_qmdoRm=zJ1ZWUW8EwA@mail.gmail.com>
+	(Andy Shevchenko's message of "Wed, 25 Nov 2015 22:51:03 +0200")
+Message-ID: <yq1fuztjymb.fsf@sermon.lab.mkp.net>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Check if a file path and descriptor are indeed the same file.  This function
-is needed for TACTOU avoidance.
+>>>>> "Andy" == Andy Shevchenko <andy.shevchenko@gmail.com> writes:
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/fileutils.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+Andy,
 
-diff --git a/include/fileutils.h b/include/fileutils.h
-index be6d1f7..55df1a7 100644
---- a/include/fileutils.h
-+++ b/include/fileutils.h
-@@ -4,6 +4,7 @@
- #include <stdio.h>
- #include <fcntl.h>
- #include <unistd.h>
-+#include <sys/stat.h>
- 
- #include "c.h"
- 
-@@ -25,6 +26,19 @@ static inline FILE *xfmkstemp(char **tmpname, const char *dir, const char *prefi
- 	return ret;
- }
- 
-+static inline int is_same_inode(const int fd, const char *path)
-+{
-+	struct stat f, p;
-+
-+	if (fstat(fd, &f) < 0)
-+		return 0;
-+	if (stat(path, &p) < 0)
-+		return 0;
-+	if (f.st_dev != p.st_dev || f.st_ino != p.st_ino)
-+		return 0;
-+	return 1;
-+}
-+
- extern int dup_fd_cloexec(int oldfd, int lowfd);
- extern int get_fd_tabsize(void);
- 
+Andy> but can you pay a little attention to
+Andy> http://www.spinics.net/lists/linux-scsi/msg81778.html ? It seems
+Andy> it wasn't applied.
+
+Please resubmit to linux-scsi. We'll take a look.
+
 -- 
-2.6.2
-
+Martin K. Petersen	Oracle Linux Engineering
