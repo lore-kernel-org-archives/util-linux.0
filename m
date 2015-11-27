@@ -1,98 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:59761 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752226AbbKZRLt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 26 Nov 2015 12:11:49 -0500
-To: util-linux <util-linux@vger.kernel.org>
-Cc: David Sterba <dsterba@suse.cz>, =?UTF-8?Q?S=c3=b8ren_Holm?= <sgh@sgh.dk>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH?] fix mount -a on btrfs bind mount
-Message-ID: <56573D53.1020406@suse.cz>
-Date: Thu, 26 Nov 2015 18:11:47 +0100
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.227]:20529 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750840AbbK0XU6 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 27 Nov 2015 18:20:58 -0500
+Subject: Re: Can not move tmpfs mounts
+To: Karel Zak <kzak@redhat.com>
+References: <56552586.2040007@ubuntu.com> <20151125093935.GF4955@ws.net.home>
+Cc: util-linux <util-linux@vger.kernel.org>
+From: Phillip Susi <psusi@ubuntu.com>
+Message-ID: <5658E558.2010204@ubuntu.com>
+Date: Fri, 27 Nov 2015 18:20:56 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+In-Reply-To: <20151125093935.GF4955@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+On 11/25/2015 04:39 AM, Karel Zak wrote:
+> Are you sure the problem is tmpfs? I guess you have problem with 
+> propagation flags (shared vs. private), probably systemd based
+> system where all is shared by default.
+
+I could have sworn it worked with an ext4 fs, but yea, you are
+right... it is the shared flag.  Why can't you move a mount point when
+it is in a shared namespace?
 
 
-If I have a fstab that contains:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-UUID=1f976144-6c23-4622-bf6c-cd9821acc49d /var/log             btrfs 
-   subvol=@/var/log      0 0
-/var/log                /local/nfsv4/log                none    bind,private
-
-When calling "mount -a" multiple times, it mounts the bind
-mount again and again.
-
-Here are related mountinfo entries with my kernel:
-44 34 0:30 /@/var/log /var/log rw,relatime shared:27 - btrfs /dev/vda2 
-rw,space_cache,subvolid=269,subvol=/@/var/log
-95 34 0:30 /@/var/log /local/nfsv4/log rw,relatime - btrfs /dev/vda2 
-rw,space_cache,subvolid=269,subvol=/@/var/log
-
-Debugging this case, I found that the btrfs specific code in
-mnt_table_get_fs_root() returns bad value:
-
-after remove_mountpoint_from_path() root is "/"
-mnt_table_find_target(tb, "/var/log", MNT_ITER_BACKWARD)
-returns src_root set to "/@/var/log".
-startswith() does not match and the snprintf() attempts to
-construct the final root value by concatenating of both
-strings:
-
-FS root result: /@/var/log/
-
-It looks strange, and it does not work:
-
-Then it returns to mnt_table_is_fs_mounted(), and the iterator
-while (mnt_table_next_fs(tb, &itr, &fs) == 0)
-could never get a match.
-In section starting with if (root)
-and mnt_fs_get_root(fs) returns "/@/var/log"
-This is compared with "/@/var/log/" above, and match is never
-got.
-
-Here is a possible easy fix. If it is correct, the code should
-be simplified to remove string copying there.
-
-I am not sure whether it has any side effect, but it helps in
-my case.
-
-Note that 41510d26ddd9a4c83f8589dded539e2985535dcf added a
-patch to "else if" part of this if, that is also a bit
-suspicious: btrfs path should not contain "//" instead of
-"/{subvolume}/", at least not in a correct use.
-
----
-  libmount/src/tab.c | 2 +-
-  1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 0df8d49..44894e9 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -1252,7 +1252,7 @@ struct libmnt_fs *mnt_table_get_fs_root(struct 
-libmnt_table *tb,
-
-  			if (!tmp)
-  				goto err;
--			snprintf(tmp, sz, "%s%s", src_root, root);
-+			snprintf(tmp, sz, "%s", src_root);
-  			free(root);
-  			root = tmp;
-  		}
--- 
-2.6.3
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+iQEcBAEBCgAGBQJWWOVRAAoJEBB5UWFcu6UWRTgH/A8+RAOWPp5unIbUrWGZcLtv
+g1aFe8+KZ9Ggpn7P3H3qg0eNh2S0SSqNQxz5XgJ4dw50SawdulBAqMx4rl4XmTaQ
+260nE3ZRMF6r65k61DKh5m0baqP4duWtIB9uDBPWg4p/hx7fgZghHHqCbfm5o3Ig
+Z2EqXZ/XIj+2n5JwpRiH4JNj3ahFUIGto3rCrlyIDEJ1G9C39ASNtu1YydvI/f+T
+x04o19+Kp0elUM/HNfdinKBYPq4IR8tPSImjw4sC8VhFYx+hJTHznC6pzwJyzEN0
+KKaQfn9bzEn33UMrytLIHC7S5mamU9EHAUx3xSj9i1soTqKwSVcIELMXOYq+V1Q=
+=VtA4
+-----END PGP SIGNATURE-----
