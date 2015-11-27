@@ -1,29 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45943 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752892AbbKSLFP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 19 Nov 2015 06:05:15 -0500
-Date: Thu, 19 Nov 2015 12:05:11 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "U.Mutlu" <for-gmane@mutluit.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: RFC: usermount - a secure mount for unpriviledged users
-Message-ID: <20151119110511.GB4955@ws.net.home>
-References: <n2ibqp$ui6$1@ger.gmane.org>
+Received: from mail-yk0-f173.google.com ([209.85.160.173]:34539 "EHLO
+	mail-yk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752393AbbK0JTV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 27 Nov 2015 04:19:21 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <n2ibqp$ui6$1@ger.gmane.org>
+In-Reply-To: <yq1fuztjymb.fsf@sermon.lab.mkp.net>
+References: <5651F740.3010707@interlog.com>
+	<yq1k2p7kuvd.fsf@sermon.lab.mkp.net>
+	<CAHp75VfpMdjmoipaJg7f4fR=6Mbyf1J_qmdoRm=zJ1ZWUW8EwA@mail.gmail.com>
+	<yq1fuztjymb.fsf@sermon.lab.mkp.net>
+Date: Fri, 27 Nov 2015 11:19:20 +0200
+Message-ID: <CAHp75Vf=-sn39rtBoqHudrdB2yWanOA=mavpu0AGAL6Bba5z8Q@mail.gmail.com>
+Subject: Re: [PATCH RESEND] scsi_debug: fix prevent_allow+verify regressions
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>,
+        "James E.J. Bottomley" <jbottomley@odin.com>,
+        SCSI development list <linux-scsi@vger.kernel.org>, sweet_f_a@gmx.de,
+        util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 18, 2015 at 06:17:12PM +0100, U.Mutlu wrote:
-> Currently no responsible admin can grant permission to the mount pgm
-> to his users, because of the dangers inherent with bind-mounting etc.
+On Thu, Nov 26, 2015 at 4:14 AM, Martin K. Petersen
+<martin.petersen@oracle.com> wrote:
+>>>>>> "Andy" == Andy Shevchenko <andy.shevchenko@gmail.com> writes:
+>
+> Andy,
+>
+> Andy> but can you pay a little attention to
+> Andy> http://www.spinics.net/lists/linux-scsi/msg81778.html ? It seems
+> Andy> it wasn't applied.
+>
+> Please resubmit to linux-scsi. We'll take a look.
 
-man mount, "The non-superuser mounts." section.
+Done:
 
-    Karel
+http://www.spinics.net/lists/linux-scsi/msg91207.html
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+With Best Regards,
+Andy Shevchenko
