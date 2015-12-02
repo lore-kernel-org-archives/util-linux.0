@@ -1,47 +1,32 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:51198 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751085AbbLBKlj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Dec 2015 05:41:39 -0500
+Date: Wed, 2 Dec 2015 11:41:37 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Cc: nacc@linux.vnet.ibm.com, util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] lscpu: Print physical cpu information
+Message-ID: <20151202104137.GI4955@ws.net.home>
+References: <1448482240-31011-1-git-send-email-sukadev@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20151216111530.GA13224@ws.net.home>
-References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
-	<1450208404.1111354.468335457.59637230@webmail.messagingengine.com>
-	<20151216111530.GA13224@ws.net.home>
-Date: Thu, 17 Dec 2015 18:16:59 +0000
-Message-ID: <CAG27Bk1r0OL961KCtq58Mo2W2ir=71yD30zaKVXW73rVtO30bQ@mail.gmail.com>
-Subject: Re: [PATCH 0/8] pull: bash-completion updates
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: Benno Schulenberg <bensberg@justemail.net>,
-        Util-Linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1448482240-31011-1-git-send-email-sukadev@linux.vnet.ibm.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 16 December 2015 at 11:15, Karel Zak <kzak@redhat.com> wrote:
-> On Tue, Dec 15, 2015 at 08:40:04PM +0100, Benno Schulenberg wrote:
->> On Mon, Dec 14, 2015, at 22:54, Sami Kerola wrote:
->> > The pull adds new function, print_long_opts(), to c.h and
->> > it does what one might expect a function of such name do.
->>
->> Hm.  You want to add --print-long-opts to almost all commands?
->
-> It seems so, and I'm really not sure with this solution.
+On Wed, Nov 25, 2015 at 12:10:39PM -0800, Sukadev Bhattiprolu wrote:
+>  configure.ac            |  6 ++++++
+>  sys-utils/Makemodule.am |  2 +-
+>  sys-utils/lscpu.1       | 10 ++++++++-
+>  sys-utils/lscpu.c       | 55 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 71 insertions(+), 2 deletions(-)
 
-Fair enough.
+ Applied, thanks!
 
->> And burden all --help outputs with listing it?  But... is this
->> option useful for users?  Or really only for bash-completion?
->
-> It means that always when I press <tab> on command line then the util is
-> executed with --print-long-opts. It seems expensive.
->
-> From my point of view it would be enough to have tools/checkcompletion
-> script to extract "struct option" from our utils and check if the options
-> are also in bash-completion/<name> and in the util man page.
-
-If this is the preference then the patchset is mostly throwaway. Oh well,
-such is life. Let's see if the week after the Christmas on-call there's time to
-think how to make options parsing work.
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
