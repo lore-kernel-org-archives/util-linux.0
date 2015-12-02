@@ -1,44 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:34736 "EHLO
-	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753559AbbLNVzJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Dec 2015 16:55:09 -0500
-Received: by mail-wm0-f51.google.com with SMTP id p66so83324870wmp.1
-        for <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:55:08 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/8] setsid: fix argument count bug
-Date: Mon, 14 Dec 2015 21:54:50 +0000
-Message-Id: <1450130093-12108-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
-References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:47963 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756444AbbLBMvS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Dec 2015 07:51:18 -0500
+Date: Wed, 2 Dec 2015 13:51:17 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>, David Sterba <dsterba@suse.cz>,
+        =?iso-8859-1?Q?S=F8ren?= Holm <sgh@sgh.dk>
+Subject: Re: [PATCH] fix mount -a on btrfs bind mount
+Message-ID: <20151202125117.GJ4955@ws.net.home>
+References: <56573D53.1020406@suse.cz>
+ <56588FBD.9000502@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56588FBD.9000502@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The below demonstrates what happen before this change.
+On Fri, Nov 27, 2015 at 06:15:41PM +0100, Stanislav Brabec wrote:
+> root has to be literally the same as src_root, which is already the path
+> prefixed by /{subvolume}. Otherwise it will not match in
+> mnt_fs_streq_target(fs, xtgt) inside mnt_table_is_fs_mounted() and
+> repeated "mount -a" will mount it again and again.
 
-$ setsid --wait
-setsid: child 3252 did not exit normally: Success
+yes
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/setsid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>  		if (src_root && !startswith(root, src_root)) {
+> -			size_t sz = strlen(root) + strlen(src_root) + 1;
+> -			char *tmp = malloc(sz);
+> -
+> +			char *tmp = strdup (src_root);
+>  			if (!tmp)
+>  				goto err;
+> -			snprintf(tmp, sz, "%s%s", src_root, root);
+>  			free(root);
+>  			root = tmp;
+>  		}
 
-diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
-index 71d552f..1abf95b 100644
---- a/sys-utils/setsid.c
-+++ b/sys-utils/setsid.c
-@@ -89,7 +89,7 @@ int main(int argc, char **argv)
- 			usage(stderr);
- 		}
- 
--	if (argc < 2)
-+	if (argc - optind < 1)
- 		usage(stderr);
- 
- 	if (getpgrp() == getpid()) {
+but this code is there for another use case. The problem is when the
+fstab_fs source is *sub-directory* on btrfs subvolume (or another bind
+mount). For example imagine:
+
+  /dev/sdc        /mnt/test       btrfs   subvol=/anydir
+  /mnt/test/foo   /mnt/test2      auto    bind
+
+then FS root for /mnt/test2 is /anydir/foo on /dev/sdc. The problem is
+that the code does not recognize your use-case with "/" (no sub-directory 
+on source FS).
+
+My bugfix:
+
+ https://github.com/karelzak/util-linux/commit/352740e88e2c9cb180fe845ce210b1c7b5ad88c7
+
+try it :-)
+
+Anyway, we need more regression tests for these crazy use-cases.
+
+    Karel
+
+
 -- 
-2.6.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
