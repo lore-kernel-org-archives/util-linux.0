@@ -1,47 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37040 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751576AbbLCTCx (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Dec 2015 14:02:53 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailout.nyi.internal (Postfix) with ESMTP id 3BD5D203AF
-	for <util-linux@vger.kernel.org>; Thu,  3 Dec 2015 14:02:52 -0500 (EST)
-Message-Id: <1449169371.410693.457284137.08FE0BCD@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-Cc: Karel Zak <kzak@redhat.com>
+Received: from mout.gmx.net ([212.227.15.15]:57699 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757683AbbLCB5J (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Dec 2015 20:57:09 -0500
+Received: from tenfore.lan ([95.114.250.73]) by mail.gmx.com (mrgmx002) with
+ ESMTPSA (Nemesis) id 0MXIov-1Zpmuv0GsX-00WHdK for
+ <util-linux@vger.kernel.org>; Thu, 03 Dec 2015 02:57:08 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: "util-linux" <util-linux@vger.kernel.org>
+Subject: libblkid: blkid_bufinfo() fails on 32bit
+Date: Thu, 3 Dec 2015 02:57:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
-References: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
-Subject: Re: cfdisk cuts lines for logical partitions too short
-Date: Thu, 03 Dec 2015 20:02:51 +0100
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201512030257.06753.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi,
 
-On Wed, Nov 18, 2015, at 17:04, Benno Schulenberg wrote:
-> In 2.27, the highlight bar of cfdisk is three or four characters
-> shorter than the width of the screen -- for logical partitions.
-> I noticed because on a 100-column terminal two letters of a
-> translation were bitten off.
-> 
-> The culprit is commit ed99eac0e2a83a315c7cf5d8a461df16b3106596.
-> Before that, the lines were full length.
+Looks like this commit breaks 32bit/i386 systems:
 
-Ping?
+----
+commit a674a0ab03660b1df777e69436b2dc832b6f8681
+Author: Karel Zak <kzak@redhat.com>
+Date:   Tue Sep 22 15:37:26 2015 +0200
+
+    libblkid: use mmap() rather than read()
+----
+
+ libblkid/src/probe.c:638: mmap_buffer: Assertion `map_off + map_len >= real_off + len' failed.
 
 
-> Btw, in current git, running ./cfdisk aborts here with:
-> 
->   lt-cfdisk: libblkid/src/probe.c:638: mmap_buffer: 
->   Assertion `map_off + map_len >= real_off + len' failed.
+I can avoid that assert if I change the type of map_len in blkid_bufinfo().
 
-Okay.  That works now.
+-   size_t map_len;
++   blkid_loff_t map_len;
 
-Benno
+but it still looks broken, see this debug output
 
--- 
-http://www.fastmail.com - Access all of your messages and folders
-                          wherever you are
 
+libblkid: LOWPROBE: --> starting probing loop [SUBLKS idx=-1]
+libblkid: LOWPROBE: [0] linux_raid_member:
+libblkid: LOWPROBE:     call probefunc()
+libblkid:   BUFFER:     mapping end of the device
+libblkid:   BUFFER:     mmap  0xf7321000: off=4112515072, len=25771900928 (6291968 pages)
+                                                      ^^^^^^^
+   shouldn't we only mmap about 2M?
+
+libblkid:   BUFFER:     reuse 0xf7321000: off=4112515072 len=25771900928 (for off=29884407808 len=256)
+libblkid:   BUFFER:     mapping begin of the device
+libblkid:   BUFFER:     mmap  0xf7121000: off=0, len=2097152 (512 pages)
+libblkid:   BUFFER:     reuse 0xf7121000: off=0 len=2097152 (for off=4096 len=256)
+
+cu,
+Rudi
