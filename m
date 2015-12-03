@@ -1,54 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:50015 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:53825 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752029AbbLJWYN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Dec 2015 17:24:13 -0500
+	id S932327AbbLCL1a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 3 Dec 2015 06:27:30 -0500
+Date: Thu, 3 Dec 2015 12:27:28 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: libblkid: blkid_bufinfo() fails on 32bit
+Message-ID: <20151203112728.GK4955@ws.net.home>
+References: <201512030257.06753.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Message-ID: <trinity-01dc6d15-b86a-49f7-bd1c-6b0c22554b9d-1449786251438@3capp-gmx-bs27>
-From: Yoss@gmx.net
-To: util-linux@vger.kernel.org
-Subject: bug in "mount --bind" for hashed tree indexed directories
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 10 Dec 2015 23:24:11 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201512030257.06753.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Thu, Dec 03, 2015 at 02:57:06AM +0100, Ruediger Meier wrote:
+> but it still looks broken, see this debug output
+> 
+> 
+> libblkid: LOWPROBE: --> starting probing loop [SUBLKS idx=-1]
+> libblkid: LOWPROBE: [0] linux_raid_member:
+> libblkid: LOWPROBE:     call probefunc()
+> libblkid:   BUFFER:     mapping end of the device
+> libblkid:   BUFFER:     mmap  0xf7321000: off=4112515072, len=25771900928 (6291968 pages)
+>                                                       ^^^^^^^
 
-summary:
-'mount --bind oldfile newfile'  doesn't implement some changes in "newfile" if "oldfile" is situated in a hashed tree indexed directory (attribute I).
+Yep, fixed.
 
-Example:
-> lsattr /
- ----------I--e- /etc
+-#define PROBE_ALIGN_OFF(p, o)  ((o) & ~((p)->mmap_granularity - 1))
++#define PROBE_ALIGN_OFF(p, o)  ((o) & ~((p)->mmap_granularity - 1ULL))
 
-> touch /etc/testa
-> touch /tmp/testa
-> mount --bind /etc/testa /tmp/testa
-> vi /etc/testa (add some characters)
-> ls -al /etc/testa
-> ls -al /tmp/testa
+.. it's necessary to be more explicit with constants ;-)
 
-Only the file /etc/testa contains the added characters. 
+Thanks!
 
-
-Tested Environments:
-
-CentOS 7: 
-Linux server 3.10.0-229.14.1.el7.x86_64 #1 SMP Tue Sep 15 15:05:51 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
-Name        : util-linux
-Version     : 2.23.2
-Release     : 22.el7_1.1
-
-RedHat 6:
-Linux server 2.6.32-573.8.1.el6.x86_64 #1 SMP Fri Sep 25 19:24:22 EDT 2015 x86_64 x86_64 x86_64 GNU/Linux
-Name        : util-linux-ng                Relocations: (not relocatable)
-Version     : 2.17.2                            Vendor: Red Hat, Inc.
-Release     : 12.18.el6                     Build Date: Mon 11 Aug 2014 01:03:25 PM CEST
+    Karel
 
 
-Additional notes:
-The problem seem to be more complex, because if a 'echo "test" >> /etc/testa' is used, it works. But after a change with vi, echo doesn't works too. Practical background is the use of mount --bind in a bind (named) chroot environment. A change of /etc/named.conf will not result in an update of /var/named/chroot/etc/named.conf. 
+>    shouldn't we only mmap about 2M?
+> 
+> libblkid:   BUFFER:     reuse 0xf7321000: off=4112515072 len=25771900928 (for off=29884407808 len=256)
+> libblkid:   BUFFER:     mapping begin of the device
+> libblkid:   BUFFER:     mmap  0xf7121000: off=0, len=2097152 (512 pages)
+> libblkid:   BUFFER:     reuse 0xf7121000: off=0 len=2097152 (for off=4096 len=256)
+> 
+> cu,
+> Rudi
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Regards
-Stefan
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
