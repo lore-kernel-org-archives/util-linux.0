@@ -1,47 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:64162 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752889AbbLIRnW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Dec 2015 12:43:22 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:65517 "EHLO
+	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753460AbbLCUMe (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 3 Dec 2015 15:12:34 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Federico Simoncelli <fsimonce@redhat.com>
-Subject: [PATCH 1/5] blkdiscard: fix timeval comparison inclusive usecs
-Date: Wed,  9 Dec 2015 18:43:10 +0100
-Message-Id: <1449682994-32154-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
-References: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH] lsns: improve formatting and wording of the man page
+Date: Thu,  3 Dec 2015 21:12:28 +0100
+Message-Id: <1449173548-24200-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-We will see if this makes our "--step" tests reliable.
-
-CC: Federico Simoncelli <fsimonce@redhat.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- sys-utils/blkdiscard.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sys-utils/lsns.8 |   31 ++++++++++++++-----------------
+ 1 files changed, 14 insertions(+), 17 deletions(-)
 
-diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
-index 150689a..a853a35 100644
---- a/sys-utils/blkdiscard.c
-+++ b/sys-utils/blkdiscard.c
-@@ -197,10 +197,11 @@ int main(int argc, char **argv)
- 				err(EXIT_FAILURE, _("%s: BLKDISCARD ioctl failed"), path);
- 		}
+diff --git a/sys-utils/lsns.8 b/sys-utils/lsns.8
+index 665f6f9..fd8cfc6 100644
+--- a/sys-utils/lsns.8
++++ b/sys-utils/lsns.8
+@@ -1,4 +1,4 @@
+-.\" Man page for the lslocks command.
++.\" Man page for the lsns command.
+ .\" Copyright 2015 Karel Zak <kzak@redhat.com>
+ .\" May be distributed under the GNU General Public License
  
--		/* reporting progress */
-+		/* reporting progress at most once per second */
- 		if (verbose && step) {
- 			gettime_monotonic(&now);
--			if (last.tv_sec < now.tv_sec) {
-+			if (now.tv_sec > last.tv_sec &&
-+			    (now.tv_usec >= last.tv_usec || now.tv_sec > last.tv_sec + 1)) {
- 				print_stats(path, stats);
- 				stats[0] = range[0], stats[1] = 0;
- 				last = now;
+@@ -8,9 +8,7 @@ lsns \- list namespaces
+ .SH SYNOPSIS
+ .B lsns
+ [options]
+-.RB [
+-.I namespace
+-.RB ]
++.RI [ namespace ]
+ 
+ .SH DESCRIPTION
+ .B lsns
+@@ -19,16 +17,16 @@ given \fInamespace\fP.  The \fInamespace\fP identifier is an inode number.
+ 
+ The default output is subject to change.  So whenever possible, you should
+ avoid using default outputs in your scripts.  Always explicitly define expected
+-columns by using --output columns-list in environments where a stable output is
+-required.
++columns by using the \fB\-\-output\fR option together with a columns list in
++environments where a stable output is required.
+ 
+-Note that lsns reads information directly from /proc filesystem and for
+-non-root users it may returns incomplete information.  The current 
+-/proc filesystem may be unshared and affected by PID namespace (see \fBunshare --mount-proc\fP
+-for more details).
++Note that \fBlsns\fR reads information directly from the /proc filesystem and
++for non-root users it may return incomplete information.  The current /proc
++filesystem may be unshared and affected by a PID namespace
++(see \fBunshare \-\-mount\-proc\fP for more details).
+ .B lsns
+-is not able to see persistent namespaces without processes where the namespace 
+-instance is hold by the bind mount to /proc/[pid]/ns/[type].
++is not able to see persistent namespaces without processes where the namespace
++instance is held by a bind mount to /proc/\fIpid\fR/ns/\fItype\fR.
+ 
+ .SH OPTIONS
+ .TP
+@@ -42,12 +40,11 @@ Use list output format.
+ Do not print a header line.
+ .TP
+ .BR \-o , " \-\-output " \fIlist\fP
+-Specify which output columns to print.  Use
+-.B "--help"
++Specify which output columns to print.  Use \fB\-\-help\fR
+ to get a list of all supported columns.
+ 
+ The default list of columns may be extended if \fIlist\fP is
+-specified in the format \fI+list\fP (e.g. \fBlsns -o +PATH\fP).
++specified in the format \fB+\fIlist\fP (e.g. \fBlsns \-o +PATH\fP).
+ .TP
+ .BR \-p , " \-\-task " \fIpid\fP
+ Display only the namepsaces held by the process with this \fIpid\fR.
+@@ -56,8 +53,8 @@ Display only the namepsaces held by the process with this \fIpid\fR.
+ Use the raw output format.
+ .TP
+ .BR \-t , " \-\-type " \fItype\fP
+-Display specified \fItype\fP of the namespaces only. The supported types are
+-\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP and \fButs\fP. This
++Display the specified \fItype\fP of namespaces only.  The supported types are
++\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP and \fButs\fP.  This
+ option may be given more than once.
+ .TP
+ .BR \-u , " \-\-notruncate"
 -- 
-1.8.4.5
+1.7.0.4
 
