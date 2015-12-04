@@ -1,66 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:57459 "EHLO mout.gmx.net"
+Received: from smtp.gentoo.org ([140.211.166.183]:42443 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932247AbbLNMMC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Dec 2015 07:12:02 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0MSMr9-1ZfcTL1jmV-00TVj2 for
- <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:12:00 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: sfdisk, re-eading partition table fails
-Date: Mon, 14 Dec 2015 13:11:59 +0100
+	id S1755150AbbLDWDb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 17:03:31 -0500
+Date: Fri, 4 Dec 2015 17:03:29 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fsck memory leak
+Message-ID: <20151204220329.GT23754@vapier.lan>
+References: <n3rei3$8l3$1@ger.gmane.org>
+ <20151204151927.GA3548@thunk.org>
+ <n3sjvh$ib8$1@ger.gmane.org>
+ <20151204195848.GA18359@thunk.org>
+ <n3st78$77b$1@ger.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201512141311.59328.sweet_f_a@gmx.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="GviraxgP0A7vmYdC"
+In-Reply-To: <n3st78$77b$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
 
-our test suite shows that many sfdisk tests fail sometimes to "Re-read
-partition table" at the end. I was able to find some systems where
-I could re-produce the problem using the script below.
+--GviraxgP0A7vmYdC
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Seems that the problem is because of the first BLKRRPART ioctl call
-in sfdisk.c function is_device_used(). Maybe it cause udev or
-whatever to open the device and then the real BLKRRPART in
-write_changes() fails.
+On 04 Dec 2015 21:31, U.Mutlu wrote:
+> I think it's a double-edged sword: if user has less memory then
+> the integrated caching will IMO degrade the performance.
 
-Removing the first BLKRRPART ioctl (or sleeping about 50ms after the first one)
-"fixes" the issue.
+it is not.  the user doesn't have less memory -- if the user requests pages
+and there aren't enough free, then the caches will automatically be trimmed
+to satisfy the request.  (obviously i'm glossing over details, but i think
+this is sufficient based on the quested generalization.)
+-mike
 
------- my test script -------------
-#!/bin/bash
-export LANG="C"
-export LC_ALL="C"
+--GviraxgP0A7vmYdC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-export LD_LIBRARY_PATH=/home/rudi/devel/util-linux/build/.libs
-SFDISK=/home/rudi/devel/util-linux/build/.libs/sfdisk
-LOG=/tmp/sfdisk.log
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-modprobe -r scsi_debug || exit 1
-modprobe -b scsi_debug dev_size_mb=100 sector_size=512 || exit 1
-udevadm settle
-sleep 2
-DEVICE=/dev/$(grep --with-filename scsi_debug /sys/block/*/device/model | awk -F '/' '{print $4}')
-echo device: $DEVICE
+iQIcBAEBCAAGBQJWYg2xAAoJEEFjO5/oN/WB6ccP/iF7+yKyYIE8lhtmN1oIOhMu
+Bsz7wjZ2pKVwm0kQwHiGPgMRALzk1ge+Y0k+9QKb18ID0AVOTT+Cyz1dsQyRE4Xr
+vf32MDpKdgD4WkmCTYN7CxyhzVfyaPKsgsiGt0oHJUZKhwCtAZEjTkMEXVO6AFei
+BPiRLiaigXKdPJhvAL8QGdSIp86dKNc2SgUATIqz9OOfruQXlV6IRC6uc0oS12AF
+1aJ1S5MC60gQb1oWB7EGgSuy5PHL8j0ysvMqSDk5I6ykXrC0uxZjyD2FRqpey3P+
+woAwKo2LpXpV5ir0WcpdpG/CZfOgIqzgYLrJ/GndRsF8jrcNq+7PuoIVcwjML1rh
+76rQRbyMuNqYw8YiOvKPS1e0E0rTj5OGK6r22rEF0CjAIDtKq0uCbcY8yInVsfMI
+FPthN0b8+K1B7ZWK1izbvs3zvRVkAtVazLywA1Ttz2yX2sNe03zrK6+ZPjHjXgZF
+rS47N4Sqx1JZU8LPy15dXKf/zCnl9ib6GvFfkbwGS/gjB2fVXNfAXyE0ghS4JWKg
+fPu9jZgoSBP/gESZWHnpVabWnl3DbzyOQiCSMX6VaNw3tnsJJ6MnmD81/21Odt6S
+dPvxVEREMUequzSqsJxPlkamCTpKFE/YCzt4fGE3XjdsRNTLCvWfzJvF+NYUwbNs
+O2+PS1K0nopbL+Vq+xBo
+=9MhH
+-----END PGP SIGNATURE-----
 
-rm -f "$LOG"
-
-# create a partition
-echo ',+,L' | $SFDISK --label dos ${DEVICE} &> /dev/null
-udevadm settle
-sleep 2
-
-echo "+10M,-10M" | strace -f -o /tmp/strace $SFDISK -N1 ${DEVICE} >> "$LOG" 2>&1
-if grep -qi "failed" "$LOG"; then 
-	echo "!! FAILED !!"
-	exit 1
-fi
-exit 0
-----------
-
-cu,
-Rudi
+--GviraxgP0A7vmYdC--
