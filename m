@@ -1,46 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:36166 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753550AbbLNVzH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Dec 2015 16:55:07 -0500
-Received: by mail-wm0-f52.google.com with SMTP id n186so138797558wmn.1
-        for <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:55:07 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/8] isosize: stop unmeaningful printing errno message
-Date: Mon, 14 Dec 2015 21:54:49 +0000
-Message-Id: <1450130093-12108-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
-References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
+Received: from imap.thunk.org ([74.207.234.97]:39739 "EHLO imap.thunk.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751341AbbLDWRZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 17:17:25 -0500
+Date: Fri, 4 Dec 2015 17:17:20 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fsck memory leak
+Message-ID: <20151204221720.GD18359@thunk.org>
+References: <n3rei3$8l3$1@ger.gmane.org>
+ <20151204151927.GA3548@thunk.org>
+ <n3sjvh$ib8$1@ger.gmane.org>
+ <20151204195848.GA18359@thunk.org>
+ <n3st78$77b$1@ger.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <n3st78$77b$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier printout had strange looking 'Success'.
+On Fri, Dec 04, 2015 at 09:31:36PM +0100, U.Mutlu wrote:
+> 
+> I think it's a double-edged sword: if user has less memory then
+> the integrated caching will IMO degrade the performance.
 
-$ isosize --sectors /dev/urandom
-isosize: /dev/urandom: might not be an ISO filesystem
-isosize: 733error: le=-1971599244 be=1633181607: Success
-...
+You're wrong.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/isosize.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Btw, why does my "free" command not have the "available" column?
+> Or did you use a different tool for the above outputs?
 
-diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
-index fb35764..4fb3386 100644
---- a/disk-utils/isosize.c
-+++ b/disk-utils/isosize.c
-@@ -84,7 +84,7 @@ static int isonum_733(unsigned char *p, int xflag)
- 	int be = isonum_732(p + 4);
- 	if (xflag && le != be)
- 		/* translation is useless */
--		warn("733error: le=%d be=%d", le, be);
-+		warnx("733error: le=%d be=%d", le, be);
- 	return (le);
- }
- 
--- 
-2.6.4
+Probably because you're using an older version of procps.  The
+difference is between 2:3.3.9-9 and 2:3.3.10-2 (which recently entered
+Debian testing).
 
+The older version of free has a "-/+ buffers/cache" line, and the Free
+entry in the "-/+ buffer/cache" line is equivalent to the available
+line.  So you're version of free looks like this:
+
+             total       used       free     shared    buffers     cached
+Mem:           15G       7.1G       8.2G       421M       303M       1.6G
+-/+ buffers/cache:       5.2G   ===> 10G <===
+Swap:           0B         0B         0B
+
+							- Ted
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+
+
+
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
