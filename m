@@ -1,73 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:39739 "EHLO imap.thunk.org"
+Received: from plane.gmane.org ([80.91.229.3]:34503 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751341AbbLDWRZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Dec 2015 17:17:25 -0500
-Date: Fri, 4 Dec 2015 17:17:20 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "U.Mutlu" <for-gmane@mutluit.com>
-Cc: util-linux@vger.kernel.org
+	id S1752100AbbLDTJs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 14:09:48 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1a4vjl-0007ZW-Cq
+	for util-linux@vger.kernel.org; Fri, 04 Dec 2015 20:09:45 +0100
+Received: from ip4d14b373.dynamic.kabel-deutschland.de ([77.20.179.115])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 20:09:45 +0100
+Received: from for-gmane by ip4d14b373.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 20:09:45 +0100
+To: util-linux@vger.kernel.org
+From: "U.Mutlu" <for-gmane@mutluit.com>
 Subject: Re: fsck memory leak
-Message-ID: <20151204221720.GD18359@thunk.org>
-References: <n3rei3$8l3$1@ger.gmane.org>
- <20151204151927.GA3548@thunk.org>
+Date: Fri, 4 Dec 2015 20:09:38 +0100
+Message-ID: <n3sodi$qhv$1@ger.gmane.org>
+References: <n3rei3$8l3$1@ger.gmane.org> <20151204151927.GA3548@thunk.org>
  <n3sjvh$ib8$1@ger.gmane.org>
- <20151204195848.GA18359@thunk.org>
- <n3st78$77b$1@ger.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <n3st78$77b$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <n3sjvh$ib8$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 04, 2015 at 09:31:36PM +0100, U.Mutlu wrote:
-> 
-> I think it's a double-edged sword: if user has less memory then
-> the integrated caching will IMO degrade the performance.
+U.Mutlu wrote on 12/04/2015 06:53 PM:
+> Theodore Ts'o wrote on 12/04/2015 04:19 PM:
+>> On Fri, Dec 04, 2015 at 08:15:14AM +0100, U.Mutlu wrote:
+>>> Hi,
+>>> when I as root do "touch /forcefsck" and reboot, then fsck will be done.
+>>> But afterwards one has less free memory available than normal.
+>>> Example:
+>>> used mem immediately after login:
+>>>   without fsck during boot:  98 MB (this the normal level here)
+>>>   with fsck during boot   : 139 MB
+>>> So, there is a memory leak of about 41 MB.
+>>
+>> Please send the output of cat /proc/meminfo (a) before running fsck,
+>> (b) after running fsck, and then (c) after running "echo 3 >
+>> /proc/sys/vm/drop_caches".
+>
+> Just tried it out.
+> Doing "echo 3 > /proc/sys/vm/drop_caches" solves the problem.
 
-You're wrong.
+But thinking twice about this leads me to the conclusion that
+there still must be something fishy in the system, because
+I had read the used mem from the "-/+ buffers/cache" line of the "free -lh" 
+command, here an example output:
 
-> Btw, why does my "free" command not have the "available" column?
-> Or did you use a different tool for the above outputs?
+$ free -lh
+              total       used       free     shared    buffers     cached
+Mem:          6.9G       1.3G       5.6G        17M        70M       882M
+Low:          6.9G       1.3G       5.6G
+High:           0B         0B         0B
+-/+ buffers/cache:       404M       6.5G
+Swap:         8.0G         0B       8.0G
 
-Probably because you're using an older version of procps.  The
-difference is between 2:3.3.9-9 and 2:3.3.10-2 (which recently entered
-Debian testing).
-
-The older version of free has a "-/+ buffers/cache" line, and the Free
-entry in the "-/+ buffer/cache" line is equivalent to the available
-line.  So you're version of free looks like this:
-
-             total       used       free     shared    buffers     cached
-Mem:           15G       7.1G       8.2G       421M       303M       1.6G
--/+ buffers/cache:       5.2G   ===> 10G <===
-Swap:           0B         0B         0B
-
-							- Ted
-
-
-
-
-
-
-
-
-
-
-
-
-
+So, it should have already counted-in the cached memory, and IMO it does.
+But then it's mysterious why the said discrepancy of 41 MB shows up
+if /proc/sys/vm/drop_caches has the default value of 0.
 
 
 
-;
-
-
-
-> 
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
