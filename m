@@ -1,61 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:41738 "EHLO smtp.gentoo.org"
+Received: from mout.gmx.net ([212.227.15.15]:51045 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755339AbbLDWBj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Dec 2015 17:01:39 -0500
-Received: from vapier.lan (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with SMTP id 1C460340B2B
-	for <util-linux@vger.kernel.org>; Fri,  4 Dec 2015 22:01:39 +0000 (UTC)
-Date: Fri, 4 Dec 2015 17:01:38 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
+	id S1754837AbbLDVkZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 16:40:25 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: "U.Mutlu" <for-gmane@mutluit.com>
 Subject: Re: fsck memory leak
-Message-ID: <20151204220138.GS23754@vapier.lan>
-References: <n3rei3$8l3$1@ger.gmane.org>
- <20151204151927.GA3548@thunk.org>
- <n3sjvh$ib8$1@ger.gmane.org>
- <20151204195848.GA18359@thunk.org>
+Date: Fri, 4 Dec 2015 22:40:19 +0100
+Cc: util-linux@vger.kernel.org
+References: <n3rei3$8l3$1@ger.gmane.org> <20151204195848.GA18359@thunk.org> <n3st78$77b$1@ger.gmane.org>
+In-Reply-To: <n3st78$77b$1@ger.gmane.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="x/TyKPcLwmKZr+b7"
-In-Reply-To: <20151204195848.GA18359@thunk.org>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201512042240.19891.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Friday 04 December 2015, U.Mutlu wrote:
+> I think it's a double-edged sword: if user has less memory then
+> the integrated caching will IMO degrade the performance.
 
---x/TyKPcLwmKZr+b7
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+It will use as much memory as available (not more). Ideally Linux would 
+use always 100% memory. You've spent money for memory ... why you 
+wouldn't want to use it?
 
-On 04 Dec 2015 14:58, Theodore Ts'o wrote:
-> So doing something like "echo 3 > /proc/sys/vm/drop_caches" is
-> actually a _bad_ thing, since it means you are throwing away data that
-> could be used to avoid blocking waiting for disk I/O to complete.
+After ...
+$ echo 3 > /proc/sys/vm/drop_caches
 
-just to clarify for other readers: "bad" here means "bad for performance",
-not "bad" as in "data loss".
--mike
+... my memory looks like this:
+$ free -h
+             total    used    free       shared    buffers     cached
+Mem:          7.7G    1.8G    6.0G         230M       4.4M       487M
+-/+ buffers/cache:    1.3G    6.5G
+Swap:         1.7G     68M    1.6G
 
---x/TyKPcLwmKZr+b7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Then after ...
+$ dd if=/dev/sda of=/dev/null count=8K bs=1M
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+... cache/buffer is filled
+$ free -h
+             total    used    free       shared    buffers     cached
+Mem:          7.7G    7.6G    168M <=(1)   230M       5.6G       665M
+-/+ buffers/cache:    1.3G    6.5G <=(2)
+Swap:         1.7G     68M    1.6G
 
-iQIcBAEBCAAGBQJWYg1CAAoJEEFjO5/oN/WB1TkQALChyisOnpqHKkMqS1Nv8Bls
-XPQBTjN2YFm3y+j7OEUrpGw5gVlHS9ztrVvMrJRiNjOjQ6qjWzhb8PgVJUtNBuQ+
-8vKa/EqIuYYx6vSIoohV1PoOZScGLdYmxpgPiBVNN0GROC0AwNPdLVE+2RDU2CVG
-HSHl+DUHaDXFgYee3tKH49KHg9FENdxPdDD/fEaaC2xJ+YErpfcbhS9WfarmLnIW
-dkV/OL5MyGGqoJI6U+CB/zC2QWN9O9fZk0h1qtAebnmo9biF1SXdBmAUwnA5gquQ
-e0lWcIi4TS2KHWXSJ69i+4NXf5ywSYIU5az0Ciasyyj4EfLiG0vTgnwt/7ITFjf3
-56BPYJtl526MH0vY4wAz0+dd7XL88Q5s/QdZslCMFo6yinxPwVeHgx2RCs6WiVxI
-iym9zF3QRvcA+I0DF91VbosnFsFSpfxw4CQtms3PB2I3vkfa+CRhKrW3AQ9nZjtk
-vybCZUp6FvEEwG2Y23rRMst2r7XgJPER3pTl5px6TWkhaUykKj0/UyD7QRq7oa0N
-4X01w+IpLGLU8sZ+sN5YcFClhC+TbginP6KgVy5JhqTQjCwVgFTGItYrYKsGZqyj
-HQsynoy9WTmFVF+qMR9PG3g/8O6wrshJFDkj3ibZEO2/EATN3QLwMUvnUosrPojQ
-gK3XN4rhip2JI4A1jFUl
-=u+pC
------END PGP SIGNATURE-----
+... and this should not change until reboot.
 
---x/TyKPcLwmKZr+b7--
+(1) shows that almost 100% memory is "in use"
+(2) shows that it's just buffer or cache
+
+sorun yapma ;)
+Rudi
