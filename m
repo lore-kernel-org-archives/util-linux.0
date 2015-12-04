@@ -1,36 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:60509 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:47742 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752700AbbLIRnS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Dec 2015 12:43:18 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0MKYpv-1a8eZv05vb-001zRu for
- <util-linux@vger.kernel.org>; Wed, 09 Dec 2015 18:43:16 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 0/5] blkdiscard: some output fixes
-Date: Wed,  9 Dec 2015 18:43:09 +0100
-Message-Id: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
+	id S1756054AbbLDKVc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 05:21:32 -0500
+Date: Fri, 4 Dec 2015 11:21:28 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "U.Mutlu" <for-gmane@mutluit.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fsck memory leak
+Message-ID: <20151204102128.GM4955@ws.net.home>
+References: <n3rei3$8l3$1@ger.gmane.org>
+ <n3rgif$72q$1@ger.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <n3rgif$72q$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Fri, Dec 04, 2015 at 08:49:34AM +0100, U.Mutlu wrote:
+> U.Mutlu wrote on 12/04/2015 08:15 AM:
+> >Hi,
+> >when I as root do "touch /forcefsck" and reboot, then fsck will be done.
+> >But afterwards one has less free memory available than normal.
+> >Example:
+> >used mem immediately after login:
+> >  without fsck during boot:  98 MB (this the normal level here)
+> >  with fsck during boot   : 139 MB
+> >So, there is a memory leak of about 41 MB.
+> 
+> This discrepancy is reproducible here, ie. happens always.
+> 
+> Not sure, but it could also be a kernel issue, because
+> the longer the system runs the more memory gets bound.
+> The source of the culprit is not easily detectable.
+> I guess it gets eaten by the kernel, probably by the ext4-driver.
+> 
+> >fsck from util-linux 2.25.2
+> >Filesys: ext4, 500 MB SSD
+> 
+> fix: of course 500 GB was meant
+> 
+> >OS: Debian 8 X86_64, uptodate
 
-This is pull request 239 on github
-https://github.com/karelzak/util-linux/pull/239
+And are you talking about fsck (wrapper) or fsck.ext4 (from
+e2fsprogs)?
 
-Ruediger Meier (5):
-  blkdiscard: fix timeval comparison inclusive usecs
-  blkdiscard: fix stats reporting (off by one)
-  blkdiscard: don't report "zero range" at the end
-  tests: blkdiscard, check return values
-  tests: skip BLKDISCARD if unsupported
-
- sys-utils/blkdiscard.c            | 13 ++++---
- tests/expected/blkdiscard/offsets | 31 ++++++++++++++++
- tests/ts/blkdiscard/offsets       | 78 +++++++++++++++++++++++----------------
- 3 files changed, 84 insertions(+), 38 deletions(-)
+    Karel
 
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
