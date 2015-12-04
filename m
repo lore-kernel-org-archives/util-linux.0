@@ -1,141 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:37089 "EHLO
-	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753550AbbLNVzL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Dec 2015 16:55:11 -0500
-Received: by wmnn186 with SMTP id n186so140643189wmn.0
-        for <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:55:10 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 7/8] bash-completion: lslogins: add missing completion file
-Date: Mon, 14 Dec 2015 21:54:52 +0000
-Message-Id: <1450130093-12108-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
-References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
+Received: from mx2.suse.de ([195.135.220.15]:48542 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752054AbbLDOd4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 09:33:56 -0500
+Date: Fri, 4 Dec 2015 15:32:04 +0100
+From: David Sterba <dsterba@suse.cz>
+To: Karel Zak <kzak@redhat.com>
+Cc: Stanislav Brabec <sbrabec@suse.cz>,
+        util-linux <util-linux@vger.kernel.org>,
+        =?iso-8859-1?Q?S=F8ren?= Holm <sgh@sgh.dk>
+Subject: Re: [PATCH] fix mount -a on btrfs bind mount
+Message-ID: <20151204143204.GA27926@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <56573D53.1020406@suse.cz>
+ <56588FBD.9000502@suse.cz>
+ <20151202125117.GJ4955@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151202125117.GJ4955@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/Makemodule.am |  3 +++
- bash-completion/lslogins      | 52 +++++++++++++++++++++++++++++++++++++++++++
- login-utils/lslogins.c        |  8 ++++++-
- 3 files changed, 62 insertions(+), 1 deletion(-)
- create mode 100644 bash-completion/lslogins
+On Wed, Dec 02, 2015 at 01:51:17PM +0100, Karel Zak wrote:
+> On Fri, Nov 27, 2015 at 06:15:41PM +0100, Stanislav Brabec wrote:
+> > root has to be literally the same as src_root, which is already the path
+> > prefixed by /{subvolume}. Otherwise it will not match in
+> > mnt_fs_streq_target(fs, xtgt) inside mnt_table_is_fs_mounted() and
+> > repeated "mount -a" will mount it again and again.
+> 
+> yes
+> 
+> >  		if (src_root && !startswith(root, src_root)) {
+> > -			size_t sz = strlen(root) + strlen(src_root) + 1;
+> > -			char *tmp = malloc(sz);
+> > -
+> > +			char *tmp = strdup (src_root);
+> >  			if (!tmp)
+> >  				goto err;
+> > -			snprintf(tmp, sz, "%s%s", src_root, root);
+> >  			free(root);
+> >  			root = tmp;
+> >  		}
+> 
+> but this code is there for another use case. The problem is when the
+> fstab_fs source is *sub-directory* on btrfs subvolume (or another bind
+> mount). For example imagine:
+> 
+>   /dev/sdc        /mnt/test       btrfs   subvol=/anydir
 
-diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
-index e4196a3..9479087 100644
---- a/bash-completion/Makemodule.am
-+++ b/bash-completion/Makemodule.am
-@@ -150,6 +150,9 @@ endif
- if BUILD_LAST
- dist_bashcompletion_DATA += bash-completion/last
- endif
-+if BUILD_LSLOGINS
-+dist_bashcompletion_DATA += bash-completion/lslogins
-+endif
- if BUILD_NEWGRP
- dist_bashcompletion_DATA += bash-completion/newgrp
- endif
-diff --git a/bash-completion/lslogins b/bash-completion/lslogins
-new file mode 100644
-index 0000000..6b1d568
---- /dev/null
-+++ b/bash-completion/lslogins
-@@ -0,0 +1,52 @@
-+_lslogins_module()
-+{
-+	local cur prev OPTS LSLOGINS_COLS_ALL
-+	COMPREPLY=()
-+	cur="${COMP_WORDS[COMP_CWORD]}"
-+	prev="${COMP_WORDS[COMP_CWORD-1]}"
-+	LSLOGINS_COLS_ALL="
-+		USER UID GECOS HOMEDIR SHELL NOLOGIN PWD-LOCK PWD-EMPTY
-+		PWD-DENY GROUP GID SUPP-GROUPS SUPP-GIDS LAST-LOGIN LAST-TTY
-+		LAST-HOSTNAME FAILED-LOGIN FAILED-TTY HUSHED PWD-WARN
-+		PWD-CHANGE PWD-MIN PWD-MAX PWD-EXPIR CONTEXT PROC
-+	"
-+	case $prev in
-+		'-g'|'--groups')
-+			COMPREPLY=( $(compgen -W "$(getent group | awk -F: '{print $1}')" -- $cur) )
-+			return 0
-+			;;
-+		'-l'|'--logins')
-+			COMPREPLY=( $(compgen -W "$(getent passwd | awk -F: '{print $1}')" -- $cur) )
-+			return 0
-+			;;
-+		'--time-format')
-+			COMPREPLY=( $(compgen -W "short full iso" -- $cur) )
-+			return 0
-+			;;
-+		'--wtmp-file'|'--btmp-file')
-+			local IFS=$'\n'
-+			compopt -o filenames
-+			COMPREPLY=( $(compgen -f -- $cur) )
-+			return 0
-+			;;
-+		'-o'|'--output')
-+			local prefix realcur LSLOGINS_COLS
-+			realcur="${cur##*,}"
-+			prefix="${cur%$realcur}"
-+			for WORD in $LSLOGINS_COLS_ALL; do
-+				if ! [[ $prefix == *"$WORD"* ]]; then
-+					LSLOGINS_COLS="$WORD $LSLOGINS_COLS"
-+				fi
-+			done
-+			compopt -o nospace
-+			COMPREPLY=( $(compgen -P "$prefix" -W "$LSLOGINS_COLS" -S ',' -- $realcur) )
-+			return 0
-+			;;
-+		'-h'|'--help'|'-V'|'--version')
-+			return 0
-+			;;
-+	esac
-+	COMPREPLY=( $(compgen -W "$(lslogins --print-long-opts)" -- $cur) )
-+	return 0
-+}
-+complete -F _lslogins_module lslogins
-diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
-index 6512965..54eb162 100644
---- a/login-utils/lslogins.c
-+++ b/login-utils/lslogins.c
-@@ -1259,6 +1259,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_("     --wtmp-file <path>   set an alternate path for wtmp\n"), out);
- 	fputs(_("     --btmp-file <path>   set an alternate path for btmp\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
-+	fputs(USAGE_PRINT_LONG_OPTS, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
- 
-@@ -1283,7 +1284,8 @@ int main(int argc, char *argv[])
- 
- 	/* long only options. */
- 	enum {
--		OPT_WTMP = CHAR_MAX + 1,
-+		OPT_PRINT_LONG_OPTS = CHAR_MAX + 1,
-+		OPT_WTMP,
- 		OPT_BTMP,
- 		OPT_NOTRUNC,
- 		OPT_NOHEAD,
-@@ -1316,6 +1318,7 @@ int main(int argc, char *argv[])
- #ifdef HAVE_LIBSELINUX
- 		{ "context",        no_argument,	0, 'Z' },
- #endif
-+		{ "print-long-opts", no_argument, NULL, OPT_PRINT_LONG_OPTS },
- 		{ NULL,             0, 			0,  0  }
- 	};
- 
-@@ -1452,6 +1455,9 @@ int main(int argc, char *argv[])
- 			add_column(columns, ncolumns++, COL_SELINUX);
- 			break;
- 		}
-+		case OPT_PRINT_LONG_OPTS:
-+			print_long_opts(longopts);
-+			return EXIT_SUCCESS;
- 		default:
- 			usage(stderr);
- 		}
--- 
-2.6.4
-
+Only subvolumes are accepted as parameter for 'subvol=', otherwise bind
+mount needs to be used.
