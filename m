@@ -1,49 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35222 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:36497 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964847AbbLOKYN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Dec 2015 05:24:13 -0500
-Date: Tue, 15 Dec 2015 11:24:12 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: sfdisk, re-eading partition table fails
-Message-ID: <20151215102408.GG2353@ws.net.home>
-References: <201512141311.59328.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201512141311.59328.sweet_f_a@gmx.de>
+	id S1754659AbbLDHtq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Dec 2015 02:49:46 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1a4l7g-0006r1-6f
+	for util-linux@vger.kernel.org; Fri, 04 Dec 2015 08:49:44 +0100
+Received: from ip4d14b373.dynamic.kabel-deutschland.de ([77.20.179.115])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 08:49:44 +0100
+Received: from for-gmane by ip4d14b373.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 08:49:44 +0100
+To: util-linux@vger.kernel.org
+From: "U.Mutlu" <for-gmane@mutluit.com>
+Subject: Re: fsck memory leak
+Date: Fri, 4 Dec 2015 08:49:34 +0100
+Message-ID: <n3rgif$72q$1@ger.gmane.org>
+References: <n3rei3$8l3$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <n3rei3$8l3$1@ger.gmane.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 14, 2015 at 01:11:59PM +0100, Ruediger Meier wrote:
-> our test suite shows that many sfdisk tests fail sometimes to "Re-read
-> partition table" at the end. I was able to find some systems where
-> I could re-produce the problem using the script below.
+U.Mutlu wrote on 12/04/2015 08:15 AM:
+> Hi,
+> when I as root do "touch /forcefsck" and reboot, then fsck will be done.
+> But afterwards one has less free memory available than normal.
+> Example:
+> used mem immediately after login:
+>   without fsck during boot:  98 MB (this the normal level here)
+>   with fsck during boot   : 139 MB
+> So, there is a memory leak of about 41 MB.
 
-Yes, the problem is probably udev, and "udevadm settle" is not always
-enough.
+This discrepancy is reproducible here, ie. happens always.
 
-> Seems that the problem is because of the first BLKRRPART ioctl call
-> in sfdisk.c function is_device_used(). Maybe it cause udev or
-> whatever to open the device and then the real BLKRRPART in
-> write_changes() fails.
+Not sure, but it could also be a kernel issue, because
+the longer the system runs the more memory gets bound.
+The source of the culprit is not easily detectable.
+I guess it gets eaten by the kernel, probably by the ext4-driver.
 
-but the device has to be already partitioned, on disk without
-partitions BLKRRPART (and is_device_used()) does not generate any
-events (try "udevadm monitor").
+> fsck from util-linux 2.25.2
+> Filesys: ext4, 500 MB SSD
 
-> Removing the first BLKRRPART ioctl (or sleeping about 50ms after the first one)
-> "fixes" the issue.
+fix: of course 500 GB was meant
 
-The is_device_used() in the sfdisk is nothing elegant, maybe
-we can use --noreread sfdisk command line option in the tests.
+> OS: Debian 8 X86_64, uptodate
 
-Anyway, it would be nice to have some in-sfdisk solution, because our
-users who use fdisk in scripts may be affected by the same problem.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
