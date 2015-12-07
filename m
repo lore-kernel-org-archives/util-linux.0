@@ -1,46 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60757 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58756 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751162AbbLJMW6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Dec 2015 07:22:58 -0500
-Date: Thu, 10 Dec 2015 13:22:56 +0100
+	id S1755820AbbLGLZd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Dec 2015 06:25:33 -0500
+Date: Mon, 7 Dec 2015 12:25:31 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: David Wilson <dw@botanicus.net>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add mount -P to hide pseudo filesystems
-Message-ID: <20151210122256.GE2353@ws.net.home>
-References: <20151206042923.GA6570@k3>
- <20151207113409.GC2353@ws.net.home>
- <5665A178.5050601@gmail.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: cfdisk cuts lines for logical partitions too short
+Message-ID: <20151207112531.GB2353@ws.net.home>
+References: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5665A178.5050601@gmail.com>
+In-Reply-To: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 07, 2015 at 09:10:48AM -0600, Bruce Dubbs wrote:
-> Karel Zak wrote:
-> >On Sun, Dec 06, 2015 at 04:29:23AM +0000, David Wilson wrote:
-> >>This is just shorthand for an increasingly necessary yet cumbersome and
-> >>error-prone "grep -v" pipe. The alternative was to extend -t to accept
-> >>"nopseudofs", but that is tougher on the fingers.
-> >
-> >  I don't plan to improve mount(8) list output in any way to duplicate
-> >  findmnt(8). Please, let's use (and improve) findmnt(8). Thanks.
-> >
-> >  Anyway,
-> >
-> >      --real
-> >      --net
-> >      --pseudo
-> >
-> >  sounds good for findmnt. Look forward for a patch :-)
-> 
-> Is it possible to detect --bind in findmnt?
+On Wed, Nov 18, 2015 at 05:04:40PM +0100, Benno Schulenberg wrote:
+> In 2.27, the highlight bar of cfdisk is three or four characters
+> shorter than the width of the screen -- for logical partitions.
+> I noticed because on a 100-column terminal two letters of a
+> translation were bitten off.
 
-No, nowhere in the system is information about a way how the
-filesystem has been mounted to the system. (Well, except obsolete
-classic /etc/mtab.)
+ Probably fixed -- I'm not sure if I have found the same bugs like
+ you :-) 
+ 
+ Test it please. Thanks!
 
     Karel
 
