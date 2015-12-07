@@ -1,43 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:54517 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:57276 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752932AbbLIRnY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Dec 2015 12:43:24 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Federico Simoncelli <fsimonce@redhat.com>
-Subject: [PATCH 5/5] tests: skip BLKDISCARD if unsupported
-Date: Wed,  9 Dec 2015 18:43:14 +0100
-Message-Id: <1449682994-32154-6-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
-References: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
+	id S1755687AbbLGJ2B (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Dec 2015 04:28:01 -0500
+Date: Mon, 7 Dec 2015 10:27:59 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: cfdisk cuts lines for logical partitions too short
+Message-ID: <20151207092756.GA2353@ws.net.home>
+References: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Nov 18, 2015 at 05:04:40PM +0100, Benno Schulenberg wrote:
+> In 2.27, the highlight bar of cfdisk is three or four characters
+> shorter than the width of the screen -- for logical partitions.
+> I noticed because on a 100-column terminal two letters of a
+> translation were bitten off.
+> 
+> The culprit is commit ed99eac0e2a83a315c7cf5d8a461df16b3106596.
+> Before that, the lines were full length.
 
-CC: Federico Simoncelli <fsimonce@redhat.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/blkdiscard/offsets | 5 +++++
- 1 file changed, 5 insertions(+)
+.. because it (incorrectly) counts escape seq. to the size of the
+header line. I'll try to fix it.
 
-diff --git a/tests/ts/blkdiscard/offsets b/tests/ts/blkdiscard/offsets
-index 29597ad..2888411 100755
---- a/tests/ts/blkdiscard/offsets
-+++ b/tests/ts/blkdiscard/offsets
-@@ -46,6 +46,11 @@ function run_tscmd {
- 
- ts_log "testing offsets with full block size"
- run_tscmd $TS_CMD_BLKDISCARD -v $DEVICE
-+if [ "$?" != "0" ]; then
-+	# Skip the rest? For example loop backing files on NFS seem unsupported.
-+	grep -q "BLKDISCARD ioctl failed: Operation not supported" "$TS_OUTPUT" \
-+		&& ts_skip "BLKDISCARD not supported"
-+fi
- run_tscmd $TS_CMD_BLKDISCARD -v -o 1 $DEVICE
- run_tscmd $TS_CMD_BLKDISCARD -v -o 511 $DEVICE
- run_tscmd $TS_CMD_BLKDISCARD -v -o 512 $DEVICE
+Thanks.
+
+    Karel
+
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
