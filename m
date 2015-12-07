@@ -1,41 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:44736 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754797AbbLGLm2 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 7 Dec 2015 06:42:28 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by mailout.nyi.internal (Postfix) with ESMTP id 6EBEF20A96
-	for <util-linux@vger.kernel.org>; Mon,  7 Dec 2015 06:42:27 -0500 (EST)
-Message-Id: <1449488547.1561804.460168961.6EAB5576@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Karel Zak <kzak@redhat.com>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:35910 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754270AbbLGLeL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Dec 2015 06:34:11 -0500
+Date: Mon, 7 Dec 2015 12:34:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: David Wilson <dw@botanicus.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Add mount -P to hide pseudo filesystems
+Message-ID: <20151207113409.GC2353@ws.net.home>
+References: <20151206042923.GA6570@k3>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20151207112531.GB2353@ws.net.home>
-References: <1447862680.1454629.443346489.1A298B99@webmail.messagingengine.com>
- <20151207112531.GB2353@ws.net.home>
-Subject: Re: cfdisk cuts lines for logical partitions too short
-Date: Mon, 07 Dec 2015 12:42:27 +0100
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151206042923.GA6570@k3>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Dec 06, 2015 at 04:29:23AM +0000, David Wilson wrote:
+> This is just shorthand for an increasingly necessary yet cumbersome and
+> error-prone "grep -v" pipe. The alternative was to extend -t to accept
+> "nopseudofs", but that is tougher on the fingers.
 
-On Mon, Dec 7, 2015, at 12:25, Karel Zak wrote:
-> On Wed, Nov 18, 2015 at 05:04:40PM +0100, Benno Schulenberg wrote:
-> > In 2.27, the highlight bar of cfdisk is three or four characters
-> > shorter than the width of the screen -- for logical partitions.
-> > I noticed because on a 100-column terminal two letters of a
-> > translation were bitten off.
-> 
->  Probably fixed -- I'm not sure if I have found the same bugs like
->  you :-) 
+ I don't plan to improve mount(8) list output in any way to duplicate
+ findmnt(8). Please, let's use (and improve) findmnt(8). Thanks.
 
-Tested.  Looks good now.  Thanks!
+ Anyway,
 
-Benno
+     --real
+     --net
+     --pseudo
+ 
+ sounds good for findmnt. Look forward for a patch :-)
+
+    Karel
+
 
 -- 
-http://www.fastmail.com - Accessible with your email software
-                          or over the web
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
