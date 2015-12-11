@@ -1,32 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33704 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:57562 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751048AbbLJJTR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Dec 2015 04:19:17 -0500
-Date: Thu, 10 Dec 2015 10:19:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] blkdiscard: some output fixes
-Message-ID: <20151210091909.GD2353@ws.net.home>
-References: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
+	id S1751649AbbLKIgZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 11 Dec 2015 03:36:25 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1449682994-32154-1-git-send-email-sweet_f_a@gmx.de>
+Message-ID: <trinity-61d890c9-e0f2-425b-afb9-8ff7c6afe0d4-1449822982970@3capp-gmx-bs02>
+From: kuehne.stefan@gmx.de
+To: util-linux@vger.kernel.org
+Subject: Re: bug in "mount --bind" for hashed tree indexed directories
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 11 Dec 2015 09:36:23 +0100
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 09, 2015 at 06:43:09PM +0100, Ruediger Meier wrote:
->   blkdiscard: fix timeval comparison inclusive usecs
->   blkdiscard: fix stats reporting (off by one)
->   blkdiscard: don't report "zero range" at the end
->   tests: blkdiscard, check return values
->   tests: skip BLKDISCARD if unsupported
+Thanks for the fast answer.
+You're right, this isn't a problem of mount. Maybe it would be helpful to add a hint in the list of mounted device (output of mount), when the mount is not "active" anymore (because of a moved file).
 
-Merged, thanks!
+It's the special combination of tools I use which caused this trouble.
+The "mount"-configuration is part of the named-chroot package in Redhat/CentOS. Webmin as administration tool works like vi (create tmp-files and move them).  
+If you add a new zone via Webmin, only /etc/named.conf will be updated, not /var/named/chroot/etc/named.conf. If you then restart the service, it works, because the chroot environment will be destroyed and recreated. But a "rndc reload" doesn't work anymore because it uses the unchanged /var/named/chroot/etc/named.conf.
 
-    Karel
+When you aware of the problem, it's no problem to work around. Since /etc/named is also a mount in chroot, the zone configuration can be separated in a file in this directory and then webmin works fine.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks for your help, Rudi!
+
+
+>On Thursday 10 December 2015, Yoss@gmx.net wrote:
+>
+>> Additional notes:
+>> The problem seem to be more complex, because if a 'echo "test" >>
+>> /etc/testa' is used, it works. But after a change with vi, echo
+>> doesn't works too. Practical background is the use of mount --bind in
+>> a bind (named) chroot environment. A change of /etc/named.conf will
+>> not result in an update of /var/named/chroot/etc/named.conf.
+>
+>Why don't you use a hardlink?
+>$ cp -al /etc/named.conf /var/named/chroot/etc/named.conf
+>
+>Then vim will automatically change it's behavior and saves changes 
+>in-place.
+>
+>cu,
+>Rudi
