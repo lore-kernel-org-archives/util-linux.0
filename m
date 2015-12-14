@@ -1,40 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from que006-public.msg.strl.va.charter.net ([68.114.190.43]:34826
-	"EHLO que006-public.msg.strl.va.charter.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755092AbbLDXNY (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Dec 2015 18:13:24 -0500
-Date: Fri, 4 Dec 2015 18:08:14 -0500 (EST)
-From: Dave Rutherford <dave@evilpettingzoo.com>
-Reply-To: dave@evilpettingzoo.com
+Received: from mout.gmx.net ([212.227.17.21]:57459 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932247AbbLNMMC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Dec 2015 07:12:02 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
+ with ESMTPSA (Nemesis) id 0MSMr9-1ZfcTL1jmV-00TVj2 for
+ <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:12:00 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-cc: "U.Mutlu" <for-gmane@mutluit.com>
-Subject: Re: fsck memory leak
-Message-ID: <alpine.DEB.2.02.1512041806510.17213@bb>
+Subject: sfdisk, re-eading partition table fails
+Date: Mon, 14 Dec 2015 13:11:59 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201512141311.59328.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Dec 4, 2015 at 5:26 PM, U.Mutlu <for-gmane@mutluit.com> wrote:
-> I'm not a friend of such default integrated system caching, it reminds
-> me of Windows idiocy. This is nothing but a diskcache in ram,
+Hi,
 
-... made up strictly of memory that nothing else wants.
-This is different than a ramdisk, which itself is something that wants 
-RAM.
+our test suite shows that many sfdisk tests fail sometimes to "Re-read
+partition table" at the end. I was able to find some systems where
+I could re-produce the problem using the script below.
 
-> but then
-> the admin should have the the freedom to set the size of the cache via
-> a config file in etc, for example /etc/default/cache or in 
-/etc/default/tmpfs.
+Seems that the problem is because of the first BLKRRPART ioctl call
+in sfdisk.c function is_device_used(). Maybe it cause udev or
+whatever to open the device and then the real BLKRRPART in
+write_changes() fails.
 
-Why? It's memory that *nothing else wants*. It's given up instantly
-the moment something else needs to use it. So there's no downside,
-unlike with that other "operating system" you mention.
+Removing the first BLKRRPART ioctl (or sleeping about 50ms after the first one)
+"fixes" the issue.
 
-> :-)
+------ my test script -------------
+#!/bin/bash
+export LANG="C"
+export LC_ALL="C"
 
-:-(
+export LD_LIBRARY_PATH=/home/rudi/devel/util-linux/build/.libs
+SFDISK=/home/rudi/devel/util-linux/build/.libs/sfdisk
+LOG=/tmp/sfdisk.log
 
--- 
-Prius I, Pontiff, Schenectadian Catholic Church
+modprobe -r scsi_debug || exit 1
+modprobe -b scsi_debug dev_size_mb=100 sector_size=512 || exit 1
+udevadm settle
+sleep 2
+DEVICE=/dev/$(grep --with-filename scsi_debug /sys/block/*/device/model | awk -F '/' '{print $4}')
+echo device: $DEVICE
+
+rm -f "$LOG"
+
+# create a partition
+echo ',+,L' | $SFDISK --label dos ${DEVICE} &> /dev/null
+udevadm settle
+sleep 2
+
+echo "+10M,-10M" | strace -f -o /tmp/strace $SFDISK -N1 ${DEVICE} >> "$LOG" 2>&1
+if grep -qi "failed" "$LOG"; then 
+	echo "!! FAILED !!"
+	exit 1
+fi
+exit 0
+----------
+
+cu,
+Rudi
