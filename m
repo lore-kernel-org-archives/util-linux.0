@@ -1,67 +1,141 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:34503 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752100AbbLDTJs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 4 Dec 2015 14:09:48 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1a4vjl-0007ZW-Cq
-	for util-linux@vger.kernel.org; Fri, 04 Dec 2015 20:09:45 +0100
-Received: from ip4d14b373.dynamic.kabel-deutschland.de ([77.20.179.115])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 20:09:45 +0100
-Received: from for-gmane by ip4d14b373.dynamic.kabel-deutschland.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2015 20:09:45 +0100
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:37089 "EHLO
+	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753550AbbLNVzL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Dec 2015 16:55:11 -0500
+Received: by wmnn186 with SMTP id n186so140643189wmn.0
+        for <util-linux@vger.kernel.org>; Mon, 14 Dec 2015 13:55:10 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: "U.Mutlu" <for-gmane@mutluit.com>
-Subject: Re: fsck memory leak
-Date: Fri, 4 Dec 2015 20:09:38 +0100
-Message-ID: <n3sodi$qhv$1@ger.gmane.org>
-References: <n3rei3$8l3$1@ger.gmane.org> <20151204151927.GA3548@thunk.org>
- <n3sjvh$ib8$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-In-Reply-To: <n3sjvh$ib8$1@ger.gmane.org>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 7/8] bash-completion: lslogins: add missing completion file
+Date: Mon, 14 Dec 2015 21:54:52 +0000
+Message-Id: <1450130093-12108-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
+References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-U.Mutlu wrote on 12/04/2015 06:53 PM:
-> Theodore Ts'o wrote on 12/04/2015 04:19 PM:
->> On Fri, Dec 04, 2015 at 08:15:14AM +0100, U.Mutlu wrote:
->>> Hi,
->>> when I as root do "touch /forcefsck" and reboot, then fsck will be done.
->>> But afterwards one has less free memory available than normal.
->>> Example:
->>> used mem immediately after login:
->>>   without fsck during boot:  98 MB (this the normal level here)
->>>   with fsck during boot   : 139 MB
->>> So, there is a memory leak of about 41 MB.
->>
->> Please send the output of cat /proc/meminfo (a) before running fsck,
->> (b) after running fsck, and then (c) after running "echo 3 >
->> /proc/sys/vm/drop_caches".
->
-> Just tried it out.
-> Doing "echo 3 > /proc/sys/vm/drop_caches" solves the problem.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/Makemodule.am |  3 +++
+ bash-completion/lslogins      | 52 +++++++++++++++++++++++++++++++++++++++++++
+ login-utils/lslogins.c        |  8 ++++++-
+ 3 files changed, 62 insertions(+), 1 deletion(-)
+ create mode 100644 bash-completion/lslogins
 
-But thinking twice about this leads me to the conclusion that
-there still must be something fishy in the system, because
-I had read the used mem from the "-/+ buffers/cache" line of the "free -lh" 
-command, here an example output:
-
-$ free -lh
-              total       used       free     shared    buffers     cached
-Mem:          6.9G       1.3G       5.6G        17M        70M       882M
-Low:          6.9G       1.3G       5.6G
-High:           0B         0B         0B
--/+ buffers/cache:       404M       6.5G
-Swap:         8.0G         0B       8.0G
-
-So, it should have already counted-in the cached memory, and IMO it does.
-But then it's mysterious why the said discrepancy of 41 MB shows up
-if /proc/sys/vm/drop_caches has the default value of 0.
-
-
+diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
+index e4196a3..9479087 100644
+--- a/bash-completion/Makemodule.am
++++ b/bash-completion/Makemodule.am
+@@ -150,6 +150,9 @@ endif
+ if BUILD_LAST
+ dist_bashcompletion_DATA += bash-completion/last
+ endif
++if BUILD_LSLOGINS
++dist_bashcompletion_DATA += bash-completion/lslogins
++endif
+ if BUILD_NEWGRP
+ dist_bashcompletion_DATA += bash-completion/newgrp
+ endif
+diff --git a/bash-completion/lslogins b/bash-completion/lslogins
+new file mode 100644
+index 0000000..6b1d568
+--- /dev/null
++++ b/bash-completion/lslogins
+@@ -0,0 +1,52 @@
++_lslogins_module()
++{
++	local cur prev OPTS LSLOGINS_COLS_ALL
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	LSLOGINS_COLS_ALL="
++		USER UID GECOS HOMEDIR SHELL NOLOGIN PWD-LOCK PWD-EMPTY
++		PWD-DENY GROUP GID SUPP-GROUPS SUPP-GIDS LAST-LOGIN LAST-TTY
++		LAST-HOSTNAME FAILED-LOGIN FAILED-TTY HUSHED PWD-WARN
++		PWD-CHANGE PWD-MIN PWD-MAX PWD-EXPIR CONTEXT PROC
++	"
++	case $prev in
++		'-g'|'--groups')
++			COMPREPLY=( $(compgen -W "$(getent group | awk -F: '{print $1}')" -- $cur) )
++			return 0
++			;;
++		'-l'|'--logins')
++			COMPREPLY=( $(compgen -W "$(getent passwd | awk -F: '{print $1}')" -- $cur) )
++			return 0
++			;;
++		'--time-format')
++			COMPREPLY=( $(compgen -W "short full iso" -- $cur) )
++			return 0
++			;;
++		'--wtmp-file'|'--btmp-file')
++			local IFS=$'\n'
++			compopt -o filenames
++			COMPREPLY=( $(compgen -f -- $cur) )
++			return 0
++			;;
++		'-o'|'--output')
++			local prefix realcur LSLOGINS_COLS
++			realcur="${cur##*,}"
++			prefix="${cur%$realcur}"
++			for WORD in $LSLOGINS_COLS_ALL; do
++				if ! [[ $prefix == *"$WORD"* ]]; then
++					LSLOGINS_COLS="$WORD $LSLOGINS_COLS"
++				fi
++			done
++			compopt -o nospace
++			COMPREPLY=( $(compgen -P "$prefix" -W "$LSLOGINS_COLS" -S ',' -- $realcur) )
++			return 0
++			;;
++		'-h'|'--help'|'-V'|'--version')
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "$(lslogins --print-long-opts)" -- $cur) )
++	return 0
++}
++complete -F _lslogins_module lslogins
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 6512965..54eb162 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1259,6 +1259,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_("     --wtmp-file <path>   set an alternate path for wtmp\n"), out);
+ 	fputs(_("     --btmp-file <path>   set an alternate path for btmp\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_PRINT_LONG_OPTS, out);
+ 	fputs(USAGE_HELP, out);
+ 	fputs(USAGE_VERSION, out);
+ 
+@@ -1283,7 +1284,8 @@ int main(int argc, char *argv[])
+ 
+ 	/* long only options. */
+ 	enum {
+-		OPT_WTMP = CHAR_MAX + 1,
++		OPT_PRINT_LONG_OPTS = CHAR_MAX + 1,
++		OPT_WTMP,
+ 		OPT_BTMP,
+ 		OPT_NOTRUNC,
+ 		OPT_NOHEAD,
+@@ -1316,6 +1318,7 @@ int main(int argc, char *argv[])
+ #ifdef HAVE_LIBSELINUX
+ 		{ "context",        no_argument,	0, 'Z' },
+ #endif
++		{ "print-long-opts", no_argument, NULL, OPT_PRINT_LONG_OPTS },
+ 		{ NULL,             0, 			0,  0  }
+ 	};
+ 
+@@ -1452,6 +1455,9 @@ int main(int argc, char *argv[])
+ 			add_column(columns, ncolumns++, COL_SELINUX);
+ 			break;
+ 		}
++		case OPT_PRINT_LONG_OPTS:
++			print_long_opts(longopts);
++			return EXIT_SUCCESS;
+ 		default:
+ 			usage(stderr);
+ 		}
+-- 
+2.6.4
 
