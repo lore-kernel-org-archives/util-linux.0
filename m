@@ -1,42 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:50156 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758792AbbLBQ0a (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Dec 2015 11:26:30 -0500
-Subject: Re: [PATCH] fix mount -a on btrfs bind mount
-To: Karel Zak <kzak@redhat.com>
-References: <56573D53.1020406@suse.cz> <56588FBD.9000502@suse.cz>
- <20151202125117.GJ4955@ws.net.home>
-Cc: util-linux <util-linux@vger.kernel.org>, David Sterba <dsterba@suse.cz>,
-        =?UTF-8?Q?S=c3=b8ren_Holm?= <sgh@sgh.dk>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <565F1BB4.6040003@suse.cz>
-Date: Wed, 2 Dec 2015 17:26:28 +0100
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <20151202125117.GJ4955@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20151216111530.GA13224@ws.net.home>
+References: <1450130093-12108-1-git-send-email-kerolasa@iki.fi>
+	<1450208404.1111354.468335457.59637230@webmail.messagingengine.com>
+	<20151216111530.GA13224@ws.net.home>
+Date: Thu, 17 Dec 2015 18:16:59 +0000
+Message-ID: <CAG27Bk1r0OL961KCtq58Mo2W2ir=71yD30zaKVXW73rVtO30bQ@mail.gmail.com>
+Subject: Re: [PATCH 0/8] pull: bash-completion updates
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@justemail.net>,
+        Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 2, 2015 at 01:51PM +0100, Karel Zak wrote:
-> My bugfix:
+On 16 December 2015 at 11:15, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Dec 15, 2015 at 08:40:04PM +0100, Benno Schulenberg wrote:
+>> On Mon, Dec 14, 2015, at 22:54, Sami Kerola wrote:
+>> > The pull adds new function, print_long_opts(), to c.h and
+>> > it does what one might expect a function of such name do.
+>>
+>> Hm.  You want to add --print-long-opts to almost all commands?
 >
->   https://github.com/karelzak/util-linux/commit/352740e88e2c9cb180fe845ce210b1c7b5ad88c7
->
-> try it :-)
->
-If also fixed my problem.
+> It seems so, and I'm really not sure with this solution.
 
-Thanks.
+Fair enough.
+
+>> And burden all --help outputs with listing it?  But... is this
+>> option useful for users?  Or really only for bash-completion?
+>
+> It means that always when I press <tab> on command line then the util is
+> executed with --print-long-opts. It seems expensive.
+>
+> From my point of view it would be enough to have tools/checkcompletion
+> script to extract "struct option" from our utils and check if the options
+> are also in bash-completion/<name> and in the util man page.
+
+If this is the preference then the patchset is mostly throwaway. Oh well,
+such is life. Let's see if the week after the Christmas on-call there's time to
+think how to make options parsing work.
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Sami Kerola
+http://www.iki.fi/kerolasa/
