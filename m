@@ -1,142 +1,82 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:43298 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935953AbcA0Uhb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 27 Jan 2016 15:37:31 -0500
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id B93FDAC06
-	for <util-linux@vger.kernel.org>; Wed, 27 Jan 2016 20:37:28 +0000 (UTC)
+Received: from mail.foxkit.us ([192.65.240.226]:42762 "EHLO
+	mail.wilcox-tech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753617AbcAGWNS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Jan 2016 17:13:18 -0500
+From: Andrew Wilcox <AWilcox@Wilcox-Tech.com>
+Subject: [PATCH] fdisk: Add GPT type GUID for Itanium Linux root
 To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 2/2] libmount: code re-indentation
-Message-ID: <56A92A89.1050005@suse.cz>
-Date: Wed, 27 Jan 2016 21:37:29 +0100
+Message-ID: <568EE16A.8010609@Wilcox-Tech.com>
+Date: Thu, 7 Jan 2016 16:06:34 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-For easier review, the fix of libmount comes in two patches:
-PATCH 1/2: libmount: run btrfs subvol checks for "subvolid" option
-PATCH 2/2: code re-indentation
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-No code change is present in this patch.
+This adds a new GUID partition type for Linux roots on Itanium (IA-64).
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Ref:
+http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec=
+/
+
+Signed-off-by: Andrew Wilcox <awilfox@adelielinux.org>
 ---
- libmount/src/tab.c | 87 +++++++++++++++++++++++++++---------------------------
- 1 file changed, 44 insertions(+), 43 deletions(-)
+ libfdisk/src/gpt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 71dfbf5..845ec6c 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -1326,50 +1326,51 @@ struct libmnt_fs *mnt_table_get_fs_root(struct libmnt_table *tb,
- 		DBG(BTRFS, ul_debug("lookup for FS root"));
- 
- 		if (mnt_fs_get_option(fs, "subvolid", &vol, &volsz)) {
--		if (mnt_fs_get_option(fs, "subvol", &vol, &volsz)) {
--			/* If fstab entry does not contain "subvol", we have to
--			 * check, whether btrfs has default subvolume defined.
--			 */
--			uint64_t default_id;
--			char *target;
--			struct libmnt_fs *f;
--			char default_id_str[sizeof(stringify_value(UINT64_MAX))];
--
--			default_id = btrfs_get_default_subvol_id(mnt_fs_get_target(fs));
--			if (default_id == UINT64_MAX)
--				goto dflt;
--
--			/* Volume has default subvolume. Check if it matches to
--			 * the one in mountinfo.
--			 *
--			 * Only kernel >= 4.2 reports subvolid. On older
--			 * kernels, there is no reasonable way to detect which
--			 * subvolume was mounted.
--			 */
--			target = mnt_resolve_spec(mnt_fs_get_target(fs), tb->cache);
--			if (!target)
--				goto err;
--
--			snprintf(default_id_str, sizeof(default_id_str), "%llu",
--					(unsigned long long int) default_id);
--
--			DBG(BTRFS, ul_debug("target=%s default subvolid=%s", target, default_id_str));
--			f = mnt_table_find_target_with_option(tb, target,
--						"subvolid", default_id_str,
--						MNT_ITER_BACKWARD);
--			if (!tb->cache)
--				free(target);
--			if (!f)
--				goto dflt;
-+			if (mnt_fs_get_option(fs, "subvol", &vol, &volsz)) {
-+				/* If fstab entry does not contain "subvol", we
-+				 * have to check, whether btrfs has default
-+				 * subvolume defined.
-+				 */
-+				uint64_t default_id;
-+				char *target;
-+				struct libmnt_fs *f;
-+				char default_id_str[sizeof(stringify_value(UINT64_MAX))];
-+
-+				default_id = btrfs_get_default_subvol_id(mnt_fs_get_target(fs));
-+				if (default_id == UINT64_MAX)
-+					goto dflt;
-+
-+				/* Volume has default subvolume. Check if it
-+				 * matches to the one in mountinfo.
-+				 *
-+				 * Only kernel >= 4.2 reports subvolid. On older
-+				 * kernels, there is no reasonable way to detect
-+				 * which subvolume was mounted.
-+				 */
-+				target = mnt_resolve_spec(mnt_fs_get_target(fs), tb->cache);
-+				if (!target)
-+					goto err;
- 
--			/* Instead of set of BACKREF queries constructing
--			 * subvol path, use the one in mountinfo. Kernel does
--			 * the evaluation for us. */
--			DBG(BTRFS, ul_debug("setting FS root: btrfs default subvolid = %s", default_id_str));
--			if (mnt_fs_get_option(f, "subvol", &vol, &volsz))
--				goto dflt;
--		} else
--			DBG(BTRFS, ul_debug("setting FS root: btrfs subvol"));
-+				snprintf(default_id_str, sizeof(default_id_str), "%llu",
-+						(unsigned long long int) default_id);
-+
-+				DBG(BTRFS, ul_debug("target=%s default subvolid=%s", target, default_id_str));
-+				f = mnt_table_find_target_with_option(tb, target,
-+							"subvolid", default_id_str,
-+							MNT_ITER_BACKWARD);
-+				if (!tb->cache)
-+					free(target);
-+				if (!f)
-+					goto dflt;
-+
-+				/* Instead of set of BACKREF queries constructing
-+				 * subvol path, use the one in mountinfo. Kernel
-+				 * does the evaluation for us. */
-+				DBG(BTRFS, ul_debug("setting FS root: btrfs default subvolid = %s", default_id_str));
-+				if (mnt_fs_get_option(f, "subvol", &vol, &volsz))
-+					goto dflt;
-+			} else
-+				DBG(BTRFS, ul_debug("setting FS root: btrfs subvol"));
- 		} else {
- 			char *target;
- 			struct libmnt_fs *f;
--- 
-2.7.0
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index 607cb32..8289ac4 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -196,6 +196,7 @@ static struct fdisk_parttype gpt_parttypes[] =3D
+        DEF_GUID("69DAD710-2CE4-4E3C-B16C-21A1D49ABED3", N_("Linux
+root (ARM)")),
+        DEF_GUID("4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709", N_("Linux
+root (x86-64)")),
+        DEF_GUID("B921B045-1DF0-41C3-AF44-4C6F280D3FAE", N_("Linux root
+(ARM-64)")),
++       DEF_GUID("993D8D3D-F80E-4225-855A-9DAF8ED7EA97", N_("Linux root
+(IA-64)")),
+        DEF_GUID("8DA63339-0007-60C0-C436-083AC8230908", N_("Linux
+reserved")),
+        DEF_GUID("933AC7E1-2EB4-4F13-B844-0E14E2AEF915", N_("Linux
+home")),
+        DEF_GUID("A19D880F-05FC-4D3B-A006-743F0F84911E", N_("Linux
+RAID")),
+--=20
+2.6.4
 
--- 
-Best Regards / S pozdravem,
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
+
+--ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWjuFqAAoJEMspy1GSK50UF/YQAKGpDbsiUSzdGxwyiRbY1ji5
+QZ/mhrUvsNY7B5B1TRIcK54e2lZBVtaxy1p4JOLBxaZwm6HaXRHX5BxUqFKCEoxW
+srJYr+LzulE/Quh6F0jGmrqp0gA3tlknszoIcANPu8jCOYTVQBmNGpb/TxRR2Lgn
+DWwfg9f88JxPbCWRPdkbIm7DakAKtWsnphCzVhX/RTQ81+UiIHa9WHn6mkvxWe8C
+HF4ufc9jJ+znCtOApJHYb95L9cYUdLnVBTU+0ewMQJbKG1i2CpcnfSdxkQvj5vGT
+YxHKPys46qe/7dZ9z4XNnal3kZTeW2r/6t0eBGZ/1LUi4cj7Pp/QYI7GMILsdd0Y
+NAA9IEoi1KrYdosKpeOtZnBeoiRZqLZlEldEEzUxX3gWWq/U10QMzMSMjGFyhjdY
+3gT8s24TgnbQpnJIzdHMzJNRxA6loltJyEdTta0kdtijKtqmrhACBP4yjLF/1Mdh
+9G/gmMzW56q7NcSfowHS6XIFmWaOdnfT/fqTTAkqDXY5Q8GxRn4kR5zmrAqH8A/0
+3zReE5RxEYnYaWE5/2VBVb06d3XR0WvX6OYx75xdl7oCoSaxmUdu2WwV0x0UtlcF
+wUDWrmSy+DCzO3v/u5DMbhpNgvP/xNniOsgJRCPxkYg6RcYy85L4fvu3M6urtSEM
+dH5nb48tOQf/MTHeqJ1S
+=voDl
+-----END PGP SIGNATURE-----
+
+--ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF--
