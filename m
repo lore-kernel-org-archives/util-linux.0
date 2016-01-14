@@ -1,59 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:53267 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933127AbcATE66 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Jan 2016 23:58:58 -0500
-Date: Tue, 19 Jan 2016 23:58:57 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: "Wayne R. Roth" <wayneroth42@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mkswap: Add warnings for insecure device
- permissions/owners Logic modified from sys-utils/swapon.c
-Message-ID: <20160120045857.GP14840@vapier.lan>
-References: <20160119194443.GD14840@vapier.lan>
- <1453263459-19555-1-git-send-email-wayneroth42@gmail.com>
+Return-Path: bruce.dubbs@gmail.com
+Subject: Re: Cyclic dependency with systemd?
+To: Karel Zak <kzak@redhat.com>, Fredrik Johnsson <fredrik.johnsson@axis.com>
+Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+References: <1452762264910.97373@axis.com>
+ <20160114103158.rffxxsnkn466ofj5@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <5697C9B5.8010103@gmail.com>
+Date: Thu, 14 Jan 2016 10:15:49 -0600
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="xXygN3QAmJYWdGtb"
-In-Reply-To: <1453263459-19555-1-git-send-email-wayneroth42@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20160114103158.rffxxsnkn466ofj5@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
+Karel Zak wrote:
+> On Thu, Jan 14, 2016 at 09:04:25AM +0000, Fredrik Johnsson wrote:
+>> I have not run into any problems myself but can this be an issue? In
+>> theory: If you compile systemd without util-linux, it should fail
+>> because it needs libmount, and if you try to compile util-linux, it
+>> should also fail because it needs sd_booted from libsystemd.
+>
+> The dependence on libsystemd is optional:
+>
+>   1/ build util-linux --without-systemd
+>   2/ build systemd
+>   3/ re-build util-linux --with-systemd
+>
+> anyway, people usually don't build all from scratch. If you already
+> have system with all the dependencies then you can build without extra
+> care about this issue.
 
---xXygN3QAmJYWdGtb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+For those of us who do build everything from scratch and choose to not use 
+systemd, there is also a circular dependency on udev (we use eudev).  For 
+our first build of util-linux we use --without-systemdsystemunitdir
 
-On 19 Jan 2016 20:17, Wayne R. Roth wrote:
-> +        permMask = S_ISBLK(ctl.devstat.st_mode) ? 07007 : 07077;
-
-pretty sure you want to indent w/tabs, not spaces
-
-> +        if (getuid()==0 && S_ISREG(ctl.devstat.st_mode) && ctl.devstat.st_uid != 0)
-
-there should be spaces around the ==
--mike
-
---xXygN3QAmJYWdGtb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJWnxQRAAoJEEFjO5/oN/WBUhoP/i5tt2h+K7OZ0TbilMNYUvgf
-Mh3t5PwtTvQ4LXW9dGM9HHlXeFBLas52dqlU91qZ7vG3mAYV0xJUR+4Oxav4KVTv
-1sqqDztfVXApkWtm6P4l3cc7PGKIAL0QIlfKiuKLcojiNDQA1NLgwH0XRbp9aSZE
-Qq9yUL+1oQ2qWoT/LoV9qYyVJoecFJt+k1lBn8Y3H43L1X6SjmTly+Qz4R8QdP6w
-0QVNAmZbG9clDHrCkBYD2y+D+rn1smLoPQB258jL/nwRoXSn8gBu1iRWB+3nqKWE
-KIR8Fsr+IYAqNQ5v8mU/7tmVXfPBBECBAwmRidExTrqC4y/RRSwZJK2qV57G73Sx
-yOxIazfUFhT4jM7Q56P+AGwI/4mDp4+m5RO4lQ1+jZL0m3U9qxtVIEZf7zLi1xaI
-rfCzEYc5iWBtSLr5zHfgG4WN/oPuc/bKFz5HW0cXWBFP1TFd86KSchWyzqYk/Hsv
-TH/tsZZefXWLHUlFzeV7DgWLOtmLfc3AKJk0AfymWL8z6PVne7BgdBFARGSvgtf5
-FRH68ywUMHftzOW8D58dQ3WESSnoYVHp+57BK7Hcz/OmdH9rTTr2DHpPGdIpMyUQ
-CSv8CPvujtGcx/PuuzwLZ16i8mkAWCBjet8B8yjNO1WJ/3vI7kPggXqTTz7N9Fy3
-SFPQAuKizWZUJl1xTuSc
-=EiXa
------END PGP SIGNATURE-----
-
---xXygN3QAmJYWdGtb--
+   -- Bruce Dubbs
+      linuxfromscratch.org
