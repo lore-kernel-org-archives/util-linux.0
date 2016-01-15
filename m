@@ -1,47 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:35142 "EHLO
-	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751311AbcATJjZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Jan 2016 04:39:25 -0500
-Received: by mail-vk0-f44.google.com with SMTP id k1so1685074vkb.2
-        for <util-linux@vger.kernel.org>; Wed, 20 Jan 2016 01:39:25 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:33788 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751135AbcAORsb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Jan 2016 12:48:31 -0500
+Date: Fri, 15 Jan 2016 18:48:29 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: richard@nod.at, util-linux@vger.kernel.org
+Subject: Re: Bad interaction between in.telnetd and login
+Message-ID: <20160115174829.5yayeuk57ksgms4q@ws.net.home>
+References: <CAHL05WNh=Tr_c91hpK462bfziiE+MK7zkrRLJ3u-BSvcmQTcig@mail.gmail.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20160119194443.GD14840@vapier.lan>
-References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
-	<20160119194443.GD14840@vapier.lan>
-Date: Wed, 20 Jan 2016 09:39:24 +0000
-Message-ID: <CAG27Bk1DyD_UPWmOjQB9bbzfqWvUK18tTUerUM-Jd_fFCH9xEw@mail.gmail.com>
-Subject: Re: [PATCH] mkswap: Add warnings for insecure device permissions/owners
-From: Sami Kerola <kerolasa@iki.fi>
-To: "Wayne R. Roth" <wayneroth42@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHL05WNh=Tr_c91hpK462bfziiE+MK7zkrRLJ3u-BSvcmQTcig@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 19 January 2016 at 19:44, Mike Frysinger <vapier@gentoo.org> wrote:
-> On 19 Jan 2016 10:37, Wayne R. Roth wrote:
->> +        permMask = S_ISBLK(ctl.devstat.st_mode) ? 07007 : 07077;
->> +        if ((ctl.devstat.st_mode & permMask) != 0)
->> +                warnx(_("%s: insecure permissions %04o, %04o suggested."),
->> +                                ctl.devname, ctl.devstat.st_mode & 07777,
->> +                                ~permMask & 0666);
->> +        if (S_ISREG(ctl.devstat.st_mode) && ctl.devstat.st_uid != 0)
->> +                warnx(_("%s: insecure file owner %d, 0 (root) suggested."),
->> +                                ctl.devname, ctl.devstat.st_uid);
->
-> i haven't read/tested the code, so my assumptions might be off, but this
-> seems to complain even when creating files as non-root.  mkswap should
-> not do that.  a perfectly reasonable use case is to create images as a
-> non-root user for use with something like qemu.
->
-> maybe you want to add a getuid() check in there, or scuttle it altogether.
+On Thu, Jan 14, 2016 at 03:26:45PM -0800, Hua Zhong wrote:
+> While working on Fedora 18, we found that sometimes telnetd would close
+> connections unexpectedly:
 
-I do not think mkswap, or mkfs of any sort, is an operation only root is
-allowed or expected to run. Taking device(s) in use is different matter,
-and that is already covered in swapon(8) and mount(8).
+Sounds like: 
+https://bugzilla.redhat.com/show_bug.cgi?id=962145
+
+maybe it's time to update... try util-linux >= 2.24, the current
+upstream stable version is v2.27.1.
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
