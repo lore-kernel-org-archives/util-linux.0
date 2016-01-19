@@ -1,44 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:39353 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755197AbcATUUO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 20 Jan 2016 15:20:14 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id 18DB6340754
-	for <util-linux@vger.kernel.org>; Wed, 20 Jan 2016 20:20:13 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
+Received: from monitoringp.xen.prgmr.com ([71.19.155.36]:45500 "EHLO
+	monitoringp.xen.prgmr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932271AbcASSrC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Jan 2016 13:47:02 -0500
+From: "Wayne R. Roth" <wayneroth42@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] mount: allow nofail to silence ENOMEDIUM cases
-Date: Wed, 20 Jan 2016 15:20:08 -0500
-Message-Id: <1453321208-691-1-git-send-email-vapier@gentoo.org>
-In-Reply-To: <20160119232458.GO14840@vapier.lan>
-References: <20160119232458.GO14840@vapier.lan>
+Cc: "Wayne R. Roth" <wayneroth42@gmail.com>
+Subject: [PATCH] mkswap: Add warnings for insecure device permissions/owners
+Date: Tue, 19 Jan 2016 10:37:06 -0800
+Message-Id: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Allow people to use nofail to ignore empty cd/dvd drive errors.
+Logic copied from sys-utils/swapon.c
 
-URL: https://bugs.gentoo.org/559356
-Reported-by: William Hubbs <williamh@gentoo.org>
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+Signed-off-by: Wayne R. Roth <wayneroth42@gmail.com>
 ---
- sys-utils/mount.c | 3 +++
- 1 file changed, 3 insertions(+)
+ disk-utils/mkswap.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/mount.c b/sys-utils/mount.c
-index 73f9d0b..01eaccb 100644
---- a/sys-utils/mount.c
-+++ b/sys-utils/mount.c
-@@ -628,6 +628,9 @@ try_readonly:
- 		break;
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index c559e60..2729596 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -344,7 +344,7 @@ static void write_header_to_device(struct mkswap_control *ctl)
+ int main(int argc, char **argv)
+ {
+ 	struct mkswap_control ctl = { .fd = -1 };
+-	int c;
++	int c, permMask;
+ 	uint64_t sz;
+ 	int version = SWAP_VERSION;
+ 	char *block_count = NULL, *strsz = NULL;
+@@ -464,6 +464,15 @@ int main(int argc, char **argv)
+ 			ctl.devname);
  
- 	case ENOMEDIUM:
-+		if (uflags & MNT_MS_NOFAIL)
-+			return MOUNT_EX_SUCCESS;
+ 	open_device(&ctl);
++        permMask = S_ISBLK(ctl.devstat.st_mode) ? 07007 : 07077;
++        if ((ctl.devstat.st_mode & permMask) != 0)
++                warnx(_("%s: insecure permissions %04o, %04o suggested."),
++                                ctl.devname, ctl.devstat.st_mode & 07777,
++                                ~permMask & 0666);
++        if (S_ISREG(ctl.devstat.st_mode) && ctl.devstat.st_uid != 0)
++                warnx(_("%s: insecure file owner %d, 0 (root) suggested."),
++                                ctl.devname, ctl.devstat.st_uid);
 +
- 		warnx(_("no medium found on %s"), src);
- 		break;
  
+ 	if (ctl.check)
+ 		check_blocks(&ctl);
 -- 
-2.6.2
+1.8.3.1
 
