@@ -1,78 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:33321 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751924AbcAGDM6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 6 Jan 2016 22:12:58 -0500
-Received: by mail-pa0-f54.google.com with SMTP id cy9so246911971pac.0
-        for <util-linux@vger.kernel.org>; Wed, 06 Jan 2016 19:12:58 -0800 (PST)
-Received: from localhost (external.asc-asia.com. [118.201.41.218])
-        by smtp.gmail.com with ESMTPSA id xr8sm145624698pab.26.2016.01.06.19.12.56
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Jan 2016 19:12:57 -0800 (PST)
-Date: Thu, 7 Jan 2016 11:12:55 +0800
-From: Peter Hoeg <peter@hoeg.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39568 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933127AbcATK2r (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 20 Jan 2016 05:28:47 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+	by mx1.redhat.com (Postfix) with ESMTPS id 193BF8F262
+	for <util-linux@vger.kernel.org>; Wed, 20 Jan 2016 10:28:47 +0000 (UTC)
+Received: from ws (ovpn-204-36.brq.redhat.com [10.40.204.36])
+	by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u0KASk9o000480
+	for <util-linux@vger.kernel.org>; Wed, 20 Jan 2016 05:28:46 -0500
+Date: Wed, 20 Jan 2016 11:28:45 +0100
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/1] timer units should be WantedBy=timers.target
-Message-ID: <20160107031255.GD22389@mildred.internal.asc-asia.com>
+Subject: Re: mount nofail: what failures should we allow ?
+Message-ID: <20160120102845.olo242uqrfzld6rh@ws.net.home>
+References: <20160119232458.GO14840@vapier.lan>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160119232458.GO14840@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jan 19, 2016 at 06:24:58PM -0500, Mike Frysinger wrote:
+> i've received two requests for the "nofail" option.  the doc for the
+> option is a bit ... terse ... so it's hard to guess at the overall
+> intention.
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-
-
----
- sys-utils/fstrim.timer | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sys-utils/fstrim.timer b/sys-utils/fstrim.timer
-index c8d94d7..3a3762d 100644
---- a/sys-utils/fstrim.timer
-+++ b/sys-utils/fstrim.timer
-@@ -8,4 +8,4 @@ AccuracySec=1h
- Persistent=true
-
- [Install]
--WantedBy=multi-user.target
-+WantedBy=timers.target
---
-2.6.4
+man mount:
+   nofail Do not report errors for this device if it does not exist.
 
 
---
-Regards,
-Peter
+from my point of view this description is pretty explicit :-)
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-timer-units-should-be-WantedBy-timers.target.patch"
+> (1) ignore ENOMEDIUM like:
+> sys-utils/mount.c could be updated to do:
+>     case ENOMEDIUM:
+>         if (uflags & MNT_MS_NOFAIL)
+>             return MOUNT_EX_SUCCESS;
+>         warnx(_("no medium found on %s"), src);
+>         break;
+> this is for cases like cd/dvd drives which happens to have no disk loaded.
 
->From 7968237c037308a52a5a50bb9ed5edc84de6bb2e Mon Sep 17 00:00:00 2001
-From: Peter Hoeg <peter@speartail.com>
-Date: Thu, 7 Jan 2016 10:16:02 +0800
-Subject: [PATCH 1/1] timer units should be WantedBy=timers.target
+It seems like a good idea, send patch :-)
 
----
- sys-utils/fstrim.timer | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> (2) ignore unknown fs types.  e.g. when a kernel config/module is missing
+> support for the requested filesystem type.  so a fstab entry like:
+> 	..src..  /mnt/foo  somefs defaults,nofail
+> rather than error out with:
+> 	mount: unknown filesystem type 'somefs'
+> it would just issue a warning like it does for other nofail options.
 
-diff --git a/sys-utils/fstrim.timer b/sys-utils/fstrim.timer
-index c8d94d7..3a3762d 100644
---- a/sys-utils/fstrim.timer
-+++ b/sys-utils/fstrim.timer
-@@ -8,4 +8,4 @@ AccuracySec=1h
- Persistent=true
- 
- [Install]
--WantedBy=multi-user.target
-+WantedBy=timers.target
+I'm not sure with this. It's unusual situation when any filesystem is unknown
+for libblkid, but it's pretty common that kernel returns EINVAL. This
+happen when a kernel config/module is missing, but also if you specify
+wrong mount options and in some another situations. I don't think we
+want to hide such problems. It's too generic...
+
+    Karel
+
+
 -- 
-2.6.4
-
-
---7JfCtLOvnd9MIVvH--
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
