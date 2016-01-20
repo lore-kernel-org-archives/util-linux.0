@@ -1,89 +1,85 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: vapier@gentoo.org
+Date: Wed, 20 Jan 2016 15:00:28 -0500
+From: Mike Frysinger <vapier@gentoo.org>
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: test sfdisk, optimal_iosize
-Date: Fri, 29 Jan 2016 14:02:14 +0100
 Cc: util-linux@vger.kernel.org
-References: <201601291131.29201.sweet_f_a@gmx.de> <20160129113110.o76pvon3wormblgd@ws.net.home>
-In-Reply-To: <20160129113110.o76pvon3wormblgd@ws.net.home>
+Subject: Re: mount nofail: what failures should we allow ?
+Message-ID: <20160120200028.GE14840@vapier.lan>
+References: <20160119232458.GO14840@vapier.lan>
+ <20160120102845.olo242uqrfzld6rh@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201601291402.14306.sweet_f_a@gmx.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="O2gaCPMlz9o7j9TI"
+In-Reply-To: <20160120102845.olo242uqrfzld6rh@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 29 January 2016, Karel Zak wrote:
-> On Fri, Jan 29, 2016 at 11:31:28AM +0100, Ruediger Meier wrote:
-> > Hi,
-> >
-> > I've got some test failures like
-> >
-> > ---
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.27.git247.4c01c/tests/expe
-> >cted/sfdisk/dos-activate +++
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.27.git247.4c01c/tests/outp
-> >ut/sfdisk/dos-activate @@ -6,7 +6,7 @@
-> >  Disk <removed>: 50 MiB, 52428800 bytes, 102400 sectors
-> >  Units: sectors of 1 * 512 = 512 bytes
-> >  Sector size (logical/physical): 512 bytes / 4096 bytes
-> > -I/O size (minimum/optimal): 4096 bytes / 32768 bytes
-> > +I/O size (minimum/optimal): 4096 bytes / 64 bytes
->
-> Very very strange. It seems like the number is in sectors (64 * 512 =
-> 32768) rather than in bytes.
->
-> >  Disklabel type: dos
-> >  Disk identifier: <removed>
-> >
-> >
-> > optimal < minimum ... is this a bug?
-> >
-> > Where does this optimal iosize come from, scsi_debug module?
-> > Is there a commandline tool to get this iosize, maybe blkid?
->
->  cat /sys/block/sda/queue/{optimal,minimum}_io_size
->  cat /sys/block/sda/queue/{physical,logical}_block_size
->
-> The optimal IO size is often 0 (in /sys) in this case libfdisk
-> fallback to minimal IO size.
->
-> Try
->     LIBFDISK_DEBUG=all fdisk -l /dev/sda
 
-Thx.
+--O2gaCPMlz9o7j9TI
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I get this on the "broken systems":
+On 20 Jan 2016 11:28, Karel Zak wrote:
+> On Tue, Jan 19, 2016 at 06:24:58PM -0500, Mike Frysinger wrote:
+> > i've received two requests for the "nofail" option.  the doc for the
+> > option is a bit ... terse ... so it's hard to guess at the overall
+> > intention.
+>=20
+> man mount:
+>    nofail Do not report errors for this device if it does not exist.
+>=20
+> from my point of view this description is pretty explicit :-)
 
-## sector_size=512
-$ modprobe -r scsi_debug
-$ modprobe scsi_debug dev_size_mb=100 sector_size=512
-$ devname=$(grep --with-filename scsi_debug /sys/block/*/device/model | awk -F '/' '{print $4}')
-$ cat /sys/block/$devname/queue/{logical_block_size,physical_block_size,minimum_io_size,optimal_io_size}
-512
-512
-512
-64
+does it mean the device node doesn't exist (ENOENT) ?  or does it also
+accept the node being there, but returning other errors like ENXIO (the
+driver isn't loaded) or ENOTDIR (bad path) or ENOTBLK (used a bad path
+like /dev/zero) or ENOMEDIUM (the node & hardware exists, but is not
+loaded) ?  there's probably other errno values you could catch here.
 
-## sector_size=4096
-$ modprobe -r scsi_debug
-$ modprobe scsi_debug dev_size_mb=100 sector_size=4096
-$ devname=$(grep --with-filename scsi_debug /sys/block/*/device/model | awk -F '/' '{print $4}') 
-$ cat /sys/block/$devname/queue/{logical_block_size,physical_block_size,minimum_io_size,optimal_io_size}
-4096
-4096
-4096
-512
+surely you agree that "does not exist" does not cover all these cases.
+or at the very least, it's pretty ambiguous/fuzzy.
 
-These odd optimal iosizes only happen for "scsi_debug" devices (not the loop
-nor md devices used in our test suite).
+> > (2) ignore unknown fs types.  e.g. when a kernel config/module is missi=
+ng
+> > support for the requested filesystem type.  so a fstab entry like:
+> > 	..src..  /mnt/foo  somefs defaults,nofail
+> > rather than error out with:
+> > 	mount: unknown filesystem type 'somefs'
+> > it would just issue a warning like it does for other nofail options.
+>=20
+> I'm not sure with this. It's unusual situation when any filesystem is unk=
+nown
+> for libblkid, but it's pretty common that kernel returns EINVAL. This
+> happen when a kernel config/module is missing, but also if you specify
+> wrong mount options and in some another situations. I don't think we
+> want to hide such problems. It's too generic...
 
-Reproduced on kernel 4.1.15 and 4.4.0.
-Was correct on kernel 3.16.7 (and maybe even 4.1.13).
+i think there's a lot going on in this response.  let me distill it a
+bit.  if i have a reiserfs that is usable, but i forgot to enable or
+load the reiserfs kernel driver, should nofail be allowed to skip ?
+or is this a hard failure ?
+-mike
 
-Maybe it's not only about the kernel version but also something about
-other host specific settings.
+--O2gaCPMlz9o7j9TI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Could somebody please reproduce this on kernel 4.4.0?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-cu,
-Rudi
+iQIcBAEBCAAGBQJWn+dcAAoJEEFjO5/oN/WBfhQQAMukzSR4yEHFouHOTn5sNtFd
+1prM+UF5PhiE2x+OB9hMQqMFtenIikCDdfo++i/46sJtnafeD7TXPmT68VF8diNg
+THxJ0hCn0BGlvOYCRviZLcG9QY9HUEP2/SqEqFBjAhZqSlDsenHUGQQQoVj5zThg
+0MrWmSg01gsdfK1pOTJohqIBmkn/3I7hINDaC6Oue6G36KrujJ3hIZ997jTai1AV
+3EAVwRx78h4x5XB0YlJPJNcPi4buJB6NqhcXKUoD4SzQUlKBTCTsi3/cetG5vp1l
+Gx5JLF0mHAh2bVlX0w86p1mGtZH1OPJRZUOgrLZjLsR2fysg6312Ov1TPRIjGQW5
+NmzshS7IEuZ3DJpXhLkFlLJKGwl8SD8DlnNY1NW4vsHsJJQ35P0QEZRdcWodLXxv
+9e0p+TnuRIgevQ9ZT20RJlE9MrQCavk0qYAUksKSyc9oGBMluduCmah+1slbVo5N
+QNQ2Grtif4onKvhEph7CVa/ogB/rcfVSoGgDb45SxxZRKR6HAwZnS7aAPxRdmTcy
+QXjxohaBk14gGr55cDYYw4hhHWyRaVRHLBqypTSpmt5OzksoO0wq18bMZvKevz5N
+9aZexcBFXX2Vyz3P7aHpNEY2Fj2lb+U88LB95c+GlWhygYyYF8AGsNjbCkTZzB5v
+IoSFHI1ORrDEbWV8eqBW
+=Yx9h
+-----END PGP SIGNATURE-----
+
+--O2gaCPMlz9o7j9TI--
