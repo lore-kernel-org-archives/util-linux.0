@@ -1,68 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59192 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:53267 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758925AbcAUPhP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 Jan 2016 10:37:15 -0500
-Date: Thu, 21 Jan 2016 16:37:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org,
-        David =?utf-8?B?xaB0xJtyYmE=?= <dsterba@suse.cz>
-Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
-Message-ID: <20160121153713.erxzeieqtnsf2wsu@ws.net.home>
-References: <569FEF38.9010102@suse.cz>
- <56A00178.9000603@suse.cz>
- <56A002B3.5090505@suse.cz>
- <20160121094833.67lg22o4la7j7pto@ws.net.home>
- <56A0F847.5000000@suse.cz>
+	id S933127AbcATE66 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Jan 2016 23:58:58 -0500
+Date: Tue, 19 Jan 2016 23:58:57 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: "Wayne R. Roth" <wayneroth42@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mkswap: Add warnings for insecure device
+ permissions/owners Logic modified from sys-utils/swapon.c
+Message-ID: <20160120045857.GP14840@vapier.lan>
+References: <20160119194443.GD14840@vapier.lan>
+ <1453263459-19555-1-git-send-email-wayneroth42@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <56A0F847.5000000@suse.cz>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="xXygN3QAmJYWdGtb"
+In-Reply-To: <1453263459-19555-1-git-send-email-wayneroth42@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 21, 2016 at 04:24:55PM +0100, Stanislav Brabec wrote:
-> Karel Zak wrote:
-> >On Wed, Jan 20, 2016 at 10:57:07PM +0100, Stanislav Brabec wrote:
-> >>+/**
-> >>+ * btrfs_get_default_subvol_id:
-> >>+ * @path: Path to mounted btrfs volume
-> >
-> >this comment formatting indicate API docs, for private library functions
-> >we don't use "/**".
-> >
-> Should I export this? I think that no.
 
-It's private function.
+--xXygN3QAmJYWdGtb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-> 
-> Well, looking again into libbtrfs, it is also possible to use
-> btrfs_list_get_default_subvolume() from libbtrfs, as is nearly exactly the
-> same. But I am not sure, whether it is good to introduce such a
-> dependency just for a single small function.
+On 19 Jan 2016 20:17, Wayne R. Roth wrote:
+> +        permMask = S_ISBLK(ctl.devstat.st_mode) ? 07007 : 07077;
 
-I really don't want to depend on libbtrfs.
+pretty sure you want to indent w/tabs, not spaces
 
-> P. S.:
-> 
-> David also wrote btrfs_get_default_subvolume_path(), but then we found,
-> that there is probably better to use subvolid and path saved in
-> procinfo:
+> +        if (getuid()==0 && S_ISREG(ctl.devstat.st_mode) && ctl.devstat.st_uid != 0)
 
-Do you mean /proc/self/mountinfo ?
+there should be spaces around the ==
+-mike
 
-> 
-> + The tab.c patch would be much smaller and straightforward.
-> - Kernel evaluates it when creating procinfo entries, this would
->   duplicate it.
-> x Both subvol and subvolid in procinfo were introduced together in the
->   mainline kernel, and btrfs_get_default_subvolume_path() needs more
->   ioctl() calls.
+--xXygN3QAmJYWdGtb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-No sure if I follow.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-    Karel
+iQIcBAEBCAAGBQJWnxQRAAoJEEFjO5/oN/WBUhoP/i5tt2h+K7OZ0TbilMNYUvgf
+Mh3t5PwtTvQ4LXW9dGM9HHlXeFBLas52dqlU91qZ7vG3mAYV0xJUR+4Oxav4KVTv
+1sqqDztfVXApkWtm6P4l3cc7PGKIAL0QIlfKiuKLcojiNDQA1NLgwH0XRbp9aSZE
+Qq9yUL+1oQ2qWoT/LoV9qYyVJoecFJt+k1lBn8Y3H43L1X6SjmTly+Qz4R8QdP6w
+0QVNAmZbG9clDHrCkBYD2y+D+rn1smLoPQB258jL/nwRoXSn8gBu1iRWB+3nqKWE
+KIR8Fsr+IYAqNQ5v8mU/7tmVXfPBBECBAwmRidExTrqC4y/RRSwZJK2qV57G73Sx
+yOxIazfUFhT4jM7Q56P+AGwI/4mDp4+m5RO4lQ1+jZL0m3U9qxtVIEZf7zLi1xaI
+rfCzEYc5iWBtSLr5zHfgG4WN/oPuc/bKFz5HW0cXWBFP1TFd86KSchWyzqYk/Hsv
+TH/tsZZefXWLHUlFzeV7DgWLOtmLfc3AKJk0AfymWL8z6PVne7BgdBFARGSvgtf5
+FRH68ywUMHftzOW8D58dQ3WESSnoYVHp+57BK7Hcz/OmdH9rTTr2DHpPGdIpMyUQ
+CSv8CPvujtGcx/PuuzwLZ16i8mkAWCBjet8B8yjNO1WJ/3vI7kPggXqTTz7N9Fy3
+SFPQAuKizWZUJl1xTuSc
+=EiXa
+-----END PGP SIGNATURE-----
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--xXygN3QAmJYWdGtb--
