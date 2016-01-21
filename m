@@ -1,32 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43105 "EHLO mx1.redhat.com"
+Received: from mail.prgmr.com ([71.19.149.6]:38985 "EHLO mail.prgmr.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965007AbcAZKfi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 26 Jan 2016 05:35:38 -0500
-Date: Tue, 26 Jan 2016 11:35:36 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Wayne R. Roth" <wayneroth42@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mkswap: add warnings for insecure device
- permissions/owners Logic modified from sys-utils/swapon.c
-Message-ID: <20160126103536.eeug74hblnzin6gf@ws.net.home>
-References: <20160120045857.GP14840@vapier.lan>
- <1453270177-19981-1-git-send-email-wayneroth42@gmail.com>
+	id S1751090AbcAUW21 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 21 Jan 2016 17:28:27 -0500
+Subject: Re: Re: [PATCH] mkswap: Add warnings for insecure device
+ permissions/owners
+To: Karel Zak <kzak@redhat.com>
+References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
+ <20160120103042.clphjleuiesjrl52@ws.net.home>
+Cc: "Wayne R. Roth" <wayneroth42@gmail.com>, util-linux@vger.kernel.org
+From: Sarah Newman <srn@prgmr.com>
+Message-ID: <56A1596C.3060507@prgmr.com>
+Date: Thu, 21 Jan 2016 14:19:24 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1453270177-19981-1-git-send-email-wayneroth42@gmail.com>
+In-Reply-To: <20160120103042.clphjleuiesjrl52@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 19, 2016 at 10:09:37PM -0800, Wayne R. Roth wrote:
->  disk-utils/mkswap.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+On 01/20/2016 02:30 AM, Karel Zak wrote:
+> On Tue, Jan 19, 2016 at 10:37:06AM -0800, Wayne R. Roth wrote:
+>> Logic copied from sys-utils/swapon.c
+> 
+> Why? I think swapon is the right place for this check.
+> 
+>     Karel
+> 
 
- Applied, although I don't feel 100% happy with it. At least we will
- educate users about the problem :-)
+Hi Karel,
 
-    Karel
+Warnings are probably best put in *both* mkswap and swapon for the following two reasons:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1. The person(s) reviewing the output for swapon may not be the same person(s) reviewing the output for mkswap. For example, this might happen with a
+company with a separate development and quality assurance department.
+
+2. To my best knowledge the release of mkswap and swapon do not have to match. An example of when this might happen is the build process for an
+embedded device or virtual machine. I am pretty sure busybox does not warn on world readable swap right now.
+
+This patch does not break any existing behavior. The worst case possibility from accepting this patch is it will annoy some people, and best case it
+will save millions of devices from being shipped with insecure permissions.
+
+Thanks, Sarah
