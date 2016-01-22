@@ -1,41 +1,39 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:50263 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752872AbcAOVkG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jan 2016 16:40:06 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1aKC6F-0005Gz-Vg
-	for util-linux@vger.kernel.org; Fri, 15 Jan 2016 22:40:04 +0100
-Received: from 95.131.151.139 ([95.131.151.139])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 15 Jan 2016 22:40:03 +0100
-Received: from yumkam by 95.131.151.139 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Fri, 15 Jan 2016 22:40:03 +0100
-To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: [PATCH] fix lsns failure after zombie process
-Date: Sat, 16 Jan 2016 00:38:00 +0300
-Message-ID: <m3r3hih6br.fsf@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: srn@prgmr.com
+Subject: Re: [PATCH] mkswap: Add warnings for insecure device
+ permissions/owners
+To: Tilman Schmidt <tilman@imap.cc>, Karel Zak <kzak@redhat.com>
+References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
+ <20160120103042.clphjleuiesjrl52@ws.net.home> <56A1596C.3060507@prgmr.com>
+ <56A25241.8050000@imap.cc>
+Cc: "Wayne R. Roth" <wayneroth42@gmail.com>, util-linux@vger.kernel.org
+From: Sarah Newman <srn@prgmr.com>
+Message-ID: <56A27F92.6020309@prgmr.com>
+Date: Fri, 22 Jan 2016 11:14:26 -0800
+MIME-Version: 1.0
+In-Reply-To: <56A25241.8050000@imap.cc>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-(At least on kernel 3.16), stat("/proc/${pid_of_zombie}/ns/mnt") returns
--ENOENT, as a result lsns stops scanning processes prematurely.
+On 01/22/2016 08:01 AM, Tilman Schmidt wrote:
+> Am 21.01.2016 um 23:19 schrieb Sarah Newman:
+>> This patch does not break any existing behavior. The worst case possibility from accepting this patch is it will annoy some people, and best case it
+>> will save millions of devices from being shipped with insecure permissions.
+> 
+> The worst case is it will train millions of administrators to ignore
+> warning messages.
+> 
 
---- util-linux.orig/sys-utils/lsns.c
-+++ util-linux/sys-utils/lsns.c
-@@ -308,7 +308,7 @@ static int read_processes(struct lsns *l
- 
- 	while (proc_next_pid(proc, &pid) == 0) {
- 		rc = read_process(ls, pid);
--		if (rc && rc != -EACCES)
-+		if (rc && rc != -EACCES && rc != -ENOENT)
- 			break;
- 		rc = 0;
- 	}
+If the warnings in swapon are legitimate, they are just as legitimate in mkswap if the file owner check is only done when mkswap is run as root.
 
+Regarding the legitimacy of the swapon warnings: do you honestly believe most of the people who will get these warnings will have intended to have
+world readable swap or swap owned as a non-root owner?
+
+When I search for "linux swap file" on google this is the second hit for me, the first being an arch linux wiki page:
+https://www.linux.com/news/software/applications/8208-all-about-linux-swap-space "centos swap file" top two hits
+https://www.centos.org/docs/5/html/5.2/Deployment_Guide/s2-swap-creating-file.html
+https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-swap-adding.html
+
+I followed the instructions for CentOS on a CentOS 5 machine and it resulted in world readable swap. Those instructions came from Red Hat. If
+documentation from Red Hat gets it wrong, it's presumably a very common error. I made this mistake myself and I knew better.
+
+--Sarah
