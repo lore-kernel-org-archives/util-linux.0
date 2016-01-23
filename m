@@ -1,56 +1,41 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
-To: Karel Zak <kzak@redhat.com>
-References: <569FEF38.9010102@suse.cz> <56A00178.9000603@suse.cz>
- <56A002B3.5090505@suse.cz> <20160121094833.67lg22o4la7j7pto@ws.net.home>
-Cc: util-linux@vger.kernel.org,
-        =?UTF-8?B?RGF2aWQgxaB0xJtyYmE=?=
- <dsterba@suse.cz>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56A0F847.5000000@suse.cz>
-Date: Thu, 21 Jan 2016 16:24:55 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:56800 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751644AbcAWQWo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 23 Jan 2016 11:22:44 -0500
+Date: Sat, 23 Jan 2016 17:22:41 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Sarah Newman <srn@prgmr.com>, Tilman Schmidt <tilman@imap.cc>,
+        "Wayne R. Roth" <wayneroth42@gmail.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] mkswap: Add warnings for insecure device
+ permissions/owners
+Message-ID: <20160123162241.pwvqxyfm4qv2apgo@ws.net.home>
+References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
+ <20160120103042.clphjleuiesjrl52@ws.net.home>
+ <56A1596C.3060507@prgmr.com>
+ <56A25241.8050000@imap.cc>
+ <56A27F92.6020309@prgmr.com>
+ <CAG27Bk1xN6RccvCKwurdftkHkvS86Mi5VnA-8UiP7Y0peuh02A@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160121094833.67lg22o4la7j7pto@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk1xN6RccvCKwurdftkHkvS86Mi5VnA-8UiP7Y0peuh02A@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Wed, Jan 20, 2016 at 10:57:07PM +0100, Stanislav Brabec wrote:
->> +/**
->> + * btrfs_get_default_subvol_id:
->> + * @path: Path to mounted btrfs volume
->
-> this comment formatting indicate API docs, for private library functions
-> we don't use "/**".
->
-Should I export this? I think that no.
+On Fri, Jan 22, 2016 at 10:03:47PM +0000, Sami Kerola wrote:
+> Alternatively one could make swapon to get rid of all permission bits
+> and set ownership to UID 0 by default when ever it activates a
+> swapfile. How about that.
 
-Well, looking again into libbtrfs, it is also possible to use
-btrfs_list_get_default_subvolume() from libbtrfs, as is nearly exactly 
-the same. But I am not sure, whether it is good to introduce such a
-dependency just for a single small function.
+Not sure if want to change any permissions on the fly, it would be
+better to reject files (by swapon) with insecure permissions and
+require something like --force for crazy users who wants to ignore
+this problem.
 
-P. S.:
-
-David also wrote btrfs_get_default_subvolume_path(), but then we found,
-that there is probably better to use subvolid and path saved in
-procinfo:
-
-+ The tab.c patch would be much smaller and straightforward.
-- Kernel evaluates it when creating procinfo entries, this would
-   duplicate it.
-x Both subvol and subvolid in procinfo were introduced together in the
-   mainline kernel, and btrfs_get_default_subvolume_path() needs more
-   ioctl() calls.
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
