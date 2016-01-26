@@ -1,76 +1,79 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
-To: Karel Zak <kzak@redhat.com>
-References: <569FEF38.9010102@suse.cz> <56A00178.9000603@suse.cz>
- <56A002B3.5090505@suse.cz> <20160121094833.67lg22o4la7j7pto@ws.net.home>
- <56A15487.8020500@suse.cz>
-Cc: util-linux@vger.kernel.org,
-        =?UTF-8?B?RGF2aWQgxaB0xJtyYmE=?=
- <dsterba@suse.cz>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:51544 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752771AbcAZU75 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jan 2016 15:59:57 -0500
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 03D9CABB4
+	for <util-linux@vger.kernel.org>; Tue, 26 Jan 2016 20:59:55 +0000 (UTC)
+To: util-linux@vger.kernel.org
 From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56AA240F.5010900@suse.cz>
-Date: Thu, 28 Jan 2016 15:22:07 +0100
+Subject: [PATCH] libmount: run btrfs subvol checks for "auto" fs type
+Message-ID: <56A7DE4B.5060308@suse.cz>
+Date: Tue, 26 Jan 2016 21:59:55 +0100
 MIME-Version: 1.0
-In-Reply-To: <56A15487.8020500@suse.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-2
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Stanislav Brabec wrote:
-> Known problems not covered by this patch:
->
-> - Use of subvolid= in fstab is not yet handled.
+It is possible to mount btrfs using "auto" keyword in fstab. In such
+case, btrfs specific checks are skipped. Run them for "auto" as well.
 
-Patch already created, see mails:
-[PATCH 1/2] libmount: run btrfs subvol checks for "subvolid" option
-[PATCH 2/2] libmount: code re-indentation
+Looking at the code, it is a safe approach. In case of btrfs, it will do
+what is needed, in case of no btrfs, btrfs_get_default_subvol_id() will
+fail, and the rest of the code is skipped.
 
-> - Use of type auto in combination with subvol= in fstab is not yet
->    handled.
+How to reproduce:
+See reproducer in 2cd28fc and replace fstab line by
+	echo "/dev/loop0 $PWD/btrfs_mnt btrfs auto 0 0" >>/etc/fstab
 
-Patch already created, see:
-[PATCH] libmount: run btrfs subvol checks for "auto" fs type
+Current behavior of second "mount -a":
+	mount: /dev/loop0 is already mounted or /root/btrfs_mnt busy
+	       /dev/loop0 is already mounted on /root/btrfs_mnt
 
-> - Use of btrfs in loop devices, where image file is specified in fstab is
->    not yet handled (use of /dev/loop0 in fstab works).
+Testcases for btrfs and ext4:
+	truncate -s1G btrfs_test.img
+	truncate -s1G ext4_test.img
+	mkdir -p btrfs_mnt
+	mkdir -p ext4_mnt
+	/sbin/mkfs.btrfs -f -d single -m single ./btrfs_test.img
+	/sbin/mkfs.ext4 ./ext4_test.img
+	losetup /dev/loop0 $PWD/btrfs_test.img
+	losetup /dev/loop1 $PWD/ext4_test.img
+	echo "/dev/loop0 $PWD/btrfs_mnt auto defaults 0 0" >>/etc/fstab
+	echo "/dev/loop1 $PWD/ext4_mnt auto defaults 0 0" >>/etc/fstab
+	./mount -a
+	./mount -a
+	umount btrfs_mnt
+	umount ext4_mnt
+	sed -i "/\/dev\/loop[01]/d" /etc/fstab
+	losetup -d /dev/loop0
+	losetup -d /dev/loop1
+	rm btrfs_test.img
+	rm ext4_test.img
+	rmdir btrfs_mnt
+	rmdir ext4_mnt
 
-With all patches above, I cannot reproduce any more.
-Tested situations:
-- with and without "loop" option
-- with "subvol" or "subvolid" options referring to non-default subvolume
-- without "subvol" or "subvolid" referring to default subvolume
-- with "btrfs" and "auto" fs type
-=> I think that it is now fixed as well.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libmount/src/tab.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> - If fstab uses subvol=, and subvol path changes since last "mount -a",
->    subsequent "mount -a" will not recognize that it is already mounted,
->    and it will attempt to mount it second time. To fix it, libmount should
->    remember subvolid in time of mount (subvolid is unique for the
->    subvolume, subvol is not).
-
-I have no plans to write a fix for that now. Too obscure situation.
-
-> - mountinfo contains subvol and subvolid since kernel 4.2. Before kernel
->    4.2, there is no reasonable way to solve this situation. (One would
->    create temporary mount point, mount the default, call needed ioctl() to
->    determine what was mounted, deduce the default subvolume, compare it
->    with subvolume of mounted volume, unmount and return result.)
-
-There is no reasonable way to detect whether default subvolume was mounted.
-
-In case of mounting with subvolid, there is a way to detect subvolume 
-path even before kernel 4.2: If mountinfo lookup fails, then use 
-btrfs_get_default_subvolume_path(). (See my mail dated
-Thu, 21 Jan 2016 18:24:59 +0100 in this thread.) However fix is possible 
-here, I have no plan to extent
-[PATCH 1/2] libmount: run btrfs subvol checks for "subvolid" option
-and implement it. It would be a fix of obscure situation in a kernel 
-with unfixable issues of more common cases.
-
-
-Summary: After applying of all patches mentioned here, I consider btrfs 
-support as fixed in new kernels.
-
-I strongly discourage advanced use of btrfs in fstab before kernel 4.2.
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 3099615..e8920cb 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -1319,7 +1319,7 @@ struct libmnt_fs *mnt_table_get_fs_root(struct libmnt_table *tb,
+ 	/*
+ 	 * btrfs-subvolume mount -- get subvolume name and use it as a root-fs path
+ 	 */
+-	else if (fstype && !strcmp(fstype, "btrfs")) {
++	else if (fstype && (!strcmp(fstype, "btrfs") || !strcmp(fstype, "auto"))) {
+ 		char *vol = NULL, *p;
+ 		size_t sz, volsz = 0;
+ 
+-- 
+2.7.0
 
 -- 
 Best Regards / S pozdravem,
@@ -79,7 +82,7 @@ Stanislav Brabec
 software developer
 ---------------------------------------------------------------------
 SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarsk√° 1060/12                            tel: +49 911 7405384547
+Lihovarsk· 1060/12                            tel: +49 911 7405384547
 190 00 Praha 9                                 fax:  +420 284 084 001
 Czech Republic                                    http://www.suse.cz/
 PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
