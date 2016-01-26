@@ -1,40 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.prgmr.com ([71.19.149.6]:45792 "EHLO mail.prgmr.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58680 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756184AbcAYVj3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 25 Jan 2016 16:39:29 -0500
-Subject: Re: [PATCH] mkswap: Add warnings for insecure device
- permissions/owners
-To: Karel Zak <kzak@redhat.com>
-References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
- <20160120103042.clphjleuiesjrl52@ws.net.home> <56A1596C.3060507@prgmr.com>
- <56A25241.8050000@imap.cc> <56A27F92.6020309@prgmr.com>
- <CAG27Bk1xN6RccvCKwurdftkHkvS86Mi5VnA-8UiP7Y0peuh02A@mail.gmail.com>
- <20160123162241.pwvqxyfm4qv2apgo@ws.net.home>
-Cc: "Wayne R. Roth" <wayneroth42@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-From: Sarah Newman <srn@prgmr.com>
-Message-ID: <56A6960F.4070404@prgmr.com>
-Date: Mon, 25 Jan 2016 13:39:27 -0800
+	id S932284AbcAZKPw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jan 2016 05:15:52 -0500
+Date: Tue, 26 Jan 2016 11:15:50 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org,
+        David =?utf-8?B?xaB0xJtyYmE=?= <dsterba@suse.cz>
+Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
+Message-ID: <20160126101550.jztna4mi4eaapees@ws.net.home>
+References: <569FEF38.9010102@suse.cz>
+ <56A00178.9000603@suse.cz>
+ <56A002B3.5090505@suse.cz>
+ <20160121094833.67lg22o4la7j7pto@ws.net.home>
+ <56A15487.8020500@suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <20160123162241.pwvqxyfm4qv2apgo@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56A15487.8020500@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 01/23/2016 08:22 AM, Karel Zak wrote:
-> On Fri, Jan 22, 2016 at 10:03:47PM +0000, Sami Kerola wrote:
->> Alternatively one could make swapon to get rid of all permission bits
->> and set ownership to UID 0 by default when ever it activates a
->> swapfile. How about that.
-> 
-> Not sure if want to change any permissions on the fly, it would be
-> better to reject files (by swapon) with insecure permissions and
-> require something like --force for crazy users who wants to ignore
-> this problem.
+On Thu, Jan 21, 2016 at 10:58:31PM +0100, Stanislav Brabec wrote:
+>  libmount/src/Makemodule.am |   2 +
+>  libmount/src/btrfs.c       | 102 +++++++++++++++++++++++++++++++++++++
+>  libmount/src/btrfs.h       | 122 +++++++++++++++++++++++++++++++++++++++++++++
+>  libmount/src/libmount.h.in |   2 +
+>  libmount/src/mountP.h      |   6 +++
+>  libmount/src/tab.c         |  83 ++++++++++++++++++++++++++++--
+>  6 files changed, 313 insertions(+), 4 deletions(-)
+>  create mode 100644 libmount/src/btrfs.c
+>  create mode 100644 libmount/src/btrfs.h
 
-Rejecting insecure permissions in swapon will make warnings in mkswap even more important. Are there any further changes required to Wayne's latest
-patch to mkswap.c https://marc.info/?l=util-linux-ng&m=145327019508709&w=2 before it is merged?
+ Merged with some minor changes. Thanks.
 
-Thanks, Sarah
+    Karel
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
