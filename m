@@ -1,63 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-vk0-f51.google.com ([209.85.213.51]:32825 "EHLO
-	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753444AbcAVWDs (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 22 Jan 2016 17:03:48 -0500
-Received: by mail-vk0-f51.google.com with SMTP id e64so49059890vkg.0
-        for <util-linux@vger.kernel.org>; Fri, 22 Jan 2016 14:03:48 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:56656 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754349AbcAZKyk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 26 Jan 2016 05:54:40 -0500
+Date: Tue, 26 Jan 2016 11:54:38 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] build-sys: remove libtermcap support
+Message-ID: <20160126105438.7du3y4ivyxmtfkhb@ws.net.home>
+References: <1452986584-14013-1-git-send-email-kerolasa@iki.fi>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <56A27F92.6020309@prgmr.com>
-References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
-	<20160120103042.clphjleuiesjrl52@ws.net.home>
-	<56A1596C.3060507@prgmr.com>
-	<56A25241.8050000@imap.cc>
-	<56A27F92.6020309@prgmr.com>
-Date: Fri, 22 Jan 2016 22:03:47 +0000
-Message-ID: <CAG27Bk1xN6RccvCKwurdftkHkvS86Mi5VnA-8UiP7Y0peuh02A@mail.gmail.com>
-Subject: Re: [PATCH] mkswap: Add warnings for insecure device permissions/owners
-From: Sami Kerola <kerolasa@iki.fi>
-To: Sarah Newman <srn@prgmr.com>
-Cc: Tilman Schmidt <tilman@imap.cc>, Karel Zak <kzak@redhat.com>,
-        "Wayne R. Roth" <wayneroth42@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1452986584-14013-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 22 January 2016 at 19:14, Sarah Newman <srn@prgmr.com> wrote:
-> On 01/22/2016 08:01 AM, Tilman Schmidt wrote:
->> Am 21.01.2016 um 23:19 schrieb Sarah Newman:
->>> This patch does not break any existing behavior. The worst case possibility from accepting this patch is it will annoy some people, and best case it
->>> will save millions of devices from being shipped with insecure permissions.
->>
->> The worst case is it will train millions of administrators to ignore
->> warning messages.
->>
->
-> If the warnings in swapon are legitimate, they are just as legitimate in mkswap if the file owner check is only done when mkswap is run as root.
->
-> Regarding the legitimacy of the swapon warnings: do you honestly believe most of the people who will get these warnings will have intended to have
-> world readable swap or swap owned as a non-root owner?
->
-> When I search for "linux swap file" on google this is the second hit for me, the first being an arch linux wiki page:
-> https://www.linux.com/news/software/applications/8208-all-about-linux-swap-space "centos swap file" top two hits
-> https://www.centos.org/docs/5/html/5.2/Deployment_Guide/s2-swap-creating-file.html
-> https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-swap-adding.html
->
-> I followed the instructions for CentOS on a CentOS 5 machine and it resulted in world readable swap. Those instructions came from Red Hat. If
-> documentation from Red Hat gets it wrong, it's presumably a very common error. I made this mistake myself and I knew better.
+On Sat, Jan 16, 2016 at 11:23:04PM +0000, Sami Kerola wrote:
+>  configure.ac             |  11 -----
+>  misc-utils/Makemodule.am |   3 --
+>  misc-utils/cal.c         |  59 +++++--------------------
+>  text-utils/Makemodule.am |   4 --
+>  text-utils/more.c        | 110 ++++++++++-------------------------------------
+>  5 files changed, 34 insertions(+), 153 deletions(-)
 
-Fair points, but should same logic be applied to file holes when
-running mkswap? If the test _must_ be the same surely the mkswap &
-swapon should share the function(s) performing them, as drifting would
-be bad. Should these messages be optional, and if so which way around
-default ought to be? This will lead to --quite or --verbose options.
+Good catch. I have removed my_*() functions from more.c too. It's
+unnecessary any more.
 
-Alternatively one could make swapon to get rid of all permission bits
-and set ownership to UID 0 by default when ever it activates a
-swapfile. How about that.
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
