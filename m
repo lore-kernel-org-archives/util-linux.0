@@ -1,39 +1,45 @@
-Return-Path: srn@prgmr.com
-Subject: Re: [PATCH] mkswap: Add warnings for insecure device
- permissions/owners
-To: Tilman Schmidt <tilman@imap.cc>, Karel Zak <kzak@redhat.com>
-References: <1453228626-18667-1-git-send-email-wayneroth42@gmail.com>
- <20160120103042.clphjleuiesjrl52@ws.net.home> <56A1596C.3060507@prgmr.com>
- <56A25241.8050000@imap.cc>
-Cc: "Wayne R. Roth" <wayneroth42@gmail.com>, util-linux@vger.kernel.org
-From: Sarah Newman <srn@prgmr.com>
-Message-ID: <56A27F92.6020309@prgmr.com>
-Date: Fri, 22 Jan 2016 11:14:26 -0800
-MIME-Version: 1.0
-In-Reply-To: <56A25241.8050000@imap.cc>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:34788 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965935AbcA0TpQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Jan 2016 14:45:16 -0500
+Received: by mail-lb0-f173.google.com with SMTP id cl12so11501220lbc.1
+        for <util-linux@vger.kernel.org>; Wed, 27 Jan 2016 11:45:15 -0800 (PST)
+Received: from ksakep (impulse-kiev.in.ua. [178.214.207.118])
+        by smtp.gmail.com with ESMTPSA id go6sm971432lbc.25.2016.01.27.11.45.12
+        for <util-linux@vger.kernel.org>
+        (version=TLSv1/SSLv3 cipher=OTHER);
+        Wed, 27 Jan 2016 11:45:13 -0800 (PST)
+Date: Wed, 27 Jan 2016 21:44:04 +0200
+From: Victor Ananjevsky <ananasik@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: agetty improvement
+Message-Id: <20160127214404.14b17964b7509e4839dbf26e@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 01/22/2016 08:01 AM, Tilman Schmidt wrote:
-> Am 21.01.2016 um 23:19 schrieb Sarah Newman:
->> This patch does not break any existing behavior. The worst case possibility from accepting this patch is it will annoy some people, and best case it
->> will save millions of devices from being shipped with insecure permissions.
-> 
-> The worst case is it will train millions of administrators to ignore
-> warning messages.
-> 
 
-If the warnings in swapon are legitimate, they are just as legitimate in mkswap if the file owner check is only done when mkswap is run as root.
+hi list
 
-Regarding the legitimacy of the swapon warnings: do you honestly believe most of the people who will get these warnings will have intended to have
-world readable swap or swap owned as a non-root owner?
+is that possible to add a handle of esc sequences (\eXXX) to agetty in an upcomeng releases?
+there is a simple patch to do this
 
-When I search for "linux swap file" on google this is the second hit for me, the first being an arch linux wiki page:
-https://www.linux.com/news/software/applications/8208-all-about-linux-swap-space "centos swap file" top two hits
-https://www.centos.org/docs/5/html/5.2/Deployment_Guide/s2-swap-creating-file.html
-https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-swap-adding.html
 
-I followed the instructions for CentOS on a CentOS 5 machine and it resulted in world readable swap. Those instructions came from Red Hat. If
-documentation from Red Hat gets it wrong, it's presumably a very common error. I made this mistake myself and I knew better.
+--- util-linux-2.24/term-utils/agetty.c.orig	2013-10-10 13:44:17.000000000 +0300
++++ util-linux-2.24/term-utils/agetty.c	2013-11-12 08:12:26.457936826 +0200
+@@ -2104,6 +2104,9 @@
+ 		}
+ 		break;
+ 	}
++	case 'e':
++		printf("\033");
++		break;
+ 	case 'u':
+ 	case 'U':
+ 	{
 
---Sarah
+
+-- 
+Victor Ananjevsky <ananasik@gmail.com>
