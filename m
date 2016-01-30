@@ -1,82 +1,199 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.foxkit.us ([192.65.240.226]:42762 "EHLO
-	mail.wilcox-tech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753617AbcAGWNS (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 7 Jan 2016 17:13:18 -0500
-From: Andrew Wilcox <AWilcox@Wilcox-Tech.com>
-Subject: [PATCH] fdisk: Add GPT type GUID for Itanium Linux root
+Received: from plane.gmane.org ([80.91.229.3]:41242 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754220AbcA3Nba (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sat, 30 Jan 2016 08:31:30 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1aPVce-0002k2-1k
+	for util-linux@vger.kernel.org; Sat, 30 Jan 2016 14:31:28 +0100
+Received: from ppp37-190-56-5.pppoe.spdop.ru ([37.190.56.5])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 30 Jan 2016 14:31:28 +0100
+Received: from yumkam by ppp37-190-56-5.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 30 Jan 2016 14:31:28 +0100
 To: util-linux@vger.kernel.org
-Message-ID: <568EE16A.8010609@Wilcox-Tech.com>
-Date: Thu, 7 Jan 2016 16:06:34 -0600
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF"
+From: yumkam@gmail.com (Yuriy M. Kaminskiy)
+Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
+Date: Sat, 30 Jan 2016 16:31:06 +0300
+Message-ID: <m3twlvfb39.fsf@gmail.com>
+References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
+	<1428578536-31603-2-git-send-email-kzak@redhat.com>
+	<87bnix6xj6.fsf@x220.int.ebiederm.org>
+	<20150410081733.GM3923@ws.net.home> <m31t8zhgfv.fsf@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+--=-=-=
+Content-Type: text/plain
 
-This adds a new GUID partition type for Linux roots on Itanium (IA-64).
+yumkam@gmail.com (Yuriy M. Kaminskiy)
+writes:
 
-Ref:
-http://www.freedesktop.org/wiki/Specifications/DiscoverablePartitionsSpec=
-/
+> Karel Zak <kzak@redhat.com> writes:
+>
+> (this was commited as c84f2590dfdb8570beeb731e0105f8fe597443d1)
+>
+>> +static void bind_ns_files_from_child(pid_t *child)
+>> +{
+>> +	pid_t ppid = getpid();
+>> +	ino_t ino = get_mnt_ino(ppid);
+>> +
+>> +	*child = fork();
+>> +
+>> +	switch(*child) {
+>> +	case -1:
+>> +		err(EXIT_FAILURE, _("fork failed"));
+>> +	case 0:	/* child */
+>> +		do {
+>> +			/* wait until parent unshare() */
+>> +			ino_t new_ino = get_mnt_ino(ppid);
+>> +			if (ino != new_ino)
+>> +				break;
+>> +		} while (1);
+>
+> Racing? Suppose, parent died (e.g. unshare(2) failed), (parent) process
+> was reaped, new (unrelated) process was created with same pid, as a
+> result this function will bind namespaces from wrong process.
 
-Signed-off-by: Andrew Wilcox <awilfox@adelielinux.org>
+... besides, this is a busyloop, if "imposer process" is in same mnt
+namespace as original process, it will occupy CPU forever (and this *is*
+easy to fix; see attached; note that with attached patch race probability is
+reduced, but not totally avoided, there are still window between
+read(pipe) and mount() calls [but at least it won't busyloop, and won't
+trigger racing on unshare(2) error]).
+
+P.S. that said, for me, on debian's 3.16.7-ckt* kernel, `touch foo && unshare
+--mount=foo` still fails with EINVAL (with either unpatched git master
+or with this patch), so consider this as "compile-tested only".
+
+> (That said, pretty unlikely, and no idea how to properly fix it).
+>
+
+--=-=-=
+Content-Type: text/x-diff
+Content-Disposition: inline;
+ filename=0001-unshare-fix-busyloop-and-reduce-racing-probability.patch
+
+>From 64d1e9d905455b8177d65ad58ca2b403bbe8222c Mon Sep 17 00:00:00 2001
+From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+Date: Sat, 30 Jan 2016 16:18:39 +0300
+Subject: [PATCH] unshare: fix busyloop and reduce racing probability
+
+Replace busy-loop with waiting on pipe from parent.
+
+Note: reduces racing probability, but still there are window where
+it is possible (if parent unshare process will be [externally] killed
+between successful read(fds[0]) and mount() calls).
+
+Signed-off-by: Yuriy M. Kaminskiy <yumkam@gmail.com>
 ---
- libfdisk/src/gpt.c | 1 +
- 1 file changed, 1 insertion(+)
+ sys-utils/unshare.c | 49 ++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 40 insertions(+), 9 deletions(-)
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index 607cb32..8289ac4 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -196,6 +196,7 @@ static struct fdisk_parttype gpt_parttypes[] =3D
-        DEF_GUID("69DAD710-2CE4-4E3C-B16C-21A1D49ABED3", N_("Linux
-root (ARM)")),
-        DEF_GUID("4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709", N_("Linux
-root (x86-64)")),
-        DEF_GUID("B921B045-1DF0-41C3-AF44-4C6F280D3FAE", N_("Linux root
-(ARM-64)")),
-+       DEF_GUID("993D8D3D-F80E-4225-855A-9DAF8ED7EA97", N_("Linux root
-(IA-64)")),
-        DEF_GUID("8DA63339-0007-60C0-C436-083AC8230908", N_("Linux
-reserved")),
-        DEF_GUID("933AC7E1-2EB4-4F13-B844-0E14E2AEF915", N_("Linux
-home")),
-        DEF_GUID("A19D880F-05FC-4D3B-A006-743F0F84911E", N_("Linux
-RAID")),
---=20
-2.6.4
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 7482a8b..bf4f6d2 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -199,27 +199,50 @@ static ino_t get_mnt_ino(pid_t pid)
+ 	return st.st_ino;
+ }
+ 
+-static void bind_ns_files_from_child(pid_t *child)
++static void bind_ns_files_from_child(pid_t *child, int fds[2])
+ {
+ 	pid_t ppid = getpid();
+ 	ino_t ino = get_mnt_ino(ppid);
+ 
++	if (pipe(fds) < 0)
++		err(EXIT_FAILURE, _("pipe failed"));
++
+ 	*child = fork();
+ 
+ 	switch(*child) {
+ 	case -1:
+ 		err(EXIT_FAILURE, _("fork failed"));
+ 	case 0:	/* child */
+-		do {
+-			/* wait until parent unshare() */
+-			ino_t new_ino = get_mnt_ino(ppid);
+-			if (ino != new_ino)
+-				break;
+-		} while (1);
++		close(fds[1]);
++		fds[1] = -1;
++		/* wait for parent */
++		for (;;) {
++			char ch = -1;
++
++			switch(read(fds[0], &ch, 1)) {
++			case -1:
++				if (errno == EINTR)
++					continue;
++				/* fallthrough */
++			default:
++				err(EXIT_FAILURE, _("pipe read error"));
++			case 0: /* parent died? */
++				exit(EXIT_FAILURE);
++			case 1:
++				if (ch != 0)
++					exit(EXIT_FAILURE);
++				/* break loop*/;
++			}
++			break;
++		}
++		if (get_mnt_ino(ppid) == ino)
++			exit(EXIT_FAILURE);
+ 		bind_ns_files(ppid);
+ 		exit(EXIT_SUCCESS);
+ 		break;
+ 	default: /* parent */
++		close(fds[0]);
++		fds[0] = -1;
+ 		break;
+ 	}
+ }
+@@ -288,6 +311,7 @@ int main(int argc, char *argv[])
+ 	int c, forkit = 0, maproot = 0;
+ 	const char *procmnt = NULL;
+ 	pid_t pid = 0;
++	int fds[2];
+ 	int status;
+ 	unsigned long propagation = UNSHARE_PROPAGATION_DEFAULT;
+ 	uid_t real_euid = geteuid();
+@@ -358,16 +382,23 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	if (npersists && (unshare_flags & CLONE_NEWNS))
+-		bind_ns_files_from_child(&pid);
++		bind_ns_files_from_child(&pid, fds);
+ 
+ 	if (-1 == unshare(unshare_flags))
+ 		err(EXIT_FAILURE, _("unshare failed"));
+ 
+ 	if (npersists) {
+ 		if (pid && (unshare_flags & CLONE_NEWNS)) {
+-			/* wait for bind_ns_files_from_child() */
+ 			int rc;
++			char ch = 0;
++
++			/* signal child we are ready */
++			while (write(fds[1], &ch, 1) == -1 && errno == EINTR)
++				;
++			close(fds[1]);
++			fds[1] = -1;
+ 
++			/* wait for bind_ns_files_from_child() */
+ 			do {
+ 				rc = waitpid(pid, &status, 0);
+ 				if (rc < 0) {
+-- 
+2.1.4
 
 
+--=-=-=--
 
-
---ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJWjuFqAAoJEMspy1GSK50UF/YQAKGpDbsiUSzdGxwyiRbY1ji5
-QZ/mhrUvsNY7B5B1TRIcK54e2lZBVtaxy1p4JOLBxaZwm6HaXRHX5BxUqFKCEoxW
-srJYr+LzulE/Quh6F0jGmrqp0gA3tlknszoIcANPu8jCOYTVQBmNGpb/TxRR2Lgn
-DWwfg9f88JxPbCWRPdkbIm7DakAKtWsnphCzVhX/RTQ81+UiIHa9WHn6mkvxWe8C
-HF4ufc9jJ+znCtOApJHYb95L9cYUdLnVBTU+0ewMQJbKG1i2CpcnfSdxkQvj5vGT
-YxHKPys46qe/7dZ9z4XNnal3kZTeW2r/6t0eBGZ/1LUi4cj7Pp/QYI7GMILsdd0Y
-NAA9IEoi1KrYdosKpeOtZnBeoiRZqLZlEldEEzUxX3gWWq/U10QMzMSMjGFyhjdY
-3gT8s24TgnbQpnJIzdHMzJNRxA6loltJyEdTta0kdtijKtqmrhACBP4yjLF/1Mdh
-9G/gmMzW56q7NcSfowHS6XIFmWaOdnfT/fqTTAkqDXY5Q8GxRn4kR5zmrAqH8A/0
-3zReE5RxEYnYaWE5/2VBVb06d3XR0WvX6OYx75xdl7oCoSaxmUdu2WwV0x0UtlcF
-wUDWrmSy+DCzO3v/u5DMbhpNgvP/xNniOsgJRCPxkYg6RcYy85L4fvu3M6urtSEM
-dH5nb48tOQf/MTHeqJ1S
-=voDl
------END PGP SIGNATURE-----
-
---ibqmR0Q9gM3gfBmAEEOkS3AcS9D3uLHGF--
