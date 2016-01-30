@@ -1,118 +1,125 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from a.ns.miles-group.at ([95.130.255.143]:11949 "EHLO radon.swed.at"
+Received: from plane.gmane.org ([80.91.229.3]:45685 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752459AbcAOATI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jan 2016 19:19:08 -0500
-Subject: Re: Bad interaction between in.telnetd and login
-To: Hua Zhong <hzhong@gmail.com>, kzak@redhat.com, util-linux@vger.kernel.org,
-        One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-References: <CAHL05WPD5tfBcHamDn+tUSt7WG=WhfuL126eEkmnXqNn+eO3wQ@mail.gmail.com>
-From: Richard Weinberger <richard@nod.at>
-Message-ID: <56983AF7.3040703@nod.at>
-Date: Fri, 15 Jan 2016 01:19:03 +0100
-MIME-Version: 1.0
-In-Reply-To: <CAHL05WPD5tfBcHamDn+tUSt7WG=WhfuL126eEkmnXqNn+eO3wQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+	id S1754203AbcA3Dwt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 29 Jan 2016 22:52:49 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1aPMab-0006i2-Hr
+	for util-linux@vger.kernel.org; Sat, 30 Jan 2016 04:52:45 +0100
+Received: from ppp37-190-56-5.pppoe.spdop.ru ([37.190.56.5])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 30 Jan 2016 04:52:45 +0100
+Received: from yumkam by ppp37-190-56-5.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Sat, 30 Jan 2016 04:52:45 +0100
+To: util-linux@vger.kernel.org
+From: yumkam@gmail.com (Yuriy M. Kaminskiy)
+Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
+Date: Sat, 30 Jan 2016 06:52:36 +0300
+Message-ID: <m31t8zhgfv.fsf@gmail.com>
+References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
+	<1428578536-31603-2-git-send-email-kzak@redhat.com>
+	<87bnix6xj6.fsf@x220.int.ebiederm.org>
+	<20150410081733.GM3923@ws.net.home>
+Mime-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Adding more gnomes into the loop. ;-)
+Karel Zak <kzak@redhat.com> writes:
 
-Am 15.01.2016 um 00:29 schrieb Hua Zhong:
-> [resend as pain text mode]
-> 
-> Hi,
-> 
-> While working on Fedora 18, we found that sometimes telnetd would
-> close connections unexpectedly:
-> 
-> Trying 172.24.17.14...
-> Connected to 172.24.17.14.
-> Escape character is '^]'.
-> Connection closed by foreign host.
-> 
-> in.telnetd runs login as its subprocess and communicates with it
-> through the pty master/slave descriptors. Initially reading the pty
-> master might return EIO, until the slave is ready. But if it gets EIO
-> after having read valid data, it breaks out.
-> 
-> What I find is that in.telnetd would sometimes get something like this
-> (25646 is login, and 25645 is telnetd) - getting EIO after reading
-> something:
-> 
-> 25646 ioctl(0, SNDCTL_TMR_START or SNDRV_TIMER_IOCTL_TREAD or TCSETS,
-> {B9600 opost isig icanon echo ...}) = 0
-> 25646 ioctl(0, SNDCTL_TMR_TIMEBASE or SNDRV_TIMER_IOCTL_NEXT_DEVICE or
-> TCGETS, {B9600 opost isig icanon echo ...}) = 0
-> 25646 close(0)                          = 0
-> 25646 close(1)                          = 0
-> 25646 close(2)                          = 0
-> 25645 <... select resumed> )            = 1 (in [3])
-> 25646 rt_sigaction(SIGHUP, {SIG_IGN, [HUP], SA_RESTART},  <unfinished ...>
-> 25645 read(3,  <unfinished ...>
-> 25646 <... rt_sigaction resumed> {SIG_IGN, [], 0}, 8) = 0
-> 25645 <... read resumed> 0xf77a91c0, 8192) = -1 EIO (Input/output error)
-> 25646 vhangup( <unfinished ...>
-> 25645 select(4, [0 3], [], [0], NULL)   = 1 (in [3])
-> 25645 read(3, "\3", 8192)               = 1
-> 25645 select(1, [0], [0], [0], NULL)    = 1 (out [0])
-> 25645 send(0, "\377", 1, MSG_OOB)       = 1
-> 25645 select(1, [0], [0], [0], NULL)    = 1 (out [0])
-> 25645 write(0, "\362", 1)               = 1
-> 25645 select(4, [0 3], [], [0], NULL)   = 1 (in [3])
-> 25645 read(3, 0xf77a91c0, 8192)         = -1 EIO (Input/output error)
-> <-- this is fatal
-> 
-> This used to work at least in fc14, but in fc18 it seems broken. It
-> happens intermittently.
-> 
-> The following thread caught my eye
-> 
-> https://lkml.org/lkml/2012/6/4/495
-> 
-> After removing the three close() functions before vhangup(), this
-> problem seems to go away. I suspect that this change caused bad
-> interaction between in.telnetd and login. The extra closes seem to
-> introduce EIO after something can be read from the pty master
-> descriptor. Now, you can argue that the bug should be in in.telnetd,
-> but I am not sure we want to break all the applications that depend on
-> the old login behavior.
-> 
-> I'd like to raise it to your attention and hear what you think the right fix is.
-> 
-> Hua Zhong
-> 
-> PS: Attached is the code snippet in login.c:
-> 
->         tcgetattr(0, &tt);
->         ttt = tt;
->         ttt.c_cflag &= ~HUPCL;
-> 
->         if ((fchown(0, 0, 0) || fchmod(0, cxt->tty_mode)) && errno != EROFS) {
-> 
->                 syslog(LOG_ERR, _("FATAL: %s: change permissions failed: %m"),
->                                 cxt->tty_path);
->                 sleepexit(EXIT_FAILURE);
->         }
-> 
->         /* Kill processes left on this tty */
->         tcsetattr(0, TCSANOW, &ttt);
-> 
->         /*
->          * Let's close file decriptors before vhangup
->          * https://lkml.org/lkml/2012/6/5/145
->          */
->         close(STDIN_FILENO);
->         close(STDOUT_FILENO);
->         close(STDERR_FILENO);
-> 
->         signal(SIGHUP, SIG_IGN);        /* so vhangup() wont kill us */
->         vhangup();
->         signal(SIGHUP, SIG_DFL);
-> 
->         /* open stdin,stdout,stderr to the tty */
->         open_tty(cxt->tty_path);
-> 
->         /* restore tty modes */
->         tcsetattr(0, TCSAFLUSH, &tt);
-> 
+(this was commited as c84f2590dfdb8570beeb731e0105f8fe597443d1)
+
+> +static void bind_ns_files_from_child(pid_t *child)
+> +{
+> +	pid_t ppid = getpid();
+> +	ino_t ino = get_mnt_ino(ppid);
+> +
+> +	*child = fork();
+> +
+> +	switch(*child) {
+> +	case -1:
+> +		err(EXIT_FAILURE, _("fork failed"));
+> +	case 0:	/* child */
+> +		do {
+> +			/* wait until parent unshare() */
+> +			ino_t new_ino = get_mnt_ino(ppid);
+> +			if (ino != new_ino)
+> +				break;
+> +		} while (1);
+
+Racing? Suppose, parent died (e.g. unshare(2) failed), (parent) process
+was reaped, new (unrelated) process was created with same pid, as a
+result this function will bind namespaces from wrong process. (That
+said, pretty unlikely, and no idea how to properly fix it).
+
+> +		bind_ns_files(ppid);
+> +		exit(EXIT_SUCCESS);
+> +		break;
+> +	default: /* parent */
+> +		break;
+> +	}
+> +}
+> +
+>  static void usage(int status)
+>  {
+>  	FILE *out = status == EXIT_SUCCESS ? stdout : stderr;
+> @@ -248,6 +289,8 @@ int main(int argc, char *argv[])
+>  	int unshare_flags = 0;
+>  	int c, forkit = 0, maproot = 0;
+>  	const char *procmnt = NULL;
+> +	pid_t pid = 0;
+> +	int status;
+>  	unsigned long propagation = UNSHARE_PROPAGATION_DEFAULT;
+>  	uid_t real_euid = geteuid();
+>  	gid_t real_egid = getegid();;
+> @@ -316,12 +359,35 @@ int main(int argc, char *argv[])
+>  		}
+>  	}
+>  
+> +	if (npersists && (unshare_flags & CLONE_NEWNS))
+> +		bind_ns_files_from_child(&pid);
+> +
+>  	if (-1 == unshare(unshare_flags))
+>  		err(EXIT_FAILURE, _("unshare failed"));
+>  
+> +	if (npersists) {
+> +		if (pid && (unshare_flags & CLONE_NEWNS)) {
+> +			/* wait for bind_ns_files_from_child() */
+> +			int rc;
+> +
+> +			do {
+> +				rc = waitpid(pid, &status, 0);
+> +				if (rc < 0) {
+> +					if (errno == EINTR)
+> +						continue;
+> +					err(EXIT_FAILURE, _("waitpid failed"));
+> +				}
+> +				if (WIFEXITED(status) &&
+> +				    WEXITSTATUS(status) != EXIT_SUCCESS)
+> +					return WEXITSTATUS(status);
+> +			} while (rc < 0);
+> +		} else
+> +			/* simple way, just bind */
+> +			bind_ns_files(getpid());
+> +	}
+> +
+>  	if (forkit) {
+> -		int status;
+> -		pid_t pid = fork();
+> +		pid = fork();
+>  
+>  		switch(pid) {
+>  		case -1:
+> @@ -339,8 +405,6 @@ int main(int argc, char *argv[])
+>  		}
+>  	}
+>  
+> -	if (npersists)
+> -		bind_ns_files(getpid());
+>  
+>  	if (maproot) {
+>  		if (setgrpcmd == SETGROUPS_ALLOW)
+
