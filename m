@@ -1,117 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45511 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46241 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750919AbcBXJrD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 24 Feb 2016 04:47:03 -0500
-Date: Wed, 24 Feb 2016 10:47:00 +0100
+	id S1753671AbcBAMSQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 1 Feb 2016 07:18:16 -0500
+Date: Mon, 1 Feb 2016 13:18:11 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
-Subject: Re: [PATCH] logger: always update header when writing stdin line
-Message-ID: <20160224094700.rtvznqs6ljhu7ukx@ws.net.home>
-References: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org,
+        David =?utf-8?B?xaB0xJtyYmE=?= <dsterba@suse.cz>
+Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
+Message-ID: <20160201121811.tk3eqsr5x3w44p34@ws.net.home>
+References: <569FEF38.9010102@suse.cz>
+ <56A00178.9000603@suse.cz>
+ <56A002B3.5090505@suse.cz>
+ <20160121094833.67lg22o4la7j7pto@ws.net.home>
+ <56A15487.8020500@suse.cz>
+ <56AA240F.5010900@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <56AA240F.5010900@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 23, 2016 at 07:23:34PM +0000, Sami Kerola wrote:
-> Earlier separate inputs got the same timestamp even when input arrival was
-> ensured to happen at different second.
+On Thu, Jan 28, 2016 at 03:22:07PM +0100, Stanislav Brabec wrote:
+> Stanislav Brabec wrote:
+> >Known problems not covered by this patch:
+> >
+> >- Use of subvolid= in fstab is not yet handled.
 > 
-> $ (echo foo; sleep 1.1; echo bar) | logger -t baz --no-act -s
-> <13>Feb 23 19:21:08 baz: foo
-> <13>Feb 23 19:21:08 baz: bar
+> Patch already created, see mails:
+> [PATCH 1/2] libmount: run btrfs subvol checks for "subvolid" option
+> [PATCH 2/2] libmount: code re-indentation
+
+I did some changes to the code:
+
+ * use mnt_resolve_target() rather than mnt_resolve_spec() for target
+ * move all to get_btrfs_fs_root()
+ * make the basic if/else more readable
+
+Please, please, test it.
+
+It would be nice to have tests/ts/mount/btrfs with all the "mount -a"
+variants you have in commit messages.
+
+> >- mountinfo contains subvol and subvolid since kernel 4.2. Before kernel
+> >   4.2, there is no reasonable way to solve this situation. (One would
+> >   create temporary mount point, mount the default, call needed ioctl() to
+> >   determine what was mounted, deduce the default subvolume, compare it
+> >   with subvolume of mounted volume, unmount and return result.)
 > 
-> Addresses: http://bugs.debian.org/798239
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  misc-utils/logger.c | 1 +
->  1 file changed, 1 insertion(+)
+> There is no reasonable way to detect whether default subvolume was mounted.
 > 
-> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-> index e439266..105426c 100644
-> --- a/misc-utils/logger.c
-> +++ b/misc-utils/logger.c
-> @@ -949,6 +949,7 @@ static void logger_stdin(struct logger_ctl *ctl)
->  			c = getchar();
->  		}
->  		buf[i] = '\0';
-> +		generate_syslog_header(ctl);
->  
->  		if (i > 0 || !ctl->skip_empty_lines)
->  			write_output(ctl, buf);
+> In case of mounting with subvolid, there is a way to detect subvolume path
+> even before kernel 4.2: If mountinfo lookup fails, then use
+> btrfs_get_default_subvolume_path(). (See my mail dated
+> Thu, 21 Jan 2016 18:24:59 +0100 in this thread.) However fix is possible
+> here, I have no plan to extent
+> [PATCH 1/2] libmount: run btrfs subvol checks for "subvolid" option
+> and implement it. It would be a fix of obscure situation in a kernel with
+> unfixable issues of more common cases.
 
+You know, perfect is the enemy of good :-)
 
-Not sure about this patch
-
- * it would be better to generate header if we really want to write
-   the message (see condition with skip_empty_lines)
-
- * after priority change we will generated the header more than once
-
- * for the first message we generate header more than once (first time
-   in logger_open()
-
-
-I have applied the patch below.
-
+Thanks
     Karel
 
-
->From 7db029e54a4c0fdab43e8f645e4f91314747887c Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Wed, 24 Feb 2016 10:40:08 +0100
-Subject: [PATCH] logger: always update header when writing stdin line
-
-Addresses: http://bugs.debian.org/798239
-Reported-by: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Karel Zak <kzak@redhat.com>
----
- misc-utils/logger.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index e439266..1e893a9 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -905,6 +905,11 @@ static void logger_command_line(const struct logger_ctl *ctl, char **argv)
- 
- static void logger_stdin(struct logger_ctl *ctl)
- {
-+	/* note: we re-generate the the syslog header for each log message to
-+	 * update header timestamps and to reflect possible priority changes.
-+	 * The initial header is generated by logger_open().
-+	 */
-+	int has_header = 1;
- 	int default_priority = ctl->pri;
- 	int last_pri = default_priority;
- 	size_t max_usrmsg_size = ctl->max_message_size - strlen(ctl->hdr);
-@@ -935,7 +940,7 @@ static void logger_stdin(struct logger_ctl *ctl)
- 					ctl->pri = default_priority;
- 
- 				if (ctl->pri != last_pri) {
--					generate_syslog_header(ctl);
-+					has_header = 0;
- 					max_usrmsg_size = ctl->max_message_size - strlen(ctl->hdr);
- 					last_pri = ctl->pri;
- 				}
-@@ -950,8 +955,12 @@ static void logger_stdin(struct logger_ctl *ctl)
- 		}
- 		buf[i] = '\0';
- 
--		if (i > 0 || !ctl->skip_empty_lines)
-+		if (i > 0 || !ctl->skip_empty_lines) {
-+			if (!has_header)
-+				generate_syslog_header(ctl);
- 			write_output(ctl, buf);
-+			has_header = 0;
-+		}
- 
- 		if (c == '\n')	/* discard line terminator */
- 			c = getchar();
 -- 
-2.4.3
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
