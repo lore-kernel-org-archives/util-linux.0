@@ -1,85 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:63482 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426397AbcBRNMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:12:53 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0MPDaC-1aaoEO2944-004OrD for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:52 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 09/15] include: check for sys/sysmacros.h
-Date: Thu, 18 Feb 2016 14:12:49 +0100
-Message-Id: <1455801169-10470-10-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+Received: from userp1040.oracle.com ([156.151.31.81]:48229 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932073AbcBAMNg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 1 Feb 2016 07:13:36 -0500
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        SCSI development list <linux-scsi@vger.kernel.org>,
+        Douglas Gilbert <dgilbert@interlog.com>
+Subject: Re: scsi_debug, iosize optimal < minimum
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <201601291131.29201.sweet_f_a@gmx.de>
+	<20160129113110.o76pvon3wormblgd@ws.net.home>
+	<201601291402.14306.sweet_f_a@gmx.de>
+	<201601291718.21185.sweet_f_a@gmx.de>
+Date: Mon, 01 Feb 2016 07:13:27 -0500
+In-Reply-To: <201601291718.21185.sweet_f_a@gmx.de> (Ruediger Meier's message
+	of "Fri, 29 Jan 2016 17:18:20 +0100")
+Message-ID: <yq1fuxcr5lk.fsf@sermon.lab.mkp.net>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>>>>> "Ruediger" == Ruediger Meier <sweet_f_a@gmx.de> writes:
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac             | 1 +
- disk-utils/fsck.cramfs.c | 2 ++
- disk-utils/raw.c         | 2 ++
- login-utils/login.c      | 2 ++
- 4 files changed, 7 insertions(+)
+Ruediger> I've noticed a possible problem with scsi_debug devices where
+Ruediger> optimal_io_size < minimum_io_size.
 
-diff --git a/configure.ac b/configure.ac
-index 17917af..969c2cc 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -238,6 +238,7 @@ AC_CHECK_HEADERS([ \
- 	sys/socket.h \
- 	sys/sockio.h \
- 	sys/stat.h \
-+	sys/sysmacros.h \
- 	sys/swap.h \
- 	sys/syscall.h \
- 	sys/time.h \
-diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
-index 6ca6094..7df5390 100644
---- a/disk-utils/fsck.cramfs.c
-+++ b/disk-utils/fsck.cramfs.c
-@@ -53,7 +53,9 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/mman.h>
-+#ifdef HAVE_SYS_SYSMACROS_H
- #include <sys/sysmacros.h>	/* for major, minor */
-+#endif
- 
- #include "cramfs.h"
- #include "nls.h"
-diff --git a/disk-utils/raw.c b/disk-utils/raw.c
-index d29ff1b..6c4b6de 100644
---- a/disk-utils/raw.c
-+++ b/disk-utils/raw.c
-@@ -20,7 +20,9 @@
- #include <string.h>
- #include <sys/ioctl.h>
- #include <sys/stat.h>
-+#ifdef HAVE_SYS_SYSMACROS_H
- #include <sys/sysmacros.h>
-+#endif
- #include <unistd.h>
- 
- #include "c.h"
-diff --git a/login-utils/login.c b/login-utils/login.c
-index 6f51039..e1f11eb 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -48,7 +48,9 @@
- #include <utmp.h>
- #include <stdlib.h>
- #include <sys/syslog.h>
-+#ifdef HAVE_SYS_SYSMACROS_H
- #include <sys/sysmacros.h>
-+#endif
- #ifdef HAVE_LINUX_MAJOR_H
- # include <linux/major.h>
- #endif
+Ruediger> The problem seems reproducable with kernel 4.4.0 and also with
+Ruediger> stable version 4.1.15. For stable tree the last known working
+Ruediger> version is 4.1.13.
+
+http://git.kernel.org/cgit/linux/kernel/git/mkp/scsi.git/commit/?h=4.5/scsi-fixes&id=d0eb20a863ba7dc1d3f4b841639671f134560be2
+
 -- 
-1.8.4.5
-
+Martin K. Petersen	Oracle Linux Engineering
