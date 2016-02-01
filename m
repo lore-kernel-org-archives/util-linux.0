@@ -1,88 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:51145 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:38642 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751648AbcBURzS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 21 Feb 2016 12:55:18 -0500
-Received: from assos.lan ([84.185.150.84]) by mail.gmx.com (mrgmx002) with
- ESMTPSA (Nemesis) id 0M9b03-1afUBn1S7L-00CxRQ for
- <util-linux@vger.kernel.org>; Sun, 21 Feb 2016 18:55:16 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/4] lib/strutils: add more ERANGE messages
-Date: Sun, 21 Feb 2016 18:55:12 +0100
-Message-Id: <1456077314-17910-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1456077314-17910-1-git-send-email-sweet_f_a@gmx.de>
-References: <1456077314-17910-1-git-send-email-sweet_f_a@gmx.de>
+	id S1752226AbcBAKO1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 1 Feb 2016 05:14:27 -0500
+Date: Mon, 1 Feb 2016 11:14:25 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Zoltan <zoltan@z2zcorp.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: util-linux-2.27.1 - umount -a -O _netdev problem, _netdev ignored
+Message-ID: <20160201101425.6wlxyttw4ddewly2@ws.net.home>
+References: <56AD7FC5.3080902@z2zcorp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56AD7FC5.3080902@z2zcorp.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Sat, Jan 30, 2016 at 07:30:13PM -0800, Zoltan wrote:
+> There is a problem in the code of util-linux-2.27.1, in the umount binary.
+> 
+> The command
+> 
+> umount -a -O _netdev
+> 
+> does _not_ umount anything, despite an /etc/fstab with the likes of
+> 
+> ...
+> alpha:/var/mail       /var/mail      nfs _netdev,soft,tcp
+> ...
+> 
+> The "mount -a -O _netdev" command works as expected.  However, the
+> /run/mount/utab files is empty, and I was unable to get the "umount -a -O
+> _netdev" to work as advertised.  Running it with "--verbose" flag merely
+> confirmed that everything was being ": ignored".
+> 
+> I have a physical /etc/mtab (not symlink), and the "_netdev" option is missing
+> from /etc/mtab file, but that's probably expected???
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- lib/strutils.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+You need /etc/mtab *or* /run/mount/utab. It does not make sense to
+have both files. Use 'rm -rf /run/mount' or use the symlink.
 
-diff --git a/lib/strutils.c b/lib/strutils.c
-index 4e0f9cd..03a367b9 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -257,9 +257,10 @@ int16_t strtos16_or_err(const char *str, const char *errmesg)
- {
- 	int32_t num = strtos32_or_err(str, errmesg);
- 
--	if (num < INT16_MIN || num > INT16_MAX)
--		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
--
-+	if (num < INT16_MIN || num > INT16_MAX) {
-+		errno = ERANGE;
-+		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
-+	}
- 	return num;
- }
- 
-@@ -267,9 +268,10 @@ uint16_t strtou16_or_err(const char *str, const char *errmesg)
- {
- 	uint32_t num = strtou32_or_err(str, errmesg);
- 
--	if (num > UINT16_MAX)
--		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
--
-+	if (num > UINT16_MAX) {
-+		errno = ERANGE;
-+		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
-+	}
- 	return num;
- }
- 
-@@ -277,9 +279,10 @@ int32_t strtos32_or_err(const char *str, const char *errmesg)
- {
- 	int64_t num = strtos64_or_err(str, errmesg);
- 
--	if (num < INT32_MIN || num > INT32_MAX)
--		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
--
-+	if (num < INT32_MIN || num > INT32_MAX) {
-+		errno = ERANGE;
-+		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
-+	}
- 	return num;
- }
- 
-@@ -287,9 +290,10 @@ uint32_t strtou32_or_err(const char *str, const char *errmesg)
- {
- 	uint64_t num = strtou64_or_err(str, errmesg);
- 
--	if (num > UINT32_MAX)
--		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
--
-+	if (num > UINT32_MAX) {
-+		errno = ERANGE;
-+		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
-+	}
- 	return num;
- }
- 
+It's also important if you have /sbin/mount.nfs linked with libmount.
+I guess it's system without systemd.
+
+> If I manually add it (_netdev) to /etc/mtab, then the umount -a -O _netdev
+> does work.  But /run/mount/utab is empty.  Trying to step through the code
+
+It seems that the problem is not umount, but missing _netdev in mtab
+or utab.
+
+Suggestion:
+
+* cleanup your disk (use the symlink or regular mtab)
+* try "LIBMOUNT_DEBUG=all mount /var/mail" and verify that _netdev is
+  stored on the disk (mtab or utab)
+* if success try "LIBMOUNT_DEBUG=all umount -a -O _netdev"
+
+Note that for NFS we use mount.nfs from nfs-utils package and it has to
+be compiled with libmount, otherwise it does not store anything to utab
+and use mtab (if possible).
+
+On systems with systemd we use --enable-libmount-force-mountinfo where
+classic mtab is ignored at all.
+
+The env.variable LIBMOUNT_DEBUG=all is your good friend if you want to
+debug anything.
+
+    Karel
+
 -- 
-1.9.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
