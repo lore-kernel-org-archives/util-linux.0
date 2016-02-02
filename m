@@ -1,46 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:44645 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:42290 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932583AbcBBPES (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Feb 2016 10:04:18 -0500
-Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
-To: Karel Zak <kzak@redhat.com>
-References: <569FEF38.9010102@suse.cz> <56A00178.9000603@suse.cz>
- <56A002B3.5090505@suse.cz> <20160121094833.67lg22o4la7j7pto@ws.net.home>
- <56A15487.8020500@suse.cz> <56AA240F.5010900@suse.cz>
- <20160201121811.tk3eqsr5x3w44p34@ws.net.home> <56AF7BE9.4000302@suse.cz>
- <20160202101139.hayiqqbzvseiocdw@ws.net.home>
-Cc: util-linux@vger.kernel.org,
-        =?UTF-8?B?RGF2aWQgxaB0xJtyYmE=?= <dsterba@suse.cz>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56B0C570.30804@suse.cz>
-Date: Tue, 2 Feb 2016 16:04:16 +0100
+	id S1754616AbcBBKOX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Feb 2016 05:14:23 -0500
+Date: Tue, 2 Feb 2016 11:14:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
+Message-ID: <20160202101421.5gacl352rb4ajhjz@ws.net.home>
+References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
+ <1428578536-31603-2-git-send-email-kzak@redhat.com>
+ <87bnix6xj6.fsf@x220.int.ebiederm.org>
+ <20150410081733.GM3923@ws.net.home>
+ <m31t8zhgfv.fsf@gmail.com>
+ <m3twlvfb39.fsf@gmail.com>
+ <20160201104114.5iv5hznaslpi2xkz@ws.net.home>
+ <m3mvrkfqoc.fsf@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160202101139.hayiqqbzvseiocdw@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <m3mvrkfqoc.fsf@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Mon, Feb 01, 2016 at 04:38:17PM +0100, Stanislav Brabec wrote:
+On Mon, Feb 01, 2016 at 05:31:15PM +0300, Yuriy M. Kaminskiy wrote:
+> Karel Zak <kzak@redhat.com> writes:
+> 
+> > On Sat, Jan 30, 2016 at 04:31:06PM +0300, Yuriy M. Kaminskiy wrote:
+> >> >> +	case 0:	/* child */
+> >> >> +		do {
+> >> >> +			/* wait until parent unshare() */
+> >> >> +			ino_t new_ino = get_mnt_ino(ppid);
+> >> >> +			if (ino != new_ino)
+> >> >> +				break;
+> >> >> +		} while (1);
+> >> >
+> >> > Racing? Suppose, parent died (e.g. unshare(2) failed), (parent) process
+> >> > was reaped, new (unrelated) process was created with same pid, as a
+> >> > result this function will bind namespaces from wrong process.
+> >> 
+> >> ... besides, this is a busyloop, if "imposer process" is in same mnt
+> >> namespace as original process, it will occupy CPU forever (and this *is*
+> >
+> > Would be possible to use any lightweight solution rather than
+> > pipe()+read/write(), for example use sigtimedwait() in child and
+> > kill() in parent?
+> 
+> With my patch, if parent dies, child is automatically awoken (got EOF and
+> cleanly exit). With signals, it is not.
+> (Besides, it is not easy to set up without introducing more racing.)
 
->> By the way, I am just fixing next btrfs issue. Now it is in blkid. And it
->> seems, that I will need some changes in the code: move the btrfs default
->> subvol function into the public API, and change it to return the subvolid
->> string.
->
-> Why we need the function in public API?
+OK, fair enough.
 
-Because lsblk does not have access to libmount private functions.
+  Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
