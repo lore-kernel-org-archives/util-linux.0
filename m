@@ -1,55 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:50245 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:41640 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946087AbcBRNXW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:23:22 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0MCcOw-1afmUE18CY-009P25 for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:23:20 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 15/15] include: fix sys/sysinfo.h
-Date: Thu, 18 Feb 2016 14:23:19 +0100
-Message-Id: <1455801799-10970-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+	id S1754255AbcBBKLl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Feb 2016 05:11:41 -0500
+Date: Tue, 2 Feb 2016 11:11:39 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org,
+        David =?utf-8?B?xaB0xJtyYmE=?= <dsterba@suse.cz>
+Subject: Re: [PATCH] libmount: handle btrfs default subvolume mount
+Message-ID: <20160202101139.hayiqqbzvseiocdw@ws.net.home>
+References: <569FEF38.9010102@suse.cz>
+ <56A00178.9000603@suse.cz>
+ <56A002B3.5090505@suse.cz>
+ <20160121094833.67lg22o4la7j7pto@ws.net.home>
+ <56A15487.8020500@suse.cz>
+ <56AA240F.5010900@suse.cz>
+ <20160201121811.tk3eqsr5x3w44p34@ws.net.home>
+ <56AF7BE9.4000302@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56AF7BE9.4000302@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Feb 01, 2016 at 04:38:17PM +0100, Stanislav Brabec wrote:
+> Karel Zak wrote:
+> 
+> >I did some changes to the code:
+> >
+> >  * use mnt_resolve_target() rather than mnt_resolve_spec() for target
+> >  * move all to get_btrfs_fs_root()
+> >  * make the basic if/else more readable
+> 
+> By the way, I am just fixing next btrfs issue. Now it is in blkid. And it
+> seems, that I will need some changes in the code: move the btrfs default
+> subvol function into the public API, and change it to return the subvolid
+> string.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- lib/monotonic.c | 2 ++
- lib/timer.c     | 1 -
- 2 files changed, 2 insertions(+), 1 deletion(-)
+Why we need the function in public API?
 
-diff --git a/lib/monotonic.c b/lib/monotonic.c
-index 372cc9c..bb58e15 100644
---- a/lib/monotonic.c
-+++ b/lib/monotonic.c
-@@ -4,7 +4,9 @@
-  */
- #include <time.h>
- #include <signal.h>
-+#ifdef HAVE_SYSINFO
- #include <sys/sysinfo.h>
-+#endif
- #include <sys/time.h>
- 
- #include "c.h"
-diff --git a/lib/timer.c b/lib/timer.c
-index 0ad0cad..6265693 100644
---- a/lib/timer.c
-+++ b/lib/timer.c
-@@ -5,7 +5,6 @@
-  */
- #include <time.h>
- #include <signal.h>
--#include <sys/sysinfo.h>
- #include <sys/time.h>
- 
- #include "c.h"
+Add subvolume ID to the probing result is no problem. It's just 
+another NAME=value.
+
+> >It would be nice to have tests/ts/mount/btrfs with all the "mount -a"
+> >variants you have in commit messages.
+> 
+> Are there any rules/framework for such tests that need root and editing of
+> /etc/fstab?
+
+See for example tests/ts/mount/fstab-devname, 
+
+    ts_skip_nonroot  -- ignore the test for non-root user
+    ts_fstab_add     -- add line to the fstab
+
+the functions are implemented in tests/functions.sh
+
+> I think that use of losetup and /dev/loopX can be used for most testcases. I
+> am not sure about kernel partition table support inside loop devices.
+
+We use:
+    ts_device_init     -- for loop devies (uses truncate command)
+    ts_scsi_debug_init -- for devices by scsi_debug kernel module
+
+scsi_debug is better solution, because it's absolutely without any
+side effects, but it's based on RAM, so create 10GiB disk is bad idea :)
+
+For more details see tests/ts/* with many many examples.
+
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
