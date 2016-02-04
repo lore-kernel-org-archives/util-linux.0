@@ -1,35 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from userp1040.oracle.com ([156.151.31.81]:49898 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965281AbcBCWC3 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 3 Feb 2016 17:02:29 -0500
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        SCSI development list <linux-scsi@vger.kernel.org>,
-        Douglas Gilbert <dgilbert@interlog.com>
+Received: from mout.gmx.net ([212.227.15.18]:62711 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965201AbcBDKrR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 4 Feb 2016 05:47:17 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
 Subject: Re: scsi_debug, iosize optimal < minimum
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <201601291131.29201.sweet_f_a@gmx.de>
-	<201601291718.21185.sweet_f_a@gmx.de>
-	<yq1fuxcr5lk.fsf@sermon.lab.mkp.net>
-	<201602032255.44508.sweet_f_a@gmx.de>
-Date: Wed, 03 Feb 2016 17:02:19 -0500
-In-Reply-To: <201602032255.44508.sweet_f_a@gmx.de> (Ruediger Meier's message
-	of "Wed, 3 Feb 2016 22:55:44 +0100")
-Message-ID: <yq1a8nhlafo.fsf@sermon.lab.mkp.net>
+Date: Thu, 4 Feb 2016 11:47:09 +0100
+Cc: util-linux@vger.kernel.org
+References: <201601291131.29201.sweet_f_a@gmx.de> <201602032255.44508.sweet_f_a@gmx.de> <yq1a8nhlafo.fsf@sermon.lab.mkp.net>
+In-Reply-To: <yq1a8nhlafo.fsf@sermon.lab.mkp.net>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201602041147.09865.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->>>>> "Ruediger" == Ruediger Meier <sweet_f_a@gmx.de> writes:
+On Wednesday 03 February 2016, Martin K. Petersen wrote:
+> >>>>> "Ruediger" == Ruediger Meier <sweet_f_a@gmx.de> writes:
+>
+> Ruediger> In past (kernel<=4.1) optimal_io_size io size was 32768. Is
+> Ruediger> this really correct now?
+>
+> We recently bumped the scsi_debug optimal I/O size to something akin
+> to what real-world storage reports.
 
-Ruediger> In past (kernel<=4.1) optimal_io_size io size was 32768. Is
-Ruediger> this really correct now?
+Regarding these kernel changes I've send a pull request via github to 
+fix the tests:
+https://github.com/karelzak/util-linux/pull/272
 
-We recently bumped the scsi_debug optimal I/O size to something akin to
-what real-world storage reports.
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+cu,
+Rudi
