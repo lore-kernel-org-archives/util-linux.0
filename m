@@ -1,61 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:49463 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:59863 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426394AbcBRNMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:12:53 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0Lkwc9-1Zvgaf1KgH-00ajPK for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:52 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 08/15] lib: define LOGIN_NAME_MAX fallback
-Date: Thu, 18 Feb 2016 14:12:48 +0100
-Message-Id: <1455801169-10470-9-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+	id S1752211AbcBHMIu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Feb 2016 07:08:50 -0500
+Date: Mon, 8 Feb 2016 13:08:48 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: some quesion about test_uuidd
+Message-ID: <20160208120848.xno2uesyuyc4y4wh@ws.net.home>
+References: <201602081146.04421.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201602081146.04421.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Feb 08, 2016 at 11:46:04AM +0100, Ruediger Meier wrote:
+> Hi,
+> 
+> since 963f128c we are building test_uuidd in tests/helpers.
+> 
+> Where do we use test_uuidd at the moment?
 
-LOGIN_NAME_MAX was unused in misc-utils/namei.c since 04a5cb58.
+I don't think we use it, it's mostly for manual testing now.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- lib/idcache.c      | 4 ++++
- misc-utils/namei.c | 4 ----
- 2 files changed, 4 insertions(+), 4 deletions(-)
+> Because it breakes "configure --disable-libuuid we should guard the 
+> test_uuidd build either bei BUILD_LIBUUID or by BUILD_UUIDD. Maybe it 
+> should also be moved to misc-utils/ (where uuidd lives) or libuuid/src/ 
+> (where test_uuid lives). Opinions?
 
-diff --git a/lib/idcache.c b/lib/idcache.c
-index 4cb20fd..3c358b8 100644
---- a/lib/idcache.c
-+++ b/lib/idcache.c
-@@ -7,6 +7,10 @@
- #include "c.h"
- #include "idcache.h"
- 
-+#ifndef LOGIN_NAME_MAX
-+#define LOGIN_NAME_MAX 256
-+#endif
-+
- struct identry *get_id(struct idcache *ic, unsigned long int id)
- {
- 	struct identry *ent;
-diff --git a/misc-utils/namei.c b/misc-utils/namei.c
-index 576e3ef..df678e0 100644
---- a/misc-utils/namei.c
-+++ b/misc-utils/namei.c
-@@ -44,10 +44,6 @@
- #define MAXSYMLINKS 256
- #endif
- 
--#ifndef LOGIN_NAME_MAX
--#define LOGIN_NAME_MAX 256
--#endif
--
- #define NAMEI_NOLINKS	(1 << 1)
- #define NAMEI_MODES	(1 << 2)
- #define NAMEI_MNTS	(1 << 3)
+Yes, misc-utils/test_uuidd.c would be better place for the code.
+
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
