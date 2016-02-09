@@ -1,43 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:52608 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.15]:58342 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426386AbcBRNMw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:12:52 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0LfTVx-1aCEzi1zaL-00p3Gs for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:51 +0100
+	id S932725AbcBIRTc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 9 Feb 2016 12:19:32 -0500
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 04/15] build-sys: fix [g]libtoolize version for OSX
-Date: Thu, 18 Feb 2016 14:12:44 +0100
-Message-Id: <1455801169-10470-5-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: Configure fails on single builds
+Date: Tue, 9 Feb 2016 18:19:29 +0100
+Cc: "util-linux" <util-linux@vger.kernel.org>
+References: <56BA1630.7090106@gmx.com>
+In-Reply-To: <56BA1630.7090106@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201602091819.29558.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Tuesday 09 February 2016, J William Piggott wrote:
+> commit 15167589fb40be9479e1afe261bea0bf23b33a83 causing single
+> builds (other than chrt) to fail:
+>
+> ./configure --disable-all-programs --enable-hwclock
+>
+> conditional \"HAVE_SCHED_SETATTR\" was never defined.
+> Usually this means the macro was only invoked conditionally.
 
-follow-up 0024583c
+I have fixed it for me like this, quick and dirty:
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- autogen.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/autogen.sh b/autogen.sh
-index bfa46fe..116885b 100755
---- a/autogen.sh
-+++ b/autogen.sh
-@@ -75,7 +75,7 @@ if ! ($LIBTOOLIZE --version) < /dev/null > /dev/null 2>&1; then
- 	echo
- 	DIE=1
- else
--	ltver=$($LIBTOOLIZE --version | awk '/^libtoolize/ { print $4 }')
-+	ltver=$($LIBTOOLIZE --version | awk '/^[g]*libtoolize/ { print $4 }')
- 	ltver=${ltver:-"none"}
- 	test ${ltver##2.} = "$ltver" && {
- 		echo
--- 
-1.8.4.5
+diff --git a/configure.ac b/configure.ac
+index 4559573..cc9eb55 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1774,9 +1774,7 @@ UL_BUILD_INIT([chrt], [check])
+ UL_REQUIRES_BUILD([chrt], [schedutils])
+ AM_CONDITIONAL([BUILD_CHRT], [test "x$build_chrt" = xyes])
 
+-AS_IF([test "x$build_chrt" = xyes], [
+-       UL_CHECK_SYSCALL([sched_setattr])
+-])
++UL_CHECK_SYSCALL([sched_setattr])
+
+
+ AC_ARG_ENABLE([wall],
+
+
+cu,
+Rudi
