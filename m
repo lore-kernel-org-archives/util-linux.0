@@ -1,45 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:37372 "EHLO
-	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161328AbcBSVvF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Feb 2016 16:51:05 -0500
-Received: by mail-wm0-f44.google.com with SMTP id g62so89159325wme.0
-        for <util-linux@vger.kernel.org>; Fri, 19 Feb 2016 13:50:54 -0800 (PST)
-From: Romain Naour <romain.naour@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Romain Naour <romain.naour@gmail.com>
-Subject: [PATCH 1/2] build-sys: fix typo
-Date: Fri, 19 Feb 2016 22:50:47 +0100
-Message-Id: <1455918648-11430-1-git-send-email-romain.naour@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46216 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751335AbcBKJny (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 11 Feb 2016 04:43:54 -0500
+Date: Thu, 11 Feb 2016 10:43:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org, David Sterba <dsterba@suse.cz>
+Subject: Re: [PATCH] tests: add btrfs mount tests (fails!)
+Message-ID: <20160211094352.6ncnnirhyd4jjd34@ws.net.home>
+References: <56B0EEB2.1060707@suse.cz>
+ <56B10E38.7040407@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56B10E38.7040407@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-When timer_create is available have_timer must be
-set to "yes". But instead have_time is used.
+On Tue, Feb 02, 2016 at 09:14:48PM +0100, Stanislav Brabec wrote:
+> Stanislav Brabec wrote:
+> >Coverage:
+> 
+> I just found a bug in my testcase:
+> To prevent race bind-mnt has to be created in time of fs creation.
+> 
+>  btrfs subvol create s3 >/dev/null
+> +mkdir -p s3/bind-mnt
 
-Replace have_time by have_timer.
+So, this is enough to fix the testcase, right? I'd like to merge it.
 
-Fixes:
-http://autobuild.buildroot.net/results/993/9935cd0522d4f978ba2e788a690f66790686b76b
+    Karel
 
-Signed-off-by: Romain Naour <romain.naour@gmail.com>
----
- configure.ac | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/configure.ac b/configure.ac
-index 227ba25..961c1ab 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -402,7 +402,7 @@ AC_CHECK_FUNCS([clock_gettime], [],
- 
- have_timer="no"
- AC_CHECK_FUNCS([timer_create],
--	[have_time="yes"],
-+	[have_timer="yes"],
- 	[AC_CHECK_LIB([rt], [timer_create], [
- 		have_timer="yes"
- 		REALTIME_LIBS="-lrt"
 -- 
-2.5.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
