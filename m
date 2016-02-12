@@ -1,63 +1,76 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:58439 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932418AbcBAOb7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Feb 2016 09:31:59 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1aQFWE-0003sh-Lp
-	for util-linux@vger.kernel.org; Mon, 01 Feb 2016 15:31:54 +0100
-Received: from ppp37-190-56-5.pppoe.spdop.ru ([37.190.56.5])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 01 Feb 2016 15:31:49 +0100
-Received: from yumkam by ppp37-190-56-5.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 01 Feb 2016 15:31:49 +0100
-To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
-Date: Mon, 01 Feb 2016 17:31:15 +0300
-Message-ID: <m3mvrkfqoc.fsf@gmail.com>
-References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
-	<1428578536-31603-2-git-send-email-kzak@redhat.com>
-	<87bnix6xj6.fsf@x220.int.ebiederm.org>
-	<20150410081733.GM3923@ws.net.home> <m31t8zhgfv.fsf@gmail.com>
-	<m3twlvfb39.fsf@gmail.com>
-	<20160201104114.5iv5hznaslpi2xkz@ws.net.home>
-Mime-Version: 1.0
-Content-Type: text/plain
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 1/1] hwclock.c, hwclock.8.in: new --show format
+To: Karel Zak <kzak@redhat.com>
+References: <56BD2A87.30009@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <56BD2BE8.3030501@gmx.com>
+Date: Thu, 11 Feb 2016 19:48:40 -0500
+MIME-Version: 1.0
+In-Reply-To: <56BD2A87.30009@gmx.com>
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@redhat.com> writes:
 
-> On Sat, Jan 30, 2016 at 04:31:06PM +0300, Yuriy M. Kaminskiy wrote:
->> >> +	case 0:	/* child */
->> >> +		do {
->> >> +			/* wait until parent unshare() */
->> >> +			ino_t new_ino = get_mnt_ino(ppid);
->> >> +			if (ino != new_ino)
->> >> +				break;
->> >> +		} while (1);
->> >
->> > Racing? Suppose, parent died (e.g. unshare(2) failed), (parent) process
->> > was reaped, new (unrelated) process was created with same pid, as a
->> > result this function will bind namespaces from wrong process.
->> 
->> ... besides, this is a busyloop, if "imposer process" is in same mnt
->> namespace as original process, it will occupy CPU forever (and this *is*
->
-> Would be possible to use any lightweight solution rather than
-> pipe()+read/write(), for example use sigtimedwait() in child and
-> kill() in parent?
+* hwclock.c: change --get and --show functions to the ISO 8601
+  format and concatenate fractional seconds to the time display.
 
-With my patch, if parent dies, child is automatically awoken (got EOF and
-cleanly exit). With signals, it is not.
-(Besides, it is not easy to set up without introducing more racing.)
+* hwclock.8.in: document this.
 
-> The ideal solution would be to have /proc/self/ns/<name> files poll()-able.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in |  8 +++-----
+ sys-utils/hwclock.c    | 16 +++++++++-------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-I'm not sure how it can fit with the way ns/<name> exposed by kernel
-currently (symlink to ns inode). (And more racing opportunities too).
-
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index d72b7a8..eddb864 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -88,16 +88,14 @@ command, such as \%'11\ minute\ mode' or from dual-booting another OS.
+ .TQ
+ .B \-\-get
+ .br
+-Read the Hardware Clock and print the time on standard output.
++Read the Hardware Clock and print its time to standard output in the
++.B ISO 8601
++format.
+ The time shown is always in local time, even if you keep your Hardware Clock
+ in UTC.  See the
+ .B \%\-\-localtime
+ option.
+ .sp
+-The time shown is in same format as that of 
+-.BR \%date (1)
+-by default, and additionally, the number of microseconds is shown.
+-.sp 
+ Showing the Hardware Clock time is the default when no function is specified.
+ .sp
+ The
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 2eb21ac..6f14081 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -687,13 +687,15 @@ display_time(const bool hclock_valid, struct timeval hwctime)
+ 		       "either invalid (e.g. 50th day of month) or beyond the range "
+ 		       "we can handle (e.g. Year 2095)."));
+ 	else {
+-		struct tm *lt;
+-		char *format = "%c";
+-		char ctime_now[200];
+-
+-		lt = localtime(&hwctime.tv_sec);
+-		strftime(ctime_now, sizeof(ctime_now), format, lt);
+-		printf(_("%s and %06d microseconds\n"), ctime_now, (int)hwctime.tv_usec);
++		struct tm lt;
++		int zhour, zmin;
++
++		lt = *localtime(&hwctime.tv_sec);
++		zhour = - timezone / 60 / 60;
++		zmin = abs(timezone / 60 % 60);
++		printf(_("%4d-%.2d-%.2d %02d:%02d:%02d.%06d%+02d:%02d\n"),
++		       lt.tm_year + 1900, lt.tm_mon + 1, lt.tm_mday, lt.tm_hour,
++		       lt.tm_min, lt.tm_sec, (int)hwctime.tv_usec, zhour, zmin);
+ 	}
+ }
+ 
