@@ -1,66 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:59001 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:47524 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946042AbcBRNWU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:22:20 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0Lurin-1Znwvj32C9-0108LZ for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:22:18 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 10/15] include: remove unused mntent.h
-Date: Thu, 18 Feb 2016 14:22:17 +0100
-Message-Id: <1455801737-10715-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+	id S1751102AbcBLKK7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Feb 2016 05:10:59 -0500
+Date: Fri, 12 Feb 2016 11:10:57 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] tests: add test for loop option in fstab
+Message-ID: <20160212101057.kgzns7d5esr74hn2@ws.net.home>
+References: <56BCE4F4.6020409@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56BCE4F4.6020409@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Feb 11, 2016 at 08:45:56PM +0100, Stanislav Brabec wrote:
+>  tests/expected/mount/fstab-loop |  1 +
+>  tests/ts/mount/fstab-loop       | 51 +++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 52 insertions(+)
+>  create mode 100644 tests/expected/mount/fstab-loop
+>  create mode 100755 tests/ts/mount/fstab-loop
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- disk-utils/fsck.minix.c | 1 -
- disk-utils/mkfs.minix.c | 1 -
- disk-utils/mkswap.c     | 1 -
- 3 files changed, 3 deletions(-)
+ Applied, thanks. Don't fail now.
 
-diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
-index 3d73d49..2058a97 100644
---- a/disk-utils/fsck.minix.c
-+++ b/disk-utils/fsck.minix.c
-@@ -87,7 +87,6 @@
- #include <ctype.h>
- #include <stdlib.h>
- #include <termios.h>
--#include <mntent.h>
- #include <sys/stat.h>
- #include <signal.h>
- #include <getopt.h>
-diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
-index 4712772..b472242 100644
---- a/disk-utils/mkfs.minix.c
-+++ b/disk-utils/mkfs.minix.c
-@@ -64,7 +64,6 @@
- #include <stdlib.h>
- #include <termios.h>
- #include <sys/stat.h>
--#include <mntent.h>
- #include <getopt.h>
- #include <err.h>
- 
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index 22999da..ae02de5 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -14,7 +14,6 @@
- #include <fcntl.h>
- #include <stdlib.h>
- #include <limits.h>
--#include <mntent.h>
- #include <sys/utsname.h>
- #include <sys/stat.h>
- #include <errno.h>
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
