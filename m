@@ -1,106 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:56552 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:48110 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751668AbcBLP21 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Feb 2016 10:28:27 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
+	id S1751901AbcBLKHm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Feb 2016 05:07:42 -0500
+Date: Fri, 12 Feb 2016 11:07:40 +0100
+From: Karel Zak <kzak@redhat.com>
 To: Stanislav Brabec <sbrabec@suse.cz>
-Subject: Re: [PATCH] tests: add test for loop option in fstab
-Date: Fri, 12 Feb 2016 16:28:19 +0100
-Cc: util-linux@vger.kernel.org
-References: <56BCE4F4.6020409@suse.cz>
-In-Reply-To: <56BCE4F4.6020409@suse.cz>
+Cc: util-linux@vger.kernel.org, David Sterba <dsterba@suse.cz>
+Subject: Re: [PATCH] tests: add btrfs mount tests (fails!)
+Message-ID: <20160212100740.7lsjokq727klamz2@ws.net.home>
+References: <56B0EEB2.1060707@suse.cz>
+ <56B10E38.7040407@suse.cz>
+ <20160211094352.6ncnnirhyd4jjd34@ws.net.home>
+ <56BC9101.60908@suse.cz>
+ <56BCB813.5090300@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <201602121628.19968.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56BCB813.5090300@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 11 February 2016, Stanislav Brabec wrote:
-> Add a new fstab tests which check loop mount of the same source
-> multiple times in multiple steps.
->
-> The test is currently failing, but it should not fail once the
-> triggering bug will be fixed.
+On Thu, Feb 11, 2016 at 05:34:27PM +0100, Stanislav Brabec wrote:
+> Stanislav Brabec wrote:
+> >I am working on a subtest that will trigger it inside the test suite.
+> >
+> >I already have a possible fix for it, but I want to confirm that it is
+> >correct before sending it upstream.
+> >
+> I just have a reproducer of the new problem.
+> 
+> The newly found problem is not btrfs speficic:
+> 
+> echo "/ext4.img /ext4_mnt1 auto loop 0 0" >>/etc/fstab
+> mount -a
+> echo "/ext4.img /ext4_mnt2 auto loop 0 0" >>/etc/fstab
+> mount -a
+> mount
+> umount /ext4_mnt1 /ext4_mnt2
+> sed -i /ext4.img/d /etc/fstab
+> 
+> Result:
+> Nothing was mounted into /ext4_mnt2
+> 
+> (This is the problem with loop files in fstab, which I mentioned in my past
+> mails, but was not able to reproduce.)
 
-Will this be fixed quickly? Otherwise we should add
-  TS_KNOWN_FAIL="yes"
-to the test. Then you would still see it in the build log and test diff 
-but it wouldn't bother you with build error.
+Fixed. There was "break" rather than "continue" in the mnt_table_is_fs_mounted().
 
-> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
-> ---
->  tests/expected/mount/fstab-loop |  1 +
->  tests/ts/mount/fstab-loop       | 51
-> +++++++++++++++++++++++++++++++++++++++++ 2 files changed, 52
-> insertions(+)
->  create mode 100644 tests/expected/mount/fstab-loop
->  create mode 100755 tests/ts/mount/fstab-loop
->
-> diff --git a/tests/expected/mount/fstab-loop
-> b/tests/expected/mount/fstab-loop new file mode 100644
-> index 0000000..3582111
-> --- /dev/null
-> +++ b/tests/expected/mount/fstab-loop
-> @@ -0,0 +1 @@
-> +Success
-> diff --git a/tests/ts/mount/fstab-loop b/tests/ts/mount/fstab-loop
-> new file mode 100755
-> index 0000000..3178b95
-> --- /dev/null
-> +++ b/tests/ts/mount/fstab-loop
-> @@ -0,0 +1,51 @@
-> +#!/bin/bash
-> +
-> +#
-> +# Copyright (C) 2016 Stanislav Brabec <sbrabec@suse.cz>
-> +#
-> +# This file is part of util-linux.
-> +#
-> +# This file is free software; you can redistribute it and/or modify
-> +# it under the terms of the GNU General Public License as published
-> by +# the Free Software Foundation; either version 2 of the License,
-> or +# (at your option) any later version.
-> +#
-> +# This file is distributed in the hope that it will be useful,
-> +# but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> +# GNU General Public License for more details.
-> +#
-> +TS_TOPDIR="${0%/*}/../.."
-> +TS_DESC="loop (fstab)"
-> +
-> +. $TS_TOPDIR/functions.sh
-> +ts_init "$*"
-> +
-> +ts_check_test_command "$TS_CMD_MOUNT"
-> +ts_check_test_command "$TS_CMD_UMOUNT"
-> +
-> +ts_skip_nonroot
-> +ts_check_losetup
-> +ts_check_prog "mkfs.ext3"
-> +
-> +IMG=$(ts_image_init)
-> +
-> +mkfs.ext3 $IMG &> /dev/null || ts_die "Cannot make ext3 on $DEVICE"
-> +
-> +[ -d "$TS_MOUNTPOINT-1" ] || mkdir -p $TS_MOUNTPOINT-1
-> +[ -d "$TS_MOUNTPOINT-2" ] || mkdir -p $TS_MOUNTPOINT-2
-> +
-> +ts_fstab_add "$IMG" "$TS_MOUNTPOINT-1" "ext3" "loop"
-> +$TS_CMD_MOUNT -a >> $TS_OUTPUT 2>&1
-> +
-> +ts_fstab_add "$IMG" "$TS_MOUNTPOINT-2" "ext3" "loop"
-> +$TS_CMD_MOUNT -a >> $TS_OUTPUT 2>&1
-> +
-> +$TS_CMD_UMOUNT "$TS_MOUNTPOINT-1" >> $TS_OUTPUT 2>&1
-> +$TS_CMD_UMOUNT "$TS_MOUNTPOINT-2" >> $TS_OUTPUT 2>&1
-> +
-> +ts_fstab_clean
-> +
-> +ts_log "Success"
-> +ts_finalize
-> +
-> --
-> 2.7.0
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
