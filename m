@@ -1,44 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:33492 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754201AbcBWTXj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 23 Feb 2016 14:23:39 -0500
-Received: by mail-wm0-f49.google.com with SMTP id g62so215199710wme.0
-        for <util-linux@vger.kernel.org>; Tue, 23 Feb 2016 11:23:38 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.15.15]:62021 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751204AbcBLQXW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Feb 2016 11:23:22 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
+ with ESMTPSA (Nemesis) id 0MEnX8-1aENFK1Z74-00FzdA for
+ <util-linux@vger.kernel.org>; Fri, 12 Feb 2016 17:23:20 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] logger: always update header when writing stdin line
-Date: Tue, 23 Feb 2016 19:23:34 +0000
-Message-Id: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] tests: mkfs.ext3 image-file needs option -F
+Date: Fri, 12 Feb 2016 17:23:18 +0100
+Message-Id: <1455294198-25046-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <201507021206.47499.sweet_f_a@gmx.de>
+References: <201507021206.47499.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier separate inputs got the same timestamp even when input arrival was
-ensured to happen at different second.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-$ (echo foo; sleep 1.1; echo bar) | logger -t baz --no-act -s
-<13>Feb 23 19:21:08 baz: foo
-<13>Feb 23 19:21:08 baz: bar
+Maybe on newer systems it's not needed anymore.
 
-Addresses: http://bugs.debian.org/798239
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- misc-utils/logger.c | 1 +
- 1 file changed, 1 insertion(+)
+ tests/ts/mount/fstab-loop | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index e439266..105426c 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -949,6 +949,7 @@ static void logger_stdin(struct logger_ctl *ctl)
- 			c = getchar();
- 		}
- 		buf[i] = '\0';
-+		generate_syslog_header(ctl);
+diff --git a/tests/ts/mount/fstab-loop b/tests/ts/mount/fstab-loop
+index 3178b95..9e17943 100755
+--- a/tests/ts/mount/fstab-loop
++++ b/tests/ts/mount/fstab-loop
+@@ -30,7 +30,7 @@ ts_check_prog "mkfs.ext3"
  
- 		if (i > 0 || !ctl->skip_empty_lines)
- 			write_output(ctl, buf);
+ IMG=$(ts_image_init)
+ 
+-mkfs.ext3 $IMG &> /dev/null || ts_die "Cannot make ext3 on $DEVICE"
++mkfs.ext3 -F $IMG &> /dev/null || ts_die "Cannot make ext3 on $IMG"
+ 
+ [ -d "$TS_MOUNTPOINT-1" ] || mkdir -p $TS_MOUNTPOINT-1
+ [ -d "$TS_MOUNTPOINT-2" ] || mkdir -p $TS_MOUNTPOINT-2
 -- 
-2.7.1
+1.8.4.5
 
