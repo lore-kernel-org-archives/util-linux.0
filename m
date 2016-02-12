@@ -1,50 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45825 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:55891 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964898AbcBQNHc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Feb 2016 08:07:32 -0500
-Date: Wed, 17 Feb 2016 14:07:30 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
-Message-ID: <20160217130730.s54rcv65vygikurg@ws.net.home>
-References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
- <1428578536-31603-2-git-send-email-kzak@redhat.com>
- <87bnix6xj6.fsf@x220.int.ebiederm.org>
- <20150410081733.GM3923@ws.net.home>
- <m31t8zhgfv.fsf@gmail.com>
- <m3twlvfb39.fsf@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <m3twlvfb39.fsf@gmail.com>
+	id S1751724AbcBLQ2L (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Feb 2016 11:28:11 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] tests: mkfs.ext3 image-file needs option -F
+Date: Fri, 12 Feb 2016 17:28:04 +0100
+Message-Id: <1455294484-25186-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <201602121723.09217.sweet_f_a@gmx.de>
+References: <201602121723.09217.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 30, 2016 at 04:31:06PM +0300, Yuriy M. Kaminskiy wrote:
-> From 64d1e9d905455b8177d65ad58ca2b403bbe8222c Mon Sep 17 00:00:00 2001
-> From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-> Date: Sat, 30 Jan 2016 16:18:39 +0300
-> Subject: [PATCH] unshare: fix busyloop and reduce racing probability
-> 
-> Replace busy-loop with waiting on pipe from parent.
-> 
-> Note: reduces racing probability, but still there are window where
-> it is possible (if parent unshare process will be [externally] killed
-> between successful read(fds[0]) and mount() calls).
-> 
-> Signed-off-by: Yuriy M. Kaminskiy <yumkam@gmail.com>
-> ---
->  sys-utils/unshare.c | 49 ++++++++++++++++++++++++++++++++++++++++---------
->  1 file changed, 40 insertions(+), 9 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
- Thanks, applied with small changes. 
+Maybe on newer systems it's not needed anymore.
+
+CC: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/mount/fstab-loop | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/ts/mount/fstab-loop b/tests/ts/mount/fstab-loop
+index 3178b95..9e17943 100755
+--- a/tests/ts/mount/fstab-loop
++++ b/tests/ts/mount/fstab-loop
+@@ -30,7 +30,7 @@ ts_check_prog "mkfs.ext3"
  
- I have used stuff from include/all-io.h (loops around read/write)
- to make code more readable.
-
-    Karel
-
+ IMG=$(ts_image_init)
+ 
+-mkfs.ext3 $IMG &> /dev/null || ts_die "Cannot make ext3 on $DEVICE"
++mkfs.ext3 -F $IMG &> /dev/null || ts_die "Cannot make ext3 on $IMG"
+ 
+ [ -d "$TS_MOUNTPOINT-1" ] || mkdir -p $TS_MOUNTPOINT-1
+ [ -d "$TS_MOUNTPOINT-2" ] || mkdir -p $TS_MOUNTPOINT-2
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
