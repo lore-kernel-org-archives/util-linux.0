@@ -1,40 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35768 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52383 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754258AbcBBKAm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Feb 2016 05:00:42 -0500
-Date: Tue, 2 Feb 2016 11:00:41 +0100
+	id S1750858AbcBLRJg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 12 Feb 2016 12:09:36 -0500
+Date: Fri, 12 Feb 2016 18:09:34 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: run btrfs subvol checks for "auto" fs type
-Message-ID: <20160202100040.6xhelhhq6oaxv7vk@ws.net.home>
-References: <56A7DE4B.5060308@suse.cz>
- <20160201111815.wilhso7klaiy6cio@ws.net.home>
- <56AF77BE.5030601@suse.cz>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org, Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH] tests: mkfs.ext3 image-file needs option -F
+Message-ID: <20160212170934.rta7c6n57usy4lck@ws.net.home>
+References: <201602121723.09217.sweet_f_a@gmx.de>
+ <1455294484-25186-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <56AF77BE.5030601@suse.cz>
+In-Reply-To: <1455294484-25186-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 01, 2016 at 04:20:30PM +0100, Stanislav Brabec wrote:
-> Karel Zak wrote:
-> >  It's safe, but "mount -a" is going to call the btrfs ioctl or each
-> >  "auto" fstab entry :-)
-> >
-> I am aware of it. Guessing what is more effective: search for all
-> candidates in mountinfo and checking whether it is btrfs, or blindly
-> issuing ioctl() that will:
-> - quickly fail with EINVAL for non-btrfs
-> - wil be needed for btrfs anyway
+On Fri, Feb 12, 2016 at 05:28:04PM +0100, Ruediger Meier wrote:
+>  tests/ts/mount/fstab-loop | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-I think the EINVAL based solution is good enough. It's one syscall, be
-smart in mountinfo (and canonicalize paths, etc.) is more expensive in
-some use-cases.
+ Applied, thanks.
 
     Karel
-
 
 -- 
  Karel Zak  <kzak@redhat.com>
