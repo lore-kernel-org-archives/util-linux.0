@@ -1,34 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34183 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:59021 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751779AbcBKLKR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Feb 2016 06:10:17 -0500
-Date: Thu, 11 Feb 2016 12:10:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+	id S1751246AbcBOLy2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 15 Feb 2016 06:54:28 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: tests: strange redirection
+Date: Mon, 15 Feb 2016 12:54:22 +0100
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] swapon: do not run execvp() calls when swapon is
- setuid binary
-Message-ID: <20160211111013.ah6atjvgwgwyeh77@ws.net.home>
-References: <1454420410-654-1-git-send-email-kerolasa@iki.fi>
- <1454420410-654-4-git-send-email-kerolasa@iki.fi>
+References: <56BCE1F6.9000805@suse.cz>
+In-Reply-To: <56BCE1F6.9000805@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1454420410-654-4-git-send-email-kerolasa@iki.fi>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <201602151254.22589.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 02, 2016 at 01:40:10PM +0000, Sami Kerola wrote:
-> swapon(8) is not expected to be setuid binary, but if it is try to avoid
-> obvious security vulnerability of executing user preferred mkswap file as
-> someone else, such as root.
+On Thursday 11 February 2016, Stanislav Brabec wrote:
+> I just found
+> 2>&1 >> $TS_OUTPUT
+> in many tests.
+>
+> I am not sure, whether it does what is expected:
+>
+> 2>&1 >> $TS_OUTPUT
+> which does:
+> Redirect stdout to $TS_OUTPUT and redirect stderr to stdout.
+>
+> I guess that it is most probably intended to be:
+> >> $TS_OUTPUT 2>&1
+>
+> which does:
+> Redirect stdout and stderr to $TS_OUTPUT.
+>
+> Here is a global fix:
+> cd tests/ts
+> sed -i 's:2>\&1 >> \$TS_OUTPUT:>> $TS_OUTPUT 2>\&1:g' $(fgrep -rl
+> '2>&1 >> $TS_OUTPUT' .)
+>
+> I ran a check, and it seems, that there could be some minor issues
+> in:
+>
+> MD raid1 (whole-disks)
+> mount-by-uuid
+> mount-flags
+> x-mount.mkdir
+> fstab-label
+> fstab-uuid
+>
+> The current version of redirection can cause false positive result of
+> the test.
 
-I have replaced this with code to drop permissions, so it executes
-mkswap, but as non-root and all depends on mkswap and file/device
-perms.
+I remember that one day I was also about to fix that redirections. But 
+after thinking about this for a while I've left it as it is. 
+Unfortunately I don't remember why :)
 
-    Karel
+Could be that sometimes we will get harmless warnings which should be 
+ignored. Also a minor advantage was that our mount tests could survive 
+running with LIBMOUNT_DEBUG=all.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Anyways, checking stderr too is IMO a good idea.
+
+BTW I would even like to add checking return values of any used commands 
+(not only for mount tests) like we did in 45eb5b29 for blkdiscard for 
+example.
+
+cu,
+Rudi
