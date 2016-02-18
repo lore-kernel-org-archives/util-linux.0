@@ -1,51 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34107 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:63475 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754467AbcBVKxU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 22 Feb 2016 05:53:20 -0500
-Date: Mon, 22 Feb 2016 11:53:18 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: add test for loop option in fstab
-Message-ID: <20160222105318.neop6yksmxl6a5ye@ws.net.home>
-References: <56BCE4F4.6020409@suse.cz>
- <56C75E7B.60407@suse.cz>
- <20160222101233.imyhujomel6ydin3@ws.net.home>
- <201602221129.22259.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201602221129.22259.sweet_f_a@gmx.de>
+	id S1946087AbcBRNXP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:23:15 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0M8eAd-1Zk5I21uzr-00wEIB for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:23:13 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 14/15] libblkid: don't include endian.h
+Date: Thu, 18 Feb 2016 14:23:12 +0100
+Message-Id: <1455801792-10921-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 22, 2016 at 11:29:21AM +0100, Ruediger Meier wrote:
-> On Monday 22 February 2016, Karel Zak wrote:
-> > Do you mean when /etc/mtab is a regular file? For btrfs we need fs
-> > root and this information is nowhere in mtab (and maybe another
-> > information related to subvolumes which we have in mountinfo).
-> >
-> > Not sure if we really need to support this complicated use-case with
-> > deprecated mtab.
-> 
-> I wonder what could be the reason why some admins manually setup mtab 
-> files eventhough their distro's default is to use a link to /proc.
-> 
-> For example on OBS (openSUSE build farm) they have always mtab files for 
-> any build host. Also travis is using files for Ubuntu 12.04 and 14.04.
-> 
-> Is there any good reason for this? Maybe it's better for docker 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-No reason, in the hell is special hot room where is "mtab users" 
-written by blood on the dark heavy doors...
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libblkid/src/superblocks/drbdmanage.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> containers or if you run things in a chroot?
-
-I can't imagine usable chroot/container without /proc. The docker
-don't use systemd so maybe they have not been forced to leave mtab.
-
-    Karel
-
+diff --git a/libblkid/src/superblocks/drbdmanage.c b/libblkid/src/superblocks/drbdmanage.c
+index d7384df..e84efa3 100644
+--- a/libblkid/src/superblocks/drbdmanage.c
++++ b/libblkid/src/superblocks/drbdmanage.c
+@@ -11,7 +11,6 @@
+  * (a DRBDmanage "cluster"); this file detects its control volume,
+  * which is replicated (via DRBD 9) on some of the nodes.
+  */
+-#include <endian.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+@@ -21,6 +20,7 @@
+ #include <inttypes.h>
+ #include <stddef.h>
+ 
++#include "bitops.h"
+ #include "superblocks.h"
+ 
+ struct drbdmanage_hdr {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
