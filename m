@@ -1,60 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:51347 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.15.15]:54169 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751187AbcBKTdM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Feb 2016 14:33:12 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 0BC3FAB02
-	for <util-linux@vger.kernel.org>; Thu, 11 Feb 2016 19:33:11 +0000 (UTC)
+	id S1426387AbcBRNMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:12:53 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0LdpcB-1a6ABk2xeN-00j0rY for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:51 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: tests: strange redirection
-Message-ID: <56BCE1F6.9000805@suse.cz>
-Date: Thu, 11 Feb 2016 20:33:10 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Subject: [PATCH 05/15] tests: fix ts_option helpers
+Date: Thu, 18 Feb 2016 14:12:45 +0100
+Message-Id: <1455801169-10470-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I just found
-2>&1 >> $TS_OUTPUT
-in many tests.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I am not sure, whether it does what is expected:
+These two problems should be fixed now:
+  - BSD awk only accepts 1-char field seperator
+  - ts_has_option() did not returned "yes" if an option was given
+    multiple times
 
-2>&1 >> $TS_OUTPUT
-which does:
-Redirect stdout to $TS_OUTPUT and redirect stderr to stdout.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/functions.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-I guess that it is most probably intended to be:
->> $TS_OUTPUT 2>&1
-which does:
-Redirect stdout and stderr to $TS_OUTPUT.
-
-Here is a global fix:
-cd tests/ts
-sed -i 's:2>\&1 >> \$TS_OUTPUT:>> $TS_OUTPUT 2>\&1:g' $(fgrep -rl '2>&1 >> $TS_OUTPUT' .)
-
-I ran a check, and it seems, that there could be some minor issues in:
-
-MD raid1 (whole-disks)
-mount-by-uuid
-mount-flags
-x-mount.mkdir
-fstab-label
-fstab-uuid
-
-The current version of redirection can cause false positive result of
-the test.
-
+diff --git a/tests/functions.sh b/tests/functions.sh
+index d3367e1..e639e73 100644
+--- a/tests/functions.sh
++++ b/tests/functions.sh
+@@ -158,13 +158,15 @@ function ts_has_option {
+ 	fi
+ 
+ 	# or just check the global command line options
+-	echo -n $ALL | sed 's/ //g' | awk 'BEGIN { FS="="; RS="--" } /('$NAME'$|'$NAME'=)/ { print "yes" }'
++	if [[ $ALL =~ ([$' \t\n']|^)--$NAME([$'= \t\n']|$) ]]; then echo yes; fi
+ }
+ 
+ function ts_option_argument {
+ 	NAME="$1"
+ 	ALL="$2"
+-	echo -n $ALL | sed 's/ //g' | awk 'BEGIN { FS="="; RS="--" } /'$NAME'=/ { print $2 }'
++
++	# last option wins!
++	echo "$ALL" | sed -n "s/.*[ \t\n]--$NAME=\([^ \t\n]*\).*/\1/p" | tail -n 1
+ }
+ 
+ function ts_init_core_env {
 -- 
-Best Regards / S pozdravem,
+1.8.4.5
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
